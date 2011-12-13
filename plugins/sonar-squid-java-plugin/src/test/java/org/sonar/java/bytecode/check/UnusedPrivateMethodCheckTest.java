@@ -19,17 +19,14 @@
  */
 package org.sonar.java.bytecode.check;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.sonar.java.CheckMessages;
 import org.sonar.java.ast.JavaAstScanner;
 import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.bytecode.BytecodeScanner;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.Squid;
-import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
 
 public class UnusedPrivateMethodCheckTest {
@@ -46,30 +43,22 @@ public class UnusedPrivateMethodCheckTest {
 
   @Test
   public void testDetectUnusedPrivateMethod() {
-    SourceFile file = (SourceFile) squid.search("UnusedPrivateMethod.java");
-
-    assertThat(file.getCheckMessages().size(), is(1));
-    CheckMessage message = file.getCheckMessages().iterator().next();
-    assertThat(message.getLine(), is(33));
-    assertThat(message.getDefaultMessage(), is("Private method 'unusedPrivateMethod(...)' is never used."));
+    CheckMessages checkMessages = new CheckMessages((SourceFile) squid.search("UnusedPrivateMethod.java"));
+    checkMessages.assertNext().atLine(33).withMessage("Private method 'unusedPrivateMethod(...)' is never used.");
+    checkMessages.assertNoMore();
   }
   
   @Test
   public void testDetectUnusedGenericPrivateMethod() {
-    SourceFile file = (SourceFile) squid.search("UnusedGenericPrivateMethod.java");
-
-    assertThat(file.getCheckMessages().size(), is(1));
-    CheckMessage message = file.getCheckMessages().iterator().next();
-    assertThat(message.getLine(), is(7));
+    CheckMessages checkMessages = new CheckMessages((SourceFile) squid.search("UnusedGenericPrivateMethod.java"));
+    checkMessages.assertNext().atLine(7);
+    checkMessages.assertNoMore();
   }
 
   @Test
   public void testDetectUnusedPrivateConstructor() {
-    SourceFile file = (SourceFile) squid.search("UnusedPrivateConstructor.java");
-
-    assertThat(file.getCheckMessages().size(), is(1));
-    CheckMessage message = file.getCheckMessages().iterator().next();
-    assertThat(message.getLine(), is(10));
-    assertThat(message.getDefaultMessage(), is("Private method '<init>(...)' is never used."));
+    CheckMessages checkMessages = new CheckMessages((SourceFile) squid.search("UnusedPrivateConstructor.java"));
+    checkMessages.assertNext().atLine(10).withMessage("Private method '<init>(...)' is never used.");
+    checkMessages.assertNoMore();
   }
 }

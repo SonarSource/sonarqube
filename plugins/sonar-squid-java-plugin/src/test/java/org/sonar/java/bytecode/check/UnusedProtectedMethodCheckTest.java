@@ -19,17 +19,14 @@
  */
 package org.sonar.java.bytecode.check;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.sonar.java.CheckMessages;
 import org.sonar.java.ast.JavaAstScanner;
 import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.bytecode.BytecodeScanner;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.Squid;
-import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
 
 public class UnusedProtectedMethodCheckTest {
@@ -46,17 +43,14 @@ public class UnusedProtectedMethodCheckTest {
 
   @Test
   public void testDetectUnusedProtectedMethod() {
-    SourceFile file = (SourceFile) squid.search("UnusedProtectedMethod.java");
-
-    assertThat(file.getCheckMessages().size(), is(1));
-    CheckMessage message = file.getCheckMessages().iterator().next();
-    assertThat(message.getLine(), is(17));
-    assertThat(message.getDefaultMessage(), is("Protected method 'unusedProtectedMethod(...)' is never used."));
+    CheckMessages checkMessages = new CheckMessages((SourceFile) squid.search("UnusedProtectedMethod.java"));
+    checkMessages.assertNext().atLine(17).withMessage("Protected method 'unusedProtectedMethod(...)' is never used.");
+    checkMessages.assertNoMore();
   }
 
   @Test
   public void testIgnoreUnusedProtectedMethodFromAbstractClass() {
-    SourceFile file = (SourceFile) squid.search("UnusedProtectedMethodFromAbstractClass.java");
-    assertThat(file.getCheckMessages().size(), is(0));
+    CheckMessages checkMessages = new CheckMessages((SourceFile) squid.search("UnusedProtectedMethodFromAbstractClass.java"));
+    checkMessages.assertNoMore();
   }
 }

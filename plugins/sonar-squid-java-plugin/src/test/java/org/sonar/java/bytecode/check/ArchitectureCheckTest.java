@@ -20,16 +20,13 @@
 package org.sonar.java.bytecode.check;
 
 import org.junit.Test;
+import org.sonar.java.CheckMessages;
 import org.sonar.java.ast.JavaAstScanner;
 import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.bytecode.BytecodeScanner;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.Squid;
-import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 
 public class ArchitectureCheckTest {
 
@@ -39,37 +36,36 @@ public class ArchitectureCheckTest {
   public void testDependencyCheckOneErrorMessage() {
     check("", "java.**.Pattern");
 
-    SourceFile file = (SourceFile) squid.search("ArchitectureCheckOneErrorMessage.java");
-    assertThat(file.getCheckMessages().size(), is(1));
-    CheckMessage message = file.getCheckMessages().iterator().next();
-    assertThat(message.getDefaultMessage(), is("ArchitectureCheckOneErrorMessage must not use java/util/regex/Pattern"));
-    assertThat(message.getLine(), is(6));
+    CheckMessages checkMessages = new CheckMessages((SourceFile) squid.search("ArchitectureCheckOneErrorMessage.java"));
+    checkMessages.assertNext().atLine(6).withMessage("ArchitectureCheckOneErrorMessage must not use java/util/regex/Pattern");
+    checkMessages.assertNoMore();
   }
 
   @Test
   public void testDependencyCheckDateForbidden() {
     check("", "**.Date");
 
-    SourceFile file = (SourceFile) squid.search("ArchitectureCheckDateForbidden.java");
-    assertThat(file.getCheckMessages().size(), is(2));
+    CheckMessages checkMessages = new CheckMessages((SourceFile) squid.search("ArchitectureCheckDateForbidden.java"));
+    checkMessages.assertNext().atLine(7);
+    checkMessages.assertNext().atLine(9);
+    checkMessages.assertNoMore();
   }
 
   @Test
   public void testDependencyCheckToSqlFromUI() {
     check("*UI", "java.sql.*");
 
-    SourceFile file = (SourceFile) squid.search("ArchitectureCheckToSqlFromUI.java");
-    assertThat(file.getCheckMessages().size(), is(1));
-    CheckMessage message = file.getCheckMessages().iterator().next();
-    assertThat(message.getLine(), is(4));
+    CheckMessages checkMessages = new CheckMessages((SourceFile) squid.search("ArchitectureCheckToSqlFromUI.java"));
+    checkMessages.assertNext().atLine(4);
+    checkMessages.assertNoMore();
   }
 
   @Test
   public void testDependencyCheckOKFromClassesToClasses() {
     check("*SA", "java.sql.*");
 
-    SourceFile file = (SourceFile) squid.search("ArchitectureCheckToSqlFromUI.java");
-    assertThat(file.getCheckMessages().size(), is(0));
+    CheckMessages checkMessages = new CheckMessages((SourceFile) squid.search("ArchitectureCheckToSqlFromUI.java"));
+    checkMessages.assertNoMore();
   }
 
   private void check(String fromClasses, String toClasses) {

@@ -23,22 +23,16 @@ package org.sonar.java.ast.check;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.java.CheckMessages;
 import org.sonar.java.ast.JavaAstScanner;
 import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.java.squid.SquidScanner;
 import org.sonar.squid.Squid;
-import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.measures.Metric;
-
-import com.google.common.collect.Lists;
 
 public class UndocumentedApiCheckTest {
 
@@ -57,18 +51,12 @@ public class UndocumentedApiCheckTest {
   public void testUndocumentedApi() {
     SourceFile file = (SourceFile) squid.search("UndocumentedApi.java");
 
-    List<CheckMessage> messages = Lists.newArrayList(file.getCheckMessages());
-    Collections.sort(messages, new Comparator<CheckMessage>() {
-      public int compare(CheckMessage o1, CheckMessage o2) {
-        return o1.getLine() - o2.getLine();
-      }
-    });
-
     assertThat(file.getInt(Metric.PUBLIC_API) - file.getInt(Metric.PUBLIC_DOC_API), is(3));
-    assertThat(file.getCheckMessages().size(), is(3));
 
-    assertThat(messages.get(0).getLine(), is(10));
-    assertThat(messages.get(1).getLine(), is(14));
-    assertThat(messages.get(2).getLine(), is(17));
+    CheckMessages checkMessages = new CheckMessages(file);
+    checkMessages.assertNext().atLine(10);
+    checkMessages.assertNext().atLine(14);
+    checkMessages.assertNext().atLine(17);
+    checkMessages.assertNoMore();
   }
 }

@@ -19,17 +19,14 @@
  */
 package org.sonar.java.bytecode.check;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.sonar.java.CheckMessages;
 import org.sonar.java.ast.JavaAstScanner;
 import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.bytecode.BytecodeScanner;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.Squid;
-import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
 
 public class CallToDeprecatedMethodCheckTest {
@@ -46,9 +43,8 @@ public class CallToDeprecatedMethodCheckTest {
 
   @Test
   public void testCallToDeprecatedMethod() {
-    SourceFile file = (SourceFile) squid.search("CallToDeprecatedMethod.java");
-    assertThat(file.getCheckMessages().size(), is(1));
-    CheckMessage message = file.getCheckMessages().iterator().next();
-    assertThat(message.getLine(), is(6));
+    CheckMessages checkMessages = new CheckMessages((SourceFile) squid.search("CallToDeprecatedMethod.java"));
+    checkMessages.assertNext().atLine(6);
+    checkMessages.assertNoMore();
   }
 }

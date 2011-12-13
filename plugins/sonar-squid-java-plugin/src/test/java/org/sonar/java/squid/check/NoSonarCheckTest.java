@@ -19,11 +19,9 @@
  */
 package org.sonar.java.squid.check;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.java.CheckMessages;
 import org.sonar.java.ast.JavaAstScanner;
 import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.squid.JavaSquidConfiguration;
@@ -50,14 +48,16 @@ public class NoSonarCheckTest {
 
   @Test
   public void testNoSonarTagDetection() {
-    SourceFile file = (SourceFile) squid.search("FileWithNOSONARTags.java");
-    assertThat(file.getCheckMessages().size(), is(2));
+    CheckMessages checkMessages = new CheckMessages((SourceFile) squid.search("FileWithNOSONARTags.java"));
+    checkMessages.assertNext().atLine(5);
+    checkMessages.assertNext().atLine(10);
+    checkMessages.assertNoMore();
   }
 
   @Test
   public void testNoSonarTagDetectionWhenNoTag() {
-    SourceFile file = (SourceFile) squid.search("FileWithoutNOSONARTags.java");
-    assertThat(file.getCheckMessages().size(), is(0));
+    CheckMessages checkMessages = new CheckMessages((SourceFile) squid.search("FileWithoutNOSONARTags.java"));
+    checkMessages.assertNoMore();
   }
 
 }

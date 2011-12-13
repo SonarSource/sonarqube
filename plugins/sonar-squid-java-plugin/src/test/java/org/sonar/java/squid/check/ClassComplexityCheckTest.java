@@ -20,17 +20,14 @@
 
 package org.sonar.java.squid.check;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.java.CheckMessages;
 import org.sonar.java.ast.JavaAstScanner;
 import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.java.squid.SquidScanner;
 import org.sonar.squid.Squid;
-import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.measures.Metric;
 
@@ -53,17 +50,15 @@ public class ClassComplexityCheckTest {
 
   @Test
   public void testComplexityExceedsThreshold() {
-    SourceFile file = (SourceFile) squid.search("ComplexBranches.java");
-    assertThat(file.getCheckMessages().size(), is(1));
-    CheckMessage message = file.getCheckMessages().iterator().next();
-    assertThat(message.getLine(), is(3));
-    assertThat(message.getCost(), is(3.0));
+    CheckMessages checkMessages = new CheckMessages((SourceFile) squid.search("ComplexBranches.java"));
+    checkMessages.assertNext().atLine(3).withCost(3.0);
+    checkMessages.assertNoMore();
   }
 
   @Test
   public void testComplexityNotExceedsThreshold() {
-    SourceFile file = (SourceFile) squid.search("NoBranches.java");
-    assertThat(file.getCheckMessages().size(), is(0));
+    CheckMessages checkMessages = new CheckMessages((SourceFile) squid.search("NoBranches.java"));
+    checkMessages.assertNoMore();
   }
 
 }

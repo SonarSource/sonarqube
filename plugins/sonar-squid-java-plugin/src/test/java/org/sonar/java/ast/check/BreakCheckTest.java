@@ -20,22 +20,19 @@
 
 package org.sonar.java.ast.check;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import java.io.File;
+import java.util.Collection;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.InputFileUtils;
+import org.sonar.java.CheckMessages;
 import org.sonar.java.ast.JavaAstScanner;
 import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.Squid;
-import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
-
-import java.io.File;
-import java.util.Collection;
 
 public class BreakCheckTest {
 
@@ -54,16 +51,15 @@ public class BreakCheckTest {
 
   @Test
   public void testAvoidUsageOfBreakOutsideSwitch() {
-    SourceFile file = (SourceFile) squid.search("org/apache/commons/collections/map/LRUMap.java");
-    assertThat(file.getCheckMessages().size(), is(1));
-    CheckMessage message = file.getCheckMessages().iterator().next();
-    assertThat(message.getLine(), is(244));
+    CheckMessages checkMessages = new CheckMessages((SourceFile) squid.search("org/apache/commons/collections/map/LRUMap.java"));
+    checkMessages.assertNext().atLine(244);
+    checkMessages.assertNoMore();
   }
 
   @Test
   public void testAlowUsageOfBreakInsideSwitch() {
-    SourceFile file = (SourceFile) squid.search("org/apache/commons/collections/map/Flat3Map.java");
-    assertThat(file.getCheckMessages().size(), is(0));
+    CheckMessages checkMessages = new CheckMessages((SourceFile) squid.search("org/apache/commons/collections/map/Flat3Map.java"));
+    checkMessages.assertNoMore();
   }
 
 }

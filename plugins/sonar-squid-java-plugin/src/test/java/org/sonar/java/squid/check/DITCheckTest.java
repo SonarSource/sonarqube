@@ -20,18 +20,15 @@
 
 package org.sonar.java.squid.check;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.sonar.java.CheckMessages;
 import org.sonar.java.ast.JavaAstScanner;
 import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.bytecode.BytecodeScanner;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.java.squid.SquidScanner;
 import org.sonar.squid.Squid;
-import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
 
 public class DITCheckTest {
@@ -51,17 +48,15 @@ public class DITCheckTest {
 
   @Test
   public void testDepthOfInheritanceGreaterThanMaximum() {
-    SourceFile file = (SourceFile) squid.search("UnusedProtectedMethod.java");
-    assertThat(file.getCheckMessages().size(), is(1));
-    CheckMessage message = file.getCheckMessages().iterator().next();
-    assertThat(message.getLine(), is(7));
-    assertThat(message.getCost(), is(1.0));
+    CheckMessages checkMessages = new CheckMessages((SourceFile) squid.search("UnusedProtectedMethod.java"));
+    checkMessages.assertNext().atLine(7).withCost(1.0);
+    checkMessages.assertNoMore();
   }
 
   @Test
   public void testDepthOfInheritanceLowerThanMaximum() {
-    SourceFile file = (SourceFile) squid.search("Job.java");
-    assertThat(file.getCheckMessages().size(), is(0));
+    CheckMessages checkMessages = new CheckMessages((SourceFile) squid.search("Job.java"));
+    checkMessages.assertNoMore();
   }
 
 }

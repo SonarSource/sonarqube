@@ -19,11 +19,9 @@
  */
 package org.sonar.java.squid.check;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
-
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.java.CheckMessages;
 import org.sonar.java.ast.JavaAstScanner;
 import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.squid.JavaSquidConfiguration;
@@ -49,8 +47,12 @@ public class CommentedOutCodeLineCheckTest {
 
   @Test
   public void testDetection() {
-    SourceFile file = (SourceFile) squid.search("CommentedCode.java");
-    assertThat(file.getCheckMessages().size(), is(4));
+    CheckMessages checkMessages = new CheckMessages((SourceFile) squid.search("CommentedCode.java"));
+    checkMessages.assertNext().atLine(4);
+    checkMessages.assertNext().atLine(17);
+    checkMessages.assertNext().atLine(18);
+    checkMessages.assertNext().atLine(19);
+    checkMessages.assertNoMore();
   }
 
 }

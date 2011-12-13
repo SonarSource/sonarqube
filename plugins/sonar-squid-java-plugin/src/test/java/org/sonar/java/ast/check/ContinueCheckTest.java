@@ -20,16 +20,13 @@
 
 package org.sonar.java.ast.check;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.java.CheckMessages;
 import org.sonar.java.ast.JavaAstScanner;
 import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.Squid;
-import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
 
 public class ContinueCheckTest {
@@ -46,10 +43,9 @@ public class ContinueCheckTest {
 
   @Test
   public void testAvoidUsageOfContinue() {
-    SourceFile file = (SourceFile) squid.search("org/apache/commons/collections/ExtendedProperties.java");
-    assertThat(file.getCheckMessages().size(), is(1));
-    CheckMessage message = file.getCheckMessages().iterator().next();
-    assertThat(message.getLine(), is(566));
+    CheckMessages checkMessages = new CheckMessages((SourceFile) squid.search("org/apache/commons/collections/ExtendedProperties.java"));
+    checkMessages.assertNext().atLine(566);
+    checkMessages.assertNoMore();
   }
 
 }

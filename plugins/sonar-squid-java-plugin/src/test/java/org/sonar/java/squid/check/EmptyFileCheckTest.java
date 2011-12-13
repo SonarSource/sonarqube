@@ -20,18 +20,14 @@
 
 package org.sonar.java.squid.check;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.java.CheckMessages;
 import org.sonar.java.ast.JavaAstScanner;
 import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.java.squid.SquidScanner;
 import org.sonar.squid.Squid;
-import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.measures.Metric;
 
@@ -51,16 +47,14 @@ public class EmptyFileCheckTest {
 
   @Test
   public void shouldDetectEmptyFiles() {
-    SourceFile file = (SourceFile) squid.search("org/foo/CommentedOutFile.java");
-    assertThat(file.getCheckMessages().size(), is(1));
-    CheckMessage message = file.getCheckMessages().iterator().next();
-    assertThat(message.getLine(), nullValue());
-    assertThat(message.getDefaultMessage(), is("This Java file is empty"));
+    CheckMessages checkMessages = new CheckMessages((SourceFile) squid.search("org/foo/CommentedOutFile.java"));
+    checkMessages.assertNext().atLine(null).withMessage("This Java file is empty");
+    checkMessages.assertNoMore();
   }
 
   @Test
   public void shouldNotLogOnCorrectFiles() {
-    SourceFile file = (SourceFile) squid.search("CommentedCode.java");
-    assertThat(file.getCheckMessages().size(), is(0));
+    CheckMessages checkMessages = new CheckMessages((SourceFile) squid.search("CommentedCode.java"));
+    checkMessages.assertNoMore();
   }
 }
