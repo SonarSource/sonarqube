@@ -30,17 +30,15 @@ class Dashboard < ActiveRecord::Base
   validates_length_of :description, :maximum => 1000, :allow_blank => true, :allow_nil => true
   validates_length_of :column_layout, :maximum => 20, :allow_blank => false, :allow_nil => false
   validates_uniqueness_of :name, :scope => :user_id
+  
+  before_create { |dashboard| dashboard.kee=dashboard.name.strip.downcase.sub(/\s+/, '_') }
 
   def name
-    default_name = read_attribute(:name)
-    default_name = Api::Utils.message('dashboard.' + read_attribute(:kee) + '.name', :default => default_name) if read_attribute(:kee)
-    default_name
+    Api::Utils.message("dashboard.#{kee}.name", :default => read_attribute(:name))
   end
 
   def description
-    default_description = read_attribute(:description)
-    default_description = Api::Utils.message('dashboard.' + read_attribute(:kee) + '.description', :default => default_description) if read_attribute(:kee)
-    default_description
+    Api::Utils.message("dashboard.#{kee}.description", :default => read_attribute(:description))
   end
   
   def shared?

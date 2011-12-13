@@ -23,6 +23,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -35,13 +36,8 @@ import java.util.Locale;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.web.AbstractDashboard;
-import org.sonar.api.web.Dashboard;
-import org.sonar.api.web.DashboardLayouts;
-import org.sonar.api.web.DashboardWidget;
-import org.sonar.api.web.DashboardWidgets;
-import org.sonar.api.web.WidgetProperty;
-import org.sonar.api.web.WidgetPropertyType;
+import org.sonar.api.web.dashboard.Dashboard;
+import org.sonar.api.web.dashboard.DashboardTemplate;
 import org.sonar.core.i18n.I18nManager;
 import org.sonar.persistence.dao.ActiveDashboardDao;
 import org.sonar.persistence.dao.DashboardDao;
@@ -58,8 +54,8 @@ public class RegisterProvidedDashboardsTest {
   private DashboardDao dashboardDao;
   private ActiveDashboardDao activeDashboardDao;
   private LoadedTemplateDao loadedTemplateDao;
-  private Dashboard dashboard;
   private I18nManager i18nManager;
+  private DashboardTemplate fakeDashboardTemplate;
 
   @Before
   public void init() {
@@ -69,40 +65,45 @@ public class RegisterProvidedDashboardsTest {
     i18nManager = mock(I18nManager.class);
     when(i18nManager.message(Locale.ENGLISH, "widget.fake-widget.name", "")).thenReturn("Fake Widget");
     when(i18nManager.message(Locale.ENGLISH, "dashboard.fake-dashboard.name", "Fake")).thenReturn("Fake Dashboard");
-    dashboard = new FakeDashboard();
 
-    registerProvidedDashboards = new RegisterProvidedDashboards(new Dashboard[] { dashboard }, dashboardDao, activeDashboardDao,
-        loadedTemplateDao, i18nManager);
+    fakeDashboardTemplate = new FakeDashboard();
+
+    registerProvidedDashboards = new RegisterProvidedDashboards(new DashboardTemplate[] { fakeDashboardTemplate }, dashboardDao,
+        activeDashboardDao, loadedTemplateDao, i18nManager);
+  }
+
+  @Test
+  public void testStart() throws Exception {
+    registerProvidedDashboards.start();
+    verify(dashboardDao).insert(any(org.sonar.persistence.model.Dashboard.class));
+    verify(loadedTemplateDao).insert(any(LoadedTemplate.class));
+    verify(activeDashboardDao).insert(any(ActiveDashboard.class));
   }
 
   @Test
   public void testShouldNotBeLoaded() throws Exception {
     when(loadedTemplateDao.selectByKeyAndType("fake-dashboard", LoadedTemplate.DASHBOARD_TYPE)).thenReturn(new LoadedTemplate());
-    assertThat(registerProvidedDashboards.shouldBeLoaded(dashboard), is(false));
+    assertThat(registerProvidedDashboards.shouldBeLoaded(fakeDashboardTemplate.createDashboard()), is(false));
   }
 
   @Test
   public void testShouldBeLoaded() throws Exception {
-    assertThat(registerProvidedDashboards.shouldBeLoaded(dashboard), is(true));
+    assertThat(registerProvidedDashboards.shouldBeLoaded(fakeDashboardTemplate.createDashboard()), is(true));
   }
 
   @Test
   public void shouldLoadDasboard() throws Exception {
-    org.sonar.persistence.model.Dashboard dataModelDashboard = registerProvidedDashboards.loadDashboard(dashboard);
+    org.sonar.persistence.model.Dashboard dataModelDashboard = registerProvidedDashboards.loadDashboard(fakeDashboardTemplate
+        .createDashboard());
     assertNotNull(dataModelDashboard);
     verify(dashboardDao).insert(dataModelDashboard);
     verify(loadedTemplateDao).insert(eq(new LoadedTemplate("fake-dashboard", LoadedTemplate.DASHBOARD_TYPE)));
   }
 
   @Test
-  public void test() {
-    org.sonar.persistence.model.Dashboard dataModelDashboard = registerProvidedDashboards.createDataModelFromExtension(new HotspotsDashboard());
-    System.out.println(dataModelDashboard);
-  }
-
-  @Test
   public void shouldCreateDataModelFromExtension() {
-    org.sonar.persistence.model.Dashboard dataModelDashboard = registerProvidedDashboards.createDataModelFromExtension(dashboard);
+    org.sonar.persistence.model.Dashboard dataModelDashboard = registerProvidedDashboards
+        .createDataModelFromExtension(fakeDashboardTemplate.createDashboard());
     assertThat(dataModelDashboard.getUserId(), is(nullValue()));
     assertThat(dataModelDashboard.getKey(), is("fake-dashboard"));
     assertThat(dataModelDashboard.getName(), is("Fake Dashboard"));
@@ -125,7 +126,6 @@ public class RegisterProvidedDashboardsTest {
     org.sonar.persistence.model.WidgetProperty widgetProperty = widget.getWidgetProperties().iterator().next();
     assertThat(widgetProperty.getKey(), is("fake-property"));
     assertThat(widgetProperty.getValue(), is("fake_metric"));
-    assertThat(widgetProperty.getValueType(), is("METRIC"));
   }
 
   @Test
@@ -186,87 +186,15 @@ public class RegisterProvidedDashboardsTest {
     verify(activeDashboardDao).insert(eq(ad2));
   }
 
-  @DashboardWidgets({ @DashboardWidget(id = "fake-widget", columnIndex = 12, rowIndex = 13, properties = { @WidgetProperty(
-      key = "fake-property", type = WidgetPropertyType.METRIC, defaultValue = "fake_metric") }) })
-  public class FakeDashboard extends AbstractDashboard implements Dashboard {
+  public class FakeDashboard extends DashboardTemplate {
 
     @Override
-    public String getId() {
-      return "fake-dashboard";
+    public Dashboard createDashboard() {
+      Dashboard dashboard = Dashboard.createDashboard("fake-dashboard", "Fake", "30%-70%");
+      org.sonar.api.web.dashboard.Widget widget = dashboard.addWidget("fake-widget", 12, 13);
+      widget.addProperty("fake-property", "fake_metric");
+      return dashboard;
     }
-
-    @Override
-    public String getName() {
-      return "Fake";
-    }
-
-    @Override
-    public String getLayout() {
-      return "30%-70%";
-    }
-
   }
-  
-  @DashboardWidgets ({
-    @DashboardWidget(id="hotspot_most_violated_rules", columnIndex=1, rowIndex=1),
-    @DashboardWidget(id="hotspot_metric", columnIndex=1, rowIndex=2,
-                      properties={
-                        @WidgetProperty(key = "metric", type = WidgetPropertyType.METRIC, defaultValue = "test_execution_time"),
-                        @WidgetProperty(key = "title", type = WidgetPropertyType.STRING, defaultValue = "Longest unit tests")
 
-    }),
-    @DashboardWidget(id="hotspot_metric", columnIndex=1, rowIndex=3,
-                      properties={
-                        @WidgetProperty(key = "metric", type = WidgetPropertyType.METRIC, defaultValue = "complexity"),
-                        @WidgetProperty(key = "title", type = WidgetPropertyType.STRING, defaultValue = "Highest complexity")
-
-    }),
-    @DashboardWidget(id="hotspot_metric", columnIndex=1, rowIndex=4,
-                      properties={
-                        @WidgetProperty(key = "metric", type = WidgetPropertyType.METRIC, defaultValue = "duplicated_lines"),
-                        @WidgetProperty(key = "title", type = WidgetPropertyType.STRING, defaultValue = "Highest duplications")
-
-    }),
-    @DashboardWidget(id="hotspot_most_violated_resources", columnIndex=2, rowIndex=1),
-    @DashboardWidget(id="hotspot_metric", columnIndex=2, rowIndex=2,
-                      properties={
-                        @WidgetProperty(key = "metric", type = WidgetPropertyType.METRIC, defaultValue = "uncovered_lines"),
-                        @WidgetProperty(key = "title", type = WidgetPropertyType.STRING, defaultValue = "Highest untested lines")
-
-    }),
-    @DashboardWidget(id="hotspot_metric", columnIndex=2, rowIndex=3,
-                      properties={
-                        @WidgetProperty(key = "metric", type = WidgetPropertyType.METRIC, defaultValue = "function_complexity"),
-                        @WidgetProperty(key = "title", type = WidgetPropertyType.STRING, defaultValue = "Highest average method complexity")
-
-    }),
-    @DashboardWidget(id="hotspot_metric", columnIndex=2, rowIndex=4,
-                      properties={
-                        @WidgetProperty(key = "metric", type = WidgetPropertyType.METRIC, defaultValue = "public_undocumented_api"),
-                        @WidgetProperty(key = "title", type = WidgetPropertyType.STRING, defaultValue = "Most undocumented APIs")
-
-    })
-  })
-  /**
-   * Hotspot dashboard for Sonar
-   */
-  public class HotspotsDashboard extends AbstractDashboard implements Dashboard {
-
-    @Override
-    public String getId() {
-      return "sonar-hotspots-dashboard";
-    }
-
-    @Override
-    public String getName() {
-      return "Hotspots";
-    }
-    
-    @Override
-    public String getLayout() {
-      return DashboardLayouts.TWO_COLUMNS;
-    }
-
-  }
-  
 }

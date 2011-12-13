@@ -17,19 +17,41 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.web;
+package org.sonar.api.web.dashboard;
 
 /**
  * Possible layouts for a dashboard.
  * 
  * @since 2.13
  */
-public class DashboardLayouts {
+public final class DashboardLayouts {
 
+  private DashboardLayouts() {
+  }
+
+  /**
+   * Only 1 column that take all the page
+   */
   public static final String ONE_COLUMN = "100%";
+
+  /**
+   * 2 columns of the same width
+   */
   public static final String TWO_COLUMNS = "50%-50%";
+
+  /**
+   * 2 columns with the first one smaller than the second
+   */
   public static final String TWO_COLUMNS_30_70 = "30%-70%";
+
+  /**
+   * 2 columns with the first one bigger than the second
+   */
   public static final String TWO_COLUMNS_70_30 = "70%-30%";
+
+  /**
+   * 3 columns of the same width
+   */
   public static final String TREE_COLUMNS = "33%-33%-33%";
 
 }

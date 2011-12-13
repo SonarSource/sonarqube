@@ -19,43 +19,30 @@
  */
 package org.sonar.plugins.core.dashboards;
 
-import org.sonar.api.web.AbstractDashboard;
-import org.sonar.api.web.Dashboard;
-import org.sonar.api.web.DashboardLayouts;
-import org.sonar.api.web.DashboardWidget;
-import org.sonar.api.web.DashboardWidgets;
+import org.sonar.api.web.dashboard.Dashboard;
+import org.sonar.api.web.dashboard.DashboardLayouts;
+import org.sonar.api.web.dashboard.DashboardTemplate;
 
-@DashboardWidgets ({
-  @DashboardWidget(id="size", columnIndex=1, rowIndex=1),
-  @DashboardWidget(id="comments_duplications", columnIndex=1, rowIndex=2),
-  @DashboardWidget(id="complexity", columnIndex=1, rowIndex=3),
-  @DashboardWidget(id="code_coverage", columnIndex=1, rowIndex=4),
-  @DashboardWidget(id="events", columnIndex=1, rowIndex=5),
-  @DashboardWidget(id="description", columnIndex=1, rowIndex=6),
-  @DashboardWidget(id="rules", columnIndex=2, rowIndex=1),
-  @DashboardWidget(id="alerts", columnIndex=2, rowIndex=2),
-  @DashboardWidget(id="file_design", columnIndex=2, rowIndex=3),
-  @DashboardWidget(id="package_design", columnIndex=2, rowIndex=4),
-  @DashboardWidget(id="ckjm", columnIndex=2, rowIndex=5)
-})
 /**
  * Default dashboard for Sonar
  */
-public class SonarMainDashboard extends AbstractDashboard implements Dashboard {
+public class SonarMainDashboard extends DashboardTemplate {
 
   @Override
-  public String getId() {
-    return "sonar-main-dashboard";
-  }
-
-  @Override
-  public String getName() {
-    return "Dashboard";
-  }
-  
-  @Override
-  public String getLayout() {
-    return DashboardLayouts.TWO_COLUMNS;
+  public org.sonar.api.web.dashboard.Dashboard createDashboard() {
+    Dashboard dashboard = Dashboard.createDashboard("sonar-main", "Dashboard", DashboardLayouts.TWO_COLUMNS);
+    dashboard.addWidget("size", 1, 1);
+    dashboard.addWidget("comments_duplications", 1, 2);
+    dashboard.addWidget("complexity", 1, 3);
+    dashboard.addWidget("code_coverage", 1, 4);
+    dashboard.addWidget("events", 1, 5);
+    dashboard.addWidget("description", 1, 6);
+    dashboard.addWidget("rules", 2, 1);
+    dashboard.addWidget("alerts", 2, 2);
+    dashboard.addWidget("file_design", 2, 3);
+    dashboard.addWidget("package_design", 2, 4);
+    dashboard.addWidget("ckjm", 2, 5);
+    return dashboard;
   }
 
 }

@@ -23,31 +23,31 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.TimeProfiler;
-import org.sonar.api.web.Dashboard;
-import org.sonar.api.web.DashboardWidget;
-import org.sonar.api.web.DashboardWidgets;
-import org.sonar.api.web.WidgetProperty;
+import org.sonar.api.web.dashboard.Dashboard;
+import org.sonar.api.web.dashboard.DashboardTemplate;
+import org.sonar.api.web.dashboard.Widget;
 import org.sonar.core.i18n.I18nManager;
 import org.sonar.persistence.dao.ActiveDashboardDao;
 import org.sonar.persistence.dao.DashboardDao;
 import org.sonar.persistence.dao.LoadedTemplateDao;
 import org.sonar.persistence.model.ActiveDashboard;
 import org.sonar.persistence.model.LoadedTemplate;
-import org.sonar.persistence.model.Widget;
 
 import com.google.common.collect.Lists;
 
 public final class RegisterProvidedDashboards {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RegisterProvidedDashboards.class);
-  private static final String MAIN_DASHBOARD_ID = "sonar-main-dashboard";
+  private static final String MAIN_DASHBOARD_ID = "sonar-main";
 
-  private ArrayList<Dashboard> dashboards;
+  private List<DashboardTemplate> dashboardTemplates;
   private DashboardDao dashboardDao;
   private ActiveDashboardDao activeDashboardDao;
   private LoadedTemplateDao loadedTemplateDao;
@@ -55,12 +55,12 @@ public final class RegisterProvidedDashboards {
 
   public RegisterProvidedDashboards(DashboardDao dashboardDao, ActiveDashboardDao activeDashboardDao, LoadedTemplateDao loadedTemplateDao,
       I18nManager i18nManager) {
-    this(new Dashboard[] {}, dashboardDao, activeDashboardDao, loadedTemplateDao, i18nManager);
+    this(new DashboardTemplate[] {}, dashboardDao, activeDashboardDao, loadedTemplateDao, i18nManager);
   }
 
-  public RegisterProvidedDashboards(Dashboard[] dashboardArray, DashboardDao dashboardDao, ActiveDashboardDao activeDashboardDao,
-      LoadedTemplateDao loadedTemplateDao, I18nManager i18nManager) {
-    this.dashboards = Lists.newArrayList(dashboardArray);
+  public RegisterProvidedDashboards(DashboardTemplate[] dashboardTemplatesArray, DashboardDao dashboardDao,
+      ActiveDashboardDao activeDashboardDao, LoadedTemplateDao loadedTemplateDao, I18nManager i18nManager) {
+    this.dashboardTemplates = Lists.newArrayList(dashboardTemplatesArray);
     this.dashboardDao = dashboardDao;
     this.activeDashboardDao = activeDashboardDao;
     this.loadedTemplateDao = loadedTemplateDao;
@@ -73,7 +73,8 @@ public final class RegisterProvidedDashboards {
     // load the dashboards that need to be loaded
     ArrayList<org.sonar.persistence.model.Dashboard> loadedDashboards = Lists.newArrayList();
     org.sonar.persistence.model.Dashboard mainDashboard = null;
-    for (Dashboard dashboard : dashboards) {
+    for (DashboardTemplate dashboardTemplate : dashboardTemplates) {
+      Dashboard dashboard = dashboardTemplate.createDashboard();
       if (shouldBeLoaded(dashboard)) {
         org.sonar.persistence.model.Dashboard dashboardDataModel = loadDashboard(dashboard);
         if (MAIN_DASHBOARD_ID.equals(dashboard.getId())) {
@@ -89,7 +90,7 @@ public final class RegisterProvidedDashboards {
     profiler.stop();
   }
 
-  protected void activateDashboards(ArrayList<org.sonar.persistence.model.Dashboard> loadedDashboards,
+  protected void activateDashboards(List<org.sonar.persistence.model.Dashboard> loadedDashboards,
       org.sonar.persistence.model.Dashboard mainDashboard) {
     int nextOrderIndex = 0;
     if (mainDashboard != null) {
@@ -132,28 +133,22 @@ public final class RegisterProvidedDashboards {
     dashboardDataModel.setCreatedAt(now);
     dashboardDataModel.setUpdatedAt(now);
 
-    DashboardWidgets dashboardWidgets = dashboard.getClass().getAnnotation(DashboardWidgets.class);
-    if (dashboardWidgets != null) {
-      for (DashboardWidget dashboardWidget : dashboardWidgets.value()) {
-        Widget widget = new Widget();
-        widget.setKey(dashboardWidget.id());
-        widget.setName(i18nManager.message(Locale.ENGLISH, "widget." + dashboardWidget.id() + ".name", ""));
-        widget.setColumnIndex(dashboardWidget.columnIndex());
-        widget.setRowIndex(dashboardWidget.rowIndex());
-        widget.setConfigured(true);
-        widget.setCreatedAt(now);
-        widget.setUpdatedAt(now);
-        dashboardDataModel.addWidget(widget);
+    for (Widget widget : dashboard.getWidgets()) {
+      org.sonar.persistence.model.Widget widgetDataModel = new org.sonar.persistence.model.Widget();
+      widgetDataModel.setKey(widget.getId());
+      widgetDataModel.setName(i18nManager.message(Locale.ENGLISH, "widget." + widget.getId() + ".name", ""));
+      widgetDataModel.setColumnIndex(widget.getColumnIndex());
+      widgetDataModel.setRowIndex(widget.getRowIndex());
+      widgetDataModel.setConfigured(true);
+      widgetDataModel.setCreatedAt(now);
+      widgetDataModel.setUpdatedAt(now);
+      dashboardDataModel.addWidget(widgetDataModel);
 
-        WidgetProperty[] dashboardWidgetProperties = dashboardWidget.properties();
-        for (int i = 0; i < dashboardWidgetProperties.length; i++) {
-          WidgetProperty dashboardWidgetProperty = dashboardWidgetProperties[i];
-          org.sonar.persistence.model.WidgetProperty widgetProperty = new org.sonar.persistence.model.WidgetProperty();
-          widgetProperty.setKey(dashboardWidgetProperty.key());
-          widgetProperty.setValue(dashboardWidgetProperty.defaultValue());
-          widgetProperty.setValueType(dashboardWidgetProperty.type().toString());
-          widget.addWidgetProperty(widgetProperty);
-        }
+      for (Entry<String, String> property : widget.getProperties().entrySet()) {
+        org.sonar.persistence.model.WidgetProperty widgetPropertyDataModel = new org.sonar.persistence.model.WidgetProperty();
+        widgetPropertyDataModel.setKey(property.getKey());
+        widgetPropertyDataModel.setValue(property.getValue());
+        widgetDataModel.addWidgetProperty(widgetPropertyDataModel);
       }
     }
 

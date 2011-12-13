@@ -17,37 +17,23 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.web;
+package org.sonar.api.web.dashboard;
+
+import org.sonar.api.ServerExtension;
 
 /**
- * A dashboard is a set of predefined and potentially parameterized widgets.
  * 
- * As a "Template" extension, a dashboard will get created in the DB only once, when its plugin executes for the first time.
+ * This extension point must be implemented to define a new dashboard.
  * 
  * @since 2.13
  */
-public interface Dashboard extends Template {
+public abstract class DashboardTemplate implements ServerExtension {
 
   /**
-   * Returns the name of the dashboard.
+   * Returns the {@link Dashboard} object that represents the dashboard to use.
    * 
-   * @return the name
+   * @return the dashboard
    */
-  String getName();
-
-  /**
-   * Returns the description of the dashboard.
-   * 
-   * @return the description
-   */
-  String getDescription();
-
-  /**
-   * Returns the layout for the dashboard.
-   * 
-   * @see DashboardLayouts for the possible values.
-   * @return the layout
-   */
-  String getLayout();
+  public abstract Dashboard createDashboard();
 
 }

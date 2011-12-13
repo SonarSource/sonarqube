@@ -19,9 +19,9 @@
  */
 package org.sonar.persistence.model;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 import com.google.common.collect.Lists;
 
@@ -36,7 +36,7 @@ public class Dashboard {
   private boolean shared;
   private Date createdAt;
   private Date updatedAt;
-  private ArrayList<Widget> widgets = Lists.newArrayList();
+  private List<Widget> widgets = Lists.newArrayList();
 
   /**
    * @return the id

@@ -39,7 +39,7 @@ public class DashboardDaoTest extends DaoTestCase {
   @Test
   public void shouldInsert() throws Exception {
     setupData("shouldInsert");
-    Date aDate = new Date(123456789);
+    Date aDate = new Date();
 
     Dashboard dashboard = new Dashboard();
     dashboard.setKey("d-key");
@@ -70,13 +70,12 @@ public class DashboardDaoTest extends DaoTestCase {
 
     dao.insert(dashboard);
 
-    checkTables("shouldInsert", "dashboards", "widgets", "widget_properties");
+    checkTables("shouldInsert", new String[] { "created_at", "updated_at" }, "dashboards", "widgets", "widget_properties");
   }
 
   @Test
   public void shouldInsertWithNullableColumns() throws Exception {
     setupData("shouldInsert");
-    Date aDate = new Date(123456789);
 
     Dashboard dashboard = new Dashboard();
     dashboard.setKey("d-key");

@@ -19,9 +19,9 @@
  */
 package org.sonar.persistence.model;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 import com.google.common.collect.Lists;
 
@@ -37,7 +37,7 @@ public class Widget {
   private boolean configured;
   private Date createdAt;
   private Date updatedAt;
-  private ArrayList<WidgetProperty> widgetProperties = Lists.newArrayList();
+  private List<WidgetProperty> widgetProperties = Lists.newArrayList();
 
   /**
    * @return the id

@@ -19,72 +19,49 @@
  */
 package org.sonar.plugins.core.dashboards;
 
-import org.sonar.api.web.AbstractDashboard;
-import org.sonar.api.web.Dashboard;
-import org.sonar.api.web.DashboardLayouts;
-import org.sonar.api.web.DashboardWidget;
-import org.sonar.api.web.DashboardWidgets;
-import org.sonar.api.web.WidgetProperty;
-import org.sonar.api.web.WidgetPropertyType;
+import org.sonar.api.web.dashboard.Dashboard;
+import org.sonar.api.web.dashboard.DashboardLayouts;
+import org.sonar.api.web.dashboard.DashboardTemplate;
+import org.sonar.api.web.dashboard.Widget;
 
-@DashboardWidgets ({
-  @DashboardWidget(id="hotspot_most_violated_rules", columnIndex=1, rowIndex=1),
-  @DashboardWidget(id="hotspot_metric", columnIndex=1, rowIndex=2,
-                    properties={
-                      @WidgetProperty(key = "metric", type = WidgetPropertyType.METRIC, defaultValue = "test_execution_time"),
-                      @WidgetProperty(key = "title", type = WidgetPropertyType.STRING, defaultValue = "Longest unit tests")
-
-  }),
-  @DashboardWidget(id="hotspot_metric", columnIndex=1, rowIndex=3,
-                    properties={
-                      @WidgetProperty(key = "metric", type = WidgetPropertyType.METRIC, defaultValue = "complexity"),
-                      @WidgetProperty(key = "title", type = WidgetPropertyType.STRING, defaultValue = "Highest complexity")
-
-  }),
-  @DashboardWidget(id="hotspot_metric", columnIndex=1, rowIndex=4,
-                    properties={
-                      @WidgetProperty(key = "metric", type = WidgetPropertyType.METRIC, defaultValue = "duplicated_lines"),
-                      @WidgetProperty(key = "title", type = WidgetPropertyType.STRING, defaultValue = "Highest duplications")
-
-  }),
-  @DashboardWidget(id="hotspot_most_violated_resources", columnIndex=2, rowIndex=1),
-  @DashboardWidget(id="hotspot_metric", columnIndex=2, rowIndex=2,
-                    properties={
-                      @WidgetProperty(key = "metric", type = WidgetPropertyType.METRIC, defaultValue = "uncovered_lines"),
-                      @WidgetProperty(key = "title", type = WidgetPropertyType.STRING, defaultValue = "Highest untested lines")
-
-  }),
-  @DashboardWidget(id="hotspot_metric", columnIndex=2, rowIndex=3,
-                    properties={
-                      @WidgetProperty(key = "metric", type = WidgetPropertyType.METRIC, defaultValue = "function_complexity"),
-                      @WidgetProperty(key = "title", type = WidgetPropertyType.STRING, defaultValue = "Highest average method complexity")
-
-  }),
-  @DashboardWidget(id="hotspot_metric", columnIndex=2, rowIndex=4,
-                    properties={
-                      @WidgetProperty(key = "metric", type = WidgetPropertyType.METRIC, defaultValue = "public_undocumented_api"),
-                      @WidgetProperty(key = "title", type = WidgetPropertyType.STRING, defaultValue = "Most undocumented APIs")
-
-  })
-})
 /**
  * Hotspot dashboard for Sonar
  */
-public class HotspotsDashboard extends AbstractDashboard implements Dashboard {
+public class HotspotsDashboard extends DashboardTemplate {
 
   @Override
-  public String getId() {
-    return "sonar-hotspots-dashboard";
-  }
+  public org.sonar.api.web.dashboard.Dashboard createDashboard() {
+    Dashboard dashboard = Dashboard.createDashboard("sonar-hotspots", "Hotspots", DashboardLayouts.TWO_COLUMNS);
 
-  @Override
-  public String getName() {
-    return "Hotspots";
-  }
-  
-  @Override
-  public String getLayout() {
-    return DashboardLayouts.TWO_COLUMNS;
+    Widget widget = dashboard.addWidget("hotspot_most_violated_rules", 1, 1);
+
+    widget = dashboard.addWidget("hotspot_metric", 1, 2);
+    widget.addProperty("metric", "test_execution_time");
+    widget.addProperty("title", "Longest unit tests");
+
+    widget = dashboard.addWidget("hotspot_metric", 1, 3);
+    widget.addProperty("metric", "complexity");
+    widget.addProperty("title", "Highest complexity");
+
+    widget = dashboard.addWidget("hotspot_metric", 1, 4);
+    widget.addProperty("metric", "duplicated_lines");
+    widget.addProperty("title", "Highest duplications");
+
+    widget = dashboard.addWidget("hotspot_most_violated_resources", 2, 1);
+
+    widget = dashboard.addWidget("hotspot_metric", 2, 2);
+    widget.addProperty("metric", "uncovered_lines");
+    widget.addProperty("title", "Highest untested lines");
+
+    widget = dashboard.addWidget("hotspot_metric", 2, 3);
+    widget.addProperty("metric", "function_complexity");
+    widget.addProperty("title", "Highest average method complexity");
+
+    widget = dashboard.addWidget("hotspot_metric", 2, 4);
+    widget.addProperty("metric", "public_undocumented_api");
+    widget.addProperty("title", "Most undocumented APIs");
+
+    return dashboard;
   }
 
 }

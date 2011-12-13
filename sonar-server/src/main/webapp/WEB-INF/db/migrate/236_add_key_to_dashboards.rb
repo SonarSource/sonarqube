@@ -24,7 +24,7 @@
 class AddKeyToDashboards < ActiveRecord::Migration
 
   def self.up
-    add_column 'dashboards', 'kee', :string, :limit => 256
+    add_column 'dashboards', 'kee', :string, :limit => 200
     Dashboard.reset_column_information
     
     Dashboard.find(:all).each do |d|
@@ -34,11 +34,11 @@ class AddKeyToDashboards < ActiveRecord::Migration
     
     main_dashboard = Dashboard.find(:first, :conditions => {:name => 'Dashboard'})
     if main_dashboard
-      main_dashboard.kee = 'sonar-main-dashboard'
+      main_dashboard.kee = 'sonar-main'
       main_dashboard.save
     end
     
-    change_column 'dashboards', 'kee', :string, :limit => 256, :null => false 
+    change_column 'dashboards', 'kee', :string, :limit => 200, :null => false 
     Dashboard.reset_column_information
   end
 
