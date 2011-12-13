@@ -33,7 +33,6 @@ public class Source {
   private List<Line> lines = new ArrayList<Line>();
   private CodeRecognizer codeRecognizer;
   private Set<Integer> noSonarTagLines = new HashSet<Integer>();
-  private Set<Integer> commentedOutCodeLines = new HashSet<Integer>();
 
   public Source(Reader reader, CodeRecognizer codeRecognizer, String... additionalSingleLineCommentFlag) {
     this.codeRecognizer = codeRecognizer;
@@ -88,7 +87,6 @@ public class Source {
         line.setMeasure(Metric.COMMENT_LINES, 1);
       } else {
         line.setMeasure(Metric.COMMENTED_OUT_CODE_LINES, 1);
-        commentedOutCodeLines.add(line.getLineIndex());
       }
     }
   }
@@ -126,12 +124,5 @@ public class Source {
 
   public Set<Integer> getNoSonarTagLines() {
     return noSonarTagLines;
-  }
-
-  /**
-   * @since 2.13
-   */
-  public Set<Integer> getCommentedOutCodeLines() {
-    return commentedOutCodeLines;
   }
 }

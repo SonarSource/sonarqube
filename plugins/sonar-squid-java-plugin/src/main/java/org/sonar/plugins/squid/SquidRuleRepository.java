@@ -28,6 +28,7 @@ import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.java.ast.check.BreakCheck;
+import org.sonar.java.ast.check.CommentedOutCodeLineCheck;
 import org.sonar.java.ast.check.ContinueCheck;
 import org.sonar.java.ast.check.UndocumentedApiCheck;
 import org.sonar.java.bytecode.check.ArchitectureCheck;

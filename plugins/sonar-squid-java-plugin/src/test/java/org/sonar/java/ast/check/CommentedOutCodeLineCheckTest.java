@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.java.squid.check;
+package org.sonar.java.ast.check;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -48,10 +48,19 @@ public class CommentedOutCodeLineCheckTest {
   @Test
   public void testDetection() {
     CheckMessages checkMessages = new CheckMessages((SourceFile) squid.search("CommentedCode.java"));
-    checkMessages.assertNext().atLine(4);
-    checkMessages.assertNext().atLine(17);
-    checkMessages.assertNext().atLine(18);
-    checkMessages.assertNext().atLine(19);
+
+    checkMessages.assertNext().atLine(26);
+    checkMessages.assertNext().atLine(27);
+    checkMessages.assertNext().atLine(28);
+
+    checkMessages.assertNext().atLine(32);
+
+    checkMessages.assertNext().atLine(38);
+    checkMessages.assertNext().atLine(39);
+    checkMessages.assertNext().atLine(40);
+
+    checkMessages.assertNext().atLine(44);
+
     checkMessages.assertNoMore();
   }
 

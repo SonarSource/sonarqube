@@ -1,0 +1,126 @@
+/*
+ * Sonar, open source software quality management tool.
+ * Copyright (C) 2008-2011 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * Sonar is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * Sonar is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Sonar; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ */
+package org.sonar.java.ast.check;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+
+import org.sonar.check.Priority;
+import org.sonar.check.Rule;
+import org.sonar.java.ast.visitor.AstUtils;
+import org.sonar.java.ast.visitor.JavaAstVisitor;
+import org.sonar.java.recognizer.JavaFootprint;
+import org.sonar.squid.api.CheckMessage;
+import org.sonar.squid.api.SourceFile;
+import org.sonar.squid.recognizer.CodeRecognizer;
+
+import com.google.common.collect.Sets;
+import com.puppycrawl.tools.checkstyle.api.DetailAST;
+import com.puppycrawl.tools.checkstyle.api.TextBlock;
+import com.puppycrawl.tools.checkstyle.api.TokenTypes;
+
+@Rule(key = "CommentedOutCodeLine", priority = Priority.MAJOR)
+public class CommentedOutCodeLineCheck extends JavaAstVisitor {
+
+  private static final double THRESHOLD = 0.9;
+
+  /**
+   * This list was taken from com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocStyleCheck
+   */
+  private static final List<Integer> WANTED_TOKENS = Arrays.asList(
+      TokenTypes.INTERFACE_DEF,
+      TokenTypes.CLASS_DEF,
+      TokenTypes.ANNOTATION_DEF,
+      TokenTypes.ENUM_DEF,
+      TokenTypes.METHOD_DEF,
+      TokenTypes.CTOR_DEF,
+      TokenTypes.VARIABLE_DEF,
+      TokenTypes.ENUM_CONSTANT_DEF,
+      TokenTypes.ANNOTATION_FIELD_DEF,
+      TokenTypes.PACKAGE_DEF);
+
+  private final CodeRecognizer codeRecognizer;
+  private Set<TextBlock> comments;
+
+  public CommentedOutCodeLineCheck() {
+    codeRecognizer = new CodeRecognizer(THRESHOLD, new JavaFootprint());
+  }
+
+  @Override
+  public List<Integer> getWantedTokens() {
+    return WANTED_TOKENS;
+  }
+
+  @Override
+  public void visitFile(DetailAST ast) {
+    comments = Sets.newHashSet();
+
+    for (TextBlock comment : getFileContents().getCppComments().values()) {
+      comments.add(comment);
+    }
+
+    for (List<TextBlock> listOfComments : getFileContents().getCComments().values()) {
+      // This list contains not only comments in C style, but also Javadocs
+      for (TextBlock comment : listOfComments) {
+        comments.add(comment);
+      }
+    }
+  }
+
+  /**
+   * Documentation comments should be recognized only when placed
+   * immediately before class, interface, constructor, method, or field declarations.
+   */
+  @Override
+  public void visitToken(DetailAST ast) {
+    if (shouldHandle(ast)) {
+      TextBlock javadoc = getFileContents().getJavadocBefore(ast.getLineNo());
+      if (javadoc != null) {
+        comments.remove(javadoc);
+      }
+    }
+  }
+
+  private static boolean shouldHandle(DetailAST ast) {
+    if (AstUtils.isType(ast, TokenTypes.VARIABLE_DEF)) {
+      return AstUtils.isClassVariable(ast);
+    }
+    return true;
+  }
+
+  @Override
+  public void leaveFile(DetailAST ast) {
+    SourceFile sourceFile = (SourceFile) peekSourceCode();
+    for (TextBlock comment : comments) {
+      String[] lines = comment.getText();
+      for (int i = 0; i < lines.length; i++) {
+        if (codeRecognizer.isLineOfCode(lines[i])) {
+          CheckMessage message = new CheckMessage(this, "It's better to remove commented-out line of code.");
+          message.setLine(comment.getStartLineNo() + i);
+          sourceFile.log(message);
+          break;
+        }
+      }
+    }
+    comments = null;
+  }
+
+}
