@@ -49,6 +49,17 @@ public class CommentedCode {
   }
 
   /**
+   * From GWT documentation:
+   * JSNI methods are declared native and contain JavaScript code in a specially formatted comment block
+   * between the end of the parameter list and the trailing semicolon.
+   */
+  public static native void alert(String msg) /*-{
+    for (i=0;i<=5;i++) {
+      $wnd.alert(msg);
+    }
+  }-*/;
+
+  /**
    * No detection of commented-out code in Javadoc for method
    * for (Visitor visitor : visitors) {
    *   continue;

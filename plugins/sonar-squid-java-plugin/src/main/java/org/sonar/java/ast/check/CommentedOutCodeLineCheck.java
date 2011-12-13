@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.java.ast.visitor.AstUtils;
@@ -78,9 +79,11 @@ public class CommentedOutCodeLineCheck extends JavaAstVisitor {
     }
 
     for (List<TextBlock> listOfComments : getFileContents().getCComments().values()) {
-      // This list contains not only comments in C style, but also Javadocs
+      // This list contains not only comments in C style, but also Javadocs and JSNI comments
       for (TextBlock comment : listOfComments) {
-        comments.add(comment);
+        if (!isJSNI(comment)) {
+          comments.add(comment);
+        }
       }
     }
   }
@@ -121,6 +124,20 @@ public class CommentedOutCodeLineCheck extends JavaAstVisitor {
       }
     }
     comments = null;
+  }
+
+  private static final String START_JSNI = "/*-{";
+  private static final String END_JSNI = "}-*/";
+
+  /**
+   * From GWT documentation:
+   * A JSNI comment block begins with the exact token {@link #START_JSNI} and ends with the exact token {@link #END_JSNI}.
+   */
+  private boolean isJSNI(TextBlock comment) {
+    String[] lines = comment.getText();
+    String firstLine = lines[0];
+    String lastLine = lines[lines.length - 1];
+    return StringUtils.startsWith(firstLine, START_JSNI) && StringUtils.endsWith(lastLine, END_JSNI);
   }
 
 }

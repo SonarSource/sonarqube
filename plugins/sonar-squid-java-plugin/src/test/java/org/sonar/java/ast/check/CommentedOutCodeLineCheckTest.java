@@ -49,7 +49,7 @@ public class CommentedOutCodeLineCheckTest {
   public void testDetection() {
     CheckMessages checkMessages = new CheckMessages((SourceFile) squid.search("CommentedCode.java"));
 
-    checkMessages.assertNext().atLine(26);
+    checkMessages.assertNext().atLine(26).withMessage("It's better to remove commented-out line of code.");
     checkMessages.assertNext().atLine(27);
     checkMessages.assertNext().atLine(28);
 
