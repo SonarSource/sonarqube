@@ -23,33 +23,34 @@
       <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
       &nbsp;
 
-      <span id="vSubtitle<%= violation.id -%>">
-        <% if violation.created_at %>
-          <span><%= distance_of_time_in_words_to_now(violation.created_at) -%></span>
-          &nbsp;
-        <% end %>
-        <% if violation.switched_off? %>
-          <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
-          &nbsp;
-          <span class="falsePositive"><%= message('false_positive') -%></span>
-          &nbsp;
-        <% end %>
-        <% if violation.review && violation.review.reopened? %>
-          <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
-          &nbsp;
-          <span class="reviewReopened"><%= message('reopened') -%></span>
-          &nbsp;
-        <% end %>
-        <% if violation.review && violation.review.assignee_id %>
-          <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
-          &nbsp;
-          <%= message('assigned_to') -%>: <%= h(violation.review.assignee.name) -%>
-          &nbsp;
-        <% end %>
-      </span>
+      <% if violation.created_at %>
+        <span><%= distance_of_time_in_words_to_now(violation.created_at) -%></span>
+        &nbsp;
+      <% end %>
+      <% if violation.switched_off? %>
+        <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
+        &nbsp;
+        <span class="falsePositive"><%= message('false_positive') -%></span>
+        &nbsp;
+      <% end %>
+      <% if violation.review && violation.review.reopened? %>
+        <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
+        &nbsp;
+        <span class="reviewReopened"><%= message('reopened') -%></span>
+        &nbsp;
+      <% end %>
+      <% if violation.review && violation.review.assignee_id %>
+        <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
+        &nbsp;
+        <%= message('assigned_to') -%> <%= h(violation.review.assignee.name) -%>
+        &nbsp;
+      <% end %>
 
+    </div>
+
+    <div class="discussionComment first" id="vBody<%= violation.id -%>">
       <% if current_user %>
-        <span style="display:none" id="vActions<%= violation.id -%>">
+        <div style="display: none" class="vActions" id="vActions<%= violation.id -%>">
           <%
              if violation.review
                unless violation.switched_off?
@@ -63,13 +64,9 @@
                                    :name => (violation.review.resolved? ? 'bReopen' : 'bResolve') -%>
 
               <% unless violation.review && violation.review.resolved? %>
-                <%= button_to_remote (violation.review.assignee_id ? message('reassign') : message('assign')),
-                                     {
-                                       :url => {:controller => "reviews", :action => "violation_assign_form", :violation_id => violation.id},
-                                       :update => "reviewForm" + violation.id.to_s,
-                                       :complete => "$('reviewForm" + violation.id.to_s + "').show();$('commentActions" + violation.id.to_s + "').hide();$('assignee_login').focus();"
-                                     },
-                                     :name => (violation.review.assignee_id ? 'bReassign' : 'bAssign') -%>
+                <%= button_to_function message('assign'),
+                                       "sAF(#{violation.id})",
+                                       :name => 'bAssign' -%>
               <%
                  end
                  end
@@ -85,30 +82,20 @@
           <% end %>
 
           <% if (!violation.review) || (violation.review && violation.review.can_change_false_positive_flag?) %>
-            <%= button_to_remote (violation.switched_off? ? message('reviews.unflag_as_false_positive') : message('reviews.flag_as_false_positive')),
-                                 {
-                                   :url => {:controller => "reviews", :action => "violation_false_positive_form", :id => violation.id, :false_positive => !violation.switched_off?},
-                                   :update => "reviewForm" + violation.id.to_s,
-                                   :complete => "$('reviewForm" + violation.id.to_s + "').show();$('commentText" + violation.id.to_s + "').focus();$('vActions" + violation.id.to_s + "').hide();$('commentActions" + violation.id.to_s + "').hide();"
-                                 },
-                                 :name => 'bFalsePositive' -%>
+            <%= button_to_function message(violation.switched_off? ? 'reviews.unflag_as_false_positive' : 'reviews.flag_as_false_positive'),
+                                   "sFPF(#{violation.id})",
+                                   :name => 'bFalsePositive' -%>
           <% end %>
 
-          <%= button_to_remote message('reviews.change_severity'),
-                               {
-                                 :url => {:controller => "reviews", :action => "violation_change_severity_form", :id => violation.id},
-                                 :update => "reviewForm" + violation.id.to_s,
-                                 :complete => "$('reviewForm" + violation.id.to_s + "').show();$('selectSeverity" + violation.id.to_s + "').focus();$('vActions" + violation.id.to_s + "').hide();$('commentActions" + violation.id.to_s + "').hide();"
-                               },
-                               :name => 'bChangeSeverity' -%>
-        </span>
+          <% unless violation.review && violation.review.resolved? %>
+            <%= button_to_function message('reviews.change_severity'), "sCSF(#{violation.id})", :name => 'bChangeSeverity' -%>
+          <% end %>
+        </div>
       <% end %>
-
+      <div id="vMsg<%= violation.id -%>"><%= violation.html_message || '&nbsp;' -%></div>
     </div>
 
-    <div class="discussionComment first">
-      <%= violation.html_message -%>
-    </div>
+    <div class="discussionComment" id="reviewForm<%= violation.id -%>" style="display:none"></div>
 
     <%
        if violation.review
@@ -160,8 +147,6 @@
          end
          end
       %>
-
-    <div class="discussionComment" id="reviewForm<%= violation.id -%>" style="display:none"></div>
   </div>
 
 </div>

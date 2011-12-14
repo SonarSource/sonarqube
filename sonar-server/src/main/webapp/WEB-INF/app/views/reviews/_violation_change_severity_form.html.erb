@@ -10,5 +10,5 @@
   <textarea id="commentText<%= params[:id] -%>" rows="4" name="comment" style="width: 100%"></textarea>
   <%= submit_to_remote "submit_btn"+params[:id], message('reviews.change_severity_submit'), :url => {:action => 'violation_change_severity'}, :html => {:id => "submit_btn"+params[:id]}, :update => 'vId'+params[:id] -%>
   &nbsp;
-  <%= link_to_remote message('cancel'), :url => {:action => 'display_violation', :id => params[:id]}, :update => 'vId' + params[:id] -%>
+  <%= link_to_function message('cancel'), "cancelViolationAction(#{params[:id]})" -%>
 </form>

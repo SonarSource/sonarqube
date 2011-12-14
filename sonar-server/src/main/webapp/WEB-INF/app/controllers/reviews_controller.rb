@@ -221,6 +221,7 @@ class ReviewsController < ApplicationController
 
   # GET
   def violation_false_positive_form
+    @violation = RuleFailure.find(params[:id])
     render :partial => 'reviews/violation_false_positive_form'
   end
 
