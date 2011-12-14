@@ -28,6 +28,7 @@ class Review < ActiveRecord::Base
 
   validates_presence_of :user, :message => "can't be empty"
   validates_presence_of :status, :message => "can't be empty"
+  validates_inclusion_of :severity, :in => Severity::KEYS
 
   before_save :assign_project
 
@@ -139,16 +140,22 @@ class Review < ActiveRecord::Base
     notification_manager.notifyChanged(id.to_i, current_user.login.to_java, old, to_java_map)
   end
 
-  def reopen(current_user)
+  def reopen(current_user, options={})
     old = self.to_java_map
+    if options[:text].present?
+      comments.create!(:user => current_user, :text => options[:text])
+    end
     self.status = STATUS_REOPENED
     self.resolution = nil
     self.save!
     notification_manager.notifyChanged(id.to_i, current_user.login.to_java, old, to_java_map)
   end
 
-  def resolve(current_user)
+  def resolve(current_user, options={})
     old = self.to_java_map
+    if options[:text].present?
+      comments.create!(:user => current_user, :text => options[:text])
+    end
     self.status = STATUS_RESOLVED
     self.resolution = RESOLUTION_FIXED
     self.save!

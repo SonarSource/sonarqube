@@ -27,4 +27,9 @@ module Severity
   BLOCKER = "BLOCKER"
 
   KEYS=[BLOCKER, CRITICAL, MAJOR, MINOR, INFO]
+
+  def self.valid?(value)
+    KEYS.include?(value)
+  end
 end
+

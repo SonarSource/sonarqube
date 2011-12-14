@@ -1,10 +1,10 @@
 <%
    if @violation.switched_off?
      title = message('reviews.why_not_false_positive')
-     button = message('reviews.unflag_as_false_positive')
+     button = message('reviews.unflag_as_false_positive_submit')
    else
      title = message('reviews.why_false_positive')
-     button = message('reviews.flag_as_false_positive')
+     button = message('reviews.flag_as_false_positive_submit')
    end
 %>
 <form method="POST" action="violation_flag_as_false_positive">

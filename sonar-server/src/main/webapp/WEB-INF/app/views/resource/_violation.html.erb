@@ -1,4 +1,6 @@
-<div id="vId<%= violation.id -%>" onmouseover="sVA(<%= violation.id -%>)" onmouseout="hVA(<%= violation.id -%>)">
+<div id="vId<%= violation.id -%>"
+     <% if current_user -%>onmouseover="sVA(<%= violation.id -%>)" onmouseout="hVA(<%= violation.id -%>)"
+<% end -%>>
   <div class="violation">
     <div class="vtitle">
       <% if violation.review %>

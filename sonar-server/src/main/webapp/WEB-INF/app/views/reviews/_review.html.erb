@@ -1,58 +1,65 @@
 <div id="rev_<%= review.id -%>">
   <div class="reviewTitle">
     <h2><%= message('reviews.review_number', :params => h(review.id.to_s)) -%> - <%= h(review.title) -%></h2>
-    <% if review.false_positive %>
-      <%= image_tag("sep12.png") -%>
-      &nbsp;
-      <span class="falsePositive"><%= message('false_positive') -%></span>
-    <% end %>
-
   </div>
 
   <%
      if current_user && !review.closed? && review.rule_failure
        violation_switched_off = review.rule_failure.switched_off?
   %>
-    <div class="reviewActions" id="rActions">
+    <div class="marginbottom10" id="actionButtons">
+      <% unless review.resolved? %>
+        <%= button_to_remote message('reviews.assign'),
+                             :url => {:controller => "reviews", :action => "assign_form", :id => review.id},
+                             :update => "actionForm",
+                             :complete => "$('actionButtons').remove();$('actionForm').show();" -%>
+
+      <% end %>
+
       <%
          if !violation_switched_off
       %>
-        <%= button_to_remote (review.resolved? ? message('reopen') : message('resolve')),
-                             :url => {:controller => "reviews", :action => "change_status", :id => review.id},
-                             :update => "review",
-                             :confirm => review.resolved? ? message('reviews.do_you_want_to_reopen') : message('reviews.do_you_want_to_resolve') -%>
+        <%= button_to_remote (review.resolved? ? message('reviews.reopen') : message('reviews.resolve')),
+                             :url => {:controller => "reviews", :action => "change_status_form", :id => review.id},
+                             :update => "actionForm",
+                             :complete => "$('actionButtons').remove();$('actionForm').show();$('actionText').focus();" -%>
 
-        <% unless review.resolved? %>
-          <%= button_to_remote message('assign'),
-                               :url => {:controller => "reviews", :action => "assign_form", :review_id => review.id},
-                               :update => "assignForm",
-                               :complete => "$('rActions').hide(); $('editActions').hide(); $('assignee_login').focus();" -%>
 
-        <% end %>
       <% end %>
       <% if review.can_change_false_positive_flag? %>
         <%= button_to_remote (violation_switched_off ? message('reviews.unflag_as_false_positive') : message('reviews.flag_as_false_positive')),
                              :url => {:controller => "reviews", :action => "false_positive_form", :id => review.id, :false_positive => !violation_switched_off},
-                             :update => "reviewForm",
-                             :complete => "$('reviewForm').show();$('commentText').focus();" -%>
+                             :update => "actionForm",
+                             :complete => "$('actionButtons').remove();$('actionForm').show();$('actionText').focus();" -%>
+      <% end %>
+
+      <% unless review.resolved? %>
+        <%= button_to_remote message('reviews.change_severity'),
+                             :url => {:controller => "reviews", :action => "change_severity_form", :id => review.id},
+                             :update => "actionForm",
+                             :complete => "$('actionButtons').remove();$('actionForm').show();$('selectSeverity').focus();" -%>
       <% end %>
     </div>
   <% end %>
 
+  <div class="discussionComment" id="actionForm" style="border: 1px solid #DDD;display:none"></div>
 
-  <table class="reviewDetails">
+  <table class="reviewDetails marginbottom10">
     <tr>
       <td class="key">
         <%= message('status') -%>:
       </td>
       <td class="val">
         <%= image_tag "status/#{review.status}.png" -%> <%= message(review.status.downcase).capitalize -%>
+        <% if @review.violation.switched_off? %>
+          <span class="falsePositive">(<%= message('false_positive') -%>)</span>
+        <% end %>
       </td>
       <td class="key">
         <%= message('severity') -%>:
       </td>
       <td class="val">
-        <%= image_tag "priority/#{review.severity}.png" -%> <%= message(review.severity.downcase).capitalize -%>
+        <%= image_tag "priority/#{review.severity}.png" -%> <%= message("severity.#{review.severity}") -%>
       </td>
     </tr>
     <tr>
@@ -60,9 +67,7 @@
         <%= message('assignee') -%>:
       </td>
       <td class="val">
-	     <span id="assignForm">
-		 <%= review.assignee ? h(review.assignee.name) : '-' -%>
-	     </span>
+        <%= review.assignee ? h(review.assignee.name) : '-' -%>
       </td>
       <td class="key">
         <%= message('author') -%>:
@@ -114,7 +119,7 @@
     </div>
   <% end %>
 
-  <div class="discussion">
+  <div class="discussion marginbottom10">
     <% if review.rule_failure %>
       <div class="discussionComment first">
         <%= h(review.rule_failure.message) -%>
@@ -138,7 +143,7 @@
                <%= link_to_remote message('edit'),
                                   :url => {:controller => "reviews", :action => "comment_form", :comment_id => comment.id, :id => review.id},
                                   :update => "lastComment",
-                                  :complete => "$('rActions').hide();$('editActions').hide();$('commentText').focus();" -%>
+                                  :complete => "$('commentAction').remove();$('editActions').hide();$('commentText').focus();" -%>
                <% unless comment_index == 0 %>
                &nbsp;
                  <%= link_to_remote message('delete'),
@@ -163,12 +168,15 @@
     <% end %>
   </div>
 
+  <% if current_user %>
+    <%= button_to_remote message('reviews.comment'),
+                         {
+                           :url => {:controller => "reviews", :action => "comment_form", :id => review.id},
+                           :update => "commentForm",
+                           :complete => "$('commentAction').remove();$('commentForm').show();$('commentText').focus();"
+                         },
+                         :id => 'commentAction' -%>
 
-  <%= button_to_remote message('add_comment'),
-                       :url => {:controller => "reviews", :action => "comment_form", :id => review.id},
-                       :update => "reviewForm",
-                       :complete => "$('rActions').hide();$('editActions').hide();$('reviewForm').show();$('commentText').focus();" -%>
-
-  <div class="discussionComment" id="reviewForm" style="display:none"></div>
-
+    <div class="discussionComment" id="commentForm" style="border: 1px solid #DDD;display:none"></div>
+  <% end %>
 </div>

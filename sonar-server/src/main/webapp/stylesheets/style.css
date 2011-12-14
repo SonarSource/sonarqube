@@ -1137,6 +1137,7 @@ div.reviewTitle {
   color: #4B9FD5;
   line-height: 2.2em;
   margin: 0;
+  margin-bottom: 10px;
   padding: 0 10px;
   border: 1px solid #4B9FD5;
 }
@@ -1144,7 +1145,6 @@ div.reviewTitle {
 div.reviewTitle h2 {
   color: #4183C4;
   font-weight: bold;
-  display: inline;
   font-size: 100%;
   text-shadow: 0 1px 0 #FFFFFF;
 }
@@ -1156,7 +1156,6 @@ div.reviewTitle span.actions {
 table.reviewDetails {
   width: 100%;
   border: 0;
-  margin: 10px 0;
 }
 
 table.reviewDetails td {
@@ -1173,10 +1172,6 @@ table.reviewDetails td.key {
 
 table.reviewDetails td img {
   vertical-align: bottom;
-}
-
-div.reviewActions {
-  padding: 10px;
 }
 
 div.discussion {
