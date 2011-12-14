@@ -32,13 +32,21 @@ class Dashboard < ActiveRecord::Base
   validates_uniqueness_of :name, :scope => :user_id
   
   before_create { |dashboard| dashboard.kee=dashboard.name.strip.downcase.sub(/\s+/, '_') }
-
-  def name
-    Api::Utils.message("dashboard.#{kee}.name", :default => read_attribute(:name))
+    
+  def name(l10n=true)
+    if l10n
+      Api::Utils.message("dashboard.#{kee}.name", :default => read_attribute(:name))
+    else
+      read_attribute(:name)
+    end
   end
 
-  def description
-    Api::Utils.message("dashboard.#{kee}.description", :default => read_attribute(:description))
+  def description(l10n=true)
+    if l10n
+      Api::Utils.message("dashboard.#{kee}.description", :default => read_attribute(:description))
+    else
+      read_attribute(:description)
+    end
   end
   
   def shared?

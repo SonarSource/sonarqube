@@ -28,14 +28,13 @@ class AddKeyToDashboards < ActiveRecord::Migration
     Dashboard.reset_column_information
     
     Dashboard.find(:all).each do |d|
-      d.kee = d.name.strip.downcase.sub(/\s+/, '_')
-      d.save
+      key = d.name(false).strip.downcase.sub(/\s+/, '_')
+      Dashboard.update_all "kee = '#{key}'", ["id = ?", d.id]
     end
     
     main_dashboard = Dashboard.find(:first, :conditions => {:name => 'Dashboard'})
     if main_dashboard
-      main_dashboard.kee = 'sonar-main'
-      main_dashboard.save
+      Dashboard.update_all "kee = 'sonar-main'", ["id = ?", main_dashboard.id]
     end
     
     change_column 'dashboards', 'kee', :string, :limit => 200, :null => false 
