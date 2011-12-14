@@ -1,17 +1,123 @@
 <script type="text/javascript">
   // show violation actions
   function sVA(violation_id) {
-    $('vSubtitle' + violation_id).hide();
-    $('vActions' + violation_id).show()
+    var elt = $('vMsg' + violation_id);
+    if (elt != null) {
+      elt.hide();
+    }
+    elt = $('vActions' + violation_id);
+    if (elt != null) {
+      elt.show();
+    }
+    return false;
   }
 
   // hide violation actions
   function hVA(violation_id) {
-      $('vSubtitle' + violation_id).show();
-      $('vActions' + violation_id).hide()
+    var elt = $('vMsg' + violation_id);
+    if (elt != null) {
+      elt.show();
     }
+    elt = $('vActions' + violation_id);
+    if (elt != null) {
+      elt.hide();
+    }
+    return false;
+  }
 
-  // show form to create violations
+  // cancel action : hide form and refresh violation
+  function cancelViolationAction(violation_id) {
+    new Ajax.Updater(
+      'vId' + violation_id,
+      '<%= ApplicationController.root_context -%>/reviews/display_violation/' + violation_id,
+      {
+        asynchronous:true,
+        evalScripts:true
+      });
+    return false;
+  }
+
+  // show the form to comment violation
+  function sCF(violation_id) {
+    new Ajax.Updater('reviewForm' + violation_id,
+      '<%= ApplicationController.root_context -%>/reviews/violation_comment_form/' + violation_id,
+      {
+        asynchronous:true,
+        evalScripts:true,
+        onComplete:function (request) {
+          $('vBody' + violation_id).remove();
+          $('reviewForm' + violation_id).show();
+          $('commentText' + violation_id).focus();
+        }
+      });
+    return false;
+  }
+
+  // show the form to change severity
+  function sCSF(violation_id) {
+    new Ajax.Updater('reviewForm' + violation_id,
+      '<%= ApplicationController.root_context -%>/reviews/violation_change_severity_form/' + violation_id,
+      {
+        asynchronous:true,
+        evalScripts:true,
+        onComplete:function (request) {
+          $('vBody' + violation_id).remove();
+          $('reviewForm' + violation_id).show();
+          $('selectSeverity' + violation_id).focus();
+        }
+      });
+    return false;
+  }
+
+  // show the form to change status
+  function sCStF(violation_id) {
+    new Ajax.Updater('reviewForm' + violation_id,
+      '<%= ApplicationController.root_context -%>/reviews/violation_change_status_form/' + violation_id,
+      {
+        asynchronous:true,
+        evalScripts:true,
+        onComplete:function (request) {
+          $('vBody' + violation_id).remove();
+          $('reviewForm' + violation_id).show();
+          $('commentText' + violation_id).focus();
+        }
+      });
+    return false;
+  }
+
+  // show the form to flag as false-positive
+  function sFPF(violation_id) {
+    new Ajax.Updater('reviewForm' + violation_id,
+      '<%= ApplicationController.root_context -%>/reviews/violation_false_positive_form/' + violation_id,
+      {
+        asynchronous:true,
+        evalScripts:true,
+        onComplete:function (request) {
+          $('vBody' + violation_id).remove();
+          $('reviewForm' + violation_id).show();
+          $('commentText' + violation_id).focus();
+        }
+      });
+    return false;
+  }
+
+  // show the form to assign violation
+  function sAF(violation_id) {
+    new Ajax.Updater('reviewForm' + violation_id,
+      '<%= ApplicationController.root_context -%>/reviews/violation_assign_form/' + violation_id,
+      {
+        asynchronous:true,
+        evalScripts:true,
+        onComplete:function (request) {
+          $('vBody' + violation_id).remove();
+          $('reviewForm' + violation_id).show();
+          $('assignee_login').focus();
+        }
+      });
+    return false;
+  }
+
+  // show the form to create violation
   function sVF(resource, line, gray_colspan, white_colspan) {
     row = $('createViolationForm' + line);
     if (row == null) {

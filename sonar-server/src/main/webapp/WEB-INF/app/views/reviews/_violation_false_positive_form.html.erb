@@ -1,20 +1,30 @@
 <%
-   if params[:false_positive]=='true'
-     title = message('reviews.why_false_positive')
-     button = message('reviews.flag_as_false_positive')
-   else
+   if @violation.switched_off?
      title = message('reviews.why_not_false_positive')
-     button = message('reviews.unflag_as_false_positive')
+     button = message('reviews.unflag_as_false_positive_submit')
+   else
+     title = message('reviews.why_false_positive')
+     button = message('reviews.flag_as_false_positive_submit')
    end
 %>
 <form method="POST" action="violation_flag_as_false_positive">
   <input type="hidden" name="id" value="<%= params[:id] -%>"/>
-  <% if params[:false_positive]=='true' -%>
-    <input type="hidden" name="false_positive" value="true"/>
-  <% end %>
+  <input type="hidden" name="false_positive" value="<%= @violation.switched_off? ? 'false' : 'true' -%>"/>
+
   <h3><%= title -%></h3>
-  <textarea id="commentText<%= params[:id] -%>"  rows="4" name="comment" style="width: 100%"></textarea>
-  <%= submit_to_remote "submit_btn"+params[:id], button, :url => { :action => 'violation_flag_as_false_positive' }, :html => { :id => "submit_btn"+params[:id]}, :update => 'vId'+params[:id] -%>
+  <table class="width100">
+    <tr>
+      <td style="vertical-align:top">
+        <textarea id="commentText<%= params[:id] -%>" rows="4" name="text" style="width: 100%"></textarea>
+      </td>
+      <td class="sep"></td>
+      <td style="vertical-align:top;width: 90px">
+        <%= render :partial => 'markdown/help' -%>
+      </td>
+    </tr>
+  </table>
+
+  <%= submit_to_remote "submit_btn"+params[:id], button, :url => {:action => 'violation_flag_as_false_positive'}, :html => {:id => "submit_btn"+params[:id]}, :update => 'vId'+params[:id] -%>
   &nbsp;
-  <%= link_to_remote message('cancel'), :url => {:action => 'display_violation', :id => params[:id]}, :update => 'vId' + params[:id] -%>
+  <%= link_to_function message('cancel'), "cancelViolationAction(#{params[:id]})" -%>
 </form>

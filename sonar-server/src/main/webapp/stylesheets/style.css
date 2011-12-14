@@ -915,11 +915,10 @@ div.vtitle {
   margin: 0;
   padding: 0 0 0 10px;
   line-height: 2.2em;
-  color: #777
-}
-span.vSubtitle {
   color: #777;
+  border-bottom: 1px solid #DDDDDD;
 }
+
 span.falsePositive {
   background-color: #FFF6BF;
   padding-left: 5px;
@@ -931,11 +930,13 @@ span.reviewReopened {
   padding-left: 5px;
   padding-right: 5px;
 }
+
 span.rulename, span.rulename a {
   color: #4183C4;
   text-decoration: none;
   font-weight: bold;
 }
+
 div.review_permalink {
   float: right;
   color: #333333;
@@ -944,6 +945,12 @@ div.review_permalink {
   margin: 0;
   padding: 0 10px;
   text-shadow: 1px 1px 0 #FFFFFF;
+}
+
+div.vActions {
+  line-height: 1.5em;
+  height: 1.5em;
+  max-height: 1.5em;
 }
 
 span.review_permalink a {
@@ -1125,53 +1132,45 @@ span.rulename a:hover {
 }
 
 /* REVIEWS */
-div#review .actions {
-  visibility: hidden;
-}
-
-div#review:hover .actions {
-  visibility: visible;
-}
-
-div.reportTitle {
+div.reviewTitle {
   background-color: #E4ECF3;
   color: #4B9FD5;
   line-height: 2.2em;
   margin: 0;
+  margin-bottom: 10px;
   padding: 0 10px;
   border: 1px solid #4B9FD5;
 }
 
-div.reportTitle h2 {
+div.reviewTitle h2 {
   color: #4183C4;
   font-weight: bold;
-  display: inline;
   font-size: 100%;
   text-shadow: 0 1px 0 #FFFFFF;
 }
 
-div.reportTitle span.actions {
+div.reviewTitle span.actions {
   font-size: 12px;
 }
 
-table.reportDetails {
+table.reviewDetails {
   width: 100%;
   border: 0;
 }
 
-table.reportDetails td {
+table.reviewDetails td {
   vertical-align: top;
   text-align: left;
   padding: 5px 10px;
 }
 
-table.reportDetails td.key {
+table.reviewDetails td.key {
   white-space: nowrap;
   min-width: 1%;
   color: #777;
 }
 
-table.reportDetails td img {
+table.reviewDetails td img {
   vertical-align: bottom;
 }
 

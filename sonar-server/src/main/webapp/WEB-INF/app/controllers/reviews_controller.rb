@@ -62,6 +62,7 @@ class ReviewsController < ApplicationController
 
   # GET
   def assign_form
+    @review = Review.find(params[:id])
     render :partial => "assign_form"
   end
 
@@ -73,9 +74,15 @@ class ReviewsController < ApplicationController
       return
     end
 
-    assignee = findUserByLogin(params[:assignee_login]) unless params[:assignee_login].blank?
-    @review.reassign(current_user, assignee)
+    assignee = nil
+    if params[:me]=='true'
+      assignee = current_user
 
+    elsif params[:assignee_login].present?
+      assignee = findUserByLogin(params[:assignee_login])
+    end
+
+    @review.reassign(current_user, assignee, params)
     render :partial => 'reviews/view'
   end
 
@@ -109,6 +116,7 @@ class ReviewsController < ApplicationController
 
   # GET
   def false_positive_form
+    @review = Review.find(params[:id])
     render :partial => 'reviews/false_positive_form'
   end
 
@@ -120,10 +128,7 @@ class ReviewsController < ApplicationController
       return
     end
 
-    unless params[:comment].blank?
-      @review.set_false_positive(params[:false_positive]=='true', :user => current_user, :text => params[:comment])
-    end
-
+    @review.set_false_positive(params[:false_positive]=='true', current_user, params)
     render :partial => "reviews/view"
   end
 
@@ -141,22 +146,44 @@ class ReviewsController < ApplicationController
     render :partial => "reviews/view"
   end
 
+  def change_status_form
+    @review = Review.find(params[:id])
+    render :partial => 'reviews/change_status_form'
+  end
+
   # POST
   def change_status
     @review = Review.find(params[:id], :include => ['project'])
     unless has_rights_to_modify?(@review.project)
-      render :text => "<b>Cannot create the comment</b> : access denied."
+      render :text => "<b>Cannot change the status</b> : access denied."
       return
     end
 
     if @review.resolved?
-      @review.reopen(current_user)
+      @review.reopen(current_user, params)
     else
       # for the moment, if a review is not open, it can only be "RESOLVED"
-      @review.resolve(current_user)
+      @review.resolve(current_user, params)
     end
 
     render :partial => "reviews/view"
+  end
+
+  # GET
+  def change_severity_form
+    render :partial => 'reviews/change_severity_form'
+  end
+
+  # POST
+  def change_severity
+    @review=Review.find(params[:id], :include => 'project')
+    unless has_rights_to_modify?(@review.project)
+      render :text => "<b>Cannot change severity</b> : access denied."
+      return
+    end
+
+    @review.set_severity(params[:severity], current_user, params)
+    render :partial => "reviews/review"
   end
 
 
@@ -174,6 +201,7 @@ class ReviewsController < ApplicationController
 
   # GET
   def violation_assign_form
+    @violation = RuleFailure.find(params[:id], :include => 'review')
     render :partial => "violation_assign_form"
   end
 
@@ -187,8 +215,14 @@ class ReviewsController < ApplicationController
     sanitize_violation(violation)
 
     violation.build_review(:user_id => current_user.id)
-    assignee = findUserByLogin(params[:assignee_login]) unless params[:assignee_login].blank?
-    violation.review.reassign(current_user, assignee)
+    assignee=nil
+    if params[:me]=='true'
+      assignee = current_user
+
+    elsif params[:assignee_login].present?
+      assignee = findUserByLogin(params[:assignee_login])
+    end
+    violation.review.reassign(current_user, assignee, params)
     violation.save
 
     render :partial => "resource/violation", :locals => {:violation => violation}
@@ -211,7 +245,7 @@ class ReviewsController < ApplicationController
     if violation.review.nil?
       violation.build_review(:user_id => current_user.id)
     end
-    violation.review.set_severity(params[:severity], current_user, :text => params[:comment])
+    violation.review.set_severity(params[:severity], current_user, params)
     # refresh the violation that has been modified
     violation.reload
 
@@ -221,6 +255,7 @@ class ReviewsController < ApplicationController
 
   # GET
   def violation_false_positive_form
+    @violation = RuleFailure.find(params[:id])
     render :partial => 'reviews/violation_false_positive_form'
   end
 
@@ -237,7 +272,7 @@ class ReviewsController < ApplicationController
     if violation.review.nil?
       violation.build_review(:user_id => current_user.id)
     end
-    violation.review.set_false_positive(params[:false_positive]=='true', :user => current_user, :text => params[:comment])
+    violation.review.set_false_positive(params[:false_positive]=='true', current_user, params)
 
     # refresh the violation that has been modified when setting the review to false positive
     violation.reload
@@ -295,6 +330,12 @@ class ReviewsController < ApplicationController
     render :partial => "resource/violation", :locals => {:violation => violation}
   end
 
+  # GET
+  def violation_change_status_form
+    @violation = RuleFailure.find(params[:id], :include => 'review')
+    render :partial => 'reviews/violation_change_status_form'
+  end
+
   # POST
   def violation_change_status
     violation = RuleFailure.find(params[:id], :include => 'snapshot')
@@ -304,14 +345,15 @@ class ReviewsController < ApplicationController
     end
     sanitize_violation(violation)
 
-    if violation.review
-      review = violation.review
-      if review.resolved?
-        review.reopen(current_user)
-      else
-        # for the moment, if a review is not open, it can only be "RESOLVED"
-        review.resolve(current_user)
-      end
+    if violation.review.nil?
+      violation.build_review(:user_id => current_user.id)
+    end
+
+    if violation.review.resolved?
+      violation.review.reopen(current_user, params)
+    else
+      # for the moment, if a review is not open, it can only be "RESOLVED"
+      violation.review.resolve(current_user, params)
     end
 
     render :partial => "resource/violation", :locals => {:violation => violation}
