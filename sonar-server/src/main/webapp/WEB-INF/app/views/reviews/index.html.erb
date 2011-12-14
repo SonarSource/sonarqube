@@ -1,25 +1,25 @@
 <script>
-function reviewIdFieldModified(field) {
-  if (field.value!='') {
-    $('statuses').value = ''
-    $('severities').value = ''
-    $('projects').value = ''
-    $('author_login').value = ''
-    $('autocompleteText-author_login').value = ''
-    $('assignee_login').value = ''
-    $('autocompleteText-assignee_login').value = ''  
-    $('false_positives').value = 'with'  
+  function reviewIdFieldModified(field) {
+    if (field.value != '') {
+      $('statuses').value = ''
+      $('severities').value = ''
+      $('projects').value = ''
+      $('author_login').value = ''
+      $('autocompleteText-author_login').value = ''
+      $('assignee_login').value = ''
+      $('autocompleteText-assignee_login').value = ''
+      $('false_positives').value = 'with'
+    }
   }
-}
-function launchSearch(columnName, link) {
-  $('sort').value = columnName
-  if ($('asc').value == "true") {
-    $('asc').value = "false";
-  } else {
-    $('asc').value = "true";
+  function launchSearch(columnName, link) {
+    $('sort').value = columnName
+    if ($('asc').value == "true") {
+      $('asc').value = "false";
+    } else {
+      $('asc').value = "true";
+    }
+    document.forms[0].submit()
   }
-  document.forms[0].submit()
-}
 </script>
 <div id="reviews-search">
   <h1><%= message('reviews') -%></h1>
@@ -51,7 +51,7 @@ function launchSearch(columnName, link) {
             <option value="<%= Severity::MAJOR -%>" class="sev_MAJOR" <%= 'selected' if @severities.include?(Severity::MAJOR) -%>><%= message('major') -%></option>
             <option value="<%= Severity::MINOR -%>" class="sev_MINOR" <%= 'selected' if @severities.include?(Severity::MINOR) -%>><%= message('minor') -%></option>
             <option value="<%= Severity::INFO -%>" class="sev_INFO" <%= 'selected' if @severities.include?(Severity::INFO) -%>><%= message('info') -%></option>
-           </select>
+          </select>
         </td>
         <td width="1%" nowrap>
           <span class="note"><%= message('project') -%></span><br/>
@@ -66,10 +66,10 @@ function launchSearch(columnName, link) {
         </td>
         <td width="1%" nowrap>
           <span class="note"><%= message('created_by') -%></span><br/>
-          <%= user_autocomplete_field "author_login", @author_login, { :class => "max-width" } -%>
+          <%= user_autocomplete_field "author_login", @author_login, {:class => "max-width"} -%>
           <br/>
           <span class="note"><%= message('assigned_to') -%></span><br/>
-          <%= user_autocomplete_field "assignee_login", @assignee_login, { :class => "max-width" } -%>
+          <%= user_autocomplete_field "assignee_login", @assignee_login, {:class => "max-width"} -%>
           <br/>
           <br/>
           <select name="false_positives" id="false_positives" onchange="if(this.value=='only' || this.value=='with') {$('assignee_login').value = ''; $('autocompleteText-assignee_login').value = ''; $('statuses').value = '';};">
@@ -85,10 +85,11 @@ function launchSearch(columnName, link) {
           <br/>
           <br/>
           <br/>
+
           <div style="width:100%; text-align: right">
-          <input type="hidden" name="sort" id="sort" value="<%= @sort -%>"/>
-          <input type="hidden" name="asc" id="asc" value="<%= @asc -%>"/>
-          <%= submit_tag message('search_verb'), :id => 'submit_search' %>
+            <input type="hidden" name="sort" id="sort" value="<%= @sort -%>"/>
+            <input type="hidden" name="asc" id="asc" value="<%= @asc -%>"/>
+            <%= submit_tag message('search_verb'), :id => 'submit_search' %>
           </div>
         </td>
         <td>
@@ -103,20 +104,20 @@ function launchSearch(columnName, link) {
      if @reviews && !@reviews.empty?
   %>
     <% if @false_positives=='only' %>
-      <div style="color:#777777; font-size:93%; padding: 4px 0px 4px 10px;"><span class="falsePositive"><%= message('reviews.showing_false_positives_only') -%></span></div>
+      <span class="falsePositive"><%= message('reviews.showing_false_positives_only') -%></span>
     <% end %>
-    <% 
-      if params[:from] && params[:to]
-        from = Time.parse(params[:from])
-        to = Time.parse(params[:to])
+    <%
+       if params[:from] && params[:to]
+         from = Time.parse(params[:from])
+         to = Time.parse(params[:to])
     %>
       <div style="color:#777777; font-size:93%; padding: 4px 0px 4px 10px;">
         <span style="background-color: #FFF6BF; padding-left: 5px; padding-right: 5px;">
-          <%= message('reviews.reviews_filtered_by_date_x_to_y', :params => [l(from, :format => '%d %B %Y'), l(to, :format => '%d %B %Y')] ) -%>
+          <%= message('reviews.reviews_filtered_by_date_x_to_y', :params => [l(from, :format => '%d %B %Y'), l(to, :format => '%d %B %Y')]) -%>
         </span>
       </div>
     <% end %>
-    
+
     <table id="reviews-list" class="data width100">
       <thead>
       <tr>
@@ -145,19 +146,19 @@ function launchSearch(columnName, link) {
       </tr>
       </thead>
       <tfoot>
-        <tr>
-          <td colspan="6">
-            <%= @total_number -%> <%= message('results').downcase -%>
-	        <% if @page_count %>
-	          |
-	          <%= link_to_if @page_id>1, message('paging_previous'), {:overwrite_params => {:page_id => @page_id-1}} %>
-	          <% for index in 1..@page_count %>
-	            <%= link_to_unless index==@page_id, index.to_s, {:overwrite_params => {:page_id => index}} %>
-	          <% end %>
-	          <%= link_to_if @page_id<@page_count, message('paging_next'), {:overwrite_params => {:page_id => 1+@page_id}} %>
-	        <% end %>
-          </td>
-        </tr>
+      <tr>
+        <td colspan="6">
+          <%= @total_number -%> <%= message('results').downcase -%>
+          <% if @page_count %>
+            |
+            <%= link_to_if @page_id>1, message('paging_previous'), {:overwrite_params => {:page_id => @page_id-1}} %>
+            <% for index in 1..@page_count %>
+              <%= link_to_unless index==@page_id, index.to_s, {:overwrite_params => {:page_id => index}} %>
+            <% end %>
+            <%= link_to_if @page_id<@page_count, message('paging_next'), {:overwrite_params => {:page_id => 1+@page_id}} %>
+          <% end %>
+        </td>
+      </tr>
       </tfoot>
       <tbody>
       <%
@@ -173,12 +174,12 @@ function launchSearch(columnName, link) {
           <td>
             <%= link_to h(review.title), :controller => "reviews", :action => "view", :id => review.id -%>
             <% if comment %>
-            <div class="comment-excerpt">
-              <img src="<%= ApplicationController.root_context -%>/images/reviews/comment.png"/>
-              &nbsp;<b><%= comment.user.name -%> :</b> 
-              <%= comment.excerpt -%>
+              <div class="comment-excerpt">
+                <img src="<%= ApplicationController.root_context -%>/images/reviews/comment.png"/>
+                &nbsp;<b><%= comment.user.name -%> :</b>
+                <%= comment.excerpt -%>
             <% end %>
-	        </div>            
+            </div>
           </td>
           <td>
             <span class="nowrap"><%= review.project.name -%></span>
@@ -199,12 +200,13 @@ function launchSearch(columnName, link) {
   <%
      end
   %>
-  
+
   <% if @security_exclusions %>
     <br/>
+
     <p class="notes"><%= message('results_not_display_due_to_security') -%></p>
   <% end %>
-  
+
 </div>
 
 <script>

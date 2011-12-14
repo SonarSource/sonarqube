@@ -1,6 +1,6 @@
 <div id="vId<%= violation.id -%>"
      <% if current_user -%>onmouseover="sVA(<%= violation.id -%>)" onmouseout="hVA(<%= violation.id -%>)"
-<% end -%>>
+     <% end -%>>
   <div class="violation">
     <div class="vtitle">
       <% if violation.review %>
@@ -100,13 +100,11 @@
                              :url => {:controller => "reviews", :action => "violation_comment_form", :comment_id => review_comment.id, :id => violation.id},
                              :update => "lastComment" + violation.id.to_s,
                              :complete => "$('vActions#{violation.id}').hide();$('commentActions#{violation.id}').hide();$('commentText#{violation.id}').focus();" -%>
-          <% unless comment_index == 0 %>
           &nbsp;
-            <%= link_to_remote message('delete'),
-                               :url => {:controller => "reviews", :action => "violation_delete_comment", :comment_id => review_comment.id, :id => violation.id},
-                               :update => "vId" + violation.id.to_s,
-                               :confirm => message('reviews.do_you_want_to_delete_comment') -%>
-          <% end %>
+          <%= link_to_remote message('delete'),
+                             :url => {:controller => "reviews", :action => "violation_delete_comment", :comment_id => review_comment.id, :id => violation.id},
+                             :update => "vId" + violation.id.to_s,
+                             :confirm => message('reviews.do_you_want_to_delete_comment') -%>
         <%
            end
         %>
