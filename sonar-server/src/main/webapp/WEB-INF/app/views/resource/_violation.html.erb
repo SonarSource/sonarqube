@@ -51,37 +51,18 @@
     <div class="discussionComment first" id="vBody<%= violation.id -%>">
       <% if current_user %>
         <div style="display: none" class="vActions" id="vActions<%= violation.id -%>">
-          <%
-             if violation.review
-               unless violation.switched_off?
-          %>
-              <%= button_to_remote (violation.review.resolved? ? message('reopen') : message('resolve')),
-                                   {
-                                     :url => {:controller => "reviews", :action => "violation_change_status", :id => violation.id},
-                                     :update => "vId" + violation.id.to_s,
-                                     :confirm => violation.review.resolved? ? message('reviews.do_you_want_to_reopen') : message('reviews.do_you_want_to_resolve')
-                                   },
-                                   :name => (violation.review.resolved? ? 'bReopen' : 'bResolve') -%>
+          <%= button_to_function message('reviews.comment'), "sCF(#{violation.id})", :name => 'bFComment' -%>
 
-              <% unless violation.review && violation.review.resolved? %>
-                <%= button_to_function message('assign'),
-                                       "sAF(#{violation.id})",
-                                       :name => 'bAssign' -%>
-              <%
-                 end
-                 end
-                 else
-              %>
-            <%= button_to_remote message('review_verb'),
-                                 {
-                                   :url => {:controller => "reviews", :action => "violation_comment_form", :id => violation.id},
-                                   :update => "reviewForm" + violation.id.to_s,
-                                   :complete => "$('reviewForm" + violation.id.to_s + "').show();$('commentText" + violation.id.to_s + "').focus();$('vActions#{violation.id}').hide();"
-                                 },
-                                 :name => 'bReview' -%>
+          <% unless violation.review && violation.review.resolved? %>
+            <%= button_to_function message('reviews.assign'), "sAF(#{violation.id})", :name => 'bAssign' -%>
           <% end %>
 
-          <% if (!violation.review) || (violation.review && violation.review.can_change_false_positive_flag?) %>
+          <% if violation.review && !violation.switched_off? %>
+            <%= button_to_function (violation.review.resolved? ? message('reviews.reopen') : message('reviews.resolve')),
+                                   "sCStF(#{violation.id})", :name => (violation.review.resolved? ? 'bReopen' : 'bResolve') -%>
+          <% end %>
+
+          <% if violation.review.nil? || violation.review.can_change_false_positive_flag? %>
             <%= button_to_function message(violation.switched_off? ? 'reviews.unflag_as_false_positive' : 'reviews.flag_as_false_positive'),
                                    "sFPF(#{violation.id})",
                                    :name => 'bFalsePositive' -%>
@@ -109,15 +90,10 @@
       <span class="actions" id="commentActions<%= violation.id -%>">
         &nbsp;&nbsp;
         <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
-        &nbsp;&nbsp;
-        <%= link_to_remote message('add_comment'),
-                           :url => {:controller => "reviews", :action => "violation_comment_form", :id => violation.id},
-                           :update => "reviewForm" + violation.id.to_s,
-                           :complete => "$('vActions#{violation.id}').hide();$('commentActions" + violation.id.to_s + "').hide();$('reviewForm" + violation.id.to_s + "').show();$('commentText" + violation.id.to_s + "').focus()" -%>
+        &nbsp;
         <%
            if current_user.id == review_comment.user_id
         %>
-          &nbsp;
           <%= link_to_remote message('edit'),
                              :url => {:controller => "reviews", :action => "violation_comment_form", :comment_id => review_comment.id, :id => violation.id},
                              :update => "lastComment" + violation.id.to_s,

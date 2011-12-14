@@ -122,7 +122,7 @@ class Api::ReviewsController < Api::ApiController
         review.create_comment(:user => current_user, :text => comment)
       elsif status == Review::STATUS_RESOLVED
         if resolution == Review::RESOLUTION_FALSE_POSITIVE
-          review.set_false_positive(true, :user => current_user, :text => comment)
+          review.set_false_positive(true, current_user, :text => comment)
         elsif resolution == Review::RESOLUTION_FIXED
           review.create_comment(:user => current_user, :text => comment)
           review.resolve(current_user)
@@ -232,7 +232,7 @@ class Api::ReviewsController < Api::ApiController
         end
         if resolution == Review::RESOLUTION_FALSE_POSITIVE
           raise "Comment must be provided." unless comment && !comment.blank?
-          review.set_false_positive(true, :user => current_user, :text => comment)
+          review.set_false_positive(true, current_user, :text => comment)
         elsif resolution == Review::RESOLUTION_FIXED
           review.create_comment(:user => current_user, :text => comment) unless comment.blank?
           review.resolve(current_user)
@@ -271,7 +271,7 @@ class Api::ReviewsController < Api::ApiController
         end
         if review.resolution == Review::RESOLUTION_FALSE_POSITIVE
           raise "Comment must be provided." unless comment && !comment.blank?
-          review.set_false_positive(false, :user => current_user, :text => comment)
+          review.set_false_positive(false, current_user, :text => comment)
         else
           review.reopen(current_user)
           review.create_comment(:user => current_user, :text => comment) unless comment.blank?

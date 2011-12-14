@@ -915,7 +915,8 @@ div.vtitle {
   margin: 0;
   padding: 0 0 0 10px;
   line-height: 2.2em;
-  color: #777
+  color: #777;
+  border-bottom: 1px solid #DDDDDD;
 }
 
 span.falsePositive {

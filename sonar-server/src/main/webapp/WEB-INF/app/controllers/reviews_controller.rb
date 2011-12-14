@@ -121,7 +121,7 @@ class ReviewsController < ApplicationController
     end
 
     unless params[:comment].blank?
-      @review.set_false_positive(params[:false_positive]=='true', :user => current_user, :text => params[:comment])
+      @review.set_false_positive(params[:false_positive]=='true', current_user, params)
     end
 
     render :partial => "reviews/view"
@@ -174,6 +174,7 @@ class ReviewsController < ApplicationController
 
   # GET
   def violation_assign_form
+    @violation = RuleFailure.find(params[:id], :include => 'review')
     render :partial => "violation_assign_form"
   end
 
@@ -187,8 +188,14 @@ class ReviewsController < ApplicationController
     sanitize_violation(violation)
 
     violation.build_review(:user_id => current_user.id)
-    assignee = findUserByLogin(params[:assignee_login]) unless params[:assignee_login].blank?
-    violation.review.reassign(current_user, assignee)
+    assignee=nil
+    if params[:me]=='true'
+      assignee = current_user
+
+    elsif params[:assignee_login].present?
+      assignee = findUserByLogin(params[:assignee_login])
+    end
+    violation.review.reassign(current_user, assignee, params)
     violation.save
 
     render :partial => "resource/violation", :locals => {:violation => violation}
@@ -211,7 +218,7 @@ class ReviewsController < ApplicationController
     if violation.review.nil?
       violation.build_review(:user_id => current_user.id)
     end
-    violation.review.set_severity(params[:severity], current_user, :text => params[:comment])
+    violation.review.set_severity(params[:severity], current_user, params)
     # refresh the violation that has been modified
     violation.reload
 
@@ -238,7 +245,7 @@ class ReviewsController < ApplicationController
     if violation.review.nil?
       violation.build_review(:user_id => current_user.id)
     end
-    violation.review.set_false_positive(params[:false_positive]=='true', :user => current_user, :text => params[:comment])
+    violation.review.set_false_positive(params[:false_positive]=='true', current_user, params)
 
     # refresh the violation that has been modified when setting the review to false positive
     violation.reload
@@ -294,6 +301,12 @@ class ReviewsController < ApplicationController
       violation.review.delete_comment(current_user, params[:comment_id].to_i)
     end
     render :partial => "resource/violation", :locals => {:violation => violation}
+  end
+
+  # GET
+  def violation_change_status_form
+    @violation = RuleFailure.find(params[:id], :include => 'review')
+    render :partial => 'reviews/violation_change_status_form'
   end
 
   # POST

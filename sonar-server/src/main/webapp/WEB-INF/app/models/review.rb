@@ -129,7 +129,10 @@ class Review < ActiveRecord::Base
       }.merge(options))
   end
 
-  def reassign(current_user, assignee)
+  def reassign(current_user, assignee, options={})
+    if options[:text].present?
+      comments.create!(:user => current_user, :text => options[:text])
+    end
     old = self.to_java_map
     self.assignee = assignee
     self.save!
@@ -153,25 +156,22 @@ class Review < ActiveRecord::Base
   end
 
   # Parameters:
-  # - :user (mandatory)
-  # - :text (optional)
-  def set_false_positive(is_false_positive, options={})
-    if options[:user]
-      if violation.nil?
-        bad_request('This review does not relate to a violation')
-      end
-      violation.switched_off=is_false_positive
-      violation.save!
-      if options[:text].present?
-        comments.create!(:user => options[:user], :text => options[:text])
-      end
-      old = self.to_java_map
-      self.assignee = nil
-      self.status = is_false_positive ? STATUS_RESOLVED : STATUS_REOPENED
-      self.resolution = is_false_positive ? RESOLUTION_FALSE_POSITIVE : nil
-      self.save!
-      notification_manager.notifyChanged(id.to_i, options[:user].login.to_java, old, to_java_map("comment" => options[:text]))
+  # - :text
+  def set_false_positive(is_false_positive, user, options={})
+    if violation.nil?
+      bad_request('This review does not relate to a violation')
     end
+    violation.switched_off=is_false_positive
+    violation.save!
+    if options[:text].present?
+      comments.create!(:user => user, :text => options[:text])
+    end
+    old = self.to_java_map
+    self.assignee = nil
+    self.status = is_false_positive ? STATUS_RESOLVED : STATUS_REOPENED
+    self.resolution = is_false_positive ? RESOLUTION_FALSE_POSITIVE : nil
+    self.save!
+    notification_manager.notifyChanged(id.to_i, user.login.to_java, old, to_java_map("comment" => options[:text]))
   end
 
   def false_positive
@@ -187,8 +187,8 @@ class Review < ActiveRecord::Base
       comments.create!(:user => user, :text => options[:text])
     end
     old = self.to_java_map
-    self.manual_severity=true
     self.severity=new_severity
+    self.manual_severity=(new_severity!=violation.severity)
     self.save!
     notification_manager.notifyChanged(id.to_i, user.login.to_java, old, to_java_map("comment" => options[:text]))
   end
