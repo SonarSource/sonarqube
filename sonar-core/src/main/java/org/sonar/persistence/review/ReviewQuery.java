@@ -128,11 +128,11 @@ public final class ReviewQuery {
     return this;
   }
 
-  protected boolean needToPartitionQuery() {
+  boolean needToPartitionQuery() {
     return violationPermanentIds != null && violationPermanentIds.size() > DatabaseUtils.MAX_IN_ELEMENTS;
   }
 
-  public ReviewQuery[] partition() {
+  ReviewQuery[] partition() {
     List<List<Integer>> partitions = Lists.partition(violationPermanentIds, DatabaseUtils.MAX_IN_ELEMENTS);
     ReviewQuery[] result = new ReviewQuery[partitions.size()];
     for (int index = 0; index < partitions.size(); index++) {

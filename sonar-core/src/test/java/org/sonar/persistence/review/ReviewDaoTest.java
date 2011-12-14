@@ -25,9 +25,6 @@ import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.persistence.DaoTestCase;
-import org.sonar.persistence.review.ReviewDao;
-import org.sonar.persistence.review.ReviewDto;
-import org.sonar.persistence.review.ReviewQuery;
 
 import java.util.List;
 
@@ -131,8 +128,6 @@ public class ReviewDaoTest extends DaoTestCase {
 
     public boolean matches(Object o) {
       ReviewDto reviewDto = (ReviewDto) o;
-      System.out.println(reviewDto.getViolationPermanentId());
-
       return expectedId.equals(reviewDto.getViolationPermanentId());
     }
 
