@@ -51,7 +51,7 @@ public class ManualViolationInjector implements Decorator {
 
   public void decorate(Resource resource, DecoratorContext context) {
     if (resource.getId() != null) {
-      ReviewQuery query = ReviewQuery.create().setManualViolation(true).setResourceId(resource.getId()).setStatus(ReviewDto.STATUS_OPENED);
+      ReviewQuery query = ReviewQuery.create().setManualViolation(true).setResourceId(resource.getId()).setStatus(ReviewDto.STATUS_OPEN);
       List<ReviewDto> reviewDtos = reviewDao.selectByQuery(query);
       for (ReviewDto reviewDto : reviewDtos) {
         if (reviewDto.getRuleId() == null) {

@@ -29,7 +29,7 @@ import java.util.Date;
  */
 public class ReviewDto {
 
-  public static final String STATUS_OPENED = "OPEN";
+  public static final String STATUS_OPEN = "OPEN";
   public static final String STATUS_REOPENED = "REOPENED";
   public static final String STATUS_RESOLVED = "RESOLVED";
   public static final String STATUS_CLOSED = "CLOSED";
