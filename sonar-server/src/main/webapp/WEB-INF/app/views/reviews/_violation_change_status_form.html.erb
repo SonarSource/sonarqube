@@ -16,7 +16,7 @@
 
   <div>
     <%= submit_to_remote "submit_btn"+params[:id],
-                         @violation.review.resolved? ? message('reviews.reopen') : message('reviews.resolve'),
+                         @violation.review && @violation.review.resolved? ? message('reviews.reopen_submit') : message('reviews.resolved_submit'),
                          :url => {:action => 'violation_change_status'},
                          :html => {:id => "submit_btn"+params[:id]},
                          :update => 'vId'+params[:id] -%>

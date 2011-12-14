@@ -383,7 +383,7 @@ class ReviewsController < ApplicationController
   private
 
   def findUserByLogin(login)
-    User.find(:all, :conditions => ["login = ?", login]).first
+    User.find(:first, :conditions => ["login = ?", login])
   end
 
   def init_params

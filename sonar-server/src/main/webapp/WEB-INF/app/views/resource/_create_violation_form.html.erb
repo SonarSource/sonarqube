@@ -47,6 +47,11 @@
               <% if is_admin %>
                 <input type="text" name="new_rule" size="50" id="new_rule_<%= @html_id -%>">
               <% end %>
+
+              &nbsp;
+              <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
+              &nbsp;
+              Assign to: <%= user_autocomplete_field "assignee_login", current_user.login -%>
             </div>
 
             <div class="discussionComment first">

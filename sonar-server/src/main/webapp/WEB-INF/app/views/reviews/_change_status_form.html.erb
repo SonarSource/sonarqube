@@ -3,7 +3,7 @@
 
   <textarea id="actionText" rows="4" name="text" style="width: 100%"></textarea>
   <%= submit_to_remote "submit_btn",
-                       message(@review.resolved? ? 'reviews.reopen' : 'reviews.resolve'),
+                       message(@review.resolved? ? 'reviews.reopen_submit' : 'reviews.resolved_submit'),
                        :url => {:action => 'change_status'},
                        :html => {:id => "submit_btn"},
                        :update => 'review' -%>

@@ -19,7 +19,7 @@
       <%
          if !violation_switched_off
       %>
-        <%= button_to_remote (review.resolved? ? message('reviews.reopen') : message('reviews.resolve')),
+        <%= button_to_remote (review.resolved? ? message('reviews.reopen') : message('reviews.resolved')),
                              :url => {:controller => "reviews", :action => "change_status_form", :id => review.id},
                              :update => "actionForm",
                              :complete => "$('actionButtons').remove();$('actionForm').show();$('actionText').focus();" -%>
@@ -50,9 +50,9 @@
         <%= message('status') -%>:
       </td>
       <td class="val">
-        <%= image_tag "status/#{review.status}.png" -%> <%= message(review.status.downcase).capitalize -%>
-        <% if @review.violation.switched_off? %>
-          <span class="falsePositive">(<%= message('false_positive') -%>)</span>
+        <%= image_tag "status/#{review.status}.png" -%> <%= message("reviews.status.#{review.status}") -%>
+        <% if @review.resolution.present? %>
+          <span class="reviewResolution<%= @review.resolution -%>">(<%= message("reviews.resolution.#{@review.resolution}") -%>)</span>
         <% end %>
       </td>
       <td class="key">

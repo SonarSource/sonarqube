@@ -919,13 +919,20 @@ div.vtitle {
   border-bottom: 1px solid #DDDDDD;
 }
 
-span.falsePositive {
+span.falsePositive, span.reviewResolutionFALSE-POSITIVE {
   background-color: #FFF6BF;
   padding-left: 5px;
   padding-right: 5px;
 }
 
-span.reviewReopened {
+span.reviewResolved, span.reviewStatusRESOLVED {
+  background-color: #4B9FD5;
+  color: #FFF;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+span.reviewReopened, span.reviewStatusREOPENED {
   background-color: #FDC596;
   padding-left: 5px;
   padding-right: 5px;

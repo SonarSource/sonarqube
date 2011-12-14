@@ -25,7 +25,7 @@ class ResourceController < ApplicationController
 
   SECTION=Navigation::SECTION_RESOURCE
   helper :dashboard
-  helper SourceHelper
+  helper SourceHelper, UsersHelper
 
   verify :method => :post, :only => [:create_violation]
 
@@ -88,15 +88,20 @@ class ResourceController < ApplicationController
     bad_request(message('code_viewer.create_violation.missing_message')) if params[:message].blank?
     bad_request(message('code_viewer.create_violation.missing_severity')) if params[:severity].blank?
 
+    assignee=nil
+    if params[:assignee_login].present?
+      assignee = User.find(:first, :conditions => ["login = ?", params[:assignee_login]])
+      bad_request(message('code_viewer.create_violation.bad_assignee')) unless assignee
+    end
     violation = nil
     Review.transaction do
       rule = Rule.find_or_create_manual_rule(rule_id_or_name, true)
       violation = rule.create_violation!(resource, params)
       violation.create_review!(
-          :assignee => current_user,
-          :user => current_user,
-          :status => Review::STATUS_OPEN,
-          :manual_violation => true)
+        :assignee => assignee,
+        :user => current_user,
+        :status => Review::STATUS_OPEN,
+        :manual_violation => true)
     end
 
     render :partial => 'resource/violation', :locals => {:violation => violation}
@@ -200,26 +205,26 @@ class ResourceController < ApplicationController
       to = (@period && @snapshot.period_datetime(@period) ? Java::JavaUtil::Date.new(@snapshot.period_datetime(@period).to_f * 1000) : nil)
       @filtered = true
       if ('lines_to_cover'==@coverage_filter || 'coverage'==@coverage_filter || 'line_coverage'==@coverage_filter ||
-          'new_lines_to_cover'==@coverage_filter || 'new_coverage'==@coverage_filter || 'new_line_coverage'==@coverage_filter ||
-          'it_lines_to_cover'==@coverage_filter || 'it_coverage'==@coverage_filter || 'it_line_coverage'==@coverage_filter ||
-          'new_it_lines_to_cover'==@coverage_filter || 'new_it_coverage'==@coverage_filter || 'new_it_line_coverage'==@coverage_filter)
+        'new_lines_to_cover'==@coverage_filter || 'new_coverage'==@coverage_filter || 'new_line_coverage'==@coverage_filter ||
+        'it_lines_to_cover'==@coverage_filter || 'it_coverage'==@coverage_filter || 'it_line_coverage'==@coverage_filter ||
+        'new_it_lines_to_cover'==@coverage_filter || 'new_it_coverage'==@coverage_filter || 'new_it_line_coverage'==@coverage_filter)
         @coverage_filter = "#{it_prefix}lines_to_cover"
         filter_lines { |line| line.hits && line.after(to) }
 
       elsif ('uncovered_lines'==@coverage_filter || 'new_uncovered_lines'==@coverage_filter ||
-          'it_uncovered_lines'==@coverage_filter || 'new_it_uncovered_lines'==@coverage_filter)
+        'it_uncovered_lines'==@coverage_filter || 'new_it_uncovered_lines'==@coverage_filter)
         @coverage_filter = "#{it_prefix}uncovered_lines"
         filter_lines { |line| line.hits && line.hits==0 && line.after(to) }
 
       elsif ('conditions_to_cover'==@coverage_filter || 'branch_coverage'==@coverage_filter ||
-          'new_conditions_to_cover'==@coverage_filter || 'new_branch_coverage'==@coverage_filter ||
-          'it_conditions_to_cover'==@coverage_filter || 'it_branch_coverage'==@coverage_filter ||
-          'new_it_conditions_to_cover' == @coverage_filter || 'new_it_branch_coverage'==@coverage_filter)
+        'new_conditions_to_cover'==@coverage_filter || 'new_branch_coverage'==@coverage_filter ||
+        'it_conditions_to_cover'==@coverage_filter || 'it_branch_coverage'==@coverage_filter ||
+        'new_it_conditions_to_cover' == @coverage_filter || 'new_it_branch_coverage'==@coverage_filter)
         @coverage_filter="#{it_prefix}conditions_to_cover"
         filter_lines { |line| line.conditions && line.conditions>0 && line.after(to) }
 
       elsif ('uncovered_conditions' == @coverage_filter || 'new_uncovered_conditions' == @coverage_filter ||
-          'it_uncovered_conditions'==@coverage_filter || 'new_it_uncovered_conditions' == @coverage_filter)
+        'it_uncovered_conditions'==@coverage_filter || 'new_it_uncovered_conditions' == @coverage_filter)
         @coverage_filter="#{it_prefix}uncovered_conditions"
         filter_lines { |line| line.conditions && line.covered_conditions && line.covered_conditions<line.conditions && line.after(to) }
       end

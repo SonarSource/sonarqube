@@ -18,7 +18,7 @@
 
       <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
       &nbsp;
-      <span class="rulename" <%= 'style="text-decoration: line-through"' if violation.review && violation.review.resolved? %> >
+      <span class="rulename">
         <a onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;" href="<%= url_for :controller => 'rules', :action => 'show', :id => violation.rule.key, :layout => 'false' -%>"><%= h(violation.rule.name) -%></a>
       </span>
       &nbsp;
@@ -35,10 +35,16 @@
         <span class="falsePositive"><%= message('false_positive') -%></span>
         &nbsp;
       <% end %>
+      <% if violation.review && violation.review.resolved? %>
+        <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
+        &nbsp;
+        <span class="reviewResolved"><%= message('reviews.status.RESOLVED') -%></span>
+        &nbsp;
+      <% end %>
       <% if violation.review && violation.review.reopened? %>
         <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
         &nbsp;
-        <span class="reviewReopened"><%= message('reopened') -%></span>
+        <span class="reviewReopened"><%= message('reviews.status.REOPENED') -%></span>
         &nbsp;
       <% end %>
       <% if violation.review && violation.review.assignee_id %>
@@ -59,9 +65,9 @@
             <%= button_to_function message('reviews.assign'), "sAF(#{violation.id})", :name => 'bAssign' -%>
           <% end %>
 
-          <% if violation.review && !violation.switched_off? %>
-            <%= button_to_function (violation.review.resolved? ? message('reviews.reopen') : message('reviews.resolve')),
-                                   "sCStF(#{violation.id})", :name => (violation.review.resolved? ? 'bReopen' : 'bResolve') -%>
+          <% if !violation.switched_off? %>
+            <%= button_to_function (violation.review && violation.review.resolved? ? message('reviews.reopen') : message('reviews.resolved')),
+                                   "sCStF(#{violation.id})", :name => (violation.review && violation.review.resolved? ? 'bReopen' : 'bResolved') -%>
           <% end %>
 
           <% if violation.review.nil? || violation.review.can_change_false_positive_flag? %>
