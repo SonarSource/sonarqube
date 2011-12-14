@@ -3,9 +3,12 @@
 
 <mapper namespace="org.sonar.persistence.model.WidgetMapper">
 
-  <insert id="insert" parameterType="Widget" keyColumn="id" useGeneratedKeys="false" keyProperty ="id">
+  <insert id="insert" parameterType="Widget" keyColumn="id" useGeneratedKeys="true" keyProperty ="id">
+    <selectKey order="BEFORE" resultType="Long" keyProperty="id" >
+        select widgets_seq.NEXTVAL from DUAL
+    </selectKey>
     INSERT INTO widgets (id, dashboard_id, widget_key, name, description, column_index, row_index, configured, created_at, updated_at)
-    VALUES (widgets_seq.NEXTVAL, #{dashboardId}, #{key}, #{name, jdbcType=VARCHAR}, #{description, jdbcType=VARCHAR}, #{columnIndex, jdbcType=INTEGER}, 
+    VALUES (#{id}, #{dashboardId}, #{key}, #{name, jdbcType=VARCHAR}, #{description, jdbcType=VARCHAR}, #{columnIndex, jdbcType=INTEGER}, 
             #{rowIndex, jdbcType=INTEGER}, #{configured}, #{createdAt, jdbcType=TIMESTAMP}, #{updatedAt, jdbcType=TIMESTAMP})
   </insert>
 

@@ -7,7 +7,7 @@
       name="[null]"
       description="[null]"
       column_layout="[null]"
-      shared="true"
+      shared="1"
       created_at="[null]"
       updated_at="[null]"/>
 
@@ -19,7 +19,7 @@
       description="[null]"
       column_index="[null]"
       row_index="[null]"
-      configured="true"
+      configured="1"
       created_at="[null]"
       updated_at="[null]"/>
 

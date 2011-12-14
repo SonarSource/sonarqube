@@ -6,18 +6,21 @@
   <resultMap id="loadedTemplateResultMap" type="LoadedTemplate">
     <result property="id" column="id"/>
     <result property="key" column="kee"/>
-    <result property="type" column="type"/>
+    <result property="type" column="template_type"/>
   </resultMap>
 
-  <select id="selectByKeyAndType" parameterType="map" resultType="LoadedTemplate">
+  <select id="selectByKeyAndType" parameterType="map" resultMap="loadedTemplateResultMap">
     SELECT id, kee, template_type 
     FROM loaded_templates 
     WHERE kee = #{key} AND template_type = #{type}
   </select>
 
-  <insert id="insert" parameterType="LoadedTemplate" keyColumn="id" useGeneratedKeys="false" keyProperty ="id">
+  <insert id="insert" parameterType="LoadedTemplate" keyColumn="id" useGeneratedKeys="true" keyProperty ="id">
+    <selectKey order="BEFORE" resultType="Long" keyProperty="id" >
+        select loaded_templates_seq.NEXTVAL from DUAL
+    </selectKey>
     INSERT INTO loaded_templates (id, kee, template_type)
-    VALUES (loaded_templates.NEXTVAL, #{key}, #{type})
+    VALUES (#{id}, #{key}, #{type})
   </insert>
 
 </mapper>

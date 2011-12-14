@@ -7,7 +7,7 @@
       name="My Dashboard"
       description="This is a dashboard"
       column_layout="100%"
-      shared="true"/>
+      shared="1"/>
 
   <widgets
       id="1"
@@ -17,7 +17,7 @@
       description="Widget for code coverage"
       column_index="13"
       row_index="14"
-      configured="true"/>
+      configured="1"/>
 
   <widget_properties
       id="1"
