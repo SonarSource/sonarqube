@@ -30,8 +30,8 @@ import org.sonar.api.resources.Resource;
 import org.sonar.batch.index.ResourcePersister;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
-import org.sonar.persistence.dao.DuplicationDao;
-import org.sonar.persistence.model.DuplicationUnit;
+import org.sonar.persistence.duplication.DuplicationDao;
+import org.sonar.persistence.duplication.DuplicationUnitDto;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -71,10 +71,10 @@ public class DbDuplicationsIndex {
 
   public void prepareCache(Resource resource) {
     int resourceSnapshotId = getSnapshotIdFor(resource);
-    List<DuplicationUnit> units = dao.selectCandidates(resourceSnapshotId, lastSnapshotId);
+    List<DuplicationUnitDto> units = dao.selectCandidates(resourceSnapshotId, lastSnapshotId);
     cache.clear();
     // TODO Godin: maybe remove conversion of units to blocks?
-    for (DuplicationUnit unit : units) {
+    for (DuplicationUnitDto unit : units) {
       String hash = unit.getHash();
       String resourceKey = unit.getResourceKey();
       int indexInFile = unit.getIndexInFile();
@@ -107,9 +107,9 @@ public class DbDuplicationsIndex {
     int resourceSnapshotId = getSnapshotIdFor(resource);
 
     // TODO Godin: maybe remove conversion of blocks to units?
-    List<DuplicationUnit> units = Lists.newArrayList();
+    List<DuplicationUnitDto> units = Lists.newArrayList();
     for (Block block : blocks) {
-      DuplicationUnit unit = new DuplicationUnit(
+      DuplicationUnitDto unit = new DuplicationUnitDto(
           currentProjectSnapshotId,
           resourceSnapshotId,
           block.getBlockHash().toString(),

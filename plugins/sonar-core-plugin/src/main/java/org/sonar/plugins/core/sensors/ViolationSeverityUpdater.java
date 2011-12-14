@@ -27,9 +27,9 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
-import org.sonar.persistence.dao.ReviewDao;
-import org.sonar.persistence.model.Review;
-import org.sonar.persistence.model.ReviewQuery;
+import org.sonar.persistence.review.ReviewDao;
+import org.sonar.persistence.review.ReviewDto;
+import org.sonar.persistence.review.ReviewQuery;
 import org.sonar.plugins.core.timemachine.ViolationTrackingDecorator;
 
 import java.util.List;
@@ -69,17 +69,17 @@ public class ViolationSeverityUpdater implements Decorator {
     Map<Integer, Violation> violationMap = filterViolationsPerPermanent(context.getViolations());
     if (!violationMap.isEmpty()) {
       Set<Integer> permanentIds = violationMap.keySet();
-      List<Review> reviews = selectReviewsWithManualSeverity(permanentIds);
-      for (Review review : reviews) {
-        Violation violation = violationMap.get(review.getViolationPermanentId());
+      List<ReviewDto> reviewDtos = selectReviewsWithManualSeverity(permanentIds);
+      for (ReviewDto reviewDto : reviewDtos) {
+        Violation violation = violationMap.get(reviewDto.getViolationPermanentId());
         if (violation != null) {
-          violation.setSeverity(RulePriority.valueOf(review.getSeverity()));
+          violation.setSeverity(RulePriority.valueOf(reviewDto.getSeverity()));
         }
       }
     }
   }
 
-  private List<Review> selectReviewsWithManualSeverity(Set<Integer> permanentIds) {
+  private List<ReviewDto> selectReviewsWithManualSeverity(Set<Integer> permanentIds) {
     ReviewQuery query = ReviewQuery.create()
       .setManualSeverity(Boolean.TRUE)
       .setViolationPermanentIds(Lists.newArrayList(permanentIds));

@@ -42,7 +42,7 @@ import org.sonar.duplications.java.JavaTokenProducer;
 import org.sonar.duplications.statement.Statement;
 import org.sonar.duplications.statement.StatementChunker;
 import org.sonar.duplications.token.TokenChunker;
-import org.sonar.persistence.dao.DuplicationDao;
+import org.sonar.persistence.duplication.DuplicationDao;
 import org.sonar.plugins.cpd.index.DbDuplicationsIndex;
 import org.sonar.plugins.cpd.index.SonarDuplicationsIndex;
 

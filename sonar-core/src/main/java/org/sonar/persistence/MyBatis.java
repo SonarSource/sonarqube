@@ -34,22 +34,22 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
-import org.sonar.persistence.model.ActiveDashboard;
-import org.sonar.persistence.model.ActiveDashboardMapper;
-import org.sonar.persistence.model.Dashboard;
-import org.sonar.persistence.model.DashboardMapper;
-import org.sonar.persistence.model.DuplicationMapper;
-import org.sonar.persistence.model.DuplicationUnit;
-import org.sonar.persistence.model.LoadedTemplate;
-import org.sonar.persistence.model.LoadedTemplateMapper;
-import org.sonar.persistence.model.Review;
-import org.sonar.persistence.model.ReviewMapper;
-import org.sonar.persistence.model.Rule;
-import org.sonar.persistence.model.RuleMapper;
-import org.sonar.persistence.model.Widget;
-import org.sonar.persistence.model.WidgetMapper;
-import org.sonar.persistence.model.WidgetProperty;
-import org.sonar.persistence.model.WidgetPropertyMapper;
+import org.sonar.persistence.dashboard.ActiveDashboardDto;
+import org.sonar.persistence.dashboard.ActiveDashboardMapper;
+import org.sonar.persistence.dashboard.DashboardDto;
+import org.sonar.persistence.dashboard.DashboardMapper;
+import org.sonar.persistence.dashboard.WidgetDto;
+import org.sonar.persistence.dashboard.WidgetMapper;
+import org.sonar.persistence.dashboard.WidgetPropertyDto;
+import org.sonar.persistence.dashboard.WidgetPropertyMapper;
+import org.sonar.persistence.duplication.DuplicationMapper;
+import org.sonar.persistence.duplication.DuplicationUnitDto;
+import org.sonar.persistence.review.ReviewDto;
+import org.sonar.persistence.review.ReviewMapper;
+import org.sonar.persistence.rule.RuleDto;
+import org.sonar.persistence.rule.RuleMapper;
+import org.sonar.persistence.template.LoadedTemplateDto;
+import org.sonar.persistence.template.LoadedTemplateMapper;
 
 public class MyBatis implements BatchComponent, ServerComponent {
 
@@ -66,14 +66,14 @@ public class MyBatis implements BatchComponent, ServerComponent {
     conf.setUseGeneratedKeys(true);
     conf.setLazyLoadingEnabled(false);
 
-    loadAlias(conf, "ActiveDashboard", ActiveDashboard.class);
-    loadAlias(conf, "Dashboard", Dashboard.class);
-    loadAlias(conf, "DuplicationUnit", DuplicationUnit.class);
-    loadAlias(conf, "LoadedTemplate", LoadedTemplate.class);
-    loadAlias(conf, "Review", Review.class);
-    loadAlias(conf, "Rule", Rule.class);
-    loadAlias(conf, "Widget", Widget.class);
-    loadAlias(conf, "WidgetProperty", WidgetProperty.class);
+    loadAlias(conf, "ActiveDashboard", ActiveDashboardDto.class);
+    loadAlias(conf, "Dashboard", DashboardDto.class);
+    loadAlias(conf, "DuplicationUnit", DuplicationUnitDto.class);
+    loadAlias(conf, "LoadedTemplate", LoadedTemplateDto.class);
+    loadAlias(conf, "Review", ReviewDto.class);
+    loadAlias(conf, "Rule", RuleDto.class);
+    loadAlias(conf, "Widget", WidgetDto.class);
+    loadAlias(conf, "WidgetProperty", WidgetPropertyDto.class);
 
     loadMapper(conf, ActiveDashboardMapper.class);
     loadMapper(conf, DashboardMapper.class);

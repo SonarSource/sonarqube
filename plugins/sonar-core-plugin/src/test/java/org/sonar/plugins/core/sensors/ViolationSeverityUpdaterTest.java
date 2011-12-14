@@ -30,9 +30,9 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
-import org.sonar.persistence.dao.ReviewDao;
-import org.sonar.persistence.model.Review;
-import org.sonar.persistence.model.ReviewQuery;
+import org.sonar.persistence.review.ReviewDao;
+import org.sonar.persistence.review.ReviewDto;
+import org.sonar.persistence.review.ReviewQuery;
 
 import java.util.Arrays;
 
@@ -52,8 +52,8 @@ public class ViolationSeverityUpdaterTest {
   @Test
   public void shouldUpdateSeverityFixedByEndUsers() {
     ReviewDao reviewDao = mock(ReviewDao.class);
-    when(reviewDao.selectByQuery(argThat(newReviewQueryMatcher(380)))).thenReturn(Arrays.<Review>asList(
-      new Review().setManualSeverity(true).setSeverity(RulePriority.BLOCKER.toString()).setViolationPermanentId(380)));
+    when(reviewDao.selectByQuery(argThat(newReviewQueryMatcher(380)))).thenReturn(Arrays.<ReviewDto>asList(
+      new ReviewDto().setManualSeverity(true).setSeverity(RulePriority.BLOCKER.toString()).setViolationPermanentId(380)));
     DecoratorContext context = mock(DecoratorContext.class);
     Violation newViolation = Violation.create(new Rule(), project).setSeverity(RulePriority.MINOR);
     Violation unchangedViolation = Violation.create(new Rule(), project).setPermanentId(120).setSeverity(RulePriority.MINOR);

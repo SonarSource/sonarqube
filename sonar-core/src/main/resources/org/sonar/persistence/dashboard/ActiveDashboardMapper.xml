@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.persistence.dashboard.ActiveDashboardMapper">
+
+  <insert id="insert" parameterType="ActiveDashboard" useGeneratedKeys="true" keyProperty ="id">
+    INSERT INTO active_dashboards (dashboard_id, user_id, order_index)
+    VALUES (#{dashboardId}, #{userId, jdbcType=FLOAT}, #{orderIndex, jdbcType=INTEGER})
+  </insert>
+
+  <select id="selectMaxOrderIndexForNullUser" resultType="Integer">
+    SELECT MAX(order_index)
+    FROM active_dashboards
+    WHERE user_id IS NULL
+  </select>
+
+</mapper>

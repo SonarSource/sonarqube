@@ -26,7 +26,7 @@ import org.hamcrest.core.Is;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.sonar.persistence.model.RuleMapper;
+import org.sonar.persistence.rule.RuleMapper;
 
 import java.io.IOException;
 

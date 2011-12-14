@@ -28,9 +28,9 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
-import org.sonar.persistence.dao.ReviewDao;
-import org.sonar.persistence.model.Review;
-import org.sonar.persistence.model.ReviewQuery;
+import org.sonar.persistence.review.ReviewDao;
+import org.sonar.persistence.review.ReviewDto;
+import org.sonar.persistence.review.ReviewQuery;
 
 import java.util.List;
 
@@ -51,23 +51,23 @@ public class ManualViolationInjector implements Decorator {
 
   public void decorate(Resource resource, DecoratorContext context) {
     if (resource.getId() != null) {
-      ReviewQuery query = ReviewQuery.create().setManualViolation(true).setResourceId(resource.getId()).setStatus(Review.STATUS_OPENED);
-      List<Review> reviews = reviewDao.selectByQuery(query);
-      for (Review review : reviews) {
-        if (review.getRuleId() == null) {
-          LoggerFactory.getLogger(getClass()).warn("No rule is defined on the review with id: " + review.getId());
+      ReviewQuery query = ReviewQuery.create().setManualViolation(true).setResourceId(resource.getId()).setStatus(ReviewDto.STATUS_OPENED);
+      List<ReviewDto> reviewDtos = reviewDao.selectByQuery(query);
+      for (ReviewDto reviewDto : reviewDtos) {
+        if (reviewDto.getRuleId() == null) {
+          LoggerFactory.getLogger(getClass()).warn("No rule is defined on the review with id: " + reviewDto.getId());
         }
-        if (review.getViolationPermanentId() == null) {
-          LoggerFactory.getLogger(getClass()).warn("Permanent id of manual violation is missing on the review with id: " + review.getId());
+        if (reviewDto.getViolationPermanentId() == null) {
+          LoggerFactory.getLogger(getClass()).warn("Permanent id of manual violation is missing on the review with id: " + reviewDto.getId());
         }
-        Violation violation = Violation.create(ruleFinder.findById(review.getRuleId()), resource);
+        Violation violation = Violation.create(ruleFinder.findById(reviewDto.getRuleId()), resource);
         violation.setManual(true);
-        violation.setLineId(review.getLine());
-        violation.setPermanentId(review.getViolationPermanentId());
+        violation.setLineId(reviewDto.getLine());
+        violation.setPermanentId(reviewDto.getViolationPermanentId());
         violation.setSwitchedOff(false);
-        violation.setCreatedAt(review.getCreatedAt());
-        violation.setMessage(review.getTitle());
-        violation.setSeverity(RulePriority.valueOf(review.getSeverity()));
+        violation.setCreatedAt(reviewDto.getCreatedAt());
+        violation.setMessage(reviewDto.getTitle());
+        violation.setSeverity(RulePriority.valueOf(reviewDto.getSeverity()));
         context.saveViolation(violation);
       }
     }

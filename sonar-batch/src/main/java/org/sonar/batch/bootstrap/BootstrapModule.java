@@ -30,8 +30,8 @@ import org.sonar.batch.config.BatchSettingsEnhancer;
 import org.sonar.jpa.session.DatabaseSessionProvider;
 import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
+import org.sonar.persistence.DaoUtils;
 import org.sonar.persistence.MyBatis;
-import org.sonar.persistence.dao.DaoUtils;
 
 import java.net.URLClassLoader;
 

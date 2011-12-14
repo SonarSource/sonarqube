@@ -34,11 +34,11 @@ import org.sonar.api.web.dashboard.Dashboard;
 import org.sonar.api.web.dashboard.DashboardTemplate;
 import org.sonar.api.web.dashboard.Widget;
 import org.sonar.core.i18n.I18nManager;
-import org.sonar.persistence.dao.ActiveDashboardDao;
-import org.sonar.persistence.dao.DashboardDao;
-import org.sonar.persistence.dao.LoadedTemplateDao;
-import org.sonar.persistence.model.ActiveDashboard;
-import org.sonar.persistence.model.LoadedTemplate;
+import org.sonar.persistence.dashboard.ActiveDashboardDao;
+import org.sonar.persistence.dashboard.ActiveDashboardDto;
+import org.sonar.persistence.dashboard.DashboardDao;
+import org.sonar.persistence.template.LoadedTemplateDto;
+import org.sonar.persistence.template.LoadedTemplateDao;
 
 import com.google.common.collect.Lists;
 
@@ -71,12 +71,12 @@ public final class RegisterProvidedDashboards {
     TimeProfiler profiler = new TimeProfiler().start("Load provided dashboards");
 
     // load the dashboards that need to be loaded
-    ArrayList<org.sonar.persistence.model.Dashboard> loadedDashboards = Lists.newArrayList();
-    org.sonar.persistence.model.Dashboard mainDashboard = null;
+    ArrayList<org.sonar.persistence.dashboard.DashboardDto> loadedDashboards = Lists.newArrayList();
+    org.sonar.persistence.dashboard.DashboardDto mainDashboard = null;
     for (DashboardTemplate dashboardTemplate : dashboardTemplates) {
       Dashboard dashboard = dashboardTemplate.createDashboard();
       if (shouldBeLoaded(dashboard)) {
-        org.sonar.persistence.model.Dashboard dashboardDataModel = loadDashboard(dashboard);
+        org.sonar.persistence.dashboard.DashboardDto dashboardDataModel = loadDashboard(dashboard);
         if (MAIN_DASHBOARD_ID.equals(dashboard.getId())) {
           mainDashboard = dashboardDataModel;
         } else {
@@ -90,8 +90,8 @@ public final class RegisterProvidedDashboards {
     profiler.stop();
   }
 
-  protected void activateDashboards(List<org.sonar.persistence.model.Dashboard> loadedDashboards,
-      org.sonar.persistence.model.Dashboard mainDashboard) {
+  protected void activateDashboards(List<org.sonar.persistence.dashboard.DashboardDto> loadedDashboards,
+      org.sonar.persistence.dashboard.DashboardDto mainDashboard) {
     int nextOrderIndex = 0;
     if (mainDashboard != null) {
       activateDashboard(mainDashboard, 1);
@@ -100,31 +100,31 @@ public final class RegisterProvidedDashboards {
       nextOrderIndex = activeDashboardDao.selectMaxOrderIndexForNullUser() + 1;
     }
     Collections.sort(loadedDashboards, new DashboardComparator());
-    for (org.sonar.persistence.model.Dashboard dashboard : loadedDashboards) {
-      activateDashboard(dashboard, nextOrderIndex++);
+    for (org.sonar.persistence.dashboard.DashboardDto dashboardDto : loadedDashboards) {
+      activateDashboard(dashboardDto, nextOrderIndex++);
     }
   }
 
-  private void activateDashboard(org.sonar.persistence.model.Dashboard dashboard, int index) {
-    ActiveDashboard activeDashboard = new ActiveDashboard();
-    activeDashboard.setDashboardId(dashboard.getId());
-    activeDashboard.setOrderIndex(index);
-    activeDashboardDao.insert(activeDashboard);
-    LOGGER.info("New dashboard '" + dashboard.getName() + "' registered and activated.");
+  private void activateDashboard(org.sonar.persistence.dashboard.DashboardDto dashboardDto, int index) {
+    ActiveDashboardDto activeDashboardDto = new ActiveDashboardDto();
+    activeDashboardDto.setDashboardId(dashboardDto.getId());
+    activeDashboardDto.setOrderIndex(index);
+    activeDashboardDao.insert(activeDashboardDto);
+    LOGGER.info("New dashboard '" + dashboardDto.getName() + "' registered and activated.");
   }
 
-  protected org.sonar.persistence.model.Dashboard loadDashboard(Dashboard dashboard) {
-    org.sonar.persistence.model.Dashboard dashboardDataModel = createDataModelFromExtension(dashboard);
+  protected org.sonar.persistence.dashboard.DashboardDto loadDashboard(Dashboard dashboard) {
+    org.sonar.persistence.dashboard.DashboardDto dashboardDataModel = createDataModelFromExtension(dashboard);
     // save the new dashboard
     dashboardDao.insert(dashboardDataModel);
     // and save the fact that is has now already been loaded
-    loadedTemplateDao.insert(new LoadedTemplate(dashboard.getId(), LoadedTemplate.DASHBOARD_TYPE));
+    loadedTemplateDao.insert(new LoadedTemplateDto(dashboard.getId(), LoadedTemplateDto.DASHBOARD_TYPE));
     return dashboardDataModel;
   }
 
-  protected org.sonar.persistence.model.Dashboard createDataModelFromExtension(Dashboard dashboard) {
+  protected org.sonar.persistence.dashboard.DashboardDto createDataModelFromExtension(Dashboard dashboard) {
     Date now = new Date();
-    org.sonar.persistence.model.Dashboard dashboardDataModel = new org.sonar.persistence.model.Dashboard();
+    org.sonar.persistence.dashboard.DashboardDto dashboardDataModel = new org.sonar.persistence.dashboard.DashboardDto();
     dashboardDataModel.setKey(dashboard.getId());
     dashboardDataModel.setName(i18nManager.message(Locale.ENGLISH, "dashboard." + dashboard.getId() + ".name", dashboard.getName()));
     dashboardDataModel.setDescription(dashboard.getDescription());
@@ -134,7 +134,7 @@ public final class RegisterProvidedDashboards {
     dashboardDataModel.setUpdatedAt(now);
 
     for (Widget widget : dashboard.getWidgets()) {
-      org.sonar.persistence.model.Widget widgetDataModel = new org.sonar.persistence.model.Widget();
+      org.sonar.persistence.dashboard.WidgetDto widgetDataModel = new org.sonar.persistence.dashboard.WidgetDto();
       widgetDataModel.setKey(widget.getId());
       widgetDataModel.setName(i18nManager.message(Locale.ENGLISH, "widget." + widget.getId() + ".name", ""));
       widgetDataModel.setColumnIndex(widget.getColumnIndex());
@@ -145,7 +145,7 @@ public final class RegisterProvidedDashboards {
       dashboardDataModel.addWidget(widgetDataModel);
 
       for (Entry<String, String> property : widget.getProperties().entrySet()) {
-        org.sonar.persistence.model.WidgetProperty widgetPropertyDataModel = new org.sonar.persistence.model.WidgetProperty();
+        org.sonar.persistence.dashboard.WidgetPropertyDto widgetPropertyDataModel = new org.sonar.persistence.dashboard.WidgetPropertyDto();
         widgetPropertyDataModel.setKey(property.getKey());
         widgetPropertyDataModel.setValue(property.getValue());
         widgetDataModel.addWidgetProperty(widgetPropertyDataModel);
@@ -156,12 +156,12 @@ public final class RegisterProvidedDashboards {
   }
 
   protected boolean shouldBeLoaded(Dashboard dashboard) {
-    return loadedTemplateDao.selectByKeyAndType(dashboard.getId(), LoadedTemplate.DASHBOARD_TYPE) == null;
+    return loadedTemplateDao.selectByKeyAndType(dashboard.getId(), LoadedTemplateDto.DASHBOARD_TYPE) == null;
   }
 
-  protected static class DashboardComparator implements Comparator<org.sonar.persistence.model.Dashboard> {
+  protected static class DashboardComparator implements Comparator<org.sonar.persistence.dashboard.DashboardDto> {
 
-    public int compare(org.sonar.persistence.model.Dashboard d1, org.sonar.persistence.model.Dashboard d2) {
+    public int compare(org.sonar.persistence.dashboard.DashboardDto d1, org.sonar.persistence.dashboard.DashboardDto d2) {
       return d1.getName().compareTo(d2.getName());
     }
 

@@ -30,9 +30,9 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.persistence.dao.ReviewDao;
-import org.sonar.persistence.model.Review;
-import org.sonar.persistence.model.ReviewQuery;
+import org.sonar.persistence.review.ReviewDao;
+import org.sonar.persistence.review.ReviewDto;
+import org.sonar.persistence.review.ReviewQuery;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -45,8 +45,8 @@ public class ManualViolationInjectorTest {
   public void shouldInjectManualViolationsDefinedByReviews() {
     ReviewDao reviewDao = mock(ReviewDao.class);
     final Date reviewCreatedAt = DateUtils.parseDate("2011-12-25");
-    Review review = new Review().setRuleId(3).setViolationPermanentId(100).setCreatedAt(reviewCreatedAt).setSeverity("BLOCKER");
-    when(reviewDao.selectByQuery(Matchers.<ReviewQuery>anyObject())).thenReturn(Arrays.<Review>asList(review));
+    ReviewDto reviewDto = new ReviewDto().setRuleId(3).setViolationPermanentId(100).setCreatedAt(reviewCreatedAt).setSeverity("BLOCKER");
+    when(reviewDao.selectByQuery(Matchers.<ReviewQuery>anyObject())).thenReturn(Arrays.<ReviewDto>asList(reviewDto));
     RuleFinder ruleFinder = mock(RuleFinder.class);
     when(ruleFinder.findById(3)).thenReturn(new Rule());
     DecoratorContext context = mock(DecoratorContext.class);
