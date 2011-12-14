@@ -31,7 +31,7 @@ public class WidgetTest {
 
   @Test
   public void shouldCreateWidgetWithProperties() throws Exception {
-    Dashboard dashboard = Dashboard.createDashboard("fake-dashboard", "Fake", "30%-70%");
+    Dashboard dashboard = Dashboard.createDashboard("fake-dashboard", "Fake", DashboardLayout.TWO_COLUMNS_30_70);
     Widget widget = dashboard.addWidget("fake-widget", 12, 13);
     assertThat(widget.getId(), is("fake-widget"));
     assertThat(widget.getColumnIndex(), is(12));

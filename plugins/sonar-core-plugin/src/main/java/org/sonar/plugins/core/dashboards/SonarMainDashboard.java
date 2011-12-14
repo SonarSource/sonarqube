@@ -20,7 +20,7 @@
 package org.sonar.plugins.core.dashboards;
 
 import org.sonar.api.web.dashboard.Dashboard;
-import org.sonar.api.web.dashboard.DashboardLayouts;
+import org.sonar.api.web.dashboard.DashboardLayout;
 import org.sonar.api.web.dashboard.DashboardTemplate;
 
 /**
@@ -30,7 +30,7 @@ public class SonarMainDashboard extends DashboardTemplate {
 
   @Override
   public org.sonar.api.web.dashboard.Dashboard createDashboard() {
-    Dashboard dashboard = Dashboard.createDashboard("sonar-main", "Dashboard", DashboardLayouts.TWO_COLUMNS);
+    Dashboard dashboard = Dashboard.createDashboard("sonar-main", "Dashboard", DashboardLayout.TWO_COLUMNS);
     dashboard.addWidget("size", 1, 1);
     dashboard.addWidget("comments_duplications", 1, 2);
     dashboard.addWidget("complexity", 1, 3);

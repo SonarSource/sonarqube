@@ -37,14 +37,15 @@ import java.util.Locale;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.web.dashboard.Dashboard;
+import org.sonar.api.web.dashboard.DashboardLayout;
 import org.sonar.api.web.dashboard.DashboardTemplate;
 import org.sonar.core.i18n.I18nManager;
 import org.sonar.persistence.dashboard.ActiveDashboardDao;
 import org.sonar.persistence.dashboard.ActiveDashboardDto;
 import org.sonar.persistence.dashboard.DashboardDao;
 import org.sonar.persistence.dashboard.WidgetDto;
-import org.sonar.persistence.template.LoadedTemplateDto;
 import org.sonar.persistence.template.LoadedTemplateDao;
+import org.sonar.persistence.template.LoadedTemplateDto;
 
 import com.google.common.collect.Lists;
 
@@ -190,7 +191,7 @@ public class RegisterProvidedDashboardsTest {
 
     @Override
     public Dashboard createDashboard() {
-      Dashboard dashboard = Dashboard.createDashboard("fake-dashboard", "Fake", "30%-70%");
+      Dashboard dashboard = Dashboard.createDashboard("fake-dashboard", "Fake", DashboardLayout.TWO_COLUMNS_30_70);
       org.sonar.api.web.dashboard.Widget widget = dashboard.addWidget("fake-widget", 12, 13);
       widget.addProperty("fake-property", "fake_metric");
       return dashboard;

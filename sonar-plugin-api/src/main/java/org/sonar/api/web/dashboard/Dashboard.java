@@ -37,7 +37,7 @@ public final class Dashboard {
   private String id;
   private String name;
   private String description;
-  private String layout;
+  private DashboardLayout layout;
   private Collection<Widget> widgets;
 
   private Dashboard() {
@@ -45,7 +45,7 @@ public final class Dashboard {
   }
 
   /**
-   * Creates a new {@link Dashboard}. See {@link DashboardLayouts} for the layout parameter.
+   * Creates a new {@link Dashboard}. See {@link DashboardLayout} for the layout parameter.
    * 
    * @param id
    *          the id
@@ -54,7 +54,7 @@ public final class Dashboard {
    * @param layout
    *          the layout
    */
-  public static Dashboard createDashboard(String id, String name, String layout) {
+  public static Dashboard createDashboard(String id, String name, DashboardLayout layout) {
     Dashboard dashboard = new Dashboard();
     dashboard.setId(id);
     dashboard.setName(name);
@@ -149,7 +149,7 @@ public final class Dashboard {
    * 
    * @return the layout
    */
-  public String getLayout() {
+  public DashboardLayout getLayout() {
     return layout;
   }
 
@@ -157,7 +157,7 @@ public final class Dashboard {
    * @param layout
    *          the layout to set
    */
-  private void setLayout(String layout) {
+  private void setLayout(DashboardLayout layout) {
     this.layout = layout;
   }
 

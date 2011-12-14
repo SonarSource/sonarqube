@@ -20,7 +20,7 @@
 package org.sonar.plugins.core.dashboards;
 
 import org.sonar.api.web.dashboard.Dashboard;
-import org.sonar.api.web.dashboard.DashboardLayouts;
+import org.sonar.api.web.dashboard.DashboardLayout;
 import org.sonar.api.web.dashboard.DashboardTemplate;
 import org.sonar.api.web.dashboard.Widget;
 
@@ -35,7 +35,7 @@ public class HotspotsDashboard extends DashboardTemplate {
 
   @Override
   public org.sonar.api.web.dashboard.Dashboard createDashboard() {
-    Dashboard dashboard = Dashboard.createDashboard("sonar-hotspots", "Hotspots", DashboardLayouts.TWO_COLUMNS);
+    Dashboard dashboard = Dashboard.createDashboard("sonar-hotspots", "Hotspots", DashboardLayout.TWO_COLUMNS);
 
     Widget widget = dashboard.addWidget("hotspot_most_violated_rules", 1, 1);
 

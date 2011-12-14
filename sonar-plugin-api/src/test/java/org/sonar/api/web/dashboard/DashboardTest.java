@@ -31,10 +31,10 @@ public class DashboardTest {
 
   @Test
   public void shouldCreateDashboardAndWidget() throws Exception {
-    Dashboard dashboard = Dashboard.createDashboard("fake-dashboard", "Fake", "30%-70%");
+    Dashboard dashboard = Dashboard.createDashboard("fake-dashboard", "Fake", DashboardLayout.TWO_COLUMNS_30_70);
     assertThat(dashboard.getId(), is("fake-dashboard"));
     assertThat(dashboard.getName(), is("Fake"));
-    assertThat(dashboard.getLayout(), is("30%-70%"));
+    assertThat(dashboard.getLayout(), is(DashboardLayout.TWO_COLUMNS_30_70));
     assertThat(dashboard.getDescription(), is(""));
 
     Widget widget = dashboard.addWidget("fake-widget", 12, 13);
@@ -52,11 +52,11 @@ public class DashboardTest {
 
   @Test
   public void shouldAddWidget() throws Exception {
-    Dashboard dashboard = Dashboard.createDashboard("fake-dashboard", "Fake", "30%-70%");
+    Dashboard dashboard = Dashboard.createDashboard("fake-dashboard", "Fake", DashboardLayout.TWO_COLUMNS_30_70);
     dashboard.addWidget("fake-widget", 12, 13);
-    
+
     Widget widget = dashboard.getWidgets().iterator().next();
-    
+
     assertThat(widget.getId(), is("fake-widget"));
     assertThat(widget.getColumnIndex(), is(12));
     assertThat(widget.getRowIndex(), is(13));

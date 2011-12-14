@@ -37,8 +37,8 @@ import org.sonar.core.i18n.I18nManager;
 import org.sonar.persistence.dashboard.ActiveDashboardDao;
 import org.sonar.persistence.dashboard.ActiveDashboardDto;
 import org.sonar.persistence.dashboard.DashboardDao;
-import org.sonar.persistence.template.LoadedTemplateDto;
 import org.sonar.persistence.template.LoadedTemplateDao;
+import org.sonar.persistence.template.LoadedTemplateDto;
 
 import com.google.common.collect.Lists;
 
@@ -128,7 +128,7 @@ public final class RegisterProvidedDashboards {
     dashboardDataModel.setKey(dashboard.getId());
     dashboardDataModel.setName(i18nManager.message(Locale.ENGLISH, "dashboard." + dashboard.getId() + ".name", dashboard.getName()));
     dashboardDataModel.setDescription(dashboard.getDescription());
-    dashboardDataModel.setColumnLayout(dashboard.getLayout());
+    dashboardDataModel.setColumnLayout(dashboard.getLayout().toString());
     dashboardDataModel.setShared(true);
     dashboardDataModel.setCreatedAt(now);
     dashboardDataModel.setUpdatedAt(now);
