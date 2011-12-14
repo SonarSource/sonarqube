@@ -53,11 +53,25 @@ public class CommentedCode {
    * JSNI methods are declared native and contain JavaScript code in a specially formatted comment block
    * between the end of the parameter list and the trailing semicolon.
    */
-  public static native void alert(String msg) /*-{
+  public static native void alert(String msg) /* not JSNI comment */ /*-{
     for (i=0;i<=5;i++) {
       $wnd.alert(msg);
     }
-  }-*/;
+  }-*/; /*-{
+  This is not JSNI comment block, even if it looks like
+  for (Visitor visitor : visitors) {
+    continue;
+  }
+  }-*/
+
+  /*
+   * This is not a documentation comment
+   * for (Visitor visitor : visitors) {
+   *   continue;
+   * }
+   */
+  public void method() {
+  }
 
   /**
    * No detection of commented-out code in Javadoc for method

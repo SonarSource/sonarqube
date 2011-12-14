@@ -61,6 +61,10 @@ public class CommentedOutCodeLineCheckTest {
 
     checkMessages.assertNext().atLine(44);
 
+    checkMessages.assertNext().atLine(60);
+
+    checkMessages.assertNext().atLine(69);
+
     checkMessages.assertNoMore();
   }
 

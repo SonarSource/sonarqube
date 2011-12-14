@@ -38,6 +38,9 @@ import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.TextBlock;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 
+/**
+ * @since 2.13
+ */
 @Rule(key = "CommentedOutCodeLine", priority = Priority.MAJOR)
 public class CommentedOutCodeLineCheck extends JavaAstVisitor {
 
@@ -70,45 +73,50 @@ public class CommentedOutCodeLineCheck extends JavaAstVisitor {
     return WANTED_TOKENS;
   }
 
+  /**
+   * Creates candidates for commented-out code - all comment blocks.
+   */
   @Override
   public void visitFile(DetailAST ast) {
     comments = Sets.newHashSet();
-
     for (TextBlock comment : getFileContents().getCppComments().values()) {
       comments.add(comment);
     }
-
     for (List<TextBlock> listOfComments : getFileContents().getCComments().values()) {
-      // This list contains not only comments in C style, but also Javadocs and JSNI comments
-      for (TextBlock comment : listOfComments) {
-        if (!isJSNI(comment)) {
-          comments.add(comment);
-        }
-      }
+      // This list contains not only comments in C style, but also documentation comments and JSNI comments
+      comments.addAll(listOfComments);
     }
   }
 
   /**
-   * Documentation comments should be recognized only when placed
-   * immediately before class, interface, constructor, method, or field declarations.
+   * Removes documentation comments and JSNI comments from candidates for commented-out code in order to prevent false-positives.
    */
   @Override
   public void visitToken(DetailAST ast) {
-    if (shouldHandle(ast)) {
+    if (canBeDocumented(ast)) {
       TextBlock javadoc = getFileContents().getJavadocBefore(ast.getLineNo());
       if (javadoc != null) {
         comments.remove(javadoc);
       }
     }
+    removeJSNIComments(ast);
   }
 
-  private static boolean shouldHandle(DetailAST ast) {
+  /**
+   * From documentation for Javadoc-tool:
+   * Documentation comments should be recognized only when placed
+   * immediately before class, interface, constructor, method, or field declarations.
+   */
+  private static boolean canBeDocumented(DetailAST ast) {
     if (AstUtils.isType(ast, TokenTypes.VARIABLE_DEF)) {
       return AstUtils.isClassVariable(ast);
     }
     return true;
   }
 
+  /**
+   * Detects commented-out code in remaining candidates.
+   */
   @Override
   public void leaveFile(DetailAST ast) {
     SourceFile sourceFile = (SourceFile) peekSourceCode();
@@ -126,13 +134,37 @@ public class CommentedOutCodeLineCheck extends JavaAstVisitor {
     comments = null;
   }
 
+  /**
+   * From GWT documentation:
+   * JSNI methods are declared native and contain JavaScript code in a specially formatted comment block
+   * between the end of the parameter list and the trailing semicolon.
+   * A JSNI comment block begins with the exact token {@link #START_JSNI} and ends with the exact token {@link #END_JSNI}.
+   */
+  private void removeJSNIComments(DetailAST ast) {
+    if (AstUtils.isType(ast, TokenTypes.METHOD_DEF) && AstUtils.isModifier(ast, TokenTypes.LITERAL_NATIVE)) {
+      DetailAST endOfParameterList = ast.findFirstToken(TokenTypes.PARAMETERS).getNextSibling();
+      DetailAST trailingSemicolon = ast.getLastChild();
+
+      for (int lineNumber = endOfParameterList.getLineNo(); lineNumber <= trailingSemicolon.getLineNo(); lineNumber++) {
+        List<TextBlock> listOfComments = getFileContents().getCComments().get(lineNumber);
+        if (listOfComments != null) {
+          for (TextBlock comment : listOfComments) {
+            if (isJSNI(comment) && isCommentBetween(comment, endOfParameterList, trailingSemicolon)) {
+              comments.remove(comment);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  private static boolean isCommentBetween(TextBlock comment, DetailAST start, DetailAST end) {
+    return comment.intersects(start.getLineNo(), start.getColumnNo(), end.getLineNo(), end.getColumnNo());
+  }
+
   private static final String START_JSNI = "/*-{";
   private static final String END_JSNI = "}-*/";
 
-  /**
-   * From GWT documentation:
-   * A JSNI comment block begins with the exact token {@link #START_JSNI} and ends with the exact token {@link #END_JSNI}.
-   */
   private boolean isJSNI(TextBlock comment) {
     String[] lines = comment.getText();
     String firstLine = lines[0];
