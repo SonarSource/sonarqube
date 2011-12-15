@@ -30,9 +30,9 @@ class CreateLoadedTemplates < ActiveRecord::Migration
     end
     
     # if this is a migration, then the default dashboard already exists in the DB so it should not be loaded again
-    main_dashboard = Dashboard.find(:first, :conditions => {:name => 'Dashboard'})
-    if main_dashboard
-      LoadedTemplate.create({:kee => 'sonar-main', :template_type => 'DASHBOARD'})
+    default_dashboard = Dashboard.find(:first, :conditions => {:name => 'Dashboard', :user_id => nil})
+    if default_dashboard
+      LoadedTemplate.create({:kee => 'dashboard', :template_type => 'DASHBOARD'})
     end
   end
 

@@ -32,11 +32,6 @@ class AddKeyToDashboards < ActiveRecord::Migration
       Dashboard.update_all "kee = '#{key}'", ["id = ?", d.id]
     end
 
-    main_dashboard = Dashboard.find(:first, :conditions => {:name => 'Dashboard'})
-    if main_dashboard
-      Dashboard.update_all "kee = 'main'", ["id = ?", main_dashboard.id]
-    end
-
     change_column 'dashboards', 'kee', :string, :limit => 200, :null => false
     Dashboard.reset_column_information
   end

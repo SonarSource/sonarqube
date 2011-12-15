@@ -34,7 +34,7 @@ import org.sonar.plugins.core.charts.DistributionBarChart;
 import org.sonar.plugins.core.charts.XradarChart;
 import org.sonar.plugins.core.colorizers.JavaColorizerFormat;
 import org.sonar.plugins.core.dashboards.HotspotsDashboard;
-import org.sonar.plugins.core.dashboards.MainDashboard;
+import org.sonar.plugins.core.dashboards.DefaultDashboard;
 import org.sonar.plugins.core.metrics.UserManagedMetrics;
 import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
 import org.sonar.plugins.core.sensors.*;
@@ -250,7 +250,7 @@ public class CorePlugin extends SonarPlugin {
     extensions.add(ReviewsPerDeveloperWidget.class);
 
     // dashboards
-    extensions.add(MainDashboard.class);
+    extensions.add(DefaultDashboard.class);
     extensions.add(HotspotsDashboard.class);
 
     // chart

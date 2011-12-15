@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.sonar.api.web.dashboard.Dashboard;
 import org.sonar.api.web.dashboard.DashboardLayout;
 import org.sonar.api.web.dashboard.DashboardTemplate;
-import org.sonar.api.web.dashboard.Widget;
 import org.sonar.persistence.dashboard.*;
 import org.sonar.persistence.template.LoadedTemplateDao;
 import org.sonar.persistence.template.LoadedTemplateDto;
@@ -103,8 +102,8 @@ public class RegisterNewDashboardsTest {
     WidgetDto widgetDto = dto.getWidgets().iterator().next();
     assertThat(widgetDto.getKey(), is("fake-widget"));
     assertThat(widgetDto.getDescription(), is(nullValue()));
-    assertThat(widgetDto.getColumnIndex(), is(12));
-    assertThat(widgetDto.getRowIndex(), is(13));
+    assertThat(widgetDto.getColumnIndex(), is(1));
+    assertThat(widgetDto.getRowIndex(), is(1));
     assertThat(widgetDto.getConfigured(), is(true));
     assertNotNull(widgetDto.getCreatedAt());
     assertNotNull(widgetDto.getUpdatedAt());
@@ -151,16 +150,16 @@ public class RegisterNewDashboardsTest {
   }
 
   @Test
-  public void shouldActivateMainDashboard() throws Exception {
-    DashboardDto mainDashboard = mock(DashboardDto.class);
-    when(mainDashboard.getName()).thenReturn("Main");
-    when(mainDashboard.getId()).thenReturn(1L);
+  public void shouldActivateDefaultDashboard() throws Exception {
+    DashboardDto defaultDashboard = mock(DashboardDto.class);
+    when(defaultDashboard.getName()).thenReturn(RegisterNewDashboards.DEFAULT_DASHBOARD_ID);
+    when(defaultDashboard.getId()).thenReturn(1L);
     DashboardDto d1 = mock(DashboardDto.class);
     when(d1.getName()).thenReturn("Bar");
     when(d1.getId()).thenReturn(16L);
     List<DashboardDto> loadedDashboards = Lists.newArrayList(d1);
 
-    registerNewDashboards.activateDashboards(loadedDashboards, mainDashboard);
+    registerNewDashboards.activateDashboards(loadedDashboards, defaultDashboard);
 
     ActiveDashboardDto ad1 = new ActiveDashboardDto();
     ad1.setDashboardId(1L);
@@ -178,8 +177,8 @@ public class RegisterNewDashboardsTest {
     public Dashboard createDashboard() {
       Dashboard dashboard = Dashboard.create("fake-dashboard", "Fake");
       dashboard.setLayout(DashboardLayout.TWO_COLUMNS_30_70);
-      Widget widget = dashboard.addWidget("fake-widget", 12, 13);
-      widget.addProperty("fake-property", "fake_metric");
+      Dashboard.Widget widget = dashboard.addWidget("fake-widget", 1);
+      widget.setProperty("fake-property", "fake_metric");
       return dashboard;
     }
   }

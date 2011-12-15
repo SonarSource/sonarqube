@@ -19,10 +19,8 @@
  */
 package org.sonar.api.web.dashboard;
 
+import org.hamcrest.core.Is;
 import org.junit.Test;
-
-import java.util.Map.Entry;
-import java.util.Set;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -31,36 +29,64 @@ import static org.junit.Assert.assertThat;
 public class DashboardTest {
 
   @Test
-  public void shouldCreateDashboardAndWidget() throws Exception {
+  public void shouldCreateDashboard() {
     Dashboard dashboard = Dashboard.create("fake-dashboard", "Fake");
     assertThat(dashboard.getId(), is("fake-dashboard"));
     assertThat(dashboard.getName(), is("Fake"));
     assertThat(dashboard.getLayout(), is(DashboardLayout.TWO_COLUMNS));
     assertThat(dashboard.getDescription(), nullValue());
-
-    Widget widget = dashboard.addWidget("fake-widget", 12, 13);
-    assertThat(widget.getId(), is("fake-widget"));
-    assertThat(widget.getColumnIndex(), is(12));
-    assertThat(widget.getRowIndex(), is(13));
-
-    widget.addProperty("fake-property", "fake_metric");
-    Set<Entry<String, String>> properties = widget.getProperties().entrySet();
-    assertThat(properties.size(), is(1));
-    Entry<String, String> property = properties.iterator().next();
-    assertThat(property.getKey(), is("fake-property"));
-    assertThat(property.getValue(), is("fake_metric"));
   }
 
   @Test
-  public void shouldAddWidget() throws Exception {
-    Dashboard dashboard = Dashboard.create("fake-dashboard", "Fake");
-    dashboard.addWidget("fake-widget", 12, 13);
+  public void shouldAddWidgets() {
+    Dashboard dashboard = Dashboard.createByName("Fake");
+    Dashboard.Widget mostViolatedRules = dashboard.addWidget("most_violated_rules", 1);
+    assertThat(mostViolatedRules.getId(), is("most_violated_rules"));
+    assertThat(dashboard.getWidgets().size(), is(1));
+    assertThat(dashboard.getWidgetsOfColumn(1).size(), is(1));
 
-    Widget widget = dashboard.getWidgets().iterator().next();
+    dashboard.addWidget("hotspots", 1);
+    assertThat(dashboard.getWidgets().size(), is(2));
+    assertThat(dashboard.getWidgetsOfColumn(1).size(), is(2));
 
-    assertThat(widget.getId(), is("fake-widget"));
-    assertThat(widget.getColumnIndex(), is(12));
-    assertThat(widget.getRowIndex(), is(13));
+    // widgets are sorted by order of insertion
+    assertThat(dashboard.getWidgetsOfColumn(1).get(1).getId(), is("hotspots"));
   }
 
+  @Test
+  public void shouldAddWidgetsOnDifferentColumns() {
+    Dashboard dashboard = Dashboard.createByName("Fake");
+
+    dashboard.addWidget("most_violated_rules", 1);
+    assertThat(dashboard.getWidgets().size(), is(1));
+    assertThat(dashboard.getWidgetsOfColumn(1).size(), is(1));
+
+    dashboard.addWidget("hotspots", 2);
+    assertThat(dashboard.getWidgets().size(), is(2));
+    assertThat(dashboard.getWidgetsOfColumn(2).size(), is(1));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void shouldFailIfBlankId() {
+    Dashboard.create("  ", "Fake");
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void shouldFailToDeduceIdFromName() {
+    Dashboard.createByName("  ");
+  }
+
+  @Test
+  public void shouldCreateByName() {
+    Dashboard dashboard = Dashboard.createByName("Fake");
+    assertThat(dashboard.getId(), Is.is("fake"));
+
+    dashboard = Dashboard.createByName("  Fake You  ");
+    assertThat(dashboard.getId(), Is.is("fake_you"));
+  }
+
+  @Test
+  public void shouldAddSeveralTimesTheSameWidget() {
+    // TODO
+  }
 }

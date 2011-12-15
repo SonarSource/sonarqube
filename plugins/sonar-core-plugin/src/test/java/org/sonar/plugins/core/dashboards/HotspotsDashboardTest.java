@@ -19,33 +19,20 @@
  */
 package org.sonar.plugins.core.dashboards;
 
+import org.hamcrest.core.Is;
+import org.junit.Test;
 import org.sonar.api.web.dashboard.Dashboard;
 import org.sonar.api.web.dashboard.DashboardLayout;
-import org.sonar.api.web.dashboard.DashboardTemplate;
 
-/**
- * Default dashboard
- *
- * @since 2.13
- */
-public final class MainDashboard extends DashboardTemplate {
+import static org.junit.Assert.assertThat;
 
-  @Override
-  public Dashboard createDashboard() {
-    Dashboard dashboard = Dashboard.create("main", "Dashboard");
-    dashboard.setLayout(DashboardLayout.TWO_COLUMNS);
-    dashboard.addWidget("size", 1, 1);
-    dashboard.addWidget("comments_duplications", 1, 2);
-    dashboard.addWidget("complexity", 1, 3);
-    dashboard.addWidget("code_coverage", 1, 4);
-    dashboard.addWidget("events", 1, 5);
-    dashboard.addWidget("description", 1, 6);
-    dashboard.addWidget("rules", 2, 1);
-    dashboard.addWidget("alerts", 2, 2);
-    dashboard.addWidget("file_design", 2, 3);
-    dashboard.addWidget("package_design", 2, 4);
-    dashboard.addWidget("ckjm", 2, 5);
-    return dashboard;
+public class HotspotsDashboardTest {
+  @Test
+  public void shouldCreateDashboard() {
+    Dashboard hotspots = new HotspotsDashboard().createDashboard();
+    assertThat(hotspots.getId(), Is.is("hotspots"));
+    assertThat(hotspots.getName(), Is.is("Hotspots"));
+    assertThat(hotspots.getLayout(), Is.is(DashboardLayout.TWO_COLUMNS));
+    assertThat(hotspots.getWidgets().size(), Is.is(8));
   }
-
 }

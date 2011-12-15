@@ -19,9 +19,14 @@
  */
 package org.sonar.api.web.dashboard;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Maps;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Definition of a dashboard.
@@ -37,7 +42,7 @@ public final class Dashboard {
   private String name;
   private String description;
   private DashboardLayout layout = DashboardLayout.TWO_COLUMNS;
-  private Collection<Widget> widgets = Lists.newArrayList();
+  private ListMultimap<Integer, Widget> widgetsByColumn = ArrayListMultimap.create();
 
   private Dashboard() {
   }
@@ -52,21 +57,36 @@ public final class Dashboard {
   }
 
   /**
-   * Add a widget with the given parameters, and return the newly created {@link Widget} object if one wants to add parameters to it.
+   * The id is deduced from the name.
    */
-  public Widget addWidget(String id, int columnId, int rowId) {
-    Widget widget = new Widget(id, columnId, rowId);
-    widgets.add(widget);
-    return widget;
+  public static Dashboard createByName(String name) {
+    String id = StringUtils.trimToEmpty(name);
+    id = StringUtils.lowerCase(id);
+    id = StringUtils.replaceChars(id, ' ', '_');
+    return new Dashboard()
+      .setId(id)
+      .setName(name);
   }
 
   /**
-   * Returns the list of widgets.
-   *
-   * @return the widgets of this dashboard
+   * Add a widget with the given parameters, and return the newly created {@link Widget} object if one wants to add parameters to it.
    */
+  public Widget addWidget(String widgetId, int columnId) {
+    if (columnId < 1) {
+      throw new IllegalArgumentException("Widget column starts with 1");
+    }
+
+    Widget widget = new Widget(widgetId);
+    widgetsByColumn.put(columnId, widget);
+    return widget;
+  }
+
   public Collection<Widget> getWidgets() {
-    return widgets;
+    return widgetsByColumn.values();
+  }
+
+  public List<Widget> getWidgetsOfColumn(int columnId) {
+    return widgetsByColumn.get(columnId);
   }
 
   /**
@@ -82,6 +102,9 @@ public final class Dashboard {
    * @param id the id to set
    */
   private Dashboard setId(String id) {
+    if (StringUtils.isBlank(id)) {
+      throw new IllegalArgumentException("Dashboard id can not be blank");
+    }
     this.id = id;
     return this;
   }
@@ -133,12 +156,49 @@ public final class Dashboard {
     return layout;
   }
 
-  /**
-   * @param layout the layout to set
-   */
-  public Dashboard setLayout(DashboardLayout layout) {
-    this.layout = layout;
+  public Dashboard setLayout(DashboardLayout dl) {
+    if (dl == null) {
+      throw new IllegalArgumentException("The layout of the dashboard '" + getId() + "' can not be null");
+    }
+    this.layout = dl;
     return this;
+  }
+
+
+  /**
+   * Note that this class is an inner class to avoid confusion with the extension point org.sonar.api.web.Widget.
+   */
+  public static final class Widget {
+    private String id;
+    private Map<String, String> properties;
+
+    Widget(String id) {
+      this.id = id;
+      this.properties = Maps.newHashMap();
+    }
+
+    public Widget setProperty(String key, String value) {
+      properties.put(key, value);
+      return this;
+    }
+
+    /**
+     * Returns the properties of this widget.
+     *
+     * @return the properties
+     */
+    public Map<String, String> getProperties() {
+      return properties;
+    }
+
+    /**
+     * Returns the identifier of this widget.
+     *
+     * @return the id
+     */
+    public String getId() {
+      return id;
+    }
   }
 
 }

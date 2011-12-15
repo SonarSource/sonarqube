@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.web.dashboard.Dashboard;
 import org.sonar.api.web.dashboard.DashboardTemplate;
-import org.sonar.api.web.dashboard.Widget;
 import org.sonar.persistence.dashboard.*;
 import org.sonar.persistence.template.LoadedTemplateDao;
 import org.sonar.persistence.template.LoadedTemplateDto;
@@ -42,7 +41,7 @@ import java.util.Map.Entry;
 public final class RegisterNewDashboards {
 
   private static final Logger LOG = LoggerFactory.getLogger(RegisterNewDashboards.class);
-  private static final String MAIN_DASHBOARD_ID = "main";
+  static final String DEFAULT_DASHBOARD_ID = "dashboard";
 
   private List<DashboardTemplate> dashboardTemplates;
   private DashboardDao dashboardDao;
@@ -66,28 +65,28 @@ public final class RegisterNewDashboards {
 
     // load the dashboards that need to be loaded
     List<DashboardDto> loadedDashboards = Lists.newArrayList();
-    DashboardDto mainDashboard = null;
+    DashboardDto defaultDashboard = null;
     for (DashboardTemplate dashboardTemplate : dashboardTemplates) {
       Dashboard dashboard = dashboardTemplate.createDashboard();
       if (shouldBeRegistered(dashboard)) {
         DashboardDto dashboardDto = loadDashboard(dashboard);
-        if (MAIN_DASHBOARD_ID.equals(dashboard.getId())) {
-          mainDashboard = dashboardDto;
+        if (DEFAULT_DASHBOARD_ID.equals(dashboard.getId())) {
+          defaultDashboard = dashboardDto;
         } else {
           loadedDashboards.add(dashboardDto);
         }
       }
     }
     // and activate them
-    activateDashboards(loadedDashboards, mainDashboard);
+    activateDashboards(loadedDashboards, defaultDashboard);
 
     profiler.stop();
   }
 
-  protected void activateDashboards(List<DashboardDto> loadedDashboards, DashboardDto mainDashboard) {
+  protected void activateDashboards(List<DashboardDto> loadedDashboards, DashboardDto defaultDashboard) {
     int nextOrderIndex;
-    if (mainDashboard != null) {
-      activateDashboard(mainDashboard, 1);
+    if (defaultDashboard != null) {
+      activateDashboard(defaultDashboard, 1);
       nextOrderIndex = 2;
     } else {
       nextOrderIndex = activeDashboardDao.selectMaxOrderIndexForNullUser() + 1;
@@ -121,29 +120,33 @@ public final class RegisterNewDashboards {
     dashboardDto.setKey(dashboard.getId());
     dashboardDto.setName(dashboard.getName());
     dashboardDto.setDescription(dashboard.getDescription());
-    dashboardDto.setColumnLayout(dashboard.getLayout().toString());
+    dashboardDto.setColumnLayout(dashboard.getLayout().getCode());
     dashboardDto.setShared(true);
     dashboardDto.setCreatedAt(now);
     dashboardDto.setUpdatedAt(now);
 
-    for (Widget widget : dashboard.getWidgets()) {
-      WidgetDto widgetDto = new WidgetDto();
-      widgetDto.setKey(widget.getId());
-      widgetDto.setColumnIndex(widget.getColumnIndex());
-      widgetDto.setRowIndex(widget.getRowIndex());
-      widgetDto.setConfigured(true);
-      widgetDto.setCreatedAt(now);
-      widgetDto.setUpdatedAt(now);
-      dashboardDto.addWidget(widgetDto);
+    for (int columnIndex = 1; columnIndex <= dashboard.getLayout().getColumns(); columnIndex++) {
+      List<Dashboard.Widget> widgets = dashboard.getWidgetsOfColumn(columnIndex);
+      for (int rowIndex = 1; rowIndex <= widgets.size(); rowIndex++) {
+        Dashboard.Widget widget = widgets.get(rowIndex - 1);
+        WidgetDto widgetDto = new WidgetDto();
+        widgetDto.setKey(widget.getId());
+        widgetDto.setColumnIndex(columnIndex);
+        widgetDto.setRowIndex(rowIndex);
+        widgetDto.setConfigured(true);
+        widgetDto.setCreatedAt(now);
+        widgetDto.setUpdatedAt(now);
+        dashboardDto.addWidget(widgetDto);
 
-      for (Entry<String, String> property : widget.getProperties().entrySet()) {
-        WidgetPropertyDto propDto = new WidgetPropertyDto();
-        propDto.setKey(property.getKey());
-        propDto.setValue(property.getValue());
-        widgetDto.addWidgetProperty(propDto);
+        for (Entry<String, String> property : widget.getProperties().entrySet()) {
+          WidgetPropertyDto propDto = new WidgetPropertyDto();
+          propDto.setKey(property.getKey());
+          propDto.setValue(property.getValue());
+          widgetDto.addWidgetProperty(propDto);
+        }
       }
-    }
 
+    }
     return dashboardDto;
   }
 

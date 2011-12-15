@@ -17,32 +17,22 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.web.dashboard;
+package org.sonar.plugins.core.dashboards;
 
+import org.hamcrest.core.Is;
 import org.junit.Test;
+import org.sonar.api.web.dashboard.Dashboard;
+import org.sonar.api.web.dashboard.DashboardLayout;
 
-import java.util.Map.Entry;
-import java.util.Set;
-
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class WidgetTest {
-
+public class DefaultDashboardTest {
   @Test
-  public void shouldCreateWidget() {
-    Dashboard dashboard = Dashboard.createByName("Fake");
-    Dashboard.Widget widget = dashboard.addWidget("fake-widget", 1);
-    assertThat(widget.getId(), is("fake-widget"));
+  public void shouldCreateDashboard() {
+    Dashboard main = new DefaultDashboard().createDashboard();
+    assertThat(main.getId(), Is.is("dashboard"));
+    assertThat(main.getName(), Is.is("Dashboard"));
+    assertThat(main.getLayout(), Is.is(DashboardLayout.TWO_COLUMNS));
+    assertThat(main.getWidgets().size(), Is.is(11));
   }
-
-  @Test
-  public void shouldSetProperty() {
-    Dashboard dashboard = Dashboard.createByName("Fake");
-    Dashboard.Widget widget = dashboard.addWidget("fake-widget", 1);
-    widget.setProperty("foo", "bar");
-
-    assertThat(widget.getProperties().get("foo"), is("bar"));
-  }
-
 }

@@ -33,15 +33,15 @@ SonarWidgets.StackArea = function (divId) {
 }
 
 SonarWidgets.StackArea.prototype.render = function() {
-	
+
 	var trendData = this.wData;
 	var metrics = this.wMetrics;
 	var snapshots = this.wSnapshots;
 	var colors = this.wColors;
-	
+
 	var widgetDiv = $(this.wDivId);
 	var headerFont = "10.5px Arial,Helvetica,sans-serif";
-	
+
 	/* Computes the total of the trendData of each date */
 	var total = [];
 	for (i=0; i<trendData[0].size(); i++) {
@@ -51,7 +51,7 @@ SonarWidgets.StackArea.prototype.render = function() {
 		}
 		total[i] = "" + Math.round(total[i]*10)/10
 	}
-	
+
 	/* Computes the highest Y value */
 	var maxY = 0;
 	for (i=0; i<trendData[0].size(); i++) {
@@ -61,23 +61,23 @@ SonarWidgets.StackArea.prototype.render = function() {
 		}
 		if (currentYSum > maxY) { maxY = currentYSum;}
 	}
-	
+
 	/* Computes minimum width of left margin according to the max Y value so that the Y-axis is correctly displayed */
 	var leftMargin = 25;
 	var maxYLength = (Math.round(maxY) + "").length;
 	minMargin = maxYLength * 7 + Math.floor(maxYLength /3) * 2; // first part is for numbers and second for commas (1000-separator)
 	if (minMargin > leftMargin) { leftMargin = minMargin; }
-	
+
 	/* Sizing and scales. */
 	var headerHeight = 40;
-	var w = widgetDiv.getOffsetParent().getWidth() - leftMargin - 40; 
+	var w = widgetDiv.getOffsetParent().getWidth() - leftMargin - 40;
 	var	h = (this.wHeight == null ? 200 : this.wHeight) + headerHeight;
 
 	var x = pv.Scale.linear(pv.blend(pv.map(trendData, function(d) {return d;})), function(d) {return d.x}).range(0, w);
 	var y = pv.Scale.linear(0, maxY).range(0, h-headerHeight);
 	var idx_numbers = trendData[0].size();
 	var idx = idx_numbers - 1;
-	
+
 	function computeIdx(xPixels) {
 		var mx = x.invert(xPixels);
 		var i = pv.search(trendData[0].map(function(d) {return d.x;}), mx);
@@ -106,7 +106,7 @@ SonarWidgets.StackArea.prototype.render = function() {
 		.anchor("bottom")
 		.add(pv.Label)
 		.text(x.tickFormat);
-	
+
 	/* Y-axis and ticks. */
 	vis.add(pv.Rule)
 	    .data(y.ticks(6))
@@ -115,7 +115,7 @@ SonarWidgets.StackArea.prototype.render = function() {
 	    .anchor("left")
 	    .add(pv.Label)
 	    .text(y.tickFormat);
-	
+
 	/* The stack layout */
 	var area = vis.add(pv.Layout.Stack)
 	    .layers(trendData)
@@ -125,7 +125,7 @@ SonarWidgets.StackArea.prototype.render = function() {
 	    .add(pv.Area)
 	    .fillStyle(function() {return colors[this.parent.index % colors.size()][0];})
 	    .strokeStyle("rgba(128,128,128,.8)");
-	
+
 	/* Stack labels. */
 	var firstIdx = computeIdx(w/5);
 	var lastIdx = computeIdx(w*4/5);
@@ -141,53 +141,51 @@ SonarWidgets.StackArea.prototype.render = function() {
 	    .font(function(d) { return Math.round(5 + Math.sqrt(y(d.y))) + "px sans-serif";})
 	    .textStyle("#DDD")
 	    .text(function(d) {return metrics[this.parent.index] + ": " + d.y;});
-	
+
 	/* The total cost of the selected dot in the header. */
 	vis.add(pv.Label)
 		.left(8)
 		.top(16)
 		.font(headerFont)
 		.text(function() {return "Total: " + total[idx];});
-	
+
 	/* The date of the selected dot in the header. */
 	vis.add(pv.Label)
 		.left(w/2)
 		.top(16)
 		.font(headerFont)
 		.text(function() {return snapshots[idx].ld;});
-	
-	
+
+
 	/* The event labels */
-	if (true) {
-	  eventColor = "rgba(75,159,213,1)";
-	  eventHoverColor = "rgba(202,227,242,1)";
-	  vis.add(pv.Line)
-		.strokeStyle("rgba(0,0,0,.001)")
-		.data(snapshots)
-		.left(function(s) {return x(s.d);})
-		.bottom(0)
-		.anchor("top")
-		.add(pv.Dot)
-		.bottom(-6)
-		.shape("triangle")
-		.angle(pv.radians(180))
-		.strokeStyle("grey")
-		.visible(function(s) {return s.e.size() > 0;})
-		.fillStyle(function() {return this.index == idx ? eventHoverColor : eventColor;})
-		.add(pv.Dot)
-		.radius(3)
-		.visible(function(s) {return s.e.size() > 0 && this.index == idx;})
-		.left(w/2+8)
-		.top(24)
-		.shape("triangle")
-		.fillStyle(function() {return this.index == idx ? eventHoverColor : eventColor;})
-		.strokeStyle("grey")
-		.anchor("right")
-		.add(pv.Label)
-		.font(headerFont)
-		.text(function(s) {return s.e.size() == 0 ? "" : s.e[0] + ( s.e[1] ? " (... +" + (s.e.size()-1) + ")" : "");});
-	}
-	
+  eventColor = "rgba(75,159,213,1)";
+  eventHoverColor = "rgba(202,227,242,1)";
+  vis.add(pv.Line)
+  .strokeStyle("rgba(0,0,0,.001)")
+  .data(snapshots)
+  .left(function(s) {return x(s.d);})
+  .bottom(0)
+  .anchor("top")
+  .add(pv.Dot)
+  .bottom(-6)
+  .shape("triangle")
+  .angle(pv.radians(180))
+  .strokeStyle("grey")
+  .visible(function(s) {return s.e.size() > 0;})
+  .fillStyle(function() {return this.index == idx ? eventHoverColor : eventColor;})
+  .add(pv.Dot)
+  .radius(3)
+  .visible(function(s) {return s.e.size() > 0 && this.index == idx;})
+  .left(w/2+8)
+  .top(24)
+  .shape("triangle")
+  .fillStyle(function() {return this.index == idx ? eventHoverColor : eventColor;})
+  .strokeStyle("grey")
+  .anchor("right")
+  .add(pv.Label)
+  .font(headerFont)
+  .text(function(s) {return s.e.size() == 0 ? "" : s.e[0] + ( s.e[1] ? " (... +" + (s.e.size()-1) + ")" : "");});
+
 	/* An invisible bar to capture events (without flickering). */
 	vis.add(pv.Bar)
 		.fillStyle("rgba(0,0,0,.001)")
@@ -201,10 +199,9 @@ SonarWidgets.StackArea.prototype.render = function() {
 			idx = computeIdx(vis.mouse().x);
 			return vis;
 		});
-	
+
 	vis.render();
-	
-}
+};
 
 
 
@@ -260,39 +257,39 @@ SonarWidgets.Timeline = function (divId) {
 	this.height = function(height) {
 		this.wHeight = height;
 		return this;
-	}
+	};
 	this.data = function(data) {
 		this.wData = data;
 		return this;
-	}
+	};
 	this.snapshots = function(snapshots) {
 		this.wSnapshots = snapshots;
 		return this;
-	}
+	};
 	this.metrics = function(metrics) {
 		this.wMetrics = metrics;
 		return this;
-	}
+	};
 	this.events = function(events) {
 		this.wEvents = events;
 		return this;
-	}
-}
+	};
+};
 
 SonarWidgets.Timeline.prototype.render = function() {
-	
+
 	var trendData = this.wData;
 	var metrics = this.wMetrics;
 	var snapshots = this.wSnapshots;
 	var events = this.wEvents;
-	
+
 	var widgetDiv = $(this.wDivId);
 	var headerFont = "10.5px Arial,Helvetica,sans-serif";
-	
+
 	/* Sizing and scales. */
 	var headerHeight = 4 + Math.max(this.wMetrics.size(), events ? 2 : 1) * 18;
-	var w = widgetDiv.getOffsetParent().getWidth() - 60; 
-	var	h = (this.wHeight == null ? 80 : this.wHeight) + headerHeight;
+	var w = widgetDiv.getOffsetParent().getWidth() - 60;
+	var	h = (this.wHeight==null ||  this.wHeight<=0 ? 80 : this.wHeight) + headerHeight;
 	var yMaxHeight = h-headerHeight;
 
 	var x = pv.Scale.linear(pv.blend(pv.map(trendData, function(d) {return d;})), function(d) {return d.x}).range(0, w);
@@ -341,7 +338,7 @@ SonarWidgets.Timeline.prototype.render = function() {
 		.data(function(d) {return [d[idx]];})
 		.fillStyle(function() {return line.strokeStyle();})
 		.strokeStyle("#000")
-		.size(20) 
+		.size(20)
 		.lineWidth(1)
 		.add(pv.Dot)
 		.radius(3)
@@ -350,14 +347,14 @@ SonarWidgets.Timeline.prototype.render = function() {
 		.anchor("right").add(pv.Label)
 		.font(headerFont)
 		.text(function(d) {return metrics[this.parent.index] + ": " + d.yl;});
-	
+
 	/* The date of the selected dot in the header. */
 	vis.add(pv.Label)
 		.left(w/2)
 		.top(16)
 		.font(headerFont)
 		.text(function() {return snapshots[idx].d;});
-	
+
 	/* The event labels */
 	if (events) {
 	  eventColor = "rgba(75,159,213,1)";
@@ -387,7 +384,7 @@ SonarWidgets.Timeline.prototype.render = function() {
 		.font(headerFont)
 		.text(function(e) {return e.l[0].n + ( e.l[1] ? " (... +" + (e.l.size()-1) + ")" : "");});
 	}
-	
+
 	/* An invisible bar to capture events (without flickering). */
 	vis.add(pv.Bar)
 		.fillStyle("rgba(0,0,0,.001)")
@@ -404,7 +401,7 @@ SonarWidgets.Timeline.prototype.render = function() {
 			idx = idx < 0 ? 0 : idx;
 			return vis;
 		});
-	
+
 	vis.render();
-	
+
 }

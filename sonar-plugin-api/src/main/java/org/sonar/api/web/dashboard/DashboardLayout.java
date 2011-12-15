@@ -29,37 +29,47 @@ public enum DashboardLayout {
   /**
    * Only 1 column that take all the page
    */
-  ONE_COLUMN("100%"),
+  ONE_COLUMN("100%", 1),
 
   /**
    * 2 columns of the same width
    */
-  TWO_COLUMNS("50%-50%"),
+  TWO_COLUMNS("50%-50%", 2),
 
   /**
    * 2 columns with the first one smaller than the second
    */
-  TWO_COLUMNS_30_70("30%-70%"),
+  TWO_COLUMNS_30_70("30%-70%", 2),
 
   /**
    * 2 columns with the first one bigger than the second
    */
-  TWO_COLUMNS_70_30("70%-30%"),
+  TWO_COLUMNS_70_30("70%-30%", 2),
 
   /**
    * 3 columns of the same width
    */
-  TREE_COLUMNS("33%-33%-33%");
+  TREE_COLUMNS("33%-33%-33%", 3);
 
-  private String layout;
+  private String code;
+  private int columns;
 
-  private DashboardLayout(String layout) {
-    this.layout = layout;
+  private DashboardLayout(String code, int columns) {
+    this.code = code;
+    this.columns = columns;
+  }
+
+  public String getCode() {
+    return code;
+  }
+
+  public int getColumns() {
+    return columns;
   }
 
   @Override
   public String toString() {
-    return layout;
+    return code;
   }
 
 }
