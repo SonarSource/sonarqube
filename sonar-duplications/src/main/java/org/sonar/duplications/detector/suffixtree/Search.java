@@ -21,14 +21,16 @@ package org.sonar.duplications.detector.suffixtree;
 
 import java.util.*;
 
+import com.google.common.collect.Lists;
+
 public final class Search {
 
   private final SuffixTree tree;
   private final TextSet text;
   private final Collector reporter;
 
-  private final List<Integer> list = new ArrayList<Integer>();
-  private final List<Node> innerNodes = new ArrayList<Node>();
+  private final List<Integer> list = Lists.newArrayList();
+  private final List<Node> innerNodes = Lists.newArrayList();
 
   public static void perform(TextSet text, Collector reporter) {
     new Search(SuffixTree.create(text), text, reporter).compute();
@@ -42,35 +44,13 @@ public final class Search {
 
   private void compute() {
     // O(N)
-    computeDepth();
+    dfs();
 
     // O(N * log(N))
     Collections.sort(innerNodes, DEPTH_COMPARATOR);
 
-    // O(N), recursive
-    createListOfLeafs(tree.getRootNode());
-
     // O(N)
     visitInnerNodes();
-  }
-
-  private void computeDepth() {
-    Queue<Node> queue = new LinkedList<Node>();
-    queue.add(tree.getRootNode());
-    tree.getRootNode().depth = 0;
-    while (!queue.isEmpty()) {
-      Node node = queue.remove();
-      if (!node.getEdges().isEmpty()) {
-        if (node != tree.getRootNode()) { // inner node = not leaf and not root
-          innerNodes.add(node);
-        }
-        for (Edge edge : node.getEdges()) {
-          Node endNode = edge.getEndNode();
-          endNode.depth = node.depth + edge.getSpan() + 1;
-          queue.add(endNode);
-        }
-      }
-    }
   }
 
   private static final Comparator<Node> DEPTH_COMPARATOR = new Comparator<Node>() {
@@ -79,15 +59,38 @@ public final class Search {
     }
   };
 
-  private void createListOfLeafs(Node node) {
-    node.startSize = list.size();
-    if (node.getEdges().isEmpty()) { // leaf
-      list.add(node.depth);
-    } else {
-      for (Edge edge : node.getEdges()) {
-        createListOfLeafs(edge.getEndNode());
+  /**
+   * Depth-first search (DFS).
+   */
+  private void dfs() {
+    LinkedList<Node> stack = Lists.newLinkedList();
+    stack.add(tree.getRootNode());
+    while (!stack.isEmpty()) {
+      Node node = stack.removeLast();
+      node.startSize = list.size();
+      if (node.getEdges().isEmpty()) { // leaf
+        list.add(node.depth);
+        node.endSize = list.size();
+      } else {
+        if (node != tree.getRootNode()) { // inner node = not leaf and not root
+          innerNodes.add(node);
+        }
+        for (Edge edge : node.getEdges()) {
+          Node endNode = edge.getEndNode();
+          endNode.depth = node.depth + edge.getSpan() + 1;
+          stack.addLast(endNode);
+        }
       }
-      node.endSize = list.size();
+    }
+    // At this point all inner nodes are ordered by the time of entering, so we visit them from last to first
+    ListIterator<Node> iterator = innerNodes.listIterator(innerNodes.size());
+    while (iterator.hasPrevious()) {
+      Node node = iterator.previous();
+      int max = -1;
+      for (Edge edge : node.getEdges()) {
+        max = Math.max(edge.getEndNode().endSize, max);
+      }
+      node.endSize = max;
     }
   }
 

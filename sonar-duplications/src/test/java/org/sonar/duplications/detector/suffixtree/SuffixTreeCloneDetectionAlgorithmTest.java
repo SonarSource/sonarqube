@@ -59,8 +59,6 @@ public class SuffixTreeCloneDetectionAlgorithmTest extends DetectorTestCase {
    * However should be noted that current implementation with suffix-tree also is not optimal,
    * even if it works for this example couple of seconds,
    * because duplications should be filtered in order to remove fully-covered.
-   * Moreover - height of the tree grows, depending on the number of blocks, which might lead to StackOverflowError,
-   * because algorithm uses recursion.
    * But such cases nearly never appear in real-world, so current implementation is acceptable for the moment.
    * </p>
    */
@@ -69,7 +67,7 @@ public class SuffixTreeCloneDetectionAlgorithmTest extends DetectorTestCase {
     CloneIndex index = createIndex();
     List<Block> fileBlocks = Lists.newArrayList();
     int indexInFile = 0;
-    for (int i = 0; i < 2000; i++) {
+    for (int i = 0; i < 5000; i++) {
       Block block = newBlock("x", new ByteArray("01"), indexInFile);
       fileBlocks.add(block);
       indexInFile++;

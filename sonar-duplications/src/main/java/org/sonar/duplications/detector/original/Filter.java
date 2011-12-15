@@ -25,7 +25,6 @@ import java.util.List;
 import org.sonar.duplications.detector.ContainsInComparator;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
-import org.sonar.duplications.utils.FastStringComparator;
 import org.sonar.duplications.utils.SortedListsUtils;
 
 import com.google.common.collect.Lists;
@@ -103,7 +102,7 @@ final class Filter {
    * </p>
    * <p>
    * <strong>Important: this method relies on fact that all parts were already sorted by resourceId and unitStart by using
-   * {@link BlocksGroup.BlockComparator}, which uses {@link FastStringComparator} for comparison by resourceId.</strong>
+   * {@link BlocksGroup.BlockComparator}, which uses {@link org.sonar.duplications.utils.FastStringComparator} for comparison by resourceId.</strong>
    * </p>
    * <p>
    * Running time - O(|A|+|B|).
