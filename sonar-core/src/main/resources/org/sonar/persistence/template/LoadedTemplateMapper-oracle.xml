@@ -9,15 +9,15 @@
     <result property="type" column="template_type"/>
   </resultMap>
 
-  <select id="selectByKeyAndType" parameterType="map" resultMap="loadedTemplateResultMap">
-    SELECT id, kee, template_type 
-    FROM loaded_templates 
+  <select id="countByTypeAndKey" parameterType="map" resultType="int">
+    SELECT count(*)
+    FROM loaded_templates
     WHERE kee = #{key} AND template_type = #{type}
   </select>
 
-  <insert id="insert" parameterType="LoadedTemplate" keyColumn="id" useGeneratedKeys="true" keyProperty ="id">
-    <selectKey order="BEFORE" resultType="Long" keyProperty="id" >
-        select loaded_templates_seq.NEXTVAL from DUAL
+  <insert id="insert" parameterType="LoadedTemplate" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    <selectKey order="BEFORE" resultType="Long" keyProperty="id">
+      select loaded_templates_seq.NEXTVAL from DUAL
     </selectKey>
     INSERT INTO loaded_templates (id, kee, template_type)
     VALUES (#{id}, #{key}, #{type})

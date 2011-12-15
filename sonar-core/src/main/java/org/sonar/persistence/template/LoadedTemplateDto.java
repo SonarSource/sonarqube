@@ -19,10 +19,7 @@
  */
 package org.sonar.persistence.template;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-
-public class LoadedTemplateDto {
+public final class LoadedTemplateDto {
 
   public static final String DASHBOARD_TYPE = "DASHBOARD";
 
@@ -30,85 +27,58 @@ public class LoadedTemplateDto {
   private String key;
   private String type;
 
-  /**
-   * Default constructor
-   */
   public LoadedTemplateDto() {
   }
 
-  /**
-   * @param key
-   * @param type
-   */
   public LoadedTemplateDto(String key, String type) {
-    super();
     this.key = key;
     this.type = type;
   }
 
-  /**
-   * @return the id
-   */
   public Long getId() {
     return id;
   }
 
-  /**
-   * @param id
-   *          the id to set
-   */
-  public void setId(Long id) {
-    this.id = id;
+  public LoadedTemplateDto setId(Long l) {
+    this.id = l;
+    return this;
   }
 
-  /**
-   * @return the key
-   */
   public String getKey() {
     return key;
   }
 
-  /**
-   * @param key
-   *          the key to set
-   */
-  public void setKey(String key) {
+  public LoadedTemplateDto setKey(String key) {
     this.key = key;
+    return this;
   }
 
-  /**
-   * @return the type
-   */
   public String getType() {
     return type;
   }
 
-  /**
-   * @param type
-   *          the type to set
-   */
-  public void setType(String type) {
+  public LoadedTemplateDto setType(String type) {
     this.type = type;
+    return this;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#hashCode()
-   */
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    LoadedTemplateDto that = (LoadedTemplateDto) o;
+    if (id != null ? !id.equals(that.id) : that.id != null) {
+      return false;
+    }
+    return true;
+  }
+
   @Override
   public int hashCode() {
-    return HashCodeBuilder.reflectionHashCode(this, new String[] { "id" });
+    return id != null ? id.hashCode() : 0;
   }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
-  @Override
-  public boolean equals(Object obj) {
-    return EqualsBuilder.reflectionEquals(this, obj, new String[] { "id" });
-  }
-
 }

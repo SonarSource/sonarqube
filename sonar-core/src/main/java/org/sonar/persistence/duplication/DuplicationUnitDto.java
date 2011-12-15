@@ -22,7 +22,7 @@ package org.sonar.persistence.duplication;
 /**
  * A simple DTO (Data Transfer Object) class that provides the mapping of data to a table.
  */
-public class DuplicationUnitDto {
+public final class DuplicationUnitDto {
 
   private Long id;
 

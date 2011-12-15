@@ -19,7 +19,7 @@
  */
 package org.sonar.persistence.rule;
 
-public class RuleDto {
+public final class RuleDto {
   private Long id;
   private String repositoryKey;
   private String ruleKey;

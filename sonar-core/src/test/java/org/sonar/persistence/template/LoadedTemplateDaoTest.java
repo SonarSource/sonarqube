@@ -19,15 +19,12 @@
  */
 package org.sonar.persistence.template;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.persistence.DaoTestCase;
-import org.sonar.persistence.template.LoadedTemplateDto;
-import org.sonar.persistence.template.LoadedTemplateDao;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class LoadedTemplateDaoTest extends DaoTestCase {
 
@@ -39,20 +36,11 @@ public class LoadedTemplateDaoTest extends DaoTestCase {
   }
 
   @Test
-  public void shouldSelectByKeyAndType() throws Exception {
-    setupData("shared");
-
-    LoadedTemplateDto template = dao.selectByKeyAndType("SONAR-HOTSPOT", "DASHBOARD");
-    assertThat(template.getId(), is(1L));
-    assertThat(template.getKey(), is("SONAR-HOTSPOT"));
-    assertThat(template.getType(), is("DASHBOARD"));
-  }
-
-  @Test
-  public void shouldReturnNullIfIdNoneFound() throws Exception {
-    setupData("shared");
-
-    assertNull(dao.selectByKeyAndType("BAR", "DASHBOARD"));
+  public void shouldCountByTypeAndKey() throws Exception {
+    setupData("shouldCountByTypeAndKey");
+    assertThat(dao.countByTypeAndKey("DASHBOARD", "HOTSPOTS"), is(1));
+    assertThat(dao.countByTypeAndKey("DASHBOARD", "UNKNOWN"), is(0));
+    assertThat(dao.countByTypeAndKey("PROFILE", "HOTSPOTS"), is(0));
   }
 
   @Test

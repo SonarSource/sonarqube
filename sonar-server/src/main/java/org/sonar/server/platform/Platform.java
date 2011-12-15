@@ -233,7 +233,7 @@ public final class Platform {
       startupContainer.addSingleton(RegisterQualityModels.class);
       startupContainer.addSingleton(DeleteDeprecatedMeasures.class);
       startupContainer.addSingleton(GeneratePluginIndex.class);
-      startupContainer.addSingleton(RegisterProvidedDashboards.class);
+      startupContainer.addSingleton(RegisterNewDashboards.class);
       startupContainer.startComponents();
 
       startupContainer.getComponentByType(ServerLifecycleNotifier.class).notifyStart();

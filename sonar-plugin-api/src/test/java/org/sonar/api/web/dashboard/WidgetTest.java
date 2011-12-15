@@ -19,19 +19,19 @@
  */
 package org.sonar.api.web.dashboard;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import org.junit.Test;
 
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.junit.Test;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class WidgetTest {
 
   @Test
   public void shouldCreateWidgetWithProperties() throws Exception {
-    Dashboard dashboard = Dashboard.createDashboard("fake-dashboard", "Fake", DashboardLayout.TWO_COLUMNS_30_70);
+    Dashboard dashboard = Dashboard.create("fake-dashboard", "Fake");
     Widget widget = dashboard.addWidget("fake-widget", 12, 13);
     assertThat(widget.getId(), is("fake-widget"));
     assertThat(widget.getColumnIndex(), is(12));

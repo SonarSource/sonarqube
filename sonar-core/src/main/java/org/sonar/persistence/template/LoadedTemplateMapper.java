@@ -23,8 +23,8 @@ import org.apache.ibatis.annotations.Param;
 
 public interface LoadedTemplateMapper {
 
-  LoadedTemplateDto selectByKeyAndType(@Param("key") String key, @Param("type") String type);
-  
+  int countByTypeAndKey(@Param("type") String type, @Param("key") String key);
+
   void insert(LoadedTemplateDto template);
 
 }

@@ -9,13 +9,13 @@
     <result property="type" column="template_type"/>
   </resultMap>
 
-  <select id="selectByKeyAndType" parameterType="map" resultMap="loadedTemplateResultMap">
-    SELECT id, kee, template_type 
-    FROM loaded_templates 
+  <select id="countByTypeAndKey" parameterType="map" resultType="int">
+    SELECT count(*)
+    FROM loaded_templates
     WHERE kee = #{key} AND template_type = #{type}
   </select>
 
-  <insert id="insert" parameterType="LoadedTemplate" useGeneratedKeys="true" keyProperty ="id">
+  <insert id="insert" parameterType="LoadedTemplate" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO loaded_templates (kee, template_type)
     VALUES (#{key}, #{type})
   </insert>

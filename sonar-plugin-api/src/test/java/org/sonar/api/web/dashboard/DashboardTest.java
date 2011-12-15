@@ -19,23 +19,24 @@
  */
 package org.sonar.api.web.dashboard;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import org.junit.Test;
 
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.junit.Test;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
 
 public class DashboardTest {
 
   @Test
   public void shouldCreateDashboardAndWidget() throws Exception {
-    Dashboard dashboard = Dashboard.createDashboard("fake-dashboard", "Fake", DashboardLayout.TWO_COLUMNS_30_70);
+    Dashboard dashboard = Dashboard.create("fake-dashboard", "Fake");
     assertThat(dashboard.getId(), is("fake-dashboard"));
     assertThat(dashboard.getName(), is("Fake"));
-    assertThat(dashboard.getLayout(), is(DashboardLayout.TWO_COLUMNS_30_70));
-    assertThat(dashboard.getDescription(), is(""));
+    assertThat(dashboard.getLayout(), is(DashboardLayout.TWO_COLUMNS));
+    assertThat(dashboard.getDescription(), nullValue());
 
     Widget widget = dashboard.addWidget("fake-widget", 12, 13);
     assertThat(widget.getId(), is("fake-widget"));
@@ -52,7 +53,7 @@ public class DashboardTest {
 
   @Test
   public void shouldAddWidget() throws Exception {
-    Dashboard dashboard = Dashboard.createDashboard("fake-dashboard", "Fake", DashboardLayout.TWO_COLUMNS_30_70);
+    Dashboard dashboard = Dashboard.create("fake-dashboard", "Fake");
     dashboard.addWidget("fake-widget", 12, 13);
 
     Widget widget = dashboard.getWidgets().iterator().next();

@@ -19,17 +19,16 @@
  */
 package org.sonar.api.web.dashboard;
 
-import java.util.Collection;
-
 import com.google.common.collect.Lists;
 
+import java.util.Collection;
+
 /**
- * 
  * Definition of a dashboard.
- * 
+ * <p/>
  * Its name and description can be retrieved using the i18n mechanism, using the keys "dashboard.&lt;id&gt;.name" and
  * "dashboard.&lt;id&gt;.description".
- * 
+ *
  * @since 2.13
  */
 public final class Dashboard {
@@ -37,42 +36,23 @@ public final class Dashboard {
   private String id;
   private String name;
   private String description;
-  private DashboardLayout layout;
-  private Collection<Widget> widgets;
+  private DashboardLayout layout = DashboardLayout.TWO_COLUMNS;
+  private Collection<Widget> widgets = Lists.newArrayList();
 
   private Dashboard() {
-    widgets = Lists.newArrayList();
   }
 
   /**
-   * Creates a new {@link Dashboard}. See {@link DashboardLayout} for the layout parameter.
-   * 
-   * @param id
-   *          the id
-   * @param name
-   *          the name
-   * @param layout
-   *          the layout
+   * Creates a new {@link Dashboard}-
    */
-  public static Dashboard createDashboard(String id, String name, DashboardLayout layout) {
-    Dashboard dashboard = new Dashboard();
-    dashboard.setId(id);
-    dashboard.setName(name);
-    dashboard.setDescription("");
-    dashboard.setLayout(layout);
-    return dashboard;
+  public static Dashboard create(String id, String name) {
+    return new Dashboard()
+      .setId(id)
+      .setName(name);
   }
 
   /**
    * Add a widget with the given parameters, and return the newly created {@link Widget} object if one wants to add parameters to it.
-   * 
-   * @param id
-   *          the id of the widget
-   * @param columnId
-   *          the column for the widget
-   * @param rowId
-   *          the row for the widget
-   * @return the new widget
    */
   public Widget addWidget(String id, int columnId, int rowId) {
     Widget widget = new Widget(id, columnId, rowId);
@@ -82,7 +62,7 @@ public final class Dashboard {
 
   /**
    * Returns the list of widgets.
-   * 
+   *
    * @return the widgets of this dashboard
    */
   public Collection<Widget> getWidgets() {
@@ -91,7 +71,7 @@ public final class Dashboard {
 
   /**
    * Returns the identifier of the dashboard.
-   * 
+   *
    * @return the id
    */
   public String getId() {
@@ -99,16 +79,16 @@ public final class Dashboard {
   }
 
   /**
-   * @param id
-   *          the id to set
+   * @param id the id to set
    */
-  private void setId(String id) {
+  private Dashboard setId(String id) {
     this.id = id;
+    return this;
   }
 
   /**
    * Returns the name of the dashboard.
-   * 
+   *
    * @return the name
    */
   public String getName() {
@@ -116,16 +96,16 @@ public final class Dashboard {
   }
 
   /**
-   * @param name
-   *          the name to set
+   * @param name the name to set
    */
-  private void setName(String name) {
+  private Dashboard setName(String name) {
     this.name = name;
+    return this;
   }
 
   /**
    * Returns the description of the dashboard.
-   * 
+   *
    * @return the description
    */
   public String getDescription() {
@@ -134,19 +114,19 @@ public final class Dashboard {
 
   /**
    * Sets the description of the dashboard.
-   * 
+   * <p/>
    * Note: you should use the i18n mechanism for the description.
-   * 
-   * @param description
-   *          the description to set
+   *
+   * @param description the description to set
    */
-  public void setDescription(String description) {
+  public Dashboard setDescription(String description) {
     this.description = description;
+    return this;
   }
 
   /**
    * Returns the layout of the dashboard.
-   * 
+   *
    * @return the layout
    */
   public DashboardLayout getLayout() {
@@ -154,11 +134,11 @@ public final class Dashboard {
   }
 
   /**
-   * @param layout
-   *          the layout to set
+   * @param layout the layout to set
    */
-  private void setLayout(DashboardLayout layout) {
+  public Dashboard setLayout(DashboardLayout layout) {
     this.layout = layout;
+    return this;
   }
 
 }

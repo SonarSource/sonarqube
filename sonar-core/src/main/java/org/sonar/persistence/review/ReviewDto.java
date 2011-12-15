@@ -27,7 +27,7 @@ import java.util.Date;
 /**
  * @since 2.13
  */
-public class ReviewDto {
+public final class ReviewDto {
 
   public static final String STATUS_OPEN = "OPEN";
   public static final String STATUS_REOPENED = "REOPENED";

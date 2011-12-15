@@ -20,22 +20,23 @@
 package org.sonar.plugins.core.dashboards;
 
 import org.sonar.api.web.dashboard.Dashboard;
-import org.sonar.api.web.dashboard.DashboardLayout;
 import org.sonar.api.web.dashboard.DashboardTemplate;
 import org.sonar.api.web.dashboard.Widget;
 
 /**
  * Hotspot dashboard for Sonar
+ *
+ * @since 2.13
  */
-public class HotspotsDashboard extends DashboardTemplate {
+public final class HotspotsDashboard extends DashboardTemplate {
 
   private static final String HOTSPOT_METRIC = "hotspot_metric";
   private static final String TITLE_PROPERTY = "title";
   private static final String METRIC_PROPERTY = "metric";
 
   @Override
-  public org.sonar.api.web.dashboard.Dashboard createDashboard() {
-    Dashboard dashboard = Dashboard.createDashboard("sonar-hotspots", "Hotspots", DashboardLayout.TWO_COLUMNS);
+  public Dashboard createDashboard() {
+    Dashboard dashboard = Dashboard.create("hotspots", "Hotspots");
 
     Widget widget = dashboard.addWidget("hotspot_most_violated_rules", 1, 1);
 
