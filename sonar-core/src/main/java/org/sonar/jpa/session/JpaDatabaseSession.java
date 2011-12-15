@@ -19,6 +19,7 @@
  */
 package org.sonar.jpa.session;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.database.DatabaseSession;
@@ -223,10 +224,10 @@ public class JpaDatabaseSession extends DatabaseSession {
   }
 
   public <T> List<T> getResults(Class<T> entityClass) {
-    return getQueryForCriterias(entityClass, false, null).getResultList();
+    return getQueryForCriterias(entityClass, false, (Object[]) null).getResultList();
   }
 
-  Query getQueryForCriterias(Class<?> entityClass, boolean raiseError, Object... criterias) {
+  private Query getQueryForCriterias(Class<?> entityClass, boolean raiseError, Object... criterias) {
     if (criterias == null && raiseError) {
       throw new IllegalStateException("criterias parameter must be provided");
     }
@@ -251,14 +252,15 @@ public class JpaDatabaseSession extends DatabaseSession {
     return getEntityManager().createQuery(hql.toString());
   }
 
-  private void buildCriteriasHQL(StringBuilder hql, Map<String, Object> mappedCriterias) {
-    for (Iterator<String> i = mappedCriterias.keySet().iterator(); i.hasNext(); ) {
-      String criteria = i.next();
-      hql.append("o.").append(criteria);
-      if (mappedCriterias.get(criteria) == null) {
+  @VisibleForTesting
+  void buildCriteriasHQL(StringBuilder hql, Map<String, Object> mappedCriterias) {
+    for (Iterator<Map.Entry<String, Object>> i = mappedCriterias.entrySet().iterator(); i.hasNext();) {
+      Map.Entry<String, Object> entry = i.next();
+      hql.append("o.").append(entry.getKey());
+      if (entry.getValue() == null) {
         hql.append(" IS NULL");
       } else {
-        hql.append("=:").append(criteria);
+        hql.append("=:").append(entry.getKey());
       }
       if (i.hasNext()) {
         hql.append(" AND ");

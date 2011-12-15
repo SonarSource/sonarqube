@@ -27,8 +27,11 @@ import static org.mockito.Mockito.when;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.common.collect.Maps;
+
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Map;
 
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
@@ -63,6 +66,16 @@ public class JpaDatabaseSessionTest {
     Query query = mock(Query.class);
     when(query.getResultList()).thenReturn(Collections.emptyList());
     assertThat(session.getSingleResult(query, "default"), is("default"));
+  }
+
+  @Test
+  public void shouldBuildCriteriasHQL() {
+    StringBuilder hql = new StringBuilder();
+    Map<String, Object> mappedCriterias = Maps.newHashMap();
+    mappedCriterias.put("foo", "value");
+    mappedCriterias.put("bar", null);
+    session.buildCriteriasHQL(hql, mappedCriterias);
+    assertThat(hql.toString(), is("o.foo=:foo AND o.bar IS NULL"));
   }
 
 }
