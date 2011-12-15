@@ -1,30 +1,30 @@
-<% 
-  if current_user && has_role?(:user, @project)
-    limit = widget_properties["numberOfLines"].to_i == 0 ? 5 : widget_properties["numberOfLines"].to_i
-    
-    if @dashboard_configuration.selected_period?
-      from_date = @dashboard_configuration.from_datetime
-      to_date = DateTime.now
-    end
+<%
+   if current_user && has_role?(:user, @project)
+     limit = widget_properties["numberOfLines"]
+
+     if @dashboard_configuration.selected_period?
+       from_date = @dashboard_configuration.from_datetime
+       to_date = DateTime.now
+     end
 %>
 
-<div class="line-block">
-  <div style="float:right">
-    <a href="<%= url_for :controller => 'reviews', :action => 'index', :projects => [@project.id], :from => from_date, :to => to_date -%>">
-      <%= message('widgets.more') -%>
-    </a>
+  <div class="line-block">
+    <div style="float:right">
+      <a href="<%= url_for :controller => 'reviews', :action => 'index', :projects => [@project.id], :from => from_date, :to => to_date -%>">
+        <%= message('widgets.more') -%>
+      </a>
+    </div>
+    <h3><%= message('widget.my_reviews.name') -%></h3>
   </div>
-  <h3><%= message('widget.my_reviews.name') -%></h3>
-</div>
 
-<div id="reviews-widget-<%= widget.id -%>">
-  <%= render :partial => 'project/widgets/reviews/reviews_list', 
-             :locals => {:assignee_login => current_user.login, 
-                         :project_key => @project.key,
-                         :statuses => 'OPEN,REOPENED',
-                         :resolution => '',
-                         :limit => limit,
-                         :widget_id => widget.id.to_s} %>
-</div>
+  <div id="reviews-widget-<%= widget.id -%>">
+    <%= render :partial => 'project/widgets/reviews/reviews_list',
+               :locals => {:assignee_login => current_user.login,
+                           :project_key => @project.key,
+                           :statuses => 'OPEN,REOPENED',
+                           :resolution => '',
+                           :limit => limit,
+                           :widget_id => widget.id.to_s} %>
+  </div>
 
 <% end %>

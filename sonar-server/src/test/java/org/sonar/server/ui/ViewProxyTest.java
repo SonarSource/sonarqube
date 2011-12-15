@@ -119,7 +119,7 @@ public class ViewProxyTest {
   public void widgetShouldBeEditable() {
     ViewProxy proxy = new ViewProxy<Widget>(new EditableWidget());
     assertThat(proxy.isEditable(), is(true));
-    assertThat(proxy.getWidgetProperties().length, is(2));
+    assertThat(proxy.getWidgetProperties().size(), is(2));
   }
 
   @Test
@@ -153,8 +153,8 @@ class FakeView implements View {
 }
 
 @WidgetProperties({
-    @WidgetProperty(key="foo", optional = false),
-    @WidgetProperty(key="bar", defaultValue = "30", type = WidgetPropertyType.INTEGER)
+  @WidgetProperty(key = "foo", optional = false),
+  @WidgetProperty(key = "bar", defaultValue = "30", type = WidgetPropertyType.INTEGER)
 })
 class EditableWidget implements Widget {
 
@@ -168,8 +168,8 @@ class EditableWidget implements Widget {
 }
 
 @WidgetProperties({
-    @WidgetProperty(key="foo"),
-    @WidgetProperty(key="bar")
+  @WidgetProperty(key = "foo"),
+  @WidgetProperty(key = "bar")
 })
 class WidgetWithOptionalProperties implements Widget {
 

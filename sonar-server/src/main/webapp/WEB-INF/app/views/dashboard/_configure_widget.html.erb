@@ -1,48 +1,50 @@
- <%
+<%
    begin
-     widget_body=render :inline => definition.getTarget().getTemplate(), :locals => {:widget_properties => widget.properties_as_hash, :widget => widget, :dashboard_configuration => @dashboard_configuration}
+     widget_body=render :inline => widget.java_definition.getTarget().getTemplate(), :locals => {:widget_properties => widget.properties_as_hash, :widget => widget, :dashboard_configuration => @dashboard_configuration}
    rescue => error
-      logger.error(message('dashboard.cannot_render_widget_x', :params => [definition.getId(), error]))
-      logger.error(error.backtrace.join("\n"))
-      widget_body=""
+     logger.error(message('dashboard.cannot_render_widget_x', :params => [widget.java_definition.getId(), error]))
+     logger.error(error.backtrace.join("\n"))
+     widget_body=""
    end
- %>
+%>
 
- <div class="handle" style="//overflow:hidden;//zoom:1;">
-   <a class="block-remove"  onclick="portal.deleteWidget(this);return false;"><%= message('delete') -%></a>
-   <% if definition.isEditable() %>
-     <a class="block-view-toggle" onclick="portal.editWidget(<%= widget.id -%>);return false;"><%= message('edit') -%></a>
-   <% end %>
-   <%= h message('widget.' + definition.getId() + '.name', :default => definition.getTitle()) -%>
- </div>
-
-
- <div class="widget_props" id="widget_props_<%= widget.id -%>" style="<%= 'display:none' if widget.configured -%>">
-   <%= render :partial => 'dashboard/widget_properties', :locals => {:widget => widget, :definition => definition} -%>
- </div>
+<div class="handle" style="//overflow:hidden;//zoom:1;">
+  <a class="block-remove" onclick="portal.deleteWidget(this);return false;"><%= message('delete') -%></a>
+  <% if widget.java_definition.isEditable() %>
+    <a class="block-view-toggle" onclick="portal.editWidget(<%= widget.id -%>);return false;"><%= message('edit') -%></a>
+  <% end %>
+  <%= h message('widget.' + widget.java_definition.getId() + '.name', :default => widget.java_definition.getTitle()) -%>
+</div>
 
 
- <div id="widget_<%= widget.id -%>" class="configure_widget <%= definition.getId() -%>" style="height:100%;<%= 'display:none;' if !widget.configured -%>">
-   <!--[if lte IE 6]>
-   <style type="text/css">
-     #dashboard .block .content .transparent {
-         display: none;
-     }
-   </style>
-   <![endif]-->
- <div class="transparent"></div>
-   <% if widget_body.include? '<' %>
-     <%
-       default_layout=(definition.getWidgetLayout().name()=='DEFAULT')
+<div class="widget_props" id="widget_props_<%= widget.id -%>" style="<%= 'display:none' if widget.configured -%>">
+  <%= render :partial => 'dashboard/widget_properties', :locals => {:widget => widget} -%>
+</div>
+
+
+<div id="widget_<%= widget.id -%>" class="configure_widget <%= widget.java_definition.getId() -%>" style="height:100%;<%= 'display:none;' if !widget.configured -%>">
+  <!--[if lte IE 6]>
+  <style type="text/css">
+    #dashboard .block .content .transparent {
+      display: none;
+    }
+  </style>
+  <![endif]-->
+  <div class="transparent"></div>
+  <% if widget_body.include? '<' %>
+    <%
+       default_layout=(widget.layout=='DEFAULT')
        if default_layout
-     %>
-       <div class="widget">
-     <% end %>
-     <%= widget_body -%>
-     <% if default_layout %><div class="clear"> </div></div><% end %>
-   <% else %>
-   <div class="widget"><p><%= message('no_data') -%></p></div>
-   <% end %>
- <div style="clear: both;"></div>
- </div>
+    %>
+      <div class="widget">
+    <% end %>
+    <%= widget_body -%>
+    <% if default_layout %>
+      <div class="clear"> </div></div>
+    <% end %>
+  <% else %>
+    <div class="widget"><p><%= message('no_data') -%></p></div>
+  <% end %>
+  <div style="clear: both;"></div>
+</div>
 

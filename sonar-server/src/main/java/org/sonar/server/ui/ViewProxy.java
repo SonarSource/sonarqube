@@ -19,6 +19,7 @@
  */
 package org.sonar.server.ui;
 
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
@@ -26,6 +27,9 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.api.web.*;
+
+import java.util.Collection;
+import java.util.Map;
 
 public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
 
@@ -37,7 +41,7 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
   private String[] resourceLanguages = {};
   private String[] defaultForMetrics = {};
   private String description = "";
-  private WidgetProperty[] widgetProperties = {};
+  private Map<String, WidgetProperty> widgetPropertiesByKey = Maps.newHashMap();
   private String[] widgetCategories = {};
   private WidgetLayoutType widgetLayout = WidgetLayoutType.DEFAULT;
   private boolean isDefaultTab = false;
@@ -90,7 +94,9 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
 
     WidgetProperties propAnnotation = AnnotationUtils.getClassAnnotation(view, WidgetProperties.class);
     if (propAnnotation != null) {
-      this.widgetProperties = propAnnotation.value();
+      for (WidgetProperty property : propAnnotation.value()) {
+        widgetPropertiesByKey.put(property.key(), property);
+      }
     }
 
     WidgetCategory categAnnotation = AnnotationUtils.getClassAnnotation(view, WidgetCategory.class);
@@ -122,8 +128,12 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
     return description;
   }
 
-  public WidgetProperty[] getWidgetProperties() {
-    return widgetProperties;
+  public Collection<WidgetProperty> getWidgetProperties() {
+    return widgetPropertiesByKey.values();
+  }
+
+  public WidgetProperty getWidgetProperty(String propertyKey) {
+    return widgetPropertiesByKey.get(propertyKey);
   }
 
   public String[] getWidgetCategories() {
@@ -175,12 +185,12 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
   }
 
   public boolean isEditable() {
-    return !ArrayUtils.isEmpty(widgetProperties);
+    return !widgetPropertiesByKey.isEmpty();
   }
 
   public boolean hasRequiredProperties() {
     boolean requires = false;
-    for (WidgetProperty property : widgetProperties) {
+    for (WidgetProperty property : getWidgetProperties()) {
       if (!property.optional() && StringUtils.isEmpty(property.defaultValue())) {
         requires = true;
       }
@@ -207,29 +217,29 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
     }
     ViewProxy rhs = (ViewProxy) obj;
     return new EqualsBuilder()
-        .append(getId(), rhs.getId())
-        .isEquals();
+      .append(getId(), rhs.getId())
+      .isEquals();
   }
 
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-        .append("id", view.getId())
-        .append("sections", sections)
-        .append("userRoles", userRoles)
-        .append("scopes", resourceScopes)
-        .append("qualifiers", resourceQualifiers)
-        .append("languages", resourceLanguages)
-        .append("metrics", defaultForMetrics)
-        .toString();
+      .append("id", view.getId())
+      .append("sections", sections)
+      .append("userRoles", userRoles)
+      .append("scopes", resourceScopes)
+      .append("qualifiers", resourceQualifiers)
+      .append("languages", resourceLanguages)
+      .append("metrics", defaultForMetrics)
+      .toString();
 
   }
 
   public int compareTo(ViewProxy other) {
     return new CompareToBuilder()
-        .append(getTitle(), other.getTitle())
-        .append(getId(), other.getId())
-        .toComparison();
+      .append(getTitle(), other.getTitle())
+      .append(getId(), other.getId())
+      .toComparison();
 
   }
 }

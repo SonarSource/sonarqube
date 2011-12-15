@@ -1,116 +1,116 @@
 <%
-  # Retrieve widget settings
-  metric_ids = []
-  (1..10).each do |index|
-    metric=widget_properties["metric#{index}"]
-    if metric
-      metric_ids << metric.id
-    end
-  end
-  if metric_ids.empty?
-    # No metric has been selected, it's the first time the widget is displayed: 'ncloc' is the default metric
-    ncloc = Metric.find(:first, :conditions => "name = 'ncloc'")
-    metric_ids << ncloc.id
-  end
-  numberOfColumns = widget_properties["numberOfColumns"].to_i == 0 ? 4 : widget_properties["numberOfColumns"].to_i
-  
-  # Retrieve the measures for each metric on each snapshot
-  options = {}
-  from_date = dashboard_configuration.from_datetime
-  if from_date
-    options[:from] = from_date
-  end
-  snapshots=Snapshot.for_timemachine_widget(@resource, numberOfColumns, options)
-  sids = snapshots.collect{|s| s.id}.uniq
-  measures=ProjectMeasure.find(:all, 
-                               :conditions => ["snapshot_id IN (:snapshot_id) AND metric_id IN (:metric_id) AND rule_id IS NULL AND characteristic_id IS NULL", 
-                                               {:snapshot_id => sids, :metric_id => metric_ids}]
-                               )
+   # Retrieve widget settings
+   metric_ids = []
+   (1..10).each do |index|
+     metric=widget_properties["metric#{index}"]
+     if metric
+       metric_ids << metric.id
+     end
+   end
+   if metric_ids.empty?
+     # No metric has been selected, it's the first time the widget is displayed: 'ncloc' is the default metric
+     ncloc = Metric.find(:first, :conditions => "name = 'ncloc'")
+     metric_ids << ncloc.id
+   end
+   number_of_columns = widget_properties["numberOfColumns"]
 
-  # And prepare the rows to display
-  snapshot_by_id={}
-  snapshots.each do |s|
-    snapshot_by_id[s.id]=s
-  end
-  rows_by_metric_id={}
-  measures.each do |measure|
-    next unless measure.metric
+   # Retrieve the measures for each metric on each snapshot
+   options = {}
+   from_date = dashboard_configuration.from_datetime
+   if from_date
+     options[:from] = from_date
+   end
+   snapshots=Snapshot.for_timemachine_widget(@resource, number_of_columns, options)
+   sids = snapshots.collect { |s| s.id }.uniq
+   measures=ProjectMeasure.find(:all,
+                                :conditions => ["snapshot_id IN (:snapshot_id) AND metric_id IN (:metric_id) AND rule_id IS NULL AND characteristic_id IS NULL",
+                                                {:snapshot_id => sids, :metric_id => metric_ids}]
+   )
 
-    if measure.metric.timemachine? && (measure.value || measure.text_value)
-      row=rows_by_metric_id[measure.metric_id]
-      unless row
-        row=Sonar::TimemachineRow.new(measure.metric)
-        rows_by_metric_id[measure.metric_id]=row
-      end
+   # And prepare the rows to display
+   snapshot_by_id={}
+   snapshots.each do |s|
+     snapshot_by_id[s.id]=s
+   end
+   rows_by_metric_id={}
+   measures.each do |measure|
+     next unless measure.metric
 
-      #optimization : avoid eager loading of snapshots
-      measure.snapshot=snapshot_by_id[measure.snapshot_id]
-      row.add_measure(measure)
-    end
-  end
-  
-  # Create the list of rows to display in the same order as defined by the user
-  rows=[]
-  metric_ids.each do |metric_id|
-    row = rows_by_metric_id[metric_id]
-    if row
-      rows<<row
-    end
-  end
-  
-  # Should display the sparkline?
-  displaySparkLine = widget_properties["displaySparkLine"] if snapshot_by_id.size > 1
+     if measure.metric.timemachine? && (measure.value || measure.text_value)
+       row=rows_by_metric_id[measure.metric_id]
+       unless row
+         row=Sonar::TimemachineRow.new(measure.metric)
+         rows_by_metric_id[measure.metric_id]=row
+       end
+
+       #optimization : avoid eager loading of snapshots
+       measure.snapshot=snapshot_by_id[measure.snapshot_id]
+       row.add_measure(measure)
+     end
+   end
+
+   # Create the list of rows to display in the same order as defined by the user
+   rows=[]
+   metric_ids.each do |metric_id|
+     row = rows_by_metric_id[metric_id]
+     if row
+       rows<<row
+     end
+   end
+
+   # Should display the sparkline?
+   displaySparkLine = widget_properties["displaySparkLine"] if snapshot_by_id.size > 1
 %>
 
 <div class="widget-matrix">
 
-<table class="data">
+  <table class="data">
 
-  <thead>
+    <thead>
     <tr>
-      <th> </th>
-      <% 
-        snapshots.each do |snapshot| 
-          event = snapshot.event('Version')
+      <th></th>
+      <%
+         snapshots.each do |snapshot|
+           event = snapshot.event('Version')
       %>
         <th nowrap="nowrap" style="vertical-align:top">
-            <%= l snapshot.created_at.to_date -%>
-            <br/>
-            <%= event.name unless event==nil -%>
+          <%= l snapshot.created_at.to_date -%>
+          <br/>
+          <%= event.name unless event==nil -%>
         </th>
       <% end %>
       <% if displaySparkLine %>
-      <th> </th>
+        <th></th>
       <% end %>
-  </tr>
-  </thead>
-
-  <tbody>
-    <%
-      rows.select{|row| row.metric.val_type != Metric::VALUE_TYPE_DISTRIB}.each do |row|
-    %>
-    <tr class="<%= cycle 'even','odd', :name => ('time_machine' + widget.id.to_s) -%>">
-      <td width="1%" nowrap="nowrap" class="left text">
-        <%= row.metric.short_name %>
-      </td>
-    <% 
-      snapshots.each do |snapshot|
-        measure=row.measure(snapshot)
-    %>
-      <td width="1%" nowrap="nowrap" class="right"><%= format_measure(measure, :skip_span_id => true) %></td>
-    <% end %>
-    <%
-      sparkline_url=row.sparkline_url
-      if displaySparkLine && sparkline_url
-    %>
-      <td width="1%" >
-        <%= image_tag(sparkline_url) %>
-      </td>
-    <% end %>
     </tr>
-    <% end %>
-  </tbody>
+    </thead>
 
-</table>
+    <tbody>
+    <%
+       rows.select { |row| row.metric.val_type != Metric::VALUE_TYPE_DISTRIB }.each do |row|
+    %>
+      <tr class="<%= cycle 'even', 'odd', :name => ('time_machine' + widget.id.to_s) -%>">
+        <td width="1%" nowrap="nowrap" class="left text">
+          <%= row.metric.short_name %>
+        </td>
+        <%
+           snapshots.each do |snapshot|
+             measure=row.measure(snapshot)
+        %>
+          <td width="1%" nowrap="nowrap" class="right"><%= format_measure(measure, :skip_span_id => true) %></td>
+        <% end %>
+        <%
+           sparkline_url=row.sparkline_url
+           if displaySparkLine && sparkline_url
+        %>
+          <td width="1%">
+            <%= image_tag(sparkline_url) %>
+          </td>
+        <% end %>
+      </tr>
+    <% end %>
+    </tbody>
+
+  </table>
 
 </div>

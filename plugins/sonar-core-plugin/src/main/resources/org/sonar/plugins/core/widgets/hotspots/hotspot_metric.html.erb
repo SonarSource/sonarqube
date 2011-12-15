@@ -1,7 +1,7 @@
 <%
    metric = widget_properties["metric"]
    metric = Metric.by_key('ncloc') unless metric
-   limit = widget_properties["numberOfLines"] || 5
+   limit = widget_properties["numberOfLines"]
    title = widget_properties["title"]
    title = message('widget.hotspot_metric.hotspots_by_x', :params => metric.short_name) if title.blank?
 

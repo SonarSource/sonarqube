@@ -21,14 +21,14 @@ class Widget < ActiveRecord::Base
   has_many :properties, :dependent => :delete_all, :class_name => 'WidgetProperty'
   belongs_to :dashboards
 
-  validates_presence_of     :name
-  validates_length_of       :name,    :within => 1..256
+  validates_presence_of :name
+  validates_length_of :name, :within => 1..256
 
-  validates_presence_of     :widget_key
-  validates_length_of       :widget_key, :within => 1..256
+  validates_presence_of :widget_key
+  validates_length_of :widget_key, :within => 1..256
 
   def property(key)
-    properties().each do |p|
+    self.properties().each do |p|
       return p if (p.key==key)
     end
     nil
@@ -42,43 +42,33 @@ class Widget < ActiveRecord::Base
     "block_#{id}"
   end
 
-  def property_value(key, default_value=nil)
+  def property_text_value(key)
     prop=property(key)
-    (prop ? prop.value : nil) || default_value
+    prop ? prop.text_value : nil
   end
 
-  def set_property(key, value, value_type)
+  def property_value(key)
     prop=property(key)
-    if prop
-      prop.text_value=value
-      prop.value_type=value_type
-    else
-      prop=self.properties.build(:kee => key, :text_value => value, :value_type => value_type)
-    end
-    properties_as_hash[key]=prop.typed_value
-  end
-
-  def unset_property(key)
-    prop=property(key)
-    self.properties.delete(prop) if prop
-  end
-
-  def delete_property(key)
-    prop=property(key)
-    if prop
-      properties.delete(prop)
-    end
+    prop ? prop.value : nil
   end
 
   def properties_as_hash
     @properties_hash ||=
       begin
         hash={}
-        properties.each do |prop|
-          hash[prop.key]=prop.typed_value
+        java_definition.getWidgetProperties().each do |property_definition|
+          prop = property(property_definition.key)
+          hash[property_definition.key]=(prop ? prop.value : WidgetProperty.text_to_value(property_definition.defaultValue(), property_definition.type().name()))
         end
         hash
       end
-    @properties_hash
+  end
+
+  def java_definition
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().getWidget(key)
+  end
+
+  def layout
+    java_definition.getWidgetLayout().name()
   end
 end

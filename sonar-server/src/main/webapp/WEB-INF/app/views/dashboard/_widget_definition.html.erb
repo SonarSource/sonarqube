@@ -1,9 +1,10 @@
 <td>
-<div class="widget_def" id="def_<%= definition.getId().tr('_', '') -%>">
-<p><b><%= h message('widget.' + definition.getId() + '.name', :default => definition.getTitle()) -%></b></p>
-<p><%= h message('widget.' + definition.getId() + '.description', :default => definition.getDescription()) -%></p>
-<%= form_tag :action => 'add_widget', :did => dashboard_id, :id => resource_id, :widget => definition.getId() %>
-<input type="submit" value="<%= message('dashboard.add_widget') -%>" >
-</form>
-</div>
+  <div class="widget_def" id="def_<%= definition.getId().tr('_', '') -%>">
+    <p><b><%= h message('widget.' + definition.getId() + '.name', :default => definition.getTitle()) -%></b></p>
+
+    <p><%= h message('widget.' + definition.getId() + '.description', :default => definition.getDescription()) -%></p>
+    <%= form_tag :action => 'add_widget', :did => dashboard_id, :id => resource_id, :widget => definition.getId() %>
+    <input type="submit" value="<%= message('dashboard.add_widget') -%>">
+    </form>
+  </div>
 </td>

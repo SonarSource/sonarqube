@@ -25,7 +25,6 @@ public class WidgetPropertyDto {
   private Long widgetId;
   private String key;
   private String value;
-  private String valueType;
 
   /**
    * @return the id
@@ -35,8 +34,7 @@ public class WidgetPropertyDto {
   }
 
   /**
-   * @param id
-   *          the id to set
+   * @param id the id to set
    */
   public void setId(Long id) {
     this.id = id;
@@ -50,8 +48,7 @@ public class WidgetPropertyDto {
   }
 
   /**
-   * @param widgetId
-   *          the widgetId to set
+   * @param widgetId the widgetId to set
    */
   public void setWidgetId(Long widgetId) {
     this.widgetId = widgetId;
@@ -65,8 +62,7 @@ public class WidgetPropertyDto {
   }
 
   /**
-   * @param key
-   *          the key to set
+   * @param key the key to set
    */
   public void setKey(String key) {
     this.key = key;
@@ -80,26 +76,10 @@ public class WidgetPropertyDto {
   }
 
   /**
-   * @param value
-   *          the value to set
+   * @param value the value to set
    */
   public void setValue(String value) {
     this.value = value;
-  }
-
-  /**
-   * @return the valueType
-   */
-  public String getValueType() {
-    return valueType;
-  }
-
-  /**
-   * @param valueType
-   *          the valueType to set
-   */
-  public void setValueType(String valueType) {
-    this.valueType = valueType;
   }
 
 }

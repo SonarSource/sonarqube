@@ -1,33 +1,32 @@
 <dataset>
 
   <dashboards
-      id="1"
-      kee="d-key"
-      user_id="[null]"
-      name="[null]"
-      description="[null]"
-      column_layout="[null]"
-      shared="1"
-      created_at="[null]"
-      updated_at="[null]"/>
+    id="1"
+    kee="d-key"
+    user_id="[null]"
+    name="[null]"
+    description="[null]"
+    column_layout="[null]"
+    shared="[true]"
+    created_at="[null]"
+    updated_at="[null]"/>
 
   <widgets
-      id="1"
-      dashboard_id="1"
-      widget_key="code_coverage"
-      name="[null]"
-      description="[null]"
-      column_index="[null]"
-      row_index="[null]"
-      configured="1"
-      created_at="[null]"
-      updated_at="[null]"/>
+    id="1"
+    dashboard_id="1"
+    widget_key="code_coverage"
+    name="[null]"
+    description="[null]"
+    column_index="[null]"
+    row_index="[null]"
+    configured="[true]"
+    created_at="[null]"
+    updated_at="[null]"/>
 
   <widget_properties
-      id="1"
-      widget_id="1"
-      kee="[null]"
-      text_value="[null]"
-      value_type="[null]"/>  
+    id="1"
+    widget_id="1"
+    kee="[null]"
+    text_value="[null]"/>
 
 </dataset>

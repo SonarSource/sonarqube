@@ -21,12 +21,12 @@ package org.sonar.plugins.core.widgets;
 
 import org.sonar.api.web.*;
 
-@WidgetCategory({"Hotspots"})
+@WidgetCategory("Hotspots")
 @WidgetProperties(
-    {
-        @WidgetProperty(key = "numberOfLines", type = WidgetPropertyType.INTEGER, defaultValue = "5"),
-        @WidgetProperty(key = "defaultSeverity", type = WidgetPropertyType.STRING, description = "Values: BLOCKER, CRITICAL, MAJOR, MINOR, INFO")
-    }
+  {
+    @WidgetProperty(key = "numberOfLines", type = WidgetPropertyType.INTEGER, defaultValue = "5"),
+    @WidgetProperty(key = "defaultSeverity", type = WidgetPropertyType.STRING, description = "Values: BLOCKER, CRITICAL, MAJOR, MINOR, INFO")
+  }
 )
 public class HotspotMostViolatedRulesWidget extends AbstractRubyTemplate implements RubyRailsWidget {
   public String getId() {

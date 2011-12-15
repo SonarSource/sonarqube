@@ -1,35 +1,30 @@
-<% form_remote_tag :url => {:action => 'save_widget', :wid => widget.id, :id => params[:id]}, :method => :post do -%>
-  <% if defined?(errors_by_property_key) && errors_by_property_key %>
-    <ul>
-	<% errors_by_property_key.each_pair do |property_key, error| %>
-	  <li class="error"><%= property_key -%>: <%= h(error)-%></li>
-	</ul>
-	<% end %>
-  <% end %>
-    <table class="form width100">
-	  <tbody>
-      <% definition.getWidgetProperties().each do |property_def|
-          value=widget.property_value(property_def.key(), property_def.defaultValue())
-      %>
-          <tr>
-            <td valign="top" class="thin nowrap"><b><%= property_def.key() -%></b><%= "*" unless property_def.optional()==true -%>: </td>
-            <td id="row_<%= property_def.key() -%>">
-              <%= property_value_field(property_def, value) -%>
-              <span class="note">
+<% form_remote_tag :url => {:action => 'save_widget', :wid => widget.id, :id => params[:id]},
+                   :method => :post,
+                   :update => {:failure => "error#{widget.id}"},
+                   :failure => "$('error#{widget.id}').show()" do -%>
+  <div id="error<%= widget.id -%>" class="error" style="display: none"></div>
+  <table class="form width100">
+    <tbody>
+    <% widget.java_definition.getWidgetProperties().each do |property_def| %>
+      <tr>
+        <td valign="top" class="thin nowrap"><b><%= property_def.key() -%></b><%= "*" unless property_def.optional()==true -%>:</td>
+        <td id="row_<%= property_def.key() -%>">
+          <%= property_value_field(property_def, widget.property_text_value(property_def.key())) -%>
+          <span class="note">
                 <%= message("widget." + widget.key + ".param." + property_def.key(), :default => property_def.description()) -%>
               </span>
-            </td>
-          </tr>
-      <% end %>
-      <tr>
-        <td colspan="2">
-          <%= submit_tag message('save') %>
-          <% if widget.configured %>
-            <a href="#" onClick="portal.cancelEditWidget(<%= widget.id -%>);return false;"><%= message('cancel') -%></a>
-          <% end %>
         </td>
       </tr>
-      </tbody>
-    </table>
-    <%= hidden_field_tag "widgetid", "", :class => "widgetid" %>
+    <% end %>
+    <tr>
+      <td colspan="2">
+        <%= submit_tag message('save') %>
+        <% if widget.configured %>
+          <a href="#" onClick="portal.cancelEditWidget(<%= widget.id -%>);return false;"><%= message('cancel') -%></a>
+        <% end %>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+  <%= hidden_field_tag "widgetid", "", :class => "widgetid" %>
 <% end -%>

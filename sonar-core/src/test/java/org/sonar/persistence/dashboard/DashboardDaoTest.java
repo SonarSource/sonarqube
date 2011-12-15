@@ -19,15 +19,11 @@
  */
 package org.sonar.persistence.dashboard;
 
-import java.util.Date;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.persistence.DaoTestCase;
-import org.sonar.persistence.dashboard.DashboardDao;
-import org.sonar.persistence.dashboard.DashboardDto;
-import org.sonar.persistence.dashboard.WidgetDto;
-import org.sonar.persistence.dashboard.WidgetPropertyDto;
+
+import java.util.Date;
 
 public class DashboardDaoTest extends DaoTestCase {
 
@@ -67,12 +63,11 @@ public class DashboardDaoTest extends DaoTestCase {
     WidgetPropertyDto property = new WidgetPropertyDto();
     property.setKey("displayITs");
     property.setValue("true");
-    property.setValueType("BOOLEAN");
     widgetDto.addWidgetProperty(property);
 
     dao.insert(dashboardDto);
 
-    checkTables("shouldInsert", new String[] { "created_at", "updated_at" }, "dashboards", "widgets", "widget_properties");
+    checkTables("shouldInsert", new String[]{"created_at", "updated_at"}, "dashboards", "widgets", "widget_properties");
   }
 
   @Test
@@ -103,7 +98,6 @@ public class DashboardDaoTest extends DaoTestCase {
     WidgetPropertyDto property = new WidgetPropertyDto();
     property.setKey(null);
     property.setValue(null);
-    property.setValueType(null);
     widgetDto.addWidgetProperty(property);
 
     dao.insert(dashboardDto);

@@ -1,70 +1,67 @@
 <script type="text/javascript">
-    <!--
-    var options = {
-        editorEnabled: true,
-        portal: 'dashboard',
-        column: 'dashboard-column',
-        columnhandle: 'column-handle',
-        block: 'block',
-        handle: 'none',
-        hoverclass: 'block-hover',
-        dashboardstate: 'dashboardstate',
-        toggle: 'block-toggle',
-        blocklist: 'widget_defs',
-        highlight_duration: 2,
-        highlight_startcolor: '#cae3f2',
-        highlight_endcolor: '#ffffff',
-        saveurl: '<%= url_for :action => 'set_dashboard', :did => @dashboard.id, :id => @resource.id -%>'
-    };
-    var portal;
-    function init_dashboard() {
-      portal = new Portal(options);
-      <% if params[:highlight] %>
-      portal.highlightWidget(<%= params[:highlight] -%>);
-      <% end %>
-    }
-    Event.observe(window, 'load', init_dashboard, false);
+  <!--
+  var options = {
+    editorEnabled:true,
+    portal:'dashboard',
+    column:'dashboard-column',
+    columnhandle:'column-handle',
+    block:'block',
+    handle:'none',
+    hoverclass:'block-hover',
+    dashboardstate:'dashboardstate',
+    toggle:'block-toggle',
+    blocklist:'widget_defs',
+    highlight_duration:2,
+    highlight_startcolor:'#cae3f2',
+    highlight_endcolor:'#ffffff',
+    saveurl:'<%= url_for :action => 'set_dashboard', :did => @dashboard.id, :id => @resource.id -%>'
+  };
+  var portal;
+  function init_dashboard() {
+    portal = new Portal(options);
+  <% if params[:highlight] %>
+    portal.highlightWidget(<%= params[:highlight] -%>);
+  <% end %>
+  }
+  Event.observe(window, 'load', init_dashboard, false);
 
-    function filterWidgets(category){
-      new Ajax.Updater(
-        'widget_defs',
-        '<%= url_for :controller => "dashboard", :action => "widget_definitions", :did => @dashboard.id, :id => @resource.id -%>&category=' + category,
-        {asynchronous:true, evalScripts:true});
-      $('filter-widgets-loading').show();
-      return false;
-    }
-    
-    //-->
+  function filterWidgets(category) {
+    new Ajax.Updater(
+      'widget_defs',
+      '<%= url_for :controller => "dashboard", :action => "widget_definitions", :did => @dashboard.id, :id => @resource.id -%>&category=' + category,
+      {asynchronous:true, evalScripts:true});
+    $('filter-widgets-loading').show();
+    return false;
+  }
+
+  //-->
 </script>
 
 <div id="dashboard">
   <%= render :partial => 'dashboard/header', :locals => {:back => true} %>
 
   <div id="widget_defs">
-    <%= render :partial => 'dashboard/widget_definitions', :locals => {:dashboard_id => @dashboard.id, :resource_id => @resource.id, :filter_on_category => nil}-%>
+    <%= render :partial => 'dashboard/widget_definitions', :locals => {:dashboard_id => @dashboard.id, :resource_id => @resource.id, :filter_on_category => nil} -%>
   </div>
 
 
   <%
-    columns=@dashboard.column_layout.split('-')
-    for index in 1..columns.size()
+     columns=@dashboard.column_layout.split('-')
+     for index in 1..columns.size()
   %>
     <div class="dashboard-column-wrapper" style="width: <%= columns[index-1] -%>">
-    <div class="dashboard-column" id="dashboard-column-<%= index -%>" style="margin: 0px <%= index<columns.size() ? "5px" : "0px" -%> 0px <%= index>1 ? "5px" : "0px" -%>;">
-      <div class="column-handle" style="display: none"> </div>
+      <div class="dashboard-column" id="dashboard-column-<%= index -%>" style="margin: 0 <%= index<columns.size() ? "5px" : "0px" -%> 0 <%= index>1 ? "5px" : "0px" -%>;">
+        <div class="column-handle" style="display: none"></div>
 
-    <%
-      @dashboard.widgets.select{|widget| widget.column_index==index}.sort_by{|widget| widget.row_index}.each do |widget|
-        widget_definition=@widget_definitions.find{|wd| wd.getId()==widget.widget_key }
-        if widget_definition
-    %>
-        <div class="block" id="block_<%= widget.id -%>">
-          <%= render :partial => 'dashboard/configure_widget', :locals => {:widget => widget,  :definition => widget_definition} %>
-        </div>
-    <%
-        end
-      end
-    %>
+        <%
+           @dashboard.widgets.select { |widget| widget.column_index==index }.sort_by { |widget| widget.row_index }.each do |widget|
+        %>
+          <div class="block" id="block_<%= widget.id -%>">
+            <%= render :partial => 'dashboard/configure_widget', :locals => {:widget => widget} %>
+          </div>
+        <%
+           end
+        %>
       </div>
     </div>
   <% end %>

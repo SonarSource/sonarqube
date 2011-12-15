@@ -1,6 +1,6 @@
 <%
    if has_role?(:user, @project)
-     limit = widget_properties["numberOfLines"].to_i == 0 ? 5 : widget_properties["numberOfLines"].to_i
+     limit = widget_properties["numberOfLines"]
 
      from_date=nil
      to_date=nil

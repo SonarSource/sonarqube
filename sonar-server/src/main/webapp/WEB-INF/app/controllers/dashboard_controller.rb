@@ -115,33 +115,19 @@ class DashboardController < ApplicationController
   def save_widget
     widget=Widget.find(params[:wid].to_i)
     #TODO check owner of dashboard
-    definition=java_facade.getWidget(widget.widget_key)
-    errors_by_property_key={}
-    definition.getWidgetProperties().each do |property_def|
-      value=params[property_def.key()] || property_def.defaultValue()
-      value='false' if value.empty? && property_def.type.name()==WidgetProperty::TYPE_BOOLEAN
-
-      errors=WidgetProperty.validate_definition(property_def, value)
-      if errors.empty?
-        widget.set_property(property_def.key(), value, property_def.type.name())
-      else
-        widget.unset_property(property_def.key())
-        errors_by_property_key[property_def.key()]=errors
+    Widget.transaction do
+      widget.properties.clear
+      widget.java_definition.getWidgetProperties().each do |java_property|
+        value=params[java_property.key()] || java_property.defaultValue()
+        if value && !value.empty?
+          prop = widget.properties.build(:kee => java_property.key, :text_value => value)
+          prop.save!
+        end
       end
-    end
-
-    if errors_by_property_key.empty?
       widget.configured=true
-      widget.save
-      widget.properties.each { |p| p.save }
+      widget.save!
       render :update do |page|
         page.redirect_to(url_for(:action => :configure, :did => widget.dashboard_id, :id => params[:id]))
-      end
-    else
-      widget.configured=false
-      widget.save
-      render :update do |page|
-        page.replace_html "widget_props_#{widget.id}", :partial => 'dashboard/widget_properties', :locals => {:widget => widget, :definition => definition, :errors_by_property_key => errors_by_property_key}
       end
     end
   end

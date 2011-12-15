@@ -26,59 +26,77 @@ class WidgetProperty < ActiveRecord::Base
 
   belongs_to :widget
 
-  validates_length_of       :kee, :within => 1..100
-  validates_length_of       :text_value,   :maximum => 4000, :allow_blank => true, :allow_nil => true
+  validates_length_of :kee, :within => 1..100
+  validates_length_of :text_value, :maximum => 4000, :allow_blank => true, :allow_nil => true
 
   def key
     kee
   end
 
-  def value
-    text_value
+  def text_value
+    read_attribute(:text_value) || default_text_value
   end
 
-  def typed_value
-    case value_type
-    when TYPE_INTEGER
-      value.to_i
-    when TYPE_FLOAT
-      Float(value)
-    when TYPE_BOOLEAN
-      value=='true'
-    when TYPE_METRIC
-      Metric.by_key(value.to_s)
-    else
-      value
-    end
+  def default_text_value
+    java_definition.defaultValue()
+  end
+
+  def type
+    @type ||=
+      begin
+        java_definition.type().name()
+      end
+  end
+
+  def java_definition
+    @java_definition ||=
+      begin
+        widget.java_definition.getWidgetProperty(key)
+      end
+  end
+
+  def value
+    WidgetProperty.text_to_value(text_value, type)
   end
 
   def to_hash_json
-    {:key => key, :value => value.to_s}
+    {:key => key, :value => text_value}
   end
 
   def to_xml(xml=Builder::XmlMarkup.new(:indent => 0))
     xml.property do
       xml.key(prop_key)
-      xml.value {xml.cdata!(text_value.to_s)}
+      xml.value { xml.cdata!(text_value) }
     end
     xml
   end
 
-  def self.validate_definition(definition, value)
-    errors=[]
-    if value.empty?
-      errors<<"Missing value" unless definition.optional()
-    else
-      errors<<"Please type an integer (example: 123)" if definition.type.name()==TYPE_INTEGER && value.to_i.to_s!=value
-      if definition.type.name()==TYPE_FLOAT
-        begin
-          Float(value)
-        rescue
-          errors<<"Please type a number (example: 123.45)"
-        end
-      end
-      errors<<"Please check value" if definition.type.name()==TYPE_BOOLEAN && !(value=="true" || value=="false")
+  def self.text_to_value(text, type)
+    case type
+      when TYPE_INTEGER
+        text.to_i
+      when TYPE_FLOAT
+        Float(text)
+      when TYPE_BOOLEAN
+        text=='true'
+      when TYPE_METRIC
+        Metric.by_key(text)
+      else
+        text
     end
-    errors
   end
+
+  protected
+  def validate
+    errors.add_to_base("Unknown property: #{key}") unless java_definition
+    errors.add_to_base("Unknown type for property #{key}") unless type
+    if text_value.empty?
+      errors.add_to_base("#{key} is empty") unless java_definition.optional()
+    else
+      errors.add_to_base("#{key} is not an integer") if type==TYPE_INTEGER && !Api::Utils.is_integer?(text_value)
+      errors.add_to_base("#{key} is not a decimal number") if type==TYPE_FLOAT && !Api::Utils.is_number?(text_value)
+      errors.add_to_base("#{key} is not a boolean") if type==TYPE_BOOLEAN && !(text_value=="true" || text_value=="false")
+    end
+  end
+
 end

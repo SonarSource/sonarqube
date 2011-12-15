@@ -1,32 +1,31 @@
 <%
-  limit = widget_properties["numberOfLines"] || 5
-  
-  metric = Metric.by_key('weighted_violations')
-  
-  snapshots_conditions=["snapshots.scope = 'FIL'", "snapshots.islast=:islast", "snapshots.status = 'P'"]
-  snapshots_values={:islast => true}
-  snapshots_conditions << "(snapshots.qualifier = 'CLA' OR snapshots.qualifier = 'FIL' OR snapshots.qualifier = 'TRK')"
-  snapshots_conditions << '(snapshots.id=:sid OR (snapshots.root_snapshot_id=:root_sid AND snapshots.path LIKE :path))'
-  snapshots_values[:sid]=@snapshot.id
-  snapshots_values[:root_sid] = (@snapshot.root_snapshot_id || @snapshot.id)
-  snapshots_values[:path]="#{@snapshot.path}#{@snapshot.id}.%"
-      
-  measures_conditions = ["project_measures.rule_id IS NULL", "project_measures.characteristic_id IS NULL"]
-  measures_values = {}
-  measures_conditions << "project_measures.metric_id = :m_id"
-  measures_values[:m_id] = metric.id
-  
-  measures=ProjectMeasure.find(:all,
-                               :joins => :snapshot, 
-                               :conditions => [ (snapshots_conditions + measures_conditions).join(' AND '), snapshots_values.merge(measures_values)],
-                               :order => "project_measures.value #{'DESC' if metric.direction<0}",
-                               :limit => limit)
-  
-  snapshots=Snapshot.find(measures.map {|m| m.snapshot_id}, :include => 'project')
-  snapshots_by_id = {}
-  snapshots.each do |s|
-    snapshots_by_id[s.id]=s
-  end  
+   limit = widget_properties["numberOfLines"]
+   metric = Metric.by_key('weighted_violations')
+
+   snapshots_conditions=["snapshots.scope = 'FIL'", "snapshots.islast=:islast", "snapshots.status = 'P'"]
+   snapshots_values={:islast => true}
+   snapshots_conditions << "(snapshots.qualifier = 'CLA' OR snapshots.qualifier = 'FIL' OR snapshots.qualifier = 'TRK')"
+   snapshots_conditions << '(snapshots.id=:sid OR (snapshots.root_snapshot_id=:root_sid AND snapshots.path LIKE :path))'
+   snapshots_values[:sid]=@snapshot.id
+   snapshots_values[:root_sid] = (@snapshot.root_snapshot_id || @snapshot.id)
+   snapshots_values[:path]="#{@snapshot.path}#{@snapshot.id}.%"
+
+   measures_conditions = ["project_measures.rule_id IS NULL", "project_measures.characteristic_id IS NULL"]
+   measures_values = {}
+   measures_conditions << "project_measures.metric_id = :m_id"
+   measures_values[:m_id] = metric.id
+
+   measures=ProjectMeasure.find(:all,
+                                :joins => :snapshot,
+                                :conditions => [(snapshots_conditions + measures_conditions).join(' AND '), snapshots_values.merge(measures_values)],
+                                :order => "project_measures.value #{'DESC' if metric.direction<0}",
+                                :limit => limit)
+
+   snapshots=Snapshot.find(measures.map { |m| m.snapshot_id }, :include => 'project')
+   snapshots_by_id = {}
+   snapshots.each do |s|
+     snapshots_by_id[s.id]=s
+   end
 %>
 
 <div class="line-block">
@@ -37,18 +36,22 @@
 </div>
 
 <table id="most-violated-resources-<%= widget.id -%>" class="data">
-  <thead><tr><th colspan="11"></th></tr></thead>
+  <thead>
+  <tr>
+    <th colspan="11"></th>
+  </tr>
+  </thead>
   <tbody>
-<%
-  measures.each do |measure|
-    resource = snapshots_by_id[measure.snapshot_id].resource
-    violations_per_severity={}
-    measure.text_value.split(';').each do |part|
-      fields=part.split('=')
-      violations_per_severity[fields[0]]=fields[1]
-    end
-%>
-    <tr class="<%= cycle 'even','odd', :name => ('hotspot_most_violated_resources' + widget.id.to_s) -%>">
+  <%
+     measures.each do |measure|
+       resource = snapshots_by_id[measure.snapshot_id].resource
+       violations_per_severity={}
+       measure.text_value.split(';').each do |part|
+         fields=part.split('=')
+         violations_per_severity[fields[0]]=fields[1]
+       end
+  %>
+    <tr class="<%= cycle 'even', 'odd', :name => ('hotspot_most_violated_resources' + widget.id.to_s) -%>">
       <td>
         <%= link_to_resource(resource, resource.name, {:tab => :violations}) -%>
       </td>
@@ -81,10 +84,10 @@
       </td>
       <td class="small left">
         <%= violations_per_severity["INFO"] ? violations_per_severity["INFO"].to_s : "0" -%>
-      </td>    
+      </td>
     </tr>
-<%
-  end
-%>
+  <%
+     end
+  %>
   </tbody>
 </table>
