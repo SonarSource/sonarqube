@@ -37,7 +37,15 @@ public abstract class BaseChart {
   public static final Color BASE_COLOR_LIGHT = new Color(204, 204, 204);
   public static final Color SERIE_BORDER_COLOR = new Color(67, 119, 166);
 
-  public static final Color[] COLORS = {new Color(5, 141, 199), new Color(80,180,50),new Color(237,86,27), new Color(237,239,0), new Color(36,203,229), new Color(100,229,114), new Color(255,150,85)};
+  public static final Color[] COLORS = {
+    new Color(5, 141, 199),
+    new Color(80, 180, 50),
+    new Color(237, 86, 27),
+    new Color(237, 239, 0),
+    new Color(36, 203, 229),
+    new Color(100, 229, 114),
+    new Color(255, 150, 85)
+  };
 
   public static final int FONT_SIZE = 13;
 
@@ -130,6 +138,6 @@ public abstract class BaseChart {
     return new BasicStroke(width,
         BasicStroke.CAP_BUTT,
         BasicStroke.JOIN_MITER,
-        10.0f, new float[]{5.0f}, 0.0f);
+        10.0f, new float[] { 5.0f }, 0.0f);
   }
 }
