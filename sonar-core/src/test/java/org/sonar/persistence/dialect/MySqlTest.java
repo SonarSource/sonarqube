@@ -17,25 +17,22 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.jpa.session;
+package org.sonar.persistence.dialect;
 
-import org.sonar.persistence.dialect.Dialect;
+import org.junit.Test;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import java.sql.Connection;
-import java.sql.SQLException;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
-public interface DatabaseConnector {
+public class MySqlTest {
 
-  Dialect getDialect();
+  @Test
+  public void matchesJdbcURL() {
+    assertThat(new MySql().matchesJdbcURL("jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8"), is(true));
+    assertThat(new MySql().matchesJdbcURL("JDBC:MYSQL://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8"), is(true));
 
-  Connection getConnection() throws SQLException;
-
-  EntityManagerFactory getEntityManagerFactory();
-
-  EntityManager createEntityManager();
-
-  int getDatabaseVersion();
+    assertThat(new MySql().matchesJdbcURL("jdbc:hsql:foo"), is(false));
+    assertThat(new MySql().matchesJdbcURL("jdbc:oracle:foo"), is(false));
+  }
 
 }

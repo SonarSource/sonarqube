@@ -19,17 +19,17 @@
  */
 package org.sonar.persistence;
 
-import org.sonar.jpa.dialect.Dialect;
+import org.sonar.persistence.dialect.Dialect;
 
 import javax.sql.DataSource;
 import java.util.Properties;
 
 /**
- *
  * @since 2.12
  */
 public interface Database {
   Database start();
+
   Database stop();
 
   /**

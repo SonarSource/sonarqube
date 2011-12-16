@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.jpa.dialect;
+package org.sonar.persistence.dialect;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.HibernateException;
@@ -48,7 +48,7 @@ public class MsSql implements Dialect {
 
   public boolean matchesJdbcURL(String jdbcConnectionURL) {
     return StringUtils.startsWithIgnoreCase(jdbcConnectionURL, "jdbc:microsoft:sqlserver:")
-        || StringUtils.startsWithIgnoreCase(jdbcConnectionURL, "jdbc:jtds:sqlserver:");
+      || StringUtils.startsWithIgnoreCase(jdbcConnectionURL, "jdbc:jtds:sqlserver:");
   }
 
   public static class MsSqlDialect extends SQLServerDialect {

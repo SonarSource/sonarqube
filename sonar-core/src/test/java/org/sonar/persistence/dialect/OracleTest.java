@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.jpa.dialect;
+package org.sonar.persistence.dialect;
 
 import org.hamcrest.core.Is;
 import org.junit.Test;
@@ -26,26 +26,27 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
-public class PostgreSqlTest {
+public class OracleTest {
   @Test
   public void matchesJdbcURL() {
-    assertThat(new PostgreSql().matchesJdbcURL("jdbc:postgresql://localhost/sonar"), is(true));
-    assertThat(new PostgreSql().matchesJdbcURL("jdbc:hsql:foo"), is(false));
+    assertThat(new Oracle().matchesJdbcURL("jdbc:oracle:thin:@localhost/XE"), is(true));
+    assertThat(new Oracle().matchesJdbcURL("jdbc:hsql:foo"), is(false));
   }
 
   /**
    * Avoid conflicts with other schemas
    */
   @Test
-  public void shouldChangePostgreSearchPath() {
-    String initStatement = new PostgreSql().getConnectionInitStatement("my_schema");
+  public void shouldChangeOracleSchema() {
+    String initStatement = new Oracle().getConnectionInitStatement("my_schema");
 
-    assertThat(initStatement, Is.is("SET SEARCH_PATH TO my_schema"));
+    assertThat(initStatement, Is.is("ALTER SESSION SET CURRENT_SCHEMA = \"my_schema\""));
   }
 
   @Test
-  public void shouldNotChangePostgreSearchPathByDefault() {
-    assertNull(new PostgreSql().getConnectionInitStatement(null));
+  public void shouldNotChangeOracleSchemaByDefault() {
+    assertNull(new Oracle().getConnectionInitStatement(null));
   }
+
 
 }

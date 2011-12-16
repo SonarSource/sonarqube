@@ -20,9 +20,9 @@
 package org.sonar.server.platform;
 
 import org.junit.Test;
-import org.sonar.jpa.dialect.Dialect;
-import org.sonar.jpa.dialect.MySql;
 import org.sonar.jpa.session.DatabaseConnector;
+import org.sonar.persistence.dialect.Dialect;
+import org.sonar.persistence.dialect.MySql;
 import org.sonar.test.TestUtils;
 
 import java.io.File;

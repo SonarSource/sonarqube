@@ -17,21 +17,27 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.jpa.dialect;
+package org.sonar.persistence.dialect;
+
+import org.hibernate.id.PersistentIdentifierGenerator;
+import org.junit.Test;
+
+import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import org.junit.Test;
 
-public class MySqlTest {
+public class PostgreSQLSequenceGeneratorTest {
 
   @Test
-  public void matchesJdbcURL() {
-    assertThat(new MySql().matchesJdbcURL("jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8"), is(true));
-    assertThat(new MySql().matchesJdbcURL("JDBC:MYSQL://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8"), is(true));
+  public void sequenceNameShouldFollowRailsConventions() {
+    Properties props = new Properties();
+    props.setProperty(PersistentIdentifierGenerator.TABLE, "my_table");
+    props.setProperty(PersistentIdentifierGenerator.PK, "id");
 
-    assertThat(new MySql().matchesJdbcURL("jdbc:hsql:foo"), is(false));
-    assertThat(new MySql().matchesJdbcURL("jdbc:oracle:foo"), is(false));
+    PostgreSQLSequenceGenerator generator = new PostgreSQLSequenceGenerator();
+    generator.configure(null, props, new PostgreSql.PostgreSQLWithDecimalDialect());
+    assertThat(generator.getSequenceName(), is("my_table_id_seq"));
   }
 
 }

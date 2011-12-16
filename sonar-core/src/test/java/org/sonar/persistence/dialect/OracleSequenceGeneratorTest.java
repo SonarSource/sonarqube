@@ -17,36 +17,27 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.jpa.dialect;
+package org.sonar.persistence.dialect;
 
-import org.hamcrest.core.Is;
+import org.hibernate.id.PersistentIdentifierGenerator;
 import org.junit.Test;
 
+import java.util.Properties;
+
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
-public class OracleTest {
-  @Test
-  public void matchesJdbcURL() {
-    assertThat(new Oracle().matchesJdbcURL("jdbc:oracle:thin:@localhost/XE"), is(true));
-    assertThat(new Oracle().matchesJdbcURL("jdbc:hsql:foo"), is(false));
-  }
-
-  /**
-   * Avoid conflicts with other schemas
-   */
-  @Test
-  public void shouldChangeOracleSchema() {
-    String initStatement = new Oracle().getConnectionInitStatement("my_schema");
-
-    assertThat(initStatement, Is.is("ALTER SESSION SET CURRENT_SCHEMA = \"my_schema\""));
-  }
+public class OracleSequenceGeneratorTest {
 
   @Test
-  public void shouldNotChangeOracleSchemaByDefault() {
-    assertNull(new Oracle().getConnectionInitStatement(null));
-  }
+  public void sequenceNameShouldFollowRailsConventions() {
+    Properties props = new Properties();
+    props.setProperty(PersistentIdentifierGenerator.TABLE, "my_table");
+    props.setProperty(PersistentIdentifierGenerator.PK, "id");
 
+    OracleSequenceGenerator generator = new OracleSequenceGenerator();
+    generator.configure(null, props, new Oracle.Oracle10gWithDecimalDialect());
+    assertThat(generator.getSequenceName(), is("MY_TABLE_SEQ"));
+  }
 
 }

@@ -27,8 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
-import org.sonar.jpa.dialect.*;
 import org.sonar.jpa.session.CustomHibernateConnectionProvider;
+import org.sonar.persistence.dialect.*;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
@@ -80,7 +80,7 @@ public class DefaultDatabase implements Database {
   }
 
   private void initDialect() {
-    dialect = DialectRepository.find(properties.getProperty("sonar.jdbc.dialect"), properties.getProperty("sonar.jdbc.url"));
+    dialect = DialectUtils.find(properties.getProperty("sonar.jdbc.dialect"), properties.getProperty("sonar.jdbc.url"));
     if (dialect == null) {
       throw new IllegalStateException("Can not guess the JDBC dialect. Please check the property sonar.jdbc.url.");
     }

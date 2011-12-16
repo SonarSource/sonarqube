@@ -17,27 +17,17 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.jpa.dialect;
+package org.sonar.persistence.dialect;
 
-import org.hibernate.id.PersistentIdentifierGenerator;
 import org.junit.Test;
-
-import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class OracleSequenceGeneratorTest {
-
+public class DerbyTest {
   @Test
-  public void sequenceNameShouldFollowRailsConventions() {
-    Properties props = new Properties();
-    props.setProperty(PersistentIdentifierGenerator.TABLE, "my_table");
-    props.setProperty(PersistentIdentifierGenerator.PK, "id");
-
-    OracleSequenceGenerator generator = new OracleSequenceGenerator();
-    generator.configure(null, props, new Oracle.Oracle10gWithDecimalDialect());
-    assertThat(generator.getSequenceName(), is("MY_TABLE_SEQ"));
+  public void matchesJdbcURL() {
+    assertThat(new Derby().matchesJdbcURL("jdbc:derby:foo"), is(true));
+    assertThat(new Derby().matchesJdbcURL("jdbc:hsql:foo"), is(false));
   }
-
 }

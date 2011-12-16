@@ -17,9 +17,8 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.jpa.dialect;
+package org.sonar.persistence.dialect;
 
-import org.apache.commons.lang.StringUtils;
 import org.hibernate.MappingException;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.id.PersistentIdentifierGenerator;
@@ -29,25 +28,34 @@ import org.hibernate.type.Type;
 import java.util.Properties;
 
 /**
+ * if the underlying database is PostgreSQL, the sequence
+ * naming convention is different and includes the primary key
+ * column name
+ *
  * @since 1.10
  */
-public class OracleSequenceGenerator extends SequenceGenerator {
+public class PostgreSQLSequenceGenerator extends SequenceGenerator {
 
-  public static final String SEQUENCE_NAME_SUFFIX = "_SEQ";
+  public static final String SEQUENCE_NAME_SEPARATOR = "_";
+  public static final String SEQUENCE_NAME_SUFFIX = "seq";
 
   @Override
   public void configure(Type type, Properties params, Dialect dialect)
     throws MappingException {
 
     String tableName = params.getProperty(PersistentIdentifierGenerator.TABLE);
+    String columnName = params.getProperty(PersistentIdentifierGenerator.PK);
 
-    if (tableName != null) {
+    if (tableName != null && columnName != null) {
       StringBuilder sequenceNameBuilder = new StringBuilder();
 
       sequenceNameBuilder.append(tableName);
+      sequenceNameBuilder.append(SEQUENCE_NAME_SEPARATOR);
+      sequenceNameBuilder.append(columnName);
+      sequenceNameBuilder.append(SEQUENCE_NAME_SEPARATOR);
       sequenceNameBuilder.append(SEQUENCE_NAME_SUFFIX);
 
-      params.setProperty(SEQUENCE, StringUtils.upperCase(sequenceNameBuilder.toString()));
+      params.setProperty(SEQUENCE, sequenceNameBuilder.toString());
     }
 
     super.configure(type, params, dialect);

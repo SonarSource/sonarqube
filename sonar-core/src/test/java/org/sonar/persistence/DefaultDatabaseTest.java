@@ -23,8 +23,8 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.jpa.dialect.Oracle;
-import org.sonar.jpa.dialect.PostgreSql;
+import org.sonar.persistence.dialect.Oracle;
+import org.sonar.persistence.dialect.PostgreSql;
 
 import java.sql.SQLException;
 import java.util.Properties;

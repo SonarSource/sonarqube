@@ -17,27 +17,31 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.jpa.dialect;
+package org.sonar.persistence.dialect;
 
-import org.hibernate.id.PersistentIdentifierGenerator;
+import org.hamcrest.core.Is;
 import org.junit.Test;
+import org.sonar.api.database.DatabaseProperties;
+import org.sonar.api.utils.SonarException;
 
-import java.util.Properties;
-
-import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class PostgreSQLSequenceGeneratorTest {
+public class DialectUtilsTest {
 
   @Test
-  public void sequenceNameShouldFollowRailsConventions() {
-    Properties props = new Properties();
-    props.setProperty(PersistentIdentifierGenerator.TABLE, "my_table");
-    props.setProperty(PersistentIdentifierGenerator.PK, "id");
-
-    PostgreSQLSequenceGenerator generator = new PostgreSQLSequenceGenerator();
-    generator.configure(null, props, new PostgreSql.PostgreSQLWithDecimalDialect());
-    assertThat(generator.getSequenceName(), is("my_table_id_seq"));
+  public void testFindById() {
+    Dialect d = DialectUtils.find(DatabaseProperties.DIALECT_MYSQL, null);
+    assertThat(d, Is.is(MySql.class));
   }
 
+  @Test
+  public void testFindByJdbcUrl() {
+    Dialect d = DialectUtils.find(null, "jdbc:mysql:foo:bar");
+    assertThat(d, Is.is(MySql.class));
+  }
+
+  @Test(expected = SonarException.class)
+  public void testFindNoMatch() {
+    DialectUtils.find("foo", "bar");
+  }
 }

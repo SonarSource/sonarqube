@@ -17,11 +17,10 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.jpa.dialect;
+package org.sonar.persistence.dialect;
 
 import org.apache.commons.lang.StringUtils;
-import org.hibernate.dialect.DerbyDialect;
-import org.hibernate.id.IdentityGenerator;
+import org.hibernate.dialect.MySQLDialect;
 import org.sonar.api.database.DatabaseProperties;
 
 import java.sql.Types;
@@ -29,16 +28,16 @@ import java.sql.Types;
 /**
  * @since 1.12
  */
-public class Derby implements Dialect {
+public class MySql implements Dialect {
 
-  public static final String ID = "derby";
+  public static final String ID = "mysql";
 
   public String getId() {
     return ID;
   }
 
   public String getActiveRecordDialectCode() {
-    return "derby";
+    return "mysql";
   }
 
   public String getActiveRecordJdbcAdapter() {
@@ -46,49 +45,28 @@ public class Derby implements Dialect {
   }
 
   public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {
-    return DerbyWithDecimalDialect.class;
+    return MySqlWithDecimalDialect.class;
   }
 
   public boolean matchesJdbcURL(String jdbcConnectionURL) {
-    return StringUtils.startsWithIgnoreCase(jdbcConnectionURL, "jdbc:derby:");
+    return StringUtils.startsWithIgnoreCase(jdbcConnectionURL, "jdbc:mysql:");
+  }
+
+  public static class MySqlWithDecimalDialect extends MySQLDialect {
+    public MySqlWithDecimalDialect() {
+      super();
+      registerColumnType(Types.DOUBLE, "decimal precision");
+      registerColumnType(Types.VARCHAR, DatabaseProperties.MAX_TEXT_SIZE, "mediumtext");
+      registerColumnType(Types.CLOB, "mediumtext");
+      registerColumnType(Types.BLOB, "blob");
+    }
   }
 
   public String getDefaultDriverClassName() {
-    return "org.apache.derby.jdbc.ClientDriver";
+    return "com.mysql.jdbc.Driver";
   }
 
   public String getConnectionInitStatement(String schema) {
     return null;
   }
-
-  public static class DerbyWithDecimalDialect extends DerbyDialect {
-    public DerbyWithDecimalDialect() {
-      super();
-      registerColumnType(Types.DOUBLE, "decimal");
-      registerColumnType(Types.VARCHAR, DatabaseProperties.MAX_TEXT_SIZE, "clob");
-      registerColumnType(Types.VARBINARY, "blob");
-
-      // Not possible to do alter column types in Derby
-      registerColumnType(Types.BIGINT, "integer");
-
-      registerColumnType(Types.BIT, "boolean");
-    }
-
-    @Override
-    public String toBooleanValueString(boolean bool) {
-      return bool ? "true" : "false";
-    }
-
-    /**
-     * To be compliant with Oracle, we define on each model (ch.hortis.sonar.model classes)
-     * a sequence generator. It works on mySQL because strategy = GenerationType.AUTO, so
-     * it equals GenerationType.IDENTITY.
-     * But on derby, AUTO becomes TABLE instead of IDENTITY. So we explicitly change this behavior.
-     */
-    @Override
-    public Class getNativeIdentifierGeneratorClass() {
-      return IdentityGenerator.class;
-    }
-  }
-
 }

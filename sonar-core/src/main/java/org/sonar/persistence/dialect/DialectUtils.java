@@ -17,30 +17,24 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.jpa.dialect;
+package org.sonar.persistence.dialect;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.SonarException;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 import java.util.NoSuchElementException;
 
-/**
- * @since 1.12
- */
-public final class DialectRepository {
+public final class DialectUtils {
 
-  private DialectRepository() {
+  private DialectUtils() {
   }
 
-  private static List<Dialect> builtInDialects = getSupportedDialects();
+  private static final Dialect[] DIALECTS = new Dialect[]{new Derby(), new MySql(), new Oracle(), new PostgreSql(), new MsSql()};
 
   public static Dialect find(final String dialectId, final String jdbcConnectionUrl) {
-    Dialect match = StringUtils.isNotEmpty(dialectId) ? findById(dialectId) : findByJdbcUrl(jdbcConnectionUrl);
+    Dialect match = StringUtils.isNotBlank(dialectId) ? findById(dialectId) : findByJdbcUrl(jdbcConnectionUrl);
     if (match == null) {
       throw new SonarException("Unable to determine database dialect to use within sonar with dialect " + dialectId + " jdbc url " + jdbcConnectionUrl);
     }
@@ -48,7 +42,7 @@ public final class DialectRepository {
   }
 
   private static Dialect findByJdbcUrl(final String jdbcConnectionUrl) {
-    Dialect match = findDialect(builtInDialects, new Predicate<Dialect>() {
+    Dialect match = findDialect(new Predicate<Dialect>() {
       public boolean apply(Dialect dialect) {
         return dialect.matchesJdbcURL(StringUtils.trimToEmpty(jdbcConnectionUrl));
       }
@@ -57,37 +51,18 @@ public final class DialectRepository {
   }
 
   private static Dialect findById(final String dialectId) {
-    Dialect match = findDialect(builtInDialects, new Predicate<Dialect>() {
+    return findDialect(new Predicate<Dialect>() {
       public boolean apply(Dialect dialect) {
         return dialect.getId().equals(dialectId);
       }
     });
-    // maybe a class name if no match
-    match = match == null ? getDialectByClassname(dialectId) : match;
-    return match;
   }
 
-  private static Dialect findDialect(Collection<Dialect> dialects, Predicate<Dialect> predicate) {
+  private static Dialect findDialect(Predicate<Dialect> predicate) {
     try {
-      return Iterators.find(dialects.iterator(), predicate);
+      return Iterators.find(Iterators.forArray(DIALECTS), predicate);
     } catch (NoSuchElementException ex) {
       return null;
     }
-  }
-
-  private static Dialect getDialectByClassname(String dialectId) {
-    try {
-      Class<? extends Dialect> dialectClass = (Class<? extends Dialect>) DialectRepository.class.getClassLoader().loadClass(dialectId);
-      return dialectClass.newInstance();
-    } catch (ClassNotFoundException e) {
-      // dialectId was not a class name :)
-    } catch (Exception e) {
-      throw new SonarException("Unable to instantiate dialect class", e);
-    }
-    return null;
-  }
-
-  private static List<Dialect> getSupportedDialects() {
-    return Arrays.asList(new Derby(), new MySql(), new Oracle(), new PostgreSql(), new MsSql());
   }
 }

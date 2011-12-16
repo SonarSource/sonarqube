@@ -22,9 +22,9 @@ package org.sonar.persistence;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbcp.BasicDataSourceFactory;
 import org.hibernate.cfg.Environment;
-import org.sonar.jpa.dialect.Derby;
-import org.sonar.jpa.dialect.Dialect;
 import org.sonar.jpa.session.CustomHibernateConnectionProvider;
+import org.sonar.persistence.dialect.Derby;
+import org.sonar.persistence.dialect.Dialect;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -95,7 +95,7 @@ public class InMemoryDatabase implements Database {
       DatabaseMetaData meta = connection.getMetaData();
       Statement statement = connection.createStatement();
 
-      ResultSet res = meta.getTables(null, null, null, new String[] { "TABLE" });
+      ResultSet res = meta.getTables(null, null, null, new String[]{"TABLE"});
       while (res.next()) {
         String tableName = res.getString("TABLE_NAME");
         statement.executeUpdate("TRUNCATE TABLE " + tableName);

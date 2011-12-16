@@ -28,7 +28,7 @@ import org.dbunit.ext.mysql.MySqlDataTypeFactory;
 import org.dbunit.ext.oracle.Oracle10DataTypeFactory;
 import org.dbunit.ext.postgresql.PostgresqlDataTypeFactory;
 import org.dbunit.operation.DatabaseOperation;
-import org.sonar.jpa.dialect.*;
+import org.sonar.persistence.dialect.*;
 
 import java.util.Arrays;
 import java.util.List;
