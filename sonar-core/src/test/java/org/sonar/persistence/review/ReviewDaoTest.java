@@ -37,12 +37,12 @@ public class ReviewDaoTest extends DaoTestCase {
   private ReviewDao dao;
 
   @Before
-  public void createDao() throws Exception {
+  public void createDao() {
     dao = new ReviewDao(getMyBatis());
   }
 
   @Test
-  public void shouldSelectById() throws Exception {
+  public void shouldSelectById() {
     setupData("shared");
 
     ReviewDto reviewDto = dao.selectById(100L);
@@ -59,14 +59,14 @@ public class ReviewDaoTest extends DaoTestCase {
   }
 
   @Test
-  public void shouldReturnNullIfIdNotFound() throws Exception {
+  public void shouldReturnNullIfIdNotFound() {
     setupData("shared");
 
     assertNull(dao.selectById(12345L));
   }
 
   @Test
-  public void shouldSelectByResource() throws Exception {
+  public void shouldSelectByResource() {
     setupData("shared");
 
     List<ReviewDto> reviewDtos = dao.selectByResource(400);
@@ -78,7 +78,7 @@ public class ReviewDaoTest extends DaoTestCase {
   }
 
   @Test
-  public void shouldSelectByQuery() throws Exception {
+  public void shouldSelectByQuery() {
     setupData("shared");
 
     List<ReviewDto> reviewDtos = dao.selectByQuery(ReviewQuery.create().setResourceId(400));
@@ -90,7 +90,7 @@ public class ReviewDaoTest extends DaoTestCase {
   }
 
   @Test
-  public void shouldSelectByQuery_booleanCriteria() throws Exception {
+  public void shouldSelectByQuery_booleanCriteria() {
     setupData("shared");
 
     List<ReviewDto> reviewDtos = dao.selectByQuery(ReviewQuery.create().setResourceId(400).setManualViolation(true));

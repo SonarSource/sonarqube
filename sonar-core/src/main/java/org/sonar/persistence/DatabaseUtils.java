@@ -67,6 +67,7 @@ public final class DatabaseUtils {
     "project_measures",
     "properties",
     "quality_models",
+    "resource_index",
     "reviews",
     "review_comments",
     "rules",

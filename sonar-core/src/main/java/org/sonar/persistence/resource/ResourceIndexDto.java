@@ -17,69 +17,48 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.persistence.dashboard;
+package org.sonar.persistence.resource;
 
-public final class WidgetPropertyDto {
+public final class ResourceIndexDto {
 
-  private Long id;
-  private Long widgetId;
   private String key;
-  private String value;
+  private int position;
+  private int resourceId;
+  private int projectId;
 
-  /**
-   * @return the id
-   */
-  public Long getId() {
-    return id;
-  }
-
-  /**
-   * @param id the id to set
-   */
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  /**
-   * @return the widgetId
-   */
-  public Long getWidgetId() {
-    return widgetId;
-  }
-
-  /**
-   * @param widgetId the widgetId to set
-   */
-  public void setWidgetId(Long widgetId) {
-    this.widgetId = widgetId;
-  }
-
-  /**
-   * @return the key
-   */
   public String getKey() {
     return key;
   }
 
-  /**
-   * @param key the key to set
-   */
-  public void setKey(String key) {
+  public ResourceIndexDto setKey(String key) {
     this.key = key;
+    return this;
   }
 
-  /**
-   * @return the value
-   */
-  public String getValue() {
-    return value;
+  public int getPosition() {
+    return position;
   }
 
-  /**
-   * @param value the value to set
-   */
-  public void setValue(String value) {
-    this.value = value;
+  public ResourceIndexDto setPosition(int position) {
+    this.position = position;
+    return this;
   }
 
+  public int getResourceId() {
+    return resourceId;
+  }
+
+  public ResourceIndexDto setResourceId(int resourceId) {
+    this.resourceId = resourceId;
+    return this;
+  }
+
+  public int getProjectId() {
+    return projectId;
+  }
+
+  public ResourceIndexDto setProjectId(int projectId) {
+    this.projectId = projectId;
+    return this;
+  }
 }

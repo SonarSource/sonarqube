@@ -22,7 +22,7 @@ package org.sonar.persistence.dashboard;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-public class ActiveDashboardDto {
+public final class ActiveDashboardDto {
 
   private Long id;
   private Long dashboardId;
@@ -37,8 +37,7 @@ public class ActiveDashboardDto {
   }
 
   /**
-   * @param id
-   *          the id to set
+   * @param id the id to set
    */
   public void setId(Long id) {
     this.id = id;
@@ -52,8 +51,7 @@ public class ActiveDashboardDto {
   }
 
   /**
-   * @param dashboardId
-   *          the dashboardId to set
+   * @param dashboardId the dashboardId to set
    */
   public void setDashboardId(Long dashboardId) {
     this.dashboardId = dashboardId;
@@ -67,8 +65,7 @@ public class ActiveDashboardDto {
   }
 
   /**
-   * @param userId
-   *          the userId to set
+   * @param userId the userId to set
    */
   public void setUserId(Long userId) {
     this.userId = userId;
@@ -82,8 +79,7 @@ public class ActiveDashboardDto {
   }
 
   /**
-   * @param orderIndex
-   *          the orderIndex to set
+   * @param orderIndex the orderIndex to set
    */
   public void setOrderIndex(Integer orderIndex) {
     this.orderIndex = orderIndex;
@@ -96,7 +92,7 @@ public class ActiveDashboardDto {
    */
   @Override
   public int hashCode() {
-    return HashCodeBuilder.reflectionHashCode(this, new String[] { "id" });
+    return HashCodeBuilder.reflectionHashCode(this, new String[]{"id"});
   }
 
   /*
@@ -106,7 +102,7 @@ public class ActiveDashboardDto {
    */
   @Override
   public boolean equals(Object obj) {
-    return EqualsBuilder.reflectionEquals(this, obj, new String[] { "id" });
+    return EqualsBuilder.reflectionEquals(this, obj, new String[]{"id"});
   }
 
 }

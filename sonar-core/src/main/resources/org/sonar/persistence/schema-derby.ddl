@@ -460,6 +460,14 @@ CREATE TABLE "LOADED_TEMPLATES" (
   "TEMPLATE_TYPE" VARCHAR(15)
 );
 
+CREATE TABLE "RESOURCE_INDEX" (
+  "KEE" VARCHAR(100) NOT NULL,
+  "POSITION" INTEGER NOT NULL,
+  "RESOURCE_ID" INTEGER NOT NULL,
+  "PROJECT_ID" INTEGER NOT NULL
+);
+
+
 -- ----------------------------------------------
 -- DDL Statements for indexes
 -- ----------------------------------------------
@@ -541,6 +549,8 @@ CREATE INDEX "PROPERTIES_KEY" ON "PROPERTIES" ("PROP_KEY");
 CREATE INDEX "MANUAL_MEASURES_RESOURCE_ID" ON "MANUAL_MEASURES" ("RESOURCE_ID");
 
 CREATE INDEX "PROJECTS_KEE" ON "PROJECTS" ("KEE");
+
+CREATE INDEX "RESOURCE_INDEX_KEE" ON "RESOURCE_INDEX" ("KEE");
 
 -- ----------------------------------------------
 -- DDL Statements for keys

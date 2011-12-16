@@ -19,37 +19,28 @@
  */
 package org.sonar.persistence;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.mapping.Environment;
-import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.apache.ibatis.session.*;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
-import org.sonar.persistence.dashboard.ActiveDashboardDto;
-import org.sonar.persistence.dashboard.ActiveDashboardMapper;
-import org.sonar.persistence.dashboard.DashboardDto;
-import org.sonar.persistence.dashboard.DashboardMapper;
-import org.sonar.persistence.dashboard.WidgetDto;
-import org.sonar.persistence.dashboard.WidgetMapper;
-import org.sonar.persistence.dashboard.WidgetPropertyDto;
-import org.sonar.persistence.dashboard.WidgetPropertyMapper;
+import org.sonar.persistence.dashboard.*;
 import org.sonar.persistence.duplication.DuplicationMapper;
 import org.sonar.persistence.duplication.DuplicationUnitDto;
+import org.sonar.persistence.resource.ResourceIndexDto;
+import org.sonar.persistence.resource.ResourceIndexMapper;
 import org.sonar.persistence.review.ReviewDto;
 import org.sonar.persistence.review.ReviewMapper;
 import org.sonar.persistence.rule.RuleDto;
 import org.sonar.persistence.rule.RuleMapper;
 import org.sonar.persistence.template.LoadedTemplateDto;
 import org.sonar.persistence.template.LoadedTemplateMapper;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 public class MyBatis implements BatchComponent, ServerComponent {
 
@@ -71,6 +62,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "DuplicationUnit", DuplicationUnitDto.class);
     loadAlias(conf, "LoadedTemplate", LoadedTemplateDto.class);
     loadAlias(conf, "Review", ReviewDto.class);
+    loadAlias(conf, "ResourceIndex", ResourceIndexDto.class);
     loadAlias(conf, "Rule", RuleDto.class);
     loadAlias(conf, "Widget", WidgetDto.class);
     loadAlias(conf, "WidgetProperty", WidgetPropertyDto.class);
@@ -80,6 +72,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadMapper(conf, DuplicationMapper.class);
     loadMapper(conf, LoadedTemplateMapper.class);
     loadMapper(conf, ReviewMapper.class);
+    loadMapper(conf, ResourceIndexMapper.class);
     loadMapper(conf, RuleMapper.class);
     loadMapper(conf, WidgetMapper.class);
     loadMapper(conf, WidgetPropertyMapper.class);
@@ -115,7 +108,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
 
   private InputStream getPathToMapper(Class mapperClass) {
     InputStream input = getClass().getResourceAsStream(
-        "/" + StringUtils.replace(mapperClass.getName(), ".", "/") + "-" + database.getDialect().getId() + ".xml");
+      "/" + StringUtils.replace(mapperClass.getName(), ".", "/") + "-" + database.getDialect().getId() + ".xml");
     if (input == null) {
       input = getClass().getResourceAsStream("/" + StringUtils.replace(mapperClass.getName(), ".", "/") + ".xml");
     }

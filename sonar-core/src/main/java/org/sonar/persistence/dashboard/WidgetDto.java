@@ -19,13 +19,13 @@
  */
 package org.sonar.persistence.dashboard;
 
+import com.google.common.collect.Lists;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import com.google.common.collect.Lists;
-
-public class WidgetDto {
+public final class WidgetDto {
 
   private Long id;
   private Long dashboardId;
@@ -47,8 +47,7 @@ public class WidgetDto {
   }
 
   /**
-   * @param id
-   *          the id to set
+   * @param id the id to set
    */
   public void setId(Long id) {
     this.id = id;
@@ -62,8 +61,7 @@ public class WidgetDto {
   }
 
   /**
-   * @param dashboardId
-   *          the dashboardId to set
+   * @param dashboardId the dashboardId to set
    */
   public void setDashboardId(Long dashboardId) {
     this.dashboardId = dashboardId;
@@ -77,8 +75,7 @@ public class WidgetDto {
   }
 
   /**
-   * @param key
-   *          the key to set
+   * @param key the key to set
    */
   public void setKey(String key) {
     this.key = key;
@@ -92,8 +89,7 @@ public class WidgetDto {
   }
 
   /**
-   * @param name
-   *          the name to set
+   * @param name the name to set
    */
   public void setName(String name) {
     this.name = name;
@@ -107,8 +103,7 @@ public class WidgetDto {
   }
 
   /**
-   * @param description
-   *          the description to set
+   * @param description the description to set
    */
   public void setDescription(String description) {
     this.description = description;
@@ -122,8 +117,7 @@ public class WidgetDto {
   }
 
   /**
-   * @param columnIndex
-   *          the columnIndex to set
+   * @param columnIndex the columnIndex to set
    */
   public void setColumnIndex(Integer columnIndex) {
     this.columnIndex = columnIndex;
@@ -137,8 +131,7 @@ public class WidgetDto {
   }
 
   /**
-   * @param rowIndex
-   *          the rowIndex to set
+   * @param rowIndex the rowIndex to set
    */
   public void setRowIndex(Integer rowIndex) {
     this.rowIndex = rowIndex;
@@ -152,8 +145,7 @@ public class WidgetDto {
   }
 
   /**
-   * @param configured
-   *          the configured to set
+   * @param configured the configured to set
    */
   public void setConfigured(boolean configured) {
     this.configured = configured;
@@ -167,8 +159,7 @@ public class WidgetDto {
   }
 
   /**
-   * @param createdAt
-   *          the createdAt to set
+   * @param createdAt the createdAt to set
    */
   public void setCreatedAt(Date createdAt) {
     this.createdAt = createdAt;
@@ -182,8 +173,7 @@ public class WidgetDto {
   }
 
   /**
-   * @param updatedAt
-   *          the updatedAt to set
+   * @param updatedAt the updatedAt to set
    */
   public void setUpdatedAt(Date updatedAt) {
     this.updatedAt = updatedAt;
@@ -197,8 +187,7 @@ public class WidgetDto {
   }
 
   /**
-   * @param widgetPropertyDto
-   *          the widgetProperty to set
+   * @param widgetPropertyDto the widgetProperty to set
    */
   public void addWidgetProperty(WidgetPropertyDto widgetPropertyDto) {
     widgetPropertyDtos.add(widgetPropertyDto);
