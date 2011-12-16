@@ -25,6 +25,7 @@ class Review < ActiveRecord::Base
   belongs_to :rule
   has_many :review_comments, :order => "created_at", :dependent => :destroy
   alias_attribute :comments, :review_comments
+  has_and_belongs_to_many :action_plans
 
   validates_presence_of :user, :message => "can't be empty"
   validates_presence_of :status, :message => "can't be empty"

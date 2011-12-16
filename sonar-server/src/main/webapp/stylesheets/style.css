@@ -711,6 +711,10 @@ table.spacedicon td {
   width: 1%;
 }
 
+.max-width {
+  width: 100%;
+}
+
 td.sep {
   width: 10px;
 }
@@ -1219,9 +1223,32 @@ div.comment-excerpt {
   font-size: 90%;
 }
 
-.max-width {
-  width: 100%;
+/* ACTION PLANS */
+
+div.progress {
+  width: 400px;
+  margin: 4px;
 }
+
+div.progress div.bar {
+  width: 100%;
+  background-color: #CC0000;
+  border: none;
+  margin-bottom: 4px;
+}
+
+div.progress > div > div {
+  height: 10px;
+  background-color: #078C00;
+}
+
+div.progress div.note {
+  color: #777777;
+  font-size: 93%;
+  font-weight: normal;
+  white-space: nowrap;
+}
+
 
 /* AUTOCOMPLETE FIELDS */
 div.autocomplete {

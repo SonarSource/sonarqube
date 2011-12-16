@@ -1,0 +1,15 @@
+<%
+  open_reviews_url = link_to action_plan.progress[:open].to_s, 
+                             :controller => 'reviews', :action => 'index', 
+                             :action_plans => [action_plan.id], :statuses => [Review::STATUS_OPEN, Review::STATUS_REOPENED], :assignee_login => ''
+  
+  total_reviews_url = link_to action_plan.progress[:total].to_s, 
+                              :controller => 'reviews', :action => 'index', 
+                              :action_plans => [action_plan.id], :statuses => [''], :assignee_login => ''
+%>
+<div class="progress">
+  <div class="bar">
+    <div style="width:<%= action_plan.progress[:total]==0 ? '0' : action_plan.progress[:open]*100/action_plan.progress[:total] -%>%;"> </div>
+  </div>
+  <div class="note"><%= message('action_plans.x_out_of_x_reviews_solved', :params => [open_reviews_url, total_reviews_url]) -%></div>
+</div>

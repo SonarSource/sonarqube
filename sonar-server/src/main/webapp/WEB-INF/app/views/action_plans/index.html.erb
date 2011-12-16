@@ -1,0 +1,56 @@
+<style type="text/css">
+  #actionPlans td {
+    vertical-align: top;
+  }
+  #actionPlans td.progress {
+    padding: 0px 40px;
+  }    
+</style>
+
+<div class="line-block marginbottom10">
+  <ul class="operations">
+    <li class="last">
+      <%= image_tag 'add.png' -%>
+      <%= link_to message('action_plans.add_action_plan'), {:action => 'new', :id => @resource.id}, {:id => 'addActionPlan'} -%>
+    </li>
+  </ul>
+  <h1><%= message('action_plans.page_title') -%></h1>
+</div>
+
+<table class="width100 data sortable" id="actionPlans">
+  <thead>
+  <tr>
+    <th class="thin nowrap"><%= message('action_plans.col.status') -%></th>
+    <th class="thin nowrap"><%= message('action_plans.col.name') -%></th>
+    <th class="thin nowrap righticon" style="text-align: right"><%= message('action_plans.col.due_for') -%></th>
+    <th class="nowrap nosort center"><%= message('action_plans.col.progress') -%></th>
+    <th class="nowrap"><%= message('action_plans.col.description') -%></th>
+    <th class="nowrap"><%= message('action_plans.col.author') -%></th>
+    <th class="thin nowrap nosort"><%= message('action_plans.col.operations') -%></th>
+  </tr>
+  </thead>
+  <tbody>
+  <% if @action_plans.empty? %>
+    <td colspan="7" class="even"><%= message('action_plans.no_action_plan') -%></td>
+  <% end %>
+  <%
+     @action_plans.each do |plan|
+  %>
+    <tr>
+      <td class="thin nowrap center"><img src="<%= ApplicationController.root_context -%>/images/status/<%= plan.status -%>.png" title="<%= message(plan.status.downcase).capitalize -%>"/></td>
+      <td class="thin nowrap"><%= h(plan.name) -%></td>
+      <td class="thin nowrap" align="right"><%= plan.dead_line ? plan.dead_line.strftime('%Y/%m/%d') : ' '  -%></td>
+      <td class="progress thin">
+        <%= render :partial => 'progress', :locals => {:action_plan => plan} -%>
+      </td>
+      <td id="desc"><%= h(plan.description) -%></td>
+      <td id="desc"><%= h(plan.user.name) -%></td>
+      <td class="thin nowrap">
+        <a href="<%= url_for :action => 'new', :id => @resource.id, :plan_id => plan.id -%>"><%= message('edit') -%></a>
+        <%= link_to message('delete'), {:action => 'delete', :id => @resource.id, :plan_id => plan.id}, {:method => 'POST', :confirm => message('action_plans.confirm_delete'), :class => 'action'} -%>
+      </td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>
+<script>TableKit.Sortable.init('actionPlans');</script>
