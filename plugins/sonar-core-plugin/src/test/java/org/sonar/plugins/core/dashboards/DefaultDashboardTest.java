@@ -21,8 +21,8 @@ package org.sonar.plugins.core.dashboards;
 
 import org.hamcrest.core.Is;
 import org.junit.Test;
-import org.sonar.api.web.dashboard.Dashboard;
-import org.sonar.api.web.dashboard.DashboardLayout;
+import org.sonar.api.web.Dashboard;
+import org.sonar.api.web.DashboardLayout;
 
 import static org.junit.Assert.assertThat;
 

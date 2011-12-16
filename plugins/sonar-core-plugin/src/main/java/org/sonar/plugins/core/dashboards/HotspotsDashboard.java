@@ -19,9 +19,9 @@
  */
 package org.sonar.plugins.core.dashboards;
 
-import org.sonar.api.web.dashboard.Dashboard;
-import org.sonar.api.web.dashboard.DashboardLayout;
-import org.sonar.api.web.dashboard.DashboardTemplate;
+import org.sonar.api.web.Dashboard;
+import org.sonar.api.web.DashboardLayout;
+import org.sonar.api.web.DashboardTemplate;
 
 /**
  * Hotspot dashboard for Sonar

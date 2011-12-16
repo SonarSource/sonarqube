@@ -17,23 +17,59 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.web.dashboard;
-
-import org.sonar.api.ServerExtension;
+package org.sonar.api.web;
 
 /**
- * 
- * This extension point must be implemented to define a new dashboard.
- * 
+ * Possible layouts for a dashboard.
+ *
  * @since 2.13
  */
-public abstract class DashboardTemplate implements ServerExtension {
+public enum DashboardLayout {
 
   /**
-   * Returns the {@link Dashboard} object that represents the dashboard to use.
-   * 
-   * @return the dashboard
+   * Only 1 column that take all the page
    */
-  public abstract Dashboard createDashboard();
+  ONE_COLUMN("100%", 1),
+
+  /**
+   * 2 columns of the same width
+   */
+  TWO_COLUMNS("50%-50%", 2),
+
+  /**
+   * 2 columns with the first one smaller than the second
+   */
+  TWO_COLUMNS_30_70("30%-70%", 2),
+
+  /**
+   * 2 columns with the first one bigger than the second
+   */
+  TWO_COLUMNS_70_30("70%-30%", 2),
+
+  /**
+   * 3 columns of the same width
+   */
+  TREE_COLUMNS("33%-33%-33%", 3);
+
+  private String code;
+  private int columns;
+
+  private DashboardLayout(String code, int columns) {
+    this.code = code;
+    this.columns = columns;
+  }
+
+  public String getCode() {
+    return code;
+  }
+
+  public int getColumns() {
+    return columns;
+  }
+
+  @Override
+  public String toString() {
+    return code;
+  }
 
 }
