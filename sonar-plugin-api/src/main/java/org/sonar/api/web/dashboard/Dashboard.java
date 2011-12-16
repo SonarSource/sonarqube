@@ -48,7 +48,7 @@ public final class Dashboard {
   }
 
   /**
-   * Creates a new {@link Dashboard}-
+   * Creates a new {@link Dashboard}.
    */
   public static Dashboard create(String id, String name) {
     return new Dashboard()
@@ -70,6 +70,9 @@ public final class Dashboard {
 
   /**
    * Add a widget with the given parameters, and return the newly created {@link Widget} object if one wants to add parameters to it.
+   *
+   * @param widgetId id of an existing widget
+   * @param columnId column starts with 1. The widget is ignored if the column id does not match the layout.
    */
   public Widget addWidget(String widgetId, int columnId) {
     if (columnId < 1) {
@@ -98,9 +101,6 @@ public final class Dashboard {
     return id;
   }
 
-  /**
-   * @param id the id to set
-   */
   private Dashboard setId(String id) {
     if (StringUtils.isBlank(id)) {
       throw new IllegalArgumentException("Dashboard id can not be blank");
@@ -148,7 +148,7 @@ public final class Dashboard {
   }
 
   /**
-   * Returns the layout of the dashboard.
+   * Returns the layout. Default value is the 2 columns mode with width 50%/50%.
    *
    * @return the layout
    */
@@ -189,6 +189,10 @@ public final class Dashboard {
      */
     public Map<String, String> getProperties() {
       return properties;
+    }
+
+    public String getProperty(String key) {
+      return properties.get(key);
     }
 
     /**

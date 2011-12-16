@@ -87,6 +87,21 @@ public class DashboardTest {
 
   @Test
   public void shouldAddSeveralTimesTheSameWidget() {
-    // TODO
+    Dashboard dashboard = Dashboard.createByName("Fake");
+    dashboard.addWidget("most_violated_rules", 1);
+    dashboard.addWidget("most_violated_rules", 1).setProperty("foo", "bar");
+
+    assertThat(dashboard.getWidgets().size(), is(2));
+    assertThat(dashboard.getWidgetsOfColumn(1).get(0).getProperties().size(), is(0));
+    assertThat(dashboard.getWidgetsOfColumn(1).get(1).getProperty("foo"), is("bar"));
+  }
+
+  @Test
+  public void shouldSetWidgetProperty() {
+    Dashboard dashboard = Dashboard.createByName("Fake");
+    Dashboard.Widget widget = dashboard.addWidget("fake-widget", 1);
+    widget.setProperty("foo", "bar");
+
+    assertThat(widget.getProperties().get("foo"), is("bar"));
   }
 }

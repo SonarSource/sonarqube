@@ -68,8 +68,8 @@ public final class RegisterNewDashboards {
     DashboardDto defaultDashboard = null;
     for (DashboardTemplate dashboardTemplate : dashboardTemplates) {
       Dashboard dashboard = dashboardTemplate.createDashboard();
-      if (shouldBeRegistered(dashboard)) {
-        DashboardDto dashboardDto = loadDashboard(dashboard);
+      if (shouldRegister(dashboard)) {
+        DashboardDto dashboardDto = registerDashboard(dashboard);
         if (DEFAULT_DASHBOARD_ID.equals(dashboard.getId())) {
           defaultDashboard = dashboardDto;
         } else {
@@ -105,7 +105,7 @@ public final class RegisterNewDashboards {
     LOG.info("New dashboard '" + dashboardDto.getName() + "' registered");
   }
 
-  protected DashboardDto loadDashboard(Dashboard dashboard) {
+  protected DashboardDto registerDashboard(Dashboard dashboard) {
     DashboardDto dto = createDtoFromExtension(dashboard);
     // save the new dashboard
     dashboardDao.insert(dto);
@@ -150,7 +150,7 @@ public final class RegisterNewDashboards {
     return dashboardDto;
   }
 
-  protected boolean shouldBeRegistered(Dashboard dashboard) {
+  protected boolean shouldRegister(Dashboard dashboard) {
     return loadedTemplateDao.countByTypeAndKey(LoadedTemplateDto.DASHBOARD_TYPE, dashboard.getId()) == 0;
   }
 

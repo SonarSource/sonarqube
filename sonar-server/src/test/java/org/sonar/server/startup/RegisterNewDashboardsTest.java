@@ -72,17 +72,17 @@ public class RegisterNewDashboardsTest {
   @Test
   public void testShouldNotBeRegistered() throws Exception {
     when(loadedTemplateDao.countByTypeAndKey(LoadedTemplateDto.DASHBOARD_TYPE, "fake-dashboard")).thenReturn(1);
-    assertThat(registerNewDashboards.shouldBeRegistered(fakeDashboardTemplate.createDashboard()), is(false));
+    assertThat(registerNewDashboards.shouldRegister(fakeDashboardTemplate.createDashboard()), is(false));
   }
 
   @Test
   public void testShouldBeLoaded() throws Exception {
-    assertThat(registerNewDashboards.shouldBeRegistered(fakeDashboardTemplate.createDashboard()), is(true));
+    assertThat(registerNewDashboards.shouldRegister(fakeDashboardTemplate.createDashboard()), is(true));
   }
 
   @Test
   public void shouldLoadDasboard() throws Exception {
-    DashboardDto dashboardDto = registerNewDashboards.loadDashboard(fakeDashboardTemplate.createDashboard());
+    DashboardDto dashboardDto = registerNewDashboards.registerDashboard(fakeDashboardTemplate.createDashboard());
     assertNotNull(dashboardDto);
     verify(dashboardDao).insert(dashboardDto);
     verify(loadedTemplateDao).insert(eq(new LoadedTemplateDto("fake-dashboard", LoadedTemplateDto.DASHBOARD_TYPE)));
