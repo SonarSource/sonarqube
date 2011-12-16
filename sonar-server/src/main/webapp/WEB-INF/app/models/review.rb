@@ -226,108 +226,112 @@ class Review < ActiveRecord::Base
     conditions=[]
     values={}
 
-    # --- 'review_type' is deprecated since 2.9 ---
-    # Following code just for backward compatibility
-    review_type = options['review_type']
-    if review_type
-      if review_type == RESOLUTION_FALSE_POSITIVE
-        conditions << "resolution='#{RESOLUTION_FALSE_POSITIVE}'"
-      else
-        conditions << "(resolution<>'#{RESOLUTION_FALSE_POSITIVE}' OR resolution IS NULL)"
-      end
-    end
-    # --- End of code for backward compatibility code ---
 
-    # --- For UI
-    false_positives = options['false_positives']
-    if false_positives == "only"
-      conditions << "resolution='#{RESOLUTION_FALSE_POSITIVE}'"
-    elsif false_positives == "without"
-      conditions << "(resolution<>'#{RESOLUTION_FALSE_POSITIVE}' OR resolution IS NULL)"
-    end
-    # --- End
-
-    # --- For web-service
-    resolutions = options['resolutions'].split(',') if options['resolutions']
-    if resolutions && resolutions.size>0 && !resolutions[0].blank?
-      conditions << 'resolution in (:resolutions)'
-      values[:resolutions] = resolutions
-    end
-    # --- End
-
-    ids=options['ids'].split(',') if options['ids']
-    if options['id']
+    if options['id'].present?
       conditions << 'id=:id'
       values[:id]=options['id'].to_i
-    elsif ids && ids.size>0 && !ids[0].blank?
+    elsif options['ids'].present?
+      ids=options['ids'].split(',')
       conditions << 'id in (:ids)'
       values[:ids]=ids.map { |id| id.to_i }
-    end
+    else
 
-    projects=options['projects'].split(',') if options['projects']
-    if projects && projects.size>0 && !projects[0].blank?
-      conditions << 'project_id in (:projects)'
-      projectIds = []
-      projects.each do |project|
-        foundProject = Project.by_key(project)
-        projectIds << foundProject.id if foundProject
+
+      # --- 'review_type' is deprecated since 2.9 ---
+      # Following code just for backward compatibility
+      review_type = options['review_type']
+      if review_type
+        if review_type == RESOLUTION_FALSE_POSITIVE
+          conditions << "resolution='#{RESOLUTION_FALSE_POSITIVE}'"
+        else
+          conditions << "(resolution<>'#{RESOLUTION_FALSE_POSITIVE}' OR resolution IS NULL)"
+        end
       end
-      values[:projects]=projectIds
-    end
+      # --- End of code for backward compatibility code ---
 
-    resources=options['resources'].split(',') if options['resources']
-    if resources && resources.size>0 && !resources[0].blank?
-      conditions << 'resource_id in (:resources)'
-      resourceIds = []
-      resources.each do |resource|
-        foundResource = Project.by_key(resource)
-        resourceIds << foundResource.id if foundResource
+      # --- For UI
+      false_positives = options['false_positives']
+      if false_positives == "only"
+        conditions << "resolution='#{RESOLUTION_FALSE_POSITIVE}'"
+      elsif false_positives == "without"
+        conditions << "(resolution<>'#{RESOLUTION_FALSE_POSITIVE}' OR resolution IS NULL)"
       end
-      values[:resources]=resourceIds
-    end
+      # --- End
 
-    statuses=options['statuses'].split(',') if options['statuses']
-    if statuses && statuses.size>0 && !statuses[0].blank?
-      conditions << 'status in (:statuses)'
-      values[:statuses]=statuses
-    end
-
-    severities=options['severities'].split(',') if options['severities']
-    if severities && severities.size>0 && !severities[0].blank?
-      conditions << 'severity in (:severities)'
-      values[:severities]=severities
-    end
-
-    authors=options['authors'].split(',') if options['authors']
-    if authors && authors.size>0 && !authors[0].blank?
-      conditions << 'user_id in (:authors)'
-      unless Api::Utils.is_number?(authors[0])
-        values[:authors]=User.logins_to_ids(authors)
-      else
-        values[:authors]=authors.map { |user_id| user_id.to_i }
+      # --- For web-service
+      resolutions = options['resolutions'].split(',') if options['resolutions']
+      if resolutions && resolutions.size>0 && !resolutions[0].blank?
+        conditions << 'resolution in (:resolutions)'
+        values[:resolutions] = resolutions
       end
-    end
+      # --- End
 
-    assignees=options['assignees'].split(',') if options['assignees']
-    if assignees && assignees.size>0 && !assignees[0].blank?
-      conditions << 'assignee_id in (:assignees)'
-      unless Api::Utils.is_number?(assignees[0])
-        values[:assignees]=User.logins_to_ids(assignees)
-      else
-        values[:assignees]=assignees.map { |user_id| user_id.to_i }
+
+      projects=options['projects'].split(',') if options['projects']
+      if projects && projects.size>0 && !projects[0].blank?
+        conditions << 'project_id in (:projects)'
+        projectIds = []
+        projects.each do |project|
+          foundProject = Project.by_key(project)
+          projectIds << foundProject.id if foundProject
+        end
+        values[:projects]=projectIds
       end
-    end
 
-    from=options['from']
-    if from
-      conditions << 'created_at >= :from'
-      values[:from] = from
-    end
+      resources=options['resources'].split(',') if options['resources']
+      if resources && resources.size>0 && !resources[0].blank?
+        conditions << 'resource_id in (:resources)'
+        resourceIds = []
+        resources.each do |resource|
+          foundResource = Project.by_key(resource)
+          resourceIds << foundResource.id if foundResource
+        end
+        values[:resources]=resourceIds
+      end
 
-    to=options['to']
-    if from
-      conditions << 'created_at <= :to'
-      values[:to] = to
+      statuses=options['statuses'].split(',') if options['statuses']
+      if statuses && statuses.size>0 && !statuses[0].blank?
+        conditions << 'status in (:statuses)'
+        values[:statuses]=statuses
+      end
+
+      severities=options['severities'].split(',') if options['severities']
+      if severities && severities.size>0 && !severities[0].blank?
+        conditions << 'severity in (:severities)'
+        values[:severities]=severities
+      end
+
+      authors=options['authors'].split(',') if options['authors']
+      if authors && authors.size>0 && !authors[0].blank?
+        conditions << 'user_id in (:authors)'
+        unless Api::Utils.is_number?(authors[0])
+          values[:authors]=User.logins_to_ids(authors)
+        else
+          values[:authors]=authors.map { |user_id| user_id.to_i }
+        end
+      end
+
+      assignees=options['assignees'].split(',') if options['assignees']
+      if assignees && assignees.size>0 && !assignees[0].blank?
+        conditions << 'assignee_id in (:assignees)'
+        unless Api::Utils.is_number?(assignees[0])
+          values[:assignees]=User.logins_to_ids(assignees)
+        else
+          values[:assignees]=assignees.map { |user_id| user_id.to_i }
+        end
+      end
+
+      from=options['from']
+      if from
+        conditions << 'created_at >= :from'
+        values[:from] = from
+      end
+
+      to=options['to']
+      if from
+        conditions << 'created_at <= :to'
+        values[:to] = to
+      end
     end
 
     sort=options['sort']
