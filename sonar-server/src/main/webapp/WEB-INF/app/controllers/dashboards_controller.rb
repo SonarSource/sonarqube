@@ -27,8 +27,8 @@ class DashboardsController < ApplicationController
   def index
     @actives=ActiveDashboard.user_dashboards(current_user)
     @shared_dashboards=Dashboard.find(:all, :conditions => ['(user_id<>? OR user_id IS NULL) AND shared=?', current_user.id, true], :order => 'name ASC')
-    active_dashboard_ids=@actives.map{|a| a.dashboard_id}
-    @shared_dashboards.reject!{|d| active_dashboard_ids.include?(d.id)}
+    active_dashboard_ids=@actives.map { |a| a.dashboard_id }
+    @shared_dashboards.reject! { |d| active_dashboard_ids.include?(d.id) }
 
     @resource=Project.by_key(params[:resource])
     if @resource.nil?
@@ -38,7 +38,7 @@ class DashboardsController < ApplicationController
     end
     access_denied unless has_role?(:user, @resource)
     @snapshot = @resource.last_snapshot
-    @project=@resource  # variable name used in old widgets
+    @project=@resource # variable name used in old widgets
   end
 
   def create
@@ -48,8 +48,8 @@ class DashboardsController < ApplicationController
       @dashboard.save
 
       add_default_dashboards_if_first_user_dashboard
-      last_active_dashboard=current_user.active_dashboards.max{|x,y| x.order_index<=>y.order_index}
-      current_user.active_dashboards.create(:dashboard => @dashboard, :user_id => current_user.id, :order_index => (last_active_dashboard ? last_active_dashboard.order_index+1: 1))
+      last_active_dashboard=current_user.active_dashboards.max { |x, y| x.order_index<=>y.order_index }
+      current_user.active_dashboards.create(:dashboard => @dashboard, :user_id => current_user.id, :order_index => (last_active_dashboard ? last_active_dashboard.order_index+1 : 1))
       redirect_to :controller => 'dashboard', :action => 'configure', :did => @dashboard.id, :id => params[:resource]
     else
       flash[:error]=@dashboard.errors.full_messages.join('<br/>')
@@ -86,23 +86,20 @@ class DashboardsController < ApplicationController
 
   def delete
     dashboard=Dashboard.find(params[:id])
-    default_dashboards=ActiveDashboard.default_dashboards
+    bad_request('Unknown dashboard') unless dashboard
+    access_denied unless dashboard.owner?(current_user)
+
     if current_user.active_dashboards.size<=1
       flash[:error]='At least one dashboard must be defined'
       redirect_to :action => 'index', :resource => params[:resource]
 
-    elsif default_dashboards.size==1 && default_dashboards[0].dashboard_id==dashboard.id
-      flash[:error]='At least one default dashboard must be defined'
-      redirect_to :action => 'index', :resource => params[:resource]
-
-    elsif dashboard.owner?(current_user)
-      dashboard.destroy
-      flash[:notice]='Dashboard deleted'
-      redirect_to :action => 'index', :resource => params[:resource]
-      
     else
-      # TODO explicit error
-      redirect_to home_path
+      if dashboard.destroy
+        flash[:notice]='Dashboard deleted'
+      else
+        flash[:error]="This dashboard can't be deleted as long as it's defined as a default dashboard."
+      end
+      redirect_to :action => 'index', :resource => params[:resource]
     end
   end
 
@@ -146,7 +143,7 @@ class DashboardsController < ApplicationController
     add_default_dashboards_if_first_user_dashboard()
     dashboard=Dashboard.find(:first, :conditions => ['shared=? and id=? and (user_id is null or user_id<>?)', true, params[:id].to_i, current_user.id])
     if dashboard
-      active=current_user.active_dashboards.to_a.find{|a| a.dashboard_id==params[:id].to_i}
+      active=current_user.active_dashboards.to_a.find { |a| a.dashboard_id==params[:id].to_i }
       if active.nil?
         current_user.active_dashboards.create(:dashboard => dashboard, :user => current_user, :order_index => current_user.active_dashboards.size+1)
       end
@@ -182,7 +179,6 @@ class DashboardsController < ApplicationController
       end
     end
   end
-
 
 
 end

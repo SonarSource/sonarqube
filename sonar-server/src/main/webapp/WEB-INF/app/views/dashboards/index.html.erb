@@ -6,30 +6,34 @@
       <h1 class="marginbottom10"><%= message('dashboard.my_dashboards') -%></h1>
       <table class="data marginbottom10" id="dashboards">
         <thead>
-          <tr>
-            <th><%= message('name') -%></th>
-            <% if is_admin %><th><%= message('shared') -%></th><% end %>
-            <th><%= message('order') -%></th>
-            <th><%= message('operations') -%></th>
-          </tr>
+        <tr>
+          <th><%= message('name') -%></th>
+          <% if is_admin %>
+            <th><%= message('shared') -%></th>
+          <% end %>
+          <th><%= message('order') -%></th>
+          <th class="right"><%= message('operations') -%></th>
+        </tr>
         </thead>
         <tbody>
         <% if @actives.nil? || @actives.empty? %>
-        <tr class="even"><td colspan="5"><%= message('dashboard.no_dashboard') -%></td></tr>
+          <tr class="even">
+            <td colspan="5"><%= message('dashboard.no_dashboard') -%></td>
+          </tr>
         <%
-          else
-            @actives.each_with_index do |active,index| %>
-            <tr id="dashboard-<%= u active.name -%>" class="<%= cycle('even','odd', :name => 'dashboards') -%>">
+           else
+             @actives.each_with_index do |active, index| %>
+            <tr id="dashboard-<%= u active.name -%>" class="<%= cycle('even', 'odd', :name => 'dashboards') -%>">
               <td>
-                <%= link_to active.name, {:controller => :dashboard, :action => :index, :did => active.dashboard_id, :id => params[:resource]} -%>
+                <%= link_to active.name(true), {:controller => :dashboard, :action => :index, :did => active.dashboard_id, :id => params[:resource]} -%>
                 <% if active.dashboard.description.present? %>
-                <p class="small"><%= h active.dashboard.description -%></p>
+                  <p class="small"><%= h active.dashboard.description -%></p>
                 <% end %>
               </td>
               <% if is_admin %>
-              <td>
-                <%= boolean_icon(active.dashboard.shared, {:display_false => false}) -%>
-              </td>
+                <td>
+                  <%= boolean_icon(active.dashboard.shared, {:display_false => false}) -%>
+                </td>
               <% end %>
               <td>
                 <% if index>0 %>
@@ -41,11 +45,11 @@
                   <%= link_to image_tag('blue-down.png'), {:action => 'down', :id => active.dashboard.id, :resource => params[:resource]}, :method => :post, :id => "down-#{u active.name}" %>
                 <% end %>
               </td>
-              <td>
+              <td class="thin nowrap right">
                 <% if active.owner?(current_user) %>
                   <%= link_to message('dashboard.configure_widgets'), {:controller => :dashboard, :action => 'configure', :did => active.dashboard_id, :id => params[:resource]}, :id => "configure-#{u active.name}" %>
                   |
-                  <%= link_to_remote message('edit'), :update => "admin_form", :url => { :action => "edit", :id => active.dashboard_id, :resource => params[:resource] }, :id => "edit-#{u active.name}", :method => :get %>
+                  <%= link_to_remote message('edit'), :update => "admin_form", :url => {:action => "edit", :id => active.dashboard_id, :resource => params[:resource]}, :id => "edit-#{u active.name}", :method => :get %>
                   |
                   <%= link_to message('delete'), {:action => 'delete', :id => active.dashboard_id, :resource => params[:resource]}, :method => :post, :confirm => message('dashboard.do_you_want_to_delete_dashboard'), :id => "delete-#{u active.name}" %>
                 <% else %>
@@ -53,51 +57,54 @@
                 <% end %>
               </td>
             </tr>
-        <%  end
-          end
-        %>
+          <% end
+             end
+          %>
         </tbody>
       </table>
       <br/><br/>
+
       <h1 class="marginbottom10"><%= message('dashboard.shared_dashboards') -%></h1>
       <table class="data" id="shared-dashboards">
         <thead>
-          <tr>
-            <th><%= message('name') -%></th>
-            <th><%= message('shared_by') -%></th>
-            <th><%= message('operations') -%></th>
-          </tr>
+        <tr>
+          <th><%= message('name') -%></th>
+          <th><%= message('shared_by') -%></th>
+          <th><%= message('operations') -%></th>
+        </tr>
         </thead>
         <tbody>
         <% if @shared_dashboards.nil? || @shared_dashboards.empty? %>
-        <tr class="even"><td colspan="5"><%= message('dashboard.no_dashboard') -%></td></tr>
+          <tr class="even">
+            <td colspan="5"><%= message('dashboard.no_dashboard') -%></td>
+          </tr>
         <%
-          else
-            @shared_dashboards.each do |dashboard| %>
-            <tr id="shared-dashboard-<%= u dashboard.name -%>" class="<%= cycle('even','odd', :name => 'shared') -%>">
+           else
+             @shared_dashboards.each do |dashboard| %>
+            <tr id="shared-dashboard-<%= u dashboard.name -%>" class="<%= cycle('even', 'odd', :name => 'shared') -%>">
               <td>
-                <%= link_to dashboard.name, {:controller => :dashboard, :action => :index, :id => params[:resource], :did => dashboard.id} -%>
+                <%= link_to dashboard.name(true), {:controller => :dashboard, :action => :index, :id => params[:resource], :did => dashboard.id} -%>
                 <% if dashboard.description.present? %>
-                <p class="small"><%= h dashboard.description -%></p>
+                  <p class="small"><%= h dashboard.description -%></p>
                 <% end %>
               </td>
               <td>
                 <%= dashboard.user_name -%>
               </td>
-              <td>
+              <td class="thin nowrap right">
                 <%= link_to message('follow'), {:action => 'follow', :id => dashboard.id, :resource => params[:resource]}, :method => :post, :id => "follow-#{u dashboard.name}" %>
               </td>
             </tr>
-        <%  end
-          end
-        %>
+          <% end
+             end
+          %>
         </tbody>
       </table>
     </td>
-    <td class="sep"> </td>
+    <td class="sep"></td>
     <td width="210" valign="top" align="right">
       <div id="admin_form">
-      <%= render :partial => 'dashboards/create' %>
+        <%= render :partial => 'dashboards/create' %>
       </div>
     </td>
   </tr>

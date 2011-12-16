@@ -22,8 +22,8 @@ class ActiveDashboard < ActiveRecord::Base
   belongs_to :user
   belongs_to :dashboard
 
-  def name
-    dashboard.name
+  def name(l10n=false)
+    dashboard.name(l10n)
   end
 
   def order_index
@@ -40,6 +40,10 @@ class ActiveDashboard < ActiveRecord::Base
 
   def follower?(user)
     self.user.nil? || self.user_id==user.id
+  end
+
+  def default?
+    user_id.nil?
   end
 
   def self.user_dashboards(user)

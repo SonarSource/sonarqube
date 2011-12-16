@@ -21,16 +21,16 @@ class AdminDashboardsController < ApplicationController
 
   SECTION=Navigation::SECTION_CONFIGURATION
 
-  verify :method => :post, :only => [:up, :down, :remove, :add], :redirect_to => {:action => :index}
+  verify :method => :post, :only => [:up, :down, :remove, :add, :delete], :redirect_to => {:action => :index}
   before_filter :admin_required
   before_filter :load_default_dashboards
 
   def index
-    @default_dashboards=::Dashboard.find(:all, :conditions => {:shared => true}).sort{|a,b| a.name.downcase<=>b.name.downcase}
-    ids=@actives.map{|af| af.dashboard_id}
+    @default_dashboards=::Dashboard.find(:all, :conditions => {:shared => true}).sort { |a, b| a.name.downcase<=>b.name.downcase }
+    ids=@actives.map { |af| af.dashboard_id }
     if !ids.nil? && !ids.empty?
-      @default_dashboards=@default_dashboards.reject!{|f| ids.include?(f.id) }
-    end 
+      @default_dashboards=@default_dashboards.reject! { |f| ids.include?(f.id) }
+    end
   end
 
   def up
@@ -84,15 +84,30 @@ class AdminDashboardsController < ApplicationController
     redirect_to :action => 'index'
   end
 
+  # Remove dashboard from defaults
   def remove
     if @actives.size<=1
-      flash[:error]='At least one dashboard must be defined.'
+      flash[:error]='At least one dashboard must be defined as default.'
     else
-      active=@actives.to_a.find{|af| af.id==params[:id].to_i}
+      active=@actives.to_a.find { |af| af.id==params[:id].to_i }
       if active
         active.destroy
         flash[:notice]='Dashboard removed from default dashboards.'
       end
+    end
+    redirect_to :action => 'index'
+  end
+
+  # Completely delete dashboard
+  def delete
+    dashboard=::Dashboard.find(params[:id])
+    bad_request('Bad dashboard') unless dashboard
+    bad_request('This dashboard can not be deleted') unless dashboard.provided_programmatically?
+
+    if dashboard.destroy
+      flash[:notice]="Dashboard #{dashboard.name(true)} deleted."
+    else
+      flash[:error]="Can't be deleted as long as it's used as default dashboard."
     end
     redirect_to :action => 'index'
   end

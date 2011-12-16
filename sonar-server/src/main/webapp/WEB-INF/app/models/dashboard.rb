@@ -31,7 +31,9 @@ class Dashboard < ActiveRecord::Base
   validates_length_of :column_layout, :maximum => 20, :allow_blank => false, :allow_nil => false
   validates_uniqueness_of :name, :scope => :user_id
 
-  def name(l10n=true)
+  before_destroy :check_not_default_before_destroy
+
+  def name(l10n=false)
     n=read_attribute(:name)
     if l10n
       Api::Utils.message("dashboard.#{n}.name", :default => n)
@@ -40,13 +42,8 @@ class Dashboard < ActiveRecord::Base
     end
   end
 
-  def description(l10n=true)
-    n=name(false)
-    if l10n
-      Api::Utils.message("dashboard.#{n}.description", :default => read_attribute(:description))
-    else
-      read_attribute(:description)
-    end
+  def description
+    Api::Utils.message("dashboard.#{name}.description", :default => read_attribute(:description))
   end
 
   def shared?
@@ -94,5 +91,30 @@ class Dashboard < ActiveRecord::Base
     end
     dashboard.save
     dashboard
+  end
+
+  def provided_programmatically?
+    shared && user_id.nil?
+  end
+
+  protected
+  def check_not_default_before_destroy
+    if shared?
+      default_actives = active_dashboards.select { |ad| ad.default? }
+      return default_actives.size==0
+    end
+    true
+  end
+
+  def validate_on_update
+    # Check that not used as default dashboard when unsharing
+    if shared_was && !shared
+      # unsharing
+      default_actives = active_dashboards.select { |ad| ad.default? }
+
+      unless default_actives.empty?
+        errors.add_to_base("This dashboard can't be unshared as long as it's defined as a default dashboard.")
+      end
+    end
   end
 end

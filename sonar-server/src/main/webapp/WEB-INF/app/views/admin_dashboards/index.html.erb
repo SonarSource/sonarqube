@@ -3,21 +3,24 @@
 
 <table class="data" id="admin_console">
   <thead>
-    <tr>
-      <th>Name</th>
-      <th>Shared by</th>
-      <th>Order</th>
-      <th>Operations</th>
-    </tr>
+  <tr>
+    <th>Name</th>
+    <th>Shared by</th>
+    <th>Order</th>
+    <th class="right">Operations</th>
+  </tr>
   </thead>
   <tbody>
   <% if @actives.empty? %>
-    <tr class="even"><td colspan="4">No results.</td></tr>
+    <tr class="even">
+      <td colspan="5">No results.</td>
+    </tr>
   <% else %>
-    <% @actives.each_with_index do |active,index| %>
-      <tr id="active-<%= u active.name -%>" class="<%= cycle('even','odd', :name => 'actives') -%>">
+    <% @actives.each_with_index do |active, index| %>
+      <tr id="active-<%= u active.name -%>" class="<%= cycle('even', 'odd', :name => 'actives') -%>">
         <td>
-          <%= h(active.name) %><br>
+          <%= h(active.name(true)) %>
+          <br>
           <span style="font-size: 85%;font-weight: normal;"><%= active.dashboard.description %></span>
         </td>
         <td><%= h(active.dashboard.user.name) if active.dashboard.user %></td>
@@ -31,8 +34,8 @@
             <%= link_to image_tag('blue-down.png'), {:action => :down, :id => active.id}, :method => :post, :id => "down-#{u active.name}" %>
           <% end %>
         </td>
-        <td>
-          <%= link_to 'Remove', {:action => 'remove', :id => active.id}, :confirm => 'Are you sure to remove it from default dashboards ?', :method => :post, :id => "remove-#{u active.name}" %>
+        <td class="thin nowrap right">
+          <%= link_to 'Remove from defaults', {:action => 'remove', :id => active.id}, :confirm => 'Are you sure to remove it from default dashboards ?', :method => :post, :id => "remove-#{u active.name}" %>
         </td>
       </tr>
     <% end %>
@@ -46,24 +49,34 @@
 
 <table class="data" id="shared">
   <thead>
-    <tr>
-      <th>Name</th>
-      <th>Shared by</th>
-      <th>Operations</th>
-    </tr>
+  <tr>
+    <th>Name</th>
+    <th>Shared by</th>
+    <th colspan="2" class="right">Operations</th>
+  </tr>
   </thead>
   <tbody>
   <% if @default_dashboards.nil? || @default_dashboards.empty? %>
-    <tr class="even"><td colspan="3">No results.</td></tr>
+    <tr class="even">
+      <td colspan="4">No results.</td>
+    </tr>
   <% else %>
     <% @default_dashboards.each do |dashboard| %>
       <tr class="<%= cycle('even', 'odd') -%>">
         <td>
-          <%= h(dashboard.name) -%><br>
+          <%= h(dashboard.name(true)) -%>
+          <br>
           <span class="small"><%= dashboard.description %></span>
         </td>
         <td><%= h(dashboard.user.name) if dashboard.user %></td>
-        <td><%= link_to 'Add to defaults', {:action => 'add', :id => dashboard.id}, :method => :post, :id => "add-#{u dashboard.name}" %></td>
+        <td class="thin nowrap right">
+          <%= link_to 'Add to defaults', {:action => 'add', :id => dashboard.id}, :method => :post, :id => "add-#{u dashboard.name}" %>
+        </td>
+        <td class="thin nowrap right">
+          <% if dashboard.provided_programmatically? %>
+            <%= link_to 'Delete', {:action => 'delete', :id => dashboard.id}, :confirm => "Do you want to delete the dashboard #{dashboard.name(true)}?", :method => :post, :id => "delete-#{u dashboard.name}" %>
+          <% end %>
+        </td>
       </tr>
     <% end %>
   <% end %>

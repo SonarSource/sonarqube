@@ -58,7 +58,11 @@ class Widget < ActiveRecord::Base
         hash={}
         java_definition.getWidgetProperties().each do |property_definition|
           prop = property(property_definition.key)
-          hash[property_definition.key]=(prop ? prop.value : WidgetProperty.text_to_value(property_definition.defaultValue(), property_definition.type().name()))
+          if prop
+            hash[property_definition.key]=prop.value
+          elsif !property_definition.defaultValue().blank?
+            hash[property_definition.key]=WidgetProperty.text_to_value(property_definition.defaultValue(), property_definition.type().name())
+          end
         end
         hash
       end
