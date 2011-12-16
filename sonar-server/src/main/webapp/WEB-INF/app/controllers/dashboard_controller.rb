@@ -137,6 +137,9 @@ class DashboardController < ApplicationController
     render :partial => 'dashboard/widget_definitions', :locals => {:dashboard_id => params[:did], :resource_id => params[:id], :filter_on_category => params[:category]}
   end
 
+
+
+
   private
 
   def load_dashboard
@@ -175,8 +178,8 @@ class DashboardController < ApplicationController
 
   def load_authorized_widget_definitions
     if @resource
-      @widget_definitions = java_facade.getWidgets(@resource.scope, @resource.qualifier, @resource.language)
-      @widget_definitions=@widget_definitions.select do |widget|
+      @authorized_widget_definitions = java_facade.getWidgets(@resource.scope, @resource.qualifier, @resource.language)
+      @authorized_widget_definitions=@authorized_widget_definitions.select do |widget|
         authorized=widget.getUserRoles().size==0
         unless authorized
           widget.getUserRoles().each do |role|
