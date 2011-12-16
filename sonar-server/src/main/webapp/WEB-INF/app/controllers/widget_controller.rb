@@ -56,10 +56,11 @@ class WidgetController < ApplicationController
 
     @widget=Widget.new(:widget_key => widget_key, :id => 1)
     @widget_definition.getWidgetProperties().each do |property_definition|
+      value = params[property_definition.key()]
       @widget.properties<<WidgetProperty.new(
-          :kee => property_definition.key(),
-          :value_type => property_definition.type().toString(),
-          :text_value => params[property_definition.key()] || property_definition.defaultValue
+        :widget => @widget,
+        :kee => property_definition.key(),
+        :text_value => (value.blank? ? property_definition.defaultValue : value)
       )
     end
     @dashboard_configuration=Api::DashboardConfiguration.new(nil, :period_index => params[:period], :snapshot => @snapshot)
