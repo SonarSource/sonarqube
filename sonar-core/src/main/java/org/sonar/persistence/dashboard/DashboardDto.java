@@ -19,17 +19,15 @@
  */
 package org.sonar.persistence.dashboard;
 
+import com.google.common.collect.Lists;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-
-import com.google.common.collect.Lists;
-
-public class DashboardDto {
+public final class DashboardDto {
 
   private Long id;
-  private String key;
   private Long userId;
   private String name;
   private String description;
@@ -39,154 +37,85 @@ public class DashboardDto {
   private Date updatedAt;
   private List<WidgetDto> widgetDtos = Lists.newArrayList();
 
-  /**
-   * @return the id
-   */
   public Long getId() {
     return id;
   }
 
-  /**
-   * @param id
-   *          the id to set
-   */
-  public void setId(Long id) {
+  public DashboardDto setId(Long id) {
     this.id = id;
+    return this;
   }
 
-  /**
-   * @return the key
-   */
-  public String getKey() {
-    return key;
-  }
-
-  /**
-   * @param key
-   *          the key to set
-   */
-  public void setKey(String key) {
-    this.key = key;
-  }
-
-  /**
-   * @return the userId
-   */
   public Long getUserId() {
     return userId;
   }
 
-  /**
-   * @param userId
-   *          the userId to set
-   */
-  public void setUserId(Long userId) {
+  public DashboardDto setUserId(Long userId) {
     this.userId = userId;
+    return this;
   }
 
-  /**
-   * @return the name
-   */
   public String getName() {
     return name;
   }
 
-  /**
-   * @param name
-   *          the name to set
-   */
-  public void setName(String name) {
+  public DashboardDto setName(String name) {
     this.name = name;
+    return this;
   }
 
-  /**
-   * @return the description
-   */
   public String getDescription() {
     return description;
   }
 
-  /**
-   * @param description
-   *          the description to set
-   */
-  public void setDescription(String description) {
+  public DashboardDto setDescription(String description) {
     this.description = description;
+    return this;
   }
 
-  /**
-   * @return the columnLayout
-   */
   public String getColumnLayout() {
     return columnLayout;
   }
 
-  /**
-   * @param columnLayout
-   *          the columnLayout to set
-   */
-  public void setColumnLayout(String columnLayout) {
+  public DashboardDto setColumnLayout(String columnLayout) {
     this.columnLayout = columnLayout;
+    return this;
   }
 
-  /**
-   * @return the shared
-   */
   public boolean getShared() {
     return shared;
   }
 
-  /**
-   * @param shared
-   *          the shared to set
-   */
-  public void setShared(boolean shared) {
+  public DashboardDto setShared(boolean shared) {
     this.shared = shared;
+    return this;
   }
 
-  /**
-   * @return the createdAt
-   */
   public Date getCreatedAt() {
     return createdAt;
   }
 
-  /**
-   * @param createdAt
-   *          the createdAt to set
-   */
-  public void setCreatedAt(Date createdAt) {
+  public DashboardDto setCreatedAt(Date createdAt) {
     this.createdAt = createdAt;
+    return this;
   }
 
-  /**
-   * @return the updatedAt
-   */
   public Date getUpdatedAt() {
     return updatedAt;
   }
 
-  /**
-   * @param updatedAt
-   *          the updatedAt to set
-   */
-  public void setUpdatedAt(Date updatedAt) {
+  public DashboardDto setUpdatedAt(Date updatedAt) {
     this.updatedAt = updatedAt;
+    return this;
   }
 
-  /**
-   * @return the widgets
-   */
   public Collection<WidgetDto> getWidgets() {
     return widgetDtos;
   }
 
-  /**
-   * @param widgetDto
-   *          the widget to add
-   */
-  public void addWidget(WidgetDto widgetDto) {
+  public DashboardDto addWidget(WidgetDto widgetDto) {
     widgetDtos.add(widgetDto);
+    return this;
   }
 
 }

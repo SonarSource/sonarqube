@@ -19,7 +19,6 @@
  */
 package org.sonar.api.web;
 
-import org.hamcrest.core.Is;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
@@ -30,16 +29,15 @@ public class DashboardTest {
 
   @Test
   public void shouldCreateDashboard() {
-    Dashboard dashboard = Dashboard.create("fake-dashboard", "Fake");
-    assertThat(dashboard.getId(), is("fake-dashboard"));
-    assertThat(dashboard.getName(), is("Fake"));
+    Dashboard dashboard = Dashboard.create();
     assertThat(dashboard.getLayout(), is(DashboardLayout.TWO_COLUMNS));
     assertThat(dashboard.getDescription(), nullValue());
+    assertThat(dashboard.getWidgets().size(), is(0));
   }
 
   @Test
   public void shouldAddWidgets() {
-    Dashboard dashboard = Dashboard.createByName("Fake");
+    Dashboard dashboard = Dashboard.create();
     Dashboard.Widget mostViolatedRules = dashboard.addWidget("most_violated_rules", 1);
     assertThat(mostViolatedRules.getId(), is("most_violated_rules"));
     assertThat(dashboard.getWidgets().size(), is(1));
@@ -55,7 +53,7 @@ public class DashboardTest {
 
   @Test
   public void shouldAddWidgetsOnDifferentColumns() {
-    Dashboard dashboard = Dashboard.createByName("Fake");
+    Dashboard dashboard = Dashboard.create();
 
     dashboard.addWidget("most_violated_rules", 1);
     assertThat(dashboard.getWidgets().size(), is(1));
@@ -66,28 +64,9 @@ public class DashboardTest {
     assertThat(dashboard.getWidgetsOfColumn(2).size(), is(1));
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void shouldFailIfBlankId() {
-    Dashboard.create("  ", "Fake");
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void shouldFailToDeduceIdFromName() {
-    Dashboard.createByName("  ");
-  }
-
-  @Test
-  public void shouldCreateByName() {
-    Dashboard dashboard = Dashboard.createByName("Fake");
-    assertThat(dashboard.getId(), Is.is("fake"));
-
-    dashboard = Dashboard.createByName("  Fake You  ");
-    assertThat(dashboard.getId(), Is.is("fake_you"));
-  }
-
   @Test
   public void shouldAddSeveralTimesTheSameWidget() {
-    Dashboard dashboard = Dashboard.createByName("Fake");
+    Dashboard dashboard = Dashboard.create();
     dashboard.addWidget("most_violated_rules", 1);
     dashboard.addWidget("most_violated_rules", 1).setProperty("foo", "bar");
 
@@ -98,7 +77,7 @@ public class DashboardTest {
 
   @Test
   public void shouldSetWidgetProperty() {
-    Dashboard dashboard = Dashboard.createByName("Fake");
+    Dashboard dashboard = Dashboard.create();
     Dashboard.Widget widget = dashboard.addWidget("fake-widget", 1);
     widget.setProperty("foo", "bar");
 

@@ -35,4 +35,8 @@ public abstract class DashboardTemplate implements ServerExtension {
    */
   public abstract Dashboard createDashboard();
 
+  /**
+   * Dashboard name
+   */
+  public abstract String getName();
 }

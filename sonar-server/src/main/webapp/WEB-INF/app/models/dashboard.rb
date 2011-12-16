@@ -30,25 +30,25 @@ class Dashboard < ActiveRecord::Base
   validates_length_of :description, :maximum => 1000, :allow_blank => true, :allow_nil => true
   validates_length_of :column_layout, :maximum => 20, :allow_blank => false, :allow_nil => false
   validates_uniqueness_of :name, :scope => :user_id
-  
-  before_create { |dashboard| dashboard.kee=dashboard.name.strip.downcase.sub(/\s+/, '_') }
-    
+
   def name(l10n=true)
+    n=read_attribute(:name)
     if l10n
-      Api::Utils.message("dashboard.#{kee}.name", :default => read_attribute(:name))
+      Api::Utils.message("dashboard.#{n}.name", :default => n)
     else
-      read_attribute(:name)
+      n
     end
   end
 
   def description(l10n=true)
+    n=name(false)
     if l10n
-      Api::Utils.message("dashboard.#{kee}.description", :default => read_attribute(:description))
+      Api::Utils.message("dashboard.#{n}.description", :default => read_attribute(:description))
     else
       read_attribute(:description)
     end
   end
-  
+
   def shared?
     read_attribute(:shared) || false
   end
@@ -74,7 +74,7 @@ class Dashboard < ActiveRecord::Base
   end
 
   def column_size(column_index)
-    last_widget=widgets.select{|w| w.column_index==column_index}.max{|x,y| x.row_index <=> y.row_index}
+    last_widget=widgets.select { |w| w.column_index==column_index }.max { |x, y| x.row_index <=> y.row_index }
     last_widget ? last_widget.row_index : 0
   end
 

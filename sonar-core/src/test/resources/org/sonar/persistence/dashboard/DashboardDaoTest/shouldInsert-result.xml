@@ -2,7 +2,6 @@
 
   <dashboards
     id="1"
-    kee="d-key"
     user_id="6"
     name="My Dashboard"
     description="This is a dashboard"

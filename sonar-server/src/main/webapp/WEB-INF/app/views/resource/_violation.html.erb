@@ -59,7 +59,7 @@
     <div class="discussionComment first" id="vBody<%= violation.id -%>">
       <% if current_user %>
         <div style="display: none" class="vActions" id="vActions<%= violation.id -%>">
-          <%= button_to_function message('reviews.comment'), "sCF(#{violation.id})", :name => 'bFComment' -%>
+          <%= button_to_function message('reviews.comment'), "sCF(#{violation.id})", :name => 'bComment' -%>
 
           <% unless violation.review && violation.review.resolved? %>
             <%= button_to_function message('reviews.assign'), "sAF(#{violation.id})", :name => 'bAssign' -%>

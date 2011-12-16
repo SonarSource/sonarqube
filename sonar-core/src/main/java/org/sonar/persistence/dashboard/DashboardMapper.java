@@ -22,6 +22,8 @@ package org.sonar.persistence.dashboard;
 
 public interface DashboardMapper {
 
+  DashboardDto selectGlobalDashboard(String name);
+
   void insert(DashboardDto dashboardDto);
 
 }

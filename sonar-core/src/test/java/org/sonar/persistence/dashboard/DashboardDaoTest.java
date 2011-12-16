@@ -25,22 +25,36 @@ import org.sonar.persistence.DaoTestCase;
 
 import java.util.Date;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+
 public class DashboardDaoTest extends DaoTestCase {
 
   private DashboardDao dao;
 
   @Before
-  public void createDao() throws Exception {
+  public void createDao() {
     dao = new DashboardDao(getMyBatis());
   }
 
   @Test
-  public void shouldInsert() throws Exception {
+  public void shouldSelectGlobalDashboard() {
+    setupData("shouldSelectGlobalDashboard");
+    DashboardDto dashboard = dao.selectGlobalDashboard("SQALE");
+    assertThat(dashboard.getId(), is(2L));
+    assertThat(dashboard.getUserId(), nullValue());
+
+    assertNull(dao.selectGlobalDashboard("unknown"));
+  }
+
+  @Test
+  public void shouldInsert() {
     setupData("shouldInsert");
     Date aDate = new Date();
 
     DashboardDto dashboardDto = new DashboardDto();
-    dashboardDto.setKey("d-key");
     dashboardDto.setUserId(6L);
     dashboardDto.setName("My Dashboard");
     dashboardDto.setDescription("This is a dashboard");
@@ -75,7 +89,6 @@ public class DashboardDaoTest extends DaoTestCase {
     setupData("shouldInsert");
 
     DashboardDto dashboardDto = new DashboardDto();
-    dashboardDto.setKey("d-key");
     dashboardDto.setUserId(null);
     dashboardDto.setName(null);
     dashboardDto.setDescription(null);

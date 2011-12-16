@@ -22,7 +22,6 @@ package org.sonar.api.web;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
-import org.apache.commons.lang.StringUtils;
 
 import java.util.Collection;
 import java.util.List;
@@ -38,8 +37,6 @@ import java.util.Map;
  */
 public final class Dashboard {
 
-  private String id;
-  private String name;
   private String description;
   private DashboardLayout layout = DashboardLayout.TWO_COLUMNS;
   private ListMultimap<Integer, Widget> widgetsByColumn = ArrayListMultimap.create();
@@ -50,22 +47,8 @@ public final class Dashboard {
   /**
    * Creates a new {@link Dashboard}.
    */
-  public static Dashboard create(String id, String name) {
-    return new Dashboard()
-      .setId(id)
-      .setName(name);
-  }
-
-  /**
-   * The id is deduced from the name.
-   */
-  public static Dashboard createByName(String name) {
-    String id = StringUtils.trimToEmpty(name);
-    id = StringUtils.lowerCase(id);
-    id = StringUtils.replaceChars(id, ' ', '_');
-    return new Dashboard()
-      .setId(id)
-      .setName(name);
+  public static Dashboard create() {
+    return new Dashboard();
   }
 
   /**
@@ -90,40 +73,6 @@ public final class Dashboard {
 
   public List<Widget> getWidgetsOfColumn(int columnId) {
     return widgetsByColumn.get(columnId);
-  }
-
-  /**
-   * Returns the identifier of the dashboard.
-   *
-   * @return the id
-   */
-  public String getId() {
-    return id;
-  }
-
-  private Dashboard setId(String id) {
-    if (StringUtils.isBlank(id)) {
-      throw new IllegalArgumentException("Dashboard id can not be blank");
-    }
-    this.id = id;
-    return this;
-  }
-
-  /**
-   * Returns the name of the dashboard.
-   *
-   * @return the name
-   */
-  public String getName() {
-    return name;
-  }
-
-  /**
-   * @param name the name to set
-   */
-  private Dashboard setName(String name) {
-    this.name = name;
-    return this;
   }
 
   /**
@@ -158,7 +107,7 @@ public final class Dashboard {
 
   public Dashboard setLayout(DashboardLayout dl) {
     if (dl == null) {
-      throw new IllegalArgumentException("The layout of the dashboard '" + getId() + "' can not be null");
+      throw new IllegalArgumentException("The layout can not be null");
     }
     this.layout = dl;
     return this;

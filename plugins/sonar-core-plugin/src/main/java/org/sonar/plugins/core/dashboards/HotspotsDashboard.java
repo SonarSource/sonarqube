@@ -35,8 +35,13 @@ public final class HotspotsDashboard extends DashboardTemplate {
   private static final String METRIC_PROPERTY = "metric";
 
   @Override
+  public String getName() {
+    return "Hotspots";
+  }
+
+  @Override
   public Dashboard createDashboard() {
-    Dashboard dashboard = Dashboard.createByName("Hotspots");
+    Dashboard dashboard = Dashboard.create();
     dashboard.setLayout(DashboardLayout.TWO_COLUMNS);
 
     addFirstColumn(dashboard);

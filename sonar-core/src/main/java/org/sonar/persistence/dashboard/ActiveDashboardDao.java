@@ -43,11 +43,12 @@ public class ActiveDashboardDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public Integer selectMaxOrderIndexForNullUser() {
+  public int selectMaxOrderIndexForNullUser() {
     SqlSession session = mybatis.openSession();
     ActiveDashboardMapper mapper = session.getMapper(ActiveDashboardMapper.class);
     try {
-      return mapper.selectMaxOrderIndexForNullUser();
+      Integer max = mapper.selectMaxOrderIndexForNullUser();
+      return (max != null ? max.intValue() : 0);
     } finally {
       session.close();
     }

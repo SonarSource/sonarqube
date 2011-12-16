@@ -31,8 +31,13 @@ import org.sonar.api.web.DashboardTemplate;
 public final class DefaultDashboard extends DashboardTemplate {
 
   @Override
+  public String getName() {
+    return "Dashboard";
+  }
+
+  @Override
   public Dashboard createDashboard() {
-    Dashboard dashboard = Dashboard.create("dashboard", "Dashboard");
+    Dashboard dashboard = Dashboard.create();
     dashboard.setLayout(DashboardLayout.TWO_COLUMNS);
     addFirstColumn(dashboard);
     addSecondColumn(dashboard);

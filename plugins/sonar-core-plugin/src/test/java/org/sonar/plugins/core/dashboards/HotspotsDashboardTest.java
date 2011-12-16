@@ -29,9 +29,9 @@ import static org.junit.Assert.assertThat;
 public class HotspotsDashboardTest {
   @Test
   public void shouldCreateDashboard() {
-    Dashboard hotspots = new HotspotsDashboard().createDashboard();
-    assertThat(hotspots.getId(), Is.is("hotspots"));
-    assertThat(hotspots.getName(), Is.is("Hotspots"));
+    HotspotsDashboard template = new HotspotsDashboard();
+    Dashboard hotspots = template.createDashboard();
+    assertThat(template.getName(), Is.is("Hotspots"));
     assertThat(hotspots.getLayout(), Is.is(DashboardLayout.TWO_COLUMNS));
     assertThat(hotspots.getWidgets().size(), Is.is(8));
   }

@@ -19,15 +19,12 @@
  */
 package org.sonar.persistence.dashboard;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.persistence.DaoTestCase;
-import org.sonar.persistence.dashboard.ActiveDashboardDao;
-import org.sonar.persistence.dashboard.ActiveDashboardDto;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class ActiveDashboardDaoTest extends DaoTestCase {
 
@@ -67,18 +64,18 @@ public class ActiveDashboardDaoTest extends DaoTestCase {
   public void shouldGetMaxOrderIndexForNullUser() throws Exception {
     setupData("shouldGetMaxOrderIndexForNullUser");
 
-    Integer index = dao.selectMaxOrderIndexForNullUser();
+    int index = dao.selectMaxOrderIndexForNullUser();
 
     assertThat(index, is(15));
   }
 
   @Test
-  public void shouldGetEmptyMaxOrderIndex() throws Exception {
+  public void shouldGetZeroMaxOrderIndex() throws Exception {
     setupData("empty");
 
-    Integer index = dao.selectMaxOrderIndexForNullUser();
+    int index = dao.selectMaxOrderIndexForNullUser();
 
-    assertThat(index, is(nullValue()));
+    assertThat(index, is(0));
   }
 
 }

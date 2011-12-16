@@ -36,10 +36,10 @@
           <span class="note"><%= message('status') -%></span><br/>
           <select size="6" name="statuses[]" multiple="multiple" id="statuses" class="withIcons">
             <option <%= 'selected' if @statuses.include?('') -%> value=""><%= message('any') -%></option>
-            <option value="<%= Review::STATUS_OPEN -%>" class="status_open" <%= 'selected' if @statuses.include?(Review::STATUS_OPEN) -%>><%= message('open') -%></option>
-            <option value="<%= Review::STATUS_REOPENED -%>" class="status_reopened" <%= 'selected' if @statuses.include?(Review::STATUS_REOPENED) -%>><%= message('reopened') -%></option>
-            <option value="<%= Review::STATUS_RESOLVED -%>" class="status_resolved" <%= 'selected' if @statuses.include?(Review::STATUS_RESOLVED) -%>><%= message('resolved') -%></option>
-            <option value="<%= Review::STATUS_CLOSED -%>" class="status_closed" <%= 'selected' if @statuses.include?(Review::STATUS_CLOSED) -%>><%= message('closed') -%></option>
+            <option value="<%= Review::STATUS_OPEN -%>" class="status_open" <%= 'selected' if @statuses.include?(Review::STATUS_OPEN) -%>><%= message('reviews.status.OPEN') -%></option>
+            <option value="<%= Review::STATUS_REOPENED -%>" class="status_reopened" <%= 'selected' if @statuses.include?(Review::STATUS_REOPENED) -%>><%= message('reviews.status.REOPENED') -%></option>
+            <option value="<%= Review::STATUS_RESOLVED -%>" class="status_resolved" <%= 'selected' if @statuses.include?(Review::STATUS_RESOLVED) -%>><%= message('reviews.status.RESOLVED') -%></option>
+            <option value="<%= Review::STATUS_CLOSED -%>" class="status_closed" <%= 'selected' if @statuses.include?(Review::STATUS_CLOSED) -%>><%= message('reviews.status.CLOSED') -%></option>
           </select>
         </td>
         <td width="1%" nowrap>

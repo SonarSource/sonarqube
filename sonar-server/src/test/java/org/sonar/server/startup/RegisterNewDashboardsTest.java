@@ -20,6 +20,8 @@
 package org.sonar.server.startup;
 
 import com.google.common.collect.Lists;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.web.Dashboard;
@@ -29,7 +31,6 @@ import org.sonar.persistence.dashboard.*;
 import org.sonar.persistence.template.LoadedTemplateDao;
 import org.sonar.persistence.template.LoadedTemplateDto;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -43,7 +44,7 @@ import static org.mockito.Mockito.*;
 
 public class RegisterNewDashboardsTest {
 
-  private RegisterNewDashboards registerNewDashboards;
+  private RegisterNewDashboards task;
   private DashboardDao dashboardDao;
   private ActiveDashboardDao activeDashboardDao;
   private LoadedTemplateDao loadedTemplateDao;
@@ -57,32 +58,34 @@ public class RegisterNewDashboardsTest {
 
     fakeDashboardTemplate = new FakeDashboard();
 
-    registerNewDashboards = new RegisterNewDashboards(new DashboardTemplate[]{fakeDashboardTemplate}, dashboardDao,
+    task = new RegisterNewDashboards(new DashboardTemplate[]{fakeDashboardTemplate}, dashboardDao,
       activeDashboardDao, loadedTemplateDao);
   }
 
   @Test
-  public void testStart() throws Exception {
-    registerNewDashboards.start();
-    verify(dashboardDao).insert(any(org.sonar.persistence.dashboard.DashboardDto.class));
+  public void testStart() {
+    task.start();
+    verify(dashboardDao).insert(any(DashboardDto.class));
     verify(loadedTemplateDao).insert(any(LoadedTemplateDto.class));
     verify(activeDashboardDao).insert(any(ActiveDashboardDto.class));
   }
 
   @Test
-  public void testShouldNotBeRegistered() throws Exception {
-    when(loadedTemplateDao.countByTypeAndKey(LoadedTemplateDto.DASHBOARD_TYPE, "fake-dashboard")).thenReturn(1);
-    assertThat(registerNewDashboards.shouldRegister(fakeDashboardTemplate.createDashboard()), is(false));
+  public void shouldNotRegister() {
+    when(loadedTemplateDao.countByTypeAndKey(LoadedTemplateDto.DASHBOARD_TYPE, "Fake")).thenReturn(1);
+    assertThat(task.shouldRegister("Fake"), is(false));
   }
 
   @Test
-  public void testShouldBeLoaded() throws Exception {
-    assertThat(registerNewDashboards.shouldRegister(fakeDashboardTemplate.createDashboard()), is(true));
+  public void shouldRegisterDashboard() {
+    when(loadedTemplateDao.countByTypeAndKey(LoadedTemplateDto.DASHBOARD_TYPE, "Fake")).thenReturn(0);
+    assertThat(task.shouldRegister("Fake"), is(true));
   }
 
   @Test
-  public void shouldLoadDasboard() throws Exception {
-    DashboardDto dashboardDto = registerNewDashboards.registerDashboard(fakeDashboardTemplate.createDashboard());
+  public void testRegisterDashboard() {
+    DashboardDto dashboardDto = task.register("Fake", fakeDashboardTemplate.createDashboard());
+
     assertNotNull(dashboardDto);
     verify(dashboardDao).insert(dashboardDto);
     verify(loadedTemplateDao).insert(eq(new LoadedTemplateDto("fake-dashboard", LoadedTemplateDto.DASHBOARD_TYPE)));
@@ -90,9 +93,9 @@ public class RegisterNewDashboardsTest {
 
   @Test
   public void shouldCreateDtoFromExtension() {
-    DashboardDto dto = registerNewDashboards.createDtoFromExtension(fakeDashboardTemplate.createDashboard());
+    DashboardDto dto = task.createDtoFromExtension("Fake", fakeDashboardTemplate.createDashboard());
     assertThat(dto.getUserId(), is(nullValue()));
-    assertThat(dto.getKey(), is("fake-dashboard"));
+    assertThat(dto.getName(), is("Fake"));
     assertThat(dto.getDescription(), nullValue());
     assertThat(dto.getColumnLayout(), is("30%-70%"));
     assertThat(dto.getShared(), is(true));
@@ -114,11 +117,9 @@ public class RegisterNewDashboardsTest {
   }
 
   @Test
-  public void shouldCompareDashboardForSorting() throws Exception {
-    DashboardDto d1 = mock(DashboardDto.class);
-    when(d1.getName()).thenReturn("Foo");
-    DashboardDto d2 = mock(DashboardDto.class);
-    when(d2.getName()).thenReturn("Bar");
+  public void shouldCompareDashboards() throws Exception {
+    DashboardDto d1 = new DashboardDto().setName("Foo");
+    DashboardDto d2 = new DashboardDto().setName("Bar");
     List<DashboardDto> dashboardDtos = Lists.newArrayList(d1, d2);
     Collections.sort(dashboardDtos, new RegisterNewDashboards.DashboardComparator());
 
@@ -126,61 +127,60 @@ public class RegisterNewDashboardsTest {
   }
 
   @Test
-  public void shouldActivateAllDashboards() throws Exception {
-    DashboardDto d1 = mock(DashboardDto.class);
-    when(d1.getName()).thenReturn("Foo");
-    when(d1.getId()).thenReturn(14L);
-    DashboardDto d2 = mock(DashboardDto.class);
-    when(d2.getName()).thenReturn("Bar");
-    when(d2.getId()).thenReturn(16L);
-    ArrayList<DashboardDto> loadedDashboards = Lists.newArrayList(d1, d2);
+  public void shouldActivateDashboards() throws Exception {
+    DashboardDto d1 = new DashboardDto().setName("Foo").setId(14L);
+    DashboardDto d2 = new DashboardDto().setName("Bar").setId(16L);
+    List<DashboardDto> loadedDashboards = Lists.newArrayList(d1, d2);
 
     when(activeDashboardDao.selectMaxOrderIndexForNullUser()).thenReturn(4);
 
-    registerNewDashboards.activateDashboards(loadedDashboards, null);
+    task.activate(loadedDashboards);
 
-    ActiveDashboardDto ad1 = new ActiveDashboardDto();
-    ad1.setDashboardId(16L);
-    ad1.setOrderIndex(5);
-    verify(activeDashboardDao).insert(eq(ad1));
-    ActiveDashboardDto ad2 = new ActiveDashboardDto();
-    ad2.setDashboardId(14L);
-    ad2.setOrderIndex(6);
-    verify(activeDashboardDao).insert(eq(ad2));
+    verify(activeDashboardDao).insert(argThat(matchActiveDashboard(16L, 5)));
+    verify(activeDashboardDao).insert(argThat(matchActiveDashboard(14L, 6)));
   }
 
   @Test
-  public void shouldActivateDefaultDashboard() throws Exception {
-    DashboardDto defaultDashboard = mock(DashboardDto.class);
-    when(defaultDashboard.getName()).thenReturn(RegisterNewDashboards.DEFAULT_DASHBOARD_ID);
-    when(defaultDashboard.getId()).thenReturn(1L);
-    DashboardDto d1 = mock(DashboardDto.class);
-    when(d1.getName()).thenReturn("Bar");
-    when(d1.getId()).thenReturn(16L);
-    List<DashboardDto> loadedDashboards = Lists.newArrayList(d1);
+  public void defaultDashboardShouldBeTheFirstActivatedDashboard() throws Exception {
+    DashboardDto defaultDashboard = new DashboardDto()
+      .setName(RegisterNewDashboards.DEFAULT_DASHBOARD_NAME)
+      .setId(10L);
+    DashboardDto other = new DashboardDto()
+      .setName("Bar")
+      .setId(11L);
+    List<DashboardDto> dashboards = Lists.newArrayList(other, defaultDashboard);
 
-    registerNewDashboards.activateDashboards(loadedDashboards, defaultDashboard);
+    task.activate(dashboards);
 
-    ActiveDashboardDto ad1 = new ActiveDashboardDto();
-    ad1.setDashboardId(1L);
-    ad1.setOrderIndex(1);
-    verify(activeDashboardDao).insert(eq(ad1));
-    ActiveDashboardDto ad2 = new ActiveDashboardDto();
-    ad2.setDashboardId(16L);
-    ad2.setOrderIndex(2);
-    verify(activeDashboardDao).insert(eq(ad2));
+    verify(activeDashboardDao).insert(argThat(matchActiveDashboard(10L, 1)));
+    verify(activeDashboardDao).insert(argThat(matchActiveDashboard(11L, 2)));
+  }
+
+  private BaseMatcher<ActiveDashboardDto> matchActiveDashboard(final long dashboardId, final int orderId) {
+    return new BaseMatcher<ActiveDashboardDto>() {
+      public boolean matches(Object o) {
+        ActiveDashboardDto dto = (ActiveDashboardDto) o;
+        return dto.getDashboardId() == dashboardId && dto.getOrderIndex() == orderId;
+      }
+
+      public void describeTo(Description description) {
+      }
+    };
   }
 
   public class FakeDashboard extends DashboardTemplate {
+    @Override
+    public String getName() {
+      return "Fake";
+    }
 
     @Override
     public Dashboard createDashboard() {
-      Dashboard dashboard = Dashboard.create("fake-dashboard", "Fake");
+      Dashboard dashboard = Dashboard.create();
       dashboard.setLayout(DashboardLayout.TWO_COLUMNS_30_70);
       Dashboard.Widget widget = dashboard.addWidget("fake-widget", 1);
       widget.setProperty("fake-property", "fake_metric");
       return dashboard;
     }
   }
-
 }

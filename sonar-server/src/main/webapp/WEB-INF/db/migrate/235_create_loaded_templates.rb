@@ -25,14 +25,14 @@ class CreateLoadedTemplates < ActiveRecord::Migration
 
   def self.up
     create_table 'loaded_templates' do |t|
-      t.column 'kee',     :string,    :null => true,    :limit => 200
-      t.column 'template_type',    :string,    :null => true,    :limit => 15      
+      t.column 'kee', :string, :null => true, :limit => 200
+      t.column 'template_type', :string, :null => true, :limit => 15
     end
-    
+
     # if this is a migration, then the default dashboard already exists in the DB so it should not be loaded again
     default_dashboard = Dashboard.find(:first, :conditions => {:name => 'Dashboard', :user_id => nil})
     if default_dashboard
-      LoadedTemplate.create({:kee => 'dashboard', :template_type => 'DASHBOARD'})
+      LoadedTemplate.create({:template_type => 'DASHBOARD', :kee => 'Dashboard'})
     end
   end
 

@@ -32,6 +32,16 @@ public class DashboardDao implements BatchComponent, ServerComponent {
     this.mybatis = mybatis;
   }
 
+  public DashboardDto selectGlobalDashboard(String name) {
+    SqlSession sqlSession = mybatis.openSession();
+    try {
+      DashboardMapper mapper = sqlSession.getMapper(DashboardMapper.class);
+      return mapper.selectGlobalDashboard(name);
+    } finally {
+      sqlSession.close();
+    }
+  }
+
   public void insert(DashboardDto dashboardDto) {
     SqlSession session = mybatis.openSession();
     DashboardMapper dashboardMapper = session.getMapper(DashboardMapper.class);

@@ -29,10 +29,10 @@ import static org.junit.Assert.assertThat;
 public class DefaultDashboardTest {
   @Test
   public void shouldCreateDashboard() {
-    Dashboard main = new DefaultDashboard().createDashboard();
-    assertThat(main.getId(), Is.is("dashboard"));
-    assertThat(main.getName(), Is.is("Dashboard"));
-    assertThat(main.getLayout(), Is.is(DashboardLayout.TWO_COLUMNS));
-    assertThat(main.getWidgets().size(), Is.is(11));
+    DefaultDashboard template = new DefaultDashboard();
+    Dashboard dashboard = template.createDashboard();
+    assertThat(template.getName(), Is.is("Dashboard"));
+    assertThat(dashboard.getLayout(), Is.is(DashboardLayout.TWO_COLUMNS));
+    assertThat(dashboard.getWidgets().size(), Is.is(11));
   }
 }
