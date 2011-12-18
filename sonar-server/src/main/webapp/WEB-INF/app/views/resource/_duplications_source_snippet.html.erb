@@ -1,4 +1,4 @@
-<div class="<%= 'expanded' if to_line == from_line + lines_count -%>">
+<div class="<%= 'expanded' if to_line == from_line + lines_count -1 -%>">
   <%
      if external
        parent_project = resource.project
@@ -27,19 +27,19 @@
 
   <%= snapshot_source_to_html(resource.last_snapshot, {:line_range => from_line..to_line}) -%>
 
-  <% if lines_count > 5 %>
+  <% if lines_count > ResourceHelper::DUPLICATION_SNIPPET_DEFAULT_NB_OF_LINES %>
     <p class="small">
       <%
-         if to_line < from_line + lines_count
+         if to_line < from_line + lines_count -1
            link_text = message('duplications.expand')
-           to_line = from_line + lines_count - 1
+           included_to_line = from_line + lines_count - 1
          else
            link_text = message('duplications.collapse')
-           to_line = from_line + 5
+           included_to_line = from_line + ResourceHelper::DUPLICATION_SNIPPET_DEFAULT_NB_OF_LINES - 1
          end
       %>
       <%= link_to_remote link_text,
-                         :url => {:action => :show_duplication_snippet, :params => {:id => resource.id, :original_resource_id => original_resource.id, :from_line => from_line, :to_line => to_line, :lines_count => lines_count, :group_index => group_index}},
+                         :url => {:action => :show_duplication_snippet, :params => {:id => resource.id, :original_resource_id => original_resource.id, :from_line => from_line, :to_line => included_to_line, :lines_count => lines_count, :group_index => group_index}},
                          :update => "source-#{group_index}",
                          :before => "$('expanding-#{group_index}').addClassName('loading')" -%>
       <span id="expanding-<%= group_index -%>"></span>

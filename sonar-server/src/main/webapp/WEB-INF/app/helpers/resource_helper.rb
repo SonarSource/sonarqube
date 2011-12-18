@@ -18,5 +18,5 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 module ResourceHelper
-  
+  DUPLICATION_SNIPPET_DEFAULT_NB_OF_LINES = 6
 end
