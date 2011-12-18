@@ -1,15 +1,34 @@
 <%
-  open_reviews_url = link_to action_plan.progress[:open].to_s, 
-                             :controller => 'reviews', :action => 'index', 
-                             :action_plans => [action_plan.id], :statuses => [Review::STATUS_OPEN, Review::STATUS_REOPENED], :assignee_login => ''
+  unless action_plan.progress[:total]==0
+    options = {:controller => 'project_reviews', :action => 'index', :action_plan_id => action_plan.id, :projects => action_plan.project_id}
   
-  total_reviews_url = link_to action_plan.progress[:total].to_s, 
-                              :controller => 'reviews', :action => 'index', 
-                              :action_plans => [action_plan.id], :statuses => [''], :assignee_login => ''
+    resolved_reviews_link = link_to action_plan.progress[:resolved].to_s, options.merge({:statuses => "#{Review::STATUS_RESOLVED},#{Review::STATUS_CLOSED}"})
+    total_reviews_link = link_to action_plan.progress[:total].to_s, options
+
+    resolved_reviews_url = url_for options.merge({:statuses => "#{Review::STATUS_RESOLVED},#{Review::STATUS_CLOSED}"})
+    open_reviews_url = url_for options.merge({:statuses => "#{Review::STATUS_OPEN},#{Review::STATUS_REOPENED}"})
+  
+    percent_resolved = (action_plan.progress[:resolved]*100/action_plan.progress[:total]).to_i
+    percent_open = (action_plan.progress[:open]*100/action_plan.progress[:total]).to_i
+    
+    tooltip_resolved = message('action_plans.resolved_reviews_x_percent', :params => [percent_resolved.to_s, action_plan.progress[:resolved].to_s])
+    tooltip_open = message('action_plans.open_reviews_x_percent', :params => [percent_open.to_s, action_plan.progress[:open].to_s])
 %>
+
 <div class="progress">
-  <div class="bar">
-    <div style="width:<%= action_plan.progress[:total]==0 ? '0' : action_plan.progress[:open]*100/action_plan.progress[:total] -%>%;"> </div>
-  </div>
-  <div class="note"><%= message('action_plans.x_out_of_x_reviews_solved', :params => [open_reviews_url, total_reviews_url]) -%></div>
+  <table>
+    <tbody>
+      <tr>
+        <td class="resolved" style="width:<%= percent_resolved -%>%;">
+          <a href="<%= resolved_reviews_url -%>" title="<%= tooltip_resolved -%>" alt="<%= tooltip_resolved -%>"></a>
+        </td>
+        <td class="open" style="width:<%= percent_open -%>%;">
+          <a href="<%= open_reviews_url -%>" title="<%= tooltip_open -%>" alt="<%= tooltip_open -%>"></a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="note"><%= message('action_plans.x_out_of_x_reviews_solved', :params => [resolved_reviews_link, total_reviews_link]) -%></div>
 </div>
+
+<% end %>

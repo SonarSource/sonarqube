@@ -1226,20 +1226,28 @@ div.comment-excerpt {
 /* ACTION PLANS */
 
 div.progress {
-  width: 400px;
+  width: 100%;
   margin: 4px;
 }
 
-div.progress div.bar {
+div.progress table {
   width: 100%;
-  background-color: #CC0000;
-  border: none;
-  margin-bottom: 4px;
 }
 
-div.progress > div > div {
+div.progress td {
   height: 10px;
+}
+
+div.progress td a {
+  display: block; width: 100%; height: 100%;
+}
+
+div.progress td.resolved {
   background-color: #078C00;
+}
+
+div.progress td.open {
+  background-color: #CC0000;
 }
 
 div.progress div.note {

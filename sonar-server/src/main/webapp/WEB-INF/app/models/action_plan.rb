@@ -51,7 +51,7 @@ class ActionPlan < ActiveRecord::Base
   def progress
     total_reviews = reviews.size
     open_reviews = reviews.select{|r| r.open? || r.reopened?}.size
-    {:total => total_reviews, :open => open_reviews}
+    {:total => total_reviews, :open => open_reviews, :resolved => total_reviews-open_reviews}
   end
 
   private

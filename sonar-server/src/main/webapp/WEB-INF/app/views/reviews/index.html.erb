@@ -1,26 +1,3 @@
-<script>
-  function reviewIdFieldModified(field) {
-    if (field.value != '') {
-      $('statuses').value = ''
-      $('severities').value = ''
-      $('projects').value = ''
-      $('author_login').value = ''
-      $('autocompleteText-author_login').value = ''
-      $('assignee_login').value = ''
-      $('autocompleteText-assignee_login').value = ''
-      $('false_positives').value = 'with'
-    }
-  }
-  function launchSearch(columnName, link) {
-    $('sort').value = columnName
-    if ($('asc').value == "true") {
-      $('asc').value = "false";
-    } else {
-      $('asc').value = "true";
-    }
-    document.forms[0].submit()
-  }
-</script>
 <div id="reviews-search">
   <h1><%= message('reviews') -%></h1>
   <% form_tag({:action => 'index'}, {:method => 'get'}) do %>
@@ -100,115 +77,32 @@
   <% end %>
 
 
-  <%
-     if @reviews && !@reviews.empty?
-  %>
-    <% if @false_positives=='only' %>
-      <span class="falsePositive"><%= message('reviews.showing_false_positives_only') -%></span>
-    <% end %>
-    <%
-       if params[:from] && params[:to]
-         from = Time.parse(params[:from])
-         to = Time.parse(params[:to])
-    %>
-      <div style="color:#777777; font-size:93%; padding: 4px 0px 4px 10px;">
-        <span style="background-color: #FFF6BF; padding-left: 5px; padding-right: 5px;">
-          <%= message('reviews.reviews_filtered_by_date_x_to_y', :params => [l(from, :format => '%d %B %Y'), l(to, :format => '%d %B %Y')]) -%>
-        </span>
-      </div>
-    <% end %>
-
-    <table id="reviews-list" class="data width100">
-      <thead>
-      <tr>
-        <th width="1%" nowrap>
-          <a href="#" onClick="launchSearch('status', this)"><%= message('status_abbreviated') -%></a>
-          <%= image_tag(@asc ? "asc12.png" : "desc12.png") if @sort == 'status' -%>
-        </th>
-        <th width="1%" nowrap>
-          <a href="#" onClick="launchSearch('id', this)"><%= message('identifier_abbreviated') -%></a>
-          <%= image_tag(@asc ? "asc12.png" : "desc12.png") if @sort == 'id' -%>
-        </th>
-        <th width="1%" nowrap>
-          <a href="#" onClick="launchSearch('severity', this)"><%= message('severity_abbreviated') -%></a>
-          <%= image_tag(@asc ? "asc12.png" : "desc12.png") if @sort == 'severity' -%>
-        </th>
-        <th>
-          <a href="#" onClick="launchSearch('title', this)"><%= message('title') -%></a>
-          <%= image_tag(@asc ? "asc12.png" : "desc12.png") if @sort == 'title' -%>
-        </th>
-        <th width="1%"><%= message('project') -%></th>
-        <th><%= message('assignee') -%></th>
-        <th>
-          <a href="#" onClick="launchSearch('updated_at', this)"><%= message('age') -%></a>
-          <%= image_tag(@asc ? "asc12.png" : "desc12.png") if @sort == 'updated_at' -%>
-        </th>
-      </tr>
-      </thead>
-      <tfoot>
-      <tr>
-        <td colspan="6">
-          <%= @total_number -%> <%= message('results').downcase -%>
-          <% if @page_count %>
-            |
-            <%= link_to_if @page_id>1, message('paging_previous'), {:overwrite_params => {:page_id => @page_id-1}} %>
-            <% for index in 1..@page_count %>
-              <%= link_to_unless index==@page_id, index.to_s, {:overwrite_params => {:page_id => index}} %>
-            <% end %>
-            <%= link_to_if @page_id<@page_count, message('paging_next'), {:overwrite_params => {:page_id => 1+@page_id}} %>
-          <% end %>
-        </td>
-      </tr>
-      </tfoot>
-      <tbody>
-      <%
-         @reviews.each do |review|
-           comment = review.comments.last
-      %>
-        <tr class="<%= cycle('even', 'odd') -%>">
-          <td><img src="<%= ApplicationController.root_context -%>/images/status/<%= review.status -%>.png" title="<%= message(review.status.downcase).capitalize -%>"/></td>
-          <td>
-            <%= link_to h(review.id), :controller => "reviews", :action => "view", :id => review.id -%>
-          </td>
-          <td><img src="<%= ApplicationController.root_context -%>/images/priority/<%= review.severity -%>.png" title="<%= message(review.severity.downcase).capitalize -%>"/></td>
-          <td>
-            <%= link_to h(review.title), :controller => "reviews", :action => "view", :id => review.id -%>
-            <% if comment %>
-              <div class="comment-excerpt">
-                <img src="<%= ApplicationController.root_context -%>/images/reviews/comment.png"/>
-                &nbsp;<b><%= comment.user.name -%> :</b>
-                <%= comment.excerpt -%>
-            <% end %>
-            </div>
-          </td>
-          <td>
-            <span class="nowrap"><%= review.project.name -%></span>
-            <br/>
-            <span class="note"><%= review.resource.name -%></span></td>
-          <td><%= review.assignee ? h(review.assignee.name) : '-' -%></td>
-          <td><%= distance_of_time_in_words_to_now(review.updated_at) -%></td>
-        </tr>
-      <%
-         end
-      %>
-      </tbody>
-    </table>
-  <%
-     elsif @reviews
-  %>
-    <p><%= message('no_results') -%></p>
-  <%
-     end
-  %>
-
-  <% if @security_exclusions %>
-    <br/>
-
-    <p class="notes"><%= message('results_not_display_due_to_security') -%></p>
-  <% end %>
+  <%= render :partial => "list" -%>
 
 </div>
 
 <script>
+  function reviewIdFieldModified(field) {
+    if (field.value != '') {
+      $('statuses').value = ''
+      $('severities').value = ''
+      $('projects').value = ''
+      $('author_login').value = ''
+      $('autocompleteText-author_login').value = ''
+      $('assignee_login').value = ''
+      $('autocompleteText-assignee_login').value = ''
+      $('false_positives').value = 'with'
+    }
+  }
+  function launchSearch(columnName, link) {
+    $('sort').value = columnName
+    if ($('asc').value == "true") {
+      $('asc').value = "false";
+    } else {
+      $('asc').value = "true";
+    }
+    document.forms[0].submit()
+  }
+
   $('review_id').focus();
 </script>

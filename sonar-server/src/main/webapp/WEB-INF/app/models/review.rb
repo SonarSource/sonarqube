@@ -227,7 +227,6 @@ class Review < ActiveRecord::Base
     conditions=[]
     values={}
 
-
     if options['id'].present?
       conditions << 'id=:id'
       values[:id]=options['id'].to_i
@@ -236,8 +235,7 @@ class Review < ActiveRecord::Base
       conditions << 'id in (:ids)'
       values[:ids]=ids.map { |id| id.to_i }
     else
-
-
+      
       # --- 'review_type' is deprecated since 2.9 ---
       # Following code just for backward compatibility
       review_type = options['review_type']
@@ -319,6 +317,15 @@ class Review < ActiveRecord::Base
           values[:assignees]=User.logins_to_ids(assignees)
         else
           values[:assignees]=assignees.map { |user_id| user_id.to_i }
+        end
+      end
+      
+      action_plan_id = options['action_plan_id']
+      if action_plan_id
+        action_plan = ActionPlan.find action_plan_id.to_i, :include => 'reviews'
+        if action_plan
+          conditions << 'id in (:ids)'
+          values[:ids]=action_plan.reviews.map { |r| r.id }
         end
       end
 

@@ -3,6 +3,7 @@
     vertical-align: top;
   }
   #actionPlans td.progress {
+    width: 300px;
     padding: 0px 40px;
   }    
 </style>
@@ -39,7 +40,7 @@
     <tr>
       <td class="thin nowrap center"><img src="<%= ApplicationController.root_context -%>/images/status/<%= plan.status -%>.png" title="<%= message(plan.status.downcase).capitalize -%>"/></td>
       <td class="thin nowrap"><%= h(plan.name) -%></td>
-      <td class="thin nowrap" align="right"><%= plan.dead_line ? plan.dead_line.strftime('%Y/%m/%d') : ' '  -%></td>
+      <td class="thin nowrap" align="right" x="<%= plan.dead_line ? plan.dead_line.tv_sec : '' -%>"><%= plan.dead_line ? l(plan.dead_line) : ' '  -%></td>
       <td class="progress thin">
         <%= render :partial => 'progress', :locals => {:action_plan => plan} -%>
       </td>
