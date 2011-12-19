@@ -37,6 +37,8 @@ public final class DatabaseUtils {
    * for all the supported databases, particularly due to Oracle results.
    */
   public static final String[] TABLE_NAMES = {
+    "action_plans",
+    "action_plans_reviews",
     "active_dashboards",
     "active_filters",
     "active_rules",
