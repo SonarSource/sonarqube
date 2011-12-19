@@ -33,6 +33,10 @@ class ActionPlan < ActiveRecord::Base
   STATUS_OPEN = 'OPEN'
   STATUS_CLOSED = 'CLOSED'
   
+  def self.by_project_id(project_id)
+    ActionPlan.find :all, :conditions => ['project_id=?', project_id], :order => :name
+  end
+  
   def user
     @user ||=
         begin

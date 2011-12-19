@@ -38,6 +38,11 @@
                              :url => {:controller => "reviews", :action => "change_severity_form", :id => review.id},
                              :update => "actionForm",
                              :complete => "$('actionButtons').remove();$('actionForm').show();$('selectSeverity').focus();" -%>
+
+        <%= button_to_remote message('reviews.link_to_action_plan'),
+                             :url => {:controller => "reviews", :action => "action_plan_form", :id => review.id},
+                             :update => "actionForm",
+                             :complete => "$('actionButtons').remove();$('actionForm').show();$('selectSeverity').focus();" -%>
       <% end %>
     </div>
   <% end %>
@@ -90,6 +95,16 @@
         <%= l(review.updated_at) -%>
       </td>
     </tr>
+    <% if review.planned? %>
+      <tr>
+        <td class="key">
+          <%= message('reviews.planned_for_label') -%>:
+        </td>
+        <td class="val" colspan="3">
+          <%= h(review.action_plan.name) -%>
+        </td>
+      </tr>
+    <% end %>
     <% if review.rule %>
       <tr>
         <td class="key">

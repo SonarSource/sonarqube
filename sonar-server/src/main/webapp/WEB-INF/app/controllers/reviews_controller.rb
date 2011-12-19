@@ -25,7 +25,8 @@ class ReviewsController < ApplicationController
   verify :method => :post,
          :only => [:assign, :flag_as_false_positive, :save_comment, :delete_comment, :change_status,
                    :violation_assign, :violation_flag_as_false_positive, :violation_change_severity,
-                   :violation_save_comment, :violation_delete_comment, :violation_change_status],
+                   :violation_save_comment, :violation_delete_comment, :violation_change_status,
+                   :violation_link_to_action_plan],
          :redirect_to => {:action => :error_not_post}
   helper SourceHelper, UsersHelper
 
@@ -186,6 +187,27 @@ class ReviewsController < ApplicationController
     render :partial => "reviews/review"
   end
 
+  # GET
+  def action_plan_form
+    @review = Review.find(params[:id])
+    @action_plans = ActionPlan.by_project_id(@review.project_id)
+    render :partial => 'reviews/action_plan_form'
+  end
+  
+  # POST
+  def link_to_action_plan
+    @review = Review.find(params[:id])
+    unless has_rights_to_modify?(@review.project)
+      render :text => "<b>Cannot link to action plan</b> : access denied."
+      return
+    end
+    
+    action_plan = params[:action_plan_id].to_i==-1 ? nil : ActionPlan.find(params[:action_plan_id])
+    @review.link_to_action_plan(action_plan, current_user, params)
+
+    render :partial => "reviews/review"
+  end
+
 
   #
   #
@@ -252,13 +274,11 @@ class ReviewsController < ApplicationController
     render :partial => "resource/violation", :locals => {:violation => violation}
   end
 
-
   # GET
   def violation_false_positive_form
     @violation = RuleFailure.find(params[:id])
     render :partial => 'reviews/violation_false_positive_form'
   end
-
 
   # POST
   def violation_flag_as_false_positive
@@ -355,6 +375,31 @@ class ReviewsController < ApplicationController
       # for the moment, if a review is not open, it can only be "RESOLVED"
       violation.review.resolve(current_user, params)
     end
+
+    render :partial => "resource/violation", :locals => {:violation => violation}
+  end
+
+  # GET
+  def violation_action_plan_form
+    @violation = RuleFailure.find(params[:id], :include => ['review', 'snapshot'])
+    @action_plans = ActionPlan.by_project_id(@violation.snapshot.root_project_id)
+    render :partial => 'reviews/violation_action_plan_form'
+  end
+  
+  # POST
+  def violation_link_to_action_plan
+    violation = RuleFailure.find(params[:id], :include => 'snapshot')
+    unless has_rights_to_modify?(violation.snapshot)
+      render :text => "<b>Cannot link to action plan</b> : access denied."
+      return
+    end
+    sanitize_violation(violation)
+    
+    if violation.review.nil?
+      violation.build_review(:user_id => current_user.id)
+    end
+    action_plan = params[:action_plan_id].to_i==-1 ? nil : ActionPlan.find(params[:action_plan_id])
+    violation.review.link_to_action_plan(action_plan, current_user, params)
 
     render :partial => "resource/violation", :locals => {:violation => violation}
   end

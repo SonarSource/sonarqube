@@ -201,6 +201,19 @@ class Review < ActiveRecord::Base
     notification_manager.notifyChanged(id.to_i, user.login.to_java, old, to_java_map("comment" => options[:text]))
   end
 
+  def link_to_action_plan(action_plan, user, options={})
+    if options[:text].present?
+      comments.create!(:user => user, :text => options[:text])
+    end
+    old = self.to_java_map
+    self.action_plans.clear
+    if action_plan
+      self.action_plans << action_plan
+    end
+    self.save!
+    notification_manager.notifyChanged(id.to_i, user.login.to_java, old, to_java_map("action_plans" => action_plan ? action_plan.name : ''))
+  end
+
   def resolved?
     status == STATUS_RESOLVED
   end
@@ -215,6 +228,19 @@ class Review < ActiveRecord::Base
 
   def open?
     status == STATUS_OPEN
+  end
+  
+  def linked_to? (action_plan)
+    action_plans.include? action_plan
+  end
+  
+  def planned?
+    action_plans.size!=0
+  end
+  
+  # used as long as we currently allow to link a review to only 1 action plan.
+  def action_plan
+    action_plans[0]
   end
 
   #

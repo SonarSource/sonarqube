@@ -117,6 +117,22 @@
     return false;
   }
 
+  // show the form to link a review to an action plan
+  function sAPF(violation_id) {
+    new Ajax.Updater('reviewForm' + violation_id,
+      '<%= ApplicationController.root_context -%>/reviews/violation_action_plan_form/' + violation_id,
+      {
+        asynchronous:true,
+        evalScripts:true,
+        onComplete:function (request) {
+          $('vBody' + violation_id).remove();
+          $('reviewForm' + violation_id).show();
+          $('action_plan').focus();
+        }
+      });
+    return false;
+  }
+
   // show the form to create violation
   function sVF(resource, line, gray_colspan, white_colspan) {
     row = $('createViolationForm' + line);

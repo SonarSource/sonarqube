@@ -53,6 +53,12 @@
         <%= message('assigned_to') -%> <%= h(violation.review.assignee.name) -%>
         &nbsp;
       <% end %>
+      <% if violation.review && violation.review.planned? %>
+        <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
+        &nbsp;
+        <%= message('reviews.planned_for_x', :params => h(violation.review.action_plan.name)) -%>
+        &nbsp;
+      <% end %>
 
     </div>
 
@@ -78,6 +84,8 @@
 
           <% unless violation.review && violation.review.resolved? %>
             <%= button_to_function message('reviews.change_severity'), "sCSF(#{violation.id})", :name => 'bChangeSeverity' -%>
+            
+            <%= button_to_function message('reviews.link_to_action_plan'), "sAPF(#{violation.id})", :name => 'bLinkActionPlan' -%>
           <% end %>
         </div>
       <% end %>

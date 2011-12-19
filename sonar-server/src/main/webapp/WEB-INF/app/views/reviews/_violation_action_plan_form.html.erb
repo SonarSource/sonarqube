@@ -1,0 +1,27 @@
+<form method="POST" action="violation_link_to_action_plan">
+  <input type="hidden" name="id" value="<%= params[:id] -%>"/>
+
+  <%= message('reviews.action_plan_label') -%>:
+  <select name="action_plan_id" id="selectActionPlan<%= params[:id] -%>">
+    <option value="-1" <%= 'selected' if !@violation.review || (@violation.review && !@violation.review.planned?) -%>><%= message('reviews.no_action_plan') -%></option>
+    <% @action_plans.each do |plan| %>
+      <option value="<%= plan.id -%>" <%= 'selected' if @violation.review && @violation.review.linked_to?(plan) -%>><%= h(plan.name) -%></option>
+    <% end %>
+  </select>
+
+  <table class="width100">
+    <tr>
+      <td style="vertical-align:top">
+        <textarea id="commentText<%= params[:id] -%>" rows="4" name="text" style="width: 100%"></textarea>
+      </td>
+      <td class="sep"></td>
+      <td style="vertical-align:top;width: 90px">
+        <%= render :partial => 'markdown/help' -%>
+      </td>
+    </tr>
+  </table>
+
+  <%= submit_to_remote "submit_btn"+params[:id], message('reviews.action_plan_submit'), :url => {:action => 'violation_link_to_action_plan'}, :html => {:id => "submit_btn"+params[:id]}, :update => 'vId'+params[:id] -%>
+  &nbsp;
+  <%= link_to_function message('cancel'), "cancelViolationAction(#{params[:id]})" -%>
+</form>
