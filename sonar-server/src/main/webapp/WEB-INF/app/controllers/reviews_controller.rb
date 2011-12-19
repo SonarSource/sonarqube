@@ -435,7 +435,7 @@ class ReviewsController < ApplicationController
       options['to']=@to
     end
     unless @id == ''
-      if is_number? @id
+      if Api::Utils.is_integer? @id
         options['id'] = @id
       else
         options['id'] = -1
@@ -449,24 +449,6 @@ class ReviewsController < ApplicationController
     if found_reviews.size != @reviews.size
       @security_exclusions = true
     end
-
-    # table pagination
-    @page_size = 20
-    @page_size = params[:page_size].to_i if is_number?(params[:page_size]) && params[:page_size].to_i > 5
-    @total_number = @reviews.size
-    if @reviews.size > @page_size
-      @page_id = (params[:page_id] ? params[:page_id].to_i : 1)
-      @page_count = @reviews.size / @page_size
-      @page_count += 1 if (@reviews.size % @page_size > 0)
-      from = (@page_id-1) * @page_size
-      to = (@page_id*@page_size)-1
-      to = @reviews.size-1 if to >= @reviews.size
-      @reviews = @reviews[from..to]
-    end
-  end
-
-  def is_number?(s)
-    true if Float(s) rescue false
   end
 
   def has_rights_to_modify?(object)

@@ -46,15 +46,7 @@
       <tfoot>
       <tr>
         <td colspan="6">
-          <%= @total_number -%> <%= message('results').downcase -%>
-          <% if @page_count %>
-            |
-            <%= link_to_if @page_id>1, message('paging_previous'), {:overwrite_params => {:page_id => @page_id-1}} %>
-            <% for index in 1..@page_count %>
-              <%= link_to_unless index==@page_id, index.to_s, {:overwrite_params => {:page_id => index}} %>
-            <% end %>
-            <%= link_to_if @page_id<@page_count, message('paging_next'), {:overwrite_params => {:page_id => 1+@page_id}} %>
-          <% end %>
+          <%= paginate(@reviews) -%>
         </td>
       </tr>
       </tfoot>

@@ -550,4 +550,47 @@ module ApplicationHelper
     html = options[:default].to_s if html.nil? && options[:default]
     html
   end
+  
+  #
+  # Creates a pagination section for the given array (items_array) if its size exceeds the pagination size (default: 20).
+  # Upon completion of this method, the HTML is returned and the given array contains only the selected elements.
+  #
+  # In any case, the HTML that is returned contains the message 'x results', where x is the total number of elements
+  # in the items_array object.
+  #
+  # === Optional parameters
+  # * page_size: the number of elements to display at the same time (= the pagination size)
+  # 
+  def paginate(items_array, options={})
+    html = items_array.size.to_s + " " + message('results').downcase
+    
+    page_size = options[:page_size] || 20    
+    if items_array.size > page_size
+      # computes the pagination elements
+      page_id = (params[:page_id] ? params[:page_id].to_i : 1)
+      page_count = items_array.size / page_size
+      page_count += 1 if (items_array.size % page_size > 0)
+      from = (page_id-1) * page_size
+      to = (page_id*page_size)-1
+      to = items_array.size-1 if to >= items_array.size
+      
+      # render the pagination links
+      html += " | "
+      html += link_to_if page_id>1, message('paging_previous'), {:overwrite_params => {:page_id => page_id-1}}
+      html += " "
+      for index in 1..page_count
+        html += link_to_unless index==page_id, index.to_s, {:overwrite_params => {:page_id => index}}
+        html += " "
+      end
+      html += link_to_if page_id<page_count, message('paging_next'), {:overwrite_params => {:page_id => 1+page_id}}
+      
+      # and adapt the items_array object according to the pagination
+      items_to_keep = items_array[from..to]
+      items_array.clear
+      items_to_keep.each {|i| items_array << i} 
+    end
+    
+    html    
+  end
+  
 end
