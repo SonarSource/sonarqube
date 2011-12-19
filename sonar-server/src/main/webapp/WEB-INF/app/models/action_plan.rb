@@ -28,7 +28,6 @@ class ActionPlan < ActiveRecord::Base
   validates_presence_of :user_login, :message => "can't be empty"
   validates_presence_of :status, :message => "can't be empty"
   validates_presence_of :project, :message => "can't be empty"
-  validate :dead_line_cannot_be_in_the_past
 
   STATUS_OPEN = 'OPEN'
   STATUS_CLOSED = 'CLOSED'
@@ -63,15 +62,7 @@ class ActionPlan < ActiveRecord::Base
   end
   
   def over_due?
-    dead_line ? dead_line.past? : false
-  end
-
-  private
-
-  def dead_line_cannot_be_in_the_past
-    if !dead_line.blank? and dead_line < Date.today
-      errors.add(:dead_line, Api::Utils.message('action_plans.date_cant_be_in_past'))
-    end
+    dead_line ? status==STATUS_OPEN && dead_line.past? : false
   end
 
 end

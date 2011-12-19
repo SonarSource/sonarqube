@@ -24,6 +24,7 @@ class ReviewsController < ApplicationController
 
   verify :method => :post,
          :only => [:assign, :flag_as_false_positive, :save_comment, :delete_comment, :change_status,
+                   :link_to_action_plan,
                    :violation_assign, :violation_flag_as_false_positive, :violation_change_severity,
                    :violation_save_comment, :violation_delete_comment, :violation_change_status,
                    :violation_link_to_action_plan],

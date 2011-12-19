@@ -43,12 +43,20 @@ class ActionPlansController < ApplicationController
                                     :project_id => @resource.id,
                                     :status => ActionPlan::STATUS_OPEN)
     end
+    
     @action_plan.name = params[:name]
     @action_plan.description = params[:description]
-    begin
-      @action_plan.dead_line = Date.strptime(params[:dead_line], '%d/%m/%Y') unless params[:dead_line].blank?
-    rescue
-      date_not_valid = message('action_plans.date_not_valid')
+    unless params[:dead_line].blank?
+      begin
+        dead_line = Date.strptime(params[:dead_line], '%d/%m/%Y')
+        if dead_line.past?
+          date_not_valid = message('action_plans.date_cant_be_in_past')
+        else
+          @action_plan.dead_line = dead_line
+        end 
+      rescue
+        date_not_valid = message('action_plans.date_not_valid')
+      end
     end
 
     if date_not_valid || !@action_plan.valid?
