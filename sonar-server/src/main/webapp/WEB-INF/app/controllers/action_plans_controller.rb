@@ -22,7 +22,7 @@ class ActionPlansController < ApplicationController
 
   SECTION=Navigation::SECTION_RESOURCE
   before_filter :load_resource
-  verify :method => :post, :only => [:save, :delete], :redirect_to => {:action => :index}
+  verify :method => :post, :only => [:save, :delete, :change_status], :redirect_to => {:action => :index}
 
   def index
     @action_plans = ActionPlan.find(:all, :conditions => ['project_id=?', @resource.id], :include => 'reviews', :order => 'dead_line ASC')
@@ -63,6 +63,15 @@ class ActionPlansController < ApplicationController
   def delete
     action_plan = ActionPlan.find params[:plan_id]
     action_plan.destroy
+    redirect_to :action => 'index', :id => @resource.id
+  end
+
+  def change_status
+    action_plan = ActionPlan.find params[:plan_id]
+    if action_plan
+      action_plan.status = action_plan.open? ? ActionPlan::STATUS_CLOSED : ActionPlan::STATUS_OPEN
+      action_plan.save
+    end
     redirect_to :action => 'index', :id => @resource.id
   end
 

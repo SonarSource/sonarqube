@@ -47,7 +47,11 @@
       <td id="desc"><%= h(plan.description) -%></td>
       <td id="desc"><%= h(plan.user.name) -%></td>
       <td class="thin nowrap">
-        <a href="<%= url_for :action => 'new', :id => @resource.id, :plan_id => plan.id -%>"><%= message('edit') -%></a>
+        <% if plan.open? %>
+          <%= link_to message('edit'), {:action => 'new', :id => @resource.id, :plan_id => plan.id}, {:class => 'action'} -%>
+        <% end %>
+        <%= link_to plan.open? ? message('action_plans.close') : message('action_plans.reopen'), 
+                    {:action => 'change_status', :id => @resource.id, :plan_id => plan.id}, {:method => 'POST', :class => 'action'} -%>
         <%= link_to message('delete'), {:action => 'delete', :id => @resource.id, :plan_id => plan.id}, {:method => 'POST', :confirm => message('action_plans.confirm_delete'), :class => 'action'} -%>
       </td>
     </tr>
