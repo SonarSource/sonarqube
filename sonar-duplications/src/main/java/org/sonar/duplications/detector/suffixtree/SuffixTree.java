@@ -108,7 +108,7 @@ public final class SuffixTree {
   }
 
   private void updateSuffixNode(Node node, Node suffixNode) {
-    if ((node != null) && (node != root)) {
+    if ((node != null) && (!node.equals(root))) {
       node.setSuffixNode(suffixNode);
     }
   }

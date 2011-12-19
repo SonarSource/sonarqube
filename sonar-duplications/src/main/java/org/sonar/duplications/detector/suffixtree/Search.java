@@ -72,7 +72,7 @@ public final class Search {
         list.add(node.depth);
         node.endSize = list.size();
       } else {
-        if (node != tree.getRootNode()) { // inner node = not leaf and not root
+        if (!node.equals(tree.getRootNode())) { // inner node = not leaf and not root
           innerNodes.add(node);
         }
         for (Edge edge : node.getEdges()) {
