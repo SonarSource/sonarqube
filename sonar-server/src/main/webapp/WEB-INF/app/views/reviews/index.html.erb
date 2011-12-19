@@ -76,6 +76,9 @@
     </table>
   <% end %>
 
+  <% if @false_positives=='only' %>
+    <span class="falsePositive"><%= message('reviews.showing_false_positives_only') -%></span>
+  <% end %>
 
   <%= render :partial => "list" -%>
 
