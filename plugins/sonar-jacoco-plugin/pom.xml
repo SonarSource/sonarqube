@@ -37,7 +37,7 @@
   </developers>
 
   <properties>
-    <jacoco.version>0.5.3.201107060350</jacoco.version>
+    <jacoco.version>0.5.5.201112152213</jacoco.version>
 
     <sonar.pluginName>JaCoCo</sonar.pluginName>
     <sonar.pluginClass>org.sonar.plugins.jacoco.JaCoCoPlugin</sonar.pluginClass>
