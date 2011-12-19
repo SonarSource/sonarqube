@@ -36,7 +36,6 @@
     <class>org.sonar.api.rules.ActiveRuleParamChange</class>
     <class>org.sonar.jpa.entity.Review</class>
     <class>org.sonar.jpa.entity.NotificationQueueElement</class>
-    <class>org.sonar.jpa.entity.DuplicationBlock</class>
 
     <properties>
       <property name="hibernate.current_session_context_class" value="thread"/>

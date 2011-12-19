@@ -24,8 +24,6 @@ package org.sonar.persistence.duplication;
  */
 public final class DuplicationUnitDto {
 
-  private Long id;
-
   private Integer snapshotId;
   private Integer projectSnapshotId;
 
@@ -46,14 +44,6 @@ public final class DuplicationUnitDto {
     this.indexInFile = indexInFile;
     this.startLine = startLine;
     this.endLine = endLine;
-  }
-
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
   }
 
   public Integer getSnapshotId() {

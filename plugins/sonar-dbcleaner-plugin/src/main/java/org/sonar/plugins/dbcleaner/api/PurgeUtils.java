@@ -33,7 +33,6 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.database.model.SnapshotSource;
 import org.sonar.api.design.DependencyDto;
 import org.sonar.api.utils.TimeProfiler;
-import org.sonar.jpa.entity.DuplicationBlock;
 
 /**
  * @since 2.5
@@ -70,7 +69,7 @@ public final class PurgeUtils {
     deleteSnapshots(session, snapshotIds);
   }
 
-  public static  void deleteDependencies(DatabaseSession session, List<Integer> snapshotIds) {
+  public static void deleteDependencies(DatabaseSession session, List<Integer> snapshotIds) {
     executeQuery(session, "delete dependencies", snapshotIds, "delete from " + DependencyDto.class.getSimpleName() + " d where d.fromSnapshotId in (:ids)");
     executeQuery(session, "delete dependencies", snapshotIds, "delete from " + DependencyDto.class.getSimpleName() + " d where d.toSnapshotId in (:ids)");
   }
@@ -78,7 +77,7 @@ public final class PurgeUtils {
   /**
    * Delete all measures, including MEASURE_DATA
    */
-  public static  void deleteMeasuresBySnapshotId(DatabaseSession session, List<Integer> snapshotIds) {
+  public static void deleteMeasuresBySnapshotId(DatabaseSession session, List<Integer> snapshotIds) {
     executeQuery(session, "delete measures by snapshot id", snapshotIds, "delete from " + MeasureData.class.getSimpleName() + " m where m.snapshotId in (:ids)");
     executeQuery(session, "delete measures by snapshot id", snapshotIds, "delete from " + MeasureModel.class.getSimpleName() + " m where m.snapshotId in (:ids)");
   }
@@ -86,7 +85,7 @@ public final class PurgeUtils {
   /**
    * Delete all measures, including MEASURE_DATA
    */
-  public static  void deleteMeasuresById(DatabaseSession session, List<Integer> measureIds) {
+  public static void deleteMeasuresById(DatabaseSession session, List<Integer> measureIds) {
     executeQuery(session, "delete measures by id", measureIds, "delete from " + MeasureData.class.getSimpleName() + " m where m.measure.id in (:ids)");
     executeQuery(session, "delete measures by id", measureIds, "delete from " + MeasureModel.class.getSimpleName() + " m where m.id in (:ids)");
   }
@@ -94,58 +93,73 @@ public final class PurgeUtils {
   /**
    * Delete SNAPSHOT_SOURCES table
    */
-  public static  void deleteSources(DatabaseSession session, List<Integer> snapshotIds) {
+  public static void deleteSources(DatabaseSession session, List<Integer> snapshotIds) {
     executeQuery(session, "delete sources", snapshotIds, "delete from " + SnapshotSource.class.getSimpleName() + " e where e.snapshotId in (:ids)");
   }
 
   /**
    * Delete violations (RULE_FAILURES table)
    */
-  public static  void deleteViolations(DatabaseSession session, List<Integer> snapshotIds) {
+  public static void deleteViolations(DatabaseSession session, List<Integer> snapshotIds) {
     executeQuery(session, "delete violations", snapshotIds, "delete from " + RuleFailureModel.class.getSimpleName() + " e where e.snapshotId in (:ids)");
   }
 
   /**
+   * Delete DUPLICATIONS_INDEX table
+   * 
    * @since 2.11
    */
   private static void deleteDuplicationBlocks(DatabaseSession session, List<Integer> snapshotIds) {
-    executeQuery(session, "delete duplication blocks", snapshotIds, "delete from " + DuplicationBlock.class.getSimpleName() + " e where e.snapshotId in (:ids)");
+    executeNativeQuery(session, "delete duplication blocks", snapshotIds, "delete from duplications_index e where e.snapshot_id in (:ids)");
   }
 
   /**
    * Delete EVENTS table
    */
-  public static  void deleteEvents(DatabaseSession session, List<Integer> snapshotIds) {
+  public static void deleteEvents(DatabaseSession session, List<Integer> snapshotIds) {
     executeQuery(session, "delete events", snapshotIds, "delete from " + Event.class.getSimpleName() + " e where e.snapshot.id in (:ids)");
   }
 
   /**
    * Delete SNAPSHOTS table
    */
-  public static  void deleteSnapshots(DatabaseSession session, List<Integer> snapshotIds) {
+  public static void deleteSnapshots(DatabaseSession session, List<Integer> snapshotIds) {
     executeQuery(session, "delete snapshots", snapshotIds, "delete from " + Snapshot.class.getSimpleName() + " s where s.id in (:ids)");
   }
 
   /**
    * Paginate execution of SQL requests to avoid exceeding size of rollback segment
    */
-  public static  void executeQuery(DatabaseSession session, String description, List<Integer> ids, String hql) {
+  public static void executeQuery(DatabaseSession session, String description, List<Integer> ids, String hql) {
     if (ids == null || ids.isEmpty()) {
       return;
     }
+    executeQuery(session, description, ids, session.createQuery(hql));
+  }
 
+  /**
+   * @since 2.13
+   */
+  private static void executeNativeQuery(DatabaseSession session, String description, List<Integer> ids, String sql) {
+    if (ids == null || ids.isEmpty()) {
+      return;
+    }
+    executeQuery(session, description, ids, session.createNativeQuery(sql));
+  }
+
+  /**
+   * @since 2.13
+   */
+  private static void executeQuery(DatabaseSession session, String description, List<Integer> ids, Query query) {
     TimeProfiler profiler = new TimeProfiler().setLevelToDebug().start("Execute " + description);
-
     int index = 0;
     while (index < ids.size()) {
-      Query query = session.createQuery(hql);
       List<Integer> paginedSids = ids.subList(index, Math.min(ids.size(), index + MAX_IN_ELEMENTS));
       query.setParameter("ids", paginedSids);
       query.executeUpdate();
       index += MAX_IN_ELEMENTS;
       session.commit();
     }
-
     profiler.stop();
   }
 

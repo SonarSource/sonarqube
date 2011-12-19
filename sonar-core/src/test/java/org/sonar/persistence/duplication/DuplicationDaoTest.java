@@ -20,7 +20,6 @@
 package org.sonar.persistence.duplication;
 
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import java.util.Arrays;
@@ -28,12 +27,9 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.jpa.test.AbstractDbUnitTestCase;
 import org.sonar.persistence.DaoTestCase;
 import org.sonar.persistence.duplication.DuplicationDao;
 import org.sonar.persistence.duplication.DuplicationUnitDto;
-
-import com.google.common.collect.Lists;
 
 public class DuplicationDaoTest extends DaoTestCase {
 
@@ -70,20 +66,6 @@ public class DuplicationDaoTest extends DaoTestCase {
     dao.insert(Arrays.asList(new DuplicationUnitDto(1, 2, "bb", 0, 1, 2)));
 
     checkTables("shouldInsert", "duplications_index");
-  }
-
-  @Test
-  public void testBatchInsert() {
-    List<DuplicationUnitDto> duplications = Lists.newArrayList();
-    for (int i = 0; i < 50; i++) {
-      duplications.add(new DuplicationUnitDto(i, i, "hash", 2, 30, 40));
-    }
-    dao.insert(duplications);
-
-    for (DuplicationUnitDto duplication : duplications) {
-      // batch insert : faster but generated ids are not returned
-      assertThat(duplication.getId(), nullValue());
-    }
   }
 
 }
