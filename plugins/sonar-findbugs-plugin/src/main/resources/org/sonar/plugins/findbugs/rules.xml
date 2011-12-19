@@ -1475,7 +1475,7 @@
   </rule>
   <rule key="NP_NULL_PARAM_DEREF_ALL_TARGETS_DANGEROUS">
     <priority>CRITICAL</priority>
-    <name><![CDATA[Correctness - Method call passes null for nonnull parameter]]></name>
+    <name><![CDATA[Correctness - Method call passes null for nonnull parameter (ALL_TARGETS_DANGEROUS)]]></name>
     <configKey><![CDATA[NP_NULL_PARAM_DEREF_ALL_TARGETS_DANGEROUS]]></configKey>
 
 
@@ -1825,7 +1825,7 @@
   </rule>
   <rule key="BIT_AND">
     <priority>CRITICAL</priority>
-    <name><![CDATA[Correctness - Incompatible bit masks]]></name>
+    <name><![CDATA[Correctness - Incompatible bit masks (BIT_AND)]]></name>
     <configKey><![CDATA[BIT_AND]]></configKey>
 
 
@@ -1853,7 +1853,7 @@
   </rule>
   <rule key="BIT_IOR">
     <priority>CRITICAL</priority>
-    <name><![CDATA[Correctness - Incompatible bit masks]]></name>
+    <name><![CDATA[Correctness - Incompatible bit masks (BIT_IOR)]]></name>
     <configKey><![CDATA[BIT_IOR]]></configKey>
 
 
@@ -2373,7 +2373,7 @@
   </rule>
   <rule key="DMI_INVOKING_TOSTRING_ON_ANONYMOUS_ARRAY">
     <priority>CRITICAL</priority>
-    <name><![CDATA[Correctness - Invocation of toString on an array]]></name>
+    <name><![CDATA[Correctness - Invocation of toString on an anonymous array]]></name>
     <configKey><![CDATA[DMI_INVOKING_TOSTRING_ON_ANONYMOUS_ARRAY]]></configKey>
 
 
@@ -2559,14 +2559,14 @@
   </rule>
   <rule key="TQ_EXPLICIT_UNKNOWN_SOURCE_VALUE_REACHES_NEVER_SINK">
     <priority>CRITICAL</priority>
-    <name><![CDATA[Correctness - Explicit annotation inconsistent with use]]></name>
+    <name><![CDATA[Correctness -  Value required to not have type qualifier, but marked as unknown]]></name>
     <configKey><![CDATA[TQ_EXPLICIT_UNKNOWN_SOURCE_VALUE_REACHES_NEVER_SINK]]></configKey>
 
 
   </rule>
   <rule key="TQ_EXPLICIT_UNKNOWN_SOURCE_VALUE_REACHES_ALWAYS_SINK">
     <priority>CRITICAL</priority>
-    <name><![CDATA[Correctness - Explicit annotation inconsistent with use]]></name>
+    <name><![CDATA[Correctness - Value required to have type qualifier, but marked as unknown]]></name>
     <configKey><![CDATA[TQ_EXPLICIT_UNKNOWN_SOURCE_VALUE_REACHES_ALWAYS_SINK]]></configKey>
 
 
