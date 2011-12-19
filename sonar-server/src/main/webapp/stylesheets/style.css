@@ -1228,6 +1228,26 @@ div.comment-excerpt {
 }
 
 /* ACTION PLANS */
+#actionPlans td {
+  vertical-align: top;
+}
+
+#actionPlans td.progress {
+  width: 300px;
+  padding: 0px 40px;
+}
+
+#actionPlans td.noprogress {
+  color: #777777; 
+  font-size: 93%;
+  padding-left: 40px;
+  padding-right: 40px;
+}
+
+#actionPlans td.over-due {
+  color: #CC0000;
+  font-weight: bold;
+}
 
 div.progress {
   width: 100%;

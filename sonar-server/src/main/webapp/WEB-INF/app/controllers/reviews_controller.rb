@@ -190,7 +190,7 @@ class ReviewsController < ApplicationController
   # GET
   def action_plan_form
     @review = Review.find(params[:id])
-    @action_plans = ActionPlan.by_project_id(@review.project_id)
+    @action_plans = ActionPlan.open_by_project_id(@review.project_id)
     render :partial => 'reviews/action_plan_form'
   end
   
@@ -382,7 +382,7 @@ class ReviewsController < ApplicationController
   # GET
   def violation_action_plan_form
     @violation = RuleFailure.find(params[:id], :include => ['review', 'snapshot'])
-    @action_plans = ActionPlan.by_project_id(@violation.snapshot.root_project_id)
+    @action_plans = ActionPlan.open_by_project_id(@violation.snapshot.root_project_id)
     render :partial => 'reviews/violation_action_plan_form'
   end
   

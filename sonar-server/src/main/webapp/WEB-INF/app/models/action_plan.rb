@@ -33,8 +33,8 @@ class ActionPlan < ActiveRecord::Base
   STATUS_OPEN = 'OPEN'
   STATUS_CLOSED = 'CLOSED'
   
-  def self.by_project_id(project_id)
-    ActionPlan.find :all, :conditions => ['project_id=?', project_id], :order => :name
+  def self.open_by_project_id(project_id)
+    ActionPlan.find :all, :conditions => ['status=? AND project_id=?', STATUS_OPEN, project_id], :order => :name
   end
   
   def user
@@ -56,6 +56,14 @@ class ActionPlan < ActiveRecord::Base
     total_reviews = reviews.size
     open_reviews = reviews.select{|r| r.open? || r.reopened?}.size
     {:total => total_reviews, :open => open_reviews, :resolved => total_reviews-open_reviews}
+  end
+  
+  def has_open_reviews?
+    reviews.select {|r| r.open? || r.reopened?}.size > 0
+  end
+  
+  def over_due?
+    dead_line ? dead_line.past? : false
   end
 
   private
