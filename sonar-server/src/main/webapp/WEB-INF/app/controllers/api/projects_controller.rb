@@ -120,9 +120,9 @@ class Api::ProjectsController < Api::ApiController
   def load_snapshots_by_project
     select_columns='id,project_id,version,islast,created_at'
     if params[:versions]=='true'
-      snapshots=Snapshot.find_by_sql(["SELECT #{select_columns} FROM snapshots AS s1 WHERE s1.status=? AND s1.project_id IN (?) AND NOT EXISTS(SELECT * FROM snapshots AS s2 WHERE s2.project_id=s1.project_id AND s2.created_at>s1.created_at AND s2.version=s1.version)", 'P', @projects.map{|p| p.id}])
+      snapshots=Snapshot.find_by_sql(["SELECT #{select_columns} FROM snapshots s1 WHERE s1.status=? AND s1.project_id IN (?) AND NOT EXISTS(SELECT * FROM snapshots s2 WHERE s2.project_id=s1.project_id AND s2.created_at>s1.created_at AND s2.version=s1.version)", 'P', @projects.map{|p| p.id}])
     elsif params[:versions]=='last'
-      snapshots=Snapshot.find_by_sql(["SELECT #{select_columns} FROM snapshots AS s1 WHERE s1.status=? AND islast=? AND s1.project_id IN (?) AND NOT EXISTS(SELECT * FROM snapshots AS s2 WHERE s2.project_id=s1.project_id AND s2.created_at>s1.created_at AND s2.version=s1.version)", 'P', true, @projects.map{|p| p.id}])
+      snapshots=Snapshot.find_by_sql(["SELECT #{select_columns} FROM snapshots s1 WHERE s1.status=? AND islast=? AND s1.project_id IN (?) AND NOT EXISTS(SELECT * FROM snapshots s2 WHERE s2.project_id=s1.project_id AND s2.created_at>s1.created_at AND s2.version=s1.version)", 'P', true, @projects.map{|p| p.id}])
     else
       snapshots=[]
     end
