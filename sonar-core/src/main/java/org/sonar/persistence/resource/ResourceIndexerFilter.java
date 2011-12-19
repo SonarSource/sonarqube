@@ -19,13 +19,17 @@
  */
 package org.sonar.persistence.resource;
 
-import java.util.List;
+import org.sonar.api.resources.Scopes;
 
-public interface ResourceIndexMapper {
+public final class ResourceIndexerFilter {
+  private boolean enabled = true;
+  private String[] scopes = new String[]{Scopes.PROJECT, Scopes.DIRECTORY, Scopes.FILE};
 
-  List<ResourceIndexDto> selectByKeyword(String keyword);
+  public boolean isEnabled() {
+    return enabled;
+  }
 
-  ResourceDto selectRootId(int id);
-
-  void insert(ResourceIndexDto dto);
+  public String[] getScopes() {
+    return scopes;
+  }
 }

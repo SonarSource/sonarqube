@@ -17,22 +17,14 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
+class ResourceIndex < ActiveRecord::Base
 
-#
-# Sonar 2.13
-#
-class CreateTableResourceIndex < ActiveRecord::Migration
+  set_table_name 'resource_index'
 
-  def self.up
-    create_table 'resource_index', :id => false do |t|
-      t.column 'kee', :string, :null => false, :limit => 100
-      t.column 'position', :integer, :null => false
-      t.column 'name_size', :integer, :null => false
-      t.column 'resource_id', :integer, :null => false
-      t.column 'project_id', :integer, :null => false
-    end
-    add_index 'resource_index', 'kee', :name => 'resource_index_key'
-    add_index 'resource_index', 'resource_id', :name => 'resource_index_rid'
+  belongs_to :resource, :class_name => 'Project', :foreign_key => 'resource_id'
+  belongs_to :project, :class_name => 'Project', :foreign_key => 'project_id'
+
+  def resource_id_for_authorization
+    project_id
   end
-
 end

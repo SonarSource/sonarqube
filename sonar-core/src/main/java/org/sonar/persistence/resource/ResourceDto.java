@@ -19,13 +19,46 @@
  */
 package org.sonar.persistence.resource;
 
-import java.util.List;
+public final class ResourceDto {
 
-public interface ResourceIndexMapper {
+  private Integer id;
+  private String name;
+  private String longName;
+  private Integer rootId;
 
-  List<ResourceIndexDto> selectByKeyword(String keyword);
+  public Integer getId() {
+    return id;
+  }
 
-  ResourceDto selectRootId(int id);
+  public ResourceDto setId(Integer id) {
+    this.id = id;
+    return this;
+  }
 
-  void insert(ResourceIndexDto dto);
+  public String getName() {
+    return name;
+  }
+
+  public ResourceDto setName(String name) {
+    this.name = name;
+    return this;
+  }
+
+  public Integer getRootId() {
+    return rootId;
+  }
+
+  public ResourceDto setRootId(Integer rootId) {
+    this.rootId = rootId;
+    return this;
+  }
+
+  public String getLongName() {
+    return longName;
+  }
+
+  public ResourceDto setLongName(String longName) {
+    this.longName = longName;
+    return this;
+  }
 }

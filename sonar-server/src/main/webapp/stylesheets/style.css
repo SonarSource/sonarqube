@@ -491,6 +491,10 @@ h4, .h4 {
   color: #777;
 }
 
+.highlight {
+  font-weight: bold;
+}
+
 .subtitle {
   color: #777;
   font-size: 85%;
@@ -1239,7 +1243,9 @@ div.progress td {
 }
 
 div.progress td a {
-  display: block; width: 100%; height: 100%;
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 div.progress td.resolved {
@@ -1256,7 +1262,6 @@ div.progress div.note {
   font-weight: normal;
   white-space: nowrap;
 }
-
 
 /* AUTOCOMPLETE FIELDS */
 div.autocomplete {

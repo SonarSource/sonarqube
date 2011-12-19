@@ -23,6 +23,7 @@ public final class ResourceIndexDto {
 
   private String key;
   private int position;
+  private int nameSize;
   private int resourceId;
   private int projectId;
 
@@ -39,8 +40,8 @@ public final class ResourceIndexDto {
     return position;
   }
 
-  public ResourceIndexDto setPosition(int position) {
-    this.position = position;
+  public ResourceIndexDto setPosition(int i) {
+    this.position = i;
     return this;
   }
 
@@ -48,8 +49,8 @@ public final class ResourceIndexDto {
     return resourceId;
   }
 
-  public ResourceIndexDto setResourceId(int resourceId) {
-    this.resourceId = resourceId;
+  public ResourceIndexDto setResourceId(int i) {
+    this.resourceId = i;
     return this;
   }
 
@@ -57,8 +58,17 @@ public final class ResourceIndexDto {
     return projectId;
   }
 
-  public ResourceIndexDto setProjectId(int projectId) {
-    this.projectId = projectId;
+  public ResourceIndexDto setProjectId(int i) {
+    this.projectId = i;
+    return this;
+  }
+
+  public int getNameSize() {
+    return nameSize;
+  }
+
+  public ResourceIndexDto setNameSize(int i) {
+    this.nameSize = i;
     return this;
   }
 }

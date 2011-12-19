@@ -1,18 +1,18 @@
 <dataset>
 
   <!-- ZipUtils -->
-  <resource_index kee="ziputils" position="0" resource_id="10" project_id="8"/>
-  <resource_index kee="iputils" position="1" resource_id="10" project_id="8"/>
-  <resource_index kee="putils" position="2" resource_id="10" project_id="8"/>
-  <resource_index kee="utils" position="3" resource_id="10" project_id="8"/>
-  <resource_index kee="tils" position="4" resource_id="10" project_id="8"/>
+  <resource_index kee="ziputils" position="0" name_size="8" resource_id="10" project_id="8"/>
+  <resource_index kee="iputils" position="1" name_size="8" resource_id="10" project_id="8"/>
+  <resource_index kee="putils" position="2" name_size="8" resource_id="10" project_id="8"/>
+  <resource_index kee="utils" position="3" name_size="8" resource_id="10" project_id="8"/>
+  <resource_index kee="tils" position="4" name_size="8" resource_id="10" project_id="8"/>
 
   <!-- DateUtils -->
-  <resource_index kee="dateutils" position="0" resource_id="130" project_id="120"/>
-  <resource_index kee="ateutils" position="1" resource_id="130" project_id="120"/>
-  <resource_index kee="teutils" position="2" resource_id="130" project_id="120"/>
-  <resource_index kee="eutils" position="3" resource_id="130" project_id="120"/>
-  <resource_index kee="utils" position="4" resource_id="130" project_id="120"/>
-  <resource_index kee="tils" position="5" resource_id="130" project_id="120"/>
+  <resource_index kee="dateutils" position="0" name_size="9" resource_id="130" project_id="120"/>
+  <resource_index kee="ateutils" position="1" name_size="9" resource_id="130" project_id="120"/>
+  <resource_index kee="teutils" position="2" name_size="9" resource_id="130" project_id="120"/>
+  <resource_index kee="eutils" position="3" name_size="9" resource_id="130" project_id="120"/>
+  <resource_index kee="utils" position="4" name_size="9" resource_id="130" project_id="120"/>
+  <resource_index kee="tils" position="5" name_size="9" resource_id="130" project_id="120"/>
 
 </dataset>

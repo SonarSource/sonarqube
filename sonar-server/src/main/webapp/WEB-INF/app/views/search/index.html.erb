@@ -1,0 +1,46 @@
+<form method="GET" action="index">
+  <input type="text" name="s" id="searchText" value="<%= @search -%>">
+  <input type="submit" value="Search" id="submitSearch">
+</form>
+
+<% if @results %>
+  <table class="data width100" id="searchResults">
+    <thead>
+    <tr>
+      <th colspan="3"></th>
+    </tr>
+    </thead>
+    <tbody>
+    <% @results.each do |resource_index|
+      resource=@resources_by_id[resource_index.resource_id]
+    %>
+      <tr class="<%= cycle('even', 'odd') -%>">
+        <td class="thin nowrap">
+          <% if resource.display_dashboard? %>
+            <a href="<%= ApplicationController.root_context -%>/components/index/<%= resource.id -%>"><img src="<%= ApplicationController.root_context -%>/images/zoom.png"></a>
+          <% end %>
+        </td>
+        <td class="thin nowrap">
+          <%= qualifier_icon resource -%>
+        </td>
+        <td>
+          <%= link_to_resource_home resource, :name => highlight(resource.name(true), @search) -%>
+        </td>
+      </tr>
+    <% end %>
+    </tbody>
+    <tfoot>
+    <tr>
+      <td colspan="3">
+        <% if @total>@results.size %>
+          <%= @results.size -%> among
+        <% end %>
+        <%= @total -%> results (<%= Time.now-@start_time -%> seconds)
+      </td>
+    </tr>
+    </tfoot>
+  </table>
+<% end %>
+<script type="text/javascript">
+  $('searchText').focus();
+</script>

@@ -19,6 +19,11 @@
     <level value="WARN"/>
   </logger>
 
+  <!-- set to level DEBUG to log SQL requests executed by MyBatis -->
+  <logger name="java.sql">
+    <level value="WARN"/>
+  </logger>
+
   <root>
     <level value="INFO"/>
     <appender-ref ref="STDOUT"/>

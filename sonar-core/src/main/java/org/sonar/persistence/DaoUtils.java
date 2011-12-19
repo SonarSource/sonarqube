@@ -19,15 +19,16 @@
  */
 package org.sonar.persistence;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.sonar.persistence.dashboard.ActiveDashboardDao;
 import org.sonar.persistence.dashboard.DashboardDao;
 import org.sonar.persistence.duplication.DuplicationDao;
+import org.sonar.persistence.resource.ResourceIndexDao;
 import org.sonar.persistence.review.ReviewDao;
 import org.sonar.persistence.rule.RuleDao;
 import org.sonar.persistence.template.LoadedTemplateDao;
+
+import java.util.Arrays;
+import java.util.List;
 
 public final class DaoUtils {
 
@@ -35,7 +36,13 @@ public final class DaoUtils {
   }
 
   public static List<Class<?>> getDaoClasses() {
-    return Arrays.<Class<?>> asList(RuleDao.class, DuplicationDao.class, ReviewDao.class, ActiveDashboardDao.class, DashboardDao.class,
-        LoadedTemplateDao.class);
+    return Arrays.asList(
+      ActiveDashboardDao.class,
+      DashboardDao.class,
+      DuplicationDao.class,
+      LoadedTemplateDao.class,
+      ResourceIndexDao.class,
+      ReviewDao.class,
+      RuleDao.class);
   }
 }

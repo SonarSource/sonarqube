@@ -6,6 +6,7 @@
   <resultMap id="resourceIndexMap" type="ResourceIndex">
     <result property="key" column="kee"/>
     <result property="position" column="position"/>
+    <result property="nameSize" column="name_size"/>
     <result property="resourceId" column="resource_id"/>
     <result property="projectId" column="project_id"/>
   </resultMap>
@@ -14,7 +15,7 @@
     kee, position, resource_id, project_id
   </sql>
 
-  <select id="selectLikeKey" parameterType="String" resultMap="resourceIndexMap">
+  <select id="selectByKeyword" parameterType="String" resultMap="resourceIndexMap">
     select
     <include refid="resourceIndexColumns"/>
     from resource_index
@@ -22,9 +23,28 @@
     order by position asc
   </select>
 
+  <select id="selectResourcesToIndex" parameterType="map" resultType="resource">
+    select id, root_id as "rootId", name
+    from projects
+    where
+    enabled=#{enabled} and
+    copy_resource_id is null and
+    scope in
+    <foreach item="scope" index="index" collection="scopes"
+             open="(" separator="," close=")">#{scope}
+    </foreach>
+  </select>
+
+  <select id="selectRootId" parameterType="int" resultType="resource">
+    select id, root_id as "rootId"
+    from projects
+    where id=#{id}
+  </select>
+
+
   <insert id="insert" parameterType="ResourceIndex" useGeneratedKeys="false">
-    insert into resource_index (kee, position, resource_id, project_id)
-    values (#{key}, #{position}, #{resourceId}, #{projectId})
+    insert into resource_index (kee, position, name_size, resource_id, project_id)
+    values (#{key}, #{position}, #{nameSize}, #{resourceId}, #{projectId})
   </insert>
 </mapper>
 

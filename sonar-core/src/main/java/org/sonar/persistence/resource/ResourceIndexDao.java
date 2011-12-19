@@ -19,9 +19,13 @@
  */
 package org.sonar.persistence.resource;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.ResultContext;
+import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.api.utils.TimeProfiler;
 import org.sonar.persistence.MyBatis;
 
 import java.util.Collections;
@@ -38,47 +42,87 @@ public class ResourceIndexDao {
     this.mybatis = mybatis;
   }
 
-  public List<ResourceIndexDto> search(String input) {
-    if (StringUtils.isBlank(input) || input.length() < MINIMUM_SEARCH_SIZE) {
+  public List<ResourceIndexDto> search(String keyword) {
+    if (StringUtils.isBlank(keyword) || keyword.length() < MINIMUM_SEARCH_SIZE) {
       return Collections.emptyList();
     }
     SqlSession sqlSession = mybatis.openSession();
     try {
       ResourceIndexMapper mapper = sqlSession.getMapper(ResourceIndexMapper.class);
-      return mapper.selectLikeKey(normalize(input) + "%");
+      return mapper.selectByKeyword(normalize(keyword) + "%");
     } finally {
       sqlSession.close();
     }
   }
 
-  public void index(String resourceName, int resourceId, int projectId) {
-    if (StringUtils.isBlank(resourceName)) {
+  void index(ResourceDto resource, SqlSession session) {
+    String name = resource.getName();
+    if (StringUtils.isBlank(name)) {
       return;
     }
-    String normalizedName = normalize(resourceName);
+    String normalizedName = normalize(name);
     if (normalizedName.length() >= MINIMUM_KEY_SIZE) {
-      SqlSession sqlSession = mybatis.openSession(ExecutorType.BATCH);
-      try {
-        ResourceIndexMapper mapper = sqlSession.getMapper(ResourceIndexMapper.class);
-        ResourceIndexDto dto = new ResourceIndexDto().setResourceId(resourceId).setProjectId(projectId);
+      ResourceIndexMapper mapper = session.getMapper(ResourceIndexMapper.class);
 
-        for (int position = 0; position <= normalizedName.length() - MINIMUM_KEY_SIZE; position++) {
-          dto.setPosition(position);
-          dto.setKey(StringUtils.substring(normalizedName, position));
-          mapper.insert(dto);
+      Integer rootId;
+      if (resource.getRootId() != null) {
+        ResourceDto root = mapper.selectRootId(resource.getRootId());
+        if (root != null) {
+          rootId = (Integer) ObjectUtils.defaultIfNull(root.getRootId(), root.getId());
+        } else {
+          rootId = resource.getRootId();
         }
-
-        sqlSession.commit();
-
-      } finally {
-        sqlSession.close();
+      } else {
+        rootId = resource.getId();
       }
+
+      ResourceIndexDto dto = new ResourceIndexDto()
+        .setResourceId(resource.getId())
+        .setProjectId(rootId)
+        .setNameSize(name.length());
+
+      for (int position = 0; position <= normalizedName.length() - MINIMUM_KEY_SIZE; position++) {
+        dto.setPosition(position);
+        dto.setKey(StringUtils.substring(normalizedName, position));
+        mapper.insert(dto);
+      }
+
+      session.commit();
+    }
+  }
+
+  public void index(String resourceName, int resourceId, int projectId) {
+    SqlSession sqlSession = mybatis.openSession();
+    try {
+      index(new ResourceDto().setId(resourceId).setName(resourceName).setRootId(projectId), sqlSession);
+
+    } finally {
+      sqlSession.close();
+    }
+  }
+
+
+  public void index(ResourceIndexerFilter filter) {
+    TimeProfiler profiler = new TimeProfiler().start("Index resources");
+    final SqlSession sqlSession = mybatis.openSession(ExecutorType.BATCH);
+    try {
+      sqlSession.select("selectResourcesToIndex", filter, new ResultHandler() {
+        public void handleResult(ResultContext context) {
+          ResourceDto resource = (ResourceDto) context.getResultObject();
+          index(resource, sqlSession);
+        }
+      });
+    } finally {
+      sqlSession.close();
+      profiler.stop();
     }
   }
 
   static String normalize(String input) {
-    String result = StringUtils.trim(input);
-    result = StringUtils.lowerCase(result);
-    return result;
+    return StringUtils.lowerCase(input);
+  }
+
+  public static boolean isValidInput(String input) {
+    return StringUtils.isNotBlank(input) && input.length() >= MINIMUM_SEARCH_SIZE;
   }
 }

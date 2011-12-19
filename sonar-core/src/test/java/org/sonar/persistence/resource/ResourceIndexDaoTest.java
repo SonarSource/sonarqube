@@ -83,4 +83,13 @@ public class ResourceIndexDaoTest extends DaoTestCase {
     checkTables("testIndex", "resource_index");
   }
 
+  @Test
+  public void testIndexAll() {
+    setupData("testIndexAll");
+
+    dao.index(new ResourceIndexerFilter());
+
+    checkTables("testIndexAll", "resource_index");
+  }
+
 }

@@ -93,7 +93,7 @@ module ApplicationHelper
         if date
           label = message('since_version_detailed', :params => [mode_param.to_s, date.strftime("%Y %b %d").to_s])
         else
-        label = message('since_version', :params => mode_param.to_s)
+          label = message('since_version', :params => mode_param.to_s)
         end
       elsif mode=='previous_analysis'
         if !date.nil?
@@ -232,7 +232,7 @@ module ApplicationHelper
     end
 
     url_params={:controller => 'drilldown', :action => 'measures', :metric => metric_key, :id => options[:resource]||@project.id}
-    
+
     url_for(options.merge(url_params))
   end
 
@@ -341,6 +341,20 @@ module ApplicationHelper
   end
 
 
+  def link_to_resource_home(resource, options={})
+    period_index=options[:period]
+    period_index=nil if period_index && period_index<=0
+    if resource.display_dashboard?
+      link_to(options[:name] || resource.name, {:controller => 'dashboard', :action => 'index', :id => (resource.copy_resource_id||resource.id), :period => period_index, :tab => options[:tab], :rule => options[:rule]}, :title => options[:title])
+    else
+      if options[:line]
+        anchor= 'L' + options[:line].to_s
+      end
+      link_to(options[:name] || resource.name, {:controller => 'resource', :action => 'index', :anchor => anchor, :id => resource.id, :period => period_index, :tab => options[:tab], :rule => options[:rule], :metric => options[:metric]}, :popup => ['resource', 'height=800,width=900,scrollbars=1,resizable=1'], :title => options[:title])
+    end
+  end
+
+
   #
   #
   # JFree Eastwood is a partial implementation of Google Chart Api
@@ -423,8 +437,8 @@ module ApplicationHelper
       initial_tooltip=message('click_to_remove_from_favourites')
     end
 
-    link_to_remote('', :url => { :controller => 'favourites', :action => 'toggle', :id => resource_id, :elt => html_id},
-      :method => :post, :html => {:class => initial_class, :id => html_id, :alt => initial_tooltip, :title => initial_tooltip})
+    link_to_remote('', :url => {:controller => 'favourites', :action => 'toggle', :id => resource_id, :elt => html_id},
+                   :method => :post, :html => {:class => initial_class, :id => html_id, :alt => initial_tooltip, :title => initial_tooltip})
   end
 
   #
@@ -453,12 +467,12 @@ module ApplicationHelper
     filename = m.tendency.to_s
 
     case m.tendency_qualitative
-    when 0
-      filename+= '-black'
-    when -1
-      filename+= '-red'
-    when 1
-      filename+= '-green'
+      when 0
+        filename+= '-black'
+      when -1
+        filename+= '-red'
+      when 1
+        filename+= '-green'
     end
     image_tag("tendency/#{filename}-small.png")
   end
@@ -550,7 +564,7 @@ module ApplicationHelper
     html = options[:default].to_s if html.nil? && options[:default]
     html
   end
-  
+
   #
   # Creates a pagination section for the given array (items_array) if its size exceeds the pagination size (default: 20).
   # Upon completion of this method, the HTML is returned and the given array contains only the selected elements.
@@ -563,8 +577,8 @@ module ApplicationHelper
   # 
   def paginate(items_array, options={})
     html = items_array.size.to_s + " " + message('results').downcase
-    
-    page_size = options[:page_size] || 20    
+
+    page_size = options[:page_size] || 20
     if items_array.size > page_size
       # computes the pagination elements
       page_id = (params[:page_id] ? params[:page_id].to_i : 1)
@@ -573,7 +587,7 @@ module ApplicationHelper
       from = (page_id-1) * page_size
       to = (page_id*page_size)-1
       to = items_array.size-1 if to >= items_array.size
-      
+
       # render the pagination links
       html += " | "
       html += link_to_if page_id>1, message('paging_previous'), {:overwrite_params => {:page_id => page_id-1}}
@@ -583,14 +597,14 @@ module ApplicationHelper
         html += " "
       end
       html += link_to_if page_id<page_count, message('paging_next'), {:overwrite_params => {:page_id => 1+page_id}}
-      
+
       # and adapt the items_array object according to the pagination
       items_to_keep = items_array[from..to]
       items_array.clear
-      items_to_keep.each {|i| items_array << i} 
+      items_to_keep.each { |i| items_array << i }
     end
-    
-    html    
+
+    html
   end
-  
+
 end
