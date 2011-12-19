@@ -37,7 +37,7 @@ import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.markdown.Markdown;
 import org.sonar.persistence.Database;
 import org.sonar.persistence.DatabaseMigrator;
-import org.sonar.persistence.resource.ResourceIndexDao;
+import org.sonar.persistence.resource.ResourceIndexerDao;
 import org.sonar.persistence.resource.ResourceIndexerFilter;
 import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
@@ -384,10 +384,6 @@ public final class JRubyFacade {
 
   // RESOURCE SEARCH ENGINE
   public void indexResources() {
-    getContainer().getComponentByType(ResourceIndexDao.class).index(new ResourceIndexerFilter());
-  }
-
-  public boolean isValidResourceSearchInput(String input) {
-    return ResourceIndexDao.isValidInput(input);
+    getContainer().getComponentByType(ResourceIndexerDao.class).index(ResourceIndexerFilter.create());
   }
 }

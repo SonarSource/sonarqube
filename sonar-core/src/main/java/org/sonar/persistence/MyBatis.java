@@ -32,7 +32,7 @@ import org.sonar.persistence.duplication.DuplicationMapper;
 import org.sonar.persistence.duplication.DuplicationUnitDto;
 import org.sonar.persistence.resource.ResourceDto;
 import org.sonar.persistence.resource.ResourceIndexDto;
-import org.sonar.persistence.resource.ResourceIndexMapper;
+import org.sonar.persistence.resource.ResourceIndexerMapper;
 import org.sonar.persistence.review.ReviewDto;
 import org.sonar.persistence.review.ReviewMapper;
 import org.sonar.persistence.rule.RuleDto;
@@ -74,7 +74,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadMapper(conf, DuplicationMapper.class);
     loadMapper(conf, LoadedTemplateMapper.class);
     loadMapper(conf, ReviewMapper.class);
-    loadMapper(conf, ResourceIndexMapper.class);
+    loadMapper(conf, ResourceIndexerMapper.class);
     loadMapper(conf, RuleMapper.class);
     loadMapper(conf, WidgetMapper.class);
     loadMapper(conf, WidgetPropertyMapper.class);

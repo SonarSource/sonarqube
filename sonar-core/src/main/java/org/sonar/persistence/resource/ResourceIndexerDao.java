@@ -25,34 +25,16 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.utils.TimeProfiler;
 import org.sonar.persistence.MyBatis;
 
-import java.util.Collections;
-import java.util.List;
+public class ResourceIndexerDao {
 
-public class ResourceIndexDao {
-
-  public static final int MINIMUM_SEARCH_SIZE = 3;
   public static final int MINIMUM_KEY_SIZE = 3;
 
   private final MyBatis mybatis;
 
-  public ResourceIndexDao(MyBatis mybatis) {
+  public ResourceIndexerDao(MyBatis mybatis) {
     this.mybatis = mybatis;
-  }
-
-  public List<ResourceIndexDto> search(String keyword) {
-    if (StringUtils.isBlank(keyword) || keyword.length() < MINIMUM_SEARCH_SIZE) {
-      return Collections.emptyList();
-    }
-    SqlSession sqlSession = mybatis.openSession();
-    try {
-      ResourceIndexMapper mapper = sqlSession.getMapper(ResourceIndexMapper.class);
-      return mapper.selectByKeyword(normalize(keyword) + "%");
-    } finally {
-      sqlSession.close();
-    }
   }
 
   void index(ResourceDto resource, SqlSession session) {
@@ -62,7 +44,7 @@ public class ResourceIndexDao {
     }
     String normalizedName = normalize(name);
     if (normalizedName.length() >= MINIMUM_KEY_SIZE) {
-      ResourceIndexMapper mapper = session.getMapper(ResourceIndexMapper.class);
+      ResourceIndexerMapper mapper = session.getMapper(ResourceIndexerMapper.class);
 
       Integer rootId;
       if (resource.getRootId() != null) {
@@ -103,7 +85,6 @@ public class ResourceIndexDao {
 
 
   public void index(ResourceIndexerFilter filter) {
-    TimeProfiler profiler = new TimeProfiler().start("Index resources");
     final SqlSession sqlSession = mybatis.openSession(ExecutorType.BATCH);
     try {
       sqlSession.select("selectResourcesToIndex", filter, new ResultHandler() {
@@ -114,15 +95,10 @@ public class ResourceIndexDao {
       });
     } finally {
       sqlSession.close();
-      profiler.stop();
     }
   }
 
   static String normalize(String input) {
     return StringUtils.lowerCase(input);
-  }
-
-  public static boolean isValidInput(String input) {
-    return StringUtils.isNotBlank(input) && input.length() >= MINIMUM_SEARCH_SIZE;
   }
 }

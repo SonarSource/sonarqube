@@ -19,11 +19,17 @@
  */
 package org.sonar.persistence.resource;
 
-import org.sonar.api.resources.Scopes;
-
 public final class ResourceIndexerFilter {
   private boolean enabled = true;
-  private String[] scopes = new String[]{Scopes.PROJECT, Scopes.DIRECTORY, Scopes.FILE};
+  private String[] scopes = null;
+  private String[] qualifiers = null;
+
+  private ResourceIndexerFilter() {
+  }
+
+  public static ResourceIndexerFilter create() {
+    return new ResourceIndexerFilter();
+  }
 
   public boolean isEnabled() {
     return enabled;
@@ -31,5 +37,19 @@ public final class ResourceIndexerFilter {
 
   public String[] getScopes() {
     return scopes;
+  }
+
+  public String[] getQualifiers() {
+    return qualifiers;
+  }
+
+  public ResourceIndexerFilter setScopes(String[] scopes) {
+    this.scopes = scopes;
+    return this;
+  }
+
+  public ResourceIndexerFilter setQualifiers(String[] qualifiers) {
+    this.qualifiers = qualifiers;
+    return this;
   }
 }

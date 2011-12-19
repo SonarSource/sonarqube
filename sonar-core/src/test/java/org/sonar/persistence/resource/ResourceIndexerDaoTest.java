@@ -19,13 +19,35 @@
  */
 package org.sonar.persistence.resource;
 
-import java.util.List;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.persistence.DaoTestCase;
 
-public interface ResourceIndexMapper {
+public class ResourceIndexerDaoTest extends DaoTestCase {
 
-  List<ResourceIndexDto> selectByKeyword(String keyword);
+  private static ResourceIndexerDao dao;
 
-  ResourceDto selectRootId(int id);
+  @Before
+  public void createDao() {
+    dao = new ResourceIndexerDao(getMyBatis());
+  }
 
-  void insert(ResourceIndexDto dto);
+  @Test
+  public void testIndex() {
+    setupData("testIndex");
+
+    dao.index("ZipUtils", 10, 8);
+
+    checkTables("testIndex", "resource_index");
+  }
+
+  @Test
+  public void testIndexAll() {
+    setupData("testIndexAll");
+
+    dao.index(ResourceIndexerFilter.create());
+
+    checkTables("testIndexAll", "resource_index");
+  }
+
 }

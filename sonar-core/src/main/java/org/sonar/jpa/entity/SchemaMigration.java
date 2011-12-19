@@ -34,15 +34,8 @@ public class SchemaMigration {
 
   public final static int VERSION_UNKNOWN = -1;
 
-  /*
-
-   IMPORTANT : HOW TO ADD A DATABASE MIGRATION :
-      - set the following constant LAST_VERSION
-      - add the activerecord migration script into sonar-server/src/main/webapp/WEB-INF/db/migrate
-      - complete the Derby DDL file used for unit tests : sonar-testing-harness/src/main/resources/org/sonar/test/persistence/sonar-test.ddl
-
-   */
   public static final int LAST_VERSION = 239;
+  public static final int VERSION_2_13 = 230;
 
   public final static String TABLE_NAME = "schema_migrations";
 

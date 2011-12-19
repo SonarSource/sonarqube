@@ -17,32 +17,11 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.persistence;
+package org.sonar.persistence.resource;
 
-import org.sonar.persistence.dashboard.ActiveDashboardDao;
-import org.sonar.persistence.dashboard.DashboardDao;
-import org.sonar.persistence.duplication.DuplicationDao;
-import org.sonar.persistence.resource.ResourceIndexerDao;
-import org.sonar.persistence.review.ReviewDao;
-import org.sonar.persistence.rule.RuleDao;
-import org.sonar.persistence.template.LoadedTemplateDao;
+public interface ResourceIndexerMapper {
 
-import java.util.Arrays;
-import java.util.List;
+  ResourceDto selectRootId(int id);
 
-public final class DaoUtils {
-
-  private DaoUtils() {
-  }
-
-  public static List<Class<?>> getDaoClasses() {
-    return Arrays.asList(
-      ActiveDashboardDao.class,
-      DashboardDao.class,
-      DuplicationDao.class,
-      LoadedTemplateDao.class,
-      ResourceIndexerDao.class,
-      ReviewDao.class,
-      RuleDao.class);
-  }
+  void insert(ResourceIndexDto dto);
 }

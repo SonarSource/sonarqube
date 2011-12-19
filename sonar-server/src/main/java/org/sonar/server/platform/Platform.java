@@ -234,6 +234,7 @@ public final class Platform {
       startupContainer.addSingleton(DeleteDeprecatedMeasures.class);
       startupContainer.addSingleton(GeneratePluginIndex.class);
       startupContainer.addSingleton(RegisterNewDashboards.class);
+      startupContainer.addSingleton(IndexProjects.class);
       startupContainer.startComponents();
 
       startupContainer.getComponentByType(ServerLifecycleNotifier.class).notifyStart();

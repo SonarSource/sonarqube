@@ -30,8 +30,8 @@ class SearchController < ApplicationController
   def index
     @start_time = Time.now
     @search = params[:s]
-    if @search
-      if java_facade.isValidResourceSearchInput(@search.to_s)
+    unless @search.empty?
+      if @search.to_s.size>=3
         normalized_search = @search.downcase
         @results = ResourceIndex.find(:all,
                                       :conditions => ["resource_index.kee like ?", normalized_search + '%'],
