@@ -42,10 +42,13 @@ import org.sonar.plugins.core.testdetailsviewer.TestsViewerDefinition;
 import org.sonar.plugins.core.timemachine.*;
 import org.sonar.plugins.core.web.Lcom4Viewer;
 import org.sonar.plugins.core.widgets.*;
+import org.sonar.plugins.core.widgets.actionPlans.ActionPlansWidget;
 import org.sonar.plugins.core.widgets.reviews.FalsePositiveReviewsWidget;
 import org.sonar.plugins.core.widgets.reviews.MyReviewsWidget;
+import org.sonar.plugins.core.widgets.reviews.PlannedReviewsWidget;
 import org.sonar.plugins.core.widgets.reviews.ProjectReviewsWidget;
 import org.sonar.plugins.core.widgets.reviews.ReviewsPerDeveloperWidget;
+import org.sonar.plugins.core.widgets.reviews.UnplannedReviewsWidget;
 
 import java.util.List;
 
@@ -248,6 +251,9 @@ public class CorePlugin extends SonarPlugin {
     extensions.add(ProjectReviewsWidget.class);
     extensions.add(FalsePositiveReviewsWidget.class);
     extensions.add(ReviewsPerDeveloperWidget.class);
+    extensions.add(PlannedReviewsWidget.class);
+    extensions.add(UnplannedReviewsWidget.class);
+    extensions.add(ActionPlansWidget.class);
 
     // dashboards
     extensions.add(DefaultDashboard.class);

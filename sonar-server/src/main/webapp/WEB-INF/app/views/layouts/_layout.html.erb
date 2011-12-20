@@ -71,8 +71,10 @@
               <li class="h2"><%= message('sidebar.project_settings') -%></li>
               <li class="<%= 'selected' if request.request_uri.include?('/manual_measures') -%>">
                 <a href="<%= ApplicationController.root_context -%>/manual_measures/index/<%= @project.id -%>"><%= message('manual_measures.page') -%></a></li>
+              <% if (@project.project?) %>
               <li class="<%= 'selected' if request.request_uri.include?('/action_plans') -%>">
                 <a href="<%= ApplicationController.root_context -%>/action_plans/index/<%= @project.id -%>"><%= message('action_plans.page') -%></a></li>
+              <% end %>
               <% if (@project.project? || @project.module?) %>
                 <li class="<%= 'selected' if request.request_uri.include?('/project/settings') -%>">
                   <a href="<%= ApplicationController.root_context -%>/project/settings/<%= @project.id -%>"><%= message('project_settings.page') -%></a></li>
