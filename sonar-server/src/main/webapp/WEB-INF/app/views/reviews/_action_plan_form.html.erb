@@ -3,7 +3,6 @@
 
   <%= message('reviews.action_plan_label') -%>:
   <select name="action_plan_id" id="selectActionPlan">
-    <option value="-1" <%= 'selected' if !@review.planned? -%>><%= message('reviews.no_action_plan') -%></option>
     <% @action_plans.each do |plan| %>
       <option value="<%= plan.id -%>" <%= 'selected' if @review.linked_to?(plan) -%>><%= h(plan.name) -%></option>
     <% end %>
@@ -12,5 +11,11 @@
   <textarea id="actionText" rows="4" name="text" style="width: 100%"></textarea>
   <%= submit_to_remote "submit_btn", message('reviews.action_plan_submit'), :url => {:action => 'link_to_action_plan'}, :html => {:id => "submit_btn"}, :update => 'review' -%>
   &nbsp;
+  
+  <% if @review.planned? %>
+    &nbsp;
+    <%= submit_to_remote "submit_btn", message('reviews.unlink_action_plan_submit'), :url => {:action => 'unlink_from_action_plan'}, :html => {:id => "submit_btn"}, :update => 'review' -%>
+  <% end %>
+  
   <%= link_to_remote message('cancel'), :url => {:action => 'show', :id => params[:id]}, :update => 'review' -%>
 </form>

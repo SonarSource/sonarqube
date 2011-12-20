@@ -85,7 +85,14 @@
           <% unless violation.review && violation.review.resolved? %>
             <%= button_to_function message('reviews.change_severity'), "sCSF(#{violation.id})", :name => 'bChangeSeverity' -%>
             
-            <%= button_to_function message('reviews.link_to_action_plan'), "sAPF(#{violation.id})", :name => 'bLinkActionPlan' -%>
+            <% 
+               @action_plans_size = ActionPlan.open_by_project_id(violation.review.project_id).size unless @action_plans_size
+               if @action_plans_size > 0 
+            %>
+              <%= button_to_function message('reviews.link_to_action_plan'), "sAPF(#{violation.id})", :name => 'bLinkActionPlan' -%>
+            <% else %>
+              <input type="button" value="<%= message('reviews.link_to_action_plan') -%>" onclick="alert('<%= message('reviews.an_action_plan_must_be_created_first') -%>');" name="bLinkActionPlan">
+            <% end %>
           <% end %>
         </div>
       <% end %>

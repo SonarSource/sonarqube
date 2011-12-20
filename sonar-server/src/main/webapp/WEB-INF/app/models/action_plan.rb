@@ -22,12 +22,12 @@ class ActionPlan < ActiveRecord::Base
   belongs_to :project
   has_and_belongs_to_many :reviews
 
-  validates_uniqueness_of :name
   validates_length_of :name, :within => 1..200
   validates_length_of :description, :maximum => 1000, :allow_blank => true, :allow_nil => true
   validates_presence_of :user_login, :message => "can't be empty"
   validates_presence_of :status, :message => "can't be empty"
   validates_presence_of :project, :message => "can't be empty"
+  validate :unique_name_on_same_project
 
   STATUS_OPEN = 'OPEN'
   STATUS_CLOSED = 'CLOSED'
@@ -63,6 +63,15 @@ class ActionPlan < ActiveRecord::Base
   
   def over_due?
     dead_line ? status==STATUS_OPEN && dead_line.past? : false
+  end
+  
+  private
+  
+  def unique_name_on_same_project
+    action_plan = ActionPlan.find(:first, :conditions => ['project_id=? AND name=?', project_id, name])
+    if action_plan && ( (id && action_plan.id!=id) || !id)
+      errors.add(:base, Api::Utils.message('action_plans.same_name_in_same_project'))
+    end
   end
 
 end

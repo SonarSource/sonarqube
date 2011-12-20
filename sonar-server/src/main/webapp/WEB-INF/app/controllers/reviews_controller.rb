@@ -24,10 +24,10 @@ class ReviewsController < ApplicationController
 
   verify :method => :post,
          :only => [:assign, :flag_as_false_positive, :save_comment, :delete_comment, :change_status,
-                   :link_to_action_plan,
+                   :link_to_action_plan, :unlink_from_action_plan,
                    :violation_assign, :violation_flag_as_false_positive, :violation_change_severity,
                    :violation_save_comment, :violation_delete_comment, :violation_change_status,
-                   :violation_link_to_action_plan],
+                   :violation_link_to_action_plan, :violation_unlink_from_action_plan],
          :redirect_to => {:action => :error_not_post}
   helper SourceHelper, UsersHelper
 
@@ -205,6 +205,19 @@ class ReviewsController < ApplicationController
     
     action_plan = params[:action_plan_id].to_i==-1 ? nil : ActionPlan.find(params[:action_plan_id])
     @review.link_to_action_plan(action_plan, current_user, params)
+
+    render :partial => "reviews/review"
+  end
+  
+  # POST
+  def unlink_from_action_plan
+    @review = Review.find(params[:id])
+    unless has_rights_to_modify?(@review.project)
+      render :text => "<b>Cannot link to action plan</b> : access denied."
+      return
+    end
+    
+    @review.link_to_action_plan(nil, current_user, params)
 
     render :partial => "reviews/review"
   end
@@ -401,6 +414,18 @@ class ReviewsController < ApplicationController
     end
     action_plan = params[:action_plan_id].to_i==-1 ? nil : ActionPlan.find(params[:action_plan_id])
     violation.review.link_to_action_plan(action_plan, current_user, params)
+
+    render :partial => "resource/violation", :locals => {:violation => violation}
+  end
+  
+  # POST
+  def violation_unlink_from_action_plan
+    violation = RuleFailure.find(params[:id], :include => 'snapshot')
+    unless has_rights_to_modify?(violation.snapshot)
+      render :text => "<b>Cannot link to action plan</b> : access denied."
+      return
+    end
+    violation.review.link_to_action_plan(nil, current_user, params)
 
     render :partial => "resource/violation", :locals => {:violation => violation}
   end

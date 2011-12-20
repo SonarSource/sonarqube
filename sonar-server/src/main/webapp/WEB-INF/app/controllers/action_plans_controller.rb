@@ -25,15 +25,13 @@ class ActionPlansController < ApplicationController
   verify :method => :post, :only => [:save, :delete, :change_status], :redirect_to => {:action => :index}
 
   def index
-    @action_plans = ActionPlan.find(:all, :conditions => ['project_id=?', @resource.id], :include => 'reviews', :order => 'dead_line ASC')
+    load_action_plans()
   end
 
-  def new
-    if params[:name] || params[:description] || params[:dead_line]
-      @action_plan = ActionPlan.new
-    elsif params[:plan_id]
-      @action_plan = ActionPlan.find params[:plan_id]
-    end
+  def edit
+    @action_plan = ActionPlan.find params[:plan_id]
+    load_action_plans()
+    render 'index'
   end
 
   def save
@@ -48,7 +46,7 @@ class ActionPlansController < ApplicationController
     @action_plan.description = params[:description]
     unless params[:dead_line].blank?
       begin
-        dead_line = Date.strptime(params[:dead_line], '%d/%m/%Y')
+        dead_line = DateTime.strptime(params[:dead_line], '%d/%m/%Y')
         if dead_line.past?
           date_not_valid = message('action_plans.date_cant_be_in_past')
         else
@@ -60,8 +58,10 @@ class ActionPlansController < ApplicationController
     end
 
     if date_not_valid || !@action_plan.valid?
-      @action_plan.errors.add :dead_line, date_not_valid if date_not_valid
-      render :action => :new, :id => @resource.id
+      @action_plan.errors.add :base, date_not_valid if date_not_valid
+      flash[:error] = @action_plan.errors.full_messages.join('<br/>')
+      load_action_plans()
+      render 'index'
     else
       @action_plan.save
       redirect_to :action => 'index', :id => @resource.id
@@ -89,6 +89,10 @@ class ActionPlansController < ApplicationController
     @resource=Project.by_key(params[:id])
     return redirect_to home_path unless @resource
     access_denied unless has_role?(:admin, @resource)
+  end
+  
+  def load_action_plans
+    @action_plans = ActionPlan.find(:all, :conditions => ['project_id=?', @resource.id], :include => 'reviews', :order => 'dead_line ASC')
   end
 
 end

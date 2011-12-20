@@ -3,7 +3,6 @@
 
   <%= message('reviews.action_plan_label') -%>:
   <select name="action_plan_id" id="selectActionPlan<%= params[:id] -%>">
-    <option value="-1" <%= 'selected' if !@violation.review || (@violation.review && !@violation.review.planned?) -%>><%= message('reviews.no_action_plan') -%></option>
     <% @action_plans.each do |plan| %>
       <option value="<%= plan.id -%>" <%= 'selected' if @violation.review && @violation.review.linked_to?(plan) -%>><%= h(plan.name) -%></option>
     <% end %>
@@ -22,6 +21,12 @@
   </table>
 
   <%= submit_to_remote "submit_btn"+params[:id], message('reviews.action_plan_submit'), :url => {:action => 'violation_link_to_action_plan'}, :html => {:id => "submit_btn"+params[:id]}, :update => 'vId'+params[:id] -%>
+  
+  <% if @violation.review && @violation.review.planned? %>
+    &nbsp;
+    <%= submit_to_remote "submit_btn"+params[:id], message('reviews.unlink_action_plan_submit'), :url => {:action => 'violation_unlink_from_action_plan'}, :html => {:id => "submit_btn"+params[:id]}, :update => 'vId'+params[:id] -%>
+  <% end %>
+  
   &nbsp;
   <%= link_to_function message('cancel'), "cancelViolationAction(#{params[:id]})" -%>
 </form>

@@ -2,29 +2,37 @@
   unless action_plan.progress[:total]==0
     options = {:controller => 'project_reviews', :action => 'index', :action_plan_id => action_plan.id, :projects => action_plan.project_id}
   
-    resolved_reviews_link = link_to action_plan.progress[:resolved].to_s, options.merge({:statuses => "#{Review::STATUS_RESOLVED},#{Review::STATUS_CLOSED}"})
+    resolved_reviews_link = action_plan.progress[:resolved].to_s 
+    resolved_reviews_link = link_to action_plan.progress[:resolved].to_s, options.merge({:statuses => "#{Review::STATUS_RESOLVED},#{Review::STATUS_CLOSED}"}) unless action_plan.progress[:resolved]==0
     total_reviews_link = link_to action_plan.progress[:total].to_s, options
 
-    resolved_reviews_url = url_for options.merge({:statuses => "#{Review::STATUS_RESOLVED},#{Review::STATUS_CLOSED}"})
-    open_reviews_url = url_for options.merge({:statuses => "#{Review::STATUS_OPEN},#{Review::STATUS_REOPENED}"})
+    if action_plan.progress[:resolved] > 0
+      resolved_reviews_url = url_for options.merge({:statuses => "#{Review::STATUS_RESOLVED},#{Review::STATUS_CLOSED}"})
+      percent_resolved = (action_plan.progress[:resolved]*100/action_plan.progress[:total]).to_i
+      tooltip_resolved = message('action_plans.resolved_reviews_x_percent', :params => [percent_resolved.to_s, action_plan.progress[:resolved].to_s])
+    end
   
-    percent_resolved = (action_plan.progress[:resolved]*100/action_plan.progress[:total]).to_i
-    percent_open = (action_plan.progress[:open]*100/action_plan.progress[:total]).to_i
-    
-    tooltip_resolved = message('action_plans.resolved_reviews_x_percent', :params => [percent_resolved.to_s, action_plan.progress[:resolved].to_s])
-    tooltip_open = message('action_plans.open_reviews_x_percent', :params => [percent_open.to_s, action_plan.progress[:open].to_s])
+    if action_plan.progress[:open] > 0
+      open_reviews_url = url_for options.merge({:statuses => "#{Review::STATUS_OPEN},#{Review::STATUS_REOPENED}"})
+      percent_open = (action_plan.progress[:open]*100/action_plan.progress[:total]).to_i
+      tooltip_open = message('action_plans.open_reviews_x_percent', :params => [percent_open.to_s, action_plan.progress[:open].to_s])
+    end
 %>
 
 <div class="progress">
   <table>
     <tbody>
       <tr>
+        <% if action_plan.progress[:resolved] > 0 %>
         <td class="resolved" style="width:<%= percent_resolved -%>%;">
           <a href="<%= resolved_reviews_url -%>" title="<%= tooltip_resolved -%>" alt="<%= tooltip_resolved -%>"></a>
         </td>
+        <% end %>
+        <% if action_plan.progress[:open] > 0 %>
         <td class="open" style="width:<%= percent_open -%>%;">
           <a href="<%= open_reviews_url -%>" title="<%= tooltip_open -%>" alt="<%= tooltip_open -%>"></a>
         </td>
+        <% end %>
       </tr>
     </tbody>
   </table>

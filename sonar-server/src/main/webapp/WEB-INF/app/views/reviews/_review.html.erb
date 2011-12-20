@@ -39,10 +39,14 @@
                              :update => "actionForm",
                              :complete => "$('actionButtons').remove();$('actionForm').show();$('selectSeverity').focus();" -%>
 
-        <%= button_to_remote message('reviews.link_to_action_plan'),
+        <% if ActionPlan.open_by_project_id(@review.project_id).size>0 %>
+          <%= button_to_remote message('reviews.link_to_action_plan'),
                              :url => {:controller => "reviews", :action => "action_plan_form", :id => review.id},
                              :update => "actionForm",
                              :complete => "$('actionButtons').remove();$('actionForm').show();$('selectSeverity').focus();" -%>
+        <% else %>
+          <input type="button" value="<%= message('reviews.link_to_action_plan') -%>" onclick="alert('<%= message('reviews.an_action_plan_must_be_created_first') -%>');">
+        <% end %>
       <% end %>
     </div>
   <% end %>
