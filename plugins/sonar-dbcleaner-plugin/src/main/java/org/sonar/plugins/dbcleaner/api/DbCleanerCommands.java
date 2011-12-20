@@ -17,35 +17,40 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.dbcleaner.purges;
+package org.sonar.plugins.dbcleaner.api;
 
+import org.sonar.api.BatchExtension;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
-import org.sonar.plugins.dbcleaner.api.DbCleanerCommands;
-import org.sonar.plugins.dbcleaner.api.Purge;
-import org.sonar.plugins.dbcleaner.api.PurgeContext;
+import org.sonar.persistence.resource.ResourceIndexerDao;
 
-import javax.persistence.Query;
 import java.util.List;
 
 /**
- * @since 2.1
+ * @since 2.13
  */
-public final class PurgeOrphanResources extends Purge {
+public class DbCleanerCommands implements BatchExtension {
 
-  private DbCleanerCommands dbCleanerCommands;
+  private DatabaseSession session;
+  private ResourceIndexerDao resourceIndexer;
 
-  public PurgeOrphanResources(DatabaseSession session, DbCleanerCommands dbCleanerCommands) {
-    super(session);
-    this.dbCleanerCommands = dbCleanerCommands;
+  public DbCleanerCommands(DatabaseSession session, ResourceIndexerDao resourceIndexer) {
+    this.session = session;
+    this.resourceIndexer = resourceIndexer;
   }
 
-  public void purge(PurgeContext context) {
-    Query query = getSession().createQuery("SELECT r1.id FROM " + ResourceModel.class.getSimpleName() +
-      " r1 WHERE r1.rootId IS NOT NULL AND NOT EXISTS(FROM " + ResourceModel.class.getSimpleName() + " r2 WHERE r1.rootId=r2.id)");
-    List<Integer> idsToDelete = query.getResultList();
-    if (!idsToDelete.isEmpty()) {
-      dbCleanerCommands.deleteResources(idsToDelete);
+  public DbCleanerCommands deleteSnapshots(List<Integer> snapshotIds, boolean includeDependents) {
+    if (includeDependents) {
+      PurgeUtils.deleteSnapshotsData(session, snapshotIds);
+    } else {
+      PurgeUtils.deleteSnapshots(session, snapshotIds);
     }
+    return this;
+  }
+
+  public DbCleanerCommands deleteResources(List<Integer> resourceIds) {
+    PurgeUtils.executeQuery(session, "", resourceIds, "DELETE FROM " + ResourceModel.class.getSimpleName() + " WHERE id in (:ids)");
+    resourceIndexer.delete(resourceIds);
+    return this;
   }
 }

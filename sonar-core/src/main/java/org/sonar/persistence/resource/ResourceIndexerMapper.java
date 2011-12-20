@@ -19,9 +19,19 @@
  */
 package org.sonar.persistence.resource;
 
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
 public interface ResourceIndexerMapper {
 
   ResourceDto selectRootId(int id);
+
+  ResourceIndexDto selectMasterIndexByResourceId(int resourceId);
+
+  void deleteByResourceId(int resourceId);
+
+  void deleteByResourceIds(@Param("resourceIds") List<Integer> resourceIds);
 
   void insert(ResourceIndexDto dto);
 }

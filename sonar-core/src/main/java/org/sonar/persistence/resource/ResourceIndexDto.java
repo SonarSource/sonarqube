@@ -25,7 +25,7 @@ public final class ResourceIndexDto {
   private int position;
   private int nameSize;
   private int resourceId;
-  private int projectId;
+  private int rootProjectId;
 
   public String getKey() {
     return key;
@@ -54,12 +54,12 @@ public final class ResourceIndexDto {
     return this;
   }
 
-  public int getProjectId() {
-    return projectId;
+  public int getRootProjectId() {
+    return rootProjectId;
   }
 
-  public ResourceIndexDto setProjectId(int i) {
-    this.projectId = i;
+  public ResourceIndexDto setRootProjectId(int i) {
+    this.rootProjectId = i;
     return this;
   }
 

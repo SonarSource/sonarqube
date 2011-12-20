@@ -25,6 +25,7 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.batch.ServerMetadata;
 import org.sonar.batch.index.DefaultResourcePersister;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
+import org.sonar.persistence.resource.ResourceIndexerDao;
 
 import javax.persistence.Query;
 
@@ -50,7 +51,7 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
   private void assertAnalysis(int snapshotId, String fixture) {
     setupData("sharedFixture", fixture);
     DatabaseSession session = getSession();
-    UpdateStatusJob sensor = new UpdateStatusJob(mock(ServerMetadata.class), session, new DefaultResourcePersister(session), loadSnapshot(snapshotId));
+    UpdateStatusJob sensor = new UpdateStatusJob(mock(ServerMetadata.class), session, new DefaultResourcePersister(session, mock(ResourceIndexerDao.class)), loadSnapshot(snapshotId));
     sensor.execute();
 
     getSession().stop();

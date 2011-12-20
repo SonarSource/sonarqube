@@ -19,11 +19,8 @@
  */
 package org.sonar.server.startup;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.Test;
 import org.sonar.api.platform.ServerUpgradeStatus;
-import org.sonar.api.resources.Scopes;
 import org.sonar.jpa.entity.SchemaMigration;
 import org.sonar.persistence.resource.ResourceIndexerDao;
 import org.sonar.persistence.resource.ResourceIndexerFilter;
@@ -67,14 +64,6 @@ public class IndexProjectsTest {
 
     new IndexProjects(status, indexerDao).start();
 
-    verify(indexerDao).index(argThat(new BaseMatcher<ResourceIndexerFilter>() {
-      public boolean matches(Object o) {
-        ResourceIndexerFilter filter = (ResourceIndexerFilter) o;
-        return filter.getScopes().length == 1 && filter.getScopes()[0].equals(Scopes.PROJECT);
-      }
-
-      public void describeTo(Description description) {
-      }
-    }));
+    verify(indexerDao).index(any(ResourceIndexerFilter.class));
   }
 }

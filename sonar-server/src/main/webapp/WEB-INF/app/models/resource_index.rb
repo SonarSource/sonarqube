@@ -22,9 +22,9 @@ class ResourceIndex < ActiveRecord::Base
   set_table_name 'resource_index'
 
   belongs_to :resource, :class_name => 'Project', :foreign_key => 'resource_id'
-  belongs_to :project, :class_name => 'Project', :foreign_key => 'project_id'
+  belongs_to :root_project, :class_name => 'Project', :foreign_key => 'root_project_id'
 
   def resource_id_for_authorization
-    project_id
+    root_project_id
   end
 end

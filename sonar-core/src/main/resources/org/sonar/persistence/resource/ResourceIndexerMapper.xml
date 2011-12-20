@@ -3,7 +3,7 @@
 
 <mapper namespace="org.sonar.persistence.resource.ResourceIndexerMapper">
 
-  <select id="selectResourcesToIndex" parameterType="map" resultType="resource">
+  <select id="selectResourcesToIndex" parameterType="map" resultType="Resource">
     select id, root_id as "rootId", name
     from projects
     <where>
@@ -18,16 +18,33 @@
     </where>
   </select>
 
-  <select id="selectRootId" parameterType="int" resultType="resource">
+  <select id="selectRootId" parameterType="int" resultType="Resource">
     select id, root_id as "rootId"
     from projects
     where id=#{id}
   </select>
 
+  <select id="selectMasterIndexByResourceId" parameterType="int" resultType="ResourceIndex">
+    select kee as "key", resource_id as "resourceId"
+    from resource_index
+    where resource_id=#{id} and position=0
+  </select>
+
+  <delete id="deleteByResourceId" parameterType="int">
+    delete from resource_index
+    where resource_id=#{id}
+  </delete>
+
+  <delete id="deleteByResourceIds" parameterType="map">
+    delete from resource_index
+    where resource_id in
+    <foreach item="i" index="index" collection="resourceIds" open="(" separator="," close=")">#{i}</foreach>
+  </delete>
+
 
   <insert id="insert" parameterType="ResourceIndex" useGeneratedKeys="false">
-    insert into resource_index (kee, position, name_size, resource_id, project_id)
-    values (#{key}, #{position}, #{nameSize}, #{resourceId}, #{projectId})
+    insert into resource_index (kee, position, name_size, resource_id, root_project_id)
+    values (#{key}, #{position}, #{nameSize}, #{resourceId}, #{rootProjectId})
   </insert>
 </mapper>
 

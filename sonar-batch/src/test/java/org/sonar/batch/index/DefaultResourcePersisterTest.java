@@ -26,6 +26,7 @@ import org.sonar.api.resources.JavaPackage;
 import org.sonar.api.resources.Library;
 import org.sonar.api.resources.Project;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
+import org.sonar.persistence.resource.ResourceIndexerDao;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -33,6 +34,7 @@ import java.text.SimpleDateFormat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.Mockito.mock;
 
 public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
 
@@ -65,7 +67,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
   public void shouldSaveNewProject() {
     setupData("shared");
 
-    ResourcePersister persister = new DefaultResourcePersister(getSession());
+    ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourceIndexerDao.class));
     persister.saveProject(singleProject, null);
 
     checkTables("shouldSaveNewProject", "projects", "snapshots");
@@ -75,7 +77,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
   public void shouldSaveNewMultiModulesProject() throws ParseException {
     setupData("shared");
 
-    ResourcePersister persister = new DefaultResourcePersister(getSession());
+    ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourceIndexerDao.class));
     persister.saveProject(multiModuleProject, null);
     persister.saveProject(moduleA, multiModuleProject);
     persister.saveProject(moduleB, multiModuleProject);
@@ -88,7 +90,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
   public void shouldSaveNewDirectory() {
     setupData("shared");
 
-    ResourcePersister persister = new DefaultResourcePersister(getSession());
+    ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourceIndexerDao.class));
     persister.saveProject(singleProject, null);
     persister.saveResource(singleProject, new JavaPackage("org.foo").setEffectiveKey("foo:org.foo"));
 
@@ -100,7 +102,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
   public void shouldSaveNewLibrary() {
     setupData("shared");
 
-    ResourcePersister persister = new DefaultResourcePersister(getSession());
+    ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourceIndexerDao.class));
     persister.saveProject(singleProject, null);
     persister.saveResource(singleProject, new Library("junit:junit", "4.8.2").setEffectiveKey("junit:junit"));
     persister.saveResource(singleProject, new Library("junit:junit", "4.8.2").setEffectiveKey("junit:junit"));// do nothing, already saved
@@ -113,7 +115,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
   public void shouldClearResourcesExceptProjects() {
     setupData("shared");
 
-    DefaultResourcePersister persister = new DefaultResourcePersister(getSession());
+    DefaultResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourceIndexerDao.class));
     persister.saveProject(multiModuleProject, null);
     persister.saveProject(moduleA, multiModuleProject);
     persister.saveResource(moduleA, new JavaPackage("org.foo").setEffectiveKey("a:org.foo"));
@@ -129,7 +131,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
   public void shouldUpdateExistingResource() {
     setupData("shouldUpdateExistingResource");
 
-    ResourcePersister persister = new DefaultResourcePersister(getSession());
+    ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourceIndexerDao.class));
     singleProject.setName("new name");
     singleProject.setDescription("new description");
     persister.saveProject(singleProject, null);

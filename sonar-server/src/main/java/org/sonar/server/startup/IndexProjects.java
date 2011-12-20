@@ -62,8 +62,8 @@ public class IndexProjects implements ServerComponent {
 
   private static ResourceIndexerFilter newFilter() {
     return ResourceIndexerFilter.create()
-      .setQualifiers(new String[]{Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.SUBVIEW})
-      .setScopes(new String[]{Scopes.PROJECT});
+      .setQualifiers(new String[]{Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.SUBVIEW, Qualifiers.DIRECTORY, Qualifiers.PACKAGE, Qualifiers.FILE, Qualifiers.CLASS, Qualifiers.UNIT_TEST_FILE})
+      .setScopes(new String[]{Scopes.PROJECT, Scopes.DIRECTORY, Scopes.FILE});
   }
 
 }

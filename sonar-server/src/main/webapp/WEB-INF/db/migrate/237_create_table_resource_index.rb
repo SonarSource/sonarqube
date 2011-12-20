@@ -25,11 +25,11 @@ class CreateTableResourceIndex < ActiveRecord::Migration
 
   def self.up
     create_table 'resource_index', :id => false do |t|
-      t.column 'kee', :string, :null => false, :limit => 100
+      t.column 'kee', :string, :null => false, :limit => 400
       t.column 'position', :integer, :null => false
       t.column 'name_size', :integer, :null => false
       t.column 'resource_id', :integer, :null => false
-      t.column 'project_id', :integer, :null => false
+      t.column 'root_project_id', :integer, :null => false
     end
     add_index 'resource_index', 'kee', :name => 'resource_index_key'
     add_index 'resource_index', 'resource_id', :name => 'resource_index_rid'

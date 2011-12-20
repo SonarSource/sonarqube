@@ -21,8 +21,12 @@ package org.sonar.plugins.dbcleaner.purges;
 
 import org.junit.Test;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
+import org.sonar.persistence.resource.ResourceIndexerDao;
+import org.sonar.plugins.dbcleaner.api.DbCleanerCommands;
 
 import java.sql.SQLException;
+
+import static org.mockito.Mockito.mock;
 
 public class PurgeDisabledResourcesTest extends AbstractDbUnitTestCase {
 
@@ -43,7 +47,7 @@ public class PurgeDisabledResourcesTest extends AbstractDbUnitTestCase {
 
   private void assertPurge(String testName) {
     setupData("sharedFixture", testName);
-    new PurgeDisabledResources(getSession()).purge(null);
+    new PurgeDisabledResources(getSession(), new DbCleanerCommands(getSession(), mock(ResourceIndexerDao.class))).purge(null);
     checkTables(testName, "snapshots", "project_measures");
   }
 }

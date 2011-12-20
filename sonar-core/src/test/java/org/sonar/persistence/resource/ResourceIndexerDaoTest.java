@@ -23,6 +23,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.persistence.DaoTestCase;
 
+import java.util.Arrays;
+
 public class ResourceIndexerDaoTest extends DaoTestCase {
 
   private static ResourceIndexerDao dao;
@@ -33,21 +35,47 @@ public class ResourceIndexerDaoTest extends DaoTestCase {
   }
 
   @Test
-  public void testIndex() {
-    setupData("testIndex");
+  public void shouldIndexSingleResource() {
+    setupData("shouldIndexSingleResource");
 
     dao.index("ZipUtils", 10, 8);
 
-    checkTables("testIndex", "resource_index");
+    checkTables("shouldIndexSingleResource", "resource_index");
   }
 
   @Test
-  public void testIndexAll() {
-    setupData("testIndexAll");
+  public void shouldIndexAllResources() {
+    setupData("shouldIndexAllResources");
 
     dao.index(ResourceIndexerFilter.create());
 
-    checkTables("testIndexAll", "resource_index");
+    checkTables("shouldIndexAllResources", "resource_index");
   }
 
+  @Test
+  public void shouldIndexMultiModulesProject() {
+    setupData("shouldIndexMultiModulesProject");
+
+    dao.index(ResourceIndexerFilter.create());
+
+    checkTables("shouldIndexMultiModulesProject", "resource_index");
+  }
+
+  @Test
+  public void shouldReindexProjectAfterRenaming() {
+    setupData("shouldReindexProjectAfterRenaming");
+
+    dao.index(ResourceIndexerFilter.create());
+
+    checkTables("shouldReindexProjectAfterRenaming", "resource_index");
+  }
+
+  @Test
+  public void shouldDeleteIndexes() {
+    setupData("shouldDeleteIndexes");
+
+    dao.delete(Arrays.asList(3, 4, 5, 6));
+
+    checkTables("shouldDeleteIndexes", "resource_index");
+  }
 }

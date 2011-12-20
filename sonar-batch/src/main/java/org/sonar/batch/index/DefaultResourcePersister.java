@@ -27,14 +27,10 @@ import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.*;
 import org.sonar.api.utils.SonarException;
+import org.sonar.persistence.resource.ResourceIndexerDao;
 
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
-
-import org.sonar.api.resources.Qualifiers;
-
-import org.sonar.api.resources.Scopes;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -44,9 +40,11 @@ public final class DefaultResourcePersister implements ResourcePersister {
   private DatabaseSession session;
 
   private Map<Resource, Snapshot> snapshotsByResource = Maps.newHashMap();
+  private ResourceIndexerDao indexer;
 
-  public DefaultResourcePersister(DatabaseSession session) {
+  public DefaultResourcePersister(DatabaseSession session, ResourceIndexerDao indexer) {
     this.session = session;
+    this.indexer = indexer;
   }
 
   public Snapshot saveProject(Project project, Project parent) {
@@ -78,13 +76,14 @@ public final class DefaultResourcePersister implements ResourcePersister {
       model.setRootId((Integer) ObjectUtils.defaultIfNull(parentSnapshot.getRootProjectId(), parentSnapshot.getResourceId()));
     }
     model = session.save(model);
-    project.setId(model.getId()); // TODO to be removed
+    project.setId(model.getId());
 
     Snapshot snapshot = new Snapshot(model, parentSnapshot);
     snapshot.setVersion(project.getAnalysisVersion());
     snapshot.setCreatedAt(project.getAnalysisDate());
     snapshot = session.save(snapshot);
     session.commit();
+    indexer.index(project.getName(), snapshot.getResourceId(), snapshot.getRootProjectId());
     return snapshot;
   }
 
@@ -134,6 +133,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     } else {
       snapshot = persistFileOrDirectory(project, resource, parent);
     }
+    indexer.index(resource.getName(), snapshot.getResourceId(), snapshot.getRootProjectId());
     return snapshot;
   }
 
@@ -162,7 +162,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
 
   private Snapshot findLibrarySnapshot(Integer resourceId, String version) {
     Query query = session.createQuery("from " + Snapshot.class.getSimpleName() +
-        " s WHERE s.resourceId=:resourceId AND s.version=:version AND s.scope=:scope AND s.qualifier<>:qualifier AND s.last=:last");
+      " s WHERE s.resourceId=:resourceId AND s.version=:version AND s.scope=:scope AND s.qualifier<>:qualifier AND s.last=:last");
     query.setParameter("resourceId", resourceId);
     query.setParameter("version", version);
     query.setParameter("scope", Scopes.PROJECT);
@@ -183,7 +183,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     Snapshot projectSnapshot = snapshotsByResource.get(project);
     model.setRootId(projectSnapshot.getResourceId());
     model = session.save(model);
-    resource.setId(model.getId()); // TODO to be removed
+    resource.setId(model.getId());
 
     Snapshot parentSnapshot = (Snapshot) ObjectUtils.defaultIfNull(getSnapshot(parentReference), projectSnapshot);
     Snapshot snapshot = new Snapshot(model, parentSnapshot);
@@ -208,7 +208,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
 
   public void clear() {
     // we keep cache of projects
-    for (Iterator<Map.Entry<Resource, Snapshot>> it = snapshotsByResource.entrySet().iterator(); it.hasNext();) {
+    for (Iterator<Map.Entry<Resource, Snapshot>> it = snapshotsByResource.entrySet().iterator(); it.hasNext(); ) {
       Map.Entry<Resource, Snapshot> entry = it.next();
       if (!ResourceUtils.isSet(entry.getKey())) {
         it.remove();

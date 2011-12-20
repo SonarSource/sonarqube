@@ -22,34 +22,28 @@ package org.sonar.plugins.dbcleaner.purges;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
-
+import org.sonar.plugins.dbcleaner.api.DbCleanerCommands;
 import org.sonar.plugins.dbcleaner.api.Purge;
 import org.sonar.plugins.dbcleaner.api.PurgeContext;
-import org.sonar.plugins.dbcleaner.api.PurgeUtils;
-
-import java.util.List;
 
 import javax.persistence.Query;
+import java.util.List;
 
 /**
  * @since 1.11
  */
 public final class PurgeDisabledResources extends Purge {
 
-  public PurgeDisabledResources(DatabaseSession session) {
+  private DbCleanerCommands dbCleanerCommands;
+
+  public PurgeDisabledResources(DatabaseSession session, DbCleanerCommands dbCleanerCommands) {
     super(session);
+    this.dbCleanerCommands = dbCleanerCommands;
   }
 
   public void purge(PurgeContext context) {
-    PurgeUtils.deleteSnapshotsData(getSession(), getSnapshotIds());
-    deleteResources();
-  }
-
-  private void deleteResources() {
-    final List<Integer> resourceIds = getResourceIds();
-    if ( !resourceIds.isEmpty()) {
-      PurgeUtils.executeQuery(getSession(), "", resourceIds, "delete from " + ResourceModel.class.getSimpleName() + " r where r.id in (:ids)");
-    }
+    dbCleanerCommands.deleteSnapshots(getSnapshotIds(), true);
+    dbCleanerCommands.deleteResources(getResourceIds());
   }
 
   private List<Integer> getResourceIds() {
@@ -60,7 +54,7 @@ public final class PurgeDisabledResources extends Purge {
 
   private List<Integer> getSnapshotIds() {
     Query query = getSession().createQuery("SELECT s.id FROM " + Snapshot.class.getSimpleName() + " s WHERE " +
-        " EXISTS (FROM " + ResourceModel.class.getSimpleName() + " r WHERE r.id=s.resourceId AND r.enabled=:enabled)");
+      " EXISTS (FROM " + ResourceModel.class.getSimpleName() + " r WHERE r.id=s.resourceId AND r.enabled=:enabled)");
     query.setParameter("enabled", Boolean.FALSE);
     return query.getResultList();
   }

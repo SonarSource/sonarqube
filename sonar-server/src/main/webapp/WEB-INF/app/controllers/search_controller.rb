@@ -30,7 +30,7 @@ class SearchController < ApplicationController
   def index
     @start_time = Time.now
     @search = params[:s]
-    unless @search.empty?
+    unless @search.blank?
       if @search.to_s.size>=3
         normalized_search = @search.downcase
         @results = ResourceIndex.find(:all,
