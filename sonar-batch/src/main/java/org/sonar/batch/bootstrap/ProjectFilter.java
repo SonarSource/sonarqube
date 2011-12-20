@@ -21,6 +21,7 @@ package org.sonar.batch.bootstrap;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 
@@ -40,7 +41,7 @@ public class ProjectFilter {
   public boolean isExcluded(Project project) {
     Project p = project;
     while (p != null) {
-      if (isExcluded(getArtifactId(p))) {
+      if (isExcludedModule(getArtifactId(p), p.isRoot())) {
         return true;
       }
       p = p.getParent();
@@ -48,14 +49,21 @@ public class ProjectFilter {
     return false;
   }
 
-  private boolean isExcluded(String artifactId) {
+  private boolean isExcludedModule(String artifactId, boolean isRoot) {
     String[] includedArtifactIds = settings.getStringArray("sonar.includedModules");
-
-    if (includedArtifactIds.length > 0) {
-      return !ArrayUtils.contains(includedArtifactIds, artifactId);
+    boolean excluded = false;
+    if (!isRoot && includedArtifactIds.length > 0) {
+      excluded = !ArrayUtils.contains(includedArtifactIds, artifactId);
     }
-    String[] excludedArtifactIds = settings.getStringArray("sonar.skippedModules");
-    return ArrayUtils.contains(excludedArtifactIds, artifactId);
+    if (!excluded) {
+      String[] excludedArtifactIds = settings.getStringArray("sonar.skippedModules");
+      excluded = ArrayUtils.contains(excludedArtifactIds, artifactId);
+    }
+    if (excluded && isRoot) {
+      LoggerFactory.getLogger(getClass()).warn("The root module can't be excluded: " + artifactId);
+      excluded = false;
+    }
+    return excluded;
   }
 
   // TODO see http://jira.codehaus.org/browse/SONAR-2324

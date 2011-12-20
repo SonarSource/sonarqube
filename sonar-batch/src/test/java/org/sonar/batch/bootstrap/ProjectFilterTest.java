@@ -22,51 +22,60 @@ package org.sonar.batch.bootstrap;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.config.ProjectSettings;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class ProjectFilterTest {
 
+  private Project root = new Project("root");
+
   @Test
-  public void testSkippedModule() {
+  public void testSkippedModules() {
     Settings settings = new Settings();
     settings.setProperty("sonar.skippedModules", "foo,bar");
 
     ProjectFilter filter = new ProjectFilter(settings);
-    assertTrue(filter.isExcluded(new Project("my:foo")));
+    assertTrue(filter.isExcluded(new Project("foo").setParent(root)));
+    assertFalse(filter.isExcluded(new Project("other").setParent(root)));
   }
 
   @Test
-  public void testNotExcluded() {
+  public void shouldNotSkipRoot() {
     Settings settings = new Settings();
-    settings.setProperty("sonar.skippedModules", "foo,bar");
-
+    settings.setProperty("sonar.skippedModules", "root,foo,bar");
     ProjectFilter filter = new ProjectFilter(settings);
-    assertFalse(filter.isExcluded(new Project("my:other")));
+
+    assertFalse(filter.isExcluded(root));
   }
+
 
   @Test
   public void testNoSkippedModules() {
     Settings settings = new Settings();
-
     ProjectFilter filter = new ProjectFilter(settings);
-    assertFalse(filter.isExcluded(new Project("my:other")));
+
+    assertFalse(filter.isExcluded(new Project("foo").setParent(root)));
+    assertFalse(filter.isExcluded(root));
   }
 
   @Test
   public void testIncludedModules() {
     Settings settings = new Settings();
     settings.setProperty("sonar.includedModules", "foo");
-
     ProjectFilter filter = new ProjectFilter(settings);
-    assertFalse(filter.isExcluded(new Project("my:foo")));
 
-    filter = new ProjectFilter(settings);
-    assertTrue(filter.isExcluded(new Project("my:bar")));
+    assertFalse(filter.isExcluded(new Project("foo").setParent(root)));
+    assertTrue(filter.isExcluded(new Project("bar").setParent(root)));
+  }
+
+  @Test
+  public void shouldNotIncludeRoot() {
+    Settings settings = new Settings();
+    settings.setProperty("sonar.includedModules", "foo,bar");
+    ProjectFilter filter = new ProjectFilter(settings);
+
+    assertFalse(filter.isExcluded(root));
   }
 
   @Test
@@ -74,11 +83,11 @@ public class ProjectFilterTest {
     Settings settings = new Settings();
     settings.setProperty("sonar.skippedModules", "parent");
 
-    Project parent = new Project("my:parent");
-    Project child = new Project("my:child");
-    child.setParent(parent);
+    Project parent = new Project("parent").setParent(root);
+    Project child = new Project("child").setParent(parent);
 
     ProjectFilter filter = new ProjectFilter(settings);
+    assertTrue(filter.isExcluded(parent));
     assertTrue(filter.isExcluded(child));
   }
 
