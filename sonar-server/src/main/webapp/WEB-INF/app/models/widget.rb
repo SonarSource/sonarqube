@@ -47,9 +47,9 @@ class Widget < ActiveRecord::Base
     prop ? prop.text_value : nil
   end
 
-  def property_value(key)
+  def property_value(key, default_value=nil)
     prop=property(key)
-    prop ? prop.value : nil
+    (prop ? prop.value : nil)||default_value
   end
 
   def properties_as_hash
