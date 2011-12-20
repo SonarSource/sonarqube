@@ -45,7 +45,7 @@ class RefactorRuleMeasures < ActiveRecord::Migration
     to_metric = Metric.find_by_name(to_metric_key)
 
     if from_metric && to_metric
-      say_with_time("Replacing #{from_metric_key} by #{to_metric_key}") do
+      say_with_time("Update metric #{to_metric_key}") do
         ProjectMeasure.update_all("metric_id=#{to_metric.id}", "metric_id=#{from_metric.id} AND rule_id IS NOT NULL AND rule_priority=#{from_severity}")
       end
     end
