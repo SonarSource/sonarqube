@@ -220,30 +220,30 @@ public final class Platform {
 
   private void executeStartupTasks() {
     ComponentContainer startupContainer = servicesContainer.createChild();
-    try {
-      startupContainer.addSingleton(MavenRepository.class);
-      startupContainer.addSingleton(GwtPublisher.class);
-      startupContainer.addSingleton(RegisterMetrics.class);
-      startupContainer.addSingleton(RegisterRules.class);
-      startupContainer.addSingleton(RegisterProvidedProfiles.class);
-      startupContainer.addSingleton(EnableProfiles.class);
-      startupContainer.addSingleton(ActivateDefaultProfiles.class);
-      startupContainer.addSingleton(JdbcDriverDeployer.class);
-      startupContainer.addSingleton(ServerMetadataPersister.class);
-      startupContainer.addSingleton(RegisterQualityModels.class);
-      startupContainer.addSingleton(DeleteDeprecatedMeasures.class);
-      startupContainer.addSingleton(GeneratePluginIndex.class);
-      startupContainer.addSingleton(RegisterNewDashboards.class);
-      startupContainer.addSingleton(IndexProjects.class);
-      startupContainer.startComponents();
+    startupContainer.addSingleton(MavenRepository.class);
+    startupContainer.addSingleton(GwtPublisher.class);
+    startupContainer.addSingleton(RegisterMetrics.class);
+    startupContainer.addSingleton(RegisterRules.class);
+    startupContainer.addSingleton(RegisterProvidedProfiles.class);
+    startupContainer.addSingleton(EnableProfiles.class);
+    startupContainer.addSingleton(ActivateDefaultProfiles.class);
+    startupContainer.addSingleton(JdbcDriverDeployer.class);
+    startupContainer.addSingleton(ServerMetadataPersister.class);
+    startupContainer.addSingleton(RegisterQualityModels.class);
+    startupContainer.addSingleton(DeleteDeprecatedMeasures.class);
+    startupContainer.addSingleton(GeneratePluginIndex.class);
+    startupContainer.addSingleton(RegisterNewDashboards.class);
+    startupContainer.addSingleton(IndexProjects.class);
+    startupContainer.startComponents();
 
-      startupContainer.getComponentByType(ServerLifecycleNotifier.class).notifyStart();
+    startupContainer.getComponentByType(ServerLifecycleNotifier.class).notifyStart();
 
-    } finally {
-      startupContainer.stopComponents();
-      servicesContainer.removeChild();
-      servicesContainer.getComponentByType(DatabaseSessionFactory.class).clear();
-    }
+    // Do not put the following statements in a finally block.
+    // It would hide the possible exception raised during startup
+    // See SONAR-3107
+    startupContainer.stopComponents();
+    servicesContainer.removeChild();
+    servicesContainer.getComponentByType(DatabaseSessionFactory.class).clear();
   }
 
   public void stop() {
