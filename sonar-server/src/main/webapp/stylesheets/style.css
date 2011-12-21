@@ -224,44 +224,6 @@ div#sidebar .selected a, div#sidebar .selected a:hover, div#sidebar.selected a:v
   margin: 4px 0 0 0;
 }
 
-#projectResults {
-  position: relative;
-  background: #fff;
-  color: #111;
-  line-height: 1em;
-  border: 1px solid #ccc;
-  z-index: 999999;
-  margin: 0;
-  padding: 0;
-}
-
-#projectResults ul {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-}
-
-#projectResults ul li.selected {
-  background-color: #4b9fd5;
-  color: #fff;
-  margin: 0;
-}
-
-#projectResults ul li {
-  float: none;
-  display: block;
-  list-style-type: none;
-  cursor: pointer;
-  color: #333;
-  margin: 0;
-  padding: 5px 10px;
-  line-height: 1em;
-}
-
-#projectResults strong {
-  font-weight: bold;
-}
-
 /*
   FOOTER
 */
@@ -489,10 +451,6 @@ h3, .h3 {
 h4, .h4 {
   font-size: 85%;
   color: #777;
-}
-
-.highlight {
-  font-weight: bold;
 }
 
 .subtitle {
@@ -1238,7 +1196,7 @@ table.actionPlans td.progress {
 }
 
 table.actionPlans td.noprogress {
-  color: #777777; 
+  color: #777777;
   font-size: 93%;
   padding-left: 40px;
   padding-right: 40px;
@@ -1283,17 +1241,28 @@ div.progress div.note {
   white-space: nowrap;
 }
 
-/* AUTOCOMPLETE FIELDS */
+/* SEARCH AUTOCOMPLETE FIELDS */
+#searchResourcesInput {
+  color: #777;
+  font-size: 93%;
+}
+
 div.autocomplete {
   position: absolute;
-  width: 250px;
+  width: 600px;
+  right: 10px;
+  top: 10px;
   background-color: #fff;
   border: 1px solid #ccc;
   margin: 0;
   padding: 0;
   color: #111;
-  line-height: 1em;
-  text-shadow: none;
+  line-height: 18px;
+  -moz-box-shadow: 0 0 10px 5px #EFEFEF;
+  -webkit-box-shadow: 0 0 10px 5px #EFEFEF;
+  -o-box-shadow: 0 0 10px 5px #EFEFEF;
+  box-shadow: 0 0 10px 5px #EFEFEF;
+  z-index: 10000;
 }
 
 div.autocomplete ul {
@@ -1302,24 +1271,54 @@ div.autocomplete ul {
   padding: 0;
 }
 
-div.autocomplete ul li.selected {
-  background-color: #4b9fd5;
-  color: #fff;
-  margin: 0;
-}
-
 div.autocomplete ul li {
   list-style-type: none;
   display: block;
   margin: 0;
-  padding: 5px 10px;
+  padding: 3px 10px;
   cursor: pointer;
   color: #333;
-  line-height: 1em;
+  line-height: 18px;
+  height: 18px;
+  vertical-align: middle;
+}
+
+div.autocomplete div.q {
+  font-size: 93%;
+  color: #777;
+  width: 85px;
+  text-align: right;
+  margin-right: 5px;
+  display: inline-block;
+
+  /* For IE 7 */
+  zoom: 1;
+  *display: inline;
+}
+
+div.autocomplete ul li img {
+  vertical-align: middle;
+}
+
+div.autocomplete ul li.selected {
+  background-color: #4b9fd5;
+  color: #fff;
+}
+
+div.autocomplete ul li.selected div.q {
+  color: #fff;
 }
 
 div.autocomplete strong {
   font-weight: bold;
+}
+
+div.autocompleteNote {
+  color: #777;
+  font-size: 85%;
+  background-color: #EFEFEF;
+  border-top: 1px solid #CCC;
+  padding: 1px 10px;
 }
 
 #gwtpage {

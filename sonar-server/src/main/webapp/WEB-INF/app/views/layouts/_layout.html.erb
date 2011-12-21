@@ -7,15 +7,14 @@
     <%= render :partial => 'layouts/breadcrumb' %>
     <ol id="nav">
       <li>
-        <input type="text" autocomplete="off" size="15" name="search" id="projectSearch" onFocus="this.size=30;this.value='';autocompleteProjects('<%= ApplicationController.root_context -%>/api/resources?scopes=<%= Project::SCOPE_SET -%>&qualifiers=<%= Project::QUALIFIER_VIEW-%>,<%= Project::QUALIFIER_SUBVIEW-%>,<%= Project::QUALIFIER_PROJECT-%>', '<%= ApplicationController.root_context -%>/dashboard/index/', this, $('projectResults'));return true;" onBlur="javacript:this.size=15" value="<%= message('search_verb') -%>"/>
-
-        <div id="projectResults" style="display:none"></div>
+        <input type="text" size="15" name="search" id="searchResourcesInput" onFocus="autocompleteResources('<%= ApplicationController.root_context -%>')" accesskey="/" value="<%= message('search_verb') -%>"/>
+        <img src="<%= ApplicationController.root_context -%>/images/loading-black.gif" id="searchingResources" style="display: none">
       </li>
       <li>
         <a href="javascript:window.print()"><img src="<%= ApplicationController.root_context -%>/images/print.gif" alt="<%= message('layout.print') -%>" title="<%= message('layout.print') -%>"/></a>
         <% if @project %>
           <a href="<%= url_for :overwrite_params => {:id => @project.key} -%>" id="permalink">
-          <img src="<%= ApplicationController.root_context -%>/images/permalink.gif" alt="<%= message('layout.permalink') -%>" title="<%= message('layout.permalink') -%>"/></a>
+            <img src="<%= ApplicationController.root_context -%>/images/permalink.gif" alt="<%= message('layout.permalink') -%>" title="<%= message('layout.permalink') -%>"/></a>
         <% end %>
       </li>
       <% if logged_in? %>
@@ -31,6 +30,7 @@
 
   </div>
   <div id="body">
+    <div id="searchResourcesResults" class="autocomplete" style="display:none"></div>
     <div id="sb">
       <div id="sidebar">
         <ul>
@@ -72,8 +72,8 @@
               <li class="<%= 'selected' if request.request_uri.include?('/manual_measures') -%>">
                 <a href="<%= ApplicationController.root_context -%>/manual_measures/index/<%= @project.id -%>"><%= message('manual_measures.page') -%></a></li>
               <% if (@project.project?) %>
-              <li class="<%= 'selected' if request.request_uri.include?('/action_plans') -%>">
-                <a href="<%= ApplicationController.root_context -%>/action_plans/index/<%= @project.id -%>"><%= message('action_plans.page') -%></a></li>
+                <li class="<%= 'selected' if request.request_uri.include?('/action_plans') -%>">
+                  <a href="<%= ApplicationController.root_context -%>/action_plans/index/<%= @project.id -%>"><%= message('action_plans.page') -%></a></li>
               <% end %>
               <% if (@project.project? || @project.module?) %>
                 <li class="<%= 'selected' if request.request_uri.include?('/project/settings') -%>">
@@ -158,7 +158,7 @@
       <% if @sidebar %>
         <div id="sidebarconf"><%= render :partial => @sidebar %></div>
       <% else %>
-        <div id="sidebarconf" class="hidden"> </div>
+        <div id="sidebarconf" class="hidden"></div>
       <% end %>
 
     </div>

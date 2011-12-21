@@ -26,49 +26,64 @@ class SearchController < ApplicationController
 
   # Do not exceed 1000 because of the Oracle limition on IN statements
   MAX_RESULTS = 6
+  MIN_SEARCH_SIZE=3
 
   def index
     @start_time = Time.now
     search = params[:s]
-    unless search.blank?
-      if search.to_s.size>=3
-        key = search.downcase
-        results = ResourceIndex.find(:all,
-                                     :select => 'resource_id,root_project_id,qualifier', # optimization to not load unused columns like 'kee'
-                                     :conditions => ["kee like ?", key + '%'],
-                                     :order => 'name_size')
+    bad_request('Minimum search is 3 characters') if search.empty? || search.to_s.size<MIN_SEARCH_SIZE
 
-        results = select_authorized(:user, results)
-        resource_ids=[]
-        @results_by_qualifier={}
-        @count_by_qualifier=Hash.new(0)
-        results.each do |resource_index|
-          @results_by_qualifier[resource_index.qualifier]||=[]
-          array=@results_by_qualifier[resource_index.qualifier]
-          if array.size<MAX_RESULTS
-            resource_ids<<resource_index.resource_id
-            array<<resource_index
-          end
-          @count_by_qualifier[resource_index.qualifier]+=1
-        end
+    key = search.downcase
+    results = ResourceIndex.find(:all,
+                                 :select => 'resource_id,root_project_id,qualifier', # optimization to not load unused columns like 'kee'
+                                 :conditions => ["kee like ?", key + '%'],
+                                 :order => 'name_size')
 
-        @resources_by_id = {}
-        unless resource_ids.empty?
-          Project.find(:all, :conditions => ['id in (?)', resource_ids]).each do |resource|
-            @resources_by_id[resource.id]=resource
-          end
-        end
-      else
-        flash[:warning]='Please refine your search'
+    results = select_authorized(:user, results)
+    @total = results.size
+
+    resource_ids=[]
+    @results_by_qualifier={}
+    results.each do |resource_index|
+      qualifier = fix_qualifier(resource_index.qualifier)
+      @results_by_qualifier[qualifier]||=[]
+      array=@results_by_qualifier[qualifier]
+      if array.size<MAX_RESULTS
+        resource_ids<<resource_index.resource_id
+        array<<resource_index
       end
     end
+
+    @resources_by_id = {}
+    unless resource_ids.empty?
+      Project.find(:all, :conditions => ['id in (?)', resource_ids]).each do |resource|
+        @resources_by_id[resource.id]=resource
+      end
+    end
+
+    render :partial => 'search/autocomplete'
   end
 
+  #
+  # TO DELETE !!!!!
+  #
+  #
   # Start indexing resources
   #
   # curl -v -u admin:admin -X POST http://localhost:9000/search/reset
   def reset
     java_facade.indexResources()
     render :text => 'indexing'
+  end
+
+
+  private
+  def fix_qualifier(q)
+    case q
+      when 'CLA' then
+        'FIL'
+      else
+        q
+    end
   end
 end

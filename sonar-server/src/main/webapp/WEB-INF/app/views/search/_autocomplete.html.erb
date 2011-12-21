@@ -1,0 +1,24 @@
+<% search = params[:s] %>
+<% unless @results_by_qualifier.empty? %>
+  <ul>
+    <%
+       @results_by_qualifier.keys.each do |qualifier|
+    %>
+      <%
+         @results_by_qualifier[qualifier].each_with_index do |resource_index, index|
+           resource=@resources_by_id[resource_index.resource_id]
+      %>
+        <li id="<%= resource.id -%>">
+          <div class="q"><%= index==0 ? message("qualifiers.#{qualifier}") : '' -%></div>
+
+          <%= qualifier_icon resource -%> <%= highlight(resource.name(true), search) -%>
+        </li>
+      <% end %>
+    <% end %>
+  </ul>
+<% else %>
+  <ul>
+    <li>No results</li>
+  </ul>
+<% end %>
+<div class="autocompleteNote"><%= @total -%> results (<%= Time.now - @start_time -%> seconds)</div>
