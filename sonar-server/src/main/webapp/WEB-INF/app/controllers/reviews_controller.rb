@@ -494,7 +494,7 @@ class ReviewsController < ApplicationController
       options['authors']=@author_login
     end
     if @assignee_login
-      options['assignees']=@assignee_login
+      options['assignees']=@assignee_login unless @assignee_login.blank?
     end
     if @false_positives
       options['false_positives']=@false_positives

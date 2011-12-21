@@ -337,15 +337,21 @@ class Review < ActiveRecord::Base
       end
 
       assignees=options['assignees'].split(',') if options['assignees']
-      if assignees && assignees.size>0 && !assignees[0].blank?
-        conditions << 'assignee_id in (:assignees)'
-        unless Api::Utils.is_number?(assignees[0])
-          values[:assignees]=User.logins_to_ids(assignees)
+      if assignees
+        if assignees.size == 0
+          # Unassigned reviews
+          conditions << 'assignee_id IS NULL'
         else
-          values[:assignees]=assignees.map { |user_id| user_id.to_i }
+          # Assigned reviews
+          conditions << 'assignee_id in (:assignees)'
+          unless Api::Utils.is_number?(assignees[0])
+            values[:assignees]=User.logins_to_ids(assignees)
+          else
+            values[:assignees]=assignees.map { |user_id| user_id.to_i }
+          end
         end
       end
-      
+
       action_plan_id = options['action_plan_id']
       if action_plan_id
         action_plan = ActionPlan.find action_plan_id.to_i, :include => 'reviews'
