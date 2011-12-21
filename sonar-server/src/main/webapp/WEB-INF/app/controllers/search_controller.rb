@@ -25,25 +25,36 @@ class SearchController < ApplicationController
   before_filter :admin_required, :except => ['index']
 
   # Do not exceed 1000 because of the Oracle limition on IN statements
-  MAX_RESULTS = 50
+  MAX_RESULTS = 6
 
   def index
     @start_time = Time.now
-    @search = params[:s]
-    unless @search.blank?
-      if @search.to_s.size>=3
-        normalized_search = @search.downcase
-        @results = ResourceIndex.find(:all,
-                                      :conditions => ["resource_index.kee like ?", normalized_search + '%'],
-                                      :order => 'name_size, position')
+    search = params[:s]
+    unless search.blank?
+      if search.to_s.size>=3
+        key = search.downcase
+        results = ResourceIndex.find(:all,
+                                     :select => 'resource_id,root_project_id,qualifier', # optimization to not load unused columns like 'kee'
+                                     :conditions => ["kee like ?", key + '%'],
+                                     :order => 'name_size')
 
-        @results = select_authorized(:user, @results)
-        @total = @results.size
-        @results = @results[0...MAX_RESULTS]
+        results = select_authorized(:user, results)
+        resource_ids=[]
+        @results_by_qualifier={}
+        @count_by_qualifier=Hash.new(0)
+        results.each do |resource_index|
+          @results_by_qualifier[resource_index.qualifier]||=[]
+          array=@results_by_qualifier[resource_index.qualifier]
+          if array.size<MAX_RESULTS
+            resource_ids<<resource_index.resource_id
+            array<<resource_index
+          end
+          @count_by_qualifier[resource_index.qualifier]+=1
+        end
 
         @resources_by_id = {}
-        unless @results.empty?
-          Project.find(:all, :conditions => ['id in (?)', @results.map { |resource_index| resource_index.resource_id }]).each do |resource|
+        unless resource_ids.empty?
+          Project.find(:all, :conditions => ['id in (?)', resource_ids]).each do |resource|
             @resources_by_id[resource.id]=resource
           end
         end

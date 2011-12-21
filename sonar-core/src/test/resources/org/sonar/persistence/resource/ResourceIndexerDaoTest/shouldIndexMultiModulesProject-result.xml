@@ -11,7 +11,7 @@
             description="[null]"
             enabled="[true]" language="java" copy_resource_id="[null]"/>
 
-  <projects long_name="org.struts.RequestContext" id="3" scope="FIL" qualifier="CLA" kee="org.struts:struts-core:org.struts.RequestContext"
+  <projects long_name="org.struts.RequestContext" id="3" scope="FIL" qualifier="FIL" kee="org.struts:struts-core:org.struts.RequestContext"
             name="RequestContext" root_id="2"
             description="[null]"
             enabled="[true]" language="java" copy_resource_id="[null]"/>
@@ -20,33 +20,33 @@
   <!-- The major goal is to test root_project_id -->
 
   <!-- Struts -->
-  <resource_index kee="struts" position="0" name_size="6" resource_id="1" root_project_id="1"/>
-  <resource_index kee="truts" position="1" name_size="6" resource_id="1" root_project_id="1"/>
-  <resource_index kee="ruts" position="2" name_size="6" resource_id="1" root_project_id="1"/>
-  <resource_index kee="uts" position="3" name_size="6" resource_id="1" root_project_id="1"/>
+  <resource_index kee="struts" position="0" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
+  <resource_index kee="truts" position="1" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
+  <resource_index kee="ruts" position="2" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
+  <resource_index kee="uts" position="3" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
 
   <!-- Struts Core -->
-  <resource_index kee="struts core" position="0" name_size="11" resource_id="2" root_project_id="1"/>
-  <resource_index kee="truts core" position="1" name_size="11" resource_id="2" root_project_id="1"/>
-  <resource_index kee="ruts core" position="2" name_size="11" resource_id="2" root_project_id="1"/>
-  <resource_index kee="uts core" position="3" name_size="11" resource_id="2" root_project_id="1"/>
-  <resource_index kee="ts core" position="4" name_size="11" resource_id="2" root_project_id="1"/>
-  <resource_index kee="s core" position="5" name_size="11" resource_id="2" root_project_id="1"/>
-  <resource_index kee=" core" position="6" name_size="11" resource_id="2" root_project_id="1"/>
-  <resource_index kee="core" position="7" name_size="11" resource_id="2" root_project_id="1"/>
-  <resource_index kee="ore" position="8" name_size="11" resource_id="2" root_project_id="1"/>
+  <resource_index kee="struts core" position="0" name_size="11" resource_id="2" root_project_id="1" qualifier="BRC"/>
+  <resource_index kee="truts core" position="1" name_size="11" resource_id="2" root_project_id="1" qualifier="BRC"/>
+  <resource_index kee="ruts core" position="2" name_size="11" resource_id="2" root_project_id="1" qualifier="BRC"/>
+  <resource_index kee="uts core" position="3" name_size="11" resource_id="2" root_project_id="1" qualifier="BRC"/>
+  <resource_index kee="ts core" position="4" name_size="11" resource_id="2" root_project_id="1" qualifier="BRC"/>
+  <resource_index kee="s core" position="5" name_size="11" resource_id="2" root_project_id="1" qualifier="BRC"/>
+  <resource_index kee=" core" position="6" name_size="11" resource_id="2" root_project_id="1" qualifier="BRC"/>
+  <resource_index kee="core" position="7" name_size="11" resource_id="2" root_project_id="1" qualifier="BRC"/>
+  <resource_index kee="ore" position="8" name_size="11" resource_id="2" root_project_id="1" qualifier="BRC"/>
 
   <!-- RequestContext -->
-  <resource_index kee="requestcontext" position="0" name_size="14" resource_id="3" root_project_id="1"/>
-  <resource_index kee="equestcontext" position="1" name_size="14" resource_id="3" root_project_id="1"/>
-  <resource_index kee="questcontext" position="2" name_size="14" resource_id="3" root_project_id="1"/>
-  <resource_index kee="uestcontext" position="3" name_size="14" resource_id="3" root_project_id="1"/>
-  <resource_index kee="estcontext" position="4" name_size="14" resource_id="3" root_project_id="1"/>
-  <resource_index kee="stcontext" position="5" name_size="14" resource_id="3" root_project_id="1"/>
-  <resource_index kee="tcontext" position="6" name_size="14" resource_id="3" root_project_id="1"/>
-  <resource_index kee="context" position="7" name_size="14" resource_id="3" root_project_id="1"/>
-  <resource_index kee="ontext" position="8" name_size="14" resource_id="3" root_project_id="1"/>
-  <resource_index kee="ntext" position="9" name_size="14" resource_id="3" root_project_id="1"/>
-  <resource_index kee="text" position="10" name_size="14" resource_id="3" root_project_id="1"/>
-  <resource_index kee="ext" position="11" name_size="14" resource_id="3" root_project_id="1"/>
+  <resource_index kee="requestcontext" position="0" name_size="14" resource_id="3" root_project_id="1" qualifier="FIL"/>
+  <resource_index kee="equestcontext" position="1" name_size="14" resource_id="3" root_project_id="1" qualifier="FIL"/>
+  <resource_index kee="questcontext" position="2" name_size="14" resource_id="3" root_project_id="1" qualifier="FIL"/>
+  <resource_index kee="uestcontext" position="3" name_size="14" resource_id="3" root_project_id="1" qualifier="FIL"/>
+  <resource_index kee="estcontext" position="4" name_size="14" resource_id="3" root_project_id="1" qualifier="FIL"/>
+  <resource_index kee="stcontext" position="5" name_size="14" resource_id="3" root_project_id="1" qualifier="FIL"/>
+  <resource_index kee="tcontext" position="6" name_size="14" resource_id="3" root_project_id="1" qualifier="FIL"/>
+  <resource_index kee="context" position="7" name_size="14" resource_id="3" root_project_id="1" qualifier="FIL"/>
+  <resource_index kee="ontext" position="8" name_size="14" resource_id="3" root_project_id="1" qualifier="FIL"/>
+  <resource_index kee="ntext" position="9" name_size="14" resource_id="3" root_project_id="1" qualifier="FIL"/>
+  <resource_index kee="text" position="10" name_size="14" resource_id="3" root_project_id="1" qualifier="FIL"/>
+  <resource_index kee="ext" position="11" name_size="14" resource_id="3" root_project_id="1" qualifier="FIL"/>
 </dataset>

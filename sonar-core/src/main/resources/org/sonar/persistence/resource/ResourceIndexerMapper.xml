@@ -4,7 +4,7 @@
 <mapper namespace="org.sonar.persistence.resource.ResourceIndexerMapper">
 
   <select id="selectResourcesToIndex" parameterType="map" resultType="Resource">
-    select id, root_id as "rootId", name
+    select id, root_id as "rootId", name, scope, qualifier
     from projects
     <where>
       enabled=#{enabled}
@@ -43,8 +43,8 @@
 
 
   <insert id="insert" parameterType="ResourceIndex" useGeneratedKeys="false">
-    insert into resource_index (kee, position, name_size, resource_id, root_project_id)
-    values (#{key}, #{position}, #{nameSize}, #{resourceId}, #{rootProjectId})
+    insert into resource_index (kee, position, name_size, resource_id, root_project_id, qualifier)
+    values (#{key}, #{position}, #{nameSize}, #{resourceId}, #{rootProjectId}, #{qualifier})
   </insert>
 </mapper>
 

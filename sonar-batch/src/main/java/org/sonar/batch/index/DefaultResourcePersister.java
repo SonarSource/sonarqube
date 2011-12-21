@@ -83,7 +83,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     snapshot.setCreatedAt(project.getAnalysisDate());
     snapshot = session.save(snapshot);
     session.commit();
-    indexer.index(project.getName(), snapshot.getResourceId(), snapshot.getRootProjectId());
+    indexer.index(project.getName(), snapshot.getQualifier(), snapshot.getResourceId(), snapshot.getRootProjectId());
     return snapshot;
   }
 
@@ -133,7 +133,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     } else {
       snapshot = persistFileOrDirectory(project, resource, parent);
     }
-    indexer.index(resource.getName(), snapshot.getResourceId(), snapshot.getRootProjectId());
+    indexer.index(resource.getName(), snapshot.getQualifier(), snapshot.getResourceId(), snapshot.getRootProjectId());
     return snapshot;
   }
 

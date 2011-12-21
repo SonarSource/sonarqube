@@ -11,7 +11,7 @@
             description="[null]"
             enabled="[true]" language="java" copy_resource_id="[null]"/>
 
-  <projects long_name="org.struts.RequestContext" id="3" scope="FIL" qualifier="CLA" kee="org.struts:struts-core:org.struts.RequestContext"
+  <projects long_name="org.struts.RequestContext" id="3" scope="FIL" qualifier="FIL" kee="org.struts:struts-core:org.struts.RequestContext"
             name="RequestContext" root_id="2"
             description="[null]"
             enabled="[true]" language="java" copy_resource_id="[null]"/>

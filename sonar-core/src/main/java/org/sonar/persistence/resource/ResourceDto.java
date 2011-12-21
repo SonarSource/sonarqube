@@ -25,6 +25,8 @@ public final class ResourceDto {
   private String name;
   private String longName;
   private Integer rootId;
+  private String scope;
+  private String qualifier;
 
   public Integer getId() {
     return id;
@@ -59,6 +61,24 @@ public final class ResourceDto {
 
   public ResourceDto setLongName(String longName) {
     this.longName = longName;
+    return this;
+  }
+
+  public String getScope() {
+    return scope;
+  }
+
+  public ResourceDto setScope(String scope) {
+    this.scope = scope;
+    return this;
+  }
+
+  public String getQualifier() {
+    return qualifier;
+  }
+
+  public ResourceDto setQualifier(String qualifier) {
+    this.qualifier = qualifier;
     return this;
   }
 }

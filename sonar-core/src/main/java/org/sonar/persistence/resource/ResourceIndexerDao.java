@@ -41,10 +41,15 @@ public class ResourceIndexerDao {
     this.mybatis = mybatis;
   }
 
-  public ResourceIndexerDao index(String resourceName, int resourceId, int rootProjectId) {
+  public ResourceIndexerDao index(String resourceName, String qualifier, int resourceId, int rootProjectId) {
     SqlSession sqlSession = mybatis.openSession();
     try {
-      index(new ResourceDto().setId(resourceId).setName(resourceName).setRootId(rootProjectId), sqlSession, true);
+      ResourceDto resource = new ResourceDto()
+        .setId(resourceId)
+        .setQualifier(qualifier)
+        .setName(resourceName)
+        .setRootId(rootProjectId);
+      index(resource, sqlSession, true);
 
     } finally {
       sqlSession.close();
@@ -104,6 +109,7 @@ public class ResourceIndexerDao {
 
         ResourceIndexDto dto = new ResourceIndexDto()
           .setResourceId(resource.getId())
+          .setQualifier(resource.getQualifier())
           .setRootProjectId(loadRootProjectId(resource, mapper, correctProjectRootId))
           .setNameSize(name.length());
 

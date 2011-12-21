@@ -1,31 +1,31 @@
 <dataset>
 
   <!-- Struts -->
-  <resource_index kee="struts" position="0" name_size="6" resource_id="1" root_project_id="1"/>
-  <resource_index kee="truts" position="1" name_size="6" resource_id="1" root_project_id="1"/>
-  <resource_index kee="ruts" position="2" name_size="6" resource_id="1" root_project_id="1"/>
-  <resource_index kee="uts" position="3" name_size="6" resource_id="1" root_project_id="1"/>
+  <resource_index kee="struts" position="0" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
+  <resource_index kee="truts" position="1" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
+  <resource_index kee="ruts" position="2" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
+  <resource_index kee="uts" position="3" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
 
   <!-- RequestContext -->
-  <resource_index kee="requestcontext" position="0" name_size="14" resource_id="3" root_project_id="1"/>
-  <resource_index kee="equestcontext" position="1" name_size="14" resource_id="3" root_project_id="1"/>
-  <resource_index kee="questcontext" position="2" name_size="14" resource_id="3" root_project_id="1"/>
-  <resource_index kee="uestcontext" position="3" name_size="14" resource_id="3" root_project_id="1"/>
-  <resource_index kee="estcontext" position="4" name_size="14" resource_id="3" root_project_id="1"/>
-  <resource_index kee="stcontext" position="5" name_size="14" resource_id="3" root_project_id="1"/>
-  <resource_index kee="tcontext" position="6" name_size="14" resource_id="3" root_project_id="1"/>
-  <resource_index kee="context" position="7" name_size="14" resource_id="3" root_project_id="1"/>
-  <resource_index kee="ontext" position="8" name_size="14" resource_id="3" root_project_id="1"/>
-  <resource_index kee="ntext" position="9" name_size="14" resource_id="3" root_project_id="1"/>
-  <resource_index kee="text" position="10" name_size="14" resource_id="3" root_project_id="1"/>
-  <resource_index kee="ext" position="11" name_size="14" resource_id="3" root_project_id="1"/>
+  <resource_index kee="requestcontext" position="0" name_size="14" resource_id="3" root_project_id="1" qualifier="FIL"/>
+  <resource_index kee="equestcontext" position="1" name_size="14" resource_id="3" root_project_id="1" qualifier="FIL"/>
+  <resource_index kee="questcontext" position="2" name_size="14" resource_id="3" root_project_id="1" qualifier="FIL"/>
+  <resource_index kee="uestcontext" position="3" name_size="14" resource_id="3" root_project_id="1" qualifier="FIL"/>
+  <resource_index kee="estcontext" position="4" name_size="14" resource_id="3" root_project_id="1" qualifier="FIL"/>
+  <resource_index kee="stcontext" position="5" name_size="14" resource_id="3" root_project_id="1" qualifier="FIL"/>
+  <resource_index kee="tcontext" position="6" name_size="14" resource_id="3" root_project_id="1" qualifier="FIL"/>
+  <resource_index kee="context" position="7" name_size="14" resource_id="3" root_project_id="1" qualifier="FIL"/>
+  <resource_index kee="ontext" position="8" name_size="14" resource_id="3" root_project_id="1" qualifier="FIL"/>
+  <resource_index kee="ntext" position="9" name_size="14" resource_id="3" root_project_id="1" qualifier="FIL"/>
+  <resource_index kee="text" position="10" name_size="14" resource_id="3" root_project_id="1" qualifier="FIL"/>
+  <resource_index kee="ext" position="11" name_size="14" resource_id="3" root_project_id="1" qualifier="FIL"/>
 
   <!-- ZipUtils -->
-  <resource_index kee="ziputils" position="0" name_size="8" resource_id="6" root_project_id="1"/>
-  <resource_index kee="iputils" position="1" name_size="8" resource_id="6" root_project_id="1"/>
-  <resource_index kee="putils" position="2" name_size="8" resource_id="6" root_project_id="1"/>
-  <resource_index kee="utils" position="3" name_size="8" resource_id="6" root_project_id="1"/>
-  <resource_index kee="tils" position="4" name_size="8" resource_id="6" root_project_id="1"/>
-  <resource_index kee="ils" position="5" name_size="8" resource_id="6" root_project_id="1"/>
+  <resource_index kee="ziputils" position="0" name_size="8" resource_id="6" root_project_id="1" qualifier="FIL"/>
+  <resource_index kee="iputils" position="1" name_size="8" resource_id="6" root_project_id="1" qualifier="FIL"/>
+  <resource_index kee="putils" position="2" name_size="8" resource_id="6" root_project_id="1" qualifier="FIL"/>
+  <resource_index kee="utils" position="3" name_size="8" resource_id="6" root_project_id="1" qualifier="FIL"/>
+  <resource_index kee="tils" position="4" name_size="8" resource_id="6" root_project_id="1" qualifier="FIL"/>
+  <resource_index kee="ils" position="5" name_size="8" resource_id="6" root_project_id="1" qualifier="FIL"/>
 
 </dataset>

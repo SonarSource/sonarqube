@@ -29,6 +29,8 @@ import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.utils.ValidationMessages;
@@ -384,6 +386,8 @@ public final class JRubyFacade {
 
   // RESOURCE SEARCH ENGINE
   public void indexResources() {
-    getContainer().getComponentByType(ResourceIndexerDao.class).index(ResourceIndexerFilter.create());
+    getContainer().getComponentByType(ResourceIndexerDao.class).index(ResourceIndexerFilter.create()
+      .setQualifiers(new String[]{Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.SUBVIEW, Qualifiers.FILE, Qualifiers.CLASS, Qualifiers.UNIT_TEST_FILE})
+      .setScopes(new String[]{Scopes.PROJECT, Scopes.FILE}));
   }
 }

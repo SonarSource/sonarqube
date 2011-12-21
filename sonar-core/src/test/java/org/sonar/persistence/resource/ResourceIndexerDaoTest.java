@@ -38,7 +38,7 @@ public class ResourceIndexerDaoTest extends DaoTestCase {
   public void shouldIndexSingleResource() {
     setupData("shouldIndexSingleResource");
 
-    dao.index("ZipUtils", 10, 8);
+    dao.index("ZipUtils", "FIL", 10, 8);
 
     checkTables("shouldIndexSingleResource", "resource_index");
   }

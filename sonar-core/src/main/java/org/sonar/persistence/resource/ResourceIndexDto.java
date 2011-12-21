@@ -26,6 +26,7 @@ public final class ResourceIndexDto {
   private int nameSize;
   private int resourceId;
   private int rootProjectId;
+  private String qualifier;
 
   public String getKey() {
     return key;
@@ -69,6 +70,15 @@ public final class ResourceIndexDto {
 
   public ResourceIndexDto setNameSize(int i) {
     this.nameSize = i;
+    return this;
+  }
+
+  public String getQualifier() {
+    return qualifier;
+  }
+
+  public ResourceIndexDto setQualifier(String qualifier) {
+    this.qualifier = qualifier;
     return this;
   }
 }
