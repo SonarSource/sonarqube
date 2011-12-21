@@ -110,7 +110,7 @@ public final class PurgeUtils {
    * @since 2.11
    */
   private static void deleteDuplicationBlocks(DatabaseSession session, List<Integer> snapshotIds) {
-    executeNativeQuery(session, "delete duplication blocks", snapshotIds, "delete from duplications_index e where e.snapshot_id in (:ids)");
+    executeNativeQuery(session, "delete duplication blocks", snapshotIds, "delete from duplications_index where snapshot_id in (:ids)");
   }
 
   /**

@@ -114,6 +114,7 @@
   <!--parent_dependency_id="[null]" project_snapshot_id="1"-->
   <!--dep_usage="INHERITS" dep_weight="1" from_scope="FIL" to_scope="FIL"/>-->
 
+  <duplications_index project_snapshot_id="1" snapshot_id="1" hash="bb" index_in_file="0" start_line="0" end_line="0"/>
   <!--<duplications_index project_snapshot_id="1" snapshot_id="3" hash="bb" index_in_file="0" start_line="0" end_line="0" />-->
   <!--<duplications_index project_snapshot_id="1" snapshot_id="4" hash="bb" index_in_file="0" start_line="0" end_line="0" />-->
 

@@ -50,6 +50,6 @@ public class PurgeUtilsTest extends AbstractDbUnitTestCase {
 
     PurgeUtils.deleteSnapshotsData(getSession(), Arrays.asList(3, 4));
 
-    checkTables("purgeSnapshots", "snapshots", "project_measures", "measure_data", "rule_failures", "snapshot_sources", "dependencies", "events");
+    checkTables("purgeSnapshots", "snapshots", "project_measures", "measure_data", "rule_failures", "snapshot_sources", "dependencies", "events", "duplications_index");
   }
 }
