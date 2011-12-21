@@ -35,13 +35,6 @@
     where resource_id=#{id}
   </delete>
 
-  <delete id="deleteByResourceIds" parameterType="map">
-    delete from resource_index
-    where resource_id in
-    <foreach item="i" index="index" collection="resourceIds" open="(" separator="," close=")">#{i}</foreach>
-  </delete>
-
-
   <insert id="insert" parameterType="ResourceIndex" useGeneratedKeys="false">
     insert into resource_index (kee, position, name_size, resource_id, root_project_id, qualifier)
     values (#{key}, #{position}, #{nameSize}, #{resourceId}, #{rootProjectId}, #{qualifier})

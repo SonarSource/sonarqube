@@ -31,7 +31,5 @@ public interface ResourceIndexerMapper {
 
   void deleteByResourceId(int resourceId);
 
-  void deleteByResourceIds(@Param("resourceIds") List<Integer> resourceIds);
-
   void insert(ResourceIndexDto dto);
 }

@@ -77,24 +77,6 @@ public class ResourceIndexerDao {
     return this;
   }
 
-  public ResourceIndexerDao delete(List<Integer> resourceIds) {
-    final SqlSession sqlSession = mybatis.openSession();
-    try {
-      ResourceIndexerMapper mapper = sqlSession.getMapper(ResourceIndexerMapper.class);
-      List<List<Integer>> partitionsOfResourceIds = Lists.partition(resourceIds, DatabaseUtils.MAX_IN_ELEMENTS);
-      for (List<Integer> partitionOfResourceIds : partitionsOfResourceIds) {
-        if (!partitionOfResourceIds.isEmpty()) {
-          mapper.deleteByResourceIds(partitionOfResourceIds);
-        }
-      }
-      sqlSession.commit();
-
-    } finally {
-      sqlSession.close();
-    }
-    return this;
-  }
-
   void index(ResourceDto resource, SqlSession session, boolean correctProjectRootId) {
     String name = resource.getName();
     if (StringUtils.isBlank(name) || resource.getId() == null) {

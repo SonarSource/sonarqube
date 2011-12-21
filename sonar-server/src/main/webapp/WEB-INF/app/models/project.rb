@@ -44,6 +44,7 @@ class Project < ActiveRecord::Base
     if project
       Snapshot.update_all(['islast=?', false], ['(root_project_id=? OR project_id=?) AND islast=?', project.id, project.id, true])
       Project.delete_all(['id=? OR root_id=? or copy_resource_id=?', project.id, project.id, project.id])
+      ResourceIndex.delete_all(['root_project_id=?', project.id])
     end
   end
 

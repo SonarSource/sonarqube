@@ -69,13 +69,4 @@ public class ResourceIndexerDaoTest extends DaoTestCase {
 
     checkTables("shouldReindexProjectAfterRenaming", "resource_index");
   }
-
-  @Test
-  public void shouldDeleteIndexes() {
-    setupData("shouldDeleteIndexes");
-
-    dao.delete(Arrays.asList(3, 4, 5, 6));
-
-    checkTables("shouldDeleteIndexes", "resource_index");
-  }
 }

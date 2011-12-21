@@ -22,7 +22,6 @@ package org.sonar.plugins.dbcleaner.api;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
-import org.sonar.plugins.dbcleaner.api.PurgeUtils;
 
 import java.sql.SQLException;
 import java.util.Arrays;

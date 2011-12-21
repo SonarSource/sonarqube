@@ -19,20 +19,15 @@
  */
 package org.sonar.plugins.dbcleaner.api;
 
-import java.util.List;
-
-import javax.persistence.Query;
-
 import org.apache.commons.configuration.Configuration;
 import org.sonar.api.batch.Event;
 import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.database.model.MeasureData;
-import org.sonar.api.database.model.MeasureModel;
-import org.sonar.api.database.model.RuleFailureModel;
-import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.database.model.SnapshotSource;
+import org.sonar.api.database.model.*;
 import org.sonar.api.design.DependencyDto;
 import org.sonar.api.utils.TimeProfiler;
+
+import javax.persistence.Query;
+import java.util.List;
 
 /**
  * @since 2.5
@@ -106,7 +101,7 @@ public final class PurgeUtils {
 
   /**
    * Delete DUPLICATIONS_INDEX table
-   * 
+   *
    * @since 2.11
    */
   private static void deleteDuplicationBlocks(DatabaseSession session, List<Integer> snapshotIds) {
@@ -125,6 +120,18 @@ public final class PurgeUtils {
    */
   public static void deleteSnapshots(DatabaseSession session, List<Integer> snapshotIds) {
     executeQuery(session, "delete snapshots", snapshotIds, "delete from " + Snapshot.class.getSimpleName() + " s where s.id in (:ids)");
+  }
+
+  public static void deleteResources(DatabaseSession session, List<Integer> ids) {
+    executeQuery(session, "", ids, "DELETE FROM " + ResourceModel.class.getSimpleName() + " WHERE id in (:ids)");
+    deleteResourceIndex(session, ids);
+  }
+
+  /**
+   * Delete RESOURCE_INDEX table
+   */
+  public static void deleteResourceIndex(DatabaseSession session, List<Integer> resourceIds) {
+    executeNativeQuery(session, "delete resource_index", resourceIds, "delete from resource_index where resource_id in (:ids)");
   }
 
   /**

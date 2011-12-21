@@ -21,9 +21,9 @@ package org.sonar.plugins.dbcleaner.purges;
 
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
-import org.sonar.plugins.dbcleaner.api.DbCleanerCommands;
 import org.sonar.plugins.dbcleaner.api.Purge;
 import org.sonar.plugins.dbcleaner.api.PurgeContext;
+import org.sonar.plugins.dbcleaner.api.PurgeUtils;
 
 import javax.persistence.Query;
 import java.util.List;
@@ -33,11 +33,8 @@ import java.util.List;
  */
 public final class PurgeOrphanResources extends Purge {
 
-  private DbCleanerCommands dbCleanerCommands;
-
-  public PurgeOrphanResources(DatabaseSession session, DbCleanerCommands dbCleanerCommands) {
+  public PurgeOrphanResources(DatabaseSession session) {
     super(session);
-    this.dbCleanerCommands = dbCleanerCommands;
   }
 
   public void purge(PurgeContext context) {
@@ -45,7 +42,7 @@ public final class PurgeOrphanResources extends Purge {
       " r1 WHERE r1.rootId IS NOT NULL AND NOT EXISTS(FROM " + ResourceModel.class.getSimpleName() + " r2 WHERE r1.rootId=r2.id)");
     List<Integer> idsToDelete = query.getResultList();
     if (!idsToDelete.isEmpty()) {
-      dbCleanerCommands.deleteResources(idsToDelete);
+      PurgeUtils.deleteResources(getSession(), idsToDelete);
     }
   }
 }
