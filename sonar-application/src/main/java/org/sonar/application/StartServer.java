@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
+
 public final class StartServer {
   private static final String DEFAULT_WEB_HOST = "0.0.0.0";
   private static final int DEFAULT_WEB_PORT = 9000;
@@ -34,6 +36,7 @@ public final class StartServer {
   }
 
   public static void main(String[] args) throws Exception {
+    canCreateTemporaryFiles();
     configureHome();
 
     Properties configuration = getConfiguration();
@@ -46,6 +49,17 @@ public final class StartServer {
 
     jetty.start();
     Thread.currentThread().join();
+  }
+
+  static void canCreateTemporaryFiles() {
+    File file = null;
+    try {
+      file = File.createTempFile("sonar-check", "tmp");
+    } catch (IOException e) {
+      throw new IllegalStateException("Unable to create file in temporary directory, please check existence of it and permissions: " + FileUtils.getTempDirectoryPath(), e);
+    } finally {
+      FileUtils.deleteQuietly(file);
+    }
   }
 
   private static void configureRequestLogs(JettyEmbedder jetty, Properties configuration) {
