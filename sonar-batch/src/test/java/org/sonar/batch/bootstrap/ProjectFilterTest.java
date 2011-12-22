@@ -70,7 +70,7 @@ public class ProjectFilterTest {
   }
 
   @Test
-  public void shouldNotIncludeRoot() {
+  public void includingRootShouldBeOptional() {
     Settings settings = new Settings();
     settings.setProperty("sonar.includedModules", "foo,bar");
     ProjectFilter filter = new ProjectFilter(settings);
