@@ -856,6 +856,7 @@ ul.operations li img {
   background-color: #FFF;
   margin: 0;
   border: 1px solid #DDD;
+  font-size: 12px;
 }
 
 .sources2 div.violation .actions, #global_violations div.violation .actions {
@@ -913,7 +914,6 @@ span.rulename, span.rulename a {
 div.review_permalink {
   float: right;
   color: #333333;
-  font-size: 12px;
   font-weight: bold;
   margin: 0;
   padding: 0 10px;
@@ -921,16 +921,19 @@ div.review_permalink {
 }
 
 div.vActions {
+  position: absolute;
   line-height: 1.5em;
   height: 1.5em;
+  padding-right: 10px;
   max-height: 1.5em;
+  background-color: #F4F4F4;
+  box-shadow: 10px 10px 10px #EFEFEF;
 }
 
 span.review_permalink a {
   color: #777;
-  font-size: 90%;
+  font-size: 11px;
   padding: 0 0 0 20px;
-  background: url('../images/zoom.png') no-repeat left;
 }
 
 span.rulename a:hover {

@@ -22,11 +22,7 @@ function loadGWT(gwtId, resourceId, resourceKey, resourceName, resourceScope, re
 
 // show violation actions
 function sVA(violation_id) {
-  var elt = $('vMsg' + violation_id);
-  if (elt != null) {
-    elt.hide();
-  }
-  elt = $('vActions' + violation_id);
+  var elt = $('vActions' + violation_id);
   if (elt != null) {
     elt.show();
   }
@@ -35,11 +31,7 @@ function sVA(violation_id) {
 
 // hide violation actions
 function hVA(violation_id) {
-  var elt = $('vMsg' + violation_id);
-  if (elt != null) {
-    elt.show();
-  }
-  elt = $('vActions' + violation_id);
+  var elt = $('vActions' + violation_id);
   if (elt != null) {
     elt.hide();
   }

@@ -59,9 +59,9 @@
         <%= message('status') -%>:
       </td>
       <td class="val">
-        <%= image_tag "status/#{review.status}.png" -%> <%= message("reviews.status.#{review.status}") -%>
+        <%= image_tag "status/#{review.status}.png" -%> <span class="reviewStatus<%= @review.status -%>"><%= message("reviews.status.#{review.status}") -%></span>
         <% if @review.resolution.present? %>
-          <span class="reviewResolution<%= @review.resolution -%>">(<%= message("reviews.resolution.#{@review.resolution}") -%>)</span>
+          (<span class="reviewResolution<%= @review.resolution -%>"><%= message("reviews.resolution.#{@review.resolution}") -%></span>)
         <% end %>
       </td>
       <td class="key">

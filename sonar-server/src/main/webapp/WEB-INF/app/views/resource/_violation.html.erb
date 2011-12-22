@@ -11,11 +11,6 @@
 
       <img src="<%= ApplicationController.root_context -%>/images/priority/<%= violation.failure_level -%>.png">
       &nbsp;
-      <% if violation.review && violation.review.manual_severity && violation.review.severity!=violation.severity %>
-        <img src="<%= ApplicationController.root_context -%>/images/priority/<%= violation.review.severity -%>.png">
-        &nbsp;
-      <% end %>
-
       <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
       &nbsp;
       <span class="rulename">
@@ -39,12 +34,6 @@
         <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
         &nbsp;
         <span class="reviewResolved"><%= message('reviews.status.RESOLVED') -%></span>
-        &nbsp;
-      <% end %>
-      <% if violation.review && violation.review.reopened? %>
-        <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
-        &nbsp;
-        <span class="reviewReopened"><%= message('reviews.status.REOPENED') -%></span>
         &nbsp;
       <% end %>
       <% if violation.review && violation.review.assignee_id %>
