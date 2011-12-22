@@ -3,6 +3,7 @@
    project_key = params[:project_key] unless project_key
    statuses = params[:statuses] unless statuses
    resolution = params[:resolution] unless resolution
+   unplanned = params[:unplanned] unless unplanned
    limit = params[:limit] unless limit
    widget_id = params[:widget_id] unless widget_id
 
@@ -11,6 +12,7 @@
    options['assignees'] = assignee_login
    options['projects'] = project_key
    options['resolutions'] = resolution
+   options['unplanned'] = unplanned
    options['sort'] = 'updated_at'
    if @dashboard_configuration.selected_period?
      from_date = @dashboard_configuration.from_datetime
@@ -63,6 +65,7 @@
              link_params[:snapshot_id] = @snapshot.id
              link_params[:statuses] = statuses
              link_params[:resolution] = resolution if resolution && !resolution.blank?
+             link_params[:unplanned] = unplanned
              link_params[:limit] = limit
              link_params[:widget_id] = widget_id
              link_params[:period] = params[:period]

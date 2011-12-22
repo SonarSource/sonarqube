@@ -20,8 +20,7 @@
 
   <div id="reviews-widget-<%= widget.id -%>">
     <%= render :partial => 'project/widgets/reviews/reviews_list',
-               :locals => {:assignee_login => '',
-                           :project_key => @project.key,
+               :locals => {:project_key => @project.key,
                            :statuses => 'RESOLVED',
                            :resolution => 'FALSE-POSITIVE',
                            :limit => limit,

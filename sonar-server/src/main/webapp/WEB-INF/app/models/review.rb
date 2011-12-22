@@ -338,6 +338,7 @@ class Review < ActiveRecord::Base
 
       assignees=options['assignees'].split(',') if options['assignees']
       if assignees
+        puts "---------------->"
         if assignees.size == 0
           # Unassigned reviews
           conditions << 'assignee_id IS NULL'
@@ -359,6 +360,9 @@ class Review < ActiveRecord::Base
           conditions << 'id in (:ids)'
           values[:ids]=action_plan.reviews.map { |r| r.id }
         end
+      elsif options['unplanned']
+        conditions << 'id not in (:ids)'
+        values[:ids]=find_by_sql('SELECT DISTINCT review_id as id from action_plans_reviews')
       end
 
       from=options['from']
