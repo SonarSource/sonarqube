@@ -26,13 +26,24 @@
    snapshots.each do |s|
      snapshots_by_id[s.id]=s
    end
+   
+   title = message('widget.hotspot_most_violated_resources.name')
+   
+   if measures.empty?
+%>
+
+<h3><%= title -%></h3>
+<span class="empty_widget"><%= message('widget.hotspot_most_violated_resources.no_resource') -%></span>
+
+<%
+   else
 %>
 
 <div class="line-block">
   <div style="float:right">
     <a href="<%= url_for_drilldown(metric) -%>"><%= message('widget.hotspot_metric.more') -%></a>
   </div>
-  <h3><%= message('widget.hotspot_most_violated_resources.name') -%></h3>
+  <h3><%= title -%></h3>
 </div>
 
 <table id="most-violated-resources-<%= widget.id -%>" class="data">
@@ -91,3 +102,5 @@
   %>
   </tbody>
 </table>
+
+<% end %>
