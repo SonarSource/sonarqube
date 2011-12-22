@@ -21,8 +21,8 @@ package org.sonar.server.platform;
 
 import org.junit.Test;
 import org.sonar.jpa.session.DatabaseConnector;
-import org.sonar.persistence.dialect.Dialect;
-import org.sonar.persistence.dialect.MySql;
+import org.sonar.core.persistence.dialect.Dialect;
+import org.sonar.core.persistence.dialect.MySql;
 import org.sonar.test.TestUtils;
 
 import java.io.File;

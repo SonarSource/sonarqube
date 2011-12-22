@@ -20,7 +20,6 @@
 package org.sonar.batch.index;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.database.model.Snapshot;
@@ -31,19 +30,16 @@ import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.JavaPackage;
 import org.sonar.api.resources.Project;
-import org.sonar.core.components.DefaultRuleFinder;
+import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class MeasurePersisterTest extends AbstractDbUnitTestCase {
 

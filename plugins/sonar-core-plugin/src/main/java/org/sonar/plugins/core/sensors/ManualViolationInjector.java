@@ -28,9 +28,9 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
-import org.sonar.persistence.review.ReviewDao;
-import org.sonar.persistence.review.ReviewDto;
-import org.sonar.persistence.review.ReviewQuery;
+import org.sonar.core.review.ReviewDao;
+import org.sonar.core.review.ReviewDto;
+import org.sonar.core.review.ReviewQuery;
 
 import java.util.List;
 

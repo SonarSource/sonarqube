@@ -19,7 +19,7 @@
  */
 package org.sonar.jpa.session;
 
-import org.sonar.persistence.dialect.Dialect;
+import org.sonar.core.persistence.dialect.Dialect;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;

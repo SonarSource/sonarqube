@@ -20,9 +20,6 @@
 package org.sonar.jpa.session;
 
 import org.junit.Test;
-import org.sonar.api.database.DatabaseSession;
-
-import static org.junit.Assert.assertTrue;
 
 public class ThreadLocalDatabaseSessionFactoryTest {
 

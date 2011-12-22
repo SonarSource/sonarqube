@@ -22,8 +22,8 @@ package org.sonar.server.startup;
 import org.junit.Test;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.jpa.entity.SchemaMigration;
-import org.sonar.persistence.resource.ResourceIndexerDao;
-import org.sonar.persistence.resource.ResourceIndexerFilter;
+import org.sonar.core.resource.ResourceIndexerDao;
+import org.sonar.core.resource.ResourceIndexerFilter;
 
 import static org.mockito.Mockito.*;
 

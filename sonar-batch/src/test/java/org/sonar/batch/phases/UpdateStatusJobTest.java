@@ -25,7 +25,7 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.batch.ServerMetadata;
 import org.sonar.batch.index.DefaultResourcePersister;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
-import org.sonar.persistence.resource.ResourceIndexerDao;
+import org.sonar.core.resource.ResourceIndexerDao;
 
 import javax.persistence.Query;
 

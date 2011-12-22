@@ -21,11 +21,9 @@ package org.sonar.jpa.dao;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.*;
+import org.sonar.api.rules.Rule;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.*;

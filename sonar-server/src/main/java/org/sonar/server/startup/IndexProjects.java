@@ -25,8 +25,8 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.jpa.entity.SchemaMigration;
-import org.sonar.persistence.resource.ResourceIndexerDao;
-import org.sonar.persistence.resource.ResourceIndexerFilter;
+import org.sonar.core.resource.ResourceIndexerDao;
+import org.sonar.core.resource.ResourceIndexerFilter;
 
 /**
  * Index existing projects during migration to 2.13. Since this latter version, resources are automatically indexed

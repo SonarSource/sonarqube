@@ -29,10 +29,10 @@ import org.sonar.batch.ProjectConfigurator;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.components.*;
 import org.sonar.batch.index.*;
-import org.sonar.core.components.CacheMetricFinder;
-import org.sonar.core.components.CacheRuleFinder;
-import org.sonar.core.components.DefaultUserFinder;
-import org.sonar.core.notifications.DefaultNotificationManager;
+import org.sonar.core.metric.CacheMetricFinder;
+import org.sonar.core.notification.DefaultNotificationManager;
+import org.sonar.core.rule.CacheRuleFinder;
+import org.sonar.core.user.DefaultUserFinder;
 import org.sonar.jpa.dao.MeasuresDao;
 
 /**

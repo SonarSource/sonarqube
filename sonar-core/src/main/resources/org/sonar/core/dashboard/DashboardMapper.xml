@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.core.dashboard.DashboardMapper">
+
+  <select id="selectGlobalDashboard" parameterType="string" resultType="Dashboard">
+    select id, user_id as "userId", name, description, column_layout as "columnLayout", shared, created_at as "createdAt", updated_at as "updatedAt"
+    from dashboards WHERE name=#{id} and user_id is null
+  </select>
+
+  <insert id="insert" parameterType="Dashboard" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO dashboards (user_id, name, description, column_layout, shared, created_at, updated_at)
+    VALUES (#{userId, jdbcType=FLOAT}, #{name, jdbcType=VARCHAR}, #{description, jdbcType=VARCHAR},
+    #{columnLayout, jdbcType=INTEGER}, #{shared}, #{createdAt, jdbcType=TIMESTAMP}, #{updatedAt, jdbcType=TIMESTAMP})
+  </insert>
+
+</mapper>

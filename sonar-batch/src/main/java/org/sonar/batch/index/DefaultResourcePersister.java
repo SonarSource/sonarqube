@@ -27,7 +27,7 @@ import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.*;
 import org.sonar.api.utils.SonarException;
-import org.sonar.persistence.resource.ResourceIndexerDao;
+import org.sonar.core.resource.ResourceIndexerDao;
 
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;

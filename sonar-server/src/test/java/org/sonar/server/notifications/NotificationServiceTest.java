@@ -28,8 +28,8 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.notifications.NotificationDispatcher;
-import org.sonar.core.notifications.DefaultNotificationManager;
-import org.sonar.jpa.entity.NotificationQueueElement;
+import org.sonar.core.notification.DefaultNotificationManager;
+import org.sonar.core.notification.NotificationQueueElement;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;

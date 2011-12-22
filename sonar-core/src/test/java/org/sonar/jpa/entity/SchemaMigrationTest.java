@@ -20,9 +20,9 @@
 package org.sonar.jpa.entity;
 
 import org.junit.Test;
+import org.sonar.core.persistence.Database;
+import org.sonar.core.persistence.InMemoryDatabase;
 import org.sonar.jpa.session.MemoryDatabaseConnector;
-import org.sonar.persistence.Database;
-import org.sonar.persistence.InMemoryDatabase;
 
 import java.sql.Connection;
 

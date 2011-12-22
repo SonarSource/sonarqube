@@ -24,7 +24,7 @@ import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.test.IsMeasure;
-import org.sonar.core.components.DefaultMetricFinder;
+import org.sonar.core.metric.DefaultMetricFinder;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import static org.mockito.Matchers.argThat;

@@ -29,8 +29,8 @@ import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.notifications.NotificationDispatcher;
 import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.TimeProfiler;
-import org.sonar.core.notifications.DefaultNotificationManager;
-import org.sonar.jpa.entity.NotificationQueueElement;
+import org.sonar.core.notification.DefaultNotificationManager;
+import org.sonar.core.notification.NotificationQueueElement;
 
 import java.util.*;
 import java.util.concurrent.Executors;

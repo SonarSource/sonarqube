@@ -30,8 +30,8 @@ import org.sonar.api.resources.Resource;
 import org.sonar.batch.index.ResourcePersister;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
-import org.sonar.persistence.duplication.DuplicationDao;
-import org.sonar.persistence.duplication.DuplicationUnitDto;
+import org.sonar.core.duplication.DuplicationDao;
+import org.sonar.core.duplication.DuplicationUnitDto;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

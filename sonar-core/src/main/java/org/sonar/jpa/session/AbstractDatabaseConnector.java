@@ -22,9 +22,9 @@ package org.sonar.jpa.session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.Logs;
+import org.sonar.core.persistence.Database;
+import org.sonar.core.persistence.dialect.Dialect;
 import org.sonar.jpa.entity.SchemaMigration;
-import org.sonar.persistence.Database;
-import org.sonar.persistence.dialect.Dialect;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;

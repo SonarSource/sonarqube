@@ -20,8 +20,8 @@
 package org.sonar.jpa.session;
 
 import org.sonar.api.utils.SonarException;
+import org.sonar.core.persistence.Database;
 import org.sonar.jpa.entity.SchemaMigration;
-import org.sonar.persistence.Database;
 
 import java.sql.Connection;
 import java.sql.SQLException;

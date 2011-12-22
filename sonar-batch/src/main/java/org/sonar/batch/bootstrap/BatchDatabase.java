@@ -20,7 +20,7 @@
 package org.sonar.batch.bootstrap;
 
 import org.sonar.api.config.Settings;
-import org.sonar.persistence.DefaultDatabase;
+import org.sonar.core.persistence.DefaultDatabase;
 
 import java.util.Properties;
 

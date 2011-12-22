@@ -24,10 +24,9 @@ import org.apache.commons.lang.SystemUtils;
 import org.apache.derby.jdbc.ClientDriver;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.persistence.InMemoryDatabase;
+import org.sonar.core.persistence.InMemoryDatabase;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,7 +72,7 @@ public class EmbeddedDatabaseTest {
       File[] files = testRoot.listFiles();
       for (File file : files) {
         if (file.isDirectory() &&
-            file.getName().startsWith(TEST_DB_DIR_PREFIX)) {
+          file.getName().startsWith(TEST_DB_DIR_PREFIX)) {
           try {
             FileUtils.deleteDirectory(file);
           } catch (IOException e) {

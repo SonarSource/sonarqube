@@ -39,7 +39,7 @@ import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.DefaultResourcePersister;
 import org.sonar.batch.phases.Phases;
 import org.sonar.batch.phases.PhasesTimeProfiler;
-import org.sonar.core.components.DefaultModelFinder;
+import org.sonar.core.qualitymodel.DefaultModelFinder;
 import org.sonar.jpa.dao.DaoFacade;
 import org.sonar.jpa.dao.ProfilesDao;
 import org.sonar.jpa.dao.RulesDao;

@@ -19,8 +19,8 @@
  */
 package org.sonar.jpa.session;
 
+import org.sonar.core.persistence.Database;
 import org.sonar.jpa.entity.SchemaMigration;
-import org.sonar.persistence.Database;
 
 import javax.persistence.EntityManager;
 

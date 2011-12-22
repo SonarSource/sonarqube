@@ -19,9 +19,8 @@
  */
 package org.sonar.core.plugins;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.google.common.collect.Lists;
+import org.apache.commons.lang.StringUtils;
 
 import java.net.URL;
 import java.net.URLClassLoader;

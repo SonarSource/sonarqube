@@ -19,19 +19,14 @@
  */
 package org.sonar.core.plugins;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import org.hamcrest.CoreMatchers;
 import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.sonar.api.platform.PluginMetadata;
 
 import java.io.File;
-import java.util.*;
+import java.util.Arrays;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 public class DefaultPluginMetadataTest {

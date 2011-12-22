@@ -25,9 +25,9 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.web.Dashboard;
 import org.sonar.api.web.DashboardTemplate;
-import org.sonar.persistence.dashboard.*;
-import org.sonar.persistence.template.LoadedTemplateDao;
-import org.sonar.persistence.template.LoadedTemplateDto;
+import org.sonar.core.dashboard.*;
+import org.sonar.core.template.LoadedTemplateDao;
+import org.sonar.core.template.LoadedTemplateDto;
 
 import java.util.Collections;
 import java.util.Comparator;

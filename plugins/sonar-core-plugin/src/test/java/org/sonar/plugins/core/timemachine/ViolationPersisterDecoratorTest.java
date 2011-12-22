@@ -30,7 +30,7 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.index.ResourcePersister;
-import org.sonar.core.components.DefaultRuleFinder;
+import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.util.Arrays;

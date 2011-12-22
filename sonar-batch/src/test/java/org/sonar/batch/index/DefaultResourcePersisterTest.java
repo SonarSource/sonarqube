@@ -26,7 +26,7 @@ import org.sonar.api.resources.JavaPackage;
 import org.sonar.api.resources.Library;
 import org.sonar.api.resources.Project;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
-import org.sonar.persistence.resource.ResourceIndexerDao;
+import org.sonar.core.resource.ResourceIndexerDao;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

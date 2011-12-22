@@ -19,22 +19,20 @@
  */
 package org.sonar.jpa.session;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
+import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.collect.Maps;
-
+import javax.persistence.NonUniqueResultException;
+import javax.persistence.Query;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 
-import javax.persistence.NonUniqueResultException;
-import javax.persistence.Query;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class JpaDatabaseSessionTest {
 
