@@ -63,7 +63,7 @@ public class Settings implements BatchComponent, ServerComponent {
 
   public final String getString(String key) {
     String value = properties.get(key);
-    if (value==null) {
+    if (value == null) {
       value = getDefaultValue(key);
     }
     return value;
@@ -108,12 +108,12 @@ public class Settings implements BatchComponent, ServerComponent {
 
   /**
    * Value is splitted by comma and trimmed.
-   *
+   * <p/>
    * Examples :
    * <ul>
-   *   <li>"one,two,three " -> ["one", "two", "three"]</li>
-   *   <li>"  one, two, three " -> ["one", "two", "three"]</li>
-   *   <li>"one, , three" -> ["one", "", "three"]</li>
+   * <li>"one,two,three " -> ["one", "two", "three"]</li>
+   * <li>"  one, two, three " -> ["one", "two", "three"]</li>
+   * <li>"one, , three" -> ["one", "", "three"]</li>
    * </ul>
    */
   public final String[] getStringArray(String key) {
@@ -126,12 +126,12 @@ public class Settings implements BatchComponent, ServerComponent {
   public final String[] getStringArrayBySeparator(String key, String separator) {
     String value = getString(key);
     if (value != null) {
-        String[] strings = StringUtils.splitByWholeSeparator(value, separator);
-        String[] result = new String[strings.length];
-        for (int index=0 ; index<strings.length ; index++) {
-            result[index]=StringUtils.trim(strings[index]);
-        }
-        return result;
+      String[] strings = StringUtils.splitByWholeSeparator(value, separator);
+      String[] result = new String[strings.length];
+      for (int index = 0; index < strings.length; index++) {
+        result[index] = StringUtils.trim(strings[index]);
+      }
+      return result;
     }
     return ArrayUtils.EMPTY_STRING_ARRAY;
   }

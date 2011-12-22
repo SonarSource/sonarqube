@@ -19,17 +19,13 @@
  */
 package org.sonar.persistence.resource;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.persistence.DatabaseUtils;
 import org.sonar.persistence.MyBatis;
-
-import java.util.List;
 
 public class ResourceIndexerDao {
 
