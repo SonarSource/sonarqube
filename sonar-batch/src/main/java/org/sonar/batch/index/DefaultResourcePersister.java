@@ -126,14 +126,16 @@ public final class DefaultResourcePersister implements ResourcePersister {
     if (resource instanceof Project) {
       // should not occur, please use the method saveProject()
       snapshot = persistProject((Project) resource, project);
+      indexer.index(resource.getName(), snapshot.getQualifier(), snapshot.getResourceId(), snapshot.getRootProjectId());
 
     } else if (resource instanceof Library) {
       snapshot = persistLibrary(project, (Library) resource);
 
     } else {
       snapshot = persistFileOrDirectory(project, resource, parent);
+      indexer.index(resource.getName(), snapshot.getQualifier(), snapshot.getResourceId(), snapshot.getRootProjectId());
     }
-    indexer.index(resource.getName(), snapshot.getQualifier(), snapshot.getResourceId(), snapshot.getRootProjectId());
+
     return snapshot;
   }
 
