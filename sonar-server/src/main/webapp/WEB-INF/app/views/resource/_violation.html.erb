@@ -9,7 +9,11 @@
         </div>
       <% end %>
 
-      <img src="<%= ApplicationController.root_context -%>/images/priority/<%= violation.failure_level -%>.png">
+      <% if violation.review && violation.review.manual_severity && violation.review.severity!=violation.severity %>
+        <img src="<%= ApplicationController.root_context -%>/images/priority/<%= violation.review.severity -%>.png">
+      <% else %>
+        <img src="<%= ApplicationController.root_context -%>/images/priority/<%= violation.failure_level -%>.png">
+      <% end %>
       &nbsp;
       <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
       &nbsp;
@@ -73,10 +77,10 @@
 
           <% unless violation.review && violation.review.resolved? %>
             <%= button_to_function message('reviews.change_severity'), "sCSF(#{violation.id})", :name => 'bChangeSeverity' -%>
-            
-            <% 
+
+            <%
                @action_plans_size = ActionPlan.count_open_for_project_id(violation.snapshot.root_project_id) unless @action_plans_size
-               if @action_plans_size > 0 
+               if @action_plans_size > 0
             %>
               <%= button_to_function message('reviews.link_to_action_plan'), "sAPF(#{violation.id})", :name => 'bLinkActionPlan' -%>
             <% else %>
