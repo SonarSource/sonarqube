@@ -28,6 +28,10 @@ import org.sonar.squid.measures.Metric;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 
+/**
+ * SONAR-3093: Note that this visitor saves {@link Metric#COMMENT_LINES} into {@link org.sonar.squid.api.SourceCode}
+ * as sum of {@link Metric#COMMENT_LINES} and {@link Metric#COMMENTED_OUT_CODE_LINES} from {@link org.sonar.squid.test.Source}.
+ */
 public class CommentVisitor extends JavaAstVisitor {
 
   private static final List<Integer> WANTED_TOKENS = Arrays.asList(TokenTypes.RCURLY);
@@ -41,9 +45,10 @@ public class CommentVisitor extends JavaAstVisitor {
   public void visitToken(DetailAST ast) {
     int startAtLine = peekSourceCode().getStartAtLine();
     int endAtLine = peekSourceCode().getEndAtLine();
-    peekSourceCode().setMeasure(Metric.COMMENTED_OUT_CODE_LINES,
-        getSource().getMeasure(Metric.COMMENTED_OUT_CODE_LINES, startAtLine, endAtLine));
-    peekSourceCode().setMeasure(Metric.COMMENT_LINES, getSource().getMeasure(Metric.COMMENT_LINES, startAtLine, endAtLine));
+    int commentedOutCodeLines = getSource().getMeasure(Metric.COMMENTED_OUT_CODE_LINES, startAtLine, endAtLine);
+    int commentLines = getSource().getMeasure(Metric.COMMENT_LINES, startAtLine, endAtLine);
+    peekSourceCode().setMeasure(Metric.COMMENTED_OUT_CODE_LINES, commentedOutCodeLines);
+    peekSourceCode().setMeasure(Metric.COMMENT_LINES, commentLines + commentedOutCodeLines);
     peekSourceCode().setMeasure(Metric.COMMENT_BLANK_LINES, getSource().getMeasure(Metric.COMMENT_BLANK_LINES, startAtLine, endAtLine));
   }
 
@@ -52,8 +57,10 @@ public class CommentVisitor extends JavaAstVisitor {
     SourceFile file = (SourceFile) peekSourceCode();
     file.addNoSonarTagLines(getSource().getNoSonarTagLines());
     file.setMeasure(Metric.HEADER_COMMENT_LINES, getSource().getMeasure(Metric.HEADER_COMMENT_LINES));
-    file.setMeasure(Metric.COMMENTED_OUT_CODE_LINES, getSource().getMeasure(Metric.COMMENTED_OUT_CODE_LINES));
-    file.setMeasure(Metric.COMMENT_LINES, getSource().getMeasure(Metric.COMMENT_LINES));
+    int commentedOutCodeLines = getSource().getMeasure(Metric.COMMENTED_OUT_CODE_LINES);
+    int commentLines = getSource().getMeasure(Metric.COMMENT_LINES);
+    file.setMeasure(Metric.COMMENTED_OUT_CODE_LINES, commentedOutCodeLines);
+    file.setMeasure(Metric.COMMENT_LINES, commentLines + commentedOutCodeLines);
     file.setMeasure(Metric.COMMENT_BLANK_LINES, getSource().getMeasure(Metric.COMMENT_BLANK_LINES));
   }
 

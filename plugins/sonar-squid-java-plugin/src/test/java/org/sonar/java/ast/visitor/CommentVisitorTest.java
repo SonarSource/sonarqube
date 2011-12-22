@@ -64,7 +64,7 @@ public class CommentVisitorTest {
   @Test
   public void testCommentedCode() {
     SourceProject res = scan("/metrics/commentedCode/CommentedCode.java");
-    assertEquals(4, res.getInt(Metric.COMMENT_LINES));
+    assertEquals(8, res.getInt(Metric.COMMENT_LINES));
     assertEquals(4, res.getInt(Metric.COMMENTED_OUT_CODE_LINES));
     assertEquals(25, res.getInt(Metric.LINES));
     assertEquals(7, res.getInt(Metric.LINES_OF_CODE));

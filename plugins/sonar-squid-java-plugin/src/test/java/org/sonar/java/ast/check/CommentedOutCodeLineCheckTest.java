@@ -19,6 +19,9 @@
  */
 package org.sonar.java.ast.check;
 
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.java.CheckMessages;
@@ -47,7 +50,8 @@ public class CommentedOutCodeLineCheckTest {
 
   @Test
   public void testDetection() {
-    CheckMessages checkMessages = new CheckMessages((SourceFile) squid.search("CommentedCode.java"));
+    SourceFile sourceFile = (SourceFile) squid.search("CommentedCode.java");
+    CheckMessages checkMessages = new CheckMessages(sourceFile);
 
     checkMessages.assertNext().atLine(26).withMessage("It's better to remove commented-out line of code.");
     checkMessages.assertNext().atLine(27);
@@ -66,6 +70,9 @@ public class CommentedOutCodeLineCheckTest {
     checkMessages.assertNext().atLine(69);
 
     checkMessages.assertNoMore();
+
+    assertThat(sourceFile.getInt(Metric.COMMENT_LINES), is(40)); // TODO but in fact 46, so without fake-JSNI
+    assertThat(sourceFile.getInt(Metric.COMMENT_BLANK_LINES), is(16));
   }
 
 }
