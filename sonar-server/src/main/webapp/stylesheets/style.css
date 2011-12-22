@@ -1189,6 +1189,10 @@ div.comment-excerpt {
 }
 
 /* ACTION PLANS */
+table.actionPlans {
+  margin-top: 10px;
+}
+
 table.actionPlans td {
   vertical-align: top;
 }
@@ -1201,7 +1205,7 @@ table.actionPlans td.progress {
 table.actionPlans td.noprogress {
   color: #777777;
   font-size: 93%;
-  padding-left: 40px;
+  padding-left: 43px;
   padding-right: 40px;
 }
 

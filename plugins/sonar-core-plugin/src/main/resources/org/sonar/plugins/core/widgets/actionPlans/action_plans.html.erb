@@ -26,7 +26,7 @@
 <% if open_action_plans.size ==0 %>
   <span class="empty_widget"><%= message('widget.action_plans.no_action_plan') -%></span>
 <% else %>
-  <table class="width100 data actionPlans">
+  <table class="width100 actionPlans">
     <thead>
     <tr>
       <th colspan="3"></th>
@@ -36,13 +36,13 @@
       <%
          open_action_plans.each do |plan|
       %>
-      <tr class="<%= cycle 'even', 'odd', :name => (div_id) -%>">
-        <td class="thin nowrap"><%= h(plan.name) -%></td>
-        <td class="thin nowrap <%= 'over-due' if plan.over_due? -%>" align="right"><%= plan.dead_line ? plan.dead_line.strftime("%d %b %Y") : ' '  -%></td>
+      <tr>
+        <td class="nowrap"><%= h(plan.name) -%></td>
+        <td class="nowrap small <%= 'over-due' if plan.over_due? -%>" align="right"><%= plan.dead_line ? plan.dead_line.strftime("%d %b %Y") : ' '  -%></td>
         <% if plan.progress[:total]==0 %>
-        <td class="noprogress thin nowrap"><%= message('action_plans.no_reviews_linked_to_action_plan') -%></td>
+        <td class="noprogress nowrap"><%= message('action_plans.no_reviews_linked_to_action_plan') -%></td>
         <% else %>
-        <td class="progress thin">
+        <td class="progress">
             <%= render :partial => 'action_plans/progress', :locals => {:action_plan => plan} -%>
         </td>
         <% end %>
@@ -73,7 +73,7 @@
     }
   </script>
   <div style="margin-top:10px; font-size:93%"><a href="#" onclick="displayClosedActionPlans();" id ="<%= link_id -%>"><%= message('widget.action_plans.show_closed_action_plans') -%></a></div>
-  <table class="width100 data actionPlans" style="display:none" id="<%= table_id -%>">
+  <table class="width100 actionPlans" style="display:none" id="<%= table_id -%>">
     <thead>
     <tr>
       <th colspan="3"></th>
@@ -83,13 +83,13 @@
       <%
          closed_action_plans.each do |plan|
       %>
-      <tr class="<%= cycle 'even', 'odd', :name => (div_id+'closed') -%>">
-        <td class="thin nowrap"><%= h(plan.name) -%></td>
-        <td class="thin nowrap" align="right"><%= plan.dead_line ? plan.dead_line.strftime("%d %b %Y") : ' '  -%></td>
+      <tr>
+        <td class="nowrap"><%= h(plan.name) -%></td>
+        <td class="nowrap small" align="right"><%= plan.dead_line ? plan.dead_line.strftime("%d %b %Y") : ' '  -%></td>
         <% if plan.progress[:total]==0 %>
-        <td class="noprogress thin nowrap"><%= message('action_plans.no_reviews_linked_to_action_plan') -%></td>
+        <td class="noprogress nowrap"><%= message('action_plans.no_reviews_linked_to_action_plan') -%></td>
         <% else %>
-        <td class="progress thin">
+        <td class="progress">
             <%= render :partial => 'action_plans/progress', :locals => {:action_plan => plan} -%>
         </td>
         <% end %>

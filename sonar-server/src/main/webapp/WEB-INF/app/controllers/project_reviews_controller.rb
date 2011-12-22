@@ -28,10 +28,11 @@ class ProjectReviewsController < ApplicationController
          :redirect_to => {:action => :error_not_post}
   helper SourceHelper, UsersHelper
 
+  # lists all the reviews of a project, filtered using the same parameters as for the review WS API
   def index
     @project=Project.by_key(params[:projects])
     not_found("Project not found") unless @project
-    access_denied unless is_admin?(@project)
+    access_denied unless has_role?(:user, @project)
     
     found_reviews = Review.search(params)
     @reviews = select_authorized(:user, found_reviews, :project)

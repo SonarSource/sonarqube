@@ -4,7 +4,7 @@
       
       <h1><%= message('action_plans.page_title') -%></h1>
 
-      <table class="width100 data sortable actionPlans" id="actionPlans">
+      <table class="width100 data sortable actionPlans" id="openActionPlans">
         <thead>
         <tr>
           <th class="thin nowrap"><%= message('action_plans.col.status') -%></th>
@@ -17,11 +17,11 @@
         </tr>
         </thead>
         <tbody>
-        <% if @action_plans.empty? %>
+        <% if @open_action_plans.empty? %>
           <td colspan="7" class="even"><%= message('action_plans.no_action_plan') -%></td>
         <% end %>
         <%
-           @action_plans.each do |plan|
+           @open_action_plans.each do |plan|
         %>
           <tr>
             <td class="thin nowrap center"><img src="<%= ApplicationController.root_context -%>/images/status/<%= plan.status -%>.png" title="<%= message(plan.status.downcase).capitalize -%>"/></td>
@@ -39,16 +39,14 @@
             <td id="desc"><%= h(plan.description) -%></td>
             <td id="desc"><%= h(plan.user.name) -%></td>
             <td class="thin nowrap right">
-              <% if plan.open? %>
-                <%= link_to message('edit'), :action => 'edit', :id => @resource.id, :plan_id => plan.id, :class => 'action' -%>
-              <% end %>
+              <%= link_to message('edit'), :action => 'edit', :id => @resource.id, :plan_id => plan.id, :class => 'action' -%>
               <% 
                 close_confirmation_message = {}
                 if plan.open? && plan.has_open_reviews?
                   close_confirmation_message = {:confirm => message('action_plans.confirm_close')}
                 end 
               %>
-              <%= link_to plan.open? ? message('action_plans.close') : message('action_plans.reopen'), 
+              <%= link_to message('action_plans.close'), 
                           {:action => 'change_status', :id => @resource.id, :plan_id => plan.id}, {:method => 'POST', :class => 'action'}.merge(close_confirmation_message) -%>
               <%= link_to message('delete'), {:action => 'delete', :id => @resource.id, :plan_id => plan.id}, {:method => 'POST', :confirm => message('action_plans.confirm_delete'), :class => 'action'} -%>
             </td>
@@ -56,7 +54,69 @@
         <% end %>
         </tbody>
       </table>
-      <script>TableKit.Sortable.init('actionPlans');</script>
+      <script>TableKit.Sortable.init('openActionPlans');</script>
+      
+      
+      <% unless @closed_action_plans.empty? %>
+      <script type="text/javascript">
+        function displayClosedActionPlans() {
+          var table = $('closedActionPlans');
+          var link = $('showClosedActionPlanLink');
+          if (table.visible()) {
+            table.hide();
+            link.update("<%= message('action_plans.show_closed_action_plans') -%>");
+          } else {
+            table.show();
+            link.update("<%= message('action_plans.hide_closed_action_plans') -%>");
+          }
+        }
+      </script>
+      <div style="margin-top:30px;"><a href="#" onclick="displayClosedActionPlans();" id ="showClosedActionPlanLink">
+        <%= message('action_plans.show_closed_action_plans') -%></a>
+      </div>
+      <table class="width100 data sortable actionPlans" style="display:none" id="closedActionPlans">
+        <thead>
+        <tr>
+          <th class="thin nowrap"><%= message('action_plans.col.status') -%></th>
+          <th class="thin nowrap"><%= message('action_plans.col.name') -%></th>
+          <th class="thin nowrap righticon" style="text-align: right"><%= message('action_plans.col.due_for') -%></th>
+          <th class="nowrap nosort center"><%= message('action_plans.col.progress') -%></th>
+          <th class="nowrap"><%= message('action_plans.col.description') -%></th>
+          <th class="nowrap"><%= message('action_plans.col.author') -%></th>
+          <th class="thin nowrap nosort"><%= message('action_plans.col.operations') -%></th>
+        </tr>
+        </thead>
+        <tbody>
+        <%
+           @closed_action_plans.each do |plan|
+        %>
+          <tr>
+            <td class="thin nowrap center"><img src="<%= ApplicationController.root_context -%>/images/status/<%= plan.status -%>.png" title="<%= message(plan.status.downcase).capitalize -%>"/></td>
+            <td class="thin nowrap"><%= h(plan.name) -%></td>
+            <td class="thin nowrap <%= 'over-due' if plan.over_due? -%>" align="right" x="<%= plan.dead_line ? plan.dead_line.tv_sec : '' -%>"><%= plan.dead_line ? plan.dead_line.strftime("%d %b %Y") : ' '  -%></td>
+            <% if plan.progress[:total]==0 %>
+            <td class="noprogress thin nowrap">
+              <%= message('action_plans.no_reviews_linked_to_action_plan') -%>
+            </td>
+            <% else %>
+            <td class="progress thin">
+              <%= render :partial => 'progress', :locals => {:action_plan => plan} -%>
+            </td>
+            <% end %>
+            <td id="desc"><%= h(plan.description) -%></td>
+            <td id="desc"><%= h(plan.user.name) -%></td>
+            <td class="thin nowrap right">
+              <%= link_to message('action_plans.reopen'), 
+                          {:action => 'change_status', :id => @resource.id, :plan_id => plan.id}, {:method => 'POST', :class => 'action'} -%>
+              <%= link_to message('delete'), {:action => 'delete', :id => @resource.id, :plan_id => plan.id}, {:method => 'POST', :confirm => message('action_plans.confirm_delete'), :class => 'action'} -%>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+      <script>TableKit.Sortable.init('closedActionPlans');</script>
+      <% end %>
+      
 
     </td>
     <td class="sep"></td>
