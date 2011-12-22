@@ -5,7 +5,7 @@
     <div class="vtitle">
       <% if violation.review %>
         <div class="review_permalink">
-          <span class="review_permalink"><%= link_to "Review #"+violation.review.id.to_s, :controller => "reviews", :action => "view", :id => violation.review.id -%></span>
+          <span class="review_permalink"><%= link_to "Review #"+violation.review.id.to_s, :controller => "project_reviews", :action => "view", :id => violation.review.id -%></span>
         </div>
       <% end %>
 
@@ -75,7 +75,7 @@
             <%= button_to_function message('reviews.change_severity'), "sCSF(#{violation.id})", :name => 'bChangeSeverity' -%>
             
             <% 
-               @action_plans_size = ActionPlan.open_by_project_id(violation.review.project_id).size unless @action_plans_size
+               @action_plans_size = ActionPlan.count_open_for_project_id(violation.snapshot.root_project_id) unless @action_plans_size
                if @action_plans_size > 0 
             %>
               <%= button_to_function message('reviews.link_to_action_plan'), "sAPF(#{violation.id})", :name => 'bLinkActionPlan' -%>

@@ -1,6 +1,6 @@
 <% 
     options = {}
-    options['statuses'] = 'OPEN,REOPENED'
+    options['statuses'] = "#{Review::STATUS_OPEN},#{Review::STATUS_REOPENED}"
     options['projects'] = @project.key
     if @dashboard_configuration.selected_period?
       from_date = dashboard_configuration.from_datetime
@@ -57,8 +57,8 @@
         <tr class="<%= cycle 'even', 'odd', :name => (div_id) -%>">
           <td class="max-width">
             <%= link_to dev.name, 
-                        :controller => "reviews", :action => "index", :statuses => ['OPEN','REOPENED'], :assignee_login => dev.login, 
-                        :projects => [@project.id], :from => from_date, :to => to_date -%>
+                        :controller => "project_reviews", :action => "index", :statuses => "#{Review::STATUS_OPEN},#{Review::STATUS_REOPENED}", :assignees => dev.login, 
+                        :projects => @project.id, :from => from_date, :to => to_date -%>
           </td>
           <td class="nowrap">
             <%= '+' if @dashboard_configuration.selected_period? -%><%= count.to_s -%>
@@ -77,8 +77,8 @@
         <tr class="<%= cycle 'even', 'odd', :name => (div_id) -%>">
           <td class="max-width">
             <%= link_to message('widget.reviews_per_developer.not_assigned'), 
-                        :controller => "reviews", :action => "index", :statuses => ['OPEN','REOPENED'], :assignee_login => '', 
-                        :projects => [@project.id], :from => from_date, :to => to_date -%>
+                        :controller => "project_reviews", :action => "index", :statuses => "#{Review::STATUS_OPEN},#{Review::STATUS_REOPENED}", :assignees => '',
+                        :projects => @project.id, :from => from_date, :to => to_date -%>
           </td>
           <td class="nowrap">
             <%= '+' if @dashboard_configuration.selected_period? -%><%= counter_no_assignee.to_s -%>

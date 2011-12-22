@@ -55,11 +55,11 @@
         <tr class="<%= cycle('even', 'odd') -%>">
           <td><img src="<%= ApplicationController.root_context -%>/images/status/<%= review.status -%>.png" title="<%= message(review.status.downcase).capitalize -%>"/></td>
           <td>
-            <%= link_to h(review.id), :controller => "reviews", :action => "view", :id => review.id -%>
+            <%= link_to h(review.id), :controller => "project_reviews", :action => "view", :id => review.id -%>
           </td>
           <td><img src="<%= ApplicationController.root_context -%>/images/priority/<%= review.severity -%>.png" title="<%= message(review.severity.downcase).capitalize -%>"/></td>
           <td>
-            <%= link_to h(review.title), :controller => "reviews", :action => "view", :id => review.id -%>
+            <%= link_to h(review.title), :controller => "project_reviews", :action => "view", :id => review.id -%>
             <% if comment %>
               <div class="comment-excerpt">
                 <img src="<%= ApplicationController.root_context -%>/images/reviews/comment.png"/>
