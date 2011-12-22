@@ -23,6 +23,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.*;
 import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
@@ -204,7 +205,7 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
     return !testFiles(lang.getKey()).isEmpty();
   }
 
-  private List<InputFile> getFiles(List<File> directories, List<File> initialFiles, boolean applyExclusionPatterns, String... langs) {
+  List<InputFile> getFiles(List<File> directories, List<File> initialFiles, boolean applyExclusionPatterns, String... langs) {
     List<InputFile> result = Lists.newArrayList();
     if (directories == null) {
       return result;
@@ -224,8 +225,9 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
         IOFileFilter visibleFileFilter = HiddenFileFilter.VISIBLE;
         List<IOFileFilter> fileFilters = Lists.newArrayList(visibleFileFilter, suffixFilter, exclusionFilter, initialFilesFilter);
         fileFilters.addAll(this.filters);
-        
-        List<File> files = (List<File>) FileUtils.listFiles(dir, new AndFileFilter(fileFilters), HiddenFileFilter.VISIBLE);
+
+        IOFileFilter dotPrefixDirFilter = FileFilterUtils.notFileFilter(FileFilterUtils.prefixFileFilter("."));
+        List<File> files = (List<File>) FileUtils.listFiles(dir, new AndFileFilter(fileFilters), FileFilterUtils.and(HiddenFileFilter.VISIBLE, dotPrefixDirFilter));
         for (File file : files) {
           String relativePath = DefaultProjectFileSystem.getRelativePath(file, dir);
           result.add(InputFileUtils.create(dir, relativePath));

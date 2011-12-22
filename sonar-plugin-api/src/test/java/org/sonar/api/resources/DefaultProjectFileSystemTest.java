@@ -42,6 +42,7 @@ import org.sonar.api.test.MavenTestUtils;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class DefaultProjectFileSystemTest {
@@ -227,6 +228,18 @@ public class DefaultProjectFileSystemTest {
     assertThat(filter.accept(new File("foo/Unknown.java")), Matchers.is(false));
     assertThat(filter.accept(new File("foo/bar/Bar.java")), Matchers.is(false));
     assertThat(filter.accept(new File("foo/World.java")), Matchers.is(false));
+  }
+
+  /**
+   * SONAR-3096
+   */
+  @Test
+  public void shouldExcludeDirectoriesStartingWithDot() {
+    List<File> dirs = Arrays.asList(new File("test-resources/org/sonar/api/resources/DefaultProjectFileSystemTest/shouldExcludeDirectoriesStartingWithDot/src"));
+
+    List<InputFile> files = new DefaultProjectFileSystem(null, null).getFiles(dirs, Collections.<File>emptyList(), false);
+    assertThat(files.size(), is(1));
+    assertThat(files.get(0).getRelativePath(), is("org/sonar/Included.java"));
   }
 
   private DefaultProjectFileSystem newDefaultProjectFileSystem(Project project) {
