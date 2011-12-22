@@ -1,26 +1,16 @@
 <%
-   assignee_login = params[:assignee_login] unless assignee_login
-   project_key = params[:project_key] unless project_key
-   statuses = params[:statuses] unless statuses
-   resolution = params[:resolution] unless resolution
-   unplanned = params[:unplanned] unless unplanned
    limit = params[:limit] unless limit
    widget_id = params[:widget_id] unless widget_id
-
-   options = {}
-   options['statuses'] = statuses
-   options['assignees'] = assignee_login
-   options['projects'] = project_key
-   options['resolutions'] = resolution
-   options['unplanned'] = unplanned
-   options['sort'] = 'updated_at'
+   search_options = params unless search_options
+   
+   search_options['sort'] = 'updated_at'
    if @dashboard_configuration.selected_period?
      from_date = @dashboard_configuration.from_datetime
-     options['from'] = from_date
+     search_options['from'] = from_date
      to_date = DateTime.now
-     options['to'] = to_date
+     search_options['to'] = to_date
    end
-   reviews = Review.search(options)
+   reviews = Review.search(search_options)
 
    # table pagination
    page_size = 20
@@ -57,15 +47,10 @@
         <%
            if page_count
              page_count = 20 if page_count>20
-             link_params = {}
+             link_params = search_options
              link_params[:controller] = 'reviews'
              link_params[:action] = 'widget_reviews_list'
-             link_params[:assignee_login] = assignee_login if assignee_login && !assignee_login.blank?
-             link_params[:project_key] = project_key
              link_params[:snapshot_id] = @snapshot.id
-             link_params[:statuses] = statuses
-             link_params[:resolution] = resolution if resolution && !resolution.blank?
-             link_params[:unplanned] = unplanned
              link_params[:limit] = limit
              link_params[:widget_id] = widget_id
              link_params[:period] = params[:period]

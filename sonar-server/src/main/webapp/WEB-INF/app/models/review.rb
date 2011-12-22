@@ -338,7 +338,6 @@ class Review < ActiveRecord::Base
 
       assignees=options['assignees'].split(',') if options['assignees']
       if assignees
-        puts "---------------->"
         if assignees.size == 0
           # Unassigned reviews
           conditions << 'assignee_id IS NULL'
