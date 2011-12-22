@@ -23,9 +23,7 @@ class ReviewsController < ApplicationController
   SECTION=Navigation::SECTION_HOME
 
   verify :method => :post,
-         :only => [:assign, :flag_as_false_positive, :save_comment, :delete_comment, :change_status,
-                   :link_to_action_plan, :unlink_from_action_plan,
-                   :violation_assign, :violation_flag_as_false_positive, :violation_change_severity,
+         :only => [:violation_assign, :violation_flag_as_false_positive, :violation_change_severity,
                    :violation_save_comment, :violation_delete_comment, :violation_change_status,
                    :violation_link_to_action_plan, :violation_unlink_from_action_plan],
          :redirect_to => {:action => :error_not_post}
@@ -36,190 +34,10 @@ class ReviewsController < ApplicationController
     search_reviews()
   end
 
-  # Used for the permalink, e.g. http://localhost:9000/reviews/view/1
+  # Used for the "OLD" permalink "http://localhost:9000/reviews/view/1"
+  # => Since Sonar 2.13, permalinks are "http://localhost:9000/project_reviews/view/1" and are displayed in the context of the project
   def view
-    @review = Review.find(params[:id], :include => ['project'])
-    if has_role?(:user, @review.project)
-      render 'reviews/_view', :locals => {:review => @review}
-    else
-      render :text => "<b>Cannot access this review</b> : access denied."
-    end
-  end
-
-
-  #
-  #
-  # ACTIONS FROM REVIEW SERVICE PAGE
-  #
-  #
-
-  def show
-    @review = Review.find(params[:id], :include => ['project'])
-    if has_role?(:user, @review.project)
-      render :partial => 'reviews/view'
-    else
-      render :text => "access denied"
-    end
-  end
-
-  # GET
-  def assign_form
-    @review = Review.find(params[:id])
-    render :partial => "assign_form"
-  end
-
-  # POST
-  def assign
-    @review = Review.find(params[:id], :include => ['project'])
-    unless has_rights_to_modify?(@review.project)
-      render :text => "<b>Cannot edit the review</b> : access denied."
-      return
-    end
-
-    assignee = nil
-    if params[:me]=='true'
-      assignee = current_user
-
-    elsif params[:assignee_login].present?
-      assignee = findUserByLogin(params[:assignee_login])
-    end
-
-    @review.reassign(current_user, assignee, params)
-    render :partial => 'reviews/view'
-  end
-
-  # GET
-  def comment_form
-    @review = Review.find(params[:id])
-    if !params[:comment_id].blank? && @review
-      @comment = @review.comments.find(params[:comment_id])
-    end
-    render :partial => 'reviews/comment_form'
-  end
-
-  # POST
-  def save_comment
-    @review = Review.find(params[:id], :include => ['project'])
-    unless has_rights_to_modify?(@review.project)
-      render :text => "<b>Cannot create the comment</b> : access denied."
-      return
-    end
-
-    unless params[:text].blank?
-      if params[:comment_id]
-        @review.edit_comment(current_user, params[:comment_id].to_i, params[:text])
-      else
-        @review.create_comment(:user => current_user, :text => params[:text])
-      end
-    end
-
-    render :partial => "reviews/view"
-  end
-
-  # GET
-  def false_positive_form
-    @review = Review.find(params[:id])
-    render :partial => 'reviews/false_positive_form'
-  end
-
-  # POST
-  def flag_as_false_positive
-    @review = Review.find(params[:id], :include => ['project'])
-    unless has_rights_to_modify?(@review.project)
-      render :text => "<b>Cannot create the comment</b> : access denied."
-      return
-    end
-
-    @review.set_false_positive(params[:false_positive]=='true', current_user, params)
-    render :partial => "reviews/view"
-  end
-
-  # POST
-  def delete_comment
-    @review = Review.find(params[:id], :include => ['project'])
-    unless has_rights_to_modify?(@review.project)
-      render :text => "<b>Cannot delete the comment</b> : access denied."
-      return
-    end
-
-    if @review
-      @review.delete_comment(current_user, params[:comment_id].to_i)
-    end
-    render :partial => "reviews/view"
-  end
-
-  def change_status_form
-    @review = Review.find(params[:id])
-    render :partial => 'reviews/change_status_form'
-  end
-
-  # POST
-  def change_status
-    @review = Review.find(params[:id], :include => ['project'])
-    unless has_rights_to_modify?(@review.project)
-      render :text => "<b>Cannot change the status</b> : access denied."
-      return
-    end
-
-    if @review.resolved?
-      @review.reopen(current_user, params)
-    else
-      # for the moment, if a review is not open, it can only be "RESOLVED"
-      @review.resolve(current_user, params)
-    end
-
-    render :partial => "reviews/view"
-  end
-
-  # GET
-  def change_severity_form
-    render :partial => 'reviews/change_severity_form'
-  end
-
-  # POST
-  def change_severity
-    @review=Review.find(params[:id], :include => 'project')
-    unless has_rights_to_modify?(@review.project)
-      render :text => "<b>Cannot change severity</b> : access denied."
-      return
-    end
-
-    @review.set_severity(params[:severity], current_user, params)
-    render :partial => "reviews/review"
-  end
-
-  # GET
-  def action_plan_form
-    @review = Review.find(params[:id])
-    @action_plans = ActionPlan.open_by_project_id(@review.project_id)
-    render :partial => 'reviews/action_plan_form'
-  end
-  
-  # POST
-  def link_to_action_plan
-    @review = Review.find(params[:id])
-    unless has_rights_to_modify?(@review.project)
-      render :text => "<b>Cannot link to action plan</b> : access denied."
-      return
-    end
-    
-    action_plan = params[:action_plan_id].to_i==-1 ? nil : ActionPlan.find(params[:action_plan_id])
-    @review.link_to_action_plan(action_plan, current_user, params)
-
-    render :partial => "reviews/review"
-  end
-  
-  # POST
-  def unlink_from_action_plan
-    @review = Review.find(params[:id])
-    unless has_rights_to_modify?(@review.project)
-      render :text => "<b>Cannot link to action plan</b> : access denied."
-      return
-    end
-    
-    @review.link_to_action_plan(nil, current_user, params)
-
-    render :partial => "reviews/review"
+    redirect_to :controller => 'project_reviews', :action => 'view', :id => params[:id]
   end
 
 
@@ -428,25 +246,6 @@ class ReviewsController < ApplicationController
     violation.review.link_to_action_plan(nil, current_user, params)
 
     render :partial => "resource/violation", :locals => {:violation => violation}
-  end
-
-
-  #
-  #
-  # ACTIONS FROM THE REVIEW WIDGETS
-  #
-  #
-
-  # GET
-  def widget_reviews_list
-    @snapshot = Snapshot.find(params[:snapshot_id])
-    unless @snapshot && has_role?(:user, @snapshot)
-      render :text => "<b>Cannot access the reviews of this project</b>: access denied."
-      return
-    end
-
-    @dashboard_configuration=Api::DashboardConfiguration.new(nil, :period_index => params[:period], :snapshot => @snapshot)
-    render :partial => 'project/widgets/reviews/reviews_list'
   end
 
 

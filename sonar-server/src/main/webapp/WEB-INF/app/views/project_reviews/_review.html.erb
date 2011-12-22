@@ -10,7 +10,7 @@
     <div class="marginbottom10" id="actionButtons">
       <% unless review.resolved? %>
         <%= button_to_remote message('reviews.assign'),
-                             :url => {:controller => "reviews", :action => "assign_form", :id => review.id},
+                             :url => {:controller => "project_reviews", :action => "assign_form", :id => review.id},
                              :update => "actionForm",
                              :complete => "$('actionButtons').remove();$('actionForm').show();" -%>
 
@@ -20,7 +20,7 @@
          if !violation_switched_off
       %>
         <%= button_to_remote (review.resolved? ? message('reviews.reopen') : message('reviews.resolved')),
-                             :url => {:controller => "reviews", :action => "change_status_form", :id => review.id},
+                             :url => {:controller => "project_reviews", :action => "change_status_form", :id => review.id},
                              :update => "actionForm",
                              :complete => "$('actionButtons').remove();$('actionForm').show();$('actionText').focus();" -%>
 
@@ -28,20 +28,20 @@
       <% end %>
       <% if review.can_change_false_positive_flag? %>
         <%= button_to_remote (violation_switched_off ? message('reviews.unflag_as_false_positive') : message('reviews.flag_as_false_positive')),
-                             :url => {:controller => "reviews", :action => "false_positive_form", :id => review.id, :false_positive => !violation_switched_off},
+                             :url => {:controller => "project_reviews", :action => "false_positive_form", :id => review.id, :false_positive => !violation_switched_off},
                              :update => "actionForm",
                              :complete => "$('actionButtons').remove();$('actionForm').show();$('actionText').focus();" -%>
       <% end %>
 
       <% unless review.resolved? %>
         <%= button_to_remote message('reviews.change_severity'),
-                             :url => {:controller => "reviews", :action => "change_severity_form", :id => review.id},
+                             :url => {:controller => "project_reviews", :action => "change_severity_form", :id => review.id},
                              :update => "actionForm",
                              :complete => "$('actionButtons').remove();$('actionForm').show();$('selectSeverity').focus();" -%>
 
         <% if ActionPlan.open_by_project_id(@review.project_id).size>0 %>
           <%= button_to_remote message('reviews.link_to_action_plan'),
-                             :url => {:controller => "reviews", :action => "action_plan_form", :id => review.id},
+                             :url => {:controller => "project_reviews", :action => "action_plan_form", :id => review.id},
                              :update => "actionForm",
                              :complete => "$('actionButtons').remove();$('actionForm').show();$('selectSeverity').focus();" -%>
         <% else %>
@@ -160,13 +160,13 @@
                 if current_user.id == comment.user_id
              %>
                <%= link_to_remote message('edit'),
-                                  :url => {:controller => "reviews", :action => "comment_form", :comment_id => comment.id, :id => review.id},
+                                  :url => {:controller => "project_reviews", :action => "comment_form", :comment_id => comment.id, :id => review.id},
                                   :update => "lastComment",
                                   :complete => "$('commentAction').remove();$('editActions').hide();$('commentText').focus();" -%>
                <% unless comment_index == 0 %>
                &nbsp;
                  <%= link_to_remote message('delete'),
-                                    :url => {:controller => "reviews", :action => "delete_comment", :comment_id => comment.id, :id => review.id},
+                                    :url => {:controller => "project_reviews", :action => "delete_comment", :comment_id => comment.id, :id => review.id},
                                     :update => "review",
                                     :confirm => message('reviews.do_you_want_to_delete_comment') -%>
                <% end %>
@@ -190,7 +190,7 @@
   <% if current_user %>
     <%= button_to_remote message('reviews.comment'),
                          {
-                           :url => {:controller => "reviews", :action => "comment_form", :id => review.id},
+                           :url => {:controller => "project_reviews", :action => "comment_form", :id => review.id},
                            :update => "commentForm",
                            :complete => "$('commentAction').remove();$('commentForm').show();$('commentText').focus();"
                          },

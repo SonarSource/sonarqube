@@ -48,7 +48,7 @@
            if page_count
              page_count = 20 if page_count>20
              link_params = search_options
-             link_params[:controller] = 'reviews'
+             link_params[:controller] = 'project_reviews'
              link_params[:action] = 'widget_reviews_list'
              link_params[:snapshot_id] = @snapshot.id
              link_params[:limit] = limit
