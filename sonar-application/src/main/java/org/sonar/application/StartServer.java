@@ -51,7 +51,10 @@ public final class StartServer {
     Thread.currentThread().join();
   }
 
-  static void canCreateTemporaryFiles() {
+  /**
+   * This check is required in order to provide more meaningful message than JRuby - see SONAR-2715
+   */
+  private static void canCreateTemporaryFiles() {
     File file = null;
     try {
       file = File.createTempFile("sonar-check", "tmp");
