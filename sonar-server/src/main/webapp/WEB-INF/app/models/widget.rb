@@ -27,9 +27,9 @@ class Widget < ActiveRecord::Base
   validates_presence_of :widget_key
   validates_length_of :widget_key, :within => 1..256
 
-  def property(key)
+  def property(property_key)
     self.properties().each do |p|
-      return p if (p.key==key)
+      return p if (p.key==property_key)
     end
     nil
   end
@@ -42,15 +42,26 @@ class Widget < ActiveRecord::Base
     "block_#{id}"
   end
 
-  def property_text_value(key)
-    prop=property(key)
-    prop ? prop.text_value : nil
+  # The parameter 'default_value' must NOT be used ! It's defined only for backward-compatibility with the SQALE plugin
+  def property_value(property_key, default_value=nil)
+    prop=property(property_key)
+    if default_value && property_key=='depth'
+      # we're in SQALE.... Keep the text_value
+      result = (prop ? prop.text_value : nil)||default_value
+    else
+      result = (prop ? prop.value : nil)
+      unless result
+        property_definition=java_definition.getWidgetProperty(property_key)
+        result = WidgetProperty.text_to_value(property_definition.defaultValue(), property_definition.type().name()) if property_definition
+      end
+    end
+    result
   end
 
-  def property_value(key, default_value=nil)
-    prop=property(key)
-    (prop ? prop.value : nil)||default_value
-  end
+  def property_text_value(key)
+      prop=property(key)
+      prop ? prop.text_value : nil
+    end
 
   def properties_as_hash
     @properties_hash ||=
