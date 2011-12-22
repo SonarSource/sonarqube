@@ -44,23 +44,28 @@ class DashboardsController < ApplicationController
   def create
     @dashboard=Dashboard.new()
     load_dashboard_from_params(@dashboard)
-    if @dashboard.valid?
-      @dashboard.save
 
-      add_default_dashboards_if_first_user_dashboard
-      last_active_dashboard=current_user.active_dashboards.max { |x, y| x.order_index<=>y.order_index }
-      current_user.active_dashboards.create(:dashboard => @dashboard, :user_id => current_user.id, :order_index => (last_active_dashboard ? last_active_dashboard.order_index+1 : 1))
-      redirect_to :controller => 'dashboard', :action => 'configure', :did => @dashboard.id, :id => params[:resource]
-    else
-      flash[:error]=@dashboard.errors.full_messages.join('<br/>')
+    active_dashboard = current_user.active_dashboards.to_a.find { |ad| ad.name==@dashboard.name }
+    if active_dashboard
+      flash[:error]=Api::Utils.message('dashboard.error_create_existing_name')
       redirect_to :controller => 'dashboards', :action => 'index', :resource => params[:resource]
+    else
+      if @dashboard.save
+        add_default_dashboards_if_first_user_dashboard
+        last_active_dashboard=current_user.active_dashboards.max { |x, y| x.order_index<=>y.order_index }
+        current_user.active_dashboards.create(:dashboard => @dashboard, :user_id => current_user.id, :order_index => (last_active_dashboard ? last_active_dashboard.order_index+1 : 1))
+        redirect_to :controller => 'dashboard', :action => 'configure', :did => @dashboard.id, :id => params[:resource]
+      else
+        flash[:error]=@dashboard.errors.full_messages.join('<br/>')
+        redirect_to :controller => 'dashboards', :action => 'index', :resource => params[:resource]
+      end
     end
   end
 
   def edit
     @dashboard=Dashboard.find(params[:id])
     if @dashboard.owner?(current_user)
-      render :partial => "edit"
+      render :partial => 'edit'
     else
       redirect_to :controller => 'dashboards', :action => 'index', :resource => params[:resource]
     end
@@ -73,7 +78,7 @@ class DashboardsController < ApplicationController
 
       if dashboard.save
         if !dashboard.shared?
-          ActiveDashboard.destroy_all(["dashboard_id = ? and (user_id<>? OR user_id IS NULL)", dashboard.id, current_user.id])
+          ActiveDashboard.destroy_all(['dashboard_id = ? and (user_id<>? OR user_id IS NULL)', dashboard.id, current_user.id])
         end
       else
         flash[:error]=dashboard.errors.full_messages.join('<br/>')
@@ -89,18 +94,13 @@ class DashboardsController < ApplicationController
     bad_request('Unknown dashboard') unless dashboard
     access_denied unless dashboard.owner?(current_user)
 
-    if current_user.active_dashboards.size<=1
-      flash[:error]='At least one dashboard must be defined'
-      redirect_to :action => 'index', :resource => params[:resource]
-
+    if dashboard.destroy
+      flash[:error]=Api::Utils.message('dashboard.default_restored') if ActiveDashboard.count(:conditions => ['user_id=?', current_user.id])==0
     else
-      if dashboard.destroy
-        flash[:notice]='Dashboard deleted'
-      else
-        flash[:error]="This dashboard can't be deleted as long as it's defined as a default dashboard."
-      end
-      redirect_to :action => 'index', :resource => params[:resource]
+      flash[:error]=Api::Utils.message('dashboard.error_delete_default')
     end
+    redirect_to :action => 'index', :resource => params[:resource]
+
   end
 
   def down
@@ -140,23 +140,28 @@ class DashboardsController < ApplicationController
   end
 
   def follow
-    add_default_dashboards_if_first_user_dashboard()
+    add_default_dashboards_if_first_user_dashboard
     dashboard=Dashboard.find(:first, :conditions => ['shared=? and id=? and (user_id is null or user_id<>?)', true, params[:id].to_i, current_user.id])
     if dashboard
-      active=current_user.active_dashboards.to_a.find { |a| a.dashboard_id==params[:id].to_i }
-      if active.nil?
+      active_dashboard = current_user.active_dashboards.to_a.find { |ad| ad.name==dashboard.name }
+      if active_dashboard
+        flash[:error]=Api::Utils.message('dashboard.error_follow_existing_name')
+      else
         current_user.active_dashboards.create(:dashboard => dashboard, :user => current_user, :order_index => current_user.active_dashboards.size+1)
       end
+    else
+      bad_request('Unknown dashboard')
     end
     redirect_to :action => :index, :resource => params[:resource]
   end
 
   def unfollow
-    if current_user.active_dashboards.size<=1
-      flash[:error]='At least one dashboard must be defined'
-    else
-      active_dashboard=ActiveDashboard.find(:first, :conditions => ['user_id=? AND dashboard_id=?', current_user.id, params[:id].to_i])
-      active_dashboard.destroy if active_dashboard
+    add_default_dashboards_if_first_user_dashboard
+
+    ActiveDashboard.destroy_all(['user_id=? AND dashboard_id=?', current_user.id, params[:id].to_i])
+
+    if ActiveDashboard.count(:conditions => ['user_id=?', current_user.id])==0
+      flash[:notice]=Api::Utils.message('dashboard.default_restored')
     end
     redirect_to :action => :index, :resource => params[:resource]
   end

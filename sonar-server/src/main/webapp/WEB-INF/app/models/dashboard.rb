@@ -113,7 +113,7 @@ class Dashboard < ActiveRecord::Base
       default_actives = active_dashboards.select { |ad| ad.default? }
 
       unless default_actives.empty?
-        errors.add_to_base("This dashboard can't be unshared as long as it's defined as a default dashboard.")
+        errors.add_to_base(Api::Utils.message('dashboard.error_unshare_default'))
       end
     end
   end

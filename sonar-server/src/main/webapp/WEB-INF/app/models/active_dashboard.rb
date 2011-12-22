@@ -21,6 +21,7 @@ class ActiveDashboard < ActiveRecord::Base
 
   belongs_to :user
   belongs_to :dashboard
+  validates_uniqueness_of :dashboard_id, :scope => :user_id
 
   def name(l10n=false)
     dashboard.name(l10n)
