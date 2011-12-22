@@ -29,8 +29,6 @@ import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.utils.ValidationMessages;
@@ -39,8 +37,6 @@ import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.markdown.Markdown;
 import org.sonar.persistence.Database;
 import org.sonar.persistence.DatabaseMigrator;
-import org.sonar.persistence.resource.ResourceIndexerDao;
-import org.sonar.persistence.resource.ResourceIndexerFilter;
 import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.filters.Filter;
@@ -381,13 +377,5 @@ public final class JRubyFacade {
 
   public ComponentContainer getContainer() {
     return Platform.getInstance().getContainer();
-  }
-
-
-  // RESOURCE SEARCH ENGINE
-  public void indexResources() {
-    getContainer().getComponentByType(ResourceIndexerDao.class).index(ResourceIndexerFilter.create()
-      .setQualifiers(new String[]{Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.SUBVIEW, Qualifiers.FILE, Qualifiers.CLASS, Qualifiers.UNIT_TEST_FILE})
-      .setScopes(new String[]{Scopes.PROJECT, Scopes.FILE}));
   }
 }

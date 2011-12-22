@@ -1,4 +1,3 @@
-<%= render :partial => 'resource/javascript' -%>
 <%= render :partial => 'header' -%>
 
 <% if params[:period] && @snapshot.project_snapshot.periods? %>
@@ -37,7 +36,8 @@
 <table id="drilldown" class="width100" style="clear:left">
   <% if @highlighted_metric!=@metric %>
     <tr>
-      <td colspan="<%= @drilldown.columns.size -%>"><%= message('drilldown.drilldown_on') -%> <b><%= format_measure(@metric.key, :period => @period) -%> <%= @metric.short_name -%></b></td>
+      <td colspan="<%= @drilldown.columns.size -%>"><%= message('drilldown.drilldown_on') -%>
+        <b><%= format_measure(@metric.key, :period => @period) -%> <%= @metric.short_name -%></b></td>
     </tr>
     <tr>
   <% end

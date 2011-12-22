@@ -1,0 +1,17 @@
+<%= render :partial => 'gwt/base', :locals => {:resource => nil, :popup => false, :metric => nil} -%>
+<%= render :partial => 'gwt/resource_viewers' -%>
+
+<img id="page_loading" src="<%= ApplicationController.root_context -%>/images/loading.gif">
+<div id="resource_container"></div>
+
+<script type="text/javascript">
+  new Ajax.Updater('resource_container', '<%= ApplicationController.root_context-%>/resource/index/<%= @file.id -%>',
+    {
+      asynchronous:true,
+      evalScripts:true,
+      onComplete:function (transport) {
+        $('page_loading').hide()
+      }
+    });
+
+</script>

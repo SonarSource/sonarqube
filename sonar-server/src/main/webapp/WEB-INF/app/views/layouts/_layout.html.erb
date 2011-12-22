@@ -7,7 +7,7 @@
     <%= render :partial => 'layouts/breadcrumb' %>
     <ol id="nav">
       <li>
-        <input type="text" size="15" name="search" id="searchResourcesInput" onFocus="autocompleteResources('<%= ApplicationController.root_context -%>')" accesskey="/" value="<%= message('search_verb') -%>"/>
+        <input type="text" size="15" name="search" id="searchResourcesInput" onFocus="autocompleteResources()" value="<%= message('search_verb') -%>"/>
         <img src="<%= ApplicationController.root_context -%>/images/loading-black.gif" id="searchingResources" style="display: none">
       </li>
       <li>

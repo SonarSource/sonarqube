@@ -21,11 +21,9 @@ class SearchController < ApplicationController
 
   SECTION=Navigation::SECTION_HOME
 
-  verify :method => :post, :only => [:reset]
-  before_filter :admin_required, :except => ['index']
-
   # Do not exceed 1000 because of the Oracle limition on IN statements
   MAX_RESULTS = 6
+
   MIN_SEARCH_SIZE=3
 
   def index
@@ -63,19 +61,6 @@ class SearchController < ApplicationController
 
     render :partial => 'search/autocomplete'
   end
-
-  #
-  # TO DELETE !!!!!
-  #
-  #
-  # Start indexing resources
-  #
-  # curl -v -u admin:admin -X POST http://localhost:9000/search/reset
-  def reset
-    java_facade.indexResources()
-    render :text => 'indexing'
-  end
-
 
   private
   def fix_qualifier(q)

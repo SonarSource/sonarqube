@@ -1,4 +1,3 @@
-<%= render :partial => 'resource/javascript' -%>
 <%= render :partial => 'header' -%>
 
 <div id="snapshot_title" class="page_title">
@@ -126,43 +125,43 @@
        @drilldown.columns.each_with_index do |column, index|
     %>
       <td class="column <%= 'first' if index==0 -%>" nowrap width="<%= column_width -%>%">
-      <div class="scrollable" id="col_<%= column.scope -%>">
-        <table class="spaced">
-          <%
-             column.measures.each do |measure|
-               resource=column.resource(measure)
-               clazz = cycle('even', 'odd', :name => "col_#{column.scope}")
-               selected = column.selected_snapshot && column.selected_snapshot.project_id==resource.id
-               if selected
-                 clazz += ' selected'
-                 paths << [h(resource.name), @selected_rids-[resource.id]]
-               end
-          %>
-            <tr class="<%= clazz -%>">
-              <td nowrap>
-                <%
-                   if resource.entity?
-                     if resource.copy_resource_id %>
-                    <%= qualifier_icon(resource) -%>
-                    <%= link_to(h(resource.name), {:only_path => true, :overwrite_params => {:rids => nil, :id => resource.copy_resource_id}}) -%>
-                  <% else %>
-                    <%= qualifier_icon(resource) -%>
-                    <a href="#" onclick="d(<%= resource.id -%>, '<%= @period_index -%>', '<%= @rule ? @rule.key : @severity -%>');" alt="<%= resource.name(true) -%>" title="<%= resource.name(true) -%>"><%= resource.name(false) %></a>
+        <div class="scrollable" id="col_<%= column.scope -%>">
+          <table class="spaced">
+            <%
+               column.measures.each do |measure|
+                 resource=column.resource(measure)
+                 clazz = cycle('even', 'odd', :name => "col_#{column.scope}")
+                 selected = column.selected_snapshot && column.selected_snapshot.project_id==resource.id
+                 if selected
+                   clazz += ' selected'
+                   paths << [h(resource.name), @selected_rids-[resource.id]]
+                 end
+            %>
+              <tr class="<%= clazz -%>">
+                <td nowrap>
                   <%
-                     end
-                     else %>
-                  <%= link_to(image_tag('zoom.png'), {:id => resource.id}, {:class => 'nolink'}) %>
-                  <%= qualifier_icon(resource) %>
-                  <%= link_to(h(resource.name), {:only_path => true, :overwrite_params => {:rids => (selected ? rids-[resource.id] : rids+[resource.id])}}) -%>
-                <% end %>
-              </td>
-              <td class="right last" nowrap>
-                <%= @period ? format_variation(measure, :period => @period, :style => 'light') : measure.formatted_value -%>
-              </td>
-            </tr>
-          <% end %>
-        </table>
-      </div>
+                     if resource.entity?
+                       if resource.copy_resource_id %>
+                      <%= qualifier_icon(resource) -%>
+                      <%= link_to(h(resource.name), {:only_path => true, :overwrite_params => {:rids => nil, :id => resource.copy_resource_id}}) -%>
+                    <% else %>
+                      <%= qualifier_icon(resource) -%>
+                      <a href="#" onclick="d(<%= resource.id -%>, '<%= @period_index -%>', '<%= @rule ? @rule.key : @severity -%>');" alt="<%= resource.name(true) -%>" title="<%= resource.name(true) -%>"><%= resource.name(false) %></a>
+                    <%
+                       end
+                       else %>
+                    <%= link_to(image_tag('zoom.png'), {:id => resource.id}, {:class => 'nolink'}) %>
+                    <%= qualifier_icon(resource) %>
+                    <%= link_to(h(resource.name), {:only_path => true, :overwrite_params => {:rids => (selected ? rids-[resource.id] : rids+[resource.id])}}) -%>
+                  <% end %>
+                </td>
+                <td class="right last" nowrap>
+                  <%= @period ? format_variation(measure, :period => @period, :style => 'light') : measure.formatted_value -%>
+                </td>
+              </tr>
+            <% end %>
+          </table>
+        </div>
       </td>
     <%
        rids<<column.selected_snapshot.project_id if column.selected_snapshot

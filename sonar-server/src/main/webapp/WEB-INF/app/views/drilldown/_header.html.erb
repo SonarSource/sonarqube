@@ -1,32 +1,16 @@
-<%= render :partial => 'gwt/base', :locals => {:resource => nil, :popup => false, :metric => @metric.key} -%>
+<%= render :partial => 'gwt/base', :locals => {:resource => nil, :popup => false, :metric => (@metric ? @metric.key : nil)} -%>
 <%= render :partial => 'gwt/resource_viewers' -%>
 
 <script type="text/javascript">
   /* display resource */
   function d(resourceId, display_title) {
     var loading = new Image();
-    loading.src = "<%= ApplicationController.root_context-%>/images/loading.gif";
+    loading.src = baseUrl + "/images/loading.gif";
     $('resource_container').update(loading);
-    if (display_title==undefined) {
-      display_title=true;
+    if (display_title == undefined) {
+      display_title = true;
     }
-    new Ajax.Updater('resource_container', '<%= ApplicationController.root_context-%>/resource/index/' + resourceId + '?metric=<%= @metric.id if @metric -%>&rule=<%= @rule ? @rule.id : @severity -%>&period=<%= @period -%>&display_title=' + display_title, {asynchronous:true, evalScripts:true});
+    new Ajax.Updater('resource_container', baseUrl + '/resource/index/' + resourceId + '?metric=<%= @metric.id if @metric -%>&rule=<%= @rule ? @rule.id : @severity -%>&period=<%= @period -%>&display_title=' + display_title, {asynchronous:true, evalScripts:true});
     return false;
-  }
-
-  function loadAjaxTab(resourceId, tab, display_title) {
-    $('resource-loading').show();
-    if (display_title==undefined) {
-      display_title=true;
-    }
-    new Ajax.Updater('resource_container', '<%= ApplicationController.root_context-%>/resource/index/' + resourceId + '?tab=' + tab + '&display_title=' + display_title, {asynchronous:true, evalScripts:true});
-    return false;
-  }
-
-  /* display GWT component, executed from tabs */
-  function loadGWT(gwtId, resourceId, resourceKey, resourceName, resourceScope, resourceQualifier, resourceLanguage) {
-    config["resource"]=[{"id": resourceId, "key": resourceKey, "name" : resourceName, "scope": resourceScope, "qualifier": resourceQualifier, "lang": resourceLanguage}];
-    config["resource_key"]=resourceId;
-    modules[gwtId]();
   }
 </script>

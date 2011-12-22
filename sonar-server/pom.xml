@@ -256,7 +256,8 @@
                 <include>**/dashboard-min.js</include>
                 <include>**/protovis-min.js</include>
                 <include>**/protovis-sonar-min.js</include>
-                <include>**/duplications-min.js</include>
+                <include>**/duplication-min.js</include>
+                <include>**/resource-min.js</include>
               </includes>
               <output>${project.build.directory}/${project.build.finalName}/javascripts/sonar.js</output>
             </aggregation>
@@ -305,7 +306,7 @@
             **/*.log,*.iml,WEB-INF/script/,WEB-INF/test/,
             javascripts/application*.js,javascripts/prototype*.js,javascripts/scriptaculous*.js,javascripts/tablekit*.js,javascripts/tablekit*.js,
             javascripts/prototip*.js,javascripts/dashboard*.js,javascripts/protovis.js,javascripts/protovis-min.js,javascripts/protovis-sonar*.js,
-            javascripts/protovis-msie-min.js,javascripts/duplications*.js,protovis-msie-min.js,
+            javascripts/protovis-msie-min.js,javascripts/duplication*.js,protovis-msie-min.js,resource*.js,
             stylesheets/yui-2.6.0*.css,stylesheets/calendar*.css,stylesheets/style*.css,stylesheets/sonar-colorizer*.css,stylesheets/dashboard*.css
           </packagingExcludes>
           <warSourceExcludes>

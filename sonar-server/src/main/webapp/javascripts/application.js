@@ -12,16 +12,16 @@ function info(message) {
   showMessage('info', message);
 }
 
-function autocompleteResources(base_url) {
+function autocompleteResources() {
   $('searchResourcesInput').value = '';
-  new Ajax.Autocompleter('searchResourcesInput', 'searchResourcesResults', base_url + '/search', {
+  new Ajax.Autocompleter('searchResourcesInput', 'searchResourcesResults', baseUrl + '/search', {
     method:'post',
     minChars:3,
     indicator:'searchingResources',
     paramName:'s',
     updateElement:function (item) {
       if (item.id) {
-        window.location = base_url + '/dashboard/index/' + item.id;
+        window.location = baseUrl + '/dashboard/index/' + item.id;
       }
     },
     onShow:function (element, update) { /* no update */

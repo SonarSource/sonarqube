@@ -29,7 +29,8 @@
 <%= javascript_include_tag 'dashboard' %>
 <%= javascript_include_tag 'protovis' %>
 <%= javascript_include_tag 'protovis-sonar' %>
-<%= javascript_include_tag 'duplications' %>
+<%= javascript_include_tag 'duplication' %>
+<%= javascript_include_tag 'resource' %>
 <% end %>
 <!--[if lte IE 6]><link href="<%= ApplicationController.root_context -%>/ie6/index" media="all" rel="stylesheet" type="text/css" /><![endif]-->
 <!--[if lte IE 8]><%= javascript_include_tag 'protovis-msie' -%><![endif]-->
@@ -37,7 +38,7 @@
 <%
 if @project %>
 <link rel="alternate" title="Sonar Alerts on <%= @project.name -%>" href="<%= ApplicationController.root_context -%>/feeds/project/<%= @project.key -%>?category=<%= EventCategory::KEY_ALERT -%>" type="application/atom+xml">
-<% else %>
-<link rel="alternate" title="Sonar Alerts" href="<%= ApplicationController.root_context -%>/feeds/projects/<%= EventCategory::KEY_ALERT -%>" type="application/atom+xml">
-<% end %>
+<% else
+%><link rel="alternate" title="Sonar Alerts" href="<%= ApplicationController.root_context -%>/feeds/projects/<%= EventCategory::KEY_ALERT -%>" type="application/atom+xml"><%
+end %><script>var baseUrl = '<%= ApplicationController.root_context -%>';</script>
 </head><body>

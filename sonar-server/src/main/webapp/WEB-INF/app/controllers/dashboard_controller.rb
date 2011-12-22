@@ -27,10 +27,23 @@ class DashboardController < ApplicationController
   def index
     # TODO display error page if no dashboard or no resource
     load_resource()
-    load_dashboard()
-    load_authorized_widget_definitions()
-    unless @dashboard
-      redirect_to home_path
+    if @resource.display_dashboard?
+      load_dashboard()
+      load_authorized_widget_definitions()
+      unless @dashboard
+        redirect_to home_path
+      end
+    else
+      # display the layout of the parent, usually the directory, but display the file viewers
+      @file = @resource
+      @snapshot = @snapshot.parent_snapshot
+      if @snapshot
+        @resource = @snapshot.resource
+        @project = @resource
+        render :action => 'no_dashboard'
+      else
+        redirect_to home_path
+      end
     end
   end
 
@@ -138,8 +151,6 @@ class DashboardController < ApplicationController
   end
 
 
-
-
   private
 
   def load_dashboard
@@ -173,6 +184,8 @@ class DashboardController < ApplicationController
     not_found("Resource not found") unless @resource
     access_denied unless has_role?(:user, @resource)
     @snapshot = @resource.last_snapshot
+    not_found("Snapshot not found") unless @snapshot
+
     @project=@resource # variable name used in old widgets
   end
 
