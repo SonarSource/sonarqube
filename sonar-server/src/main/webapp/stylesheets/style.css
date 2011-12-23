@@ -1188,6 +1188,26 @@ div.comment-excerpt {
   font-size: 90%;
 }
 
+div.review-filters {
+  font-size: 93%;
+  margin: 10px;
+}
+
+span.review-filter {
+  background-color: #CAE3F2;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin-left: 5px;
+}
+
+span.review-filter a {
+  color: #777777;
+  font-size: 80%;
+  margin-left: 6px;
+  text-decoration: none;
+  text-shadow: 1px 1px 0 #FFFFFF;
+}
+
 /* ACTION PLANS */
 table.actionPlans {
   margin-top: 10px;

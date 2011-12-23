@@ -31,13 +31,17 @@ class ProjectReviewsController < ApplicationController
   # lists all the reviews of a project, filtered using the same parameters as for the review WS API
   def index
     @project=Project.by_key(params[:projects])
-    not_found("Project not found") unless @project
-    access_denied unless has_role?(:user, @project)
     
-    found_reviews = Review.search(params)
-    @reviews = select_authorized(:user, found_reviews, :project)
-    if found_reviews.size != @reviews.size
-      @security_exclusions = true
+    if @project
+      access_denied unless has_role?(:user, @project)
+      
+      found_reviews = Review.search(params)
+      @reviews = select_authorized(:user, found_reviews, :project)
+      if found_reviews.size != @reviews.size
+        @security_exclusions = true
+      end
+    else
+      render :text => "<b>Listing reviews without a project reference is not possible</b>. Go to review search service instead."
     end
   end
   

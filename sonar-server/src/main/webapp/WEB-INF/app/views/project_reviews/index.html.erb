@@ -5,6 +5,37 @@
 <div id="reviews-search">
   <h1><%= message('reviews') -%></h1>
 
+  <div class="review-filters">
+    <%= message('reviews.filtered_by') -%>: 
+    <% if params[:statuses] %>
+      <%= review_filter_tag 'statuses', params -%>
+    <% end %>
+    <% if params[:resolutions] %>
+      <%= review_filter_tag 'resolutions', params -%>
+    <% end %>
+    <% if params[:severities] %>
+      <%= review_filter_tag 'severities', params -%>
+    <% end %>
+    <% if params[:authors] %>
+      <%= review_filter_tag 'authors', params -%>
+    <% end %>
+    <% if params[:assignees] %>
+      <%= review_filter_tag 'assignees', params, {:title => params[:assignees].size()==0 ? message('none') : params[:assignees]} -%>
+    <% end %>
+    <% if params[:action_plan_id] %>
+      <%= review_filter_tag 'action_plan_id', params, {:title => ActionPlan.find(params[:action_plan_id]).name} -%>
+    <% end %>
+    <% if params[:unplanned] %>
+      <%= review_filter_tag 'unplanned', params -%>
+    <% end %>
+    <% if params[:from] %>
+      <%= review_filter_tag 'from', params, {:title => l(DateTime.parse(params[:from]))} -%>
+    <% end %>
+    <% if params[:to] %>
+      <%= review_filter_tag 'to', params, {:title => l(DateTime.parse(params[:to]))} -%>
+    <% end %>
+  </div>
+
   <%= render :partial => "reviews/list" -%>
 
 </div>
