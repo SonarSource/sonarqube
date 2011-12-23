@@ -40,6 +40,7 @@
             <td id="desc"><%= h(plan.user.name) -%></td>
             <td class="thin nowrap right">
               <%= link_to message('edit'), :action => 'edit', :id => @resource.id, :plan_id => plan.id, :class => 'action' -%>
+              &nbsp;
               <% 
                 close_confirmation_message = {}
                 if plan.open? && plan.has_open_reviews?
@@ -48,6 +49,7 @@
               %>
               <%= link_to message('action_plans.close'), 
                           {:action => 'change_status', :id => @resource.id, :plan_id => plan.id}, {:method => 'POST', :class => 'action'}.merge(close_confirmation_message) -%>
+              &nbsp;
               <%= link_to message('delete'), {:action => 'delete', :id => @resource.id, :plan_id => plan.id}, {:method => 'POST', :confirm => message('action_plans.confirm_delete'), :class => 'action'} -%>
             </td>
           </tr>
@@ -58,23 +60,10 @@
       
       
       <% unless @closed_action_plans.empty? %>
-      <script type="text/javascript">
-        function displayClosedActionPlans() {
-          var table = $('closedActionPlans');
-          var link = $('showClosedActionPlanLink');
-          if (table.visible()) {
-            table.hide();
-            link.update("<%= message('action_plans.show_closed_action_plans') -%>");
-          } else {
-            table.show();
-            link.update("<%= message('action_plans.hide_closed_action_plans') -%>");
-          }
-        }
-      </script>
-      <div style="margin-top:30px;"><a href="#" onclick="displayClosedActionPlans();" id ="showClosedActionPlanLink">
-        <%= message('action_plans.show_closed_action_plans') -%></a>
-      </div>
-      <table class="width100 data sortable actionPlans" style="display:none" id="closedActionPlans">
+      <br/><br/>
+      <h1><%= message('action_plans.closed_action_plan') -%></h1>
+      
+      <table class="width100 data sortable actionPlans" id="closedActionPlans">
         <thead>
         <tr>
           <th class="thin nowrap"><%= message('action_plans.col.status') -%></th>
@@ -108,6 +97,7 @@
             <td class="thin nowrap right">
               <%= link_to message('action_plans.reopen'), 
                           {:action => 'change_status', :id => @resource.id, :plan_id => plan.id}, {:method => 'POST', :class => 'action'} -%>
+              &nbsp;
               <%= link_to message('delete'), {:action => 'delete', :id => @resource.id, :plan_id => plan.id}, {:method => 'POST', :confirm => message('action_plans.confirm_delete'), :class => 'action'} -%>
             </td>
           </tr>

@@ -7,14 +7,7 @@
      end
 %>
 
-<div class="line-block">
-  <div style="float:right">
-    <a href="<%= url_for search_options.merge({:controller => 'project_reviews', :action => 'index'}) -%>">
-      <%= message('widgets.more') -%>
-    </a>
-  </div>
-  <h3><%= title -%></h3>
-</div>
+<h3><%= title -%></h3>
 
 <div id="reviews-widget-<%= widget_id -%>">
   <%= render :partial => 'project/widgets/reviews/reviews_list',

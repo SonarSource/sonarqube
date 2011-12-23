@@ -93,7 +93,7 @@ class ActionPlansController < ApplicationController
   
   def load_action_plans
     @open_action_plans = ActionPlan.find(:all, :conditions => ['status=? AND project_id=?', ActionPlan::STATUS_OPEN, @resource.id], :include => 'reviews', :order => 'dead_line ASC')
-    @closed_action_plans = ActionPlan.find(:all, :conditions => ['status=? AND project_id=?', ActionPlan::STATUS_CLOSED, @resource.id], :include => 'reviews', :order => 'dead_line ASC')
+    @closed_action_plans = ActionPlan.find(:all, :conditions => ['status=? AND project_id=?', ActionPlan::STATUS_CLOSED, @resource.id], :include => 'reviews', :order => 'dead_line DESC')
   end
 
 end

@@ -2,8 +2,6 @@
    if has_role?(:user, @project)
      open_action_plans = ActionPlan.find(:all, :conditions => ['status= ? AND project_id=?', ActionPlan::STATUS_OPEN, @project.id], 
                                          :include => 'reviews', :order => 'dead_line ASC')
-     closed_action_plans = ActionPlan.find(:all, :conditions => ['status= ? AND project_id=?', ActionPlan::STATUS_CLOSED, @project.id], 
-                                         :include => 'reviews', :order => 'dead_line ASC')
      
      div_id = "action-plan-widget-#{widget.id.to_s}"
 %>
@@ -39,53 +37,6 @@
       <tr>
         <td class="nowrap"><%= h(plan.name) -%></td>
         <td class="nowrap small <%= 'over-due' if plan.over_due? -%>" align="right"><%= plan.dead_line ? plan.dead_line.strftime("%d %b %Y") : ' '  -%></td>
-        <% if plan.progress[:total]==0 %>
-        <td class="noprogress nowrap"><%= message('action_plans.no_reviews_linked_to_action_plan') -%></td>
-        <% else %>
-        <td class="progress">
-            <%= render :partial => 'action_plans/progress', :locals => {:action_plan => plan} -%>
-        </td>
-        <% end %>
-      </tr>
-      <% 
-         end 
-      %>
-    </tbody>
-  </table>
-<% end %>
-  
-<% 
-  unless closed_action_plans.size ==0 
-    table_id = "closed-action-plan-table-#{widget.id.to_s}"
-    link_id = "closed-action-plan-link-#{widget.id.to_s}"
-%>
-  <script type="text/javascript">
-    function displayClosedActionPlans() {
-      var table = $('<%= table_id -%>');
-      var link = $('<%= link_id -%>');
-      if (table.visible()) {
-        table.hide();
-        link.update("<%= message('widget.action_plans.show_closed_action_plans') -%>");
-      } else {
-        table.show();
-        link.update("<%= message('widget.action_plans.hide_closed_action_plans') -%>");
-      }
-    }
-  </script>
-  <div style="margin-top:10px; font-size:93%"><a href="#" onclick="displayClosedActionPlans();" id ="<%= link_id -%>"><%= message('widget.action_plans.show_closed_action_plans') -%></a></div>
-  <table class="width100 actionPlans" style="display:none" id="<%= table_id -%>">
-    <thead>
-    <tr>
-      <th colspan="3"></th>
-    </tr>
-    </thead>
-    <tbody>
-      <%
-         closed_action_plans.each do |plan|
-      %>
-      <tr>
-        <td class="nowrap"><%= h(plan.name) -%></td>
-        <td class="nowrap small" align="right"><%= plan.dead_line ? plan.dead_line.strftime("%d %b %Y") : ' '  -%></td>
         <% if plan.progress[:total]==0 %>
         <td class="noprogress nowrap"><%= message('action_plans.no_reviews_linked_to_action_plan') -%></td>
         <% else %>

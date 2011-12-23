@@ -10,7 +10,8 @@
      to_date = DateTime.now
      search_options['to'] = to_date
    end
-   reviews = Review.search(search_options)
+   found_reviews = Review.search(search_options)
+   reviews = select_authorized(:user, found_reviews, :project)
 
    # table pagination
    page_size = 20

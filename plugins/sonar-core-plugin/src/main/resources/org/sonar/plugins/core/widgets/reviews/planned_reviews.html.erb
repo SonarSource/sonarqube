@@ -39,12 +39,6 @@
 </script>
 
 <div class="line-block">
-  <div style="float:right">
-    <a href="<%= url_for url_options.merge({:action => 'index'}) -%>&action_plan_id=<%= first_action_plan.id -%>" id="planned-review-more-link_<%= widget.id -%>">
-      <%= message('widgets.more') -%>
-    </a>
-  </div>
-  
   <h3>
     <%= title -%>
     <select class="small" style="margin-left: 20px" onchange="showActionPlanOpenReviews(this.value);" id="select-action-plan_<%= widget.id -%>">

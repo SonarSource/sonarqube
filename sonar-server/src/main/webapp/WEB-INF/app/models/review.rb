@@ -355,9 +355,12 @@ class Review < ActiveRecord::Base
       action_plan_id = options['action_plan_id']
       if action_plan_id
         action_plan = ActionPlan.find action_plan_id.to_i, :include => 'reviews'
-        if action_plan
+        if action_plan && action_plan.reviews.size>0
           conditions << 'id in (:ids)'
           values[:ids]=action_plan.reviews.map { |r| r.id }
+        else
+          # no action plan or action plan is empty => no need to look into the database
+          no_need_for_db_request = true
         end
       elsif options['unplanned']
         conditions << 'id not in (:ids)'
@@ -389,7 +392,9 @@ class Review < ActiveRecord::Base
       sort = 'reviews.updated_at DESC'
     end
 
-    Review.find(:all, :include => ['review_comments', 'project', 'assignee', 'resource', 'user'], :conditions => [conditions.join(' AND '), values], :order => sort, :limit => 200)
+    found_reviews = []
+    found_reviews = Review.find(:all, :include => ['review_comments', 'project', 'assignee', 'resource', 'user'], :conditions => [conditions.join(' AND '), values], :order => sort, :limit => 200) unless no_need_for_db_request
+    found_reviews
   end
 
 
