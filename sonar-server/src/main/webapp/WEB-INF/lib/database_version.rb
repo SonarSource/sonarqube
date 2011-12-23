@@ -73,8 +73,7 @@ class DatabaseVersion
     if current_version<=0
       try_restore_structure_dump()
       upgrade_and_start()
-    end
-    if uptodate?
+    elsif uptodate?
       load_plugin_webservices()
     else
       puts 'Server must be upgraded. Please browse /setup'
