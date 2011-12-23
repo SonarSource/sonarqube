@@ -44,8 +44,8 @@ public final class DdlUtils {
    * The connection is commited in this method but not closed.
    */
   public static void createSchema(Connection connection, String dialect) {
-    executeScript(connection, "org/sonar/persistence/schema-" + dialect + ".ddl");
-    executeScript(connection, "org/sonar/persistence/rows-" + dialect + ".sql");
+    executeScript(connection, "org/sonar/core/persistence/schema-" + dialect + ".ddl");
+    executeScript(connection, "org/sonar/core/persistence/rows-" + dialect + ".sql");
   }
 
   private static void executeScript(Connection connection, String path) {

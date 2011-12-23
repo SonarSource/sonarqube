@@ -21,12 +21,9 @@ package org.sonar.server.startup;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.platform.ServerUpgradeStatus;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.core.resource.ResourceIndexer;
 import org.sonar.jpa.entity.SchemaMigration;
-import org.sonar.core.resource.ResourceIndexerDao;
-import org.sonar.core.resource.ResourceIndexerFilter;
 
 /**
  * Index existing projects during migration to 2.13. Since this latter version, resources are automatically indexed
@@ -37,11 +34,11 @@ import org.sonar.core.resource.ResourceIndexerFilter;
 public class IndexProjects implements ServerComponent {
 
   private ServerUpgradeStatus upgradeStatus;
-  private ResourceIndexerDao indexerDao;
+  private ResourceIndexer indexer;
 
-  public IndexProjects(ServerUpgradeStatus upgradeStatus, ResourceIndexerDao indexerDao) {
+  public IndexProjects(ServerUpgradeStatus upgradeStatus, ResourceIndexer indexer) {
     this.upgradeStatus = upgradeStatus;
-    this.indexerDao = indexerDao;
+    this.indexer = indexer;
   }
 
   public void start() {
@@ -56,14 +53,8 @@ public class IndexProjects implements ServerComponent {
 
   private void index() {
     TimeProfiler profiler = new TimeProfiler().start("Index projects");
-    indexerDao.index(newFilter());
+    indexer.indexAll();
     profiler.stop();
-  }
-
-  private static ResourceIndexerFilter newFilter() {
-    return ResourceIndexerFilter.create()
-      .setQualifiers(new String[]{Qualifiers.PROJECT, Qualifiers.MODULE, Qualifiers.VIEW, Qualifiers.SUBVIEW, Qualifiers.DIRECTORY, Qualifiers.PACKAGE, Qualifiers.FILE, Qualifiers.CLASS, Qualifiers.UNIT_TEST_FILE})
-      .setScopes(new String[]{Scopes.PROJECT, Scopes.DIRECTORY, Scopes.FILE});
   }
 
 }

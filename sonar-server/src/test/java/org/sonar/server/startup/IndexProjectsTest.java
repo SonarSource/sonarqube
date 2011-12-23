@@ -21,9 +21,8 @@ package org.sonar.server.startup;
 
 import org.junit.Test;
 import org.sonar.api.platform.ServerUpgradeStatus;
+import org.sonar.core.resource.ResourceIndexer;
 import org.sonar.jpa.entity.SchemaMigration;
-import org.sonar.core.resource.ResourceIndexerDao;
-import org.sonar.core.resource.ResourceIndexerFilter;
 
 import static org.mockito.Mockito.*;
 
@@ -31,39 +30,39 @@ public class IndexProjectsTest {
 
   @Test
   public void doNotIndexOnFreshInstalls() {
-    ResourceIndexerDao indexerDao = mock(ResourceIndexerDao.class);
+    ResourceIndexer indexer = mock(ResourceIndexer.class);
     ServerUpgradeStatus status = mock(ServerUpgradeStatus.class);
     when(status.isUpgraded()).thenReturn(false);
     when(status.isFreshInstall()).thenReturn(true);
 
-    new IndexProjects(status, indexerDao).start();
+    new IndexProjects(status, indexer).start();
 
-    verifyZeroInteractions(indexerDao);
+    verifyZeroInteractions(indexer);
   }
 
   @Test
   public void doNotIndexOnUpgradesSince213() {
-    ResourceIndexerDao indexerDao = mock(ResourceIndexerDao.class);
+    ResourceIndexer indexer = mock(ResourceIndexer.class);
     ServerUpgradeStatus status = mock(ServerUpgradeStatus.class);
     when(status.isUpgraded()).thenReturn(true);
     when(status.isFreshInstall()).thenReturn(false);
     when(status.getInitialDbVersion()).thenReturn(SchemaMigration.VERSION_2_13 + 10);
 
-    new IndexProjects(status, indexerDao).start();
+    new IndexProjects(status, indexer).start();
 
-    verifyZeroInteractions(indexerDao);
+    verifyZeroInteractions(indexer);
   }
 
   @Test
   public void doIndexOnUpgradeBefore213() {
-    ResourceIndexerDao indexerDao = mock(ResourceIndexerDao.class);
+    ResourceIndexer indexer = mock(ResourceIndexer.class);
     ServerUpgradeStatus status = mock(ServerUpgradeStatus.class);
     when(status.isUpgraded()).thenReturn(true);
     when(status.isFreshInstall()).thenReturn(false);
     when(status.getInitialDbVersion()).thenReturn(SchemaMigration.VERSION_2_13 - 10);
 
-    new IndexProjects(status, indexerDao).start();
+    new IndexProjects(status, indexer).start();
 
-    verify(indexerDao).index(any(ResourceIndexerFilter.class));
+    verify(indexer).indexAll();
   }
 }

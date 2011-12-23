@@ -27,6 +27,7 @@ import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.*;
 import org.sonar.api.utils.SonarException;
+import org.sonar.core.resource.ResourceIndexer;
 import org.sonar.core.resource.ResourceIndexerDao;
 
 import javax.persistence.NonUniqueResultException;
@@ -40,9 +41,9 @@ public final class DefaultResourcePersister implements ResourcePersister {
   private DatabaseSession session;
 
   private Map<Resource, Snapshot> snapshotsByResource = Maps.newHashMap();
-  private ResourceIndexerDao indexer;
+  private ResourceIndexer indexer;
 
-  public DefaultResourcePersister(DatabaseSession session, ResourceIndexerDao indexer) {
+  public DefaultResourcePersister(DatabaseSession session, ResourceIndexer indexer) {
     this.session = session;
     this.indexer = indexer;
   }
@@ -126,15 +127,14 @@ public final class DefaultResourcePersister implements ResourcePersister {
     if (resource instanceof Project) {
       // should not occur, please use the method saveProject()
       snapshot = persistProject((Project) resource, project);
-      indexer.index(resource.getName(), snapshot.getQualifier(), snapshot.getResourceId(), snapshot.getRootProjectId());
 
     } else if (resource instanceof Library) {
       snapshot = persistLibrary(project, (Library) resource);
 
     } else {
       snapshot = persistFileOrDirectory(project, resource, parent);
-      indexer.index(resource.getName(), snapshot.getQualifier(), snapshot.getResourceId(), snapshot.getRootProjectId());
     }
+    indexer.index(resource.getName(), snapshot.getQualifier(), snapshot.getResourceId(), snapshot.getRootProjectId());
 
     return snapshot;
   }
