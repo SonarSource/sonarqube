@@ -40,7 +40,7 @@ public class ResourceIndexer implements BatchComponent, ServerComponent {
    * Hardcoded list of qualifiers to index. Need to be configurable.
    * Directories and packages are explicitly excluded.
    */
-  private String[] INDEXABLE_QUALIFIERS = {
+  static final String[] INDEXABLE_QUALIFIERS = {
     Qualifiers.VIEW,
     Qualifiers.SUBVIEW,
     Qualifiers.PROJECT,
