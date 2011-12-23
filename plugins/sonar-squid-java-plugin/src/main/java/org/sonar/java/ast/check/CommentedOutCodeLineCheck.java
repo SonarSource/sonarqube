@@ -124,7 +124,7 @@ public class CommentedOutCodeLineCheck extends JavaAstVisitor {
       String[] lines = comment.getText();
       for (int i = 0; i < lines.length; i++) {
         if (codeRecognizer.isLineOfCode(lines[i])) {
-          CheckMessage message = new CheckMessage(this, "It's better to remove commented-out line of code.");
+          CheckMessage message = new CheckMessage(this, "This block of commented-out lines of code should be removed.");
           message.setLine(comment.getStartLineNo() + i);
           sourceFile.log(message);
           break;
