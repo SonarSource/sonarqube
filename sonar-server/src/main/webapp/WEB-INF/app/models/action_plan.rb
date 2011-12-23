@@ -36,10 +36,6 @@ class ActionPlan < ActiveRecord::Base
     ActionPlan.find :all, :conditions => ['status=? AND project_id=?', STATUS_OPEN, project_id], :order => :name
   end
   
-  def self.count_open_for_project_id(project_id)
-    ActionPlan.count :conditions => ['status=? AND project_id=?', STATUS_OPEN, project_id]
-  end
-  
   def user
     @user ||=
         begin

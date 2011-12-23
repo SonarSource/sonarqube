@@ -321,7 +321,6 @@ class ResourceController < ApplicationController
     @global_violations=[]
     @expandable=(@lines!=nil)
     @filtered=!@expanded
-    @action_plans_size=ActionPlan.count_open_for_project_id(@snapshot.root_project_id)
 
     conditions='snapshot_id=?'
     values=[@snapshot.id]

@@ -1,3 +1,11 @@
+<% if @action_plans.empty? %>
+
+  <span class="error"><%= message('reviews.an_action_plan_must_be_created_first') -%></span>
+
+  <%= link_to_remote message('reviews.hide_this_message'), :url => {:action => 'show', :id => params[:id]}, :update => 'review' -%>
+
+<% else %>
+
 <form method="POST">
   <input type="hidden" name="id" value="<%= params[:id] -%>"/>
 
@@ -19,3 +27,5 @@
   
   <%= link_to_remote message('cancel'), :url => {:action => 'show', :id => params[:id]}, :update => 'review' -%>
 </form>
+
+<% end %>

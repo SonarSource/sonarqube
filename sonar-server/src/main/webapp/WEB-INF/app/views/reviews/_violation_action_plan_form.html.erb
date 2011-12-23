@@ -1,3 +1,11 @@
+<% if @action_plans.empty? %>
+
+  <span class="error"><%= message('reviews.an_action_plan_must_be_created_first') -%></span>
+
+  <%= link_to_function message('reviews.hide_this_message'), "cancelViolationAction(#{params[:id]})" -%>
+
+<% else %>
+
 <form method="POST" action="violation_link_to_action_plan">
   <input type="hidden" name="id" value="<%= params[:id] -%>"/>
 
@@ -30,3 +38,5 @@
   &nbsp;
   <%= link_to_function message('cancel'), "cancelViolationAction(#{params[:id]})" -%>
 </form>
+
+<% end %>
