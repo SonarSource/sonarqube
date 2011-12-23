@@ -34,8 +34,8 @@ public class SchemaMigration {
 
   public final static int VERSION_UNKNOWN = -1;
 
-  public static final int LAST_VERSION = 239;
-  public static final int VERSION_2_13 = 230;
+  public static final int LAST_VERSION = 240;
+  public static final int VERSION_2_13 = 240;
 
   public final static String TABLE_NAME = "schema_migrations";
 
