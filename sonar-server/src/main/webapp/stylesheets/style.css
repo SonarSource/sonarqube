@@ -1289,7 +1289,7 @@ div.autocomplete {
   -webkit-box-shadow: 0 0 10px 5px #EFEFEF;
   -o-box-shadow: 0 0 10px 5px #EFEFEF;
   box-shadow: 0 0 10px 5px #EFEFEF;
-  z-index: 10000;
+  z-index: 999999;
 }
 
 div.autocomplete ul {
