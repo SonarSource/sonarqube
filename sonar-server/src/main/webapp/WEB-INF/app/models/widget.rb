@@ -21,9 +21,6 @@ class Widget < ActiveRecord::Base
   has_many :properties, :dependent => :delete_all, :class_name => 'WidgetProperty'
   belongs_to :dashboards
 
-  validates_presence_of :name
-  validates_length_of :name, :within => 1..256
-
   validates_presence_of :widget_key
   validates_length_of :widget_key, :within => 1..256
 
