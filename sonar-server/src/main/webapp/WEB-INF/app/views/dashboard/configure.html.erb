@@ -54,7 +54,7 @@
         <div class="column-handle" style="display: none"></div>
 
         <%
-           @dashboard.widgets.select { |widget| widget.column_index==index }.sort_by { |widget| widget.row_index }.each do |widget|
+           @dashboard.widgets.select { |widget| widget.column_index==index && widget.java_definition}.sort_by { |widget| widget.row_index }.each do |widget|
         %>
           <div class="block" id="block_<%= widget.id -%>">
             <%= render :partial => 'dashboard/configure_widget', :locals => {:widget => widget} %>
