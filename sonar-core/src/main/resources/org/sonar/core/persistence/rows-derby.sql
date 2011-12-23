@@ -1,5 +1,3 @@
--- Version 2.11
-
 -- All the rows inserted during Rails migrations. Rows inserted during server startup tasks (Java) are excluded : rules, profiles, metrics, ...
 
 INSERT INTO ACTIVE_FILTERS(ID, FILTER_ID, USER_ID, ORDER_INDEX) VALUES (1, 1, null, 1);

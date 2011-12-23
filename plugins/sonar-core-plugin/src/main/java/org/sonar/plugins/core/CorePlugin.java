@@ -183,13 +183,6 @@ import java.util.List;
   // SERVER-SIDE TECHNICAL PROPERTIES
 
   @Property(
-    key = "sonar.useStructureDump",
-    name = "Use Structure Dump",
-    description = "Used when creating database schema",
-    project = false,
-    global = false,
-    defaultValue = "true"),
-  @Property(
     key = "sonar.authenticator.downcase",
     name = "Downcase login",
     description = "Downcase login during user authentication, typically for Active Directory",

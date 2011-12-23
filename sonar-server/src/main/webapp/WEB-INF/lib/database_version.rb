@@ -71,7 +71,7 @@ class DatabaseVersion
 
   def self.automatic_setup
     if current_version<=0
-      try_restore_structure_dump() if use_structure_dump?
+      try_restore_structure_dump()
       upgrade_and_start()
     end
     if uptodate?
@@ -102,13 +102,6 @@ class DatabaseVersion
 
   def self.dialect
     ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getDatabase().getDialect().getActiveRecordDialectCode()
-  end
-
-  def self.use_structure_dump?
-    # Important : default value is not loaded at this time by org.sonar.api.config.PropertyDefinitions.
-    # That's why the Settings component does not return the default value (true) when
-    # the property is not set.
-    ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getSettings().getString('sonar.useStructureDump')!='false'
   end
 
   def self.production?
