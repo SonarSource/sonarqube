@@ -42,10 +42,6 @@ class Dashboard < ActiveRecord::Base
     end
   end
 
-  def description
-    Api::Utils.message("dashboard.#{name}.description", :default => read_attribute(:description))
-  end
-
   def shared?
     read_attribute(:shared) || false
   end
