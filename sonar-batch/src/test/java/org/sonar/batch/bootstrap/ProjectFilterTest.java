@@ -41,16 +41,6 @@ public class ProjectFilterTest {
   }
 
   @Test
-  public void shouldNotSkipRoot() {
-    Settings settings = new Settings();
-    settings.setProperty("sonar.skippedModules", "root,foo,bar");
-    ProjectFilter filter = new ProjectFilter(settings);
-
-    assertFalse(filter.isExcluded(root));
-  }
-
-
-  @Test
   public void testNoSkippedModules() {
     Settings settings = new Settings();
     ProjectFilter filter = new ProjectFilter(settings);
@@ -89,6 +79,16 @@ public class ProjectFilterTest {
     ProjectFilter filter = new ProjectFilter(settings);
     assertTrue(filter.isExcluded(parent));
     assertTrue(filter.isExcluded(child));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void shouldFailIfExcludingRoot() {
+    Settings settings = new Settings();
+    settings.setProperty("sonar.skippedModules", "foo,root");
+
+    ProjectFilter filter = new ProjectFilter(settings);
+
+    filter.isExcluded(root);
   }
 
   @Test

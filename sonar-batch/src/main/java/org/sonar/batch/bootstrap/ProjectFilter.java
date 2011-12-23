@@ -60,8 +60,7 @@ public class ProjectFilter {
       excluded = ArrayUtils.contains(excludedArtifactIds, artifactId);
     }
     if (excluded && isRoot) {
-      LoggerFactory.getLogger(getClass()).warn("The root module can't be excluded: " + artifactId);
-      excluded = false;
+      throw new IllegalArgumentException("The root module can't be skipped. Please check the parameter sonar.skippedModules.");
     }
     return excluded;
   }
