@@ -7,8 +7,8 @@
     <%= render :partial => 'layouts/breadcrumb' %>
     <ol id="nav">
       <li>
-        <input type="text" size="15" name="search" id="searchResourcesInput" onFocus="autocompleteResources()" value="<%= message('search_verb') -%>"/>
-        <img src="<%= ApplicationController.root_context -%>/images/loading-black.gif" id="searchingResources" style="display: none">
+        <input type="text" size="15" name="search" id="searchInput" onFocus="autocompleteResources()" value="<%= message('search_verb') -%>"/>
+        <img src="<%= ApplicationController.root_context -%>/images/loading-small.gif" id="searchingResources" style="display:none">
       </li>
       <li>
         <a href="javascript:window.print()"><img src="<%= ApplicationController.root_context -%>/images/print.gif" alt="<%= message('layout.print') -%>" title="<%= message('layout.print') -%>"/></a>

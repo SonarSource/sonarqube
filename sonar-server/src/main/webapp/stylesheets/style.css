@@ -1269,9 +1269,14 @@ div.progress div.note {
 }
 
 /* SEARCH AUTOCOMPLETE FIELDS */
-#searchResourcesInput {
+#searchInput {
   color: #777;
-  font-size: 93%;
+  padding-right: 20px;
+}
+#searchingResources {
+  position: absolute;
+  top: 8px;
+  right: 18px;
 }
 
 div.autocomplete {

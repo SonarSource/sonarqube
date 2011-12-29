@@ -13,8 +13,8 @@ function info(message) {
 }
 
 function autocompleteResources() {
-  $('searchResourcesInput').value = '';
-  new Ajax.Autocompleter('searchResourcesInput', 'searchResourcesResults', baseUrl + '/search', {
+  $('searchInput').value = '';
+  new Ajax.Autocompleter('searchInput', 'searchResourcesResults', baseUrl + '/search', {
     method:'post',
     minChars:3,
     indicator:'searchingResources',
