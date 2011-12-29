@@ -21,13 +21,28 @@ package org.sonar.plugins.dbcleaner.api;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
+import org.sonar.api.database.DatabaseSession;
+import org.sonar.api.database.model.ResourceModel;
+import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Scopes;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
+
+import com.google.common.collect.Lists;
 
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.List;
+
+import javax.persistence.Query;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class PurgeUtilsTest extends AbstractDbUnitTestCase {
 
@@ -51,4 +66,28 @@ public class PurgeUtilsTest extends AbstractDbUnitTestCase {
 
     checkTables("purgeSnapshots", "snapshots", "project_measures", "measure_data", "rule_failures", "snapshot_sources", "dependencies", "events", "duplications_index");
   }
+
+  @Test
+  public void shouldPaginate() throws Exception {
+    DatabaseSession session = mock(DatabaseSession.class);
+    Query query = mock(Query.class);
+    when(session.createQuery(anyString())).thenReturn(query);
+    when(session.createNativeQuery(anyString())).thenReturn(query);
+
+    List<Integer> ids = Lists.newArrayList();
+    for (int i = 0; i < PurgeUtils.MAX_IN_ELEMENTS + 1; i++) {
+      ids.add(i);
+    }
+
+    // createQuery() and createNativeQuery() should be invoked as many times as commit(), because it starts new transaction
+
+    PurgeUtils.executeQuery(session, "description", ids, "hql");
+    verify(session, times(2)).createQuery(anyString());
+    verify(session, times(2)).commit();
+
+    PurgeUtils.executeNativeQuery(session, "description", ids, "sql");
+    verify(session, times(2)).createNativeQuery(anyString());
+    verify(session, times(4)).commit();
+  }
+
 }

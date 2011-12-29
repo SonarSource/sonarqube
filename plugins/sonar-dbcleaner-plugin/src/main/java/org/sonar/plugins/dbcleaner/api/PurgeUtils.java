@@ -26,6 +26,8 @@ import org.sonar.api.database.model.*;
 import org.sonar.api.design.DependencyDto;
 import org.sonar.api.utils.TimeProfiler;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import javax.persistence.Query;
 import java.util.List;
 
@@ -141,27 +143,32 @@ public final class PurgeUtils {
     if (ids == null || ids.isEmpty()) {
       return;
     }
-    executeQuery(session, description, ids, session.createQuery(hql));
-  }
-
-  /**
-   * @since 2.13
-   */
-  private static void executeNativeQuery(DatabaseSession session, String description, List<Integer> ids, String sql) {
-    if (ids == null || ids.isEmpty()) {
-      return;
-    }
-    executeQuery(session, description, ids, session.createNativeQuery(sql));
-  }
-
-  /**
-   * @since 2.13
-   */
-  private static void executeQuery(DatabaseSession session, String description, List<Integer> ids, Query query) {
     TimeProfiler profiler = new TimeProfiler().setLevelToDebug().start("Execute " + description);
     int index = 0;
     while (index < ids.size()) {
       List<Integer> paginedSids = ids.subList(index, Math.min(ids.size(), index + MAX_IN_ELEMENTS));
+      Query query = session.createQuery(hql);
+      query.setParameter("ids", paginedSids);
+      query.executeUpdate();
+      index += MAX_IN_ELEMENTS;
+      session.commit();
+    }
+    profiler.stop();
+  }
+
+  /**
+   * @since 2.13
+   */
+  @VisibleForTesting
+  static void executeNativeQuery(DatabaseSession session, String description, List<Integer> ids, String sql) {
+    if (ids == null || ids.isEmpty()) {
+      return;
+    }
+    TimeProfiler profiler = new TimeProfiler().setLevelToDebug().start("Execute " + description);
+    int index = 0;
+    while (index < ids.size()) {
+      List<Integer> paginedSids = ids.subList(index, Math.min(ids.size(), index + MAX_IN_ELEMENTS));
+      Query query = session.createNativeQuery(sql);
       query.setParameter("ids", paginedSids);
       query.executeUpdate();
       index += MAX_IN_ELEMENTS;
