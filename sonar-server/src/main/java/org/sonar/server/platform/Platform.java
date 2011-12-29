@@ -126,6 +126,7 @@ public final class Platform {
   }
 
   private void startDatabaseConnectors(ServletContext servletContext) {
+    System.out.println("Start database connectors");
     rootContainer = new ComponentContainer();
     rootContainer.addSingleton(servletContext);
     rootContainer.addSingleton(IocContainer.class); // for backward compatibility
@@ -134,7 +135,7 @@ public final class Platform {
     rootContainer.addSingleton(EmbeddedDatabaseFactory.class);
     rootContainer.addSingleton(DefaultDatabase.class);
     rootContainer.addSingleton(MyBatis.class);
-    rootContainer.addSingleton(ResourceIndexer.class); // for the migration -> see org.sonar.server.startup.IndexProjects
+    rootContainer.addSingleton(ResourceIndexer.class); // for the migration 241
     rootContainer.addSingleton(DefaultDatabaseConnector.class);
     rootContainer.addSingleton(DefaultServerUpgradeStatus.class);
     rootContainer.addSingleton(DatabaseMigrator.class);
@@ -235,7 +236,6 @@ public final class Platform {
     startupContainer.addSingleton(DeleteDeprecatedMeasures.class);
     startupContainer.addSingleton(GeneratePluginIndex.class);
     startupContainer.addSingleton(RegisterNewDashboards.class);
-    startupContainer.addSingleton(IndexProjects.class);
     startupContainer.startComponents();
 
     startupContainer.getComponentByType(ServerLifecycleNotifier.class).notifyStart();

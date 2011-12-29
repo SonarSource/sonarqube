@@ -34,9 +34,10 @@ import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.api.web.*;
 import org.sonar.core.i18n.RuleI18nManager;
-import org.sonar.markdown.Markdown;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.DatabaseMigrator;
+import org.sonar.core.resource.ResourceIndexer;
+import org.sonar.markdown.Markdown;
 import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.filters.Filter;
@@ -367,6 +368,10 @@ public final class JRubyFacade {
     return i18n.getJsDictionnary(rubyLocale);
   }
 
+  public void indexResources() {
+    getContainer().getComponentByType(ResourceIndexer.class).indexAll();
+  }
+
   public void logError(String message) {
     LoggerFactory.getLogger(getClass()).error(message);
   }
@@ -378,4 +383,6 @@ public final class JRubyFacade {
   public ComponentContainer getContainer() {
     return Platform.getInstance().getContainer();
   }
+
+
 }
