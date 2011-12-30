@@ -36,7 +36,7 @@ import org.sonar.api.web.*;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.DatabaseMigrator;
-import org.sonar.core.resource.ResourceIndexer;
+import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
@@ -368,8 +368,8 @@ public final class JRubyFacade {
     return i18n.getJsDictionnary(rubyLocale);
   }
 
-  public void indexResources() {
-    getContainer().getComponentByType(ResourceIndexer.class).indexAll();
+  public void indexProjects() {
+    getContainer().getComponentByType(ResourceIndexerDao.class).indexProjects();
   }
 
   public void logError(String message) {

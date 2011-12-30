@@ -23,10 +23,10 @@
 #
 # Sonar 2.13
 #
-class IndexResources < ActiveRecord::Migration
+class IndexProjects < ActiveRecord::Migration
 
   def self.up
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().indexResources()
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().indexProjects()
   end
 
 end

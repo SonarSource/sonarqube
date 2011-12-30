@@ -27,8 +27,6 @@ import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.*;
 import org.sonar.api.utils.SonarException;
-import org.sonar.core.resource.ResourceIndexer;
-import org.sonar.core.resource.ResourceIndexerDao;
 
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
@@ -41,11 +39,9 @@ public final class DefaultResourcePersister implements ResourcePersister {
   private DatabaseSession session;
 
   private Map<Resource, Snapshot> snapshotsByResource = Maps.newHashMap();
-  private ResourceIndexer indexer;
 
-  public DefaultResourcePersister(DatabaseSession session, ResourceIndexer indexer) {
+  public DefaultResourcePersister(DatabaseSession session) {
     this.session = session;
-    this.indexer = indexer;
   }
 
   public Snapshot saveProject(Project project, Project parent) {
@@ -84,7 +80,6 @@ public final class DefaultResourcePersister implements ResourcePersister {
     snapshot.setCreatedAt(project.getAnalysisDate());
     snapshot = session.save(snapshot);
     session.commit();
-    indexer.index(project.getName(), snapshot.getQualifier(), snapshot.getResourceId(), snapshot.getRootProjectId());
     return snapshot;
   }
 
@@ -134,7 +129,6 @@ public final class DefaultResourcePersister implements ResourcePersister {
     } else {
       snapshot = persistFileOrDirectory(project, resource, parent);
     }
-    indexer.index(resource.getName(), snapshot.getQualifier(), snapshot.getResourceId(), snapshot.getRootProjectId());
 
     return snapshot;
   }

@@ -27,6 +27,7 @@ import org.sonar.api.SonarPlugin;
 import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.api.resources.Java;
 import org.sonar.plugins.core.batch.ExcludedResourceFilter;
+import org.sonar.plugins.core.batch.IndexProjectPostJob;
 import org.sonar.plugins.core.batch.MavenInitializer;
 import org.sonar.plugins.core.batch.ProjectFileSystemLogger;
 import org.sonar.plugins.core.charts.DistributionAreaChart;
@@ -289,6 +290,7 @@ public class CorePlugin extends SonarPlugin {
     extensions.add(ManualViolationInjector.class);
     extensions.add(UpdateReviewsDecorator.class);
     extensions.add(ViolationSeverityUpdater.class);
+    extensions.add(IndexProjectPostJob.class);
 
     // time machine
     extensions.add(TendencyDecorator.class);

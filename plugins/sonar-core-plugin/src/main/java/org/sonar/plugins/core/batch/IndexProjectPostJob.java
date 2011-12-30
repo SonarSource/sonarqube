@@ -17,15 +17,28 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.resource;
+package org.sonar.plugins.core.batch;
 
-import java.util.List;
+import org.sonar.api.batch.PostJob;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.resources.Project;
+import org.sonar.core.NotDryRun;
+import org.sonar.core.resource.ResourceIndexerDao;
 
-public interface ResourceIndexerMapper {
+/**
+ * @since 2.13
+ */
+@NotDryRun
+public class IndexProjectPostJob implements PostJob {
+  private ResourceIndexerDao indexer;
 
-  ResourceIndexDto selectMasterIndexByResourceId(int resourceId);
+  public IndexProjectPostJob(ResourceIndexerDao indexer) {
+    this.indexer = indexer;
+  }
 
-  void deleteByResourceId(int resourceId);
-
-  void insert(ResourceIndexDto dto);
+  public void executeOn(Project project, SensorContext context) {
+    if (project.getId() != null) {
+      indexer.indexProject(project.getId());
+    }
+  }
 }

@@ -27,7 +27,6 @@ import org.sonar.batch.MavenPluginExecutor;
 import org.sonar.batch.ServerMetadata;
 import org.sonar.batch.config.BatchSettings;
 import org.sonar.batch.config.BatchSettingsEnhancer;
-import org.sonar.core.resource.ResourceIndexer;
 import org.sonar.jpa.session.DatabaseSessionProvider;
 import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
@@ -67,7 +66,6 @@ public class BootstrapModule extends Module {
 
     addCoreSingleton(BatchDatabase.class);
     addCoreSingleton(MyBatis.class);
-    addCoreSingleton(ResourceIndexer.class);
     addCoreSingleton(DefaultDatabaseConnector.class);
     addCoreSingleton(ThreadLocalDatabaseSessionFactory.class);
     for (Class daoClass : DaoUtils.getDaoClasses()) {

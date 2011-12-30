@@ -5,6 +5,8 @@
             description="[null]"
             enabled="[true]" language="java" copy_resource_id="[null]"/>
 
+  <snapshots id="1" islast="[true]" root_project_id="1" project_id="1" scope="PRJ" qualifier="TRK"/>
+
   <!-- the index is on the old name "Struts" but not on "Apache Struts -->
   <resource_index kee="struts" position="0" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
   <resource_index kee="truts" position="1" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>

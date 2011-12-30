@@ -19,17 +19,26 @@
  */
 package org.sonar.core.resource;
 
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Scopes;
 import org.sonar.core.persistence.MyBatis;
 
 public class ResourceIndexerDao {
 
   public static final int MINIMUM_KEY_SIZE = 3;
+
+  // The scopes and qualifiers that are not in the following constants are not indexed at all.
+  // Directories and packages are explicitly excluded.
+  private static final String[] RENAMABLE_QUALIFIERS = {Qualifiers.PROJECT, Qualifiers.MODULE, Qualifiers.VIEW, Qualifiers.SUBVIEW};
+  private static final String[] RENAMABLE_SCOPES = {Scopes.PROJECT};
+  private static final String[] NOT_RENAMABLE_QUALIFIERS = {Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE, Qualifiers.CLASS};
+  private static final String[] NOT_RENAMABLE_SCOPES = {Scopes.FILE};
 
   private final MyBatis mybatis;
 
@@ -37,105 +46,147 @@ public class ResourceIndexerDao {
     this.mybatis = mybatis;
   }
 
-  public ResourceIndexerDao index(String resourceName, String qualifier, int resourceId, int rootProjectId) {
-    SqlSession sqlSession = mybatis.openSession();
+  /**
+   * This method is reentrant. It can be executed even if the project is already indexed.
+   */
+  public ResourceIndexerDao indexProject(final int rootProjectId) {
+    SqlSession session = mybatis.openSession(ExecutorType.BATCH);
     try {
-      ResourceDto resource = new ResourceDto()
-        .setId(resourceId)
-        .setQualifier(qualifier)
-        .setName(resourceName)
-        .setRootId(rootProjectId);
-      index(resource, sqlSession, true);
+      ResourceIndexerMapper mapper = session.getMapper(ResourceIndexerMapper.class);
+      doIndexProject(rootProjectId, session, mapper);
+      session.commit();
+      return this;
 
     } finally {
-      sqlSession.close();
+      session.close();
     }
-    return this;
   }
 
-
-  public ResourceIndexerDao index(ResourceIndexerFilter filter) {
-    final SqlSession sqlSession = mybatis.openSession(ExecutorType.BATCH);
+  /**
+   * This method is reentrant. It can be executed even if some projects are already indexed.
+   */
+  public ResourceIndexerDao indexProjects() {
+    final SqlSession session = mybatis.openSession(ExecutorType.BATCH);
     try {
-      sqlSession.select("selectResourcesToIndex", filter, new ResultHandler() {
+      final ResourceIndexerMapper mapper = session.getMapper(ResourceIndexerMapper.class);
+      session.select("selectRootProjectIds", /* workaround to get booleans */ResourceIndexerFilter.create(), new ResultHandler() {
         public void handleResult(ResultContext context) {
-          ResourceDto resource = (ResourceDto) context.getResultObject();
-
-          // The column PROJECTS.ROOT_ID references the module but not the root project in a multi-modules project.
-          boolean correctRootProjectId = false;
-
-          index(resource, sqlSession, correctRootProjectId);
+          Integer rootProjectId = (Integer) context.getResultObject();
+          doIndexProject(rootProjectId, session, mapper);
+          session.commit();
         }
       });
+      return this;
+
     } finally {
-      sqlSession.close();
+      session.close();
     }
-    return this;
   }
 
-  void index(ResourceDto resource, SqlSession session, boolean correctProjectRootId) {
-    String name = resource.getName();
-    if (StringUtils.isBlank(name) || resource.getId() == null) {
-      return;
-    }
+  private void doIndexProject(int rootProjectId, SqlSession session, final ResourceIndexerMapper mapper) {
+    // non indexed resources
+    ResourceIndexerFilter filter = ResourceIndexerFilter.create()
+      .setNonIndexedOnly(true)
+      .setQualifiers(NOT_RENAMABLE_QUALIFIERS)
+      .setScopes(NOT_RENAMABLE_SCOPES)
+      .setRootProjectId(rootProjectId);
 
-    String key = toKey(name);
+    session.select("selectResources", filter, new ResultHandler() {
+      public void handleResult(ResultContext context) {
+        ResourceDto resource = (ResourceDto) context.getResultObject();
+        doIndex(resource, mapper);
+      }
+    });
+
+    // some resources can be renamed, so index must be regenerated
+    // -> delete existing rows and create them again
+    filter = ResourceIndexerFilter.create()
+      .setNonIndexedOnly(false)
+      .setQualifiers(RENAMABLE_QUALIFIERS)
+      .setScopes(RENAMABLE_SCOPES)
+      .setRootProjectId(rootProjectId);
+
+    session.select("selectResources", filter, new ResultHandler() {
+      public void handleResult(ResultContext context) {
+        ResourceDto resource = (ResourceDto) context.getResultObject();
+
+        mapper.deleteByResourceId(resource.getId());
+        doIndex(resource, mapper);
+      }
+    });
+  }
+
+
+  void doIndex(ResourceDto resource, ResourceIndexerMapper mapper) {
+    String key = nameToKey(resource.getName());
     if (key.length() >= MINIMUM_KEY_SIZE) {
-      ResourceIndexerMapper mapper = session.getMapper(ResourceIndexerMapper.class);
-      boolean toBeIndexed = sanitizeIndex(resource, key, mapper);
-      if (toBeIndexed) {
+      ResourceIndexDto dto = new ResourceIndexDto()
+        .setResourceId(resource.getId())
+        .setQualifier(resource.getQualifier())
+        .setRootProjectId(resource.getRootId())
+        .setNameSize(resource.getName().length());
 
-        ResourceIndexDto dto = new ResourceIndexDto()
-          .setResourceId(resource.getId())
-          .setQualifier(resource.getQualifier())
-          .setRootProjectId(loadRootProjectId(resource, mapper, correctProjectRootId))
-          .setNameSize(name.length());
+      for (int position = 0; position <= key.length() - MINIMUM_KEY_SIZE; position++) {
+        dto.setPosition(position);
+        dto.setKey(StringUtils.substring(key, position));
+        mapper.insert(dto);
+      }
+    }
+  }
 
-        for (int position = 0; position <= key.length() - MINIMUM_KEY_SIZE; position++) {
-          dto.setPosition(position);
-          dto.setKey(StringUtils.substring(key, position));
-          mapper.insert(dto);
+  public boolean indexResource(int id, String name, String qualifier, int rootProjectId) {
+    boolean indexed = false;
+    if (isIndexableQualifier(qualifier)) {
+      SqlSession session = mybatis.openSession();
+      try {
+        String key = nameToKey(name);
+        if (key.length() >= MINIMUM_KEY_SIZE) {
+          indexed = true;
+          ResourceIndexerMapper mapper = session.getMapper(ResourceIndexerMapper.class);
+          boolean toBeIndexed = sanitizeIndex(id, key, mapper);
+          if (toBeIndexed) {
+            ResourceIndexDto dto = new ResourceIndexDto()
+              .setResourceId(id)
+              .setQualifier(qualifier)
+              .setRootProjectId(rootProjectId)
+              .setNameSize(name.length());
+
+            for (int position = 0; position <= key.length() - MINIMUM_KEY_SIZE; position++) {
+              dto.setPosition(position);
+              dto.setKey(StringUtils.substring(key, position));
+              mapper.insert(dto);
+            }
+            session.commit();
+          }
         }
-
-        session.commit();
+      } finally {
+        session.close();
       }
     }
+    return indexed;
   }
 
-  private Integer loadRootProjectId(ResourceDto resource, ResourceIndexerMapper mapper, boolean correctProjectRootId) {
-    if (correctProjectRootId) {
-      return resource.getRootId();
-    }
-    Integer rootId;
-    if (resource.getRootId() != null) {
-      ResourceDto root = mapper.selectRootId(resource.getRootId());
-      if (root != null) {
-        rootId = (Integer) ObjectUtils.defaultIfNull(root.getRootId(), root.getId());
-      } else {
-        rootId = resource.getRootId();
-      }
-    } else {
-      rootId = resource.getId();
-    }
-    return rootId;
-  }
 
   /**
    * Return true if the resource must be indexed, false if the resource is already indexed.
    * If the resource is indexed with a different key, then this index is dropped and the
    * resource must be indexed again.
    */
-  private boolean sanitizeIndex(ResourceDto resource, String key, ResourceIndexerMapper mapper) {
-    ResourceIndexDto masterIndex = mapper.selectMasterIndexByResourceId(resource.getId());
+  private boolean sanitizeIndex(int resourceId, String key, ResourceIndexerMapper mapper) {
+    ResourceIndexDto masterIndex = mapper.selectMasterIndexByResourceId(resourceId);
     if (masterIndex != null && !StringUtils.equals(key, masterIndex.getKey())) {
       // resource has been renamed -> drop existing indexes
-      mapper.deleteByResourceId(resource.getId());
+      mapper.deleteByResourceId(resourceId);
       masterIndex = null;
     }
     return masterIndex == null;
   }
 
-  static String toKey(String input) {
-    return StringUtils.lowerCase(input);
+  static String nameToKey(String input) {
+    return StringUtils.lowerCase(StringUtils.trimToEmpty(input));
+  }
+
+  static boolean isIndexableQualifier(String qualifier) {
+    return ArrayUtils.contains(RENAMABLE_QUALIFIERS, qualifier) || ArrayUtils.contains(NOT_RENAMABLE_QUALIFIERS, qualifier);
   }
 }

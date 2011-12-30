@@ -20,19 +20,17 @@
 package org.sonar.core.resource;
 
 public final class ResourceIndexerFilter {
-  private boolean enabled = true;
+  private boolean _true = true;
+  private Integer rootProjectId = null;
   private String[] scopes = null;
   private String[] qualifiers = null;
+  private boolean nonIndexedOnly=false;
 
   private ResourceIndexerFilter() {
   }
 
   public static ResourceIndexerFilter create() {
     return new ResourceIndexerFilter();
-  }
-
-  public boolean isEnabled() {
-    return enabled;
   }
 
   public String[] getScopes() {
@@ -50,6 +48,24 @@ public final class ResourceIndexerFilter {
 
   public ResourceIndexerFilter setQualifiers(String[] qualifiers) {
     this.qualifiers = qualifiers;
+    return this;
+  }
+
+  public Integer getRootProjectId() {
+    return rootProjectId;
+  }
+
+  public ResourceIndexerFilter setRootProjectId(Integer i) {
+    this.rootProjectId = i;
+    return this;
+  }
+
+  public boolean isNonIndexedOnly() {
+    return nonIndexedOnly;
+  }
+
+  public ResourceIndexerFilter setNonIndexedOnly(boolean b) {
+    this.nonIndexedOnly = b;
     return this;
   }
 }

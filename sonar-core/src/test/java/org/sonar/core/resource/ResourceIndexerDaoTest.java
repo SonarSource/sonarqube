@@ -33,28 +33,28 @@ public class ResourceIndexerDaoTest extends DaoTestCase {
   }
 
   @Test
-  public void shouldIndexSingleResource() {
-    setupData("shouldIndexSingleResource");
+  public void shouldIndexResource() {
+    setupData("shouldIndexResource");
 
-    dao.index("ZipUtils", "FIL", 10, 8);
+    dao.indexResource(10, "ZipUtils", "FIL", 8);
 
-    checkTables("shouldIndexSingleResource", "resource_index");
+    checkTables("shouldIndexResource", "resource_index");
   }
 
   @Test
-  public void shouldIndexAllResources() {
-    setupData("shouldIndexAllResources");
+  public void shouldIndexProjects() {
+    setupData("shouldIndexProjects");
 
-    dao.index(ResourceIndexerFilter.create());
+    dao.indexProjects();
 
-    checkTables("shouldIndexAllResources", "resource_index");
+    checkTables("shouldIndexProjects", "resource_index");
   }
 
   @Test
   public void shouldIndexMultiModulesProject() {
     setupData("shouldIndexMultiModulesProject");
 
-    dao.index(ResourceIndexerFilter.create());
+    dao.indexProject(1);
 
     checkTables("shouldIndexMultiModulesProject", "resource_index");
   }
@@ -63,7 +63,7 @@ public class ResourceIndexerDaoTest extends DaoTestCase {
   public void shouldReindexProjectAfterRenaming() {
     setupData("shouldReindexProjectAfterRenaming");
 
-    dao.index(ResourceIndexerFilter.create());
+    dao.indexProject(1);
 
     checkTables("shouldReindexProjectAfterRenaming", "resource_index");
   }

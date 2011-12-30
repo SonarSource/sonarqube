@@ -44,7 +44,6 @@ import org.sonar.core.persistence.DatabaseMigrator;
 import org.sonar.core.persistence.DefaultDatabase;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualitymodel.DefaultModelFinder;
-import org.sonar.core.resource.ResourceIndexer;
 import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.core.user.DefaultUserFinder;
 import org.sonar.jpa.dao.DaoFacade;
@@ -135,7 +134,6 @@ public final class Platform {
     rootContainer.addSingleton(EmbeddedDatabaseFactory.class);
     rootContainer.addSingleton(DefaultDatabase.class);
     rootContainer.addSingleton(MyBatis.class);
-    rootContainer.addSingleton(ResourceIndexer.class); // for the migration 241
     rootContainer.addSingleton(DefaultDatabaseConnector.class);
     rootContainer.addSingleton(DefaultServerUpgradeStatus.class);
     rootContainer.addSingleton(DatabaseMigrator.class);

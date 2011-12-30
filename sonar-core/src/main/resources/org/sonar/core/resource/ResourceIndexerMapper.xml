@@ -3,26 +3,46 @@
 
 <mapper namespace="org.sonar.core.resource.ResourceIndexerMapper">
 
-  <select id="selectResourcesToIndex" parameterType="map" resultType="Resource">
-    select id, root_id as "rootId", name, scope, qualifier
-    from projects
+  <!--
+  The column PROJECTS.ROOT_ID is not exact on multi-modules projects. The root id must
+  be loaded from the table SNAPSHOTS
+  -->
+  <select id="selectResources" parameterType="map" resultType="Resource">
+    select p.name as "name", p.id as "id", p.scope as "scope", p.qualifier as "qualifier", s.root_project_id as "rootId"
+    from projects p, snapshots s
     <where>
-      enabled=#{enabled}
-      and copy_resource_id is null
-      <if test="scopes != null">and scope in
+      p.enabled=#{_true}
+      and p.copy_resource_id is null
+      and p.id=s.project_id
+      and s.islast=#{_true}
+      <if test="scopes != null">
+        and p.scope in
         <foreach item="scope" index="index" collection="scopes" open="(" separator="," close=")">#{scope}</foreach>
       </if>
-      <if test="qualifiers != null">and qualifier in
-        <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator="," close=")">#{qualifier}</foreach>
+      <if test="qualifiers != null">
+        and p.qualifier in
+        <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator="," close=")">#{qualifier}
+        </foreach>
+      </if>
+      <if test="rootProjectId != null">
+        and s.root_project_id=#{rootProjectId}
+      </if>
+      <if test="nonIndexedOnly">
+        and not exists(select * from resource_index ri where ri.resource_id=p.id)
       </if>
     </where>
   </select>
 
-  <select id="selectRootId" parameterType="int" resultType="Resource">
-    select id, root_id as "rootId"
-    from projects
-    where id=#{id}
+  <select id="selectRootProjectIds" parameterType="map" resultType="int">
+    select distinct root_project_id
+    from snapshots
+    where islast=#{_true}
+    and scope='PRJ'
+    and qualifier in ('TRK', 'VW', 'SVW')
   </select>
+
+
+
 
   <select id="selectMasterIndexByResourceId" parameterType="int" resultType="ResourceIndex">
     select kee as "key", resource_id as "resourceId"
