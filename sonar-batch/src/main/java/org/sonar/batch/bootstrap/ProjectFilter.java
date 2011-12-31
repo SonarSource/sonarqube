@@ -21,7 +21,6 @@ package org.sonar.batch.bootstrap;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 

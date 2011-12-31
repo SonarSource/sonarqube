@@ -20,7 +20,6 @@
 package org.sonar.core.persistence.dialect;
 
 import org.apache.commons.lang.StringUtils;
-import org.hibernate.MappingException;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.id.PersistentIdentifierGenerator;
 import org.hibernate.id.SequenceGenerator;
@@ -36,20 +35,14 @@ public class OracleSequenceGenerator extends SequenceGenerator {
   public static final String SEQUENCE_NAME_SUFFIX = "_SEQ";
 
   @Override
-  public void configure(Type type, Properties params, Dialect dialect)
-    throws MappingException {
-
+  public void configure(Type type, Properties params, Dialect dialect) {
     String tableName = params.getProperty(PersistentIdentifierGenerator.TABLE);
-
     if (tableName != null) {
       StringBuilder sequenceNameBuilder = new StringBuilder();
-
       sequenceNameBuilder.append(tableName);
       sequenceNameBuilder.append(SEQUENCE_NAME_SUFFIX);
-
       params.setProperty(SEQUENCE, StringUtils.upperCase(sequenceNameBuilder.toString()));
     }
-
     super.configure(type, params, dialect);
   }
 

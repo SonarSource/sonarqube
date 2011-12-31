@@ -19,8 +19,6 @@
  */
 package org.sonar.core.resource;
 
-import java.util.List;
-
 public interface ResourceIndexerMapper {
 
   ResourceIndexDto selectMasterIndexByResourceId(int resourceId);

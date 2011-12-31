@@ -85,24 +85,21 @@ public final class ActiveDashboardDto {
     this.orderIndex = orderIndex;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#hashCode()
-   */
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    ActiveDashboardDto that = (ActiveDashboardDto) o;
+    return !(id != null ? !id.equals(that.id) : that.id != null);
+
+  }
+
   @Override
   public int hashCode() {
-    return HashCodeBuilder.reflectionHashCode(this, new String[]{"id"});
+    return id != null ? id.hashCode() : 0;
   }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
-  @Override
-  public boolean equals(Object obj) {
-    return EqualsBuilder.reflectionEquals(this, obj, new String[]{"id"});
-  }
-
 }

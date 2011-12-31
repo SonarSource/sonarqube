@@ -19,7 +19,6 @@
  */
 package org.sonar.core.persistence.dialect;
 
-import org.hibernate.MappingException;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.id.PersistentIdentifierGenerator;
 import org.hibernate.id.SequenceGenerator;
@@ -40,8 +39,7 @@ public class PostgreSQLSequenceGenerator extends SequenceGenerator {
   public static final String SEQUENCE_NAME_SUFFIX = "seq";
 
   @Override
-  public void configure(Type type, Properties params, Dialect dialect)
-    throws MappingException {
+  public void configure(Type type, Properties params, Dialect dialect) {
 
     String tableName = params.getProperty(PersistentIdentifierGenerator.TABLE);
     String columnName = params.getProperty(PersistentIdentifierGenerator.PK);

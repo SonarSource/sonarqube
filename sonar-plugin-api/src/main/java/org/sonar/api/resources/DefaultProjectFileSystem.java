@@ -20,10 +20,12 @@
 package org.sonar.api.resources;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.*;
 import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
@@ -41,7 +43,7 @@ import java.util.*;
 /**
  * An implementation of {@link ProjectFileSystem}.
  * For internal use only.
- * 
+ *
  * @since 1.10
  * @deprecated in 2.8. In fact this class should not be located in sonar-plugin-api and most of the methods were overridden by a component in sonar-batch.
  */
@@ -215,7 +217,7 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
     WildcardPattern[] exclusionPatterns = getExclusionPatterns(applyExclusionPatterns);
 
     IOFileFilter initialFilesFilter = TrueFileFilter.INSTANCE;
-    if (initialFiles!=null && !initialFiles.isEmpty()) {
+    if (initialFiles != null && !initialFiles.isEmpty()) {
       initialFilesFilter = new FileSelectionFilter(initialFiles);
     }
 
@@ -313,7 +315,7 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
 
   /**
    * getRelativePath("c:/foo/src/my/package/Hello.java", "c:/foo/src") is "my/package/Hello.java"
-   * 
+   *
    * @return null if file is not in dir (including recursive subdirectories)
    */
   public static String getRelativePath(File file, File dir) {
@@ -325,7 +327,7 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
    * <p>
    * Relative path is composed of slashes. Windows backslaches are replaced by /
    * </p>
-   * 
+   *
    * @return null if file is not in dir (including recursive subdirectories)
    */
   public static String getRelativePath(File file, List<File> dirs) {

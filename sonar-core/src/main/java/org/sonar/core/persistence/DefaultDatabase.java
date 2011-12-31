@@ -107,7 +107,9 @@ public class DefaultDatabase implements Database {
     }
   }
 
-  private void initDatasource() throws Exception {
+  private void initDatasource() throws Exception {//NOSONAR this exception is thrown by BasicDataSourceFactory
+    // but it's correctly caught by start()
+
     LOG.info("Create JDBC datasource");
     datasource = (BasicDataSource) BasicDataSourceFactory.createDataSource(extractCommonsDbcpProperties(properties));
 

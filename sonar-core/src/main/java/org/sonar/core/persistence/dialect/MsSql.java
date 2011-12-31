@@ -20,7 +20,6 @@
 package org.sonar.core.persistence.dialect;
 
 import org.apache.commons.lang.StringUtils;
-import org.hibernate.HibernateException;
 import org.hibernate.dialect.SQLServerDialect;
 import org.sonar.api.database.DatabaseProperties;
 
@@ -61,7 +60,7 @@ public class MsSql implements Dialect {
       registerColumnType(Types.CLOB, "nvarchar(max)");
     }
 
-    public String getTypeName(int code, int length, int precision, int scale) throws HibernateException {
+    public String getTypeName(int code, int length, int precision, int scale) {
       if (code != 2005) {
         return super.getTypeName(code, length, precision, scale);
       } else {
