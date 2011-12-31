@@ -19,18 +19,21 @@
  */
 package org.sonar.core.resource;
 
-public final class ResourceIndexerFilter {
-  private boolean _true = true;
+final class ResourceIndexerQuery {
+  // Workaround to inject booleans into mybatis mappers. It avoids declaring mappers
+  // dedicated to Oracle and SQLServer
+  public final boolean _true = true; //NOSONAR
+
   private Integer rootProjectId = null;
   private String[] scopes = null;
   private String[] qualifiers = null;
   private boolean nonIndexedOnly=false;
 
-  private ResourceIndexerFilter() {
+  private ResourceIndexerQuery() {
   }
 
-  public static ResourceIndexerFilter create() {
-    return new ResourceIndexerFilter();
+  public static ResourceIndexerQuery create() {
+    return new ResourceIndexerQuery();
   }
 
   public String[] getScopes() {
@@ -41,12 +44,12 @@ public final class ResourceIndexerFilter {
     return qualifiers;
   }
 
-  public ResourceIndexerFilter setScopes(String[] scopes) {
+  public ResourceIndexerQuery setScopes(String[] scopes) {
     this.scopes = scopes;
     return this;
   }
 
-  public ResourceIndexerFilter setQualifiers(String[] qualifiers) {
+  public ResourceIndexerQuery setQualifiers(String[] qualifiers) {
     this.qualifiers = qualifiers;
     return this;
   }
@@ -55,7 +58,7 @@ public final class ResourceIndexerFilter {
     return rootProjectId;
   }
 
-  public ResourceIndexerFilter setRootProjectId(Integer i) {
+  public ResourceIndexerQuery setRootProjectId(Integer i) {
     this.rootProjectId = i;
     return this;
   }
@@ -64,7 +67,7 @@ public final class ResourceIndexerFilter {
     return nonIndexedOnly;
   }
 
-  public ResourceIndexerFilter setNonIndexedOnly(boolean b) {
+  public ResourceIndexerQuery setNonIndexedOnly(boolean b) {
     this.nonIndexedOnly = b;
     return this;
   }

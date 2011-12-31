@@ -125,7 +125,6 @@ public final class Platform {
   }
 
   private void startDatabaseConnectors(ServletContext servletContext) {
-    System.out.println("Start database connectors");
     rootContainer = new ComponentContainer();
     rootContainer.addSingleton(servletContext);
     rootContainer.addSingleton(IocContainer.class); // for backward compatibility

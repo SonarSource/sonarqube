@@ -69,7 +69,7 @@ public class ResourceIndexerDao {
     final SqlSession session = mybatis.openSession(ExecutorType.BATCH);
     try {
       final ResourceIndexerMapper mapper = session.getMapper(ResourceIndexerMapper.class);
-      session.select("selectRootProjectIds", /* workaround to get booleans */ResourceIndexerFilter.create(), new ResultHandler() {
+      session.select("selectRootProjectIds", /* workaround to get booleans */ResourceIndexerQuery.create(), new ResultHandler() {
         public void handleResult(ResultContext context) {
           Integer rootProjectId = (Integer) context.getResultObject();
           doIndexProject(rootProjectId, session, mapper);
@@ -85,13 +85,13 @@ public class ResourceIndexerDao {
 
   private void doIndexProject(int rootProjectId, SqlSession session, final ResourceIndexerMapper mapper) {
     // non indexed resources
-    ResourceIndexerFilter filter = ResourceIndexerFilter.create()
+    ResourceIndexerQuery query = ResourceIndexerQuery.create()
       .setNonIndexedOnly(true)
       .setQualifiers(NOT_RENAMABLE_QUALIFIERS)
       .setScopes(NOT_RENAMABLE_SCOPES)
       .setRootProjectId(rootProjectId);
 
-    session.select("selectResources", filter, new ResultHandler() {
+    session.select("selectResources", query, new ResultHandler() {
       public void handleResult(ResultContext context) {
         ResourceDto resource = (ResourceDto) context.getResultObject();
         doIndex(resource, mapper);
@@ -100,13 +100,13 @@ public class ResourceIndexerDao {
 
     // some resources can be renamed, so index must be regenerated
     // -> delete existing rows and create them again
-    filter = ResourceIndexerFilter.create()
+    query = ResourceIndexerQuery.create()
       .setNonIndexedOnly(false)
       .setQualifiers(RENAMABLE_QUALIFIERS)
       .setScopes(RENAMABLE_SCOPES)
       .setRootProjectId(rootProjectId);
 
-    session.select("selectResources", filter, new ResultHandler() {
+    session.select("selectResources", query, new ResultHandler() {
       public void handleResult(ResultContext context) {
         ResourceDto resource = (ResourceDto) context.getResultObject();
 
