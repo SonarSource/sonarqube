@@ -21,6 +21,7 @@ package org.sonar.core.resource;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.persistence.DaoTestCase;
 
 public class ResourceIndexerDaoTest extends DaoTestCase {
@@ -66,5 +67,41 @@ public class ResourceIndexerDaoTest extends DaoTestCase {
     dao.indexProject(1);
 
     checkTables("shouldReindexProjectAfterRenaming", "resource_index");
+  }
+
+  @Test
+  public void shouldNotIndexPackage() {
+    setupData("empty");
+
+    dao.indexResource(10, "org.codehaus.sonar", Qualifiers.PACKAGE, 3);
+
+    checkTables("empty", "resource_index");
+  }
+
+  @Test
+  public void shouldNotIndexWhenTooShortName() {
+    setupData("empty");
+
+    dao.indexResource(10, "AB", Qualifiers.FILE, 3);
+
+    checkTables("empty", "resource_index");
+  }
+
+  @Test
+  public void shouldReindexResource() {
+    setupData("shouldReindexResource");
+
+    dao.indexResource(1, "New Struts", Qualifiers.PROJECT, 1);
+
+    checkTables("shouldReindexResource", "resource_index");
+  }
+
+  @Test
+  public void shouldNotReindexUnchangedResource() {
+    setupData("shouldNotReindexUnchangedResource");
+
+    dao.indexResource(1, "Struts", Qualifiers.PROJECT, 1);
+
+    checkTables("shouldNotReindexUnchangedResource", "resource_index");
   }
 }
