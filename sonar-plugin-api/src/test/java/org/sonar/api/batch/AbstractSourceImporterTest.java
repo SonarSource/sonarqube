@@ -82,19 +82,6 @@ public class AbstractSourceImporterTest {
   }
 
   @Test
-  @Ignore
-  public void canBeDisabled() {
-    Project pom = new Project("foo");
-    Configuration config = mock(Configuration.class);
-    when(pom.getConfiguration()).thenReturn(config);
-    when(config.getBoolean(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY, CoreProperties.CORE_IMPORT_SOURCES_DEFAULT_VALUE)).thenReturn(
-        Boolean.FALSE);
-
-    assertFalse(importer.isEnabled(pom));
-    assertFalse(importer.shouldExecuteOnProject(pom));
-  }
-
-  @Test
   public void doNotSaveSourceIfNullResource() throws IOException {
     AbstractSourceImporter nullImporter = new AbstractSourceImporter(Java.INSTANCE) {
 
