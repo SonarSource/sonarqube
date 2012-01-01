@@ -184,7 +184,7 @@ public class MeasureModel implements Cloneable {
    *
    * @throws IllegalArgumentException in case value is not a valid double
    */
-  public MeasureModel setValue(Double value) throws IllegalArgumentException {
+  public MeasureModel setValue(Double value) {
     if (value != null && (value.isNaN() || value.isInfinite())) {
       throw new IllegalArgumentException();
     }

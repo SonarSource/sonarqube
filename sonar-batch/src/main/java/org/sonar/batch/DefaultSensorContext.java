@@ -155,7 +155,7 @@ public class DefaultSensorContext implements SensorContext {
     return index.getOutgoingEdges(resourceOrProject(from));
   }
 
-  public void saveSource(Resource reference, String source) throws DuplicatedSourceException {
+  public void saveSource(Resource reference, String source) {
     index.setSource(reference, source);
   }
 

@@ -87,7 +87,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     return snapshotsByResource.get(reference);
   }
 
-  public Snapshot getSnapshotOrFail(Resource resource) throws ResourceNotPersistedException {
+  public Snapshot getSnapshotOrFail(Resource resource) {
     Snapshot snapshot = getSnapshot(resource);
     if (snapshot == null) {
       throw new ResourceNotPersistedException(resource);
