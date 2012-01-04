@@ -51,12 +51,12 @@ public class UpdateReviewsDecoratorTest extends AbstractDbUnitTestCase {
     Snapshot snapshot = new Snapshot();
     snapshot.setResourceId(1);
     when(resourcePersister.getSnapshot(resource)).thenReturn(snapshot);
-    
+
     Project project = mock(Project.class);
     when(project.getRoot()).thenReturn(project);
-    
+
     violationTrackingDecorator = mock(ViolationTrackingDecorator.class);
-    
+
     reviewsDecorator = new UpdateReviewsDecorator(resourcePersister, getSession(), violationTrackingDecorator);
   }
 
@@ -80,10 +80,14 @@ public class UpdateReviewsDecoratorTest extends AbstractDbUnitTestCase {
     when(v3.getLineId()).thenReturn(3);
     Violation v4 = mock(Violation.class);
     when(v4.getMessage()).thenReturn("message 4");
-    when(v4.getLineId()).thenReturn(4);    
+    when(v4.getLineId()).thenReturn(4);
+    // specific case when a violation has no line number
+    Violation v5 = mock(Violation.class);
+    when(v5.getMessage()).thenReturn("message 5");
+    when(v5.getLineId()).thenReturn(null);
     DecoratorContext context = mock(DecoratorContext.class);
-    when(context.getViolations()).thenReturn(Lists.newArrayList(v1,v2,v3,v4));
-    
+    when(context.getViolations()).thenReturn(Lists.newArrayList(v1, v2, v3, v4, v5));
+
     RuleFailureModel rf1 = mock(RuleFailureModel.class);
     when(rf1.getPermanentId()).thenReturn(1);
     when(violationTrackingDecorator.getReferenceViolation(v1)).thenReturn(rf1);
@@ -96,12 +100,14 @@ public class UpdateReviewsDecoratorTest extends AbstractDbUnitTestCase {
     RuleFailureModel rf4 = mock(RuleFailureModel.class);
     when(rf4.getPermanentId()).thenReturn(4);
     when(violationTrackingDecorator.getReferenceViolation(v4)).thenReturn(rf4);
-    
+    RuleFailureModel rf5 = mock(RuleFailureModel.class);
+    when(rf5.getPermanentId()).thenReturn(5);
+    when(violationTrackingDecorator.getReferenceViolation(v5)).thenReturn(rf5);
+
     setupData("fixture");
-    
+
     reviewsDecorator.decorate(resource, context);
-    
-    
+
     checkTables("shouldUpdateReviews", new String[] { "updated_at" }, new String[] { "reviews" });
   }
 }
