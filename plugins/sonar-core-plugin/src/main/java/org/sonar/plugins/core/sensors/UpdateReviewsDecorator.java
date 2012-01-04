@@ -105,7 +105,8 @@ public class UpdateReviewsDecorator implements Decorator {
     if (violation != null) {
       String message = violation.getMessage();
       Integer line = violation.getLineId();
-      if ( !review.getTitle().equals(message) || !review.getResourceLine().equals(line)) {
+      if ( !review.getTitle().equals(message) || (review.getResourceLine() == null && line != null)
+          || (review.getResourceLine() != null && !review.getResourceLine().equals(line))) {
         updateReviewQuery.setParameter(1, message).setParameter(2, line).setParameter(3, review.getId()).executeUpdate();
       }
     }
