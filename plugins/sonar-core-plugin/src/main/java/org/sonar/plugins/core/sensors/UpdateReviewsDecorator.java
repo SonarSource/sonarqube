@@ -53,6 +53,7 @@ public class UpdateReviewsDecorator implements Decorator {
   private DatabaseSession databaseSession;
   private ViolationTrackingDecorator violationTrackingDecorator;
   private Query updateReviewQuery;
+  private Query updateReviewQueryForNullLine;
   private Map<Integer, Violation> violationsPerPermanentId;
 
   public UpdateReviewsDecorator(ResourcePersister resourcePersister, DatabaseSession databaseSession,
@@ -91,6 +92,8 @@ public class UpdateReviewsDecorator implements Decorator {
     // prepare the DB native queries
     updateReviewQuery = databaseSession
         .createNativeQuery("UPDATE reviews SET title=?, resource_line=?, updated_at=CURRENT_TIMESTAMP WHERE id=?");
+    updateReviewQueryForNullLine = databaseSession
+        .createNativeQuery("UPDATE reviews SET title=?, resource_line=NULL, updated_at=CURRENT_TIMESTAMP WHERE id=?");
     Query searchReviewsQuery = databaseSession.getEntityManager().createNativeQuery(
         "SELECT * FROM reviews WHERE status!='CLOSED' AND resource_id=?", Review.class);
     // and iterate over the reviews that we find
@@ -107,7 +110,11 @@ public class UpdateReviewsDecorator implements Decorator {
       Integer line = violation.getLineId();
       if ( !review.getTitle().equals(message) || (review.getResourceLine() == null && line != null)
           || (review.getResourceLine() != null && !review.getResourceLine().equals(line))) {
-        updateReviewQuery.setParameter(1, message).setParameter(2, line).setParameter(3, review.getId()).executeUpdate();
+        if (line == null) {
+          updateReviewQueryForNullLine.setParameter(1, message).setParameter(2, review.getId()).executeUpdate();
+        } else {
+          updateReviewQuery.setParameter(1, message).setParameter(2, line).setParameter(3, review.getId()).executeUpdate();
+        }
       }
     }
   }

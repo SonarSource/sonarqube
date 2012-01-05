@@ -81,12 +81,14 @@ public class UpdateReviewsDecoratorTest extends AbstractDbUnitTestCase {
     Violation v4 = mock(Violation.class);
     when(v4.getMessage()).thenReturn("message 4");
     when(v4.getLineId()).thenReturn(4);
-    // specific case when a violation has no line number
     Violation v5 = mock(Violation.class);
     when(v5.getMessage()).thenReturn("message 5");
     when(v5.getLineId()).thenReturn(null);
+    Violation v6 = mock(Violation.class);
+    when(v6.getMessage()).thenReturn("message 6");
+    when(v6.getLineId()).thenReturn(null);
     DecoratorContext context = mock(DecoratorContext.class);
-    when(context.getViolations()).thenReturn(Lists.newArrayList(v1, v2, v3, v4, v5));
+    when(context.getViolations()).thenReturn(Lists.newArrayList(v1, v2, v3, v4, v5, v6));
 
     RuleFailureModel rf1 = mock(RuleFailureModel.class);
     when(rf1.getPermanentId()).thenReturn(1);
@@ -103,6 +105,9 @@ public class UpdateReviewsDecoratorTest extends AbstractDbUnitTestCase {
     RuleFailureModel rf5 = mock(RuleFailureModel.class);
     when(rf5.getPermanentId()).thenReturn(5);
     when(violationTrackingDecorator.getReferenceViolation(v5)).thenReturn(rf5);
+    RuleFailureModel rf6 = mock(RuleFailureModel.class);
+    when(rf6.getPermanentId()).thenReturn(6);
+    when(violationTrackingDecorator.getReferenceViolation(v6)).thenReturn(rf6);
 
     setupData("fixture");
 
