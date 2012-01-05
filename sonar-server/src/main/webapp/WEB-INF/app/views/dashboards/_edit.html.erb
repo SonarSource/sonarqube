@@ -6,24 +6,24 @@
       </tr>
       <tr>
         <td class="left" valign="top">
-        <%= message('name') -%>:<br/><input type="text" name="name" size="30" maxlength="256" value="<%= @dashboard.name -%>"></input>
+        <%= message('name') -%>:<br/><input type="text" name="name" size="30" maxlength="256" value="<%= @dashboard.name -%>">
         </td>
       </tr>
       <tr>
         <td class="left" valign="top">
-        <%= message('description') -%>:<br/><input type="text" name="description" size="30" maxlength="1000" value="<%= @dashboard.description -%>"></input>
+        <%= message('description') -%>:<br/><input type="text" name="description" size="30" maxlength="1000" value="<%= @dashboard.description -%>">
         </td>
       </tr>
       <% if is_admin? %>
       <tr>
         <td class="left" valign="top">
-        <%= message('shared') -%>:<br/><input type="checkbox" name="shared" value="true" <%= 'checked' if @dashboard.shared -%>></input>
+        <%= message('shared') -%>:<br/><input type="checkbox" name="shared" value="true" <%= 'checked' if @dashboard.shared -%>>
         </td>
       </tr>
       <% end %>
       <tr>
         <td class="left" valign="top">
-        <input type="submit" value="<%= message('dashboard.update_dashboard') -%>"/>
+        <input type="submit" value="<%= message('dashboard.update_dashboard') -%>" id="submit-update-dashboard"/>
         <a href="<%= url_for :action => 'index', :resource => params[:resource] -%>"><%= message('cancel') -%></a>
         </td>
       </tr>

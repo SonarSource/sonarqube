@@ -49,7 +49,7 @@
                 <% if active.owner?(current_user) %>
                   <%= link_to message('dashboard.configure_widgets'), {:controller => :dashboard, :action => 'configure', :did => active.dashboard_id, :id => params[:resource]}, :id => "configure-#{u active.name}" %>
                   |
-                  <%= link_to_remote message('edit'), :update => "admin_form", :url => {:action => "edit", :id => active.dashboard_id, :resource => params[:resource]}, :id => "edit-#{u active.name}", :method => :get %>
+                  <%= link_to_remote message('edit'), {:update => "admin_form", :url => {:action => "edit", :id => active.dashboard_id, :resource => params[:resource]}}, {:id => "edit-#{u active.name}", :method => :get} %>
                   |
                   <%= link_to message('delete'), {:action => 'delete', :id => active.dashboard_id, :resource => params[:resource]}, :method => :post, :confirm => message('dashboard.do_you_want_to_delete_dashboard'), :id => "delete-#{u active.name}" %>
                 <% else %>
