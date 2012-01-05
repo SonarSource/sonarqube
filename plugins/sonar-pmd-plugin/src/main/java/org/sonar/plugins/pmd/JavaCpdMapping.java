@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.cpd;
+package org.sonar.plugins.pmd;
 
 import java.io.File;
 import java.util.List;

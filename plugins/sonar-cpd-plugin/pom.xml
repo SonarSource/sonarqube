@@ -14,26 +14,6 @@
   <description>Find duplicated source code within project.</description>
 
   <dependencies>
-    <dependency>
-      <groupId>pmd</groupId>
-      <artifactId>pmd</artifactId>
-      <version>4.3</version>
-      <exclusions>
-        <exclusion>
-          <groupId>jaxen</groupId>
-          <artifactId>jaxen</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>ant</groupId>
-          <artifactId>ant</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>junit</groupId>
-          <artifactId>junit</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
     <!-- For ResourcePersister and database access -->
     <dependency>
       <groupId>org.codehaus.sonar</groupId>

@@ -88,7 +88,7 @@ import org.sonar.plugins.cpd.decorators.SumDuplicationsDecorator;
 public class CpdPlugin extends SonarPlugin {
 
   public List getExtensions() {
-    return Arrays.asList(CpdSensor.class, SumDuplicationsDecorator.class, DuplicationDensityDecorator.class, JavaCpdMapping.class, SonarEngine.class, PmdEngine.class);
+    return Arrays.asList(CpdSensor.class, SumDuplicationsDecorator.class, DuplicationDensityDecorator.class, SonarEngine.class, PmdEngine.class);
   }
 
 }
