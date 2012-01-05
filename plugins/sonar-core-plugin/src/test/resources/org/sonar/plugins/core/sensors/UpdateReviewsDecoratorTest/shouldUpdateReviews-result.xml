@@ -55,5 +55,16 @@
     rule_id="[null]"
     manual_violation="false"
     manual_severity="false"/>
+  <reviews
+    id="6"
+    status="OPEN"
+    rule_failure_permanent_id="6"
+    resource_id="1"
+    title="message 6"
+    resource_line="[null]"
+    created_at="[null]" user_id="[null]" assignee_id="[null]" resolution="[null]" severity="[null]" project_id="[null]"
+    rule_id="[null]"
+    manual_violation="false"
+    manual_severity="false"/>
 
 </dataset>
