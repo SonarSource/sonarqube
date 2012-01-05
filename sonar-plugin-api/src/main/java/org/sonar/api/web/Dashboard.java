@@ -54,6 +54,8 @@ public final class Dashboard {
   /**
    * Add a widget with the given parameters, and return the newly created {@link Widget} object if one wants to add parameters to it.
    *
+   * <p>The widget ids are listed by the web service /api/widgets</p>
+   *
    * @param widgetId id of an existing widget
    * @param columnId column starts with 1. The widget is ignored if the column id does not match the layout.
    */
