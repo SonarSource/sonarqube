@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.codehaus.sonar</groupId>
@@ -11,7 +12,8 @@
   <artifactId>sonar-checkstyle-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
   <name>Sonar :: Plugins :: Checkstyle</name>
-  <description>Checkstyle is a code analyser to help programmers write Java code that adheres to a coding standard.</description>
+  <description>Checkstyle is a code analyser to help programmers write Java code that adheres to a coding standard.
+  </description>
 
   <properties>
     <checkstyle.version>5.5</checkstyle.version>
@@ -33,8 +35,8 @@
           <artifactId>commons-logging</artifactId>
         </exclusion>
         <exclusion>
-          <groupId>com.google.guava</groupId>
-          <artifactId>guava</artifactId>
+          <groupId>com.google.collections</groupId>
+          <artifactId>google-collections</artifactId>
         </exclusion>
         <exclusion>
           <groupId>commons-lang</groupId>
@@ -102,7 +104,8 @@
           <pluginKey>checkstyle</pluginKey>
           <pluginName>Checkstyle</pluginName>
           <pluginClass>org.sonar.plugins.checkstyle.CheckstylePlugin</pluginClass>
-          <pluginDescription><![CDATA[Analyze Java code with <a href="http://checkstyle.sourceforge.net/">Checkstyle</a> ${checkstyle.version}.]]></pluginDescription>
+          <pluginDescription>
+            <![CDATA[Analyze Java code with <a href="http://checkstyle.sourceforge.net/">Checkstyle</a> ${checkstyle.version}.]]></pluginDescription>
         </configuration>
       </plugin>
 
