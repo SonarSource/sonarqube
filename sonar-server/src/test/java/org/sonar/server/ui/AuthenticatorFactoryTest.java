@@ -35,6 +35,7 @@ public class AuthenticatorFactoryTest {
   public void doNotFailIfNoAuthenticationPlugins() {
     AuthenticatorFactory factory = new AuthenticatorFactory(new Settings());
     assertThat(factory.getAuthenticator(), nullValue());
+    factory.start();
   }
 
   @Test
@@ -66,6 +67,15 @@ public class AuthenticatorFactoryTest {
     AuthenticatorFactory factory = new AuthenticatorFactory(settings, new LoginPasswordAuthenticator[]{new FakeAuthenticator(), new FailAuthenticator()});
     factory.start();
     factory.getAuthenticator();
+  }
+
+  @Test(expected = AuthenticatorNotFoundException.class)
+  public void noAuthenticators() {
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_CLASS, "foo");
+
+    AuthenticatorFactory factory = new AuthenticatorFactory(settings, null);
+    factory.start();
   }
 
   @Test

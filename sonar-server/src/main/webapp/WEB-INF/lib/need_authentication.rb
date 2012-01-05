@@ -51,6 +51,31 @@ class PluginAuthenticator
   end
 end
 
+#
+# Since 2.14
+# Experimental
+#
+# Use an external system to authenticate users with fallback to Sonar database.
+#
+class FallbackAuthenticator
+  def initialize(java_authenticator)
+    @java_authenticator = java_authenticator
+  end
+
+  def authenticate?(login, password)
+    return false if login.blank? || password.blank?
+    if @java_authenticator.authenticate(login, password)
+      return true
+    end
+    # Fallback to password in Sonar Database
+    user = User.find_by_login(login)
+    return user && user.authenticated?(password)
+  end
+
+  def editable_password?
+    true
+  end
+end
 
 #
 # Load the authentication system to use. The server must be restarted when configuration is changed.
@@ -62,7 +87,7 @@ class AuthenticatorFactory
     if @@authenticator.nil?
       authenticator_factory=Java::OrgSonarServerUi::JRubyFacade.new.getCoreComponentByClassname('org.sonar.server.ui.AuthenticatorFactory')
       component=authenticator_factory.getAuthenticator()
-      @@authenticator=(component ? PluginAuthenticator.new(component) : DefaultAuthenticator.new)
+      @@authenticator=(component ? FallbackAuthenticator.new(component) : DefaultAuthenticator.new)
     end
     @@authenticator
   end

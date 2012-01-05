@@ -53,10 +53,10 @@ public class AuthenticatorFactory implements ServerComponent {
   /**
    * Start the authenticator selected in sonar configuration. If no authentication plugin is selected, then
    * the default authentication mechanism is used and null is returned.
-   * <p/>
-   * Throws a unchecked exception if the authenticator can not be started.
+   * 
+   * @throws AuthenticatorNotFoundException if authenticator can not be found
+   * @throws RuntimeException if authenticator can not be started
    */
-
   public void start() {
     // check authentication plugin at startup
     if (StringUtils.isEmpty(classname)) {
