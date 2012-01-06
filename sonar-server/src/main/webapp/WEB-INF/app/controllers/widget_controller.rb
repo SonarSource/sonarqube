@@ -54,7 +54,8 @@ class WidgetController < ApplicationController
     end
     access_denied unless authorized
 
-    @widget=Widget.new(:widget_key => widget_key, :id => 1)
+    @widget=Widget.new(:widget_key => widget_key)
+    @widget.id=1
     @widget_definition.getWidgetProperties().each do |property_definition|
       value = params[property_definition.key()]
       @widget.properties<<WidgetProperty.new(
