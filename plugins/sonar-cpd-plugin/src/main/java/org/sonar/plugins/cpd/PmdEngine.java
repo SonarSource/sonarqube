@@ -33,9 +33,15 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
 import org.sonar.duplications.cpd.CPD;
 
+import com.google.common.annotations.VisibleForTesting;
+
 public class PmdEngine extends CpdEngine {
 
-  private CpdMapping[] mappings;
+  private final CpdMapping[] mappings;
+
+  public PmdEngine() {
+    this.mappings = null;
+  }
 
   public PmdEngine(CpdMapping[] mappings) {
     this.mappings = mappings;
@@ -47,9 +53,11 @@ public class PmdEngine extends CpdEngine {
   }
 
   private CpdMapping getMapping(Language language) {
-    for (CpdMapping cpdMapping : mappings) {
-      if (cpdMapping.getLanguage().equals(language)) {
-        return cpdMapping;
+    if (mappings != null) {
+      for (CpdMapping cpdMapping : mappings) {
+        if (cpdMapping.getLanguage().equals(language)) {
+          return cpdMapping;
+        }
       }
     }
     return null;
@@ -94,6 +102,7 @@ public class PmdEngine extends CpdEngine {
     return cpd;
   }
 
+  @VisibleForTesting
   int getMinimumTokens(Project project) {
     Configuration conf = project.getConfiguration();
     return conf.getInt("sonar.cpd." + project.getLanguageKey() + ".minimumTokens",

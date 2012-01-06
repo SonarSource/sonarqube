@@ -20,21 +20,44 @@
 package org.sonar.plugins.cpd;
 
 import static junit.framework.Assert.assertEquals;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.CpdMapping;
+import org.sonar.api.resources.Java;
+import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
 
 public class PmdEngineTest {
 
   @Test
+  public void shouldNotFailWhenNoMappings() {
+    PmdEngine engine = new PmdEngine();
+    assertThat(engine.isLanguageSupported(Java.INSTANCE), is(false));
+  }
+
+  @Test
+  public void shouldCheckLanguageSupport() {
+    CpdMapping mapping = mock(CpdMapping.class);
+    when(mapping.getLanguage()).thenReturn(Java.INSTANCE);
+    PmdEngine engine = new PmdEngine(new CpdMapping[] { mapping });
+    assertThat(engine.isLanguageSupported(Java.INSTANCE), is(true));
+
+    Language anotherLanguage = mock(Language.class);
+    assertThat(engine.isLanguageSupported(anotherLanguage), is(false));
+  }
+
+  @Test
   public void defaultMinimumTokens() {
     Project project = createJavaProject().setConfiguration(new PropertiesConfiguration());
 
-    PmdEngine sensor = new PmdEngine(new CpdMapping[0]);
-    assertEquals(CoreProperties.CPD_MINIMUM_TOKENS_DEFAULT_VALUE, sensor.getMinimumTokens(project));
+    PmdEngine engine = new PmdEngine();
+    assertEquals(CoreProperties.CPD_MINIMUM_TOKENS_DEFAULT_VALUE, engine.getMinimumTokens(project));
   }
 
   @Test
@@ -43,8 +66,8 @@ public class PmdEngineTest {
     conf.setProperty("sonar.cpd.minimumTokens", "33");
     Project project = createJavaProject().setConfiguration(conf);
 
-    PmdEngine sensor = new PmdEngine(new CpdMapping[0]);
-    assertEquals(33, sensor.getMinimumTokens(project));
+    PmdEngine engine = new PmdEngine();
+    assertEquals(33, engine.getMinimumTokens(project));
   }
 
   @Test
@@ -56,9 +79,9 @@ public class PmdEngineTest {
     Project phpProject = createPhpProject().setConfiguration(conf);
     Project javaProject = createJavaProject().setConfiguration(conf);
 
-    PmdEngine sensor = new PmdEngine(new CpdMapping[0]);
-    assertEquals(100, sensor.getMinimumTokens(javaProject));
-    assertEquals(33, sensor.getMinimumTokens(phpProject));
+    PmdEngine engine = new PmdEngine();
+    assertEquals(100, engine.getMinimumTokens(javaProject));
+    assertEquals(33, engine.getMinimumTokens(phpProject));
   }
 
   private Project createJavaProject() {
