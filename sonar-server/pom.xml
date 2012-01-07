@@ -341,6 +341,7 @@
                   <overWriteIfNewer>true</overWriteIfNewer>
                   <overWriteReleases>true</overWriteReleases>
                   <overWriteSnapshots>true</overWriteSnapshots>
+                  <includeTypes>sonar-plugin</includeTypes>
                   <outputDirectory>${project.build.directory}/sonar-dev-home/lib/core-plugins/</outputDirectory>
                 </configuration>
               </execution>
@@ -399,78 +400,91 @@
           <groupId>org.codehaus.sonar.plugins</groupId>
           <artifactId>sonar-core-plugin</artifactId>
           <version>${project.version}</version>
+          <type>sonar-plugin</type>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>org.codehaus.sonar.plugins</groupId>
           <artifactId>sonar-design-plugin</artifactId>
           <version>${project.version}</version>
+          <type>sonar-plugin</type>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>org.codehaus.sonar.plugins</groupId>
           <artifactId>sonar-findbugs-plugin</artifactId>
           <version>${project.version}</version>
+          <type>sonar-plugin</type>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>org.codehaus.sonar.plugins</groupId>
           <artifactId>sonar-checkstyle-plugin</artifactId>
           <version>${project.version}</version>
+          <type>sonar-plugin</type>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>org.codehaus.sonar.plugins</groupId>
           <artifactId>sonar-dbcleaner-plugin</artifactId>
           <version>${project.version}</version>
+          <type>sonar-plugin</type>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>org.codehaus.sonar.plugins</groupId>
           <artifactId>sonar-pmd-plugin</artifactId>
           <version>${project.version}</version>
+          <type>sonar-plugin</type>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>org.codehaus.sonar.plugins</groupId>
           <artifactId>sonar-squid-java-plugin</artifactId>
           <version>${project.version}</version>
+          <type>sonar-plugin</type>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>org.codehaus.sonar.plugins</groupId>
           <artifactId>sonar-cobertura-plugin</artifactId>
           <version>${project.version}</version>
+          <type>sonar-plugin</type>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>org.codehaus.sonar.plugins</groupId>
           <artifactId>sonar-surefire-plugin</artifactId>
           <version>${project.version}</version>
+          <type>sonar-plugin</type>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>org.codehaus.sonar.plugins</groupId>
           <artifactId>sonar-cpd-plugin</artifactId>
           <version>${project.version}</version>
+          <type>sonar-plugin</type>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>org.codehaus.sonar.plugins</groupId>
           <artifactId>sonar-l10n-en-plugin</artifactId>
           <version>${project.version}</version>
+          <type>sonar-plugin</type>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>org.codehaus.sonar.plugins</groupId>
           <artifactId>sonar-email-notifications-plugin</artifactId>
           <version>${project.version}</version>
+          <type>sonar-plugin</type>
           <scope>provided</scope>
         </dependency>
         <dependency>
           <groupId>org.codehaus.sonar.plugins</groupId>
           <artifactId>sonar-jacoco-plugin</artifactId>
           <version>${project.version}</version>
+          <type>sonar-plugin</type>
           <scope>provided</scope>
         </dependency>
       </dependencies>
