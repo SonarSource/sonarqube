@@ -76,4 +76,12 @@ public class Oracle implements Dialect {
     }
     return null;
   }
+
+  public String getTrueSqlValue() {
+    return "1";
+  }
+
+  public String getFalseSqlValue() {
+    return "0";
+  }
 }

@@ -20,10 +20,6 @@
 package org.sonar.core.resource;
 
 final class ResourceIndexerQuery {
-  // Workaround to inject booleans into mybatis mappers. It avoids declaring mappers
-  // dedicated to Oracle and SQLServer
-  public final boolean _true = true; //NOSONAR
-
   private Integer rootProjectId = null;
   private String[] scopes = null;
   private String[] qualifiers = null;

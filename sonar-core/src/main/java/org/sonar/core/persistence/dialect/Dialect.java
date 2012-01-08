@@ -58,4 +58,14 @@ public interface Dialect {
   String getDefaultDriverClassName();
 
   String getConnectionInitStatement(String schema);
+
+  /**
+   * @since 2.14
+   */
+  String getTrueSqlValue();
+
+  /**
+   * @since 2.14
+   */
+  String getFalseSqlValue();
 }

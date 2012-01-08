@@ -26,13 +26,21 @@ import static org.junit.Assert.assertThat;
 
 public class MySqlTest {
 
+  private MySql mySql = new MySql();
+
   @Test
   public void matchesJdbcURL() {
-    assertThat(new MySql().matchesJdbcURL("jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8"), is(true));
-    assertThat(new MySql().matchesJdbcURL("JDBC:MYSQL://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8"), is(true));
+    assertThat(mySql.matchesJdbcURL("jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8"), is(true));
+    assertThat(mySql.matchesJdbcURL("JDBC:MYSQL://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8"), is(true));
 
-    assertThat(new MySql().matchesJdbcURL("jdbc:hsql:foo"), is(false));
-    assertThat(new MySql().matchesJdbcURL("jdbc:oracle:foo"), is(false));
+    assertThat(mySql.matchesJdbcURL("jdbc:hsql:foo"), is(false));
+    assertThat(mySql.matchesJdbcURL("jdbc:oracle:foo"), is(false));
   }
 
+  @Test
+  public void testBooleanSqlValues() {
+    assertThat(mySql.getTrueSqlValue(), is("true"));
+    assertThat(mySql.getFalseSqlValue(), is("false"));
+  }
 }
+

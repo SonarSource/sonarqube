@@ -11,10 +11,10 @@
     select p.name as "name", p.id as "id", p.scope as "scope", p.qualifier as "qualifier", s.root_project_id as "rootId"
     from projects p, snapshots s
     <where>
-      p.enabled=#{_true}
+      p.enabled=${_true}
       and p.copy_resource_id is null
       and p.id=s.project_id
-      and s.islast=#{_true}
+      and s.islast=${_true}
       <if test="scopes != null">
         and p.scope in
         <foreach item="scope" index="index" collection="scopes" open="(" separator="," close=")">#{scope}</foreach>
@@ -36,13 +36,10 @@
   <select id="selectRootProjectIds" parameterType="map" resultType="int">
     select distinct root_project_id
     from snapshots
-    where islast=#{_true}
+    where islast=${_true}
     and scope='PRJ'
     and qualifier in ('TRK', 'VW', 'SVW')
   </select>
-
-
-
 
   <select id="selectMasterIndexByResourceId" parameterType="int" resultType="ResourceIndex">
     select kee as "key", resource_id as "resourceId"

@@ -91,4 +91,11 @@ public class Derby implements Dialect {
     }
   }
 
+  public String getTrueSqlValue() {
+    return "true";
+  }
+
+  public String getFalseSqlValue() {
+    return "false";
+  }
 }

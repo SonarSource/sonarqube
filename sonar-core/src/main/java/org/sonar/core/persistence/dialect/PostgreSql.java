@@ -73,4 +73,12 @@ public class PostgreSql implements Dialect {
     }
     return null;
   }
+
+  public String getTrueSqlValue() {
+    return "true";
+  }
+
+  public String getFalseSqlValue() {
+    return "false";
+  }
 }

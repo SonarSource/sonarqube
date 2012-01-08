@@ -76,5 +76,13 @@ public class MsSql implements Dialect {
   public String getConnectionInitStatement(String schema) {
     return null;
   }
+
+  public String getTrueSqlValue() {
+    return "1";
+  }
+
+  public String getFalseSqlValue() {
+    return "0";
+  }
 }
 

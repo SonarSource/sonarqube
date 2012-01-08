@@ -9,7 +9,7 @@
     WHERE from_blocks.snapshot_id = #{resource_snapshot_id}
     AND to_blocks.hash = from_blocks.hash
     AND to_blocks.snapshot_id = snapshot.id
-    AND snapshot.islast = TRUE
+    AND snapshot.islast = ${_true}
     AND snapshot.project_id = res.id
     <if test="last_project_snapshot_id != null">
       AND to_blocks.project_snapshot_id != #{last_project_snapshot_id}

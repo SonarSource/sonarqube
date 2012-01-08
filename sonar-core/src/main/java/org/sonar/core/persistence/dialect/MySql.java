@@ -69,4 +69,12 @@ public class MySql implements Dialect {
   public String getConnectionInitStatement(String schema) {
     return null;
   }
+
+  public String getTrueSqlValue() {
+    return "true";
+  }
+
+  public String getFalseSqlValue() {
+    return "false";
+  }
 }
