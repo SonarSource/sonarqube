@@ -19,8 +19,7 @@
       </td>
     </tr>
   </table>
-
-  <%= submit_to_remote "submit_btn"+params[:id], message('reviews.change_severity_submit'), :url => {:action => 'violation_change_severity'}, :html => {:id => "submit_btn"+params[:id]}, :update => 'vId'+params[:id] -%>
+  <input type="button" value="<%= h message('reviews.change_severity_submit') -%>" onclick="new Ajax.Updater('vId<%= params[:id] -%>', '<%= ApplicationController.root_context -%>/reviews/violation_change_severity', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this.form)});" name="submit_severity" id="submit_btn<%= params[:id] -%>">
   &nbsp;
   <%= link_to_function message('cancel'), "cancelViolationAction(#{params[:id]})" -%>
 </form>
