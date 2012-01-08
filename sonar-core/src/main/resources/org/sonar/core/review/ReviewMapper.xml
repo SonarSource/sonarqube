@@ -3,68 +3,55 @@
 
 <mapper namespace="org.sonar.core.review.ReviewMapper">
 
-  <resultMap id="reviewResultMap" type="Review">
-    <result property="createdAt" column="created_at"/>
-    <result property="updatedAt" column="updated_at"/>
-    <result property="userId" column="user_id"/>
-    <result property="assigneeId" column="assignee_id"/>
-    <result property="violationPermanentId" column="rule_failure_permanent_id"/>
-    <result property="projectId" column="project_id"/>
-    <result property="resourceId" column="resource_id"/>
-    <result property="line" column="resource_line"/>
-    <result property="ruleId" column="rule_id"/>
-    <result property="manualViolation" column="manual_violation"/>
-  </resultMap>
+    <resultMap id="reviewResultMap" type="Review">
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="userId" column="user_id"/>
+        <result property="assigneeId" column="assignee_id"/>
+        <result property="violationPermanentId" column="rule_failure_permanent_id"/>
+        <result property="projectId" column="project_id"/>
+        <result property="resourceId" column="resource_id"/>
+        <result property="line" column="resource_line"/>
+        <result property="ruleId" column="rule_id"/>
+        <result property="manualViolation" column="manual_violation"/>
+    </resultMap>
 
-  <sql id="reviewColumns">id, created_at, updated_at, user_id, assignee_id, title,status,resolution,rule_failure_permanent_id,project_id, resource_id, resource_line, severity, rule_id,
-    manual_violation
-  </sql>
+    <sql id="reviewColumns">id, created_at, updated_at, user_id, assignee_id,
+        title,status,resolution,rule_failure_permanent_id,project_id, resource_id, resource_line, severity, rule_id,
+        manual_violation
+    </sql>
 
-  <select id="selectById" parameterType="long" resultMap="reviewResultMap">
-    select
-    <include refid="reviewColumns"/>
-    from reviews where id=#{id}
-  </select>
+    <select id="selectById" parameterType="long" resultMap="reviewResultMap">
+        select
+        <include refid="reviewColumns"/>
+        from reviews where id=#{id}
+    </select>
 
-  <select id="selectByResource" parameterType="int" resultMap="reviewResultMap">
-    select
-    <include refid="reviewColumns"/>
-    from reviews where resource_id=#{id}
-  </select>
+    <select id="selectByResource" parameterType="int" resultMap="reviewResultMap">
+        select
+        <include refid="reviewColumns"/>
+        from reviews where resource_id=#{id}
+    </select>
 
-  <select id="selectByQuery" parameterType="org.sonar.core.review.ReviewQuery" resultMap="reviewResultMap">
-    select
-    <include refid="reviewColumns"/>
-    from reviews
-    <where>
-      <if test="userId != null">user_id = #{userId}</if>
-      <if test="violationPermanentIds != null">AND rule_failure_permanent_id in
-        <foreach item="permanentId" index="index" collection="violationPermanentIds"
-        open="(" separator="," close=")"> #{permanentId}
-        </foreach>
-      </if>
-      <if test="ruleId != null">AND rule_id = #{ruleId}</if>
-      <if test="resourceId != null">AND resource_id = #{resourceId}</if>
-      <if test="status != null">AND status = #{status}</if>
-      <if test="manualViolation != null">AND manual_violation = #{manualViolation}</if>
-      <if test="manualSeverity != null">AND manual_severity = #{manualSeverity}</if>
-      <if test="resolution != null">AND resolution = #{resolution}</if>
-    </where>
-  </select>
-
-  <select id="selectCloseables" parameterType="map" resultMap="reviewResultMap">
-    select
-    <include refid="reviewColumns"/>
-    from reviews
-    <where>
-      resource_id=#{resourceId} AND
-      (
-      (manual_violation=false AND status!='CLOSED' AND rule_failure_permanent_id NOT IN (SELECT permanent_id FROM rule_failures WHERE snapshot_id=#{snapshotId} AND permanent_id IS NOT NULL))
-      OR
-      (manual_violation=true AND status='RESOLVED')
-      )
-    </where>
-  </select>
+    <select id="selectByQuery" parameterType="org.sonar.core.review.ReviewQuery" resultMap="reviewResultMap">
+        select
+        <include refid="reviewColumns"/>
+        from reviews
+        <where>
+            <if test="userId != null">user_id = #{userId}</if>
+            <if test="violationPermanentIds != null">AND rule_failure_permanent_id in
+                <foreach item="permanentId" index="index" collection="violationPermanentIds"
+                         open="(" separator="," close=")">#{permanentId}
+                </foreach>
+            </if>
+            <if test="ruleId != null">AND rule_id = #{ruleId}</if>
+            <if test="resourceId != null">AND resource_id = #{resourceId}</if>
+            <if test="status != null">AND status = #{status}</if>
+            <if test="manualViolation != null">AND manual_violation = #{manualViolation}</if>
+            <if test="manualSeverity != null">AND manual_severity = #{manualSeverity}</if>
+            <if test="resolution != null">AND resolution = #{resolution}</if>
+        </where>
+    </select>
 
 </mapper>
 

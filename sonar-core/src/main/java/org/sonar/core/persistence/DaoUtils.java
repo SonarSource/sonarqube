@@ -28,6 +28,7 @@ import org.sonar.core.rule.RuleDao;
 import org.sonar.core.template.LoadedTemplateDao;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public final class DaoUtils {
@@ -36,13 +37,13 @@ public final class DaoUtils {
   }
 
   public static List<Class<?>> getDaoClasses() {
-    return Arrays.asList(
+    return Collections.unmodifiableList(Arrays.asList(
       ActiveDashboardDao.class,
       DashboardDao.class,
       DuplicationDao.class,
       LoadedTemplateDao.class,
       ResourceIndexerDao.class,
       ReviewDao.class,
-      RuleDao.class);
+      RuleDao.class));
   }
 }

@@ -25,9 +25,18 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class DerbyTest {
+
+  private Derby derby = new Derby();
+
   @Test
   public void matchesJdbcURL() {
-    assertThat(new Derby().matchesJdbcURL("jdbc:derby:foo"), is(true));
-    assertThat(new Derby().matchesJdbcURL("jdbc:hsql:foo"), is(false));
+    assertThat(derby.matchesJdbcURL("jdbc:derby:foo"), is(true));
+    assertThat(derby.matchesJdbcURL("jdbc:hsql:foo"), is(false));
+  }
+
+  @Test
+  public void testBooleanSqlValues() {
+    assertThat(derby.getTrueSqlValue(), is("true"));
+    assertThat(derby.getFalseSqlValue(), is("false"));
   }
 }

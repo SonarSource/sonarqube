@@ -32,6 +32,4 @@ public interface ReviewMapper {
   List<ReviewDto> selectByResource(int resourceId);
 
   List<ReviewDto> selectByQuery(ReviewQuery query);
-
-  List<ReviewDto> selectCloseables(@Param("resourceId") int resourceId, @Param("snapshotId") int snapshotId);
 }

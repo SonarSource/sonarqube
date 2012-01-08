@@ -27,10 +27,13 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 public class PostgreSqlTest {
+
+  private PostgreSql postgreSql = new PostgreSql();
+
   @Test
   public void matchesJdbcURL() {
-    assertThat(new PostgreSql().matchesJdbcURL("jdbc:postgresql://localhost/sonar"), is(true));
-    assertThat(new PostgreSql().matchesJdbcURL("jdbc:hsql:foo"), is(false));
+    assertThat(postgreSql.matchesJdbcURL("jdbc:postgresql://localhost/sonar"), is(true));
+    assertThat(postgreSql.matchesJdbcURL("jdbc:hsql:foo"), is(false));
   }
 
   /**
@@ -38,14 +41,19 @@ public class PostgreSqlTest {
    */
   @Test
   public void shouldChangePostgreSearchPath() {
-    String initStatement = new PostgreSql().getConnectionInitStatement("my_schema");
+    String initStatement = postgreSql.getConnectionInitStatement("my_schema");
 
     assertThat(initStatement, Is.is("SET SEARCH_PATH TO my_schema"));
   }
 
   @Test
   public void shouldNotChangePostgreSearchPathByDefault() {
-    assertNull(new PostgreSql().getConnectionInitStatement(null));
+    assertNull(postgreSql.getConnectionInitStatement(null));
   }
 
+  @Test
+  public void testBooleanSqlValues() {
+    assertThat(postgreSql.getTrueSqlValue(), is("true"));
+    assertThat(postgreSql.getFalseSqlValue(), is("false"));
+  }
 }

@@ -26,13 +26,20 @@ import static org.junit.Assert.assertThat;
 
 public class MsSqlTest {
 
+  private MsSql msSql = new MsSql();
+
   @Test
   public void matchesJdbcURL() {
-    assertThat(new MsSql().matchesJdbcURL("jdbc:jtds:sqlserver://localhost;databaseName=SONAR;SelectMethod=Cursor"), is(true));
-    assertThat(new MsSql().matchesJdbcURL("jdbc:microsoft:sqlserver://localhost:1433;databasename=sonar"), is(true));
+    assertThat(msSql.matchesJdbcURL("jdbc:jtds:sqlserver://localhost;databaseName=SONAR;SelectMethod=Cursor"), is(true));
+    assertThat(msSql.matchesJdbcURL("jdbc:microsoft:sqlserver://localhost:1433;databasename=sonar"), is(true));
 
-    assertThat(new MsSql().matchesJdbcURL("jdbc:hsql:foo"), is(false));
-    assertThat(new MsSql().matchesJdbcURL("jdbc:mysql:foo"), is(false));
+    assertThat(msSql.matchesJdbcURL("jdbc:hsql:foo"), is(false));
+    assertThat(msSql.matchesJdbcURL("jdbc:mysql:foo"), is(false));
   }
 
+  @Test
+  public void testBooleanSqlValues() {
+    assertThat(msSql.getTrueSqlValue(), is("1"));
+    assertThat(msSql.getFalseSqlValue(), is("0"));
+  }
 }

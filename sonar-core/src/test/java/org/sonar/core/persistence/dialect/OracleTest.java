@@ -27,10 +27,13 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 public class OracleTest {
+  
+  private Oracle oracle = new Oracle();
+
   @Test
   public void matchesJdbcURL() {
-    assertThat(new Oracle().matchesJdbcURL("jdbc:oracle:thin:@localhost/XE"), is(true));
-    assertThat(new Oracle().matchesJdbcURL("jdbc:hsql:foo"), is(false));
+    assertThat(oracle.matchesJdbcURL("jdbc:oracle:thin:@localhost/XE"), is(true));
+    assertThat(oracle.matchesJdbcURL("jdbc:hsql:foo"), is(false));
   }
 
   /**
@@ -38,15 +41,19 @@ public class OracleTest {
    */
   @Test
   public void shouldChangeOracleSchema() {
-    String initStatement = new Oracle().getConnectionInitStatement("my_schema");
+    String initStatement = oracle.getConnectionInitStatement("my_schema");
 
     assertThat(initStatement, Is.is("ALTER SESSION SET CURRENT_SCHEMA = \"my_schema\""));
   }
 
   @Test
   public void shouldNotChangeOracleSchemaByDefault() {
-    assertNull(new Oracle().getConnectionInitStatement(null));
+    assertNull(oracle.getConnectionInitStatement(null));
   }
 
-
+  @Test
+  public void testBooleanSqlValues() {
+    assertThat(oracle.getTrueSqlValue(), is("1"));
+    assertThat(oracle.getFalseSqlValue(), is("0"));
+  }
 }
