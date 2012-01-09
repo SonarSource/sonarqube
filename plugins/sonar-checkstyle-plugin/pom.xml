@@ -108,7 +108,30 @@
             <![CDATA[Analyze Java code with <a href="http://checkstyle.sourceforge.net/">Checkstyle</a> ${checkstyle.version}.]]></pluginDescription>
         </configuration>
       </plugin>
-
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce-plugin-size</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <phase>verify</phase>
+            <configuration>
+              <rules>
+                <requireFilesSize>
+                  <maxsize>1100000</maxsize>
+                  <minsize>1000000</minsize>
+                  <files>
+                    <file>${project.build.directory}/${project.build.finalName}.jar</file>
+                  </files>
+                </requireFilesSize>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <!-- Running JUnit tests in parallel -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
