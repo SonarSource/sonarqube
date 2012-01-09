@@ -25,7 +25,9 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
+import org.sonar.api.security.ExternalUsersProvider;
 import org.sonar.api.security.LoginPasswordAuthenticator;
+import org.sonar.api.security.UserDetails;
 
 public class AuthenticatorFactory implements ServerComponent {
 
@@ -87,6 +89,25 @@ public class AuthenticatorFactory implements ServerComponent {
 
   public LoginPasswordAuthenticator getAuthenticator() {
     return authenticator;
+  }
+
+  public ExternalUsersProvider getUsersProvider() {
+    if (authenticator != null) {
+      if (authenticator instanceof ExternalUsersProvider) {
+        return (ExternalUsersProvider) authenticator;
+      }
+      return new DefaultUsersProvider();
+    }
+    return null;
+  }
+
+  private static class DefaultUsersProvider implements ExternalUsersProvider {
+    public UserDetails doGetUserDetails(String login) {
+      UserDetails result = new UserDetails();
+      result.setName(login);
+      result.setEmail("");
+      return result;
+    }
   }
 
   private LoginPasswordAuthenticator searchAuthenticator() {

@@ -82,14 +82,20 @@ end
 #
 class AuthenticatorFactory
   @@authenticator = nil
+  @@users_provider = nil
 
   def self.authenticator
     if @@authenticator.nil?
       authenticator_factory=Java::OrgSonarServerUi::JRubyFacade.new.getCoreComponentByClassname('org.sonar.server.ui.AuthenticatorFactory')
       component=authenticator_factory.getAuthenticator()
       @@authenticator=(component ? FallbackAuthenticator.new(component) : DefaultAuthenticator.new)
+      @@users_provider = (component ? authenticator_factory.getUsersProvider() : nil)
     end
     @@authenticator
+  end
+
+  def self.users_provider
+    @@users_provider
   end
 end
 
@@ -122,26 +128,43 @@ module NeedAuthentication
           login = login.downcase
         end
 
-        return nil if !AuthenticatorFactory.authenticator.authenticate?(login, password)
         user = User.find_by_login(login)
+        if user
+          # User exists
+          return nil if !AuthenticatorFactory.authenticator.authenticate?(login, password)
+          # Password correct
 
-        # Automatically create a user in the sonar db if authentication has been successfully done
-        create_user = java_facade.getSettings().getBoolean('sonar.authenticator.createUsers')
-        if !user && create_user
-          user=User.new(:login => login, :name => login, :email => '', :password => password, :password_confirmation => password)
-          user.save!
-
-          default_group_name = java_facade.getSettings().getString('sonar.defaultGroup')
-          default_group=Group.find_by_name(default_group_name)
-          if default_group
-            user.groups<<default_group
+          users_provider = AuthenticatorFactory.users_provider
+          if users_provider
+            # Sync details
+            details = AuthenticatorFactory.users_provider.doGetUserDetails(login)
+            user.update_attributes(:name => details.getName(), :email => details.getEmail(), :password => password, :password_confirmation => password)
+            # TODO log if unable to save?
             user.save
-          else
-            logger.error("The default user group does not exist: #{default_group_name}. Please check the parameter 'Default user group' in general settings.")
+          end
+        else
+          # User not found
+          return nil if !AuthenticatorFactory.authenticator.authenticate?(login, password)
+          # Password correct
+
+          # Automatically create a user in the sonar db if authentication has been successfully done
+          create_user = java_facade.getSettings().getBoolean('sonar.authenticator.createUsers')
+          users_provider = AuthenticatorFactory.users_provider
+          if create_user && users_provider
+            details = users_provider.doGetUserDetails(login)
+            user = User.new(:login => login, :name => details.getName(), :email => details.getEmail(), :password => password, :password_confirmation => password)
+            default_group_name = java_facade.getSettings().getString('sonar.defaultGroup')
+            default_group=Group.find_by_name(default_group_name)
+            if default_group
+              user.groups<<default_group
+              user.save
+            else
+              logger.error("The default user group does not exist: #{default_group_name}. Please check the parameter 'Default user group' in general settings.")
+            end
           end
         end
 
-        user
+        return user
       end
 
       def editable_password?
