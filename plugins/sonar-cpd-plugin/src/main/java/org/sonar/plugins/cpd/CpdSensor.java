@@ -32,10 +32,17 @@ public class CpdSensor implements Sensor {
 
   private CpdEngine sonarEngine;
   private CpdEngine pmdEngine;
+  private CpdEngine sonarBridgeEngine;
 
   public CpdSensor(SonarEngine sonarEngine, PmdEngine pmdEngine) {
     this.sonarEngine = sonarEngine;
     this.pmdEngine = pmdEngine;
+  }
+
+  public CpdSensor(SonarEngine sonarEngine, PmdEngine pmdEngine, SonarBridgeEngine sonarBridgeEngine) {
+    this.sonarEngine = sonarEngine;
+    this.pmdEngine = pmdEngine;
+    this.sonarBridgeEngine = sonarBridgeEngine;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -53,21 +60,24 @@ public class CpdSensor implements Sensor {
   }
 
   private CpdEngine getEngine(Project project) {
-    if (isSonarEngineEnabled(project)) {
+    if (isEngineEnabled(project, "sonar")) {
       if (sonarEngine.isLanguageSupported(project.getLanguage())) {
         return sonarEngine;
-      } else {
-        // fallback to PMD
-        return pmdEngine;
       }
-    } else {
-      return pmdEngine;
+      // falback to PMD
+    } else if (isEngineEnabled(project, "bridge")) {
+      return sonarBridgeEngine;
     }
+    return pmdEngine;
+  }
+
+  boolean isEngineEnabled(Project project, String engineName) {
+    Configuration conf = project.getConfiguration();
+    return StringUtils.equalsIgnoreCase(conf.getString(CoreProperties.CPD_ENGINE, CoreProperties.CPD_ENGINE_DEFAULT_VALUE), engineName);
   }
 
   boolean isSonarEngineEnabled(Project project) {
-    Configuration conf = project.getConfiguration();
-    return StringUtils.equalsIgnoreCase(conf.getString(CoreProperties.CPD_ENGINE, CoreProperties.CPD_ENGINE_DEFAULT_VALUE), "sonar");
+    return isEngineEnabled(project, "sonar");
   }
 
   boolean isSkipped(Project project) {
