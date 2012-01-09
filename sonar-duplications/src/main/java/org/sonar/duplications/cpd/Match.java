@@ -23,12 +23,12 @@
  */
 package org.sonar.duplications.cpd;
 
+import net.sourceforge.pmd.cpd.TokenEntry;
+
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
-
-import net.sourceforge.pmd.cpd.TokenEntry;
 
 public class Match implements Comparable<Match> {
 

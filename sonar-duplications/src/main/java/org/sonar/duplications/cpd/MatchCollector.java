@@ -23,16 +23,9 @@
  */
 package org.sonar.duplications.cpd;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import net.sourceforge.pmd.cpd.TokenEntry;
+
+import java.util.*;
 
 public class MatchCollector {
 
@@ -51,7 +44,7 @@ public class MatchCollector {
       for (int j = i + 1; j < marks.size(); j++) {
         TokenEntry mark2 = marks.get(j);
         int diff = mark1.getIndex() - mark2.getIndex();
-        if ( -diff < ma.getMinimumTileSize()) {
+        if (-diff < ma.getMinimumTileSize()) {
           continue;
         }
         if (hasPreviousDupe(mark1, mark2)) {
@@ -118,7 +111,7 @@ public class MatchCollector {
           TokenEntry cmark2 = a1.get(inner);
           matchCode.setFirst(cmark1.getIndex());
           matchCode.setSecond(cmark2.getIndex());
-          if ( !matchSet.contains(matchCode)) {
+          if (!matchSet.contains(matchCode)) {
             if (pruned.size() > 2) {
               pruned.remove(cmark2);
             }
@@ -149,7 +142,7 @@ public class MatchCollector {
       if (other.getFirstMark().getIndex() + other.getTokenCount() - mark1.getIndex() > 0) {
         boolean ordered = other.getSecondMark().getIndex() - mark2.getIndex() < 0;
         if ((ordered && (other.getEndIndex() - mark2.getIndex() > 0))
-            || ( !ordered && (match.getEndIndex() - other.getSecondMark().getIndex()) > 0)) {
+          || (!ordered && (match.getEndIndex() - other.getSecondMark().getIndex()) > 0)) {
           if (other.getTokenCount() >= match.getTokenCount()) {
             add = false;
             break;
@@ -170,12 +163,12 @@ public class MatchCollector {
     if (mark1.getIndex() == 0) {
       return false;
     }
-    return !matchEnded(ma.tokenAt( -1, mark1), ma.tokenAt( -1, mark2));
+    return !matchEnded(ma.tokenAt(-1, mark1), ma.tokenAt(-1, mark2));
   }
 
   private int countDuplicateTokens(TokenEntry mark1, TokenEntry mark2) {
     int index = 0;
-    while ( !matchEnded(ma.tokenAt(index, mark1), ma.tokenAt(index, mark2))) {
+    while (!matchEnded(ma.tokenAt(index, mark1), ma.tokenAt(index, mark2))) {
       index++;
     }
     return index;

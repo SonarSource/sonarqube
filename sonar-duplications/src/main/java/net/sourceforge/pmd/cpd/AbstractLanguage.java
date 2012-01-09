@@ -20,24 +20,51 @@
 
 package net.sourceforge.pmd.cpd;
 
-import net.sourceforge.pmd.util.filter.Filters;
-
+import java.io.File;
 import java.io.FilenameFilter;
 
 public abstract class AbstractLanguage implements Language {
-	private final Tokenizer tokenizer;
-	private final FilenameFilter fileFilter;
+  private final Tokenizer tokenizer;
+  private final FilenameFilter fileFilter;
 
-	public AbstractLanguage(Tokenizer tokenizer, String... extensions) {
-		this.tokenizer = tokenizer;
-		fileFilter = net.sourceforge.pmd.util.filter.Filters.toFilenameFilter(Filters.getFileExtensionOrDirectoryFilter(extensions));
-	}
+  public AbstractLanguage(Tokenizer tokenizer, String... extensions) {
+    this.tokenizer = tokenizer;
+    fileFilter = new ExtensionsFilter(extensions);
+  }
 
-	public FilenameFilter getFileFilter() {
-		return fileFilter;
-	}
+  /**
+   * @deprecated in 2.14, seems that not used in Sonar ecosystem - we don't scan directories.
+   */
+  public FilenameFilter getFileFilter() {
+    return fileFilter;
+  }
 
-	public Tokenizer getTokenizer() {
-		return tokenizer;
-	}
+  public Tokenizer getTokenizer() {
+    return tokenizer;
+  }
+
+  private static class ExtensionsFilter implements FilenameFilter {
+    private final String[] extensions;
+
+    public ExtensionsFilter(String... extensions) {
+      this.extensions = new String[extensions.length];
+      for (int i = 0; i < extensions.length; i++) {
+        this.extensions[i] = extensions[i].toUpperCase();
+      }
+    }
+
+    public boolean accept(File dir, String name) {
+      File file = new File(dir, name);
+      if (file.isDirectory()) {
+        return true;
+      }
+      String uppercaseName = name.toUpperCase();
+      for (String extension : extensions) {
+        if (uppercaseName.endsWith(extension)) {
+          return true;
+        }
+      }
+      return false;
+    }
+  }
 }
