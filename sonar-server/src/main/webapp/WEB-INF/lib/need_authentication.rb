@@ -21,11 +21,15 @@
 #
 # Use Sonar database (table USERS) to authenticate users.
 #
-class DefaultAuthenticator
+class DefaultRealm
   def authenticate?(login, password)
     return false if login.blank? || password.blank?
-    user=User.find_by_login(login)
+    user = User.find_by_login(login)
     user && user.authenticated?(password)
+  end
+
+  def synchronize(user, password)
+    # nothing to do
   end
 
   def editable_password?
@@ -33,17 +37,34 @@ class DefaultAuthenticator
   end
 end
 
-
 #
-# Use an external system to authenticate users, for example LDAP. See the Java extension point org.sonar.api.security.LoginPasswordAuthenticator.
+# Use an external security system with fallback to Sonar database.
+# See the Java extension point org.sonar.api.security.Realm
 #
-class PluginAuthenticator
-  def initialize(java_authenticator)
-    @java_authenticator=java_authenticator
+class PluginRealm
+  def initialize(java_realm)
+    @java_authenticator = java_realm.getAuthenticator()
+    @java_users_provider = java_realm.getUsersProvider()
   end
 
   def authenticate?(login, password)
-    login.present? && password.present? && @java_authenticator.authenticate(login, password)
+    return false if login.blank? || password.blank?
+    # TODO handle exceptions
+    if @java_authenticator.authenticate(login, password)
+      return true
+    end
+    # Fallback to password from Sonar Database
+    user = User.find_by_login(login)
+    return user && user.authenticated?(password)
+  end
+
+  def synchronize(user, password)
+    if @java_users_provider
+      # TODO handle exceptions
+      details = @java_users_provider.doGetUserDetails(user.login)
+      user.update_attributes(:name => details.getName(), :email => details.getEmail(), :password => password, :password_confirmation => password)
+      user.save
+    end
   end
 
   def editable_password?
@@ -52,50 +73,18 @@ class PluginAuthenticator
 end
 
 #
-# Since 2.14
-# Experimental
+# Load the realm to use. The server must be restarted when configuration is changed.
 #
-# Use an external system to authenticate users with fallback to Sonar database.
-#
-class FallbackAuthenticator
-  def initialize(java_authenticator)
-    @java_authenticator = java_authenticator
-  end
+class RealmFactory
+  @@realm = nil
 
-  def authenticate?(login, password)
-    return false if login.blank? || password.blank?
-    if @java_authenticator.authenticate(login, password)
-      return true
+  def self.realm
+    if @@realm.nil?
+      realm_factory = Java::OrgSonarServerUi::JRubyFacade.new.getCoreComponentByClassname('org.sonar.server.ui.RealmFactory')
+      component = realm_factory.getRealm()
+      @@realm = component ? PluginRealm.new(component) : DefaultRealm.new
     end
-    # Fallback to password in Sonar Database
-    user = User.find_by_login(login)
-    return user && user.authenticated?(password)
-  end
-
-  def editable_password?
-    true
-  end
-end
-
-#
-# Load the authentication system to use. The server must be restarted when configuration is changed.
-#
-class AuthenticatorFactory
-  @@authenticator = nil
-  @@users_provider = nil
-
-  def self.authenticator
-    if @@authenticator.nil?
-      authenticator_factory=Java::OrgSonarServerUi::JRubyFacade.new.getCoreComponentByClassname('org.sonar.server.ui.AuthenticatorFactory')
-      component=authenticator_factory.getAuthenticator()
-      @@authenticator=(component ? FallbackAuthenticator.new(component) : DefaultAuthenticator.new)
-      @@users_provider = (component ? authenticator_factory.getUsersProvider() : nil)
-    end
-    @@authenticator
-  end
-
-  def self.users_provider
-    @@users_provider
+    @@realm
   end
 end
 
@@ -131,44 +120,38 @@ module NeedAuthentication
         user = User.find_by_login(login)
         if user
           # User exists
-          return nil if !AuthenticatorFactory.authenticator.authenticate?(login, password)
+          return nil if !RealmFactory.realm.authenticate?(login, password)
           # Password correct
 
-          users_provider = AuthenticatorFactory.users_provider
-          if users_provider
-            # Sync details
-            details = AuthenticatorFactory.users_provider.doGetUserDetails(login)
-            user.update_attributes(:name => details.getName(), :email => details.getEmail(), :password => password, :password_confirmation => password)
-            # TODO log if unable to save?
-            user.save
-          end
+          # Synchronize details
+          RealmFactory.realm.synchronize(user, password)
         else
           # User not found
-          return nil if !AuthenticatorFactory.authenticator.authenticate?(login, password)
+          return nil if !RealmFactory.realm.authenticate?(login, password)
           # Password correct
 
           # Automatically create a user in the sonar db if authentication has been successfully done
           create_user = java_facade.getSettings().getBoolean('sonar.authenticator.createUsers')
-          users_provider = AuthenticatorFactory.users_provider
-          if create_user && users_provider
-            details = users_provider.doGetUserDetails(login)
-            user = User.new(:login => login, :name => details.getName(), :email => details.getEmail(), :password => password, :password_confirmation => password)
+          if create_user
+            user = User.new(:login => login, :name => login, :email => '', :password => password, :password_confirmation => password)
             default_group_name = java_facade.getSettings().getString('sonar.defaultGroup')
-            default_group=Group.find_by_name(default_group_name)
+            default_group = Group.find_by_name(default_group_name)
             if default_group
               user.groups<<default_group
               user.save
             else
               logger.error("The default user group does not exist: #{default_group_name}. Please check the parameter 'Default user group' in general settings.")
             end
+
+            # Synchronize details
+            RealmFactory.realm.synchronize(user, password)
           end
         end
-
         return user
       end
 
       def editable_password?
-        AuthenticatorFactory.authenticator.editable_password?
+        RealmFactory.realm.editable_password?
       end
     end
   end

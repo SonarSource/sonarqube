@@ -26,8 +26,35 @@ import org.sonar.api.ServerExtension;
  * @since 2.14
  */
 @Beta
-public interface ExternalUsersProvider extends ServerExtension {
+public abstract class Realm implements ServerExtension {
 
-  UserDetails doGetUserDetails(String username);
+  /**
+   * @return unique name of this realm, e.g. "LDAP"
+   */
+  public String getName() {
+    return getClass().getSimpleName();
+  }
+
+  public void init() {
+  }
+
+  /**
+   * @return {@link LoginPasswordAuthenticator} associated with this realm, never null
+   */
+  public abstract LoginPasswordAuthenticator getAuthenticator();
+
+  /**
+   * @return {@link ExternalUsersProvider} associated with this realm, null if not supported
+   */
+  public ExternalUsersProvider getUsersProvider() {
+    return null;
+  }
+
+  /**
+   * @return {@link ExternalGroupsProvider} associated with this realm, null if not supported
+   */
+  public ExternalGroupsProvider getGroupsProvider() {
+    return null;
+  }
 
 }

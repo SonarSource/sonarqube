@@ -67,9 +67,9 @@ import org.sonar.server.qualitymodel.DefaultModelManager;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
 import org.sonar.server.startup.*;
-import org.sonar.server.ui.AuthenticatorFactory;
 import org.sonar.server.ui.CodeColorizers;
 import org.sonar.server.ui.JRubyI18n;
+import org.sonar.server.ui.RealmFactory;
 import org.sonar.server.ui.Views;
 
 import javax.servlet.ServletContext;
@@ -193,7 +193,7 @@ public final class Platform {
     servicesContainer.addComponent(DefaultRulesManager.class, false);
     servicesContainer.addComponent(ProfilesManager.class, false);
     servicesContainer.addComponent(Backup.class, false);
-    servicesContainer.addSingleton(AuthenticatorFactory.class);
+    servicesContainer.addSingleton(RealmFactory.class);
     servicesContainer.addSingleton(ServerLifecycleNotifier.class);
     servicesContainer.addSingleton(AnnotationProfileParser.class);
     servicesContainer.addSingleton(XMLProfileParser.class);

@@ -19,13 +19,24 @@
  */
 package org.sonar.server.ui;
 
-/**
- * @deprecated in 2.14 and should be removed
- */
-@Deprecated
-public class AuthenticatorNotFoundException extends RuntimeException {
+import org.junit.Test;
+import org.sonar.api.security.LoginPasswordAuthenticator;
 
-  public AuthenticatorNotFoundException(String classname) {
-    super(classname);
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
+public class CompatibilityRealmTest {
+
+  @Test
+  public void shouldDelegate() {
+    LoginPasswordAuthenticator authenticator = mock(LoginPasswordAuthenticator.class);
+    CompatibilityRealm realm = new CompatibilityRealm(authenticator);
+    realm.init();
+    verify(authenticator).init();
+    assertThat(realm.getAuthenticator(), is(authenticator));
+    assertThat(realm.getName(), is("CompatibilityRealm[" + authenticator.getClass().getName() + "]"));
   }
+
 }

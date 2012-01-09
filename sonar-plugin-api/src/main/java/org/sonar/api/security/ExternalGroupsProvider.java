@@ -17,15 +17,19 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.server.ui;
+package org.sonar.api.security;
+
+import com.google.common.annotations.Beta;
+import org.sonar.api.ServerExtension;
+
+import java.util.Collection;
 
 /**
- * @deprecated in 2.14 and should be removed
+ * @since 2.14
  */
-@Deprecated
-public class AuthenticatorNotFoundException extends RuntimeException {
+@Beta
+public interface ExternalGroupsProvider extends ServerExtension {
 
-  public AuthenticatorNotFoundException(String classname) {
-    super(classname);
-  }
+  Collection<String> doGetGroups(String username);
+
 }

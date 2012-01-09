@@ -19,13 +19,34 @@
  */
 package org.sonar.server.ui;
 
-/**
- * @deprecated in 2.14 and should be removed
- */
-@Deprecated
-public class AuthenticatorNotFoundException extends RuntimeException {
+import org.sonar.api.CoreProperties;
+import org.sonar.api.security.LoginPasswordAuthenticator;
+import org.sonar.api.security.Realm;
 
-  public AuthenticatorNotFoundException(String classname) {
-    super(classname);
+/**
+ * Provides backward compatibility for {@link CoreProperties#CORE_AUTHENTICATOR_CLASS}.
+ *
+ * @since 2.14
+ */
+class CompatibilityRealm extends Realm {
+  private final LoginPasswordAuthenticator authenticator;
+
+  public CompatibilityRealm(LoginPasswordAuthenticator authenticator) {
+    this.authenticator = authenticator;
+  }
+
+  @Override
+  public void init() {
+    authenticator.init();
+  }
+
+  @Override
+  public String getName() {
+    return "CompatibilityRealm[" + authenticator.getClass().getName() + "]";
+  }
+
+  @Override
+  public LoginPasswordAuthenticator getAuthenticator() {
+    return authenticator;
   }
 }
