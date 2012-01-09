@@ -19,9 +19,6 @@
  */
 package org.sonar.core.dashboard;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-
 public final class ActiveDashboardDto {
 
   private Long id;
