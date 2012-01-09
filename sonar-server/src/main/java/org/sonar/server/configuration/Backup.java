@@ -28,6 +28,7 @@ import com.thoughtworks.xstream.io.xml.XppDriver;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.jpa.entity.SchemaMigration;
 
@@ -107,6 +108,7 @@ public class Backup {
     try {
       startDb();
       doImportXml(xml);
+      LoggerFactory.getLogger(getClass()).info("Backup restored");
     } finally {
       stopDb();
     }

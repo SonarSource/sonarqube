@@ -25,6 +25,7 @@ import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.measures.Metric;
 import org.sonar.jpa.dao.MeasuresDao;
@@ -52,16 +53,18 @@ public class MetricsBackup implements Backupable {
   }
 
   public void importXml(SonarConfig sonarConfig) {
-    disabledUserDefinedMetrics();
+    disableUserDefinedMetrics();
     registerMetrics(sonarConfig);
   }
 
-  protected void disabledUserDefinedMetrics() {
+  protected void disableUserDefinedMetrics() {
+    LoggerFactory.getLogger(getClass()).info("Disable user-defined metrics");
     Collection<Metric> dbMetrics = measuresDao.getUserDefinedMetrics();
     measuresDao.disabledMetrics(dbMetrics);
   }
 
   protected void registerMetrics(SonarConfig sonarConfig) {
+    LoggerFactory.getLogger(getClass()).info("Restore metrics");
     Collection<Metric> newMetrics = sonarConfig.getMetrics();
     measuresDao.registerMetrics(newMetrics);
   }

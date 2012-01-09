@@ -78,6 +78,7 @@ public class RulesBackup implements Backupable {
   }
 
   private void disableUserRules() {
+    LoggerFactory.getLogger(getClass()).info("Disable rules created by user");
     for (Rule rule : getUserRules()) {
       rule.setEnabled(false);
       session.save(rule);
@@ -85,6 +86,7 @@ public class RulesBackup implements Backupable {
   }
 
   private void registerUserRules(Collection<Rule> rules) {
+    LoggerFactory.getLogger(getClass()).info("Restore rules");
     for (Rule rule : rules) {
       Rule parent = rule.getParent();
       Rule matchingParentRuleInDb = rulesDao.getRuleByKey(parent.getRepositoryKey(), parent.getKey());

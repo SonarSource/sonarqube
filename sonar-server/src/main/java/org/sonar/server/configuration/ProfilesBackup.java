@@ -77,11 +77,13 @@ public class ProfilesBackup implements Backupable {
 
   public void importXml(SonarConfig sonarConfig) {
     if (CollectionUtils.isNotEmpty(sonarConfig.getProfiles())) {
+      LoggerFactory.getLogger(getClass()).info("Delete profiles");
       ProfilesManager profilesManager = new ProfilesManager(session, null);
       profilesManager.deleteAllProfiles();
 
       RulesDao rulesDao = new RulesDao(session);
       for (RulesProfile profile : sonarConfig.getProfiles()) {
+        LoggerFactory.getLogger(getClass()).info("Restore profile " + profile.getName());
         importProfile(rulesDao, profile);
       }
     }

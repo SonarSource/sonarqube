@@ -21,6 +21,7 @@ package org.sonar.server.configuration;
 
 import com.thoughtworks.xstream.XStream;
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.configuration.Property;
 
@@ -49,6 +50,7 @@ public class PropertiesBackup implements Backupable {
   }
 
   public void importXml(SonarConfig sonarConfig) {
+    LoggerFactory.getLogger(getClass()).info("Restore properties");
     clearProperties();
 
     if (CollectionUtils.isNotEmpty(sonarConfig.getProperties())) {
