@@ -609,7 +609,7 @@ module ApplicationHelper
     html += "\">"
     html += message('reviews.filtered_by.' + param_name)
     html += "<a href=\""
-    html += url_for params.reject{|p| p[0]==param_name}
+    html += url_for params.reject{|key, value| key==param_name}
     html += "\" title=\""
     html += message('reviews.remove_this_filter')
     html += "\">X</a></span>"
