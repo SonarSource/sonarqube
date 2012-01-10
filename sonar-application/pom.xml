@@ -107,14 +107,6 @@
       <artifactId>jetty-ajp</artifactId>
     </dependency>
 
-    <!-- deprecated -->
-    <dependency>
-      <groupId>org.codehaus.sonar.runtime</groupId>
-      <artifactId>sonar-core-maven-plugin</artifactId>
-      <version>${project.version}</version>
-      <scope>runtime</scope>
-    </dependency>
-
     <!-- core plugins -->
     <dependency>
       <groupId>org.codehaus.sonar.plugins</groupId>

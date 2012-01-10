@@ -20,7 +20,6 @@
     <module>sonar-check-api</module>
     <module>sonar-colorizer</module>
     <module>sonar-core</module>
-    <module>sonar-core-maven-plugin</module>
     <module>sonar-deprecated</module>
     <module>sonar-duplications</module>
     <module>sonar-graph</module>

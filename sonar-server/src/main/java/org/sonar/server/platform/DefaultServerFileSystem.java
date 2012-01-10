@@ -146,13 +146,6 @@ public class DefaultServerFileSystem implements ServerFileSystem {
     return new File(getHomeDir(), "extensions/deprecated");
   }
 
-  public List<File> getPluginExtensions() {
-    return getFiles(getPluginExtensionsDir(), "jar");
-  }
-
-  public File getPluginExtensionsDir() {
-    return new File(getHomeDir(), "extensions/rules");
-  }
 
   public File getPluginIndex() {
     return new File(getDeployDir(), "plugins/index.txt");
@@ -166,25 +159,12 @@ public class DefaultServerFileSystem implements ServerFileSystem {
     return Collections.emptyList();
   }
 
-  public File getPluginExtensionsDir(String pluginKey) {
-    return new File(getHomeDir(), "extensions/rules/" + pluginKey);
-  }
-
   public List<File> getPluginExtensionXml(String pluginKey) {
     File dir = new File(getHomeDir(), "extensions/rules/" + pluginKey);
     if (dir.exists() && dir.isDirectory()) {
       return getFiles(dir, "xml");
     }
     return Collections.emptyList();
-  }
-
-  public File getMaven2Plugin() {
-    File dir = new File(getHomeDir(), "lib/deprecated-maven-plugin/");
-    List<File> files = getFiles(dir, "jar");
-    if (files.isEmpty()) {
-      return null;
-    }
-    return files.get(0);
   }
 
   private List<File> getFiles(File dir, String... fileSuffixes) {

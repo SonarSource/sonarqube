@@ -20,13 +20,6 @@
         <exclude>org.codehaus.sonar.runtime:*</exclude>
       </excludes>
     </dependencySet>
-    <dependencySet>
-      <outputDirectory>lib/deprecated-maven-plugin</outputDirectory>
-      <useTransitiveDependencies>false</useTransitiveDependencies>
-      <includes>
-        <include>org.codehaus.sonar.runtime:sonar-core-maven-plugin</include>
-      </includes>
-    </dependencySet>
     <!-- Plugins -->
     <dependencySet>
       <outputDirectory>lib/core-plugins</outputDirectory>

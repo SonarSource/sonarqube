@@ -59,7 +59,6 @@ import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.database.EmbeddedDatabaseFactory;
 import org.sonar.server.filters.FilterExecutor;
-import org.sonar.server.mavendeployer.MavenRepository;
 import org.sonar.server.notifications.NotificationService;
 import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
 import org.sonar.server.plugins.*;
@@ -220,7 +219,6 @@ public final class Platform {
 
   private void executeStartupTasks() {
     ComponentContainer startupContainer = servicesContainer.createChild();
-    startupContainer.addSingleton(MavenRepository.class);
     startupContainer.addSingleton(GwtPublisher.class);
     startupContainer.addSingleton(RegisterMetrics.class);
     startupContainer.addSingleton(RegisterRules.class);
