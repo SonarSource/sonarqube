@@ -78,16 +78,18 @@ public class RealmFactory implements ServerComponent {
   }
 
   public void start() {
-    try {
-      INFO.info("Security realm: " + realm.getName());
-      realm.init();
-      INFO.info("Security realm started");
-    } catch (RuntimeException e) {
-      if (ignoreStartupFailure) {
-        LOG.error("IGNORED - Realm fails to start: " + e.getMessage());
-      } else {
-        LOG.error("Realm fails to start: " + e.getMessage());
-        throw e;
+    if (realm != null) {
+      try {
+        INFO.info("Security realm: " + realm.getName());
+        realm.init();
+        INFO.info("Security realm started");
+      } catch (RuntimeException e) {
+        if (ignoreStartupFailure) {
+          LOG.error("IGNORED - Realm fails to start: " + e.getMessage());
+        } else {
+          LOG.error("Realm fails to start: " + e.getMessage());
+          throw e;
+        }
       }
     }
   }

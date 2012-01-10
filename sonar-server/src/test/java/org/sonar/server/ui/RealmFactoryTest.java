@@ -57,6 +57,7 @@ public class RealmFactoryTest {
   @Test
   public void doNotFailIfNoRealms() {
     RealmFactory factory = new RealmFactory(settings);
+    factory.start();
     assertThat(factory.getRealm(), nullValue());
   }
 
