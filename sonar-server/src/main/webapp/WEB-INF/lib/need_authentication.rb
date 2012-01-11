@@ -49,9 +49,12 @@ class PluginRealm
 
   def authenticate?(login, password)
     return false if login.blank? || password.blank?
-    # TODO handle exceptions
-    if @java_authenticator.authenticate(login, password)
-      return true
+    begin
+      if @java_authenticator.authenticate(login, password)
+        return true
+      end
+    rescue Exception => e
+      Java::OrgSonarServerUi::JRubyFacade.new.logError("Error from external authenticator: #{e.message}")
     end
     # Fallback to password from Sonar Database
     user = User.find_by_login(login)
@@ -60,10 +63,16 @@ class PluginRealm
 
   def synchronize(user, password)
     if @java_users_provider
-      # TODO handle exceptions
-      details = @java_users_provider.doGetUserDetails(user.login)
-      user.update_attributes(:name => details.getName(), :email => details.getEmail(), :password => password, :password_confirmation => password)
-      user.save
+      begin
+        details = @java_users_provider.doGetUserDetails(user.login)
+      rescue Exception => e
+        Java::OrgSonarServerUi::JRubyFacade.new.logError("Error from external users provider: #{e.message}")
+      else
+        if details
+          user.update_attributes(:name => details.getName(), :email => details.getEmail(), :password => password, :password_confirmation => password)
+          user.save
+        end
+      end
     end
   end
 
