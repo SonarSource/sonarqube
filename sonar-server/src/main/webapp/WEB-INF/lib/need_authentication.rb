@@ -43,8 +43,9 @@ end
 #
 class PluginRealm
   def initialize(java_realm)
-    @java_authenticator = java_realm.getAuthenticator()
+    @java_authenticator = java_realm.getLoginPasswordAuthenticator()
     @java_users_provider = java_realm.getUsersProvider()
+    @java_groups_provider = java_realm.getGroupsProvider()
   end
 
   def authenticate?(login, password)
@@ -70,7 +71,29 @@ class PluginRealm
       else
         if details
           user.update_attributes(:name => details.getName(), :email => details.getEmail(), :password => password, :password_confirmation => password)
+          # Synchronize groups only when succeeded to synchronize details
+          synchronize_groups(user)
           user.save
+        end
+      end
+    end
+  end
+
+  def synchronize_groups(user)
+    if @java_groups_provider
+      begin
+        groups = @java_groups_provider.doGetGroups(user.login)
+      rescue Exception => e
+        Java::OrgSonarServerUi::JRubyFacade.new.logError("Error from external groups provider: #{e.message}")
+      else
+        if groups
+          user.groups = []
+          for group_name in groups
+            group = Group.find_by_name(group_name)
+            if group
+              user.groups << group
+            end
+          end
         end
       end
     end
@@ -89,7 +112,7 @@ class RealmFactory
 
   def self.realm
     if @@realm.nil?
-      realm_factory = Java::OrgSonarServerUi::JRubyFacade.new.getCoreComponentByClassname('org.sonar.server.ui.RealmFactory')
+      realm_factory = Java::OrgSonarServerUi::JRubyFacade.new.getCoreComponentByClassname('org.sonar.server.ui.SecurityRealmFactory')
       component = realm_factory.getRealm()
       @@realm = component ? PluginRealm.new(component) : DefaultRealm.new
     end

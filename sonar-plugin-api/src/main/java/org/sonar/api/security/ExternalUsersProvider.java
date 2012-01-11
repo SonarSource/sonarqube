@@ -19,15 +19,18 @@
  */
 package org.sonar.api.security;
 
-import com.google.common.annotations.Beta;
-import org.sonar.api.ServerExtension;
-
 /**
+ * Note that prefix "do" for names of methods is reserved for future enhancements, thus should not be used in subclasses.
+ *
  * @since 2.14
+ * @see SecurityRealm
  */
-@Beta
-public interface ExternalUsersProvider extends ServerExtension {
+public abstract class ExternalUsersProvider {
 
-  UserDetails doGetUserDetails(String username);
+  /**
+   * @return details for specified user, or null if such user doesn't exist
+   * @throws RuntimeException in case of unexpected error such as connection failure
+   */
+  public abstract UserDetails doGetUserDetails(String username);
 
 }

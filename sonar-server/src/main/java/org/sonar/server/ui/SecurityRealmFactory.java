@@ -26,26 +26,26 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
 import org.sonar.api.security.LoginPasswordAuthenticator;
-import org.sonar.api.security.Realm;
+import org.sonar.api.security.SecurityRealm;
 
 /**
  * @since 2.14
  */
-public class RealmFactory implements ServerComponent {
+public class SecurityRealmFactory implements ServerComponent {
 
   private static final Logger INFO = LoggerFactory.getLogger("org.sonar.INFO");
-  private static final Logger LOG = LoggerFactory.getLogger(RealmFactory.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SecurityRealmFactory.class);
 
   private final boolean ignoreStartupFailure;
-  private final Realm realm;
+  private final SecurityRealm realm;
 
   static final String REALM_PROPERTY = "sonar.security.realm";
 
-  public RealmFactory(Settings settings, Realm[] realms, LoginPasswordAuthenticator[] authenticators) {
+  public SecurityRealmFactory(Settings settings, SecurityRealm[] realms, LoginPasswordAuthenticator[] authenticators) {
     ignoreStartupFailure = settings.getBoolean(CoreProperties.CORE_AUTHENTICATOR_IGNORE_STARTUP_FAILURE);
     String realmName = settings.getString(REALM_PROPERTY);
     String className = settings.getString(CoreProperties.CORE_AUTHENTICATOR_CLASS);
-    Realm selectedRealm = null;
+    SecurityRealm selectedRealm = null;
     if (!StringUtils.isEmpty(realmName)) {
       selectedRealm = selectRealm(realms, realmName);
       if (selectedRealm == null) {
@@ -65,15 +65,15 @@ public class RealmFactory implements ServerComponent {
     realm = selectedRealm;
   }
 
-  public RealmFactory(Settings settings, LoginPasswordAuthenticator[] authenticators) {
+  public SecurityRealmFactory(Settings settings, LoginPasswordAuthenticator[] authenticators) {
     this(settings, null, authenticators);
   }
 
-  public RealmFactory(Settings settings, Realm[] realms) {
+  public SecurityRealmFactory(Settings settings, SecurityRealm[] realms) {
     this(settings, realms, null);
   }
 
-  public RealmFactory(Settings settings) {
+  public SecurityRealmFactory(Settings settings) {
     this(settings, null, null);
   }
 
@@ -94,13 +94,13 @@ public class RealmFactory implements ServerComponent {
     }
   }
 
-  public Realm getRealm() {
+  public SecurityRealm getRealm() {
     return realm;
   }
 
-  private static Realm selectRealm(Realm[] realms, String realmName) {
+  private static SecurityRealm selectRealm(SecurityRealm[] realms, String realmName) {
     if (realms != null) {
-      for (Realm realm : realms) {
+      for (SecurityRealm realm : realms) {
         if (StringUtils.equals(realmName, realm.getName())) {
           return realm;
         }

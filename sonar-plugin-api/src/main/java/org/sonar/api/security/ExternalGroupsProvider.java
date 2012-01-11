@@ -19,17 +19,20 @@
  */
 package org.sonar.api.security;
 
-import com.google.common.annotations.Beta;
-import org.sonar.api.ServerExtension;
-
 import java.util.Collection;
 
 /**
+ * Note that prefix "do" for names of methods is reserved for future enhancements, thus should not be used in subclasses.
+ *
  * @since 2.14
+ * @see SecurityRealm
  */
-@Beta
-public interface ExternalGroupsProvider extends ServerExtension {
+public abstract class ExternalGroupsProvider {
 
-  Collection<String> doGetGroups(String username);
+  /**
+   * @return list of groups associated with specified user, or null if such user doesn't exist
+   * @throws RuntimeException in case of unexpected error such as connection failure
+   */
+  public abstract Collection<String> doGetGroups(String username);
 
 }

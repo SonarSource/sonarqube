@@ -35,7 +35,7 @@ public class CompatibilityRealmTest {
     CompatibilityRealm realm = new CompatibilityRealm(authenticator);
     realm.init();
     verify(authenticator).init();
-    assertThat(realm.getAuthenticator(), is(authenticator));
+    assertThat(realm.getLoginPasswordAuthenticator(), is(authenticator));
     assertThat(realm.getName(), is("CompatibilityRealm[" + authenticator.getClass().getName() + "]"));
   }
 

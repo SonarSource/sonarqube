@@ -68,7 +68,7 @@ import org.sonar.server.rules.RulesConsole;
 import org.sonar.server.startup.*;
 import org.sonar.server.ui.CodeColorizers;
 import org.sonar.server.ui.JRubyI18n;
-import org.sonar.server.ui.RealmFactory;
+import org.sonar.server.ui.SecurityRealmFactory;
 import org.sonar.server.ui.Views;
 
 import javax.servlet.ServletContext;
@@ -192,7 +192,7 @@ public final class Platform {
     servicesContainer.addComponent(DefaultRulesManager.class, false);
     servicesContainer.addComponent(ProfilesManager.class, false);
     servicesContainer.addComponent(Backup.class, false);
-    servicesContainer.addSingleton(RealmFactory.class);
+    servicesContainer.addSingleton(SecurityRealmFactory.class);
     servicesContainer.addSingleton(ServerLifecycleNotifier.class);
     servicesContainer.addSingleton(AnnotationProfileParser.class);
     servicesContainer.addSingleton(XMLProfileParser.class);

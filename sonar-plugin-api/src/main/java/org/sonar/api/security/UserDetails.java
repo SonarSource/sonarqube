@@ -19,18 +19,18 @@
  */
 package org.sonar.api.security;
 
-import com.google.common.annotations.Beta;
+import com.google.common.base.Objects;
 
 /**
  * This class is not intended to be subclassed by clients.
  *
  * @since 2.14
+ * @see ExternalUsersProvider
  */
-@Beta
-public class UserDetails {
+public final class UserDetails {
 
-  private String name;
-  private String email;
+  private String name = "";
+  private String email = "";
 
   public UserDetails() {
   }
@@ -51,4 +51,11 @@ public class UserDetails {
     return name;
   }
 
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this)
+        .add("name", name)
+        .add("email", email)
+        .toString();
+  }
 }

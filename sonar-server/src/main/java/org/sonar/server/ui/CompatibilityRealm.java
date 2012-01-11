@@ -21,14 +21,14 @@ package org.sonar.server.ui;
 
 import org.sonar.api.CoreProperties;
 import org.sonar.api.security.LoginPasswordAuthenticator;
-import org.sonar.api.security.Realm;
+import org.sonar.api.security.SecurityRealm;
 
 /**
  * Provides backward compatibility for {@link CoreProperties#CORE_AUTHENTICATOR_CLASS}.
  *
  * @since 2.14
  */
-class CompatibilityRealm extends Realm {
+class CompatibilityRealm extends SecurityRealm {
   private final LoginPasswordAuthenticator authenticator;
 
   public CompatibilityRealm(LoginPasswordAuthenticator authenticator) {
@@ -46,7 +46,7 @@ class CompatibilityRealm extends Realm {
   }
 
   @Override
-  public LoginPasswordAuthenticator getAuthenticator() {
+  public LoginPasswordAuthenticator getLoginPasswordAuthenticator() {
     return authenticator;
   }
 }

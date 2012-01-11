@@ -23,14 +23,21 @@ import org.sonar.api.ServerExtension;
 
 /**
  * @since 1.12
+ * @see SecurityRealm
  */
 public interface LoginPasswordAuthenticator extends ServerExtension {
 
   /**
-   * Throws a runtime exception if the authenticator can not be initialized at sonar server startup, eg. if the connection to LDAP server is refused.
+   * @throws RuntimeException if the authenticator can not be initialized at sonar server startup, eg. if the connection to LDAP server is refused
+   * @deprecated in 2.14, but was left for backward compatibility - when this authenticator is not a part of {@link SecurityRealm}, otherwise has no effect and not invoked
    */
+  @Deprecated
   void init();
 
-  boolean authenticate(String login, String password);
-  
+  /**
+   * @return true, if user was successfully authenticated with specified username and password, false otherwise
+   * @throws RuntimeException in case of unexpected error such as connection failure
+   */
+  boolean authenticate(String username, String password);
+
 }

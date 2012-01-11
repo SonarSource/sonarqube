@@ -19,14 +19,12 @@
  */
 package org.sonar.api.security;
 
-import com.google.common.annotations.Beta;
 import org.sonar.api.ServerExtension;
 
 /**
  * @since 2.14
  */
-@Beta
-public abstract class Realm implements ServerExtension {
+public abstract class SecurityRealm implements ServerExtension {
 
   /**
    * @return unique name of this realm, e.g. "LDAP"
@@ -35,13 +33,16 @@ public abstract class Realm implements ServerExtension {
     return getClass().getSimpleName();
   }
 
+  /**
+   * Invoked during server startup and can be used to initialize internal state.
+   */
   public void init() {
   }
 
   /**
    * @return {@link LoginPasswordAuthenticator} associated with this realm, never null
    */
-  public abstract LoginPasswordAuthenticator getAuthenticator();
+  public abstract LoginPasswordAuthenticator getLoginPasswordAuthenticator();
 
   /**
    * @return {@link ExternalUsersProvider} associated with this realm, null if not supported
