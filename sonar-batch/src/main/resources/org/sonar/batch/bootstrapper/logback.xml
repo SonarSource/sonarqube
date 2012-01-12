@@ -3,14 +3,18 @@
 
   <!--
   
-  This file is deprecated. It's replaced by org/sonar/batch/bootstrapper/logback.xml.
-  It can't be deleted as long as Ant Task and Java Runner do not use org.sonar.batch.bootstrapper.LoggingConfiguration.
+  This file is loaded by bootstrappers like Ant Task and Java Runner.
+
+  Reasons to NOT move this configuration to bootstrappers:
+  - same lifecycle as sonar -> loggers are always up-to-date. No need to think about ascending/descending compatibility.
+  - parameters can be added without releasing new versions of bootstrappers
+  - XML format is up-to-date toward the version of Logback.
 
   -->
 
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-      <pattern>%d{HH:mm:ss.SSS} %-5level %30.30logger{30} - %msg%n</pattern>
+      <pattern>${FORMAT}</pattern>
     </encoder>
   </appender>
 

@@ -38,7 +38,7 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.Batch;
 import org.sonar.batch.MavenProjectConverter;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
-import org.sonar.core.config.Logback;
+import org.sonar.batch.bootstrapper.LoggingConfiguration;
 
 /**
  * @goal sonar
@@ -137,8 +137,13 @@ public final class SonarMojo extends AbstractMojo {
    */
   private boolean verbose;
 
+  /**
+   * @parameter expression="${sonar.showSql}"  default-value="false"
+   */
+  private boolean showSql;
+
   public void execute() throws MojoExecutionException, MojoFailureException {
-    configureLogback();
+    configureLogging();
     executeBatch();
   }
 
@@ -147,8 +152,8 @@ public final class SonarMojo extends AbstractMojo {
     ProjectReactor reactor = new ProjectReactor(def);
 
     Batch batch = new Batch(reactor, session, getLog(), lifecycleExecutor, pluginManager, artifactFactory,
-        localRepository, artifactMetadataSource, artifactCollector, dependencyTreeBuilder,
-        projectBuilder, getEnvironmentInformation(), Maven2PluginExecutor.class);
+      localRepository, artifactMetadataSource, artifactCollector, dependencyTreeBuilder,
+      projectBuilder, getEnvironmentInformation(), Maven2PluginExecutor.class);
     batch.execute();
   }
 
@@ -157,11 +162,11 @@ public final class SonarMojo extends AbstractMojo {
     return new EnvironmentInformation("Maven", mavenVersion);
   }
 
-  private void configureLogback() {
-    boolean debugMode = (verbose || getLog().isDebugEnabled());
-
-    // this system property is required by the logback configuration
-    System.setProperty("ROOT_LOGGER_LEVEL", debugMode ? "DEBUG" : "INFO");
-    Logback.configure("/org/sonar/maven/logback.xml");
+  private void configureLogging() {
+    LoggingConfiguration.create()
+      .setVerbose(verbose || getLog().isDebugEnabled())
+      .setShowSql(showSql)
+      .setFormat(LoggingConfiguration.FORMAT_MAVEN)
+      .configure();
   }
 }

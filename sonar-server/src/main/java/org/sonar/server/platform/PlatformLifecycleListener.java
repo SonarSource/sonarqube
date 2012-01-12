@@ -24,6 +24,7 @@ import org.sonar.core.config.Logback;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import java.io.File;
+import java.util.Collections;
 
 public final class PlatformLifecycleListener implements ServletContextListener {
 
@@ -41,6 +42,6 @@ public final class PlatformLifecycleListener implements ServletContextListener {
    * Configure Logback with $SONAR_HOME/conf/logback.xml
    */
   private void configureLogback() {
-    Logback.configure(new File(SonarHome.getHome(), "conf/logback.xml"));
+    Logback.configure(new File(SonarHome.getHome(), "conf/logback.xml"), Collections.<String, String>emptyMap());
   }
 }

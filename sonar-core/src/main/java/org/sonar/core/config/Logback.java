@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
 /**
  * Configure Logback
@@ -43,18 +44,18 @@ public final class Logback {
     // only static methods
   }
 
-  public static void configure(String classloaderPath) {
+  public static void configure(String classloaderPath, Map<String, String> substitutionVariables) {
     InputStream input = Logback.class.getResourceAsStream(classloaderPath);
     if (input == null) {
       throw new IllegalArgumentException("Logback configuration not found in classloader: " + classloaderPath);
     }
-    configure(input);
+    configure(input, substitutionVariables);
   }
 
-  public static void configure(File logbackFile) {
+  public static void configure(File logbackFile, Map<String, String> substitutionVariables) {
     try {
       FileInputStream input = FileUtils.openInputStream(logbackFile);
-      configure(input);
+      configure(input, substitutionVariables);
     } catch (IOException e) {
       throw new IllegalArgumentException("Fail to load the Logback configuration: " + logbackFile, e);
     }
@@ -63,12 +64,11 @@ public final class Logback {
   /**
    * Note that this method closes the input stream
    */
-  private static void configure(InputStream input) {
+  private static void configure(InputStream input, Map<String, String> substitutionVariables) {
     LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
     try {
       JoranConfigurator configurator = new JoranConfigurator();
-      configurator.setContext(lc);
-      lc.reset();
+      configurator.setContext(configureContext(lc, substitutionVariables));
       configurator.doConfigure(input);
     } catch (JoranException e) {
       // StatusPrinter will handle this
@@ -76,5 +76,13 @@ public final class Logback {
       IOUtils.closeQuietly(input);
     }
     StatusPrinter.printInCaseOfErrorsOrWarnings(lc);
+  }
+
+  private static LoggerContext configureContext(LoggerContext context, Map<String, String> substitutionVariables) {
+    context.reset();
+    for (Map.Entry<String, String> entry : substitutionVariables.entrySet()) {
+      context.putProperty(entry.getKey(), entry.getValue());
+    }
+    return context;
   }
 }
