@@ -93,7 +93,8 @@ public final class DefaultPages {
   @DefaultTab(metrics = {CoreMetrics.VIOLATIONS_DENSITY_KEY, CoreMetrics.WEIGHTED_VIOLATIONS_KEY, CoreMetrics.VIOLATIONS_KEY, CoreMetrics.BLOCKER_VIOLATIONS_KEY,
     CoreMetrics.CRITICAL_VIOLATIONS_KEY, CoreMetrics.MAJOR_VIOLATIONS_KEY, CoreMetrics.MINOR_VIOLATIONS_KEY, CoreMetrics.INFO_VIOLATIONS_KEY,
     CoreMetrics.NEW_VIOLATIONS_KEY, CoreMetrics.NEW_BLOCKER_VIOLATIONS_KEY, CoreMetrics.NEW_CRITICAL_VIOLATIONS_KEY, CoreMetrics.NEW_MAJOR_VIOLATIONS_KEY,
-    CoreMetrics.NEW_MINOR_VIOLATIONS_KEY, CoreMetrics.NEW_INFO_VIOLATIONS_KEY})
+    CoreMetrics.NEW_MINOR_VIOLATIONS_KEY, CoreMetrics.NEW_INFO_VIOLATIONS_KEY, CoreMetrics.ACTIVE_REVIEWS_KEY, CoreMetrics.UNASSIGNED_REVIEWS_KEY,
+    CoreMetrics.UNPLANNED_REVIEWS_KEY, CoreMetrics.FALSE_POSITIVE_REVIEWS_KEY, CoreMetrics.VIOLATIONS_WITHOUT_REVIEW_KEY})
   @ResourceQualifier({Qualifiers.VIEW, Qualifiers.SUBVIEW, Qualifiers.PROJECT, Qualifiers.MODULE, Qualifiers.PACKAGE, Qualifiers.DIRECTORY, Qualifiers.FILE, Qualifiers.CLASS})
   /* all exept unit tests...*/
   @UserRole(UserRole.CODEVIEWER)

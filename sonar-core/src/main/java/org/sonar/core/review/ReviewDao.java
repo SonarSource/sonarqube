@@ -19,13 +19,14 @@
  */
 package org.sonar.core.review;
 
-import com.google.common.collect.Lists;
+import java.util.List;
+
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 
-import java.util.List;
+import com.google.common.collect.Lists;
 
 public class ReviewDao implements BatchComponent, ServerComponent {
   private final MyBatis mybatis;
@@ -44,16 +45,6 @@ public class ReviewDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public List<ReviewDto> selectByResource(int resourceId) {
-    SqlSession sqlSession = mybatis.openSession();
-    try {
-      ReviewMapper mapper = sqlSession.getMapper(ReviewMapper.class);
-      return mapper.selectByResource(resourceId);
-    } finally {
-      sqlSession.close();
-    }
-  }
-
   public List<ReviewDto> selectByQuery(ReviewQuery query) {
     SqlSession sqlSession = mybatis.openSession();
     try {
@@ -64,9 +55,26 @@ public class ReviewDao implements BatchComponent, ServerComponent {
         for (ReviewQuery partitionedQuery : query.partition()) {
           result.addAll(mapper.selectByQuery(partitionedQuery));
         }
-
       } else {
         result = mapper.selectByQuery(query);
+      }
+      return result;
+    } finally {
+      sqlSession.close();
+    }
+  }
+
+  public Integer countByQuery(ReviewQuery query) {
+    SqlSession sqlSession = mybatis.openSession();
+    try {
+      ReviewMapper mapper = sqlSession.getMapper(ReviewMapper.class);
+      Integer result = 0;
+      if (query.needToPartitionQuery()) {
+        for (ReviewQuery partitionedQuery : query.partition()) {
+          result += mapper.countByQuery(partitionedQuery);
+        }
+      } else {
+        result = mapper.countByQuery(query);
       }
       return result;
     } finally {

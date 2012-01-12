@@ -17,17 +17,24 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.review;
+package org.sonar.plugins.core.widgets.reviews;
 
-import java.util.List;
+import org.sonar.api.web.AbstractRubyTemplate;
+import org.sonar.api.web.RubyRailsWidget;
+import org.sonar.api.web.WidgetCategory;
 
-/**
- * @since 2.13
- */
-public interface ReviewMapper {
-  ReviewDto selectById(long id);
+@WidgetCategory({ "Reviews" })
+public class ReviewsMetricsWidget extends AbstractRubyTemplate implements RubyRailsWidget {
+  public String getId() {
+    return "reviews_metrics";
+  }
 
-  List<ReviewDto> selectByQuery(ReviewQuery query);
+  public String getTitle() {
+    return "Reviews metrics";
+  }
 
-  Integer countByQuery(ReviewQuery query);
+  @Override
+  protected String getTemplatePath() {
+    return "/org/sonar/plugins/core/widgets/reviews/reviews_metrics.html.erb";
+  }
 }

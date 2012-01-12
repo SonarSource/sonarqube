@@ -26,17 +26,10 @@
         <include refid="reviewColumns"/>
         from reviews where id=#{id}
     </select>
-
-    <select id="selectByResource" parameterType="int" resultMap="reviewResultMap">
-        select
-        <include refid="reviewColumns"/>
-        from reviews where resource_id=#{id}
-    </select>
-
-    <select id="selectByQuery" parameterType="org.sonar.core.review.ReviewQuery" resultMap="reviewResultMap">
-        select
-        <include refid="reviewColumns"/>
+    
+    <sql id="selectOrCountFromWhere">
         from reviews
+        <if test="planned != null">R, action_plans_reviews APR</if>
         <where>
             <if test="userId != null">user_id = #{userId}</if>
             <if test="violationPermanentIds != null">AND rule_failure_permanent_id in
@@ -46,11 +39,33 @@
             </if>
             <if test="ruleId != null">AND rule_id = #{ruleId}</if>
             <if test="resourceId != null">AND resource_id = #{resourceId}</if>
-            <if test="status != null">AND status = #{status}</if>
+            <if test="statuses != null">AND 
+                <foreach item="status" index="index" collection="statuses"
+                         open="(" separator=" OR " close=")">status = #{status}
+                </foreach>
+            </if>
             <if test="manualViolation != null">AND manual_violation = #{manualViolation}</if>
             <if test="manualSeverity != null">AND manual_severity = #{manualSeverity}</if>
-            <if test="resolution != null">AND resolution = #{resolution}</if>
+            <if test="resolutions != null">AND 
+                <foreach item="resolution" index="index" collection="resolutions"
+                         open="(" separator=" OR " close=")">resolution = #{resolution}
+                </foreach>
+            </if>
+            <if test="noAssignee != null">AND assignee_id IS NULL</if>
+            <if test="planned != null">AND R.id = APR.review_id</if>
         </where>
+    </sql>
+
+    <select id="selectByQuery" parameterType="org.sonar.core.review.ReviewQuery" resultMap="reviewResultMap">
+        select
+        <include refid="reviewColumns"/>
+        <include refid="selectOrCountFromWhere"/>
+    </select>
+    
+
+    <select id="countByQuery" parameterType="org.sonar.core.review.ReviewQuery" resultType="Integer">
+        select count(id)
+        <include refid="selectOrCountFromWhere"/>
     </select>
 
 </mapper>

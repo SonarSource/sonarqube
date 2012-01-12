@@ -48,6 +48,7 @@ import org.sonar.plugins.core.widgets.reviews.FalsePositiveReviewsWidget;
 import org.sonar.plugins.core.widgets.reviews.MyReviewsWidget;
 import org.sonar.plugins.core.widgets.reviews.PlannedReviewsWidget;
 import org.sonar.plugins.core.widgets.reviews.ProjectReviewsWidget;
+import org.sonar.plugins.core.widgets.reviews.ReviewsMetricsWidget;
 import org.sonar.plugins.core.widgets.reviews.ReviewsPerDeveloperWidget;
 import org.sonar.plugins.core.widgets.reviews.UnplannedReviewsWidget;
 
@@ -248,6 +249,7 @@ public class CorePlugin extends SonarPlugin {
     extensions.add(PlannedReviewsWidget.class);
     extensions.add(UnplannedReviewsWidget.class);
     extensions.add(ActionPlansWidget.class);
+    extensions.add(ReviewsMetricsWidget.class);
 
     // dashboards
     extensions.add(DefaultDashboard.class);
@@ -291,6 +293,7 @@ public class CorePlugin extends SonarPlugin {
     extensions.add(UpdateReviewsDecorator.class);
     extensions.add(ViolationSeverityUpdater.class);
     extensions.add(IndexProjectPostJob.class);
+    extensions.add(ReviewsMeasuresDecorator.class);
 
     // time machine
     extensions.add(TendencyDecorator.class);

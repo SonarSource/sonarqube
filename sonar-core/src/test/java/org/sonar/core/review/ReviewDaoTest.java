@@ -19,18 +19,22 @@
  */
 package org.sonar.core.review;
 
-import com.google.common.collect.Lists;
+import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+
+import java.util.List;
+
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.persistence.DaoTestCase;
 
-import java.util.List;
-
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import com.google.common.collect.Lists;
 
 public class ReviewDaoTest extends DaoTestCase {
 
@@ -48,7 +52,7 @@ public class ReviewDaoTest extends DaoTestCase {
     ReviewDto reviewDto = dao.selectById(100L);
     assertThat(reviewDto.getId(), is(100L));
     assertThat(reviewDto.getStatus(), is("OPEN"));
-    assertThat(reviewDto.getResolution(), is("RESOLVE"));
+    assertThat(reviewDto.getResolution(), is(nullValue()));
     assertThat(reviewDto.getProjectId(), is(20));
     assertThat(reviewDto.getViolationPermanentId(), is(1));
     assertThat(reviewDto.getSeverity(), is("BLOCKER"));
@@ -66,18 +70,6 @@ public class ReviewDaoTest extends DaoTestCase {
   }
 
   @Test
-  public void shouldSelectByResource() {
-    setupData("shared");
-
-    List<ReviewDto> reviewDtos = dao.selectByResource(400);
-    assertThat(reviewDtos.size(), is(2));
-    for (ReviewDto reviewDto : reviewDtos) {
-      assertThat(reviewDto.getId(), anyOf(is(100L), is(101L)));
-      assertThat(reviewDto.getResourceId(), is(400));
-    }
-  }
-
-  @Test
   public void shouldSelectByQuery() {
     setupData("shared");
 
@@ -90,7 +82,62 @@ public class ReviewDaoTest extends DaoTestCase {
   }
 
   @Test
-  public void shouldSelectByQuery_booleanCriteria() {
+  public void shouldSelectByQueryWithStatuses() {
+    setupData("shared");
+
+    List<ReviewDto> reviewDtos = dao.selectByQuery(ReviewQuery.create().addStatus(ReviewDto.STATUS_OPEN)
+        .addStatus(ReviewDto.STATUS_REOPENED));
+    assertThat(reviewDtos.size(), is(3));
+    for (ReviewDto reviewDto : reviewDtos) {
+      assertThat(reviewDto.getId(), anyOf(is(100L), is(102L), is(103L)));
+    }
+  }
+
+  @Test
+  public void shouldSelectByQueryWithResolutions() {
+    setupData("shared");
+
+    List<ReviewDto> reviewDtos = dao.selectByQuery(ReviewQuery.create().addResolution(ReviewDto.RESOLUTION_FALSE_POSITIVE)
+        .addResolution(ReviewDto.RESOLUTION_FIXED));
+    assertThat(reviewDtos.size(), is(2));
+    for (ReviewDto reviewDto : reviewDtos) {
+      assertThat(reviewDto.getId(), anyOf(is(101L), is(104L)));
+    }
+  }
+
+  @Test
+  public void shouldSelectByQueryWithNoAssignee() {
+    setupData("shared");
+
+    List<ReviewDto> reviewDtos = dao.selectByQuery(ReviewQuery.create().setNoAssignee());
+    assertThat(reviewDtos.size(), is(2));
+    for (ReviewDto reviewDto : reviewDtos) {
+      assertThat(reviewDto.getId(), anyOf(is(101L), is(103L)));
+    }
+  }
+
+  @Test
+  public void shouldSelectByQueryWithPlanned() {
+    setupData("shared");
+
+    List<ReviewDto> reviewDtos = dao.selectByQuery(ReviewQuery.create().setPlanned());
+    assertThat(reviewDtos.size(), is(2));
+    for (ReviewDto reviewDto : reviewDtos) {
+      assertThat(reviewDto.getId(), anyOf(is(100L), is(101L)));
+    }
+  }
+
+  @Test
+  public void shouldCountByQuery() {
+    setupData("shared");
+
+    Integer count = dao.countByQuery(ReviewQuery.create().addStatus(ReviewDto.STATUS_OPEN)
+        .addStatus(ReviewDto.STATUS_REOPENED));
+    assertThat(count, is(3));
+  }
+
+  @Test
+  public void shouldSelectByQueryWithBooleanCriteria() {
     setupData("shared");
 
     List<ReviewDto> reviewDtos = dao.selectByQuery(ReviewQuery.create().setResourceId(400).setManualViolation(true));
@@ -111,12 +158,16 @@ public class ReviewDaoTest extends DaoTestCase {
     }
     ReviewQuery query = ReviewQuery.create().setViolationPermanentIds(permanentIds);
 
+    // test select query
     List<ReviewDto> reviewDtos = dao.selectByQuery(query);
 
     assertThat(reviewDtos.size(), is(3));
     assertThat(reviewDtos, hasItem(new ReviewMatcherByViolationPermanentId(100)));
     assertThat(reviewDtos, hasItem(new ReviewMatcherByViolationPermanentId(1300)));
     assertThat(reviewDtos, hasItem(new ReviewMatcherByViolationPermanentId(3200)));
+    
+    // and test count query
+    assertThat(dao.countByQuery(query), is(3));
   }
 
   static class ReviewMatcherByViolationPermanentId extends BaseMatcher<ReviewDto> {

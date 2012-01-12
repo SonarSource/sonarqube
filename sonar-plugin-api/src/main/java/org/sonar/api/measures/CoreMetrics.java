@@ -43,6 +43,7 @@ public final class CoreMetrics {
   public static final String DOMAIN_DOCUMENTATION = "Documentation";
   public static final String DOMAIN_RULES = "Rules";
   public static final String DOMAIN_SCM = "SCM";
+  public static final String DOMAIN_REVIEWS = "Reviews";
 
   /**
    * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
@@ -1396,6 +1397,101 @@ public final class CoreMetrics {
   public static final Metric SCM_LAST_COMMIT_DATETIMES_BY_LINE = new Metric.Builder(SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY, "Last commit dates by line", Metric.ValueType.DATA)
       .setDomain(DOMAIN_SCM)
       .create();
+
+
+  //--------------------------------------------------------------------------------------------------------------------
+  //
+  // REVIEWS (since 2.14)
+  //
+  //--------------------------------------------------------------------------------------------------------------------
+
+  /**
+   * @since 2.14
+   */
+  public static final String VIOLATIONS_WITHOUT_REVIEW_KEY = "violations_without_review";
+
+  /**
+   * @since 2.14
+   */
+  public static final Metric VIOLATIONS_WITHOUT_REVIEW = new Metric.Builder(VIOLATIONS_WITHOUT_REVIEW_KEY, "Unreviewed violations", Metric.ValueType.INT)
+      .setDescription("Violations that have not been reviewed yet")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setDomain(DOMAIN_REVIEWS)
+      .setBestValue(0.0)
+      .setOptimizedBestValue(true)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
+
+  /**
+   * @since 2.14
+   */
+  public static final String FALSE_POSITIVE_REVIEWS_KEY = "false_positive_reviews";
+
+  /**
+   * @since 2.14
+   */
+  public static final Metric FALSE_POSITIVE_REVIEWS = new Metric.Builder(FALSE_POSITIVE_REVIEWS_KEY, "False-positive reviews", Metric.ValueType.INT)
+      .setDescription("Active false-positive reviews")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setDomain(DOMAIN_REVIEWS)
+      .setBestValue(0.0)
+      .setOptimizedBestValue(true)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
+
+  /**
+   * @since 2.14
+   */
+  public static final String ACTIVE_REVIEWS_KEY = "active_reviews";
+
+  /**
+   * @since 2.14
+   */
+  public static final Metric ACTIVE_REVIEWS = new Metric.Builder(ACTIVE_REVIEWS_KEY, "Active reviews", Metric.ValueType.INT)
+      .setDescription("Active open and reopened reviews")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setDomain(DOMAIN_REVIEWS)
+      .setBestValue(0.0)
+      .setOptimizedBestValue(true)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
+
+  /**
+   * @since 2.14
+   */
+  public static final String UNASSIGNED_REVIEWS_KEY = "unassigned_reviews";
+
+  /**
+   * @since 2.14
+   */
+  public static final Metric UNASSIGNED_REVIEWS = new Metric.Builder(UNASSIGNED_REVIEWS_KEY, "Unassigned reviews", Metric.ValueType.INT)
+      .setDescription("Active unassigned reviews")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setDomain(DOMAIN_REVIEWS)
+      .setBestValue(0.0)
+      .setOptimizedBestValue(true)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
+
+  /**
+   * @since 2.14
+   */
+  public static final String UNPLANNED_REVIEWS_KEY = "unplanned_reviews";
+
+  /**
+   * @since 2.14
+   */
+  public static final Metric UNPLANNED_REVIEWS = new Metric.Builder(UNPLANNED_REVIEWS_KEY, "Unplanned reviews", Metric.ValueType.INT)
+      .setDescription("Active unplanned reviews")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setDomain(DOMAIN_REVIEWS)
+      .setBestValue(0.0)
+      .setOptimizedBestValue(true)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
+
+  
+  
 
 
   //--------------------------------------------------------------------------------------------------------------------

@@ -34,6 +34,9 @@ public final class ReviewDto {
   public static final String STATUS_RESOLVED = "RESOLVED";
   public static final String STATUS_CLOSED = "CLOSED";
 
+  public static final String RESOLUTION_FALSE_POSITIVE = "FALSE-POSITIVE";
+  public static final String RESOLUTION_FIXED = "FIXED";
+
   private Long id;
   private Integer userId;
   private Integer assigneeId;

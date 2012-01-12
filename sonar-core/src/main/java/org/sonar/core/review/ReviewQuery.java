@@ -19,11 +19,12 @@
  */
 package org.sonar.core.review;
 
-import com.google.common.collect.Lists;
-import org.sonar.core.persistence.DatabaseUtils;
-
 import java.util.Collection;
 import java.util.List;
+
+import org.sonar.core.persistence.DatabaseUtils;
+
+import com.google.common.collect.Lists;
 
 /**
  * @since 2.13
@@ -35,25 +36,33 @@ public final class ReviewQuery {
   private Integer userId;
   private List<Integer> violationPermanentIds;
   private Integer ruleId;
-  private String status;
-  private String resolution;
+  private List<String> statuses;
+  private List<String> resolutions;
+  private Boolean noAssignee;
+  private Boolean planned;
 
   private ReviewQuery() {
   }
 
-  private ReviewQuery(ReviewQuery other, List<Integer> permanentIds) {
+  private ReviewQuery(ReviewQuery other) {
     this.manualViolation = other.manualViolation;
     this.manualSeverity = other.manualSeverity;
     this.resourceId = other.resourceId;
     this.userId = other.userId;
-    this.violationPermanentIds = permanentIds;
+    this.violationPermanentIds = other.violationPermanentIds;
     this.ruleId = other.ruleId;
-    this.status = other.status;
-    this.resolution = other.resolution;
+    this.statuses = other.statuses;
+    this.resolutions = other.resolutions;
+    this.noAssignee = other.noAssignee;
+    this.planned = other.planned;
   }
 
   public static ReviewQuery create() {
     return new ReviewQuery();
+  }
+
+  public static ReviewQuery copy(ReviewQuery reviewQuery) {
+    return new ReviewQuery(reviewQuery);
   }
 
   public Boolean getManualViolation() {
@@ -74,12 +83,15 @@ public final class ReviewQuery {
     return this;
   }
 
-  public String getStatus() {
-    return status;
+  public List<String> getStatuses() {
+    return statuses;
   }
 
-  public ReviewQuery setStatus(String status) {
-    this.status = status;
+  public ReviewQuery addStatus(String status) {
+    if (statuses == null) {
+      statuses = Lists.newArrayList();
+    }
+    statuses.add(status);
     return this;
   }
 
@@ -110,12 +122,15 @@ public final class ReviewQuery {
     return this;
   }
 
-  public String getResolution() {
-    return resolution;
+  public List<String> getResolutions() {
+    return resolutions;
   }
 
-  public ReviewQuery setResolution(String resolution) {
-    this.resolution = resolution;
+  public ReviewQuery addResolution(String resolution) {
+    if (resolutions == null) {
+      resolutions = Lists.newArrayList();
+    }
+    resolutions.add(resolution);
     return this;
   }
 
@@ -128,6 +143,24 @@ public final class ReviewQuery {
     return this;
   }
 
+  public Boolean getNoAssignee() {
+    return noAssignee;
+  }
+
+  public ReviewQuery setNoAssignee() {
+    this.noAssignee = Boolean.TRUE;
+    return this;
+  }
+
+  public Boolean getPlanned() {
+    return planned;
+  }
+
+  public ReviewQuery setPlanned() {
+    this.planned = Boolean.TRUE;
+    return this;
+  }
+
   boolean needToPartitionQuery() {
     return violationPermanentIds != null && violationPermanentIds.size() > DatabaseUtils.MAX_IN_ELEMENTS;
   }
@@ -136,7 +169,7 @@ public final class ReviewQuery {
     List<List<Integer>> partitions = Lists.partition(violationPermanentIds, DatabaseUtils.MAX_IN_ELEMENTS);
     ReviewQuery[] result = new ReviewQuery[partitions.size()];
     for (int index = 0; index < partitions.size(); index++) {
-      result[index] = new ReviewQuery(this, partitions.get(index));
+      result[index] = ReviewQuery.copy(this).setViolationPermanentIds(partitions.get(index));
     }
 
     return result;

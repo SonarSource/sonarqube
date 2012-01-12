@@ -1,0 +1,50 @@
+<%
+  active_reviews=measure('active_reviews')
+  unassigned_reviews=measure('unassigned_reviews')
+  unplanned_reviews=measure('unplanned_reviews')
+  false_positive_reviews=measure('false_positive_reviews')
+  violations_without_review=measure('violations_without_review')
+%>
+<table width="100%">
+  <tr>
+    <td valign="top" width="48%" nowrap>
+      <div class="dashbox">
+        <h3><%= message('widget.reviews_metrics.active_reviews') -%></h3>
+        <% if active_reviews %>
+        <p>
+          <span class="big"><%= format_measure(active_reviews, :suffix => '', :url => url_for_drilldown(active_reviews)) -%></span>
+          <%= dashboard_configuration.selected_period? ? format_variation(active_reviews) : trend_icon(active_reviews) -%>
+        </p>
+        <p>
+          <%= format_measure(unassigned_reviews, :suffix => message('widget.reviews_metrics.unassigned.suffix'), :url => url_for_drilldown(unassigned_reviews)) -%>
+          <%= dashboard_configuration.selected_period? ? format_variation(unassigned_reviews) : trend_icon(unassigned_reviews) -%>
+        </p>
+        <p>
+          <%= format_measure(unplanned_reviews, :suffix => message('widget.reviews_metrics.unplanned.suffix'), :url => url_for_drilldown(unplanned_reviews)) -%>
+          <%= dashboard_configuration.selected_period? ? format_variation(unplanned_reviews) : trend_icon(unplanned_reviews) -%>
+        </p>
+        <p>
+          <%= format_measure(false_positive_reviews, :suffix => message('widget.reviews_metrics.false_positives.suffix'), :url => url_for_drilldown(false_positive_reviews)) -%>
+          <%= dashboard_configuration.selected_period? ? format_variation(false_positive_reviews) : trend_icon(false_positive_reviews) -%>
+        </p>
+        <% else %>
+          <span class="empty_widget"><%= message('widget.reviews_metrics.no_data') -%></span>
+        <% end %>
+      </div>
+    </td>
+    <td width="10"> </td>
+    <td valign="top">
+      <div class="dashbox">
+        <h3><%= message('widget.reviews_metrics.unreviewed_violations') -%></h3>
+        <% if violations_without_review %>
+        <p>
+          <span class="big"><%= format_measure(violations_without_review, :suffix => '', :url => url_for_drilldown(violations_without_review)) -%></span>
+          <%= dashboard_configuration.selected_period? ? format_variation(violations_without_review) : trend_icon(violations_without_review) -%>
+        </p>
+        <% else %>
+          <span class="empty_widget"><%= message('widget.reviews_metrics.no_data') -%></span>
+        <% end %>
+      </div>
+    </td>
+  </tr>
+</table>
