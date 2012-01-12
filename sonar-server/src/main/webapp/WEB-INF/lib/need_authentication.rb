@@ -22,14 +22,13 @@
 # Use Sonar database (table USERS) to authenticate users.
 #
 class DefaultRealm
-  def authenticate?(login, password)
-    return false if login.blank? || password.blank?
-    user = User.find_by_login(login)
-    user && user.authenticated?(password)
-  end
-
-  def synchronize(user, password)
-    # nothing to do
+  def authenticate?(username, password)
+    user = User.find_by_login(username)
+    if user && user.authenticated?(password)
+      return user
+    else
+      return nil
+    end
   end
 
   def editable_password?
@@ -39,7 +38,7 @@ end
 
 #
 # Use an external security system with fallback to Sonar database.
-# See the Java extension point org.sonar.api.security.Realm
+# See the Java extension point org.sonar.api.security.SecurityRealm
 #
 class PluginRealm
   def initialize(java_realm)
@@ -48,35 +47,84 @@ class PluginRealm
     @java_groups_provider = java_realm.getGroupsProvider()
   end
 
-  def authenticate?(login, password)
-    return false if login.blank? || password.blank?
-    begin
-      if @java_authenticator.authenticate(login, password)
-        return true
-      end
-    rescue Exception => e
-      Java::OrgSonarServerUi::JRubyFacade.new.logError("Error from external authenticator: #{e.message}")
-    end
-    # Fallback to password from Sonar Database
-    user = User.find_by_login(login)
-    return user && user.authenticated?(password)
-  end
-
-  def synchronize(user, password)
+  def authenticate?(username, password)
     if @java_users_provider
       begin
-        details = @java_users_provider.doGetUserDetails(user.login)
+        details = @java_users_provider.doGetUserDetails(username)
       rescue Exception => e
-        Java::OrgSonarServerUi::JRubyFacade.new.logError("Error from external users provider: #{e.message}")
+        Rails.logger.error("Error from external users provider: #{e.message}")
+        return fallback(username, password)
       else
-        if details
-          user.update_attributes(:name => details.getName(), :email => details.getEmail(), :password => password, :password_confirmation => password)
-          # Synchronize groups only when succeeded to synchronize details
-          synchronize_groups(user)
-          user.save
-        end
+        # User exist in external system
+        auth(username, password, details) if details
+        # No such user in external system
+        return fallback(username, password)
+      end
+    else
+      # Legacy authenticator
+      return auth(username, password, nil)
+    end
+  end
+
+  #
+  # Fallback to password from Sonar Database
+  #
+  def fallback(username, password)
+    user = User.find_by_login(username)
+    if user && user.authenticated?(password)
+      return user
+    else
+      return nil
+    end
+  end
+
+  #
+  # Authenticate user using external system
+  #
+  def auth(username, password, details)
+    if @java_authenticator
+      begin
+        status = @java_authenticator.authenticate(username, password)
+      rescue Exception => e
+        Rails.logger.error("Error from external authenticator: #{e.message}")
+        return fallback(username, password)
+      else
+        return nil if !status
+        # Authenticated
+        return syncronize(username, password, details)
+      end
+    else
+      # No authenticator
+      return nil
+    end
+  end
+
+  #
+  # Authentication in external system was successful - replicate password, details and groups into Sonar
+  #
+  def syncronize(username, password, details)
+    user = User.find_by_login(username)
+    if !user
+      # No such user in Sonar database
+      java_facade = Java::OrgSonarServerUi::JRubyFacade.new
+      return nil if !java_facade.getSettings().getBoolean('sonar.authenticator.createUsers')
+      # Automatically create a user in the sonar db if authentication has been successfully done
+      user = User.new(:login => username, :name => username, :email => '', :password => password, :password_confirmation => password)
+      default_group_name = java_facade.getSettings().getString('sonar.defaultGroup')
+      default_group = Group.find_by_name(default_group_name)
+      if default_group
+        user.groups << default_group
+      else
+        Rails.logger.error("The default user group does not exist: #{default_group_name}. Please check the parameter 'Default user group' in general settings.")
       end
     end
+    if details
+      user.update_attributes(:name => details.getName(), :email => details.getEmail())
+    end
+    user.update_attributes(:password => password, :password_confirmation => password)
+    synchronize_groups(user)
+    user.save
+    return user
   end
 
   def synchronize_groups(user)
@@ -84,7 +132,7 @@ class PluginRealm
       begin
         groups = @java_groups_provider.doGetGroups(user.login)
       rescue Exception => e
-        Java::OrgSonarServerUi::JRubyFacade.new.logError("Error from external groups provider: #{e.message}")
+        Rails.logger.error("Error from external groups provider: #{e.message}")
       else
         if groups
           user.groups = []
@@ -139,47 +187,16 @@ module NeedAuthentication
       # This will also let us return a human error message.
       #
       def authenticate(login, password)
-        return nil if login.blank?
-        java_facade = Java::OrgSonarServerUi::JRubyFacade.new
+        return nil if login.blank? || password.blank?
 
         # Downcase login (typically for Active Directory)
         # Note that login in Sonar DB is case-sensitive, however in this case authentication and automatic user creation will always happen with downcase login
-        downcase = java_facade.getSettings().getBoolean('sonar.authenticator.downcase')
+        downcase = Java::OrgSonarServerUi::JRubyFacade.new.getSettings().getBoolean('sonar.authenticator.downcase')
         if downcase
           login = login.downcase
         end
 
-        user = User.find_by_login(login)
-        if user
-          # User exists
-          return nil if !RealmFactory.realm.authenticate?(login, password)
-          # Password correct
-
-          # Synchronize details
-          RealmFactory.realm.synchronize(user, password)
-        else
-          # User not found
-          return nil if !RealmFactory.realm.authenticate?(login, password)
-          # Password correct
-
-          # Automatically create a user in the sonar db if authentication has been successfully done
-          create_user = java_facade.getSettings().getBoolean('sonar.authenticator.createUsers')
-          if create_user
-            user = User.new(:login => login, :name => login, :email => '', :password => password, :password_confirmation => password)
-            default_group_name = java_facade.getSettings().getString('sonar.defaultGroup')
-            default_group = Group.find_by_name(default_group_name)
-            if default_group
-              user.groups<<default_group
-              user.save
-            else
-              logger.error("The default user group does not exist: #{default_group_name}. Please check the parameter 'Default user group' in general settings.")
-            end
-
-            # Synchronize details
-            RealmFactory.realm.synchronize(user, password)
-          end
-        end
-        return user
+        return RealmFactory.realm.authenticate?(login, password)
       end
 
       def editable_password?
