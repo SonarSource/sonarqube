@@ -17,7 +17,6 @@
         <exclude>postgresql:postgresql</exclude>
         <exclude>net.sourceforge.jtds:jtds</exclude>
         <exclude>org.codehaus.sonar.plugins:*</exclude>
-        <exclude>org.codehaus.sonar.runtime:*</exclude>
       </excludes>
     </dependencySet>
     <!-- Plugins -->
