@@ -35,6 +35,8 @@ import org.sonar.plugins.core.timemachine.ViolationTrackingDecorator;
 
 /**
  * Decorator that creates measures related to reviews.
+ *
+ * @since 2.14
  */
 @DependsUpon(CloseReviewsDecorator.REVIEW_LIFECYCLE_BARRIER)
 public class ReviewsMeasuresDecorator implements Decorator {
@@ -64,7 +66,7 @@ public class ReviewsMeasuresDecorator implements Decorator {
 
     // Open reviews
     ReviewQuery openReviewQuery = ReviewQuery.create().setResourceId(resource.getId()).addStatus(ReviewDto.STATUS_OPEN)
-        .addStatus(ReviewDto.STATUS_REOPENED);
+      .addStatus(ReviewDto.STATUS_REOPENED);
     Double resourceOpenReviewsCount = reviewDao.countByQuery(openReviewQuery).doubleValue();
     Double totalOpenReviewsCount = resourceOpenReviewsCount + getChildrenSum(resource, context, CoreMetrics.ACTIVE_REVIEWS);
     context.saveMeasure(CoreMetrics.ACTIVE_REVIEWS, totalOpenReviewsCount);
@@ -85,14 +87,14 @@ public class ReviewsMeasuresDecorator implements Decorator {
 
     // False positive reviews
     ReviewQuery falsePositiveReviewQuery = ReviewQuery.create().setResourceId(resource.getId())
-        .addResolution(ReviewDto.RESOLUTION_FALSE_POSITIVE);
+      .addResolution(ReviewDto.RESOLUTION_FALSE_POSITIVE);
     Double resourceFalsePositiveReviewsCount = reviewDao.countByQuery(falsePositiveReviewQuery).doubleValue();
     Double totalFalsePositiveReviewsCount = resourceFalsePositiveReviewsCount
       + getChildrenSum(resource, context, CoreMetrics.FALSE_POSITIVE_REVIEWS);
     context.saveMeasure(CoreMetrics.FALSE_POSITIVE_REVIEWS, totalFalsePositiveReviewsCount);
 
     // Violations without a review
-    Double violationsCount = context.getMeasure(CoreMetrics.VIOLATIONS).getValue();
+    Double violationsCount = MeasureUtils.getValue(context.getMeasure(CoreMetrics.VIOLATIONS), 0.0);
     context.saveMeasure(CoreMetrics.VIOLATIONS_WITHOUT_REVIEW, violationsCount - totalOpenReviewsCount);
   }
 
