@@ -1419,7 +1419,6 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_REVIEWS)
       .setBestValue(0.0)
       .setOptimizedBestValue(true)
-      .setFormula(new SumChildValuesFormula(false))
       .create();
 
   /**
@@ -1436,7 +1435,6 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_REVIEWS)
       .setBestValue(0.0)
       .setOptimizedBestValue(true)
-      .setFormula(new SumChildValuesFormula(false))
       .create();
 
   /**
@@ -1453,7 +1451,6 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_REVIEWS)
       .setBestValue(0.0)
       .setOptimizedBestValue(true)
-      .setFormula(new SumChildValuesFormula(false))
       .create();
 
   /**
@@ -1470,7 +1467,6 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_REVIEWS)
       .setBestValue(0.0)
       .setOptimizedBestValue(true)
-      .setFormula(new SumChildValuesFormula(false))
       .create();
 
   /**
@@ -1487,7 +1483,6 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_REVIEWS)
       .setBestValue(0.0)
       .setOptimizedBestValue(true)
-      .setFormula(new SumChildValuesFormula(false))
       .create();
 
 

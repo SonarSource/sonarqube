@@ -30,7 +30,7 @@ public class ReviewsMetricsWidget extends AbstractRubyTemplate implements RubyRa
   }
 
   public String getTitle() {
-    return "Reviews metrics";
+    return "Review Activity";
   }
 
   @Override

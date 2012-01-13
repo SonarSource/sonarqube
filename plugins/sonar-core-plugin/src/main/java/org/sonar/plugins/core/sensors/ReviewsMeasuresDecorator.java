@@ -23,6 +23,8 @@ import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.MeasureUtils;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
@@ -56,35 +58,50 @@ public class ReviewsMeasuresDecorator implements Decorator {
 
   @SuppressWarnings({"rawtypes"})
   public void decorate(Resource resource, DecoratorContext context) {
-    if (!ResourceUtils.isFile(resource)) {
+    if (!ResourceUtils.isPersistable(resource)) {
       return;
     }
 
     // Open reviews
     ReviewQuery openReviewQuery = ReviewQuery.create().setResourceId(resource.getId()).addStatus(ReviewDto.STATUS_OPEN)
         .addStatus(ReviewDto.STATUS_REOPENED);
-    Integer openReviewsCount = reviewDao.countByQuery(openReviewQuery);
-    context.saveMeasure(CoreMetrics.ACTIVE_REVIEWS, openReviewsCount.doubleValue());
+    Double resourceOpenReviewsCount = reviewDao.countByQuery(openReviewQuery).doubleValue();
+    Double totalOpenReviewsCount = resourceOpenReviewsCount + getChildrenSum(resource, context, CoreMetrics.ACTIVE_REVIEWS);
+    context.saveMeasure(CoreMetrics.ACTIVE_REVIEWS, totalOpenReviewsCount);
 
     // Unassigned reviews
     ReviewQuery unassignedReviewQuery = ReviewQuery.copy(openReviewQuery).setNoAssignee();
-    Integer unassignedReviewsCount = reviewDao.countByQuery(unassignedReviewQuery);
-    context.saveMeasure(CoreMetrics.UNASSIGNED_REVIEWS, unassignedReviewsCount.doubleValue());
+    Double ressourceUnassignedReviewsCount = reviewDao.countByQuery(unassignedReviewQuery).doubleValue();
+    Double totalUnassignedReviewsCount = ressourceUnassignedReviewsCount
+      + getChildrenSum(resource, context, CoreMetrics.UNASSIGNED_REVIEWS);
+    context.saveMeasure(CoreMetrics.UNASSIGNED_REVIEWS, totalUnassignedReviewsCount);
 
     // Unplanned reviews
     ReviewQuery plannedReviewQuery = ReviewQuery.copy(openReviewQuery).setPlanned();
-    int plannedReviewsCount = reviewDao.countByQuery(plannedReviewQuery);
-    context.saveMeasure(CoreMetrics.UNPLANNED_REVIEWS, (double) (openReviewsCount - plannedReviewsCount));
+    Double resourcePlannedReviewsCount = reviewDao.countByQuery(plannedReviewQuery).doubleValue();
+    Double childrenUnplannedReviewsCount = getChildrenSum(resource, context, CoreMetrics.UNPLANNED_REVIEWS);
+    context.saveMeasure(CoreMetrics.UNPLANNED_REVIEWS, (resourceOpenReviewsCount - resourcePlannedReviewsCount)
+      + childrenUnplannedReviewsCount);
 
     // False positive reviews
     ReviewQuery falsePositiveReviewQuery = ReviewQuery.create().setResourceId(resource.getId())
         .addResolution(ReviewDto.RESOLUTION_FALSE_POSITIVE);
-    Integer falsePositiveReviewsCount = reviewDao.countByQuery(falsePositiveReviewQuery);
-    context.saveMeasure(CoreMetrics.FALSE_POSITIVE_REVIEWS, falsePositiveReviewsCount.doubleValue());
+    Double resourceFalsePositiveReviewsCount = reviewDao.countByQuery(falsePositiveReviewQuery).doubleValue();
+    Double totalFalsePositiveReviewsCount = resourceFalsePositiveReviewsCount
+      + getChildrenSum(resource, context, CoreMetrics.FALSE_POSITIVE_REVIEWS);
+    context.saveMeasure(CoreMetrics.FALSE_POSITIVE_REVIEWS, totalFalsePositiveReviewsCount);
 
     // Violations without a review
-    int violationsCount = context.getViolations().size();
-    context.saveMeasure(CoreMetrics.VIOLATIONS_WITHOUT_REVIEW, (double) (violationsCount - openReviewsCount - falsePositiveReviewsCount));
+    Double violationsCount = context.getMeasure(CoreMetrics.VIOLATIONS).getValue();
+    context.saveMeasure(CoreMetrics.VIOLATIONS_WITHOUT_REVIEW, violationsCount - totalOpenReviewsCount);
+  }
+
+  private Double getChildrenSum(Resource<?> resource, DecoratorContext context, Metric metric) {
+    Double sum = 0d;
+    if (!ResourceUtils.isFile(resource)) {
+      sum = MeasureUtils.sum(true, context.getChildrenMeasures(metric));
+    }
+    return sum;
   }
 
 }

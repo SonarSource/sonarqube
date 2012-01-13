@@ -30,18 +30,17 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
-
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Test;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.rules.Violation;
+import org.sonar.api.resources.Scopes;
 import org.sonar.core.review.ReviewDao;
 import org.sonar.core.review.ReviewDto;
 import org.sonar.core.review.ReviewQuery;
@@ -66,16 +65,17 @@ public class ReviewsMeasuresDecoratorTest {
   }
 
   @Test
-  public void shouldDecorateOnlyFiles() throws Exception {
+  public void shouldDecorateOnlyPersistableResource() throws Exception {
     ReviewsMeasuresDecorator decorator = new ReviewsMeasuresDecorator(null);
     DecoratorContext context = mock(DecoratorContext.class);
-    Resource<?> resource = new Project("Foo");
+    Resource<?> resource = mock(Resource.class);
+    when(resource.getScope()).thenReturn(Scopes.BLOCK_UNIT);
     decorator.decorate(resource, context);
     verify(context, never()).saveMeasure(any(Metric.class), anyDouble());
   }
 
   @Test
-  public void shouldComputeReviewMetrics() throws Exception {
+  public void shouldComputeReviewMetricsOnFile() throws Exception {
     ReviewDao reviewDao = mock(ReviewDao.class);
     when(reviewDao.countByQuery(argThat(openReviewQueryMatcher()))).thenReturn(10);
     when(reviewDao.countByQuery(argThat(unassignedReviewQueryMatcher()))).thenReturn(2);
@@ -85,16 +85,45 @@ public class ReviewsMeasuresDecoratorTest {
     ReviewsMeasuresDecorator decorator = new ReviewsMeasuresDecorator(reviewDao);
     Resource<?> resource = new File("foo").setId(1);
     DecoratorContext context = mock(DecoratorContext.class);
-    List<Violation> violations = mock(List.class);
-    when(violations.size()).thenReturn(35);
-    when(context.getViolations()).thenReturn(violations);
+    when(context.getMeasure(CoreMetrics.VIOLATIONS)).thenReturn(new Measure(CoreMetrics.VIOLATIONS, 35d));
     decorator.decorate(resource, context);
 
     verify(context).saveMeasure(CoreMetrics.ACTIVE_REVIEWS, 10d);
     verify(context).saveMeasure(CoreMetrics.UNASSIGNED_REVIEWS, 2d);
     verify(context).saveMeasure(CoreMetrics.UNPLANNED_REVIEWS, 7d);
     verify(context).saveMeasure(CoreMetrics.FALSE_POSITIVE_REVIEWS, 4d);
-    verify(context).saveMeasure(CoreMetrics.VIOLATIONS_WITHOUT_REVIEW, 21d);
+    verify(context).saveMeasure(CoreMetrics.VIOLATIONS_WITHOUT_REVIEW, 35d - 10d);
+  }
+
+  @Test
+  public void shouldComputeReviewMetricsOnProject() throws Exception {
+    ReviewDao reviewDao = mock(ReviewDao.class);
+    // Same 4 values used as for #shouldComputeReviewMetricsOnFile
+    when(reviewDao.countByQuery(argThat(openReviewQueryMatcher()))).thenReturn(10);
+    when(reviewDao.countByQuery(argThat(unassignedReviewQueryMatcher()))).thenReturn(2);
+    when(reviewDao.countByQuery(argThat(plannedReviewQueryMatcher()))).thenReturn(3);
+    when(reviewDao.countByQuery(argThat(falsePositiveReviewQueryMatcher()))).thenReturn(4);
+
+    ReviewsMeasuresDecorator decorator = new ReviewsMeasuresDecorator(reviewDao);
+    Resource<?> resource = new Project("foo").setId(1);
+    DecoratorContext context = mock(DecoratorContext.class);
+    when(context.getMeasure(CoreMetrics.VIOLATIONS)).thenReturn(new Measure(CoreMetrics.VIOLATIONS, 35d));
+    when(context.getChildrenMeasures(CoreMetrics.ACTIVE_REVIEWS)).thenReturn(
+        Lists.newArrayList(new Measure(CoreMetrics.ACTIVE_REVIEWS, 7d)));
+    when(context.getChildrenMeasures(CoreMetrics.UNASSIGNED_REVIEWS)).thenReturn(
+        Lists.newArrayList(new Measure(CoreMetrics.UNASSIGNED_REVIEWS, 1d)));
+    when(context.getChildrenMeasures(CoreMetrics.UNPLANNED_REVIEWS)).thenReturn(
+        Lists.newArrayList(new Measure(CoreMetrics.UNPLANNED_REVIEWS, 2d)));
+    when(context.getChildrenMeasures(CoreMetrics.FALSE_POSITIVE_REVIEWS)).thenReturn(
+        Lists.newArrayList(new Measure(CoreMetrics.FALSE_POSITIVE_REVIEWS, 2d)));
+    decorator.decorate(resource, context);
+
+    // As same values used for #shouldComputeReviewMetricsOnFile, we just add the children measures to verify
+    verify(context).saveMeasure(CoreMetrics.ACTIVE_REVIEWS, 10d + 7d);
+    verify(context).saveMeasure(CoreMetrics.UNASSIGNED_REVIEWS, 2d + 1d);
+    verify(context).saveMeasure(CoreMetrics.UNPLANNED_REVIEWS, 7d + 2d);
+    verify(context).saveMeasure(CoreMetrics.FALSE_POSITIVE_REVIEWS, 4d + 2d);
+    verify(context).saveMeasure(CoreMetrics.VIOLATIONS_WITHOUT_REVIEW, 35d - (10d + 7d));
   }
 
   private BaseMatcher<ReviewQuery> openReviewQueryMatcher() {
