@@ -20,14 +20,17 @@
 package org.sonar.server.platform;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ServerFileSystem;
-import org.sonar.api.utils.Logs;
 import org.sonar.jpa.session.DatabaseConnector;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,6 +42,8 @@ import java.util.List;
  * @since 2.2
  */
 public class DefaultServerFileSystem implements ServerFileSystem {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultServerFileSystem.class);
 
   private DatabaseConnector databaseConnector;
   private File deployDir;
@@ -64,7 +69,7 @@ public class DefaultServerFileSystem implements ServerFileSystem {
   }
 
   public void start() {
-    Logs.INFO.info("Sonar home: " + homeDir.getAbsolutePath());
+    LOGGER.info("Sonar home: " + homeDir.getAbsolutePath());
     if (!homeDir.isDirectory() || !homeDir.exists()) {
       throw new ServerStartException("Sonar home directory does not exist");
     }
@@ -72,10 +77,13 @@ public class DefaultServerFileSystem implements ServerFileSystem {
     if (deployDir == null) {
       throw new ServerStartException("The target directory to deploy libraries is not set");
     }
+
     try {
-      Logs.INFO.info("Deploy dir: " + deployDir.getAbsolutePath());
+      LOGGER.info("Deploy dir: " + deployDir.getAbsolutePath());
       FileUtils.forceMkdir(deployDir);
-      FileUtils.cleanDirectory(deployDir);
+      for (File subDirectory : deployDir.listFiles((FileFilter) FileFilterUtils.directoryFileFilter())) {
+        FileUtils.cleanDirectory(subDirectory);
+      }
 
     } catch (IOException e) {
       throw new ServerStartException("The following directory can not be created: " + deployDir.getAbsolutePath(), e);
