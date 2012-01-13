@@ -29,6 +29,10 @@ import org.sonar.batch.bootstrapper.Reactor;
 import java.util.Iterator;
 import java.util.Properties;
 
+/**
+ * @deprecated Replaced by {@link org.sonar.batch.bootstrapper.Batch} since version 2.14.
+ */
+@Deprecated
 public final class Batch {
 
   private Module bootstrapModule;

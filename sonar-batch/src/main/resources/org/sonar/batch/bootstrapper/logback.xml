@@ -42,11 +42,14 @@
   <logger name="org.hibernate.SQL">
     <level value="${SQL_LOGGER_LEVEL:-ERROR}"/>
   </logger>
-  <logger name="java.sql.Statement">
+  <logger name="org.apache.ibatis">
     <level value="${SQL_LOGGER_LEVEL:-WARN}"/>
   </logger>
-  <logger name="java.sql.PreparedStatement">
+  <logger name="java.sql">
     <level value="${SQL_LOGGER_LEVEL:-WARN}"/>
+  </logger>
+  <logger name="java.sql.ResultSet">
+    <level value="${SQL_RESULTS_LOGGER_LEVEL:-WARN}"/>
   </logger>
 
   <root>

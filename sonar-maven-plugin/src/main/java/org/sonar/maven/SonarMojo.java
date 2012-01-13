@@ -35,10 +35,12 @@ import org.apache.maven.project.MavenProjectBuilder;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.batch.Batch;
 import org.sonar.batch.MavenProjectConverter;
+import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.bootstrapper.LoggingConfiguration;
+
+import java.util.Map;
 
 /**
  * @goal sonar
@@ -132,41 +134,33 @@ public final class SonarMojo extends AbstractMojo {
    */
   private RuntimeInformation runtimeInformation;
 
-  /**
-   * @parameter expression="${sonar.verbose}"  default-value="false"
-   */
-  private boolean verbose;
-
-  /**
-   * @parameter expression="${sonar.showSql}"  default-value="false"
-   */
-  private boolean showSql;
-
   public void execute() throws MojoExecutionException, MojoFailureException {
-    configureLogging();
-    executeBatch();
-  }
-
-  private void executeBatch() throws MojoExecutionException {
     ProjectDefinition def = MavenProjectConverter.convert(session.getSortedProjects(), project);
     ProjectReactor reactor = new ProjectReactor(def);
 
-    Batch batch = new Batch(reactor, session, getLog(), lifecycleExecutor, pluginManager, artifactFactory,
-      localRepository, artifactMetadataSource, artifactCollector, dependencyTreeBuilder,
-      projectBuilder, getEnvironmentInformation(), Maven2PluginExecutor.class);
+    Batch batch = Batch.builder()
+      .setEnvironment(getEnvironmentInformation())
+      .setProjectReactor(reactor)
+      .addComponents(
+        session, getLog(), lifecycleExecutor, pluginManager, artifactFactory,
+        localRepository, artifactMetadataSource, artifactCollector, dependencyTreeBuilder,
+        projectBuilder, Maven2PluginExecutor.class)
+      .build();
+
+    configureLogging(batch.getLoggingConfiguration());
     batch.execute();
+  }
+
+  private void configureLogging(LoggingConfiguration logging) {
+    logging.setProperties((Map) session.getExecutionProperties());
+    logging.setFormat(LoggingConfiguration.FORMAT_MAVEN);
+    if (getLog().isDebugEnabled()) {
+      logging.setVerbose(true);
+    }
   }
 
   private EnvironmentInformation getEnvironmentInformation() {
     String mavenVersion = runtimeInformation.getApplicationVersion().toString();
     return new EnvironmentInformation("Maven", mavenVersion);
-  }
-
-  private void configureLogging() {
-    LoggingConfiguration.create()
-      .setVerbose(verbose || getLog().isDebugEnabled())
-      .setShowSql(showSql)
-      .setFormat(LoggingConfiguration.FORMAT_MAVEN)
-      .configure();
   }
 }

@@ -19,11 +19,11 @@
  */
 package org.sonar.batch.bootstrapper;
 
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.core.config.Logback;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -33,17 +33,20 @@ public final class LoggingConfiguration {
 
   public static final String PROPERTY_ROOT_LOGGER_LEVEL = "ROOT_LOGGER_LEVEL";
   public static final String PROPERTY_SQL_LOGGER_LEVEL = "SQL_LOGGER_LEVEL";
+  public static final String PROPERTY_SQL_RESULTS_LOGGER_LEVEL = "SQL_RESULTS_LOGGER_LEVEL";
   public static final String PROPERTY_FORMAT = "FORMAT";
 
   public static final String LEVEL_ROOT_VERBOSE = "DEBUG";
   public static final String LEVEL_ROOT_DEFAULT = "INFO";
   public static final String LEVEL_SQL_VERBOSE = "DEBUG";
   public static final String LEVEL_SQL_DEFAULT = "WARN";
+  public static final String LEVEL_SQL_RESULTS_VERBOSE = "DEBUG";
+  public static final String LEVEL_SQL_RESULTS_DEFAULT = "WARN";
 
   public static final String FORMAT_DEFAULT = "%d{HH:mm:ss.SSS} %-5level - %msg%n";
   public static final String FORMAT_MAVEN = "[%level] [%d{HH:mm:ss.SSS}] %msg%n";
 
-  private Map<String, String> substitutionVariables = new HashMap<String, String>();
+  private Map<String, String> substitutionVariables = Maps.newHashMap();
 
   private LoggingConfiguration() {
     setVerbose(false);
@@ -51,12 +54,13 @@ public final class LoggingConfiguration {
     setFormat(FORMAT_DEFAULT);
   }
 
-  public static LoggingConfiguration create() {
+  static LoggingConfiguration create() {
     return new LoggingConfiguration();
   }
 
   public LoggingConfiguration setProperties(Map<String, String> properties) {
     setShowSql("true".equals(properties.get("sonar.showSql")));
+    setShowSqlResults("true".equals(properties.get("sonar.showSqlResults")));
     setVerbose("true".equals(properties.get("sonar.verbose")));
     return this;
   }
@@ -69,12 +73,20 @@ public final class LoggingConfiguration {
     return setSqlLevel(showSql ? LEVEL_SQL_VERBOSE : LEVEL_SQL_DEFAULT);
   }
 
+  public LoggingConfiguration setShowSqlResults(boolean showSqlResults) {
+    return setSqlResultsLevel(showSqlResults ? LEVEL_SQL_RESULTS_VERBOSE : LEVEL_SQL_RESULTS_DEFAULT);
+  }
+
   public LoggingConfiguration setRootLevel(String level) {
     return addSubstitutionVariable(PROPERTY_ROOT_LOGGER_LEVEL, level);
   }
 
   public LoggingConfiguration setSqlLevel(String level) {
     return addSubstitutionVariable(PROPERTY_SQL_LOGGER_LEVEL, level);
+  }
+
+  public LoggingConfiguration setSqlResultsLevel(String level) {
+    return addSubstitutionVariable(PROPERTY_SQL_RESULTS_LOGGER_LEVEL, level);
   }
 
   public LoggingConfiguration setFormat(String format) {
@@ -90,17 +102,17 @@ public final class LoggingConfiguration {
     return substitutionVariables.get(key);
   }
 
-  public LoggingConfiguration configure(String classloaderPath) {
+  LoggingConfiguration configure(String classloaderPath) {
     Logback.configure(classloaderPath, substitutionVariables);
     return this;
   }
 
-  public LoggingConfiguration configure(File logbackFile) {
+  LoggingConfiguration configure(File logbackFile) {
     Logback.configure(logbackFile, substitutionVariables);
     return this;
   }
 
-  public LoggingConfiguration configure() {
+  LoggingConfiguration configure() {
     Logback.configure("/org/sonar/batch/bootstrapper/logback.xml", substitutionVariables);
     return this;
   }
