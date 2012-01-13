@@ -387,7 +387,7 @@ public final class CoreMetrics {
   public static final Metric TEST_FAILURES = new Metric.Builder(TEST_FAILURES_KEY, "Unit test failures", Metric.ValueType.INT)
       .setDescription("Number of unit test failures")
       .setDirection(Metric.DIRECTION_WORST)
-      .setQualitative(false)
+      .setQualitative(true)
       .setDomain(DOMAIN_TESTS)
       .setBestValue(0.0)
       .setOptimizedBestValue(true)
@@ -1490,8 +1490,7 @@ public final class CoreMetrics {
       .setFormula(new SumChildValuesFormula(false))
       .create();
 
-  
-  
+
 
 
   //--------------------------------------------------------------------------------------------------------------------
