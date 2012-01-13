@@ -36,7 +36,7 @@
       %>
       <tr>
         <td class="nowrap"><%= h(plan.name) -%></td>
-        <td class="nowrap small <%= 'over-due' if plan.over_due? -%>" align="right"><%= plan.dead_line ? plan.dead_line.strftime("%d %b %Y") : ' '  -%></td>
+        <td class="nowrap small <%= 'over-due' if plan.over_due? -%>" style="text-align: right; padding-left:10px"><%= plan.dead_line ? plan.dead_line.strftime("%d %b %Y") : ' '  -%></td>
         <% if plan.progress[:total]==0 %>
         <td class="noprogress nowrap"><%= message('action_plans.no_reviews_linked_to_action_plan') -%></td>
         <% else %>
