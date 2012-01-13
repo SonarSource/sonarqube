@@ -22,6 +22,7 @@ package org.sonar.core.persistence;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
+import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.*;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
@@ -53,6 +54,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
   }
 
   public MyBatis start() throws IOException {
+    LogFactory.useSlf4jLogging();
     Configuration conf = new Configuration();
     conf.setEnvironment(new Environment("production", createTransactionFactory(), database.getDataSource()));
     conf.setUseGeneratedKeys(true);
