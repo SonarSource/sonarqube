@@ -19,20 +19,21 @@
  */
 package org.sonar.api.checks;
 
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.ActiveRuleParam;
+import org.sonar.api.utils.FieldUtils;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.Check;
 import org.sonar.check.CheckProperty;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 
-import com.google.common.collect.Maps;
-
 import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -143,7 +144,7 @@ public final class AnnotationCheckFactory extends CheckFactory {
   }
 
   private Field getField(Object check, String key) {
-    Field[] fields = check.getClass().getDeclaredFields();
+    List<Field> fields = FieldUtils.getFields(check.getClass(), true);
     for (Field field : fields) {
       RuleProperty propertyAnnotation = field.getAnnotation(RuleProperty.class);
       if (propertyAnnotation != null) {
