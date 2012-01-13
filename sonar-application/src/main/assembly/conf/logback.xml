@@ -37,15 +37,15 @@
     </encoder>
   </appender>
 
-    <!--
-    Profiling of HTTP requests. Set level to DEBUG in order to log all the HTTP and SQL requests.
-    Example of command-line to get the HTTP requests with execution time greater than 10s :
-    grep 'rails  Completed in [0-9]\{5,\}ms' < profiling.log
-   -->
-  <logger name="rails"  additivity="false">
+  <!--
+   Profiling of HTTP requests. Set level to DEBUG in order to log all the HTTP and SQL requests.
+   Example of command-line to get the HTTP requests with execution time greater than 10s :
+   grep 'rails  Completed in [0-9]\{5,\}ms' < profiling.log
+  -->
+  <logger name="rails" additivity="false">
     <level value="WARN"/>
     <appender-ref ref="PROFILING_FILE"/>
-  </logger> 
+  </logger>
 
 
   <logger name="org.hibernate.cache.ReadWriteCache">
@@ -57,12 +57,21 @@
     <level value="ERROR"/>
   </logger>
 
-  <!-- set DEBUG to activate Hibernate SQL logs. NOT RECOMMENDED  -->
-  <logger name="org.hibernate.SQL">
-    <level value="ERROR"/>
+  <logger name="org.hibernate">
+    <level value="WARN"/>
   </logger>
 
-  <logger name="org.hibernate">
+  <!-- Display SQL requests and results by setting the following loggers to level DEBUG -->
+  <logger name="org.hibernate.SQL">
+    <level value="WARN"/>
+  </logger>
+  <logger name="org.apache.ibatis">
+    <level value="WARN"/>
+  </logger>
+  <logger name="java.sql">
+    <level value="WARN"/>
+  </logger>
+  <logger name="java.sql.ResultSet">
     <level value="WARN"/>
   </logger>
 
