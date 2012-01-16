@@ -44,16 +44,9 @@ public final class Batch {
     components.addAll(builder.components);
     components.add(builder.environment);
     projectReactor = builder.projectReactor;
-    logging = LoggingConfiguration.create().setProperties((Map) projectReactor.getRoot().getProperties());
-  }
-
-  /**
-   * Disable the internal configuration of Logback. In this case the batch bootstrapper must provide its
-   * own implementation of SLF4J.
-   */
-  public Batch disableLoggingConfiguration() {
-    this.logging = null;
-    return this;
+    if (builder.isEnableLoggingConfiguration()) {
+      logging = LoggingConfiguration.create().setProperties((Map) projectReactor.getRoot().getProperties());
+    }
   }
 
   public LoggingConfiguration getLoggingConfiguration() {
@@ -94,12 +87,9 @@ public final class Batch {
     private ProjectReactor projectReactor;
     private EnvironmentInformation environment;
     private List components = Lists.newArrayList();
+    private boolean enableLoggingConfiguration = true;
 
     private Builder() {
-    }
-
-    public ProjectReactor getProjectReactor() {
-      return projectReactor;
     }
 
     public Builder setProjectReactor(ProjectReactor projectReactor) {
@@ -107,17 +97,9 @@ public final class Batch {
       return this;
     }
 
-    public EnvironmentInformation getEnvironment() {
-      return environment;
-    }
-
     public Builder setEnvironment(EnvironmentInformation env) {
       this.environment = env;
       return this;
-    }
-
-    public List getComponents() {
-      return components;
     }
 
     public Builder setComponents(List l) {
@@ -135,15 +117,28 @@ public final class Batch {
       return this;
     }
 
+    public boolean isEnableLoggingConfiguration() {
+      return enableLoggingConfiguration;
+    }
+
+    /**
+     * Logback is configured by default. It can be disabled, but n this case the batch bootstrapper must provide its
+     * own implementation of SLF4J.
+     */
+    public Builder setEnableLoggingConfiguration(boolean b) {
+      this.enableLoggingConfiguration = b;
+      return this;
+    }
+
     public Batch build() {
       if (projectReactor == null) {
-        throw new IllegalArgumentException("ProjectReactor is not set");
+        throw new IllegalStateException("ProjectReactor is not set");
       }
       if (environment == null) {
-        throw new IllegalArgumentException("EnvironmentInfo is not set");
+        throw new IllegalStateException("EnvironmentInfo is not set");
       }
       if (components == null) {
-        throw new IllegalArgumentException("Batch components are not set");
+        throw new IllegalStateException("Batch components are not set");
       }
       return new Batch(this);
     }
