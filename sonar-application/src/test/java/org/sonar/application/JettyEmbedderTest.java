@@ -20,19 +20,22 @@
 package org.sonar.application;
 
 import org.apache.commons.lang.StringUtils;
+import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import org.junit.Test;
 
 public class JettyEmbedderTest {
 
   @Test
   public void xmlConfigurationShouldAccessToSomeSystemProperties() throws Exception {
     // useful to set the port into the XML file
-    new JettyEmbedder("127.0.0.1", 9999, "/", 10000, JettyEmbedderTest.class.getResource("/org/sonar/application/jetty-test.xml"));
+    new JettyEmbedder("127.0.0.1", 9999, "/", "127.0.0.2", 10000,
+        JettyEmbedderTest.class.getResource("/org/sonar/application/jetty-test.xml"));
     assertEquals("127.0.0.1", System.getProperty("jetty.host"));
     assertEquals("9999", System.getProperty("jetty.port"));
     assertEquals("/", System.getProperty("jetty.context"));
+    assertEquals("127.0.0.2", System.getProperty("jetty.ajp13Host"));
     assertEquals("10000", System.getProperty("jetty.ajp13Port"));
   }
 

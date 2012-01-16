@@ -40,16 +40,18 @@ import java.util.List;
 
 public class JettyEmbedder {
 
-  private Server server;
-  private String host;
-  private int port;
-  private String contextPath;
-  private int ajp13Port = -1;
+  private final Server server;
+  private final String host;
+  private final int port;
+  private final String contextPath;
+  private final String ajp13Host;
+  private final int ajp13Port;
 
-  public JettyEmbedder(String host, int port, String contextPath, int ajp13Port, URL configurationURL) throws Exception {
+  public JettyEmbedder(String host, int port, String contextPath, String ajp13Host, int ajp13Port, URL configurationURL) throws Exception {
     this.host = host.trim();
     this.port = port;
     this.contextPath = contextPath;
+    this.ajp13Host = ajp13Host;
     this.ajp13Port = ajp13Port;
     server = new Server();
 
@@ -61,6 +63,7 @@ public class JettyEmbedder {
       System.setProperty("jetty.port", String.valueOf(port));
       System.setProperty("jetty.context", contextPath);
       if (ajp13Port > 0) {
+        System.setProperty("jetty.ajp13Host", this.ajp13Host);
         System.setProperty("jetty.ajp13Port", String.valueOf(ajp13Port));
       }
       XmlConfiguration configuration = new XmlConfiguration(configurationURL);
@@ -72,7 +75,7 @@ public class JettyEmbedder {
    * for tests
    */
   JettyEmbedder(String host, int port) throws Exception {
-    this(host, port, null, 0, null);
+    this(host, port, null, null, 0, null);
   }
 
   public void start() throws Exception {
@@ -122,8 +125,9 @@ public class JettyEmbedder {
     connector.setAcceptors(2);
     connector.setConfidentialPort(8443);
     if (ajp13Port > 0) {
-      System.out.println("AJP13 connector is on port " + ajp13Port);
+      System.out.println("AJP13 connector is on " + ajp13Host + ":" + ajp13Port);
       Connector ajpConnector = new Ajp13SocketConnector();
+      ajpConnector.setHost(ajp13Host);
       ajpConnector.setPort(ajp13Port);
       server.addConnector(ajpConnector);
     }
@@ -132,7 +136,6 @@ public class JettyEmbedder {
     server.setSendServerVersion(false);
     server.setSendDateHeader(true);
     server.setGracefulShutdown(1000);
-
   }
 
   final String getPluginsClasspath(String pluginsPathFromClassloader) throws URISyntaxException, IOException {
