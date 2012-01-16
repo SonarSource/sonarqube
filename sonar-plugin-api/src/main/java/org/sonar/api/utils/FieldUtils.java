@@ -49,7 +49,7 @@ public final class FieldUtils {
       for (Field declaredField : c.getDeclaredFields()) {
         if (!Modifier.isPublic(declaredField.getModifiers())) {
           if (forceAccess) {
-            declaredField.setAccessible(true);
+            declaredField.setAccessible(true);//NOSONAR only works from sufficiently privileged code
           } else {
             continue;
           }
