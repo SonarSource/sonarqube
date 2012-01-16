@@ -122,6 +122,7 @@ class ApplicationController < ActionController::Base
 
   # Authentication credentials are missing/incorrect or user has not the required permissions
   def access_denied
+    store_location # required to redirect to origin URL after authentication
     raise Errors::AccessDenied
   end
 

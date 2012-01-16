@@ -34,7 +34,7 @@ class SessionsController < ApplicationController
         cookies[:auth_token] = { :value => self.current_user.remember_token , :expires => self.current_user.remember_token_expires_at }
       end
       flash[:notice] = message('session.flash_notice.logged_in')
-      redirect_to(home_path)
+      redirect_back_or_default(home_url)
     else
       flash.now[:loginerror] = message('session.flash_notice.authentication_failed')
     end
