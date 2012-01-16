@@ -1,9 +1,9 @@
 <p>
     <ul class="horizontal widget_categs">
       <li><%= message('filter_verb') -%>: </li>
-      <li class="<%= 'selected' if filter_on_category.blank? -%>"><a href="#" onClick="return filterWidgets('')"><%= message('none') -%></a></li>
-    <% @widget_categories.each do |category| %>
-      <li class="<%= 'selected' if filter_on_category==category -%>"><a href="#" onClick="return filterWidgets('<%= category -%>')"><%= h(category) -%></a></li>
+      <li class="<%= 'selected' if category.blank? -%>"><a href="#" onClick="return filterWidgets('')"><%= message('none') -%></a></li>
+    <% @widget_categories.each do |c| %>
+      <li class="<%= 'selected' if category==c -%>"><a href="#" onClick="return filterWidgets('<%= escape_javascript(c) -%>')"><%= h(c) -%></a></li>
     <% end %>
     </ul>
     <%= image_tag 'loading.gif', :style=>'vertical-align: top;display: none', :id => 'filter-widgets-loading' -%>
@@ -11,7 +11,7 @@
 <table width="100%">
   <% @widget_definitions.each_with_index do |definition, index| %>
     <% if index%4==0 %><tr><% end %>
-    <%= render :partial => 'dashboard/widget_definition', :locals => {:definition => definition, :dashboard_id => dashboard_id, :resource_id => resource_id} %>
+    <%= render :partial => 'dashboard/widget_definition', :locals => {:definition => definition, :dashboard_id => dashboard_id, :resource_id => resource_id, :category => category} %>
     <% if index%4==3 %></tr><% end %>
   <% end %>
   <% for i in 0..(4-(@widget_definitions.size%4)) %>

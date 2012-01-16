@@ -51,7 +51,8 @@ class DashboardController < ApplicationController
     # TODO display error page if no dashboard or no resource
     load_resource()
     load_dashboard()
-    load_widget_definitions()
+    @category=params[:category]
+    load_widget_definitions(@category)
     unless @dashboard
       redirect_to home_path
     end
@@ -121,7 +122,7 @@ class DashboardController < ApplicationController
         end
       end
     end
-    redirect_to :action => 'configure', :did => dashboard.id, :id => params[:id], :highlight => widget_id
+    redirect_to :action => 'configure', :did => dashboard.id, :id => params[:id], :highlight => widget_id, :category => params[:category]
   end
 
 
@@ -146,8 +147,9 @@ class DashboardController < ApplicationController
   end
 
   def widget_definitions
-    load_widget_definitions(params[:category])
-    render :partial => 'dashboard/widget_definitions', :locals => {:dashboard_id => params[:did], :resource_id => params[:id], :filter_on_category => params[:category]}
+    @category=params[:category]
+    load_widget_definitions(@category)
+    render :partial => 'dashboard/widget_definitions', :locals => {:dashboard_id => params[:did], :resource_id => params[:id], :category => @category}
   end
 
 

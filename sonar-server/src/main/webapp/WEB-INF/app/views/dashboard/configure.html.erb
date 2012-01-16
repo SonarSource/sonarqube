@@ -28,7 +28,7 @@
   function filterWidgets(category) {
     new Ajax.Updater(
       'widget_defs',
-      '<%= url_for :controller => "dashboard", :action => "widget_definitions", :did => @dashboard.id, :id => @resource.id -%>&category=' + category,
+      '<%= url_for :controller => "dashboard", :action => "widget_definitions", :did => @dashboard.id, :id => @resource.id -%>&category=' + encodeURIComponent(category),
       {asynchronous:true, evalScripts:true});
     $('filter-widgets-loading').show();
     return false;
@@ -41,7 +41,7 @@
   <%= render :partial => 'dashboard/header', :locals => {:back => true} %>
 
   <div id="widget_defs">
-    <%= render :partial => 'dashboard/widget_definitions', :locals => {:dashboard_id => @dashboard.id, :resource_id => @resource.id, :filter_on_category => nil} -%>
+    <%= render :partial => 'dashboard/widget_definitions', :locals => {:dashboard_id => @dashboard.id, :resource_id => @resource.id, :category => @category} -%>
   </div>
 
 
