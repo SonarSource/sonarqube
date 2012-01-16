@@ -52,10 +52,10 @@ public final class ReviewsDashboard extends DashboardTemplate {
   }
 
   private void addSecondColumn(Dashboard dashboard) {
-    dashboard.addWidget("false_positive_reviews", 2);
     dashboard.addWidget("reviews_per_developer", 2);
     dashboard.addWidget("my_reviews", 2);
     dashboard.addWidget("project_reviews", 2);
+    dashboard.addWidget("false_positive_reviews", 2);
   }
 
 }
