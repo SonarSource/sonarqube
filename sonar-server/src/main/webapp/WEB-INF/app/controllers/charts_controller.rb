@@ -22,36 +22,38 @@ class ChartsController < ApplicationController
 
   DEFAULT_TRENDS_WIDTH = 700
   DEFAULT_TRENDS_HEIGHT = 250
-  
+
   CHART_COLORS = ["4192D9", "800000", "A7B307", "913C9F", "329F4D"]
-    
+
   def trends
     resource=Project.by_key(params[:id])
+    bad_request("Unknown resource") unless resource
     access_denied unless has_role?(:user, resource)
 
-
     metric_keys=params[:metrics]
-    metric_ids=[]
+    metrics=[]
     if metric_keys
       metric_keys.split(',').each do |key|
-        metric_ids<<Metric.by_key(key)
+        metric=Metric.by_key(key)
+        metrics<<metric if metric
       end
     end
-    unless metric_ids.empty?
-      width=(params[:w] ? params[:w].to_i :  DEFAULT_TRENDS_WIDTH)
-      height=(params[:h] ? params[:h].to_i :  DEFAULT_TRENDS_HEIGHT)
-      display_legend = (params[:legend] ? params[:legend]=='true' : true)
 
-      options={}
-      if params[:from]
-        options[:from]=Date::strptime(params[:from])
-      end
-      if params[:to]
-        options[:to]=Date::strptime(params[:to])
-      end
+    bad_request("Unknown metrics") if metrics.empty?
 
-      stream = TrendsChart.png_chart(width, height, resource, metric_ids, params[:locale] || I18n.locale.to_s, display_legend, options)
-      send_data stream, :type => 'image/png', :disposition => 'inline' 
+    width=(params[:w] ? params[:w].to_i : DEFAULT_TRENDS_WIDTH)
+    height=(params[:h] ? params[:h].to_i : DEFAULT_TRENDS_HEIGHT)
+    display_legend = (params[:legend] ? params[:legend]=='true' : true)
+
+    options={}
+    if params[:from]
+      options[:from]=Date::strptime(params[:from])
     end
+    if params[:to]
+      options[:to]=Date::strptime(params[:to])
+    end
+
+    stream = TrendsChart.png_chart(width, height, resource, metrics, params[:locale] || I18n.locale.to_s, display_legend, options)
+    send_data stream, :type => 'image/png', :disposition => 'inline'
   end
 end

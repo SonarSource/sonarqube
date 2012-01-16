@@ -133,12 +133,6 @@ class UsersController < ApplicationController
     redirect_to(:action => 'index', :id => id)
   end
 
-  def toggle_edit_mode()
-    current_user.toggle_edit_mode
-    redirect_back_or_default(:controller => 'project')
-  end
-
-
   def prepare_user
     user = User.new(params[:user])
     default_group_name=java_facade.getSettings().getString('sonar.defaultGroup')
