@@ -13,34 +13,11 @@ module ActiveRecord
           config[:connection_alive_sql] ||= "select 1"
 
           # sonar
-          # ActiveRecord must transfer the responsibility of connection pool to the Sonar,
-          # even if JNDI datasource is not used.
+          # The connection pool is managed by Sonar (commons-dbcp) but not by ActiveRecord
           @jndi_connection = true
-          # /sonar
           @connection = nil
-          if config[:jndi]
-            begin
-              configure_jndi
-            rescue => e
-              warn "JNDI data source unavailable: #{e.message}; trying straight JDBC"
-              configure_jdbc
-            end
-          else
-            configure_jdbc
-          end
-        end
-
-        def configure_jndi
-          jndi = config[:jndi].to_s
-          ctx = javax.naming.InitialContext.new
-          ds = ctx.lookup(jndi)
-          @connection_factory = JdbcConnectionFactory.impl do
-            ds.connection
-          end
-          unless config[:driver]
-            config[:driver] = connection.meta_data.connection.java_class.name
-          end
-          @jndi_connection = true
+          configure_jdbc
+          # /sonar
         end
 
         def configure_url

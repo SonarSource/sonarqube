@@ -56,17 +56,15 @@ module ActiveRecord
       end
 
       #sonar
-      # modified method to support JNDI connections
+      # Commons DBCP is used to manage pool of JDBC connections.
       def new_connection(config)
         @raw_connection = ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConnection()
+
         if @raw_connection.respond_to?(:getInnermostDelegate)
           @pooled_connection = @raw_connection
-          @raw_connection = @raw_connection.innermost_delegate
-        elsif @raw_connection.respond_to?(:getUnderlyingConnection)
-          @pooled_connection = @raw_connection
-          @raw_connection = @raw_connection.underlying_connection
+          @raw_connection = @raw_connection.getInnermostDelegate()
         else
-          raise ArgumentError, "JDBC Datasource not supported. Please use Commons DBCP or Tomcat Connection Pool"
+          raise ArgumentError, "This JDBC connection is not managed by Commons DBCP"
         end
         username = @raw_connection.meta_data.user_name
 
