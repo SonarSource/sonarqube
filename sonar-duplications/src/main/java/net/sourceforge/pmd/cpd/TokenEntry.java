@@ -28,6 +28,9 @@ import java.util.Map;
 
 public class TokenEntry implements Comparable<TokenEntry> {
 
+  private final static Map<String, Integer> TOKENS = new HashMap<String, Integer>();
+  private static int tokenCount = 0;
+
   public static final TokenEntry EOF = new TokenEntry();
 
   private String tokenSrcID;
@@ -36,34 +39,31 @@ public class TokenEntry implements Comparable<TokenEntry> {
   private int identifier;
   private int hashCode;
 
-  private final static Map<String, Integer> Tokens = new HashMap<String, Integer>();
-  private static int TokenCount = 0;
-
   private TokenEntry() {
     this.identifier = 0;
     this.tokenSrcID = "EOFMarker";
   }
 
   public TokenEntry(String image, String tokenSrcID, int beginLine) {
-    Integer i = Tokens.get(image);
+    Integer i = TOKENS.get(image);
     if (i == null) {
-      i = Tokens.size() + 1;
-      Tokens.put(image, i);
+      i = TOKENS.size() + 1;
+      TOKENS.put(image, i);
     }
     this.identifier = i.intValue();
     this.tokenSrcID = tokenSrcID;
     this.beginLine = beginLine;
-    this.index = TokenCount++;
+    this.index = tokenCount++;
   }
 
   public static TokenEntry getEOF() {
-    TokenCount++;
+    tokenCount++;
     return EOF;
   }
 
   public static void clearImages() {
-    Tokens.clear();
-    TokenCount = 0;
+    TOKENS.clear();
+    tokenCount = 0;
   }
 
   public String getTokenSrcID() {

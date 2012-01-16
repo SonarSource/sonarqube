@@ -29,7 +29,8 @@ public interface Language {
 
   String fileSeparator = System.getProperty("file.separator");
 
-  public Tokenizer getTokenizer();
+  Tokenizer getTokenizer();
 
-  public FilenameFilter getFileFilter();
+  FilenameFilter getFileFilter();
+
 }

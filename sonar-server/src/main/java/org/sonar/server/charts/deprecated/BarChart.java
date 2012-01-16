@@ -111,7 +111,10 @@ public class BarChart extends BaseChartWeb implements DeprecatedChart {
   protected void applyCommomParamsBar() {
     // -- Plot
     CategoryPlot plot = jfreechart.getCategoryPlot();
-    plot.setOrientation(BaseChartWeb.BAR_CHART_VERTICAL.equals(params.get(BaseChartWeb.CHART_PARAM_TYPE)) || BaseChartWeb.BAR_CHART_VERTICAL_CUSTOM.equals(params.get(BaseChartWeb.CHART_PARAM_TYPE)) ? PlotOrientation.VERTICAL : PlotOrientation.HORIZONTAL);
+    plot.setOrientation(BaseChartWeb.BAR_CHART_VERTICAL.equals(params.get(BaseChartWeb.CHART_PARAM_TYPE))
+      || BaseChartWeb.BAR_CHART_VERTICAL_CUSTOM.equals(params.get(BaseChartWeb.CHART_PARAM_TYPE)) ?
+        PlotOrientation.VERTICAL :
+        PlotOrientation.HORIZONTAL);
     plot.setOutlineVisible("y".equals(params.get(BaseChartWeb.CHART_PARAM_OUTLINE_VISIBLE)));
     plot.setRangeGridlinesVisible("y".equals(params.get(BaseChartWeb.CHART_PARAM_OUTLINE_RANGEGRIDLINES_VISIBLE)));
     String insetsParam = params.get(CHART_PARAM_INSETS);

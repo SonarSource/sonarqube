@@ -19,6 +19,7 @@
  */
 package org.sonar.api.security;
 
+import com.google.common.base.Objects;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.database.BaseIdentifiable;
@@ -81,7 +82,7 @@ public class GroupRole extends BaseIdentifiable {
   }
 
   public boolean isAnyone() {
-    return groupId==ANYONE_GROUP_ID;
+    return Objects.equal(groupId, ANYONE_GROUP_ID);
   }
 
   @Override

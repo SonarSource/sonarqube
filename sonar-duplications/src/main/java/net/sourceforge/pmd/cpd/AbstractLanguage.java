@@ -35,6 +35,7 @@ public abstract class AbstractLanguage implements Language {
   /**
    * @deprecated in 2.14, seems that not used in Sonar ecosystem - we don't scan directories.
    */
+  @Deprecated
   public FilenameFilter getFileFilter() {
     return fileFilter;
   }

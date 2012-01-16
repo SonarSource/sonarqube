@@ -19,12 +19,11 @@
  */
 package org.sonar.server.ui;
 
-import org.sonar.api.CoreProperties;
 import org.sonar.api.security.LoginPasswordAuthenticator;
 import org.sonar.api.security.SecurityRealm;
 
 /**
- * Provides backward compatibility for {@link CoreProperties#CORE_AUTHENTICATOR_CLASS}.
+ * Provides backward compatibility for {@link org.sonar.api.CoreProperties#CORE_AUTHENTICATOR_CLASS}.
  *
  * @since 2.14
  */
