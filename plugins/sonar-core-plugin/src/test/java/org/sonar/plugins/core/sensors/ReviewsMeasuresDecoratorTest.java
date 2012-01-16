@@ -39,6 +39,7 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.review.ReviewDao;
@@ -65,11 +66,22 @@ public class ReviewsMeasuresDecoratorTest {
   }
 
   @Test
-  public void shouldDecorateOnlyPersistableResource() throws Exception {
+  public void shouldDecoratePersistableResource() throws Exception {
     ReviewsMeasuresDecorator decorator = new ReviewsMeasuresDecorator(null);
     DecoratorContext context = mock(DecoratorContext.class);
     Resource<?> resource = mock(Resource.class);
     when(resource.getScope()).thenReturn(Scopes.BLOCK_UNIT);
+    decorator.decorate(resource, context);
+    verify(context, never()).saveMeasure(any(Metric.class), anyDouble());
+  }
+
+  @Test
+  public void shouldNotDecorateUnitTest() throws Exception {
+    ReviewsMeasuresDecorator decorator = new ReviewsMeasuresDecorator(null);
+    DecoratorContext context = mock(DecoratorContext.class);
+    Resource<?> resource = mock(Resource.class);
+    when(resource.getScope()).thenReturn(Scopes.FILE);
+    when(resource.getQualifier()).thenReturn(Qualifiers.UNIT_TEST_FILE);
     decorator.decorate(resource, context);
     verify(context, never()).saveMeasure(any(Metric.class), anyDouble());
   }

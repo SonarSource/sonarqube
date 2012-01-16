@@ -60,13 +60,13 @@ public class ReviewsMeasuresDecorator implements Decorator {
 
   @SuppressWarnings({"rawtypes"})
   public void decorate(Resource resource, DecoratorContext context) {
-    if (!ResourceUtils.isPersistable(resource)) {
+    if (!ResourceUtils.isPersistable(resource) || ResourceUtils.isUnitTestClass(resource)) {
       return;
     }
 
     // Open reviews
     ReviewQuery openReviewQuery = ReviewQuery.create().setResourceId(resource.getId()).addStatus(ReviewDto.STATUS_OPEN)
-      .addStatus(ReviewDto.STATUS_REOPENED);
+        .addStatus(ReviewDto.STATUS_REOPENED);
     Double resourceOpenReviewsCount = reviewDao.countByQuery(openReviewQuery).doubleValue();
     Double totalOpenReviewsCount = resourceOpenReviewsCount + getChildrenSum(resource, context, CoreMetrics.ACTIVE_REVIEWS);
     context.saveMeasure(CoreMetrics.ACTIVE_REVIEWS, totalOpenReviewsCount);
@@ -87,7 +87,7 @@ public class ReviewsMeasuresDecorator implements Decorator {
 
     // False positive reviews
     ReviewQuery falsePositiveReviewQuery = ReviewQuery.create().setResourceId(resource.getId())
-      .addResolution(ReviewDto.RESOLUTION_FALSE_POSITIVE);
+        .addResolution(ReviewDto.RESOLUTION_FALSE_POSITIVE);
     Double resourceFalsePositiveReviewsCount = reviewDao.countByQuery(falsePositiveReviewQuery).doubleValue();
     Double totalFalsePositiveReviewsCount = resourceFalsePositiveReviewsCount
       + getChildrenSum(resource, context, CoreMetrics.FALSE_POSITIVE_REVIEWS);
