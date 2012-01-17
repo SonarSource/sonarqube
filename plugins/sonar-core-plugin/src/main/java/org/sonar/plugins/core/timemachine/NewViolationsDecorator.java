@@ -19,12 +19,24 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Sets;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.*;
-import org.sonar.api.measures.*;
+import org.sonar.api.batch.Decorator;
+import org.sonar.api.batch.DecoratorBarriers;
+import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.batch.DependedUpon;
+import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.MeasureUtils;
+import org.sonar.api.measures.MeasuresFilters;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.RuleMeasure;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
@@ -35,7 +47,9 @@ import org.sonar.api.rules.Violation;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.TimeMachineConfiguration;
 
-import java.util.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Sets;
 
 @DependsUpon(DecoratorBarriers.END_OF_VIOLATION_TRACKING)
 public class NewViolationsDecorator implements Decorator {
@@ -53,12 +67,12 @@ public class NewViolationsDecorator implements Decorator {
   @DependedUpon
   public List<Metric> generatesMetric() {
     return Arrays.asList(
-      CoreMetrics.NEW_VIOLATIONS,
-      CoreMetrics.NEW_BLOCKER_VIOLATIONS,
-      CoreMetrics.NEW_CRITICAL_VIOLATIONS,
-      CoreMetrics.NEW_MAJOR_VIOLATIONS,
-      CoreMetrics.NEW_MINOR_VIOLATIONS,
-      CoreMetrics.NEW_INFO_VIOLATIONS);
+        CoreMetrics.NEW_VIOLATIONS,
+        CoreMetrics.NEW_BLOCKER_VIOLATIONS,
+        CoreMetrics.NEW_CRITICAL_VIOLATIONS,
+        CoreMetrics.NEW_MAJOR_VIOLATIONS,
+        CoreMetrics.NEW_MINOR_VIOLATIONS,
+        CoreMetrics.NEW_INFO_VIOLATIONS);
   }
 
   public void decorate(Resource resource, DecoratorContext context) {
@@ -70,10 +84,10 @@ public class NewViolationsDecorator implements Decorator {
   }
 
   private boolean shouldDecorateResource(Resource resource, DecoratorContext context) {
-    return
-      (StringUtils.equals(Scopes.PROJECT, resource.getScope()) || StringUtils.equals(Scopes.DIRECTORY, resource.getScope()) || StringUtils.equals(Scopes.FILE, resource.getScope()))
-        && !ResourceUtils.isUnitTestClass(resource)
-        && context.getMeasure(CoreMetrics.NEW_VIOLATIONS) == null;
+    return (StringUtils.equals(Scopes.PROJECT, resource.getScope()) || StringUtils.equals(Scopes.DIRECTORY, resource.getScope()) || StringUtils
+        .equals(Scopes.FILE, resource.getScope()))
+      && !ResourceUtils.isUnitTestClass(resource)
+      && context.getMeasure(CoreMetrics.NEW_VIOLATIONS) == null;
   }
 
   private void computeNewViolations(DecoratorContext context) {
@@ -82,7 +96,7 @@ public class NewViolationsDecorator implements Decorator {
       int variationIndex = pastSnapshot.getIndex();
       Collection<Measure> children = context.getChildrenMeasures(CoreMetrics.NEW_VIOLATIONS);
       int count = countViolations(context.getViolations(), pastSnapshot.getTargetDate());
-      double sum = sumChildren(variationIndex, children) + count;
+      double sum = MeasureUtils.sumOnVariation(true, variationIndex, children) + count;
       measure.setVariation(variationIndex, sum);
     }
     context.saveMeasure(measure);
@@ -101,7 +115,7 @@ public class NewViolationsDecorator implements Decorator {
         int variationIndex = pastSnapshot.getIndex();
         int count = countViolations(violationsPerSeverities.get(severity), pastSnapshot.getTargetDate());
         Collection<Measure> children = context.getChildrenMeasures(MeasuresFilters.metric(metric));
-        double sum = sumChildren(variationIndex, children) + count;
+        double sum = MeasureUtils.sumOnVariation(true, variationIndex, children) + count;
         measure.setVariation(variationIndex, sum);
       }
       context.saveMeasure(measure);
@@ -138,23 +152,12 @@ public class NewViolationsDecorator implements Decorator {
         for (PastSnapshot pastSnapshot : timeMachineConfiguration.getProjectPastSnapshots()) {
           int variationIndex = pastSnapshot.getIndex();
           int count = countViolations(violationsPerRule.get(rule), pastSnapshot.getTargetDate());
-          double sum = sumChildren(variationIndex, childMeasuresPerRule.get(rule)) + count;
+          double sum = MeasureUtils.sumOnVariation(true, variationIndex, childMeasuresPerRule.get(rule)) + count;
           measure.setVariation(variationIndex, sum);
         }
         context.saveMeasure(measure);
       }
     }
-  }
-
-  int sumChildren(int variationIndex, Collection<Measure> measures) {
-    int sum = 0;
-    for (Measure measure : measures) {
-      Double var = measure.getVariation(variationIndex);
-      if (var != null) {
-        sum += var.intValue();
-      }
-    }
-    return sum;
   }
 
   int countViolations(Collection<Violation> violations, Date targetDate) {

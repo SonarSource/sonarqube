@@ -30,36 +30,86 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
+import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.RuleMeasure;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.Violation;
+import org.sonar.batch.components.PastSnapshot;
+import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.core.review.ReviewDao;
 import org.sonar.core.review.ReviewDto;
 import org.sonar.core.review.ReviewQuery;
 import org.sonar.plugins.core.timemachine.ViolationTrackingDecorator;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public class ReviewsMeasuresDecoratorTest {
 
+  private ReviewDao reviewDao;
+  private ReviewsMeasuresDecorator decorator;
+  private DecoratorContext context;
+
+  private Date rightNow;
+  private Date tenDaysAgo;
+  private Date fiveDaysAgo;
+
+  @Before
+  public void setUp() {
+    reviewDao = mock(ReviewDao.class);
+    when(reviewDao.selectByQuery(argThat(openReviewQueryMatcher()))).thenReturn(createListOf10Reviews());
+    when(reviewDao.countByQuery(argThat(unassignedReviewQueryMatcher()))).thenReturn(2);
+    when(reviewDao.countByQuery(argThat(plannedReviewQueryMatcher()))).thenReturn(3);
+    when(reviewDao.countByQuery(argThat(falsePositiveReviewQueryMatcher()))).thenReturn(4);
+
+    rightNow = new Date();
+    tenDaysAgo = DateUtils.addDays(rightNow, -10);
+    fiveDaysAgo = DateUtils.addDays(rightNow, -5);
+
+    PastSnapshot pastSnapshot = mock(PastSnapshot.class);
+    when(pastSnapshot.getIndex()).thenReturn(1);
+    when(pastSnapshot.getTargetDate()).thenReturn(fiveDaysAgo);
+
+    PastSnapshot pastSnapshot2 = mock(PastSnapshot.class);
+    when(pastSnapshot2.getIndex()).thenReturn(2);
+    when(pastSnapshot2.getTargetDate()).thenReturn(tenDaysAgo);
+
+    TimeMachineConfiguration timeMachineConfiguration = mock(TimeMachineConfiguration.class);
+    when(timeMachineConfiguration.getProjectPastSnapshots()).thenReturn(Arrays.asList(pastSnapshot, pastSnapshot2));
+
+    decorator = new ReviewsMeasuresDecorator(reviewDao, timeMachineConfiguration);
+    context = mock(DecoratorContext.class);
+    when(context.getMeasure(CoreMetrics.VIOLATIONS)).thenReturn(new Measure(CoreMetrics.VIOLATIONS, 35d));
+  }
+
   @Test
   public void testDependsUponViolationTracking() throws Exception {
-    ReviewsMeasuresDecorator decorator = new ReviewsMeasuresDecorator(null);
+    ReviewsMeasuresDecorator decorator = new ReviewsMeasuresDecorator(null, null);
     assertEquals(decorator.dependsUponViolationTracking(), ViolationTrackingDecorator.class);
   }
 
   @Test
   public void shouldExecuteOnProject() throws Exception {
-    ReviewsMeasuresDecorator decorator = new ReviewsMeasuresDecorator(null);
+    ReviewsMeasuresDecorator decorator = new ReviewsMeasuresDecorator(null, null);
     Project project = new Project("foo");
     project.setLatestAnalysis(true);
     assertThat(decorator.shouldExecuteOnProject(project), is(true));
@@ -67,7 +117,7 @@ public class ReviewsMeasuresDecoratorTest {
 
   @Test
   public void shouldDecoratePersistableResource() throws Exception {
-    ReviewsMeasuresDecorator decorator = new ReviewsMeasuresDecorator(null);
+    ReviewsMeasuresDecorator decorator = new ReviewsMeasuresDecorator(null, null);
     DecoratorContext context = mock(DecoratorContext.class);
     Resource<?> resource = mock(Resource.class);
     when(resource.getScope()).thenReturn(Scopes.BLOCK_UNIT);
@@ -77,7 +127,7 @@ public class ReviewsMeasuresDecoratorTest {
 
   @Test
   public void shouldNotDecorateUnitTest() throws Exception {
-    ReviewsMeasuresDecorator decorator = new ReviewsMeasuresDecorator(null);
+    ReviewsMeasuresDecorator decorator = new ReviewsMeasuresDecorator(null, null);
     DecoratorContext context = mock(DecoratorContext.class);
     Resource<?> resource = mock(Resource.class);
     when(resource.getScope()).thenReturn(Scopes.FILE);
@@ -87,17 +137,8 @@ public class ReviewsMeasuresDecoratorTest {
   }
 
   @Test
-  public void shouldComputeReviewMetricsOnFile() throws Exception {
-    ReviewDao reviewDao = mock(ReviewDao.class);
-    when(reviewDao.countByQuery(argThat(openReviewQueryMatcher()))).thenReturn(10);
-    when(reviewDao.countByQuery(argThat(unassignedReviewQueryMatcher()))).thenReturn(2);
-    when(reviewDao.countByQuery(argThat(plannedReviewQueryMatcher()))).thenReturn(3);
-    when(reviewDao.countByQuery(argThat(falsePositiveReviewQueryMatcher()))).thenReturn(4);
-
-    ReviewsMeasuresDecorator decorator = new ReviewsMeasuresDecorator(reviewDao);
+  public void shouldComputeReviewsMetricsOnFile() throws Exception {
     Resource<?> resource = new File("foo").setId(1);
-    DecoratorContext context = mock(DecoratorContext.class);
-    when(context.getMeasure(CoreMetrics.VIOLATIONS)).thenReturn(new Measure(CoreMetrics.VIOLATIONS, 35d));
     decorator.decorate(resource, context);
 
     verify(context).saveMeasure(CoreMetrics.ACTIVE_REVIEWS, 10d);
@@ -108,18 +149,7 @@ public class ReviewsMeasuresDecoratorTest {
   }
 
   @Test
-  public void shouldComputeReviewMetricsOnProject() throws Exception {
-    ReviewDao reviewDao = mock(ReviewDao.class);
-    // Same 4 values used as for #shouldComputeReviewMetricsOnFile
-    when(reviewDao.countByQuery(argThat(openReviewQueryMatcher()))).thenReturn(10);
-    when(reviewDao.countByQuery(argThat(unassignedReviewQueryMatcher()))).thenReturn(2);
-    when(reviewDao.countByQuery(argThat(plannedReviewQueryMatcher()))).thenReturn(3);
-    when(reviewDao.countByQuery(argThat(falsePositiveReviewQueryMatcher()))).thenReturn(4);
-
-    ReviewsMeasuresDecorator decorator = new ReviewsMeasuresDecorator(reviewDao);
-    Resource<?> resource = new Project("foo").setId(1);
-    DecoratorContext context = mock(DecoratorContext.class);
-    when(context.getMeasure(CoreMetrics.VIOLATIONS)).thenReturn(new Measure(CoreMetrics.VIOLATIONS, 35d));
+  public void shouldComputeReviewsMetricsOnProject() throws Exception {
     when(context.getChildrenMeasures(CoreMetrics.ACTIVE_REVIEWS)).thenReturn(
         Lists.newArrayList(new Measure(CoreMetrics.ACTIVE_REVIEWS, 7d)));
     when(context.getChildrenMeasures(CoreMetrics.UNASSIGNED_REVIEWS)).thenReturn(
@@ -128,6 +158,8 @@ public class ReviewsMeasuresDecoratorTest {
         Lists.newArrayList(new Measure(CoreMetrics.UNPLANNED_REVIEWS, 2d)));
     when(context.getChildrenMeasures(CoreMetrics.FALSE_POSITIVE_REVIEWS)).thenReturn(
         Lists.newArrayList(new Measure(CoreMetrics.FALSE_POSITIVE_REVIEWS, 2d)));
+
+    Resource<?> resource = new Project("foo").setId(1);
     decorator.decorate(resource, context);
 
     // As same values used for #shouldComputeReviewMetricsOnFile, we just add the children measures to verify
@@ -136,6 +168,33 @@ public class ReviewsMeasuresDecoratorTest {
     verify(context).saveMeasure(CoreMetrics.UNPLANNED_REVIEWS, 7d + 2d);
     verify(context).saveMeasure(CoreMetrics.FALSE_POSITIVE_REVIEWS, 4d + 2d);
     verify(context).saveMeasure(CoreMetrics.VIOLATIONS_WITHOUT_REVIEW, 35d - (10d + 7d));
+  }
+
+  @Test
+  public void shouldTrackNewViolationsWithoutReview() throws Exception {
+    Resource<?> resource = new File("foo").setId(1);
+    Violation v1 = Violation.create((Rule) null, resource).setPermanentId(1); // test the null case for the created_at date
+    Violation v2 = Violation.create((Rule) null, resource).setPermanentId(2).setCreatedAt(rightNow);
+    Violation v3 = Violation.create((Rule) null, resource).setPermanentId(3).setCreatedAt(fiveDaysAgo);
+    Violation v4 = Violation.create((Rule) null, resource).setPermanentId(4).setCreatedAt(fiveDaysAgo);
+    Violation v5 = Violation.create((Rule) null, resource).setPermanentId(5).setCreatedAt(fiveDaysAgo);
+    Violation v6 = Violation.create((Rule) null, resource).setPermanentId(6).setCreatedAt(tenDaysAgo);
+    when(context.getViolations()).thenReturn(Arrays.asList(v1, v2, v3, v4, v5, v6));
+
+    Map<Integer, ReviewDto> openReviewsByViolationPermanentIds = Maps.newHashMap();
+    openReviewsByViolationPermanentIds.put(1, new ReviewDto());
+    openReviewsByViolationPermanentIds.put(3, new ReviewDto());
+
+    decorator.trackNewViolationsWithoutReview(context, openReviewsByViolationPermanentIds);
+    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_VIOLATIONS_WITHOUT_REVIEW, 1.0, 3.0)));
+  }
+
+  private List<ReviewDto> createListOf10Reviews() {
+    List<ReviewDto> reviews = Lists.newArrayList();
+    for (int i = 1; i < 11; i++) {
+      reviews.add(new ReviewDto().setViolationPermanentId(i));
+    }
+    return reviews;
   }
 
   private BaseMatcher<ReviewQuery> openReviewQueryMatcher() {
@@ -199,5 +258,31 @@ public class ReviewsMeasuresDecoratorTest {
       public void describeTo(Description description) {
       }
     };
+  }
+
+  private class IsVariationMeasure extends BaseMatcher<Measure> {
+    private Metric metric = null;
+    private Double var1 = null;
+    private Double var2 = null;
+
+    public IsVariationMeasure(Metric metric, Double var1, Double var2) {
+      this.metric = metric;
+      this.var1 = var1;
+      this.var2 = var2;
+    }
+
+    public boolean matches(Object o) {
+      if (!(o instanceof Measure)) {
+        return false;
+      }
+      Measure m = (Measure) o;
+      return ObjectUtils.equals(metric, m.getMetric()) &&
+        ObjectUtils.equals(var1, m.getVariation1()) &&
+        ObjectUtils.equals(var2, m.getVariation2()) &&
+        !(m instanceof RuleMeasure);
+    }
+
+    public void describeTo(Description o) {
+    }
   }
 }

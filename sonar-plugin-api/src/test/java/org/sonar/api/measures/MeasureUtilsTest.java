@@ -19,14 +19,16 @@
  */
 package org.sonar.api.measures;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
-import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+
+import org.junit.Test;
 
 public class MeasureUtilsTest {
 
@@ -109,6 +111,17 @@ public class MeasureUtilsTest {
     assertThat(MeasureUtils.getVariationAsLong(new Measure(), 2), nullValue());
 
     assertThat(MeasureUtils.getVariationAsLong(new Measure().setVariation2(222.0), 2, 3L), is(222L));
+  }
+
+  @Test
+  public void shouldSumOnVariation() throws Exception {
+    Measure measure1 = new Measure(CoreMetrics.NEW_VIOLATIONS).setVariation1(1.0).setVariation2(1.0).setVariation3(3.0);
+    Measure measure2 = new Measure(CoreMetrics.NEW_VIOLATIONS).setVariation1(1.0).setVariation2(2.0).setVariation3(3.0);
+    List<Measure> children = Arrays.asList(measure1, measure2);
+
+    assertThat(MeasureUtils.sumOnVariation(true, 1, children), is(2d));
+    assertThat(MeasureUtils.sumOnVariation(true, 2, children), is(3d));
+    assertThat(MeasureUtils.sumOnVariation(true, 3, children), is(6d));
   }
 
 }

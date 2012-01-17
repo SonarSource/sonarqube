@@ -116,17 +116,6 @@ public class NewViolationsDecoratorTest {
   }
 
   @Test
-  public void shouldSumChildren() {
-    Measure measure1 = new Measure(CoreMetrics.NEW_VIOLATIONS).setVariation1(1.0).setVariation2(1.0).setVariation3(3.0);
-    Measure measure2 = new Measure(CoreMetrics.NEW_VIOLATIONS).setVariation1(1.0).setVariation2(2.0).setVariation3(3.0);
-    List<Measure> children = Arrays.asList(measure1, measure2);
-
-    assertThat(decorator.sumChildren(1, children), is(2));
-    assertThat(decorator.sumChildren(2, children), is(3));
-    assertThat(decorator.sumChildren(3, children), is(6));
-  }
-
-  @Test
   public void shouldClearCacheAfterExecution() {
     Violation violation1 = Violation.create(rule1, resource).setSeverity(RulePriority.CRITICAL).setCreatedAt(rightNow);
     Violation violation2 = Violation.create(rule2, resource).setSeverity(RulePriority.CRITICAL).setCreatedAt(rightNow);

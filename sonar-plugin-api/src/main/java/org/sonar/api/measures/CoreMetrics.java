@@ -1424,6 +1424,23 @@ public final class CoreMetrics {
   /**
    * @since 2.14
    */
+  public static final String NEW_VIOLATIONS_WITHOUT_REVIEW_KEY = "new_violations_without_review";
+
+  /**
+   * @since 2.14
+   */
+  public static final Metric NEW_VIOLATIONS_WITHOUT_REVIEW = new Metric.Builder(NEW_VIOLATIONS_WITHOUT_REVIEW_KEY, "New unreviewed violations", Metric.ValueType.INT)
+      .setDescription("New violations that have not been reviewed yet")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(true)
+      .setDomain(DOMAIN_REVIEWS)
+      .setBestValue(0.0)
+      .setOptimizedBestValue(true)
+      .create();
+
+  /**
+   * @since 2.14
+   */
   public static final String FALSE_POSITIVE_REVIEWS_KEY = "false_positive_reviews";
 
   /**

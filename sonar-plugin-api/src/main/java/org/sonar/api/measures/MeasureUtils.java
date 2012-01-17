@@ -19,9 +19,9 @@
  */
 package org.sonar.api.measures;
 
-import org.apache.commons.lang.StringUtils;
-
 import java.util.Collection;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * An utility class to manipulate measures
@@ -75,7 +75,6 @@ public final class MeasureUtils {
     }
     return defaultValue;
   }
-
 
   public static Double getVariation(Measure measure, int periodIndex) {
     return getVariation(measure, periodIndex, null);
@@ -159,6 +158,28 @@ public final class MeasureUtils {
       return sum;
     }
     return zeroIfNone(zeroIfNone);
+  }
+
+  /**
+   * Sums a series of measures for the given variation index
+   *
+   * @param zeroIfNone whether to return 0 or null in case measures is null
+   * @param variationIndex the index of the variation to use
+   * @param measures   the series of measures
+   * @return the sum of the variations for the measure series
+   */
+  public static Double sumOnVariation(boolean zeroIfNone, int variationIndex, Collection<Measure> measures) {
+    if (measures == null) {
+      return zeroIfNone(zeroIfNone);
+    }
+    Double sum = 0d;
+    for (Measure measure : measures) {
+      Double var = measure.getVariation(variationIndex);
+      if (var != null) {
+        sum += var;
+      }
+    }
+    return sum;
   }
 
   private static Double zeroIfNone(boolean zeroIfNone) {
