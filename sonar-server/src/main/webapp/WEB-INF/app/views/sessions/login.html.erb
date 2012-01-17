@@ -8,7 +8,7 @@
 							<%= text_field_tag 'login', '', {:maxlength => 40, :size => 30, :disabled => false} %>
 
 							<% if Property.value('sonar.allowUsersToSignUp')=='true' %>
-							  <br/><span class="desc">Not a member? <%= link_to 'Sign up', {:controller => 'users', :action => 'new'}, :tabindex => '-1' -%> for an account.</span>
+							  <br/><span class="desc"><%= message('sessions.new_account', :params => [url_for(:controller => 'users', :action => 'new')]) -%></span>
 							<% end %>
 						</p>
 						<h3><%= label_tag message('password') %></h3>
