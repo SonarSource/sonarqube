@@ -131,7 +131,7 @@ public class DefaultServerFileSystem implements ServerFileSystem {
       throw new ServerStartException("No JDBC driver found in " + dir.getAbsolutePath());
     }
     if (jars.size() > 1) {
-      throw new ServerStartException("The directory " + dir.getAbsolutePath() + " accepts only one JAR file");
+      throw new ServerStartException("The directory " + dir.getAbsolutePath() + " accepts only a single JAR file");
     }
     return jars.get(0);
   }
