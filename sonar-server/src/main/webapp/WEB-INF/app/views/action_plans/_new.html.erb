@@ -4,7 +4,7 @@
     <input type="hidden" name="plan_id" value="<%= @action_plan.id if @action_plan -%>"/>
     <tbody>
       <tr>
-        <td colspan="2"><h1 class="marginbottom10"><%= @action_plan ? message('action_plans.edit_action_plan') : message('action_plans.create_new_action_plan') -%></h1></h1></td>
+        <td colspan="2"><h1 class="marginbottom10"><%= @action_plan && @action_plan.id ? message('action_plans.edit_action_plan') : message('action_plans.create_new_action_plan') -%></h1></h1></td>
       </tr>
       <tr>
         <td class="left" valign="top">
@@ -31,7 +31,7 @@
       </tr>
       <tr>
         <td class="left" valign="top">
-        <input type="submit" value="<%= @action_plan ? message('action_plans.edit_action_plan') : message('action_plans.create_action_plan') -%>"/>
+        <input type="submit" value="<%= @action_plan && @action_plan.id ? message('action_plans.edit_action_plan') : message('action_plans.create_action_plan') -%>"/>
         </td>
       </tr>
     </tbody>
