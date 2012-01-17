@@ -115,7 +115,7 @@ public class ReviewsMeasuresDecorator implements Decorator {
 
     // Count violations without a review
     Double violationsCount = MeasureUtils.getValue(context.getMeasure(CoreMetrics.VIOLATIONS), 0.0);
-    context.saveMeasure(CoreMetrics.VIOLATIONS_WITHOUT_REVIEW, violationsCount - totalOpenReviewsCount);
+    context.saveMeasure(CoreMetrics.UNREVIEWED_VIOLATIONS, violationsCount - totalOpenReviewsCount);
 
     // And finally track new violations without a review
     trackNewViolationsWithoutReview(context, openReviewsByViolationPermanentIds);
@@ -123,11 +123,11 @@ public class ReviewsMeasuresDecorator implements Decorator {
 
   protected void trackNewViolationsWithoutReview(DecoratorContext context, Map<Integer, ReviewDto> openReviewsByViolationPermanentIds) {
     List<Violation> violations = context.getViolations();
-    Measure measure = new Measure(CoreMetrics.NEW_VIOLATIONS_WITHOUT_REVIEW);
+    Measure measure = new Measure(CoreMetrics.NEW_UNREVIEWED_VIOLATIONS);
     for (PastSnapshot pastSnapshot : timeMachineConfiguration.getProjectPastSnapshots()) {
       int newUnreviewedViolations = countNewUnreviewedViolationsForSnapshot(pastSnapshot, violations, openReviewsByViolationPermanentIds);
       int variationIndex = pastSnapshot.getIndex();
-      Collection<Measure> children = context.getChildrenMeasures(CoreMetrics.NEW_VIOLATIONS_WITHOUT_REVIEW);
+      Collection<Measure> children = context.getChildrenMeasures(CoreMetrics.NEW_UNREVIEWED_VIOLATIONS);
       double sumNewUnreviewedViolations = MeasureUtils.sumOnVariation(true, variationIndex, children) + newUnreviewedViolations;
       measure.setVariation(variationIndex, sumNewUnreviewedViolations);
     }

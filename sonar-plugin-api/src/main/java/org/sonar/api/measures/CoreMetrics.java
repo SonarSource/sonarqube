@@ -1408,12 +1408,12 @@ public final class CoreMetrics {
   /**
    * @since 2.14
    */
-  public static final String VIOLATIONS_WITHOUT_REVIEW_KEY = "violations_without_review";
+  public static final String UNREVIEWED_VIOLATIONS_KEY = "unreviewed_violations";
 
   /**
    * @since 2.14
    */
-  public static final Metric VIOLATIONS_WITHOUT_REVIEW = new Metric.Builder(VIOLATIONS_WITHOUT_REVIEW_KEY, "Unreviewed violations", Metric.ValueType.INT)
+  public static final Metric UNREVIEWED_VIOLATIONS = new Metric.Builder(UNREVIEWED_VIOLATIONS_KEY, "Unreviewed violations", Metric.ValueType.INT)
       .setDescription("Violations that have not been reviewed yet")
       .setDirection(Metric.DIRECTION_WORST)
       .setDomain(DOMAIN_REVIEWS)
@@ -1424,12 +1424,12 @@ public final class CoreMetrics {
   /**
    * @since 2.14
    */
-  public static final String NEW_VIOLATIONS_WITHOUT_REVIEW_KEY = "new_violations_without_review";
+  public static final String NEW_UNREVIEWED_VIOLATIONS_KEY = "new_unreviewed_violations";
 
   /**
    * @since 2.14
    */
-  public static final Metric NEW_VIOLATIONS_WITHOUT_REVIEW = new Metric.Builder(NEW_VIOLATIONS_WITHOUT_REVIEW_KEY, "New unreviewed violations", Metric.ValueType.INT)
+  public static final Metric NEW_UNREVIEWED_VIOLATIONS = new Metric.Builder(NEW_UNREVIEWED_VIOLATIONS_KEY, "New unreviewed violations", Metric.ValueType.INT)
       .setDescription("New violations that have not been reviewed yet")
       .setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true)

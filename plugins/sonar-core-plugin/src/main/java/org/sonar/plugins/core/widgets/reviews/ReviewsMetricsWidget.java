@@ -35,6 +35,6 @@ public class ReviewsMetricsWidget extends AbstractRubyTemplate implements RubyRa
 
   @Override
   protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/reviews/reviews_metrics.html.erb";
+    return "/Users/fbellingard/Documents/Sonar/repos/sonar/plugins/sonar-core-plugin/src/main/resources/org/sonar/plugins/core/widgets/reviews/reviews_metrics.html.erb";
   }
 }

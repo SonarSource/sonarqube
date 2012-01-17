@@ -145,7 +145,7 @@ public class ReviewsMeasuresDecoratorTest {
     verify(context).saveMeasure(CoreMetrics.UNASSIGNED_REVIEWS, 2d);
     verify(context).saveMeasure(CoreMetrics.UNPLANNED_REVIEWS, 7d);
     verify(context).saveMeasure(CoreMetrics.FALSE_POSITIVE_REVIEWS, 4d);
-    verify(context).saveMeasure(CoreMetrics.VIOLATIONS_WITHOUT_REVIEW, 35d - 10d);
+    verify(context).saveMeasure(CoreMetrics.UNREVIEWED_VIOLATIONS, 35d - 10d);
   }
 
   @Test
@@ -167,7 +167,7 @@ public class ReviewsMeasuresDecoratorTest {
     verify(context).saveMeasure(CoreMetrics.UNASSIGNED_REVIEWS, 2d + 1d);
     verify(context).saveMeasure(CoreMetrics.UNPLANNED_REVIEWS, 7d + 2d);
     verify(context).saveMeasure(CoreMetrics.FALSE_POSITIVE_REVIEWS, 4d + 2d);
-    verify(context).saveMeasure(CoreMetrics.VIOLATIONS_WITHOUT_REVIEW, 35d - (10d + 7d));
+    verify(context).saveMeasure(CoreMetrics.UNREVIEWED_VIOLATIONS, 35d - (10d + 7d));
   }
 
   @Test
@@ -186,7 +186,7 @@ public class ReviewsMeasuresDecoratorTest {
     openReviewsByViolationPermanentIds.put(3, new ReviewDto());
 
     decorator.trackNewViolationsWithoutReview(context, openReviewsByViolationPermanentIds);
-    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_VIOLATIONS_WITHOUT_REVIEW, 1.0, 3.0)));
+    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_UNREVIEWED_VIOLATIONS, 1.0, 3.0)));
   }
 
   private List<ReviewDto> createListOf10Reviews() {
