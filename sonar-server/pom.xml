@@ -483,12 +483,6 @@
           <type>sonar-plugin</type>
           <scope>provided</scope>
         </dependency>
-        <dependency>
-          <groupId>org.codehaus.sonar-plugins</groupId>
-          <artifactId>sonar-devkit-plugin</artifactId>
-          <version>0.1-SNAPSHOT</version>
-          <type>sonar-plugin</type>
-        </dependency>
       </dependencies>
     </profile>
 
