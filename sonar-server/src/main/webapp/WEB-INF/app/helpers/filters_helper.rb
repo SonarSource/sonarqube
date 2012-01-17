@@ -83,6 +83,9 @@ module FiltersHelper
 
     elsif filter.sorted_column.on_version?
       java_filter.setSortedByVersion()
+  
+      elsif filter.sorted_column.on_language?
+        java_filter.setSortedByLanguage()
 
     elsif filter.sorted_column.on_metric? && filter.sorted_column.metric
       metric=filter.sorted_column.metric
