@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.config;
 
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.database.configuration.Property;
 import org.sonar.core.config.ConfigurationUtils;
@@ -42,8 +43,7 @@ public final class BatchSettingsEnhancer {
   }
 
   public void start() {
-    String projectKey = reactor.getRoot().getKey();
-    setIfNotDefined(ConfigurationUtils.getProjectProperties(dbFactory, projectKey));
+    setIfNotDefined(ConfigurationUtils.getProjectProperties(dbFactory, reactor.getRoot().getKey(), settings.getString(CoreProperties.PROJECT_BRANCH_PROPERTY)));
     setIfNotDefined(ConfigurationUtils.getGeneralProperties(dbFactory));
     settings.updateDeprecatedCommonsConfiguration();
   }

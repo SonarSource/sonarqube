@@ -21,6 +21,7 @@ package org.sonar.batch.config;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.configuration.Configuration;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
@@ -51,9 +52,16 @@ public class ProjectSettings extends Settings {
   public ProjectSettings load() {
     clear();
 
+    // hack to obtain "sonar.branch" before loading settings from database
+    loadBuildProperties();
+    addEnvironmentVariables();
+    addSystemProperties();
+    String branch = getString(CoreProperties.PROJECT_BRANCH_PROPERTY);
+    clear();
+
     // order is important -> bottom-up. The last one overrides all the others.
     loadDatabaseGlobalSettings();
-    loadDatabaseProjectSettings(projectDefinition);
+    loadDatabaseProjectSettings(projectDefinition, branch);
     loadBuildProperties();
     addEnvironmentVariables();
     addSystemProperties();
@@ -70,11 +78,11 @@ public class ProjectSettings extends Settings {
     }
   }
 
-  private void loadDatabaseProjectSettings(ProjectDefinition projectDef) {
+  private void loadDatabaseProjectSettings(ProjectDefinition projectDef, String branch) {
     if (projectDef.getParent() != null) {
-      loadDatabaseProjectSettings(projectDef.getParent());
+      loadDatabaseProjectSettings(projectDef.getParent(), branch);
     }
-    List<Property> props = ConfigurationUtils.getProjectProperties(dbFactory, projectDef.getKey());
+    List<Property> props = ConfigurationUtils.getProjectProperties(dbFactory, projectDef.getKey(), branch);
     for (Property dbProperty : props) {
       setProperty(dbProperty.getKey(), dbProperty.getValue());
     }

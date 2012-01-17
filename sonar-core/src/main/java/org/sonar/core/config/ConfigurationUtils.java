@@ -22,6 +22,7 @@ package org.sonar.core.config;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrSubstitutor;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.configuration.Property;
@@ -84,9 +85,15 @@ public final class ConfigurationUtils {
     return result;
   }
 
-  public static List<Property> getProjectProperties(DatabaseSessionFactory dbFactory, String moduleKey) {
+  public static List<Property> getProjectProperties(DatabaseSessionFactory dbFactory, String moduleKey, String branch) {
+    final String completeKey;
+    if (StringUtils.isNotBlank(branch)) {
+      completeKey = String.format("%s:%s", moduleKey, branch);
+    } else {
+      completeKey = moduleKey;
+    }
     DatabaseSession session = prepareDbSession(dbFactory);
-    ResourceModel resource = session.getSingleResult(ResourceModel.class, "key", moduleKey);
+    ResourceModel resource = session.getSingleResult(ResourceModel.class, "key", completeKey);
     if (resource != null) {
       return session
           .createQuery("from " + Property.class.getSimpleName() + " p where p.resourceId=:resourceId and p.userId is null")
