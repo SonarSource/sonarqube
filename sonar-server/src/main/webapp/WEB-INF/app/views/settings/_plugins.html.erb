@@ -90,9 +90,7 @@
                       <td style="padding: 10px">
                         <h3>
                           <%= message("property.#{property.key()}.name", :default => property.name()) -%>
-                          <% if property.project() %>
-                            <br/><span class="note"><%= property.key() -%></span>
-                          <% end %>
+                          <br/><span class="note"><%= property.key() -%></span>
                         </h3>
                         <%
                            desc=message("property.#{property.key()}.description", :default => property.description())
