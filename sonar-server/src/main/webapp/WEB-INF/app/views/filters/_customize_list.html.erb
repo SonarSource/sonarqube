@@ -11,9 +11,9 @@
 
     <select name="column" id="select_column">
       <option value="" selected></option>
-      <% Metric.domains.each do |domain| %>
-        <optgroup label="<%= domain -%>">
-          <% Metric.by_domain(domain).each do |metric| %>
+      <% Metric.domains(false).each do |domain| %>
+        <optgroup label="<%= Metric.domain_for(domain) -%>">
+          <% Metric.by_domain(domain, false).each do |metric| %>
             <% if metric.display? %><option value="metric,<%= metric.id -%>"><%= metric.short_name -%></option><% end %>
           <% end %>
           <% if domain=='General' %>
