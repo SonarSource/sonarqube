@@ -229,6 +229,10 @@ class Review < ActiveRecord::Base
   def open?
     status == STATUS_OPEN
   end
+
+  def active?
+    status == STATUS_OPEN || status == STATUS_REOPENED
+  end
   
   def linked_to? (action_plan)
     action_plans.include? action_plan
@@ -236,6 +240,10 @@ class Review < ActiveRecord::Base
   
   def planned?
     action_plans.size!=0
+  end
+  
+  def assigned?
+    assignee_id != nil
   end
   
   # used as long as we currently allow to link a review to only 1 action plan.

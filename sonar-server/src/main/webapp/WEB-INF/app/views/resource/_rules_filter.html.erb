@@ -41,9 +41,31 @@
      rule_options<<[label, rule.id]
    end
 %>
+
 <select id="rule" name="rule" onchange="applyOptions()">
+
   <option value=""><%= message('all_violations') -%></option>
-  <option value="f-positive" <%= 'selected' if params[:rule]=="f-positive" -%>><%= message('false_positives_only') -%></option>
+  
+  
+  <optgroup label="<%= message('reviews') -%>">
+    <option value="false_positive_reviews" <%= 'selected' if params[:rule]=="false_positive_reviews" -%>>
+      <%= message('violations_viewer.review_filter.false_positives') -%>
+    </option>
+    <option value="active_reviews" <%= 'selected' if params[:rule]=="active_reviews" -%>>
+      <%= message('violations_viewer.review_filter.active') -%>
+    </option>
+    <option value="unassigned_reviews" <%= 'selected' if params[:rule]=="unassigned_reviews" -%>>
+      <%= message('violations_viewer.review_filter.unassigned') -%>
+    </option>
+    <option value="unplanned_reviews" <%= 'selected' if params[:rule]=="unplanned_reviews" -%>>
+      <%= message('violations_viewer.review_filter.unplanned') -%>
+    </option>
+    <option value="unreviewed_violations" <%= 'selected' if params[:rule]=="unreviewed_violations" -%>>
+      <%= message('violations_viewer.review_filter.unreviewed_violations') -%>
+    </option>
+  </optgroup>
+  
+  
   <optgroup label="<%= message('severity') -%>">
     <% if blocker_violations
          value=(@period ? blocker_violations.variation(@period) : blocker_violations.value)
@@ -98,11 +120,11 @@
       <% end
          end
       %>
-
   </optgroup>
 
 
   <optgroup label="<%= message('rule') -%>">
     <%= options_for_select(rule_options, params[:rule].to_i) -%>
   </optgroup>
+  
 </select>

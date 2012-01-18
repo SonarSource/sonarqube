@@ -322,26 +322,51 @@ class ResourceController < ApplicationController
     @expandable=(@lines!=nil)
     @filtered=!@expanded
 
+    if params[:rule].blank?
+      metric = Metric.by_id(params[:metric])
+      if metric && (metric.name=="active_reviews" || metric.name=="unassigned_reviews" || metric.name=="unplanned_reviews" || metric.name=="false_positive_reviews"|| metric.name=="unreviewed_violations" || metric.name=="new_unreviewed_violations")
+        params[:rule] = metric.name.gsub(/new_/, "")
+      end
+    end
+    
     conditions='snapshot_id=?'
     values=[@snapshot.id]
     if params[:rule].blank?
       conditions+=' AND (switched_off IS NULL OR switched_off=?)'
       values<<false
     else
-      if params[:rule] == "f-positive"
+      if params[:rule] == "false_positive_reviews"
         conditions+=' AND switched_off=?'
         values<<true
       else
         conditions+=' AND (switched_off IS NULL OR switched_off=?)'
         values<<false
-        severity=Sonar::RulePriority.id(params[:rule])
-        if severity
-          conditions += ' AND failure_level=?'
-          values<<severity
+        if params[:rule] == "active_reviews"
+          conditions+=' AND permanent_id IN (?)'
+          open_reviews = Review.find(:all, :conditions => ["resource_id=? AND (status=? OR status=?)", @snapshot.resource_id, Review::STATUS_OPEN, Review::STATUS_REOPENED])
+          values << open_reviews.map {|r| r.rule_failure_permanent_id}
+        elsif params[:rule] == "unassigned_reviews"
+          conditions+=' AND permanent_id IN (?)'
+          unassigned_reviews = Review.find(:all, :conditions => ["resource_id=? AND (status=? OR status=?) AND assignee_id IS NULL", @snapshot.resource_id, Review::STATUS_OPEN, Review::STATUS_REOPENED])
+          values << unassigned_reviews.map {|r| r.rule_failure_permanent_id}
+        elsif params[:rule] == "unplanned_reviews"
+          conditions+=' AND permanent_id IN (?)'
+          open_reviews = Review.find(:all, :include => ['action_plans'], :conditions => ["resource_id=? AND (status=? OR status=?)", @snapshot.resource_id, Review::STATUS_OPEN, Review::STATUS_REOPENED])
+          values << open_reviews.reject{|r| r.planned?} .map {|r| r.rule_failure_permanent_id}
+        elsif params[:rule] == "unreviewed_violations"
+          conditions+=' AND permanent_id NOT IN (?)'
+          not_closed_reviews = Review.find(:all, :conditions => ["resource_id=? AND status!=?", @snapshot.resource_id, Review::STATUS_CLOSED])
+          values << not_closed_reviews.map {|r| r.rule_failure_permanent_id}
         else
-          rule=Rule.by_key_or_id(params[:rule])
-          conditions += ' AND rule_id=?'
-          values<<(rule ? rule.id : -1)
+          severity=Sonar::RulePriority.id(params[:rule])
+          if severity
+            conditions += ' AND failure_level=?'
+            values<<severity
+          else
+            rule=Rule.by_key_or_id(params[:rule])
+            conditions += ' AND rule_id=?'
+            values<<(rule ? rule.id : -1)
+          end
         end
       end
     end
@@ -353,7 +378,7 @@ class ResourceController < ApplicationController
         values<<date.advance(:minutes => 1)
       end
     end
-
+    
     RuleFailure.find(:all, :include => ['rule', 'review'], :conditions => [conditions] + values, :order => 'failure_level DESC').each do |violation|
       # sorted by severity => from blocker to info
       if violation.line && violation.line>0 && @lines

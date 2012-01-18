@@ -10,7 +10,7 @@
   <tr>
     <td valign="top" width="33%" nowrap>
       <div class="dashbox">
-        <h3><%= message('widget.reviews_metrics.open_reviews') -%></h3>
+        <h3><%= message('widget.reviews_metrics.active_reviews') -%></h3>
         <% if active_reviews %>
         <p>
           <span class="big"><%= format_measure(active_reviews, :suffix => '', :url => url_for_drilldown(active_reviews)) -%></span>
