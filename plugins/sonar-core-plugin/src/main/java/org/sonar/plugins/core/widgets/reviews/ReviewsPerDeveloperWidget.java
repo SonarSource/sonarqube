@@ -30,7 +30,7 @@ public class ReviewsPerDeveloperWidget extends AbstractRubyTemplate implements R
   }
 
   public String getTitle() {
-    return "Open reviews per developer";
+    return "Active reviews per developer";
   }
 
   @Override

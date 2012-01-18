@@ -39,7 +39,7 @@ public class ProjectReviewsWidget extends AbstractRubyTemplate implements RubyRa
   }
 
   public String getTitle() {
-    return "Project open reviews";
+    return "Project active reviews";
   }
 
   @Override

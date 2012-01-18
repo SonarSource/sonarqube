@@ -39,7 +39,7 @@ public class MyReviewsWidget extends AbstractRubyTemplate implements RubyRailsWi
   }
 
   public String getTitle() {
-    return "My open reviews";
+    return "My active reviews";
   }
 
   @Override
