@@ -186,6 +186,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
 
     Snapshot parentSnapshot = (Snapshot) ObjectUtils.defaultIfNull(getSnapshot(parentReference), projectSnapshot);
     Snapshot snapshot = new Snapshot(model, parentSnapshot);
+    snapshot.setBuildDate(new Date());
     snapshot = session.save(snapshot);
     session.commit();
     return snapshot;
