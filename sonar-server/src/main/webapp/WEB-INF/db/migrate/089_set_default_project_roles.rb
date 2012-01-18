@@ -21,9 +21,6 @@
 class SetDefaultProjectRoles < ActiveRecord::Migration
   
   def self.up
-    projects=Project.find(:all,
-      :conditions => {:enabled=>true, :qualifier=> [Project::QUALIFIER_VIEW, Project::QUALIFIER_SUBVIEW, Project::QUALIFIER_PROJECT]})
-
     administrators=Group.find_by_name('sonar-administrators')
     users=Group.find_by_name('sonar-users')
 
@@ -33,25 +30,6 @@ class SetDefaultProjectRoles < ActiveRecord::Migration
     GroupRole.create(:resource_id => nil, :role => 'default-user', :group_id => nil)
     GroupRole.create(:resource_id => nil, :role => 'default-codeviewer', :group_id => users.id)
     GroupRole.create(:resource_id => nil, :role => 'default-codeviewer', :group_id => nil)
-
-
-    projects.each do |project|
-      # admin
-      GroupRole.create(:resource_id => project.id, :role => 'admin', :group_id => administrators.id)
-
-      # Anyone can view the project
-      GroupRole.create(:resource_id => project.id, :role => 'user', :group_id => nil)
-      GroupRole.create(:resource_id => project.id, :role => 'user', :group_id => users.id)
-
-      # Anyone can browse sources
-      GroupRole.create(:resource_id => project.id, :role => 'codeviewer', :group_id => nil)
-      GroupRole.create(:resource_id => project.id, :role => 'codeviewer', :group_id => users.id)
-    end
   end
-
-  def self.down
-
-  end
-
 
 end

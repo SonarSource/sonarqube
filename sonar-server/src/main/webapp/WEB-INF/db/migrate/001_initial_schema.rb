@@ -96,7 +96,7 @@ class InitialSchema < ActiveRecord::Migration
       t.column :plugin_rule_key,     :string,    :null => false, :limit => 200
       t.column :plugin_config_key,   :string,    :null => false, :limit => 200
       t.column :plugin_name,         :string,    :null => false, :limit => 255
-      t.column :description,         :text
+      t.column :description,         :text,      :null => true
       t.column :priority, :integer, :null => true
     end
 

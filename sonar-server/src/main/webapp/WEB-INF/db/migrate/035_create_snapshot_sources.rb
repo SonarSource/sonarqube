@@ -22,7 +22,7 @@ class CreateSnapshotSources < ActiveRecord::Migration
   def self.up
     create_table :snapshot_sources do |t|
       t.column :snapshot_id, :integer,   :null => false
-      t.column :data,        :text
+      t.column :data,        :text, :null => true
     end
     add_index :snapshot_sources, :snapshot_id, :name => 'snap_sources_snapshot_id'
   end
