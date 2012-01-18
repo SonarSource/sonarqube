@@ -43,13 +43,11 @@ public class FieldUtilsTest {
     assertThat(fields, hasItem(new FieldMatcher("protectedStaticField")));
     assertThat(fields, hasItem(new FieldMatcher("packageStaticField")));
     assertThat(fields, hasItem(new FieldMatcher("privateStaticField")));
-    assertThat(fields.size(), is(8));
   }
 
   @Test
   public void shouldGetFieldsOfClassHierarchy() {
     List<Field> fields = FieldUtils.getFields(Child.class, true);
-
     assertThat(fields, hasItem(new FieldMatcher("publicField")));
     assertThat(fields, hasItem(new FieldMatcher("protectedField")));
     assertThat(fields, hasItem(new FieldMatcher("packageField")));
@@ -58,10 +56,7 @@ public class FieldUtilsTest {
     assertThat(fields, hasItem(new FieldMatcher("protectedStaticField")));
     assertThat(fields, hasItem(new FieldMatcher("packageStaticField")));
     assertThat(fields, hasItem(new FieldMatcher("privateStaticField")));
-
     assertThat(fields, hasItem(new FieldMatcher("childPrivateField")));
-
-    assertThat(fields.size(), is(8 + 1));
   }
 
   @Test
@@ -70,7 +65,6 @@ public class FieldUtilsTest {
 
     assertThat(fields, hasItem(new FieldMatcher("publicField")));
     assertThat(fields, hasItem(new FieldMatcher("publicStaticField")));
-    assertThat(fields.size(), is(2));
   }
 
   @Test
@@ -78,7 +72,6 @@ public class FieldUtilsTest {
     List<Field> fields = FieldUtils.getFields(InterfaceWithFields.class, true);
 
     assertThat(fields, hasItem(new FieldMatcher("INTERFACE_FIELD")));
-    assertThat(fields.size(), is(1));
   }
 
   @Test
@@ -86,7 +79,6 @@ public class FieldUtilsTest {
     List<Field> fields = FieldUtils.getFields(InterfaceImplementation.class, true);
 
     assertThat(fields, hasItem(new FieldMatcher("INTERFACE_FIELD")));
-    assertThat(fields.size(), is(1));
   }
 
   static interface InterfaceWithFields {
