@@ -23,8 +23,6 @@ import org.sonar.api.rules.RulePriority;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.utils.ValidationMessages;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import static org.hamcrest.Matchers.is;
@@ -57,42 +55,42 @@ public class RuleChangeTest extends AbstractDbUnitTestCase {
   public void testRuleActivated() {
     setupData("initialData");
     profilesManager.activated(2, 3, "admin");
-    checkTables("ruleActivated", new String[] {"change_date"}, "active_rule_changes");
+    checkTablesWithExcludedColumns("ruleActivated", new String[]{"change_date"}, "active_rule_changes");
   }
 
   @Test
   public void testRuleDeactivated() {
     setupData("initialData");
     profilesManager.deactivated(2, 3, "admin");
-    checkTables("ruleDeactivated", new String[] {"change_date"}, "active_rule_changes");
+    checkTablesWithExcludedColumns("ruleDeactivated", new String[]{"change_date"}, "active_rule_changes");
   }
 
   @Test
   public void testRuleParamChanged() {
     setupData("initialData");
     profilesManager.ruleParamChanged(2, 3, "param1", "20", "30", "admin");
-    checkTables("ruleParamChanged", new String[] {"change_date"}, "active_rule_changes", "active_rule_param_changes");
+    checkTablesWithExcludedColumns("ruleParamChanged", new String[]{"change_date"}, "active_rule_changes", "active_rule_param_changes");
   }
   
   @Test
   public void testRuleSeverityChanged() {
     setupData("initialData");
     profilesManager.ruleSeverityChanged(2, 3, RulePriority.BLOCKER, RulePriority.CRITICAL, "admin");
-    checkTables("ruleSeverityChanged", new String[] {"change_date"}, "active_rule_changes");
+    checkTablesWithExcludedColumns("ruleSeverityChanged", new String[]{"change_date"}, "active_rule_changes");
   }
   
   @Test
   public void testRuleReverted() {
     setupData("ruleReverted");
     profilesManager.revert(2, 3, "admin");
-    checkTables("ruleReverted", new String[] {"change_date"}, "active_rule_changes", "active_rule_param_changes");
+    checkTablesWithExcludedColumns("ruleReverted", new String[]{"change_date"}, "active_rule_changes", "active_rule_param_changes");
   }
   
   @Test
   public void testChangeParentProfile() {
     setupData("changeParentProfile");
     profilesManager.changeParentProfile(2, "parent", "admin");
-    checkTables("changeParentProfile", new String[] {"change_date"}, "active_rule_changes");
+    checkTablesWithExcludedColumns("changeParentProfile", new String[]{"change_date"}, "active_rule_changes");
   }
 
 

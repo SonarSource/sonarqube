@@ -5,15 +5,15 @@
             enabled="true" language="java" copy_resource_id="[null]" profile_id="[null]"/>
 
   <!-- orphan : global event, attached to nothing (old way to create events) -->
-  <events id="1" name="Upgrade" resource_id="[null]" snapshot_id="[null]" category="SYSTEM" description="[null]" event_date="2008-12-02 13:58:00.00" CREATED_AT="[null]"/>
+  <events id="1" name="Upgrade" resource_id="[null]" snapshot_id="[null]" category="SYSTEM" description="[null]" event_date="2008-12-02 13:58:00.00" created_at="[null]"/>
 
   <!-- orphan : project event, attached to a resource but with no snapshot (old way to create events) -->
-  <events id="2" name="Version 1.0" resource_id="1" snapshot_id="[null]" category="VERSION" description="[null]" event_date="2008-12-02 13:58:00.00" CREATED_AT="[null]"/>
+  <events id="2" name="Version 1.0" resource_id="1" snapshot_id="[null]" category="VERSION" description="[null]" event_date="2008-12-02 13:58:00.00" created_at="[null]"/>
 
   <!-- orphan : the project does not exist-->
-  <events id="3" name="Version 0.9" resource_id="5" snapshot_id="[null]" category="VERSION" description="[null]" event_date="2008-12-02 13:58:00.00" CREATED_AT="[null]"/>
+  <events id="3" name="Version 0.9" resource_id="5" snapshot_id="[null]" category="VERSION" description="[null]" event_date="2008-12-02 13:58:00.00" created_at="[null]"/>
 
   <!-- "correct" event that is attached to an existing resource and existing snapshot -->
-  <events id="4" name="Version 1.0" resource_id="1" snapshot_id="1" category="VERSION" description="[null]" event_date="2008-12-02 13:58:00.00" CREATED_AT="[null]"/>
+  <events id="4" name="Version 1.0" resource_id="1" snapshot_id="1" category="VERSION" description="[null]" event_date="2008-12-02 13:58:00.00" created_at="[null]"/>
 
 </dataset>

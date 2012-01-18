@@ -30,6 +30,7 @@ import org.sonar.api.utils.SonarException;
 
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +79,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     Snapshot snapshot = new Snapshot(model, parentSnapshot);
     snapshot.setVersion(project.getAnalysisVersion());
     snapshot.setCreatedAt(project.getAnalysisDate());
+    snapshot.setBuildDate(new Date());
     snapshot = session.save(snapshot);
     session.commit();
     return snapshot;
@@ -144,6 +146,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     if (snapshot == null) {
       snapshot = new Snapshot(model, null);
       snapshot.setCreatedAt(project.getAnalysisDate());
+      snapshot.setBuildDate(new Date());
       snapshot.setVersion(library.getVersion());
       snapshot.setStatus(Snapshot.STATUS_PROCESSED);
 

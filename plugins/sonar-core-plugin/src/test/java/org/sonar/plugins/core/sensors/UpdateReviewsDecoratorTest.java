@@ -113,6 +113,6 @@ public class UpdateReviewsDecoratorTest extends AbstractDbUnitTestCase {
 
     reviewsDecorator.decorate(resource, context);
 
-    checkTables("shouldUpdateReviews", new String[] { "updated_at" }, new String[] { "reviews" });
+    checkTablesWithExcludedColumns("shouldUpdateReviews", new String[]{"updated_at"}, new String[]{"reviews"});
   }
 }

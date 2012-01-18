@@ -12,25 +12,25 @@
             enabled="true" language="java" copy_resource_id="[null]"/>
 
   <!-- first snapshot -->
-  <snapshots period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="100" scope="PRJ" qualifier="TRK" created_at="2009-11-02 13:58:00.00" version="0.1-SNAPSHOT"
+  <snapshots period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="100" scope="PRJ" qualifier="TRK" created_at="2009-11-02 13:58:00.00" build_date="2009-11-02 13:58:00.00" version="0.1-SNAPSHOT"
              project_id="1" depth="[null]"
              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="false"
              path="[null]"/>
 
   <!-- unvalid snapshot (status = UNPROCESSED) -->
-  <snapshots period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="200" scope="PRJ" qualifier="TRK" created_at="2009-11-03 13:58:00.00" version="0.1-SNAPSHOT"
+  <snapshots period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="200" scope="PRJ" qualifier="TRK" created_at="2009-11-03 13:58:00.00" build_date="2009-11-03 13:58:00.00" version="0.1-SNAPSHOT"
              project_id="1" depth="[null]"
              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="U" islast="false"
              path="[null]"/>
 
   <!-- second snapshot -->
-  <snapshots period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="300" scope="PRJ" qualifier="TRK" created_at="2009-11-04 13:58:00.00" version="0.1-SNAPSHOT"
+  <snapshots period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="300" scope="PRJ" qualifier="TRK" created_at="2009-11-04 13:58:00.00" build_date="2009-11-04 13:58:00.00" version="0.1-SNAPSHOT"
              project_id="1" depth="[null]"
              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="false"
              path="[null]"/>
 
   <!-- last snapshot -->
-  <snapshots period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="400" scope="PRJ" qualifier="TRK" created_at="2009-11-05 13:58:00.00" version="0.1-SNAPSHOT"
+  <snapshots period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="400" scope="PRJ" qualifier="TRK" created_at="2009-11-05 13:58:00.00" build_date="2009-11-05 13:58:00.00" version="0.1-SNAPSHOT"
              project_id="1" depth="[null]"
              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="true"
              path="[null]"/>
@@ -45,7 +45,7 @@
             description="[null]"
             enabled="true" language="java" copy_resource_id="[null]"/>
 
-  <snapshots period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="1000" scope="PRJ" qualifier="TRK" created_at="2009-11-05 13:58:00.00" version="0.1-SNAPSHOT"
+  <snapshots period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="1000" scope="PRJ" qualifier="TRK" created_at="2009-11-05 13:58:00.00" build_date="2009-11-05 13:58:00.00" version="0.1-SNAPSHOT"
              project_id="2" depth="[null]"
              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="true"
              path="[null]"/>

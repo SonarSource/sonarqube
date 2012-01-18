@@ -179,17 +179,18 @@ public abstract class AbstractDbUnitTestCase {
   }
 
   protected final void checkTables(String testName, String... tables) {
-    checkTables(testName, new String[]{}, tables);
+    checkTablesWithExcludedColumns(testName, new String[]{}, tables);
   }
 
-  protected final void checkTables(String testName, String[] excludedColumnNames, String... tables) {
+  protected final void checkTablesWithExcludedColumns(String testName, String[] excludedColumnNames, String... tables) {
     getSession().commit();
     try {
       IDataSet dataSet = getCurrentDataSet();
       IDataSet expectedDataSet = getExpectedData(testName);
       for (String table : tables) {
         ITable filteredTable = DefaultColumnFilter.excludedColumnsTable(dataSet.getTable(table), excludedColumnNames);
-        Assertion.assertEquals(expectedDataSet.getTable(table), filteredTable);
+        ITable filteredExpectedTable = DefaultColumnFilter.excludedColumnsTable(expectedDataSet.getTable(table), excludedColumnNames);
+        Assertion.assertEquals(filteredExpectedTable, filteredTable);
       }
     } catch (DataSetException e) {
       throw translateException("Error while checking results", e);

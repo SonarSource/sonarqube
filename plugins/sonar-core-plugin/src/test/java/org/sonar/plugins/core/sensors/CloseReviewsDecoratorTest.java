@@ -62,7 +62,7 @@ public class CloseReviewsDecoratorTest extends AbstractDbUnitTestCase {
 
     assertThat(count, is(3));
     verify(notificationManager, times(3)).scheduleForSending(any(Notification.class));
-    checkTables("shouldCloseReviewWithoutCorrespondingViolation", new String[]{"updated_at"}, "reviews");
+    checkTablesWithExcludedColumns("shouldCloseReviewWithoutCorrespondingViolation", new String[]{"updated_at"}, "reviews");
 
     try {
       checkTables("shouldCloseReviewWithoutCorrespondingViolation", "reviews");
@@ -84,7 +84,7 @@ public class CloseReviewsDecoratorTest extends AbstractDbUnitTestCase {
 
     assertThat(count, is(1));
     verify(notificationManager, times(4)).scheduleForSending(any(Notification.class));
-    checkTables("shouldReopenResolvedReviewWithNonFixedViolation", new String[]{"updated_at"}, "reviews");
+    checkTablesWithExcludedColumns("shouldReopenResolvedReviewWithNonFixedViolation", new String[]{"updated_at"}, "reviews");
 
     try {
       checkTables("shouldReopenResolvedReviewWithNonFixedViolation", "reviews");

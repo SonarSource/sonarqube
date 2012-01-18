@@ -34,6 +34,7 @@ import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.PastSnapshotFinder;
 
 import javax.persistence.Query;
+import java.util.Date;
 import java.util.List;
 
 public class TimeMachineConfiguration implements BatchExtension {
@@ -79,6 +80,7 @@ public class TimeMachineConfiguration implements BatchExtension {
       snapshot = new Snapshot();
       snapshot.setResourceId(projectId.intValue());
       snapshot.setCreatedAt(project.getAnalysisDate());
+      snapshot.setBuildDate(new Date());
     }
     return snapshot;
   }

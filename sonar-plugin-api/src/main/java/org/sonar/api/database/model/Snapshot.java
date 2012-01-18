@@ -50,6 +50,10 @@ public class Snapshot extends BaseIdentifiable {
   private Integer resourceId;
 
   @Temporal(TemporalType.TIMESTAMP)
+  @Column(name = "build_date", updatable = true, nullable = true)
+  private Date buildDate;
+
+  @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "created_at", updatable = true, nullable = true)
   private Date createdAt;
 
@@ -148,10 +152,10 @@ public class Snapshot extends BaseIdentifiable {
       this.createdAt = parent.getCreatedAt();
       this.depth = parent.getDepth() + 1;
       this.path = new StringBuilder()
-          .append(parent.getPath())
-          .append(parent.getId())
-          .append(".")
-          .toString();
+        .append(parent.getPath())
+        .append(parent.getId())
+        .append(".")
+        .toString();
     }
     this.rootProjectId = guessRootProjectId(resource, parent);
   }
@@ -182,6 +186,25 @@ public class Snapshot extends BaseIdentifiable {
     this.status = status;
     this.last = last;
     this.createdAt = date;
+  }
+
+  /**
+   * Insertion date (technical)
+   *
+   * @since 2.14
+   */
+  public Date getBuildDate() {
+    return buildDate;
+  }
+
+  /**
+   * Insertion date (technical)
+   *
+   * @since 2.14
+   */
+  public Snapshot setBuildDate(Date d) {
+    this.buildDate = d;
+    return this;
   }
 
   public Date getCreatedAt() {
@@ -522,25 +545,42 @@ public class Snapshot extends BaseIdentifiable {
    * @since 2.5
    */
   public Snapshot setPeriodMode(int periodIndex, String s) {
-    switch(periodIndex) {
-      case 1: period1Mode = s; break;
-      case 2: period2Mode = s; break;
-      case 3: period3Mode = s; break;
-      case 4: period4Mode = s; break;
-      case 5: period5Mode = s; break;
-      default: throw new IndexOutOfBoundsException("Index of Snapshot.periodMode is between 1 and 5");
+    switch (periodIndex) {
+      case 1:
+        period1Mode = s;
+        break;
+      case 2:
+        period2Mode = s;
+        break;
+      case 3:
+        period3Mode = s;
+        break;
+      case 4:
+        period4Mode = s;
+        break;
+      case 5:
+        period5Mode = s;
+        break;
+      default:
+        throw new IndexOutOfBoundsException("Index of Snapshot.periodMode is between 1 and 5");
     }
     return this;
   }
 
   public String getPeriodMode(int index) {
-    switch(index) {
-      case 1: return period1Mode;
-      case 2: return period2Mode;
-      case 3: return period3Mode;
-      case 4: return period4Mode;
-      case 5: return period5Mode;
-      default: throw new IndexOutOfBoundsException("Index of Snapshot.periodMode is between 1 and 5");
+    switch (index) {
+      case 1:
+        return period1Mode;
+      case 2:
+        return period2Mode;
+      case 3:
+        return period3Mode;
+      case 4:
+        return period4Mode;
+      case 5:
+        return period5Mode;
+      default:
+        throw new IndexOutOfBoundsException("Index of Snapshot.periodMode is between 1 and 5");
     }
   }
 
@@ -550,25 +590,42 @@ public class Snapshot extends BaseIdentifiable {
    * @since 2.5
    */
   public Snapshot setPeriodModeParameter(int periodIndex, String s) {
-    switch(periodIndex) {
-      case 1: period1Param = s; break;
-      case 2: period2Param = s; break;
-      case 3: period3Param = s; break;
-      case 4: period4Param = s; break;
-      case 5: period5Param = s; break;
-      default: throw new IndexOutOfBoundsException("Index of Snapshot.periodModeParameter is between 1 and 5");
+    switch (periodIndex) {
+      case 1:
+        period1Param = s;
+        break;
+      case 2:
+        period2Param = s;
+        break;
+      case 3:
+        period3Param = s;
+        break;
+      case 4:
+        period4Param = s;
+        break;
+      case 5:
+        period5Param = s;
+        break;
+      default:
+        throw new IndexOutOfBoundsException("Index of Snapshot.periodModeParameter is between 1 and 5");
     }
     return this;
   }
 
   public String getPeriodModeParameter(int periodIndex) {
-    switch(periodIndex) {
-      case 1: return period1Param;
-      case 2: return period2Param;
-      case 3: return period3Param;
-      case 4: return period4Param;
-      case 5: return period5Param;
-      default: throw new IndexOutOfBoundsException("Index of Snapshot.periodModeParameter is between 1 and 5");
+    switch (periodIndex) {
+      case 1:
+        return period1Param;
+      case 2:
+        return period2Param;
+      case 3:
+        return period3Param;
+      case 4:
+        return period4Param;
+      case 5:
+        return period5Param;
+      default:
+        throw new IndexOutOfBoundsException("Index of Snapshot.periodModeParameter is between 1 and 5");
     }
   }
 
@@ -578,25 +635,42 @@ public class Snapshot extends BaseIdentifiable {
    * @since 2.5
    */
   public Snapshot setPeriodDate(int periodIndex, Date d) {
-    switch(periodIndex) {
-      case 1: period1Date = d; break;
-      case 2: period2Date = d; break;
-      case 3: period3Date = d; break;
-      case 4: period4Date = d; break;
-      case 5: period5Date = d; break;
-      default: throw new IndexOutOfBoundsException("Index of Snapshot.periodDate is between 1 and 5");
+    switch (periodIndex) {
+      case 1:
+        period1Date = d;
+        break;
+      case 2:
+        period2Date = d;
+        break;
+      case 3:
+        period3Date = d;
+        break;
+      case 4:
+        period4Date = d;
+        break;
+      case 5:
+        period5Date = d;
+        break;
+      default:
+        throw new IndexOutOfBoundsException("Index of Snapshot.periodDate is between 1 and 5");
     }
     return this;
   }
 
   public Date getPeriodDate(int periodIndex) {
-    switch(periodIndex) {
-      case 1: return period1Date;
-      case 2: return period2Date;
-      case 3: return period3Date;
-      case 4: return period4Date;
-      case 5: return period5Date;
-      default: throw new IndexOutOfBoundsException("Index of Snapshot.periodDate is between 1 and 5");
+    switch (periodIndex) {
+      case 1:
+        return period1Date;
+      case 2:
+        return period2Date;
+      case 3:
+        return period3Date;
+      case 4:
+        return period4Date;
+      case 5:
+        return period5Date;
+      default:
+        throw new IndexOutOfBoundsException("Index of Snapshot.periodDate is between 1 and 5");
     }
   }
 
@@ -610,17 +684,17 @@ public class Snapshot extends BaseIdentifiable {
     }
     Snapshot other = (Snapshot) obj;
     return new EqualsBuilder()
-        .append(resourceId, other.getResourceId())
-        .append(createdAt, other.getCreatedAt())
-        .isEquals();
+      .append(resourceId, other.getResourceId())
+      .append(createdAt, other.getCreatedAt())
+      .isEquals();
   }
 
   @Override
   public int hashCode() {
     return new HashCodeBuilder(17, 37)
-        .append(resourceId)
-        .append(createdAt)
-        .toHashCode();
+      .append(resourceId)
+      .append(createdAt)
+      .toHashCode();
   }
 
   @Override
