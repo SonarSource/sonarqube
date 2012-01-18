@@ -71,6 +71,13 @@ table#columns td {
 
               <input type="checkbox" name="qualifiers[]" value="UTS" <%= 'checked' if qualifiers.include?('UTS') -%> id="q-UTS"></input> <label for="q-UTS"><%= message('unit_tests') -%></label>
               <span class="spacer"> </span>
+
+              <% for desc in controller.java_facade.getResourceDefinitionsForFilter()
+                   qualifier = desc.getQualifier() %>
+                <input type="checkbox" name="qualifiers[]" value="<%= qualifier -%>" <%= 'checked' if qualifiers.include?(qualifier) -%> id="q-<%= qualifier -%>"></input>
+                <label for="q-<%= qualifier -%>"><%= message(desc.getName()) -%></label>
+                <span class="spacer"> </span>
+              <% end %>
           </td>
         </tr>
         <tr>

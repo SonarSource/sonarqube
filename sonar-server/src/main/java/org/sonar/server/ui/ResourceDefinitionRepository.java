@@ -19,7 +19,10 @@
  */
 package org.sonar.server.ui;
 
-import com.google.common.collect.Maps;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.resources.ResourceDefinition;
 
@@ -28,12 +31,14 @@ import java.util.Map;
 
 public class ResourceDefinitionRepository implements ServerComponent {
 
-  private final Map<String, ResourceDefinition> descriptionsByQualifier = Maps.newHashMap();
+  private final Map<String, ResourceDefinition> descriptionsByQualifier;
 
   public ResourceDefinitionRepository(ResourceDefinition[] descriptions) {
+    ImmutableMap.Builder<String, ResourceDefinition> map = ImmutableMap.builder();
     for (ResourceDefinition description : descriptions) {
-      descriptionsByQualifier.put(description.getQualifier(), description);
+      map.put(description.getQualifier(), description);
     }
+    descriptionsByQualifier = map.build();
   }
 
   public ResourceDefinition get(String qualifier) {
@@ -48,5 +53,15 @@ public class ResourceDefinitionRepository implements ServerComponent {
   public Collection<ResourceDefinition> getAll() {
     return descriptionsByQualifier.values();
   }
+
+  public Collection<ResourceDefinition> getForFilter() {
+    return ImmutableList.copyOf(Collections2.filter(descriptionsByQualifier.values(), IS_AVAILABLE_FOR_FILTER));
+  }
+
+  private static final Predicate<ResourceDefinition> IS_AVAILABLE_FOR_FILTER = new Predicate<ResourceDefinition>() {
+    public boolean apply(ResourceDefinition input) {
+      return input.isAvailableForFilters();
+    }
+  };
 
 }

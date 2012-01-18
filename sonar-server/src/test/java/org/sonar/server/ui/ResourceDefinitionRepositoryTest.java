@@ -30,9 +30,10 @@ public class ResourceDefinitionRepositoryTest {
   @Test
   public void test() {
     ResourceDefinition def1 = ResourceDefinition.builder("1").build();
-    ResourceDefinition def2 = ResourceDefinition.builder("2").build();
+    ResourceDefinition def2 = ResourceDefinition.builder("2").availableForFilters().build();
     ResourceDefinitionRepository repository = new ResourceDefinitionRepository(new ResourceDefinition[] {def1, def2});
     assertThat(repository.getAll(), hasItems(def1, def2));
+    assertThat(repository.getForFilter(), hasItem(def2));
     assertThat(repository.get("1"), is(def1));
     assertThat(repository.get("unknown"), notNullValue());
   }

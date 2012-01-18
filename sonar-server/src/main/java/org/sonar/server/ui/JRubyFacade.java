@@ -73,7 +73,7 @@ public final class JRubyFacade {
   }
 
   public Collection<ResourceDefinition> getResourceDefinitionsForFilter() {
-    return getContainer().getComponentByType(ResourceDefinitionRepository.class).getAll();
+    return getContainer().getComponentByType(ResourceDefinitionRepository.class).getForFilter();
   }
 
   public ResourceDefinition getResourceDefinition(String qualifier) {
