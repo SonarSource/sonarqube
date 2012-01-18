@@ -66,10 +66,7 @@ import org.sonar.server.qualitymodel.DefaultModelManager;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
 import org.sonar.server.startup.*;
-import org.sonar.server.ui.CodeColorizers;
-import org.sonar.server.ui.JRubyI18n;
-import org.sonar.server.ui.SecurityRealmFactory;
-import org.sonar.server.ui.Views;
+import org.sonar.server.ui.*;
 
 import javax.servlet.ServletContext;
 
@@ -208,6 +205,7 @@ public final class Platform {
     servicesContainer.addSingleton(I18nManager.class);
     servicesContainer.addSingleton(RuleI18nManager.class);
     servicesContainer.addSingleton(GwtI18n.class);
+    servicesContainer.addSingleton(ResourceDefinitionRepository.class);
 
     // Notifications
     servicesContainer.addSingleton(NotificationService.class);

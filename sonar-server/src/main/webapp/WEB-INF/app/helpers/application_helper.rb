@@ -41,7 +41,8 @@ module ApplicationHelper
   def qualifier_icon(object)
     qualifier=(object.respond_to?('qualifier') ? object.qualifier : object.to_s)
     if qualifier
-      image_tag("q/#{qualifier}.png", :alt => message(Resourceable.qualifier_name(qualifier)))
+      defintion = Java::OrgSonarServerUi::JRubyFacade.getInstance().getResourceDefinition(qualifier)
+      image_tag(definition.getIconPath(), :alt => message(definition.getName()))
     else
       image_tag('e16.gif')
     end

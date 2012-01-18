@@ -29,6 +29,7 @@ import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.resources.Language;
+import org.sonar.api.resources.ResourceDefinition;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.utils.ValidationMessages;
@@ -69,6 +70,14 @@ public final class JRubyFacade {
 
   public FilterResult executeFilter(Filter filter) {
     return getContainer().getComponentByType(FilterExecutor.class).execute(filter);
+  }
+
+  public Collection<ResourceDefinition> getResourceDefinitionsForFilter() {
+    return getContainer().getComponentByType(ResourceDefinitionRepository.class).getAll();
+  }
+
+  public ResourceDefinition getResourceDefinition(String qualifier) {
+    return getContainer().getComponentByType(ResourceDefinitionRepository.class).get(qualifier);
   }
 
   // UPDATE CENTER ------------------------------------------------------------
