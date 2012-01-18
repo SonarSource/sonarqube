@@ -17,6 +17,7 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
+# sonar 2.0
 class CreateGroupsUsers < ActiveRecord::Migration
   def self.up
   	create_table :groups_users, :id => false do |t|
