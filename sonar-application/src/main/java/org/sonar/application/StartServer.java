@@ -30,8 +30,6 @@ public final class StartServer {
   private static final String DEFAULT_WEB_HOST = "0.0.0.0";
   private static final int DEFAULT_WEB_PORT = 9000;
   private static final String DEFAULT_WEB_CONTEXT = "/";
-  private static final String DEFAULT_AJP13_HOST = "0.0.0.0";
-  private static final int DEFAULT_AJP13_PORT = -1;
 
   private StartServer() {
   }
@@ -44,9 +42,7 @@ public final class StartServer {
     String host = configuration.getProperty("sonar.web.host", DEFAULT_WEB_HOST);
     int port = Integer.parseInt(configuration.getProperty("sonar.web.port", "" + DEFAULT_WEB_PORT));
     String context = configuration.getProperty("sonar.web.context", DEFAULT_WEB_CONTEXT);
-    String ajp13Host = configuration.getProperty("sonar.ajp13.host", DEFAULT_AJP13_HOST);
-    int ajp13Port = Integer.parseInt(configuration.getProperty("sonar.ajp13.port", "" + DEFAULT_AJP13_PORT));
-    JettyEmbedder jetty = new JettyEmbedder(host, port, context, ajp13Host, ajp13Port, StartServer.class.getResource("/jetty.xml"));
+    JettyEmbedder jetty = new JettyEmbedder(host, port, context, StartServer.class.getResource("/jetty.xml"));
     configureRequestLogs(jetty, configuration);
 
     jetty.start();
@@ -83,6 +79,6 @@ public final class StartServer {
   private static void configureHome() throws URISyntaxException {
     File confFile = new File(StartServer.class.getResource("/conf/sonar.properties").toURI());
     System.setProperty("SONAR_HOME" /* see constant org.sonar.server.platform.SonarHome.PROPERTY */,
-        confFile.getParentFile().getParentFile().getAbsolutePath());
+      confFile.getParentFile().getParentFile().getAbsolutePath());
   }
 }

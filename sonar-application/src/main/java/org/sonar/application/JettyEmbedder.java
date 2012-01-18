@@ -20,10 +20,8 @@
 package org.sonar.application;
 
 import org.apache.commons.io.FileUtils;
-import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.NCSARequestLog;
 import org.mortbay.jetty.Server;
-import org.mortbay.jetty.ajp.Ajp13SocketConnector;
 import org.mortbay.jetty.handler.RequestLogHandler;
 import org.mortbay.jetty.nio.SelectChannelConnector;
 import org.mortbay.jetty.webapp.WebAppContext;
@@ -44,15 +42,11 @@ public class JettyEmbedder {
   private final String host;
   private final int port;
   private final String contextPath;
-  private final String ajp13Host;
-  private final int ajp13Port;
 
-  public JettyEmbedder(String host, int port, String contextPath, String ajp13Host, int ajp13Port, URL configurationURL) throws Exception {
+  public JettyEmbedder(String host, int port, String contextPath, URL configurationURL) throws Exception {
     this.host = host.trim();
     this.port = port;
     this.contextPath = contextPath;
-    this.ajp13Host = ajp13Host;
-    this.ajp13Port = ajp13Port;
     server = new Server();
 
     if (configurationURL == null) {
@@ -62,10 +56,6 @@ public class JettyEmbedder {
       System.setProperty("jetty.host", this.host);
       System.setProperty("jetty.port", String.valueOf(port));
       System.setProperty("jetty.context", contextPath);
-      if (ajp13Port > 0) {
-        System.setProperty("jetty.ajp13Host", this.ajp13Host);
-        System.setProperty("jetty.ajp13Port", String.valueOf(ajp13Port));
-      }
       XmlConfiguration configuration = new XmlConfiguration(configurationURL);
       configuration.configure(server);
     }
@@ -75,7 +65,7 @@ public class JettyEmbedder {
    * for tests
    */
   JettyEmbedder(String host, int port) throws Exception {
-    this(host, port, null, null, 0, null);
+    this(host, port, null, null);
   }
 
   public void start() throws Exception {
@@ -124,13 +114,6 @@ public class JettyEmbedder {
     connector.setStatsOn(false);
     connector.setAcceptors(2);
     connector.setConfidentialPort(8443);
-    if (ajp13Port > 0) {
-      System.out.println("AJP13 connector is on " + ajp13Host + ":" + ajp13Port);
-      Connector ajpConnector = new Ajp13SocketConnector();
-      ajpConnector.setHost(ajp13Host);
-      ajpConnector.setPort(ajp13Port);
-      server.addConnector(ajpConnector);
-    }
     server.addConnector(connector);
     server.setStopAtShutdown(true);
     server.setSendServerVersion(false);

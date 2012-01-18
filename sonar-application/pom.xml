@@ -102,10 +102,6 @@
       <artifactId>jtds</artifactId>
       <scope>runtime</scope>
     </dependency>
-    <dependency>
-      <groupId>org.mortbay.jetty</groupId>
-      <artifactId>jetty-ajp</artifactId>
-    </dependency>
 
     <!-- core plugins -->
     <dependency>

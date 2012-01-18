@@ -81,9 +81,7 @@
     -->
     <derby.version>10.7.1.1</derby.version>
 
-    <!-- Do not upgrade to v.6.1.26. AJP connections are broken. See http://jira.codehaus.org/browse/SONAR-3058 -->
     <jetty.version>6.1.25</jetty.version>
-
     <sonar.skippedModules>sonar-deprecated,sonar-gwt-api,sonar-core-gwt,sonar-testing-harness,sonar-samples
     </sonar.skippedModules>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -851,11 +849,6 @@
         <groupId>org.codehaus.woodstox</groupId>
         <artifactId>stax2-api</artifactId>
         <version>3.0.1</version>
-      </dependency>
-      <dependency>
-        <groupId>org.mortbay.jetty</groupId>
-        <artifactId>jetty-ajp</artifactId>
-        <version>${jetty.version}</version>
       </dependency>
       <dependency>
         <groupId>org.mortbay.jetty</groupId>
