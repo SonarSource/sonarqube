@@ -331,7 +331,7 @@ class ResourceController < ApplicationController
     
     conditions='snapshot_id=?'
     values=[@snapshot.id]
-    if params[:rule].blank?
+    if params[:rule].blank? || params[:rule]  == "all"
       conditions+=' AND (switched_off IS NULL OR switched_off=?)'
       values<<false
     else
