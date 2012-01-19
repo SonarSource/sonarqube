@@ -147,8 +147,7 @@ public class ReviewsMeasuresDecorator implements Decorator {
         }
       }
     }
-    int newUnreviewedViolations = newViolationCount - newReviewedViolationCount;
-    return newUnreviewedViolations;
+    return newViolationCount - newReviewedViolationCount;
   }
 
   private Double getChildrenSum(Resource<?> resource, DecoratorContext context, Metric metric) {
