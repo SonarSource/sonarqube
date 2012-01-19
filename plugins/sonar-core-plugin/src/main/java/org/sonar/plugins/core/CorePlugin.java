@@ -201,7 +201,7 @@ import java.util.List;
     description = "Create accounts when authenticating users via an external system",
     project = false,
     global = false,
-    defaultValue = "false"),
+    defaultValue = "true"),
   @Property(
     key = CoreProperties.CORE_AUTHENTICATOR_IGNORE_STARTUP_FAILURE,
     name = "Ignore failures during authenticator startup",
