@@ -50,32 +50,32 @@ table#columns td {
             <% qualifiers=(@filter.criterion('qualifier') ? @filter.criterion('qualifier').text_values : []) %>
 
               <% if controller.java_facade.hasPlugin('views') %>
-                <input type="checkbox" name="qualifiers[]" value="VW" <%= 'checked' if qualifiers.include?('VW') -%> id="q-VW"></input> <label for="q-VW"><%= message('views') -%></label>
+                <input type="checkbox" name="qualifiers[]" value="VW" <%= 'checked' if qualifiers.include?('VW') -%> id="q-VW"></input> <label for="q-VW"><%= message('qualifiers.VW') -%></label>
                 <span class="spacer"> </span>
 
-                <input type="checkbox" name="qualifiers[]" value="SVW" <%= 'checked' if qualifiers.include?('SVW') -%> id="q-SVW"></input> <label for="q-SVW"><%= message('sub_views') -%></label>
+                <input type="checkbox" name="qualifiers[]" value="SVW" <%= 'checked' if qualifiers.include?('SVW') -%> id="q-SVW"></input> <label for="q-SVW"><%= message('qualifiers.SVW') -%></label>
                 <span class="spacer"> </span>
               <% end %>
 
-              <input type="checkbox" name="qualifiers[]" value="TRK" <%= 'checked' if qualifiers.include?('TRK') -%> id="q-TRK"></input> <label for="q-TRK"><%= message('projects') -%></label>
+              <input type="checkbox" name="qualifiers[]" value="TRK" <%= 'checked' if qualifiers.include?('TRK') -%> id="q-TRK"></input> <label for="q-TRK"><%= message('qualifiers.TRK') -%></label>
               <span class="spacer"> </span>
 
-              <input type="checkbox" name="qualifiers[]" value="BRC" <%= 'checked' if qualifiers.include?('BRC') -%> id="q-BRC"></input> <label for="q-BRC"><%= message('sub_projects') -%></label>
+              <input type="checkbox" name="qualifiers[]" value="BRC" <%= 'checked' if qualifiers.include?('BRC') -%> id="q-BRC"></input> <label for="q-BRC"><%= message('qualifiers.BRC') -%></label>
               <span class="spacer"> </span>
 
-              <input type="checkbox" name="qualifiers[]" value="DIR,PAC" <%= 'checked' if qualifiers.include?('DIR') -%> id="q-DIR"></input> <label for="q-DIR"><%= message('directories') -%>/<%= message('packages') -%></label>
+              <input type="checkbox" name="qualifiers[]" value="DIR,PAC" <%= 'checked' if qualifiers.include?('DIR') -%> id="q-DIR"></input> <label for="q-DIR"><%= message('qualifiers.DIR') -%>/<%= message('qualifiers.PAC') -%></label>
               <span class="spacer"> </span>
 
-              <input type="checkbox" name="qualifiers[]" value="FIL,CLA" <%= 'checked' if qualifiers.include?('FIL') -%> id="q-FIL"></input> <label for="q-FIL"><%= message('files') -%>/<%= message('classes') -%></label>
+              <input type="checkbox" name="qualifiers[]" value="FIL,CLA" <%= 'checked' if qualifiers.include?('FIL') -%> id="q-FIL"></input> <label for="q-FIL"><%= message('qualifiers.FIL') -%></label>
               <span class="spacer"> </span>
 
-              <input type="checkbox" name="qualifiers[]" value="UTS" <%= 'checked' if qualifiers.include?('UTS') -%> id="q-UTS"></input> <label for="q-UTS"><%= message('unit_tests') -%></label>
+              <input type="checkbox" name="qualifiers[]" value="UTS" <%= 'checked' if qualifiers.include?('UTS') -%> id="q-UTS"></input> <label for="q-UTS"><%= message('qualifiers.UTS') -%></label>
               <span class="spacer"> </span>
 
               <% for desc in controller.java_facade.getResourceDefinitionsForFilter()
                    qualifier = desc.getQualifier() %>
                 <input type="checkbox" name="qualifiers[]" value="<%= qualifier -%>" <%= 'checked' if qualifiers.include?(qualifier) -%> id="q-<%= qualifier -%>"></input>
-                <label for="q-<%= qualifier -%>"><%= message(desc.getName()) -%></label>
+                <label for="q-<%= qualifier -%>"><%= message("qualifiers.#{qualifier}") -%></label>
                 <span class="spacer"> </span>
               <% end %>
           </td>

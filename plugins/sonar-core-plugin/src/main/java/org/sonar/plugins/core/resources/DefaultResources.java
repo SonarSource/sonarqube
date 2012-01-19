@@ -32,16 +32,16 @@ public class DefaultResources extends ExtensionProvider implements ServerExtensi
   @Override
   public List<ResourceDefinition> provide() {
     return Arrays.asList(
-        ResourceDefinition.builder(Qualifiers.VIEW).setName("view").build(),
-        ResourceDefinition.builder(Qualifiers.SUBVIEW).setName("sub_view").build(),
-        ResourceDefinition.builder(Qualifiers.PROJECT).setName("project").build(),
-        ResourceDefinition.builder(Qualifiers.MODULE).setName("sub_project").build(),
-        ResourceDefinition.builder(Qualifiers.DIRECTORY).setName("directory").build(),
-        ResourceDefinition.builder(Qualifiers.PACKAGE).setName("package").build(),
-        ResourceDefinition.builder(Qualifiers.FILE).setName("file").build(),
-        ResourceDefinition.builder(Qualifiers.CLASS).setName("class").build(),
-        ResourceDefinition.builder(Qualifiers.UNIT_TEST_FILE).setName("unit_test").build(),
-        ResourceDefinition.builder(Qualifiers.LIBRARY).setName("library").build());
+        ResourceDefinition.builder(Qualifiers.VIEW).build(),
+        ResourceDefinition.builder(Qualifiers.SUBVIEW).build(),
+        ResourceDefinition.builder(Qualifiers.PROJECT).build(),
+        ResourceDefinition.builder(Qualifiers.MODULE).build(),
+        ResourceDefinition.builder(Qualifiers.DIRECTORY).build(),
+        ResourceDefinition.builder(Qualifiers.PACKAGE).build(),
+        ResourceDefinition.builder(Qualifiers.FILE).build(),
+        ResourceDefinition.builder(Qualifiers.CLASS).build(),
+        ResourceDefinition.builder(Qualifiers.UNIT_TEST_FILE).build(),
+        ResourceDefinition.builder(Qualifiers.LIBRARY).build());
   }
 
 }

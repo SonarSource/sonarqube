@@ -31,7 +31,6 @@ public class ResourceDefinitionTest {
     ResourceDefinition def = ResourceDefinition.builder("qualifier")
         .build();
     assertThat(def.getQualifier(), is("qualifier"));
-    assertThat(def.getName(), is("qualifier"));
     assertThat(def.getIconPath(), is("/images/q/qualifier.png"));
   }
 
@@ -39,10 +38,8 @@ public class ResourceDefinitionTest {
   public void shouldCreate() {
     ResourceDefinition def = ResourceDefinition.builder("qualifier")
         .setIconPath("/custom-icon.png")
-        .setName("custom-name")
         .build();
     assertThat(def.getQualifier(), is("qualifier"));
-    assertThat(def.getName(), is("custom-name"));
     assertThat(def.getIconPath(), is("/custom-icon.png"));
   }
 

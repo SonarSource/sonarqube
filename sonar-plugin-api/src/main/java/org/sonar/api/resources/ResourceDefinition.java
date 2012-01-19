@@ -32,20 +32,11 @@ public final class ResourceDefinition implements ServerExtension {
 
   public static class Builder {
     private String qualifier;
-    private String name;
     private String iconPath;
     private boolean availableForFilters = false;
 
     public Builder(String qualifier) {
       this.qualifier = qualifier;
-    }
-
-    /**
-     * @param name name which would be used for localization
-     */
-    public Builder setName(String name) {
-      this.name = name;
-      return this;
     }
 
     /**
@@ -62,13 +53,10 @@ public final class ResourceDefinition implements ServerExtension {
     }
 
     public ResourceDefinition build() {
-      if (Strings.isNullOrEmpty(name)) {
-        name = qualifier;
-      }
       if (Strings.isNullOrEmpty(iconPath)) {
         iconPath = "/images/q/" + qualifier + ".png";
       }
-      return new ResourceDefinition(qualifier, name, iconPath, availableForFilters);
+      return new ResourceDefinition(qualifier, iconPath, availableForFilters);
     }
   }
 
@@ -79,23 +67,17 @@ public final class ResourceDefinition implements ServerExtension {
   }
 
   private final String qualifier;
-  private final String name;
   private final String iconPath;
   private final boolean availableForFilters;
 
-  private ResourceDefinition(String qualifier, String name, String iconPath, boolean availableForFilters) {
+  private ResourceDefinition(String qualifier, String iconPath, boolean availableForFilters) {
     this.qualifier = qualifier;
-    this.name = name;
     this.iconPath = iconPath;
     this.availableForFilters = availableForFilters;
   }
 
   public String getQualifier() {
     return qualifier;
-  }
-
-  public String getName() {
-    return name;
   }
 
   public String getIconPath() {
