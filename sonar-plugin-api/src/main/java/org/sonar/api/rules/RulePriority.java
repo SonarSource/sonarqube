@@ -44,9 +44,9 @@ public enum RulePriority {
 
     } catch (IllegalArgumentException ex) {
       // backward compatibility
-      if (level.equalsIgnoreCase("ERROR")) {
+      if ("ERROR".equalsIgnoreCase(level)) {
         return RulePriority.MAJOR;
-      } else if (level.equalsIgnoreCase("WARNING")) {
+      } else if ("WARNING".equalsIgnoreCase(level)) {
         return RulePriority.INFO;
       }
     }
