@@ -66,6 +66,9 @@ public class Snapshot extends BaseIdentifiable {
   @Column(name = "status")
   private String status = STATUS_UNPROCESSED;
 
+  @Column(name = "purge_status", updatable = true, nullable = true)
+  private Integer purgeStatus;
+
   @Column(name = "scope", updatable = true, nullable = true, length = 3)
   private String scope;
 
@@ -265,6 +268,21 @@ public class Snapshot extends BaseIdentifiable {
 
   public Snapshot setStatus(String status) {
     this.status = status;
+    return this;
+  }
+
+  /**
+   * @since 2.14
+   */
+  public Integer getPurgeStatus() {
+    return purgeStatus;
+  }
+
+  /**
+     * @since 2.14
+     */
+  public Snapshot setPurgeStatus(Integer i) {
+    this.purgeStatus = i;
     return this;
   }
 

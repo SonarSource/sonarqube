@@ -18,7 +18,7 @@
             description="[null]"
             enabled="[true]" language="java" copy_resource_id="[null]"/>
 
-  <snapshots id="1" islast="[true]" root_project_id="1" project_id="1" scope="PRJ" qualifier="TRK" />
-  <snapshots id="2" islast="[true]" root_project_id="1" project_id="2" scope="DIR" qualifier="PAC"/>
-  <snapshots id="3" islast="[true]" root_project_id="1" project_id="3" scope="FIL" qualifier="CLA"/>
+  <snapshots purge_status="[null]" id="1" islast="[true]" root_project_id="1" project_id="1" scope="PRJ" qualifier="TRK" />
+  <snapshots purge_status="[null]" id="2" islast="[true]" root_project_id="1" project_id="2" scope="DIR" qualifier="PAC"/>
+  <snapshots purge_status="[null]" id="3" islast="[true]" root_project_id="1" project_id="3" scope="FIL" qualifier="CLA"/>
 </dataset>

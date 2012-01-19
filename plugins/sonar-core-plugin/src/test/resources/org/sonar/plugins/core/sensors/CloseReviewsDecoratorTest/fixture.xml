@@ -2,19 +2,23 @@
 
   <!-- Component 555 -->
   <snapshots
+    purge_status="[null]"
     id="11"
     project_id="555"
     status="P" islast="false"/>
   <snapshots
+    purge_status="[null]"
     id="111"
     project_id="555"
     status="P" islast="false"/>
   <!-- Component 666 -->
   <snapshots
+    purge_status="[null]"
     id="22"
     project_id="666"
     status="P" islast="false"/>
   <snapshots
+    purge_status="[null]"
     id="222"
     project_id="666"
     status="P" islast="false"/>

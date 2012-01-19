@@ -17,15 +17,15 @@
             name="Bar" long_name="org.foo.Bar" description="[null]"
             enabled="true" language="java" copy_resource_id="[null]" profile_id="[null]"/>
 
-  <snapshots period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="3001" project_id="1001" parent_snapshot_id="[null]" root_project_id="1001" root_snapshot_id="[null]"
+  <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="3001" project_id="1001" parent_snapshot_id="[null]" root_project_id="1001" root_snapshot_id="[null]"
              scope="PRJ" qualifier="TRK" created_at="2010-12-23 00:00:00.00" build_date="2010-12-23 00:00:00.00" version="[null]" path=""
              status="U" islast="false" depth="0" />
 
-  <snapshots period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="3002" project_id="1002" parent_snapshot_id="3001" root_project_id="1001" root_snapshot_id="3001"
+  <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="3002" project_id="1002" parent_snapshot_id="3001" root_project_id="1001" root_snapshot_id="3001"
              scope="DIR" qualifier="PAC" created_at="2010-12-23 00:00:00.00" build_date="2010-12-23 00:00:00.00" version="[null]" path="3001."
              status="U" islast="false" depth="1" />
 
-  <snapshots period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="3003" project_id="1003" parent_snapshot_id="3002" root_project_id="1001" root_snapshot_id="3001"
+  <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]" id="3003" project_id="1003" parent_snapshot_id="3002" root_project_id="1001" root_snapshot_id="3001"
              scope="FIL" qualifier="CLA" created_at="2010-12-23 00:00:00.00" build_date="2010-12-23 00:00:00.00" version="[null]" path="3001.3002."
              status="U" islast="false" depth="2" />
 
