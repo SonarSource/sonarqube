@@ -2,22 +2,30 @@
   violations=@snapshot.measure('violations')
   density=@snapshot.measure('violations_density')
   blocker_violations = @snapshot.measure('blocker_violations')
-	critical_violations = @snapshot.measure('critical_violations')
-	major_violations = @snapshot.measure('major_violations')
-	minor_violations = @snapshot.measure('minor_violations')
-	info_violations = @snapshot.measure('info_violations')
+  critical_violations = @snapshot.measure('critical_violations')
+  major_violations = @snapshot.measure('major_violations')
+  minor_violations = @snapshot.measure('minor_violations')
+  info_violations = @snapshot.measure('info_violations')
+  new_violations=@snapshot.measure('new_violations')
 %>
 <table width="100%">
   <tr>
     <td valign="top">
-		  <div class="dashbox">
-		    <h3><%= message('widget.rules.violations') -%></h3>
-			  <div class="marginbottom10">
-			    <span class="big">
-			      <%= format_measure(violations, :url => url_for(:controller => 'drilldown', :action => 'violations', :id => @project.key)) -%>
-			    </span>
-			    <%= dashboard_configuration.selected_period? ? format_variation(violations) : trend_icon(violations) -%>
-			  </div>
+      <div class="dashbox">
+        <h3><%= message('widget.rules.violations') -%></h3>
+        <div class="marginbottom10">
+            <span class="big">
+              <%= format_measure(violations, :url => url_for(:controller => 'drilldown', :action => 'violations', :id => @project.key)) -%>
+            </span>
+            <%= dashboard_configuration.selected_period? ? format_variation(violations) : trend_icon(violations) -%>
+            <% if @dashboard_configuration.selected_period? %>
+              <br/>
+              <span style="font-weight: bold">
+                <%= message('widget.rules.on_new_code') -%>
+                <a href="<%= url_for_drilldown('new_violations', :period => dashboard_configuration.period_index) -%>"><%= format_variation(new_violations, :style => 'none', :default => '-') -%></a>
+              </span>
+            <% end %>
+        </div>
         <h3><%= message('widget.rules.rules_compliance') -%></h3>
         <div>
           <span class="big">
@@ -25,8 +33,9 @@
           </span>
           <%= dashboard_configuration.selected_period? ? format_variation(density) : trend_icon(density) -%>
         </div>
-		  </div>
-	 	</td>
+      </div>
+    </td>
+    
 		<td valign="top" nowrap>
 			<%
         values=[blocker_violations,critical_violations,major_violations,minor_violations,info_violations]
