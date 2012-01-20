@@ -64,11 +64,11 @@ public class CpdSensor implements Sensor {
       if (sonarEngine.isLanguageSupported(project.getLanguage())) {
         return sonarEngine;
       }
-      // falback to PMD
-    } else if (isEngineEnabled(project, "bridge")) {
-      return sonarBridgeEngine;
+      // falback to bridge
+    } else if (isEngineEnabled(project, "pmd")) {
+      return pmdEngine;
     }
-    return pmdEngine;
+    return sonarBridgeEngine;
   }
 
   boolean isEngineEnabled(Project project, String engineName) {
