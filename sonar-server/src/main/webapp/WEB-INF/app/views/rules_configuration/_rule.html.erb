@@ -32,9 +32,9 @@
         page.toggle "desc_#{rule.id}"
       end
   %>
-  <br/>
   <div id="desc_<%= rule.id -%>" class="rule_desc" style="display:none">
-    <%= rule.description %>
+    <span class="subtitle"><%= message('key') -%>: <%= rule.plugin_rule_key -%></span>
+    <div style="margin:8px 0px"><%= rule.description %></div>
     <table style="margin: 10px 0">
               <% rule.parameters.each do |parameter|
                 active_parameter = active_rule.active_param_by_param_id(parameter.id) if active_rule
@@ -44,10 +44,6 @@
                     :locals => {:parameter => parameter, :active_parameter => active_parameter, :profile => profile, :active_rule => active_rule, :is_admin => is_admin } %>
                   </tbody>
               <% end %>
-              <tr>
-                <td width="10%" nowrap class="left"><%= message('key') -%>: &nbsp;</td>
-                <td class="left"><%= rule.plugin_rule_key -%></td>
-              </tr>
      </table>
       <% if is_admin %>
         <% if rule.template? %>

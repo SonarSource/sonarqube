@@ -28,6 +28,8 @@ class Rule < ActiveRecord::Base
   has_many :rule_failures
   has_many :active_rules
   belongs_to :parent, :class_name => 'Rule', :foreign_key => 'parent_id'
+  has_one :rule_note
+  alias_attribute :note, :rule_note
 
   def repository_key
     plugin_name
@@ -263,7 +265,7 @@ class Rule < ActiveRecord::Base
       values[:key] = searchtext
     end
 
-    includes=(options[:include_parameters] ? :rules_parameters : nil)
+    includes=(options[:include_parameters_and_notes] ? [:rules_parameters, :rule_note] : nil)
     rules = Rule.find(:all, :include => includes, :conditions => [conditions.join(" AND "), values]).sort
     filter(rules, options)
   end

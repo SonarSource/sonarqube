@@ -58,18 +58,18 @@ class RulesConfigurationController < ApplicationController
 
     @rules = Rule.search(java_facade, {
         :profile => @profile, :status => @status, :priorities => @priorities, :inheritance => @inheritance,
-        :plugins =>  @plugins, :searchtext => @searchtext, :include_parameters => true, :language => @profile.language})
+        :plugins =>  @plugins, :searchtext => @searchtext, :include_parameters_and_notes => true, :language => @profile.language})
 
     unless @searchtext.blank?
       if @status==STATUS_ACTIVE
         @hidden_inactives=Rule.search(java_facade, {
             :profile => @profile, :status => STATUS_INACTIVE, :priorities => @priorities,
-            :plugins =>  @plugins, :language => @profile.language, :searchtext => @searchtext, :include_parameters => false}).size
+            :plugins =>  @plugins, :language => @profile.language, :searchtext => @searchtext, :include_parameters_and_notes => false}).size
 
       elsif @status==STATUS_INACTIVE
         @hidden_actives=Rule.search(java_facade, {
             :profile => @profile, :status => STATUS_ACTIVE, :priorities => @priorities,
-            :plugins =>  @plugins, :language => @profile.language, :searchtext => @searchtext, :include_parameters => false}).size
+            :plugins =>  @plugins, :language => @profile.language, :searchtext => @searchtext, :include_parameters_and_notes => false}).size
       end
     end
 

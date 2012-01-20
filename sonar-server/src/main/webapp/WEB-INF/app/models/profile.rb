@@ -24,7 +24,7 @@ class Profile < ActiveRecord::Base
   has_many :active_rules, :class_name => 'ActiveRule', :foreign_key => 'profile_id', :dependent => :destroy, :include => ['rule']
   has_many :projects, :order => 'name asc'
   has_many :active_rules_with_params, :class_name => 'ActiveRule', :foreign_key => 'profile_id',
-      :include => ['active_rule_parameters']
+      :include => ['active_rule_parameters', 'active_rule_note']
 
   validates_uniqueness_of :name, :scope => :language, :case_sensitive => false
   validates_presence_of :name

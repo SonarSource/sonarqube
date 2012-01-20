@@ -32,7 +32,7 @@ class Api::RulesController < Api::RestController
     options[:priorities]=params[:priorities].split(',') if params[:priorities]
     options[:status]=params[:status]
     options[:searchtext]=params[:searchtext]
-    options[:include_parameters]=true
+    options[:include_parameters_and_notes]=true
     options[:inheritance]=params[:inheritance]
     
 
