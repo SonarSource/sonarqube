@@ -29,7 +29,9 @@ class RulesConfigurationController < ApplicationController
   RULE_PRIORITIES = Sonar::RulePriority.as_options.reverse
 
   # GETs should be safe (see http://www.w3.org/2001/tag/doc/whenToUseGet.html)
-  verify :method => :post, :only => ['activate_rule', 'update_param', 'bulk_edit', 'create', 'update', 'delete', 'revert_rule'], :redirect_to => { :action => 'index' }
+  verify :method => :post, 
+         :only => ['activate_rule', 'update_param', 'bulk_edit', 'create', 'update', 'delete', 'revert_rule', 'update_note', 'delete_note'], 
+         :redirect_to => { :action => 'index' }
 
   before_filter :admin_required, :except => [ 'index', 'export' ]
 
@@ -311,6 +313,42 @@ class RulesConfigurationController < ApplicationController
     render :partial => 'rule_param', :object => nil,
       :locals => {:parameter => rule_param, :active_parameter => active_param, :profile => profile, :active_rule => active_rule, :is_admin => is_admin }
   end
+
+
+  def update_note
+    if params[:is_active_rule]
+      rule = ActiveRule.find(params[:rule_id])
+    else
+      rule = Rule.find(params[:rule_id])
+    end
+    note = rule.note
+    unless note
+      if params[:is_active_rule]
+        note = ActiveRuleNote.new({:rule => rule})
+      else
+        note = RuleNote.new({:rule => rule})
+      end
+      # set the note on the rule to avoid reloading the rule
+      rule.note = note
+    end
+    note.text = params[:text]
+    note.user_login = current_user.login
+    note.save!
+    render :partial => 'rule_note', :locals => {:rule => rule, :is_admin => true, :is_active_rule => params[:is_active_rule] } 
+  end
+
+  
+  def delete_note  
+    if params[:is_active_rule]
+      rule = ActiveRule.find(params[:rule_id])
+    else
+      rule = Rule.find(params[:rule_id])
+    end
+    rule.note.destroy if rule.note
+    render :text => ''
+  end
+  
+  
 
   private
 

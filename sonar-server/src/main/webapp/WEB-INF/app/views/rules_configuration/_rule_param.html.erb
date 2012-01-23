@@ -32,7 +32,13 @@
               <span class="error"><%= active_parameter.errors.on 'value' %></span>
             <% end %>
         <% end %>
-        <span class="note"><%= h parameter.description -%></span>
+        
         </form>
+    </td>
+</tr>
+<tr>
+    <td></td>
+    <td style="padding-bottom:5px;">
+      <span class="note" style="white-space: normal"><%= h parameter.description -%></span>
     </td>
 </tr>

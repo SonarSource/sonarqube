@@ -20,8 +20,17 @@
 class ActiveRuleNote < ActiveRecord::Base
   belongs_to :active_rule
   alias_attribute :text, :data
+  alias_attribute :rule, :active_rule
   
   validates_presence_of :active_rule, :message => "can't be empty"
   validates_presence_of :user_login, :message => "can't be empty"
+  validates_length_of :data, :minimum => 1
+
+  def user
+    @user ||=
+        begin
+          user_login ? User.find(:first, :conditions => ['login=?', user_login]) : nil
+        end
+  end
   
 end

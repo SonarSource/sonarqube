@@ -20,7 +20,7 @@
     return !localModifications;
   }
   function toggle_rules(){
-    $$('.rule_desc').each(function(element) {
+    $$('.rule_detail').each(function(element) {
       element.toggle();
     });
   }
@@ -106,7 +106,6 @@
     <tr>
         <th class="left" nowrap><%= message('active') -%>/<%= message('severity') -%></th>
         <th class="left"><%= message('name') -%> <span style="font-weight: normal">[<%= link_to_function(message('rules_configuration.expand_collapse'), "toggle_rules()") %>]</span></th>
-        <th class="right"><%= message('plugin') -%></th>
     </tr>
 </thead>
 <tbody>
@@ -119,9 +118,9 @@
   @rules.each do |rule|
     active_rule = @profile.active_by_rule_id(rule.id)
 %>
-  <tr id="rule_<%= rule.id -%>" class="<%= cycle('even','odd') -%>">
-      <%= render :partial => 'rule', :object => rule, :locals => {:profile => @profile, :active_rule => active_rule, :is_admin => is_admin} %>
-  </tr>
+  
+  <%= render :partial => 'rule', :object => rule, :locals => {:profile => @profile, :active_rule => active_rule, :is_admin => is_admin} %>
+  
 <% end %>
 </tbody>
 </table>

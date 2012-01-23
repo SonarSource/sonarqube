@@ -2046,30 +2046,42 @@ ul.bullet li {
   width: 100%;
 }
 
-.rule_desc {
+.rule_detail {
   color: #444;
-  padding: 2px 0;
 }
 
-.rule_desc li {
+.rule_detail > td > table {
+  margin: 4px;
+}
+
+.rule_detail td {
+  vertical-align: text-top;
+}
+
+.rule_detail li {
   list-style: disc outside;
   padding: 2px;
 }
 
-.rule_desc ul {
+.rule_detail ul {
   list-style: none outside;
   padding-left: 30px;
 }
 
-.rule_desc pre, .rule_desc p {
+.rule_detail pre, .rule_detail p {
   padding: 7px;
 }
 
-.rule_desc pre {
+.rule_detail pre {
   margin: 10px 0;
   font-family: "Courier New", Courier, monospace;;
   border: 1px dashed #aaa;
   font-size: 93%;
+}
+
+.rule_detail .separator {
+  background: url('../images/sep12.png') center repeat-y;
+  min-width: 20px;
 }
 
 .tip:hover {
