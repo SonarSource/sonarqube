@@ -1,7 +1,48 @@
 <h1><%= @rule.name %></h1>
 <div class="subtitle">
 Plugin: <%= @rule.plugin_name -%>&nbsp;&nbsp;&nbsp;
-Key: <%= @rule.plugin_rule_key %></div>
+Key: <%= @rule.plugin_rule_key %>
+</div>
+
 <div class="doc">
+  <h2><%= message('rules.description') -%></h2>
   <p><%= @rule.description %></p>
+  
+  <% if @rule.note %>
+    <p><%= sanitize(@rule.note.text) -%></p>
+  <% end %>
+  
+  <% if @profile %>
+    <h2><%= message('rules.rule_activated_on_profile_x', :params => @profile.name) -%></h2>
+    
+    <% if @active_rule %>
+      <p><%= sanitize(@active_rule.note.text) if @active_rule.note %></p>
+      
+      <h3><%= message('rules.parameters') -%></h3>
+      <table>
+        <% @rule.parameters.each do |parameter|
+          active_parameter = @active_rule.active_param_by_param_id(parameter.id)
+        %>
+          <tbody>
+            <tr>
+              <td width="10%" nowrap class="left">
+                <%= parameter.name %>: &nbsp;
+              </td>
+              <td width="90%" nowrap class="left">
+                <%= active_parameter.value unless active_parameter.value.blank? -%>
+              </td>
+            </tr>
+            <tr>
+              <td></td>
+              <td style="padding-bottom:5px;">
+                <span class="note" style="white-space: normal"><%= h parameter.description -%></span>
+              </td>
+            </tr>
+          </tbody>
+        <% end %>
+      </table>
+    <% end %>
+  <% end %>
+  
+  
 </div>

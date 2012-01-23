@@ -533,6 +533,14 @@ h4, .h4 {
 }
 
 /* ------------------- DOCUMENTATION --------------------- */
+.doc {
+  margin: 0px 10px;
+}
+
+.doc h2 {
+  margin-top: 10px;
+}
+
 .doc p {
   margin: 10px 0;
 }

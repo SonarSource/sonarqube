@@ -18,7 +18,7 @@
       <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
       &nbsp;
       <span class="rulename">
-        <a onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;" href="<%= url_for :controller => 'rules', :action => 'show', :id => violation.rule.key, :layout => 'false' -%>"><%= h(violation.rule.name) -%></a>
+        <a onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;" href="<%= url_for :controller => 'rules', :action => 'show', :id => violation.rule.key, :resource_id => @resource.id, :layout => 'false' -%>"><%= h(violation.rule.name) -%></a>
       </span>
       &nbsp;
       <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
