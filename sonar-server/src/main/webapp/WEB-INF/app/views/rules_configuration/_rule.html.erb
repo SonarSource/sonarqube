@@ -1,6 +1,4 @@
-<% color = cycle('even','odd') %>
 
-<tr id="rule_<%= rule.id -%>"  class="<%= color -%>">
   <td nowrap valign="top" class="left" x="<%= active_rule.failure_level if active_rule -%>" width="1%">
     <form id="levels_<%= rule.id -%>" action="">
       <% enable_modification = is_admin && !profile.provided?
@@ -30,19 +28,13 @@
       <% end %>
     </form>
   </td>
+  
   <td valign="top" class="left">
     <%= link_to_function("#{h rule.name}", nil, :class => "") do |page|
         page.toggle "desc_#{rule.id}"
       end
     %>
-  </td>
-  <script type="text/javascript">
-    Form.reset($('levels_<%= rule.id -%>'));
-  </script>
-</tr>
-
-<tr id="desc_<%= rule.id -%>" class="rule_detail <%= color -%>" style="display:none">
-  <td colspan="3">
+    <div id="desc_<%= rule.id -%>" class="rule_detail" style="display:none">
       <table width="100%">
         <tbody>
           <tr>
@@ -99,5 +91,9 @@
           </tr>
         </tbody>
       </table>
+    </div>    
   </td>
-</tr>
+
+  <script type="text/javascript">
+    Form.reset($('levels_<%= rule.id -%>'));
+  </script>

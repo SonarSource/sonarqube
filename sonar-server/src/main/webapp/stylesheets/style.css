@@ -2056,6 +2056,7 @@ ul.bullet li {
 
 .rule_detail {
   color: #444;
+  margin-top:10px;
 }
 
 .rule_detail > td > table {

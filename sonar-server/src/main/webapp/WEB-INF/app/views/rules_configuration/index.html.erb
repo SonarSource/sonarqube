@@ -118,9 +118,9 @@
   @rules.each do |rule|
     active_rule = @profile.active_by_rule_id(rule.id)
 %>
-  
-  <%= render :partial => 'rule', :object => rule, :locals => {:profile => @profile, :active_rule => active_rule, :is_admin => is_admin} %>
-  
+  <tr id="rule_<%= rule.id -%>" class="<%= cycle('even','odd') -%>">
+    <%= render :partial => 'rule', :object => rule, :locals => {:profile => @profile, :active_rule => active_rule, :is_admin => is_admin} %>
+  </tr>
 <% end %>
 </tbody>
 </table>

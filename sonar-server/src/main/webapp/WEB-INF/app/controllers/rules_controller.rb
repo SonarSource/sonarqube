@@ -33,7 +33,7 @@ class RulesController < ApplicationController
     
     if params[:resource_id]
       resource = Project.find(params[:resource_id])
-      @profile = resource.root_project.profile
+      @profile = resource.root_project.profile || Profile.default_profile
       @active_rule = @profile.active_by_rule_id(@rule.id)
     end
   end
