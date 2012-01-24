@@ -47,10 +47,11 @@ class ActionPlansController < ApplicationController
     unless params[:dead_line].blank?
       begin
         dead_line = DateTime.strptime(params[:dead_line], '%d/%m/%Y')
-        if dead_line.past?
-          date_not_valid = message('action_plans.date_cant_be_in_past')
-        else
+        # we check if the date is today or in the future
+        if dead_line > 1.day.ago
           @action_plan.dead_line = dead_line
+        else
+          date_not_valid = message('action_plans.date_cant_be_in_past')
         end 
       rescue
         date_not_valid = message('action_plans.date_not_valid')
