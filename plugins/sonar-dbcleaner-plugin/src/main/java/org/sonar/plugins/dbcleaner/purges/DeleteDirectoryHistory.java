@@ -27,7 +27,7 @@ import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.purge.PurgeSnapshotQuery;
 
 @Properties({
-  @Property(key = "sonar.dbcleaner.cleanDirectoryHistory", defaultValue = "false", name = "TODO")
+  @Property(key = "sonar.dbcleaner.cleanDirectory", defaultValue = "false", name = "Clean history data of directories/packages")
 })
 public class DeleteDirectoryHistory extends ProjectPurge {
   private PurgeDao purgeDao;
