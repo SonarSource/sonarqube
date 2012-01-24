@@ -37,12 +37,12 @@ public class DuplicationDao implements BatchComponent, ServerComponent {
   }
 
   public List<DuplicationUnitDto> selectCandidates(int resourceSnapshotId, Integer lastSnapshotId) {
-    SqlSession sqlSession = mybatis.openSession();
+    SqlSession session = mybatis.openSession();
     try {
-      DuplicationMapper mapper = sqlSession.getMapper(DuplicationMapper.class);
+      DuplicationMapper mapper = session.getMapper(DuplicationMapper.class);
       return mapper.selectCandidates(resourceSnapshotId, lastSnapshotId);
     } finally {
-      sqlSession.close();
+      MyBatis.closeSessionQuietly(session);
     }
   }
 
@@ -60,7 +60,7 @@ public class DuplicationDao implements BatchComponent, ServerComponent {
       session.commit();
 
     } finally {
-      session.close();
+      MyBatis.closeSessionQuietly(session);
     }
   }
 

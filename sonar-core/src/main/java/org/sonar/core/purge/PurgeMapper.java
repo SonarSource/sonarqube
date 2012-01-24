@@ -17,16 +17,34 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.dbcleaner.api;
+package org.sonar.core.purge;
 
-import org.sonar.api.BatchExtension;
-import org.sonar.api.resources.Project;
+public interface PurgeMapper {
+  void deleteSnapshot(long snapshotId);
 
-/**
- * @since 2.14
- * @deprecated in 2.14
- */
-@Deprecated
-public interface PeriodCleaner extends BatchExtension {
-  void purge(Project project, int projectSnapshotId);
+  void deleteSnapshotDependencies(long snapshotId);
+
+  void deleteSnapshotDuplications(long snapshotId);
+
+  void deleteSnapshotEvents(long snapshotId);
+
+  void deleteSnapshotMeasures(long snapshotId);
+
+  void deleteSnapshotMeasureData(long snapshotId);
+
+  void deleteSnapshotSource(long snapshotId);
+
+  void deleteSnapshotViolations(long snapshotId);
+
+  void deleteSnapshotRuleMeasures(long snapshotId);
+
+  void deleteSnapshotCharacteristicMeasures(long snapshotId);
+
+  void updatePurgeStatusToOne(long snapshotId);
+
+  void disableResource(long resourceId);
+
+  void deleteResourceIndex(long resourceId);
+
+  void unsetSnapshotIslast(long resourceId);
 }

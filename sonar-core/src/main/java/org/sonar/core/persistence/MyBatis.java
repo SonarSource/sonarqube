@@ -26,14 +26,14 @@ import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.*;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.dashboard.*;
 import org.sonar.core.duplication.DuplicationMapper;
 import org.sonar.core.duplication.DuplicationUnitDto;
-import org.sonar.core.resource.ResourceDto;
-import org.sonar.core.resource.ResourceIndexDto;
-import org.sonar.core.resource.ResourceIndexerMapper;
+import org.sonar.core.purge.PurgeMapper;
+import org.sonar.core.resource.*;
 import org.sonar.core.review.ReviewDto;
 import org.sonar.core.review.ReviewMapper;
 import org.sonar.core.rule.RuleDto;
@@ -70,6 +70,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "Resource", ResourceDto.class);
     loadAlias(conf, "ResourceIndex", ResourceIndexDto.class);
     loadAlias(conf, "Rule", RuleDto.class);
+    loadAlias(conf, "Snapshot", SnapshotDto.class);
     loadAlias(conf, "Widget", WidgetDto.class);
     loadAlias(conf, "WidgetProperty", WidgetPropertyDto.class);
 
@@ -77,6 +78,8 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadMapper(conf, DashboardMapper.class);
     loadMapper(conf, DuplicationMapper.class);
     loadMapper(conf, LoadedTemplateMapper.class);
+    loadMapper(conf, PurgeMapper.class);
+    loadMapper(conf, ResourceMapper.class);
     loadMapper(conf, ReviewMapper.class);
     loadMapper(conf, ResourceIndexerMapper.class);
     loadMapper(conf, RuleMapper.class);
@@ -97,6 +100,17 @@ public class MyBatis implements BatchComponent, ServerComponent {
 
   public SqlSession openSession(ExecutorType type) {
     return sessionFactory.openSession(type);
+  }
+
+  public static void closeSessionQuietly(SqlSession session) {
+    if (session != null) {
+      try {
+        session.close();
+      } catch (Exception e) {
+        LoggerFactory.getLogger(MyBatis.class).warn("Fail to close session", e);
+        // do not re-throw the exception
+      }
+    }
   }
 
   private void loadMapper(Configuration conf, Class mapperClass) throws IOException {

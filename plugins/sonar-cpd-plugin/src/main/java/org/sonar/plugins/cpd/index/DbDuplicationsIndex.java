@@ -19,22 +19,21 @@
  */
 package org.sonar.plugins.cpd.index;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.index.ResourcePersister;
-import org.sonar.duplications.block.Block;
-import org.sonar.duplications.block.ByteArray;
 import org.sonar.core.duplication.DuplicationDao;
 import org.sonar.core.duplication.DuplicationUnitDto;
+import org.sonar.duplications.block.Block;
+import org.sonar.duplications.block.ByteArray;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class DbDuplicationsIndex {
 
@@ -53,16 +52,6 @@ public class DbDuplicationsIndex {
     Snapshot lastSnapshot = resourcePersister.getLastSnapshot(currentSnapshot, false);
     this.currentProjectSnapshotId = currentSnapshot.getId();
     this.lastSnapshotId = lastSnapshot == null ? null : lastSnapshot.getId();
-  }
-
-  /**
-   * For tests.
-   */
-  DbDuplicationsIndex(DuplicationDao dao, ResourcePersister resourcePersister, Integer currentProjectSnapshotId, Integer prevSnapshotId) {
-    this.dao = dao;
-    this.resourcePersister = resourcePersister;
-    this.currentProjectSnapshotId = currentProjectSnapshotId;
-    this.lastSnapshotId = prevSnapshotId;
   }
 
   int getSnapshotIdFor(Resource resource) {
@@ -110,12 +99,12 @@ public class DbDuplicationsIndex {
     List<DuplicationUnitDto> units = Lists.newArrayList();
     for (Block block : blocks) {
       DuplicationUnitDto unit = new DuplicationUnitDto(
-          currentProjectSnapshotId,
-          resourceSnapshotId,
-          block.getBlockHash().toString(),
-          block.getIndexInFile(),
-          block.getFirstLineNumber(),
-          block.getLastLineNumber());
+        currentProjectSnapshotId,
+        resourceSnapshotId,
+        block.getBlockHash().toString(),
+        block.getIndexInFile(),
+        block.getFirstLineNumber(),
+        block.getLastLineNumber());
       units.add(unit);
     }
 

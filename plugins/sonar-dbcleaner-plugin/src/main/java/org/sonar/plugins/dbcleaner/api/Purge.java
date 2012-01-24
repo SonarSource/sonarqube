@@ -24,9 +24,11 @@ import org.sonar.api.database.DatabaseSession;
 
 /**
  * Implement this component in order to define your own rules to cleanup database.
- * 
+ *
  * @since 2.5
+ * @deprecated in 2.14
  */
+@Deprecated
 public abstract class Purge implements BatchExtension {
 
   private DatabaseSession session;

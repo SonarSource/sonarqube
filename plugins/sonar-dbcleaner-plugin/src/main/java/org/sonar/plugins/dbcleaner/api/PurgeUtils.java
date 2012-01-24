@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.dbcleaner.api;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.configuration.Configuration;
 import org.sonar.api.batch.Event;
 import org.sonar.api.database.DatabaseSession;
@@ -26,14 +27,14 @@ import org.sonar.api.database.model.*;
 import org.sonar.api.design.DependencyDto;
 import org.sonar.api.utils.TimeProfiler;
 
-import com.google.common.annotations.VisibleForTesting;
-
 import javax.persistence.Query;
 import java.util.List;
 
 /**
  * @since 2.5
+ * @deprecated in 2.14
  */
+@Deprecated
 public final class PurgeUtils {
 
   public static final int DEFAULT_MINIMUM_PERIOD_IN_HOURS = 12;

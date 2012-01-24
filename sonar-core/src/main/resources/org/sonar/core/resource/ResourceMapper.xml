@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.core.resource.ResourceMapper">
+
+
+  <resultMap id="snapshotResultMap" type="Snapshot">
+    <id property="id" column="id"/>
+    <result property="parentId" column="parent_snapshot_id"/>
+    <result property="rootId" column="root_snapshot_id"/>
+    <result property="date" column="created_at"/>
+    <result property="buildDate" column="build_date"/>
+    <result property="resourceId" column="project_id"/>
+    <result property="status" column="status"/>
+    <result property="purgeStatus" column="purge_status"/>
+    <result property="last" column="islast"/>
+    <result property="scope" column="scope"/>
+    <result property="qualifier" column="qualifier"/>
+    <result property="version" column="version"/>
+    <result property="path" column="path"/>
+    <result property="depth" column="depth"/>
+    <result property="rootProjectId" column="root_project_id"/>
+  </resultMap>
+
+
+  <select id="selectSnapshotById" parameterType="int" resultMap="snapshotResultMap">
+    select * from snapshots where id=#{id}
+  </select>
+
+</mapper>
+

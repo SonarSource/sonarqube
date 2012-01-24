@@ -17,16 +17,25 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.dbcleaner.api;
+package org.sonar.plugins.dbcleaner.purges;
 
-import org.sonar.api.BatchExtension;
-import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Scopes;
+import org.sonar.core.purge.PurgeDao;
+import org.sonar.core.purge.PurgeSnapshotQuery;
 
-/**
- * @since 2.14
- * @deprecated in 2.14
- */
-@Deprecated
-public interface PeriodCleaner extends BatchExtension {
-  void purge(Project project, int projectSnapshotId);
+public class DeleteFileHistory extends ProjectPurge {
+  private PurgeDao purgeDao;
+
+  public DeleteFileHistory(PurgeDao purgeDao) {
+    this.purgeDao = purgeDao;
+  }
+
+  @Override
+  public void execute(ProjectPurgeContext context) {
+    PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
+      .setBeforeBuildDate(context.getBeforeBuildDate())
+      .setRootProjectId(context.getRootProjectId())
+      .setScopes(new String[]{Scopes.FILE});
+    purgeDao.deleteSnapshots(query);
+  }
 }

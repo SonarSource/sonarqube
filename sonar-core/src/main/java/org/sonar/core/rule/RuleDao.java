@@ -35,22 +35,22 @@ public class RuleDao implements BatchComponent, ServerComponent {
   }
 
   public List<RuleDto> selectAll() {
-    SqlSession sqlSession = mybatis.openSession();
+    SqlSession session = mybatis.openSession();
     try {
-      RuleMapper mapper = sqlSession.getMapper(RuleMapper.class);
+      RuleMapper mapper = session.getMapper(RuleMapper.class);
       return mapper.selectAll();
     } finally {
-      sqlSession.close();
+      MyBatis.closeSessionQuietly(session);
     }
   }
 
   public RuleDto selectById(Long id) {
-    SqlSession sqlSession = mybatis.openSession();
+    SqlSession session = mybatis.openSession();
     try {
-      RuleMapper mapper = sqlSession.getMapper(RuleMapper.class);
+      RuleMapper mapper = session.getMapper(RuleMapper.class);
       return mapper.selectById(id);
     } finally {
-      sqlSession.close();
+      MyBatis.closeSessionQuietly(session);
     }
   }
 

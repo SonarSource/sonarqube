@@ -22,9 +22,10 @@ package org.sonar.plugins.dbcleaner.api;
 import org.sonar.api.resources.Project;
 
 /**
- *
  * @since 2.5
+ * @deprecated in 2.14
  */
+@Deprecated
 public interface PurgeContext {
 
   Project getProject();

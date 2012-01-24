@@ -25,8 +25,12 @@ import org.sonar.api.SonarPlugin;
 import org.sonar.plugins.dbcleaner.api.DbCleanerConstants;
 import org.sonar.plugins.dbcleaner.period.DefaultPeriodCleaner;
 import org.sonar.plugins.dbcleaner.period.PeriodPurge;
-import org.sonar.plugins.dbcleaner.purges.*;
-import org.sonar.plugins.dbcleaner.runner.PurgeRunner;
+import org.sonar.plugins.dbcleaner.purges.DeleteAbortedBuilds;
+import org.sonar.plugins.dbcleaner.purges.DeleteDirectoryHistory;
+import org.sonar.plugins.dbcleaner.purges.DeleteFileHistory;
+import org.sonar.plugins.dbcleaner.purges.ProjectPurgeTask;
+import org.sonar.plugins.dbcleaner.runner.DeprecatedPurgePostJob;
+import org.sonar.plugins.dbcleaner.runner.ProjectPurgePostJob;
 
 import java.util.Arrays;
 import java.util.List;
@@ -42,20 +46,26 @@ import java.util.List;
       + "the DbCleaner keeps the first one and fully delete the other ones.", global = true, project = true),
   @Property(key = DbCleanerConstants.MONTHS_BEFORE_DELETING_ALL_SNAPSHOTS, defaultValue = DbCleanerConstants.FIVE_YEARS,
     name = "Number of months before starting to delete all remaining snapshots",
-    description = "After this number of months, all snapshots are fully deleted.", global = true, project = true)})
+    description = "After this number of months, all snapshots are fully deleted.", global = true, project = true),
+  @Property(key = "sonar.purge.minimumPeriodInHours", defaultValue = "12",
+    name = "Maximum duration of code inspections, in hours",
+    description = "Sonar has an embedded purge mechanism which is fairly powerful to avoid keeping useless data. This mechanism is using a minimum period during which a " +
+      "resource created should not be suppressed whatever its state. This is set by default to 12 hours and should not be changed. The only situation you could want to change " +
+      "this is in case a projects takes more than 12 hours to be analyzed by Sonar.",
+    global = true, project = false)
+}
+)
 public final class DbCleanerPlugin extends SonarPlugin {
 
   public List getExtensions() {
     return Arrays.asList(
       // shared components
-      DefaultPeriodCleaner.class,
+      DefaultPeriodCleaner.class, ProjectPurgeTask.class,
 
       // purges
-      PurgeOrphanResources.class, PurgeEntities.class, PurgeRuleMeasures.class, PurgeUnprocessed.class, PurgeDeletedResources.class,
-      PurgeDeprecatedLast.class, PurgeDisabledResources.class, PurgeResourceRoles.class, PurgeEventOrphans.class,
-      PurgePropertyOrphans.class, PeriodPurge.class, PurgeDependencies.class, PurgeOrphanReviews.class,
+      PeriodPurge.class, DeleteFileHistory.class, DeleteDirectoryHistory.class, DeleteAbortedBuilds.class, ProjectPurgePostJob.class,
 
       // post-job
-      PurgeRunner.class);
+      DeprecatedPurgePostJob.class);
   }
 }

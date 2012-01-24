@@ -24,7 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.ActiveRuleParam;
-import org.sonar.api.utils.FieldUtils;
+import org.sonar.api.utils.FieldUtils2;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.Check;
 import org.sonar.check.CheckProperty;
@@ -144,7 +144,7 @@ public final class AnnotationCheckFactory extends CheckFactory {
   }
 
   private Field getField(Object check, String key) {
-    List<Field> fields = FieldUtils.getFields(check.getClass(), true);
+    List<Field> fields = FieldUtils2.getFields(check.getClass(), true);
     for (Field field : fields) {
       RuleProperty propertyAnnotation = field.getAnnotation(RuleProperty.class);
       if (propertyAnnotation != null) {

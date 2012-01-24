@@ -17,16 +17,12 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.dbcleaner.api;
+package org.sonar.plugins.dbcleaner.purges;
 
-import org.sonar.api.BatchExtension;
-import org.sonar.api.resources.Project;
+import java.util.Date;
 
-/**
- * @since 2.14
- * @deprecated in 2.14
- */
-@Deprecated
-public interface PeriodCleaner extends BatchExtension {
-  void purge(Project project, int projectSnapshotId);
+public interface ProjectPurgeContext {
+  Long getRootProjectId();
+
+  Date getBeforeBuildDate();
 }

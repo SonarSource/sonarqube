@@ -19,14 +19,13 @@
  */
 package org.sonar.core.review;
 
-import java.util.List;
-
+import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 
-import com.google.common.collect.Lists;
+import java.util.List;
 
 public class ReviewDao implements BatchComponent, ServerComponent {
   private final MyBatis mybatis;
@@ -36,19 +35,19 @@ public class ReviewDao implements BatchComponent, ServerComponent {
   }
 
   public ReviewDto selectById(long id) {
-    SqlSession sqlSession = mybatis.openSession();
+    SqlSession session = mybatis.openSession();
     try {
-      ReviewMapper mapper = sqlSession.getMapper(ReviewMapper.class);
+      ReviewMapper mapper = session.getMapper(ReviewMapper.class);
       return mapper.selectById(id);
     } finally {
-      sqlSession.close();
+      MyBatis.closeSessionQuietly(session);
     }
   }
 
   public List<ReviewDto> selectByQuery(ReviewQuery query) {
-    SqlSession sqlSession = mybatis.openSession();
+    SqlSession session = mybatis.openSession();
     try {
-      ReviewMapper mapper = sqlSession.getMapper(ReviewMapper.class);
+      ReviewMapper mapper = session.getMapper(ReviewMapper.class);
       List<ReviewDto> result;
       if (query.needToPartitionQuery()) {
         result = Lists.newArrayList();
@@ -60,14 +59,14 @@ public class ReviewDao implements BatchComponent, ServerComponent {
       }
       return result;
     } finally {
-      sqlSession.close();
+      MyBatis.closeSessionQuietly(session);
     }
   }
 
   public Integer countByQuery(ReviewQuery query) {
-    SqlSession sqlSession = mybatis.openSession();
+    SqlSession session = mybatis.openSession();
     try {
-      ReviewMapper mapper = sqlSession.getMapper(ReviewMapper.class);
+      ReviewMapper mapper = session.getMapper(ReviewMapper.class);
       Integer result = 0;
       if (query.needToPartitionQuery()) {
         for (ReviewQuery partitionedQuery : query.partition()) {
@@ -78,7 +77,7 @@ public class ReviewDao implements BatchComponent, ServerComponent {
       }
       return result;
     } finally {
-      sqlSession.close();
+      MyBatis.closeSessionQuietly(session);
     }
   }
 }

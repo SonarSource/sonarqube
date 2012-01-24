@@ -17,42 +17,47 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.dashboard;
+package org.sonar.core.purge;
 
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.core.persistence.DaoTestCase;
 import org.sonar.core.persistence.MyBatis;
 
-public class ActiveDashboardDao implements BatchComponent, ServerComponent {
+public class PurgeDaoTest extends DaoTestCase {
 
-  private MyBatis mybatis;
+  private PurgeDao dao;
 
-  public ActiveDashboardDao(MyBatis mybatis) {
-    this.mybatis = mybatis;
+  @Before
+  public void createDao() {
+    dao = new PurgeDao(getMyBatis());
   }
 
-  public void insert(ActiveDashboardDto activeDashboardDto) {
-    SqlSession session = mybatis.openSession();
-    ActiveDashboardMapper mapper = session.getMapper(ActiveDashboardMapper.class);
+  @Test
+  public void shouldDeleteSnapshot() {
+    setupData("shouldDeleteSnapshot");
+
+    SqlSession session = getMyBatis().openSession();
     try {
-      mapper.insert(activeDashboardDto);
+      // this method does not commit and close the session
+      dao.deleteSnapshot(5L, session.getMapper(PurgeMapper.class));
       session.commit();
+
     } finally {
       MyBatis.closeSessionQuietly(session);
     }
+    checkTables("shouldDeleteSnapshot",
+      "snapshots", "project_measures", "measure_data", "rule_failures", "snapshot_sources", "duplications_index", "events", "dependencies");
   }
 
-  public int selectMaxOrderIndexForNullUser() {
-    SqlSession session = mybatis.openSession();
-    ActiveDashboardMapper mapper = session.getMapper(ActiveDashboardMapper.class);
-    try {
-      Integer max = mapper.selectMaxOrderIndexForNullUser();
-      return (max != null ? max.intValue() : 0);
-    } finally {
-      session.close();
-    }
+  @Test
+  public void shouldPurgeSnapshots() {
+    setupData("shouldPurgeSnapshots");
 
+    dao.purgeSnapshots(PurgeSnapshotQuery.create());
+
+    checkTables("shouldPurgeSnapshots",
+      "snapshots", "project_measures", "measure_data", "rule_failures", "snapshot_sources", "duplications_index", "events", "dependencies");
   }
-
 }

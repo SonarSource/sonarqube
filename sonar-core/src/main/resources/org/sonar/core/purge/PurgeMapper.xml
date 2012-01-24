@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.core.purge.PurgeMapper">
+
+  <select id="selectSnapshotIds" parameterType="map" resultType="long">
+    select id from snapshots
+    <where>
+      islast=${_false}
+      <if test="rootProjectId != null">
+        and root_project_id=#{rootProjectId}
+      </if>
+      <if test="beforeBuildDate != null">
+        and build_date &lt;= #{beforeBuildDate}
+      </if>
+      <if test="status != null">
+        and status in
+        <foreach item="s" index="index" collection="status" open="(" separator="," close=")">#{s}</foreach>
+      </if>
+      <if test="scopes != null">
+        and scope in
+        <foreach item="scope" index="index" collection="scopes" open="(" separator="," close=")">#{scope}</foreach>
+      </if>
+      <if test="qualifiers != null">
+        and qualifier in
+        <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator="," close=")">#{qualifier}
+        </foreach>
+      </if>
+    </where>
+  </select>
+
+  <select id="selectResourceIdsToDisable" resultType="long">
+    select s1.project_id from snapshots s1
+    where s1.islast=${_true} and s1.root_snapshot_id is not null and not exists(select s2.id from snapshots s2 where
+    s2.id=s1.root_snapshot_id and s2.islast=${_true})
+  </select>
+
+  <select id="selectSnapshotIdsToPurge" parameterType="map" resultType="long">
+    select id from snapshots
+    <where>
+      islast=${_false} and (purge_status is null or purge_status=0)
+      <if test="rootProjectId != null">
+        and root_project_id=#{rootProjectId}
+      </if>
+      <if test="beforeBuildDate!= null">
+        and build_date &lt;= #{beforeBuildDate}
+      </if>
+    </where>
+  </select>
+
+  <delete id="deleteSnapshotMeasures" parameterType="long">
+    delete from project_measures where snapshot_id=#{id}
+  </delete>
+
+  <delete id="deleteSnapshotMeasureData" parameterType="long">
+    delete from measure_data where snapshot_id=#{id}
+  </delete>
+
+  <delete id="deleteSnapshotSource" parameterType="long">
+    delete from snapshot_sources where snapshot_id=#{id}
+  </delete>
+
+  <delete id="deleteSnapshotViolations" parameterType="long">
+    delete from rule_failures where snapshot_id=#{id}
+  </delete>
+
+  <delete id="deleteSnapshotDependencies" parameterType="long">
+    delete from dependencies where from_snapshot_id=#{id} or to_snapshot_id=#{id} or project_snapshot_id=#{id}
+  </delete>
+
+  <delete id="deleteSnapshotDuplications" parameterType="long">
+    delete from duplications_index where snapshot_id=#{id}
+  </delete>
+
+  <delete id="deleteSnapshotEvents" parameterType="long">
+    delete from events where snapshot_id=#{id}
+  </delete>
+
+  <delete id="deleteSnapshot" parameterType="long">
+    delete from snapshots where id=#{id}
+  </delete>
+
+  <delete id="deleteSnapshotRuleMeasures" parameterType="long">
+    delete from project_measures where snapshot_id=#{id} and rule_id is not null
+  </delete>
+
+  <delete id="deleteSnapshotCharacteristicMeasures" parameterType="long">
+    delete from project_measures where snapshot_id=#{id} and characteristic_id is not null
+  </delete>
+
+  <update id="updatePurgeStatusToOne" parameterType="long">
+    update snapshots set purge_status = 1 where id = #{id}
+  </update>
+
+  <update id="disableResource" parameterType="long">
+    update projects set enabled=${_false} where id=#{id}
+  </update>
+
+  <delete id="deleteResourceIndex" parameterType="long">
+    delete from resource_index where resource_id=#{id}
+  </delete>
+
+  <update id="unsetSnapshotIslast" parameterType="long">
+    update snapshots set islast=${_false} where project_id=#{id}
+  </update>
+</mapper>
+
