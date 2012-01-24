@@ -1,36 +1,53 @@
-<% #locals = rule, is_admin, is_active_rule
-  submit_note_update_button_id = (is_active_rule ? 'a' : '') + "snub_" + rule.id.to_s
+<% #locals = rule, is_admin
+  note = rule.note
+  note_detail_div_id = "nd_" + rule.id.to_s
+  note_extend_link_id = "nel_" + rule.id.to_s
+  note_form_div_id = "nf_" + rule.id.to_s
+  note_textarea_id = "nt_" + rule.id.to_s
+  submit_note_update_button_id = "snub_" + rule.id.to_s
 %>
 
-<% 
-   if rule.note 
-     note = rule.note
-%>
-  <h3><%= is_active_rule ? message('rules_configuration.rule_activation_note') : message('rules_configuration.rule_note') -%></h3>
-  <div class="note"><%= note.user.name -%>, <%= l(note.updated_at) -%></div>
-  <div id="note_detail_<%= rule.id -%>">
-    <p><%= sanitize(note.text) -%></p>
-    <% if is_admin %>
-      <div style="margin-bottom: 10px">
-        <input type="button" value="<%= message('update_verb') -%>" onclick="$('note_detail_<%= rule.id -%>').hide();$('note_form_<%= rule.id -%>').show();">
-        <%= button_to_remote message('delete'),
-                             {:url => {:action => 'delete_note', :rule_id => rule.id, :is_active_rule => is_active_rule },
-                             :update => "#{'active_' if is_active_rule}rule_note_#{rule.id}",
-                             :complete => "$('#{is_active_rule ? "canb_"+rule.rule.id.to_s : "cnb_"+rule.id.to_s}').show()",
-                             :confirm => message('rules_configuration.confirm_delete_note')},
-                             {:class => 'red-button'} -%>
-      </div>
-    <% end %>
-  </div>
+<div id="<%= note_detail_div_id -%>">
+  <% if rule.description.strip.start_with?('<p>') %>
+    <%= rule.description %>
+  <% else %>
+    <p><%= rule.description %></p>
+  <% end %>
+  
+  <% if note && !note.text.strip.blank? %>
+    <p><%= note.html_text -%></p>
+  <% end %>
+  
+  <% if is_admin %>
+    <p  style="text-align: right; font-style: italic;">
+      » <a href="#" id="<%= note_extend_link_id -%>" 
+           onclick="$('<%= note_detail_div_id -%>').hide();$('<%= note_form_div_id -%>').show();$('<%= note_textarea_id -%>').focus();return false;"><%= message('rules_configuration.extend_description') %></a>
+    </p>
+  <% end %>
+</div>
 
-  <div id="note_form_<%= rule.id -%>" style="display: none" class="admin">
-    <%= form_remote_tag :url => {:action => 'update_note', :rule_id => rule.id, :is_active_rule => is_active_rule},
-                        :update => "#{'active_' if is_active_rule}rule_note_#{rule.id}" %>
-      <textarea name="text" id="update_<%= 'active_' if is_active_rule -%>_rule_note_<%= rule.id -%>" cols="100" rows="10" 
-                onkeyup="if (this.value=='') $('<%= submit_note_update_button_id -%>').disabled=true; else $('<%= submit_note_update_button_id -%>').disabled=false;"><%= h(note.text) -%></textarea>
-      <br/>
-      <input type="submit" value="<%= message('update_verb') -%>" name="commit" id="<%= submit_note_update_button_id -%>"/>
-      <a href="#" onclick="$('note_detail_<%= rule.id -%>').show();$('note_form_<%= rule.id -%>').hide();return false;"><%= message('cancel') %></a>
-    </form>
-  </div>
+<% if is_admin %>
+<div id="<%= note_form_div_id -%>" style="display: none" class="admin">
+  <table>
+    <tbody>
+      <tr>
+        <td style="padding-bottom:20px;" colspan="2"><%= rule.description %></td>
+      </tr>
+      <tr>
+        <td class="max-width">
+          <%= form_remote_tag :url => {:action => 'update_rule_note', :rule_id => rule.id},
+                              :update => "rule_note_#{rule.id}" %>
+            <textarea name="text" id="<%= note_textarea_id -%>" rows="10" cols="100%"><%= h(note.plain_text) if note -%></textarea>
+            <br/>
+            <input type="submit" value="<%= message('rules_configuration.update_description') -%>" name="commit" id="<%= submit_note_update_button_id -%>"/>
+            <a href="#" onclick="$('<%= note_detail_div_id -%>').show();$('<%= note_form_div_id -%>').hide();return false;"><%= message('cancel') %></a>
+          </form>
+        </td>
+        <td class="markdown-help">
+          <%= render :partial => 'markdown/help' -%>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 <% end %>

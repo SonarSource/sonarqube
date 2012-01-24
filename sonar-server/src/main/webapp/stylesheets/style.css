@@ -2059,6 +2059,13 @@ ul.bullet li {
   margin-top:10px;
 }
 
+.rule_detail .markdown-help {
+  vertical-align:top;
+  width: 90px;
+  padding-left: 10px;
+  white-space: nowrap;
+}
+
 .rule_detail > td > table {
   margin: 4px;
 }

@@ -30,7 +30,7 @@ class RulesConfigurationController < ApplicationController
 
   # GETs should be safe (see http://www.w3.org/2001/tag/doc/whenToUseGet.html)
   verify :method => :post, 
-         :only => ['activate_rule', 'update_param', 'bulk_edit', 'create', 'update', 'delete', 'revert_rule', 'update_note', 'delete_note'], 
+         :only => ['activate_rule', 'update_param', 'bulk_edit', 'create', 'update', 'delete', 'revert_rule', 'update_rule_note', 'update_active_rule_note', 'delete_active_rule_note'], 
          :redirect_to => { :action => 'index' }
 
   before_filter :admin_required, :except => [ 'index', 'export' ]
@@ -315,37 +315,41 @@ class RulesConfigurationController < ApplicationController
   end
 
 
-  def update_note
-    if params[:is_active_rule]
-      rule = ActiveRule.find(params[:rule_id])
-    else
-      rule = Rule.find(params[:rule_id])
-    end
+  def update_rule_note
+    rule = Rule.find(params[:rule_id])
     note = rule.note
     unless note
-      if params[:is_active_rule]
-        note = ActiveRuleNote.new({:rule => rule})
-      else
-        note = RuleNote.new({:rule => rule})
-      end
+      note = RuleNote.new({:rule => rule})
       # set the note on the rule to avoid reloading the rule
       rule.note = note
     end
     note.text = params[:text]
     note.user_login = current_user.login
     note.save!
-    render :partial => 'rule_note', :locals => {:rule => rule, :is_admin => true, :is_active_rule => params[:is_active_rule] } 
+    render :partial => 'rule_note', :locals => {:rule => rule, :is_admin => true } 
+  end
+
+
+  def update_active_rule_note
+    active_rule = ActiveRule.find(params[:active_rule_id])
+    note = active_rule.note
+    unless note
+      note = ActiveRuleNote.new({:active_rule => active_rule})
+      # set the note on the rule to avoid reloading the rule
+      active_rule.note = note
+    end
+    note.text = params[:text]
+    note.user_login = current_user.login
+    note.save!
+    render :partial => 'active_rule_note', :locals => {:active_rule => active_rule, :is_admin => true } 
   end
 
   
-  def delete_note  
-    if params[:is_active_rule]
-      rule = ActiveRule.find(params[:rule_id])
-    else
-      rule = Rule.find(params[:rule_id])
-    end
-    rule.note.destroy if rule.note
-    render :text => ''
+  def delete_active_rule_note
+    active_rule = ActiveRule.find(params[:active_rule_id])
+    active_rule.note.destroy if active_rule.note
+    active_rule.note = nil
+    render :partial => 'active_rule_note', :locals => {:active_rule => active_rule, :is_admin => true }
   end
   
   

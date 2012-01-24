@@ -39,31 +39,18 @@
         <tbody>
           <tr>
             <td width="50%">
-              <h3><%= message('rules_configuration.rule_description') -%></h3>
-              <p><%= rule.description %></p>
               <div id="rule_note_<%= rule.id -%>">
-                <%= render :partial => 'rule_note', :locals => {:rule => rule, :is_admin => is_admin, :is_active_rule => false } %>
+                <%= render :partial => 'rule_note', :locals => {:rule => rule, :is_admin => is_admin } %>
               </div>
               <% if active_rule %>
                 <div id="active_rule_note_<%= active_rule.id -%>">
-                  <%= render :partial => 'rule_note', :locals => {:rule => active_rule, :is_admin => is_admin, :is_active_rule => true } %>
+                  <%= render :partial => 'active_rule_note', :locals => {:active_rule => active_rule, :is_admin => is_admin } %>
                 </div>
-              <% end %>
-              <% if is_admin %>
-                <%= render :partial => 'create_rule_note', :locals => {:rule => rule, :active_rule => active_rule, :is_admin => is_admin } %>
               <% end %>
             </td>
             <td class="separator"></td>
             <td width="50%">
-              <h3><%= message('rules_configuration.rule_identification') -%></h3>
-              <table style="margin-left:7px">
-                <tbody>
-                  <tr><td style="padding-right:10px"><%= message('plugin') -%>:</td><td><%= rule.plugin_name.capitalize %></td></tr>
-                  <tr><td style="padding-right:10px"><%= message('key') -%>:</td><td><%= rule.plugin_rule_key %></td></tr>
-                <t/body>
-              </table>
               <% unless rule.parameters.empty? %>
-                <br/>
                 <h3><%= message('rules_configuration.rule_parameters') -%></h3>
                 <table style="margin-left:7px">
                   <% rule.parameters.each do |parameter|
@@ -87,6 +74,13 @@
                 <%= button_to message('rules_configuration.revert_to_parent_definition'), :overwrite_params => {:action => 'revert_rule', :id => profile.id, :active_rule_id => active_rule.id} %><br/>
                 <% end %>
               <% end %>
+              <h3><%= message('rules_configuration.rule_identification') -%></h3>
+              <table style="margin-left:7px">
+                <tbody>
+                  <tr><td style="padding-right:10px"><%= message('plugin') -%>:</td><td><%= rule.plugin_name.capitalize %></td></tr>
+                  <tr><td style="padding-right:10px"><%= message('key') -%>:</td><td><%= rule.plugin_rule_key %></td></tr>
+                </tbody>
+              </table>
             </td>
           </tr>
         </tbody>

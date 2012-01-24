@@ -1,0 +1,58 @@
+<% #locals = active_rule, is_admin
+  note = active_rule.note
+  active_note_detail_div_id = "and_" + active_rule.id.to_s
+  add_active_note_button_id = "aanb_" + active_rule.id.to_s
+  edit_active_note_link_id = "eanl_" + active_rule.id.to_s
+  delete_active_note_link_id = "danl_" + active_rule.id.to_s
+  active_note_form_div_id = "anf_" + active_rule.id.to_s
+  active_note_textarea_id = "ant_" + active_rule.id.to_s
+  submit_active_note_update_button_id = "sanub_" + active_rule.id.to_s
+%>
+
+<div id="<%= active_note_detail_div_id -%>" style="padding: 4px;<%= 'border: 1px solid #DDDDDD;' if note -%>">
+  <% if note %>
+      <h4>
+        <%= image_tag("reviews/comment.png") -%>&nbsp;
+        <b><%= note.user.name -%></b>&nbsp;
+        (<%= distance_of_time_in_words_to_now(note.updated_at) -%>)&nbsp;
+        &nbsp;
+        <%= image_tag 'sep12.png' -%>
+        &nbsp;
+        <a href="#" id="<%= edit_active_note_link_id -%>" 
+           onclick="$('<%= active_note_detail_div_id -%>').hide();$('<%= active_note_form_div_id -%>').show();$('<%= active_note_textarea_id -%>').focus();return false;"><%= message('edit') %></a>
+        &nbsp;
+        <%= link_to_remote message('delete'),
+                           :url => {:action => 'delete_active_rule_note', :active_rule_id => active_rule.id },
+                           :update => "active_rule_note_#{active_rule.id}",
+                           :confirm => message('rules_configuration.confirm_delete_note') -%>
+      </h4>
+      <p><%= note.html_text -%></p>
+  <% elsif is_admin %>
+    <input type="button" id="<%= add_active_note_button_id -%>" value="<%= message('rules_configuration.add_note') -%>" 
+           onclick="$('<%= active_note_form_div_id -%>').show();$('<%= active_note_detail_div_id -%>').hide();$('<%= active_note_textarea_id -%>').focus();">
+  <% end %>
+</div>
+
+<% if is_admin %>
+<div id="<%= active_note_form_div_id -%>" style="display: none" class="admin">
+  <table>
+    <tbody>
+      <tr>
+        <td class="max-width">
+          <%= form_remote_tag :url => {:action => 'update_active_rule_note', :active_rule_id => active_rule.id},
+                              :update => "active_rule_note_#{active_rule.id}" %>
+            <textarea name="text" id="<%= active_note_textarea_id -%>" rows="10" cols="100%"
+                      onkeyup="if (this.value=='') $('<%= submit_active_note_update_button_id -%>').disabled=true; else $('<%= submit_active_note_update_button_id -%>').disabled=false;"><%= h(note.plain_text) if note -%></textarea>
+            <br/>
+            <input type="submit" value="<%= note ? message('update_verb') : message('rules_configuration.add_note') -%>" name="commit" id="<%= submit_active_note_update_button_id -%>"/>
+            <a href="#" onclick="$('<%= active_note_detail_div_id -%>').show();$('<%= active_note_form_div_id -%>').hide();return false;"><%= message('cancel') %></a>
+          </form>
+        </td>
+        <td class="markdown-help">
+          <%= render :partial => 'markdown/help' -%>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<% end %>

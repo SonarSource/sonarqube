@@ -20,7 +20,6 @@
 class ActiveRuleNote < ActiveRecord::Base
   belongs_to :active_rule
   alias_attribute :text, :data
-  alias_attribute :rule, :active_rule
   
   validates_presence_of :active_rule, :message => "can't be empty"
   validates_presence_of :user_login, :message => "can't be empty"
@@ -31,6 +30,14 @@ class ActiveRuleNote < ActiveRecord::Base
         begin
           user_login ? User.find(:first, :conditions => ['login=?', user_login]) : nil
         end
+  end
+
+  def html_text
+    Api::Utils.markdown_to_html(text)
+  end
+
+  def plain_text
+    Api::Utils.convert_string_to_unix_newlines(text)
   end
   
 end
