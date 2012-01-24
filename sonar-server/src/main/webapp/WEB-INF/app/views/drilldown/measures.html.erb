@@ -36,7 +36,7 @@
 <table id="drilldown" class="width100" style="clear:left">
   <% if @highlighted_metric!=@metric %>
     <tr>
-      <td colspan="<%= @drilldown.columns.size -%>"><%= message('drilldown.drilldown_on') -%>
+      <td colspan="<%= @drilldown.columns.size -%>"><%= message('drilldown.drilldown_on') -%>&nbsp;
         <b><%= format_measure(@metric.key, :period => @period) -%> <%= @metric.short_name -%></b></td>
     </tr>
     <tr>
