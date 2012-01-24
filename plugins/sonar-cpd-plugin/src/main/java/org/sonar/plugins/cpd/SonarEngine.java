@@ -20,17 +20,14 @@
 package org.sonar.plugins.cpd;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.*;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.index.ResourcePersister;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
 import org.sonar.duplications.detector.suffixtree.SuffixTreeCloneDetectionAlgorithm;
@@ -42,8 +39,7 @@ import org.sonar.duplications.java.JavaTokenProducer;
 import org.sonar.duplications.statement.Statement;
 import org.sonar.duplications.statement.StatementChunker;
 import org.sonar.duplications.token.TokenChunker;
-import org.sonar.core.duplication.DuplicationDao;
-import org.sonar.plugins.cpd.index.DbDuplicationsIndex;
+import org.sonar.plugins.cpd.index.IndexFactory;
 import org.sonar.plugins.cpd.index.SonarDuplicationsIndex;
 
 import java.io.FileInputStream;
@@ -67,19 +63,10 @@ public class SonarEngine extends CpdEngine {
    */
   private static final int TIMEOUT = 5 * 60;
 
-  private final ResourcePersister resourcePersister;
-  private final DuplicationDao dao;
+  private final IndexFactory indexFactory;
 
-  /**
-   * For dry run, where is no access to database.
-   */
-  public SonarEngine() {
-    this(null, null);
-  }
-
-  public SonarEngine(ResourcePersister resourcePersister, DuplicationDao dao) {
-    this.resourcePersister = resourcePersister;
-    this.dao = dao;
+  public SonarEngine(IndexFactory indexFactory) {
+    this.indexFactory = indexFactory;
   }
 
   @Override
@@ -87,16 +74,7 @@ public class SonarEngine extends CpdEngine {
     return Java.INSTANCE.equals(language);
   }
 
-  /**
-   * @return true, if was enabled by user and database is available
-   */
-  private boolean isCrossProject(Project project) {
-    return project.getConfiguration().getBoolean(CoreProperties.CPD_CROSS_RPOJECT, CoreProperties.CPD_CROSS_RPOJECT_DEFAULT_VALUE)
-      && resourcePersister != null && dao != null
-      && StringUtils.isBlank(project.getConfiguration().getString(CoreProperties.PROJECT_BRANCH_PROPERTY));
-  }
-
-  private static String getFullKey(Project project, Resource resource) {
+  static String getFullKey(Project project, Resource resource) {
     return new StringBuilder(ResourceModel.KEY_SIZE)
       .append(project.getKey())
       .append(':')
@@ -112,14 +90,7 @@ public class SonarEngine extends CpdEngine {
     }
 
     // Create index
-    final SonarDuplicationsIndex index;
-    if (isCrossProject(project)) {
-      LOG.info("Cross-project analysis enabled");
-      index = new SonarDuplicationsIndex(new DbDuplicationsIndex(resourcePersister, project, dao));
-    } else {
-      LOG.info("Cross-project analysis disabled");
-      index = new SonarDuplicationsIndex();
-    }
+    final SonarDuplicationsIndex index = indexFactory.create(project);
 
     TokenChunker tokenChunker = JavaTokenProducer.build();
     StatementChunker statementChunker = JavaStatementBuilder.build();

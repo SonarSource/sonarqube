@@ -60,7 +60,8 @@ public class DbDuplicationsIndex {
 
   public void prepareCache(Resource resource) {
     int resourceSnapshotId = getSnapshotIdFor(resource);
-    List<DuplicationUnitDto> units = dao.selectCandidates(resourceSnapshotId, lastSnapshotId);
+    String languageKey = resource.getLanguage().getKey();
+    List<DuplicationUnitDto> units = dao.selectCandidates(resourceSnapshotId, lastSnapshotId, languageKey);
     cache.clear();
     // TODO Godin: maybe remove conversion of units to blocks?
     for (DuplicationUnitDto unit : units) {

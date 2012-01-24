@@ -19,15 +19,16 @@
  */
 package org.sonar.plugins.cpd;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
 import org.sonar.api.batch.CpdMapping;
 import org.sonar.api.resources.Project;
+import org.sonar.plugins.cpd.index.IndexFactory;
+
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class CpdSensorTest {
 
@@ -38,7 +39,7 @@ public class CpdSensorTest {
 
     Project project = createJavaProject().setConfiguration(conf);
 
-    CpdSensor sensor = new CpdSensor(new SonarEngine(), new PmdEngine(new CpdMapping[0]));
+    CpdSensor sensor = new CpdSensor(new SonarEngine(new IndexFactory()), new PmdEngine(new CpdMapping[0]));
     assertTrue(sensor.isSkipped(project));
   }
 
@@ -46,7 +47,7 @@ public class CpdSensorTest {
   public void doNotSkipByDefault() {
     Project project = createJavaProject().setConfiguration(new PropertiesConfiguration());
 
-    CpdSensor sensor = new CpdSensor(new SonarEngine(), new PmdEngine(new CpdMapping[0]));
+    CpdSensor sensor = new CpdSensor(new SonarEngine(new IndexFactory()), new PmdEngine(new CpdMapping[0]));
     assertFalse(sensor.isSkipped(project));
   }
 
@@ -59,7 +60,7 @@ public class CpdSensorTest {
     Project phpProject = createPhpProject().setConfiguration(conf);
     Project javaProject = createJavaProject().setConfiguration(conf);
 
-    CpdSensor sensor = new CpdSensor(new SonarEngine(), new PmdEngine(new CpdMapping[0]));
+    CpdSensor sensor = new CpdSensor(new SonarEngine(new IndexFactory()), new PmdEngine(new CpdMapping[0]));
     assertTrue(sensor.isSkipped(phpProject));
     assertFalse(sensor.isSkipped(javaProject));
   }
@@ -68,7 +69,7 @@ public class CpdSensorTest {
   public void engine() {
     PropertiesConfiguration conf = new PropertiesConfiguration();
     Project project = createJavaProject().setConfiguration(conf);
-    CpdSensor sensor = new CpdSensor(new SonarEngine(), new PmdEngine(new CpdMapping[0]));
+    CpdSensor sensor = new CpdSensor(new SonarEngine(new IndexFactory()), new PmdEngine(new CpdMapping[0]));
 
     assertThat(sensor.isSonarEngineEnabled(project), is(true));
     conf.setProperty("sonar.cpd.engine", "pmd");

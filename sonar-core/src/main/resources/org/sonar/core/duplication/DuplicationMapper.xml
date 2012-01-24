@@ -11,6 +11,7 @@
     AND to_blocks.snapshot_id = snapshot.id
     AND snapshot.islast = ${_true}
     AND snapshot.project_id = res.id
+    AND res.language = #{language}
     <if test="last_project_snapshot_id != null">
       AND to_blocks.project_snapshot_id != #{last_project_snapshot_id}
     </if>

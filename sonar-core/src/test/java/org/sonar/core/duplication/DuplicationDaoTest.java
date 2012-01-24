@@ -42,7 +42,7 @@ public class DuplicationDaoTest extends DaoTestCase {
   public void shouldGetByHash() throws Exception {
     setupData("shouldGetByHash");
 
-    List<DuplicationUnitDto> blocks = dao.selectCandidates(10, 7);
+    List<DuplicationUnitDto> blocks = dao.selectCandidates(10, 7, "java");
     assertThat(blocks.size(), is(1));
 
     DuplicationUnitDto block = blocks.get(0);
@@ -53,7 +53,7 @@ public class DuplicationDaoTest extends DaoTestCase {
     assertThat("block end line", block.getEndLine(), is(2));
 
     // check null for lastSnapshotId
-    blocks = dao.selectCandidates(10, null);
+    blocks = dao.selectCandidates(10, null, "java");
     assertThat(blocks.size(), is(2));
   }
 

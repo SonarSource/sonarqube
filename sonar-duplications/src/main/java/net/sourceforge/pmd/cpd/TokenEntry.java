@@ -23,6 +23,8 @@
  */
 package net.sourceforge.pmd.cpd;
 
+import com.google.common.annotations.Beta;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,9 +41,12 @@ public class TokenEntry implements Comparable<TokenEntry> {
   private int identifier;
   private int hashCode;
 
+  private final String value;
+
   private TokenEntry() {
     this.identifier = 0;
     this.tokenSrcID = "EOFMarker";
+    this.value = "";
   }
 
   public TokenEntry(String image, String tokenSrcID, int beginLine) {
@@ -54,6 +59,17 @@ public class TokenEntry implements Comparable<TokenEntry> {
     this.tokenSrcID = tokenSrcID;
     this.beginLine = beginLine;
     this.index = tokenCount++;
+    this.value = image;
+  }
+
+  /**
+   * For internal use only.
+   *
+   * @since 2.14
+   */
+  @Beta
+  public String getValue() {
+    return value;
   }
 
   public static TokenEntry getEOF() {

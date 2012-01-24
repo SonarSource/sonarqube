@@ -36,11 +36,11 @@ public class DuplicationDao implements BatchComponent, ServerComponent {
     this.mybatis = mybatis;
   }
 
-  public List<DuplicationUnitDto> selectCandidates(int resourceSnapshotId, Integer lastSnapshotId) {
+  public List<DuplicationUnitDto> selectCandidates(int resourceSnapshotId, Integer lastSnapshotId, String language) {
     SqlSession session = mybatis.openSession();
     try {
       DuplicationMapper mapper = session.getMapper(DuplicationMapper.class);
-      return mapper.selectCandidates(resourceSnapshotId, lastSnapshotId);
+      return mapper.selectCandidates(resourceSnapshotId, lastSnapshotId, language);
     } finally {
       MyBatis.closeSessionQuietly(session);
     }

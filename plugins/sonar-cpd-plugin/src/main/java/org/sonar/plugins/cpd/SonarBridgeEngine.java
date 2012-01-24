@@ -19,31 +19,33 @@
  */
 package org.sonar.plugins.cpd;
 
-import org.apache.commons.configuration.Configuration;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.CpdMapping;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.resources.*;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
 import org.sonar.duplications.detector.suffixtree.SuffixTreeCloneDetectionAlgorithm;
 import org.sonar.duplications.index.CloneGroup;
-import org.sonar.duplications.index.CloneIndex;
-import org.sonar.duplications.index.PackedMemoryCloneIndex;
+import org.sonar.duplications.internal.pmd.TokenizerBridge;
+import org.sonar.plugins.cpd.index.IndexFactory;
+import org.sonar.plugins.cpd.index.SonarDuplicationsIndex;
 
 import java.util.Collection;
 import java.util.List;
 
 public class SonarBridgeEngine extends CpdEngine {
 
+  private static final int BLOCK_SIZE = 10;
+
+  private final IndexFactory indexFactory;
   private final CpdMapping[] mappings;
 
-  public SonarBridgeEngine() {
-    this.mappings = null;
+  public SonarBridgeEngine(IndexFactory indexFactory) {
+    this(indexFactory, null);
   }
 
-  public SonarBridgeEngine(CpdMapping[] mappings) {
+  public SonarBridgeEngine(IndexFactory indexFactory, CpdMapping[] mappings) {
+    this.indexFactory = indexFactory;
     this.mappings = mappings;
   }
 
@@ -63,41 +65,27 @@ public class SonarBridgeEngine extends CpdEngine {
     CpdMapping mapping = getMapping(project.getLanguage());
 
     // Create index
-    BlockChunker blockChunker = new BlockChunker(getMinimumTokens(project));
-    CloneIndex index = new PackedMemoryCloneIndex();
+    SonarDuplicationsIndex index = indexFactory.create(project);
+
+    BlockChunker blockChunker = new BlockChunker(BLOCK_SIZE);
     TokenizerBridge bridge = new TokenizerBridge(mapping.getTokenizer(), fileSystem.getSourceCharset().name());
     for (InputFile inputFile : inputFiles) {
       Resource resource = mapping.createResource(inputFile.getFile(), fileSystem.getSourceDirs());
-      String resourceId = getFullKey(project, resource);
+      String resourceId = SonarEngine.getFullKey(project, resource);
       List<Block> blocks = blockChunker.chunk(resourceId, bridge.tokenize(inputFile.getFile()));
-      for (Block block : blocks) {
-        index.insert(block);
-      }
+      index.insert(resource, blocks);
     }
     bridge.clearCache();
 
     // Detect
     for (InputFile inputFile : inputFiles) {
       Resource resource = mapping.createResource(inputFile.getFile(), fileSystem.getSourceDirs());
-      String resourceId = getFullKey(project, resource);
-      Collection<Block> fileBlocks = index.getByResourceId(resourceId);
+      String resourceKey = SonarEngine.getFullKey(project, resource);
+
+      Collection<Block> fileBlocks = index.getByResource(resource, resourceKey);
       List<CloneGroup> duplications = SuffixTreeCloneDetectionAlgorithm.detect(index, fileBlocks);
       SonarEngine.save(context, resource, duplications);
     }
-  }
-
-  private static String getFullKey(Project project, Resource resource) {
-    return new StringBuilder(ResourceModel.KEY_SIZE)
-        .append(project.getKey())
-        .append(':')
-        .append(resource.getKey())
-        .toString();
-  }
-
-  private int getMinimumTokens(Project project) {
-    Configuration conf = project.getConfiguration();
-    return conf.getInt("sonar.cpd." + project.getLanguageKey() + ".minimumTokens",
-        conf.getInt("sonar.cpd.minimumTokens", CoreProperties.CPD_MINIMUM_TOKENS_DEFAULT_VALUE));
   }
 
   private CpdMapping getMapping(Language language) {

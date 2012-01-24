@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.cpd;
+package org.sonar.duplications.internal.pmd;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
@@ -32,6 +32,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Bridge, which allows to convert list of {@link TokenEntry} produced by {@link Tokenizer} into list of {@link Statement}s.
+ * Principle of conversion - statement formed from tokens of one line.
+ */
 public class TokenizerBridge {
 
   private final Tokenizer tokenizer;
@@ -58,16 +62,30 @@ public class TokenizerBridge {
    * We expect that implementation of {@link Tokenizer} is correct:
    * tokens ordered by occurrence in source code and last token is EOF.
    */
-  private List<Statement> convert(List<TokenEntry> tokens) {
+  private static List<Statement> convert(List<TokenEntry> tokens) {
     ImmutableList.Builder<Statement> result = ImmutableList.builder();
+    int currentLine = Integer.MIN_VALUE;
+    StringBuilder sb = new StringBuilder();
     for (TokenEntry token : tokens) {
       if (token != TokenEntry.EOF) {
+        String value = token.getValue();
         int line = token.getBeginLine();
-        int id = token.getIdentifier();
-        result.add(new Statement(line, line, Integer.toString(id)));
+        if (line != currentLine) {
+          addNewStatement(result, currentLine, sb);
+          currentLine = line;
+        }
+        sb.append(value);
       }
     }
+    addNewStatement(result, currentLine, sb);
     return result.build();
+  }
+
+  private static void addNewStatement(ImmutableList.Builder<Statement> result, int line, StringBuilder sb) {
+    if (sb.length() != 0) {
+      result.add(new Statement(line, line, sb.toString()));
+      sb.setLength(0);
+    }
   }
 
   public void clearCache() {

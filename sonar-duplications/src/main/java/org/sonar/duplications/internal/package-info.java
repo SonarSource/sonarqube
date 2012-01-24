@@ -17,20 +17,8 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.duplication;
 
-import org.apache.ibatis.annotations.Param;
-
-import java.util.List;
-
-public interface DuplicationMapper {
-
-  List<DuplicationUnitDto> selectCandidates(
-      @Param("resource_snapshot_id") int resourceSnapshotId,
-      @Param("last_project_snapshot_id") Integer lastSnapshotId,
-      @Param("language") String language);
-
-  void batchInsert(DuplicationUnitDto unit);
-
-}
-
+/**
+ * Internals.
+ */
+package org.sonar.duplications.internal;
