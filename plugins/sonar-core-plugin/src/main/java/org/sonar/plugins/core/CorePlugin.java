@@ -189,6 +189,18 @@ import java.util.List;
   // SERVER-SIDE TECHNICAL PROPERTIES
 
   @Property(
+    key = "sonar.security.realm",
+    name = "Security Realm",
+    project = false,
+    global = false
+  ),
+  @Property(
+    key = "sonar.security.savePassword",
+    name = "Save external password",
+    project = false,
+    global = false
+  ),
+  @Property(
     key = "sonar.authenticator.downcase",
     name = "Downcase login",
     description = "Downcase login during user authentication, typically for Active Directory",

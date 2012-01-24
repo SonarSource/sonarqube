@@ -27,6 +27,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
 import org.sonar.api.security.LoginPasswordAuthenticator;
 import org.sonar.api.security.SecurityRealm;
+import org.sonar.api.utils.SonarException;
 
 /**
  * @since 2.14
@@ -34,7 +35,6 @@ import org.sonar.api.security.SecurityRealm;
 public class SecurityRealmFactory implements ServerComponent {
 
   private static final Logger INFO = LoggerFactory.getLogger("org.sonar.INFO");
-  private static final Logger LOG = LoggerFactory.getLogger(SecurityRealmFactory.class);
 
   private final boolean ignoreStartupFailure;
   private final SecurityRealm realm;
@@ -49,16 +49,14 @@ public class SecurityRealmFactory implements ServerComponent {
     if (!StringUtils.isEmpty(realmName)) {
       selectedRealm = selectRealm(realms, realmName);
       if (selectedRealm == null) {
-        LOG.error("Realm not found. Please check the property '" + REALM_PROPERTY + "' in conf/sonar.properties");
-        throw new AuthenticatorNotFoundException(realmName);
+        throw new SonarException("Realm '" + realmName + "' not found. Please check the property '" + REALM_PROPERTY + "' in conf/sonar.properties");
       }
     }
     if (selectedRealm == null && !StringUtils.isEmpty(className)) {
       LoginPasswordAuthenticator authenticator = selectAuthenticator(authenticators, className);
       if (authenticator == null) {
-        LOG.error("Authenticator plugin not found. Please check the property '" + CoreProperties.CORE_AUTHENTICATOR_CLASS
+        throw new SonarException("Authenticator '" + className + "' not found. Please check the property '" + CoreProperties.CORE_AUTHENTICATOR_CLASS
           + "' in conf/sonar.properties");
-        throw new AuthenticatorNotFoundException(className);
       }
       selectedRealm = new CompatibilityRealm(authenticator);
     }
@@ -85,10 +83,9 @@ public class SecurityRealmFactory implements ServerComponent {
         INFO.info("Security realm started");
       } catch (RuntimeException e) {
         if (ignoreStartupFailure) {
-          LOG.error("IGNORED - Realm fails to start: " + e.getMessage());
+          INFO.error("IGNORED - Security realm fails to start: " + e.getMessage());
         } else {
-          LOG.error("Realm fails to start: " + e.getMessage());
-          throw e;
+          throw new SonarException("Security realm fails to start: " + e.getMessage(), e);
         }
       }
     }

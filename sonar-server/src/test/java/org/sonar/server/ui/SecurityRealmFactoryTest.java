@@ -25,9 +25,11 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.security.LoginPasswordAuthenticator;
 import org.sonar.api.security.SecurityRealm;
+import org.sonar.api.utils.SonarException;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
@@ -61,11 +63,16 @@ public class SecurityRealmFactoryTest {
     assertThat(factory.getRealm(), nullValue());
   }
 
-  @Test(expected = AuthenticatorNotFoundException.class)
+  @Test
   public void realmNotFound() {
     settings.setProperty(SecurityRealmFactory.REALM_PROPERTY, "Fake");
 
-    new SecurityRealmFactory(settings);
+    try {
+      new SecurityRealmFactory(settings);
+      fail();
+    } catch (SonarException e) {
+      assertThat(e.getMessage(), containsString("Realm 'Fake' not found."));
+    }
   }
 
   @Test
@@ -90,11 +97,16 @@ public class SecurityRealmFactoryTest {
     assertThat(factory.getRealm(), is(realm));
   }
 
-  @Test(expected = AuthenticatorNotFoundException.class)
+  @Test
   public void authenticatorNotFound() {
     settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_CLASS, "Fake");
 
-    new SecurityRealmFactory(settings);
+    try {
+      new SecurityRealmFactory(settings);
+      fail();
+    } catch (SonarException e) {
+      assertThat(e.getMessage(), containsString("Authenticator 'Fake' not found."));
+    }
   }
 
   @Test
@@ -107,12 +119,18 @@ public class SecurityRealmFactoryTest {
     verify(realm).init();
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void shouldFail() {
     SecurityRealm realm = spy(new AlwaysFailsRealm());
     settings.setProperty(SecurityRealmFactory.REALM_PROPERTY, realm.getName());
 
-    new SecurityRealmFactory(settings, new SecurityRealm[] {realm}).start();
+    try {
+      new SecurityRealmFactory(settings, new SecurityRealm[] {realm}).start();
+      fail();
+    } catch (SonarException e) {
+      assertThat(e.getCause(), instanceOf(IllegalStateException.class));
+      assertThat(e.getMessage(), containsString("Security realm fails to start"));
+    }
   }
 
   private static class AlwaysFailsRealm extends FakeRealm {

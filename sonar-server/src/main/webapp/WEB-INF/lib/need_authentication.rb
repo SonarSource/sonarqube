@@ -45,6 +45,8 @@ class PluginRealm
     @java_authenticator = java_realm.getLoginPasswordAuthenticator()
     @java_users_provider = java_realm.getUsersProvider()
     @java_groups_provider = java_realm.getGroupsProvider()
+
+    @save_password = Java::OrgSonarServerUi::JRubyFacade.new.getSettings().getBoolean('sonar.security.savePassword')
   end
 
   def authenticate?(username, password)
@@ -53,10 +55,11 @@ class PluginRealm
         details = @java_users_provider.doGetUserDetails(username)
       rescue Exception => e
         Rails.logger.error("Error from external users provider: #{e.message}")
+        return false if !@save_password
         return fallback(username, password)
       else
         # User exist in external system
-        auth(username, password, details) if details
+        return auth(username, password, details) if details
         # No such user in external system
         return fallback(username, password)
       end
@@ -109,7 +112,7 @@ class PluginRealm
       java_facade = Java::OrgSonarServerUi::JRubyFacade.new
       return nil if !java_facade.getSettings().getBoolean('sonar.authenticator.createUsers')
       # Automatically create a user in the sonar db if authentication has been successfully done
-      user = User.new(:login => username, :name => username, :email => '', :password => password, :password_confirmation => password)
+      user = User.new(:login => username, :name => username, :email => '')
       default_group_name = java_facade.getSettings().getString('sonar.defaultGroup')
       default_group = Group.find_by_name(default_group_name)
       if default_group
@@ -119,11 +122,16 @@ class PluginRealm
       end
     end
     if details
-      user.update_attributes(:name => details.getName(), :email => details.getEmail())
+      user.name = details.getName()
+      user.email = details.getEmail()
     end
-    user.update_attributes(:password => password, :password_confirmation => password)
+    if @save_password
+      user.password = password
+      user.password_confirmation = password
+    end
     synchronize_groups(user)
-    user.save
+    # Note that validation disabled
+    user.save(false)
     return user
   end
 
