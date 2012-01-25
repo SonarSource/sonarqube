@@ -28,6 +28,6 @@ public class DbCleanerPluginTest {
 
   @Test
   public void shouldGetExtensions() {
-    assertThat(new DbCleanerPlugin().getExtensions().size(), greaterThan(5));
+    assertThat(new DbCleanerPlugin().getExtensions().size(), greaterThan(2));
   }
 }

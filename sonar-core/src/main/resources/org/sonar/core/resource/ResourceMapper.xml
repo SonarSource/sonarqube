@@ -27,5 +27,8 @@
     select * from snapshots where id=#{id}
   </select>
 
+  <select id="selectDescendantProjectIds" parameterType="long" resultType="long">
+    select id from projects where scope='PRJ' and root_id=#{id}
+  </select>
 </mapper>
 

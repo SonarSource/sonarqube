@@ -23,6 +23,7 @@ public interface DbCleanerConstants {
 
   String PLUGIN_KEY = "dbcleaner";
   String PLUGIN_NAME = "DbCleaner";
+  String PROPERTY_CLEAN_DIRECTORY = "sonar.dbcleaner.cleanDirectory";
   String MONTHS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_WEEK = "sonar.dbcleaner.monthsBeforeKeepingOnlyOneSnapshotByWeek";
   String MONTHS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_MONTH = "sonar.dbcleaner.monthsBeforeKeepingOnlyOneSnapshotByMonth";
   String MONTHS_BEFORE_DELETING_ALL_SNAPSHOTS = "sonar.dbcleaner.monthsBeforeDeletingAllSnapshots";

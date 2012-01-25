@@ -42,7 +42,7 @@ public class DuplicationDao implements BatchComponent, ServerComponent {
       DuplicationMapper mapper = session.getMapper(DuplicationMapper.class);
       return mapper.selectCandidates(resourceSnapshotId, lastSnapshotId, language);
     } finally {
-      MyBatis.closeSessionQuietly(session);
+      MyBatis.closeQuietly(session);
     }
   }
 
@@ -60,7 +60,7 @@ public class DuplicationDao implements BatchComponent, ServerComponent {
       session.commit();
 
     } finally {
-      MyBatis.closeSessionQuietly(session);
+      MyBatis.closeQuietly(session);
     }
   }
 

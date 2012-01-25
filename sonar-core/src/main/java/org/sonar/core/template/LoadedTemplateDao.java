@@ -38,7 +38,7 @@ public class LoadedTemplateDao implements BatchComponent, ServerComponent {
     try {
       return mapper.countByTypeAndKey(type, key);
     } finally {
-      MyBatis.closeSessionQuietly(session);
+      MyBatis.closeQuietly(session);
     }
   }
 
@@ -49,7 +49,7 @@ public class LoadedTemplateDao implements BatchComponent, ServerComponent {
       mapper.insert(loadedTemplateDto);
       session.commit();
     } finally {
-      MyBatis.closeSessionQuietly(session);
+      MyBatis.closeQuietly(session);
     }
   }
 

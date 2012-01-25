@@ -40,7 +40,7 @@ public class RuleDao implements BatchComponent, ServerComponent {
       RuleMapper mapper = session.getMapper(RuleMapper.class);
       return mapper.selectAll();
     } finally {
-      MyBatis.closeSessionQuietly(session);
+      MyBatis.closeQuietly(session);
     }
   }
 
@@ -50,7 +50,7 @@ public class RuleDao implements BatchComponent, ServerComponent {
       RuleMapper mapper = session.getMapper(RuleMapper.class);
       return mapper.selectById(id);
     } finally {
-      MyBatis.closeSessionQuietly(session);
+      MyBatis.closeQuietly(session);
     }
   }
 

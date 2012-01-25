@@ -19,41 +19,70 @@
  */
 package org.sonar.plugins.dbcleaner.runner;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sonar.api.Properties;
+import org.sonar.api.Property;
 import org.sonar.api.batch.PostJob;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Scopes;
 import org.sonar.core.NotDryRun;
-import org.sonar.plugins.dbcleaner.purges.ProjectPurgeContext;
-import org.sonar.plugins.dbcleaner.purges.ProjectPurgeTask;
+import org.sonar.core.purge.PurgeDao;
+import org.sonar.core.purge.PurgeSnapshotQuery;
+import org.sonar.plugins.dbcleaner.api.DbCleanerConstants;
 
-import java.util.Date;
-
+@Properties({
+  @Property(
+    key = DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY,
+    defaultValue = "false",
+    name = "Clean history data of directories/packages")
+})
 @NotDryRun
 public class ProjectPurgePostJob implements PostJob {
 
-  private ProjectPurgeTask task;
+  private PurgeDao purgeDao;
+  private Settings settings;
 
-  public ProjectPurgePostJob(ProjectPurgeTask task) {
-    this.task = task;
+  public ProjectPurgePostJob(PurgeDao purgeDao, Settings settings) {
+    this.purgeDao = purgeDao;
+    this.settings = settings;
   }
 
   public void executeOn(final Project project, SensorContext context) {
-    final Date beforeBuildDate = new Date();
+    long projectId = (long) project.getId();
+    deleteAbortedBuilds(projectId);
+    deleteFileHistory(projectId);
+    if (settings.getBoolean(DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY)) {
+      deleteDirectoryHistory(projectId);
+    }
+    purgeProject(projectId);
+  }
 
-    ProjectPurgeContext purgeContext = new ProjectPurgeContext() {
-      public Long getRootProjectId() {
-        return new Long(project.getId());
-      }
+  private void purgeProject(long projectId) {
+    purgeDao.purgeProject(projectId);
+  }
 
-      public Date getBeforeBuildDate() {
-        return beforeBuildDate;
-      }
-    };
+  private void deleteDirectoryHistory(long projectId) {
+    PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
+      .setRootProjectId(projectId)
+      .setIslast(false)
+      .setScopes(new String[]{Scopes.DIRECTORY});
+    purgeDao.deleteSnapshots(query);
+  }
 
-    Logger logger = LoggerFactory.getLogger(getClass());
-    logger.info("Optimizing project");
-    task.execute(purgeContext);
+  private void deleteFileHistory(long projectId) {
+    PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
+      .setRootProjectId(projectId)
+      .setIslast(false)
+      .setScopes(new String[]{Scopes.FILE});
+    purgeDao.deleteSnapshots(query);
+  }
+
+  private void deleteAbortedBuilds(long projectId) {
+    PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
+      .setRootProjectId(projectId)
+      .setIslast(false)
+      .setStatus(new String[]{"U"});
+    purgeDao.deleteSnapshots(query);
   }
 }

@@ -6,9 +6,20 @@
   <select id="selectSnapshotIds" parameterType="map" resultType="long">
     select id from snapshots
     <where>
-      islast=${_false}
+      <if test="islast != null">
+        and islast=#{islast}
+      </if>
+      <if test="notPurged != null and notPurged">
+        and (purge_status is null or purge_status=0)
+      </if>
+      <if test="rootSnapshotId != null">
+        and root_snapshot_id=#{rootSnapshotId}
+      </if>
       <if test="rootProjectId != null">
         and root_project_id=#{rootProjectId}
+      </if>
+      <if test="resourceId != null">
+        and project_id=#{resourceId}
       </if>
       <if test="beforeBuildDate != null">
         and build_date &lt;= #{beforeBuildDate}
@@ -23,29 +34,23 @@
       </if>
       <if test="qualifiers != null">
         and qualifier in
-        <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator="," close=")">#{qualifier}
-        </foreach>
+        <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator="," close=")">#{qualifier}</foreach>
       </if>
     </where>
   </select>
 
-  <select id="selectResourceIdsToDisable" resultType="long">
-    select s1.project_id from snapshots s1
-    where s1.islast=${_true} and s1.root_snapshot_id is not null and not exists(select s2.id from snapshots s2 where
-    s2.id=s1.root_snapshot_id and s2.islast=${_true})
+  <select id="selectResourceIdsToDisable" resultType="long" parameterType="long">
+    select p.id from projects p
+    where (p.id=#{id} or p.root_id=#{id}) and p.enabled=${_true}
+    and not exists(select s.project_id from snapshots s where s.islast=${_true} and s.project_id=p.id)
   </select>
 
-  <select id="selectSnapshotIdsToPurge" parameterType="map" resultType="long">
-    select id from snapshots
-    <where>
-      islast=${_false} and (purge_status is null or purge_status=0)
-      <if test="rootProjectId != null">
-        and root_project_id=#{rootProjectId}
-      </if>
-      <if test="beforeBuildDate!= null">
-        and build_date &lt;= #{beforeBuildDate}
-      </if>
-    </where>
+  <select id="selectResourceIdsByRootId" resultType="long" parameterType="long">
+    select id from projects where root_id=#{id} or id=#{id}
+  </select>
+
+  <select id="selectSnapshotIdsByResource" parameterType="long" resultType="long">
+    select id from snapshots where project_id=#{id}
   </select>
 
   <delete id="deleteSnapshotMeasures" parameterType="long">
@@ -100,7 +105,43 @@
     delete from resource_index where resource_id=#{id}
   </delete>
 
-  <update id="unsetSnapshotIslast" parameterType="long">
+  <delete id="deleteEvent" parameterType="long">
+    delete from events where id=#{id}
+  </delete>
+
+  <delete id="deleteResourceLinks" parameterType="long">
+    delete from project_links where project_id=#{id}
+  </delete>
+
+  <delete id="deleteResourceProperties" parameterType="long">
+    delete from properties where resource_id=#{id}
+  </delete>
+
+  <delete id="deleteResource" parameterType="long">
+    delete from projects where id=#{id}
+  </delete>
+
+  <delete id="deleteResourceGroupRoles" parameterType="long">
+    delete from group_roles where resource_id=#{id}
+  </delete>
+
+  <delete id="deleteResourceUserRoles" parameterType="long">
+    delete from user_roles where resource_id=#{id}
+  </delete>
+
+  <delete id="deleteResourceManualMeasures" parameterType="long">
+    delete from manual_measures where resource_id=#{id}
+  </delete>
+
+  <delete id="deleteResourceReviews" parameterType="long">
+    delete from reviews where resource_id=#{id}
+  </delete>
+
+  <delete id="deleteResourceEvents" parameterType="long">
+    delete from events where resource_id=#{id}
+  </delete>
+
+  <update id="setSnapshotIsLastToFalse" parameterType="long">
     update snapshots set islast=${_false} where project_id=#{id}
   </update>
 </mapper>

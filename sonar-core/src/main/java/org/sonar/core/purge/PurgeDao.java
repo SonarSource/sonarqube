@@ -23,91 +23,130 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.core.persistence.BatchSession;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.resource.ResourceDao;
+
+import java.util.List;
 
 public class PurgeDao {
   private final MyBatis mybatis;
+  private final ResourceDao resourceDao;
 
-  public PurgeDao(MyBatis mybatis) {
+  public PurgeDao(MyBatis mybatis, ResourceDao resourceDao) {
     this.mybatis = mybatis;
+    this.resourceDao = resourceDao;
   }
 
-  public PurgeDao disableOrphanResources(Object... handlers) {
+  public PurgeDao purgeProject(long rootProjectId) {
     SqlSession session = mybatis.openSession(ExecutorType.BATCH);
+    PurgeMapper purgeMapper = session.getMapper(PurgeMapper.class);
     try {
-      final PurgeMapper mapper = session.getMapper(PurgeMapper.class);
-      final BatchSession batchSession = new BatchSession(session);
-      session.select("selectResourceIdsToDisable", new ResultHandler() {
-        public void handleResult(ResultContext context) {
-          Long resourceId = (Long) context.getResultObject();
-          // TODO execute handlers in order to close reviews
-          batchSession.increment(disableResource(resourceId, mapper));
+      List<Long> projectIds = resourceDao.getDescendantProjectIdsAndSelf(rootProjectId, session);
+      for (Long projectId : projectIds) {
+        purgeProject(projectId, session, purgeMapper);
+      }
+
+      for (Long projectId : projectIds) {
+        disableOrphanResources(projectId, session, purgeMapper);
+      }
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+    return this;
+  }
+
+  private void purgeProject(final Long projectId, final SqlSession session, final PurgeMapper purgeMapper) {
+    List<Long> projectSnapshotIds = purgeMapper.selectSnapshotIds(PurgeSnapshotQuery.create().setResourceId(projectId).setIslast(false).setNotPurged(true));
+    for (final Long projectSnapshotId : projectSnapshotIds) {
+      PurgeSnapshotQuery query = PurgeSnapshotQuery.create().setRootSnapshotId(projectSnapshotId).setNotPurged(true);
+      session.select("org.sonar.core.purge.PurgeMapper.selectSnapshotIds", query, new ResultHandler() {
+        public void handleResult(ResultContext resultContext) {
+          Long snapshotId = (Long) resultContext.getResultObject();
+          purgeSnapshot(snapshotId, purgeMapper);
         }
       });
-      batchSession.commit();
-      return this;
-
-    } finally {
-      MyBatis.closeSessionQuietly(session);
+      // must be executed at the end for reentrance
+      purgeSnapshot(projectSnapshotId, purgeMapper);
     }
+    session.commit();
   }
 
-  public PurgeDao disableResource(long resourceId, Object... handlers) {
-    SqlSession session = mybatis.openSession(ExecutorType.BATCH);
+  private void disableOrphanResources(final Long projectId, final SqlSession session, final PurgeMapper purgeMapper) {
+    session.select("org.sonar.core.purge.PurgeMapper.selectResourceIdsToDisable", projectId, new ResultHandler() {
+      public void handleResult(ResultContext resultContext) {
+        Long resourceId = (Long) resultContext.getResultObject();
+        disableResource(resourceId, purgeMapper);
+      }
+    });
+    session.commit();
+  }
+
+  public PurgeDao deleteProject(long rootProjectId) {
+    final BatchSession session = mybatis.openBatchSession();
     try {
       final PurgeMapper mapper = session.getMapper(PurgeMapper.class);
-      disableResource(resourceId, mapper);
+      List<Long> projectIds = resourceDao.getDescendantProjectIdsAndSelf(rootProjectId, session.getSqlSession());
+      for (Long projectId : projectIds) {
+        session.select("org.sonar.core.purge.PurgeMapper.selectResourceIdsByRootId", projectId, new ResultHandler() {
+          public void handleResult(ResultContext context) {
+            Long resourceId = (Long) context.getResultObject();
+            deleteResource(resourceId, session, mapper);
+          }
+        });
+      }
       session.commit();
       return this;
 
     } finally {
-      MyBatis.closeSessionQuietly(session);
+      MyBatis.closeQuietly(session);
     }
   }
 
-  int disableResource(long resourceId, PurgeMapper mapper) {
-    mapper.disableResource(resourceId);
+  void deleteResource(final long resourceId, final BatchSession session, final PurgeMapper mapper) {
+    session.select("org.sonar.core.purge.PurgeMapper.selectSnapshotIdsByResource", new ResultHandler() {
+      public void handleResult(ResultContext context) {
+        Long snapshotId = (Long) context.getResultObject();
+        session.increment(deleteSnapshot(snapshotId, mapper));
+      }
+    });
+    // TODO optimization: filter requests according to resource scope
+    mapper.deleteResourceLinks(resourceId);
+    mapper.deleteResourceProperties(resourceId);
     mapper.deleteResourceIndex(resourceId);
-    mapper.unsetSnapshotIslast(resourceId);
+    mapper.deleteResourceGroupRoles(resourceId);
+    mapper.deleteResourceUserRoles(resourceId);
+    mapper.deleteResourceManualMeasures(resourceId);
+    mapper.deleteResourceReviews(resourceId);
+    mapper.deleteResourceEvents(resourceId);
+    mapper.deleteResource(resourceId);
+    session.increment(9);
+  }
+
+  int disableResource(long resourceId, PurgeMapper mapper) {
+    mapper.deleteResourceIndex(resourceId);
+    mapper.setSnapshotIsLastToFalse(resourceId);
+    mapper.disableResource(resourceId);
     // TODO close reviews
     return 3; // nb of SQL requests
   }
 
+
   public PurgeDao deleteSnapshots(PurgeSnapshotQuery query) {
-    SqlSession session = mybatis.openSession(ExecutorType.BATCH);
+    final BatchSession session = mybatis.openBatchSession();
     try {
       final PurgeMapper mapper = session.getMapper(PurgeMapper.class);
-      final BatchSession batchSession = new BatchSession(session);
-      session.select("selectSnapshotIds", query, new ResultHandler() {
+      session.select("org.sonar.core.purge.PurgeMapper.selectSnapshotIds", query, new ResultHandler() {
         public void handleResult(ResultContext context) {
           Long snapshotId = (Long) context.getResultObject();
-          batchSession.increment(deleteSnapshot(snapshotId, mapper));
+          session.increment(deleteSnapshot(snapshotId, mapper));
         }
       });
-      batchSession.commit();
+      session.commit();
       return this;
 
     } finally {
-      MyBatis.closeSessionQuietly(session);
-    }
-  }
-
-  public PurgeDao purgeSnapshots(PurgeSnapshotQuery query) {
-    SqlSession session = mybatis.openSession(ExecutorType.BATCH);
-    try {
-      final PurgeMapper mapper = session.getMapper(PurgeMapper.class);
-      final BatchSession batchSession = new BatchSession(session);
-      session.select("selectSnapshotIdsToPurge", query, new ResultHandler() {
-        public void handleResult(ResultContext context) {
-          Long snapshotId = (Long) context.getResultObject();
-          batchSession.increment(purgeSnapshot(snapshotId, mapper));
-        }
-      });
-      batchSession.commit();
-      return this;
-
-    } finally {
-      MyBatis.closeSessionQuietly(session);
+      MyBatis.closeQuietly(session);
     }
   }
 
@@ -134,32 +173,5 @@ public class PurgeDao {
     mapper.deleteSnapshotViolations(snapshotId);
     mapper.deleteSnapshot(snapshotId);
     return 8; // nb of SQL requests
-  }
-
-  // TODO could be moved to org.sonar.core.persistence
-  private static class BatchSession {
-    static final int MAX_BATCH_SIZE = 1000;
-
-    int count = 0;
-    SqlSession session;
-
-    private BatchSession(SqlSession session) {
-      this.session = session;
-    }
-
-    BatchSession increment(int i) {
-      count += i;
-      if (count > MAX_BATCH_SIZE) {
-        commit();
-      }
-      return this;
-    }
-
-    BatchSession commit() {
-      session.commit();
-      count = 0;
-      return this;
-    }
-
   }
 }

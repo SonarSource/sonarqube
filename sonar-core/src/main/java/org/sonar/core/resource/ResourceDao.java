@@ -17,42 +17,43 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.dashboard;
+package org.sonar.core.resource;
 
+import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 
-public class ActiveDashboardDao implements BatchComponent, ServerComponent {
+import java.util.List;
 
+public class ResourceDao {
   private MyBatis mybatis;
 
-  public ActiveDashboardDao(MyBatis mybatis) {
+  public ResourceDao(MyBatis mybatis) {
     this.mybatis = mybatis;
   }
 
-  public void insert(ActiveDashboardDto activeDashboardDto) {
+  public List<Long> getDescendantProjectIdsAndSelf(long projectId) {
     SqlSession session = mybatis.openSession();
-    ActiveDashboardMapper mapper = session.getMapper(ActiveDashboardMapper.class);
     try {
-      mapper.insert(activeDashboardDto);
-      session.commit();
+      return getDescendantProjectIdsAndSelf(projectId, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public int selectMaxOrderIndexForNullUser() {
-    SqlSession session = mybatis.openSession();
-    ActiveDashboardMapper mapper = session.getMapper(ActiveDashboardMapper.class);
-    try {
-      Integer max = mapper.selectMaxOrderIndexForNullUser();
-      return (max != null ? max.intValue() : 0);
-    } finally {
-      session.close();
-    }
-
+  public List<Long> getDescendantProjectIdsAndSelf(long projectId, SqlSession session) {
+    ResourceMapper mapper = session.getMapper(ResourceMapper.class);
+    List<Long> ids = Lists.newArrayList();
+    appendChildProjectIds(projectId, mapper, ids);
+    return ids;
   }
 
+  private void appendChildProjectIds(long projectId, ResourceMapper mapper, List<Long> ids) {
+    ids.add(projectId);
+    List<Long> subProjectIds = mapper.selectDescendantProjectIds(projectId);
+    for (Long subProjectId : subProjectIds) {
+      ids.add(subProjectId);
+      appendChildProjectIds(subProjectId, mapper, ids);
+    }
+  }
 }

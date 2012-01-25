@@ -23,10 +23,14 @@ import java.util.Date;
 
 public final class PurgeSnapshotQuery {
   private Long rootProjectId;
+  private Long rootSnapshotId;
+  private Long resourceId;
   private Date beforeBuildDate;
   private String[] scopes;
   private String[] qualifiers;
   private String[] status;
+  private Boolean islast;
+  private Boolean notPurged;
 
   private PurgeSnapshotQuery() {
   }
@@ -77,6 +81,42 @@ public final class PurgeSnapshotQuery {
 
   public PurgeSnapshotQuery setStatus(String[] status) {
     this.status = status;
+    return this;
+  }
+
+  public Boolean getIslast() {
+    return islast;
+  }
+
+  public PurgeSnapshotQuery setIslast(Boolean islast) {
+    this.islast = islast;
+    return this;
+  }
+
+  public Boolean getNotPurged() {
+    return notPurged;
+  }
+
+  public PurgeSnapshotQuery setNotPurged(Boolean notPurged) {
+    this.notPurged = notPurged;
+    return this;
+  }
+
+  public Long getRootSnapshotId() {
+    return rootSnapshotId;
+  }
+
+  public PurgeSnapshotQuery setRootSnapshotId(Long rootSnapshotId) {
+    this.rootSnapshotId = rootSnapshotId;
+    return this;
+  }
+
+  public Long getResourceId() {
+    return resourceId;
+  }
+
+  public PurgeSnapshotQuery setResourceId(Long l) {
+    this.resourceId = l;
     return this;
   }
 }

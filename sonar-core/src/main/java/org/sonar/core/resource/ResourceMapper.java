@@ -19,6 +19,9 @@
  */
 package org.sonar.core.resource;
 
+import java.util.List;
+
 public interface ResourceMapper {
   SnapshotDto selectSnapshotById(Long snapshotId);
+  List<Long> selectDescendantProjectIds(long rootProjectId);
 }

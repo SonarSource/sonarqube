@@ -102,7 +102,12 @@ public class MyBatis implements BatchComponent, ServerComponent {
     return sessionFactory.openSession(type);
   }
 
-  public static void closeSessionQuietly(SqlSession session) {
+  public BatchSession openBatchSession() {
+    SqlSession session = openSession(ExecutorType.BATCH);
+    return new BatchSession(session);
+  }
+
+  public static void closeQuietly(SqlSession session) {
     if (session != null) {
       try {
         session.close();
@@ -110,6 +115,12 @@ public class MyBatis implements BatchComponent, ServerComponent {
         LoggerFactory.getLogger(MyBatis.class).warn("Fail to close session", e);
         // do not re-throw the exception
       }
+    }
+  }
+
+  public static void closeQuietly(BatchSession session) {
+    if (session != null) {
+      closeQuietly(session.getSqlSession());
     }
   }
 

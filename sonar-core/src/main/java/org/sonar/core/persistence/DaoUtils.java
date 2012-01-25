@@ -23,6 +23,7 @@ import org.sonar.core.dashboard.ActiveDashboardDao;
 import org.sonar.core.dashboard.DashboardDao;
 import org.sonar.core.duplication.DuplicationDao;
 import org.sonar.core.purge.PurgeDao;
+import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.core.review.ReviewDao;
 import org.sonar.core.rule.RuleDao;
@@ -45,6 +46,7 @@ public final class DaoUtils {
       LoadedTemplateDao.class,
       PurgeDao.class,
       ResourceIndexerDao.class,
+      ResourceDao.class,
       ReviewDao.class,
       RuleDao.class));
   }

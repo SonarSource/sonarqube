@@ -38,7 +38,7 @@ public class DashboardDao implements BatchComponent, ServerComponent {
       DashboardMapper mapper = session.getMapper(DashboardMapper.class);
       return mapper.selectGlobalDashboard(name);
     } finally {
-      MyBatis.closeSessionQuietly(session);
+      MyBatis.closeQuietly(session);
     }
   }
 
@@ -59,7 +59,7 @@ public class DashboardDao implements BatchComponent, ServerComponent {
       }
       session.commit();
     } finally {
-      MyBatis.closeSessionQuietly(session);
+      MyBatis.closeQuietly(session);
     }
   }
 

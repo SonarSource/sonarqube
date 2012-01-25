@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.persistence.DaoTestCase;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.resource.ResourceDao;
 
 public class PurgeDaoTest extends DaoTestCase {
 
@@ -31,9 +32,12 @@ public class PurgeDaoTest extends DaoTestCase {
 
   @Before
   public void createDao() {
-    dao = new PurgeDao(getMyBatis());
+    dao = new PurgeDao(getMyBatis(), new ResourceDao(getMyBatis()));
   }
 
+  /**
+   * Test that all related data is deleted.
+   */
   @Test
   public void shouldDeleteSnapshot() {
     setupData("shouldDeleteSnapshot");
@@ -45,19 +49,37 @@ public class PurgeDaoTest extends DaoTestCase {
       session.commit();
 
     } finally {
-      MyBatis.closeSessionQuietly(session);
+      MyBatis.closeQuietly(session);
     }
     checkTables("shouldDeleteSnapshot",
       "snapshots", "project_measures", "measure_data", "rule_failures", "snapshot_sources", "duplications_index", "events", "dependencies");
   }
 
   @Test
-  public void shouldPurgeSnapshots() {
-    setupData("shouldPurgeSnapshots");
+  public void shouldPurgeProject() {
+    setupData("shouldPurgeProject");
+    dao.purgeProject(1);
+    checkTables("shouldPurgeProject", "projects", "snapshots");
+  }
 
-    dao.purgeSnapshots(PurgeSnapshotQuery.create());
+  @Test
+  public void shouldPurgeDirectoriesAndFiles() {
+    setupData("shouldPurgeDirectoriesAndFiles");
+    dao.purgeProject(1);
+    checkTables("shouldPurgeDirectoriesAndFiles", "projects", "snapshots");
+  }
 
-    checkTables("shouldPurgeSnapshots",
-      "snapshots", "project_measures", "measure_data", "rule_failures", "snapshot_sources", "duplications_index", "events", "dependencies");
+  @Test
+  public void shouldDisableResourcesWithoutLastSnapshot() {
+    setupData("shouldDisableResourcesWithoutLastSnapshot");
+    dao.purgeProject(1);
+    checkTables("shouldDisableResourcesWithoutLastSnapshot", "projects", "snapshots");
+  }
+
+  @Test
+  public void shouldDeleteSnapshots() {
+    setupData("shouldDeleteSnapshots");
+    dao.deleteSnapshots(PurgeSnapshotQuery.create().setIslast(false).setResourceId(1L));
+    checkTables("shouldDeleteSnapshots", "snapshots");
   }
 }

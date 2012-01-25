@@ -52,7 +52,7 @@ public class DatabaseMigrator implements ServerComponent {
         DdlUtils.createSchema(connection, database.getDialect().getId());
       } finally {
         try {
-          MyBatis.closeSessionQuietly(session);
+          MyBatis.closeQuietly(session);
 
           // The connection is probably already closed by session.close()
           // but it's not documented in mybatis javadoc.

@@ -40,7 +40,7 @@ public class ReviewDao implements BatchComponent, ServerComponent {
       ReviewMapper mapper = session.getMapper(ReviewMapper.class);
       return mapper.selectById(id);
     } finally {
-      MyBatis.closeSessionQuietly(session);
+      MyBatis.closeQuietly(session);
     }
   }
 
@@ -59,7 +59,7 @@ public class ReviewDao implements BatchComponent, ServerComponent {
       }
       return result;
     } finally {
-      MyBatis.closeSessionQuietly(session);
+      MyBatis.closeQuietly(session);
     }
   }
 
@@ -77,7 +77,7 @@ public class ReviewDao implements BatchComponent, ServerComponent {
       }
       return result;
     } finally {
-      MyBatis.closeSessionQuietly(session);
+      MyBatis.closeQuietly(session);
     }
   }
 }

@@ -58,7 +58,7 @@ public class ResourceIndexerDao {
       return this;
 
     } finally {
-      MyBatis.closeSessionQuietly(session);
+      MyBatis.closeQuietly(session);
     }
   }
 
@@ -79,7 +79,7 @@ public class ResourceIndexerDao {
       return this;
 
     } finally {
-      MyBatis.closeSessionQuietly(session);
+      MyBatis.closeQuietly(session);
     }
   }
 
@@ -160,7 +160,7 @@ public class ResourceIndexerDao {
           }
         }
       } finally {
-        MyBatis.closeSessionQuietly(session);
+        MyBatis.closeQuietly(session);
       }
     }
     return indexed;

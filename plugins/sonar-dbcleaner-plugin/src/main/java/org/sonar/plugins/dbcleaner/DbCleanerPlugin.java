@@ -25,10 +25,6 @@ import org.sonar.api.SonarPlugin;
 import org.sonar.plugins.dbcleaner.api.DbCleanerConstants;
 import org.sonar.plugins.dbcleaner.period.DefaultPeriodCleaner;
 import org.sonar.plugins.dbcleaner.period.PeriodPurge;
-import org.sonar.plugins.dbcleaner.purges.DeleteAbortedBuilds;
-import org.sonar.plugins.dbcleaner.purges.DeleteDirectoryHistory;
-import org.sonar.plugins.dbcleaner.purges.DeleteFileHistory;
-import org.sonar.plugins.dbcleaner.purges.ProjectPurgeTask;
 import org.sonar.plugins.dbcleaner.runner.DeprecatedPurgePostJob;
 import org.sonar.plugins.dbcleaner.runner.ProjectPurgePostJob;
 
@@ -59,13 +55,10 @@ public final class DbCleanerPlugin extends SonarPlugin {
 
   public List getExtensions() {
     return Arrays.asList(
-      // shared components
-      DefaultPeriodCleaner.class, ProjectPurgeTask.class,
+      DefaultPeriodCleaner.class,
+      PeriodPurge.class,
 
-      // purges
-      PeriodPurge.class, DeleteFileHistory.class, DeleteDirectoryHistory.class, DeleteAbortedBuilds.class, ProjectPurgePostJob.class,
-
-      // post-job
-      DeprecatedPurgePostJob.class);
+      // post-jobs
+      ProjectPurgePostJob.class, DeprecatedPurgePostJob.class);
   }
 }

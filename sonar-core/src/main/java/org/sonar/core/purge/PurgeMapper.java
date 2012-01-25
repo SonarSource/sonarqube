@@ -19,7 +19,12 @@
  */
 package org.sonar.core.purge;
 
+import java.util.List;
+
 public interface PurgeMapper {
+
+  List<Long> selectSnapshotIds(PurgeSnapshotQuery query);
+
   void deleteSnapshot(long snapshotId);
 
   void deleteSnapshotDependencies(long snapshotId);
@@ -46,5 +51,23 @@ public interface PurgeMapper {
 
   void deleteResourceIndex(long resourceId);
 
-  void unsetSnapshotIslast(long resourceId);
+  void deleteEvent(long eventId);
+
+  void setSnapshotIsLastToFalse(long resourceId);
+
+  void deleteResourceLinks(long resourceId);
+
+  void deleteResourceProperties(long resourceId);
+
+  void deleteResource(long resourceId);
+
+  void deleteResourceGroupRoles(long resourceId);
+
+  void deleteResourceUserRoles(long resourceId);
+
+  void deleteResourceManualMeasures(long resourceId);
+
+  void deleteResourceReviews(long resourceId);
+
+  void deleteResourceEvents(long resourceId);
 }
