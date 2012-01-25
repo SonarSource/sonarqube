@@ -16,15 +16,17 @@
         <b><%= note.user.name -%></b>&nbsp;
         (<%= distance_of_time_in_words_to_now(note.updated_at) -%>)&nbsp;
         &nbsp;
-        <%= image_tag 'sep12.png' -%>
-        &nbsp;
-        <a href="#" id="<%= edit_active_note_link_id -%>" 
-           onclick="$('<%= active_note_detail_div_id -%>').hide();$('<%= active_note_form_div_id -%>').show();$('<%= active_note_textarea_id -%>').focus();return false;"><%= message('edit') %></a>
-        &nbsp;
-        <%= link_to_remote message('delete'),
-                           :url => {:action => 'delete_active_rule_note', :active_rule_id => active_rule.id },
-                           :update => "active_rule_note_#{active_rule.id}",
-                           :confirm => message('rules_configuration.confirm_delete_note') -%>
+        <% if is_admin %>
+          <%= image_tag 'sep12.png' -%>
+          &nbsp;
+          <a href="#" id="<%= edit_active_note_link_id -%>" 
+             onclick="$('<%= active_note_detail_div_id -%>').hide();$('<%= active_note_form_div_id -%>').show();$('<%= active_note_textarea_id -%>').focus();return false;"><%= message('edit') %></a>
+          &nbsp;
+          <%= link_to_remote message('delete'),
+                            :url => {:action => 'delete_active_rule_note', :active_rule_id => active_rule.id },
+                            :update => "active_rule_note_#{active_rule.id}",
+                            :confirm => message('rules_configuration.confirm_delete_note') -%>
+        <% end %>
       </h4>
       <p><%= note.html_text -%></p>
   <% elsif is_admin %>
