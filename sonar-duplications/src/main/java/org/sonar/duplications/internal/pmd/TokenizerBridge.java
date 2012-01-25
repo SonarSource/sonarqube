@@ -25,36 +25,45 @@ import net.sourceforge.pmd.cpd.SourceCode;
 import net.sourceforge.pmd.cpd.TokenEntry;
 import net.sourceforge.pmd.cpd.Tokenizer;
 import net.sourceforge.pmd.cpd.Tokens;
+import org.sonar.duplications.block.Block;
 import org.sonar.duplications.cpd.FileCodeLoaderWithoutCache;
-import org.sonar.duplications.statement.Statement;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
 /**
- * Bridge, which allows to convert list of {@link TokenEntry} produced by {@link Tokenizer} into list of {@link Statement}s.
- * Principle of conversion - statement formed from tokens of one line.
+ * Bridge, which allows to convert list of {@link TokenEntry} produced by {@link Tokenizer} into list of {@link TokensLine}s.
  */
 public class TokenizerBridge {
 
+  private static final int BLOCK_SIZE = 10;
+
   private final Tokenizer tokenizer;
   private final String encoding;
+  private final PmdBlockChunker blockBuilder;
 
   public TokenizerBridge(Tokenizer tokenizer, String encoding) {
     this.tokenizer = tokenizer;
     this.encoding = encoding;
-    clearCache();
+    this.blockBuilder = new PmdBlockChunker(BLOCK_SIZE);
   }
 
-  public List<Statement> tokenize(File file) {
+  // TODO remove from here
+  public List<Block> chunk(String resourceId, File file) {
+    return blockBuilder.chunk(resourceId, chunk(file));
+  }
+
+  public List<TokensLine> chunk(File file) {
     SourceCode sourceCode = new SourceCode(new FileCodeLoaderWithoutCache(file, encoding));
     Tokens tokens = new Tokens();
+    TokenEntry.clearImages();
     try {
       tokenizer.tokenize(sourceCode, tokens);
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }
+    TokenEntry.clearImages();
     return convert(tokens.getTokens());
   }
 
@@ -62,34 +71,34 @@ public class TokenizerBridge {
    * We expect that implementation of {@link Tokenizer} is correct:
    * tokens ordered by occurrence in source code and last token is EOF.
    */
-  private static List<Statement> convert(List<TokenEntry> tokens) {
-    ImmutableList.Builder<Statement> result = ImmutableList.builder();
-    int currentLine = Integer.MIN_VALUE;
+  private static List<TokensLine> convert(List<TokenEntry> tokens) {
+    ImmutableList.Builder<TokensLine> result = ImmutableList.builder();
     StringBuilder sb = new StringBuilder();
+    int startLine = Integer.MIN_VALUE;
+    int startIndex = 0;
+    int currentIndex = 0;
     for (TokenEntry token : tokens) {
       if (token != TokenEntry.EOF) {
         String value = token.getValue();
         int line = token.getBeginLine();
-        if (line != currentLine) {
-          addNewStatement(result, currentLine, sb);
-          currentLine = line;
+        if (line != startLine) {
+          addNewTokensLine(result, startIndex, currentIndex, startLine, sb);
+          startIndex = currentIndex + 1;
+          startLine = line;
         }
+        currentIndex++;
         sb.append(value);
       }
     }
-    addNewStatement(result, currentLine, sb);
+    addNewTokensLine(result, startIndex, currentIndex, startLine, sb);
     return result.build();
   }
 
-  private static void addNewStatement(ImmutableList.Builder<Statement> result, int line, StringBuilder sb) {
+  private static void addNewTokensLine(ImmutableList.Builder<TokensLine> result, int startUnit, int endUnit, int startLine, StringBuilder sb) {
     if (sb.length() != 0) {
-      result.add(new Statement(line, line, sb.toString()));
+      result.add(new TokensLine(startUnit, endUnit, startLine, sb.toString().hashCode()));
       sb.setLength(0);
     }
-  }
-
-  public void clearCache() {
-    TokenEntry.clearImages();
   }
 
 }

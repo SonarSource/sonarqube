@@ -19,16 +19,15 @@
  */
 package org.sonar.duplications.detector.suffixtree;
 
-import java.util.Collections;
-import java.util.List;
-
+import com.google.common.collect.Lists;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.detector.ContainsInComparator;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
 import org.sonar.duplications.utils.SortedListsUtils;
 
-import com.google.common.collect.Lists;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Implementation of {@link Search.Collector}, which constructs {@link CloneGroup}s.
@@ -41,8 +40,8 @@ public class DuplicationsCollector extends Search.Collector {
   private final List<CloneGroup> filtered = Lists.newArrayList();
 
   private int length;
-  private ClonePart origin;
-  private List<ClonePart> parts;
+  private int count;
+  private int[][] blockNumbers;
 
   public DuplicationsCollector(TextSet text) {
     this.text = text;
@@ -58,38 +57,22 @@ public class DuplicationsCollector extends Search.Collector {
 
   @Override
   public void startOfGroup(int size, int length) {
+    this.blockNumbers = new int[size][2];
     this.length = length;
-    this.parts = Lists.newArrayListWithCapacity(size);
   }
 
   /**
    * Constructs ClonePart and saves it for future processing in {@link #endOfGroup()}.
-   * 
+   *
    * @param start number of first block from text for this part
    * @param end number of last block from text for this part
    * @param len number of blocks in this part
    */
   @Override
   public void part(int start, int end) {
-    Block firstBlock = text.getBlock(start);
-    Block lastBlock = text.getBlock(end - 1);
-
-    ClonePart part = new ClonePart(
-        firstBlock.getResourceId(),
-        firstBlock.getIndexInFile(),
-        firstBlock.getFirstLineNumber(),
-        lastBlock.getLastLineNumber());
-
-    // TODO Godin: maybe use FastStringComparator here ?
-    if (originResourceId.equals(part.getResourceId())) { // part from origin
-      if (origin == null) {
-        origin = part;
-      } else if (part.getUnitStart() < origin.getUnitStart()) {
-        origin = part;
-      }
-    }
-
-    parts.add(part);
+    blockNumbers[count][0] = start;
+    blockNumbers[count][1] = end - 1;
+    count++;
   }
 
   /**
@@ -97,12 +80,48 @@ public class DuplicationsCollector extends Search.Collector {
    */
   @Override
   public void endOfGroup() {
+    int lengthInUnits = 0;
+    ClonePart origin = null;
+    List<ClonePart> parts = Lists.newArrayListWithCapacity(count);
+    for (int[] b : blockNumbers) {
+      Block firstBlock = text.getBlock(b[0]);
+      Block lastBlock = text.getBlock(b[1]);
+      ClonePart part = new ClonePart(
+          firstBlock.getResourceId(),
+          firstBlock.getIndexInFile(),
+          firstBlock.getFirstLineNumber(),
+          lastBlock.getLastLineNumber());
+
+      // TODO Godin: maybe use FastStringComparator here ?
+      if (originResourceId.equals(part.getResourceId())) { // part from origin
+        if (origin == null) {
+          origin = part;
+          // To calculate length important to use the origin, because otherwise block may come from DB without required data
+          lengthInUnits = lastBlock.getEndUnit() - firstBlock.getStartUnit() + 1;
+        } else if (part.getUnitStart() < origin.getUnitStart()) {
+          origin = part;
+        }
+      }
+
+      parts.add(part);
+    }
+
     Collections.sort(parts, ContainsInComparator.CLONEPART_COMPARATOR);
+
     CloneGroup group = new CloneGroup(length, origin, parts);
+    group.setLengthInUnits(lengthInUnits);
+
     filter(group);
 
-    parts = null;
-    origin = null;
+    reset();
+  }
+
+  /**
+   * Prepare for processing of next duplication.
+   */
+  private void reset() {
+    blockNumbers = null;
+    count = 0;
   }
 
   /**
@@ -159,7 +178,7 @@ public class DuplicationsCollector extends Search.Collector {
     // TODO Godin: according to tests seems that if first part of condition is true, then second part can not be false
     // if this can be proved, then second part can be removed
     return SortedListsUtils.contains(secondParts, firstParts, new ContainsInComparator(second.getCloneUnitLength(), first.getCloneUnitLength()))
-        && SortedListsUtils.contains(firstParts, secondParts, ContainsInComparator.RESOURCE_ID_COMPARATOR);
+      && SortedListsUtils.contains(firstParts, secondParts, ContainsInComparator.RESOURCE_ID_COMPARATOR);
   }
 
 }

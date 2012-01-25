@@ -164,8 +164,8 @@ public class SonarEngine extends CpdEngine {
     return JavaFile.fromRelativePath(inputFile.getRelativePath(), false);
   }
 
-  static void save(SensorContext context, Resource resource, List<CloneGroup> clones) {
-    if (clones == null || clones.isEmpty()) {
+  static void save(SensorContext context, Resource resource, Iterable<CloneGroup> clones) {
+    if (clones == null || !clones.iterator().hasNext()) {
       return;
     }
     // Calculate number of lines and blocks

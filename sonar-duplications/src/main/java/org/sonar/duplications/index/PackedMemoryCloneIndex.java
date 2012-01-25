@@ -19,14 +19,13 @@
  */
 package org.sonar.duplications.index;
 
-import java.util.Collection;
-import java.util.List;
-
+import com.google.common.collect.Lists;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.utils.FastStringComparator;
 
-import com.google.common.collect.Lists;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Provides an index optimized by memory.
@@ -46,7 +45,7 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
 
   private static final int DEFAULT_INITIAL_CAPACITY = 1024;
 
-  private static final int BLOCK_INTS = 3;
+  private static final int BLOCK_INTS = 5;
 
   private final int hashInts;
 
@@ -111,9 +110,14 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
       }
       int indexInFile = blockData[offset++];
       int firstLineNumber = blockData[offset++];
-      int lastLineNumber = blockData[offset];
+      int lastLineNumber = blockData[offset++];
+      int startUnit = blockData[offset++];
+      int endUnit = blockData[offset];
 
-      result.add(new Block(resourceId, new ByteArray(hash), indexInFile, firstLineNumber, lastLineNumber));
+      Block block = new Block(resourceId, new ByteArray(hash), indexInFile, firstLineNumber, lastLineNumber);
+      block.setStartUnit(startUnit);
+      block.setEndUnit(endUnit);
+      result.add(block);
 
       index++;
       realIndex = resourceIdsIndex[index];
@@ -146,9 +150,14 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
       offset = index * blockInts + hashInts;
       int indexInFile = blockData[offset++];
       int firstLineNumber = blockData[offset++];
-      int lastLineNumber = blockData[offset];
+      int lastLineNumber = blockData[offset++];
+      int startUnit = blockData[offset++];
+      int endUnit = blockData[offset];
 
-      result.add(new Block(resourceId, sequenceHash, indexInFile, firstLineNumber, lastLineNumber));
+      Block block = new Block(resourceId, sequenceHash, indexInFile, firstLineNumber, lastLineNumber);
+      block.setStartUnit(startUnit);
+      block.setEndUnit(endUnit);
+      result.add(block);
       index++;
     }
     return result;
@@ -176,7 +185,9 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
     }
     blockData[offset++] = block.getIndexInFile();
     blockData[offset++] = block.getFirstLineNumber();
-    blockData[offset] = block.getLastLineNumber();
+    blockData[offset++] = block.getLastLineNumber();
+    blockData[offset++] = block.getStartUnit();
+    blockData[offset] = block.getEndUnit();
 
     size++;
   }

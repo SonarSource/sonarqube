@@ -19,12 +19,9 @@
  */
 package org.sonar.plugins.cpd;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-
+import com.google.common.annotations.VisibleForTesting;
 import net.sourceforge.pmd.cpd.AbstractLanguage;
 import net.sourceforge.pmd.cpd.TokenEntry;
-
 import org.apache.commons.configuration.Configuration;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.CpdMapping;
@@ -33,7 +30,8 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
 import org.sonar.duplications.cpd.CPD;
 
-import com.google.common.annotations.VisibleForTesting;
+import java.io.IOException;
+import java.nio.charset.Charset;
 
 public class PmdEngine extends CpdEngine {
 
@@ -103,7 +101,7 @@ public class PmdEngine extends CpdEngine {
   }
 
   @VisibleForTesting
-  int getMinimumTokens(Project project) {
+  static int getMinimumTokens(Project project) {
     Configuration conf = project.getConfiguration();
     return conf.getInt("sonar.cpd." + project.getLanguageKey() + ".minimumTokens",
         conf.getInt("sonar.cpd.minimumTokens", CoreProperties.CPD_MINIMUM_TOKENS_DEFAULT_VALUE));

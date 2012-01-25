@@ -19,12 +19,11 @@
  */
 package org.sonar.duplications.block;
 
-import java.util.Collections;
-import java.util.List;
-
+import com.google.common.collect.Lists;
 import org.sonar.duplications.statement.Statement;
 
-import com.google.common.collect.Lists;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Creates blocks from statements, each block will contain specified number of statements (<code>blockSize</code>) and 64-bits (8-bytes) hash value.

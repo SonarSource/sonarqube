@@ -1,0 +1,102 @@
+/*
+ * Sonar, open source software quality management tool.
+ * Copyright (C) 2008-2012 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * Sonar is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * Sonar is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Sonar; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ */
+package org.sonar.duplications.internal.pmd;
+
+import net.sourceforge.pmd.cpd.JavaTokenizer;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.duplications.block.Block;
+import org.sonar.duplications.detector.suffixtree.SuffixTreeCloneDetectionAlgorithm;
+import org.sonar.duplications.index.CloneGroup;
+import org.sonar.duplications.index.CloneIndex;
+import org.sonar.duplications.index.ClonePart;
+import org.sonar.duplications.index.PackedMemoryCloneIndex;
+
+import java.io.File;
+import java.util.Collection;
+import java.util.List;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+
+public class PmdBridgeTest {
+
+  private CloneIndex index;
+  private TokenizerBridge bridge;
+
+  @Before
+  public void setUp() {
+    index = new PackedMemoryCloneIndex();
+    bridge = new TokenizerBridge(new JavaTokenizer(), "UTF-8");
+  }
+
+  @Test
+  public void testDuplicationInSingleFile() {
+    File file = new File("test-resources/org/sonar/duplications/cpd/CPDTest/CPDFile3.java");
+    addToIndex(file);
+
+    List<CloneGroup> duplications = detect(file);
+    assertThat(duplications.size(), is(1));
+
+    CloneGroup duplication = duplications.get(0);
+    assertThat(duplication.getOriginPart().getResourceId(), is(file.getAbsolutePath()));
+    assertThat(duplication.getCloneParts().size(), is(2));
+    assertThat("length in tokens", duplication.getLengthInUnits(), is(157));
+
+    ClonePart part = duplication.getCloneParts().get(0);
+    assertThat(part.getResourceId(), is(file.getAbsolutePath()));
+    assertThat(part.getStartLine(), is(30));
+    assertThat(part.getEndLine(), is(44));
+  }
+
+  @Test
+  public void testDuplicationBetweenTwoFiles() {
+    File file1 = new File("test-resources/org/sonar/duplications/cpd/CPDTest/CPDFile1.java");
+    File file2 = new File("test-resources/org/sonar/duplications/cpd/CPDTest/CPDFile2.java");
+    addToIndex(file1);
+    addToIndex(file2);
+
+    List<CloneGroup> duplications = detect(file1);
+    assertThat(duplications.size(), is(1));
+
+    CloneGroup duplication = duplications.get(0);
+    assertThat(duplication.getOriginPart().getResourceId(), is(file1.getAbsolutePath()));
+    assertThat(duplication.getCloneParts().size(), is(2));
+    assertThat("length in tokens", duplication.getLengthInUnits(), is(115));
+
+    ClonePart part = duplication.getCloneParts().get(0);
+    assertThat(part.getResourceId(), is(file1.getAbsolutePath()));
+    assertThat(part.getStartLine(), is(18));
+    assertThat(part.getEndLine(), is(41));
+  }
+
+  private List<CloneGroup> detect(File file) {
+    Collection<Block> fileBlocks = index.getByResourceId(file.getAbsolutePath());
+    return SuffixTreeCloneDetectionAlgorithm.detect(index, fileBlocks);
+  }
+
+  private void addToIndex(File file) {
+    List<Block> blocks = bridge.chunk(file.getAbsolutePath(), file);
+    for (Block block : blocks) {
+      index.insert(block);
+    }
+  }
+
+}

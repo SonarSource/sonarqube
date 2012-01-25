@@ -19,11 +19,12 @@
  */
 package org.sonar.plugins.cpd;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import org.sonar.api.batch.CpdMapping;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.*;
 import org.sonar.duplications.block.Block;
-import org.sonar.duplications.block.BlockChunker;
 import org.sonar.duplications.detector.suffixtree.SuffixTreeCloneDetectionAlgorithm;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.internal.pmd.TokenizerBridge;
@@ -34,8 +35,6 @@ import java.util.Collection;
 import java.util.List;
 
 public class SonarBridgeEngine extends CpdEngine {
-
-  private static final int BLOCK_SIZE = 10;
 
   private final IndexFactory indexFactory;
   private final CpdMapping[] mappings;
@@ -67,24 +66,32 @@ public class SonarBridgeEngine extends CpdEngine {
     // Create index
     SonarDuplicationsIndex index = indexFactory.create(project);
 
-    BlockChunker blockChunker = new BlockChunker(BLOCK_SIZE);
     TokenizerBridge bridge = new TokenizerBridge(mapping.getTokenizer(), fileSystem.getSourceCharset().name());
     for (InputFile inputFile : inputFiles) {
       Resource resource = mapping.createResource(inputFile.getFile(), fileSystem.getSourceDirs());
       String resourceId = SonarEngine.getFullKey(project, resource);
-      List<Block> blocks = blockChunker.chunk(resourceId, bridge.tokenize(inputFile.getFile()));
+      List<Block> blocks = bridge.chunk(resourceId, inputFile.getFile());
       index.insert(resource, blocks);
     }
-    bridge.clearCache();
 
     // Detect
+    final int minimumTokens = PmdEngine.getMinimumTokens(project);
+    Predicate<CloneGroup> minimumTokensPredicate = new Predicate<CloneGroup>() {
+      public boolean apply(CloneGroup input) {
+        return input.getLengthInUnits() >= minimumTokens;
+      }
+    };
+
     for (InputFile inputFile : inputFiles) {
       Resource resource = mapping.createResource(inputFile.getFile(), fileSystem.getSourceDirs());
       String resourceKey = SonarEngine.getFullKey(project, resource);
 
       Collection<Block> fileBlocks = index.getByResource(resource, resourceKey);
       List<CloneGroup> duplications = SuffixTreeCloneDetectionAlgorithm.detect(index, fileBlocks);
-      SonarEngine.save(context, resource, duplications);
+
+      Iterable<CloneGroup> filtered = Iterables.filter(duplications, minimumTokensPredicate);
+
+      SonarEngine.save(context, resource, filtered);
     }
   }
 

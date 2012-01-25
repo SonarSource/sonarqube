@@ -19,23 +19,25 @@
  */
 package org.sonar.duplications.index;
 
-public class ClonePart {
+import org.sonar.duplications.CodeFragment;
+
+public class ClonePart implements CodeFragment {
 
   private final String resourceId;
-  private final int unitStart;
-  private final int lineStart;
-  private final int lineEnd;
+  private final int startUnit;
+  private final int startLine;
+  private final int endLine;
 
   /**
    * Cache for hash code.
    */
   private int hash;
 
-  public ClonePart(String resourceId, int unitStart, int lineStart, int lineEnd) {
+  public ClonePart(String resourceId, int startUnit, int startLine, int endLine) {
     this.resourceId = resourceId;
-    this.unitStart = unitStart;
-    this.lineStart = lineStart;
-    this.lineEnd = lineEnd;
+    this.startUnit = startUnit;
+    this.startLine = startLine;
+    this.endLine = endLine;
   }
 
   public String getResourceId() {
@@ -43,19 +45,35 @@ public class ClonePart {
   }
 
   public int getUnitStart() {
-    return unitStart;
+    return startUnit;
   }
 
+  /**
+   * @deprecated in 2.14, use {@link #getStartLine()} instead
+   */
+  @Deprecated
   public int getLineStart() {
-    return lineStart;
+    return startLine;
   }
 
+  /**
+   * @deprecated in 2.14, use {@link #getEndLine()} instead
+   */
+  @Deprecated
   public int getLineEnd() {
-    return lineEnd;
+    return endLine;
+  }
+
+  public int getStartLine() {
+    return startLine;
+  }
+
+  public int getEndLine() {
+    return endLine;
   }
 
   public int getLines() {
-    return lineEnd - lineStart + 1;
+    return endLine - startLine + 1;
   }
 
   @Override
@@ -63,9 +81,9 @@ public class ClonePart {
     if (obj instanceof ClonePart) {
       ClonePart another = (ClonePart) obj;
       return another.resourceId.equals(resourceId)
-          && another.lineStart == lineStart
-          && another.lineEnd == lineEnd
-          && another.unitStart == unitStart;
+        && another.startLine == startLine
+        && another.endLine == endLine
+        && another.startUnit == startUnit;
     }
     return false;
   }
@@ -75,9 +93,9 @@ public class ClonePart {
     int h = hash;
     if (h == 0) {
       h = resourceId.hashCode();
-      h = 31 * h + lineStart;
-      h = 31 * h + lineEnd;
-      h = 31 * h + unitStart;
+      h = 31 * h + startLine;
+      h = 31 * h + endLine;
+      h = 31 * h + startUnit;
       hash = h;
     }
     return h;
@@ -85,7 +103,7 @@ public class ClonePart {
 
   @Override
   public String toString() {
-    return "'" + resourceId + "':[" + unitStart + "|" + lineStart + "-" + lineEnd + "]";
+    return "'" + resourceId + "':[" + startUnit + "|" + startLine + "-" + endLine + "]";
   }
 
 }

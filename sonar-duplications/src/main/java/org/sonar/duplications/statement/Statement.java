@@ -19,11 +19,12 @@
  */
 package org.sonar.duplications.statement;
 
-import java.util.List;
-
+import org.sonar.duplications.CodeFragment;
 import org.sonar.duplications.token.Token;
 
-public class Statement {
+import java.util.List;
+
+public class Statement implements CodeFragment {
 
   private final int startLine;
   private final int endLine;
@@ -84,8 +85,8 @@ public class Statement {
     }
     Statement other = (Statement) obj;
     return startLine == other.startLine
-        && endLine == other.endLine
-        && value.equals(other.value);
+      && endLine == other.endLine
+      && value.equals(other.value);
   }
 
   @Override

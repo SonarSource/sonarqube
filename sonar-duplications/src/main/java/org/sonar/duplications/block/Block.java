@@ -19,11 +19,14 @@
  */
 package org.sonar.duplications.block;
 
+import com.google.common.annotations.Beta;
+import org.sonar.duplications.CodeFragment;
+
 /**
  * Represents part of source code between two lines.
  * If two blocks have the same {@link #getBlockHash() hash}, then we assume that there is a duplication in a code, which they represent.
  */
-public final class Block {
+public final class Block implements CodeFragment {
 
   private final String resourceId;
   private final ByteArray blockHash;
@@ -64,11 +67,66 @@ public final class Block {
     return indexInFile;
   }
 
+  private int startUnit;
+  private int endUnit;
+
+  /**
+   * @since 2.14
+   */
+  @Beta
+  public int getStartUnit() {
+    return startUnit;
+  }
+
+  /**
+   * @since 2.14
+   */
+  @Beta
+  public int getEndUnit() {
+    return endUnit;
+  }
+
+  /**
+   * TODO get rid of this method, otherwise class is not immutable
+   *
+   * @see #getStartUnit()
+   * @since 2.14
+   */
+  @Beta
+  public void setStartUnit(int startUnit) {
+    this.startUnit = startUnit;
+  }
+
+  /**
+   * TODO get rid of this method, otherwise class is not immutable
+   *
+   * @see #getEndUnit()
+   * @since 2.14
+   */
+  @Beta
+  public void setEndUnit(int endUnit) {
+    this.endUnit = endUnit;
+  }
+
+  /**
+   * @deprecated in 2.14, use {@link #getStartLine()} instead
+   */
   public int getFirstLineNumber() {
     return firstLineNumber;
   }
 
+  /**
+   * @deprecated in 2.14, use {@link #getEndLine()} instead
+   */
   public int getLastLineNumber() {
+    return lastLineNumber;
+  }
+
+  public int getStartLine() {
+    return firstLineNumber;
+  }
+
+  public int getEndLine() {
     return lastLineNumber;
   }
 
@@ -79,10 +137,10 @@ public final class Block {
     }
     Block other = (Block) obj;
     return resourceId.equals(other.resourceId)
-        && blockHash.equals(other.blockHash)
-        && indexInFile == other.indexInFile
-        && firstLineNumber == other.firstLineNumber
-        && lastLineNumber == other.lastLineNumber;
+      && blockHash.equals(other.blockHash)
+      && indexInFile == other.indexInFile
+      && firstLineNumber == other.firstLineNumber
+      && lastLineNumber == other.lastLineNumber;
   }
 
   @Override

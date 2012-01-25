@@ -57,8 +57,9 @@ public class CPDTest {
     assertThat(match.getLineCount(), is(26));
     assertThat(match.getFirstMark().getBeginLine(), is(16));
     assertThat(match.getSourceCodeSlice(), is(nullValue()));
+    assertThat(match.getTokenCount(), is(116));
   }
-  
+
   @Test
   public void testDuplicationOnSameFile() throws IOException {
     TokenEntry.clearImages();
@@ -77,6 +78,7 @@ public class CPDTest {
     assertThat(match.getLineCount(), is(16));
     assertThat(match.getFirstMark().getBeginLine(), is(29));
     assertThat(match.getSourceCodeSlice(), is(nullValue()));
+    assertThat(match.getTokenCount(), is(160));
   }
 
   private List<Match> getMatches(CPD cpd) {

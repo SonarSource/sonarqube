@@ -19,9 +19,10 @@
  */
 package org.sonar.duplications.index;
 
-import java.util.List;
-
+import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableList;
+
+import java.util.List;
 
 /**
  * Groups a set of related {@link ClonePart}s.
@@ -47,8 +48,31 @@ public class CloneGroup {
     return originPart;
   }
 
+  private int length;
+
   /**
-   * @return clone length in units (not in lines)
+   * Length of duplication measured in original units, e.g. for token-based detection - in tokens.
+   *
+   * @since 2.14
+   */
+  @Beta
+  public int getLengthInUnits() {
+    return length;
+  }
+
+  /**
+   * TODO get rid of this method, otherwise class is not immutable
+   *
+   * @since 2.14
+   * @see #getLengthInUnits()
+   */
+  @Beta
+  public void setLengthInUnits(int length) {
+    this.length = length;
+  }
+
+  /**
+   * @return clone length in {@link org.sonar.duplications.block.Block}s
    */
   public int getCloneUnitLength() {
     return cloneLength;
