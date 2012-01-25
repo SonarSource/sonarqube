@@ -55,6 +55,27 @@ public class PurgeDaoTest extends DaoTestCase {
       "snapshots", "project_measures", "measure_data", "rule_failures", "snapshot_sources", "duplications_index", "events", "dependencies");
   }
 
+  /**
+   * Test that all related data is purged.
+   */
+
+  @Test
+  public void shouldPurgeSnapshot() {
+    setupData("shouldPurgeSnapshot");
+
+    SqlSession session = getMyBatis().openSession();
+    try {
+      // this method does not commit and close the session
+      dao.purgeSnapshot(1L, session.getMapper(PurgeMapper.class));
+      session.commit();
+
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+    checkTables("shouldPurgeSnapshot",
+      "snapshots", "project_measures", "measure_data", "rule_failures", "snapshot_sources", "duplications_index", "events", "dependencies", "reviews");
+  }
+
   @Test
   public void shouldPurgeProject() {
     setupData("shouldPurgeProject");

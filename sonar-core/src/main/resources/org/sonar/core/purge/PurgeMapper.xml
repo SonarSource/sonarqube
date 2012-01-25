@@ -101,6 +101,11 @@
     update projects set enabled=${_false} where id=#{id}
   </update>
 
+  <update id="closeResourceReviews" parameterType="long">
+    update reviews set status='CLOSED', updated_at=CURRENT_TIMESTAMP where resource_id=#{id}
+  </update>
+
+
   <delete id="deleteResourceIndex" parameterType="long">
     delete from resource_index where resource_id=#{id}
   </delete>

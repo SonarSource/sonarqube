@@ -19,6 +19,7 @@
  */
 package org.sonar.core.purge;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
@@ -123,12 +124,13 @@ public class PurgeDao {
     session.increment(9);
   }
 
+  @VisibleForTesting
   int disableResource(long resourceId, PurgeMapper mapper) {
     mapper.deleteResourceIndex(resourceId);
     mapper.setSnapshotIsLastToFalse(resourceId);
     mapper.disableResource(resourceId);
-    // TODO close reviews
-    return 3; // nb of SQL requests
+    mapper.closeResourceReviews(resourceId);
+    return 4; // nb of SQL requests
   }
 
 
@@ -150,8 +152,9 @@ public class PurgeDao {
     }
   }
 
+  @VisibleForTesting
   int purgeSnapshot(long snapshotId, PurgeMapper mapper) {
-    // note that events are not deleted.
+    mapper.deleteSnapshotEvents(snapshotId);
     mapper.deleteSnapshotDependencies(snapshotId);
     mapper.deleteSnapshotDuplications(snapshotId);
     mapper.deleteSnapshotSource(snapshotId);
@@ -160,9 +163,10 @@ public class PurgeDao {
     mapper.deleteSnapshotCharacteristicMeasures(snapshotId);
     // TODO SONAR-2061 delete wasted measures (!metric.keepHistory)
     mapper.updatePurgeStatusToOne(snapshotId);
-    return 7; // nb of SQL requests
+    return 8; // nb of SQL requests
   }
 
+  @VisibleForTesting
   int deleteSnapshot(Long snapshotId, PurgeMapper mapper) {
     mapper.deleteSnapshotDependencies(snapshotId);
     mapper.deleteSnapshotDuplications(snapshotId);
