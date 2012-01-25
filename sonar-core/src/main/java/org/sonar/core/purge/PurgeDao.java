@@ -67,6 +67,7 @@ public class PurgeDao {
           purgeSnapshot(snapshotId, purgeMapper);
         }
       });
+
       // must be executed at the end for reentrance
       purgeSnapshot(projectSnapshotId, purgeMapper);
     }
@@ -159,11 +160,9 @@ public class PurgeDao {
     mapper.deleteSnapshotDuplications(snapshotId);
     mapper.deleteSnapshotSource(snapshotId);
     mapper.deleteSnapshotViolations(snapshotId);
-    mapper.deleteSnapshotRuleMeasures(snapshotId);
-    mapper.deleteSnapshotCharacteristicMeasures(snapshotId);
-    // TODO SONAR-2061 delete wasted measures (!metric.keepHistory)
+    mapper.deleteSnapshotWastedMeasures(snapshotId);
     mapper.updatePurgeStatusToOne(snapshotId);
-    return 8; // nb of SQL requests
+    return 7; // nb of SQL requests
   }
 
   @VisibleForTesting

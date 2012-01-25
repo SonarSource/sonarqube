@@ -1,9 +1,9 @@
 <dataset>
 
-  <metrics id="1" name="ncloc" VAL_TYPE="INT" DESCRIPTION="[null]" domain="[null]" short_name=""
+  <metrics delete_historical_data="[null]" id="1" name="ncloc" VAL_TYPE="INT" DESCRIPTION="[null]" domain="[null]" short_name=""
            enabled="true" worst_value="[null]" optimized_best_value="[null]" best_value="[null]" direction="0"
            hidden="false"/>
-  <metrics id="2" name="coverage" VAL_TYPE="INT" DESCRIPTION="[null]" domain="[null]" short_name=""
+  <metrics delete_historical_data="[null]" id="2" name="coverage" VAL_TYPE="INT" DESCRIPTION="[null]" domain="[null]" short_name=""
            enabled="true" worst_value="0" optimized_best_value="true" best_value="100" direction="1" hidden="false"/>
 
   <projects id="1001" scope="PRJ" qualifier="TRK" kee="foo" root_id="[null]"

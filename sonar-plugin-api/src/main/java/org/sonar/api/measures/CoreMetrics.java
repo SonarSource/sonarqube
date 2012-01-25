@@ -443,6 +443,7 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_TESTS)
       .setFormula(new SumChildValuesFormula(false))
       .setHidden(true)
+      .setDeleteHistoricalData(true)
       .create();
 
   public static final String NEW_LINES_TO_COVER_KEY = "new_lines_to_cover";
@@ -503,6 +504,7 @@ public final class CoreMetrics {
    */
   public static final Metric COVERAGE_LINE_HITS_DATA = new Metric.Builder(COVERAGE_LINE_HITS_DATA_KEY, "Coverage hits by line", Metric.ValueType.DATA)
       .setDomain(DOMAIN_TESTS)
+      .setDeleteHistoricalData(true)
       .create();
 
   public static final String CONDITIONS_TO_COVER_KEY = "conditions_to_cover";
@@ -515,6 +517,7 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_TESTS)
       .setFormula(new SumChildValuesFormula(false))
       .setHidden(true)
+      .setDeleteHistoricalData(true)
       .create();
 
   public static final String NEW_CONDITIONS_TO_COVER_KEY = "new_conditions_to_cover";
@@ -578,6 +581,7 @@ public final class CoreMetrics {
   @Deprecated
   public static final Metric BRANCH_COVERAGE_HITS_DATA = new Metric.Builder(BRANCH_COVERAGE_HITS_DATA_KEY, "Branch coverage hits", Metric.ValueType.DATA)
       .setDomain(DOMAIN_TESTS)
+      .setDeleteHistoricalData(true)
       .create();
 
   public static final String CONDITIONS_BY_LINE_KEY = "conditions_by_line";
@@ -589,6 +593,7 @@ public final class CoreMetrics {
    */
   public static final Metric CONDITIONS_BY_LINE = new Metric.Builder(CONDITIONS_BY_LINE_KEY, "Conditions by line", Metric.ValueType.DATA)
       .setDomain(DOMAIN_TESTS)
+      .setDeleteHistoricalData(true)
       .create();
 
   public static final String COVERED_CONDITIONS_BY_LINE_KEY = "covered_conditions_by_line";
@@ -600,6 +605,7 @@ public final class CoreMetrics {
    */
   public static final Metric COVERED_CONDITIONS_BY_LINE = new Metric.Builder(COVERED_CONDITIONS_BY_LINE_KEY, "Covered conditions by line", Metric.ValueType.DATA)
       .setDomain(DOMAIN_TESTS)
+      .setDeleteHistoricalData(true)
       .create();
 
 
@@ -658,6 +664,7 @@ public final class CoreMetrics {
       .setQualitative(false)
       .setFormula(new SumChildValuesFormula(false))
       .setHidden(true)
+      .setDeleteHistoricalData(true)
       .create();
 
   /**
@@ -753,6 +760,7 @@ public final class CoreMetrics {
       .setDirection(Metric.DIRECTION_NONE)
       .setQualitative(false)
       .setDomain(DOMAIN_INTEGRATION_TESTS)
+      .setDeleteHistoricalData(true)
       .create();
 
   /**
@@ -770,6 +778,7 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_INTEGRATION_TESTS)
       .setFormula(new SumChildValuesFormula(false))
       .setHidden(true)
+      .setDeleteHistoricalData(true)
       .create();
 
   /**
@@ -861,6 +870,7 @@ public final class CoreMetrics {
    */
   public static final Metric IT_CONDITIONS_BY_LINE = new Metric.Builder(IT_CONDITIONS_BY_LINE_KEY, "IT Branches by Line", Metric.ValueType.DATA)
       .setDomain(DOMAIN_INTEGRATION_TESTS)
+      .setDeleteHistoricalData(true)
       .create();
 
   /**
@@ -873,6 +883,7 @@ public final class CoreMetrics {
    */
   public static final Metric IT_COVERED_CONDITIONS_BY_LINE = new Metric.Builder(IT_COVERED_CONDITIONS_BY_LINE_KEY, "IT Covered Branches by Line", Metric.ValueType.DATA)
       .setDomain(DOMAIN_INTEGRATION_TESTS)
+      .setDeleteHistoricalData(true)
       .create();
 
 
@@ -929,6 +940,7 @@ public final class CoreMetrics {
       .setDirection(Metric.DIRECTION_NONE)
       .setQualitative(false)
       .setDomain(DOMAIN_DUPLICATION)
+      .setDeleteHistoricalData(true)
       .create();
 
 
@@ -1226,6 +1238,7 @@ public final class CoreMetrics {
       .setQualitative(false)
       .setDomain(DOMAIN_DESIGN)
       .setHidden(true)
+      .setDeleteHistoricalData(true)
       .create();
 
   public static final String LCOM4_DISTRIBUTION_KEY = "lcom4_distribution";
@@ -1267,6 +1280,7 @@ public final class CoreMetrics {
       .setDirection(Metric.DIRECTION_NONE)
       .setQualitative(false)
       .setDomain(DOMAIN_DESIGN)
+      .setDeleteHistoricalData(true)
       .create();
 
   public static final String PACKAGE_CYCLES_KEY = "package_cycles";
@@ -1312,6 +1326,7 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_DESIGN)
       .setFormula(new SumChildValuesFormula(false))
       .setHidden(true)
+      .setDeleteHistoricalData(true)
       .create();
 
   public static final String FILE_CYCLES_KEY = "file_cycles";
@@ -1321,6 +1336,7 @@ public final class CoreMetrics {
       .setQualitative(true)
       .setDomain(DOMAIN_DESIGN)
       .setHidden(true)
+      .setDeleteHistoricalData(true)
       .create();
 
   public static final String FILE_TANGLE_INDEX_KEY = "file_tangle_index";
@@ -1330,6 +1346,7 @@ public final class CoreMetrics {
       .setQualitative(true)
       .setDomain(DOMAIN_DESIGN)
       .setHidden(true)
+      .setDeleteHistoricalData(true)
       .create();
 
   public static final String FILE_TANGLES_KEY = "file_tangles";
@@ -1339,6 +1356,7 @@ public final class CoreMetrics {
       .setQualitative(false)
       .setDomain(DOMAIN_DESIGN)
       .setHidden(true)
+      .setDeleteHistoricalData(true)
       .create();
 
   public static final String FILE_FEEDBACK_EDGES_KEY = "file_feedback_edges";
@@ -1348,6 +1366,7 @@ public final class CoreMetrics {
       .setQualitative(false)
       .setDomain(DOMAIN_DESIGN)
       .setHidden(true)
+      .setDeleteHistoricalData(true)
       .create();
 
   public static final String FILE_EDGES_WEIGHT_KEY = "file_edges_weight";
@@ -1357,6 +1376,7 @@ public final class CoreMetrics {
       .setQualitative(false)
       .setDomain(DOMAIN_DESIGN)
       .setHidden(true)
+      .setDeleteHistoricalData(true)
       .create();
 
 

@@ -41,9 +41,7 @@ public interface PurgeMapper {
 
   void deleteSnapshotViolations(long snapshotId);
 
-  void deleteSnapshotRuleMeasures(long snapshotId);
-
-  void deleteSnapshotCharacteristicMeasures(long snapshotId);
+  void deleteSnapshotWastedMeasures(long snapshotId);
 
   void updatePurgeStatusToOne(long snapshotId);
 

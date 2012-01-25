@@ -121,6 +121,29 @@ public class Metric implements ServerExtension, BatchExtension {
   @Column(name = "hidden", updatable = true, nullable = true)
   private Boolean hidden = Boolean.FALSE;
 
+  @Column(name = "delete_historical_data", updatable = true, nullable = true)
+  private Boolean deleteHistoricalData;
+
+  private Metric(Builder builder) {
+    this.key = builder.key;
+    this.name = builder.name;
+    this.description = builder.description;
+    this.type = builder.type;
+    this.direction = builder.direction;
+    this.domain = builder.domain;
+    this.qualitative = builder.qualitative;
+    this.userManaged = Boolean.FALSE;
+    this.enabled = Boolean.TRUE;
+    this.worstValue = builder.worstValue;
+    this.optimizedBestValue = builder.optimizedBestValue;
+    this.bestValue = builder.bestValue;
+    this.hidden = builder.hidden;
+    this.formula = builder.formula;
+    this.userManaged = builder.userManaged;
+    this.deleteHistoricalData = builder.deleteHistoricalData;
+  }
+
+
   /**
    * Creates an empty metric
    *
@@ -228,25 +251,6 @@ public class Metric implements ServerExtension, BatchExtension {
       this.bestValue = (direction == DIRECTION_BETTER ? 100.0 : 0.0);
       this.worstValue = (direction == DIRECTION_BETTER ? 0.0 : 100.0);
     }
-  }
-
-  private Metric(String key, String name, ValueType type, String description, Integer direction, String domain, Boolean qualitative, Double worstValue, Double bestValue,
-                 Boolean optimizedBestValue, Boolean hidden, Formula formula, boolean userManaged) {
-    this.key = key;
-    this.name = name;
-    this.description = description;
-    this.type = type;
-    this.direction = direction;
-    this.domain = domain;
-    this.qualitative = qualitative;
-    this.userManaged = Boolean.FALSE;
-    this.enabled = Boolean.TRUE;
-    this.worstValue = worstValue;
-    this.optimizedBestValue = optimizedBestValue;
-    this.bestValue = bestValue;
-    this.hidden = hidden;
-    this.formula = formula;
-    this.userManaged = userManaged;
   }
 
   /**
@@ -491,11 +495,11 @@ public class Metric implements ServerExtension, BatchExtension {
    */
   public boolean isNumericType() {
     return ValueType.INT.equals(type)
-        || ValueType.FLOAT.equals(type)
-        || ValueType.PERCENT.equals(type)
-        || ValueType.BOOL.equals(type)
-        || ValueType.MILLISEC.equals(type)
-        || ValueType.RATING.equals(type);
+      || ValueType.FLOAT.equals(type)
+      || ValueType.PERCENT.equals(type)
+      || ValueType.BOOL.equals(type)
+      || ValueType.MILLISEC.equals(type)
+      || ValueType.RATING.equals(type);
   }
 
   /**
@@ -527,6 +531,15 @@ public class Metric implements ServerExtension, BatchExtension {
 
   public Metric setHidden(Boolean hidden) {
     this.hidden = hidden;
+    return this;
+  }
+
+  public Boolean getDeleteHistoricalData() {
+    return deleteHistoricalData;
+  }
+
+  private Metric setDeleteHistoricalData(Boolean b) {
+    this.deleteHistoricalData = b;
     return this;
   }
 
@@ -572,6 +585,7 @@ public class Metric implements ServerExtension, BatchExtension {
     this.userManaged = with.userManaged;
     this.origin = with.origin;
     this.hidden = with.hidden;
+    this.deleteHistoricalData = with.deleteHistoricalData;
     return this;
   }
 
@@ -592,6 +606,7 @@ public class Metric implements ServerExtension, BatchExtension {
     private boolean optimizedBestValue = false;
     private boolean hidden = false;
     private boolean userManaged = false;
+    private boolean deleteHistoricalData = false;
 
     /**
      * @param key  the metric key, should be unique among all metrics
@@ -702,12 +717,27 @@ public class Metric implements ServerExtension, BatchExtension {
       return this;
     }
 
+
+    public boolean isDeleteHistoricalData() {
+      return deleteHistoricalData;
+    }
+
+    /**
+     * By default, historical data are kept, but they can be automatically deleted to minimize database volume.
+     *
+     * @since 2.14
+     */
+    public Builder setDeleteHistoricalData(boolean b) {
+      this.deleteHistoricalData = b;
+      return this;
+    }
+
     public Metric create() {
       if (ValueType.PERCENT.equals(this.type)) {
         this.bestValue = (direction == DIRECTION_BETTER ? 100.0 : 0.0);
         this.worstValue = (direction == DIRECTION_BETTER ? 0.0 : 100.0);
       }
-      return new Metric(key, name, type, description, direction, domain, qualitative, worstValue, bestValue, optimizedBestValue, hidden, formula, userManaged);
+      return new Metric(this);
     }
   }
 }

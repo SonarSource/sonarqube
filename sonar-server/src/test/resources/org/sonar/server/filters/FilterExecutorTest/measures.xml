@@ -1,13 +1,13 @@
 <dataset>
-  <metrics id="1" name="lines" val_type="FLOAT" description="Lines"  domain="Size"
+  <metrics delete_historical_data="[null]" id="1" name="lines" val_type="FLOAT" description="Lines"  domain="Size"
            short_name="Lines"   qualitative="false"  user_managed="false" enabled="true" origin="JAV" worst_value="[null]"
            optimized_best_value="[null]" best_value="[null]" direction="1" hidden="false"/>
 
-  <metrics id="2" name="coverage" val_type="PERCENT" description="Coverage"  domain="Tests"
+  <metrics delete_historical_data="[null]" id="2" name="coverage" val_type="PERCENT" description="Coverage"  domain="Tests"
            short_name="Coverage"   qualitative="true"  user_managed="false" enabled="true" origin="JAV" worst_value="[null]"
            optimized_best_value="[null]" best_value="[null]" direction="1" hidden="false"/>
 
-  <metrics id="3" name="duplicated_lines" val_type="INT" description="Duplicated lines"  domain="Duplications"
+  <metrics delete_historical_data="[null]" id="3" name="duplicated_lines" val_type="INT" description="Duplicated lines"  domain="Duplications"
            short_name="Duplications"   qualitative="false"  user_managed="false" enabled="true" origin="JAV" worst_value="[null]"
            optimized_best_value="[null]" best_value="[null]" direction="1" hidden="false"/>
 

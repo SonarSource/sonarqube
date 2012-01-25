@@ -58,7 +58,6 @@ public class PurgeDaoTest extends DaoTestCase {
   /**
    * Test that all related data is purged.
    */
-
   @Test
   public void shouldPurgeSnapshot() {
     setupData("shouldPurgeSnapshot");
@@ -75,6 +74,39 @@ public class PurgeDaoTest extends DaoTestCase {
     checkTables("shouldPurgeSnapshot",
       "snapshots", "project_measures", "measure_data", "rule_failures", "snapshot_sources", "duplications_index", "events", "dependencies", "reviews");
   }
+
+  @Test
+    public void shouldDeleteWastedMeasuresWhenPurgingSnapshot() {
+      setupData("shouldDeleteWastedMeasuresWhenPurgingSnapshot");
+
+      SqlSession session = getMyBatis().openSession();
+      try {
+        // this method does not commit and close the session
+        dao.purgeSnapshot(1L, session.getMapper(PurgeMapper.class));
+        session.commit();
+
+      } finally {
+        MyBatis.closeQuietly(session);
+      }
+      checkTables("shouldDeleteWastedMeasuresWhenPurgingSnapshot", "project_measures");
+    }
+
+  @Test
+  public void shouldCloseReviewWhenDisablingResource() {
+    setupData("shouldCloseReviewWhenDisablingResource");
+
+    SqlSession session = getMyBatis().openSession();
+    try {
+      // this method does not commit and close the session
+      dao.disableResource(1L, session.getMapper(PurgeMapper.class));
+      session.commit();
+
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+    checkTables("shouldCloseReviewWhenDisablingResource", /* excluded column */new String[]{"updated_at"}, "reviews");
+  }
+
 
   @Test
   public void shouldPurgeProject() {

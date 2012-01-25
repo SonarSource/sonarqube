@@ -85,12 +85,9 @@
     delete from snapshots where id=#{id}
   </delete>
 
-  <delete id="deleteSnapshotRuleMeasures" parameterType="long">
-    delete from project_measures where snapshot_id=#{id} and rule_id is not null
-  </delete>
-
-  <delete id="deleteSnapshotCharacteristicMeasures" parameterType="long">
-    delete from project_measures where snapshot_id=#{id} and characteristic_id is not null
+  <delete id="deleteSnapshotWastedMeasures" parameterType="long">
+    delete from project_measures where snapshot_id=#{id} and
+    (characteristic_id is not null or rule_id is not null or metric_id in (select id from metrics where delete_historical_data=${_true}))
   </delete>
 
   <update id="updatePurgeStatusToOne" parameterType="long">

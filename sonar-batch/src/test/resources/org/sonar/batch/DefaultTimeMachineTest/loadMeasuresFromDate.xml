@@ -1,7 +1,7 @@
 <dataset>
-  <metrics id="1" NAME="ncloc" VAL_TYPE="INT" DESCRIPTION="[null]"  domain="[null]" short_name=""
+  <metrics delete_historical_data="[null]" id="1" NAME="ncloc" VAL_TYPE="INT" DESCRIPTION="[null]"  domain="[null]" short_name=""
            enabled="true" worst_value="[null]" optimized_best_value="[null]" best_value="[null]" direction="0" hidden="false"/>
-  <metrics id="2" NAME="coverage" VAL_TYPE="INT" DESCRIPTION="[null]"  domain="[null]" short_name=""
+  <metrics delete_historical_data="[null]" id="2" NAME="coverage" VAL_TYPE="INT" DESCRIPTION="[null]"  domain="[null]" short_name=""
            enabled="true" worst_value="[null]" optimized_best_value="[null]" best_value="[null]" direction="0" hidden="false"/>
 
   <projects long_name="[null]" id="1" scope="PRJ" kee="group:artifact" qualifier="TRK" name="my project"
