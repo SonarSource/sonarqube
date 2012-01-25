@@ -18,12 +18,26 @@
               <%= format_measure(violations, :url => url_for(:controller => 'drilldown', :action => 'violations', :id => @project.key)) -%>
             </span>
             <%= dashboard_configuration.selected_period? ? format_variation(violations) : trend_icon(violations) -%>
-            <% if @dashboard_configuration.selected_period? %>
-              <br/>
-              <span style="font-weight: bold">
-                <%= message('widget.rules.on_new_code') -%>
-                <a href="<%= url_for_drilldown('new_violations', :period => dashboard_configuration.period_index) -%>"><%= format_variation(new_violations, :style => 'none', :default => '-') -%></a>
-              </span>
+            <% 
+               if @dashboard_configuration.selected_period?
+                 violations_variation = variation_value(violations)
+                 new_violations_variation = variation_value(new_violations)
+                 estimated_cleared_violations = (violations_variation - new_violations_variation).to_i if violations_variation && new_violations_variation
+            %>
+              <% if new_violations_variation && new_violations_variation > 0 %>
+                <br/>
+                <span style="font-weight: bold">
+                  <%= message('widget.rules.on_new_code') -%>&nbsp;
+                  <a href="<%= url_for(:controller => 'drilldown', :action => 'violations', :id => @project.key, :period => dashboard_configuration.period_index) -%>" class="varw"><%= format_variation(new_violations, :style => 'none', :default => '-') -%></a>
+                </span>
+              <% end %>
+              <% if estimated_cleared_violations && estimated_cleared_violations < 0 %>
+                <br/>
+                <span style="font-weight: bold">
+                  <%= message('widget.rules.on_old_code') -%>&nbsp;
+                  <span class="varb"><%= estimated_cleared_violations -%></span>
+                </span>
+              <% end %>
             <% end %>
         </div>
         <h3><%= message('widget.rules.rules_compliance') -%></h3>
