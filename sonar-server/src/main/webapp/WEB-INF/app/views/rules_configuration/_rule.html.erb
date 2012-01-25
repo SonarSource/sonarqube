@@ -34,7 +34,8 @@
         page.toggle "desc_#{rule.id}"
       end
     %>
-    <div id="desc_<%= rule.id -%>" class="rule_detail" style="display:none">
+    <div id="desc_<%= rule.id -%>" class="rule_detail" style="<%= 'display:none' unless rule.id.to_s == params[:rule_id] -%>">
+      <a name="rule<%= rule.id -%>"/>
       <table width="100%">
         <tbody>
           <tr>
@@ -50,6 +51,21 @@
             </td>
             <td class="separator"></td>
             <td width="50%">
+              <% 
+                 ancestor_profile = profile.parent
+                 ancestor_active_rule = ancestor_profile.active_by_rule_id(rule.id) if ancestor_profile && active_rule && (active_rule.inherited? || active_rule.overrides?)
+                 if ancestor_active_rule
+                   ancestor_active_rule_link = link_to ancestor_profile.name, :controller => 'rules_configuration', :action => 'index', 
+                                                       :id => ancestor_profile.id, :rule_id => rule.id, :anchor => 'rule' + rule.id.to_s
+              %>
+                <%= message( active_rule.inherited? ? 'rules_configuration.rule_inherited_from_profile_x' : 'rules_configuration.rule_overriding_from_profile_x',
+                             :params => ancestor_active_rule_link) -%>
+                <% if is_admin && active_rule.overrides? %>
+                  <br/>
+                  <%= button_to message('rules_configuration.revert_to_parent_definition'), :overwrite_params => {:action => 'revert_rule', :id => profile.id, :active_rule_id => active_rule.id} %><br/>
+                <% end %>
+              <% end %>
+              
               <% unless rule.parameters.empty? %>
                 <h3><%= message('rules_configuration.rule_parameters') -%></h3>
                 <table style="margin-left:7px">
@@ -58,22 +74,13 @@
                   %>
                     <tbody id="param_<%= parameter.id -%>">
                     <%= render :partial => 'rule_param', :object => nil,
-                      :locals => {:parameter => parameter, :active_parameter => active_parameter, :profile => profile, :active_rule => active_rule, :is_admin => is_admin } %>
+                      :locals => {:parameter => parameter, :active_parameter => active_parameter, :profile => profile, 
+                                  :active_rule => active_rule, :ancestor_active_rule => ancestor_active_rule, :is_admin => is_admin } %>
                     </tbody>
                   <% end %>
                 </table>
               <% end %>
-              <% if is_admin %>
-                <% if rule.template? %>
-                <%= button_to message('rules_configuration.copy_rule'), {:action => 'new', :id => profile.id, :rule_id => rule.id}, :id => "copy-#{u rule.key}" %>
-                <% end %>
-                <% if rule.editable? %>
-                <%= button_to message('rules_configuration.edit_rule'), :action => 'edit', :id => profile.id, :rule_id => rule.id %>
-                <% end %>
-                <% if active_rule && active_rule.overrides? %>
-                <%= button_to message('rules_configuration.revert_to_parent_definition'), :overwrite_params => {:action => 'revert_rule', :id => profile.id, :active_rule_id => active_rule.id} %><br/>
-                <% end %>
-              <% end %>
+
               <h3><%= message('rules_configuration.rule_identification') -%></h3>
               <table style="margin-left:7px">
                 <tbody>
@@ -81,6 +88,15 @@
                   <tr><td style="padding-right:10px"><%= message('key') -%>:</td><td><%= rule.plugin_rule_key %></td></tr>
                 </tbody>
               </table>
+              <% if is_admin %>
+                <br/>
+                <% if rule.template? %>
+                <%= button_to message('rules_configuration.copy_rule'), {:action => 'new', :id => profile.id, :rule_id => rule.id}, :id => "copy-#{u rule.key}" %>
+                <% end %>
+                <% if rule.editable? %>
+                <%= button_to message('rules_configuration.edit_rule'), :action => 'edit', :id => profile.id, :rule_id => rule.id %>
+                <% end %>
+              <% end %>
             </td>
           </tr>
         </tbody>

@@ -137,7 +137,7 @@ class RulesConfigurationController < ApplicationController
 
       is_admin=true # security has already been checked by controller filters
       render :update do |page|
-        page.replace_html("rule_#{rule.id}", :partial => 'rule', :object => rule, :locals => {:profile => profile, :active_rule => active_rule, :is_admin => is_admin})
+        page.replace_html("rule_#{rule.id}", :partial => 'rule', :object => rule, :locals => {:profile => profile, :rule => rule, :active_rule => active_rule, :is_admin => is_admin})
         page.assign('localModifications', true)
       end
     end
@@ -310,8 +310,9 @@ class RulesConfigurationController < ApplicationController
         java_facade.ruleParamChanged(profile.id, active_rule.id, rule_param.name, old_value, nil, current_user.name)
       end
     end
-    render :partial => 'rule_param', :object => nil,
-      :locals => {:parameter => rule_param, :active_parameter => active_param, :profile => profile, :active_rule => active_rule, :is_admin => is_admin }
+    # let's reload the active rule
+    active_rule = ActiveRule.find(active_rule.id)
+    render :partial => 'rule', :locals => {:profile => profile, :rule => active_rule.rule, :active_rule => active_rule, :is_admin => is_admin }
   end
 
 
