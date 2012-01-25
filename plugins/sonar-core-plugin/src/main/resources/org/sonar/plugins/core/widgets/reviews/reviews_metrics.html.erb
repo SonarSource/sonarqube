@@ -13,15 +13,15 @@
         <h3><%= message('widget.reviews_metrics.active_reviews') -%></h3>
         <% if active_reviews %>
         <p>
-          <span class="big"><%= format_measure(active_reviews, :suffix => '', :url => url_for_drilldown(active_reviews)) -%></span>
+          <span class="big"><%= format_measure(active_reviews, :suffix => '', :url => url_for_drilldown(active_reviews)) -%></span>&nbsp;
           <%= dashboard_configuration.selected_period? ? format_variation(active_reviews) : trend_icon(active_reviews) -%>
         </p>
         <p>
-          <%= format_measure(unassigned_reviews, :suffix => message('widget.reviews_metrics.unassigned.suffix'), :url => url_for_drilldown(unassigned_reviews)) -%>
+          <%= format_measure(unassigned_reviews, :suffix => message('widget.reviews_metrics.unassigned.suffix'), :url => url_for_drilldown(unassigned_reviews)) -%>&nbsp;
           <%= dashboard_configuration.selected_period? ? format_variation(unassigned_reviews) : trend_icon(unassigned_reviews) -%>
         </p>
         <p>
-          <%= format_measure(unplanned_reviews, :suffix => message('widget.reviews_metrics.unplanned.suffix'), :url => url_for_drilldown(unplanned_reviews)) -%>
+          <%= format_measure(unplanned_reviews, :suffix => message('widget.reviews_metrics.unplanned.suffix'), :url => url_for_drilldown(unplanned_reviews)) -%>&nbsp;
           <%= dashboard_configuration.selected_period? ? format_variation(unplanned_reviews) : trend_icon(unplanned_reviews) -%>
         </p>
         <% else %>
@@ -35,15 +35,15 @@
         <h3><%= message('widget.reviews_metrics.unreviewed_violations') -%></h3>
         <% if unreviewed_violations %>
         <p>
-          <span class="big"><%= format_measure(unreviewed_violations, :suffix => '', :url => url_for_drilldown(unreviewed_violations)) -%></span>
+          <span class="big"><%= format_measure(unreviewed_violations, :suffix => '', :url => url_for_drilldown(unreviewed_violations)) -%></span>&nbsp;
           <%= dashboard_configuration.selected_period? ? format_variation(unreviewed_violations) : trend_icon(unreviewed_violations) -%>
           <% 
              if new_unreviewed_violations && @dashboard_configuration.selected_period? 
           %>
             <br/>
             <span style="font-weight: bold">
-              <%= message('widget.reviews_metrics.on_new_code') -%>
-              <a href="<%= url_for_drilldown('new_unreviewed_violations', :period => dashboard_configuration.period_index) -%>"><%= format_variation(new_unreviewed_violations, :style => 'none', :default => '-') -%></a>
+              <%= message('widget.reviews_metrics.on_new_code') -%>&nbsp;
+              <a href="<%= url_for_drilldown('new_unreviewed_violations', :period => dashboard_configuration.period_index) -%>" class="varw"><%= format_variation(new_unreviewed_violations, :style => 'none', :default => '-') -%></a>
             </span>
           <% end %>
         </p>
@@ -54,7 +54,7 @@
         <h3><%= message('widget.reviews_metrics.false_positives') -%></h3>
         <% if false_positive_reviews %>
         <p>
-          <span class="big"><%= format_measure(false_positive_reviews, :suffix => '', :url => url_for_drilldown(false_positive_reviews)) -%></span>
+          <span class="big"><%= format_measure(false_positive_reviews, :suffix => '', :url => url_for_drilldown(false_positive_reviews)) -%></span>&nbsp;
           <%= dashboard_configuration.selected_period? ? format_variation(false_positive_reviews) : trend_icon(false_positive_reviews) -%>
         </p>
         <% else %>
