@@ -176,7 +176,7 @@ public class SonarEngine extends CpdEngine {
       for (ClonePart part : clone.getCloneParts()) {
         if (part.getResourceId().equals(origin.getResourceId())) {
           duplicatedBlocks++;
-          for (int duplicatedLine = part.getStartLine(); duplicatedLine < part.getEndLine() + part.getLines(); duplicatedLine++) {
+          for (int duplicatedLine = part.getStartLine(); duplicatedLine < part.getStartLine() + part.getLines(); duplicatedLine++) {
             duplicatedLines.add(duplicatedLine);
           }
         }
