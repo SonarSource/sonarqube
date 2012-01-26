@@ -31,20 +31,20 @@ public final class Block implements CodeFragment {
   private final String resourceId;
   private final ByteArray blockHash;
   private final int indexInFile;
-  private final int firstLineNumber;
-  private final int lastLineNumber;
+  private final int startLine;
+  private final int endLine;
 
   /**
    * Cache for hash code.
    */
   private int hash;
 
-  public Block(String resourceId, ByteArray blockHash, int indexInFile, int firstLineNumber, int lastLineNumber) {
+  public Block(String resourceId, ByteArray blockHash, int indexInFile, int startLine, int endLine) {
     this.resourceId = resourceId;
     this.blockHash = blockHash;
     this.indexInFile = indexInFile;
-    this.firstLineNumber = firstLineNumber;
-    this.lastLineNumber = lastLineNumber;
+    this.startLine = startLine;
+    this.endLine = endLine;
   }
 
   public Block(int indexInFile, int firstLineNumber, int lastLineNumber, String resourceId, String hash) {
@@ -108,26 +108,12 @@ public final class Block implements CodeFragment {
     this.endUnit = endUnit;
   }
 
-  /**
-   * @deprecated in 2.14, use {@link #getStartLine()} instead
-   */
-  public int getFirstLineNumber() {
-    return firstLineNumber;
-  }
-
-  /**
-   * @deprecated in 2.14, use {@link #getEndLine()} instead
-   */
-  public int getLastLineNumber() {
-    return lastLineNumber;
-  }
-
   public int getStartLine() {
-    return firstLineNumber;
+    return startLine;
   }
 
   public int getEndLine() {
-    return lastLineNumber;
+    return endLine;
   }
 
   @Override
@@ -139,8 +125,8 @@ public final class Block implements CodeFragment {
     return resourceId.equals(other.resourceId)
       && blockHash.equals(other.blockHash)
       && indexInFile == other.indexInFile
-      && firstLineNumber == other.firstLineNumber
-      && lastLineNumber == other.lastLineNumber;
+      && startLine == other.startLine
+      && endLine == other.endLine;
   }
 
   @Override
@@ -150,8 +136,8 @@ public final class Block implements CodeFragment {
       h = resourceId.hashCode();
       h = 31 * h + blockHash.hashCode();
       h = 31 * h + indexInFile;
-      h = 31 * h + firstLineNumber;
-      h = 31 * h + lastLineNumber;
+      h = 31 * h + startLine;
+      h = 31 * h + endLine;
       hash = h;
     }
     return h;
@@ -159,7 +145,7 @@ public final class Block implements CodeFragment {
 
   @Override
   public String toString() {
-    return "'" + resourceId + "'[" + indexInFile + "|" + firstLineNumber + "-" + lastLineNumber + "]:" + blockHash;
+    return "'" + resourceId + "'[" + indexInFile + "|" + startLine + "-" + endLine + "]:" + blockHash;
   }
 
 }

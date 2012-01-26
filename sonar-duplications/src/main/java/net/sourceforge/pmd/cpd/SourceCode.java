@@ -28,6 +28,11 @@ import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * <p>Not intended to be instantiated by clients.</p>
+ *
+ * @since 2.2
+ */
 public class SourceCode {
 
   public static final String EOL = System.getProperty("line.separator", "\n");
@@ -150,6 +155,10 @@ public class SourceCode {
     return sb.toString();
   }
 
+  /**
+   * Within Sonar Ecosystem - absolute path to file containing code,
+   * whereas in fact existence of such file not guaranteed - see {@link StringCodeLoader}.
+   */
   public String getFileName() {
     return cl.getFileName();
   }

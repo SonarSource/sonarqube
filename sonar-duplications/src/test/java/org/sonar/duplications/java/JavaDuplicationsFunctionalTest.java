@@ -19,12 +19,7 @@
  */
 package org.sonar.duplications.java;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
-import java.util.Collection;
-import java.util.List;
-
+import com.google.common.base.Joiner;
 import org.junit.Test;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
@@ -37,7 +32,11 @@ import org.sonar.duplications.statement.Statement;
 import org.sonar.duplications.statement.StatementChunker;
 import org.sonar.duplications.token.TokenChunker;
 
-import com.google.common.base.Joiner;
+import java.util.Collection;
+import java.util.List;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 /**
  * From <a href="http://research.cs.queensu.ca/TechReports/Reports/2007-541.pdf">A Survey on Software Clone Detection Research (2007 year)</a>:
@@ -71,13 +70,13 @@ public class JavaDuplicationsFunctionalTest {
     List<CloneGroup> duplications = detect2(fragment0, fragment1);
     assertThat(duplications.size(), is(1));
     ClonePart part = duplications.get(0).getOriginPart();
-    assertThat(part.getLineStart(), is(1));
-    assertThat(part.getLineEnd(), is(5));
+    assertThat(part.getStartLine(), is(1));
+    assertThat(part.getEndLine(), is(5));
   }
 
   /**
    * Supports only subset of Type 2.
-   * 
+   *
    * @see #type2
    * @see #literalsNormalization()
    */
@@ -98,8 +97,8 @@ public class JavaDuplicationsFunctionalTest {
     List<CloneGroup> duplications = detect2(fragment0, fragment1);
     assertThat(duplications.size(), is(1));
     ClonePart part = duplications.get(0).getOriginPart();
-    assertThat(part.getLineStart(), is(1));
-    assertThat(part.getLineEnd(), is(5));
+    assertThat(part.getStartLine(), is(1));
+    assertThat(part.getEndLine(), is(5));
   }
 
   @Test
@@ -146,8 +145,8 @@ public class JavaDuplicationsFunctionalTest {
     List<CloneGroup> duplications = detect2(fragment0, fragment1);
     assertThat(duplications.size(), is(1));
     ClonePart part = duplications.get(0).getOriginPart();
-    assertThat(part.getLineStart(), is(3));
-    assertThat(part.getLineEnd(), is(6));
+    assertThat(part.getStartLine(), is(3));
+    assertThat(part.getEndLine(), is(6));
   }
 
   private String source(String... lines) {

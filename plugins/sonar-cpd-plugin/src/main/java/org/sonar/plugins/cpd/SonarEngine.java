@@ -176,7 +176,7 @@ public class SonarEngine extends CpdEngine {
       for (ClonePart part : clone.getCloneParts()) {
         if (part.getResourceId().equals(origin.getResourceId())) {
           duplicatedBlocks++;
-          for (int duplicatedLine = part.getLineStart(); duplicatedLine < part.getLineStart() + part.getLines(); duplicatedLine++) {
+          for (int duplicatedLine = part.getStartLine(); duplicatedLine < part.getEndLine() + part.getLines(); duplicatedLine++) {
             duplicatedLines.add(duplicatedLine);
           }
         }
@@ -188,7 +188,7 @@ public class SonarEngine extends CpdEngine {
     for (CloneGroup clone : clones) {
       xml.append("<g>");
       for (ClonePart part : clone.getCloneParts()) {
-        xml.append("<b s=\"").append(part.getLineStart())
+        xml.append("<b s=\"").append(part.getStartLine())
             .append("\" l=\"").append(part.getLines())
             .append("\" r=\"").append(part.getResourceId())
             .append("\"/>");

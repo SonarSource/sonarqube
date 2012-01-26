@@ -17,19 +17,36 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-
-/**
- * BSD-style license; for more info see http://pmd.sourceforge.net/license.html
- */
 package net.sourceforge.pmd.cpd;
 
-import java.io.IOException;
+import org.junit.Before;
+import org.junit.Test;
 
-/**
- * @since 2.2
- */
-public interface Tokenizer {
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.Assert.assertThat;
 
-  void tokenize(SourceCode tokens, Tokens tokenEntries) throws IOException;
+public class TokenEntryTest {
+
+  @Before
+  public void setUp() {
+    TokenEntry.clearImages();
+  }
+
+  @Test
+  public void testNewTokenEntry() {
+    TokenEntry entry = new TokenEntry("token1", "src1", 1);
+    assertThat(entry.getValue(), equalTo("token1"));
+    assertThat(entry.getBeginLine(), equalTo(1));
+
+    entry = new TokenEntry("token2", "src2", 2);
+    assertThat(entry.getValue(), equalTo("token2"));
+    assertThat(entry.getBeginLine(), equalTo(2));
+  }
+
+  @Test
+  public void testGetEOF() {
+    assertThat(TokenEntry.getEOF(), sameInstance(TokenEntry.getEOF()));
+  }
 
 }

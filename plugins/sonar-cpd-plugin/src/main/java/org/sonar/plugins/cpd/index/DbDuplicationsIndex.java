@@ -101,12 +101,12 @@ public class DbDuplicationsIndex {
     List<DuplicationUnitDto> units = Lists.newArrayList();
     for (Block block : blocks) {
       DuplicationUnitDto unit = new DuplicationUnitDto(
-        currentProjectSnapshotId,
-        resourceSnapshotId,
-        block.getBlockHash().toString(),
-        block.getIndexInFile(),
-        block.getFirstLineNumber(),
-        block.getLastLineNumber());
+          currentProjectSnapshotId,
+          resourceSnapshotId,
+          block.getBlockHash().toString(),
+          block.getIndexInFile(),
+          block.getStartLine(),
+          block.getEndLine());
       units.add(unit);
     }
 

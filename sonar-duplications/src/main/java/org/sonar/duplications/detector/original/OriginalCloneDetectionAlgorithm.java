@@ -19,19 +19,18 @@
  */
 package org.sonar.duplications.detector.original;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.ClonePart;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Implementation of algorithm described in paper
@@ -210,8 +209,8 @@ public final class OriginalCloneDetectionAlgorithm {
       Block lastBlock = pair[1];
       ClonePart part = new ClonePart(firstBlock.getResourceId(),
           firstBlock.getIndexInFile(),
-          firstBlock.getFirstLineNumber(),
-          lastBlock.getLastLineNumber());
+          firstBlock.getStartLine(),
+          lastBlock.getEndLine());
 
       if (originResourceId.equals(part.getResourceId())) {
         if (origin == null) {

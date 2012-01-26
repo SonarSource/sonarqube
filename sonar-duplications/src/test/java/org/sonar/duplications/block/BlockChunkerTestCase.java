@@ -19,19 +19,15 @@
  */
 package org.sonar.duplications.block;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertThat;
+import com.google.common.collect.Lists;
+import org.junit.Test;
+import org.sonar.duplications.statement.Statement;
 
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Test;
-import org.sonar.duplications.statement.Statement;
-
-import com.google.common.collect.Lists;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 
 /**
  * Any implementation of {@link BlockChunker} should pass these test scenarios.
@@ -91,11 +87,11 @@ public abstract class BlockChunkerTestCase {
     List<Block> blocks = chunker.chunk("resource", statements);
     assertThat(blocks.size(), is(4));
     assertThat(blocks.get(0).getIndexInFile(), is(0));
-    assertThat(blocks.get(0).getFirstLineNumber(), is(0));
-    assertThat(blocks.get(0).getLastLineNumber(), is(2));
+    assertThat(blocks.get(0).getStartLine(), is(0));
+    assertThat(blocks.get(0).getEndLine(), is(2));
     assertThat(blocks.get(1).getIndexInFile(), is(1));
-    assertThat(blocks.get(1).getFirstLineNumber(), is(1));
-    assertThat(blocks.get(1).getLastLineNumber(), is(3));
+    assertThat(blocks.get(1).getStartLine(), is(1));
+    assertThat(blocks.get(1).getEndLine(), is(3));
   }
 
   @Test

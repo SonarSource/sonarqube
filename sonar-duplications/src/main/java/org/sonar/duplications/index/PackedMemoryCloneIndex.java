@@ -184,8 +184,8 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
       blockData[offset++] = hash[i];
     }
     blockData[offset++] = block.getIndexInFile();
-    blockData[offset++] = block.getFirstLineNumber();
-    blockData[offset++] = block.getLastLineNumber();
+    blockData[offset++] = block.getStartLine();
+    blockData[offset++] = block.getEndLine();
     blockData[offset++] = block.getStartUnit();
     blockData[offset] = block.getEndUnit();
 

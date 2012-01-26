@@ -29,6 +29,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * <p>Not intended to be instantiated by clients.</p>
+ *
+ * @since 2.2
+ */
 public class Tokens {
 
   private List<TokenEntry> tokens = new ArrayList<TokenEntry>();

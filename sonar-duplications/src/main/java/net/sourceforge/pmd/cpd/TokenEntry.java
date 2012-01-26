@@ -28,11 +28,19 @@ import com.google.common.annotations.Beta;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @since 2.2
+ */
 public class TokenEntry implements Comparable<TokenEntry> {
 
   private final static Map<String, Integer> TOKENS = new HashMap<String, Integer>();
   private static int tokenCount = 0;
 
+  /**
+   * Shared instance of end-of-file token.
+   *
+   * <p>Not intended to be used by clients - {@link #getEOF()} should be used instead.</p>
+   */
   public static final TokenEntry EOF = new TokenEntry();
 
   private String tokenSrcID;
@@ -49,6 +57,11 @@ public class TokenEntry implements Comparable<TokenEntry> {
     this.value = "";
   }
 
+  /**
+   * @param image string representation of token
+   * @param tokenSrcID within Sonar Ecosystem - absolute path to file, otherwise current implementation of sonar-cpd-plugin will not work
+   * @param beginLine number of line
+   */
   public TokenEntry(String image, String tokenSrcID, int beginLine) {
     Integer i = TOKENS.get(image);
     if (i == null) {
@@ -72,6 +85,9 @@ public class TokenEntry implements Comparable<TokenEntry> {
     return value;
   }
 
+  /**
+   * End-of-file token.
+   */
   public static TokenEntry getEOF() {
     tokenCount++;
     return EOF;

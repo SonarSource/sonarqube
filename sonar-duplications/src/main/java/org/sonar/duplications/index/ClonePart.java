@@ -48,22 +48,6 @@ public class ClonePart implements CodeFragment {
     return startUnit;
   }
 
-  /**
-   * @deprecated in 2.14, use {@link #getStartLine()} instead
-   */
-  @Deprecated
-  public int getLineStart() {
-    return startLine;
-  }
-
-  /**
-   * @deprecated in 2.14, use {@link #getEndLine()} instead
-   */
-  @Deprecated
-  public int getLineEnd() {
-    return endLine;
-  }
-
   public int getStartLine() {
     return startLine;
   }

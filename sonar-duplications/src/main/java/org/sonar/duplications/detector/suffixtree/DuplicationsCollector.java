@@ -89,8 +89,8 @@ public class DuplicationsCollector extends Search.Collector {
       ClonePart part = new ClonePart(
           firstBlock.getResourceId(),
           firstBlock.getIndexInFile(),
-          firstBlock.getFirstLineNumber(),
-          lastBlock.getLastLineNumber());
+          firstBlock.getStartLine(),
+          lastBlock.getEndLine());
 
       // TODO Godin: maybe use FastStringComparator here ?
       if (originResourceId.equals(part.getResourceId())) { // part from origin

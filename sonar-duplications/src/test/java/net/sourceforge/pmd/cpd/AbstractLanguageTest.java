@@ -19,13 +19,14 @@
  */
 package net.sourceforge.pmd.cpd;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import org.junit.Test;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 
-import org.junit.Test;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 /**
  * We use modified version of {@link AbstractLanguage} in comparison with PMD - it doesn't use package "net.sourceforge.pmd.util.filter",
@@ -55,7 +56,13 @@ public class AbstractLanguageTest {
 
   @Test(expected = NullPointerException.class)
   public void shouldThrowException() {
-    new AbstractLanguage(null, null) {
+    new AbstractLanguage(null, (String) null) {
+    };
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void shouldAlsoThrowException() {
+    new AbstractLanguage(null, (String[]) null) {
     };
   }
 
