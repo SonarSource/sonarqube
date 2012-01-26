@@ -170,7 +170,7 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
               <includes>
-                <include>org/sonar/persistence/dao/*Test.java</include>
+                <include>org/sonar/core/**/*DaoTest.java</include>
               </includes>
             </configuration>
           </plugin>
