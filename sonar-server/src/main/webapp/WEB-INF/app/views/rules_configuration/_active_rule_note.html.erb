@@ -29,7 +29,7 @@
         <% end %>
       </h4>
       <p><%= note.html_text -%></p>
-  <% elsif is_admin %>
+  <% elsif is_admin && !active_rule.rules_profile.provided? %>
     <input type="button" id="<%= add_active_note_button_id -%>" value="<%= message('rules_configuration.add_note') -%>" 
            onclick="$('<%= active_note_form_div_id -%>').show();$('<%= active_note_detail_div_id -%>').hide();$('<%= active_note_textarea_id -%>').focus();">
   <% end %>

@@ -74,7 +74,7 @@
                   %>
                     <tbody id="param_<%= parameter.id -%>">
                     <%= render :partial => 'rule_param', :object => nil,
-                      :locals => {:parameter => parameter, :active_parameter => active_parameter, :profile => profile, 
+                      :locals => {:parameter => parameter, :active_parameter => active_parameter, :profile => profile, :rule => rule,
                                   :active_rule => active_rule, :ancestor_active_rule => ancestor_active_rule, :is_admin => is_admin } %>
                     </tbody>
                   <% end %>

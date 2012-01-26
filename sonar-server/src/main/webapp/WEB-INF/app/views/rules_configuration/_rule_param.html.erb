@@ -14,9 +14,9 @@
     </td>
     <td width="90%" nowrap class="left">
         <%= form_remote_tag :url => {:action => 'update_param', :id => active_param_id, :profile_id => profile.id, :param_id => parameter.id, :active_rule_id => active_rule_id},
-            :update => "rule_#{active_rule.rule_id}",
+            :update => "rule_#{rule.id}",
             :loading => "$('param_loading_#{parameter.id}').show();",
-            :complete => "$('desc_#{active_rule.rule_id}').show();" %>
+            :complete => "$('desc_#{rule.id}').show();" %>
 
         <% span_id = "text_#{parameter.id}" %>
         <% read_only = !active_rule || !enable_modification %>
@@ -35,7 +35,7 @@
         <% end %>
         
         <% 
-           if active_rule.overrides? && ancestor_active_rule
+           if active_rule && active_rule.overrides? && ancestor_active_rule
              ancestor_param = ancestor_active_rule.active_param_by_param_id(parameter.id)
              ancestor_value = ancestor_param.value unless ancestor_param.value.blank?
              
