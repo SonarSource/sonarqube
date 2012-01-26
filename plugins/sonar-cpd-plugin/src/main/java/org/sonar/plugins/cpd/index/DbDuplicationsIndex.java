@@ -42,6 +42,7 @@ public class DbDuplicationsIndex {
   private final ResourcePersister resourcePersister;
   private final int currentProjectSnapshotId;
   private final Integer lastSnapshotId;
+  private final String languageKey;
 
   private DuplicationDao dao;
 
@@ -52,6 +53,7 @@ public class DbDuplicationsIndex {
     Snapshot lastSnapshot = resourcePersister.getLastSnapshot(currentSnapshot, false);
     this.currentProjectSnapshotId = currentSnapshot.getId();
     this.lastSnapshotId = lastSnapshot == null ? null : lastSnapshot.getId();
+    this.languageKey = currentProject.getLanguageKey();
   }
 
   int getSnapshotIdFor(Resource resource) {
@@ -60,7 +62,6 @@ public class DbDuplicationsIndex {
 
   public void prepareCache(Resource resource) {
     int resourceSnapshotId = getSnapshotIdFor(resource);
-    String languageKey = resource.getLanguage().getKey();
     List<DuplicationUnitDto> units = dao.selectCandidates(resourceSnapshotId, lastSnapshotId, languageKey);
     cache.clear();
     // TODO Godin: maybe remove conversion of units to blocks?
