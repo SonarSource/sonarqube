@@ -1,4 +1,8 @@
 <h1><%= @rule.name %></h1>
+<div class="subtitle">
+<%= message('plugin') -%>: <%= @rule.plugin_name -%>&nbsp;&nbsp;&nbsp;
+<%= message('key') -%>: <%= @rule.plugin_rule_key %>
+</div>
 
 <div class="doc">
   <% if @rule.description.strip.start_with?('<p>') %>
@@ -9,54 +13,6 @@
   
   <% if @rule.note && !@rule.note.text.strip.blank? %>
     <p><%= @rule.note.html_text -%></p>
-  <% end %>
-  
-  <% if @profile && @active_rule %>
-    <br/>
-    <b>
-      <a href="#" onclick="$('details').toggle();return false;"><%= message('rules.more_about_rule_on_profile_x', :params => @profile.name) %></a>
-    </b>
-    
-    <div id="details" style="display: none">
-      <p><%= @active_rule.note.html_text if @active_rule.note %></p>
-      
-      <% unless @rule.parameters.empty? %>
-      <br/>
-      <h3><%= message('rules.parameters') -%></h3>
-        <table style="margin-left:7px">
-          <% @rule.parameters.each do |parameter|
-            active_parameter = @active_rule.active_param_by_param_id(parameter.id)
-          %>
-            <tbody>
-              <tr>
-                <td width="10%" nowrap class="left">
-                  <%= parameter.name %>: &nbsp;
-                </td>
-                <td width="90%" nowrap class="left">
-                  <%= active_parameter.value if active_parameter.value && !active_parameter.value.blank? -%>
-                </td>
-              </tr>
-              <tr>
-                <td></td>
-                <td style="padding-bottom:5px;">
-                  <span class="note" style="white-space: normal"><%= h parameter.description -%></span>
-                </td>
-              </tr>
-            </tbody>
-          <% end %>
-        </table>
-      <% end %>
-      
-      <br/>
-      <h3><%= message('rules.identification') -%></h3>
-      <table style="margin-left:7px">
-        <tbody>
-          <tr><td style="padding-right:10px"><%= message('plugin') -%>:</td><td><%= @rule.plugin_name.capitalize %></td></tr>
-          <tr><td style="padding-right:10px"><%= message('key') -%>:</td><td><%= @rule.plugin_rule_key %></td></tr>
-        </tbody>
-      </table>
-    </div>
-    
   <% end %>
   
 </div>
