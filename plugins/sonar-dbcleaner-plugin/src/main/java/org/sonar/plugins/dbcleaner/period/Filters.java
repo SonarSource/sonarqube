@@ -26,16 +26,15 @@ import org.sonar.plugins.dbcleaner.api.DbCleanerConstants;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 class Filters {
   private final List<Filter> filters = Lists.newArrayList();
 
   Filters(Settings settings) {
-    Date dateToStartKeepingOneSnapshotByWeek = getDate(settings, DbCleanerConstants.MONTHS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_WEEK);
-    Date dateToStartKeepingOneSnapshotByMonth = getDate(settings, DbCleanerConstants.MONTHS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_MONTH);
-    Date dateToStartDeletingAllSnapshots = getDate(settings, DbCleanerConstants.MONTHS_BEFORE_DELETING_ALL_SNAPSHOTS);
+    Date dateToStartKeepingOneSnapshotByWeek = getDate(settings, DbCleanerConstants.WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_WEEK);
+    Date dateToStartKeepingOneSnapshotByMonth = getDate(settings, DbCleanerConstants.WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_MONTH);
+    Date dateToStartDeletingAllSnapshots = getDate(settings, DbCleanerConstants.WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS);
 
     filters.add(new KeepOneFilter(dateToStartKeepingOneSnapshotByWeek, new Date(), Calendar.DAY_OF_YEAR, "day"));
     filters.add(new KeepOneFilter(dateToStartKeepingOneSnapshotByMonth, dateToStartKeepingOneSnapshotByWeek, Calendar.WEEK_OF_YEAR, "week"));
@@ -48,9 +47,7 @@ class Filters {
   }
 
   static Date getDate(Settings settings, String propertyKey) {
-    int months = settings.getInt(propertyKey);
-    GregorianCalendar calendar = new GregorianCalendar();
-    calendar.add(GregorianCalendar.MONTH, -months);
-    return calendar.getTime();
+    int weeks = settings.getInt(propertyKey);
+    return DateUtils.addWeeks(new Date(), -weeks);
   }
 }

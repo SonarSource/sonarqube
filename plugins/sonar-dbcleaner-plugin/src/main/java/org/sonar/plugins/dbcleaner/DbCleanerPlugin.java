@@ -30,17 +30,17 @@ import java.util.Arrays;
 import java.util.List;
 
 @Properties({
-  @Property(key = DbCleanerConstants.MONTHS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_WEEK, defaultValue = DbCleanerConstants.ONE_MONTH,
-    name = "Number of months before starting to keep only one snapshot by week",
-    description = "After this number of months, if there are several snapshots during the same week, "
+  @Property(key = DbCleanerConstants.WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_WEEK, defaultValue = "4",
+    name = "Number of weeks before starting to keep only one snapshot by week",
+    description = "After this number of weeks, if there are several snapshots during the same week, "
       + "the DbCleaner keeps the first one and fully delete the other ones.", global = true, project = true),
-  @Property(key = DbCleanerConstants.MONTHS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_MONTH, defaultValue = DbCleanerConstants.ONE_YEAR,
-    name = "Number of months before starting to keep only one snapshot by month",
-    description = "After this number of months, if there are several snapshots during the same month, "
+  @Property(key = DbCleanerConstants.WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_MONTH, defaultValue = "52",
+    name = "Number of weeks before starting to keep only one snapshot by month",
+    description = "After this number of weeks, if there are several snapshots during the same month, "
       + "the DbCleaner keeps the first one and fully delete the other ones.", global = true, project = true),
-  @Property(key = DbCleanerConstants.MONTHS_BEFORE_DELETING_ALL_SNAPSHOTS, defaultValue = DbCleanerConstants.FIVE_YEARS,
-    name = "Number of months before starting to delete all remaining snapshots",
-    description = "After this number of months, all snapshots are fully deleted.", global = true, project = true),
+  @Property(key = DbCleanerConstants.WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS, defaultValue = "260",
+    name = "Number of weeks before starting to delete all remaining snapshots",
+    description = "After this number of weeks, all snapshots are fully deleted.", global = true, project = true),
   @Property(key = "sonar.purge.minimumPeriodInHours", defaultValue = "12",
     name = "Maximum duration of code inspections, in hours",
     description = "Sonar has an embedded purge mechanism which is fairly powerful to avoid keeping useless data. This mechanism is using a minimum period during which a " +
