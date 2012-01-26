@@ -37,6 +37,7 @@ import org.sonar.api.web.*;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.DatabaseMigrator;
+import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.configuration.Backup;
@@ -379,6 +380,10 @@ public final class JRubyFacade {
 
   public void indexProjects() {
     getContainer().getComponentByType(ResourceIndexerDao.class).indexProjects();
+  }
+
+  public void deleteProject(long rootProjectId) {
+    getContainer().getComponentByType(PurgeDao.class).deleteProject(rootProjectId);
   }
 
   public void logError(String message) {

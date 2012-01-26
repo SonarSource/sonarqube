@@ -185,7 +185,7 @@ public abstract class DaoTestCase {
   protected final void assertEmptyTables(String... emptyTables) {
     for (String table : emptyTables) {
       try {
-        Assert.assertEquals(0, getCurrentDataSet().getTable(table).getRowCount());
+        Assert.assertEquals("Table " + table + " not empty.", 0, getCurrentDataSet().getTable(table).getRowCount());
       } catch (DataSetException e) {
         throw translateException("Error while checking results", e);
       }

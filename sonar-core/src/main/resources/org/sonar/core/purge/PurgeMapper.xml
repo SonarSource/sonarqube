@@ -34,7 +34,8 @@
       </if>
       <if test="qualifiers != null">
         and s.qualifier in
-        <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator="," close=")">#{qualifier}</foreach>
+        <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator="," close=")">#{qualifier}
+        </foreach>
       </if>
       <if test="withVersionEvent != null">
         <if test="withVersionEvent">
@@ -48,13 +49,17 @@
   </select>
 
   <select id="selectPurgeableSnapshotsWithVersionEvent" parameterType="long" resultType="PurgeableSnapshot">
-    select s.id as "snapshotId", s.created_at as "date", ${_true} as "hasVersionEvent", islast as "isLast" from snapshots s
-    where s.project_id=#{id} and s.status='P' and s.qualifier &lt;&gt; 'LIB' and exists(select e.id from events e where e.snapshot_id=s.id and e.category='Version')
+    select s.id as "snapshotId", s.created_at as "date", ${_true} as "hasVersionEvent", islast as "isLast" from
+    snapshots s
+    where s.project_id=#{id} and s.status='P' and s.qualifier &lt;&gt; 'LIB' and exists(select e.id from events e where
+    e.snapshot_id=s.id and e.category='Version')
   </select>
 
   <select id="selectPurgeableSnapshotsWithoutVersionEvent" parameterType="long" resultType="PurgeableSnapshot">
-    select s.id as "snapshotId", s.created_at as "date", ${_false} as "hasVersionEvent", islast as "isLast" from snapshots s
-    where s.project_id=#{id} and s.status='P' and s.qualifier &lt;&gt; 'LIB' and not exists(select e.id from events e where e.snapshot_id=s.id and e.category='Version')
+    select s.id as "snapshotId", s.created_at as "date", ${_false} as "hasVersionEvent", islast as "isLast" from
+    snapshots s
+    where s.project_id=#{id} and s.status='P' and s.qualifier &lt;&gt; 'LIB' and not exists(select e.id from events e
+    where e.snapshot_id=s.id and e.category='Version')
   </select>
 
   <select id="selectResourceIdsToDisable" resultType="long" parameterType="long">
@@ -63,7 +68,11 @@
     and not exists(select s.project_id from snapshots s where s.islast=${_true} and s.project_id=p.id)
   </select>
 
-  <select id="selectResourceIdsByRootId" resultType="long" parameterType="long">
+  <select id="selectProjectIdsByRootId" resultType="long" parameterType="long">
+    select id from projects where root_id=#{id} and scope='PRJ'
+  </select>
+
+  <select id="selectResourceTreeIdsByRootId" resultType="long" parameterType="long">
     select id from projects where root_id=#{id} or id=#{id}
   </select>
 
@@ -105,7 +114,8 @@
 
   <delete id="deleteSnapshotWastedMeasures" parameterType="long">
     delete from project_measures where snapshot_id=#{id} and
-    (characteristic_id is not null or rule_id is not null or metric_id in (select id from metrics where delete_historical_data=${_true}))
+    (characteristic_id is not null or rule_id is not null or metric_id in (select id from metrics where
+    delete_historical_data=${_true}))
   </delete>
 
   <update id="updatePurgeStatusToOne" parameterType="long">

@@ -46,21 +46,6 @@ public final class BatchSession implements SqlSession {
     this.batchSize = batchSize;
   }
 
-  /**
-   * This method must be called when executing SQL requests.
-   */
-  public BatchSession increment(int nbSqlRequests) {
-    count += nbSqlRequests;
-    if (count >= batchSize) {
-      commit();
-    }
-    return this;
-  }
-
-  private void reset() {
-    count=0;
-  }
-
   public void select(String statement, Object parameter, ResultHandler handler) {
     reset();
     session.select(statement, parameter, handler);
@@ -117,32 +102,32 @@ public final class BatchSession implements SqlSession {
   }
 
   public int insert(String statement) {
-    increment(1);
+    increment();
     return session.insert(statement);
   }
 
   public int insert(String statement, Object parameter) {
-    increment(1);
+    increment();
     return session.insert(statement, parameter);
   }
 
   public int update(String statement) {
-    increment(1);
+    increment();
     return session.update(statement);
   }
 
   public int update(String statement, Object parameter) {
-    increment(1);
+    increment();
     return session.update(statement, parameter);
   }
 
   public int delete(String statement) {
-    increment(1);
+    increment();
     return session.delete(statement);
   }
 
   public int delete(String statement, Object parameter) {
-    increment(1);
+    increment();
     return session.delete(statement, parameter);
   }
 
@@ -192,4 +177,15 @@ public final class BatchSession implements SqlSession {
     return session.getConnection();
   }
 
+  private BatchSession increment() {
+    count += 1;
+    if (count >= batchSize) {
+      commit();
+    }
+    return this;
+  }
+
+  private void reset() {
+    count = 0;
+  }
 }

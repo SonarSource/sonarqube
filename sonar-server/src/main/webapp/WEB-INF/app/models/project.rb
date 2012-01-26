@@ -41,10 +41,8 @@ class Project < ActiveRecord::Base
   end
 
   def self.delete_project(project)
-    if project
-      Snapshot.update_all(['islast=?', false], ['(root_project_id=? OR project_id=?) AND islast=?', project.id, project.id, true])
-      Project.delete_all(['id=? OR root_id=? or copy_resource_id=?', project.id, project.id, project.id])
-      ResourceIndex.delete_all(['root_project_id=?', project.id])
+    if project && project.project?
+      Java::OrgSonarServerUi::JRubyFacade.getInstance().deleteProject(project.id)
     end
   end
 
@@ -54,20 +52,20 @@ class Project < ActiveRecord::Base
 
   def root_project
     @root_project ||=
-        begin
-          parent_module(self)
-        end
+      begin
+        parent_module(self)
+      end
   end
 
   def last_snapshot
     @last_snapshot ||=
-        begin
-          snapshot=Snapshot.find(:first, :conditions => {:islast => true, :project_id => id})
-          if snapshot
-            snapshot.project=self
-          end
-          snapshot
+      begin
+        snapshot=Snapshot.find(:first, :conditions => {:islast => true, :project_id => id})
+        if snapshot
+          snapshot.project=self
         end
+        snapshot
+      end
   end
 
   def events_with_snapshot
@@ -97,12 +95,12 @@ class Project < ActiveRecord::Base
 
   def chart_measures(metric_id)
     sql = Project.send(:sanitize_sql, ['select s.created_at as created_at, m.value as value ' +
-                                           ' from project_measures m, snapshots s ' +
-                                           ' where s.id=m.snapshot_id and ' +
-                                           " s.status='%s' and " +
-                                           ' s.project_id=%s and m.metric_id=%s ', Snapshot::STATUS_PROCESSED, self.id, metric_id]) +
-        ' and m.rule_id IS NULL and m.rule_priority IS NULL' +
-        ' order by s.created_at'
+                                         ' from project_measures m, snapshots s ' +
+                                         ' where s.id=m.snapshot_id and ' +
+                                         " s.status='%s' and " +
+                                         ' s.project_id=%s and m.metric_id=%s ', Snapshot::STATUS_PROCESSED, self.id, metric_id]) +
+      ' and m.rule_id IS NULL and m.rule_priority IS NULL' +
+      ' order by s.created_at'
     create_chart_measures(Project.connection.select_all(sql), 'created_at', 'value')
   end
 

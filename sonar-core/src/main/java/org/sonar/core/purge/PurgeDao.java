@@ -24,7 +24,6 @@ import com.google.common.collect.Lists;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.core.persistence.BatchSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 
@@ -100,28 +99,33 @@ public class PurgeDao {
   }
 
   public PurgeDao deleteProject(long rootProjectId) {
-    final BatchSession session = mybatis.openBatchSession();
+    final SqlSession session = mybatis.openBatchSession();
+    final PurgeMapper mapper = session.getMapper(PurgeMapper.class);
     try {
-      final PurgeMapper mapper = session.getMapper(PurgeMapper.class);
-      List<Long> projectIds = resourceDao.getDescendantProjectIdsAndSelf(rootProjectId, session);
-      for (Long projectId : projectIds) {
-        session.select("org.sonar.core.purge.PurgeMapper.selectResourceIdsByRootId", projectId, new ResultHandler() {
-          public void handleResult(ResultContext context) {
-            Long resourceId = (Long) context.getResultObject();
-            deleteResource(resourceId, session, mapper);
-          }
-        });
-      }
-      session.commit();
+      deleteProject(rootProjectId, session, mapper);
       return this;
-
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  void deleteResource(final long resourceId, final BatchSession session, final PurgeMapper mapper) {
-    session.select("org.sonar.core.purge.PurgeMapper.selectSnapshotIdsByResource", new ResultHandler() {
+  private void deleteProject(final long rootProjectId, final SqlSession session, final PurgeMapper mapper) {
+    List<Long> childrenIds = mapper.selectProjectIdsByRootId(rootProjectId);
+    for (Long childId : childrenIds) {
+      deleteProject(childId, session, mapper);
+    }
+
+    session.select("org.sonar.core.purge.PurgeMapper.selectResourceTreeIdsByRootId", rootProjectId, new ResultHandler() {
+      public void handleResult(ResultContext context) {
+        Long resourceId = (Long) context.getResultObject();
+        deleteResource(resourceId, session, mapper);
+      }
+    });
+    session.commit();
+  }
+
+  void deleteResource(final long resourceId, final SqlSession session, final PurgeMapper mapper) {
+    session.select("org.sonar.core.purge.PurgeMapper.selectSnapshotIdsByResource", resourceId, new ResultHandler() {
       public void handleResult(ResultContext context) {
         Long snapshotId = (Long) context.getResultObject();
         deleteSnapshot(snapshotId, mapper);
@@ -149,7 +153,7 @@ public class PurgeDao {
 
 
   public PurgeDao deleteSnapshots(PurgeSnapshotQuery query) {
-    final BatchSession session = mybatis.openBatchSession();
+    final SqlSession session = mybatis.openBatchSession();
     try {
       final PurgeMapper mapper = session.getMapper(PurgeMapper.class);
       session.select("org.sonar.core.purge.PurgeMapper.selectSnapshotIds", query, new ResultHandler() {

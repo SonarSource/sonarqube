@@ -25,6 +25,8 @@ public interface PurgeMapper {
 
   List<Long> selectSnapshotIds(PurgeSnapshotQuery query);
 
+  List<Long> selectProjectIdsByRootId(long rootResourceId);
+
   void deleteSnapshot(long snapshotId);
 
   void deleteSnapshotDependencies(long snapshotId);
@@ -70,7 +72,7 @@ public interface PurgeMapper {
   void deleteResourceEvents(long resourceId);
 
   void closeResourceReviews(long resourceId);
-  
+
   List<PurgeableSnapshotDto> selectPurgeableSnapshotsWithVersionEvent(long resourceId);
 
   List<PurgeableSnapshotDto> selectPurgeableSnapshotsWithoutVersionEvent(long resourceId);

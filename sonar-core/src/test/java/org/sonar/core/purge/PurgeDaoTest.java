@@ -29,7 +29,6 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 
 import java.util.List;
-import java.util.SortedSet;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -156,6 +155,28 @@ public class PurgeDaoTest extends DaoTestCase {
     assertThat(snapshots.size(), is(3));
   }
 
+  @Test
+  public void shouldDeleteResource() {
+    setupData("shouldDeleteResource");
+    SqlSession session = getMyBatis().openSession();
+    try {
+      // this method does not commit and close the session
+      dao.deleteResource(1L, session, session.getMapper(PurgeMapper.class));
+      session.commit();
+
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+    assertEmptyTables("projects", "snapshots", "events");
+  }
+
+  @Test
+  public void shouldDeleteProject() {
+    setupData("shouldDeleteProject");
+    dao.deleteProject(1L);
+    assertEmptyTables("projects", "snapshots");
+  }
+
   static final class SnapshotMatcher extends BaseMatcher<PurgeableSnapshotDto> {
     long snapshotId;
     boolean isLast;
@@ -169,7 +190,7 @@ public class PurgeDaoTest extends DaoTestCase {
 
     public boolean matches(Object o) {
       PurgeableSnapshotDto obj = (PurgeableSnapshotDto) o;
-      return obj.getSnapshotId() == snapshotId && obj.isLast()==isLast && obj.hasVersionEvent()==hasVersionEvent;
+      return obj.getSnapshotId() == snapshotId && obj.isLast() == isLast && obj.hasVersionEvent() == hasVersionEvent;
     }
 
     public void describeTo(Description description) {
