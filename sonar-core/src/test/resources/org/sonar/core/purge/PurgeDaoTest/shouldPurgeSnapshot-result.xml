@@ -4,7 +4,7 @@ Changes:
 * snapshot.purge_status=1
 * commented-out rows are deleted
 
-Note that measure and review are not deleted.
+Note that measures, events and reviews are not deleted.
 
 -->
 <dataset>
@@ -41,8 +41,8 @@ Note that measure and review are not deleted.
   <!--parent_dependency_id="[null]" project_snapshot_id="2"-->
   <!--dep_usage="USES" dep_weight="1" from_scope="LIB" to_scope="PRJ"/>-->
 
-  <!--<events id="1" resource_id="1" snapshot_id="1"-->
-  <!--category="VERSION" description="[null]" name="Version 1.0" event_date="2008-12-02 13:58:00.00" created_at="[null]"/>-->
+  <events id="1" resource_id="1" snapshot_id="1"
+          category="VERSION" description="[null]" name="Version 1.0" event_date="2008-12-02 13:58:00.00" created_at="[null]"/>
 
   <!--<duplications_index project_snapshot_id="1" snapshot_id="1"-->
   <!--hash="bb" index_in_file="0" start_line="0" end_line="0"/>-->

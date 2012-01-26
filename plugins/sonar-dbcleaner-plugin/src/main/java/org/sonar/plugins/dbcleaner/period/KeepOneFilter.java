@@ -55,7 +55,7 @@ class KeepOneFilter extends Filter {
 
   @Override
   void log() {
-    LoggerFactory.getLogger(getClass()).debug("-> Keep one snapshot per " + label + " between " + DateUtils.formatDate(start) + " and " + DateUtils.formatDate(end));
+    LoggerFactory.getLogger(getClass()).info("-> Keep one snapshot per " + label + " between " + DateUtils.formatDate(start) + " and " + DateUtils.formatDate(end));
   }
 
   private void appendSnapshotsToDelete(Interval interval, List<PurgeableSnapshotDto> toDelete) {

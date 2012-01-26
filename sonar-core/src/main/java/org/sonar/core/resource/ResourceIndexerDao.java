@@ -50,7 +50,7 @@ public class ResourceIndexerDao {
    * This method is reentrant. It can be executed even if the project is already indexed.
    */
   public ResourceIndexerDao indexProject(final int rootProjectId) {
-    SqlSession session = mybatis.openSession(ExecutorType.BATCH);
+    SqlSession session = mybatis.openBatchSession();
     try {
       ResourceIndexerMapper mapper = session.getMapper(ResourceIndexerMapper.class);
       doIndexProject(rootProjectId, session, mapper);
@@ -66,7 +66,7 @@ public class ResourceIndexerDao {
    * This method is reentrant. It can be executed even if some projects are already indexed.
    */
   public ResourceIndexerDao indexProjects() {
-    final SqlSession session = mybatis.openSession(ExecutorType.BATCH);
+    final SqlSession session = mybatis.openBatchSession();
     try {
       final ResourceIndexerMapper mapper = session.getMapper(ResourceIndexerMapper.class);
       session.select("selectRootProjectIds", /* workaround to get booleans */ResourceIndexerQuery.create(), new ResultHandler() {

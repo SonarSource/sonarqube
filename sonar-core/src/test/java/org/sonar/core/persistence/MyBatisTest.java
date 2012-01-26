@@ -63,8 +63,8 @@ public class MyBatisTest {
   }
 
   @Test
-  public void shouldOpenSession() throws IOException {
-    SqlSession session = myBatis.openSession(ExecutorType.BATCH);
+  public void shouldOpenBatchSession() throws IOException {
+    SqlSession session = myBatis.openBatchSession();
     try {
       assertThat(session.getConnection(), notNullValue());
       assertThat(session.getMapper(RuleMapper.class), notNullValue());

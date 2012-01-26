@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.dbcleaner.period;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
@@ -59,7 +58,7 @@ public final class DefaultPeriodCleaner implements PeriodCleaner {
 
   private void delete(List<PurgeableSnapshotDto> snapshots) {
     for (PurgeableSnapshotDto snapshot : snapshots) {
-      LOG.debug("<- Delete snapshot: " + DateUtils.formatDateTime(snapshot.getDate()) + " [" + snapshot.getSnapshotId() + "]");
+      LOG.info("<- Delete snapshot: " + DateUtils.formatDateTime(snapshot.getDate()) + " [" + snapshot.getSnapshotId() + "]");
       purgeDao.deleteSnapshots(PurgeSnapshotQuery.create().setRootSnapshotId(snapshot.getSnapshotId()));
     }
   }

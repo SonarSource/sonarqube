@@ -1,17 +1,15 @@
 <dataset>
 
   <!-- snapshot to keep -->
-  <snapshots id="1" purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]"
+  <snapshots id="1" project_id="1" parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]"
+             status="P" islast="false" purge_status="[null]"
+             period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"
-             period3_mode="[null]" period3_param="[null]"
-             period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]"
+             period3_mode="[null]" period3_param="[null]" period3_date="[null]"
+             period4_mode="[null]" period4_param="[null]" period4_date="[null]"
              period5_mode="[null]" period5_param="[null]" period5_date="[null]"
-             depth="[null]"
-             scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00"
-             version="[null]"
-             project_id="1"
-             parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="false"
-             path="[null]"/>
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00"
+             version="[null]" path="[null]"/>
 
   <SNAPSHOT_SOURCES ID="1" SNAPSHOT_ID="1" DATA="foo"/>
   <rule_failures switched_off="[null]" permanent_id="[null]" ID="1" SNAPSHOT_ID="1" RULE_ID="1" FAILURE_LEVEL="2"
@@ -35,17 +33,15 @@
   <duplications_index project_snapshot_id="1" snapshot_id="1" hash="bb" index_in_file="0" start_line="0" end_line="0"/>
 
   <!-- snapshot to remove, id 5 on resource 5-->
-  <snapshots id="5" purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]"
+  <snapshots id="5" project_id="5" parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]"
+             status="P" islast="true" purge_status="[null]"
+             period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"
-             period3_mode="[null]" period3_param="[null]"
-             period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]"
+             period3_mode="[null]" period3_param="[null]" period3_date="[null]"
+             period4_mode="[null]" period4_param="[null]" period4_date="[null]"
              period5_mode="[null]" period5_param="[null]" period5_date="[null]"
-             depth="[null]"
-             scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00"
-             version="[null]"
-             project_id="5"
-             parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="true"
-             path="[null]"/>
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00"
+             version="[null]" path="[null]"/>
 
   <SNAPSHOT_SOURCES ID="2" SNAPSHOT_ID="5" DATA="foo"/>
   <rule_failures switched_off="[null]" permanent_id="[null]" ID="3" SNAPSHOT_ID="5" RULE_ID="1" FAILURE_LEVEL="2"

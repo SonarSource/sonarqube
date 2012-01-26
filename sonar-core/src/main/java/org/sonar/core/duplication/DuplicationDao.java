@@ -51,7 +51,7 @@ public class DuplicationDao implements BatchComponent, ServerComponent {
    * Note that generated ids are not returned.
    */
   public void insert(Collection<DuplicationUnitDto> units) {
-    SqlSession session = mybatis.openSession(ExecutorType.BATCH);
+    SqlSession session = mybatis.openBatchSession();
     try {
       DuplicationMapper mapper = session.getMapper(DuplicationMapper.class);
       for (DuplicationUnitDto unit : units) {

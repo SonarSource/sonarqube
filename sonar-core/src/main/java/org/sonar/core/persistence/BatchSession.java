@@ -19,10 +19,17 @@
  */
 package org.sonar.core.persistence;
 
+import org.apache.ibatis.executor.BatchResult;
+import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
+import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 
-public final class BatchSession {
+import java.sql.Connection;
+import java.util.List;
+import java.util.Map;
+
+public final class BatchSession implements SqlSession {
 
   public static final int MAX_BATCH_SIZE = 1000;
 
@@ -44,32 +51,145 @@ public final class BatchSession {
    */
   public BatchSession increment(int nbSqlRequests) {
     count += nbSqlRequests;
-    if (count > batchSize) {
+    if (count >= batchSize) {
       commit();
     }
     return this;
   }
 
-  public BatchSession commit() {
+  private void reset() {
+    count=0;
+  }
+
+  public void select(String statement, Object parameter, ResultHandler handler) {
+    reset();
+    session.select(statement, parameter, handler);
+  }
+
+  public void select(String statement, ResultHandler handler) {
+    reset();
+    session.select(statement, handler);
+  }
+
+  public Object selectOne(String statement) {
+    reset();
+    return session.selectOne(statement);
+  }
+
+  public Object selectOne(String statement, Object parameter) {
+    reset();
+    return session.selectOne(statement, parameter);
+  }
+
+  public List selectList(String statement) {
+    reset();
+    return session.selectList(statement);
+  }
+
+  public List selectList(String statement, Object parameter) {
+    reset();
+    return session.selectList(statement, parameter);
+  }
+
+  public List selectList(String statement, Object parameter, RowBounds rowBounds) {
+    reset();
+    return session.selectList(statement, parameter, rowBounds);
+  }
+
+  public Map selectMap(String statement, String mapKey) {
+    reset();
+    return session.selectMap(statement, mapKey);
+  }
+
+  public Map selectMap(String statement, Object parameter, String mapKey) {
+    reset();
+    return session.selectMap(statement, parameter, mapKey);
+  }
+
+  public Map selectMap(String statement, Object parameter, String mapKey, RowBounds rowBounds) {
+    reset();
+    return session.selectMap(statement, parameter, mapKey, rowBounds);
+  }
+
+  public void select(String statement, Object parameter, RowBounds rowBounds, ResultHandler handler) {
+    reset();
+    session.select(statement, parameter, rowBounds, handler);
+  }
+
+  public int insert(String statement) {
+    increment(1);
+    return session.insert(statement);
+  }
+
+  public int insert(String statement, Object parameter) {
+    increment(1);
+    return session.insert(statement, parameter);
+  }
+
+  public int update(String statement) {
+    increment(1);
+    return session.update(statement);
+  }
+
+  public int update(String statement, Object parameter) {
+    increment(1);
+    return session.update(statement, parameter);
+  }
+
+  public int delete(String statement) {
+    increment(1);
+    return session.delete(statement);
+  }
+
+  public int delete(String statement, Object parameter) {
+    increment(1);
+    return session.delete(statement, parameter);
+  }
+
+  public void commit() {
     session.commit();
-    count = 0;
-    return this;
+    reset();
+  }
+
+  public void commit(boolean force) {
+    session.commit(force);
+    reset();
+  }
+
+  public void rollback() {
+    session.rollback();
+    reset();
+  }
+
+  public void rollback(boolean force) {
+    session.rollback(force);
+    reset();
+  }
+
+  public List<BatchResult> flushStatements() {
+    List<BatchResult> batchResults = session.flushStatements();
+    reset();
+    return batchResults;
+  }
+
+  public void close() {
+    session.close();
+  }
+
+  public void clearCache() {
+    session.clearCache();
+  }
+
+  public Configuration getConfiguration() {
+    return session.getConfiguration();
   }
 
   public <T> T getMapper(Class<T> type) {
     return session.getMapper(type);
   }
 
-  public SqlSession getSqlSession() {
-    return session;
-  }
-
-  public void select(String statement, Object parameter, ResultHandler handler) {
-    session.select(statement, parameter, handler);
-  }
-
-  public void select(String statement, ResultHandler handler) {
-    session.select(statement, handler);
+  public Connection getConnection() {
+    return session.getConnection();
   }
 
 }

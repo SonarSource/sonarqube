@@ -47,6 +47,6 @@ class DeleteAllFilter extends Filter {
 
   @Override
   void log() {
-    LoggerFactory.getLogger(getClass()).debug("-> Delete data prior to: " + DateUtils.formatDate(before));
+    LoggerFactory.getLogger(getClass()).info("-> Delete data prior to: " + DateUtils.formatDate(before));
   }
 }

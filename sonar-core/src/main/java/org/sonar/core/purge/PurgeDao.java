@@ -21,8 +21,6 @@ package org.sonar.core.purge;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
@@ -32,7 +30,6 @@ import org.sonar.core.resource.ResourceDao;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.SortedSet;
 
 public class PurgeDao {
   private final MyBatis mybatis;
@@ -44,7 +41,7 @@ public class PurgeDao {
   }
 
   public PurgeDao purgeProject(long rootProjectId) {
-    SqlSession session = mybatis.openSession(ExecutorType.BATCH);
+    SqlSession session = mybatis.openBatchSession();
     PurgeMapper purgeMapper = session.getMapper(PurgeMapper.class);
     try {
       List<Long> projectIds = resourceDao.getDescendantProjectIdsAndSelf(rootProjectId, session);
@@ -89,7 +86,7 @@ public class PurgeDao {
   }
 
   public List<PurgeableSnapshotDto> selectPurgeableSnapshots(long resourceId) {
-    SqlSession session = mybatis.openSession(ExecutorType.REUSE);
+    SqlSession session = mybatis.openBatchSession();
     try {
       PurgeMapper mapper = session.getMapper(PurgeMapper.class);
       List<PurgeableSnapshotDto> result = Lists.newArrayList();
@@ -106,7 +103,7 @@ public class PurgeDao {
     final BatchSession session = mybatis.openBatchSession();
     try {
       final PurgeMapper mapper = session.getMapper(PurgeMapper.class);
-      List<Long> projectIds = resourceDao.getDescendantProjectIdsAndSelf(rootProjectId, session.getSqlSession());
+      List<Long> projectIds = resourceDao.getDescendantProjectIdsAndSelf(rootProjectId, session);
       for (Long projectId : projectIds) {
         session.select("org.sonar.core.purge.PurgeMapper.selectResourceIdsByRootId", projectId, new ResultHandler() {
           public void handleResult(ResultContext context) {
@@ -127,7 +124,7 @@ public class PurgeDao {
     session.select("org.sonar.core.purge.PurgeMapper.selectSnapshotIdsByResource", new ResultHandler() {
       public void handleResult(ResultContext context) {
         Long snapshotId = (Long) context.getResultObject();
-        session.increment(deleteSnapshot(snapshotId, mapper));
+        deleteSnapshot(snapshotId, mapper);
       }
     });
     // TODO optimization: filter requests according to resource scope
@@ -140,16 +137,14 @@ public class PurgeDao {
     mapper.deleteResourceReviews(resourceId);
     mapper.deleteResourceEvents(resourceId);
     mapper.deleteResource(resourceId);
-    session.increment(9);
   }
 
   @VisibleForTesting
-  int disableResource(long resourceId, PurgeMapper mapper) {
+  void disableResource(long resourceId, PurgeMapper mapper) {
     mapper.deleteResourceIndex(resourceId);
     mapper.setSnapshotIsLastToFalse(resourceId);
     mapper.disableResource(resourceId);
     mapper.closeResourceReviews(resourceId);
-    return 4; // nb of SQL requests
   }
 
 
@@ -160,7 +155,7 @@ public class PurgeDao {
       session.select("org.sonar.core.purge.PurgeMapper.selectSnapshotIds", query, new ResultHandler() {
         public void handleResult(ResultContext context) {
           Long snapshotId = (Long) context.getResultObject();
-          session.increment(deleteSnapshot(snapshotId, mapper));
+          deleteSnapshot(snapshotId, mapper);
         }
       });
       session.commit();
@@ -172,19 +167,18 @@ public class PurgeDao {
   }
 
   @VisibleForTesting
-  int purgeSnapshot(long snapshotId, PurgeMapper mapper) {
-    mapper.deleteSnapshotEvents(snapshotId);
+  void purgeSnapshot(long snapshotId, PurgeMapper mapper) {
+    // note that events are not deleted
     mapper.deleteSnapshotDependencies(snapshotId);
     mapper.deleteSnapshotDuplications(snapshotId);
     mapper.deleteSnapshotSource(snapshotId);
     mapper.deleteSnapshotViolations(snapshotId);
     mapper.deleteSnapshotWastedMeasures(snapshotId);
     mapper.updatePurgeStatusToOne(snapshotId);
-    return 7; // nb of SQL requests
   }
 
   @VisibleForTesting
-  int deleteSnapshot(Long snapshotId, PurgeMapper mapper) {
+  void deleteSnapshot(Long snapshotId, PurgeMapper mapper) {
     mapper.deleteSnapshotDependencies(snapshotId);
     mapper.deleteSnapshotDuplications(snapshotId);
     mapper.deleteSnapshotEvents(snapshotId);
@@ -193,6 +187,5 @@ public class PurgeDao {
     mapper.deleteSnapshotSource(snapshotId);
     mapper.deleteSnapshotViolations(snapshotId);
     mapper.deleteSnapshot(snapshotId);
-    return 8; // nb of SQL requests
   }
 }
