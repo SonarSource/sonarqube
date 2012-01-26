@@ -19,25 +19,12 @@
  */
 package org.sonar.plugins.dbcleaner.period;
 
+import org.sonar.core.purge.PurgeableSnapshotDto;
+
 import java.util.List;
-import java.util.ListIterator;
 
-import org.sonar.api.database.model.Snapshot;
+abstract class Filter {
+  abstract List<PurgeableSnapshotDto> filter(List<PurgeableSnapshotDto> snapshots);
 
-abstract class SnapshotFilter {
-
-  final int filter(List<Snapshot> snapshots) {
-    int before = snapshots.size();
-    ListIterator<Snapshot> iterator = snapshots.listIterator();
-    while (iterator.hasNext()) {
-      Snapshot snapshot = iterator.next();
-      if(filter(snapshot)){
-        iterator.remove();
-      }
-    }
-    int after = snapshots.size();
-    return before - after;
-  }
-
-  abstract boolean filter(Snapshot snapshot);
+  abstract void log();
 }

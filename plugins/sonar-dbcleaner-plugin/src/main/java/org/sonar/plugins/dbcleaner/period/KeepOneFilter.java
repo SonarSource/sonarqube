@@ -1,0 +1,88 @@
+/*
+ * Sonar, open source software quality management tool.
+ * Copyright (C) 2008-2012 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * Sonar is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * Sonar is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Sonar; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ */
+package org.sonar.plugins.dbcleaner.period;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.core.purge.PurgeableSnapshotDto;
+
+import java.util.Date;
+import java.util.List;
+
+class KeepOneFilter extends Filter {
+
+  private final Date start;
+  private final Date end;
+  private final int dateField;
+  private final String label;
+
+  KeepOneFilter(Date start, Date end, int calendarField, String label) {
+    this.start = start;
+    this.end = end;
+    this.dateField = calendarField;
+    this.label = label;
+  }
+
+  @Override
+  List<PurgeableSnapshotDto> filter(List<PurgeableSnapshotDto> history) {
+    List<Interval> intervals = Interval.group(history, start, end, dateField);
+    List<PurgeableSnapshotDto> result = Lists.newArrayList();
+    for (Interval interval : intervals) {
+      appendSnapshotsToDelete(interval, result);
+    }
+
+    return result;
+  }
+
+  @Override
+  void log() {
+    LoggerFactory.getLogger(getClass()).debug("-> Keep one snapshot per " + label + " between " + DateUtils.formatDate(start) + " and " + DateUtils.formatDate(end));
+  }
+
+  private void appendSnapshotsToDelete(Interval interval, List<PurgeableSnapshotDto> toDelete) {
+    if (interval.count() > 1) {
+      List<PurgeableSnapshotDto> deletables = Lists.newArrayList();
+      List<PurgeableSnapshotDto> toKeep = Lists.newArrayList();
+      for (PurgeableSnapshotDto snapshot : interval.get()) {
+        if (isDeletable(snapshot)) {
+          deletables.add(snapshot);
+        } else {
+          toKeep.add(snapshot);
+        }
+      }
+
+      if (!toKeep.isEmpty()) {
+        toDelete.addAll(deletables);
+
+      } else if (deletables.size() > 1) {
+        // keep one snapshot
+        toDelete.addAll(deletables.subList(1, deletables.size()));
+      }
+    }
+  }
+
+  @VisibleForTesting
+  static boolean isDeletable(PurgeableSnapshotDto snapshot) {
+    return !snapshot.isLast() && !snapshot.hasVersionEvent();
+  }
+
+}

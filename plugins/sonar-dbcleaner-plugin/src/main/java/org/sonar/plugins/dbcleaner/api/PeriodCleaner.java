@@ -23,7 +23,6 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.resources.Project;
 
 /**
- * @since 2.14
  * @deprecated in 2.14
  */
 @Deprecated

@@ -20,11 +20,20 @@
 package org.sonar.core.purge;
 
 import org.apache.ibatis.session.SqlSession;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.persistence.DaoTestCase;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
+
+import java.util.List;
+import java.util.SortedSet;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
 
 public class PurgeDaoTest extends DaoTestCase {
 
@@ -76,20 +85,20 @@ public class PurgeDaoTest extends DaoTestCase {
   }
 
   @Test
-    public void shouldDeleteWastedMeasuresWhenPurgingSnapshot() {
-      setupData("shouldDeleteWastedMeasuresWhenPurgingSnapshot");
+  public void shouldDeleteWastedMeasuresWhenPurgingSnapshot() {
+    setupData("shouldDeleteWastedMeasuresWhenPurgingSnapshot");
 
-      SqlSession session = getMyBatis().openSession();
-      try {
-        // this method does not commit and close the session
-        dao.purgeSnapshot(1L, session.getMapper(PurgeMapper.class));
-        session.commit();
+    SqlSession session = getMyBatis().openSession();
+    try {
+      // this method does not commit and close the session
+      dao.purgeSnapshot(1L, session.getMapper(PurgeMapper.class));
+      session.commit();
 
-      } finally {
-        MyBatis.closeQuietly(session);
-      }
-      checkTables("shouldDeleteWastedMeasuresWhenPurgingSnapshot", "project_measures");
+    } finally {
+      MyBatis.closeQuietly(session);
     }
+    checkTables("shouldDeleteWastedMeasuresWhenPurgingSnapshot", "project_measures");
+  }
 
   @Test
   public void shouldCloseReviewWhenDisablingResource() {
@@ -134,5 +143,40 @@ public class PurgeDaoTest extends DaoTestCase {
     setupData("shouldDeleteSnapshots");
     dao.deleteSnapshots(PurgeSnapshotQuery.create().setIslast(false).setResourceId(1L));
     checkTables("shouldDeleteSnapshots", "snapshots");
+  }
+
+  @Test
+  public void shouldSelectPurgeableSnapshots() {
+    setupData("shouldSelectPurgeableSnapshots");
+    List<PurgeableSnapshotDto> snapshots = dao.selectPurgeableSnapshots(1L);
+
+    assertThat(snapshots, hasItem(new SnapshotMatcher(1L, true, false)));
+    assertThat(snapshots, hasItem(new SnapshotMatcher(4L, false, false)));
+    assertThat(snapshots, hasItem(new SnapshotMatcher(5L, false, true)));
+    assertThat(snapshots.size(), is(3));
+  }
+
+  static final class SnapshotMatcher extends BaseMatcher<PurgeableSnapshotDto> {
+    long snapshotId;
+    boolean isLast;
+    boolean hasVersionEvent;
+
+    SnapshotMatcher(long snapshotId, boolean last, boolean hasVersionEvent) {
+      this.snapshotId = snapshotId;
+      this.isLast = last;
+      this.hasVersionEvent = hasVersionEvent;
+    }
+
+    public boolean matches(Object o) {
+      PurgeableSnapshotDto obj = (PurgeableSnapshotDto) o;
+      return obj.getSnapshotId() == snapshotId && obj.isLast()==isLast && obj.hasVersionEvent()==hasVersionEvent;
+    }
+
+    public void describeTo(Description description) {
+      description
+        .appendText("snapshotId").appendValue(snapshotId)
+        .appendText("isLast").appendValue(isLast)
+        .appendText("hasVersionEvent").appendValue(hasVersionEvent);
+    }
   }
 }

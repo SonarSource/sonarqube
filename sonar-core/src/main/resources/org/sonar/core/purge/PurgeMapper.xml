@@ -4,39 +4,57 @@
 <mapper namespace="org.sonar.core.purge.PurgeMapper">
 
   <select id="selectSnapshotIds" parameterType="map" resultType="long">
-    select id from snapshots
+    select s.id from snapshots s
     <where>
       <if test="islast != null">
-        and islast=#{islast}
+        and s.islast=#{islast}
       </if>
       <if test="notPurged != null and notPurged">
-        and (purge_status is null or purge_status=0)
+        and (s.purge_status is null or s.purge_status=0)
       </if>
       <if test="rootSnapshotId != null">
-        and root_snapshot_id=#{rootSnapshotId}
+        and (s.root_snapshot_id=#{rootSnapshotId} or s.id=#{rootSnapshotId})
       </if>
       <if test="rootProjectId != null">
-        and root_project_id=#{rootProjectId}
+        and s.root_project_id=#{rootProjectId}
       </if>
       <if test="resourceId != null">
-        and project_id=#{resourceId}
+        and s.project_id=#{resourceId}
       </if>
       <if test="beforeBuildDate != null">
-        and build_date &lt;= #{beforeBuildDate}
+        and s.build_date &lt;= #{beforeBuildDate}
       </if>
       <if test="status != null">
-        and status in
+        and s.status in
         <foreach item="s" index="index" collection="status" open="(" separator="," close=")">#{s}</foreach>
       </if>
       <if test="scopes != null">
-        and scope in
+        and s.scope in
         <foreach item="scope" index="index" collection="scopes" open="(" separator="," close=")">#{scope}</foreach>
       </if>
       <if test="qualifiers != null">
-        and qualifier in
+        and s.qualifier in
         <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator="," close=")">#{qualifier}</foreach>
       </if>
+      <if test="withVersionEvent != null">
+        <if test="withVersionEvent">
+          and exists(select e.id from events e where e.snapshot_id=s.id and e.category='Version')
+        </if>
+        <if test="!withVersionEvent">
+          and not exists(select e.id from events e where e.snapshot_id=s.id and e.category='Version')
+        </if>
+      </if>
     </where>
+  </select>
+
+  <select id="selectPurgeableSnapshotsWithVersionEvent" parameterType="long" resultType="PurgeableSnapshot">
+    select s.id as "snapshotId", s.created_at as "date", ${_true} as "hasVersionEvent", islast as "isLast" from snapshots s
+    where s.project_id=#{id} and s.status='P' and s.qualifier &lt;&gt; 'LIB' and exists(select e.id from events e where e.snapshot_id=s.id and e.category='Version')
+  </select>
+
+  <select id="selectPurgeableSnapshotsWithoutVersionEvent" parameterType="long" resultType="PurgeableSnapshot">
+    select s.id as "snapshotId", s.created_at as "date", ${_false} as "hasVersionEvent", islast as "isLast" from snapshots s
+    where s.project_id=#{id} and s.status='P' and s.qualifier &lt;&gt; 'LIB' and not exists(select e.id from events e where e.snapshot_id=s.id and e.category='Version')
   </select>
 
   <select id="selectResourceIdsToDisable" resultType="long" parameterType="long">

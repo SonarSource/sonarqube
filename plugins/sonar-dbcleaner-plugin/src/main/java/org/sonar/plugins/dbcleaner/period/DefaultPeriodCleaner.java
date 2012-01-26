@@ -19,88 +19,52 @@
  */
 package org.sonar.plugins.dbcleaner.period;
 
-import com.google.common.collect.Lists;
+import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.core.purge.PurgeDao;
+import org.sonar.core.purge.PurgeSnapshotQuery;
+import org.sonar.core.purge.PurgeableSnapshotDto;
 import org.sonar.plugins.dbcleaner.api.PeriodCleaner;
-import org.sonar.plugins.dbcleaner.api.PurgeUtils;
 
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 public final class DefaultPeriodCleaner implements PeriodCleaner {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultPeriodCleaner.class);
-  private final SQLRequests sql;
-  private DatabaseSession session;
+  private PurgeDao purgeDao;
+  private Settings settings;
 
-  public DefaultPeriodCleaner(DatabaseSession session) {
-    this.session = session;
-    this.sql = new SQLRequests(session);
+  public DefaultPeriodCleaner(PurgeDao purgeDao, Settings settings) {
+    this.purgeDao = purgeDao;
+    this.settings = settings;
   }
 
   public void purge(Project project, int projectSnapshotId) {
-    Periods periods = new Periods(project);
-    periods.log();
-    purge(project, projectSnapshotId, periods);
+    purge((long) project.getId());
   }
 
-  void purge(Project project, int projectSnapshotId, Periods periods) {
-    List<SnapshotFilter> filters = newFilters(periods);
-    List<Snapshot> snapshotHistory = selectProjectSnapshots(project, projectSnapshotId);
-    applyFilters(snapshotHistory, filters);
-    deleteSnapshotsAndAllRelatedData(snapshotHistory);
-  }
+  public void purge(long projectId) {
+    List<PurgeableSnapshotDto> history = selectProjectSnapshots(projectId);
 
-  private List<Snapshot> selectProjectSnapshots(Project project, int snapshotId) {
-    List<Snapshot> snapshotHistory = Lists.newLinkedList(sql.getProjectSnapshotsOrderedByCreatedAt(snapshotId));
-    LOG.debug("The project '" + project.getName() + "' has " + snapshotHistory.size() + " snapshots.");
-    return snapshotHistory;
-  }
-
-  private void deleteSnapshotsAndAllRelatedData(List<Snapshot> snapshotHistory) {
-    if (snapshotHistory.isEmpty()) {
-      LOG.info("There are no snapshots to purge");
-      return;
-    }
-
-    List<Integer> ids = Lists.newArrayList();
-    for (Snapshot snapshot : snapshotHistory) {
-      ids.addAll(sql.getChildIds(snapshot));
-    }
-    LOG.info("There are " + snapshotHistory.size() + " snapshots and " + (ids.size() - snapshotHistory.size())
-        + " children snapshots which are obsolete and are going to be deleted.");
-    if (LOG.isDebugEnabled()) {
-      DateFormat format = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
-      for (Snapshot snapshot : snapshotHistory) {
-        LOG.debug("Delete snapshot created at " + format.format(snapshot.getCreatedAt()));
-      }
-    }
-    PurgeUtils.deleteSnapshotsData(session, ids);
-  }
-
-  private void applyFilters(List<Snapshot> snapshotHistory, List<SnapshotFilter> filters) {
-    for (SnapshotFilter filter : filters) {
-      filter.filter(snapshotHistory);
+    Filters filters = new Filters(settings);
+    for (Filter filter : filters.getFilters()) {
+      filter.log();
+      delete(filter.filter(history));
     }
   }
 
-  private List<SnapshotFilter> newFilters(Periods periods) {
-    List<SnapshotFilter> filters = Lists.newArrayList();
-    filters.add(new KeepLibrarySnapshotFilter());
-    filters.add(new KeepSnapshotsBetweenTwoDatesFilter(new Date(), periods.dateToStartKeepingOneSnapshotByWeek));
-    filters.add(new KeepOneSnapshotByPeriodBetweenTwoDatesFilter(GregorianCalendar.WEEK_OF_YEAR,
-        periods.dateToStartKeepingOneSnapshotByWeek,
-        periods.dateToStartKeepingOneSnapshotByMonth));
-    filters.add(new KeepOneSnapshotByPeriodBetweenTwoDatesFilter(GregorianCalendar.MONTH,
-        periods.dateToStartKeepingOneSnapshotByMonth,
-        periods.dateToStartDeletingAllSnapshots));
-    filters.add(new KeepLastSnapshotFilter());
-    return filters;
+  private void delete(List<PurgeableSnapshotDto> snapshots) {
+    for (PurgeableSnapshotDto snapshot : snapshots) {
+      LOG.debug("<- Delete snapshot: " + DateUtils.formatDateTime(snapshot.getDate()) + " [" + snapshot.getSnapshotId() + "]");
+      purgeDao.deleteSnapshots(PurgeSnapshotQuery.create().setRootSnapshotId(snapshot.getSnapshotId()));
+    }
+  }
+
+  private List<PurgeableSnapshotDto> selectProjectSnapshots(long resourceId) {
+    return purgeDao.selectPurgeableSnapshots(resourceId);
   }
 }

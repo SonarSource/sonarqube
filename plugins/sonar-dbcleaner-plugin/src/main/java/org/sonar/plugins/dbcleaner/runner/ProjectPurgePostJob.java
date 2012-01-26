@@ -30,6 +30,7 @@ import org.sonar.core.NotDryRun;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.purge.PurgeSnapshotQuery;
 import org.sonar.plugins.dbcleaner.api.DbCleanerConstants;
+import org.sonar.plugins.dbcleaner.period.DefaultPeriodCleaner;
 
 @Properties({
   @Property(
@@ -42,20 +43,27 @@ public class ProjectPurgePostJob implements PostJob {
 
   private PurgeDao purgeDao;
   private Settings settings;
+  private DefaultPeriodCleaner periodCleaner;
 
-  public ProjectPurgePostJob(PurgeDao purgeDao, Settings settings) {
+  public ProjectPurgePostJob(PurgeDao purgeDao, Settings settings, DefaultPeriodCleaner periodCleaner) {
     this.purgeDao = purgeDao;
     this.settings = settings;
+    this.periodCleaner = periodCleaner;
   }
 
   public void executeOn(final Project project, SensorContext context) {
     long projectId = (long) project.getId();
+    cleanHistory(projectId);
     deleteAbortedBuilds(projectId);
     deleteFileHistory(projectId);
     if (settings.getBoolean(DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY)) {
       deleteDirectoryHistory(projectId);
     }
     purgeProject(projectId);
+  }
+
+  private void cleanHistory(long projectId) {
+    periodCleaner.purge(projectId);
   }
 
   private void purgeProject(long projectId) {

@@ -24,8 +24,6 @@ import org.sonar.api.Property;
 import org.sonar.api.SonarPlugin;
 import org.sonar.plugins.dbcleaner.api.DbCleanerConstants;
 import org.sonar.plugins.dbcleaner.period.DefaultPeriodCleaner;
-import org.sonar.plugins.dbcleaner.period.PeriodPurge;
-import org.sonar.plugins.dbcleaner.runner.DeprecatedPurgePostJob;
 import org.sonar.plugins.dbcleaner.runner.ProjectPurgePostJob;
 
 import java.util.Arrays;
@@ -55,10 +53,6 @@ public final class DbCleanerPlugin extends SonarPlugin {
 
   public List getExtensions() {
     return Arrays.asList(
-      DefaultPeriodCleaner.class,
-      PeriodPurge.class,
-
-      // post-jobs
-      ProjectPurgePostJob.class, DeprecatedPurgePostJob.class);
+      DefaultPeriodCleaner.class, ProjectPurgePostJob.class);
   }
 }

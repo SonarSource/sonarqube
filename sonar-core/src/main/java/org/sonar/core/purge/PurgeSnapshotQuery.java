@@ -31,6 +31,7 @@ public final class PurgeSnapshotQuery {
   private String[] status;
   private Boolean islast;
   private Boolean notPurged;
+  private Boolean withVersionEvent;
 
   private PurgeSnapshotQuery() {
   }
@@ -117,6 +118,15 @@ public final class PurgeSnapshotQuery {
 
   public PurgeSnapshotQuery setResourceId(Long l) {
     this.resourceId = l;
+    return this;
+  }
+
+  public Boolean getWithVersionEvent() {
+    return withVersionEvent;
+  }
+
+  public PurgeSnapshotQuery setWithVersionEvent(Boolean withVersionEvent) {
+    this.withVersionEvent = withVersionEvent;
     return this;
   }
 }

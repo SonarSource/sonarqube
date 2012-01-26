@@ -19,36 +19,34 @@
  */
 package org.sonar.plugins.dbcleaner.period;
 
+import com.google.common.collect.Lists;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.core.purge.PurgeableSnapshotDto;
+
 import java.util.Date;
-import java.util.GregorianCalendar;
+import java.util.List;
 
-import org.sonar.api.database.model.Snapshot;
-
-class KeepOneSnapshotByPeriodBetweenTwoDatesFilter extends SnapshotFilter {
-
+class DeleteAllFilter extends Filter {
   private final Date before;
-  private final Date after;
-  private GregorianCalendar calendar = new GregorianCalendar();
-  private int lastFieldValue = -1;
-  private final int dateField;
 
-  KeepOneSnapshotByPeriodBetweenTwoDatesFilter(int dateField, Date before, Date after) {
+  public DeleteAllFilter(Date before) {
     this.before = before;
-    this.after = after;
-    this.dateField = dateField;
   }
 
   @Override
-  boolean filter(Snapshot snapshot) {
-    boolean result = false;
-    Date createdAt = snapshot.getCreatedAt();
-    calendar.setTime(createdAt);
-    int currentFieldValue = calendar.get(dateField);
-    if (lastFieldValue != currentFieldValue && snapshot.getCreatedAt().after(after) && snapshot.getCreatedAt().before(before)) {
-      result = true;
+  List<PurgeableSnapshotDto> filter(List<PurgeableSnapshotDto> history) {
+    List<PurgeableSnapshotDto> result = Lists.newArrayList();
+    for (PurgeableSnapshotDto snapshot : history) {
+      if (snapshot.getDate().before(before)) {
+        result.add(snapshot);
+      }
     }
-    lastFieldValue = currentFieldValue;
     return result;
   }
 
+  @Override
+  void log() {
+    LoggerFactory.getLogger(getClass()).debug("-> Delete data prior to: " + DateUtils.formatDate(before));
+  }
 }

@@ -20,6 +20,8 @@
 package org.sonar.core.purge;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
@@ -28,7 +30,9 @@ import org.sonar.core.persistence.BatchSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.SortedSet;
 
 public class PurgeDao {
   private final MyBatis mybatis;
@@ -82,6 +86,20 @@ public class PurgeDao {
       }
     });
     session.commit();
+  }
+
+  public List<PurgeableSnapshotDto> selectPurgeableSnapshots(long resourceId) {
+    SqlSession session = mybatis.openSession(ExecutorType.REUSE);
+    try {
+      PurgeMapper mapper = session.getMapper(PurgeMapper.class);
+      List<PurgeableSnapshotDto> result = Lists.newArrayList();
+      result.addAll(mapper.selectPurgeableSnapshotsWithVersionEvent(resourceId));
+      result.addAll(mapper.selectPurgeableSnapshotsWithoutVersionEvent(resourceId));
+      Collections.sort(result);// sort by date
+      return result;
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
   public PurgeDao deleteProject(long rootProjectId) {

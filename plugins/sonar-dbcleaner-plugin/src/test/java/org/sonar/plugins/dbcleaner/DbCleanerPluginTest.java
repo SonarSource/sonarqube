@@ -22,12 +22,13 @@ package org.sonar.plugins.dbcleaner;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.number.OrderingComparisons.greaterThan;
 
 public class DbCleanerPluginTest {
 
   @Test
   public void shouldGetExtensions() {
-    assertThat(new DbCleanerPlugin().getExtensions().size(), greaterThan(2));
+    assertThat(new DbCleanerPlugin().getExtensions().size(), is(2));
   }
 }

@@ -19,28 +19,32 @@
  */
 package org.sonar.plugins.dbcleaner.period;
 
-import com.google.common.collect.Lists;
 import org.junit.Test;
-import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.core.purge.PurgeableSnapshotDto;
+import org.sonar.plugins.dbcleaner.DbCleanerTestUtils;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.sonar.plugins.dbcleaner.Utils.createSnapshot;
+import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
 
-public class KeepLastSnapshotFilterTest {
+public class DeleteAllFilterTest {
 
   @Test
-  public void testFilter() {
-    List<Snapshot> snapshots = Lists.newLinkedList();
-    snapshots.add(createSnapshot(1, "0.1"));
-    Snapshot lastSnapshot = createSnapshot(2, "0.1");
-    lastSnapshot.setLast(true);
-    snapshots.add(lastSnapshot);
+  public void shouldDeleteAllSnapshotsPriorToDate() {
+    Filter filter = new DeleteAllFilter(DateUtils.parseDate("2011-12-25"));
 
-    assertThat(new KeepLastSnapshotFilter().filter(snapshots), is(1));
-    assertThat(snapshots.size(), is(1));
-    assertThat(snapshots.get(0).getId(), is(1));
+    List<PurgeableSnapshotDto> toDelete = filter.filter(Arrays.<PurgeableSnapshotDto>asList(
+      DbCleanerTestUtils.createSnapshotWithDate(1L, "2010-01-01"),
+      DbCleanerTestUtils.createSnapshotWithDate(2L, "2010-12-25"),
+      DbCleanerTestUtils.createSnapshotWithDate(3L, "2012-01-01")
+    ));
+
+    assertThat(toDelete.size(), is(2));
+    assertThat(toDelete, hasItem(new DbCleanerTestUtils.SnapshotMatcher(1L)));
+    assertThat(toDelete, hasItem(new DbCleanerTestUtils.SnapshotMatcher(2L)));
   }
 }
