@@ -17,17 +17,14 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.dbcleaner;
+package org.sonar.plugins.dbcleaner.api;
 
-import org.junit.Test;
+import org.sonar.api.BatchExtension;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-
-public class DbCleanerPluginTest {
-
-  @Test
-  public void shouldGetExtensions() {
-    assertThat(new DbCleanerPlugin().getExtensions().size(), is(3));
-  }
+/**
+ * @since 2.14
+ */
+public interface PurgeTask extends BatchExtension {
+  PurgeTask purgeProject(long projectId);
+  PurgeTask deleteProject(long projectId);
 }

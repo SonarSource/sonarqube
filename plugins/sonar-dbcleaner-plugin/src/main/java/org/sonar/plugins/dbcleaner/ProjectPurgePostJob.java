@@ -19,113 +19,22 @@
  */
 package org.sonar.plugins.dbcleaner;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.Properties;
-import org.sonar.api.Property;
 import org.sonar.api.batch.PostJob;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Scopes;
 import org.sonar.core.NotDryRun;
-import org.sonar.core.purge.PurgeDao;
-import org.sonar.core.purge.PurgeSnapshotQuery;
-import org.sonar.plugins.dbcleaner.api.DbCleanerConstants;
-import org.sonar.plugins.dbcleaner.period.DefaultPeriodCleaner;
+import org.sonar.plugins.dbcleaner.api.PurgeTask;
 
-@Properties({
-  @Property(
-    key = DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY,
-    defaultValue = "false",
-    name = "Clean history data of directories/packages")
-})
 @NotDryRun
 public class ProjectPurgePostJob implements PostJob {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ProjectPurgePostJob.class);
+  private PurgeTask purgeTask;
 
-  private PurgeDao purgeDao;
-  private Settings settings;
-  private DefaultPeriodCleaner periodCleaner;
-
-  public ProjectPurgePostJob(PurgeDao purgeDao, Settings settings, DefaultPeriodCleaner periodCleaner) {
-    this.purgeDao = purgeDao;
-    this.settings = settings;
-    this.periodCleaner = periodCleaner;
+  public ProjectPurgePostJob(PurgeTask purgeTask) {
+    this.purgeTask = purgeTask;
   }
 
   public void executeOn(final Project project, SensorContext context) {
-    long projectId = (long) project.getId();
-
-    cleanHistoricalData(projectId);
-    deleteAbortedBuilds(projectId);
-    deleteFileHistory(projectId);
-    if (settings.getBoolean(DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY)) {
-      deleteDirectoryHistory(projectId);
-    }
-    purgeProject(projectId);
-  }
-
-  private void cleanHistoricalData(long projectId) {
-    try {
-      LOG.debug("Clean project historical data");
-      periodCleaner.purge(projectId);
-    } catch (Exception e) {
-      // purge errors must no fail the batch
-      LOG.error("Fail to clean project historical data", e);
-    }
-  }
-
-  private void purgeProject(long projectId) {
-    try {
-      LOG.debug("Purge project");
-      purgeDao.purgeProject(projectId);
-    } catch (Exception e) {
-      // purge errors must no fail the batch
-      LOG.error("Fail to purge project", e);
-    }
-  }
-
-  private void deleteDirectoryHistory(long projectId) {
-    try {
-      LOG.debug("Delete historical data of directories");
-      PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
-        .setRootProjectId(projectId)
-        .setIslast(false)
-        .setScopes(new String[]{Scopes.DIRECTORY});
-      purgeDao.deleteSnapshots(query);
-    } catch (Exception e) {
-      // purge errors must no fail the batch
-      LOG.error("Fail to delete historical data of directories", e);
-    }
-  }
-
-  private void deleteFileHistory(long projectId) {
-    try {
-      LOG.debug("Delete historical data of files");
-      PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
-        .setRootProjectId(projectId)
-        .setIslast(false)
-        .setScopes(new String[]{Scopes.FILE});
-      purgeDao.deleteSnapshots(query);
-    } catch (Exception e) {
-      // purge errors must no fail the batch
-      LOG.error("Fail to delete historical data of files", e);
-    }
-  }
-
-  private void deleteAbortedBuilds(long projectId) {
-    try {
-      LOG.debug("Delete aborted builds");
-      PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
-        .setRootProjectId(projectId)
-        .setIslast(false)
-        .setStatus(new String[]{"U"});
-      purgeDao.deleteSnapshots(query);
-    } catch (Exception e) {
-      // purge errors must no fail the batch
-      LOG.error("Fail to delete historical aborted builds", e);
-    }
+    purgeTask.purgeProject((long) project.getId());
   }
 }

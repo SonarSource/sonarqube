@@ -51,7 +51,6 @@ import java.util.List;
 public final class DbCleanerPlugin extends SonarPlugin {
 
   public List getExtensions() {
-    return Arrays.asList(
-      DefaultPeriodCleaner.class, ProjectPurgePostJob.class);
+    return Arrays.asList(DefaultPeriodCleaner.class, DefaultPurgeTask.class, ProjectPurgePostJob.class);
   }
 }
