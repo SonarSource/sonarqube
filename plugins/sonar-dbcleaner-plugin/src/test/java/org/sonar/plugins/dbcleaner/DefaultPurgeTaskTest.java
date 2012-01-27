@@ -23,10 +23,8 @@ import org.apache.commons.lang.ArrayUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Test;
-import org.sonar.api.batch.SensorContext;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.Project;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.purge.PurgeSnapshotQuery;
 import org.sonar.plugins.dbcleaner.api.DbCleanerConstants;
@@ -34,14 +32,14 @@ import org.sonar.plugins.dbcleaner.period.DefaultPeriodCleaner;
 
 import static org.mockito.Mockito.*;
 
-public class ProjectPurgePostJobTest {
+public class DefaultPurgeTaskTest {
   @Test
   public void shouldNotDeleteHistoricalDataOfDirectoriesByDefault() {
     PurgeDao purgeDao = mock(PurgeDao.class);
-    Settings settings = new Settings(new PropertyDefinitions(ProjectPurgePostJob.class));
-    ProjectPurgePostJob job = new ProjectPurgePostJob(purgeDao, settings, mock(DefaultPeriodCleaner.class));
+    Settings settings = new Settings(new PropertyDefinitions(DefaultPurgeTask.class));
+    DefaultPurgeTask task = new DefaultPurgeTask(purgeDao, settings, mock(DefaultPeriodCleaner.class));
 
-    job.executeOn(newProject(), mock(SensorContext.class));
+    task.purgeProject(1L);
 
     verify(purgeDao, never()).deleteSnapshots(argThat(newDirectoryQueryMatcher()));
   }
@@ -49,11 +47,11 @@ public class ProjectPurgePostJobTest {
   @Test
   public void shouldDeleteHistoricalDataOfDirectories() {
     PurgeDao purgeDao = mock(PurgeDao.class);
-    Settings settings = new Settings(new PropertyDefinitions(ProjectPurgePostJob.class));
+    Settings settings = new Settings(new PropertyDefinitions(DefaultPurgeTask.class));
     settings.setProperty(DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY, "true");
-    ProjectPurgePostJob job = new ProjectPurgePostJob(purgeDao, settings, mock(DefaultPeriodCleaner.class));
+    DefaultPurgeTask task = new DefaultPurgeTask(purgeDao, settings, mock(DefaultPeriodCleaner.class));
 
-    job.executeOn(newProject(), mock(SensorContext.class));
+    task.purgeProject(1L);
 
     verify(purgeDao, times(1)).deleteSnapshots(argThat(newDirectoryQueryMatcher()));
   }
@@ -61,13 +59,12 @@ public class ProjectPurgePostJobTest {
   @Test
   public void shouldNotFailOnErrors() {
     PurgeDao purgeDao = mock(PurgeDao.class);
-    when(purgeDao.purgeProject(anyInt())).thenThrow(new RuntimeException());
-      
-    ProjectPurgePostJob job = new ProjectPurgePostJob(purgeDao, new Settings(), mock(DefaultPeriodCleaner.class));
+    when(purgeDao.purgeProject(anyLong())).thenThrow(new RuntimeException());
+    DefaultPurgeTask task = new DefaultPurgeTask(purgeDao, new Settings(), mock(DefaultPeriodCleaner.class));
 
-    job.executeOn(newProject(), mock(SensorContext.class));
+    task.purgeProject(1L);
 
-    verify(purgeDao).purgeProject(anyInt());
+    verify(purgeDao).purgeProject(anyLong());
   }
 
   private BaseMatcher<PurgeSnapshotQuery> newDirectoryQueryMatcher() {
@@ -81,11 +78,4 @@ public class ProjectPurgePostJobTest {
       }
     };
   }
-
-  private Project newProject() {
-    Project project = new Project("foo");
-    project.setId(1);
-    return project;
-  }
-
 }
