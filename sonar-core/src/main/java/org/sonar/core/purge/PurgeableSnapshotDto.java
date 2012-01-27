@@ -27,7 +27,7 @@ import java.util.Date;
 public class PurgeableSnapshotDto implements Comparable<PurgeableSnapshotDto> {
   private Date date;
   private long snapshotId;
-  private boolean hasVersionEvent;
+  private boolean hasReadOnlyEvents;
   private boolean isLast;
 
   public Date getDate() {
@@ -38,8 +38,8 @@ public class PurgeableSnapshotDto implements Comparable<PurgeableSnapshotDto> {
     return snapshotId;
   }
 
-  public boolean hasVersionEvent() {
-    return hasVersionEvent;
+  public boolean hasReadOnlyEvents() {
+    return hasReadOnlyEvents;
   }
 
   public boolean isLast() {
@@ -55,8 +55,8 @@ public class PurgeableSnapshotDto implements Comparable<PurgeableSnapshotDto> {
     return this;
   }
 
-  public PurgeableSnapshotDto setHasVersionEvent(boolean hasVersionEvent) {
-    this.hasVersionEvent = hasVersionEvent;
+  public PurgeableSnapshotDto setHasReadOnlyEvents(boolean b) {
+    this.hasReadOnlyEvents = b;
     return this;
   }
 

@@ -48,18 +48,18 @@
     </where>
   </select>
 
-  <select id="selectPurgeableSnapshotsWithVersionEvent" parameterType="long" resultType="PurgeableSnapshot">
-    select s.id as "snapshotId", s.created_at as "date", ${_true} as "hasVersionEvent", islast as "isLast" from
+  <select id="selectPurgeableSnapshotsWithReadOnlyEvents" parameterType="long" resultType="PurgeableSnapshot">
+    select s.id as "snapshotId", s.created_at as "date", ${_true} as "hasReadOnlyEvents", islast as "isLast" from
     snapshots s
     where s.project_id=#{id} and s.status='P' and s.qualifier &lt;&gt; 'LIB' and exists(select e.id from events e where
-    e.snapshot_id=s.id and e.category='Version')
+    e.snapshot_id=s.id and e.category in ('Version', 'Profile'))
   </select>
 
-  <select id="selectPurgeableSnapshotsWithoutVersionEvent" parameterType="long" resultType="PurgeableSnapshot">
-    select s.id as "snapshotId", s.created_at as "date", ${_false} as "hasVersionEvent", islast as "isLast" from
+  <select id="selectPurgeableSnapshotsWithoutReadOnlyEvents" parameterType="long" resultType="PurgeableSnapshot">
+    select s.id as "snapshotId", s.created_at as "date", ${_false} as "hasReadOnlyEvents", islast as "isLast" from
     snapshots s
     where s.project_id=#{id} and s.status='P' and s.qualifier &lt;&gt; 'LIB' and not exists(select e.id from events e
-    where e.snapshot_id=s.id and e.category='Version')
+    where e.snapshot_id=s.id and e.category in ('Version', 'Profile'))
   </select>
 
   <select id="selectResourceIdsToDisable" resultType="long" parameterType="long">

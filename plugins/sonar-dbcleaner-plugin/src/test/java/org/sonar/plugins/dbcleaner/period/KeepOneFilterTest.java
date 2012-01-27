@@ -60,7 +60,7 @@ public class KeepOneFilterTest {
     List<PurgeableSnapshotDto> toDelete = filter.filter(Arrays.<PurgeableSnapshotDto>asList(
       createSnapshotWithDate(1L, "2011-05-01"), // to be deleted
       createSnapshotWithDate(2L, "2011-05-02").setLast(true),
-      createSnapshotWithDate(3L, "2011-05-19").setHasVersionEvent(true).setLast(false),
+      createSnapshotWithDate(3L, "2011-05-19").setHasReadOnlyEvents(true).setLast(false),
       createSnapshotWithDate(4L, "2011-05-23") // to be deleted
     ));
 
@@ -73,6 +73,6 @@ public class KeepOneFilterTest {
   public void test_isDeletable() {
     assertThat(KeepOneFilter.isDeletable(createSnapshotWithDate(1L, "2011-05-01")), is(true));
     assertThat(KeepOneFilter.isDeletable(createSnapshotWithDate(1L, "2011-05-01").setLast(true)), is(false));
-    assertThat(KeepOneFilter.isDeletable(createSnapshotWithDate(1L, "2011-05-01").setHasVersionEvent(true)), is(false));
+    assertThat(KeepOneFilter.isDeletable(createSnapshotWithDate(1L, "2011-05-01").setHasReadOnlyEvents(true)), is(false));
   }
 }

@@ -89,8 +89,8 @@ public class PurgeDao {
     try {
       PurgeMapper mapper = session.getMapper(PurgeMapper.class);
       List<PurgeableSnapshotDto> result = Lists.newArrayList();
-      result.addAll(mapper.selectPurgeableSnapshotsWithVersionEvent(resourceId));
-      result.addAll(mapper.selectPurgeableSnapshotsWithoutVersionEvent(resourceId));
+      result.addAll(mapper.selectPurgeableSnapshotsWithReadOnlyEvents(resourceId));
+      result.addAll(mapper.selectPurgeableSnapshotsWithoutReadOnlyEvents(resourceId));
       Collections.sort(result);// sort by date
       return result;
     } finally {
