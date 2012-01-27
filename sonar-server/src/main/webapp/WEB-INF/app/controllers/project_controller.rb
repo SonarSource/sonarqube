@@ -63,7 +63,7 @@ class ProjectController < ApplicationController
   end
 
   def delete_snapshot_history
-    project=Project.by_key(params[:id])
+    @project=Project.by_key(params[:id])
     not_found("Project not found") unless @project
     access_denied unless is_admin?(@project)
 
@@ -73,7 +73,7 @@ class ProjectController < ApplicationController
       flash[:notice] = message('project_history.snapshot_deleted')
     end
 
-    redirect_to :action => 'history', :id => project.id
+    redirect_to :action => 'history', :id => @project.id
   end
 
   def links
