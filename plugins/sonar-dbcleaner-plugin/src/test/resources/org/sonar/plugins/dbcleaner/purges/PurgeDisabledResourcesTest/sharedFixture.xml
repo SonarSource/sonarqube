@@ -1,9 +1,0 @@
-<dataset>
-  <rules_categories id="1" name="category one" description="one"/>
-  <rules id="1" name="foo" plugin_config_key="checker/foo" plugin_rule_key="checkstyle.rule1"
-         plugin_name="maven-checkstyle-plugin" description="description" cardinality="SINGLE" parent_id="[null]"/>
-
-  <metrics delete_historical_data="[null]" id="1" name="ncloc" val_type="INT" description="[null]"  domain="[null]"
-           short_name="" qualitative="false" user_managed="false" enabled="true" worst_value="[null]" optimized_best_value="[null]" best_value="[null]" direction="0" hidden="false"/>
-
-</dataset>

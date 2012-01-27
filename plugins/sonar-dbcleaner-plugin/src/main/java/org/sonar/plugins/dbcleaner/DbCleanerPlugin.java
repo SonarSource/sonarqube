@@ -24,7 +24,6 @@ import org.sonar.api.Property;
 import org.sonar.api.SonarPlugin;
 import org.sonar.plugins.dbcleaner.api.DbCleanerConstants;
 import org.sonar.plugins.dbcleaner.period.DefaultPeriodCleaner;
-import org.sonar.plugins.dbcleaner.runner.ProjectPurgePostJob;
 
 import java.util.Arrays;
 import java.util.List;

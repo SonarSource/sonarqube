@@ -31,7 +31,7 @@ import org.sonar.plugins.dbcleaner.api.PeriodCleaner;
 
 import java.util.List;
 
-public final class DefaultPeriodCleaner implements PeriodCleaner {
+public class DefaultPeriodCleaner implements PeriodCleaner {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultPeriodCleaner.class);
   private PurgeDao purgeDao;
