@@ -7,12 +7,13 @@
     <tr>
       <th class="thin nowrap"><%= message('project_history.col.year') -%></th>
       <th class="thin nowrap"><%= message('project_history.col.month') -%></th>
-      <th class="thin nowrap"></th>
-      <th class="thin nowrap"></th>
+      <th class="thin nowrap"><%= message('project_history.col.day') -%></th>
       <th class="thin nowrap"><%= message('project_history.col.time') -%></th>
-      <th class="thin nowrap" style="padding-left: 20px;"><%= message('project_history.col.action') -%></th>
       <th class="nowrap" style="padding-left: 20px; min-width: 100px;"><%= message('project_history.col.version') -%></th>
       <th class="nowrap" style="padding-left: 20px; min-width: 100px;"><%= message('project_history.col.events') -%></th>
+      <th class="thin nowrap"></th>
+      <th class="thin nowrap"></th>
+      <th class="thin nowrap" style="padding-left: 20px;"><%= message('project_history.col.action') -%></th>
     </tr>
   </thead>
   <tbody>
@@ -26,36 +27,15 @@
         profile_event = snapshot.event(EventCategory::KEY_PROFILE)
         other_events = snapshot.events.select{|e| e.category!=EventCategory::KEY_VERSION && e.category!=EventCategory::KEY_ALERT && e.category!=EventCategory::KEY_PROFILE}
     %>
-    <tr class="<%= cycle 'even','odd' -%>">
+    <tr class="<%= cycle 'even','odd' -%> hoverable">
     
       <td class="thin nowrap"><b><%= time.year unless time.year == current_year -%></b></td>
     
       <td class="thin nowrap"><b><%= l(time, :format => '%B').capitalize unless time.month == current_month -%></b></td>
 
-      <td class="thin nowrap">
-        <%= image_tag "event_alert.png", :alt => (message('project_history.col.alert') + ": " + alert_event.name + ". " + alert_event.description) if alert_event -%>
-      </td>
-
-      <td class="thin nowrap">
-        <%= image_tag "event_profile.png", :alt => message('project_history.col.profile') + ": " + profile_event.description if profile_event -%>
-      </td>
-
-      <td class="thin nowrap"><%= l time, :format => :long -%></td>
-
-      <td class="thin nowrap center" style="padding-left:10px; padding-right:10px">
-        <%
-          cell_content = nil;
-          if snapshot.islast?
-            cell_content = "<b>" + message('project_history.last_snapshot') + "</b>"
-          else
-            cell_content = button_to( message('project_history.delete_snapshot'), 
-                                        { :action => "delete_snapshot_history", :id => @project.id, :snapshot_id => snapshot.id }, 
-                                        :class => 'action red-button', 
-                                        :confirm => message('project_history.are_you_sure_delete_snapshot_x', :params => l(time, :format => :long)) )  
-          end
-        %>
-        <%= cell_content -%>
-      </td>
+      <td class="thin nowrap"><%= l(time, :format => '%d') -%></td>
+      
+      <td class="thin nowrap"><%= l(time, :format => '%H:%M') -%></td>
       
       <td class="thin nowrap" style="padding-left: 20px;">
           <table class="max-width">
@@ -109,6 +89,29 @@
 	        </tr>
         </table>
         <div id="event_<%= snapshot.id -%>_form"></div>
+      </td>
+
+      <td class="thin nowrap">
+        <%= image_tag "event_alert.png", :alt => (message('project_history.col.alert') + ": " + alert_event.name + ". " + alert_event.description) if alert_event -%>
+      </td>
+
+      <td class="thin nowrap">
+        <%= image_tag "event_profile.png", :alt => message('project_history.col.profile') + ": " + profile_event.description if profile_event -%>
+      </td>
+
+      <td class="thin nowrap center" style="padding-left:10px; padding-right:10px">
+        <%
+          cell_content = nil;
+          if snapshot.islast?
+            cell_content = "<b>" + message('project_history.last_snapshot') + "</b>"
+          else
+            cell_content = button_to( message('project_history.delete_snapshot'), 
+                                        { :action => "delete_snapshot_history", :id => @project.id, :snapshot_id => snapshot.id }, 
+                                        :class => 'action red-button', 
+                                        :confirm => message('project_history.are_you_sure_delete_snapshot_x', :params => l(time, :format => :long)) )  
+          end
+        %>
+        <%= cell_content -%>
       </td>
     </tr>
     <%

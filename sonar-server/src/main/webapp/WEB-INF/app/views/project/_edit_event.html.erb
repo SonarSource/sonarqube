@@ -12,7 +12,7 @@
                 <%= f.text_field :name, :onkeyup => "if (this.value=='') $('event_#{@event.id}_submit').disabled='true'; else $('event_#{@event.id}_submit').disabled='';" -%>
             </td>
             <td class="left" nowrap="nowrap" valign="top">
-                <span class="comments"><%= message('category') -%> (<%= link_to message('configure').downcase, {:controller=> 'event_categories', :action => 'index'}, :class => 'action' %>)</span><br>
+                <span class="comments"><%= message('category') -%></span><br>
                 <%= f.select(:category, @categories.collect {|c| [ message('event.category.' + c.name, :default => c.name), c.name ] }) %>
             </td>
         </tr>
