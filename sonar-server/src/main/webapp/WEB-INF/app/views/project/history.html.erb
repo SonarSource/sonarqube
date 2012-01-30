@@ -1,4 +1,21 @@
 <% if @snapshot.root? %>
+<style>
+.snapshot .edit_actions a {
+  visibility: hidden;
+}
+
+.snapshot:hover .edit_actions a {
+  visibility: visible;
+}
+.snapshot .create_actions a {
+  display: none;
+}
+
+.snapshot:hover .create_actions a {
+  display: inline;
+}
+</style>
+
 <h1><%= message('project_history.page_title') -%></h1>
 <br/>
 
@@ -27,7 +44,7 @@
         profile_event = snapshot.event(EventCategory::KEY_PROFILE)
         other_events = snapshot.events.select{|e| e.category!=EventCategory::KEY_VERSION && e.category!=EventCategory::KEY_ALERT && e.category!=EventCategory::KEY_PROFILE}
     %>
-    <tr class="<%= cycle 'even','odd' -%> hoverable">
+    <tr class="<%= cycle 'even','odd' -%> hoverable snapshot">
     
       <td class="thin nowrap"><b><%= time.year unless time.year == current_year -%></b></td>
     
@@ -41,7 +58,7 @@
           <table class="max-width">
             <tr id="version_<%= index -%>">
               <td class="max-width"><%= version_event.name if version_event -%></td>
-              <td class="small" style="padding-left:20px">
+              <td class="small edit_actions" style="padding-left:20px">
                 <a id="version_<%= index -%>_change" href="#" onclick="$('version_<%= index -%>').hide();$('version_<%= index -%>_form').show();$('version_name_<%= index -%>').focus();return false;"><%= version_event ? message('project_history.rename_version') : message('project_history.create_version') -%></a>
                 <% if version_event && !snapshot.islast? %>
                   <%= link_to( message('project_history.remove_version'),  
@@ -68,7 +85,7 @@
           <% other_events.each do |event| %>
 	        <tr id="event_<%= event.id -%>">
 	          <td class="max-width"><%= event.name -%></td>
-	          <td class="small" style="padding-left:20px">
+	          <td class="small edit_actions" style="padding-left:20px">
                 <a id="event_<%= event.id -%>_change" href="#" onclick="$('event_<%= event.id -%>').hide();$('event_<%= event.id -%>_form').show();$('event_name_<%= event.id -%>').focus();return false;"><%= message('project_history.edit_event') -%></a>
                 <%= link_to( message('project_history.remove_version'),  
 	   		                  { :action => 'delete_event', :id => event.id},
@@ -87,7 +104,7 @@
 	        </tr>
 	      <% end %>
 	        <tr id="create_event_<%= index -%>">
-	          <td colspan="2" class="small right">
+	          <td colspan="2" class="small right create_actions">
                 <a id="create_event_<%= index -%>" href="#" onclick="$('create_event_<%= index -%>').hide();$('create_event_<%= index -%>_form').show();$('create_event_name_<%= index -%>').focus();return false;"><%= message('project_history.create_event') -%></a>
 	          </td>
 	        </tr>
