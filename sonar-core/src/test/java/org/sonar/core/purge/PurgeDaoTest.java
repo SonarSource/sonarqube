@@ -180,24 +180,24 @@ public class PurgeDaoTest extends DaoTestCase {
   static final class SnapshotMatcher extends BaseMatcher<PurgeableSnapshotDto> {
     long snapshotId;
     boolean isLast;
-    boolean hasReadOnlyEvents;
+    boolean hasEvents;
 
-    SnapshotMatcher(long snapshotId, boolean last, boolean hasReadOnlyEvents) {
+    SnapshotMatcher(long snapshotId, boolean last, boolean hasEvents) {
       this.snapshotId = snapshotId;
       this.isLast = last;
-      this.hasReadOnlyEvents = hasReadOnlyEvents;
+      this.hasEvents = hasEvents;
     }
 
     public boolean matches(Object o) {
       PurgeableSnapshotDto obj = (PurgeableSnapshotDto) o;
-      return obj.getSnapshotId() == snapshotId && obj.isLast() == isLast && obj.hasReadOnlyEvents() == hasReadOnlyEvents;
+      return obj.getSnapshotId() == snapshotId && obj.isLast() == isLast && obj.hasEvents() == hasEvents;
     }
 
     public void describeTo(Description description) {
       description
         .appendText("snapshotId").appendValue(snapshotId)
         .appendText("isLast").appendValue(isLast)
-        .appendText("hasReadOnlyEvents").appendValue(hasReadOnlyEvents);
+        .appendText("hasEvents").appendValue(hasEvents);
     }
   }
 }

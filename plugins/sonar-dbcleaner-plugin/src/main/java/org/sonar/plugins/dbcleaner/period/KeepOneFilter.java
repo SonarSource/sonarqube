@@ -82,7 +82,7 @@ class KeepOneFilter extends Filter {
 
   @VisibleForTesting
   static boolean isDeletable(PurgeableSnapshotDto snapshot) {
-    return !snapshot.isLast() && !snapshot.hasReadOnlyEvents();
+    return !snapshot.isLast() && !snapshot.hasEvents();
   }
 
 }

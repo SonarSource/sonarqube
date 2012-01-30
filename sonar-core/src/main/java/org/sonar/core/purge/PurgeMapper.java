@@ -73,7 +73,7 @@ public interface PurgeMapper {
 
   void closeResourceReviews(long resourceId);
 
-  List<PurgeableSnapshotDto> selectPurgeableSnapshotsWithReadOnlyEvents(long resourceId);
+  List<PurgeableSnapshotDto> selectPurgeableSnapshotsWithEvents(long resourceId);
 
-  List<PurgeableSnapshotDto> selectPurgeableSnapshotsWithoutReadOnlyEvents(long resourceId);
+  List<PurgeableSnapshotDto> selectPurgeableSnapshotsWithoutEvents(long resourceId);
 }
