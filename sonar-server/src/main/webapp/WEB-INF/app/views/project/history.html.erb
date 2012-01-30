@@ -42,9 +42,7 @@
             <tr id="version_<%= index -%>">
               <td class="max-width"><%= version_event.name if version_event -%></td>
               <td class="small" style="padding-left:20px">
-                <a id="version_<%= index -%>_change" href="#" onclick="$('version_<%= index -%>').hide();$('version_<%= index -%>_form').show();">
-                  <%= version_event ? message('project_history.rename_version') : message('project_history.create_version') -%>
-                </a>
+                <a id="version_<%= index -%>_change" href="#" onclick="$('version_<%= index -%>').hide();$('version_<%= index -%>_form').show();$('version_name_<%= index -%>').focus();return false;"><%= version_event ? message('project_history.rename_version') : message('project_history.create_version') -%></a>
                 <% if version_event && !snapshot.islast? %>
                   <%= link_to( message('project_history.remove_version'),  
         		                { :action => 'delete_version', :sid => snapshot.id},
@@ -68,27 +66,42 @@
       <td class="thin nowrap" style="padding-left: 20px;">
         <table class="max-width">
           <% other_events.each do |event| %>
-	        <tr>
+	        <tr id="event_<%= event.id -%>">
 	          <td class="max-width"><%= event.name -%></td>
 	          <td class="small" style="padding-left:20px">
-                <%= link_to_remote( message('project_history.edit_event'),
-                                     :url => { :action => 'edit_event', :id => event.id},
-                                     :update => "event_#{snapshot.id}_form" ) %>
+                <a id="event_<%= event.id -%>_change" href="#" onclick="$('event_<%= event.id -%>').hide();$('event_<%= event.id -%>_form').show();$('event_name_<%= event.id -%>').focus();return false;"><%= message('project_history.edit_event') -%></a>
                 <%= link_to( message('project_history.remove_version'),  
 	   		                  { :action => 'delete_event', :id => event.id},
 	    		              :confirm => message('project_history.do_you_want_to_remove_version', :params => event.name) ) -%>
 	          </td>
 	        </tr>
+	        <tr id="event_<%= event.id -%>_form" style="display:none;">
+              <td colspan="2" class="admin">
+                <% form_tag( {:action => 'update_event', :id => event.id }) do -%>
+                  <input id="event_name_<%= event.id -%>" name="event_name" type="text" value="<%= event.name -%>" 
+                         onKeyUp="if (this.value=='') $('save_event_<%= event.id -%>').disabled='true'; else $('save_event_<%= event.id -%>').disabled='';"/>
+                  <%= submit_tag message('save'), :id => 'save_event_' + event.id.to_s %>
+                  <a href="#" onclick="$('event_<%= event.id -%>').show();$('event_<%= event.id -%>_form').hide();"><%= message('cancel') -%></a>
+                <% end %>
+              </td>
+	        </tr>
 	      <% end %>
-	        <tr>
+	        <tr id="create_event_<%= index -%>">
 	          <td colspan="2" class="small right">
-	            <%= link_to_remote( message('project_history.create_event'),
-                                     :url => { :action => 'new_event', :sid => snapshot.id},
-                                     :update => "event_#{snapshot.id}_form" ) %>
+                <a id="create_event_<%= index -%>" href="#" onclick="$('create_event_<%= index -%>').hide();$('create_event_<%= index -%>_form').show();$('create_event_name_<%= index -%>').focus();return false;"><%= message('project_history.create_event') -%></a>
+	          </td>
+	        </tr>
+	        <tr id="create_event_<%= index -%>_form" style="display:none;">
+	          <td colspan="2" class="admin">
+                <% form_tag( {:action => 'create_event', :sid => snapshot.id }) do -%>
+                  <input id="create_event_name_<%= index -%>" name="event_name" type="text" value="" 
+                         onKeyUp="if (this.value=='') $('create_save_event_<%= index -%>').disabled='true'; else $('create_save_event_<%= index -%>').disabled='';"/>
+                  <%= submit_tag message('save'), :id => 'create_save_event_' + index.to_s %>
+                  <a href="#" onclick="$('create_event_<%= index -%>').show();$('create_event_<%= index -%>_form').hide();"><%= message('cancel') -%></a>
+                <% end %>
 	          </td>
 	        </tr>
         </table>
-        <div id="event_<%= snapshot.id -%>_form"></div>
       </td>
 
       <td class="thin nowrap">

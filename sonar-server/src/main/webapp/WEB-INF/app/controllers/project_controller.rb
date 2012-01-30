@@ -239,60 +239,40 @@ class ProjectController < ApplicationController
     redirect_to :action => 'history', :id => snapshot.root_project_id
   end
 
-  def new_event
+  def create_event
     snapshot=Snapshot.find(params[:sid])
     not_found("Snapshot not found") unless snapshot
     access_denied unless is_admin?(snapshot)
 
-    @event = Event.new(:snapshot => snapshot, :resource => snapshot.resource)
-    @categories=EventCategory.categories(false)
-    @categories << EventCategory.other_category
-    render :partial => 'edit_event'
-  end
-
-  def create_event
-    event = Event.new(params[:event])
-    access_denied unless is_admin?(event.resource)
-
-    if Event.already_exists(event.snapshot_id, event.name, event.category)
-      flash[:error] = message('project_history.event_already_exists', :params => [event.name, event.category])
+    if Event.already_exists(snapshot.id, params[:event_name], EventCategory::KEY_OTHER)
+      flash[:error] = message('project_history.event_already_exists', :params => params[:event_name])
     else
-      snapshots = find_project_snapshots(event.snapshot_id)
+      snapshots = find_project_snapshots(snapshot.id)
       snapshots.each do |snapshot|
-        e = Event.new(params[:event])
-        e.snapshot = snapshot
-        e.resource_id = snapshot.project_id
-        e.event_date = snapshot.created_at
+      e = Event.new({:name => params[:event_name], 
+                     :category => EventCategory::KEY_OTHER,
+                     :snapshot => snapshot,
+                     :resource_id => snapshot.project_id,
+                     :event_date => snapshot.created_at})
         e.save!
       end
-      flash[:notice] = message('project_history.event_created', :params => event.name)
+      flash[:notice] = message('project_history.event_created', :params => params[:event_name])
     end
 
-    redirect_to :action => 'history', :id => event.resource_id
-  end
-
-  def edit_event
-    @event = Event.find(params[:id])
-    not_found("Event not found") unless @event
-    access_denied unless is_admin?(@event.resource)
-
-    @categories=EventCategory.categories(false)
-    @categories << EventCategory.other_category
-    render :partial => 'edit_event'
+    redirect_to :action => 'history', :id => snapshot.project_id
   end
 
   def update_event
-    event = Event.find(params[:event][:id])
+    event = Event.find(params[:id])
     not_found("Event not found") unless event
     access_denied unless is_admin?(event.resource)
 
-    if Event.already_exists(event.snapshot_id, params[:event][:name], params[:event][:category])
-      flash[:error] = message('project_history.event_already_exists', :params => [event.name, event.category])
+    if Event.already_exists(event.snapshot_id, params[:event_name], EventCategory::KEY_OTHER)
+      flash[:error] = message('project_history.event_already_exists', :params => event.name)
     else
       events = find_events(event)
       events.each do |e|
-        e.name = params[:event][:name]
-        e.category = params[:event][:category]
+        e.name = params[:event_name]
         e.save!
       end
       flash[:notice] = message('project_history.event_updated')
