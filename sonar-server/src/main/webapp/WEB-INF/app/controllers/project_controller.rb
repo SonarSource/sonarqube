@@ -259,12 +259,12 @@ class ProjectController < ApplicationController
       flash[:error] = message('project_history.event_already_exists', :params => params[:event_name])
     else
       snapshots = find_project_snapshots(snapshot.id)
-      snapshots.each do |snapshot|
+      snapshots.each do |s|
       e = Event.new({:name => params[:event_name], 
                      :category => EventCategory::KEY_OTHER,
-                     :snapshot => snapshot,
-                     :resource_id => snapshot.project_id,
-                     :event_date => snapshot.created_at})
+                     :snapshot => s,
+                     :resource_id => s.project_id,
+                     :event_date => s.created_at})
         e.save!
       end
       flash[:notice] = message('project_history.event_created', :params => params[:event_name])
