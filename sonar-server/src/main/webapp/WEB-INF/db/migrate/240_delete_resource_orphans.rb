@@ -22,12 +22,12 @@
 # Delete the resource orphans that are automatically deleted as long as
 # SONAR-3120 is not fixed.
 #
-# Sonar 2.13
+# Sonar 2.13, fixed in 2.13.1 (see SONAR-3221)
 #
 class DeleteResourceOrphans < ActiveRecord::Migration
 
   def self.up
-    ids=Project.find_by_sql(["select id from projects p where qualifier<>'LIB' and not exists (select * from snapshots s where s.project_id = p.id and s.islast=?)", true])
+    ids=Project.find_by_sql(["select id from projects p where qualifier in ('DIR','PAC','FIL','CLA','UTS') and not exists (select * from snapshots s where s.project_id = p.id and s.islast=?)", true])
     say_with_time "Delete #{ids.size} resources" do
       # partition ids because of the Oracle limitation on IN statements
       ids.each_slice(999) do |partition_of_ids|
