@@ -108,8 +108,6 @@
                 <a href="<%= ApplicationController.root_context -%>/account/index"><%= message('my_profile.page') -%></a></li>
             <% end %>
             <% if is_admin? %>
-              <li class="<%= 'selected' if controller.controller_path=='event_categories' -%>">
-                <a href="<%= ApplicationController.root_context -%>/event_categories/index"><%= message('event_categories.page') -%></a></li>
               <li class="<%= 'selected' if controller.controller_path=='metrics' -%>">
                 <a href="<%= ApplicationController.root_context -%>/metrics/index"><%= message('manual_metrics.page') -%></a></li>
               <li class="<%= 'selected' if controller.controller_path=='manual_rules' -%>">
