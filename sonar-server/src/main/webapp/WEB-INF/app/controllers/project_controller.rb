@@ -138,14 +138,25 @@ class ProjectController < ApplicationController
 
 
   def events
-    @categories=EventCategory.categories(true)
-    @snapshot=Snapshot.find(params[:id])
-    @category=params[:category]
-    conditions={:resource_id => @snapshot.project_id}
-    conditions[:category]=@category unless @category.blank?
+    @categories = EventCategory.categories(true)
+    @snapshot = Snapshot.find(params[:id])
+    @category = params[:category]
+      
+    conditions = "resource_id=:resource_id"
+    values = {:resource_id => @snapshot.project_id}
+    unless @category.blank?
+      conditions << " AND category=:category"
+      values[:category] = @category
+    end
+    # in order to not display events linked to deleted snapshot, we build the SQL request with 'NOT IN' as most of the time, there won't be unprocessed snapshots
+    snapshots_to_be_deleted = Snapshot.find(:all, :conditions => ["status='U' AND project_id=?", @snapshot.project_id])
+    unless snapshots_to_be_deleted.empty?
+      conditions << " AND snapshot_id NOT IN (:sids)"
+      values[:sids] = snapshots_to_be_deleted.map {|s| s.id.to_s}
+    end
 
     category_names=@categories.map { |cat| cat.name }
-    @events=Event.find(:all, :conditions => conditions, :order => 'event_date desc').select do |event|
+    @events=Event.find(:all, :conditions => [conditions, values], :order => 'event_date desc').select do |event|
       category_names.include?(event.category)
     end
     render :action => 'events', :layout => !request.xhr?
