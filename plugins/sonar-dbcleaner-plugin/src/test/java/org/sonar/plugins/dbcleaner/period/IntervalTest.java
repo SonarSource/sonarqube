@@ -52,13 +52,32 @@ public class IntervalTest {
     assertThat(intervals.size(), is(3));
 
     assertThat(intervals.get(0).count(), is(1));
-    assertThat(month(intervals.get(0)), is(Calendar.APRIL));
+    assertThat(calendarField(intervals.get(0), Calendar.MONTH), is(Calendar.APRIL));
 
     assertThat(intervals.get(1).count(), is(2));
-    assertThat(month(intervals.get(1)), is(Calendar.MAY));
+    assertThat(calendarField(intervals.get(1), Calendar.MONTH), is(Calendar.MAY));
 
     assertThat(intervals.get(2).count(), is(2));
-    assertThat(month(intervals.get(2)), is(Calendar.JUNE));
+    assertThat(calendarField(intervals.get(2), Calendar.MONTH), is(Calendar.JUNE));
+  }
+
+  @Test
+  public void shouldNotJoinMonthsOfDifferentYears() {
+    List<PurgeableSnapshotDto> snapshots = Arrays.asList(
+      createSnapshotWithDate(1L, "2010-04-03"),
+      createSnapshotWithDate(2L, "2011-04-13")
+    );
+
+    List<Interval> intervals = Interval.group(snapshots, DateUtils.parseDate("2010-01-01"), DateUtils.parseDate("2011-12-31"), Calendar.MONTH);
+    assertThat(intervals.size(), is(2));
+
+    assertThat(intervals.get(0).count(), is(1));
+    assertThat(calendarField(intervals.get(0), Calendar.MONTH), is(Calendar.APRIL));
+    assertThat(calendarField(intervals.get(0), Calendar.YEAR), is(2010));
+
+    assertThat(intervals.get(1).count(), is(1));
+    assertThat(calendarField(intervals.get(1), Calendar.MONTH), is(Calendar.APRIL));
+    assertThat(calendarField(intervals.get(1), Calendar.YEAR), is(2011));
   }
 
   @Test
@@ -75,7 +94,7 @@ public class IntervalTest {
     assertThat(intervals.get(0).get().get(0).getSnapshotId(), is(2L));
   }
 
-  static int month(Interval interval) {
+  static int calendarField(Interval interval, int field) {
     if (interval.count() == 0) {
       return -1;
     }
@@ -83,6 +102,6 @@ public class IntervalTest {
     PurgeableSnapshotDto first = interval.get().iterator().next();
     GregorianCalendar cal = new GregorianCalendar();
     cal.setTime(first.getDate());
-    return cal.get(Calendar.MONTH);
+    return cal.get(field);
   }
 }

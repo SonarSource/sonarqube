@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang.time.DateUtils;
 import org.sonar.core.purge.PurgeableSnapshotDto;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -46,6 +47,7 @@ final class Interval {
     List<Interval> intervals = Lists.newArrayList();
 
     GregorianCalendar calendar = new GregorianCalendar();
+    int lastYear = -1;
     int lastFieldValue = -1;
     Interval currentInterval = null;
 
@@ -54,11 +56,13 @@ final class Interval {
         (snapshot.getDate().before(end) || DateUtils.isSameDay(end, snapshot.getDate()))) {
         calendar.setTime(snapshot.getDate());
         int currentFieldValue = calendar.get(calendarField);
-        if (lastFieldValue != currentFieldValue) {
+        int currentYear = calendar.get(Calendar.YEAR);
+        if (lastYear!=currentYear || lastFieldValue != currentFieldValue) {
           currentInterval = new Interval();
           intervals.add(currentInterval);
         }
         lastFieldValue = currentFieldValue;
+        lastYear = currentYear;
         if (currentInterval != null) {
           currentInterval.add(snapshot);
         }
