@@ -10,7 +10,7 @@ Note that measures, events and reviews are not deleted.
 <dataset>
   <snapshots id="1"
              project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
-             status="P" islast="false" purge_status="1"
+             status="P" islast="[false]" purge_status="1"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"
              period3_mode="[null]" period3_param="[null]" period3_date="[null]"
@@ -55,7 +55,7 @@ Note that measures, events and reviews are not deleted.
   <!-- The following is not purged but is kept for DBUnit -->
   <snapshots id="2"
              project_id="2" parent_snapshot_id="[null]" root_project_id="2" root_snapshot_id="[null]"
-             status="P" islast="false" purge_status="1"
+             status="P" islast="[false]" purge_status="1"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"
              period3_mode="[null]" period3_param="[null]" period3_date="[null]"

@@ -1,12 +1,12 @@
 <dataset>
 
   <!-- root -->
-  <projects id="1" enabled="true" root_id="[null]"
+  <projects id="1" enabled="[true]" root_id="[null]"
             long_name="[null]" scope="PRJ" qualifier="TRK" kee="project" name="project"
             description="[null]" language="java" copy_resource_id="[null]" profile_id="[null]"/>
 
   <snapshots id="1" project_id="1" parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]"
-             status="P" islast="false" purge_status="[null]"
+             status="P" islast="[false]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"
              period3_mode="[null]" period3_param="[null]" period3_date="[null]"
@@ -18,12 +18,12 @@
 
 
   <!-- modules -->
-  <projects id="2" enabled="true" root_id="1"
+  <projects id="2" enabled="[true]" root_id="1"
             long_name="[null]" scope="PRJ" qualifier="BRC" kee="module1" name="module1"
             description="[null]" language="java" copy_resource_id="[null]" profile_id="[null]"/>
 
   <snapshots id="2" project_id="2" parent_snapshot_id="1" root_project_id="1" root_snapshot_id="1"
-             status="P" islast="false" purge_status="[null]"
+             status="P" islast="[false]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"
              period3_mode="[null]" period3_param="[null]" period3_date="[null]"
@@ -34,12 +34,12 @@
              version="[null]" path="[null]"/>
 
 
-  <projects id="3" enabled="false" root_id="1"
+  <projects id="3" enabled="[false]" root_id="1"
             long_name="[null]" scope="PRJ" qualifier="BRC" kee="module2" name="module2"
             description="[null]" language="java" copy_resource_id="[null]" profile_id="[null]"/>
 
   <snapshots id="3" project_id="3" parent_snapshot_id="1" root_project_id="1" root_snapshot_id="1"
-             status="P" islast="true" purge_status="[null]"
+             status="P" islast="[true]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"
              period3_mode="[null]" period3_param="[null]" period3_date="[null]"
@@ -50,12 +50,12 @@
              version="[null]" path="[null]"/>
 
   <!-- file of module 2-->
-  <projects id="4" enabled="false" root_id="3"
+  <projects id="4" enabled="[false]" root_id="3"
             long_name="[null]" scope="FIL" qualifier="FIL" kee="module2:File.java" name="File"
             description="[null]" language="java" copy_resource_id="[null]" profile_id="[null]"/>
 
   <snapshots id="4" project_id="4" parent_snapshot_id="3" root_project_id="1" root_snapshot_id="1"
-             status="P" islast="true" purge_status="[null]"
+             status="P" islast="[true]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"
              period3_mode="[null]" period3_param="[null]" period3_date="[null]"
