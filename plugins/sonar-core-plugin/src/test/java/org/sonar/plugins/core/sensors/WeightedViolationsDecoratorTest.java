@@ -19,6 +19,13 @@
  */
 package org.sonar.plugins.core.sensors;
 
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
@@ -28,11 +35,6 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.test.IsMeasure;
-
-import java.util.Map;
-
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
 
 public class WeightedViolationsDecoratorTest {
 
@@ -53,8 +55,9 @@ public class WeightedViolationsDecoratorTest {
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.WEIGHTED_VIOLATIONS, "INFO=50;CRITICAL=80;BLOCKER=100")));
   }
 
+  // SONAR-3092
   @Test
-  public void doNotSaveZero() {
+  public void doSaveZero() {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.CORE_RULE_WEIGHTS_PROPERTY, "BLOCKER=10;CRITICAL=5;MAJOR=2;MINOR=1;INFO=0");
     DecoratorContext context = mock(DecoratorContext.class);
@@ -63,7 +66,7 @@ public class WeightedViolationsDecoratorTest {
     decorator.start();
     decorator.decorate(context);
 
-    verify(context, never()).saveMeasure((Measure) anyObject());
+    verify(context).saveMeasure((Measure) anyObject());
   }
 
   @Test

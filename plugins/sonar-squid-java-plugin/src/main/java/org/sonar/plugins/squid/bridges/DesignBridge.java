@@ -70,10 +70,10 @@ public class DesignBridge extends Bridge {
       LOG.debug("{} feedback edges", feedbackEdges.size());
       int tangles = cyclesAndFESSolver.getWeightOfFeedbackEdgeSet();
 
-      savePositiveMeasure(sonarProject, CoreMetrics.PACKAGE_CYCLES, (double) cyclesAndFESSolver.getCycles().size(), true);
-      savePositiveMeasure(sonarProject, CoreMetrics.PACKAGE_FEEDBACK_EDGES, (double) feedbackEdges.size(), true);
-      savePositiveMeasure(sonarProject, CoreMetrics.PACKAGE_TANGLES, (double) tangles, true);
-      savePositiveMeasure(sonarProject, CoreMetrics.PACKAGE_EDGES_WEIGHT, getEdgesWeight(squidPackages), false);
+      savePositiveMeasure(sonarProject, CoreMetrics.PACKAGE_CYCLES, (double) cyclesAndFESSolver.getCycles().size());
+      savePositiveMeasure(sonarProject, CoreMetrics.PACKAGE_FEEDBACK_EDGES, (double) feedbackEdges.size());
+      savePositiveMeasure(sonarProject, CoreMetrics.PACKAGE_TANGLES, (double) tangles);
+      savePositiveMeasure(sonarProject, CoreMetrics.PACKAGE_EDGES_WEIGHT, getEdgesWeight(squidPackages));
 
       String dsmJson = serializeDsm(squid, squidPackages, feedbackEdges);
       Measure dsmMeasure = new Measure(CoreMetrics.DEPENDENCY_MATRIX, dsmJson).setPersistenceMode(PersistenceMode.DATABASE);
@@ -83,8 +83,8 @@ public class DesignBridge extends Bridge {
     }
   }
 
-  private void savePositiveMeasure(Resource sonarResource, Metric metric, double value, boolean strict) {
-    if ((strict && value > 0.0) || ( !strict && value >= 0.0)) {
+  private void savePositiveMeasure(Resource sonarResource, Metric metric, double value) {
+    if (value >= 0.0) {
       context.saveMeasure(sonarResource, metric, value);
     }
   }
@@ -103,10 +103,10 @@ public class DesignBridge extends Bridge {
       Set<Edge> feedbackEdges = solver.getEdges();
       int tangles = solver.getWeightOfFeedbackEdgeSet();
 
-      savePositiveMeasure(sonarPackage, CoreMetrics.FILE_CYCLES, (double) cycles.size(), false);
-      savePositiveMeasure(sonarPackage, CoreMetrics.FILE_FEEDBACK_EDGES, (double) feedbackEdges.size(), false);
-      savePositiveMeasure(sonarPackage, CoreMetrics.FILE_TANGLES, (double) tangles, false);
-      savePositiveMeasure(sonarPackage, CoreMetrics.FILE_EDGES_WEIGHT, getEdgesWeight(squidFiles), false);
+      savePositiveMeasure(sonarPackage, CoreMetrics.FILE_CYCLES, (double) cycles.size());
+      savePositiveMeasure(sonarPackage, CoreMetrics.FILE_FEEDBACK_EDGES, (double) feedbackEdges.size());
+      savePositiveMeasure(sonarPackage, CoreMetrics.FILE_TANGLES, (double) tangles);
+      savePositiveMeasure(sonarPackage, CoreMetrics.FILE_EDGES_WEIGHT, getEdgesWeight(squidFiles));
 
       String dsmJson = serializeDsm(squid, squidFiles, feedbackEdges);
       context.saveMeasure(sonarPackage, new Measure(CoreMetrics.DEPENDENCY_MATRIX, dsmJson));

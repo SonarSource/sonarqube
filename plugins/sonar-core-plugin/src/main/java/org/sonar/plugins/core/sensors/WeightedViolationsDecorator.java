@@ -116,14 +116,7 @@ public class WeightedViolationsDecorator implements Decorator {
     }
 
     Measure debtMeasure = new Measure(CoreMetrics.WEIGHTED_VIOLATIONS, debt, KeyValueFormat.format(distribution));
-    saveMeasure(context, debtMeasure);
-  }
-
-
-  private void saveMeasure(DecoratorContext context, Measure debtMeasure) {
-    if (debtMeasure.getValue() > 0.0) {
-      context.saveMeasure(debtMeasure);
-    }
+    context.saveMeasure(debtMeasure);
   }
 
 }
