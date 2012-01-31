@@ -317,8 +317,6 @@ public class Violation {
   }
 
   /**
-   * The committer login is set by the SCM activity plugin. It's available to decorators
-   * annotated with : {@code @DependsUpon(DecoratorBarriers.END_OF_VIOLATION_TRACKING}
    * @since 2.13
    */
   public String getCommitter() {
