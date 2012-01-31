@@ -1026,6 +1026,8 @@ public final class CoreMetrics {
       .setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true)
       .setDomain(DOMAIN_RULES)
+      .setBestValue(0.0)
+      .setOptimizedBestValue(true)
       .create();
 
   public static final String VIOLATIONS_DENSITY_KEY = "violations_density";
