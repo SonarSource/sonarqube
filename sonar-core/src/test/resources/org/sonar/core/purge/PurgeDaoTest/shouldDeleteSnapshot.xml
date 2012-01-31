@@ -22,6 +22,7 @@
                     rule_priority="[null]"
                     alert_text="[null]" VALUE="10.0" METRIC_ID="1" SNAPSHOT_ID="1" rules_category_id="[null]"
                     RULE_ID="1"
+                    committer="[null]"
                     text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
                     alert_status="[null]" description="[null]"/>
   <measure_data id="1" measure_id="1" snapshot_id="1" data="[null]"/>
@@ -58,6 +59,7 @@
                     rule_priority="[null]"
                     alert_text="[null]" VALUE="10.0" METRIC_ID="1" SNAPSHOT_ID="5" rules_category_id="[null]"
                     RULE_ID="1"
+                    committer="[null]"
                     text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
                     alert_status="[null]" description="[null]"/>
   <measure_data id="2" measure_id="2" snapshot_id="5" data="[null]"/>

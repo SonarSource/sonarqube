@@ -22,23 +22,27 @@
   <project_measures ID="1" project_id="1" SNAPSHOT_ID="1" RULE_ID="[null]" characteristic_id="[null]" METRIC_ID="1"
                     url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]" variation_value_4="[null]"
                     variation_value_5="[null]" rule_priority="[null]" alert_text="[null]" VALUE="10.0" rules_category_id="[null]"
+                    committer="[null]"
                     text_value="[null]" tendency="[null]" measure_date="[null]" alert_status="[null]" description="[null]"/>
 
   <!-- delete measure on rule -->
   <project_measures ID="2" project_id="1" SNAPSHOT_ID="1" RULE_ID="33" characteristic_id="[null]" METRIC_ID="1"
                     url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]" variation_value_4="[null]"
                     variation_value_5="[null]" rule_priority="[null]" alert_text="[null]" VALUE="10.0" rules_category_id="[null]"
+                    committer="[null]"
                     text_value="[null]" tendency="[null]" measure_date="[null]" alert_status="[null]" description="[null]"/>
 
   <!-- delete measure on quality model characteristic -->
   <project_measures ID="3" project_id="1" SNAPSHOT_ID="1" RULE_ID="[null]" characteristic_id="22" METRIC_ID="1"
                     url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]" variation_value_4="[null]"
                     variation_value_5="[null]" rule_priority="[null]" alert_text="[null]" VALUE="10.0" rules_category_id="[null]"
+                    committer="[null]"
                     text_value="[null]" tendency="[null]" measure_date="[null]" alert_status="[null]" description="[null]"/>
 
   <!-- delete measure on metrics that are flagged with delete_historical_data=true -->
   <project_measures ID="4" project_id="1" SNAPSHOT_ID="1" RULE_ID="[null]" characteristic_id="[null]" METRIC_ID="2"
                     url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]" variation_value_4="[null]"
                     variation_value_5="[null]" rule_priority="[null]" alert_text="[null]" VALUE="10.0" rules_category_id="[null]"
+                    committer="[null]"
                     text_value="[null]" tendency="[null]" measure_date="[null]" alert_status="[null]" description="[null]"/>
 </dataset>
