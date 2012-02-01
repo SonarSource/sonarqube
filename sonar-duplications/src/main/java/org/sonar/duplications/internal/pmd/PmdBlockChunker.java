@@ -21,14 +21,13 @@ package org.sonar.duplications.internal.pmd;
 
 import com.google.common.collect.Lists;
 import org.sonar.duplications.block.Block;
-import org.sonar.duplications.block.BlockChunker;
 import org.sonar.duplications.block.ByteArray;
 
 import java.util.Collections;
 import java.util.List;
 
 /**
- * Differences with {@link BlockChunker}:
+ * Differences with {@link org.sonar.duplications.block.BlockChunker}:
  * works with {@link TokensLine},
  * sets {@link Block#setStartUnit(int)} and {@link Block#setEndUnit(int)} - indexes of first and last token for this block.
  */
