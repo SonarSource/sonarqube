@@ -113,6 +113,11 @@
     <url-pattern>/batch/*</url-pattern>
   </servlet-mapping>
 
+  <session-config>
+    <!-- in minutes -->
+    <session-timeout>20</session-timeout>
+  </session-config>
+
   <listener>
     <listener-class>org.sonar.server.platform.PlatformLifecycleListener</listener-class>
   </listener>
