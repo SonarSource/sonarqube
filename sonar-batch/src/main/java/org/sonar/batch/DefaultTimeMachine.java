@@ -34,6 +34,7 @@ import org.sonar.api.resources.Resource;
 import org.sonar.batch.index.DefaultIndex;
 
 import javax.persistence.Query;
+
 import java.util.*;
 
 public class DefaultTimeMachine implements TimeMachine {
@@ -93,12 +94,14 @@ public class DefaultTimeMachine implements TimeMachine {
         .append(MeasureModel.class.getSimpleName())
         .append(" m, ")
         .append(Snapshot.class.getSimpleName())
-        .append(" s WHERE m.snapshotId=s.id AND s.resourceId=:resourceId AND s.status=:status AND m.characteristic IS NULL AND s.qualifier<>:lib");
+        .append(" s WHERE m.snapshotId=s.id AND s.resourceId=:resourceId AND s.status=:status AND s.qualifier<>:lib");
     params.put("resourceId", resource.getId());
     params.put("status", Snapshot.STATUS_PROCESSED);
     params.put("lib", Qualifiers.LIBRARY);
 
-    sb.append(" AND m.ruleId IS NULL AND m.rulePriority IS NULL ");
+    sb.append(" AND m.characteristic IS NULL");
+    sb.append(" AND m.committer IS NULL");
+    sb.append(" AND m.ruleId IS NULL AND m.rulePriority IS NULL");
     if (!metricIds.isEmpty()) {
       sb.append(" AND m.metricId IN (:metricIds) ");
       params.put("metricIds", metricIds);
@@ -159,6 +162,7 @@ public class DefaultTimeMachine implements TimeMachine {
     measure.setVariation5(model.getVariationValue5());
     measure.setUrl(model.getUrl());
     measure.setCharacteristic(model.getCharacteristic());
+    measure.setCommitter(model.getCommitter());
     return measure;
   }
 }

@@ -147,7 +147,10 @@ public class FilterExecutor implements ServerComponent {
 
         sql.append(" ) AND ");
       }
-      sql.append(" pm.rule_id is null AND pm.rule_priority is null AND pm.characteristic_id IS NULL AND ");
+      sql.append(" pm.rule_id IS NULL AND pm.rule_priority IS NULL");
+      sql.append(" AND pm.characteristic_id IS NULL");
+      sql.append(" AND pm.committer IS NULL");
+      sql.append(" AND ");
     }
     sql.append(" s.status=:status AND s.islast=:islast ");
     if (filter.getScopes() != null) {

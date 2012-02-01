@@ -57,7 +57,8 @@ public final class MeasuresFilters {
         for (Measure measure : measures) {
           if (measure.getClass().equals(Measure.class) &&
             measure.getMetricKey().equals(metricKey) &&
-            measure.getCharacteristic() == null) {
+            measure.getCharacteristic() == null &&
+            measure.getCommitter() == null) {
             return measure;
           }
         }

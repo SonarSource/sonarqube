@@ -27,6 +27,7 @@ import org.sonar.api.qualitymodel.Characteristic;
 import org.sonar.api.rules.RulePriority;
 
 import javax.persistence.*;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -115,6 +116,9 @@ public class MeasureModel implements Cloneable {
   @JoinColumn(name = "characteristic_id")
   private Characteristic characteristic;
 
+  @Column(name = "committer", updatable = true, nullable = true, length = 100)
+  private String committer;
+
   public Long getId() {
     return id;
   }
@@ -122,7 +126,7 @@ public class MeasureModel implements Cloneable {
   public void setId(Long id) {
     this.id = id;
   }
-  
+
   /**
    * Creates a measure based on a metric and a double value
    */
@@ -518,6 +522,15 @@ public class MeasureModel implements Cloneable {
     return this;
   }
 
+  public String getCommitter() {
+    return committer;
+  }
+
+  public MeasureModel setCommitter(String committer) {
+    this.committer = committer;
+    return this;
+  }
+
   @Override
   public Object clone() {
     MeasureModel clone = new MeasureModel();
@@ -539,6 +552,8 @@ public class MeasureModel implements Cloneable {
     clone.setMeasureDate(getMeasureDate());
     clone.setUrl(getUrl());
     clone.setCharacteristic(getCharacteristic());
+    clone.setCommitter(getCommitter());
     return clone;
   }
+
 }

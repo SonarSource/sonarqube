@@ -23,11 +23,9 @@ import org.junit.Test;
 import org.mockito.Matchers;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.measures.*;
 import org.sonar.api.resources.*;
 import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RulePriority;
 import org.sonar.batch.components.PastMeasuresLoader;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.TimeMachineConfiguration;
@@ -100,12 +98,12 @@ public class VariationDecoratorTest extends AbstractDbUnitTestCase {
 
     // first past analysis
     when(pastMeasuresLoader.getPastMeasures(javaPackage, pastSnapshot1)).thenReturn(Arrays.asList(
-        new Object[]{NCLOC_ID, null, null, 180.0},
-        new Object[]{COVERAGE_ID, null, null, 75.0}));
+        new Object[] {NCLOC_ID, null, null, null, 180.0},
+        new Object[] {COVERAGE_ID, null, null, null, 75.0}));
 
     // second past analysis
     when(pastMeasuresLoader.getPastMeasures(javaPackage, pastSnapshot3)).thenReturn(Arrays.<Object[]>asList(
-        new Object[]{NCLOC_ID, null, null, 240.0}));
+        new Object[] {NCLOC_ID, null, null, null, 240.0}));
 
     // current analysis
     DecoratorContext context = mock(DecoratorContext.class);
@@ -142,9 +140,9 @@ public class VariationDecoratorTest extends AbstractDbUnitTestCase {
 
     // first past analysis
     when(pastMeasuresLoader.getPastMeasures(javaPackage, pastSnapshot1)).thenReturn(Arrays.asList(
-        new Object[]{VIOLATIONS_ID, null, null, 180.0},//total
-        new Object[]{VIOLATIONS_ID, null, rule1.getId(), 100.0},// rule 1
-        new Object[]{VIOLATIONS_ID, null, rule2.getId(), 80.0})); // rule 2
+        new Object[] {VIOLATIONS_ID, null, null, null, 180.0},// total
+        new Object[] {VIOLATIONS_ID, null, null, rule1.getId(), 100.0},// rule 1
+        new Object[] {VIOLATIONS_ID, null, null, rule2.getId(), 80.0})); // rule 2
 
     // current analysis
     DecoratorContext context = mock(DecoratorContext.class);

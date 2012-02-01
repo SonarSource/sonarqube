@@ -27,7 +27,6 @@ import org.sonar.jpa.test.AbstractDbUnitTestCase;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.nullValue;
@@ -53,11 +52,13 @@ public class PastMeasuresLoaderTest extends AbstractDbUnitTestCase {
     Object[] pastMeasure = measures.get(0);
     assertThat(PastMeasuresLoader.getMetricId(pastMeasure), is(1));
     assertThat(PastMeasuresLoader.getCharacteristicId(pastMeasure), nullValue());
+    assertThat(PastMeasuresLoader.getCommitter(pastMeasure), nullValue());
     assertThat(PastMeasuresLoader.getValue(pastMeasure), is(5.0));
 
     pastMeasure = measures.get(1);
     assertThat(PastMeasuresLoader.getMetricId(pastMeasure), is(2));
     assertThat(PastMeasuresLoader.getCharacteristicId(pastMeasure), nullValue());
+    assertThat(PastMeasuresLoader.getCommitter(pastMeasure), nullValue());
     assertThat(PastMeasuresLoader.getValue(pastMeasure), is(60.0));
   }
 
@@ -75,11 +76,13 @@ public class PastMeasuresLoaderTest extends AbstractDbUnitTestCase {
     Object[] pastMeasure = measures.get(0);
     assertThat(PastMeasuresLoader.getMetricId(pastMeasure), is(1));
     assertThat(PastMeasuresLoader.getCharacteristicId(pastMeasure), nullValue());
+    assertThat(PastMeasuresLoader.getCommitter(pastMeasure), nullValue());
     assertThat(PastMeasuresLoader.getValue(pastMeasure), is(60.0));
 
     pastMeasure = measures.get(1);
     assertThat(PastMeasuresLoader.getMetricId(pastMeasure), is(2));
     assertThat(PastMeasuresLoader.getCharacteristicId(pastMeasure), nullValue());
+    assertThat(PastMeasuresLoader.getCommitter(pastMeasure), nullValue());
     assertThat(PastMeasuresLoader.getValue(pastMeasure), is(80.0));
   }
 
@@ -94,7 +97,7 @@ public class PastMeasuresLoaderTest extends AbstractDbUnitTestCase {
     List<Metric> metrics = Arrays.asList(ncloc, complexity, data);
 
     PastMeasuresLoader loader = new PastMeasuresLoader(getSession(), metrics);
-    
+
     assertThat(loader.getMetrics().size(), is(2));
     assertThat(loader.getMetrics(), hasItems(ncloc, complexity));
   }

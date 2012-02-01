@@ -19,6 +19,7 @@
  */
 package org.sonar.api.measures;
 
+import com.google.common.annotations.Beta;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.qualitymodel.Characteristic;
 
@@ -52,6 +53,7 @@ public class Measure {
   protected Double variation1, variation2, variation3, variation4, variation5;
   protected String url;
   protected Characteristic characteristic;
+  protected String committer;
   protected PersistenceMode persistenceMode = PersistenceMode.FULL;
 
   public Measure(String metricKey) {
@@ -329,7 +331,7 @@ public class Measure {
     this.data=null;
     return this;
   }
-  
+
   /**
    * @return the description of the measure
    */
@@ -593,6 +595,23 @@ public class Measure {
     return this;
   }
 
+  /**
+   * @since 2.14
+   */
+  @Beta
+  public String getCommitter() {
+    return committer;
+  }
+
+  /**
+   * @since 2.14
+   */
+  @Beta
+  public Measure setCommitter(String committer) {
+    this.committer = committer;
+    return this;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -609,6 +628,9 @@ public class Measure {
     if (characteristic != null ? !characteristic.equals(measure.characteristic) : measure.characteristic != null) {
       return false;
     }
+    if (committer != null ? !committer.equals(measure.committer) : measure.committer != null) {
+      return false;
+    }
     return true;
   }
 
@@ -616,6 +638,7 @@ public class Measure {
   public int hashCode() {
     int result = metricKey != null ? metricKey.hashCode() : 0;
     result = 31 * result + (characteristic != null ? characteristic.hashCode() : 0);
+    result = 31 * result + (committer != null ? committer.hashCode() : 0);
     return result;
   }
 
