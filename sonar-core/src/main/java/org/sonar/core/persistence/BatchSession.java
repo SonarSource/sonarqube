@@ -31,7 +31,7 @@ import java.util.Map;
 
 public final class BatchSession implements SqlSession {
 
-  public static final int MAX_BATCH_SIZE = 1000;
+  public static final int MAX_BATCH_SIZE = 250;
 
   private final SqlSession session;
   private final int batchSize;
