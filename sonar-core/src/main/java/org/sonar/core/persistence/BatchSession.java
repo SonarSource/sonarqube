@@ -31,7 +31,7 @@ import java.util.Map;
 
 public final class BatchSession implements SqlSession {
 
-  public static final int MAX_BATCH_SIZE = 250;
+  public static final int MAX_BATCH_SIZE = 1000;
 
   private final SqlSession session;
   private final int batchSize;
@@ -170,7 +170,7 @@ public final class BatchSession implements SqlSession {
   }
 
   public <T> T getMapper(Class<T> type) {
-    return session.getMapper(type);
+    return getConfiguration().getMapper(type, this);
   }
 
   public Connection getConnection() {
