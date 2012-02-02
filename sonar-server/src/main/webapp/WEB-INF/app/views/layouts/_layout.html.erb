@@ -51,7 +51,7 @@
           <% elsif (selected_section==Navigation::SECTION_RESOURCE) %>
             <% ActiveDashboard.user_dashboards(current_user).each do |active_dashboard| %>
               <li class="<%= 'selected' if @dashboard && controller.controller_path=='dashboard' && active_dashboard.dashboard_id==@dashboard.id -%>">
-                <a href="<%= ApplicationController.root_context -%>/dashboard/index/<%= @project.id -%>?did=<%= active_dashboard.dashboard_id -%>"><%= active_dashboard.dashboard.name(true) -%></a>
+                <a href="<%= ApplicationController.root_context -%>/dashboard/index/<%= @project.id -%>?did=<%= active_dashboard.dashboard_id -%><%= "&period=#{params[:period]}" if params[:period] -%>"><%= active_dashboard.dashboard.name(true) -%></a>
               </li>
             <% end %>
             <li class="<%= 'selected' if request.request_uri.include?('/components/index') -%>">
