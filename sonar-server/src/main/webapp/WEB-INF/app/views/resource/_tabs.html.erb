@@ -3,6 +3,7 @@
    if display_title
 %>
   <div id="source_title">
+    <% if logged_in? %><%= link_to_favourite(@resource) -%><% end %>
     <span class="h1"><%= qualifier_icon(@resource) -%> <%= @resource.name(true) -%></span>
   </div>
 <% end %>
