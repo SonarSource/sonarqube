@@ -46,20 +46,33 @@ public class RuleMeasure extends Measure {
     return rule;
   }
 
-  public void setRule(Rule rule) {
+  public RuleMeasure setRule(Rule rule) {
     this.rule = rule;
+    return this;
   }
 
   public RulePriority getRulePriority() {
     return rulePriority;
   }
 
-  public void setRulePriority(RulePriority rulePriority) {
+  /**
+   * @deprecated since 2.14 use {@link #setSeverity()} instead. See SONAR-1829.
+   */
+  public RuleMeasure setRulePriority(RulePriority rulePriority) {
     this.rulePriority = rulePriority;
+    return this;
   }
 
   /**
-   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   * @since 2.14
+   */
+  public RuleMeasure setSeverity(RulePriority severity) {
+    this.rulePriority = severity;
+    return this;
+  }
+
+  /**
+   * @deprecated since 2.5. See SONAR-2007.
    */
   @Deprecated
   public Integer getRuleCategory() {
@@ -67,11 +80,10 @@ public class RuleMeasure extends Measure {
   }
 
   /**
-   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   * @deprecated since 2.5. See SONAR-2007.
    */
   @Deprecated
   public void setRuleCategory(Integer ruleCategory) {
-
   }
 
   @Override
@@ -131,7 +143,7 @@ public class RuleMeasure extends Measure {
   }
 
   /**
-   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   * @deprecated since 2.5. See SONAR-2007.
    */
   @Deprecated
   public static RuleMeasure createForCategory(Metric metric, Integer category, Double value) {
