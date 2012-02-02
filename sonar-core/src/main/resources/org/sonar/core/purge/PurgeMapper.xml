@@ -3,7 +3,7 @@
 
 <mapper namespace="org.sonar.core.purge.PurgeMapper">
 
-  <select id="selectSnapshotIds" parameterType="map" resultType="long">
+  <select id="selectSnapshotIds" parameterType="map" resultType="long" resultSetType="SCROLL_INSENSITIVE">
     select s.id from snapshots s
     <where>
       <if test="islast != null">
