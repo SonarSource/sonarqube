@@ -546,11 +546,6 @@ public class Metric implements ServerExtension, BatchExtension {
     return deleteHistoricalData;
   }
 
-  public Metric setDeleteHistoricalData(Boolean b) {
-    this.deleteHistoricalData = b;
-    return this;
-  }
-
   @Override
   public int hashCode() {
     return key.hashCode();
