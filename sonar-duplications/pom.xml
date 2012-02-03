@@ -6,9 +6,15 @@
     <artifactId>sonar</artifactId>
     <version>2.14-SNAPSHOT</version>
   </parent>
+
   <artifactId>sonar-duplications</artifactId>
+
   <name>Sonar :: Duplications</name>
   <description>Detect duplicated code</description>
+
+  <properties>
+    <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
+  </properties>
 
   <dependencies>
     <dependency>
