@@ -19,35 +19,69 @@
  */
 package org.sonar.api.notifications;
 
-import com.google.common.collect.Maps;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
-
 import java.io.Serializable;
 import java.util.HashMap;
 
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
+import com.google.common.collect.Maps;
+
 /**
+ * <p>
+ * This class represents a notification that will be delivered to users. This is a general concept and it has no
+ * knowledge of the possible ways to be delivered (see {@link NotificationChannel}) or of the users who should
+ * receive it (see {@link NotificationDispatcher}).
+ * </p> 
+ * 
  * @since 2.10
  */
 public class Notification implements Serializable {
 
   private String type;
 
-  private HashMap<String, String> fields = Maps.newHashMap(); // NOSONAR false-positive due to serialization : usage of HashMap instead of Map
+  private HashMap<String, String> fields = Maps.newHashMap(); // NOSONAR false-positive due to serialization : usage of HashMap instead of
+                                                              // Map
 
+  /**
+   * <p>
+   * Create a new {@link Notification} of the given type.
+   * </p>
+   * Example: type = "new-violations"
+   * 
+   * @param type the type of notification
+   */
   public Notification(String type) {
     this.type = type;
   }
 
+  /**
+   * Returns the type of the notification
+   * 
+   * @return the type
+   */
   public String getType() {
     return type;
   }
 
+  /**
+   * Adds a field (kind of property) to the notification
+   * 
+   * @param field the name of the field (= the key)
+   * @param value the value of the field
+   * @return the notification itself
+   */
   public Notification setFieldValue(String field, String value) {
     fields.put(field, value);
     return this;
   }
 
+  /**
+   * Returns the value of a field.
+   * 
+   * @param field the field
+   * @return the value of the field
+   */
   public String getFieldValue(String field) {
     return fields.get(field);
   }

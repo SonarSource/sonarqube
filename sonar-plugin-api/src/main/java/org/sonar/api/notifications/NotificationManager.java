@@ -23,10 +23,23 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 
 /**
+ * <p>
+ * The notification manager receives notifications and is in charge of storing them so that they are processed by the notification service.
+ * </p>
+ * <p>
+ * Pico provides an instance of this class, and plugins just need to create notifications and pass them to this manager with 
+ * the {@link NotificationManager#scheduleForSending(Notification)} method.
+ * </p>
+ * 
  * @since 2.10
  */
 public interface NotificationManager extends ServerComponent, BatchComponent {
 
+  /**
+   * Receives a notification and stores it so that it is processed by the notification service.
+   * 
+   * @param notification the notification.
+   */
   void scheduleForSending(Notification notification);
 
 }

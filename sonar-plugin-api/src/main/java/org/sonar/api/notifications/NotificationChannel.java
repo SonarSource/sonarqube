@@ -22,7 +22,9 @@ package org.sonar.api.notifications;
 import org.sonar.api.ServerExtension;
 
 /**
- * Provides logic to deliver notification.
+ * <p>
+ * Plugins should extend this class to provide implementation on a specific way to deliver notifications.
+ * </p>
  * For example:
  * <ul>
  * <li>email - sends email as soon as possible</li>
@@ -35,13 +37,21 @@ import org.sonar.api.ServerExtension;
 public abstract class NotificationChannel implements ServerExtension {
 
   /**
-   * @return unique key of this channel
+   * Returns the unique key of this channel. 
+   * 
+   * @return the key
    */
   public String getKey() {
     return getClass().getSimpleName();
   }
 
-  public abstract void deliver(Notification notification, String username);
+  /**
+   * Implements the delivery of the given notification to the given user.
+   * 
+   * @param notification the notification to deliver
+   * @param userlogin the login of the user who should receive the notification
+   */
+  public abstract void deliver(Notification notification, String userlogin);
 
   @Override
   public String toString() {
