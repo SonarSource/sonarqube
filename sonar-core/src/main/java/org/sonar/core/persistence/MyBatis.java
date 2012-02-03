@@ -19,31 +19,47 @@
  */
 package org.sonar.core.persistence;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.mapping.Environment;
-import org.apache.ibatis.session.*;
+import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
-import org.sonar.core.dashboard.*;
+import org.sonar.core.dashboard.ActiveDashboardDto;
+import org.sonar.core.dashboard.ActiveDashboardMapper;
+import org.sonar.core.dashboard.DashboardDto;
+import org.sonar.core.dashboard.DashboardMapper;
+import org.sonar.core.dashboard.WidgetDto;
+import org.sonar.core.dashboard.WidgetMapper;
+import org.sonar.core.dashboard.WidgetPropertyDto;
+import org.sonar.core.dashboard.WidgetPropertyMapper;
 import org.sonar.core.duplication.DuplicationMapper;
 import org.sonar.core.duplication.DuplicationUnitDto;
+import org.sonar.core.properties.PropertiesMapper;
 import org.sonar.core.purge.PurgeMapper;
 import org.sonar.core.purge.PurgeableSnapshotDto;
-import org.sonar.core.resource.*;
+import org.sonar.core.resource.ResourceDto;
+import org.sonar.core.resource.ResourceIndexDto;
+import org.sonar.core.resource.ResourceIndexerMapper;
+import org.sonar.core.resource.ResourceMapper;
+import org.sonar.core.resource.SnapshotDto;
 import org.sonar.core.review.ReviewDto;
 import org.sonar.core.review.ReviewMapper;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleMapper;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.core.template.LoadedTemplateMapper;
-
-import java.io.IOException;
-import java.io.InputStream;
 
 public class MyBatis implements BatchComponent, ServerComponent {
 
@@ -80,6 +96,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadMapper(conf, DashboardMapper.class);
     loadMapper(conf, DuplicationMapper.class);
     loadMapper(conf, LoadedTemplateMapper.class);
+    loadMapper(conf, PropertiesMapper.class);
     loadMapper(conf, PurgeMapper.class);
     loadMapper(conf, ResourceMapper.class);
     loadMapper(conf, ReviewMapper.class);
@@ -131,7 +148,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
 
   private InputStream getPathToMapper(Class mapperClass) {
     InputStream input = getClass().getResourceAsStream(
-      "/" + StringUtils.replace(mapperClass.getName(), ".", "/") + "-" + database.getDialect().getId() + ".xml");
+        "/" + StringUtils.replace(mapperClass.getName(), ".", "/") + "-" + database.getDialect().getId() + ".xml");
     if (input == null) {
       input = getClass().getResourceAsStream("/" + StringUtils.replace(mapperClass.getName(), ".", "/") + ".xml");
     }

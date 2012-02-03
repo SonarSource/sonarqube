@@ -23,18 +23,24 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.sonar.api.SonarPlugin;
+import org.sonar.plugins.emailnotifications.newviolations.NewViolationsEmailTemplate;
+import org.sonar.plugins.emailnotifications.newviolations.NewViolationsOnMyFavouriteProject;
 import org.sonar.plugins.emailnotifications.reviews.ChangesInReviewAssignedToMeOrCreatedByMe;
 import org.sonar.plugins.emailnotifications.reviews.ReviewEmailTemplate;
 
 public class EmailNotificationsPlugin extends SonarPlugin {
 
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public List getExtensions() {
     return Arrays.asList(
         EmailConfiguration.class,
         EmailNotificationChannel.class,
 
         ReviewEmailTemplate.class,
-        ChangesInReviewAssignedToMeOrCreatedByMe.class);
+        ChangesInReviewAssignedToMeOrCreatedByMe.class,
+
+        NewViolationsEmailTemplate.class,
+        NewViolationsOnMyFavouriteProject.class);
   }
 
 }

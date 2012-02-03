@@ -19,7 +19,11 @@
  */
 package org.sonar.batch.components;
 
-import com.google.common.collect.Lists;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.Query;
+
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
@@ -30,12 +34,8 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.Logs;
-import org.sonar.batch.components.PastSnapshot;
-import org.sonar.batch.components.PastSnapshotFinder;
 
-import javax.persistence.Query;
-import java.util.Date;
-import java.util.List;
+import com.google.common.collect.Lists;
 
 public class TimeMachineConfiguration implements BatchExtension {
 
@@ -46,7 +46,8 @@ public class TimeMachineConfiguration implements BatchExtension {
   private List<PastSnapshot> projectPastSnapshots;
   private DatabaseSession session;
 
-  public TimeMachineConfiguration(DatabaseSession session, Project project, Configuration configuration, PastSnapshotFinder pastSnapshotFinder) {
+  public TimeMachineConfiguration(DatabaseSession session, Project project, Configuration configuration,
+      PastSnapshotFinder pastSnapshotFinder) {
     this.session = session;
     this.project = project;
     this.configuration = configuration;
@@ -69,7 +70,8 @@ public class TimeMachineConfiguration implements BatchExtension {
   }
 
   private Snapshot buildProjectSnapshot() {
-    Query query = session.createNativeQuery("select p.id from projects p where p.kee=:resourceKey and p.qualifier<>:lib and p.enabled=:enabled");
+    Query query = session
+        .createNativeQuery("select p.id from projects p where p.kee=:resourceKey and p.qualifier<>:lib and p.enabled=:enabled");
     query.setParameter("resourceKey", project.getKey());
     query.setParameter("lib", Qualifiers.LIBRARY);
     query.setParameter("enabled", Boolean.TRUE);
@@ -109,5 +111,27 @@ public class TimeMachineConfiguration implements BatchExtension {
 
   public boolean isFileVariationEnabled() {
     return configuration.getBoolean("sonar.enableFileVariation", Boolean.FALSE);
+  }
+
+  /**
+   * Returns the index corresponding to the 'previous_analysis' period (which is '1' by default).
+   * 
+   * @return the index of 'previous_analysis' period, or NULL is users have modified the periods and haven't set a 'previous_analysis' one.
+   */
+  public Integer getLastAnalysisPeriodIndex() {
+    // period1 is the default for 'previous_analysis'
+    String period1 = configuration.getString(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + "1");
+    if (StringUtils.isBlank(period1) || CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS.equals(period1)) {
+      return 1;
+    }
+    // else search for the other periods
+    for (int index = 2; index < 6; index++) {
+      if (CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS.equals(configuration
+          .getString(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + index))) {
+        return index;
+      }
+    }
+    // if we're here, this means that we have not found the 'previous_analysis' mode
+    return null;
   }
 }

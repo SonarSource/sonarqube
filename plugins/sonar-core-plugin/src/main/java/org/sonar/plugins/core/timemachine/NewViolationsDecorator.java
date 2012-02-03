@@ -37,6 +37,8 @@ import org.sonar.api.measures.MeasureUtils;
 import org.sonar.api.measures.MeasuresFilters;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.RuleMeasure;
+import org.sonar.api.notifications.Notification;
+import org.sonar.api.notifications.NotificationManager;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
@@ -55,9 +57,11 @@ import com.google.common.collect.Sets;
 public class NewViolationsDecorator implements Decorator {
 
   private TimeMachineConfiguration timeMachineConfiguration;
+  private NotificationManager notificationManager;
 
-  public NewViolationsDecorator(TimeMachineConfiguration timeMachineConfiguration) {
+  public NewViolationsDecorator(TimeMachineConfiguration timeMachineConfiguration, NotificationManager notificationManager) {
     this.timeMachineConfiguration = timeMachineConfiguration;
+    this.notificationManager = notificationManager;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -75,15 +79,19 @@ public class NewViolationsDecorator implements Decorator {
         CoreMetrics.NEW_INFO_VIOLATIONS);
   }
 
+  @SuppressWarnings("rawtypes")
   public void decorate(Resource resource, DecoratorContext context) {
     if (shouldDecorateResource(resource, context)) {
       computeNewViolations(context);
       computeNewViolationsPerSeverity(context);
       computeNewViolationsPerRule(context);
     }
+    if (ResourceUtils.isRootProject(resource)) {
+      notifyNewViolations((Project) resource, context);
+    }
   }
 
-  private boolean shouldDecorateResource(Resource resource, DecoratorContext context) {
+  private boolean shouldDecorateResource(Resource<?> resource, DecoratorContext context) {
     return (StringUtils.equals(Scopes.PROJECT, resource.getScope()) || StringUtils.equals(Scopes.DIRECTORY, resource.getScope()) || StringUtils
         .equals(Scopes.FILE, resource.getScope()))
       && !ResourceUtils.isUnitTestClass(resource)
@@ -196,6 +204,23 @@ public class NewViolationsDecorator implements Decorator {
       throw new IllegalArgumentException("Unsupported severity: " + severity);
     }
     return metric;
+  }
+
+  protected void notifyNewViolations(Project project, DecoratorContext context) {
+    Integer lastAnalysisPeriodIndex = timeMachineConfiguration.getLastAnalysisPeriodIndex();
+    if (lastAnalysisPeriodIndex != null) {
+      Double newViolationsCount = context.getMeasure(CoreMetrics.NEW_VIOLATIONS).getVariation(lastAnalysisPeriodIndex);
+      if (newViolationsCount != null && newViolationsCount > 0) {
+        // Maybe we should check if this is the first analysis or not?
+        Notification notification = new Notification("new-violations")
+            .setFieldValue("count", String.valueOf(newViolationsCount.intValue()))
+            .setFieldValue("projectName", project.getLongName())
+            .setFieldValue("projectKey", project.getKey())
+            .setFieldValue("projectId", String.valueOf(project.getId()))
+            .setFieldValue("period", lastAnalysisPeriodIndex.toString());
+        notificationManager.scheduleForSending(notification);
+      }
+    }
   }
 
   @Override

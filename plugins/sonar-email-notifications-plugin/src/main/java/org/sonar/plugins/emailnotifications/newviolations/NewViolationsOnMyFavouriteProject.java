@@ -17,34 +17,35 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.emailnotifications.reviews;
+package org.sonar.plugins.emailnotifications.newviolations;
+
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationDispatcher;
+import org.sonar.core.properties.PropertiesDao;
 
 /**
- * This dispatcher means: "notify me when someone changes review assigned to me or created by me".
+ * This dispatcher means: "notify me when new violations are introduced on projects that I flagged as favourite".
  * 
- * @since 2.10
+ * @since 2.14
  */
-public class ChangesInReviewAssignedToMeOrCreatedByMe extends NotificationDispatcher {
+public class NewViolationsOnMyFavouriteProject extends NotificationDispatcher {
+
+  private PropertiesDao propertiesDao;
+
+  public NewViolationsOnMyFavouriteProject(PropertiesDao propertiesDao) {
+    this.propertiesDao = propertiesDao;
+  }
 
   @Override
   public void dispatch(Notification notification, Context context) {
-    if (StringUtils.startsWith(notification.getType(), "review")) {
-      String author = notification.getFieldValue("author"); // author of change
-      String creator = notification.getFieldValue("creator"); // creator of review
-      String oldAssignee = notification.getFieldValue("old.assignee"); // previous assignee
-      String assignee = notification.getFieldValue("assignee"); // current assignee
-      if (creator != null && !StringUtils.equals(author, creator)) {
-        context.addUser(creator);
-      }
-      if (oldAssignee != null && !StringUtils.equals(author, oldAssignee)) {
-        context.addUser(oldAssignee);
-      }
-      if (assignee != null && !StringUtils.equals(author, assignee)) {
-        context.addUser(assignee);
+    if (StringUtils.equals(notification.getType(), "new-violations")) {
+      Integer projectId = Integer.parseInt(notification.getFieldValue("projectId"));
+      List<String> userLogins = propertiesDao.findUserIdsForFavouriteResource(projectId);
+      for (String userLogin : userLogins) {
+        context.addUser(userLogin);
       }
     }
   }

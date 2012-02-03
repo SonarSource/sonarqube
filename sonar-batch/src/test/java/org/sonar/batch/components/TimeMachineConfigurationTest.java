@@ -19,6 +19,15 @@
  */
 package org.sonar.batch.components;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -26,15 +35,7 @@ import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.components.PastSnapshotFinder;
-import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
 
 public class TimeMachineConfigurationTest extends AbstractDbUnitTestCase {
 
@@ -42,13 +43,17 @@ public class TimeMachineConfigurationTest extends AbstractDbUnitTestCase {
   public void shouldSkipTendencies() {
     PropertiesConfiguration conf = new PropertiesConfiguration();
     conf.setProperty(CoreProperties.SKIP_TENDENCIES_PROPERTY, true);
-    assertThat(new TimeMachineConfiguration(getSession(), new Project("my:project"), conf, mock(PastSnapshotFinder.class)).skipTendencies(), is(true));
+    assertThat(
+        new TimeMachineConfiguration(getSession(), new Project("my:project"), conf, mock(PastSnapshotFinder.class)).skipTendencies(),
+        is(true));
   }
 
   @Test
   public void shouldNotSkipTendenciesByDefault() {
     PropertiesConfiguration conf = new PropertiesConfiguration();
-    assertThat(new TimeMachineConfiguration(getSession(), new Project("my:project"), conf, mock(PastSnapshotFinder.class)).skipTendencies(), is(false));
+    assertThat(
+        new TimeMachineConfiguration(getSession(), new Project("my:project"), conf, mock(PastSnapshotFinder.class)).skipTendencies(),
+        is(false));
   }
 
   @Test
@@ -79,4 +84,24 @@ public class TimeMachineConfigurationTest extends AbstractDbUnitTestCase {
 
     verifyZeroInteractions(pastSnapshotFinder);
   }
+
+  @Test
+  public void shouldReturnLastAnalysisIndexIfSet() {
+    PropertiesConfiguration conf = new PropertiesConfiguration();
+    TimeMachineConfiguration timeMachineConfiguration = new TimeMachineConfiguration(getSession(), new Project("my:project"), conf,
+        mock(PastSnapshotFinder.class));
+
+    // Nothing set, so period for 'previous_analysis' is 1 by default
+    assertThat(timeMachineConfiguration.getLastAnalysisPeriodIndex(), is(1));
+
+    // period1 has been replaced and 'previous_analysis' not set elsewhere...
+    conf.setProperty(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + 1, "Version 1");
+    conf.setProperty(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + 2, "Version 2");
+    assertThat(timeMachineConfiguration.getLastAnalysisPeriodIndex(), is(nullValue()));
+
+    // 'previous_analysis' has now been set on period 4
+    conf.setProperty(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + 4, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
+    assertThat(timeMachineConfiguration.getLastAnalysisPeriodIndex(), is(4));
+  }
+
 }

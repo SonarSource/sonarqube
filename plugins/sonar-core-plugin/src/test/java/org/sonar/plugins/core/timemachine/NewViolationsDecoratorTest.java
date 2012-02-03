@@ -19,7 +19,21 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import com.google.common.collect.Lists;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.hamcrest.BaseMatcher;
@@ -31,8 +45,11 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.RuleMeasure;
+import org.sonar.api.notifications.Notification;
+import org.sonar.api.notifications.NotificationManager;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
@@ -40,14 +57,7 @@ import org.sonar.api.rules.Violation;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.TimeMachineConfiguration;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
+import com.google.common.collect.Lists;
 
 public class NewViolationsDecoratorTest {
   private Rule rule1;
@@ -57,10 +67,12 @@ public class NewViolationsDecoratorTest {
   private NewViolationsDecorator decorator;
   private DecoratorContext context;
   private Resource resource;
+  private NotificationManager notificationManager;
 
   private Date rightNow;
   private Date tenDaysAgo;
   private Date fiveDaysAgo;
+  private TimeMachineConfiguration timeMachineConfiguration;
 
   @Before
   public void setUp() {
@@ -76,14 +88,15 @@ public class NewViolationsDecoratorTest {
     when(pastSnapshot2.getIndex()).thenReturn(2);
     when(pastSnapshot2.getTargetDate()).thenReturn(tenDaysAgo);
 
-    TimeMachineConfiguration timeMachineConfiguration = mock(TimeMachineConfiguration.class);
+    timeMachineConfiguration = mock(TimeMachineConfiguration.class);
     when(timeMachineConfiguration.getProjectPastSnapshots()).thenReturn(Arrays.asList(pastSnapshot, pastSnapshot2));
 
     context = mock(DecoratorContext.class);
     resource = new File("com/foo/bar");
     when(context.getResource()).thenReturn(resource);
 
-    decorator = new NewViolationsDecorator(timeMachineConfiguration);
+    notificationManager = mock(NotificationManager.class);
+    decorator = new NewViolationsDecorator(timeMachineConfiguration, notificationManager);
 
     rule1 = Rule.create().setRepositoryKey("rule1").setKey("rule1").setName("name1");
     rule2 = Rule.create().setRepositoryKey("rule2").setKey("rule2").setName("name2");
@@ -152,6 +165,69 @@ public class NewViolationsDecoratorTest {
     verify(context).saveMeasure(argThat(new IsVariationRuleMeasure(CoreMetrics.NEW_CRITICAL_VIOLATIONS, rule1, 1.0, 1.0)));
     verify(context).saveMeasure(argThat(new IsVariationRuleMeasure(CoreMetrics.NEW_MAJOR_VIOLATIONS, rule2, 0.0, 1.0)));
     verify(context).saveMeasure(argThat(new IsVariationRuleMeasure(CoreMetrics.NEW_MINOR_VIOLATIONS, rule3, 0.0, 1.0)));
+  }
+
+  @Test
+  public void shouldNotNotifyIfNotLastestAnalysis() {
+    Project project = mock(Project.class);
+    when(project.isLatestAnalysis()).thenReturn(false);
+    assertThat(decorator.shouldExecuteOnProject(project), is(false));
+  }
+
+  @Test
+  public void shouldNotNotifyIfNotRootProject() throws Exception {
+    Project project = mock(Project.class);
+    when(project.getQualifier()).thenReturn(Qualifiers.MODULE);
+
+    decorator.decorate(project, context);
+
+    verify(notificationManager, never()).scheduleForSending(any(Notification.class));
+  }
+
+  @Test
+  public void shouldNotNotifyIfNoPeriodForLastAnalysis() throws Exception {
+    Project project = new Project("key");
+    when(timeMachineConfiguration.getLastAnalysisPeriodIndex()).thenReturn(null);
+
+    decorator.notifyNewViolations(project, context);
+
+    verify(notificationManager, never()).scheduleForSending(any(Notification.class));
+  }
+
+  @Test
+  public void shouldNotNotifyIfNoNewViolations() throws Exception {
+    Project project = new Project("key");
+    when(timeMachineConfiguration.getLastAnalysisPeriodIndex()).thenReturn(1);
+    Measure m = new Measure(CoreMetrics.NEW_VIOLATIONS);
+    when(context.getMeasure(CoreMetrics.NEW_VIOLATIONS)).thenReturn(m);
+
+    // NULL is returned here
+    decorator.notifyNewViolations(project, context);
+    verify(notificationManager, never()).scheduleForSending(any(Notification.class));
+
+    // 0 will be returned now
+    m.setVariation1(0.0);
+    decorator.notifyNewViolations(project, context);
+    verify(notificationManager, never()).scheduleForSending(any(Notification.class));
+  }
+
+  @Test
+  public void shouldNotifyUserAboutNewViolations() throws Exception {
+    Project project = new Project("key").setName("LongName");
+    project.setId(45);
+    when(timeMachineConfiguration.getLastAnalysisPeriodIndex()).thenReturn(2);
+    Measure m = new Measure(CoreMetrics.NEW_VIOLATIONS).setVariation2(32.0);
+    when(context.getMeasure(CoreMetrics.NEW_VIOLATIONS)).thenReturn(m);
+
+    decorator.decorate(project, context);
+
+    Notification notification = new Notification("new-violations")
+        .setFieldValue("count", "32")
+        .setFieldValue("projectName", "LongName")
+        .setFieldValue("projectKey", "key")
+        .setFieldValue("projectId", "45")
+        .setFieldValue("period", "2");
+    verify(notificationManager, times(1)).scheduleForSending(eq(notification));
   }
 
   private List<Violation> createViolations() {
