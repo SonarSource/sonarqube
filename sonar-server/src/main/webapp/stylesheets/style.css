@@ -2241,11 +2241,6 @@ table.without-header {
   vertical-align: top;
 }
 
-/* Button "More" in source viewers. See sonar-gwt-api, class SourcePanel */
-#more_source {
-  margin: 5px 10px;
-}
-
 /* GENERIC STYLES */
 .line-block {
   display: inline-block;
@@ -2344,4 +2339,78 @@ table.nowrap td, td.nowrap, th.nowrap {
 
 .yellowHighlight {
   background: #FFFBCC;
+}
+
+
+
+
+.link-action {
+  text-decoration: underline;
+  color: #4183C4;
+}
+
+.table-bordered {
+  border: 1px solid #DDD;
+  border-collapse: separate;
+  *border-collapse: collapsed;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
+.form-key-cell {
+  padding: 2px 8px 4px 10px;
+  text-align: right;
+  width: 1%;
+  white-space: nowrap;
+  vertical-align: top;
+}
+.form-val-cell {
+  padding: 2px 8px 4px 0;
+  text-align: left;
+  white-space: normal;
+}
+.form-val-note {
+  font-size: 12px;
+  color: #999;
+}
+blockquote {
+  border-left: 3px solid #E5E5E5;
+  padding: 0 8px;
+  line-height: 16px;
+}
+blockquote cite {
+  line-height: 16px;
+  background-image: url('../images/reviews/comment.png');
+  background-repeat: no-repeat;
+  padding-left: 20px;
+  background-position: left center;
+  font-size: 12px;
+  color: #888;
+}
+.spacer-left {
+  margin-left: 10px;
+}
+.spacer-right {
+  margin-right: 10px;
+}
+.spacer-bottom {
+  margin-bottom: 10px;
+}
+.spacer-top {
+  margin-top: 10px;
+}
+.bordered {
+  border: 1px solid #DDD;
+}
+.bordered-left {
+  border-left: 1px solid #DDD;
+}
+.bordered-right {
+  border-right: 1px solid #DDD;
+}
+.bordered-bottom {
+  border-bottom: 1px solid #DDD;
+}
+.bordered-top {
+  border-top: 1px solid #DDD;
 }
