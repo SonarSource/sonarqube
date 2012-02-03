@@ -21,9 +21,6 @@
       <if test="resourceId != null">
         and s.project_id=#{resourceId}
       </if>
-      <if test="beforeBuildDate != null">
-        and s.build_date &lt;= #{beforeBuildDate}
-      </if>
       <if test="status != null">
         and s.status in
         <foreach item="s" index="index" collection="status" open="(" separator="," close=")">#{s}</foreach>

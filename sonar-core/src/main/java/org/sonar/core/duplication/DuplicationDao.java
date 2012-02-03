@@ -19,7 +19,6 @@
  */
 package org.sonar.core.duplication;
 
-import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;

@@ -67,8 +67,9 @@ public class RuleMeasure extends Measure {
   }
 
   /**
-   * @deprecated since 2.14 use {@link #setSeverity()} instead. See SONAR-1829.
+   * @deprecated since 2.14 use {@link #setSeverity(org.sonar.api.rules.RulePriority)} instead. See SONAR-1829.
    */
+  @Deprecated
   public RuleMeasure setRulePriority(RulePriority rulePriority) {
     this.rulePriority = rulePriority;
     return this;

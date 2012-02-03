@@ -19,13 +19,10 @@
  */
 package org.sonar.core.purge;
 
-import java.util.Date;
-
 public final class PurgeSnapshotQuery {
   private Long rootProjectId;
   private Long rootSnapshotId;
   private Long resourceId;
-  private Date beforeBuildDate;
   private String[] scopes;
   private String[] qualifiers;
   private String[] status;
@@ -49,17 +46,8 @@ public final class PurgeSnapshotQuery {
     return this;
   }
 
-  public Date getBeforeBuildDate() {
-    return beforeBuildDate;
-  }
-
-  public PurgeSnapshotQuery setBeforeBuildDate(Date beforeBuildDate) {
-    this.beforeBuildDate = beforeBuildDate;
-    return this;
-  }
-
   public String[] getScopes() {
-    return scopes;
+    return scopes;//NOSONAR May expose internal representation by returning reference to mutable object
   }
 
   public PurgeSnapshotQuery setScopes(String[] scopes) {
@@ -68,7 +56,7 @@ public final class PurgeSnapshotQuery {
   }
 
   public String[] getQualifiers() {
-    return qualifiers;
+    return qualifiers;//NOSONAR May expose internal representation by returning reference to mutable object
   }
 
   public PurgeSnapshotQuery setQualifiers(String[] qualifiers) {
@@ -77,7 +65,7 @@ public final class PurgeSnapshotQuery {
   }
 
   public String[] getStatus() {
-    return status;
+    return status;//NOSONAR May expose internal representation by returning reference to mutable object
   }
 
   public PurgeSnapshotQuery setStatus(String[] status) {

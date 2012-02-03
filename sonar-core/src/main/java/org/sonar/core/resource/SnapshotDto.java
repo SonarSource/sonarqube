@@ -67,20 +67,20 @@ public final class SnapshotDto {
   }
 
   public Date getDate() {
-    return date;
+    return date;//NOSONAR May expose internal representation by returning reference to mutable object
   }
 
   public SnapshotDto setDate(Date date) {
-    this.date = date;
+    this.date = date;// NOSONAR May expose internal representation by incorporating reference to mutable object
     return this;
   }
 
   public Date getBuildDate() {
-    return buildDate;
+    return buildDate;//NOSONAR May expose internal representation by returning reference to mutable object
   }
 
   public SnapshotDto setBuildDate(Date buildDate) {
-    this.buildDate = buildDate;
+    this.buildDate = buildDate;// NOSONAR May expose internal representation by incorporating reference to mutable object
     return this;
   }
 
