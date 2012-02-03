@@ -73,7 +73,12 @@ public class DbDuplicationsIndex {
       int endLine = unit.getEndLine();
 
       // TODO Godin: in fact we could work directly with id instead of key - this will allow to decrease memory consumption
-      Block block = new Block(resourceKey, new ByteArray(hash), indexInFile, startLine, endLine);
+      Block block = Block.builder()
+          .setResourceId(resourceKey)
+          .setBlockHash(new ByteArray(hash))
+          .setIndexInFile(indexInFile)
+          .setLines(startLine, endLine)
+          .build();
 
       // Group blocks by hash
       Collection<Block> sameHash = cache.get(block.getBlockHash());

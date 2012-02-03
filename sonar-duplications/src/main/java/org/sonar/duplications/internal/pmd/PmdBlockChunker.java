@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * Differences with {@link org.sonar.duplications.block.BlockChunker}:
  * works with {@link TokensLine},
- * sets {@link Block#setStartUnit(int)} and {@link Block#setEndUnit(int)} - indexes of first and last token for this block.
+ * sets {@link Block#getStartUnit() startUnit} and {@link Block#getEndUnit() endUnit} - indexes of first and last token for this block.
  */
 public class PmdBlockChunker {
 
@@ -60,15 +60,19 @@ public class PmdBlockChunker {
     for (; last < blockSize - 1; last++) {
       hash = hash * PRIME_BASE + fragmentsArr[last].getHashCode();
     }
+    Block.Builder blockBuilder = Block.builder().setResourceId(resourceId);
     for (; last < fragmentsArr.length; last++, first++) {
       TokensLine firstFragment = fragmentsArr[first];
       TokensLine lastFragment = fragmentsArr[last];
       // add last statement to hash
       hash = hash * PRIME_BASE + lastFragment.getHashCode();
       // create block
-      Block block = new Block(resourceId, new ByteArray(hash), first, firstFragment.getStartLine(), lastFragment.getEndLine());
-      block.setStartUnit(firstFragment.getStartUnit());
-      block.setEndUnit(lastFragment.getEndUnit());
+      Block block = blockBuilder
+          .setBlockHash(new ByteArray(hash))
+          .setIndexInFile(first)
+          .setLines(firstFragment.getStartLine(), lastFragment.getEndLine())
+          .setUnit(firstFragment.getStartUnit(), lastFragment.getEndUnit())
+          .build();
       blocks.add(block);
       // remove first statement from hash
       hash -= power * firstFragment.getHashCode();

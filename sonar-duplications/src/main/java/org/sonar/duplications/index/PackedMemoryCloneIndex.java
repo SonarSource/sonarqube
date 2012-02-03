@@ -66,6 +66,8 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
 
   private int[] resourceIdsIndex;
 
+  private final Block.Builder blockBuilder = Block.builder();
+
   public PackedMemoryCloneIndex() {
     this(8, DEFAULT_INITIAL_CAPACITY);
   }
@@ -114,9 +116,13 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
       int startUnit = blockData[offset++];
       int endUnit = blockData[offset];
 
-      Block block = new Block(resourceId, new ByteArray(hash), indexInFile, firstLineNumber, lastLineNumber);
-      block.setStartUnit(startUnit);
-      block.setEndUnit(endUnit);
+      Block block = blockBuilder
+          .setResourceId(resourceId)
+          .setBlockHash(new ByteArray(hash))
+          .setIndexInFile(indexInFile)
+          .setLines(firstLineNumber, lastLineNumber)
+          .setUnit(startUnit, endUnit)
+          .build();
       result.add(block);
 
       index++;
@@ -154,9 +160,13 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
       int startUnit = blockData[offset++];
       int endUnit = blockData[offset];
 
-      Block block = new Block(resourceId, sequenceHash, indexInFile, firstLineNumber, lastLineNumber);
-      block.setStartUnit(startUnit);
-      block.setEndUnit(endUnit);
+      Block block = blockBuilder
+          .setResourceId(resourceId)
+          .setBlockHash(sequenceHash)
+          .setIndexInFile(indexInFile)
+          .setLines(firstLineNumber, lastLineNumber)
+          .setUnit(startUnit, endUnit)
+          .build();
       result.add(block);
       index++;
     }

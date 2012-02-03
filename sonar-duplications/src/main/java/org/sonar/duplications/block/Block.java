@@ -31,24 +31,98 @@ public final class Block implements CodeFragment {
   private final String resourceId;
   private final ByteArray blockHash;
   private final int indexInFile;
+
   private final int startLine;
   private final int endLine;
+
+  private int startUnit;
+  private int endUnit;
 
   /**
    * Cache for hash code.
    */
   private int hash;
 
+  /**
+   * @since 2.14
+   */
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  /**
+   * <p>Instances can be reused - it is safe to call {@link #build}
+   * multiple times to build multiple blocks in series.</p>
+   *
+   * @since 2.14
+   */
+  public static final class Builder {
+
+    private String resourceId;
+    private ByteArray blockHash;
+    private int indexInFile;
+
+    private int startLine;
+    private int endLine;
+
+    private int startUnit;
+    private int endUnit;
+
+    public Builder setResourceId(String resourceId) {
+      this.resourceId = resourceId;
+      return this;
+    }
+
+    public Builder setBlockHash(ByteArray blockHash) {
+      this.blockHash = blockHash;
+      return this;
+    }
+
+    public Builder setIndexInFile(int index) {
+      this.indexInFile = index;
+      return this;
+    }
+
+    public Builder setLines(int start, int end) {
+      this.startLine = start;
+      this.endLine = end;
+      return this;
+    }
+
+    @Beta
+    public Builder setUnit(int start, int end) {
+      this.startUnit = start;
+      this.endUnit = end;
+      return this;
+    }
+
+    public Block build() {
+      return new Block(this);
+    }
+  }
+
+  private Block(Builder builder) {
+    this.resourceId = builder.resourceId;
+    this.blockHash = builder.blockHash;
+    this.indexInFile = builder.indexInFile;
+
+    this.startLine = builder.startLine;
+    this.endLine = builder.endLine;
+
+    this.startUnit = builder.startUnit;
+    this.endUnit = builder.endUnit;
+  }
+
+  /**
+   * @deprecated since 2.14 use {@link #builder()}
+   */
+  @Deprecated
   public Block(String resourceId, ByteArray blockHash, int indexInFile, int startLine, int endLine) {
     this.resourceId = resourceId;
     this.blockHash = blockHash;
     this.indexInFile = indexInFile;
     this.startLine = startLine;
     this.endLine = endLine;
-  }
-
-  public Block(int indexInFile, int firstLineNumber, int lastLineNumber, String resourceId, String hash) {
-    this(resourceId, new ByteArray(hash), indexInFile, firstLineNumber, lastLineNumber);
   }
 
   public String getHashHex() {
@@ -67,8 +141,13 @@ public final class Block implements CodeFragment {
     return indexInFile;
   }
 
-  private int startUnit;
-  private int endUnit;
+  public int getStartLine() {
+    return startLine;
+  }
+
+  public int getEndLine() {
+    return endLine;
+  }
 
   /**
    * @since 2.14
@@ -84,36 +163,6 @@ public final class Block implements CodeFragment {
   @Beta
   public int getEndUnit() {
     return endUnit;
-  }
-
-  /**
-   * TODO get rid of this method, otherwise class is not immutable
-   *
-   * @see #getStartUnit()
-   * @since 2.14
-   */
-  @Beta
-  public void setStartUnit(int startUnit) {
-    this.startUnit = startUnit;
-  }
-
-  /**
-   * TODO get rid of this method, otherwise class is not immutable
-   *
-   * @see #getEndUnit()
-   * @since 2.14
-   */
-  @Beta
-  public void setEndUnit(int endUnit) {
-    this.endUnit = endUnit;
-  }
-
-  public int getStartLine() {
-    return startLine;
-  }
-
-  public int getEndLine() {
-    return endLine;
   }
 
   @Override

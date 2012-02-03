@@ -27,6 +27,28 @@ import static org.junit.Assert.*;
 public class BlockTest {
 
   @Test
+  public void testBuilder() {
+    ByteArray hash = new ByteArray(1);
+    Block block = Block.builder()
+        .setResourceId("resource")
+        .setBlockHash(hash)
+        .setIndexInFile(1)
+        .setLines(2, 3)
+        .setUnit(4, 5)
+        .build();
+
+    assertThat(block.getResourceId(), is("resource"));
+    assertThat(block.getBlockHash(), sameInstance(hash));
+    assertThat(block.getIndexInFile(), is(1));
+
+    assertThat(block.getStartLine(), is(2));
+    assertThat(block.getEndLine(), is(3));
+
+    assertThat(block.getStartUnit(), is(4));
+    assertThat(block.getEndUnit(), is(5));
+  }
+
+  @Test
   public void fieldsTest() {
     String fileName = "someFile";
     int statementIndex = 4;

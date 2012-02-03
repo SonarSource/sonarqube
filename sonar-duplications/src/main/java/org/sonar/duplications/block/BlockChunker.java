@@ -66,13 +66,18 @@ public class BlockChunker {
     for (; last < blockSize - 1; last++) {
       hash = hash * PRIME_BASE + statementsArr[last].getValue().hashCode();
     }
+    Block.Builder blockBuilder = Block.builder().setResourceId(resourceId);
     for (; last < statementsArr.length; last++, first++) {
       Statement firstStatement = statementsArr[first];
       Statement lastStatement = statementsArr[last];
       // add last statement to hash
       hash = hash * PRIME_BASE + lastStatement.getValue().hashCode();
       // create block
-      blocks.add(new Block(resourceId, new ByteArray(hash), first, firstStatement.getStartLine(), lastStatement.getEndLine()));
+      Block block = blockBuilder.setBlockHash(new ByteArray(hash))
+          .setIndexInFile(first)
+          .setLines(firstStatement.getStartLine(), lastStatement.getEndLine())
+          .build();
+      blocks.add(block);
       // remove first statement from hash
       hash -= power * firstStatement.getValue().hashCode();
     }
