@@ -51,7 +51,18 @@ public class RuleMeasure extends Measure {
     return this;
   }
 
+  /**
+   * @deprecated since 2.14 use {@link #getSeverity()} instead. See SONAR-1829.
+   */
+  @Deprecated
   public RulePriority getRulePriority() {
+    return rulePriority;
+  }
+
+  /**
+   * @since 2.14
+   */
+  public RulePriority getSeverity() {
     return rulePriority;
   }
 
@@ -101,6 +112,7 @@ public class RuleMeasure extends Measure {
     RuleMeasure other = (RuleMeasure) obj;
     return new EqualsBuilder()
       .append(getMetric(), other.getMetric())
+      .append(committer, other.committer)
       .append(rule, other.rule)
       .isEquals();
   }
@@ -112,26 +124,28 @@ public class RuleMeasure extends Measure {
 
   @Override
   public int hashCode() {
-    return new HashCodeBuilder(17, 37).
-      append(getMetric()).
-      append(rule).
-      toHashCode();
+    return new HashCodeBuilder(17, 37)
+      .append(getMetric())
+      .append(committer)
+      .append(rule)
+      .toHashCode();
   }
 
   @Override
   public String toString() {
-    return new ToStringBuilder(this).
-      append("id", getId()).
-      append("metric", metric).
-      append("rule", rule).
-      append("value", value).
-      append("data", data).
-      append("description", description).
-      append("alertStatus", alertStatus).
-      append("alertText", alertText).
-      append("tendency", tendency).
-      append("severity", rulePriority).
-      toString();
+    return new ToStringBuilder(this)
+      .append("id", getId())
+      .append("metric", metric)
+      .append("committer", committer)
+      .append("rule", rule)
+      .append("value", value)
+      .append("data", data)
+      .append("description", description)
+      .append("alertStatus", alertStatus)
+      .append("alertText", alertText)
+      .append("tendency", tendency)
+      .append("severity", rulePriority)
+      .toString();
   }
 
   public static RuleMeasure createForRule(Metric metric, Rule rule, Double value) {
