@@ -51,19 +51,14 @@ public class NewViolationsTemplateTest {
 
   /**
    * <pre>
-   * Subject: Review #1
-   * From: Freddy Mallet
+   * Subject: New violations for project Foo
+   * From: Sonar
    * 
-   * Project: Sonar
-   * Resource: org.sonar.server.ui.DefaultPages
-   * 
-   * Utility classes should not have a public or default constructor.
-   * 
-   * Comment:
-   *   This is my first comment
+   * Project: Foo
+   * New violations on last analysis: 32
    * 
    * --
-   * See it in Sonar: http://nemo.sonarsource.org/review/view/1
+   * See it in Sonar: http://nemo.sonarsource.org/drilldown/measures/org.sonar.foo:foo?metric=new_violations&period=2
    * </pre>
    */
   @Test
