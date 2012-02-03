@@ -223,7 +223,7 @@ public final class OriginalCloneDetectionAlgorithm {
       parts.add(part);
     }
 
-    filter.add(new CloneGroup(cloneLength, origin, parts));
+    filter.add(CloneGroup.builder().setLength(cloneLength).setOrigin(origin).setParts(parts).build());
   }
 
 }

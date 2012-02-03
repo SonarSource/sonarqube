@@ -38,10 +38,52 @@ public class CloneGroup {
    */
   private int hash;
 
-  public CloneGroup(int cloneLength, ClonePart origin, List<ClonePart> parts) {
-    this.cloneLength = cloneLength;
-    this.originPart = origin;
-    this.parts = ImmutableList.copyOf(parts);
+  /**
+   * @since 2.14
+   */
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  /**
+   * @since 2.14
+   */
+  public static final class Builder {
+    private ClonePart origin;
+    private int length;
+    private int lengthInUnits;
+    private List<ClonePart> parts;
+
+    public Builder setLength(int length) {
+      this.length = length;
+      return this;
+    }
+
+    public Builder setOrigin(ClonePart origin) {
+      this.origin = origin;
+      return this;
+    }
+
+    public Builder setParts(List<ClonePart> parts) {
+      this.parts = ImmutableList.copyOf(parts);
+      return this;
+    }
+
+    public Builder setLengthInUnits(int length) {
+      this.lengthInUnits = length;
+      return this;
+    }
+
+    public CloneGroup build() {
+      return new CloneGroup(this);
+    }
+  }
+
+  private CloneGroup(Builder builder) {
+    this.cloneLength = builder.length;
+    this.originPart = builder.origin;
+    this.parts = builder.parts;
+    this.length = builder.lengthInUnits;
   }
 
   public ClonePart getOriginPart() {
@@ -58,17 +100,6 @@ public class CloneGroup {
   @Beta
   public int getLengthInUnits() {
     return length;
-  }
-
-  /**
-   * TODO get rid of this method, otherwise class is not immutable
-   *
-   * @since 2.14
-   * @see #getLengthInUnits()
-   */
-  @Beta
-  public void setLengthInUnits(int length) {
-    this.length = length;
   }
 
   /**

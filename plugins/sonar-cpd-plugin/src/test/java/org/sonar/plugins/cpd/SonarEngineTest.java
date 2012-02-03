@@ -19,16 +19,6 @@
  */
 package org.sonar.plugins.cpd;
 
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
@@ -38,6 +28,14 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.test.IsMeasure;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 public class SonarEngineTest {
 
@@ -132,7 +130,7 @@ public class SonarEngineTest {
   }
 
   private CloneGroup newCloneGroup(ClonePart... parts) {
-    return new CloneGroup(0, parts[0], Arrays.asList(parts));
+    return CloneGroup.builder().setLength(0).setOrigin(parts[0]).setParts(Arrays.asList(parts)).build();
   }
 
 }

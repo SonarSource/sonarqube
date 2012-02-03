@@ -80,8 +80,10 @@ public class DuplicationsCollector extends Search.Collector {
    */
   @Override
   public void endOfGroup() {
-    int lengthInUnits = 0;
     ClonePart origin = null;
+
+    CloneGroup.Builder builder = CloneGroup.builder().setLength(length);
+
     List<ClonePart> parts = Lists.newArrayListWithCapacity(count);
     for (int[] b : blockNumbers) {
       Block firstBlock = text.getBlock(b[0]);
@@ -97,7 +99,7 @@ public class DuplicationsCollector extends Search.Collector {
         if (origin == null) {
           origin = part;
           // To calculate length important to use the origin, because otherwise block may come from DB without required data
-          lengthInUnits = lastBlock.getEndUnit() - firstBlock.getStartUnit() + 1;
+          builder.setLengthInUnits(lastBlock.getEndUnit() - firstBlock.getStartUnit() + 1);
         } else if (part.getUnitStart() < origin.getUnitStart()) {
           origin = part;
         }
@@ -107,11 +109,9 @@ public class DuplicationsCollector extends Search.Collector {
     }
 
     Collections.sort(parts, ContainsInComparator.CLONEPART_COMPARATOR);
+    builder.setOrigin(origin).setParts(parts);
 
-    CloneGroup group = new CloneGroup(length, origin, parts);
-    group.setLengthInUnits(lengthInUnits);
-
-    filter(group);
+    filter(builder.build());
 
     reset();
   }

@@ -19,17 +19,15 @@
  */
 package org.sonar.duplications.detector.original;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-
-import java.util.Arrays;
-
 import org.junit.Test;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
+
+import java.util.Arrays;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
 
 public class FilterTest {
 
@@ -187,7 +185,7 @@ public class FilterTest {
    * Creates new group from list of parts, origin - is a first part from list.
    */
   private CloneGroup newCloneGroup(int len, ClonePart... parts) {
-    return new CloneGroup(len, parts[0], Arrays.asList(parts));
+    return CloneGroup.builder().setLength(len).setOrigin(parts[0]).setParts(Arrays.asList(parts)).build();
   }
 
 }
