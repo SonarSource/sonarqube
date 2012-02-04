@@ -46,7 +46,7 @@ public final class CoreMetrics {
   public static final String DOMAIN_REVIEWS = "Reviews";
 
   /**
-   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   * @deprecated since 2.5 See SONAR-2007
    */
   @Deprecated
   public static final String DOMAIN_RULE_CATEGORIES = "Rule categories";
@@ -914,6 +914,11 @@ public final class CoreMetrics {
       .create();
 
   public static final String DUPLICATED_FILES_KEY = "duplicated_files";
+
+  /**
+   * For files: if it contains duplicates, then 1, otherwise 0.
+   * For other resources: amount of files under this resource with duplicates.
+   */
   public static final Metric DUPLICATED_FILES = new Metric.Builder(DUPLICATED_FILES_KEY, "Duplicated files", Metric.ValueType.INT)
       .setDescription("Duplicated files")
       .setDirection(Metric.DIRECTION_WORST)
@@ -935,6 +940,38 @@ public final class CoreMetrics {
       .create();
 
   public static final String DUPLICATIONS_DATA_KEY = "duplications_data";
+
+  /**
+   * Information about duplications, which is represented as an XML string. There are two formats:
+   * <ul>
+   * <li>For Sonar CPD (since 2.12):
+   * <pre>   {@code
+   *   <duplications>
+   *     <!-- Multiple groups: -->
+   *     <g>
+   *       <!-- Multiple blocks: -->
+   *       <b r="[resource key]" s="[first line]" l="[number of lines]" />
+   *       ...
+   *     </g>
+   *     ...
+   *   </duplications>}</pre>
+   * </li>
+   * <li>For PMD CPD:
+   * <pre>   {@code
+   *   <duplications>
+   *     <duplication start="[first line]" lines="[number of lines]" target-resource="[resource key]" target-start="[first line in target]" />
+   *     ...
+   *   </duplications>
+   * }</pre>
+   * Note that this format has following drawbacks:
+   * <ol>
+   * <li>assumes that amount of lines is the same for both resources</li>
+   * <li>duplication can span no more than two resources</li>
+   * <li>and they both in same project</li>
+   * </ol>
+   * </li>
+   * </ul>
+   */
   public static final Metric DUPLICATIONS_DATA = new Metric.Builder(DUPLICATIONS_DATA_KEY, "Duplications details", Metric.ValueType.DATA)
       .setDescription("Duplications details")
       .setDirection(Metric.DIRECTION_NONE)
@@ -943,72 +980,72 @@ public final class CoreMetrics {
       .setDeleteHistoricalData(true)
       .create();
 
-
   //--------------------------------------------------------------------------------------------------------------------
   //
   // CODING RULES
   //
   //--------------------------------------------------------------------------------------------------------------------
+
   /**
-   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   * @deprecated since 2.5 See SONAR-2007
    */
   @Deprecated
   public static final String USABILITY_KEY = "usability";
 
   /**
-   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   * @deprecated since 2.5 See SONAR-2007
    */
   @Deprecated
   public static final Metric USABILITY = new Metric(USABILITY_KEY, "Usability", "Usability", Metric.ValueType.PERCENT,
       Metric.DIRECTION_BETTER, true, DOMAIN_RULE_CATEGORIES).setBestValue(100.0).setOptimizedBestValue(true);
 
   /**
-   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   * @deprecated since 2.5 See SONAR-2007
    */
   @Deprecated
   public static final String RELIABILITY_KEY = "reliability";
 
   /**
-   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   * @deprecated since 2.5 See SONAR-2007
    */
   @Deprecated
   public static final Metric RELIABILITY = new Metric(RELIABILITY_KEY, "Reliability", "Reliability", Metric.ValueType.PERCENT,
       Metric.DIRECTION_BETTER, true, DOMAIN_RULE_CATEGORIES).setBestValue(100.0).setOptimizedBestValue(true);
 
   /**
-   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   * @deprecated since 2.5 See SONAR-2007
    */
   @Deprecated
   public static final String EFFICIENCY_KEY = "efficiency";
 
   /**
-   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   * @deprecated since 2.5 See SONAR-2007
    */
   @Deprecated
   public static final Metric EFFICIENCY = new Metric(EFFICIENCY_KEY, "Efficiency", "Efficiency", Metric.ValueType.PERCENT,
       Metric.DIRECTION_BETTER, true, DOMAIN_RULE_CATEGORIES).setBestValue(100.0).setOptimizedBestValue(true);
 
   /**
-   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   * @deprecated since 2.5 See SONAR-2007
    */
   @Deprecated
   public static final String PORTABILITY_KEY = "portability";
 
   /**
-   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   * @deprecated since 2.5 See SONAR-2007
    */
   @Deprecated
   public static final Metric PORTABILITY = new Metric(PORTABILITY_KEY, "Portability", "Portability", Metric.ValueType.PERCENT,
       Metric.DIRECTION_BETTER, true, DOMAIN_RULE_CATEGORIES).setBestValue(100.0).setOptimizedBestValue(true);
 
   /**
-   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   * @deprecated since 2.5 See SONAR-2007
    */
   @Deprecated
   public static final String MAINTAINABILITY_KEY = "maintainability";
 
   /**
-   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   * @deprecated since 2.5 See SONAR-2007
    */
   @Deprecated
   public static final Metric MAINTAINABILITY = new Metric.Builder(MAINTAINABILITY_KEY, "Maintainability", Metric.ValueType.PERCENT)
@@ -1385,37 +1422,89 @@ public final class CoreMetrics {
   //--------------------------------------------------------------------------------------------------------------------
   //
   // SCM
-  // These metrics are computed by the SCM Activity plugin, since version 1.2.
+  // These metrics are computed by the SCM Activity plugin, since version 1.2 and introduced here since version 2.7.
   //
   //--------------------------------------------------------------------------------------------------------------------
 
+  /**
+   * @since 2.7
+   */
   public static final String SCM_COMMITS_KEY = "commits";
+
+  /**
+   * @since 2.7
+   */
   public static final Metric SCM_COMMITS = new Metric.Builder(SCM_COMMITS_KEY, "Commits", Metric.ValueType.INT)
       .setDomain(DOMAIN_SCM)
       .create();
 
+  /**
+   * @since 2.7
+   */
   public static final String SCM_LAST_COMMIT_DATE_KEY = "last_commit_date";
+
+  /**
+   * Date of last commit, which is represented as string in format {@link org.sonar.api.utils.DateUtils#DATE_FORMAT}.
+   *
+   * @since 2.7
+   */
   public static final Metric SCM_LAST_COMMIT_DATE = new Metric.Builder(SCM_LAST_COMMIT_DATE_KEY, "Last commit", Metric.ValueType.STRING /* TODO: move to date */)
       .setDomain(DOMAIN_SCM)
       .create();
 
+  /**
+   * @since 2.7
+   */
   public static final String SCM_REVISION_KEY = "revision";
+
+  /**
+   * @since 2.7
+   */
   public static final Metric SCM_REVISION = new Metric.Builder(SCM_REVISION_KEY, "Revision", Metric.ValueType.STRING)
       .setDomain(DOMAIN_SCM)
       .setHidden(true)
       .create();
 
+  /**
+   * @since 2.7
+   */
   public static final String SCM_AUTHORS_BY_LINE_KEY = "authors_by_line";
+
+  /**
+   * Key-value pairs, where key - is a number of line, and value - is an author for this line.
+   *
+   * @since 2.7
+   */
   public static final Metric SCM_AUTHORS_BY_LINE = new Metric.Builder(SCM_AUTHORS_BY_LINE_KEY, "Authors by line", Metric.ValueType.DATA)
       .setDomain(DOMAIN_SCM)
       .create();
 
+  /**
+   * @since 2.7
+   */
   public static final String SCM_REVISIONS_BY_LINE_KEY = "revisions_by_line";
+
+  /**
+   * Key-value pairs, where key - is a number of line, and value - is a revision for this line.
+   *
+   * @since 2.7
+   */
   public static final Metric SCM_REVISIONS_BY_LINE = new Metric.Builder(SCM_REVISIONS_BY_LINE_KEY, "Revisions by line", Metric.ValueType.DATA)
       .setDomain(DOMAIN_SCM)
       .create();
 
+  /**
+   * @since 2.7
+   */
   public static final String SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY = "last_commit_datetimes_by_line";
+
+  /**
+   * Key-value pairs, where key - is a number of line, and value - is a date of last commit for this line.
+   *
+   * @see org.sonar.api.utils.KeyValueFormat
+   * @see org.sonar.api.utils.KeyValueFormat#newDateTimeConverter()
+   * @since 2.7
+   */
   public static final Metric SCM_LAST_COMMIT_DATETIMES_BY_LINE = new Metric.Builder(SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY, "Last commit dates by line", Metric.ValueType.DATA)
       .setDomain(DOMAIN_SCM)
       .create();
@@ -1525,13 +1614,12 @@ public final class CoreMetrics {
       .create();
 
 
-
-
   //--------------------------------------------------------------------------------------------------------------------
   //
   // OTHERS
   //
   //--------------------------------------------------------------------------------------------------------------------
+
   public static final String ALERT_STATUS_KEY = "alert_status";
   public static final Metric ALERT_STATUS = new Metric.Builder(ALERT_STATUS_KEY, "Alert", Metric.ValueType.LEVEL)
       .setDescription("Alert")
@@ -1547,7 +1635,14 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_GENERAL)
       .create();
 
+  /**
+   * @since 2.9
+   */
   public static final String PROFILE_VERSION_KEY = "profile_version";
+
+  /**
+   * @since 2.9
+   */
   public static final Metric PROFILE_VERSION = new Metric.Builder(PROFILE_VERSION_KEY, "Profile version", Metric.ValueType.INT)
       .setDescription("Selected quality profile version")
       .setQualitative(false)
@@ -1571,7 +1666,6 @@ public final class CoreMetrics {
       }
     }
   }
-
 
   public static List<Metric> getMetrics() {
     return METRICS;
