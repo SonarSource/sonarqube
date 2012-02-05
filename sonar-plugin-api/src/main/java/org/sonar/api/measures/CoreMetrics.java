@@ -500,6 +500,7 @@ public final class CoreMetrics {
   public static final String COVERAGE_LINE_HITS_DATA_KEY = "coverage_line_hits_data";
 
   /**
+   * Key-value pairs, where key - is a number of line, and value - is a number of hits for this line.
    * Use {@link CoverageMeasuresBuilder} to build measure for this metric.
    */
   public static final Metric COVERAGE_LINE_HITS_DATA = new Metric.Builder(COVERAGE_LINE_HITS_DATA_KEY, "Coverage hits by line", Metric.ValueType.DATA)
@@ -1473,6 +1474,8 @@ public final class CoreMetrics {
   /**
    * Key-value pairs, where key - is a number of line, and value - is an author for this line.
    *
+   * @see org.sonar.api.utils.KeyValueFormat#formatIntString(java.util.Map)
+   * @see org.sonar.api.utils.KeyValueFormat#parseIntString(String)
    * @since 2.7
    */
   public static final Metric SCM_AUTHORS_BY_LINE = new Metric.Builder(SCM_AUTHORS_BY_LINE_KEY, "Authors by line", Metric.ValueType.DATA)
@@ -1487,6 +1490,8 @@ public final class CoreMetrics {
   /**
    * Key-value pairs, where key - is a number of line, and value - is a revision for this line.
    *
+   * @see org.sonar.api.utils.KeyValueFormat#formatIntString(java.util.Map)
+   * @see org.sonar.api.utils.KeyValueFormat#parseIntString(String)
    * @since 2.7
    */
   public static final Metric SCM_REVISIONS_BY_LINE = new Metric.Builder(SCM_REVISIONS_BY_LINE_KEY, "Revisions by line", Metric.ValueType.DATA)
@@ -1501,8 +1506,8 @@ public final class CoreMetrics {
   /**
    * Key-value pairs, where key - is a number of line, and value - is a date of last commit for this line.
    *
-   * @see org.sonar.api.utils.KeyValueFormat
-   * @see org.sonar.api.utils.KeyValueFormat#newDateTimeConverter()
+   * @see org.sonar.api.utils.KeyValueFormat#formatIntDateTime(java.util.Map)
+   * @see org.sonar.api.utils.KeyValueFormat#parseIntDateTime(String)
    * @since 2.7
    */
   public static final Metric SCM_LAST_COMMIT_DATETIMES_BY_LINE = new Metric.Builder(SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY, "Last commit dates by line", Metric.ValueType.DATA)
