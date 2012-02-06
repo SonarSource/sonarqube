@@ -113,7 +113,7 @@ public class ViolationsDecorator implements Decorator {
       if (rulesBag != null) {
         for (Multiset.Entry<Rule> entry : rulesBag.entrySet()) {
           RuleMeasure measure = RuleMeasure.createForRule(metric, entry.getElement(), (double) entry.getCount());
-          measure.setRulePriority(severity);
+          measure.setSeverity(severity);
           context.saveMeasure(measure);
         }
       }

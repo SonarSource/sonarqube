@@ -43,7 +43,8 @@ public class PurgeDao {
     SqlSession session = mybatis.openBatchSession();
     PurgeMapper purgeMapper = session.getMapper(PurgeMapper.class);
     try {
-      List<Long> projectIds = resourceDao.getDescendantProjectIdsAndSelf(rootProjectId, session);
+      List<Long> projectIds = Lists.newArrayList(rootProjectId);
+      projectIds.addAll(resourceDao.getDescendantProjectIds(rootProjectId, session));
       for (Long projectId : projectIds) {
         purgeProject(projectId, session, purgeMapper);
       }

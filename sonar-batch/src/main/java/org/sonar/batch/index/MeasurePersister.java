@@ -158,7 +158,7 @@ public final class MeasurePersister {
     }
     if (measure instanceof RuleMeasure) {
       RuleMeasure ruleMeasure = (RuleMeasure) measure;
-      merge.setRulePriority(ruleMeasure.getRulePriority());
+      merge.setRulePriority(ruleMeasure.getSeverity());
       if (ruleMeasure.getRule() != null) {
         Rule ruleWithId = ruleFinder.findByKey(ruleMeasure.getRule().getRepositoryKey(), ruleMeasure.getRule().getKey());
         if (ruleWithId != null) {
