@@ -20,24 +20,6 @@ function loadGWT(gwtId, resourceId, resourceKey, resourceName, resourceScope, re
   modules[gwtId]();
 }
 
-// show violation actions
-function sVA(violation_id) {
-  var elt = $('vActions' + violation_id);
-  if (elt != null) {
-    elt.show();
-  }
-  return false;
-}
-
-// hide violation actions
-function hVA(violation_id) {
-  var elt = $('vActions' + violation_id);
-  if (elt != null) {
-    elt.hide();
-  }
-  return false;
-}
-
 // cancel action : hide form and refresh violation
 function cancelViolationAction(violation_id) {
   new Ajax.Updater(
