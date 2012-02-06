@@ -220,19 +220,8 @@ class Metric < ActiveRecord::Base
     cache[key.to_s]
   end
 
-  def self.by_names(names)
-    metrics = names.map do |name|
-      by_name(name)
-    end
-    metrics
-  end
-
   def self.by_domain(domain, translate=true)
     all.select{|metric| metric.domain(translate)==domain}.sort
-  end
-
-  def self.major_metrics_id
-    all.collect {|m| m.id}
   end
 
   def self.clear_cache
