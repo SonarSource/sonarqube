@@ -56,6 +56,7 @@ class TreemapController < ApplicationController
     render :update do |page|
       page.replace_html  "tm-#{html_id}", :partial => 'treemap', :object => treemap
       page.replace_html  "tm-gradient-#{html_id}", :partial => 'gradient', :locals => {:metric => color_metric}
+      page.hide "tm-loading-#{html_id}"
     end
   end
 

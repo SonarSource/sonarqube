@@ -32,7 +32,8 @@ class Treemap2
 
     @color_metric = options[:color_metric]
     @root_snapshot = options[:root_snapshot]
-    @measures = options[:measures] # pre-computed measures, for example by filters
+    @measures_by_snapshot = options[:measures_by_snapshot] # pre-computed measures, for example by filters
+    @browsable = options[:browsable]
     if options[:period_index] && options[:period_index]>0
       @period_index = options[:period_index]
     end
@@ -57,8 +58,8 @@ class Treemap2
 
   protected
 
-  def measures
-    @measures ||=
+  def measures_by_snapshot
+    @measures_by_snapshot ||=
       begin
         metric_ids=[@size_metric.id]
         metric_ids << @color_metric.id if @color_metric && @color_metric.id!=@size_metric.id
@@ -73,36 +74,33 @@ class Treemap2
           sql_conditions<<" AND snapshots.scope='PRJ' and snapshots.qualifier='TRK'"
         end
 
-        ProjectMeasure.find(:all, :include => {:snapshot => :project}, :conditions => [sql_conditions].concat(sql_values))
+        hash = {}
+        ProjectMeasure.find(:all, :include => {:snapshot => :project}, :conditions => [sql_conditions].concat(sql_values)).each do |m|
+          hash[m.snapshot]||={}
+          hash[m.snapshot][m.metric]=m
+        end
+        hash
       end
   end
 
   def build_tree(node)
-    color_measures_by_sid={}
-    if @color_metric
-      measures.each do |measure|
-        color_measures_by_sid[measure.snapshot_id]=measure if measure.metric_id==@color_metric.id
-      end
-    end
-
-    measures.each do |measure|
-      if measure.metric_id==@size_metric.id
-        color_measure = color_measures_by_sid[measure.snapshot_id]
-        resource = measure.snapshot.project
-        child = Treemap::Node.new(:id => "#{@id}-#{@id_counter += 1}",
-                                  :size => size_value(measure),
-                                  :label => resource.name(false),
-                                  :title => escape_javascript(resource.name(true)),
-                                  :tooltip => tooltip(resource, measure, color_measure),
-                                  :color => html_color(color_measure),
-                                  :rid => resource.id,
-                                  :browsable => resource.display_dashboard?)
-        node.add_child(child)
-      end
+    measures_by_snapshot.each_pair do |snapshot, measures|
+      size_measure=measures[size_metric]
+      color_measure=(color_metric ? measures[color_metric] : nil)
+      resource = snapshot.project
+      child = Treemap::Node.new(:id => "#{@id}-#{@id_counter += 1}",
+                                :size => size_value(size_measure),
+                                :label => resource.name(false),
+                                :title => escape_javascript(resource.name(true)),
+                                :tooltip => tooltip(resource, size_measure, color_measure),
+                                :color => html_color(color_measure),
+                                :rid => resource.copy_resource_id || resource.id,
+                                :browsable => @browsable && resource.display_dashboard?)
+      node.add_child(child)
     end
   end
 
-  def tooltip(resource,size_measure, color_measure)
+  def tooltip(resource, size_measure, color_measure)
     html=CGI::escapeHTML(resource.name(true))
     html += " - #{CGI::escapeHTML(@size_metric.short_name)}: #{CGI::escapeHTML(size_measure.formatted_value)}"
     if color_measure

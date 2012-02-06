@@ -21,13 +21,13 @@ class FiltersController < ApplicationController
   include FiltersHelper
   helper MetricsHelper
   helper FiltersHelper
-    
+
   SECTION=Navigation::SECTION_HOME
 
   verify :method => :post, :only => [:create, :delete, :up, :down, :activate, :deactivate, :up_column, :down_column, :add_column, :delete_column, :set_sorted_column, :set_view, :set_columns, :set_page_size], :redirect_to => {:action => :index}
   before_filter :load_active_filters, :except => ['admin_console', 'treemap', 'set_view', 'set_columns']
   before_filter :login_required, :except => ['index', 'treemap']
-  before_filter :admin_required, :only => ['admin_console' ]
+  before_filter :admin_required, :only => ['admin_console']
 
   def index
     load_active_filter()
@@ -35,8 +35,8 @@ class FiltersController < ApplicationController
 
   def manage
     @shared_filters=::Filter.find(:all, :conditions => ['shared=? and (user_id<>? or user_id is null)', true, current_user.id])
-    ids=@actives.map{|af| af.filter_id}
-    @shared_filters.reject!{|f| ids.include?(f.id) }
+    ids=@actives.map { |af| af.filter_id }
+    @shared_filters.reject! { |f| ids.include?(f.id) }
   end
 
   def new
@@ -65,7 +65,7 @@ class FiltersController < ApplicationController
 
     if @filter.valid?
       @filter.save
-      
+
       # activate it by default
       current_user.active_filters.create(:filter => @filter, :user_id => current_user.id, :order_index => (current_user.active_filters.size + 1))
       flash[:notice]='Filter saved'
@@ -121,7 +121,7 @@ class FiltersController < ApplicationController
     activate_default_filters_if_needed()
     filter=::Filter.find(params[:id])
     if filter && filter.shared
-      existing=current_user.active_filters.to_a.find{|a| a.filter_id==filter.id}
+      existing=current_user.active_filters.to_a.find { |a| a.filter_id==filter.id }
       if existing.nil?
         current_user.active_filters.create(:filter => filter, :user => current_user, :order_index => current_user.active_filters.size+1)
       end
@@ -131,7 +131,7 @@ class FiltersController < ApplicationController
 
   def deactivate
     activate_default_filters_if_needed()
-    active_filter=current_user.active_filters.to_a.find{|a| a.filter_id==params[:id].to_i}
+    active_filter=current_user.active_filters.to_a.find { |a| a.filter_id==params[:id].to_i }
     if active_filter
       if active_filter.owner?
         active_filter.filter.destroy
@@ -172,7 +172,7 @@ class FiltersController < ApplicationController
         actives[index].order_index=index+1
         actives[index].save
       end
-    end   
+    end
     redirect_to :action => 'manage'
   end
 
@@ -199,9 +199,6 @@ class FiltersController < ApplicationController
     end
     redirect_to :action => 'manage'
   end
-
-
-
 
 
   #---------------------------------------------------------------------
@@ -293,7 +290,6 @@ class FiltersController < ApplicationController
   end
 
 
-
   #---------------------------------------------------------------------
   #
   # CUSTOMIZE DISPLAY
@@ -345,10 +341,10 @@ class FiltersController < ApplicationController
 
       else
         @snapshots=Snapshot.find(:all, :include => [:project, {:root_snapshot => :project}, {:parent_snapshot => :project}],
-          :conditions => ['snapshots.status=? AND snapshots.islast=? AND snapshots.scope=? AND projects.scope=? AND UPPER(projects.long_name) LIKE ?', 'P', true, 'PRJ', 'PRJ', "%#{params[:search].upcase}%"],
-          :order => 'projects.long_name')
+                                 :conditions => ['snapshots.status=? AND snapshots.islast=? AND snapshots.scope=? AND projects.scope=? AND UPPER(projects.long_name) LIKE ?', 'P', true, 'PRJ', 'PRJ', "%#{params[:search].upcase}%"],
+                                 :order => 'projects.long_name')
         @snapshots=select_authorized(:user, @snapshots)
-        @snapshots.sort! do |s1,s2|
+        @snapshots.sort! do |s1, s2|
           if s1.qualifier==s2.qualifier
             s1.project.long_name<=>s2.project.long_name
           else
@@ -359,7 +355,6 @@ class FiltersController < ApplicationController
     end
     params[:layout]='false'
   end
-
 
 
   #---------------------------------------------------------------------
@@ -385,9 +380,17 @@ class FiltersController < ApplicationController
     @width=(params[:width]||'800').to_i
     @height=(params[:height]||'500').to_i
 
-    treemap_options={:period_index => @filter_context.period_index}
-    @treemap=Sonar::Treemap.new(@filter_context.measures_by_snapshot, @width, @height, @size_metric, @color_metric, treemap_options)
+    @treemap = Treemap2.new(@filter.id, @size_metric, @width, @height, {
+      :color_metric => @color_metric,
+      :period_index => @filter_context.period_index,
+      :measures_by_snapshot => @filter_context.measures_by_snapshot,
+      :browsable => false
+    })
+
+
+    #@treemap=Sonar::Treemap.new(@filter_context.measures_by_snapshot, @width, @height, @size_metric, @color_metric, treemap_options)
     render :action => "treemap", :layout => false
+
   end
 
 
@@ -403,7 +406,7 @@ class FiltersController < ApplicationController
     filter.name=params[:name]
     filter.shared=(params[:shared].present? && is_admin?)
     filter.favourites=params[:favourites].present?
-    filter.resource_id=(params[:path_id].present? ? Project.by_key(params[:path_id]).id : nil) 
+    filter.resource_id=(params[:path_id].present? ? Project.by_key(params[:path_id]).id : nil)
     filter.user_id=current_user.id
     filter.period_index=params[:period_index].to_i
     filter.criteria=[]
@@ -428,7 +431,7 @@ class FiltersController < ApplicationController
     @actives=nil
     if logged_in?
       @actives=current_user.active_filters
-      @actives=::ActiveFilter.default_active_filters if(@actives.nil? || @actives.empty?)
+      @actives=::ActiveFilter.default_active_filters if (@actives.nil? || @actives.empty?)
     else
       @actives=::ActiveFilter.for_anonymous
     end
@@ -451,9 +454,9 @@ class FiltersController < ApplicationController
   def load_active_filter()
     @active=nil
     if params[:name]
-      @active=@actives.to_a.find{|a| a.name==params[:name]}
+      @active=@actives.to_a.find { |a| a.name==params[:name] }
     elsif params[:id]
-      @active=@actives.to_a.find{|a| a.filter.id==params[:id].to_i}
+      @active=@actives.to_a.find { |a| a.filter.id==params[:id].to_i }
     end
 
     if @active.nil? && !@actives.empty?

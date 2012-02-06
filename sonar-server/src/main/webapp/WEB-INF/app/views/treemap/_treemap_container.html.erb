@@ -5,14 +5,14 @@
         <span class="comments"><%= message('size') -%></span>
         <br/>
         <%= select_tag "size", options_grouped_by_domain(Sonar::TreemapBuilder.size_metrics, (size_metric ? size_metric.key : nil), :include_empty => true),
-                       :id => "tm-size-#{treemap_id}", :class => 'small spacer-right', :onchange => "refreshTm(#{treemap_id}, #{resource_id})" %>
+                       :id => "tm-size-#{treemap_id}", :class => 'small spacer-right', :onchange => "refreshTm(#{treemap_id}, null)" %>
       </td>
       <td valign="top" class="thin nowrap">
         <span class="comments"><%= message('color') -%></span>
         <span id="tm-gradient-<%= treemap_id -%>" class="note"></span>
         <br/>
         <%= select_tag 'color', options_grouped_by_domain(Sonar::TreemapBuilder.color_metrics, (color_metric ? color_metric.key : nil), :include_empty => true),
-                         :id => "tm-color-#{treemap_id}", :class => 'small', :onchange => "refreshTm(#{treemap_id}, #{resource_id})" %>
+                         :id => "tm-color-#{treemap_id}", :class => 'small', :onchange => "refreshTm(#{treemap_id}, null)" %>
         <%= image_tag 'loading.gif', :id => "tm-loading-#{treemap_id}", :style => 'vertical-align: top;display: none' -%>
       </td>
       <td></td>
@@ -20,8 +20,7 @@
   </table>
   <input type="hidden" id="tm-h-<%= treemap_id -%>" value="<%= heightInPercents -%>"/>
 </div>
-<div id="tm-error-<%= treemap_id -%>" class="error" style="display:none"></div>
-<div id="tm-<%= treemap_id -%>" class="treemap spacer-bottom"></div>
+<div id="tm-<%= treemap_id -%>" class="spacer-bottom"></div>
 
 <div style="margin: 5px 0 0 0" class="notes">
   <div style="float: right"><span>Left click to zoom in. Right click to zoom out.</span></div>

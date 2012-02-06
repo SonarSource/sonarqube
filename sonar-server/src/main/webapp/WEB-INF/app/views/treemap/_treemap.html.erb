@@ -1,9 +1,8 @@
-<div style="width: <%= treemap.width -%>px; height:<%= treemap.height %>px;">
+<div class="treemap" style="width: <%= treemap.width -%>px; height:<%= treemap.height %>px;">
   <%= treemap.generate_html() -%>
 </div>
 <script>
   for (var i = 1; i <= <%= treemap.id_counter -%>; i++) {
     addTmEvent(<%= treemap.id -%>, i);
   }
-  $('tm-loading-<%= treemap.id -%>').hide();
 </script>

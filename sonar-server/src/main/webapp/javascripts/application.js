@@ -186,6 +186,7 @@ function refreshTm(treemap_id, resource_id) {
   var color = $F('tm-color-' + treemap_id);
   var width = $('tm-' + treemap_id).getWidth() - 10;
   var height = Math.round(width * parseFloat($F('tm-h-' + treemap_id) / 100.0));
+  var rid = (resource_id!=null ? resource_id : context[context.length-1][0]);
 
   context = treemapContexts[treemap_id];
   var output = '';
@@ -196,7 +197,7 @@ function refreshTm(treemap_id, resource_id) {
   $('tm-loading-' + treemap_id).show();
 
   new Ajax.Request(
-    baseUrl + '/treemap/index?id=' + treemap_id + '&width=' + width + '&height=' + height + '&size_metric=' + size + '&color_metric=' + color + '&resource=' + resource_id,
+    baseUrl + '/treemap/index?id=' + treemap_id + '&width=' + width + '&height=' + height + '&size_metric=' + size + '&color_metric=' + color + '&resource=' + rid,
     {asynchronous:true, evalScripts:true});
 
   return false;

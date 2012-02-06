@@ -9,7 +9,7 @@
     </td>
     <td class="sep"> </td>
     <td>
-      <span class="comments"><%= message('color') -%>: <%= render :partial => 'components/treemap_gradient', :locals => {:color_metric => @color_metric} %></span>
+      <span class="comments"><%= message('color') -%>: <%= render :partial => 'treemap/gradient', :locals => {:metric => @color_metric} %></span>
       <br/>
       <%= select_tag 'color_metric', options_grouped_by_domain(Sonar::TreemapBuilder.color_metrics, @color_metric.key),
         :id => 'color_metric', :class => 'small', :onchange => "load_treemap(this.form.size_metric.value,this.form.color_metric.value, false);return false;" %>
@@ -19,6 +19,7 @@
 </form>
 <br/>
 <% end %>
-<div class="treemap" style="height:<%= @treemap.height %>px">
-  <%= @treemap.generate_html() %>
+
+<div class="treemap">
+  <%=  render :partial => 'treemap/treemap' -%>
 </div>
