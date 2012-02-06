@@ -123,7 +123,11 @@
         <%= qualifier_icon(review.resource) -%>
         <% if !review.on_project? %> <%= review.project.long_name -%> <%= image_tag 'sep12.png' -%>
         <% end %>
-        <%= link_to_resource(review.resource, review.resource.long_name, {:tab => :violations, :rule => review.false_positive ? "false_positive_reviews" : ""}) %>
+        <% if review.rule_failure && review.rule_failure.snapshot %>
+          <%= link_to_resource(review.resource, review.resource.long_name, {:tab => :violations, :rule => review.false_positive ? "false_positive_reviews" : ""}) %>
+        <% else %>
+          <%= review.resource.long_name -%>
+        <% end %>
       </td>
     </tr>
   </table>
@@ -134,6 +138,7 @@
     </div>
   <% end %>
 
+  <% if review.rule_failure || !review.comments.empty? %>
   <div class="discussion marginbottom10">
     <% if review.rule_failure %>
       <div class="discussionComment first">
@@ -182,8 +187,9 @@
       </div>
     <% end %>
   </div>
+  <% end %>
 
-  <% if current_user %>
+  <% if current_user && !review.closed? %>
     <%= button_to_remote message('reviews.comment'),
                          {
                            :url => {:controller => "project_reviews", :action => "comment_form", :id => review.id},
