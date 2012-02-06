@@ -136,5 +136,6 @@ CSS
     end
     
     def draw_tooltips(node)
+      ''
     end
 end

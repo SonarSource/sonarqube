@@ -14,7 +14,8 @@ if color_metric && color_metric.worst_value && color_metric.best_value
     id = 'treemap_gradient_direction_negative'
   end
 %>
-  <%= min -%><%= color_metric.suffix -%> <img id="<%= id -%>" src="<%= image_path image -%>" style="border: 1px solid #000; vertical-align:middle"> <%= max -%><%= color_metric.suffix -%>
+  <span class="note"><%= min -%><%= color_metric.suffix -%> <img id="<%= id -%>" src="<%= image_path image -%>" style="border: 1px solid #000; vertical-align:middle"> <%= max
+  -%><%= color_metric.suffix -%></span>
 <%
 end
 %>

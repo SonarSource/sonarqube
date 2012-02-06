@@ -267,6 +267,7 @@ public class CorePlugin extends SonarPlugin {
     extensions.add(UnplannedReviewsWidget.class);
     extensions.add(ActionPlansWidget.class);
     extensions.add(ReviewsMetricsWidget.class);
+    extensions.add(TreemapWidget.class);
 
     // dashboards
     extensions.add(DefaultDashboard.class);

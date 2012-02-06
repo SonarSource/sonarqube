@@ -37,7 +37,7 @@ module Treemap
     #
     #
     class Treemap::Node
-        attr_accessor :id, :label, :color, :size, :bounds, :parent, :tooltip, :url, :title
+        attr_accessor :id, :label, :color, :size, :bounds, :parent, :tooltip, :url, :title, :rid, :browsable
         attr_reader :children
 
         #
@@ -64,6 +64,8 @@ module Treemap
             @url = opts[:url]
             @tooltip = opts[:tooltip]
             @children = []
+            @rid = opts[:rid]
+            @browsable = opts[:browsable]
 
             if(@id.nil?)
                 make_id

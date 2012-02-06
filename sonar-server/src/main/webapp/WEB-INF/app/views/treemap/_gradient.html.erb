@@ -1,0 +1,19 @@
+<%
+if metric && metric.worst_value && metric.best_value
+  if metric.worst_value<metric.best_value
+    min=metric.worst_value
+    max=metric.best_value
+    image = 'treemap_gradient.png'
+    id = 'treemap_gradient_direction_positive'
+  else
+    min=metric.best_value
+    max=metric.worst_value
+    image = 'treemap_gradient_inverted.png'
+    id = 'treemap_gradient_direction_negative'
+  end
+%>
+  <%= min -%><%= metric.suffix -%> <img id="<%= id -%>" src="<%= image_path image -%>" style="border: 1px solid #000; vertical-align:middle"> <%= max
+  -%><%= metric.suffix -%>
+<%
+end
+%>
