@@ -32,16 +32,16 @@ public class ResourceDao {
     this.mybatis = mybatis;
   }
 
-  public List<Long> getDescendantProjectIdsAndSelf(long projectId) {
+  public List<Long> getDescendantProjectIds(long projectId) {
     SqlSession session = mybatis.openSession();
     try {
-      return getDescendantProjectIdsAndSelf(projectId, session);
+      return getDescendantProjectIds(projectId, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public List<Long> getDescendantProjectIdsAndSelf(long projectId, SqlSession session) {
+  public List<Long> getDescendantProjectIds(long projectId, SqlSession session) {
     ResourceMapper mapper = session.getMapper(ResourceMapper.class);
     List<Long> ids = Lists.newArrayList();
     appendChildProjectIds(projectId, mapper, ids);
@@ -49,7 +49,6 @@ public class ResourceDao {
   }
 
   private void appendChildProjectIds(long projectId, ResourceMapper mapper, List<Long> ids) {
-    ids.add(projectId);
     List<Long> subProjectIds = mapper.selectDescendantProjectIds(projectId);
     for (Long subProjectId : subProjectIds) {
       ids.add(subProjectId);

@@ -156,7 +156,7 @@ public class NewViolationsDecorator implements Decorator {
 
       for (Rule rule : rules) {
         RuleMeasure measure = RuleMeasure.createForRule(metric, rule, null);
-        measure.setRulePriority(severity);
+        measure.setSeverity(severity);
         for (PastSnapshot pastSnapshot : timeMachineConfiguration.getProjectPastSnapshots()) {
           int variationIndex = pastSnapshot.getIndex();
           int count = countViolations(violationsPerRule.get(rule), pastSnapshot.getTargetDate());

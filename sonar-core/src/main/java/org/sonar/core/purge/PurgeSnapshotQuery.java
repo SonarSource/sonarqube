@@ -51,7 +51,7 @@ public final class PurgeSnapshotQuery {
   }
 
   public PurgeSnapshotQuery setScopes(String[] scopes) {
-    this.scopes = scopes;
+    this.scopes = scopes; //NOSONAR May expose internal representation by incorporating reference to mutable object
     return this;
   }
 
@@ -60,7 +60,7 @@ public final class PurgeSnapshotQuery {
   }
 
   public PurgeSnapshotQuery setQualifiers(String[] qualifiers) {
-    this.qualifiers = qualifiers;
+    this.qualifiers = qualifiers;//NOSONAR May expose internal representation by incorporating reference to mutable object
     return this;
   }
 
