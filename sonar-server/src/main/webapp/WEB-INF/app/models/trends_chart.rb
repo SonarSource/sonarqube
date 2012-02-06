@@ -47,7 +47,7 @@ class TrendsChart
             " and s.status=? " +
             " and s.project_id=? " +
             " and m.metric_id in (?) " +
-            " and m.rule_priority is null and m.characteristic_id is null"
+            " and m.rule_priority is null and m.characteristic_id is null and m.committer is null"
       if (options[:from])
         sql += ' and s.created_at>=?'
       end

@@ -46,7 +46,7 @@ class Sonar::TreemapBuilder
       # temporary fix for SONAR-1098
       snapshots=snapshots[0...999]
       measures = ProjectMeasure.find(:all,
-        :conditions => ['characteristic_id IS NULL and rule_id IS NULL and rule_priority IS NULL and metric_id IN (?) and snapshot_id IN (?)',
+        :conditions => ['committer IS NULL and characteristic_id IS NULL and rule_id IS NULL and rule_priority IS NULL and metric_id IN (?) and snapshot_id IN (?)',
           [size_metric.id, color_metric.id], snapshots.map{|s| s.id}])
     end
     Sonar::Treemap.new(measures_hash_by_snapshot(snapshots, measures), width, height, size_metric, color_metric)

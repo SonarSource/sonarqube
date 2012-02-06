@@ -96,7 +96,8 @@ class Api::ResourcesController < Api::ApiController
             measures_order = "project_measures.value #{'DESC' if metrics.first.direction<0}"
           end
         end
-      
+
+        measures_conditions << 'project_measures.committer IS NULL'
         add_rule_filters(measures_conditions, measures_values)
         add_characteristic_filters(measures_conditions, measures_values)
 

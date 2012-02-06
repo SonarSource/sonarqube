@@ -53,7 +53,7 @@ class TimemachineController < ApplicationController
       snapshot_by_id[s.id]=s
     end
 
-    measures=ProjectMeasure.find(:all, :conditions => {:rule_id => nil, :rule_priority => nil, :snapshot_id => @sids, :characteristic_id => nil})
+    measures=ProjectMeasure.find(:all, :conditions => {:rule_id => nil, :rule_priority => nil, :snapshot_id => @sids, :characteristic_id => nil, :committer => nil})
 
     rows_by_metric_id={}
     @rows=[]
