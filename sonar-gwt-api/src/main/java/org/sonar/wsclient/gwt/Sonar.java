@@ -17,15 +17,15 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-
 package org.sonar.wsclient.gwt;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.json.client.JSONObject;
 import org.sonar.gwt.JsonUtils;
-import org.sonar.wsclient.services.*;
+import org.sonar.wsclient.services.Model;
+import org.sonar.wsclient.services.Query;
+import org.sonar.wsclient.services.WSUtils;
 import org.sonar.wsclient.unmarshallers.Unmarshaller;
 import org.sonar.wsclient.unmarshallers.Unmarshallers;
 
@@ -89,35 +89,7 @@ public class Sonar {
     });
   }
 
-  public void delete(final DeleteQuery query, final SimpleCallback callback) {
-    createUpdate(query, callback, RequestBuilder.DELETE);
-  }
-
-  public <MODEL extends Model> void create(final CreateQuery<MODEL> query, final SimpleCallback callback) {
-    createUpdate(query, callback, RequestBuilder.POST);
-  }
-
-  public <MODEL extends Model> void update(final UpdateQuery<MODEL> query, final SimpleCallback callback) {
-    createUpdate(query, callback, RequestBuilder.PUT);
-  }
-
-  private void createUpdate(final AbstractQuery query, final SimpleCallback callback, RequestBuilder.Method method) {
-    JsonUtils.request(getUrl(query), new JsonUtils.SimpleHandler() {
-      public void onSuccess() {
-        callback.onSuccess();
-      }
-
-      public void onTimeout() {
-        callback.onTimeout();
-      }
-
-      public void onError(int errorCode, String errorMessage) {
-        callback.onError(errorCode, errorMessage);
-      }
-    }, method, query.getBody());
-  }
-
-  private String getUrl(AbstractQuery query) {
+  private String getUrl(Query query) {
     return host + query.getUrl();
   }
 }

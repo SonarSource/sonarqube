@@ -17,15 +17,13 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-
 package org.sonar.gwt;
 
 import com.google.gwt.core.client.JavaScriptException;
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.http.client.*;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.json.client.*;
-import org.sonar.wsclient.services.WSUtils;
 
 import java.util.Date;
 
@@ -36,107 +34,70 @@ public final class JsonUtils {
     // only static methods
   }
 
-  public interface SimpleHandler extends Handler {
-    void onSuccess();
-  }
+  public interface JSONHandler {
+    void onResponse(JavaScriptObject obj);
 
-  public interface JSONHandler extends Handler {
-    void onResponse(JavaScriptObject json);
-  }
-
-  public interface Handler {
     void onTimeout();
 
     void onError(int errorCode, String errorMessage);
   }
 
-  public static void request(String url, final SimpleHandler handler, RequestBuilder.Method method, String body) {
-    RequestBuilder requestBuilder = new RequestBuilder(method, URL.encode(formatURL(url)));
-    requestBuilder.setRequestData(body);
-    requestBuilder.setTimeoutMillis(120000);
-    requestBuilder.setCallback(new RequestCallback() {
-      public void onResponseReceived(Request request, Response response) {
-        if (!errorsHandled(response.getText(), handler)) {
-          handler.onSuccess();
-        }
-      }
-
-      public void onError(Request request, Throwable throwable) {
-        handler.onError(-1, throwable.getMessage());
-      }
-    });
-    try {
-      requestBuilder.send();
-    } catch (RequestException e) {
-      handler.onError(-1, e.getMessage());
-    }
-  }
-
-  public static void requestJson(String url, final JSONHandler handler, RequestBuilder.Method method, String body) {
-    RequestBuilder requestBuilder = new RequestBuilder(method, URL.encode(formatURL(url)));
-    requestBuilder.setRequestData(body);
-    requestBuilder.setCallback(new RequestCallback() {
-      public void onResponseReceived(Request request, Response response) {
-        if (!errorsHandled(response.getText(), handler)) {
-          dispatchJSON(response.getText(), handler);
-        }
-      }
-
-      public void onError(Request request, Throwable throwable) {
-        handler.onError(-1, throwable.getMessage());
-      }
-    });
-    requestBuilder.setTimeoutMillis(120000);
-    try {
-      requestBuilder.send();
-    } catch (RequestException e) {
-      handler.onError(-1, e.getMessage());
-    }
-  }
-
-  public static void requestJson(String url, final JSONHandler handler) {
-    requestJson(url, handler, RequestBuilder.GET, null);
-  }
-
-  private static JavaScriptObject parseJSON(String json) {
-    JSONValue value = JSONParser.parse(json);
-    if (value.isObject() != null) {
-      return value.isObject().getJavaScriptObject();
-    }
-    return value.isArray().getJavaScriptObject();
-  }
-
-  private static String formatURL(String url) {
+  public static void requestJson(String url, JSONHandler handler) {
     if (!url.endsWith("&") && !url.endsWith("?")) {
       url += "&";
     }
     if (!url.contains("format=json")) {
       url += "format=json&";
     }
-    return url;
+    if (!url.contains("callback=")) {
+      // IMPORTANT : the url should ended with ?callback= or &callback= for JSONP calls
+      url += "callback=";
+    }
+    makeJSONRequest(requestId++, URL.encode(url), handler);
   }
 
-  public static native void log(String str)
-    /*-{
-      console.log(str);
-    }-*/;
+  public static native void makeJSONRequest(int requestId, String url, JSONHandler handler)
+  /*-{
+    var callback = "callback" + requestId;
 
-  private static boolean errorsHandled(String text, Handler handler) {
-    if (text != null && !text.matches("^.*$")) {
-      JSONObject obj = new JSONObject(parseJSON(text));
-      if (obj.isObject() != null) {
-        if (obj.containsKey("err_code")) {
-          handler.onError(new Double(obj.get("err_code").isNumber().doubleValue()).intValue(),
-              obj.get("err_msg").isString().stringValue());
-          return true;
-        }
+    // create SCRIPT tag, and set SRC attribute equal to JSON feed URL + callback function name
+    var script = document.createElement("script");
+    script.setAttribute("src", url + callback);
+    script.setAttribute("type", "text/javascript");
+
+    window[callback] = function(jsonObj) {
+      @org.sonar.gwt.JsonUtils::dispatchJSON(Lcom/google/gwt/core/client/JavaScriptObject;Lorg/sonar/gwt/JsonUtils$JSONHandler;)(jsonObj, handler);
+      window[callback + "done"] = true;
+    }
+
+    setTimeout(function() {
+      if (!window[callback + "done"]) {
+        handler.@org.sonar.gwt.JsonUtils.JSONHandler::onTimeout();
+      }
+
+      // cleanup
+      document.body.removeChild(script);
+      if (window[callback]) {
+        delete window[callback];
+      }
+      if (window[callback + "done"]) {
+        delete window[callback + "done"];
+      }
+    }, 120000);
+
+    document.body.appendChild(script);
+  }-*/;
+
+  public static void dispatchJSON(JavaScriptObject jsonObj, JSONHandler handler) {
+    JSONObject obj = new JSONObject(jsonObj);
+    if (obj.isObject() != null) {
+      if (obj.containsKey("err_code")) {
+        handler.onError(new Double(obj.get("err_code").isNumber().doubleValue()).intValue(),
+            obj.get("err_msg").isString().stringValue());
+        return;
       }
     }
-    return false;
-  }
-
-  public static void dispatchJSON(String text, JSONHandler handler) {
-    handler.onResponse(parseJSON(text));
+    handler.onResponse(jsonObj);
   }
 
   public static String getString(JSONObject json, String field) {
