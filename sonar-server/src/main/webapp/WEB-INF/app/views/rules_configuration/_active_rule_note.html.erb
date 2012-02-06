@@ -9,29 +9,30 @@
   submit_active_note_update_button_id = "sanub_" + active_rule.id.to_s
 %>
 
-<div id="<%= active_note_detail_div_id -%>" style="padding: 4px;<%= 'border: 1px solid #DDDDDD;' if note -%>">
+<div id="<%= active_note_detail_div_id -%>">
   <% if note %>
-      <h4>
-        <%= image_tag("reviews/comment.png") -%>&nbsp;
-        <b><%= note.user.name -%></b>&nbsp;
-        (<%= distance_of_time_in_words_to_now(note.updated_at) -%>)&nbsp;
+    <blockquote class="spacer-bottom">
+      <cite>
+        <b><%= note.user.name -%></b> (<%= distance_of_time_in_words_to_now(note.updated_at) -%>)&nbsp;
         &nbsp;
         <% if is_admin %>
           <%= image_tag 'sep12.png' -%>
           &nbsp;
-          <a href="#" id="<%= edit_active_note_link_id -%>" 
+          <a href="#" id="<%= edit_active_note_link_id -%>" class="link-action spacer-right"
              onclick="$('<%= active_note_detail_div_id -%>').hide();$('<%= active_note_form_div_id -%>').show();$('<%= active_note_textarea_id -%>').focus();return false;"><%= message('edit') %></a>
           &nbsp;
           <%= link_to_remote message('delete'),
                             :url => {:action => 'delete_active_rule_note', :active_rule_id => active_rule.id },
                             :update => "active_rule_note_#{active_rule.id}",
-                            :confirm => message('rules_configuration.confirm_delete_note') -%>
+                            :confirm => message('rules_configuration.confirm_delete_note'),
+                            :html => {:class => 'link-action spacer-right'} -%>
         <% end %>
-      </h4>
+      </cite>
       <p><%= note.html_text -%></p>
+    </blockquote>
   <% elsif is_admin && !active_rule.rules_profile.provided? %>
-    <input type="button" id="<%= add_active_note_button_id -%>" value="<%= message('rules_configuration.add_note') -%>" 
-           onclick="$('<%= active_note_form_div_id -%>').show();$('<%= active_note_detail_div_id -%>').hide();$('<%= active_note_textarea_id -%>').focus();">
+    <a href="#" onclick="$('<%= active_note_form_div_id -%>').show();$('<%= active_note_detail_div_id -%>').hide();$('<%= active_note_textarea_id -%>').focus(); return false;"
+       class="link-action spacer-right" id="<%= add_active_note_button_id -%>"><%= message('rules_configuration.add_note') -%></a>
   <% end %>
 </div>
 

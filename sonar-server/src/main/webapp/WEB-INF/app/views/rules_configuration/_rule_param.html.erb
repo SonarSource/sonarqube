@@ -8,52 +8,50 @@
     active_rule_id = active_rule.id if active_rule
     enable_modification = is_admin && !profile.provided?
 %>
-<tr>
-    <td width="10%" nowrap class="left">
-       <%= parameter.name %>: &nbsp;
-    </td>
-    <td width="90%" nowrap class="left">
-        <%= form_remote_tag :url => {:action => 'update_param', :id => active_param_id, :profile_id => profile.id, :param_id => parameter.id, :active_rule_id => active_rule_id},
-            :update => "rule_#{rule.id}",
-            :loading => "$('param_loading_#{parameter.id}').show();",
-            :complete => "$('desc_#{rule.id}').show();" %>
 
-        <% span_id = "text_#{parameter.id}" %>
-        <% read_only = !active_rule || !enable_modification %>
-        <% textfield = text_field_tag parameter.id, param_value, :size => parameter.input_box_size, :name => "value", :disabled => read_only %>
-        <% textfield += link_to_function(image_tag("zoom.png"), "replaceTextField('#{span_id}', '#{parameter.id}')", :id => "toggle_text", :class => 'nolink') unless read_only %>
-        <% textarea = text_area_tag parameter.id, param_value, :size => "100x10", :name => "value", :disabled => read_only %>
-        <% textarea += "<br/>" %>
-        <span id="<%= span_id %>"><%= (param_value.length < 50) ? textfield : textarea %></span>
+<td class="form-key-cell">
+  <%= parameter.name %>
+</td>
+<td class="form-val-cell">
+  <%= form_remote_tag :url => {:action => 'update_param', :id => active_param_id, :profile_id => profile.id, :param_id => parameter.id, :active_rule_id => active_rule_id},
+                      :update => "rule_#{rule.id}",
+                      :loading => "$('param_loading_#{parameter.id}').show();",
+                      :complete => "$('desc_#{rule.id}').show();" %>
 
-        <% if !read_only %>
-            <%= submit_tag message('update_verb') %>
-            <img src="<%= ApplicationController.root_context -%>/images/loading.gif" style="display:none;" id="param_loading_<%= parameter.id -%>">
-            <% if active_parameter and active_parameter.errors.size>0 %>
-              <span class="error"><%= active_parameter.errors.on 'value' %></span>
-            <% end %>
-        <% end %>
+    <% span_id = "text_#{parameter.id}" %>
+    <% read_only = !active_rule || !enable_modification %>
+    <% textfield = text_field_tag parameter.id, param_value, :size => parameter.input_box_size, :name => "value", :disabled => read_only %>
+    <% textfield += link_to_function(image_tag("zoom.png"), "replaceTextField('#{span_id}', '#{parameter.id}')", :id => "toggle_text", :class => 'nolink') unless read_only %>
+    <% textarea = text_area_tag parameter.id, param_value, :size => "100x10", :name => "value", :disabled => read_only %>
+    <% textarea += "<br/>" %>
+    <span id="<%= span_id %>"><%= (param_value.length < 50) ? textfield : textarea %></span>
+
+    <% if !read_only %>
+      <%= submit_tag message('update_verb') %>
+      <img src="<%= ApplicationController.root_context -%>/images/loading.gif" style="display:none;" id="param_loading_<%= parameter.id -%>">
+      <% if active_parameter and active_parameter.errors.size>0 %>
+        <span class="error"><%= active_parameter.errors.on 'value' %></span>
+      <% end %>
+    <% end %>
         
-        <% 
-           if active_rule && active_rule.overrides? && ancestor_active_rule
-             ancestor_param = ancestor_active_rule.active_param_by_param_id(parameter.id)
-             ancestor_value = ancestor_param.value unless ancestor_param.value.blank?
+    <% 
+       if active_rule && active_rule.overrides? && ancestor_active_rule
+         ancestor_param = ancestor_active_rule.active_param_by_param_id(parameter.id)
+         ancestor_value = ancestor_param.value unless ancestor_param.value.blank?
              
-             if ancestor_value && ancestor_value != param_value
-        %>
-          <span class="note" style="font-weight: bold">
-            (<%= message('rules_configuration.original_value') -%>: <%= ancestor_value -%>)
-          </span>
-        <% 
-             end
-           end 
-        %>
-        </form>
-    </td>
-</tr>
-<tr>
-    <td></td>
-    <td style="padding-bottom:5px;">
-      <span class="note" style="white-space: normal"><%= h parameter.description -%></span>
-    </td>
-</tr>
+         if ancestor_value && ancestor_value != param_value
+    %>
+      <img src="<%= ApplicationController.root_context -%>/images/overrides.png" alt="Overrides parent definition" title="<%= message('rules_configuration.overrides_parent_definition') -%>" style="vertical-align: middle"/>
+      <span class="form-val-note" style="font-weight: bold; vertical-align: middle;">
+        <%= message('rules_configuration.original_value') -%>: <%= ancestor_value -%>
+      </span>
+    <% 
+         end
+       end 
+    %>
+  </form>
+        
+  <% if parameter.description %>
+    <div class="form-val-note"><%= h parameter.description -%></div>
+  <% end %>
+</td>

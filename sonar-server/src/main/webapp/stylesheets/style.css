@@ -2054,24 +2054,11 @@ ul.bullet li {
   width: 100%;
 }
 
-.rule_detail {
-  color: #444;
-  margin-top:10px;
-}
-
 .rule_detail .markdown-help {
   vertical-align:top;
   width: 90px;
   padding-left: 10px;
   white-space: nowrap;
-}
-
-.rule_detail > td > table {
-  margin: 4px;
-}
-
-.rule_detail td {
-  vertical-align: text-top;
 }
 
 .rule_detail li {
@@ -2084,7 +2071,7 @@ ul.bullet li {
   padding-left: 30px;
 }
 
-.rule_detail pre, .rule_detail p {
+.rule_detail pre {
   padding: 7px;
 }
 
@@ -2093,11 +2080,6 @@ ul.bullet li {
   font-family: "Courier New", Courier, monospace;;
   border: 1px dashed #aaa;
   font-size: 93%;
-}
-
-.rule_detail .separator {
-  background: url('../images/sep12.png') center repeat-y;
-  min-width: 20px;
 }
 
 .tip:hover {

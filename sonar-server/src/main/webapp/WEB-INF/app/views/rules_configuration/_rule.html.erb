@@ -30,81 +30,84 @@
   </td>
   
   <td valign="top" class="left">
-    <%= link_to_function("#{h rule.name}", nil, :class => "") do |page|
+    <div class="h3"><%= link_to_function("#{h rule.name}", nil, :class => "") do |page|
         page.toggle "desc_#{rule.id}"
       end
-    %>
+    %></div>
+    
     <div id="desc_<%= rule.id -%>" class="rule_detail" style="<%= 'display:none' unless rule.id.to_s == params[:rule_id] -%>">
       <a name="rule<%= rule.id -%>"/>
-      <table width="100%">
-        <tbody>
-          <tr>
-            <td width="50%">
-              <div id="rule_note_<%= rule.id -%>">
-                <%= render :partial => 'rule_note', :locals => {:rule => rule, :is_admin => is_admin } %>
-              </div>
-              <% if active_rule %>
-                <div id="active_rule_note_<%= active_rule.id -%>">
-                  <%= render :partial => 'active_rule_note', :locals => {:active_rule => active_rule, :is_admin => is_admin } %>
-                </div>
-              <% end %>
-            </td>
-            <td class="separator"></td>
-            <td width="50%">
-              <% 
-                 ancestor_profile = profile.parent
-                 ancestor_active_rule = ancestor_profile.active_by_rule_id(rule.id) if ancestor_profile && active_rule && (active_rule.inherited? || active_rule.overrides?)
-                 if ancestor_active_rule
-                   ancestor_active_rule_link = link_to ancestor_profile.name, :controller => 'rules_configuration', :action => 'index', 
+      
+      <div class="spacer-top spacer-bottom" id="rule_note_<%= rule.id -%>">
+        <%= render :partial => 'rule_note', :locals => {:rule => rule, :is_admin => is_admin } %>
+      </div>
+      
+      <%
+         ancestor_profile = profile.parent
+         ancestor_active_rule = ancestor_profile.active_by_rule_id(rule.id) if ancestor_profile && active_rule && (active_rule.inherited? || active_rule.overrides?)
+         if ancestor_active_rule || !rule.parameters.empty?
+      %>
+        <table width="100%" class="table-bordered background-gray spacer-bottom">
+          <% 
+             if ancestor_active_rule
+               ancestor_active_rule_link = link_to ancestor_profile.name, :controller => 'rules_configuration', :action => 'index', 
                                                        :id => ancestor_profile.id, :rule_id => rule.id, :anchor => 'rule' + rule.id.to_s
-              %>
-                <%= message( active_rule.inherited? ? 'rules_configuration.rule_inherited_from_profile_x' : 'rules_configuration.rule_overriding_from_profile_x',
-                             :params => ancestor_active_rule_link) -%>
-                <% if ancestor_active_rule.priority != active_rule.priority %>
-                  <span class="note" style="font-weight: bold"> (<%= message('rules_configuration.original_severity') -%>: <%= ancestor_active_rule.priority_text -%>)</span>
-                <% end %>
-                <% if is_admin && active_rule.overrides? %>
-                  <br/>
-                  <%= button_to message('rules_configuration.revert_to_parent_definition'), :overwrite_params => {:action => 'revert_rule', :id => profile.id, :active_rule_id => active_rule.id} %><br/>
-                <% end %>
+          %>
+          <tr>
+            <td colspan="2" style="padding: 8px">
+              <%= message( active_rule.inherited? ? 'rules_configuration.rule_inherited_from_profile_x' : 'rules_configuration.rule_overriding_from_profile_x',
+                           :params => ancestor_active_rule_link) -%>
+              <% if ancestor_active_rule.priority != active_rule.priority %>
+                <img src="<%= ApplicationController.root_context -%>/images/overrides.png" alt="Overrides parent definition" title="<%= message('rules_configuration.overrides_parent_definition') -%>" style="vertical-align: middle"/>
+                <span class="form-val-note" style="font-weight: bold"> <%= message('rules_configuration.original_severity') -%>: <%= ancestor_active_rule.priority_text -%></span>
               <% end %>
-              
-              <% unless rule.parameters.empty? %>
-                <h3><%= message('rules_configuration.rule_parameters') -%></h3>
-                <table style="margin-left:7px">
-                  <% rule.parameters.each do |parameter|
-                    active_parameter = active_rule.active_param_by_param_id(parameter.id) if active_rule
-                  %>
-                    <tbody id="param_<%= parameter.id -%>">
-                    <%= render :partial => 'rule_param', :object => nil,
-                      :locals => {:parameter => parameter, :active_parameter => active_parameter, :profile => profile, :rule => rule,
-                                  :active_rule => active_rule, :ancestor_active_rule => ancestor_active_rule, :is_admin => is_admin } %>
-                    </tbody>
-                  <% end %>
-                </table>
-              <% end %>
-
-              <h3><%= message('rules_configuration.rule_identification') -%></h3>
-              <table style="margin-left:7px">
-                <tbody>
-                  <tr><td style="padding-right:10px"><%= message('plugin') -%>:</td><td><%= rule.plugin_name.capitalize %></td></tr>
-                  <tr><td style="padding-right:10px"><%= message('key') -%>:</td><td><%= rule.plugin_rule_key %></td></tr>
-                </tbody>
-              </table>
-              <% if is_admin %>
-                <br/>
-                <% if rule.template? %>
-                <%= button_to message('rules_configuration.copy_rule'), {:action => 'new', :id => profile.id, :rule_id => rule.id}, :id => "copy-#{u rule.key}" %>
-                <% end %>
-                <% if rule.editable? %>
-                <%= button_to message('rules_configuration.edit_rule'), :action => 'edit', :id => profile.id, :rule_id => rule.id %>
-                <% end %>
+              <% if is_admin && active_rule.overrides? %>
+                <form action="<%= url_for :overwrite_params => {:action => 'revert_rule', :id => profile.id, :active_rule_id => active_rule.id} -%>" method="post" style="display: inline">
+                  <input type="submit" value="<%= message('rules_configuration.revert_to_parent_definition') -%>">
+                </form>
               <% end %>
             </td>
           </tr>
-        </tbody>
-      </table>
-    </div>    
+          <% end %>
+          <% unless rule.parameters.empty? 
+               rule.parameters.each do |parameter|
+                 active_parameter = active_rule.active_param_by_param_id(parameter.id) if active_rule
+          %>
+          <tr id="param_<%= parameter.id -%>">
+            <%= render :partial => 'rule_param', :object => nil,
+                       :locals => {:parameter => parameter, :active_parameter => active_parameter, :profile => profile, :rule => rule,
+                                   :active_rule => active_rule, :ancestor_active_rule => ancestor_active_rule, :is_admin => is_admin } %>
+          </tr>
+          <%   
+               end
+             end 
+          %>
+        </table>
+      <% end %>
+      
+      <% if active_rule %>
+        <div id="active_rule_note_<%= active_rule.id -%>">
+          <%= render :partial => 'active_rule_note', :locals => {:active_rule => active_rule, :is_admin => is_admin } %>
+        </div>
+      <% end %>
+      
+      <% if is_admin %>
+        <br/>
+        <% if rule.template? %>
+          <%= link_to message('rules_configuration.copy_rule'), {:action => 'new', :id => profile.id, :rule_id => rule.id}, :id => "copy-#{u rule.key}", :class => 'link-action spacer-right' %>
+        <% end %>
+        <% if rule.editable? %>
+           <%= link_to message('rules_configuration.edit_rule'), {:action => 'edit', :id => profile.id, :rule_id => rule.id}, :class => 'link-action spacer-right' %>
+        <% end %>
+      <% end %>
+      
+      <div style="height: 17px;line-height: 17px;font-size: 11px;">
+        <div style="float: left">
+          <span style="color: #888"><%= rule.plugin_name.capitalize %>:</span>
+          <span style="color: #888"><%= rule.plugin_rule_key %></span>
+        </div>
+      </div>
+          
   </td>
 
   <script type="text/javascript">

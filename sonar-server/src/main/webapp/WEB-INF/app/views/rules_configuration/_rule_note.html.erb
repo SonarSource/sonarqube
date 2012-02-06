@@ -19,10 +19,10 @@
   <% end %>
   
   <% if is_admin %>
-    <p  style="text-align: right; font-style: italic;">
-      » <a href="#" id="<%= note_extend_link_id -%>" 
+    <div>
+        <a href="#" id="<%= note_extend_link_id -%>" class="link-action spacer-right"
            onclick="$('<%= note_detail_div_id -%>').hide();$('<%= note_form_div_id -%>').show();$('<%= note_textarea_id -%>').focus();return false;"><%= message('rules_configuration.extend_description') %></a>
-    </p>
+    </div>
   <% end %>
 </div>
 
