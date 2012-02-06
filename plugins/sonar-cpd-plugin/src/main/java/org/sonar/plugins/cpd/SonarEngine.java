@@ -43,6 +43,8 @@ import org.sonar.duplications.token.TokenChunker;
 import org.sonar.plugins.cpd.index.IndexFactory;
 import org.sonar.plugins.cpd.index.SonarDuplicationsIndex;
 
+import javax.annotation.Nullable;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
@@ -171,8 +173,8 @@ public class SonarEngine extends CpdEngine {
     return JavaFile.fromRelativePath(inputFile.getRelativePath(), false);
   }
 
-  static void save(SensorContext context, Resource resource, Iterable<CloneGroup> duplications) {
-    if (Iterables.isEmpty(duplications)) {
+  static void save(SensorContext context, Resource resource, @Nullable Iterable<CloneGroup> duplications) {
+    if (duplications == null || Iterables.isEmpty(duplications)) {
       return;
     }
     // Calculate number of lines and blocks
