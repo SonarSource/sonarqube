@@ -25,7 +25,7 @@
                        :update => "vId" + params[:id],
                        :before => assignee_check_script -%>
   &nbsp;
-  <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
+  <%= image_tag 'sep12.png' -%>
   &nbsp;
   <%= button_to_remote message('reviews.assign_to_me_submit'),
                        {

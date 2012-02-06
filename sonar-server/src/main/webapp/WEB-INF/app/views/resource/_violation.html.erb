@@ -13,13 +13,13 @@
         <img src="<%= ApplicationController.root_context -%>/images/priority/<%= violation.failure_level -%>.png">
       <% end %>
       &nbsp;
-      <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
+      <%= image_tag 'sep12.png' -%>
       &nbsp;
       <span class="rulename">
         <a onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;" href="<%= url_for :controller => 'rules', :action => 'show', :id => violation.rule.key, :layout => 'false' -%>"><%= h(violation.rule.name) -%></a>
       </span>
       &nbsp;
-      <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
+      <%= image_tag 'sep12.png' -%>
       &nbsp;
 
       <% if violation.created_at %>
@@ -27,25 +27,25 @@
         &nbsp;
       <% end %>
       <% if violation.switched_off? %>
-        <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
+        <%= image_tag 'sep12.png' -%>
         &nbsp;
         <span class="falsePositive"><%= message('false_positive') -%></span>
         &nbsp;
       <% end %>
       <% if violation.review && violation.review.resolved? %>
-        <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
+        <%= image_tag 'sep12.png' -%>
         &nbsp;
         <span class="reviewResolved"><%= message('reviews.status.RESOLVED') -%></span>
         &nbsp;
       <% end %>
       <% if violation.review && violation.review.assignee_id %>
-        <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
+        <%= image_tag 'sep12.png' -%>
         &nbsp;
         <%= message('assigned_to') -%> <%= h(violation.review.assignee.name) -%>
         &nbsp;
       <% end %>
       <% if violation.review && violation.review.planned? %>
-        <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
+        <%= image_tag 'sep12.png' -%>
         &nbsp;
         <%= message('reviews.planned_for_x', :params => h(violation.review.action_plan.name)) -%>
         &nbsp;
@@ -57,7 +57,7 @@
       <div id="vMsg<%= violation.id -%>">
         
         <% if current_user %>
-          <img src="<%= ApplicationController.root_context -%>/images/actions.png" onclick="$('vActions<%= violation.id -%>').toggle();">
+          <img src="<%= ApplicationController.root_context -%>/images/actions.png" onclick="$('vActions<%= violation.id -%>').toggle();" class="pop-menu-icon">
           <div style="display: none" class="popup-menu" id="vActions<%= violation.id -%>" onmouseout="this.hide();"  onmouseover="this.show();">
               <ul>
                 <li><%= link_to_function message('reviews.comment'), "sCF(#{violation.id})", :name => 'bComment' -%></li>
@@ -106,7 +106,7 @@
             <% if is_last_comment && current_user %>
       <span class="actions" id="commentActions<%= violation.id -%>">
         &nbsp;&nbsp;
-        <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
+        <%= image_tag 'sep12.png' -%>
         &nbsp;
         <%
            if current_user.id == review_comment.user_id

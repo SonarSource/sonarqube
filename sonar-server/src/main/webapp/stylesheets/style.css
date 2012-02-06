@@ -419,6 +419,10 @@ button[disabled], .button[disabled], input[type="submit"][disabled], input[type=
   cursor: default;
 }
 
+.pop-menu-icon {
+  cursor: pointer;
+}
+
 .popup-menu {
   background-clip: padding-box;
   background-color: #FFFFFF;

@@ -27,7 +27,7 @@
                 <% end %>
               </select>
               &nbsp;
-              <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
+              <%= image_tag 'sep12.png' -%>
               &nbsp;
               <select id="select-rule-<%= @html_id -%>" name="rule" onkeyup="this.blur();this.focus();" onchange="if ($F(this)=='') {$('new_rule_<%= @html_id -%>').show()} else {$('new_rule_<%= @html_id -%>').hide()}">
                 <% is_admin = current_user && has_role?(:admin)
@@ -49,7 +49,7 @@
               <% end %>
 
               &nbsp;
-              <img src="<%= ApplicationController.root_context -%>/images/sep12.png">
+              <%= image_tag 'sep12.png' -%>
               &nbsp;
               Assign to: <%= user_autocomplete_field "assignee_login", current_user.login -%>
             </div>
