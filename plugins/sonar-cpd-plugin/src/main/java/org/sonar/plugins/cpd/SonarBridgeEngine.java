@@ -24,6 +24,7 @@ import com.google.common.collect.Iterables;
 import org.sonar.api.batch.CpdMapping;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.*;
+import org.sonar.duplications.DuplicationPredicates;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.detector.suffixtree.SuffixTreeCloneDetectionAlgorithm;
 import org.sonar.duplications.index.CloneGroup;
@@ -75,12 +76,7 @@ public class SonarBridgeEngine extends CpdEngine {
     }
 
     // Detect
-    final int minimumTokens = PmdEngine.getMinimumTokens(project);
-    Predicate<CloneGroup> minimumTokensPredicate = new Predicate<CloneGroup>() {
-      public boolean apply(CloneGroup input) {
-        return input.getLengthInUnits() >= minimumTokens;
-      }
-    };
+    Predicate<CloneGroup> minimumTokensPredicate = DuplicationPredicates.numberOfUnitsNotLessThan(PmdEngine.getMinimumTokens(project));
 
     for (InputFile inputFile : inputFiles) {
       Resource resource = mapping.createResource(inputFile.getFile(), fileSystem.getSourceDirs());

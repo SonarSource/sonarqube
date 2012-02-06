@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.cpd;
 
+import com.google.common.collect.Iterables;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,8 +89,11 @@ public class SonarEngine extends CpdEngine {
     if (inputFiles.isEmpty()) {
       return;
     }
+    SonarDuplicationsIndex index = createIndex(project, inputFiles);
+    detect(index, context, project, inputFiles);
+  }
 
-    // Create index
+  private SonarDuplicationsIndex createIndex(Project project, List<InputFile> inputFiles) {
     final SonarDuplicationsIndex index = indexFactory.create(project);
 
     TokenChunker tokenChunker = JavaTokenProducer.build();
@@ -117,7 +121,10 @@ public class SonarEngine extends CpdEngine {
       index.insert(resource, blocks);
     }
 
-    // Detect
+    return index;
+  }
+
+  private void detect(SonarDuplicationsIndex index, SensorContext context, Project project, List<InputFile> inputFiles) {
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     try {
       for (InputFile inputFile : inputFiles) {
@@ -164,14 +171,14 @@ public class SonarEngine extends CpdEngine {
     return JavaFile.fromRelativePath(inputFile.getRelativePath(), false);
   }
 
-  static void save(SensorContext context, Resource resource, Iterable<CloneGroup> clones) {
-    if (clones == null || !clones.iterator().hasNext()) {
+  static void save(SensorContext context, Resource resource, Iterable<CloneGroup> duplications) {
+    if (Iterables.isEmpty(duplications)) {
       return;
     }
     // Calculate number of lines and blocks
     Set<Integer> duplicatedLines = new HashSet<Integer>();
     double duplicatedBlocks = 0;
-    for (CloneGroup clone : clones) {
+    for (CloneGroup clone : duplications) {
       ClonePart origin = clone.getOriginPart();
       for (ClonePart part : clone.getCloneParts()) {
         if (part.getResourceId().equals(origin.getResourceId())) {
@@ -182,12 +189,19 @@ public class SonarEngine extends CpdEngine {
         }
       }
     }
-    // Build XML
+    // Save
+    context.saveMeasure(resource, CoreMetrics.DUPLICATED_FILES, 1.0);
+    context.saveMeasure(resource, CoreMetrics.DUPLICATED_LINES, (double) duplicatedLines.size());
+    context.saveMeasure(resource, CoreMetrics.DUPLICATED_BLOCKS, duplicatedBlocks);
+    context.saveMeasure(resource, new Measure(CoreMetrics.DUPLICATIONS_DATA, toXml(duplications)));
+  }
+
+  private static String toXml(Iterable<CloneGroup> duplications) {
     StringBuilder xml = new StringBuilder();
     xml.append("<duplications>");
-    for (CloneGroup clone : clones) {
+    for (CloneGroup duplication : duplications) {
       xml.append("<g>");
-      for (ClonePart part : clone.getCloneParts()) {
+      for (ClonePart part : duplication.getCloneParts()) {
         xml.append("<b s=\"").append(part.getStartLine())
             .append("\" l=\"").append(part.getLines())
             .append("\" r=\"").append(part.getResourceId())
@@ -196,11 +210,7 @@ public class SonarEngine extends CpdEngine {
       xml.append("</g>");
     }
     xml.append("</duplications>");
-    // Save
-    context.saveMeasure(resource, CoreMetrics.DUPLICATED_FILES, 1d);
-    context.saveMeasure(resource, CoreMetrics.DUPLICATED_LINES, (double) duplicatedLines.size());
-    context.saveMeasure(resource, CoreMetrics.DUPLICATED_BLOCKS, duplicatedBlocks);
-    context.saveMeasure(resource, new Measure(CoreMetrics.DUPLICATIONS_DATA, xml.toString()));
+    return xml.toString();
   }
 
 }
