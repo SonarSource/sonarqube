@@ -23,7 +23,7 @@
           &raquo; <a href="<%= ApplicationController.root_context -%>/sessions/logout"><%= message('layout.logout') -%></a>
         </li>
       <% else %>
-        <li><a href="<%= ApplicationController.root_context -%>/sessions/new"><%= message('layout.login') -%></a></li>
+        <li><a href="<%= ApplicationController.root_context -%>/sessions/new?return_to=<%= u (request.request_uri) -%>"><%= message('layout.login') -%></a></li>
       <% end %>
       <li><a href="<%= ApplicationController.root_context -%>/profiles"><%= message('layout.configuration') -%></a></li>
     </ol>
