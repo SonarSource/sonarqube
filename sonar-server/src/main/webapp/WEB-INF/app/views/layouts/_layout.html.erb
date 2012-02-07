@@ -1,6 +1,7 @@
 <%
    selected_section = controller.class::SECTION
    @project=@resource unless @project || selected_section==Navigation::SECTION_HOME
+   period_param = "period=#{params[:period]}" if params[:period]
 %>
 <div id="container">
   <div id="hd">
@@ -51,13 +52,13 @@
           <% elsif (selected_section==Navigation::SECTION_RESOURCE) %>
             <% ActiveDashboard.user_dashboards(current_user).each do |active_dashboard| %>
               <li class="<%= 'selected' if @dashboard && controller.controller_path=='dashboard' && active_dashboard.dashboard_id==@dashboard.id -%>">
-                <a href="<%= ApplicationController.root_context -%>/dashboard/index/<%= @project.id -%>?did=<%= active_dashboard.dashboard_id -%><%= "&period=#{params[:period]}" if params[:period] -%>"><%= active_dashboard.dashboard.name(true) -%></a>
+                <a href="<%= ApplicationController.root_context -%>/dashboard/index/<%= @project.id -%>?did=<%= active_dashboard.dashboard_id -%><%= "&"+period_param if period_param -%>"><%= active_dashboard.dashboard.name(true) -%></a>
               </li>
             <% end %>
             <li class="<%= 'selected' if request.request_uri.include?('/components/index') -%>">
               <a href="<%= ApplicationController.root_context -%>/components/index/<%= @project.id -%>"><%= message('components.page') -%></a></li>
             <li class="<%= 'selected' if request.request_uri.include?('/drilldown/violations') -%>">
-              <a href="<%= ApplicationController.root_context -%>/drilldown/violations/<%= @project.id -%>"><%= message('violations_drilldown.page') -%></a></li>
+              <a href="<%= ApplicationController.root_context -%>/drilldown/violations/<%= @project.id -%><%= "?"+period_param if period_param -%>"><%= message('violations_drilldown.page') -%></a></li>
             <li class="<%= 'selected' if controller.controller_path=='timemachine' -%>">
               <a href="<%= ApplicationController.root_context -%>/timemachine/index/<%= @project.id -%>"><%= message('timemachine.page') -%></a></li>
             <li class="<%= 'selected' if request.request_uri.include?('/cloud/index') -%>">
