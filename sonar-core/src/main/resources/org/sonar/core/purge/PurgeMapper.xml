@@ -3,7 +3,7 @@
 
 <mapper namespace="org.sonar.core.purge.PurgeMapper">
 
-  <select id="selectSnapshotIds" parameterType="map" resultType="long" >
+  <select id="selectSnapshotIds" parameterType="map" resultType="long">
     select s.id from snapshots s
     <where>
       <if test="islast != null">
@@ -116,9 +116,9 @@
   </delete>
 
   <delete id="deleteSnapshotMeasuresOnQualityModelRequirements" parameterType="long">
-      delete from project_measures where snapshot_id=#{id} and
-      characteristic_id in (select id from characteristics where rule_id is not null)
-    </delete>
+    delete from project_measures where snapshot_id=#{id} and
+    characteristic_id in (select id from characteristics where rule_id is not null)
+  </delete>
 
   <update id="updatePurgeStatusToOne" parameterType="long">
     update snapshots set purge_status = 1 where id = #{id}
