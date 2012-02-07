@@ -30,6 +30,7 @@ class Snapshot < ActiveRecord::Base
   has_many :measures, :class_name => 'ProjectMeasure', :conditions => 'rule_id IS NULL AND characteristic_id IS NULL AND committer IS NULL'
   has_many :rulemeasures, :class_name => 'ProjectMeasure', :conditions => 'rule_id IS NOT NULL AND characteristic_id IS NULL AND committer IS NULL', :include => 'rule'
   has_many :characteristic_measures, :class_name => 'ProjectMeasure', :conditions => 'rule_id IS NULL AND characteristic_id IS NOT NULL AND committer IS NULL'
+  has_many :committer_measures, :class_name => 'ProjectMeasure', :conditions => 'rule_id IS NULL AND characteristic_id IS NULL AND committer IS NOT NULL'
 
   has_many :events, :dependent => :destroy, :order => 'event_date DESC'
   has_one :source, :class_name => 'SnapshotSource', :dependent => :destroy
@@ -161,6 +162,13 @@ class Snapshot < ActiveRecord::Base
       metric=Metric.by_key(metric)
     end
     metric ? measures_hash[metric.id] : nil
+  end
+
+  def committer_measure(metric, committer)
+    committer_measures.each do |m|
+      return m if m.metric_id==metric.id && m.committer==committer
+    end
+    nil
   end
 
   def characteristic_measure(metric, characteristic)

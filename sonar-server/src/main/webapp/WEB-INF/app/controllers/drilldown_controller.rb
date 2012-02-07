@@ -53,6 +53,11 @@ class DrilldownController < ApplicationController
       options[:period]=@period
     end
 
+    if params[:committer]
+      @committer=params[:committer]
+      options[:committer]=@committer
+    end
+
     # load data
     @drilldown = Drilldown.new(@project, @metric, selected_rids, options)
     @snapshot = @drilldown.snapshot

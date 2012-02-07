@@ -20,7 +20,13 @@
 <% end %>
 
 <div class="dashbox">
-  <% if @characteristic %>
+  <% if @committer %>
+    <h3><%= @highlighted_metric.short_name -%> / <%= h(@committer) -%></h3>
+
+    <p class="big">
+      <%= format_measure(@snapshot.committer_measure(@highlighted_metric, @committer), :period => @period) %>
+    </p>
+  <% elsif @characteristic %>
     <h3><%= @highlighted_metric.short_name -%> / <%= h(@characteristic.name(true)) -%></h3>
 
     <p class="big"><%= format_measure(@snapshot.characteristic_measure(@highlighted_metric, @characteristic)) %></p>
@@ -37,7 +43,12 @@
   <% if @highlighted_metric!=@metric %>
     <tr>
       <td colspan="<%= @drilldown.columns.size -%>"><%= message('drilldown.drilldown_on') -%>&nbsp;
-        <b><%= format_measure(@metric.key, :period => @period) -%> <%= @metric.short_name -%></b></td>
+      <% if @committer %>
+        <b><%= format_measure(@snapshot.committer_measure(@metric, @committer), :period => @period) -%> <%= @metric.short_name -%></b>
+      <% else %>
+        <b><%= format_measure(@metric.key, :period => @period) -%> <%= @metric.short_name -%></b>
+      <% end %>
+      </td>
     </tr>
     <tr>
   <% end

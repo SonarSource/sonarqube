@@ -91,7 +91,12 @@ class DrilldownColumn
       conditions += ' AND project_measures.characteristic_id IS NULL'
     end
 
-    conditions += ' AND project_measures.committer IS NULL'
+    if options[:committer]
+      conditions += ' AND project_measures.committer=:committer'
+      condition_values[:committer]=options[:committer]
+    else
+      conditions += ' AND project_measures.committer IS NULL'
+    end
 
     @measures=ProjectMeasure.find(:all,
       :select => "project_measures.id,project_measures.metric_id,project_measures.#{value_column},project_measures.text_value,project_measures.alert_status,project_measures.alert_text,project_measures.snapshot_id",
