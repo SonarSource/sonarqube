@@ -45,8 +45,13 @@ public class NewViolationsEmailTemplate extends EmailTemplate {
     StringBuilder sb = new StringBuilder();
 
     String projectName = notification.getFieldValue("projectName");
-    appendLine(sb, "Project", projectName);
-    appendLine(sb, "New violations on last analysis", notification.getFieldValue("count"));
+    String violationsCount = notification.getFieldValue("count");
+    String fromDate = notification.getFieldValue("fromDate");
+    String toDate = notification.getFieldValue("toDate");
+
+    sb.append("Project: ").append(projectName).append('\n');
+    sb.append(violationsCount).append(" new violations on last analysis");
+    sb.append(" (introduced between ").append(fromDate).append(" and ").append(toDate).append(")").append('\n');
     appendFooter(sb, notification);
 
     EmailMessage message = new EmailMessage()
@@ -64,7 +69,7 @@ public class NewViolationsEmailTemplate extends EmailTemplate {
   private void appendFooter(StringBuilder sb, Notification notification) {
     String projectKey = notification.getFieldValue("projectKey");
     String period = notification.getFieldValue("period");
-    sb.append("\n--\n")
+    sb.append("\n")
         .append("See it in Sonar: ").append(configuration.getServerBaseURL()).append("/drilldown/measures/").append(projectKey)
         .append("?metric=new_violations&period=").append(period).append('\n');
   }

@@ -30,8 +30,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -216,17 +220,23 @@ public class NewViolationsDecoratorTest {
     Project project = new Project("key").setName("LongName");
     project.setId(45);
     when(timeMachineConfiguration.getLastAnalysisPeriodIndex()).thenReturn(2);
+    Calendar pastDate = new GregorianCalendar(2011, 10, 25);
+    PastSnapshot pastSnapshot = new PastSnapshot("", pastDate.getTime());
+    when(timeMachineConfiguration.getProjectPastSnapshots()).thenReturn(Lists.newArrayList(pastSnapshot, pastSnapshot));
     Measure m = new Measure(CoreMetrics.NEW_VIOLATIONS).setVariation2(32.0);
     when(context.getMeasure(CoreMetrics.NEW_VIOLATIONS)).thenReturn(m);
 
     decorator.decorate(project, context);
 
+    DateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd");
     Notification notification = new Notification("new-violations")
         .setFieldValue("count", "32")
         .setFieldValue("projectName", "LongName")
         .setFieldValue("projectKey", "key")
         .setFieldValue("projectId", "45")
-        .setFieldValue("period", "2");
+        .setFieldValue("period", "2")
+        .setFieldValue("fromDate", dateformat.format(pastDate.getTime()))
+        .setFieldValue("toDate", dateformat.format(new Date()));
     verify(notificationManager, times(1)).scheduleForSending(eq(notification));
   }
 

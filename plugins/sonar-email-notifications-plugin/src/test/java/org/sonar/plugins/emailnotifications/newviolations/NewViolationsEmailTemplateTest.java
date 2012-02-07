@@ -31,7 +31,7 @@ import org.sonar.api.notifications.Notification;
 import org.sonar.plugins.emailnotifications.EmailConfiguration;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 
-public class NewViolationsTemplateTest {
+public class NewViolationsEmailTemplateTest {
 
   private NewViolationsEmailTemplate template;
 
@@ -55,9 +55,8 @@ public class NewViolationsTemplateTest {
    * From: Sonar
    * 
    * Project: Foo
-   * New violations on last analysis: 32
+   * 32 new violations on last analysis (introduced between 2012-01-02 and 2012-01-15)
    * 
-   * --
    * See it in Sonar: http://nemo.sonarsource.org/drilldown/measures/org.sonar.foo:foo?metric=new_violations&period=2
    * </pre>
    */
@@ -68,16 +67,17 @@ public class NewViolationsTemplateTest {
         .setFieldValue("projectName", "Foo")
         .setFieldValue("projectKey", "org.sonar.foo:foo")
         .setFieldValue("projectId", "45")
-        .setFieldValue("period", "2");
+        .setFieldValue("period", "2")
+        .setFieldValue("fromDate", "2012-01-02")
+        .setFieldValue("toDate", "2012-01-15");
 
     EmailMessage message = template.format(notification);
     assertThat(message.getMessageId(), is("new-violations/45"));
     assertThat(message.getSubject(), is("New violations for project Foo"));
     assertThat(message.getMessage(), is("" +
       "Project: Foo\n" +
-      "New violations on last analysis: 32\n" +
+      "32 new violations on last analysis (introduced between 2012-01-02 and 2012-01-15)\n" +
       "\n" +
-      "--\n" +
       "See it in Sonar: http://nemo.sonarsource.org/drilldown/measures/org.sonar.foo:foo?metric=new_violations&period=2\n"));
   }
 

@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.core.timemachine;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -209,15 +211,19 @@ public class NewViolationsDecorator implements Decorator {
   protected void notifyNewViolations(Project project, DecoratorContext context) {
     Integer lastAnalysisPeriodIndex = timeMachineConfiguration.getLastAnalysisPeriodIndex();
     if (lastAnalysisPeriodIndex != null) {
+      PastSnapshot pastSnapshot = timeMachineConfiguration.getProjectPastSnapshots().get(lastAnalysisPeriodIndex - 1);
       Double newViolationsCount = context.getMeasure(CoreMetrics.NEW_VIOLATIONS).getVariation(lastAnalysisPeriodIndex);
       if (newViolationsCount != null && newViolationsCount > 0) {
         // Maybe we should check if this is the first analysis or not?
+        DateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd");
         Notification notification = new Notification("new-violations")
             .setFieldValue("count", String.valueOf(newViolationsCount.intValue()))
             .setFieldValue("projectName", project.getLongName())
             .setFieldValue("projectKey", project.getKey())
             .setFieldValue("projectId", String.valueOf(project.getId()))
-            .setFieldValue("period", lastAnalysisPeriodIndex.toString());
+            .setFieldValue("period", lastAnalysisPeriodIndex.toString())
+            .setFieldValue("fromDate", dateformat.format(pastSnapshot.getTargetDate()))
+            .setFieldValue("toDate", dateformat.format(new Date()));
         notificationManager.scheduleForSending(notification);
       }
     }
