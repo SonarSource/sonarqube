@@ -179,6 +179,7 @@ public class PurgeDao {
     mapper.deleteSnapshotSource(snapshotId);
     mapper.deleteSnapshotViolations(snapshotId);
     mapper.deleteSnapshotWastedMeasures(snapshotId);
+    mapper.deleteSnapshotMeasuresOnQualityModelRequirements(snapshotId);
     mapper.updatePurgeStatusToOne(snapshotId);
   }
 

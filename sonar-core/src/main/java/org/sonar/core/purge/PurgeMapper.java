@@ -45,6 +45,8 @@ public interface PurgeMapper {
 
   void deleteSnapshotWastedMeasures(long snapshotId);
 
+  void deleteSnapshotMeasuresOnQualityModelRequirements(long snapshotId);
+
   void updatePurgeStatusToOne(long snapshotId);
 
   void disableResource(long resourceId);

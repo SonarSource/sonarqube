@@ -111,9 +111,14 @@
 
   <delete id="deleteSnapshotWastedMeasures" parameterType="long">
     delete from project_measures where snapshot_id=#{id} and
-    (characteristic_id is not null or rule_id is not null or metric_id in (select id from metrics where
+    (rule_id is not null or metric_id in (select id from metrics where
     delete_historical_data=${_true}))
   </delete>
+
+  <delete id="deleteSnapshotMeasuresOnQualityModelRequirements" parameterType="long">
+      delete from project_measures where snapshot_id=#{id} and
+      characteristic_id in (select id from characteristics where rule_id is not null)
+    </delete>
 
   <update id="updatePurgeStatusToOne" parameterType="long">
     update snapshots set purge_status = 1 where id = #{id}
