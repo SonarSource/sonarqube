@@ -37,7 +37,7 @@
     <% 
        if active_rule && active_rule.overrides? && ancestor_active_rule
          ancestor_param = ancestor_active_rule.active_param_by_param_id(parameter.id)
-         ancestor_value = ancestor_param.value unless ancestor_param.value.blank?
+         ancestor_value = ancestor_param && ancestor_param.value ? ancestor_param.value : '(' + message('rules_configuration.parent_parameter.empty') + ')'
              
          if ancestor_value && ancestor_value != param_value
     %>
