@@ -34,9 +34,10 @@ import static org.mockito.Mockito.*;
 
 public class DefaultPurgeTaskTest {
   @Test
-  public void shouldNotDeleteHistoricalDataOfDirectoriesByDefault() {
+  public void shouldNotDeleteHistoricalDataOfDirectories() {
     PurgeDao purgeDao = mock(PurgeDao.class);
     Settings settings = new Settings(new PropertyDefinitions(DefaultPurgeTask.class));
+    settings.setProperty(DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY, "false");
     DefaultPurgeTask task = new DefaultPurgeTask(purgeDao, settings, mock(DefaultPeriodCleaner.class));
 
     task.purgeProject(1L);
@@ -45,10 +46,9 @@ public class DefaultPurgeTaskTest {
   }
 
   @Test
-  public void shouldDeleteHistoricalDataOfDirectories() {
+  public void shouldDeleteHistoricalDataOfDirectoriesByDefault() {
     PurgeDao purgeDao = mock(PurgeDao.class);
     Settings settings = new Settings(new PropertyDefinitions(DefaultPurgeTask.class));
-    settings.setProperty(DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY, "true");
     DefaultPurgeTask task = new DefaultPurgeTask(purgeDao, settings, mock(DefaultPeriodCleaner.class));
 
     task.purgeProject(1L);

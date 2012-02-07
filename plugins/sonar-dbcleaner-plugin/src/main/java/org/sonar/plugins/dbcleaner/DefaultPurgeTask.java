@@ -37,7 +37,7 @@ import org.sonar.plugins.dbcleaner.period.DefaultPeriodCleaner;
 @Properties({
   @Property(
     key = DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY,
-    defaultValue = "false",
+    defaultValue = "true",
     name = "Clean history data of directories/packages")
 })
 public class DefaultPurgeTask implements PurgeTask {
