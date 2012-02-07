@@ -380,7 +380,7 @@ class FiltersController < ApplicationController
     @width=(params[:width]||'800').to_i
     @height=(params[:height]||'500').to_i
 
-    @treemap = Treemap2.new(@filter.id, @size_metric, @width, @height, {
+    @treemap = Sonar::Treemap.new(@filter.id, @size_metric, @width, @height, {
       :color_metric => @color_metric,
       :period_index => @filter_context.period_index,
       :measures_by_snapshot => @filter_context.measures_by_snapshot,

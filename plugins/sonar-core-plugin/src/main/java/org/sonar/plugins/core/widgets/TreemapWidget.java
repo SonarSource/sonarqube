@@ -39,6 +39,6 @@ public class TreemapWidget extends AbstractRubyTemplate implements RubyRailsWidg
 
   @Override
   protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/treemap.html.erb";
+    return "/Users/sbrandhof/projects/github/sonar/plugins/sonar-core-plugin/src/main/resources/org/sonar/plugins/core/widgets/treemap.html.erb";
   }
 }

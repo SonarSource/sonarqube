@@ -142,16 +142,19 @@ var SelectBox = {
 
 var treemapContexts = {};
 
-function addTmEvent(treemap_id, elt_index) {
-  var elt = $('tm-node-' + treemap_id + '-' + elt_index);
-  elt.oncontextmenu = function () {
-    return false
-  };
-  elt.observe('mouseup', function (event) {
-    context = treemapContexts[treemap_id];
-    onTmClick(treemap_id, event, context);
-  });
+function enableTreemap(treemap_id, components_size) {
+  for (var i = 1; i <= components_size; i++) {
+    var elt = $('tm-node-' + treemap_id + '-' + i);
+    elt.oncontextmenu = function () {
+      return false
+    };
+    elt.observe('mouseup', function (event) {
+      context = treemapContexts[treemap_id];
+      onTmClick(treemap_id, event, context);
+    });
+  }
 }
+
 
 function onTmClick(treemap_id, event, context) {
   if (Event.isLeftClick(event)) {
@@ -185,8 +188,8 @@ function refreshTm(treemap_id, resource_id) {
   var size = $F('tm-size-' + treemap_id);
   var color = $F('tm-color-' + treemap_id);
   var width = $('tm-' + treemap_id).getWidth() - 10;
-  var height = Math.round(width * parseFloat($F('tm-h-' + treemap_id) / 100.0));
-  var rid = (resource_id!=null ? resource_id : context[context.length-1][0]);
+  var height = Math.round(width * Math.abs(parseFloat($F('tm-h-' + treemap_id)) / 100.0));
+  var rid = (resource_id != null ? resource_id : context[context.length - 1][0]);
 
   context = treemapContexts[treemap_id];
   var output = '';

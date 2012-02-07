@@ -7,14 +7,14 @@
   <tr>
     <td class="keyCell"><%= message('size') -%>:</td>
     <td>
-      <%= select_tag 'columns[]', options_grouped_by_domain(Sonar::TreemapBuilder.size_metrics(), size_metric.key),
+      <%= select_tag 'columns[]', options_grouped_by_domain(Sonar::Treemap.size_metrics(), size_metric.key),
         :id => 'size_metric' %>
     </td>
   </tr>
   <tr>
     <td class="keyCell"><%= message('color') -%>:</td>
     <td>
-      <%= select_tag 'columns[]', options_grouped_by_domain(Sonar::TreemapBuilder.color_metrics, color_metric.key),
+      <%= select_tag 'columns[]', options_grouped_by_domain(Sonar::Treemap.color_metrics, color_metric.key),
         :id => 'color_metric' %>
       <span class="comments"><%= render :partial => 'components/treemap_gradient', :locals => {:color_metric => color_metric} %></span>
     </td>

@@ -27,6 +27,10 @@ class ComponentsController < ApplicationController
 
   TREEMAP_SIZE = 280
   SECTION = Navigation::SECTION_RESOURCE
+  TREEMAP_DEFAULT_SIZE_METRIC = 'ncloc'
+  TREEMAP_SIZE_METRIC_PROPERTY = 'sonar.core.treemap.sizemetric'
+  TREEMAP_DEFAULT_COLOR_METRIC = 'violations_density'
+  TREEMAP_COLOR_METRIC_PROPERTY = 'sonar.core.treemap.colormetric'
 
   def index
     @components_configuration = Sonar::ComponentsConfiguration.new
@@ -43,27 +47,39 @@ class ComponentsController < ApplicationController
     measures = component_measures(@snapshots, metrics)
     @measures_by_snapshot = measures_by_snapshot(@snapshots, measures)
     if @components_configuration.treemap_enabled? && @snapshots.size>1
-      @treemap = Sonar::TreemapBuilder.build(@snapshots, TREEMAP_SIZE, TREEMAP_SIZE)
+      @treemap = Sonar::Treemap.new(1, default_treemap_size_metric, TREEMAP_SIZE, TREEMAP_SIZE, {
+        :color_metric => default_treemap_color_metric,
+        :root_snapshot => @snapshot,
+        :browsable => false
+      })
     end
   end
 
   def treemap
-    @snapshot=Snapshot.find(params[:sid])
-    @snapshots = Snapshot.find(:all, :conditions => ['parent_snapshot_id=? and qualifier<>?', @snapshot.id, Snapshot::QUALIFIER_UNIT_TEST_CLASS])
-    @treemap = Sonar::TreemapBuilder.build(@snapshots, TREEMAP_SIZE, TREEMAP_SIZE, params[:size_metric], params[:color_metric])
+    snapshot=Snapshot.find(params[:sid])
+    not_found("Snapshot not found") unless snapshot
+    access_denied unless has_role?(:user, snapshot)
+
+    size_metric = (params[:size_metric] ? Metric.by_key(params[:size_metric]) : default_treemap_size_metric)
+    color_metric = (params[:color_metric] ? Metric.by_key(params[:color_metric]) : default_treemap_color_metric)
+
+    @treemap = Sonar::Treemap.new(1, size_metric, TREEMAP_SIZE, TREEMAP_SIZE, {
+      :color_metric => color_metric,
+      :root_snapshot => snapshot,
+      :browsable => false
+    })
 
     render(:update) do |page|
       page.replace_html 'treemap', @treemap.generate_html
-      page.replace_html 'treemap_gradient', :partial => 'components/treemap_gradient',
-                        :locals => {:color_metric => @treemap.color_metric}
+      page.replace_html 'treemap_gradient', :partial => 'treemap/gradient', :locals => {:metric => @treemap.color_metric}
       page.replace_html 'treemap_set_default', :partial => 'components/treemap_set_default',
-                        :locals => {:controller => 'components', :size_metric => params[:size_metric], :color_metric => params[:color_metric], :rid => @snapshot.project_id}
+                        :locals => {:controller => 'components', :size_metric => params[:size_metric], :color_metric => params[:color_metric], :rid => snapshot.project_id}
     end
   end
 
   def update_default_treemap_metrics
-    Property.set(Sonar::TreemapBuilder::CONFIGURATION_DEFAULT_COLOR_METRIC, params[:color_metric])
-    Property.set(Sonar::TreemapBuilder::CONFIGURATION_DEFAULT_SIZE_METRIC, params[:size_metric])
+    Property.set(TREEMAP_SIZE_METRIC_PROPERTY, params[:size_metric])
+    Property.set(TREEMAP_COLOR_METRIC_PROPERTY, params[:color_metric])
     redirect_to :action => 'index', :id => params[:rid], :configuring => true
   end
 
@@ -101,16 +117,33 @@ class ComponentsController < ApplicationController
       page_count.times do |page_index|
         page_sids=sids[page_index*page_size...(page_index+1)*page_size]
         measures.concat(ProjectMeasure.find(:all, :conditions => {
-            'snapshot_id' => page_sids,
-            'metric_id' => mids,
-            'rule_id' => nil,
-            'rule_priority' => nil,
-            'characteristic_id' => nil,
-            'committer' => nil}))
+          'snapshot_id' => page_sids,
+          'metric_id' => mids,
+          'rule_id' => nil,
+          'rule_priority' => nil,
+          'characteristic_id' => nil,
+          'committer' => nil}))
       end
       measures
     else
       []
     end
   end
+
+  def default_treemap_color_metric
+    metric=Metric.by_key(Property.value(TREEMAP_COLOR_METRIC_PROPERTY))
+    if metric.nil?
+      metric = Metric.by_key(TREEMAP_DEFAULT_COLOR_METRIC)
+    end
+    metric
+  end
+
+  def default_treemap_size_metric
+    metric=Metric.by_key(Property.value(TREEMAP_SIZE_METRIC_PROPERTY))
+    if metric.nil?
+      metric = Metric.by_key(TREEMAP_DEFAULT_SIZE_METRIC)
+    end
+    metric
+  end
+
 end

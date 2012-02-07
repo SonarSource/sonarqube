@@ -517,9 +517,6 @@ h4, .h4 {
   position: relative;
   cursor: pointer;
 }
-.treemap .label {
-  color: #fff;
-}
 .treemap a {
   color: #FFF;
   text-decoration: none;

@@ -91,8 +91,7 @@ CSS
         end
 
         html += draw_node(node)
-        html += draw_tooltips(node)
-        
+
         if(@full_html)
             html += "</body></html>"
         end
@@ -132,10 +131,7 @@ CSS
             end
         end
 
-        html += "</div>"
+        html + '</div>'
     end
-    
-    def draw_tooltips(node)
-      ''
-    end
+
 end

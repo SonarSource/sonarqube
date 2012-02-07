@@ -46,7 +46,7 @@ class TreemapController < ApplicationController
       access_denied unless has_role?(:user, resource)
     end
 
-    treemap = Treemap2.new(html_id, size_metric, width.to_i, height.to_i, {
+    treemap = Sonar::Treemap.new(html_id, size_metric, width.to_i, height.to_i, {
       :color_metric => color_metric,
       :root_snapshot => (resource ? resource.last_snapshot : nil),
       :period_index => params[:period_index].to_i,
