@@ -103,7 +103,7 @@ public class ReviewEmailTemplate extends EmailTemplate {
 
   private void appendFooter(StringBuilder sb, Notification notification) {
     String reviewId = notification.getFieldValue("reviewId");
-    sb.append("\n--\n")
+    sb.append("\n")
         .append("See it in Sonar: ").append(configuration.getServerBaseURL()).append("/reviews/view/").append(reviewId).append('\n');
   }
 

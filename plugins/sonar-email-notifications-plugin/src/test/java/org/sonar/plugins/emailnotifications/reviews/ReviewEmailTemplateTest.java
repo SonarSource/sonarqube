@@ -62,7 +62,6 @@ public class ReviewEmailTemplateTest {
    * Comment:
    *   This is my first comment
    * 
-   * --
    * See it in Sonar: http://nemo.sonarsource.org/review/view/1
    * </pre>
    */
@@ -89,7 +88,6 @@ public class ReviewEmailTemplateTest {
         "Comment:\n" +
         "  This is my first comment\n" +
         "\n" +
-        "--\n" +
         "See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n"));
   }
 
@@ -108,7 +106,6 @@ public class ReviewEmailTemplateTest {
    * Was:
    *   This is my first comment
    * 
-   * --
    * See it in Sonar: http://nemo.sonarsource.org/review/view/1
    * </pre>
    */
@@ -137,7 +134,6 @@ public class ReviewEmailTemplateTest {
         "Was:\n" +
         "  This is my first comment\n" +
         "\n" +
-        "--\n" +
         "See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n"));
   }
 
@@ -153,8 +149,7 @@ public class ReviewEmailTemplateTest {
    * 
    * Comment deleted, was:
    *   This is deleted comment
-   *   
-   * --
+   * 
    * See it in Sonar: http://nemo.sonarsource.org/review/view/1
    * </pre>
    */
@@ -181,7 +176,6 @@ public class ReviewEmailTemplateTest {
         "Comment deleted, was:\n" +
         "  This is deleted comment\n" +
         "\n" +
-        "--\n" +
         "See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n"));
   }
 
@@ -197,7 +191,6 @@ public class ReviewEmailTemplateTest {
    * 
    * Assignee: Evgeny Mandrikov
    * 
-   * --
    * See it in Sonar: http://nemo.sonarsource.org/review/view/1
    * </pre>
    */
@@ -223,7 +216,6 @@ public class ReviewEmailTemplateTest {
         "\n" +
         "Assignee: Evgeny Mandrikov\n" +
         "\n" +
-        "--\n" +
         "See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n"));
   }
 
@@ -239,7 +231,6 @@ public class ReviewEmailTemplateTest {
    * 
    * Assignee: Simon Brandhof (was Evgeny Mandrikov)
    * 
-   * --
    * See it in Sonar: http://nemo.sonarsource.org/review/view/1
    * </pre>
    */
@@ -265,7 +256,6 @@ public class ReviewEmailTemplateTest {
         "\n" +
         "Assignee: Simon Brandhof (was Evgeny Mandrikov)\n" +
         "\n" +
-        "--\n" +
         "See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n"));
   }
 
@@ -281,7 +271,6 @@ public class ReviewEmailTemplateTest {
    * 
    * Assignee: (was Simon Brandhof)
    * 
-   * --
    * See it in Sonar: http://nemo.sonarsource.org/review/view/1
    * </pre>
    */
@@ -307,7 +296,6 @@ public class ReviewEmailTemplateTest {
         "\n" +
         "Assignee:  (was Simon Brandhof)\n" +
         "\n" +
-        "--\n" +
         "See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n"));
   }
 
@@ -323,7 +311,6 @@ public class ReviewEmailTemplateTest {
    * 
    * Status: CLOSED (was OPEN)
    * 
-   * --
    * See it in Sonar: http://nemo.sonarsource.org/review/view/1
    * </pre>
    */
@@ -348,7 +335,6 @@ public class ReviewEmailTemplateTest {
         "\n" +
         "Status: CLOSED (was OPEN)\n" +
         "\n" +
-        "--\n" +
         "See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n"));
   }
 
@@ -365,7 +351,6 @@ public class ReviewEmailTemplateTest {
    * Status: REOPENED (was RESOLVED)
    * Resolution: (was FIXED)
    * 
-   * --
    * See it in Sonar: http://nemo.sonarsource.org/review/view/1
    * </pre>
    */
@@ -393,7 +378,6 @@ public class ReviewEmailTemplateTest {
         "Status: REOPENED (was RESOLVED)\n" +
         "Resolution:  (was FIXED)\n" +
         "\n" +
-        "--\n" +
         "See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n"));
   }
 
@@ -410,7 +394,6 @@ public class ReviewEmailTemplateTest {
    * Status: RESOLVED (was OPEN)
    * Resolution: FIXED
    * 
-   * --
    * See it in Sonar: http://nemo.sonarsource.org/review/view/1
    * </pre>
    */
@@ -439,7 +422,6 @@ public class ReviewEmailTemplateTest {
         "Status: RESOLVED (was OPEN)\n" +
         "Resolution: FIXED\n" +
         "\n" +
-        "--\n" +
         "See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n"));
   }
 
@@ -458,7 +440,6 @@ public class ReviewEmailTemplateTest {
    * Comment:
    *   Because!
    * 
-   * --
    * See it in Sonar: http://nemo.sonarsource.org/review/view/1
    * </pre>
    */
@@ -490,7 +471,6 @@ public class ReviewEmailTemplateTest {
         "Comment:\n" +
         "  Because!\n" +
         "\n" +
-        "--\n" +
         "See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n"));
   }
 
