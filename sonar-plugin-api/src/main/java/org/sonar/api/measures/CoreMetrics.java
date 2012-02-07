@@ -429,6 +429,7 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_TESTS)
       .setWorstValue(0.0)
       .setBestValue(100.0)
+      .setDeleteHistoricalData(true)
       .create();
 
   public static final String LINES_TO_COVER_KEY = "lines_to_cover";
@@ -442,7 +443,6 @@ public final class CoreMetrics {
       .setQualitative(false)
       .setDomain(DOMAIN_TESTS)
       .setFormula(new SumChildValuesFormula(false))
-      .setDeleteHistoricalData(true)
       .create();
 
   public static final String NEW_LINES_TO_COVER_KEY = "new_lines_to_cover";
@@ -452,6 +452,7 @@ public final class CoreMetrics {
       .setQualitative(false)
       .setDomain(DOMAIN_TESTS)
       .setFormula(new SumChildValuesFormula(false))
+      .setDeleteHistoricalData(true)
       .create();
 
   public static final String UNCOVERED_LINES_KEY = "uncovered_lines";
@@ -474,6 +475,7 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_TESTS)
       .setFormula(new SumChildValuesFormula(false))
       .setBestValue(0.0)
+      .setDeleteHistoricalData(true)
       .create();
 
   public static final String LINE_COVERAGE_KEY = "line_coverage";
@@ -494,6 +496,7 @@ public final class CoreMetrics {
       .setWorstValue(0.0)
       .setBestValue(100.0)
       .setDomain(DOMAIN_TESTS)
+    .setDeleteHistoricalData(true)
       .create();
 
   public static final String COVERAGE_LINE_HITS_DATA_KEY = "coverage_line_hits_data";
@@ -525,6 +528,7 @@ public final class CoreMetrics {
       .setDescription("New conditions to cover")
       .setDomain(DOMAIN_TESTS)
       .setFormula(new SumChildValuesFormula(false))
+      .setDeleteHistoricalData(true)
       .create();
 
   public static final String UNCOVERED_CONDITIONS_KEY = "uncovered_conditions";
@@ -547,6 +551,7 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_TESTS)
       .setFormula(new SumChildValuesFormula(false))
       .setBestValue(0.0)
+      .setDeleteHistoricalData(true)
       .create();
 
   public static final String BRANCH_COVERAGE_KEY = "branch_coverage";
@@ -567,6 +572,7 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_TESTS)
       .setWorstValue(0.0)
       .setBestValue(100.0)
+      .setDeleteHistoricalData(true)
       .create();
 
   /**
@@ -647,6 +653,7 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_INTEGRATION_TESTS)
       .setWorstValue(0.0)
       .setBestValue(100.0)
+      .setDeleteHistoricalData(true)
       .create();
 
   /**
@@ -681,6 +688,7 @@ public final class CoreMetrics {
       .setQualitative(false)
       .setDomain(DOMAIN_INTEGRATION_TESTS)
       .setFormula(new SumChildValuesFormula(false))
+      .setDeleteHistoricalData(true)
       .create();
 
   /**
@@ -713,6 +721,7 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_INTEGRATION_TESTS)
       .setFormula(new SumChildValuesFormula(false))
       .setBestValue(0.0)
+      .setDeleteHistoricalData(true)
       .create();
 
   /**
@@ -745,6 +754,7 @@ public final class CoreMetrics {
       .setWorstValue(0.0)
       .setBestValue(100.0)
       .setDomain(DOMAIN_INTEGRATION_TESTS)
+      .setDeleteHistoricalData(true)
       .create();
 
   /**
@@ -793,6 +803,7 @@ public final class CoreMetrics {
       .setDescription("New conditions to cover by Integration Tests")
       .setDomain(DOMAIN_INTEGRATION_TESTS)
       .setFormula(new SumChildValuesFormula(false))
+      .setDeleteHistoricalData(true)
       .create();
 
   /**
@@ -824,6 +835,7 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_INTEGRATION_TESTS)
       .setFormula(new SumChildValuesFormula(false))
       .setBestValue(0.0)
+      .setDeleteHistoricalData(true)
       .create();
 
   /**
@@ -858,6 +870,7 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_INTEGRATION_TESTS)
       .setWorstValue(0.0)
       .setBestValue(100.0)
+      .setDeleteHistoricalData(true)
       .create();
 
   /**
@@ -1143,6 +1156,7 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_RULES)
       .setBestValue(0.0)
       .setOptimizedBestValue(true)
+      .setDeleteHistoricalData(true)
       .create();
 
   public static final String NEW_BLOCKER_VIOLATIONS_KEY = "new_blocker_violations";
@@ -1163,6 +1177,7 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_RULES)
       .setBestValue(0.0)
       .setOptimizedBestValue(true)
+      .setDeleteHistoricalData(true)
       .create();
 
   public static final String NEW_MAJOR_VIOLATIONS_KEY = "new_major_violations";
@@ -1173,6 +1188,7 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_RULES)
       .setBestValue(0.0)
       .setOptimizedBestValue(true)
+      .setDeleteHistoricalData(true)
       .create();
 
   public static final String NEW_MINOR_VIOLATIONS_KEY = "new_minor_violations";
@@ -1183,6 +1199,7 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_RULES)
       .setBestValue(0.0)
       .setOptimizedBestValue(true)
+      .setDeleteHistoricalData(true)
       .create();
 
   public static final String NEW_INFO_VIOLATIONS_KEY = "new_info_violations";
@@ -1193,6 +1210,7 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_RULES)
       .setBestValue(0.0)
       .setOptimizedBestValue(true)
+      .setDeleteHistoricalData(true)
       .create();
 
 
@@ -1551,6 +1569,7 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_REVIEWS)
       .setBestValue(0.0)
       .setOptimizedBestValue(true)
+      .setDeleteHistoricalData(true)
       .create();
 
   /**
