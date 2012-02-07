@@ -39,16 +39,14 @@ class TreemapController < ApplicationController
 
     color_metric=(params[:color_metric].present? ? Metric.by_key(params[:color_metric]) : nil)
 
-    resource = nil
-    if params[:resource]
-      resource = Project.by_key(params[:resource])
-      bad_request('Unknown resource: ' + params[:resource]) unless resource
-      access_denied unless has_role?(:user, resource)
-    end
+    resource = Project.by_key(params[:resource])
+    bad_request('Unknown resource: ' + params[:resource]) unless resource
+    bad_request('Data not available') unless resource.last_snapshot
+    access_denied unless has_role?(:user, resource)
 
     treemap = Sonar::Treemap.new(html_id, size_metric, width.to_i, height.to_i, {
       :color_metric => color_metric,
-      :root_snapshot => (resource ? resource.last_snapshot : nil),
+      :root_snapshot => resource.last_snapshot,
       :period_index => params[:period_index].to_i,
       :browsable => true
     })

@@ -148,7 +148,7 @@ class Sonar::HtmlOutput < Treemap::HtmlOutput
     return "" if node.bounds.nil?
 
     html = ''
-    html += "<div id=\"node-#{node.id}\" style=\""
+    html += "<div style=\""
     html += "overflow:hidden;position:absolute;"
     html += "left:#{node.bounds.x1}px; top:#{node.bounds.y1}px;"
     html += "width:#{node.bounds.width}px;height: #{node.bounds.height}px;"
