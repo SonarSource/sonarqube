@@ -19,11 +19,13 @@
  */
 package org.sonar.plugins.cpd.index;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.index.ResourcePersister;
 import org.sonar.core.duplication.DuplicationDao;
@@ -32,17 +34,19 @@ public class IndexFactory implements BatchExtension {
 
   private static final Logger LOG = LoggerFactory.getLogger(IndexFactory.class);
 
+  private final Settings settings;
   private final ResourcePersister resourcePersister;
   private final DuplicationDao dao;
 
   /**
    * For dry run, where is no access to database.
    */
-  public IndexFactory() {
-    this(null, null);
+  public IndexFactory(Settings settings) {
+    this(settings, null, null);
   }
 
-  public IndexFactory(ResourcePersister resourcePersister, DuplicationDao dao) {
+  public IndexFactory(Settings settings, ResourcePersister resourcePersister, DuplicationDao dao) {
+    this.settings = settings;
     this.resourcePersister = resourcePersister;
     this.dao = dao;
   }
@@ -60,10 +64,11 @@ public class IndexFactory implements BatchExtension {
   /**
    * @return true, if was enabled by user and database is available
    */
-  private boolean isCrossProject(Project project) {
-    return project.getConfiguration().getBoolean(CoreProperties.CPD_CROSS_RPOJECT, CoreProperties.CPD_CROSS_RPOJECT_DEFAULT_VALUE)
+  @VisibleForTesting
+  boolean isCrossProject(Project project) {
+    return settings.getBoolean(CoreProperties.CPD_CROSS_RPOJECT)
       && resourcePersister != null && dao != null
-      && StringUtils.isBlank(project.getConfiguration().getString(CoreProperties.PROJECT_BRANCH_PROPERTY));
+      && StringUtils.isBlank(project.getBranch());
   }
 
 }
