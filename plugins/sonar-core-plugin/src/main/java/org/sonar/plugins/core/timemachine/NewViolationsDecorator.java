@@ -213,7 +213,8 @@ public class NewViolationsDecorator implements Decorator {
     if (lastAnalysisPeriodIndex != null) {
       PastSnapshot pastSnapshot = timeMachineConfiguration.getProjectPastSnapshots().get(lastAnalysisPeriodIndex - 1);
       Double newViolationsCount = context.getMeasure(CoreMetrics.NEW_VIOLATIONS).getVariation(lastAnalysisPeriodIndex);
-      if (newViolationsCount != null && newViolationsCount > 0) {
+      // Do not send notification if this is the first analysis or if there's no violation
+      if (pastSnapshot.getTargetDate() != null && newViolationsCount != null && newViolationsCount > 0) {
         // Maybe we should check if this is the first analysis or not?
         DateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd");
         Notification notification = new Notification("new-violations")

@@ -216,6 +216,21 @@ public class NewViolationsDecoratorTest {
   }
 
   @Test
+  public void shouldNotNotifyUserIfFirstAnalysis() throws Exception {
+    Project project = new Project("key").setName("LongName");
+    project.setId(45);
+    when(timeMachineConfiguration.getLastAnalysisPeriodIndex()).thenReturn(1);
+    // PastSnaptho with targetDate==null means first analysis
+    PastSnapshot pastSnapshot = new PastSnapshot("", null);
+    when(timeMachineConfiguration.getProjectPastSnapshots()).thenReturn(Lists.newArrayList(pastSnapshot));
+    Measure m = new Measure(CoreMetrics.NEW_VIOLATIONS).setVariation1(0.0);
+    when(context.getMeasure(CoreMetrics.NEW_VIOLATIONS)).thenReturn(m);
+
+    decorator.decorate(project, context);
+    verify(notificationManager, never()).scheduleForSending(any(Notification.class));
+  }
+
+  @Test
   public void shouldNotifyUserAboutNewViolations() throws Exception {
     Project project = new Project("key").setName("LongName");
     project.setId(45);
