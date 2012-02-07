@@ -152,7 +152,7 @@ class ProjectController < ApplicationController
     snapshots_to_be_deleted = Snapshot.find(:all, :conditions => ["status='U' AND project_id=?", @snapshot.project_id])
     unless snapshots_to_be_deleted.empty?
       conditions << " AND snapshot_id NOT IN (:sids)"
-      values[:sids] = snapshots_to_be_deleted.map {|s| s.id.to_s}
+      values[:sids] = snapshots_to_be_deleted.map {|s| s.id}
     end
 
     category_names=@categories.map { |cat| cat.name }
