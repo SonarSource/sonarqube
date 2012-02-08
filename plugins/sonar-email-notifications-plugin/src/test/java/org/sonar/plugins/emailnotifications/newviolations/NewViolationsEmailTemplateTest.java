@@ -55,7 +55,7 @@ public class NewViolationsEmailTemplateTest {
    * From: Sonar
    * 
    * Project: Foo
-   * 32 new violations on last analysis (introduced between 2012-01-02 and 2012-01-15)
+   * 32 new violations introduced since 2012-01-02
    * 
    * See it in Sonar: http://nemo.sonarsource.org/drilldown/measures/org.sonar.foo:foo?metric=new_violations&period=1
    * </pre>
