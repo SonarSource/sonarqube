@@ -19,10 +19,9 @@
  */
 package org.sonar.java.ast;
 
-import java.io.File;
-import java.util.*;
-
 import com.google.common.collect.Maps;
+import com.puppycrawl.tools.checkstyle.api.Check;
+import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.resources.InputFile;
@@ -32,9 +31,12 @@ import org.sonar.java.squid.JavaSquidConfiguration;
 import org.sonar.squid.recognizer.CodeRecognizer;
 import org.sonar.squid.text.Source;
 
-import com.puppycrawl.tools.checkstyle.api.Check;
-import com.puppycrawl.tools.checkstyle.api.DetailAST;
+import java.io.File;
+import java.util.*;
 
+/**
+ * Delegate from Checkstyle {@link Check} to {@link JavaAstVisitor}s.
+ */
 public class CheckstyleSquidBridge extends Check {
 
   private static Logger logger = LoggerFactory.getLogger(CheckstyleSquidBridge.class);
@@ -79,11 +81,13 @@ public class CheckstyleSquidBridge extends Check {
   @Override
   public void beginTree(DetailAST ast) {
     try {
+      String filename = getFileContents().getFilename();
       Source source = createSource();
+      InputFile inputFile = getInputFile(new java.io.File(filename));
       for (JavaAstVisitor visitor : visitors) {
         visitor.setFileContents(getFileContents());
         visitor.setSource(source);
-        visitor.setInputFile(getInputFile(new java.io.File(getFileContents().getFilename())));
+        visitor.setInputFile(inputFile);
         visitor.visitFile(ast);
       }
     } catch (RuntimeException e) {

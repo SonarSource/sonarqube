@@ -20,6 +20,11 @@
 package org.sonar.java.ast;
 
 import com.google.common.collect.Lists;
+import com.google.common.io.Closeables;
+import com.puppycrawl.tools.checkstyle.Checker;
+import com.puppycrawl.tools.checkstyle.ConfigurationLoader;
+import com.puppycrawl.tools.checkstyle.PropertiesExpander;
+import com.puppycrawl.tools.checkstyle.api.Configuration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
@@ -35,16 +40,15 @@ import org.sonar.squid.api.CodeVisitor;
 import org.sonar.squid.api.SourceCode;
 import org.xml.sax.InputSource;
 
-import com.puppycrawl.tools.checkstyle.Checker;
-import com.puppycrawl.tools.checkstyle.ConfigurationLoader;
-import com.puppycrawl.tools.checkstyle.PropertiesExpander;
-import com.puppycrawl.tools.checkstyle.api.Configuration;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Stack;
 
 /**
  * Squid uses Checkstyle to get an out-of-the-box java parser with AST generation and visitor pattern support.
@@ -58,31 +62,6 @@ public class JavaAstScanner extends CodeScanner<JavaAstVisitor> {
   public JavaAstScanner(JavaSquidConfiguration conf, SourceCode project) {
     this.conf = conf;
     this.project = project;
-  }
-
-  private Checker createChecker(Charset charset) {
-    InputStream checkstyleConfig = null;
-    try {
-      checkstyleConfig = JavaAstScanner.class.getClassLoader().getResourceAsStream("checkstyle-configuration.xml");
-      String readenConfig = IOUtils.toString(checkstyleConfig);
-      readenConfig = readenConfig.replace("${charset}", charset.toString());
-      checkstyleConfig = new ByteArrayInputStream(readenConfig.getBytes());
-      Configuration config = ConfigurationLoader.loadConfiguration(new InputSource(checkstyleConfig), new PropertiesExpander(System
-          .getProperties()), false);
-      Checker c = new Checker();
-      final ClassLoader moduleClassLoader = Checker.class.getClassLoader();
-      c.setModuleClassLoader(moduleClassLoader);
-      c.configure(config);
-      c.addListener(new CheckstyleAuditListener());
-      return c;
-
-    } catch (Exception e) { // NOSONAR We want to be sure to catch any unexpected exception
-      throw new AnalysisException(
-          "Unable to create Checkstyle Checker object with 'checkstyle-configuration.xml' as Checkstyle configuration file name", e);
-
-    } finally {
-      IOUtils.closeQuietly(checkstyleConfig);
-    }
   }
 
   public JavaAstScanner scanDirectory(File javaSourceDirectory) {
@@ -133,6 +112,36 @@ public class JavaAstScanner extends CodeScanner<JavaAstVisitor> {
     }
   }
 
+  private Checker createChecker(Charset charset) {
+    String checkstyleConfig = loadCheckstyleConfigToString()
+        .replace("${charset}", charset.toString());
+    try {
+      Configuration config = ConfigurationLoader.loadConfiguration(
+          new InputSource(new ByteArrayInputStream(checkstyleConfig.getBytes())),
+          new PropertiesExpander(System.getProperties()),
+          false);
+      Checker checker = new Checker();
+      final ClassLoader moduleClassLoader = Checker.class.getClassLoader();
+      checker.setModuleClassLoader(moduleClassLoader);
+      checker.configure(config);
+      checker.addListener(new CheckstyleAuditListener());
+      return checker;
+    } catch (Exception e) { // NOSONAR We want to be sure to catch any unexpected exception
+      throw new AnalysisException("Unable to create Checkstyle Checker", e);
+    }
+  }
+
+  private static String loadCheckstyleConfigToString() {
+    InputStream is = null;
+    try {
+      is = JavaAstScanner.class.getClassLoader().getResourceAsStream("checkstyle-configuration.xml");
+      return IOUtils.toString(is);
+    } catch (IOException e) {
+      throw new AnalysisException("Unable to load Checkstyle configuration for Java Squid", e);
+    } finally {
+      Closeables.closeQuietly(is);
+    }
+  }
 
   @Override
   public Collection<Class<? extends JavaAstVisitor>> getVisitorClasses() {
