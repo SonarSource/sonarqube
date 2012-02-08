@@ -47,11 +47,9 @@ public class NewViolationsEmailTemplate extends EmailTemplate {
     String projectName = notification.getFieldValue("projectName");
     String violationsCount = notification.getFieldValue("count");
     String fromDate = notification.getFieldValue("fromDate");
-    String toDate = notification.getFieldValue("toDate");
 
     sb.append("Project: ").append(projectName).append('\n');
-    sb.append(violationsCount).append(" new violations on last analysis");
-    sb.append(" (introduced between ").append(fromDate).append(" and ").append(toDate).append(")").append('\n');
+    sb.append(violationsCount).append(" new violations introduced since ").append(fromDate).append('\n');
     appendFooter(sb, notification);
 
     EmailMessage message = new EmailMessage()

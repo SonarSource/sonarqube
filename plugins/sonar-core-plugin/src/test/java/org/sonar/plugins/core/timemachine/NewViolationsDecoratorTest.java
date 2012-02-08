@@ -247,8 +247,7 @@ public class NewViolationsDecoratorTest {
         .setFieldValue("projectName", "LongName")
         .setFieldValue("projectKey", "key")
         .setFieldValue("projectId", "45")
-        .setFieldValue("fromDate", dateformat.format(pastDate.getTime()))
-        .setFieldValue("toDate", dateformat.format(new Date()));
+        .setFieldValue("fromDate", dateformat.format(pastDate.getTime()));
     verify(notificationManager, times(1)).scheduleForSending(eq(notification));
   }
 

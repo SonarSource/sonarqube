@@ -223,8 +223,7 @@ public class NewViolationsDecorator implements Decorator {
             .setFieldValue("projectName", project.getLongName())
             .setFieldValue("projectKey", project.getKey())
             .setFieldValue("projectId", String.valueOf(project.getId()))
-            .setFieldValue("fromDate", dateformat.format(pastSnapshot.getTargetDate()))
-            .setFieldValue("toDate", dateformat.format(new Date()));
+            .setFieldValue("fromDate", dateformat.format(pastSnapshot.getTargetDate()));
         notificationManager.scheduleForSending(notification);
       }
     }
