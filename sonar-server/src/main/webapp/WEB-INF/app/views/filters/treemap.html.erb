@@ -20,6 +20,10 @@
 <br/>
 <% end %>
 
-<div class="treemap">
-  <%=  render :partial => 'treemap/treemap' -%>
+<div>
+  <%=  render :partial => 'treemap/treemap', :locals => {:treemap => @treemap} -%>
+</div>
+<div style="margin: 5px 0 0 0" class="notes">
+  <div style="float: right"><span><%= message('treemap.click_help') -%></span></div>
+  <div id="tm-bc-<%= @filter.id -%>">/</div>
 </div>

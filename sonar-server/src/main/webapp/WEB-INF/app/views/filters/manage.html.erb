@@ -38,7 +38,7 @@
           <% end %>
         </td>
         <td>
-          <% if editable_filter?(active.filter) %>
+          <% if active.filter.authorized_to_edit?(self) %>
             <%= link_to message('edit'), {:action => 'edit', :id => active.filter_id}, :id => "edit-#{u active.name}"  %> |
             <%= link_to message('delete'), {:action => 'deactivate', :id => active.filter_id}, :method => :post, :confirm => message('filters.do_you_want_to_delete'), :id => "delete-#{u active.name}" %>
           <% else %>

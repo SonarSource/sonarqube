@@ -2,7 +2,7 @@
 <div id="page-operations">
   <ul class="operations">
     <li><a href="<%= url_for :action => 'new' -%>" ><%= message('filters.add_filter') -%></a></li>
-    <% if @filter && @filter.id && editable_filter?(@filter) %>
+    <% if @filter && @filter.id && @filter.authorized_to_edit?(self) %>
       <li><a href="<%= url_for :action => 'edit', :id => @filter.id -%>"><%= message('filters.edit_filter') -%></a></li>
     <% end %>
     <li class="last"><%= link_to message('filters.manage_filters'), {:action => 'manage'} -%></li>

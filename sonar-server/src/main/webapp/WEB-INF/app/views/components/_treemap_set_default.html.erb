@@ -1,4 +1,13 @@
-<% form_tag(
-  {:controller => controller, :action => "update_default_treemap_metrics", :size_metric => @treemap.size_metric.key, :color_metric => @treemap.color_metric.key, :rid => rid}, 
-  :id => 'form_set_default') do %>
-<% end %>
+<form method="post" id="form_set_default" name="setDefaultForm" action="<%= ApplicationController.root_context -%>/components/update_default_treemap_metrics"
+      onsubmit="">
+  <input type="hidden" name="rid" value="<%= rid -%>"/>
+  <input type="hidden" name="size_metric" />
+  <input type="hidden" name="color_metric" />
+</form>
+<script>
+  function submitDefaultForm() {
+    document.setDefaultForm.size_metric.value=$F('select_size_metric');
+    document.setDefaultForm.color_metric.value=$F('select_color_metric');
+    document.setDefaultForm.submit();
+  }
+</script>

@@ -66,7 +66,6 @@ module Treemap
             @children = []
             @rid = opts[:rid]
             @browsable = opts[:browsable]
-
             if(@id.nil?)
                 make_id
             end

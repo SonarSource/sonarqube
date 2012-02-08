@@ -18,7 +18,7 @@
  # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  #
  class FilterContext
-  attr_accessor :filter, :page_size, :page_id, :security_exclusions, :period_index, :user, :sorted_column_id, :ascending_sort
+  attr_accessor :filter, :page_size, :page_id, :security_exclusions, :period_index, :sorted_column_id, :ascending_sort
 
   def initialize(filter, options={})
     @filter = filter
@@ -26,7 +26,6 @@
     @page_id=(options[:page_id] ? options[:page_id].to_i : 1)
     @sorted_column_id=(options[:sort].blank? ? nil : options[:sort].to_i)
     @ascending_sort=(options[:asc].blank? ? nil : options[:asc]=='true')
-    @user=options[:user]
     @period_index = (options[:period] ? options[:period].to_i : @filter.period_index )
     @metric_ids=(options[:metric_ids] || @filter.columns.map{|col| col.metric ? col.metric.id : nil}.compact.uniq)
   end

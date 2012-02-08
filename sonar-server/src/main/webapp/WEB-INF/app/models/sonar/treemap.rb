@@ -21,7 +21,7 @@ class Sonar::Treemap
   include ActionView::Helpers::UrlHelper
 
   attr_accessor :size_metric, :color_metric, :width, :height, :root_snapshot, :period_index,
-                :id, :components_size, :measures, :browsable
+                :id, :components_size, :measures
 
   def initialize(id, size_metric, width, height, options={})
     @components_size = 0
@@ -33,7 +33,6 @@ class Sonar::Treemap
     @color_metric = options[:color_metric]
     @root_snapshot = options[:root_snapshot]
     @measures_by_snapshot = options[:measures_by_snapshot] # pre-computed measures, for example by filters
-    @browsable = options[:browsable]
     if options[:period_index] && options[:period_index]>0
       @period_index = options[:period_index]
     end
@@ -62,8 +61,7 @@ class Sonar::Treemap
       o.details_at_depth = 1
     end
     html = output.to_html(root)
-    html += "<script>enableTreemap(#{@id},#{@components_size})</script>"
-    html
+    html + "<script>treemapById(#{@id}).onLoaded(#{@components_size});</script>"
   end
 
   def empty?
@@ -110,7 +108,7 @@ class Sonar::Treemap
                                   :tooltip => tooltip(resource, size_measure, color_measure),
                                   :color => html_color(color_measure),
                                   :rid => resource.copy_resource_id || resource.id,
-                                  :browsable => @browsable && resource.display_dashboard?)
+                                  :browsable => resource.display_dashboard?)
         node.add_child(child)
       end
     end
@@ -174,9 +172,11 @@ border: 1px solid #{node.color};' "
   end
 
   def draw_label(node)
-    label= "<a href='#' onclick='return openResource(#{node.rid})'>"
-    label += node_label(node)
-    label += "</a>"
-    label
+    if node.browsable
+      "<a href='#{ApplicationController.root_context}/dashboard/index/#{node.rid}'>#{node_label(node)}</a>"
+    else
+      "<a onclick=\"window.open(this.href,'resource','height=800,width=900,scrollbars=1,resizable=1');return false;\" " +
+              "href=\"#{ApplicationController.root_context}/resource/index/#{node.rid}\">#{node_label(node)}</a>"
+    end
   end
 end

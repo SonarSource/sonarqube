@@ -16,7 +16,6 @@
     <td>
       <%= select_tag 'columns[]', options_grouped_by_domain(Sonar::Treemap.color_metrics, color_metric.key),
         :id => 'color_metric' %>
-      <span class="comments"><%= render :partial => 'components/treemap_gradient', :locals => {:color_metric => color_metric} %></span>
     </td>
   </tr>
   <tr>

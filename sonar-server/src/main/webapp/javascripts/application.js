@@ -140,23 +140,90 @@ var SelectBox = {
   }
 };
 
-var treemapContexts = {};
 
-function enableTreemap(treemap_id, components_size) {
-  for (var i = 1; i <= components_size; i++) {
-    var elt = $('tm-node-' + treemap_id + '-' + i);
-    elt.oncontextmenu = function () {
-      return false
-    };
-    elt.observe('mouseup', function (event) {
-      context = treemapContexts[treemap_id];
-      onTmClick(treemap_id, event, context);
-    });
-  }
+var treemaps = {};
+
+function treemapById(id) {
+  return treemaps[id];
 }
+var TreemapContext = function (type, id, label) {
+  this.type = type;
+  this.id = id;
+  this.label = label;
+};
 
+/**
+ * HTML elements :
+ * tm-#{id} : required treemap container
+ * tm-bc-#{id} : required breadcrumb
+ * tm-loading-#{id} : optional loading icon
+ */
+var Treemap = function (id, sizeMetric, colorMetric, heightInPercents) {
+  this.id = id;
+  this.sizeMetric = sizeMetric;
+  this.colorMetric = colorMetric;
+  this.heightInPercents = heightInPercents;
+  this.breadcrumb = [];
+  treemaps[id] = this;
+};
+Treemap.prototype.initResource = function (resourceId) {
+  this.breadcrumb.push(new TreemapContext('resource', resourceId, ''));
+  return this;
+};
+Treemap.prototype.initFilter = function (filterId) {
+  this.breadcrumb.push(new TreemapContext('filter', filterId, ''));
+  return this;
+};
+Treemap.prototype.init = function (type, id) {
+  this.breadcrumb.push(new TreemapContext(type, id, ''));
+  return this;
+};
+Treemap.prototype.changeSizeMetric = function (metric) {
+  this.sizeMetric = metric;
+  this.load();
+  return false;
+};
+Treemap.prototype.changeColorMetric = function (metric) {
+  this.colorMetric = metric;
+  this.load();
+  return false;
+};
+Treemap.prototype.currentContext = function () {
+  if (this.breadcrumb.length > 0) {
+    return this.breadcrumb[this.breadcrumb.length - 1];
+  }
+  return null;
+};
+Treemap.prototype.width = function () {
+  return $('tm-' + this.id).getWidth() - 10;
+};
+Treemap.prototype.load = function () {
+  var context = this.currentContext();
+  var width = this.width();
+  var height = Math.round(width * Math.abs(this.heightInPercents / 100.0));
 
-function onTmClick(treemap_id, event, context) {
+  var output = '';
+  this.breadcrumb.each(function (ctx) {
+    output += ctx.label + '&nbsp;/&nbsp;';
+  });
+  if ($('tm-bc-' + this.id)!=null) {
+  $('tm-bc-' + this.id).innerHTML = output;}
+  var loadingIcon = $('tm-loading-' + this.id);
+  if (loadingIcon != null) {
+    loadingIcon.show();
+  }
+
+  new Ajax.Request(
+    baseUrl + '/treemap/index?id=' + this.id + '&width=' + width + '&height=' + height + '&size_metric=' + this.sizeMetric + '&color_metric=' + this.colorMetric + '&' + context.type + '=' + context.id,
+    {
+      asynchronous:true,
+      evalScripts:true
+    });
+};
+Treemap.prototype.htmlNode = function (nodeId) {
+  return $('tm-node-' + this.id + '-' + nodeId);
+};
+Treemap.prototype.handleClick = function (event) {
   if (Event.isLeftClick(event)) {
     var link = event.findElement('a');
     if (link != null) {
@@ -169,44 +236,36 @@ function onTmClick(treemap_id, event, context) {
     var browsable = elt.hasAttribute('b');
     if (browsable) {
       var label = elt.innerText || elt.textContent;
-      context.push([rid, label]);
-      refreshTm(treemap_id, rid);
-    } else {
-      openResource(rid);
+      var context = new TreemapContext('resource', rid, label);
+      this.breadcrumb.push(context);
+      this.load();
     }
 
   } else if (Event.isRightClick(event)) {
-    if (context.length > 1) {
-      context.pop();
-      var rid = context[context.length - 1][0];
-      refreshTm(treemap_id, rid);
+    if (this.breadcrumb.length > 1) {
+      this.breadcrumb.pop();
+      this.load();
     }
   }
-}
+};
+Treemap.prototype.onLoaded = function (componentsSize) {
+  for (var i = 1; i <= componentsSize; i++) {
+    var elt = this.htmlNode(i);
+    elt.oncontextmenu = function () {
+      return false
+    };
+    elt.observe('mouseup', this.handleClick.bind(this));
+  }
+};
 
-function refreshTm(treemap_id, resource_id) {
-  var size = $F('tm-size-' + treemap_id);
-  var color = $F('tm-color-' + treemap_id);
-  var width = $('tm-' + treemap_id).getWidth() - 10;
-  var height = Math.round(width * Math.abs(parseFloat($F('tm-h-' + treemap_id)) / 100.0));
-  var rid = (resource_id != null ? resource_id : context[context.length - 1][0]);
-
-  context = treemapContexts[treemap_id];
-  var output = '';
-  context.each(function (elt) {
-    output += elt[1] + '&nbsp;/&nbsp;';
-  });
-  $('tm-bc-' + treemap_id).innerHTML = output;
-  $('tm-loading-' + treemap_id).show();
-
-  new Ajax.Request(
-    baseUrl + '/treemap/index?id=' + treemap_id + '&width=' + width + '&height=' + height + '&size_metric=' + size + '&color_metric=' + color + '&resource=' + rid,
-    {asynchronous:true, evalScripts:true});
-
-  return false;
-}
-
-function openResource(key) {
-  document.location = baseUrl + '/dashboard/index/' + key;
+function openResource(key, options) {
+  if (typeof popup == "undefined") {
+    popup = false;
+  }
+  if (popup) {
+    window.open(this.href, 'resource', 'height=800,width=900,scrollbars=1,resizable=1');
+  } else {
+    document.location = baseUrl + '/dashboard/index/' + key;
+  }
   return false;
 }

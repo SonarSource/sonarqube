@@ -82,17 +82,15 @@ class FiltersController < ApplicationController
 
   def edit
     @filter=::Filter.find(params[:id])
-    access_denied unless editable_filter?(@filter)
+    access_denied unless @filter.authorized_to_edit?(self)
 
-    options=params
-    options[:user]=current_user
-    @filter_context=execute_filter(FilterContext.new(@filter, options))
+    @filter_context=Filters.execute(@filter, self, params)
     render :action => 'new'
   end
 
   def update
     @filter=::Filter.find(params[:id])
-    access_denied unless editable_filter?(@filter)
+    access_denied unless @filter.authorized_to_edit?(self)
 
     load_filter_from_params(@filter, params)
 
@@ -210,10 +208,11 @@ class FiltersController < ApplicationController
     column=FilterColumn.find(params[:id])
     filter=column.filter
 
-    access_denied unless editable_filter?(filter)
+    access_denied unless filter.authorized_to_edit?(self)
 
     if column.deletable?
       column.destroy
+      redirect_to :action => 'edit', :id => filter.id
       redirect_to :action => 'edit', :id => filter.id
     else
       flash[:error]='Unknown column'
@@ -223,7 +222,7 @@ class FiltersController < ApplicationController
 
   def add_column
     filter=::Filter.find(params[:id])
-    access_denied unless editable_filter?(filter)
+    access_denied unless filter.authorized_to_edit?(self)
     filter.clean_columns_order() # clean the columns which are badly ordered (see SONAR-1902)
 
     fields=params[:column].split(',')
@@ -240,7 +239,7 @@ class FiltersController < ApplicationController
     column=FilterColumn.find(params[:id])
     filter=column.filter
 
-    access_denied unless editable_filter?(filter)
+    access_denied unless filter.authorized_to_edit?(self)
 
     filter.clean_columns_order() # clean the columns which are badly ordered (see SONAR-1902)
     target_column=filter.column_by_id(params[:id].to_i)
@@ -258,7 +257,7 @@ class FiltersController < ApplicationController
     column=FilterColumn.find(params[:id])
     filter=column.filter
 
-    access_denied unless editable_filter?(filter)
+    access_denied unless filter.authorized_to_edit?(self)
 
     filter.clean_columns_order() # clean the columns which are badly ordered (see SONAR-1902)
     target_column=filter.column_by_id(params[:id].to_i)
@@ -276,7 +275,7 @@ class FiltersController < ApplicationController
     column=FilterColumn.find(params[:id])
     filter=column.filter
 
-    access_denied unless editable_filter?(filter)
+    access_denied unless filter.authorized_to_edit?(self)
 
     filter.columns.each do |col|
       if col==column
@@ -297,7 +296,7 @@ class FiltersController < ApplicationController
   #---------------------------------------------------------------------
   def set_view
     filter=::Filter.find(params[:id])
-    access_denied unless editable_filter?(filter)
+    access_denied unless filter.authorized_to_edit?(self)
 
     filter.default_view=params[:view]
     filter.save
@@ -306,7 +305,7 @@ class FiltersController < ApplicationController
 
   def set_columns
     filter=::Filter.find(params[:id])
-    access_denied unless editable_filter?(filter)
+    access_denied unless filter.authorized_to_edit?(self)
 
     filter.columns.clear
     params[:columns].each do |colstring|
@@ -319,7 +318,7 @@ class FiltersController < ApplicationController
 
   def set_page_size
     filter=::Filter.find(params[:id])
-    access_denied unless editable_filter?(filter)
+    access_denied unless filter.authorized_to_edit?(self)
 
     size=[::Filter::MAX_PAGE_SIZE, params[:size].to_i].min
     size=[::Filter::MIN_PAGE_SIZE, size].max
@@ -364,7 +363,7 @@ class FiltersController < ApplicationController
   #---------------------------------------------------------------------
   def treemap
     @filter=::Filter.find(params[:id])
-    access_denied unless viewable_filter?(@filter)
+    access_denied unless @filter.authorized_to_execute?(self)
 
     @size_metric=Metric.by_key(params[:size_metric])
     @color_metric=Metric.by_key(params[:color_metric])
@@ -373,9 +372,7 @@ class FiltersController < ApplicationController
 
     @filter.sorted_column=FilterColumn.new('family' => 'metric', :kee => @size_metric.key, :sort_direction => (@size_metric.direction>=0 ? 'ASC' : 'DESC'))
 
-    options=params
-    options[:user]=current_user
-    @filter_context=execute_filter(FilterContext.new(@filter, options))
+    @filter_context=Filters.execute(@filter, self, params)
 
     @width=(params[:width]||'800').to_i
     @height=(params[:height]||'500').to_i
@@ -383,8 +380,7 @@ class FiltersController < ApplicationController
     @treemap = Sonar::Treemap.new(@filter.id, @size_metric, @width, @height, {
       :color_metric => @color_metric,
       :period_index => @filter_context.period_index,
-      :measures_by_snapshot => @filter_context.measures_by_snapshot,
-      :browsable => false
+      :measures_by_snapshot => @filter_context.measures_by_snapshot
     })
 
 
@@ -468,9 +464,7 @@ class FiltersController < ApplicationController
     if @active
       @filter=@active.filter
       unless @filter.ajax_loading?
-        options=params
-        options[:user]=current_user
-        @filter_context=execute_filter(FilterContext.new(@filter, options))
+        @filter_context=Filters.execute(@filter, self, params)
         load_masterproject() if @filter.projects_homepage?
       end
     end

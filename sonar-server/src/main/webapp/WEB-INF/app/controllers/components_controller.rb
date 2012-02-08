@@ -49,31 +49,8 @@ class ComponentsController < ApplicationController
     if @components_configuration.treemap_enabled? && @snapshots.size>1
       @treemap = Sonar::Treemap.new(1, default_treemap_size_metric, TREEMAP_SIZE, TREEMAP_SIZE, {
         :color_metric => default_treemap_color_metric,
-        :root_snapshot => @snapshot,
-        :browsable => false
+        :root_snapshot => @snapshot
       })
-    end
-  end
-
-  def treemap
-    snapshot=Snapshot.find(params[:sid])
-    not_found("Snapshot not found") unless snapshot
-    access_denied unless has_role?(:user, snapshot)
-
-    size_metric = (params[:size_metric] ? Metric.by_key(params[:size_metric]) : default_treemap_size_metric)
-    color_metric = (params[:color_metric] ? Metric.by_key(params[:color_metric]) : default_treemap_color_metric)
-
-    @treemap = Sonar::Treemap.new(1, size_metric, TREEMAP_SIZE, TREEMAP_SIZE, {
-      :color_metric => color_metric,
-      :root_snapshot => snapshot,
-      :browsable => false
-    })
-
-    render(:update) do |page|
-      page.replace_html 'treemap', @treemap.generate_html
-      page.replace_html 'treemap_gradient', :partial => 'treemap/gradient', :locals => {:metric => @treemap.color_metric}
-      page.replace_html 'treemap_set_default', :partial => 'components/treemap_set_default',
-                        :locals => {:controller => 'components', :size_metric => params[:size_metric], :color_metric => params[:color_metric], :rid => snapshot.project_id}
     end
   end
 

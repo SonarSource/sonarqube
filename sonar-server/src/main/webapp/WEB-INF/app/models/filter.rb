@@ -33,7 +33,7 @@ class Filter < ActiveRecord::Base
 
   validates_length_of :name, :within => 1..100
   validates_uniqueness_of :name, :scope => :user_id, :if => Proc.new { |filter| filter.user_id }
-  validates_inclusion_of :default_view, :in => ['list','treemap'], :allow_nil => true
+  validates_inclusion_of :default_view, :in => ['list', 'treemap'], :allow_nil => true
 
   def criterion(family, key=nil)
     criteria.each do |criterion|
@@ -47,7 +47,7 @@ class Filter < ActiveRecord::Base
   def measure_criteria
     @measure_criteria ||=
       begin
-        criteria.select{|c| c.on_metric? && c.metric}
+        criteria.select { |c| c.on_metric? && c.metric }
       end
   end
 
@@ -69,19 +69,19 @@ class Filter < ActiveRecord::Base
   end
 
   def measure_columns
-    columns.select{|col| col.metric}
+    columns.select { |col| col.metric }
   end
 
   def sorted_column
     @sorted_column ||=
       begin
-        columns.to_a.find{|c| c.sort_direction} || column('name')
+        columns.to_a.find { |c| c.sort_direction } || column('name')
       end
   end
 
   def sorted_column=(col_or_id)
     if col_or_id.is_a?(Fixnum)
-      @sorted_column=columns.to_a.find{|c| c.id==col_or_id}
+      @sorted_column=columns.to_a.find { |c| c.id==col_or_id }
     else
       @sorted_column=col_or_id
     end
@@ -104,7 +104,7 @@ class Filter < ActiveRecord::Base
       TREEMAP_PAGE_SIZE
     else
       read_attribute(:page_size) || DEFAULT_PAGE_SIZE
-    end            
+    end
   end
 
   def ajax_loading?
@@ -133,20 +133,32 @@ class Filter < ActiveRecord::Base
   def period?
     period_index && period_index>0
   end
-  
+
   def column_by_id(col_id)
     columns.each do |col|
       return col if col.id==col_id
     end
     nil
   end
-    
+
   def clean_columns_order
     columns.each_with_index do |col, index|
       col.order_index=index+1
       col.save
     end
     reload
+  end
+
+  def authorized_to_execute?(authenticated_system)
+    shared || (user==authenticated_system.current_user)
+  end
+
+  def authorized_to_edit?(authenticated_system)
+    if authenticated_system.logged_in?
+      (user && user==authenticated_system.current_user) || (!user && authenticated_system.is_admin?)
+    else
+      false
+    end
   end
 
   protected
@@ -158,7 +170,7 @@ class Filter < ActiveRecord::Base
     end
 
     # one column must be sorted
-    sorted_col=self.columns.to_a.find{|c| c.sort_direction}
+    sorted_col=self.columns.to_a.find { |c| c.sort_direction }
     unless sorted_col
       column('name').sort_direction='ASC'
     end

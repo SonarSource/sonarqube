@@ -39,21 +39,31 @@ class TreemapController < ApplicationController
 
     color_metric=(params[:color_metric].present? ? Metric.by_key(params[:color_metric]) : nil)
 
-    resource = Project.by_key(params[:resource])
-    bad_request('Unknown resource: ' + params[:resource]) unless resource
-    bad_request('Data not available') unless resource.last_snapshot
-    access_denied unless has_role?(:user, resource)
+    if params[:resource]
+      resource = Project.by_key(params[:resource])
+      bad_request('Unknown resource: ' + params[:resource]) unless resource
+      bad_request('Data not available') unless resource.last_snapshot
+      access_denied unless has_role?(:user, resource)
+    elsif params[:filter]
+      filter=::Filter.find(params[:filter])
+      bad_request('Unknown filter: ' + params[:filter]) unless filter
+      access_denied unless filter.authorized_to_execute?(self)
+      filter.sorted_column=FilterColumn.new('family' => 'metric', :kee => size_metric.key, :sort_direction => (size_metric.direction>=0 ? 'ASC' : 'DESC'))
+      filter_context=Filters.execute(filter, self, params)
+    else
+      bad_request('Missing parameter: resource or filter')
+    end
 
     treemap = Sonar::Treemap.new(html_id, size_metric, width.to_i, height.to_i, {
       :color_metric => color_metric,
-      :root_snapshot => resource.last_snapshot,
-      :period_index => params[:period_index].to_i,
-      :browsable => true
+      :root_snapshot => (resource ? resource.last_snapshot : nil),
+      :measures_by_snapshot => (filter_context ? filter_context.measures_by_snapshot : nil),
+      :period_index => params[:period_index].to_i
     })
 
     render :update do |page|
-      page.replace_html  "tm-#{html_id}", :partial => 'treemap', :object => treemap
-      page.replace_html  "tm-gradient-#{html_id}", :partial => 'gradient', :locals => {:metric => color_metric}
+      page.replace_html "tm-#{html_id}", :partial => 'treemap', :object => treemap
+      page.replace_html "tm-gradient-#{html_id}", :partial => 'gradient', :locals => {:metric => color_metric}
       page.hide "tm-loading-#{html_id}"
     end
   end

@@ -150,7 +150,6 @@ module NeedAuthorization
   # These methods depend on the restful_authentication plugin.
   #
   module Helper
-    protected
 
     def has_role?(role, objects=nil)
       (current_user || Anonymous.user).has_role?(role, objects)

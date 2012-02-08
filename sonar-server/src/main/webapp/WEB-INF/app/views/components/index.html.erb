@@ -1,75 +1,83 @@
 <% if is_admin? %>
-<div id="page-operations">
-  <ul class="operations">
+  <div id="page-operations">
+    <ul class="operations">
       <li><%= message('customize') -%>
-      <% if configuring? %>
-        <span class="green"><b><%= message('on').upcase -%></b></span> |
-        <a class="action" href="<%= url_for :overwrite_params => {:configuring => nil} -%>" id="configure-off"><%= message('off').upcase -%></a>
-      <% else %>
-        <a class="action" href="<%= url_for :overwrite_params => {:configuring => 'true'} -%>" id="configure-on"><%= message('on').upcase -%></a>
-        | <span class="red"><b><%= message('off').upcase -%></b></span>
-      <% end %>     
+        <% if configuring? %>
+          <span class="green"><b><%= message('on').upcase -%></b></span> |
+          <a class="action" href="<%= url_for :overwrite_params => {:configuring => nil} -%>" id="configure-off"><%= message('off').upcase -%></a>
+        <% else %>
+          <a class="action" href="<%= url_for :overwrite_params => {:configuring => 'true'} -%>" id="configure-on"><%= message('on').upcase -%></a>
+          | <span class="red"><b><%= message('off').upcase -%></b></span>
+        <% end %>
       </li>
-  </ul>
-</div>
+    </ul>
+  </div>
 <% end %>
 
 <% if has_role?(:admin) && configuring? %>
-  <%= render :partial => 'list_edit_mode_controls', :locals => {:configured_columns => @columns, :components_configuration => @components_configuration}%>
+  <%= render :partial => 'list_edit_mode_controls', :locals => {:configured_columns => @columns, :components_configuration => @components_configuration} %>
 <% end %>
 <% if @snapshots.empty? && @project.nil? %>
-<h3><%= message('components.no_projects_have_been_analysed') -%>No projects have been analysed.</h3>
-<p><%= message('components.explanation_launch_sonar_to_have_results') -%></p>
+  <h3><%= message('components.no_projects_have_been_analysed') -%>No projects have been analysed.</h3>
+  <p><%= message('components.explanation_launch_sonar_to_have_results') -%></p>
 <% else %>
-<table width="100%">
-  <tr>
-    <td align="left" valign="top">
-      <table id="components" class="data sortable">
-        <%= render :partial => 'list_table_header', :locals => {:configured_columns => @columns} if !configuring? || ( !is_admin? && configuring? ) %>
-        <%= render :partial => 'list_table_header_edit_mode', :locals => {:configured_columns => @columns} if configuring? && is_admin? %>
-        <tbody>
-        <% if @snapshots.empty? %>
-          <tr><td colspan="<%= @columns.size + 2 -%>">No components</td></tr>
-        <% else
-            @snapshots.each do |snapshot| %>
-            <% project = snapshot.project %>
-            <tr id="project_<%= project.id -%>">
-             <% alert_status_measure=search_measure(@measures_by_snapshot[snapshot], Metric::ALERT_STATUS)
-                alert_status_x=(alert_status_measure ? alert_status_measure.data : '')
-             %>
-              <td x="<%= alert_status_x -%>" width="1%" nowrap><%= html_measure(alert_status_measure, nil, true, nil, nil, nil) %></td>
-              <td width="1%" nowrap>
-                <% if logged_in? %><%= link_to_favourite(project) -%><% end %>
-                <%= link_to_resource(project, image_tag('zoom.png')) %>
-              </td>
-              <td class="left" x="<%= u(snapshot.project.name) -%>">
-                <%= qualifier_icon(snapshot) %>
-                <% if snapshot.project.display_dashboard? %>
-                  <a href="<%= ApplicationController.root_context + "/dashboard/index/#{snapshot.project.copy_resource_id || snapshot.project.id}" -%>"><%= snapshot.project.name -%></a>
-                <% else %>
-                  <%= snapshot.project.name %>
+  <table width="100%">
+    <tr>
+      <td align="left" valign="top">
+        <table id="components" class="data sortable">
+          <%= render :partial => 'list_table_header', :locals => {:configured_columns => @columns} if !configuring? || (!is_admin? && configuring?) %>
+          <%= render :partial => 'list_table_header_edit_mode', :locals => {:configured_columns => @columns} if configuring? && is_admin? %>
+          <tbody>
+          <% if @snapshots.empty? %>
+            <tr>
+              <td colspan="<%= @columns.size + 2 -%>">No components</td>
+            </tr>
+          <% else
+               @snapshots.each do |snapshot| %>
+              <% project = snapshot.project %>
+              <tr id="project_<%= project.id -%>">
+                <% alert_status_measure=search_measure(@measures_by_snapshot[snapshot], Metric::ALERT_STATUS)
+                   alert_status_x=(alert_status_measure ? alert_status_measure.data : '')
+                %>
+                <td x="<%= alert_status_x -%>" width="1%" nowrap><%= html_measure(alert_status_measure, nil, true, nil, nil, nil) %></td>
+                <td width="1%" nowrap>
+                  <% if logged_in? %><%= link_to_favourite(project) -%>
+                  <% end %>
+                  <%= link_to_resource(project, image_tag('zoom.png')) %>
+                </td>
+                <td class="left" x="<%= u(snapshot.project.name) -%>">
+                  <%= qualifier_icon(snapshot) %>
+                  <% if snapshot.project.display_dashboard? %>
+                    <a href="<%= ApplicationController.root_context + "/dashboard/index/#{snapshot.project.copy_resource_id || snapshot.project.id}" -%>"><%= snapshot.project.name -%></a>
+                  <% else %>
+                    <%= snapshot.project.name %>
+                  <% end %>
+                </td>
+                <% @columns.each do |column| %>
+                  <%= get_column_content(column, snapshot, @measures_by_snapshot) -%>
                 <% end %>
-              </td>
-              <% @columns.each do |column| %>
-                <%= get_column_content(column, snapshot, @measures_by_snapshot) -%>
-              <% end %>
-           </tr>
-           <% end %>
-        <% end %>
-        </tbody>
-    </table>
-    <script>TableKit.Sortable.init('components');</script>
-    <p>&nbsp;</p>
-    </td>
-    <% if @treemap %>
-      <td width="10px">&nbsp;</td>
-      <td  width="<%= @treemap.width -%>" valign="top">
-        <div id="treemap" class="treemap" style="height:<%= @treemap.height %>px">
-          <%= @treemap.generate_html() %>
-        </div>
-        <%= render :partial => 'components/treemap_settings', :locals => {:action => 'treemap'} %>
+              </tr>
+            <% end %>
+          <% end %>
+          </tbody>
+        </table>
+        <script>TableKit.Sortable.init('components');</script>
+        <p>&nbsp;</p>
       </td>
-    <% end %>
-  </tr>
-</table>
+      <% if @treemap %>
+        <td width="10px">&nbsp;</td>
+        <td width="<%= @treemap.width -%>" valign="top">
+          <script>
+            new Treemap(1, '<%= @treemap.size_metric ? @treemap.size_metric.key : '' -%>', '<%= @treemap.color_metric ? @treemap.color_metric.key : '' -%>', 100.0).init('resource',
+              <%= @project.id -%>);
+          </script>
+
+          <div id="tm-1" class="treemap" style="height:<%= @treemap.height %>px">
+            <%= @treemap.generate_html() %>
+          </div>
+          <%= render :partial => 'components/treemap_settings', :locals => {:action => 'treemap'} %>
+        </td>
+      <% end %>
+    </tr>
+  </table>
 <% end %>
