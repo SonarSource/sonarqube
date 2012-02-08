@@ -62,10 +62,6 @@ public class NewViolationsEmailTemplate extends EmailTemplate {
     return message;
   }
 
-  private void appendLine(StringBuilder sb, String name, String value) {
-    sb.append(name).append(": ").append(value).append('\n');
-  }
-
   private void appendFooter(StringBuilder sb, Notification notification) {
     String projectKey = notification.getFieldValue("projectKey");
     String period = notification.getFieldValue("period");
