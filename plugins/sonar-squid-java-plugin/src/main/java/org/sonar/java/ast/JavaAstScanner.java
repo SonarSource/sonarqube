@@ -91,10 +91,19 @@ public class JavaAstScanner extends CodeScanner<JavaAstVisitor> {
     for (JavaAstVisitor visitor : getVisitors()) {
       visitor.setSourceCodeStack(resourcesStack);
     }
-    CheckstyleSquidBridge.setASTVisitors(getVisitors());
-    CheckstyleSquidBridge.setSquidConfiguration(conf);
-    CheckstyleSquidBridge.setInputFiles(inputFiles);
-    launchCheckstyle(InputFileUtils.toFiles(inputFiles), conf.getCharset());
+
+    CheckstyleSquidBridgeContext bridgeContext = new CheckstyleSquidBridgeContext()
+        .setASTVisitors(getVisitors())
+        .setSquidConfiguration(conf)
+        .setInputFiles(inputFiles);
+
+    CheckstyleSquidBridge.setContext(bridgeContext);
+    try {
+      launchCheckstyle(InputFileUtils.toFiles(inputFiles), conf.getCharset());
+    } finally {
+      // Garbage collector should be able to do his job, so we must clean context after execution
+      CheckstyleSquidBridge.setContext(null);
+    }
     return this;
   }
 
@@ -105,7 +114,7 @@ public class JavaAstScanner extends CodeScanner<JavaAstVisitor> {
     try {
       c.setClassloader(getClass().getClassLoader());
       c.setModuleClassLoader(getClass().getClassLoader());
-      c.process(Lists.<File>newArrayList(files));
+      c.process(Lists.<File> newArrayList(files));
       c.destroy();
     } finally {
       Thread.currentThread().setContextClassLoader(initialClassLoader);

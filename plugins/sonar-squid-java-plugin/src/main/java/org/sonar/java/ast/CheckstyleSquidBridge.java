@@ -19,20 +19,13 @@
  */
 package org.sonar.java.ast;
 
-import com.google.common.collect.Maps;
 import com.puppycrawl.tools.checkstyle.api.Check;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.resources.InputFile;
 import org.sonar.java.ast.visitor.JavaAstVisitor;
-import org.sonar.java.recognizer.JavaFootprint;
-import org.sonar.java.squid.JavaSquidConfiguration;
-import org.sonar.squid.recognizer.CodeRecognizer;
 import org.sonar.squid.text.Source;
-
-import java.io.File;
-import java.util.*;
 
 /**
  * Delegate from Checkstyle {@link Check} to {@link JavaAstVisitor}s.
@@ -40,42 +33,19 @@ import java.util.*;
 public class CheckstyleSquidBridge extends Check {
 
   private static Logger logger = LoggerFactory.getLogger(CheckstyleSquidBridge.class);
-  private static JavaAstVisitor[] visitors;
-  private static int[] allTokens;
-  private static CodeRecognizer codeRecognizer;
-  private static Map<java.io.File,InputFile> inputFilesByPath = Maps.newHashMap();
 
-  static void setASTVisitors(List<JavaAstVisitor> visitors) {
-    CheckstyleSquidBridge.visitors = visitors.toArray(new JavaAstVisitor[visitors.size()]);
-    SortedSet<Integer> sorter = new TreeSet<Integer>();
-    for (JavaAstVisitor visitor : visitors) {
-      sorter.addAll(visitor.getWantedTokens());
-      allTokens = new int[sorter.size()];
-      int i = 0;
-      for (Integer itSorted : sorter) {
-        allTokens[i++] = itSorted;
-      }
-    }
-  }
+  private static CheckstyleSquidBridgeContext bridgeContext;
 
-  static void setSquidConfiguration(JavaSquidConfiguration conf) {
-    codeRecognizer = new CodeRecognizer(conf.getCommentedCodeThreshold(), new JavaFootprint());
+  /**
+   * @see CheckstyleSquidBridgeContext
+   */
+  static void setContext(CheckstyleSquidBridgeContext context) {
+    bridgeContext = context;
   }
 
   @Override
   public int[] getDefaultTokens() {
-    return allTokens; //NOSONAR returning directly the array is not a security flaw here
-  }
-
-  public static InputFile getInputFile(File path) {
-    return inputFilesByPath.get(path);
-  }
-
-  public static void setInputFiles(Collection<InputFile> inputFiles) {
-    inputFilesByPath.clear();
-    for (InputFile inputFile : inputFiles) {
-      inputFilesByPath.put(inputFile.getFile().getAbsoluteFile(), inputFile);
-    }
+    return bridgeContext.getAllTokens();
   }
 
   @Override
@@ -83,8 +53,8 @@ public class CheckstyleSquidBridge extends Check {
     try {
       String filename = getFileContents().getFilename();
       Source source = createSource();
-      InputFile inputFile = getInputFile(new java.io.File(filename));
-      for (JavaAstVisitor visitor : visitors) {
+      InputFile inputFile = bridgeContext.getInputFile(new java.io.File(filename));
+      for (JavaAstVisitor visitor : bridgeContext.getVisitors()) {
         visitor.setFileContents(getFileContents());
         visitor.setSource(source);
         visitor.setInputFile(inputFile);
@@ -96,13 +66,13 @@ public class CheckstyleSquidBridge extends Check {
   }
 
   private Source createSource() {
-    return new Source(getFileContents().getLines(), codeRecognizer);
+    return new Source(getFileContents().getLines(), bridgeContext.getCodeRecognizer());
   }
 
   @Override
   public void visitToken(DetailAST ast) {
     try {
-      for (JavaAstVisitor visitor : visitors) {
+      for (JavaAstVisitor visitor : bridgeContext.getVisitors()) {
         if (visitor.getWantedTokens().contains(ast.getType())) {
           visitor.visitToken(ast);
         }
@@ -114,6 +84,7 @@ public class CheckstyleSquidBridge extends Check {
 
   @Override
   public void leaveToken(DetailAST ast) {
+    JavaAstVisitor[] visitors = bridgeContext.getVisitors();
     try {
       for (int i = visitors.length - 1; i >= 0; i--) {
         JavaAstVisitor visitor = visitors[i];
@@ -128,6 +99,7 @@ public class CheckstyleSquidBridge extends Check {
 
   @Override
   public void finishTree(DetailAST ast) {
+    JavaAstVisitor[] visitors = bridgeContext.getVisitors();
     try {
       for (int i = visitors.length - 1; i >= 0; i--) {
         JavaAstVisitor visitor = visitors[i];
