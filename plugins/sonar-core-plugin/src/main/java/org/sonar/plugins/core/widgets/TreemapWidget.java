@@ -22,15 +22,14 @@ package org.sonar.plugins.core.widgets;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.web.*;
 
-@WidgetCategory("Reporting")
 @WidgetProperties({
-  @WidgetProperty(key = "heightInPercents", type= WidgetPropertyType.INTEGER, defaultValue = "100", description = "Height, in percents of width"),
+  @WidgetProperty(key = "heightInPercents", type= WidgetPropertyType.INTEGER, defaultValue = "50", description = "Height in percents of width"),
   @WidgetProperty(key = "sizeMetric", type= WidgetPropertyType.METRIC, defaultValue = CoreMetrics.NCLOC_KEY, description = "Default metric for size"),
   @WidgetProperty(key = "colorMetric", type= WidgetPropertyType.METRIC, defaultValue = CoreMetrics.VIOLATIONS_DENSITY_KEY, description = "Default metric for color")
 })
 public class TreemapWidget extends AbstractRubyTemplate implements RubyRailsWidget {
   public String getId() {
-    return "tm"; // avoid conflict with CSS style "treemap"
+    return "treemap";
   }
 
   public String getTitle() {
