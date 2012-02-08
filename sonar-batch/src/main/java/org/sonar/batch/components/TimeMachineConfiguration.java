@@ -112,26 +112,4 @@ public class TimeMachineConfiguration implements BatchExtension {
   public boolean isFileVariationEnabled() {
     return configuration.getBoolean("sonar.enableFileVariation", Boolean.FALSE);
   }
-
-  /**
-   * Returns the index corresponding to the 'previous_analysis' period (which is '1' by default).
-   * 
-   * @return the index of 'previous_analysis' period, or NULL is users have modified the periods and haven't set a 'previous_analysis' one.
-   */
-  public Integer getLastAnalysisPeriodIndex() {
-    // period1 is the default for 'previous_analysis'
-    String period1 = configuration.getString(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + "1");
-    if (StringUtils.isBlank(period1) || CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS.equals(period1)) {
-      return 1;
-    }
-    // else search for the other periods
-    for (int index = 2; index < 6; index++) {
-      if (CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS.equals(configuration
-          .getString(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + index))) {
-        return index;
-      }
-    }
-    // if we're here, this means that we have not found the 'previous_analysis' mode
-    return null;
-  }
 }

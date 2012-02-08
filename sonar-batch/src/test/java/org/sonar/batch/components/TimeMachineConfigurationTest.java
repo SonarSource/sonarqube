@@ -21,7 +21,6 @@ package org.sonar.batch.components;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -83,25 +82,6 @@ public class TimeMachineConfigurationTest extends AbstractDbUnitTestCase {
     new TimeMachineConfiguration(getSession(), new Project("new:project"), conf, pastSnapshotFinder);
 
     verifyZeroInteractions(pastSnapshotFinder);
-  }
-
-  @Test
-  public void shouldReturnLastAnalysisIndexIfSet() {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    TimeMachineConfiguration timeMachineConfiguration = new TimeMachineConfiguration(getSession(), new Project("my:project"), conf,
-        mock(PastSnapshotFinder.class));
-
-    // Nothing set, so period for 'previous_analysis' is 1 by default
-    assertThat(timeMachineConfiguration.getLastAnalysisPeriodIndex(), is(1));
-
-    // period1 has been replaced and 'previous_analysis' not set elsewhere...
-    conf.setProperty(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + 1, "Version 1");
-    conf.setProperty(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + 2, "Version 2");
-    assertThat(timeMachineConfiguration.getLastAnalysisPeriodIndex(), is(nullValue()));
-
-    // 'previous_analysis' has now been set on period 4
-    conf.setProperty(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + 4, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
-    assertThat(timeMachineConfiguration.getLastAnalysisPeriodIndex(), is(4));
   }
 
 }

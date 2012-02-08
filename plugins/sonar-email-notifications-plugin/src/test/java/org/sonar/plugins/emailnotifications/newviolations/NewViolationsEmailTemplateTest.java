@@ -57,7 +57,7 @@ public class NewViolationsEmailTemplateTest {
    * Project: Foo
    * 32 new violations on last analysis (introduced between 2012-01-02 and 2012-01-15)
    * 
-   * See it in Sonar: http://nemo.sonarsource.org/drilldown/measures/org.sonar.foo:foo?metric=new_violations&period=2
+   * See it in Sonar: http://nemo.sonarsource.org/drilldown/measures/org.sonar.foo:foo?metric=new_violations&period=1
    * </pre>
    */
   @Test
@@ -67,7 +67,6 @@ public class NewViolationsEmailTemplateTest {
         .setFieldValue("projectName", "Foo")
         .setFieldValue("projectKey", "org.sonar.foo:foo")
         .setFieldValue("projectId", "45")
-        .setFieldValue("period", "2")
         .setFieldValue("fromDate", "2012-01-02")
         .setFieldValue("toDate", "2012-01-15");
 
@@ -78,7 +77,7 @@ public class NewViolationsEmailTemplateTest {
       "Project: Foo\n" +
       "32 new violations on last analysis (introduced between 2012-01-02 and 2012-01-15)\n" +
       "\n" +
-      "See it in Sonar: http://nemo.sonarsource.org/drilldown/measures/org.sonar.foo:foo?metric=new_violations&period=2\n"));
+      "See it in Sonar: http://nemo.sonarsource.org/drilldown/measures/org.sonar.foo:foo?metric=new_violations&period=1\n"));
   }
 
 }

@@ -32,6 +32,7 @@ import static org.mockito.Mockito.when;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -70,7 +71,7 @@ public class NewViolationsDecoratorTest {
 
   private NewViolationsDecorator decorator;
   private DecoratorContext context;
-  private Resource resource;
+  private Resource<?> resource;
   private NotificationManager notificationManager;
 
   private Date rightNow;
@@ -189,20 +190,10 @@ public class NewViolationsDecoratorTest {
   }
 
   @Test
-  public void shouldNotNotifyIfNoPeriodForLastAnalysis() throws Exception {
-    Project project = new Project("key");
-    when(timeMachineConfiguration.getLastAnalysisPeriodIndex()).thenReturn(null);
-
-    decorator.notifyNewViolations(project, context);
-
-    verify(notificationManager, never()).scheduleForSending(any(Notification.class));
-  }
-
-  @Test
   public void shouldNotNotifyIfNoNotEnoughPastSnapshots() throws Exception {
     Project project = new Project("key");
     // the #setUp method adds 2 snapshots: if last period analysis is 3, then it's not enough
-    when(timeMachineConfiguration.getLastAnalysisPeriodIndex()).thenReturn(3);
+    when(timeMachineConfiguration.getProjectPastSnapshots()).thenReturn(new ArrayList<PastSnapshot>());
 
     decorator.notifyNewViolations(project, context);
     verify(notificationManager, never()).scheduleForSending(any(Notification.class));
@@ -211,7 +202,6 @@ public class NewViolationsDecoratorTest {
   @Test
   public void shouldNotNotifyIfNoNewViolations() throws Exception {
     Project project = new Project("key");
-    when(timeMachineConfiguration.getLastAnalysisPeriodIndex()).thenReturn(1);
     Measure m = new Measure(CoreMetrics.NEW_VIOLATIONS);
     when(context.getMeasure(CoreMetrics.NEW_VIOLATIONS)).thenReturn(m);
 
@@ -229,7 +219,6 @@ public class NewViolationsDecoratorTest {
   public void shouldNotNotifyUserIfFirstAnalysis() throws Exception {
     Project project = new Project("key").setName("LongName");
     project.setId(45);
-    when(timeMachineConfiguration.getLastAnalysisPeriodIndex()).thenReturn(1);
     // PastSnapshot with targetDate==null means first analysis
     PastSnapshot pastSnapshot = new PastSnapshot("", null);
     when(timeMachineConfiguration.getProjectPastSnapshots()).thenReturn(Lists.newArrayList(pastSnapshot));
@@ -244,11 +233,10 @@ public class NewViolationsDecoratorTest {
   public void shouldNotifyUserAboutNewViolations() throws Exception {
     Project project = new Project("key").setName("LongName");
     project.setId(45);
-    when(timeMachineConfiguration.getLastAnalysisPeriodIndex()).thenReturn(2);
     Calendar pastDate = new GregorianCalendar(2011, 10, 25);
     PastSnapshot pastSnapshot = new PastSnapshot("", pastDate.getTime());
     when(timeMachineConfiguration.getProjectPastSnapshots()).thenReturn(Lists.newArrayList(pastSnapshot, pastSnapshot));
-    Measure m = new Measure(CoreMetrics.NEW_VIOLATIONS).setVariation2(32.0);
+    Measure m = new Measure(CoreMetrics.NEW_VIOLATIONS).setVariation1(32.0);
     when(context.getMeasure(CoreMetrics.NEW_VIOLATIONS)).thenReturn(m);
 
     decorator.decorate(project, context);
@@ -259,7 +247,6 @@ public class NewViolationsDecoratorTest {
         .setFieldValue("projectName", "LongName")
         .setFieldValue("projectKey", "key")
         .setFieldValue("projectId", "45")
-        .setFieldValue("period", "2")
         .setFieldValue("fromDate", dateformat.format(pastDate.getTime()))
         .setFieldValue("toDate", dateformat.format(new Date()));
     verify(notificationManager, times(1)).scheduleForSending(eq(notification));

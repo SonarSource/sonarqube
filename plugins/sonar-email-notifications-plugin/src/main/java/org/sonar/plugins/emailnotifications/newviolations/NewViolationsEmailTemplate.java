@@ -64,10 +64,9 @@ public class NewViolationsEmailTemplate extends EmailTemplate {
 
   private void appendFooter(StringBuilder sb, Notification notification) {
     String projectKey = notification.getFieldValue("projectKey");
-    String period = notification.getFieldValue("period");
     sb.append("\n")
         .append("See it in Sonar: ").append(configuration.getServerBaseURL()).append("/drilldown/measures/").append(projectKey)
-        .append("?metric=new_violations&period=").append(period).append('\n');
+        .append("?metric=new_violations&period=1\n");
   }
 
 }

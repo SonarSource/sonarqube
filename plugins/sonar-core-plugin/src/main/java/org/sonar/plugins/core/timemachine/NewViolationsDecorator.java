@@ -209,11 +209,11 @@ public class NewViolationsDecorator implements Decorator {
   }
 
   protected void notifyNewViolations(Project project, DecoratorContext context) {
-    Integer lastAnalysisPeriodIndex = timeMachineConfiguration.getLastAnalysisPeriodIndex();
     List<PastSnapshot> projectPastSnapshots = timeMachineConfiguration.getProjectPastSnapshots();
-    if (lastAnalysisPeriodIndex != null && projectPastSnapshots.size() >= lastAnalysisPeriodIndex) {
-      PastSnapshot pastSnapshot = projectPastSnapshots.get(lastAnalysisPeriodIndex - 1);
-      Double newViolationsCount = context.getMeasure(CoreMetrics.NEW_VIOLATIONS).getVariation(lastAnalysisPeriodIndex);
+    if (projectPastSnapshots.size() >= 1) {
+      // we always check new violations against period1
+      PastSnapshot pastSnapshot = projectPastSnapshots.get(0);
+      Double newViolationsCount = context.getMeasure(CoreMetrics.NEW_VIOLATIONS).getVariation1();
       // Do not send notification if this is the first analysis or if there's no violation
       if (pastSnapshot.getTargetDate() != null && newViolationsCount != null && newViolationsCount > 0) {
         // Maybe we should check if this is the first analysis or not?
@@ -223,7 +223,6 @@ public class NewViolationsDecorator implements Decorator {
             .setFieldValue("projectName", project.getLongName())
             .setFieldValue("projectKey", project.getKey())
             .setFieldValue("projectId", String.valueOf(project.getId()))
-            .setFieldValue("period", lastAnalysisPeriodIndex.toString())
             .setFieldValue("fromDate", dateformat.format(pastSnapshot.getTargetDate()))
             .setFieldValue("toDate", dateformat.format(new Date()));
         notificationManager.scheduleForSending(notification);
