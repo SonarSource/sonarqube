@@ -1167,6 +1167,7 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_RULES)
       .setBestValue(0.0)
       .setOptimizedBestValue(true)
+      .setDeleteHistoricalData(true)
       .create();
 
   public static final String NEW_CRITICAL_VIOLATIONS_KEY = "new_critical_violations";
