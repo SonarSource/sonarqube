@@ -19,6 +19,7 @@
  */
 package org.sonar.api.measures;
 
+import com.google.common.annotations.Beta;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Scopes;
@@ -1637,6 +1638,26 @@ public final class CoreMetrics {
       .setOptimizedBestValue(true)
       .create();
 
+  // --------------------------------------------------------------------------------------------------------------------
+  //
+  // FILE DATA
+  //
+  // --------------------------------------------------------------------------------------------------------------------
+
+  /**
+   * @since 2.14
+   */
+  @Beta
+  public static final String NCLOC_DATA_KEY = "ncloc_data";
+
+  /**
+   * @since 2.14
+   */
+  @Beta
+  public static final Metric NCLOC_DATA = new Metric.Builder(NCLOC_DATA_KEY, "ncloc_data", Metric.ValueType.DATA)
+      .setHidden(true)
+      .setDomain(DOMAIN_SIZE)
+      .create();
 
   //--------------------------------------------------------------------------------------------------------------------
   //

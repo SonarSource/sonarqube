@@ -74,6 +74,7 @@ public class SquidSensor implements Sensor {
     AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, SquidConstants.REPOSITORY_KEY, SquidRuleRepository.getCheckClasses());
 
     SquidExecutor squidExecutor = new SquidExecutor(analyzePropertyAccessors, fieldNamesToExcludeFromLcom4Computation, factory, charset);
+    squidExecutor.getSquid().register(SonarAccessor.class).setSensorContext(context);
     squidExecutor.scan(getMainSourceFiles(project), getBytecodeFiles(project));
     squidExecutor.save(project, context, noSonarFilter);
     squidExecutor.flush();

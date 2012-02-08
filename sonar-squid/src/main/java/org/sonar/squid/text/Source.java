@@ -19,6 +19,7 @@
  */
 package org.sonar.squid.text;
 
+import com.google.common.annotations.Beta;
 import org.sonar.squid.measures.Metric;
 import org.sonar.squid.recognizer.CodeRecognizer;
 
@@ -107,6 +108,9 @@ public class Source {
     return getMeasure(metric, 1, lines.size());
   }
 
+  /**
+   * Numbering of lines starts from 1.
+   */
   public int getMeasure(Metric metric, int fromLine, int toLine) {
     if (toLine > lines.size()) {
       throw new IllegalStateException("There are only " + lines.size() + " lines in the file and you're trying to reach line " + toLine);
@@ -125,4 +129,13 @@ public class Source {
   public Set<Integer> getNoSonarTagLines() {
     return noSonarTagLines;
   }
+
+  /**
+   * @since 2.14
+   */
+  @Beta
+  public int getNumberOfLines() {
+    return lines.size();
+  }
+
 }

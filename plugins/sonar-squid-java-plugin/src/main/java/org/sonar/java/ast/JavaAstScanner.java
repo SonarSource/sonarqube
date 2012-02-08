@@ -172,6 +172,7 @@ public class JavaAstScanner extends CodeScanner<JavaAstVisitor> {
     }
     visitorClasses.add(ComplexityVisitor.class);
     visitorClasses.add(LinesOfCodeVisitor.class);
+    visitorClasses.add(FileLinesVisitor.class);
     return visitorClasses;
   }
 
