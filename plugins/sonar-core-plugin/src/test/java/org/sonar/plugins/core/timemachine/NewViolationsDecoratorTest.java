@@ -199,6 +199,16 @@ public class NewViolationsDecoratorTest {
   }
 
   @Test
+  public void shouldNotNotifyIfNoNotEnoughPastSnapshots() throws Exception {
+    Project project = new Project("key");
+    // the #setUp method adds 2 snapshots: if last period analysis is 3, then it's not enough
+    when(timeMachineConfiguration.getLastAnalysisPeriodIndex()).thenReturn(3);
+
+    decorator.notifyNewViolations(project, context);
+    verify(notificationManager, never()).scheduleForSending(any(Notification.class));
+  }
+
+  @Test
   public void shouldNotNotifyIfNoNewViolations() throws Exception {
     Project project = new Project("key");
     when(timeMachineConfiguration.getLastAnalysisPeriodIndex()).thenReturn(1);
@@ -220,7 +230,7 @@ public class NewViolationsDecoratorTest {
     Project project = new Project("key").setName("LongName");
     project.setId(45);
     when(timeMachineConfiguration.getLastAnalysisPeriodIndex()).thenReturn(1);
-    // PastSnaptho with targetDate==null means first analysis
+    // PastSnapshot with targetDate==null means first analysis
     PastSnapshot pastSnapshot = new PastSnapshot("", null);
     when(timeMachineConfiguration.getProjectPastSnapshots()).thenReturn(Lists.newArrayList(pastSnapshot));
     Measure m = new Measure(CoreMetrics.NEW_VIOLATIONS).setVariation1(0.0);

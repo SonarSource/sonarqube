@@ -210,8 +210,9 @@ public class NewViolationsDecorator implements Decorator {
 
   protected void notifyNewViolations(Project project, DecoratorContext context) {
     Integer lastAnalysisPeriodIndex = timeMachineConfiguration.getLastAnalysisPeriodIndex();
-    if (lastAnalysisPeriodIndex != null) {
-      PastSnapshot pastSnapshot = timeMachineConfiguration.getProjectPastSnapshots().get(lastAnalysisPeriodIndex - 1);
+    List<PastSnapshot> projectPastSnapshots = timeMachineConfiguration.getProjectPastSnapshots();
+    if (lastAnalysisPeriodIndex != null && projectPastSnapshots.size() >= lastAnalysisPeriodIndex) {
+      PastSnapshot pastSnapshot = projectPastSnapshots.get(lastAnalysisPeriodIndex - 1);
       Double newViolationsCount = context.getMeasure(CoreMetrics.NEW_VIOLATIONS).getVariation(lastAnalysisPeriodIndex);
       // Do not send notification if this is the first analysis or if there's no violation
       if (pastSnapshot.getTargetDate() != null && newViolationsCount != null && newViolationsCount > 0) {
