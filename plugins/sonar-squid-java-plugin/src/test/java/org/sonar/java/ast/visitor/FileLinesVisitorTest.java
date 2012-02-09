@@ -24,8 +24,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.PersistenceMode;
+import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.resources.Resource;
 import org.sonar.java.ast.JavaAstScanner;
 import org.sonar.java.ast.SquidTestUtils;
@@ -41,26 +40,29 @@ public class FileLinesVisitorTest {
 
   private Squid squid;
   private SensorContext context;
+  private FileLinesContext measures;
 
   @Before
   public void setUp() {
     squid = new Squid(new JavaSquidConfiguration());
     context = mock(SensorContext.class);
+    measures = mock(FileLinesContext.class);
   }
 
   @Test
   public void analyseTestNcloc() {
+    ArgumentCaptor<Resource> resourceCaptor = ArgumentCaptor.forClass(Resource.class);
+    when(context.createFileLinesContext(resourceCaptor.capture()))
+        .thenReturn(measures);
+
     squid.register(SonarAccessor.class).setSensorContext(context);
     squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/ncloc/TestNcloc.java"));
 
-    ArgumentCaptor<Resource> resourceCaptor = ArgumentCaptor.forClass(Resource.class);
-    ArgumentCaptor<Measure> measureCaptor = ArgumentCaptor.forClass(Measure.class);
-    verify(context, times(1)).saveMeasure(resourceCaptor.capture(), measureCaptor.capture());
     assertThat(resourceCaptor.getValue().getKey(), is("[default].TestNcloc"));
-    Measure measure = measureCaptor.getValue();
-    assertThat(measure.getMetricKey(), is(CoreMetrics.NCLOC_DATA_KEY));
-    assertThat(measure.getPersistenceMode(), is(PersistenceMode.DATABASE));
-    assertThat(measure.getData(), is("1,3,4,5,6,7,8,13,14,15,16,17,19,20,21,22,23,24,25,26,27,28,29,30,32,39"));
+    verify(measures).setIntValue(CoreMetrics.NCLOC_DATA_KEY, 1, 1);
+    verify(measures).setIntValue(CoreMetrics.NCLOC_DATA_KEY, 2, 0);
+    verify(measures).setIntValue(CoreMetrics.NCLOC_DATA_KEY, 3, 1);
+    verify(measures).save();
   }
 
 }

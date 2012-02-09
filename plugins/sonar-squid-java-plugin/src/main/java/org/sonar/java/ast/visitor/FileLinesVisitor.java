@@ -22,8 +22,7 @@ package org.sonar.java.ast.visitor;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import org.sonar.api.batch.SquidUtils;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.PersistenceMode;
+import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.plugins.squid.SonarAccessor;
 import org.sonar.squid.api.SourceFile;
@@ -31,7 +30,7 @@ import org.sonar.squid.measures.Metric;
 import org.sonar.squid.text.Source;
 
 /**
- * Saves information about lines directly into {@link org.sonar.api.batch.SensorContext}.
+ * Saves information about lines directly into Sonar index by using {@link FileLinesContext}.
  */
 public class FileLinesVisitor extends JavaAstVisitor {
 
@@ -57,21 +56,15 @@ public class FileLinesVisitor extends JavaAstVisitor {
 
   private void processFile() {
     SourceFile file = (SourceFile) peekSourceCode();
+    JavaFile javaFile = SquidUtils.convertJavaFileKeyFromSquidFormat(file.getKey());
+    FileLinesContext measures = sonarAccessor.getSensorContext().createFileLinesContext(javaFile);
+
     Source source = getSource();
-    StringBuilder data = new StringBuilder();
     for (int line = 1; line <= source.getNumberOfLines(); line++) {
       int linesOfCode = source.getMeasure(Metric.LINES_OF_CODE, line, line);
-      if (linesOfCode == 1) {
-        if (data.length() > 0) {
-          data.append(',');
-        }
-        data.append(line);
-      }
+      measures.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, linesOfCode);
     }
-    JavaFile javaFile = SquidUtils.convertJavaFileKeyFromSquidFormat(file.getKey());
-    Measure measure = new Measure(CoreMetrics.NCLOC_DATA, data.toString())
-        .setPersistenceMode(PersistenceMode.DATABASE);
-    sonarAccessor.getSensorContext().saveMeasure(javaFile, measure);
+    measures.save();
   }
 
 }
