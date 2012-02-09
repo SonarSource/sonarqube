@@ -6,8 +6,8 @@
   <table class="width100 marginbottom10">
     <tbody>
     <tr>
-      <td><%= message('widget.description.key') -%>: </td>
-      <td id="resource_key"><%= @project.key -%></td>
+      <td width="25%"><%= message('widget.description.key') -%>: </td>
+      <td width="75%" id="resource_key"><%= @project.key -%></td>
     </tr>
     <% if @project.language %>
     <tr>
@@ -35,7 +35,15 @@
         <td valign="top"><%= message('widget.description.links') -%>: </td>
         <td id="resource_links">
         <% @project.project_links.sort.each do |link| %>
-          <%= link_to(image_tag(link.icon, :alt => link.name), link.href , :popup => true, :class => 'nolink') -%> <%= link_to(h(link.name), link.href, :popup => true) -%><br/>
+          <div>
+          <%= link_to(image_tag(link.icon, :alt => link.name), link.href , :popup => true, :class => 'nolink') -%>
+          <% if link.href.starts_with?('http') %>
+            <%= link_to(h(link.name), link.href, :popup => true) -%>
+          <% else %>
+            <a href="#" onclick="$('link_<%= link.id -%>').toggle();return false;"><%= h(link.name) -%></a>
+            <div id="link_<%= link.id -%>" style="padding-left: 20px; display:none"><%= h(link.href) -%></div>
+          <% end %>
+          </div>
         <% end %>
         </td>
       </tr>
