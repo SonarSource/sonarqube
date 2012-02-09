@@ -302,9 +302,6 @@ public class Measure {
    * @return the measure object instance
    */
   public Measure setData(String s) {
-    if (s != null && s.length() >= MAX_TEXT_SIZE && !metric.isDataType()) {
-      throw new IllegalArgumentException("Data is too long for non-data metric : size=" + s.length() + ", max=" + MAX_TEXT_SIZE);
-    }
     this.data = s;
     return this;
   }
@@ -328,7 +325,7 @@ public class Measure {
    * @since 2.7
    */
   public Measure unsetData() {
-    this.data=null;
+    this.data = null;
     return this;
   }
 

@@ -26,9 +26,23 @@ import org.sonar.api.rules.RulePriority;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 
 public class MeasureTest {
+
+  @Test
+  public void valueCanBeNull() {
+    Measure measure = new Measure("metric_key").setValue(null);
+    assertThat(measure.getValue(), nullValue());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void valueShouldNotBeNaN() {
+    new Measure("metric_key").setValue(Double.NaN);
+  }
 
   @Test
   public void scaleValue() {
@@ -75,15 +89,68 @@ public class MeasureTest {
     assertThat(new Measure(CoreMetrics.COVERAGE, 5.7777777, 3).getValue(), is(5.778));
   }
 
+  /**
+   * Proper definition of equality for measures is important, because used to store them.
+   */
   @Test
   public void equalsAndHashCode() {
-    assertEquals(new Measure(CoreMetrics.COVERAGE, 50.0), new Measure(CoreMetrics.COVERAGE, 50.0));
-    assertEquals(new Measure(CoreMetrics.COVERAGE, 50.0).hashCode(), new Measure(CoreMetrics.COVERAGE, 50.0).hashCode());
-  }
+    Measure measure1 = new Measure();
+    Measure measure2 = new Measure();
 
-  @Test(expected = IllegalArgumentException.class)
-  public void tooLongDataForNumericMetric() {
-    new Measure(CoreMetrics.COVERAGE, StringUtils.repeat("x", Measure.MAX_TEXT_SIZE + 1));
+    assertThat(measure1.equals(null), is(false));
+
+    // another class
+    assertThat(measure1.equals(""), is(false));
+
+    // same instance
+    assertThat(measure1.equals(measure1), is(true));
+    assertThat(measure1.hashCode(), equalTo(measure2.hashCode()));
+
+    // same key - null
+    assertThat(measure1.equals(measure2), is(true));
+    assertThat(measure2.equals(measure1), is(true));
+    assertThat(measure1.hashCode(), equalTo(measure2.hashCode()));
+
+    // different keys
+    measure1.setMetric(CoreMetrics.COVERAGE);
+    assertThat(measure1.equals(measure2), is(false));
+    assertThat(measure2.equals(measure1), is(false));
+    assertThat(measure1.hashCode(), not(equalTo(measure2.hashCode())));
+
+    measure2.setMetric(CoreMetrics.LINES);
+    assertThat(measure1.equals(measure2), is(false));
+    assertThat(measure2.equals(measure1), is(false));
+    assertThat(measure1.hashCode(), not(equalTo(measure2.hashCode())));
+
+    // same key
+    measure2.setMetric(CoreMetrics.COVERAGE);
+    assertThat(measure1.equals(measure2), is(true));
+    assertThat(measure2.equals(measure1), is(true));
+    assertThat(measure1.hashCode(), equalTo(measure2.hashCode()));
+
+    // different committer
+    measure1.setCommitter("simon");
+    assertThat(measure1.equals(measure2), is(false));
+    assertThat(measure2.equals(measure1), is(false));
+    assertThat(measure1.hashCode(), not(equalTo(measure2.hashCode())));
+
+    measure2.setCommitter("evgeny");
+    assertThat(measure1.equals(measure2), is(false));
+    assertThat(measure2.equals(measure1), is(false));
+    assertThat(measure1.hashCode(), not(equalTo(measure2.hashCode())));
+
+    // same committer
+    measure2.setCommitter("simon");
+    assertThat(measure1.equals(measure2), is(true));
+    assertThat(measure2.equals(measure1), is(true));
+    assertThat(measure1.hashCode(), equalTo(measure2.hashCode()));
+
+    // value doesn't matter
+    measure1.setValue(1.0);
+    measure2.setValue(2.0);
+    assertThat(measure1.equals(measure2), is(true));
+    assertThat(measure2.equals(measure1), is(true));
+    assertThat(measure1.hashCode(), equalTo(measure2.hashCode()));
   }
 
   @Test
@@ -118,7 +185,7 @@ public class MeasureTest {
   @Test
   public void shouldUnsetData() {
     String data = "1=10;21=456";
-    Measure measure = new Measure(CoreMetrics.CONDITIONS_BY_LINE).setData( data);
+    Measure measure = new Measure(CoreMetrics.CONDITIONS_BY_LINE).setData(data);
     assertThat(measure.hasData(), is(true));
     assertThat(measure.getData(), is(data));
 
