@@ -24,6 +24,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.ServerHttpClient;
+import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectConfigurator;
 import org.sonar.batch.ProjectTree;
@@ -53,6 +54,7 @@ public class BatchModule extends Module {
     addCoreSingleton(ProjectConfigurator.class);
     addCoreSingleton(DefaultResourceCreationLock.class);
     addCoreSingleton(DefaultIndex.class);
+    addCoreSingleton(DefaultFileLinesContextFactory.class);
 
     if (dryRun) {
       addCoreSingleton(ReadOnlyPersistenceManager.class);

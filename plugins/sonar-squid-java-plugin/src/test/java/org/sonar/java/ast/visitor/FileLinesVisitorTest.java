@@ -22,9 +22,9 @@ package org.sonar.java.ast.visitor;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
+import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.resources.Resource;
 import org.sonar.java.ast.JavaAstScanner;
 import org.sonar.java.ast.SquidTestUtils;
@@ -39,23 +39,23 @@ import static org.mockito.Mockito.*;
 public class FileLinesVisitorTest {
 
   private Squid squid;
-  private SensorContext context;
+  private FileLinesContextFactory factory;
   private FileLinesContext measures;
 
   @Before
   public void setUp() {
     squid = new Squid(new JavaSquidConfiguration());
-    context = mock(SensorContext.class);
+    factory = mock(FileLinesContextFactory.class);
     measures = mock(FileLinesContext.class);
   }
 
   @Test
   public void analyseTestNcloc() {
     ArgumentCaptor<Resource> resourceCaptor = ArgumentCaptor.forClass(Resource.class);
-    when(context.createFileLinesContext(resourceCaptor.capture()))
+    when(factory.createFor(resourceCaptor.capture()))
         .thenReturn(measures);
 
-    squid.register(SonarAccessor.class).setSensorContext(context);
+    squid.register(SonarAccessor.class).setFileLinesContextFactory(factory);
     squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/metrics/ncloc/TestNcloc.java"));
 
     assertThat(resourceCaptor.getValue().getKey(), is("[default].TestNcloc"));

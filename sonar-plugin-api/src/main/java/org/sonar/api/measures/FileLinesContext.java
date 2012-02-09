@@ -31,6 +31,9 @@ import com.google.common.annotations.Beta;
  * <li>author of line 4 is Simon</li>
  * </ul>
  * Numbering of lines starts from 1.
+ * Also note that you can't update what already was saved, however it is safe to call {@link #save()} several times.
+ * <p>
+ * Instances of this interface can be obtained using {@link FileLinesContextFactory}.
  *
  * <p>This interface is not intended to be implemented by clients.</p>
  *
@@ -39,6 +42,9 @@ import com.google.common.annotations.Beta;
 @Beta
 public interface FileLinesContext {
 
+  /**
+   * @throws UnsupportedOperationException on attempt to update already saved data
+   */
   void setIntValue(String metricKey, int line, int value);
 
   /**
@@ -46,6 +52,9 @@ public interface FileLinesContext {
    */
   Integer getIntValue(String metricKey, int line);
 
+  /**
+   * @throws UnsupportedOperationException on attempt to update already saved data
+   */
   void setStringValue(String metricKey, int line, String value);
 
   /**
@@ -53,6 +62,9 @@ public interface FileLinesContext {
    */
   String getStringValue(String metricKey, int line);
 
+  /**
+   * Saves unsaved values.
+   */
   void save();
 
 }

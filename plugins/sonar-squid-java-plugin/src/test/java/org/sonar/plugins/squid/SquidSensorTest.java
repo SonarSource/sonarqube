@@ -19,11 +19,6 @@
  */
 package org.sonar.plugins.squid;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
-
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.junit.Test;
@@ -36,12 +31,17 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
+
 public class SquidSensorTest {
   @Test
   public void testGetBytecodeFiles() {
     ProjectClasspath projectClasspath = mock(ProjectClasspath.class);
     when(projectClasspath.getElements()).thenReturn(Arrays.asList(new File("classes")));
-    SquidSensor sensor = new SquidSensor(null, null, projectClasspath, null);
+    SquidSensor sensor = new SquidSensor(null, null, projectClasspath, null, null);
     Configuration configuration = new BaseConfiguration();
     Project project = mock(Project.class);
     when(project.getConfiguration()).thenReturn(configuration);
@@ -56,7 +56,7 @@ public class SquidSensorTest {
 
   @Test
   public void onlyForJava() {
-    SquidSensor sensor = new SquidSensor(null, null, null, null);
+    SquidSensor sensor = new SquidSensor(null, null, null, null, null);
     Project project = mock(Project.class);
     when(project.getLanguageKey()).thenReturn(Java.KEY).thenReturn("groovy");
     assertThat(sensor.shouldExecuteOnProject(project), is(true));

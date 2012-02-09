@@ -27,7 +27,9 @@ import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PersistenceMode;
+import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.Scopes;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -44,7 +46,13 @@ public class DefaultFileLinesContextTest {
   public void setUp() {
     index = mock(SonarIndex.class);
     resource = mock(Resource.class);
+    when(resource.getScope()).thenReturn(Scopes.FILE);
     fileLineMeasures = new DefaultFileLinesContext(index, resource);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void shouldNotAllowCreationForDirectory() {
+    new DefaultFileLinesContext(index, new Directory("key"));
   }
 
   @Test
@@ -68,8 +76,20 @@ public class DefaultFileLinesContextTest {
     fileLineMeasures.setStringValue("author", 1, "simon");
     fileLineMeasures.setStringValue("author", 3, "evgeny");
     fileLineMeasures.save();
+    fileLineMeasures.setIntValue("branches", 1, 2);
+    fileLineMeasures.setIntValue("branches", 3, 4);
+    fileLineMeasures.save();
 
-    verify(index, times(2)).addMeasure(Mockito.eq(resource), Mockito.any(Measure.class));
+    verify(index, times(3)).addMeasure(Mockito.eq(resource), Mockito.any(Measure.class));
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void shouldNotModifyAfterSave() {
+    fileLineMeasures.setIntValue("hits", 1, 2);
+    fileLineMeasures.save();
+    fileLineMeasures.save();
+    verify(index).addMeasure(Mockito.eq(resource), Mockito.any(Measure.class));
+    fileLineMeasures.setIntValue("hits", 1, 2);
   }
 
   @Test
@@ -101,6 +121,15 @@ public class DefaultFileLinesContextTest {
     fileLineMeasures.save();
 
     verify(index, never()).addMeasure(Mockito.eq(resource), Mockito.any(Measure.class));
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void shouldNotModifyAfterLoad() {
+    when(index.getMeasure(Mockito.any(Resource.class), Mockito.any(Metric.class)))
+        .thenReturn(new Measure("author").setData("1=simon;3=evgeny"));
+
+    fileLineMeasures.getStringValue("author", 1);
+    fileLineMeasures.setStringValue("author", 1, "evgeny");
   }
 
   @Test

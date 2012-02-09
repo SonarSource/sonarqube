@@ -20,10 +20,8 @@
 package org.sonar.java.ast.visitor;
 
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
-import org.sonar.api.batch.SquidUtils;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
-import org.sonar.api.resources.JavaFile;
 import org.sonar.plugins.squid.SonarAccessor;
 import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.measures.Metric;
@@ -56,8 +54,7 @@ public class FileLinesVisitor extends JavaAstVisitor {
 
   private void processFile() {
     SourceFile file = (SourceFile) peekSourceCode();
-    JavaFile javaFile = SquidUtils.convertJavaFileKeyFromSquidFormat(file.getKey());
-    FileLinesContext measures = sonarAccessor.getSensorContext().createFileLinesContext(javaFile);
+    FileLinesContext measures = sonarAccessor.createFileLinesContext(file);
 
     Source source = getSource();
     for (int line = 1; line <= source.getNumberOfLines(); line++) {

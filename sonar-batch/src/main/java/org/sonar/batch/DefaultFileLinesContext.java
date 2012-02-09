@@ -30,6 +30,7 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.KeyValueFormat.Converter;
 
@@ -50,6 +51,8 @@ public class DefaultFileLinesContext implements FileLinesContext {
   private final Map<String, Map<Integer, Object>> map = Maps.newHashMap();
 
   public DefaultFileLinesContext(SonarIndex index, Resource resource) {
+    Preconditions.checkNotNull(index);
+    Preconditions.checkArgument(Scopes.isFile(resource));
     this.index = index;
     this.resource = resource;
   }
@@ -118,6 +121,7 @@ public class DefaultFileLinesContext implements FileLinesContext {
             .setPersistenceMode(PersistenceMode.DATABASE)
             .setData(data);
         index.addMeasure(resource, measure);
+        entry.setValue(ImmutableMap.copyOf(lines));
       }
     }
   }
@@ -133,9 +137,10 @@ public class DefaultFileLinesContext implements FileLinesContext {
   }
 
   /**
-   * Checks that measure was not loaded.
+   * Checks that measure was not saved.
    *
    * @see #loadData(String, Converter)
+   * @see #save()
    */
   private boolean shouldSave(Map<Integer, Object> lines) {
     return !(lines instanceof ImmutableMap);

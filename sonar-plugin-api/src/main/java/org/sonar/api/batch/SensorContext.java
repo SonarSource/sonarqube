@@ -19,9 +19,7 @@
  */
 package org.sonar.api.batch;
 
-import com.google.common.annotations.Beta;
 import org.sonar.api.design.Dependency;
-import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.Metric;
@@ -151,12 +149,6 @@ public interface SensorContext {
    * </p>
    */
   Measure saveMeasure(Resource resource, Measure measure);
-
-  /**
-   * @since 2.14
-   */
-  @Beta
-  FileLinesContext createFileLinesContext(Resource resource);
 
   // ----------- RULE VIOLATIONS --------------
 

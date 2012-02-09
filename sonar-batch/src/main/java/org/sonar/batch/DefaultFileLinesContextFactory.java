@@ -17,37 +17,23 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.squid;
+package org.sonar.batch;
 
-import org.sonar.api.batch.SquidUtils;
+import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.api.resources.JavaFile;
-import org.sonar.squid.api.CodeScanner;
-import org.sonar.squid.api.SourceFile;
+import org.sonar.api.resources.Resource;
 
-import java.util.Collection;
-import java.util.Collections;
+public class DefaultFileLinesContextFactory implements FileLinesContextFactory {
 
-/**
- * TODO Godin: I didn't found better way to register component in picocontainer for Squid.
- */
-public class SonarAccessor extends CodeScanner {
+  private final SonarIndex index;
 
-  private FileLinesContextFactory factory;
-
-  public void setFileLinesContextFactory(FileLinesContextFactory factory) {
-    this.factory = factory;
+  public DefaultFileLinesContextFactory(SonarIndex index) {
+    this.index = index;
   }
 
-  @Override
-  public Collection getVisitorClasses() {
-    return Collections.emptyList();
-  }
-
-  public FileLinesContext createFileLinesContext(SourceFile file) {
-    JavaFile javaFile = SquidUtils.convertJavaFileKeyFromSquidFormat(file.getKey());
-    return factory.createFor(javaFile);
+  public FileLinesContext createFor(Resource resource) {
+    return new DefaultFileLinesContext(index, resource);
   }
 
 }

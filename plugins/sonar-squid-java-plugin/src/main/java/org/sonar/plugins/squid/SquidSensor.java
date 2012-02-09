@@ -23,6 +23,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.*;
 import org.sonar.api.checks.AnnotationCheckFactory;
 import org.sonar.api.checks.NoSonarFilter;
+import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Java;
@@ -45,12 +46,15 @@ public class SquidSensor implements Sensor {
   private RulesProfile profile;
   private ProjectClasspath projectClasspath;
   private ResourceCreationLock lock;
+  private FileLinesContextFactory fileLinesContextFactory;
 
-  public SquidSensor(RulesProfile profile, NoSonarFilter noSonarFilter, ProjectClasspath projectClasspath, ResourceCreationLock lock) {
+  public SquidSensor(RulesProfile profile, NoSonarFilter noSonarFilter, ProjectClasspath projectClasspath, ResourceCreationLock lock,
+      FileLinesContextFactory fileLinesContextFactory) {
     this.noSonarFilter = noSonarFilter;
     this.profile = profile;
     this.projectClasspath = projectClasspath;
     this.lock = lock;
+    this.fileLinesContextFactory = fileLinesContextFactory;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -74,7 +78,7 @@ public class SquidSensor implements Sensor {
     AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, SquidConstants.REPOSITORY_KEY, SquidRuleRepository.getCheckClasses());
 
     SquidExecutor squidExecutor = new SquidExecutor(analyzePropertyAccessors, fieldNamesToExcludeFromLcom4Computation, factory, charset);
-    squidExecutor.getSquid().register(SonarAccessor.class).setSensorContext(context);
+    squidExecutor.getSquid().register(SonarAccessor.class).setFileLinesContextFactory(fileLinesContextFactory);
     squidExecutor.scan(getMainSourceFiles(project), getBytecodeFiles(project));
     squidExecutor.save(project, context, noSonarFilter);
     squidExecutor.flush();
