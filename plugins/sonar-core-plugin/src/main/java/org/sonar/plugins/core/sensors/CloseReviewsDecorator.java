@@ -45,8 +45,16 @@ import java.util.List;
 @DependedUpon(CloseReviewsDecorator.REVIEW_LIFECYCLE_BARRIER)
 public class CloseReviewsDecorator implements Decorator {
 
-  private static final Logger LOG = LoggerFactory.getLogger(CloseReviewsDecorator.class);
   public static final String REVIEW_LIFECYCLE_BARRIER = "REVIEW_LIFECYCLE_BARRIER";
+
+  private static final String PROJECT_ID = "projectId";
+  private static final String PROJECT_SNAPSHOT_ID = "projectSnapshotId";
+  private static final String SNAPSHOT_ID = "snapshotId";
+  private static final String RESOURCE_ID = "resourceId";
+  private static final String IS_LAST = "isLast";
+  private static final String MANUAL_VIOLATION = "manualViolation";
+  private static final String AUTOMATIC_VIOLATION = "automaticViolation";
+  private static final Logger LOG = LoggerFactory.getLogger(CloseReviewsDecorator.class);
 
   private Project project;
   private ResourcePersister resourcePersister;
@@ -67,6 +75,7 @@ public class CloseReviewsDecorator implements Decorator {
     return project.isLatestAnalysis();
   }
 
+  @SuppressWarnings("rawtypes")
   public void decorate(Resource resource, DecoratorContext context) {
     Snapshot currentSnapshot = resourcePersister.getSnapshot(resource);
     if (currentSnapshot != null) {
@@ -87,19 +96,22 @@ public class CloseReviewsDecorator implements Decorator {
   /**
    * Close reviews for which violations have been fixed.
    */
-  protected int closeReviewsOnResolvedViolations(Resource resource, int resourceId, int snapshotId) {
-    String conditions = " WHERE resource_id=" + resourceId + " AND "
+  @SuppressWarnings({"unchecked"})
+  protected int closeReviewsOnResolvedViolations(Resource<?> resource, int resourceId, int snapshotId) {
+    String conditions = " WHERE resource_id=:" + RESOURCE_ID + " AND "
       + "( "
       + "  ( "
-      + "    manual_violation=:automaticViolation AND status!='CLOSED' AND "
-      + "    rule_failure_permanent_id NOT IN (SELECT permanent_id FROM rule_failures WHERE snapshot_id=" + snapshotId + " AND permanent_id IS NOT NULL)"
+      + "    manual_violation=:" + AUTOMATIC_VIOLATION + " AND status!='CLOSED' AND "
+      + "    rule_failure_permanent_id NOT IN (SELECT permanent_id FROM rule_failures WHERE snapshot_id=:" + SNAPSHOT_ID + " AND permanent_id IS NOT NULL)"
       + "  )"
       + "  OR "
-      + "  (manual_violation=:manualViolation AND status='RESOLVED')"
+      + "  (manual_violation=:" + MANUAL_VIOLATION + " AND status='RESOLVED')"
       + ")";
     List<Review> reviews = databaseSession.getEntityManager().createNativeQuery("SELECT * FROM reviews " + conditions, Review.class)
-      .setParameter("automaticViolation", false)
-      .setParameter("manualViolation", true)
+      .setParameter(RESOURCE_ID, resourceId)
+      .setParameter(SNAPSHOT_ID, snapshotId)
+      .setParameter(AUTOMATIC_VIOLATION, false)
+      .setParameter(MANUAL_VIOLATION, true)
       .getResultList();
 
     for (Review review : reviews) {
@@ -107,8 +119,10 @@ public class CloseReviewsDecorator implements Decorator {
     }
 
     int rowUpdated = databaseSession.createNativeQuery("UPDATE reviews SET status='CLOSED', updated_at=CURRENT_TIMESTAMP" + conditions)
-      .setParameter("automaticViolation", false)
-      .setParameter("manualViolation", true)
+      .setParameter(RESOURCE_ID, resourceId)
+      .setParameter(SNAPSHOT_ID, snapshotId)
+      .setParameter(AUTOMATIC_VIOLATION, false)
+      .setParameter(MANUAL_VIOLATION, true)
       .executeUpdate();
     if (rowUpdated > 0) {
       LOG.debug("- {} reviews closed on #{}", rowUpdated, resourceId);
@@ -120,17 +134,20 @@ public class CloseReviewsDecorator implements Decorator {
    * Reopen reviews that had been set to resolved but for which the violation is still here.
    * Manual violations are ignored.
    */
-  protected int reopenReviewsOnUnresolvedViolations(Resource resource, int resourceId) {
-    String conditions = " WHERE status='RESOLVED' AND resolution<>'FALSE-POSITIVE' AND manual_violation=:manualViolation AND resource_id=" + resourceId;
+  @SuppressWarnings({"unchecked"})
+  protected int reopenReviewsOnUnresolvedViolations(Resource<?> resource, int resourceId) {
+    String conditions = " WHERE status='RESOLVED' AND resolution<>'FALSE-POSITIVE' AND manual_violation=:" + MANUAL_VIOLATION + " AND resource_id=:" + RESOURCE_ID;
     List<Review> reviews = databaseSession.getEntityManager().createNativeQuery("SELECT * FROM reviews " + conditions, Review.class)
-      .setParameter("manualViolation", false)
+      .setParameter(RESOURCE_ID, resourceId)
+      .setParameter(MANUAL_VIOLATION, false)
       .getResultList();
     for (Review review : reviews) {
       notifyReopened(resource, review);
     }
 
     int rowUpdated = databaseSession.createNativeQuery("UPDATE reviews SET status='REOPENED', resolution=NULL, updated_at=CURRENT_TIMESTAMP" + conditions)
-      .setParameter("manualViolation", false)
+      .setParameter(RESOURCE_ID, resourceId)
+      .setParameter(MANUAL_VIOLATION, false)
       .executeUpdate();
     if (rowUpdated > 0) {
       LOG.debug("- {} reviews reopened on #{}", rowUpdated, resourceId);
@@ -141,19 +158,24 @@ public class CloseReviewsDecorator implements Decorator {
   /**
    * Close reviews that relate to resources that have been deleted or renamed.
    */
+  @SuppressWarnings("unchecked")
   protected int closeReviewsForDeletedResources(int projectId, int projectSnapshotId) {
-    String conditions = " WHERE status!='CLOSED' AND project_id=" + projectId
-      + " AND resource_id IN ( SELECT prev.project_id FROM snapshots prev  WHERE prev.root_project_id=" + projectId
-      + " AND prev.islast=? AND NOT EXISTS ( SELECT cur.id FROM snapshots cur WHERE cur.root_snapshot_id=" + projectSnapshotId
-      + " AND cur.created_at > prev.created_at AND cur.root_project_id=" + projectId + " AND cur.project_id=prev.project_id ) )";
+    String conditions = " WHERE status!='CLOSED' AND project_id=:" + PROJECT_ID
+      + " AND resource_id IN ( SELECT prev.project_id FROM snapshots prev  WHERE prev.root_project_id=:" + PROJECT_ID 
+      + " AND prev.islast=:" + IS_LAST + " AND NOT EXISTS ( SELECT cur.id FROM snapshots cur WHERE cur.root_snapshot_id=:" + PROJECT_SNAPSHOT_ID
+      + " AND cur.created_at > prev.created_at AND cur.root_project_id=:" + PROJECT_ID + " AND cur.project_id=prev.project_id ) )";
     List<Review> reviews = databaseSession.getEntityManager().createNativeQuery("SELECT * FROM reviews " + conditions, Review.class)
-      .setParameter(1, Boolean.TRUE)
+      .setParameter(PROJECT_ID, projectId)
+      .setParameter(PROJECT_SNAPSHOT_ID, projectSnapshotId)
+      .setParameter(IS_LAST, Boolean.TRUE)
       .getResultList();
     for (Review review : reviews) {
       notifyClosed(null, review);
     }
     int rowUpdated = databaseSession.createNativeQuery("UPDATE reviews SET status='CLOSED', updated_at=CURRENT_TIMESTAMP" + conditions)
-      .setParameter(1, Boolean.TRUE)
+      .setParameter(PROJECT_ID, projectId)
+      .setParameter(PROJECT_SNAPSHOT_ID, projectSnapshotId)
+      .setParameter(IS_LAST, Boolean.TRUE)
       .executeUpdate();
     LOG.debug("- {} reviews set to 'closed' on project #{}", rowUpdated, projectSnapshotId);
     return rowUpdated;

@@ -108,4 +108,17 @@ public class CloseReviewsDecoratorTest extends AbstractDbUnitTestCase {
     assertThat(getSession().getSingleResult(Review.class, "id", 2L).getStatus(), is("CLOSED")); // manual violation resolved -> closed
     assertThat(getSession().getSingleResult(Review.class, "id", 3L).getStatus(), is("OPEN"));   // manual violation not changed
   }
+
+  @Test
+  public void shouldCloseReviewCorrespondingToDeletedResource() throws Exception {
+    setupData("shouldCloseReviewCorrespondingToDeletedResource");
+
+    int count = reviewsDecorator.closeReviewsForDeletedResources(111, 11);
+    assertThat(count, is(1));
+
+    verify(notificationManager, times(1)).scheduleForSending(any(Notification.class));
+
+    getSession().commit();
+    assertThat(getSession().getSingleResult(Review.class, "id", 1L).getStatus(), is("CLOSED"));
+  }
 }
