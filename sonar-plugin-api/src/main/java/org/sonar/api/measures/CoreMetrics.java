@@ -148,7 +148,15 @@ public final class CoreMetrics {
       .setFormula(new SumChildValuesFormula(false))
       .create();
 
+  /**
+   * @deprecated since Sonar 2.14 - See SONAR-3239
+   */
+  @Deprecated
   public static final String PARAGRAPHS_KEY = "paragraphs";
+  /**
+   * @deprecated since Sonar 2.14 - See SONAR-3239
+   */
+  @Deprecated
   public static final Metric PARAGRAPHS = new Metric.Builder(PARAGRAPHS_KEY, "Paragraphs", Metric.ValueType.INT)
       .setDescription("Number of paragraphs")
       .setDirection(Metric.DIRECTION_WORST)
@@ -287,7 +295,15 @@ public final class CoreMetrics {
       .setFormula(new AverageComplexityFormula(CoreMetrics.FILES))
       .create();
 
+  /**
+   * @deprecated since Sonar 2.14 - See SONAR-3239
+   */
+  @Deprecated
   public static final String PARAGRAPH_COMPLEXITY_KEY = "paragraph_complexity";
+  /**
+   * @deprecated since Sonar 2.14 - See SONAR-3239
+   */
+  @Deprecated
   public static final Metric PARAGRAPH_COMPLEXITY = new Metric.Builder(PARAGRAPH_COMPLEXITY_KEY, "Complexity /paragraph", Metric.ValueType.FLOAT)
       .setDescription("Complexity average by paragraph")
       .setDirection(Metric.DIRECTION_WORST)
@@ -323,7 +339,15 @@ public final class CoreMetrics {
       .setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY))
       .create();
 
+  /**
+   * @deprecated since Sonar 2.14 - See SONAR-3239
+   */
+  @Deprecated
   public static final String PARAGRAPH_COMPLEXITY_DISTRIBUTION_KEY = "paragraph_complexity_distribution";
+  /**
+   * @deprecated since Sonar 2.14 - See SONAR-3239
+   */
+  @Deprecated
   public static final Metric PARAGRAPH_COMPLEXITY_DISTRIBUTION = new Metric.Builder(PARAGRAPH_COMPLEXITY_DISTRIBUTION_KEY, "Paragraph distribution /complexity", Metric.ValueType.DISTRIB)
       .setDescription("Paragraph distribution /complexity")
       .setDirection(Metric.DIRECTION_NONE)
