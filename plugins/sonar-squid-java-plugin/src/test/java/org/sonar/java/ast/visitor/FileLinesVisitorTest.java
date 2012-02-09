@@ -62,6 +62,10 @@ public class FileLinesVisitorTest {
     verify(measures).setIntValue(CoreMetrics.NCLOC_DATA_KEY, 1, 1);
     verify(measures).setIntValue(CoreMetrics.NCLOC_DATA_KEY, 2, 0);
     verify(measures).setIntValue(CoreMetrics.NCLOC_DATA_KEY, 3, 1);
+
+    verify(measures).setIntValue(CoreMetrics.COMMENT_LINES_DATA_KEY, 1, 0);
+    verify(measures).setIntValue(CoreMetrics.COMMENT_LINES_DATA_KEY, 18, 1);
+
     verify(measures).save();
   }
 

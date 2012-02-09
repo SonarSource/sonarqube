@@ -1651,12 +1651,35 @@ public final class CoreMetrics {
   public static final String NCLOC_DATA_KEY = "ncloc_data";
 
   /**
+   * Information about lines of code in file.
+   * Key-value pairs, where key - is a number of line, and value - is an indicator of whether line contains code (1) or not (0).
+   *
+   * @see org.sonar.api.measures.FileLinesContext
    * @since 2.14
    */
   @Beta
   public static final Metric NCLOC_DATA = new Metric.Builder(NCLOC_DATA_KEY, "ncloc_data", Metric.ValueType.DATA)
       .setHidden(true)
       .setDomain(DOMAIN_SIZE)
+      .create();
+
+  /**
+   * @since 2.14
+   */
+  @Beta
+  public static final String COMMENT_LINES_DATA_KEY = "comment_lines_data";
+
+  /**
+   * Information about comments in file.
+   * Key-value pairs, where key - is a number of line, and value - is an indicator of whether line contains comment (1) or not (0).
+   *
+   * @see org.sonar.api.measures.FileLinesContext
+   * @since 2.14
+   */
+  @Beta
+  public static final Metric COMMENT_LINES_DATA = new Metric.Builder(COMMENT_LINES_DATA_KEY, "comment_lines_data", Metric.ValueType.DATA)
+      .setHidden(true)
+      .setDomain(DOMAIN_DOCUMENTATION)
       .create();
 
   //--------------------------------------------------------------------------------------------------------------------

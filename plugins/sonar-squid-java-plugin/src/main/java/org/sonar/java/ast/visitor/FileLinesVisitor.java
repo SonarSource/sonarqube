@@ -61,8 +61,11 @@ public class FileLinesVisitor extends JavaAstVisitor {
 
     Source source = getSource();
     for (int line = 1; line <= source.getNumberOfLines(); line++) {
-      int linesOfCode = source.getMeasure(Metric.LINES_OF_CODE, line, line);
-      measures.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, linesOfCode);
+      int lineOfCode = source.getMeasure(Metric.LINES_OF_CODE, line, line);
+      measures.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, lineOfCode);
+
+      int comment = source.getMeasure(Metric.COMMENT_LINES, line, line);
+      measures.setIntValue(CoreMetrics.COMMENT_LINES_DATA_KEY, line, comment);
     }
     measures.save();
   }
