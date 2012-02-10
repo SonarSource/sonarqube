@@ -30,7 +30,7 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.Scopes;
+import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.KeyValueFormat.Converter;
 
@@ -52,7 +52,7 @@ public class DefaultFileLinesContext implements FileLinesContext {
 
   public DefaultFileLinesContext(SonarIndex index, Resource resource) {
     Preconditions.checkNotNull(index);
-    Preconditions.checkArgument(Scopes.isFile(resource));
+    Preconditions.checkArgument(ResourceUtils.isFile(resource));
     this.index = index;
     this.resource = resource;
   }
