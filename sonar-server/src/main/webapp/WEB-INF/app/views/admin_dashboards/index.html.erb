@@ -35,7 +35,7 @@
           <% end %>
         </td>
         <td class="thin nowrap right">
-          <%= link_to 'Remove from defaults', {:action => 'remove', :id => active.id}, :confirm => 'Are you sure to remove it from default dashboards ?', :method => :post, :id => "remove-#{u active.name}" %>
+          <%= link_to 'Remove from defaults', {:action => 'remove', :id => active.id}, {:confirm => 'Are you sure to remove it from default dashboards ?', :method => :post, :id => "remove-#{u active.name}", :class => 'link-action'} %>
         </td>
       </tr>
     <% end %>
@@ -70,11 +70,11 @@
         </td>
         <td><%= h(dashboard.user.name) if dashboard.user %></td>
         <td class="thin nowrap right">
-          <%= link_to 'Add to defaults', {:action => 'add', :id => dashboard.id}, :method => :post, :id => "add-#{u dashboard.name}" %>
+          <%= link_to 'Add to defaults', {:action => 'add', :id => dashboard.id}, {:method => :post, :id => "add-#{u dashboard.name}", :class => 'link-action'} %>
         </td>
         <td class="thin nowrap right">
           <% if dashboard.provided_programmatically? %>
-            <%= link_to 'Delete', {:action => 'delete', :id => dashboard.id}, :confirm => "Do you want to delete the dashboard #{dashboard.name(true)}?", :method => :post, :id => "delete-#{u dashboard.name}" %>
+            <%= link_to 'Delete', {:action => 'delete', :id => dashboard.id}, {:confirm => "Do you want to delete the dashboard #{dashboard.name(true)}?", :method => :post, :id => "delete-#{u dashboard.name}", :class => 'link-action'} %>
           <% end %>
         </td>
       </tr>

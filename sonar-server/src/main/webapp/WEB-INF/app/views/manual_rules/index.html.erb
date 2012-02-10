@@ -22,8 +22,8 @@
               <span class="note"><%= h rule.description -%></span>
             </td>
             <td class="right thin nowrap">
-              <%= link_to 'Edit', {:action => 'edit', :id => rule.id}, {:id => "edit_#{u(rule.key)}"} %>
-              <%= link_to 'Delete', {:action => 'delete', :id => rule.id}, {:confirm => message('are_you_sure'), :id => "delete_#{u(rule.key)}", :method => 'delete'} %>
+              <%= link_to 'Edit', {:action => 'edit', :id => rule.id}, {:id => "edit_#{u(rule.key)}", :class => 'link-action'} %>
+              <%= link_to 'Delete', {:action => 'delete', :id => rule.id}, {:confirm => message('are_you_sure'), :id => "delete_#{u(rule.key)}", :class => 'link-action', :method => 'delete'} %>
             </td>
           </tr>
         <% end %>

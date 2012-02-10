@@ -31,7 +31,7 @@
           <% end %>
         </td>
         <td>
-          <%= link_to 'Remove', {:action => 'remove', :id => active.id}, :confirm => 'Are you sure to remove it from default filters ?', :method => :post, :id => "remove-#{u active.name}" %>
+          <%= link_to 'Remove', {:action => 'remove', :id => active.id}, {:confirm => 'Are you sure to remove it from default filters ?', :method => :post, :id => "remove-#{u active.name}", :class => 'link-action'} %>
         </td>
       </tr>
     <% end %>
@@ -62,7 +62,7 @@
       <tr class="<%= cycle('even', 'odd') -%>">
         <td><%= h(filter.name) -%></td>
         <td><%= h(filter.user.name) if filter.user -%></td>
-        <td><%= link_to 'Add to defaults', {:action => 'add', :id => filter.id}, :method => :post, :id => "add-#{u filter.name}" %></td>
+        <td><%= link_to 'Add to defaults', {:action => 'add', :id => filter.id}, {:method => :post, :id => "add-#{u filter.name}", :class => 'link-action'} %></td>
       </tr>
     <% end %>
   <% end %>

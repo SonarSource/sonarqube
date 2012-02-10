@@ -20,12 +20,14 @@
               <td class="left" valign="top"><%=user.name %></td>
               <td class="left" valign="top"><%=user.email %></td>
               <td class="left" valign="top">
-                <%= user.groups.sort.map(&:name).join(', ') %> (<%= link_to "select", {:action => 'select_group', :id => user.id}, :id => "select-#{u user.login}" %>)
+                <%= user.groups.sort.map(&:name).join(', ') %> (<%= link_to "select", {:action => 'select_group', :id => user.id}, {:id => "select-#{u user.login}", :class => 'link-action'} %>)
               </td>
               <td class="left" valign="top">
-                <%= link_to "edit", { :id => user.id, :action => 'edit'}, :id => "edit-#{u user.login}" %> |
-                <%= link_to "change password", { :id => user.id, :action => 'change_password'}, :id => "change-password-#{u user.login}" %> |
-                <%= link_to "delete", {:action => 'destroy', :id => user.id}, {:confirm => "Warning : are you sure to delete this user ?", :method => 'delete', :id => "delete-#{u user.login}"} %>
+                <%= link_to "edit", { :id => user.id, :action => 'edit'}, {:id => "edit-#{u user.login}", :class => 'link-action'} %>
+                
+                <%= link_to "change password", { :id => user.id, :action => 'change_password'}, {:id => "change-password-#{u user.login}", :class => 'link-action'} %>
+                
+                <%= link_to "delete", {:action => 'destroy', :id => user.id}, {:confirm => "Warning : are you sure to delete this user ?", :method => 'delete', :id => "delete-#{u user.login}", :class => 'link-action'} %>
               </td>
             </tr>
           <% end %>
