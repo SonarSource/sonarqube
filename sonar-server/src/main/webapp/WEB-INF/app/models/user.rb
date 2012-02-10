@@ -25,7 +25,9 @@ class User < ActiveRecord::Base
 
   has_and_belongs_to_many :groups
   has_many :user_roles, :dependent => :delete_all
+
   has_many :properties, :foreign_key => 'user_id', :dependent => :delete_all
+
   has_many :active_filters, :include => 'filter', :order => 'order_index'
   has_many :filters, :dependent => :destroy
 
@@ -38,7 +40,7 @@ class User < ActiveRecord::Base
   include NeedAuthorization::ForUser
   include NeedAuthentication::ForUser
 
-  validates_length_of       :name, :maximum => 200, :allow_blank => true, :allow_nil => true
+  validates_length_of       :name,  :maximum => 200, :allow_blank => true, :allow_nil => true
   validates_length_of       :email, :maximum => 100, :allow_blank => true, :allow_nil => true
 
   # The following two validations not needed, because they come with Authentication::ByPassword - see SONAR-2656
@@ -47,7 +49,7 @@ class User < ActiveRecord::Base
 
   validates_presence_of     :login
   validates_length_of       :login,    :within => 2..40
-  validates_uniqueness_of   :login, :case_sensitive => true
+  validates_uniqueness_of   :login,    :case_sensitive => true
   validates_format_of       :login,    :with => Authentication.login_regex, :message => Authentication.bad_login_message
   
 
@@ -81,6 +83,18 @@ class User < ActiveRecord::Base
     return -1 if name.nil?
     return 1 if other.name.nil?
     name.downcase<=>other.name.downcase
+  end
+  
+  # SONAR-3258 : we do not delete users anymore. Users are just deactivated.
+  # However, all related data is removed from the DB.
+  def deactivate
+    self.active = false
+    self.save!
+    self.user_roles.each {|role| role.delete}
+    self.properties.each {|prop| prop.delete}
+    self.filters.each {|f| f.destroy}
+    self.dashboards.each {|d| d.destroy}
+    self.active_dashboards.each {|ad| ad.destroy}    
   end
 
 

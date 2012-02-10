@@ -28,7 +28,7 @@ class SessionsController < ApplicationController
     return unless request.post?
     
     self.current_user = User.authenticate(params[:login], params[:password])
-    if logged_in?
+    if logged_in? && current_user.active
       if params[:remember_me] == '1'
         self.current_user.remember_me
         cookies[:auth_token] = { :value => self.current_user.remember_token , :expires => self.current_user.remember_token_expires_at }

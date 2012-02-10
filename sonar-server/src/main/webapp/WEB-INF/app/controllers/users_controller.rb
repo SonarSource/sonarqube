@@ -50,7 +50,7 @@ class UsersController < ApplicationController
   end
 
   def index
-    @users = User.find(:all, :include => 'groups')
+    @users = User.find(:all, :conditions => ["active=?", true], :include => 'groups')
     if params[:id]
       @user = User.find(params[:id])
     else
@@ -104,7 +104,8 @@ class UsersController < ApplicationController
     if current_user.id==@user.id
       flash[:error] = 'Please log in with another user in order to delete yourself.'
 
-    elsif @user.destroy
+    else
+      @user.deactivate
       flash[:notice] = 'User is deleted.'
     end
 
