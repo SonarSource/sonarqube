@@ -147,7 +147,7 @@ public final class OriginalCloneDetectionAlgorithm {
       // stored in a0. Clones are only reported, if tuples are lost in
       // Line 12, as otherwise all current clones could be prolonged
       // by one statement. Clone reporting matches tuples that, after
-      // correction of the statement index, appear in both c(i) and a;
+      // correction of the statement index, appear in both c(i) and a,
       // each matched pair corresponds to a single clone. Its location
       // can be extracted from the filename and info fields.
 

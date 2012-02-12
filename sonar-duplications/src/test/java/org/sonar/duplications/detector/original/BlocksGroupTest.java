@@ -19,11 +19,11 @@
  */
 package org.sonar.duplications.detector.original;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Test;
 import org.sonar.duplications.block.Block;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class BlocksGroupTest {
 
@@ -31,7 +31,11 @@ public class BlocksGroupTest {
    * {@link BlocksGroup} uses only resourceId and index from block, thus we can simplify testing.
    */
   private static Block newBlock(String resourceId, int indexInFile) {
-    return new Block(resourceId, null, indexInFile, indexInFile, indexInFile);
+    return Block.builder()
+        .setResourceId(resourceId)
+        .setIndexInFile(indexInFile)
+        .setLines(indexInFile, indexInFile)
+        .build();
   }
 
   public static BlocksGroup newBlocksGroup(Block... blocks) {

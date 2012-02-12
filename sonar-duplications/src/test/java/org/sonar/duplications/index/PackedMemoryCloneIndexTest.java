@@ -19,16 +19,16 @@
  */
 package org.sonar.duplications.index;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertThat;
-
-import java.util.Collection;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
+
+import java.util.Collection;
+
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.Assert.assertThat;
 
 public class PackedMemoryCloneIndexTest {
 
@@ -110,7 +110,12 @@ public class PackedMemoryCloneIndexTest {
   }
 
   private static Block newBlock(String resourceId, long hash) {
-    return new Block(resourceId, new ByteArray(hash), 1, 1, 1);
+    return Block.builder()
+        .setResourceId(resourceId)
+        .setBlockHash(new ByteArray(hash))
+        .setIndexInFile(1)
+        .setLines(1, 2)
+        .build();
   }
 
 }

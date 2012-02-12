@@ -19,66 +19,29 @@
  */
 package org.sonar.duplications.index;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Comparator;
-
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.TreeMultimap;
+import java.util.Collection;
 
 public class MemoryCloneIndex implements CloneIndex {
 
-  private final TreeMultimap<String, Block> filenameIndex;
-  private final HashMultimap<ByteArray, Block> sequenceHashIndex;
+  private Multimap<String, Block> byResource = ArrayListMultimap.create();
+  private Multimap<ByteArray, Block> byHash = ArrayListMultimap.create();
 
-  private static final class ValueComparator implements Comparator<Block>, Serializable {
-
-    private static final long serialVersionUID = 6048010242032502222L;
-
-    public int compare(Block o1, Block o2) {
-      if (o2.getResourceId().equals(o1.getResourceId())) {
-        return o1.getIndexInFile() - o2.getIndexInFile();
-      }
-      return o1.getResourceId().compareTo(o2.getResourceId());
-    }
-  }
-
-  private static final class KeyComparator implements Comparator<String>, Serializable {
-
-    private static final long serialVersionUID = 8705841881237170539L;
-
-    public int compare(String o1, String o2) {
-      return o1.compareTo(o2);
-    }
-  }
-
-  public MemoryCloneIndex() {
-    filenameIndex = TreeMultimap.create(new KeyComparator(), new ValueComparator());
-    sequenceHashIndex = HashMultimap.create();
-  }
-
-  public Collection<String> getAllUniqueResourceId() {
-    return filenameIndex.keySet();
-  }
-
-  public boolean containsResourceId(String resourceId) {
-    return filenameIndex.containsKey(resourceId);
-  }
-
-  public Collection<Block> getByResourceId(String fileName) {
-    return filenameIndex.get(fileName);
+  public Collection<Block> getByResourceId(String resourceId) {
+    return byResource.get(resourceId);
   }
 
   public Collection<Block> getBySequenceHash(ByteArray sequenceHash) {
-    return sequenceHashIndex.get(sequenceHash);
+    return byHash.get(sequenceHash);
   }
 
-  public void insert(Block tuple) {
-    filenameIndex.put(tuple.getResourceId(), tuple);
-    sequenceHashIndex.put(tuple.getBlockHash(), tuple);
+  public void insert(Block block) {
+    byResource.put(block.getResourceId(), block);
+    byHash.put(block.getBlockHash(), block);
   }
 
 }

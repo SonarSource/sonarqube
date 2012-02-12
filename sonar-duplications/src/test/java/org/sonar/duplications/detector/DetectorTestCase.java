@@ -19,18 +19,7 @@
  */
 package org.sonar.duplications.detector;
 
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.sonar.duplications.detector.CloneGroupMatcher.hasCloneGroup;
-
-import java.util.*;
-
+import com.google.common.collect.Lists;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.duplications.block.Block;
@@ -41,7 +30,13 @@ import org.sonar.duplications.index.ClonePart;
 import org.sonar.duplications.index.MemoryCloneIndex;
 import org.sonar.duplications.junit.TestNamePrinter;
 
-import com.google.common.collect.Lists;
+import java.util.*;
+
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
+import static org.sonar.duplications.detector.CloneGroupMatcher.hasCloneGroup;
 
 public abstract class DetectorTestCase {
 
@@ -55,7 +50,12 @@ public abstract class DetectorTestCase {
    * so we can simply use index and hash.
    */
   protected static Block newBlock(String resourceId, ByteArray hash, int index) {
-    return new Block(resourceId, hash, index, index, index + LINES_PER_BLOCK);
+    return Block.builder()
+        .setResourceId(resourceId)
+        .setBlockHash(hash)
+        .setIndexInFile(index)
+        .setLines(index, index + LINES_PER_BLOCK)
+        .build();
   }
 
   protected static ClonePart newClonePart(String resourceId, int unitStart, int cloneUnitLength) {
@@ -390,10 +390,13 @@ public abstract class DetectorTestCase {
   @Test
   public void same_lines_but_different_indexes() {
     CloneIndex cloneIndex = createIndex();
+    Block.Builder block = Block.builder()
+        .setResourceId("a")
+        .setLines(0, 1);
     List<Block> fileBlocks = Arrays.asList(
-        new Block("a", new ByteArray("1".getBytes()), 0, 0, 1),
-        new Block("a", new ByteArray("2".getBytes()), 1, 0, 1),
-        new Block("a", new ByteArray("1".getBytes()), 2, 0, 1));
+        block.setBlockHash(new ByteArray("1".getBytes())).setIndexInFile(0).build(),
+        block.setBlockHash(new ByteArray("2".getBytes())).setIndexInFile(1).build(),
+        block.setBlockHash(new ByteArray("1".getBytes())).setIndexInFile(2).build());
     List<CloneGroup> clones = detect(cloneIndex, fileBlocks);
 
     print(clones);

@@ -113,18 +113,6 @@ public final class Block implements CodeFragment {
     this.endUnit = builder.endUnit;
   }
 
-  /**
-   * @deprecated since 2.14 use {@link #builder()}
-   */
-  @Deprecated
-  public Block(String resourceId, ByteArray blockHash, int indexInFile, int startLine, int endLine) {
-    this.resourceId = resourceId;
-    this.blockHash = blockHash;
-    this.indexInFile = indexInFile;
-    this.startLine = startLine;
-    this.endLine = endLine;
-  }
-
   public String getHashHex() {
     return getBlockHash().toString();
   }
