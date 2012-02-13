@@ -51,7 +51,7 @@
     %>
   </form>
         
-  <% if parameter.description %>
+  <% if parameter.description && !parameter.description.blank? %>
     <div class="form-val-note"><%= h parameter.description -%></div>
   <% end %>
 </td>

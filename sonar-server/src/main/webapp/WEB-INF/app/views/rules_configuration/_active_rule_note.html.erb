@@ -37,25 +37,27 @@
 </div>
 
 <% if is_admin %>
-<div id="<%= active_note_form_div_id -%>" style="display: none" class="admin">
+<table id="<%= active_note_form_div_id -%>" style="display: none" class="admin table width100">
   <%= form_remote_tag :url => {:action => 'update_active_rule_note', :active_rule_id => active_rule.id},
                       :update => "active_rule_note_#{active_rule.id}" %>
-  <table style="width:100%">
+
     <tbody>
       <tr>
-        <td class="max-width">
+        <td class="width100">
           <textarea name="text" id="<%= active_note_textarea_id -%>" rows="10" style="width:100%"
                     onkeyup="if (this.value=='') $('<%= submit_active_note_update_button_id -%>').disabled=true; else $('<%= submit_active_note_update_button_id -%>').disabled=false;"><%= h(note.plain_text) if note -%></textarea>
-          <br/>
-          <input type="submit" value="<%= note ? message('update_verb') : message('rules_configuration.add_note') -%>" name="commit" id="<%= submit_active_note_update_button_id -%>"/>
-          <a href="#" onclick="$('<%= active_note_detail_div_id -%>').show();$('<%= active_note_form_div_id -%>').hide();return false;"><%= message('cancel') %></a>
         </td>
         <td class="markdown-help">
           <%= render :partial => 'markdown/help' -%>
         </td>
       </tr>
+    <tr>
+      <td colspan="2">
+        <input type="submit" value="<%= note ? message('update_verb') : message('rules_configuration.add_note') -%>" name="commit" id="<%= submit_active_note_update_button_id -%>"/>
+        <a href="#" onclick="$('<%= active_note_detail_div_id -%>').show();$('<%= active_note_form_div_id -%>').hide();return false;"><%= message('cancel') %></a>
+      </td>
+    </tr>
     </tbody>
-  </table>
   </form>
-</div>
+</table>
 <% end %>

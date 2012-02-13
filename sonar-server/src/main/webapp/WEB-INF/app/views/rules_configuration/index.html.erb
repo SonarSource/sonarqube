@@ -41,7 +41,7 @@
 
 <% form_tag({:action => 'index'}, {:method => 'get'}) do %>
     <% hidden_field_tag "id", @id %>
-   <table class="spaced" id="search_table">
+   <table class="with-padding" id="search_table">
      <tr>
        <td class="left" valign="top" width="1%" nowrap>
          <span class="note"><%= message('name') -%>/<%= message('key') -%></span><br/>
@@ -101,7 +101,7 @@
      <% if @hidden_inactives && @hidden_inactives>0 %><span class="small">[<a href="<%= url_for params.merge({:rule_status => ''}) -%>" id="inactive-rules-link">+<%= message('rules_configuration.x_found_in_inactive_rules', :params => @hidden_inactives) -%></a>]</span><% end %>
   </h2>
 </div>
-<table class="data width100 marginbottom10" id="result_table">
+<table class="table table-bordered width100 spacer-bottom" id="result_table">
   <thead>
     <tr>
         <th class="left" nowrap><%= message('active') -%>/<%= message('severity') -%></th>
@@ -118,7 +118,7 @@
   @rules.each do |rule|
     active_rule = @profile.active_by_rule_id(rule.id)
 %>
-  <tr id="rule_<%= rule.id -%>" class="<%= cycle('even','odd') -%> bordered-bottom">
+  <tr id="rule_<%= rule.id -%>">
     <%= render :partial => 'rule', :object => rule, :locals => {:profile => @profile, :rule => rule, :active_rule => active_rule, :is_admin => is_admin} %>
   </tr>
 <% end %>

@@ -207,7 +207,7 @@ div#sidebar .selected a, div#sidebar .selected a:hover, div#sidebar.selected a:v
 }
 
 #sidebarconf {
-  background-color: #ECECEC;
+  background-color: #EFEFEF;
   border: 2px solid #DDD;
   color: #666;
   line-height: 1.1em;
@@ -446,7 +446,7 @@ button[disabled], .button[disabled], input[type="submit"][disabled], input[type=
   list-style-type: none !important;
   padding: 2px 5px !important;
   cursor: pointer !important;
-  color: red  !important;
+  color: red !important;
 }
 
 .popup-menu li:hover {
@@ -508,7 +508,7 @@ h4, .h4 {
   color: #777;
   font-size: 85%;
   margin-bottom: 10px;
-  background-color: #ECECEC;
+  background-color: #EFEFEF;
   border: 1px solid #cdcdcd;
   padding: 4px;
 }
@@ -517,12 +517,14 @@ h4, .h4 {
   position: relative;
   cursor: pointer;
 }
+
 .treemap a {
   color: #FFF;
   text-decoration: none;
   font-size: 12px;
   padding: 1px;
 }
+
 .treemap a:hover {
   text-decoration: underline;
 }
@@ -595,7 +597,7 @@ h4, .h4 {
 
 .doc pre, pre.code {
   color: #777;
-  background-color: #ECECEC;
+  background-color: #EFEFEF;
   padding: 10px;
   margin: 10px 0;
   border: 1px dashed #777;
@@ -640,7 +642,7 @@ table.data th img, table.data td img {
 }
 
 .data thead tr.total {
-  background-color: #ECECEC;
+  background-color: #EFEFEF;
   font-weight: normal;
   border: 1px solid #DDD;
 }
@@ -729,10 +731,6 @@ table.spacedicon td {
   width: 1%;
 }
 
-.max-width {
-  width: 100%;
-}
-
 td.sep {
   width: 10px;
 }
@@ -795,7 +793,7 @@ ul.operations {
   height: 20px;
   list-style-type: none;
   margin: 0;
-  background-color: #ECECEC;
+  background-color: #EFEFEF;
   border: 1px solid #cdcdcd;
   border-radius: 3px;
   -moz-border-radius: 3px;
@@ -842,7 +840,7 @@ ul.operations li img {
 }
 
 .sources2 td.lid {
-  background-color: #ECECEC;
+  background-color: #EFEFEF;
   border-right: 1px solid #DDDDDD;
   border-left: 1px solid #DDDDDD;
   text-align: right;
@@ -859,7 +857,7 @@ ul.operations li img {
 .sources2 td.scm {
   border-right: 1px solid #DDD;
   border-left: 1px solid #DDD;
-  background-color: #ECECEC;
+  background-color: #EFEFEF;
 }
 
 .sources2 td.revision {
@@ -870,14 +868,14 @@ ul.operations li img {
 }
 
 .sources2 tr.row td.plus {
-  background-color: #ECECEC;
+  background-color: #EFEFEF;
   border-left: 1px solid #DDD;
   padding: 0;
   width: 16px;
 }
 
 .sources2 tr.row:hover td.plus {
-  background: url("../images/add.png") no-repeat scroll left 50% #ECECEC;
+  background: url("../images/add.png") no-repeat scroll left 50% #EFEFEF;
 }
 
 .sources2 td.plus a {
@@ -889,7 +887,7 @@ ul.operations li img {
 
 .sources2 td.gray {
   border-left: 1px solid #DDD;
-  background-color: #ECECEC;
+  background-color: #EFEFEF;
   padding: 2px 0.5em 0;
 }
 
@@ -1066,7 +1064,7 @@ span.rulename a:hover {
 .tab_header {
   border: 1px solid #DDD;
   border-top-width: 0;
-  background-color: #ECECEC;
+  background-color: #EFEFEF;
   padding: 5px 10px;
   margin-bottom: 10px;
   color: #444;
@@ -1206,7 +1204,7 @@ div.discussion {
 }
 
 div.discussionComment {
-  background-color: #F4F4F4;
+  background-color: #EFEFEF;
   border-top: 1px solid #DDDDDD;
   line-height: 1.5em;
   margin: 0;
@@ -1319,6 +1317,7 @@ div.progress div.note {
   color: #777;
   padding-right: 20px;
 }
+
 #searchingResources {
   position: absolute;
   top: 8px;
@@ -1412,7 +1411,7 @@ div.autocompleteNote {
 }
 
 .gwt-SourcePanel .ln {
-  background-color: #ECECEC;
+  background-color: #EFEFEF;
   white-space: nowrap;
   text-align: right;
   font-size: 85%;
@@ -1428,7 +1427,7 @@ div.autocompleteNote {
 }
 
 .gwt-SourcePanel .val {
-  background-color: #ECECEC;
+  background-color: #EFEFEF;
   border-right: 1px solid #DDD;
   text-align: right;
   color: #777;
@@ -1466,7 +1465,7 @@ div.autocompleteNote {
   height: 1.6em;
   background-position: 5px 1px;
   background-repeat: no-repeat;
-  background-color: #ECECEC;
+  background-color: #EFEFEF;
 }
 
 .gwt-SourcePanel .warn {
@@ -1538,7 +1537,7 @@ div.autocompleteNote {
 }
 
 .gwt-ViewerHeader {
-  background-color: #ECECEC;
+  background-color: #EFEFEF;
   border: 1px solid #DDD;
   border-top: none;
   margin-bottom: 8px;
@@ -1624,7 +1623,7 @@ span.empty_widget {
 }
 
 table.header1 {
-  background-color: #ECECEC;
+  background-color: #EFEFEF;
   color: #444;
   border: 1px solid #DDD;
   margin: 0 0 10px 0;
@@ -1638,7 +1637,7 @@ table.header1 td {
 }
 
 .headerLine {
-  background-color: #ECECEC;
+  background-color: #EFEFEF;
   color: #444;
   border: 1px solid #DDD;
   margin: 0 0 10px 0;
@@ -1724,7 +1723,7 @@ option.sev_BLOCKER {
 /* ------------------- HELP ------------------- */
 .help {
   border: 1px solid #DDD;
-  background-color: #F4F4F4;
+  background-color: #EFEFEF;
   color: #444;
   padding: 5px;
 }
@@ -1762,7 +1761,7 @@ option.sev_BLOCKER {
 /* ------------------- BOXES ------------------- */
 .box {
   border: 1px solid #ccc;
-  background-color: #ECECEC;
+  background-color: #EFEFEF;
   margin-bottom: 5px;
   color: #444;
   padding: 10px;
@@ -1879,7 +1878,7 @@ ul.bullet li {
 
 .tabs li a:link, .tabs li a:visited {
   float: left;
-  background-color: #ECECEC;
+  background-color: #EFEFEF;
   color: #555;
   vertical-align: bottom;
   height: 17px;
@@ -1930,12 +1929,12 @@ ul.bullet li {
 
 .smalltabs .tab.selected {
   font-weight: bold;
-  background-color: #ECECEC;
+  background-color: #EFEFEF;
 }
 
 .smalltabs .tab.selected a {
   text-decoration: none;
-  background-color: #ECECEC;
+  background-color: #EFEFEF;
   color: #777;
 }
 
@@ -1981,7 +1980,7 @@ ul.bullet li {
 }
 
 #time_machine #selector {
-  background-color: #ECECEC;
+  background-color: #EFEFEF;
   border: 1px solid #DDD;
 }
 
@@ -2061,7 +2060,7 @@ ul.bullet li {
   font-weight: normal;
   text-decoration: underline;
   color: #555;
-  background-color: #ECECEC;
+  background-color: #EFEFEF;
   vertical-align: middle;
   white-space: nowrap;
   padding: 0.3em 0.6em;
@@ -2093,9 +2092,7 @@ ul.bullet li {
 }
 
 .rule_detail .markdown-help {
-  vertical-align:top;
-  width: 90px;
-  padding-left: 10px;
+  vertical-align: top;
   white-space: nowrap;
 }
 
@@ -2228,7 +2225,7 @@ h4 a, h4 a:visited, .gray, table.data tfoot a, table.data tfoot a:visited {
 }
 
 .even, table.sortable tr.rowodd {
-  background-color: #F4F4F4;
+  background-color: #EFEFEF;
 }
 
 .bordered, table.data > thead {
@@ -2317,7 +2314,7 @@ table.nowrap td, td.nowrap, th.nowrap {
 }
 
 .background-gray {
-  background-color: #ECECEC;
+  background-color: #EFEFEF;
   color: #444;
 }
 
@@ -2361,8 +2358,6 @@ table.nowrap td, td.nowrap, th.nowrap {
   background: #FFFBCC;
 }
 
-
-
 /* Used on links which are located inside a dense text place or in tables */
 /* in order to rapidly identify them                                      */
 .link-action {
@@ -2370,14 +2365,6 @@ table.nowrap td, td.nowrap, th.nowrap {
   color: #4183C4;
 }
 
-.table-bordered {
-  border: 1px solid #DDD;
-  border-collapse: separate;
-  *border-collapse: collapsed;
-  -webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  border-radius: 3px;
-}
 .form-key-cell {
   padding: 2px 8px 4px 10px;
   text-align: right;
@@ -2385,20 +2372,24 @@ table.nowrap td, td.nowrap, th.nowrap {
   white-space: nowrap;
   vertical-align: top;
 }
+
 .form-val-cell {
   padding: 2px 8px 4px 0;
   text-align: left;
   white-space: normal;
 }
+
 .form-val-note {
-  font-size: 12px;
   color: #999;
+  padding: 5px 0;
 }
+
 blockquote {
   border-left: 3px solid #E5E5E5;
   padding: 0 8px;
   line-height: 16px;
 }
+
 blockquote cite {
   line-height: 16px;
   background-image: url('../images/reviews/comment.png');
@@ -2408,30 +2399,59 @@ blockquote cite {
   font-size: 12px;
   color: #888;
 }
+
 .spacer-left {
-  margin-left: 10px;
+  margin-left: 8px;
 }
+
 .spacer-right {
-  margin-right: 10px;
+  margin-right: 8px;
 }
+
 .spacer-bottom {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
+
 .spacer-top {
-  margin-top: 10px;
+  margin-top: 8px;
 }
+
 .bordered {
   border: 1px solid #DDD;
 }
+
 .bordered-left {
   border-left: 1px solid #DDD;
 }
+
 .bordered-right {
   border-right: 1px solid #DDD;
 }
+
 .bordered-bottom {
   border-bottom: 1px solid #DDD;
 }
+
 .bordered-top {
+  border-top: 1px solid #DDD;
+}
+
+.table > thead > tr > th {
+  border-top: 0 none;
+  font-weight: bold;
+  vertical-align: bottom;
+  line-height: 16px;
+  padding: 4px 5px;
+}
+.table > tbody > tr > td {
+  line-height: 16px;
+  padding: 4px 5px;
+}
+.table-bordered > tbody {
+  border-left: 1px solid #DDD;
+  border-right: 1px solid #DDD;
+  border-bottom: 1px solid #DDD;
+}
+.table-bordered > tbody > tr > td {
   border-top: 1px solid #DDD;
 }

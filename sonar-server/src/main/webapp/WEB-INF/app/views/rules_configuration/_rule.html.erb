@@ -29,7 +29,7 @@
     </form>
   </td>
   
-  <td valign="top" class="left">
+  <td class="left">
     <div class="h3"><%= link_to_function("#{h rule.name}", nil, :class => "") do |page|
         page.toggle "desc_#{rule.id}"
       end
@@ -47,14 +47,14 @@
          ancestor_active_rule = ancestor_profile.active_by_rule_id(rule.id) if ancestor_profile && active_rule && (active_rule.inherited? || active_rule.overrides?)
          if ancestor_active_rule || !rule.parameters.empty?
       %>
-        <table width="100%" class="table-bordered background-gray spacer-bottom">
+        <table width="100%" class="table spacer-bottom">
           <% 
              if ancestor_active_rule
                ancestor_active_rule_link = link_to ancestor_profile.name, :controller => 'rules_configuration', :action => 'index', 
                                                        :id => ancestor_profile.id, :rule_id => rule.id, :anchor => 'rule' + rule.id.to_s
           %>
           <tr>
-            <td colspan="2" style="padding: 8px">
+            <td colspan="2">
               <%= message( active_rule.inherited? ? 'rules_configuration.rule_inherited_from_profile_x' : 'rules_configuration.rule_overriding_from_profile_x',
                            :params => ancestor_active_rule_link) -%>
               <% if ancestor_active_rule.priority != active_rule.priority %>
@@ -70,7 +70,7 @@
           </tr>
           <% end %>
           <% unless rule.parameters.empty? 
-               rule.parameters.each do |parameter|
+               rule.parameters.sort.each do |parameter|
                  active_parameter = active_rule.active_param_by_param_id(parameter.id) if active_rule
           %>
           <tr id="param_<%= parameter.id -%>">
@@ -92,7 +92,6 @@
       <% end %>
       
       <% if is_admin %>
-        <br/>
         <% if rule.template? %>
           <%= link_to message('rules_configuration.copy_rule'), {:action => 'new', :id => profile.id, :rule_id => rule.id}, :id => "copy-#{u rule.key}", :class => 'link-action spacer-right' %>
         <% end %>
