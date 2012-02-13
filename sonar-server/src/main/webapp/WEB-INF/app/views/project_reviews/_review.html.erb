@@ -78,7 +78,7 @@
         <%= message('author') -%>:
       </td>
       <td class="val">
-        <%= h(review.user.name) -%>
+        <%= review.user ? h(review.user.name) : '-' -%>
       </td>
     </tr>
     <tr>

@@ -27,7 +27,6 @@ class Review < ActiveRecord::Base
   alias_attribute :comments, :review_comments
   has_and_belongs_to_many :action_plans
 
-  validates_presence_of :user, :message => "can't be empty"
   validates_presence_of :status, :message => "can't be empty"
   validates_inclusion_of :severity, :in => Severity::KEYS
 
