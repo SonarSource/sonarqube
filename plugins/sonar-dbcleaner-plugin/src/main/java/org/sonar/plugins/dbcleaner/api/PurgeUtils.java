@@ -32,7 +32,7 @@ import java.util.List;
 
 /**
  * @since 2.5
- * @deprecated in 2.14
+ * @deprecated Useless since version 2.14 because of the refactoring of the cleanup mechanism (see SONAR-2757).
  */
 @Deprecated
 public final class PurgeUtils {

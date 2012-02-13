@@ -39,13 +39,7 @@ import java.util.List;
       + "the DbCleaner keeps the first one and fully delete the other ones.", global = true, project = true),
   @Property(key = DbCleanerConstants.WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS, defaultValue = "260",
     name = "Number of weeks before starting to delete all remaining snapshots",
-    description = "After this number of weeks, all snapshots are fully deleted.", global = true, project = true),
-  @Property(key = "sonar.purge.minimumPeriodInHours", defaultValue = "12",
-    name = "Maximum duration of code inspections, in hours",
-    description = "Sonar has an embedded purge mechanism which is fairly powerful to avoid keeping useless data. This mechanism is using a minimum period during which a " +
-      "resource created should not be suppressed whatever its state. This is set by default to 12 hours and should not be changed. The only situation you could want to change " +
-      "this is in case a projects takes more than 12 hours to be analyzed by Sonar.",
-    global = true, project = false)
+    description = "After this number of weeks, all snapshots are fully deleted.", global = true, project = true)
 }
 )
 public final class DbCleanerPlugin extends SonarPlugin {
