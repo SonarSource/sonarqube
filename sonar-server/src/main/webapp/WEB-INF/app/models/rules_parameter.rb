@@ -25,19 +25,19 @@ class RulesParameter < ActiveRecord::Base
 
   PARAM_TYPE_STRING = "s"
   PARAM_TYPE_STRING_LIST = "s{}"
-  PARAM_TYPE_INTEGER = "i";
-  PARAM_TYPE_INTEGER_LIST = "i{}";
-  PARAM_TYPE_BOOLEAN = "b";
-  PARAM_TYPE_REGEXP = "r";
+  PARAM_TYPE_INTEGER = "i"
+  PARAM_TYPE_INTEGER_LIST = "i{}"
+  PARAM_TYPE_BOOLEAN = "b"
+  PARAM_TYPE_REGEXP = "r"
 
   belongs_to :rule
 
   def is_set_type
-    return param_type.at(1) == "[" && param_type.ends_with?("]")
+    param_type.at(1) == "[" && param_type.ends_with?("]")
   end
 
   def get_allowed_tokens
-    return param_type[2, param_type.length-3].split(",")
+    param_type[2, param_type.length-3].split(",")
   end
 
   def description
@@ -134,4 +134,7 @@ class RulesParameter < ActiveRecord::Base
     end
   end
 
+  def <=>(other)
+    name <=> other.name
+  end
 end
