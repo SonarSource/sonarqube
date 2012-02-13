@@ -17,7 +17,7 @@
         <td class="left" valign="top">
         <%= message('action_plans.col.due_for') -%>:
         <br/>
-        <input type="text" name="dead_line" id="dead_line" value="<%= @action_plan && @action_plan.dead_line ? @action_plan.dead_line.strftime('%d/%m/%Y') : params[:dead_line] -%>"/>
+        <input type="text" name="deadline" id="deadline" value="<%= @action_plan && @action_plan.deadline ? @action_plan.deadline.strftime('%d/%m/%Y') : params[:deadline] -%>"/>
         <br/>
         <span class="note"><%= message('action_plans.date_format_help') -%></span>
         </td>

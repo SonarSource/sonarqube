@@ -26,7 +26,7 @@
           <tr>
             <td class="thin nowrap center"><img src="<%= ApplicationController.root_context -%>/images/status/<%= plan.status -%>.png" title="<%= message(plan.status.downcase).capitalize -%>"/></td>
             <td class="thin nowrap"><%= h(plan.name) -%></td>
-            <td class="thin nowrap <%= 'over-due' if plan.over_due? -%>" align="right" x="<%= plan.dead_line ? plan.dead_line.tv_sec : '' -%>"><%= plan.dead_line ? plan.dead_line.strftime("%d %b %Y") : ' '  -%></td>
+            <td class="thin nowrap <%= 'over-due' if plan.over_due? -%>" align="right" x="<%= plan.deadline ? plan.deadline.tv_sec : '' -%>"><%= plan.deadline ? plan.deadline.strftime("%d %b %Y") : ' '  -%></td>
             <% if plan.progress[:total]==0 %>
             <td class="noprogress thin nowrap">
               <%= message('action_plans.no_reviews_linked_to_action_plan') -%>
@@ -83,7 +83,7 @@
           <tr>
             <td class="thin nowrap center"><img src="<%= ApplicationController.root_context -%>/images/status/<%= plan.status -%>.png" title="<%= message(plan.status.downcase).capitalize -%>"/></td>
             <td class="thin nowrap"><%= h(plan.name) -%></td>
-            <td class="thin nowrap <%= 'over-due' if plan.over_due? -%>" align="right" x="<%= plan.dead_line ? plan.dead_line.tv_sec : '' -%>"><%= plan.dead_line ? plan.dead_line.strftime("%d %b %Y") : ' ' -%></td>
+            <td class="thin nowrap <%= 'over-due' if plan.over_due? -%>" align="right" x="<%= plan.deadline ? plan.deadline.tv_sec : '' -%>"><%= plan.deadline ? plan.deadline.strftime("%d %b %Y") : ' ' -%></td>
             <td class="thin nowrap" align="right" x="<%= plan.updated_at.tv_sec -%>"><%= plan.updated_at.strftime("%d %b %Y") -%></td>
             <% if plan.progress[:total]==0 %>
             <td class="noprogress thin nowrap">

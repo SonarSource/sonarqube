@@ -44,12 +44,12 @@ class ActionPlansController < ApplicationController
     
     @action_plan.name = params[:name]
     @action_plan.description = params[:description]
-    unless params[:dead_line].blank?
+    unless params[:deadline].blank?
       begin
-        dead_line = DateTime.strptime(params[:dead_line], '%d/%m/%Y')
+        deadline = DateTime.strptime(params[:deadline], '%d/%m/%Y')
         # we check if the date is today or in the future
-        if dead_line > 1.day.ago
-          @action_plan.dead_line = dead_line
+        if deadline > 1.day.ago
+          @action_plan.deadline = deadline
         else
           date_not_valid = message('action_plans.date_cant_be_in_past')
         end 
@@ -93,8 +93,8 @@ class ActionPlansController < ApplicationController
   end
   
   def load_action_plans
-    @open_action_plans = ActionPlan.find(:all, :conditions => ['status=? AND project_id=?', ActionPlan::STATUS_OPEN, @resource.id], :include => 'reviews', :order => 'dead_line ASC')
-    @closed_action_plans = ActionPlan.find(:all, :conditions => ['status=? AND project_id=?', ActionPlan::STATUS_CLOSED, @resource.id], :include => 'reviews', :order => 'dead_line DESC')
+    @open_action_plans = ActionPlan.find(:all, :conditions => ['status=? AND project_id=?', ActionPlan::STATUS_OPEN, @resource.id], :include => 'reviews', :order => 'deadline ASC')
+    @closed_action_plans = ActionPlan.find(:all, :conditions => ['status=? AND project_id=?', ActionPlan::STATUS_CLOSED, @resource.id], :include => 'reviews', :order => 'deadline DESC')
   end
 
 end

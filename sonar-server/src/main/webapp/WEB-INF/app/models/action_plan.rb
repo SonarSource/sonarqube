@@ -62,7 +62,7 @@ class ActionPlan < ActiveRecord::Base
   end
   
   def over_due?
-    dead_line ? status==STATUS_OPEN && dead_line.past? : false
+    deadline ? status==STATUS_OPEN && deadline.past? : false
   end
   
   private

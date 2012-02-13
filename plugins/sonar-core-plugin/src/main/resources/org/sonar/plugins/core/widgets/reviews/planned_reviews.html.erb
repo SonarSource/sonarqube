@@ -14,7 +14,7 @@
      title = message('widget.planned_reviews.name')
      
      open_action_plans = ActionPlan.find(:all, :conditions => ['status= ? AND project_id=?', ActionPlan::STATUS_OPEN, @project.id], 
-                                         :include => 'reviews', :order => 'dead_line ASC')
+                                         :include => 'reviews', :order => 'deadline ASC')
      
      if open_action_plans.empty? 
 %>
