@@ -28,12 +28,22 @@ class UsersController < ApplicationController
     return unless request.post?
     cookies.delete :auth_token
 
-    user=prepare_user
-    if user.save
-      flash[:notice] = 'User is created.'
-    end
+    user = User.find_by_login(params[:user][:login])
+    if user && !user.active
+      # users was deleted, a message must be displayed to ask wether to override it or not
+      @user = user
+      @user.name = params[:user][:name]
+      @user.email = params[:user][:email]
+      @users = User.find(:all, :conditions => ["active=?", true], :include => 'groups')
+      render :index
+    else
+      user=prepare_user
+      if user.save
+        flash[:notice] = 'User is created.'
+      end
+      to_index(user.errors, nil)
+    end    
 
-    to_index(user.errors, nil)
   end
 
   def signup
@@ -95,6 +105,22 @@ class UsersController < ApplicationController
       flash[:notice] = 'User was successfully updated.'
     end
 
+    to_index(user.errors, nil)
+  end
+  
+  def reactivate
+    user = User.find_by_login(params[:user][:login])
+    if user 
+      user.name = params[:user][:name]
+      user.email = params[:user][:email]
+      user.password = params[:user][:password]
+      user.password_confirmation = params[:user][:password_confirmation]
+      user.active = true
+      user.save!
+      flash[:notice] = 'User was successfully reactivated.'
+    else
+      flash[:error] = "A user with login #{params[:user][:login]} does not exist."
+    end
     to_index(user.errors, nil)
   end
 

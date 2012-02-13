@@ -40,20 +40,50 @@
       <%
       action_name = 'create'
       title = 'Add new user'
+      submit_button_label = 'Create'
       if @user.id
-        action_name = 'update'
-        title = 'Edit user'
-        if params[:action] == 'change_password'
-          action_name = 'update_password'
-          title = 'Change password'
+        if @user.active
+          action_name = 'update'
+          title = 'Edit user'
+          submit_button_label = 'Update'
+          if params[:action] == 'change_password'
+            action_name = 'update_password'
+            title = 'Change password'
+          end
+        else
+          action_name = 'reactivate'
+          title = 'Reactivate user?'
+          submit_button_label = 'Reactivate user'
         end
       end
       %>
       <% form_for :user, @user, :url => { :id => @user.id, :action => action_name}, :html => { :method => @user.id.nil?? :post : :put } do |f| %>
       <table class="admintable" width="100%">
         <tr>
-            <td class="left" valign="top"><h1><%= title %></h1></td>
+          <td class="left" valign="top"><h1><%= title %></h1></td>
+        </tr>
+        
+      <% if @user && !@user.active %>
+      <%= @user.name -%>
+        <%= f.hidden_field :login %>
+        <%= f.hidden_field :name %>
+        <%= f.hidden_field :email %>
+        <tr>
+          <td>
+            <p class="error">
+              A user with login "<%= @user.login -%>" already exists in the database but had been deleted.<br/>
+              <br/>
+              Do you want to reactivate this user? (if yes, please provide a new password)
+            </p>
+          </td>
+          <tr>
+            <td class="left" valign="top">New password:<br/><%= f.password_field :password, :size => 30, :maxLength => 50 %></td>
           </tr>
+          <tr>
+            <td class="left" valign="top">Confirm new password:<br/><%= f.password_field :password_confirmation, :size => 30, :maxLength => 50 %></td>
+          </tr>
+        <tr>
+      <% else %>
         <tr>
           <td class="left" valign="top">Login:
             <% if @user.id %>
@@ -87,9 +117,11 @@
           <td class="left" valign="top">Confirm new password:<br/><%= f.password_field :password_confirmation, :size => 30, :maxLength => 50 %></td>
         </tr>
         <% end %>
+      <% end %>
+        
         <tr>
           <td class="left"  nowrap="nowrap" valign="top" colspan="2">
-            <%= submit_tag @user.id.nil?? 'Create':'Update' %>
+            <%= submit_tag submit_button_label %>
             <%= link_to 'cancel', { :controller => 'users', :action => 'index'}, { :class => 'action' } %><br/>
           </td>
         </tr>
