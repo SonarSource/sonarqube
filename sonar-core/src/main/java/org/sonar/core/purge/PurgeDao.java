@@ -140,6 +140,9 @@ public class PurgeDao {
     mapper.deleteResourceUserRoles(resourceId);
     mapper.deleteResourceManualMeasures(resourceId);
     mapper.deleteResourceReviews(resourceId);
+    mapper.deleteResourceReviewComments(resourceId);
+    mapper.deleteResourceActionPlansReviews(resourceId);
+    mapper.deleteResourceActionPlans(resourceId);
     mapper.deleteResourceEvents(resourceId);
     mapper.deleteResource(resourceId);
   }

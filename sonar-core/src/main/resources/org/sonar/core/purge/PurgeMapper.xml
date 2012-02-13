@@ -169,8 +169,20 @@
     delete from reviews where resource_id=#{id}
   </delete>
 
+  <delete id="deleteResourceReviewComments" parameterType="long">
+    delete from review_comments rc where exists (select * from reviews r where rc.review_id=r.id and r.resource_id=#{id})
+  </delete>
+
   <delete id="deleteResourceEvents" parameterType="long">
     delete from events where resource_id=#{id}
+  </delete>
+
+  <delete id="deleteResourceActionPlans" parameterType="long">
+    delete from action_plans where project_id=#{id}
+  </delete>
+
+  <delete id="deleteResourceActionPlansReviews" parameterType="long">
+    delete from action_plans_reviews apr where exists (select * from action_plans ap where ap.id=apr.action_plan_id and ap.project_id=#{id})
   </delete>
 
   <update id="setSnapshotIsLastToFalse" parameterType="long">

@@ -71,7 +71,13 @@ public interface PurgeMapper {
 
   void deleteResourceReviews(long resourceId);
 
+  void deleteResourceReviewComments(long resourceId);
+
   void deleteResourceEvents(long resourceId);
+
+  void deleteResourceActionPlans(long resourceId);
+
+  void deleteResourceActionPlansReviews(long resourceId);
 
   void closeResourceReviews(long resourceId);
 

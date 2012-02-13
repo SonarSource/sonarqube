@@ -174,7 +174,7 @@ public class PurgeDaoTest extends DaoTestCase {
   public void shouldDeleteProject() {
     setupData("shouldDeleteProject");
     dao.deleteProject(1L);
-    assertEmptyTables("projects", "snapshots");
+    assertEmptyTables("projects", "snapshots", "action_plans", "action_plans_reviews", "reviews", "review_comments");
   }
 
   static final class SnapshotMatcher extends BaseMatcher<PurgeableSnapshotDto> {
