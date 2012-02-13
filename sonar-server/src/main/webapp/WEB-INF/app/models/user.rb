@@ -96,6 +96,10 @@ class User < ActiveRecord::Base
     self.dashboards.each {|d| d.destroy}
     self.active_dashboards.each {|ad| ad.destroy}    
   end
+  
+  def self.find_active_by_login(login)
+    User.find(:first, :conditions => ["login=:login AND active=:active", {:login => login, :active => true}])
+  end
 
 
   #---------------------------------------------------------------------

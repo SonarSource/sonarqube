@@ -23,7 +23,7 @@
 #
 class DefaultRealm
   def authenticate?(username, password)
-    user = User.find_by_login(username)
+    user = User.find_active_by_login(username)
     if user && user.authenticated?(password)
       return user
     else
@@ -73,7 +73,7 @@ class PluginRealm
   # Fallback to password from Sonar Database
   #
   def fallback(username, password)
-    user = User.find_by_login(username)
+    user = User.find_active_by_login(username)
     if user && user.authenticated?(password)
       return user
     else
@@ -94,7 +94,7 @@ class PluginRealm
       else
         return nil if !status
         # Authenticated
-        return syncronize(username, password, details)
+        return synchronize(username, password, details)
       end
     else
       # No authenticator
@@ -105,7 +105,7 @@ class PluginRealm
   #
   # Authentication in external system was successful - replicate password, details and groups into Sonar
   #
-  def syncronize(username, password, details)
+  def synchronize(username, password, details)
     user = User.find_by_login(username)
     if !user
       # No such user in Sonar database
@@ -130,6 +130,8 @@ class PluginRealm
       user.password_confirmation = password
     end
     synchronize_groups(user)
+    # A user that is synchronized with an external system is always set to 'active' (see SONAR-3258 for the deactivation concept)
+    user.active=true
     # Note that validation disabled
     user.save(false)
     return user
