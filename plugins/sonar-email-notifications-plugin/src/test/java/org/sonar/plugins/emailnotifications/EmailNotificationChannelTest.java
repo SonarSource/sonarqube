@@ -19,42 +19,31 @@
  */
 package org.sonar.plugins.emailnotifications;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.util.List;
-
-import javax.mail.internet.MimeMessage;
-
 import org.apache.commons.mail.EmailException;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 
+import javax.mail.internet.MimeMessage;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.util.List;
+
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class EmailNotificationChannelTest {
 
-  private static int port;
-
+  private int port;
   private Wiser server;
-
   private EmailConfiguration configuration;
   private EmailNotificationChannel channel;
-
-  @BeforeClass
-  public static void selectPort() {
-    port = getNextAvailablePort();
-  }
 
   private static int getNextAvailablePort() {
     try {
@@ -69,6 +58,7 @@ public class EmailNotificationChannelTest {
 
   @Before
   public void setUp() {
+    port = getNextAvailablePort();
     server = new Wiser();
     server.setPort(port);
     server.start();
@@ -114,9 +104,9 @@ public class EmailNotificationChannelTest {
   @Test
   public void shouldNotSendEmailWhenHostnameNotConfigured() throws Exception {
     EmailMessage emailMessage = new EmailMessage()
-        .setTo("user@nowhere")
-        .setSubject("Foo")
-        .setMessage("Bar");
+      .setTo("user@nowhere")
+      .setSubject("Foo")
+      .setMessage("Bar");
     channel.deliver(emailMessage);
     assertThat(server.getMessages().size(), is(0));
   }
@@ -125,11 +115,11 @@ public class EmailNotificationChannelTest {
   public void shouldSendThreadedEmail() throws Exception {
     configure();
     EmailMessage emailMessage = new EmailMessage()
-        .setMessageId("reviews/view/1")
-        .setFrom("Full Username")
-        .setTo("user@nowhere")
-        .setSubject("Review #3")
-        .setMessage("I'll take care of this violation.");
+      .setMessageId("reviews/view/1")
+      .setFrom("Full Username")
+      .setTo("user@nowhere")
+      .setSubject("Review #3")
+      .setMessage("I'll take care of this violation.");
     channel.deliver(emailMessage);
 
     List<WiserMessage> messages = server.getMessages();
@@ -155,9 +145,9 @@ public class EmailNotificationChannelTest {
   public void shouldSendNonThreadedEmail() throws Exception {
     configure();
     EmailMessage emailMessage = new EmailMessage()
-        .setTo("user@nowhere")
-        .setSubject("Foo")
-        .setMessage("Bar");
+      .setTo("user@nowhere")
+      .setSubject("Foo")
+      .setMessage("Bar");
     channel.deliver(emailMessage);
 
     List<WiserMessage> messages = server.getMessages();
@@ -185,9 +175,9 @@ public class EmailNotificationChannelTest {
     server.stop();
 
     EmailMessage emailMessage = new EmailMessage()
-        .setTo("user@nowhere")
-        .setSubject("Foo")
-        .setMessage("Bar");
+      .setTo("user@nowhere")
+      .setSubject("Foo")
+      .setMessage("Bar");
     channel.deliver(emailMessage);
   }
 
