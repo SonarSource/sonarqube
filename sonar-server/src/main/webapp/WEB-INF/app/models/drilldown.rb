@@ -22,7 +22,7 @@ class Drilldown
 
   def initialize(resource, metric, selected_resource_ids, options={})
     @resource=resource
-    @snapshot=Snapshot.find(:first, :conditions => {:islast => true, :project_id => resource.id}, :include => [:project])
+    @snapshot=resource.last_snapshot
     @metric=metric
     @columns=[]
 
