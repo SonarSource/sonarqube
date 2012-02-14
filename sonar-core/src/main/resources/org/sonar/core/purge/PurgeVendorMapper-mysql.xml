@@ -4,11 +4,11 @@
 <mapper namespace="org.sonar.core.purge.PurgeVendorMapper">
 
   <delete id="deleteResourceReviewComments" parameterType="long">
-    delete rc from review_comments rc, reviews r where rc.review_id=r.id and r.resource_id=#{id}
+    delete rc from review_comments as rc, reviews as r where rc.review_id=r.id and r.resource_id=#{id}
   </delete>
 
   <delete id="deleteResourceActionPlansReviews" parameterType="long">
-    delete apr from action_plans_reviews apr, action_plans ap where ap.id=apr.action_plan_id and ap.project_id=#{id}
+    delete apr from action_plans_reviews as apr, action_plans as ap where ap.id=apr.action_plan_id and ap.project_id=#{id}
   </delete>
 
 </mapper>
