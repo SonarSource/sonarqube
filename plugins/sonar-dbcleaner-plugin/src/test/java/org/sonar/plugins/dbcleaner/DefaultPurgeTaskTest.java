@@ -19,14 +19,11 @@
  */
 package org.sonar.plugins.dbcleaner;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.Test;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
+import org.sonar.api.resources.Scopes;
 import org.sonar.core.purge.PurgeDao;
-import org.sonar.core.purge.PurgeSnapshotQuery;
 import org.sonar.plugins.dbcleaner.api.DbCleanerConstants;
 import org.sonar.plugins.dbcleaner.period.DefaultPeriodCleaner;
 
@@ -42,7 +39,7 @@ public class DefaultPurgeTaskTest {
 
     task.purgeProject(1L);
 
-    verify(purgeDao, never()).deleteSnapshots(argThat(newDirectoryQueryMatcher()));
+    verify(purgeDao).purgeProject(1L, new String[]{Scopes.FILE});
   }
 
   @Test
@@ -53,29 +50,17 @@ public class DefaultPurgeTaskTest {
 
     task.purgeProject(1L);
 
-    verify(purgeDao, times(1)).deleteSnapshots(argThat(newDirectoryQueryMatcher()));
+    verify(purgeDao).purgeProject(1L, new String[]{Scopes.DIRECTORY, Scopes.FILE});
   }
 
   @Test
   public void shouldNotFailOnErrors() {
     PurgeDao purgeDao = mock(PurgeDao.class);
-    when(purgeDao.purgeProject(anyLong())).thenThrow(new RuntimeException());
+    when(purgeDao.purgeProject(anyLong(), (String[]) any())).thenThrow(new RuntimeException());
     DefaultPurgeTask task = new DefaultPurgeTask(purgeDao, new Settings(), mock(DefaultPeriodCleaner.class));
 
     task.purgeProject(1L);
 
-    verify(purgeDao).purgeProject(anyLong());
-  }
-
-  private BaseMatcher<PurgeSnapshotQuery> newDirectoryQueryMatcher() {
-    return new BaseMatcher<PurgeSnapshotQuery>() {
-      public boolean matches(Object o) {
-        return ArrayUtils.contains(((PurgeSnapshotQuery) o).getScopes(), "DIR");
-      }
-
-      public void describeTo(Description description) {
-        description.appendText("Query on scope DIR");
-      }
-    };
+    verify(purgeDao).purgeProject(anyLong(), (String[]) any());
   }
 }

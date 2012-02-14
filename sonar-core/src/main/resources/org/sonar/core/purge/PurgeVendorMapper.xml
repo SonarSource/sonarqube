@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.core.purge.PurgeVendorMapper">
+
+  <delete id="deleteResourceReviewComments" parameterType="long">
+    delete from review_comments rc where exists (select * from reviews r where rc.review_id=r.id and
+    r.resource_id=#{id})
+  </delete>
+
+  <delete id="deleteResourceActionPlansReviews" parameterType="long">
+    delete from action_plans_reviews apr where exists (select * from action_plans ap where ap.id=apr.action_plan_id and
+    ap.project_id=#{id})
+  </delete>
+
+</mapper>
+

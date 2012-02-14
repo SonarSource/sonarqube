@@ -21,6 +21,7 @@ package org.sonar.core.purge;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
@@ -39,13 +40,14 @@ public class PurgeDao {
     this.resourceDao = resourceDao;
   }
 
-  public PurgeDao purgeProject(long rootProjectId) {
+  public PurgeDao purgeProject(long rootProjectId, String[] scopesWithoutHistoricalData) {
     SqlSession session = mybatis.openBatchSession();
     PurgeMapper purgeMapper = session.getMapper(PurgeMapper.class);
     try {
-      List<Long> projectIds = Lists.newArrayList(rootProjectId);
-      projectIds.addAll(resourceDao.getDescendantProjectIds(rootProjectId, session));
+      List<Long> projectIds = getProjectIds(rootProjectId, session);
       for (Long projectId : projectIds) {
+        deleteAbortedBuilds(projectId, session, purgeMapper);
+        deleteHistoricalData(projectId, scopesWithoutHistoricalData, session, purgeMapper);
         purgeProject(projectId, session, purgeMapper);
       }
 
@@ -56,6 +58,24 @@ public class PurgeDao {
       MyBatis.closeQuietly(session);
     }
     return this;
+  }
+
+  private void deleteAbortedBuilds(Long projectId, SqlSession session, PurgeMapper purgeMapper) {
+    PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
+      .setIslast(false)
+      .setStatus(new String[]{"U"})
+      .setRootProjectId(projectId);
+    deleteSnapshots(query, session, purgeMapper);
+  }
+
+  private void deleteHistoricalData(Long projectId, String[] scopesWithoutHistoricalData, SqlSession session, PurgeMapper purgeMapper) {
+    if (!ArrayUtils.isEmpty(scopesWithoutHistoricalData)) {
+      PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
+        .setIslast(false)
+        .setScopes(scopesWithoutHistoricalData)
+        .setRootProjectId(projectId);
+      deleteSnapshots(query, session, purgeMapper);
+    }
   }
 
   private void purgeProject(final Long projectId, final SqlSession session, final PurgeMapper purgeMapper) {
@@ -102,37 +122,38 @@ public class PurgeDao {
   public PurgeDao deleteProject(long rootProjectId) {
     final SqlSession session = mybatis.openBatchSession();
     final PurgeMapper mapper = session.getMapper(PurgeMapper.class);
+    final PurgeVendorMapper vendorMapper = session.getMapper(PurgeVendorMapper.class);
     try {
-      deleteProject(rootProjectId, session, mapper);
+      deleteProject(rootProjectId, session, mapper, vendorMapper);
       return this;
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  private void deleteProject(final long rootProjectId, final SqlSession session, final PurgeMapper mapper) {
+  private void deleteProject(final long rootProjectId, final SqlSession session, final PurgeMapper mapper, final PurgeVendorMapper vendorMapper) {
     List<Long> childrenIds = mapper.selectProjectIdsByRootId(rootProjectId);
     for (Long childId : childrenIds) {
-      deleteProject(childId, session, mapper);
+      deleteProject(childId, session, mapper, vendorMapper);
     }
 
     session.select("org.sonar.core.purge.PurgeMapper.selectResourceTreeIdsByRootId", rootProjectId, new ResultHandler() {
       public void handleResult(ResultContext context) {
         Long resourceId = (Long) context.getResultObject();
-        deleteResource(resourceId, session, mapper);
+        deleteResource(resourceId, session, mapper, vendorMapper);
       }
     });
     session.commit();
   }
 
-  void deleteResource(final long resourceId, final SqlSession session, final PurgeMapper mapper) {
+  void deleteResource(final long resourceId, final SqlSession session, final PurgeMapper mapper, final PurgeVendorMapper vendorMapper) {
     session.select("org.sonar.core.purge.PurgeMapper.selectSnapshotIdsByResource", resourceId, new ResultHandler() {
       public void handleResult(ResultContext context) {
         Long snapshotId = (Long) context.getResultObject();
         deleteSnapshot(snapshotId, mapper);
       }
     });
-    // TODO optimization: filter requests according to resource scope
+    // possible optimization: filter requests according to resource scope
     mapper.deleteResourceLinks(resourceId);
     mapper.deleteResourceProperties(resourceId);
     mapper.deleteResourceIndex(resourceId);
@@ -140,8 +161,8 @@ public class PurgeDao {
     mapper.deleteResourceUserRoles(resourceId);
     mapper.deleteResourceManualMeasures(resourceId);
     mapper.deleteResourceReviews(resourceId);
-    mapper.deleteResourceReviewComments(resourceId);
-    mapper.deleteResourceActionPlansReviews(resourceId);
+    vendorMapper.deleteResourceReviewComments(resourceId);
+    vendorMapper.deleteResourceActionPlansReviews(resourceId);
     mapper.deleteResourceActionPlans(resourceId);
     mapper.deleteResourceEvents(resourceId);
     mapper.deleteResource(resourceId);
@@ -155,23 +176,35 @@ public class PurgeDao {
     mapper.closeResourceReviews(resourceId);
   }
 
-
   public PurgeDao deleteSnapshots(PurgeSnapshotQuery query) {
     final SqlSession session = mybatis.openBatchSession();
     try {
       final PurgeMapper mapper = session.getMapper(PurgeMapper.class);
-      session.select("org.sonar.core.purge.PurgeMapper.selectSnapshotIds", query, new ResultHandler() {
-        public void handleResult(ResultContext context) {
-          Long snapshotId = (Long) context.getResultObject();
-          deleteSnapshot(snapshotId, mapper);
-        }
-      });
+      deleteSnapshots(query, session, mapper);
       session.commit();
       return this;
 
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  private void deleteSnapshots(PurgeSnapshotQuery query, SqlSession session, final PurgeMapper mapper) {
+    session.select("org.sonar.core.purge.PurgeMapper.selectSnapshotIds", query, new ResultHandler() {
+      public void handleResult(ResultContext context) {
+        Long snapshotId = (Long) context.getResultObject();
+        deleteSnapshot(snapshotId, mapper);
+      }
+    });
+  }
+
+  /**
+   * Load the whole tree of projects, including the project given in parameter.
+   */
+  private List<Long> getProjectIds(long rootProjectId, SqlSession session) {
+    List<Long> projectIds = Lists.newArrayList(rootProjectId);
+    projectIds.addAll(resourceDao.getDescendantProjectIds(rootProjectId, session));
+    return projectIds;
   }
 
   @VisibleForTesting

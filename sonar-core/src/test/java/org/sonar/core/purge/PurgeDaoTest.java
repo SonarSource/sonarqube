@@ -24,6 +24,7 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.resources.Scopes;
 import org.sonar.core.persistence.DaoTestCase;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
@@ -119,21 +120,21 @@ public class PurgeDaoTest extends DaoTestCase {
   @Test
   public void shouldPurgeProject() {
     setupData("shouldPurgeProject");
-    dao.purgeProject(1);
+    dao.purgeProject(1, new String[0]);
     checkTables("shouldPurgeProject", "projects", "snapshots");
   }
 
   @Test
   public void shouldPurgeDirectoriesAndFiles() {
     setupData("shouldPurgeDirectoriesAndFiles");
-    dao.purgeProject(1);
+    dao.purgeProject(1, new String[]{Scopes.DIRECTORY, Scopes.FILE});
     checkTables("shouldPurgeDirectoriesAndFiles", "projects", "snapshots");
   }
 
   @Test
   public void shouldDisableResourcesWithoutLastSnapshot() {
     setupData("shouldDisableResourcesWithoutLastSnapshot");
-    dao.purgeProject(1);
+    dao.purgeProject(1, new String[0]);
     checkTables("shouldDisableResourcesWithoutLastSnapshot", "projects", "snapshots");
   }
 
@@ -161,7 +162,7 @@ public class PurgeDaoTest extends DaoTestCase {
     SqlSession session = getMyBatis().openSession();
     try {
       // this method does not commit and close the session
-      dao.deleteResource(1L, session, session.getMapper(PurgeMapper.class));
+      dao.deleteResource(1L, session, session.getMapper(PurgeMapper.class), session.getMapper(PurgeVendorMapper.class));
       session.commit();
 
     } finally {
