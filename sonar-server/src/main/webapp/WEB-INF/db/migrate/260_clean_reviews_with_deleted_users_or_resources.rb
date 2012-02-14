@@ -21,26 +21,34 @@
 #
 # Sonar 2.14
 #
-class FixReviewsWithDeletedUser < ActiveRecord::Migration
+class CleanReviewsWithDeletedUsersOrResources < ActiveRecord::Migration
 
   def self.up
-    # For http://jira.codehaus.org/browse/SONAR-3102
-    must_save=false
-    Review.find(:all, :include => ['assignee', 'user']).each do |review|
-      if review.user_id && !review.user
-        review.user_id=nil
-        must_save=true
-      end
-      if review.assignee_id && !review.assignee
-        review.assignee_id=nil
-        must_save=true
-      end
-      review.save if must_save
+    
+    Review.find(:all, :include => ['resource', 'assignee', 'user']).each do |review|
+      if review.resource_id && !review.resource
+        # For http://jira.codehaus.org/browse/SONAR-3223
+        review.destroy
+      else
+        # For http://jira.codehaus.org/browse/SONAR-3102
+        must_save=false
+        if review.user_id && !review.user
+          review.user_id=nil
+          must_save=true
+        end
+        if review.assignee_id && !review.assignee
+          review.assignee_id=nil
+          must_save=true
+        end
+        review.save if must_save
+      end      
     end
 
+    # For http://jira.codehaus.org/browse/SONAR-3102
     ReviewComment.find(:all, :include => 'user').each do |comment|
       comment.delete if comment.user_id && !comment.user
-    end
+    end   
+    
   end
 
 end
