@@ -29,7 +29,7 @@ class Group < ActiveRecord::Base
 
   # all the users that are NOT members of this group
   def available_users
-    User.find(:all, :order => 'name') - users
+    User.find(:all, :conditions => ["active=?", true], :order => 'name') - users
   end
 
   def set_users(new_users=[])

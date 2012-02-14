@@ -26,7 +26,7 @@ module RolesHelper
   end
 
   def all_users
-    User.find(:all, :order => 'name')
+    User.find(:all, :conditions => ["active=?", true], :order => 'name')
   end
 
   def groups(role, resource_id=nil)

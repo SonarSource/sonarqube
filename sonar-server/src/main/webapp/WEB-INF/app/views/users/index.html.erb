@@ -66,22 +66,14 @@
       <% if @user && !@user.active %>
       <%= @user.name -%>
         <%= f.hidden_field :login %>
-        <%= f.hidden_field :name %>
-        <%= f.hidden_field :email %>
         <tr>
           <td>
             <p class="error">
-              A user with login "<%= @user.login -%>" already exists in the database but had been deleted.<br/>
+              A user with login "<%= @user.login -%>" already exists in the database but is deactivated.<br/>
               <br/>
-              Do you want to reactivate this user? (if yes, please provide a new password)
+              Do you really want to reactivate this user ?
             </p>
           </td>
-          <tr>
-            <td class="left" valign="top">New password:<br/><%= f.password_field :password, :size => 30, :maxLength => 50 %></td>
-          </tr>
-          <tr>
-            <td class="left" valign="top">Confirm new password:<br/><%= f.password_field :password_confirmation, :size => 30, :maxLength => 50 %></td>
-          </tr>
         <tr>
       <% else %>
         <tr>

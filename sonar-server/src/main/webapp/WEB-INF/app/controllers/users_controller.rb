@@ -30,12 +30,16 @@ class UsersController < ApplicationController
 
     user = User.find_by_login(params[:user][:login])
     if user && !user.active
-      # users was deleted, a message must be displayed to ask wether to override it or not
-      @user = user
-      @user.name = params[:user][:name]
-      @user.email = params[:user][:email]
-      @users = User.find(:all, :conditions => ["active=?", true], :include => 'groups')
-      render :index
+      # users is deativated, this is a special case:
+      # 1- first, we save the given information, in case the user is reactivated (to not ask for it twice)
+       if user.update_attributes(params[:user])
+        # 2- if info correctly saved, then we display a message to ask wether the user should be reactivated or not
+        @user = user
+        @users = User.find(:all, :conditions => ["active=?", true], :include => 'groups')
+        render :index
+      else
+        to_index(user.errors, nil)
+      end
     else
       user=prepare_user
       if user.save
@@ -110,12 +114,8 @@ class UsersController < ApplicationController
   
   def reactivate
     user = User.find_by_login(params[:user][:login])
-    if user 
-      user.name = params[:user][:name]
-      user.email = params[:user][:email]
-      user.password = params[:user][:password]
-      user.password_confirmation = params[:user][:password_confirmation]
-      user.active = true
+    if user
+      user.reactivate(java_facade.getSettings().getString('sonar.defaultGroup'))
       user.save!
       flash[:notice] = 'User was successfully reactivated.'
     else
@@ -169,7 +169,7 @@ class UsersController < ApplicationController
   end
 
   def autocomplete
-    @users = User.find(:all, :conditions => ["UPPER(name) like ?", params[:user_name_start].clone.upcase+"%"])
+    @users = User.find(:all, :conditions => ["UPPER(name) like ? AND active=?", params[:user_name_start].clone.upcase+"%", true])
     @char_count = params[:user_name_start].size
     render :partial => 'autocomplete'
   end

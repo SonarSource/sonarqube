@@ -89,12 +89,22 @@ class User < ActiveRecord::Base
   # However, all related data is removed from the DB.
   def deactivate
     self.active = false
+    self.groups.clear
     self.save!
     self.user_roles.each {|role| role.delete}
     self.properties.each {|prop| prop.delete}
     self.filters.each {|f| f.destroy}
     self.dashboards.each {|d| d.destroy}
-    self.active_dashboards.each {|ad| ad.destroy}    
+    self.active_dashboards.each {|ad| ad.destroy}
+  end
+  
+  # SONAR-3258
+  def reactivate(default_group_name)
+    if default_group_name
+      default_group=Group.find_by_name(default_group_name)
+      self.groups<<default_group if default_group
+    end
+    self.active = true
   end
   
   def self.find_active_by_login(login)
