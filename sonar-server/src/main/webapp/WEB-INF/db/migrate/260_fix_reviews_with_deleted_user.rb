@@ -25,6 +25,7 @@ class FixReviewsWithDeletedUser < ActiveRecord::Migration
 
   def self.up
     # For http://jira.codehaus.org/browse/SONAR-3102
+    must_save=false
     Review.find(:all, :include => ['assignee', 'user']).each do |review|
       if review.user_id && !review.user
         review.user_id=nil
