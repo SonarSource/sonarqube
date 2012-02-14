@@ -14,3 +14,10 @@ RECOMMANDATIONS
 
 * Don't forget that index name limited to 30 characters in Oracle DB.
 * Prefer to add nullable columns to avoid problems during migration.
+* When adding index, do not forget to name the index (so that it is possible later to delete it)
+  + Example: 
+      add_index "action_plans", "project_id", :name => "ap_project_id"
+* When modifying columns in a table, do not forget to reset the column information on the Ruby model if you use it 
+  + Example:
+      add_column 'users', 'active', :boolean, :null => true, :default => true
+      User.reset_column_information
