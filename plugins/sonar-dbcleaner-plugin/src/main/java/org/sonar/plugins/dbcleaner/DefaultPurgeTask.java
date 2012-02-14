@@ -52,24 +52,24 @@ public class DefaultPurgeTask implements PurgeTask {
     this.periodCleaner = periodCleaner;
   }
 
-  public PurgeTask deleteProject(long projectId) {
-    purgeDao.deleteProject(projectId);
+  public PurgeTask delete(long resourceId) {
+    purgeDao.deleteProject(resourceId);
     return this;
   }
 
-  public PurgeTask purgeProject(long projectId) {
-    cleanHistoricalData(projectId);
-    doPurgeProject(projectId);
+  public PurgeTask purge(long resourceId) {
+    cleanHistoricalData(resourceId);
+    doPurge(resourceId);
     return this;
   }
 
-  private void cleanHistoricalData(long projectId) {
+  private void cleanHistoricalData(long resourceId) {
     try {
-      LOG.debug("Clean project historical data [id=" + projectId + "]");
-      periodCleaner.purge(projectId);
+      LOG.debug("Clean historical data [id=" + resourceId + "]");
+      periodCleaner.purge(resourceId);
     } catch (Exception e) {
       // purge errors must no fail the batch
-      LOG.error("Fail to clean project historical data [id=" + projectId + "]", e);
+      LOG.error("Fail to clean historical data [id=" + resourceId + "]", e);
     }
   }
 
@@ -80,13 +80,13 @@ public class DefaultPurgeTask implements PurgeTask {
     return new String[]{Scopes.FILE};
   }
 
-  private void doPurgeProject(long projectId) {
+  private void doPurge(long resourceId) {
     try {
-      LOG.debug("Purge project [id=" + projectId + "]");
-      purgeDao.purgeProject(projectId, getScopesWithoutHistoricalData());
+      LOG.debug("Purge data [id=" + resourceId + "]");
+      purgeDao.purgeProject(resourceId, getScopesWithoutHistoricalData());
     } catch (Exception e) {
       // purge errors must no fail the batch
-      LOG.error("Fail to purge project [id=" + projectId + "]", e);
+      LOG.error("Fail to purge data [id=" + resourceId + "]", e);
     }
   }
 }

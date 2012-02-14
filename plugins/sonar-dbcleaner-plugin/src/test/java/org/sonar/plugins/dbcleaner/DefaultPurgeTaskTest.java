@@ -37,7 +37,7 @@ public class DefaultPurgeTaskTest {
     settings.setProperty(DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY, "false");
     DefaultPurgeTask task = new DefaultPurgeTask(purgeDao, settings, mock(DefaultPeriodCleaner.class));
 
-    task.purgeProject(1L);
+    task.purge(1L);
 
     verify(purgeDao).purgeProject(1L, new String[]{Scopes.FILE});
   }
@@ -48,7 +48,7 @@ public class DefaultPurgeTaskTest {
     Settings settings = new Settings(new PropertyDefinitions(DefaultPurgeTask.class));
     DefaultPurgeTask task = new DefaultPurgeTask(purgeDao, settings, mock(DefaultPeriodCleaner.class));
 
-    task.purgeProject(1L);
+    task.purge(1L);
 
     verify(purgeDao).purgeProject(1L, new String[]{Scopes.DIRECTORY, Scopes.FILE});
   }
@@ -59,7 +59,7 @@ public class DefaultPurgeTaskTest {
     when(purgeDao.purgeProject(anyLong(), (String[]) any())).thenThrow(new RuntimeException());
     DefaultPurgeTask task = new DefaultPurgeTask(purgeDao, new Settings(), mock(DefaultPeriodCleaner.class));
 
-    task.purgeProject(1L);
+    task.purge(1L);
 
     verify(purgeDao).purgeProject(anyLong(), (String[]) any());
   }

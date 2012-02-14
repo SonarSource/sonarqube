@@ -19,12 +19,29 @@
  */
 package org.sonar.plugins.dbcleaner.api;
 
+import com.google.common.annotations.Beta;
 import org.sonar.api.BatchExtension;
 
 /**
  * @since 2.14
  */
+@Beta
 public interface PurgeTask extends BatchExtension {
-  PurgeTask purgeProject(long projectId);
-  PurgeTask deleteProject(long projectId);
+  /**
+   * Purges the data related to a tree of resources.
+   *
+   * Exceptions are logged and are not thrown again, so this method fails only on {@link Error}s.
+   *
+   * @param resourceId the root of the tree
+   * @return this
+   */
+  PurgeTask purge(long resourceId);
+
+  /**
+   * Completely deletes a tree of resources.
+   *
+   * @param resourceId the root of the tree
+   * @return this
+   */
+  PurgeTask delete(long resourceId);
 }
