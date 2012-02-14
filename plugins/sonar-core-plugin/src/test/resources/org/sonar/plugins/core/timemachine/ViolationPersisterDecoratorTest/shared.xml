@@ -13,7 +13,7 @@
 
   <projects id="200" scope="FIL" qualifier="CLA" kee="project:org.foo.Bar" root_id="[null]"
             name="Bar" long_name="org.foo.Bar" description="[null]"
-            enabled="true" language="java" copy_resource_id="[null]" profile_id="[null]"/>
+            enabled="true" language="java" copy_resource_id="[null]" person_id="[null]" profile_id="[null]"/>
 
   <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]"
              period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]"

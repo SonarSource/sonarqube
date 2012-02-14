@@ -120,21 +120,21 @@ public class PurgeDaoTest extends DaoTestCase {
   @Test
   public void shouldPurgeProject() {
     setupData("shouldPurgeProject");
-    dao.purgeProject(1, new String[0]);
+    dao.purge(1, new String[0]);
     checkTables("shouldPurgeProject", "projects", "snapshots");
   }
 
   @Test
   public void shouldPurgeDirectoriesAndFiles() {
     setupData("shouldPurgeDirectoriesAndFiles");
-    dao.purgeProject(1, new String[]{Scopes.DIRECTORY, Scopes.FILE});
+    dao.purge(1, new String[]{Scopes.DIRECTORY, Scopes.FILE});
     checkTables("shouldPurgeDirectoriesAndFiles", "projects", "snapshots");
   }
 
   @Test
   public void shouldDisableResourcesWithoutLastSnapshot() {
     setupData("shouldDisableResourcesWithoutLastSnapshot");
-    dao.purgeProject(1, new String[0]);
+    dao.purge(1, new String[0]);
     checkTables("shouldDisableResourcesWithoutLastSnapshot", "projects", "snapshots");
   }
 

@@ -15,24 +15,24 @@
   <projects long_name="[null]" id="1" scope="PRJ" qualifier="TRK" kee="mygroup:myartifact" name="[null]"
             root_id="[null]"
             description="[null]"
-            enabled="true" language="java" copy_resource_id="[null]"/>
+            enabled="true" language="java" copy_resource_id="[null]" person_id="[null]"/>
 
   <projects long_name="[null]" id="2" scope="PRJ" qualifier="TRK" kee="mygroup:myartifact2" name="[null]" root_id="1"
             description="[null]"
-            enabled="true" language="java" copy_resource_id="[null]"/>
+            enabled="true" language="java" copy_resource_id="[null]" person_id="[null]"/>
 
   <projects long_name="[null]" id="3" scope="DIR" qualifier="PAC" kee="mygroup:myartifact:my.package" name="[null]"
             root_id="1"
             description="[null]"
-            enabled="true" language="java" copy_resource_id="[null]"/>
+            enabled="true" language="java" copy_resource_id="[null]" person_id="[null]"/>
 
   <projects long_name="[null]" id="4" scope="FIL" qualifier="CLA" kee="mygroup:myartifact:my.package.Class1"
             name="[null]" root_id="1"
             description="[null]"
-            enabled="true" language="java" copy_resource_id="[null]"/>
+            enabled="true" language="java" copy_resource_id="[null]" person_id="[null]"/>
 
   <projects long_name="[null]" id="5" scope="FIL" qualifier="CLA" kee="mygroup:myartifact:my.package.Class2"
             name="[null]" root_id="1"
             description="[null]"
-            enabled="true" language="java" copy_resource_id="[null]"/>
+            enabled="true" language="java" copy_resource_id="[null]" person_id="[null]"/>
 </dataset>

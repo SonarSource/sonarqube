@@ -2,16 +2,16 @@
   <!-- java project -->
   <projects long_name="java project" id="1" scope="PRJ" kee="project:java" qualifier="TRK" name="java project"
             root_id="[null]"
-            description="[null]" enabled="true" profile_id="[null]" language="java" copy_resource_id="[null]"/>
+            description="[null]" enabled="true" profile_id="[null]" language="java" copy_resource_id="[null]" person_id="[null]"/>
 
   <!-- views -->
   <projects long_name="Root view" id="2" scope="PRJ" kee="ROOT_VIEW" qualifier="VW" name="Root view"
             root_id="[null]"
-            description="[null]" enabled="true" profile_id="[null]" language="[null]" copy_resource_id="[null]"/>
+            description="[null]" enabled="true" profile_id="[null]" language="[null]" copy_resource_id="[null]" person_id="[null]"/>
 
   <projects long_name="Sub view" id="3" scope="PRJ" kee="SUB_VIEW" qualifier="SVW" name="Sub view"
             root_id="2"
-            description="[null]" enabled="true" profile_id="[null]" language="[null]" copy_resource_id="[null]"/>
+            description="[null]" enabled="true" profile_id="[null]" language="[null]" copy_resource_id="[null]" person_id="[null]"/>
 
   <!-- java project copy used in view -->
   <projects long_name="java project" id="4" scope="FIL" kee="cp-project:java" qualifier="TRK" name="java project"

@@ -3,7 +3,7 @@
   <projects long_name="[null]" id="1" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Apache Struts"
             root_id="[null]"
             description="[null]"
-            enabled="[true]" language="java" copy_resource_id="[null]"/>
+            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"/>
 
   <snapshots purge_status="[null]" id="1" islast="[true]" root_project_id="1" project_id="1" scope="PRJ" qualifier="TRK"/>
 

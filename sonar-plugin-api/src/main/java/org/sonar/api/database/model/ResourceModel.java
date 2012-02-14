@@ -77,6 +77,9 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
   @Column(name = "copy_resource_id", updatable = true, nullable = true)
   private Integer copyResourceId;
 
+  @Column(name = "person_id", updatable = true, nullable = true)
+  private Integer personId;
+
   @OneToMany(mappedBy = "resource", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE})
   @BatchSize(size = 8)
   private List<ProjectLink> projectLinks = new ArrayList<ProjectLink>();
@@ -94,11 +97,11 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
   /**
    * <p>Creates a resource model</p>
    *
-   * @param scope the scope the rule will apply on
-   * @param key the rule key. This is the name of the resource, including the path
+   * @param scope     the scope the rule will apply on
+   * @param key       the rule key. This is the name of the resource, including the path
    * @param qualifier the resource qualifier
-   * @param rootId the rootId for the resource
-   * @param name the short name of the resource
+   * @param rootId    the rootId for the resource
+   * @param name      the short name of the resource
    */
   public ResourceModel(String scope, String key, String qualifier, Integer rootId, String name) {
     this.scope = scope;
@@ -154,7 +157,7 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
    */
   public void setName(String name) {
     this.name = StringUtils.abbreviate(name, NAME_COLUMN_SIZE);
-    if (this.longName==null) {
+    if (this.longName == null) {
       this.longName = this.name;
     }
   }
@@ -206,8 +209,24 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
     return copyResourceId;
   }
 
-  public void setCopyResourceId(Integer copyResourceId) {
-    this.copyResourceId = copyResourceId;
+  public ResourceModel setCopyResourceId(Integer i) {
+    this.copyResourceId = i;
+    return this;
+  }
+
+  /**
+   * @since 2.14
+   */
+  public Integer getPersonId() {
+    return personId;
+  }
+
+  /**
+   * @since 2.14
+   */
+  public ResourceModel setPersonId(Integer i) {
+    this.personId = i;
+    return this;
   }
 
   /**
@@ -254,35 +273,36 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
     }
     ResourceModel other = (ResourceModel) obj;
     return new EqualsBuilder()
-        .append(key, other.key)
-        .append(enabled, other.enabled)
-        .append(rootId, other.rootId)
-        .isEquals();
+      .append(key, other.key)
+      .append(enabled, other.enabled)
+      .append(rootId, other.rootId)
+      .isEquals();
   }
 
   @Override
   public int hashCode() {
     return new HashCodeBuilder(17, 37)
-        .append(key)
-        .append(enabled)
-        .append(rootId)
-        .toHashCode();
+      .append(key)
+      .append(enabled)
+      .append(rootId)
+      .toHashCode();
   }
 
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-        .append("id", getId())
-        .append("key", key)
-        .append("scope", scope)
-        .append("qualifier", qualifier)
-        .append("name", name)
-        .append("longName", longName)
-        .append("lang", languageKey)
-        .append("enabled", enabled)
-        .append("rootId", rootId)
-        .append("copyResourceId", copyResourceId)
-        .toString();
+      .append("id", getId())
+      .append("key", key)
+      .append("scope", scope)
+      .append("qualifier", qualifier)
+      .append("name", name)
+      .append("longName", longName)
+      .append("lang", languageKey)
+      .append("enabled", enabled)
+      .append("rootId", rootId)
+      .append("copyResourceId", copyResourceId)
+      .append("personId", personId)
+      .toString();
   }
 
   @Override
@@ -295,6 +315,7 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
     clone.setLanguageKey(getLanguageKey());
     clone.setCopyResourceId(getCopyResourceId());
     clone.setLongName(getLongName());
+    clone.setPersonId(getPersonId());
     return clone;
   }
 

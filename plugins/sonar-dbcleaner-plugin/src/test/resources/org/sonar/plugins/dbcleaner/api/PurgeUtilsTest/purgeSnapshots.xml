@@ -10,24 +10,24 @@
   <projects long_name="[null]" id="1" scope="PRJ" qualifier="TRK" kee="mygroup:myartifact" name="project"
             root_id="[null]"
             description="[null]"
-            enabled="true" language="java" copy_resource_id="[null]"/>
+            enabled="true" language="java" copy_resource_id="[null]" person_id="[null]"/>
 
   <!-- package -->
   <projects long_name="[null]" id="2" scope="DIR" qualifier="PAC" kee="mygroup:myartifact:my.package" name="package"
             root_id="1"
             description="[null]"
-            enabled="true" language="java" copy_resource_id="[null]"/>
+            enabled="true" language="java" copy_resource_id="[null]" person_id="[null]"/>
 
   <!-- files -->
   <projects long_name="[null]" id="3" scope="FIL" qualifier="CLA" kee="mygroup:myartifact:my.package.Class1"
             name="class" root_id="1"
             description="[null]"
-            enabled="true" language="java" copy_resource_id="[null]"/>
+            enabled="true" language="java" copy_resource_id="[null]" person_id="[null]"/>
 
   <projects long_name="[null]" id="4" scope="FIL" qualifier="CLA" kee="mygroup:myartifact:my.package.Class2"
             name="class" root_id="1"
             description="[null]"
-            enabled="true" language="java" copy_resource_id="[null]"/>
+            enabled="true" language="java" copy_resource_id="[null]" person_id="[null]"/>
 
 
   <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]" period3_param="[null]"

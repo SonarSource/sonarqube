@@ -39,7 +39,7 @@ public class DefaultPurgeTaskTest {
 
     task.purge(1L);
 
-    verify(purgeDao).purgeProject(1L, new String[]{Scopes.FILE});
+    verify(purgeDao).purge(1L, new String[]{Scopes.FILE});
   }
 
   @Test
@@ -50,17 +50,17 @@ public class DefaultPurgeTaskTest {
 
     task.purge(1L);
 
-    verify(purgeDao).purgeProject(1L, new String[]{Scopes.DIRECTORY, Scopes.FILE});
+    verify(purgeDao).purge(1L, new String[]{Scopes.DIRECTORY, Scopes.FILE});
   }
 
   @Test
   public void shouldNotFailOnErrors() {
     PurgeDao purgeDao = mock(PurgeDao.class);
-    when(purgeDao.purgeProject(anyLong(), (String[]) any())).thenThrow(new RuntimeException());
+    when(purgeDao.purge(anyLong(), (String[]) any())).thenThrow(new RuntimeException());
     DefaultPurgeTask task = new DefaultPurgeTask(purgeDao, new Settings(), mock(DefaultPeriodCleaner.class));
 
     task.purge(1L);
 
-    verify(purgeDao).purgeProject(anyLong(), (String[]) any());
+    verify(purgeDao).purge(anyLong(), (String[]) any());
   }
 }

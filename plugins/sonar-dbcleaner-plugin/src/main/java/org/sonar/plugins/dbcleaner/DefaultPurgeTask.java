@@ -83,7 +83,7 @@ public class DefaultPurgeTask implements PurgeTask {
   private void doPurge(long resourceId) {
     try {
       LOG.debug("Purge data [id=" + resourceId + "]");
-      purgeDao.purgeProject(resourceId, getScopesWithoutHistoricalData());
+      purgeDao.purge(resourceId, getScopesWithoutHistoricalData());
     } catch (Exception e) {
       // purge errors must no fail the batch
       LOG.error("Fail to purge data [id=" + resourceId + "]", e);

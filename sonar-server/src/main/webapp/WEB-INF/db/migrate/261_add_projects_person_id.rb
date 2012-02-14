@@ -21,10 +21,10 @@
 #
 # Sonar 2.14
 #
-class RenameActionPlansColumns < ActiveRecord::Migration
+class AddProjectsPersonId < ActiveRecord::Migration
 
   def self.up
-    rename_column(:action_plans, :dead_line, :deadline)
+    add_column 'projects', 'person_id', :integer, :null => true
   end
 
 end

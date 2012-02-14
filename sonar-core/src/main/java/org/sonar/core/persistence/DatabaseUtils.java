@@ -46,6 +46,7 @@ public final class DatabaseUtils {
     "active_rule_parameters",
     "active_rule_param_changes",
     "alerts",
+    "authors",
     "characteristics",
     "characteristic_edges",
     "characteristic_properties",

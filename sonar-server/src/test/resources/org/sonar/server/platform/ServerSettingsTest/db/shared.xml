@@ -4,7 +4,7 @@
   <projects long_name="[null]" id="3333" scope="PRJ" qualifier="TRK" kee="mygroup:anotherproject" name="[null]"
             root_id="[null]"
             description="[null]"
-            enabled="true" language="java" copy_resource_id="[null]"/>
+            enabled="true" language="java" copy_resource_id="[null]" person_id="[null]"/>
 
   <!-- general properties -->
   <properties prop_key="general_only" resource_id="[null]" user_id="[null]" text_value="is_general"/>
