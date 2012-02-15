@@ -22,9 +22,12 @@
 # Sonar 2.3.1
 #
 class DeleteActiveRulesOrphans < ActiveRecord::Migration
+  class ActiveRule < ActiveRecord::Base
+  end
 
   def self.up
     # see http://jira.codehaus.org/browse/SONAR-1881
+    ActiveRule.reset_column_information
     orphans=ActiveRule.find_by_sql "SELECT ar.* FROM active_rules ar WHERE NOT EXISTS (SELECT * FROM rules_profiles pr WHERE pr.id=ar.profile_id)"
     orphans.each do |orphan|
       orphan.destroy

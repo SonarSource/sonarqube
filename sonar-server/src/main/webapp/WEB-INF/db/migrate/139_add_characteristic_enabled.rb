@@ -25,7 +25,6 @@ class AddCharacteristicEnabled < ActiveRecord::Migration
 
   def self.up
     add_column 'characteristics', 'enabled', :boolean, :null => true
-    Characteristic.reset_column_information
   end
 
 end

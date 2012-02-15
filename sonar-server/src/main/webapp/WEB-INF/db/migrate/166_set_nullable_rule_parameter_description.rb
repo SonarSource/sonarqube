@@ -23,15 +23,17 @@
 #
 class SetNullableRuleParameterDescription < ActiveRecord::Migration
 
+  class RulesParameter < ActiveRecord::Base
+  end
+
   def self.up
     add_column(:rules_parameters, :temp_description, :string, :limit => 4000, :null => true)
-    RulesParameter.reset_column_information
 
+    RulesParameter.reset_column_information
     RulesParameter.update_all('temp_description=description')
 
     remove_column(:rules_parameters, :description)
     rename_column(:rules_parameters, :temp_description, :description)
-    RulesParameter.reset_column_information
   end
 
 end

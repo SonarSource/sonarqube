@@ -23,7 +23,11 @@
 #
 class DeleteUnvalidProjectSnapshots < ActiveRecord::Migration
 
+  class Snapshot < ActiveRecord::Base
+  end
+
   def self.up
+    Snapshot.reset_column_information
     snapshots=select_snapshots_without_measures
     delete_snapshots(snapshots)
   end

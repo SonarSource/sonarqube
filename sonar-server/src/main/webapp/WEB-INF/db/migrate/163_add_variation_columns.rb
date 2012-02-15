@@ -23,7 +23,16 @@
 #
 class AddVariationColumns < ActiveRecord::Migration
 
+  class ProjectMeasure < ActiveRecord::Base
+  end
+
+  class Snapshot < ActiveRecord::Base
+  end
+
   def self.up
+    ProjectMeasure.reset_column_information
+    Snapshot.reset_column_information
+
     dialect = ActiveRecord::Base.configurations[ ENV['RAILS_ENV'] ]["dialect"]
     say "Detected dialect: #{dialect}"
 
@@ -49,9 +58,6 @@ class AddVariationColumns < ActiveRecord::Migration
 
       add_snapshots_columns()
     end
-
-    ProjectMeasure.reset_column_information()
-    Snapshot.reset_column_information()
   end
 
   private
@@ -195,7 +201,6 @@ class AddVariationColumns < ActiveRecord::Migration
   def self.remove_measures_column(colname)
     begin
       remove_column :project_measures, colname
-      ProjectMeasure.reset_column_information()
     rescue
       # already removed
     end
@@ -204,13 +209,10 @@ class AddVariationColumns < ActiveRecord::Migration
   def self.add_measures_column(colname)
     unless ProjectMeasure.column_names.include?(name)
       add_column(:project_measures, colname, :decimal, :null => true, :precision => 30, :scale => 20)
-      ProjectMeasure.reset_column_information()
     end
   end
 
   def self.add_snapshots_columns()
-     Snapshot.reset_column_information()
-
      add_period_column('period1_mode', :string, :null => true, :limit => 100)
      add_period_column('period1_param', :string, :null => true, :limit => 100)
      add_period_column('period1_date', :datetime, :null => true)

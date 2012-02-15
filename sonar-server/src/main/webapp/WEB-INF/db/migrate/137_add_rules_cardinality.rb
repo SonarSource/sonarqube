@@ -22,6 +22,8 @@
 # Sonar 2.3
 #
 class AddRulesCardinality < ActiveRecord::Migration
+  class Rule < ActiveRecord::Base
+  end
 
   def self.up
     add_column 'rules', 'cardinality', :string, :null => true, :limit => 10

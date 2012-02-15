@@ -23,15 +23,17 @@
 #
 class SetNullableRuleConfigKey < ActiveRecord::Migration
 
+  class Rule < ActiveRecord::Base
+  end
+
   def self.up
     add_column(:rules, :temp_plugin_config_key, :string, :limit => 500, :null => true)
-    Rule.reset_column_information
 
+    Rule.reset_column_information
     Rule.update_all('temp_plugin_config_key=plugin_config_key')
 
     remove_column(:rules, :plugin_config_key)
     rename_column(:rules, :temp_plugin_config_key, :plugin_config_key)
-    Rule.reset_column_information
   end
 
 end

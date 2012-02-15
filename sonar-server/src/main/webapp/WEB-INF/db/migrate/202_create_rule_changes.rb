@@ -23,6 +23,9 @@
 #
 class CreateRuleChanges < ActiveRecord::Migration
 
+  class RulesProfile < ActiveRecord::Base
+  end
+
   def self.up
     create_table :active_rule_changes do |t|
       t.column :user_name,               :string,    :limit => 200,  :null => false
@@ -46,8 +49,9 @@ class CreateRuleChanges < ActiveRecord::Migration
 
     add_column 'rules_profiles', 'version',      :integer, :default => 1
     add_column 'rules_profiles', 'used_profile', :boolean, :default => false
-    Profile.reset_column_information
-    Profile.update_all(Profile.sanitize_sql_for_assignment({:used_profile => false, :version => 1}))
+
+    RulesProfile.reset_column_information
+    RulesProfile.update_all(RulesProfile.sanitize_sql_for_assignment({:used_profile => false, :version => 1}))
   end
 
 end

@@ -23,8 +23,12 @@
 #
 class AddRulesEnabledColumn < ActiveRecord::Migration
 
+  class Rule < ActiveRecord::Base
+  end
+
   def self.up
     add_column 'rules', 'enabled', :boolean, :null => true
+
     Rule.reset_column_information
     Rule.update_all(Rule.sanitize_sql_for_assignment({:enabled=>true}))
   end

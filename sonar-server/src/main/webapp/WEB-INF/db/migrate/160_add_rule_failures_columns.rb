@@ -26,7 +26,6 @@ class AddRuleFailuresColumns < ActiveRecord::Migration
   def self.up
     add_column 'rule_failures', 'created_at', :datetime, :null => true
     add_column 'rule_failures', 'checksum', :string , :null => true, :limit => 1000
-    RuleFailure.reset_column_information()
   end
 
 end

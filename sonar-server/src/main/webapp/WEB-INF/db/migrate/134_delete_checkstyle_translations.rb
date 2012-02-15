@@ -23,12 +23,12 @@
 #
 class DeleteCheckstyleTranslations < ActiveRecord::Migration
 
-  def self.up
-    delete_rule('com.puppycrawl.tools.checkstyle.checks.TranslationCheck')
+  class Rule < ActiveRecord::Base
   end
 
-  def self.down
-
+  def self.up
+    Rule.reset_column_information
+    delete_rule('com.puppycrawl.tools.checkstyle.checks.TranslationCheck')
   end
 
   private
