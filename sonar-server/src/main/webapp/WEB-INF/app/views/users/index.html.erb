@@ -64,7 +64,6 @@
         </tr>
         
       <% if @user && !@user.active %>
-      <%= @user.name -%>
         <%= f.hidden_field :login %>
         <tr>
           <td>
