@@ -42,7 +42,7 @@ public class Violation {
   private boolean isNew = false;
   private boolean isManual = false;
   private Integer permanentId;
-  private String committer;
+  private Integer personId;
 
   /**
    * Creates of a violation from a rule. Will need to define the resource later on
@@ -319,8 +319,8 @@ public class Violation {
   /**
    * @since 2.13
    */
-  public String getCommitter() {
-    return committer;
+  public Integer getPersonId() {
+    return personId;
   }
 
   /**
@@ -328,8 +328,8 @@ public class Violation {
    * 
    * @since 2.13
    */
-  public Violation setCommitter(String committer) {
-    this.committer = committer;
+  public Violation setPersonId(Integer i) {
+    this.personId = i;
     return this;
   }
 

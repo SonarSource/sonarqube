@@ -116,8 +116,8 @@ public class MeasureModel implements Cloneable {
   @JoinColumn(name = "characteristic_id")
   private Characteristic characteristic;
 
-  @Column(name = "committer", updatable = true, nullable = true, length = 100)
-  private String committer;
+  @Column(name = "person_id", updatable = true, nullable = true)
+  private Integer personId;
 
   public Long getId() {
     return id;
@@ -522,12 +522,12 @@ public class MeasureModel implements Cloneable {
     return this;
   }
 
-  public String getCommitter() {
-    return committer;
+  public Integer getPersonId() {
+    return personId;
   }
 
-  public MeasureModel setCommitter(String committer) {
-    this.committer = committer;
+  public MeasureModel setPersonId(Integer i) {
+    this.personId = i;
     return this;
   }
 
@@ -552,7 +552,7 @@ public class MeasureModel implements Cloneable {
     clone.setMeasureDate(getMeasureDate());
     clone.setUrl(getUrl());
     clone.setCharacteristic(getCharacteristic());
-    clone.setCommitter(getCommitter());
+    clone.setPersonId(getPersonId());
     return clone;
   }
 

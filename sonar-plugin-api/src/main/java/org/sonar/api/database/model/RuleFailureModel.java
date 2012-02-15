@@ -67,8 +67,8 @@ public class RuleFailureModel extends BaseIdentifiable {
   @Column(name = "switched_off", updatable = true, nullable = true)
   private Boolean switchedOff = Boolean.FALSE;
 
-  @Column(name = "committer", updatable = true, nullable = true, length = 100)
-  private String committer;
+  @Column(name = "person_id", updatable = true, nullable = true)
+  private Integer personId;
 
   public String getMessage() {
     return message;
@@ -173,12 +173,12 @@ public class RuleFailureModel extends BaseIdentifiable {
     return this;
   }
 
-  public String getCommitter() {
-    return committer;
+  public Integer getPersonId() {
+    return personId;
   }
 
-  public RuleFailureModel setCommitter(String committer) {
-    this.committer = committer;
+  public RuleFailureModel setPersonId(Integer i) {
+    this.personId = i;
     return this;
   }
 

@@ -92,10 +92,10 @@ class DrilldownColumn
     end
 
     if options[:committer]
-      conditions += ' AND project_measures.committer=:committer'
+      conditions += ' AND project_measures.person_id=:committer'
       condition_values[:committer]=options[:committer]
     else
-      conditions += ' AND project_measures.committer IS NULL'
+      conditions += ' AND project_measures.person_id IS NULL'
     end
 
     @measures=ProjectMeasure.find(:all,

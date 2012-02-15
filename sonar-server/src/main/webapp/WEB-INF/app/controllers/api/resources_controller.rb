@@ -97,7 +97,7 @@ class Api::ResourcesController < Api::ApiController
           end
         end
 
-        measures_conditions << 'project_measures.committer IS NULL'
+        measures_conditions << 'project_measures.person_id IS NULL'
         add_rule_filters(measures_conditions, measures_values)
         add_characteristic_filters(measures_conditions, measures_values)
 

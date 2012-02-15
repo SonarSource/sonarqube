@@ -100,7 +100,7 @@ public class DefaultTimeMachine implements TimeMachine {
     params.put("lib", Qualifiers.LIBRARY);
 
     sb.append(" AND m.characteristic IS NULL");
-    sb.append(" AND m.committer IS NULL");
+    sb.append(" AND m.personId IS NULL");
     sb.append(" AND m.ruleId IS NULL AND m.rulePriority IS NULL");
     if (!metricIds.isEmpty()) {
       sb.append(" AND m.metricId IN (:metricIds) ");
@@ -162,7 +162,7 @@ public class DefaultTimeMachine implements TimeMachine {
     measure.setVariation5(model.getVariationValue5());
     measure.setUrl(model.getUrl());
     measure.setCharacteristic(model.getCharacteristic());
-    measure.setCommitter(model.getCommitter());
+    measure.setPersonId(model.getPersonId());
     return measure;
   }
 }

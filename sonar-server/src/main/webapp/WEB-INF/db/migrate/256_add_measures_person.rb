@@ -21,10 +21,10 @@
 #
 # Sonar 2.14
 #
-class AddMeasuresCommitter < ActiveRecord::Migration
+class AddMeasuresPerson < ActiveRecord::Migration
 
   def self.up
-    add_column 'project_measures', 'committer', :string, :null => true, :limit => 100
+    add_column 'project_measures', 'person_id', :integer, :null => true
   end
 
 end

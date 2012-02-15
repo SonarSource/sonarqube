@@ -129,18 +129,18 @@ public class MeasureTest {
     assertThat(measure1.hashCode(), equalTo(measure2.hashCode()));
 
     // different committer
-    measure1.setCommitter("simon");
+    measure1.setPersonId(1);
     assertThat(measure1.equals(measure2), is(false));
     assertThat(measure2.equals(measure1), is(false));
     assertThat(measure1.hashCode(), not(equalTo(measure2.hashCode())));
 
-    measure2.setCommitter("evgeny");
+    measure2.setPersonId(2);
     assertThat(measure1.equals(measure2), is(false));
     assertThat(measure2.equals(measure1), is(false));
     assertThat(measure1.hashCode(), not(equalTo(measure2.hashCode())));
 
     // same committer
-    measure2.setCommitter("simon");
+    measure2.setPersonId(1);
     assertThat(measure1.equals(measure2), is(true));
     assertThat(measure2.equals(measure1), is(true));
     assertThat(measure1.hashCode(), equalTo(measure2.hashCode()));

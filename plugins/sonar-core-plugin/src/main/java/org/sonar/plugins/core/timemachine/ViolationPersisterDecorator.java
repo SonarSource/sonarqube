@@ -96,7 +96,7 @@ public class ViolationPersisterDecorator implements Decorator {
     model.setChecksum(violation.getChecksum());
     model.setCreatedAt(violation.getCreatedAt());
     model.setSwitchedOff(violation.isSwitchedOff());
-    model.setCommitter(violation.getCommitter());
+    model.setPersonId(violation.getPersonId());
     return model;
   }
 }

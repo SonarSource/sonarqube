@@ -98,10 +98,10 @@ public class VariationDecorator implements Decorator {
       // compare with past measure
       Integer metricId = (measure.getMetric().getId() != null ? measure.getMetric().getId() : metricFinder.findByKey(measure.getMetric().getKey()).getId());
       Integer characteristicId = (measure.getCharacteristic() != null ? measure.getCharacteristic().getId() : null);
-      String committer = measure.getCommitter();
+      Integer personId = measure.getPersonId();
       Integer ruleId =  (measure instanceof RuleMeasure ? ((RuleMeasure)measure).getRule().getId() : null);
 
-      Object[] pastMeasure = pastMeasuresByKey.get(new MeasureKey(metricId, characteristicId, committer, ruleId));
+      Object[] pastMeasure = pastMeasuresByKey.get(new MeasureKey(metricId, characteristicId, personId, ruleId));
       if (updateVariation(measure, pastMeasure, index)) {
         context.saveMeasure(measure);
       }
@@ -125,20 +125,20 @@ public class VariationDecorator implements Decorator {
   static final class MeasureKey {
     int metricId;
     Integer characteristicId;
-    String committer;
+    Integer personId;
     Integer ruleId;
 
     MeasureKey(Object[] pastFields) {
       metricId = PastMeasuresLoader.getMetricId(pastFields);
       characteristicId = PastMeasuresLoader.getCharacteristicId(pastFields);
-      committer = PastMeasuresLoader.getCommitter(pastFields);
+      personId = PastMeasuresLoader.getPersonId(pastFields);
       ruleId = PastMeasuresLoader.getRuleId(pastFields);
     }
 
-    MeasureKey(int metricId, Integer characteristicId, String committer, Integer ruleId) {
+    MeasureKey(int metricId, Integer characteristicId, Integer personId, Integer ruleId) {
       this.metricId = metricId;
       this.characteristicId = characteristicId;
-      this.committer = committer;
+      this.personId = personId;
       this.ruleId = ruleId;
     }
 
@@ -157,7 +157,7 @@ public class VariationDecorator implements Decorator {
       if (characteristicId != null ? !characteristicId.equals(that.characteristicId) : that.characteristicId != null) {
         return false;
       }
-      if (committer != null ? !committer.equals(that.committer) : that.committer != null) {
+      if (personId != null ? !personId.equals(that.personId) : that.personId != null) {
         return false;
       }
       if (ruleId != null ? !ruleId.equals(that.ruleId) : that.ruleId != null) {
@@ -170,7 +170,7 @@ public class VariationDecorator implements Decorator {
     public int hashCode() {
       int result = metricId;
       result = 31 * result + (characteristicId != null ? characteristicId.hashCode() : 0);
-      result = 31 * result + (committer != null ? committer.hashCode() : 0);
+      result = 31 * result + (personId != null ? personId.hashCode() : 0);
       result = 31 * result + (ruleId != null ? ruleId.hashCode() : 0);
       return result;
     }

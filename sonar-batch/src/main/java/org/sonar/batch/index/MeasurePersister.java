@@ -150,7 +150,7 @@ public final class MeasurePersister {
     merge.setVariationValue5(measure.getVariation5());
     merge.setUrl(measure.getUrl());
     merge.setCharacteristic(measure.getCharacteristic());
-    merge.setCommitter(measure.getCommitter());
+    merge.setPersonId(measure.getPersonId());
     if (measure.getValue() != null) {
       merge.setValue(measure.getValue().doubleValue());
     } else {

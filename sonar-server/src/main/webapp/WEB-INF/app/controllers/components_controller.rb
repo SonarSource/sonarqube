@@ -99,7 +99,7 @@ class ComponentsController < ApplicationController
           'rule_id' => nil,
           'rule_priority' => nil,
           'characteristic_id' => nil,
-          'committer' => nil}))
+          'person_id' => nil}))
       end
       measures
     else

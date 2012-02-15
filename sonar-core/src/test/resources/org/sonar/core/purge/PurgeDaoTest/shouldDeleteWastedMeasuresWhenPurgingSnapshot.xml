@@ -32,7 +32,7 @@
                     variation_value_4="[null]"
                     variation_value_5="[null]" rule_priority="[null]" alert_text="[null]" value="10.0"
                     rules_category_id="[null]"
-                    committer="[null]"
+                    person_id="[null]"
                     text_value="[null]" tendency="[null]" measure_date="[null]" alert_status="[null]"
                     description="[null]"/>
 
@@ -42,7 +42,7 @@
                     variation_value_4="[null]"
                     variation_value_5="[null]" rule_priority="[null]" alert_text="[null]" value="10.0"
                     rules_category_id="[null]"
-                    committer="[null]"
+                    person_id="[null]"
                     text_value="[null]" tendency="[null]" measure_date="[null]" alert_status="[null]"
                     description="[null]"/>
 
@@ -52,7 +52,7 @@
                     variation_value_4="[null]"
                     variation_value_5="[null]" rule_priority="[null]" alert_text="[null]" value="10.0"
                     rules_category_id="[null]"
-                    committer="[null]"
+                    person_id="[null]"
                     text_value="[null]" tendency="[null]" measure_date="[null]" alert_status="[null]"
                     description="[null]"/>
 
@@ -62,7 +62,7 @@
                     variation_value_4="[null]"
                     variation_value_5="[null]" rule_priority="[null]" alert_text="[null]" value="10.0"
                     rules_category_id="[null]"
-                    committer="[null]"
+                    person_id="[null]"
                     text_value="[null]" tendency="[null]" measure_date="[null]" alert_status="[null]"
                     description="[null]"/>
 
@@ -72,7 +72,7 @@
                     variation_value_4="[null]"
                     variation_value_5="[null]" rule_priority="[null]" alert_text="[null]" value="10.0"
                     rules_category_id="[null]"
-                    committer="[null]"
+                    person_id="[null]"
                     text_value="[null]" tendency="[null]" measure_date="[null]" alert_status="[null]"
                     description="[null]"/>
 </dataset>

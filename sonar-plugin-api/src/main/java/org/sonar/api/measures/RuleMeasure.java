@@ -113,7 +113,7 @@ public class RuleMeasure extends Measure {
     RuleMeasure other = (RuleMeasure) obj;
     return new EqualsBuilder()
       .append(getMetric(), other.getMetric())
-      .append(committer, other.committer)
+      .append(personId, other.personId)
       .append(rule, other.rule)
       .isEquals();
   }
@@ -127,7 +127,7 @@ public class RuleMeasure extends Measure {
   public int hashCode() {
     return new HashCodeBuilder(17, 37)
       .append(getMetric())
-      .append(committer)
+      .append(personId)
       .append(rule)
       .toHashCode();
   }
@@ -137,7 +137,7 @@ public class RuleMeasure extends Measure {
     return new ToStringBuilder(this)
       .append("id", getId())
       .append("metric", metric)
-      .append("committer", committer)
+      .append("personId", personId)
       .append("rule", rule)
       .append("value", value)
       .append("data", data)

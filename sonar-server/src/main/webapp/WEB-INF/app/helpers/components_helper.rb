@@ -67,7 +67,7 @@ module ComponentsHelper
     return nil if items.nil?
     items.each do |item|
       metric = Metric.by_name(metric_name)
-      return item if (item && metric && item.metric_id==metric.id && item.rule_priority.nil? && item.characteristic_id.nil? && item.committer.nil?)
+      return item if (item && metric && item.metric_id==metric.id && item.rule_priority.nil? && item.characteristic_id.nil? && item.person_id.nil?)
     end
     nil
   end

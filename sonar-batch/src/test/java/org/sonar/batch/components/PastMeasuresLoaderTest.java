@@ -52,13 +52,13 @@ public class PastMeasuresLoaderTest extends AbstractDbUnitTestCase {
     Object[] pastMeasure = measures.get(0);
     assertThat(PastMeasuresLoader.getMetricId(pastMeasure), is(1));
     assertThat(PastMeasuresLoader.getCharacteristicId(pastMeasure), nullValue());
-    assertThat(PastMeasuresLoader.getCommitter(pastMeasure), nullValue());
+    assertThat(PastMeasuresLoader.getPersonId(pastMeasure), nullValue());
     assertThat(PastMeasuresLoader.getValue(pastMeasure), is(5.0));
 
     pastMeasure = measures.get(1);
     assertThat(PastMeasuresLoader.getMetricId(pastMeasure), is(2));
     assertThat(PastMeasuresLoader.getCharacteristicId(pastMeasure), nullValue());
-    assertThat(PastMeasuresLoader.getCommitter(pastMeasure), nullValue());
+    assertThat(PastMeasuresLoader.getPersonId(pastMeasure), nullValue());
     assertThat(PastMeasuresLoader.getValue(pastMeasure), is(60.0));
   }
 
@@ -76,13 +76,13 @@ public class PastMeasuresLoaderTest extends AbstractDbUnitTestCase {
     Object[] pastMeasure = measures.get(0);
     assertThat(PastMeasuresLoader.getMetricId(pastMeasure), is(1));
     assertThat(PastMeasuresLoader.getCharacteristicId(pastMeasure), nullValue());
-    assertThat(PastMeasuresLoader.getCommitter(pastMeasure), nullValue());
+    assertThat(PastMeasuresLoader.getPersonId(pastMeasure), nullValue());
     assertThat(PastMeasuresLoader.getValue(pastMeasure), is(60.0));
 
     pastMeasure = measures.get(1);
     assertThat(PastMeasuresLoader.getMetricId(pastMeasure), is(2));
     assertThat(PastMeasuresLoader.getCharacteristicId(pastMeasure), nullValue());
-    assertThat(PastMeasuresLoader.getCommitter(pastMeasure), nullValue());
+    assertThat(PastMeasuresLoader.getPersonId(pastMeasure), nullValue());
     assertThat(PastMeasuresLoader.getValue(pastMeasure), is(80.0));
   }
 

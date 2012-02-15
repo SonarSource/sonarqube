@@ -53,7 +53,7 @@ public class Measure {
   protected Double variation1, variation2, variation3, variation4, variation5;
   protected String url;
   protected Characteristic characteristic;
-  protected String committer;
+  protected Integer personId;
   protected PersistenceMode persistenceMode = PersistenceMode.FULL;
 
   public Measure(String metricKey) {
@@ -596,16 +596,16 @@ public class Measure {
    * @since 2.14
    */
   @Beta
-  public String getCommitter() {
-    return committer;
+  public Integer getPersonId() {
+    return personId;
   }
 
   /**
    * @since 2.14
    */
   @Beta
-  public Measure setCommitter(String committer) {
-    this.committer = committer;
+  public Measure setPersonId(Integer i) {
+    this.personId = i;
     return this;
   }
 
@@ -625,7 +625,7 @@ public class Measure {
     if (characteristic != null ? !characteristic.equals(measure.characteristic) : measure.characteristic != null) {
       return false;
     }
-    if (committer != null ? !committer.equals(measure.committer) : measure.committer != null) {
+    if (personId != null ? !personId.equals(measure.personId) : measure.personId != null) {
       return false;
     }
     return true;
@@ -635,7 +635,7 @@ public class Measure {
   public int hashCode() {
     int result = metricKey != null ? metricKey.hashCode() : 0;
     result = 31 * result + (characteristic != null ? characteristic.hashCode() : 0);
-    result = 31 * result + (committer != null ? committer.hashCode() : 0);
+    result = 31 * result + (personId != null ? personId.hashCode() : 0);
     return result;
   }
 
