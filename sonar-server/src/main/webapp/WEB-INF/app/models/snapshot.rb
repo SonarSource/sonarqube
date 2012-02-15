@@ -39,13 +39,6 @@ class Snapshot < ActiveRecord::Base
   STATUS_UNPROCESSED = 'U'
   STATUS_PROCESSED = 'P'
 
-  def self.last_enabled_projects
-    Snapshot.find(:all,
-                  :include => 'project',
-                  :conditions => ['snapshots.islast=? and projects.scope=? and projects.qualifier=? and snapshots.scope=? and snapshots.qualifier=?',
-                                  true, Project::SCOPE_SET, Project::QUALIFIER_PROJECT, Project::SCOPE_SET, Project::QUALIFIER_PROJECT])
-  end
-
   def self.for_timemachine_matrix(resource)
     # http://jira.codehaus.org/browse/SONAR-1850
     # Conditions on scope and qualifier are required to exclude library snapshots.
