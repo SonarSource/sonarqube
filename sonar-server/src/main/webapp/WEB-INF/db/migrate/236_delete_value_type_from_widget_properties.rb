@@ -25,7 +25,6 @@ class DeleteValueTypeFromWidgetProperties < ActiveRecord::Migration
 
   def self.up
     remove_column('widget_properties', 'value_type')
-    WidgetProperty.reset_column_information()
   end
 
 end

@@ -23,15 +23,17 @@
 #
 class SetNullableRuleName < ActiveRecord::Migration
 
+  class Rule < ActiveRecord::Base
+  end
+
   def self.up
     add_column(:rules, :temp_name, :string, :limit => 200, :null => true)
-    Rule.reset_column_information
 
+    Rule.reset_column_information
     Rule.update_all('temp_name=name')
 
     remove_column(:rules, :name)
     rename_column(:rules, :temp_name, :name)
-    Rule.reset_column_information
   end
 
 end

@@ -23,10 +23,13 @@
 #
 class AddActiveFieldOnUsers < ActiveRecord::Migration
 
+  class User < ActiveRecord::Base
+  end
+
   def self.up
     add_column 'users', 'active', :boolean, :null => true, :default => true
+
     User.reset_column_information
-    
     User.find(:all).each do |user|
       user.active = true
       user.save

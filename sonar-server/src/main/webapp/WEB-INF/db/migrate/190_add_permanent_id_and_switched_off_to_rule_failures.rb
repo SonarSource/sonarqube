@@ -26,9 +26,7 @@ class AddPermanentIdAndSwitchedOffToRuleFailures < ActiveRecord::Migration
   def self.up
     add_column 'rule_failures', 'permanent_id', :integer, :null => true
     add_column 'rule_failures', 'switched_off', :boolean, :null => true
-
     add_index 'rule_failures', 'permanent_id', :name => 'rf_permanent_id'
-    RuleFailure.reset_column_information
   end
 
 end

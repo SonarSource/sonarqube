@@ -24,7 +24,11 @@
 class AddIndexOnManualMeasures < ActiveRecord::Migration
 
   def self.up
-    add_index('manual_measures', 'resource_id', :name => 'manual_measures_resource_id')
+    begin
+      add_index 'manual_measures', 'resource_id', :name => 'manual_measures_resource_id'
+    rescue
+      # already exists
+    end
   end
 
 end

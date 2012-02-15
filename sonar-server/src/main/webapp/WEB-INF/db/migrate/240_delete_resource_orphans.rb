@@ -26,7 +26,11 @@
 #
 class DeleteResourceOrphans < ActiveRecord::Migration
 
+  class Project < ActiveRecord::Base
+  end
+
   def self.up
+    Project.reset_column_information
     ids=Project.find_by_sql(["select id from projects p where qualifier<>'LIB' and not exists (select * from snapshots s where s.project_id = p.id and s.islast=?)", true])
     say_with_time "Delete #{ids.size} resources" do
       # partition ids because of the Oracle limitation on IN statements

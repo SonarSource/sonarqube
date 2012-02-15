@@ -24,9 +24,7 @@
 class DeleteDuplicationsId < ActiveRecord::Migration
 
   def self.up
-    begin
-      remove_column('duplications_index', 'id')
-    end
+    remove_column('duplications_index', 'id')
   end
 
 end

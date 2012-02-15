@@ -10,14 +10,36 @@ HOW TO ADD A MIGRATION
 
 
 
-RECOMMANDATIONS
+RECOMMENDATIONS
 
-* Don't forget that index name limited to 30 characters in Oracle DB.
 * Prefer to add nullable columns to avoid problems during migration.
-* When adding index, do not forget to name the index (so that it is possible later to delete it)
-  + Example: 
-      add_index "action_plans", "project_id", :name => "ap_project_id"
-* When modifying columns in a table, do not forget to reset the column information on the Ruby model if you use it 
-  + Example:
-      add_column 'users', 'active', :boolean, :null => true, :default => true
-      User.reset_column_information
+
+* Always create an index with a name : add_index "action_plans", "project_id", :name => "action_plans_project_id"
+  Note that this name is limited to 30 characters because of Oracle constraint.
+
+* Silently ignore failures when adding an index that has already been created by users. It can occur when the index
+  is not created in the same migration script than the table.
+
+  begin
+    add_index "action_plans", "project_id", :name => "action_plans_project_id"
+  rescue
+    # ignore
+  end
+
+* Use faux models when touching rows (SELECT/INSERT/UPDATE/DELETE). See http://guides.rubyonrails.org/migrations.html#using-models-in-your-migrations
+  for more details.
+
+  class MyMigration < ActiveRecord::Migration
+    # This is the faux model. It only maps columns. No functional methods.
+    class Metric < ActiveRecord::Base
+    end
+
+    def self.up
+      # it’s a good idea to call reset_column_information to refresh the ActiveRecord cache for the model prior to
+      # updating data in the database
+      Metric.reset_column_information
+      Metric.find(:all) do |m|
+        m.save
+      end
+    end
+  end

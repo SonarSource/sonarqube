@@ -24,7 +24,11 @@
 class AddSnapshotsQualifierIndex < ActiveRecord::Migration
 
   def self.up
-    add_index :snapshots, :qualifier, :name => 'snapshots_qualifier'
+    begin
+      add_index :snapshots, :qualifier, :name => 'snapshots_qualifier'
+    rescue
+      # already exists
+    end
   end
 
 end

@@ -26,7 +26,6 @@ class AddRuleColumnsToReviews < ActiveRecord::Migration
   def self.up
     add_column 'reviews', 'rule_id', :integer, :null => true
     add_column 'reviews', 'manual_violation', :boolean, :null => true
-    Review.reset_column_information
   end
 
 end

@@ -24,7 +24,11 @@
 class AddIndexToMeasureDataSnapshot < ActiveRecord::Migration
 
   def self.up
-    add_index :measure_data, :snapshot_id, :name => 'm_data_sid'
+    begin
+      add_index :measure_data, :snapshot_id, :name => 'm_data_sid'
+    rescue
+      # already exists
+    end
   end
 
 end

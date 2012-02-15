@@ -30,8 +30,7 @@ class AddRuleAndActiveRuleNotes < ActiveRecord::Migration
       t.column :user_login,         :string,      :null => true,    :limit => 40
       t.column :data,               :binary,      :null => true
     end
-    add_index :active_rule_notes, :active_rule_id
-    
+    add_index :active_rule_notes, :active_rule_id, :name => 'active_rule_notes_active_rule_id'
     
     create_table :rule_notes do |t|
       t.timestamps
@@ -39,7 +38,7 @@ class AddRuleAndActiveRuleNotes < ActiveRecord::Migration
       t.column :user_login,     :string,      :null => true,    :limit => 40
       t.column :data,           :binary,      :null => true
     end
-    add_index :rule_notes, :rule_id
+    add_index :rule_notes, :rule_id, :name => 'rule_notes_rule_id'
   end
 
 end

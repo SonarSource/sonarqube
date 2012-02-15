@@ -28,6 +28,7 @@ class RenameDbcleanerProperties < ActiveRecord::Migration
 
 
   def self.up
+    Property.reset_column_information
     rename('sonar.dbcleaner.monthsBeforeKeepingOnlyOneSnapshotByWeek', 'sonar.dbcleaner.weeksBeforeKeepingOnlyOneSnapshotByWeek')
     rename('sonar.dbcleaner.monthsBeforeKeepingOnlyOneSnapshotByMonth', 'sonar.dbcleaner.weeksBeforeKeepingOnlyOneSnapshotByMonth')
     rename('sonar.dbcleaner.monthsBeforeDeletingAllSnapshots', 'sonar.dbcleaner.weeksBeforeDeletingAllSnapshots')

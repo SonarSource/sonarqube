@@ -22,9 +22,15 @@
 # Sonar 2.12
 #
 class AttachEventsToSnapshots < ActiveRecord::Migration
-  
+
+  class Event < ActiveRecord::Base
+  end
+
+
   def self.up
     logger = RAILS_DEFAULT_LOGGER
+    Event.reset_column_information
+
     Event.find(:all, :conditions => "snapshot_id IS NULL").each do |event|
       begin
         next_snapshot = Snapshot.find(:first, :conditions => ["created_at >= ? AND project_id = ?", event.event_date, event.resource_id], :order => :created_at)

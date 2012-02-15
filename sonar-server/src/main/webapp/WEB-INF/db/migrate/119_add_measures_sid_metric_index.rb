@@ -24,7 +24,11 @@
 class AddMeasuresSidMetricIndex < ActiveRecord::Migration
 
   def self.up
-    add_index :project_measures, [:snapshot_id, :metric_id], :name => 'measures_sid_metric'
+    begin
+      add_index :project_measures, [:snapshot_id, :metric_id], :name => 'measures_sid_metric'
+    rescue
+      # already exists
+    end
   end
 
 end

@@ -24,7 +24,16 @@
 #
 class RefactorRuleMeasures < ActiveRecord::Migration
 
+  class ProjectMeasure < ActiveRecord::Base
+  end
+
+  class Metric < ActiveRecord::Base
+  end
+
   def self.up
+    Metric.reset_column_information
+    ProjectMeasure.reset_column_information
+
     replace('violations', 0, 'info_violations')
     replace('violations', 1, 'minor_violations')
     replace('violations', 2, 'major_violations')

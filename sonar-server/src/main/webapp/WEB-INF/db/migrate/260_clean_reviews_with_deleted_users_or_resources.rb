@@ -23,8 +23,14 @@
 #
 class CleanReviewsWithDeletedUsersOrResources < ActiveRecord::Migration
 
+  class Review < ActiveRecord::Base
+  end
+
+  class ReviewComment < ActiveRecord::Base
+  end
+
   def self.up
-    
+    Review.reset_column_information
     Review.find(:all, :include => ['resource', 'assignee', 'user']).each do |review|
       if review.resource_id && !review.resource
         # For http://jira.codehaus.org/browse/SONAR-3223
@@ -45,6 +51,7 @@ class CleanReviewsWithDeletedUsersOrResources < ActiveRecord::Migration
     end
 
     # For http://jira.codehaus.org/browse/SONAR-3102
+    ReviewComment.reset_column_information
     ReviewComment.find(:all, :include => 'user').each do |comment|
       comment.delete if comment.user_id && !comment.user
     end   

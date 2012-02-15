@@ -25,7 +25,7 @@ class AddIndexOnReviewResourceId < ActiveRecord::Migration
 
   def self.up
     begin
-      add_index('reviews', 'resource_id', :name => 'reviews_rid')
+      add_index('reviews', 'resource_id', :name => 'reviews_resource_id')
     rescue
       # already exists
     end

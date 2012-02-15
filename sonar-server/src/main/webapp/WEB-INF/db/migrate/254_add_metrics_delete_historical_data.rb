@@ -25,7 +25,6 @@ class AddMetricsDeleteHistoricalData < ActiveRecord::Migration
 
   def self.up
     add_column 'metrics', 'delete_historical_data', :boolean, :null => true
-    Metric.reset_column_information
   end
 
 end

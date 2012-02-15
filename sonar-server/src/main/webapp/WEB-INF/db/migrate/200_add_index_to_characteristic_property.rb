@@ -24,7 +24,11 @@
 class AddIndexToCharacteristicProperty < ActiveRecord::Migration
 
   def self.up
-    add_index :characteristic_properties, :characteristic_id, :name => 'characteristic_properties_cid'
+    begin
+      add_index :characteristic_properties, :characteristic_id, :name => 'characteristic_properties_cid'
+    rescue
+      # already exists
+    end
   end
 
 end

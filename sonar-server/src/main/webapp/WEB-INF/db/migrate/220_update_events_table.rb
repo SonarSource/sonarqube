@@ -27,8 +27,6 @@ class UpdateEventsTable < ActiveRecord::Migration
     remove_column :events, :data
     change_column :events, :name, :string, :limit => 400, :null => true
     change_column :events, :description, :string, :limit => 4000, :null => true
-    
-    Event.reset_column_information
   end
 
 end
