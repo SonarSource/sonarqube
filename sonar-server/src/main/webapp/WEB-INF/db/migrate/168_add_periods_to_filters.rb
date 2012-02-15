@@ -27,6 +27,9 @@ class AddPeriodsToFilters < ActiveRecord::Migration
     add_column :filters, :period_index, :integer, :null => true
     add_column :filter_columns, :variation, :boolean, :null => true
     add_column :criteria, :variation, :boolean, :null => true
+    ::Filter.reset_column_information
+    Criterion.reset_column_information
+    FilterColumn.reset_column_information
   end
 
 end
