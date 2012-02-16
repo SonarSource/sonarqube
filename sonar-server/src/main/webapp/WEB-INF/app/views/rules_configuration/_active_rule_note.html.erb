@@ -51,7 +51,7 @@
       </tr>
     <tr>
       <td colspan="2">
-        <input type="submit" value="<%= note ? message('update_verb') : message('rules_configuration.add_note') -%>" name="commit" id="<%= submit_active_note_update_button_id -%>"/>
+        <input type="submit" value="<%= note ? message('update_verb') : message('rules_configuration.add_note') -%>" name="commit" id="<%= submit_active_note_update_button_id -%>" disabled="disabled"/>
         <a href="#" onclick="$('<%= active_note_detail_div_id -%>').show();$('<%= active_note_form_div_id -%>').hide();return false;"><%= message('cancel') %></a>
       </td>
     </tr>
