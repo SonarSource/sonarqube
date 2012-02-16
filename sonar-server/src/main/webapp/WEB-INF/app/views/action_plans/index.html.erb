@@ -39,8 +39,8 @@
             <td id="desc"><%= h(plan.description) -%></td>
             <td id="desc"><%= h(plan.user.name) -%></td>
             <td class="thin nowrap right">
-              <%= link_to message('edit'), :action => 'edit', :id => @resource.id, :plan_id => plan.id, :class => 'action' -%>
-              &nbsp;
+              <%= link_to message('edit'), {:action => 'edit', :id => @resource.id, :plan_id => plan.id}, :class => 'link-action' -%>
+              |
               <% 
                 close_confirmation_message = {}
                 if plan.open? && plan.has_open_reviews?
@@ -48,9 +48,9 @@
                 end 
               %>
               <%= link_to message('action_plans.close'), 
-                          {:action => 'change_status', :id => @resource.id, :plan_id => plan.id}, {:method => 'POST', :class => 'action'}.merge(close_confirmation_message) -%>
-              &nbsp;
-              <%= link_to message('delete'), {:action => 'delete', :id => @resource.id, :plan_id => plan.id}, {:method => 'POST', :confirm => message('action_plans.confirm_delete'), :class => 'action'} -%>
+                          {:action => 'change_status', :id => @resource.id, :plan_id => plan.id}, {:method => 'POST', :class => 'link-action'}.merge(close_confirmation_message) -%>
+              |
+              <%= link_to message('delete'), {:action => 'delete', :id => @resource.id, :plan_id => plan.id}, {:method => 'POST', :confirm => message('action_plans.confirm_delete'), :class => 'link-action'} -%>
             </td>
           </tr>
         <% end %>
