@@ -22,10 +22,10 @@
               <span id="count-<%= u group.name -%>"><%= group.users.count %></span> (<%= link_to "select", { :action => 'select_user', :id => group.id}, {:id => "select-#{u group.name}", :class => 'link-action'} %>)
             </td>
             <td class="left">
-              <%= link_to "edit", { :action => 'index', :id => group.id}, 
+              <%= link_to "Edit", { :action => 'index', :id => group.id},
                                   { :method => :get, :id => "edit-#{u group.name}", :class => 'link-action'} %>
-               
-              <%= link_to "delete", { :action => 'destroy', :id => group.id}, 
+              |
+              <%= link_to "Delete", { :action => 'destroy', :id => group.id},
                                     {:confirm => "Are you sure to delete this group ? Members will not be deleted.", :class => 'link-action', :method => 'get', :id => "delete-#{u group.name}"} %>
             </td>
           </tr>
@@ -62,7 +62,7 @@
         <tr>
           <td class="left"  nowrap="nowrap" valign="top" colspan="2">
             <%= submit_tag @group.id.nil? ? 'Create':'Update' %>
-            <%= link_to 'cancel', { :controller => 'groups', :action => 'index', :id => nil}, { :class => 'action' } %><br/>
+            <%= link_to 'Cancel', { :controller => 'groups', :action => 'index', :id => nil}, { :class => 'action' } %><br/>
           </td>
         </tr>
       </tbody>
