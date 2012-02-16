@@ -28,8 +28,4 @@ class CreateUserRoles < ActiveRecord::Migration
     add_index "user_roles", "user_id", :name => 'user_roles_user'
 	  add_index "user_roles", "resource_id", :name => 'user_roles_resource'
   end
-
-  def self.down
-	  drop_table :user_roles
-  end
 end

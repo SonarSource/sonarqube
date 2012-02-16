@@ -19,8 +19,17 @@
 #
 # sonar 2.0
 class SetDefaultProjectRoles < ActiveRecord::Migration
-  
+
+  class Group < ActiveRecord::Base
+  end
+
+  class GroupRole < ActiveRecord::Base
+  end
+
   def self.up
+    Group.reset_column_information
+    GroupRole.reset_column_information
+
     administrators=Group.find_by_name('sonar-administrators')
     users=Group.find_by_name('sonar-users')
 

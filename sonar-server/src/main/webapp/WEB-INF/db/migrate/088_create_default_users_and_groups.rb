@@ -20,7 +20,16 @@
 # sonar 2.0
 class CreateDefaultUsersAndGroups < ActiveRecord::Migration
 
+  class GroupRole < ActiveRecord::Base
+  end
+
+  class Group < ActiveRecord::Base
+  end
+
   def self.up
+    Group.reset_column_information
+    GroupRole.reset_column_information
+
   	create_administrators
     create_users
   end
