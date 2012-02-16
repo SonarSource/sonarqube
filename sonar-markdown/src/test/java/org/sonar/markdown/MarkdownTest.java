@@ -51,6 +51,12 @@ public class MarkdownTest {
   }
 
   @Test
+  public void shouldDecorateMultipleLineCode() {
+    assertThat(Markdown.convertToHtml("This is a ``line of code\nOn multiple lines``"), is("This is a <pre><code>line of code\nOn multiple lines</code></pre>"));
+    assertThat(Markdown.convertToHtml("This is not a ``line of code\nOn multiple lines"), is("This is not a ``line of code<br/>On multiple lines"));
+  }
+
+  @Test
   public void shouldEmphaseText() {
     assertThat(Markdown.convertToHtml("This is *important*"), is("This is <em>important</em>"));
     assertThat(Markdown.convertToHtml("This should not be * \n emphase"), is("This should not be * <br/> emphase"));
