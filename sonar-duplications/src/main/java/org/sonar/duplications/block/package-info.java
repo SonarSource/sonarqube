@@ -18,13 +18,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-/**
- * Provides a basic framework to create list of statements from list of tokens.
- *
- * The entry point of this framework is the {@link org.sonar.duplications.statement.StatementChunker} class.
- */
 @ParametersAreNonnullByDefault
-package org.sonar.duplications.statement;
+package org.sonar.duplications.block;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 

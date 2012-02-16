@@ -20,8 +20,11 @@
 
 /**
  * Provides a basic framework to sequentially read any kind of character stream and create list of tokens.
- * 
+ *
  * The entry point of this framework is the {@link org.sonar.duplications.token.TokenChunker} class.
  */
+@ParametersAreNonnullByDefault
 package org.sonar.duplications.token;
+
+import javax.annotation.ParametersAreNonnullByDefault;
 
