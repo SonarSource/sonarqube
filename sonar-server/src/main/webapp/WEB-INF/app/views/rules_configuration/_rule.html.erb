@@ -47,7 +47,7 @@
          ancestor_active_rule = ancestor_profile.active_by_rule_id(rule.id) if ancestor_profile && active_rule && (active_rule.inherited? || active_rule.overrides?)
          if ancestor_active_rule || !rule.parameters.empty?
       %>
-        <table width="100%" class="table spacer-bottom">
+        <table width="100%" class="table spacer-bottom bordered background-gray">
           <% 
              if ancestor_active_rule
                ancestor_active_rule_link = link_to ancestor_profile.name, :controller => 'rules_configuration', :action => 'index', 

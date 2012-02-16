@@ -14,18 +14,16 @@
     <blockquote class="spacer-bottom">
       <cite>
         <b><%= note.user.name -%></b> (<%= distance_of_time_in_words_to_now(note.updated_at) -%>)&nbsp;
-        &nbsp;
         <% if is_admin %>
-          <%= image_tag 'sep12.png' -%>
-          &nbsp;
-          <a href="#" id="<%= edit_active_note_link_id -%>" class="link-action spacer-right"
+          | &nbsp;
+          <a href="#" id="<%= edit_active_note_link_id -%>" class="link-action"
              onclick="$('<%= active_note_detail_div_id -%>').hide();$('<%= active_note_form_div_id -%>').show();$('<%= active_note_textarea_id -%>').focus();return false;"><%= message('edit') %></a>
           &nbsp;
           <%= link_to_remote message('delete'),
                             :url => {:action => 'delete_active_rule_note', :active_rule_id => active_rule.id },
                             :update => "active_rule_note_#{active_rule.id}",
                             :confirm => message('rules_configuration.confirm_delete_note'),
-                            :html => {:class => 'link-action spacer-right'} -%>
+                            :html => {:class => 'link-action'} -%>
         <% end %>
       </cite>
       <p><%= note.html_text -%></p>
@@ -37,10 +35,10 @@
 </div>
 
 <% if is_admin %>
-<table id="<%= active_note_form_div_id -%>" style="display: none" class="admin table width100">
-  <%= form_remote_tag :url => {:action => 'update_active_rule_note', :active_rule_id => active_rule.id},
-                      :update => "active_rule_note_#{active_rule.id}" %>
 
+  <%= form_remote_tag :url => {:action => 'update_active_rule_note', :active_rule_id => active_rule.id},
+                      :update => "active_rule_note_#{active_rule.id}" -%>
+  <table id="<%= active_note_form_div_id -%>" style="display: none" class="admin table width100">
     <tbody>
       <tr>
         <td class="width100">
@@ -58,6 +56,6 @@
       </td>
     </tr>
     </tbody>
+  </table>
   </form>
-</table>
 <% end %>
