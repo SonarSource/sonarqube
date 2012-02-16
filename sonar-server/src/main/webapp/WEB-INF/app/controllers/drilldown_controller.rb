@@ -53,13 +53,8 @@ class DrilldownController < ApplicationController
       options[:period]=@period
     end
 
-    if params[:committer]
-      @committer=params[:committer]
-      options[:committer]=@committer
-    end
-
     # load data
-    @drilldown = Drilldown.new(@project, @metric, selected_rids, options)
+    @drilldown = Drilldown2.new(@project, @metric, selected_rids, options)
     access_denied unless has_role?(:user, @snapshot)
 
     @highlighted_resource=@drilldown.highlighted_resource
@@ -111,7 +106,7 @@ class DrilldownController < ApplicationController
     end
 
     # load data
-    @drilldown = Drilldown.new(@project, @metric, @selected_rids, options)
+    @drilldown = Drilldown2.new(@project, @metric, @selected_rids, options)
     access_denied unless has_role?(:user, @snapshot)
 
     @highlighted_resource=@drilldown.highlighted_resource

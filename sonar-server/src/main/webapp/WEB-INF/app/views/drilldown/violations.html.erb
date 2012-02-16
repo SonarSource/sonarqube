@@ -125,12 +125,12 @@
        @drilldown.columns.each_with_index do |column, index|
     %>
       <td class="column <%= 'first' if index==0 -%>" nowrap width="<%= column_width -%>%">
-        <div class="scrollable" id="col_<%= column.scope -%>">
+        <div class="scrollable" id="col_<%= index -%>">
           <table class="spaced">
             <%
                column.measures.each do |measure|
                  resource=column.resource(measure)
-                 clazz = cycle('even', 'odd', :name => "col_#{column.scope}")
+                 clazz = cycle('even', 'odd', :name => "col_#{index}")
                  selected = column.selected_snapshot && column.selected_snapshot.project_id==resource.id
                  if selected
                    clazz += ' selected'
@@ -139,17 +139,10 @@
             %>
               <tr class="<%= clazz -%>">
                 <td nowrap>
-                  <%
-                     if resource.entity?
-                       if resource.copy_resource_id %>
-                      <%= qualifier_icon(resource) -%>
-                      <%= link_to(h(resource.name), {:only_path => true, :overwrite_params => {:rids => nil, :id => resource.copy_resource_id}}) -%>
-                    <% else %>
+                  <% if !resource.display_dashboard? %>
                       <%= qualifier_icon(resource) -%>
                       <a href="#" onclick="d(<%= resource.id -%>, '<%= @period_index -%>', '<%= @rule ? @rule.key : @severity -%>');" alt="<%= resource.name(true) -%>" title="<%= resource.name(true) -%>"><%= resource.name(false) %></a>
-                    <%
-                       end
-                       else %>
+                    <% else %>
                     <%= link_to(image_tag('zoom.png'), {:id => resource.id}, {:class => 'nolink'}) %>
                     <%= qualifier_icon(resource) %>
                     <%= link_to(h(resource.name), {:only_path => true, :overwrite_params => {:rids => (selected ? rids-[resource.id] : rids+[resource.id])}}) -%>
@@ -173,8 +166,8 @@
   $$('#col_rules tr.selected').each(function (item) {
     item.scrollIntoView(true);
   });
-  <% @drilldown.columns.each do |column| %>
-  $$('#col_<%= column.scope -%> tr.selected').each(function (item) {
+  <% for i in 0...@drilldown.columns.size do  %>
+  $$('#col_<%= i -%> tr.selected').each(function (item) {
     item.scrollIntoView(true);
   });
   <% end %>
