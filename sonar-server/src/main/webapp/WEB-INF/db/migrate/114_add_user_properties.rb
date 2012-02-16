@@ -25,9 +25,5 @@ class AddUserProperties < ActiveRecord::Migration
 
   def self.up
     add_column 'properties', 'user_id', :integer, :null => true
-    Property.reset_column_information
-  end
-
-  def self.down
   end
 end

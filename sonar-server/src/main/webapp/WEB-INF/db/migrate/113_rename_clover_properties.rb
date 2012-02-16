@@ -23,7 +23,11 @@
 #
 class RenameCloverProperties < ActiveRecord::Migration
 
+  class Property < ActiveRecord::Base
+  end
+
   def self.up
+    Property.reset_column_information
     property=Property.find_by_prop_key('sonar.clover.licenseV2.secured')
     if property
       Property.create(:prop_key => 'sonar.clover.license.secured', :text_value => property.text_value)
@@ -31,6 +35,4 @@ class RenameCloverProperties < ActiveRecord::Migration
     end
   end
 
-  def self.down
-  end
 end

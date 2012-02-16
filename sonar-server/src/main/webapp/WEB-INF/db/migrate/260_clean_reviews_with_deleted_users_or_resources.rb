@@ -31,31 +31,34 @@ class CleanReviewsWithDeletedUsersOrResources < ActiveRecord::Migration
 
   def self.up
     Review.reset_column_information
-    Review.find(:all, :include => ['resource', 'assignee', 'user']).each do |review|
-      if review.resource_id && !review.resource
-        # For http://jira.codehaus.org/browse/SONAR-3223
-        review.destroy
-      else
-        # For http://jira.codehaus.org/browse/SONAR-3102
-        must_save=false
-        if review.user_id && !review.user
-          review.user_id=nil
-          must_save=true
-        end
-        if review.assignee_id && !review.assignee
-          review.assignee_id=nil
-          must_save=true
-        end
-        review.save if must_save
-      end      
+
+    # http://jira.codehaus.org/browse/SONAR-3223
+    orphans = Review.find_by_sql "SELECT r.id FROM reviews r WHERE r.resource_id is not null and not exists (select * from projects p WHERE p.id=r.resource_id)"
+    orphans.each do |review|
+      review.delete
     end
 
-    # For http://jira.codehaus.org/browse/SONAR-3102
+
+
+    # http://jira.codehaus.org/browse/SONAR-3102
+    reviews_with_user_orphan = Review.find_by_sql "SELECT r.id FROM reviews r WHERE r.user_id is not null and not exists (select * from users u WHERE u.id=r.user_id)"
+    reviews_with_user_orphan.each do |review|
+      Review.update_all 'user_id=null', ['id=?', review.id]
+    end
+
+    reviews_with_assignee_orphan = Review.find_by_sql "SELECT r.id FROM reviews r WHERE r.assignee_id is not null and not exists (select * from users u WHERE u.id=r.assignee_id)"
+    reviews_with_assignee_orphan.each do |review|
+      Review.update_all 'assignee_id=null', ['id=?', review.id]
+    end
+
+
+
+    # http://jira.codehaus.org/browse/SONAR-3102
     ReviewComment.reset_column_information
-    ReviewComment.find(:all, :include => 'user').each do |comment|
-      comment.delete if comment.user_id && !comment.user
-    end   
-    
+    comments = ReviewComment.find_by_sql("SELECT c.id FROM review_comments c WHERE c.user_id is not null and not exists (select * from users u WHERE u.id=c.user_id)")
+    comments.each do |comment|
+      comment.delete
+    end
   end
 
 end

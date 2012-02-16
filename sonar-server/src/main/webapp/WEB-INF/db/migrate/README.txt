@@ -27,8 +27,9 @@ RECOMMENDATIONS
   end
 
 * Use faux models when touching rows (SELECT/INSERT/UPDATE/DELETE). See http://guides.rubyonrails.org/migrations.html#using-models-in-your-migrations
-  for more details.
-  IMPORTANT : do not use faux models for User. The algorithm to encrypt passwords is required during migrations.
+  for more details. Note that associations must not be used.
+  IMPORTANT : do not use faux models for user models (User, Group, UserRole, GroupRole) because of required associations and password encryption.
+
 
   class MyMigration < ActiveRecord::Migration
     # This is the faux model. It only maps columns. No functional methods.

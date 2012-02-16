@@ -26,11 +26,6 @@ class AddMeasureData < ActiveRecord::Migration
       t.column :data, :binary, :null => true
     end
     add_index :measure_data, :measure_id, :name => 'measure_data_measure_id'   
-    MeasureData061.reset_column_information
   end
 
-  class MeasureData061 < ActiveRecord::Base
-    set_table_name :measure_data
-  end
-  
 end

@@ -23,7 +23,16 @@
 #
 class DeleteCheckstyleJeeRules < ActiveRecord::Migration
 
+  class Rule < ActiveRecord::Base
+  end
+
+  class ActiveRule < ActiveRecord::Base
+  end
+
   def self.up
+    Rule.reset_column_information
+    ActiveRule.reset_column_information
+
     delete_rule('com.puppycrawl.tools.checkstyle.checks.j2ee.EntityBeanCheck')
     delete_rule('com.puppycrawl.tools.checkstyle.checks.j2ee.FinalStaticCheck')
     delete_rule('com.puppycrawl.tools.checkstyle.checks.j2ee.LocalHomeInterfaceCheck')

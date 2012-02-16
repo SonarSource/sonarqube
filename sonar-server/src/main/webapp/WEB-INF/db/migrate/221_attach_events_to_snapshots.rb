@@ -26,22 +26,25 @@ class AttachEventsToSnapshots < ActiveRecord::Migration
   class Event < ActiveRecord::Base
   end
 
+  class Snapshot < ActiveRecord::Base
+  end
 
   def self.up
     logger = RAILS_DEFAULT_LOGGER
     Event.reset_column_information
+    Snapshot.reset_column_information
 
     Event.find(:all, :conditions => "snapshot_id IS NULL").each do |event|
       begin
         next_snapshot = Snapshot.find(:first, :conditions => ["created_at >= ? AND project_id = ?", event.event_date, event.resource_id], :order => :created_at)
-        if next_snapshot && (event.category!='Version' || !next_snapshot.event('Version'))
-          event.snapshot = next_snapshot
+        if next_snapshot && (event.category!='Version' || !has_category?(next_snapshot, 'Version'))
+          event.snapshot_id = next_snapshot.id
           event.event_date = next_snapshot.created_at
           event.save
         else
           previous_snapshot = Snapshot.find(:last, :conditions => ["created_at <= ? AND project_id = ?", event.event_date, event.resource_id], :order => :created_at)
-          if previous_snapshot && (event.category!='Version' || !previous_snapshot.event('Version'))
-            event.snapshot = previous_snapshot
+          if previous_snapshot && (event.category!='Version' || !has_category?(previous_snapshot,'Version'))
+            event.snapshot_id = previous_snapshot.id
             event.event_date = previous_snapshot.created_at
             event.save
           end
@@ -53,4 +56,7 @@ class AttachEventsToSnapshots < ActiveRecord::Migration
     end
   end
 
+  def self.has_category?(snapshot, category)
+    Event.exists?({:category => category, :snapshot_id => snapshot.id})
+  end
 end

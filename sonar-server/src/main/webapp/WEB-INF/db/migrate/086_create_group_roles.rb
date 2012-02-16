@@ -28,8 +28,4 @@ class CreateGroupRoles < ActiveRecord::Migration
     add_index "group_roles", "group_id", :name => 'group_roles_group'
 	  add_index "group_roles", "resource_id", :name => 'group_roles_resource'
   end
-
-  def self.down
-	  drop_table :group_roles
-  end
 end

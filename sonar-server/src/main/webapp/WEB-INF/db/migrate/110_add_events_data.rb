@@ -25,9 +25,6 @@ class AddEventsData < ActiveRecord::Migration
 
   def self.up
     add_column 'events', 'data', :string, :null => true, :limit => 4000
-    Event.reset_column_information
   end
 
-  def self.down
-  end
 end

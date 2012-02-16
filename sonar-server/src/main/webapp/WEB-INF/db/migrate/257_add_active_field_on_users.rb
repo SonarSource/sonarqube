@@ -24,8 +24,8 @@
 class AddActiveFieldOnUsers < ActiveRecord::Migration
 
   def self.up
+    # do not use faux models on User
     add_column 'users', 'active', :boolean, :null => true, :default => true
-
     User.reset_column_information
     User.find(:all).each do |user|
       user.active = true

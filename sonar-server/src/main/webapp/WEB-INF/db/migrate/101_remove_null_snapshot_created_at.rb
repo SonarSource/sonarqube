@@ -20,7 +20,11 @@
 # sonar 2.1.2
 class RemoveNullSnapshotCreatedAt < ActiveRecord::Migration
 
+  class Snapshot < ActiveRecord::Base
+  end
+
   def self.up
+    Snapshot.reset_column_information
     Snapshot.find(:all, :conditions => ["scope=? and created_at IS NULL and status=?", 'PRJ', 'P']).each do |s|
       s.created_at = Time.now
       s.save

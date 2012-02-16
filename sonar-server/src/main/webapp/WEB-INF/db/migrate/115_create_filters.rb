@@ -23,6 +23,9 @@
 #
 class CreateFilters < ActiveRecord::Migration
 
+  class Property < ActiveRecord::Base
+  end
+
   def self.up
     create_table 'filters' do |t|
       t.column 'name', :string, :limit => 100
@@ -84,7 +87,7 @@ class CreateFilters < ActiveRecord::Migration
     projects_filter.columns.build(:family => 'metric', :kee => 'alert_status', :order_index => 1)
     projects_filter.columns.build(:family => 'name', :order_index => 2, :sort_direction => 'ASC')
 
-    prop=Property.value('sonar.core.projectsdashboard.columns')
+    prop=property_value('sonar.core.projectsdashboard.columns')
     if prop
       index=3
       prop.split(";").each do |col|
@@ -118,10 +121,10 @@ class CreateFilters < ActiveRecord::Migration
   end
 
   def self.create_treemap_filter
-    show_treemap=Property.value('sonar.core.projectsdashboard.showTreemap', nil, 'true')
+    show_treemap=property_value('sonar.core.projectsdashboard.showTreemap', 'true')
     if show_treemap=='true'
-      size_metric=Property.value('sonar.core.treemap.sizemetric', nil, 'ncloc')
-      color_metric=Property.value('sonar.core.treemap.colormetric', nil, 'violations_density')
+      size_metric=property_value('sonar.core.treemap.sizemetric', 'ncloc')
+      color_metric=property_value('sonar.core.treemap.colormetric', 'violations_density')
 
       treemap_filter=Filter.new(:name => 'Treemap', :shared => true, :favourites => false, :default_view => ::Filter::VIEW_TREEMAP)
       treemap_filter.criteria<<Criterion.new_for_qualifiers([Project::QUALIFIER_PROJECT])
@@ -147,4 +150,12 @@ class CreateFilters < ActiveRecord::Migration
     favourites_filter
   end
 
+  def self.property_value(key, default_value=nil)
+    prop = Property.find(:first, :conditions => {'prop_key' => key, 'resource_id' => nil, 'user_id' => nil})
+    if prop
+      prop.text_value || default_value
+    else
+      default_value
+    end
+  end
 end

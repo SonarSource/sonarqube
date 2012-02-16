@@ -23,7 +23,11 @@
 #
 class SetResourceLongNames < ActiveRecord::Migration
 
+  class Project < ActiveRecord::Base
+  end
+
   def self.up
+    Project.reset_column_information
     update('TRK')
     update('BRC')
     update('PAC')

@@ -20,6 +20,7 @@
 class CreateAdministrator < ActiveRecord::Migration
 
   def self.up
+    # Do not use faux model here : the password must be encrypted
     User.create(:login => 'admin', :name => 'Administrator', :email => '', :password => 'admin',
       :password_confirmation => 'admin')
   end

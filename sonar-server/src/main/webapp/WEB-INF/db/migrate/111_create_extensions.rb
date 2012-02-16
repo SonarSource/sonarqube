@@ -46,8 +46,4 @@ class CreateExtensions < ActiveRecord::Migration
       t.column 'filename', :string, :limit => 100
     end
   end
-
-  def self.down
-
-  end
 end
