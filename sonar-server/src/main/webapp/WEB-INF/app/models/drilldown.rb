@@ -18,22 +18,41 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 class Drilldown
-  attr_reader :snapshot, :columns, :metric, :resource, :highlighted_resource, :highlighted_snapshot
+
+  DEFAULT=[['TRK'], ['BRC'], ['DIR', 'PAC'], ['FIL', 'CLA', 'UTS']]
+  VIEWS=[['VW'], ['SVW'], ['TRK']]
+  PERSONS=[['PERSON'], ['PERSON_PRJ']]
+  TREES=[DEFAULT, VIEWS, PERSONS]
+
+  def self.qualifier_children(q)
+    return [] if q==nil
+    TREES.each do |tree|
+      tree.each_with_index do |qualifiers, index|
+        if qualifiers==q || qualifiers.include?(q)
+          return index+1<tree.size ? tree[index+1] : []
+        end
+      end
+    end
+    []
+  end
+
+
+  attr_reader :resource, :metric, :selected_resource_ids
+  attr_reader :snapshot, :columns, :highlighted_resource, :highlighted_snapshot
 
   def initialize(resource, metric, selected_resource_ids, options={})
     @resource=resource
-    @snapshot=resource.last_snapshot
+    @selected_resource_ids=selected_resource_ids||[]
     @metric=metric
+    @snapshot=resource.last_snapshot
     @columns=[]
 
-    column=nil
-    for index in (Project::SCOPES.index(@snapshot.scope)...Project::SCOPES.size)
-      snapshot = (column ? column.next_snapshot : @snapshot)
-      column=DrilldownColumn.new(snapshot, metric, Project::SCOPES[index], selected_resource_ids, options)
-      @columns<<column if column.display?
-      if column.selected_snapshot
-        @highlighted_snapshot=column.selected_snapshot
-        @highlighted_resource=column.selected_snapshot.project         
+    if @snapshot
+      column=DrilldownColumn.new(self, nil)
+      while column.valid?
+        column.init_measures(options)
+        @columns<<column if column.display?
+        column=DrilldownColumn.new(self, column)
       end
     end
   end
@@ -47,30 +66,56 @@ class Drilldown
   end
 end
 
+
 class DrilldownColumn
-  attr_reader :measures, :scope, :selected_snapshot, :snapshot, :resource_per_sid
 
-  def initialize(snapshot, metric, scope, selected_resource_ids, options)
-    @scope=scope
-    @snapshot = snapshot
+  attr_reader :measures, :base_snapshot, :selected_snapshot, :qualifiers, :person_id
 
+  def initialize(drilldown, previous_column)
+    @drilldown = drilldown
+
+    if previous_column
+      @base_snapshot=(previous_column.selected_snapshot || previous_column.base_snapshot)
+      @person_id=(previous_column.person_id || @base_snapshot.resource.person_id)
+    else
+      @base_snapshot=drilldown.snapshot
+      @person_id=@base_snapshot.resource.person_id
+    end
+
+    # switch
+    if @base_snapshot.resource.copy
+      @base_snapshot=@base_snapshot.resource.copy.last_snapshot
+      @qualifiers = Drilldown.qualifier_children(@base_snapshot.qualifier)
+
+    elsif previous_column
+      @qualifiers=Drilldown.qualifier_children(previous_column.qualifiers)
+
+    else
+      @qualifiers=Drilldown.qualifier_children(drilldown.snapshot.qualifier)
+    end
+
+    @resource_per_sid={}
+  end
+
+  def init_measures(options)
     value_column = (options[:period] ? "variation_value_#{options[:period]}" : 'value')
     order="project_measures.#{value_column}"
-    if metric.direction<0
+    if @drilldown.metric.direction<0
       order += ' DESC'
     end
 
-    conditions="snapshots.root_snapshot_id=:root_sid AND snapshots.islast=:islast AND snapshots.scope=:scope AND snapshots.path LIKE :path AND project_measures.metric_id=:metric_id AND project_measures.#{value_column} IS NOT NULL"
+    conditions="snapshots.root_snapshot_id=:root_sid AND snapshots.islast=:islast AND snapshots.qualifier in (:qualifiers) " +
+      " AND snapshots.path LIKE :path AND project_measures.metric_id=:metric_id AND project_measures.#{value_column} IS NOT NULL"
     condition_values={
-      :root_sid => (snapshot.root_snapshot_id || snapshot.id),
-      :islast=>true,
-      :scope => scope,
-      :metric_id=>metric.id,
-      :path => "#{snapshot.path}#{snapshot.id}.%"}
+      :root_sid => (@base_snapshot.root_snapshot_id || @base_snapshot.id),
+      :islast => true,
+      :qualifiers => @qualifiers,
+      :metric_id => @drilldown.metric.id,
+      :path => "#{@base_snapshot.path}#{@base_snapshot.id}.%"}
 
-    if value_column=='value' && metric.best_value
+    if value_column=='value' && @drilldown.metric.best_value
       conditions<<' AND project_measures.value<>:best_value'
-      condition_values[:best_value]=metric.best_value
+      condition_values[:best_value]=@drilldown.metric.best_value
     end
 
     if options[:exclude_zero_value]
@@ -91,30 +136,28 @@ class DrilldownColumn
       conditions += ' AND project_measures.characteristic_id IS NULL'
     end
 
-    if options[:committer]
-      conditions += ' AND project_measures.person_id=:committer'
-      condition_values[:committer]=options[:committer]
+    if @person_id
+      conditions += ' AND project_measures.person_id=:person_id'
+      condition_values[:person_id]=@person_id
     else
       conditions += ' AND project_measures.person_id IS NULL'
     end
 
     @measures=ProjectMeasure.find(:all,
-      :select => "project_measures.id,project_measures.metric_id,project_measures.#{value_column},project_measures.text_value,project_measures.alert_status,project_measures.alert_text,project_measures.snapshot_id",
-      :joins => :snapshot,
-      :conditions => [conditions, condition_values],
-      :order => order,
-      :limit => 200)
+                                  :select => "project_measures.id,project_measures.metric_id,project_measures.#{value_column},project_measures.text_value,project_measures.alert_status,project_measures.alert_text,project_measures.snapshot_id",
+                                  :joins => :snapshot,
+                                  :conditions => [conditions, condition_values],
+                                  :order => order,
+                                  :limit => 200)
 
     @resource_per_sid={}
-    sids=@measures.map{|m| m.snapshot_id}.compact.uniq
+    sids=@measures.map { |m| m.snapshot_id }.compact.uniq
     unless sids.empty?
-      Snapshot.find(:all,
-        :include => :project,
-        :conditions => {'snapshots.id' => sids}).each do |snapshot|
-          @resource_per_sid[snapshot.id]=snapshot.project
-          if selected_resource_ids.include?(snapshot.project_id)
-            @selected_snapshot=snapshot
-          end
+      Snapshot.find(:all, :include => :project, :conditions => {'snapshots.id' => sids}).each do |snapshot|
+        @resource_per_sid[snapshot.id]=snapshot.project
+        if @drilldown.selected_resource_ids.include?(snapshot.project_id)
+          @selected_snapshot=snapshot
+        end
       end
     end
   end
@@ -124,14 +167,10 @@ class DrilldownColumn
   end
 
   def display?
-    @measures.size>0
+    @measures && !@measures.empty?
   end
 
-  def selected_snapshot
-    @selected_snapshot
-  end
-
-  def next_snapshot
-    @selected_snapshot || @snapshot
+  def valid?
+    @base_snapshot && @qualifiers && !@qualifiers.empty?
   end
 end

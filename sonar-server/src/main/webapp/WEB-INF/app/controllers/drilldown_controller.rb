@@ -54,8 +54,7 @@ class DrilldownController < ApplicationController
     end
 
     # load data
-    @drilldown = Drilldown2.new(@project, @metric, selected_rids, options)
-    access_denied unless has_role?(:user, @snapshot)
+    @drilldown = Drilldown.new(@project, @metric, selected_rids, options)
 
     @highlighted_resource=@drilldown.highlighted_resource
     if @highlighted_resource.nil? && @drilldown.columns.empty?
@@ -106,8 +105,7 @@ class DrilldownController < ApplicationController
     end
 
     # load data
-    @drilldown = Drilldown2.new(@project, @metric, @selected_rids, options)
-    access_denied unless has_role?(:user, @snapshot)
+    @drilldown = Drilldown.new(@project, @metric, @selected_rids, options)
 
     @highlighted_resource=@drilldown.highlighted_resource
     if @highlighted_resource.nil? && @drilldown.columns.empty?
@@ -143,7 +141,9 @@ class DrilldownController < ApplicationController
     @project = project_key ? Project.by_key(project_key) : nil
     # For security reasons, we must not return 404 not found. It would be an information that the resource exists.
     not_found("Resource not found") unless @project
+
     @snapshot = @project.last_snapshot
+    access_denied unless has_role?(:user, @snapshot)
   end
 
   def select_metric(metric_key, default_key)
