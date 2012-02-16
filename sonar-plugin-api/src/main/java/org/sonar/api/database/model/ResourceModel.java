@@ -209,9 +209,8 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
     return copyResourceId;
   }
 
-  public ResourceModel setCopyResourceId(Integer i) {
+  public void setCopyResourceId(Integer i) {
     this.copyResourceId = i;
-    return this;
   }
 
   /**
