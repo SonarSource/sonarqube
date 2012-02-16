@@ -506,11 +506,13 @@ h4, .h4 {
 
 .notes {
   color: #777;
-  font-size: 85%;
+  font-size: 11px;
   margin-bottom: 10px;
   background-color: #EFEFEF;
   border: 1px solid #cdcdcd;
-  padding: 4px;
+  line-height: 16px;
+  height: 16px;
+  padding: 2px 4px;
 }
 
 .treemap {
@@ -1986,7 +1988,7 @@ ul.bullet li {
 
 .comments {
   color: #777;
-  font-size: 93%;
+  font-size: 12px;
   margin-bottom: 10px;
   padding: 4px;
 }
@@ -2453,4 +2455,11 @@ blockquote cite {
 }
 .table-bordered > tbody > tr > td {
   border-top: 1px solid #DDD;
+}
+select.small-width {
+  max-width: 120px;
+}
+select.medium-width {
+  max-width: 175px;
+  width: 175px;
 }

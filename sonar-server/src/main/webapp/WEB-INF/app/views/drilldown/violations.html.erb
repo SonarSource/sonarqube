@@ -140,11 +140,11 @@
               <tr class="<%= clazz -%>">
                 <td nowrap>
                   <% if !resource.display_dashboard? %>
-                      <%= qualifier_icon(resource) -%>
+                      <%= qualifier_icon(resource) -%>&nbsp;
                       <a href="#" onclick="d(<%= resource.id -%>, '<%= @period_index -%>', '<%= @rule ? @rule.key : @severity -%>');" alt="<%= resource.name(true) -%>" title="<%= resource.name(true) -%>"><%= resource.name(false) %></a>
                     <% else %>
                     <%= link_to(image_tag('zoom.png'), {:id => resource.id}, {:class => 'nolink'}) %>
-                    <%= qualifier_icon(resource) %>
+                    <%= qualifier_icon(resource) %>&nbsp;
                     <%= link_to(h(resource.name), {:only_path => true, :overwrite_params => {:rids => (selected ? rids-[resource.id] : rids+[resource.id])}}) -%>
                   <% end %>
                 </td>
