@@ -52,8 +52,16 @@ public class MarkdownTest {
 
   @Test
   public void shouldDecorateMultipleLineCode() {
-    assertThat(Markdown.convertToHtml("This is a ``line of code\nOn multiple lines``"), is("This is a <pre><code>line of code\nOn multiple lines</code></pre>"));
+    assertThat(Markdown.convertToHtml("This is a ``\nline of code\nOn multiple lines\n``"), is("This is a <pre><code>line of code\nOn multiple lines</code></pre>"));
+    assertThat(Markdown.convertToHtml("This is not a ``line of code\nOn multiple lines``"), is("This is not a ``line of code<br/>On multiple lines``"));
     assertThat(Markdown.convertToHtml("This is not a ``line of code\nOn multiple lines"), is("This is not a ``line of code<br/>On multiple lines"));
+  }
+
+  @Test
+  public void shouldDecorateMultipleLineCodeWithLanguageSpecified() {
+    assertThat(Markdown.convertToHtml("This is a ``java\nline of code\nOn multiple lines\n``"), is("This is a <pre lang=\"java\"><code>line of code\nOn multiple lines</code></pre>"));
+    assertThat(Markdown.convertToHtml("This is not a ``java line of code\nOn multiple lines``"), is("This is not a ``java line of code<br/>On multiple lines``"));
+    assertThat(Markdown.convertToHtml("This is not a ``java \nline of code\nOn multiple lines``"), is("This is not a ``java <br/>line of code<br/>On multiple lines``"));
   }
 
   @Test

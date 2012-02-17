@@ -19,6 +19,9 @@
  */
 package org.sonar.markdown;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.sonar.channel.RegexChannel;
 
 /**
@@ -26,22 +29,42 @@ import org.sonar.channel.RegexChannel;
  * an HTML {@literal <pre><code>} tag.
  * 
  * E.g., the input:
- * ``This code
- *   spans on 2 lines`` 
+ * <pre>
+ * ``
+ * This code
+ * spans on 2 lines
+ * ``
+ * </pre> 
  * will produce:
  * {@literal<pre>}{@literal<code>}This code
  * spans on 2 lines{@literal</code>}{@literal</pre>}
  */
 class HtmlMultilineCodeChannel extends RegexChannel<MarkdownOutput> {
 
+  private static final String NEWLINE = "(?:\\n\\r|\\r|\\n)";
+  private static final String LANGUAGE = "([a-zA-Z][a-zA-Z0-9_]*+)?";
+  private static final String DETECTION_REGEXP = "``" + LANGUAGE + NEWLINE + "([\\s\\S]+?)" + NEWLINE + "``";
+
+  private final Matcher regexpMatcher;
+
   public HtmlMultilineCodeChannel() {
-    super("``[\\s\\S]+?``");
+    super(DETECTION_REGEXP);
+    regexpMatcher = Pattern.compile(DETECTION_REGEXP).matcher("");
   }
 
   @Override
   protected void consume(CharSequence token, MarkdownOutput output) {
-    output.append("<pre><code>");
-    output.append(token.subSequence(2, token.length() - 2));
+    regexpMatcher.reset(token);
+    regexpMatcher.matches();
+    output.append("<pre");
+    String language = regexpMatcher.group(1);
+    if (language != null) {
+      output.append(" lang=\"");
+      output.append(language);
+      output.append("\"");
+    }
+    output.append("><code>");
+    output.append(regexpMatcher.group(2));
     output.append("</code></pre>");
   }
 }
