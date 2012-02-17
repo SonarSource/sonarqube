@@ -10,10 +10,9 @@
 </script>
 <% end %>
 
-<!--[if lt IE 8]>
+<!--[if IE 7]>
 <script>
-  var columns=$$('.scrollable');
-  columns.each(function(column) {
+  $$('.scrollable').each(function(column) {
     if (column.scrollHeight>column.offsetHeight) {
       column.addClassName('scroll-ie');
     }
