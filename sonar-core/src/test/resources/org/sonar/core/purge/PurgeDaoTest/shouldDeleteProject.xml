@@ -29,6 +29,7 @@
           rule_failure_permanent_id="2" resolution="[null]" created_at="[null]" resource_line="200" severity="BLOCKER"
           user_id="300" assignee_id="300" rule_id="500" manual_violation="[true]" manual_severity="[false]" title="[null]"/>
 
+  <review_comments id="1" created_at="[null]" updated_at="[null]" review_id="2" user_id="1223" review_text="abc"/>
 
   <!-- modules -->
   <projects id="2" enabled="[true]" root_id="1"
