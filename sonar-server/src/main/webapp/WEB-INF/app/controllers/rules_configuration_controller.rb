@@ -339,7 +339,7 @@ class RulesConfigurationController < ApplicationController
       # set the note on the rule to avoid reloading the rule
       active_rule.note = note
     end
-    note.text = params[:text]
+    note.text = params[:note]
     note.user_login = current_user.login
     note.save!
     render :partial => 'active_rule_note', :locals => {:active_rule => active_rule, :is_admin => true } 

@@ -42,7 +42,7 @@
     <tbody>
       <tr>
         <td class="width100">
-          <textarea name="text" id="<%= active_note_textarea_id -%>" rows="10" style="width:100%"
+          <textarea name="note" id="<%= active_note_textarea_id -%>" rows="10" style="width:100%"
                     onkeyup="if (this.value=='') $('<%= submit_active_note_update_button_id -%>').disabled=true; else $('<%= submit_active_note_update_button_id -%>').disabled=false;"><%= h(note.plain_text) if note -%></textarea>
         </td>
         <td class="markdown-help">
