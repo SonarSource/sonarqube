@@ -22,9 +22,9 @@
   </h4>
 </div>
 
-<table width="100%" cellpadding="0" cellspacing="0" id="columns">
+<table class="width100 spacer-bottom" cellpadding="0" cellspacing="0" id="columns">
   <tr>
-    <td align="left" width="1%" nowrap class="column first">
+    <td align="left" width="1%" nowrap class="spacer-right" valign="top">
 
       <%
          value_column = (@period ? "variation_value_#{@period}" : 'value')
@@ -57,7 +57,7 @@
         <%= render :partial => 'severity', :locals => {:css => 'even', :severity => 'INFO', :max => max, :measure => info_violations} %>
       </table>
     </td>
-    <td class="column" align="left" style="white-space: normal;">
+    <td align="left" style="white-space: normal;" valign="top">
       <h3><%= message('violations_drilldown.col.rule') -%></h3>
 
       <div class="scrollable">
@@ -115,7 +115,6 @@
     </td>
   </tr>
 </table>
-<br/>
 <%
    paths=[]
    rids=[]
