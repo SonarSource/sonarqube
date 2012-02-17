@@ -16,10 +16,9 @@
   <% if @snapshot %>
   <div id="snapshot_title" class="page_title">
   <h4>
-  <%= link_to_favourite(@project) -%> <%= "Version #{@snapshot.version}" if @snapshot.version.present? -%> - <%= l @snapshot.created_at -%>
+  <%= link_to_favourite(@project) -%> <%= "Version #{@snapshot.version} - " if @snapshot.version.present? -%><%= l @snapshot.created_at -%>
   <% if @snapshot.project_snapshot.periods? %>
-    -
-    <form method="GET" action="<%= url_for :controller => 'dashboard', :action => 'index', :id => @resource.id -%>" style="display: inline">
+    <form method="GET" action="<%= url_for :controller => 'dashboard', :action => 'index', :id => @resource.id -%>" style="display: inline" class="spacer-left">
     <input type="hidden" name="did" value="<%= @dashboard.id -%>" />
     <select id="select-comparison" name="period" onchange="submit()" class="small">
       <option value=""><%= message('time_changes') -%>...</option>

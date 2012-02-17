@@ -83,8 +83,8 @@ class DrilldownColumn
     end
 
     # switch
-    if @base_snapshot.resource.copy
-      @base_snapshot=@base_snapshot.resource.copy.last_snapshot
+    if @base_snapshot.resource.copy_resource
+      @base_snapshot=@base_snapshot.resource.copy_resource.last_snapshot
       @qualifiers = Drilldown.qualifier_children(@base_snapshot.qualifier)
 
     elsif previous_column
@@ -93,7 +93,6 @@ class DrilldownColumn
     else
       @qualifiers=Drilldown.qualifier_children(drilldown.snapshot.qualifier)
     end
-
     @resource_per_sid={}
   end
 
@@ -172,5 +171,9 @@ class DrilldownColumn
 
   def valid?
     @base_snapshot && @qualifiers && !@qualifiers.empty?
+  end
+
+  def switch?
+    selected_snapshot && selected_snapshot.resource && selected_snapshot.resource.copy_resource
   end
 end

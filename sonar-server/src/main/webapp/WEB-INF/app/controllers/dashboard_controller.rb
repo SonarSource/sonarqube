@@ -26,9 +26,9 @@ class DashboardController < ApplicationController
 
   def index
     # TODO display error page if no dashboard or no resource
-    load_resource()
+    load_resource
     if @resource.display_dashboard?
-      load_dashboard()
+      load_dashboard
       load_authorized_widget_definitions()
       unless @dashboard
         redirect_to home_path
@@ -185,7 +185,7 @@ class DashboardController < ApplicationController
     @resource=Project.by_key(params[:id])
     not_found("Resource not found") unless @resource
 
-    @resource=Project.find(@resource.copy_resource_id) if @resource.copy_resource_id
+    @resource=@resource.switch_resource if @resource.switch_resource
 
     access_denied unless has_role?(:user, @resource)
     @snapshot = @resource.last_snapshot

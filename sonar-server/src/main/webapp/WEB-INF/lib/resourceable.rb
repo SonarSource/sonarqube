@@ -92,7 +92,10 @@ module Resourceable
   NO_DASHBOARD_QUALIFIERS=[QUALIFIER_FILE, QUALIFIER_CLASS, QUALIFIER_UNIT_TEST_CLASS]
 
   def display_dashboard?
-    !NO_DASHBOARD_QUALIFIERS.include?(qualifier)
+    @display_dashboard ||=
+      begin
+        !NO_DASHBOARD_QUALIFIERS.include?(qualifier)
+      end
   end
 
   def self.qualifier_name(qualifier)

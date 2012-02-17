@@ -2404,17 +2404,26 @@ blockquote cite {
 .spacer-left {
   margin-left: 8px;
 }
-
 .spacer-right {
   margin-right: 8px;
 }
-
 .spacer-bottom {
   margin-bottom: 8px;
 }
-
 .spacer-top {
   margin-top: 8px;
+}
+td.spacer-left {
+  padding-left: 8px;
+}
+td.spacer-right {
+  padding-right: 8px;
+}
+td.spacer-bottom {
+  padding-bottom: 8px;
+}
+td.spacer-top {
+  padding-top: 8px;
 }
 
 .bordered {

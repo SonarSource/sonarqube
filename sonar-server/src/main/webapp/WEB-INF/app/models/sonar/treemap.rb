@@ -107,7 +107,7 @@ class Sonar::Treemap
                                   :title => escape_javascript(resource.name(true)),
                                   :tooltip => tooltip(resource, size_measure, color_measure),
                                   :color => html_color(color_measure),
-                                  :rid => resource.copy_resource_id || resource.id,
+                                  :rid => resource.switch_resource_or_self.id,
                                   :browsable => resource.display_dashboard?)
         node.add_child(child)
       end

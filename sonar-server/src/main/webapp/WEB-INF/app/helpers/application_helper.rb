@@ -328,10 +328,10 @@ module ApplicationHelper
     period_index=nil if period_index && period_index<=0
     if resource.display_dashboard?
       if options[:dashboard]
-        link_to(name || resource.name, {:overwrite_params => {:controller => 'dashboard', :action => 'index', :id => (resource.copy_resource_id||resource.id), :period => period_index, :tab => options[:tab], :rule => options[:rule]}}, :title => options[:title])
+        link_to(name || resource.name, {:overwrite_params => {:controller => 'dashboard', :action => 'index', :id => resource.id, :period => period_index, :tab => options[:tab], :rule => options[:rule]}}, :title => options[:title])
       else
         # stay on the same page (for example components)
-        link_to(name || resource.name, {:overwrite_params => {:id => (resource.copy_resource_id||resource.id), :period => period_index, :tab => options[:tab], :rule => options[:rule]}}, :title => options[:title])
+        link_to(name || resource.name, {:overwrite_params => {:id => resource.id, :period => period_index, :tab => options[:tab], :rule => options[:rule]}}, :title => options[:title])
       end
     else
       if options[:line]
@@ -415,7 +415,7 @@ module ApplicationHelper
   def link_to_favourite(resource, options={})
     return '' unless (logged_in?)
     return '' if resource.nil?
-    resource_id=(resource.is_a?(Fixnum) ? resource : (resource.copy_resource_id || resource.id))
+    resource_id=(resource.is_a?(Fixnum) ? resource : resource.switch_resource_or_self.id)
     html_id=options['html_id'] || "fav#{resource_id}"
     initial_class='notfav'
     initial_tooltip=message('click_to_add_to_favourites')

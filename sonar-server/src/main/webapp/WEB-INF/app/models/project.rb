@@ -30,7 +30,7 @@ class Project < ActiveRecord::Base
   has_many :group_roles, :foreign_key => 'resource_id'
   has_many :manual_measures, :foreign_key => 'resource_id'
   belongs_to :root, :class_name => 'Project', :foreign_key => 'root_id'
-  belongs_to :copy, :class_name => 'Project', :foreign_key => 'copy_resource_id'
+  belongs_to :copy_resource, :class_name => 'Project', :foreign_key => 'copy_resource_id'
   belongs_to :person, :class_name => 'Project', :foreign_key => 'person_id'
 
   def self.by_key(k)
@@ -57,6 +57,17 @@ class Project < ActiveRecord::Base
       begin
         parent_module(self)
       end
+  end
+
+  def switch_resource
+    @switch_resource ||=
+      begin
+        (copy_resource && copy_resource.qualifier==qualifier) ? copy_resource : nil
+      end
+  end
+
+  def switch_resource_or_self
+    switch_resource||self
   end
 
   def last_snapshot
