@@ -28,6 +28,7 @@ import org.sonar.api.database.DatabaseProperties;
 import org.sonar.check.Cardinality;
 
 import javax.persistence.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +36,7 @@ import java.util.List;
 @Table(name = "rules")
 public final class Rule {
 
-  private final static RulesCategory NONE = new RulesCategory("none");
+  private static final RulesCategory NONE = new RulesCategory("none");
 
   @Id
   @Column(name = "id")

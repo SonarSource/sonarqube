@@ -27,6 +27,7 @@ import org.sonar.api.database.BaseIdentifiable;
 import org.sonar.api.database.DatabaseSession;
 
 import javax.persistence.*;
+
 import java.util.Date;
 
 /**
@@ -39,12 +40,12 @@ public class Snapshot extends BaseIdentifiable {
   /**
    * This status is set on the snapshot at the beginning of the batch
    */
-  public final static String STATUS_UNPROCESSED = "U";
+  public static final String STATUS_UNPROCESSED = "U";
 
   /**
    * This status is set on the snapshot at the end of the batch
    */
-  public final static String STATUS_PROCESSED = "P";
+  public static final String STATUS_PROCESSED = "P";
 
   @Column(name = "project_id", updatable = true, nullable = true)
   private Integer resourceId;

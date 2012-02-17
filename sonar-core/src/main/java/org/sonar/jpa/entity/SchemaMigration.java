@@ -23,6 +23,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import javax.persistence.*;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,12 +33,12 @@ import java.sql.Statement;
 @Table(name = SchemaMigration.TABLE_NAME, uniqueConstraints = {@UniqueConstraint(columnNames = {"version"})})
 public class SchemaMigration {
 
-  public final static int VERSION_UNKNOWN = -1;
+  public static final int VERSION_UNKNOWN = -1;
 
   public static final int LAST_VERSION = 263;
   public static final int VERSION_2_13 = 241;
 
-  public final static String TABLE_NAME = "schema_migrations";
+  public static final String TABLE_NAME = "schema_migrations";
 
   @Id
   @Column(name = "version", updatable = true)

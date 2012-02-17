@@ -19,24 +19,17 @@
  */
 package org.sonar.api.measures;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
 
+import javax.persistence.*;
+
 /**
  * This class represents the definition of a metric in Sonar.
- * 
+ *
  * @since 1.10
  */
 @Table(name = "metrics")
@@ -46,15 +39,15 @@ public class Metric implements ServerExtension, BatchExtension {
   /**
    * A metric bigger value means a degradation
    */
-  public final static int DIRECTION_WORST = -1;
+  public static final int DIRECTION_WORST = -1;
   /**
    * A metric bigger value means an improvement
    */
-  public final static int DIRECTION_BETTER = 1;
+  public static final int DIRECTION_BETTER = 1;
   /**
    * The metric direction has no meaning
    */
-  public final static int DIRECTION_NONE = 0;
+  public static final int DIRECTION_NONE = 0;
 
   public enum ValueType {
     INT, FLOAT, PERCENT, BOOL, STRING, MILLISEC, DATA, LEVEL, DISTRIB, RATING
@@ -593,8 +586,8 @@ public class Metric implements ServerExtension, BatchExtension {
   }
 
   /**
-   * Metric.Builder is used to create metric definitions. It must be preferred to creating new instances of the Metric class directly. 
-   * 
+   * Metric.Builder is used to create metric definitions. It must be preferred to creating new instances of the Metric class directly.
+   *
    * @since 2.7
    */
   public static final class Builder {
@@ -615,7 +608,7 @@ public class Metric implements ServerExtension, BatchExtension {
 
     /**
      * Creates a new {@link Builder} object.
-     * 
+     *
      * @param key  the metric key, should be unique among all metrics
      * @param name the metric name
      * @param type the metric type
@@ -637,7 +630,7 @@ public class Metric implements ServerExtension, BatchExtension {
 
     /**
      * Sets the metric description.
-     * 
+     *
      * @param d the description
      * @return the builder
      */
@@ -658,7 +651,7 @@ public class Metric implements ServerExtension, BatchExtension {
      * @see Metric#DIRECTION_WORST
      * @see Metric#DIRECTION_BETTER
      * @see Metric#DIRECTION_NONE
-     * 
+     *
      * @param d the direction
      * @return the builder
      */
@@ -671,7 +664,7 @@ public class Metric implements ServerExtension, BatchExtension {
      * Sets whether the metric is qualitative or not. Default value is false.
      * <br/>
      * If set to true, then variations of this metric will be highlighted in the Web UI (for instance, trend icons will be red or green instead of default grey).
-     * 
+     *
      * @param b Boolean.TRUE if the metric is qualitative
      * @return the builder
      */
@@ -684,7 +677,7 @@ public class Metric implements ServerExtension, BatchExtension {
      * Sets the domain for the metric (General, Complexity...). This is used to group metrics in the Web UI.
      * <br/>
      * By default, the metric belongs to no specific domain.
-     * 
+     *
      * @param d the domain
      * @return the builder
      */
@@ -701,10 +694,10 @@ public class Metric implements ServerExtension, BatchExtension {
      * <br/>
      * When a formula is set, sensors/decorators just need to store measures at a specific level and let Sonar run the formula to store
      * measures on the remaining levels.
-     * 
-     * @see {@link SumChildDistributionFormula}, {@link SumChildValuesFormula}, {@link AverageComplexityFormula}, {@link MeanAggregationFormula}, 
+     *
+     * @see {@link SumChildDistributionFormula}, {@link SumChildValuesFormula}, {@link AverageComplexityFormula}, {@link MeanAggregationFormula},
      * {@link WeightedMeanAggregationFormula}
-     * 
+     *
      * @param f the formula
      * @return the builder
      */
@@ -715,7 +708,7 @@ public class Metric implements ServerExtension, BatchExtension {
 
     /**
      * Sets the worst value that the metric can get (example: 0.0 for code coverage). No worst value is set by default.
-     * 
+     *
      * @param d the worst value
      * @return the builder
      */
@@ -728,7 +721,7 @@ public class Metric implements ServerExtension, BatchExtension {
      * Sets the best value that the metric can get (example: 100.0 for code coverage). No best value is set by default.
      * <br/>
      * Resources would be hidden on drilldown page, if the value of measure equals to best value.
-     * 
+     *
      * @param d the best value
      * @return the builder
      */
@@ -740,9 +733,9 @@ public class Metric implements ServerExtension, BatchExtension {
     /**
      * Specifies whether file-level measures that equal to the defined best value are stored or not. Default is false.
      * <br/>
-     * Example with the metric that stores the number of violation ({@link CoreMetrics#VIOLATIONS}): 
+     * Example with the metric that stores the number of violation ({@link CoreMetrics#VIOLATIONS}):
      * if a file has no violation, then the value '0' won't be stored in the database.
-     * 
+     *
      * @param b true if the measures must not be stored when they equal to the best value
      * @return the builder
      */
@@ -753,7 +746,7 @@ public class Metric implements ServerExtension, BatchExtension {
 
     /**
      * Sets whether the metric should be hidden in Web UI (e.g. in Time Machine). Default is false.
-     * 
+     *
      * @param b true if the metric should be hidden.
      * @return the builder
      */
@@ -766,9 +759,9 @@ public class Metric implements ServerExtension, BatchExtension {
      * Specifies whether this metric can be edited online in the "Manual measures" page. Default is false.
      *
      * @since 2.10
-     * 
+     *
      * @param b true if the metric can be edited online.
-     * @return the builder 
+     * @return the builder
      */
     public Builder setUserManaged(boolean b) {
       this.userManaged = b;
@@ -781,7 +774,7 @@ public class Metric implements ServerExtension, BatchExtension {
      * By default, historical data are kept.
      *
      * @since 2.14
-     * 
+     *
      * @param b true if measures from the past can be deleted automatically.
      * @return the builder
      */
@@ -792,7 +785,7 @@ public class Metric implements ServerExtension, BatchExtension {
 
     /**
      * Creates a new metric definition based on the properties set on this metric builder.
-     * 
+     *
      * @return a new {@link Metric} object
      */
     public Metric create() {

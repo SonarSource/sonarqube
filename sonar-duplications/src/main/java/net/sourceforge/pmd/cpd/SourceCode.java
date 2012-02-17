@@ -37,7 +37,7 @@ public class SourceCode {
 
   public static final String EOL = System.getProperty("line.separator", "\n");
 
-  public static abstract class CodeLoader {
+  public abstract static class CodeLoader {
     private SoftReference<List<String>> code;
 
     public List<String> getCode() {

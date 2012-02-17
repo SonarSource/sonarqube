@@ -106,7 +106,7 @@ public class JacocoAntInitializer extends Initializer implements CoverageExtensi
 
   }
 
-  private static abstract class TaskEnhancer {
+  private abstract static class TaskEnhancer {
     /**
      * @param task Task instance to enhance
      * @return <code>true</code> if this enhancer is capable of enhancing the requested task

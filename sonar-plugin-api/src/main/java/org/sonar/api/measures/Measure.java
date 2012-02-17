@@ -38,7 +38,7 @@ public class Measure {
   /**
    * Default precision when saving a float type metric
    */
-  public final static int DEFAULT_PRECISION = 1;
+  public static final int DEFAULT_PRECISION = 1;
 
   private Long id; // for internal use
   protected String metricKey;

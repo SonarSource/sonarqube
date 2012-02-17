@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class FindbugsCategory {
-  private final static Map<String, String> FINDBUGS_TO_SONAR = new HashMap<String, String>();
+  private static final Map<String, String> FINDBUGS_TO_SONAR = new HashMap<String, String>();
 
   static {
     FINDBUGS_TO_SONAR.put("BAD_PRACTICE", "Bad practice");

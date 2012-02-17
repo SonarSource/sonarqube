@@ -29,7 +29,7 @@ public class JavaConstantTokenizer extends Tokenizer {
 
   private final String tagBefore;
   private final String tagAfter;
-  private final static int DOT = '.';
+  private static final int DOT = '.';
 
   public JavaConstantTokenizer(String tagBefore, String tagAfter) {
     this.tagBefore = tagBefore;

@@ -26,6 +26,8 @@ import org.sonar.squid.measures.Metric;
 
 class Line implements Measurable<Metric> {
 
+  private static final String NOSONAR_TAG = "NOSONAR";
+
   private final int lineIndex;
   private int blankLine = 0;
   private int line = 1;
@@ -39,7 +41,6 @@ class Line implements Measurable<Metric> {
   private boolean isBlank;
   private boolean isThereJavadoc;
   private boolean isThereLicenseHeaderComment;
-  private final static String NOSONAR_TAG = "NOSONAR";
 
   Line() {
     this.lineIndex = 0;

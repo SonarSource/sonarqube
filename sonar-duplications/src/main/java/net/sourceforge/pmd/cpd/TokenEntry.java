@@ -33,7 +33,7 @@ import java.util.Map;
  */
 public class TokenEntry implements Comparable<TokenEntry> {
 
-  private final static Map<String, Integer> TOKENS = new HashMap<String, Integer>();
+  private static final Map<String, Integer> TOKENS = new HashMap<String, Integer>();
   private static int tokenCount = 0;
 
   /**

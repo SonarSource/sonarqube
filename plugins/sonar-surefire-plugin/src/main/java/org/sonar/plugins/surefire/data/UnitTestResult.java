@@ -22,10 +22,10 @@ package org.sonar.plugins.surefire.data;
 import org.apache.commons.lang.StringEscapeUtils;
 
 public final class UnitTestResult {
-  public final static String STATUS_OK = "ok";
-  public final static String STATUS_ERROR = "error";
-  public final static String STATUS_FAILURE = "failure";
-  public final static String STATUS_SKIPPED = "skipped";
+  public static final String STATUS_OK = "ok";
+  public static final String STATUS_ERROR = "error";
+  public static final String STATUS_FAILURE = "failure";
+  public static final String STATUS_SKIPPED = "skipped";
 
   private String name, status, stackTrace, message;
   private long durationMilliseconds = 0L;

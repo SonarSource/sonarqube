@@ -19,21 +19,16 @@
  */
 package org.sonar.java.ast.visitor;
 
-import java.util.Arrays;
-import java.util.List;
-
+import com.puppycrawl.tools.checkstyle.api.*;
 import org.sonar.squid.api.SourceCode;
 import org.sonar.squid.measures.Metric;
 
-import com.puppycrawl.tools.checkstyle.api.AnnotationUtility;
-import com.puppycrawl.tools.checkstyle.api.DetailAST;
-import com.puppycrawl.tools.checkstyle.api.FileContents;
-import com.puppycrawl.tools.checkstyle.api.Scope;
-import com.puppycrawl.tools.checkstyle.api.TokenTypes;
+import java.util.Arrays;
+import java.util.List;
 
 public class PublicApiVisitor extends JavaAstVisitor {
 
-  final static String OVERRIDE_ANNOTATION_KEYWORD = "Override";
+  static final String OVERRIDE_ANNOTATION_KEYWORD = "Override";
 
   public static final List<Integer> TOKENS = Arrays.asList(TokenTypes.CLASS_DEF, TokenTypes.INTERFACE_DEF, TokenTypes.METHOD_DEF,
       TokenTypes.CTOR_DEF, TokenTypes.ANNOTATION_DEF, TokenTypes.ANNOTATION_FIELD_DEF, TokenTypes.VARIABLE_DEF);

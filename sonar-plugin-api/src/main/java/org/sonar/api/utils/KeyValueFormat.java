@@ -48,7 +48,7 @@ public final class KeyValueFormat {
     // only static methods
   }
 
-  public static abstract class Converter<TYPE> {
+  public abstract static class Converter<TYPE> {
     abstract String format(TYPE type);
 
     abstract TYPE parse(String s);

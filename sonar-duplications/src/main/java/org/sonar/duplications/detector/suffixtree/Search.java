@@ -19,9 +19,9 @@
  */
 package org.sonar.duplications.detector.suffixtree;
 
-import java.util.*;
-
 import com.google.common.collect.Lists;
+
+import java.util.*;
 
 public final class Search {
 
@@ -132,7 +132,7 @@ public final class Search {
     reporter.endOfGroup();
   }
 
-  public static abstract class Collector {
+  public abstract static class Collector {
 
     /**
      * Invoked at the beginning of processing for current node.
@@ -141,7 +141,7 @@ public final class Search {
      * thus we guaranty that length will not increase between two sequential calls of this method
      * (can be equal or less than previous value).
      * </p>
-     * 
+     *
      * @param size number of parts in group
      * @param length length of each part in group
      */
@@ -149,7 +149,7 @@ public final class Search {
 
     /**
      * Invoked as many times as leafs in the subtree, where current node is root.
-     * 
+     *
      * @param start start position in generalised text
      * @param end end position in generalised text
      */

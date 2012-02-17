@@ -22,7 +22,7 @@ package org.sonar.wsclient.services;
 public class ResourceQuery extends Query<Resource> {
   public static final String BASE_URL = "/api/resources";
 
-  public final static int DEPTH_UNLIMITED = -1;
+  public static final int DEPTH_UNLIMITED = -1;
 
   private Integer depth;
   private String resourceKeyOrId;

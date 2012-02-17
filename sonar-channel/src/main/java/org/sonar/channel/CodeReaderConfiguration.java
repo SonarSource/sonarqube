@@ -27,14 +27,14 @@ import java.util.List;
  * Configuration parameters used by a CodeReader to handle some specificities.
  */
 public class CodeReaderConfiguration {
-  
+
   /**
    * @deprecated in 2.12, do not use anymore.
    */
   @Deprecated
-  public final static int DEFAULT_BUFFER_CAPACITY = 8000;
+  public static final int DEFAULT_BUFFER_CAPACITY = 8000;
 
-  public final static int DEFAULT_TAB_WIDTH = 1;
+  public static final int DEFAULT_TAB_WIDTH = 1;
 
   private int tabWidth = DEFAULT_TAB_WIDTH;
 
@@ -57,7 +57,7 @@ public class CodeReaderConfiguration {
   @Deprecated
   public void setBufferCapacity(int bufferCapacity) {
   }
-  
+
   /**
    * @return the tabWidth
    */
@@ -91,7 +91,7 @@ public class CodeReaderConfiguration {
 
   /**
    * Adds a code reader filter
-   * 
+   *
    * @param codeReaderFilter
    *          the codeReaderFilter to add
    */

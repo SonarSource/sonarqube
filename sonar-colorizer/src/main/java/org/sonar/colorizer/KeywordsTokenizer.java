@@ -19,13 +19,13 @@
  */
 package org.sonar.colorizer;
 
+import org.sonar.channel.CodeReader;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.sonar.channel.CodeReader;
 
 /**
  * Detect case-sensitive keywords
@@ -37,7 +37,7 @@ public class KeywordsTokenizer extends NotThreadSafeTokenizer {
   private boolean caseInsensitive = false;
   private Matcher matcher;
   private final StringBuilder tmpBuilder = new StringBuilder();
-  private final static String DEFAULT_REGEX = "[a-zA-Z_][a-zA-Z0-9_]*+";
+  private static final String DEFAULT_REGEX = "[a-zA-Z_][a-zA-Z0-9_]*+";
 
   private Set<String> keywords = new HashSet<String>();
 

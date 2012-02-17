@@ -159,7 +159,7 @@ public final class MeasuresFilters {
   /**
    * Used for internal optimizations.
    */
-  public static abstract class MetricFilter<M> implements MeasuresFilter<M> {
+  public abstract static class MetricFilter<M> implements MeasuresFilter<M> {
     private final String metricKey;
 
     protected MetricFilter(Metric metric) {

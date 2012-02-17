@@ -23,11 +23,11 @@ import java.util.List;
 
 public class TendencyAnalyser {
 
-  public final static Integer TENDENCY_BIG_UP = 2;
-  public final static Integer TENDENCY_UP = 1;
-  public final static Integer TENDENCY_NEUTRAL = 0;
-  public final static Integer TENDENCY_DOWN = -1;
-  public final static Integer TENDENCY_BIG_DOWN = -2;
+  public static final Integer TENDENCY_BIG_UP = 2;
+  public static final Integer TENDENCY_UP = 1;
+  public static final Integer TENDENCY_NEUTRAL = 0;
+  public static final Integer TENDENCY_DOWN = -1;
+  public static final Integer TENDENCY_BIG_DOWN = -2;
 
   public Integer analyseLevel(List<Double> values) {
     TendencyAnalyser.SlopeData slopeData = analyse(values);

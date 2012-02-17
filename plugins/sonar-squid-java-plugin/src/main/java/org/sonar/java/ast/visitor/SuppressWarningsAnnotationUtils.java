@@ -29,9 +29,9 @@ import com.puppycrawl.tools.checkstyle.api.TokenTypes;
  */
 public final class SuppressWarningsAnnotationUtils {
 
-  private final static String SUPPRESS_WARNINGS_ANNOTATION_NAME = "SuppressWarnings";
-  private final static String SUPPRESS_WARNINGS_ANNOTATION_FQ_NAME = "java.lang." + SUPPRESS_WARNINGS_ANNOTATION_NAME;
-  private final static String VALUE = "\"all\"";
+  private static final String SUPPRESS_WARNINGS_ANNOTATION_NAME = "SuppressWarnings";
+  private static final String SUPPRESS_WARNINGS_ANNOTATION_FQ_NAME = "java.lang." + SUPPRESS_WARNINGS_ANNOTATION_NAME;
+  private static final String VALUE = "\"all\"";
 
   public static boolean isSuppressAllWarnings(DetailAST ast) {
     DetailAST suppressWarningsAnnotation = getSuppressWarningsAnnotation(ast);
