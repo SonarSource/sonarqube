@@ -1,7 +1,6 @@
 <h1><%= @rule.name %></h1>
 <div class="subtitle">
-<%= message('plugin') -%>: <%= @rule.plugin_name -%>&nbsp;&nbsp;&nbsp;
-<%= message('key') -%>: <%= @rule.plugin_rule_key %>
+<%= @rule.plugin_name -%> : <%= @rule.plugin_rule_key -%>
 </div>
 
 <div class="doc">
@@ -10,9 +9,9 @@
   <% else %>
     <p><%= @rule.description %></p>
   <% end %>
-  
+
   <% if @rule.note && !@rule.note.text.strip.blank? %>
     <p><%= @rule.note.html_text -%></p>
   <% end %>
-  
+
 </div>

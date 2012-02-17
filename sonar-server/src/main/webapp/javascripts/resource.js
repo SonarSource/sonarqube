@@ -34,6 +34,7 @@ function cancelViolationAction(violation_id) {
 
 // show the form to comment violation
 function sCF(violation_id) {
+  $('vActions' + violation_id).hide();
   new Ajax.Updater('reviewForm' + violation_id,
     baseUrl + '/reviews/violation_comment_form/' + violation_id,
     {
@@ -43,13 +44,14 @@ function sCF(violation_id) {
         $('vBody' + violation_id).remove();
         $('reviewForm' + violation_id).show();
         $('commentText' + violation_id).focus();
-      }
+     }
     });
   return false;
 }
 
 // show the form to change severity
 function sCSF(violation_id) {
+  $('vActions' + violation_id).hide();
   new Ajax.Updater('reviewForm' + violation_id,
     baseUrl + '/reviews/violation_change_severity_form/' + violation_id,
     {
@@ -66,6 +68,7 @@ function sCSF(violation_id) {
 
 // show the form to change status
 function sCStF(violation_id) {
+  $('vActions' + violation_id).hide();
   new Ajax.Updater('reviewForm' + violation_id,
     baseUrl + '/reviews/violation_change_status_form/' + violation_id,
     {
@@ -82,6 +85,7 @@ function sCStF(violation_id) {
 
 // show the form to flag as false-positive
 function sFPF(violation_id) {
+  $('vActions' + violation_id).hide();
   new Ajax.Updater('reviewForm' + violation_id,
     baseUrl + '/reviews/violation_false_positive_form/' + violation_id,
     {
@@ -98,6 +102,7 @@ function sFPF(violation_id) {
 
 // show the form to assign violation
 function sAF(violation_id) {
+  $('vActions' + violation_id).hide();
   new Ajax.Updater('reviewForm' + violation_id,
     baseUrl + '/reviews/violation_assign_form/' + violation_id,
     {
@@ -114,6 +119,7 @@ function sAF(violation_id) {
 
 // show the form to link a review to an action plan
 function sAPF(violation_id) {
+  $('vActions' + violation_id).hide();
   new Ajax.Updater('reviewForm' + violation_id,
     baseUrl + '/reviews/violation_action_plan_form/' + violation_id,
     {

@@ -73,7 +73,7 @@
                   <%= link_to(resource.name, {:only_path => true, :overwrite_params => {:rids => (selected ? rids-[resource.id] : rids+[resource.id])}}) -%>
                 <% end %>
               </td>
-              <td class="right last">
+              <td class="right">
                 <%= format_measure(measure, :skip_span_id => true, :period => @period) -%>
               </td>
             </tr>

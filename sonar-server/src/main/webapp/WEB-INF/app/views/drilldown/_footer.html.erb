@@ -9,3 +9,14 @@
   <% end %>
 </script>
 <% end %>
+
+<!--[if lt IE 8]>
+<script>
+  var columns=$$('.scrollable');
+  columns.each(function(column) {
+    if (column.scrollHeight>column.offsetHeight) {
+      column.addClassName('scroll-ie');
+    }
+  });
+</script>
+<![endif]-->
