@@ -34,6 +34,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @deprecated since 2.14, will be removed soon, and in any case should not be used for unit tests in Sonar plugins:
+ * instead of using this class for tests, you should test only your implementation of {@link Tokenizer}
+ */
+@Deprecated
 public class CPD {
 
   private Map<String, SourceCode> source = new HashMap<String, SourceCode>();
@@ -97,7 +102,6 @@ public class CPD {
       throw new FileNotFoundException("Couldn't find directory " + dir);
     }
     FileFinder finder = new FileFinder();
-    // TODO - could use SourceFileSelector here
     add(finder.findFilesFrom(dir, language.getFileFilter(), recurse));
   }
 
