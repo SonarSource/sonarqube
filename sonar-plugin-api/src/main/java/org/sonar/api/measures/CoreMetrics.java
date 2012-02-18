@@ -994,7 +994,7 @@ public final class CoreMetrics {
    *     ...
    *   </duplications>}</pre>
    * </li>
-   * <li>For PMD CPD:
+   * <li>For PMD CPD (deprecated in 2.14 - see SONAR-3238):
    * <pre>   {@code
    *   <duplications>
    *     <duplication start="[first line]" lines="[number of lines]" target-resource="[resource key]" target-start="[first line in target]" />

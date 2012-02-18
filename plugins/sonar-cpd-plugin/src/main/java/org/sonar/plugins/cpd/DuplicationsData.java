@@ -19,48 +19,42 @@
  */
 package org.sonar.plugins.cpd;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.Resource;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+
 public class DuplicationsData {
 
-  private Resource resource;
-  private Set<Integer> duplicatedLines = new HashSet<Integer>();
+  private final String resourceKey;
+  private final Set<Integer> duplicatedLines = Sets.newHashSet();
+  private final List<XmlEntry> duplicationXMLEntries = Lists.newArrayList();
+
   private double duplicatedBlocks;
-  private List<XmlEntry> duplicationXMLEntries = new ArrayList<XmlEntry>();
 
-  private SensorContext context;
-
-  public DuplicationsData(Resource resource, SensorContext context) {
-    this.resource = resource;
-    this.context = context;
+  public DuplicationsData(String resourceKey, SensorContext context) {
+    this.resourceKey = resourceKey;
   }
 
-  public void cumulate(String targetResource, int targetDuplicationStartLine, int duplicationStartLine, int duplicatedLines) {
-    duplicationXMLEntries.add(new XmlEntry(targetResource, targetDuplicationStartLine, duplicationStartLine, duplicatedLines));
+  public void cumulate(String targetResourceKey, int targetDuplicationStartLine, int duplicationStartLine, int duplicatedLines) {
+    duplicationXMLEntries.add(new XmlEntry(targetResourceKey, targetDuplicationStartLine, duplicationStartLine, duplicatedLines));
     for (int duplicatedLine = duplicationStartLine; duplicatedLine < duplicationStartLine + duplicatedLines; duplicatedLine++) {
       this.duplicatedLines.add(duplicatedLine);
     }
-  }
-
-  public void cumulate(Resource targetResource, int targetDuplicationStartLine, int duplicationStartLine, int duplicatedLines) {
-    cumulate(context.saveResource(targetResource), targetDuplicationStartLine, duplicationStartLine, duplicatedLines);
   }
 
   public void incrementDuplicatedBlock() {
     duplicatedBlocks++;
   }
 
-  public void save() {
+  public void save(SensorContext context, Resource resource) {
     context.saveMeasure(resource, CoreMetrics.DUPLICATED_FILES, 1d);
     context.saveMeasure(resource, CoreMetrics.DUPLICATED_LINES, (double) duplicatedLines.size());
     context.saveMeasure(resource, CoreMetrics.DUPLICATED_BLOCKS, duplicatedBlocks);
@@ -86,11 +80,11 @@ public class DuplicationsData {
     }
   };
 
-  private static final class XmlEntry {
-    private String target;
-    private int targetStartLine;
-    private int startLine;
-    private int lines;
+  private final class XmlEntry {
+    private final String target;
+    private final int targetStartLine;
+    private final int startLine;
+    private final int lines;
 
     private XmlEntry(String target, int targetStartLine, int startLine, int lines) {
       this.target = target;
@@ -101,10 +95,11 @@ public class DuplicationsData {
 
     @Override
     public String toString() {
-      return new StringBuilder().append("<duplication lines=\"").append(lines)
-          .append("\" start=\"").append(startLine)
-          .append("\" target-start=\"").append(targetStartLine)
-          .append("\" target-resource=\"").append(target).append("\"/>")
+      return new StringBuilder()
+          .append("<g>")
+          .append("<b s=\"").append(startLine).append("\" l=\"").append(lines).append("\" r=\"").append(resourceKey).append("\" />")
+          .append("<b s=\"").append(targetStartLine).append("\" l=\"").append(lines).append("\" r=\"").append(target).append("\" />")
+          .append("</g>")
           .toString();
     }
   }

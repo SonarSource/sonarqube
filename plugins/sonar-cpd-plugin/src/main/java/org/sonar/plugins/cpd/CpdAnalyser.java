@@ -19,13 +19,7 @@
  */
 package org.sonar.plugins.cpd;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 import net.sourceforge.pmd.cpd.TokenEntry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.CpdMapping;
@@ -33,6 +27,11 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.duplications.cpd.Match;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class CpdAnalyser {
 
@@ -78,20 +77,22 @@ public class CpdAnalyser {
             continue;
           }
 
-          firstFileData.cumulate(secondFile, secondLine, firstLine, match.getLineCount());
+          String resourceKey = SonarEngine.getFullKey(project, secondFile);
+          firstFileData.cumulate(resourceKey, secondLine, firstLine, match.getLineCount());
         }
       }
     }
 
-    for (DuplicationsData data : duplicationsData.values()) {
-      data.save();
+    for (Map.Entry<Resource, DuplicationsData> entry : duplicationsData.entrySet()) {
+      entry.getValue().save(context, entry.getKey());
     }
   }
 
   private DuplicationsData getDuplicationsData(Map<Resource, DuplicationsData> fileContainer, Resource file) {
     DuplicationsData data = fileContainer.get(file);
     if (data == null) {
-      data = new DuplicationsData(file, context);
+      String resourceKey = SonarEngine.getFullKey(project, file);
+      data = new DuplicationsData(resourceKey, context);
       fileContainer.put(file, data);
     }
     return data;

@@ -19,14 +19,18 @@
  */
 package org.sonar.plugins.cpd;
 
-import static org.mockito.Matchers.anyList;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import net.sourceforge.pmd.cpd.TokenEntry;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.sonar.api.batch.CpdMapping;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
+import org.sonar.api.resources.Resource;
+import org.sonar.duplications.cpd.Match;
 
 import java.io.File;
 import java.util.Arrays;
@@ -34,18 +38,10 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import net.sourceforge.pmd.cpd.TokenEntry;
-
-import org.junit.Test;
-import org.sonar.api.batch.CpdMapping;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.resources.JavaFile;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectFileSystem;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.test.IsMeasure;
-import org.sonar.duplications.cpd.Match;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
 public class CpdAnalyserTest {
 
@@ -65,8 +61,6 @@ public class CpdAnalyserTest {
     Resource resource2 = new JavaFile("foo.Bar");
     when(cpdMapping.createResource((File) anyObject(), anyList())).thenReturn(resource1).thenReturn(resource2).thenReturn(resource2)
         .thenReturn(resource1);
-    when(context.saveResource(resource1)).thenReturn("key1");
-    when(context.saveResource(resource2)).thenReturn("key2");
 
     Match match1 = new Match(5, new TokenEntry(null, file1.getAbsolutePath(), 5), new TokenEntry(null, file2.getAbsolutePath(), 15));
     match1.setLineCount(200);
@@ -74,24 +68,28 @@ public class CpdAnalyserTest {
     CpdAnalyser cpdAnalyser = new CpdAnalyser(project, context, cpdMapping);
     cpdAnalyser.analyse(Arrays.asList(match1).iterator());
 
+    ArgumentCaptor<Measure> measureCaptor = ArgumentCaptor.forClass(Measure.class);
+
     verify(context).saveMeasure(resource1, CoreMetrics.DUPLICATED_FILES, 1d);
     verify(context).saveMeasure(resource1, CoreMetrics.DUPLICATED_BLOCKS, 1d);
     verify(context).saveMeasure(resource1, CoreMetrics.DUPLICATED_LINES, 200d);
-    verify(context).saveMeasure(
-        eq(resource1),
-        argThat(new IsMeasure(CoreMetrics.DUPLICATIONS_DATA, "<duplications>"
-            + "<duplication lines=\"200\" start=\"5\" target-start=\"15\" target-resource=\"key2\"/>" + "</duplications>")));
+    verify(context).saveMeasure(eq(resource1), measureCaptor.capture());
+    Measure measure = measureCaptor.getValue();
+    assertThat(measure.getMetric(), is(CoreMetrics.DUPLICATIONS_DATA));
+    assertThat(measure.getData(), is("<duplications><g>"
+      + "<b s=\"5\" l=\"200\" r=\"key:foo.Foo\" />"
+      + "<b s=\"15\" l=\"200\" r=\"key:foo.Bar\" />"
+      + "</g></duplications>"));
 
     verify(context).saveMeasure(resource2, CoreMetrics.DUPLICATED_FILES, 1d);
     verify(context).saveMeasure(resource2, CoreMetrics.DUPLICATED_LINES, 200d);
     verify(context).saveMeasure(resource2, CoreMetrics.DUPLICATED_BLOCKS, 1d);
-    verify(context).saveMeasure(
-        eq(resource2),
-        argThat(new IsMeasure(CoreMetrics.DUPLICATIONS_DATA,
-            "<duplications><duplication lines=\"200\" start=\"15\" target-start=\"5\" target-resource=\"key1\"/></duplications>")));
-
-    verify(context, atLeastOnce()).saveResource(resource1);
-    verify(context, atLeastOnce()).saveResource(resource2);
+    verify(context).saveMeasure(eq(resource2), measureCaptor.capture());
+    assertThat(measure.getMetric(), is(CoreMetrics.DUPLICATIONS_DATA));
+    assertThat(measure.getData(), is("<duplications><g>"
+      + "<b s=\"5\" l=\"200\" r=\"key:foo.Foo\" />"
+      + "<b s=\"15\" l=\"200\" r=\"key:foo.Bar\" />"
+      + "</g></duplications>"));
   }
 
   @Test
@@ -112,9 +110,6 @@ public class CpdAnalyserTest {
     Resource resource3 = new JavaFile("foo.Hotel");
     when(cpdMapping.createResource((File) anyObject(), anyList())).thenReturn(resource1).thenReturn(resource2).thenReturn(resource2)
         .thenReturn(resource1).thenReturn(resource1).thenReturn(resource3).thenReturn(resource3).thenReturn(resource1);
-    when(context.saveResource(resource1)).thenReturn("key1");
-    when(context.saveResource(resource2)).thenReturn("key2");
-    when(context.saveResource(resource3)).thenReturn("key3");
 
     Match match1 = new Match(5, new TokenEntry(null, file1.getAbsolutePath(), 5), new TokenEntry(null, file2.getAbsolutePath(), 15));
     match1.setLineCount(200);
@@ -124,35 +119,53 @@ public class CpdAnalyserTest {
     CpdAnalyser cpdAnalyser = new CpdAnalyser(project, context, cpdMapping);
     cpdAnalyser.analyse(Arrays.asList(match1, match2).iterator());
 
+    ArgumentCaptor<Measure> measureCaptor = ArgumentCaptor.forClass(Measure.class);
+
     verify(context).saveMeasure(resource1, CoreMetrics.DUPLICATED_FILES, 1d);
     verify(context).saveMeasure(resource1, CoreMetrics.DUPLICATED_BLOCKS, 2d);
     verify(context).saveMeasure(resource1, CoreMetrics.DUPLICATED_LINES, 200d);
-    verify(context).saveMeasure(
-        eq(resource1),
-        argThat(new IsMeasure(CoreMetrics.DUPLICATIONS_DATA, "<duplications>"
-            + "<duplication lines=\"100\" start=\"5\" target-start=\"15\" target-resource=\"key3\"/>"
-            + "<duplication lines=\"200\" start=\"5\" target-start=\"15\" target-resource=\"key2\"/>"
-            + "</duplications>")));
+    verify(context).saveMeasure(eq(resource1), measureCaptor.capture());
+
+    Measure measure = measureCaptor.getValue();
+    assertThat(measure.getMetric(), is(CoreMetrics.DUPLICATIONS_DATA));
+    assertThat(measure.getData(), is("<duplications>"
+      + "<g>"
+      + "<b s=\"5\" l=\"100\" r=\"key:foo.Foo\" />"
+      + "<b s=\"15\" l=\"100\" r=\"key:foo.Hotel\" />"
+      + "</g>"
+      + "<g>"
+      + "<b s=\"5\" l=\"200\" r=\"key:foo.Foo\" />"
+      + "<b s=\"15\" l=\"200\" r=\"key:foo.Bar\" />"
+      + "</g>"
+      + "</duplications>"));
 
     verify(context).saveMeasure(resource2, CoreMetrics.DUPLICATED_FILES, 1d);
     verify(context).saveMeasure(resource2, CoreMetrics.DUPLICATED_LINES, 200d);
     verify(context).saveMeasure(resource2, CoreMetrics.DUPLICATED_BLOCKS, 1d);
-    verify(context).saveMeasure(
-        eq(resource2),
-        argThat(new IsMeasure(CoreMetrics.DUPLICATIONS_DATA,
-            "<duplications><duplication lines=\"200\" start=\"15\" target-start=\"5\" target-resource=\"key1\"/></duplications>")));
+    verify(context).saveMeasure(eq(resource2), measureCaptor.capture());
+
+    measure = measureCaptor.getValue();
+    assertThat(measure.getMetric(), is(CoreMetrics.DUPLICATIONS_DATA));
+    assertThat(measure.getData(), is("<duplications>"
+      + "<g>"
+      + "<b s=\"15\" l=\"200\" r=\"key:foo.Bar\" />"
+      + "<b s=\"5\" l=\"200\" r=\"key:foo.Foo\" />"
+      + "</g>"
+      + "</duplications>"));
 
     verify(context).saveMeasure(resource3, CoreMetrics.DUPLICATED_FILES, 1d);
     verify(context).saveMeasure(resource3, CoreMetrics.DUPLICATED_LINES, 100d);
     verify(context).saveMeasure(resource3, CoreMetrics.DUPLICATED_BLOCKS, 1d);
-    verify(context).saveMeasure(
-        eq(resource3),
-        argThat(new IsMeasure(CoreMetrics.DUPLICATIONS_DATA,
-            "<duplications><duplication lines=\"100\" start=\"15\" target-start=\"5\" target-resource=\"key1\"/></duplications>")));
+    verify(context).saveMeasure(eq(resource3), measureCaptor.capture());
 
-    verify(context, atLeastOnce()).saveResource(resource1);
-    verify(context, atLeastOnce()).saveResource(resource2);
-    verify(context, atLeastOnce()).saveResource(resource3);
+    measure = measureCaptor.getValue();
+    assertThat(measure.getMetric(), is(CoreMetrics.DUPLICATIONS_DATA));
+    assertThat(measure.getData(), is("<duplications>"
+      + "<g>"
+      + "<b s=\"15\" l=\"100\" r=\"key:foo.Hotel\" />"
+      + "<b s=\"5\" l=\"100\" r=\"key:foo.Foo\" />"
+      + "</g>"
+      + "</duplications>"));
   }
 
   @Test
@@ -177,10 +190,6 @@ public class CpdAnalyserTest {
         .thenReturn(resource4).thenReturn(resource2).thenReturn(resource1).thenReturn(resource3).thenReturn(resource4)
         .thenReturn(resource3).thenReturn(resource1).thenReturn(resource2).thenReturn(resource4).thenReturn(resource4)
         .thenReturn(resource1).thenReturn(resource2).thenReturn(resource3);
-    when(context.saveResource(resource1)).thenReturn("key1");
-    when(context.saveResource(resource2)).thenReturn("key2");
-    when(context.saveResource(resource3)).thenReturn("key3");
-    when(context.saveResource(resource4)).thenReturn("key4");
 
     Match match = new Match(5, createTokenEntry(file1.getAbsolutePath(), 5), createTokenEntry(file2.getAbsolutePath(), 15));
     match.setLineCount(200);
@@ -194,50 +203,95 @@ public class CpdAnalyserTest {
     CpdAnalyser cpdAnalyser = new CpdAnalyser(project, context, cpdMapping);
     cpdAnalyser.analyse(Arrays.asList(match).iterator());
 
+    ArgumentCaptor<Measure> measureCaptor = ArgumentCaptor.forClass(Measure.class);
+
     verify(context).saveMeasure(resource1, CoreMetrics.DUPLICATED_FILES, 1d);
     verify(context).saveMeasure(resource1, CoreMetrics.DUPLICATED_BLOCKS, 1d);
     verify(context).saveMeasure(resource1, CoreMetrics.DUPLICATED_LINES, 200d);
-    verify(context).saveMeasure(
-        eq(resource1),
-        argThat(new IsMeasure(CoreMetrics.DUPLICATIONS_DATA, "<duplications>"
-            + "<duplication lines=\"200\" start=\"5\" target-start=\"15\" target-resource=\"key2\"/>"
-            + "<duplication lines=\"200\" start=\"5\" target-start=\"7\" target-resource=\"key3\"/>"
-            + "<duplication lines=\"200\" start=\"5\" target-start=\"10\" target-resource=\"key4\"/>" + "</duplications>")));
+    verify(context).saveMeasure(eq(resource1), measureCaptor.capture());
+
+    Measure measure = measureCaptor.getValue();
+    assertThat(measure.getMetric(), is(CoreMetrics.DUPLICATIONS_DATA));
+    assertThat(measure.getData(), is("<duplications>"
+      + "<g>"
+      + "<b s=\"5\" l=\"200\" r=\"key:foo.Foo\" />"
+      + "<b s=\"15\" l=\"200\" r=\"key:foo.Bar\" />"
+      + "</g>"
+      + "<g>"
+      + "<b s=\"5\" l=\"200\" r=\"key:foo.Foo\" />"
+      + "<b s=\"7\" l=\"200\" r=\"key:foo.Hotel\" />"
+      + "</g>"
+      + "<g>"
+      + "<b s=\"5\" l=\"200\" r=\"key:foo.Foo\" />"
+      + "<b s=\"10\" l=\"200\" r=\"key:foo.Coffee\" />"
+      + "</g>"
+      + "</duplications>"));
 
     verify(context).saveMeasure(resource3, CoreMetrics.DUPLICATED_FILES, 1d);
     verify(context).saveMeasure(resource3, CoreMetrics.DUPLICATED_LINES, 200d);
     verify(context).saveMeasure(resource3, CoreMetrics.DUPLICATED_BLOCKS, 1d);
-    verify(context).saveMeasure(
-        eq(resource2),
-        argThat(new IsMeasure(CoreMetrics.DUPLICATIONS_DATA, "<duplications>"
-            + "<duplication lines=\"200\" start=\"15\" target-start=\"5\" target-resource=\"key1\"/>"
-            + "<duplication lines=\"200\" start=\"15\" target-start=\"7\" target-resource=\"key3\"/>"
-            + "<duplication lines=\"200\" start=\"15\" target-start=\"10\" target-resource=\"key4\"/>" + "</duplications>")));
+    verify(context).saveMeasure(eq(resource3), measureCaptor.capture());
+
+    measure = measureCaptor.getValue();
+    assertThat(measure.getMetric(), is(CoreMetrics.DUPLICATIONS_DATA));
+    assertThat(measure.getData(), is("<duplications>"
+      + "<g>"
+      + "<b s=\"7\" l=\"200\" r=\"key:foo.Hotel\" />"
+      + "<b s=\"5\" l=\"200\" r=\"key:foo.Foo\" />"
+      + "</g>"
+      + "<g>"
+      + "<b s=\"7\" l=\"200\" r=\"key:foo.Hotel\" />"
+      + "<b s=\"15\" l=\"200\" r=\"key:foo.Bar\" />"
+      + "</g>"
+      + "<g>"
+      + "<b s=\"7\" l=\"200\" r=\"key:foo.Hotel\" />"
+      + "<b s=\"10\" l=\"200\" r=\"key:foo.Coffee\" />"
+      + "</g>"
+      + "</duplications>"));
 
     verify(context).saveMeasure(resource2, CoreMetrics.DUPLICATED_FILES, 1d);
     verify(context).saveMeasure(resource2, CoreMetrics.DUPLICATED_LINES, 200d);
     verify(context).saveMeasure(resource2, CoreMetrics.DUPLICATED_BLOCKS, 1d);
-    verify(context).saveMeasure(
-        eq(resource3),
-        argThat(new IsMeasure(CoreMetrics.DUPLICATIONS_DATA, "<duplications>"
-            + "<duplication lines=\"200\" start=\"7\" target-start=\"5\" target-resource=\"key1\"/>"
-            + "<duplication lines=\"200\" start=\"7\" target-start=\"15\" target-resource=\"key2\"/>"
-            + "<duplication lines=\"200\" start=\"7\" target-start=\"10\" target-resource=\"key4\"/>" + "</duplications>")));
+    verify(context).saveMeasure(eq(resource2), measureCaptor.capture());
+
+    measure = measureCaptor.getValue();
+    assertThat(measure.getMetric(), is(CoreMetrics.DUPLICATIONS_DATA));
+    assertThat(measure.getData(), is("<duplications>"
+      + "<g>"
+      + "<b s=\"15\" l=\"200\" r=\"key:foo.Bar\" />"
+      + "<b s=\"5\" l=\"200\" r=\"key:foo.Foo\" />"
+      + "</g>"
+      + "<g>"
+      + "<b s=\"15\" l=\"200\" r=\"key:foo.Bar\" />"
+      + "<b s=\"7\" l=\"200\" r=\"key:foo.Hotel\" />"
+      + "</g>"
+      + "<g>"
+      + "<b s=\"15\" l=\"200\" r=\"key:foo.Bar\" />"
+      + "<b s=\"10\" l=\"200\" r=\"key:foo.Coffee\" />"
+      + "</g>"
+      + "</duplications>"));
 
     verify(context).saveMeasure(resource4, CoreMetrics.DUPLICATED_LINES, 200d);
     verify(context).saveMeasure(resource4, CoreMetrics.DUPLICATED_FILES, 1d);
     verify(context).saveMeasure(resource4, CoreMetrics.DUPLICATED_BLOCKS, 1d);
-    verify(context).saveMeasure(
-        eq(resource4),
-        argThat(new IsMeasure(CoreMetrics.DUPLICATIONS_DATA, "<duplications>"
-            + "<duplication lines=\"200\" start=\"10\" target-start=\"5\" target-resource=\"key1\"/>"
-            + "<duplication lines=\"200\" start=\"10\" target-start=\"15\" target-resource=\"key2\"/>"
-            + "<duplication lines=\"200\" start=\"10\" target-start=\"7\" target-resource=\"key3\"/>" + "</duplications>")));
+    verify(context).saveMeasure(eq(resource4), measureCaptor.capture());
 
-    verify(context, atLeastOnce()).saveResource(resource1);
-    verify(context, atLeastOnce()).saveResource(resource2);
-    verify(context, atLeastOnce()).saveResource(resource3);
-    verify(context, atLeastOnce()).saveResource(resource4);
+    measure = measureCaptor.getValue();
+    assertThat(measure.getMetric(), is(CoreMetrics.DUPLICATIONS_DATA));
+    assertThat(measure.getData(), is("<duplications>"
+      + "<g>"
+      + "<b s=\"10\" l=\"200\" r=\"key:foo.Coffee\" />"
+      + "<b s=\"5\" l=\"200\" r=\"key:foo.Foo\" />"
+      + "</g>"
+      + "<g>"
+      + "<b s=\"10\" l=\"200\" r=\"key:foo.Coffee\" />"
+      + "<b s=\"15\" l=\"200\" r=\"key:foo.Bar\" />"
+      + "</g>"
+      + "<g>"
+      + "<b s=\"10\" l=\"200\" r=\"key:foo.Coffee\" />"
+      + "<b s=\"7\" l=\"200\" r=\"key:foo.Hotel\" />"
+      + "</g>"
+      + "</duplications>"));
   }
 
   @Test
@@ -253,7 +307,6 @@ public class CpdAnalyserTest {
     CpdMapping cpdMapping = mock(CpdMapping.class);
     Resource resource1 = new JavaFile("foo.Foo");
     when(cpdMapping.createResource((File) anyObject(), anyList())).thenReturn(resource1).thenReturn(resource1);
-    when(context.saveResource(resource1)).thenReturn("key1");
 
     Match match1 = new Match(304, new TokenEntry(null, file1.getAbsolutePath(), 5), new TokenEntry(null, file1.getAbsolutePath(), 215));
     match1.setLineCount(200);
@@ -261,16 +314,26 @@ public class CpdAnalyserTest {
     CpdAnalyser cpdAnalyser = new CpdAnalyser(project, context, cpdMapping);
     cpdAnalyser.analyse(Arrays.asList(match1).iterator());
 
+    ArgumentCaptor<Measure> measureCaptor = ArgumentCaptor.forClass(Measure.class);
+
     verify(context).saveMeasure(resource1, CoreMetrics.DUPLICATED_FILES, 1d);
     verify(context).saveMeasure(resource1, CoreMetrics.DUPLICATED_LINES, 400d);
     verify(context).saveMeasure(resource1, CoreMetrics.DUPLICATED_BLOCKS, 2d);
-    verify(context).saveMeasure(
-        eq(resource1),
-        argThat(new IsMeasure(CoreMetrics.DUPLICATIONS_DATA, "<duplications>"
-            + "<duplication lines=\"200\" start=\"5\" target-start=\"215\" target-resource=\"key1\"/>"
-            + "<duplication lines=\"200\" start=\"215\" target-start=\"5\" target-resource=\"key1\"/>" + "</duplications>")));
+    verify(context).saveMeasure(eq(resource1), measureCaptor.capture());
 
-    verify(context, atLeastOnce()).saveResource(resource1);
+    Measure measure = measureCaptor.getValue();
+    assertThat(measure.getMetric(), is(CoreMetrics.DUPLICATIONS_DATA));
+    // FIXME in fact should be only one group - see SONAR-3131
+    assertThat(measure.getData(), is("<duplications>"
+      + "<g>"
+      + "<b s=\"5\" l=\"200\" r=\"key:foo.Foo\" />"
+      + "<b s=\"215\" l=\"200\" r=\"key:foo.Foo\" />"
+      + "</g>"
+      + "<g>"
+      + "<b s=\"215\" l=\"200\" r=\"key:foo.Foo\" />"
+      + "<b s=\"5\" l=\"200\" r=\"key:foo.Foo\" />"
+      + "</g>"
+      + "</duplications>"));
   }
 
   private static TokenEntry createTokenEntry(String sourceId, int line) {
