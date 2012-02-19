@@ -150,10 +150,9 @@ class Sonar::HtmlOutput < Treemap::HtmlOutput
     html += "overflow:hidden;position:absolute;"
     html += "left:#{node.bounds.x1}px; top:#{node.bounds.y1}px;"
     html += "width:#{node.bounds.width}px;height: #{node.bounds.height}px;"
-    html += "background-color:#FFF;"
-    html += "\" alt='#{node.tooltip}' title='#{node.tooltip}'>"
+    html += "background-color:#FFF;\">"
     html += "<div rid='#{node.rid}' id=\"tm-node-#{node.id}\" style='margin: 1px;background-color: #{node.color}; height: #{node.bounds.height-4}px;
-border: 1px solid #{node.color};' "
+border: 1px solid #{node.color};' alt=\"#{node.tooltip}\" title=\"#{node.tooltip}\""
     if node.browsable
       html += "b=1 "
     end
