@@ -257,15 +257,3 @@ Treemap.prototype.onLoaded = function (componentsSize) {
     elt.observe('mouseup', this.handleClick.bind(this));
   }
 };
-
-function openResource(key, options) {
-  if (typeof popup == "undefined") {
-    popup = false;
-  }
-  if (popup) {
-    window.open(this.href, 'resource', 'height=800,width=900,scrollbars=1,resizable=1');
-  } else {
-    document.location = baseUrl + '/dashboard/index/' + key;
-  }
-  return false;
-}
