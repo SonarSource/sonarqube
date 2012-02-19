@@ -3,8 +3,16 @@
    if display_title
 %>
   <div id="source_title">
-    <% if logged_in? %><%= link_to_favourite(@resource) -%><% end %>
-    <span class="h1"><%= qualifier_icon(@resource) -%> <%= @resource.name(true) -%></span>
+    <%
+       selected_project_id = params[:project].to_i
+       if @resource.project && selected_project_id != @resource.project.id %>
+      <div class="subtitle">
+        <%= @resource.ancestor_projects.select{|p| p.id != selected_project_id}.reverse.map{|p| p.name(true)}.join(' / ') -%>
+      </div>
+    <% end %>
+    <% if logged_in? %><%= link_to_favourite(@resource) -%>
+    <% end %>
+    <span class="h3"><%= qualifier_icon(@resource) -%> <%= @resource.name(true) -%></span>
   </div>
 <% end %>
 
@@ -14,7 +22,8 @@
        first=true
        if @snapshot.source
     %>
-      <li class="<%= 'first' if first -%>"><a href="<%= ApplicationController.root_context -%>/api/sources?resource=<%= @resource.key -%>&amp;format=txt"><%= message('raw') -%></a>
+      <li class="<%= 'first' if first -%>">
+        <a href="<%= ApplicationController.root_context -%>/api/sources?resource=<%= @resource.key -%>&amp;format=txt"><%= message('raw') -%></a>
       </li>
     <% first=false
        end

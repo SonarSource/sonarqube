@@ -59,6 +59,13 @@ class Project < ActiveRecord::Base
       end
   end
 
+  # bottom-up array of projects,
+  def ancestor_projects
+    node, nodes = self, []
+    nodes << node = node.root while node.root
+    nodes
+  end
+
   def switch_resource
     @switch_resource ||=
       begin
