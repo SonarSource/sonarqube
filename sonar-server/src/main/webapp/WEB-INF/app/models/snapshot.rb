@@ -98,20 +98,20 @@ class Snapshot < ActiveRecord::Base
 
   def root_snapshot
     @root_snapshot ||=
-        (root_snapshot_id ? Snapshot.find(root_snapshot_id) : self)
+      (root_snapshot_id ? Snapshot.find(root_snapshot_id) : self)
   end
 
   def project_snapshot
     @project_snapshot ||=
-        begin
-          if scope==Project::SCOPE_SET
-            self
-          elsif parent_snapshot_id
-            parent_snapshot.project_snapshot
-          else
-            nil
-          end
+      begin
+        if scope==Project::SCOPE_SET
+          self
+        elsif parent_snapshot_id
+          parent_snapshot.project_snapshot
+        else
+          nil
         end
+      end
   end
 
   def root?
@@ -189,6 +189,13 @@ class Snapshot < ActiveRecord::Base
     end
   end
 
+  def rule_measure(metric, rule)
+    rulemeasures.each do |m|
+      return m if m.metric_id==metric.id && m.rule_id==rule.id
+    end
+    nil
+  end
+
   def self.snapshot_by_date(resource_id, date)
     if resource_id && date
       Snapshot.find(:first, :conditions => ['created_at>=? and created_at<? and project_id=?', date.beginning_of_day, date.end_of_day, resource_id], :order => 'created_at desc')
@@ -245,13 +252,13 @@ class Snapshot < ActiveRecord::Base
 
   def measures_hash
     @measures_hash ||=
-        begin
-          hash = {}
-          measures.each do |measure|
-            hash[measure.metric_id]=measure
-          end
-          hash
+      begin
+        hash = {}
+        measures.each do |measure|
+          hash[measure.metric_id]=measure
         end
+        hash
+      end
   end
 
 end

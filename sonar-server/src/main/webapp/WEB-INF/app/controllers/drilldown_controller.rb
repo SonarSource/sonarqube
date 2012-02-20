@@ -78,6 +78,13 @@ class DrilldownController < ApplicationController
 
     @severity = params[:severity] || params[:priority]
     @rule_severity = params[:rule_sev] || @severity
+
+    if @rule && @rule_severity.blank?
+      # workaround for SONAR-3255 : guess the severity
+      @rule_severity=guess_rule_severity(@snapshot, @rule, metric_prefix)
+    end
+
+
     if @rule_severity.present?
       # Filter resources by severity
       @metric = Metric::by_key("#{metric_prefix}#{@rule_severity.downcase}_violations")
@@ -122,11 +129,11 @@ class DrilldownController < ApplicationController
     else
       # No filter -> loads all the rules
       metrics=[
-          Metric.by_key("#{metric_prefix}blocker_violations"),
-          Metric.by_key("#{metric_prefix}critical_violations"),
-          Metric.by_key("#{metric_prefix}major_violations"),
-          Metric.by_key("#{metric_prefix}minor_violations"),
-          Metric.by_key("#{metric_prefix}info_violations")
+        Metric.by_key("#{metric_prefix}blocker_violations"),
+        Metric.by_key("#{metric_prefix}critical_violations"),
+        Metric.by_key("#{metric_prefix}major_violations"),
+        Metric.by_key("#{metric_prefix}minor_violations"),
+        Metric.by_key("#{metric_prefix}info_violations")
       ]
       @rule_measures = @snapshot.rule_measures(metrics)
     end
@@ -189,5 +196,14 @@ class DrilldownController < ApplicationController
   def display_violation_viewers?(snapshot)
     return true if snapshot.file?
     snapshot.violations.size>0
+  end
+
+  def guess_rule_severity(snapshot, rule, metric_prefix)
+    Severity::KEYS.each do |severity|
+      if snapshot.rule_measure(Metric.by_key("#{metric_prefix}#{severity.downcase}_violations"), rule)
+        return severity
+      end
+      Severity::MAJOR
+    end
   end
 end
