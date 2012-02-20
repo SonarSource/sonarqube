@@ -49,6 +49,22 @@ function sCF(violation_id) {
   return false;
 }
 
+//show the form to reply to a comment
+function sRF(violation_id) {
+$('vActions' + violation_id).hide();
+new Ajax.Updater('replyForm' + violation_id,
+ baseUrl + '/reviews/violation_comment_form/' + violation_id,
+ {
+   asynchronous:true,
+   evalScripts:true,
+   onComplete:function (request) {
+     $('replyForm' + violation_id).show();
+     $('commentText' + violation_id).focus();
+  }
+ });
+return false;
+}
+
 // show the form to change severity
 function sCSF(violation_id) {
   $('vActions' + violation_id).hide();

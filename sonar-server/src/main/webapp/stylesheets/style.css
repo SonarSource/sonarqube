@@ -913,19 +913,6 @@ ul.operations li img {
   font-size: 12px;
 }
 
-.sources2 div.violation .actions, #global_violations div.violation .actions {
-  visibility: hidden;
-}
-
-.sources2 div.violation:hover .actions, #global_violations div.violation:hover .actions {
-  visibility: visible;
-}
-
-.sources2 div.violation .actions form, #global_violations div.violation .actions form {
-  display: inline;
-  visibility: visible;
-}
-
 .sources2 td.reviewForm {
   width: 100%;
   padding: 10px;

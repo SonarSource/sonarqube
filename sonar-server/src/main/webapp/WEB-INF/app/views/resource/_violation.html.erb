@@ -103,12 +103,14 @@
         <%
            if current_user.id == review_comment.user_id
         %>
-          <%= link_to_remote message('edit'),
+          <%= link_to_function message('reviews.reply'), "sRF(#{violation.id})", :name => 'bReply' -%>
+          &nbsp;
+          <%= link_to_remote message('reviews.edit'),
                              :url => {:controller => "reviews", :action => "violation_comment_form", :comment_id => review_comment.id, :id => violation.id},
                              :update => "lastComment" + violation.id.to_s,
                              :complete => "$('vActions#{violation.id}').hide();$('commentActions#{violation.id}').hide();$('commentText#{violation.id}').focus();" -%>
           &nbsp;
-          <%= link_to_remote message('delete'),
+          <%= link_to_remote message('reviews.delete'),
                              :url => {:controller => "reviews", :action => "violation_delete_comment", :comment_id => review_comment.id, :id => violation.id},
                              :update => "vId" + violation.id.to_s,
                              :confirm => message('reviews.do_you_want_to_delete_comment') -%>
@@ -128,6 +130,9 @@
         </div>
       <%
          end
+      %>
+      <div class="discussionComment" id="replyForm<%= violation.id -%>" style="display:none"></div> 
+      <%
          end
       %>
   </div>
