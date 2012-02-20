@@ -69,7 +69,7 @@ public final class PurgeSnapshotQuery {
   }
 
   public PurgeSnapshotQuery setStatus(String[] status) {
-    this.status = status;
+    this.status = status; //NOSONAR org.sonar.core.purge.PurgeSnapshotQuery.setStatus(String[]) may expose internal representation
     return this;
   }
 

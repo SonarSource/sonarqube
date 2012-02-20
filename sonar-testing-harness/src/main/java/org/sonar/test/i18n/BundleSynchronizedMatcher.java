@@ -129,7 +129,7 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
       writer = new FileWriter(dumpFile);
       writer.write(details);
     } catch (IOException e) {
-      System.out.println("Unable to write the report to 'target/l10n/" + bundleName + ".report.txt'.");
+      throw new RuntimeException("Unable to write the report to 'target/l10n/" + bundleName + ".report.txt'");
     } finally {
       IOUtils.closeQuietly(writer);
     }

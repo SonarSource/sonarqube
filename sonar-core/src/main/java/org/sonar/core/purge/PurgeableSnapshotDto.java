@@ -46,8 +46,9 @@ public class PurgeableSnapshotDto implements Comparable<PurgeableSnapshotDto> {
     return isLast;
   }
 
-  public void setDate(Date date) {
+  public PurgeableSnapshotDto setDate(Date date) {
     this.date = date;//NOSONAR May expose internal representation by incorporating reference to mutable object
+    return this;
   }
 
   public PurgeableSnapshotDto setSnapshotId(long snapshotId) {

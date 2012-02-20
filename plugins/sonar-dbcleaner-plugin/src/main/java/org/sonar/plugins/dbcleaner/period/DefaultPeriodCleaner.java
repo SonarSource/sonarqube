@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.dbcleaner.period;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
@@ -47,10 +48,13 @@ public class DefaultPeriodCleaner implements PeriodCleaner {
   }
 
   public void purge(long projectId) {
-    List<PurgeableSnapshotDto> history = selectProjectSnapshots(projectId);
+    doPurge(projectId, new Filters(settings).getFilters());
+  }
 
-    Filters filters = new Filters(settings);
-    for (Filter filter : filters.getFilters()) {
+  @VisibleForTesting
+  void doPurge(long projectId, List<Filter> filters) {
+    List<PurgeableSnapshotDto> history = selectProjectSnapshots(projectId);
+    for (Filter filter : filters) {
       filter.log();
       delete(filter.filter(history));
     }
