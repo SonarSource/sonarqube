@@ -19,16 +19,8 @@
  */
 package org.sonar.api.rules;
 
-import org.sonar.api.Plugin;
-import org.sonar.api.resources.Language;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 /**
- *  @deprecated since 2.3
+ * @deprecated since 2.3
  */
 @Deprecated
 public abstract class RulesManager {
@@ -37,7 +29,7 @@ public abstract class RulesManager {
    * Gets a rule belonging to a defined plugin based on its key
    *
    * @param pluginKey the plugin key
-   * @param ruleKey the rule key
+   * @param ruleKey   the rule key
    * @return the rule
    */
   public abstract Rule getPluginRule(String pluginKey, String ruleKey);

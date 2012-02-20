@@ -22,6 +22,9 @@ package org.sonar.api.rules.xml;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 
+/**
+ * @deprecated since 2.3
+ */
 @Deprecated
 @XStreamAlias("property")
 public class Property {

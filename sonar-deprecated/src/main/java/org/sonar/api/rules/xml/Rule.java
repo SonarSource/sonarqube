@@ -26,6 +26,9 @@ import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @deprecated since 2.3
+ */
 @Deprecated
 @XStreamAlias("rule")
 public class Rule implements Comparable<String> {

@@ -29,7 +29,10 @@ import org.sonar.test.TestUtils;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Properties;
+import java.util.SortedMap;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -41,7 +44,7 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
   public static final String L10N_PATH = "/org/sonar/l10n/";
   private static final String GITHUB_RAW_FILE_PATH = "https://raw.github.com/SonarSource/sonar/master/plugins/sonar-l10n-en-plugin/src/main/resources/org/sonar/l10n/";
   private static final Collection<String> CORE_BUNDLES = Lists.newArrayList("checkstyle.properties", "core.properties",
-      "findbugs.properties", "gwt.properties", "pmd.properties", "squidjava.properties");
+    "findbugs.properties", "gwt.properties", "pmd.properties", "squidjava.properties");
 
   private String sonarVersion;
   // we use this variable to be able to unit test this class without looking at the real Github core bundles that change all the time
@@ -157,7 +160,7 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
     try {
       props.load(input);
       return props;
-      
+
     } finally {
       IOUtils.closeQuietly(input);
     }
@@ -196,7 +199,7 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
   protected String extractDefaultBundleName(String bundleName) {
     int firstUnderScoreIndex = bundleName.indexOf('_');
     assertThat("The bundle '" + bundleName + "' is a default bundle (without locale), so it can't be compared.", firstUnderScoreIndex > 0,
-        is(true));
+      is(true));
     return bundleName.substring(0, firstUnderScoreIndex) + ".properties";
   }
 
@@ -204,14 +207,14 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
     return CORE_BUNDLES.contains(defaultBundleName);
   }
 
-  private void saveUrlToLocalFile(String url, File localFile) throws MalformedURLException, IOException {
+  private void saveUrlToLocalFile(String url, File localFile) throws IOException {
     if (localFile.exists()) {
       localFile.delete();
     }
     localFile.getParentFile().mkdirs();
 
-    BufferedInputStream in = null;
-    FileOutputStream fout = null;
+    InputStream in = null;
+    OutputStream fout = null;
     try {
       in = new BufferedInputStream(new URL(url).openStream());
       fout = new FileOutputStream(localFile);
@@ -222,10 +225,8 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
         fout.write(data, 0, count);
       }
     } finally {
-      if (in != null)
-        in.close();
-      if (fout != null)
-        fout.close();
+      IOUtils.closeQuietly(in);
+      IOUtils.closeQuietly(fout);
     }
   }
 

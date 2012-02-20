@@ -19,6 +19,9 @@
  */
 package org.sonar.api.utils;
 
+import java.io.NotSerializableException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.text.DateFormat;
@@ -78,14 +81,13 @@ public final class DateUtils {
   }
 
   static class ThreadSafeDateFormat extends DateFormat {
-    private static final long serialVersionUID = -8856468429474634301L;
     private final String format;
 
     ThreadSafeDateFormat(String format) {
       this.format = format;
     }
 
-    private final transient ThreadLocal<Reference<DateFormat>> cache = new ThreadLocal<Reference<DateFormat>>() {
+    private final ThreadLocal<Reference<DateFormat>> cache = new ThreadLocal<Reference<DateFormat>>() {
       public Reference<DateFormat> get() {
         Reference<DateFormat> softRef = super.get();
         if (softRef == null || softRef.get() == null) {
@@ -106,6 +108,14 @@ public final class DateUtils {
 
     public Date parse(String source, ParsePosition pos) {
       return getDateFormat().parse(source, pos);
+    }
+
+    private void readObject(ObjectInputStream ois) throws NotSerializableException {
+      throw new NotSerializableException();
+    }
+
+    private void writeObject(ObjectOutputStream ois) throws NotSerializableException {
+      throw new NotSerializableException();
     }
   }
 }
