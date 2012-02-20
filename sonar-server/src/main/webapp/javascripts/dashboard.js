@@ -28,6 +28,7 @@ Portal.prototype = {
                 containment: $A(sortables),
                 constraint: false,
                 tag: 'div',
+                handle: this.options.handleClass,
                 only: this.options.block,
                 dropOnEmpty: true,
                 hoverclass: this.options.hoverclass,
@@ -97,7 +98,6 @@ Portal.prototype = {
     },
 
     editWidget: function(id) {
-      
       $('widget_' + id).hide();
       $('widget_props_' + id).show();
     },
@@ -106,7 +106,7 @@ Portal.prototype = {
       $('widget_props_' + id).hide();
     },
     deleteWidget: function(elt) {
-      $(elt).up('.block').remove();
+      $(elt).up('.' + this.options.block).remove();
       this.saveDashboardsState();
     }
 };

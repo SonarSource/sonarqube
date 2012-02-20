@@ -3,6 +3,7 @@
   position: relative;
   width: 100%;
 }
+
 #dashboard .transparent {
   position: absolute;
   width: 100%;
@@ -10,7 +11,6 @@
   top: 0;
   left: 0;
   background: url('../images/transparent.gif') repeat;
-  cursor: move;
   z-index: 1000;
 }
 
@@ -21,6 +21,7 @@
   margin: 0;
   padding: 0;
 }
+
 #dashboard .select-layout.selected img {
   border: 3px solid #4B9FD5;
 }
@@ -32,20 +33,23 @@
   padding: 10px;
   margin: 0 0 10px 0;
   border: 1px solid #ddd;
-  border-radius: 0 0 2px 2px;
-  -moz-border-radius: 0 0 2px 2px;
+  border-radius: 0 0 3px 3px;
+  -moz-border-radius: 0 0 3px 3px;
 }
+
 #dashboard .configure_widget {
-    display: block;
-    position: relative;
+  display: block;
+  position: relative;
 }
+
 #dashboard .widget_props {
   background-color: #FFF6BF;
   border: 1px solid #FFD324;
   margin-bottom: 10px;
   padding: 5px;
+  border-radius: 0 0 3px 3px;
+  -moz-border-radius: 0 0 3px 3px;
 }
-
 
 /*CONFIGURATION*/
 #dashboard #widget_defs {
@@ -64,6 +68,7 @@
   vertical-align: top;
   width: 25%;
 }
+
 #dashboard .widget_def {
   border: 1px solid #FFD324;
   padding: 5px;
@@ -72,13 +77,16 @@
   vertical-align: top;
   height: 80px;
 }
+
 #dashboard ul.widget_categs li {
   padding-right: 5px;
 }
+
 #dashboard ul.widget_categs li.selected a {
   font-weight: bold;
   text-decoration: none;
 }
+
 /*OPERATIONS*/
 #dashboard #dashboard-operations {
   position: relative;
@@ -133,8 +141,8 @@
 #dashboard .column-handle {
   height: 100px;
   width: 100%;
-  margin: 10px 0px 10px 0px;
-  padding: 0px;
+  margin: 10px 0 10px 0;
+  padding: 0;
   display: inline-block;
   line-height: 100px;
   text-align: center;
@@ -142,36 +150,40 @@
   vertical-align: middle;
   color: #555;
 }
+
 #dashboard .block {
   position: relative;
   width: 100%;
 }
 
-#dashboard .block .handle {
-  margin: 0;
+#dashboard .widget-header {
+  line-height: 16px;
   padding: 3px 5px;
   background-color: #efefef;
-  cursor: move;
   border: 1px solid #ddd;
   border-bottom: 0;
-  border-radius: 2px 2px 0 0;
-  -moz-border-radius: 2px 2px 0 0;
+  border-radius: 3px 3px 0 0;
+  -moz-border-radius: 3px 3px 0 0;
+
 }
 
-#dashboard .block .block-view-toggle {
-  display: block;
-  float: right;
-  cursor: pointer;
-  padding-left: 5px;
-  text-decoration: underline;
+#dashboard .widget-handle {
+  cursor: move;
+  margin: 0;
+  background-image: url('../images/move.png');
+  background-position: left center;
+  background-repeat: no-repeat;
+  padding-left: 20px;
 }
 
-#dashboard .block .block-remove {
-  display: block;
+#dashboard .widget-actions {
   float: right;
+  overflow: hidden; /* clears float for most browsers */
+  zoom: 1;
+}
+
+#dashboard .widget-actions a {
   cursor: pointer;
-  padding-left: 5px;
-  text-decoration: underline;
 }
 
 #dashboard .block-hover {

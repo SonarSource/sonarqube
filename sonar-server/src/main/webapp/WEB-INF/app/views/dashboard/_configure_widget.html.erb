@@ -8,12 +8,16 @@
    end
 %>
 
-<div class="handle" style="//overflow:hidden;//zoom:1;">
-  <a class="block-remove" onclick="portal.deleteWidget(this);return false;"><%= message('delete') -%></a>
-  <% if widget.java_definition.isEditable() %>
-    <a class="block-view-toggle" onclick="portal.editWidget(<%= widget.id -%>);return false;"><%= message('edit') -%></a>
-  <% end %>
-  <%= h message('widget.' + widget.java_definition.getId() + '.name', :default => widget.java_definition.getTitle()) -%>
+<div class="widget-header">
+  <div class="widget-actions">
+    <% if widget.java_definition.isEditable() %>
+      <a class="link-action" onclick="portal.editWidget(<%= widget.id -%>);return false;"><%= message('edit') -%></a>
+    <% end %>
+    <a class="link-action" onclick="portal.deleteWidget(this);return false;"><%= message('delete') -%></a>
+  </div>
+  <div class="widget-handle">
+    <%= h message('widget.' + widget.java_definition.getId() + '.name', :default => widget.java_definition.getTitle()) -%>
+  </div>
 </div>
 
 
@@ -22,7 +26,7 @@
 </div>
 
 
-<div id="widget_<%= widget.id -%>" class="configure_widget <%= widget.java_definition.getId() -%>" style="height:100%;<%= 'display:none;' if !widget.configured -%>">
+<div id="widget_<%= widget.id -%>" class="configure_widget widget-<%= widget.java_definition.getId() -%>" style="height:100%;<%= 'display:none;' if !widget.configured -%>">
   <!--[if lte IE 6]>
   <style type="text/css">
     #dashboard .block .content .transparent {
@@ -40,7 +44,8 @@
     <% end %>
     <%= widget_body -%>
     <% if default_layout %>
-      <div class="clear"> </div></div>
+      <div class="clear"></div>
+      </div>
     <% end %>
   <% else %>
     <div class="widget"><p><%= message('no_data') -%></p></div>
