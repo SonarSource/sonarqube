@@ -92,7 +92,7 @@ public class CpdAnalyser {
     DuplicationsData data = fileContainer.get(file);
     if (data == null) {
       String resourceKey = SonarEngine.getFullKey(project, file);
-      data = new DuplicationsData(resourceKey, context);
+      data = new DuplicationsData(resourceKey);
       fileContainer.put(file, data);
     }
     return data;

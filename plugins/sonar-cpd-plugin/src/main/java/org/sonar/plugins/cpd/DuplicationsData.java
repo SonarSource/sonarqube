@@ -39,7 +39,7 @@ public class DuplicationsData {
 
   private double duplicatedBlocks;
 
-  public DuplicationsData(String resourceKey, SensorContext context) {
+  public DuplicationsData(String resourceKey) {
     this.resourceKey = resourceKey;
   }
 

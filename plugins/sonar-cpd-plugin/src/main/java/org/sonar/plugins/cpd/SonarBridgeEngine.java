@@ -41,7 +41,8 @@ public class SonarBridgeEngine extends CpdEngine {
   private final CpdMapping[] mappings;
 
   public SonarBridgeEngine(IndexFactory indexFactory) {
-    this(indexFactory, null);
+    this.indexFactory = indexFactory;
+    this.mappings = null;
   }
 
   public SonarBridgeEngine(IndexFactory indexFactory, CpdMapping[] mappings) {

@@ -42,7 +42,9 @@ public class IndexFactory implements BatchExtension {
    * For dry run, where is no access to database.
    */
   public IndexFactory(Settings settings) {
-    this(settings, null, null);
+    this.settings = settings;
+    this.resourcePersister = null;
+    this.dao = null;
   }
 
   public IndexFactory(Settings settings, ResourcePersister resourcePersister, DuplicationDao dao) {

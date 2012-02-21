@@ -19,9 +19,7 @@
  */
 package org.sonar.plugins.cpd.index;
 
-import java.util.Collection;
-import java.util.List;
-
+import com.google.common.collect.Lists;
 import org.sonar.api.resources.Resource;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
@@ -29,7 +27,8 @@ import org.sonar.duplications.index.AbstractCloneIndex;
 import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.PackedMemoryCloneIndex;
 
-import com.google.common.collect.Lists;
+import java.util.Collection;
+import java.util.List;
 
 public class SonarDuplicationsIndex extends AbstractCloneIndex {
 
@@ -37,7 +36,7 @@ public class SonarDuplicationsIndex extends AbstractCloneIndex {
   private final DbDuplicationsIndex db;
 
   public SonarDuplicationsIndex() {
-    this(null);
+    this.db = null;
   }
 
   public SonarDuplicationsIndex(DbDuplicationsIndex db) {
