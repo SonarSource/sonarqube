@@ -47,7 +47,7 @@
                 </td>
                 <td class="left" x="<%= u(snapshot.project.name) -%>">
                   <%= qualifier_icon(snapshot) %>
-                  <% if snapshot.project.display_dashboard? %>
+                  <% if snapshot.display_dashboard? %>
                     <a href="<%= ApplicationController.root_context + "/dashboard/index/#{snapshot.project.id}" -%>"><%= snapshot.project.name -%></a>
                   <% else %>
                     <%= snapshot.project.name %>

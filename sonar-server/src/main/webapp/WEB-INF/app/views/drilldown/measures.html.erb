@@ -63,13 +63,13 @@
           %>
             <tr class="<%= clazz -%>">
               <td nowrap>
-                <%
-                   if !resource.display_dashboard? %>
-                  <%= qualifier_icon(resource) -%>&nbsp;
+                <% unless resource.source_code? %>
+                  <%= link_to(image_tag('zoom.png'), {:id => resource.id, :metric => @metric.id}, {:class => 'nolink'}) -%>
+                <% end %>
+                <%= qualifier_icon(resource) -%>&nbsp;
+                <% if resource.source_code? %>
                   <a href="#" onclick="d(<%= resource.id -%>)" alt="<%= resource.name(true) -%>" title="<%= resource.name(true) -%>"><%= resource.name(false) -%></a>
                 <% else %>
-                  <%= link_to(image_tag('zoom.png'), {:id => resource.id, :metric => @metric.id}, {:class => 'nolink'}) -%>
-                  <%= qualifier_icon(resource) -%>&nbsp;
                   <%= link_to(resource.name, {:only_path => true, :overwrite_params => {:rids => (selected ? rids-[resource.id] : rids+[resource.id])}}) -%>
                 <% end %>
               </td>

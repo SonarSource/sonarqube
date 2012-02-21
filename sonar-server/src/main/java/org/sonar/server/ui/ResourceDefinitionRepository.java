@@ -19,17 +19,23 @@
  */
 package org.sonar.server.ui;
 
+import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.resources.ResourceDefinition;
 
 import java.util.Collection;
 import java.util.Map;
 
-public class ResourceDefinitionRepository implements ServerComponent {
+/**
+ * @since 2.14
+ */
+@Beta
+public class ResourceDefinitionRepository implements BatchComponent, ServerComponent {
 
   private final Map<String, ResourceDefinition> descriptionsByQualifier;
 

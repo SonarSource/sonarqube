@@ -233,8 +233,8 @@ Treemap.prototype.handleClick = function (event) {
 
     var elt = event.findElement('div');
     var rid = elt.readAttribute('rid');
-    var browsable = elt.hasAttribute('b');
-    if (browsable) {
+    var leaf = elt.hasAttribute('l');
+    if (!leaf) {
       var label = elt.innerText || elt.textContent;
       var context = new TreemapContext('resource', rid, label);
       this.breadcrumb.push(context);

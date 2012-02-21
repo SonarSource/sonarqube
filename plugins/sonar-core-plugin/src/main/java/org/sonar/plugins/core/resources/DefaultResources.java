@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.core.resources;
 
+import org.sonar.api.BatchExtension;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.resources.Qualifiers;
@@ -27,7 +28,7 @@ import org.sonar.api.resources.ResourceDefinition;
 import java.util.Arrays;
 import java.util.List;
 
-public class DefaultResources extends ExtensionProvider implements ServerExtension {
+public class DefaultResources extends ExtensionProvider implements BatchExtension, ServerExtension {
 
   @Override
   public List<ResourceDefinition> provide() {
@@ -38,9 +39,9 @@ public class DefaultResources extends ExtensionProvider implements ServerExtensi
         ResourceDefinition.builder(Qualifiers.MODULE).build(),
         ResourceDefinition.builder(Qualifiers.DIRECTORY).build(),
         ResourceDefinition.builder(Qualifiers.PACKAGE).build(),
-        ResourceDefinition.builder(Qualifiers.FILE).build(),
-        ResourceDefinition.builder(Qualifiers.CLASS).build(),
-        ResourceDefinition.builder(Qualifiers.UNIT_TEST_FILE).build(),
+        ResourceDefinition.builder(Qualifiers.FILE).hasSourceCode().build(),
+        ResourceDefinition.builder(Qualifiers.CLASS).hasSourceCode().build(),
+        ResourceDefinition.builder(Qualifiers.UNIT_TEST_FILE).hasSourceCode().build(),
         ResourceDefinition.builder(Qualifiers.LIBRARY).build());
   }
 

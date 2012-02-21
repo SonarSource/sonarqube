@@ -108,7 +108,7 @@ class Sonar::Treemap
                                   :tooltip => tooltip(resource, size_measure, color_measure),
                                   :color => html_color(color_measure),
                                   :rid => resource.switch_resource_or_self.id,
-                                  :browsable => resource.display_dashboard?)
+                                  :leaf => resource.source_code?)
         node.add_child(child)
       end
     end
@@ -153,8 +153,8 @@ class Sonar::HtmlOutput < Treemap::HtmlOutput
     html += "background-color:#FFF;\">"
     html += "<div rid='#{node.rid}' id=\"tm-node-#{node.id}\" style='margin: 1px;background-color: #{node.color}; height: #{node.bounds.height-4}px;
 border: 1px solid #{node.color};' alt=\"#{node.tooltip}\" title=\"#{node.tooltip}\""
-    if node.browsable
-      html += "b=1 "
+    if node.leaf
+      html += "l=1 "
     end
     if @details_at_depth==node.depth
       html += "onmouseover=\"this.style.borderColor='#444';\" onmouseout=\"this.style.borderColor='#{node.color}';\""
@@ -171,11 +171,11 @@ border: 1px solid #{node.color};' alt=\"#{node.tooltip}\" title=\"#{node.tooltip
   end
 
   def draw_label(node)
-    if node.browsable
-      "<a href='#{ApplicationController.root_context}/dashboard/index/#{node.rid}'>#{node_label(node)}</a>"
-    else
+    if node.leaf
       "<a onclick=\"window.open(this.href,'resource','height=800,width=900,scrollbars=1,resizable=1');return false;\" " +
-              "href=\"#{ApplicationController.root_context}/resource/index/#{node.rid}\">#{node_label(node)}</a>"
+                    "href=\"#{ApplicationController.root_context}/resource/index/#{node.rid}\">#{node_label(node)}</a>"
+    else
+      "<a href='#{ApplicationController.root_context}/dashboard/index/#{node.rid}'>#{node_label(node)}</a>"
     end
   end
 end

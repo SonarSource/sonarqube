@@ -89,12 +89,18 @@ module Resourceable
     qualifier==QUALIFIER_FILE
   end
 
-  NO_DASHBOARD_QUALIFIERS=[QUALIFIER_FILE, QUALIFIER_CLASS, QUALIFIER_UNIT_TEST_CLASS]
+  def source_code?
+    java_definition.hasSourceCode()
+  end
 
   def display_dashboard?
-    @display_dashboard ||=
+    !source_code?
+  end
+
+  def java_definition
+    @java_definition ||=
       begin
-        !NO_DASHBOARD_QUALIFIERS.include?(qualifier)
+        Java::OrgSonarServerUi::JRubyFacade.getInstance().getResourceDefinition(qualifier)
       end
   end
 

@@ -32,6 +32,7 @@ public class ResourceDefinitionTest {
         .build();
     assertThat(def.getQualifier(), is("qualifier"));
     assertThat(def.getIconPath(), is("/images/q/qualifier.png"));
+    assertThat(def.hasSourceCode(), is(false));
   }
 
   @Test

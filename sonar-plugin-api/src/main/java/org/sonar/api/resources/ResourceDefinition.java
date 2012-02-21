@@ -22,18 +22,22 @@ package org.sonar.api.resources;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
 
 /**
+ * Experimental extension to declare types of resources.
+ *
  * @since 2.14
  */
 @Beta
-public final class ResourceDefinition implements ServerExtension {
+public final class ResourceDefinition implements BatchExtension, ServerExtension {
 
   public static class Builder {
     private String qualifier;
     private String iconPath;
     private boolean availableForFilters = false;
+    private boolean hasSourceCode = false;
 
     public Builder(String qualifier) {
       this.qualifier = qualifier;
@@ -52,11 +56,16 @@ public final class ResourceDefinition implements ServerExtension {
       return this;
     }
 
+    public Builder hasSourceCode() {
+      this.hasSourceCode = true;
+      return this;
+    }
+
     public ResourceDefinition build() {
       if (Strings.isNullOrEmpty(iconPath)) {
         iconPath = "/images/q/" + qualifier + ".png";
       }
-      return new ResourceDefinition(qualifier, iconPath, availableForFilters);
+      return new ResourceDefinition(this);
     }
   }
 
@@ -68,12 +77,14 @@ public final class ResourceDefinition implements ServerExtension {
 
   private final String qualifier;
   private final String iconPath;
+  private final boolean hasSourceCode;
   private final boolean availableForFilters;
 
-  private ResourceDefinition(String qualifier, String iconPath, boolean availableForFilters) {
-    this.qualifier = qualifier;
-    this.iconPath = iconPath;
-    this.availableForFilters = availableForFilters;
+  private ResourceDefinition(Builder builder) {
+    this.qualifier = builder.qualifier;
+    this.iconPath = builder.iconPath;
+    this.availableForFilters = builder.availableForFilters;
+    this.hasSourceCode = builder.hasSourceCode;
   }
 
   public String getQualifier() {
@@ -88,4 +99,7 @@ public final class ResourceDefinition implements ServerExtension {
     return availableForFilters;
   }
 
+  public boolean hasSourceCode() {
+    return hasSourceCode;
+  }
 }
