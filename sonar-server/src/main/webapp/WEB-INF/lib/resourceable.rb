@@ -36,18 +36,6 @@ module Resourceable
   QUALIFIER_UNIT_TEST_CLASS='UTS'
   QUALIFIER_LIB='LIB'
   QUALIFIERS=[QUALIFIER_VIEW, QUALIFIER_SUBVIEW, QUALIFIER_PROJECT, QUALIFIER_MODULE, QUALIFIER_DIRECTORY, QUALIFIER_PACKAGE, QUALIFIER_FILE, QUALIFIER_CLASS, QUALIFIER_UNIT_TEST_CLASS, QUALIFIER_LIB]
-  QUALIFIER_NAMES={
-      QUALIFIER_VIEW => 'view',
-      QUALIFIER_SUBVIEW => 'sub_view',
-      QUALIFIER_PROJECT => 'project',
-      QUALIFIER_MODULE => 'sub_project',
-      QUALIFIER_DIRECTORY => 'directory',
-      QUALIFIER_PACKAGE => 'package',
-      QUALIFIER_FILE => 'file',
-      QUALIFIER_CLASS => 'class',
-      QUALIFIER_UNIT_TEST_CLASS => 'unit_test',
-      QUALIFIER_LIB => 'library'
-  }
 
   def set?
     scope==SCOPE_SET
@@ -116,9 +104,5 @@ module Resourceable
         begin
           Java::OrgSonarServerUi::JRubyFacade.getInstance().getResourceType(qualifier)
         end
-  end
-
-  def self.qualifier_name(qualifier)
-    QUALIFIER_NAMES[qualifier]
   end
 end
