@@ -19,6 +19,7 @@
  */
 package org.sonar.server.charts;
 
+import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
@@ -27,9 +28,10 @@ import org.sonar.api.charts.Chart;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ChartFactory implements ServerComponent {
+public final class ChartFactory implements ServerComponent {
   private static final Logger LOG = LoggerFactory.getLogger(ChartFactory.class);
-  private Map<String, Chart> chartsByKey = new HashMap<String, Chart>();
+  private Map<String, Chart> chartsByKey = Maps.newHashMap();
+
 
   public ChartFactory(Chart[] charts) {
     for (Chart chart : charts) {
