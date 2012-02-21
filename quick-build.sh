@@ -4,7 +4,10 @@ export MAVEN_OPTS='-Xmx256m'
 
 echo '-------------------------------------------------'
 echo ''
-echo ' WARNING - Sonar will be built for FIREFOX ONLY  '
+echo ' WARNINGS' 
+echo '' 
+echo ' Unit tests are NOT executed.'
+echo ' Build for FIREFOX ONLY.'
 echo ''
 echo '-------------------------------------------------'
 
