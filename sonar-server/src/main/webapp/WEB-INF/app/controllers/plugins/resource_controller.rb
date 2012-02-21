@@ -23,10 +23,11 @@ class Plugins::ResourceController < ApplicationController
   helper :project
 
   def index
-    @project = ::Project.by_key(params[:id])
-    not_found("Not found") unless @project
+    @resource = ::Project.by_key(params[:id])
+    not_found("Not found") unless @resource
+    @project=@resource # for backward-compatibility
 
-    @snapshot=@project.last_snapshot
+    @snapshot=@resource.last_snapshot
 
     page_id=params[:page]
     @page_proxy=java_facade.getPage(page_id)
@@ -36,7 +37,7 @@ class Plugins::ResourceController < ApplicationController
     authorized=@page_proxy.getUserRoles().size==0
     unless authorized
       @page_proxy.getUserRoles().each do |role|
-        authorized= (role=='user') || (role=='viewer') || has_role?(role, @project)
+        authorized= (role=='user') || (role=='viewer') || has_role?(role, @resource)
         break if authorized
       end
     end

@@ -17,8 +17,9 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.metrics;
+package org.sonar.plugins.core;
 
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
 
@@ -29,7 +30,7 @@ public final class UserManagedMetrics implements Metrics {
   private static final String DOMAIN = "Management";
 
   public List<Metric> getMetrics() {
-    return Arrays.asList(
+    return ImmutableList.of(
         new Metric.Builder("burned_budget", "Burned budget", Metric.ValueType.FLOAT)
             .setDirection(Metric.DIRECTION_NONE)
             .setQualitative(false)

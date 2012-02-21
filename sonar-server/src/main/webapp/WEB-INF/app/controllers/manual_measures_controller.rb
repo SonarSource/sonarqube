@@ -20,7 +20,7 @@
 class ManualMeasuresController < ApplicationController
 
   SECTION=Navigation::SECTION_RESOURCE
-  before_filter :load_resource
+  before_filter :init_resource_for_admin_role
   verify :method => :post, :only => [:save, :delete], :redirect_to => {:action => :index}
   helper MetricsHelper
   
@@ -65,13 +65,6 @@ class ManualMeasuresController < ApplicationController
   end
 
   private
-
-  def load_resource
-    @resource=Project.by_key(params[:id])
-    return redirect_to home_path unless @resource
-    access_denied unless has_role?(:admin, @resource)
-    @snapshot=@resource.last_snapshot
-  end
 
   def load_measures
     @measures=ManualMeasure.find(:all, :conditions => ['resource_id=?', @resource.id]).select { |m| m.metric.enabled }

@@ -29,7 +29,8 @@ import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.resources.Language;
-import org.sonar.api.resources.ResourceDefinition;
+import org.sonar.api.resources.ResourceType;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.utils.ValidationMessages;
@@ -73,13 +74,21 @@ public final class JRubyFacade {
     return getContainer().getComponentByType(FilterExecutor.class).execute(filter);
   }
 
-  public Collection<ResourceDefinition> getResourceDefinitionsForFilter() {
-    return getContainer().getComponentByType(ResourceDefinitionRepository.class).getForFilter();
+  public Collection<ResourceType> getResourceTypesForFilter() {
+    return getContainer().getComponentByType(ResourceTypes.class).getAll(ResourceTypes.AVAILABLE_FOR_FILTERS);
   }
 
-  public ResourceDefinition getResourceDefinition(String qualifier) {
-    return getContainer().getComponentByType(ResourceDefinitionRepository.class).get(qualifier);
+  public ResourceType getResourceType(String qualifier) {
+    return getContainer().getComponentByType(ResourceTypes.class).get(qualifier);
   }
+
+  public Collection<String> getResourceLeavesQualifiers(String qualifier) {
+    return getContainer().getComponentByType(ResourceTypes.class).getLeavesQualifiers(qualifier);
+  }
+
+  public Collection<String> getResourceChildrenQualifiers(String qualifier) {
+      return getContainer().getComponentByType(ResourceTypes.class).getChildrenQualifiers(qualifier);
+    }
 
   // UPDATE CENTER ------------------------------------------------------------
 
@@ -259,7 +268,7 @@ public final class JRubyFacade {
 
   public void ruleSeverityChanged(int parentProfileId, int activeRuleId, int oldSeverityId, int newSeverityId, String userName) {
     getProfilesManager().ruleSeverityChanged(parentProfileId, activeRuleId, RulePriority.values()[oldSeverityId],
-      RulePriority.values()[newSeverityId], userName);
+        RulePriority.values()[newSeverityId], userName);
   }
 
   public void ruleDeactivated(int parentProfileId, int deactivatedRuleId, String userName) {

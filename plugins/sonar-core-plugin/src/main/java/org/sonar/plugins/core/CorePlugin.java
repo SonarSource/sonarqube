@@ -37,8 +37,6 @@ import org.sonar.plugins.core.colorizers.JavaColorizerFormat;
 import org.sonar.plugins.core.dashboards.HotspotsDashboard;
 import org.sonar.plugins.core.dashboards.DefaultDashboard;
 import org.sonar.plugins.core.dashboards.ReviewsDashboard;
-import org.sonar.plugins.core.metrics.UserManagedMetrics;
-import org.sonar.plugins.core.resources.DefaultResources;
 import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
 import org.sonar.plugins.core.sensors.*;
 import org.sonar.plugins.core.testdetailsviewer.TestsViewerDefinition;
@@ -227,7 +225,8 @@ public class CorePlugin extends SonarPlugin {
   public List getExtensions() {
     List extensions = Lists.newLinkedList();
 
-    extensions.add(DefaultResources.class);
+    extensions.add(DefaultResourceTypes.class);
+    extensions.add(UserManagedMetrics.class);
     extensions.add(ProjectFileSystemLogger.class);
 
     // maven
@@ -235,9 +234,6 @@ public class CorePlugin extends SonarPlugin {
 
     // languages
     extensions.add(Java.class);
-
-    // metrics
-    extensions.add(UserManagedMetrics.class);
 
     // pages
     extensions.add(TestsViewerDefinition.class);

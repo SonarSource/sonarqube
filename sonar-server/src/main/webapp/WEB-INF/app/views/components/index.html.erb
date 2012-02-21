@@ -17,7 +17,7 @@
 <% if has_role?(:admin) && configuring? %>
   <%= render :partial => 'list_edit_mode_controls', :locals => {:configured_columns => @columns, :components_configuration => @components_configuration} %>
 <% end %>
-<% if @snapshots.empty? && @project.nil? %>
+<% if @snapshots.empty? && @resource.nil? %>
   <h3><%= message('components.no_projects_have_been_analysed') -%>No projects have been analysed.</h3>
   <p><%= message('components.explanation_launch_sonar_to_have_results') -%></p>
 <% else %>
@@ -69,7 +69,7 @@
         <td width="<%= @treemap.width -%>" valign="top">
           <script>
             new Treemap(1, '<%= @treemap.size_metric ? @treemap.size_metric.key : '' -%>', '<%= @treemap.color_metric ? @treemap.color_metric.key : '' -%>', 100.0).init('resource',
-              <%= @project.id -%>);
+              <%= @resource.id -%>);
           </script>
 
           <div id="tm-1" class="treemap" style="height:<%= @treemap.height %>px">

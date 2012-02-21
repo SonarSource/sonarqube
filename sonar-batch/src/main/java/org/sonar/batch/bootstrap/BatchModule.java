@@ -23,6 +23,7 @@ import org.sonar.api.Plugins;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.ServerHttpClient;
 import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.DefaultResourceCreationLock;
@@ -82,6 +83,7 @@ public class BatchModule extends Module {
     addCoreSingleton(PastSnapshotFinder.class);
     addCoreSingleton(DefaultNotificationManager.class);
     addCoreSingleton(DefaultUserFinder.class);
+    addCoreSingleton(ResourceTypes.class);
     addCoreMetrics();
     addBatchExtensions();
   }

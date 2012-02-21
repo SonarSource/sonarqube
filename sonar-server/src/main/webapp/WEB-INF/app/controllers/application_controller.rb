@@ -147,4 +147,26 @@ class ApplicationController < ActionController::Base
     end
   end
 
+
+  #
+  # FILTERS
+  #
+  def init_resource_for_user_role
+    init_resource_for_role :user
+  end
+
+  def init_resource_for_admin_role
+    init_resource_for_role :admin
+  end
+
+  def init_resource_for_role(role)
+    @resource=Project.by_key(params[:id])
+    not_found("Project not found") unless @resource
+    @resource=@resource.permanent_resource
+
+    @snapshot=@resource.last_snapshot
+    not_found("Snapshot not found") unless @snapshot
+
+    access_denied unless has_role?(role, @resource)
+  end
 end

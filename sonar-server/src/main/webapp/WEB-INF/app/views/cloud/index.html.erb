@@ -18,7 +18,7 @@
 </script>
 
 <div>
-  <form id="cloudform" action="<%= ApplicationController.root_context -%>/cloud/index/<%= @project.id -%>" method="GET">
+  <form id="cloudform" action="<%= ApplicationController.root_context -%>/cloud/index/<%= @resource.id -%>" method="GET">
     <ul class="headerLine">
       <li>
         <span><%= message('color') -%>:</span>
@@ -53,7 +53,11 @@
        size_measure=@size_measure_by_sid[s.id]
        if size_measure && size_measure.value
          color_measure=@color_measure_by_sid[s.id]
-         link="of(#{s.project_id})"
+         if s.source_code?
+          link="of(#{s.project_id})"
+         else
+           link="ov(#{s.project_id})"
+         end
 
          title="#{s.resource.long_name} | #{@size_metric.short_name}: #{size_measure.formatted_value}"
          if color_measure && color_measure.value

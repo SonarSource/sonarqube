@@ -33,12 +33,9 @@ class ComponentsController < ApplicationController
   TREEMAP_COLOR_METRIC_PROPERTY = 'sonar.core.treemap.colormetric'
 
   def index
+    init_resource_for_user_role
     @components_configuration = Sonar::ComponentsConfiguration.new
 
-    @project = Project.by_key(params[:id])
-    not_found("Project not found") unless @project
-    access_denied unless has_role?(:user, @project)
-    @snapshot = @project.last_snapshot
     @snapshots = Snapshot.find(:all, :include => 'project', :conditions => ['snapshots.parent_snapshot_id=? and snapshots.qualifier<>? and projects.qualifier<>?', @snapshot.id, Snapshot::QUALIFIER_UNIT_TEST_CLASS, Snapshot::QUALIFIER_UNIT_TEST_CLASS])
 
     @columns = @components_configuration.selected_columns

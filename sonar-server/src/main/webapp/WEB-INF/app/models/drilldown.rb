@@ -19,24 +19,6 @@
 #
 class Drilldown
 
-  DEFAULT=[['TRK'], ['BRC'], ['DIR', 'PAC'], ['FIL', 'CLA', 'UTS']]
-  VIEWS=[['VW'], ['SVW'], ['TRK']]
-  PERSONS=[['PERSON'], ['PERSON_PRJ']]
-  TREES=[DEFAULT, VIEWS, PERSONS]
-
-  def self.qualifier_children(q)
-    return [] if q==nil
-    TREES.each do |tree|
-      tree.each_with_index do |qualifiers, index|
-        if qualifiers==q || qualifiers.include?(q)
-          return index+1<tree.size ? tree[index+1] : []
-        end
-      end
-    end
-    []
-  end
-
-
   attr_reader :resource, :metric, :selected_resource_ids
   attr_reader :snapshot, :columns, :highlighted_resource, :highlighted_snapshot
 
@@ -85,13 +67,13 @@ class DrilldownColumn
     # switch
     if @base_snapshot.resource.copy_resource
       @base_snapshot=@base_snapshot.resource.copy_resource.last_snapshot
-      @qualifiers = Drilldown.qualifier_children(@base_snapshot.qualifier)
+      @qualifiers = @base_snapshot.children_qualifiers
 
     elsif previous_column
-      @qualifiers=Drilldown.qualifier_children(previous_column.qualifiers)
+      @qualifiers=previous_column.qualifiers.map {|q| Java::OrgSonarServerUi::JRubyFacade.getInstance().getResourceChildrenQualifiers(q).to_a}.flatten
 
     else
-      @qualifiers=Drilldown.qualifier_children(drilldown.snapshot.qualifier)
+      @qualifiers=drilldown.snapshot.children_qualifiers
     end
     @resource_per_sid={}
   end

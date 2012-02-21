@@ -49,14 +49,6 @@ table#columns td {
           <td>
             <% qualifiers=(@filter.criterion('qualifier') ? @filter.criterion('qualifier').text_values : []) %>
 
-              <% if controller.java_facade.hasPlugin('views') %>
-                <input type="checkbox" name="qualifiers[]" value="VW" <%= 'checked' if qualifiers.include?('VW') -%> id="q-VW"></input> <label for="q-VW"><%= message('qualifiers.VW') -%></label>
-                <span class="spacer"> </span>
-
-                <input type="checkbox" name="qualifiers[]" value="SVW" <%= 'checked' if qualifiers.include?('SVW') -%> id="q-SVW"></input> <label for="q-SVW"><%= message('qualifiers.SVW') -%></label>
-                <span class="spacer"> </span>
-              <% end %>
-
               <input type="checkbox" name="qualifiers[]" value="TRK" <%= 'checked' if qualifiers.include?('TRK') -%> id="q-TRK"></input> <label for="q-TRK"><%= message('qualifiers.TRK') -%></label>
               <span class="spacer"> </span>
 
@@ -72,7 +64,7 @@ table#columns td {
               <input type="checkbox" name="qualifiers[]" value="UTS" <%= 'checked' if qualifiers.include?('UTS') -%> id="q-UTS"></input> <label for="q-UTS"><%= message('qualifiers.UTS') -%></label>
               <span class="spacer"> </span>
 
-              <% for desc in controller.java_facade.getResourceDefinitionsForFilter()
+              <% for desc in controller.java_facade.getResourceTypesForFilter()
                    qualifier = desc.getQualifier() %>
                 <input type="checkbox" name="qualifiers[]" value="<%= qualifier -%>" <%= 'checked' if qualifiers.include?(qualifier) -%> id="q-<%= qualifier -%>"></input>
                 <label for="q-<%= qualifier -%>"><%= message("qualifiers.#{qualifier}") -%></label>

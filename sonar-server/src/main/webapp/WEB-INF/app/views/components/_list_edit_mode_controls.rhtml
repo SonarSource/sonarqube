@@ -10,7 +10,7 @@
       <td width="1%" nowrap><%= message('add_a_column') -%></td>
       <td>
         <form action="<%= url_for :controller => "columns", :action => "add" -%>" >
-          <input type="hidden" name="rid" value="<%= @project.id if @project %>" />
+          <input type="hidden" name="rid" value="<%= @resource.id if @resource %>" />
           <select name="id" onchange="$('add_column_loading').show();submit();" id="select_add_column">
             <option value=""></option>
             <% addeable_columns.keys.sort.each do |domain| %>
@@ -30,7 +30,7 @@
       <td width="1%" nowrap><%= message('default_sort_on') -%> </td>
       <td>
         <form action="<%= url_for :controller => "columns", :action => "default_sorting" -%>">
-          <input type="hidden" name="rid" value="<%= @project.id if @project %>" />
+          <input type="hidden" name="rid" value="<%= @resource.id if @resource %>" />
           <select name="id" onchange="$('sort_column_loading').show();submit();" id="select_default_sorting">
 	        <option value="project" <%= 'selected' if components_configuration.sorted_by_project_name? -%>><%= message('project_name') -%></option>
             <% configured_columns.sort_by{|col| col.name}.each do |column| 
@@ -46,9 +46,9 @@
     <tr>
       <td colspan="2">
        <%= link_to( message('enable_treemap'), 
-                                {:controller => "columns", :action => "toggle_treemap", :rid => @project.id}, {:class => 'action'} ) if (!components_configuration.treemap_enabled?) %>
+                                {:controller => "columns", :action => "toggle_treemap", :rid => @resource.id}, {:class => 'action'} ) if (!components_configuration.treemap_enabled?) %>
        <%= link_to( message('disable_treemap'), 
-                                {:controller => "columns", :action => "toggle_treemap", :rid => @project.id}, {:class => 'action'} ) if components_configuration.treemap_enabled? %>	         
+                                {:controller => "columns", :action => "toggle_treemap", :rid => @resource.id}, {:class => 'action'} ) if components_configuration.treemap_enabled? %>
         &nbsp; <%= image_tag("treemap_icon.png") %>
       </td>
     </tr>

@@ -182,16 +182,8 @@ class DashboardController < ApplicationController
   end
 
   def load_resource
-    @resource=Project.by_key(params[:id])
-    not_found("Resource not found") unless @resource
-
-    @resource=@resource.switch_resource if @resource.switch_resource
-
-    access_denied unless has_role?(:user, @resource)
-    @snapshot = @resource.last_snapshot
-    not_found("Snapshot not found") unless @snapshot
-
-    @project=@resource # variable name used in old widgets
+    init_resource_for_user_role
+    @project=@resource # for backward compatibility with old widgets
   end
 
   def load_authorized_widget_definitions

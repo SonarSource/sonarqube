@@ -20,14 +20,9 @@
 class CloudController < ApplicationController
 
   SECTION=Navigation::SECTION_RESOURCE
+  before_filter :init_resource_for_user_role
 
   def index
-    resource_key = params[:id]
-    @project = resource_key ? Project.by_key(resource_key) : nil
-    not_found("Project not found") unless @project
-    access_denied unless has_role?(:user, @project)
-    @snapshot=@project.last_snapshot
-
     @size_metric=Metric.by_key(params[:size]||'ncloc')
     @color_metric=Metric.by_key(params[:color]||'coverage')
 
@@ -35,11 +30,11 @@ class CloudController < ApplicationController
       @color_metric=Metric.by_key('violations_density')
     end
 
-    snapshot_conditions='snapshots.islast=:islast AND snapshots.scope=:scope AND snapshots.qualifier!=:test_qualifier AND 
+    snapshot_conditions='snapshots.islast=:islast AND snapshots.qualifier in (:qualifiers) AND snapshots.qualifier!=:test_qualifier AND
       (snapshots.id=:sid OR (snapshots.root_snapshot_id=:root_sid AND snapshots.path LIKE :path))'
     snapshot_values={
         :islast => true,
-        :scope => 'FIL',
+        :qualifiers => @snapshot.leaves_qualifiers,
         :test_qualifier => 'UTS',
         :sid => @snapshot.id,
         :root_sid => (@snapshot.root_snapshot_id || @snapshot.id),
@@ -57,7 +52,7 @@ class CloudController < ApplicationController
     color_measures=ProjectMeasure.find(:all,
                                        :select => 'project_measures.id,project_measures.value,project_measures.metric_id,project_measures.snapshot_id,project_measures.rule_id,project_measures.rule_priority,project_measures.text_value,project_measures.characteristic_id,project_measures.alert_status',
                                        :joins => :snapshot,
-                                       :conditions => [snapshot_conditions + " AND project_measures.metric_id=#{@color_metric.id}", snapshot_values],
+                                       :conditions => [snapshot_conditions + " AND project_measures.metric_id=#{@color_metric.id} AND project_measures.rule_id IS NULL AND "+ "project_measures.characteristic_id IS NULL AND project_measures.person_id IS NULL", snapshot_values],
                                        :order => 'project_measures.value')
 
     @size_measure_by_sid={}, @color_measure_by_sid={}

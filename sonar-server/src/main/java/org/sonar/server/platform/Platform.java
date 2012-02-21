@@ -28,6 +28,7 @@ import org.sonar.api.profiles.AnnotationProfileParser;
 import org.sonar.api.profiles.XMLProfileParser;
 import org.sonar.api.profiles.XMLProfileSerializer;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.DefaultRulesManager;
 import org.sonar.api.rules.XMLRuleParser;
@@ -66,7 +67,10 @@ import org.sonar.server.qualitymodel.DefaultModelManager;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
 import org.sonar.server.startup.*;
-import org.sonar.server.ui.*;
+import org.sonar.server.ui.CodeColorizers;
+import org.sonar.server.ui.JRubyI18n;
+import org.sonar.server.ui.SecurityRealmFactory;
+import org.sonar.server.ui.Views;
 
 import javax.servlet.ServletContext;
 
@@ -205,7 +209,7 @@ public final class Platform {
     servicesContainer.addSingleton(I18nManager.class);
     servicesContainer.addSingleton(RuleI18nManager.class);
     servicesContainer.addSingleton(GwtI18n.class);
-    servicesContainer.addSingleton(ResourceDefinitionRepository.class);
+    servicesContainer.addSingleton(ResourceTypes.class);
 
     // Notifications
     servicesContainer.addSingleton(NotificationService.class);

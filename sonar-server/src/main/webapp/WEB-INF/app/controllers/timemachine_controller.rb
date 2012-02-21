@@ -28,11 +28,7 @@ class TimemachineController < ApplicationController
   MAX_SNAPSHOTS = 5
 
   def index
-    @project = Project.by_key(params[:id])
-    return redirect_to home_url unless @project
-    @snapshot=@project.last_snapshot
-
-    access_denied unless is_user?(@snapshot)
+    init_resource_for_user_role
 
     if params[:sid]
       @sids = params[:sid].split(',').collect {|s| s.to_i}
@@ -42,9 +38,9 @@ class TimemachineController < ApplicationController
       #
       @snapshots=Snapshot.find(:all,
          :include => 'events',
-         :conditions => {:id => @sids, :project_id => @project.id, :scope => @project.scope, :qualifier => @project.qualifier}, :order => 'snapshots.created_at ASC')
+         :conditions => {:id => @sids, :project_id => @resource.id, :scope => @resource.scope, :qualifier => @resource.qualifier}, :order => 'snapshots.created_at ASC')
     else
-      @snapshots=Snapshot.for_timemachine_matrix(@project)
+      @snapshots=Snapshot.for_timemachine_matrix(@resource)
       @sids = @snapshots.collect{|s| s.id}.uniq
     end
 

@@ -17,20 +17,28 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.resources;
+package org.sonar.plugins.core;
+
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
-import org.sonar.api.resources.ResourceDefinition;
+import org.sonar.api.measures.Metric;
+import org.sonar.plugins.core.UserManagedMetrics;
 
 import java.util.List;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+public class UserManagedMetricsTest {
 
-public class DefaultResourcesTest {
   @Test
-  public void provide() {
-    List<ResourceDefinition> defs = new DefaultResources().provide();
-    assertThat(defs.isEmpty(), is(false));
+  public void checkDefinitions() {
+    UserManagedMetrics userManagedMetrics = new UserManagedMetrics();
+    List<Metric> metrics = userManagedMetrics.getMetrics();
+    assertThat(metrics.size(), greaterThan(2));
+    for (Metric metric : metrics) {
+      assertThat(metric.getUserManaged(), is(true));
+      assertThat(metric.getDomain(), is("Management"));
+    }
   }
 }

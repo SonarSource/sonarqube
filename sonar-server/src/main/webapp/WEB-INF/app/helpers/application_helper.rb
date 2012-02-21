@@ -38,11 +38,11 @@ module ApplicationHelper
       end
   end
 
+  # TODO this method should be moved in resourceable.rb
   def qualifier_icon(object)
     qualifier=(object.respond_to?('qualifier') ? object.qualifier : object.to_s)
     if qualifier
-      definition = Java::OrgSonarServerUi::JRubyFacade.getInstance().getResourceDefinition(qualifier)
-      image_tag definition.getIconPath(), :alt => '', :size => '16x16'
+      image_tag Java::OrgSonarServerUi::JRubyFacade.getInstance().getResourceType(qualifier).getIconPath(), :alt => '', :size => '16x16'
     else
       image_tag 'e16.gif'
     end
@@ -198,8 +198,8 @@ module ApplicationHelper
   def url_for_resource_gwt(page, options={})
     if options[:resource]
       "#{ApplicationController.root_context}/plugins/resource/#{options[:resource]}?page=#{page}"
-    elsif @project
-      "#{ApplicationController.root_context}/plugins/resource/#{@project.id}?page=#{page}"
+    elsif @resource
+      "#{ApplicationController.root_context}/plugins/resource/#{@resource.id}?page=#{page}"
     else
       ''
     end
@@ -220,7 +220,7 @@ module ApplicationHelper
   #   url_for_drilldown('ncloc', {:resource => 'org.apache.struts:struts-parent'})
   #
   def url_for_drilldown(metric_or_measure, options={})
-    if options[:resource].nil? && !@project
+    if options[:resource].nil? && !@resource
       return ''
     end
 
@@ -232,7 +232,7 @@ module ApplicationHelper
       metric_key = metric_or_measure
     end
 
-    url_params={:controller => 'drilldown', :action => 'measures', :metric => metric_key, :id => options[:resource]||@project.id}
+    url_params={:controller => 'drilldown', :action => 'measures', :metric => metric_key, :id => options[:resource]||@resource.id}
 
     url_for(options.merge(url_params))
   end
@@ -328,7 +328,8 @@ module ApplicationHelper
     period_index=nil if period_index && period_index<=0
     if resource.display_dashboard?
       if options[:dashboard]
-        link_to(name || resource.name, {:overwrite_params => {:controller => 'dashboard', :action => 'index', :id => resource.id, :period => period_index, :tab => options[:tab], :rule => options[:rule]}}, :title => options[:title])
+        link_to(name || resource.name, {:overwrite_params => {:controller => 'dashboard', :action => 'index', :id => resource.id, :period => period_index,
+                                                              :tab => options[:tab], :rule => options[:rule]}}, :title => options[:title])
       else
         # stay on the same page (for example components)
         link_to(name || resource.name, {:overwrite_params => {:id => resource.id, :period => period_index, :tab => options[:tab], :rule => options[:rule]}}, :title => options[:title])
@@ -415,7 +416,7 @@ module ApplicationHelper
   def link_to_favourite(resource, options={})
     return '' unless (logged_in?)
     return '' if resource.nil?
-    resource_id=(resource.is_a?(Fixnum) ? resource : resource.switch_resource_or_self.id)
+    resource_id=(resource.is_a?(Fixnum) ? resource : resource.permanent_id)
     html_id=options['html_id'] || "fav#{resource_id}"
     initial_class='notfav'
     initial_tooltip=message('click_to_add_to_favourites')

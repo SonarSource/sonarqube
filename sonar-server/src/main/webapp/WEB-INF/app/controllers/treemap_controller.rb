@@ -44,6 +44,8 @@ class TreemapController < ApplicationController
       bad_request('Unknown resource: ' + params[:resource]) unless resource
       bad_request('Data not available') unless resource.last_snapshot
       access_denied unless has_role?(:user, resource)
+      resource = resource.permanent_resource
+
     elsif params[:filter]
       filter=::Filter.find(params[:filter])
       bad_request('Unknown filter: ' + params[:filter]) unless filter

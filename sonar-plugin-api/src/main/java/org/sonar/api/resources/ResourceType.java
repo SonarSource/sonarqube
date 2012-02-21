@@ -22,8 +22,9 @@ package org.sonar.api.resources;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import org.sonar.api.BatchExtension;
-import org.sonar.api.ServerExtension;
+
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
 /**
  * Experimental extension to declare types of resources.
@@ -31,7 +32,8 @@ import org.sonar.api.ServerExtension;
  * @since 2.14
  */
 @Beta
-public final class ResourceDefinition implements BatchExtension, ServerExtension {
+@Immutable
+public final class ResourceType {
 
   public static class Builder {
     private String qualifier;
@@ -46,7 +48,7 @@ public final class ResourceDefinition implements BatchExtension, ServerExtension
     /**
      * @param iconPath path to icon, relative to context of web-application (e.g. "/images/q/DIR.png")
      */
-    public Builder setIconPath(String iconPath) {
+    public Builder setIconPath(@Nullable String iconPath) {
       this.iconPath = iconPath;
       return this;
     }
@@ -61,17 +63,17 @@ public final class ResourceDefinition implements BatchExtension, ServerExtension
       return this;
     }
 
-    public ResourceDefinition build() {
+    public ResourceType build() {
       if (Strings.isNullOrEmpty(iconPath)) {
         iconPath = "/images/q/" + qualifier + ".png";
       }
-      return new ResourceDefinition(this);
+      return new ResourceType(this);
     }
   }
 
   public static Builder builder(String qualifier) {
     Preconditions.checkNotNull(qualifier);
-    Preconditions.checkArgument(qualifier.length() <= 10, "Qualifier is limited to 10 characters in database");
+    Preconditions.checkArgument(qualifier.length() <= 10, "Qualifier is limited to 10 characters");
     return new Builder(qualifier);
   }
 
@@ -80,13 +82,16 @@ public final class ResourceDefinition implements BatchExtension, ServerExtension
   private final boolean hasSourceCode;
   private final boolean availableForFilters;
 
-  private ResourceDefinition(Builder builder) {
+  private ResourceType(Builder builder) {
     this.qualifier = builder.qualifier;
     this.iconPath = builder.iconPath;
     this.availableForFilters = builder.availableForFilters;
     this.hasSourceCode = builder.hasSourceCode;
   }
 
+  /**
+   * Qualifier is the unique key
+   */
   public String getQualifier() {
     return qualifier;
   }
@@ -101,5 +106,23 @@ public final class ResourceDefinition implements BatchExtension, ServerExtension
 
   public boolean hasSourceCode() {
     return hasSourceCode;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    ResourceType that = (ResourceType) o;
+    return qualifier.equals(that.qualifier);
+  }
+
+  @Override
+  public int hashCode() {
+    return qualifier.hashCode();
   }
 }

@@ -17,36 +17,22 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.resources;
+package org.sonar.plugins.core;
 
 import org.junit.Test;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.ResourceTypeTree;
 
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
 
-public class ResourceDefinitionTest {
-
+public class DefaultResourceTypesTest {
   @Test
-  public void shouldCreateWithDefaults() {
-    ResourceDefinition def = ResourceDefinition.builder("qualifier")
-        .build();
-    assertThat(def.getQualifier(), is("qualifier"));
-    assertThat(def.getIconPath(), is("/images/q/qualifier.png"));
-    assertThat(def.hasSourceCode(), is(false));
+  public void provide() {
+    ResourceTypeTree tree = new DefaultResourceTypes().provide();
+    assertThat(tree.getTypes().size(), is(7));
+    assertThat(tree.getChildren(Qualifiers.PROJECT).size(), is(1));
+    assertThat(tree.getChildren(Qualifiers.PROJECT), hasItem(Qualifiers.MODULE));
   }
-
-  @Test
-  public void shouldCreate() {
-    ResourceDefinition def = ResourceDefinition.builder("qualifier")
-        .setIconPath("/custom-icon.png")
-        .build();
-    assertThat(def.getQualifier(), is("qualifier"));
-    assertThat(def.getIconPath(), is("/custom-icon.png"));
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void shouldCheckQualifierLength() {
-    ResourceDefinition.builder("qualifier bigger than 10 characters");
-  }
-
 }

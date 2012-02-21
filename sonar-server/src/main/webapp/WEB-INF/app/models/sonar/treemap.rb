@@ -77,7 +77,7 @@ class Sonar::Treemap
         metric_ids << @color_metric.id if @color_metric && @color_metric.id!=@size_metric.id
 
         sql_conditions = 'snapshots.islast=? AND project_measures.characteristic_id IS NULL and project_measures.rule_id IS NULL ' +
-          'and project_measures.rule_priority IS NULL and project_measures.metric_id in (?)'
+          'and project_measures.rule_priority IS NULL and project_measures.person_id IS NULL and project_measures.metric_id in (?)'
         sql_values = [true, metric_ids]
         if @root_snapshot
           sql_conditions += " AND snapshots.parent_snapshot_id=?"
@@ -107,7 +107,7 @@ class Sonar::Treemap
                                   :title => escape_javascript(resource.name(true)),
                                   :tooltip => tooltip(resource, size_measure, color_measure),
                                   :color => html_color(color_measure),
-                                  :rid => resource.switch_resource_or_self.id,
+                                  :rid => resource.id,
                                   :leaf => resource.source_code?)
         node.add_child(child)
       end

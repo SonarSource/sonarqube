@@ -16,11 +16,11 @@
     <% configured_columns.each do |column| %>
    	  <th class="right nosort" nowrap="nowrap">
         <%= link_to( image_tag("controls/resultset_previous.png", :alt => message('move_left'), :id => "move_left_" + column.id),
-       			               {:controller => "columns", :action => "left", :id => column.id, :rid => @project.id}, :class => 'nolink') if column.position > 0 %>
+       			               {:controller => "columns", :action => "left", :id => column.id, :rid => @resource.id}, :class => 'nolink') if column.position > 0 %>
         <%= link_to( image_tag("bin_closed.png", :alt => message('remove_column'), :id => "remove_" + column.id),
-	  	                     {:controller => "columns", :action => "delete", :id => column.id, :rid => @project.id}, :class => 'nolink') %>
+	  	                     {:controller => "columns", :action => "delete", :id => column.id, :rid => @resource.id}, :class => 'nolink') %>
  		    <%= link_to( image_tag("controls/resultset_next.png", :alt => message('move_right'), :id => "move_right_" + column.id),
-       			               {:controller => "columns", :action => "right", :id => column.id, :rid => @project.id}, :class => 'nolink') if column.position != configured_columns.size - 1 %>
+       			               {:controller => "columns", :action => "right", :id => column.id, :rid => @resource.id}, :class => 'nolink') if column.position != configured_columns.size - 1 %>
       </th>
     <% end %>
 </tr>

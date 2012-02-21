@@ -32,6 +32,7 @@ class ResourceController < ApplicationController
   def index
     @resource = Project.by_key(params[:id])
     not_found("Resource not found") unless @resource
+    @resource=@resource.permanent_resource
     access_denied unless has_role?(:user, @resource)
 
     params[:layout]='false'

@@ -37,16 +37,16 @@ module Resourceable
   QUALIFIER_LIB='LIB'
   QUALIFIERS=[QUALIFIER_VIEW, QUALIFIER_SUBVIEW, QUALIFIER_PROJECT, QUALIFIER_MODULE, QUALIFIER_DIRECTORY, QUALIFIER_PACKAGE, QUALIFIER_FILE, QUALIFIER_CLASS, QUALIFIER_UNIT_TEST_CLASS, QUALIFIER_LIB]
   QUALIFIER_NAMES={
-    QUALIFIER_VIEW => 'view',
-    QUALIFIER_SUBVIEW => 'sub_view',
-    QUALIFIER_PROJECT => 'project',
-    QUALIFIER_MODULE => 'sub_project',
-    QUALIFIER_DIRECTORY => 'directory',
-    QUALIFIER_PACKAGE => 'package',
-    QUALIFIER_FILE => 'file',
-    QUALIFIER_CLASS => 'class',
-    QUALIFIER_UNIT_TEST_CLASS => 'unit_test',
-    QUALIFIER_LIB => 'library'
+      QUALIFIER_VIEW => 'view',
+      QUALIFIER_SUBVIEW => 'sub_view',
+      QUALIFIER_PROJECT => 'project',
+      QUALIFIER_MODULE => 'sub_project',
+      QUALIFIER_DIRECTORY => 'directory',
+      QUALIFIER_PACKAGE => 'package',
+      QUALIFIER_FILE => 'file',
+      QUALIFIER_CLASS => 'class',
+      QUALIFIER_UNIT_TEST_CLASS => 'unit_test',
+      QUALIFIER_LIB => 'library'
   }
 
   def set?
@@ -90,18 +90,32 @@ module Resourceable
   end
 
   def source_code?
-    java_definition.hasSourceCode()
+    java_resource_type.hasSourceCode()
   end
 
   def display_dashboard?
     !source_code?
   end
 
-  def java_definition
-    @java_definition ||=
-      begin
-        Java::OrgSonarServerUi::JRubyFacade.getInstance().getResourceDefinition(qualifier)
-      end
+  def leaves_qualifiers
+    @leaves_qualifiers ||=
+        begin
+          Java::OrgSonarServerUi::JRubyFacade.getInstance().getResourceLeavesQualifiers(qualifier)
+        end
+  end
+
+  def children_qualifiers
+    @children_qualifiers ||=
+        begin
+          Java::OrgSonarServerUi::JRubyFacade.getInstance().getResourceChildrenQualifiers(qualifier)
+        end
+  end
+
+  def java_resource_type
+    @java_resource_type ||=
+        begin
+          Java::OrgSonarServerUi::JRubyFacade.getInstance().getResourceType(qualifier)
+        end
   end
 
   def self.qualifier_name(qualifier)
