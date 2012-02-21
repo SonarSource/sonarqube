@@ -31,7 +31,6 @@ import org.sonar.api.batch.InstantiationStrategy;
 import javax.annotation.concurrent.Immutable;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @since 2.14
@@ -42,18 +41,18 @@ import java.util.Set;
 public final class ResourceTypeTree implements BatchExtension, ServerExtension {
 
   private List<ResourceType> types;
-  private SetMultimap<String, String> relations;
+  private ListMultimap<String, String> relations;
 
   private ResourceTypeTree(Builder builder) {
     this.types = ImmutableList.copyOf(builder.types);
-    this.relations = ImmutableSetMultimap.copyOf(builder.relations);
+    this.relations = ImmutableListMultimap.copyOf(builder.relations);
   }
 
   public List<ResourceType> getTypes() {
     return types;
   }
 
-  public Set<String> getChildren(String qualifier) {
+  public List<String> getChildren(String qualifier) {
     return relations.get(qualifier);
   }
 
@@ -71,7 +70,7 @@ public final class ResourceTypeTree implements BatchExtension, ServerExtension {
 
   public static class Builder {
     private List<ResourceType> types = Lists.newArrayList();
-    private SetMultimap<String, String> relations = HashMultimap.create();
+    private ListMultimap<String, String> relations = ArrayListMultimap.create();
 
     private Builder() {
     }

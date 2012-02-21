@@ -25,12 +25,14 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -52,7 +54,7 @@ public final class ResourceTypes implements BatchComponent, ServerComponent {
     Preconditions.checkNotNull(trees);
 
     Map<String, ResourceTypeTree> treeMap = Maps.newHashMap();
-    Map<String, ResourceType> typeMap = Maps.newHashMap();
+    Map<String, ResourceType> typeMap = Maps.newLinkedHashMap();
 
     for (ResourceTypeTree tree : trees) {
       for (ResourceType type : tree.getTypes()) {
@@ -80,7 +82,7 @@ public final class ResourceTypes implements BatchComponent, ServerComponent {
     return Collections2.filter(typeByQualifier.values(), predicate);
   }
 
-  public Collection<String> getChildrenQualifiers(String qualifier) {
+  public List<String> getChildrenQualifiers(String qualifier) {
     ResourceTypeTree tree = getTree(qualifier);
     if (tree != null) {
       return tree.getChildren(qualifier);
@@ -88,15 +90,15 @@ public final class ResourceTypes implements BatchComponent, ServerComponent {
     return Collections.emptyList();
   }
 
-  public Collection<ResourceType> getChildren(String qualifier) {
-    return Collections2.transform(getChildrenQualifiers(qualifier), new Function<String, ResourceType>() {
+  public List<ResourceType> getChildren(String qualifier) {
+    return Lists.transform(getChildrenQualifiers(qualifier), new Function<String, ResourceType>() {
       public ResourceType apply(String s) {
         return typeByQualifier.get(s);
       }
     });
   }
 
-  public Collection<String> getLeavesQualifiers(String qualifier) {
+  public List<String> getLeavesQualifiers(String qualifier) {
     ResourceTypeTree tree = getTree(qualifier);
     if (tree != null) {
       return tree.getLeaves();
