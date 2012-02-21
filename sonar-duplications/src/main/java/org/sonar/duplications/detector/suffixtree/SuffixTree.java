@@ -33,7 +33,7 @@ import com.google.common.base.Objects;
  * Since such a tree does not exist for all strings, S is padded with a terminal symbol not seen in the string (usually denoted $).
  * This ensures that no suffix is a prefix of another, and that there will be n leaf nodes, one for each of the n suffixes of S.
  * Since all internal non-root nodes are branching, there can be at most n −  1 such nodes, and n + (n − 1) + 1 = 2n nodes in total.
- * All internal nodes and leafs have incoming edge, so number of edges equal to number of leafs plus number of inner nodes,
+ * All internal nodes and leaves have incoming edge, so number of edges equal to number of leaves plus number of inner nodes,
  * thus at most 2n - 1.
  * Construction takes O(n) time.
  * </p><p>

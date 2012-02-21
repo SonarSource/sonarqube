@@ -50,7 +50,7 @@ public class SuffixTreeTest {
     String text = this.data + "$";
     StringSuffixTree tree = StringSuffixTree.create(text);
 
-    assertThat("number of leafs", tree.getNumberOfLeafs(), is(text.length()));
+    assertThat("number of leaves", tree.getNumberOfLeafs(), is(text.length()));
     assertThat("number of inner nodes", tree.getNumberOfInnerNodes(), lessThan(text.length() - 1));
     assertThat("number of edges", tree.getNumberOfEdges(), is(tree.getNumberOfInnerNodes() + tree.getNumberOfLeafs()));
 

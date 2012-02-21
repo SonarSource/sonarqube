@@ -148,7 +148,7 @@ public final class Search {
     abstract void startOfGroup(int size, int length);
 
     /**
-     * Invoked as many times as leafs in the subtree, where current node is root.
+     * Invoked as many times as leaves in the subtree, where current node is root.
      *
      * @param start start position in generalised text
      * @param end end position in generalised text

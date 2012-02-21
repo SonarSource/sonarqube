@@ -34,7 +34,7 @@ public class StringSuffixTree {
   private final SuffixTree suffixTree;
   private int numberOfEdges;
   private int numberOfInnerNodes;
-  private int numberOfLeafs;
+  private int numberOfLeaves;
 
   public static StringSuffixTree create(String text) {
     return new StringSuffixTree(text);
@@ -48,7 +48,7 @@ public class StringSuffixTree {
     while (!queue.isEmpty()) {
       Node node = queue.remove();
       if (node.getEdges().isEmpty()) {
-        numberOfLeafs++;
+        numberOfLeaves++;
       } else {
         numberOfInnerNodes++;
         for (Edge edge : node.getEdges()) {
@@ -68,8 +68,9 @@ public class StringSuffixTree {
     return numberOfInnerNodes;
   }
 
+  // FIXME should be renamed getNumberOfLeaves()
   public int getNumberOfLeafs() {
-    return numberOfLeafs;
+    return numberOfLeaves;
   }
 
   public int indexOf(String str) {
