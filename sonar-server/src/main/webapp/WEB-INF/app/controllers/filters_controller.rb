@@ -213,7 +213,6 @@ class FiltersController < ApplicationController
     if column.deletable?
       column.destroy
       redirect_to :action => 'edit', :id => filter.id
-      redirect_to :action => 'edit', :id => filter.id
     else
       flash[:error]='Unknown column'
       redirect_to :action => 'manage'
