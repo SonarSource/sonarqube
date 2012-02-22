@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableList;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
 
-import java.util.Arrays;
 import java.util.List;
 
 public final class UserManagedMetrics implements Metrics {

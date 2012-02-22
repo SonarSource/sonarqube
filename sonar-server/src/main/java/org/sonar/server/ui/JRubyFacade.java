@@ -87,8 +87,8 @@ public final class JRubyFacade {
   }
 
   public Collection<String> getResourceChildrenQualifiers(String qualifier) {
-      return getContainer().getComponentByType(ResourceTypes.class).getChildrenQualifiers(qualifier);
-    }
+    return getContainer().getComponentByType(ResourceTypes.class).getChildrenQualifiers(qualifier);
+  }
 
   // UPDATE CENTER ------------------------------------------------------------
 

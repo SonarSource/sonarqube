@@ -61,4 +61,20 @@ public class ResourceTypeTreeTest {
     assertThat(tree.getLeaves(), hasItems("FIL", "UTS"));
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void forbidNullRelation() {
+    ResourceTypeTree.builder()
+        .addType(ResourceType.builder("TRK").build())
+        .addType(ResourceType.builder("DIR").build())
+        .addRelations("DIR" /* missing child */)
+        .build();
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void forbidDuplicatedType() {
+    ResourceTypeTree.builder()
+        .addType(ResourceType.builder("TRK").build())
+        .addType(ResourceType.builder("TRK").build())
+        .build();
+  }
 }

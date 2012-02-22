@@ -67,7 +67,7 @@ public final class ResourceTypeTree implements BatchExtension, ServerExtension {
     return new Builder();
   }
 
-  public static class Builder {
+  public static final class Builder {
     private List<ResourceType> types = Lists.newArrayList();
     private ListMultimap<String, String> relations = ArrayListMultimap.create();
 
@@ -81,11 +81,11 @@ public final class ResourceTypeTree implements BatchExtension, ServerExtension {
       return this;
     }
 
-    public Builder addRelations(String parentQualifier, String... childQualifiers) {
+    public Builder addRelations(String parentQualifier, String... childrenQualifiers) {
       Preconditions.checkNotNull(parentQualifier);
-      Preconditions.checkNotNull(childQualifiers);
-      Preconditions.checkArgument(childQualifiers.length > 0, "childQualifiers can't be empty");
-      relations.putAll(parentQualifier, Arrays.asList(childQualifiers));
+      Preconditions.checkNotNull(childrenQualifiers);
+      Preconditions.checkArgument(childrenQualifiers.length > 0, "childrenQualifiers can't be empty");
+      relations.putAll(parentQualifier, Arrays.asList(childrenQualifiers));
       return this;
     }
 

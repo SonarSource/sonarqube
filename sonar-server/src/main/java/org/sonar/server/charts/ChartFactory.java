@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.charts.Chart;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public final class ChartFactory implements ServerComponent {
