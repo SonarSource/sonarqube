@@ -15,17 +15,18 @@
     </param>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.header.RegexpHeaderCheck">
+  <rule>
+    <key>com.puppycrawl.tools.checkstyle.checks.header.RegexpHeaderCheck</key>
     <priority>MAJOR</priority>
     <name><![CDATA[Regexp Header]]></name>
     <configKey><![CDATA[Checker/RegexpHeader]]></configKey>
-
-
-    <param key="header" type="s">
-
+    <param>
+      <key>header</key>
+      <type>s</type>
     </param>
-    <param key="ignoreLines" type="s">
-
+    <param>
+      <key>multiLines</key>
+      <type>s</type>
     </param>
   </rule>
 
@@ -34,16 +35,11 @@
     <priority>MAJOR</priority>
     <name><![CDATA[Annotation Use Style]]></name>
     <configKey><![CDATA[Checker/TreeWalker/AnnotationUseStyle]]></configKey>
-
-
     <param key="elementStyle" type="s[expanded,compact,compact_no_array,ignore]">
-
     </param>
     <param key="closingParens" type="s[always,never,ignore]">
-
     </param>
     <param key="trailingArrayComma" type="s[always,never,ignore]">
-
     </param>
   </rule>
 
@@ -425,9 +421,9 @@
     <name><![CDATA[Declaration Order]]></name>
     <configKey><![CDATA[Checker/TreeWalker/DeclarationOrder]]></configKey>
 
-    <param key="ignoreConstructors" type="b" />
-    <param key="ignoreMethods" type="b" />
-    <param key="ignoreModifiers" type="b" />
+    <param key="ignoreConstructors" type="b"/>
+    <param key="ignoreMethods" type="b"/>
+    <param key="ignoreModifiers" type="b"/>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.coding.DefaultComesLastCheck">
     <priority>MAJOR</priority>
@@ -1183,7 +1179,7 @@
     <name><![CDATA[Package Declaration]]></name>
     <configKey><![CDATA[Checker/TreeWalker/PackageDeclaration]]></configKey>
 
-    <param key="ignoreDirectoryName" type="b" />
+    <param key="ignoreDirectoryName" type="b"/>
   </rule>
 
   <rule key="com.puppycrawl.tools.checkstyle.checks.naming.PackageNameCheck">
