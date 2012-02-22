@@ -7,10 +7,6 @@
        selected_project_id = params[:project].to_i
        if @resource.project && selected_project_id != @resource.project.id %>
       <div class="subtitle">
-        <!-- vertical alignment with title -->
-        <img src="<%= ApplicationController.root_context -%>/images/e16.gif">
-        <% if logged_in? %><img src="<%= ApplicationController.root_context -%>/images/e16.gif"><% end %>
-
         <%= @resource.ancestor_projects.select{|p| p.id != selected_project_id}.reverse.map{|p| p.name(true)}.join(' / ') -%>
       </div>
     <% end %>
