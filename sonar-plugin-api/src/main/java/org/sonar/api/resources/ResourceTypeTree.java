@@ -23,7 +23,6 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
-import org.apache.commons.lang.ArrayUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.batch.InstantiationStrategy;
@@ -84,7 +83,8 @@ public final class ResourceTypeTree implements BatchExtension, ServerExtension {
 
     public Builder addRelations(String parentQualifier, String... childQualifiers) {
       Preconditions.checkNotNull(parentQualifier);
-      Preconditions.checkArgument(ArrayUtils.isNotEmpty(childQualifiers), "childQualifiers can't be empty");
+      Preconditions.checkNotNull(childQualifiers);
+      Preconditions.checkArgument(childQualifiers.length > 0, "childQualifiers can't be empty");
       relations.putAll(parentQualifier, Arrays.asList(childQualifiers));
       return this;
     }
