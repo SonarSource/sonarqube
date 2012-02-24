@@ -886,7 +886,7 @@ div.vtitle img {
   vertical-align: text-bottom;
 }
 
-div.vFooter {
+div.vActions {
   padding: 5px 10px;
   border-top: 1px solid #DDD;
   background-color: #EFEFEF;
@@ -1142,7 +1142,7 @@ table.reviewDetails td img {
   vertical-align: bottom;
 }
 
-div.discussion {
+.discussion {
   width: 100%;
   border: 1px solid #DDDDDD;
 }
@@ -1151,7 +1151,7 @@ div.discussion {
   border-top: none;
 }
 
-div.discussionComment {
+.discussionComment {
   background-color: #EFEFEF;
   border-top: 1px solid #DDDDDD;
   line-height: 1.5em;
@@ -1159,17 +1159,23 @@ div.discussionComment {
   padding: 5px 10px;
 }
 
-div.discussionComment h4 {
+.discussionComment h4 {
   font-size: 90%;
   margin-bottom: 2px;
 }
 
-div.discussionComment h4 img {
+.discussionComment h4 img {
   vertical-align: sub;
 }
 
-div.discussionComment li {
+.discussionComment li {
   list-style: square inside;
+}
+.discussionComment pre {
+  padding: 10px;
+  border: 1px dashed #DDD;
+  color: #444;
+  font-size: 12px;
 }
 
 div.comment-excerpt {

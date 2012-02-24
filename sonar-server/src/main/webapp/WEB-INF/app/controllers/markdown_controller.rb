@@ -21,7 +21,7 @@ class MarkdownController < ApplicationController
 
   SECTION=Navigation::SECTION_CONFIGURATION
   
-  def full_help
+  def help
   end
   
 end

@@ -33,7 +33,7 @@ function cancelViolationAction(violation_id) {
 }
 
 function hideMoreViolationActions(violation_id) {
-  var popup = $('vActions' + violation_id);
+  var popup = $('more' + violation_id);
   if (popup != null) {
     popup.hide();
   }
@@ -48,7 +48,7 @@ function sCF(violation_id) {
         asynchronous:true,
         evalScripts:true,
         onComplete:function (request) {
-          $('vBody' + violation_id).remove();
+          $('vActions' + violation_id).remove();
           $('reviewForm' + violation_id).show();
           $('commentText' + violation_id).focus();
         }
@@ -65,7 +65,7 @@ function sCSF(violation_id) {
         asynchronous:true,
         evalScripts:true,
         onComplete:function (request) {
-          $('vBody' + violation_id).remove();
+          $('vActions' + violation_id).remove();
           $('reviewForm' + violation_id).show();
           $('selectSeverity' + violation_id).focus();
         }
@@ -82,7 +82,7 @@ function sCStF(violation_id) {
         asynchronous:true,
         evalScripts:true,
         onComplete:function (request) {
-          $('vBody' + violation_id).remove();
+          $('vActions' + violation_id).remove();
           $('reviewForm' + violation_id).show();
           $('commentText' + violation_id).focus();
         }
@@ -99,7 +99,7 @@ function sFPF(violation_id) {
         asynchronous:true,
         evalScripts:true,
         onComplete:function (request) {
-          $('vBody' + violation_id).remove();
+          $('vActions' + violation_id).remove();
           $('reviewForm' + violation_id).show();
           $('commentText' + violation_id).focus();
         }
@@ -116,7 +116,7 @@ function sAF(violation_id) {
         asynchronous:true,
         evalScripts:true,
         onComplete:function (request) {
-          $('vBody' + violation_id).remove();
+          $('vActions' + violation_id).remove();
           $('reviewForm' + violation_id).show();
           $('assignee_login').focus();
         }
@@ -133,7 +133,7 @@ function sAPF(violation_id) {
         asynchronous:true,
         evalScripts:true,
         onComplete:function (request) {
-          $('vBody' + violation_id).remove();
+          $('vActions' + violation_id).remove();
           $('reviewForm' + violation_id).show();
           $('action_plan').focus();
         }

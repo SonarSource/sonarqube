@@ -38,6 +38,8 @@ import org.sonar.channel.RegexChannel;
  * will produce:
  * {@literal<pre>}{@literal<code>}This code
  * spans on 2 lines{@literal</code>}{@literal</pre>}
+ *
+ * @since 2.14
  */
 class HtmlMultilineCodeChannel extends RegexChannel<MarkdownOutput> {
 

@@ -51,13 +51,11 @@
 
     </div>
 
-    <div class="discussionComment first" id="vBody<%= violation.id -%>">
+    <div class="discussionComment first">
       <div id="vMsg<%= violation.id -%>">
         <%= violation.html_message || '&nbsp;' -%>
       </div>
     </div>
-
-    <div class="discussionComment" id="reviewForm<%= violation.id -%>" style="display:none"></div>
 
     <%
        if violation.review
@@ -108,7 +106,7 @@
        end
     %>
     <% if current_user %>
-      <div class="vFooter">
+      <div class="vActions" id="vActions<%= violation.id -%>">
         <%= link_to_function message('reviews.comment'), "sCF(#{violation.id})", :name => 'bComment', :class => 'link-action spacer-right' -%>
 
         <% unless violation.review && violation.review.resolved? %>
@@ -122,8 +120,8 @@
 
         <% unless violation.switched_off? && violation.review && violation.review.resolved? %>
         <div class="dropdown">
-          <a href="#" class="link-action link-more" onclick="$('vActions<%= violation.id -%>').toggle();return false;"><%= message('more_actions') -%></a>
-          <ul style="display: none" class="dropdown-menu" id="vActions<%= violation.id -%>" onmouseout="this.hide();" onmouseover="this.show();">
+          <a href="#" class="link-action link-more" onclick="$('more<%= violation.id -%>').toggle();return false;"><%= message('more_actions') -%></a>
+          <ul style="display: none" class="dropdown-menu" id="more<%= violation.id -%>" onmouseout="this.hide();" onmouseover="this.show();">
             <% if !violation.switched_off? %>
               <li><%= link_to_function (violation.review && violation.review.resolved? ? message('reviews.reopen') : message('reviews.resolved')),
                                        "sCStF(#{violation.id})", :name => (violation.review && violation.review.resolved? ? 'bReopen' : 'bResolved') -%></li>
@@ -137,6 +135,7 @@
         <% end %>
       </div>
     <% end %>
+    <div class="discussionComment" id="reviewForm<%= violation.id -%>" style="display:none"></div>
   </div>
 
 </div>

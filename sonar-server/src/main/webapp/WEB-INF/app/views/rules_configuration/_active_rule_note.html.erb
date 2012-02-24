@@ -46,7 +46,7 @@
                     onkeyup="if (this.value=='') $('<%= submit_active_note_update_button_id -%>').disabled=true; else $('<%= submit_active_note_update_button_id -%>').disabled=false;"><%= h(note.plain_text) if note -%></textarea>
         </td>
         <td class="markdown-help">
-          <%= render :partial => 'markdown/help' -%>
+          <%= render :partial => 'markdown/tips' -%>
         </td>
       </tr>
     <tr>
