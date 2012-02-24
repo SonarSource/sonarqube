@@ -51,13 +51,13 @@ end
 
 class DrilldownColumn
 
-  attr_reader :measures, :base_snapshot, :selected_snapshot, :qualifiers, :person_id, :switch
+  attr_reader :measures, :base_snapshot, :selected_snapshot, :qualifiers, :person_id
 
   def initialize(drilldown, previous_column)
     @drilldown = drilldown
 
     if previous_column
-      @base_snapshot=previous_column.base_snapshot_for_next_column
+      @base_snapshot=(previous_column.selected_snapshot || previous_column.base_snapshot)
       @person_id=(previous_column.person_id || @base_snapshot.resource.person_id)
     else
       @base_snapshot=drilldown.snapshot
@@ -141,15 +141,6 @@ class DrilldownColumn
         end
       end
     end
-
-    if @selected_snapshot
-      @switch=(@selected_snapshot.resource && @selected_snapshot.resource.copy_resource)
-    elsif @measures.size==1
-      s = @measures.first.snapshot
-      @switch=(s.resource && s.resource.copy_resource)
-    else
-      @switch=false
-    end
   end
 
   def resource(measure)
@@ -160,23 +151,11 @@ class DrilldownColumn
     @measures && !@measures.empty?
   end
 
-  def base_snapshot_for_next_column
-    if @selected_snapshot
-      @selected_snapshot
-
-    elsif @measures && @measures.size==1
-      @measures.first.snapshot
-
-    else
-      @base_snapshot
-    end
-  end
-
   def valid?
     @base_snapshot && @qualifiers && !@qualifiers.empty?
   end
 
   def switch?
-    @switch
+    selected_snapshot && selected_snapshot.resource && selected_snapshot.resource.copy_resource
   end
 end
