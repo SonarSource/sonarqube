@@ -19,6 +19,8 @@
  */
 package org.sonar.api.resources;
 
+import java.util.Locale;
+
 /**
  * Inherit this class to define a new language like PLSQL, PHP or C#
  *
@@ -42,7 +44,7 @@ public abstract class AbstractLanguage implements Language {
    * @param name the display name of the language in the interface
    */
   public AbstractLanguage(String key, String name) {
-    this.key = key.toLowerCase();
+    this.key = key.toLowerCase(Locale.ENGLISH);
     this.name = name;
   }
 
