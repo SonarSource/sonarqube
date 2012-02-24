@@ -23,130 +23,121 @@ function loadGWT(gwtId, resourceId, resourceKey, resourceName, resourceScope, re
 // cancel action : hide form and refresh violation
 function cancelViolationAction(violation_id) {
   new Ajax.Updater(
-    'vId' + violation_id,
-    baseUrl + '/reviews/display_violation/' + violation_id,
-    {
-      asynchronous:true,
-      evalScripts:true
-    });
+      'vId' + violation_id,
+      baseUrl + '/reviews/display_violation/' + violation_id,
+      {
+        asynchronous:true,
+        evalScripts:true
+      });
   return false;
+}
+
+function hideMoreViolationActions(violation_id) {
+  var popup = $('vActions' + violation_id);
+  if (popup != null) {
+    popup.hide();
+  }
 }
 
 // show the form to comment violation
 function sCF(violation_id) {
-  $('vActions' + violation_id).hide();
+  hideMoreViolationActions(violation_id);
   new Ajax.Updater('reviewForm' + violation_id,
-    baseUrl + '/reviews/violation_comment_form/' + violation_id,
-    {
-      asynchronous:true,
-      evalScripts:true,
-      onComplete:function (request) {
-        $('vBody' + violation_id).remove();
-        $('reviewForm' + violation_id).show();
-        $('commentText' + violation_id).focus();
-     }
-    });
+      baseUrl + '/reviews/violation_comment_form/' + violation_id,
+      {
+        asynchronous:true,
+        evalScripts:true,
+        onComplete:function (request) {
+          $('vBody' + violation_id).remove();
+          $('reviewForm' + violation_id).show();
+          $('commentText' + violation_id).focus();
+        }
+      });
   return false;
-}
-
-//show the form to reply to a comment
-function sRF(violation_id) {
-$('vActions' + violation_id).hide();
-new Ajax.Updater('replyForm' + violation_id,
- baseUrl + '/reviews/violation_comment_form/' + violation_id,
- {
-   asynchronous:true,
-   evalScripts:true,
-   onComplete:function (request) {
-     $('replyForm' + violation_id).show();
-     $('commentText' + violation_id).focus();
-  }
- });
-return false;
 }
 
 // show the form to change severity
 function sCSF(violation_id) {
-  $('vActions' + violation_id).hide();
+  hideMoreViolationActions(violation_id);
   new Ajax.Updater('reviewForm' + violation_id,
-    baseUrl + '/reviews/violation_change_severity_form/' + violation_id,
-    {
-      asynchronous:true,
-      evalScripts:true,
-      onComplete:function (request) {
-        $('vBody' + violation_id).remove();
-        $('reviewForm' + violation_id).show();
-        $('selectSeverity' + violation_id).focus();
-      }
-    });
+      baseUrl + '/reviews/violation_change_severity_form/' + violation_id,
+      {
+        asynchronous:true,
+        evalScripts:true,
+        onComplete:function (request) {
+          $('vBody' + violation_id).remove();
+          $('reviewForm' + violation_id).show();
+          $('selectSeverity' + violation_id).focus();
+        }
+      });
   return false;
 }
 
 // show the form to change status
 function sCStF(violation_id) {
-  $('vActions' + violation_id).hide();
+  hideMoreViolationActions(violation_id);
   new Ajax.Updater('reviewForm' + violation_id,
-    baseUrl + '/reviews/violation_change_status_form/' + violation_id,
-    {
-      asynchronous:true,
-      evalScripts:true,
-      onComplete:function (request) {
-        $('vBody' + violation_id).remove();
-        $('reviewForm' + violation_id).show();
-        $('commentText' + violation_id).focus();
-      }
-    });
+      baseUrl + '/reviews/violation_change_status_form/' + violation_id,
+      {
+        asynchronous:true,
+        evalScripts:true,
+        onComplete:function (request) {
+          $('vBody' + violation_id).remove();
+          $('reviewForm' + violation_id).show();
+          $('commentText' + violation_id).focus();
+        }
+      });
   return false;
 }
 
 // show the form to flag as false-positive
 function sFPF(violation_id) {
-  $('vActions' + violation_id).hide();
+  hideMoreViolationActions(violation_id);
   new Ajax.Updater('reviewForm' + violation_id,
-    baseUrl + '/reviews/violation_false_positive_form/' + violation_id,
-    {
-      asynchronous:true,
-      evalScripts:true,
-      onComplete:function (request) {
-        $('vBody' + violation_id).remove();
-        $('reviewForm' + violation_id).show();
-        $('commentText' + violation_id).focus();
-      }
-    });
+      baseUrl + '/reviews/violation_false_positive_form/' + violation_id,
+      {
+        asynchronous:true,
+        evalScripts:true,
+        onComplete:function (request) {
+          $('vBody' + violation_id).remove();
+          $('reviewForm' + violation_id).show();
+          $('commentText' + violation_id).focus();
+        }
+      });
   return false;
 }
 
 // show the form to assign violation
 function sAF(violation_id) {
-  $('vActions' + violation_id).hide();
+  hideMoreViolationActions(violation_id);
   new Ajax.Updater('reviewForm' + violation_id,
-    baseUrl + '/reviews/violation_assign_form/' + violation_id,
-    {
-      asynchronous:true,
-      evalScripts:true,
-      onComplete:function (request) {
-        $('vBody' + violation_id).remove();
-        $('reviewForm' + violation_id).show();
-        $('assignee_login').focus();
-      }
-    });
+      baseUrl + '/reviews/violation_assign_form/' + violation_id,
+      {
+        asynchronous:true,
+        evalScripts:true,
+        onComplete:function (request) {
+          $('vBody' + violation_id).remove();
+          $('reviewForm' + violation_id).show();
+          $('assignee_login').focus();
+        }
+      });
   return false;
 }
 
 // show the form to link a review to an action plan
 function sAPF(violation_id) {
-  $('vActions' + violation_id).hide();
+  hideMoreViolationActions(violation_id);
   new Ajax.Updater('reviewForm' + violation_id,
-    baseUrl + '/reviews/violation_action_plan_form/' + violation_id,
-    {
-      asynchronous:true,
-      evalScripts:true,
-      onComplete:function (request) {
-        $('vBody' + violation_id).remove();
-        $('reviewForm' + violation_id).show();
-        $('action_plan').focus();
-      }
-    });
+      baseUrl + '/reviews/violation_action_plan_form/' + violation_id,
+      {
+        asynchronous:true,
+        evalScripts:true,
+        onComplete:function (request) {
+          $('vBody' + violation_id).remove();
+          $('reviewForm' + violation_id).show();
+          $('action_plan').focus();
+        }
+      });
   return false;
 }
 
@@ -155,14 +146,14 @@ function sVF(resource, line, gray_colspan, white_colspan) {
   row = $('createViolationForm' + line);
   if (row == null) {
     new Ajax.Updater(
-      'pos' + line,
-      baseUrl + '/resource/show_create_violation_form',
-      {
-        parameters:{resource:resource, line:line, gray_colspan:gray_colspan, white_colspan:white_colspan},
-        asynchronous:true,
-        evalScripts:true,
-        insertion:'after'
-      });
+        'pos' + line,
+        baseUrl + '/resource/show_create_violation_form',
+        {
+          parameters:{resource:resource, line:line, gray_colspan:gray_colspan, white_colspan:white_colspan},
+          asynchronous:true,
+          evalScripts:true,
+          insertion:'after'
+        });
   }
   return false;
 }

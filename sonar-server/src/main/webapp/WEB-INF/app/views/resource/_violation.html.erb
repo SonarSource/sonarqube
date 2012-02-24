@@ -7,34 +7,6 @@
         </div>
       <% end %>
 
-      <% if current_user %>
-        <img src="<%= ApplicationController.root_context -%>/images/actions.png" onclick="$('vActions<%= violation.id -%>').toggle();" class="pop-menu-icon">
-          <ul style="display: none" class="popup-menu" id="vActions<%= violation.id -%>" onmouseout="this.hide();" onmouseover="this.show();">
-            <li><%= link_to_function message('reviews.comment'), "sCF(#{violation.id})", :name => 'bComment' -%></li>
-
-            <% unless violation.review && violation.review.resolved? %>
-              <li><%= link_to_function message('reviews.assign'), "sAF(#{violation.id})", :name => 'bAssign' -%></li>
-            <% end %>
-
-            <% if !violation.switched_off? %>
-              <li><%= link_to_function (violation.review && violation.review.resolved? ? message('reviews.reopen') : message('reviews.resolved')),
-                                       "sCStF(#{violation.id})", :name => (violation.review && violation.review.resolved? ? 'bReopen' : 'bResolved') -%></li>
-            <% end %>
-
-            <% if violation.review.nil? || violation.review.can_change_false_positive_flag? %>
-              <li><%= link_to_function message(violation.switched_off? ? 'reviews.unflag_as_false_positive' : 'reviews.flag_as_false_positive'),
-                                       "sFPF(#{violation.id})",
-                                       :name => 'bFalsePositive' -%></li>
-            <% end %>
-
-            <% unless violation.review && violation.review.resolved? %>
-              <li><%= link_to_function message('reviews.change_severity'), "sCSF(#{violation.id})", :name => 'bChangeSeverity' -%></li>
-              <li><%= link_to_function message('reviews.link_to_action_plan'), "sAPF(#{violation.id})", :name => 'bLinkActionPlan' -%></li>
-            <% end %>
-          </ul>
-        &nbsp;
-      <% end %>
-
       <% if violation.review && violation.review.manual_severity && violation.review.severity!=violation.severity %>
         <img src="<%= ApplicationController.root_context -%>/images/priority/<%= violation.review.severity -%>.png">
       <% else %>
@@ -103,17 +75,17 @@
         <%
            if current_user.id == review_comment.user_id
         %>
-          <%= link_to_function message('reviews.reply'), "sRF(#{violation.id})", :name => 'bReply' -%>
-          &nbsp;
           <%= link_to_remote message('reviews.edit'),
                              :url => {:controller => "reviews", :action => "violation_comment_form", :comment_id => review_comment.id, :id => violation.id},
                              :update => "lastComment" + violation.id.to_s,
-                             :complete => "$('vActions#{violation.id}').hide();$('commentActions#{violation.id}').hide();$('commentText#{violation.id}').focus();" -%>
+                             :complete => "$('vActions#{violation.id}').hide();$('commentActions#{violation.id}').hide();$('commentText#{violation.id}').focus();",
+                             :html => {:class => 'link-action'} -%>
           &nbsp;
           <%= link_to_remote message('reviews.delete'),
                              :url => {:controller => "reviews", :action => "violation_delete_comment", :comment_id => review_comment.id, :id => violation.id},
                              :update => "vId" + violation.id.to_s,
-                             :confirm => message('reviews.do_you_want_to_delete_comment') -%>
+                             :confirm => message('reviews.do_you_want_to_delete_comment'),
+                             :html => {:class => 'link-action'} -%>
         <%
            end
         %>
@@ -131,10 +103,40 @@
       <%
          end
       %>
-      <div class="discussionComment" id="replyForm<%= violation.id -%>" style="display:none"></div> 
-      <%
-         end
-      %>
+      <div class="discussionComment" id="replyForm<%= violation.id -%>" style="display:none"></div>
+    <%
+       end
+    %>
+    <% if current_user %>
+      <div class="vFooter">
+        <%= link_to_function message('reviews.comment'), "sCF(#{violation.id})", :name => 'bComment', :class => 'link-action spacer-right' -%>
+
+        <% unless violation.review && violation.review.resolved? %>
+          <%= link_to_function message('reviews.assign'), "sAF(#{violation.id})", :name => 'bAssign', :class => 'link-action spacer-right' -%>
+        <% end %>
+
+        <% if violation.review.nil? || violation.review.can_change_false_positive_flag? %>
+          <%= link_to_function message(violation.switched_off? ? 'reviews.unflag_as_false_positive' : 'reviews.flag_as_false_positive'),
+                                   "sFPF(#{violation.id})", :name => 'bFalsePositive', :class => 'link-action spacer-right' -%>
+        <% end %>
+
+        <% unless violation.switched_off? && violation.review && violation.review.resolved? %>
+        <div class="dropdown">
+          <a href="#" class="link-action link-more" onclick="$('vActions<%= violation.id -%>').toggle();return false;"><%= message('more_actions') -%></a>
+          <ul style="display: none" class="dropdown-menu" id="vActions<%= violation.id -%>" onmouseout="this.hide();" onmouseover="this.show();">
+            <% if !violation.switched_off? %>
+              <li><%= link_to_function (violation.review && violation.review.resolved? ? message('reviews.reopen') : message('reviews.resolved')),
+                                       "sCStF(#{violation.id})", :name => (violation.review && violation.review.resolved? ? 'bReopen' : 'bResolved') -%></li>
+            <% end %>
+            <% unless violation.review && violation.review.resolved? %>
+              <li><%= link_to_function message('reviews.change_severity'), "sCSF(#{violation.id})", :name => 'bChangeSeverity' -%></li>
+              <li><%= link_to_function message('reviews.link_to_action_plan'), "sAPF(#{violation.id})", :name => 'bLinkActionPlan' -%></li>
+            <% end %>
+          </ul>
+        </div>
+        <% end %>
+      </div>
+    <% end %>
   </div>
 
 </div>
