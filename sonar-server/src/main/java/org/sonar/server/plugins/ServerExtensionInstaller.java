@@ -21,7 +21,6 @@ package org.sonar.server.plugins;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.Extension;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
@@ -80,11 +79,10 @@ public class ServerExtensionInstaller {
   Object installExtension(ComponentContainer container, PluginMetadata pluginMetadata, Object extension, boolean acceptProvider) {
     if (isType(extension, ServerExtension.class)) {
       if (!acceptProvider && isExtensionProvider(extension)) {
-        LoggerFactory.getLogger(getClass()).error("ExtensionProvider can not include providers itself: " + extension);
-      } else {
-        container.addExtension(pluginMetadata, extension);
-        return extension;
+        throw new IllegalStateException("ExtensionProvider can not include providers itself: " + extension);
       }
+      container.addExtension(pluginMetadata, extension);
+      return extension;
     }
     return null;
   }
