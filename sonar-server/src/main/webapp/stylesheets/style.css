@@ -2151,17 +2151,6 @@ table.matrix tbody td.title {
   padding: 5px 0 0 5px;
 }
 
-div.widget-matrix {
-  overflow: auto;
-  font-size: 12px;
-  padding: 1px;
-}
-
-div.widget-matrix th {
-  text-align: right;
-  font-weight: normal;
-}
-
 a.nolink, .dashbox a, .dashbox a:visited {
   text-decoration: none;
 }

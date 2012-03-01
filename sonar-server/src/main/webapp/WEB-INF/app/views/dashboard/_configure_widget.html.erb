@@ -26,7 +26,7 @@
 </div>
 
 
-<div id="widget_<%= widget.id -%>" class="configure_widget widget-<%= widget.java_definition.getId() -%>" style="height:100%;<%= 'display:none;' if !widget.configured -%>">
+<div id="widget_<%= widget.id -%>" class="configure_widget <%= h widget.java_definition.getId() -%>" style="height:100%;<%= 'display:none;' if !widget.configured -%>">
   <!--[if lte IE 6]>
   <style type="text/css">
     #dashboard .block .content .transparent {

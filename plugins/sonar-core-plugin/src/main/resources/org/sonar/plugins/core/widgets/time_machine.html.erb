@@ -61,12 +61,11 @@
    end
 
    # Should display the sparkline?
-   displaySparkLine = widget_properties["displaySparkLine"] if snapshot_by_id.size > 1
+   display_sparkline = snapshot_by_id.size > 1 && widget_properties["displaySparkLine"]
 %>
 
-<div class="widget-matrix">
-
-  <table class="data">
+<div style="overflow: auto;font-size: 12px;padding: 1px;">
+  <table class="table table-bordered">
 
     <thead>
     <tr>
@@ -75,13 +74,13 @@
          snapshots.each do |snapshot|
            event = snapshot.event('Version')
       %>
-        <th nowrap="nowrap" style="vertical-align:top">
+        <th nowrap="nowrap" style="vertical-align:top;text-align: right;font-size: 12px">
           <%= l snapshot.created_at.to_date -%>
           <br/>
           <%= event.name unless event==nil -%>
         </th>
       <% end %>
-      <% if displaySparkLine %>
+      <% if display_sparkline %>
         <th></th>
       <% end %>
     </tr>
@@ -103,7 +102,7 @@
         <% end %>
         <%
            sparkline_url=row.sparkline_url
-           if displaySparkLine && sparkline_url
+           if display_sparkline && sparkline_url
         %>
           <td width="1%">
             <%= image_tag(sparkline_url) %>
