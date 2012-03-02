@@ -74,7 +74,7 @@ public class ReviewsMeasuresDecorator implements Decorator {
 
     // Load open reviews (used for counting and also for tracking new violations without a review)
     Collection<ReviewDto> openReviews = reviewDao.selectOpenByResourceId(resource.getId(),
-        ReviewPredicates.StatusPredicate.create(ReviewDto.STATUS_OPEN, ReviewDto.STATUS_REOPENED));
+        ReviewPredicates.status(ReviewDto.STATUS_OPEN, ReviewDto.STATUS_REOPENED));
 
     Map<Integer, ReviewDto> openReviewsByViolationPermanentId = Maps.newHashMap();
     int countUnassigned = 0;
@@ -95,7 +95,7 @@ public class ReviewsMeasuresDecorator implements Decorator {
     context.saveMeasure(CoreMetrics.UNPLANNED_REVIEWS, (double) (unplanned + sumChildren(resource, context, CoreMetrics.UNPLANNED_REVIEWS)));
 
     Collection<ReviewDto> falsePositives = reviewDao.selectOpenByResourceId(resource.getId(),
-        ReviewPredicates.ResolutionPredicate.create(ReviewDto.RESOLUTION_FALSE_POSITIVE));
+        ReviewPredicates.resolution(ReviewDto.RESOLUTION_FALSE_POSITIVE));
 
     context.saveMeasure(CoreMetrics.FALSE_POSITIVE_REVIEWS, (double) (falsePositives.size() + sumChildren(resource, context, CoreMetrics.FALSE_POSITIVE_REVIEWS)));
 

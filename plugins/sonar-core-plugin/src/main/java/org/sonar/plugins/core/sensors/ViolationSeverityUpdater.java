@@ -78,7 +78,7 @@ public class ViolationSeverityUpdater implements Decorator {
   }
 
   private Collection<ReviewDto> selectReviewsWithManualSeverity(long resourceId) {
-    return reviewDao.selectOpenByResourceId(resourceId, ReviewPredicates.ManualSeverityPredicate.create());
+    return reviewDao.selectOpenByResourceId(resourceId, ReviewPredicates.manualSeverity());
   }
 
   private Map<Integer, Violation> filterViolationsPerPermanent(List<Violation> violations) {

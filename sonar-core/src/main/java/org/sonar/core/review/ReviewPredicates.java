@@ -30,12 +30,24 @@ public final class ReviewPredicates {
   private ReviewPredicates() {
   }
 
-  public static class StatusPredicate implements Predicate<ReviewDto> {
-    private String[] statuses;
+  public static Predicate<ReviewDto> status(String... statuses) {
+    return new StatusPredicate(statuses);
+  }
 
-    public static StatusPredicate create(String... statuses) {
-      return new StatusPredicate(statuses);
-    }
+  public static Predicate<ReviewDto> resolution(String... resolutions) {
+    return new ResolutionPredicate(resolutions);
+  }
+
+  public static Predicate<ReviewDto> manualViolation() {
+    return ManualViolationPredicate.INSTANCE;
+  }
+
+  public static Predicate<ReviewDto> manualSeverity() {
+    return ManualSeverityPredicate.INSTANCE;
+  }
+
+  private static class StatusPredicate implements Predicate<ReviewDto> {
+    private String[] statuses;
 
     private StatusPredicate(String... statuses) {
       this.statuses = statuses;
@@ -46,12 +58,8 @@ public final class ReviewPredicates {
     }
   }
 
-  public static class ResolutionPredicate implements Predicate<ReviewDto> {
+  private static class ResolutionPredicate implements Predicate<ReviewDto> {
     private String[] resolutions;
-
-    public static ResolutionPredicate create(String... resolutions) {
-      return new ResolutionPredicate(resolutions);
-    }
 
     private ResolutionPredicate(String... resolutions) {
       this.resolutions = resolutions;
@@ -62,12 +70,8 @@ public final class ReviewPredicates {
     }
   }
 
-  public static class ManualViolationPredicate implements Predicate<ReviewDto> {
+  private static class ManualViolationPredicate implements Predicate<ReviewDto> {
     private static final ManualViolationPredicate INSTANCE = new ManualViolationPredicate();
-
-    public static ManualViolationPredicate create() {
-      return INSTANCE;
-    }
 
     private ManualViolationPredicate() {
     }
@@ -77,12 +81,8 @@ public final class ReviewPredicates {
     }
   }
 
-  public static class ManualSeverityPredicate implements Predicate<ReviewDto> {
+  private static class ManualSeverityPredicate implements Predicate<ReviewDto> {
     private static final ManualSeverityPredicate INSTANCE = new ManualSeverityPredicate();
-
-    public static ManualSeverityPredicate create() {
-      return INSTANCE;
-    }
 
     private ManualSeverityPredicate() {
     }

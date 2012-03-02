@@ -71,7 +71,7 @@ public class ReviewDaoTest extends DaoTestCase {
   public void shouldFilterResults() {
     setupData("shared");
     Collection<ReviewDto> reviews = dao.selectOpenByResourceId(401L,
-        ReviewPredicates.StatusPredicate.create(ReviewDto.STATUS_REOPENED));
+        ReviewPredicates.status(ReviewDto.STATUS_REOPENED));
 
     assertThat(reviews.size(), is(1));
     ReviewDto review = reviews.iterator().next();

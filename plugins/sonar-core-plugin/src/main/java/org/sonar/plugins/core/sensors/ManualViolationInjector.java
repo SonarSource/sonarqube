@@ -53,8 +53,8 @@ public class ManualViolationInjector implements Decorator {
   public void decorate(Resource resource, DecoratorContext context) {
     if (resource.getId() != null) {
       Collection<ReviewDto> openReviews = reviewDao.selectOpenByResourceId(resource.getId(),
-          ReviewPredicates.StatusPredicate.create(ReviewDto.STATUS_OPEN),
-          ReviewPredicates.ManualViolationPredicate.create());
+          ReviewPredicates.status(ReviewDto.STATUS_OPEN),
+          ReviewPredicates.manualViolation());
       for (ReviewDto openReview : openReviews) {
         if (openReview.getRuleId() == null) {
           LoggerFactory.getLogger(getClass()).warn("No rule is defined on the review with id: " + openReview.getId());
