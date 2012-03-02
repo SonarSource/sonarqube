@@ -19,15 +19,3 @@
  */
 package org.sonar.core.review;
 
-import org.apache.ibatis.annotations.Param;
-
-import java.util.List;
-
-/**
- * @since 2.13
- */
-public interface ReviewMapper {
-  List<ReviewDto> selectByResourceId(long resourceId);
-  void update(ReviewDto review);
-  List<ReviewDto> selectOnDeletedResources(@Param("rootProjectId")long rootProjectId, @Param("rootSnapshotId") long rootSnapshotId);
-}

@@ -21,8 +21,9 @@ package org.sonar.plugins.core.sensors;
 
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Decorator;
+import org.sonar.api.batch.DecoratorBarriers;
 import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.Phase;
+import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.RuleFinder;
@@ -30,11 +31,11 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
 import org.sonar.core.review.ReviewDao;
 import org.sonar.core.review.ReviewDto;
-import org.sonar.core.review.ReviewQuery;
+import org.sonar.core.review.ReviewPredicates;
 
-import java.util.List;
+import java.util.Collection;
 
-@Phase(name = Phase.Name.PRE)
+@DependedUpon(DecoratorBarriers.END_OF_VIOLATIONS_GENERATION)
 public class ManualViolationInjector implements Decorator {
 
   private ReviewDao reviewDao;
@@ -51,23 +52,24 @@ public class ManualViolationInjector implements Decorator {
 
   public void decorate(Resource resource, DecoratorContext context) {
     if (resource.getId() != null) {
-      ReviewQuery query = ReviewQuery.create().setManualViolation(true).setResourceId(resource.getId()).addStatus(ReviewDto.STATUS_OPEN);
-      List<ReviewDto> reviewDtos = reviewDao.selectByQuery(query);
-      for (ReviewDto reviewDto : reviewDtos) {
-        if (reviewDto.getRuleId() == null) {
-          LoggerFactory.getLogger(getClass()).warn("No rule is defined on the review with id: " + reviewDto.getId());
+      Collection<ReviewDto> openReviews = reviewDao.selectOpenByResourceId(resource.getId(),
+          ReviewPredicates.StatusPredicate.create(ReviewDto.STATUS_OPEN),
+          ReviewPredicates.ManualViolationPredicate.create());
+      for (ReviewDto openReview : openReviews) {
+        if (openReview.getRuleId() == null) {
+          LoggerFactory.getLogger(getClass()).warn("No rule is defined on the review with id: " + openReview.getId());
         }
-        if (reviewDto.getViolationPermanentId() == null) {
-          LoggerFactory.getLogger(getClass()).warn("Permanent id of manual violation is missing on the review with id: " + reviewDto.getId());
+        if (openReview.getViolationPermanentId() == null) {
+          LoggerFactory.getLogger(getClass()).warn("Permanent id of manual violation is missing on the review with id: " + openReview.getId());
         }
-        Violation violation = Violation.create(ruleFinder.findById(reviewDto.getRuleId()), resource);
+        Violation violation = Violation.create(ruleFinder.findById(openReview.getRuleId()), resource);
         violation.setManual(true);
-        violation.setLineId(reviewDto.getLine());
-        violation.setPermanentId(reviewDto.getViolationPermanentId());
+        violation.setLineId(openReview.getLine());
+        violation.setPermanentId(openReview.getViolationPermanentId());
         violation.setSwitchedOff(false);
-        violation.setCreatedAt(reviewDto.getCreatedAt());
-        violation.setMessage(reviewDto.getTitle());
-        violation.setSeverity(RulePriority.valueOf(reviewDto.getSeverity()));
+        violation.setCreatedAt(openReview.getCreatedAt());
+        violation.setMessage(openReview.getTitle());
+        violation.setSeverity(RulePriority.valueOf(openReview.getSeverity()));
         context.saveViolation(violation);
       }
     }

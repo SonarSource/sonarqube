@@ -19,8 +19,8 @@
  */
 package org.sonar.plugins.core.sensors;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Lists;
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,12 +32,10 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
 import org.sonar.core.review.ReviewDao;
 import org.sonar.core.review.ReviewDto;
-import org.sonar.core.review.ReviewQuery;
 
 import java.util.Arrays;
 
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
 
 public class ViolationSeverityUpdaterTest {
@@ -45,15 +43,15 @@ public class ViolationSeverityUpdaterTest {
   private Resource project;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     project = new Project("foo").setId(10);
   }
 
   @Test
   public void shouldUpdateSeverityFixedByEndUsers() {
     ReviewDao reviewDao = mock(ReviewDao.class);
-    when(reviewDao.selectByQuery(argThat(newReviewQueryMatcher(380)))).thenReturn(Arrays.<ReviewDto>asList(
-      new ReviewDto().setManualSeverity(true).setSeverity(RulePriority.BLOCKER.toString()).setViolationPermanentId(380)));
+    when(reviewDao.selectOpenByResourceId(anyInt(), (Predicate<ReviewDto>[])anyVararg())).thenReturn(Lists.newArrayList(
+        new ReviewDto().setManualSeverity(true).setSeverity("BLOCKER").setViolationPermanentId(380)));
     DecoratorContext context = mock(DecoratorContext.class);
     Violation newViolation = Violation.create(new Rule(), project).setSeverity(RulePriority.MINOR);
     Violation unchangedViolation = Violation.create(new Rule(), project).setPermanentId(120).setSeverity(RulePriority.MINOR);
@@ -72,7 +70,7 @@ public class ViolationSeverityUpdaterTest {
    * Optimization
    */
   @Test
-  public void shouldNotRequestReviewsIfNoTrackedViolations() {
+  public void shouldNotLoadReviewsIfNoTrackedViolations() {
     ReviewDao reviewDao = mock(ReviewDao.class);
     DecoratorContext context = mock(DecoratorContext.class);
     Violation newViolation = Violation.create(new Rule(), project).setSeverity(RulePriority.MINOR);
@@ -83,18 +81,5 @@ public class ViolationSeverityUpdaterTest {
 
     assertThat(newViolation.getSeverity(), Is.is(RulePriority.MINOR));
     verifyZeroInteractions(reviewDao);
-  }
-  
-  
-  private BaseMatcher<ReviewQuery> newReviewQueryMatcher(final int expectedViolationPermanentId) {
-    return new BaseMatcher<ReviewQuery>() {
-      public boolean matches(Object o) {
-        ReviewQuery query = (ReviewQuery) o;
-        return query.getManualSeverity() == Boolean.TRUE && query.getViolationPermanentIds().contains(expectedViolationPermanentId);
-      }
-
-      public void describeTo(Description description) {
-      }
-    };
   }
 }
