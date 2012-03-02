@@ -33,11 +33,13 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rules.Violation;
 import org.sonar.batch.index.ResourcePersister;
+import org.sonar.core.NotDryRun;
 import org.sonar.core.review.ReviewDao;
 import org.sonar.core.review.ReviewDto;
 
 import java.util.*;
 
+@NotDryRun
 @DependsUpon(DecoratorBarriers.END_OF_VIOLATION_TRACKING)
 @DependedUpon(ReviewWorkflowDecorator.END_OF_REVIEWS_UPDATES)
 public class ReviewWorkflowDecorator implements Decorator {
@@ -67,7 +69,7 @@ public class ReviewWorkflowDecorator implements Decorator {
         closeResolvedStandardViolations(openReviews, context.getViolations(), context.getProject(), resource, updated);
         closeResolvedManualViolations(openReviews, context.getProject(), resource, updated);
         reopenUnresolvedViolations(openReviews, context.getProject(), resource, updated);
-        updateReviewInformations(openReviews, context.getViolations(), updated);
+        updateReviewInformation(openReviews, context.getViolations(), updated);
       }
       if (ResourceUtils.isRootProject(resource)) {
         closeReviewsOnDeletedResources((Project) resource, snapshot.getResourceId(), snapshot.getId(), updated);
@@ -93,12 +95,13 @@ public class ReviewWorkflowDecorator implements Decorator {
     }
   }
 
-  private void updateReviewInformations(Collection<ReviewDto> openReviews, Collection<Violation> violations, Set<ReviewDto> updated) {
-    Map<Integer, Violation> violationsByPermanentId = Maps.uniqueIndex(violations, new Function<Violation, Integer>() {
-      public Integer apply(Violation violation) {
-        return violation.getPermanentId();
+  private void updateReviewInformation(Collection<ReviewDto> openReviews, Collection<Violation> violations, Set<ReviewDto> updated) {
+    Map<Integer, Violation> violationsByPermanentId = Maps.newHashMap();
+    for (Violation violation : violations) {
+      if (violation.getPermanentId()!=null) {
+        violationsByPermanentId.put(violation.getPermanentId(), violation);
       }
-    });
+    }
 
     for (ReviewDto review : openReviews) {
       Violation violation = violationsByPermanentId.get(review.getViolationPermanentId());

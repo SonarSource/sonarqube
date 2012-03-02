@@ -68,7 +68,7 @@ public class ReviewsMeasuresDecorator implements Decorator {
 
   @SuppressWarnings({"rawtypes"})
   public void decorate(Resource resource, DecoratorContext context) {
-    if (!ResourceUtils.isPersistable(resource) || ResourceUtils.isUnitTestClass(resource)) {
+    if (!ResourceUtils.isPersistable(resource) || ResourceUtils.isUnitTestClass(resource) || resource.getId()==null) {
       return;
     }
 

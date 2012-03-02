@@ -62,7 +62,7 @@ public class ViolationSeverityUpdater implements Decorator {
   }
 
   public void decorate(Resource resource, DecoratorContext context) {
-    if (!ResourceUtils.isPersistable(resource)) {
+    if (resource.getId()==null) {
       return;
     }
     Map<Integer, Violation> violationMap = filterViolationsPerPermanent(context.getViolations());
