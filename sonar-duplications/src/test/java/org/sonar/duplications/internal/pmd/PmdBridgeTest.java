@@ -44,7 +44,7 @@ public class PmdBridgeTest {
   @Before
   public void setUp() {
     index = new PackedMemoryCloneIndex();
-    bridge = new TokenizerBridge(new JavaTokenizer(), "UTF-8");
+    bridge = new TokenizerBridge(new JavaTokenizer(), "UTF-8", 10);
   }
 
   @Test
