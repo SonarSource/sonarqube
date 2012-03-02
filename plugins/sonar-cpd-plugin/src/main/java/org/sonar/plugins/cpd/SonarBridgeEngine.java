@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.cpd;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.sonar.api.batch.CpdMapping;
@@ -68,7 +69,7 @@ public class SonarBridgeEngine extends CpdEngine {
     // Create index
     SonarDuplicationsIndex index = indexFactory.create(project);
 
-    TokenizerBridge bridge = new TokenizerBridge(mapping.getTokenizer(), fileSystem.getSourceCharset().name());
+    TokenizerBridge bridge = new TokenizerBridge(mapping.getTokenizer(), fileSystem.getSourceCharset().name(), getBlockSize(project));
     for (InputFile inputFile : inputFiles) {
       Resource resource = mapping.createResource(inputFile.getFile(), fileSystem.getSourceDirs());
       String resourceId = SonarEngine.getFullKey(project, resource);
@@ -89,6 +90,23 @@ public class SonarBridgeEngine extends CpdEngine {
       Iterable<CloneGroup> filtered = Iterables.filter(duplications, minimumTokensPredicate);
 
       SonarEngine.save(context, resource, filtered);
+    }
+  }
+
+  private static int getBlockSize(Project project) {
+    String languageKey = project.getLanguageKey();
+    return project.getConfiguration()
+        .getInt("sonar.cpd." + languageKey + ".minimumLines", getDefaultBlockSize(languageKey));
+  }
+
+  @VisibleForTesting
+  static int getDefaultBlockSize(String languageKey) {
+    if ("cobol".equals(languageKey)) {
+      return 30;
+    } else if ("abap".equals(languageKey) || "natur".equals(languageKey)) {
+      return 20;
+    } else {
+      return 10;
     }
   }
 
