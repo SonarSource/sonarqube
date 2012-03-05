@@ -26,6 +26,7 @@ import org.sonar.core.persistence.DaoTestCase;
 
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
@@ -41,23 +42,20 @@ public class ResourceDaoTest extends DaoTestCase {
   }
 
   @Test
-  public void testDescendantProjectIdsAndSelf() {
+  public void testDescendantProjects_do_not_include_self() {
     setupData("fixture");
 
-    List<Long> ids = dao.getDescendantProjectIds(1L);
+    List<ResourceDto> resources = dao.getDescendantProjects(1L);
 
-    assertThat(ids, hasItems(2L));
-    assertThat(ids.size(), Is.is(1));
+    assertThat(resources.size(), Is.is(1));
+    assertThat(resources.get(0).getId(), is(2L));
   }
 
   @Test
-  public void testDescendantProjectIdsAndSelf_id_not_found() {
+  public void testDescendantProjects_id_not_found() {
     setupData("fixture");
 
-    List<Long> ids = dao.getDescendantProjectIds(33333L);
-
-    assertThat(ids, not(nullValue()));
-    assertThat(ids.size(), Is.is(0));
+    assertThat(dao.getDescendantProjects(33333L).size(), Is.is(0));
   }
 }
 

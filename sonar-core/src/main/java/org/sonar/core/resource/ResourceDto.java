@@ -21,18 +21,18 @@ package org.sonar.core.resource;
 
 public final class ResourceDto {
 
-  private Integer id;
+  private Long id;
   private String name;
   private String longName;
   private Integer rootId;
   private String scope;
   private String qualifier;
 
-  public Integer getId() {
+  public Long getId() {
     return id;
   }
 
-  public ResourceDto setId(Integer id) {
+  public ResourceDto setId(Long id) {
     this.id = id;
     return this;
   }

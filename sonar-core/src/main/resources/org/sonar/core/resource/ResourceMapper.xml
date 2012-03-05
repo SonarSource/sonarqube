@@ -22,13 +22,25 @@
     <result property="rootProjectId" column="root_project_id"/>
   </resultMap>
 
+  <resultMap id="resourceResultMap" type="Resource">
+    <id property="id" column="id"/>
+    <result property="name" column="name"/>
+    <result property="longName" column="long_name"/>
+    <result property="rootId" column="root_id"/>
+    <result property="scope" column="scope"/>
+    <result property="qualifier" column="qualifier"/>
+  </resultMap>
 
-  <select id="selectSnapshotById" parameterType="int" resultMap="snapshotResultMap">
+  <select id="selectResource" parameterType="long" resultMap="resourceResultMap">
+      select * from projects where id=#{id}
+    </select>
+
+  <select id="selectSnapshot" parameterType="long" resultMap="snapshotResultMap">
     select * from snapshots where id=#{id}
   </select>
 
-  <select id="selectDescendantProjectIds" parameterType="long" resultType="long">
-    select id from projects where scope='PRJ' and root_id=#{id}
+  <select id="selectDescendantProjects" parameterType="long" resultMap="resourceResultMap">
+    select * from projects where scope='PRJ' and root_id=#{id}
   </select>
 </mapper>
 

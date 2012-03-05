@@ -41,13 +41,13 @@
     and qualifier in ('TRK', 'VW', 'SVW')
   </select>
 
-  <select id="selectMasterIndexByResourceId" parameterType="int" resultType="ResourceIndex">
+  <select id="selectMasterIndexByResourceId" parameterType="long" resultType="ResourceIndex">
     select kee as "key", resource_id as "resourceId"
     from resource_index
     where resource_id=#{id} and position=0
   </select>
 
-  <delete id="deleteByResourceId" parameterType="int">
+  <delete id="deleteByResourceId" parameterType="long">
     delete from resource_index
     where resource_id=#{id}
   </delete>

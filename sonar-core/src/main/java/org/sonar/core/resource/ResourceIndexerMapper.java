@@ -21,9 +21,9 @@ package org.sonar.core.resource;
 
 public interface ResourceIndexerMapper {
 
-  ResourceIndexDto selectMasterIndexByResourceId(int resourceId);
+  ResourceIndexDto selectMasterIndexByResourceId(long resourceId);
 
-  void deleteByResourceId(int resourceId);
+  void deleteByResourceId(long resourceId);
 
   void insert(ResourceIndexDto dto);
 }

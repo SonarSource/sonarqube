@@ -125,10 +125,10 @@ public class PurgeDaoTest extends DaoTestCase {
   }
 
   @Test
-  public void shouldPurgeDirectoriesAndFiles() {
-    setupData("shouldPurgeDirectoriesAndFiles");
+  public void shouldDeleteHistoricalDataOfDirectoriesAndFiles() {
+    setupData("shouldDeleteHistoricalDataOfDirectoriesAndFiles");
     dao.purge(1, new String[]{Scopes.DIRECTORY, Scopes.FILE});
-    checkTables("shouldPurgeDirectoriesAndFiles", "projects", "snapshots");
+    checkTables("shouldDeleteHistoricalDataOfDirectoriesAndFiles", "projects", "snapshots");
   }
 
   @Test
