@@ -29,7 +29,8 @@ import org.sonar.api.web.*;
 })
 public class TreemapWidget extends AbstractRubyTemplate implements RubyRailsWidget {
   public String getId() {
-    return "treemap";
+    // do not use the id "treemap" to avoid conflict with the same CSS class
+    return "treemap-widget";
   }
 
   public String getTitle() {

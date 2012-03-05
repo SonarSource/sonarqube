@@ -19,22 +19,17 @@
  */
 package org.sonar.core.review;
 
-import static org.hamcrest.Matchers.anyOf;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-
-import java.util.List;
-
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.DaoTestCase;
 
-import com.google.common.collect.Lists;
+import java.util.Collection;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 
 public class ReviewDaoTest extends DaoTestCase {
 
@@ -46,144 +41,62 @@ public class ReviewDaoTest extends DaoTestCase {
   }
 
   @Test
-  public void shouldSelectById() {
+  public void shouldSelectOpenByResourceId() {
     setupData("shared");
 
-    ReviewDto reviewDto = dao.selectById(100L);
-    assertThat(reviewDto.getId(), is(100L));
-    assertThat(reviewDto.getStatus(), is("OPEN"));
-    assertThat(reviewDto.getResolution(), is(nullValue()));
-    assertThat(reviewDto.getProjectId(), is(20));
-    assertThat(reviewDto.getViolationPermanentId(), is(1));
-    assertThat(reviewDto.getSeverity(), is("BLOCKER"));
-    assertThat(reviewDto.getUserId(), is(300));
-    assertThat(reviewDto.getResourceId(), is(400));
-    assertThat(reviewDto.getRuleId(), is(500));
-    assertThat(reviewDto.getManualViolation(), is(true));
+    // only a single review is open on this resource
+    Collection<ReviewDto> reviews = dao.selectOpenByResourceId(400L);
+    assertThat(reviews.size(), is(1));
+    ReviewDto review = reviews.iterator().next();
+    assertThat(review.getId(), is(100L));
+    assertThat(review.getStatus(), is("OPEN"));
+    assertThat(review.getResolution(), is(nullValue()));
+    assertThat(review.getProjectId(), is(20));
+    assertThat(review.getViolationPermanentId(), is(1));
+    assertThat(review.getSeverity(), is("BLOCKER"));
+    assertThat(review.getUserId(), is(300));
+    assertThat(review.getResourceId(), is(400));
+    assertThat(review.getRuleId(), is(500));
+    assertThat(review.getManualViolation(), is(true));
+    assertThat(review.getActionPlanId(), is(1));
   }
 
   @Test
-  public void shouldReturnNullIfIdNotFound() {
+  public void shouldReturnEmptyCollectionIfResourceNotFound() {
     setupData("shared");
-
-    assertNull(dao.selectById(12345L));
+    assertThat(dao.selectOpenByResourceId(123456789L).isEmpty(), is(true));
   }
 
   @Test
-  public void shouldSelectByQuery() {
+  public void shouldFilterResults() {
     setupData("shared");
+    Collection<ReviewDto> reviews = dao.selectOpenByResourceId(401L,
+        ReviewPredicates.status(ReviewDto.STATUS_REOPENED));
 
-    List<ReviewDto> reviewDtos = dao.selectByQuery(ReviewQuery.create().setResourceId(400));
-    assertThat(reviewDtos.size(), is(2));
-    for (ReviewDto reviewDto : reviewDtos) {
-      assertThat(reviewDto.getId(), anyOf(is(100L), is(101L)));
-      assertThat(reviewDto.getResourceId(), is(400));
-    }
+    assertThat(reviews.size(), is(1));
+    ReviewDto review = reviews.iterator().next();
+    assertThat(review.getId(), is(103L));
+    assertThat(review.getStatus(), is(ReviewDto.STATUS_REOPENED));
   }
 
   @Test
-  public void shouldSelectByQueryWithStatuses() {
-    setupData("shared");
+  public void update() {
+    setupData("update");
+    Collection<ReviewDto> reviews = dao.selectOpenByResourceId(400L);
+    ReviewDto review = reviews.iterator().next();
+    review.setLine(1000);
+    review.setResolution("NEW_RESOLUTION");
+    review.setStatus("NEW_STATUS");
+    review.setSeverity("NEW_SEV");
+    review.setAssigneeId(1001);
+    review.setManualSeverity(true);
+    review.setManualViolation(false);
+    review.setTitle("NEW_TITLE");
+    review.setCreatedAt(DateUtils.parseDate("2012-05-18"));
+    review.setUpdatedAt(DateUtils.parseDate("2012-07-01"));
 
-    List<ReviewDto> reviewDtos = dao.selectByQuery(ReviewQuery.create().addStatus(ReviewDto.STATUS_OPEN)
-        .addStatus(ReviewDto.STATUS_REOPENED));
-    assertThat(reviewDtos.size(), is(3));
-    for (ReviewDto reviewDto : reviewDtos) {
-      assertThat(reviewDto.getId(), anyOf(is(100L), is(102L), is(103L)));
-    }
-  }
-
-  @Test
-  public void shouldSelectByQueryWithResolutions() {
-    setupData("shared");
-
-    List<ReviewDto> reviewDtos = dao.selectByQuery(ReviewQuery.create().addResolution(ReviewDto.RESOLUTION_FALSE_POSITIVE)
-        .addResolution(ReviewDto.RESOLUTION_FIXED));
-    assertThat(reviewDtos.size(), is(2));
-    for (ReviewDto reviewDto : reviewDtos) {
-      assertThat(reviewDto.getId(), anyOf(is(101L), is(104L)));
-    }
-  }
-
-  @Test
-  public void shouldSelectByQueryWithNoAssignee() {
-    setupData("shared");
-
-    List<ReviewDto> reviewDtos = dao.selectByQuery(ReviewQuery.create().setNoAssignee());
-    assertThat(reviewDtos.size(), is(2));
-    for (ReviewDto reviewDto : reviewDtos) {
-      assertThat(reviewDto.getId(), anyOf(is(101L), is(103L)));
-    }
-  }
-
-  @Test
-  public void shouldSelectByQueryWithPlanned() {
-    setupData("shared");
-
-    List<ReviewDto> reviewDtos = dao.selectByQuery(ReviewQuery.create().setPlanned());
-    assertThat(reviewDtos.size(), is(2));
-    for (ReviewDto reviewDto : reviewDtos) {
-      assertThat(reviewDto.getId(), anyOf(is(100L), is(101L)));
-    }
-  }
-
-  @Test
-  public void shouldCountByQuery() {
-    setupData("shared");
-
-    Integer count = dao.countByQuery(ReviewQuery.create().addStatus(ReviewDto.STATUS_OPEN)
-        .addStatus(ReviewDto.STATUS_REOPENED));
-    assertThat(count, is(3));
-  }
-
-  @Test
-  public void shouldSelectByQueryWithBooleanCriteria() {
-    setupData("shared");
-
-    List<ReviewDto> reviewDtos = dao.selectByQuery(ReviewQuery.create().setResourceId(400).setManualViolation(true));
-    assertThat(reviewDtos.size(), is(1));
-    assertThat(reviewDtos.get(0).getId(), is(100L));
-    assertThat(reviewDtos.get(0).getManualViolation(), is(Boolean.TRUE));
-  }
-
-  /**
-   * Oracle limitation of IN statements....
-   */
-  @Test
-  public void shouldPartitionFiltersOnPermanentId() {
-    setupData("shouldPartitionFiltersOnPermanentId");
-    List<Integer> permanentIds = Lists.newArrayList();
-    for (int index = 1; index < 3500; index++) {
-      permanentIds.add(index);
-    }
-    ReviewQuery query = ReviewQuery.create().setViolationPermanentIds(permanentIds);
-
-    // test select query
-    List<ReviewDto> reviewDtos = dao.selectByQuery(query);
-
-    assertThat(reviewDtos.size(), is(3));
-    assertThat(reviewDtos, hasItem(new ReviewMatcherByViolationPermanentId(100)));
-    assertThat(reviewDtos, hasItem(new ReviewMatcherByViolationPermanentId(1300)));
-    assertThat(reviewDtos, hasItem(new ReviewMatcherByViolationPermanentId(3200)));
+    dao.update(reviews);
     
-    // and test count query
-    assertThat(dao.countByQuery(query), is(3));
-  }
-
-  static class ReviewMatcherByViolationPermanentId extends BaseMatcher<ReviewDto> {
-    Integer expectedId;
-
-    ReviewMatcherByViolationPermanentId(Integer expectedId) {
-      this.expectedId = expectedId;
-    }
-
-    public boolean matches(Object o) {
-      ReviewDto reviewDto = (ReviewDto) o;
-      return expectedId.equals(reviewDto.getViolationPermanentId());
-    }
-
-    public void describeTo(Description description) {
-      description.appendText("violationPermanentId").appendValue(expectedId);
-    }
+    checkTables("update", "reviews");
   }
 }

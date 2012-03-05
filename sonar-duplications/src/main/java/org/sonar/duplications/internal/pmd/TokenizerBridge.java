@@ -37,16 +37,14 @@ import java.util.List;
  */
 public class TokenizerBridge {
 
-  private static final int BLOCK_SIZE = 10;
-
   private final Tokenizer tokenizer;
   private final String encoding;
   private final PmdBlockChunker blockBuilder;
 
-  public TokenizerBridge(Tokenizer tokenizer, String encoding) {
+  public TokenizerBridge(Tokenizer tokenizer, String encoding, int blockSize) {
     this.tokenizer = tokenizer;
     this.encoding = encoding;
-    this.blockBuilder = new PmdBlockChunker(BLOCK_SIZE);
+    this.blockBuilder = new PmdBlockChunker(blockSize);
   }
 
   // TODO remove from here

@@ -22,6 +22,7 @@ package org.sonar.core.review;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import javax.annotation.Nullable;
 import java.util.Date;
 
 /**
@@ -53,6 +54,7 @@ public final class ReviewDto {
   private Integer ruleId;
   private Boolean manualViolation;
   private Boolean manualSeverity;
+  private Integer actionPlanId;
 
   public Long getId() {
     return id;
@@ -76,7 +78,7 @@ public final class ReviewDto {
     return assigneeId;
   }
 
-  public ReviewDto setAssigneeId(Integer assigneeId) {
+  public ReviewDto setAssigneeId(@Nullable Integer assigneeId) {
     this.assigneeId = assigneeId;
     return this;
   }
@@ -94,7 +96,7 @@ public final class ReviewDto {
     return status;
   }
 
-  public ReviewDto setStatus(String status) {
+  public ReviewDto setStatus(@Nullable String status) {
     this.status = status;
     return this;
   }
@@ -103,7 +105,7 @@ public final class ReviewDto {
     return resolution;
   }
 
-  public ReviewDto setResolution(String resolution) {
+  public ReviewDto setResolution(@Nullable String resolution) {
     this.resolution = resolution;
     return this;
   }
@@ -139,7 +141,7 @@ public final class ReviewDto {
     return line;
   }
 
-  public ReviewDto setLine(Integer line) {
+  public ReviewDto setLine(@Nullable Integer line) {
     this.line = line;
     return this;
   }
@@ -166,7 +168,7 @@ public final class ReviewDto {
     return severity;
   }
 
-  public ReviewDto setSeverity(String severity) {
+  public ReviewDto setSeverity(@Nullable String severity) {
     this.severity = severity;
     return this;
   }
@@ -184,7 +186,11 @@ public final class ReviewDto {
     return manualViolation;
   }
 
-  public ReviewDto setManualViolation(Boolean b) {
+  public boolean isManualViolation() {
+    return manualViolation == Boolean.TRUE;
+  }
+
+  public ReviewDto setManualViolation(@Nullable Boolean b) {
     this.manualViolation = b;
     return this;
   }
@@ -193,13 +199,44 @@ public final class ReviewDto {
     return manualSeverity;
   }
 
-  public ReviewDto setManualSeverity(Boolean b) {
+  public ReviewDto setManualSeverity(@Nullable Boolean b) {
     this.manualSeverity = b;
+    return this;
+  }
+
+  public boolean isManualSeverity() {
+    return manualSeverity == Boolean.TRUE;
+  }
+
+  public Integer getActionPlanId() {
+    return actionPlanId;
+  }
+
+  public ReviewDto setActionPlanId(@Nullable Integer i) {
+    this.actionPlanId = i;
     return this;
   }
 
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    ReviewDto reviewDto = (ReviewDto) o;
+    return !(id != null ? !id.equals(reviewDto.id) : reviewDto.id != null);
+  }
+
+  @Override
+  public int hashCode() {
+    return id != null ? id.hashCode() : 0;
   }
 }

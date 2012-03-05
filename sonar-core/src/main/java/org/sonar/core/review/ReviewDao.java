@@ -19,63 +19,78 @@
  */
 package org.sonar.core.review;
 
-import com.google.common.collect.Lists;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.collect.Collections2;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 
-import java.util.List;
+import javax.annotation.Nullable;
+import java.util.Collection;
 
 public class ReviewDao implements BatchComponent, ServerComponent {
   private final MyBatis mybatis;
+  private final Cache<Long, Collection<ReviewDto>> cacheByResource;
 
   public ReviewDao(MyBatis mybatis) {
     this.mybatis = mybatis;
+    this.cacheByResource = CacheBuilder.newBuilder()
+        .weakValues()
+        .build(new CacheLoader<Long, Collection<ReviewDto>>() {
+          @Override
+          public Collection<ReviewDto> load(Long resourceId) {
+            return doSelectOpenByResourceId(resourceId);
+          }
+        });
   }
 
-  public ReviewDto selectById(long id) {
+  public Collection<ReviewDto> selectOpenByResourceId(long resourceId, @Nullable Predicate<ReviewDto>... predicates) {
+    Collection<ReviewDto> reviews = cacheByResource.getUnchecked(resourceId);
+    if (!reviews.isEmpty() && predicates != null) {
+      reviews = Collections2.filter(reviews, Predicates.and(predicates));
+    }
+    return reviews;
+  }
+
+  public Collection<ReviewDto> selectOnDeletedResources(long rootProjectId, long rootSnapshotId) {
     SqlSession session = mybatis.openSession();
     try {
       ReviewMapper mapper = session.getMapper(ReviewMapper.class);
-      return mapper.selectById(id);
+      return mapper.selectOnDeletedResources(rootProjectId, rootSnapshotId);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public List<ReviewDto> selectByQuery(ReviewQuery query) {
+  private Collection<ReviewDto> doSelectOpenByResourceId(long resourceId) {
     SqlSession session = mybatis.openSession();
     try {
       ReviewMapper mapper = session.getMapper(ReviewMapper.class);
-      List<ReviewDto> result;
-      if (query.needToPartitionQuery()) {
-        result = Lists.newArrayList();
-        for (ReviewQuery partitionedQuery : query.partition()) {
-          result.addAll(mapper.selectByQuery(partitionedQuery));
-        }
-      } else {
-        result = mapper.selectByQuery(query);
-      }
-      return result;
+      return mapper.selectByResourceId(resourceId);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public Integer countByQuery(ReviewQuery query) {
-    SqlSession session = mybatis.openSession();
+
+  public ReviewDao update(Collection<ReviewDto> reviews) {
+    Preconditions.checkNotNull(reviews);
+
+    SqlSession session = mybatis.openBatchSession();
     try {
       ReviewMapper mapper = session.getMapper(ReviewMapper.class);
-      Integer result = 0;
-      if (query.needToPartitionQuery()) {
-        for (ReviewQuery partitionedQuery : query.partition()) {
-          result += mapper.countByQuery(partitionedQuery);
-        }
-      } else {
-        result = mapper.countByQuery(query);
+      for (ReviewDto review : reviews) {
+        mapper.update(review);
       }
-      return result;
+      session.commit();
+      return this;
+
     } finally {
       MyBatis.closeQuietly(session);
     }

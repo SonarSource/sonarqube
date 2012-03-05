@@ -49,7 +49,7 @@ public class TokenizerBridgeTest {
         tokenEntries.add(TokenEntry.getEOF());
       }
     };
-    bridge = new TokenizerBridge(tokenizer, "UTF-8");
+    bridge = new TokenizerBridge(tokenizer, "UTF-8", 10);
   }
 
   @Test

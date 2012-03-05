@@ -22,7 +22,7 @@
 
 <script type="text/javascript">
   function showMostViolatedRules<%= widget.id -%>(severity) {
-    divs = $$('#widget-<%= widget.id-%> div.hotspot');
+    divs = $$('#block_<%= widget.id-%> div.hotspot');
     for (i = 0; i < divs.size(); i++) {
       divs[i].hide();
     }
@@ -49,7 +49,7 @@
 </div>
 
 
-<div id="widget-<%= widget.id -%>">
+<div>
   <%
      measures_by_severity.each do |severity, measures|
        if measures.empty?

@@ -41,7 +41,7 @@
 
 <% form_tag({:action => 'index'}, {:method => 'get'}) do %>
     <% hidden_field_tag "id", @id %>
-   <table class="with-padding" id="search_table">
+   <table class="table" id="search_table">
      <tr>
        <td class="left" valign="top" width="1%" nowrap>
          <span class="note"><%= message('name') -%>/<%= message('key') -%></span><br/>

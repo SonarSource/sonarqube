@@ -19,13 +19,10 @@
  */
 package org.sonar.plugins.core.sensors;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.collect.Maps;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
@@ -39,17 +36,16 @@ import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.core.review.ReviewDao;
 import org.sonar.core.review.ReviewDto;
-import org.sonar.core.review.ReviewQuery;
-import org.sonar.plugins.core.timemachine.ViolationTrackingDecorator;
+import org.sonar.core.review.ReviewPredicates;
 
-import com.google.common.collect.Maps;
+import java.util.*;
 
 /**
  * Decorator that creates measures related to reviews.
  *
  * @since 2.14
  */
-@DependsUpon(CloseReviewsDecorator.REVIEW_LIFECYCLE_BARRIER)
+@DependsUpon(ReviewWorkflowDecorator.END_OF_REVIEWS_UPDATES)
 public class ReviewsMeasuresDecorator implements Decorator {
 
   private ReviewDao reviewDao;
@@ -64,61 +60,49 @@ public class ReviewsMeasuresDecorator implements Decorator {
     return project.isLatestAnalysis();
   }
 
-  @SuppressWarnings("rawtypes")
-  @DependsUpon
-  public Class dependsUponViolationTracking() {
-    // permanent ids of violations have been updated, so we can link them with reviews
-    return ViolationTrackingDecorator.class;
+  @DependedUpon
+  public Collection<Metric> generatesMetrics() {
+    return Arrays.asList(CoreMetrics.ACTIVE_REVIEWS, CoreMetrics.UNASSIGNED_REVIEWS, CoreMetrics.UNPLANNED_REVIEWS, CoreMetrics.FALSE_POSITIVE_REVIEWS,
+        CoreMetrics.UNREVIEWED_VIOLATIONS, CoreMetrics.NEW_UNREVIEWED_VIOLATIONS);
   }
 
   @SuppressWarnings({"rawtypes"})
   public void decorate(Resource resource, DecoratorContext context) {
-    if (!ResourceUtils.isPersistable(resource) || ResourceUtils.isUnitTestClass(resource)) {
+    if (!ResourceUtils.isPersistable(resource) || ResourceUtils.isUnitTestClass(resource) || resource.getId()==null) {
       return;
     }
 
     // Load open reviews (used for counting and also for tracking new violations without a review)
-    ReviewQuery openReviewQuery = ReviewQuery.create().setResourceId(resource.getId()).addStatus(ReviewDto.STATUS_OPEN)
-        .addStatus(ReviewDto.STATUS_REOPENED);
-    List<ReviewDto> openReviews = reviewDao.selectByQuery(openReviewQuery);
-    Map<Integer, ReviewDto> openReviewsByViolationPermanentIds = Maps.newHashMap();
-    for (ReviewDto reviewDto : openReviews) {
-      openReviewsByViolationPermanentIds.put(reviewDto.getViolationPermanentId(), reviewDto);
+    Collection<ReviewDto> openReviews = reviewDao.selectOpenByResourceId(resource.getId(),
+        ReviewPredicates.status(ReviewDto.STATUS_OPEN, ReviewDto.STATUS_REOPENED));
+
+    Map<Integer, ReviewDto> openReviewsByViolationPermanentId = Maps.newHashMap();
+    int countUnassigned = 0;
+    int unplanned = 0;
+    for (ReviewDto openReview : openReviews) {
+      openReviewsByViolationPermanentId.put(openReview.getViolationPermanentId(), openReview);
+      if (openReview.getAssigneeId() == null) {
+        countUnassigned++;
+      }
+      if (openReview.getActionPlanId() == null) {
+        unplanned++;
+      }
     }
 
-    // Count open reviews
-    Double resourceOpenReviewsCount = (double) openReviewsByViolationPermanentIds.size();
-    Double totalOpenReviewsCount = resourceOpenReviewsCount + getChildrenSum(resource, context, CoreMetrics.ACTIVE_REVIEWS);
-    context.saveMeasure(CoreMetrics.ACTIVE_REVIEWS, totalOpenReviewsCount);
+    int totalOpenReviews = openReviews.size() + sumChildren(resource, context, CoreMetrics.ACTIVE_REVIEWS);
+    context.saveMeasure(CoreMetrics.ACTIVE_REVIEWS, (double) totalOpenReviews);
+    context.saveMeasure(CoreMetrics.UNASSIGNED_REVIEWS, (double) (countUnassigned + sumChildren(resource, context, CoreMetrics.UNASSIGNED_REVIEWS)));
+    context.saveMeasure(CoreMetrics.UNPLANNED_REVIEWS, (double) (unplanned + sumChildren(resource, context, CoreMetrics.UNPLANNED_REVIEWS)));
 
-    // Count unassigned reviews
-    ReviewQuery unassignedReviewQuery = ReviewQuery.copy(openReviewQuery).setNoAssignee();
-    Double ressourceUnassignedReviewsCount = reviewDao.countByQuery(unassignedReviewQuery).doubleValue();
-    Double totalUnassignedReviewsCount = ressourceUnassignedReviewsCount
-      + getChildrenSum(resource, context, CoreMetrics.UNASSIGNED_REVIEWS);
-    context.saveMeasure(CoreMetrics.UNASSIGNED_REVIEWS, totalUnassignedReviewsCount);
+    Collection<ReviewDto> falsePositives = reviewDao.selectOpenByResourceId(resource.getId(),
+        ReviewPredicates.resolution(ReviewDto.RESOLUTION_FALSE_POSITIVE));
 
-    // Count unplanned reviews
-    ReviewQuery plannedReviewQuery = ReviewQuery.copy(openReviewQuery).setPlanned();
-    Double resourcePlannedReviewsCount = reviewDao.countByQuery(plannedReviewQuery).doubleValue();
-    Double childrenUnplannedReviewsCount = getChildrenSum(resource, context, CoreMetrics.UNPLANNED_REVIEWS);
-    context.saveMeasure(CoreMetrics.UNPLANNED_REVIEWS, (resourceOpenReviewsCount - resourcePlannedReviewsCount)
-      + childrenUnplannedReviewsCount);
+    context.saveMeasure(CoreMetrics.FALSE_POSITIVE_REVIEWS, (double) (falsePositives.size() + sumChildren(resource, context, CoreMetrics.FALSE_POSITIVE_REVIEWS)));
 
-    // Count false positive reviews
-    ReviewQuery falsePositiveReviewQuery = ReviewQuery.create().setResourceId(resource.getId())
-        .addResolution(ReviewDto.RESOLUTION_FALSE_POSITIVE);
-    Double resourceFalsePositiveReviewsCount = reviewDao.countByQuery(falsePositiveReviewQuery).doubleValue();
-    Double totalFalsePositiveReviewsCount = resourceFalsePositiveReviewsCount
-      + getChildrenSum(resource, context, CoreMetrics.FALSE_POSITIVE_REVIEWS);
-    context.saveMeasure(CoreMetrics.FALSE_POSITIVE_REVIEWS, totalFalsePositiveReviewsCount);
-
-    // Count violations without a review
     Double violationsCount = MeasureUtils.getValue(context.getMeasure(CoreMetrics.VIOLATIONS), 0.0);
-    context.saveMeasure(CoreMetrics.UNREVIEWED_VIOLATIONS, violationsCount - totalOpenReviewsCount);
+    context.saveMeasure(CoreMetrics.UNREVIEWED_VIOLATIONS, violationsCount - totalOpenReviews);
 
-    // And finally track new violations without a review
-    trackNewViolationsWithoutReview(context, openReviewsByViolationPermanentIds);
+    trackNewViolationsWithoutReview(context, openReviewsByViolationPermanentId);
   }
 
   protected void trackNewViolationsWithoutReview(DecoratorContext context, Map<Integer, ReviewDto> openReviewsByViolationPermanentIds) {
@@ -135,7 +119,7 @@ public class ReviewsMeasuresDecorator implements Decorator {
   }
 
   protected int countNewUnreviewedViolationsForSnapshot(PastSnapshot pastSnapshot, List<Violation> violations,
-      Map<Integer, ReviewDto> openReviewsByViolationPermanentIds) {
+                                                        Map<Integer, ReviewDto> openReviewsByViolationPermanentIds) {
     Date targetDate = pastSnapshot.getTargetDate();
     int newViolationCount = 0;
     int newReviewedViolationCount = 0;
@@ -150,10 +134,10 @@ public class ReviewsMeasuresDecorator implements Decorator {
     return newViolationCount - newReviewedViolationCount;
   }
 
-  private Double getChildrenSum(Resource<?> resource, DecoratorContext context, Metric metric) {
-    Double sum = 0d;
+  private int sumChildren(Resource<?> resource, DecoratorContext context, Metric metric) {
+    int sum = 0;
     if (!ResourceUtils.isFile(resource)) {
-      sum = MeasureUtils.sum(true, context.getChildrenMeasures(metric));
+      sum = MeasureUtils.sum(true, context.getChildrenMeasures(metric)).intValue();
     }
     return sum;
   }

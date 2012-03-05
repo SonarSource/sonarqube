@@ -17,17 +17,21 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.review;
+package org.sonar.plugins.cpd;
 
-import org.apache.ibatis.annotations.Param;
+import org.junit.Test;
 
-import java.util.List;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
-/**
- * @since 2.13
- */
-public interface ReviewMapper {
-  List<ReviewDto> selectByResourceId(long resourceId);
-  void update(ReviewDto review);
-  List<ReviewDto> selectOnDeletedResources(@Param("rootProjectId")long rootProjectId, @Param("rootSnapshotId") long rootSnapshotId);
+public class SonarBridgeEngineTest {
+
+  @Test
+  public void shouldReturnDefaultBlockSize() {
+    assertThat(SonarBridgeEngine.getDefaultBlockSize("cobol"), is(30));
+    assertThat(SonarBridgeEngine.getDefaultBlockSize("natur"), is(20));
+    assertThat(SonarBridgeEngine.getDefaultBlockSize("abap"), is(20));
+    assertThat(SonarBridgeEngine.getDefaultBlockSize("other"), is(10));
+  }
+
 }

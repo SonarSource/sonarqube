@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.core.sensors;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.sonar.api.batch.*;
 import org.sonar.api.resources.Project;
@@ -29,12 +28,12 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
 import org.sonar.core.review.ReviewDao;
 import org.sonar.core.review.ReviewDto;
-import org.sonar.core.review.ReviewQuery;
+import org.sonar.core.review.ReviewPredicates;
 import org.sonar.plugins.core.timemachine.ViolationTrackingDecorator;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Severity of violations can be explicitely changed by end-users. In this case the severity is fixed and must not be changed
@@ -63,27 +62,23 @@ public class ViolationSeverityUpdater implements Decorator {
   }
 
   public void decorate(Resource resource, DecoratorContext context) {
-    if (!ResourceUtils.isPersistable(resource)) {
+    if (resource.getId()==null) {
       return;
     }
     Map<Integer, Violation> violationMap = filterViolationsPerPermanent(context.getViolations());
     if (!violationMap.isEmpty()) {
-      Set<Integer> permanentIds = violationMap.keySet();
-      List<ReviewDto> reviewDtos = selectReviewsWithManualSeverity(permanentIds);
-      for (ReviewDto reviewDto : reviewDtos) {
-        Violation violation = violationMap.get(reviewDto.getViolationPermanentId());
+      Collection<ReviewDto> reviews = selectReviewsWithManualSeverity(resource.getId());
+      for (ReviewDto review : reviews) {
+        Violation violation = violationMap.get(review.getViolationPermanentId());
         if (violation != null) {
-          violation.setSeverity(RulePriority.valueOf(reviewDto.getSeverity()));
+          violation.setSeverity(RulePriority.valueOf(review.getSeverity()));
         }
       }
     }
   }
 
-  private List<ReviewDto> selectReviewsWithManualSeverity(Set<Integer> permanentIds) {
-    ReviewQuery query = ReviewQuery.create()
-      .setManualSeverity(Boolean.TRUE)
-      .setViolationPermanentIds(Lists.newArrayList(permanentIds));
-    return reviewDao.selectByQuery(query);
+  private Collection<ReviewDto> selectReviewsWithManualSeverity(long resourceId) {
+    return reviewDao.selectOpenByResourceId(resourceId, ReviewPredicates.manualSeverity());
   }
 
   private Map<Integer, Violation> filterViolationsPerPermanent(List<Violation> violations) {
