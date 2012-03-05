@@ -72,7 +72,7 @@
     select id from projects where root_id=#{id} and scope='PRJ'
   </select>
 
-  <select id="selectResourceTreeIdsByRootId" resultType="long" parameterType="long">
+  <select id="selectResourceIdsByRootId" resultType="long" parameterType="long">
     select id from projects where root_id=#{id} or id=#{id}
   </select>
 

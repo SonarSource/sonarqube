@@ -29,6 +29,7 @@ import org.sonar.core.persistence.DaoTestCase;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
@@ -54,7 +55,7 @@ public class PurgeDaoTest extends DaoTestCase {
     SqlSession session = getMyBatis().openSession();
     try {
       // this method does not commit and close the session
-      dao.deleteSnapshots(PurgeSnapshotQuery.create().setId(5L), session.getMapper(PurgeMapper.class));
+      dao.deleteSnapshots(PurgeSnapshotQuery.create().setId(5L), session, session.getMapper(PurgeMapper.class));
       session.commit();
 
     } finally {
@@ -80,7 +81,7 @@ public class PurgeDaoTest extends DaoTestCase {
 
     SqlSession session = getMyBatis().openSession();
     try {
-      dao.purgeSnapshots(PurgeSnapshotQuery.create().setId(1L), session.getMapper(PurgeMapper.class));
+      dao.purgeSnapshots(PurgeSnapshotQuery.create().setId(1L), session, session.getMapper(PurgeMapper.class));
 
       // the above method does not commit and close the session
       session.commit();
@@ -98,9 +99,9 @@ public class PurgeDaoTest extends DaoTestCase {
 
     SqlSession session = getMyBatis().openSession();
     try {
-      dao.purgeSnapshots(PurgeSnapshotQuery.create().setId(1L), session.getMapper(PurgeMapper.class));
+      dao.purgeSnapshots(PurgeSnapshotQuery.create().setId(1L), session, session.getMapper(PurgeMapper.class));
 
-// the above method does not commit and close the session
+      // the above method does not commit and close the session
       session.commit();
 
     } finally {
@@ -171,7 +172,7 @@ public class PurgeDaoTest extends DaoTestCase {
     setupData("shouldDeleteResource");
     SqlSession session = getMyBatis().openSession();
     try {
-      dao.deleteResource(1L, session.getMapper(PurgeMapper.class), session.getMapper(PurgeVendorMapper.class));
+      dao.deleteResources(Arrays.asList(1L), session, session.getMapper(PurgeMapper.class), session.getMapper(PurgeVendorMapper.class));
 
       // the above method does not commit and close the session
       session.commit();
