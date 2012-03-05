@@ -20,6 +20,7 @@
 package org.sonar.core.purge;
 
 public final class PurgeSnapshotQuery {
+  private Long id;
   private Long rootProjectId;
   private Long rootSnapshotId;
   private Long resourceId;
@@ -35,6 +36,15 @@ public final class PurgeSnapshotQuery {
 
   public static PurgeSnapshotQuery create() {
     return new PurgeSnapshotQuery();
+  }
+
+  public Long getId() {
+    return id;
+  }
+
+  public PurgeSnapshotQuery setId(Long l) {
+    this.id = l;
+    return this;
   }
 
   public Long getRootProjectId() {

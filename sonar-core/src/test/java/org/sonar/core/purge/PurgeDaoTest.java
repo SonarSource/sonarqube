@@ -54,14 +54,21 @@ public class PurgeDaoTest extends DaoTestCase {
     SqlSession session = getMyBatis().openSession();
     try {
       // this method does not commit and close the session
-      dao.deleteSnapshot(5L, session.getMapper(PurgeMapper.class));
+      dao.deleteSnapshots(PurgeSnapshotQuery.create().setId(5L), session.getMapper(PurgeMapper.class));
       session.commit();
 
     } finally {
       MyBatis.closeQuietly(session);
     }
     checkTables("shouldDeleteSnapshot",
-      "snapshots", "project_measures", "measure_data", "rule_failures", "snapshot_sources", "duplications_index", "events", "dependencies");
+        "snapshots", "project_measures", "measure_data", "rule_failures", "snapshot_sources", "duplications_index", "events", "dependencies");
+  }
+
+  @Test
+  public void shouldDeleteAbortedBuilds() {
+    setupData("shouldDeleteAbortedBuilds");
+    dao.purge(1L, new String[0]);
+    checkTables("shouldDeleteAbortedBuilds", "snapshots");
   }
 
   /**
@@ -73,15 +80,16 @@ public class PurgeDaoTest extends DaoTestCase {
 
     SqlSession session = getMyBatis().openSession();
     try {
-      // this method does not commit and close the session
-      dao.purgeSnapshot(1L, session.getMapper(PurgeMapper.class));
+      dao.purgeSnapshots(PurgeSnapshotQuery.create().setId(1L), session.getMapper(PurgeMapper.class));
+
+      // the above method does not commit and close the session
       session.commit();
 
     } finally {
       MyBatis.closeQuietly(session);
     }
     checkTables("shouldPurgeSnapshot",
-      "snapshots", "project_measures", "measure_data", "rule_failures", "snapshot_sources", "duplications_index", "events", "dependencies", "reviews");
+        "snapshots", "project_measures", "measure_data", "rule_failures", "snapshot_sources", "duplications_index", "events", "dependencies", "reviews");
   }
 
   @Test
@@ -90,8 +98,9 @@ public class PurgeDaoTest extends DaoTestCase {
 
     SqlSession session = getMyBatis().openSession();
     try {
-      // this method does not commit and close the session
-      dao.purgeSnapshot(1L, session.getMapper(PurgeMapper.class));
+      dao.purgeSnapshots(PurgeSnapshotQuery.create().setId(1L), session.getMapper(PurgeMapper.class));
+
+// the above method does not commit and close the session
       session.commit();
 
     } finally {
@@ -106,8 +115,9 @@ public class PurgeDaoTest extends DaoTestCase {
 
     SqlSession session = getMyBatis().openSession();
     try {
-      // this method does not commit and close the session
       dao.disableResource(1L, session.getMapper(PurgeMapper.class));
+
+      // the above method does not commit and close the session
       session.commit();
 
     } finally {
@@ -161,8 +171,9 @@ public class PurgeDaoTest extends DaoTestCase {
     setupData("shouldDeleteResource");
     SqlSession session = getMyBatis().openSession();
     try {
-      // this method does not commit and close the session
-      dao.deleteResource(1L, session, session.getMapper(PurgeMapper.class), session.getMapper(PurgeVendorMapper.class));
+      dao.deleteResource(1L, session.getMapper(PurgeMapper.class), session.getMapper(PurgeVendorMapper.class));
+
+      // the above method does not commit and close the session
       session.commit();
 
     } finally {
@@ -196,9 +207,9 @@ public class PurgeDaoTest extends DaoTestCase {
 
     public void describeTo(Description description) {
       description
-        .appendText("snapshotId").appendValue(snapshotId)
-        .appendText("isLast").appendValue(isLast)
-        .appendText("hasEvents").appendValue(hasEvents);
+          .appendText("snapshotId").appendValue(snapshotId)
+          .appendText("isLast").appendValue(isLast)
+          .appendText("hasEvents").appendValue(hasEvents);
     }
   }
 }

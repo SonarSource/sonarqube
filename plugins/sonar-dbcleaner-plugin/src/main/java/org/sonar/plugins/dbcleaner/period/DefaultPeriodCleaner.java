@@ -64,6 +64,7 @@ public class DefaultPeriodCleaner implements PeriodCleaner {
     for (PurgeableSnapshotDto snapshot : snapshots) {
       LOG.info("<- Delete snapshot: " + DateUtils.formatDateTime(snapshot.getDate()) + " [" + snapshot.getSnapshotId() + "]");
       purgeDao.deleteSnapshots(PurgeSnapshotQuery.create().setRootSnapshotId(snapshot.getSnapshotId()));
+      purgeDao.deleteSnapshots(PurgeSnapshotQuery.create().setId(snapshot.getSnapshotId()));
     }
   }
 

@@ -34,6 +34,9 @@ import org.sonar.core.resource.ResourceDto;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * @since 2.14
+ */
 public class PurgeDao {
   private final MyBatis mybatis;
   private final ResourceDao resourceDao;
@@ -50,10 +53,10 @@ public class PurgeDao {
     try {
       List<ResourceDto> projects = getProjects(rootResourceId, session);
       for (ResourceDto project : projects) {
+        LOG.info("-> Clean " + project.getLongName() + " [id=" + project.getId() + "]");
         deleteAbortedBuilds(project, session, purgeMapper);
         purge(project, scopesWithoutHistoricalData, session, purgeMapper);
       }
-
       for (ResourceDto project : projects) {
         disableOrphanResources(project, session, purgeMapper);
       }
@@ -65,12 +68,13 @@ public class PurgeDao {
 
   private void deleteAbortedBuilds(ResourceDto project, SqlSession session, PurgeMapper purgeMapper) {
     if (hasAbortedBuilds(project.getId(), purgeMapper)) {
-      LOG.info("<- Deleting aborted builds of " + project.getLongName());
+      LOG.info("<- Delete aborted builds");
       PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
           .setIslast(false)
           .setStatus(new String[]{"U"})
           .setRootProjectId(project.getId());
-      deleteSnapshots(query, session, purgeMapper);
+      deleteSnapshots(query, purgeMapper);
+      session.commit();
     }
   }
 
@@ -87,29 +91,24 @@ public class PurgeDao {
         PurgeSnapshotQuery.create().setResourceId(project.getId()).setIslast(false).setNotPurged(true)
     );
     for (final Long projectSnapshotId : projectSnapshotIds) {
-      // TODO log date
+      LOG.info("<- Clean snapshot " + projectSnapshotId);
       if (!ArrayUtils.isEmpty(scopesWithoutHistoricalData)) {
         PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
             .setIslast(false)
             .setScopes(scopesWithoutHistoricalData)
             .setRootSnapshotId(projectSnapshotId);
-        deleteSnapshots(query, session, purgeMapper);
+        deleteSnapshots(query, purgeMapper);
+        session.commit();
       }
 
       PurgeSnapshotQuery query = PurgeSnapshotQuery.create().setRootSnapshotId(projectSnapshotId).setNotPurged(true);
-      session.select("org.sonar.core.purge.PurgeMapper.selectSnapshotIds", query, new ResultHandler() {
-        public void handleResult(ResultContext resultContext) {
-          Long snapshotId = (Long) resultContext.getResultObject();
-          if (snapshotId != null) {
-            purgeSnapshot(snapshotId, purgeMapper);
-          }
-        }
-      });
+      purgeSnapshots(query, purgeMapper);
+      session.commit();
 
       // must be executed at the end for reentrance
-      purgeSnapshot(projectSnapshotId, purgeMapper);
+      purgeSnapshots(PurgeSnapshotQuery.create().setId(projectSnapshotId).setNotPurged(true), purgeMapper);
+      session.commit();
     }
-    session.commit();
   }
 
   private void disableOrphanResources(final ResourceDto project, final SqlSession session, final PurgeMapper purgeMapper) {
@@ -144,6 +143,7 @@ public class PurgeDao {
     final PurgeVendorMapper vendorMapper = session.getMapper(PurgeVendorMapper.class);
     try {
       deleteProject(rootProjectId, session, mapper, vendorMapper);
+      session.commit();
       return this;
     } finally {
       MyBatis.closeQuietly(session);
@@ -160,22 +160,15 @@ public class PurgeDao {
       public void handleResult(ResultContext context) {
         Long resourceId = (Long) context.getResultObject();
         if (resourceId != null) {
-          deleteResource(resourceId, session, mapper, vendorMapper);
+          deleteResource(resourceId, mapper, vendorMapper);
         }
       }
     });
-    session.commit();
   }
 
-  void deleteResource(final long resourceId, final SqlSession session, final PurgeMapper mapper, final PurgeVendorMapper vendorMapper) {
-    session.select("org.sonar.core.purge.PurgeMapper.selectSnapshotIdsByResource", resourceId, new ResultHandler() {
-      public void handleResult(ResultContext context) {
-        Long snapshotId = (Long) context.getResultObject();
-        if (snapshotId != null) {
-          deleteSnapshot(snapshotId, mapper);
-        }
-      }
-    });
+  void deleteResource(final long resourceId, final PurgeMapper mapper, final PurgeVendorMapper vendorMapper) {
+    deleteSnapshots(PurgeSnapshotQuery.create().setResourceId(resourceId), mapper);
+
     // possible optimization: filter requests according to resource scope
     mapper.deleteResourceLinks(resourceId);
     mapper.deleteResourceProperties(resourceId);
@@ -203,7 +196,7 @@ public class PurgeDao {
     final SqlSession session = mybatis.openBatchSession();
     try {
       final PurgeMapper mapper = session.getMapper(PurgeMapper.class);
-      deleteSnapshots(query, session, mapper);
+      deleteSnapshots(mapper.selectSnapshotIds(query), mapper);
       session.commit();
       return this;
 
@@ -212,15 +205,66 @@ public class PurgeDao {
     }
   }
 
-  private void deleteSnapshots(PurgeSnapshotQuery query, SqlSession session, final PurgeMapper mapper) {
-    session.select("org.sonar.core.purge.PurgeMapper.selectSnapshotIds", query, new ResultHandler() {
-      public void handleResult(ResultContext context) {
-        Long snapshotId = (Long) context.getResultObject();
-        if (snapshotId != null) {
-          deleteSnapshot(snapshotId, mapper);
-        }
-      }
-    });
+  @VisibleForTesting
+  void deleteSnapshots(final PurgeSnapshotQuery query, final PurgeMapper mapper) {
+    deleteSnapshots(mapper.selectSnapshotIds(query), mapper);
+  }
+
+  private void deleteSnapshots(final List<Long> snapshotIds, final PurgeMapper mapper) {
+    for (Long snapshotId : snapshotIds) {
+      mapper.deleteSnapshotDependencies(snapshotId);
+    }
+    for (Long snapshotId : snapshotIds) {
+      mapper.deleteSnapshotDuplications(snapshotId);
+    }
+    for (Long snapshotId : snapshotIds) {
+      mapper.deleteSnapshotEvents(snapshotId);
+    }
+    for (Long snapshotId : snapshotIds) {
+      mapper.deleteSnapshotMeasureData(snapshotId);
+    }
+    for (Long snapshotId : snapshotIds) {
+      mapper.deleteSnapshotMeasures(snapshotId);
+    }
+    for (Long snapshotId : snapshotIds) {
+      mapper.deleteSnapshotSource(snapshotId);
+    }
+    for (Long snapshotId : snapshotIds) {
+      mapper.deleteSnapshotViolations(snapshotId);
+    }
+    for (Long snapshotId : snapshotIds) {
+      mapper.deleteSnapshot(snapshotId);
+    }
+  }
+
+  @VisibleForTesting
+  void purgeSnapshots(final PurgeSnapshotQuery query, final PurgeMapper mapper) {
+    purgeSnapshots(mapper.selectSnapshotIds(query), mapper);
+  }
+
+  private void purgeSnapshots(final List<Long> snapshotIds, final PurgeMapper mapper) {
+    // note that events are not deleted
+    for (Long snapshotId : snapshotIds) {
+      mapper.deleteSnapshotDependencies(snapshotId);
+    }
+    for (Long snapshotId : snapshotIds) {
+      mapper.deleteSnapshotDuplications(snapshotId);
+    }
+    for (Long snapshotId : snapshotIds) {
+      mapper.deleteSnapshotSource(snapshotId);
+    }
+    for (Long snapshotId : snapshotIds) {
+      mapper.deleteSnapshotViolations(snapshotId);
+    }
+    for (Long snapshotId : snapshotIds) {
+      mapper.deleteSnapshotWastedMeasures(snapshotId);
+    }
+    for (Long snapshotId : snapshotIds) {
+      mapper.deleteSnapshotMeasuresOnQualityModelRequirements(snapshotId);
+    }
+    for (Long snapshotId : snapshotIds) {
+      mapper.updatePurgeStatusToOne(snapshotId);
+    }
   }
 
   /**
@@ -233,27 +277,4 @@ public class PurgeDao {
     return projects;
   }
 
-  @VisibleForTesting
-  void purgeSnapshot(long snapshotId, PurgeMapper mapper) {
-    // note that events are not deleted
-    mapper.deleteSnapshotDependencies(snapshotId);
-    mapper.deleteSnapshotDuplications(snapshotId);
-    mapper.deleteSnapshotSource(snapshotId);
-    mapper.deleteSnapshotViolations(snapshotId);
-    mapper.deleteSnapshotWastedMeasures(snapshotId);
-    mapper.deleteSnapshotMeasuresOnQualityModelRequirements(snapshotId);
-    mapper.updatePurgeStatusToOne(snapshotId);
-  }
-
-  @VisibleForTesting
-  void deleteSnapshot(long snapshotId, PurgeMapper mapper) {
-    mapper.deleteSnapshotDependencies(snapshotId);
-    mapper.deleteSnapshotDuplications(snapshotId);
-    mapper.deleteSnapshotEvents(snapshotId);
-    mapper.deleteSnapshotMeasureData(snapshotId);
-    mapper.deleteSnapshotMeasures(snapshotId);
-    mapper.deleteSnapshotSource(snapshotId);
-    mapper.deleteSnapshotViolations(snapshotId);
-    mapper.deleteSnapshot(snapshotId);
-  }
 }

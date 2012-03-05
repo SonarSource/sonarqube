@@ -58,7 +58,6 @@ public class DefaultPurgeTask implements PurgeTask {
   }
 
   public PurgeTask purge(long resourceId) {
-    LOG.info("Clean historical data [id=" + resourceId + "]");
     cleanHistoricalData(resourceId);
     doPurge(resourceId);
     return this;

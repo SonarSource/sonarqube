@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.dbcleaner.period;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Test;
@@ -42,7 +43,7 @@ public class DefaultPeriodCleanerTest {
   public void doClean() {
     PurgeDao dao = mock(PurgeDao.class);
     when(dao.selectPurgeableSnapshots(123L)).thenReturn(Arrays.asList(
-      new PurgeableSnapshotDto().setSnapshotId(999L).setDate(new Date())));
+        new PurgeableSnapshotDto().setSnapshotId(999L).setDate(new Date())));
     Filter filter1 = newLazyFilter();
     Filter filter2 = newLazyFilter();
 
@@ -52,12 +53,26 @@ public class DefaultPeriodCleanerTest {
     verify(filter1).log();
     verify(filter2).log();
     verify(dao, times(2)).deleteSnapshots(argThat(newRootSnapshotQuery()));
+    verify(dao, times(2)).deleteSnapshots(argThat(newSnapshotIdQuery()));
   }
 
   private BaseMatcher<PurgeSnapshotQuery> newRootSnapshotQuery() {
     return new BaseMatcher<PurgeSnapshotQuery>() {
       public boolean matches(Object o) {
-        return ((PurgeSnapshotQuery) o).getRootSnapshotId() == 999L;
+        PurgeSnapshotQuery query = (PurgeSnapshotQuery) o;
+        return ObjectUtils.equals(query.getRootSnapshotId(), 999L);
+      }
+
+      public void describeTo(Description description) {
+      }
+    };
+  }
+
+  private BaseMatcher<PurgeSnapshotQuery> newSnapshotIdQuery() {
+    return new BaseMatcher<PurgeSnapshotQuery>() {
+      public boolean matches(Object o) {
+        PurgeSnapshotQuery query = (PurgeSnapshotQuery) o;
+        return ObjectUtils.equals(query.getId(), 999L);
       }
 
       public void describeTo(Description description) {
