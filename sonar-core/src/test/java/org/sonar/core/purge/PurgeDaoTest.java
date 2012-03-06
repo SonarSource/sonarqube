@@ -29,7 +29,6 @@ import org.sonar.core.persistence.DaoTestCase;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
@@ -45,69 +44,11 @@ public class PurgeDaoTest extends DaoTestCase {
     dao = new PurgeDao(getMyBatis(), new ResourceDao(getMyBatis()));
   }
 
-  /**
-   * Test that all related data is deleted.
-   */
-  @Test
-  public void shouldDeleteSnapshot() {
-    setupData("shouldDeleteSnapshot");
-
-    SqlSession session = getMyBatis().openSession();
-    try {
-      // this method does not commit and close the session
-      dao.deleteSnapshots(PurgeSnapshotQuery.create().setId(5L), session, session.getMapper(PurgeMapper.class));
-      session.commit();
-
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-    checkTables("shouldDeleteSnapshot",
-        "snapshots", "project_measures", "measure_data", "rule_failures", "snapshot_sources", "duplications_index", "events", "dependencies");
-  }
-
   @Test
   public void shouldDeleteAbortedBuilds() {
     setupData("shouldDeleteAbortedBuilds");
     dao.purge(1L, new String[0]);
     checkTables("shouldDeleteAbortedBuilds", "snapshots");
-  }
-
-  /**
-   * Test that all related data is purged.
-   */
-  @Test
-  public void shouldPurgeSnapshot() {
-    setupData("shouldPurgeSnapshot");
-
-    SqlSession session = getMyBatis().openSession();
-    try {
-      dao.purgeSnapshots(PurgeSnapshotQuery.create().setId(1L), session, session.getMapper(PurgeMapper.class));
-
-      // the above method does not commit and close the session
-      session.commit();
-
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-    checkTables("shouldPurgeSnapshot",
-        "snapshots", "project_measures", "measure_data", "rule_failures", "snapshot_sources", "duplications_index", "events", "dependencies", "reviews");
-  }
-
-  @Test
-  public void shouldDeleteWastedMeasuresWhenPurgingSnapshot() {
-    setupData("shouldDeleteWastedMeasuresWhenPurgingSnapshot");
-
-    SqlSession session = getMyBatis().openSession();
-    try {
-      dao.purgeSnapshots(PurgeSnapshotQuery.create().setId(1L), session, session.getMapper(PurgeMapper.class));
-
-      // the above method does not commit and close the session
-      session.commit();
-
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-    checkTables("shouldDeleteWastedMeasuresWhenPurgingSnapshot", "project_measures");
   }
 
   @Test
@@ -165,22 +106,6 @@ public class PurgeDaoTest extends DaoTestCase {
     assertThat(snapshots, hasItem(new SnapshotMatcher(4L, false, false)));
     assertThat(snapshots, hasItem(new SnapshotMatcher(5L, false, true)));
     assertThat(snapshots.size(), is(3));
-  }
-
-  @Test
-  public void shouldDeleteResource() {
-    setupData("shouldDeleteResource");
-    SqlSession session = getMyBatis().openSession();
-    try {
-      dao.deleteResources(Arrays.asList(1L), session, session.getMapper(PurgeMapper.class), session.getMapper(PurgeVendorMapper.class));
-
-      // the above method does not commit and close the session
-      session.commit();
-
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-    assertEmptyTables("projects", "snapshots", "events", "reviews", "review_comments");
   }
 
   @Test

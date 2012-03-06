@@ -73,7 +73,7 @@ public class PurgeDao {
           .setIslast(false)
           .setStatus(new String[]{"U"})
           .setRootProjectId(project.getId());
-      deleteSnapshots(query, session, purgeMapper);
+      PurgeCommands.deleteSnapshots(query, session, purgeMapper);
       session.commit();
     }
   }
@@ -97,16 +97,16 @@ public class PurgeDao {
             .setIslast(false)
             .setScopes(scopesWithoutHistoricalData)
             .setRootSnapshotId(projectSnapshotId);
-        deleteSnapshots(query, session, purgeMapper);
+        PurgeCommands.deleteSnapshots(query, session, purgeMapper);
         session.commit();
       }
 
       PurgeSnapshotQuery query = PurgeSnapshotQuery.create().setRootSnapshotId(projectSnapshotId).setNotPurged(true);
-      purgeSnapshots(query, session, purgeMapper);
+      PurgeCommands.purgeSnapshots(query, session, purgeMapper);
       session.commit();
 
       // must be executed at the end for reentrance
-      purgeSnapshots(PurgeSnapshotQuery.create().setId(projectSnapshotId).setNotPurged(true), session, purgeMapper);
+      PurgeCommands.purgeSnapshots(PurgeSnapshotQuery.create().setId(projectSnapshotId).setNotPurged(true), session, purgeMapper);
       session.commit();
     }
   }
@@ -156,81 +156,8 @@ public class PurgeDao {
     }
 
     List<Long> resourceIds = mapper.selectResourceIdsByRootId(rootProjectId);
-    deleteResources(resourceIds, session, mapper, vendorMapper);
+    PurgeCommands.deleteResources(resourceIds, session, mapper, vendorMapper);
     session.commit();
-  }
-
-  @VisibleForTesting
-  void deleteResources(List<Long> resourceIds, SqlSession session, PurgeMapper mapper, PurgeVendorMapper vendorMapper) {
-    // Note : do not merge the delete statements into a single loop of resource ids. It's
-    // voluntarily grouped by tables in order to benefit from JDBC batch mode.
-    // Batch requests can only relate to the same PreparedStatement.
-
-    for (Long resourceId : resourceIds) {
-      deleteSnapshots(PurgeSnapshotQuery.create().setResourceId(resourceId), session, mapper);
-    }
-
-    // possible missing optimization: filter requests according to resource scope
-
-    for (Long resourceId : resourceIds) {
-      mapper.deleteResourceLinks(resourceId);
-    }
-    session.flushStatements();
-
-    for (Long resourceId : resourceIds) {
-      mapper.deleteResourceProperties(resourceId);
-    }
-    session.flushStatements();
-
-    for (Long resourceId : resourceIds) {
-      mapper.deleteResourceIndex(resourceId);
-    }
-    session.flushStatements();
-
-    for (Long resourceId : resourceIds) {
-      mapper.deleteResourceGroupRoles(resourceId);
-    }
-    session.flushStatements();
-
-    for (Long resourceId : resourceIds) {
-      mapper.deleteResourceUserRoles(resourceId);
-    }
-    session.flushStatements();
-
-    for (Long resourceId : resourceIds) {
-      mapper.deleteResourceManualMeasures(resourceId);
-    }
-    session.flushStatements();
-
-    for (Long resourceId : resourceIds) {
-      vendorMapper.deleteResourceReviewComments(resourceId);
-    }
-    session.flushStatements();
-
-    for (Long resourceId : resourceIds) {
-      vendorMapper.deleteResourceActionPlansReviews(resourceId);
-    }
-    session.flushStatements();
-
-    for (Long resourceId : resourceIds) {
-      mapper.deleteResourceReviews(resourceId);
-    }
-    session.flushStatements();
-
-    for (Long resourceId : resourceIds) {
-      mapper.deleteResourceActionPlans(resourceId);
-    }
-    session.flushStatements();
-
-    for (Long resourceId : resourceIds) {
-      mapper.deleteResourceEvents(resourceId);
-    }
-    session.flushStatements();
-
-    for (Long resourceId : resourceIds) {
-      mapper.deleteResource(resourceId);
-    }
-    session.flushStatements();
   }
 
   @VisibleForTesting
@@ -245,104 +172,13 @@ public class PurgeDao {
     final SqlSession session = mybatis.openBatchSession();
     try {
       final PurgeMapper mapper = session.getMapper(PurgeMapper.class);
-      deleteSnapshots(mapper.selectSnapshotIds(query), session, mapper);
+      PurgeCommands.deleteSnapshots(query, session, mapper);
       session.commit();
       return this;
 
     } finally {
       MyBatis.closeQuietly(session);
     }
-  }
-
-  @VisibleForTesting
-  void deleteSnapshots(final PurgeSnapshotQuery query, final SqlSession session, final PurgeMapper mapper) {
-    deleteSnapshots(mapper.selectSnapshotIds(query), session, mapper);
-  }
-
-  private void deleteSnapshots(final List<Long> snapshotIds, final SqlSession session, final PurgeMapper mapper) {
-    for (Long snapshotId : snapshotIds) {
-      mapper.deleteSnapshotDependencies(snapshotId);
-    }
-    session.flushStatements();
-
-    for (Long snapshotId : snapshotIds) {
-      mapper.deleteSnapshotDuplications(snapshotId);
-    }
-    session.flushStatements();
-
-    for (Long snapshotId : snapshotIds) {
-      mapper.deleteSnapshotEvents(snapshotId);
-    }
-    session.flushStatements();
-
-    for (Long snapshotId : snapshotIds) {
-      mapper.deleteSnapshotMeasureData(snapshotId);
-    }
-    session.flushStatements();
-
-    for (Long snapshotId : snapshotIds) {
-      mapper.deleteSnapshotMeasures(snapshotId);
-    }
-    session.flushStatements();
-
-    for (Long snapshotId : snapshotIds) {
-      mapper.deleteSnapshotSource(snapshotId);
-    }
-    session.flushStatements();
-
-    for (Long snapshotId : snapshotIds) {
-      mapper.deleteSnapshotViolations(snapshotId);
-    }
-    session.flushStatements();
-
-    for (Long snapshotId : snapshotIds) {
-      mapper.deleteSnapshot(snapshotId);
-    }
-
-    session.flushStatements();
-  }
-
-  @VisibleForTesting
-  void purgeSnapshots(final PurgeSnapshotQuery query, final SqlSession session, final PurgeMapper mapper) {
-    purgeSnapshots(mapper.selectSnapshotIds(query), session, mapper);
-  }
-
-  private void purgeSnapshots(final List<Long> snapshotIds, final SqlSession session, final PurgeMapper mapper) {
-    // note that events are not deleted
-    for (Long snapshotId : snapshotIds) {
-      mapper.deleteSnapshotDependencies(snapshotId);
-    }
-    session.flushStatements();
-
-    for (Long snapshotId : snapshotIds) {
-      mapper.deleteSnapshotDuplications(snapshotId);
-    }
-    session.flushStatements();
-
-    for (Long snapshotId : snapshotIds) {
-      mapper.deleteSnapshotSource(snapshotId);
-    }
-    session.flushStatements();
-
-    for (Long snapshotId : snapshotIds) {
-      mapper.deleteSnapshotViolations(snapshotId);
-    }
-    session.flushStatements();
-
-    for (Long snapshotId : snapshotIds) {
-      mapper.deleteSnapshotWastedMeasures(snapshotId);
-    }
-    session.flushStatements();
-
-    for (Long snapshotId : snapshotIds) {
-      mapper.deleteSnapshotMeasuresOnQualityModelRequirements(snapshotId);
-    }
-    session.flushStatements();
-
-    for (Long snapshotId : snapshotIds) {
-      mapper.updatePurgeStatusToOne(snapshotId);
-    }
-    session.flushStatements();
   }
 
   /**
