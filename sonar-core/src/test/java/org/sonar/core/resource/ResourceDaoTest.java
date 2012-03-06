@@ -26,10 +26,9 @@ import org.sonar.core.persistence.DaoTestCase;
 
 import java.util.List;
 
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.hasItems;
 
 public class ResourceDaoTest extends DaoTestCase {
 
@@ -41,23 +40,37 @@ public class ResourceDaoTest extends DaoTestCase {
   }
 
   @Test
-  public void testDescendantProjectIdsAndSelf() {
+  public void testDescendantProjects_do_not_include_self() {
     setupData("fixture");
 
-    List<Long> ids = dao.getDescendantProjectIds(1L);
+    List<ResourceDto> resources = dao.getDescendantProjects(1L);
 
-    assertThat(ids, hasItems(2L));
-    assertThat(ids.size(), Is.is(1));
+    assertThat(resources.size(), Is.is(1));
+    assertThat(resources.get(0).getId(), is(2L));
   }
 
   @Test
-  public void testDescendantProjectIdsAndSelf_id_not_found() {
+  public void testDescendantProjects_id_not_found() {
     setupData("fixture");
 
-    List<Long> ids = dao.getDescendantProjectIds(33333L);
+    assertThat(dao.getDescendantProjects(33333L).size(), Is.is(0));
+  }
 
-    assertThat(ids, not(nullValue()));
-    assertThat(ids.size(), Is.is(0));
+  @Test
+  public void getResource() {
+    setupData("fixture");
+
+    ResourceDto resource = dao.getResource(1L);
+    assertThat(resource.getName(), Is.is("Struts"));
+    assertThat(resource.getLongName(), Is.is("Apache Struts"));
+    assertThat(resource.getScope(), Is.is("PRJ"));
+  }
+
+  @Test
+  public void getResource_not_found() {
+    setupData("fixture");
+
+    assertNull(dao.getResource(987654321L));
   }
 }
 

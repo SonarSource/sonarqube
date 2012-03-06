@@ -44,15 +44,15 @@ public class DefaultPeriodCleaner implements PeriodCleaner {
   }
 
   public void purge(Project project, int projectSnapshotId) {
-    purge((long) project.getId());
+    clean((long) project.getId());
   }
 
-  public void purge(long projectId) {
-    doPurge(projectId, new Filters(settings).getFilters());
+  public void clean(long projectId) {
+    doClean(projectId, new Filters(settings).getFilters());
   }
 
   @VisibleForTesting
-  void doPurge(long projectId, List<Filter> filters) {
+  void doClean(long projectId, List<Filter> filters) {
     List<PurgeableSnapshotDto> history = selectProjectSnapshots(projectId);
     for (Filter filter : filters) {
       filter.log();
@@ -64,6 +64,7 @@ public class DefaultPeriodCleaner implements PeriodCleaner {
     for (PurgeableSnapshotDto snapshot : snapshots) {
       LOG.info("<- Delete snapshot: " + DateUtils.formatDateTime(snapshot.getDate()) + " [" + snapshot.getSnapshotId() + "]");
       purgeDao.deleteSnapshots(PurgeSnapshotQuery.create().setRootSnapshotId(snapshot.getSnapshotId()));
+      purgeDao.deleteSnapshots(PurgeSnapshotQuery.create().setId(snapshot.getSnapshotId()));
     }
   }
 

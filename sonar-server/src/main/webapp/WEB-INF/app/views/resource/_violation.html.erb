@@ -68,11 +68,11 @@
             <% if is_last_comment && current_user %>
       <span class="actions" id="commentActions<%= violation.id -%>">
         &nbsp;&nbsp;
-        <%= image_tag 'sep12.png' -%>
-        &nbsp;
         <%
            if current_user.id == review_comment.user_id
         %>
+          <%= image_tag 'sep12.png' -%>
+          &nbsp;
           <%= link_to_remote message('reviews.edit'),
                              :url => {:controller => "reviews", :action => "violation_comment_form", :comment_id => review_comment.id, :id => violation.id},
                              :update => "lastComment" + violation.id.to_s,

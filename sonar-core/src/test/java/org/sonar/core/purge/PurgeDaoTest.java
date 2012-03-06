@@ -44,60 +44,11 @@ public class PurgeDaoTest extends DaoTestCase {
     dao = new PurgeDao(getMyBatis(), new ResourceDao(getMyBatis()));
   }
 
-  /**
-   * Test that all related data is deleted.
-   */
   @Test
-  public void shouldDeleteSnapshot() {
-    setupData("shouldDeleteSnapshot");
-
-    SqlSession session = getMyBatis().openSession();
-    try {
-      // this method does not commit and close the session
-      dao.deleteSnapshot(5L, session.getMapper(PurgeMapper.class));
-      session.commit();
-
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-    checkTables("shouldDeleteSnapshot",
-      "snapshots", "project_measures", "measure_data", "rule_failures", "snapshot_sources", "duplications_index", "events", "dependencies");
-  }
-
-  /**
-   * Test that all related data is purged.
-   */
-  @Test
-  public void shouldPurgeSnapshot() {
-    setupData("shouldPurgeSnapshot");
-
-    SqlSession session = getMyBatis().openSession();
-    try {
-      // this method does not commit and close the session
-      dao.purgeSnapshot(1L, session.getMapper(PurgeMapper.class));
-      session.commit();
-
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-    checkTables("shouldPurgeSnapshot",
-      "snapshots", "project_measures", "measure_data", "rule_failures", "snapshot_sources", "duplications_index", "events", "dependencies", "reviews");
-  }
-
-  @Test
-  public void shouldDeleteWastedMeasuresWhenPurgingSnapshot() {
-    setupData("shouldDeleteWastedMeasuresWhenPurgingSnapshot");
-
-    SqlSession session = getMyBatis().openSession();
-    try {
-      // this method does not commit and close the session
-      dao.purgeSnapshot(1L, session.getMapper(PurgeMapper.class));
-      session.commit();
-
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-    checkTables("shouldDeleteWastedMeasuresWhenPurgingSnapshot", "project_measures");
+  public void shouldDeleteAbortedBuilds() {
+    setupData("shouldDeleteAbortedBuilds");
+    dao.purge(1L, new String[0]);
+    checkTables("shouldDeleteAbortedBuilds", "snapshots");
   }
 
   @Test
@@ -106,8 +57,9 @@ public class PurgeDaoTest extends DaoTestCase {
 
     SqlSession session = getMyBatis().openSession();
     try {
-      // this method does not commit and close the session
       dao.disableResource(1L, session.getMapper(PurgeMapper.class));
+
+      // the above method does not commit and close the session
       session.commit();
 
     } finally {
@@ -125,10 +77,10 @@ public class PurgeDaoTest extends DaoTestCase {
   }
 
   @Test
-  public void shouldPurgeDirectoriesAndFiles() {
-    setupData("shouldPurgeDirectoriesAndFiles");
+  public void shouldDeleteHistoricalDataOfDirectoriesAndFiles() {
+    setupData("shouldDeleteHistoricalDataOfDirectoriesAndFiles");
     dao.purge(1, new String[]{Scopes.DIRECTORY, Scopes.FILE});
-    checkTables("shouldPurgeDirectoriesAndFiles", "projects", "snapshots");
+    checkTables("shouldDeleteHistoricalDataOfDirectoriesAndFiles", "projects", "snapshots");
   }
 
   @Test
@@ -157,21 +109,6 @@ public class PurgeDaoTest extends DaoTestCase {
   }
 
   @Test
-  public void shouldDeleteResource() {
-    setupData("shouldDeleteResource");
-    SqlSession session = getMyBatis().openSession();
-    try {
-      // this method does not commit and close the session
-      dao.deleteResource(1L, session, session.getMapper(PurgeMapper.class), session.getMapper(PurgeVendorMapper.class));
-      session.commit();
-
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-    assertEmptyTables("projects", "snapshots", "events", "reviews", "review_comments");
-  }
-
-  @Test
   public void shouldDeleteProject() {
     setupData("shouldDeleteProject");
     dao.deleteProject(1L);
@@ -196,9 +133,9 @@ public class PurgeDaoTest extends DaoTestCase {
 
     public void describeTo(Description description) {
       description
-        .appendText("snapshotId").appendValue(snapshotId)
-        .appendText("isLast").appendValue(isLast)
-        .appendText("hasEvents").appendValue(hasEvents);
+          .appendText("snapshotId").appendValue(snapshotId)
+          .appendText("isLast").appendValue(isLast)
+          .appendText("hasEvents").appendValue(hasEvents);
     }
   }
 }

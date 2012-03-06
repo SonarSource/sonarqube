@@ -32,27 +32,40 @@ public class ResourceDao {
     this.mybatis = mybatis;
   }
 
-  public List<Long> getDescendantProjectIds(long projectId) {
+  public ResourceDto getResource(long projectId) {
     SqlSession session = mybatis.openSession();
     try {
-      return getDescendantProjectIds(projectId, session);
+      return getResource(projectId, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public List<Long> getDescendantProjectIds(long projectId, SqlSession session) {
-    ResourceMapper mapper = session.getMapper(ResourceMapper.class);
-    List<Long> ids = Lists.newArrayList();
-    appendChildProjectIds(projectId, mapper, ids);
-    return ids;
+  public ResourceDto getResource(long projectId, SqlSession session) {
+    return session.getMapper(ResourceMapper.class).selectResource(projectId);
   }
 
-  private void appendChildProjectIds(long projectId, ResourceMapper mapper, List<Long> ids) {
-    List<Long> subProjectIds = mapper.selectDescendantProjectIds(projectId);
-    for (Long subProjectId : subProjectIds) {
-      ids.add(subProjectId);
-      appendChildProjectIds(subProjectId, mapper, ids);
+  public List<ResourceDto> getDescendantProjects(long projectId) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return getDescendantProjects(projectId, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<ResourceDto> getDescendantProjects(long projectId, SqlSession session) {
+    ResourceMapper mapper = session.getMapper(ResourceMapper.class);
+    List<ResourceDto> resources = Lists.newArrayList();
+    appendChildProjects(projectId, mapper, resources);
+    return resources;
+  }
+
+  private void appendChildProjects(long projectId, ResourceMapper mapper, List<ResourceDto> resources) {
+    List<ResourceDto> subProjects = mapper.selectDescendantProjects(projectId);
+    for (ResourceDto subProject : subProjects) {
+      resources.add(subProject);
+      appendChildProjects(subProject.getId(), mapper, resources);
     }
   }
 }

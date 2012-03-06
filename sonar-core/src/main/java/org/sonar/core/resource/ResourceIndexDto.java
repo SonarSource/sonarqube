@@ -24,8 +24,8 @@ public final class ResourceIndexDto {
   private String key;
   private int position;
   private int nameSize;
-  private int resourceId;
-  private int rootProjectId;
+  private long resourceId;
+  private long rootProjectId;
   private String qualifier;
 
   public String getKey() {
@@ -46,20 +46,20 @@ public final class ResourceIndexDto {
     return this;
   }
 
-  public int getResourceId() {
+  public long getResourceId() {
     return resourceId;
   }
 
-  public ResourceIndexDto setResourceId(int i) {
+  public ResourceIndexDto setResourceId(long i) {
     this.resourceId = i;
     return this;
   }
 
-  public int getRootProjectId() {
+  public long getRootProjectId() {
     return rootProjectId;
   }
 
-  public ResourceIndexDto setRootProjectId(int i) {
+  public ResourceIndexDto setRootProjectId(long i) {
     this.rootProjectId = i;
     return this;
   }

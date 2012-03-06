@@ -40,7 +40,7 @@ import org.sonar.plugins.dbcleaner.period.DefaultPeriodCleaner;
     name = "Clean history data of directories/packages")
 })
 public class DefaultPurgeTask implements PurgeTask {
-  private static final Logger LOG = LoggerFactory.getLogger(ProjectPurgePostJob.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultPurgeTask.class);
 
   private PurgeDao purgeDao;
   private Settings settings;
@@ -65,8 +65,7 @@ public class DefaultPurgeTask implements PurgeTask {
 
   private void cleanHistoricalData(long resourceId) {
     try {
-      LOG.debug("Clean historical data [id=" + resourceId + "]");
-      periodCleaner.purge(resourceId);
+      periodCleaner.clean(resourceId);
     } catch (Exception e) {
       // purge errors must no fail the batch
       LOG.error("Fail to clean historical data [id=" + resourceId + "]", e);
@@ -82,7 +81,6 @@ public class DefaultPurgeTask implements PurgeTask {
 
   private void doPurge(long resourceId) {
     try {
-      LOG.debug("Purge data [id=" + resourceId + "]");
       purgeDao.purge(resourceId, getScopesWithoutHistoricalData());
     } catch (Exception e) {
       // purge errors must no fail the batch

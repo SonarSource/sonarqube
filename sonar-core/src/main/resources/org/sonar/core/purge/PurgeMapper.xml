@@ -13,7 +13,10 @@
         and (s.purge_status is null or s.purge_status=0)
       </if>
       <if test="rootSnapshotId != null">
-        and (s.root_snapshot_id=#{rootSnapshotId} or s.id=#{rootSnapshotId})
+        and s.root_snapshot_id=#{rootSnapshotId}
+      </if>
+      <if test="id != null">
+        and s.id=#{id}
       </if>
       <if test="rootProjectId != null">
         and s.root_project_id=#{rootProjectId}
@@ -69,12 +72,8 @@
     select id from projects where root_id=#{id} and scope='PRJ'
   </select>
 
-  <select id="selectResourceTreeIdsByRootId" resultType="long" parameterType="long">
+  <select id="selectResourceIdsByRootId" resultType="long" parameterType="long">
     select id from projects where root_id=#{id} or id=#{id}
-  </select>
-
-  <select id="selectSnapshotIdsByResource" parameterType="long" resultType="long">
-    select id from snapshots where project_id=#{id}
   </select>
 
   <delete id="deleteSnapshotMeasures" parameterType="long">

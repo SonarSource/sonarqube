@@ -33,7 +33,13 @@ class Drilldown
       column=DrilldownColumn.new(self, nil)
       while column.valid?
         column.init_measures(options)
-        @columns<<column if column.display?
+        if column.display?
+          @columns<<column
+          if column.selected_snapshot
+            @highlighted_snapshot=column.selected_snapshot
+            @highlighted_resource=column.selected_snapshot.project
+          end
+        end
         column=DrilldownColumn.new(self, column)
       end
     end
@@ -70,7 +76,7 @@ class DrilldownColumn
       @qualifiers = @base_snapshot.children_qualifiers
 
     elsif previous_column
-      @qualifiers=previous_column.qualifiers.map {|q| Java::OrgSonarServerUi::JRubyFacade.getInstance().getResourceChildrenQualifiers(q).to_a}.flatten
+      @qualifiers=previous_column.qualifiers.map { |q| Java::OrgSonarServerUi::JRubyFacade.getInstance().getResourceChildrenQualifiers(q).to_a }.flatten
 
     else
       @qualifiers=drilldown.snapshot.children_qualifiers
@@ -86,13 +92,13 @@ class DrilldownColumn
     end
 
     conditions="snapshots.root_snapshot_id=:root_sid AND snapshots.islast=:islast AND snapshots.qualifier in (:qualifiers) " +
-      " AND snapshots.path LIKE :path AND project_measures.metric_id=:metric_id AND project_measures.#{value_column} IS NOT NULL"
+        " AND snapshots.path LIKE :path AND project_measures.metric_id=:metric_id AND project_measures.#{value_column} IS NOT NULL"
     condition_values={
-      :root_sid => (@base_snapshot.root_snapshot_id || @base_snapshot.id),
-      :islast => true,
-      :qualifiers => @qualifiers,
-      :metric_id => @drilldown.metric.id,
-      :path => "#{@base_snapshot.path}#{@base_snapshot.id}.%"}
+        :root_sid => (@base_snapshot.root_snapshot_id || @base_snapshot.id),
+        :islast => true,
+        :qualifiers => @qualifiers,
+        :metric_id => @drilldown.metric.id,
+        :path => "#{@base_snapshot.path}#{@base_snapshot.id}.%"}
 
     if value_column=='value' && @drilldown.metric.best_value
       conditions<<' AND project_measures.value<>:best_value'

@@ -27,12 +27,10 @@
   &nbsp;
   <%= image_tag 'sep12.png' -%>
   &nbsp;
-  <%= button_to_remote message('reviews.assign_to_me_submit'),
-                       {
-                         :url => {:action => 'violation_assign', :id => params[:id], :me => true},
-                         :update => "vId" + params[:id]
-                       },
-                       :disabled => (@violation.review && @violation.review.assignee_id==current_user.id) -%>
+  <%= submit_to_remote "submit_me_btn", message('reviews.assign_to_me_submit'),
+                       :url => {:action => 'violation_assign', :id => params[:id], :me => true},
+                       :update => "vId" + params[:id],
+                       :html => {:disabled => (@violation.review && @violation.review.assignee_id==current_user.id)} -%>
   &nbsp;
   <%= link_to_function message('cancel'), "cancelViolationAction(#{params[:id]})" -%>
   <script>
