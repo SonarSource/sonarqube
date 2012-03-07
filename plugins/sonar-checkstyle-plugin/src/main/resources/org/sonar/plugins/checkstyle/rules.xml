@@ -1212,15 +1212,9 @@
     <priority>MAJOR</priority>
     <name><![CDATA[Parameter Number]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ParameterNumber]]></configKey>
-
-
-    <param key="max" type="i">
-
-
-    </param>
+    <cardinality>MULTIPLE</cardinality>
+    <param key="max" type="i"/>
     <param key="tokens" type="s[METHOD_DEF,CTOR_DEF]">
-
-
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.whitespace.ParenPadCheck">
