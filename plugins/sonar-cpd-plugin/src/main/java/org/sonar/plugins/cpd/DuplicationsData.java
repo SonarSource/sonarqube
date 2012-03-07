@@ -24,6 +24,7 @@ import com.google.common.collect.Sets;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.resources.Resource;
 
 import java.util.Collections;
@@ -58,7 +59,10 @@ public class DuplicationsData {
     context.saveMeasure(resource, CoreMetrics.DUPLICATED_FILES, 1d);
     context.saveMeasure(resource, CoreMetrics.DUPLICATED_LINES, (double) duplicatedLines.size());
     context.saveMeasure(resource, CoreMetrics.DUPLICATED_BLOCKS, duplicatedBlocks);
-    context.saveMeasure(resource, new Measure(CoreMetrics.DUPLICATIONS_DATA, getDuplicationXMLData()));
+
+    Measure data = new Measure(CoreMetrics.DUPLICATIONS_DATA, getDuplicationXMLData())
+        .setPersistenceMode(PersistenceMode.DATABASE);
+    context.saveMeasure(resource, data);
   }
 
   private String getDuplicationXMLData() {
