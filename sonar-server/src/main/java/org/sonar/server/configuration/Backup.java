@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.jpa.entity.SchemaMigration;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
@@ -157,16 +158,18 @@ public class Backup {
           public HierarchicalStreamWriter createWriter(Writer out) {
             return new PrettyPrintWriter(out) {
               @Override
-              protected void writeText(QuickWriter writer, String text) {
-                writer.write("<![CDATA[");
-                /*
-                 * See http://jira.codehaus.org/browse/SONAR-1605 According to XML specification (
-                 * http://www.w3.org/TR/REC-xml/#sec-cdata-sect ) CData section may contain everything except of sequence ']]>' so we will
-                 * split all occurrences of this sequence into two CDATA first one would contain ']]' and second '>'
-                 */
-                text = StringUtils.replace(text, "]]>", "]]]]><![CDATA[>");
-                writer.write(text);
-                writer.write("]]>");
+              protected void writeText(QuickWriter writer, @Nullable String text) {
+                if (text != null) {
+                  writer.write("<![CDATA[");
+                  /*
+                  * See http://jira.codehaus.org/browse/SONAR-1605 According to XML specification (
+                  * http://www.w3.org/TR/REC-xml/#sec-cdata-sect ) CData section may contain everything except of sequence ']]>' so we will
+                  * split all occurrences of this sequence into two CDATA first one would contain ']]' and second '>'
+                  */
+                  text = StringUtils.replace(text, "]]>", "]]]]><![CDATA[>");
+                  writer.write(text);
+                  writer.write("]]>");
+                }
               }
             };
           }
@@ -174,7 +177,7 @@ public class Backup {
 
     xStream.processAnnotations(SonarConfig.class);
     xStream.addDefaultImplementation(ArrayList.class, Collection.class);
-    xStream.registerConverter(new DateConverter(DATE_FORMAT, new String[] {}));
+    xStream.registerConverter(new DateConverter(DATE_FORMAT, new String[]{}));
 
     for (Backupable backupable : backupables) {
       backupable.configure(xStream);
