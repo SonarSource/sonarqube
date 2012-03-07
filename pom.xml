@@ -577,8 +577,7 @@
       <dependency>
         <groupId>commons-dbcp</groupId>
         <artifactId>commons-dbcp</artifactId>
-        <!-- do not upgrade to version 1.4, not compatible with Java5 -->
-        <version>1.3</version>
+        <version>1.4</version>
       </dependency>
       <dependency>
         <!-- See SONAR-2512 -->
@@ -733,12 +732,12 @@
       <dependency>
         <groupId>mysql</groupId>
         <artifactId>mysql-connector-java</artifactId>
-        <version>5.1.13</version>
+        <version>5.1.18</version>
       </dependency>
       <dependency>
         <groupId>postgresql</groupId>
         <artifactId>postgresql</artifactId>
-        <version>9.0-801.jdbc3</version>
+        <version>9.0-801.jdbc4</version>
       </dependency>
       <dependency>
         <groupId>net.sourceforge.jtds</groupId>
