@@ -30,10 +30,13 @@ import org.dbunit.ext.postgresql.PostgresqlDataTypeFactory;
 import org.dbunit.operation.DatabaseOperation;
 import org.sonar.core.persistence.dialect.*;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
 
-abstract class DatabaseCommands {
+public abstract class DatabaseCommands {
 
   private IDataTypeFactory dbUnitFactory;
 
@@ -41,9 +44,9 @@ abstract class DatabaseCommands {
     this.dbUnitFactory = dbUnitFactory;
   }
 
-  abstract String truncate(String table);
+  public abstract String truncate(String table);
 
-  abstract List<String> resetPrimaryKey(String table);
+  public abstract List<String> resetPrimaryKey(String table);
 
   Object getTrue() {
     return Boolean.TRUE;
@@ -63,24 +66,24 @@ abstract class DatabaseCommands {
 
   static final DatabaseCommands DERBY = new DatabaseCommands(new DefaultDataTypeFactory()) {
     @Override
-    String truncate(String table) {
+    public String truncate(String table) {
       return "TRUNCATE TABLE " + table;
     }
 
     @Override
-    List<String> resetPrimaryKey(String table) {
+    public List<String> resetPrimaryKey(String table) {
       return Arrays.asList("ALTER TABLE " + table + " ALTER COLUMN ID RESTART WITH 1");
     }
   };
 
   static final DatabaseCommands MSSQL = new DatabaseCommands(new MsSqlDataTypeFactory()) {
     @Override
-    String truncate(String table) {
+    public String truncate(String table) {
       return "TRUNCATE TABLE " + table;
     }
 
     @Override
-    List<String> resetPrimaryKey(String table) {
+    public List<String> resetPrimaryKey(String table) {
       return Arrays.asList("DBCC CHECKIDENT('" + table + "', RESEED, 1)");
     }
 
@@ -92,28 +95,28 @@ abstract class DatabaseCommands {
 
   static final DatabaseCommands MYSQL = new DatabaseCommands(new MySqlDataTypeFactory()) {
     @Override
-    String truncate(String table) {
+    public String truncate(String table) {
       return "TRUNCATE TABLE " + table;
     }
 
     @Override
-    List<String> resetPrimaryKey(String table) {
+    public List<String> resetPrimaryKey(String table) {
       return Arrays.asList("ALTER TABLE " + table + " AUTO_INCREMENT = 1");
     }
   };
 
   static final DatabaseCommands ORACLE = new DatabaseCommands(new Oracle10DataTypeFactory()) {
     @Override
-    String truncate(String table) {
+    public String truncate(String table) {
       return "TRUNCATE TABLE " + table;
     }
 
     @Override
-    List<String> resetPrimaryKey(String table) {
+    public List<String> resetPrimaryKey(String table) {
       String sequence = StringUtils.upperCase(table) + "_SEQ";
       return Arrays.asList(
-        "DROP SEQUENCE " + sequence,
-        "CREATE SEQUENCE " + sequence + " INCREMENT BY 1 MINVALUE 1 START WITH 1"
+          "DROP SEQUENCE " + sequence,
+          "CREATE SEQUENCE " + sequence + " INCREMENT BY 1 MINVALUE 1 START WITH 1"
       );
     }
 
@@ -130,18 +133,18 @@ abstract class DatabaseCommands {
 
   static final DatabaseCommands POSTGRESQL = new DatabaseCommands(new PostgresqlDataTypeFactory()) {
     @Override
-    String truncate(String table) {
+    public String truncate(String table) {
       return "TRUNCATE TABLE " + table;
     }
 
     @Override
-    List<String> resetPrimaryKey(String table) {
+    public List<String> resetPrimaryKey(String table) {
       return Arrays.asList("ALTER SEQUENCE " + table + "_id_seq RESTART WITH 1");
     }
   };
 
 
-  static DatabaseCommands forDialect(Dialect dialect) {
+  public static DatabaseCommands forDialect(Dialect dialect) {
     if (Derby.ID.equals(dialect.getId())) {
       return DERBY;
     }
@@ -158,5 +161,29 @@ abstract class DatabaseCommands {
       return POSTGRESQL;
     }
     throw new IllegalArgumentException("Unknown database: " + dialect);
+  }
+
+  public void truncateDatabase(Connection connection) throws SQLException {
+    Statement statement = connection.createStatement();
+    for (String table : DatabaseUtils.TABLE_NAMES) {
+      // 1. truncate
+      String truncateCommand = truncate(table);
+      statement.executeUpdate(truncateCommand);
+      connection.commit();
+
+      // 2. reset primary keys
+      try {
+        for (String resetCommand : resetPrimaryKey(table)) {
+          statement.executeUpdate(resetCommand);
+        }
+        connection.commit();
+      } catch (Exception e) {
+        // this table has no primary key
+        connection.rollback();
+      }
+    }
+    statement.close();
+    connection.commit();
+    connection.close();
   }
 }

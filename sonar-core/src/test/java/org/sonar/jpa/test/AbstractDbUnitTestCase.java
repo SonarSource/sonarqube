@@ -29,11 +29,10 @@ import org.dbunit.dataset.*;
 import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.operation.DatabaseOperation;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
+import org.junit.*;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.core.persistence.Database;
+import org.sonar.core.persistence.DatabaseCommands;
 import org.sonar.core.persistence.InMemoryDatabase;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.jpa.dao.DaoFacade;
@@ -52,18 +51,22 @@ import java.sql.SQLException;
 
 import static org.junit.Assert.fail;
 
+/**
+ * Heavily duplicates DaoTestCase as long as Hibernate is in use.
+ */
 public abstract class AbstractDbUnitTestCase {
 
-  private DefaultDatabaseConnector dbConnector;
   private JpaDatabaseSession session;
   private DaoFacade dao;
   private IDatabaseTester databaseTester;
   private IDatabaseConnection connection;
-  private Database database;
-  private MyBatis myBatis;
+  private static Database database;
+  private static MyBatis myBatis;
+  private static DefaultDatabaseConnector dbConnector;
+  private static DatabaseCommands databaseCommands;
 
-  @Before
-  public void startDatabase() throws Exception {
+  @BeforeClass
+  public static void startDatabase() throws Exception {
     database = new InMemoryDatabase();
     database.start();
 
@@ -73,20 +76,30 @@ public abstract class AbstractDbUnitTestCase {
     dbConnector = new MemoryDatabaseConnector(database);
     dbConnector.start();
 
+    databaseCommands = DatabaseCommands.forDialect(database.getDialect());
+  }
+
+  @Before
+  public void startConnection() throws Exception {
+    databaseCommands.truncateDatabase(myBatis.openSession().getConnection());
+    databaseTester = new DataSourceDatabaseTester(database.getDataSource());
+
     session = new JpaDatabaseSession(dbConnector);
     session.start();
-
-    databaseTester = new DataSourceDatabaseTester(database.getDataSource());
   }
 
   @After
-  public void stopDatabase() throws Exception {
+  public void stopConnection() throws Exception {
     databaseTester.onTearDown();
     // Important: close the connection and session, otherwise tests can stuck
     if (connection != null) {
       connection.close();
     }
     session.stop();
+  }
+
+  @AfterClass
+  public static void stopDatabase() {
     dbConnector.stop();
     database.stop();
   }

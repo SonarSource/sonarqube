@@ -34,9 +34,7 @@ import org.sonar.api.config.Settings;
 
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Map;
 
 import static org.junit.Assert.fail;
@@ -69,7 +67,7 @@ public abstract class DaoTestCase {
 
   @Before
   public void setupDbUnit() throws SQLException {
-    truncateTables();
+    databaseCommands.truncateDatabase(myBatis.openSession().getConnection());
     databaseTester = new DataSourceDatabaseTester(database.getDataSource());
   }
 
@@ -88,31 +86,6 @@ public abstract class DaoTestCase {
     if (database != null) {
       database.stop();
     }
-  }
-
-  private void truncateTables() throws SQLException {
-    Connection connection = myBatis.openSession().getConnection();
-    Statement statement = connection.createStatement();
-    for (String table : DatabaseUtils.TABLE_NAMES) {
-      // 1. truncate
-      String truncateCommand = databaseCommands.truncate(table);
-      statement.executeUpdate(truncateCommand);
-      connection.commit();
-
-      // 2. reset primary keys
-      try {
-        for (String resetCommand : databaseCommands.resetPrimaryKey(table)) {
-          statement.executeUpdate(resetCommand);
-        }
-        connection.commit();
-      } catch (Exception e) {
-        // this table has no primary key
-        connection.rollback();
-      }
-    }
-    statement.close();
-    connection.commit();
-    connection.close();
   }
 
   protected MyBatis getMyBatis() {
