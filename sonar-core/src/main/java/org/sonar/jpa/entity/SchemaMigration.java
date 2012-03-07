@@ -24,21 +24,9 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 import javax.persistence.*;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-
 @Entity
-@Table(name = SchemaMigration.TABLE_NAME, uniqueConstraints = {@UniqueConstraint(columnNames = {"version"})})
+@Table(name = "schema_migrations", uniqueConstraints = {@UniqueConstraint(columnNames = {"version"})})
 public class SchemaMigration {
-
-  public static final int VERSION_UNKNOWN = -1;
-
-  public static final int LAST_VERSION = 263;
-  public static final int VERSION_2_13 = 241;
-
-  public static final String TABLE_NAME = "schema_migrations";
 
   @Id
   @Column(name = "version", updatable = true)
@@ -54,49 +42,6 @@ public class SchemaMigration {
 
   public void setVersion(int i) {
     this.version = String.valueOf(i);
-  }
-
-  public static int getCurrentVersion(Connection connection) {
-    Statement stmt = null;
-    ResultSet rs = null;
-    int version = VERSION_UNKNOWN;
-    try {
-      stmt = connection.createStatement();
-      rs = stmt.executeQuery("SELECT version FROM " + SchemaMigration.TABLE_NAME);
-      while (rs.next()) {
-        int i = Integer.parseInt(rs.getString(1));
-        if (i > version) {
-          version = i;
-        }
-      }
-    } catch (SQLException e) {
-      // ignore
-    } finally {
-      close(rs);
-      close(stmt);
-    }
-
-    return version;
-  }
-
-  private static void close(ResultSet rs) {
-    if (rs != null) {
-      try {
-        rs.close();
-      } catch (SQLException e) {
-        // why does close() throw a checked-exception ???
-      }
-    }
-  }
-
-  private static void close(Statement st) {
-    if (st != null) {
-      try {
-        st.close();
-      } catch (SQLException e) {
-        // why does close() throw a checked-exception ???
-      }
-    }
   }
 
   @Override

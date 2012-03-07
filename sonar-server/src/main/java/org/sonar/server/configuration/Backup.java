@@ -30,7 +30,7 @@ import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
-import org.sonar.jpa.entity.SchemaMigration;
+import org.sonar.core.persistence.DatabaseVersion;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -144,7 +144,7 @@ public class Backup {
    * Utils methods
    */
   protected int getVersion() {
-    return SchemaMigration.LAST_VERSION;
+    return DatabaseVersion.LAST_VERSION;
   }
 
   protected Date getCurrentDate() {

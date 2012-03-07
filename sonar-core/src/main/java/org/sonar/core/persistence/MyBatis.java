@@ -75,6 +75,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "ResourceIndex", ResourceIndexDto.class);
     loadAlias(conf, "Rule", RuleDto.class);
     loadAlias(conf, "Snapshot", SnapshotDto.class);
+    loadAlias(conf, "SchemaMigration", SchemaMigrationDto.class);
     loadAlias(conf, "Widget", WidgetDto.class);
     loadAlias(conf, "WidgetProperty", WidgetPropertyDto.class);
 
@@ -89,6 +90,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadMapper(conf, ReviewMapper.class);
     loadMapper(conf, ResourceIndexerMapper.class);
     loadMapper(conf, RuleMapper.class);
+    loadMapper(conf, SchemaMigrationMapper.class);
     loadMapper(conf, WidgetMapper.class);
     loadMapper(conf, WidgetPropertyMapper.class);
 

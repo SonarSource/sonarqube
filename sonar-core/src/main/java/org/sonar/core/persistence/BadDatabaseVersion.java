@@ -17,35 +17,15 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.jpa.session;
+package org.sonar.core.persistence;
 
-import org.sonar.api.utils.SonarException;
-import org.sonar.core.persistence.Database;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-
-public class DefaultDatabaseConnector extends AbstractDatabaseConnector {
-
-  public DefaultDatabaseConnector(Database database) {
-    super(database);
+public final class BadDatabaseVersion extends RuntimeException {
+  public BadDatabaseVersion(String s) {
+    super(s);
   }
 
   @Override
-  public void start() {
-    createDatasource();
-    super.start();
-  }
-
-  private void createDatasource() {
-    try {
-      CustomHibernateConnectionProvider.setDatasourceForConfig(database.getDataSource());
-    } catch (Exception e) {
-      throw new SonarException("Fail to connect to database", e);
-    }
-  }
-
-  public Connection getConnection() throws SQLException {
-    return database != null && database.getDataSource() != null ? database.getDataSource().getConnection() : null;
+  public Throwable fillInStackTrace() {
+    return this;
   }
 }

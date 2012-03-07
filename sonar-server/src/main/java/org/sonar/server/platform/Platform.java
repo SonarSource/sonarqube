@@ -40,10 +40,7 @@ import org.sonar.core.i18n.I18nManager;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.metric.DefaultMetricFinder;
 import org.sonar.core.notification.DefaultNotificationManager;
-import org.sonar.core.persistence.DaoUtils;
-import org.sonar.core.persistence.DatabaseMigrator;
-import org.sonar.core.persistence.DefaultDatabase;
-import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.persistence.*;
 import org.sonar.core.qualitymodel.DefaultModelFinder;
 import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.core.user.DefaultUserFinder;
@@ -108,9 +105,9 @@ public final class Platform {
   }
 
   public void start() {
-    if (!started && isUpToDateDatabase()) {
+    if (!started && getDatabaseStatus()== DatabaseVersion.Status.UP_TO_DATE) {
       try {
-        TimeProfiler profiler = new TimeProfiler().start("Start services");
+        TimeProfiler profiler = new TimeProfiler().start("Start components");
         startCoreComponents();
         startServiceComponents();
         executeStartupTasks();
@@ -133,22 +130,24 @@ public final class Platform {
     rootContainer.addSingleton(EmbeddedDatabaseFactory.class);
     rootContainer.addSingleton(DefaultDatabase.class);
     rootContainer.addSingleton(MyBatis.class);
-    rootContainer.addSingleton(DefaultDatabaseConnector.class);
     rootContainer.addSingleton(DefaultServerUpgradeStatus.class);
+    rootContainer.addSingleton(DatabaseServerCompatibility.class);
     rootContainer.addSingleton(DatabaseMigrator.class);
+    rootContainer.addSingleton(DatabaseVersion.class);
     for (Class daoClass : DaoUtils.getDaoClasses()) {
       rootContainer.addSingleton(daoClass);
     }
     rootContainer.startComponents();
   }
 
-  private boolean isUpToDateDatabase() {
-    DefaultDatabaseConnector databaseConnector = getContainer().getComponentByType(DefaultDatabaseConnector.class);
-    return databaseConnector.isOperational();
+  private DatabaseVersion.Status getDatabaseStatus() {
+    DatabaseVersion version = getContainer().getComponentByType(DatabaseVersion.class);
+    return version.getStatus();
   }
 
   private void startCoreComponents() {
     coreContainer = rootContainer.createChild();
+    coreContainer.addSingleton(DefaultDatabaseConnector.class);
     coreContainer.addSingleton(PluginDeployer.class);
     coreContainer.addSingleton(DefaultServerPluginRepository.class);
     coreContainer.addSingleton(ServerExtensionInstaller.class);

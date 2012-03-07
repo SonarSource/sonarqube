@@ -26,7 +26,8 @@ import org.sonar.api.ServerComponent;
 import java.sql.Connection;
 
 /**
- * Restore schema by executing DDL scripts. Only Derby database is supported. Other databases are created by Ruby on Rails migrations.
+ * Restore schema by executing DDL scripts. Only Derby database is supported. 
+ * Other databases are created by Ruby on Rails migrations.
  *
  * @since 2.12
  */

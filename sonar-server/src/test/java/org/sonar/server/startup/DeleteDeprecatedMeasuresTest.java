@@ -22,7 +22,7 @@ package org.sonar.server.startup;
 import org.junit.Test;
 import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.platform.ServerUpgradeStatus;
-import org.sonar.jpa.entity.SchemaMigration;
+import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.sql.SQLException;
@@ -98,7 +98,7 @@ public class DeleteDeprecatedMeasuresTest extends AbstractDbUnitTestCase {
   public void shouldNotDoPurgeOnStandardStartup() {
     ServerUpgradeStatus upgradeStatus = mock(ServerUpgradeStatus.class);
     when(upgradeStatus.isUpgraded()).thenReturn(false);
-    when(upgradeStatus.getInitialDbVersion()).thenReturn(SchemaMigration.LAST_VERSION);
+    when(upgradeStatus.getInitialDbVersion()).thenReturn(DatabaseVersion.LAST_VERSION);
 
     final DeleteDeprecatedMeasures purge = new DeleteDeprecatedMeasures(getSessionFactory(), upgradeStatus);
     assertThat(purge.mustDoPurge(), is(false));

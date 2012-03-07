@@ -20,8 +20,7 @@
 package org.sonar.server.platform;
 
 import org.junit.Test;
-import org.sonar.jpa.entity.SchemaMigration;
-import org.sonar.jpa.session.DatabaseConnector;
+import org.sonar.core.persistence.DatabaseVersion;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -32,10 +31,10 @@ public class DefaultServerUpgradeStatusTest {
 
   @Test
   public void shouldBeFreshInstallation() {
-    DatabaseConnector connector = mock(DatabaseConnector.class);
-    when(connector.getDatabaseVersion()).thenReturn(-1);
+    DatabaseVersion dbVersion = mock(DatabaseVersion.class);
+    when(dbVersion.getVersion()).thenReturn(null);
 
-    DefaultServerUpgradeStatus status = new DefaultServerUpgradeStatus(connector);
+    DefaultServerUpgradeStatus status = new DefaultServerUpgradeStatus(dbVersion);
     status.start();
 
     assertThat(status.isFreshInstall(), is(true));
@@ -45,10 +44,10 @@ public class DefaultServerUpgradeStatusTest {
 
   @Test
   public void shouldBeUpgraded() {
-    DatabaseConnector connector = mock(DatabaseConnector.class);
-    when(connector.getDatabaseVersion()).thenReturn(50);
+    DatabaseVersion dbVersion = mock(DatabaseVersion.class);
+    when(dbVersion.getVersion()).thenReturn(50);
 
-    DefaultServerUpgradeStatus status = new DefaultServerUpgradeStatus(connector);
+    DefaultServerUpgradeStatus status = new DefaultServerUpgradeStatus(dbVersion);
     status.start();
 
     assertThat(status.isFreshInstall(), is(false));
@@ -58,14 +57,14 @@ public class DefaultServerUpgradeStatusTest {
 
   @Test
   public void shouldNotBeUpgraded() {
-    DatabaseConnector connector = mock(DatabaseConnector.class);
-    when(connector.getDatabaseVersion()).thenReturn(SchemaMigration.LAST_VERSION);
+    DatabaseVersion dbVersion = mock(DatabaseVersion.class);
+    when(dbVersion.getVersion()).thenReturn(DatabaseVersion.LAST_VERSION);
 
-    DefaultServerUpgradeStatus status = new DefaultServerUpgradeStatus(connector);
+    DefaultServerUpgradeStatus status = new DefaultServerUpgradeStatus(dbVersion);
     status.start();
-    
+
     assertThat(status.isFreshInstall(), is(false));
     assertThat(status.isUpgraded(), is(false));
-    assertThat(status.getInitialDbVersion(), is(SchemaMigration.LAST_VERSION));
+    assertThat(status.getInitialDbVersion(), is(DatabaseVersion.LAST_VERSION));
   }
 }

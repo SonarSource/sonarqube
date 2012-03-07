@@ -21,16 +21,13 @@ package org.sonar.jpa.session;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.utils.Logs;
 import org.sonar.core.persistence.Database;
+import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.core.persistence.dialect.Dialect;
-import org.sonar.jpa.entity.SchemaMigration;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Map;
 import java.util.Properties;
 
@@ -39,45 +36,15 @@ public abstract class AbstractDatabaseConnector implements DatabaseConnector {
 
   protected Database database;
   private EntityManagerFactory factory = null;
-  private int databaseVersion = SchemaMigration.VERSION_UNKNOWN;
-  private boolean operational = false;
-  private boolean started = false;
 
   protected AbstractDatabaseConnector(Database database) {
     this.database = database;
   }
 
-  public String getDialectId() {
-    return database.getDialect().getId();
-  }
-
-  /**
-   * Indicates if the connector is operational : database connection OK and schema version OK
-   */
-  public boolean isOperational() {
-    return operational;
-  }
-
-  /**
-   * Indicates if the connector is started : database connection OK and schema version OK or KO
-   */
-  protected boolean isStarted() {
-    return started;
-  }
-
   public void start() {
-    if (!started) {
-      testConnection();
-      started = true;
-    }
-    if (!operational) {
-      boolean upToDate = upToDateSchemaVersion();
-      if (upToDate) {
-        Logs.INFO.info("Initializing Hibernate");
-        factory = createEntityManagerFactory();
-        operational = true;
-      }
-    }
+    LOG.info("Initializing Hibernate");
+    factory = createEntityManagerFactory();
+
   }
 
   public void stop() {
@@ -85,17 +52,11 @@ public abstract class AbstractDatabaseConnector implements DatabaseConnector {
       factory.close();
       factory = null;
     }
-    operational = false;
-    started = false;
     database = null;
   }
 
   public EntityManagerFactory getEntityManagerFactory() {
     return factory;
-  }
-
-  protected void setEntityManagerFactory(EntityManagerFactory factory) {
-    this.factory = factory;
   }
 
   protected EntityManagerFactory createEntityManagerFactory() {
@@ -117,54 +78,8 @@ public abstract class AbstractDatabaseConnector implements DatabaseConnector {
     return factory.createEntityManager();
   }
 
-  private String testConnection() throws DatabaseException {
-    Connection connection = null;
-    try {
-      connection = getConnection();
-      return connection.getMetaData().getURL();
-
-    } catch (SQLException e) {
-      throw new DatabaseException("Cannot open connection to database: " + e.getMessage(), e);
-
-    } finally {
-      close(connection);
-    }
-  }
-
-  protected int loadVersion() {
-    Connection connection = null;
-    try {
-      connection = getConnection();
-      return SchemaMigration.getCurrentVersion(connection);
-
-    } catch (SQLException e) {
-      // schema not created
-      return 0;
-    } finally {
-      close(connection);
-    }
-  }
-
-  private void close(Connection connection) {
-    if (connection != null) {
-      try {
-        connection.close();
-      } catch (SQLException e) {
-        // why does close() throw a checked-exception ???
-      }
-    }
-  }
-
-  protected boolean upToDateSchemaVersion() {
-    if (databaseVersion == SchemaMigration.LAST_VERSION) {
-      return true;
-    }
-    databaseVersion = loadVersion();
-    return databaseVersion == SchemaMigration.LAST_VERSION;
-  }
-
   public final int getDatabaseVersion() {
-    return databaseVersion;
+    throw new UnsupportedOperationException("Moved to " + DatabaseVersion.class.getCanonicalName());
   }
 
   public final Dialect getDialect() {

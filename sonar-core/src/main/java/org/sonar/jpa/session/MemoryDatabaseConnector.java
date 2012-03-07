@@ -20,6 +20,7 @@
 package org.sonar.jpa.session;
 
 import org.sonar.core.persistence.Database;
+import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.jpa.entity.SchemaMigration;
 
 import javax.persistence.EntityManager;
@@ -29,24 +30,12 @@ public class MemoryDatabaseConnector extends DefaultDatabaseConnector {
 
   public MemoryDatabaseConnector(Database database) {
     super(database);
-    version = SchemaMigration.LAST_VERSION;
-  }
-
-  public MemoryDatabaseConnector(Database database, int version) {
-    this(database);
-    this.version = version;
+    version = DatabaseVersion.LAST_VERSION;
   }
 
   @Override
   public void start() {
-    try {
-      super.start();
-    } catch (DatabaseException ex) {
-      if (!isStarted()) {
-        throw ex;
-      }
-    }
-    setEntityManagerFactory(createEntityManagerFactory());
+    super.start();
     setupSchemaVersion(version);
   }
 

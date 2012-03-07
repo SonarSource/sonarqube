@@ -19,42 +19,27 @@
  */
 package org.sonar.server.platform;
 
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.platform.ServerUpgradeStatus;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.ServerComponent;
+import org.sonar.core.persistence.BadDatabaseVersion;
 import org.sonar.core.persistence.DatabaseVersion;
 
-/**
- * @since 2.5
- */
-public final class DefaultServerUpgradeStatus implements ServerUpgradeStatus {
+public class DatabaseServerCompatibility implements ServerComponent {
+  
+  private DatabaseVersion version;
 
-  private int initialDbVersion;
-  private DatabaseVersion dbVersion;
-
-  public DefaultServerUpgradeStatus(DatabaseVersion dbVersion) {
-    this.dbVersion = dbVersion;
+  public DatabaseServerCompatibility(DatabaseVersion version) {
+    this.version = version;
   }
 
   public void start() {
-    Integer v = dbVersion.getVersion();
-    this.initialDbVersion = (v != null ? v : -1);
+    DatabaseVersion.Status status = version.getStatus();
+    if (status== DatabaseVersion.Status.REQUIRES_DOWNGRADE) {
+      throw new BadDatabaseVersion("Database relates to a more recent version of sonar. Please check your settings.");
+    }
+    if (status== DatabaseVersion.Status.REQUIRES_UPGRADE) {
+      LoggerFactory.getLogger(DatabaseServerCompatibility.class).info("Database must be upgraded. Please browse /setup");
+    }
   }
 
-  public boolean isUpgraded() {
-    return !isFreshInstall() && (initialDbVersion < DatabaseVersion.LAST_VERSION);
-  }
-
-  public boolean isFreshInstall() {
-    return initialDbVersion<0;
-  }
-
-  public int getInitialDbVersion() {
-    return initialDbVersion;
-  }
-
-  @Override
-  public String toString() {
-    return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
-  }
 }
