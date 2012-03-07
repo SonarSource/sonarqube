@@ -27,6 +27,7 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.resources.*;
 import org.sonar.api.utils.SonarException;
 import org.sonar.duplications.block.Block;
@@ -79,10 +80,10 @@ public class SonarEngine extends CpdEngine {
 
   static String getFullKey(Project project, Resource resource) {
     return new StringBuilder(ResourceModel.KEY_SIZE)
-      .append(project.getKey())
-      .append(':')
-      .append(resource.getKey())
-      .toString();
+        .append(project.getKey())
+        .append(':')
+        .append(resource.getKey())
+        .toString();
   }
 
   @Override
@@ -195,7 +196,10 @@ public class SonarEngine extends CpdEngine {
     context.saveMeasure(resource, CoreMetrics.DUPLICATED_FILES, 1.0);
     context.saveMeasure(resource, CoreMetrics.DUPLICATED_LINES, (double) duplicatedLines.size());
     context.saveMeasure(resource, CoreMetrics.DUPLICATED_BLOCKS, duplicatedBlocks);
-    context.saveMeasure(resource, new Measure(CoreMetrics.DUPLICATIONS_DATA, toXml(duplications)));
+
+    Measure data = new Measure(CoreMetrics.DUPLICATIONS_DATA, toXml(duplications))
+        .setPersistenceMode(PersistenceMode.DATABASE);
+    context.saveMeasure(resource, data);
   }
 
   private static String toXml(Iterable<CloneGroup> duplications) {
