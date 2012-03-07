@@ -77,6 +77,9 @@ module Resourceable
     qualifier==QUALIFIER_FILE
   end
 
+  def test?
+    qualifier==QUALIFIER_UNIT_TEST_CLASS
+  end
   def source_code?
     java_resource_type.hasSourceCode()
   end

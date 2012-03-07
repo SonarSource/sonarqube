@@ -79,6 +79,7 @@ class ResourceController < ApplicationController
   def create_violation
     resource = Project.by_key(params[:resource])
     access_denied unless resource && current_user
+    bad_request(message('code_viewer.create_violation.unit_test_not_supported')) if resource.test?
 
     rule_id_or_name = params[:rule]
     if rule_id_or_name.blank?
@@ -138,7 +139,7 @@ class ResourceController < ApplicationController
   def load_sources
     @period = params[:period].to_i unless params[:period].blank?
     @expanded=(params[:expand]=='true')
-    @display_manual_violation_form=(current_user && has_role?(:user, @snapshot))
+    @display_manual_violation_form=(current_user && has_role?(:user, @snapshot) && !@snapshot.test?)
     if @snapshot.source
       source_lines=@snapshot.source.syntax_highlighted_lines()
       init_scm()
