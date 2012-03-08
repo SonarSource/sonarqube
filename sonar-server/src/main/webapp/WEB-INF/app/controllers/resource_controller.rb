@@ -292,9 +292,9 @@ class ResourceController < ApplicationController
           resource = Project.by_key(resource_key)
           resource_by_key[resource_key] = resource
         end
-        dup_group << {:resource => resource, :lines_count => block.attributes['l'], :from_line => block.attributes['s']}
+        dup_group << {:resource => resource, :lines_count => block.attributes['l'], :from_line => block.attributes['s']} if resource
       end
-      duplication_groups << dup_group
+      duplication_groups << dup_group if dup_group.size > 1
     end
   end
 
