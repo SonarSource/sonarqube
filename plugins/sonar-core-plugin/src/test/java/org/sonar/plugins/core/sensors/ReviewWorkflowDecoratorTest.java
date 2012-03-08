@@ -30,6 +30,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
+import org.sonar.api.violations.ViolationQuery;
 import org.sonar.batch.index.ResourcePersister;
 import org.sonar.core.review.ReviewDao;
 import org.sonar.core.review.ReviewDto;
@@ -75,7 +76,7 @@ public class ReviewWorkflowDecoratorTest extends AbstractDbUnitTestCase {
   public void shouldCloseReviewsOnResolvedViolations() {
     setupData("shouldCloseReviewsOnResolvedViolations");
     DecoratorContext context = mock(DecoratorContext.class);
-    when(context.getViolations()).thenReturn(Collections.<Violation>emptyList());
+    when(context.getViolations(any(ViolationQuery.class))).thenReturn(Collections.<Violation>emptyList());
 
     Resource resource = new JavaFile("org.foo.Bar");
     decorator.decorate(resource, context);
@@ -88,7 +89,7 @@ public class ReviewWorkflowDecoratorTest extends AbstractDbUnitTestCase {
   public void shouldCloseResolvedManualViolations() {
     setupData("shouldCloseResolvedManualViolations");
     DecoratorContext context = mock(DecoratorContext.class);
-    when(context.getViolations()).thenReturn(Collections.<Violation>emptyList());
+    when(context.getViolations(any(ViolationQuery.class))).thenReturn(Collections.<Violation>emptyList());
 
     Resource resource = new JavaFile("org.foo.Bar");
     decorator.decorate(resource, context);
@@ -103,7 +104,7 @@ public class ReviewWorkflowDecoratorTest extends AbstractDbUnitTestCase {
     DecoratorContext context = mock(DecoratorContext.class);
     Violation violation = new Violation(new Rule());
     violation.setPermanentId(1000);
-    when(context.getViolations()).thenReturn(Lists.newArrayList(violation));
+    when(context.getViolations(any(ViolationQuery.class))).thenReturn(Lists.newArrayList(violation));
 
     Resource resource = new JavaFile("org.foo.Bar");
     decorator.decorate(resource, context);
