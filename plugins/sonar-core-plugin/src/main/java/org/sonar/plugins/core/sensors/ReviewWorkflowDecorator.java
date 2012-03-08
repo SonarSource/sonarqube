@@ -32,6 +32,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rules.Violation;
+import org.sonar.api.violations.ViolationQuery;
 import org.sonar.batch.index.ResourcePersister;
 import org.sonar.core.NotDryRun;
 import org.sonar.core.review.ReviewDao;
@@ -66,10 +67,11 @@ public class ReviewWorkflowDecorator implements Decorator {
       Collection<ReviewDto> openReviews = reviewDao.selectOpenByResourceId(snapshot.getResourceId());
       Set<ReviewDto> updated = Sets.newHashSet();
       if (!openReviews.isEmpty()) {
-        closeResolvedStandardViolations(openReviews, context.getViolations(), context.getProject(), resource, updated);
+        List<Violation> violations = context.getViolations(ViolationQuery.create().forResource(resource).setSwitchMode(ViolationQuery.SwitchMode.BOTH));
+        closeResolvedStandardViolations(openReviews, violations, context.getProject(), resource, updated);
         closeResolvedManualViolations(openReviews, context.getProject(), resource, updated);
         reopenUnresolvedViolations(openReviews, context.getProject(), resource, updated);
-        updateReviewInformation(openReviews, context.getViolations(), updated);
+        updateReviewInformation(openReviews, violations, updated);
       }
       if (ResourceUtils.isRootProject(resource)) {
         closeReviewsOnDeletedResources((Project) resource, snapshot.getResourceId(), snapshot.getId(), updated);
