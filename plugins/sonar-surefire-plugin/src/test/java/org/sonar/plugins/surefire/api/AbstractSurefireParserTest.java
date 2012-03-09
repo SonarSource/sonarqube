@@ -47,6 +47,7 @@ public class AbstractSurefireParserTest {
 
     parser.collect(new Project("foo"), context, getDir("multipleReports"));
 
+    // Only 6 tests measures should be stored, no more: the TESTS-AllTests.xml must not be read.
     verify(context, times(6)).saveMeasure(argThat(new IsResource(Scopes.FILE, Qualifiers.FILE)), eq(CoreMetrics.TESTS), anyDouble());
     verify(context, times(6)).saveMeasure(argThat(new IsResource(Scopes.FILE, Qualifiers.FILE)), eq(CoreMetrics.TEST_ERRORS), anyDouble());
     verify(context, times(6)).saveMeasure(argThat(new IsResource(Scopes.FILE, Qualifiers.FILE)), argThat(new IsMeasure(CoreMetrics.TEST_DATA)));

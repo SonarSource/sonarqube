@@ -63,7 +63,7 @@ public abstract class AbstractSurefireParser {
     }
     return dir.listFiles(new FilenameFilter() {
       public boolean accept(File dir, String name) {
-        return name.startsWith("TEST") && name.endsWith(".xml");
+        return name.startsWith("TEST-") && name.endsWith(".xml");
       }
     });
   }
