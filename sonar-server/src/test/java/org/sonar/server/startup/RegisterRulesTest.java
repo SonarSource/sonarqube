@@ -19,24 +19,47 @@
  */
 package org.sonar.server.startup;
 
-import org.junit.Test;
-import org.sonar.api.rules.*;
-import org.sonar.jpa.test.AbstractDbUnitTestCase;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.number.OrderingComparisons.greaterThan;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.ActiveRuleParam;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleParam;
+import org.sonar.api.rules.RulePriority;
+import org.sonar.api.rules.RuleRepository;
+import org.sonar.api.utils.SonarException;
+import org.sonar.core.i18n.RuleI18nManager;
+import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 public class RegisterRulesTest extends AbstractDbUnitTestCase {
 
+  private RegisterRules task;
+
+  @Before
+  public void init() {
+    task = new RegisterRules(getSessionFactory(), new RuleRepository[]{new FakeRepository()}, null);
+  }
+  
   @Test
   public void saveNewRepositories() {
     setupData("shared");
-    RegisterRules task = new RegisterRules(getSessionFactory(), new RuleRepository[]{new FakeRepository()});
     task.start();
 
     List<Rule> result = getSession().getResults(Rule.class, "pluginName", "fake");
@@ -52,7 +75,6 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   @Test
   public void disableDeprecatedRepositories() {
     setupData("shared");
-    RegisterRules task = new RegisterRules(getSessionFactory(), new RuleRepository[]{new FakeRepository()});
     task.start();
 
     List<Rule> rules = (List<Rule>) getSession()
@@ -67,7 +89,6 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   @Test
   public void disableDeprecatedActiveRules() {
     setupData("disableDeprecatedActiveRules");
-    RegisterRules task = new RegisterRules(getSessionFactory(), new RuleRepository[]{new FakeRepository()});
     task.start();
 
     List<Rule> result = getSession().getResults(Rule.class, "pluginName", "fake");
@@ -84,7 +105,6 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   @Test
   public void disableDeprecatedActiveRuleParameters() {
     setupData("disableDeprecatedActiveRuleParameters");
-    RegisterRules task = new RegisterRules(getSessionFactory(), new RuleRepository[]{new FakeRepository()});
     task.start();
 
     ActiveRule arule = getSession().getSingleResult(ActiveRule.class, "id", 1);
@@ -95,7 +115,6 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   @Test
   public void disableDeprecatedRules() {
     setupData("disableDeprecatedRules");
-    RegisterRules task = new RegisterRules(getSessionFactory(), new RuleRepository[]{new FakeRepository()});
     task.start();
 
     Rule rule = getSession().getSingleResult(Rule.class, "id", 1);
@@ -108,7 +127,6 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   @Test
   public void updateRuleFields() {
     setupData("updadeRuleFields");
-    RegisterRules task = new RegisterRules(getSessionFactory(), new RuleRepository[]{new FakeRepository()});
     task.start();
 
     // fields have been updated with new values
@@ -122,7 +140,6 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   @Test
   public void updateRuleParameters() {
     setupData("updateRuleParameters");
-    RegisterRules task = new RegisterRules(getSessionFactory(), new RuleRepository[]{new FakeRepository()});
     task.start();
 
     Rule rule = getSession().getSingleResult(Rule.class, "id", 1);
@@ -146,7 +163,6 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   @Test
   public void doNotDisableUserRulesIfParentIsEnabled() {
     setupData("doNotDisableUserRulesIfParentIsEnabled");
-    RegisterRules task = new RegisterRules(getSessionFactory(), new RuleRepository[]{new FakeRepository()});
     task.start();
 
     Rule rule = getSession().getSingleResult(Rule.class, "id", 2);
@@ -156,7 +172,6 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   @Test
   public void disableUserRulesIfParentIsDisabled() {
     setupData("disableUserRulesIfParentIsDisabled");
-    RegisterRules task = new RegisterRules(getSessionFactory(), new RuleRepository[]{new FakeRepository()});
     task.start();
 
     Rule rule = getSession().getSingleResult(Rule.class, "id", 2);
@@ -167,8 +182,6 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   public void shouldNotDisableManualRules() {
     // the hardcoded repository "manual" is used for manual violations
     setupData("shouldNotDisableManualRules");
-
-    RegisterRules task = new RegisterRules(getSessionFactory(), new RuleRepository[]{new FakeRepository()});
     task.start();
 
     assertThat(getSession().getSingleResult(Rule.class, "id", 1).isEnabled(), is(true));
@@ -177,12 +190,54 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
 
   @Test
   public void volumeTesting() {
+    task = new RegisterRules(getSessionFactory(), new RuleRepository[]{new VolumeRepository()}, null);
     setupData("shared");
-    RegisterRules task = new RegisterRules(getSessionFactory(), new RuleRepository[]{new VolumeRepository()});
     task.start();
 
     List<Rule> result = getSession().getResults(Rule.class, "enabled", true);
     assertThat(result.size(), is(VolumeRepository.SIZE));
+  }
+  
+  // http://jira.codehaus.org/browse/SONAR-3305
+  @Test
+  public void shouldFailRuleWithoutName() throws Exception {
+    RuleI18nManager ruleI18nManager = mock(RuleI18nManager.class);
+    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutNameRepository()}, ruleI18nManager);
+    setupData("shared");
+
+    // the rule has no name, it should fail
+    try {
+      task.start();
+      fail("Rule must have a name");
+    } catch (SonarException e) {
+      assertThat(e.getMessage(), containsString("must have a name"));
+    }
+    
+    // now it is ok, the rule has a name in the English bundle
+    when(ruleI18nManager.getName(anyString(), anyString(), any(Locale.class))).thenReturn("Name");
+    when(ruleI18nManager.getDescription(anyString(), anyString(), any(Locale.class))).thenReturn("Description");
+    task.start();
+  }
+  
+  // http://jira.codehaus.org/browse/SONAR-3305
+  @Test
+  public void shouldFailRuleWithoutDescription() throws Exception {
+    RuleI18nManager ruleI18nManager = mock(RuleI18nManager.class);
+    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutDescriptionRepository()}, ruleI18nManager);
+    setupData("shared");
+
+    // the rule has no name, it should fail
+    try {
+      task.start();
+      fail("Rule must have a description");
+    } catch (SonarException e) {
+      assertThat(e.getMessage(), containsString("must have a description"));
+    }
+    
+    // now it is ok, the rule has a name & a description in the English bundle
+    when(ruleI18nManager.getName(anyString(), anyString(), any(Locale.class))).thenReturn("Name");
+    when(ruleI18nManager.getDescription(anyString(), anyString(), any(Locale.class))).thenReturn("Description");
+    task.start();
   }
 }
 
@@ -200,9 +255,34 @@ class FakeRepository extends RuleRepository {
     rule1.createParameter("param2").setDescription("parameter two").setDefaultValue("default value two");
 
     Rule rule2 = Rule.create("fake", "rule2", "Two");
+    rule2.setDescription("Description of Two");
     rule2.setSeverity(RulePriority.INFO);
 
     return Arrays.asList(rule1, rule2);
+  }
+}
+
+class RuleWithoutNameRepository extends RuleRepository {
+  public RuleWithoutNameRepository() {
+    super("rule-without-name-repo", "java");
+  }
+
+  public List<Rule> createRules() {
+    // Rules must not have empty name
+    Rule rule1 = Rule.create("fake", "rule1", null);
+    return Arrays.asList(rule1);
+  }
+}
+
+class RuleWithoutDescriptionRepository extends RuleRepository {
+  public RuleWithoutDescriptionRepository() {
+    super("rule-without-description-repo", "java");
+  }
+
+  public List<Rule> createRules() {
+    // Rules must not have empty description
+    Rule rule1 = Rule.create("fake", "rule1", "Rule 1");
+    return Arrays.asList(rule1);
   }
 }
 
@@ -216,7 +296,8 @@ class VolumeRepository extends RuleRepository {
   public List<Rule> createRules() {
     List<Rule> rules = new ArrayList<Rule>();
     for (int i = 0; i < SIZE; i++) {
-      Rule rule = Rule.create("volume", "rule" + i, "description of " + i);
+      Rule rule = Rule.create("volume", "rule" + i, "name of " + i);
+      rule.setDescription("description of " + i);
       rule.setSeverity(RulePriority.BLOCKER);
       for (int j = 0; j < 20; j++) {
         rule.createParameter("param" + j);

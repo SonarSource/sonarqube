@@ -28,7 +28,9 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.utils.Logs;
+import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 
 import java.util.*;
@@ -37,14 +39,16 @@ public final class RegisterRules {
 
   private DatabaseSessionFactory sessionFactory;
   private List<RuleRepository> repositories = Lists.newArrayList();
+  private RuleI18nManager ruleI18nManager;
 
-  public RegisterRules(DatabaseSessionFactory sessionFactory, RuleRepository[] repos) {
+  public RegisterRules(DatabaseSessionFactory sessionFactory, RuleRepository[] repos, RuleI18nManager ruleI18nManager) {
     this.sessionFactory = sessionFactory;
     this.repositories.addAll(Arrays.asList(repos));
+    this.ruleI18nManager = ruleI18nManager;
   }
 
-  public RegisterRules(DatabaseSessionFactory sessionFactory) {
-    this(sessionFactory, new RuleRepository[0]);
+  public RegisterRules(DatabaseSessionFactory sessionFactory, RuleI18nManager ruleI18nManager) {
+    this(sessionFactory, new RuleRepository[0], ruleI18nManager);
   }
 
   public void start() {
@@ -68,12 +72,12 @@ public final class RegisterRules {
   private void disableDeprecatedUserRules(DatabaseSession session) {
     List<Integer> deprecatedUserRuleIds = Lists.newLinkedList();
     deprecatedUserRuleIds.addAll(session.createQuery(
-      "SELECT r.id FROM " + Rule.class.getSimpleName() +
-        " r WHERE r.parent IS NOT NULL AND NOT EXISTS(FROM " + Rule.class.getSimpleName() + " p WHERE r.parent=p)").getResultList());
+        "SELECT r.id FROM " + Rule.class.getSimpleName() +
+          " r WHERE r.parent IS NOT NULL AND NOT EXISTS(FROM " + Rule.class.getSimpleName() + " p WHERE r.parent=p)").getResultList());
 
     deprecatedUserRuleIds.addAll(session.createQuery(
-      "SELECT r.id FROM " + Rule.class.getSimpleName() +
-        " r WHERE r.parent IS NOT NULL AND EXISTS(FROM " + Rule.class.getSimpleName() + " p WHERE r.parent=p and p.enabled=false)").getResultList());
+        "SELECT r.id FROM " + Rule.class.getSimpleName() +
+          " r WHERE r.parent IS NOT NULL AND EXISTS(FROM " + Rule.class.getSimpleName() + " p WHERE r.parent=p and p.enabled=false)").getResultList());
 
     for (Integer deprecatedUserRuleId : deprecatedUserRuleIds) {
       Rule rule = session.getSingleResult(Rule.class, "id", deprecatedUserRuleId);
@@ -91,6 +95,7 @@ public final class RegisterRules {
   private void registerRepository(RuleRepository repository, DatabaseSession session) {
     Map<String, Rule> rulesByKey = Maps.newHashMap();
     for (Rule rule : repository.createRules()) {
+      validateRule(rule, repository.getKey());
       rule.setRepositoryKey(repository.getKey());
       rulesByKey.put(rule.getKey(), rule);
     }
@@ -106,6 +111,15 @@ public final class RegisterRules {
     }
 
     saveNewRules(rulesByKey.values(), session);
+  }
+
+  private void validateRule(Rule rule, String repositoryKey) {
+    if (rule.getName() == null && ruleI18nManager.getName(repositoryKey, rule.getKey(), Locale.ENGLISH) == null) {
+      throw new SonarException("The following rule (repository: " + repositoryKey + ") must have a name: " + rule);
+    }
+    if (rule.getDescription() == null && ruleI18nManager.getDescription(repositoryKey, rule.getKey(), Locale.ENGLISH) == null) {
+      throw new SonarException("The following rule (repository: " + repositoryKey + ") must have a description: " + rule);
+    }
   }
 
   private void updateRule(Rule persistedRule, Rule rule, DatabaseSession session) {
@@ -141,14 +155,14 @@ public final class RegisterRules {
 
   private void deleteDeprecatedParameters(Rule persistedRule, Rule rule, DatabaseSession session) {
     if (persistedRule.getParams() != null && persistedRule.getParams().size() > 0) {
-      for (Iterator<RuleParam> it = persistedRule.getParams().iterator(); it.hasNext(); ) {
+      for (Iterator<RuleParam> it = persistedRule.getParams().iterator(); it.hasNext();) {
         RuleParam persistedParam = it.next();
         if (rule.getParam(persistedParam.getKey()) == null) {
           it.remove();
           session
-            .createQuery("delete from " + ActiveRuleParam.class.getSimpleName() + " where ruleParam=:param")
-            .setParameter("param", persistedParam)
-            .executeUpdate();
+              .createQuery("delete from " + ActiveRuleParam.class.getSimpleName() + " where ruleParam=:param")
+              .setParameter("param", persistedParam)
+              .executeUpdate();
         }
       }
     }
