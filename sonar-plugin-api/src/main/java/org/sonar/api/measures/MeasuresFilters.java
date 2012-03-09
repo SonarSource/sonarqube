@@ -138,6 +138,7 @@ public final class MeasuresFilters {
       private boolean apply(Measure measure) {
         return measure instanceof RuleMeasure
           && metric.equals(measure.getMetric())
+          && measure.getPersonId() == null
           && ((RuleMeasure) measure).getRule() != null;
       }
 
@@ -183,6 +184,7 @@ public final class MeasuresFilters {
     private boolean apply(Measure measure) {
       return measure instanceof RuleMeasure
         && filterOnMetricKey().equals(measure.getMetricKey())
+        && measure.getPersonId() == null
         && doApply((RuleMeasure) measure);
     }
 
