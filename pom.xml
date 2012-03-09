@@ -90,7 +90,15 @@
     <sonar.skippedModules>sonar-gwt-api,sonar-core-gwt</sonar.skippedModules>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.min.version>2.2.1</maven.min.version>
-    <jdk.min.version>1.5</jdk.min.version>
+    <jdk.min.version>1.6</jdk.min.version>
+
+    <!-- To configure animal-sniffer to check API compat -->
+    <animal-sniffer.signature.groupId>org.codehaus.mojo.signature</animal-sniffer.signature.groupId>
+    <animal-sniffer.signature.artifactId>java16</animal-sniffer.signature.artifactId>
+    <animal-sniffer.signature.version>1.0</animal-sniffer.signature.version>
+    <version.animal-sniffer.plugin>1.7</version.animal-sniffer.plugin>
+    <version.maven-license.plugin>1.9.0</version.maven-license.plugin>
+    <skipSanityChecks>false</skipSanityChecks>
 
     <!-- default GWT configuration. It's overridden by the profile 'dev' to speed up compilation in dev environments-->
     <gwt.permutationSuffix />
@@ -113,7 +121,15 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>animal-sniffer-maven-plugin</artifactId>
-          <version>1.7</version>
+          <version>${version.animal-sniffer.plugin}</version>
+          <configuration>
+            <signature>
+              <groupId>${animal-sniffer.signature.groupId}</groupId>
+              <artifactId>${animal-sniffer.signature.artifactId}</artifactId>
+              <version>${animal-sniffer.signature.version}</version>
+            </signature>
+            <skip>${skipSanityChecks}</skip>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -204,7 +220,7 @@
         <plugin>
           <groupId>com.mycila.maven-license-plugin</groupId>
           <artifactId>maven-license-plugin</artifactId>
-          <version>1.9.0</version>
+          <version>${version.maven-license.plugin}</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -381,11 +397,25 @@
           <mapping>
             <java>SLASHSTAR_STYLE</java>
           </mapping>
+          <skip>${skipSanityChecks}</skip>
         </configuration>
         <executions>
           <execution>
             <id>enforce-license-headers</id>
             <phase>validate</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>animal-sniffer-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce-java-api-compatibility</id>
+            <phase>verify</phase>
             <goals>
               <goal>check</goal>
             </goals>
@@ -1070,35 +1100,6 @@
               <linksource>true</linksource>
               <reportOutputDirectory>${project.reporting.outputDirectory}/${project.version}/apidocs</reportOutputDirectory>
             </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
-      <id>sanity-checks</id>
-      <build>
-        <plugins>
-          <!-- check compatibility with Java 5 -->
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>animal-sniffer-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>enforce-java-api-compatibility</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>check</goal>
-                </goals>
-                <configuration>
-                  <signature>
-                    <groupId>org.codehaus.mojo.signature</groupId>
-                    <artifactId>java15</artifactId>
-                    <version>1.0</version>
-                  </signature>
-                </configuration>
-              </execution>
-            </executions>
           </plugin>
         </plugins>
       </build>
