@@ -136,7 +136,7 @@ public class Settings implements BatchComponent, ServerComponent {
     return ArrayUtils.EMPTY_STRING_ARRAY;
   }
 
-  public List<String> getKeysStartingWith(String prefix) {
+  public final List<String> getKeysStartingWith(String prefix) {
     List<String> result = Lists.newArrayList();
     for (String key : properties.keySet()) {
       if (StringUtils.startsWith(key, prefix)) {

@@ -57,7 +57,7 @@ public class ConfigurationUtilsTest {
     Properties input = new Properties();
     input.setProperty("hello", "world");
     input.setProperty("foo", "bar");
-    Map<String,String> output = Maps.newHashMap();
+    Map<String, String> output = Maps.newHashMap();
 
     ConfigurationUtils.copyProperties(input, output);
 

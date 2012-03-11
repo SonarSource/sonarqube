@@ -21,14 +21,15 @@ package org.sonar.batch.config;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
-import org.sonar.api.database.configuration.Property;
 import org.sonar.api.resources.Project;
 import org.sonar.core.config.ConfigurationUtils;
-import org.sonar.jpa.session.DatabaseSessionFactory;
+import org.sonar.core.properties.PropertiesDao;
+import org.sonar.core.properties.PropertyDto;
 
 import java.util.List;
 
@@ -39,13 +40,13 @@ public class ProjectSettings extends Settings {
 
   private Configuration deprecatedCommonsConf;
   private ProjectDefinition projectDefinition;
-  private DatabaseSessionFactory dbFactory;
+  private PropertiesDao propertiesDao;
 
-  public ProjectSettings(PropertyDefinitions definitions, ProjectDefinition projectDefinition, DatabaseSessionFactory dbFactory, Project project) {
+  public ProjectSettings(PropertyDefinitions definitions, ProjectDefinition projectDefinition, PropertiesDao propertiesDao, Project project) {
     super(definitions);
     this.deprecatedCommonsConf = project.getConfiguration(); // Configuration is not a parameter to be sure that the project conf is used, not the global one
     this.projectDefinition = projectDefinition;
-    this.dbFactory = dbFactory;
+    this.propertiesDao = propertiesDao;
     load();
   }
 
@@ -82,15 +83,19 @@ public class ProjectSettings extends Settings {
     if (projectDef.getParent() != null) {
       loadDatabaseProjectSettings(projectDef.getParent(), branch);
     }
-    List<Property> props = ConfigurationUtils.getProjectProperties(dbFactory, projectDef.getKey(), branch);
-    for (Property dbProperty : props) {
+    String projectKey = projectDef.getKey();
+    if (StringUtils.isNotBlank(branch)) {
+      projectKey = String.format("%s:%s", projectKey, branch);
+    }
+    List<PropertyDto> props = propertiesDao.selectProjectProperties(projectKey);
+    for (PropertyDto dbProperty : props) {
       setProperty(dbProperty.getKey(), dbProperty.getValue());
     }
   }
 
   private void loadDatabaseGlobalSettings() {
-    List<Property> props = ConfigurationUtils.getGeneralProperties(dbFactory);
-    for (Property dbProperty : props) {
+    List<PropertyDto> props = propertiesDao.selectGlobalProperties();
+    for (PropertyDto dbProperty : props) {
       setProperty(dbProperty.getKey(), dbProperty.getValue());
     }
   }

@@ -22,18 +22,15 @@ package org.sonar.core.config;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrSubstitutor;
-import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.database.configuration.Property;
-import org.sonar.api.database.model.ResourceModel;
-import org.sonar.jpa.session.DatabaseSessionFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * @since 2.12
@@ -85,43 +82,7 @@ public final class ConfigurationUtils {
     return result;
   }
 
-  public static List<Property> getProjectProperties(DatabaseSessionFactory dbFactory, String moduleKey, String branch) {
-    final String completeKey;
-    if (StringUtils.isNotBlank(branch)) {
-      completeKey = String.format("%s:%s", moduleKey, branch);
-    } else {
-      completeKey = moduleKey;
-    }
-    DatabaseSession session = prepareDbSession(dbFactory);
-    ResourceModel resource = session.getSingleResult(ResourceModel.class, "key", completeKey);
-    if (resource != null) {
-      return session
-          .createQuery("from " + Property.class.getSimpleName() + " p where p.resourceId=:resourceId and p.userId is null")
-          .setParameter("resourceId", resource.getId())
-          .getResultList();
-
-    }
-    return Collections.emptyList();
-  }
-
-  public static List<Property> getGeneralProperties(DatabaseSessionFactory dbFactory) {
-    DatabaseSession session = prepareDbSession(dbFactory);
-    return session
-        .createQuery("from " + Property.class.getSimpleName() + " p where p.resourceId is null and p.userId is null")
-        .getResultList();
-
-  }
-
-  private static DatabaseSession prepareDbSession(DatabaseSessionFactory dbFactory) {
-    DatabaseSession session = dbFactory.getSession();
-    // Ugly workaround before the move to myBatis
-    // Session is not up-to-date when Ruby on Rails inserts new rows in its own transaction. Seems like
-    // Hibernate keeps a cache...
-    session.commit();
-    return session;
-  }
-
-  public static void copyToCommonsConfiguration(Map<String,String> input, Configuration commonsConfig) {
+  public static void copyToCommonsConfiguration(Map<String, String> input, Configuration commonsConfig) {
     // update deprecated configuration
     commonsConfig.clear();
     for (Map.Entry<String, String> entry : input.entrySet()) {

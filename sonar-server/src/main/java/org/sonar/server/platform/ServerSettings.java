@@ -23,9 +23,9 @@ import org.apache.commons.configuration.Configuration;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
-import org.sonar.api.database.configuration.Property;
 import org.sonar.core.config.ConfigurationUtils;
-import org.sonar.jpa.session.DatabaseSessionFactory;
+import org.sonar.core.properties.PropertiesDao;
+import org.sonar.core.properties.PropertyDto;
 
 import javax.servlet.ServletContext;
 import java.io.File;
@@ -47,7 +47,7 @@ public class ServerSettings extends Settings {
 
   public static final String DEPLOY_DIR = "sonar.web.deployDir";
 
-  private DatabaseSessionFactory sessionFactory;
+  private PropertiesDao propertiesDao;
   private Configuration deprecatedConfiguration;
   private File deployDir;
 
@@ -65,8 +65,8 @@ public class ServerSettings extends Settings {
     load(sonarHome);
   }
 
-  public ServerSettings setSessionFactory(DatabaseSessionFactory sessionFactory) {
-    this.sessionFactory = sessionFactory;
+  public ServerSettings activateDatabaseSettings(PropertiesDao dao) {
+    this.propertiesDao = dao;
     return this;
   }
 
@@ -78,7 +78,7 @@ public class ServerSettings extends Settings {
     clear();
     setProperty(CoreProperties.SONAR_HOME, sonarHome.getAbsolutePath());
     setProperty(DEPLOY_DIR, deployDir.getAbsolutePath());
-    
+
     // order is important : the last override the first
     loadDatabaseSettings();
     loadPropertiesFile(sonarHome);
@@ -92,10 +92,10 @@ public class ServerSettings extends Settings {
   }
 
   private void loadDatabaseSettings() {
-    if (sessionFactory != null) {
-      List<Property> properties = ConfigurationUtils.getGeneralProperties(sessionFactory);
-      for (Property property : properties) {
-        setProperty(property.getKey(), property.getValue());
+    if (propertiesDao != null) {
+      List<PropertyDto> dpProps = propertiesDao.selectGlobalProperties();
+      for (PropertyDto dbProp : dpProps) {
+        setProperty(dbProp.getKey(), dbProp.getValue());
       }
     }
   }

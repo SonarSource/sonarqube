@@ -19,37 +19,42 @@
  */
 package org.sonar.batch.config;
 
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.api.database.configuration.Property;
-import org.sonar.core.config.ConfigurationUtils;
-import org.sonar.jpa.session.DatabaseSessionFactory;
+import org.sonar.core.properties.PropertiesDao;
+import org.sonar.core.properties.PropertyDto;
 
 import java.util.List;
 
 /**
  * @since 2.12
  */
-public final class BatchSettingsEnhancer {
+public final class BatchDatabaseSettingsLoader {
 
-  private DatabaseSessionFactory dbFactory;
+  private PropertiesDao propertiesDao;
   private BatchSettings settings;
   private ProjectReactor reactor;
 
-  public BatchSettingsEnhancer(DatabaseSessionFactory dbFactory, BatchSettings settings, ProjectReactor reactor) {
-    this.dbFactory = dbFactory;
+  public BatchDatabaseSettingsLoader(PropertiesDao propertiesDao, BatchSettings settings, ProjectReactor reactor) {
+    this.propertiesDao = propertiesDao;
     this.settings = settings;
     this.reactor = reactor;
   }
 
   public void start() {
-    setIfNotDefined(ConfigurationUtils.getProjectProperties(dbFactory, reactor.getRoot().getKey(), settings.getString(CoreProperties.PROJECT_BRANCH_PROPERTY)));
-    setIfNotDefined(ConfigurationUtils.getGeneralProperties(dbFactory));
+    String branch = settings.getString(CoreProperties.PROJECT_BRANCH_PROPERTY);
+    String projectKey = reactor.getRoot().getKey();
+    if (StringUtils.isNotBlank(branch)) {
+      projectKey = String.format("%s:%s", projectKey, branch);
+    }
+    setIfNotDefined(propertiesDao.selectProjectProperties(projectKey));
+    setIfNotDefined(propertiesDao.selectGlobalProperties());
     settings.updateDeprecatedCommonsConfiguration();
   }
 
-  private void setIfNotDefined(List<Property> dbProperties) {
-    for (Property dbProperty : dbProperties) {
+  private void setIfNotDefined(List<PropertyDto> dbProperties) {
+    for (PropertyDto dbProperty : dbProperties) {
       if (!settings.hasKey(dbProperty.getKey())) {
         settings.setProperty(dbProperty.getKey(), dbProperty.getValue());
       }

@@ -35,6 +35,7 @@ import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.IocContainer;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.batch.config.BatchDatabaseSettingsLoader;
 import org.sonar.core.i18n.GwtI18n;
 import org.sonar.core.i18n.I18nManager;
 import org.sonar.core.i18n.RuleI18nManager;
@@ -147,6 +148,7 @@ public final class Platform {
 
   private void startCoreComponents() {
     coreContainer = rootContainer.createChild();
+    coreContainer.addSingleton(ServerDatabaseSettingsLoader.class);
     coreContainer.addSingleton(DefaultDatabaseConnector.class);
     coreContainer.addSingleton(PluginDeployer.class);
     coreContainer.addSingleton(DefaultServerPluginRepository.class);
@@ -155,11 +157,6 @@ public final class Platform {
     coreContainer.addSingleton(ThreadLocalDatabaseSessionFactory.class);
     coreContainer.addPicoAdapter(new DatabaseSessionProvider());
     coreContainer.startComponents();
-
-    DatabaseSessionFactory sessionFactory = coreContainer.getComponentByType(DatabaseSessionFactory.class);
-    ServerSettings serverSettings = coreContainer.getComponentByType(ServerSettings.class);
-    serverSettings.setSessionFactory(sessionFactory);
-    serverSettings.load();
   }
 
   /**

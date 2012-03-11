@@ -6,12 +6,12 @@
             description="[null]"
             enabled="true" language="java" copy_resource_id="[null]" person_id="[null]"/>
 
-  <!-- general properties -->
-  <properties prop_key="general_only" resource_id="[null]" user_id="[null]" text_value="is_general"/>
-  <properties prop_key="general_and_project" resource_id="[null]" user_id="[null]" text_value="is_general"/>
+  <!-- global properties -->
+  <properties prop_key="global_only" resource_id="[null]" user_id="[null]" text_value="is_global"/>
+  <properties prop_key="global_and_project" resource_id="[null]" user_id="[null]" text_value="is_global"/>
 
   <!-- project properties: do not load  -->
-  <properties prop_key="general_and_project" resource_id="3333" user_id="[null]" text_value="is_project"/>
+  <properties prop_key="global_and_project" resource_id="3333" user_id="[null]" text_value="is_project"/>
   <properties prop_key="project_only" resource_id="3333" user_id="[null]" text_value="is_project"/>
 
   <!-- user properties : do not load -->

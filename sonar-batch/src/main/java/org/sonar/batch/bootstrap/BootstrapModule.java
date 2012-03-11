@@ -26,7 +26,7 @@ import org.sonar.batch.FakeMavenPluginExecutor;
 import org.sonar.batch.MavenPluginExecutor;
 import org.sonar.batch.ServerMetadata;
 import org.sonar.batch.config.BatchSettings;
-import org.sonar.batch.config.BatchSettingsEnhancer;
+import org.sonar.batch.config.BatchDatabaseSettingsLoader;
 import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.jpa.session.DatabaseSessionProvider;
 import org.sonar.jpa.session.DefaultDatabaseConnector;
@@ -88,7 +88,7 @@ public class BootstrapModule extends Module {
 
     addCoreSingleton(BatchPluginRepository.class);
     addCoreSingleton(BatchExtensionInstaller.class);
-    addCoreSingleton(BatchSettingsEnhancer.class);
+    addCoreSingleton(BatchDatabaseSettingsLoader.class);
   }
 
   boolean isMavenPluginExecutorRegistered() {

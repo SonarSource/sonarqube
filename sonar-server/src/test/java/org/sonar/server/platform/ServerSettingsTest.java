@@ -22,6 +22,7 @@ package org.sonar.server.platform;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.junit.Test;
 import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.core.properties.PropertiesDao;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.io.File;
@@ -57,15 +58,15 @@ public class ServerSettingsTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void shouldLoadPersistedGeneralSettings() throws URISyntaxException {
+  public void shouldActivateDatabaseSettings() throws URISyntaxException {
     setupData("db/shared");
 
     ServerSettings settings = new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), home);
-    settings.setSessionFactory(getSessionFactory());
+    settings.activateDatabaseSettings(new PropertiesDao(getMyBatis()));
     settings.load(home);
 
-    assertThat(settings.getString("general_only"), is("is_general"));
-    assertThat(settings.getString("general_and_project"), is("is_general"));
+    assertThat(settings.getString("global_only"), is("is_global"));
+    assertThat(settings.getString("global_and_project"), is("is_global"));
     assertThat(settings.getString("project_only"), nullValue());
   }
 
