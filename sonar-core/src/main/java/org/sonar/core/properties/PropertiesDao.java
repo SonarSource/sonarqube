@@ -19,12 +19,12 @@
  */
 package org.sonar.core.properties;
 
-import java.util.List;
-
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
+
+import java.util.List;
 
 public class PropertiesDao implements BatchComponent, ServerComponent {
 
@@ -36,7 +36,7 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
 
   /**
    * Returns the logins of users who have flagged as favourite the resource identified by the given id.
-   *  
+   *
    * @param resourceId the resource id
    * @return the list of logins (maybe be empty - obviously)
    */
@@ -50,4 +50,23 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
     }
   }
 
+  public List<PropertyDto> selectGlobalProperties() {
+    SqlSession session = mybatis.openSession();
+    PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
+    try {
+      return mapper.selectGlobalProperties();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<PropertyDto> selectProjectProperties(String resourceKey) {
+    SqlSession session = mybatis.openSession();
+    PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
+    try {
+      return mapper.selectProjectProperties(resourceKey);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
 }

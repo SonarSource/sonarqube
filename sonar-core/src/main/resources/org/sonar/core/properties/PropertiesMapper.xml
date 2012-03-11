@@ -9,4 +9,16 @@
     WHERE P.prop_key = 'favourite' AND P.resource_id = #{resource_id} AND P.user_id = U.id
   </select>
 
+  <select id="selectGlobalProperties" resultType="Property">
+    select p.id as id, p.prop_key as "key", p.text_value as value, p.resource_id as resourceId, p.user_id as userId
+    from properties p
+    where p.resource_id is null and p.user_id is null
+  </select>
+
+  <select id="selectProjectProperties" parameterType="String" resultType="Property">
+      select p.id as id, p.prop_key as "key", p.text_value as value, p.resource_id as resourceId, p.user_id as userId
+      from properties p, projects r
+      where p.resource_id=r.id and p.user_id is null and r.kee=#{id}
+    </select>
+
 </mapper>

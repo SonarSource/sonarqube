@@ -1,0 +1,14 @@
+<dataset>
+
+  <!-- global -->
+  <properties id="1" prop_key="global.one" text_value="one" resource_id="[null]" user_id="[null]"/>
+  <properties id="2" prop_key="global.two" text_value="two" resource_id="[null]" user_id="[null]"/>
+
+  <!-- project -->
+  <properties id="3" prop_key="project.one" text_value="one" resource_id="10" user_id="[null]"/>
+
+  <!-- user -->
+  <properties id="4" prop_key="user.one" text_value="one" resource_id="[null]" user_id="100"/>
+  <properties id="5" prop_key="user.two" text_value="two" resource_id="10" user_id="100"/>
+
+</dataset>

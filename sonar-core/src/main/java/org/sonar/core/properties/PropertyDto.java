@@ -19,14 +19,55 @@
  */
 package org.sonar.core.properties;
 
-import java.util.List;
+public final class PropertyDto {
+  private Integer id;
+  private String key;
+  private String value;
+  private Integer resourceId;
+  private Integer userId;
 
-import org.apache.ibatis.annotations.Param;
+  public Integer getId() {
+    return id;
+  }
 
-public interface PropertiesMapper {
+  public PropertyDto setId(Integer id) {
+    this.id = id;
+    return this;
+  }
 
-  List<String> findUserIdsForFavouriteResource(@Param("resource_id") Integer resourceId);
-  List<PropertyDto> selectGlobalProperties();
-  List<PropertyDto> selectProjectProperties(String resourceKey);
+  public String getKey() {
+    return key;
+  }
 
+  public PropertyDto setKey(String key) {
+    this.key = key;
+    return this;
+  }
+
+  public String getValue() {
+    return value;
+  }
+
+  public PropertyDto setValue(String value) {
+    this.value = value;
+    return this;
+  }
+
+  public Integer getResourceId() {
+    return resourceId;
+  }
+
+  public PropertyDto setResourceId(Integer resourceId) {
+    this.resourceId = resourceId;
+    return this;
+  }
+
+  public Integer getUserId() {
+    return userId;
+  }
+
+  public PropertyDto setUserId(Integer userId) {
+    this.userId = userId;
+    return this;
+  }
 }

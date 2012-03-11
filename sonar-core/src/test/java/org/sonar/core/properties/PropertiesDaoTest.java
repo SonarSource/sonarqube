@@ -19,15 +19,15 @@
  */
 package org.sonar.core.properties;
 
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.persistence.DaoTestCase;
+
+import java.util.List;
+
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class PropertiesDaoTest extends DaoTestCase {
 
@@ -44,5 +44,40 @@ public class PropertiesDaoTest extends DaoTestCase {
     List<String> userIds = dao.findUserIdsForFavouriteResource(2);
     assertThat(userIds.size(), is(2));
     assertThat(userIds, hasItems("user3", "user4"));
+  }
+
+  @Test
+  public void selectGlobalProperties() throws Exception {
+    setupData("selectGlobalProperties");
+    List<PropertyDto> properties = dao.selectGlobalProperties();
+    assertThat(properties.size(), is(2));
+
+    PropertyDto first = findById(properties, 1);
+    assertThat(first.getKey(), is("global.one"));
+    assertThat(first.getValue(), is("one"));
+
+    PropertyDto second = findById(properties, 2);
+    assertThat(second.getKey(), is("global.two"));
+    assertThat(second.getValue(), is("two"));
+  }
+
+  @Test
+  public void selectProjectProperties() throws Exception {
+    setupData("selectProjectProperties");
+    List<PropertyDto> properties = dao.selectProjectProperties("org.struts:struts");
+    assertThat(properties.size(), is(1));
+
+    PropertyDto first = properties.get(0);
+    assertThat(first.getKey(), is("struts.one"));
+    assertThat(first.getValue(), is("one"));
+  }
+
+  private PropertyDto findById(List<PropertyDto> properties, int id) {
+    for (PropertyDto property : properties) {
+      if (property.getId() == id) {
+        return property;
+      }
+    }
+    return null;
   }
 }

@@ -33,6 +33,7 @@ import org.sonar.core.dashboard.*;
 import org.sonar.core.duplication.DuplicationMapper;
 import org.sonar.core.duplication.DuplicationUnitDto;
 import org.sonar.core.properties.PropertiesMapper;
+import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.purge.PurgeMapper;
 import org.sonar.core.purge.PurgeVendorMapper;
 import org.sonar.core.purge.PurgeableSnapshotDto;
@@ -69,6 +70,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "Dashboard", DashboardDto.class);
     loadAlias(conf, "DuplicationUnit", DuplicationUnitDto.class);
     loadAlias(conf, "LoadedTemplate", LoadedTemplateDto.class);
+    loadAlias(conf, "Property", PropertyDto.class);
     loadAlias(conf, "PurgeableSnapshot", PurgeableSnapshotDto.class);
     loadAlias(conf, "Review", ReviewDto.class);
     loadAlias(conf, "Resource", ResourceDto.class);
