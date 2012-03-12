@@ -100,7 +100,9 @@ public final class Platform {
         connected = true;
 
       } catch (RuntimeException e) {
-        PicoUtils.handleStartupException(e, LoggerFactory.getLogger(getClass()));
+        // full stacktrace is lost by jruby. It must be logged now.
+        LoggerFactory.getLogger(getClass()).error(e.getMessage(), e);
+        PicoUtils.propagateStartupException(e);
       }
     }
   }
@@ -116,7 +118,8 @@ public final class Platform {
         profiler.stop();
       } catch (RuntimeException e) {
         // full stacktrace is lost by jruby. It must be logged now.
-        PicoUtils.handleStartupException(e, LoggerFactory.getLogger(getClass()));
+        LoggerFactory.getLogger(getClass()).error(e.getMessage(), e);
+        PicoUtils.propagateStartupException(e);
       }
     }
   }
@@ -127,6 +130,7 @@ public final class Platform {
     rootContainer.addSingleton(IocContainer.class); // for backward compatibility
     rootContainer.addSingleton(new BaseConfiguration());
     rootContainer.addSingleton(ServerSettings.class);
+    rootContainer.addSingleton(ServerImpl.class);
     rootContainer.addSingleton(EmbeddedDatabaseFactory.class);
     rootContainer.addSingleton(DefaultDatabase.class);
     rootContainer.addSingleton(MyBatis.class);
@@ -171,7 +175,6 @@ public final class Platform {
     servicesContainer.addSingleton(UpdateCenterMatrixFactory.class);
     servicesContainer.addSingleton(PluginDownloader.class);
     servicesContainer.addSingleton(ServerIdGenerator.class);
-    servicesContainer.addSingleton(ServerImpl.class);
     servicesContainer.addComponent(FilterExecutor.class, false);
     servicesContainer.addSingleton(DefaultModelFinder.class); // depends on plugins
     servicesContainer.addSingleton(DefaultModelManager.class);

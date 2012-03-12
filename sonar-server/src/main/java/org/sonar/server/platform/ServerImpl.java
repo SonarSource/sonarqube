@@ -22,10 +22,8 @@ package org.sonar.server.platform;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.database.configuration.Property;
+import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
-import org.sonar.jpa.session.DatabaseSessionFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,18 +36,14 @@ public final class ServerImpl extends Server {
   private String id;
   private String version;
   private final Date startedAt;
+  private Settings settings;
 
-  /**
-   * This component can't use Configuration because of startup sequence. It must be started before plugins.
-   */
-  private DatabaseSessionFactory dbSessionFactory;
-
-  public ServerImpl(DatabaseSessionFactory dbSessionFactory) {
-    this(dbSessionFactory, new Date());
+  public ServerImpl(Settings settings) {
+    this(settings, new Date());
   }
 
-  ServerImpl(DatabaseSessionFactory dbSessionFactory, Date startedAt) {
-    this.dbSessionFactory = dbSessionFactory;
+  ServerImpl(Settings settings, Date startedAt) {
+    this.settings = settings;
     this.startedAt = startedAt;
   }
 
@@ -67,9 +61,7 @@ public final class ServerImpl extends Server {
   }
 
   public String getPermanentServerId() {
-    DatabaseSession session = dbSessionFactory.getSession();
-    Property serverId = session.getSingleResult(Property.class, "key", CoreProperties.PERMANENT_SERVER_ID);
-    return (serverId!= null ? serverId.getValue() : null);
+    return settings.getString(CoreProperties.PERMANENT_SERVER_ID);
   }
 
   public String getId() {

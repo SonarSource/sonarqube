@@ -21,18 +21,19 @@ package org.sonar.server.platform;
 
 import org.hamcrest.core.Is;
 import org.junit.Test;
-import org.sonar.jpa.test.AbstractDbUnitTestCase;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 
 import java.io.IOException;
 import java.util.Date;
 
 import static org.junit.Assert.*;
 
-public class ServerImplTest extends AbstractDbUnitTestCase {
+public class ServerImplTest {
 
   @Test
   public void alwaysReturnTheSameValues() {
-    ServerImpl server = new ServerImpl(getSessionFactory());
+    ServerImpl server = new ServerImpl(new Settings());
     server.start();
 
     assertNotNull(server.getId());
@@ -47,30 +48,30 @@ public class ServerImplTest extends AbstractDbUnitTestCase {
 
   @Test
   public void getVersionFromFile() throws IOException {
-    assertEquals("1.0", new ServerImpl(getSessionFactory()).loadVersionFromManifest("/org/sonar/server/platform/ServerImplTest/pom-with-version.properties"));
+    assertEquals("1.0", new ServerImpl(new Settings()).loadVersionFromManifest("/org/sonar/server/platform/ServerImplTest/pom-with-version.properties"));
   }
 
   @Test
   public void testFileWithNoVersion() throws IOException {
-    assertEquals("", new ServerImpl(getSessionFactory()).loadVersionFromManifest("/org/sonar/server/platform/ServerImplTest/pom-without-version.properties"));
+    assertEquals("", new ServerImpl(new Settings()).loadVersionFromManifest("/org/sonar/server/platform/ServerImplTest/pom-without-version.properties"));
   }
 
   @Test
   public void testFileWithEmptyVersionParameter() throws IOException {
-    assertEquals("", new ServerImpl(getSessionFactory()).loadVersionFromManifest("/org/sonar/server/platform/ServerImplTest/pom-with-empty-version.properties"));
+    assertEquals("", new ServerImpl(new Settings()).loadVersionFromManifest("/org/sonar/server/platform/ServerImplTest/pom-with-empty-version.properties"));
   }
 
   @Test
   public void shouldNotFailIfFileNotFound() throws IOException {
-    assertEquals("", new ServerImpl(getSessionFactory()).loadVersionFromManifest("/org/sonar/server/platform/ServerImplTest/unknown-file.properties"));
+    assertEquals("", new ServerImpl(new Settings()).loadVersionFromManifest("/org/sonar/server/platform/ServerImplTest/unknown-file.properties"));
   }
 
   @Test
   public void shouldLoadServerIdFromDatabase() {
-    setupData("shouldLoadServerIdFromDatabase");
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.PERMANENT_SERVER_ID, "abcde");
 
-    ServerImpl server = new ServerImpl(getSessionFactory(), new Date());
-    server.start();
+    ServerImpl server = new ServerImpl(settings, new Date());
 
     assertThat(server.getPermanentServerId(), Is.is("abcde"));
   }
