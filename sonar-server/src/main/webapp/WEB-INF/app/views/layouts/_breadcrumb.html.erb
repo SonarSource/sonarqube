@@ -1,6 +1,14 @@
 <ol id="crumbs">
   <li><a href="<%= ApplicationController.root_context -%>/"><%= message('layout.home') -%></a></li>   
 <%
+resource_link = {}
+only_resource = true
+if @review
+  resource_link = {:controller => 'dashboard', :action => 'index'}
+  only_resource = false
+end
+
+# ======== Path for resources ========
 @resource = @project if @project && !@resource
 if @resource && @resource.last_snapshot
   resources=[]
@@ -13,11 +21,30 @@ if @resource && @resource.last_snapshot
   resources.reverse.each do |resource|
 %>
   <li>
-    <%= qualifier_icon(resource) -%> <a href="<%= url_for :overwrite_params => { :id => resource.key } -%>"><%= h resource.name -%></a>
-    <%= link_to( image_tag('permalink.gif'), {:overwrite_params => { :id => resource.key }}, :title => message('layout.permalink')) if resource==@resource %>
+    <%= qualifier_icon(resource) -%> 
+    &nbsp;
+    <%= link_to( h(resource.name), 
+                 {:overwrite_params => { :id => resource.key }.merge(resource_link)}
+                ) -%>
+    &nbsp;
+    <%= link_to( image_tag('permalink.gif'), 
+                 {:overwrite_params => { :id => resource.key }.merge(resource_link)}, 
+                 :title => message('layout.permalink')
+                ) if resource==@resource && only_resource -%>
   </li>
 <%
   end
+end
+
+# ======== Path for review ========
+if @review
+%>
+  <li>
+    » <%= link_to message('review') + @review.id.to_s -%>
+    &nbsp;
+    <%= link_to image_tag('permalink.gif'), :title => message('layout.permalink') -%>
+  </li>
+<%
 end
 %>
 </ol>
