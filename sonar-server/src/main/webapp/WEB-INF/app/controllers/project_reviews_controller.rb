@@ -30,7 +30,8 @@ class ProjectReviewsController < ApplicationController
 
   # lists all the reviews of a project, filtered using the same parameters as for the review WS API
   def index
-    @project=Project.by_key(params[:projects])
+    @project=Project.by_key(params[:id])
+    @project=Project.by_key(params[:projects]) unless @project
     
     if @project
       access_denied unless has_role?(:user, @project)

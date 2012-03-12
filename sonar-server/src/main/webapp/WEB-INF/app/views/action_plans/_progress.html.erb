@@ -1,6 +1,6 @@
 <%
   unless action_plan.progress[:total]==0
-    options = {:controller => 'project_reviews', :action => 'index', :action_plan_id => action_plan.id, :projects => action_plan.project_id}
+    options = {:controller => 'project_reviews', :action => 'index', :action_plan_id => action_plan.id, :id => action_plan.project_id}
   
     resolved_reviews_link = action_plan.progress[:resolved].to_s 
     resolved_reviews_link = link_to action_plan.progress[:resolved].to_s, options.merge({:statuses => "#{Review::STATUS_RESOLVED},#{Review::STATUS_CLOSED}"}) unless action_plan.progress[:resolved]==0

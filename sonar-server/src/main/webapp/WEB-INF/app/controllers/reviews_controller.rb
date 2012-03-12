@@ -306,9 +306,9 @@ class ReviewsController < ApplicationController
     end
     unless @id == ''
       if Api::Utils.is_integer? @id
-        options['id'] = @id
+        options['ids'] = @id
       else
-        options['id'] = -1
+        options['ids'] = '-1'
       end
     end
     options['sort'] = @sort unless @sort.blank?
