@@ -20,7 +20,6 @@
 package org.sonar.batch.bootstrapper;
 
 import com.google.common.collect.Lists;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.bootstrap.BootstrapModule;
 import org.sonar.batch.bootstrap.Module;
@@ -72,7 +71,7 @@ public final class Batch {
     try {
       bootstrapModule.start();
     } catch (RuntimeException e) {
-      PicoUtils.handleStartupException(e, LoggerFactory.getLogger(getClass()));
+      PicoUtils.propagateStartupException(e);
     } finally {
       try {
         bootstrapModule.stop();

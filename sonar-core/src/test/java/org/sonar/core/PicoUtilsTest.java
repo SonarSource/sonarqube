@@ -24,12 +24,15 @@ import org.junit.Test;
 import org.picocontainer.PicoLifecycleException;
 import org.sonar.api.platform.ComponentContainer;
 
+import java.io.IOException;
+
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class PicoUtilsTest {
   @Test
   public void shouldSanitizePicoLifecycleException() {
-    Throwable th = PicoUtils.sanitizeException(newPicoLifecycleException());
+    Throwable th = PicoUtils.sanitize(newPicoLifecycleException(false));
 
     assertThat(th, Is.is(IllegalStateException.class));
     assertThat(th.getMessage(), Is.is("A good reason to fail"));
@@ -37,16 +40,40 @@ public class PicoUtilsTest {
 
   @Test
   public void shouldNotSanitizeOtherExceptions() {
-    Throwable th = PicoUtils.sanitizeException(new IllegalArgumentException("foo"));
+    Throwable th = PicoUtils.sanitize(new IllegalArgumentException("foo"));
 
     assertThat(th, Is.is(IllegalArgumentException.class));
     assertThat(th.getMessage(), Is.is("foo"));
   }
 
+  @Test
+  public void shouldPropagateInitialUncheckedException() {
+    try {
+      PicoUtils.propagateStartupException(newPicoLifecycleException(false));
+      fail();
+    } catch (RuntimeException e) {
+      assertThat(e, Is.is(IllegalStateException.class));
+    }
+  }
 
-  private PicoLifecycleException newPicoLifecycleException() {
+  @Test
+  public void shouldThrowUncheckedExceptionWhenPropagatingCheckedException() {
+    try {
+      PicoUtils.propagateStartupException(newPicoLifecycleException(true));
+      fail();
+    } catch (RuntimeException e) {
+      assertThat(e.getCause(), Is.is(IOException.class));
+      assertThat(e.getCause().getMessage(), Is.is("Checked"));
+    }
+  }
+
+  private PicoLifecycleException newPicoLifecycleException(boolean initialCheckedException) {
     ComponentContainer componentContainer = new ComponentContainer();
-    componentContainer.addSingleton(FailureComponent.class);
+    if (initialCheckedException) {
+      componentContainer.addSingleton(CheckedFailureComponent.class);
+    } else {
+      componentContainer.addSingleton(UncheckedFailureComponent.class);
+    }
     try {
       componentContainer.startComponents();
       return null;
@@ -56,9 +83,15 @@ public class PicoUtilsTest {
     }
   }
 
-  public static class FailureComponent {
+  public static class UncheckedFailureComponent {
     public void start() {
       throw new IllegalStateException("A good reason to fail");
+    }
+  }
+
+  public static class CheckedFailureComponent {
+    public void start() throws IOException {
+      throw new IOException("Checked");
     }
   }
 }

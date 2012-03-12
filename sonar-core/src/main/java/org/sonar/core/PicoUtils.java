@@ -21,14 +21,13 @@ package org.sonar.core;
 
 import com.google.common.base.Throwables;
 import org.picocontainer.PicoLifecycleException;
-import org.slf4j.Logger;
 
 public final class PicoUtils {
 
   private PicoUtils() {
   }
 
-  public static Throwable sanitizeException(RuntimeException t) {
+  static Throwable sanitize(RuntimeException t) {
     Throwable result = t;
     Throwable cause = t.getCause();
     if (t instanceof PicoLifecycleException && cause != null) {
@@ -42,9 +41,7 @@ public final class PicoUtils {
     return result;
   }
 
-  public static void handleStartupException(RuntimeException t, Logger logger) {
-    Throwable cause = sanitizeException(t);
-    logger.error(cause.getMessage());
-    Throwables.propagate(cause);
+  public static void propagateStartupException(RuntimeException t) {
+    throw Throwables.propagate(sanitize(t));
   }
 }
