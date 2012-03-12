@@ -35,11 +35,9 @@ class DashboardController < ApplicationController
       end
     else
       # display the layout of the parent, usually the directory, but display the file viewers
-      @file = @resource
-      @snapshot = @snapshot.parent_snapshot
-      if @snapshot
-        @resource = @snapshot.resource
-        @project = @resource
+      if @resource.last_snapshot
+        @file = @resource
+        @project = @resource.last_snapshot.parent.project
         render :action => 'no_dashboard'
       else
         redirect_to home_path

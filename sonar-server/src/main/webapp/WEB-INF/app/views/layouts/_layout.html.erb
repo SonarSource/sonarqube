@@ -13,10 +13,6 @@
       </li>
       <li>
         <a href="javascript:window.print()"><img src="<%= ApplicationController.root_context -%>/images/print.gif" alt="<%= message('layout.print') -%>" title="<%= message('layout.print') -%>"/></a>
-        <% if @project %>
-          <a href="<%= url_for :overwrite_params => {:id => @project.key} -%>" id="permalink">
-            <img src="<%= ApplicationController.root_context -%>/images/permalink.gif" alt="<%= message('layout.permalink') -%>" title="<%= message('layout.permalink') -%>"/></a>
-        <% end %>
       </li>
       <% if logged_in? %>
         <li>

@@ -102,7 +102,7 @@
 			        <%= trend_icon(measure, :empty => true) -%>
 		        <% end %>
 	        <% end %>
-        <% elsif column.on_name? %><%= qualifier_icon(@masterproject) %> <%= link_to_resource(@masterproject.project, h(@masterproject.project.name(true)), {:dashboard => true, :title => @masterproject.project.key}) %>
+        <% elsif column.on_name? %><%= qualifier_icon(@masterproject) %> <%= link_to_resource(@masterproject.project, h(@masterproject.project.name(true)), {:title => @masterproject.project.key}) %>
         <% elsif column.on_date? %><%= human_short_date(@masterproject.created_at) %>
         <% end %>
       </td>
@@ -134,7 +134,7 @@
             <% end %>
           <% end %>
         <% elsif column.on_name? %>
-          <%= qualifier_icon(snapshot) %> <%= link_to_resource(snapshot.project, snapshot.project.name(true), {:dashboard => true, :title => snapshot.project.key, :period => @filter_context.period_index}) %>
+          <%= qualifier_icon(snapshot) %> <%= link_to_resource(snapshot.project, snapshot.project.name(true), {:title => snapshot.project.key, :period => @filter_context.period_index}) %>
         <% elsif column.on_version? %><%= h snapshot.version %>
         <% elsif column.on_language? %><%= snapshot.project.language %>
         <% elsif column.on_date? %><%= human_short_date(snapshot.created_at) %>

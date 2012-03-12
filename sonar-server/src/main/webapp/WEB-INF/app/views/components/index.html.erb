@@ -43,15 +43,10 @@
                 <td width="1%" nowrap>
                   <% if logged_in? %><%= link_to_favourite(project) -%>
                   <% end %>
-                  <%= link_to_resource(project, image_tag('zoom.png')) %>
                 </td>
                 <td class="left" x="<%= u(snapshot.project.name) -%>">
                   <%= qualifier_icon(snapshot) %>
-                  <% if snapshot.display_dashboard? %>
-                    <a href="<%= ApplicationController.root_context + "/dashboard/index/#{snapshot.project.id}" -%>"><%= snapshot.project.name -%></a>
-                  <% else %>
-                    <%= snapshot.project.name %>
-                  <% end %>
+                  <%= link_to_resource(project, project.name) %>
                 </td>
                 <% @columns.each do |column| %>
                   <%= get_column_content(column, snapshot, @measures_by_snapshot) -%>

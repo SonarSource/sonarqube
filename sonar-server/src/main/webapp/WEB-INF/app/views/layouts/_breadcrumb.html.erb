@@ -1,26 +1,23 @@
 <ol id="crumbs">
-  <li><a href="<%= ApplicationController.root_context -%>/"><%= message('layout.home') -%></a></li>
-  <%
-if @snapshot
+  <li><a href="<%= ApplicationController.root_context -%>/"><%= message('layout.home') -%></a></li>   
+<%
+@resource = @project if @project && !@resource
+if @resource && @resource.last_snapshot
   resources=[]
-  s=@snapshot
+  s=@resource.last_snapshot
   while (s!=nil) do
     resources<<s.project
     s=s.parent
   end
 
-  index=resources.size-1
-  while (index>=0) do
-    resource=resources[index]
+  resources.reverse.each do |resource|
 %>
-  <li><%= qualifier_icon(resource) -%> <a href="<%= url_for :overwrite_params => { :id => resource.key } -%>"><%= h resource.name -%></a></li>
+  <li>
+    <%= qualifier_icon(resource) -%> <a href="<%= url_for :overwrite_params => { :id => resource.key } -%>"><%= h resource.name -%></a>
+    <%= link_to( image_tag('permalink.gif'), {:overwrite_params => { :id => resource.key }}, :title => message('layout.permalink')) if resource==@resource %>
+  </li>
 <%
-    index-=1
   end
-elsif @project
-%>
-  <li><%= qualifier_icon(@project) -%> <a href="<%= url_for :overwrite_params => { :id => @project.key } -%>"><%= h @project.name -%></a></li>
-<%
 end
 %>
 </ol>
