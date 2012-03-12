@@ -35,7 +35,7 @@ import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.IocContainer;
 import org.sonar.api.utils.TimeProfiler;
-import org.sonar.batch.config.BatchDatabaseSettingsLoader;
+import org.sonar.core.PicoUtils;
 import org.sonar.core.i18n.GwtI18n;
 import org.sonar.core.i18n.I18nManager;
 import org.sonar.core.i18n.RuleI18nManager;
@@ -99,14 +99,14 @@ public final class Platform {
         startDatabaseConnectors(servletContext);
         connected = true;
 
-      } catch (Exception e) {
-        LoggerFactory.getLogger(getClass()).error("Can not start Sonar", e);
+      } catch (RuntimeException e) {
+        PicoUtils.handleStartupException(e, LoggerFactory.getLogger(getClass()));
       }
     }
   }
 
   public void start() {
-    if (!started && getDatabaseStatus()== DatabaseVersion.Status.UP_TO_DATE) {
+    if (!started && getDatabaseStatus() == DatabaseVersion.Status.UP_TO_DATE) {
       try {
         TimeProfiler profiler = new TimeProfiler().start("Start components");
         startCoreComponents();
@@ -114,10 +114,9 @@ public final class Platform {
         executeStartupTasks();
         started = true;
         profiler.stop();
-      } catch (Exception e) {
+      } catch (RuntimeException e) {
         // full stacktrace is lost by jruby. It must be logged now.
-        LoggerFactory.getLogger(getClass()).error("Fail to start server", e);
-        throw new IllegalStateException("Fail to start server", e);
+        PicoUtils.handleStartupException(e, LoggerFactory.getLogger(getClass()));
       }
     }
   }
