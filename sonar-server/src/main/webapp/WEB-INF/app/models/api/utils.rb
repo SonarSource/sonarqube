@@ -50,7 +50,9 @@ class Api::Utils
   #   - http://jira.codehaus.org/browse/SONAR-2282 first modified the behaviour to keep the trailing lines
   #   - then http://jira.codehaus.org/browse/SONAR-3003 reverted this modification to remove potential last empty line
   def self.split_newlines(input)
-    input.split(/\r?\n|\r/)
+    input.split(/\r?\n|\r/, -1)
+    input.pop if input.last==''
+    input
   end
 
   def self.convert_string_to_unix_newlines(input)
