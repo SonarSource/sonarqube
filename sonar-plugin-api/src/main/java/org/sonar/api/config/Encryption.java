@@ -34,18 +34,18 @@ public final class Encryption {
   private static final String BASE64_ALGORITHM = "b64";
   private final Base64Cipher base64Encryption;
 
-  private static final String RSA_ALGORITHM = "rsa";
-  private final RsaCipher rsaEncryption;
+  private static final String AES_ALGORITHM = "aes";
+  private final AesCipher aesEncryption;
 
   private final Map<String, Cipher> encryptions;
   private static final Pattern ENCRYPTED_PATTERN = Pattern.compile("\\{(.*?)\\}(.*)");
 
   Encryption(Settings settings) {
     base64Encryption = new Base64Cipher();
-    rsaEncryption = new RsaCipher(settings);
+    aesEncryption = new AesCipher(settings);
     encryptions = ImmutableMap.of(
         BASE64_ALGORITHM, base64Encryption,
-        RSA_ALGORITHM, rsaEncryption
+        AES_ALGORITHM, aesEncryption
     );
   }
 
@@ -54,26 +54,23 @@ public final class Encryption {
   }
 
   public String encrypt(String clearText) {
-    return encrypt(RSA_ALGORITHM, clearText);
+    return encrypt(AES_ALGORITHM, clearText);
   }
 
   public String scramble(String clearText) {
     return encrypt(BASE64_ALGORITHM, clearText);
   }
 
-  /**
-   * @return an array of 2 strings: {public key, private key}
-   */
-  public String[] generateRandomKeys() {
-    return rsaEncryption.generateRandomKeys();
+  public String generateRandomSecretKey() {
+    return aesEncryption.generateRandomSecretKey();
   }
-  
+
   public String decrypt(String encryptedText) {
     Matcher matcher = ENCRYPTED_PATTERN.matcher(encryptedText);
     if (matcher.matches()) {
-      Cipher cipher = encryptions.get(matcher.group(0).toLowerCase(Locale.ENGLISH));
+      Cipher cipher = encryptions.get(matcher.group(1).toLowerCase(Locale.ENGLISH));
       if (cipher != null) {
-        return cipher.decrypt(matcher.group(1));
+        return cipher.decrypt(matcher.group(2));
       }
     }
     return encryptedText;

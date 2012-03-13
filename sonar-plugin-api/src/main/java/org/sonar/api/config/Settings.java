@@ -69,7 +69,11 @@ public class Settings implements BatchComponent, ServerComponent {
     if (value == null) {
       value = getDefaultValue(key);
     } else if (encryption.isEncrypted(value)) {
-      value = encryption.decrypt(value);
+      try {
+        value = encryption.decrypt(value);
+      } catch (Exception e) {
+        throw new IllegalStateException("Fail to decrypt the property " + key + ". Please check your secret key.");
+      }
     }
     return value;
   }
