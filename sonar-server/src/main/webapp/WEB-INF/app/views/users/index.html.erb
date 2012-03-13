@@ -14,7 +14,6 @@
         </thead>
         <tbody >
           <% @users.each do |user|%>
-            <% clazz = cycle("even", "odd", :name => 'index_user') %>
             <tr id="user-<%= u user.login -%>">
               <td class="left" valign="top"><%=user.login %></td>
               <td class="left" valign="top"><%=user.name %></td>
