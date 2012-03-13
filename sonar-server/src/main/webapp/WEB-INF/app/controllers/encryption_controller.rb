@@ -24,7 +24,7 @@ class EncryptionController < ApplicationController
   verify :method => :post, :only => [:generate_secret, :encrypt], :redirect_to => {:action => :index}
 
   def index
-    @can_encrypt=java_facade.canEncrypt()
+    @has_secret_key=java_facade.hasSecretKey()
   end
 
   def generate_secret
@@ -37,7 +37,7 @@ class EncryptionController < ApplicationController
   end
 
   def encrypt
-    bad_request('No secret key') unless java_facade.canEncrypt()
+    bad_request('No secret key') unless java_facade.hasSecretKey()
     @encrypted=java_facade.encrypt(params[:text])
   end
 

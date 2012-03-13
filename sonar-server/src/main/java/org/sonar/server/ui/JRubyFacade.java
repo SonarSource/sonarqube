@@ -399,8 +399,8 @@ public final class JRubyFacade {
     LoggerFactory.getLogger(getClass()).error(message);
   }
 
-  public boolean canEncrypt() {
-    return getContainer().getComponentByType(Settings.class).getEncryption().canEncrypt();
+  public boolean hasSecretKey() {
+    return getContainer().getComponentByType(Settings.class).getEncryption().hasSecretKey();
   }
 
   public String encrypt(String clearText) {

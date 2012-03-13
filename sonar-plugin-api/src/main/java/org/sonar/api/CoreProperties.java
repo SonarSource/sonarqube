@@ -30,7 +30,7 @@ public interface CoreProperties {
   /**
    * @since 2.15
    */
-  String ENCRYPTION_PATH_TO_SECRET_KEY = "sonar.pathToSecretKey";
+  String ENCRYPTION_SECRET_KEY_FILE = "sonar.secretKeyFile";
 
 
   /**

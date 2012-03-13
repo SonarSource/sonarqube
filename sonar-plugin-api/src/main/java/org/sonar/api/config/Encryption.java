@@ -32,25 +32,28 @@ import java.util.regex.Pattern;
 public final class Encryption {
 
   private static final String BASE64_ALGORITHM = "b64";
-  private final Base64Cipher base64Encryption;
+  private final Base64Cipher base64Cipher;
 
   private static final String AES_ALGORITHM = "aes";
-  private final AesCipher aesEncryption;
+  private final AesCipher aesCipher;
 
-  private final Map<String, Cipher> encryptions;
+  private final Map<String, Cipher> ciphers;
   private static final Pattern ENCRYPTED_PATTERN = Pattern.compile("\\{(.*?)\\}(.*)");
 
   Encryption(Settings settings) {
-    base64Encryption = new Base64Cipher();
-    aesEncryption = new AesCipher(settings);
-    encryptions = ImmutableMap.of(
-        BASE64_ALGORITHM, base64Encryption,
-        AES_ALGORITHM, aesEncryption
+    base64Cipher = new Base64Cipher();
+    aesCipher = new AesCipher(settings);
+    ciphers = ImmutableMap.of(
+        BASE64_ALGORITHM, base64Cipher,
+        AES_ALGORITHM, aesCipher
     );
   }
 
-  public boolean canEncrypt() {
-    return aesEncryption.canEncrypt();
+  /**
+   * Checks the availability of the secret key, that is required to encrypt and decrypt.
+   */
+  public boolean hasSecretKey() {
+    return aesCipher.hasSecretKey();
   }
 
   public boolean isEncrypted(String value) {
@@ -66,13 +69,13 @@ public final class Encryption {
   }
 
   public String generateRandomSecretKey() {
-    return aesEncryption.generateRandomSecretKey();
+    return aesCipher.generateRandomSecretKey();
   }
 
   public String decrypt(String encryptedText) {
     Matcher matcher = ENCRYPTED_PATTERN.matcher(encryptedText);
     if (matcher.matches()) {
-      Cipher cipher = encryptions.get(matcher.group(1).toLowerCase(Locale.ENGLISH));
+      Cipher cipher = ciphers.get(matcher.group(1).toLowerCase(Locale.ENGLISH));
       if (cipher != null) {
         return cipher.decrypt(matcher.group(2));
       }
@@ -81,7 +84,7 @@ public final class Encryption {
   }
 
   private String encrypt(String algorithm, String clearText) {
-    Cipher cipher = encryptions.get(algorithm);
+    Cipher cipher = ciphers.get(algorithm);
     if (cipher == null) {
       throw new IllegalArgumentException("Unknown cipher algorithm: " + algorithm);
     }

@@ -39,6 +39,12 @@ public class EncryptionTest {
   }
 
   @Test
+  public void scramble() {
+    Encryption encryption = new Encryption(new Settings());
+    assertThat(encryption.scramble("foo"), is("{b64}Zm9v"));
+  }
+
+  @Test
   public void decrypt() {
     Encryption encryption = new Encryption(new Settings());
     assertThat(encryption.decrypt("{b64}Zm9v"), is("foo"));
@@ -54,6 +60,5 @@ public class EncryptionTest {
   public void decrypt_uncrypted_text() {
     Encryption encryption = new Encryption(new Settings());
     assertThat(encryption.decrypt("foo"), is("foo"));
-
   }
 }
