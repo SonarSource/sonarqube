@@ -14,8 +14,7 @@
         </thead>
         <tbody >
         <% @groups.each do |group|%>
-        <% clazz = cycle("even", "odd", :name => 'index_user') %>
-          <tr class="<%= clazz %>" id="group-<%= u group.name -%>">
+          <tr id="group-<%= u group.name -%>">
             <td class="left"><%= group.name %></td>
             <td class="left" style="word-break:break-all"><%=group.description%></td>
             <td class="left">

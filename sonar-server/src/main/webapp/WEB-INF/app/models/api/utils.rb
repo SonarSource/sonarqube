@@ -45,11 +45,14 @@ class Api::Utils
     markdown ? Java::OrgSonarServerUi::JRubyFacade.markdownToHtml(ERB::Util.html_escape(markdown)) : ''
   end
 
-  # splits a string into an array of lines
+  # Splits a string into an array of lines
+  # For history reference:
+  #   - http://jira.codehaus.org/browse/SONAR-2282 first modified the behaviour to keep the trailing lines
+  #   - then http://jira.codehaus.org/browse/SONAR-3003 reverted this modification to remove potential last empty line
   def self.split_newlines(input)
-    # Don't limit number of returned fields and don't suppress trailing empty fields by setting second parameter to negative value.
-    # See http://jira.codehaus.org/browse/SONAR-2282
-    input.split(/\r?\n|\r/, -1)
+    result = input.split(/\r?\n|\r/, -1)
+    result.pop if result.last==''
+    result
   end
 
   def self.convert_string_to_unix_newlines(input)

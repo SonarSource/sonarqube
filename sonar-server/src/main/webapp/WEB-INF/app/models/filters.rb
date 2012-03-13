@@ -86,6 +86,9 @@ class Filters
 
     elsif filter.sorted_column.on_language?
       java_filter.setSortedByLanguage()
+  
+    elsif filter.sorted_column.on_key?
+      java_filter.setSortedByKey()
 
     elsif filter.sorted_column.on_metric? && filter.sorted_column.metric
       metric=filter.sorted_column.metric

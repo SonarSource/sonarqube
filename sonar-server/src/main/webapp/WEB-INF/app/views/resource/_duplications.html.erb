@@ -1,8 +1,14 @@
-<% if @duplication_groups.empty? %>
+<% 
+    if @duplication_groups.empty?
+      warning_message = message('duplications.no_duplicated_block')
+      warning_message = @duplication_group_warning if @duplication_group_warning
+%>
 
-  <%= message('duplications.no_duplicated_block') -%>
+  <%= warning_message -%>
 
-<% else %>
+<%  else  %>
+
+  <%= @duplication_group_warning if @duplication_group_warning -%>
 
   <table id="duplications" class="data">
     <thead>

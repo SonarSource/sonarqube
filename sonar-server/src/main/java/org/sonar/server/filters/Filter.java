@@ -56,6 +56,7 @@ public class Filter {
   private Boolean sortedByMeasureVariation = Boolean.FALSE;
   private boolean sortedByLanguage;
   private boolean sortedByName;
+  private boolean sortedByKey;
   private boolean sortedByDate;
   private boolean sortedByVersion;
   private boolean isNumericMetric = true;
@@ -178,7 +179,7 @@ public class Filter {
   }
 
   public boolean isTextSort() {
-    return !isNumericMetric || sortedByLanguage || sortedByName || sortedByVersion;
+    return !isNumericMetric || sortedByLanguage || sortedByName || sortedByVersion || sortedByKey;
   }
 
   public Filter setSortedMetricId(Integer id, boolean isNumericValue, Boolean isVariation) {
@@ -203,6 +204,10 @@ public class Filter {
     return sortedByName;
   }
 
+  public boolean isSortedByKey() {
+    return sortedByKey;
+  }
+
   public boolean isSortedByVersion() {
     return sortedByVersion;
   }
@@ -214,7 +219,7 @@ public class Filter {
   }
 
   public boolean isSorted() {
-    return isSortedByLanguage() || isSortedByName() || isSortedByDate() || isSortedByVersion() || getSortedMetricId() != null;
+    return isSortedByLanguage() || isSortedByName() || isSortedByKey() || isSortedByDate() || isSortedByVersion() || getSortedMetricId() != null;
   }
 
   public boolean isSortedByDate() {
@@ -233,10 +238,17 @@ public class Filter {
     return this;
   }
 
+  public Filter setSortedByKey() {
+    unsetSorts();
+    this.sortedByKey = true;
+    return this;
+  }
+
   private void unsetSorts() {
     this.sortedByDate = false;
     this.sortedByLanguage = false;
     this.sortedByName = false;
+    this.sortedByKey = false;
     this.sortedMetricId = null;
     this.sortedByVersion = false;
     this.isNumericMetric = true;

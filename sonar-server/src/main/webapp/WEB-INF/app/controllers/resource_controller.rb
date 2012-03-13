@@ -282,6 +282,7 @@ class ResourceController < ApplicationController
   def parse_duplications(dups, duplication_groups)
     resource_by_key = {}
     resource_by_key[@resource.key] = @resource
+    dups_found_on_deleted_resource = false
     dups.elements.each("duplications/g") do |group|
       dup_group = []
       group.each_element("b") do |block|
@@ -292,10 +293,15 @@ class ResourceController < ApplicationController
           resource = Project.by_key(resource_key)
           resource_by_key[resource_key] = resource
         end
-        dup_group << {:resource => resource, :lines_count => block.attributes['l'], :from_line => block.attributes['s']} if resource
+        if resource
+          dup_group << {:resource => resource, :lines_count => block.attributes['l'], :from_line => block.attributes['s']}
+        else
+          dups_found_on_deleted_resource = true
+        end
       end
       duplication_groups << dup_group if dup_group.size > 1
     end
+    @duplication_group_warning = message('duplications.dups_found_on_deleted_resource') if dups_found_on_deleted_resource
   end
 
   # Format before sonar 2.12

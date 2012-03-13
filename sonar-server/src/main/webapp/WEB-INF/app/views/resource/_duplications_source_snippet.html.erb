@@ -5,7 +5,7 @@
   %>
     <p>
       <%= qualifier_icon(parent_project) -%>
-      <%= link_to_resource(parent_project, parent_project.path_name) -%>
+      <%= link_to_resource(parent_project, parent_project.path_name, {:dashboard => true}) -%>
       &nbsp;&nbsp;
       <%= qualifier_icon(resource) -%>
       <%= link_to_resource(resource, resource.name(true), {:line => from_line}) -%>

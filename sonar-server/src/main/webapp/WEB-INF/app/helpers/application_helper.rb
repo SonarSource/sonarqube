@@ -326,8 +326,20 @@ module ApplicationHelper
   def link_to_resource(resource, name=nil, options={})
     period_index=options[:period]
     period_index=nil if period_index && period_index<=0
-    link_to(name || resource.name, {:overwrite_params => {:controller => 'dashboard', :action => 'index', :id => resource.id, :period => period_index,
-                                                          :tab => options[:tab], :rule => options[:rule]}}, :title => options[:title])
+    if resource.display_dashboard?
+      if options[:dashboard]
+        link_to(name || resource.name, {:overwrite_params => {:controller => 'dashboard', :action => 'index', :id => resource.id, :period => period_index,
+                                                              :tab => options[:tab], :rule => options[:rule]}}, :title => options[:title])
+      else
+        # stay on the same page (for example components)
+        link_to(name || resource.name, {:overwrite_params => {:id => resource.id, :period => period_index, :tab => options[:tab], :rule => options[:rule]}}, :title => options[:title])
+      end
+    else
+      if options[:line]
+        anchor= 'L' + options[:line].to_s
+      end
+      link_to(name || resource.name, {:controller => 'resource', :action => 'index', :anchor => anchor, :id => resource.id, :period => period_index, :tab => options[:tab], :rule => options[:rule], :metric => options[:metric]}, :popup => ['resource', 'height=800,width=900,scrollbars=1,resizable=1'], :title => options[:title])
+    end
   end
 
 
