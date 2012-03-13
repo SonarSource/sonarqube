@@ -85,6 +85,9 @@ public class FilterExecutor implements ServerComponent {
     } else if (filter.isSortedByName()) {
       sql.append(", MAX(p.long_name) as name ");
 
+    } else if (filter.isSortedByKey()) {
+      sql.append(", MAX(p.kee) as kee ");
+
     } else if (filter.isSortedByDate()) {
       sql.append(", MAX(s.created_at) as createdat ");
 

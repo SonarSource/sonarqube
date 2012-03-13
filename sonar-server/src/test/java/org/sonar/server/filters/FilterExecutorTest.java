@@ -102,6 +102,14 @@ public class FilterExecutorTest extends AbstractDbUnitTestCase {
   }
 
   @Test
+  public void sortByKey() {
+    setupData("shared");
+    FilterExecutor executor = new FilterExecutor(getSession());
+    FilterResult result = executor.execute(Filter.createForAllQualifiers().setSortedByKey());
+    assertSortedSnapshotIds(result, 3, 2, 4);
+  }
+
+  @Test
   public void sortByDate() {
     setupData("shared");
     FilterExecutor executor = new FilterExecutor(getSession());
