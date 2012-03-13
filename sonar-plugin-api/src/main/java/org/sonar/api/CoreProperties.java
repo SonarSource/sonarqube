@@ -22,10 +22,21 @@ package org.sonar.api;
 /**
  * CoreProperties is used to group various properties of Sonar as well
  * as default values of configuration in a single place
- * 
+ *
  * @since 1.11
  */
 public interface CoreProperties {
+
+  /**
+   * @since 2.15
+   */
+  String ENCRYPTION_PATH_TO_PRIVATE_KEY = "sonar.encryption.privateKeyPath";
+
+  /**
+   * @since 2.15
+   */
+  String ENCRYPTION_PUBLIC_KEY = "sonar.encryption.publicKey";
+
 
   /**
    * @since 2.11
@@ -85,7 +96,7 @@ public interface CoreProperties {
 
   /**
    * To determine value of this property use {@link org.sonar.api.resources.ProjectFileSystem#getSourceCharset()}.
-   * 
+   *
    * @since 2.6
    */
   String ENCODING_PROPERTY = "sonar.sourceEncoding";
@@ -148,8 +159,8 @@ public interface CoreProperties {
   String SERVER_BASE_URL = "sonar.core.serverBaseURL";
 
   /**
-   * @since 2.10
    * @see #SERVER_BASE_URL
+   * @since 2.10
    */
   String SERVER_BASE_URL_DEFAULT_VALUE = "http://localhost:9000";
 
@@ -169,8 +180,8 @@ public interface CoreProperties {
   String CPD_ENGINE = "sonar.cpd.engine";
 
   /**
-   * @since 2.11
    * @see #CPD_ENGINE
+   * @since 2.11
    */
   String CPD_ENGINE_DEFAULT_VALUE = "sonar";
 
@@ -180,8 +191,8 @@ public interface CoreProperties {
   String CPD_CROSS_RPOJECT = "sonar.cpd.cross_project";
 
   /**
-   * @since 2.11
    * @see #CPD_CROSS_RPOJECT
+   * @since 2.11
    */
   boolean CPD_CROSS_RPOJECT_DEFAULT_VALUE = false;
 
@@ -189,7 +200,7 @@ public interface CoreProperties {
 
   /**
    * Indicates whether Java bytecode analysis should be skipped.
-   * 
+   *
    * @since 2.0
    */
   String DESIGN_SKIP_DESIGN_PROPERTY = "sonar.skipDesign";
@@ -197,7 +208,7 @@ public interface CoreProperties {
 
   /**
    * Indicates whether Package Design Analysis should be skipped.
-   * 
+   *
    * @since 2.9
    */
   String DESIGN_SKIP_PACKAGE_DESIGN_PROPERTY = "sonar.skipPackageDesign";

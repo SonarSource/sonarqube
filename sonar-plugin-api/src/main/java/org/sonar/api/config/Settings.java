@@ -38,15 +38,18 @@ import java.util.*;
  */
 public class Settings implements BatchComponent, ServerComponent {
 
-  protected Map<String, String> properties = Maps.newHashMap();
-  protected PropertyDefinitions definitions;
+  protected final Map<String, String> properties;
+  protected final PropertyDefinitions definitions;
+  private final Encryption encryption;
 
   public Settings() {
     this(new PropertyDefinitions());
   }
 
   public Settings(PropertyDefinitions definitions) {
+    this.properties = Maps.newHashMap();
     this.definitions = definitions;
+    this.encryption = new Encryption(this);
   }
 
   public final String getDefaultValue(String key) {
@@ -62,6 +65,19 @@ public class Settings implements BatchComponent, ServerComponent {
   }
 
   public final String getString(String key) {
+    String value = properties.get(key);
+    if (value == null) {
+      value = getDefaultValue(key);
+    } else if (encryption.isEncrypted(value)) {
+      value = encryption.decrypt(value);
+    }
+    return value;
+  }
+
+  /**
+   * Does not decrypt value.
+   */
+  protected String getClearString(String key) {
     String value = properties.get(key);
     if (value == null) {
       value = getDefaultValue(key);
@@ -217,7 +233,8 @@ public class Settings implements BatchComponent, ServerComponent {
   }
 
   public final Settings setProperties(Map<String, String> props) {
-    properties = Maps.newHashMap(props);
+    properties.clear();
+    properties.putAll(props);
     return this;
   }
 
