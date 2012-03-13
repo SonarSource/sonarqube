@@ -399,6 +399,19 @@ public final class JRubyFacade {
     LoggerFactory.getLogger(getClass()).error(message);
   }
 
+  public boolean canEncrypt() {
+    return getContainer().getComponentByType(Settings.class).getEncryption().canEncrypt();
+  }
+
+  public String encrypt(String clearText) {
+    return getContainer().getComponentByType(Settings.class).getEncryption().encrypt(clearText);
+  }
+
+  public String generateRandomSecretKey() {
+    return getContainer().getComponentByType(Settings.class).getEncryption().generateRandomSecretKey();
+  }
+
+
   public ReviewsNotificationManager getReviewsNotificationManager() {
     return getContainer().getComponentByType(ReviewsNotificationManager.class);
   }

@@ -52,6 +52,10 @@ public class Settings implements BatchComponent, ServerComponent {
     this.encryption = new Encryption(this);
   }
 
+  public final Encryption getEncryption() {
+    return encryption;
+  }
+
   public final String getDefaultValue(String key) {
     return definitions.getDefaultValue(key);
   }

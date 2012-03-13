@@ -1,0 +1,12 @@
+<p>bla bla</p>
+
+<% if @can_encrypt %>
+  <form action="<%= ApplicationController.root_context -%>/encryption/encrypt" method="POST">
+    <input type="text" name="text" id="text"/>
+    <input type="submit" value="Encrypt" id="submit_encrypt"/>
+  </form>
+<% else %>
+  <form action="<%= ApplicationController.root_context -%>/encryption/generate_secret" method="POST">
+    <input type="submit" value="Generate secret" id="submit_generate_secret"/>
+  </form>
+<% end %>

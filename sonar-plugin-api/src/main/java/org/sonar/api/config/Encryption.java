@@ -49,6 +49,10 @@ public final class Encryption {
     );
   }
 
+  public boolean canEncrypt() {
+    return aesEncryption.canEncrypt();
+  }
+
   public boolean isEncrypted(String value) {
     return value.startsWith("{") && value.indexOf("}") > 1;
   }

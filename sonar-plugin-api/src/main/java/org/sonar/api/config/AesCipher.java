@@ -32,7 +32,10 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
 import java.io.IOException;
-import java.security.*;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 
 final class AesCipher extends Cipher {
@@ -45,10 +48,9 @@ final class AesCipher extends Cipher {
   }
 
   String encrypt(String clearText) {
-    String path = settings.getClearString(CoreProperties.ENCRYPTION_PATH_TO_SECRET_KEY);
     try {
       javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance("AES");
-      cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, loadSecretFileFromFile(path));
+      cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, loadSecretFile());
       return new String(Base64.encodeBase64(cipher.doFinal(clearText.getBytes(Charsets.UTF_8))));
     } catch (Exception e) {
       throw Throwables.propagate(e);
@@ -57,15 +59,27 @@ final class AesCipher extends Cipher {
 
 
   String decrypt(String encryptedText) {
-    String path = settings.getClearString(CoreProperties.ENCRYPTION_PATH_TO_SECRET_KEY);
     try {
       javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance("AES");
-      cipher.init(javax.crypto.Cipher.DECRYPT_MODE, loadSecretFileFromFile(path));
+      cipher.init(javax.crypto.Cipher.DECRYPT_MODE, loadSecretFile());
       byte[] cipherData = cipher.doFinal(Base64.decodeBase64(StringUtils.trim(encryptedText)));
       return new String(cipherData);
     } catch (Exception e) {
       throw Throwables.propagate(e);
     }
+  }
+
+  public boolean canEncrypt() {
+    try {
+      return loadSecretFile() != null;
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
+  Key loadSecretFile() throws NoSuchAlgorithmException, InvalidKeySpecException, IOException, InvalidKeyException {
+    String path = settings.getClearString(CoreProperties.ENCRYPTION_PATH_TO_SECRET_KEY);
+    return loadSecretFileFromFile(path);
   }
 
   @VisibleForTesting
@@ -96,4 +110,6 @@ final class AesCipher extends Cipher {
       throw new IllegalStateException("Fail to generate random RSA keys", e);
     }
   }
+
+
 }
