@@ -320,14 +320,17 @@ module ApplicationHelper
 
   #
   #
-  # link to the current page with the given resource. If file, then open a popup to display resource viewers.
+  # link to the current page with the given resource.
   #
   #
   def link_to_resource(resource, name=nil, options={})
     period_index=options[:period]
     period_index=nil if period_index && period_index<=0
-    link_to(name || resource.name, {:overwrite_params => {:controller => 'dashboard', :action => 'index', :id => resource.id, :period => period_index,
-                                                          :tab => options[:tab], :rule => options[:rule]}}, :title => options[:title])
+    if options[:line]
+      anchor= 'L' + options[:line].to_s
+    end
+    link_to(name || resource.name, {:controller => 'dashboard', :action => 'index', :id => resource.id, :period => period_index,
+                                    :tab => options[:tab], :rule => options[:rule], :anchor => anchor}, :title => options[:title])
   end
 
 
