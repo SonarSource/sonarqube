@@ -12,7 +12,7 @@
     <%  alert_status_measure=@snapshot.measure(Metric::ALERT_STATUS)
         alert_status_x=(alert_status_measure ? alert_status_measure.data : '')
      %>
-    <th x="<%= alert_status_x -%>"><%= html_measure(alert_status_measure, nil, true, nil, nil, nil) %></th>
+    <th x="<%= alert_status_x -%>"><%= format_measure(alert_status_measure) %></th>
     <th><% if logged_in? %><%= link_to_favourite(@snapshot.project) -%><% end %></th>
     <th class="left text <%= 'sortfirstasc' if @components_configuration.sorted_by_project_name? -%>">
       <%= qualifier_icon(@snapshot) -%>

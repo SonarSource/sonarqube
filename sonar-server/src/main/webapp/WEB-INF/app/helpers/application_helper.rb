@@ -109,51 +109,6 @@ module ApplicationHelper
     label
   end
 
-  def html_measure(measure, metric_name=nil, show_alert_status=true, url=nil, suffix='', small=true, no_tendency_img=false)
-    html=''
-
-    if measure && measure.metric
-      link_rel=''
-      show_link= !url.nil?
-
-      if measure.metric.val_type==Metric::VALUE_TYPE_LEVEL
-        html=image_tag("levels/#{measure.data.downcase}.png") unless measure.data.blank?
-      else
-        html=measure.formatted_value
-      end
-
-      alert_class=''
-      alert_link = false
-      style=''
-      if show_alert_status && !measure.alert_status.blank?
-        alert_class="class='alert_#{measure.alert_status}'" unless measure.metric.val_type==Metric::VALUE_TYPE_LEVEL
-        link_rel=h(measure.alert_text)
-        show_link=true
-        alert_link=true
-      elsif measure.metric.val_type==Metric::VALUE_TYPE_RATING && measure.color
-        style = "style='background-color: #{measure.color.html};padding: 2px 5px'"
-      end
-
-      html="<span id='m_#{measure.key}' #{alert_class} #{style}>#{html}</span>"
-      if metric_name
-        html="#{html} #{metric_name}"
-      end
-
-      if show_link
-        if url.blank?
-          url='#'
-          link_class='nolink'
-        else
-          link_class=''
-        end
-        html="<a href='#{url}' style='#{alert_link ? "cursor : default" : ""}' class='#{link_class}' rel='#{link_rel}' title='#{link_rel}'>#{html}</a>"
-      end
-      no_tendency_img=true if (measure.metric.val_type==Metric::VALUE_TYPE_LEVEL || measure.metric.val_type==Metric::VALUE_TYPE_BOOLEAN || measure.metric.val_type==Metric::VALUE_TYPE_RATING)
-      html="#{html} #{tendency_icon(measure, small, no_tendency_img)} #{suffix}"
-    end
-    html
-  end
-
   def configuration(key, default = nil)
     prop_value = Java::OrgSonarServerUi::JRubyFacade.getInstance().getContainer().getComponentByType(Java::OrgApacheCommonsConfiguration::Configuration.java_class).getProperty(key)
     prop_value.nil? ? default : prop_value
@@ -279,14 +234,10 @@ module ApplicationHelper
       end
 
       alert_class=''
-      alert_link = false
       style = ''
       if !(m.alert_status.blank?)
         alert_class="class='alert_#{m.alert_status}'" unless m.metric.val_type==Metric::VALUE_TYPE_LEVEL
         link_rel=h(m.alert_text)
-        show_link=true
-        alert_link = true
-
       elsif m.metric.val_type==Metric::VALUE_TYPE_RATING && m.color
         style = "style='background-color: #{m.color.html};padding: 2px 5px'"
       end
@@ -311,7 +262,7 @@ module ApplicationHelper
           url=options[:url]
           link_class=''
         end
-        html="<a href='#{url}' style='#{alert_link ? "cursor : default" : ""}' class='#{link_class}' rel='#{link_rel}' title='#{link_rel}'>#{html}</a>"
+        html="<a href='#{url}' class='#{link_class}' rel='#{link_rel}' title='#{link_rel}'>#{html}</a>"
       end
     end
     html

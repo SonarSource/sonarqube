@@ -39,7 +39,7 @@
                 <% alert_status_measure=search_measure(@measures_by_snapshot[snapshot], Metric::ALERT_STATUS)
                    alert_status_x=(alert_status_measure ? alert_status_measure.data : '')
                 %>
-                <td x="<%= alert_status_x -%>" width="1%" nowrap><%= html_measure(alert_status_measure, nil, true, nil, nil, nil) %></td>
+                <td x="<%= alert_status_x -%>" width="1%" nowrap><%= format_measure(alert_status_measure) %></td>
                 <td width="1%" nowrap>
                   <% if logged_in? %><%= link_to_favourite(project) -%>
                   <% end %>
