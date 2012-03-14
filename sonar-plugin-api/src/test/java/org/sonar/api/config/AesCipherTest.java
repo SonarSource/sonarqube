@@ -20,6 +20,7 @@
 package org.sonar.api.config;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
@@ -111,6 +112,16 @@ public class AesCipherTest {
     AesCipher cipher = new AesCipher(settings);
 
     assertThat(cipher.decrypt(cipher.encrypt("foo")), is("foo"));
+  }
+
+  @Test
+  public void testDefaultPathToSecretKey() {
+    AesCipher cipher = new AesCipher(new Settings());
+
+    String path = cipher.getPathToSecretKey();
+
+    assertThat(StringUtils.isNotBlank(path), is(true));
+    assertThat(new File(path).getName(), is("sonar-secret.txt"));
   }
 
   @Test

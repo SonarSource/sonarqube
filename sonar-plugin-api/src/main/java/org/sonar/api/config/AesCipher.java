@@ -119,7 +119,12 @@ final class AesCipher extends Cipher {
     }
   }
 
-  private String getPathToSecretKey() {
-    return settings.getClearString(CoreProperties.ENCRYPTION_SECRET_KEY_FILE);
+  @VisibleForTesting
+  String getPathToSecretKey() {
+    String path = settings.getClearString(CoreProperties.ENCRYPTION_SECRET_KEY_FILE);
+    if (StringUtils.isBlank(path)) {
+      path = new File(FileUtils.getUserDirectoryPath(), ".sonar/sonar-secret.txt").getPath();
+    }
+    return path;
   }
 }
