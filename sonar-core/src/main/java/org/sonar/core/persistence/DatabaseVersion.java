@@ -35,7 +35,7 @@ public class DatabaseVersion implements BatchComponent, ServerComponent {
   public static final int LAST_VERSION = 263;
 
   public static enum Status {
-    UP_TO_DATE, REQUIRES_UPGRADE, REQUIRES_DOWNGRADE
+    UP_TO_DATE, REQUIRES_UPGRADE, REQUIRES_DOWNGRADE, FRESH_INSTALL
   }
 
   private MyBatis mybatis;
@@ -69,12 +69,14 @@ public class DatabaseVersion implements BatchComponent, ServerComponent {
 
   @VisibleForTesting
   static Status getStatus(Integer currentVersion, int lastVersion) {
-    Status status = Status.REQUIRES_UPGRADE;
+    Status status = Status.FRESH_INSTALL;
     if (currentVersion != null) {
       if (currentVersion == lastVersion) {
         status = Status.UP_TO_DATE;
       } else if (currentVersion > lastVersion) {
         status = Status.REQUIRES_DOWNGRADE;
+      } else {
+        status = Status.REQUIRES_UPGRADE;
       }
     }
     return status;
