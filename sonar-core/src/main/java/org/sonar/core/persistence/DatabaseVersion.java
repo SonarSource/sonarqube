@@ -53,7 +53,7 @@ public class DatabaseVersion implements BatchComponent, ServerComponent {
         return versions.get(versions.size() - 1);
       }
       return null;
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       // The table SCHEMA_MIGRATIONS does not exist.
       // Ignore this exception -> it will be created by Ruby on Rails migrations.
       return null;

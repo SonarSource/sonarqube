@@ -36,7 +36,7 @@ public final class DatabaseUtils {
    * This list is hardcoded because we didn't succeed in using java.sql.DatabaseMetaData#getTables() in the same way
    * for all the supported databases, particularly due to Oracle results.
    */
-  public static final String[] TABLE_NAMES = {
+  static final String[] TABLE_NAMES = {
     "action_plans",
     "action_plans_reviews",
     "active_dashboards",

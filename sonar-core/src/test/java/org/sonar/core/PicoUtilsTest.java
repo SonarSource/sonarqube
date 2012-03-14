@@ -39,6 +39,14 @@ public class PicoUtilsTest {
   }
 
   @Test
+  public void shouldSanitizePicoLifecycleException_no_wrapper_message() {
+    Throwable th = PicoUtils.sanitize(new PicoLifecycleException(null, null, new IllegalStateException("msg")));
+
+    assertThat(th, Is.is(IllegalStateException.class));
+    assertThat(th.getMessage(), Is.is("msg"));
+  }
+
+  @Test
   public void shouldNotSanitizeOtherExceptions() {
     Throwable th = PicoUtils.sanitize(new IllegalArgumentException("foo"));
 
