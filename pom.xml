@@ -21,6 +21,7 @@
     <module>sonar-colorizer</module>
     <module>sonar-core</module>
     <module>sonar-deprecated</module>
+    <module>sonar-diff</module>
     <module>sonar-duplications</module>
     <module>sonar-graph</module>
     <module>sonar-gwt-api</module>
@@ -1086,7 +1087,7 @@
         </plugins>
       </build>
     </profile>
-    
+
     <profile>
       <id>javadoc</id>
       <build>
