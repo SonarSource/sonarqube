@@ -24,9 +24,11 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.RuleFailureModel;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.database.model.SnapshotSource;
 import org.sonar.api.resources.Resource;
 
 import javax.persistence.Query;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -46,9 +48,20 @@ public class ReferenceAnalysis implements BatchExtension {
     return Collections.emptyList();
   }
 
-  Snapshot getSnapshot(Resource resource) {
+  public String getSource(Resource resource) {
+    Snapshot snapshot = getSnapshot(resource);
+    if (snapshot != null) {
+      SnapshotSource source = session.getSingleResult(SnapshotSource.class, "snapshotId", snapshot.getId());
+      if (source != null) {
+        return source.getData();
+      }
+    }
+    return "";
+  }
+
+  private Snapshot getSnapshot(Resource resource) {
     Query query = session.createQuery("from " + Snapshot.class.getSimpleName() + " s where s.last=:last and s.resourceId=(select r.id from "
-        + ResourceModel.class.getSimpleName() + " r where r.key=:key)");
+      + ResourceModel.class.getSimpleName() + " r where r.key=:key)");
     query.setParameter("key", resource.getEffectiveKey());
     query.setParameter("last", Boolean.TRUE);
     return session.getSingleResult(query, null);
