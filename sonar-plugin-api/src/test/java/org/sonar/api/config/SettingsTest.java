@@ -19,6 +19,7 @@
  */
 package org.sonar.api.config;
 
+import com.google.common.collect.ImmutableMap;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,6 +57,20 @@ public class SettingsTest {
   public void defaultValuesShouldBeLoadedFromDefinitions() {
     Settings settings = new Settings(definitions);
     assertThat(settings.getDefaultValue("hello"), is("world"));
+  }
+
+  @Test
+  public void allValuesShouldBeTrimmed_set_property() {
+    Settings settings = new Settings();
+    settings.setProperty("foo", "   FOO ");
+    assertThat(settings.getString("foo"), is("FOO"));
+  }
+
+  @Test
+  public void allValuesShouldBeTrimmed_set_properties() {
+    Settings settings = new Settings();
+    settings.setProperties(ImmutableMap.of("foo", "  FOO "));
+    assertThat(settings.getString("foo"), is("FOO"));
   }
 
   @Test

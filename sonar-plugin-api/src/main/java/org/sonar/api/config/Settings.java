@@ -173,9 +173,9 @@ public class Settings implements BatchComponent, ServerComponent {
   public final Settings appendProperty(String key, String value) {
     String newValue = properties.get(key);
     if (StringUtils.isEmpty(newValue)) {
-      newValue = value;
+      newValue = StringUtils.trim(value);
     } else {
-      newValue += "," + value;
+      newValue += "," + StringUtils.trim(value);
     }
     properties.put(key, newValue);
     return this;
@@ -183,7 +183,7 @@ public class Settings implements BatchComponent, ServerComponent {
 
   public final Settings setProperty(String key, String value) {
     if (!clearIfNullValue(key, value)) {
-      properties.put(key, value);
+      properties.put(key, StringUtils.trim(value));
     }
     return this;
   }
@@ -221,13 +221,15 @@ public class Settings implements BatchComponent, ServerComponent {
   }
 
   public final Settings addProperties(Map<String, String> props) {
-    properties.putAll(props);
+    for (Map.Entry<String, String> entry : props.entrySet()) {
+      setProperty(entry.getKey(), entry.getValue());
+    }
     return this;
   }
 
   public final Settings addProperties(Properties props) {
     for (Map.Entry<Object, Object> entry : props.entrySet()) {
-      properties.put(entry.getKey().toString(), entry.getValue().toString());
+      setProperty(entry.getKey().toString(), entry.getValue().toString());
     }
     return this;
   }
@@ -242,8 +244,7 @@ public class Settings implements BatchComponent, ServerComponent {
 
   public final Settings setProperties(Map<String, String> props) {
     properties.clear();
-    properties.putAll(props);
-    return this;
+    return addProperties(props);
   }
 
   public final Settings setProperty(String key, Date date, boolean includeTime) {
