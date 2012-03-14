@@ -39,6 +39,7 @@ class EncryptionController < ApplicationController
   def encrypt
     bad_request('No secret key') unless java_facade.hasSecretKey()
     @encrypted=java_facade.encrypt(params[:text])
+    render :action => 'encrypt', :layout => false
   end
 
   private
