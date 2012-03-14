@@ -133,11 +133,11 @@
       </td>
 
       <td class="thin nowrap">
-        <%= image_tag "event_alert.png", :alt => (message('project_history.col.alert') + ": " + alert_event.name + ". " + alert_event.description) if alert_event -%>
+        <%= image_tag "event_alert.png", :alt => (message('project_history.col.alert') + ": " + alert_event.name + ". " + alert_event.description_text) if alert_event -%>
       </td>
 
       <td class="thin nowrap">
-        <%= image_tag "event_profile.png", :alt => message('project_history.col.profile') + ": " + profile_event.description if profile_event -%>
+        <%= image_tag "event_profile.png", :alt => message('project_history.col.profile') + ": " + profile_event.description_text if profile_event -%>
       </td>
 
       <td class="thin nowrap center" style="padding-left:10px; padding-right:10px">

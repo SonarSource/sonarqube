@@ -36,6 +36,12 @@ class Event < ActiveRecord::Base
     end
   end
   
+  # Use this method to display event description, as missing descriptions are not stored in the same way
+  # on different DBs (see https://jira.codehaus.org/browse/SONAR-3326)
+  def description_text
+    description || ''
+  end
+  
   #
   # For a given snapshot, checks if an event with the same name & category
   # exists in the history of the corresponding resource (= in any existing 
