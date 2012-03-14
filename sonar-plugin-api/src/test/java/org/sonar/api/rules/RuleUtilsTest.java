@@ -20,18 +20,17 @@
 package org.sonar.api.rules;
 
 import org.apache.commons.configuration.Configuration;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import org.junit.Test;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import org.mockito.Matchers;
 import org.sonar.api.CoreProperties;
 
 import java.util.Map;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class RuleUtilsTest {
 

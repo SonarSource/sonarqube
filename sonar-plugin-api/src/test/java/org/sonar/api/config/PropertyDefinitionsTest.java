@@ -23,8 +23,6 @@ import org.junit.Test;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 
-import java.util.Arrays;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -62,12 +60,11 @@ public class PropertyDefinitionsTest {
   }
 
   @Properties({
-      @Property(key = "one", name = "One"),
-      @Property(key = "two", name = "Two", defaultValue = "2")
+    @Property(key = "one", name = "One"),
+    @Property(key = "two", name = "Two", defaultValue = "2")
   })
   static final class PluginWithProperties {
   }
-
 
   @Test
   public void testCategories() {
@@ -85,8 +82,8 @@ public class PropertyDefinitionsTest {
   }
 
   @Properties({
-      @Property(key = "inCateg", name="In Categ", category = "categ"),
-      @Property(key = "noCateg", name="No categ")
+    @Property(key = "inCateg", name = "In Categ", category = "categ"),
+    @Property(key = "noCateg", name = "No categ")
   })
   static final class Categories {
   }

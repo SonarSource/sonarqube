@@ -23,7 +23,6 @@ import com.google.common.collect.Maps;
 import org.sonar.api.batch.*;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
 import org.sonar.core.review.ReviewDao;

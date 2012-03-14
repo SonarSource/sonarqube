@@ -20,7 +20,6 @@
 package org.sonar.batch.bootstrap;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.codehaus.plexus.util.FileUtils;
 import org.hamcrest.Matchers;
 import org.junit.After;

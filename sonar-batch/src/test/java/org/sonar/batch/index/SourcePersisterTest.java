@@ -24,9 +24,7 @@ import org.junit.Test;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.DuplicatedSourceException;
 import org.sonar.api.resources.JavaFile;
-import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.utils.SonarException;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import static org.mockito.Matchers.anyObject;

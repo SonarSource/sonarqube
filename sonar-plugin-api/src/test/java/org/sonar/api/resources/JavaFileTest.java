@@ -19,10 +19,6 @@
  */
 package org.sonar.api.resources;
 
-import org.apache.commons.io.FileUtils;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -32,11 +28,14 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.*;
+
 public class JavaFileTest {
 
   @Rule
   public TemporaryFolder tempFolder = new TemporaryFolder();
-  
+
   @Test
   public void testNewClass() {
     JavaFile javaClass = new JavaFile("org.foo.bar.Hello", false);

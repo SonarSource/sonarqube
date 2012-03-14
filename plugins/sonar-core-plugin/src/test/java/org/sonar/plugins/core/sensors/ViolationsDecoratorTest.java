@@ -31,15 +31,12 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
-import org.sonar.api.test.IsMeasure;
 import org.sonar.api.test.IsRuleMeasure;
 
 import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
 public class ViolationsDecoratorTest {

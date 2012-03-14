@@ -20,7 +20,6 @@
 package org.sonar.api.rules;
 
 import org.hamcrest.core.Is;
-import org.hamcrest.core.IsNull;
 import org.junit.Test;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.Cardinality;

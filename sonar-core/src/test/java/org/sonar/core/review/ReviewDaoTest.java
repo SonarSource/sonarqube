@@ -28,7 +28,6 @@ import java.util.Collection;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 public class ReviewDaoTest extends DaoTestCase {
@@ -96,7 +95,7 @@ public class ReviewDaoTest extends DaoTestCase {
     review.setUpdatedAt(DateUtils.parseDate("2012-07-01"));
 
     dao.update(reviews);
-    
+
     checkTables("update", "reviews");
   }
 }

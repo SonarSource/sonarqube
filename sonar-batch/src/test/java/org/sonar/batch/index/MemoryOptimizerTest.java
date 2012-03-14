@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.index;
 
-import org.hamcrest.core.IsNull;
 import org.junit.Test;
 import org.sonar.api.database.model.MeasureData;
 import org.sonar.api.database.model.MeasureModel;

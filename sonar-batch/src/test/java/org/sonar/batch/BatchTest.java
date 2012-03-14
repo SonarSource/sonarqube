@@ -21,8 +21,6 @@ package org.sonar.batch;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.bootstrap.Module;
 
 import java.util.Properties;

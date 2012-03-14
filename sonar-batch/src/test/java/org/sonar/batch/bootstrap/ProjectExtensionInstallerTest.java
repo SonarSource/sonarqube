@@ -20,8 +20,6 @@
 package org.sonar.batch.bootstrap;
 
 import com.google.common.collect.Maps;
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.maven.project.MavenProject;
 import org.junit.Test;
 import org.sonar.api.*;

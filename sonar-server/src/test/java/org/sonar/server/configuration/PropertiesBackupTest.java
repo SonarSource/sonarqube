@@ -30,7 +30,6 @@ import org.sonar.test.TestUtils;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.startsWith;

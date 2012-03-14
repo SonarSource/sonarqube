@@ -19,7 +19,6 @@
  */
 package org.sonar.api.utils.command;
 
-import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
 import java.io.File;

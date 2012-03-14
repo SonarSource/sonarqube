@@ -20,7 +20,6 @@
 package org.sonar.core.persistence;
 
 import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.hamcrest.core.Is;
 import org.junit.AfterClass;
@@ -38,7 +37,7 @@ public class MyBatisTest {
   static {
     DerbyUtils.fixDerbyLogs();
   }
-  
+
   private static MyBatis myBatis;
   private static InMemoryDatabase database;
 

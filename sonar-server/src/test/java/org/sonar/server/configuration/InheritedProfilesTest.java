@@ -22,7 +22,6 @@ package org.sonar.server.configuration;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.utils.ValidationMessages;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import static org.hamcrest.Matchers.is;

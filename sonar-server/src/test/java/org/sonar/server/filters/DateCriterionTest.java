@@ -27,11 +27,8 @@ import java.util.Date;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 public class DateCriterionTest {
-  private static final int DAYS = 24 * 60 * 60 * 1000;
-
   @Test
   public void ignoreTime() throws ParseException {
     DateCriterion criterion = new DateCriterion().setDate(3);
@@ -39,7 +36,7 @@ public class DateCriterionTest {
     assertThat(date.getHours(), is(0));
     assertThat(date.getMinutes(), is(0));
   }
-  
+
   @Test
   public void testDaysAgo() throws ParseException {
     DateCriterion criterion = new DateCriterion().setDate(3);

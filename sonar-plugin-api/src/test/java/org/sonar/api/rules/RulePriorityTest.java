@@ -19,8 +19,6 @@
  */
 package org.sonar.api.rules;
 
-import static junit.framework.Assert.assertEquals;
-
 import junit.framework.Assert;
 import org.junit.Test;
 

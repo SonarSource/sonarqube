@@ -19,28 +19,11 @@
  */
 package org.sonar.batch;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNull;
-import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
-
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.io.FileUtils;
-import org.apache.maven.model.Model;
-import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Ignore;
-import org.junit.Test;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.resources.Project;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
-import java.net.URISyntaxException;
-import java.util.Arrays;
 
 @Ignore
 public class ProjectTreeTest extends AbstractDbUnitTestCase {

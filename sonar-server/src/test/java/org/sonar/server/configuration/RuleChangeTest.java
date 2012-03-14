@@ -19,15 +19,10 @@
  */
 package org.sonar.server.configuration;
 
-import org.sonar.api.rules.RulePriority;
-
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.rules.RulePriority;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
-
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
 
 public class RuleChangeTest extends AbstractDbUnitTestCase {
   private ProfilesManager profilesManager;
@@ -71,21 +66,21 @@ public class RuleChangeTest extends AbstractDbUnitTestCase {
     profilesManager.ruleParamChanged(2, 3, "param1", "20", "30", "admin");
     checkTablesWithExcludedColumns("ruleParamChanged", new String[]{"change_date"}, "active_rule_changes", "active_rule_param_changes");
   }
-  
+
   @Test
   public void testRuleSeverityChanged() {
     setupData("initialData");
     profilesManager.ruleSeverityChanged(2, 3, RulePriority.BLOCKER, RulePriority.CRITICAL, "admin");
     checkTablesWithExcludedColumns("ruleSeverityChanged", new String[]{"change_date"}, "active_rule_changes");
   }
-  
+
   @Test
   public void testRuleReverted() {
     setupData("ruleReverted");
     profilesManager.revert(2, 3, "admin");
     checkTablesWithExcludedColumns("ruleReverted", new String[]{"change_date"}, "active_rule_changes", "active_rule_param_changes");
   }
-  
+
   @Test
   public void testChangeParentProfile() {
     setupData("changeParentProfile");
