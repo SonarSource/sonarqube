@@ -428,7 +428,7 @@ class ResourceController < ApplicationController
     if @period && @snapshot.period_datetime(@period)
       @filtered=true
       to=Java::JavaUtil::Date.new(@snapshot.period_datetime(@period).to_f * 1000)
-      if to
+      if to && @lines
         @lines.each do |line|
           line.flag_as_hidden() if !line.after(to)
         end
