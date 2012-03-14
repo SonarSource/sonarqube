@@ -82,4 +82,6 @@ public interface PurgeMapper {
   List<PurgeableSnapshotDto> selectPurgeableSnapshotsWithoutEvents(long resourceId);
 
   List<Long> selectResourceIdsByRootId(long rootProjectId);
+  
+  List<Long> selectResourceIdsToDisable(long projectId);
 }
