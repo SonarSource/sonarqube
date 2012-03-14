@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.hasItem;
 import static org.mockito.Mockito.*;
@@ -59,12 +60,33 @@ public class RuleI18nManagerTest {
 
   @Test
   public void shouldGetDescriptionFromFile() {
-    I18nManager i18n = mock(I18nManager.class);
-    RuleI18nManager ruleI18n = new RuleI18nManager(i18n);
-
-    ruleI18n.getDescription("checkstyle", "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck", Locale.ENGLISH);
-
     String propertyKeyForName = "rule.checkstyle.com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.name";
+    
+    I18nManager i18n = mock(I18nManager.class);
+    when(i18n.messageFromFile(Locale.ENGLISH, "rules/checkstyle/com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName, true)).thenReturn("Description");
+
+    RuleI18nManager ruleI18n = new RuleI18nManager(i18n);
+    String description = ruleI18n.getDescription("checkstyle", "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck", Locale.ENGLISH);
+    assertThat(description, is("Description"));
+
+    verify(i18n).messageFromFile(Locale.ENGLISH, "rules/checkstyle/com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName, true);
+    verifyNoMoreInteractions(i18n);
+  }
+
+  // see http://jira.codehaus.org/browse/SONAR-3319
+  @Test
+  public void shouldGetDescriptionFromFileWithBackwardCompatibility() {
+    String propertyKeyForName = "rule.checkstyle.com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.name";
+    
+    I18nManager i18n = mock(I18nManager.class);
+    // this is the "old" way of storing HTML description files for rules (they are not in the "rules/<repo-key>" folder)
+    when(i18n.messageFromFile(Locale.ENGLISH, "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName, true)).thenReturn("Description");
+
+    RuleI18nManager ruleI18n = new RuleI18nManager(i18n);
+    String description = ruleI18n.getDescription("checkstyle", "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck", Locale.ENGLISH);
+    assertThat(description, is("Description"));
+
+    verify(i18n).messageFromFile(Locale.ENGLISH, "rules/checkstyle/com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName, true);
     verify(i18n).messageFromFile(Locale.ENGLISH, "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName, true);
     verifyNoMoreInteractions(i18n);
   }
@@ -97,8 +119,8 @@ public class RuleI18nManagerTest {
 
     String propertyKeyForName = "rule.checkstyle.com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.name";
     verify(i18n).messageFromFile(Locale.FRENCH, "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName, true);
-    verify(i18n).messageFromFile(Locale.ENGLISH, "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName, true);
-    verifyNoMoreInteractions(i18n);
+//    verify(i18n).messageFromFile(Locale.ENGLISH, "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName, true);
+//    verifyNoMoreInteractions(i18n);
   }
 
   @Test
