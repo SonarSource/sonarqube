@@ -31,69 +31,75 @@ import java.util.Arrays;
 import java.util.List;
 
 @Properties({
-    @Property(
-        key = CoreProperties.CPD_ENGINE,
-        defaultValue = CoreProperties.CPD_ENGINE_DEFAULT_VALUE,
-        name = "Copy&Paste detection engine",
-        description = "Sonar embeds its own CPD engine since Sonar 2.11, but it's still possible to use the old PMD CPD engine (value 'pmd')." +
-            " Some Sonar users might want to keep on working with PMD CPD engine for instance to prevent any impact on measures during an upgrade of Sonar." +
-            " Moreover this Sonar CPD engine is not supported by all Sonar language plugins and when this support is not available," +
-            " the PMD CPD engine is automatically selected.",
-        project = true,
-        module = true,
-        global = true,
-        category = CoreProperties.CATEGORY_DUPLICATIONS),
-    @Property(
-        key = CoreProperties.CPD_CROSS_RPOJECT,
-        defaultValue = CoreProperties.CPD_CROSS_RPOJECT_DEFAULT_VALUE + "",
-        name = "Cross project duplicaton detection",
-        description = "Sonar supports the detection of cross project duplications." +
-            " Activating this property will slightly increase each Sonar analysis time." +
-            " This mode can't be used along with the PMD CPD engine.",
-        project = true,
-        module = true,
-        global = true,
-        category = CoreProperties.CATEGORY_DUPLICATIONS),
-    @Property(
-        key = CoreProperties.CPD_MINIMUM_TOKENS_PROPERTY,
-        defaultValue = CoreProperties.CPD_MINIMUM_TOKENS_DEFAULT_VALUE + "",
-        name = "Minimum tokens",
-        description = "Deprecated property used only by the PMD CPD engine." +
-            " The number of duplicate tokens above which a block is considered as a duplication.",
-        project = true,
-        module = true,
-        global = true,
-        category = CoreProperties.CATEGORY_DUPLICATIONS),
-    @Property(
-        key = CoreProperties.CPD_IGNORE_LITERALS_PROPERTY,
-        defaultValue = CoreProperties.CPD_IGNORE_LITERALS_DEFAULT_VALUE + "",
-        name = "Ignore literals",
-        description = "Deprecated property used only by the PMD CPD engine." +
-            " If true, PMD-CPD ignores literal value differences when evaluating a duplicate block." +
-            " This means that foo=\"first string\"; and foo=\"second string\"; will be seen as equivalent.",
-        project = true,
-        module = true,
-        global = true,
-        category = CoreProperties.CATEGORY_DUPLICATIONS),
-    @Property(
-        key = CoreProperties.CPD_IGNORE_IDENTIFIERS_PROPERTY,
-        defaultValue = CoreProperties.CPD_IGNORE_IDENTIFIERS_DEFAULT_VALUE + "",
-        name = "Ignore identifiers",
-        description = "Deprecated property used only by the PMD CPD engine." +
-            " Similar to 'Ignore literals' but for identifiers; i.e., variable names, methods names, and so forth.",
-        project = true,
-        module = true,
-        global = true,
-        category = CoreProperties.CATEGORY_DUPLICATIONS)
+  @Property(
+    key = CoreProperties.CPD_ENGINE,
+    defaultValue = CoreProperties.CPD_ENGINE_DEFAULT_VALUE,
+    name = "Copy&Paste detection engine",
+    description = "Sonar embeds its own CPD engine since Sonar 2.11, but it's still possible to use the old PMD CPD engine (value 'pmd')." +
+      " Some Sonar users might want to keep on working with PMD CPD engine for instance to prevent any impact on measures during an upgrade of Sonar." +
+      " Moreover this Sonar CPD engine is not supported by all Sonar language plugins and when this support is not available," +
+      " the PMD CPD engine is automatically selected.",
+    project = true,
+    module = true,
+    global = true,
+    category = CoreProperties.CATEGORY_DUPLICATIONS,
+    type = Property.Type.SINGLE_SELECT_LIST,
+    options = {"sonar", "pmd"}),
+  @Property(
+    key = CoreProperties.CPD_CROSS_RPOJECT,
+    defaultValue = CoreProperties.CPD_CROSS_RPOJECT_DEFAULT_VALUE + "",
+    name = "Cross project duplicaton detection",
+    description = "Sonar supports the detection of cross project duplications." +
+      " Activating this property will slightly increase each Sonar analysis time." +
+      " This mode can't be used along with the PMD CPD engine.",
+    project = true,
+    module = true,
+    global = true,
+    category = CoreProperties.CATEGORY_DUPLICATIONS,
+    type = Property.Type.BOOLEAN),
+  @Property(
+    key = CoreProperties.CPD_MINIMUM_TOKENS_PROPERTY,
+    defaultValue = CoreProperties.CPD_MINIMUM_TOKENS_DEFAULT_VALUE + "",
+    name = "Minimum tokens",
+    description = "Deprecated property used only by the PMD CPD engine." +
+      " The number of duplicate tokens above which a block is considered as a duplication.",
+    project = true,
+    module = true,
+    global = true,
+    category = CoreProperties.CATEGORY_DUPLICATIONS,
+    type = Property.Type.INTEGER),
+  @Property(
+    key = CoreProperties.CPD_IGNORE_LITERALS_PROPERTY,
+    defaultValue = CoreProperties.CPD_IGNORE_LITERALS_DEFAULT_VALUE + "",
+    name = "Ignore literals",
+    description = "Deprecated property used only by the PMD CPD engine." +
+      " If true, PMD-CPD ignores literal value differences when evaluating a duplicate block." +
+      " This means that foo=\"first string\"; and foo=\"second string\"; will be seen as equivalent.",
+    project = true,
+    module = true,
+    global = true,
+    category = CoreProperties.CATEGORY_DUPLICATIONS,
+    type = Property.Type.BOOLEAN),
+  @Property(
+    key = CoreProperties.CPD_IGNORE_IDENTIFIERS_PROPERTY,
+    defaultValue = CoreProperties.CPD_IGNORE_IDENTIFIERS_DEFAULT_VALUE + "",
+    name = "Ignore identifiers",
+    description = "Deprecated property used only by the PMD CPD engine." +
+      " Similar to 'Ignore literals' but for identifiers; i.e., variable names, methods names, and so forth.",
+    project = true,
+    module = true,
+    global = true,
+    category = CoreProperties.CATEGORY_DUPLICATIONS,
+    type = Property.Type.BOOLEAN)
 })
-public class CpdPlugin extends SonarPlugin {
+public final class CpdPlugin extends SonarPlugin {
 
   public List getExtensions() {
     return Arrays.asList(CpdSensor.class, SumDuplicationsDecorator.class, DuplicationDensityDecorator.class,
-        IndexFactory.class,
-        SonarEngine.class,
-        PmdEngine.class,
-        SonarBridgeEngine.class);
+      IndexFactory.class,
+      SonarEngine.class,
+      PmdEngine.class,
+      SonarBridgeEngine.class);
   }
 
 }

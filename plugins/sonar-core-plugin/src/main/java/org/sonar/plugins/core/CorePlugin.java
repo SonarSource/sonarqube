@@ -74,7 +74,8 @@ import java.util.List;
         project = true,
         module = true,
         global = true,
-        category = CoreProperties.CATEGORY_SECURITY),
+        category = CoreProperties.CATEGORY_SECURITY,
+        type = Property.Type.BOOLEAN),
     @Property(
         key = CoreProperties.CORE_TENDENCY_DEPTH_PROPERTY,
         defaultValue = "" + CoreProperties.CORE_TENDENCY_DEPTH_DEFAULT_VALUE,
@@ -82,7 +83,8 @@ import java.util.List;
         description = TendencyDecorator.PROP_DAYS_DESCRIPTION,
         project = false,
         global = true,
-        category = CoreProperties.CATEGORY_DIFFERENTIAL_VIEWS),
+        category = CoreProperties.CATEGORY_DIFFERENTIAL_VIEWS,
+        type = Property.Type.INTEGER),
     @Property(
         key = CoreProperties.SKIP_TENDENCIES_PROPERTY,
         defaultValue = "" + CoreProperties.SKIP_TENDENCIES_DEFAULT_VALUE,
@@ -91,7 +93,8 @@ import java.util.List;
         project = true,
         module = false,
         global = true,
-        category = CoreProperties.CATEGORY_DIFFERENTIAL_VIEWS),
+        category = CoreProperties.CATEGORY_DIFFERENTIAL_VIEWS,
+        type = Property.Type.BOOLEAN),
     @Property(
         key = CoreProperties.CORE_SKIPPED_MODULES_PROPERTY,
         name = "Exclude modules",
@@ -106,7 +109,8 @@ import java.util.List;
         description = "Forcing user authentication stops un-logged users to access Sonar.",
         project = false,
         global = true,
-        category = CoreProperties.CATEGORY_SECURITY),
+        category = CoreProperties.CATEGORY_SECURITY,
+        type = Property.Type.BOOLEAN),
     @Property(
         key = CoreProperties.CORE_ALLOW_USERS_TO_SIGNUP_PROPERTY,
         defaultValue = "" + CoreProperties.CORE_ALLOW_USERS_TO_SIGNUP_DEAULT_VALUE,
@@ -114,7 +118,8 @@ import java.util.List;
         description = "Users can sign up online.",
         project = false,
         global = true,
-        category = CoreProperties.CATEGORY_SECURITY),
+        category = CoreProperties.CATEGORY_SECURITY,
+        type = Property.Type.BOOLEAN),
     @Property(
         key = CoreProperties.CORE_DEFAULT_GROUP,
         defaultValue = CoreProperties.CORE_DEFAULT_GROUP_DEFAULT_VALUE,
@@ -199,22 +204,25 @@ import java.util.List;
         description = "Downcase login during user authentication, typically for Active Directory",
         project = false,
         global = false,
-        defaultValue = "false"),
+        defaultValue = "false",
+        type = Property.Type.BOOLEAN),
     @Property(
         key = CoreProperties.CORE_AUTHENTICATOR_CREATE_USERS,
         name = "Create user accounts",
         description = "Create accounts when authenticating users via an external system",
         project = false,
         global = false,
-        defaultValue = "true"),
+        defaultValue = "true",
+        type = Property.Type.BOOLEAN),
     @Property(
         key = CoreProperties.CORE_AUTHENTICATOR_IGNORE_STARTUP_FAILURE,
         name = "Ignore failures during authenticator startup",
         defaultValue = "false",
         project = false,
-        global = false)
+        global = false,
+        type = Property.Type.BOOLEAN)
 })
-public class CorePlugin extends SonarPlugin {
+public final class CorePlugin extends SonarPlugin {
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   public List getExtensions() {

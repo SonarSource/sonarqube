@@ -42,20 +42,21 @@ import java.util.Date;
  * @since 2.4
  */
 @Properties({
-    @Property(
-        key = "sonar.updatecenter.activate",
-        defaultValue = "true",
-        name = "Enable Update Center",
-        project = false,
-        global = false, // hidden from UI
-        category = "Update Center"),
-    @Property(
-        key = UpdateCenterClient.URL_PROPERTY,
-        defaultValue = "http://update.sonarsource.org/update-center.properties",
-        name = "Update Center URL",
-        project = false,
-        global = false, // hidden from UI
-        category = "Update Center")
+  @Property(
+    key = "sonar.updatecenter.activate",
+    defaultValue = "true",
+    name = "Enable Update Center",
+    project = false,
+    global = false, // hidden from UI
+    category = "Update Center",
+    type = Property.Type.BOOLEAN),
+  @Property(
+    key = UpdateCenterClient.URL_PROPERTY,
+    defaultValue = "http://update.sonarsource.org/update-center.properties",
+    name = "Update Center URL",
+    project = false,
+    global = false, // hidden from UI
+    category = "Update Center")
 })
 public class UpdateCenterClient implements ServerComponent {
 

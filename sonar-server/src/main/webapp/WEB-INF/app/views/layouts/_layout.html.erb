@@ -141,7 +141,6 @@
                 <li class="<%= 'selected' if controller.controller_path=='updatecenter' -%>">
                   <a href="<%= ApplicationController.root_context -%>/updatecenter"><%= message('update_center.page') -%></a></li>
               <% end %>
-              <li class="<%= 'selected' if request.request_uri.include?('/encryption') -%>"><a href="<%= ApplicationController.root_context -%>/encryption"><%= message('encryption.page') -%></a></li>
             <% end %>
 
           <% end %>

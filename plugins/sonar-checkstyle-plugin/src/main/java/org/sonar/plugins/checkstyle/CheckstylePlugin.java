@@ -19,34 +19,36 @@
  */
 package org.sonar.plugins.checkstyle;
 
-import org.sonar.api.SonarPlugin;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
+import org.sonar.api.SonarPlugin;
 
 import java.util.Arrays;
 import java.util.List;
 
-@Properties( { 
+@Properties({
   @Property(key = CheckstyleConstants.FILTERS_KEY,
-      defaultValue = CheckstyleConstants.FILTERS_DEFAULT_VALUE,
-      name = "Filters", 
-      description = "Checkstyle support three error filtering mechanisms : SuppressionCommentFilter, SuppressWithNearbyCommentFilter and SuppressionFilter."
-        + "This property allows to configure all those filters with a native XML format."
-          + " See <a href='http://checkstyle.sourceforge.net/config.html'>Checkstyle configuration page</a> to get more information on those filters.", 
-          project = false, global = true) })
-public class CheckstylePlugin extends SonarPlugin {
+    defaultValue = CheckstyleConstants.FILTERS_DEFAULT_VALUE,
+    name = "Filters",
+    description = "Checkstyle support three error filtering mechanisms : SuppressionCommentFilter, SuppressWithNearbyCommentFilter and SuppressionFilter."
+      + "This property allows to configure all those filters with a native XML format."
+      + " See <a href='http://checkstyle.sourceforge.net/config.html'>Checkstyle configuration page</a> to get more information on those filters.",
+    project = false,
+    global = true,
+    type = Property.Type.TEXT)})
+public final class CheckstylePlugin extends SonarPlugin {
 
   public List getExtensions() {
     return Arrays.asList(
-        CheckstyleSensor.class,
-        CheckstyleConfiguration.class,
-        CheckstyleExecutor.class,
-        CheckstyleAuditListener.class,
-        CheckstyleProfileExporter.class,
-        CheckstyleProfileImporter.class,
-        CheckstyleRuleRepository.class,
-        SonarWayProfile.class,
-        SunConventionsProfile.class,
-        SonarWayWithFindbugsProfile.class);
+      CheckstyleSensor.class,
+      CheckstyleConfiguration.class,
+      CheckstyleExecutor.class,
+      CheckstyleAuditListener.class,
+      CheckstyleProfileExporter.class,
+      CheckstyleProfileImporter.class,
+      CheckstyleRuleRepository.class,
+      SonarWayProfile.class,
+      SunConventionsProfile.class,
+      SonarWayWithFindbugsProfile.class);
   }
 }

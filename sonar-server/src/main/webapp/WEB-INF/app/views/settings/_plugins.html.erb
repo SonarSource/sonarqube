@@ -24,10 +24,11 @@
   }
 </style>
 <script type="text/javascript">
-  function replaceTextField(span_id, key) {
-    var text_field_value = $F(key);
-    var text_area = '<textarea cols="100" id="' + key + '" name="' + key + '" rows="10">' + text_field_value + '</textarea>';
-    $(span_id).replace(text_area);
+  function enlargeTextInput(propertyKey) {
+    var eltId = 'input_' + propertyKey;
+    var textValue = $F(eltId);
+    var textArea = '<textarea class="width100" id="' + propertyKey + '" name="' + propertyKey + '" rows="10" id="input_' + propertyKey + '">' + textValue + '</textarea>';
+    $(eltId).parentNode.replace(textArea);
   }
 </script>
 <div id="plugins">
@@ -85,6 +86,9 @@
                    if @properties_per_category[@category]
                      @properties_per_category[@category].each do |property|
                        value = Property.value(property.key(), (@project ? @project.id : nil), '')
+
+                       # for backward-compatibility with properties that do not define the type TEXT
+                       property_type = value.include?("\n") ? 'TEXT' : property.type
                 %>
                     <tr class="<%= cycle('even', 'odd', :name => 'properties') -%>">
                       <td style="padding: 10px">
@@ -97,13 +101,8 @@
                            if desc.present? %>
                           <p class="marginbottom10"><%= desc -%></p>
                         <% end %>
+                        <div><%= render :partial => "settings/type_#{property_type}", :locals => {:property => property, :value => value} -%></div>
                         <p>
-                          <% span_id = "text_" + property.key().gsub('.', '_') %>
-                          <% textfield = text_field_tag property.key(), value, :size => '20' %>
-                          <% textfield += link_to_function(image_tag("zoom.png"), "replaceTextField('#{span_id}', '#{property.key()}')", :id => "toggle_text", :class => 'nolink') %>
-                          <% textarea = text_area_tag property.key(), value, :size => "100x10" %>
-                          <span id="<%= span_id %>"><%= (value && value.length >= 50) ? textarea : textfield -%></span>
-
                           <%
                              default_prop_value = (@project ? Property.value(property.key(), nil, property.defaultValue()) : property.defaultValue())
                              unless default_prop_value.blank? %>

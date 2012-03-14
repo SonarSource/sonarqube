@@ -46,6 +46,13 @@ import java.lang.annotation.Target;
 public @interface Property {
 
   /**
+   * @since 2.15
+   */
+  public static enum Type {
+    STRING, TEXT, PASSWORD, BOOLEAN, INTEGER, FLOAT, SINGLE_SELECT_LIST
+  }
+
+  /**
    * Unique key within all plugins. It's recommended to prefix the key by 'sonar.' and the plugin name. Examples :
    * 'sonar.cobertura.reportPath' and 'sonar.cpd.minimumTokens'.
    */
@@ -76,4 +83,17 @@ public @interface Property {
    * Is the property displayed in global settings page ?
    */
   boolean global() default true;
+
+  /**
+   * @since 2.15
+   */
+  Type type() default Type.STRING;
+
+  /**
+   * Options for *_LIST types
+   *
+   * @since 2.15
+   */
+  String[] options() default {};
+
 }

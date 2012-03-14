@@ -29,39 +29,40 @@ import java.util.Arrays;
 import java.util.List;
 
 @Properties({
-    @Property(key = SquidPluginProperties.SQUID_ANALYSE_ACCESSORS_PROPERTY,
-        defaultValue = SquidPluginProperties.SQUID_ANALYSE_ACCESSORS_DEFAULT_VALUE
-            + "",
-        name = "Separate accessors",
-        description = "Flag whether Squid should separate accessors (getters/setters) from methods. " +
-            "In that case, accessors are not counted in metrics such as complexity or API documentation.",
-        project = true,
-        global = true,
-        category = CoreProperties.CATEGORY_JAVA),
-    @Property(key = SquidPluginProperties.FIELDS_TO_EXCLUDE_FROM_LCOM4_COMPUTATION,
-        defaultValue = SquidPluginProperties.FIELDS_TO_EXCLUDE_FROM_LCOM4_COMPUTATION_DEFAULT_VALUE,
-        name = "List of fields to exclude from LCOM4 computation",
-        description = "Some fields should not be taken into account when computing LCOM4 measure as they " +
-            "unexpectedly and artificially decrease the LCOM4 measure. "
-            + "The best example is a logger used by all methods of a class. " +
-            "All field names to exclude from LCOM4 computation must be separated by a comma.",
-        project = true,
-        global = true,
-        category = CoreProperties.CATEGORY_JAVA),
-    @Property(
-        key = CoreProperties.DESIGN_SKIP_DESIGN_PROPERTY,
-        defaultValue = "" + CoreProperties.DESIGN_SKIP_DESIGN_DEFAULT_VALUE,
-        name = "Skip design analysis",
-        project = true,
-        global = true,
-        category = CoreProperties.CATEGORY_JAVA)
+  @Property(key = SquidPluginProperties.SQUID_ANALYSE_ACCESSORS_PROPERTY,
+    defaultValue = SquidPluginProperties.SQUID_ANALYSE_ACCESSORS_DEFAULT_VALUE + "",
+    name = "Separate accessors",
+    description = "Flag whether Squid should separate accessors (getters/setters) from methods. " +
+      "In that case, accessors are not counted in metrics such as complexity or API documentation.",
+    project = true,
+    global = true,
+    category = CoreProperties.CATEGORY_JAVA,
+    type = Property.Type.BOOLEAN),
+  @Property(key = SquidPluginProperties.FIELDS_TO_EXCLUDE_FROM_LCOM4_COMPUTATION,
+    defaultValue = SquidPluginProperties.FIELDS_TO_EXCLUDE_FROM_LCOM4_COMPUTATION_DEFAULT_VALUE,
+    name = "List of fields to exclude from LCOM4 computation",
+    description = "Some fields should not be taken into account when computing LCOM4 measure as they " +
+      "unexpectedly and artificially decrease the LCOM4 measure. "
+      + "The best example is a logger used by all methods of a class. " +
+      "All field names to exclude from LCOM4 computation must be separated by a comma.",
+    project = true,
+    global = true,
+    category = CoreProperties.CATEGORY_JAVA),
+  @Property(
+    key = CoreProperties.DESIGN_SKIP_DESIGN_PROPERTY,
+    defaultValue = "" + CoreProperties.DESIGN_SKIP_DESIGN_DEFAULT_VALUE,
+    name = "Skip design analysis",
+    project = true,
+    global = true,
+    category = CoreProperties.CATEGORY_JAVA,
+    type = Property.Type.BOOLEAN)
 })
 public final class SquidPlugin extends SonarPlugin {
 
   public List getExtensions() {
     return Arrays.asList(SquidSensor.class, SquidRuleRepository.class, JavaSourceImporter.class,
-        ClassComplexityDistributionBuilder.class, FunctionComplexityDistributionBuilder.class, ClassesDecorator.class,
-        ChidamberKemererDistributionBuilder.class, FunctionsDecorator.class);
+      ClassComplexityDistributionBuilder.class, FunctionComplexityDistributionBuilder.class, ClassesDecorator.class,
+      ChidamberKemererDistributionBuilder.class, FunctionsDecorator.class);
   }
 
 }

@@ -25,25 +25,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Properties({
-    @Property(
-        key = CoreProperties.FINDBUGS_EFFORT_PROPERTY,
-        defaultValue = CoreProperties.FINDBUGS_EFFORT_DEFAULT_VALUE,
-        name = "Effort",
-        description = "Effort of the bug finders. Valid values are Min, Default and Max. Setting 'Max' increases precision but also increases " +
-            "memory consumption.",
-        project = true, module = true, global = true),
-    @Property(
-        key = CoreProperties.FINDBUGS_TIMEOUT_PROPERTY,
-        defaultValue = CoreProperties.FINDBUGS_TIMEOUT_DEFAULT_VALUE + "",
-        name = "Timeout",
-        description = "Specifies the amount of time, in milliseconds, that FindBugs may run before it is assumed to be hung and is terminated. " +
-            "The default is 600,000 milliseconds, which is ten minutes.",
-        project = true, module = true, global = true),
-    @Property(
-        key = FindbugsConstants.EXCLUDES_FILTERS_PROPERTY,
-        name = "Excludes Filters",
-        description = "Paths to findbugs filter-files with exclusions (comma-separated).",
-        project = true, module = true, global = true) })
+  @Property(
+    key = CoreProperties.FINDBUGS_EFFORT_PROPERTY,
+    defaultValue = CoreProperties.FINDBUGS_EFFORT_DEFAULT_VALUE,
+    name = "Effort",
+    description = "Effort of the bug finders. Valid values are Min, Default and Max. Setting 'Max' increases precision but also increases " +
+      "memory consumption.",
+    project = true,
+    module = true,
+    global = true),
+  @Property(
+    key = CoreProperties.FINDBUGS_TIMEOUT_PROPERTY,
+    defaultValue = CoreProperties.FINDBUGS_TIMEOUT_DEFAULT_VALUE + "",
+    name = "Timeout",
+    description = "Specifies the amount of time, in milliseconds, that FindBugs may run before it is assumed to be hung and is terminated. " +
+      "The default is 600,000 milliseconds, which is ten minutes.",
+    project = true,
+    module = true,
+    global = true,
+    type = Property.Type.INTEGER),
+  @Property(
+    key = FindbugsConstants.EXCLUDES_FILTERS_PROPERTY,
+    name = "Excludes Filters",
+    description = "Paths to findbugs filter-files with exclusions (comma-separated).",
+    project = true, module = true, global = true)})
 public class FindbugsPlugin extends SonarPlugin {
 
   public List<Class<? extends Extension>> getExtensions() {

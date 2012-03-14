@@ -32,14 +32,23 @@ import java.util.List;
   @Property(key = DbCleanerConstants.WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_WEEK, defaultValue = "4",
     name = "Number of weeks before starting to keep only one snapshot by week",
     description = "After this number of weeks, if there are several snapshots during the same week, "
-      + "the DbCleaner keeps the first one and fully delete the other ones.", global = true, project = true),
+      + "the DbCleaner keeps the first one and fully delete the other ones.",
+    global = true,
+    project = true,
+    type = Property.Type.INTEGER),
   @Property(key = DbCleanerConstants.WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_MONTH, defaultValue = "52",
     name = "Number of weeks before starting to keep only one snapshot by month",
     description = "After this number of weeks, if there are several snapshots during the same month, "
-      + "the DbCleaner keeps the first one and fully delete the other ones.", global = true, project = true),
+      + "the DbCleaner keeps the first one and fully delete the other ones.",
+    global = true,
+    project = true,
+    type = Property.Type.INTEGER),
   @Property(key = DbCleanerConstants.WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS, defaultValue = "260",
     name = "Number of weeks before starting to delete all remaining snapshots",
-    description = "After this number of weeks, all snapshots are fully deleted.", global = true, project = true)
+    description = "After this number of weeks, all snapshots are fully deleted.",
+    global = true,
+    project = true,
+    type = Property.Type.INTEGER)
 }
 )
 public final class DbCleanerPlugin extends SonarPlugin {
