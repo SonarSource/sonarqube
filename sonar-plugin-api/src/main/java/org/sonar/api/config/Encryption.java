@@ -32,7 +32,6 @@ import java.util.regex.Pattern;
 public final class Encryption {
 
   private static final String BASE64_ALGORITHM = "b64";
-  private final Base64Cipher base64Cipher;
 
   private static final String AES_ALGORITHM = "aes";
   private final AesCipher aesCipher;
@@ -41,10 +40,9 @@ public final class Encryption {
   private static final Pattern ENCRYPTED_PATTERN = Pattern.compile("\\{(.*?)\\}(.*)");
 
   Encryption(Settings settings) {
-    base64Cipher = new Base64Cipher();
     aesCipher = new AesCipher(settings);
     ciphers = ImmutableMap.of(
-        BASE64_ALGORITHM, base64Cipher,
+        BASE64_ALGORITHM, new Base64Cipher(),
         AES_ALGORITHM, aesCipher
     );
   }
@@ -57,7 +55,7 @@ public final class Encryption {
   }
 
   public boolean isEncrypted(String value) {
-    return value.startsWith("{") && value.indexOf("}") > 1;
+    return value.indexOf('{')==0 && value.indexOf('}') > 1;
   }
 
   public String encrypt(String clearText) {

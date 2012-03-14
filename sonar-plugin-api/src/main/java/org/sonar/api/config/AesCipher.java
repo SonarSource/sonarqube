@@ -44,6 +44,9 @@ final class AesCipher extends Cipher {
   // https://confluence.terena.org/display/~visser/No+256+bit+ciphers+for+Java+apps
   // http://java.sun.com/javase/6/webnotes/install/jre/README
   public static final int KEY_SIZE_IN_BITS = 128;
+
+  private static final String CRYPTO_KEY = "AES";
+
   private final Settings settings;
 
   AesCipher(Settings settings) {
@@ -52,7 +55,7 @@ final class AesCipher extends Cipher {
 
   String encrypt(String clearText) {
     try {
-      javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance("AES");
+      javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CRYPTO_KEY);
       cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, loadSecretFile());
       return new String(Base64.encodeBase64(cipher.doFinal(clearText.getBytes(Charsets.UTF_8))));
     } catch (Exception e) {
@@ -62,7 +65,7 @@ final class AesCipher extends Cipher {
 
   String decrypt(String encryptedText) {
     try {
-      javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance("AES");
+      javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CRYPTO_KEY);
       cipher.init(javax.crypto.Cipher.DECRYPT_MODE, loadSecretFile());
       byte[] cipherData = cipher.doFinal(Base64.decodeBase64(StringUtils.trim(encryptedText)));
       return new String(cipherData);
@@ -101,18 +104,18 @@ final class AesCipher extends Cipher {
     if (StringUtils.isBlank(s)) {
       throw new IllegalStateException("No secret key in the file: " + path);
     }
-    return new SecretKeySpec(Base64.decodeBase64(StringUtils.trim(s)), "AES");
+    return new SecretKeySpec(Base64.decodeBase64(StringUtils.trim(s)), CRYPTO_KEY);
   }
 
   String generateRandomSecretKey() {
     try {
-      KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+      KeyGenerator keyGen = KeyGenerator.getInstance(CRYPTO_KEY);
       keyGen.init(KEY_SIZE_IN_BITS, new SecureRandom());
       SecretKey secretKey = keyGen.generateKey();
       return new String(Base64.encodeBase64(secretKey.getEncoded()));
 
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to generate AES secret key", e);
+      throw new IllegalStateException("Fail to generate secret key", e);
     }
   }
 
