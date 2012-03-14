@@ -17,32 +17,38 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-class EncryptionController < ApplicationController
+class EncryptionConfigurationController < ApplicationController
 
   SECTION=Navigation::SECTION_CONFIGURATION
   before_filter :admin_required
+  before_filter :remove_layout
+
   verify :method => :post, :only => [:generate_secret, :encrypt], :redirect_to => {:action => :index}
 
   def index
-    @has_secret_key=java_facade.hasSecretKey()
+    if java_facade.hasSecretKey()
+      render :action => 'index'
+    else
+      render :action => 'generate_secret_form'
+    end
+  end
+
+  def generate_secret_form
+
   end
 
   def generate_secret
-    begin
-      @secret=java_facade.generateRandomSecretKey()
-    rescue Exception => e
-      flash[:error]=e.message
-      redirect_to :action => :index
-    end
+    render :text => java_facade.generateRandomSecretKey()
   end
 
   def encrypt
     bad_request('No secret key') unless java_facade.hasSecretKey()
-    @encrypted=java_facade.encrypt(params[:text])
-    render :action => 'encrypt', :layout => false
+    render :text => java_facade.encrypt(params[:text])
   end
 
   private
 
-
+  def remove_layout
+    params[:layout]='false'
+  end
 end

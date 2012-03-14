@@ -1,0 +1,14 @@
+<p class="spacer-bottom">Secret key is registered. You can encrypt any property value with the following form :</p>
+
+<%= form_remote_tag :url => {:action => 'encrypt'},
+                    :update => {:success => 'encryption_result', :failure => 'encryption_error'},
+                    :success => "$('encryption_result').show()",
+                    :failure => "$('encryption_error').show()",
+                    :html => {:class => 'spacer-bottom'} -%>
+<input type="text" name="text" id="text"/>
+<input type="submit" value="Encrypt" id="submit_encrypt"/>
+<span id="encryption_result" class="notice" style="display:none"></span>
+<span id="encryption_error" class="error" style="display:none"></span>
+</form>
+<p>Note that the <%= link_to 'secret key can be changed', {:action => 'generate_secret_form'}, :class => 'link-action' -%>
+  but all the encrypted properties will have to be updated.</p>
