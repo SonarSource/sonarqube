@@ -4,11 +4,13 @@
       warning_message = @duplication_group_warning if @duplication_group_warning
 %>
 
-  <%= warning_message -%>
+  <div id="duplications-message"><%= warning_message -%></div>
 
 <%  else  %>
 
-  <%= @duplication_group_warning if @duplication_group_warning -%>
+  <% if @duplication_group_warning %>
+  <div id="duplications-message"><%= @duplication_group_warning -%></div>
+  <% end %>
 
   <table id="duplications" class="data">
     <thead>
