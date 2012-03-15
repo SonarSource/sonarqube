@@ -17,23 +17,16 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.diff;
+package org.sonar.plugins.core.timemachine.tracking;
 
 /**
- * Wraps a {@link Sequence} to assign hash codes to elements.
+ * Arbitrary sequence of elements.
  */
-public class HashedSequence<S extends Sequence> implements Sequence {
+public interface Sequence {
 
-  final S base;
-  final int[] hashes;
-
-  public HashedSequence(S base, int[] hashes) {
-    this.base = base;
-    this.hashes = hashes;
-  }
-
-  public int length() {
-    return base.length();
-  }
+  /**
+   * @return total number of items in the sequence
+   */
+  int length();
 
 }

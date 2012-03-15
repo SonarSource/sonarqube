@@ -17,12 +17,12 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.diff;
+package org.sonar.plugins.core.timemachine.tracking;
 
 /**
  * Wrap another {@link SequenceComparator} for use with {@link HashedSequence}.
  */
-public class HashedSequenceComparator<S extends Sequence> extends SequenceComparator<HashedSequence<S>> {
+public class HashedSequenceComparator<S extends Sequence> implements SequenceComparator<HashedSequence<S>> {
 
   private final SequenceComparator<? super S> cmp;
 

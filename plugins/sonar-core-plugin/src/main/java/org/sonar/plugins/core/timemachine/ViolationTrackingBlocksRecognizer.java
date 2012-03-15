@@ -19,10 +19,10 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import org.sonar.diff.HashedSequence;
-import org.sonar.diff.HashedSequenceComparator;
-import org.sonar.diff.StringText;
-import org.sonar.diff.StringTextComparator;
+import org.sonar.plugins.core.timemachine.tracking.HashedSequence;
+import org.sonar.plugins.core.timemachine.tracking.HashedSequenceComparator;
+import org.sonar.plugins.core.timemachine.tracking.StringText;
+import org.sonar.plugins.core.timemachine.tracking.StringTextComparator;
 
 public class ViolationTrackingBlocksRecognizer {
 

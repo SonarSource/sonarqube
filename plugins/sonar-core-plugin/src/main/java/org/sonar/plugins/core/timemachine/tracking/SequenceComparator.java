@@ -17,9 +17,26 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+package org.sonar.plugins.core.timemachine.tracking;
 
-@ParametersAreNonnullByDefault
-package org.sonar.diff;
+/**
+ * Equivalence function for a {@link Sequence}.
+ */
+public interface SequenceComparator<S extends Sequence> {
 
-import javax.annotation.ParametersAreNonnullByDefault;
+  /**
+   * Compare two items to determine if they are equivalent.
+   */
+  boolean equals(S a, int ai, S b, int bi);
 
+  /**
+   * Get a hash value for an item in a sequence.
+   *
+   * If two items are equal according to this comparator's
+   * {@link #equals(Sequence, int, Sequence, int)} method,
+   * then this hash method must produce the same integer result for both items.
+   * However not required to have different hash values for different items.
+   */
+  int hash(S seq, int i);
+
+}
