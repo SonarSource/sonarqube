@@ -25,7 +25,6 @@
     <class>org.sonar.api.security.GroupRole</class>
     <class>org.sonar.api.rules.Rule</class>
     <class>org.sonar.api.rules.RuleParam</class>
-    <class>org.sonar.api.rules.RulesCategory</class>
     <class>org.sonar.api.resources.ProjectLink</class>
     <class>org.sonar.api.profiles.RulesProfile</class>
     <class>org.sonar.api.rules.ActiveRule</class>

@@ -106,8 +106,8 @@ public class ProfilesBackupTest extends AbstractDbUnitTestCase {
     RulesProfile profileNotProvided = new RulesProfile("test not provided", "lang", false, false);
     getSession().save(profileProvided, profileNotProvided);
 
-    Rule rule1 = new Rule("testPlugin", "testKey", "testName", null, null);
-    Rule rule2 = new Rule("testPlugin", "testKey2", "testName2", null, null);
+    Rule rule1 = new Rule("testPlugin", "testKey");
+    Rule rule2 = new Rule("testPlugin", "testKey2");
     getSession().save(rule1, rule2);
     RuleParam ruleParam1 = new RuleParam(rule1, "paramKey", "test", "int");
     getSession().save(ruleParam1);

@@ -1,7 +1,5 @@
 <dataset>
 
-  <rules_categories id="1" name="category one" description="one"/>
-
   <rules_profiles id="1" provided="true" name="profile one" default_profile="1" language="java" enabled="true"/>
   <rules_profiles id="2" provided="true" name="profile two" default_profile="0" language="java" enabled="true"/>
 

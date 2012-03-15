@@ -1,7 +1,5 @@
 <dataset>
 
-  <rules_categories id="1" name="category one" description="one"/>
-
   <!-- Rules -->
   <rules id="1" name="new1" description="test1" plugin_config_key="checker/new1"
          plugin_rule_key="checkstyle.new1" plugin_name="PLUGIN_KEY" enabled="true" cardinality="SINGLE" parent_id="[null]"/>

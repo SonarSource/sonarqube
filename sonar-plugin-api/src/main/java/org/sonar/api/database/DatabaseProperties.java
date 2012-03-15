@@ -41,19 +41,11 @@ public interface DatabaseProperties {
   String PROP_EMBEDDED_PORT = "sonar.embeddedDatabase.port";
   String PROP_HIBERNATE_DEFAULT_SCHEMA = "sonar.hibernate.default_schema";
 
-
   String PROP_EMBEDDED_DATA_DIR = "sonar.embeddedDatabase.dataDir";
   String DIALECT_DERBY = "derby";
-  
-  /**
-   * @deprecated not supported anymore since v.2.13.
-   */
-  @Deprecated
-  String DIALECT_HSQLDB = "hsqldb";
   String DIALECT_MYSQL = "mysql";
   String DIALECT_POSTGRESQL = "postgresql";
   String DIALECT_ORACLE = "oracle";
   String DIALECT_DB2 = "db2";
-
   String DIALECT_MSSQL = "mssql";
 }

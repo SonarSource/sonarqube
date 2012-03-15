@@ -1,7 +1,5 @@
 <dataset>
 
-  <rules_categories id="1" name="category one" description="one"/>
-
   <rules id="1" name="rule1" description="desc" plugin_config_key="config"
          plugin_rule_key="key1" plugin_name="plugin" enabled="true" cardinality="SINGLE" parent_id="[null]"/>
 

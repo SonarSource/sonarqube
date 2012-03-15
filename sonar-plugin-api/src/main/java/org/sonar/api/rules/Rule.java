@@ -36,8 +36,6 @@ import java.util.List;
 @Table(name = "rules")
 public final class Rule {
 
-  private static final RulesCategory NONE = new RulesCategory("none");
-
   @Id
   @Column(name = "id")
   @GeneratedValue
@@ -185,22 +183,6 @@ public final class Rule {
    */
   public Rule setKey(String key) {
     this.key = key;
-    return this;
-  }
-
-  /**
-   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
-   */
-  @Deprecated
-  public RulesCategory getRulesCategory() {
-    return NONE;
-  }
-
-  /**
-   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
-   */
-  @Deprecated
-  public Rule setRulesCategory(RulesCategory rulesCategory) {
     return this;
   }
 

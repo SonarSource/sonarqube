@@ -72,7 +72,7 @@ class InitialSchema < ActiveRecord::Migration
       t.column :rule_id,             :integer
       t.column :rules_category_id,   :integer
       t.column :text_value, :string, :limit => 96, :null => true
-      t.column 'tendency', :integer, :null => true
+      t.column :tendency, :integer, :null => true
       t.column :measure_date, :datetime, :null => true
       t.column :project_id, :integer, :null => true
       t.column :alert_status, :string, :limit => 5, :null => true

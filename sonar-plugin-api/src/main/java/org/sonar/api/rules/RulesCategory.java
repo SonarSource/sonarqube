@@ -26,7 +26,6 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Immutable;
 import org.sonar.api.database.BaseIdentifiable;
-import org.sonar.check.IsoCategory;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -36,16 +35,9 @@ import javax.persistence.Table;
  * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
  */
 @Deprecated
-@Immutable
-@Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
-@Entity
-@Table(name = "rules_categories")
 public class RulesCategory extends BaseIdentifiable {
 
-  @Column(name = "name", updatable = false, nullable = false)
   private String name;
-
-  @Column(name = "description", updatable = false, nullable = true)
   private String description;
 
   /**
@@ -116,60 +108,22 @@ public class RulesCategory extends BaseIdentifiable {
     }
     RulesCategory other = (RulesCategory) obj;
     return new EqualsBuilder()
-        .append(name, other.getName()).isEquals();
+      .append(name, other.getName()).isEquals();
   }
 
   @Override
   public int hashCode() {
     return new HashCodeBuilder(17, 37)
-        .append(name)
-        .toHashCode();
+      .append(name)
+      .toHashCode();
   }
 
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-        .append("id", getId())
-        .append("name", name)
-        .append("desc", description)
-        .toString();
-  }
-
-  public IsoCategory toIsoCategory() {
-    if (name.equals(Iso9126RulesCategories.EFFICIENCY.getName())) {
-      return IsoCategory.Efficiency;
-    }
-    if (name.equals(Iso9126RulesCategories.MAINTAINABILITY.getName())) {
-      return IsoCategory.Maintainability;
-    }
-    if (name.equals(Iso9126RulesCategories.PORTABILITY.getName())) {
-      return IsoCategory.Portability;
-    }
-    if (name.equals(Iso9126RulesCategories.RELIABILITY.getName())) {
-      return IsoCategory.Reliability;
-    }
-    if (name.equals(Iso9126RulesCategories.USABILITY.getName())) {
-      return IsoCategory.Usability;
-    }
-    return null;
-  }
-
-  public static RulesCategory fromIsoCategory(IsoCategory iso) {
-    if (iso == IsoCategory.Efficiency) {
-      return Iso9126RulesCategories.EFFICIENCY;
-    }
-    if (iso == IsoCategory.Maintainability) {
-      return Iso9126RulesCategories.MAINTAINABILITY;
-    }
-    if (iso == IsoCategory.Portability) {
-      return Iso9126RulesCategories.PORTABILITY;
-    }
-    if (iso == IsoCategory.Reliability) {
-      return Iso9126RulesCategories.RELIABILITY;
-    }
-    if (iso == IsoCategory.Usability) {
-      return Iso9126RulesCategories.USABILITY;
-    }
-    return null;
+      .append("id", getId())
+      .append("name", name)
+      .append("desc", description)
+      .toString();
   }
 }

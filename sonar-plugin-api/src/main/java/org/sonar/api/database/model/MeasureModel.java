@@ -284,22 +284,6 @@ public class MeasureModel implements Cloneable {
   }
 
   /**
-   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
-   */
-  @Deprecated
-  public Integer getRulesCategoryId() {
-    return null;
-  }
-
-  /**
-   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
-   */
-  @Deprecated
-  public MeasureModel setRulesCategoryId(Integer id) {
-    return this;
-  }
-
-  /**
    * @return the rule priority
    */
   public RulePriority getRulePriority() {

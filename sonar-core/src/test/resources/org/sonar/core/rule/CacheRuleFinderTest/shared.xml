@@ -1,6 +1,4 @@
 <dataset>
-  <rules_categories id="6" name="Efficiency" description="Efficiency" />
-
   <!-- CHECKSTYLE -->
 
   <rules id="1" name="Check Header" plugin_rule_key="com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck"

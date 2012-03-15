@@ -55,7 +55,7 @@ public class RuleTest {
   public void shouldRemoveNewLineCharactersInNameWithfirstConstructor() {
     Rule rule;
     for (String example : getExamplesContainingNewLineCharacter()) {
-      rule = new Rule(null, null, example, (RulesCategory) null, null);
+      rule = new Rule(null, null).setName(example);
       assertThat(rule.getName(), is("test"));
     }
   }
@@ -64,7 +64,7 @@ public class RuleTest {
   public void shouldRemoveNewLineCharactersInNameWithSecondConstructor() {
     Rule rule;
     for (String example : getExamplesContainingNewLineCharacter()) {
-      rule = new Rule(null, null, example, null, null);
+      rule = new Rule(null, null).setName(example);
       assertThat(rule.getName(), is("test"));
     }
   }
@@ -75,9 +75,6 @@ public class RuleTest {
     assertThat(rule.getSeverity(), Is.is(RulePriority.MAJOR));
 
     rule = new Rule("name", "key");
-    assertThat(rule.getSeverity(), Is.is(RulePriority.MAJOR));
-
-    rule = new Rule("pkey", "key", "name", Iso9126RulesCategories.EFFICIENCY, null, null);
     assertThat(rule.getSeverity(), Is.is(RulePriority.MAJOR));
 
     rule.setSeverity(RulePriority.BLOCKER);
