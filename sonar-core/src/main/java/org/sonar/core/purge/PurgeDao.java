@@ -22,6 +22,8 @@ package org.sonar.core.purge;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.ibatis.session.ResultContext;
+import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,9 +70,9 @@ public class PurgeDao {
     if (hasAbortedBuilds(project.getId(), purgeMapper)) {
       LOG.info("<- Delete aborted builds");
       PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
-          .setIslast(false)
-          .setStatus(new String[]{"U"})
-          .setRootProjectId(project.getId());
+        .setIslast(false)
+        .setStatus(new String[]{"U"})
+        .setRootProjectId(project.getId());
       PurgeCommands.deleteSnapshots(query, session, purgeMapper);
       session.commit();
     }
@@ -78,23 +80,23 @@ public class PurgeDao {
 
   private boolean hasAbortedBuilds(Long projectId, PurgeMapper purgeMapper) {
     PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
-        .setIslast(false)
-        .setStatus(new String[]{"U"})
-        .setResourceId(projectId);
+      .setIslast(false)
+      .setStatus(new String[]{"U"})
+      .setResourceId(projectId);
     return !purgeMapper.selectSnapshotIds(query).isEmpty();
   }
 
   private void purge(final ResourceDto project, final String[] scopesWithoutHistoricalData, final SqlSession session, final PurgeMapper purgeMapper) {
     List<Long> projectSnapshotIds = purgeMapper.selectSnapshotIds(
-        PurgeSnapshotQuery.create().setResourceId(project.getId()).setIslast(false).setNotPurged(true)
+      PurgeSnapshotQuery.create().setResourceId(project.getId()).setIslast(false).setNotPurged(true)
     );
     for (final Long projectSnapshotId : projectSnapshotIds) {
       LOG.info("<- Clean snapshot " + projectSnapshotId);
       if (!ArrayUtils.isEmpty(scopesWithoutHistoricalData)) {
         PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
-            .setIslast(false)
-            .setScopes(scopesWithoutHistoricalData)
-            .setRootSnapshotId(projectSnapshotId);
+          .setIslast(false)
+          .setScopes(scopesWithoutHistoricalData)
+          .setRootSnapshotId(projectSnapshotId);
         PurgeCommands.deleteSnapshots(query, session, purgeMapper);
         session.commit();
       }
@@ -111,11 +113,14 @@ public class PurgeDao {
 
   private void disableOrphanResources(final ResourceDto project, final SqlSession session, final PurgeMapper purgeMapper) {
     LOG.info("-> Disable resources in " + project.getLongName() + " [id=" + project.getId() + "]");
-    List<Long> resourceIds = purgeMapper.selectResourceIdsToDisable(project.getId());
-    LOG.info("<- " + resourceIds.size() + " resources to disable");
-    for (Long resourceId : resourceIds) {
-      disableResource(resourceId, purgeMapper);
-    }
+    session.select("org.sonar.core.purge.PurgeMapper.selectResourceIdsToDisable", project.getId(), new ResultHandler() {
+      public void handleResult(ResultContext resultContext) {
+        Long resourceId = (Long) resultContext.getResultObject();
+        if (resourceId != null) {
+          disableResource(resourceId, purgeMapper);
+        }
+      }
+    });
     session.commit();
   }
 
