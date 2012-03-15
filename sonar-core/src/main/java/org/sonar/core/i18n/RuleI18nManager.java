@@ -55,18 +55,28 @@ public class RuleI18nManager implements ServerComponent {
   public String getDescription(String repositoryKey, String ruleKey, Locale locale) {
     String relatedProperty = new StringBuilder().append(RULE_PREFIX).append(repositoryKey).append(".").append(ruleKey).append(NAME_SUFFIX).toString();
 
-    Locale localeWithoutCountry = (locale.getCountry()==null ? locale : new Locale(locale.getLanguage()));
+    Locale localeWithoutCountry = (locale.getCountry() == null ? locale : new Locale(locale.getLanguage()));
     String ruleDescriptionFilePath = "rules/" + repositoryKey + "/" + ruleKey + ".html";
     String description = i18nManager.messageFromFile(localeWithoutCountry, ruleDescriptionFilePath, relatedProperty, true);
     if (description == null) {
-      // For backward compatibility, let's search at the root folder as it used to be before Sonar 2.15
-      description = i18nManager.messageFromFile(localeWithoutCountry, ruleKey + ".html", relatedProperty, true);
+      // Following line is to ensure backward compatibility (SONAR-3319)
+      description = lookUpDescriptionInFormerLocation(ruleKey, relatedProperty, localeWithoutCountry);
       if (description == null && !"en".equals(localeWithoutCountry.getLanguage())) {
         // nothing was found, let's get the value of the default bundle
         description = i18nManager.messageFromFile(Locale.ENGLISH, ruleDescriptionFilePath, relatedProperty, true);
       }
     }
     return description;
+  }
+
+  /*
+   * Method used to ensure backward compatibility for language plugins that store HTML rule description files in the former
+   * location (which was used prior to Sonar 2.15).
+   * 
+   * See http://jira.codehaus.org/browse/SONAR-3319
+   */
+  private String lookUpDescriptionInFormerLocation(String ruleKey, String relatedProperty, Locale localeWithoutCountry) {
+    return i18nManager.messageFromFile(localeWithoutCountry, ruleKey + ".html", relatedProperty, true);
   }
 
   public String getParamDescription(String repositoryKey, String ruleKey, String paramKey, Locale locale) {
