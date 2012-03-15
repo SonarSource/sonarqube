@@ -24,6 +24,9 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 import javax.persistence.*;
 
+/**
+ * Still used for Hibernate unit tests
+ */
 @Entity
 @Table(name = "schema_migrations", uniqueConstraints = {@UniqueConstraint(columnNames = {"version"})})
 public class SchemaMigration {
