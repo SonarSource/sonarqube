@@ -100,6 +100,7 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
   public abstract void setSource(Resource reference, String source) throws DuplicatedSourceException;
 
   /**
+   * @return source code associated with a specified resource, <code>null</code> if not available
    * @since 2.9
    */
   public abstract String getSource(Resource resource);
@@ -124,7 +125,7 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
 
   /**
    * Returns the violations that match the {@link ViolationQuery} parameters.
-   * 
+   *
    * @since 2.8
    * @param violationQuery
    *          the request parameters specified as a {@link ViolationQuery}
@@ -136,7 +137,7 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
    * Returns all the active (= non switched-off) violations found on the given resource. Equivalent to
    * {@link #getViolations(ViolationQuery)} called with <code>ViolationQuery.create().forResource(resource).ignoreSwitchedOff(true)</code>
    * as a parameter.
-   * 
+   *
    * @since 2.7
    * @return the list of violations
    */

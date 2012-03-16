@@ -27,6 +27,9 @@ import org.sonar.api.resources.Resource;
  */
 public interface Decorator extends BatchExtension, CheckProject {
 
+  /**
+   * @param resource resource that is currently decorated, equivalent of <code>context.getResource()</code>
+   */
   void decorate(Resource resource, DecoratorContext context);
 
 }
