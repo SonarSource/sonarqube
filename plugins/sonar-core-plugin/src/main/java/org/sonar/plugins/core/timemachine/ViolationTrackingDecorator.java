@@ -55,25 +55,31 @@ public class ViolationTrackingDecorator implements Decorator {
 
     ViolationQuery violationQuery = ViolationQuery.create().forResource(resource).setSwitchMode(ViolationQuery.SwitchMode.BOTH);
     if (!context.getViolations(violationQuery).isEmpty()) {
-      // Load new violations
-      List<Violation> newViolations = prepareNewViolations(context);
-
-      // Load reference violations
-      List<RuleFailureModel> referenceViolations = referenceAnalysis.getViolations(resource);
-
-      // SONAR-3072 Construct blocks recognizer based on reference source
-      String referenceSource = referenceAnalysis.getSource(resource);
-      String source = index.getSource(context.getResource());
-      ViolationTrackingBlocksRecognizer rec = new ViolationTrackingBlocksRecognizer(referenceSource, source);
-
-      // Map new violations with old ones
-      mapViolations(newViolations, referenceViolations, rec);
+      return;
     }
+
+    String source = index.getSource(resource);
+    String referenceSource = referenceAnalysis.getSource(resource);
+
+    // Load new violations
+    List<Violation> newViolations = prepareNewViolations(context, source);
+
+    // Load reference violations
+    List<RuleFailureModel> referenceViolations = referenceAnalysis.getViolations(resource);
+
+    // SONAR-3072 Construct blocks recognizer based on reference source
+    ViolationTrackingBlocksRecognizer rec = null;
+    if (source != null && referenceSource != null) {
+      rec = new ViolationTrackingBlocksRecognizer(referenceSource, source);
+    }
+
+    // Map new violations with old ones
+    mapViolations(newViolations, referenceViolations, rec);
   }
 
-  private List<Violation> prepareNewViolations(DecoratorContext context) {
+  private List<Violation> prepareNewViolations(DecoratorContext context, String source) {
     List<Violation> result = Lists.newArrayList();
-    List<String> checksums = SourceChecksum.lineChecksumsOfFile(index.getSource(context.getResource()));
+    List<String> checksums = SourceChecksum.lineChecksumsOfFile(source);
     for (Violation violation : context.getViolations()) {
       violation.setChecksum(SourceChecksum.getChecksumForLine(checksums, violation.getLineId()));
       result.add(violation);
@@ -236,7 +242,7 @@ public class ViolationTrackingDecorator implements Decorator {
   }
 
   private void mapViolation(Violation newViolation, RuleFailureModel pastViolation,
-                            Multimap<Integer, RuleFailureModel> pastViolationsByRule, Map<Violation, RuleFailureModel> violationMap) {
+      Multimap<Integer, RuleFailureModel> pastViolationsByRule, Map<Violation, RuleFailureModel> violationMap) {
     if (pastViolation != null) {
       newViolation.setCreatedAt(pastViolation.getCreatedAt());
       newViolation.setPermanentId(pastViolation.getPermanentId());
