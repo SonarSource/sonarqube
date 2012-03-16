@@ -43,16 +43,16 @@ public class PropertyDefinitionsTest {
     assertProperties(def);
   }
 
-  private void assertProperties(PropertyDefinitions def) {
-    assertThat(def.getProperty("foo").name(), is("Foo"));
-    assertThat(def.getProperty("one").name(), is("One"));
-    assertThat(def.getProperty("two").name(), is("Two"));
-    assertThat(def.getProperty("unknown"), nullValue());
+  private void assertProperties(PropertyDefinitions definitions) {
+    assertThat(definitions.get("foo").getName(), is("Foo"));
+    assertThat(definitions.get("one").getName(), is("One"));
+    assertThat(definitions.get("two").getName(), is("Two"));
+    assertThat(definitions.get("unknown"), nullValue());
 
-    assertThat(def.getDefaultValue("foo"), nullValue());
-    assertThat(def.getDefaultValue("two"), is("2"));
+    assertThat(definitions.getDefaultValue("foo"), nullValue());
+    assertThat(definitions.getDefaultValue("two"), is("2"));
 
-    assertThat(def.getProperties().size(), is(3));
+    assertThat(definitions.getAll().size(), is(3));
   }
 
   @Property(key = "foo", name = "Foo")

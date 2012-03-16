@@ -27,6 +27,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 
+import javax.annotation.Nullable;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -92,7 +93,7 @@ final class AesCipher extends Cipher {
   }
 
   @VisibleForTesting
-  Key loadSecretFileFromFile(String path) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException, InvalidKeyException {
+  Key loadSecretFileFromFile(@Nullable String path) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException, InvalidKeyException {
     if (StringUtils.isBlank(path)) {
       throw new IllegalStateException("Secret key not found. Please set the property " + CoreProperties.ENCRYPTION_SECRET_KEY_FILE);
     }

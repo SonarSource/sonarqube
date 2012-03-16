@@ -126,13 +126,13 @@ class ProjectController < ApplicationController
     end
 
     @category=params[:category] ||= 'general'
-    @properties_per_category={}
+    @definitions_per_category={}
     definitions = java_facade.getPropertyDefinitions()
-    properties = definitions.getProperties().select { |property| (@project.module? && property.module()) || (@project.project? && property.project()) }
+    properties = definitions.getAll().select { |property| (@project.module? && property.isOnModule()) || (@project.project? && property.isOnProject()) }
     properties.each do |property|
-      category = definitions.getCategory(property.key())
-      @properties_per_category[category]||=[]
-      @properties_per_category[category]<<property
+      category = definitions.getCategory(property.getKey())
+      @definitions_per_category[category]||=[]
+      @definitions_per_category[category]<<property
     end
   end
 

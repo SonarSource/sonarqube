@@ -21,6 +21,7 @@ package org.sonar.plugins.checkstyle;
 
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
+import org.sonar.api.PropertyType;
 import org.sonar.api.SonarPlugin;
 
 import java.util.Arrays;
@@ -35,7 +36,7 @@ import java.util.List;
       + " See <a href='http://checkstyle.sourceforge.net/config.html'>Checkstyle configuration page</a> to get more information on those filters.",
     project = false,
     global = true,
-    type = Property.Type.TEXT)})
+    type = PropertyType.TEXT)})
 public final class CheckstylePlugin extends SonarPlugin {
 
   public List getExtensions() {

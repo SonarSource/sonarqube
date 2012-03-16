@@ -20,6 +20,7 @@
 package org.sonar.plugins.findbugs;
 
 import org.sonar.api.*;
+import org.sonar.api.PropertyType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +44,7 @@ import java.util.List;
     project = true,
     module = true,
     global = true,
-    type = Property.Type.INTEGER),
+    type = PropertyType.INTEGER),
   @Property(
     key = FindbugsConstants.EXCLUDES_FILTERS_PROPERTY,
     name = "Excludes Filters",

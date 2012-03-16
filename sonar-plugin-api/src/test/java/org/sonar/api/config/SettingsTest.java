@@ -23,34 +23,32 @@ import com.google.common.collect.ImmutableMap;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.Properties;
 import org.sonar.api.Property;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class SettingsTest {
 
   private PropertyDefinitions definitions;
 
+  @Properties({
+    @Property(key = "hello", name = "Hello", defaultValue = "world"),
+    @Property(key = "date", name = "Date", defaultValue = "2010-05-18"),
+    @Property(key = "boolean", name = "Boolean", defaultValue = "true"),
+    @Property(key = "falseboolean", name = "False Boolean", defaultValue = "false"),
+    @Property(key = "integer", name = "Integer", defaultValue = "12345"),
+    @Property(key = "array", name = "Array", defaultValue = "one,two,three")
+  })
+  static class Init {
+  }
+
   @Before
   public void initDefinitions() {
     definitions = new PropertyDefinitions();
-    definitions.addProperty(newProperty("hello", "world"));
-    definitions.addProperty(newProperty("date", "2010-05-18"));
-    definitions.addProperty(newProperty("boolean", "true"));
-    definitions.addProperty(newProperty("falseboolean", "false"));
-    definitions.addProperty(newProperty("integer", "12345"));
-    definitions.addProperty(newProperty("array", "one,two,three"));
-  }
-
-  private Property newProperty(String key, String defaultValue) {
-    Property prop = mock(Property.class);
-    when(prop.key()).thenReturn(key);
-    when(prop.defaultValue()).thenReturn(defaultValue);
-    return prop;
+    definitions.addComponent(Init.class);
   }
 
   @Test

@@ -19,10 +19,8 @@
  */
 package org.sonar.plugins.cpd;
 
-import org.sonar.api.CoreProperties;
-import org.sonar.api.Properties;
-import org.sonar.api.Property;
-import org.sonar.api.SonarPlugin;
+import org.sonar.api.*;
+import org.sonar.api.PropertyType;
 import org.sonar.plugins.cpd.decorators.DuplicationDensityDecorator;
 import org.sonar.plugins.cpd.decorators.SumDuplicationsDecorator;
 import org.sonar.plugins.cpd.index.IndexFactory;
@@ -43,7 +41,7 @@ import java.util.List;
     module = true,
     global = true,
     category = CoreProperties.CATEGORY_DUPLICATIONS,
-    type = Property.Type.SINGLE_SELECT_LIST,
+    type = PropertyType.SINGLE_SELECT_LIST,
     options = {"sonar", "pmd"}),
   @Property(
     key = CoreProperties.CPD_CROSS_RPOJECT,
@@ -56,7 +54,7 @@ import java.util.List;
     module = true,
     global = true,
     category = CoreProperties.CATEGORY_DUPLICATIONS,
-    type = Property.Type.BOOLEAN),
+    type = PropertyType.BOOLEAN),
   @Property(
     key = CoreProperties.CPD_MINIMUM_TOKENS_PROPERTY,
     defaultValue = CoreProperties.CPD_MINIMUM_TOKENS_DEFAULT_VALUE + "",
@@ -67,7 +65,7 @@ import java.util.List;
     module = true,
     global = true,
     category = CoreProperties.CATEGORY_DUPLICATIONS,
-    type = Property.Type.INTEGER),
+    type = PropertyType.INTEGER),
   @Property(
     key = CoreProperties.CPD_IGNORE_LITERALS_PROPERTY,
     defaultValue = CoreProperties.CPD_IGNORE_LITERALS_DEFAULT_VALUE + "",
@@ -79,7 +77,7 @@ import java.util.List;
     module = true,
     global = true,
     category = CoreProperties.CATEGORY_DUPLICATIONS,
-    type = Property.Type.BOOLEAN),
+    type = PropertyType.BOOLEAN),
   @Property(
     key = CoreProperties.CPD_IGNORE_IDENTIFIERS_PROPERTY,
     defaultValue = CoreProperties.CPD_IGNORE_IDENTIFIERS_DEFAULT_VALUE + "",
@@ -90,7 +88,7 @@ import java.util.List;
     module = true,
     global = true,
     category = CoreProperties.CATEGORY_DUPLICATIONS,
-    type = Property.Type.BOOLEAN)
+    type = PropertyType.BOOLEAN)
 })
 public final class CpdPlugin extends SonarPlugin {
 

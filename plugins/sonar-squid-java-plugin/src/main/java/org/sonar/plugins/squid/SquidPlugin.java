@@ -19,10 +19,8 @@
  */
 package org.sonar.plugins.squid;
 
-import org.sonar.api.CoreProperties;
-import org.sonar.api.Properties;
-import org.sonar.api.Property;
-import org.sonar.api.SonarPlugin;
+import org.sonar.api.*;
+import org.sonar.api.PropertyType;
 import org.sonar.plugins.squid.decorators.*;
 
 import java.util.Arrays;
@@ -37,7 +35,7 @@ import java.util.List;
     project = true,
     global = true,
     category = CoreProperties.CATEGORY_JAVA,
-    type = Property.Type.BOOLEAN),
+    type = PropertyType.BOOLEAN),
   @Property(key = SquidPluginProperties.FIELDS_TO_EXCLUDE_FROM_LCOM4_COMPUTATION,
     defaultValue = SquidPluginProperties.FIELDS_TO_EXCLUDE_FROM_LCOM4_COMPUTATION_DEFAULT_VALUE,
     name = "List of fields to exclude from LCOM4 computation",
@@ -55,7 +53,7 @@ import java.util.List;
     project = true,
     global = true,
     category = CoreProperties.CATEGORY_JAVA,
-    type = Property.Type.BOOLEAN)
+    type = PropertyType.BOOLEAN)
 })
 public final class SquidPlugin extends SonarPlugin {
 

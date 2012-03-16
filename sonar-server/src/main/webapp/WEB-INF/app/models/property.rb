@@ -18,6 +18,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 class Property < ActiveRecord::Base
+  validates_presence_of :prop_key
 
   def key
     prop_key
@@ -87,7 +88,21 @@ class Property < ActiveRecord::Base
     xml
   end
 
+  def java_definition
+    @java_definition ||=
+      begin
+        Java::OrgSonarServerUi::JRubyFacade.getInstance().getPropertyDefinitions().get(key)
+      end
+  end
+
   private
+
+  def validate
+    if java_definition
+      validation_result=java_definition.validate(text_value)
+      errors.add_to_base(validation_result.getErrorKey()) unless validation_result.isValid()
+    end
+  end
 
   def self.reload_java_configuration
     Java::OrgSonarServerUi::JRubyFacade.getInstance().reloadConfiguration()

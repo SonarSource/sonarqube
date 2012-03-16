@@ -38,7 +38,7 @@ import java.util.Map;
  */
 public final class PropertyDefinitions implements BatchComponent, ServerComponent {
 
-  private Map<String, Property> properties = Maps.newHashMap();
+  private Map<String, PropertyDefinition> definitions = Maps.newHashMap();
   private Map<String, String> categories = Maps.newHashMap();
 
   public PropertyDefinitions(Object... components) {
@@ -76,30 +76,31 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
     return this;
   }
 
-  PropertyDefinitions addProperty(Property property) {
-    return addProperty(property, "");
+  private PropertyDefinitions addProperty(Property property, String defaultCategory) {
+    PropertyDefinition definition = PropertyDefinition.create(property);
+    return add(definition, defaultCategory);
   }
 
-  PropertyDefinitions addProperty(Property property, String defaultCategory) {
-    if (!properties.containsKey(property.key())) {
-      properties.put(property.key(), property);
-      categories.put(property.key(), StringUtils.defaultIfBlank(property.category(), defaultCategory));
+  private PropertyDefinitions add(PropertyDefinition definition, String defaultCategory) {
+    if (!definitions.containsKey(definition.getKey())) {
+      definitions.put(definition.getKey(), definition);
+      categories.put(definition.getKey(), StringUtils.defaultIfBlank(definition.getCategory(), defaultCategory));
     }
     return this;
   }
 
-  public Property getProperty(String key) {
-    return properties.get(key);
+  public PropertyDefinition get(String key) {
+    return definitions.get(key);
   }
 
-  public Collection<Property> getProperties() {
-    return properties.values();
+  public Collection<PropertyDefinition> getAll() {
+    return definitions.values();
   }
 
   public String getDefaultValue(String key) {
-    Property prop = getProperty(key);
-    if (prop != null) {
-      return StringUtils.defaultIfEmpty(prop.defaultValue(), null);
+    PropertyDefinition def = get(key);
+    if (def != null) {
+      return StringUtils.defaultIfEmpty(def.getDefaultValue(), null);
     }
     return null;
   }

@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
+import org.sonar.api.PropertyType;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.purge.PurgeDao;
@@ -41,7 +42,7 @@ import org.sonar.plugins.dbcleaner.period.DefaultPeriodCleaner;
     global = true,
     project = true,
     module = false,
-    type = Property.Type.BOOLEAN)
+    type = PropertyType.BOOLEAN)
 })
 public class DefaultPurgeTask implements PurgeTask {
   private static final Logger LOG = LoggerFactory.getLogger(DefaultPurgeTask.class);

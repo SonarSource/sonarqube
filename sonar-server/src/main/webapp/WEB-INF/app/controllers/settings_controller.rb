@@ -20,7 +20,7 @@
 class SettingsController < ApplicationController
 
   SECTION=Navigation::SECTION_CONFIGURATION
-  
+
   SPECIAL_CATEGORIES=['email', 'encryption', 'server_id']
 
   verify :method => :post, :only => ['update'], :redirect_to => {:action => :index}
@@ -32,39 +32,39 @@ class SettingsController < ApplicationController
   end
 
   def update
-    project=nil
+    @project=nil
     if params[:resource_id]
-      project=Project.by_key(params[:resource_id])
-      access_denied unless (project && is_admin?(project))
+      @project=Project.by_key(params[:resource_id])
+      access_denied unless (@project && is_admin?(@project))
     else
       access_denied unless is_admin?
     end
 
-    load_properties(project)
+    load_properties(@project)
 
-    if @category && @properties_per_category[@category]
-      @properties_per_category[@category].each do |property|
-        value=params[property.key()]
-        persisted_property = Property.find(:first, :conditions => {:prop_key=> property.key(), :resource_id => (project ? project.id : nil), :user_id => nil})
+    @persisted_properties_per_key={}
+    if @category && @definitions_per_category[@category]
+      @definitions_per_category[@category].each do |property|
+        value=params[property.getKey()]
+
+        persisted_property = Property.find(:first, :conditions => {:prop_key=> property.key(), :resource_id => (@project ? @project.id : nil), :user_id => nil})
         if persisted_property
           if value.empty?
-            Property.delete_all('prop_key' => property.key(), 'resource_id' => (project ? project.id : nil), 'user_id' => nil)
+            Property.delete_all('prop_key' => property.key(), 'resource_id' => (@project ? @project.id : nil), 'user_id' => nil)
           elsif persisted_property.text_value != value.to_s
             persisted_property.text_value = value.to_s
-            persisted_property.save!
+            persisted_property.save
+            @persisted_properties_per_key[persisted_property.key]=persisted_property
           end
         elsif !value.blank?
-          Property.create(:prop_key => property.key(), :text_value => value.to_s, :resource_id => (project ? project.id : nil))
+          persisted_property=Property.create(:prop_key => property.key(), :text_value => value.to_s, :resource_id => (@project ? @project.id : nil))
+          @persisted_properties_per_key[persisted_property.key]=persisted_property
         end
       end
       java_facade.reloadConfiguration()
-      flash[:notice] = 'Parameters updated'
-    end
 
-    if project
-      redirect_to :controller => 'project', :action => 'settings', :id => project.id, :category => @category
-    else
-      redirect_to :controller => 'settings', :action => 'index', :category => @category
+      params[:layout]='false'
+      render :partial => 'settings/properties'
     end
   end
 
@@ -72,18 +72,18 @@ class SettingsController < ApplicationController
 
   def load_properties(project)
     @category=params[:category]
-    @properties_per_category={}
+    @definitions_per_category={}
     definitions = java_facade.getPropertyDefinitions()
-    definitions.getProperties().select {|property|
-      (project.nil? && property.global) || (project && project.module? && property.module()) || (project && project.project? && property.project())
-    }.each do |property|
-      category = definitions.getCategory(property.key())
-      @properties_per_category[category]||=[]
-      @properties_per_category[category]<<property
+    definitions.getAll().select { |property_definition|
+      (project.nil? && property_definition.isGlobal()) || (project && project.module? && property_definition.isOnModule()) || (project && project.project? && property_definition.isOnProject())
+    }.each do |property_definition|
+      category = definitions.getCategory(property_definition.getKey())
+      @definitions_per_category[category]||=[]
+      @definitions_per_category[category]<<property_definition
     end
 
     SPECIAL_CATEGORIES.each do |category|
-      @properties_per_category[category]=[]
+      @definitions_per_category[category]=[]
     end
   end
 end

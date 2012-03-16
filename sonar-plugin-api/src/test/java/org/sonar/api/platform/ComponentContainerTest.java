@@ -102,8 +102,8 @@ public class ComponentContainerTest {
     container.addSingleton(ComponentWithProperty.class);
 
     PropertyDefinitions propertyDefinitions = container.getComponentByType(PropertyDefinitions.class);
-    assertThat(propertyDefinitions.getProperty("foo"), notNullValue());
-    assertThat(propertyDefinitions.getProperty("foo").defaultValue(), is("bar"));
+    assertThat(propertyDefinitions.get("foo"), notNullValue());
+    assertThat(propertyDefinitions.get("foo").getDefaultValue(), is("bar"));
   }
 
   @Test
@@ -113,7 +113,7 @@ public class ComponentContainerTest {
     container.declareExtension(plugin, ComponentWithProperty.class);
 
     PropertyDefinitions propertyDefinitions = container.getComponentByType(PropertyDefinitions.class);
-    assertThat(propertyDefinitions.getProperty("foo"), notNullValue());
+    assertThat(propertyDefinitions.get("foo"), notNullValue());
     assertThat(container.getComponentByType(ComponentWithProperty.class), nullValue());
   }
 
@@ -124,7 +124,7 @@ public class ComponentContainerTest {
     container.addExtension(plugin, ComponentWithProperty.class);
 
     PropertyDefinitions propertyDefinitions = container.getComponentByType(PropertyDefinitions.class);
-    assertThat(propertyDefinitions.getProperty("foo"), notNullValue());
+    assertThat(propertyDefinitions.get("foo"), notNullValue());
     assertThat(container.getComponentByType(ComponentWithProperty.class), notNullValue());
   }
 

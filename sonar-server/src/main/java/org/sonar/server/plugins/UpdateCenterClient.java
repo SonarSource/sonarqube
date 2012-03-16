@@ -23,6 +23,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
+import org.sonar.api.PropertyType;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.HttpDownloader;
@@ -49,7 +50,7 @@ import java.util.Date;
     project = false,
     global = false, // hidden from UI
     category = "Update Center",
-    type = Property.Type.BOOLEAN),
+    type = PropertyType.BOOLEAN),
   @Property(
     key = UpdateCenterClient.URL_PROPERTY,
     defaultValue = "http://update.sonarsource.org/update-center.properties",

@@ -1,0 +1,85 @@
+<% if @category && @definitions_per_category[@category]
+     category_name = message("property.category.#{@category}", :default => @category)
+     if SettingsController::SPECIAL_CATEGORIES.include?(@category)
+%>
+    <%= render :partial => 'special', :locals => {:url => url_for(:controller => "#{@category}_configuration")} -%>
+  <%
+     elsif !@definitions_per_category[@category].empty?
+  %>
+    <% form_remote_tag :url => {:controller => 'settings', :action => 'update', :category => @category, :resource_id => @project ? @project.id : nil},
+                       :method => :post,
+                       :before => "$('submit_settings').hide();$('loading_settings').show()",
+                       :update => 'properties' do -%>
+
+      <table class="data marginbottom10">
+        <thead>
+        <tr>
+          <th>
+            <span><%= h(category_name) -%></span>
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+        <%
+           if @definitions_per_category[@category]
+             @definitions_per_category[@category].each do |property|
+               value = nil
+
+               # set when form has been submitted but some errors have been raised
+               if @persisted_properties_per_key
+                 p = @persisted_properties_per_key[property.key]
+                 if p
+                   value = p.text_value
+                 end
+               end
+
+
+               # if fresh form or no error, get the current value
+               value = Property.value(property.getKey(), (@project ? @project.id : nil), '') unless value
+
+               # for backward-compatibility with properties that do not define the type TEXT
+               property_type = value.include?("\n") ? 'TEXT' : property.getType()
+        %>
+            <tr class="<%= cycle('even', 'odd', :name => 'properties') -%>">
+              <td style="padding: 10px" id="foo_<%= property.getKey() -%>">
+                <h3>
+                  <%= message("property.#{property.key()}.name", :default => property.name()) -%>
+                  <br/><span class="note"><%= property.getKey() -%></span>
+                </h3>
+                <%
+                   desc=message("property.#{property.key()}.description", :default => property.description())
+                   if desc.present? %>
+                  <p class="marginbottom10"><%= desc -%></p>
+                <% end %>
+                <div><%= render :partial => "settings/type_#{property_type}", :locals => {:property => property, :value => value} -%></div>
+                <%
+                   if p
+                     p.errors.each_full do |error|
+                %>
+                    <div class="error"><%= message("property.error.#{error}") -%></div>
+                  <%
+                     end
+                     end
+                  %>
+                <p>
+                  <%
+                     default_prop_value = (@project ? Property.value(property.key(), nil, property.defaultValue()) : property.defaultValue())
+                     unless default_prop_value.blank? %>
+                    <span class="note">Default : <%= h default_prop_value -%></span>
+                  <% end %>
+                </p>
+              </td>
+            </tr>
+          <% end
+             end
+          %>
+        </tbody>
+      </table>
+      <div>
+      <%= submit_tag(message('settings.save_category', :params => [category_name]), :id => 'submit_settings') -%>
+      <img src="<%= ApplicationController.root_context -%>/images/loading.gif" id="loading_settings" style="display:none">
+      </div>
+    <% end %>
+  <% end
+     end
+  %>
