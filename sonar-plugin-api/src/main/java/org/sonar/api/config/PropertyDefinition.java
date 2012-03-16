@@ -75,8 +75,17 @@ public final class PropertyDefinition {
     this.onProject = annotation.project();
     this.onModule = annotation.module();
     this.category = annotation.category();
-    this.type = annotation.type();
+    this.type = fixType(annotation.key(), annotation.type());
     this.options = annotation.options();
+  }
+
+  private PropertyType fixType(String key, PropertyType type) {
+    // Auto-detect passwords for old versions of plugins that
+    // do not declare the type
+    if (type==PropertyType.STRING && StringUtils.endsWith(key, ".password.secured")) {
+      return PropertyType.PASSWORD;
+    }
+    return type;
   }
 
   @VisibleForTesting

@@ -150,4 +150,21 @@ public class PropertyDefinitionTest {
     assertThat(def.validate("fr").isValid(), is(false));
     assertThat(def.validate("fr").getErrorKey(), is("notInOptions"));
   }
+
+  @Properties({
+    @Property(key = "scm.password.secured", name = "SCM password")
+  })
+  static class OldScmPlugin {
+  }
+
+  @Test
+  public void autodetectPasswordType() {
+    Properties props = AnnotationUtils.getClassAnnotation(OldScmPlugin.class, Properties.class);
+    Property prop = props.value()[0];
+
+    PropertyDefinition def = PropertyDefinition.create(prop);
+
+    assertThat(def.getKey(), Is.is("scm.password.secured"));
+    assertThat(def.getType(), Is.is(PropertyType.PASSWORD));
+  }
 }
