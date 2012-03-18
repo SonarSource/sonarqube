@@ -20,123 +20,89 @@
 
 require "json"
 
-class Api::PropertiesController < Api::RestController
+class Api::PropertiesController < Api::ApiController
 
-  before_filter :admin_required, :only => [ :create, :update, :destroy ]
+  before_filter :admin_required, :only => [:create, :update, :destroy]
 
+  # curl http://localhost:9000/api/properties -v
   def index
     properties = Property.find(:all, :conditions => ['resource_id is null and user_id is null']).select do |property|
       viewable?(property.key)
     end
-    rest_render(properties)
+    respond_to do |format|
+      format.json { render :json => jsonp(to_json(properties)) }
+      format.xml { render :xml => to_xml(properties) }
+    end
   end
 
+  # curl http://localhost:9000/api/properties/<key>[?resource=<resource>] -v
   def show
     key = params[:id]
     resource_id_or_key = params[:resource]
     if resource_id_or_key
       resource = Project.by_key(resource_id_or_key)
-      if resource
-        prop = Property.by_key(key, resource.id)
-      else
-        rest_status_ko('Resource [' + resource_id_or_key + '] does not exist', 404)
-        return
-      end
+      not_found('resource not found') unless resource
+      prop = Property.by_key(key, resource.id)
     else
       prop = Property.by_key(key)
     end
-    if prop
-      if viewable?(key)
-        rest_render([prop])
-      else
-        rest_status_ko('You are not authorized to see this ressource', 401)
-      end
-    else
-      rest_status_ko('Property [' + params[:id] + '] does not exist', 404)
+    not_found('property not found') unless prop
+    access_denied unless viewable?(key)
+    respond_to do |format|
+      format.json { render :json => jsonp(to_json([prop])) }
+      format.xml { render :xml => to_xml([prop]) }
     end
   end
 
+  # curl -u admin:admin -v -X PUT http://localhost:9000/api/properties/foo?value=bar[&resource=<resource>]
   def create
-    key = params[:id]
-    value = params[:value] || request.raw_post
-    resource_id_or_key = params[:resource]
-    if resource_id_or_key
-      resource = Project.by_key(resource_id_or_key)
-      if resource
-        resource_id_or_key = resource.id
-      else
-        rest_status_ko('Resource [' + resource_id_or_key + '] does not exist', 404)
-        return
-      end
-    end
-    if key
-      begin
-        Property.set(key, value, resource_id_or_key)
-        rest_status_ok
-      rescue Exception => ex
-        rest_status_ko(ex.message, 400)
-      end
-    else
-      rest_status_ko('Property key [' + params[:id] + '] is not valid', 400)
-    end
+    update
   end
 
+  # curl -u admin:admin -v -X POST http://localhost:9000/api/properties/foo?value=bar[&resource=<resource>]
   def update
     key = params[:id]
+    bad_request('missing key') unless key.present?
     value = params[:value] || request.raw_post
     resource_id_or_key = params[:resource]
     if resource_id_or_key
       resource = Project.by_key(resource_id_or_key)
-      if resource
-        resource_id_or_key = resource.id
-      else
-        rest_status_ko('Resource [' + resource_id_or_key + '] does not exist', 404)
-        return
-      end
+      not_found('resource not found') unless resource
+      resource_id_or_key = resource.id
     end
-    if key
-      begin
-        Property.set(key, value, resource_id_or_key)
-        rest_status_ok
-      rescue Exception => ex
-        rest_status_ko(ex.message, 400)
-      end
+    prop=Property.set(key, value, resource_id_or_key)
+    if prop.valid?
+      render_success('property created')
     else
-      rest_status_ko('Property key [' + params[:id] + '] is not valid', 400)
+      render_bad_request(prop.validation_error_message)
     end
   end
 
+  # curl -u admin:admin -v -X DELETE http://localhost:9000/api/properties/foo[?resource=<resource>]
   def destroy
     key = params[:id]
+    bad_request('missing key') unless key.present?
     resource_id_or_key = params[:resource]
     if resource_id_or_key
       resource = Project.by_key(resource_id_or_key)
       if resource
         resource_id_or_key = resource.id
       else
-        rest_status_ko('Resource [' + resource_id_or_key + '] does not exist', 404)
-        return
+        # TODO should we ignore this error ?
+        not_found('resource not found')
       end
     end
-    if key
-      begin
-        Property.clear(key, resource_id_or_key)
-        rest_status_ok
-      rescue Exception => ex
-        rest_status_ko(ex.message, 400)
-      end
-    else
-      rest_status_ko('Property key [' + params[:id] + '] is not valid', 400)
-    end
+    Property.clear(key, resource_id_or_key)
+    render_success('property deleted')
   end
 
-  protected
+  private
 
-  def rest_to_json(properties)
-    JSON(properties.collect{|property| property.to_hash_json})
+  def to_json(properties)
+    properties.collect { |property| property.to_hash_json }
   end
 
-  def rest_to_xml(properties)
+  def to_xml(properties)
     xml = Builder::XmlMarkup.new(:indent => 0)
     xml.instruct!
     xml.properties do
@@ -145,8 +111,6 @@ class Api::PropertiesController < Api::RestController
       end
     end
   end
-
-  private
 
   def viewable?(property_key)
     !property_key.to_s.index('.secured') || is_admin?

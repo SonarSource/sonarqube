@@ -50,9 +50,16 @@ class Property < ActiveRecord::Base
   end
 
   def self.set(key, value, resource_id=nil)
-    Property.delete_all('prop_key' => key, 'resource_id' => resource_id, 'user_id' => nil)
-    Property.create(:prop_key => key, :text_value => value.to_s, :resource_id => resource_id)
-    reload_java_configuration
+    prop = Property.new(:prop_key => key, :text_value => value.to_s, :resource_id => resource_id)
+    if prop.valid?
+      Property.transaction do
+        Property.delete_all('prop_key' => key, 'resource_id' => resource_id, 'user_id' => nil)
+        if prop.save
+          reload_java_configuration
+        end
+      end
+    end
+    prop
   end
 
   def self.clear(key, resource_id=nil)
@@ -93,6 +100,14 @@ class Property < ActiveRecord::Base
       begin
         Java::OrgSonarServerUi::JRubyFacade.getInstance().getPropertyDefinitions().get(key)
       end
+  end
+
+  def validation_error_message
+    msg=''
+    errors.each_full do |error|
+      msg += Api::Utils.message("property.error.#{error}")
+    end
+    msg
   end
 
   private

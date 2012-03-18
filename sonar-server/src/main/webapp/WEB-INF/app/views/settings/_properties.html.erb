@@ -53,19 +53,17 @@
                 <% end %>
                 <div><%= render :partial => "settings/type_#{property_type}", :locals => {:property => property, :value => value} -%></div>
                 <%
-                   if p
-                     p.errors.each_full do |error|
+                   if p && !p.valid?
                 %>
-                    <div class="error"><%= message("property.error.#{error}") -%></div>
+                    <div class="error"><%= p.validation_error_message -%></div>
                   <%
-                     end
                      end
                   %>
                 <p>
                   <%
                      default_prop_value = (@project ? Property.value(property.key(), nil, property.defaultValue()) : property.defaultValue())
                      unless default_prop_value.blank? %>
-                    <span class="note">Default : <%= h default_prop_value -%></span>
+                    <span class="note">Default : <%= property.getType().to_s=='PASSWORD' ? '********' : h(default_prop_value) -%></span>
                   <% end %>
                 </p>
               </td>
