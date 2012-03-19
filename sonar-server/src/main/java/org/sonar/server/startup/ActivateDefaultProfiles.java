@@ -52,12 +52,12 @@ public final class ActivateDefaultProfiles {
     RulesProfile profileToActivate = null;
     boolean oneProfileIsActivated = false;
     if (profiles.isEmpty()) {
-      profileToActivate = RulesProfile.create("Default " + language.getName(), language.getKey());
-      profileToActivate.setDefaultProfile(true);
-      profileToActivate.setProvided(false);
+      profileToActivate = new RulesProfile("Default " + language.getName(), language.getKey(), true, false);
+
     } else if (profiles.size() == 1) {
       profileToActivate = profiles.get(0);
-    } else if (noProfileAlreadyActivated(profiles)) {
+
+    } else {
       Iterator<RulesProfile> iterator = profiles.iterator();
       while (iterator.hasNext() && !oneProfileIsActivated) {
         RulesProfile profile = iterator.next();
@@ -66,22 +66,15 @@ public final class ActivateDefaultProfiles {
           profileToActivate = profile;
         }
       }
-      if (!oneProfileIsActivated && profileToActivate == null) {
-        profileToActivate = profiles.get(0);
+      if (!oneProfileIsActivated) {
+        if (profileToActivate == null) {
+          profileToActivate = profiles.get(0);
+        }
       }
     }
     if (!oneProfileIsActivated && profileToActivate != null) {
       profileToActivate.setDefaultProfile(true);
       session.saveWithoutFlush(profileToActivate);
     }
-  }
-
-  private boolean noProfileAlreadyActivated(List<RulesProfile> profiles) {
-    for (RulesProfile rulesProfile : profiles) {
-      if (rulesProfile.getDefaultProfile()) {
-        return true;
-      }
-    }
-    return false;
   }
 }

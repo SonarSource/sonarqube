@@ -108,7 +108,7 @@ public final class RegisterProvidedProfiles {
   void saveProvidedProfiles(List<RulesProfile> profiles, DatabaseSession session) {
     for (RulesProfile profile : profiles) {
       TimeProfiler profiler = new TimeProfiler().start("Save profile " + profile);
-      RulesProfile persistedProfile = findOrCreate(profile, session);
+      RulesProfile persistedProfile = findOrCreate(profile.getName(), profile.getLanguage(), session);
 
       for (ActiveRule activeRule : profile.getActiveRules()) {
         Rule rule = getPersistedRule(activeRule);
@@ -140,14 +140,14 @@ public final class RegisterProvidedProfiles {
     return rule;
   }
 
-  private RulesProfile findOrCreate(RulesProfile profile, DatabaseSession session) {
-    RulesProfile persistedProfile = session.getSingleResult(RulesProfile.class, "name", profile.getName(), "language", profile.getLanguage());
-    if (persistedProfile == null) {
-      persistedProfile = RulesProfile.create(profile.getName(), profile.getLanguage());
-      persistedProfile.setDefaultProfile(profile.getDefaultProfile());
-      persistedProfile.setProvided(true);
+  private RulesProfile findOrCreate(String name, String language, DatabaseSession session) {
+    RulesProfile profile = session.getSingleResult(RulesProfile.class, "name", name, "language", language);
+    if (profile == null) {
+      profile = RulesProfile.create(name, language);
+      profile.setProvided(true);
+      profile.setDefaultProfile(false);
     }
-    return persistedProfile;
+    return profile;
   }
 
 }
