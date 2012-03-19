@@ -72,6 +72,8 @@ public final class DefaultResourcePersister implements ResourcePersister {
       // assume that the parent project has already been saved
       parentSnapshot = snapshotsByResource.get(project.getParent());
       model.setRootId((Integer) ObjectUtils.defaultIfNull(parentSnapshot.getRootProjectId(), parentSnapshot.getResourceId()));
+    } else {
+      model.setRootId(null);
     }
     model = session.save(model);
     project.setId(model.getId());
