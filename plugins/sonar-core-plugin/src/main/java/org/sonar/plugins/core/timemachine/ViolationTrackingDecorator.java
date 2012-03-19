@@ -54,7 +54,7 @@ public class ViolationTrackingDecorator implements Decorator {
     referenceViolationsMap.clear();
 
     ViolationQuery violationQuery = ViolationQuery.create().forResource(resource).setSwitchMode(ViolationQuery.SwitchMode.BOTH);
-    if (!context.getViolations(violationQuery).isEmpty()) {
+    if (context.getViolations(violationQuery).isEmpty()) {
       return;
     }
 
