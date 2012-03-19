@@ -137,4 +137,15 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     checkTablesWithExcludedColumns("shouldUpdateExistingResource", new String[]{"build_date"}, "projects", "snapshots");
   }
 
+  // SONAR-1700
+  @Test
+  public void shouldRemoveRootIndexIfResourceIsProject() {
+    setupData("shouldRemoveRootIndexIfResourceIsProject");
+
+    ResourcePersister persister = new DefaultResourcePersister(getSession());
+    persister.saveProject(singleProject, null);
+
+    checkTablesWithExcludedColumns("shouldRemoveRootIndexIfResourceIsProject", new String[]{"build_date"}, "projects", "snapshots");
+  }
+
 }
