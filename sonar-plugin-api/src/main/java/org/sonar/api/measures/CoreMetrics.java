@@ -183,6 +183,20 @@ public final class CoreMetrics {
       .setFormula(new SumChildValuesFormula(false))
       .create();
 
+  /**
+   * @since 2.15
+   */
+  public static final String PROJECTS_KEY = "projects";
+
+  /**
+   * @since 2.15
+   */
+  public static final Metric PROJECTS = new Metric.Builder(PROJECTS_KEY, "Projects", Metric.ValueType.INT)
+      .setDescription("Number of projects")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_SIZE)
+      .create();
 
   //--------------------------------------------------------------------------------------------------------------------
   //
