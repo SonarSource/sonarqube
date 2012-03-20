@@ -55,8 +55,6 @@
               <a href="<%= ApplicationController.root_context -%>/components/index/<%= @project.id -%>"><%= message('components.page') -%></a></li>
             <li class="<%= 'selected' if request.request_uri.include?('/drilldown/violations') -%>">
               <a href="<%= ApplicationController.root_context -%>/drilldown/violations/<%= @project.id -%><%= "?"+period_param if period_param -%>"><%= message('violations_drilldown.page') -%></a></li>
-            <li class="<%= 'selected' if controller.controller_path=='timemachine' -%>">
-              <a href="<%= ApplicationController.root_context -%>/timemachine/index/<%= @project.id -%>"><%= message('timemachine.page') -%></a></li>
             <li class="<%= 'selected' if request.request_uri.include?('/cloud/index') -%>">
               <a href="<%= ApplicationController.root_context -%>/cloud/index/<%= @project.id -%>"><%= message('clouds.page') -%></a></li>
             <% controller.java_facade.getPages(Navigation::SECTION_RESOURCE, @project.scope, @project.qualifier, @project.language).each do |page| %>
