@@ -20,7 +20,6 @@
 package org.sonar.plugins.squid;
 
 import org.sonar.api.*;
-import org.sonar.api.PropertyType;
 import org.sonar.plugins.squid.decorators.*;
 
 import java.util.Arrays;
@@ -58,9 +57,15 @@ import java.util.List;
 public final class SquidPlugin extends SonarPlugin {
 
   public List getExtensions() {
-    return Arrays.asList(SquidSensor.class, SquidRuleRepository.class, JavaSourceImporter.class,
-      ClassComplexityDistributionBuilder.class, FunctionComplexityDistributionBuilder.class, ClassesDecorator.class,
-      ChidamberKemererDistributionBuilder.class, FunctionsDecorator.class);
+    return Arrays.asList(
+        SquidSensor.class,
+        SquidRuleRepository.class,
+        JavaSourceImporter.class,
+        FileComplexityDistributionDecorator.class,
+        FunctionComplexityDistributionBuilder.class,
+        ClassesDecorator.class,
+        ChidamberKemererDistributionBuilder.class,
+        FunctionsDecorator.class);
   }
 
 }
