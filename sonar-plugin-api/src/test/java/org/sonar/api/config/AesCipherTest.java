@@ -20,7 +20,6 @@
 package org.sonar.api.config;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
@@ -51,7 +50,7 @@ public class AesCipherTest {
   @Test
   public void encrypt() throws Exception {
     Settings settings = new Settings();
-    settings.setProperty(CoreProperties.ENCRYPTION_SECRET_KEY_FILE, pathToSecretKey());
+    settings.setProperty(CoreProperties.ENCRYPTION_SECRET_KEY_PATH, pathToSecretKey());
     AesCipher cipher = new AesCipher(settings);
 
     String encryptedText = cipher.encrypt("this is a secret");
@@ -63,7 +62,7 @@ public class AesCipherTest {
   @Test
   public void decrypt() throws Exception {
     Settings settings = new Settings();
-    settings.setProperty(CoreProperties.ENCRYPTION_SECRET_KEY_FILE, pathToSecretKey());
+    settings.setProperty(CoreProperties.ENCRYPTION_SECRET_KEY_PATH, pathToSecretKey());
     AesCipher cipher = new AesCipher(settings);
 
     // the following value has been encrypted with the key /org/sonar/api/config/AesCipherTest/aes_secret_key.txt
@@ -76,7 +75,7 @@ public class AesCipherTest {
   public void decrypt_bad_key() throws Exception {
     URL resource = getClass().getResource("/org/sonar/api/config/AesCipherTest/bad_secret_key.txt");
     Settings settings = new Settings();
-    settings.setProperty(CoreProperties.ENCRYPTION_SECRET_KEY_FILE, new File(resource.toURI()).getCanonicalPath());
+    settings.setProperty(CoreProperties.ENCRYPTION_SECRET_KEY_PATH, new File(resource.toURI()).getCanonicalPath());
     AesCipher cipher = new AesCipher(settings);
 
     try {
@@ -92,7 +91,7 @@ public class AesCipherTest {
   public void decrypt_other_key() throws Exception {
     URL resource = getClass().getResource("/org/sonar/api/config/AesCipherTest/other_secret_key.txt");
     Settings settings = new Settings();
-    settings.setProperty(CoreProperties.ENCRYPTION_SECRET_KEY_FILE, new File(resource.toURI()).getCanonicalPath());
+    settings.setProperty(CoreProperties.ENCRYPTION_SECRET_KEY_PATH, new File(resource.toURI()).getCanonicalPath());
     AesCipher cipher = new AesCipher(settings);
 
     try {
@@ -108,7 +107,7 @@ public class AesCipherTest {
   @Test
   public void encryptThenDecrypt() throws Exception {
     Settings settings = new Settings();
-    settings.setProperty(CoreProperties.ENCRYPTION_SECRET_KEY_FILE, pathToSecretKey());
+    settings.setProperty(CoreProperties.ENCRYPTION_SECRET_KEY_PATH, pathToSecretKey());
     AesCipher cipher = new AesCipher(settings);
 
     assertThat(cipher.decrypt(cipher.encrypt("foo")), is("foo"));

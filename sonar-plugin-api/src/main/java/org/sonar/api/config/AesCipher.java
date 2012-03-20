@@ -95,11 +95,11 @@ final class AesCipher extends Cipher {
   @VisibleForTesting
   Key loadSecretFileFromFile(@Nullable String path) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException, InvalidKeyException {
     if (StringUtils.isBlank(path)) {
-      throw new IllegalStateException("Secret key not found. Please set the property " + CoreProperties.ENCRYPTION_SECRET_KEY_FILE);
+      throw new IllegalStateException("Secret key not found. Please set the property " + CoreProperties.ENCRYPTION_SECRET_KEY_PATH);
     }
     File file = new File(path);
     if (!file.exists() || !file.isFile()) {
-      throw new IllegalStateException("The property " + CoreProperties.ENCRYPTION_SECRET_KEY_FILE + " does not link to a valid file: " + path);
+      throw new IllegalStateException("The property " + CoreProperties.ENCRYPTION_SECRET_KEY_PATH + " does not link to a valid file: " + path);
     }
     String s = FileUtils.readFileToString(file);
     if (StringUtils.isBlank(s)) {
@@ -122,7 +122,7 @@ final class AesCipher extends Cipher {
 
   @VisibleForTesting
   String getPathToSecretKey() {
-    String path = settings.getClearString(CoreProperties.ENCRYPTION_SECRET_KEY_FILE);
+    String path = settings.getClearString(CoreProperties.ENCRYPTION_SECRET_KEY_PATH);
     if (StringUtils.isBlank(path)) {
       path = new File(FileUtils.getUserDirectoryPath(), ".sonar/sonar-secret.txt").getPath();
     }
