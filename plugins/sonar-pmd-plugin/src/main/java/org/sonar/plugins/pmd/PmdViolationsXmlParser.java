@@ -19,10 +19,6 @@
  */
 package org.sonar.plugins.pmd;
 
-import java.io.File;
-
-import javax.xml.stream.XMLStreamException;
-
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
@@ -35,6 +31,9 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.StaxParser;
+
+import javax.xml.stream.XMLStreamException;
+import java.io.File;
 
 class PmdViolationsXmlParser {
 
@@ -65,6 +64,8 @@ class PmdViolationsXmlParser {
         // Save violations only for existing resources
         if (context.getResource(resource) != null) {
           streamViolations(fileCursor, resource);
+        } else {
+          fileCursor.advance();
         }
       }
     }
