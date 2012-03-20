@@ -1,17 +1,20 @@
+<h3 class="spacer-bottom">Encryption</h3>
 <p class="spacer-bottom">Secret key is registered. You can encrypt any property value with the following form :</p>
 
 <%= form_remote_tag :url => {:action => 'encrypt'},
-                    :update => {:success => 'encrypted_text', :failure => 'encryption_error'},
-                    :success => "$('encrypted_text').show()",
+                    :update => {:success => 'encrypted_section', :failure => 'encryption_error'},
+                    :success => "$('encrypted_section').show();$('encryption_error').hide();",
                     :failure => "$('encryption_error').show()",
                     :html => {:class => 'spacer-bottom'} -%>
 <input type="text" name="text" id="clear_text"/>
 <input type="submit" value="Encrypt" id="submit_encrypt"/>
-<span id="encrypted_text" class="notice" style="display:none"></span>
-<span id="encryption_error" class="error" style="display:none"></span>
 </form>
+
+<div id="encrypted_section" style="display:none"></div>
+<span id="encryption_error" class="error" style="display:none"></span>
+
 <p>Note that the <%= link_to 'secret key can be changed', {:action => 'generate_secret_form'}, :class => 'link-action' -%>
-  but all the encrypted properties will have to be updated.</p>
+  but all the encrypted properties will have to be updated. <a href="http://docs.codehaus.org/display/SONAR/Settings+Encryption" class="external">More information</a>.</p>
 <script>
   $('clear_text').focus();
 </script>

@@ -38,12 +38,14 @@ class EncryptionConfigurationController < ApplicationController
   end
 
   def generate_secret
-    render :text => java_facade.generateRandomSecretKey()
+    @secret = java_facade.generateRandomSecretKey()
+    render :partial => 'encryption_configuration/generate_secret_key'
   end
 
   def encrypt
     bad_request('No secret key') unless java_facade.hasSecretKey()
-    render :text => java_facade.encrypt(params[:text])
+    @encrypted = java_facade.encrypt(params[:text])
+    render :partial => 'encryption_configuration/encrypt'
   end
 
   private
