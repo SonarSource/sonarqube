@@ -56,22 +56,40 @@ public class ReviewQueryTest extends QueryTestCase {
         .setSeverities("MINOR", "INFO")
         .setProjectKeysOrIds("com.sonar.foo:bar")
         .setResourceKeysOrIds("2", "3")
-        .setAuthorLoginsOrIds("20")
-        .setAssigneeLoginsOrIds("admin")
+        .setAuthorLogins("foo")
+        .setAssigneeLogins("admin")
         .setOutput("html");
     assertThat(
         query.getUrl(),
-        is("/api/reviews?statuses=OPEN&severities=MINOR,INFO&projects=com.sonar.foo%3Abar&resources=2,3&authors=20&assignees=admin&output=html&"));
+        is("/api/reviews?statuses=OPEN&severities=MINOR,INFO&projects=com.sonar.foo%3Abar&resources=2,3&authors=foo&assignees=admin&output=html&"));
   }
 
   @Test
   public void resourceTreeViolationsForSonar2_8() {
     ReviewQuery query = new ReviewQuery();
     query.setIds(10L, 11L).setReviewType("FALSE_POSITIVE").setStatuses("OPEN").setSeverities("MINOR", "INFO")
-        .setProjectKeysOrIds("com.sonar.foo:bar").setResourceKeysOrIds("2", "3").setAuthorLoginsOrIds("20").setAssigneeLoginsOrIds("admin")
+        .setProjectKeysOrIds("com.sonar.foo:bar").setResourceKeysOrIds("2", "3").setAuthorLogins("foo").setAssigneeLogins("admin")
         .setOutput("html");
     assertThat(
         query.getUrl(),
-        is("/api/reviews?ids=10,11&statuses=OPEN&severities=MINOR,INFO&projects=com.sonar.foo%3Abar&resources=2,3&authors=20&assignees=admin&output=html&review_type=FALSE_POSITIVE&"));
+        is("/api/reviews?ids=10,11&statuses=OPEN&severities=MINOR,INFO&projects=com.sonar.foo%3Abar&resources=2,3&authors=foo&assignees=admin&output=html&review_type=FALSE_POSITIVE&"));
+  }
+
+  // http://jira.codehaus.org/browse/SONAR-3283
+  @Test
+  public void testDeprecatedQueryByUserOrAssigneeId() throws Exception {
+    // the de deprecated setters
+    ReviewQuery query = new ReviewQuery()
+        .setAuthorLoginsOrIds("20")
+        .setAssigneeLoginsOrIds("40");
+    assertThat(query.getAuthorLogins(), is(new String[] {"20"}));
+    assertThat(query.getAssigneeLogins(), is(new String[] {"40"}));
+
+    // and test the deprecated getters
+    query = new ReviewQuery()
+        .setAuthorLogins("foo")
+        .setAssigneeLogins("bar");
+    assertThat(query.getAuthorLoginsOrIds(), is(new String[] {"foo"}));
+    assertThat(query.getAssigneeLoginsOrIds(), is(new String[] {"bar"}));
   }
 }
