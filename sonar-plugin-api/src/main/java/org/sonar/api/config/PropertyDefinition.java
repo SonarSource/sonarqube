@@ -38,10 +38,11 @@ public final class PropertyDefinition {
 
     private String errorKey = null;
 
-    private static Result newError(String key) {
+    private static Result newError(@Nullable String key) {
       return new Result(key);
     }
 
+    @Nullable
     private Result(String errorKey) {
       this.errorKey = errorKey;
     }
@@ -50,7 +51,8 @@ public final class PropertyDefinition {
       return StringUtils.isBlank(errorKey);
     }
 
-    public @Nullable String getErrorKey() {
+    @Nullable
+    public String getErrorKey() {
       return errorKey;
     }
   }
@@ -142,7 +144,7 @@ public final class PropertyDefinition {
   }
 
   public String[] getOptions() {
-    return options;
+    return options.clone();
   }
 
   public String getDescription() {
