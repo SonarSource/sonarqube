@@ -38,10 +38,14 @@
                value = Property.value(property.getKey(), (@project ? @project.id : nil), '') unless value
 
                # for backward-compatibility with properties that do not define the type TEXT
-               property_type = value.include?("\n") ? 'TEXT' : property.getType()
+               property_type = property.getType()
+               if property_type.to_s=='STRING' && value.include?("\n")
+                 property_type = 'TEXT'
+               end
+
         %>
             <tr class="<%= cycle('even', 'odd', :name => 'properties') -%>">
-              <td style="padding: 10px" id="foo_<%= property.getKey() -%>">
+              <td style="padding: 10px" id="block_<%= property.getKey() -%>">
                 <h3>
                   <%= message("property.#{property.key()}.name", :default => property.name()) -%>
                   <br/><span class="note"><%= property.getKey() -%></span>

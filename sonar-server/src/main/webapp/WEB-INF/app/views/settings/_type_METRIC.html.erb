@@ -1,0 +1,27 @@
+<select name="<%= h property.getKey() -%>" id="input_<%= h property.getKey() -%>">
+  <option value=""><%= message('default') -%></option>
+  <%
+   metrics_per_domain={}
+   Metric.all.select { |m| m.display? }.sort_by { |m| m.short_name }.each do |metric|
+     domain=metric.domain || ''
+     metrics_per_domain[domain]||=[]
+     metrics_per_domain[domain]<<metric
+   end
+
+   metrics_per_domain.keys.sort.each do |domain|
+%>
+
+     <optgroup label="<%= h domain -%>">
+<%
+     metrics_per_domain[domain].each do |m|
+       selected_attr = (m.key==value || m.id==value) ? " selected='selected'" : ''
+%>
+       <option value="<%= m.key -%>" <%= selected_attr -%>><%= m.short_name -%></option>
+<%
+     end
+%>
+   </optgroup>
+<%
+  end
+%>
+</select>

@@ -19,6 +19,52 @@
  */
 package org.sonar.api;
 
+/**
+ * @since 2.15
+ */
 public enum PropertyType {
-  STRING, TEXT, PASSWORD, BOOLEAN, INTEGER, FLOAT, SINGLE_SELECT_LIST
+  /**
+   * Basic single line input field
+   */
+  STRING,
+
+  /**
+   * Multiple line text-area
+   */
+  TEXT,
+
+  /**
+   * Variation of {#STRING} with masked characters
+   */
+  PASSWORD,
+
+  /**
+   * True/False
+   */
+  BOOLEAN,
+
+  /**
+   * Integer value, positive or negative
+   */
+  INTEGER,
+
+  /**
+   * Floating point number
+   */
+  FLOAT,
+
+  /**
+   * Single select list with a list of options
+   */
+  SINGLE_SELECT_LIST,
+
+  /**
+   * Sonar Metric
+   */
+  METRIC,
+
+  /**
+   * SonarSource license
+   */
+  LICENSE
 }

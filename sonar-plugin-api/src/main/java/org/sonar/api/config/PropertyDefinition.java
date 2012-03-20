@@ -82,12 +82,17 @@ public final class PropertyDefinition {
   }
 
   private PropertyType fixType(String key, PropertyType type) {
-    // Auto-detect passwords for old versions of plugins that
-    // do not declare the type
-    if (type==PropertyType.STRING && StringUtils.endsWith(key, ".password.secured")) {
-      return PropertyType.PASSWORD;
+    // Auto-detect passwords and licenses for old versions of plugins that
+    // do not declare property types
+    PropertyType fix = type;
+    if (type == PropertyType.STRING) {
+      if (StringUtils.endsWith(key, ".password.secured")) {
+        fix = PropertyType.PASSWORD;
+      } else if (StringUtils.endsWith(key, ".license.secured")) {
+        fix = PropertyType.LICENSE;
+      }
     }
-    return type;
+    return fix;
   }
 
   @VisibleForTesting
