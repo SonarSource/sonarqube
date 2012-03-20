@@ -19,26 +19,6 @@
 #
 class TrendsChart
 
-  def self.png_chart(width, height, resource, metrics, locale, display_legend, options={})
-    java_chart = Java::OrgSonarServerChartsJruby::TrendsChart.new(width, height, locale.to_s.gsub(/\-/, '_'), display_legend)
-
-    init_series(java_chart, metrics)
-    metric_ids=metrics.map{|m| m.id}
-    add_measures(java_chart, time_machine_measures(resource, metric_ids, options))
-    add_labels(java_chart, resource);
-
-    export_chart_as_png(java_chart)
-  end
-
-
-  protected
-
-  def self.init_series(java_chart, metrics)
-    metrics.each do |metric|
-      java_chart.initSerie(metric.id, metric.short_name, metric.val_type==Metric::VALUE_TYPE_PERCENT)
-    end
-  end
-
   def self.time_machine_measures(resource, metric_ids, options={})
     unless metric_ids.empty?
       sql= "select s.created_at as created_at, m.value as value, m.metric_id as metric_id, s.id as sid " +
@@ -64,39 +44,6 @@ class TrendsChart
       end
       ProjectMeasure.connection.select_all(Project.send(:sanitize_sql, conditions))
     end
-  end
-   
-  def self.add_measures(java_chart, sqlresult)
-    if sqlresult && sqlresult.size>0
-      sqlresult.each do |hash|
-        value = hash["value"].to_f
-        time = Time.parse( hash["created_at"].to_s )
-        serie_id=hash["metric_id"].to_i
-        java_chart.addMeasure(value, time, serie_id)
-      end
-    end
-  end
-  
-  def self.add_labels(java_chart, resource)
-    categories=EventCategory.categories(true)
-    category_names=categories.map{|cat| cat.name}
-    Event.find(:all, :conditions => {:resource_id => resource.id}).each do |event|
-      if category_names.include?(event.category)
-        time = Time.parse( event.event_date.to_s )
-        java_chart.addLabel(time, event.name, event.category==EventCategory::KEY_ALERT)
-      end
-    end
-  end
-  
-  def self.export_chart_as_png(java_chart)
-    java_int_array_to_bytes(java_chart.exportChartAsPNG())
-  end
-
-  def self.java_int_array_to_bytes( java_int_array )
-    # pack does not exists on the return java array proxy object
-    # the java proxy array contains integers, they must be packed
-    # to return a correct byte array stream (c*)
-    [].concat(java_int_array).pack("c*")
   end
 
 end
