@@ -9,10 +9,10 @@ if @review
 end
 
 # ======== Path for resources ========
-@resource = @project if @project && !@resource
-if @resource && @resource.last_snapshot
+displayed_resource = @resource || @project
+if displayed_resource && displayed_resource.last_snapshot
   resources=[]
-  s=@resource.last_snapshot
+  s=displayed_resource.last_snapshot
   while (s!=nil) do
     resources<<s.project
     s=s.parent
@@ -26,11 +26,14 @@ if @resource && @resource.last_snapshot
     <%= link_to( h(resource.name), 
                  {:overwrite_params => { :id => resource.key }.merge(resource_link)}
                 ) -%>
+    
+    <% if resource==displayed_resource && only_resource %>
     &nbsp;
     <%= link_to( image_tag('permalink.gif'), 
                  {:overwrite_params => { :id => resource.key }.merge(resource_link)}, 
-                 :title => message('layout.permalink')
-                ) if resource==@resource && only_resource -%>
+                 {:title => message('layout.permalink')}
+                ) -%>
+    <% end %>
   </li>
 <%
   end
@@ -40,9 +43,7 @@ end
 if @review
 %>
   <li>
-    » <%= link_to message('review') + @review.id.to_s -%>
-    &nbsp;
-    <%= link_to image_tag('permalink.gif'), :title => message('layout.permalink') -%>
+    » <%= link_to message('review') + ' #' + @review.id.to_s -%>
   </li>
 <%
 end
