@@ -70,6 +70,10 @@ public final class ActivateDefaultProfiles {
         profileToActivate = profiles.get(0);
       }
     }
+    activateProfileIfNeeded(session, profileToActivate, oneProfileIsActivated);
+  }
+
+  private void activateProfileIfNeeded(DatabaseSession session, RulesProfile profileToActivate, boolean oneProfileIsActivated) {
     if (!oneProfileIsActivated && profileToActivate != null) {
       profileToActivate.setDefaultProfile(true);
       session.saveWithoutFlush(profileToActivate);

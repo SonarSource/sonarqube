@@ -19,8 +19,12 @@
  */
 package org.sonar.server.startup;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -28,16 +32,19 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.*;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.rules.RuleParam;
+import org.sonar.api.rules.RuleQuery;
+import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 public final class RegisterProvidedProfiles {
 
@@ -72,17 +79,32 @@ public final class RegisterProvidedProfiles {
     profiler.stop();
   }
 
-  List<RulesProfile> createProfiles() {
+  private List<RulesProfile> createProfiles() {
     List<RulesProfile> result = Lists.newArrayList();
+    Map<String, RulesProfile> defaultProfilesByLanguage = Maps.newHashMap();
     for (ProfileDefinition definition : definitions) {
       ValidationMessages validation = ValidationMessages.create();
       RulesProfile profile = definition.createProfile(validation);
       validation.log(LOGGER);
       if (profile != null && !validation.hasErrors()) {
         result.add(profile);
+        checkIfNoMoreThanOneDefaultProfile(defaultProfilesByLanguage, profile);
       }
     }
     return result;
+  }
+
+  private void checkIfNoMoreThanOneDefaultProfile(Map<String, RulesProfile> defaultProfilesByLanguage, RulesProfile profile) {
+    if (profile.getDefaultProfile()) {
+      RulesProfile defaultProfileForLanguage = defaultProfilesByLanguage.get(profile.getLanguage());
+      if (defaultProfileForLanguage == null) {
+        defaultProfilesByLanguage.put(profile.getLanguage(), profile);
+      } else {
+        throw new SonarException("Language " + profile.getLanguage() + " can't have 2 default provided profiles: "
+          + profile.getName() + " and "
+          + defaultProfileForLanguage.getName());
+      }
+    }
   }
 
   private void cleanProvidedProfiles(List<RulesProfile> profiles, DatabaseSession session) {
