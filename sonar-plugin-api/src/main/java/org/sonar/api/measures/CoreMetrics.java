@@ -314,6 +314,7 @@ public final class CoreMetrics {
    */
   @Deprecated
   public static final String PARAGRAPH_COMPLEXITY_KEY = "paragraph_complexity";
+
   /**
    * @deprecated since Sonar 2.14 - See SONAR-3239
    */
@@ -329,11 +330,13 @@ public final class CoreMetrics {
   /**
    * @deprecated in 2.15 - see SONAR-3289
    */
+  @Deprecated
   public static final String CLASS_COMPLEXITY_DISTRIBUTION_KEY = "class_complexity_distribution";
 
   /**
    * @deprecated in 2.15 - see SONAR-3289
    */
+  @Deprecated
   public static final Metric CLASS_COMPLEXITY_DISTRIBUTION = new Metric.Builder(CLASS_COMPLEXITY_DISTRIBUTION_KEY, "Classes distribution /complexity", Metric.ValueType.DISTRIB)
       .setDescription("Classes distribution /complexity")
       .setDirection(Metric.DIRECTION_NONE)
