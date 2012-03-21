@@ -19,7 +19,10 @@
  */
 package org.sonar.api.rules;
 
-import com.google.common.collect.Lists;
+import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,9 +30,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.check.Check;
 
-import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.List;
+import com.google.common.collect.Lists;
 
 /**
  * @since 2.3
@@ -61,9 +62,10 @@ public final class AnnotationRuleParser implements ServerComponent {
 
   private Rule toRule(String repositoryKey, Class clazz, org.sonar.check.Rule ruleAnnotation) {
     String ruleKey = StringUtils.defaultIfEmpty(ruleAnnotation.key(), clazz.getCanonicalName());
-    String ruleName = StringUtils.defaultIfEmpty(ruleAnnotation.name(), ruleKey);
+    String ruleName = StringUtils.defaultIfEmpty(ruleAnnotation.name(), null);
+    String description = StringUtils.defaultIfEmpty(ruleAnnotation.description(), null);
     Rule rule = Rule.create(repositoryKey, ruleKey, ruleName);
-    rule.setDescription(ruleAnnotation.description());
+    rule.setDescription(description);
     rule.setSeverity(RulePriority.fromCheckPriority(ruleAnnotation.priority()));
     rule.setCardinality(ruleAnnotation.cardinality());
 
