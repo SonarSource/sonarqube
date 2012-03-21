@@ -20,6 +20,8 @@
 package org.sonar.server.startup;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +35,9 @@ import org.sonar.jpa.session.DatabaseSessionFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 public final class RegisterProvidedProfiles {
 
@@ -81,7 +85,7 @@ public final class RegisterProvidedProfiles {
     return result;
   }
 
-  void cleanProvidedProfiles(List<RulesProfile> profiles, DatabaseSession session) {
+  private void cleanProvidedProfiles(List<RulesProfile> profiles, DatabaseSession session) {
     TimeProfiler profiler = new TimeProfiler().start("Clean provided profiles");
     List<RulesProfile> existingProfiles = session.getResults(RulesProfile.class, "provided", true);
     for (RulesProfile existingProfile : existingProfiles) {
@@ -105,10 +109,11 @@ public final class RegisterProvidedProfiles {
     profiler.stop();
   }
 
-  void saveProvidedProfiles(List<RulesProfile> profiles, DatabaseSession session) {
+  private void saveProvidedProfiles(List<RulesProfile> profiles, DatabaseSession session) {
+    Collection<String> languagesWithDefaultProfile = findLanguagesWithDefaultProfile(session);
     for (RulesProfile profile : profiles) {
       TimeProfiler profiler = new TimeProfiler().start("Save profile " + profile);
-      RulesProfile persistedProfile = findOrCreate(profile, session);
+      RulesProfile persistedProfile = findOrCreate(profile, session, languagesWithDefaultProfile.contains(profile.getLanguage()));
 
       for (ActiveRule activeRule : profile.getActiveRules()) {
         Rule rule = getPersistedRule(activeRule);
@@ -124,10 +129,18 @@ public final class RegisterProvidedProfiles {
       session.saveWithoutFlush(persistedProfile);
       profiler.stop();
     }
-
   }
 
-  Rule getPersistedRule(ActiveRule activeRule) {
+  private Collection<String> findLanguagesWithDefaultProfile(DatabaseSession session) {
+    Set<String> languagesWithDefaultProfile = Sets.newHashSet();
+    List<RulesProfile> defaultProfiles = session.getResults(RulesProfile.class, "defaultProfile", true);
+    for (RulesProfile defaultProfile : defaultProfiles) {
+      languagesWithDefaultProfile.add(defaultProfile.getLanguage());
+    }
+    return languagesWithDefaultProfile;
+  }
+
+  private Rule getPersistedRule(ActiveRule activeRule) {
     Rule rule = activeRule.getRule();
     if (rule != null && rule.getId() == null) {
       if (rule.getKey() != null) {
@@ -140,12 +153,14 @@ public final class RegisterProvidedProfiles {
     return rule;
   }
 
-  private RulesProfile findOrCreate(RulesProfile profile, DatabaseSession session) {
+  private RulesProfile findOrCreate(RulesProfile profile, DatabaseSession session, boolean defaultProfileAlreadyExist) {
     RulesProfile persistedProfile = session.getSingleResult(RulesProfile.class, "name", profile.getName(), "language", profile.getLanguage());
     if (persistedProfile == null) {
       persistedProfile = RulesProfile.create(profile.getName(), profile.getLanguage());
-      persistedProfile.setDefaultProfile(profile.getDefaultProfile());
       persistedProfile.setProvided(true);
+      if (!defaultProfileAlreadyExist) {
+        persistedProfile.setDefaultProfile(profile.getDefaultProfile());
+      }
     }
     return persistedProfile;
   }
