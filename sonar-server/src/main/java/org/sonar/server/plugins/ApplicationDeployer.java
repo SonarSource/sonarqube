@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.server.startup;
+package org.sonar.server.plugins;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
@@ -25,8 +25,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.platform.PluginMetadata;
+import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.platform.ServerFileSystem;
-import org.sonar.api.web.RubyRailsApp;
+import org.sonar.server.plugins.ClassLoaderUtils;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -40,17 +42,14 @@ import java.io.IOException;
  */
 public class ApplicationDeployer {
   private static final Logger LOG = LoggerFactory.getLogger(ApplicationDeployer.class);
+  private static final String ROR_PATH = "org/sonar/ror/";
 
   private ServerFileSystem fileSystem;
-  private RubyRailsApp[] apps;
+  private PluginRepository pluginRepository;
 
-  public ApplicationDeployer(ServerFileSystem fileSystem, RubyRailsApp[] apps) {
+  public ApplicationDeployer(ServerFileSystem fileSystem, PluginRepository pluginRepository) {
     this.fileSystem = fileSystem;
-    this.apps = apps;
-  }
-
-  public ApplicationDeployer(ServerFileSystem fileSystem) {
-    this(fileSystem, new RubyRailsApp[0]);
+    this.pluginRepository = pluginRepository;
   }
 
   public void start() throws IOException {
@@ -61,11 +60,12 @@ public class ApplicationDeployer {
     LOG.info("Deploy Ruby on Rails applications");
     File appsDir = prepareRubyRailsRootDirectory();
 
-    for (final RubyRailsApp app : apps) {
+    for (PluginMetadata pluginMetadata : pluginRepository.getMetadata()) {
+      String pluginKey = pluginMetadata.getKey();
       try {
-        deployRubyRailsApp(appsDir, app, app.getClass().getClassLoader());
+        deployRubyRailsApp(appsDir, pluginKey, pluginRepository.getPlugin(pluginKey).getClass().getClassLoader());
       } catch (Exception e) {
-        throw new IllegalStateException("Fail to deploy Ruby on Rails application: " + app.getKey(), e);
+        throw new IllegalStateException("Fail to deploy Ruby on Rails application: " + pluginKey, e);
       }
     }
   }
@@ -78,22 +78,27 @@ public class ApplicationDeployer {
   }
 
   @VisibleForTesting
-  static void deployRubyRailsApp(File appsDir, final RubyRailsApp app, ClassLoader appClassLoader) {
-    LOG.debug("Deploy: " + app.getKey());
-    File appDir = new File(appsDir, app.getKey());
-    if (appDir.exists()) {
-      LOG.error("Ruby on Rails application already exists: " + app.getKey());
-    } else {
-      ClassLoaderUtils.copyResources(appClassLoader, app.getPath(), appDir, new Function<String, String>() {
+  static void deployRubyRailsApp(File appsDir, final String pluginKey, ClassLoader appClassLoader) {
+    if (hasRubyRailsApp(pluginKey, appClassLoader)) {
+      LOG.info("Deploy app: " + pluginKey);
+      File appDir = new File(appsDir, pluginKey);
+      ClassLoaderUtils.copyResources(appClassLoader, ROR_PATH + pluginKey, appDir, new Function<String, String>() {
         @Override
         public String apply(@Nullable String relativePath) {
-          // relativePath format is: org/sonar/sqale/app/controllers/foo_controller.rb
-          // app path is: /org/sonar/sqale
+          // Relocate the deployed files :
+          // relativePath format is: org/sonar/ror/sqale/app/controllers/foo_controller.rb
+          // app path is: org/sonar/ror/sqale
           // -> deployed file is app/controllers/foo_controller.rb
-          return StringUtils.substringAfter(relativePath, StringUtils.removeStart(app.getPath(), "/") + "/");
+          return StringUtils.substringAfter(relativePath, pluginKey + "/");
         }
       });
     }
+  }
+
+  @VisibleForTesting
+  static boolean hasRubyRailsApp(String pluginKey, ClassLoader classLoader) {
+    return classLoader.getResource(ROR_PATH + pluginKey) != null;
+
   }
 
   private void prepareDir(File appsDir) {

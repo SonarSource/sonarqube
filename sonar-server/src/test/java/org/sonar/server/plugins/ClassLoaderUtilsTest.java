@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.server.startup;
+package org.sonar.server.plugins;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -52,7 +52,7 @@ public class ClassLoaderUtilsTest {
     //    org/sonar/sqale/app/copyright.txt
     //    org/sonar/sqale/app/README.md
     //    org/sonar/other/other.txt
-    URL jarUrl = getClass().getResource("/org/sonar/server/startup/ClassLoaderUtilsTest/ClassLoaderUtilsTest.jar");
+    URL jarUrl = getClass().getResource("/org/sonar/server/plugins/ClassLoaderUtilsTest/ClassLoaderUtilsTest.jar");
     classLoader = new URLClassLoader(new URL[]{jarUrl}, /* no parent classloader */null);
   }
 

@@ -141,6 +141,10 @@ public final class Platform {
     for (Class daoClass : DaoUtils.getDaoClasses()) {
       rootContainer.addSingleton(daoClass);
     }
+    rootContainer.addSingleton(PluginDeployer.class);
+    rootContainer.addSingleton(DefaultServerPluginRepository.class);
+    rootContainer.addSingleton(DefaultServerFileSystem.class);
+    rootContainer.addSingleton(ApplicationDeployer.class);
     rootContainer.startComponents();
   }
 
@@ -153,10 +157,8 @@ public final class Platform {
     coreContainer = rootContainer.createChild();
     coreContainer.addSingleton(ServerDatabaseSettingsLoader.class);
     coreContainer.addSingleton(DefaultDatabaseConnector.class);
-    coreContainer.addSingleton(PluginDeployer.class);
-    coreContainer.addSingleton(DefaultServerPluginRepository.class);
+
     coreContainer.addSingleton(ServerExtensionInstaller.class);
-    coreContainer.addSingleton(DefaultServerFileSystem.class);
     coreContainer.addSingleton(ThreadLocalDatabaseSessionFactory.class);
     coreContainer.addPicoAdapter(new DatabaseSessionProvider());
     coreContainer.startComponents();
@@ -220,7 +222,6 @@ public final class Platform {
   private void executeStartupTasks() {
     ComponentContainer startupContainer = servicesContainer.createChild();
     startupContainer.addSingleton(GwtPublisher.class);
-    startupContainer.addSingleton(ApplicationDeployer.class);
     startupContainer.addSingleton(RegisterMetrics.class);
     startupContainer.addSingleton(RegisterRules.class);
     startupContainer.addSingleton(RegisterProvidedProfiles.class);

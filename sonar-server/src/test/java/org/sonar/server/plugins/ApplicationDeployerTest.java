@@ -17,21 +17,23 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.server.startup;
+package org.sonar.server.plugins;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.platform.ServerFileSystem;
-import org.sonar.api.web.RubyRailsApp;
 
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -41,11 +43,21 @@ public class ApplicationDeployerTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
+  public void hasRubyRailsApp() throws Exception {
+    ClassLoader classLoader = new URLClassLoader(new URL[]{
+      getClass().getResource("/org/sonar/server/plugins/ApplicationDeployerTest/FakeRubyRailsApp.jar").toURI().toURL()}, null);
+
+    assertTrue(ApplicationDeployer.hasRubyRailsApp("fake", classLoader));
+    assertFalse(ApplicationDeployer.hasRubyRailsApp("other", classLoader));
+  }
+
+  @Test
   public void deployRubyRailsApp() throws Exception {
     File tempDir = this.temp.getRoot();
     ClassLoader classLoader = new URLClassLoader(new URL[]{
-      getClass().getResource("/org/sonar/server/startup/ApplicationDeployerTest/FakeRubyRailsApp.jar").toURI().toURL()}, null);
-    ApplicationDeployer.deployRubyRailsApp(tempDir, new FakeRubyRailsApp(), classLoader);
+      getClass().getResource("/org/sonar/server/plugins/ApplicationDeployerTest/FakeRubyRailsApp.jar").toURI().toURL()}, null);
+
+    ApplicationDeployer.deployRubyRailsApp(tempDir, "fake", classLoader);
 
     File appDir = new File(tempDir, "fake");
     assertThat(appDir.isDirectory(), is(true));
@@ -61,23 +73,10 @@ public class ApplicationDeployerTest {
     File tempDir = this.temp.getRoot();
     when(fileSystem.getTempDir()).thenReturn(tempDir);
 
-    File dir = new ApplicationDeployer(fileSystem, new RubyRailsApp[]{new FakeRubyRailsApp()}).prepareRubyRailsRootDirectory();
+    File dir = new ApplicationDeployer(fileSystem, mock(PluginRepository.class)).prepareRubyRailsRootDirectory();
 
     assertThat(dir.isDirectory(), is(true));
     assertThat(dir.exists(), is(true));
     assertThat(dir.getCanonicalPath(), is(new File(tempDir, "ror").getCanonicalPath()));
-  }
-
-  static class FakeRubyRailsApp extends RubyRailsApp {
-
-    @Override
-    public String getKey() {
-      return "fake";
-    }
-
-    @Override
-    public String getPath() {
-      return "/org/sonar/server/startup/ApplicationDeployerTest/FakeRubyRailsApp";
-    }
   }
 }

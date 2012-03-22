@@ -47,15 +47,15 @@ public class PluginDeployer implements ServerComponent {
 
   private DefaultServerFileSystem fileSystem;
   private Map<String, PluginMetadata> pluginByKeys = Maps.newHashMap();
-  private PluginInstaller extractor;
+  private PluginInstaller installer;
 
   public PluginDeployer(DefaultServerFileSystem fileSystem) {
     this(fileSystem, new PluginInstaller());
   }
 
-  PluginDeployer(DefaultServerFileSystem fileSystem, PluginInstaller extractor) {
+  PluginDeployer(DefaultServerFileSystem fileSystem, PluginInstaller installer) {
     this.fileSystem = fileSystem;
-    this.extractor = extractor;
+    this.installer = installer;
   }
 
   public void start() throws IOException {
@@ -90,7 +90,7 @@ public class PluginDeployer implements ServerComponent {
   }
 
   private void registerPlugin(File file, boolean isCore, boolean canDelete) throws IOException {
-    DefaultPluginMetadata metadata = extractor.extractMetadata(file, isCore);
+    DefaultPluginMetadata metadata = installer.extractMetadata(file, isCore);
     if (StringUtils.isNotBlank(metadata.getKey())) {
       PluginMetadata existing = pluginByKeys.get(metadata.getKey());
       if (existing != null) {
@@ -198,7 +198,7 @@ public class PluginDeployer implements ServerComponent {
         plugin.addDeprecatedExtension(deprecatedExtension);
       }
 
-      extractor.install(plugin, pluginDeployDir);
+      installer.install(plugin, pluginDeployDir);
 
     } catch (IOException e) {
       throw new RuntimeException("Fail to deploy the plugin " + plugin, e);

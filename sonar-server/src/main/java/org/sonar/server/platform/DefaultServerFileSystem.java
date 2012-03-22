@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ServerFileSystem;
-import org.sonar.jpa.session.DatabaseConnector;
+import org.sonar.core.persistence.Database;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -45,12 +45,12 @@ public class DefaultServerFileSystem implements ServerFileSystem {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DefaultServerFileSystem.class);
 
-  private DatabaseConnector databaseConnector;
+  private Database database;
   private File deployDir;
   private File homeDir;
 
-  public DefaultServerFileSystem(DatabaseConnector databaseConnector, Settings settings) {
-    this.databaseConnector = databaseConnector;
+  public DefaultServerFileSystem(Database database, Settings settings) {
+    this.database = database;
     this.homeDir = new File(settings.getString(CoreProperties.SONAR_HOME));
 
     String deployPath = settings.getString(ServerSettings.DEPLOY_DIR);
@@ -62,8 +62,8 @@ public class DefaultServerFileSystem implements ServerFileSystem {
   /**
    * for unit tests
    */
-  public DefaultServerFileSystem(DatabaseConnector databaseConnector, File homeDir, File deployDir) {
-    this.databaseConnector = databaseConnector;
+  public DefaultServerFileSystem(Database database, File homeDir, File deployDir) {
+    this.database = database;
     this.deployDir = deployDir;
     this.homeDir = homeDir;
   }
@@ -102,7 +102,7 @@ public class DefaultServerFileSystem implements ServerFileSystem {
   public File getHomeDir() {
     return homeDir;
   }
-  
+
   public File getTempDir() {
     return new File(homeDir, "temp");
   }
@@ -128,7 +128,7 @@ public class DefaultServerFileSystem implements ServerFileSystem {
   }
 
   public File getJdbcDriver() {
-    String dialect = databaseConnector.getDialect().getId();
+    String dialect = database.getDialect().getId();
     File dir = new File(getHomeDir(), "/extensions/jdbc-driver/" + dialect + "/");
     List<File> jars = getFiles(dir, "jar");
     if (jars.isEmpty()) {

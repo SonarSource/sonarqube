@@ -20,7 +20,7 @@
 package org.sonar.server.platform;
 
 import org.junit.Test;
-import org.sonar.jpa.session.DatabaseConnector;
+import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.dialect.Dialect;
 import org.sonar.core.persistence.dialect.MySql;
 import org.sonar.test.TestUtils;
@@ -33,27 +33,27 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ServerFileSystemTest {
+public class DefaultServerFileSystemTest {
 
-  private static final String PATH = "/org/sonar/server/platform/ServerFileSystemTest/";
+  private static final String PATH = "/org/sonar/server/platform/DefaultServerFileSystemTest/";
 
   @Test
   public void testGetJdbcDriver() {
-    DatabaseConnector databaseConnector = mock(DatabaseConnector.class);
-    when(databaseConnector.getDialect()).thenReturn(new MySql());
-    File driver = new DefaultServerFileSystem(databaseConnector, TestUtils.getResource(PATH + "testGetJdbcDriver"), null).getJdbcDriver();
+    Database database = mock(Database.class);
+    when(database.getDialect()).thenReturn(new MySql());
+    File driver = new DefaultServerFileSystem(database, TestUtils.getResource(PATH + "testGetJdbcDriver"), null).getJdbcDriver();
     assertNotNull(driver);
   }
 
   @Test(expected = ServerStartException.class)
   public void failIfJdbcDriverNotFound() {
-    DatabaseConnector databaseConnector = mock(DatabaseConnector.class);
+    Database database = mock(Database.class);
 
     Dialect fakeDialect = mock(Dialect.class);
     when(fakeDialect.getId()).thenReturn("none");
-    when(databaseConnector.getDialect()).thenReturn(fakeDialect);
+    when(database.getDialect()).thenReturn(fakeDialect);
 
-    new DefaultServerFileSystem(databaseConnector, TestUtils.getResource(PATH + "testGetJdbcDriver"), null).getJdbcDriver();
+    new DefaultServerFileSystem(database, TestUtils.getResource(PATH + "testGetJdbcDriver"), null).getJdbcDriver();
   }
 
   @Test
