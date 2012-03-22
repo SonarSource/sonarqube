@@ -36,8 +36,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 /**
- * TODO it this class needed in sonar-plugin-api ?
- *
  * @since 2.15
  */
 public final class ClassLoaderUtils {
@@ -65,6 +63,13 @@ public final class ClassLoaderUtils {
     return toDir;
   }
 
+  /**
+   * Finds files within a given directory and its subdirectories
+   *
+   * @param classLoader
+   * @param rootPath    the root directory, for example org/sonar/sqale
+   * @return a list of relative paths, for example {"org/sonar/sqale/foo/bar.txt}. Never null.
+   */
   public static Collection<String> listFiles(ClassLoader classLoader, String rootPath) {
     return listResources(classLoader, rootPath, new Predicate<String>() {
       @Override
@@ -74,8 +79,15 @@ public final class ClassLoaderUtils {
     });
   }
 
-  public static Collection<String> listResources(ClassLoader classloader, String rootPath) {
-    return listResources(classloader, rootPath, Predicates.<String>alwaysTrue());
+  /**
+   * Finds directories and files within a given directory and its subdirectories
+   *
+   * @param classLoader
+   * @param rootPath    the root directory, for example org/sonar/sqale
+   * @return a list of relative paths, for example {"org/sonar/sqale", "org/sonar/sqale/foo", "org/sonar/sqale/foo/bar.txt}. Never null.
+   */
+  public static Collection<String> listResources(ClassLoader classLoader, String rootPath) {
+    return listResources(classLoader, rootPath, Predicates.<String>alwaysTrue());
   }
 
   public static Collection<String> listResources(ClassLoader classloader, String rootPath, Predicate<String> predicate) {
