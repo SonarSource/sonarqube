@@ -32,6 +32,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.Property;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.InputFileUtils;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.utils.SonarException;
@@ -43,10 +44,13 @@ import java.util.Locale;
 import java.util.Properties;
 
 @org.sonar.api.Properties({
-    @Property(key = CheckstyleConfiguration.PROPERTY_GENERATE_XML,
-        defaultValue = "false",
-        name = "Generate XML Report",
-        project = false, global = false)})
+  @Property(
+    key = CheckstyleConfiguration.PROPERTY_GENERATE_XML,
+    defaultValue = "false",
+    name = "Generate XML Report",
+    project = false, global = false
+  )
+})
 public class CheckstyleConfiguration implements BatchExtension {
 
   private static final Logger LOG = LoggerFactory.getLogger(CheckstyleConfiguration.class);
@@ -82,7 +86,7 @@ public class CheckstyleConfiguration implements BatchExtension {
   }
 
   public List<File> getSourceFiles() {
-    return fileSystem.getSourceFiles(Java.INSTANCE);
+    return InputFileUtils.toFiles(fileSystem.mainFiles(Java.KEY));
   }
 
   public File getTargetXMLReport() {

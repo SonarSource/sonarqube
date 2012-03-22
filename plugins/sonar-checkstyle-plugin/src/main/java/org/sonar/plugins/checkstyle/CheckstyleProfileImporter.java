@@ -19,12 +19,6 @@
  */
 package org.sonar.plugins.checkstyle;
 
-import java.io.Reader;
-import java.util.Map;
-
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.stax2.XMLInputFactory2;
@@ -39,6 +33,12 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.utils.ValidationMessages;
+
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+
+import java.io.Reader;
+import java.util.Map;
 
 public class CheckstyleProfileImporter extends ProfileImporter {
 
@@ -87,8 +87,7 @@ public class CheckstyleProfileImporter extends ProfileImporter {
     return new SMInputFactory(xmlFactory);
   }
 
-  private void processModule(RulesProfile profile, String path, SMInputCursor moduleCursor, ValidationMessages messages)
-      throws XMLStreamException {
+  private void processModule(RulesProfile profile, String path, SMInputCursor moduleCursor, ValidationMessages messages) throws XMLStreamException {
     String moduleName = moduleCursor.getAttrValue("name");
     if (isFilter(moduleName)) {
       messages.addWarningText("Checkstyle filters are not imported: " + moduleName);
@@ -104,13 +103,12 @@ public class CheckstyleProfileImporter extends ProfileImporter {
 
   static boolean isFilter(String configKey) {
     return StringUtils.equals(configKey, "SuppressionCommentFilter") ||
-        StringUtils.equals(configKey, "SeverityMatchFilter") ||
-        StringUtils.equals(configKey, "SuppressionFilter") ||
-        StringUtils.equals(configKey, "SuppressWithNearbyCommentFilter");
+      StringUtils.equals(configKey, "SeverityMatchFilter") ||
+      StringUtils.equals(configKey, "SuppressionFilter") ||
+      StringUtils.equals(configKey, "SuppressWithNearbyCommentFilter");
   }
 
-  private void processRule(RulesProfile profile, String path, String moduleName, SMInputCursor moduleCursor, ValidationMessages messages)
-      throws XMLStreamException {
+  private void processRule(RulesProfile profile, String path, String moduleName, SMInputCursor moduleCursor, ValidationMessages messages) throws XMLStreamException {
     Map<String, String> properties = processProps(moduleCursor);
 
     Rule rule;
