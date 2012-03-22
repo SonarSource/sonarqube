@@ -17,25 +17,28 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.platform;
+package org.sonar.api.web;
 
-import org.sonar.api.ServerComponent;
-
-import java.io.File;
-import java.util.List;
+import com.google.common.annotations.Beta;
+import org.sonar.api.ServerExtension;
 
 /**
- * @since 2.3
+ * Complete Ruby on Rails application (controllers/helpers/models/views)
+ * @since 2.15
  */
-public interface ServerFileSystem extends ServerComponent {
-
-  File getHomeDir();
-  
-  File getTempDir();
+@Beta
+public abstract class RubyRailsApp implements ServerExtension {
 
   /**
-   * @param suffixes the file suffixes. If null, then return all the files, whatever their suffix
+   * The app key, ie the plugin key. It does not relate to URLs at all.
    */
-  List<File> getExtensions(String dirName, String... suffixes);
-  
+  public abstract String getKey();
+
+  /**
+   * The classloader path to the root directory. It contains a sub-directory named app/.
+   * <p>For example if Ruby on Rails controllers are located in /org/sonar/sqale/app/controllers/,
+   * then the path is /org/sonar/sqale</p>
+   */
+  public abstract String getPath();
+
 }

@@ -21,12 +21,11 @@ package org.sonar.server.ui;
 
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.config.License;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
-import org.sonar.api.platform.ComponentContainer;
-import org.sonar.api.platform.PluginMetadata;
-import org.sonar.api.platform.PluginRepository;
+import org.sonar.api.platform.*;
 import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.resources.Language;
@@ -416,6 +415,9 @@ public final class JRubyFacade {
     return License.readBase64(base64);
   }
 
+  public String getServerHome() {
+    return getContainer().getComponentByType(Settings.class).getString(CoreProperties.SONAR_HOME);
+  }
 
   public ReviewsNotificationManager getReviewsNotificationManager() {
     return getContainer().getComponentByType(ReviewsNotificationManager.class);

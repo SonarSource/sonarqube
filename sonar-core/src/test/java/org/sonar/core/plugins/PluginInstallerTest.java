@@ -29,9 +29,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
-public class PluginFileExtractorTest {
+public class PluginInstallerTest {
 
-  private PluginFileExtractor extractor= new PluginFileExtractor();
+  private PluginInstaller extractor= new PluginInstaller();
 
   @Test
   public void shouldExtractMetadata() {
@@ -60,7 +60,7 @@ public class PluginFileExtractorTest {
 
   @Test
   public void shouldCopyAndExtractDependencies() throws IOException {
-    File toDir = new File("target/test-tmp/PluginFileExtractorTest/shouldCopyAndExtractDependencies");
+    File toDir = new File("target/test-tmp/PluginInstallerTest/shouldCopyAndExtractDependencies");
     FileUtils.forceMkdir(toDir);
     FileUtils.cleanDirectory(toDir);
 
@@ -73,7 +73,7 @@ public class PluginFileExtractorTest {
 
   @Test
   public void shouldExtractOnlyDependencies() throws IOException {
-    File toDir = new File("target/test-tmp/PluginFileExtractorTest/shouldExtractOnlyDependencies");
+    File toDir = new File("target/test-tmp/PluginInstallerTest/shouldExtractOnlyDependencies");
     FileUtils.forceMkdir(toDir);
     FileUtils.cleanDirectory(toDir);
 
@@ -86,13 +86,13 @@ public class PluginFileExtractorTest {
 
   @Test
   public void shouldCopyRuleExtensionsOnServerSide() throws IOException {
-    File toDir = new File("target/test-tmp/PluginFileExtractorTest/shouldCopyRuleExtensionsOnServerSide");
+    File toDir = new File("target/test-tmp/PluginInstallerTest/shouldCopyRuleExtensionsOnServerSide");
     FileUtils.forceMkdir(toDir);
     FileUtils.cleanDirectory(toDir);
 
     DefaultPluginMetadata metadata = DefaultPluginMetadata.create(getFile("sonar-checkstyle-plugin-2.8.jar"))
         .setKey("checkstyle")
-        .addDeprecatedExtension(getFile("PluginFileExtractorTest/shouldCopyRuleExtensionsOnServerSide/checkstyle-extension.xml"));
+        .addDeprecatedExtension(getFile("PluginInstallerTest/shouldCopyRuleExtensionsOnServerSide/checkstyle-extension.xml"));
     extractor.install(metadata, toDir);
 
     assertThat(new File(toDir, "sonar-checkstyle-plugin-2.8.jar").exists(), is(true));

@@ -5,6 +5,21 @@
 require File.join(File.dirname(__FILE__), 'boot')
 require 'color'
 
+#
+# Limitation of Rails 2.3 and Rails Engines (plugins) when threadsafe! is enabled in production mode
+# See http://groups.google.com/group/rubyonrails-core/browse_thread/thread/9067bce01444fb24?pli=1
+#
+class EagerPluginLoader < Rails::Plugin::Loader
+  def add_plugin_load_paths
+    super
+    plugins.each do |plugin|
+      if configuration.cache_classes
+        configuration.eager_load_paths += plugin.load_paths
+      end
+    end
+  end
+end
+
 Rails::Initializer.run do |config|
   # Settings in config/environments/* take precedence over those specified here.
   # Application configuration should go into files in config/initializers
@@ -15,8 +30,12 @@ Rails::Initializer.run do |config|
   # you must remove the Active Record framework.
   config.frameworks -= [ :action_mailer ]
 
-  # Add additional load paths for your own custom dirs
-  # config.load_paths += %W( #{RAILS_ROOT}/extras )
+  # This property can't be set in config/environments because of execution order
+  # See http://strd6.com/2009/04/cant-dup-nilclass-maybe-try-unloadable/
+  config.reload_plugins=(RAILS_ENV == 'development')
+
+  config.plugin_loader = EagerPluginLoader
+  config.plugin_paths << "#{Java::OrgSonarServerUi::JRubyFacade.getInstance().getServerHome()}/temp/ror"
 
   # Force all environments to use the same logger level
   # (by default production uses :info, the others :debug)
@@ -51,6 +70,8 @@ Rails::Initializer.run do |config|
   # config.active_record.observers = :cacher, :garbage_collector, :forum_observer
 end
 
+
+
 class ActiveRecord::Migration
   def self.alter_to_big_primary_key(tablename)
     dialect = ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getDatabase().getDialect().getActiveRecordDialectCode()
@@ -58,7 +79,7 @@ class ActiveRecord::Migration
     when "postgre"
       execute "ALTER TABLE #{tablename} ALTER COLUMN id TYPE bigint"
     when "mysql"
-      execute "ALTER TABLE #{tablename} CHANGE id id BIGINT AUTO_INCREMENT";
+      execute "ALTER TABLE #{tablename} CHANGE id id BIGINT AUTO_INCREMENT"
     when "derby"
       # do nothing as alter can not do the job in Derby
     when "oracle"

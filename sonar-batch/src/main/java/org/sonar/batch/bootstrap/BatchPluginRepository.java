@@ -33,7 +33,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
 import org.sonar.core.plugins.PluginClassloaders;
-import org.sonar.core.plugins.PluginFileExtractor;
+import org.sonar.core.plugins.PluginInstaller;
 import org.sonar.core.plugins.RemotePlugin;
 
 import java.io.File;
@@ -68,7 +68,7 @@ public class BatchPluginRepository implements PluginRepository {
   }
 
   void doStart(List<RemotePlugin> remotePlugins) {
-    PluginFileExtractor extractor = new PluginFileExtractor();
+    PluginInstaller extractor = new PluginInstaller();
     metadataByKey = Maps.newHashMap();
     for (RemotePlugin remote : remotePlugins) {
       if (isAccepted(remote.getKey())) {

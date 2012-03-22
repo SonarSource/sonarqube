@@ -102,6 +102,10 @@ public class DefaultServerFileSystem implements ServerFileSystem {
   public File getHomeDir() {
     return homeDir;
   }
+  
+  public File getTempDir() {
+    return new File(homeDir, "temp");
+  }
 
   public File getDeployDir() {
     return deployDir;

@@ -33,7 +33,7 @@ import java.net.URLClassLoader;
 import java.util.List;
 import java.util.zip.ZipEntry;
 
-public class PluginFileExtractor {
+public class PluginInstaller {
 
   public DefaultPluginMetadata installInSameLocation(File pluginFile, boolean isCore, List<File> deprecatedExtensions) {
     return install(pluginFile, isCore, deprecatedExtensions, null);

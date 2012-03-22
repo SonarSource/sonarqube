@@ -25,7 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 import org.sonar.api.platform.PluginMetadata;
-import org.sonar.core.plugins.PluginFileExtractor;
+import org.sonar.core.plugins.PluginInstaller;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.server.platform.ServerStartException;
 import org.sonar.test.TestUtils;
@@ -39,7 +39,7 @@ import static org.junit.Assert.assertThat;
 
 public class PluginDeployerTest {
 
-  private PluginFileExtractor extractor;
+  private PluginInstaller extractor;
   private DefaultServerFileSystem fileSystem;
   private File homeDir;
   private File deployDir;
@@ -53,7 +53,7 @@ public class PluginDeployerTest {
     homeDir = TestUtils.getResource(PluginDeployerTest.class, name.getMethodName());
     deployDir = TestUtils.getTestTempDir(PluginDeployerTest.class, name.getMethodName() + "/deploy");
     fileSystem = new DefaultServerFileSystem(null, homeDir, deployDir);
-    extractor = new PluginFileExtractor();
+    extractor = new PluginInstaller();
     deployer = new PluginDeployer(fileSystem, extractor);
   }
 

@@ -220,6 +220,7 @@ public final class Platform {
   private void executeStartupTasks() {
     ComponentContainer startupContainer = servicesContainer.createChild();
     startupContainer.addSingleton(GwtPublisher.class);
+    startupContainer.addSingleton(ApplicationDeployer.class);
     startupContainer.addSingleton(RegisterMetrics.class);
     startupContainer.addSingleton(RegisterRules.class);
     startupContainer.addSingleton(RegisterProvidedProfiles.class);

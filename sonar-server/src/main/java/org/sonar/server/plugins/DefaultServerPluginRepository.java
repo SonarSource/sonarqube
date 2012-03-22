@@ -80,13 +80,13 @@ public class DefaultServerPluginRepository implements ServerPluginRepository {
     return pluginsByKey.get(key);
   }
 
-  public ClassLoader getClassloader(String pluginKey) {
+  public ClassLoader getClassLoader(String pluginKey) {
     return classloaders.get(pluginKey);
   }
 
   public Class getClass(String pluginKey, String classname) {
     Class clazz = null;
-    ClassLoader classloader = getClassloader(pluginKey);
+    ClassLoader classloader = getClassLoader(pluginKey);
     if (classloader != null) {
       try {
         clazz = classloader.loadClass(classname);

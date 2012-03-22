@@ -31,7 +31,7 @@ import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.plugins.DefaultPluginMetadata;
-import org.sonar.core.plugins.PluginFileExtractor;
+import org.sonar.core.plugins.PluginInstaller;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.server.platform.ServerStartException;
 
@@ -47,13 +47,13 @@ public class PluginDeployer implements ServerComponent {
 
   private DefaultServerFileSystem fileSystem;
   private Map<String, PluginMetadata> pluginByKeys = Maps.newHashMap();
-  private PluginFileExtractor extractor;
+  private PluginInstaller extractor;
 
   public PluginDeployer(DefaultServerFileSystem fileSystem) {
-    this(fileSystem, new PluginFileExtractor());
+    this(fileSystem, new PluginInstaller());
   }
 
-  PluginDeployer(DefaultServerFileSystem fileSystem, PluginFileExtractor extractor) {
+  PluginDeployer(DefaultServerFileSystem fileSystem, PluginInstaller extractor) {
     this.fileSystem = fileSystem;
     this.extractor = extractor;
   }
