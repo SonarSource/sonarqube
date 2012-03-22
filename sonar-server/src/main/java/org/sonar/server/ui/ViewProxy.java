@@ -31,6 +31,7 @@ import org.sonar.api.web.*;
 import java.util.Collection;
 import java.util.Map;
 
+@SuppressWarnings("rawtypes")
 public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
 
   private V view;
@@ -46,35 +47,66 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
   private WidgetLayoutType widgetLayout = WidgetLayoutType.DEFAULT;
   private boolean isDefaultTab = false;
   private boolean isWidget = false;
+  private String[] mandatoryMeasures = {};
+  private String[] needOneOfMeasures = {};
 
   public ViewProxy(final V view) {
     this.view = view;
 
-    UserRole userRoleAnnotation = AnnotationUtils.getClassAnnotation(view, UserRole.class);
-    if (userRoleAnnotation != null) {
-      userRoles = userRoleAnnotation.value();
-    }
+    initUserRoles(view);
+    initSections(view);
+    initResourceScope(view);
+    initResourceQualifier(view);
+    initResourceLanguage(view);
+    initDefaultTabInfo(view);
+    initDescription(view);
+    initWidgetProperties(view);
+    initWidgetCategory(view);
+    initWidgetLayout(view);
+    initRequiredMeasures(view);
 
-    NavigationSection sectionAnnotation = AnnotationUtils.getClassAnnotation(view, NavigationSection.class);
-    if (sectionAnnotation != null) {
-      sections = sectionAnnotation.value();
-    }
+    isWidget = (view instanceof Widget);
+  }
 
-    ResourceScope scopeAnnotation = AnnotationUtils.getClassAnnotation(view, ResourceScope.class);
-    if (scopeAnnotation != null) {
-      resourceScopes = scopeAnnotation.value();
+  private void initRequiredMeasures(V view) {
+    RequiredMeasures requiredMeasuresAnnotation = AnnotationUtils.getClassAnnotation(view, RequiredMeasures.class);
+    if (requiredMeasuresAnnotation != null) {
+      mandatoryMeasures = requiredMeasuresAnnotation.mandatory();
+      needOneOfMeasures = requiredMeasuresAnnotation.oneOf();
     }
+  }
 
-    ResourceQualifier qualifierAnnotation = AnnotationUtils.getClassAnnotation(view, ResourceQualifier.class);
-    if (qualifierAnnotation != null) {
-      resourceQualifiers = qualifierAnnotation.value();
+  private void initWidgetLayout(final V view) {
+    WidgetLayout layoutAnnotation = AnnotationUtils.getClassAnnotation(view, WidgetLayout.class);
+    if (layoutAnnotation != null) {
+      widgetLayout = layoutAnnotation.value();
     }
+  }
 
-    ResourceLanguage languageAnnotation = AnnotationUtils.getClassAnnotation(view, ResourceLanguage.class);
-    if (languageAnnotation != null) {
-      resourceLanguages = languageAnnotation.value();
+  private void initWidgetCategory(final V view) {
+    WidgetCategory categAnnotation = AnnotationUtils.getClassAnnotation(view, WidgetCategory.class);
+    if (categAnnotation != null) {
+      widgetCategories = categAnnotation.value();
     }
+  }
 
+  private void initWidgetProperties(final V view) {
+    WidgetProperties propAnnotation = AnnotationUtils.getClassAnnotation(view, WidgetProperties.class);
+    if (propAnnotation != null) {
+      for (WidgetProperty property : propAnnotation.value()) {
+        widgetPropertiesByKey.put(property.key(), property);
+      }
+    }
+  }
+
+  private void initDescription(final V view) {
+    Description descriptionAnnotation = AnnotationUtils.getClassAnnotation(view, Description.class);
+    if (descriptionAnnotation != null) {
+      description = descriptionAnnotation.value();
+    }
+  }
+
+  private void initDefaultTabInfo(final V view) {
     DefaultTab defaultTabAnnotation = AnnotationUtils.getClassAnnotation(view, DefaultTab.class);
     if (defaultTabAnnotation != null) {
       if (defaultTabAnnotation.metrics().length == 0) {
@@ -86,30 +118,41 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
         defaultForMetrics = defaultTabAnnotation.metrics();
       }
     }
+  }
 
-    Description descriptionAnnotation = AnnotationUtils.getClassAnnotation(view, Description.class);
-    if (descriptionAnnotation != null) {
-      description = descriptionAnnotation.value();
+  private void initResourceLanguage(final V view) {
+    ResourceLanguage languageAnnotation = AnnotationUtils.getClassAnnotation(view, ResourceLanguage.class);
+    if (languageAnnotation != null) {
+      resourceLanguages = languageAnnotation.value();
     }
+  }
 
-    WidgetProperties propAnnotation = AnnotationUtils.getClassAnnotation(view, WidgetProperties.class);
-    if (propAnnotation != null) {
-      for (WidgetProperty property : propAnnotation.value()) {
-        widgetPropertiesByKey.put(property.key(), property);
-      }
+  private void initResourceQualifier(final V view) {
+    ResourceQualifier qualifierAnnotation = AnnotationUtils.getClassAnnotation(view, ResourceQualifier.class);
+    if (qualifierAnnotation != null) {
+      resourceQualifiers = qualifierAnnotation.value();
     }
+  }
 
-    WidgetCategory categAnnotation = AnnotationUtils.getClassAnnotation(view, WidgetCategory.class);
-    if (categAnnotation != null) {
-      widgetCategories = categAnnotation.value();
+  private void initResourceScope(final V view) {
+    ResourceScope scopeAnnotation = AnnotationUtils.getClassAnnotation(view, ResourceScope.class);
+    if (scopeAnnotation != null) {
+      resourceScopes = scopeAnnotation.value();
     }
+  }
 
-    WidgetLayout layoutAnnotation = AnnotationUtils.getClassAnnotation(view, WidgetLayout.class);
-    if (layoutAnnotation != null) {
-      widgetLayout = layoutAnnotation.value();
+  private void initSections(final V view) {
+    NavigationSection sectionAnnotation = AnnotationUtils.getClassAnnotation(view, NavigationSection.class);
+    if (sectionAnnotation != null) {
+      sections = sectionAnnotation.value();
     }
+  }
 
-    isWidget = (view instanceof Widget);
+  private void initUserRoles(final V view) {
+    UserRole userRoleAnnotation = AnnotationUtils.getClassAnnotation(view, UserRole.class);
+    if (userRoleAnnotation != null) {
+      userRoles = userRoleAnnotation.value();
+    }
   }
 
   public V getTarget() {
@@ -171,6 +214,24 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
   public boolean supportsMetric(String metricKey) {
     return ArrayUtils.contains(defaultForMetrics, metricKey);
   }
+  
+  public boolean acceptsAvailableMeasures(String[] availableMeasures) {
+    for (String mandatoryMeasure : mandatoryMeasures) {
+      if (!ArrayUtils.contains(availableMeasures, mandatoryMeasure)) {
+        return false;
+      }
+    }
+    if (needOneOfMeasures.length == 0) {
+      return true;
+    } else {
+      for (String neededMeasure : needOneOfMeasures) {
+        if (ArrayUtils.contains(availableMeasures, neededMeasure)) {
+          return true;
+        }
+      }
+      return false;
+    }
+  }
 
   public boolean isWidget() {
     return isWidget;
@@ -203,7 +264,6 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
     return getId().hashCode();
   }
 
-
   @Override
   public boolean equals(Object obj) {
     if (obj == null) {
@@ -217,29 +277,29 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
     }
     ViewProxy rhs = (ViewProxy) obj;
     return new EqualsBuilder()
-      .append(getId(), rhs.getId())
-      .isEquals();
+        .append(getId(), rhs.getId())
+        .isEquals();
   }
 
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-      .append("id", view.getId())
-      .append("sections", sections)
-      .append("userRoles", userRoles)
-      .append("scopes", resourceScopes)
-      .append("qualifiers", resourceQualifiers)
-      .append("languages", resourceLanguages)
-      .append("metrics", defaultForMetrics)
-      .toString();
+        .append("id", view.getId())
+        .append("sections", sections)
+        .append("userRoles", userRoles)
+        .append("scopes", resourceScopes)
+        .append("qualifiers", resourceQualifiers)
+        .append("languages", resourceLanguages)
+        .append("metrics", defaultForMetrics)
+        .toString();
 
   }
 
   public int compareTo(ViewProxy other) {
     return new CompareToBuilder()
-      .append(getTitle(), other.getTitle())
-      .append(getId(), other.getId())
-      .toComparison();
+        .append(getTitle(), other.getTitle())
+        .append(getId(), other.getId())
+        .toComparison();
 
   }
 }

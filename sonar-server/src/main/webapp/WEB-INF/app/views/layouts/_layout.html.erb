@@ -39,7 +39,7 @@
             <li class="<%= 'selected' if controller.controller_path=='dependencies' -%>">
               <a href="<%= ApplicationController.root_context -%>/dependencies/index"><%= message('dependencies.page') -%></a></li>
 
-            <% controller.java_facade.getPages(Navigation::SECTION_HOME, nil, nil, nil).each do |page|
+            <% controller.java_facade.getPages(Navigation::SECTION_HOME, nil, nil, nil, nil).each do |page|
               selected=request.request_uri.include?("/plugins/home/#{page.getId()}") %>
               <li class="<%= 'selected' if selected -%>">
                 <a href="<%= ApplicationController.root_context -%>/plugins/home/<%= page.getId() -%>"><%= message(page.getId() + '.page', :default => page.getTitle()) -%></a></li>
@@ -57,7 +57,7 @@
               <a href="<%= ApplicationController.root_context -%>/drilldown/violations/<%= @project.id -%><%= "?"+period_param if period_param -%>"><%= message('violations_drilldown.page') -%></a></li>
             <li class="<%= 'selected' if request.request_uri.include?('/cloud/index') -%>">
               <a href="<%= ApplicationController.root_context -%>/cloud/index/<%= @project.id -%>"><%= message('clouds.page') -%></a></li>
-            <% controller.java_facade.getPages(Navigation::SECTION_RESOURCE, @project.scope, @project.qualifier, @project.language).each do |page| %>
+            <% controller.java_facade.getPages(Navigation::SECTION_RESOURCE, @project.scope, @project.qualifier, @project.language, @project.last_snapshot.available_measures).each do |page| %>
               <li class="<%= 'selected' if request.request_uri.include?("page=#{page.getId()}") -%>">
                 <a href="<%= ApplicationController.root_context -%>/plugins/resource/<%= @project.id -%>?page=<%= page.getId() -%>"><%= message(page.getId() + '.page', :default => page.getTitle()) %></a>
               </li>
@@ -111,7 +111,7 @@
                 <a href="<%= ApplicationController.root_context -%>/admin_filters/index"><%= message('default_filters.page') -%></a></li>
               <li class="<%= 'selected' if controller.controller_path=='admin_dashboards' -%>">
                 <a href="<%= ApplicationController.root_context -%>/admin_dashboards/index"><%= message('default_dashboards.page') -%></a></li>
-              <% controller.java_facade.getPages(Navigation::SECTION_CONFIGURATION, nil, nil, nil).each do |page| %>
+              <% controller.java_facade.getPages(Navigation::SECTION_CONFIGURATION, nil, nil, nil, nil).each do |page| %>
                 <li class="<%= 'selected' if request.request_uri.include?("plugins/configuration/#{page.getId()}") -%>">
                   <a href="<%= ApplicationController.root_context -%>/plugins/configuration/<%= page.getId() -%>"><%= message(page.getId() + '.page', :default => page.getTitle()) %></a>
                 </li>

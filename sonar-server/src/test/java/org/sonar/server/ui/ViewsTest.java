@@ -19,6 +19,14 @@
  */
 package org.sonar.server.ui;
 
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+
 import org.junit.Test;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Qualifiers;
@@ -27,14 +35,6 @@ import org.sonar.api.web.NavigationSection;
 import org.sonar.api.web.Page;
 import org.sonar.api.web.View;
 import org.sonar.api.web.Widget;
-
-import java.util.List;
-
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ViewsTest {
 
@@ -75,15 +75,15 @@ public class ViewsTest {
   @Test
   public void getWidgets() {
     final Views views = new Views(VIEWS);
-    List<ViewProxy<Widget>> widgets = views.getWidgets(null, null, null);
+    List<ViewProxy<Widget>> widgets = views.getWidgets(null, null, null, null);
     assertThat(widgets.size(), is(1));
     assertThat(widgets.get(0).getTarget(), is(FakeWidget.class));
   }
 
   @Test
   public void sortViewsByTitle() {
-    final Views views = new Views(new View[]{new FakeWidget("ccc", "ccc"), new FakeWidget("aaa", "aaa"), new FakeWidget("bbb", "bbb")});
-    List<ViewProxy<Widget>> widgets = views.getWidgets(null, null, null);
+    final Views views = new Views(new View[] {new FakeWidget("ccc", "ccc"), new FakeWidget("aaa", "aaa"), new FakeWidget("bbb", "bbb")});
+    List<ViewProxy<Widget>> widgets = views.getWidgets(null, null, null, null);
     assertThat(widgets.size(), is(3));
     assertThat(widgets.get(0).getId(), is("aaa"));
     assertThat(widgets.get(1).getId(), is("bbb"));
@@ -92,8 +92,8 @@ public class ViewsTest {
 
   @Test
   public void prefixTitleByNumberToDisplayFirst() {
-    final Views views = new Views(new View[]{new FakeWidget("other", "Other"), new FakeWidget("1id", "1widget"), new FakeWidget("2id", "2widget")});
-    List<ViewProxy<Widget>> widgets = views.getWidgets(null, null, null);
+    final Views views = new Views(new View[] {new FakeWidget("other", "Other"), new FakeWidget("1id", "1widget"), new FakeWidget("2id", "2widget")});
+    List<ViewProxy<Widget>> widgets = views.getWidgets(null, null, null, null);
     assertThat(widgets.size(), is(3));
     assertThat(widgets.get(0).getId(), is("1id"));
     assertThat(widgets.get(1).getId(), is("2id"));
@@ -103,13 +103,28 @@ public class ViewsTest {
   @Test
   public void acceptNavigationSection() {
     ViewProxy proxy = mock(ViewProxy.class);
-    when(proxy.getSections()).thenReturn(new String[]{NavigationSection.RESOURCE});
+    when(proxy.getSections()).thenReturn(new String[] {NavigationSection.RESOURCE});
     when(proxy.isWidget()).thenReturn(false);
 
     assertThat(Views.acceptNavigationSection(proxy, NavigationSection.RESOURCE), is(true));
     assertThat(Views.acceptNavigationSection(proxy, NavigationSection.HOME), is(false));
     assertThat(Views.acceptNavigationSection(proxy, NavigationSection.CONFIGURATION), is(false));
     assertThat(Views.acceptNavigationSection(proxy, null), is(true));
+  }
+
+  @Test
+  public void acceptAvailableMeasures() {
+    ViewProxy proxy = mock(ViewProxy.class);
+    when(proxy.acceptsAvailableMeasures(new String[] {"lines"})).thenReturn(true);
+    when(proxy.acceptsAvailableMeasures(new String[] {"ncloc"})).thenReturn(false);
+
+    assertThat(Views.acceptAvailableMeasures(proxy, null), is(true));
+    assertThat(Views.acceptAvailableMeasures(proxy, new String[] {"lines"}), is(true));
+    assertThat(Views.acceptAvailableMeasures(proxy, new String[] {"ncloc"}), is(false));
+
+    assertThat(Views.accept(proxy, null, null, null, null, null), is(true));
+    assertThat(Views.accept(proxy, null, null, null, null, new String[] {"lines"}), is(true));
+    assertThat(Views.accept(proxy, null, null, null, null, new String[] {"ncloc"}), is(false));
   }
 
   @Test
@@ -128,7 +143,7 @@ public class ViewsTest {
     ViewProxy proxy = mock(ViewProxy.class);
     assertThat(Views.acceptResourceLanguage(proxy, Java.KEY), is(true));
 
-    when(proxy.getResourceLanguages()).thenReturn(new String[]{"foo"});
+    when(proxy.getResourceLanguages()).thenReturn(new String[] {"foo"});
     assertThat(Views.acceptResourceLanguage(proxy, Java.KEY), is(false));
     assertThat(Views.acceptResourceLanguage(proxy, "foo"), is(true));
   }
@@ -138,7 +153,7 @@ public class ViewsTest {
     ViewProxy proxy = mock(ViewProxy.class);
     assertThat(Views.acceptResourceScope(proxy, Scopes.FILE), is(true));
 
-    when(proxy.getResourceScopes()).thenReturn(new String[]{Scopes.PROJECT, Scopes.FILE});
+    when(proxy.getResourceScopes()).thenReturn(new String[] {Scopes.PROJECT, Scopes.FILE});
     assertThat(Views.acceptResourceScope(proxy, Scopes.FILE), is(true));
     assertThat(Views.acceptResourceScope(proxy, Scopes.DIRECTORY), is(false));
   }
@@ -148,7 +163,7 @@ public class ViewsTest {
     ViewProxy proxy = mock(ViewProxy.class);
     assertThat(Views.acceptResourceQualifier(proxy, Scopes.FILE), is(true));
 
-    when(proxy.getResourceQualifiers()).thenReturn(new String[]{Qualifiers.CLASS, Qualifiers.FILE});
+    when(proxy.getResourceQualifiers()).thenReturn(new String[] {Qualifiers.CLASS, Qualifiers.FILE});
     assertThat(Views.acceptResourceQualifier(proxy, Qualifiers.FILE), is(true));
     assertThat(Views.acceptResourceQualifier(proxy, Qualifiers.PACKAGE), is(false));
   }

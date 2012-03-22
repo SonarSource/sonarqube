@@ -19,14 +19,22 @@
  */
 package org.sonar.server.ui;
 
-import org.junit.Test;
-import org.sonar.api.web.*;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.number.OrderingComparisons.greaterThan;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThat;
+
+import org.junit.Test;
+import org.sonar.api.web.DefaultTab;
+import org.sonar.api.web.NavigationSection;
+import org.sonar.api.web.RequiredMeasures;
+import org.sonar.api.web.UserRole;
+import org.sonar.api.web.View;
+import org.sonar.api.web.Widget;
+import org.sonar.api.web.WidgetProperties;
+import org.sonar.api.web.WidgetProperty;
+import org.sonar.api.web.WidgetPropertyType;
 
 public class ViewProxyTest {
 
@@ -52,8 +60,8 @@ public class ViewProxyTest {
     ViewProxy proxy = new ViewProxy(view);
 
     assertThat(proxy.getTarget(), is(view));
-    assertArrayEquals(proxy.getSections(), new String[]{NavigationSection.RESOURCE});
-    assertArrayEquals(proxy.getUserRoles(), new String[]{UserRole.ADMIN});
+    assertArrayEquals(proxy.getSections(), new String[] {NavigationSection.RESOURCE});
+    assertArrayEquals(proxy.getUserRoles(), new String[] {UserRole.ADMIN});
   }
 
   @Test
@@ -68,10 +76,9 @@ public class ViewProxyTest {
     ViewProxy proxy = new ViewProxy(view);
 
     assertThat(proxy.getTarget(), is(view));
-    assertArrayEquals(proxy.getSections(), new String[]{NavigationSection.HOME});
+    assertArrayEquals(proxy.getSections(), new String[] {NavigationSection.HOME});
     assertThat(proxy.getUserRoles().length, org.hamcrest.Matchers.is(0));
   }
-
 
   @Test
   public void isDefaultTab() {
@@ -112,7 +119,7 @@ public class ViewProxyTest {
     ViewProxy proxy = new ViewProxy<MyView>(new MyView());
 
     assertThat(proxy.isDefaultTab(), is(false));
-    assertThat(proxy.getDefaultTabForMetrics(), is(new String[]{"ncloc", "coverage"}));
+    assertThat(proxy.getDefaultTabForMetrics(), is(new String[] {"ncloc", "coverage"}));
   }
 
   @Test
@@ -133,6 +140,65 @@ public class ViewProxyTest {
     ViewProxy proxy = new ViewProxy<Widget>(new WidgetWithOptionalProperties());
     assertThat(proxy.hasRequiredProperties(), is(false));
   }
+
+  @Test
+  public void shouldAcceptAvailableMeasuresForNoRequiredMeasures() throws Exception {
+    class MyView extends FakeView {
+      MyView() {
+        super("fake");
+      }
+    }
+    ViewProxy proxy = new ViewProxy<MyView>(new MyView());
+
+    assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "ncloc", "coverage"}), is(true));
+  }
+
+  @Test
+  public void shouldAcceptAvailableMeasuresForMandatoryMeasures() throws Exception {
+    @RequiredMeasures(mandatory = {"lines", "ncloc"})
+    class MyView extends FakeView {
+      MyView() {
+        super("fake");
+      }
+    }
+    ViewProxy proxy = new ViewProxy<MyView>(new MyView());
+
+    assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "ncloc", "coverage"}), is(true));
+    assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "coverage"}), is(false));
+  }
+
+  @Test
+  public void shouldAcceptAvailableMeasuresForOneOfNeededMeasures() throws Exception {
+    @RequiredMeasures(oneOf = {"lines", "ncloc"})
+    class MyView extends FakeView {
+      MyView() {
+        super("fake");
+      }
+    }
+    ViewProxy proxy = new ViewProxy<MyView>(new MyView());
+
+    assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "coverage"}), is(true));
+    assertThat(proxy.acceptsAvailableMeasures(new String[] {"complexity", "coverage"}), is(false));
+  }
+
+  @Test
+  public void shouldAcceptAvailableMeasuresForMandatoryAndOneOfNeededMeasures() throws Exception {
+    @RequiredMeasures(mandatory = {"lines", "ncloc"}, oneOf = {"duplications", "duplictated_blocks"})
+    class MyView extends FakeView {
+      MyView() {
+        super("fake");
+      }
+    }
+    ViewProxy proxy = new ViewProxy<MyView>(new MyView());
+
+    // ok, mandatory measures and 1 needed measure
+    assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "ncloc", "coverage", "duplications"}), is(true));
+    // ko, one of the needed measures but not all of the mandatory ones
+    assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "coverage", "duplications"}), is(false));
+    // ko, mandatory measures but no one of the needed measures
+    assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "nloc", "coverage", "dsm"}), is(false));
+  }
+
 }
 
 class FakeView implements View {

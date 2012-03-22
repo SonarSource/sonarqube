@@ -248,6 +248,16 @@ class Snapshot < ActiveRecord::Base
     project_snapshot.send "period#{period_index}_date"
   end
 
+  # IMPORTANT: this is method must used only to pass arguments to the java_facade, as it returns
+  # an array of java.lang.String objects.
+  # It is used to know which views (page, tab, widget, ...) to display on for a given snapshot
+  def available_measures
+    if @available_measures.nil?
+      @available_measures = metrics.map {|m| m.name}.to_java(java.lang.String)
+    end
+    @available_measures
+  end
+
   private
 
   def measures_hash

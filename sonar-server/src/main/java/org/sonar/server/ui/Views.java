@@ -19,14 +19,19 @@
  */
 package org.sonar.server.ui;
 
-import com.google.common.collect.Lists;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.web.Page;
 import org.sonar.api.web.View;
 import org.sonar.api.web.Widget;
 
-import java.util.*;
+import com.google.common.collect.Lists;
 
 public class Views implements ServerComponent {
 
@@ -66,23 +71,23 @@ public class Views implements ServerComponent {
   }
 
   public List<ViewProxy<Page>> getPages(String section) {
-    return getPages(section, null, null, null);
+    return getPages(section, null, null, null, null);
   }
 
-  public List<ViewProxy<Page>> getPages(String section, String resourceScope, String resourceQualifier, String resourceLanguage) {
+  public List<ViewProxy<Page>> getPages(String section, String resourceScope, String resourceQualifier, String resourceLanguage, String[] availableMeasures) {
     List<ViewProxy<Page>> result = Lists.newArrayList();
     for (ViewProxy<Page> proxy : pages) {
-      if (accept(proxy, section, resourceScope, resourceQualifier, resourceLanguage)) {
+      if (accept(proxy, section, resourceScope, resourceQualifier, resourceLanguage, availableMeasures)) {
         result.add(proxy);
       }
     }
     return result;
   }
 
-  public List<ViewProxy<Page>> getPagesForMetric(String section, String resourceScope, String resourceQualifier, String resourceLanguage, String metric) {
+  public List<ViewProxy<Page>> getPagesForMetric(String section, String resourceScope, String resourceQualifier, String resourceLanguage, String[] availableMeasures, String metric) {
     List<ViewProxy<Page>> result = Lists.newArrayList();
     for (ViewProxy<Page> proxy : pages) {
-      if (accept(proxy, section, resourceScope, resourceQualifier, resourceLanguage) && proxy.supportsMetric(metric)) {
+      if (accept(proxy, section, resourceScope, resourceQualifier, resourceLanguage, availableMeasures) && proxy.supportsMetric(metric)) {
         result.add(proxy);
       }
     }
@@ -93,10 +98,10 @@ public class Views implements ServerComponent {
     return widgetsPerId.get(id);
   }
 
-  public List<ViewProxy<Widget>> getWidgets(String resourceScope, String resourceQualifier, String resourceLanguage) {
+  public List<ViewProxy<Widget>> getWidgets(String resourceScope, String resourceQualifier, String resourceLanguage, String[] availableMeasures) {
     List<ViewProxy<Widget>> result = Lists.newArrayList();
     for (ViewProxy<Widget> proxy : widgets) {
-      if (accept(proxy, null, resourceScope, resourceQualifier, resourceLanguage)) {
+      if (accept(proxy, null, resourceScope, resourceQualifier, resourceLanguage, availableMeasures)) {
         result.add(proxy);
       }
     }
@@ -107,11 +112,12 @@ public class Views implements ServerComponent {
     return Lists.newArrayList(widgets);
   }
 
-  private static boolean accept(ViewProxy proxy, String section, String resourceScope, String resourceQualifier, String resourceLanguage) {
+  protected static boolean accept(ViewProxy proxy, String section, String resourceScope, String resourceQualifier, String resourceLanguage, String[] availableMeasures) {
     return acceptNavigationSection(proxy, section)
         && acceptResourceScope(proxy, resourceScope)
         && acceptResourceQualifier(proxy, resourceQualifier)
-        && acceptResourceLanguage(proxy, resourceLanguage);
+        && acceptResourceLanguage(proxy, resourceLanguage)
+        && acceptAvailableMeasures(proxy, availableMeasures);
   }
 
   protected static boolean acceptResourceLanguage(ViewProxy proxy, String resourceLanguage) {
@@ -128,5 +134,9 @@ public class Views implements ServerComponent {
 
   protected static boolean acceptNavigationSection(ViewProxy proxy, String section) {
     return proxy.isWidget() || section == null || ArrayUtils.contains(proxy.getSections(), section);
+  }
+
+  protected static boolean acceptAvailableMeasures(ViewProxy proxy, String[] availableMeasures) {
+    return availableMeasures == null || proxy.acceptsAvailableMeasures(availableMeasures);
   }
 }

@@ -153,8 +153,8 @@ public final class JRubyFacade {
   }
 
 
-  public List<ViewProxy<Widget>> getWidgets(String resourceScope, String resourceQualifier, String resourceLanguage) {
-    return getContainer().getComponentByType(Views.class).getWidgets(resourceScope, resourceQualifier, resourceLanguage);
+  public List<ViewProxy<Widget>> getWidgets(String resourceScope, String resourceQualifier, String resourceLanguage, Object[] availableMeasures) {
+    return getContainer().getComponentByType(Views.class).getWidgets(resourceScope, resourceQualifier, resourceLanguage, (String[]) availableMeasures);
   }
 
   public List<ViewProxy<Widget>> getWidgets() {
@@ -165,20 +165,20 @@ public final class JRubyFacade {
     return getContainer().getComponentByType(Views.class).getWidget(id);
   }
 
-  public List<ViewProxy<Page>> getPages(String section, String resourceScope, String resourceQualifier, String resourceLanguage) {
-    return getContainer().getComponentByType(Views.class).getPages(section, resourceScope, resourceQualifier, resourceLanguage);
+  public List<ViewProxy<Page>> getPages(String section, String resourceScope, String resourceQualifier, String resourceLanguage, Object[] availableMeasures) {
+    return getContainer().getComponentByType(Views.class).getPages(section, resourceScope, resourceQualifier, resourceLanguage, (String[]) availableMeasures);
   }
 
   public List<ViewProxy<Page>> getResourceTabs() {
-    return getContainer().getComponentByType(Views.class).getPages(NavigationSection.RESOURCE_TAB, null, null, null);
+    return getContainer().getComponentByType(Views.class).getPages(NavigationSection.RESOURCE_TAB, null, null, null, null);
   }
 
-  public List<ViewProxy<Page>> getResourceTabs(String scope, String qualifier, String language) {
-    return getContainer().getComponentByType(Views.class).getPages(NavigationSection.RESOURCE_TAB, scope, qualifier, language);
+  public List<ViewProxy<Page>> getResourceTabs(String scope, String qualifier, String language, Object[] availableMeasures) {
+    return getContainer().getComponentByType(Views.class).getPages(NavigationSection.RESOURCE_TAB, scope, qualifier, language, (String[]) availableMeasures);
   }
 
-  public List<ViewProxy<Page>> getResourceTabsForMetric(String scope, String qualifier, String language, String metric) {
-    return getContainer().getComponentByType(Views.class).getPagesForMetric(NavigationSection.RESOURCE_TAB, scope, qualifier, language, metric);
+  public List<ViewProxy<Page>> getResourceTabsForMetric(String scope, String qualifier, String language, Object[] availableMeasures, String metric) {
+    return getContainer().getComponentByType(Views.class).getPagesForMetric(NavigationSection.RESOURCE_TAB, scope, qualifier, language, (String[]) availableMeasures, metric);
   }
 
   public ViewProxy<Page> getPage(String id) {

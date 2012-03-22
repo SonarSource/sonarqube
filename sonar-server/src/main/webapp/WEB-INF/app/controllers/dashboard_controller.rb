@@ -35,9 +35,9 @@ class DashboardController < ApplicationController
       end
     else
       # display the layout of the parent, usually the directory, but display the file viewers
-      if @resource.last_snapshot
+      if @snapshot
         @file = @resource
-        @project = @resource.last_snapshot.parent.project
+        @project = @snapshot.parent.project
         render :action => 'no_dashboard'
       else
         redirect_to home_path
@@ -186,7 +186,7 @@ class DashboardController < ApplicationController
 
   def load_authorized_widget_definitions
     if @resource
-      @authorized_widget_definitions = java_facade.getWidgets(@resource.scope, @resource.qualifier, @resource.language)
+      @authorized_widget_definitions = java_facade.getWidgets(@resource.scope, @resource.qualifier, @resource.language, @snapshot.available_measures)
       @authorized_widget_definitions=@authorized_widget_definitions.select do |widget|
         authorized=widget.getUserRoles().size==0
         unless authorized
