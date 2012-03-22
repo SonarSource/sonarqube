@@ -46,7 +46,15 @@ class Api::PropertiesController < Api::ApiController
     else
       prop = Property.by_key(key)
     end
-    not_found('property not found') unless prop
+    unless prop
+      # for backward-compatibility with versions <= 2.14 : keep status 200
+      message = "Property not found: #{key}"
+      return respond_to do |format|
+        format.json { render :json => error_to_json(404, message), :status => 200 }
+        format.xml { render :xml => error_to_xml(404, message), :status => 200 }
+        format.text { render :text => message, :status => 200 }
+      end
+    end
     access_denied unless viewable?(key)
     respond_to do |format|
       format.json { render :json => jsonp(to_json([prop])) }
