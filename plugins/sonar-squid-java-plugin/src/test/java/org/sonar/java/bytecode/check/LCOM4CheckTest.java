@@ -67,8 +67,8 @@ public class LCOM4CheckTest {
 
 	@Test 
 	public void shouldIncludeEverything() {
-		check.setIncludedClasses(null);
-		WildcardPattern[] includedClasses = check.getIncludedClasses();
+		check.setForClasses(null);
+		WildcardPattern[] includedClasses = check.getForClasses();
 		assertThat(includedClasses, hasItemInArray(hasToString(is("**"))));
 		assertThat(includedClasses.length, is(1));
 	}
@@ -116,8 +116,8 @@ public class LCOM4CheckTest {
 	}
 
 	private void measure(int maxLcom4, String patterns) {
-			check.setMaxLcom4(maxLcom4);
-			check.setIncludedClasses(PatternUtils.createPatterns(patterns));
+			check.setMax(maxLcom4);
+			check.setForClasses(PatternUtils.createPatterns(patterns));
 
 			JavaSquidConfiguration conf = new JavaSquidConfiguration();
 		    conf.addFieldToExcludeFromLcom4Calculation("LOG");

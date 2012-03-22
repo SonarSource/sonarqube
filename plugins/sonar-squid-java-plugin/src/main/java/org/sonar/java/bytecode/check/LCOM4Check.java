@@ -39,42 +39,42 @@ public class LCOM4Check extends BytecodeVisitor {
 
 	@RuleProperty(defaultValue = "" + MAX_LCOM4_DEFAULT,
 			description="The maximum allowed LCOM4 metric for a set of selected classes. Defaults to 1.")
-	private int maxLcom4 = MAX_LCOM4_DEFAULT;
+	private int max = MAX_LCOM4_DEFAULT;
 	
 	@RuleProperty(description = "Ant-style pattern to select directories or files, for which this LCOM4 rule applies.")
-	private WildcardPattern[] includedClasses;
+	private WildcardPattern[] forClasses;
 
 	@Override
 	public void leaveClass(AsmClass asmClass) {
 	    String nameAsmClass = asmClass.getInternalName();
-	    if (WildcardPattern.match(getIncludedClasses(), nameAsmClass)) {
+	    if (WildcardPattern.match(getForClasses(), nameAsmClass)) {
 	    	Integer lcom4 = (Integer) getSourceClass(asmClass).getInt((MetricDef) Metric.LCOM4);
-	    	if (lcom4!=null && lcom4 > getMaxLcom4()) {
-	    		CheckMessage message = new CheckMessage(this, "Class '" + nameAsmClass + "' has an LCOM4 of " + lcom4 + ", which is higher than the configured maximum of " + getMaxLcom4() + ".");
+	    	if (lcom4!=null && lcom4 > getMax()) {
+	    		CheckMessage message = new CheckMessage(this, "Class '" + nameAsmClass + "' has an LCOM4 of " + lcom4 + ", which is higher than the configured maximum of " + getMax() + ".");
 	    		message.setLine(getSourceFile(asmClass).getStartAtLine());
-	    		message.setCost(lcom4 - getMaxLcom4());
+	    		message.setCost(lcom4 - getMax());
 	    		getSourceFile(asmClass).log(message);
 	    	}
 	    }
 	}
 
-	public WildcardPattern[] getIncludedClasses() {
-		if (includedClasses == null) {
-			includedClasses = PatternUtils.createPatterns("**");
+	public WildcardPattern[] getForClasses() {
+		if (forClasses == null) {
+			forClasses = PatternUtils.createPatterns("**");
 		}
-		return includedClasses;
+		return forClasses;
 	}
 
-	public void setIncludedClasses(WildcardPattern[] includedClasses) {
-		this.includedClasses = includedClasses;
+	public void setForClasses(WildcardPattern[] includedClasses) {
+		this.forClasses = includedClasses;
 	}
 
-	public int getMaxLcom4() {
-		return maxLcom4;
+	public int getMax() {
+		return max;
 	}
 
-	public void setMaxLcom4(int maxLcom4) {
-		this.maxLcom4 = maxLcom4;
+	public void setMax(int maxLcom4) {
+		this.max = maxLcom4;
 	}
 	
 	
