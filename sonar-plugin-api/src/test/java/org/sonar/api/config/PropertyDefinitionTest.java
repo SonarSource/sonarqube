@@ -158,7 +158,7 @@ public class PropertyDefinitionTest {
   }
 
   @Test
-  public void autodetectPasswordType() {
+  public void autoDetectPasswordType() {
     Properties props = AnnotationUtils.getClassAnnotation(OldScmPlugin.class, Properties.class);
     Property prop = props.value()[0];
 
@@ -166,5 +166,22 @@ public class PropertyDefinitionTest {
 
     assertThat(def.getKey(), Is.is("scm.password.secured"));
     assertThat(def.getType(), Is.is(PropertyType.PASSWORD));
+  }
+
+  @Properties({
+    @Property(key = "views.license.secured", name = "Views license")
+  })
+  static class ViewsPlugin {
+  }
+
+  @Test
+  public void autoDetectLicenseType() {
+    Properties props = AnnotationUtils.getClassAnnotation(ViewsPlugin.class, Properties.class);
+    Property prop = props.value()[0];
+
+    PropertyDefinition def = PropertyDefinition.create(prop);
+
+    assertThat(def.getKey(), Is.is("views.license.secured"));
+    assertThat(def.getType(), Is.is(PropertyType.LICENSE));
   }
 }

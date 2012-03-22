@@ -27,6 +27,7 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.DateUtils;
 
+import javax.annotation.Nullable;
 import java.util.*;
 
 /**
@@ -181,42 +182,42 @@ public class Settings implements BatchComponent, ServerComponent {
     return this;
   }
 
-  public final Settings setProperty(String key, String value) {
+  public final Settings setProperty(String key, @Nullable String value) {
     if (!clearIfNullValue(key, value)) {
       properties.put(key, StringUtils.trim(value));
     }
     return this;
   }
 
-  public final Settings setProperty(String key, Boolean value) {
+  public final Settings setProperty(String key, @Nullable Boolean value) {
     if (!clearIfNullValue(key, value)) {
       properties.put(key, String.valueOf(value));
     }
     return this;
   }
 
-  public final Settings setProperty(String key, Integer value) {
+  public final Settings setProperty(String key, @Nullable Integer value) {
     if (!clearIfNullValue(key, value)) {
       properties.put(key, String.valueOf(value));
     }
     return this;
   }
 
-  public final Settings setProperty(String key, Long value) {
+  public final Settings setProperty(String key, @Nullable Long value) {
     if (!clearIfNullValue(key, value)) {
       properties.put(key, String.valueOf(value));
     }
     return this;
   }
 
-  public final Settings setProperty(String key, Double value) {
+  public final Settings setProperty(String key, @Nullable Double value) {
     if (!clearIfNullValue(key, value)) {
       properties.put(key, String.valueOf(value));
     }
     return this;
   }
 
-  public final Settings setProperty(String key, Date date) {
+  public final Settings setProperty(String key, @Nullable Date date) {
     return setProperty(key, date, false);
   }
 
@@ -247,7 +248,7 @@ public class Settings implements BatchComponent, ServerComponent {
     return addProperties(props);
   }
 
-  public final Settings setProperty(String key, Date date, boolean includeTime) {
+  public final Settings setProperty(String key, @Nullable Date date, boolean includeTime) {
     if (!clearIfNullValue(key, date)) {
       properties.put(key, includeTime ? DateUtils.formatDateTime(date) : DateUtils.formatDate(date));
     }
@@ -275,7 +276,7 @@ public class Settings implements BatchComponent, ServerComponent {
     return definitions;
   }
 
-  private boolean clearIfNullValue(String key, Object value) {
+  private boolean clearIfNullValue(String key, @Nullable Object value) {
     if (value == null) {
       properties.remove(key);
       return true;

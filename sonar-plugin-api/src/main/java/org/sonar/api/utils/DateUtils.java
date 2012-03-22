@@ -19,6 +19,7 @@
  */
 package org.sonar.api.utils;
 
+import javax.annotation.Nullable;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -68,9 +69,30 @@ public final class DateUtils {
   }
 
   /**
+   * Parse format {@link #DATE_FORMAT}. This method never throws exception.
+   *
+   * @param s any string
+   * @return the date, null if parsing error or null string
+   * @since 2.15
+   */
+  public static Date parseDateQuietly(@Nullable String s) {
+    Date date = null;
+    if (s != null) {
+      try {
+        date = parseDate(s);
+      } catch (RuntimeException e) {
+        // ignore
+      }
+
+    }
+    return date;
+  }
+
+  /**
    * @param s string in format {@link #DATETIME_FORMAT}
    * @throws SonarException when string cannot be parsed
    */
+
   public static Date parseDateTime(String s) {
     ParsePosition pos = new ParsePosition(0);
     Date result = THREAD_SAFE_DATETIME_FORMAT.parse(s, pos);
@@ -78,6 +100,25 @@ public final class DateUtils {
       throw new SonarException("The date '" + s + "' does not respect format '" + DATETIME_FORMAT + "'");
     }
     return result;
+  }
+
+  /**
+   * Parse format {@link #DATETIME_FORMAT}. This method never throws exception.
+   *
+   * @param s any string
+   * @return the datetime, null if parsing error or null string
+   */
+  public static Date parseDateTimeQuietly(@Nullable String s) {
+    Date datetime = null;
+    if (s != null) {
+      try {
+        datetime = parseDateTime(s);
+      } catch (RuntimeException e) {
+        // ignore
+      }
+
+    }
+    return datetime;
   }
 
   static class ThreadSafeDateFormat extends DateFormat {

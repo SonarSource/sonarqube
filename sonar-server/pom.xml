@@ -263,7 +263,6 @@
             <aggregation>
               <includes>
                 <include>**/yui-2.6.0-min.css</include>
-                <include>**/calendar-min.css</include>
                 <include>**/style-min.css</include>
                 <include>**/sonar-colorizer-min.css</include>
                 <include>**/dashboard-min.css</include>

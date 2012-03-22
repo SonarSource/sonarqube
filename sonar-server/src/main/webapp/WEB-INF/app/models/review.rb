@@ -338,11 +338,7 @@ class Review < ActiveRecord::Base
       authors=options['authors'].split(',') if options['authors']
       if authors && authors.size>0 && !authors[0].blank?
         conditions << 'user_id in (:authors)'
-        unless Api::Utils.is_number?(authors[0])
-          values[:authors]=User.logins_to_ids(authors)
-        else
-          values[:authors]=authors.map { |user_id| user_id.to_i }
-        end
+        values[:authors]=User.logins_to_ids(authors)
       end
 
       assignees=options['assignees'].split(',') if options['assignees']
@@ -353,11 +349,7 @@ class Review < ActiveRecord::Base
         else
           # Assigned reviews
           conditions << 'assignee_id in (:assignees)'
-          unless Api::Utils.is_number?(assignees[0])
-            values[:assignees]=User.logins_to_ids(assignees)
-          else
-            values[:assignees]=assignees.map { |user_id| user_id.to_i }
-          end
+          values[:assignees]=User.logins_to_ids(assignees)
         end
       end
 

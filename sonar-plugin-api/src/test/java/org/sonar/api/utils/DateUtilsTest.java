@@ -20,7 +20,9 @@
 package org.sonar.api.utils;
 
 import com.google.common.collect.Lists;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.util.Date;
 import java.util.List;
@@ -33,36 +35,57 @@ import static org.junit.Assert.*;
 
 public class DateUtilsTest {
 
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
   @Test
-  public void shouldParseDate() {
+  public void parseDate_valid_format() {
     Date date = DateUtils.parseDate("2010-05-18");
     assertThat(date.getDate(), is(18));
   }
 
-  @Test(expected = SonarException.class)
-  public void shouldNotParseDate() {
+  @Test
+  public void parseDate_not_valid_format() {
+    thrown.expect(SonarException.class);
     DateUtils.parseDate("2010/05/18");
   }
 
-  @Test(expected = SonarException.class)
-  public void shouldNotParseDateIfAdditionnalCharacters() {
+  @Test
+  public void parseDateQuietly() {
+    assertNull(DateUtils.parseDateQuietly("2010/05/18"));
+    Date date = DateUtils.parseDateQuietly("2010-05-18");
+    assertThat(date.getDate(), is(18));
+  }
+
+  @Test
+  public void parseDate_fail_if_additional_characters() {
+    thrown.expect(SonarException.class);
     DateUtils.parseDate("1986-12-04foo");
   }
 
   @Test
-  public void shouldParseDateTime() {
+  public void parseDateTime_valid_format() {
     Date date = DateUtils.parseDateTime("2010-05-18T15:50:45+0100");
     assertThat(date.getMinutes(), is(50));
   }
 
-  @Test(expected = SonarException.class)
-  public void shouldNotParseDateTime() {
+  @Test
+  public void parseDateTime_not_valid_format() {
+    thrown.expect(SonarException.class);
     DateUtils.parseDate("2010/05/18 10:55");
   }
 
-  @Test(expected = SonarException.class)
-  public void shouldNotParseIfAdditionnalCharacters() {
+  @Test
+  public void parseDateTime_fail_if_additional_characters() {
+    thrown.expect(SonarException.class);
     DateUtils.parseDateTime("1986-12-04T01:02:03+0300foo");
+  }
+
+  @Test
+  public void parseDateTimeQuietly() {
+    assertNull(DateUtils.parseDateTimeQuietly("2010/05/18 10:55"));
+    Date date = DateUtils.parseDateTimeQuietly("2010-05-18T15:50:45+0100");
+    assertThat(date.getMinutes(), is(50));
   }
 
   @Test
@@ -82,8 +105,7 @@ public class DateUtilsTest {
    * See http://koders.com/java/fid8A231D75F2C6E6909FB26BCA11C12D08AD05FB50.aspx?s=ThreadSafeDateFormatTest
    */
   @Test
-  public void shouldBeThreadSafe() throws InterruptedException {
-
+  public void shouldBeThreadSafe() throws Exception {
     final DateUtils.ThreadSafeDateFormat format = new DateUtils.ThreadSafeDateFormat("yyyy-MM-dd'T'HH:mm:ss,S z");
     final Date now = new Date();
     final List<Throwable> throwables = Lists.newArrayList();

@@ -21,6 +21,7 @@ package org.sonar.api.checks;
 
 import org.hamcrest.Matcher;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
@@ -30,10 +31,12 @@ import java.util.Arrays;
 
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 public class AnnotationCheckFactoryTest {
+
+  @org.junit.Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void createCheckWithoutProperties() {
@@ -62,8 +65,10 @@ public class AnnotationCheckFactoryTest {
     assertThat(((CheckWithStringProperty) check).getPattern(), is("foo"));
   }
 
-  @Test(expected = SonarException.class)
+  @Test
   public void failIfMissingProperty() {
+    thrown.expect(SonarException.class);
+
     RulesProfile profile = RulesProfile.create("repo", "java");
     Rule rule = Rule.create("repo", "org.sonar.api.checks.CheckWithStringProperty", "");
     rule.createParameter("unknown");
@@ -121,8 +126,10 @@ public class AnnotationCheckFactoryTest {
     assertThat(((ImplementedCheck) check).getMax(), is(300));
   }
 
-  @Test(expected = SonarException.class)
+  @Test
   public void failIfPropertyTypeIsNotSupported() {
+    thrown.expect(SonarException.class);
+
     RulesProfile profile = RulesProfile.create("repo", "java");
     Rule rule = Rule.create("repo", "org.sonar.api.checks.CheckWithUnsupportedPropertyType", "");
     rule.createParameter("max");
@@ -157,5 +164,37 @@ public class AnnotationCheckFactoryTest {
     AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, "repo", Arrays.<Class>asList(CheckWithKey.class));
 
     assertThat(factory.getChecks(), (Matcher) not(hasItems(nullValue())));
+  }
+
+  /**
+   * SONAR-2900
+   */
+  @Test
+  public void create_accept_objects() {
+    RulesProfile profile = RulesProfile.create("repo", "java");
+    ActiveRule activeRule = profile.activateRule(Rule.create("repo", "org.sonar.api.checks.CheckWithoutProperties", ""), null);
+    CheckWithoutProperties checkInstance = new CheckWithoutProperties();
+    AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, "repo", Arrays.asList(checkInstance));
+
+    Object check = factory.getCheck(activeRule);
+    assertNotNull(check);
+    assertSame(check, checkInstance);
+  }
+
+  @Test
+  public void create_instance_with_string_property() {
+    RulesProfile profile = RulesProfile.create("repo", "java");
+    Rule rule = Rule.create("repo", "org.sonar.api.checks.CheckWithStringProperty", "");
+    rule.createParameter("pattern");
+
+    ActiveRule activeRule = profile.activateRule(rule, null);
+    activeRule.setParameter("pattern", "foo");
+    CheckWithStringProperty checkInstance = new CheckWithStringProperty();
+    AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, "repo", Arrays.asList(checkInstance));
+
+    Object check = factory.getCheck(activeRule);
+    assertNotNull(check);
+    assertSame(check, checkInstance);
+    assertThat(checkInstance.getPattern(), is("foo"));
   }
 }

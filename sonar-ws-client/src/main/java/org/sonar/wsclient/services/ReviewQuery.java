@@ -40,8 +40,8 @@ public class ReviewQuery extends Query<Review> {
   private String[] severities;
   private String[] projectKeysOrIds;
   private String[] resourceKeysOrIds;
-  private String[] authorLoginsOrIds;
-  private String[] assigneeLoginsOrIds;
+  private String[] authorLogins;
+  private String[] assigneeLogins;
   private String output;
   private String[] resolutions;
 
@@ -165,34 +165,68 @@ public class ReviewQuery extends Query<Review> {
   }
 
   /**
-   * @return the authorLoginsOrIds
+   * @deprecated since 2.15. Searching by user ID is not possible anymore. Use {@link #getAuthorLogins()} instead.
    */
+  @Deprecated
   public String[] getAuthorLoginsOrIds() {
-    return authorLoginsOrIds;
+    return authorLogins;
   }
 
   /**
-   * @param authorLoginsOrIds
-   *          the authorLoginsOrIds to set
+   * @deprecated since 2.15. Searching by user ID is not possible anymore. Use {@link #setAuthorLogins(String...)} instead.
    */
+  @Deprecated
   public ReviewQuery setAuthorLoginsOrIds(String... authorLoginsOrIds) {
-    this.authorLoginsOrIds = authorLoginsOrIds;
+    setAuthorLogins(authorLoginsOrIds);
     return this;
   }
 
   /**
-   * @return the assigneeLoginsOrIds
+   * @return the authorLogins
    */
-  public String[] getAssigneeLoginsOrIds() {
-    return assigneeLoginsOrIds;
+  public String[] getAuthorLogins() {
+    return authorLogins;
   }
 
   /**
-   * @param assigneeLoginsOrIds
-   *          the assigneeLoginsOrIds to set
+   * @param authorLogins
+   *          the authorLogins to set
    */
+  public ReviewQuery setAuthorLogins(String... authorLogins) {
+    this.authorLogins = authorLogins;
+    return this;
+  }
+
+  /**
+   * @deprecated since 2.15. Searching by user ID is not possible anymore. Use {@link #getAssigneeLogins()} instead.
+   */
+  @Deprecated
+  public String[] getAssigneeLoginsOrIds() {
+    return assigneeLogins;
+  }
+
+  /**
+   * @deprecated since 2.15. Searching by user ID is not possible anymore. Use {@link #setAssigneeLogins(String...)} instead.
+   */
+  @Deprecated
   public ReviewQuery setAssigneeLoginsOrIds(String... assigneeLoginsOrIds) {
-    this.assigneeLoginsOrIds = assigneeLoginsOrIds;
+    setAssigneeLogins(assigneeLoginsOrIds);
+    return this;
+  }
+
+  /**
+   * @return the assigneeLogins
+   */
+  public String[] getAssigneeLogins() {
+    return assigneeLogins;
+  }
+
+  /**
+   * @param assigneeLogins
+   *          the assigneeLogins to set
+   */
+  public ReviewQuery setAssigneeLogins(String... assigneeLogins) {
+    this.assigneeLogins = assigneeLogins;
     return this;
   }
 
@@ -241,8 +275,8 @@ public class ReviewQuery extends Query<Review> {
     appendUrlParameter(url, "severities", severities);
     appendUrlParameter(url, "projects", projectKeysOrIds);
     appendUrlParameter(url, "resources", resourceKeysOrIds);
-    appendUrlParameter(url, "authors", authorLoginsOrIds);
-    appendUrlParameter(url, "assignees", assigneeLoginsOrIds);
+    appendUrlParameter(url, "authors", authorLogins);
+    appendUrlParameter(url, "assignees", assigneeLogins);
     appendUrlParameter(url, "output", output);
     appendUrlParameter(url, "resolutions", resolutions);
     if (resolutions == null && reviewType != null) {

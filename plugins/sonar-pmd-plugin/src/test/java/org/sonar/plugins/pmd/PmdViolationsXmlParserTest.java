@@ -19,37 +19,31 @@
  */
 package org.sonar.plugins.pmd;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.File;
-import java.net.URISyntaxException;
-import java.util.Arrays;
-
-import javax.xml.stream.XMLStreamException;
-
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.test.IsViolation;
 
+import java.io.File;
+import java.util.Arrays;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.*;
+
 public class PmdViolationsXmlParserTest {
 
-  private void parse(SensorContext context, String xmlPath) throws URISyntaxException, XMLStreamException {
+  private void parse(SensorContext context, String xmlPath, boolean useIndexedResources) throws Exception {
     ProjectFileSystem fileSystem = mock(ProjectFileSystem.class);
     when(fileSystem.getSourceDirs()).thenReturn(Arrays.asList(new File("/test/src/main/java")));
 
@@ -64,7 +58,11 @@ public class PmdViolationsXmlParserTest {
       }
     });
 
-    when(context.getResource((JavaFile) any())).thenReturn(new JavaFile(""));
+    if (useIndexedResources) {
+      when(context.getResource((JavaFile) any())).thenReturn(new JavaFile(""));
+    } else {
+      when(context.getResource((JavaFile) any())).thenReturn(null);
+    }
 
     PmdViolationsXmlParser parser = new PmdViolationsXmlParser(project, ruleFinder, context);
 
@@ -73,56 +71,63 @@ public class PmdViolationsXmlParserTest {
   }
 
   @Test
-  public void shouldSaveViolationsOnClasses() throws URISyntaxException, XMLStreamException {
+  public void shouldSaveViolationsOnFiles() throws Exception {
     SensorContext context = mock(SensorContext.class);
-    parse(context, "/org/sonar/plugins/pmd/pmd-result.xml");
+    parse(context, "/org/sonar/plugins/pmd/pmd-result.xml", true);
 
-    verify(context, times(30)).saveViolation(argThat(new IsViolationOnJavaClass()));
-    verify(context, times(4)).saveViolation(argThat(new IsViolationOnJavaClass(new JavaFile("ch.hortis.sonar.mvn.ClassWithComments"))));
+    verify(context, times(30)).saveViolation(argThat(new IsViolationOnJavaFile()));
+    verify(context, times(4)).saveViolation(argThat(new IsViolationOnJavaFile(new JavaFile("ch.hortis.sonar.mvn.ClassWithComments"))));
 
     Violation wanted = Violation.create((Rule) null, new JavaFile("ch.hortis.sonar.mvn.ClassWithComments"))
-        .setMessage("Avoid unused local variables such as 'toto'.")
-        .setLineId(22);
+      .setMessage("Avoid unused local variables such as 'toto'.")
+      .setLineId(22);
     verify(context, times(1)).saveViolation(argThat(new IsViolation(wanted)));
   }
 
   @Test
-  public void defaultPackageShouldBeSetOnclassWithoutPackage() throws URISyntaxException, XMLStreamException {
+  public void shouldIgnoreNonIndexedResources() throws Exception {
     SensorContext context = mock(SensorContext.class);
-    parse(context, "/org/sonar/plugins/pmd/pmd-class-without-package.xml");
-    verify(context, times(3)).saveViolation(argThat(new IsViolationOnJavaClass(new JavaFile("ClassOnDefaultPackage"))));
+    parse(context, "/org/sonar/plugins/pmd/pmd-result.xml", false);
+
+    verify(context, never()).saveViolation(argThat(new IsViolationOnJavaFile()));
   }
 
   @Test
-  public void unknownXMLEntity() throws URISyntaxException, XMLStreamException {
+  public void defaultPackageShouldBeSetOnClassWithoutPackage() throws Exception {
     SensorContext context = mock(SensorContext.class);
-    parse(context, "/org/sonar/plugins/pmd/pmd-result-with-unknown-entity.xml");
-    verify(context, times(2)).saveViolation(argThat(new IsViolationOnJavaClass(new JavaFile("test.Test"))));
+    parse(context, "/org/sonar/plugins/pmd/pmd-class-without-package.xml", true);
+    verify(context, times(3)).saveViolation(argThat(new IsViolationOnJavaFile(new JavaFile("ClassOnDefaultPackage"))));
   }
 
   @Test
-  public void ISOControlCharsXMLFile() throws URISyntaxException, XMLStreamException {
+  public void unknownXMLEntity() throws Exception {
     SensorContext context = mock(SensorContext.class);
-    parse(context, "/org/sonar/plugins/pmd/pmd-result-with-control-char.xml");
-    verify(context, times(1)).saveViolation(argThat(new IsViolationOnJavaClass(new JavaFile("test.Test"))));
+    parse(context, "/org/sonar/plugins/pmd/pmd-result-with-unknown-entity.xml", true);
+    verify(context, times(2)).saveViolation(argThat(new IsViolationOnJavaFile(new JavaFile("test.Test"))));
   }
 
-  private class IsViolationOnJavaClass extends BaseMatcher<Violation> {
+  @Test
+  public void ISOControlCharsXMLFile() throws Exception {
+    SensorContext context = mock(SensorContext.class);
+    parse(context, "/org/sonar/plugins/pmd/pmd-result-with-control-char.xml", true);
+    verify(context, times(1)).saveViolation(argThat(new IsViolationOnJavaFile(new JavaFile("test.Test"))));
+  }
 
-    private JavaFile javaClass;
+  private class IsViolationOnJavaFile extends BaseMatcher<Violation> {
+    private JavaFile javaFile;
 
-    private IsViolationOnJavaClass(JavaFile javaClass) {
-      this.javaClass = javaClass;
+    private IsViolationOnJavaFile(JavaFile javaFile) {
+      this.javaFile = javaFile;
     }
 
-    private IsViolationOnJavaClass() {
+    private IsViolationOnJavaFile() {
     }
 
     public boolean matches(Object o) {
       Violation v = (Violation) o;
       boolean ok = (v.getResource() != null) && (v.getResource() instanceof JavaFile);
-      if (ok && javaClass != null) {
-        ok = javaClass.equals(v.getResource());
+      if (ok && javaFile != null) {
+        ok = javaFile.equals(v.getResource());
       }
       return ok;
     }

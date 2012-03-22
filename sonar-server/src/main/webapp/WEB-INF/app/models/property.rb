@@ -54,10 +54,9 @@ class Property < ActiveRecord::Base
     if prop.valid?
       Property.transaction do
         Property.delete_all('prop_key' => key, 'resource_id' => resource_id, 'user_id' => nil)
-        if prop.save
-          reload_java_configuration
-        end
+        prop.save
       end
+      reload_java_configuration
     end
     prop
   end

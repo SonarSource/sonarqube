@@ -21,6 +21,7 @@ package org.sonar.server.ui;
 
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.config.License;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
@@ -409,6 +410,10 @@ public final class JRubyFacade {
 
   public String generateRandomSecretKey() {
     return getContainer().getComponentByType(Settings.class).getEncryption().generateRandomSecretKey();
+  }
+  
+  public License parseLicense(String base64) {
+    return License.readBase64(base64);
   }
 
 

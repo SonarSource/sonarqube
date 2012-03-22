@@ -38,10 +38,11 @@ public final class PropertyDefinition {
 
     private String errorKey = null;
 
-    private static Result newError(String key) {
+    private static Result newError(@Nullable String key) {
       return new Result(key);
     }
 
+    @Nullable
     private Result(String errorKey) {
       this.errorKey = errorKey;
     }
@@ -50,7 +51,8 @@ public final class PropertyDefinition {
       return StringUtils.isBlank(errorKey);
     }
 
-    public @Nullable String getErrorKey() {
+    @Nullable
+    public String getErrorKey() {
       return errorKey;
     }
   }
@@ -80,12 +82,17 @@ public final class PropertyDefinition {
   }
 
   private PropertyType fixType(String key, PropertyType type) {
-    // Auto-detect passwords for old versions of plugins that
-    // do not declare the type
-    if (type==PropertyType.STRING && StringUtils.endsWith(key, ".password.secured")) {
-      return PropertyType.PASSWORD;
+    // Auto-detect passwords and licenses for old versions of plugins that
+    // do not declare property types
+    PropertyType fix = type;
+    if (type == PropertyType.STRING) {
+      if (StringUtils.endsWith(key, ".password.secured")) {
+        fix = PropertyType.PASSWORD;
+      } else if (StringUtils.endsWith(key, ".license.secured")) {
+        fix = PropertyType.LICENSE;
+      }
     }
-    return type;
+    return fix;
   }
 
   @VisibleForTesting
@@ -142,7 +149,7 @@ public final class PropertyDefinition {
   }
 
   public String[] getOptions() {
-    return options;
+    return options.clone();
   }
 
   public String getDescription() {

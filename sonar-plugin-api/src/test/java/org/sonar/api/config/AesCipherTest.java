@@ -20,9 +20,11 @@
 package org.sonar.api.config;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
+import org.hamcrest.Matchers;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
 
 import javax.crypto.BadPaddingException;
@@ -38,6 +40,9 @@ import static org.junit.Assert.fail;
 
 public class AesCipherTest {
 
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
   @Test
   public void generateRandomSecretKey() {
     AesCipher cipher = new AesCipher(new Settings());
@@ -51,7 +56,7 @@ public class AesCipherTest {
   @Test
   public void encrypt() throws Exception {
     Settings settings = new Settings();
-    settings.setProperty(CoreProperties.ENCRYPTION_SECRET_KEY_FILE, pathToSecretKey());
+    settings.setProperty(CoreProperties.ENCRYPTION_SECRET_KEY_PATH, pathToSecretKey());
     AesCipher cipher = new AesCipher(settings);
 
     String encryptedText = cipher.encrypt("this is a secret");
@@ -61,9 +66,22 @@ public class AesCipherTest {
   }
 
   @Test
+  public void encrypt_bad_key() throws Exception {
+    thrown.expect(RuntimeException.class);
+    thrown.expectMessage("Invalid AES key");
+
+    URL resource = getClass().getResource("/org/sonar/api/config/AesCipherTest/bad_secret_key.txt");
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.ENCRYPTION_SECRET_KEY_PATH, new File(resource.toURI()).getCanonicalPath());
+    AesCipher cipher = new AesCipher(settings);
+
+    cipher.encrypt("this is a secret");
+  }
+
+  @Test
   public void decrypt() throws Exception {
     Settings settings = new Settings();
-    settings.setProperty(CoreProperties.ENCRYPTION_SECRET_KEY_FILE, pathToSecretKey());
+    settings.setProperty(CoreProperties.ENCRYPTION_SECRET_KEY_PATH, pathToSecretKey());
     AesCipher cipher = new AesCipher(settings);
 
     // the following value has been encrypted with the key /org/sonar/api/config/AesCipherTest/aes_secret_key.txt
@@ -76,7 +94,7 @@ public class AesCipherTest {
   public void decrypt_bad_key() throws Exception {
     URL resource = getClass().getResource("/org/sonar/api/config/AesCipherTest/bad_secret_key.txt");
     Settings settings = new Settings();
-    settings.setProperty(CoreProperties.ENCRYPTION_SECRET_KEY_FILE, new File(resource.toURI()).getCanonicalPath());
+    settings.setProperty(CoreProperties.ENCRYPTION_SECRET_KEY_PATH, new File(resource.toURI()).getCanonicalPath());
     AesCipher cipher = new AesCipher(settings);
 
     try {
@@ -92,7 +110,7 @@ public class AesCipherTest {
   public void decrypt_other_key() throws Exception {
     URL resource = getClass().getResource("/org/sonar/api/config/AesCipherTest/other_secret_key.txt");
     Settings settings = new Settings();
-    settings.setProperty(CoreProperties.ENCRYPTION_SECRET_KEY_FILE, new File(resource.toURI()).getCanonicalPath());
+    settings.setProperty(CoreProperties.ENCRYPTION_SECRET_KEY_PATH, new File(resource.toURI()).getCanonicalPath());
     AesCipher cipher = new AesCipher(settings);
 
     try {
@@ -108,7 +126,7 @@ public class AesCipherTest {
   @Test
   public void encryptThenDecrypt() throws Exception {
     Settings settings = new Settings();
-    settings.setProperty(CoreProperties.ENCRYPTION_SECRET_KEY_FILE, pathToSecretKey());
+    settings.setProperty(CoreProperties.ENCRYPTION_SECRET_KEY_PATH, pathToSecretKey());
     AesCipher cipher = new AesCipher(settings);
 
     assertThat(cipher.decrypt(cipher.encrypt("foo")), is("foo"));
@@ -144,17 +162,40 @@ public class AesCipherTest {
     assertThat(secretKey.getEncoded().length, greaterThan(10));
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void loadSecretKeyFromFile_file_does_not_exist() throws Exception {
+    thrown.expect(IllegalStateException.class);
+
     AesCipher cipher = new AesCipher(new Settings());
     cipher.loadSecretFileFromFile("/file/does/not/exist");
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void loadSecretKeyFromFile_no_property() throws Exception {
+    thrown.expect(IllegalStateException.class);
+
     AesCipher cipher = new AesCipher(new Settings());
     cipher.loadSecretFileFromFile(null);
   }
+
+  @Test
+  public void hasSecretKey() throws Exception {
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.ENCRYPTION_SECRET_KEY_PATH, pathToSecretKey());
+    AesCipher cipher = new AesCipher(settings);
+
+    assertThat(cipher.hasSecretKey(), Matchers.is(true));
+  }
+
+  @Test
+  public void doesNotHaveSecretKey() throws Exception {
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.ENCRYPTION_SECRET_KEY_PATH, "/my/twitter/id/is/SimonBrandhof");
+    AesCipher cipher = new AesCipher(settings);
+
+    assertThat(cipher.hasSecretKey(), Matchers.is(false));
+  }
+
 
   private String pathToSecretKey() throws Exception {
     URL resource = getClass().getResource("/org/sonar/api/config/AesCipherTest/aes_secret_key.txt");

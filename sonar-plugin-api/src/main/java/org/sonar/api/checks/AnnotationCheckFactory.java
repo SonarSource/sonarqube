@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.ActiveRuleParam;
+import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.api.utils.FieldUtils2;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.Check;
@@ -41,39 +42,42 @@ import java.util.Map;
  */
 public final class AnnotationCheckFactory extends CheckFactory {
 
-  private Map<String, Class> checkClassesByKey = Maps.newHashMap();
+  private Map<String, Object> checksByKey = Maps.newHashMap();
 
-  private AnnotationCheckFactory(RulesProfile profile, String repositoryKey, Collection<Class> checkClasses) {
+  private AnnotationCheckFactory(RulesProfile profile, String repositoryKey, Collection checks) {
     super(profile, repositoryKey);
-    groupClassesByKey(checkClasses);
+    groupByKey(checks);
   }
 
-  public static AnnotationCheckFactory create(RulesProfile profile, String repositoryKey, Collection<Class> checkClasses) {
+  public static AnnotationCheckFactory create(RulesProfile profile, String repositoryKey, Collection checkClasses) {
     AnnotationCheckFactory factory = new AnnotationCheckFactory(profile, repositoryKey, checkClasses);
     factory.init();
     return factory;
   }
 
-  private void groupClassesByKey(Collection<Class> checkClasses) {
-    for (Class checkClass : checkClasses) {
-      String key = getRuleKey(checkClass);
+  private void groupByKey(Collection checks) {
+    for (Object check : checks) {
+      String key = getRuleKey(check);
       if (key != null) {
-        checkClassesByKey.put(key, checkClass);
+        checksByKey.put(key, check);
       }
     }
   }
 
   protected Object createCheck(ActiveRule activeRule) {
-    Class clazz = checkClassesByKey.get(activeRule.getConfigKey());
-    if (clazz != null) {
-      return instantiate(activeRule, clazz);
+    Object object = checksByKey.get(activeRule.getConfigKey());
+    if (object != null) {
+      return instantiate(activeRule, object);
     }
     return null;
   }
 
-  private Object instantiate(ActiveRule activeRule, Class clazz) {
+  private Object instantiate(ActiveRule activeRule, Object checkClassOrInstance) {
     try {
-      Object check = clazz.newInstance();
+      Object check = checkClassOrInstance;
+      if (check instanceof Class) {
+        check = ((Class) checkClassOrInstance).newInstance();
+      }
       configureFields(activeRule, check);
       return check;
 
@@ -163,18 +167,22 @@ public final class AnnotationCheckFactory extends CheckFactory {
     return null;
   }
 
-  private String getRuleKey(Class annotatedClass) {
+  private String getRuleKey(Object annotatedClassOrObject) {
     String key = null;
-    Rule ruleAnnotation = (Rule) annotatedClass.getAnnotation(Rule.class);
+    Rule ruleAnnotation = AnnotationUtils.getClassAnnotation(annotatedClassOrObject, Rule.class);
     if (ruleAnnotation != null) {
       key = ruleAnnotation.key();
     } else {
-      Check checkAnnotation = (Check) annotatedClass.getAnnotation(Check.class);
+      Check checkAnnotation = AnnotationUtils.getClassAnnotation(annotatedClassOrObject, Check.class);
       if (checkAnnotation != null) {
         key = checkAnnotation.key();
 
       }
     }
-    return StringUtils.defaultIfEmpty(key, annotatedClass.getCanonicalName());
+    Class clazz = annotatedClassOrObject.getClass();
+    if (annotatedClassOrObject instanceof Class) {
+      clazz = (Class) annotatedClassOrObject;
+    }
+    return StringUtils.defaultIfEmpty(key, clazz.getCanonicalName());
   }
 }

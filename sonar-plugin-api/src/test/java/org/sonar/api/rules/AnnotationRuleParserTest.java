@@ -19,15 +19,16 @@
  */
 package org.sonar.api.rules;
 
-import org.junit.Test;
-import org.sonar.check.IsoCategory;
-import org.sonar.check.Priority;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
 
 import java.util.Collections;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import org.junit.Test;
+import org.sonar.check.IsoCategory;
+import org.sonar.check.Priority;
 
 public class AnnotationRuleParserTest {
 
@@ -38,6 +39,7 @@ public class AnnotationRuleParserTest {
     Rule rule = rules.get(0);
     assertThat(rule.getKey(), is("foo"));
     assertThat(rule.getName(), is("bar"));
+    assertThat(rule.getDescription(), is("Foo Bar"));
     assertThat(rule.getSeverity(), is(RulePriority.BLOCKER));
     assertThat(rule.getParams().size(), is(1));
     RuleParam prop = rule.getParam("property");
@@ -47,13 +49,14 @@ public class AnnotationRuleParserTest {
   }
 
   @Test
-  public void ruleWithoutName() {
-    List<Rule> rules = parseAnnotatedClass(RuleWithoutName.class);
+  public void ruleWithoutNameNorDescription() {
+    List<Rule> rules = parseAnnotatedClass(RuleWithoutNameNorDescription.class);
     assertThat(rules.size(), is(1));
     Rule rule = rules.get(0);
     assertThat(rule.getKey(), is("foo"));
-    assertThat(rule.getName(), is("foo"));
     assertThat(rule.getSeverity(), is(RulePriority.MAJOR));
+    assertThat(rule.getName(), is(nullValue()));
+    assertThat(rule.getDescription(), is(nullValue()));
   }
 
   @Test
@@ -63,6 +66,7 @@ public class AnnotationRuleParserTest {
     Rule rule = rules.get(0);
     assertThat(rule.getKey(), is(RuleWithoutKey.class.getCanonicalName()));
     assertThat(rule.getName(), is("foo"));
+    assertThat(rule.getDescription(), is(nullValue()));
     assertThat(rule.getSeverity(), is(RulePriority.MAJOR));
   }
 
@@ -86,10 +90,10 @@ public class AnnotationRuleParserTest {
   }
 
   @org.sonar.check.Rule(key = "foo")
-  private class RuleWithoutName {
+  private class RuleWithoutNameNorDescription {
   }
 
-  @org.sonar.check.Rule(key = "foo", name = "bar", priority = Priority.BLOCKER)
+  @org.sonar.check.Rule(key = "foo", name = "bar", description = "Foo Bar", priority = Priority.BLOCKER)
   private class RuleWithProperty {
     @org.sonar.check.RuleProperty(description = "Ignore ?", defaultValue = "false")
     String property;

@@ -27,43 +27,6 @@ import java.util.List;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 
-public class AnnotationIntrospectorTest {
-
-  @Test
-  public void defaultCheckKeyIsClassname() {
-    assertThat(AnnotationIntrospector.getCheckKey(SimplestCheck.class), is(SimplestCheck.class.getCanonicalName()));
-  }
-
-  @Test
-  public void checkKeyCanBeOverriden() {
-    assertThat(AnnotationIntrospector.getCheckKey(CheckWithOverridenKey.class), is("overridenKey"));
-  }
-
-  @Test
-  public void noProperties() {
-    assertThat(AnnotationIntrospector.getPropertyFields(SimplestCheck.class).size(), is(0));
-  }
-
-  @Test
-  public void getProperties() {
-    List<Field> fields = AnnotationIntrospector.getPropertyFields(CheckWithProperties.class);
-    assertThat(fields.size(), is(2));
-
-    assertThat(fields.get(0).getName(), is("active"));
-    assertThat(AnnotationIntrospector.getPropertyFieldKey(fields.get(0)), is("active"));
-
-    assertThat(fields.get(1).getName(), is("max"));
-    assertThat(AnnotationIntrospector.getPropertyFieldKey(fields.get(1)), is("Maximum"));
-  }
-
-
-  @Test
-  public void getCheckAnnotation() {
-    assertNotNull(AnnotationIntrospector.getCheckAnnotation(SimplestCheck.class));
-    assertNull(AnnotationIntrospector.getCheckAnnotation(String.class));
-  }
-}
-
 
 @Check(isoCategory = IsoCategory.Portability, priority = Priority.CRITICAL)
 class SimplestCheck {

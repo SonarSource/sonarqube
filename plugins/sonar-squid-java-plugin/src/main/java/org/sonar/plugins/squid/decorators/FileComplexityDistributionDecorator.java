@@ -30,11 +30,11 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
 
 /**
- * @since 2.6
+ * @since 2.15
  */
-public final class ClassComplexityDistributionBuilder implements Decorator {
+public class FileComplexityDistributionDecorator implements Decorator {
 
-  private static final Number[] LIMITS = { 0, 5, 10, 20, 30, 60, 90 };
+  private static final Number[] LIMITS = {0, 5, 10, 20, 30, 60, 90};
 
   @DependsUpon
   public Metric dependOnComplexity() {
@@ -42,32 +42,28 @@ public final class ClassComplexityDistributionBuilder implements Decorator {
   }
 
   @DependedUpon
-  public Metric generatesFunctionComplexityDistribution() {
-    return CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION;
+  public Metric generatesComplexityDistribution() {
+    return CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION;
   }
 
+  public boolean shouldExecuteOnProject(Project project) {
+    return Java.KEY.equals(project.getLanguageKey());
+  }
+
+  private static boolean shouldExecuteOn(Resource resource, DecoratorContext context) {
+    return Scopes.isFile(resource) && context.getMeasure(CoreMetrics.COMPLEXITY) != null;
+  }
+
+  @Override
   public void decorate(Resource resource, DecoratorContext context) {
     if (shouldExecuteOn(resource, context)) {
-      RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, LIMITS);
-      for (DecoratorContext childContext : context.getChildren()) {
-        if (Scopes.isProgramUnit(childContext.getResource())) {
-          Measure complexity = childContext.getMeasure(CoreMetrics.COMPLEXITY);
-          if (complexity != null) {
-            builder.add(complexity.getValue());
-          }
-        }
-      }
+      RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION, LIMITS);
+      Measure complexity = context.getMeasure(CoreMetrics.COMPLEXITY);
+      builder.add(complexity.getValue());
       Measure measure = builder.build(true);
       measure.setPersistenceMode(PersistenceMode.MEMORY);
       context.saveMeasure(measure);
     }
   }
 
-  boolean shouldExecuteOn(Resource resource, DecoratorContext context) {
-    return Scopes.isFile(resource) && context.getMeasure(CoreMetrics.COMPLEXITY) != null;
-  }
-
-  public boolean shouldExecuteOnProject(Project project) {
-    return Java.KEY.equals(project.getLanguageKey());
-  }
 }
