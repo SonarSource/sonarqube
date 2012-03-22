@@ -33,6 +33,7 @@ import org.sonar.java.ast.check.ContinueCheck;
 import org.sonar.java.ast.check.UndocumentedApiCheck;
 import org.sonar.java.bytecode.check.ArchitectureCheck;
 import org.sonar.java.bytecode.check.CallToDeprecatedMethodCheck;
+import org.sonar.java.bytecode.check.LCOM4Check;
 import org.sonar.java.bytecode.check.UnusedPrivateMethodCheck;
 import org.sonar.java.bytecode.check.UnusedProtectedMethodCheck;
 import org.sonar.java.squid.check.*;
@@ -55,7 +56,7 @@ public final class SquidRuleRepository extends RuleRepository {
     return Arrays.asList(
         // Bytecode checks
         (Class) CallToDeprecatedMethodCheck.class, UnusedPrivateMethodCheck.class, UnusedProtectedMethodCheck.class,
-        ArchitectureCheck.class,
+        ArchitectureCheck.class, LCOM4Check.class, 
         // AST checks
         UndocumentedApiCheck.class, ContinueCheck.class, BreakCheck.class,
         // Squid checks
