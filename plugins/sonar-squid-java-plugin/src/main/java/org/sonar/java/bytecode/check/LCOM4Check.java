@@ -32,7 +32,7 @@ import org.sonar.squid.measures.Metric;
 import org.sonar.squid.measures.MetricDef;
 
 @Rule(key = "LCOM4 Suspect", priority = Priority.MAJOR, cardinality = Cardinality.MULTIPLE, 
-description="TODO")
+description="Detects classes that should be reviewed because of a high LCOM4 metric. It possibly violates the Single Responsibility Principle.")
 public class LCOM4Check extends BytecodeVisitor {
 	
 	public static final int MAX_LCOM4_DEFAULT = 1;
@@ -46,16 +46,20 @@ public class LCOM4Check extends BytecodeVisitor {
 
 	@Override
 	public void leaveClass(AsmClass asmClass) {
-	    String nameAsmClass = asmClass.getInternalName();
-	    if (WildcardPattern.match(getForClasses(), nameAsmClass)) {
-	    	Integer lcom4 = (Integer) getSourceClass(asmClass).getInt((MetricDef) Metric.LCOM4);
-	    	if (lcom4!=null && lcom4 > getMax()) {
-	    		CheckMessage message = new CheckMessage(this, "Class '" + nameAsmClass + "' has an LCOM4 of " + lcom4 + ", which is higher than the configured maximum of " + getMax() + ".");
-	    		message.setLine(getSourceFile(asmClass).getStartAtLine());
-	    		message.setCost(lcom4 - getMax());
-	    		getSourceFile(asmClass).log(message);
-	    	}
+	    String className = asmClass.getInternalName();
+	    if (WildcardPattern.match(getForClasses(), className)) {
+	    	addMessageWhenRuleViolated(asmClass, className, getSourceClass(asmClass).getInt(Metric.LCOM4));
 	    }
+	}
+
+	private void addMessageWhenRuleViolated(AsmClass asmClass,
+			String className, Integer lcom4) {
+		if (lcom4!=null && lcom4 > getMax()) {
+			CheckMessage message = new CheckMessage(this, "Class '" + className + "' has an LCOM4 of " + lcom4 + ", which is higher than the configured maximum of " + getMax() + ".");
+			message.setLine(getSourceFile(asmClass).getStartAtLine());
+			message.setCost(lcom4 - getMax());
+			getSourceFile(asmClass).log(message);
+		}
 	}
 
 	public WildcardPattern[] getForClasses() {
@@ -65,16 +69,16 @@ public class LCOM4Check extends BytecodeVisitor {
 		return forClasses;
 	}
 
-	public void setForClasses(WildcardPattern[] includedClasses) {
-		this.forClasses = includedClasses;
+	public void setForClasses(WildcardPattern[] forClasses) {
+		this.forClasses = forClasses;
 	}
 
 	public int getMax() {
 		return max;
 	}
 
-	public void setMax(int maxLcom4) {
-		this.max = maxLcom4;
+	public void setMax(int max) {
+		this.max = max;
 	}
 	
 	
