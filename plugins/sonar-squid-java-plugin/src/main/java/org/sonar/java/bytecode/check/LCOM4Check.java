@@ -56,7 +56,7 @@ public class LCOM4Check extends BytecodeVisitor {
 			String className, Integer lcom4) {
 		if (lcom4!=null && lcom4 > getMax()) {
 			CheckMessage message = new CheckMessage(this, "Class '" + className + "' has an LCOM4 of " + lcom4 + ", which is higher than the configured maximum of " + getMax() + ".");
-			message.setLine(getSourceFile(asmClass).getStartAtLine());
+			message.setLine(getSourceClass(asmClass).getStartAtLine());
 			message.setCost(lcom4 - getMax());
 			getSourceFile(asmClass).log(message);
 		}

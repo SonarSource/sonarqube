@@ -134,7 +134,7 @@ public class LCOM4CheckTest {
 			for (CheckMessage checkMessage : messages) {
 				assertThat(checkMessage.getText(Locale.getDefault()), containsString("LCOM4"));
 				lcomMessageCount++;
-				assertThat(checkMessage.getLine(), is(1));
+				assertThat(checkMessage.getLine(), is(sourceCode.getFirstChild().getStartAtLine()));
 				assertThat(checkMessage.getCost(), is(1.0));
 			}
 	    }
