@@ -112,12 +112,10 @@ public class CheckstyleConfiguration implements BatchExtension {
   private void defineCharset(com.puppycrawl.tools.checkstyle.api.Configuration configuration) {
     com.puppycrawl.tools.checkstyle.api.Configuration[] modules = configuration.getChildren();
     for (com.puppycrawl.tools.checkstyle.api.Configuration module : modules) {
-      if ("Checker".equals(module.getName()) || "com.puppycrawl.tools.checkstyle.Checker".equals(module.getName())) {
-        if (module instanceof DefaultConfiguration) {
-          Charset charset = getCharset();
-          LOG.info("Checkstyle charset: " + charset.name());
-          ((DefaultConfiguration) module).addAttribute("charset", charset.name());
-        }
+      if (("Checker".equals(module.getName()) || "com.puppycrawl.tools.checkstyle.Checker".equals(module.getName())) && (module instanceof DefaultConfiguration)) {
+        Charset charset = getCharset();
+        LOG.info("Checkstyle charset: " + charset.name());
+        ((DefaultConfiguration) module).addAttribute("charset", charset.name());
       }
     }
   }

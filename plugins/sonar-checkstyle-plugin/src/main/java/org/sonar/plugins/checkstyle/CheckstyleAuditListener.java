@@ -19,9 +19,12 @@
  */
 package org.sonar.plugins.checkstyle;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.puppycrawl.tools.checkstyle.api.AuditEvent;
 import com.puppycrawl.tools.checkstyle.api.AuditListener;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.JavaFile;
@@ -36,6 +39,8 @@ import org.sonar.api.rules.Violation;
  */
 public class CheckstyleAuditListener implements AuditListener, BatchExtension {
 
+  private static final Logger LOG = LoggerFactory.getLogger(CheckstyleAuditListener.class);
+
   private final SensorContext context;
   private final Project project;
   private final RuleFinder ruleFinder;
@@ -48,15 +53,15 @@ public class CheckstyleAuditListener implements AuditListener, BatchExtension {
   }
 
   public void auditStarted(AuditEvent event) {
-
+    // nop
   }
 
   public void auditFinished(AuditEvent event) {
-
+    // nop
   }
 
   public void fileStarted(AuditEvent event) {
-
+    // nop
   }
 
   public void fileFinished(AuditEvent event) {
@@ -66,12 +71,17 @@ public class CheckstyleAuditListener implements AuditListener, BatchExtension {
   public void addError(AuditEvent event) {
     String ruleKey = getRuleKey(event);
     if (ruleKey != null) {
+      String message = getMessage(event);
+      // In Checkstyle 5.5 exceptions are reported as an events from TreeWalker
+      if ("com.puppycrawl.tools.checkstyle.TreeWalker".equals(ruleKey)) {
+        LOG.warn(message);
+      }
       Rule rule = ruleFinder.findByKey(CheckstyleConstants.REPOSITORY_KEY, ruleKey);
       if (rule != null) {
         initResource(event);
         Violation violation = Violation.create(rule, currentResource)
             .setLineId(getLineId(event))
-            .setMessage(getMessage(event));
+            .setMessage(message);
         context.saveViolation(violation);
       }
     }
@@ -84,33 +94,36 @@ public class CheckstyleAuditListener implements AuditListener, BatchExtension {
     }
   }
 
+  @VisibleForTesting
   static String getRuleKey(AuditEvent event) {
     String key = null;
     try {
       key = event.getModuleId();
     } catch (Exception e) {
-      // checkstyle throws a NullPointer if the message is not set
+      // checkstyle throws a NullPointerException if the message is not set
     }
     if (StringUtils.isBlank(key)) {
       try {
         key = event.getSourceName();
       } catch (Exception e) {
-        // checkstyle can throw a NullPointer if the message is not set
+        // checkstyle can throw a NullPointerException if the message is not set
       }
     }
     return key;
   }
 
+  @VisibleForTesting
   static String getMessage(AuditEvent event) {
     try {
       return event.getMessage();
 
     } catch (Exception e) {
-      // checkstyle can throw a NullPointer if the message is not set
+      // checkstyle can throw a NullPointerException if the message is not set
       return null;
     }
   }
 
+  @VisibleForTesting
   static Integer getLineId(AuditEvent event) {
     try {
       int line = event.getLine();
@@ -123,8 +136,11 @@ public class CheckstyleAuditListener implements AuditListener, BatchExtension {
     }
   }
 
+  /**
+   * Note that this method never invoked from Checkstyle 5.5.
+   */
   public void addException(AuditEvent event, Throwable throwable) {
-    // TODO waiting for sonar technical events ?
+    // nop
   }
 
   Resource getCurrentResource() {
