@@ -19,13 +19,19 @@
  */
 package org.sonar.plugins.core.web;
 
-import org.sonar.api.resources.Java;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.web.*;
+import org.sonar.api.web.AbstractRubyTemplate;
+import org.sonar.api.web.DefaultTab;
+import org.sonar.api.web.NavigationSection;
+import org.sonar.api.web.RequiredMeasures;
+import org.sonar.api.web.ResourceQualifier;
+import org.sonar.api.web.RubyRailsPage;
+import org.sonar.api.web.UserRole;
 
+@RequiredMeasures(mandatory = {CoreMetrics.LCOM4_KEY})
 @NavigationSection(NavigationSection.RESOURCE_TAB)
 @UserRole(UserRole.CODEVIEWER)
-@ResourceLanguage(Java.KEY)
 @ResourceQualifier(Qualifiers.CLASS)
 @DefaultTab(metrics = {"lcom4", "lcom4_blocks"})
 public class Lcom4Viewer extends AbstractRubyTemplate implements RubyRailsPage {

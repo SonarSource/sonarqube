@@ -20,17 +20,20 @@
 package org.sonar.plugins.design.ui.dependencies;
 
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.resources.Java;
-
 import org.sonar.api.resources.Resource;
-import org.sonar.api.web.*;
+import org.sonar.api.web.DefaultTab;
+import org.sonar.api.web.GwtPage;
+import org.sonar.api.web.NavigationSection;
+import org.sonar.api.web.RequiredMeasures;
+import org.sonar.api.web.ResourceQualifier;
+import org.sonar.api.web.UserRole;
 import org.sonar.plugins.design.ui.dependencies.client.DependenciesTab;
 
-@ResourceLanguage({Java.KEY, "web"}) // 'web' is a temporary workaround. See http://sonar-dev.787459.n3.nabble.com/sonar-dev-Dependencies-in-Web-Plugin-td822980.html#a822980
+@RequiredMeasures(mandatory = {CoreMetrics.AFFERENT_COUPLINGS_KEY, CoreMetrics.EFFERENT_COUPLINGS_KEY})
 @ResourceQualifier({Resource.QUALIFIER_FILE, Resource.QUALIFIER_CLASS, Resource.QUALIFIER_PACKAGE, Resource.QUALIFIER_PROJECT, Resource.QUALIFIER_MODULE})
-@DefaultTab(metrics={CoreMetrics.AFFERENT_COUPLINGS_KEY, CoreMetrics.EFFERENT_COUPLINGS_KEY})
+@DefaultTab(metrics = {CoreMetrics.AFFERENT_COUPLINGS_KEY, CoreMetrics.EFFERENT_COUPLINGS_KEY})
 @NavigationSection({NavigationSection.RESOURCE_TAB})
-@UserRole(UserRole.USER) 
+@UserRole(UserRole.USER)
 public class GwtDependenciesTab extends GwtPage {
 
   public String getTitle() {
@@ -41,5 +44,3 @@ public class GwtDependenciesTab extends GwtPage {
     return DependenciesTab.GWT_ID;
   }
 }
-
-
