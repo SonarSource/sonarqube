@@ -29,46 +29,48 @@
                                     ]
    )
 
-   # And prepare the rows to display
-   snapshot_by_id={}
-   snapshots.each do |s|
-     snapshot_by_id[s.id]=s
-   end
-   rows_by_metric_id={}
-   measures.each do |measure|
-     next unless measure.metric
+   
+   if measures.size > 0
+     # Prepare the rows to display
+     snapshot_by_id={}
+     snapshots.each do |s|
+       snapshot_by_id[s.id]=s
+     end
+     rows_by_metric_id={}
+     measures.each do |measure|
+       next unless measure.metric
 
-     if measure.metric.timemachine? && (measure.value || measure.text_value)
-       row=rows_by_metric_id[measure.metric_id]
-       unless row
-         row=Sonar::TimemachineRow.new(measure.metric)
-         rows_by_metric_id[measure.metric_id]=row
+       if measure.metric.timemachine? && (measure.value || measure.text_value)
+         row=rows_by_metric_id[measure.metric_id]
+         unless row
+           row=Sonar::TimemachineRow.new(measure.metric)
+           rows_by_metric_id[measure.metric_id]=row
+         end
+
+         #optimization : avoid eager loading of snapshots
+         measure.snapshot=snapshot_by_id[measure.snapshot_id]
+         row.add_measure(measure)
        end
-
-       #optimization : avoid eager loading of snapshots
-       measure.snapshot=snapshot_by_id[measure.snapshot_id]
-       row.add_measure(measure)
      end
-   end
 
-   # Create the list of rows to display in the same order as defined by the user
-   rows=[]
-   metric_ids.each do |metric_id|
-     row = rows_by_metric_id[metric_id]
-     if row
-       rows<<row
+     # Create the list of rows to display in the same order as defined by the user
+     rows=[]
+     metric_ids.each do |metric_id|
+       row = rows_by_metric_id[metric_id]
+       if row
+         rows<<row
+       end
      end
-   end
 
-   # Should display the sparkline?
-   sparkline_urls_by_row = {}
-   if widget_properties["displaySparkLine"]
-     rows.each do |row|
-       sparkline_url = row.sparkline_url
-       sparkline_urls_by_row[row] = sparkline_url if sparkline_url
+     # Should display the sparkline?
+     sparkline_urls_by_row = {}
+     if widget_properties["displaySparkLine"]
+       rows.each do |row|
+         sparkline_url = row.sparkline_url
+         sparkline_urls_by_row[row] = sparkline_url if sparkline_url
+       end
      end
-   end
-   display_sparkline = !sparkline_urls_by_row.empty?
+     display_sparkline = !sparkline_urls_by_row.empty?
 %>
 
 <div style="overflow: auto;font-size: 12px;padding: 1px;">
@@ -122,3 +124,9 @@
   </table>
 
 </div>
+
+<% else %>
+
+<span class="empty_widget"><%= message('widget.time_machine.no_data_for_selected_metrics') -%></span>
+
+<% end %>
