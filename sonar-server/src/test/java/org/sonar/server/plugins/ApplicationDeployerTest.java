@@ -23,17 +23,17 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.platform.ServerFileSystem;
 
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Collections;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -68,6 +68,22 @@ public class ApplicationDeployerTest {
   }
 
   @Test
+  public void deployRubyRailsApps_no_apps() throws Exception {
+    ServerFileSystem fileSystem = mock(ServerFileSystem.class);
+    File tempDir = this.temp.getRoot();
+    when(fileSystem.getTempDir()).thenReturn(tempDir);
+
+    PluginRepository pluginRepository = mock(PluginRepository.class);
+    when(pluginRepository.getMetadata()).thenReturn(Collections.<PluginMetadata>emptyList());
+    new ApplicationDeployer(fileSystem, pluginRepository).start();
+
+    File appDir = new File(tempDir, "ror");
+    assertThat(appDir.isDirectory(), is(true));
+    assertThat(appDir.exists(), is(true));
+    assertThat(FileUtils.listFiles(appDir, null, true).size(), is(0));
+  }
+
+  @Test
   public void prepareRubyRailsRootDirectory() throws Exception {
     ServerFileSystem fileSystem = mock(ServerFileSystem.class);
     File tempDir = this.temp.getRoot();
@@ -78,5 +94,22 @@ public class ApplicationDeployerTest {
     assertThat(dir.isDirectory(), is(true));
     assertThat(dir.exists(), is(true));
     assertThat(dir.getCanonicalPath(), is(new File(tempDir, "ror").getCanonicalPath()));
+  }
+
+  @Test
+  public void prepareRubyRailsRootDirectory_delete_existing_dir() throws Exception {
+    ServerFileSystem fileSystem = mock(ServerFileSystem.class);
+    File tempDir = this.temp.getRoot();
+    when(fileSystem.getTempDir()).thenReturn(tempDir);
+
+    File file = new File(tempDir, "ror/foo/bar.txt");
+    FileUtils.writeStringToFile(file, "foooo");
+
+    File dir = new ApplicationDeployer(fileSystem, mock(PluginRepository.class)).prepareRubyRailsRootDirectory();
+
+    assertThat(dir.isDirectory(), is(true));
+    assertThat(dir.exists(), is(true));
+    assertThat(dir.getCanonicalPath(), is(new File(tempDir, "ror").getCanonicalPath()));
+    assertThat(FileUtils.listFiles(new File(tempDir, "ror"), null, true).size(), is(0));
   }
 }

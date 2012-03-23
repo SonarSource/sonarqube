@@ -62,11 +62,7 @@ public class PluginInstaller {
 
       if (metadata.getPathsToInternalDeps().length > 0) {
         // needs to unzip the jar
-        ZipUtils.unzip(pluginFile, pluginBasedir, new ZipUtils.ZipEntryFilter() {
-          public boolean accept(ZipEntry entry) {
-            return entry.getName().startsWith("META-INF/lib");
-          }
-        });
+        ZipUtils.unzip(pluginFile, pluginBasedir, new LibFilter());
         for (String depPath : metadata.getPathsToInternalDeps()) {
           File dependency = new File(pluginBasedir, depPath);
           if (!dependency.isFile() || !dependency.exists()) {
@@ -88,6 +84,12 @@ public class PluginInstaller {
 
     } catch (IOException e) {
       throw new SonarException("Fail to install plugin: " + metadata, e);
+    }
+  }
+
+  private static class LibFilter implements ZipUtils.ZipEntryFilter {
+    public boolean accept(ZipEntry entry) {
+      return entry.getName().startsWith("META-INF/lib");
     }
   }
 
@@ -133,7 +135,7 @@ public class PluginInstaller {
       metadata.setName(pluginInstance.getName());
 
     } catch (Exception e) {
-      throw new RuntimeException("The metadata main class can not be created. Plugin file=" + pluginFile.getName() + ", class=" + mainClass, e);
+      throw new IllegalStateException("The metadata main class can not be created. Plugin file=" + pluginFile.getName() + ", class=" + mainClass, e);
     }
   }
 }
