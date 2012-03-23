@@ -61,7 +61,14 @@
    end
 
    # Should display the sparkline?
-   display_sparkline = snapshot_by_id.size > 1 && widget_properties["displaySparkLine"]
+   sparkline_urls_by_row = {}
+   if widget_properties["displaySparkLine"]
+     rows.each do |row|
+       sparkline_url = row.sparkline_url
+       sparkline_urls_by_row[row] = sparkline_url if sparkline_url
+     end
+   end
+   display_sparkline = !sparkline_urls_by_row.empty?
 %>
 
 <div style="overflow: auto;font-size: 12px;padding: 1px;">
@@ -101,8 +108,8 @@
           <td width="1%" nowrap="nowrap" class="right"><%= format_measure(measure, :skip_span_id => true) %></td>
         <% end %>
         <%
-           sparkline_url=row.sparkline_url
-           if display_sparkline && sparkline_url
+           if display_sparkline
+             sparkline_url = sparkline_urls_by_row[row]
         %>
           <td width="1%">
             <%= image_tag(sparkline_url) %>
