@@ -55,6 +55,11 @@ public class JaCoCoSensor implements Sensor, CoverageExtension {
     }
 
     @Override
+    protected String[] getExcludes(Project project) {
+      return configuration.getExcludes();
+    }
+
+    @Override
     protected void saveMeasures(SensorContext context, JavaFile resource, Collection<Measure> measures) {
       for (Measure measure : measures) {
         context.saveMeasure(resource, measure);

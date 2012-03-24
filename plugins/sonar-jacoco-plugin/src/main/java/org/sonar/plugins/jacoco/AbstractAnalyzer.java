@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.jacoco;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.jacoco.core.analysis.*;
 import org.jacoco.core.data.ExecutionDataReader;
@@ -30,6 +31,7 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.WildcardPattern;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -49,14 +51,15 @@ public abstract class AbstractAnalyzer {
     }
     String path = getReportPath(project);
     File jacocoExecutionData = project.getFileSystem().resolvePath(path);
+    WildcardPattern[] excludes = WildcardPattern.create(getExcludes(project));
     try {
-      readExecutionData(jacocoExecutionData, buildOutputDir, context);
+      readExecutionData(jacocoExecutionData, buildOutputDir, context, excludes);
     } catch (IOException e) {
       throw new SonarException(e);
     }
   }
 
-  public final void readExecutionData(File jacocoExecutionData, File buildOutputDir, SensorContext context) throws IOException {
+  public final void readExecutionData(File jacocoExecutionData, File buildOutputDir, SensorContext context, WildcardPattern[] excludes) throws IOException {
     SessionInfoStore sessionInfoStore = new SessionInfoStore();
     ExecutionDataStore executionDataStore = new ExecutionDataStore();
 
@@ -79,7 +82,9 @@ public abstract class AbstractAnalyzer {
       JavaFile resource = getResource(coverage);
       // Do not save measures on resource which doesn't exist in the context
       if (context.getResource(resource) != null) {
-        analyzeFile(resource, coverage, context);
+        if (!isExcluded(coverage, excludes)) {
+          analyzeFile(resource, coverage, context);
+        }
         analyzedResources++;
       }
     }
@@ -88,6 +93,17 @@ public abstract class AbstractAnalyzer {
     }
   }
 
+  private static boolean isExcluded(ISourceFileCoverage coverage, WildcardPattern[] excludes) {
+    String name = coverage.getPackageName() + "/" + coverage.getName();
+    for (WildcardPattern pattern : excludes) {
+      if (pattern.match(name)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @VisibleForTesting
   static JavaFile getResource(ISourceFileCoverage coverage) {
     String packageName = StringUtils.replaceChars(coverage.getPackageName(), '/', '.');
     String fileName = StringUtils.substringBeforeLast(coverage.getName(), ".");
@@ -146,5 +162,7 @@ public abstract class AbstractAnalyzer {
   protected abstract void saveMeasures(SensorContext context, JavaFile resource, Collection<Measure> measures);
 
   protected abstract String getReportPath(Project project);
+
+  protected abstract String[] getExcludes(Project project);
 
 }

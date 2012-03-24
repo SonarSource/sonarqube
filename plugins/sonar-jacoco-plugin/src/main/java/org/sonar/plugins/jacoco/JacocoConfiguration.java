@@ -144,4 +144,10 @@ public class JacocoConfiguration implements BatchExtension {
   public String[] getAntTargets() {
     return settings.getStringArray(ANT_TARGETS_PROPERTY);
   }
+
+  public String[] getExcludes() {
+    String values = settings.getString(EXCLUDES_PROPERTY);
+    return StringUtils.split(values, ':');
+  }
+
 }
