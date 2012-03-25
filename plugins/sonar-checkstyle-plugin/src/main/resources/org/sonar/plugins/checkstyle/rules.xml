@@ -802,6 +802,10 @@
 
 
     </param>
+    <param key="suppressLoadErrors" type="b">
+      <!-- Note that default value in Checkstyle 5.5 is false -->
+      <defaultValue>true</defaultValue>
+    </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocStyleCheck">
     <priority>MAJOR</priority>
@@ -1249,6 +1253,10 @@
     </param>
     <param key="allowSubclasses" type="b">
 
+    </param>
+    <param key="suppressLoadErrors" type="b">
+      <!-- Note that default value in Checkstyle 5.5 is false -->
+      <defaultValue>true</defaultValue>
     </param>
   </rule>
   <rule key="com.puppycrawl.tools.checkstyle.checks.RegexpCheck">
