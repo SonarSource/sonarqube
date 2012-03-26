@@ -15,7 +15,7 @@
     title="[null]"
     resource_id="400"
     rule_id="500"
-    manual_violation="[null]"
-    manual_severity="[null]"/>
+    manual_violation="[false]"
+    manual_severity="[false]"/>
 
 </dataset>
