@@ -33,8 +33,10 @@ import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.StaxParser;
 
 import javax.xml.stream.XMLStreamException;
+
 import java.io.File;
 
+@Deprecated
 class PmdViolationsXmlParser {
 
   private Project project;

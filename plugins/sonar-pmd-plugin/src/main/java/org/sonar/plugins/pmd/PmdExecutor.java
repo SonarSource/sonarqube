@@ -49,7 +49,7 @@ public class PmdExecutor implements BatchExtension {
     this.configuration = configuration;
   }
 
-  public File execute() throws IOException, PMDException {
+  public Report execute() throws IOException, PMDException {
     TimeProfiler profiler = new TimeProfiler().start("Execute PMD " + PmdVersion.getVersion());
 
     ClassLoader initialClassLoader = Thread.currentThread().getContextClassLoader();
@@ -80,7 +80,9 @@ public class PmdExecutor implements BatchExtension {
         }
       }
 
-      return writeXmlReport(project, report);
+      writeXmlReport(project, report);
+
+      return report;
 
     } finally {
       profiler.stop();

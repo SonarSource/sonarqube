@@ -22,7 +22,9 @@ package org.sonar.plugins.pmd;
 import net.sourceforge.pmd.PMDException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
@@ -42,15 +44,19 @@ import static org.mockito.Mockito.when;
 
 public class PmdExecutorTest {
 
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
   @Test
   public void executeOnManySourceDirs() throws URISyntaxException, IOException, PMDException {
+    final File workDir = temp.getRoot();
     Project project = new Project("two-source-dirs");
 
     ProjectFileSystem fs = mock(ProjectFileSystem.class);
     File root = new File(getClass().getResource("/org/sonar/plugins/pmd/PmdExecutorTest/executeOnManySourceDirs/").toURI());
     when(fs.getSourceFiles(Java.INSTANCE)).thenReturn(Arrays.asList(new File(root, "src1/FirstClass.java"), new File(root, "src2/SecondClass.java")));
     when(fs.getSourceCharset()).thenReturn(Charset.forName("UTF-8"));
-    when(fs.getSonarWorkingDirectory()).thenReturn(new File("target"));
+    when(fs.getSonarWorkingDirectory()).thenReturn(workDir);
     project.setFileSystem(fs);
 
     PmdConfiguration conf = mock(PmdConfiguration.class);
@@ -58,7 +64,8 @@ public class PmdExecutorTest {
     when(conf.getRulesets()).thenReturn(Arrays.asList(file.getAbsolutePath()));
 
     PmdExecutor executor = new PmdExecutor(project, conf);
-    File xmlReport = executor.execute();
+    executor.execute();
+    File xmlReport = new File(workDir, "pmd-result.xml");
     assertThat(xmlReport.exists(), is(true));
 
     String xml = FileUtils.readFileToString(xmlReport);
@@ -70,19 +77,21 @@ public class PmdExecutorTest {
 
   @Test
   public void ignorePmdFailures() throws URISyntaxException, IOException, PMDException {
+    final File workDir = temp.getRoot();
     Project project = new Project("ignorePmdFailures");
 
     ProjectFileSystem fs = mock(ProjectFileSystem.class);
     when(fs.getSourceFiles(Java.INSTANCE)).thenReturn(Arrays.asList(new File("test-resources/ignorePmdFailures/DoesNotCompile.java")));
     when(fs.getSourceCharset()).thenReturn(Charset.forName("UTF-8"));
-    when(fs.getSonarWorkingDirectory()).thenReturn(new File("target"));
+    when(fs.getSonarWorkingDirectory()).thenReturn(workDir);
     project.setFileSystem(fs);
 
     PmdConfiguration conf = mock(PmdConfiguration.class);
     when(conf.getRulesets()).thenReturn(Arrays.asList(new File("test-resources/ignorePmdFailures/pmd.xml").getAbsolutePath()));
 
     PmdExecutor executor = new PmdExecutor(project, conf);
-    File xmlReport = executor.execute();
+    executor.execute();
+    File xmlReport = new File(workDir, "pmd-result.xml");
     assertThat(xmlReport.exists(), is(true));
   }
 

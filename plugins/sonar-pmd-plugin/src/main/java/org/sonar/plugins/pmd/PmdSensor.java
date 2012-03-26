@@ -19,14 +19,21 @@
  */
 package org.sonar.plugins.pmd;
 
+import net.sourceforge.pmd.IRuleViolation;
+import net.sourceforge.pmd.Report;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.XmlParserException;
 
-import java.io.File;
+import java.util.Iterator;
 
 public class PmdSensor implements Sensor {
 
@@ -42,8 +49,8 @@ public class PmdSensor implements Sensor {
 
   public void analyse(Project project, SensorContext context) {
     try {
-      File xmlReport = executor.execute();
-      getStaxParser(project, context).parse(xmlReport);
+      Report report = executor.execute();
+      analyseReport(report, project, context);
 
     } catch (Exception e) {
       // TOFIX
@@ -51,13 +58,30 @@ public class PmdSensor implements Sensor {
     }
   }
 
+  private void analyseReport(Report report, Project project, SensorContext context) {
+    Iterator<IRuleViolation> pmdViolationIter = report.iterator();
+    while (pmdViolationIter.hasNext()) {
+      IRuleViolation pmdViolation = pmdViolationIter.next();
+      int lineId = pmdViolation.getBeginLine();
+      String ruleKey = pmdViolation.getRule().getName();
+      String message = pmdViolation.getDescription();
+      String filename = pmdViolation.getFilename();
+      Resource resource = JavaFile.fromAbsolutePath(filename, project.getFileSystem().getSourceDirs(), false);
+      // Save violations only for existing resources
+      if (context.getResource(resource) != null) {
+        Rule rule = rulesFinder.findByKey(CoreProperties.PMD_PLUGIN, ruleKey);
+        // Save violations only for enabled rules
+        if (rule != null) {
+          Violation violation = Violation.create(rule, resource).setLineId(lineId).setMessage(message);
+          context.saveViolation(violation);
+        }
+      }
+    }
+  }
+
   public boolean shouldExecuteOnProject(Project project) {
     return project.getFileSystem().hasJavaSourceFiles() &&
         !profile.getActiveRulesByRepository(PmdConstants.REPOSITORY_KEY).isEmpty();
-  }
-
-  private PmdViolationsXmlParser getStaxParser(Project project, SensorContext context) {
-    return new PmdViolationsXmlParser(project, rulesFinder, context);
   }
 
   @Override
