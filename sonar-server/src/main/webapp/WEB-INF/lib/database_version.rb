@@ -76,7 +76,7 @@ class DatabaseVersion
     elsif uptodate?
       load_plugin_webservices()
     else
-      puts 'Server must be upgraded. Please browse /setup'
+      puts 'Database must be upgraded. Please browse /setup'
     end
     uptodate?
   end
