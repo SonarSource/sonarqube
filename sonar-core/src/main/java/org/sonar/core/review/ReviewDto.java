@@ -52,8 +52,8 @@ public final class ReviewDto {
   private Date updatedAt;
   private String severity;
   private Integer ruleId;
-  private Boolean manualViolation;
-  private Boolean manualSeverity;
+  private boolean manualViolation;
+  private boolean manualSeverity;
   private Integer actionPlanId;
 
   public Long getId() {
@@ -182,30 +182,30 @@ public final class ReviewDto {
     return this;
   }
 
-  public Boolean getManualViolation() {
+  public boolean getManualViolation() {
     return manualViolation;
   }
 
   public boolean isManualViolation() {
-    return manualViolation == Boolean.TRUE;
+    return manualViolation == true;
   }
 
-  public ReviewDto setManualViolation(@Nullable Boolean b) {
+  public ReviewDto setManualViolation(boolean b) {
     this.manualViolation = b;
     return this;
   }
 
-  public Boolean getManualSeverity() {
+  public boolean getManualSeverity() {
     return manualSeverity;
   }
 
-  public ReviewDto setManualSeverity(@Nullable Boolean b) {
+  public ReviewDto setManualSeverity(boolean b) {
     this.manualSeverity = b;
     return this;
   }
 
   public boolean isManualSeverity() {
-    return manualSeverity == Boolean.TRUE;
+    return manualSeverity == true;
   }
 
   public Integer getActionPlanId() {

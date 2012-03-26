@@ -98,4 +98,16 @@ public class ReviewDaoTest extends DaoTestCase {
 
     checkTables("update", "reviews");
   }
+
+  @Test
+  public void updateWithNullManualSeverityAndViolation() {
+    setupData("update_null_manual_severity_and_violation");
+    Collection<ReviewDto> reviews = dao.selectOpenByResourceId(400L);
+    ReviewDto review = reviews.iterator().next();
+    review.setLine(12345);
+
+    dao.update(reviews);
+
+    checkTables("update_null_manual_severity_and_violation", "reviews");
+  }
 }
