@@ -156,7 +156,7 @@ public class SonarEngine extends CpdEngine {
     }
   }
 
-  private static class Task implements Callable<List<CloneGroup>> {
+  static class Task implements Callable<List<CloneGroup>> {
     private final CloneIndex index;
     private final Collection<Block> fileBlocks;
 

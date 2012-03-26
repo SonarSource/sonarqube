@@ -22,12 +22,14 @@ package org.sonar.plugins.cpd;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.CpdMapping;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.*;
+import org.sonar.api.utils.SonarException;
 import org.sonar.duplications.DuplicationPredicates;
 import org.sonar.duplications.block.Block;
-import org.sonar.duplications.detector.suffixtree.SuffixTreeCloneDetectionAlgorithm;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.internal.pmd.TokenizerBridge;
 import org.sonar.plugins.cpd.index.IndexFactory;
@@ -35,8 +37,16 @@ import org.sonar.plugins.cpd.index.SonarDuplicationsIndex;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.*;
 
 public class SonarBridgeEngine extends CpdEngine {
+
+  private static final Logger LOG = LoggerFactory.getLogger(SonarBridgeEngine.class);
+
+  /**
+   * Limit of time to analyse one file (in seconds).
+   */
+  private static final int TIMEOUT = 5 * 60;
 
   private final IndexFactory indexFactory;
   private final CpdMapping[] mappings;
@@ -71,6 +81,7 @@ public class SonarBridgeEngine extends CpdEngine {
 
     TokenizerBridge bridge = new TokenizerBridge(mapping.getTokenizer(), fileSystem.getSourceCharset().name(), getBlockSize(project));
     for (InputFile inputFile : inputFiles) {
+      LOG.debug("Populating index from {}", inputFile.getFile());
       Resource resource = mapping.createResource(inputFile.getFile(), fileSystem.getSourceDirs());
       String resourceId = SonarEngine.getFullKey(project, resource);
       List<Block> blocks = bridge.chunk(resourceId, inputFile.getFile());
@@ -80,16 +91,32 @@ public class SonarBridgeEngine extends CpdEngine {
     // Detect
     Predicate<CloneGroup> minimumTokensPredicate = DuplicationPredicates.numberOfUnitsNotLessThan(PmdEngine.getMinimumTokens(project));
 
-    for (InputFile inputFile : inputFiles) {
-      Resource resource = mapping.createResource(inputFile.getFile(), fileSystem.getSourceDirs());
-      String resourceKey = SonarEngine.getFullKey(project, resource);
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
+    try {
+      for (InputFile inputFile : inputFiles) {
+        LOG.debug("Detection of duplications for {}", inputFile.getFile());
+        Resource resource = mapping.createResource(inputFile.getFile(), fileSystem.getSourceDirs());
+        String resourceKey = SonarEngine.getFullKey(project, resource);
 
-      Collection<Block> fileBlocks = index.getByResource(resource, resourceKey);
-      List<CloneGroup> duplications = SuffixTreeCloneDetectionAlgorithm.detect(index, fileBlocks);
+        Collection<Block> fileBlocks = index.getByResource(resource, resourceKey);
 
-      Iterable<CloneGroup> filtered = Iterables.filter(duplications, minimumTokensPredicate);
+        Iterable<CloneGroup> filtered;
+        try {
+          List<CloneGroup> duplications = executorService.submit(new SonarEngine.Task(index, fileBlocks)).get(TIMEOUT, TimeUnit.SECONDS);
+          filtered = Iterables.filter(duplications, minimumTokensPredicate);
+        } catch (TimeoutException e) {
+          filtered = null;
+          LOG.warn("Timeout during detection of duplications for " + inputFile.getFile(), e);
+        } catch (InterruptedException e) {
+          throw new SonarException(e);
+        } catch (ExecutionException e) {
+          throw new SonarException(e);
+        }
 
-      SonarEngine.save(context, resource, filtered);
+        SonarEngine.save(context, resource, filtered);
+      }
+    } finally {
+      executorService.shutdown();
     }
   }
 
