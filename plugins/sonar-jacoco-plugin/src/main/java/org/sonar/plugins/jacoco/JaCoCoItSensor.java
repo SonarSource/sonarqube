@@ -58,7 +58,7 @@ public class JaCoCoItSensor implements Sensor {
     }
 
     @Override
-    protected String[] getExcludes(Project project) {
+    protected String getExcludes(Project project) {
       return configuration.getExcludes();
     }
 

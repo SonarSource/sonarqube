@@ -20,18 +20,19 @@
 package org.sonar.plugins.jacoco;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
 import org.jacoco.core.analysis.*;
 import org.jacoco.core.data.ExecutionDataReader;
 import org.jacoco.core.data.ExecutionDataStore;
 import org.jacoco.core.data.SessionInfoStore;
+import org.jacoco.core.runtime.WildcardMatcher;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoverageMeasuresBuilder;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
-import org.sonar.api.utils.WildcardPattern;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -51,7 +52,8 @@ public abstract class AbstractAnalyzer {
     }
     String path = getReportPath(project);
     File jacocoExecutionData = project.getFileSystem().resolvePath(path);
-    WildcardPattern[] excludes = WildcardPattern.create(getExcludes(project));
+
+    WildcardMatcher excludes = new WildcardMatcher(Strings.nullToEmpty(getExcludes(project)));
     try {
       readExecutionData(jacocoExecutionData, buildOutputDir, context, excludes);
     } catch (IOException e) {
@@ -59,7 +61,7 @@ public abstract class AbstractAnalyzer {
     }
   }
 
-  public final void readExecutionData(File jacocoExecutionData, File buildOutputDir, SensorContext context, WildcardPattern[] excludes) throws IOException {
+  public final void readExecutionData(File jacocoExecutionData, File buildOutputDir, SensorContext context, WildcardMatcher excludes) throws IOException {
     SessionInfoStore sessionInfoStore = new SessionInfoStore();
     ExecutionDataStore executionDataStore = new ExecutionDataStore();
 
@@ -93,14 +95,9 @@ public abstract class AbstractAnalyzer {
     }
   }
 
-  private static boolean isExcluded(ISourceFileCoverage coverage, WildcardPattern[] excludes) {
+  private static boolean isExcluded(ISourceFileCoverage coverage, WildcardMatcher excludesMatcher) {
     String name = coverage.getPackageName() + "/" + coverage.getName();
-    for (WildcardPattern pattern : excludes) {
-      if (pattern.match(name)) {
-        return true;
-      }
-    }
-    return false;
+    return excludesMatcher.matches(name);
   }
 
   @VisibleForTesting
@@ -163,6 +160,6 @@ public abstract class AbstractAnalyzer {
 
   protected abstract String getReportPath(Project project);
 
-  protected abstract String[] getExcludes(Project project);
+  protected abstract String getExcludes(Project project);
 
 }

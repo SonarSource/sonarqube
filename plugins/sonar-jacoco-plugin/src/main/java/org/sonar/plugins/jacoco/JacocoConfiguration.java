@@ -145,9 +145,8 @@ public class JacocoConfiguration implements BatchExtension {
     return settings.getStringArray(ANT_TARGETS_PROPERTY);
   }
 
-  public String[] getExcludes() {
-    String values = settings.getString(EXCLUDES_PROPERTY);
-    return StringUtils.split(values, ':');
+  public String getExcludes() {
+    return settings.getString(EXCLUDES_PROPERTY);
   }
 
 }

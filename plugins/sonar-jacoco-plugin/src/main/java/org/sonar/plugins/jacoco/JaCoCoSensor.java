@@ -55,7 +55,7 @@ public class JaCoCoSensor implements Sensor, CoverageExtension {
     }
 
     @Override
-    protected String[] getExcludes(Project project) {
+    protected String getExcludes(Project project) {
       return configuration.getExcludes();
     }
 
