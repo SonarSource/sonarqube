@@ -80,7 +80,7 @@ public class PmdExecutor implements BatchExtension {
         }
       }
 
-      writeXmlReport(project, report);
+      writeXmlReport(report);
 
       return report;
 
@@ -129,18 +129,19 @@ public class PmdExecutor implements BatchExtension {
     }
   }
 
-  private File writeXmlReport(Project project, Report report) throws IOException {
-    Renderer xmlRenderer = new XMLRenderer();
-    Writer stringwriter = new StringWriter();
-    xmlRenderer.setWriter(stringwriter);
-    xmlRenderer.start();
-    xmlRenderer.renderFileReport(report);
-    xmlRenderer.end();
+  private void writeXmlReport(Report report) throws IOException {
+    File xmlReport = configuration.getTargetXMLReport();
+    if (xmlReport != null) {
+      Renderer xmlRenderer = new XMLRenderer();
+      Writer stringwriter = new StringWriter();
+      xmlRenderer.setWriter(stringwriter);
+      xmlRenderer.start();
+      xmlRenderer.renderFileReport(report);
+      xmlRenderer.end();
 
-    File xmlReport = new File(project.getFileSystem().getSonarWorkingDirectory(), "pmd-result.xml");
-    LOG.info("PMD output report: " + xmlReport.getAbsolutePath());
-    FileUtils.write(xmlReport, stringwriter.toString());
-    return xmlReport;
+      LOG.info("PMD output report: " + xmlReport.getAbsolutePath());
+      FileUtils.write(xmlReport, stringwriter.toString());
+    }
   }
 
   static String getNormalizedJavaVersion(String javaVersion) {

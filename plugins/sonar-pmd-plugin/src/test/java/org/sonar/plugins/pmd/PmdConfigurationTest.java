@@ -38,7 +38,7 @@ public class PmdConfigurationTest {
   public void writeConfigurationToWorkingDir() throws IOException {
     Project project = MavenTestUtils.loadProjectFromPom(getClass(), "writeConfigurationToWorkingDir/pom.xml");
 
-    PmdConfiguration configuration = new PmdConfiguration(new PmdProfileExporter(), RulesProfile.create(), project);
+    PmdConfiguration configuration = new PmdConfiguration(new PmdProfileExporter(), RulesProfile.create(), project, null);
     List<String> rulesets = configuration.getRulesets();
 
     assertThat(rulesets.size(), is(1));

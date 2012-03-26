@@ -20,6 +20,8 @@
 package org.sonar.plugins.pmd;
 
 import org.sonar.api.BatchExtension;
+import org.sonar.api.Property;
+import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 
@@ -29,16 +31,29 @@ import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
 
+@org.sonar.api.Properties({
+  @Property(
+    key = PmdConfiguration.PROPERTY_GENERATE_XML,
+    defaultValue = "false",
+    name = "Generate XML Report",
+    project = false,
+    global = false
+  )
+})
 public class PmdConfiguration implements BatchExtension {
+
+  public static final String PROPERTY_GENERATE_XML = "sonar.pmd.generateXml";
 
   private PmdProfileExporter pmdProfileExporter;
   private RulesProfile rulesProfile;
   private Project project;
+  private Settings settings;
 
-  public PmdConfiguration(PmdProfileExporter pmdRulesRepository, RulesProfile rulesProfile, Project project) {
+  public PmdConfiguration(PmdProfileExporter pmdRulesRepository, RulesProfile rulesProfile, Project project, Settings settings) {
     this.pmdProfileExporter = pmdRulesRepository;
     this.rulesProfile = rulesProfile;
     this.project = project;
+    this.settings = settings;
   }
 
   public List<String> getRulesets() {
@@ -54,5 +69,12 @@ public class PmdConfiguration implements BatchExtension {
     } catch (IOException e) {
       throw new RuntimeException("Fail to save the PMD configuration", e);
     }
+  }
+
+  public File getTargetXMLReport() {
+    if (settings.getBoolean(PROPERTY_GENERATE_XML)) {
+      return new File(project.getFileSystem().getSonarWorkingDirectory(), "pmd-result.xml");
+    }
+    return null;
   }
 }

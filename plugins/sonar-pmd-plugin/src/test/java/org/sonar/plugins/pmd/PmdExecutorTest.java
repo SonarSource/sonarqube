@@ -62,10 +62,11 @@ public class PmdExecutorTest {
     PmdConfiguration conf = mock(PmdConfiguration.class);
     File file = FileUtils.toFile(getClass().getResource("/org/sonar/plugins/pmd/PmdExecutorTest/executeOnManySourceDirs/pmd.xml").toURI().toURL());
     when(conf.getRulesets()).thenReturn(Arrays.asList(file.getAbsolutePath()));
+    File xmlReport = new File(workDir, "pmd-result.xml");
+    when(conf.getTargetXMLReport()).thenReturn(xmlReport);
 
     PmdExecutor executor = new PmdExecutor(project, conf);
     executor.execute();
-    File xmlReport = new File(workDir, "pmd-result.xml");
     assertThat(xmlReport.exists(), is(true));
 
     String xml = FileUtils.readFileToString(xmlReport);
@@ -88,10 +89,11 @@ public class PmdExecutorTest {
 
     PmdConfiguration conf = mock(PmdConfiguration.class);
     when(conf.getRulesets()).thenReturn(Arrays.asList(new File("test-resources/ignorePmdFailures/pmd.xml").getAbsolutePath()));
-
-    PmdExecutor executor = new PmdExecutor(project, conf);
-    executor.execute();
     File xmlReport = new File(workDir, "pmd-result.xml");
+    when(conf.getTargetXMLReport()).thenReturn(xmlReport);
+    PmdExecutor executor = new PmdExecutor(project, conf);
+
+    executor.execute();
     assertThat(xmlReport.exists(), is(true));
   }
 
