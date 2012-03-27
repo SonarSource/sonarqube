@@ -37,7 +37,7 @@ import org.sonar.api.web.UserRole;
 public class DependenciesViewer extends AbstractRubyTemplate implements RubyRailsPage {
 
   public String getId() {
-    return "dependencies_viewer";
+    return "dependencies";
   }
 
   public String getTitle() {
