@@ -36,7 +36,7 @@
       %>
         <tr>
           <td class="thin"><%= image_tag 'q/CLA.png'-%></td>
-          <td><%= link_to_resource resource, resource.long_name -%> (<%= dep.weight -%>)</td>
+          <td><%= link_to_resource resource, resource.long_name, {:tab => 'dependencies'} -%> (<%= dep.weight -%>)</td>
         </tr>
       <% end %>
       </tbody>
