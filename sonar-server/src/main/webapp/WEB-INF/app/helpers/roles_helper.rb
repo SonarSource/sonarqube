@@ -21,24 +21,25 @@ module RolesHelper
   
   def users(role, resource_id=nil)
     resource_id=(resource_id.blank? ? nil : resource_id.to_i)
-    user_roles=UserRole.find(:all, :conditions => {:role => role, :resource_id => resource_id})
-    user_roles.map {|ur| ur.user}.sort
+    user_roles=UserRole.find(:all, :include => 'user', :conditions => {:role => role, :resource_id => resource_id})
+    users = user_roles.map { |ur| ur.user }
+    Api::Utils.insensitive_sort(users) {|user| user.name}
   end
 
   def all_users
-    User.find(:all, :conditions => ["active=?", true], :order => 'name')
+    users = User.find(:all, :conditions => ["active=?", true])
+    Api::Utils.insensitive_sort(users) {|user| user.name}
   end
 
   def groups(role, resource_id=nil)
     resource_id=(resource_id.blank? ? nil : resource_id.to_i)
     group_roles=GroupRole.find(:all, :conditions => {:role => role, :resource_id => resource_id})
-    group_roles.map{|ur| ur.group}.sort do |x,y|
-      x ? x<=>y : -1
-    end
+    groups = group_roles.map{|ur| ur.group}
+    Api::Utils.insensitive_sort(groups) {|group| group ? group.name : ''}
   end
 
   def all_groups
-    [nil].concat(Group.find(:all, :order => 'name'))
+    [nil].concat(Api::Utils.insensitive_sort(Group.all) {|group| group.name})
   end
 
   def group_name(group)

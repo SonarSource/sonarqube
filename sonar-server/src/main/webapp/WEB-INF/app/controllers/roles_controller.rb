@@ -31,7 +31,8 @@ class RolesController < ApplicationController
   def projects
     @projects=Project.find(:all,
       :conditions => {:enabled=>true, :scope => Project::SCOPE_SET, :qualifier => [Project::QUALIFIER_VIEW, Project::QUALIFIER_SUBVIEW, Project::QUALIFIER_PROJECT]},
-      :include => ['user_roles', 'group_roles']).sort{|a,b| a.name.downcase<=>b.name.downcase}
+      :include => ['user_roles', 'group_roles'])
+    Api::Utils.insensitive_sort!(@projects){|project| project.name}
   end
 
   def edit_users
