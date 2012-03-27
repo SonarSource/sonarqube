@@ -2494,3 +2494,26 @@ select.medium-width {
   margin-right: 8px;
   padding-right: 8px;
 }
+
+/* Dependencies */
+#dependencies {
+  padding: 10px;
+}
+
+#dependencies .coltitle {
+  background-color: #efefef;
+  padding: 3px;
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+}
+
+#dependencies .col {
+  margin: 0 10px 0 0;
+  border-right: 1px solid #ccc;
+  border-left: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+}
+
+#dependencies .col td, #dependencies .col th {
+  padding: 3px 5px;
+}

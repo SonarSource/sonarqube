@@ -1,0 +1,48 @@
+<div id="dependencies" class="drilldown_col">
+
+<%
+  ca = @snapshot.measure('ca')
+  ce = @snapshot.measure('ce')
+  dependencies = Dependency.find(:all, 
+                                 :include => ['from','to'], 
+                                 :conditions => ['(dependencies.from_snapshot_id=? OR dependencies.to_snapshot_id=?)', @snapshot.id, @snapshot.id])
+  
+  resource_id = @resource.id
+  dependencies_by_measure = []
+  dependencies_by_measure << {:metric => 'ca', :measure => ca, 
+                              :dependencies => dependencies.select {|dep| dep.to_resource_id == resource_id}}
+  dependencies_by_measure << {:metric => 'ce', :measure => ce, 
+                              :dependencies => dependencies.select {|dep| dep.from_resource_id == resource_id}}
+
+  dependencies_by_measure.each do |deps_by_m|
+    metric_name = deps_by_m[:metric]
+    measure = deps_by_m[:measure]
+    deps = deps_by_m[:dependencies]
+%>
+
+  <div id="<%= metric_name -%>-deps" style="float: left">
+    <table class="col">
+      <thead>
+        <tr class="coltitle">
+          <th class="thin"></th>
+          <th><%= message('dependencies_viewer.' + metric_name) -%>: <b><%= format_measure(measure) -%></b></th>
+        </tr>
+      </thead>
+    
+      <tbody>
+      <% 
+         deps.each do |dep|
+           resource = metric_name=='ca' ? dep.from : dep.to
+      %>
+        <tr>
+          <td class="thin"><%= image_tag 'q/CLA.png'-%></td>
+          <td><%= link_to_resource resource, resource.long_name -%> (<%= dep.weight -%>)</td>
+        </tr>
+      <% end %>
+      </tbody>
+    
+    </table>
+  </div>
+<% end %>
+
+</div>

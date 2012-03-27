@@ -74,7 +74,6 @@
             <configuration>
               <modules>
                 <module>org.sonar.plugins.design.ui.page.DesignPage${gwt.permutationSuffix}</module>
-                <module>org.sonar.plugins.design.ui.dependencies.DependenciesTab${gwt.permutationSuffix}</module>
                 <module>org.sonar.plugins.design.ui.libraries.LibrariesPage${gwt.permutationSuffix}</module>
               </modules>
               <skip>${skipGwt}</skip>

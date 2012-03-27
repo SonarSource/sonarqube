@@ -1,6 +1,0 @@
-<module rename-to="org.sonar.plugins.design.ui.dependencies.DependenciesTab">
-  <inherits name="org.sonar.plugins.design.ui.dependencies.DependenciesTab"/>
-  <inherits name="org.sonar.SonarDev"/>
-
-  <entry-point class="org.sonar.plugins.design.ui.dependencies.client.DependenciesTab"/>
-</module>

@@ -21,27 +21,31 @@ package org.sonar.plugins.design.ui.dependencies;
 
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.web.AbstractRubyTemplate;
 import org.sonar.api.web.DefaultTab;
-import org.sonar.api.web.GwtPage;
 import org.sonar.api.web.NavigationSection;
 import org.sonar.api.web.RequiredMeasures;
 import org.sonar.api.web.ResourceQualifier;
+import org.sonar.api.web.RubyRailsPage;
 import org.sonar.api.web.UserRole;
-import org.sonar.plugins.design.ui.dependencies.client.DependenciesTab;
 
 @RequiredMeasures(allOf = {CoreMetrics.AFFERENT_COUPLINGS_KEY, CoreMetrics.EFFERENT_COUPLINGS_KEY})
 @ResourceQualifier({Qualifiers.FILE, Qualifiers.CLASS, Qualifiers.PACKAGE, Qualifiers.PROJECT, Qualifiers.MODULE})
 @DefaultTab(metrics = {CoreMetrics.AFFERENT_COUPLINGS_KEY, CoreMetrics.EFFERENT_COUPLINGS_KEY})
 @NavigationSection({NavigationSection.RESOURCE_TAB})
 @UserRole(UserRole.USER)
-public class GwtDependenciesTab extends GwtPage {
+public class DependenciesViewer extends AbstractRubyTemplate implements RubyRailsPage {
+
+  public String getId() {
+    return "dependencies_viewer";
+  }
 
   public String getTitle() {
     return "Dependencies";
   }
 
-  public String getGwtId() {
-    return DependenciesTab.GWT_ID;
+  @Override
+  protected String getTemplatePath() {
+    return "/org/sonar/plugins/design/ui/dependencies/dependencies_viewer.html.erb";
   }
 }
