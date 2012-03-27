@@ -1,0 +1,59 @@
+/*
+ * Sonar, open source software quality management tool.
+ * Copyright (C) 2008-2012 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * Sonar is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * Sonar is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Sonar; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ */
+package org.sonar.core.user;
+
+import org.apache.ibatis.session.SqlSession;
+import org.sonar.api.BatchComponent;
+import org.sonar.api.ServerComponent;
+import org.sonar.core.persistence.MyBatis;
+
+/**
+ * @since 2.15
+ */
+public class AuthorDao implements BatchComponent, ServerComponent {
+
+  private final MyBatis mybatis;
+
+  public AuthorDao(MyBatis mybatis) {
+    this.mybatis = mybatis;
+  }
+
+  public AuthorDto select(String login) {
+    SqlSession session = mybatis.openSession();
+    try {
+      AuthorMapper mapper = session.getMapper(AuthorMapper.class);
+      return mapper.select(login);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void insert(AuthorDto authorDto) {
+    SqlSession session = mybatis.openSession();
+    try {
+      AuthorMapper mapper = session.getMapper(AuthorMapper.class);
+      mapper.insert(authorDto);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+}

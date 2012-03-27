@@ -44,6 +44,8 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleMapper;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.core.template.LoadedTemplateMapper;
+import org.sonar.core.user.AuthorDto;
+import org.sonar.core.user.AuthorMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -67,6 +69,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     conf.getVariables().setProperty("_false", database.getDialect().getFalseSqlValue());
 
     loadAlias(conf, "ActiveDashboard", ActiveDashboardDto.class);
+    loadAlias(conf, "Author", AuthorDto.class);
     loadAlias(conf, "Dashboard", DashboardDto.class);
     loadAlias(conf, "DuplicationUnit", DuplicationUnitDto.class);
     loadAlias(conf, "LoadedTemplate", LoadedTemplateDto.class);
@@ -82,6 +85,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "WidgetProperty", WidgetPropertyDto.class);
 
     loadMapper(conf, ActiveDashboardMapper.class);
+    loadMapper(conf, AuthorMapper.class);
     loadMapper(conf, DashboardMapper.class);
     loadMapper(conf, DuplicationMapper.class);
     loadMapper(conf, LoadedTemplateMapper.class);
