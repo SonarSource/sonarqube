@@ -77,4 +77,51 @@ class Api::Utils
     end
     result
   end
+
+  # Returns a new array created by sorting arr
+  # Since Sonar 2.15
+  #
+  # Examples :
+  # Api::Utils.insensitive_sort(['foo', 'bar'])
+  # Api::Utils.insensitive_sort([foo, bar]) { |elt| elt.nullable_field_to_compare }
+  #
+  def self.insensitive_sort(arr)
+    if block_given?
+      arr.sort do |a, b|
+        a_string=yield(a) || ''
+        b_string=yield(b) || ''
+        a_string.downcase <=> b_string.downcase || a_string <=> b_string
+      end
+    else
+      arr.sort do |a, b|
+        a_string=a || ''
+        b_string=b || ''
+        a_string.downcase <=> b_string.downcase || a_string <=> b_string
+      end
+    end
+  end
+
+
+  # Sorts arr
+  # Since Sonar 2.15
+  #
+  # Examples :
+  # Api::Utils.insensitive_sort!(['foo', 'bar'])
+  # Api::Utils.insensitive_sort!([foo, bar]) { |elt| elt.nullable_field_to_compare }
+  #
+  def self.insensitive_sort!(arr)
+    if block_given?
+      arr.sort! do |a, b|
+        a_string=yield(a) || ''
+        b_string=yield(b) || ''
+        a_string.downcase <=> b_string.downcase || a_string <=> b_string
+      end
+    else
+      arr.sort! do |a, b|
+        a_string=a || ''
+        b_string=b || ''
+        a_string.downcase <=> b_string.downcase || a_string <=> b_string
+      end
+    end
+  end
 end
