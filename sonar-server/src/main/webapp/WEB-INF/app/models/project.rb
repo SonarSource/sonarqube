@@ -32,6 +32,7 @@ class Project < ActiveRecord::Base
   belongs_to :root, :class_name => 'Project', :foreign_key => 'root_id'
   belongs_to :copy_resource, :class_name => 'Project', :foreign_key => 'copy_resource_id'
   belongs_to :person, :class_name => 'Project', :foreign_key => 'person_id'
+  has_many :authors, :foreign_key => 'person_id', :dependent => :delete_all
 
   def self.by_key(k)
     begin
@@ -54,9 +55,9 @@ class Project < ActiveRecord::Base
 
   def root_project
     @root_project ||=
-        begin
-          parent_module(self)
-        end
+      begin
+        parent_module(self)
+      end
   end
 
   # bottom-up array of projects,
@@ -68,9 +69,9 @@ class Project < ActiveRecord::Base
 
   def resource_link
     @resource_link ||=
-        begin
-          (copy_resource && copy_resource.qualifier==qualifier) ? copy_resource : nil
-        end
+      begin
+        (copy_resource && copy_resource.qualifier==qualifier) ? copy_resource : nil
+      end
   end
 
   def permanent_resource
@@ -83,13 +84,13 @@ class Project < ActiveRecord::Base
 
   def last_snapshot
     @last_snapshot ||=
-        begin
-          snapshot=Snapshot.find(:first, :conditions => {:islast => true, :project_id => id})
-          if snapshot
-            snapshot.project=self
-          end
-          snapshot
+      begin
+        snapshot=Snapshot.find(:first, :conditions => {:islast => true, :project_id => id})
+        if snapshot
+          snapshot.project=self
         end
+        snapshot
+      end
   end
 
   def events_with_snapshot
@@ -119,13 +120,13 @@ class Project < ActiveRecord::Base
 
   def chart_measures(metric_id)
     sql = Project.send(:sanitize_sql, ['select s.created_at as created_at, m.value as value ' +
-                                           ' from project_measures m, snapshots s ' +
-                                           ' where s.id=m.snapshot_id and ' +
-                                           " s.status='%s' and " +
-                                           ' s.project_id=%s and m.metric_id=%s ', Snapshot::STATUS_PROCESSED, self.id, metric_id]) +
-        ' and m.rule_id IS NULL and m.rule_priority IS NULL' +
-        ' and m.person_id IS NULL' +
-        ' order by s.created_at'
+                                         ' from project_measures m, snapshots s ' +
+                                         ' where s.id=m.snapshot_id and ' +
+                                         " s.status='%s' and " +
+                                         ' s.project_id=%s and m.metric_id=%s ', Snapshot::STATUS_PROCESSED, self.id, metric_id]) +
+      ' and m.rule_id IS NULL and m.rule_priority IS NULL' +
+      ' and m.person_id IS NULL' +
+      ' order by s.created_at'
     create_chart_measures(Project.connection.select_all(sql), 'created_at', 'value')
   end
 
