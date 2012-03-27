@@ -186,7 +186,7 @@ class DashboardController < ApplicationController
 
   def load_authorized_widget_definitions
     if @resource
-      @authorized_widget_definitions = java_facade.getWidgets(@resource.scope, @resource.qualifier, @resource.language, @snapshot.available_measures)
+      @authorized_widget_definitions = java_facade.getWidgets(@resource.scope, @resource.qualifier, @resource.language, @snapshot.metric_keys.to_java(:string))
       @authorized_widget_definitions=@authorized_widget_definitions.select do |widget|
         authorized=widget.getUserRoles().size==0
         unless authorized

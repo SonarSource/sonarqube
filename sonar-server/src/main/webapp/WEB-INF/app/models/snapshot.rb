@@ -139,17 +139,6 @@ class Snapshot < ActiveRecord::Base
     end
   end
 
-  def metrics
-    if @metrics.nil?
-      @metrics = []
-      measures_hash.each_key do |metric_id|
-        @metrics << Metric::by_id(metric_id)
-      end
-      @metrics.uniq!
-    end
-    @metrics
-  end
-
   def measure(metric)
     unless metric.is_a? Metric
       metric=Metric.by_key(metric)
@@ -248,14 +237,19 @@ class Snapshot < ActiveRecord::Base
     project_snapshot.send "period#{period_index}_date"
   end
 
-  # IMPORTANT: this is method must used only to pass arguments to the java_facade, as it returns
-  # an array of java.lang.String objects.
-  # It is used to know which views (page, tab, widget, ...) to display on for a given snapshot
-  def available_measures
-    if @available_measures.nil?
-      @available_measures = metrics.map {|m| m.name}.to_java(java.lang.String)
-    end
-    @available_measures
+  def metrics
+    @metrics ||=
+      begin
+        measures_hash.keys.map { |metric_id| Metric::by_id(metric_id) }.uniq
+      end
+  end
+
+  # metrics of all the available measures
+  def metric_keys
+    @metric_keys ||=
+      begin
+        metrics.map { |m| m.name }
+      end
   end
 
   private

@@ -113,7 +113,7 @@ class ResourceController < ApplicationController
 
   def load_extensions
     @extensions=[]
-    java_facade.getResourceTabs(@resource.scope, @resource.qualifier, @resource.language, @snapshot.available_measures).each do |tab|
+    java_facade.getResourceTabs(@resource.scope, @resource.qualifier, @resource.language, @snapshot.metric_keys.to_java(:string)).each do |tab|
       if tab.getUserRoles().empty?
         @extensions<<tab
       else
