@@ -19,12 +19,22 @@
 #
 
 #
-# Sonar 2.14
+# Sonar 2.15
 #
-class CreateAuthors < ActiveRecord::Migration
+class AddAuthorsPrimaryKey < ActiveRecord::Migration
 
   def self.up
-    # removed in version 2.15, see migration 283
+    begin
+      drop_table 'authors'
+    rescue
+      # table does not exist -> this is not an upgrade but a fresh install
+    end
+
+    create_table 'authors' do |t|
+      t.column 'person_id', :integer, :null => false
+      t.column 'login', :string, :null => true, :limit => 100
+      t.timestamps
+    end
   end
 
 end
