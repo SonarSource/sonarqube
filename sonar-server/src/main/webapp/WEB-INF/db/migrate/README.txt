@@ -12,7 +12,11 @@ HOW TO ADD A MIGRATION
 
 RECOMMENDATIONS
 
-* Prefer to add nullable columns to avoid problems during migration.
+* Prefer to add nullable columns to avoid problems during migration, EXCEPT for booleans. For booleans:
+
+  * columns must be NON-nullable but default value (false) must NOT be set in database. It allows to fully define the model programmatically.
+  * column names must be chosen so that the default value is actually false.
+    * E.g.: rule_failures.switched_off
 
 * Always create an index with a name : add_index "action_plans", "project_id", :name => "action_plans_project_id"
   Note that this name is limited to 30 characters because of Oracle constraint.
