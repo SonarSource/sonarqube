@@ -128,7 +128,8 @@ class Rule < ActiveRecord::Base
   end
 
   def self.manual_rules
-    Rule.find(:all, :conditions => ['enabled=? and plugin_name=?', true, MANUAL_REPOSITORY_KEY], :order => 'name')
+    rules = Rule.find(:all, :conditions => ['enabled=? and plugin_name=?', true, MANUAL_REPOSITORY_KEY])
+    Api::Utils.insensitive_sort(rules) {|rule| rule.name}
   end
 
   def self.manual_rule(id)
