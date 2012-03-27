@@ -2458,6 +2458,7 @@ td.spacer-top {
 .table > tbody > tr > td {
   line-height: 16px;
   padding: 4px 5px;
+  vertical-align: top;
 }
 
 .table-bordered > tbody {
