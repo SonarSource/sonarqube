@@ -95,7 +95,7 @@ class Sonar::ComponentsConfiguration
   end
   
   def sorted_by_project_name?
-    @sorted_column_id=='project'
+    @sorted_column_id==Sonar::ColumnsView::TYPE_PROJECT
   end
 
   def set_column_sort_default(column_id)
