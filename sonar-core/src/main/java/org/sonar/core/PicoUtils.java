@@ -27,7 +27,7 @@ public final class PicoUtils {
   private PicoUtils() {
   }
 
-  static Throwable sanitize(RuntimeException t) {
+  public static Throwable sanitize(Throwable t) {
     Throwable result = t;
     Throwable cause = t.getCause();
     if (t instanceof PicoLifecycleException && cause != null) {
@@ -41,7 +41,7 @@ public final class PicoUtils {
     return result;
   }
 
-  public static void propagateStartupException(RuntimeException t) {
+  public static void propagateStartupException(Throwable t) {
     throw Throwables.propagate(sanitize(t));
   }
 }

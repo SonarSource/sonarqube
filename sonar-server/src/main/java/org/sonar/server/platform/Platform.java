@@ -101,8 +101,9 @@ public final class Platform {
 
       } catch (RuntimeException e) {
         // full stacktrace is lost by jruby. It must be logged now.
-        LoggerFactory.getLogger(getClass()).error(e.getMessage(), e);
-        PicoUtils.propagateStartupException(e);
+        Throwable initialException = PicoUtils.sanitize(e);
+        LoggerFactory.getLogger(getClass()).error(initialException.getMessage(), initialException);
+        PicoUtils.propagateStartupException(initialException);
       }
     }
   }
@@ -118,8 +119,9 @@ public final class Platform {
         profiler.stop();
       } catch (RuntimeException e) {
         // full stacktrace is lost by jruby. It must be logged now.
-        LoggerFactory.getLogger(getClass()).error(e.getMessage(), e);
-        PicoUtils.propagateStartupException(e);
+        Throwable initialException = PicoUtils.sanitize(e);
+        LoggerFactory.getLogger(getClass()).error(initialException.getMessage(), initialException);
+        PicoUtils.propagateStartupException(initialException);
       }
     }
   }
