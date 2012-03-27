@@ -42,13 +42,15 @@ class DependenciesController < ApplicationController
       # load all the resources (first column)
       #
       @resources=Project.find(:all,
-        :conditions => ["scope=? AND qualifier IN (?) AND enabled=? AND (UPPER(name) like ? OR kee like ?)", 'PRJ', QUALIFIERS, true, "%#{@search.upcase}%", "%#{@search}%"], :order => 'name')
+        :conditions => ["scope=? AND qualifier IN (?) AND enabled=? AND (UPPER(name) like ? OR kee like ?)", 'PRJ', QUALIFIERS, true, "%#{@search.upcase}%", "%#{@search}%"])
+      Api::Utils.insensitive_sort!(@resources){|r| r.name}
 
       if params[:resource]
         @resource=@resources.select{|r| r.kee==params[:resource]}.first
       elsif @resources.size==1
         @resource=@resources.first
       end
+
     end
 
     if @resource
@@ -85,7 +87,7 @@ class DependenciesController < ApplicationController
       project_sids=deps.map{|dep| dep.project_snapshot_id}.compact.uniq[0..950]  # oracle issue with more than 1000 IN elements. Not annoying to truncate hundreds of results...
       if project_sids.size>0
         @project_snapshots=Snapshot.find(:all, :include => 'project', :conditions => ['id IN (?) AND islast=? AND status=?', project_sids, true, 'P'])
-        @project_snapshots.sort! {|x,y| x.project.name <=> y.project.name }
+        Api::Utils.insensitive_sort!(@project_snapshots) {|s| s.project.name}
       else
         @project_snapshots=[]
       end
