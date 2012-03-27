@@ -187,7 +187,7 @@ public final class ReviewDto {
   }
 
   public boolean isManualViolation() {
-    return manualViolation == true;
+    return manualViolation;
   }
 
   public ReviewDto setManualViolation(boolean b) {
@@ -205,7 +205,7 @@ public final class ReviewDto {
   }
 
   public boolean isManualSeverity() {
-    return manualSeverity == true;
+    return manualSeverity;
   }
 
   public Integer getActionPlanId() {
