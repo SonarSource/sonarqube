@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.design.ui.libraries;
 
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.web.GwtPage;
 import org.sonar.api.web.NavigationSection;
@@ -26,7 +27,7 @@ import org.sonar.api.web.ResourceQualifier;
 import org.sonar.api.web.UserRole;
 import org.sonar.plugins.design.ui.libraries.client.LibrariesPage;
 
-@ResourceQualifier({Resource.QUALIFIER_PROJECT, Resource.QUALIFIER_MODULE})
+@ResourceQualifier({Qualifiers.PROJECT, Qualifiers.MODULE})
 @NavigationSection(NavigationSection.RESOURCE)
 @UserRole(UserRole.USER)
 public class GwtLibrariesPage extends GwtPage {

@@ -29,7 +29,7 @@ import org.sonar.api.web.ResourceQualifier;
 import org.sonar.api.web.UserRole;
 import org.sonar.plugins.design.ui.page.client.DesignPage;
 
-@RequiredMeasures(mandatory = {CoreMetrics.DEPENDENCY_MATRIX_KEY})
+@RequiredMeasures(allOf = {CoreMetrics.DEPENDENCY_MATRIX_KEY})
 @ResourceQualifier({Qualifiers.PROJECT, Qualifiers.MODULE, Qualifiers.PACKAGE, Qualifiers.DIRECTORY})
 @DefaultTab(metrics = {
   CoreMetrics.DEPENDENCY_MATRIX_KEY, CoreMetrics.PACKAGE_FEEDBACK_EDGES_KEY, CoreMetrics.PACKAGE_CYCLES_KEY,

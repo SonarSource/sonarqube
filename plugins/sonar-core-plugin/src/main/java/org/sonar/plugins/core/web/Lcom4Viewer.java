@@ -29,7 +29,7 @@ import org.sonar.api.web.ResourceQualifier;
 import org.sonar.api.web.RubyRailsPage;
 import org.sonar.api.web.UserRole;
 
-@RequiredMeasures(mandatory = {CoreMetrics.LCOM4_KEY})
+@RequiredMeasures(allOf = {CoreMetrics.LCOM4_KEY})
 @NavigationSection(NavigationSection.RESOURCE_TAB)
 @UserRole(UserRole.CODEVIEWER)
 @ResourceQualifier(Qualifiers.CLASS)

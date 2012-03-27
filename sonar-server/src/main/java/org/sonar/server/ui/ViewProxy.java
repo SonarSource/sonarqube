@@ -71,8 +71,8 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
   private void initRequiredMeasures(V view) {
     RequiredMeasures requiredMeasuresAnnotation = AnnotationUtils.getClassAnnotation(view, RequiredMeasures.class);
     if (requiredMeasuresAnnotation != null) {
-      mandatoryMeasures = requiredMeasuresAnnotation.mandatory();
-      needOneOfMeasures = requiredMeasuresAnnotation.oneOf();
+      mandatoryMeasures = requiredMeasuresAnnotation.allOf();
+      needOneOfMeasures = requiredMeasuresAnnotation.anyOf();
     }
   }
 

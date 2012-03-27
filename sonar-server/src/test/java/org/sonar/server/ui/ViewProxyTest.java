@@ -155,7 +155,7 @@ public class ViewProxyTest {
 
   @Test
   public void shouldAcceptAvailableMeasuresForMandatoryMeasures() throws Exception {
-    @RequiredMeasures(mandatory = {"lines", "ncloc"})
+    @RequiredMeasures(allOf = {"lines", "ncloc"})
     class MyView extends FakeView {
       MyView() {
         super("fake");
@@ -169,7 +169,7 @@ public class ViewProxyTest {
 
   @Test
   public void shouldAcceptAvailableMeasuresForOneOfNeededMeasures() throws Exception {
-    @RequiredMeasures(oneOf = {"lines", "ncloc"})
+    @RequiredMeasures(anyOf = {"lines", "ncloc"})
     class MyView extends FakeView {
       MyView() {
         super("fake");
@@ -183,7 +183,7 @@ public class ViewProxyTest {
 
   @Test
   public void shouldAcceptAvailableMeasuresForMandatoryAndOneOfNeededMeasures() throws Exception {
-    @RequiredMeasures(mandatory = {"lines", "ncloc"}, oneOf = {"duplications", "duplictated_blocks"})
+    @RequiredMeasures(allOf = {"lines", "ncloc"}, anyOf = {"duplications", "duplictated_blocks"})
     class MyView extends FakeView {
       MyView() {
         super("fake");

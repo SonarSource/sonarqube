@@ -32,7 +32,7 @@ import java.lang.annotation.Target;
  * </p>
  * <p>
  * Example: the DesignPage absolutely requires the "dsm" measure to be fed in order to be displayed, whatever the language.
- * The class will define a <code>@RequiredMeasures(mandatory={"dsm"})</code> annotation. 
+ * The class will define a <code>@RequiredMeasures(allOf={"dsm"})</code> annotation.
  * </p>
  * 
  * @since 2.15
@@ -45,13 +45,13 @@ public @interface RequiredMeasures {
    * Lists all the measures that must absolutely to be available on the snapshot in order to display the view.
    * @return the list of mandatory measures, identified by their metric key
    */
-  String[] mandatory() default {};
+  String[] allOf() default {};
 
   /**
    * Lists all needed measures required to display the view. If only one of them is available on the snapshot, then the view 
    * is displayed.
    * @return the list of needed measures, identified by their metric key
    */
-  String[] oneOf() default {};
+  String[] anyOf() default {};
 
 }

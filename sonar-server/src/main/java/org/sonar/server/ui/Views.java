@@ -19,27 +19,26 @@
  */
 package org.sonar.server.ui;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang.ArrayUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.web.Page;
 import org.sonar.api.web.View;
 import org.sonar.api.web.Widget;
 
-import com.google.common.collect.Lists;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class Views implements ServerComponent {
 
-  private Map<String, ViewProxy<Page>> pagesPerId = new HashMap<String, ViewProxy<Page>>();
-  private Set<ViewProxy<Page>> pages = new TreeSet<ViewProxy<Page>>();
+  private Map<String, ViewProxy<Page>> pagesPerId = Maps.newHashMap();
+  private Set<ViewProxy<Page>> pages = Sets.newTreeSet();
 
-  private Map<String, ViewProxy<Widget>> widgetsPerId = new HashMap<String, ViewProxy<Widget>>();
-  private Set<ViewProxy<Widget>> widgets = new TreeSet<ViewProxy<Widget>>();
+  private Map<String, ViewProxy<Widget>> widgetsPerId = Maps.newHashMap();
+  private Set<ViewProxy<Widget>> widgets = Sets.newTreeSet();
 
   public Views() {
   }
@@ -85,7 +84,7 @@ public class Views implements ServerComponent {
   }
 
   public List<ViewProxy<Page>> getPagesForMetric(String section, String resourceScope, String resourceQualifier, String resourceLanguage,
-      String[] availableMeasures, String metric) {
+                                                 String[] availableMeasures, String metric) {
     List<ViewProxy<Page>> result = Lists.newArrayList();
     for (ViewProxy<Page> proxy : pages) {
       if (accept(proxy, section, resourceScope, resourceQualifier, resourceLanguage, availableMeasures) && proxy.supportsMetric(metric)) {
@@ -115,22 +114,22 @@ public class Views implements ServerComponent {
 
   protected static boolean accept(ViewProxy proxy, String section, String resourceScope, String resourceQualifier, String resourceLanguage, String[] availableMeasures) {
     return acceptNavigationSection(proxy, section)
-        && acceptResourceScope(proxy, resourceScope)
-        && acceptResourceQualifier(proxy, resourceQualifier)
-        && acceptResourceLanguage(proxy, resourceLanguage)
-        && acceptAvailableMeasures(proxy, availableMeasures);
+      && acceptResourceScope(proxy, resourceScope)
+      && acceptResourceQualifier(proxy, resourceQualifier)
+      && acceptResourceLanguage(proxy, resourceLanguage)
+      && acceptAvailableMeasures(proxy, availableMeasures);
   }
 
   protected static boolean acceptResourceLanguage(ViewProxy proxy, String resourceLanguage) {
-    return resourceLanguage== null || ArrayUtils.isEmpty(proxy.getResourceLanguages()) || ArrayUtils.contains(proxy.getResourceLanguages(), resourceLanguage);
+    return resourceLanguage == null || ArrayUtils.isEmpty(proxy.getResourceLanguages()) || ArrayUtils.contains(proxy.getResourceLanguages(), resourceLanguage);
   }
 
   protected static boolean acceptResourceScope(ViewProxy proxy, String resourceScope) {
-    return resourceScope== null || ArrayUtils.isEmpty(proxy.getResourceScopes()) || ArrayUtils.contains(proxy.getResourceScopes(), resourceScope);
+    return resourceScope == null || ArrayUtils.isEmpty(proxy.getResourceScopes()) || ArrayUtils.contains(proxy.getResourceScopes(), resourceScope);
   }
 
   protected static boolean acceptResourceQualifier(ViewProxy proxy, String resourceQualifier) {
-    return resourceQualifier== null || ArrayUtils.isEmpty(proxy.getResourceQualifiers()) || ArrayUtils.contains(proxy.getResourceQualifiers(), resourceQualifier);
+    return resourceQualifier == null || ArrayUtils.isEmpty(proxy.getResourceQualifiers()) || ArrayUtils.contains(proxy.getResourceQualifiers(), resourceQualifier);
   }
 
   protected static boolean acceptNavigationSection(ViewProxy proxy, String section) {

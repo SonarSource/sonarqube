@@ -20,6 +20,7 @@
 package org.sonar.plugins.design.ui.dependencies;
 
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.web.DefaultTab;
 import org.sonar.api.web.GwtPage;
@@ -29,8 +30,8 @@ import org.sonar.api.web.ResourceQualifier;
 import org.sonar.api.web.UserRole;
 import org.sonar.plugins.design.ui.dependencies.client.DependenciesTab;
 
-@RequiredMeasures(mandatory = {CoreMetrics.AFFERENT_COUPLINGS_KEY, CoreMetrics.EFFERENT_COUPLINGS_KEY})
-@ResourceQualifier({Resource.QUALIFIER_FILE, Resource.QUALIFIER_CLASS, Resource.QUALIFIER_PACKAGE, Resource.QUALIFIER_PROJECT, Resource.QUALIFIER_MODULE})
+@RequiredMeasures(allOf = {CoreMetrics.AFFERENT_COUPLINGS_KEY, CoreMetrics.EFFERENT_COUPLINGS_KEY})
+@ResourceQualifier({Qualifiers.FILE, Qualifiers.CLASS, Qualifiers.PACKAGE, Qualifiers.PROJECT, Qualifiers.MODULE})
 @DefaultTab(metrics = {CoreMetrics.AFFERENT_COUPLINGS_KEY, CoreMetrics.EFFERENT_COUPLINGS_KEY})
 @NavigationSection({NavigationSection.RESOURCE_TAB})
 @UserRole(UserRole.USER)
