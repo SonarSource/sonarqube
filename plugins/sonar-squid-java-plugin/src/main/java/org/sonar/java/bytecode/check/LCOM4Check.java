@@ -31,17 +31,15 @@ import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.measures.Metric;
 import org.sonar.squid.measures.MetricDef;
 
-@Rule(key = "LCOM4 Suspect", priority = Priority.MAJOR, cardinality = Cardinality.MULTIPLE, 
-description="Detects classes that should be reviewed because of a high LCOM4 metric. It possibly violates the Single Responsibility Principle.")
+@Rule(key = "LCOM4Suspect", priority = Priority.MAJOR, cardinality = Cardinality.MULTIPLE)
 public class LCOM4Check extends BytecodeVisitor {
 	
 	public static final int MAX_LCOM4_DEFAULT = 1;
 
-	@RuleProperty(defaultValue = "" + MAX_LCOM4_DEFAULT,
-			description="The maximum allowed LCOM4 metric for a set of selected classes. Defaults to 1.")
+	@RuleProperty(defaultValue = "" + MAX_LCOM4_DEFAULT)
 	private int max = MAX_LCOM4_DEFAULT;
 	
-	@RuleProperty(description = "Ant-style pattern to select directories or files, for which this LCOM4 rule applies.")
+	@RuleProperty
 	private WildcardPattern[] forClasses;
 
 	@Override
