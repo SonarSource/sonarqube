@@ -21,7 +21,7 @@ class Rule < ActiveRecord::Base
 
   MANUAL_REPOSITORY_KEY = 'manual'
 
-  validates_presence_of :name, :plugin_name
+  validates_presence_of :name, :description, :plugin_name
   validates_presence_of :plugin_rule_key, :if => 'name.present?'
 
   has_many :rules_parameters
