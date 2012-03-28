@@ -25,6 +25,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.Java;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
@@ -80,8 +81,8 @@ public class PmdSensor implements Sensor {
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return project.getFileSystem().hasJavaSourceFiles() &&
-        !profile.getActiveRulesByRepository(PmdConstants.REPOSITORY_KEY).isEmpty();
+    return !project.getFileSystem().mainFiles(Java.KEY).isEmpty() &&
+      !profile.getActiveRulesByRepository(PmdConstants.REPOSITORY_KEY).isEmpty();
   }
 
   @Override

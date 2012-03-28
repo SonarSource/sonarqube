@@ -24,6 +24,7 @@ import org.sonar.api.Property;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
+import org.sonar.api.utils.SonarException;
 
 import java.io.File;
 import java.io.IOException;
@@ -67,7 +68,7 @@ public class PmdConfiguration implements BatchExtension {
       return project.getFileSystem().writeToWorkingDirectory(pmdConfiguration.toString(), "pmd.xml");
 
     } catch (IOException e) {
-      throw new RuntimeException("Fail to save the PMD configuration", e);
+      throw new SonarException("Fail to save the PMD configuration", e);
     }
   }
 
