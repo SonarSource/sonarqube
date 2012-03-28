@@ -20,7 +20,6 @@
 package org.sonar.plugins.design.ui.libraries;
 
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Resource;
 import org.sonar.api.web.GwtPage;
 import org.sonar.api.web.NavigationSection;
 import org.sonar.api.web.ResourceQualifier;
