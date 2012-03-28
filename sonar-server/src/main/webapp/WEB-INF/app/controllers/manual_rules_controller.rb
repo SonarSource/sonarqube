@@ -45,14 +45,13 @@ class ManualRulesController < ApplicationController
         # Update rule
         rule=Rule.manual_rule(params['id'].to_i)
         bad_request('Unknown rule') unless rule
-
+        rule.name=(params[:name])
+        rule.description=params[:description]
+        rule.save!
       else
         # Create rule
-        rule=Rule.find_or_create_manual_rule(params[:name], true)
+        rule=Rule.find_or_create_manual_rule(params[:name], true, {:description => params[:description]})
       end
-      rule.name=(params[:name])
-      rule.description=params[:description]
-      rule.save!
     rescue Exception => e
       flash[:error]= e.message
     end

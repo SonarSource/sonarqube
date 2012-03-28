@@ -136,14 +136,16 @@ class Rule < ActiveRecord::Base
     Rule.find(:first, :conditions => ['enabled=? and plugin_name=? and id=?', true, MANUAL_REPOSITORY_KEY, id])
   end
 
-  def self.find_or_create_manual_rule(rule_id_or_name, create_if_not_found=false)
+  def self.find_or_create_manual_rule(rule_id_or_name, create_if_not_found=false, options={})
     if Api::Utils.is_integer?(rule_id_or_name)
       rule = Rule.find(:first, :conditions => {:enabled => true, :plugin_name => MANUAL_REPOSITORY_KEY, :id => rule_id_or_name.to_i})
     else
       key = rule_id_or_name.strip.downcase.sub(/\s+/, '_')
       rule = Rule.find(:first, :conditions => {:enabled => true, :plugin_name => MANUAL_REPOSITORY_KEY, :plugin_rule_key => key})
       if rule==nil && create_if_not_found
-        rule = Rule.create!(:enabled => true, :plugin_name => MANUAL_REPOSITORY_KEY, :plugin_rule_key => key, :name => rule_id_or_name)
+        description = options[:description] || Api::Utils.message('manual_rules.should_provide_real_description')
+        rule = Rule.create!(:enabled => true, :plugin_name => MANUAL_REPOSITORY_KEY, :plugin_rule_key => key, 
+                            :name => rule_id_or_name, :description => description)
       end
     end
     rule
