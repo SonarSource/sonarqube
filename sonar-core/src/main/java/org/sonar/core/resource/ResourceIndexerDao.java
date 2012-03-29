@@ -68,7 +68,7 @@ public class ResourceIndexerDao {
     final SqlSession session = mybatis.openBatchSession();
     try {
       final ResourceIndexerMapper mapper = session.getMapper(ResourceIndexerMapper.class);
-      session.select("selectRootProjectIds", /* workaround to get booleans */ResourceIndexerQuery.create(), new ResultHandler() {
+      session.select("org.sonar.core.resource.ResourceIndexerMapper.selectRootProjectIds", /* workaround to get booleans */ResourceIndexerQuery.create(), new ResultHandler() {
         public void handleResult(ResultContext context) {
           Integer rootProjectId = (Integer) context.getResultObject();
           doIndexProject(rootProjectId, session, mapper);
@@ -90,7 +90,7 @@ public class ResourceIndexerDao {
       .setScopes(NOT_RENAMABLE_SCOPES)
       .setRootProjectId(rootProjectId);
 
-    session.select("selectResources", query, new ResultHandler() {
+    session.select("org.sonar.core.resource.ResourceIndexerMapper.selectResources", query, new ResultHandler() {
       public void handleResult(ResultContext context) {
         ResourceDto resource = (ResourceDto) context.getResultObject();
         doIndex(resource, mapper);
@@ -105,7 +105,7 @@ public class ResourceIndexerDao {
       .setScopes(RENAMABLE_SCOPES)
       .setRootProjectId(rootProjectId);
 
-    session.select("selectResources", query, new ResultHandler() {
+    session.select("org.sonar.core.resource.ResourceIndexerMapper.selectResources", query, new ResultHandler() {
       public void handleResult(ResultContext context) {
         ResourceDto resource = (ResourceDto) context.getResultObject();
 
@@ -133,9 +133,13 @@ public class ResourceIndexerDao {
     }
   }
 
-  public boolean indexResource(int id, String name, String qualifier, int rootProjectId) {
+  public boolean indexResource(int id, String name, String qualifier, int rootId) {
+    return indexResource(id, name, qualifier, rootId,  false);
+  }
+
+  public boolean indexResource(int id, String name, String qualifier, int rootId, boolean force) {
     boolean indexed = false;
-    if (isIndexableQualifier(qualifier)) {
+    if (force || isIndexableQualifier(qualifier)) {
       SqlSession session = mybatis.openSession();
       try {
         String key = nameToKey(name);
@@ -147,7 +151,7 @@ public class ResourceIndexerDao {
             ResourceIndexDto dto = new ResourceIndexDto()
               .setResourceId(id)
               .setQualifier(qualifier)
-              .setRootProjectId(rootProjectId)
+              .setRootProjectId(rootId)
               .setNameSize(name.length());
 
             for (int position = 0; position <= key.length() - MINIMUM_KEY_SIZE; position++) {

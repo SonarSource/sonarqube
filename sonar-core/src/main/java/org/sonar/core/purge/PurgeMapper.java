@@ -75,6 +75,8 @@ public interface PurgeMapper {
 
   void deleteResourceActionPlans(long resourceId);
 
+  void deleteAuthors(long developerId);
+
   void closeResourceReviews(long resourceId);
 
   List<PurgeableSnapshotDto> selectPurgeableSnapshotsWithEvents(long resourceId);

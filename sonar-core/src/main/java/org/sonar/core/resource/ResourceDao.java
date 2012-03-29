@@ -32,6 +32,24 @@ public class ResourceDao {
     this.mybatis = mybatis;
   }
 
+  public List<ResourceDto> getResources(ResourceQuery query) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return session.getMapper(ResourceMapper.class).selectResources(query);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<Long> getResourceIds(ResourceQuery query) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return session.getMapper(ResourceMapper.class).selectResourceIds(query);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   public ResourceDto getResource(long projectId) {
     SqlSession session = mybatis.openSession();
     try {

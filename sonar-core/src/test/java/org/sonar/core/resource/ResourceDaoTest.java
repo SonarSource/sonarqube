@@ -19,6 +19,8 @@
  */
 package org.sonar.core.resource;
 
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +31,7 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.matchers.JUnitMatchers.hasItems;
 
 public class ResourceDaoTest extends DaoTestCase {
 
@@ -71,6 +74,73 @@ public class ResourceDaoTest extends DaoTestCase {
     setupData("fixture");
 
     assertNull(dao.getResource(987654321L));
+  }
+
+  @Test
+  public void getResources_all() {
+    setupData("fixture");
+
+    List<ResourceDto> resources = dao.getResources(ResourceQuery.create());
+
+    assertThat(resources.size(), Is.is(4));
+  }
+
+  @Test
+  public void getResources_filter_by_qualifier() {
+    setupData("fixture");
+
+    List<ResourceDto> resources = dao.getResources(ResourceQuery.create().setQualifiers(new String[]{"TRK", "BRC"}));
+    assertThat(resources.size(), Is.is(2));
+    assertThat(resources, hasItems(new QualifierMatcher("TRK"), new QualifierMatcher("BRC")));
+
+    resources = dao.getResources(ResourceQuery.create().setQualifiers(new String[]{"XXX"}));
+    assertThat(resources.size(), Is.is(0));
+
+    resources = dao.getResources(ResourceQuery.create().setQualifiers(new String[]{}));
+    assertThat(resources.size(), Is.is(4));
+  }
+
+  @Test
+  public void getResourceIds_all() {
+    setupData("fixture");
+
+    List<Long> ids = dao.getResourceIds(ResourceQuery.create());
+
+    assertThat(ids.size(), Is.is(4));
+  }
+
+  @Test
+  public void getResourceIds_filter_by_qualifier() {
+    setupData("fixture");
+
+    List<Long> ids = dao.getResourceIds(ResourceQuery.create().setQualifiers(new String[]{"TRK", "BRC"}));
+    assertThat(ids.size(), Is.is(2));
+    assertThat(ids, hasItems(1l, 2l));
+
+    ids = dao.getResourceIds(ResourceQuery.create().setQualifiers(new String[]{"XXX"}));
+    assertThat(ids.size(), Is.is(0));
+
+    ids = dao.getResourceIds(ResourceQuery.create().setQualifiers(new String[]{}));
+    assertThat(ids.size(), Is.is(4));
+  }
+
+
+  private static class QualifierMatcher extends BaseMatcher<ResourceDto> {
+    private String qualifier;
+
+    private QualifierMatcher(String qualifier) {
+      this.qualifier = qualifier;
+    }
+
+    @Override
+    public boolean matches(Object o) {
+      return ((ResourceDto) o).getQualifier().equals(qualifier);
+    }
+
+    @Override
+    public void describeTo(Description description) {
+      description.appendText("qualifier " + qualifier);
+    }
   }
 }
 

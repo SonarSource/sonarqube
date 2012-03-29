@@ -3,7 +3,6 @@
 
 <mapper namespace="org.sonar.core.resource.ResourceMapper">
 
-
   <resultMap id="snapshotResultMap" type="Snapshot">
     <id property="id" column="id"/>
     <result property="parentId" column="parent_snapshot_id"/>
@@ -31,9 +30,31 @@
     <result property="qualifier" column="qualifier"/>
   </resultMap>
 
+  <select id="selectResources" parameterType="map" resultMap="resourceResultMap">
+    select *
+    from projects p
+    <where>
+      <if test="qualifiers != null and qualifiers.length!=0">
+        and p.qualifier in
+        <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator="," close=")">#{qualifier}</foreach>
+      </if>
+    </where>
+  </select>
+
+  <select id="selectResourceIds" parameterType="map" resultType="long">
+    select p.id
+    from projects p
+    <where>
+      <if test="qualifiers != null and qualifiers.length!=0">
+        and p.qualifier in
+        <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator="," close=")">#{qualifier}</foreach>
+      </if>
+    </where>
+  </select>
+
   <select id="selectResource" parameterType="long" resultMap="resourceResultMap">
-      select * from projects where id=#{id}
-    </select>
+    select * from projects where id=#{id}
+  </select>
 
   <select id="selectSnapshot" parameterType="long" resultMap="snapshotResultMap">
     select * from snapshots where id=#{id}

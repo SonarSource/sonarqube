@@ -19,22 +19,25 @@
  */
 package org.sonar.core.resource;
 
-import java.util.List;
+/**
+ * @since 2.15
+ */
+public final class ResourceQuery {
+  private String[] qualifiers = null;
 
-public interface ResourceMapper {
-  SnapshotDto selectSnapshot(Long snapshotId);
+  private ResourceQuery() {
+  }
 
-  ResourceDto selectResource(long id);
+  public static ResourceQuery create() {
+    return new ResourceQuery();
+  }
 
-  List<ResourceDto> selectDescendantProjects(long rootProjectId);
+  public String[] getQualifiers() {
+    return qualifiers;
+  }
 
-  /**
-   * @since 2.15
-   */
-  List<ResourceDto> selectResources(ResourceQuery query);
-
-  /**
-   * @since 2.15
-   */
-  List<Long> selectResourceIds(ResourceQuery query);
+  public ResourceQuery setQualifiers(String[] qualifiers) {
+    this.qualifiers = qualifiers;
+    return this;
+  }
 }
