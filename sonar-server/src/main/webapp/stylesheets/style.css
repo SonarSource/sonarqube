@@ -2501,20 +2501,27 @@ select.medium-width {
   padding: 10px;
 }
 
+#dependencies .col {
+  float: left;
+  margin: 0 10px 0 0;
+  border: 1px solid #ccc;
+}
+
 #dependencies .coltitle {
+  padding: 3px 10px;
+  text-align: center;
   background-color: #efefef;
+}
+
+#dependencies .colbody {
   padding: 3px;
   border-top: 1px solid #ccc;
-  border-bottom: 1px solid #ccc;
 }
 
-#dependencies .col {
-  margin: 0 10px 0 0;
-  border-right: 1px solid #ccc;
-  border-left: 1px solid #ccc;
-  border-bottom: 1px solid #ccc;
+#dependencies .colbody > div {
+  padding: 3px;
 }
 
-#dependencies .col td, #dependencies .col th {
-  padding: 3px 5px;
+#dependencies .colbody > div > img {
+  //vertical-align: baseline;
 }

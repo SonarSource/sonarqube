@@ -20,28 +20,26 @@
     deps = deps_by_m[:dependencies]
 %>
 
-  <div id="<%= metric_name -%>-deps" style="float: left">
-    <table class="col">
-      <thead>
-        <tr class="coltitle">
-          <th class="thin"></th>
-          <th><%= message('dependencies.' + metric_name) -%>: <b><%= format_measure(measure) -%></b></th>
-        </tr>
-      </thead>
+  <div id="<%= metric_name -%>-deps" class="col">
+  
+    <div class="coltitle">
+      <%= message('dependencies.' + metric_name) -%>: <b><%= format_measure(measure) -%></b>
+    </div>
     
-      <tbody>
+    <% unless deps.empty? %>
+    <div  class="colbody">
       <% 
          deps.each do |dep|
            resource = metric_name=='ca' ? dep.from : dep.to
       %>
-        <tr>
-          <td class="thin"><%= image_tag 'q/CLA.png'-%></td>
-          <td><%= link_to_resource resource, resource.long_name, {:tab => 'dependencies'} -%> (<%= dep.weight -%>)</td>
-        </tr>
+        <div>
+          <%= image_tag 'q/CLA.png'-%>
+          <%= link_to_resource resource, resource.long_name, {:tab => 'dependencies'} -%> (<%= dep.weight -%>)
+        </div>
       <% end %>
-      </tbody>
+    </div>
+    <% end %>
     
-    </table>
   </div>
 <% end %>
 
