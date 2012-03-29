@@ -10,7 +10,7 @@
 
   <insert id="insert" parameterType="Author" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     <selectKey order="BEFORE" resultType="Long" keyProperty="id">
-      select dashboards_seq.NEXTVAL from DUAL
+      select authors_seq.NEXTVAL from DUAL
     </selectKey>
     INSERT INTO authors (id, person_id, login, created_at, updated_at)
     VALUES (#{id}, #{personId, jdbcType=INTEGER}, #{login, jdbcType=VARCHAR},

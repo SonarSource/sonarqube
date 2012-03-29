@@ -41,8 +41,8 @@ public class AuthorDaoTest extends DaoTestCase {
     setupData("shouldSelect");
 
     AuthorDto authorDto = dao.select("godin");
-    assertThat(authorDto.getId(), is(1));
-    assertThat(authorDto.getPersonId(), is(13));
+    assertThat(authorDto.getId(), is(1L));
+    assertThat(authorDto.getPersonId(), is(13L));
     assertThat(authorDto.getLogin(), is("godin"));
 
     assertThat(dao.select("simon"), is(nullValue()));
@@ -54,7 +54,7 @@ public class AuthorDaoTest extends DaoTestCase {
 
     AuthorDto authorDto = new AuthorDto()
         .setLogin("godin")
-        .setPersonId(13);
+        .setPersonId(13L);
 
     dao.insert(authorDto);
 

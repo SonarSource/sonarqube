@@ -24,28 +24,28 @@ import java.util.Date;
 /**
  * @since 2.15
  */
-public class AuthorDto {
+public final class AuthorDto {
 
-  private Integer id;
-  private Integer personId;
+  private Long id;
+  private Long personId;
   private String login;
   private Date createdAt;
   private Date updatedAt;
 
-  public Integer getId() {
+  public Long getId() {
     return id;
   }
 
-  public AuthorDto setId(Integer id) {
+  public AuthorDto setId(Long id) {
     this.id = id;
     return this;
   }
 
-  public Integer getPersonId() {
+  public Long getPersonId() {
     return personId;
   }
 
-  public AuthorDto setPersonId(Integer personId) {
+  public AuthorDto setPersonId(Long personId) {
     this.personId = personId;
     return this;
   }
