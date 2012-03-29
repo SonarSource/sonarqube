@@ -25,7 +25,9 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.License;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
-import org.sonar.api.platform.*;
+import org.sonar.api.platform.ComponentContainer;
+import org.sonar.api.platform.PluginMetadata;
+import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.resources.Language;
@@ -76,6 +78,10 @@ public final class JRubyFacade {
 
   public Collection<ResourceType> getResourceTypesForFilter() {
     return getContainer().getComponentByType(ResourceTypes.class).getAll(ResourceTypes.AVAILABLE_FOR_FILTERS);
+  }
+
+  public Collection<ResourceType> getResourceTypes() {
+    return getContainer().getComponentByType(ResourceTypes.class).getAll();
   }
 
   public ResourceType getResourceType(String qualifier) {
@@ -418,7 +424,7 @@ public final class JRubyFacade {
   public String generateRandomSecretKey() {
     return getContainer().getComponentByType(Settings.class).getEncryption().generateRandomSecretKey();
   }
-  
+
   public License parseLicense(String base64) {
     return License.readBase64(base64);
   }

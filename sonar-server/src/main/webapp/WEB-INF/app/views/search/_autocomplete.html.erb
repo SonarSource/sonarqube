@@ -1,15 +1,16 @@
-<% unless @results_by_qualifier.empty? %>
+<% unless @resource_indexes_by_qualifier.empty? %>
   <ul>
     <%
-       Resourceable::QUALIFIERS.each do |qualifier|
-         if @results_by_qualifier[qualifier]
+       controller.java_facade.getResourceTypes().each do |resource_type|
+         resource_indexes = @resource_indexes_by_qualifier[resource_type.getQualifier()]
+         if resource_indexes
            first=true
-           @results_by_qualifier[qualifier].each do |resource_index|
+           resource_indexes.each do |resource_index|
              resource=@resources_by_id[resource_index.resource_id]
              if resource
 %>
         <li id="<%= resource.id -%>">
-          <div class="q"><%= message("qualifiers.#{qualifier}") if first -%></div>
+          <div class="q"><%= message("qualifiers.#{resource.qualifier}") if first -%></div>
           <%= qualifier_icon resource -%> <%= highlight(truncate(resource.name(true), :length => 65), params[:s]) -%>
         </li>
 <%             first=false

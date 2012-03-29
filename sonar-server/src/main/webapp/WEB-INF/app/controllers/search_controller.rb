@@ -41,11 +41,11 @@ class SearchController < ApplicationController
     @total = results.size
 
     resource_ids=[]
-    @results_by_qualifier={}
+    @resource_indexes_by_qualifier={}
     results.each do |resource_index|
       qualifier = fix_qualifier(resource_index.qualifier)
-      @results_by_qualifier[qualifier]||=[]
-      array=@results_by_qualifier[qualifier]
+      @resource_indexes_by_qualifier[qualifier]||=[]
+      array=@resource_indexes_by_qualifier[qualifier]
       if array.size<MAX_RESULTS
         resource_ids<<resource_index.resource_id
         array<<resource_index
@@ -54,7 +54,7 @@ class SearchController < ApplicationController
 
     @resources_by_id = {}
     unless resource_ids.empty?
-      Project.find(:all, :conditions => ['id in (?)', resource_ids]).each do |resource|
+      Project.find(:all, :conditions => ['id in (?) and enabled=?', resource_ids, true]).each do |resource|
         @resources_by_id[resource.id]=resource
       end
     end
