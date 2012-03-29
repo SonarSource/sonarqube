@@ -240,7 +240,7 @@ class Snapshot < ActiveRecord::Base
   def metrics
     @metrics ||=
       begin
-        measures_hash.keys.map { |metric_id| Metric::by_id(metric_id) }.uniq
+        measures_hash.keys.map { |metric_id| Metric::by_id(metric_id) }.uniq.compact
       end
   end
 
