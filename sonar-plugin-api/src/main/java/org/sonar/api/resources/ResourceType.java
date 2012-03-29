@@ -19,9 +19,12 @@
  */
 package org.sonar.api.resources;
 
+import java.util.Map;
+
 import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -40,6 +43,7 @@ public final class ResourceType {
     private String iconPath;
     private boolean availableForFilters = false;
     private boolean hasSourceCode = false;
+    private Map<String, String> properties = Maps.newHashMap();
 
     public Builder(String qualifier) {
       this.qualifier = qualifier;
@@ -63,6 +67,16 @@ public final class ResourceType {
       return this;
     }
 
+    /**
+     * @since 2.15
+     */
+    public Builder setProperty(String key, String value) {
+      Preconditions.checkNotNull(key);
+      Preconditions.checkNotNull(value);
+      properties.put(key, value);
+      return this;
+    }
+
     public ResourceType build() {
       if (Strings.isNullOrEmpty(iconPath)) {
         iconPath = "/images/q/" + qualifier + ".png";
@@ -81,12 +95,14 @@ public final class ResourceType {
   private final String iconPath;
   private final boolean hasSourceCode;
   private final boolean availableForFilters;
+  private Map<String, String> properties;
 
   private ResourceType(Builder builder) {
     this.qualifier = builder.qualifier;
     this.iconPath = builder.iconPath;
     this.availableForFilters = builder.availableForFilters;
     this.hasSourceCode = builder.hasSourceCode;
+    this.properties = Maps.newHashMap(builder.properties);
   }
 
   /**
@@ -106,6 +122,22 @@ public final class ResourceType {
 
   public boolean hasSourceCode() {
     return hasSourceCode;
+  }
+
+  /**
+   * @since 2.15
+   */
+  public String getStringProperty(String key) {
+    Preconditions.checkNotNull(key);
+    return properties.get(key);
+  }
+
+  /**
+   * @since 2.15
+   */
+  public Boolean getBooleanProperty(String key) {
+    Preconditions.checkNotNull(key);
+    return Boolean.valueOf(properties.get(key));
   }
 
   @Override

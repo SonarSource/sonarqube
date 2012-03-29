@@ -82,6 +82,14 @@ public final class JRubyFacade {
     return getContainer().getComponentByType(ResourceTypes.class).get(qualifier);
   }
 
+  public String getResourceTypeStringProperty(String resourceTypeQualifier, String resourceTypeProperty) {
+    return getResourceType(resourceTypeQualifier).getStringProperty(resourceTypeProperty);
+  }
+
+  public Boolean getResourceTypeBooleanProperty(String resourceTypeQualifier, String resourceTypeProperty) {
+    return getResourceType(resourceTypeQualifier).getBooleanProperty(resourceTypeProperty);
+  }
+
   public Collection<String> getResourceLeavesQualifiers(String qualifier) {
     return getContainer().getComponentByType(ResourceTypes.class).getLeavesQualifiers(qualifier);
   }

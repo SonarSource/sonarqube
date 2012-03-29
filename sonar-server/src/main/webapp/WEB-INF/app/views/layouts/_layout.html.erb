@@ -88,7 +88,7 @@
                 <li class="<%= 'selected' if request.request_uri.include?('/project/history') -%>">
                   <a href="<%= ApplicationController.root_context -%>/project/history/<%= @project.id -%>"><%= message('project_history.page') -%></a></li>
               <% end %>
-              <% if (@project.project?) %>
+              <% if controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'deletable') %>
                 <li class="<%= 'selected' if request.request_uri.include?('/project/deletion') -%>">
                   <a href="<%= ApplicationController.root_context -%>/project/deletion/<%= @project.id -%>"><%= message('project_deletion.page') -%></a></li>
               <% end %>

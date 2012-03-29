@@ -34,7 +34,7 @@ public final class DefaultResourceTypes extends ExtensionProvider implements Bat
   public ResourceTypeTree provide() {
     return ResourceTypeTree.builder()
 
-        .addType(ResourceType.builder(Qualifiers.PROJECT).build())
+        .addType(ResourceType.builder(Qualifiers.PROJECT).setProperty("deletable", "true").build())
         .addType(ResourceType.builder(Qualifiers.MODULE).build())
         .addType(ResourceType.builder(Qualifiers.DIRECTORY).build())
         .addType(ResourceType.builder(Qualifiers.PACKAGE).build())
