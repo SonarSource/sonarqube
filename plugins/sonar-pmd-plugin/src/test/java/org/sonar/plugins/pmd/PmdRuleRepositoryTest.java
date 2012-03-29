@@ -19,16 +19,21 @@
  */
 package org.sonar.plugins.pmd;
 
-import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-
-import java.util.List;
-
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.XMLRuleParser;
+
+import java.io.File;
+import java.util.Collections;
+import java.util.List;
+
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PmdRuleRepositoryTest {
 
@@ -38,6 +43,17 @@ public class PmdRuleRepositoryTest {
     PmdRuleRepository repository = new PmdRuleRepository(fileSystem, new XMLRuleParser());
     List<Rule> rules = repository.createRules();
     assertThat(rules.size(), greaterThan(100));
+  }
+
+  @Test
+  public void shouldLoadExtensions() {
+    ServerFileSystem fileSystem = mock(ServerFileSystem.class);
+    File file = FileUtils.toFile(getClass().getResource("/org/sonar/plugins/pmd/rules-extension.xml"));
+    when(fileSystem.getExtensions("pmd", "xml")).thenReturn(Collections.singletonList(file));
+    PmdRuleRepository repository = new PmdRuleRepository(fileSystem, new XMLRuleParser());
+    List<Rule> rules = repository.createRules();
+    assertThat(rules.size(), greaterThan(100));
+    assertThat(rules.get(rules.size() - 1).getKey(), is("Extension"));
   }
 
 }

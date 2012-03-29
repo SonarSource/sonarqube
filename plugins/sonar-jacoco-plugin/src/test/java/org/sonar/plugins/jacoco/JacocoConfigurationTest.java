@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.jacoco;
 
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.PropertyDefinitions;

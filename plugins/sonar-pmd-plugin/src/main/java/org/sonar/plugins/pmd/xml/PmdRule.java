@@ -34,7 +34,7 @@ public class PmdRule {
 
   private List<PmdProperty> properties = new ArrayList<PmdProperty>();
 
-  private String clazz;// NOSONAR unused private field
+  private String clazz;
 
   public PmdRule(String ref) {
     this(ref, null);
@@ -89,12 +89,20 @@ public class PmdRule {
     this.name = name;
   }
 
+  public String getName() {
+    return name;
+  }
+
   public void setMessage(String message) {
     this.message = message;
   }
 
   public String getMessage() {
     return message;
+  }
+
+  public void setClazz(String clazz) {
+    this.clazz = clazz;
   }
 
   public String getClazz() {
@@ -108,14 +116,6 @@ public class PmdRule {
   public void removeProperty(String propertyName) {
     PmdProperty prop = getProperty(propertyName);
     properties.remove(prop);
-  }
-
-  public void setClazz(String clazz) {
-    this.clazz = clazz;
-  }
-
-  public String getName() {
-    return name;
   }
 
   public boolean hasProperties() {

@@ -38,7 +38,8 @@ public class JacocoMavenInitializer extends Initializer implements CoverageExten
 
   @Override
   public boolean shouldExecuteOnProject(Project project) {
-    return project.getAnalysisType().equals(Project.AnalysisType.DYNAMIC) && project.getFileSystem().hasTestFiles(Java.INSTANCE);
+    return project.getAnalysisType().equals(Project.AnalysisType.DYNAMIC)
+      && !project.getFileSystem().testFiles(Java.KEY).isEmpty();
   }
 
   @Override

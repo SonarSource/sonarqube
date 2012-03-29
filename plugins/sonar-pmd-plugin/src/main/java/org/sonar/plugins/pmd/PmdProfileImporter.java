@@ -19,9 +19,6 @@
  */
 package org.sonar.plugins.pmd;
 
-import java.io.Reader;
-import java.util.List;
-
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.Namespace;
@@ -39,6 +36,11 @@ import org.sonar.api.utils.ValidationMessages;
 import org.sonar.plugins.pmd.xml.PmdProperty;
 import org.sonar.plugins.pmd.xml.PmdRule;
 import org.sonar.plugins.pmd.xml.PmdRuleset;
+
+import javax.annotation.Nullable;
+
+import java.io.Reader;
+import java.util.List;
 
 public class PmdProfileImporter extends ProfileImporter {
 
@@ -113,7 +115,7 @@ public class PmdProfileImporter extends ProfileImporter {
     }
   }
 
-  private List<Element> getChildren(Element parent, String childName, Namespace namespace) {
+  private List<Element> getChildren(Element parent, String childName, @Nullable Namespace namespace) {
     if (namespace == null) {
       return (List<Element>) parent.getChildren(childName);
     } else {
@@ -121,7 +123,7 @@ public class PmdProfileImporter extends ProfileImporter {
     }
   }
 
-  private void parsePmdProperties(Element eltRule, PmdRule pmdRule, Namespace namespace) {
+  private void parsePmdProperties(Element eltRule, PmdRule pmdRule, @Nullable Namespace namespace) {
     for (Element eltProperties : getChildren(eltRule, "properties", namespace)) {
       for (Element eltProperty : getChildren(eltProperties, "property", namespace)) {
         pmdRule.addProperty(new PmdProperty(eltProperty.getAttributeValue("name"), eltProperty.getAttributeValue("value")));
@@ -129,7 +131,7 @@ public class PmdProfileImporter extends ProfileImporter {
     }
   }
 
-  private void parsePmdPriority(Element eltRule, PmdRule pmdRule, Namespace namespace) {
+  private void parsePmdPriority(Element eltRule, PmdRule pmdRule, @Nullable Namespace namespace) {
     for (Element eltPriority : getChildren(eltRule, "priority", namespace)) {
       pmdRule.setPriority(eltPriority.getValue());
     }

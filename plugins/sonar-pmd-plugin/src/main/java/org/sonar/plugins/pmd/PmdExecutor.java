@@ -118,7 +118,7 @@ public class PmdExecutor implements BatchExtension {
       if (found) {
         return new FileInputStream(file);
       }
-      InputStream stream = getClass().getResourceAsStream(rulesetPath);
+      InputStream stream = PmdExecutor.class.getResourceAsStream(rulesetPath);
       if (stream == null) {
         throw new SonarException("The PMD ruleset can not be found: " + rulesetPath);
       }

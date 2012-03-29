@@ -19,19 +19,20 @@
  */
 package org.sonar.plugins.jacoco;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.api.resources.InputFile;
+import org.sonar.api.resources.Java;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
+
+import java.util.Collections;
+
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectFileSystem;
+import static org.mockito.Mockito.*;
 
 public class JacocoMavenInitializerTest {
   private JaCoCoMavenPluginHandler mavenPluginHandler;
@@ -54,7 +55,8 @@ public class JacocoMavenInitializerTest {
   @Test
   public void shouldExecuteMaven() {
     Project project = mockProject();
-    when(project.getFileSystem().hasTestFiles(argThat(is(Java.INSTANCE)))).thenReturn(true);
+    InputFile inputFile = mock(InputFile.class);
+    when(project.getFileSystem().testFiles(Java.KEY)).thenReturn(Collections.singletonList(inputFile));
     when(project.getAnalysisType()).thenReturn(Project.AnalysisType.DYNAMIC);
 
     assertThat(initializer.shouldExecuteOnProject(project), is(true));
@@ -64,7 +66,8 @@ public class JacocoMavenInitializerTest {
   @Test
   public void shouldNotExecuteMavenWhenReuseReports() {
     Project project = mockProject();
-    when(project.getFileSystem().hasTestFiles(argThat(is(Java.INSTANCE)))).thenReturn(true);
+    InputFile inputFile = mock(InputFile.class);
+    when(project.getFileSystem().testFiles(Java.KEY)).thenReturn(Collections.singletonList(inputFile));
     when(project.getAnalysisType()).thenReturn(Project.AnalysisType.REUSE_REPORTS);
 
     assertThat(initializer.shouldExecuteOnProject(project), is(false));

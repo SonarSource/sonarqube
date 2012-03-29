@@ -19,16 +19,6 @@
  */
 package org.sonar.plugins.jacoco;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.File;
-
-import org.apache.commons.configuration.BaseConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.maven.MavenPlugin;
@@ -37,6 +27,12 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.test.MavenTestUtils;
+
+import java.io.File;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Evgeny Mandrikov
