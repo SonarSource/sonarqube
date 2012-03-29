@@ -176,6 +176,10 @@
     delete from action_plans where project_id=#{id}
   </delete>
 
+  <delete id="deleteAuthors" parameterType="long">
+    delete from authors where person_id=#{id}
+  </delete>
+
   <update id="setSnapshotIsLastToFalse" parameterType="long">
     update snapshots set islast=${_false} where project_id=#{id}
   </update>

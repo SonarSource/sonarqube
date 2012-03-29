@@ -99,6 +99,11 @@ final class PurgeCommands {
       mapper.deleteResource(resourceId);
     }
     session.commit();
+
+    for (Long resourceId : resourceIds) {
+      mapper.deleteAuthors(resourceId);
+    }
+    session.commit();
   }
 
   @VisibleForTesting

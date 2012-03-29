@@ -83,7 +83,7 @@ public class PurgeCommandsTest extends DaoTestCase {
     } finally {
       MyBatis.closeQuietly(session);
     }
-    assertEmptyTables("projects", "snapshots", "events", "reviews", "review_comments");
+    assertEmptyTables("projects", "snapshots", "events", "reviews", "review_comments", "authors");
   }
 
 }
