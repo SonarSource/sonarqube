@@ -46,7 +46,7 @@ public final class ReviewPredicates {
     return ManualSeverityPredicate.INSTANCE;
   }
 
-  private static class StatusPredicate implements Predicate<ReviewDto> {
+  private static final class StatusPredicate implements Predicate<ReviewDto> {
     private String[] statuses;
 
     private StatusPredicate(String... statuses) {
@@ -58,7 +58,7 @@ public final class ReviewPredicates {
     }
   }
 
-  private static class ResolutionPredicate implements Predicate<ReviewDto> {
+  private static final class ResolutionPredicate implements Predicate<ReviewDto> {
     private String[] resolutions;
 
     private ResolutionPredicate(String... resolutions) {
@@ -70,7 +70,7 @@ public final class ReviewPredicates {
     }
   }
 
-  private static class ManualViolationPredicate implements Predicate<ReviewDto> {
+  private static final class ManualViolationPredicate implements Predicate<ReviewDto> {
     private static final ManualViolationPredicate INSTANCE = new ManualViolationPredicate();
 
     private ManualViolationPredicate() {
@@ -81,7 +81,7 @@ public final class ReviewPredicates {
     }
   }
 
-  private static class ManualSeverityPredicate implements Predicate<ReviewDto> {
+  private static final class ManualSeverityPredicate implements Predicate<ReviewDto> {
     private static final ManualSeverityPredicate INSTANCE = new ManualSeverityPredicate();
 
     private ManualSeverityPredicate() {
