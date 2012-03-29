@@ -137,7 +137,7 @@ public class PurgeDao {
     }
   }
 
-  public PurgeDao deleteProject(long rootProjectId) {
+  public PurgeDao deleteResourceTree(long rootProjectId) {
     final SqlSession session = mybatis.openBatchSession();
     final PurgeMapper mapper = session.getMapper(PurgeMapper.class);
     final PurgeVendorMapper vendorMapper = session.getMapper(PurgeVendorMapper.class);

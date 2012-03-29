@@ -399,8 +399,8 @@ public final class JRubyFacade {
     getContainer().getComponentByType(ResourceIndexerDao.class).indexProjects();
   }
 
-  public void deleteProject(long rootProjectId) {
-    getContainer().getComponentByType(PurgeDao.class).deleteProject(rootProjectId);
+  public void deleteResourceTree(long rootProjectId) {
+    getContainer().getComponentByType(PurgeDao.class).deleteResourceTree(rootProjectId);
   }
 
   public void logError(String message) {

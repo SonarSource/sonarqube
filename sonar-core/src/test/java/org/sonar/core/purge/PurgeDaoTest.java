@@ -111,7 +111,7 @@ public class PurgeDaoTest extends DaoTestCase {
   @Test
   public void shouldDeleteProject() {
     setupData("shouldDeleteProject");
-    dao.deleteProject(1L);
+    dao.deleteResourceTree(1L);
     assertEmptyTables("projects", "snapshots", "action_plans", "action_plans_reviews", "reviews", "review_comments");
   }
 

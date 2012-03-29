@@ -58,7 +58,7 @@ public class DefaultPurgeTask implements PurgeTask {
   }
 
   public PurgeTask delete(long resourceId) {
-    purgeDao.deleteProject(resourceId);
+    purgeDao.deleteResourceTree(resourceId);
     return this;
   }
 

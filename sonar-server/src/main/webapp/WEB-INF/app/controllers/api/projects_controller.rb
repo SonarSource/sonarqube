@@ -61,9 +61,8 @@ class Api::ProjectsController < Api::ApiController
     project = Project.by_key(params[:id])
     bad_request("Not valid project") unless project
     access_denied unless is_admin?(project)
-    bad_request("Not valid project") unless project.project?
       
-    Project.delete_project(project)
+    Project.delete_resource_tree(project)
     render_success("Project deleted")
   end
   

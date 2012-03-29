@@ -32,17 +32,18 @@ class ProjectController < ApplicationController
     not_found("Project not found") unless @project
     access_denied unless is_admin?(@project)
 
-    @snapshot=@project.last_snapshot
-    if !@project.project?
+    unless java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'deletable')
       redirect_to :action => 'index', :id => params[:id]
     end
+    
+    @snapshot=@project.last_snapshot
   end
 
   def delete
     if params[:id]
       @project = Project.by_key(params[:id])
-      if @project && @project.project? && is_admin?(@project)
-        Project.delete_project(@project)
+      if @project && is_admin?(@project)
+        Project.delete_resource_tree(@project)
       end
     end
     redirect_to_default
