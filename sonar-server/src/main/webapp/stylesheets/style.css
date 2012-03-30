@@ -2374,6 +2374,9 @@ table.nowrap td, td.nowrap, th.nowrap {
   text-align: left;
   white-space: normal;
 }
+.form-val-cell li {
+  margin-bottom: 5px;
+}
 
 .form-val-note {
   color: #999;
