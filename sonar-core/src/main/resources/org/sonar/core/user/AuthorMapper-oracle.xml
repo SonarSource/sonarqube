@@ -8,6 +8,11 @@
     FROM authors WHERE login=#{login}
   </select>
 
+  <select id="countDeveloperLogins" parameterType="long" resultType="int">
+    SELECT count(id)
+    FROM authors WHERE person_id=#{id}
+  </select>
+
   <insert id="insert" parameterType="Author" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     <selectKey order="BEFORE" resultType="Long" keyProperty="id">
       select authors_seq.NEXTVAL from DUAL

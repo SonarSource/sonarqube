@@ -3,9 +3,14 @@
 
 <mapper namespace="org.sonar.core.user.AuthorMapper">
 
-  <select id="select" parameterType="string" resultType="Author">
+  <select id="selectByLogin" parameterType="string" resultType="Author">
     SELECT id, person_id AS "personId", login, created_at AS "createdAt", updated_at AS "updatedAt"
-    FROM authors WHERE login=#{login}
+    FROM authors WHERE login=#{id}
+  </select>
+
+  <select id="countDeveloperLogins" parameterType="long" resultType="int">
+    SELECT count(id)
+    FROM authors WHERE person_id=#{id}
   </select>
 
   <insert id="insert" parameterType="Author" useGeneratedKeys="true" keyProperty="id">

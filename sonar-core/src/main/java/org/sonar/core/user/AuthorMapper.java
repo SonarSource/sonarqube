@@ -26,8 +26,9 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface AuthorMapper {
 
-  AuthorDto select(@Param("login") String login);
+  AuthorDto selectByLogin(String login);
 
   void insert(AuthorDto authorDto);
 
+  int countDeveloperLogins(long developerId);
 }

@@ -37,15 +37,15 @@ public class AuthorDaoTest extends DaoTestCase {
   }
 
   @Test
-  public void shouldSelect() {
-    setupData("shouldSelect");
+  public void shouldSelectByLogin() {
+    setupData("shouldSelectByLogin");
 
-    AuthorDto authorDto = dao.select("godin");
+    AuthorDto authorDto = dao.selectByLogin("godin");
     assertThat(authorDto.getId(), is(1L));
     assertThat(authorDto.getPersonId(), is(13L));
     assertThat(authorDto.getLogin(), is("godin"));
 
-    assertThat(dao.select("simon"), is(nullValue()));
+    assertThat(dao.selectByLogin("simon"), is(nullValue()));
   }
 
   @Test
@@ -58,6 +58,14 @@ public class AuthorDaoTest extends DaoTestCase {
 
     dao.insert(authorDto);
 
-    checkTables("shouldInsert", new String[] {"created_at", "updated_at"}, "authors");
+    checkTables("shouldInsert", new String[]{"created_at", "updated_at"}, "authors");
+  }
+
+  @Test
+  public void countDeveloperLogins() {
+    setupData("countDeveloperLogins");
+
+    assertThat(dao.countDeveloperLogins(1L), is(2));
+    assertThat(dao.countDeveloperLogins(98765L), is(0));
   }
 }

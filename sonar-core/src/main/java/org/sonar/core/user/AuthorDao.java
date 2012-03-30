@@ -35,11 +35,21 @@ public class AuthorDao implements BatchComponent, ServerComponent {
     this.mybatis = mybatis;
   }
 
-  public AuthorDto select(String login) {
+  public AuthorDto selectByLogin(String login) {
     SqlSession session = mybatis.openSession();
     try {
       AuthorMapper mapper = session.getMapper(AuthorMapper.class);
-      return mapper.select(login);
+      return mapper.selectByLogin(login);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public int countDeveloperLogins(long developerId) {
+    SqlSession session = mybatis.openSession();
+    try {
+      AuthorMapper mapper = session.getMapper(AuthorMapper.class);
+      return mapper.countDeveloperLogins(developerId);
     } finally {
       MyBatis.closeQuietly(session);
     }
