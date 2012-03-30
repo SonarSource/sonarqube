@@ -163,12 +163,14 @@
                <%= link_to_remote message('edit'),
                                   :url => {:controller => "project_reviews", :action => "comment_form", :comment_id => comment.id, :id => review.id},
                                   :update => "lastComment",
-                                  :complete => "$('commentAction').remove();$('editActions').hide();$('commentText').focus();" -%>
+                                  :complete => "$('commentAction').remove();$('editActions').hide();$('commentText').focus();",
+                                  :html => {:class => 'link-action'} -%>
                &nbsp;
                  <%= link_to_remote message('delete'),
                                     :url => {:controller => "project_reviews", :action => "delete_comment", :comment_id => comment.id, :id => review.id},
                                     :update => "review",
-                                    :confirm => message('reviews.do_you_want_to_delete_comment') -%>
+                                    :confirm => message('reviews.do_you_want_to_delete_comment'),
+                                    :html => {:class => 'link-action'} -%>
              <%
                 end
              %>
