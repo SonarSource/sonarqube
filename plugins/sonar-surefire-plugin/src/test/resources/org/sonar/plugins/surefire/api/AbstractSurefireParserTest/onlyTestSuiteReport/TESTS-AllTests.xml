@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites>
+<testsuite errors="0" skipped="1" tests="11" time="0.08" failures="0"
+           name="org.sonar.JavaNCSSCollectorTest">
+  <testcase time="0.013" name="testCollectWithPluginConfiguration"/>
+  <testcase time="0.024" name="testGetEmptyJdbcPassword"/>
+  <testcase time="6.889" name="testPopulateWithoutAnyReport"/>
+  <testcase time="0.697" name="testPopulateWithJavaNcssReport"/>
+  <testcase time="0.665" name="testPopulateWithJDependsReport"/>
+  <testcase time="0.283" name="testPopulateWithCloverReport"/>
+  <testcase time="0.592" name="testPopulateWithCheckstyleReport"/>
+  <testcase time="0.014" name="testCollectWithoutPluginConfiguration"/>
+  <testcase time="0.001" name="testCollectWithPluginConfiguration"/>
+  <testcase time="0.074" name="testCollectWithoutPluginConfiguration"/>
+  <testcase time="0.003" name="testCollectWithPluginConfiguration"/>
+</testsuite>
+<testsuite errors="0" skipped="1" tests="4" time="0.08" failures="0"
+           name="org.sonar.SecondTest">
+  <testcase time="0.014" name="testCollectWithoutPluginConfiguration"/>
+  <testcase time="0.001" name="testCollectWithPluginConfiguration"/>
+  <testcase time="0.074" name="testCollectWithoutPluginConfiguration"/>
+  <testcase time="0.003" name="testCollectWithPluginConfiguration"/>
+</testsuite>
+</testsuites>

@@ -19,6 +19,12 @@
  */
 package org.sonar.plugins.surefire.api;
 
+import java.io.File;
+import java.io.FilenameFilter;
+import java.util.Map;
+
+import javax.xml.stream.XMLStreamException;
+
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
@@ -32,12 +38,6 @@ import org.sonar.api.utils.StaxParser;
 import org.sonar.plugins.surefire.data.SurefireStaxHandler;
 import org.sonar.plugins.surefire.data.UnitTestClassReport;
 import org.sonar.plugins.surefire.data.UnitTestIndex;
-
-import java.io.File;
-import java.io.FilenameFilter;
-import java.util.Map;
-
-import javax.xml.stream.XMLStreamException;
 
 /**
  * @since 2.4
@@ -61,9 +61,18 @@ public abstract class AbstractSurefireParser {
     if (dir == null || !dir.isDirectory() || !dir.exists()) {
       return new File[0];
     }
+    File[] unitTestResultFiles = findXMLFilesStartingWith(dir, "TEST-");
+    if (unitTestResultFiles.length == 0) {
+      // maybe there's only a test suite result file
+      unitTestResultFiles = findXMLFilesStartingWith(dir, "TESTS-");
+    }
+    return unitTestResultFiles;
+  }
+
+  private File[] findXMLFilesStartingWith(File dir, final String fileNameStart) {
     return dir.listFiles(new FilenameFilter() {
       public boolean accept(File dir, String name) {
-        return name.startsWith("TEST-") && name.endsWith(".xml");
+        return name.startsWith(fileNameStart) && name.endsWith(".xml");
       }
     });
   }
