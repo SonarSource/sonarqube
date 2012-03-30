@@ -163,6 +163,11 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
     return view.getId();
   }
 
+  public boolean isController() {
+    String id = view.getId();
+    return id !=null && id.length()>0 && id.charAt(0)=='/';
+  }
+
   public String getTitle() {
     return view.getTitle();
   }
