@@ -110,8 +110,7 @@
 
   <delete id="deleteSnapshotWastedMeasures" parameterType="long">
     delete from project_measures where snapshot_id=#{id} and
-    (rule_id is not null or metric_id in (select id from metrics where
-    delete_historical_data=${_true}))
+    (rule_id is not null or person_id is not null or metric_id in (select id from metrics where delete_historical_data=${_true}))
   </delete>
 
   <delete id="deleteSnapshotMeasuresOnQualityModelRequirements" parameterType="long">
