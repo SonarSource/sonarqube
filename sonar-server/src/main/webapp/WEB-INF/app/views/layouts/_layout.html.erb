@@ -89,6 +89,11 @@
               <% if (@project.project? || @project.view? || @project.subview?) %>
                 <li class="<%= 'selected' if request.request_uri.include?('/project_roles') -%>">
                   <a href="<%= ApplicationController.root_context -%>/project_roles/index?resource=<%= @project.id -%>"><%= message('project_roles.page') -%></a></li>
+              <% end %>
+              <%
+                 # NOTE: we keep "@project.view? || @project.subview?" in the test for backward compatibility with the Views plugin
+                 if (controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'modifiable_history') || @project.view? || @project.subview?) 
+              %>
                 <li class="<%= 'selected' if request.request_uri.include?('/project/history') -%>">
                   <a href="<%= ApplicationController.root_context -%>/project/history/<%= @project.id -%>"><%= message('project_history.page') -%></a></li>
               <% end %>

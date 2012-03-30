@@ -54,7 +54,8 @@ class ProjectController < ApplicationController
     not_found("Project not found") unless @project
     access_denied unless is_admin?(@project)
 
-    if !(@project.project? || @project.view? || @project.subview?)
+    # NOTE: we keep "@project.view? || @project.subview?" in the test for backward compatibility with the Views plugin
+    unless java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'modifiable_history') || @project.view? || @project.subview?
       redirect_to :action => 'index', :id => params[:id]
     end
 

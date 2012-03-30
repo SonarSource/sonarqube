@@ -41,6 +41,7 @@ import com.google.common.collect.Maps;
  * <ul>
  *   <li>"deletable": if set to "true", then this resource can be deleted/purged.</li>
  *   <li>"availableForFilters": if set to "true", then this resource can be displayed in the filters results</li>
+ *   <li>"modifiable_history": if set to "true", then the history of this resource may be modified (deletion of snapshots, modification of events, ...)</li>
  * </ul>
  *
  * @since 2.14
@@ -49,17 +50,26 @@ import com.google.common.collect.Maps;
 @Immutable
 public final class ResourceType {
 
+  /**
+   * Builder used to create {@link ResourceType} objects.
+   */
   public static class Builder {
     private String qualifier;
     private String iconPath;
     private boolean hasSourceCode = false;
     private Map<String, String> properties = Maps.newHashMap();
 
+    /**
+     * Creates a new {@link Builder}
+     * @param qualifier
+     */
     public Builder(String qualifier) {
       this.qualifier = qualifier;
     }
 
     /**
+     * Relative path of the icon used to represent the resource type.
+     * 
      * @param iconPath path to icon, relative to context of web-application (e.g. "/images/q/DIR.png")
      */
     public Builder setIconPath(@Nullable String iconPath) {
@@ -76,12 +86,17 @@ public final class ResourceType {
       return this;
     }
 
+    /**
+     * Tells that the resources of this type will have source code.
+     */
     public Builder hasSourceCode() {
       this.hasSourceCode = true;
       return this;
     }
 
     /**
+     * Sets a property on the resource type. See the description of {@link ResourceType} class for more information.
+     * 
      * @since 2.15
      */
     public Builder setProperty(String key, String value) {
@@ -91,6 +106,9 @@ public final class ResourceType {
       return this;
     }
 
+    /**
+     * Creates an instance of {@link ResourceType} based on all information given to the builder.
+     */
     public ResourceType build() {
       if (Strings.isNullOrEmpty(iconPath)) {
         iconPath = "/images/q/" + qualifier + ".png";
@@ -99,6 +117,10 @@ public final class ResourceType {
     }
   }
 
+  /**
+   * Creates a new {@link Builder}
+   * @param qualifier
+   */
   public static Builder builder(String qualifier) {
     Preconditions.checkNotNull(qualifier);
     Preconditions.checkArgument(qualifier.length() <= 10, "Qualifier is limited to 10 characters");
@@ -118,12 +140,19 @@ public final class ResourceType {
   }
 
   /**
-   * Qualifier is the unique key
+   * Qualifier is the unique key.
+   * 
+   * @return the qualifier
    */
   public String getQualifier() {
     return qualifier;
   }
 
+  /**
+   * Returns the relative path of the icon used to represent the resource type
+   * 
+   * @return the relative path.
+   */
   public String getIconPath() {
     return iconPath;
   }
@@ -137,11 +166,19 @@ public final class ResourceType {
     return availableForFilters == null ? false : availableForFilters.booleanValue();
   }
 
+  /**
+   * Tells whether resources of this type has source code or not.
+   * 
+   * @return true if the type has source code
+   */
   public boolean hasSourceCode() {
     return hasSourceCode;
   }
 
   /**
+   * Returns the value of the property for this resource type.
+   * 
+   * @return the String value of the property, or NULL if the property hasn't been set.
    * @since 2.15
    */
   public String getStringProperty(String key) {
@@ -150,6 +187,9 @@ public final class ResourceType {
   }
 
   /**
+   * Returns the value of the property for this resource type.
+   * 
+   * @return the Boolean value of the property. If the property hasn't been set, False is returned.
    * @since 2.15
    */
   public Boolean getBooleanProperty(String key) {
