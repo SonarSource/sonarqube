@@ -31,6 +31,16 @@ import org.sonar.api.web.DashboardTemplate;
  */
 public final class TimeMachineDashboard extends DashboardTemplate {
 
+  private static final String TIME_MACHINE_ID = "time_machine";
+  private static final String DISPLAY_SPARK_LINE = "displaySparkLine";
+  private static final String METRIC1 = "metric1";
+  private static final String METRIC2 = "metric2";
+  private static final String METRIC3 = "metric3";
+  private static final String METRIC4 = "metric4";
+  private static final String METRIC5 = "metric5";
+  private static final String METRIC6 = "metric6";
+  private static final String METRIC7 = "metric7";
+
   @Override
   public String getName() {
     return "TimeMachine";
@@ -47,64 +57,64 @@ public final class TimeMachineDashboard extends DashboardTemplate {
 
   private void addFirstColumn(Dashboard dashboard) {
     Widget timelineWidget = dashboard.addWidget("timeline", 1);
-    timelineWidget.setProperty("metric1", "complexity");
-    timelineWidget.setProperty("metric2", "violations_density");
-    timelineWidget.setProperty("metric3", "coverage");
+    timelineWidget.setProperty(METRIC1, "complexity");
+    timelineWidget.setProperty(METRIC2, "violations_density");
+    timelineWidget.setProperty(METRIC3, "coverage");
     
-    Widget sizeTimeMachineWidget = dashboard.addWidget("time_machine", 1);
-    sizeTimeMachineWidget.setProperty("displaySparkLine", "true");
-    sizeTimeMachineWidget.setProperty("metric1", "ncloc");
-    sizeTimeMachineWidget.setProperty("metric2", "lines");
-    sizeTimeMachineWidget.setProperty("metric3", "statements");
-    sizeTimeMachineWidget.setProperty("metric4", "files");
-    sizeTimeMachineWidget.setProperty("metric5", "classes");
-    sizeTimeMachineWidget.setProperty("metric6", "functions");
-    sizeTimeMachineWidget.setProperty("metric7", "accessors");
+    Widget sizeTimeMachineWidget = dashboard.addWidget(TIME_MACHINE_ID, 1);
+    sizeTimeMachineWidget.setProperty(DISPLAY_SPARK_LINE, "true");
+    sizeTimeMachineWidget.setProperty(METRIC1, "ncloc");
+    sizeTimeMachineWidget.setProperty(METRIC2, "lines");
+    sizeTimeMachineWidget.setProperty(METRIC3, "statements");
+    sizeTimeMachineWidget.setProperty(METRIC4, "files");
+    sizeTimeMachineWidget.setProperty(METRIC5, "classes");
+    sizeTimeMachineWidget.setProperty(METRIC6, "functions");
+    sizeTimeMachineWidget.setProperty(METRIC7, "accessors");
     
-    Widget commentsTimeMachineWidget = dashboard.addWidget("time_machine", 1);
-    commentsTimeMachineWidget.setProperty("displaySparkLine", "true");
-    commentsTimeMachineWidget.setProperty("metric1", "comment_lines_density");
-    commentsTimeMachineWidget.setProperty("metric2", "comment_lines");
-    commentsTimeMachineWidget.setProperty("metric3", "public_documented_api_density");
-    commentsTimeMachineWidget.setProperty("metric4", "public_undocumented_api");
+    Widget commentsTimeMachineWidget = dashboard.addWidget(TIME_MACHINE_ID, 1);
+    commentsTimeMachineWidget.setProperty(DISPLAY_SPARK_LINE, "true");
+    commentsTimeMachineWidget.setProperty(METRIC1, "comment_lines_density");
+    commentsTimeMachineWidget.setProperty(METRIC2, "comment_lines");
+    commentsTimeMachineWidget.setProperty(METRIC3, "public_documented_api_density");
+    commentsTimeMachineWidget.setProperty(METRIC4, "public_undocumented_api");
     
-    Widget duplicationTimeMachineWidget = dashboard.addWidget("time_machine", 1);
-    duplicationTimeMachineWidget.setProperty("displaySparkLine", "true");
-    duplicationTimeMachineWidget.setProperty("metric1", "duplicated_lines_density");
-    duplicationTimeMachineWidget.setProperty("metric2", "duplicated_lines");
-    duplicationTimeMachineWidget.setProperty("metric3", "duplicated_blocks");
-    duplicationTimeMachineWidget.setProperty("metric4", "duplicated_files");
+    Widget duplicationTimeMachineWidget = dashboard.addWidget(TIME_MACHINE_ID, 1);
+    duplicationTimeMachineWidget.setProperty(DISPLAY_SPARK_LINE, "true");
+    duplicationTimeMachineWidget.setProperty(METRIC1, "duplicated_lines_density");
+    duplicationTimeMachineWidget.setProperty(METRIC2, "duplicated_lines");
+    duplicationTimeMachineWidget.setProperty(METRIC3, "duplicated_blocks");
+    duplicationTimeMachineWidget.setProperty(METRIC4, "duplicated_files");
   }
 
   private void addSecondColumn(Dashboard dashboard) {
-    Widget rulesTimeMachineWidget = dashboard.addWidget("time_machine", 2);
-    rulesTimeMachineWidget.setProperty("displaySparkLine", "true");
-    rulesTimeMachineWidget.setProperty("metric1", "violations");
-    rulesTimeMachineWidget.setProperty("metric2", "violation_density");
-    rulesTimeMachineWidget.setProperty("metric3", "blocker_violations");
-    rulesTimeMachineWidget.setProperty("metric4", "critical_violations");
-    rulesTimeMachineWidget.setProperty("metric5", "major_violations");
-    rulesTimeMachineWidget.setProperty("metric6", "minor_violations");
-    rulesTimeMachineWidget.setProperty("metric7", "info_violations");
-    rulesTimeMachineWidget.setProperty("metric7", "weighted_violations");
+    Widget rulesTimeMachineWidget = dashboard.addWidget(TIME_MACHINE_ID, 2);
+    rulesTimeMachineWidget.setProperty(DISPLAY_SPARK_LINE, "true");
+    rulesTimeMachineWidget.setProperty(METRIC1, "violations");
+    rulesTimeMachineWidget.setProperty(METRIC2, "violation_density");
+    rulesTimeMachineWidget.setProperty(METRIC3, "blocker_violations");
+    rulesTimeMachineWidget.setProperty(METRIC4, "critical_violations");
+    rulesTimeMachineWidget.setProperty(METRIC5, "major_violations");
+    rulesTimeMachineWidget.setProperty(METRIC6, "minor_violations");
+    rulesTimeMachineWidget.setProperty(METRIC7, "info_violations");
+    rulesTimeMachineWidget.setProperty(METRIC7, "weighted_violations");
 
-    Widget complexityTimeMachineWidget = dashboard.addWidget("time_machine", 2);
-    complexityTimeMachineWidget.setProperty("displaySparkLine", "true");
-    complexityTimeMachineWidget.setProperty("metric1", "complexity");
-    complexityTimeMachineWidget.setProperty("metric2", "function_complexity");
-    complexityTimeMachineWidget.setProperty("metric3", "class_complexity");
-    complexityTimeMachineWidget.setProperty("metric4", "file_complexity");
+    Widget complexityTimeMachineWidget = dashboard.addWidget(TIME_MACHINE_ID, 2);
+    complexityTimeMachineWidget.setProperty(DISPLAY_SPARK_LINE, "true");
+    complexityTimeMachineWidget.setProperty(METRIC1, "complexity");
+    complexityTimeMachineWidget.setProperty(METRIC2, "function_complexity");
+    complexityTimeMachineWidget.setProperty(METRIC3, "class_complexity");
+    complexityTimeMachineWidget.setProperty(METRIC4, "file_complexity");
 
-    Widget testsTimeMachineWidget = dashboard.addWidget("time_machine", 2);
-    testsTimeMachineWidget.setProperty("displaySparkLine", "true");
-    testsTimeMachineWidget.setProperty("metric1", "coverage");
-    testsTimeMachineWidget.setProperty("metric2", "line_coverage");
-    testsTimeMachineWidget.setProperty("metric3", "branch_coverage");
-    testsTimeMachineWidget.setProperty("metric4", "test_success_density");
-    testsTimeMachineWidget.setProperty("metric5", "test_failures");
-    testsTimeMachineWidget.setProperty("metric6", "test_errors");
-    testsTimeMachineWidget.setProperty("metric7", "tests");
-    testsTimeMachineWidget.setProperty("metric7", "test_execution_time");
+    Widget testsTimeMachineWidget = dashboard.addWidget(TIME_MACHINE_ID, 2);
+    testsTimeMachineWidget.setProperty(DISPLAY_SPARK_LINE, "true");
+    testsTimeMachineWidget.setProperty(METRIC1, "coverage");
+    testsTimeMachineWidget.setProperty(METRIC2, "line_coverage");
+    testsTimeMachineWidget.setProperty(METRIC3, "branch_coverage");
+    testsTimeMachineWidget.setProperty(METRIC4, "test_success_density");
+    testsTimeMachineWidget.setProperty(METRIC5, "test_failures");
+    testsTimeMachineWidget.setProperty(METRIC6, "test_errors");
+    testsTimeMachineWidget.setProperty(METRIC7, "tests");
+    testsTimeMachineWidget.setProperty(METRIC7, "test_execution_time");
   }
 
 }
