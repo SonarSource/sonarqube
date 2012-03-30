@@ -19,8 +19,6 @@
  */
 package org.sonar.core.user;
 
-import org.apache.ibatis.annotations.Param;
-
 /**
  * @since 2.15
  */
