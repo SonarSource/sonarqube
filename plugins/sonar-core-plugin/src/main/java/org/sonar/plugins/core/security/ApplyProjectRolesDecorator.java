@@ -23,6 +23,7 @@ import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 
 public class ApplyProjectRolesDecorator implements Decorator {
@@ -57,9 +58,9 @@ public class ApplyProjectRolesDecorator implements Decorator {
   }
 
   private boolean isProject(Resource resource) {
-    if (Resource.QUALIFIER_PROJECT.equals(resource.getQualifier()) ||
-        Resource.QUALIFIER_VIEW.equals(resource.getQualifier()) ||
-        Resource.QUALIFIER_SUBVIEW.equals(resource.getQualifier())) {
+    if (Qualifiers.PROJECT.equals(resource.getQualifier()) ||
+        Qualifiers.VIEW.equals(resource.getQualifier()) ||
+        Qualifiers.SUBVIEW.equals(resource.getQualifier())) {
       return resource instanceof Project;
     }
     return false;
