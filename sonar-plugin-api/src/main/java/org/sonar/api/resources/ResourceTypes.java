@@ -43,7 +43,7 @@ public final class ResourceTypes implements BatchComponent, ServerComponent {
 
   public static final Predicate<ResourceType> AVAILABLE_FOR_FILTERS = new Predicate<ResourceType>() {
     public boolean apply(ResourceType input) {
-      return input.isAvailableForFilters();
+      return Boolean.TRUE.equals(input.getBooleanProperty("availableForFilters"));
     }
   };
 

@@ -34,21 +34,21 @@ import static org.junit.internal.matchers.IsCollectionContaining.hasItems;
 public class ResourceTypesTest {
 
   private ResourceTypeTree viewsTree = ResourceTypeTree.builder()
-      .addType(ResourceType.builder(Qualifiers.VIEW).availableForFilters().build())
+      .addType(ResourceType.builder(Qualifiers.VIEW).setProperty("availableForFilters", "true").build())
       .addType(ResourceType.builder(Qualifiers.SUBVIEW).build())
       .addRelations(Qualifiers.VIEW, Qualifiers.SUBVIEW)
       .addRelations(Qualifiers.SUBVIEW, Qualifiers.PROJECT)
       .build();
 
   private ResourceTypeTree defaultTree = ResourceTypeTree.builder()
-      .addType(ResourceType.builder(Qualifiers.PROJECT).availableForFilters().build())
+      .addType(ResourceType.builder(Qualifiers.PROJECT).setProperty("availableForFilters", "true").build())
       .addType(ResourceType.builder(Qualifiers.DIRECTORY).build())
       .addType(ResourceType.builder(Qualifiers.FILE).build())
       .addRelations(Qualifiers.PROJECT, Qualifiers.DIRECTORY)
       .addRelations(Qualifiers.DIRECTORY, Qualifiers.FILE)
       .build();
 
-  private ResourceTypes types = new ResourceTypes(new ResourceTypeTree[]{viewsTree, defaultTree});
+  private ResourceTypes types = new ResourceTypes(new ResourceTypeTree[] {viewsTree, defaultTree});
 
   @Test
   public void get() {
@@ -116,7 +116,7 @@ public class ResourceTypesTest {
         .addType(ResourceType.builder("foo").build())
         .build();
 
-    new ResourceTypes(new ResourceTypeTree[]{tree1, tree2});
+    new ResourceTypes(new ResourceTypeTree[] {tree1, tree2});
   }
 
   static Collection<String> qualifiers(Collection<ResourceType> types) {

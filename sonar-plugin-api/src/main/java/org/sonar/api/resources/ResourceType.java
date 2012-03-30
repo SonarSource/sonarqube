@@ -21,16 +21,27 @@ package org.sonar.api.resources;
 
 import java.util.Map;
 
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+
 import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
-
 /**
- * Experimental extension to declare types of resources.
+ * <p>Experimental extension to declare types of resources.</p>
+ * <p>
+ * Since 2.15, ResourceType object can declare properties that give information about the capabilities of the
+ * resource type. Those properties may be used, of instance, to adapt the Web UI according to the type of 
+ * the resource being displayed.
+ * <br>
+ * Currently, the following properties can be defined:
+ * </p>
+ * <ul>
+ *   <li>"deletable": if set to "true", then this resource can be deleted/purged.</li>
+ *   <li>"availableForFilters": if set to "true", then this resource can be displayed in the filters results</li>
+ * </ul>
  *
  * @since 2.14
  */
@@ -41,7 +52,6 @@ public final class ResourceType {
   public static class Builder {
     private String qualifier;
     private String iconPath;
-    private boolean availableForFilters = false;
     private boolean hasSourceCode = false;
     private Map<String, String> properties = Maps.newHashMap();
 
@@ -57,8 +67,12 @@ public final class ResourceType {
       return this;
     }
 
+    /**
+     * @deprecated since 2.15. Use {@link #setProperty(String, String)} with "availableForFilters" set to "true".
+     */
+    @Deprecated
     public Builder availableForFilters() {
-      this.availableForFilters = true;
+      setProperty("availableForFilters", "true");
       return this;
     }
 
@@ -94,13 +108,11 @@ public final class ResourceType {
   private final String qualifier;
   private final String iconPath;
   private final boolean hasSourceCode;
-  private final boolean availableForFilters;
   private Map<String, String> properties;
 
   private ResourceType(Builder builder) {
     this.qualifier = builder.qualifier;
     this.iconPath = builder.iconPath;
-    this.availableForFilters = builder.availableForFilters;
     this.hasSourceCode = builder.hasSourceCode;
     this.properties = Maps.newHashMap(builder.properties);
   }
@@ -116,8 +128,13 @@ public final class ResourceType {
     return iconPath;
   }
 
+  /**
+   * @deprecated since 2.15. Use {@link #getBooleanProperty(String)} with "availableForFilters".
+   */
+  @Deprecated
   public boolean isAvailableForFilters() {
-    return availableForFilters;
+    Boolean availableForFilters = getBooleanProperty("availableForFilters");
+    return availableForFilters == null ? false : availableForFilters.booleanValue();
   }
 
   public boolean hasSourceCode() {

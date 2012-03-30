@@ -19,10 +19,10 @@
  */
 package org.sonar.api.resources;
 
-import org.junit.Test;
-
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+
+import org.junit.Test;
 
 public class ResourceTypeTest {
 
@@ -39,13 +39,15 @@ public class ResourceTypeTest {
   public void shouldCreate() {
     ResourceType def = ResourceType.builder("qualifier")
         .setIconPath("/custom-icon.png")
-        .availableForFilters()
         .hasSourceCode()
+        .setProperty("availableForFilters", "true")
+        .setProperty("anotherProperty", "foo")
         .build();
     assertThat(def.getQualifier(), is("qualifier"));
     assertThat(def.getIconPath(), is("/custom-icon.png"));
-    assertThat(def.isAvailableForFilters(), is(true));
     assertThat(def.hasSourceCode(), is(true));
+    assertThat(def.getBooleanProperty("availableForFilters"), is(true));
+    assertThat(def.getStringProperty("anotherProperty"), is("foo"));
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -64,6 +66,21 @@ public class ResourceTypeTest {
     assertThat(foo1.equals(bar), is(false));
 
     assertThat(foo1.hashCode(), is(foo1.hashCode()));
+  }
+
+  @Test
+  public void testDeprecatedIsAvailableForFiltesCompatibility() {
+    // test getter
+    ResourceType def = ResourceType.builder("qualifier")
+        .setProperty("availableForFilters", "true")
+        .build();
+    assertThat(def.isAvailableForFilters(), is(true));
+
+    // test setter on Builder
+    def = ResourceType.builder("qualifier")
+        .availableForFilters()
+        .build();
+    assertThat(def.getBooleanProperty("availableForFilters"), is(true));
   }
 
 }
