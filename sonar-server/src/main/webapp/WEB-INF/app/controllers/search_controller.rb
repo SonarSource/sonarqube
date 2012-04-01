@@ -24,12 +24,10 @@ class SearchController < ApplicationController
   # Do not exceed 1000 because of the Oracle limition on IN statements
   MAX_RESULTS = 6
 
-  MIN_SEARCH_SIZE=3
-
   def index
     @start_time = Time.now
     search = params[:s]
-    bad_request('Minimum search is 3 characters') if search.empty? || search.to_s.size<MIN_SEARCH_SIZE
+    bad_request("Minimum search is #{ResourceIndex::MIN_SEARCH_SIZE} characters") if search.empty? || search.to_s.size<ResourceIndex::MIN_SEARCH_SIZE
 
     key = search.downcase
     results = ResourceIndex.find(:all,

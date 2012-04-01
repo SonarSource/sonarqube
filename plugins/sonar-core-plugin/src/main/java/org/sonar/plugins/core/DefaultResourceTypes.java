@@ -37,6 +37,7 @@ public final class DefaultResourceTypes extends ExtensionProvider implements Bat
         .addType(ResourceType.builder(Qualifiers.PROJECT)
             .setProperty("deletable", "true")
             .setProperty("modifiable_history", "true")
+            .setProperty("hasRolePolicy", "true")
             .build())
         .addType(ResourceType.builder(Qualifiers.MODULE).build())
         .addType(ResourceType.builder(Qualifiers.DIRECTORY).build())

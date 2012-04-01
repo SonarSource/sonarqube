@@ -19,20 +19,39 @@
 #
 class RolesController < ApplicationController
   helper RolesHelper
-  
+
   SECTION=Navigation::SECTION_CONFIGURATION
-  
+  PER_PAGE = 2
+
   before_filter :admin_required
-  verify :method => :post, :only => [:grant_users, :grant_groups ], :redirect_to => { :action => 'global' }
+  verify :method => :post, :only => [:grant_users, :grant_groups], :redirect_to => {:action => 'global'}
 
   def global
   end
 
   def projects
+    @qualifiers = java_facade.getQualifiersWithProperty('hasRolePolicy')
+    @qualifier = params[:qualifier] || 'TRK'
+
+    # it's not possible to paginate directly in database because
+    # sort would be case-sensitive
+
+    conditions_sql = 'projects.enabled=:enabled and projects.qualifier=:qualifier'
+    conditions_values = {:enabled => true, :qualifier => @qualifier}
+
+    if params[:q].present? && params[:q].size>=ResourceIndex::MIN_SEARCH_SIZE
+      conditions_sql += ' and projects.id in (select ri.resource_id from resource_index ri where ri.qualifier=:qualifier and ri.kee like :filter)'
+      conditions_values[:filter]="#{params[:q].downcase}%"
+    end
+
+    @pagination = Api::Pagination.new(params)
+    @pagination.results= Project.count(:conditions => [conditions_sql, conditions_values])
     @projects=Project.find(:all,
-      :conditions => {:enabled=>true, :scope => Project::SCOPE_SET, :qualifier => [Project::QUALIFIER_VIEW, Project::QUALIFIER_SUBVIEW, Project::QUALIFIER_PROJECT]},
-      :include => ['user_roles', 'group_roles'])
-    Api::Utils.insensitive_sort!(@projects){|project| project.name}
+                           :include => %w(user_roles group_roles index),
+                           :conditions => [conditions_sql, conditions_values],
+                           :order => 'resource_index.kee',
+                           :offset => @pagination.offset,
+                           :limit => @pagination.limit)
   end
 
   def edit_users
@@ -49,7 +68,7 @@ class RolesController < ApplicationController
     UserRole.grant_users(params[:users], params[:role], params[:resource])
     redirect
   end
-  
+
   def grant_groups
     GroupRole.grant_groups(params[:groups], params[:role], params[:resource])
     redirect
@@ -57,6 +76,6 @@ class RolesController < ApplicationController
 
   private
   def redirect
-    redirect_to(:action => params['redirect'] || 'global' )
+    redirect_to(:action => params['redirect'] || 'global')
   end
 end

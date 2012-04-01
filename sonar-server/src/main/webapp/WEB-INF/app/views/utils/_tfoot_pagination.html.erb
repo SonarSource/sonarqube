@@ -1,0 +1,22 @@
+<tfoot>
+<tr>
+  <td colspan="<%= colspan || 1 -%>">
+    <% if pagination.results>0 %>
+    <%= pagination.results -%> <%= message('results').downcase -%>
+    <% end %>
+    <%
+       if pagination.pages>1
+    %>
+      |
+      <%= link_to_if pagination.previous?, message('paging_previous'), params.merge(:page => pagination.page-1) %>
+      <%= link_to_if pagination.next?, message('paging_next'), params.merge(:page => pagination.page+1) %>
+      |
+      <% for index in 1..pagination.pages %>
+        <%= link_to_if index!=pagination.page, index.to_s, params.merge(:page => index) %>
+      <% end %>
+    <%
+       end
+    %>
+  </td>
+</tr>
+</tfoot>

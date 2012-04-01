@@ -19,6 +19,9 @@
  */
 package org.sonar.server.ui;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -94,6 +97,16 @@ public final class JRubyFacade {
       return resourceType.getStringProperty(resourceTypeProperty);
     }
     return null;
+  }
+
+  public List<String> getQualifiersWithProperty(final String propertyKey) {
+    List<String> qualifiers = Lists.newArrayList();
+    for (ResourceType type : getResourceTypes()) {
+      if (type.getBooleanProperty(propertyKey) == Boolean.TRUE) {
+        qualifiers.add(type.getQualifier());
+      }
+    }
+    return qualifiers;
   }
 
   public Boolean getResourceTypeBooleanProperty(String resourceTypeQualifier, String resourceTypeProperty) {

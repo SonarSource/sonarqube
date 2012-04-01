@@ -17,16 +17,46 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-class ResourceIndex < ActiveRecord::Base
+class Api::Pagination
 
-  set_table_name 'resource_index'
+  DEFAULT_PER_PAGE=25
+  attr_accessor :per_page, :page, :results
 
-  belongs_to :resource, :class_name => 'Project', :foreign_key => 'resource_id'
-  belongs_to :root_project, :class_name => 'Project', :foreign_key => 'root_project_id'
+  def initialize(options={})
+    @per_page=options[:per_page]||DEFAULT_PER_PAGE
+    @page=options[:page].to_i
+    @page=1 if @page<1
+    @results = options[:results].to_i
+  end
 
-  MIN_SEARCH_SIZE=3
+  def pages
+    @pages ||=
+        begin
+          p=(@results / @per_page)
+          p+=1 if @results % @per_page > 0
+          p
+        end
+  end
 
-  def resource_id_for_authorization
-    root_project_id
+  def offset
+    (page-1) * per_page
+  end
+
+  # alias
+  def limit
+    per_page
+  end
+
+  # inclusive index
+  #def to_index
+  #  [results-1, (page * per_page)-1].min
+  #end
+
+  def previous?
+    page>1
+  end
+
+  def next?
+    page<pages
   end
 end
