@@ -2463,6 +2463,12 @@ td.spacer-top {
   padding: 4px 5px;
   vertical-align: top;
 }
+.table > tfoot > tr > td {
+  font-size: 93%;
+  color: #777;
+  padding: 4px 5px;
+}
+
 
 .table-bordered > tbody {
   border-left: 1px solid #DDD;

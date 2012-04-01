@@ -20,22 +20,30 @@
 class Api::Pagination
 
   DEFAULT_PER_PAGE=25
-  attr_accessor :per_page, :page, :results
+
+  # entries per page
+  attr_accessor :per_page
+
+  # index of selected page. Start with 1.
+  attr_accessor :page
+
+  # total count of entries, greater or equal than 0
+  attr_accessor :count
+
+  # optional reference to the entries of the selected page
+  attr_accessor :page_entries
 
   def initialize(options={})
     @per_page=options[:per_page]||DEFAULT_PER_PAGE
     @page=options[:page].to_i
     @page=1 if @page<1
-    @results = options[:results].to_i
+    @count = options[:count].to_i
   end
 
   def pages
-    @pages ||=
-        begin
-          p=(@results / @per_page)
-          p+=1 if @results % @per_page > 0
-          p
-        end
+    p=(count / per_page)
+    p+=1 if count % per_page>0
+    p
   end
 
   def offset
@@ -47,16 +55,15 @@ class Api::Pagination
     per_page
   end
 
-  # inclusive index
-  #def to_index
-  #  [results-1, (page * per_page)-1].min
-  #end
-
   def previous?
     page>1
   end
 
   def next?
     page<pages
+  end
+
+  def empty?
+    count==0
   end
 end

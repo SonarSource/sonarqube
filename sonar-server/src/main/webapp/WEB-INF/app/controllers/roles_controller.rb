@@ -39,19 +39,19 @@ class RolesController < ApplicationController
     conditions_sql = 'projects.enabled=:enabled and projects.qualifier=:qualifier'
     conditions_values = {:enabled => true, :qualifier => @qualifier}
 
-    if params[:q].present? && params[:q].size>=ResourceIndex::MIN_SEARCH_SIZE
-      conditions_sql += ' and projects.id in (select ri.resource_id from resource_index ri where ri.qualifier=:qualifier and ri.kee like :filter)'
-      conditions_values[:filter]="#{params[:q].downcase}%"
+    if params[:q].present?
+      conditions_sql += ' and projects.id in (select ri.resource_id from resource_index ri where ri.qualifier=:qualifier and ri.kee like :search)'
+      conditions_values[:search]="#{params[:q].downcase}%"
     end
 
     @pagination = Api::Pagination.new(params.merge(:per_page => 50))
-    @pagination.results= Project.count(:conditions => [conditions_sql, conditions_values])
     @projects=Project.find(:all,
                            :include => %w(user_roles group_roles index),
                            :conditions => [conditions_sql, conditions_values],
                            :order => 'resource_index.kee',
                            :offset => @pagination.offset,
                            :limit => @pagination.limit)
+    @pagination.count=Project.count(:conditions => [conditions_sql, conditions_values])
   end
 
   def edit_users

@@ -1,8 +1,8 @@
 <tfoot>
 <tr>
   <td colspan="<%= colspan || 1 -%>">
-    <% if pagination.results>0 %>
-    <%= pagination.results -%> <%= message('results').downcase -%>
+    <% if pagination.count>0 %>
+    <%= pagination.count -%> <%= message('results').downcase -%>
     <% end %>
     <%
        if pagination.pages>1
