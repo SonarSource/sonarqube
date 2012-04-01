@@ -53,8 +53,11 @@
   </delete>
 
   <insert id="insert" parameterType="ResourceIndex" useGeneratedKeys="false">
-    insert into resource_index (kee, position, name_size, resource_id, root_project_id, qualifier)
-    values (#{key, jdbcType=VARCHAR}, #{position, jdbcType=INTEGER}, #{nameSize, jdbcType=INTEGER},
+    <selectKey order="BEFORE" resultType="Long" keyProperty="id">
+      select resource_index_seq.NEXTVAL from DUAL
+    </selectKey>
+    insert into resource_index (id, kee, position, name_size, resource_id, root_project_id, qualifier)
+    values (#{id}, #{key, jdbcType=VARCHAR}, #{position, jdbcType=INTEGER}, #{nameSize, jdbcType=INTEGER},
     #{resourceId, jdbcType=BIGINT}, #{rootProjectId, jdbcType=BIGINT}, #{qualifier, jdbcType=VARCHAR})
   </insert>
 </mapper>

@@ -39,7 +39,7 @@ public class ResourceIndexerDaoTest extends DaoTestCase {
 
     dao.indexResource(10, "ZipUtils", "FIL", 8);
 
-    checkTables("shouldIndexResource", "resource_index");
+    checkTables("shouldIndexResource", new String[]{"id"}, "resource_index");
   }
 
   @Test
@@ -48,7 +48,7 @@ public class ResourceIndexerDaoTest extends DaoTestCase {
 
     dao.indexProjects();
 
-    checkTables("shouldIndexProjects", "resource_index");
+    checkTables("shouldIndexProjects", new String[]{"id"}, "resource_index");
   }
 
   @Test
@@ -57,7 +57,7 @@ public class ResourceIndexerDaoTest extends DaoTestCase {
 
     dao.indexProject(1);
 
-    checkTables("shouldIndexMultiModulesProject", "resource_index");
+    checkTables("shouldIndexMultiModulesProject", new String[]{"id"}, "resource_index");
   }
 
   @Test
@@ -66,7 +66,7 @@ public class ResourceIndexerDaoTest extends DaoTestCase {
 
     dao.indexProject(1);
 
-    checkTables("shouldReindexProjectAfterRenaming", "resource_index");
+    checkTables("shouldReindexProjectAfterRenaming", new String[]{"id"}, "resource_index");
   }
 
   @Test
@@ -75,7 +75,7 @@ public class ResourceIndexerDaoTest extends DaoTestCase {
 
     dao.indexResource(10, "org.codehaus.sonar", Qualifiers.PACKAGE, 3);
 
-    checkTables("empty", "resource_index");
+    checkTables("empty", new String[]{"id"}, "resource_index");
   }
 
   @Test
@@ -84,7 +84,7 @@ public class ResourceIndexerDaoTest extends DaoTestCase {
 
     dao.indexResource(10, "AB", Qualifiers.FILE, 3);
 
-    checkTables("empty", "resource_index");
+    checkTables("empty", new String[]{"id"}, "resource_index");
   }
 
   @Test
@@ -93,7 +93,7 @@ public class ResourceIndexerDaoTest extends DaoTestCase {
 
     dao.indexResource(1, "New Struts", Qualifiers.PROJECT, 1);
 
-    checkTables("shouldReindexResource", "resource_index");
+    checkTables("shouldReindexResource", new String[]{"id"}, "resource_index");
   }
 
   @Test
@@ -102,6 +102,6 @@ public class ResourceIndexerDaoTest extends DaoTestCase {
 
     dao.indexResource(1, "Struts", Qualifiers.PROJECT, 1);
 
-    checkTables("shouldNotReindexUnchangedResource", "resource_index");
+    checkTables("shouldNotReindexUnchangedResource", new String[]{"id"}, "resource_index");
   }
 }

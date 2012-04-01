@@ -13,7 +13,7 @@
     FROM authors WHERE person_id=#{id}
   </select>
 
-  <insert id="insert" parameterType="Author" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" parameterType="Author" useGeneratedKeys="true" keyProperty="id">
     <selectKey order="BEFORE" resultType="Long" keyProperty="id">
       select authors_seq.NEXTVAL from DUAL
     </selectKey>

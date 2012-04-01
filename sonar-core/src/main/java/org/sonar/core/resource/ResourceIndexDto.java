@@ -20,13 +20,22 @@
 package org.sonar.core.resource;
 
 public final class ResourceIndexDto {
-
+  private Long id;
   private String key;
   private int position;
   private int nameSize;
   private long resourceId;
   private long rootProjectId;
   private String qualifier;
+
+  public Long getId() {
+    return id;
+  }
+
+  public ResourceIndexDto setId(Long id) {
+    this.id = id;
+    return this;
+  }
 
   public String getKey() {
     return key;

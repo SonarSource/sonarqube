@@ -24,7 +24,7 @@
 class CreateTableResourceIndex < ActiveRecord::Migration
 
   def self.up
-    create_table 'resource_index', :id => false do |t|
+    create_table 'resource_index' do |t|
       t.column 'kee', :string, :null => false, :limit => 400
       t.column 'position', :integer, :null => false
       t.column 'name_size', :integer, :null => false
