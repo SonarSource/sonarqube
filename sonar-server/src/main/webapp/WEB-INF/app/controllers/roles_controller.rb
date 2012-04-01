@@ -44,7 +44,7 @@ class RolesController < ApplicationController
       conditions_values[:filter]="#{params[:q].downcase}%"
     end
 
-    @pagination = Api::Pagination.new(params)
+    @pagination = Api::Pagination.new(params.merge(:per_page => 50))
     @pagination.results= Project.count(:conditions => [conditions_sql, conditions_values])
     @projects=Project.find(:all,
                            :include => %w(user_roles group_roles index),
