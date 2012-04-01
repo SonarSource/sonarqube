@@ -68,7 +68,12 @@
   <table class="data width100 ">
     <thead>
     <tr>
-      <th>Project</th>
+      <th>
+        <form action="<%= url_for :action => 'projects', :qualifier => @qualifier -%>" method="GET">
+          <input type="text" name="q" value="<%= params[:q] -%>" id="filter_text"/>
+          <input type="submit" value="Filter" id="filter_submit"/>
+        </form>
+      </th>
       <th>Role: Administrators</th>
       <th>Role: Users</th>
       <th>Role: Code viewers</th>
