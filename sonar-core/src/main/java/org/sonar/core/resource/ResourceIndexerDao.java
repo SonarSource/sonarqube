@@ -154,14 +154,12 @@ public class ResourceIndexerDao {
 
   public boolean indexResource(int id, String name, String qualifier, int rootId) {
     boolean indexed = false;
-    if (isIndexableQualifier(qualifier)) {
-      SqlSession session = mybatis.openSession();
-      ResourceIndexerMapper mapper = session.getMapper(ResourceIndexerMapper.class);
-      try {
-        indexed = indexResource(id, name, qualifier, rootId, session, mapper);
-      } finally {
-        MyBatis.closeQuietly(session);
-      }
+    SqlSession session = mybatis.openSession();
+    ResourceIndexerMapper mapper = session.getMapper(ResourceIndexerMapper.class);
+    try {
+      indexed = indexResource(id, name, qualifier, rootId, session, mapper);
+    } finally {
+      MyBatis.closeQuietly(session);
     }
     return indexed;
   }
@@ -208,9 +206,5 @@ public class ResourceIndexerDao {
 
   static String nameToKey(String input) {
     return StringUtils.lowerCase(StringUtils.trimToEmpty(input));
-  }
-
-  static boolean isIndexableQualifier(String qualifier) {
-    return ArrayUtils.contains(RENAMABLE_QUALIFIERS, qualifier) || ArrayUtils.contains(NOT_RENAMABLE_QUALIFIERS, qualifier);
   }
 }

@@ -19,10 +19,18 @@
  */
 package org.sonar.core.resource;
 
+import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.persistence.DaoTestCase;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import static org.hamcrest.number.OrderingComparisons.greaterThan;
+import static org.junit.Assert.assertThat;
 
 public class ResourceIndexerDaoTest extends DaoTestCase {
 
@@ -70,12 +78,32 @@ public class ResourceIndexerDaoTest extends DaoTestCase {
   }
 
   @Test
-  public void shouldNotIndexPackage() {
-    setupData("empty");
+  public void shouldNotIndexPackages() throws SQLException {
+    setupData("shouldNotIndexPackages");
 
-    dao.indexResource(10, "org.codehaus.sonar", Qualifiers.PACKAGE, 3);
+    dao.indexProject(1);
 
-    checkTables("empty", new String[]{"id"}, "resource_index");
+    Connection connection = getConnection().getConnection();
+    ResultSet rs = null;
+    try {
+      // project
+      rs = connection.createStatement().executeQuery("select count(resource_id) from resource_index where resource_id=1");
+      rs.next();
+      assertThat(rs.getInt(1), greaterThan(0));
+
+      // directory
+      rs = connection.createStatement().executeQuery("select count(resource_id) from resource_index where resource_id=2");
+      rs.next();
+      assertThat(rs.getInt(1), Is.is(0));
+
+      // file
+      rs = connection.createStatement().executeQuery("select count(resource_id) from resource_index where resource_id=3");
+      rs.next();
+      assertThat(rs.getInt(1), greaterThan(0));
+    } finally {
+      rs.close();
+      connection.close();
+    }
   }
 
   @Test
