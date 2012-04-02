@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.core.sensors;
 
+import org.sonar.api.resources.Qualifiers;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
@@ -30,7 +32,6 @@ import org.sonar.api.profiles.Alert;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.test.IsMeasure;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,7 +46,7 @@ public class CheckAlertThresholdsTest {
   private RulesProfile profile;
   private Measure measureClasses;
   private Measure measureCoverage;
-  private Resource project;
+  private Resource<?> project;
 
 
   @Before
@@ -61,7 +62,7 @@ public class CheckAlertThresholdsTest {
     profile = mock(RulesProfile.class);
     decorator = new CheckAlertThresholds(profile);
     project = mock(Resource.class);
-    when(project.getQualifier()).thenReturn(Project.QUALIFIER_PROJECT);
+    when(project.getQualifier()).thenReturn(Qualifiers.PROJECT);
   }
 
   @Test
@@ -78,14 +79,13 @@ public class CheckAlertThresholdsTest {
 
     decorator.decorate(project, context);
 
-    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.ALERT_STATUS, Metric.Level.OK.toString())));
     verify(context).saveMeasure(argThat(hasLevel(measureClasses, Metric.Level.OK)));
     verify(context).saveMeasure(argThat(hasLevel(measureCoverage, Metric.Level.OK)));
   }
 
   @Test
   public void checkRootProjectsOnly() {
-    when(project.getQualifier()).thenReturn(Project.QUALIFIER_FILE);
+    when(project.getQualifier()).thenReturn(Qualifiers.FILE);
     when(profile.getAlerts()).thenReturn(Arrays.asList(
         new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_GREATER, null, "20"),
         new Alert(null, CoreMetrics.COVERAGE, Alert.OPERATOR_GREATER, null, "35.0")));
@@ -103,56 +103,21 @@ public class CheckAlertThresholdsTest {
 
     decorator.decorate(project, context);
 
-    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.WARN, null)));
-
     verify(context).saveMeasure(argThat(hasLevel(measureClasses, Metric.Level.OK)));
     verify(context).saveMeasure(argThat(hasLevel(measureCoverage, Metric.Level.WARN)));
 
   }
 
   @Test
-  public void globalStatusShouldBeErrorIfWarningsAndErrors() {
+  public void shouldGenerateWarningAndError() {
     when(profile.getAlerts()).thenReturn(Arrays.asList(
         new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_SMALLER, null, "100"), // generates warning because classes 20 < 100
         new Alert(null, CoreMetrics.COVERAGE, Alert.OPERATOR_SMALLER, "50.0", "80.0"))); // generates error because coverage 35% < 50%
 
     decorator.decorate(project, context);
 
-    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.ERROR, null)));
-
     verify(context).saveMeasure(argThat(hasLevel(measureClasses, Metric.Level.WARN)));
     verify(context).saveMeasure(argThat(hasLevel(measureCoverage, Metric.Level.ERROR)));
-  }
-
-  @Test
-  public void globalLabelShouldAggregateAllLabels() {
-    Alert alert1 = mock(Alert.class);
-    when(alert1.getMetric()).thenReturn(CoreMetrics.CLASSES);
-    when(alert1.getValueError()).thenReturn("10000"); // there are 20 classes, error threshold is higher => alert
-    when(alert1.getAlertLabel(Metric.Level.ERROR)).thenReturn("error classes");
-
-    Alert alert2 = mock(Alert.class);
-    when(alert2.getMetric()).thenReturn(CoreMetrics.COVERAGE);
-    when(alert2.getValueWarning()).thenReturn("80"); // coverage is 35%, warning threshold is higher => alert
-    when(alert2.getAlertLabel(Metric.Level.WARN)).thenReturn("warning coverage");
-
-    when(profile.getAlerts()).thenReturn(Arrays.asList(alert1, alert2));
-    decorator.decorate(project, context);
-
-    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.ERROR, "error classes, warning coverage")));
-  }
-
-  private ArgumentMatcher<Measure> matchesMetric(final Metric metric, final Metric.Level alertStatus, final String alertText) {
-    return new ArgumentMatcher<Measure>() {
-      @Override
-      public boolean matches(Object arg) {
-        boolean result = ((Measure) arg).getMetric().equals(metric) && ((Measure) arg).getAlertStatus() == alertStatus;
-        if (result && alertText != null) {
-          result = alertText.equals(((Measure) arg).getAlertText());
-        }
-        return result;
-      }
-    };
   }
 
   private ArgumentMatcher<Measure> hasLevel(final Measure measure, final Metric.Level alertStatus) {

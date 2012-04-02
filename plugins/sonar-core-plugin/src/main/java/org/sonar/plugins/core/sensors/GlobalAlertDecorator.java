@@ -1,6 +1,6 @@
 /*
  * Sonar, open source software quality management tool.
- * Copyright (C) 2008-2012 SonarSource
+ * Copyright (C) 2008-2011 SonarSource
  * mailto:contact AT sonarsource DOT com
  *
  * Sonar is free software; you can redistribute it and/or
@@ -27,38 +27,24 @@ import org.sonar.api.batch.DecoratorBarriers;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.MeasuresFilters;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.profiles.Alert;
-import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 
-@DependedUpon(value=DecoratorBarriers.END_OF_ALERTS_GENERATION)
-public class CheckAlertThresholds implements Decorator {
+@DependsUpon(value=DecoratorBarriers.END_OF_ALERTS_GENERATION)
+public class GlobalAlertDecorator implements Decorator {
 
-  private final RulesProfile profile;
-
-  public CheckAlertThresholds(RulesProfile profile) {
-    this.profile = profile;
+  @DependedUpon
+  public Metric generatesAlertStatus() {
+    return CoreMetrics.ALERT_STATUS;
   }
-
-  @DependsUpon
-  public List<Metric> dependsUponMetrics() {
-    List<Metric> metrics = Lists.newLinkedList();
-    for (Alert alert : profile.getAlerts()) {
-      metrics.add(alert.getMetric());
-    }
-    return metrics;
-  }
-
-
+  
   public boolean shouldExecuteOnProject(Project project) {
-    return profile != null
-        && profile.getAlerts() != null
-        && profile.getAlerts().size() > 0
-        && ResourceUtils.isRootProject(project);
+    return ResourceUtils.isRootProject(project);
   }
 
   public void decorate(final Resource resource, final DecoratorContext context) {
@@ -68,32 +54,34 @@ public class CheckAlertThresholds implements Decorator {
   }
 
   private void decorateResource(DecoratorContext context) {
-    for (final Alert alert : profile.getAlerts()) {
-      Measure measure = context.getMeasure(alert.getMetric());
-      if (measure != null) {
-        Metric.Level level = AlertUtils.getLevel(alert, measure);
+    Metric.Level globalLevel = Metric.Level.OK;
+    List<String> labels = Lists.newArrayList();
 
-        measure.setAlertStatus(level);
-        String text = getText(alert, level);
+    for (final Measure measure : context.getMeasures(MeasuresFilters.all())) {
+      if (measure.getAlertStatus() != null) {          
+        Metric.Level level = measure.getAlertStatus();
+        String text = measure.getAlertText();
         if (!StringUtils.isBlank(text)) {
-          measure.setAlertText(text);
+          labels.add(text);
         }
 
-        context.saveMeasure(measure);
+        if (Metric.Level.WARN == level && globalLevel != Metric.Level.ERROR) {
+          globalLevel = Metric.Level.WARN;
+
+        } else if (Metric.Level.ERROR == level) {
+          globalLevel = Metric.Level.ERROR;
+        }
       }
     }
-    
+
+    Measure globalMeasure = new Measure(CoreMetrics.ALERT_STATUS, globalLevel);
+    globalMeasure.setAlertStatus(globalLevel);
+    globalMeasure.setAlertText(StringUtils.join(labels, ", "));
+    context.saveMeasure(globalMeasure);
   }
 
   private boolean shouldDecorateResource(final Resource resource) {
     return ResourceUtils.isRootProject(resource);
-  }
-
-  private String getText(Alert alert, Metric.Level level) {
-    if (level == Metric.Level.OK) {
-      return null;
-    }
-    return alert.getAlertLabel(level);
   }
 
 

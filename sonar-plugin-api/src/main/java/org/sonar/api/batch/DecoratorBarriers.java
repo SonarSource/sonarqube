@@ -45,7 +45,7 @@ public interface DecoratorBarriers {
 
   /**
    * Extensions which call the method {@code Violation#setSwitchedOff} must be executed before this barrier
-   * ({@code @DependedUpon(value=DecoratorBarriers.VIOLATION_TRACKING})
+   * ({@code @DependedUpon(value=DecoratorBarriers.START_VIOLATION_TRACKING})
    *
    * This barrier is after {@code END_OF_VIOLATIONS_GENERATION}
    *
@@ -83,4 +83,11 @@ public interface DecoratorBarriers {
    * @since 2.5
    */
   String END_OF_TIME_MACHINE = "END_OF_TIME_MACHINE";
+  
+  /**
+   * Any kinds of alerts are calculated before this barrier. The global alert status will be computed after this barrier.
+   * Use {@code @DependedUpon(value=DecoratorBarriers.END_OF_ALERTS_GENERATION)} if your decorator produces alerts.
+   * @since 2.13
+   */
+  String END_OF_ALERTS_GENERATION = "END_OF_ALERTS_GENERATION";
 }
