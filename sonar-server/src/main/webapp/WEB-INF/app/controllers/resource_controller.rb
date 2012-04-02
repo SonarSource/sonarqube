@@ -38,22 +38,26 @@ class ResourceController < ApplicationController
     params[:layout]='false'
     @snapshot=@resource.last_snapshot
 
-    load_extensions()
-
-    if @extension
-      if @extension.getId()=='violations'
-        render_violations()
-      elsif (@extension.getId()=='coverage')
-        render_coverage()
-      elsif (@extension.getId()=='source')
-        render_source()
-      elsif (@extension.getId()=='duplications')
-        render_duplications()
+    if @snapshot
+      load_extensions()
+  
+      if @extension
+        if @extension.getId()=='violations'
+          render_violations()
+        elsif (@extension.getId()=='coverage')
+          render_coverage()
+        elsif (@extension.getId()=='source')
+          render_source()
+        elsif (@extension.getId()=='duplications')
+          render_duplications()
+        else
+          render_extension()
+        end
       else
-        render_extension()
+        render_nothing()
       end
     else
-      render_nothing()
+      render_resource_deleted()
     end
   end
 
@@ -536,5 +540,9 @@ class ResourceController < ApplicationController
 
   def render_nothing()
     render :action => 'nothing', :layout => !request.xhr?
+  end
+
+  def render_resource_deleted()
+    render :action => 'resource_deleted', :layout => !request.xhr?
   end
 end
