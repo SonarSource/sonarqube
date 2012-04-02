@@ -48,37 +48,9 @@ public class PluginInstaller {
   public DefaultPluginMetadata install(DefaultPluginMetadata metadata, File toDir) {
     try {
       File pluginFile = metadata.getFile();
-      File pluginBasedir;
-      if (toDir != null) {
-        pluginBasedir = toDir;
-        FileUtils.forceMkdir(pluginBasedir);
-        File targetFile = new File(pluginBasedir, pluginFile.getName());
-        FileUtils.copyFile(pluginFile, targetFile);
-        metadata.addDeployedFile(targetFile);
-      } else {
-        pluginBasedir = pluginFile.getParentFile();
-        metadata.addDeployedFile(pluginFile);
-      }
-
-      if (metadata.getPathsToInternalDeps().length > 0) {
-        // needs to unzip the jar
-        ZipUtils.unzip(pluginFile, pluginBasedir, new LibFilter());
-        for (String depPath : metadata.getPathsToInternalDeps()) {
-          File dependency = new File(pluginBasedir, depPath);
-          if (!dependency.isFile() || !dependency.exists()) {
-            throw new IllegalArgumentException("Dependency " + depPath + " can not be found in " + pluginFile.getName());
-          }
-          metadata.addDeployedFile(dependency);
-        }
-      }
-
-      for (File extension : metadata.getDeprecatedExtensions()) {
-        File toFile = new File(pluginBasedir, extension.getName());
-        if (!toFile.equals(extension)) {
-          FileUtils.copyFile(extension, toFile);
-        }
-        metadata.addDeployedFile(toFile);
-      }
+      File pluginBasedir = copyPlugin(metadata, toDir, pluginFile);
+      copyDependencies(metadata, pluginFile, pluginBasedir);
+      copyDeprecatedExtensions(metadata, pluginBasedir);
 
       return metadata;
 
@@ -87,7 +59,46 @@ public class PluginInstaller {
     }
   }
 
-  private static class LibFilter implements ZipUtils.ZipEntryFilter {
+  private File copyPlugin(DefaultPluginMetadata metadata, File toDir, File pluginFile) throws IOException {
+    File pluginBasedir;
+    if (toDir != null) {
+      pluginBasedir = toDir;
+      FileUtils.forceMkdir(pluginBasedir);
+      File targetFile = new File(pluginBasedir, pluginFile.getName());
+      FileUtils.copyFile(pluginFile, targetFile);
+      metadata.addDeployedFile(targetFile);
+    } else {
+      pluginBasedir = pluginFile.getParentFile();
+      metadata.addDeployedFile(pluginFile);
+    }
+    return pluginBasedir;
+  }
+
+  private void copyDependencies(DefaultPluginMetadata metadata, File pluginFile, File pluginBasedir) throws IOException {
+    if (metadata.getPathsToInternalDeps().length > 0) {
+      // needs to unzip the jar
+      ZipUtils.unzip(pluginFile, pluginBasedir, new LibFilter());
+      for (String depPath : metadata.getPathsToInternalDeps()) {
+        File dependency = new File(pluginBasedir, depPath);
+        if (!dependency.isFile() || !dependency.exists()) {
+          throw new IllegalArgumentException("Dependency " + depPath + " can not be found in " + pluginFile.getName());
+        }
+        metadata.addDeployedFile(dependency);
+      }
+    }
+  }
+
+  private void copyDeprecatedExtensions(DefaultPluginMetadata metadata, File pluginBasedir) throws IOException {
+    for (File extension : metadata.getDeprecatedExtensions()) {
+      File toFile = new File(pluginBasedir, extension.getName());
+      if (!toFile.equals(extension)) {
+        FileUtils.copyFile(extension, toFile);
+      }
+      metadata.addDeployedFile(toFile);
+    }
+  }
+
+  private static final class LibFilter implements ZipUtils.ZipEntryFilter {
     public boolean accept(ZipEntry entry) {
       return entry.getName().startsWith("META-INF/lib");
     }
@@ -120,7 +131,7 @@ public class PluginInstaller {
     }
   }
 
-  private void completeDeprecatedMetadata(DefaultPluginMetadata metadata) throws IOException {
+  private void completeDeprecatedMetadata(DefaultPluginMetadata metadata) {
     String mainClass = metadata.getMainClass();
     File pluginFile = metadata.getFile();
     try {

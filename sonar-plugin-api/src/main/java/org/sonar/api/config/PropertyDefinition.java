@@ -38,12 +38,12 @@ public final class PropertyDefinition {
 
     private String errorKey = null;
 
-    private static Result newError(@Nullable String key) {
+    private static Result newError(String key) {
       return new Result(key);
     }
 
     @Nullable
-    private Result(String errorKey) {
+    private Result(@Nullable String errorKey) {
       this.errorKey = errorKey;
     }
 

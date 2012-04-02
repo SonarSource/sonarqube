@@ -46,7 +46,7 @@ public class CoberturaSensor implements Sensor, CoverageExtension {
     }
     File report = project.getFileSystem().resolvePath(path);
     if (!report.exists() || !report.isFile()) {
-      Logs.INFO.warn("Cobertura report not found at {}", report);
+      LoggerFactory.getLogger(getClass()).warn("Cobertura report not found at {}", report);
       return;
     }
     parseReport(report, context);
@@ -54,12 +54,7 @@ public class CoberturaSensor implements Sensor, CoverageExtension {
 
   protected void parseReport(File xmlFile, final SensorContext context) {
     LoggerFactory.getLogger(CoberturaSensor.class).info("parsing {}", xmlFile);
-    new AbstractCoberturaParser() {
-      @Override
-      protected Resource<?> getResource(String fileName) {
-        return new JavaFile(fileName);
-      }
-    }.parseReport(xmlFile, context);
+    new JavaCoberturaParser().parseReport(xmlFile, context);
   }
 
   @Override
@@ -67,4 +62,10 @@ public class CoberturaSensor implements Sensor, CoverageExtension {
     return getClass().getSimpleName();
   }
 
+  private static final class JavaCoberturaParser extends AbstractCoberturaParser {
+    @Override
+    protected Resource<?> getResource(String fileName) {
+      return new JavaFile(fileName);
+    }
+  }
 }

@@ -65,7 +65,7 @@ public class ReviewNotifications implements BatchExtension {
         .setFieldValue("assignee", getAssignee(review));
   }
 
-  private @Nullable String getCreator(ReviewDto review) {
+  private String getCreator(ReviewDto review) {
     if (review.getUserId() == null) { // no creator and in fact this should never happen in real-life, however happens during unit tests
       return null;
     }
@@ -73,7 +73,7 @@ public class ReviewNotifications implements BatchExtension {
     return user != null ? user.getLogin() : null;
   }
 
-  private @Nullable String getAssignee(ReviewDto review) {
+  private String getAssignee(ReviewDto review) {
     if (review.getAssigneeId() == null) { // not assigned
       return null;
     }

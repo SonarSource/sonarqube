@@ -107,12 +107,10 @@ public class ReviewWorkflowDecorator implements Decorator {
 
     for (ReviewDto review : openReviews) {
       Violation violation = violationsByPermanentId.get(review.getViolationPermanentId());
-      if (violation != null) {
-        if (!hasUpToDateInformation(review, violation)) {
-          review.setLine(violation.getLineId());
-          review.setTitle(violation.getMessage());
-          updated.add(review);
-        }
+      if (violation != null && !hasUpToDateInformation(review, violation)) {
+        review.setLine(violation.getLineId());
+        review.setTitle(violation.getMessage());
+        updated.add(review);
       }
     }
   }
@@ -132,11 +130,7 @@ public class ReviewWorkflowDecorator implements Decorator {
   }
 
   private void closeResolvedStandardViolations(Collection<ReviewDto> openReviews, List<Violation> violations, Project project, Resource resource, Set<ReviewDto> updated) {
-    Set<Integer> violationIds = Sets.newHashSet(Collections2.transform(violations, new Function<Violation, Integer>() {
-      public Integer apply(Violation violation) {
-        return violation.getPermanentId();
-      }
-    }));
+    Set<Integer> violationIds = Sets.newHashSet(Collections2.transform(violations, new ViolationToPermanentIdFunction()));
 
     for (ReviewDto openReview : openReviews) {
       if (!openReview.isManualViolation() && !violationIds.contains(openReview.getViolationPermanentId())) {
@@ -167,5 +161,11 @@ public class ReviewWorkflowDecorator implements Decorator {
     review.setStatus(ReviewDto.STATUS_REOPENED);
     review.setResolution(null);
     review.setUpdatedAt(new Date());
+  }
+
+  private static final class ViolationToPermanentIdFunction implements Function<Violation, Integer> {
+    public Integer apply(Violation violation) {
+      return violation.getPermanentId();
+    }
   }
 }
