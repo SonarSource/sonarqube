@@ -82,7 +82,7 @@ public class ApplicationDeployer {
     if (hasRubyRailsApp(pluginKey, appClassLoader)) {
       LOG.info("Deploy app: " + pluginKey);
       File appDir = new File(appsDir, pluginKey);
-      ClassLoaderUtils.copyResources(appClassLoader, ROR_PATH + pluginKey, appDir, new Function<String, String>() {
+      ClassLoaderUtils.copyResources(appClassLoader, pathToRubyInitFile(pluginKey), appDir, new Function<String, String>() {
         @Override
         public String apply(@Nullable String relativePath) {
           // Relocate the deployed files :
@@ -95,9 +95,13 @@ public class ApplicationDeployer {
     }
   }
 
+  private static String pathToRubyInitFile(String pluginKey) {
+    return ROR_PATH + pluginKey + "/init.rb";
+  }
+
   @VisibleForTesting
   static boolean hasRubyRailsApp(String pluginKey, ClassLoader classLoader) {
-    return classLoader.getResource(ROR_PATH + pluginKey) != null;
+    return classLoader.getResource(pathToRubyInitFile(pluginKey)) != null;
 
   }
 

@@ -79,35 +79,47 @@ public final class ClassLoaderUtils {
     });
   }
 
-  /**
-   * Finds directories and files within a given directory and its subdirectories
-   *
-   * @param classLoader
-   * @param rootPath    the root directory, for example org/sonar/sqale
-   * @return a list of relative paths, for example {"org/sonar/sqale", "org/sonar/sqale/foo", "org/sonar/sqale/foo/bar.txt}. Never null.
-   */
+
   public static Collection<String> listResources(ClassLoader classLoader, String rootPath) {
     return listResources(classLoader, rootPath, Predicates.<String>alwaysTrue());
   }
 
-  public static Collection<String> listResources(ClassLoader classloader, String rootPath, Predicate<String> predicate) {
+  /**
+   * Finds directories and files within a given directory and its subdirectories.
+   *
+   * @param classLoader
+   * @param rootPath    the root directory, for example org/sonar/sqale, or a file in this root directory, for example org/sonar/sqale/index.txt
+   * @param
+   * @return a list of relative paths, for example {"org/sonar/sqale", "org/sonar/sqale/foo", "org/sonar/sqale/foo/bar.txt}. Never null.
+   */
+  public static Collection<String> listResources(ClassLoader classLoader, String rootPath, Predicate<String> predicate) {
     try {
       Collection<String> paths = Lists.newArrayList();
       rootPath = StringUtils.removeStart(rootPath, "/");
 
-      URL root = classloader.getResource(rootPath);
+      URL root = classLoader.getResource(rootPath);
       if (root == null) {
         return paths;
       }
       if (!"jar".equals(root.getProtocol())) {
         throw new IllegalStateException("Unsupported protocol: " + root.getProtocol());
       }
+
+      // Path of the root directory
+      // Examples :
+      // org/sonar/sqale/index.txt  -> rootDirectory is org/sonar/sqale
+      // org/sonar/sqale/  -> rootDirectory is org/sonar/sqale
+      // org/sonar/sqale  -> rootDirectory is org/sonar/sqale
+      String rootDirectory = rootPath;
+      if (StringUtils.substringAfterLast(rootPath, "/").indexOf('.') >= 0) {
+        rootDirectory = StringUtils.substringBeforeLast(rootPath, "/");
+      }
       String jarPath = root.getPath().substring(5, root.getPath().indexOf("!")); //strip out only the JAR file
       JarFile jar = new JarFile(URLDecoder.decode(jarPath, CharEncoding.UTF_8));
       Enumeration<JarEntry> entries = jar.entries();
       while (entries.hasMoreElements()) {
         String name = entries.nextElement().getName();
-        if (name.startsWith(rootPath) && predicate.apply(name)) {
+        if (name.startsWith(rootDirectory) && predicate.apply(name)) {
           paths.add(name);
         }
       }

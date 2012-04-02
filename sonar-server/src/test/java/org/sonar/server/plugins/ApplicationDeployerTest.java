@@ -62,7 +62,8 @@ public class ApplicationDeployerTest {
     File appDir = new File(tempDir, "fake");
     assertThat(appDir.isDirectory(), is(true));
     assertThat(appDir.exists(), is(true));
-    assertThat(FileUtils.listFiles(appDir, null, true).size(), is(2));
+    assertThat(FileUtils.listFiles(appDir, null, true).size(), is(3));
+    assertThat(new File(appDir, "init.rb").exists(), is(true));
     assertThat(new File(appDir, "app/controllers/fake_controller.rb").exists(), is(true));
     assertThat(new File(appDir, "app/views/fake/index.html.erb").exists(), is(true));
   }
