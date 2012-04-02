@@ -124,4 +124,11 @@ class Api::Utils
       end
     end
   end
+  
+  #
+  # Since Sonar 2.15
+  #
+  def self.valid_period_index?(index)
+    Api::Utils.is_integer?(index) && index.to_i > 0 && index.to_i <6
+  end
 end
