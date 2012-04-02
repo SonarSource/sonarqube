@@ -27,7 +27,7 @@ import org.sonar.api.utils.SonarException;
  */
 public final class DuplicatedSourceException extends SonarException {
 
-  public DuplicatedSourceException(Resource resource) {
-    super(ObjectUtils.toString(resource));
+  public DuplicatedSourceException(Resource<?> resource) {
+    super("Duplicate source for resource: " + ObjectUtils.toString(resource));
   }
 }

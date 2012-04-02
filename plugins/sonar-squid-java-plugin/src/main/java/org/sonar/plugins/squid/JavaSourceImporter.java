@@ -19,6 +19,9 @@
  */
 package org.sonar.plugins.squid;
 
+import java.nio.charset.Charset;
+import java.util.List;
+
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.CoreProperties;
@@ -26,12 +29,13 @@ import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.InputFile;
+import org.sonar.api.resources.Java;
+import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.utils.SonarException;
 import org.sonar.java.api.JavaUtils;
-
-import java.nio.charset.Charset;
-import java.util.List;
 
 @Phase(name = Phase.Name.PRE)
 @DependedUpon(JavaUtils.BARRIER_BEFORE_SQUID)
@@ -82,10 +86,11 @@ public final class JavaSourceImporter implements Sensor {
         String source = FileUtils.readFileToString(inputFile.getFile(), sourcesEncoding.name());
         context.saveSource(javaFile, source);
       }
-
+    } catch (SonarException e) {
+      throw e;
     } catch (Exception e) {
       throw new SonarException("Unable to read and import the source file : '" + inputFile.getFile().getAbsolutePath() + "' with the charset : '"
-          + sourcesEncoding.name() + "'.", e);
+        + sourcesEncoding.name() + "'.", e);
     }
   }
 
