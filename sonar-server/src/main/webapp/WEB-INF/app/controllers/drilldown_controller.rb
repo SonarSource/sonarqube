@@ -193,7 +193,7 @@ class DrilldownController < ApplicationController
       if snapshot.rule_measure(Metric.by_key("#{metric_prefix}#{severity.downcase}_violations"), rule)
         return severity
       end
-      Severity::MAJOR
     end
+    Severity::MAJOR
   end
 end
