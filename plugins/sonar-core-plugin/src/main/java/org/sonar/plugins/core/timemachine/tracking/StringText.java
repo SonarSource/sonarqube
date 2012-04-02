@@ -55,15 +55,16 @@ public class StringText implements Sequence {
     return lines;
   }
 
-  private static final int nextLF(String b, int ptr) {
+  private static int nextLF(String b, int ptr) {
     return next(b, ptr, '\n');
   }
 
-  private static final int next(final String b, int ptr, final char chrA) {
+  private static int next(final String b, int ptr, final char chrA) {
     final int sz = b.length();
     while (ptr < sz) {
-      if (b.charAt(ptr++) == chrA)
+      if (b.charAt(ptr++) == chrA) {
         return ptr;
+      }
     }
     return ptr;
   }
