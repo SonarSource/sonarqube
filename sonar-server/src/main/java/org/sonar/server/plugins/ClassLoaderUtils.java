@@ -28,7 +28,6 @@ import org.apache.commons.lang.StringUtils;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Collection;
