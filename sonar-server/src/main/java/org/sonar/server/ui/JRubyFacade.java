@@ -19,8 +19,6 @@
  */
 package org.sonar.server.ui;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.LoggerFactory;
@@ -424,6 +422,10 @@ public final class JRubyFacade {
 
   public void indexProjects() {
     getContainer().getComponentByType(ResourceIndexerDao.class).indexProjects();
+  }
+
+  public void indexResource(long resourceId) {
+    getContainer().getComponentByType(ResourceIndexerDao.class).indexResource(resourceId);
   }
 
   public void deleteResourceTree(long rootProjectId) {

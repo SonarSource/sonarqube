@@ -17,16 +17,24 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-
-#
-# Note: this migration must be executed after 240_delete_resource_orphans.
-#
-# Sonar 2.13
-#
 class IndexProjects < ActiveRecord::Migration
-
-  def self.up
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().indexProjects()
+  class ResourceIndex < ActiveRecord::Base
+    set_table_name 'resource_index'
   end
 
+  class Project < ActiveRecord::Base
+  end
+
+  def self.up
+    ResourceIndex.reset_column_information
+    Project.reset_column_information
+
+    projects = Project.find(:all, :select => 'id', :conditions => {:enabled => true, :scope => 'PRJ'})
+
+    say_with_time "Indexing #{projects.size} projects" do
+      projects.each do |project|
+        Java::OrgSonarServerUi::JRubyFacade.getInstance().indexResource(project.id)
+      end
+    end
+  end
 end

@@ -29,14 +29,15 @@ class AddResourceIndexPrimaryKey < ActiveRecord::Migration
 
   def self.up
     ResourceIndex.reset_column_information
+    # upgrade from version < 2.13 -> the table did not exist and was created in script 237 with the primary key -> ignore
+    # upgrade from version 2.13 or 2.14 -> the table existed without primary key -> drop and create again
     unless ResourceIndex.columns_hash.has_key?('id')
 
       # Release 2.13 creates the table without primary key.
       # Unfortunately it's tricky to add a primary key to an existing table,
       # particularly on Oracle (note that it's perfectly supported on postgresql).
       # For this reason the table is dropped and created again.
-      remove_index 'resource_index', :name => 'resource_index_key'
-      remove_index 'resource_index', :name => 'resource_index_rid'
+      remove_indices
       drop_table 'resource_index'
 
       create_table 'resource_index' do |t|
@@ -48,10 +49,17 @@ class AddResourceIndexPrimaryKey < ActiveRecord::Migration
         t.column 'qualifier', :string, :limit => 10, :null => false
       end
 
-      say_with_time 'Indexing projects' do
-        Java::OrgSonarServerUi::JRubyFacade.getInstance().indexProjects()
-      end
+
     end
   end
 
+  private
+  def self.remove_indices
+    begin
+      remove_index 'resource_index', :name => 'resource_index_key'
+      remove_index 'resource_index', :name => 'resource_index_rid'
+    rescue
+      #ignore
+    end
+  end
 end

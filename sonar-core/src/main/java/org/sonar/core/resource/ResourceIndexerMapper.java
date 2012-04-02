@@ -23,6 +23,8 @@ public interface ResourceIndexerMapper {
 
   ResourceIndexDto selectMasterIndexByResourceId(long resourceId);
 
+  ResourceDto selectResourceToIndex(long resourceId);
+
   void deleteByResourceId(long resourceId);
 
   void insert(ResourceIndexDto dto);

@@ -47,6 +47,12 @@
     where resource_id=#{id} and position=0
   </select>
 
+  <select id="selectResourceToIndex" parameterType="long" resultType="Resource">
+    select id, name, root_id as "rootId", qualifier
+    from projects
+    where id=#{id} and enabled=${_true}
+  </select>
+
   <delete id="deleteByResourceId" parameterType="long">
     delete from resource_index
     where resource_id=#{id}

@@ -20,13 +20,12 @@
 class Api::ServerController < Api::ApiController
 
   skip_before_filter :check_authentication, :except => 'system'
-  before_filter :admin_required, :only => 'system'
 
   # prevent HTTP proxies from caching server status
   before_filter :set_cache_buster, :only => 'index'
 
   # execute database setup
-  verify :method => :post, :only => [ :setup ]
+  verify :method => :post, :only => [:setup, :index_projects]
   skip_before_filter :check_database_version, :setup
 
   def key
@@ -40,14 +39,15 @@ class Api::ServerController < Api::ApiController
   def index
     hash={:id => Java::OrgSonarServerPlatform::Platform.getServer().getId(), :version => Java::OrgSonarServerPlatform::Platform.getServer().getVersion()}
     complete_with_status(hash)
-    respond_to do |format| 
+    respond_to do |format|
       format.json{ render :json => jsonp(hash) }
       format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'server') }
       format.text { render :text => text_not_supported}
     end
   end
-  
+
   def system
+    access_denied unless has_role?(:admin)
     @server=Server.new
     json=[
       {:system_info => server_properties_to_json(@server.system_info)},
@@ -56,8 +56,8 @@ class Api::ServerController < Api::ApiController
       {:sonar_plugins => server_properties_to_json(@server.sonar_plugins)},
       {:system_properties => server_properties_to_json(@server.system_properties)},
       ]
-    
-    respond_to do |format| 
+
+    respond_to do |format|
       format.json{ render :json => jsonp(json) }
       format.xml { render :xml => xml_not_supported }
       format.text { render :text => text_not_supported}
@@ -86,10 +86,16 @@ class Api::ServerController < Api::ApiController
       end
     end
   end
-  
-  
+
+  def index_projects
+    access_denied unless has_role?(:admin)
+    logger.info 'Indexing projects'
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().indexProjects()
+    render_success('Projects indexed')
+  end
+
   private
-  
+
   def server_properties_to_json(properties)
     hash={}
     properties.each do |prop|
