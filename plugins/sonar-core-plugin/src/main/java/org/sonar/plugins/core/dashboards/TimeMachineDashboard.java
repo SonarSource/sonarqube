@@ -31,8 +31,6 @@ import org.sonar.api.web.DashboardTemplate;
  */
 public final class TimeMachineDashboard extends DashboardTemplate {
 
-  private static final String TIME_MACHINE_ID = "time_machine";
-  private static final String DISPLAY_SPARK_LINE = "displaySparkLine";
   private static final String METRIC1 = "metric1";
   private static final String METRIC2 = "metric2";
   private static final String METRIC3 = "metric3";
@@ -60,9 +58,8 @@ public final class TimeMachineDashboard extends DashboardTemplate {
     timelineWidget.setProperty(METRIC1, "complexity");
     timelineWidget.setProperty(METRIC2, "violations_density");
     timelineWidget.setProperty(METRIC3, "coverage");
-    
-    Widget sizeTimeMachineWidget = dashboard.addWidget(TIME_MACHINE_ID, 1);
-    sizeTimeMachineWidget.setProperty(DISPLAY_SPARK_LINE, "true");
+
+    Widget sizeTimeMachineWidget = addTimeMachineWidgetOnFirstColumn(dashboard);
     sizeTimeMachineWidget.setProperty(METRIC1, "ncloc");
     sizeTimeMachineWidget.setProperty(METRIC2, "lines");
     sizeTimeMachineWidget.setProperty(METRIC3, "statements");
@@ -70,16 +67,14 @@ public final class TimeMachineDashboard extends DashboardTemplate {
     sizeTimeMachineWidget.setProperty(METRIC5, "classes");
     sizeTimeMachineWidget.setProperty(METRIC6, "functions");
     sizeTimeMachineWidget.setProperty(METRIC7, "accessors");
-    
-    Widget commentsTimeMachineWidget = dashboard.addWidget(TIME_MACHINE_ID, 1);
-    commentsTimeMachineWidget.setProperty(DISPLAY_SPARK_LINE, "true");
+
+    Widget commentsTimeMachineWidget = addTimeMachineWidgetOnFirstColumn(dashboard);
     commentsTimeMachineWidget.setProperty(METRIC1, "comment_lines_density");
     commentsTimeMachineWidget.setProperty(METRIC2, "comment_lines");
     commentsTimeMachineWidget.setProperty(METRIC3, "public_documented_api_density");
     commentsTimeMachineWidget.setProperty(METRIC4, "public_undocumented_api");
-    
-    Widget duplicationTimeMachineWidget = dashboard.addWidget(TIME_MACHINE_ID, 1);
-    duplicationTimeMachineWidget.setProperty(DISPLAY_SPARK_LINE, "true");
+
+    Widget duplicationTimeMachineWidget = addTimeMachineWidgetOnFirstColumn(dashboard);
     duplicationTimeMachineWidget.setProperty(METRIC1, "duplicated_lines_density");
     duplicationTimeMachineWidget.setProperty(METRIC2, "duplicated_lines");
     duplicationTimeMachineWidget.setProperty(METRIC3, "duplicated_blocks");
@@ -87,8 +82,7 @@ public final class TimeMachineDashboard extends DashboardTemplate {
   }
 
   private void addSecondColumn(Dashboard dashboard) {
-    Widget rulesTimeMachineWidget = dashboard.addWidget(TIME_MACHINE_ID, 2);
-    rulesTimeMachineWidget.setProperty(DISPLAY_SPARK_LINE, "true");
+    Widget rulesTimeMachineWidget = addTimeMachineWidgetOnSecondColumn(dashboard);
     rulesTimeMachineWidget.setProperty(METRIC1, "violations");
     rulesTimeMachineWidget.setProperty(METRIC2, "violation_density");
     rulesTimeMachineWidget.setProperty(METRIC3, "blocker_violations");
@@ -98,15 +92,13 @@ public final class TimeMachineDashboard extends DashboardTemplate {
     rulesTimeMachineWidget.setProperty(METRIC7, "info_violations");
     rulesTimeMachineWidget.setProperty(METRIC7, "weighted_violations");
 
-    Widget complexityTimeMachineWidget = dashboard.addWidget(TIME_MACHINE_ID, 2);
-    complexityTimeMachineWidget.setProperty(DISPLAY_SPARK_LINE, "true");
+    Widget complexityTimeMachineWidget = addTimeMachineWidgetOnSecondColumn(dashboard);
     complexityTimeMachineWidget.setProperty(METRIC1, "complexity");
     complexityTimeMachineWidget.setProperty(METRIC2, "function_complexity");
     complexityTimeMachineWidget.setProperty(METRIC3, "class_complexity");
     complexityTimeMachineWidget.setProperty(METRIC4, "file_complexity");
 
-    Widget testsTimeMachineWidget = dashboard.addWidget(TIME_MACHINE_ID, 2);
-    testsTimeMachineWidget.setProperty(DISPLAY_SPARK_LINE, "true");
+    Widget testsTimeMachineWidget = addTimeMachineWidgetOnSecondColumn(dashboard);
     testsTimeMachineWidget.setProperty(METRIC1, "coverage");
     testsTimeMachineWidget.setProperty(METRIC2, "line_coverage");
     testsTimeMachineWidget.setProperty(METRIC3, "branch_coverage");
@@ -115,6 +107,20 @@ public final class TimeMachineDashboard extends DashboardTemplate {
     testsTimeMachineWidget.setProperty(METRIC6, "test_errors");
     testsTimeMachineWidget.setProperty(METRIC7, "tests");
     testsTimeMachineWidget.setProperty(METRIC7, "test_execution_time");
+  }
+
+  private Widget addTimeMachineWidgetOnFirstColumn(Dashboard dashboard) {
+    return addTimeMachineWidget(dashboard, 1);
+  }
+
+  private Widget addTimeMachineWidgetOnSecondColumn(Dashboard dashboard) {
+    return addTimeMachineWidget(dashboard, 2);
+  }
+
+  private Widget addTimeMachineWidget(Dashboard dashboard, int columnIndex) {
+    Widget widget = dashboard.addWidget("time_machine", columnIndex);
+    widget.setProperty("displaySparkLine", "true");
+    return widget;
   }
 
 }

@@ -97,6 +97,8 @@ public class JavaSourceImporterTest {
 
     thrown.expect(SonarException.class);
     thrown.expectMessage("Duplicate source for resource");
+    thrown.expectMessage(", on file:");
+    thrown.expectMessage("UndocumentedApi.java");
     importer.importSource(context, javaFile, inputFile, Charset.defaultCharset());
   }
 
