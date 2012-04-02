@@ -19,23 +19,31 @@
  */
 package org.sonar.plugins.squid;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.resources.InputFile;
-import org.sonar.api.resources.JavaFile;
-import org.sonar.api.utils.SonarException;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.resources.InputFile;
+import org.sonar.api.resources.JavaFile;
+import org.sonar.api.utils.SonarException;
 
 public class JavaSourceImporterTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   private JavaSourceImporter importer;
   private SensorContext context;
@@ -59,6 +67,37 @@ public class JavaSourceImporterTest {
     importer.importSource(context, javaFile, inputFile, Charset.defaultCharset());
 
     verify(context).saveSource(eq(javaFile), anyString());
+  }
+
+  @Test
+  public void testImportUnexistingFile() {
+    File fileToImport = new File("unexisting-file.java");
+    inputFile = mock(InputFile.class);
+    when(inputFile.getRelativePath()).thenReturn("UndocumentedApi.java");
+    when(inputFile.getFile()).thenReturn(fileToImport);
+    when(inputFile.getFileBaseDir()).thenReturn(fileToImport.getParentFile());
+
+    JavaFile javaFile = JavaFile.fromRelativePath("UndocumentedApi.java", true);
+    when(context.isIndexed(javaFile, true)).thenReturn(true);
+
+    thrown.expect(SonarException.class);
+    thrown.expectMessage("Unable to read and import the source file");
+    thrown.expectMessage("unexisting-file.java");
+    importer.importSource(context, javaFile, inputFile, Charset.defaultCharset());
+  }
+
+  /**
+   * SONAR-3315
+   */
+  @Test
+  public void testDuplicateSource() {
+    JavaFile javaFile = JavaFile.fromRelativePath("UndocumentedApi.java", true);
+    when(context.isIndexed(javaFile, true)).thenReturn(true);
+    Mockito.doThrow(new SonarException("Duplicate source for resource")).when(context).saveSource(any(JavaFile.class), anyString());
+
+    thrown.expect(SonarException.class);
+    thrown.expectMessage("Duplicate source for resource");
+    importer.importSource(context, javaFile, inputFile, Charset.defaultCharset());
   }
 
 }
