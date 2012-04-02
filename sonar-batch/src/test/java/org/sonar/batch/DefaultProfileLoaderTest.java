@@ -28,20 +28,23 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.HashMap;
 
-import org.sonar.batch.DefaultProfileLoader;
-
 import org.apache.commons.configuration.MapConfiguration;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.profiles.Alert;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rules.ActiveRule;
-import org.sonar.batch.ProfileLoader;
+import org.sonar.api.utils.SonarException;
 import org.sonar.jpa.dao.ProfilesDao;
 
 public class DefaultProfileLoaderTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   private ProfilesDao dao;
   private ProfileLoader loader;
@@ -88,7 +91,7 @@ public class DefaultProfileLoaderTest {
     verify(dao, never()).getActiveProfile(Java.KEY, "project");
   }
 
-  @Test(expected = RuntimeException.class)
+  @Test
   public void shouldFailIfProfileIsNotFound() {
     Project project = new Project("project").setLanguageKey(Java.KEY);
 
@@ -98,6 +101,21 @@ public class DefaultProfileLoaderTest {
 
     when(dao.getProfile(Java.KEY, "profile1")).thenReturn(null);
 
+    thrown.expect(SonarException.class);
+    thrown.expectMessage("Quality profile not found : unknown, language java");
+    loader.load(project);
+  }
+
+  /**
+   * SONAR-3125
+   */
+  @Test
+  public void shouldGiveExplicitMessageIfNoProfileFound() {
+    Project project = new Project("foo:project").setLanguageKey("unknown-language");
+    when(dao.getProfile(Java.KEY, "profile1")).thenReturn(null);
+
+    thrown.expect(SonarException.class);
+    thrown.expectMessage("You must intall a Sonar plugin that supports language 'unknown-language' in order to analyse the following project: foo:project");
     loader.load(project);
   }
 

@@ -22,6 +22,7 @@ package org.sonar.batch;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.utils.SonarException;
 import org.sonar.jpa.dao.ProfilesDao;
 
 public class DefaultProfileLoader implements ProfileLoader {
@@ -40,13 +41,16 @@ public class DefaultProfileLoader implements ProfileLoader {
       Project root = project.getRoot();
       profile = dao.getActiveProfile(root.getLanguageKey(), root.getKey());
       if (profile == null) {
-        throw new RuntimeException("Quality profile not found for " + root.getKey() + ", language " + root.getLanguageKey());
+        // This means that the current language is not supported by any installed plugin, otherwise at least a
+        // "Default <Language Name>" profile would have been created by ActivateDefaultProfiles class.
+        throw new SonarException("You must intall a Sonar plugin that supports language '" + root.getLanguageKey()
+          + "' in order to analyse the following project: " + root.getKey());
       }
 
     } else {
       profile = dao.getProfile(project.getLanguageKey(), profileName);
       if (profile == null) {
-        throw new RuntimeException("Quality profile not found : " + profileName + ", language " + project.getLanguageKey());
+        throw new SonarException("Quality profile not found : " + profileName + ", language " + project.getLanguageKey());
       }
     }
 
