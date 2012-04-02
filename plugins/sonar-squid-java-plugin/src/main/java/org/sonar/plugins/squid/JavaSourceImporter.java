@@ -79,15 +79,24 @@ public final class JavaSourceImporter implements Sensor {
   }
 
   void importSource(SensorContext context, JavaFile javaFile, InputFile inputFile, Charset sourcesEncoding) {
+    String source = null;
+    if (importSources) {
+      source = loadSourceFromFile(inputFile, sourcesEncoding);
+    }
+
     try {
       context.index(javaFile);
-
-      if (importSources) {
-        String source = FileUtils.readFileToString(inputFile.getFile(), sourcesEncoding.name());
+      if (source != null) {
         context.saveSource(javaFile, source);
       }
     } catch (SonarException e) {
-      throw e;
+      throw new SonarException(e.getMessage() + ", on file: " + inputFile.getFile().getAbsolutePath(), e);
+    }
+  }
+
+  protected String loadSourceFromFile(InputFile inputFile, Charset sourcesEncoding) {
+    try {
+      return FileUtils.readFileToString(inputFile.getFile(), sourcesEncoding.name());
     } catch (Exception e) {
       throw new SonarException("Unable to read and import the source file : '" + inputFile.getFile().getAbsolutePath() + "' with the charset : '"
         + sourcesEncoding.name() + "'.", e);
