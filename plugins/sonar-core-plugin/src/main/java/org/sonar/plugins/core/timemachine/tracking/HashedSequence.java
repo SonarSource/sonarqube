@@ -27,7 +27,16 @@ public class HashedSequence<S extends Sequence> implements Sequence {
   final S base;
   final int[] hashes;
 
-  public HashedSequence(S base, int[] hashes) {
+  public static <S extends Sequence> HashedSequence<S> wrap(S base, SequenceComparator<S> cmp) {
+    int size = base.length();
+    int[] hashes = new int[size];
+    for (int i = 0; i < size; i++) {
+      hashes[i] = cmp.hash(base, i);
+    }
+    return new HashedSequence<S>(base, hashes);
+  }
+
+  private HashedSequence(S base, int[] hashes) {
     this.base = base;
     this.hashes = hashes;
   }

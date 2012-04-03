@@ -26,6 +26,7 @@ import org.sonar.api.batch.Initializer;
 import org.sonar.api.batch.maven.DependsUponMavenPlugin;
 import org.sonar.api.batch.maven.MavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
+import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.plugins.cobertura.api.CoberturaUtils;
 
@@ -51,7 +52,7 @@ public class CoberturaMavenInitializer extends Initializer implements CoverageEx
   @Override
   public boolean shouldExecuteOnProject(Project project) {
     return project.getAnalysisType().isDynamic(true) &&
-        project.getFileSystem().hasJavaSourceFiles();
+        !project.getFileSystem().mainFiles(Java.KEY).isEmpty();
   }
 
   @Override

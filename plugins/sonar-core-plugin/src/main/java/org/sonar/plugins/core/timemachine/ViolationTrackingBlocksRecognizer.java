@@ -35,18 +35,9 @@ public class ViolationTrackingBlocksRecognizer {
   }
 
   private ViolationTrackingBlocksRecognizer(StringText a, StringText b, StringTextComparator cmp) {
-    this.a = wrap(a, cmp);
-    this.b = wrap(b, cmp);
+    this.a = HashedSequence.wrap(a, cmp);
+    this.b = HashedSequence.wrap(b, cmp);
     this.cmp = new HashedSequenceComparator<StringText>(cmp);
-  }
-
-  private static HashedSequence<StringText> wrap(StringText seq, StringTextComparator cmp) {
-    int size = seq.length();
-    int[] hashes = new int[size];
-    for (int i = 0; i < size; i++) {
-      hashes[i] = cmp.hash(seq, i);
-    }
-    return new HashedSequence<StringText>(seq, hashes);
   }
 
   public int computeLengthOfMaximalBlock(int startA, int startB) {
