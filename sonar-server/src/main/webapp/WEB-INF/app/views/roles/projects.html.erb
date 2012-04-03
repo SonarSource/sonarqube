@@ -102,9 +102,9 @@
                groups=project.group_roles.select { |gr| gr.role=='admin' }.map { |gr| group_name(gr.group) }
             %>
             <%= users.join(', ') %>
-            (<%= link_to "select users", {:action => 'edit_users', :role => 'admin', :resource => project.id, :redirect => 'projects'}, :class => 'link-action' %>)<br/>
+            (<a href="<%= ApplicationController.root_context -%>/roles/edit_users?redirect=projects&role=admin&resource=<%= project.id -%>&q=<%= u params[:q] -%>&qualifier=<%= @qualifier -%>&page=<%= params[:page] -%>" class="link-action">select users</a>)<br/>
             <%= groups.join(', ') %>
-            (<%= link_to "select groups", {:action => 'edit_groups', :role => 'admin', :resource => project.id, :redirect => 'projects'}, :class => 'link-action' %>)
+            (<a href="<%= ApplicationController.root_context -%>/roles/edit_groups?redirect=projects&role=admin&resource=<%= project.id -%>&q=<%= u params[:q] -%>&qualifier=<%= @qualifier -%>&page=<%= params[:page] -%>" class="link-action">select groups</a>)
           </td>
           <td valign="top">
             <%
@@ -112,9 +112,9 @@
                groups=project.group_roles.select { |gr| gr.role=='user' }.map { |gr| group_name(gr.group) }
             %>
             <%= users.join(', ') %>
-            (<%= link_to "select users", {:action => 'edit_users', :role => 'user', :resource => project.id, :redirect => 'projects'}, :class => 'link-action' %>)<br/>
+            (<a href="<%= ApplicationController.root_context -%>/roles/edit_users?redirect=projects&role=user&resource=<%= project.id -%>&q=<%= u params[:q] -%>&qualifier=<%= @qualifier -%>&page=<%= params[:page] -%>" class="link-action">select users</a>)<br/>
             <%= groups.join(', ') %>
-            (<%= link_to "select groups", {:action => 'edit_groups', :role => 'user', :resource => project.id, :redirect => 'projects'}, :class => 'link-action' %>)
+            (<a href="<%= ApplicationController.root_context -%>/roles/edit_groups?redirect=projects&role=user&resource=<%= project.id -%>&q=<%= u params[:q] -%>&qualifier=<%= @qualifier -%>&page=<%= params[:page] -%>" class="link-action">select groups</a>)
           </td>
           <td valign="top">
             <%
@@ -122,9 +122,9 @@
                groups=project.group_roles.select { |gr| gr.role=='codeviewer' }.map { |gr| group_name(gr.group) }
             %>
             <%= users.join(', ') %>
-            (<%= link_to "select users", {:action => 'edit_users', :role => 'codeviewer', :resource => project.id, :redirect => 'projects'}, :class => 'link-action' %>)<br/>
+            (<a href="<%= ApplicationController.root_context -%>/roles/edit_users?redirect=projects&role=codeviewer&resource=<%= project.id -%>&q=<%= u params[:q] -%>&qualifier=<%= @qualifier -%>&page=<%= params[:page] -%>" class="link-action">select users</a>)<br/>
             <%= groups.join(', ') %>
-            (<%= link_to "select groups", {:action => 'edit_groups', :role => 'codeviewer', :resource => project.id, :redirect => 'projects'}, :class => 'link-action' %>)
+            (<a href="<%= ApplicationController.root_context -%>/roles/edit_groups?redirect=projects&role=codeviewer&resource=<%= project.id -%>&q=<%= u params[:q] -%>&qualifier=<%= @qualifier -%>&page=<%= params[:page] -%>" class="link-action">select groups</a>)
           </td>
         </tr>
       <%

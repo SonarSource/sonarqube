@@ -9,7 +9,7 @@
      title="Global #{role_name(@role)}"
    end
 %>
-<div class="subtitle">&raquo; <a href="<%= url_for :action => params[:redirect] -%>">Back</a></div>
+<div class="subtitle">&raquo; <a href="<%= url_for :action => params[:redirect], :q => params[:q], :qualifier => params[:qualifier] -%>">Back</a></div>
 <h1><%= title  %></h1>
 <br/>
 <div id="main_content">
@@ -17,6 +17,9 @@
     <input name="resource" value="<%= params[:resource] -%>" type="hidden"/>
     <input name="role" value="<%= @role -%>" type="hidden" />
     <input name="redirect" value="<%= params[:redirect] -%>" type="hidden" />
+    <input name="q" value="<%= params[:q] -%>" type="hidden" />
+    <input name="qualifier" value="<%= params[:qualifier] -%>" type="hidden" />
+    <input name="page" value="<%= params[:page] -%>" type="hidden" />
     <table>
       <tbody>
         <tr>

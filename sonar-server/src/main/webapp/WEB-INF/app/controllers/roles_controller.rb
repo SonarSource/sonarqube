@@ -78,6 +78,6 @@ class RolesController < ApplicationController
 
   private
   def redirect
-    redirect_to(:action => params['redirect'] || 'global')
+    redirect_to(:action => params['redirect'] || 'global', :q => params[:q], :qualifier => params[:qualifier], :page => params[:page])
   end
 end
