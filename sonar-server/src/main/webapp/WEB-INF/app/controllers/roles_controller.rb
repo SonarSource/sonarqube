@@ -31,11 +31,12 @@ class RolesController < ApplicationController
 
   def projects
     # for backward-compatibility with versions of views plugin that do not depend on sonar 2.15
-    @qualifiers = (['VW', 'SVW'] + java_facade.getQualifiersWithProperty('hasRolePolicy').to_a).compact.uniq
+    if java_facade.hasPlugin('views')
+      @qualifiers = (['VW', 'SVW'] + java_facade.getQualifiersWithProperty('hasRolePolicy').to_a).compact.uniq
+    else
+      @qualifiers = java_facade.getQualifiersWithProperty('hasRolePolicy')
+    end
     @qualifier = params[:qualifier] || 'TRK'
-
-    # it's not possible to paginate directly in database because
-    # sort would be case-sensitive
 
     conditions_sql = 'projects.enabled=:enabled and projects.qualifier=:qualifier and projects.copy_resource_id is null'
     conditions_values = {:enabled => true, :qualifier => @qualifier}
