@@ -72,7 +72,6 @@ public final class ClassLoaderUtils {
    */
   public static Collection<String> listFiles(ClassLoader classLoader, String rootPath) {
     return listResources(classLoader, rootPath, new Predicate<String>() {
-      @Override
       public boolean apply(@Nullable String path) {
         return !StringUtils.endsWith(path, "/");
       }

@@ -54,7 +54,6 @@ public class FileComplexityDistributionDecorator implements Decorator {
     return Scopes.isFile(resource) && context.getMeasure(CoreMetrics.COMPLEXITY) != null;
   }
 
-  @Override
   public void decorate(Resource resource, DecoratorContext context) {
     if (shouldExecuteOn(resource, context)) {
       RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION, LIMITS);

@@ -87,7 +87,6 @@ public class ClassLoaderUtilsTest {
   @Test
   public void listResources_use_predicate() {
     Collection<String> strings = ClassLoaderUtils.listResources(classLoader, "org/sonar/sqale", new Predicate<String>() {
-      @Override
       public boolean apply(@Nullable String s) {
         return StringUtils.endsWith(s, "md");
       }
@@ -119,7 +118,6 @@ public class ClassLoaderUtilsTest {
   public void copyRubyRailsApp_relocate_files() {
     File toDir = temp.newFolder("dest");
     ClassLoaderUtils.copyResources(classLoader, "org/sonar/sqale", toDir, new Function<String, String>() {
-      @Override
       public String apply(@Nullable String path) {
         return "foo/" + FilenameUtils.getName(path);
       }

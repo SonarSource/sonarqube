@@ -40,7 +40,6 @@ public class StringText implements Sequence {
     this.lines = lineMap(content, 0, content.length());
   }
 
-  @Override
   public int length() {
     return lines.size() - 2;
   }

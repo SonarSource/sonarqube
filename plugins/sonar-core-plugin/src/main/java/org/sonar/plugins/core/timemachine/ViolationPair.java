@@ -45,7 +45,6 @@ public class ViolationPair {
   }
 
   public static final Comparator<ViolationPair> COMPARATOR = new Comparator<ViolationPair>() {
-    @Override
     public int compare(ViolationPair o1, ViolationPair o2) {
       return o2.weight - o1.weight;
     }
