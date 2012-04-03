@@ -90,11 +90,11 @@
     <sonar.skippedModules>sonar-gwt-api,sonar-core-gwt</sonar.skippedModules>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.min.version>2.2.1</maven.min.version>
-    <jdk.min.version>1.6</jdk.min.version>
+    <jdk.min.version>1.5</jdk.min.version>
 
     <!-- To configure animal-sniffer to check API compat -->
     <animal-sniffer.signature.groupId>org.codehaus.mojo.signature</animal-sniffer.signature.groupId>
-    <animal-sniffer.signature.artifactId>java16</animal-sniffer.signature.artifactId>
+    <animal-sniffer.signature.artifactId>java15</animal-sniffer.signature.artifactId>
     <animal-sniffer.signature.version>1.0</animal-sniffer.signature.version>
     <version.animal-sniffer.plugin>1.7</version.animal-sniffer.plugin>
     <version.maven-license.plugin>1.9.0</version.maven-license.plugin>
@@ -607,7 +607,8 @@
       <dependency>
         <groupId>commons-dbcp</groupId>
         <artifactId>commons-dbcp</artifactId>
-        <version>1.4</version>
+        <!-- do not upgrade to version 1.4, not compatible with Java5 -->
+        <version>1.3</version>
       </dependency>
       <dependency>
         <!-- See SONAR-2512 -->
@@ -767,7 +768,8 @@
       <dependency>
         <groupId>postgresql</groupId>
         <artifactId>postgresql</artifactId>
-        <version>9.0-801.jdbc4</version>
+        <!-- do not upgrade to version 9.0-801.jdbc4, not compatible with Java 5 -->
+        <version>9.0-801.jdbc3</version>
       </dependency>
       <dependency>
         <groupId>net.sourceforge.jtds</groupId>

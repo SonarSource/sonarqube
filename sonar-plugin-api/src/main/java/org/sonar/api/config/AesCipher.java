@@ -58,7 +58,7 @@ final class AesCipher extends Cipher {
     try {
       javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CRYPTO_KEY);
       cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, loadSecretFile());
-      return new String(Base64.encodeBase64(cipher.doFinal(clearText.getBytes(Charsets.UTF_8))));
+      return new String(Base64.encodeBase64(cipher.doFinal(clearText.getBytes("UTF-8"))));
     } catch (Exception e) {
       throw Throwables.propagate(e);
     }
