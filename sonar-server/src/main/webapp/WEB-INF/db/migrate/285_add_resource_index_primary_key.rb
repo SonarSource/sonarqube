@@ -48,7 +48,8 @@ class AddResourceIndexPrimaryKey < ActiveRecord::Migration
         t.column 'root_project_id', :integer, :null => false
         t.column 'qualifier', :string, :limit => 10, :null => false
       end
-
+      add_index 'resource_index', 'kee', :name => 'resource_index_key'
+      add_index 'resource_index', 'resource_id', :name => 'resource_index_rid'
 
     end
   end
