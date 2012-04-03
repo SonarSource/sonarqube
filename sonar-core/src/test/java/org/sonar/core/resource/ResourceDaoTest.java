@@ -132,12 +132,10 @@ public class ResourceDaoTest extends DaoTestCase {
       this.qualifier = qualifier;
     }
 
-    @Override
     public boolean matches(Object o) {
       return ((ResourceDto) o).getQualifier().equals(qualifier);
     }
 
-    @Override
     public void describeTo(Description description) {
       description.appendText("qualifier " + qualifier);
     }
