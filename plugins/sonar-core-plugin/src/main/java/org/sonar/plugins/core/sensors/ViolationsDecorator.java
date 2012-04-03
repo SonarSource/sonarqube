@@ -57,6 +57,7 @@ public class ViolationsDecorator implements Decorator {
       CoreMetrics.INFO_VIOLATIONS);
   }
 
+  @Override
   public void decorate(Resource resource, DecoratorContext context) {
     if (shouldDecorateResource(resource)) {
       computeTotalViolations(context);

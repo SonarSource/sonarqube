@@ -29,9 +29,13 @@ public final class JavaTokenizers {
   }
 
   public static List<Tokenizer> forHtml() {
-    return Collections.unmodifiableList(Arrays.asList(new JavaAnnotationTokenizer("<span class=\"a\">", "</span>"), new LiteralTokenizer(
-        "<span class=\"s\">", "</span>"), new CDocTokenizer("<span class=\"cd\">", "</span>"), new JavadocTokenizer("<span class=\"j\">",
-        "</span>"), new CppDocTokenizer("<span class=\"cppd\">", "</span>"), new JavaConstantTokenizer("<span class=\"c\">", "</span>"),
+    return Collections.unmodifiableList(Arrays.asList(
+        new JavaAnnotationTokenizer("<span class=\"a\">", "</span>"),
+        new LiteralTokenizer("<span class=\"s\">", "</span>"),
+        new CDocTokenizer("<span class=\"cd\">", "</span>"),
+        new JavadocTokenizer("<span class=\"j\">", "</span>"),
+        new CppDocTokenizer("<span class=\"cppd\">", "</span>"),
+        new JavaConstantTokenizer("<span class=\"c\">", "</span>"),
         new KeywordsTokenizer("<span class=\"k\">", "</span>", JavaKeywords.get())));
   }
 }

@@ -51,7 +51,7 @@ public class PastSnapshotFinder implements BatchExtension {
   public PastSnapshot find(Snapshot projectSnapshot, Configuration conf, int index) {
     String propertyValue = getPropertyValue(conf, index);
     PastSnapshot pastSnapshot = find(projectSnapshot, index, propertyValue);
-    if (pastSnapshot==null && StringUtils.isNotBlank(propertyValue)) {
+    if (pastSnapshot == null && StringUtils.isNotBlank(propertyValue)) {
       Logs.INFO.debug("The property " + CoreProperties.TIMEMACHINE_PERIOD_PREFIX + index + " has an unvalid value: " + propertyValue);
     }
     return pastSnapshot;
@@ -60,11 +60,21 @@ public class PastSnapshotFinder implements BatchExtension {
   static String getPropertyValue(Configuration conf, int index) {
     String defaultValue = null;
     switch (index) {
-      case 1: defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_1; break;
-      case 2: defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_2; break;
-      case 3: defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_3; break;
-      case 4: defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_4; break; // NOSONAR false-positive: constant 4 is the same than 5 (empty string)
-      case 5: defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_5; break; // NOSONAR false-positive: constant 5 is the same than 4 (empty string)
+      case 1:
+        defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_1;
+        break;
+      case 2:
+        defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_2;
+        break;
+      case 3:
+        defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_3;
+        break;
+      case 4:
+        defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_4;
+        break; // NOSONAR false-positive: constant 4 is the same than 5 (empty string)
+      case 5:
+        defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_5;
+        break; // NOSONAR false-positive: constant 5 is the same than 4 (empty string)
     }
     return conf.getString(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + index, defaultValue);
   }

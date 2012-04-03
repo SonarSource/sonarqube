@@ -56,11 +56,11 @@ public class Node implements Comparable<Node> {
     }
   }
 
-  public void resolveOrder() throws CyclicDependenciesException {
+  public void resolveOrder() {
     resolveOrder(toString());
   }
 
-  private int resolveOrder(String path) throws CyclicDependenciesException {
+  private int resolveOrder(String path) {
     seen = true;
     try {
       int highOrder = -1;
@@ -96,10 +96,6 @@ public class Node implements Comparable<Node> {
     return orderInd;
   }
 
-  public int getOrder() {
-    return order;
-  }
-
   @Override
   public String toString() {
     return object.toString();
@@ -113,7 +109,6 @@ public class Node implements Comparable<Node> {
     if (!(o instanceof Node)) {
       return false;
     }
-
     return object.equals(((Node) o).getObject());
   }
 
@@ -121,6 +116,5 @@ public class Node implements Comparable<Node> {
   public int hashCode() {
     return object.hashCode();
   }
-
 }
 

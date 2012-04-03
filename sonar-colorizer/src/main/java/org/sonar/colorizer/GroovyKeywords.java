@@ -27,10 +27,9 @@ public final class GroovyKeywords {
 
   private static final Set<String> KEYWORDS = new HashSet<String>();
 
-  private static final String[] GROOVY_KEYWORDS = new String[] { "as", "assert", "break", "case", "catch", "class", "continue", "def",
-      "default", "do"
-  , "else", "extends", "finally", "for", "if", "in", "implements", "import", "instanceof", "interface", "new", "package",
- "property", "return", "switch", "throw", "throws", "try", "while" };
+  private static final String[] GROOVY_KEYWORDS = new String[]{"as", "assert", "break", "case", "catch", "class", "continue", "def",
+      "default", "do", "else", "extends", "finally", "for", "if", "in", "implements", "import", "instanceof", "interface", "new", "package",
+      "property", "return", "switch", "throw", "throws", "try", "while"};
 
   static {
     Collections.addAll(KEYWORDS, GROOVY_KEYWORDS);

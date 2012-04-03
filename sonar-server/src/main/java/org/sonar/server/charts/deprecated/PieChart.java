@@ -119,6 +119,7 @@ public class PieChart extends BaseChartWeb implements DeprecatedChart {
           measure = Double.parseDouble(st.nextToken());
         }
         catch (NumberFormatException e) {
+          // ignore
         }
         dataset.setValue(Integer.toString(i), measure);
         i++;

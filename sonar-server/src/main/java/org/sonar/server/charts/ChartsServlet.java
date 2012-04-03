@@ -19,6 +19,7 @@
  */
 package org.sonar.server.charts;
 
+import com.google.common.collect.Maps;
 import org.apache.commons.io.IOUtils;
 import org.jfree.chart.encoders.KeypointPNGEncoderAdapter;
 import org.slf4j.Logger;
@@ -45,8 +46,7 @@ public class ChartsServlet extends HttpServlet {
   private static final long serialVersionUID = 669857447198433893L;
 
   @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException, IOException {
+  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     if (isDeprecatedChart(request)) {
       deprecatedDoGet(request, response);
 
@@ -71,7 +71,7 @@ public class ChartsServlet extends HttpServlet {
   }
 
   private ChartParameters getParams(HttpServletRequest request) {
-    Map<String, String> map = new HashMap<String, String>();
+    Map<String, String> map = Maps.newHashMap();
     Enumeration keys = request.getParameterNames();
     while (keys.hasMoreElements()) {
       String key = (String) keys.nextElement();
@@ -104,10 +104,8 @@ public class ChartsServlet extends HttpServlet {
     return false;
   }
 
-  public void deprecatedDoGet(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException, IOException {
-
-    Map<String, String> params = new HashMap<String, String>();
+  public void deprecatedDoGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    Map<String, String> params = Maps.newHashMap();
     params.put(BaseChartWeb.CHART_PARAM_TYPE, request.getParameter(BaseChartWeb.CHART_PARAM_TYPE));
     params.put(BaseChartWeb.CHART_PARAM_VALUES, request.getParameter(BaseChartWeb.CHART_PARAM_VALUES));
     params.put(BaseChartWeb.CHART_PARAM_COLORS, request.getParameter(BaseChartWeb.CHART_PARAM_COLORS));

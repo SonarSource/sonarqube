@@ -99,9 +99,7 @@ public final class ClassLoaderUtils {
 
       URL root = classLoader.getResource(rootPath);
       if (root != null) {
-        if (!"jar".equals(root.getProtocol())) {
-          throw new IllegalStateException("Unsupported protocol: " + root.getProtocol());
-        }
+        checkJarFile(root);
 
         // Path of the root directory
         // Examples :
@@ -125,6 +123,12 @@ public final class ClassLoaderUtils {
       return paths;
     } catch (Exception e) {
       throw Throwables.propagate(e);
+    }
+  }
+
+  private static void checkJarFile(URL root) {
+    if (!"jar".equals(root.getProtocol())) {
+      throw new IllegalStateException("Unsupported protocol: " + root.getProtocol());
     }
   }
 }

@@ -19,10 +19,10 @@
  */
 package org.sonar.colorizer;
 
-import java.util.List;
-
 import org.sonar.channel.Channel;
 import org.sonar.channel.CodeReader;
+
+import java.util.List;
 
 public class TokenizerDispatcher {
 
@@ -32,8 +32,8 @@ public class TokenizerDispatcher {
     this.tokenizers = tokenizers;
   }
 
-  public TokenizerDispatcher(List<Channel<HtmlCodeBuilder>> tokenizers) {
-    this.tokenizers = tokenizers.toArray(new Channel[0]); // NOSONAR performance is not an issue here
+  public TokenizerDispatcher(List<Channel<HtmlCodeBuilder>> tokenizersArray) {
+    this.tokenizers = tokenizersArray.toArray(new Channel[tokenizersArray.size()]);
   }
 
   public final String colorize(String code) {
@@ -44,7 +44,8 @@ public class TokenizerDispatcher {
 
   public final void colorize(CodeReader code, HtmlCodeBuilder colorizedCode) {
     cloneNotThreadSafeTokenizers();
-    nextChar: while (code.peek() != -1) {
+    nextChar:
+    while (code.peek() != -1) {
       for (Channel<HtmlCodeBuilder> codeTokenizer : tokenizers) {
         if (codeTokenizer.consume(code, colorizedCode)) {
           continue nextChar;

@@ -99,7 +99,6 @@ public final class Library extends Resource {
       return false;
     }
     return version.equals(library.version);
-
   }
 
   @Override

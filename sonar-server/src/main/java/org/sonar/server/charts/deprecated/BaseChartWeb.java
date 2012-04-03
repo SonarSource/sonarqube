@@ -119,6 +119,7 @@ public abstract class BaseChartWeb extends BaseChart {
         result = Double.parseDouble(paramValue);
       }
       catch (NumberFormatException e) {
+        // ignore
       }
     }
     return result;

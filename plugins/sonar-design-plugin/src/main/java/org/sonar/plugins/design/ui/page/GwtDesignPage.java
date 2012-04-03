@@ -21,20 +21,15 @@ package org.sonar.plugins.design.ui.page;
 
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.web.DefaultTab;
-import org.sonar.api.web.GwtPage;
-import org.sonar.api.web.NavigationSection;
-import org.sonar.api.web.RequiredMeasures;
-import org.sonar.api.web.ResourceQualifier;
-import org.sonar.api.web.UserRole;
+import org.sonar.api.web.*;
 import org.sonar.plugins.design.ui.page.client.DesignPage;
 
 @RequiredMeasures(allOf = {CoreMetrics.DEPENDENCY_MATRIX_KEY})
 @ResourceQualifier({Qualifiers.PROJECT, Qualifiers.MODULE, Qualifiers.PACKAGE, Qualifiers.DIRECTORY})
 @DefaultTab(metrics = {
-  CoreMetrics.DEPENDENCY_MATRIX_KEY, CoreMetrics.PACKAGE_FEEDBACK_EDGES_KEY, CoreMetrics.PACKAGE_CYCLES_KEY,
-  CoreMetrics.PACKAGE_TANGLE_INDEX_KEY, CoreMetrics.PACKAGE_TANGLES_KEY, CoreMetrics.FILE_CYCLES_KEY,
-  CoreMetrics.FILE_TANGLE_INDEX_KEY, CoreMetrics.FILE_TANGLES_KEY, CoreMetrics.FILE_FEEDBACK_EDGES_KEY})
+    CoreMetrics.DEPENDENCY_MATRIX_KEY, CoreMetrics.PACKAGE_FEEDBACK_EDGES_KEY, CoreMetrics.PACKAGE_CYCLES_KEY,
+    CoreMetrics.PACKAGE_TANGLE_INDEX_KEY, CoreMetrics.PACKAGE_TANGLES_KEY, CoreMetrics.FILE_CYCLES_KEY,
+    CoreMetrics.FILE_TANGLE_INDEX_KEY, CoreMetrics.FILE_TANGLES_KEY, CoreMetrics.FILE_FEEDBACK_EDGES_KEY})
 @NavigationSection({NavigationSection.RESOURCE, NavigationSection.RESOURCE_TAB})
 @UserRole(UserRole.USER)
 public class GwtDesignPage extends GwtPage {

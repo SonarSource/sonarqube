@@ -27,11 +27,11 @@ public final class JavaKeywords {
 
   private static final Set<String> KEYWORDS = new HashSet<String>();
 
-  private static final String[] JAVA_KEYWORDS = new String[] { "abstract", "assert", "boolean", "break", "byte", "case", "catch", "char",
+  private static final String[] JAVA_KEYWORDS = new String[]{"abstract", "assert", "boolean", "break", "byte", "case", "catch", "char",
       "class", "const", "continue", "default",
- "do", "double", "else", "enum", "extends", "false", "final", "finally", "float", "for",
+      "do", "double", "else", "enum", "extends", "false", "final", "finally", "float", "for",
       "goto", "if", "implements", "import", "instanceof",
- "int", "interface", "long", "native", "new", "null", "package", "private",
+      "int", "interface", "long", "native", "new", "null", "package", "private",
       "protected", "public", "return", "short", "static", "strictfp",
       "super", "switch", "synchronized", "this", "throw", "throws", "transient", "true", "try", "void", "volatile", "while"};
 

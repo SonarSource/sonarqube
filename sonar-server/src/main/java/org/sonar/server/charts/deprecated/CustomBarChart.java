@@ -118,15 +118,12 @@ public class CustomBarChart extends BarChart {
           categoriesSplit[i] = DEFAULT_NAME_CATEGORY + i;
         }
       }
-      int nbCategories = categoriesSplit.length;
 
       // Series
       String[] seriesSplit = {DEFAULT_NAME_SERIE};
       int nbSeries = 1;
 
-      //
-      for (int iCategories = 0; iCategories < nbCategories; iCategories++) {
-        String currentCategory = categoriesSplit[iCategories];
+      for (String currentCategory : categoriesSplit) {
         for (int iSeries = 0; iSeries < nbSeries; iSeries++) {
           String currentSerie = seriesSplit[iSeries];
           double currentValue = 0.0;
@@ -134,6 +131,7 @@ public class CustomBarChart extends BarChart {
             try {
               currentValue = Double.parseDouble(stValues.nextToken());
             } catch (NumberFormatException e) {
+              // ignore
             }
           }
           dataset.addValue(currentValue, currentSerie, currentCategory);

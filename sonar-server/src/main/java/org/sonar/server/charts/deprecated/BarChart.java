@@ -169,14 +169,13 @@ public class BarChart extends BaseChartWeb implements DeprecatedChart {
       // Categories
       String categoriesParam = params.get(BaseChartWeb.CHART_PARAM_CATEGORIES);
       boolean categoriesPresent = categoriesParam != null && categoriesParam.length() > 0;
-      String[] categoriesSplit = null;
+      String[] categoriesSplit;
       if (categoriesPresent) {
         categoriesSplit = categoriesParam.split(",");
       } else {
         categoriesSplit = new String[1];
         categoriesSplit[0] = BaseChartWeb.DEFAULT_NAME_CATEGORY;
       }
-      int nbCategories = categoriesSplit.length;
 
       // Series
       String seriesParam = params.get(BaseChartWeb.CHART_PARAM_SERIES);
@@ -190,17 +189,15 @@ public class BarChart extends BaseChartWeb implements DeprecatedChart {
           seriesSplit[i] = BaseChartWeb.DEFAULT_NAME_SERIE + i;
         }
       }
-      int nbSeries = seriesSplit.length;
 
-      for (int iCategories = 0; iCategories < nbCategories; iCategories++) {
-        String currentCategory = categoriesSplit[iCategories];
-        for (int iSeries = 0; iSeries < nbSeries; iSeries++) {
-          String currentSerie = seriesSplit[iSeries];
+      for (String currentCategory : categoriesSplit) {
+        for (String currentSerie : seriesSplit) {
           double currentValue = 0.0;
           if (stValues.hasMoreTokens()) {
             try {
               currentValue = Double.parseDouble(stValues.nextToken());
             } catch (NumberFormatException e) {
+              // ignore
             }
           }
           dataset.addValue(currentValue, currentSerie, currentCategory);
