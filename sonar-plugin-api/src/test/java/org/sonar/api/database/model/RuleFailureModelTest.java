@@ -51,7 +51,7 @@ public class RuleFailureModelTest {
   public void abbreviateMessageFromSizeInCharacters() throws UnsupportedEncodingException {
     assertThat("\u20AC".length(), is(1));
     // but EURO symbol is encoded on three bytes
-    assertThat("\u20AC".getBytes("UTF8").length, is(3));
+    assertThat("\u20AC".getBytes("UTF-8").length, is(3));
 
     final RuleFailureModel violation = new RuleFailureModel();
     violation.setMessage(StringUtils.repeat("€", RuleFailureModel.MESSAGE_COLUMN_SIZE));
@@ -59,6 +59,6 @@ public class RuleFailureModelTest {
     assertThat(violation.getMessage().length(), is(RuleFailureModel.MESSAGE_COLUMN_SIZE));
 
     // THIS IS THE BUG ON ORACLE !!!!!!!!
-    assertThat(violation.getMessage().getBytes("UTF8").length, greaterThan(RuleFailureModel.MESSAGE_COLUMN_SIZE));
+    assertThat(violation.getMessage().getBytes("UTF-8").length, greaterThan(RuleFailureModel.MESSAGE_COLUMN_SIZE));
   }
 }
