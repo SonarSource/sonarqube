@@ -40,6 +40,10 @@ public class ViolationTrackingBlocksRecognizer {
     this.cmp = new HashedSequenceComparator<StringText>(cmp);
   }
 
+  /**
+   * @param startA number of line from first version of text (numbering starts from 0)
+   * @param startB number of line from second version of text (numbering starts from 0)
+   */
   public int computeLengthOfMaximalBlock(int startA, int startB) {
     if (!cmp.equals(a, startA, b, startB)) {
       return 0;

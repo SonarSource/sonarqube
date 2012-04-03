@@ -30,6 +30,8 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.violations.ViolationQuery;
 
+import javax.annotation.Nullable;
+
 import java.util.*;
 
 @DependsUpon({DecoratorBarriers.END_OF_VIOLATIONS_GENERATION, DecoratorBarriers.START_VIOLATION_TRACKING})
@@ -96,7 +98,11 @@ public class ViolationTrackingDecorator implements Decorator {
     return mapViolations(newViolations, pastViolations, null);
   }
 
-  private Map<Violation, RuleFailureModel> mapViolations(List<Violation> newViolations, List<RuleFailureModel> pastViolations, ViolationTrackingBlocksRecognizer rec) {
+  /**
+   * @param rec null, if source code not available
+   */
+  @VisibleForTesting
+  Map<Violation, RuleFailureModel> mapViolations(List<Violation> newViolations, List<RuleFailureModel> pastViolations, @Nullable ViolationTrackingBlocksRecognizer rec) {
     Multimap<Integer, RuleFailureModel> pastViolationsByRule = LinkedHashMultimap.create();
     for (RuleFailureModel pastViolation : pastViolations) {
       pastViolationsByRule.put(pastViolation.getRuleId(), pastViolation);
@@ -109,7 +115,7 @@ public class ViolationTrackingDecorator implements Decorator {
           pastViolationsByRule, referenceViolationsMap);
     }
 
-    // Try first to match violations on same rule with same line and with same checkum (but not necessarily with same message)
+    // Try first to match violations on same rule with same line and with same checksum (but not necessarily with same message)
     for (Violation newViolation : newViolations) {
       if (isNotAlreadyMapped(newViolation, referenceViolationsMap)) {
         mapViolation(newViolation,
@@ -120,7 +126,6 @@ public class ViolationTrackingDecorator implements Decorator {
 
     // If each new violation matches an old one we can stop the matching mechanism
     if (referenceViolationsMap.size() != newViolations.size()) {
-      // FIXME Godin: this condition just in order to bypass test
       if (rec != null) {
         // SONAR-3072
 
