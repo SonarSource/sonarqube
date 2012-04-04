@@ -21,7 +21,12 @@ package org.sonar.api.utils.command;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.SystemUtils;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
+import org.junit.rules.TestName;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,6 +38,76 @@ import static org.junit.Assert.fail;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
 public class CommandExecutorTest {
+
+  @Rule
+  public TemporaryFolder tempFolder = new TemporaryFolder();
+
+  @Rule
+  public TestName testName = new TestName();
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
+  private File workDir;
+
+  @Before
+  public void setUp() {
+    workDir = tempFolder.newFolder(testName.getMethodName());
+  }
+
+  @Test
+  public void shouldConsumeStdOutAndStdErr() throws Exception {
+    final StringBuilder stdOutBuilder = new StringBuilder();
+    StreamConsumer stdOutConsumer = new StreamConsumer() {
+      public void consumeLine(String line) {
+        stdOutBuilder.append(line).append(SystemUtils.LINE_SEPARATOR);
+      }
+    };
+    final StringBuilder stdErrBuilder = new StringBuilder();
+    StreamConsumer stdErrConsumer = new StreamConsumer() {
+      public void consumeLine(String line) {
+        stdErrBuilder.append(line).append(SystemUtils.LINE_SEPARATOR);
+      }
+    };
+    Command command = Command.create(getScript("output")).setDirectory(workDir);
+    int exitCode = CommandExecutor.create().execute(command, stdOutConsumer, stdErrConsumer, 1000L);
+    assertThat(exitCode, is(0));
+
+    String stdOut = stdOutBuilder.toString();
+    String stdErr = stdErrBuilder.toString();
+    assertThat(stdOut, containsString("stdOut: first line"));
+    assertThat(stdOut, containsString("stdOut: second line"));
+    assertThat(stdErr, containsString("stdErr: first line"));
+    assertThat(stdErr, containsString("stdErr: second line"));
+  }
+
+  @Test
+  public void stdOutConsumerCanThrowException() throws Exception {
+    Command command = Command.create(getScript("output")).setDirectory(workDir);
+    thrown.expect(CommandException.class);
+    thrown.expectMessage("Error inside stdOut parser");
+    CommandExecutor.create().execute(command, BAD_CONSUMER, NOP_CONSUMER, 1000L);
+  }
+
+  @Test
+  public void stdErrConsumerCanThrowException() throws Exception {
+    Command command = Command.create(getScript("output")).setDirectory(workDir);
+    thrown.expect(CommandException.class);
+    thrown.expectMessage("Error inside stdErr parser");
+    CommandExecutor.create().execute(command, NOP_CONSUMER, BAD_CONSUMER, 1000L);
+  }
+
+  private static final StreamConsumer NOP_CONSUMER = new StreamConsumer() {
+    public void consumeLine(String line) {
+      // nop
+    }
+  };
+
+  private static final StreamConsumer BAD_CONSUMER = new StreamConsumer() {
+    public void consumeLine(String line) {
+      throw new RuntimeException();
+    }
+  };
 
   @Test
   public void shouldEchoArguments() throws IOException {
@@ -47,15 +122,12 @@ public class CommandExecutorTest {
   @Test
   public void shouldConfigureWorkingDirectory() throws IOException {
     String executable = getScript("echo");
-    File dir = new File("target/tmp/CommandExecutorTest/shouldConfigureWorkingDirectory");
-    FileUtils.forceMkdir(dir);
-    FileUtils.cleanDirectory(dir);
 
-    int exitCode = CommandExecutor.create().execute(Command.create(executable).setDirectory(dir), 1000L);
+    int exitCode = CommandExecutor.create().execute(Command.create(executable).setDirectory(workDir), 1000L);
     assertThat(exitCode, is(0));
 
-    File log = new File(dir, "echo.log");
-    assertThat(FileUtils.readFileToString(log), containsString(dir.getCanonicalPath()));
+    File log = new File(workDir, "echo.log");
+    assertThat(FileUtils.readFileToString(log), containsString(workDir.getCanonicalPath()));
   }
 
   @Test
@@ -63,7 +135,7 @@ public class CommandExecutorTest {
     String executable = getScript("forever");
     long start = System.currentTimeMillis();
     try {
-      CommandExecutor.create().execute(Command.create(executable), 300L);
+      CommandExecutor.create().execute(Command.create(executable).setDirectory(workDir), 300L);
       fail();
     } catch (CommandException e) {
       long duration = System.currentTimeMillis() - start;
@@ -73,12 +145,13 @@ public class CommandExecutorTest {
     }
   }
 
-  @Test(expected = CommandException.class)
+  @Test
   public void shouldFailIfScriptNotFound() {
-    CommandExecutor.create().execute(Command.create("notfound"), 1000L);
+    thrown.expect(CommandException.class);
+    CommandExecutor.create().execute(Command.create("notfound").setDirectory(workDir), 1000L);
   }
 
-  private String getScript(String name) throws IOException {
+  private static String getScript(String name) throws IOException {
     String filename;
     if (SystemUtils.IS_OS_WINDOWS) {
       filename = name + ".bat";
@@ -87,4 +160,5 @@ public class CommandExecutorTest {
     }
     return new File("src/test/scripts/" + filename).getCanonicalPath();
   }
+
 }
