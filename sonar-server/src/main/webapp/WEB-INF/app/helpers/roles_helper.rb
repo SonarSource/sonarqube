@@ -33,7 +33,7 @@ module RolesHelper
 
   def groups(role, resource_id=nil)
     resource_id=(resource_id.blank? ? nil : resource_id.to_i)
-    group_roles=GroupRole.find(:all, :conditions => {:role => role, :resource_id => resource_id})
+    group_roles=GroupRole.find(:all, :include => 'group', :conditions => {:role => role, :resource_id => resource_id})
     groups = group_roles.map{|ur| ur.group}
     Api::Utils.insensitive_sort(groups) {|group| group ? group.name : ''}
   end
