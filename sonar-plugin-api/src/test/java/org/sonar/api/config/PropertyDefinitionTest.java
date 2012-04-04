@@ -88,7 +88,7 @@ public class PropertyDefinitionTest {
 
   @Test
   public void validate_string() {
-    PropertyDefinition def = new PropertyDefinition(PropertyType.STRING, new String[0]);
+    PropertyDefinition def = PropertyDefinition.create("foo", PropertyType.STRING, new String[0]);
 
     assertThat(def.validate(null).isValid(), is(true));
     assertThat(def.validate("").isValid(), is(true));
@@ -98,7 +98,7 @@ public class PropertyDefinitionTest {
 
   @Test
   public void validate_boolean() {
-    PropertyDefinition def = new PropertyDefinition(PropertyType.BOOLEAN, new String[0]);
+    PropertyDefinition def = PropertyDefinition.create("foo", PropertyType.BOOLEAN, new String[0]);
 
     assertThat(def.validate(null).isValid(), is(true));
     assertThat(def.validate("").isValid(), is(true));
@@ -112,7 +112,7 @@ public class PropertyDefinitionTest {
 
   @Test
   public void validate_integer() {
-    PropertyDefinition def = new PropertyDefinition(PropertyType.INTEGER, new String[0]);
+    PropertyDefinition def = PropertyDefinition.create("foo", PropertyType.INTEGER, new String[0]);
 
     assertThat(def.validate(null).isValid(), is(true));
     assertThat(def.validate("").isValid(), is(true));
@@ -125,7 +125,7 @@ public class PropertyDefinitionTest {
 
   @Test
   public void validate_float() {
-    PropertyDefinition def = new PropertyDefinition(PropertyType.FLOAT, new String[0]);
+    PropertyDefinition def = PropertyDefinition.create("foo", PropertyType.FLOAT, new String[0]);
 
     assertThat(def.validate(null).isValid(), is(true));
     assertThat(def.validate("").isValid(), is(true));
@@ -139,7 +139,7 @@ public class PropertyDefinitionTest {
 
   @Test
   public void validate_single_select_list() {
-    PropertyDefinition def = new PropertyDefinition(PropertyType.SINGLE_SELECT_LIST, new String[]{"de", "en"});
+    PropertyDefinition def = PropertyDefinition.create("foo", PropertyType.SINGLE_SELECT_LIST, new String[]{"de", "en"});
 
     assertThat(def.validate(null).isValid(), is(true));
     assertThat(def.validate("").isValid(), is(true));

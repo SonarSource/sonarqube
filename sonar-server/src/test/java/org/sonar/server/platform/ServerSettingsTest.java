@@ -62,8 +62,7 @@ public class ServerSettingsTest extends AbstractDbUnitTestCase {
     setupData("db/shared");
 
     ServerSettings settings = new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), home);
-    settings.activateDatabaseSettings(new PropertiesDao(getMyBatis()));
-    settings.load(home);
+    settings.activateDatabaseSettings(new PropertiesDao(getMyBatis()), home);
 
     assertThat(settings.getString("global_only"), is("is_global"));
     assertThat(settings.getString("global_and_project"), is("is_global"));

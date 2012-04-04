@@ -50,6 +50,7 @@ import org.sonar.server.filters.Filter;
 import org.sonar.server.filters.FilterExecutor;
 import org.sonar.server.filters.FilterResult;
 import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
+import org.sonar.server.platform.GlobalSettingsUpdater;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.ServerIdGenerator;
 import org.sonar.server.platform.ServerSettings;
@@ -58,6 +59,7 @@ import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
 import org.sonar.updatecenter.common.Version;
 
+import javax.annotation.Nullable;
 import java.net.InetAddress;
 import java.sql.Connection;
 import java.util.Collection;
@@ -324,8 +326,8 @@ public final class JRubyFacade {
     return getContainer().getComponentByType(ProfilesManager.class);
   }
 
-  public void reloadConfiguration() {
-    getContainer().getComponentByType(ServerSettings.class).load();
+  public void setGlobalProperty(String key, @Nullable String value) {
+    getContainer().getComponentByType(GlobalSettingsUpdater.class).setProperty(key, value);
   }
 
   public Settings getSettings() {
@@ -463,6 +465,4 @@ public final class JRubyFacade {
   public ComponentContainer getContainer() {
     return Platform.getInstance().getContainer();
   }
-
-
 }

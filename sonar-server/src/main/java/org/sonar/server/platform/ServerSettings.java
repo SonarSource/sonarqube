@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.configuration.Configuration;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.PropertyDefinitions;
@@ -66,15 +67,21 @@ public class ServerSettings extends Settings {
   }
 
   public ServerSettings activateDatabaseSettings(PropertiesDao dao) {
+    return activateDatabaseSettings(dao, SonarHome.getHome());
+  }
+
+  @VisibleForTesting
+  ServerSettings activateDatabaseSettings(PropertiesDao dao, File sonarHome) {
     this.propertiesDao = dao;
+    load(sonarHome);
     return this;
   }
 
-  public ServerSettings load() {
+  private ServerSettings load() {
     return load(SonarHome.getHome());
   }
 
-  ServerSettings load(File sonarHome) {
+  private ServerSettings load(File sonarHome) {
     clear();
     setProperty(CoreProperties.SONAR_HOME, sonarHome.getAbsolutePath());
     setProperty(DEPLOY_DIR, deployDir.getAbsolutePath());

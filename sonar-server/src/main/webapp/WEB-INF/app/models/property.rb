@@ -56,14 +56,14 @@ class Property < ActiveRecord::Base
         Property.delete_all('prop_key' => key, 'resource_id' => resource_id, 'user_id' => nil)
         prop.save
       end
-      reload_java_configuration
+      Java::OrgSonarServerUi::JRubyFacade.getInstance().setGlobalProperty(key, value) unless resource_id
     end
     prop
   end
 
   def self.clear(key, resource_id=nil)
     Property.delete_all('prop_key' => key, 'resource_id' => resource_id, 'user_id' => nil)
-    reload_java_configuration
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().setGlobalProperty(key, nil) unless resource_id
   end
 
   def self.by_key(key, resource_id=nil)
@@ -78,7 +78,7 @@ class Property < ActiveRecord::Base
     property = Property.find(:first, :conditions => {:prop_key => key, :resource_id => nil, :user_id => nil});
     property.text_value = value
     property.save
-    reload_java_configuration
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().setGlobalProperty(key, value)
     property
   end
 
@@ -116,9 +116,5 @@ class Property < ActiveRecord::Base
       validation_result=java_definition.validate(text_value)
       errors.add_to_base(validation_result.getErrorKey()) unless validation_result.isValid()
     end
-  end
-
-  def self.reload_java_configuration
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().reloadConfiguration()
   end
 end

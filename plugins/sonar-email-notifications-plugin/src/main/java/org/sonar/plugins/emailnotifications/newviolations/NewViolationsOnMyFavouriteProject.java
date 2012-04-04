@@ -42,7 +42,7 @@ public class NewViolationsOnMyFavouriteProject extends NotificationDispatcher {
   @Override
   public void dispatch(Notification notification, Context context) {
     if (StringUtils.equals(notification.getType(), "new-violations")) {
-      Integer projectId = Integer.parseInt(notification.getFieldValue("projectId"));
+      Long projectId = Long.parseLong(notification.getFieldValue("projectId"));
       List<String> userLogins = propertiesDao.findUserIdsForFavouriteResource(projectId);
       for (String userLogin : userLogins) {
         context.addUser(userLogin);

@@ -49,7 +49,7 @@ public class NewViolationsOnMyFavouriteProjectTest {
   public void shouldDispatchToUsersWhoHaveFlaggedProjectAsFavourite() {
     NotificationDispatcher.Context context = mock(NotificationDispatcher.Context.class);
     PropertiesDao propertiesDao = mock(PropertiesDao.class);
-    when(propertiesDao.findUserIdsForFavouriteResource(34)).thenReturn(Lists.newArrayList("user1", "user2"));
+    when(propertiesDao.findUserIdsForFavouriteResource(34L)).thenReturn(Lists.newArrayList("user1", "user2"));
     NewViolationsOnMyFavouriteProject dispatcher = new NewViolationsOnMyFavouriteProject(propertiesDao);
 
     Notification notification = new Notification("new-violations").setFieldValue("projectId", "34");

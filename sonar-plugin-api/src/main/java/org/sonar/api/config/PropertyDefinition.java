@@ -19,7 +19,6 @@
  */
 package org.sonar.api.config;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -95,14 +94,18 @@ public final class PropertyDefinition {
     return fix;
   }
 
-  @VisibleForTesting
-  PropertyDefinition(PropertyType type, String[] options) {
+  private PropertyDefinition(String key, PropertyType type, String[] options) {
+    this.key = key;
     this.type = type;
     this.options = options;
   }
 
   public static PropertyDefinition create(Property annotation) {
     return new PropertyDefinition(annotation);
+  }
+
+  public static PropertyDefinition create(String key, PropertyType type, String[] options) {
+    return new PropertyDefinition(key, type, options);
   }
 
   public Result validate(@Nullable String value) {

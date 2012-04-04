@@ -31,9 +31,12 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 /**
- * Project Settings on batch side, Global Settings on server side.
- * <p/>
- * Replace the deprecated component org.apache.commons.configuration.Configuration
+ * Project Settings on batch side, Global Settings on server side. This component does not access to database, so
+ * property changed via setter methods are not persisted.
+ *
+ * <p>
+ * This component replaces the deprecated org.apache.commons.configuration.Configuration
+ * </p>
  *
  * @since 2.12
  */

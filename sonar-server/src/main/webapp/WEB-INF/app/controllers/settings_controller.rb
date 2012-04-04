@@ -39,6 +39,7 @@ class SettingsController < ApplicationController
     else
       access_denied unless is_admin?
     end
+    is_global=(@project.nil?)
 
     load_properties(@project)
 
@@ -46,22 +47,30 @@ class SettingsController < ApplicationController
     if @category && @definitions_per_category[@category]
       @definitions_per_category[@category].each do |property|
         value=params[property.getKey()]
+        persisted_property = Property.find(:first, :conditions => {:prop_key=> property.key(), :resource_id => params[:resource_id], :user_id => nil})
 
-        persisted_property = Property.find(:first, :conditions => {:prop_key=> property.key(), :resource_id => (@project ? @project.id : nil), :user_id => nil})
+        # update the property
         if persisted_property
           if value.empty?
-            Property.delete_all('prop_key' => property.key(), 'resource_id' => (@project ? @project.id : nil), 'user_id' => nil)
+            Property.delete_all('prop_key' => property.key(), 'resource_id' => params[:resource_id], 'user_id' => nil)
+            java_facade.setGlobalProperty(property.getKey(), nil) if is_global
           elsif persisted_property.text_value != value.to_s
             persisted_property.text_value = value.to_s
-            persisted_property.save
+            if persisted_property.save && is_global
+              java_facade.setGlobalProperty(property.getKey(), value.to_s)
+            end
             @persisted_properties_per_key[persisted_property.key]=persisted_property
           end
-        elsif !value.blank?
-          persisted_property=Property.create(:prop_key => property.key(), :text_value => value.to_s, :resource_id => (@project ? @project.id : nil))
+
+        # create the property
+        elsif value.present?
+          persisted_property=Property.new(:prop_key => property.key(), :text_value => value.to_s, :resource_id => params[:resource_id])
+          if persisted_property.save && is_global
+            java_facade.setGlobalProperty(property.getKey(), value.to_s)
+          end
           @persisted_properties_per_key[persisted_property.key]=persisted_property
         end
       end
-      java_facade.reloadConfiguration()
 
       params[:layout]='false'
       render :partial => 'settings/properties'

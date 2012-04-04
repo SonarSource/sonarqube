@@ -36,6 +36,5 @@ public final class ServerDatabaseSettingsLoader {
 
   public void start() {
     settings.activateDatabaseSettings(propertiesDao);
-    settings.load();
   }
 }

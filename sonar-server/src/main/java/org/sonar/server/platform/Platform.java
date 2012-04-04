@@ -159,7 +159,6 @@ public final class Platform {
     coreContainer = rootContainer.createChild();
     coreContainer.addSingleton(ServerDatabaseSettingsLoader.class);
     coreContainer.addSingleton(DefaultDatabaseConnector.class);
-
     coreContainer.addSingleton(ServerExtensionInstaller.class);
     coreContainer.addSingleton(ThreadLocalDatabaseSessionFactory.class);
     coreContainer.addPicoAdapter(new DatabaseSessionProvider());
@@ -174,6 +173,7 @@ public final class Platform {
     ServerExtensionInstaller extensionRegistrar = servicesContainer.getComponentByType(ServerExtensionInstaller.class);
     extensionRegistrar.registerExtensions(servicesContainer);
 
+    servicesContainer.addSingleton(GlobalSettingsUpdater.class);
     servicesContainer.addSingleton(HttpDownloader.class);
     servicesContainer.addSingleton(UpdateCenterClient.class);
     servicesContainer.addSingleton(UpdateCenterMatrixFactory.class);
