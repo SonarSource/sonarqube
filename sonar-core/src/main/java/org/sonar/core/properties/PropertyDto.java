@@ -20,17 +20,17 @@
 package org.sonar.core.properties;
 
 public final class PropertyDto {
-  private Integer id;
+  private Long id;
   private String key;
   private String value;
-  private Integer resourceId;
-  private Integer userId;
+  private Long resourceId;
+  private Long userId;
 
-  public Integer getId() {
+  public Long getId() {
     return id;
   }
 
-  public PropertyDto setId(Integer id) {
+  public PropertyDto setId(Long id) {
     this.id = id;
     return this;
   }
@@ -53,20 +53,20 @@ public final class PropertyDto {
     return this;
   }
 
-  public Integer getResourceId() {
+  public Long getResourceId() {
     return resourceId;
   }
 
-  public PropertyDto setResourceId(Integer resourceId) {
+  public PropertyDto setResourceId(Long resourceId) {
     this.resourceId = resourceId;
     return this;
   }
 
-  public Integer getUserId() {
+  public Long getUserId() {
     return userId;
   }
 
-  public PropertyDto setUserId(Integer userId) {
+  public PropertyDto setUserId(Long userId) {
     this.userId = userId;
     return this;
   }

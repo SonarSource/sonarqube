@@ -44,8 +44,11 @@
   </update>
 
   <insert id="insert" parameterType="Property" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO properties (prop_key, resource_id, user_id, text_value)
-    VALUES (#{key, jdbcType=VARCHAR}, #{resourceId, jdbcType=INTEGER}, #{userId, jdbcType=INTEGER}, #{value, jdbcType=VARCHAR})
+    <selectKey order="BEFORE" resultType="Long" keyProperty="id">
+      select properties_seq.NEXTVAL from DUAL
+    </selectKey>
+    INSERT INTO properties (id, prop_key, resource_id, user_id, text_value)
+    VALUES (#{id}, #{key, jdbcType=VARCHAR}, #{resourceId, jdbcType=INTEGER}, #{userId, jdbcType=INTEGER}, #{value, jdbcType=VARCHAR})
   </insert>
 
 </mapper>

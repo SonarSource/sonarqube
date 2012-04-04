@@ -41,7 +41,7 @@ public class PropertiesDaoTest extends DaoTestCase {
   @Test
   public void shouldFindUserIdsForFavouriteResource() throws Exception {
     setupData("shouldFindUserIdsForFavouriteResource");
-    List<String> userIds = dao.findUserIdsForFavouriteResource(2);
+    List<String> userIds = dao.findUserIdsForFavouriteResource(2L);
     assertThat(userIds.size(), is(2));
     assertThat(userIds, hasItems("user3", "user4"));
   }
@@ -70,6 +70,28 @@ public class PropertiesDaoTest extends DaoTestCase {
     PropertyDto first = properties.get(0);
     assertThat(first.getKey(), is("struts.one"));
     assertThat(first.getValue(), is("one"));
+  }
+
+  @Test
+  public void setProperty_update() throws Exception {
+    setupData("update");
+
+    dao.setProperty(new PropertyDto().setKey("global.key").setValue("new_global"));
+    dao.setProperty(new PropertyDto().setKey("project.key").setResourceId(10L).setValue("new_project"));
+    dao.setProperty(new PropertyDto().setKey("user.key").setUserId(100L).setValue("new_user"));
+
+    checkTables("update", "properties");
+  }
+
+  @Test
+  public void setProperty_insert() throws Exception {
+    setupData("insert");
+
+    dao.setProperty(new PropertyDto().setKey("global.key").setValue("new_global"));
+    dao.setProperty(new PropertyDto().setKey("project.key").setResourceId(10L).setValue("new_project"));
+    dao.setProperty(new PropertyDto().setKey("user.key").setUserId(100L).setValue("new_user"));
+
+    checkTables("insert", new String[]{"id"}, "properties");
   }
 
   private PropertyDto findById(List<PropertyDto> properties, int id) {

@@ -19,6 +19,7 @@
  */
 package org.sonar.core.properties;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
@@ -40,7 +41,7 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
    * @param resourceId the resource id
    * @return the list of logins (maybe be empty - obviously)
    */
-  public List<String> findUserIdsForFavouriteResource(Integer resourceId) {
+  public List<String> findUserIdsForFavouriteResource(Long resourceId) {
     SqlSession session = mybatis.openSession();
     PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
     try {
@@ -65,6 +66,25 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
     PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
     try {
       return mapper.selectProjectProperties(resourceKey);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void setProperty(PropertyDto property) {
+    SqlSession session = mybatis.openSession();
+    PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
+    try {
+      PropertyDto persistedProperty = mapper.selectByKey(property);
+      if (persistedProperty != null && !StringUtils.equals(persistedProperty.getValue(), property.getValue())) {
+        persistedProperty.setValue(property.getValue());
+        mapper.update(persistedProperty);
+        session.commit();
+
+      } else if (persistedProperty == null) {
+        mapper.insert(property);
+        session.commit();
+      }
     } finally {
       MyBatis.closeQuietly(session);
     }
