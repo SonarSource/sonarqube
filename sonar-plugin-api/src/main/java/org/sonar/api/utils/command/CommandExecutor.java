@@ -80,6 +80,8 @@ public final class CommandExecutor {
       executorService = Executors.newSingleThreadExecutor();
       Future<Integer> ft = executorService.submit(call);
       int exitCode = ft.get(timeoutMilliseconds, TimeUnit.MILLISECONDS);
+      waitUntilFinish(outputGobbler);
+      waitUntilFinish(errorGobbler);
       if (outputGobbler.getException() != null) {
         throw new CommandException(command, "Error inside stdOut parser", outputGobbler.getException());
       }
