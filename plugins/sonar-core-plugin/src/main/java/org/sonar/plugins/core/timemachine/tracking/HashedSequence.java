@@ -22,7 +22,7 @@ package org.sonar.plugins.core.timemachine.tracking;
 /**
  * Wraps a {@link Sequence} to assign hash codes to elements.
  */
-public class HashedSequence<S extends Sequence> implements Sequence {
+public final class HashedSequence<S extends Sequence> implements Sequence {
 
   final S base;
   final int[] hashes;
