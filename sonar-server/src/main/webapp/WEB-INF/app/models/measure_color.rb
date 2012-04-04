@@ -46,15 +46,15 @@ class MeasureColor
     else
       if (options[:check_alert_status]||true) && !measure.alert_status.blank?
         case(measure.alert_status)
-          when Metric::TYPE_LEVEL_OK : percent=100.0
-          when Metric::TYPE_LEVEL_ERROR : percent=0.0
-          when Metric::TYPE_LEVEL_WARN : percent=50.0
+          when Metric::TYPE_LEVEL_OK then percent=100.0
+          when Metric::TYPE_LEVEL_ERROR then percent=0.0
+          when Metric::TYPE_LEVEL_WARN then percent=50.0
         end
       elsif measure.metric.value_type==Metric::VALUE_TYPE_LEVEL
         case(measure.text_value)
-          when Metric::TYPE_LEVEL_OK : percent=100.0
-          when Metric::TYPE_LEVEL_WARN : percent=50.0
-          when Metric::TYPE_LEVEL_ERROR : percent=0.0
+          when Metric::TYPE_LEVEL_OK then percent=100.0
+          when Metric::TYPE_LEVEL_WARN then percent=50.0
+          when Metric::TYPE_LEVEL_ERROR then percent=0.0
         end
       elsif measure.value && max_value && min_value
         percent = value_to_percent(measure.value, min_value, max_value)

@@ -353,10 +353,10 @@ class ProfilesController < ApplicationController
       @sames=[]
       diffs_by_rule.values.sort.each do |diff|
         case diff.status
-        when DIFF_IN1: @in1<<diff
-        when DIFF_IN2: @in2<<diff
-        when DIFF_MODIFIED: @modified<<diff
-        when DIFF_SAME: @sames<<diff
+        when DIFF_IN1 then @in1<<diff
+        when DIFF_IN2 then @in2<<diff
+        when DIFF_MODIFIED then @modified<<diff
+        when DIFF_SAME then @sames<<diff
         end
       end
     end

@@ -48,12 +48,12 @@ module RolesHelper
 
   def role_name(role)
     case(role.to_s)
-      when 'admin': 'Administrators'
-      when 'default-admin': 'Administrators'
-      when 'user': 'Users'
-      when 'default-user': 'Users'
-      when 'codeviewer': 'Code viewers'
-      when 'default-codeviewer': 'Code viewers'
+      when 'admin' then 'Administrators'
+      when 'default-admin' then 'Administrators'
+      when 'user' then 'Users'
+      when 'default-user' then 'Users'
+      when 'codeviewer' then 'Code viewers'
+      when 'default-codeviewer' then 'Code viewers'
       else role.to_s
     end
   end
