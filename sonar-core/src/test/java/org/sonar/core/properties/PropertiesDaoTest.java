@@ -91,7 +91,7 @@ public class PropertiesDaoTest extends DaoTestCase {
     dao.setProperty(new PropertyDto().setKey("project.key").setResourceId(10L).setValue("new_project"));
     dao.setProperty(new PropertyDto().setKey("user.key").setUserId(100L).setValue("new_user"));
 
-    checkTables("insert", new String[]{"id"}, "properties");
+    checkTables("insert", "properties");
   }
 
   private PropertyDto findById(List<PropertyDto> properties, int id) {
