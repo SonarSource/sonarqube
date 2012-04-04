@@ -25,6 +25,7 @@ class ApplicationController < ActionController::Base
   before_filter :check_database_version, :set_locale, :check_authentication
 
   rescue_from Exception, :with => :render_error
+  rescue_from NativeException, :with => :render_native_exception
   rescue_from Errors::BadRequest, :with => :render_bad_request
   rescue_from ActionController::UnknownAction, :with => :render_not_found
   rescue_from ActionController::RoutingError, :with => :render_not_found
@@ -131,7 +132,16 @@ class ApplicationController < ActionController::Base
   end
 
   def render_bad_request(error)
-    render :text => error.message, :status => 400
+    message = error.respond_to?('message') ? error.message : error.to_s
+    render :text => message, :status => 400
+  end
+
+  def render_native_exception(error)
+    if error.cause.java_kind_of? Java::JavaLang::IllegalArgumentException
+      render_bad_request(error.cause.getMessage)
+    else
+      render_error(error)
+    end
   end
 
   def render_error(error)

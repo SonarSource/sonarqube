@@ -265,6 +265,9 @@ public final class JRubyFacade {
     return getContainer().getComponentByType(ProfilesConsole.class).getProfileImportersForLanguage(language);
   }
 
+  /**
+   * @throws IllegalArgumentException if no such exporter
+   */
   public String exportProfile(int profileId, String exporterKey) {
     return getContainer().getComponentByType(ProfilesConsole.class).exportProfile(profileId, exporterKey);
   }

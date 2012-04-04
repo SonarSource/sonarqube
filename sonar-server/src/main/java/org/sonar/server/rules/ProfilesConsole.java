@@ -110,6 +110,9 @@ public final class ProfilesConsole implements ServerComponent {
     RulesProfile profile = loadProfile(session, profileId);
     if (profile != null) {
       ProfileExporter exporter = getProfileExporter(exporterKey);
+      if (exporter == null) {
+        throw new IllegalArgumentException("No such exporter");
+      }
       Writer writer = new StringWriter();
       exporter.exportProfile(profile, writer);
       return writer.toString();
