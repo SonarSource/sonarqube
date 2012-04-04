@@ -20,61 +20,18 @@
 
 package org.sonar.api.measures;
 
-import org.sonar.api.resources.ResourceUtils;
-
-import java.util.List;
-import java.util.Arrays;
-
 /**
+ * Compute complexity by 'X', where 'X' can be any metric, like "file" for instance. 
+ * 
  * @since 2.1
+ * @deprecated since 2.15. Use {@link AverageFormula} instead.
  */
-public class AverageComplexityFormula implements Formula {
+@Deprecated
+public class AverageComplexityFormula extends AverageFormula {
 
-  private Metric byMetric;
-
-  /**
-   * @param byMetric The metric on which average complexity should be calculated : complexity by file, by method...
-   */
+  @Deprecated
   public AverageComplexityFormula(Metric byMetric) {
-    this.byMetric = byMetric;
+    super(CoreMetrics.COMPLEXITY, byMetric);
   }
 
-  public List<Metric> dependsUponMetrics() {
-    return Arrays.asList(CoreMetrics.COMPLEXITY, byMetric);
-  }
-
-  public Measure calculate(FormulaData data, FormulaContext context) {
-    if (!shouldDecorateResource(data, context)) {
-      return null;
-    }
-    if (ResourceUtils.isFile(context.getResource())) {
-      Double byMeasure = MeasureUtils.getValue(data.getMeasure(byMetric), null);
-      Double complexity = MeasureUtils.getValue(data.getMeasure(CoreMetrics.COMPLEXITY), null);
-      if (complexity != null && byMeasure != null && byMeasure > 0.0) {
-        return new Measure(context.getTargetMetric(), (complexity / byMeasure));
-      }
-    } else {
-      double totalByMeasure = 0;
-      double totalComplexity = 0;
-      boolean hasApplicableChildren = false;
-
-      for (FormulaData childrenData : data.getChildren()) {
-        Double childrenByMeasure = MeasureUtils.getValue(childrenData.getMeasure(byMetric), null);
-        Double childrenComplexity = MeasureUtils.getValue(childrenData.getMeasure(CoreMetrics.COMPLEXITY), null);
-        if (childrenComplexity != null && childrenByMeasure != null && childrenByMeasure > 0.0) {
-          totalByMeasure += childrenByMeasure;
-          totalComplexity += childrenComplexity;
-          hasApplicableChildren = true;
-        }
-      }
-      if (hasApplicableChildren) {
-        return new Measure(context.getTargetMetric(), (totalComplexity / totalByMeasure));
-      }
-    }
-    return null;
-  }
-
-  private boolean shouldDecorateResource(FormulaData data, FormulaContext context) {
-    return !MeasureUtils.hasValue(data.getMeasure(context.getTargetMetric()));
-  }
 }
