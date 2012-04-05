@@ -46,11 +46,15 @@ public class ViolationTrackingTest {
 
   private ViolationTrackingDecorator decorator;
 
+  private Project project;
+  private ReferenceAnalysis referenceAnalysis;
+
   @Before
   public void setUp() {
-    Project project = mock(Project.class);
+    project = mock(Project.class);
     when(project.getAnalysisDate()).thenReturn(analysisDate);
-    decorator = new ViolationTrackingDecorator(project, null, null);
+    referenceAnalysis = mock(ReferenceAnalysis.class);
+    decorator = new ViolationTrackingDecorator(project, referenceAnalysis, null);
   }
 
   /**
@@ -58,7 +62,8 @@ public class ViolationTrackingTest {
    */
   @Test
   public void violationNotAssociatedWithLine() throws Exception {
-    ViolationTrackingBlocksRecognizer rec = newRec("example2");
+    when(referenceAnalysis.getSource(project)).thenReturn(load("example2-v1"));
+    String source = load("example2-v2");
 
     RuleFailureModel referenceViolation1 = newReferenceViolation("2 branches need to be covered", null, 50);
 
@@ -67,7 +72,7 @@ public class ViolationTrackingTest {
     Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(
         Arrays.asList(newViolation1),
         Arrays.asList(referenceViolation1),
-        rec);
+        source, project);
 
     assertThat(newViolation1.isNew(), is(false));
     assertThat(mapping.get(newViolation1), equalTo(referenceViolation1));
@@ -78,7 +83,8 @@ public class ViolationTrackingTest {
    */
   @Test
   public void example1() throws Exception {
-    ViolationTrackingBlocksRecognizer rec = newRec("example1");
+    when(referenceAnalysis.getSource(project)).thenReturn(load("example1-v1"));
+    String source = load("example1-v2");
 
     RuleFailureModel referenceViolation1 = newReferenceViolation("Indentation", 7, 50);
     RuleFailureModel referenceViolation2 = newReferenceViolation("Indentation", 11, 50);
@@ -91,7 +97,7 @@ public class ViolationTrackingTest {
     Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(
         Arrays.asList(newViolation1, newViolation2, newViolation3, newViolation4),
         Arrays.asList(referenceViolation1, referenceViolation2),
-        rec);
+        source, project);
 
     assertThat(newViolation1.isNew(), is(true));
     assertThat(newViolation2.isNew(), is(true));
@@ -106,7 +112,8 @@ public class ViolationTrackingTest {
    */
   @Test
   public void example2() throws Exception {
-    ViolationTrackingBlocksRecognizer rec = newRec("example2");
+    when(referenceAnalysis.getSource(project)).thenReturn(load("example2-v1"));
+    String source = load("example2-v2");
 
     RuleFailureModel referenceViolation1 = newReferenceViolation("SystemPrintln", 5, 50);
 
@@ -117,7 +124,7 @@ public class ViolationTrackingTest {
     Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(
         Arrays.asList(newViolation1, newViolation2, newViolation3),
         Arrays.asList(referenceViolation1),
-        rec);
+        source, project);
 
     assertThat(newViolation1.isNew(), is(true));
     assertThat(newViolation2.isNew(), is(false));
@@ -141,10 +148,6 @@ public class ViolationTrackingTest {
   }
 
   private int violationId = 0;
-
-  private static ViolationTrackingBlocksRecognizer newRec(String name) throws IOException {
-    return new ViolationTrackingBlocksRecognizer(load(name + "-v1"), load(name + "-v2"));
-  }
 
   private static String load(String name) throws IOException {
     return Resources.toString(ViolationTrackingTest.class.getResource("ViolationTrackingTest/" + name + ".txt"), Charsets.UTF_8);

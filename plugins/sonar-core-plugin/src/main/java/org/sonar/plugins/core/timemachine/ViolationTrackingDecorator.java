@@ -30,8 +30,6 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.violations.ViolationQuery;
 
-import javax.annotation.Nullable;
-
 import java.util.*;
 
 @DependsUpon({DecoratorBarriers.END_OF_VIOLATIONS_GENERATION, DecoratorBarriers.START_VIOLATION_TRACKING})
@@ -61,7 +59,6 @@ public class ViolationTrackingDecorator implements Decorator {
     }
 
     String source = index.getSource(resource);
-    String referenceSource = referenceAnalysis.getSource(resource);
 
     // Load new violations
     List<Violation> newViolations = prepareNewViolations(context, source);
@@ -69,14 +66,8 @@ public class ViolationTrackingDecorator implements Decorator {
     // Load reference violations
     List<RuleFailureModel> referenceViolations = referenceAnalysis.getViolations(resource);
 
-    // SONAR-3072 Construct blocks recognizer based on reference source
-    ViolationTrackingBlocksRecognizer rec = null;
-    if (source != null && referenceSource != null) {
-      rec = new ViolationTrackingBlocksRecognizer(referenceSource, source);
-    }
-
     // Map new violations with old ones
-    mapViolations(newViolations, referenceViolations, rec);
+    mapViolations(newViolations, referenceViolations, source, resource);
   }
 
   private List<Violation> prepareNewViolations(DecoratorContext context, String source) {
@@ -95,14 +86,11 @@ public class ViolationTrackingDecorator implements Decorator {
 
   @VisibleForTesting
   Map<Violation, RuleFailureModel> mapViolations(List<Violation> newViolations, List<RuleFailureModel> pastViolations) {
-    return mapViolations(newViolations, pastViolations, null);
+    return mapViolations(newViolations, pastViolations, null, null);
   }
 
-  /**
-   * @param rec null, if source code not available
-   */
   @VisibleForTesting
-  Map<Violation, RuleFailureModel> mapViolations(List<Violation> newViolations, List<RuleFailureModel> pastViolations, @Nullable ViolationTrackingBlocksRecognizer rec) {
+  Map<Violation, RuleFailureModel> mapViolations(List<Violation> newViolations, List<RuleFailureModel> pastViolations, String source, Resource resource) {
     Multimap<Integer, RuleFailureModel> pastViolationsByRule = LinkedHashMultimap.create();
     for (RuleFailureModel pastViolation : pastViolations) {
       pastViolationsByRule.put(pastViolation.getRuleId(), pastViolation);
@@ -126,28 +114,33 @@ public class ViolationTrackingDecorator implements Decorator {
 
     // If each new violation matches an old one we can stop the matching mechanism
     if (referenceViolationsMap.size() != newViolations.size()) {
-      if (rec != null) {
-        // SONAR-3072
 
-        List<ViolationPair> possiblePairs = Lists.newArrayList();
-        for (Violation newViolation : newViolations) {
-          for (RuleFailureModel pastViolation : pastViolationsByRule.get(newViolation.getRule().getId())) {
-            int weight = rec.computeLengthOfMaximalBlock(pastViolation.getLine() - 1, newViolation.getLineId() - 1);
-            possiblePairs.add(new ViolationPair(pastViolation, newViolation, weight));
+      // SONAR-3072
+      ViolationTrackingBlocksRecognizer rec = null;
+      if (source != null && resource != null) {
+        String referenceSource = referenceAnalysis.getSource(resource);
+        if (referenceSource != null) {
+          rec = new ViolationTrackingBlocksRecognizer(referenceSource, source);
+
+          List<ViolationPair> possiblePairs = Lists.newArrayList();
+          for (Violation newViolation : newViolations) {
+            for (RuleFailureModel pastViolation : pastViolationsByRule.get(newViolation.getRule().getId())) {
+              int weight = rec.computeLengthOfMaximalBlock(pastViolation.getLine() - 1, newViolation.getLineId() - 1);
+              possiblePairs.add(new ViolationPair(pastViolation, newViolation, weight));
+            }
+          }
+          Collections.sort(possiblePairs, ViolationPair.COMPARATOR);
+
+          Set<RuleFailureModel> pp = Sets.newHashSet(pastViolations);
+          for (ViolationPair pair : possiblePairs) {
+            Violation newViolation = pair.getNewViolation();
+            RuleFailureModel pastViolation = pair.getPastViolation();
+            if (isNotAlreadyMapped(newViolation, referenceViolationsMap) && pp.contains(pastViolation)) {
+              pp.remove(pastViolation);
+              mapViolation(newViolation, pastViolation, pastViolationsByRule, referenceViolationsMap);
+            }
           }
         }
-        Collections.sort(possiblePairs, ViolationPair.COMPARATOR);
-
-        Set<RuleFailureModel> pp = Sets.newHashSet(pastViolations);
-        for (ViolationPair pair : possiblePairs) {
-          Violation newViolation = pair.getNewViolation();
-          RuleFailureModel pastViolation = pair.getPastViolation();
-          if (isNotAlreadyMapped(newViolation, referenceViolationsMap) && pp.contains(pastViolation)) {
-            pp.remove(pastViolation);
-            mapViolation(newViolation, pastViolation, pastViolationsByRule, referenceViolationsMap);
-          }
-        }
-
       }
 
       // Try then to match violations on same rule with same message and with same checksum
