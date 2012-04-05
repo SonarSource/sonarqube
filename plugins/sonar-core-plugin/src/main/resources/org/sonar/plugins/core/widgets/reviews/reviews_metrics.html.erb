@@ -42,7 +42,7 @@
           %>
             <br/>
             <span style="font-weight: bold">
-              <%= message('widget.reviews_metrics.on_new_code') -%>&nbsp;
+              <%= message('widget.reviews_metrics.added_unreviewed_violations') -%>&nbsp;
               <a href="<%= url_for_drilldown('new_unreviewed_violations', :period => dashboard_configuration.period_index) -%>" class="varw"><%= format_variation(new_unreviewed_violations, :style => 'none', :default => '-') -%></a>
             </span>
           <% end %>
