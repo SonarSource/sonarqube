@@ -50,13 +50,14 @@ class Property < ActiveRecord::Base
   end
 
   def self.set(key, value, resource_id=nil)
-    prop = Property.new(:prop_key => key, :text_value => value.to_s, :resource_id => resource_id)
+    text_value = (value.nil? ? nil : value.to_s)
+    prop = Property.new(:prop_key => key, :text_value => text_value, :resource_id => resource_id)
     if prop.valid?
       Property.transaction do
         Property.delete_all('prop_key' => key, 'resource_id' => resource_id, 'user_id' => nil)
         prop.save
       end
-      Java::OrgSonarServerUi::JRubyFacade.getInstance().setGlobalProperty(key, value) unless resource_id
+      Java::OrgSonarServerUi::JRubyFacade.getInstance().setGlobalProperty(key, text_value) unless resource_id
     end
     prop
   end
