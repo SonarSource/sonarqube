@@ -84,7 +84,7 @@ public final class AlertUtils {
       return value;
     }
     if (metric.getType() == Metric.ValueType.BOOL) {
-      return Boolean.valueOf(value);
+      return Integer.parseInt(value);
     }
     if (metric.getType() == Metric.ValueType.RATING) {
       return Double.parseDouble(value);
@@ -106,7 +106,7 @@ public final class AlertUtils {
       return measure.getData();
     }
     if (metric.getType() == Metric.ValueType.BOOL) {
-      return measure.getValue() == 0d ? Boolean.FALSE : Boolean.TRUE;
+      return measure.getValue().intValue();
     }
     if (metric.getType() == Metric.ValueType.RATING) {
       return measure.getValue();

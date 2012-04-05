@@ -76,13 +76,13 @@ module AlertsHelper
       text_field_tag fieldname, value, :size => 5
 
     elsif alert.metric.val_type==Metric::VALUE_TYPE_BOOLEAN
-      select_tag fieldname, {'' => '', 'Yes' => '1', 'No' => '0'}
+      select_tag fieldname, options_for_select([['', ''], ['Yes', '1'], ['No', '0']], value)
 
     elsif alert.metric.val_type==Metric::VALUE_TYPE_STRING
       text_field_tag fieldname, value, :size => 5
 
     elsif alert.metric.val_type==Metric::VALUE_TYPE_LEVEL
-      select_tag fieldname, {'' => '', 'OK' => Metric::TYPE_LEVEL_OK, 'Error' => Metric::TYPE_LEVEL_ERROR, 'Warning' => Metric::TYPE_LEVEL_WARN}
+      select_tag fieldname, options_for_select([['', ''], ['OK', Metric::TYPE_LEVEL_OK], ['Error', Metric::TYPE_LEVEL_ERROR], ['Warning', Metric::TYPE_LEVEL_WARN]], value)
     else
       hidden_field_tag fieldname, value
     end

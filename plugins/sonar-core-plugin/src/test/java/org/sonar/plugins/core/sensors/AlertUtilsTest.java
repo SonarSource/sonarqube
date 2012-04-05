@@ -218,17 +218,17 @@ public class AlertUtilsTest {
     alert.setOperator(Alert.OPERATOR_EQUALS);
     alert.setMetric(metric);
 
-    alert.setValueError("true");
+    alert.setValueError("1");
     Assert.assertEquals(Metric.Level.OK, AlertUtils.getLevel(alert, measure));
 
-    alert.setValueError("false");
+    alert.setValueError("0");
     Assert.assertEquals(Metric.Level.ERROR, AlertUtils.getLevel(alert, measure));
 
     alert.setOperator(Alert.OPERATOR_NOT_EQUALS);
-    alert.setValueError("true");
+    alert.setValueError("1");
     Assert.assertEquals(Metric.Level.ERROR, AlertUtils.getLevel(alert, measure));
 
-    alert.setValueError("false");
+    alert.setValueError("0");
     Assert.assertEquals(Metric.Level.OK, AlertUtils.getLevel(alert, measure));
   }
 
