@@ -14,8 +14,9 @@
   <tr>
     <td valign="top" width="48%" nowrap>
       <div class="dashbox">
-        <h3><%= message('widget.size.lines_of_code') -%></h3>
+
         <% if ncloc %>
+          <h3><%= message('widget.size.lines_of_code') -%></h3>
           <p>
             <span class="big"><%= format_measure(ncloc, :suffix => '', :url => url_for_drilldown(ncloc)) -%></span>
             <%= dashboard_configuration.selected_period? ? format_variation(ncloc) : trend_icon(ncloc) -%>
@@ -28,6 +29,7 @@
           <% end %>
             <p><%= format_measure(lines, :suffix => message('widget.size.lines.suffix'), :url => url_for_drilldown(lines)) -%> <%= dashboard_configuration.selected_period? ? format_variation(lines) : trend_icon(lines) -%></p>
         <% else%>
+            <h3><%= message('widget.size.lines') -%></h3>
             <p><span class="big"><%= format_measure(lines, :suffix => '', :url => url_for_drilldown(lines)) -%> <%= trend_icon(lines) -%></span></p>
         <% end %>
         <%
