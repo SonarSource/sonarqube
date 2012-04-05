@@ -288,7 +288,7 @@ public final class CoreMetrics {
       .setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true)
       .setDomain(DOMAIN_COMPLEXITY)
-      .setFormula(new AverageFormula(CoreMetrics.COMPLEXITY, CoreMetrics.CLASSES))
+      .setFormula(AverageFormula.create(CoreMetrics.COMPLEXITY, CoreMetrics.CLASSES))
       .create();
 
   public static final String FUNCTION_COMPLEXITY_KEY = "function_complexity";
@@ -297,7 +297,7 @@ public final class CoreMetrics {
       .setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true)
       .setDomain(DOMAIN_COMPLEXITY)
-      .setFormula(new AverageFormula(CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS))
+      .setFormula(AverageFormula.create(CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS))
       .create();
 
   public static final String FILE_COMPLEXITY_KEY = "file_complexity";
@@ -306,7 +306,7 @@ public final class CoreMetrics {
       .setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true)
       .setDomain(DOMAIN_COMPLEXITY)
-      .setFormula(new AverageFormula(CoreMetrics.COMPLEXITY, CoreMetrics.FILES))
+      .setFormula(AverageFormula.create(CoreMetrics.COMPLEXITY, CoreMetrics.FILES))
       .create();
 
   /**
@@ -324,7 +324,7 @@ public final class CoreMetrics {
       .setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true)
       .setDomain(DOMAIN_COMPLEXITY)
-      .setFormula(new AverageFormula(CoreMetrics.COMPLEXITY, CoreMetrics.PARAGRAPHS))
+      .setFormula(AverageFormula.create(CoreMetrics.COMPLEXITY, CoreMetrics.PARAGRAPHS))
       .create();
 
   /**

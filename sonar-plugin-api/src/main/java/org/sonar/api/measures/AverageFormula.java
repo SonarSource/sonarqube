@@ -20,16 +20,16 @@
 
 package org.sonar.api.measures;
 
+import org.sonar.api.resources.ResourceUtils;
+
 import java.util.Arrays;
 import java.util.List;
 
-import org.sonar.api.resources.ResourceUtils;
-
 /**
  * Formula used to compute an average for a given metric A, which is the result of the sum of measures of this metric (A) divided by another metric (B).
- * 
+ * <p/>
  * For example: to compute the metric "complexity by file", the main metric (A) is "complexity" and the other metric (B) is "file".
- * 
+ *
  * @since 2.15
  */
 public class AverageFormula implements Formula {
@@ -38,14 +38,21 @@ public class AverageFormula implements Formula {
   private Metric byMetric;
 
   /**
-   * Creates a new {@link AverageFormula} class.
-   * 
-   * @param mainMetric The metric on which average should be calculated (ex.: "complexity")
-   * @param byMetric The metric used to divide the main metric to compute average (ex.: "file" for "complexity by file")
+   * This method should be private but it kep package-protected because of AverageComplexityFormula.
    */
-  protected AverageFormula(Metric mainMetric, Metric byMetric) {
+  AverageFormula(Metric mainMetric, Metric byMetric) {
     this.mainMetric = mainMetric;
     this.byMetric = byMetric;
+  }
+
+  /**
+   * Creates a new {@link AverageFormula} class.
+   *
+   * @param main The metric on which average should be calculated (ex.: "complexity")
+   * @param by   The metric used to divide the main metric to compute average (ex.: "file" for "complexity by file")
+   */
+  public static AverageFormula create(Metric main, Metric by) {
+    return new AverageFormula(main, by);
   }
 
   /**
@@ -63,7 +70,7 @@ public class AverageFormula implements Formula {
       return null;
     }
 
-    Measure result = null;
+    Measure result;
     if (ResourceUtils.isFile(context.getResource())) {
       result = calculateForFile(data, context);
     } else {

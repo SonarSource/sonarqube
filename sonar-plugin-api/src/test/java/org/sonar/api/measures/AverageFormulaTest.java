@@ -48,7 +48,7 @@ public class AverageFormulaTest {
 
   @Test
   public void testDependsUponMetrics() throws Exception {
-    AverageFormula formula = new AverageFormula(CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS);
+    AverageFormula formula = AverageFormula.create(CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS);
     assertThat(formula.dependsUponMetrics(), hasItems(CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS));
   }
 
@@ -67,7 +67,7 @@ public class AverageFormulaTest {
 
     when(data.getChildren()).thenReturn(childrenData);
 
-    Measure measure = new AverageFormula(CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS).calculate(data, context);
+    Measure measure = AverageFormula.create(CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS).calculate(data, context);
 
     assertThat(measure.getValue(), is(2.0));
   }
@@ -75,7 +75,7 @@ public class AverageFormulaTest {
   @Test
   public void shouldNotComputeIfNotTargetMetric() {
     when(data.getMeasure(CoreMetrics.FUNCTION_COMPLEXITY)).thenReturn(new Measure(CoreMetrics.FUNCTION_COMPLEXITY, 2.0));
-    Measure measure = new AverageFormula(CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS).calculate(data, context);
+    Measure measure = AverageFormula.create(CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS).calculate(data, context);
     assertNull(measure);
   }
 
@@ -83,7 +83,7 @@ public class AverageFormulaTest {
   public void testWhenNoChildrenMesaures() {
     List<FormulaData> childrenData = Lists.newArrayList();
     when(data.getChildren()).thenReturn(childrenData);
-    Measure measure = new AverageFormula(CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS).calculate(data, context);
+    Measure measure = AverageFormula.create(CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS).calculate(data, context);
     assertNull(measure);
   }
 
@@ -95,7 +95,7 @@ public class AverageFormulaTest {
     when(data1.getMeasure(CoreMetrics.FUNCTIONS)).thenReturn(new Measure(CoreMetrics.FUNCTIONS, 43.0));
 
     when(data.getChildren()).thenReturn(childrenData);
-    Measure measure = new AverageFormula(CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS).calculate(data, context);
+    Measure measure = AverageFormula.create(CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS).calculate(data, context);
 
     assertNull(measure);
   }
@@ -108,7 +108,7 @@ public class AverageFormulaTest {
     when(data1.getMeasure(CoreMetrics.COMPLEXITY)).thenReturn(new Measure(CoreMetrics.COMPLEXITY, 43.0));
 
     when(data.getChildren()).thenReturn(childrenData);
-    Measure measure = new AverageFormula(CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS).calculate(data, context);
+    Measure measure = AverageFormula.create(CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS).calculate(data, context);
 
     assertNull(measure);
   }
@@ -128,7 +128,7 @@ public class AverageFormulaTest {
 
     when(data.getChildren()).thenReturn(childrenData);
 
-    Measure measure = new AverageFormula(CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS).calculate(data, context);
+    Measure measure = AverageFormula.create(CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS).calculate(data, context);
 
     assertThat(measure.getValue(), is(2.5));
   }
@@ -139,7 +139,7 @@ public class AverageFormulaTest {
     when(data.getMeasure(CoreMetrics.FUNCTIONS)).thenReturn(new Measure(CoreMetrics.FUNCTIONS, 20.0));
     when(context.getResource()).thenReturn(new JavaFile("foo"));
 
-    Measure measure = new AverageFormula(CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS).calculate(data, context);
+    Measure measure = AverageFormula.create(CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS).calculate(data, context);
     assertThat(measure.getValue(), is(3.0));
   }
 }
