@@ -53,7 +53,6 @@ import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
 import org.sonar.server.platform.GlobalSettingsUpdater;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.ServerIdGenerator;
-import org.sonar.server.platform.ServerSettings;
 import org.sonar.server.plugins.*;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;

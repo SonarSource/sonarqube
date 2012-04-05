@@ -50,12 +50,9 @@ public class VersionEventsSensor implements Sensor {
     String snapshotVersionToDelete = (version.endsWith(SNAPSHOT_SUFFIX) ? "" : version + SNAPSHOT_SUFFIX);
     for (Iterator<Event> it = context.getEvents(project).iterator(); it.hasNext();) {
       Event event = it.next();
-      if (event.isVersionCategory()) {
-        if (version.equals(event.getName()) || snapshotVersionToDelete.equals(event.getName())) {
-          it.remove();
-          context.deleteEvent(event);
-          event = null;
-        }
+      if (event.isVersionCategory() && (version.equals(event.getName()) || snapshotVersionToDelete.equals(event.getName()))) {
+        it.remove();
+        context.deleteEvent(event);
       }
     }
   }

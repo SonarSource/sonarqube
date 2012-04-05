@@ -27,6 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.DateUtils;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.io.StringReader;
 import java.util.Calendar;
 import java.util.Date;
@@ -112,7 +113,7 @@ public final class License {
         }
       }
 
-    } catch (Exception e) {
+    } catch (IOException e) {
       // silently ignore
 
     } finally {

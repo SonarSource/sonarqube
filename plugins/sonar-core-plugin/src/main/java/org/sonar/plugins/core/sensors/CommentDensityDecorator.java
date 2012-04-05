@@ -61,11 +61,9 @@ public class CommentDensityDecorator implements Decorator {
 
     Measure ncloc = context.getMeasure(CoreMetrics.NCLOC);
     Measure comments = context.getMeasure(CoreMetrics.COMMENT_LINES);
-    if (MeasureUtils.hasValue(ncloc) && MeasureUtils.hasValue(comments)) {
-      if (comments.getValue() + ncloc.getValue() > 0) {
-        double val = 100.0 * (comments.getValue() / (comments.getValue() + ncloc.getValue()));
-        context.saveMeasure(new Measure(CoreMetrics.COMMENT_LINES_DENSITY, val));
-      }
+    if (MeasureUtils.hasValue(ncloc) && MeasureUtils.hasValue(comments) && (comments.getValue() + ncloc.getValue()) > 0) {
+      double val = 100.0 * (comments.getValue() / (comments.getValue() + ncloc.getValue()));
+      context.saveMeasure(new Measure(CoreMetrics.COMMENT_LINES_DENSITY, val));
     }
   }
 

@@ -49,9 +49,11 @@ public final class AlertUtils {
 
     } else if (alertLevel.equals(Metric.Level.WARN)) {
       valueToEval = alert.getValueWarning();
+
     } else {
       throw new IllegalStateException(alertLevel.toString());
     }
+
     if (StringUtils.isEmpty(valueToEval)) {
       return false;
     }
@@ -60,13 +62,12 @@ public final class AlertUtils {
     Comparable metricValue = getMeasureValue(alert.getMetric(), measure);
 
     int comparison = metricValue.compareTo(criteriaValue);
-    if (alert.isNotEqualsOperator() && comparison == 0 ||
-        alert.isGreaterOperator() && comparison != 1 ||
-        alert.isSmallerOperator() && comparison != -1 ||
-        alert.isEqualsOperator() && comparison != 0) {
-      return false;
-    }
-    return true;
+    return !(// NOSONAR complexity of this boolean expression is under control
+        (alert.isNotEqualsOperator() && comparison == 0) ||
+        (alert.isGreaterOperator() && comparison != 1) ||
+        (alert.isSmallerOperator() && comparison != -1) ||
+        (alert.isEqualsOperator() && comparison != 0)
+    );
   }
 
 
