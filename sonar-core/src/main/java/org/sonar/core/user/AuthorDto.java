@@ -60,20 +60,20 @@ public final class AuthorDto {
   }
 
   public Date getCreatedAt() {
-    return createdAt;
+    return createdAt;//NOSONAR May expose internal representation by returning reference to mutable object
   }
 
   public AuthorDto setCreatedAt(Date createdAt) {
-    this.createdAt = createdAt;
+    this.createdAt = createdAt;// NOSONAR May expose internal representation by incorporating reference to mutable object
     return this;
   }
 
   public Date getUpdatedAt() {
-    return updatedAt;
+    return updatedAt;//NOSONAR May expose internal representation by returning reference to mutable object
   }
 
   public AuthorDto setUpdatedAt(Date updatedAt) {
-    this.updatedAt = updatedAt;
+    this.updatedAt = updatedAt;// NOSONAR May expose internal representation by incorporating reference to mutable object
     return this;
   }
 
