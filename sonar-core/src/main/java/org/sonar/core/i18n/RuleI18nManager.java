@@ -76,7 +76,12 @@ public class RuleI18nManager implements ServerComponent {
    * See http://jira.codehaus.org/browse/SONAR-3319
    */
   private String lookUpDescriptionInFormerLocation(String ruleKey, String relatedProperty, Locale localeWithoutCountry) {
-    return i18nManager.messageFromFile(localeWithoutCountry, ruleKey + ".html", relatedProperty, true);
+    String description = i18nManager.messageFromFile(localeWithoutCountry, ruleKey + ".html", relatedProperty, true);
+    if (description == null && !"en".equals(localeWithoutCountry.getLanguage())) {
+      // nothing was found, let's get the value of the default bundle
+      description = i18nManager.messageFromFile(Locale.ENGLISH, ruleKey + ".html", relatedProperty, true);
+    }
+    return description;
   }
 
   public String getParamDescription(String repositoryKey, String ruleKey, String paramKey, Locale locale) {

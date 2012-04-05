@@ -19,19 +19,23 @@
  */
 package org.sonar.core.i18n;
 
-import com.google.common.collect.Sets;
-import org.hamcrest.core.Is;
-import org.junit.Test;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.matchers.JUnitMatchers.hasItem;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.hasItem;
-import static org.mockito.Mockito.*;
+import org.hamcrest.core.Is;
+import org.junit.Test;
+
+import com.google.common.collect.Sets;
 
 public class RuleI18nManagerTest {
   @Test
@@ -91,6 +95,25 @@ public class RuleI18nManagerTest {
     verifyNoMoreInteractions(i18n);
   }
 
+  // see http://jira.codehaus.org/browse/SONAR-3319
+  @Test
+  public void shouldGetDescriptionFromFileWithBackwardCompatibilityWithSpecificLocale() {
+    String propertyKeyForName = "rule.checkstyle.com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.name";
+    
+    I18nManager i18n = mock(I18nManager.class);
+    // this is the "old" way of storing HTML description files for rules (they are not in the "rules/<repo-key>" folder)
+    when(i18n.messageFromFile(Locale.ENGLISH, "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName, true)).thenReturn("Description");
+
+    RuleI18nManager ruleI18n = new RuleI18nManager(i18n);
+    String description = ruleI18n.getDescription("checkstyle", "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck", Locale.FRENCH);
+    assertThat(description, is("Description"));
+
+    verify(i18n).messageFromFile(Locale.FRENCH, "rules/checkstyle/com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName, true);
+    verify(i18n).messageFromFile(Locale.FRENCH, "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName, true);
+    verify(i18n).messageFromFile(Locale.ENGLISH, "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName, true);
+    verifyNoMoreInteractions(i18n);
+  }
+
   @Test
   public void shouldUseOnlyLanguage() {
     I18nManager i18n = mock(I18nManager.class);
@@ -119,7 +142,11 @@ public class RuleI18nManagerTest {
 
     String propertyKeyForName = "rule.checkstyle.com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.name";
     verify(i18n).messageFromFile(Locale.FRENCH, "rules/checkstyle/com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName, true);
+    // check for backward compatibility in French
     verify(i18n).messageFromFile(Locale.FRENCH, "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName, true);
+    // check for backward compatibility in English
+    verify(i18n).messageFromFile(Locale.ENGLISH, "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName, true);
+    // and finally get the default English bundle
     verify(i18n).messageFromFile(Locale.ENGLISH, "rules/checkstyle/com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName, true);
     verifyNoMoreInteractions(i18n);
   }
