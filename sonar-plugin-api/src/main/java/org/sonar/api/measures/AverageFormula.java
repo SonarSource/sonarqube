@@ -62,31 +62,48 @@ public class AverageFormula implements Formula {
     if (!shouldDecorateResource(data, context)) {
       return null;
     }
-    if (ResourceUtils.isFile(context.getResource())) {
-      Double byMeasure = MeasureUtils.getValue(data.getMeasure(byMetric), null);
-      Double mainMeasure = MeasureUtils.getValue(data.getMeasure(mainMetric), null);
-      if (mainMeasure != null && byMeasure != null && byMeasure > 0.0) {
-        return new Measure(context.getTargetMetric(), (mainMeasure / byMeasure));
-      }
-    } else {
-      double totalByMeasure = 0;
-      double totalMainMeasure = 0;
-      boolean hasApplicableChildren = false;
 
-      for (FormulaData childrenData : data.getChildren()) {
-        Double childrenByMeasure = MeasureUtils.getValue(childrenData.getMeasure(byMetric), null);
-        Double childrenMainMeasure = MeasureUtils.getValue(childrenData.getMeasure(mainMetric), null);
-        if (childrenMainMeasure != null && childrenByMeasure != null && childrenByMeasure > 0.0) {
-          totalByMeasure += childrenByMeasure;
-          totalMainMeasure += childrenMainMeasure;
-          hasApplicableChildren = true;
-        }
-      }
-      if (hasApplicableChildren) {
-        return new Measure(context.getTargetMetric(), (totalMainMeasure / totalByMeasure));
+    Measure result = null;
+    if (ResourceUtils.isFile(context.getResource())) {
+      result = calculateForFile(data, context);
+    } else {
+      result = calculateOnChildren(data, context);
+    }
+    return result;
+  }
+
+  private Measure calculateOnChildren(FormulaData data, FormulaContext context) {
+    Measure result = null;
+
+    double totalByMeasure = 0;
+    double totalMainMeasure = 0;
+    boolean hasApplicableChildren = false;
+
+    for (FormulaData childrenData : data.getChildren()) {
+      Double childrenByMeasure = MeasureUtils.getValue(childrenData.getMeasure(byMetric), null);
+      Double childrenMainMeasure = MeasureUtils.getValue(childrenData.getMeasure(mainMetric), null);
+      if (childrenMainMeasure != null && childrenByMeasure != null && childrenByMeasure > 0.0) {
+        totalByMeasure += childrenByMeasure;
+        totalMainMeasure += childrenMainMeasure;
+        hasApplicableChildren = true;
       }
     }
-    return null;
+    if (hasApplicableChildren) {
+      result = new Measure(context.getTargetMetric(), (totalMainMeasure / totalByMeasure));
+    }
+    return result;
+  }
+
+  private Measure calculateForFile(FormulaData data, FormulaContext context) {
+    Measure result = null;
+
+    Double byMeasure = MeasureUtils.getValue(data.getMeasure(byMetric), null);
+    Double mainMeasure = MeasureUtils.getValue(data.getMeasure(mainMetric), null);
+    if (mainMeasure != null && byMeasure != null && byMeasure > 0.0) {
+      result = new Measure(context.getTargetMetric(), (mainMeasure / byMeasure));
+    }
+
+    return result;
   }
 
   private boolean shouldDecorateResource(FormulaData data, FormulaContext context) {

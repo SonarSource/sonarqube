@@ -29,7 +29,6 @@ package org.sonar.api.measures;
 @Deprecated
 public class AverageComplexityFormula extends AverageFormula {
 
-  @Deprecated
   public AverageComplexityFormula(Metric byMetric) {
     super(CoreMetrics.COMPLEXITY, byMetric);
   }
