@@ -73,7 +73,7 @@ class Api::ResourcesController < Api::ApiController
 
           snapshots_conditions << 'snapshots.depth=:depth'
           snapshots_values[:depth] = @snapshot.depth + depth
-        
+
         else
           # negative : all the resource tree
           snapshots_conditions << '(snapshots.id=:sid OR (snapshots.root_snapshot_id=:root_sid AND snapshots.path LIKE :path))'
@@ -89,10 +89,16 @@ class Api::ResourcesController < Api::ApiController
 
         if params['metrics']!='true'
           metrics = Metric.by_keys(params[:metrics].split(','))
-          measures_conditions << 'project_measures.metric_id IN (:metrics)'
-          measures_values[:metrics]=metrics.select{|m| m.id}
+          # Derby does not accept "metric_id in (NULL)"
+          # The workaround is to use the unknown id -1
+          if metrics.empty?
+            measures_conditions << 'project_measures.metric_id=-1'
+          else
+            measures_conditions << 'project_measures.metric_id IN (:metrics)'
+            measures_values[:metrics]=metrics.select { |m| m.id }
+          end
           if metrics.size==1
-            measures_limit = (params[:limit] ? [params[:limit].to_i,500].min : 500)
+            measures_limit = (params[:limit] ? [params[:limit].to_i, 500].min : 500)
             measures_order = "project_measures.value #{'DESC' if metrics.first.direction<0}"
           end
         end
@@ -168,10 +174,10 @@ class Api::ResourcesController < Api::ApiController
       end
 
       sorted_resources=sorted_resources.uniq.compact
-    
+
       # ---------- FORMAT RESPONSE
       objects={ :sorted_resources => sorted_resources, :snapshots_by_rid => snapshots_by_rid, :measures_by_sid => measures_by_sid, :params => params, :rules_by_id => rules_by_id}
-      respond_to do |format| 
+      respond_to do |format|
         format.json { render :json => jsonp(to_json(objects)) }
         format.xml  { render :xml => to_xml(objects) }
         format.text { render :text => text_not_supported }
@@ -182,13 +188,13 @@ class Api::ResourcesController < Api::ApiController
   end
 
   private
-  
+
   def set_backward_compatible
     # backward-compatibility with sonar 1.9
     if params['filter_rules']
       (params['filter_rules']=='true') ? params['rules']='false' : params['rules']='true'
     end
-    
+
     if params['metrics']
       if params['metrics'].include? 'mandatory_violations'
         params['metrics']=params['metrics'].gsub(/mandatory_violations/, 'violations')
@@ -199,7 +205,7 @@ class Api::ResourcesController < Api::ApiController
       end
     end
   end
-  
+
   def select_columns_for_measures
     select_columns='project_measures.id,project_measures.value,project_measures.metric_id,project_measures.snapshot_id,project_measures.rule_id,project_measures.rule_priority,project_measures.text_value,project_measures.characteristic_id'
     if params[:includetrends]=='true'
@@ -213,12 +219,12 @@ class Api::ResourcesController < Api::ApiController
     end
     select_columns
   end
-  
+
   def add_rule_filters(measures_conditions, measures_values)
     param_rules = params['rules'] || 'false'
     if param_rules=='true'
       measures_conditions << "project_measures.rule_id IS NOT NULL"
-      
+
     elsif param_rules=='false'
       measures_conditions << "project_measures.rule_id IS NULL"
     else
@@ -228,7 +234,7 @@ class Api::ResourcesController < Api::ApiController
       measures_conditions << 'project_measures.rule_id IN (:rule_ids)'
       measures_values[:rule_ids]=rule_ids.compact
     end
-      
+
     param_priorities = params['rule_priorities'] || 'false'
     if param_priorities=='true'
       measures_conditions << "project_measures.rule_priority IS NOT NULL"
@@ -241,7 +247,7 @@ class Api::ResourcesController < Api::ApiController
       end.compact
     end
   end
-  
+
   def add_characteristic_filters(measures_conditions, measures_values)
     @characteristics=[]
     @characteristic_by_id={}
@@ -276,7 +282,7 @@ class Api::ResourcesController < Api::ApiController
     end
     result
   end
-  
+
   def to_xml(objects)
     resources = objects[:sorted_resources]
     snapshots_by_rid = objects[:snapshots_by_rid]
@@ -286,7 +292,7 @@ class Api::ResourcesController < Api::ApiController
 
     xml = Builder::XmlMarkup.new(:indent => 0)
     xml.instruct!
-  
+
     xml.resources do
       resources.each do |resource|
         snapshot=snapshots_by_rid[resource.id]
@@ -300,7 +306,7 @@ class Api::ResourcesController < Api::ApiController
     include_alerts=(options[:includealerts]=='true')
     include_trends=(options[:includetrends]=='true')
     include_descriptions=(options[:includedescriptions]=='true')
-    
+
     json = {
       'id' => resource.id,
       'key' => resource.key,
@@ -386,7 +392,7 @@ class Api::ResourcesController < Api::ApiController
     include_alerts=(options[:includealerts]=='true')
     include_trends=(options[:includetrends]=='true')
     include_descriptions=(options[:includedescriptions]=='true')
-    
+
     xml.resource do
       xml.id(resource.id)
       xml.key(resource.key)
