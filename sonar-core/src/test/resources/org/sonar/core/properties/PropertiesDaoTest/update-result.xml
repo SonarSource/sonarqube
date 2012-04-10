@@ -9,4 +9,7 @@
   <!-- user -->
   <properties id="3" prop_key="user.key" text_value="new_user" resource_id="[null]" user_id="100"/>
 
+  <!-- null value -->
+  <properties id="4" prop_key="null.value" text_value="[null]" resource_id="[null]" user_id="[null]"/>
+
 </dataset>

@@ -79,6 +79,7 @@ public class PropertiesDaoTest extends DaoTestCase {
     dao.setProperty(new PropertyDto().setKey("global.key").setValue("new_global"));
     dao.setProperty(new PropertyDto().setKey("project.key").setResourceId(10L).setValue("new_project"));
     dao.setProperty(new PropertyDto().setKey("user.key").setUserId(100L).setValue("new_user"));
+    dao.setProperty(new PropertyDto().setKey("null.value").setValue(null));
 
     checkTables("update", "properties");
   }

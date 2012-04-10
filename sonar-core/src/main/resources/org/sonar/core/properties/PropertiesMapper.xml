@@ -40,7 +40,7 @@
   </select>
 
   <update id="update" parameterType="Property">
-    update properties set text_value = #{value} where id = #{id}
+    update properties set text_value = #{value, jdbcType=VARCHAR} where id = #{id}
   </update>
 
   <insert id="insert" parameterType="Property" useGeneratedKeys="true" keyProperty="id">
