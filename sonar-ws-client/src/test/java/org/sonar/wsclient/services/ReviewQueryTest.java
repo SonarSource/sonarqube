@@ -39,7 +39,7 @@ public class ReviewQueryTest extends QueryTestCase {
 
   @Test
   public void queryById() {
-    assertThat(new ReviewQuery().setId(13L).getUrl(), is("/api/reviews?id=13&"));
+    assertThat(new ReviewQuery().setId(13L).getUrl(), is("/api/reviews?ids=13&"));
     assertThat(new ReviewQuery().setIds(10L, 11L).getUrl(), is("/api/reviews?ids=10,11&"));
   }
 

@@ -267,7 +267,7 @@ public class ReviewQuery extends Query<Review> {
     StringBuilder url = new StringBuilder(BASE_URL);
     url.append('?');
     if (id != null) {
-      appendUrlParameter(url, "id", id);
+      appendUrlParameter(url, "ids", id);
     } else if (ids != null) {
       appendUrlParameter(url, "ids", ids);
     }

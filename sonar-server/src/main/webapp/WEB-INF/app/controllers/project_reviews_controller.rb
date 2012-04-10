@@ -36,7 +36,8 @@ class ProjectReviewsController < ApplicationController
     if @project
       access_denied unless has_role?(:user, @project)
       
-      found_reviews = Review.search(params)
+      # 'id' is the id of the project, so it should be removed from the search params
+      found_reviews = Review.search(params.reject {|k,v| k=='id'})
       @reviews = select_authorized(:user, found_reviews, :project)
       if found_reviews.size != @reviews.size
         @security_exclusions = true

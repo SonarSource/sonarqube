@@ -260,15 +260,13 @@ class Review < ActiveRecord::Base
     conditions=[]
     values={}
 
-    if options['ids'].present?
+    if options['id'].present?
+      conditions << 'id=:id'
+      values[:id]=options['id'].to_i
+    elsif options['ids'].present?
       ids=options['ids'].split(',')
-      if ids.size > 1
-        conditions << 'id in (:ids)'
-        values[:ids]=ids.map { |id| id.to_i }
-      else
-        conditions << 'id=:id'
-        values[:id]=ids[0].to_i
-      end
+      conditions << 'id in (:ids)'
+      values[:ids]=ids.map { |id| id.to_i }
     else
       
       # --- 'review_type' is deprecated since 2.9 ---
