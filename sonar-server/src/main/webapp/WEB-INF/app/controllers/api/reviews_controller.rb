@@ -40,7 +40,7 @@ class Api::ReviewsController < Api::ApiController
   # - 'assignees'
   #
   def index
-    reviews=select_authorized(:user, Review.search(params), :project)
+    reviews=select_authorized(:user, Review.search(params.merge({'limit' => 500})), :project)
 
     render_reviews(reviews, params[:output] == 'HTML')
   end

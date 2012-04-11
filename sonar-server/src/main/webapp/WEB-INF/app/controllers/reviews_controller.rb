@@ -313,6 +313,7 @@ class ReviewsController < ApplicationController
     end
     options['sort'] = @sort unless @sort.blank?
     options['asc'] = @asc
+    options['limit']=500
 
     found_reviews = Review.search(options)
     @reviews = select_authorized(:user, found_reviews, :project)

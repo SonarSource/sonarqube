@@ -259,6 +259,7 @@ class Review < ActiveRecord::Base
   def self.search(options={})
     conditions=[]
     values={}
+    no_need_for_db_request = false
 
     if options['id'].present?
       conditions << 'id=:id'
@@ -392,7 +393,7 @@ class Review < ActiveRecord::Base
     end
 
     found_reviews = []
-    found_reviews = Review.find(:all, :include => ['review_comments', 'project', 'assignee', 'resource', 'user'], :conditions => [conditions.join(' AND '), values], :order => sort, :limit => 200) unless no_need_for_db_request
+    found_reviews = Review.find(:all, :include => ['review_comments', 'project', 'assignee', 'resource', 'user'], :conditions => [conditions.join(' AND '), values], :order => sort, :limit => options['limit']) unless no_need_for_db_request
     found_reviews
   end
 
