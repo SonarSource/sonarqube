@@ -32,7 +32,7 @@ import com.google.common.collect.Maps;
 /**
  * <p>Experimental extension to declare types of resources.</p>
  * <p>
- * Since 2.15, ResourceType object can declare properties that give information about the capabilities of the
+ * Since 3.0, ResourceType object can declare properties that give information about the capabilities of the
  * resource type. Those properties may be used, of instance, to adapt the Web UI according to the type of 
  * the resource being displayed.
  * <br>
@@ -78,7 +78,7 @@ public final class ResourceType {
     }
 
     /**
-     * @deprecated since 2.15. Use {@link #setProperty(String, String)} with "availableForFilters" set to "true".
+     * @deprecated since 3.0. Use {@link #setProperty(String, String)} with "availableForFilters" set to "true".
      */
     @Deprecated
     public Builder availableForFilters() {
@@ -97,7 +97,7 @@ public final class ResourceType {
     /**
      * Sets a property on the resource type. See the description of {@link ResourceType} class for more information.
      * 
-     * @since 2.15
+     * @since 3.0
      */
     public Builder setProperty(String key, String value) {
       Preconditions.checkNotNull(key);
@@ -158,7 +158,7 @@ public final class ResourceType {
   }
 
   /**
-   * @deprecated since 2.15. Use {@link #getBooleanProperty(String)} with "availableForFilters".
+   * @deprecated since 3.0. Use {@link #getBooleanProperty(String)} with "availableForFilters".
    */
   @Deprecated
   public boolean isAvailableForFilters() {
@@ -179,7 +179,7 @@ public final class ResourceType {
    * Returns the value of the property for this resource type.
    * 
    * @return the String value of the property, or NULL if the property hasn't been set.
-   * @since 2.15
+   * @since 3.0
    */
   public String getStringProperty(String key) {
     Preconditions.checkNotNull(key);
@@ -190,7 +190,7 @@ public final class ResourceType {
    * Returns the value of the property for this resource type.
    * 
    * @return the Boolean value of the property. If the property hasn't been set, False is returned.
-   * @since 2.15
+   * @since 3.0
    */
   public Boolean getBooleanProperty(String key) {
     Preconditions.checkNotNull(key);

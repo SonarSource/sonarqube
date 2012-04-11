@@ -51,7 +51,7 @@ public final class CommandExecutor {
 
   /**
    * @throws CommandException
-   * @since 2.15
+   * @since 3.0
    */
   public int execute(Command command, StreamConsumer stdOut, StreamConsumer stdErr, long timeoutMilliseconds) {
     ExecutorService executorService = null;

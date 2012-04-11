@@ -24,7 +24,7 @@
 class CreateAuthors < ActiveRecord::Migration
 
   def self.up
-    # removed in version 2.15, see migration 283
+    # removed in version 3.0, see migration 283
   end
 
 end

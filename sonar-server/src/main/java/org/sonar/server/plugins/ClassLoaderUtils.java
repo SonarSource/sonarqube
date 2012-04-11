@@ -36,7 +36,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 /**
- * @since 2.15
+ * @since 3.0
  */
 public final class ClassLoaderUtils {
 

@@ -73,7 +73,7 @@ public final class DateUtils {
    *
    * @param s any string
    * @return the date, null if parsing error or null string
-   * @since 2.15
+   * @since 3.0
    */
   public static Date parseDateQuietly(@Nullable String s) {
     Date date = null;

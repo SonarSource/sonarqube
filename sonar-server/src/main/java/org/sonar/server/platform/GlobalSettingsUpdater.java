@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * Update cache of global settings (see org.sonar.api.config.Settings) and notify org.sonar.api.config.GlobalPropertyChangeHandler extensions
  *
- * @since 2.15
+ * @since 3.0
  */
 public class GlobalSettingsUpdater {
   private ServerSettings settings;

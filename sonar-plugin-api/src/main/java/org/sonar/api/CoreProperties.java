@@ -28,7 +28,7 @@ package org.sonar.api;
 public interface CoreProperties {
 
   /**
-   * @since 2.15
+   * @since 3.0
    */
   String ENCRYPTION_SECRET_KEY_PATH = "sonar.secretKeyPath";
 

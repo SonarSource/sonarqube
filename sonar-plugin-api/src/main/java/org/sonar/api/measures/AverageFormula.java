@@ -30,7 +30,7 @@ import java.util.List;
  * <p/>
  * For example: to compute the metric "complexity by file", the main metric (A) is "complexity" and the other metric (B) is "file".
  *
- * @since 2.15
+ * @since 3.0
  */
 public class AverageFormula implements Formula {
 

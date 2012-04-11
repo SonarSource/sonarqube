@@ -27,7 +27,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * @since 2.15
+ * @since 3.0
  */
 public final class Encryption {
 

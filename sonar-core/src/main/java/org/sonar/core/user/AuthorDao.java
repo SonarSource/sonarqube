@@ -25,7 +25,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 
 /**
- * @since 2.15
+ * @since 3.0
  */
 public class AuthorDao implements BatchComponent, ServerComponent {
 

@@ -19,7 +19,7 @@
 #
 
 #
-# Sonar 2.15
+# Sonar 3.0
 #
 class AddIndicesToResourceIndex < ActiveRecord::Migration
 

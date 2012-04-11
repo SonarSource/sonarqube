@@ -28,7 +28,7 @@ import org.sonar.api.PropertyType;
 import javax.annotation.Nullable;
 
 /**
- * @since 2.15
+ * @since 3.0
  */
 public final class PropertyDefinition {
 

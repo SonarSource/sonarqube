@@ -22,7 +22,7 @@ package org.sonar.server.platform;
 import org.sonar.core.properties.PropertiesDao;
 
 /**
- * @since 2.15
+ * @since 3.0
  */
 public final class ServerDatabaseSettingsLoader {
 

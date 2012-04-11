@@ -38,7 +38,7 @@ import java.io.IOException;
  * Ruby on Rails requires the files to be on filesystem but not in Java classpath (JAR). This component extracts
  * all the needed files from plugins and copy them to $SONAR_HOME/temp
  *
- * @since 2.15
+ * @since 3.0
  */
 public class ApplicationDeployer {
   private static final Logger LOG = LoggerFactory.getLogger(ApplicationDeployer.class);

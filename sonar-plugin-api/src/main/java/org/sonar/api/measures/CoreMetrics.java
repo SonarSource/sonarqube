@@ -184,12 +184,12 @@ public final class CoreMetrics {
       .create();
 
   /**
-   * @since 2.15
+   * @since 3.0
    */
   public static final String PROJECTS_KEY = "projects";
 
   /**
-   * @since 2.15
+   * @since 3.0
    */
   public static final Metric PROJECTS = new Metric.Builder(PROJECTS_KEY, "Projects", Metric.ValueType.INT)
       .setDescription("Number of projects")
@@ -328,13 +328,13 @@ public final class CoreMetrics {
       .create();
 
   /**
-   * @deprecated in 2.15 - see SONAR-3289
+   * @deprecated in 3.0 - see SONAR-3289
    */
   @Deprecated
   public static final String CLASS_COMPLEXITY_DISTRIBUTION_KEY = "class_complexity_distribution";
 
   /**
-   * @deprecated in 2.15 - see SONAR-3289
+   * @deprecated in 3.0 - see SONAR-3289
    */
   @Deprecated
   public static final Metric CLASS_COMPLEXITY_DISTRIBUTION = new Metric.Builder(CLASS_COMPLEXITY_DISTRIBUTION_KEY, "Classes distribution /complexity", Metric.ValueType.DISTRIB)
