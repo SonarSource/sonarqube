@@ -46,7 +46,7 @@ class RolesController < ApplicationController
       conditions_values[:search]="#{params[:q].downcase}%"
     end
 
-    @pagination = Api::Pagination.new(params.merge(:per_page => 50))
+    @pagination = Api::Pagination.new(params)
     @projects=Project.find(:all,
                            :include => %w(user_roles group_roles index),
                            :conditions => [conditions_sql, conditions_values],
