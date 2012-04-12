@@ -1396,6 +1396,7 @@ public final class CoreMetrics {
       .setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true)
       .setDomain(DOMAIN_DESIGN)
+      .setBestValue(0.0)
       .setFormula(new SumChildValuesFormula(false))
       .create();
 
@@ -1404,6 +1405,7 @@ public final class CoreMetrics {
       .setDescription("Package tangle index")
       .setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true)
+      .setBestValue(0.0)
       .setDomain(DOMAIN_DESIGN)
       .create();
 
@@ -1423,6 +1425,7 @@ public final class CoreMetrics {
       .setQualitative(false)
       .setDomain(DOMAIN_DESIGN)
       .setFormula(new SumChildValuesFormula(false))
+      .setBestValue(0.0)
       .create();
 
   public static final String PACKAGE_EDGES_WEIGHT_KEY = "package_edges_weight";
@@ -1444,6 +1447,7 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_DESIGN)
       .setHidden(true)
       .setDeleteHistoricalData(true)
+      .setBestValue(0.0)
       .create();
 
   public static final String FILE_TANGLE_INDEX_KEY = "file_tangle_index";
@@ -1454,6 +1458,7 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_DESIGN)
       .setHidden(true)
       .setDeleteHistoricalData(true)
+      .setBestValue(0.0)
       .create();
 
   public static final String FILE_TANGLES_KEY = "file_tangles";
@@ -1474,6 +1479,7 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_DESIGN)
       .setHidden(true)
       .setDeleteHistoricalData(true)
+      .setBestValue(0.0)
       .create();
 
   public static final String FILE_EDGES_WEIGHT_KEY = "file_edges_weight";
