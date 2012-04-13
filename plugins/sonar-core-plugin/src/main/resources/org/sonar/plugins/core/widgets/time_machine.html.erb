@@ -81,7 +81,7 @@
          snapshots.each do |snapshot|
            event = snapshot.event('Version')
       %>
-        <th nowrap="nowrap" style="vertical-align:top;text-align: right;font-size: 12px">
+        <th nowrap="nowrap" style="vertical-align:top;text-align: right;font-size: 10px">
           <%= l snapshot.created_at.to_date -%>
           <br/>
           <%= event.name unless event==nil -%>
