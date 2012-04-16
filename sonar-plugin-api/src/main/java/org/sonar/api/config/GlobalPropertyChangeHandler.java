@@ -30,7 +30,7 @@ import javax.annotation.Nullable;
  * <li>changes done programmatically on the component org.sonar.api.config.Settings</li>
  * </ul>
  *
- * @since 2.15
+ * @since 3.0
  */
 public abstract class GlobalPropertyChangeHandler implements ServerExtension {
 

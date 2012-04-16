@@ -29,7 +29,7 @@ import org.sonar.api.web.WidgetPropertyType;
 @WidgetCategory({ "History" })
 @WidgetProperties(
     {
-        @WidgetProperty(key = "numberOfColumns", type = WidgetPropertyType.INTEGER, defaultValue = "4"),
+        @WidgetProperty(key = "numberOfColumns", type = WidgetPropertyType.INTEGER, defaultValue = "3"),
         @WidgetProperty(key = "displaySparkLine", type = WidgetPropertyType.BOOLEAN),
         @WidgetProperty(key = "metric1", type = WidgetPropertyType.METRIC, defaultValue = "ncloc"),
         @WidgetProperty(key = "metric2", type = WidgetPropertyType.METRIC),

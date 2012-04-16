@@ -30,7 +30,7 @@ class RolesController < ApplicationController
   end
 
   def projects
-    # for backward-compatibility with versions of views plugin that do not depend on sonar 2.15
+    # for backward-compatibility with versions of views plugin that do not depend on sonar 3.0
     if java_facade.hasPlugin('views')
       @qualifiers = (['VW', 'SVW'] + java_facade.getQualifiersWithProperty('hasRolePolicy').to_a).compact.uniq
     else
@@ -46,7 +46,7 @@ class RolesController < ApplicationController
       conditions_values[:search]="#{params[:q].downcase}%"
     end
 
-    @pagination = Api::Pagination.new(params.merge(:per_page => 50))
+    @pagination = Api::Pagination.new(params)
     @projects=Project.find(:all,
                            :include => %w(user_roles group_roles index),
                            :conditions => [conditions_sql, conditions_values],

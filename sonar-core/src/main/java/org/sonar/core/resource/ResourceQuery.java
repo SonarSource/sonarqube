@@ -20,7 +20,7 @@
 package org.sonar.core.resource;
 
 /**
- * @since 2.15
+ * @since 3.0
  */
 public final class ResourceQuery {
   private String[] qualifiers = null;

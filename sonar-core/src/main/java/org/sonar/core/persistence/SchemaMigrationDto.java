@@ -21,7 +21,7 @@ package org.sonar.core.persistence;
 
 /**
  * Maps the table SCHEMA_MIGRATIONS that is fed by Ruby on Rails Migrations
- * @since 2.15
+ * @since 3.0
  */
 public class SchemaMigrationDto {
   private String version;//NOSONAR this field is assigned by MyBatis

@@ -71,7 +71,7 @@ public class RuleI18nManager implements ServerComponent {
 
   /*
    * Method used to ensure backward compatibility for language plugins that store HTML rule description files in the former
-   * location (which was used prior to Sonar 2.15).
+   * location (which was used prior to Sonar 3.0).
    * 
    * See http://jira.codehaus.org/browse/SONAR-3319
    */

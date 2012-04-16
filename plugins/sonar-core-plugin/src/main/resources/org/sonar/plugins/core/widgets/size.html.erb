@@ -47,7 +47,7 @@
           <p><%= format_measure(files, :suffix => message('widget.size.files.suffix'), :url => url_for_drilldown(files)) -%> <%= dashboard_configuration.selected_period? ? format_variation(files) : trend_icon(files) -%></p>
         <% end %>
         <% if projects %>
-          <p><%= format_measure(projects, :suffix => message('widget.size.projects.suffix'), :url => url_for_drilldown(projects)) -%> <%= dashboard_configuration.selected_period? ? format_variation(projects) : trend_icon(projects) -%></p>
+          <p><%= format_measure(projects, :suffix => message('widget.size.projects.suffix')) -%> <%= dashboard_configuration.selected_period? ? format_variation(projects) : trend_icon(projects) -%></p>
         <% end %>
       </div>
     </td>

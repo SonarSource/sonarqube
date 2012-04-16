@@ -30,7 +30,7 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
 
 /**
- * @since 2.15
+ * @since 3.0
  */
 public class FileComplexityDistributionDecorator implements Decorator {
 

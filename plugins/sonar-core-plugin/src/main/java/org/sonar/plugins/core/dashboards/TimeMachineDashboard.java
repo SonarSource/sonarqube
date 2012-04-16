@@ -27,7 +27,7 @@ import org.sonar.api.web.DashboardTemplate;
 /**
  * Time Machine dashboard for Sonar
  *
- * @since 2.15
+ * @since 3.0
  */
 public final class TimeMachineDashboard extends DashboardTemplate {
 

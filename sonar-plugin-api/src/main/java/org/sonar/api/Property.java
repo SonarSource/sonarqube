@@ -78,14 +78,14 @@ public @interface Property {
   boolean global() default true;
 
   /**
-   * @since 2.15
+   * @since 3.0
    */
   PropertyType type() default PropertyType.STRING;
 
   /**
    * Options for *_LIST types
    *
-   * @since 2.15
+   * @since 3.0
    */
   String[] options() default {};
 

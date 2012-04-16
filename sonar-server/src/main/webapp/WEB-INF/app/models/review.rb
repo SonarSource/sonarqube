@@ -232,19 +232,19 @@ class Review < ActiveRecord::Base
   def active?
     status == STATUS_OPEN || status == STATUS_REOPENED
   end
-  
+
   def linked_to? (action_plan)
     action_plans.include? action_plan
   end
-  
+
   def planned?
     action_plans.size!=0
   end
-  
+
   def assigned?
     assignee_id != nil
   end
-  
+
   # used as long as we currently allow to link a review to only 1 action plan.
   def action_plan
     action_plans[0]
@@ -259,18 +259,17 @@ class Review < ActiveRecord::Base
   def self.search(options={})
     conditions=[]
     values={}
+    no_need_for_db_request = false
 
-    if options['ids'].present?
+    if options['id'].present?
+      conditions << 'id=:id'
+      values[:id]=options['id'].to_i
+    elsif options['ids'].present?
       ids=options['ids'].split(',')
-      if ids.size > 1
-        conditions << 'id in (:ids)'
-        values[:ids]=ids.map { |id| id.to_i }
-      else
-        conditions << 'id=:id'
-        values[:id]=ids[0].to_i
-      end
+      conditions << 'id in (:ids)'
+      values[:ids]=ids.map { |id| id.to_i }
     else
-      
+
       # --- 'review_type' is deprecated since 2.9 ---
       # Following code just for backward compatibility
       review_type = options['review_type']
@@ -381,29 +380,22 @@ class Review < ActiveRecord::Base
       end
     end
 
-    sort=options['sort']
-    asc=options['asc']
-    if sort
-      if asc
-        sort += ' ASC, reviews.updated_at DESC'
-      else
-        sort += ' DESC, reviews.updated_at DESC'
-      end
-    else
-      sort = 'reviews.updated_at DESC'
-    end
+    sort_field=(options['sort'].blank? ? 'updated_at' : options['sort'])
+    asc=(options['asc'] ? 'ASC' : 'DESC')
+    sort_sql="reviews.#{sort_field} #{asc}"
+    sort_sql += ', reviews.updated_at DESC' unless sort_field=='updated_at'
 
     found_reviews = []
-    found_reviews = Review.find(:all, :include => ['review_comments', 'project', 'assignee', 'resource', 'user'], :conditions => [conditions.join(' AND '), values], :order => sort, :limit => 200) unless no_need_for_db_request
+    found_reviews = Review.find(:all, :include => ['review_comments', 'project', 'assignee', 'resource', 'user'], :conditions => [conditions.join(' AND '), values], :order => sort_sql, :limit => options['limit']) unless no_need_for_db_request
     found_reviews
   end
 
 
-  #
-  #
-  # XML AND JSON UTILITY METHODS
-  #
-  #
+#
+#
+# XML AND JSON UTILITY METHODS
+#
+#
 
   def self.reviews_to_xml(reviews, convert_markdown=false)
     xml = Builder::XmlMarkup.new(:indent => 0)
@@ -477,11 +469,11 @@ class Review < ActiveRecord::Base
     json
   end
 
-  #
-  #
-  # PRIVATE METHODS
-  #
-  #
+#
+#
+# PRIVATE METHODS
+#
+#
   private
 
   def assign_project

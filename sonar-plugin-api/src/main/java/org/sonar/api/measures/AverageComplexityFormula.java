@@ -24,7 +24,7 @@ package org.sonar.api.measures;
  * Compute complexity by 'X', where 'X' can be any metric, like "file" for instance. 
  * 
  * @since 2.1
- * @deprecated since 2.15. Use {@link AverageFormula} instead.
+ * @deprecated since 3.0. Use {@link AverageFormula} instead.
  */
 @Deprecated
 public class AverageComplexityFormula extends AverageFormula {

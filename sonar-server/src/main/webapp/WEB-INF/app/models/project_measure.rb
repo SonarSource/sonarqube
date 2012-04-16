@@ -29,6 +29,7 @@ class ProjectMeasure < ActiveRecord::Base
   belongs_to :rule
   belongs_to :project
   belongs_to :characteristic
+  belongs_to :person, :class_name => 'Project', :foreign_key => 'person_id'
   has_one :measure_data, :class_name => 'MeasureData', :foreign_key => 'measure_id'
 
   def metric

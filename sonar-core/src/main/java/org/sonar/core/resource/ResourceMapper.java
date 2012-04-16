@@ -29,12 +29,12 @@ public interface ResourceMapper {
   List<ResourceDto> selectDescendantProjects(long rootProjectId);
 
   /**
-   * @since 2.15
+   * @since 3.0
    */
   List<ResourceDto> selectResources(ResourceQuery query);
 
   /**
-   * @since 2.15
+   * @since 3.0
    */
   List<Long> selectResourceIds(ResourceQuery query);
 }

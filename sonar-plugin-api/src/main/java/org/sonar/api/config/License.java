@@ -38,7 +38,7 @@ import java.util.Map;
  * SonarSource license. This class aims to extract metadata but not to validate or - of course -
  * to generate license
  *
- * @since 2.15
+ * @since 3.0
  */
 public final class License {
   private String product;

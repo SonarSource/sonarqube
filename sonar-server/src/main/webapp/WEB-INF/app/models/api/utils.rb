@@ -79,7 +79,7 @@ class Api::Utils
   end
 
   # Returns a new array created by sorting arr
-  # Since Sonar 2.15
+  # Since Sonar 3.0
   #
   # Examples :
   # Api::Utils.insensitive_sort(['foo', 'bar'])
@@ -103,7 +103,7 @@ class Api::Utils
 
 
   # Sorts arr
-  # Since Sonar 2.15
+  # Since Sonar 3.0
   #
   # Examples :
   # Api::Utils.insensitive_sort!(['foo', 'bar'])
@@ -126,7 +126,7 @@ class Api::Utils
   end
   
   #
-  # Since Sonar 2.15
+  # Since Sonar 3.0
   #
   def self.valid_period_index?(index)
     Api::Utils.is_integer?(index) && index.to_i > 0 && index.to_i <6

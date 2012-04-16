@@ -20,7 +20,7 @@
 package org.sonar.api;
 
 /**
- * @since 2.15
+ * @since 3.0
  */
 public enum PropertyType {
   /**

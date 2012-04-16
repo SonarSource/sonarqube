@@ -28,7 +28,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @since 2.15
+ * @since 3.0
  */
 public class DatabaseVersion implements BatchComponent, ServerComponent {
 

@@ -35,7 +35,7 @@ import java.lang.annotation.Target;
  * The class will define a <code>@RequiredMeasures(allOf={"dsm"})</code> annotation.
  * </p>
  * 
- * @since 2.15
+ * @since 3.0
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

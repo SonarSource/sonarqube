@@ -165,7 +165,7 @@ public class ReviewQuery extends Query<Review> {
   }
 
   /**
-   * @deprecated since 2.15. Searching by user ID is not possible anymore. Use {@link #getAuthorLogins()} instead.
+   * @deprecated since 3.0. Searching by user ID is not possible anymore. Use {@link #getAuthorLogins()} instead.
    */
   @Deprecated
   public String[] getAuthorLoginsOrIds() {
@@ -173,7 +173,7 @@ public class ReviewQuery extends Query<Review> {
   }
 
   /**
-   * @deprecated since 2.15. Searching by user ID is not possible anymore. Use {@link #setAuthorLogins(String...)} instead.
+   * @deprecated since 3.0. Searching by user ID is not possible anymore. Use {@link #setAuthorLogins(String...)} instead.
    */
   @Deprecated
   public ReviewQuery setAuthorLoginsOrIds(String... authorLoginsOrIds) {
@@ -198,7 +198,7 @@ public class ReviewQuery extends Query<Review> {
   }
 
   /**
-   * @deprecated since 2.15. Searching by user ID is not possible anymore. Use {@link #getAssigneeLogins()} instead.
+   * @deprecated since 3.0. Searching by user ID is not possible anymore. Use {@link #getAssigneeLogins()} instead.
    */
   @Deprecated
   public String[] getAssigneeLoginsOrIds() {
@@ -206,7 +206,7 @@ public class ReviewQuery extends Query<Review> {
   }
 
   /**
-   * @deprecated since 2.15. Searching by user ID is not possible anymore. Use {@link #setAssigneeLogins(String...)} instead.
+   * @deprecated since 3.0. Searching by user ID is not possible anymore. Use {@link #setAssigneeLogins(String...)} instead.
    */
   @Deprecated
   public ReviewQuery setAssigneeLoginsOrIds(String... assigneeLoginsOrIds) {
@@ -267,7 +267,7 @@ public class ReviewQuery extends Query<Review> {
     StringBuilder url = new StringBuilder(BASE_URL);
     url.append('?');
     if (id != null) {
-      appendUrlParameter(url, "id", id);
+      appendUrlParameter(url, "ids", id);
     } else if (ids != null) {
       appendUrlParameter(url, "ids", ids);
     }
