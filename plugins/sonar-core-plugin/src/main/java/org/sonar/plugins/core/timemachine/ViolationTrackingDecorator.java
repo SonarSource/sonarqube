@@ -124,9 +124,13 @@ public class ViolationTrackingDecorator implements Decorator {
 
           List<ViolationPair> possiblePairs = Lists.newArrayList();
           for (Violation newViolation : newViolations) {
-            for (RuleFailureModel pastViolation : pastViolationsByRule.get(newViolation.getRule().getId())) {
-              int weight = rec.computeLengthOfMaximalBlock(pastViolation.getLine() - 1, newViolation.getLineId() - 1);
-              possiblePairs.add(new ViolationPair(pastViolation, newViolation, weight));
+            if (newViolation.getLineId() != null) {
+              for (RuleFailureModel pastViolation : pastViolationsByRule.get(newViolation.getRule().getId())) {
+                if (pastViolation.getLine() != null) {
+                  int weight = rec.computeLengthOfMaximalBlock(pastViolation.getLine() - 1, newViolation.getLineId() - 1);
+                  possiblePairs.add(new ViolationPair(pastViolation, newViolation, weight));
+                }
+              }
             }
           }
           Collections.sort(possiblePairs, ViolationPair.COMPARATOR);
