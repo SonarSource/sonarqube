@@ -57,6 +57,44 @@ public class ViolationTrackingTest {
     decorator = new ViolationTrackingDecorator(project, referenceAnalysis, null);
   }
 
+  @Test
+  public void pastViolationNotAssiciatedWithLineShouldNotCauseNPE() throws Exception {
+    when(referenceAnalysis.getSource(project)).thenReturn(load("example2-v1"));
+    String source = load("example2-v2");
+
+    RuleFailureModel referenceViolation1 = newReferenceViolation("2 branches need to be covered", null, 50);
+
+    Violation newViolation1 = newViolation("Indentation", 9, 50);
+    newViolation1.setChecksum("foo");
+
+    Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(
+        Arrays.asList(newViolation1),
+        Arrays.asList(referenceViolation1),
+        source, project);
+
+    assertThat(mapping.isEmpty(), is(true));
+    assertThat(newViolation1.isNew(), is(true));
+  }
+
+  @Test
+  public void newViolationNotAssiciatedWithLineShouldNotCauseNPE() throws Exception {
+    when(referenceAnalysis.getSource(project)).thenReturn(load("example2-v1"));
+    String source = load("example2-v2");
+
+    RuleFailureModel referenceViolation1 = newReferenceViolation("Indentation", 7, 50);
+
+    Violation newViolation1 = newViolation("1 branch need to be covered", null, 50);
+    newViolation1.setChecksum("foo");
+
+    Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(
+        Arrays.asList(newViolation1),
+        Arrays.asList(referenceViolation1),
+        source, project);
+
+    assertThat(mapping.isEmpty(), is(true));
+    assertThat(newViolation1.isNew(), is(true));
+  }
+
   /**
    * SONAR-2928
    */
