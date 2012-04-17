@@ -17,6 +17,10 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
+
+#
+# Sonar 3.0
+#
 class IndexProjects < ActiveRecord::Migration
   class ResourceIndex < ActiveRecord::Base
     set_table_name 'resource_index'
