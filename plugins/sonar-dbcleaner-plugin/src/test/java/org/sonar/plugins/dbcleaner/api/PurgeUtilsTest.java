@@ -19,30 +19,24 @@
  */
 package org.sonar.plugins.dbcleaner.api;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
 import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.database.model.ResourceModel;
-import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
-
-import com.google.common.collect.Lists;
-
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
 
 import javax.persistence.Query;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class PurgeUtilsTest extends AbstractDbUnitTestCase {
 
@@ -59,7 +53,7 @@ public class PurgeUtilsTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void purgeSnapshots() throws SQLException {
+  public void purgeSnapshots() {
     setupData("purgeSnapshots");
 
     PurgeUtils.deleteSnapshotsData(getSession(), Arrays.asList(3, 4));
@@ -75,7 +69,7 @@ public class PurgeUtilsTest extends AbstractDbUnitTestCase {
     when(session.createNativeQuery(anyString())).thenReturn(query);
 
     List<Integer> ids = Lists.newArrayList();
-    for (int i = 0; i < PurgeUtils.MAX_IN_ELEMENTS + 1; i++) {
+    for (int i = 0; i < (PurgeUtils.MAX_IN_ELEMENTS + 1); i++) {
       ids.add(i);
     }
 

@@ -23,15 +23,22 @@ import org.apache.commons.io.FileUtils;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
-import static org.junit.Assert.assertTrue;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JPanel;
+
+import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import static org.junit.Assert.assertTrue;
 
 public abstract class AbstractChartTest {
   protected void assertChartSizeGreaterThan(BufferedImage img, int size) throws IOException {
@@ -57,7 +64,7 @@ public abstract class AbstractChartTest {
 
   }
 
-  protected static void displayTestPanel(BufferedImage image) throws IOException {
+  protected static void displayTestPanel(BufferedImage image) {
     ApplicationFrame frame = new ApplicationFrame("testframe");
     BufferedPanel imgPanel = new BufferedPanel(image);
     frame.setContentPane(imgPanel);
@@ -72,7 +79,7 @@ public abstract class AbstractChartTest {
   }
 
   private static class BufferedPanel extends JPanel {
-    private BufferedImage chartImage;
+    private final BufferedImage chartImage;
 
     public BufferedPanel(BufferedImage chartImage) {
       this.chartImage = chartImage;

@@ -19,12 +19,13 @@
  */
 package org.sonar.plugins.checkstyle;
 
+import com.google.common.collect.ImmutableList;
+import org.sonar.api.Extension;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
 import org.sonar.api.SonarPlugin;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Properties({
@@ -39,17 +40,17 @@ import java.util.List;
     type = PropertyType.TEXT)})
 public final class CheckstylePlugin extends SonarPlugin {
 
-  public List getExtensions() {
-    return Arrays.asList(
-      CheckstyleSensor.class,
-      CheckstyleConfiguration.class,
-      CheckstyleExecutor.class,
-      CheckstyleAuditListener.class,
-      CheckstyleProfileExporter.class,
-      CheckstyleProfileImporter.class,
-      CheckstyleRuleRepository.class,
-      SonarWayProfile.class,
-      SunConventionsProfile.class,
-      SonarWayWithFindbugsProfile.class);
+  public List<Class<? extends Extension>> getExtensions() {
+    return ImmutableList.of(
+        CheckstyleSensor.class,
+        CheckstyleConfiguration.class,
+        CheckstyleExecutor.class,
+        CheckstyleAuditListener.class,
+        CheckstyleProfileExporter.class,
+        CheckstyleProfileImporter.class,
+        CheckstyleRuleRepository.class,
+        SonarWayProfile.class,
+        SunConventionsProfile.class,
+        SonarWayWithFindbugsProfile.class);
   }
 }

@@ -19,6 +19,15 @@
  */
 package org.sonar.plugins.core.sensors;
 
+import com.google.common.collect.Lists;
+import org.junit.Test;
+import org.sonar.api.batch.Event;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
+
+import java.util.Date;
+
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -28,22 +37,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-
-import org.junit.Test;
-import org.sonar.api.batch.Event;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
-
 public class VersionEventsSensorTest {
-
-  private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
-  private SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyyMMdd HH:mm");
 
   @Test
   public void shouldDoNothingIfNoVersion() {
@@ -83,7 +77,7 @@ public class VersionEventsSensorTest {
     Project project = mock(Project.class);
     when(project.getAnalysisVersion()).thenReturn("1.5-SNAPSHOT");
 
-    when(context.getEvents(project)).thenReturn(new ArrayList(Arrays.asList(sameVersionEvent, otherEvent, anotherEvent)));
+    when(context.getEvents(project)).thenReturn(Lists.newArrayList(sameVersionEvent, otherEvent, anotherEvent));
 
     sensor.analyse(project, context);
 
@@ -99,7 +93,7 @@ public class VersionEventsSensorTest {
     SensorContext context = mock(SensorContext.class);
     Project project = mock(Project.class);
     when(project.getAnalysisVersion()).thenReturn("1.5");
-    when(context.getEvents(project)).thenReturn(new ArrayList(Arrays.asList(snapshotVersion, otherEvent)));
+    when(context.getEvents(project)).thenReturn(Lists.newArrayList(snapshotVersion, otherEvent));
 
     VersionEventsSensor sensor = new VersionEventsSensor();
     sensor.analyse(project, context);
@@ -112,15 +106,6 @@ public class VersionEventsSensorTest {
     Event event = mock(Event.class);
     when(event.isVersionCategory()).thenReturn(true);
     when(event.getName()).thenReturn(version);
-    return event;
-  }
-
-  private Event mockEvent(String name, String yyyyMMdd) throws ParseException {
-    Event event = mock(Event.class);
-    when(event.isVersionCategory()).thenReturn(false);
-    when(event.isLinkedToSnapshot()).thenReturn(false);
-    when(event.getName()).thenReturn(name);
-    when(event.getDate()).thenReturn(dateFormat.parse(yyyyMMdd));
     return event;
   }
 }

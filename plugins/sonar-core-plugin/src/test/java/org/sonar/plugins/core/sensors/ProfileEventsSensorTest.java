@@ -19,11 +19,6 @@
  */
 package org.sonar.plugins.core.sensors;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.Event;
@@ -36,10 +31,22 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class ProfileEventsSensorTest {
 
@@ -61,7 +68,7 @@ public class ProfileEventsSensorTest {
   }
 
   @Test
-  public void shouldDoNothingIfNoProfile() throws ParseException {
+  public void shouldDoNothingIfNoProfile() {
     ProfileEventsSensor sensor = new ProfileEventsSensor(null, null);
 
     sensor.analyse(project, context);
@@ -70,7 +77,7 @@ public class ProfileEventsSensorTest {
   }
 
   @Test
-  public void shouldDoNothingIfNoProfileChange() throws ParseException {
+  public void shouldDoNothingIfNoProfileChange() {
     RulesProfile profile = mockProfileWithVersion(1);
     TimeMachine timeMachine = mockTM(project, 22.0, "Foo", 1.0); // Same profile, same version
     ProfileEventsSensor sensor = new ProfileEventsSensor(profile, timeMachine);
@@ -81,7 +88,7 @@ public class ProfileEventsSensorTest {
   }
 
   @Test
-  public void shouldCreateEventIfProfileChange() throws ParseException {
+  public void shouldCreateEventIfProfileChange() {
     RulesProfile profile = mockProfileWithVersion(1);
     TimeMachine timeMachine = mockTM(project, 21.0, "Bar", 1.0); // Different profile
     ProfileEventsSensor sensor = new ProfileEventsSensor(profile, timeMachine);
@@ -95,7 +102,7 @@ public class ProfileEventsSensorTest {
   }
 
   @Test
-  public void shouldCreateEventIfProfileVersionChange() throws ParseException {
+  public void shouldCreateEventIfProfileVersionChange() {
     RulesProfile profile = mockProfileWithVersion(2);
     TimeMachine timeMachine = mockTM(project, 22.0, "Foo", 1.0); // Same profile, different version
     ProfileEventsSensor sensor = new ProfileEventsSensor(profile, timeMachine);
@@ -109,7 +116,7 @@ public class ProfileEventsSensorTest {
   }
 
   @Test
-  public void shouldNotCreateEventIfFirstAnalysis() throws ParseException {
+  public void shouldNotCreateEventIfFirstAnalysis() {
     RulesProfile profile = mockProfileWithVersion(2);
     TimeMachine timeMachine = mockTM(project, null, null);
     ProfileEventsSensor sensor = new ProfileEventsSensor(profile, timeMachine);
@@ -120,7 +127,7 @@ public class ProfileEventsSensorTest {
   }
 
   @Test
-  public void shouldCreateEventIfFirstAnalysisWithVersionsAndVersionMoreThan1() throws ParseException {
+  public void shouldCreateEventIfFirstAnalysisWithVersionsAndVersionMoreThan1() {
     RulesProfile profile = mockProfileWithVersion(2);
     TimeMachine timeMachine = mockTM(project, 22.0, "Foo", null);
     ProfileEventsSensor sensor = new ProfileEventsSensor(profile, timeMachine);

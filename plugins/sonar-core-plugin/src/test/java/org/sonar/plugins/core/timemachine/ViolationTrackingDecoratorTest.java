@@ -28,12 +28,13 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.DateUtils;
 
-import java.text.ParseException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -41,10 +42,10 @@ import static org.mockito.Mockito.when;
 public class ViolationTrackingDecoratorTest {
 
   private ViolationTrackingDecorator decorator;
-  private Date analysisDate = DateUtils.parseDate("2010-12-25");
+  private final Date analysisDate = DateUtils.parseDate("2010-12-25");
 
   @Before
-  public void setUp() throws ParseException {
+  public void setUp() {
     Project project = mock(Project.class);
     when(project.getAnalysisDate()).thenReturn(analysisDate);
     decorator = new ViolationTrackingDecorator(project, null, null);
@@ -183,7 +184,7 @@ public class ViolationTrackingDecoratorTest {
     Violation newViolation = newViolation("message", 1, 50, "checksum");
     assertThat(newViolation.getCreatedAt(), nullValue());
 
-    Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Collections.<RuleFailureModel>emptyList());
+    Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Collections.<RuleFailureModel> emptyList());
     assertThat(mapping.size(), is(0));
     assertThat(newViolation.getCreatedAt(), is(analysisDate));
     assertThat(newViolation.isNew(), is(true));
@@ -197,7 +198,7 @@ public class ViolationTrackingDecoratorTest {
     referenceViolation.setCreatedAt(referenceDate);
     assertThat(newViolation.getCreatedAt(), nullValue());
 
-    Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.<RuleFailureModel>newArrayList(referenceViolation));
+    Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.<RuleFailureModel> newArrayList(referenceViolation));
     assertThat(mapping.size(), is(1));
     assertThat(newViolation.getCreatedAt(), is(referenceDate));
     assertThat(newViolation.isNew(), is(false));

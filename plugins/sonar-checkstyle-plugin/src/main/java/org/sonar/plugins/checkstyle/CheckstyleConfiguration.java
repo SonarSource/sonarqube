@@ -37,7 +37,11 @@ import org.sonar.api.resources.Java;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.utils.SonarException;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Locale;
@@ -56,10 +60,10 @@ public class CheckstyleConfiguration implements BatchExtension {
   private static final Logger LOG = LoggerFactory.getLogger(CheckstyleConfiguration.class);
   public static final String PROPERTY_GENERATE_XML = "sonar.checkstyle.generateXml";
 
-  private CheckstyleProfileExporter confExporter;
-  private RulesProfile profile;
-  private Settings conf;
-  private ProjectFileSystem fileSystem;
+  private final CheckstyleProfileExporter confExporter;
+  private final RulesProfile profile;
+  private final Settings conf;
+  private final ProjectFileSystem fileSystem;
 
   public CheckstyleConfiguration(Settings conf, CheckstyleProfileExporter confExporter, RulesProfile profile, ProjectFileSystem fileSystem) {
     this.conf = conf;
@@ -96,7 +100,7 @@ public class CheckstyleConfiguration implements BatchExtension {
     return null;
   }
 
-  public com.puppycrawl.tools.checkstyle.api.Configuration getCheckstyleConfiguration() throws IOException, CheckstyleException {
+  public com.puppycrawl.tools.checkstyle.api.Configuration getCheckstyleConfiguration() throws CheckstyleException {
     File xmlConfig = getXMLDefinitionFile();
 
     LOG.info("Checkstyle configuration: " + xmlConfig.getAbsolutePath());

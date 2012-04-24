@@ -30,13 +30,11 @@ import javax.annotation.Nullable;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+
 import java.io.File;
 import java.io.IOException;
-import java.security.InvalidKeyException;
 import java.security.Key;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
 
 final class AesCipher extends Cipher {
 
@@ -53,6 +51,7 @@ final class AesCipher extends Cipher {
     this.settings = settings;
   }
 
+  @Override
   String encrypt(String clearText) {
     try {
       javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CRYPTO_KEY);
@@ -63,6 +62,7 @@ final class AesCipher extends Cipher {
     }
   }
 
+  @Override
   String decrypt(String encryptedText) {
     try {
       javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CRYPTO_KEY);
@@ -86,13 +86,13 @@ final class AesCipher extends Cipher {
     return false;
   }
 
-  private Key loadSecretFile() throws NoSuchAlgorithmException, InvalidKeySpecException, IOException, InvalidKeyException {
+  private Key loadSecretFile() throws IOException {
     String path = getPathToSecretKey();
     return loadSecretFileFromFile(path);
   }
 
   @VisibleForTesting
-  Key loadSecretFileFromFile(@Nullable String path) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException, InvalidKeyException {
+  Key loadSecretFileFromFile(@Nullable String path) throws IOException {
     if (StringUtils.isBlank(path)) {
       throw new IllegalStateException("Secret key not found. Please set the property " + CoreProperties.ENCRYPTION_SECRET_KEY_PATH);
     }

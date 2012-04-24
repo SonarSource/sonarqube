@@ -19,17 +19,16 @@
  */
 package org.sonar.api.utils;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class ServerHttpClientTest {
 
-  private String serverUrl = "http://test";
-  
+  private final String serverUrl = "http://test";
+
   private ServerHttpClient serverHttpClient;
 
   @Before
@@ -38,7 +37,7 @@ public class ServerHttpClientTest {
   }
 
   @Test
-  public void shouldReturnAValidResult() throws IOException {
+  public void shouldReturnAValidResult() {
     final String validContent = "valid";
     ServerHttpClient serverHttpClient = new ServerHttpClient(serverUrl) {
       @Override
@@ -57,7 +56,7 @@ public class ServerHttpClientTest {
   }
 
   @Test(expected = ServerHttpClient.ServerApiEmptyContentException.class)
-  public void shouldThrowAnExceptionIfResultIsEmpty() throws IOException {
+  public void shouldThrowAnExceptionIfResultIsEmpty() {
     final String invalidContent = " ";
     ServerHttpClient serverHttpClient = new ServerHttpClient(serverUrl) {
       @Override

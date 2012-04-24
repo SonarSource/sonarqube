@@ -45,7 +45,7 @@ public class BatchExtensionInstallerTest {
     Map<PluginMetadata, Plugin> result = Maps.newHashMap();
     result.put(METADATA,
         new SonarPlugin() {
-          public List getExtensions() {
+          public List<Class> getExtensions() {
             return Arrays.asList(classes);
           }
         }

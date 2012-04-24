@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.dbcleaner;
 
+import com.google.common.collect.ImmutableList;
+import org.sonar.api.BatchExtension;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
@@ -26,7 +28,6 @@ import org.sonar.api.SonarPlugin;
 import org.sonar.plugins.dbcleaner.api.DbCleanerConstants;
 import org.sonar.plugins.dbcleaner.period.DefaultPeriodCleaner;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Properties({
@@ -50,11 +51,13 @@ import java.util.List;
     global = true,
     project = true,
     type = PropertyType.INTEGER)
-}
-)
+})
 public final class DbCleanerPlugin extends SonarPlugin {
 
-  public List getExtensions() {
-    return Arrays.asList(DefaultPeriodCleaner.class, DefaultPurgeTask.class, ProjectPurgePostJob.class);
+  public List<Class<? extends BatchExtension>> getExtensions() {
+    return ImmutableList.of(
+        DefaultPeriodCleaner.class,
+        DefaultPurgeTask.class,
+        ProjectPurgePostJob.class);
   }
 }

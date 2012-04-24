@@ -24,9 +24,6 @@ import org.hamcrest.Description;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.purge.PurgeableSnapshotDto;
 
-import java.util.Date;
-import java.util.GregorianCalendar;
-
 public final class DbCleanerTestUtils {
 
   private DbCleanerTestUtils() {

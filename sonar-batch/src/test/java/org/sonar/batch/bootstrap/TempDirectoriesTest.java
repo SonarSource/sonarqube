@@ -40,21 +40,21 @@ public class TempDirectoriesTest {
   }
 
   @After
-  public void after() throws IOException {
+  public void after() {
     if (tempDirectories != null) {
       tempDirectories.stop();
     }
   }
 
   @Test
-  public void shouldCreateRoot() throws IOException {
+  public void shouldCreateRoot() {
     assertNotNull(tempDirectories.getRoot());
     assertThat(tempDirectories.getRoot().exists(), is(true));
     assertThat(tempDirectories.getRoot().isDirectory(), is(true));
   }
 
   @Test
-  public void shouldCreateDirectory() throws IOException {
+  public void shouldCreateDirectory() {
     File findbugsDir = tempDirectories.getDir("findbugs");
     assertNotNull(findbugsDir);
     assertThat(findbugsDir.exists(), is(true));
@@ -63,13 +63,13 @@ public class TempDirectoriesTest {
   }
 
   @Test
-  public void shouldStopAndDeleteDirectory() throws IOException {
+  public void shouldStopAndDeleteDirectory() {
     File root = tempDirectories.getRoot();
     File findbugsDir = tempDirectories.getDir("findbugs");
     assertThat(findbugsDir.exists(), is(true));
 
     tempDirectories.stop();
-    
+
     assertThat(root.exists(), is(false));
     assertThat(findbugsDir.exists(), is(false));
   }

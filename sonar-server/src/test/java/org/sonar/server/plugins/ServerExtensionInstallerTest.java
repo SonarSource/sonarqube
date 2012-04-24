@@ -71,7 +71,7 @@ public class ServerExtensionInstallerTest {
       this.extensions = extensions;
     }
 
-    public List getExtensions() {
+    public List<Class> getExtensions() {
       return extensions;
     }
   }

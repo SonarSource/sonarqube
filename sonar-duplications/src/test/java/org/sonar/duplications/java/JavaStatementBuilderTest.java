@@ -19,14 +19,7 @@
  */
 package org.sonar.duplications.java;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.junit.Assert.assertThat;
-
-import java.io.*;
-import java.nio.charset.Charset;
-import java.util.List;
-
+import com.google.common.base.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.sonar.duplications.DuplicationsTestUtil;
@@ -34,10 +27,21 @@ import org.sonar.duplications.statement.Statement;
 import org.sonar.duplications.statement.StatementChunker;
 import org.sonar.duplications.token.TokenChunker;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.List;
+
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.number.OrderingComparisons.greaterThan;
+import static org.junit.Assert.assertThat;
+
 public class JavaStatementBuilderTest {
 
-  private TokenChunker tokenChunker = JavaTokenProducer.build();
-  private StatementChunker statementChunker = JavaStatementBuilder.build();
+  private final TokenChunker tokenChunker = JavaTokenProducer.build();
+  private final StatementChunker statementChunker = JavaStatementBuilder.build();
 
   private List<Statement> chunk(String sourceCode) {
     return statementChunker.chunk(tokenChunker.chunk(sourceCode));
@@ -56,9 +60,9 @@ public class JavaStatementBuilderTest {
   @Test
   public void shouldHandleAnnotation() {
     List<Statement> statements = chunk("" +
-        "@Entity" +
-        "@Table(name = \"properties\")" +
-        "@Column(updatable = true, nullable = true)");
+      "@Entity" +
+      "@Table(name = \"properties\")" +
+      "@Column(updatable = true, nullable = true)");
     assertThat(statements.size(), is(3));
     assertThat(statements.get(0).getValue(), is("@Entity"));
     assertThat(statements.get(1).getValue(), is("@Table(name=$CHARS)"));
@@ -124,11 +128,11 @@ public class JavaStatementBuilderTest {
   @Test
   public void shouldHandleSwitch() {
     List<Statement> statements = chunk("" +
-        "switch (month) {" +
-        "  case 1 : monthString=\"January\"; break;" +
-        "  case 2 : monthString=\"February\"; break;" +
-        "  default: monthString=\"Invalid\";" +
-        "}");
+      "switch (month) {" +
+      "  case 1 : monthString=\"January\"; break;" +
+      "  case 2 : monthString=\"February\"; break;" +
+      "  default: monthString=\"Invalid\";" +
+      "}");
     assertThat(statements.size(), is(6));
     assertThat(statements.get(0).getValue(), is("switch(month)"));
     assertThat(statements.get(1).getValue(), is("case$NUMBER:monthString=$CHARS"));
@@ -144,10 +148,10 @@ public class JavaStatementBuilderTest {
   @Test
   public void shouldHandleNestedSwitch() {
     List<Statement> statements = chunk("" +
-        "switch (a) {" +
-        "  case 'a': case 'b': case 'c': something(); break;" +
-        "  case 'd': case 'e': case 'f': somethingOther(); break;" +
-        "}");
+      "switch (a) {" +
+      "  case 'a': case 'b': case 'c': something(); break;" +
+      "  case 'd': case 'e': case 'f': somethingOther(); break;" +
+      "}");
     assertThat(statements.size(), is(5));
     assertThat(statements.get(0).getValue(), is("switch(a)"));
     assertThat(statements.get(1).getValue(), is("case$CHARS:case$CHARS:case$CHARS:something()"));
@@ -325,7 +329,7 @@ public class JavaStatementBuilderTest {
   private List<Statement> chunk(File file) {
     Reader reader = null;
     try {
-      reader = new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8"));
+      reader = new InputStreamReader(new FileInputStream(file), Charsets.UTF_8);
       return statementChunker.chunk(tokenChunker.chunk(reader));
     } catch (FileNotFoundException e) {
       throw new RuntimeException(e);

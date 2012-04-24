@@ -19,10 +19,9 @@
  */
 package org.sonar.api.profiles;
 
+import com.google.common.base.Charsets;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.stax2.XMLInputFactory2;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
@@ -36,14 +35,13 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.ValidationMessages;
 
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
+
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * TODO should be an interface
@@ -52,7 +50,7 @@ import javax.xml.stream.XMLStreamException;
  */
 public final class XMLProfileParser implements ServerComponent {
 
-  private RuleFinder ruleFinder;
+  private final RuleFinder ruleFinder;
   private MetricFinder metricFinder;
 
   /**
@@ -77,7 +75,7 @@ public final class XMLProfileParser implements ServerComponent {
   }
 
   public RulesProfile parseResource(ClassLoader classloader, String xmlClassPath, ValidationMessages messages) {
-    Reader reader = new InputStreamReader(classloader.getResourceAsStream(xmlClassPath), Charset.forName(CharEncoding.UTF_8));
+    Reader reader = new InputStreamReader(classloader.getResourceAsStream(xmlClassPath), Charsets.UTF_8);
     try {
       return parse(reader, messages);
 
@@ -127,7 +125,7 @@ public final class XMLProfileParser implements ServerComponent {
   }
 
   private SMInputFactory initStax() {
-    XMLInputFactory xmlFactory = XMLInputFactory2.newInstance();
+    XMLInputFactory xmlFactory = XMLInputFactory.newInstance();
     xmlFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
     xmlFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.FALSE);
     // just so it won't try to load DTD in if there's DOCTYPE
@@ -172,7 +170,7 @@ public final class XMLProfileParser implements ServerComponent {
         for (Map.Entry<String, String> entry : parameters.entrySet()) {
           if (rule.getParam(entry.getKey()) == null) {
             messages.addWarningText("The parameter '" + entry.getKey() + "' does not exist in the rule: [repository=" + repositoryKey
-                + ", key=" + key + "]");
+              + ", key=" + key + "]");
           } else {
             activeRule.setParameter(entry.getKey(), entry.getValue());
           }

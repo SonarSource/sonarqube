@@ -28,9 +28,9 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.platform.ServerFileSystem;
-import org.sonar.server.plugins.ClassLoaderUtils;
 
 import javax.annotation.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -44,15 +44,15 @@ public class ApplicationDeployer {
   private static final Logger LOG = LoggerFactory.getLogger(ApplicationDeployer.class);
   private static final String ROR_PATH = "org/sonar/ror/";
 
-  private ServerFileSystem fileSystem;
-  private PluginRepository pluginRepository;
+  private final ServerFileSystem fileSystem;
+  private final PluginRepository pluginRepository;
 
   public ApplicationDeployer(ServerFileSystem fileSystem, PluginRepository pluginRepository) {
     this.fileSystem = fileSystem;
     this.pluginRepository = pluginRepository;
   }
 
-  public void start() throws IOException {
+  public void start() {
     deployRubyRailsApps();
   }
 

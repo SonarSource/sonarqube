@@ -19,32 +19,35 @@
  */
 package org.sonar.plugins.cobertura;
 
-import org.sonar.api.*;
+import com.google.common.collect.ImmutableList;
+import org.sonar.api.BatchExtension;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.Properties;
+import org.sonar.api.Property;
+import org.sonar.api.SonarPlugin;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Properties({
-    @Property(
-        key = CoreProperties.COBERTURA_REPORT_PATH_PROPERTY,
-        name = "Report path",
-        description = "Path (absolute or relative) to Cobertura xml report file.",
-        project = true,
-        global = false),
-    @Property(
-        key = CoreProperties.COBERTURA_MAXMEM_PROPERTY,
-        defaultValue = CoreProperties.COBERTURA_MAXMEM_DEFAULT_VALUE,
-        name = "Maxmem",
-        description = "Maximum memory to pass to JVM of Cobertura processes",
-        project = true,
-        global = true) })
+  @Property(
+    key = CoreProperties.COBERTURA_REPORT_PATH_PROPERTY,
+    name = "Report path",
+    description = "Path (absolute or relative) to Cobertura xml report file.",
+    project = true,
+    global = false),
+  @Property(
+    key = CoreProperties.COBERTURA_MAXMEM_PROPERTY,
+    defaultValue = CoreProperties.COBERTURA_MAXMEM_DEFAULT_VALUE,
+    name = "Maxmem",
+    description = "Maximum memory to pass to JVM of Cobertura processes",
+    project = true,
+    global = true)})
 public class CoberturaPlugin extends SonarPlugin {
 
-  public List<Class<? extends Extension>> getExtensions() {
-    List<Class<? extends Extension>> list = new ArrayList<Class<? extends Extension>>();
-    list.add(CoberturaSensor.class);
-    list.add(CoberturaMavenPluginHandler.class);
-    list.add(CoberturaMavenInitializer.class);
-    return list;
+  public List<Class<? extends BatchExtension>> getExtensions() {
+    return ImmutableList.of(
+        CoberturaSensor.class,
+        CoberturaMavenPluginHandler.class,
+        CoberturaMavenInitializer.class);
   }
 }

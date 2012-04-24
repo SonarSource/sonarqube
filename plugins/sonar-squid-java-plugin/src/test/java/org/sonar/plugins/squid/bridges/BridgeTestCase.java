@@ -19,10 +19,7 @@
  */
 package org.sonar.plugins.squid.bridges;
 
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
+import com.google.common.base.Charsets;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.mockito.invocation.InvocationOnMock;
@@ -38,9 +35,12 @@ import org.sonar.plugins.squid.SquidTestUtils;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collections;
+
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public abstract class BridgeTestCase {
 
@@ -52,7 +52,7 @@ public abstract class BridgeTestCase {
   public static void scanStruts() throws IOException, URISyntaxException {
     RulesProfile profile = RulesProfile.create();
     CheckFactory checkFactory = AnnotationCheckFactory.create(profile, "repo", Collections.<Class> emptyList());
-    executor = new SquidExecutor(true, "LOG, logger", checkFactory, Charset.forName("UTF8"));
+    executor = new SquidExecutor(true, "LOG, logger", checkFactory, Charsets.UTF_8);
     executor.scan(SquidTestUtils.getStrutsCoreSources(), Arrays.asList(SquidTestUtils.getStrutsCoreJar()));
     project = new Project("project");
   }

@@ -60,7 +60,7 @@ public class UserGuideTest {
   }
 
   @Test
-  public void defineNewLanguage() throws IOException {
+  public void defineNewLanguage() {
 
   }
 

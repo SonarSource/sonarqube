@@ -28,10 +28,14 @@ import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.exceptions.verification.junit.ArgumentsAreDifferent;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.Java;
+import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
+import org.sonar.api.resources.Resource;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -41,8 +45,14 @@ import java.util.List;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class AbstractSourceImporterTest {
 
@@ -52,8 +62,8 @@ public class AbstractSourceImporterTest {
 
   @Before
   public void setup() throws UnsupportedEncodingException {
-    aClaess = new String(new byte[] { 65, 67, 108, 97, -61, -88, 115, 115, 40, 41 }, CharEncoding.UTF_8);
-    explicacao = new String(new byte[] { 101, 120, 112, 108, 105, 99, 97, -61, -89, -61, -93, 111, 40, 41 }, CharEncoding.UTF_8);
+    aClaess = new String(new byte[] {65, 67, 108, 97, -61, -88, 115, 115, 40, 41}, CharEncoding.UTF_8);
+    explicacao = new String(new byte[] {101, 120, 112, 108, 105, 99, 97, -61, -89, -61, -93, 111, 40, 41}, CharEncoding.UTF_8);
     importer = new FakeSourceImporter();
   }
 
@@ -65,7 +75,7 @@ public class AbstractSourceImporterTest {
   }
 
   @Test
-  public void doNotSaveSourceIfNullResource() throws IOException {
+  public void doNotSaveSourceIfNullResource() {
     AbstractSourceImporter nullImporter = new AbstractSourceImporter(Java.INSTANCE) {
 
       @Override

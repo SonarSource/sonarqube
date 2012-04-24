@@ -35,7 +35,7 @@ import java.util.Collection;
  */
 public final class AnnotationProfileParser implements ServerComponent {
 
-  private RuleFinder ruleFinder;
+  private final RuleFinder ruleFinder;
 
   public AnnotationProfileParser(RuleFinder ruleFinder) {
     this.ruleFinder = ruleFinder;
@@ -43,15 +43,15 @@ public final class AnnotationProfileParser implements ServerComponent {
 
   public RulesProfile parse(String repositoryKey, String profileName, String language, Collection<Class> annotatedClasses, ValidationMessages messages) {
     RulesProfile profile = RulesProfile.create(profileName, language);
-    for (Class aClass : annotatedClasses) {
-      BelongsToProfile belongsToProfile = (BelongsToProfile) aClass.getAnnotation(BelongsToProfile.class);
+    for (Class<?> aClass : annotatedClasses) {
+      BelongsToProfile belongsToProfile = aClass.getAnnotation(BelongsToProfile.class);
       addRule(aClass, belongsToProfile, profile, repositoryKey, messages);
     }
     return profile;
   }
 
   private void addRule(Class aClass, BelongsToProfile annotation, RulesProfile profile, String repositoryKey, ValidationMessages messages) {
-    if (annotation != null && StringUtils.equals(annotation.title(), profile.getName())) {
+    if ((annotation != null) && StringUtils.equals(annotation.title(), profile.getName())) {
       String ruleKey = RuleAnnotationUtils.getRuleKey(aClass);
       Rule rule = ruleFinder.findByKey(repositoryKey, ruleKey);
       if (rule == null) {

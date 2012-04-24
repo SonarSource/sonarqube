@@ -19,8 +19,8 @@
  */
 package org.sonar.plugins.design;
 
-import java.util.List;
-
+import com.google.common.collect.ImmutableList;
+import org.sonar.api.Extension;
 import org.sonar.api.SonarPlugin;
 import org.sonar.plugins.design.batch.FileTangleIndexDecorator;
 import org.sonar.plugins.design.batch.MavenDependenciesSensor;
@@ -34,29 +34,25 @@ import org.sonar.plugins.design.ui.widgets.ChidamberKemererWidget;
 import org.sonar.plugins.design.ui.widgets.FileDesignWidget;
 import org.sonar.plugins.design.ui.widgets.PackageDesignWidget;
 
-import com.google.common.collect.Lists;
+import java.util.List;
 
 public class DesignPlugin extends SonarPlugin {
 
-  @SuppressWarnings({"unchecked", "rawtypes"})
-  public List getExtensions() {
-    List extensions = Lists.newArrayList();
+  public List<Class<? extends Extension>> getExtensions() {
+    return ImmutableList.of(
+        // Batch
+        MavenDependenciesSensor.class,
+        ProjectDsmDecorator.class,
+        PackageTangleIndexDecorator.class,
+        FileTangleIndexDecorator.class,
+        SuspectLcom4DensityDecorator.class,
+        GwtLibrariesPage.class,
 
-    // Batch
-    extensions.add(MavenDependenciesSensor.class);
-    extensions.add(ProjectDsmDecorator.class);
-    extensions.add(PackageTangleIndexDecorator.class);
-    extensions.add(FileTangleIndexDecorator.class);
-    extensions.add(SuspectLcom4DensityDecorator.class);
-    extensions.add(GwtLibrariesPage.class);
-
-    // UI
-    extensions.add(GwtDesignPage.class);
-    extensions.add(DependenciesViewer.class);
-    extensions.add(FileDesignWidget.class);
-    extensions.add(PackageDesignWidget.class);
-    extensions.add(ChidamberKemererWidget.class);
-
-    return extensions;
+        // UI
+        GwtDesignPage.class,
+        DependenciesViewer.class,
+        FileDesignWidget.class,
+        PackageDesignWidget.class,
+        ChidamberKemererWidget.class);
   }
 }

@@ -19,7 +19,13 @@
  */
 package org.sonar.plugins.pmd;
 
-import net.sourceforge.pmd.*;
+import net.sourceforge.pmd.PMD;
+import net.sourceforge.pmd.PMDException;
+import net.sourceforge.pmd.Report;
+import net.sourceforge.pmd.RuleContext;
+import net.sourceforge.pmd.RuleSetFactory;
+import net.sourceforge.pmd.RuleSets;
+import net.sourceforge.pmd.SourceType;
 import net.sourceforge.pmd.renderers.Renderer;
 import net.sourceforge.pmd.renderers.XMLRenderer;
 import org.apache.commons.io.FileUtils;
@@ -34,22 +40,30 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.java.api.JavaUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.List;
 
 public class PmdExecutor implements BatchExtension {
 
   private static final Logger LOG = LoggerFactory.getLogger(PmdExecutor.class);
 
-  private PmdConfiguration configuration;
-  private Project project;
+  private final PmdConfiguration configuration;
+  private final Project project;
 
   public PmdExecutor(Project project, PmdConfiguration configuration) {
     this.project = project;
     this.configuration = configuration;
   }
 
-  public Report execute() throws IOException, PMDException {
+  public Report execute() throws IOException {
     TimeProfiler profiler = new TimeProfiler().start("Execute PMD " + PmdVersion.getVersion());
 
     ClassLoader initialClassLoader = Thread.currentThread().getContextClassLoader();

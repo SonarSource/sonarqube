@@ -45,9 +45,9 @@ public class PluginDeployer implements ServerComponent {
 
   private static final Logger LOG = LoggerFactory.getLogger(PluginDeployer.class);
 
-  private DefaultServerFileSystem fileSystem;
-  private Map<String, PluginMetadata> pluginByKeys = Maps.newHashMap();
-  private PluginInstaller installer;
+  private final DefaultServerFileSystem fileSystem;
+  private final Map<String, PluginMetadata> pluginByKeys = Maps.newHashMap();
+  private final PluginInstaller installer;
 
   public PluginDeployer(DefaultServerFileSystem fileSystem) {
     this(fileSystem, new PluginInstaller());
@@ -58,7 +58,7 @@ public class PluginDeployer implements ServerComponent {
     this.installer = installer;
   }
 
-  public void start() throws IOException {
+  public void start() {
     TimeProfiler profiler = new TimeProfiler().start("Install plugins");
 
     deleteUninstalledPlugins();
@@ -83,13 +83,13 @@ public class PluginDeployer implements ServerComponent {
     }
   }
 
-  private void loadUserPlugins() throws IOException {
+  private void loadUserPlugins() {
     for (File file : fileSystem.getUserPlugins()) {
       registerPlugin(file, false, false);
     }
   }
 
-  private void registerPlugin(File file, boolean isCore, boolean canDelete) throws IOException {
+  private void registerPlugin(File file, boolean isCore, boolean canDelete) {
     DefaultPluginMetadata metadata = installer.extractMetadata(file, isCore);
     if (StringUtils.isNotBlank(metadata.getKey())) {
       PluginMetadata existing = pluginByKeys.get(metadata.getKey());
@@ -100,16 +100,16 @@ public class PluginDeployer implements ServerComponent {
 
         } else {
           throw new ServerStartException("Found two plugins with the same key '" + metadata.getKey() + "': " + metadata.getFile().getName() + " and "
-              + existing.getFile().getName());
+            + existing.getFile().getName());
         }
       }
       pluginByKeys.put(metadata.getKey(), metadata);
     }
   }
 
-  private void moveAndLoadDownloadedPlugins() throws IOException {
+  private void moveAndLoadDownloadedPlugins() {
     if (fileSystem.getDownloadedPluginsDir().exists()) {
-      Collection<File> jars = FileUtils.listFiles(fileSystem.getDownloadedPluginsDir(), new String[]{"jar"}, false);
+      Collection<File> jars = FileUtils.listFiles(fileSystem.getDownloadedPluginsDir(), new String[] {"jar"}, false);
       for (File jar : jars) {
         File movedJar = moveDownloadedFile(jar);
         if (movedJar != null) {
@@ -137,7 +137,7 @@ public class PluginDeployer implements ServerComponent {
     }
   }
 
-  private void loadCorePlugins() throws IOException {
+  private void loadCorePlugins() {
     for (File file : fileSystem.getCorePlugins()) {
       registerPlugin(file, true, false);
     }
@@ -145,7 +145,7 @@ public class PluginDeployer implements ServerComponent {
 
   public void uninstall(String pluginKey) {
     PluginMetadata metadata = pluginByKeys.get(pluginKey);
-    if (metadata != null && !metadata.isCore()) {
+    if ((metadata != null) && !metadata.isCore()) {
       try {
         File masterFile = new File(fileSystem.getUserPluginsDir(), metadata.getFile().getName());
         FileUtils.moveFileToDirectory(masterFile, fileSystem.getRemovedPluginsDir(), true);
@@ -158,7 +158,7 @@ public class PluginDeployer implements ServerComponent {
   public List<String> getUninstalls() {
     List<String> names = Lists.newArrayList();
     if (fileSystem.getRemovedPluginsDir().exists()) {
-      List<File> files = (List<File>) FileUtils.listFiles(fileSystem.getRemovedPluginsDir(), new String[]{"jar"}, false);
+      List<File> files = (List<File>) FileUtils.listFiles(fileSystem.getRemovedPluginsDir(), new String[] {"jar"}, false);
       for (File file : files) {
         names.add(file.getName());
       }
@@ -168,7 +168,7 @@ public class PluginDeployer implements ServerComponent {
 
   public void cancelUninstalls() {
     if (fileSystem.getRemovedPluginsDir().exists()) {
-      List<File> files = (List<File>) FileUtils.listFiles(fileSystem.getRemovedPluginsDir(), new String[]{"jar"}, false);
+      List<File> files = (List<File>) FileUtils.listFiles(fileSystem.getRemovedPluginsDir(), new String[] {"jar"}, false);
       for (File file : files) {
         try {
           FileUtils.moveFileToDirectory(file, fileSystem.getUserPluginsDir(), false);

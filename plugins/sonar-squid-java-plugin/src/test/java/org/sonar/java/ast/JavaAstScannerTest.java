@@ -19,14 +19,7 @@
  */
 package org.sonar.java.ast;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
-
-import org.apache.commons.lang.CharEncoding;
+import com.google.common.base.Charsets;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.java.squid.JavaSquidConfiguration;
@@ -35,12 +28,18 @@ import org.sonar.squid.api.AnalysisException;
 import org.sonar.squid.api.SourceProject;
 import org.sonar.squid.measures.Metric;
 
+import java.nio.charset.Charset;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 public class JavaAstScannerTest {
 
   private Squid squid;
 
   @Before
-  public void setup() throws UnsupportedEncodingException {
+  public void setup() {
     squid = new Squid(new JavaSquidConfiguration(false, Charset.defaultCharset(), 0.9));
   }
 
@@ -96,8 +95,8 @@ public class JavaAstScannerTest {
     assertEquals(1, prj.getInt(Metric.FILES));
     assertEquals(1, prj.getInt(Metric.COMMENT_LINES));
 
-    assertNotNull(squid.search("ClassWithOnlyComment.java"));//file
-    assertNull(squid.search("ClassWithOnlyComment"));//class
+    assertNotNull(squid.search("ClassWithOnlyComment.java"));// file
+    assertNull(squid.search("ClassWithOnlyComment"));// class
   }
 
   @Test
@@ -125,7 +124,7 @@ public class JavaAstScannerTest {
     try {
       System.setProperty("file.encoding", "UTF-16");
       Charset defaultEncoding = Charset.defaultCharset();
-      if ( !defaultEncoding.displayName().equals("UTF-16")) {
+      if (!defaultEncoding.displayName().equals("UTF-16")) {
         return;
       }
       System.setProperty("file.encoding", "MacRoman");
@@ -153,7 +152,7 @@ public class JavaAstScannerTest {
 
   @Test
   public void testUTF8Encoding() {
-    squid = new Squid(new JavaSquidConfiguration(false, Charset.forName(CharEncoding.UTF_8)));
+    squid = new Squid(new JavaSquidConfiguration(false, Charsets.UTF_8));
     squid.register(JavaAstScanner.class).scanFile(SquidTestUtils.getInputFile("/special_cases/encoding/Utf8Encoding.java"));
     SourceProject prj = squid.aggregate();
     assertEquals(4, prj.getInt(Metric.METHODS));

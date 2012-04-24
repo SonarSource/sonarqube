@@ -40,7 +40,7 @@ public class PastSnapshotFinderByDaysTest extends AbstractDbUnitTestCase {
   private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
   @Test
-  public void shouldGetNextSnapshot() throws ParseException {
+  public void shouldGetNextSnapshot() {
     setupData("shared");
 
     Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1009); // 2008-11-16
@@ -50,7 +50,7 @@ public class PastSnapshotFinderByDaysTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void shouldIgnoreUnprocessedSnapshots() throws ParseException {
+  public void shouldIgnoreUnprocessedSnapshots() {
     setupData("shared");
 
     Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1009); // 2008-11-16
@@ -60,7 +60,7 @@ public class PastSnapshotFinderByDaysTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void shouldNotFindSelf() throws ParseException {
+  public void shouldNotFindSelf() {
     setupData("shouldNotFindSelf");
 
     Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1009); // 2008-11-16
@@ -79,7 +79,7 @@ public class PastSnapshotFinderByDaysTest extends AbstractDbUnitTestCase {
         newSnapshot(2, "2010-10-03"),// -2 days
         newSnapshot(3, "2010-10-08"),// +3 days
         newSnapshot(4, "2010-10-12") // + 7 days
-    );
+        );
     assertThat(PastSnapshotFinderByDays.getNearestToTarget(snapshots, current, 15).getId(), is(2));
   }
 
@@ -93,7 +93,7 @@ public class PastSnapshotFinderByDaysTest extends AbstractDbUnitTestCase {
         newSnapshot(2, "2010-10-01"),// -4 days
         newSnapshot(3, "2010-10-08"),// +3 days
         newSnapshot(4, "2010-10-12") // + 7 days
-    );
+        );
     assertThat(PastSnapshotFinderByDays.getNearestToTarget(snapshots, current, 15).getId(), is(3));
   }
 

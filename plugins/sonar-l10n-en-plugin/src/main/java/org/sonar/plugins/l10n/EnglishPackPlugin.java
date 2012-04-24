@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.l10n;
 
+import org.sonar.api.Extension;
+
 import org.sonar.api.SonarPlugin;
 
 import java.util.Collections;
@@ -26,7 +28,7 @@ import java.util.List;
 
 public final class EnglishPackPlugin extends SonarPlugin {
 
-  public List getExtensions() {
+  public List<Class<? extends Extension>> getExtensions() {
     return Collections.emptyList();
   }
 }

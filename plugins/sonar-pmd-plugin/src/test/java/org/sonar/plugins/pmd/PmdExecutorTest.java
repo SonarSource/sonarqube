@@ -19,7 +19,7 @@
  */
 package org.sonar.plugins.pmd;
 
-import net.sourceforge.pmd.PMDException;
+import com.google.common.base.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
@@ -31,8 +31,6 @@ import org.sonar.api.resources.ProjectFileSystem;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 
 import static org.hamcrest.Matchers.nullValue;
@@ -48,14 +46,14 @@ public class PmdExecutorTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
-  public void executeOnManySourceDirs() throws URISyntaxException, IOException, PMDException {
-    final File workDir = temp.getRoot();
+  public void executeOnManySourceDirs() throws IOException {
+    File workDir = temp.getRoot();
     Project project = new Project("two-source-dirs");
 
     ProjectFileSystem fs = mock(ProjectFileSystem.class);
     File root = new File(getClass().getResource("/org/sonar/plugins/pmd/PmdExecutorTest/executeOnManySourceDirs/").toURI());
     when(fs.getSourceFiles(Java.INSTANCE)).thenReturn(Arrays.asList(new File(root, "src1/FirstClass.java"), new File(root, "src2/SecondClass.java")));
-    when(fs.getSourceCharset()).thenReturn(Charset.forName("UTF-8"));
+    when(fs.getSourceCharset()).thenReturn(Charsets.UTF_8);
     when(fs.getSonarWorkingDirectory()).thenReturn(workDir);
     project.setFileSystem(fs);
 
@@ -77,13 +75,13 @@ public class PmdExecutorTest {
   }
 
   @Test
-  public void ignorePmdFailures() throws URISyntaxException, IOException, PMDException {
+  public void ignorePmdFailures() throws IOException {
     final File workDir = temp.getRoot();
     Project project = new Project("ignorePmdFailures");
 
     ProjectFileSystem fs = mock(ProjectFileSystem.class);
     when(fs.getSourceFiles(Java.INSTANCE)).thenReturn(Arrays.asList(new File("test-resources/ignorePmdFailures/DoesNotCompile.java")));
-    when(fs.getSourceCharset()).thenReturn(Charset.forName("UTF-8"));
+    when(fs.getSourceCharset()).thenReturn(Charsets.UTF_8);
     when(fs.getSonarWorkingDirectory()).thenReturn(workDir);
     project.setFileSystem(fs);
 

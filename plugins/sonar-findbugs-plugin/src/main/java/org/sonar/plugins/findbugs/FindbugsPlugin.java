@@ -19,10 +19,14 @@
  */
 package org.sonar.plugins.findbugs;
 
-import org.sonar.api.*;
+import com.google.common.collect.ImmutableList;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.Extension;
+import org.sonar.api.Properties;
+import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
+import org.sonar.api.SonarPlugin;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Properties({
@@ -53,15 +57,14 @@ import java.util.List;
 public class FindbugsPlugin extends SonarPlugin {
 
   public List<Class<? extends Extension>> getExtensions() {
-    List<Class<? extends Extension>> list = new ArrayList<Class<? extends Extension>>();
-    list.add(FindbugsSensor.class);
-    list.add(FindbugsConfiguration.class);
-    list.add(FindbugsExecutor.class);
-    list.add(FindbugsRuleRepository.class);
-    list.add(FindbugsProfileExporter.class);
-    list.add(FindbugsProfileImporter.class);
-    list.add(SonarWayWithFindbugsProfile.class);
-    list.add(FindbugsMavenInitializer.class);
-    return list;
+    return ImmutableList.of(
+        FindbugsSensor.class,
+        FindbugsConfiguration.class,
+        FindbugsExecutor.class,
+        FindbugsRuleRepository.class,
+        FindbugsProfileExporter.class,
+        FindbugsProfileImporter.class,
+        SonarWayWithFindbugsProfile.class,
+        FindbugsMavenInitializer.class);
   }
 }

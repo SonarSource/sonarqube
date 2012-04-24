@@ -30,8 +30,6 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
 
-import java.io.UnsupportedEncodingException;
-
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
@@ -44,7 +42,7 @@ import static org.mockito.Mockito.when;
 public class XMLProfileParserTest {
 
   @Test
-  public void importProfile() throws UnsupportedEncodingException {
+  public void importProfile() {
     ValidationMessages validation = ValidationMessages.create();
     RulesProfile profile = parse("importProfile.xml", validation);
 
@@ -56,7 +54,7 @@ public class XMLProfileParserTest {
   }
 
   @Test
-  public void nameAndLanguageShouldBeMandatory() throws UnsupportedEncodingException {
+  public void nameAndLanguageShouldBeMandatory() {
     ValidationMessages validation = ValidationMessages.create();
     parse("nameAndLanguageShouldBeMandatory.xml", validation);
 
@@ -65,7 +63,7 @@ public class XMLProfileParserTest {
   }
 
   @Test
-  public void importProfileWithRuleParameters() throws UnsupportedEncodingException {
+  public void importProfileWithRuleParameters() {
     ValidationMessages validation = ValidationMessages.create();
     RulesProfile profile = parse("importProfileWithRuleParameters.xml", validation);
 
@@ -77,7 +75,7 @@ public class XMLProfileParserTest {
   }
 
   @Test
-  public void importProfileWithUnknownRuleParameter() throws UnsupportedEncodingException {
+  public void importProfileWithUnknownRuleParameter() {
     ValidationMessages validation = ValidationMessages.create();
     RulesProfile profile = parse("importProfileWithUnknownRuleParameter.xml", validation);
 

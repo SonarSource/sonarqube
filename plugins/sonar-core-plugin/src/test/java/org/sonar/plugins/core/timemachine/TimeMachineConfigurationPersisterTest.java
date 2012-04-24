@@ -26,7 +26,6 @@ import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-import java.text.ParseException;
 import java.util.Arrays;
 
 import static org.mockito.Mockito.mock;
@@ -35,7 +34,7 @@ import static org.mockito.Mockito.when;
 public class TimeMachineConfigurationPersisterTest extends AbstractDbUnitTestCase {
 
   @Test
-  public void shouldSaveConfigurationInSnapshotsTable() throws ParseException {
+  public void shouldSaveConfigurationInSnapshotsTable() {
     setupData("shared");
 
     TimeMachineConfiguration conf = mock(TimeMachineConfiguration.class);

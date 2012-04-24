@@ -223,7 +223,7 @@ import java.util.List;
 public final class CorePlugin extends SonarPlugin {
 
   @SuppressWarnings({"rawtypes", "unchecked"})
-  public List getExtensions() {
+  public List<Class<? extends Extension>> getExtensions() {
     List extensions = Lists.newLinkedList();
 
     extensions.add(DefaultResourceTypes.class);

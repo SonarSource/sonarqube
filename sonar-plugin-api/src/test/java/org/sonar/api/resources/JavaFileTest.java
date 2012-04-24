@@ -24,12 +24,15 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class JavaFileTest {
 
@@ -121,7 +124,7 @@ public class JavaFileTest {
   }
 
   @Test
-  public void oneLevelPackage() throws IOException {
+  public void oneLevelPackage() {
     JavaFile clazz = new JavaFile("onelevel.MyFile");
     assertEquals("onelevel.MyFile", clazz.getKey());
     assertEquals("onelevel", clazz.getParent().getKey());
@@ -140,9 +143,8 @@ public class JavaFileTest {
     assertThat((javaFile.getParent()).isDefault(), is(false));
   }
 
-
   @Test
-  public void shouldResolveClassFromAbsolutePath() throws IOException {
+  public void shouldResolveClassFromAbsolutePath() {
     File sources1 = newDir("source1");
     File sources2 = newDir("source2");
     List<File> sources = Arrays.asList(sources1, sources2);
@@ -154,7 +156,7 @@ public class JavaFileTest {
   }
 
   @Test
-  public void shouldResolveFromAbsolutePathEvenIfDefaultPackage() throws IOException {
+  public void shouldResolveFromAbsolutePathEvenIfDefaultPackage() {
     File source1 = newDir("source1");
     File source2 = newDir("source2");
     List<File> sources = Arrays.asList(source1, source2);
@@ -167,14 +169,14 @@ public class JavaFileTest {
   }
 
   @Test
-  public void shouldResolveOnlyJavaFromAbsolutePath() throws IOException {
+  public void shouldResolveOnlyJavaFromAbsolutePath() {
     File source1 = newDir("source1");
     List<File> sources = Arrays.asList(source1);
     assertNull(JavaFile.fromAbsolutePath(absPath(source1, "foo/bar/my_file.sql"), sources, false));
   }
 
   @Test
-  public void shouldNotFailWhenResolvingUnknownClassFromAbsolutePath() throws IOException {
+  public void shouldNotFailWhenResolvingUnknownClassFromAbsolutePath() {
     File source1 = newDir("source1");
     List<File> sources = Arrays.asList(source1);
     assertNull(JavaFile.fromAbsolutePath("/home/other/src/main/java/foo/bar/MyClass.java", sources, false));
@@ -220,12 +222,11 @@ public class JavaFileTest {
     assertFalse(unitTest.matchFilePattern("**/*"));
   }
 
-
-  private File newDir(String dirName) throws IOException {
+  private File newDir(String dirName) {
     return tempFolder.newFolder(dirName);
   }
 
-  private String absPath(File dir, String filePath) throws IOException {
+  private String absPath(File dir, String filePath) {
     return new File(dir, filePath).getPath();
   }
 }

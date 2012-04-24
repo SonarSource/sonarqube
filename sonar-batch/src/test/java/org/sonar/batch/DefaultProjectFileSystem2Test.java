@@ -19,12 +19,12 @@
  */
 package org.sonar.batch;
 
-import org.apache.commons.io.FileUtils;
 import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
+import org.sonar.test.TestUtils;
 
 import java.io.File;
 
@@ -34,7 +34,7 @@ import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
 public class DefaultProjectFileSystem2Test {
   @Test
   public void shouldIgnoreInexistingSourceDirs() {
-    File exists = FileUtils.toFile(getClass().getResource("/org/sonar/batch/DefaultProjectFileSystem2Test/shouldIgnoreInexistingSourceDirs"));
+    File exists = TestUtils.getResource("/org/sonar/batch/DefaultProjectFileSystem2Test/shouldIgnoreInexistingSourceDirs");
     File notExists = new File("target/unknown");
 
     ProjectDefinition definition = ProjectDefinition.create().addSourceDirs(exists, notExists);
@@ -42,6 +42,5 @@ public class DefaultProjectFileSystem2Test {
     DefaultProjectFileSystem2 fs = new DefaultProjectFileSystem2(new Project("foo"), new Languages(), definition);
     assertThat(fs.getSourceDirs().size(), Is.is(1));
     assertThat(fs.getSourceDirs(), hasItem(exists));
-
   }
 }

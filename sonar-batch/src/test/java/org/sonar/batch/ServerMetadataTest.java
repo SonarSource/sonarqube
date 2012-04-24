@@ -23,15 +23,13 @@ import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 
-import java.text.ParseException;
-
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class ServerMetadataTest {
 
   @Test
-  public void testLoadProperties() throws ParseException {
+  public void testLoadProperties() {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.SERVER_ID, "123");
     settings.setProperty(CoreProperties.SERVER_VERSION, "2.2");
@@ -51,7 +49,7 @@ public class ServerMetadataTest {
    * The maven plugin fails if the property sonar.host.url ends with a slash
    */
   @Test
-  public void urlMustNotEndWithSlash() throws ParseException {
+  public void urlMustNotEndWithSlash() {
     Settings settings = new Settings();
     settings.setProperty("sonar.host.url", "http://localhost:80/");
 

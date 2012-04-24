@@ -84,7 +84,7 @@ public class JettyEmbedder {
     });
   }
 
-  private Server configureProgrammatically() throws URISyntaxException, IOException {
+  private Server configureProgrammatically() throws URISyntaxException {
     configureServer();
     WebAppContext context = new WebAppContext(getPath("/war/sonar-server"), contextPath);
     server.addHandler(context);
@@ -102,7 +102,7 @@ public class JettyEmbedder {
     server.addHandler(requestLogHandler);
   }
 
-  private void configureServer() throws URISyntaxException {
+  private void configureServer() {
     QueuedThreadPool threadPool = new QueuedThreadPool();
     threadPool.setMinThreads(5);
     threadPool.setMaxThreads(50);
@@ -128,7 +128,7 @@ public class JettyEmbedder {
       List<String> paths = new ArrayList<String>();
       paths.add(pluginsDir.getCanonicalPath() + System.getProperty("file.separator"));
 
-      Collection<File> files = FileUtils.listFiles(pluginsDir, new String[]{"jar"}, false);
+      Collection<File> files = FileUtils.listFiles(pluginsDir, new String[] {"jar"}, false);
       if (files != null) {
         for (File file : files) {
           paths.add(file.getCanonicalPath());

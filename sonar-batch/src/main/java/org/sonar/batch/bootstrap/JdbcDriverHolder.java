@@ -109,7 +109,6 @@ public class JdbcDriverHolder {
         Class<?> lpClass = defineClass("org.sonar.batch.bootstrap.JdbcLeakPrevention", classBytes, 0, offset, this.getClass().getProtectionDomain());
         Object obj = lpClass.newInstance();
 
-        @SuppressWarnings("unchecked")
         List<String> driverNames = (List<String>) obj.getClass().getMethod("clearJdbcDriverRegistrations").invoke(obj);
 
         for (String name : driverNames) {

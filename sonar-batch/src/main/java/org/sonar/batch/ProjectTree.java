@@ -29,30 +29,29 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.bootstrap.ProjectFilter;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 public class ProjectTree {
 
-  private ProjectConfigurator configurator;
+  private final ProjectConfigurator configurator;
   private ProjectReactor projectReactor;
 
   private List<Project> projects;
   private Map<ProjectDefinition, Project> projectsByDef;
   private ProjectFilter projectFilter;
 
-  public ProjectTree(ProjectReactor projectReactor, //NOSONAR the unused parameter 'builders' is used for the startup order of components
-                     ProjectConfigurator projectConfigurator,
-                     ProjectFilter projectFilter,
-                     /* Must be executed after ProjectBuilders */ ProjectBuilder[] builders) {
+  public ProjectTree(ProjectReactor projectReactor, // NOSONAR the unused parameter 'builders' is used for the startup order of components
+      ProjectConfigurator projectConfigurator,
+      ProjectFilter projectFilter,
+      /* Must be executed after ProjectBuilders */ProjectBuilder[] builders) {
     this(projectReactor, projectConfigurator, projectFilter);
   }
 
-  public ProjectTree(ProjectReactor projectReactor, //NOSONAR the unused parameter 'builders' is used for the startup order of components
-                     ProjectConfigurator projectConfigurator,
-                     ProjectFilter projectFilter) {
+  public ProjectTree(ProjectReactor projectReactor, // NOSONAR the unused parameter 'builders' is used for the startup order of components
+      ProjectConfigurator projectConfigurator,
+      ProjectFilter projectFilter) {
     this.projectReactor = projectReactor;
     this.configurator = projectConfigurator;
     this.projectFilter = projectFilter;
@@ -62,7 +61,7 @@ public class ProjectTree {
     this.configurator = configurator;
   }
 
-  public void start() throws IOException {
+  public void start() {
     doStart(projectReactor.getProjects());
   }
 
@@ -93,7 +92,7 @@ public class ProjectTree {
   }
 
   void applyExclusions() {
-    for (Iterator<Project> it = projects.iterator(); it.hasNext(); ) {
+    for (Iterator<Project> it = projects.iterator(); it.hasNext();) {
       Project project = it.next();
       if (projectFilter.isExcluded(project)) {
         project.setExcluded(true);

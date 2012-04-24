@@ -39,11 +39,11 @@ public final class SquidTestUtils {
    */
   public static Collection<InputFile> getStrutsCoreSources() throws IOException, URISyntaxException {
     File sourceDir = new File("target/struts-core-1.3.9-sources");
-    if (!sourceDir.exists() || sourceDir.list().length==0) {
+    if (!sourceDir.exists() || (sourceDir.list().length == 0)) {
       FileUtils.forceMkdir(sourceDir);
       ZipUtils.unzip(new File(SquidTestUtils.class.getResource("/struts-core-1.3.9-sources.jar").toURI()), sourceDir);
     }
-    Collection<File> javaFiles = FileUtils.listFiles(sourceDir, new String[]{"java"}, true);
+    Collection<File> javaFiles = FileUtils.listFiles(sourceDir, new String[] {"java"}, true);
 
     return InputFileUtils.create(sourceDir, javaFiles);
   }
@@ -51,7 +51,7 @@ public final class SquidTestUtils {
   /**
    * See http://svn.apache.org/repos/asf/struts/struts1/tags/STRUTS_1_3_9/core
    */
-  public static File getStrutsCoreJar() throws IOException, URISyntaxException {
+  public static File getStrutsCoreJar() throws URISyntaxException {
     return new File(SquidTestUtils.class.getResource("/struts-core-1.3.9.jar").toURI());
   }
 }

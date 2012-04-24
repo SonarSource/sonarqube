@@ -19,11 +19,6 @@
  */
 package org.sonar.plugins.pmd;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.CharSequenceReader;
 import org.apache.commons.lang.StringUtils;
@@ -32,27 +27,34 @@ import org.hamcrest.TypeSafeMatcher;
 import org.junit.Test;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.*;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.rules.RuleQuery;
+import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.plugins.pmd.xml.PmdProperty;
 import org.sonar.plugins.pmd.xml.PmdRule;
 import org.sonar.test.TestUtils;
-import org.xml.sax.SAXException;
 
-import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Collection;
 import java.util.List;
 
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+
 public class PmdProfileExporterTest {
 
-  private PmdProfileExporter exporter = new PmdProfileExporter();
+  private final PmdProfileExporter exporter = new PmdProfileExporter();
 
   @Test
-  public void testExportProfile() throws IOException, SAXException {
+  public void testExportProfile() {
     ServerFileSystem fileSystem = mock(ServerFileSystem.class);
     PmdRuleRepository repository = new PmdRuleRepository(fileSystem, new XMLRuleParser());
     List<Rule> rules = repository.createRules();
@@ -84,7 +86,7 @@ public class PmdProfileExporterTest {
   }
 
   private static class IsEqualIgnoringEOL extends TypeSafeMatcher<CharSequence> {
-    private String expected;
+    private final String expected;
 
     public IsEqualIgnoringEOL(CharSequence expected) {
       this.expected = normalize(expected);
@@ -148,7 +150,7 @@ public class PmdProfileExporterTest {
 
   private static class FakeRuleFinder implements RuleFinder {
 
-    private List<Rule> rules;
+    private final List<Rule> rules;
 
     public FakeRuleFinder(List<Rule> rules) {
       this.rules = rules;

@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.core.plugins.RemotePlugin;
+import org.sonar.test.TestUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,7 +46,7 @@ public class BatchPluginRepositoryTest {
 
   @After
   public void tearDown() {
-    if (repository!=null) {
+    if (repository != null) {
       repository.stop();
     }
   }
@@ -105,7 +106,8 @@ public class BatchPluginRepositoryTest {
     assertThat(repository.getPlugin("checkstyle"), not(nullValue()));
     assertThat(repository.getMetadata().size(), Matchers.is(1));
     assertThat(repository.getMetadata("checkstyle").getName(), Matchers.is("Checkstyle"));
-    assertThat(repository.getMetadata("checkstyle").getDeployedFiles().size(), Matchers.is(5)); // plugin + 3 dependencies + 1 deprecated extension
+    assertThat(repository.getMetadata("checkstyle").getDeployedFiles().size(), Matchers.is(5)); // plugin + 3 dependencies + 1 deprecated
+                                                                                                // extension
   }
 
   @Test
@@ -128,9 +130,9 @@ public class BatchPluginRepositoryTest {
   }
 
   private List<File> copyFiles(String... filenames) throws IOException {
-    List files = Lists.newArrayList();
+    List<File> files = Lists.newArrayList();
     for (String filename : filenames) {
-      File file = FileUtils.toFile(getClass().getResource("/org/sonar/batch/bootstrap/BatchPluginRepositoryTest/" + filename));
+      File file = TestUtils.getResource("/org/sonar/batch/bootstrap/BatchPluginRepositoryTest/" + filename);
       File tempDir = new File("target/test-tmp/BatchPluginRepositoryTest");
       FileUtils.forceMkdir(tempDir);
       FileUtils.copyFileToDirectory(file, tempDir);
@@ -138,7 +140,6 @@ public class BatchPluginRepositoryTest {
     }
     return files;
   }
-
 
   @Test
   public void shouldAlwaysAcceptIfNoWhiteListAndBlackList() {

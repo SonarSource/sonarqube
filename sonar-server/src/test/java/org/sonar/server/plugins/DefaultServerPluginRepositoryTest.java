@@ -19,7 +19,6 @@
  */
 package org.sonar.server.plugins;
 
-import org.apache.commons.io.FileUtils;
 import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Test;
@@ -29,6 +28,7 @@ import org.sonar.api.ServerExtension;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.core.plugins.DefaultPluginMetadata;
+import org.sonar.test.TestUtils;
 
 import java.io.File;
 import java.util.Arrays;
@@ -56,7 +56,7 @@ public class DefaultServerPluginRepositoryTest {
   @Test
   public void testStart() {
     PluginDeployer deployer = mock(PluginDeployer.class);
-    File pluginFile = FileUtils.toFile(getClass().getResource("/org/sonar/server/plugins/DefaultServerPluginRepositoryTest/sonar-artifact-size-plugin-0.2.jar"));
+    File pluginFile = TestUtils.getResource("/org/sonar/server/plugins/DefaultServerPluginRepositoryTest/sonar-artifact-size-plugin-0.2.jar");
     PluginMetadata plugin = DefaultPluginMetadata.create(pluginFile)
         .setKey("artifactsize")
         .setMainClass("org.sonar.plugins.artifactsize.ArtifactSizePlugin")
@@ -90,7 +90,7 @@ public class DefaultServerPluginRepositoryTest {
         newMetadata("checkstyle", null),
         newMetadata("checkstyle-extensions", "checkstyle"),
         newMetadata("sqale", null)
-    );
+        );
     when(deployer.getMetadata()).thenReturn(metadata);
     DefaultServerPluginRepository repository = new DefaultServerPluginRepository(deployer);
 
@@ -108,7 +108,7 @@ public class DefaultServerPluginRepositoryTest {
         newMetadata("checkstyle", null),
         newMetadata("checkstyle-extensions", "checkstyle"),
         newMetadata("sqale", null)
-    );
+        );
     when(deployer.getMetadata()).thenReturn(metadata);
     DefaultServerPluginRepository repository = new DefaultServerPluginRepository(deployer);
 
@@ -126,13 +126,13 @@ public class DefaultServerPluginRepositoryTest {
   }
 
   public static class FakePlugin extends SonarPlugin {
-    private List<Class> extensions;
+    private final List<Class> extensions;
 
     public FakePlugin(List<Class> extensions) {
       this.extensions = extensions;
     }
 
-    public List getExtensions() {
+    public List<Class> getExtensions() {
       return extensions;
     }
   }

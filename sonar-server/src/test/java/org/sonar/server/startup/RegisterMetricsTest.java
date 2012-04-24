@@ -19,19 +19,18 @@
  */
 package org.sonar.server.startup;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class RegisterMetricsTest extends AbstractDbUnitTestCase {
 
@@ -59,7 +58,7 @@ public class RegisterMetricsTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void enableOnlyLoadedMetrics() throws SQLException {
+  public void enableOnlyLoadedMetrics() {
     setupData("enableOnlyLoadedMetrics");
 
     RegisterMetrics loader = new RegisterMetrics(getSession(), new MeasuresDao(getSession()), null);
@@ -70,7 +69,7 @@ public class RegisterMetricsTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void cleanAlerts() throws SQLException {
+  public void cleanAlerts() {
     setupData("cleanAlerts");
 
     RegisterMetrics loader = new RegisterMetrics(getSession(), new MeasuresDao(getSession()), null);

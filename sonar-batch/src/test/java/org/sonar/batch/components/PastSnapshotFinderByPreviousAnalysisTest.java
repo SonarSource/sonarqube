@@ -19,20 +19,18 @@
  */
 package org.sonar.batch.components;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Test;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-import java.text.ParseException;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertThat;
 
 public class PastSnapshotFinderByPreviousAnalysisTest extends AbstractDbUnitTestCase {
 
   @Test
-  public void shouldFindPreviousAnalysis() throws ParseException {
+  public void shouldFindPreviousAnalysis() {
     setupData("shouldFindPreviousAnalysis");
 
     Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1010);
@@ -43,7 +41,7 @@ public class PastSnapshotFinderByPreviousAnalysisTest extends AbstractDbUnitTest
   }
 
   @Test
-  public void shouldReturnPastSnapshotEvenWhenNoPreviousAnalysis() throws ParseException {
+  public void shouldReturnPastSnapshotEvenWhenNoPreviousAnalysis() {
     setupData("shouldNotFindPreviousAnalysis");
 
     Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1010);

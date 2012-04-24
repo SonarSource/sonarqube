@@ -20,7 +20,6 @@
 package org.sonar.wsclient.unmarshallers;
 
 import org.junit.Test;
-import org.sonar.wsclient.services.Server;
 import org.sonar.wsclient.services.ServerSetup;
 
 import static org.hamcrest.CoreMatchers.nullValue;

@@ -19,20 +19,20 @@
  */
 package org.sonar.plugins.emailnotifications;
 
-import java.util.Arrays;
-import java.util.List;
-
+import com.google.common.collect.ImmutableList;
+import org.sonar.api.ServerExtension;
 import org.sonar.api.SonarPlugin;
 import org.sonar.plugins.emailnotifications.newviolations.NewViolationsEmailTemplate;
 import org.sonar.plugins.emailnotifications.newviolations.NewViolationsOnMyFavouriteProject;
 import org.sonar.plugins.emailnotifications.reviews.ChangesInReviewAssignedToMeOrCreatedByMe;
 import org.sonar.plugins.emailnotifications.reviews.ReviewEmailTemplate;
 
+import java.util.List;
+
 public class EmailNotificationsPlugin extends SonarPlugin {
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
-  public List getExtensions() {
-    return Arrays.asList(
+  public List<Class<? extends ServerExtension>> getExtensions() {
+    return ImmutableList.of(
         EmailConfiguration.class,
         EmailNotificationChannel.class,
 

@@ -19,13 +19,8 @@
  */
 package org.sonar.plugins.core.sensors;
 
-import org.dbunit.dataset.DataSetException;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.*;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.TimeMachine;
@@ -40,6 +35,16 @@ import org.sonar.api.test.ProjectTestBuilder;
 
 import java.util.Arrays;
 import java.util.Date;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.isNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class GenerateAlertEventsTest {
   private GenerateAlertEvents decorator;
@@ -113,14 +118,14 @@ public class GenerateAlertEventsTest {
   }
 
   @Test
-  public void shouldNotCreateEventWhenNoAlertStatus() throws DataSetException {
+  public void shouldNotCreateEventWhenNoAlertStatus() {
     decorator.decorate(project, context);
 
     verify(context, never()).createEvent(anyString(), anyString(), anyString(), (Date) isNull());
   }
 
   @Test
-  public void shouldNotCreateEventWhenSameLevel() throws DataSetException {
+  public void shouldNotCreateEventWhenSameLevel() {
     when(timeMachine.getMeasures((TimeMachineQuery) anyObject())).thenReturn(Arrays.asList(newAlertStatus(Metric.Level.ERROR, "desc")));
     when(context.getMeasure(CoreMetrics.ALERT_STATUS)).thenReturn(newAlertStatus(Metric.Level.ERROR, "desc"));
 
@@ -130,7 +135,7 @@ public class GenerateAlertEventsTest {
   }
 
   @Test
-  public void shouldNotCreateEventIfNoMoreAlertStatus() throws DataSetException {
+  public void shouldNotCreateEventIfNoMoreAlertStatus() {
     when(timeMachine.getMeasures((TimeMachineQuery) anyObject())).thenReturn(Arrays.asList(newAlertStatus(Metric.Level.ERROR, "desc")));
     when(context.getMeasure(CoreMetrics.ALERT_STATUS)).thenReturn(null);
 
@@ -138,7 +143,6 @@ public class GenerateAlertEventsTest {
 
     verify(context, never()).createEvent(anyString(), anyString(), anyString(), (Date) isNull());
   }
-
 
   private Measure newAlertStatus(Metric.Level level, String label) {
     Measure measure = new Measure(CoreMetrics.ALERT_STATUS, level);

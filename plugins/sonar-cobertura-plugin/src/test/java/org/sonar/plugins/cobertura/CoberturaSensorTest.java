@@ -19,25 +19,35 @@
  */
 package org.sonar.plugins.cobertura;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.JavaPackage;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.test.IsMeasure;
 import org.sonar.api.test.IsResource;
 
 import java.io.File;
 import java.net.URISyntaxException;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyDouble;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class CoberturaSensorTest {
 
@@ -51,7 +61,7 @@ public class CoberturaSensorTest {
   }
 
   @Test
-  public void shouldNotFailIfReportNotSpecifiedOrNotFound() throws URISyntaxException {
+  public void shouldNotFailIfReportNotSpecifiedOrNotFound() {
     ProjectFileSystem pfs = mock(ProjectFileSystem.class);
     when(pfs.resolvePath(anyString()))
         .thenReturn(new File("notFound.xml"));

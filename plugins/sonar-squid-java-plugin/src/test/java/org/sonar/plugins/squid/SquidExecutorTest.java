@@ -19,6 +19,23 @@
  */
 package org.sonar.plugins.squid;
 
+import org.junit.Test;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.checks.AnnotationCheckFactory;
+import org.sonar.api.checks.CheckFactory;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.InputFile;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
+import org.sonar.squid.measures.Metric;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.Collections;
+
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.number.OrderingComparisons.greaterThan;
 import static org.junit.Assert.assertFalse;
@@ -30,24 +47,6 @@ import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-
-import org.junit.Test;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.checks.AnnotationCheckFactory;
-import org.sonar.api.checks.CheckFactory;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.InputFile;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
-import org.sonar.squid.Squid;
-import org.sonar.squid.measures.Metric;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.Collections;
 
 public class SquidExecutorTest {
 
@@ -61,7 +60,7 @@ public class SquidExecutorTest {
   }
 
   @Test
-  public void doNotScanBytecodeIfNoSources() throws IOException, URISyntaxException {
+  public void doNotScanBytecodeIfNoSources() throws URISyntaxException {
     SquidExecutor executor = new SquidExecutor(true, "LOG, logger", createCheckFactory(), Charset.defaultCharset());
     executor.scan(Collections.<InputFile> emptyList(), Arrays.asList(SquidTestUtils.getStrutsCoreJar()));
 
@@ -106,7 +105,7 @@ public class SquidExecutorTest {
 
   @Test
   public void shouldNotHaveBytecode() {
-    assertFalse(SquidExecutor.hasBytecode(Collections.<File>emptyList()));
+    assertFalse(SquidExecutor.hasBytecode(Collections.<File> emptyList()));
 
     assertFalse(SquidExecutor.hasBytecode(Arrays.asList(new File("unknown"))));
   }

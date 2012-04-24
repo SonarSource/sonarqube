@@ -41,10 +41,10 @@ import static org.junit.Assert.assertThat;
 
 public class FindbugsProfileImporterTest {
 
-  private FindbugsProfileImporter importer = new FindbugsProfileImporter(new FakeRuleFinder());
+  private final FindbugsProfileImporter importer = new FindbugsProfileImporter(new FakeRuleFinder());
 
   @Test
-  public void shouldImportPatterns() throws IOException {
+  public void shouldImportPatterns() {
     String findbugsConf = TestUtils.getResourceContent("/org/sonar/plugins/findbugs/shouldImportPatterns.xml");
     RulesProfile profile = importer.importProfile(new StringReader(findbugsConf), ValidationMessages.create());
 
@@ -54,7 +54,7 @@ public class FindbugsProfileImporterTest {
   }
 
   @Test
-  public void shouldImportCodes() throws IOException {
+  public void shouldImportCodes() {
     InputStream input = getClass().getResourceAsStream("/org/sonar/plugins/findbugs/shouldImportCodes.xml");
     RulesProfile profile = importer.importProfile(new InputStreamReader(input), ValidationMessages.create());
     List<ActiveRule> results = profile.getActiveRules();
@@ -65,7 +65,7 @@ public class FindbugsProfileImporterTest {
   }
 
   @Test
-  public void shouldImportCategories() throws IOException {
+  public void shouldImportCategories() {
     InputStream input = getClass().getResourceAsStream("/org/sonar/plugins/findbugs/shouldImportCategories.xml");
     RulesProfile profile = importer.importProfile(new InputStreamReader(input), ValidationMessages.create());
     List<ActiveRule> results = profile.getActiveRules();
@@ -75,7 +75,7 @@ public class FindbugsProfileImporterTest {
   }
 
   @Test
-  public void shouldImportConfigurationBugInclude() throws IOException {
+  public void shouldImportConfigurationBugInclude() {
     InputStream input = getClass().getResourceAsStream("/org/sonar/plugins/findbugs/findbugs-include.xml");
     RulesProfile profile = importer.importProfile(new InputStreamReader(input), ValidationMessages.create());
     List<ActiveRule> results = profile.getActiveRules();
@@ -98,7 +98,7 @@ public class FindbugsProfileImporterTest {
   }
 
   @Test
-  public void testImportingUncorrectXmlFile() throws IOException {
+  public void testImportingUncorrectXmlFile() {
     String uncorrectFindbugsXml = TestUtils.getResourceContent("/org/sonar/plugins/findbugs/uncorrectFindbugsXml.xml");
     ValidationMessages messages = ValidationMessages.create();
     RulesProfile profile = importer.importProfile(new StringReader(uncorrectFindbugsXml), messages);
@@ -109,7 +109,7 @@ public class FindbugsProfileImporterTest {
   }
 
   @Test
-  public void testImportingXmlFileWithUnknownRule() throws IOException {
+  public void testImportingXmlFileWithUnknownRule() {
     String uncorrectFindbugsXml = TestUtils.getResourceContent("/org/sonar/plugins/findbugs/findbugsXmlWithUnknownRule.xml");
     ValidationMessages messages = ValidationMessages.create();
     RulesProfile profile = importer.importProfile(new StringReader(uncorrectFindbugsXml), messages);
@@ -120,7 +120,7 @@ public class FindbugsProfileImporterTest {
   }
 
   @Test
-  public void testImportingXmlFileWithUnknownCategory() throws IOException {
+  public void testImportingXmlFileWithUnknownCategory() {
     String uncorrectFindbugsXml = TestUtils.getResourceContent("/org/sonar/plugins/findbugs/findbugsXmlWithUnknownCategory.xml");
     ValidationMessages messages = ValidationMessages.create();
     RulesProfile profile = importer.importProfile(new StringReader(uncorrectFindbugsXml), messages);
@@ -131,7 +131,7 @@ public class FindbugsProfileImporterTest {
   }
 
   @Test
-  public void testImportingXmlFileWithUnknownCode() throws IOException {
+  public void testImportingXmlFileWithUnknownCode() {
     String uncorrectFindbugsXml = TestUtils.getResourceContent("/org/sonar/plugins/findbugs/findbugsXmlWithUnknownCode.xml");
     ValidationMessages messages = ValidationMessages.create();
     RulesProfile profile = importer.importProfile(new StringReader(uncorrectFindbugsXml), messages);

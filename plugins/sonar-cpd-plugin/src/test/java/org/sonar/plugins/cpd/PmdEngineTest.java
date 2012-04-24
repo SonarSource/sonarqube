@@ -56,8 +56,7 @@ public class PmdEngineTest {
   public void defaultMinimumTokens() {
     Project project = createJavaProject().setConfiguration(new PropertiesConfiguration());
 
-    PmdEngine engine = new PmdEngine();
-    assertEquals(CoreProperties.CPD_MINIMUM_TOKENS_DEFAULT_VALUE, engine.getMinimumTokens(project));
+    assertEquals(CoreProperties.CPD_MINIMUM_TOKENS_DEFAULT_VALUE, PmdEngine.getMinimumTokens(project));
   }
 
   @Test
@@ -66,8 +65,7 @@ public class PmdEngineTest {
     conf.setProperty("sonar.cpd.minimumTokens", "33");
     Project project = createJavaProject().setConfiguration(conf);
 
-    PmdEngine engine = new PmdEngine();
-    assertEquals(33, engine.getMinimumTokens(project));
+    assertEquals(33, PmdEngine.getMinimumTokens(project));
   }
 
   @Test
@@ -79,9 +77,8 @@ public class PmdEngineTest {
     Project phpProject = createPhpProject().setConfiguration(conf);
     Project javaProject = createJavaProject().setConfiguration(conf);
 
-    PmdEngine engine = new PmdEngine();
-    assertEquals(100, engine.getMinimumTokens(javaProject));
-    assertEquals(33, engine.getMinimumTokens(phpProject));
+    assertEquals(100, PmdEngine.getMinimumTokens(javaProject));
+    assertEquals(33, PmdEngine.getMinimumTokens(phpProject));
   }
 
   private Project createJavaProject() {

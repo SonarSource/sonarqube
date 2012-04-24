@@ -19,15 +19,16 @@
  */
 package org.sonar.plugins.jacoco;
 
+import com.google.common.collect.ImmutableList;
+import org.sonar.api.BatchExtension;
 import org.sonar.api.SonarPlugin;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class JaCoCoPlugin extends SonarPlugin {
 
-  public List getExtensions() {
-    return Arrays.asList(
+  public List<Class<? extends BatchExtension>> getExtensions() {
+    return ImmutableList.of(
         JacocoConfiguration.class,
         JaCoCoAgentDownloader.class,
         // Ant

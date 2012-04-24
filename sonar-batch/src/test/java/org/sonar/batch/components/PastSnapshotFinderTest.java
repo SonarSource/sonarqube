@@ -37,7 +37,11 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class PastSnapshotFinderTest {
 
@@ -100,7 +104,7 @@ public class PastSnapshotFinderTest {
   }
 
   @Test
-  public void shouldNotFindByDate() throws ParseException {
+  public void shouldNotFindByDate() {
     when(finderByDate.findByDate((Snapshot) anyObject(), (Date) anyObject())).thenReturn(null);
 
     PastSnapshot variationSnapshot = finder.find(null, 2, "2010-05-18");
@@ -160,7 +164,10 @@ public class PastSnapshotFinderTest {
 
   @Test
   public void shouldNotFailIfUnknownFormat() {
-    when(finderByPreviousAnalysis.findByPreviousAnalysis(null)).thenReturn(new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, new Date(), new Snapshot())); // should not be called
+    when(finderByPreviousAnalysis.findByPreviousAnalysis(null)).thenReturn(new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, new Date(), new Snapshot())); // should
+                                                                                                                                                                             // not
+                                                                                                                                                                             // be
+                                                                                                                                                                             // called
     assertNull(finder.find(null, 2, "foooo"));
   }
 

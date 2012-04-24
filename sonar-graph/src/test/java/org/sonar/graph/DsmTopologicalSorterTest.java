@@ -19,8 +19,6 @@
  */
 package org.sonar.graph;
 
-import java.io.IOException;
-
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -55,7 +53,7 @@ public class DsmTopologicalSorterTest {
   }
 
   @Test(expected = IllegalStateException.class)
-  public void sortCyclicGraph() throws IOException {
+  public void sortCyclicGraph() {
     StringPrintWriter textDsm = new StringPrintWriter();
     textDsm.println("  | A | B | C | D |");
     textDsm.println("A |   |   |   |   |");
@@ -68,7 +66,7 @@ public class DsmTopologicalSorterTest {
   }
 
   @Test
-  public void sortCyclicGraphWithManuallyFlaggedFeedbackEdges() throws IOException {
+  public void sortCyclicGraphWithManuallyFlaggedFeedbackEdges() {
     StringPrintWriter textDsm = new StringPrintWriter();
     textDsm.println("  | A | B | C | D |");
     textDsm.println("A |   |   |   |   |");
@@ -90,7 +88,7 @@ public class DsmTopologicalSorterTest {
   }
 
   @Test
-  public void sortCyclicGraphWithFlaggedFeedbackEdges() throws IOException {
+  public void sortCyclicGraphWithFlaggedFeedbackEdges() {
     DirectedGraph<String, StringEdge> dcg = DirectedGraph.createStringDirectedGraph();
     dcg.addEdge("A", "B", 3).addEdge("B", "A", 1);
     CycleDetector<String> cycleDetector = new CycleDetector<String>(dcg);

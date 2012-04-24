@@ -25,7 +25,6 @@ import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-import java.sql.SQLException;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
@@ -37,7 +36,7 @@ import static org.mockito.Mockito.when;
 public class DeleteDeprecatedMeasuresTest extends AbstractDbUnitTestCase {
 
   @Test
-  public void shouldDeleteMeasuresWithCategory() throws SQLException {
+  public void shouldDeleteMeasuresWithCategory() {
     setupData("sharedFixture");
 
     ServerUpgradeStatus upgradeStatus = mock(ServerUpgradeStatus.class);
@@ -50,7 +49,7 @@ public class DeleteDeprecatedMeasuresTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void shouldDeleteMeasuresWithPriority() throws SQLException {
+  public void shouldDeleteMeasuresWithPriority() {
     setupData("sharedFixture");
 
     ServerUpgradeStatus upgradeStatus = mock(ServerUpgradeStatus.class);

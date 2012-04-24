@@ -31,8 +31,6 @@ import org.sonar.server.platform.ServerStartException;
 import org.sonar.test.TestUtils;
 
 import java.io.File;
-import java.io.IOException;
-import java.text.ParseException;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -49,7 +47,7 @@ public class PluginDeployerTest {
   public TestName name = new TestName();
 
   @Before
-  public void start() throws ParseException {
+  public void start() {
     homeDir = TestUtils.getResource(PluginDeployerTest.class, name.getMethodName());
     deployDir = TestUtils.getTestTempDir(PluginDeployerTest.class, name.getMethodName() + "/deploy");
     fileSystem = new DefaultServerFileSystem(null, homeDir, deployDir);
@@ -58,7 +56,7 @@ public class PluginDeployerTest {
   }
 
   @Test
-  public void deployPlugin() throws IOException {
+  public void deployPlugin() {
     deployer.start();
 
     // check that the plugin is registered
@@ -69,7 +67,7 @@ public class PluginDeployerTest {
     assertThat(plugin.getDeployedFiles().size(), is(1));
     assertThat(plugin.isCore(), is(false));
     assertThat(plugin.isUseChildFirstClassLoader(), is(false));
-    
+
     // check that the file is deployed
     File deployedJar = new File(deployDir, "plugins/foo/foo-plugin.jar");
     assertThat(deployedJar.exists(), is(true));
@@ -77,7 +75,7 @@ public class PluginDeployerTest {
   }
 
   @Test
-  public void deployDeprecatedPlugin() throws IOException, ClassNotFoundException {
+  public void deployDeprecatedPlugin() {
     deployer.start();
 
     // check that the plugin is registered
@@ -94,10 +92,10 @@ public class PluginDeployerTest {
   }
 
   @Test
-  public void deployPluginExtensions() throws IOException {
+  public void deployPluginExtensions() {
     deployer.start();
 
-    // check that the plugin is registered 
+    // check that the plugin is registered
     assertThat(deployer.getMetadata().size(), Is.is(1)); // no more checkstyle
 
     PluginMetadata plugin = deployer.getMetadata("foo");
@@ -112,19 +110,19 @@ public class PluginDeployerTest {
   }
 
   @Test
-  public void ignoreJarsWhichAreNotPlugins() throws IOException {
+  public void ignoreJarsWhichAreNotPlugins() {
     deployer.start();
 
     assertThat(deployer.getMetadata().size(), Is.is(0));
   }
 
   @Test(expected = ServerStartException.class)
-  public void failIfTwoPluginsWithSameKey() throws IOException {
+  public void failIfTwoPluginsWithSameKey() {
     deployer.start();
   }
 
   @Test(expected = ServerStartException.class)
-  public void failIfTwoDeprecatedPluginsWithSameKey() throws IOException {
+  public void failIfTwoDeprecatedPluginsWithSameKey() {
     deployer.start();
   }
 

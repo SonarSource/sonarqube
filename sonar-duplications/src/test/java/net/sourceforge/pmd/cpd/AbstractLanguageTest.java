@@ -23,7 +23,6 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.io.IOException;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -36,7 +35,7 @@ import static org.junit.Assert.assertThat;
 public class AbstractLanguageTest {
 
   @Test
-  public void shouldCreateCorrectFilenameFilterForExtensions() throws IOException {
+  public void shouldCreateCorrectFilenameFilterForExtensions() {
     AbstractLanguage language = new AbstractLanguage(null, "java") {
     };
 

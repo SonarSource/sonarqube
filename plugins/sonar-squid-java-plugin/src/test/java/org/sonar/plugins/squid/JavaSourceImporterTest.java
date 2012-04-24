@@ -19,17 +19,6 @@
  */
 package org.sonar.plugins.squid;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,6 +28,16 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.utils.SonarException;
+
+import java.io.File;
+import java.nio.charset.Charset;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class JavaSourceImporterTest {
 
@@ -61,7 +60,7 @@ public class JavaSourceImporterTest {
   }
 
   @Test
-  public void shouldSetSource() throws IOException {
+  public void shouldSetSource() {
     JavaFile javaFile = JavaFile.fromRelativePath("UndocumentedApi.java", true);
     when(context.isIndexed(javaFile, true)).thenReturn(true);
     importer.importSource(context, javaFile, inputFile, Charset.defaultCharset());

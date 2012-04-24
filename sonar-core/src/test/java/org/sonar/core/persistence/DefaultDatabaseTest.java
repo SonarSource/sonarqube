@@ -26,7 +26,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.core.persistence.dialect.Oracle;
 import org.sonar.core.persistence.dialect.PostgreSql;
 
-import java.sql.SQLException;
 import java.util.Properties;
 
 import static org.hamcrest.Matchers.nullValue;
@@ -37,7 +36,6 @@ public class DefaultDatabaseTest {
   static {
     DerbyUtils.fixDerbyLogs();
   }
-
 
   @Test
   public void shouldLoadDefaultValues() {
@@ -97,7 +95,7 @@ public class DefaultDatabaseTest {
   }
 
   @Test
-  public void shouldStart() throws SQLException {
+  public void shouldStart() {
     Settings settings = new Settings();
     settings.setProperty("sonar.jdbc.url", "jdbc:derby:memory:sonar;create=true;user=sonar;password=sonar");
     settings.setProperty("sonar.jdbc.driverClassName", "org.apache.derby.jdbc.EmbeddedDriver");
@@ -115,7 +113,6 @@ public class DefaultDatabaseTest {
       DerbyUtils.dropInMemoryDatabase();
     }
   }
-
 
   @Test
   public void shouldInitSchema() {

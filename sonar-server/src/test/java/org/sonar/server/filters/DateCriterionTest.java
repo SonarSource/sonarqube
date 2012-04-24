@@ -22,7 +22,6 @@ package org.sonar.server.filters;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.Test;
 
-import java.text.ParseException;
 import java.util.Date;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -30,7 +29,7 @@ import static org.junit.Assert.assertThat;
 
 public class DateCriterionTest {
   @Test
-  public void ignoreTime() throws ParseException {
+  public void ignoreTime() {
     DateCriterion criterion = new DateCriterion().setDate(3);
     Date date = criterion.getDate();
     assertThat(date.getHours(), is(0));
@@ -38,7 +37,7 @@ public class DateCriterionTest {
   }
 
   @Test
-  public void testDaysAgo() throws ParseException {
+  public void testDaysAgo() {
     DateCriterion criterion = new DateCriterion().setDate(3);
     Date date = criterion.getDate();
     assertThat(date.getMinutes(), is(0));

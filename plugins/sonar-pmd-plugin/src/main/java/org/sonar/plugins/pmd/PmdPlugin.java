@@ -19,15 +19,16 @@
  */
 package org.sonar.plugins.pmd;
 
+import com.google.common.collect.ImmutableList;
+import org.sonar.api.Extension;
 import org.sonar.api.SonarPlugin;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class PmdPlugin extends SonarPlugin {
 
-  public List getExtensions() {
-    return Arrays.asList(
+  public List<Class<? extends Extension>> getExtensions() {
+    return ImmutableList.of(
         PmdSensor.class,
         PmdConfiguration.class,
         PmdExecutor.class,
@@ -38,6 +39,6 @@ public class PmdPlugin extends SonarPlugin {
         SonarWayWithFindbugsProfile.class,
         SunConventionsProfile.class,
         JavaCpdMapping.class
-    );
+        );
   }
 }

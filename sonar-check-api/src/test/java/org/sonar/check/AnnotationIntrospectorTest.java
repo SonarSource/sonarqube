@@ -19,14 +19,6 @@
  */
 package org.sonar.check;
 
-import org.junit.Test;
-
-import java.lang.reflect.Field;
-import java.util.List;
-
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
-
 
 @Check(isoCategory = IsoCategory.Portability, priority = Priority.CRITICAL)
 class SimplestCheck {

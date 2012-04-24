@@ -26,13 +26,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.charts.Chart;
 import org.sonar.api.charts.ChartParameters;
-import org.sonar.server.charts.deprecated.*;
+import org.sonar.server.charts.deprecated.BarChart;
+import org.sonar.server.charts.deprecated.BaseChartWeb;
+import org.sonar.server.charts.deprecated.CustomBarChart;
+import org.sonar.server.charts.deprecated.DeprecatedChart;
+import org.sonar.server.charts.deprecated.PieChart;
+import org.sonar.server.charts.deprecated.SparkLinesChart;
 import org.sonar.server.platform.Platform;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -103,7 +109,7 @@ public class ChartsServlet extends HttpServlet {
     return false;
   }
 
-  public void deprecatedDoGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  public void deprecatedDoGet(HttpServletRequest request, HttpServletResponse response) {
     Map<String, String> params = Maps.newHashMap();
     params.put(BaseChartWeb.CHART_PARAM_TYPE, request.getParameter(BaseChartWeb.CHART_PARAM_TYPE));
     params.put(BaseChartWeb.CHART_PARAM_VALUES, request.getParameter(BaseChartWeb.CHART_PARAM_VALUES));

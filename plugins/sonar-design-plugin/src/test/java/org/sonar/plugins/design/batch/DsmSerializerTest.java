@@ -35,7 +35,7 @@ import static org.junit.Assert.assertThat;
 
 public class DsmSerializerTest {
   @Test
-  public void serializeEmptyDsm() throws IOException {
+  public void serializeEmptyDsm() {
     Dsm dsm = new Dsm(new DirectedGraph());
     assertThat(DsmSerializer.serialize(dsm), is("[]"));
   }
@@ -50,7 +50,6 @@ public class DsmSerializerTest {
     graph.addVertex(foo);
     graph.addVertex(bar);
     graph.addEdge(dep);
-
 
     Dsm<Resource> dsm = new Dsm<Resource>(graph);
     DsmManualSorter.sort(dsm, bar, foo); // for test reproductibility

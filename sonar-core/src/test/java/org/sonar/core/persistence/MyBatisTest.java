@@ -27,8 +27,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sonar.core.rule.RuleMapper;
 
-import java.io.IOException;
-
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
@@ -42,19 +40,19 @@ public class MyBatisTest {
   private static InMemoryDatabase database;
 
   @BeforeClass
-  public static void start() throws IOException {
+  public static void start() {
     database = new InMemoryDatabase();
     myBatis = new MyBatis(database.start());
     myBatis.start();
   }
 
   @AfterClass
-  public static void stop() throws IOException {
+  public static void stop() {
     database.stop();
   }
 
   @Test
-  public void shouldConfigureMyBatis() throws IOException {
+  public void shouldConfigureMyBatis() {
     Configuration conf = myBatis.getSessionFactory().getConfiguration();
     assertThat(conf.isUseGeneratedKeys(), Is.is(true));
     assertThat(conf.hasMapper(RuleMapper.class), Is.is(true));
@@ -62,7 +60,7 @@ public class MyBatisTest {
   }
 
   @Test
-  public void shouldOpenBatchSession() throws IOException {
+  public void shouldOpenBatchSession() {
     SqlSession session = myBatis.openBatchSession();
     try {
       assertThat(session.getConnection(), notNullValue());

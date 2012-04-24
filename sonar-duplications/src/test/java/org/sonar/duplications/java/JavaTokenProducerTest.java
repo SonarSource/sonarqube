@@ -19,19 +19,8 @@
  */
 package org.sonar.duplications.java;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.junit.Assert.assertThat;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.List;
-
+import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.Matcher;
 import org.junit.Test;
@@ -40,11 +29,21 @@ import org.sonar.duplications.token.Token;
 import org.sonar.duplications.token.TokenChunker;
 import org.sonar.duplications.token.TokenQueue;
 
-import com.google.common.collect.Lists;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.number.OrderingComparisons.greaterThan;
+import static org.junit.Assert.assertThat;
 
 public class JavaTokenProducerTest {
 
-  private TokenChunker chunker = JavaTokenProducer.build();
+  private final TokenChunker chunker = JavaTokenProducer.build();
 
   /**
    * <a href="http://java.sun.com/docs/books/jls/third_edition/html/lexical.html#3.6">White Space</a>
@@ -313,7 +312,7 @@ public class JavaTokenProducerTest {
   private TokenQueue chunk(File file) {
     Reader reader = null;
     try {
-      reader = new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8"));
+      reader = new InputStreamReader(new FileInputStream(file), Charsets.UTF_8);
       return chunker.chunk(reader);
     } catch (FileNotFoundException e) {
       throw new RuntimeException(e);

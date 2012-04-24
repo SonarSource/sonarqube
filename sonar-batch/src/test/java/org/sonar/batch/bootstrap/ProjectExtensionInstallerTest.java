@@ -19,10 +19,16 @@
  */
 package org.sonar.batch.bootstrap;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import org.apache.maven.project.MavenProject;
 import org.junit.Test;
-import org.sonar.api.*;
+import org.sonar.api.BatchExtension;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.Extension;
+import org.sonar.api.Plugin;
+import org.sonar.api.ServerExtension;
+import org.sonar.api.SonarPlugin;
 import org.sonar.api.batch.CoverageExtension;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.SupportedEnvironment;
@@ -31,11 +37,12 @@ import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -59,8 +66,8 @@ public class ProjectExtensionInstallerTest {
     BatchPluginRepository pluginRepository = mock(BatchPluginRepository.class);
     Map<String, Plugin> pluginsMap = Maps.newHashMap();
     pluginsMap.put("fooPlugin", new SonarPlugin() {
-      public List getExtensions() {
-        return Arrays.asList(BatchService.class, ProjectService.class, ServerService.class);
+      public List<Class<? extends Extension>> getExtensions() {
+        return ImmutableList.of(BatchService.class, ProjectService.class, ServerService.class);
       }
     });
     when(pluginRepository.getPluginsByKey()).thenReturn(pluginsMap);
@@ -79,8 +86,8 @@ public class ProjectExtensionInstallerTest {
     BatchPluginRepository pluginRepository = mock(BatchPluginRepository.class);
     Map<String, Plugin> pluginsMap = Maps.newHashMap();
     pluginsMap.put("fooPlugin", new SonarPlugin() {
-      public List getExtensions() {
-        return Arrays.asList(MavenService.class, BuildToolService.class);
+      public List<Class<? extends BatchExtension>> getExtensions() {
+        return ImmutableList.of(MavenService.class, BuildToolService.class);
       }
     });
     when(pluginRepository.getPluginsByKey()).thenReturn(pluginsMap);
@@ -122,7 +129,6 @@ public class ProjectExtensionInstallerTest {
     assertThat(ProjectExtensionInstaller.isDeactivatedCoverageExtension(FakeCoverageExtension.class, "groovy", newJavaProject(), conf), is(true));
 
   }
-
 
   @SupportedEnvironment("maven")
   public static class MavenService implements BatchExtension {

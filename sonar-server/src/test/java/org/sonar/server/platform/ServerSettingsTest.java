@@ -37,14 +37,14 @@ public class ServerSettingsTest extends AbstractDbUnitTestCase {
   private static File home = getHome();
 
   @Test
-  public void shouldLoadPropertiesFile() throws URISyntaxException {
+  public void shouldLoadPropertiesFile() {
     ServerSettings settings = new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), home);
 
     assertThat(settings.getString("hello"), is("world"));
   }
 
   @Test
-  public void systemPropertiesShouldOverridePropertiesFile() throws URISyntaxException {
+  public void systemPropertiesShouldOverridePropertiesFile() {
     System.setProperty("ServerSettingsTestEnv", "in_env");
     ServerSettings settings = new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), home);
 
@@ -58,7 +58,7 @@ public class ServerSettingsTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void shouldActivateDatabaseSettings() throws URISyntaxException {
+  public void shouldActivateDatabaseSettings() {
     setupData("db/shared");
 
     ServerSettings settings = new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), home);

@@ -31,7 +31,6 @@ import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.JavaPackage;
 import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.measures.Metric;
-import org.sonar.squid.measures.MetricDef;
 
 public class ChidamberKemererBridgeTest extends BridgeTestCase {
 

@@ -38,7 +38,7 @@ public class KeyValueFormatTest {
 
   @Test
   public void shouldFormatMapOfStrings() {
-    Map<String,String> map = Maps.newLinkedHashMap();
+    Map<String, String> map = Maps.newLinkedHashMap();
     map.put("lucky", "luke");
     map.put("aste", "rix");
     String s = KeyValueFormat.format(map);
@@ -47,7 +47,7 @@ public class KeyValueFormatTest {
 
   @Test
   public void shouldFormatMapOfIntegerString() {
-    Map<Integer,String> map = Maps.newLinkedHashMap();
+    Map<Integer, String> map = Maps.newLinkedHashMap();
     map.put(3, "three");
     map.put(5, "five");
     String s = KeyValueFormat.formatIntString(map);
@@ -56,7 +56,7 @@ public class KeyValueFormatTest {
 
   @Test
   public void shouldFormatMapOfIntDouble() {
-    Map<Integer,Double> map = Maps.newLinkedHashMap();
+    Map<Integer, Double> map = Maps.newLinkedHashMap();
     map.put(13, 2.0);
     map.put(5, 5.75);
     String s = KeyValueFormat.formatIntDouble(map);
@@ -65,7 +65,7 @@ public class KeyValueFormatTest {
 
   @Test
   public void shouldSetEmptyFieldWhenNullValue() {
-    Map<Integer,Double> map = Maps.newLinkedHashMap();
+    Map<Integer, Double> map = Maps.newLinkedHashMap();
     map.put(13, null);
     map.put(5, 5.75);
     String s = KeyValueFormat.formatIntDouble(map);
@@ -74,14 +74,14 @@ public class KeyValueFormatTest {
 
   @Test
   public void shouldFormatBlank() {
-    Map<Integer,String> map = Maps.newTreeMap();
+    Map<Integer, String> map = Maps.newTreeMap();
     String s = KeyValueFormat.formatIntString(map);
     assertThat(s, is(""));
   }
 
   @Test
   public void shouldFormatDate() throws ParseException {
-    Map<Integer,Date> map = Maps.newLinkedHashMap();
+    Map<Integer, Date> map = Maps.newLinkedHashMap();
     map.put(4, new SimpleDateFormat("yyyy-MM-dd").parse("2010-12-25"));
     map.put(20, new SimpleDateFormat("yyyy-MM-dd").parse("2009-05-28"));
     map.put(12, null);
@@ -90,29 +90,29 @@ public class KeyValueFormatTest {
   }
 
   @Test
-  public void shouldParseStrings() throws ParseException {
-    Map<String,String> map = KeyValueFormat.parse("one=un;two=deux");
+  public void shouldParseStrings() {
+    Map<String, String> map = KeyValueFormat.parse("one=un;two=deux");
     assertThat(map.size(), is(2));
     assertThat(map.get("one"), is("un"));
     assertThat(map.get("two"), is("deux"));
-    assertThat(map.keySet().iterator().next(), is("one"));//same order as in string
+    assertThat(map.keySet().iterator().next(), is("one"));// same order as in string
   }
 
   @Test
-  public void shouldParseBlank() throws ParseException {
-    Map<String,String> map = KeyValueFormat.parse("");
+  public void shouldParseBlank() {
+    Map<String, String> map = KeyValueFormat.parse("");
     assertThat(map.size(), is(0));
   }
 
   @Test
-  public void shouldParseNull() throws ParseException {
-    Map<String,String> map = KeyValueFormat.parse(null);
+  public void shouldParseNull() {
+    Map<String, String> map = KeyValueFormat.parse(null);
     assertThat(map.size(), is(0));
   }
 
   @Test
-  public void shouldParseEmptyFields() throws ParseException {
-    Map<Integer,Double> map = KeyValueFormat.parseIntDouble("4=4.2;2=;6=6.68");
+  public void shouldParseEmptyFields() {
+    Map<Integer, Double> map = KeyValueFormat.parseIntDouble("4=4.2;2=;6=6.68");
     assertThat(map.size(), is(3));
     assertThat(map.get(4), is(4.2));
     assertThat(map.get(2), nullValue());

@@ -20,8 +20,6 @@
 package org.sonar.wsclient.services;
 
 import org.junit.Test;
-import org.sonar.wsclient.Sonar;
-
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 

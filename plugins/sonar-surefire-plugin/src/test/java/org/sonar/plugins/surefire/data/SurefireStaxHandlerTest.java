@@ -21,8 +21,6 @@ package org.sonar.plugins.surefire.data;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.resources.JavaFile;
 import org.sonar.api.utils.StaxParser;
 import org.sonar.test.TestUtils;
 
@@ -32,8 +30,6 @@ import java.io.File;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
 
 public class SurefireStaxHandlerTest {
 

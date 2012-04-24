@@ -21,7 +21,6 @@ package org.sonar.plugins.checkstyle;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.test.MavenTestUtils;
@@ -29,8 +28,6 @@ import org.sonar.api.test.MavenTestUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Locale;
-
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 

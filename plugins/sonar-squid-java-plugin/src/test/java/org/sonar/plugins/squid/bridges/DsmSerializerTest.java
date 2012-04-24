@@ -24,13 +24,13 @@ import org.junit.Test;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.resources.JavaPackage;
 import org.sonar.api.resources.Resource;
+import org.sonar.graph.DirectedGraph;
+import org.sonar.graph.Dsm;
+import org.sonar.graph.DsmManualSorter;
 import org.sonar.squid.api.SourceCode;
 import org.sonar.squid.api.SourceCodeEdge;
 import org.sonar.squid.api.SourceCodeEdgeUsage;
 import org.sonar.squid.api.SourcePackage;
-import org.sonar.graph.DirectedGraph;
-import org.sonar.graph.Dsm;
-import org.sonar.graph.DsmManualSorter;
 
 import java.io.IOException;
 
@@ -40,7 +40,7 @@ import static org.junit.Assert.assertThat;
 public class DsmSerializerTest {
 
   @Test
-  public void serializeEmptyDsm() throws IOException {
+  public void serializeEmptyDsm() {
     Dsm dsm = new Dsm(new DirectedGraph());
     assertThat(DsmSerializer.serialize(dsm, new DependencyIndex(), new ResourceIndex()), is("[]"));
   }
@@ -75,7 +75,6 @@ public class DsmSerializerTest {
     ResourceIndex resourceIndex = new ResourceIndex();
     resourceIndex.put(foo, fooSonar);
     resourceIndex.put(bar, barSonar);
-
 
     Dsm<SourceCode> dsm = new Dsm<SourceCode>(graph);
     DsmManualSorter.sort(dsm, bar, foo); // for test reproductibility

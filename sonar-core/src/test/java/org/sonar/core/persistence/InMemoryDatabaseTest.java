@@ -47,11 +47,10 @@ public class InMemoryDatabaseTest {
       Connection connection = db.getDataSource().getConnection();
       assertNotNull(connection);
 
-      ResultSet resultSet = connection.getMetaData().getTables("", null, null, new String[]{"TABLE"});
+      ResultSet resultSet = connection.getMetaData().getTables("", null, null, new String[] {"TABLE"});
       while (resultSet.next()) {
         tables++;
       }
-
 
     } finally {
       db.stop();
@@ -60,12 +59,12 @@ public class InMemoryDatabaseTest {
   }
 
   @Test
-  public void shouldLimitThePoolSize() throws SQLException {
+  public void shouldLimitThePoolSize() {
     InMemoryDatabase db = new InMemoryDatabase();
     try {
       db.startDatabase();
-      assertThat(((BasicDataSource)db.getDataSource()).getMaxActive(), Is.is(2));
-      assertThat(((BasicDataSource)db.getDataSource()).getMaxIdle(), Is.is(2));
+      assertThat(((BasicDataSource) db.getDataSource()).getMaxActive(), Is.is(2));
+      assertThat(((BasicDataSource) db.getDataSource()).getMaxIdle(), Is.is(2));
 
     } finally {
       db.stop();
