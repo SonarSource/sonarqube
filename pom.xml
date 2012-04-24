@@ -494,7 +494,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <runOrder>random</runOrder>
-          <argLine>-Xmx256m</argLine>
+          <argLine>-Xmx256m -Djava.awt.headless=true</argLine>
           <systemPropertyVariables>
             <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
           </systemPropertyVariables>
@@ -976,7 +976,7 @@
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
-        <version>4.9</version>
+        <version>4.10</version>
       </dependency>
       <dependency>
         <groupId>xerces</groupId>
