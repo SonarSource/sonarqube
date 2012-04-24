@@ -24,6 +24,10 @@
       <artifactId>hamcrest-all</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.easytesting</groupId>
+      <artifactId>fest-assert</artifactId>
+    </dependency>
+    <dependency>
       <groupId>xmlunit</groupId>
       <artifactId>xmlunit</artifactId>
     </dependency>   
