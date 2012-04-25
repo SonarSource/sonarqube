@@ -252,9 +252,9 @@ public final class JRubyFacade {
     return getContainer().getComponentByType(ProfilesConsole.class).backupProfile(profileId);
   }
 
-  public ValidationMessages restoreProfile(String xmlBackup) {
-    return getContainer().getComponentByType(ProfilesConsole.class).restoreProfile(xmlBackup);
-  }
+  public ValidationMessages restoreProfile(String xmlBackup, boolean deleteExisting) {
+      return getContainer().getComponentByType(ProfilesConsole.class).restoreProfile(xmlBackup, deleteExisting);
+    }
 
   public List<ProfileExporter> getProfileExportersForLanguage(String language) {
     return getContainer().getComponentByType(ProfilesConsole.class).getProfileExportersForLanguage(language);

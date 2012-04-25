@@ -65,15 +65,19 @@ public final class ProfilesConsole implements ServerComponent {
     return null;
   }
 
-  public ValidationMessages restoreProfile(String xmlBackup) {
+  public ValidationMessages restoreProfile(String xmlBackup, boolean deleteExisting) {
     ValidationMessages messages = ValidationMessages.create();
     RulesProfile profile = xmlProfileParser.parse(new StringReader(xmlBackup), messages);
-    if (profile != null) {
+    if (profile != null && !messages.hasErrors()) {
       DatabaseSession session = sessionFactory.getSession();
       RulesProfile existingProfile = session.getSingleResult(RulesProfile.class, "name", profile.getName(), "language", profile.getLanguage());
-      if (existingProfile != null) {
+      if (existingProfile != null && !deleteExisting) {
         messages.addErrorText("The profile " + profile + " already exists. Please delete it before restoring.");
-      } else if (!messages.hasErrors()) {
+
+      } else {
+        if (existingProfile!=null) {
+          session.removeWithoutFlush(existingProfile);
+        }
         session.saveWithoutFlush(profile);
         session.commit();
       }

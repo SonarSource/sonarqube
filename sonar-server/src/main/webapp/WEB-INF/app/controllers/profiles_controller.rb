@@ -160,7 +160,7 @@ class ProfilesController < ApplicationController
     if params[:backup].blank?
       flash[:warning]=message('quality_profiles.please_upload_backup_file')
     else
-      messages=java_facade.restoreProfile(read_file_param(params[:backup]))
+      messages=java_facade.restoreProfile(read_file_param(params[:backup]), false)
       flash_validation_messages(messages)
     end
     redirect_to :action => 'index'

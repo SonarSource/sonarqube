@@ -21,6 +21,7 @@ require 'fastercsv'
 require "json"
 
 class Api::ProfilesController < Api::ApiController
+  verify :method => :post, :only => [:restore]
 
   def index
     begin
@@ -36,20 +37,70 @@ class Api::ProfilesController < Api::ApiController
       raise ApiException.new(404, "Profile not found") if @profile.nil?
 
       @active_rules=filter_rules()
-      
+
       respond_to do |format|
         format.json { render :json => jsonp(to_json) }
-        format.xml {render :xml => to_xml}
+        format.xml { render :xml => to_xml }
         format.text { render :text => text_not_supported }
       end
-      
+
     rescue ApiException => e
       render_error(e.msg, e.code)
     end
   end
 
 
+  #
+  # Backup a profile. If output format is xml, then backup is directly returned.
+  #
+  # curl -u admin:admin  http://localhost:9000/api/profiles/backup?language=java[&name=my_profile] -v
+  #
+  def backup
+    access_denied unless has_role?(:admin)
+    bad_request('Missing parameter: language') if params[:language].blank?
+
+    if params[:name].blank?
+      profile=Profile.find(:first, :conditions => ['language=? and default_profile=? and enabled=?', params[:language], true, true])
+    else
+      profile=Profile.find(:first, :conditions => ['language=? and name=? and enabled=?', params[:language], params[:name], true])
+    end
+    not_found('Profile not found') unless profile
+
+    backup = java_facade.backupProfile(profile.id)
+    respond_to do |format|
+      format.xml { render :xml => backup }
+      format.json { render :json => jsonp({:backup => backup}) }
+    end
+  end
+
+  #
+  # Restore a profile backup.
+  #
+  # curl -X POST -u admin:admin -F 'backup=<my>backup</my>' -v http://localhost:9000/api/profiles/restore
+  # curl -X POST -u admin:admin -F 'backup=@backup.xml' -v http://localhost:9000/api/profiles/restore
+  #
+  def restore
+    access_denied unless has_role?(:admin)
+    bad_request('Missing parameter: backup') if params[:backup].blank?
+
+    backup = Api::Utils.read_post_request_param(params[:backup])
+
+    messages=java_facade.restoreProfile(backup, true)
+    status=(messages.hasErrors() ? 400 : 200)
+    respond_to do |format|
+      format.json { render :json => jsonp(validation_messages_to_json(messages)), :status => status }
+    end
+  end
+
   private
+
+  def validation_messages_to_json(messages)
+    hash={}
+    hash[:errors]=messages.getErrors().to_a.map { |message| message }
+    hash[:warnings]=messages.getWarnings().to_a.map { |message| message }
+    hash[:infos]=messages.getInfos().to_a.map { |message| message }
+    hash
+  end
 
   def filter_rules
     conditions=['active_rules.profile_id=?']
@@ -62,7 +113,7 @@ class Api::ProfilesController < Api::ApiController
 
     if params[:rule_severities].present?
       conditions<<'failure_level in (?)'
-      condition_values<<params[:rule_severities].split(',').map{|severity| Sonar::RulePriority.id(severity)}
+      condition_values<<params[:rule_severities].split(',').map { |severity| Sonar::RulePriority.id(severity) }
     end
 
     ActiveRule.find(:all, :include => [:rule, {:active_rule_parameters => :rules_parameter}], :conditions => [conditions.join(' AND ')].concat(condition_values))
@@ -139,4 +190,5 @@ class Api::ProfilesController < Api::ApiController
       end
     end
   end
+
 end

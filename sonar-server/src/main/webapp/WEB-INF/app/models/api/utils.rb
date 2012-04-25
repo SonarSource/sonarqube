@@ -124,11 +124,24 @@ class Api::Utils
       end
     end
   end
-  
+
   #
   # Since Sonar 3.0
   #
   def self.valid_period_index?(index)
     Api::Utils.is_integer?(index) && index.to_i > 0 && index.to_i <6
+  end
+
+  #
+  # Since Sonar 3.1
+  #
+  # Read content of HTTP POST request. Example: read_post_request_param(params[:backup])
+  #
+  def self.read_post_request_param(param_value)
+    if param_value
+      param_value.respond_to?(:read) ? param_value.read : param_value
+    else
+      nil
+    end
   end
 end
