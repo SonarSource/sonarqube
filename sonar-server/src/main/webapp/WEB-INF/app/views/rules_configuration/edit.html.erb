@@ -44,7 +44,7 @@
       <td width="1%" nowrap><%= parameter.name %>:</td>
       <td class="sep"> </td>
       <td>
-        <input type="text" name="rule_param[<%= parameter.name -%>]" value="<%= parameter.default_value -%>"></input>
+        <input type="text" name="rule_param[<%= u parameter.name -%>]" value="<%= h parameter.default_value -%>"></input>
         <span class="small"><%= parameter.description %></span>
       </td>
     </tr>
