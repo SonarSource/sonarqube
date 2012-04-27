@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.findbugs;
 
+import edu.umd.cs.findbugs.Priorities;
+
 import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.*;
 import edu.umd.cs.findbugs.config.UserPreferences;
@@ -75,7 +77,7 @@ public class FindbugsExecutor implements BatchExtension {
       engine.setProject(project);
 
       XMLBugReporter xmlBugReporter = new XMLBugReporter(project);
-      xmlBugReporter.setPriorityThreshold(Detector.LOW_PRIORITY);
+      xmlBugReporter.setPriorityThreshold(Priorities.LOW_PRIORITY);
       xmlBugReporter.setAddMessages(true);
 
       File xmlReport = configuration.getTargetXMLReport();

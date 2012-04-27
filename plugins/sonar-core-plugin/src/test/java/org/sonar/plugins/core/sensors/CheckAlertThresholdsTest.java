@@ -61,7 +61,7 @@ public class CheckAlertThresholdsTest {
     profile = mock(RulesProfile.class);
     decorator = new CheckAlertThresholds(profile);
     project = mock(Resource.class);
-    when(project.getQualifier()).thenReturn(Project.QUALIFIER_PROJECT);
+    when(project.getQualifier()).thenReturn(Resource.QUALIFIER_PROJECT);
   }
 
   @Test
@@ -85,7 +85,7 @@ public class CheckAlertThresholdsTest {
 
   @Test
   public void checkRootProjectsOnly() {
-    when(project.getQualifier()).thenReturn(Project.QUALIFIER_FILE);
+    when(project.getQualifier()).thenReturn(Resource.QUALIFIER_FILE);
     when(profile.getAlerts()).thenReturn(Arrays.asList(
         new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_GREATER, null, "20"),
         new Alert(null, CoreMetrics.COVERAGE, Alert.OPERATOR_GREATER, null, "35.0")));

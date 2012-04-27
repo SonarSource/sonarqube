@@ -19,10 +19,11 @@
  */
 package org.sonar.batch;
 
+import org.mockito.Matchers;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
@@ -62,7 +63,7 @@ public class DefaultFileLinesContextTest {
     fileLineMeasures.save();
 
     ArgumentCaptor<Measure> measureCaptor = ArgumentCaptor.forClass(Measure.class);
-    verify(index).addMeasure(Mockito.eq(resource), measureCaptor.capture());
+    verify(index).addMeasure(Matchers.eq(resource), measureCaptor.capture());
     Measure measure = measureCaptor.getValue();
     assertThat(measure.getMetricKey(), is("hits"));
     assertThat(measure.getPersistenceMode(), is(PersistenceMode.DATABASE));
@@ -80,7 +81,7 @@ public class DefaultFileLinesContextTest {
     fileLineMeasures.setIntValue("branches", 3, 4);
     fileLineMeasures.save();
 
-    verify(index, times(3)).addMeasure(Mockito.eq(resource), Mockito.any(Measure.class));
+    verify(index, times(3)).addMeasure(Matchers.eq(resource), Matchers.any(Measure.class));
   }
 
   @Test(expected = UnsupportedOperationException.class)
@@ -88,13 +89,13 @@ public class DefaultFileLinesContextTest {
     fileLineMeasures.setIntValue("hits", 1, 2);
     fileLineMeasures.save();
     fileLineMeasures.save();
-    verify(index).addMeasure(Mockito.eq(resource), Mockito.any(Measure.class));
+    verify(index).addMeasure(Matchers.eq(resource), Matchers.any(Measure.class));
     fileLineMeasures.setIntValue("hits", 1, 2);
   }
 
   @Test
   public void shouldLoadIntValues() {
-    when(index.getMeasure(Mockito.any(Resource.class), Mockito.any(Metric.class)))
+    when(index.getMeasure(Matchers.any(Resource.class), Matchers.any(Metric.class)))
         .thenReturn(new Measure("hits").setData("1=2;3=4"));
 
     assertThat(fileLineMeasures.getIntValue("hits", 1), is(2));
@@ -104,7 +105,7 @@ public class DefaultFileLinesContextTest {
 
   @Test
   public void shouldLoadStringValues() {
-    when(index.getMeasure(Mockito.any(Resource.class), Mockito.any(Metric.class)))
+    when(index.getMeasure(Matchers.any(Resource.class), Matchers.any(Metric.class)))
         .thenReturn(new Measure("author").setData("1=simon;3=evgeny"));
 
     assertThat(fileLineMeasures.getStringValue("author", 1), is("simon"));
@@ -114,18 +115,18 @@ public class DefaultFileLinesContextTest {
 
   @Test
   public void shouldNotSaveAfterLoad() {
-    when(index.getMeasure(Mockito.any(Resource.class), Mockito.any(Metric.class)))
+    when(index.getMeasure(Matchers.any(Resource.class), Matchers.any(Metric.class)))
         .thenReturn(new Measure("author").setData("1=simon;3=evgeny"));
 
     fileLineMeasures.getStringValue("author", 1);
     fileLineMeasures.save();
 
-    verify(index, never()).addMeasure(Mockito.eq(resource), Mockito.any(Measure.class));
+    verify(index, never()).addMeasure(Matchers.eq(resource), Matchers.any(Measure.class));
   }
 
   @Test(expected = UnsupportedOperationException.class)
   public void shouldNotModifyAfterLoad() {
-    when(index.getMeasure(Mockito.any(Resource.class), Mockito.any(Metric.class)))
+    when(index.getMeasure(Matchers.any(Resource.class), Matchers.any(Metric.class)))
         .thenReturn(new Measure("author").setData("1=simon;3=evgeny"));
 
     fileLineMeasures.getStringValue("author", 1);

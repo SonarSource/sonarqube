@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.core.sensors;
 
+import org.sonar.api.resources.Resource;
+
 import org.junit.Test;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.eq;
@@ -33,8 +35,8 @@ public class BranchCoverageDecoratorTest {
   @Test
   public void shouldNotSaveBranchCoverageIfMissingConditions() {
     Project resource = mock(Project.class);
-    when(resource.getScope()).thenReturn(Project.SCOPE_SET);
-    when(resource.getQualifier()).thenReturn(Project.QUALIFIER_SUBVIEW);
+    when(resource.getScope()).thenReturn(Resource.SCOPE_SET);
+    when(resource.getQualifier()).thenReturn(Resource.QUALIFIER_SUBVIEW);
 
     DecoratorContext context = mockContext(null, null);
     new BranchCoverageDecorator().decorate(resource, context);
@@ -45,8 +47,8 @@ public class BranchCoverageDecoratorTest {
   @Test
   public void shouldSaveBranchCoverage() {
     Project resource = mock(Project.class);
-    when(resource.getScope()).thenReturn(Project.SCOPE_SET);
-    when(resource.getQualifier()).thenReturn(Project.QUALIFIER_PROJECT);
+    when(resource.getScope()).thenReturn(Resource.SCOPE_SET);
+    when(resource.getQualifier()).thenReturn(Resource.QUALIFIER_PROJECT);
 
     DecoratorContext context = mockContext(20, 15);
 

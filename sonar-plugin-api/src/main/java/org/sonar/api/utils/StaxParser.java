@@ -22,7 +22,6 @@ package org.sonar.api.utils;
 import com.ctc.wstx.stax.WstxInputFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.stax2.XMLInputFactory2;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 
@@ -60,7 +59,7 @@ public class StaxParser {
    */
   public StaxParser(XmlStreamHandler streamHandler, boolean isoControlCharsAwareParser) {
     this.streamHandler = streamHandler;
-    XMLInputFactory xmlFactory = XMLInputFactory2.newInstance();
+    XMLInputFactory xmlFactory = XMLInputFactory.newInstance();
     if (xmlFactory instanceof WstxInputFactory) {
       WstxInputFactory wstxInputfactory = (WstxInputFactory) xmlFactory;
       wstxInputfactory.configureForLowMemUsage();

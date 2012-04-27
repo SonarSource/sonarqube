@@ -26,12 +26,13 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import org.mockito.Matchers;
+
 import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.sonar.duplications.statement.matcher.AnyTokenMatcher;
 import org.sonar.duplications.statement.matcher.TokenMatcher;
 import org.sonar.duplications.token.Token;
@@ -58,7 +59,7 @@ public class StatementChannelTest {
 
     assertThat(channel.consume(tokenQueue, output), is(false));
     ArgumentCaptor<List> matchedTokenList = ArgumentCaptor.forClass(List.class);
-    verify(matcher).matchToken(Mockito.eq(tokenQueue), matchedTokenList.capture());
+    verify(matcher).matchToken(Matchers.eq(tokenQueue), matchedTokenList.capture());
     verifyNoMoreInteractions(matcher);
     verify(tokenQueue).pushForward(matchedTokenList.getValue());
     verifyNoMoreInteractions(tokenQueue);
@@ -74,7 +75,7 @@ public class StatementChannelTest {
     List<Statement> output = mock(List.class);
 
     assertThat(channel.consume(tokenQueue, output), is(true));
-    verify(matcher).matchToken(Mockito.eq(tokenQueue), Mockito.anyList());
+    verify(matcher).matchToken(Matchers.eq(tokenQueue), Matchers.anyList());
     verifyNoMoreInteractions(matcher);
     ArgumentCaptor<Statement> statement = ArgumentCaptor.forClass(Statement.class);
     verify(output).add(statement.capture());
@@ -92,9 +93,9 @@ public class StatementChannelTest {
     List<Statement> output = mock(List.class);
 
     assertThat(channel.consume(tokenQueue, output), is(true));
-    verify(matcher).matchToken(Mockito.eq(tokenQueue), Mockito.anyList());
+    verify(matcher).matchToken(Matchers.eq(tokenQueue), Matchers.anyList());
     verifyNoMoreInteractions(matcher);
-    verify(output).add(Mockito.any(Statement.class));
+    verify(output).add(Matchers.any(Statement.class));
     verifyNoMoreInteractions(output);
   }
 

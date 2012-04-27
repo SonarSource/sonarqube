@@ -23,7 +23,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.stax2.XMLInputFactory2;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
@@ -75,7 +74,7 @@ public final class XMLRuleParser implements ServerComponent {
   }
 
   public List<Rule> parse(Reader reader) {
-    XMLInputFactory xmlFactory = XMLInputFactory2.newInstance();
+    XMLInputFactory xmlFactory = XMLInputFactory.newInstance();
     xmlFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
     xmlFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.FALSE);
     // just so it won't try to load DTD in if there's DOCTYPE

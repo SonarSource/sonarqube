@@ -25,8 +25,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.test.MavenTestUtils;
 
-import java.util.Collection;
-
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;

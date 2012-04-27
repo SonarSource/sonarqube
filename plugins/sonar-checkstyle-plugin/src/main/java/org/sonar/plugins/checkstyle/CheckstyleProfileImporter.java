@@ -21,7 +21,6 @@ package org.sonar.plugins.checkstyle;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.stax2.XMLInputFactory2;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
@@ -79,7 +78,7 @@ public class CheckstyleProfileImporter extends ProfileImporter {
   }
 
   private SMInputFactory initStax() {
-    XMLInputFactory xmlFactory = XMLInputFactory2.newInstance();
+    XMLInputFactory xmlFactory = XMLInputFactory.newInstance();
     xmlFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
     xmlFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.FALSE);
     xmlFactory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);

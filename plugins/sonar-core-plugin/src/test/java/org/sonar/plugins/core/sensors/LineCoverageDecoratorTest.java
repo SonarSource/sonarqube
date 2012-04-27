@@ -21,6 +21,9 @@ package org.sonar.plugins.core.sensors;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+
+import org.sonar.api.resources.Resource;
+
 import org.junit.Before;
 import org.junit.Test;
 import static org.mockito.Mockito.*;
@@ -36,7 +39,7 @@ public class LineCoverageDecoratorTest {
   @Before
   public void before() {
     project = mock(Project.class);
-    when(project.getScope()).thenReturn(Project.SCOPE_SET);
+    when(project.getScope()).thenReturn(Resource.SCOPE_SET);
   }
 
   @Test
