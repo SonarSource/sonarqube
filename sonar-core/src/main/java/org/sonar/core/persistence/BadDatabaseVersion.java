@@ -25,7 +25,7 @@ public final class BadDatabaseVersion extends RuntimeException {
   }
 
   @Override
-  public Throwable fillInStackTrace() {
+  public synchronized Throwable fillInStackTrace() {
     return this;
   }
 }
