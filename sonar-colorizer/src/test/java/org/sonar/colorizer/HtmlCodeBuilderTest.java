@@ -73,7 +73,7 @@ public class HtmlCodeBuilderTest {
     assertThat((String) builder.getVariable("foo"), is("yyy"));
 
     builder.setVariable("foo", null);
-    assertThat((String) builder.getVariable("foo"), nullValue());
+    assertThat(builder.getVariable("foo"), nullValue());
 
     assertThat((String) builder.getVariable("foo", "default"), is("default"));
   }

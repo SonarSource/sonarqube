@@ -35,6 +35,6 @@ public class ProjectPurgePostJob implements PostJob {
   }
 
   public void executeOn(final Project project, SensorContext context) {
-    purgeTask.purge((long) project.getId());
+    purgeTask.purge(project.getId());
   }
 }

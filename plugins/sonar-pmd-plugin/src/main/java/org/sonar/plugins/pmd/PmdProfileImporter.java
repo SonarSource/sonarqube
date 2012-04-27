@@ -117,9 +117,9 @@ public class PmdProfileImporter extends ProfileImporter {
 
   private List<Element> getChildren(Element parent, String childName, @Nullable Namespace namespace) {
     if (namespace == null) {
-      return (List<Element>) parent.getChildren(childName);
+      return parent.getChildren(childName);
     } else {
-      return (List<Element>) parent.getChildren(childName, namespace);
+      return parent.getChildren(childName, namespace);
     }
   }
 

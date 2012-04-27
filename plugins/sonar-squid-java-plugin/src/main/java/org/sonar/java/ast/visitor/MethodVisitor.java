@@ -95,7 +95,7 @@ public class MethodVisitor extends JavaAstVisitor {
         Parameter argumentType = extractArgumentAndReturnType(child.findFirstToken(TokenTypes.TYPE));
         argumentTypes.add(new Parameter(argumentType));
       }
-      child = (DetailAST) child.getNextSibling();
+      child = child.getNextSibling();
     }
     return argumentTypes;
   }

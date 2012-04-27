@@ -196,7 +196,7 @@ public class MavenPluginTest {
     MavenPlugin mavenPlugin = MavenPlugin.registerPlugin(pom, "mygroup", "my.artifact", "1.0", true);
 
     assertThat(mavenPlugin, not(nullValue()));
-    Plugin plugin = MavenUtils.getPlugin((Collection<Plugin>) pom.getBuildPlugins(), "mygroup", "my.artifact");
+    Plugin plugin = MavenUtils.getPlugin(pom.getBuildPlugins(), "mygroup", "my.artifact");
     assertThat(plugin, not(nullValue()));
     assertThat(plugin.getVersion(), is("1.0"));
   }
@@ -207,11 +207,11 @@ public class MavenPluginTest {
     MavenPlugin mavenPlugin = MavenPlugin.registerPlugin(pom, "mygroup", "my.artifact", "1.0", true);
     assertThat(mavenPlugin, not(nullValue()));
 
-    Plugin plugin = MavenUtils.getPlugin((Collection<Plugin>) pom.getBuildPlugins(), "mygroup", "my.artifact");
+    Plugin plugin = MavenUtils.getPlugin(pom.getBuildPlugins(), "mygroup", "my.artifact");
     assertThat(plugin, not(nullValue()));
     assertThat(plugin.getVersion(), is("1.0"));
 
-    Plugin pluginManagement = MavenUtils.getPlugin((Collection<Plugin>) pom.getPluginManagement().getPlugins(), "mygroup", "my.artifact");
+    Plugin pluginManagement = MavenUtils.getPlugin(pom.getPluginManagement().getPlugins(), "mygroup", "my.artifact");
     assertThat(pluginManagement, nullValue());
   }
 
@@ -221,11 +221,11 @@ public class MavenPluginTest {
     MavenPlugin mavenPlugin = MavenPlugin.registerPlugin(pom, "mygroup", "my.artifact", "1.0", false);
     assertThat(mavenPlugin, not(nullValue()));
 
-    Plugin plugin = MavenUtils.getPlugin((Collection<Plugin>) pom.getBuildPlugins(), "mygroup", "my.artifact");
+    Plugin plugin = MavenUtils.getPlugin(pom.getBuildPlugins(), "mygroup", "my.artifact");
     assertThat(plugin, not(nullValue()));
     assertThat(plugin.getVersion(), is("0.9"));
 
-    Plugin pluginManagement = MavenUtils.getPlugin((Collection<Plugin>) pom.getPluginManagement().getPlugins(), "mygroup", "my.artifact");
+    Plugin pluginManagement = MavenUtils.getPlugin(pom.getPluginManagement().getPlugins(), "mygroup", "my.artifact");
     assertThat(pluginManagement, nullValue());
   }
 
@@ -235,7 +235,7 @@ public class MavenPluginTest {
     MavenPlugin mavenPlugin = MavenPlugin.registerPlugin(pom, "mygroup", "my.artifact", "1.0", false);
     assertThat(mavenPlugin, not(nullValue()));
 
-    Plugin plugin = MavenUtils.getPlugin((Collection<Plugin>) pom.getBuildPlugins(), "mygroup", "my.artifact");
+    Plugin plugin = MavenUtils.getPlugin(pom.getBuildPlugins(), "mygroup", "my.artifact");
     assertThat(plugin, not(nullValue()));
     assertThat(plugin.getVersion(), is("0.9"));
     assertThat(plugin.getDependencies().size(), is(1));
@@ -247,7 +247,7 @@ public class MavenPluginTest {
     MavenPlugin mavenPlugin = MavenPlugin.registerPlugin(pom, "mygroup", "my.artifact", "1.0", false);
     assertThat(mavenPlugin, not(nullValue()));
 
-    Plugin plugin = MavenUtils.getPlugin((Collection<Plugin>) pom.getBuildPlugins(), "mygroup", "my.artifact");
+    Plugin plugin = MavenUtils.getPlugin(pom.getBuildPlugins(), "mygroup", "my.artifact");
     assertThat(plugin, not(nullValue()));
     assertThat(plugin.getVersion(), is("0.9"));
     assertThat(plugin.getDependencies().size(), is(1));

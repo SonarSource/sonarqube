@@ -32,8 +32,8 @@ public class HtmlDecorator extends Tokenizer {
   private HtmlOptions options;
   private int lineId;
 
-  private static final int LF = (int) '\n';
-  private static final int CR = (int) '\r';
+  private static final int LF = '\n';
+  private static final int CR = '\r';
 
   public HtmlDecorator(HtmlOptions options) {
     this.options = options;

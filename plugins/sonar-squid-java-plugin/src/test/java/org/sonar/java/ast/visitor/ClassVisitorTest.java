@@ -137,7 +137,7 @@ public class ClassVisitorTest {
 
   @Test
   public void testCreateSquidClassFromEmptyPackage() {
-    SourceClass squidClass = ClassVisitor.createSourceClass((SourcePackage) new SourcePackage(""), "Squid");
+    SourceClass squidClass = ClassVisitor.createSourceClass(new SourcePackage(""), "Squid");
     assertEquals("Squid", squidClass.getKey());
   }
 

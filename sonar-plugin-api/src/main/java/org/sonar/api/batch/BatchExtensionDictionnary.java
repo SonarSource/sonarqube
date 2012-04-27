@@ -126,7 +126,7 @@ public class BatchExtensionDictionnary {
     }
     List sortedList = dag.sort();
 
-    return (Collection<T>) Collections2.filter(sortedList, Predicates.in(extensions));
+    return Collections2.filter(sortedList, Predicates.in(extensions));
   }
 
   /**

@@ -44,7 +44,7 @@ public class DefaultPeriodCleaner implements PeriodCleaner {
   }
 
   public void purge(Project project, int projectSnapshotId) {
-    clean((long) project.getId());
+    clean(project.getId());
   }
 
   public void clean(long projectId) {

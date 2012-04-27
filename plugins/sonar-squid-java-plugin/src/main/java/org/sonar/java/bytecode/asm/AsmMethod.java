@@ -198,11 +198,11 @@ public class AsmMethod extends AsmResource {
   }
   
   private boolean isCallToNonStaticInternalField(AsmEdge edge) {
-    return edge.getTargetAsmClass() == (AsmClass)getParent() && edge.getUsage() == SourceCodeEdgeUsage.CALLS_FIELD && !((AsmField)edge.getTo()).isStatic();
+    return edge.getTargetAsmClass() == getParent() && edge.getUsage() == SourceCodeEdgeUsage.CALLS_FIELD && !((AsmField) edge.getTo()).isStatic();
   }
   
   private boolean isCallToNonStaticInternalMethod(AsmEdge edge) {
-    return edge.getTargetAsmClass() == (AsmClass)getParent() && edge.getUsage() == SourceCodeEdgeUsage.CALLS_METHOD && !((AsmMethod)edge.getTo()).isStatic();
+    return edge.getTargetAsmClass() == getParent() && edge.getUsage() == SourceCodeEdgeUsage.CALLS_METHOD && !((AsmMethod) edge.getTo()).isStatic();
   }
 
   @Override

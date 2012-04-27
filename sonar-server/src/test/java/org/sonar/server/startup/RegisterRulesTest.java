@@ -77,7 +77,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     setupData("shared");
     task.start();
 
-    List<Rule> rules = (List<Rule>) getSession()
+    List<Rule> rules = getSession()
       .createQuery("from " + Rule.class.getSimpleName() + " where pluginName<>'fake'")
       .getResultList();
     assertThat(rules.size(), greaterThan(0));

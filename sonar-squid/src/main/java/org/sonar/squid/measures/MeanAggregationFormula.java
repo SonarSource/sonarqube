@@ -29,7 +29,7 @@ public class MeanAggregationFormula implements AggregationFormula {
       return 0;
     }
     SumAggregationFormula sumFormula = new SumAggregationFormula();
-    return sumFormula.aggregate(metric, measurables) / (double) measurables.size();
+    return sumFormula.aggregate(metric, measurables) / measurables.size();
   }
 
 }

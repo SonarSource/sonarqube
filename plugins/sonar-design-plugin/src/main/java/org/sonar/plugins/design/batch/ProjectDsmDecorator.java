@@ -92,7 +92,7 @@ public class ProjectDsmDecorator implements Decorator {
 
   private void addSubProjects(Project project, List<Resource> subProjects) {
     for (Project subProject : project.getModules()) {
-      Project indexedSubProject = (Project) index.getResource(subProject);
+      Project indexedSubProject = index.getResource(subProject);
       if (indexedSubProject != null) {
         subProjects.add(indexedSubProject);
       }

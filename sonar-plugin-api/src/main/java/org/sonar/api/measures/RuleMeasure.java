@@ -162,6 +162,6 @@ public class RuleMeasure extends Measure {
    */
   @Deprecated
   public static RuleMeasure createForCategory(Metric metric, Integer category, Double value) {
-    return (RuleMeasure) new RuleMeasure(metric, null, null, category).setValue(value);
+    return new RuleMeasure(metric, null, null, category).setValue(value);
   }
 }

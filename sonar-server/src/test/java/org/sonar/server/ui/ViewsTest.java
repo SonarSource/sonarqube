@@ -69,7 +69,7 @@ public class ViewsTest {
     final Views views = new Views(VIEWS);
     List resourceViewers = views.getPages(NavigationSection.RESOURCE_TAB);
     assertThat(resourceViewers.size(), is(1 + 4 /* default */));
-    assertThat(resourceViewers.contains(new ViewProxy((View) FAKE_TAB)), is(true));
+    assertThat(resourceViewers.contains(new ViewProxy(FAKE_TAB)), is(true));
   }
 
   @Test

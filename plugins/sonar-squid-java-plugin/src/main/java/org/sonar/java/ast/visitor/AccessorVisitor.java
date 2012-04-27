@@ -126,7 +126,7 @@ public class AccessorVisitor extends JavaAstVisitor {
   }
 
   private boolean inspectSetterMethodBody(DetailAST method, DetailAST methodParams, DetailAST methodBody) {
-    DetailAST expr = (DetailAST) methodBody.getFirstChild();
+    DetailAST expr = methodBody.getFirstChild();
     if (isAstType(expr, TokenTypes.EXPR)) {
       DetailAST assignment = expr.findFirstToken(TokenTypes.ASSIGN);
       if (assignment != null) {

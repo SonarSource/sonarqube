@@ -34,7 +34,7 @@ public class CaseInsensitiveKeywordsTokenizer extends KeywordsTokenizer {
   }
 
   public KeywordsTokenizer clone() {
-    KeywordsTokenizer clone = (KeywordsTokenizer) super.clone();
+    KeywordsTokenizer clone = super.clone();
     clone.setCaseInsensitive(true);
     return clone;
   }
