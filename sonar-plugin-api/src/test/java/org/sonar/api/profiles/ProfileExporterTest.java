@@ -52,7 +52,7 @@ public class ProfileExporterTest {
 
     assertThat(exporter.getSupportedLanguages().length, is(0));
 
-    exporter.setSupportedLanguages(null);
+    exporter.setSupportedLanguages();
     assertThat(exporter.getSupportedLanguages().length, is(0));
   }
 }

@@ -196,6 +196,7 @@ public class BatchExtensionDictionnaryTest {
     BatchExtensionDictionnary selector = newSelector();
     BatchExtension wrong = new BatchExtension() {
       @DependsUpon
+      @SuppressWarnings("unused")
       private Object foo() {
         return "foo";
       }

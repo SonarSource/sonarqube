@@ -46,7 +46,7 @@ public class BootstrapModuleTest {
     BootstrapModule module = new BootstrapModule(projectReactor, null, MyMavenPluginExecutor.class);
     assertThat(module.isMavenPluginExecutorRegistered(), is(true));
 
-    module = new BootstrapModule(projectReactor, null);
+    module = new BootstrapModule(projectReactor);
     assertThat(module.isMavenPluginExecutorRegistered(), is(false));
   }
 }

@@ -43,7 +43,6 @@ import org.sonar.core.review.ReviewDto;
 
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.is;
@@ -175,13 +174,13 @@ public class ReviewsMeasuresDecoratorTest {
     verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_UNREVIEWED_VIOLATIONS, 1.0, 3.0)));
   }
 
-  private List<ReviewDto> createListOf10Reviews() {
-    List<ReviewDto> reviews = Lists.newArrayList();
-    for (int i = 1; i < 11; i++) {
-      reviews.add(new ReviewDto().setViolationPermanentId(i));
-    }
-    return reviews;
-  }
+  // private List<ReviewDto> createListOf10Reviews() {
+  // List<ReviewDto> reviews = Lists.newArrayList();
+  // for (int i = 1; i < 11; i++) {
+  // reviews.add(new ReviewDto().setViolationPermanentId(i));
+  // }
+  // return reviews;
+  // }
 //
 //  private BaseMatcher<ReviewQuery> openReviewQueryMatcher() {
 //    return new BaseMatcher<ReviewQuery>() {

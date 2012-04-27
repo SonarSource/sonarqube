@@ -55,7 +55,7 @@ public class ProfileImporterTest {
 
     assertThat(importer.getSupportedLanguages().length, is(0));
 
-    importer.setSupportedLanguages(null);
+    importer.setSupportedLanguages();
     assertThat(importer.getSupportedLanguages().length, is(0));
   }
 }
