@@ -153,8 +153,9 @@ public class ChartsServlet extends HttpServlet {
       }
 
     } catch (Exception e) {
-      LOG.error("Generating chart " + chart.getClass().getName(), e);
-
+      if (chart != null) {
+        LOG.error("Generating chart " + chart.getClass().getName(), e);
+      }
     } finally {
       IOUtils.closeQuietly(out);
     }

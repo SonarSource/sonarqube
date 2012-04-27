@@ -168,9 +168,8 @@ public class BarChart extends BaseChartWeb implements DeprecatedChart {
 
       // Categories
       String categoriesParam = params.get(BaseChartWeb.CHART_PARAM_CATEGORIES);
-      boolean categoriesPresent = categoriesParam != null && categoriesParam.length() > 0;
       String[] categoriesSplit;
-      if (categoriesPresent) {
+      if (categoriesParam != null && categoriesParam.length() > 0) {
         categoriesSplit = categoriesParam.split(",");
       } else {
         categoriesSplit = new String[1];
@@ -179,9 +178,8 @@ public class BarChart extends BaseChartWeb implements DeprecatedChart {
 
       // Series
       String seriesParam = params.get(BaseChartWeb.CHART_PARAM_SERIES);
-      boolean seriesPresent = seriesParam != null && seriesParam.length() > 0;
       String[] seriesSplit = null;
-      if (seriesPresent) {
+      if (seriesParam != null && seriesParam.length() > 0) {
         seriesSplit = seriesParam.split(",");
       } else {
         seriesSplit = new String[nbValues];

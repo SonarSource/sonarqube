@@ -101,7 +101,9 @@ public class ResourceIndexerDaoTest extends DaoTestCase {
       rs.next();
       assertThat(rs.getInt(1), greaterThan(0));
     } finally {
-      rs.close();
+      if (null != rs) {
+        rs.close();
+      }
       connection.close();
     }
   }
