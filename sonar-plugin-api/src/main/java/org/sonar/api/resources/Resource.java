@@ -161,7 +161,12 @@ public abstract class Resource<PARENT extends Resource> {
   public abstract String getScope();
 
   /**
+   * The qualifier tells the type of the resource. For example, it can be a File, a Class, a Project, a Unit Test...
+   *
    * @return the qualifier
+   *
+   * @see org.sonar.api.resources.Qualifiers for the list of qualifiers
+   * @see org.sonar.api.resources.ResourceUtils to find out if a resource if a class, a unit test,... from its qualifier
    */
   public abstract String getQualifier();
 

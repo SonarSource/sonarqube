@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch;
 
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -34,6 +33,8 @@ public @interface DependedUpon {
 
   /**
    * Used only on classes. Must be keep empty on methods.
+   *
+   * @see org.sonar.api.batch.DecoratorBarriers for a list of possible values.
    */
   String[] value() default {};
 
