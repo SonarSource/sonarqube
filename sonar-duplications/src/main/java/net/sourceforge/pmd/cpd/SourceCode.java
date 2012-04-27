@@ -89,10 +89,12 @@ public class SourceCode {
       this.encoding = encoding;
     }
 
+    @Override
     public Reader getReader() throws Exception {
       return new InputStreamReader(new FileInputStream(file), encoding);
     }
 
+    @Override
     public String getFileName() {
       return this.file.getAbsolutePath();
     }
@@ -114,10 +116,12 @@ public class SourceCode {
       this.name = name;
     }
 
+    @Override
     public Reader getReader() {
       return new StringReader(source_code);
     }
 
+    @Override
     public String getFileName() {
       return name;
     }

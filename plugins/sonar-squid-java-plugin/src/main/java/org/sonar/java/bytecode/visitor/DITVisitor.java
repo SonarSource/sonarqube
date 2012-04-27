@@ -24,6 +24,7 @@ import org.sonar.squid.measures.Metric;
 
 public class DITVisitor extends BytecodeVisitor {
 
+  @Override
   public void visitClass(AsmClass asmClass) {
     int dit = calculateDepthOfInheritance(asmClass);
 

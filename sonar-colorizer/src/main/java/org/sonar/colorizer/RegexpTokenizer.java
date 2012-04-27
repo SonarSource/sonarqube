@@ -57,6 +57,7 @@ public class RegexpTokenizer extends NotThreadSafeTokenizer{
     return false;
   }
 
+  @Override
   public RegexpTokenizer clone() {
     return new RegexpTokenizer(tagBefore, tagAfter, matcher.pattern().pattern());
   }

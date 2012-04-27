@@ -60,18 +60,22 @@ public final class ServerImpl extends Server {
     }
   }
 
+  @Override
   public String getPermanentServerId() {
     return settings.getString(CoreProperties.PERMANENT_SERVER_ID);
   }
 
+  @Override
   public String getId() {
     return id;
   }
 
+  @Override
   public String getVersion() {
     return version;
   }
 
+  @Override
   public Date getStartedAt() {
     return startedAt;
   }
@@ -96,6 +100,7 @@ public final class ServerImpl extends Server {
     return StringUtils.defaultIfEmpty(result, "");
   }
 
+  @Override
   public String getURL() {
     return null;
   }

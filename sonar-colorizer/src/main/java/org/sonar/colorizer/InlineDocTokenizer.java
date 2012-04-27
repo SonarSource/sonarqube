@@ -37,6 +37,7 @@ public abstract class InlineDocTokenizer extends Tokenizer {
     this.startToken = startToken.toCharArray();
   }
 
+  @Override
   public boolean consume(CodeReader code, HtmlCodeBuilder codeBuilder) {
     if (code.peek() == startToken[0] && Arrays.equals(code.peek(startToken.length), startToken)) {
       codeBuilder.appendWithoutTransforming(tagBefore);

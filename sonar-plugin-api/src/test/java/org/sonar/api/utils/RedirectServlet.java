@@ -28,6 +28,7 @@ import java.io.IOException;
 
 public class RedirectServlet extends GenericServlet {
 
+  @Override
   public void service(ServletRequest request, ServletResponse response) throws ServletException, IOException {
     ((HttpServletResponse)response).sendRedirect("/");
   }

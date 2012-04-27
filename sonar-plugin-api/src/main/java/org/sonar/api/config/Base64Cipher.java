@@ -22,10 +22,12 @@ package org.sonar.api.config;
 import org.apache.commons.codec.binary.Base64;
 
 final class Base64Cipher extends Cipher {
+  @Override
   String encrypt(String clearText) {
     return new String(Base64.encodeBase64(clearText.getBytes()));
   }
 
+  @Override
   String decrypt(String encryptedText) {
     return new String(Base64.decodeBase64(encryptedText));
   }

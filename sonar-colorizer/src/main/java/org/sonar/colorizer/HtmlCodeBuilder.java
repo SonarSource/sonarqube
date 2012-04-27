@@ -56,6 +56,7 @@ public class HtmlCodeBuilder implements Appendable {
     colorizedCode.append(htmlTag);
   }
 
+  @Override
   public String toString() {
     return colorizedCode.toString();
   }

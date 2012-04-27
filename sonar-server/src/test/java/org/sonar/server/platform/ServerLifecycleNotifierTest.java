@@ -84,22 +84,27 @@ public class ServerLifecycleNotifierTest {
 
 class FakeServer extends Server {
 
+  @Override
   public String getId() {
     return null;
   }
 
+  @Override
   public String getVersion() {
     return null;
   }
 
+  @Override
   public Date getStartedAt() {
     return null;
   }
 
+  @Override
   public String getURL() {
     return null;
   }
 
+  @Override
   public String getPermanentServerId() {
     return null;
   }

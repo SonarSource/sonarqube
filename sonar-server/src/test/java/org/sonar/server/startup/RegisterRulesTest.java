@@ -246,6 +246,7 @@ class FakeRepository extends RuleRepository {
     super("fake", "java");
   }
 
+  @Override
   public List<Rule> createRules() {
     Rule rule1 = Rule.create("fake", "rule1", "One");
     rule1.setDescription("Description of One");
@@ -267,6 +268,7 @@ class RuleWithoutNameRepository extends RuleRepository {
     super("rule-without-name-repo", "java");
   }
 
+  @Override
   public List<Rule> createRules() {
     // Rules must not have empty name
     Rule rule1 = Rule.create("fake", "rule1", null);
@@ -279,6 +281,7 @@ class RuleWithoutDescriptionRepository extends RuleRepository {
     super("rule-without-description-repo", "java");
   }
 
+  @Override
   public List<Rule> createRules() {
     // Rules must not have empty description
     Rule rule1 = Rule.create("fake", "rule1", "Rule 1");
@@ -293,6 +296,7 @@ class VolumeRepository extends RuleRepository {
     super("volume", "java");
   }
 
+  @Override
   public List<Rule> createRules() {
     List<Rule> rules = new ArrayList<Rule>();
     for (int i = 0; i < SIZE; i++) {

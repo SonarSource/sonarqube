@@ -87,6 +87,7 @@ public class JacocoAntInitializer extends Initializer implements CoverageExtensi
       this.taskName = taskName;
     }
 
+    @Override
     public boolean supportsTask(final Task task) {
       return taskName.equals(task.getTaskName());
     }

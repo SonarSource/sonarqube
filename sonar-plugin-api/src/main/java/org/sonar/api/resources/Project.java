@@ -154,14 +154,17 @@ public class Project extends Resource {
     return packaging;
   }
 
+  @Override
   public String getName() {
     return name;
   }
 
+  @Override
   public String getLongName() {
     return name;
   }
 
+  @Override
   public String getDescription() {
     return description;
   }
@@ -243,6 +246,7 @@ public class Project extends Resource {
   /**
    * @return the project language
    */
+  @Override
   public Language getLanguage() {
     return language;
   }
@@ -286,6 +290,7 @@ public class Project extends Resource {
   /**
    * @return the scope of the current object
    */
+  @Override
   public String getScope() {
     return Scopes.PROJECT;
   }
@@ -293,6 +298,7 @@ public class Project extends Resource {
   /**
    * @return the qualifier of the current object
    */
+  @Override
   public String getQualifier() {
     return isRoot() ? Qualifiers.PROJECT : Qualifiers.MODULE;
   }
@@ -302,6 +308,7 @@ public class Project extends Resource {
     return false;
   }
 
+  @Override
   public Project getParent() {
     return parent;
   }

@@ -40,11 +40,13 @@ public class LCOM4Visitor extends BytecodeVisitor {
     this.fieldsToExcludeFromLcom4Calculation = conf.getFielsToExcludeFromLcom4Calculation();
   }
 
+  @Override
   public void visitClass(AsmClass asmClass) {
     this.asmClass = asmClass;
     unrelatedBlocks = new ArrayList<Set<AsmResource>>();
   }
 
+  @Override
   public void visitMethod(AsmMethod asmMethod) {
     if (isMethodElligibleForLCOM4Computation(asmMethod)) {
       ensureBlockIsCreated(asmMethod);
@@ -90,6 +92,7 @@ public class LCOM4Visitor extends BytecodeVisitor {
     
   }
 
+  @Override
   public void leaveClass(AsmClass asmClass) {
     removeIsolatedMethodBlocks();
     

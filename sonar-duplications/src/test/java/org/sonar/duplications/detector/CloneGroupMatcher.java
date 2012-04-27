@@ -40,6 +40,7 @@ public class CloneGroupMatcher extends TypeSafeMatcher<CloneGroup> {
     this.expectedParts = expectedParts;
   }
 
+  @Override
   public boolean matchesSafely(CloneGroup cloneGroup) {
     // Check length
     if (expectedLen != cloneGroup.getCloneUnitLength()) {

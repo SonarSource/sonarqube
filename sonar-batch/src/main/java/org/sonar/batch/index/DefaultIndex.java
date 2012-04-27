@@ -95,6 +95,7 @@ public class DefaultIndex extends SonarIndex {
     }
   }
 
+  @Override
   public Project getProject() {
     return currentProject;
   }
@@ -134,6 +135,7 @@ public class DefaultIndex extends SonarIndex {
     lock.unlock();
   }
 
+  @Override
   public Measure getMeasure(Resource resource, Metric metric) {
     Bucket bucket = buckets.get(resource);
     if (bucket != null) {
@@ -145,6 +147,7 @@ public class DefaultIndex extends SonarIndex {
     return null;
   }
 
+  @Override
   public <M> M getMeasures(Resource resource, MeasuresFilter<M> filter) {
     Bucket bucket = buckets.get(resource);
     if (bucket != null) {
@@ -157,6 +160,7 @@ public class DefaultIndex extends SonarIndex {
   /**
    * the measure is updated if it's already registered.
    */
+  @Override
   public Measure addMeasure(Resource resource, Measure measure) {
     Bucket bucket = checkIndexed(resource);
     if (bucket != null && !bucket.isExcluded()) {
@@ -182,6 +186,7 @@ public class DefaultIndex extends SonarIndex {
   //
   //
 
+  @Override
   public Dependency addDependency(Dependency dependency) {
     Dependency existingDep = getEdge(dependency.getFrom(), dependency.getTo());
     if (existingDep != null) {
@@ -230,6 +235,7 @@ public class DefaultIndex extends SonarIndex {
     incomingDeps.put(dependency.getFrom(), dependency);
   }
 
+  @Override
   public Set<Dependency> getDependencies() {
     return dependencies;
   }
@@ -287,6 +293,7 @@ public class DefaultIndex extends SonarIndex {
   /**
    * {@inheritDoc}
    */
+  @Override
   public List<Violation> getViolations(ViolationQuery violationQuery) {
     Resource resource = violationQuery.getResource();
     if (resource == null) {
@@ -308,6 +315,7 @@ public class DefaultIndex extends SonarIndex {
     return filteredViolations;
   }
 
+  @Override
   public void addViolation(Violation violation, boolean force) {
     Resource resource = violation.getResource();
     if (resource == null) {
@@ -362,10 +370,12 @@ public class DefaultIndex extends SonarIndex {
   //
   //
 
+  @Override
   public void addLink(ProjectLink link) {
     persistence.saveLink(currentProject, link);
   }
 
+  @Override
   public void deleteLink(String key) {
     persistence.deleteLink(currentProject, key);
   }
@@ -378,15 +388,18 @@ public class DefaultIndex extends SonarIndex {
   //
   //
 
+  @Override
   public List<Event> getEvents(Resource resource) {
     // currently events are not cached in memory
     return persistence.getEvents(resource);
   }
 
+  @Override
   public void deleteEvent(Event event) {
     persistence.deleteEvent(event);
   }
 
+  @Override
   public Event addEvent(Resource resource, String name, String description, String category, Date date) {
     Event event = new Event(name, description, category);
     event.setDate(date);
@@ -396,6 +409,7 @@ public class DefaultIndex extends SonarIndex {
     return null;
   }
 
+  @Override
   public void setSource(Resource reference, String source) {
     Bucket bucket = checkIndexed(reference);
     if (bucket != null && !bucket.isExcluded()) {
@@ -403,6 +417,7 @@ public class DefaultIndex extends SonarIndex {
     }
   }
 
+  @Override
   public String getSource(Resource resource) {
     return persistence.getSource(resource);
   }
@@ -410,11 +425,13 @@ public class DefaultIndex extends SonarIndex {
   /**
    * Does nothing if the resource is already registered.
    */
+  @Override
   public Resource addResource(Resource resource) {
     Bucket bucket = doIndex(resource);
     return bucket != null ? bucket.getResource() : null;
   }
 
+  @Override
   public <R extends Resource> R getResource(R reference) {
     Bucket bucket = buckets.get(reference);
     if (bucket != null) {
@@ -442,6 +459,7 @@ public class DefaultIndex extends SonarIndex {
     return excluded;
   }
 
+  @Override
   public List<Resource> getChildren(Resource resource) {
     return getChildren(resource, false);
   }
@@ -459,6 +477,7 @@ public class DefaultIndex extends SonarIndex {
     return children;
   }
 
+  @Override
   public Resource getParent(Resource resource) {
     Bucket bucket = getBucket(resource, false);
     if (bucket != null && bucket.getParent() != null) {
@@ -467,6 +486,7 @@ public class DefaultIndex extends SonarIndex {
     return null;
   }
 
+  @Override
   public boolean index(Resource resource) {
     Bucket bucket = doIndex(resource);
     return bucket != null && !bucket.isExcluded();
@@ -479,6 +499,7 @@ public class DefaultIndex extends SonarIndex {
     return doIndex(resource, resource.getParent());
   }
 
+  @Override
   public boolean index(Resource resource, Resource parentReference) {
     Bucket bucket = doIndex(resource, parentReference);
     return bucket != null && !bucket.isExcluded();
@@ -541,11 +562,13 @@ public class DefaultIndex extends SonarIndex {
     return bucket;
   }
 
+  @Override
   public boolean isExcluded(Resource reference) {
     Bucket bucket = getBucket(reference, true);
     return bucket != null && bucket.isExcluded();
   }
 
+  @Override
   public boolean isIndexed(Resource reference, boolean acceptExcluded) {
     return getBucket(reference, acceptExcluded) != null;
   }

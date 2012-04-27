@@ -26,6 +26,7 @@ import org.sonar.wsclient.services.WSUtils;
 
 public class TimeMachineUnmarshaller extends AbstractUnmarshaller<TimeMachine> {
 
+  @Override
   protected TimeMachine parse(Object json) {
     WSUtils utils = WSUtils.getINSTANCE();
     Object cols = utils.getField(json, "cols");

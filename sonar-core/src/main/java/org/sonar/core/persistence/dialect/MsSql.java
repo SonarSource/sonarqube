@@ -60,6 +60,7 @@ public class MsSql implements Dialect {
       registerColumnType(Types.CLOB, "nvarchar(max)");
     }
 
+    @Override
     public String getTypeName(int code, int length, int precision, int scale) {
       if (code != 2005) {
         return super.getTypeName(code, length, precision, scale);

@@ -36,6 +36,7 @@ public class AsmClassVisitor extends EmptyVisitor {
     this.asmClass = asmClass;
   }
 
+  @Override
   public void visit(int version, int accessFlags, String internalName, String signature, String superClass, String[] interfaces) {
     if (asmClass.getDetailLevel() == DETAIL_LEVEL.NOTHING) {
       asmClass.setAccessFlags(accessFlags);
@@ -59,6 +60,7 @@ public class AsmClassVisitor extends EmptyVisitor {
     }
   }
 
+  @Override
   public FieldVisitor visitField(int access, String fieldName, String description, String signature, Object value) {
     AsmField field = asmClass.getFieldOrCreateIt(fieldName);
     field.setAccessFlags(access);
@@ -68,6 +70,7 @@ public class AsmClassVisitor extends EmptyVisitor {
     return null;
   }
 
+  @Override
   public MethodVisitor visitMethod(int access, String methodName, String description, String signature, String[] exceptions) {
     AsmMethod method = asmClass.getMethodOrCreateIt(methodName + description);
     if (isInheritedMethodSignature(method.getParent(), method.getKey())) {
@@ -87,6 +90,7 @@ public class AsmClassVisitor extends EmptyVisitor {
     return null;
   }
 
+  @Override
   public void visitEnd() {
     asmClass.setDetailLevel(level);
   }

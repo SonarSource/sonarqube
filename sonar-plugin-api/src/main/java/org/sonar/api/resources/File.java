@@ -96,6 +96,7 @@ public class File extends Resource<Directory> {
    * 
    * @see Resource#getParent()
    */
+  @Override
   public Directory getParent() {
     if (parent == null) {
       parent = new Directory(directoryKey);
@@ -118,6 +119,7 @@ public class File extends Resource<Directory> {
    * 
    * @see Resource#matchFilePattern(String)
    */
+  @Override
   public boolean matchFilePattern(String antPattern) {
     WildcardPattern matcher = WildcardPattern.create(antPattern, "/");
     return matcher.match(getKey());
@@ -146,6 +148,7 @@ public class File extends Resource<Directory> {
    * 
    * @see Resource#getName()
    */
+  @Override
   public String getName() {
     return filename;
   }
@@ -155,6 +158,7 @@ public class File extends Resource<Directory> {
    * 
    * @see Resource#getLongName()
    */
+  @Override
   public String getLongName() {
     return getKey();
   }
@@ -164,6 +168,7 @@ public class File extends Resource<Directory> {
    * 
    * @see Resource#getDescription()
    */
+  @Override
   public String getDescription() {
     return null;
   }
@@ -173,6 +178,7 @@ public class File extends Resource<Directory> {
    * 
    * @see Resource#getLanguage()
    */
+  @Override
   public Language getLanguage() {
     return language;
   }
@@ -187,6 +193,7 @@ public class File extends Resource<Directory> {
   /**
    * @return SCOPE_ENTITY
    */
+  @Override
   public final String getScope() {
     return SCOPE;
   }
@@ -196,6 +203,7 @@ public class File extends Resource<Directory> {
    * 
    * @return QUALIFIER_UNIT_TEST_CLASS
    */
+  @Override
   public String getQualifier() {
     return qualifier;
   }

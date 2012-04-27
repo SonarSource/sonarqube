@@ -55,6 +55,7 @@ public class CheckstyleProfileExporter extends ProfileExporter {
     this(new BaseConfiguration());
   }
 
+  @Override
   public void exportProfile(RulesProfile profile, Writer writer) {
     try {
       ListMultimap<String, ActiveRule> activeRulesByConfigKey = arrangeByConfigKey(profile.getActiveRulesByRepository(CheckstyleConstants.REPOSITORY_KEY));

@@ -33,11 +33,13 @@ import java.util.Set;
 
 public final class JdkUtils extends WSUtils {
 
+  @Override
   public String format(Date date, String format) {
     SimpleDateFormat dateFormat = new SimpleDateFormat(format);
     return dateFormat.format(date);
   }
 
+  @Override
   public String encodeUrl(String url) {
     try {
       return URLEncoder.encode(url, "UTF-8");

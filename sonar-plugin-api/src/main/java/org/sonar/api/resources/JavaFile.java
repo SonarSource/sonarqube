@@ -105,6 +105,7 @@ public class JavaFile extends Resource<JavaPackage> {
   /**
    * {@inheritDoc}
    */
+  @Override
   public JavaPackage getParent() {
     if (parent == null) {
       parent = new JavaPackage(packageKey);
@@ -116,6 +117,7 @@ public class JavaFile extends Resource<JavaPackage> {
   /**
    * @return null
    */
+  @Override
   public String getDescription() {
     return null;
   }
@@ -123,6 +125,7 @@ public class JavaFile extends Resource<JavaPackage> {
   /**
    * @return Java
    */
+  @Override
   public Language getLanguage() {
     return Java.INSTANCE;
   }
@@ -130,6 +133,7 @@ public class JavaFile extends Resource<JavaPackage> {
   /**
    * {@inheritDoc}
    */
+  @Override
   public String getName() {
     return filename;
   }
@@ -137,6 +141,7 @@ public class JavaFile extends Resource<JavaPackage> {
   /**
    * {@inheritDoc}
    */
+  @Override
   public String getLongName() {
     return longName;
   }
@@ -144,6 +149,7 @@ public class JavaFile extends Resource<JavaPackage> {
   /**
    * @return SCOPE_ENTITY
    */
+  @Override
   public String getScope() {
     return Scopes.FILE;
   }
@@ -151,6 +157,7 @@ public class JavaFile extends Resource<JavaPackage> {
   /**
    * @return QUALIFIER_UNIT_TEST_CLASS or QUALIFIER_CLASS depending whether it is a unit test class
    */
+  @Override
   public String getQualifier() {
     return unitTest ? Qualifiers.UNIT_TEST_FILE : Qualifiers.CLASS;
   }
@@ -165,6 +172,7 @@ public class JavaFile extends Resource<JavaPackage> {
   /**
    * {@inheritDoc}
    */
+  @Override
   public boolean matchFilePattern(String antPattern) {
     if (unitTest) {
       return false;

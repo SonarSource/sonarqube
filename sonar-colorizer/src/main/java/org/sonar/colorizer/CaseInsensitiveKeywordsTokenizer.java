@@ -33,6 +33,7 @@ public class CaseInsensitiveKeywordsTokenizer extends KeywordsTokenizer {
     setCaseInsensitive(true);
   }
 
+  @Override
   public KeywordsTokenizer clone() {
     KeywordsTokenizer clone = super.clone();
     clone.setCaseInsensitive(true);

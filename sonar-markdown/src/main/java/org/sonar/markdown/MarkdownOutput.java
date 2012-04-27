@@ -31,6 +31,7 @@ class MarkdownOutput {
     return ouput.append(character);
   }
 
+  @Override
   public String toString() {
     return ouput.toString();
   }

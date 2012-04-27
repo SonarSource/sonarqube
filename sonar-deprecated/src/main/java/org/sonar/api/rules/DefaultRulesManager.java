@@ -69,6 +69,7 @@ public class DefaultRulesManager extends RulesManager {
    * @param ruleKey   the rule key
    * @return the rule
    */
+  @Override
   public Rule getPluginRule(String pluginKey, String ruleKey) {
     Map<String, Rule> rulesByKey = getPluginRulesIndexedByKey(pluginKey);
     return rulesByKey.get(ruleKey);

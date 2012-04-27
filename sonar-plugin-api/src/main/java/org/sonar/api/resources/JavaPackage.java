@@ -58,6 +58,7 @@ public class JavaPackage extends Resource {
   /**
    * {@inheritDoc}
    */
+  @Override
   public boolean matchFilePattern(String antPattern) {
     return false;
   }
@@ -65,6 +66,7 @@ public class JavaPackage extends Resource {
   /**
    * {@inheritDoc}
    */
+  @Override
   public String getDescription() {
     return null;
   }
@@ -72,6 +74,7 @@ public class JavaPackage extends Resource {
   /**
    * @return SCOPE_SPACE
    */
+  @Override
   public String getScope() {
     return Scopes.DIRECTORY;
   }
@@ -79,6 +82,7 @@ public class JavaPackage extends Resource {
   /**
    * @return QUALIFIER_PACKAGE
    */
+  @Override
   public String getQualifier() {
     return Qualifiers.PACKAGE;
   }
@@ -86,6 +90,7 @@ public class JavaPackage extends Resource {
   /**
    * {@inheritDoc}
    */
+  @Override
   public String getName() {
     return getKey();
   }
@@ -93,6 +98,7 @@ public class JavaPackage extends Resource {
   /**
    * {@inheritDoc}
    */
+  @Override
   public Resource<?> getParent() {
     return null;
   }
@@ -100,6 +106,7 @@ public class JavaPackage extends Resource {
   /**
    * {@inheritDoc}
    */
+  @Override
   public String getLongName() {
     return null;
   }
@@ -107,6 +114,7 @@ public class JavaPackage extends Resource {
   /**
    * @return Java
    */
+  @Override
   public Language getLanguage() {
     return Java.INSTANCE;
   }

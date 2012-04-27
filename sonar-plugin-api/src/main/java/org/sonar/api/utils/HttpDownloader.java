@@ -194,6 +194,7 @@ class ProxyAuthenticator extends Authenticator {
     auth = new PasswordAuthentication(user, password == null ? new char[0] : password.toCharArray());
   }
 
+  @Override
   protected PasswordAuthentication getPasswordAuthentication() {
     return auth;
   }

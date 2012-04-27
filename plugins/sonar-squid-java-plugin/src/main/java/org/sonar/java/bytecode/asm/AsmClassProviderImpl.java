@@ -43,6 +43,7 @@ public class AsmClassProviderImpl extends AsmClassProvider {
     this.classLoader = classLoader;
   }
 
+  @Override
   public AsmClass getClass(String internalName, DETAIL_LEVEL level) {
     if (internalName == null) {
       throw new IllegalStateException("You can try to load a class whose internalName = 'null'");

@@ -46,6 +46,7 @@ public class LocalizedMessages extends ResourceBundle {
     }
   }
 
+  @Override
   public Locale getLocale() {
     return locale;
   }

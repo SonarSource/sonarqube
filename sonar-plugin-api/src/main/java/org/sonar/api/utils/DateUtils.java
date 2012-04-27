@@ -129,6 +129,7 @@ public final class DateUtils {
     }
 
     private final ThreadLocal<Reference<DateFormat>> cache = new ThreadLocal<Reference<DateFormat>>() {
+      @Override
       public Reference<DateFormat> get() {
         Reference<DateFormat> softRef = super.get();
         if (softRef == null || softRef.get() == null) {
@@ -143,10 +144,12 @@ public final class DateUtils {
       return (DateFormat) ((Reference) cache.get()).get();
     }
 
+    @Override
     public StringBuffer format(Date date, StringBuffer toAppendTo, FieldPosition fieldPosition) {
       return getDateFormat().format(date, toAppendTo, fieldPosition);
     }
 
+    @Override
     public Date parse(String source, ParsePosition pos) {
       return getDateFormat().parse(source, pos);
     }

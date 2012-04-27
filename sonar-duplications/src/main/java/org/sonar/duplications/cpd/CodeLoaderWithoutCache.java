@@ -26,6 +26,7 @@ import net.sourceforge.pmd.cpd.SourceCode.CodeLoader;
 
 public abstract class CodeLoaderWithoutCache extends CodeLoader {
 
+  @Override
   public final List<String> getCode() {
     return load();
   }

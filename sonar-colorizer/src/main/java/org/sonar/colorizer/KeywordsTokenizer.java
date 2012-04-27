@@ -59,6 +59,7 @@ public class KeywordsTokenizer extends NotThreadSafeTokenizer {
     this.matcher = Pattern.compile(DEFAULT_REGEX).matcher("");
   }
 
+  @Override
   public boolean consume(CodeReader code, HtmlCodeBuilder codeBuilder) {
     if (code.popTo(matcher, tmpBuilder) > 0) {
       if (isKeyword(tmpBuilder.toString())) {
@@ -87,6 +88,7 @@ public class KeywordsTokenizer extends NotThreadSafeTokenizer {
     this.caseInsensitive = caseInsensitive;
   }
 
+  @Override
   public KeywordsTokenizer clone() {
     KeywordsTokenizer clone = new KeywordsTokenizer(tagBefore, tagAfter, keywords, matcher.pattern().pattern());
     clone.caseInsensitive = caseInsensitive;

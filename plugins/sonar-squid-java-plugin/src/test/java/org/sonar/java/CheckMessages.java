@@ -56,6 +56,7 @@ public class CheckMessages {
   }
 
   private static final Ordering<CheckMessage> CHECK_MESSAGE_ORDERING = new Ordering<CheckMessage>() {
+    @Override
     public int compare(CheckMessage o1, CheckMessage o2) {
       return ObjectUtils.compare(o1.getLine(), o2.getLine());
     }

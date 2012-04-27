@@ -111,6 +111,7 @@ public class DateUtilsTest {
     final List<Throwable> throwables = Lists.newArrayList();
 
     final ThreadGroup tg = new ThreadGroup("shouldBeThreadSafe") {
+      @Override
       public void uncaughtException(Thread t, Throwable e) {
         throwables.add(e);
         super.uncaughtException(t, e);
@@ -123,6 +124,7 @@ public class DateUtilsTest {
     for (int i = 0; i < threads.length; ++i) {
       threads[i] = new Thread(tg, "JUnit Thread " + i) {
 
+        @Override
         public void run() {
           int i = 0;
           try {

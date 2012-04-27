@@ -45,15 +45,18 @@ public class JpaDatabaseSession extends DatabaseSession {
    * Note that usage of this method is discouraged, because it allows to construct and execute queries without additional exception handling,
    * which done in methods of this class.
    */
+  @Override
   public EntityManager getEntityManager() {
     return entityManager;
   }
 
+  @Override
   public void start() {
     entityManager = connector.createEntityManager();
     index = 0;
   }
 
+  @Override
   public void stop() {
     commit();
     if (entityManager != null && entityManager.isOpen()) {
@@ -62,6 +65,7 @@ public class JpaDatabaseSession extends DatabaseSession {
     }
   }
 
+  @Override
   public void commit() {
     if (entityManager != null && inTransaction) {
       if (entityManager.isOpen()) {
@@ -77,6 +81,7 @@ public class JpaDatabaseSession extends DatabaseSession {
     }
   }
 
+  @Override
   public void rollback() {
     if (entityManager != null && inTransaction) {
       entityManager.getTransaction().rollback();
@@ -84,23 +89,27 @@ public class JpaDatabaseSession extends DatabaseSession {
     }
   }
 
+  @Override
   public <T> T save(T model) {
     startTransaction();
     internalSave(model, true);
     return model;
   }
 
+  @Override
   public Object saveWithoutFlush(Object model) {
     startTransaction();
     internalSave(model, false);
     return model;
   }
 
+  @Override
   public boolean contains(Object model) {
     startTransaction();
     return entityManager.contains(model);
   }
 
+  @Override
   public void save(Object... models) {
     startTransaction();
     for (Object model : models) {
@@ -123,11 +132,13 @@ public class JpaDatabaseSession extends DatabaseSession {
     }
   }
 
+  @Override
   public Object merge(Object model) {
     startTransaction();
     return entityManager.merge(model);
   }
 
+  @Override
   public void remove(Object model) {
     startTransaction();
     entityManager.remove(model);
@@ -136,11 +147,13 @@ public class JpaDatabaseSession extends DatabaseSession {
     }
   }
 
+  @Override
   public void removeWithoutFlush(Object model) {
     startTransaction();
     entityManager.remove(model);
   }
 
+  @Override
   public <T> T reattach(Class<T> entityClass, Object primaryKey) {
     startTransaction();
     return entityManager.getReference(entityClass, primaryKey);
@@ -157,6 +170,7 @@ public class JpaDatabaseSession extends DatabaseSession {
    * Note that not recommended to directly execute {@link Query#getSingleResult()}, because it will bypass exception handling,
    * which done in {@link #getSingleResult(Query, Object)}.
    */
+  @Override
   public Query createQuery(String hql) {
     startTransaction();
     return entityManager.createQuery(hql);
@@ -172,6 +186,7 @@ public class JpaDatabaseSession extends DatabaseSession {
    * @return the result or <code>defaultValue</code>, if not found
    * @throws NonUniqueResultException if more than one result
    */
+  @Override
   public <T> T getSingleResult(Query query, T defaultValue) {
     /*
      * See http://jira.codehaus.org/browse/SONAR-2225
@@ -199,6 +214,7 @@ public class JpaDatabaseSession extends DatabaseSession {
     }
   }
 
+  @Override
   public <T> T getEntity(Class<T> entityClass, Object id) {
     startTransaction();
     return getEntityManager().find(entityClass, id);
@@ -208,6 +224,7 @@ public class JpaDatabaseSession extends DatabaseSession {
    * @return the result or <code>null</code>, if not found
    * @throws NonUniqueResultException if more than one result
    */
+  @Override
   public <T> T getSingleResult(Class<T> entityClass, Object... criterias) {
     try {
       return getSingleResult(getQueryForCriterias(entityClass, true, criterias), (T) null);
@@ -219,10 +236,12 @@ public class JpaDatabaseSession extends DatabaseSession {
     }
   }
 
+  @Override
   public <T> List<T> getResults(Class<T> entityClass, Object... criterias) {
     return getQueryForCriterias(entityClass, true, criterias).getResultList();
   }
 
+  @Override
   public <T> List<T> getResults(Class<T> entityClass) {
     return getQueryForCriterias(entityClass, false, (Object[]) null).getResultList();
   }

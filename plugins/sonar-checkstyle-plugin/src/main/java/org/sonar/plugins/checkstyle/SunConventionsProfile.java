@@ -33,6 +33,7 @@ public final class SunConventionsProfile extends ProfileDefinition {
   }
 
 
+  @Override
   public RulesProfile createProfile(ValidationMessages messages) {
     return xmlProfileParser.parseResource(getClass().getClassLoader(), "org/sonar/plugins/checkstyle/profile-sun-conventions.xml", messages);
   }

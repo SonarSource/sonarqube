@@ -31,6 +31,7 @@ public class FakeServlet extends GenericServlet {
 
   int count = 0;
 
+  @Override
   public void service(ServletRequest request, ServletResponse response) throws ServletException, IOException {
     count++;
     Properties props = new Properties();

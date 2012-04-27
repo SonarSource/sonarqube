@@ -37,14 +37,17 @@ public class ServerMetadata extends Server {
     this.settings = settings;
   }
 
+  @Override
   public String getId() {
     return settings.getString(CoreProperties.SERVER_ID);
   }
 
+  @Override
   public String getVersion() {
     return settings.getString(CoreProperties.SERVER_VERSION);
   }
 
+  @Override
   public Date getStartedAt() {
     String dateString = settings.getString(CoreProperties.SERVER_STARTTIME);
     if (dateString != null) {
@@ -58,6 +61,7 @@ public class ServerMetadata extends Server {
     return null;
   }
 
+  @Override
   public String getURL() {
     return StringUtils.removeEnd(StringUtils.defaultIfBlank(settings.getString("sonar.host.url"), "http://localhost:9000"), "/");
   }

@@ -68,6 +68,7 @@ public class ChannelDispatcher<OUTPUT> extends Channel<OUTPUT> {
     this.failIfNoChannelToConsumeOneCharacter = builder.failIfNoChannelToConsumeOneCharacter;
   }
 
+  @Override
   public boolean consume(CodeReader code, OUTPUT output) {
     int nextChar = code.peek();
     while (nextChar != -1) {

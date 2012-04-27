@@ -24,6 +24,7 @@ import org.sonar.squid.measures.Metric;
 
 public class NOCVisitor extends BytecodeVisitor {
 
+  @Override
   public void visitClass(AsmClass asmClass) {
     getSourceClass(asmClass).add(Metric.NOC, asmClass.getNumberOfChildren());
 

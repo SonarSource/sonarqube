@@ -70,18 +70,22 @@ public class HttpClient4Connector extends Connector {
     this.server = server;
   }
 
+  @Override
   public String execute(Query<?> query) {
     return executeRequest(newGetMethod(query));
   }
 
+  @Override
   public String execute(CreateQuery<?> query) {
     return executeRequest(newPostMethod(query));
   }
 
+  @Override
   public String execute(UpdateQuery<?> query) {
     return executeRequest(newPutMethod(query));
   }
 
+  @Override
   public String execute(DeleteQuery query) {
     return executeRequest(newDeleteMethod(query));
   }

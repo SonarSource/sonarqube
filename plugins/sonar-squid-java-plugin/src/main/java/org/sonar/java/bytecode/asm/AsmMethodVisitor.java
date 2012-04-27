@@ -39,6 +39,7 @@ public class AsmMethodVisitor extends EmptyVisitor {
     emptyMethod = true;
   }
 
+  @Override
   public void visitFieldInsn(int opcode, String owner, String fieldName, String fieldDescription) {
     AsmClass targetClass = asmClassProvider.getClass(owner, DETAIL_LEVEL.NOTHING);
     AsmField targetField = targetClass.getFieldOrCreateIt(fieldName);
@@ -46,6 +47,7 @@ public class AsmMethodVisitor extends EmptyVisitor {
     emptyMethod = false;
   }
 
+  @Override
   public void visitMethodInsn(int opcode, String owner, String methodName, String methodDescription) {
     if (isNotCallToJavaArrayMethod(owner)) {
       AsmClass targetClass = asmClassProvider.getClass(owner, DETAIL_LEVEL.STRUCTURE);
@@ -59,6 +61,7 @@ public class AsmMethodVisitor extends EmptyVisitor {
     return internalName.charAt(0) != '[';
   }
 
+  @Override
   public void visitTryCatchBlock(Label start, Label end, Label handler, String exception) {
     if (exception != null) {
       AsmClass exceptionClass = asmClassProvider.getClass(exception, DETAIL_LEVEL.NOTHING);
@@ -67,42 +70,51 @@ public class AsmMethodVisitor extends EmptyVisitor {
     emptyMethod = false;
   }
 
+  @Override
   public void visitTypeInsn(int opcode, String internalName) {
     AsmClass usedClass = asmClassProvider.getClass(internalName, DETAIL_LEVEL.NOTHING);
     method.addEdge(new AsmEdge(method, usedClass, SourceCodeEdgeUsage.USES, lineNumber));
     emptyMethod = false;
   }
 
+  @Override
   public void visitLineNumber(final int line, final Label start) {
     lineNumber = line;
   }
 
+  @Override
   public void visitEnd() {
     method.setEmpty(emptyMethod);
   }
 
+  @Override
   public void visitIincInsn(int var, int increment) {
     emptyMethod = false;
   }
 
+  @Override
   public void visitFrame(int type, int nLocal, Object[] local, int nStack, Object[] stack) {
     emptyMethod = false;
   }
 
+  @Override
   public void visitInsn(int opcode) {
     if (opcode != Opcodes.RETURN) {
       emptyMethod = false;
     }
   }
 
+  @Override
   public void visitIntInsn(int opcode, int operand) {
     emptyMethod = false;
   }
 
+  @Override
   public void visitJumpInsn(int opcode, Label label) {
     emptyMethod = false;
   }
 
+  @Override
   public void visitLdcInsn(Object cst) {
     if (cst instanceof Type) {
       Type type = (Type) cst;
@@ -112,18 +124,22 @@ public class AsmMethodVisitor extends EmptyVisitor {
     emptyMethod = false;
   }
 
+  @Override
   public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
     emptyMethod = false;
   }
 
+  @Override
   public void visitMultiANewArrayInsn(String desc, int dims) {
     emptyMethod = false;
   }
 
+  @Override
   public void visitTableSwitchInsn(int min, int max, Label dflt, Label[] labels) {
     emptyMethod = false;
   }
 
+  @Override
   public void visitVarInsn(int opcode, int var) {
     emptyMethod = false;
   }

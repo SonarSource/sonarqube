@@ -26,5 +26,6 @@ package org.sonar.colorizer;
  */
 public abstract class NotThreadSafeTokenizer extends Tokenizer implements Cloneable {
 
+  @Override
   public abstract NotThreadSafeTokenizer clone();
 }

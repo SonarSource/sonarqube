@@ -32,6 +32,7 @@ public final class SonarWayProfile extends ProfileDefinition {
     this.xmlProfileParser = xmlProfileParser;
   }
 
+  @Override
   public RulesProfile createProfile(ValidationMessages messages) {
     return xmlProfileParser.parseResource(getClass().getClassLoader(), "org/sonar/plugins/checkstyle/profile-sonar-way.xml", messages);
   }

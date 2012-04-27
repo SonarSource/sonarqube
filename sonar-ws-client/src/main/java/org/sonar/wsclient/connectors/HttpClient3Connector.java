@@ -69,18 +69,22 @@ public class HttpClient3Connector extends Connector {
     }
   }
 
+  @Override
   public String execute(Query<?> query) {
     return executeRequest(newGetRequest(query));
   }
 
+  @Override
   public String execute(CreateQuery<?> query) {
     return executeRequest(newPostRequest(query));
   }
 
+  @Override
   public String execute(UpdateQuery<?> query) {
     return executeRequest(newPutRequest(query));
   }
 
+  @Override
   public String execute(DeleteQuery query) {
     return executeRequest(newDeleteRequest(query));
   }

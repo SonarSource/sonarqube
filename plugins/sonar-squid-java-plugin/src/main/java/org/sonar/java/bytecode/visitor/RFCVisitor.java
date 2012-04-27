@@ -34,18 +34,21 @@ public class RFCVisitor extends BytecodeVisitor {
   private Set<AsmMethod> distinctCallToExternalMethods;
   private int rfc = 0;
 
+  @Override
   public void visitClass(AsmClass asmClass) {
     rfc = 0;
     this.asmClass = asmClass;
     distinctCallToExternalMethods = new HashSet<AsmMethod>();
   }
 
+  @Override
   public void visitMethod(AsmMethod asmMethod) {
     if (asmMethod.isBodyLoaded() && !asmMethod.isAccessor()) {
       rfc++;
     }
   }
 
+  @Override
   public void visitEdge(AsmEdge edge) {
     if (edge.getTargetAsmClass() != asmClass && edge.getUsage() == SourceCodeEdgeUsage.CALLS_METHOD
         && !((AsmMethod) edge.getTo()).isAccessor()) {
@@ -53,6 +56,7 @@ public class RFCVisitor extends BytecodeVisitor {
     }
   }
 
+  @Override
   public void leaveClass(AsmClass asmClass) {
     rfc += distinctCallToExternalMethods.size();
     getSourceClass(asmClass).add(Metric.RFC, rfc);

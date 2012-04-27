@@ -42,34 +42,42 @@ public class Directory extends Resource {
     this.language = language;
   }
 
+  @Override
   public String getName() {
     return getKey();
   }
 
+  @Override
   public String getLongName() {
     return null;
   }
 
+  @Override
   public String getDescription() {
     return null;
   }
 
+  @Override
   public Language getLanguage() {
     return language;
   }
 
+  @Override
   public String getScope() {
     return Scopes.DIRECTORY;
   }
 
+  @Override
   public String getQualifier() {
     return Qualifiers.DIRECTORY;
   }
 
+  @Override
   public Resource getParent() {
     return null;
   }
 
+  @Override
   public boolean matchFilePattern(String antPattern) {
     WildcardPattern matcher = WildcardPattern.create(antPattern, "/");
     return matcher.match(getKey());

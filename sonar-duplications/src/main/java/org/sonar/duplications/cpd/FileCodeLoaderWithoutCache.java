@@ -35,10 +35,12 @@ public class FileCodeLoaderWithoutCache extends CodeLoaderWithoutCache {
     this.encoding = encoding;
   }
 
+  @Override
   public Reader getReader() throws Exception {
     return new InputStreamReader(new FileInputStream(file), encoding);
   }
 
+  @Override
   public String getFileName() {
     return this.file.getAbsolutePath();
   }

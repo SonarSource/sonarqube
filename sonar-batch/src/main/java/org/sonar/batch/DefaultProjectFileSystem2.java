@@ -66,10 +66,12 @@ public class DefaultProjectFileSystem2 extends DefaultProjectFileSystem {
     this(project, languages, def, pom, new FileFilter[0]);
   }
 
+  @Override
   public File getBasedir() {
     return def.getBaseDir();
   }
 
+  @Override
   public File getBuildDir() {
     if (pom != null) {
       return resolvePath(pom.getBuild().getDirectory());
@@ -79,6 +81,7 @@ public class DefaultProjectFileSystem2 extends DefaultProjectFileSystem {
     }
   }
 
+  @Override
   public File getBuildOutputDir() {
     if (pom != null) {
       return resolvePath(pom.getBuild().getOutputDirectory());
@@ -101,6 +104,7 @@ public class DefaultProjectFileSystem2 extends DefaultProjectFileSystem {
   /**
    * @deprecated since 2.6, because should be immutable
    */
+  @Override
   @Deprecated
   public DefaultProjectFileSystem addSourceDir(File dir) {
     if (dir == null) {
@@ -125,6 +129,7 @@ public class DefaultProjectFileSystem2 extends DefaultProjectFileSystem {
   /**
    * @deprecated since 2.6, because should be immutable
    */
+  @Override
   @Deprecated
   public DefaultProjectFileSystem addTestDir(File dir) {
     if (dir == null) {
@@ -140,6 +145,7 @@ public class DefaultProjectFileSystem2 extends DefaultProjectFileSystem {
   /**
    * TODO Godin: seems that used only by Cobertura and Clover
    */
+  @Override
   public File getReportOutputDir() {
     if (pom != null) {
       return resolvePath(pom.getReporting().getOutputDirectory());

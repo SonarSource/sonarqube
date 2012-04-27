@@ -55,6 +55,7 @@ public class MultilinesDocTokenizer extends Tokenizer {
             startToken)));
   }
 
+  @Override
   public boolean consume(CodeReader code, HtmlCodeBuilder codeBuilder) {
     if (hasNextToken(code, codeBuilder)) {
       codeBuilder.appendWithoutTransforming(tagBefore);

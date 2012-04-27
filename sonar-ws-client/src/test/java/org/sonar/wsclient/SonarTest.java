@@ -123,10 +123,12 @@ public class SonarTest {
   }
 
   static class EmptyQuery extends Query<Metric> {
+    @Override
     public String getUrl() {
       return "/api/empty";
     }
 
+    @Override
     public Class<Metric> getModelClass() {
       return Metric.class;
     }

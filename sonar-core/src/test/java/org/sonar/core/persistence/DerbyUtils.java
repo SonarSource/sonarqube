@@ -28,6 +28,7 @@ public final class DerbyUtils {
   }
 
   public static final OutputStream DEV_NULL = new OutputStream() {
+    @Override
     public void write(int b) {
     }
   };

@@ -38,6 +38,7 @@ public class HtmlRenderer extends Renderer {
     this(HtmlOptions.DEFAULT);
   }
 
+  @Override
   public String render(Reader code, List<? extends Channel<HtmlCodeBuilder>> tokenizers) {
     try {
       List<Channel<HtmlCodeBuilder>> allTokenizers = new ArrayList<Channel<HtmlCodeBuilder>>();

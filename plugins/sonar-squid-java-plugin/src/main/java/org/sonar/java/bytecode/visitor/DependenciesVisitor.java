@@ -39,10 +39,12 @@ public class DependenciesVisitor extends BytecodeVisitor {
     this.graph = graph;
   }
 
+  @Override
   public void visitClass(AsmClass asmClass) {
     this.fromSourceClass = getSourceClass(asmClass);
   }
 
+  @Override
   public void visitEdge(AsmEdge edge) {
     AsmClass toAsmClass = edge.getTargetAsmClass();
     SourceClass toSourceClass = getSourceClass(toAsmClass);

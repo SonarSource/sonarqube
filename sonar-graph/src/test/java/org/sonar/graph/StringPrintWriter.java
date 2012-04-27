@@ -27,6 +27,7 @@ public class StringPrintWriter {
     builder.append(line + " \r");
   }
 
+  @Override
   public String toString() {
     return builder.toString();
   }
