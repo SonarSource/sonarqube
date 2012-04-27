@@ -19,13 +19,26 @@
  */
 package org.sonar.plugins.pmd;
 
-import org.junit.Test;
+import org.sonar.api.resources.Java;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleRepository;
+import org.sonar.api.rules.XMLRuleParser;
 
-import static org.fest.assertions.Assertions.assertThat;
+import java.io.InputStream;
+import java.util.List;
 
-public class PmdVersionTest {
-  @Test
-  public void should_get_pmd_version() {
-    assertThat(PmdVersion.getVersion()).isNotEmpty().isSameAs(PmdVersion.getVersion());
+public final class PmdUnitTestsRuleRepository extends RuleRepository {
+  private final XMLRuleParser xmlRuleParser;
+
+  public PmdUnitTestsRuleRepository(XMLRuleParser xmlRuleParser) {
+    super(PmdConstants.TEST_REPOSITORY_KEY, Java.KEY);
+    setName(PmdConstants.TEST_REPOSITORY_NAME);
+    this.xmlRuleParser = xmlRuleParser;
+  }
+
+  @Override
+  public List<Rule> createRules() {
+    InputStream input = getClass().getResourceAsStream("/org/sonar/plugins/pmd/rules-unit-tests.xml");
+    return xmlRuleParser.parse(input);
   }
 }

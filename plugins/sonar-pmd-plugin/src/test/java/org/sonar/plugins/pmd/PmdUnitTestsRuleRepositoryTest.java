@@ -21,59 +21,44 @@ package org.sonar.plugins.pmd;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.XMLRuleParser;
-import org.sonar.test.TestUtils;
 import org.sonar.test.i18n.RuleRepositoryTestHelper;
 
-import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-public class PmdRuleRepositoryTest {
-  PmdRuleRepository repository;
-
-  ServerFileSystem fileSystem = mock(ServerFileSystem.class);
+public class PmdUnitTestsRuleRepositoryTest {
+  PmdUnitTestsRuleRepository repository;
 
   @Before
   public void setUpRuleRepository() {
-    repository = new PmdRuleRepository(fileSystem, new XMLRuleParser());
+    repository = new PmdUnitTestsRuleRepository(new XMLRuleParser());
   }
 
   @Test
   public void should_have_correct_name_and_key() {
-    assertThat(repository.getKey()).isEqualTo("pmd");
+    assertThat(repository.getKey()).isEqualTo("pmd-unit-tests");
     assertThat(repository.getLanguage()).isEqualTo("java");
-    assertThat(repository.getName()).isEqualTo("PMD");
+    assertThat(repository.getName()).isEqualTo("PMD Unit Tests");
   }
 
   @Test
   public void should_load_repository_from_xml() {
     List<Rule> rules = repository.createRules();
 
-    assertThat(rules.size()).isGreaterThan(100);
-  }
-
-  @Test
-  public void should_load_extensions() {
-    File file = TestUtils.getResource("/org/sonar/plugins/pmd/rules-extension.xml");
-    when(fileSystem.getExtensions("pmd", "xml")).thenReturn(Arrays.asList(file));
-
-    List<Rule> rules = repository.createRules();
-
-    assertThat(rules).onProperty("key").contains("Extension");
-  }
-
-  @Test
-  public void should_exclude_junit_rules() {
-    List<Rule> rules = repository.createRules();
-
-    assertThat(rules).onProperty("key").excludes("JUnitStaticSuite");
+    assertThat(rules).onProperty("key").containsOnly(
+        "JUnitStaticSuite",
+        "JUnitSpelling",
+        "JUnitAssertionsShouldIncludeMessage",
+        "JUnitTestsShouldIncludeAssert",
+        "TestClassWithoutTestCases",
+        "UnnecessaryBooleanAssertion",
+        "UseAssertEqualsInsteadOfAssertTrue",
+        "UseAssertSameInsteadOfAssertTrue",
+        "UseAssertNullInsteadOfAssertTrue",
+        "SimplifyBooleanAssertion");
   }
 
   @Test

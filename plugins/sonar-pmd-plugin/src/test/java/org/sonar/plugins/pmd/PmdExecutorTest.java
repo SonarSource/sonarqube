@@ -20,90 +20,109 @@
 package org.sonar.plugins.pmd;
 
 import com.google.common.base.Charsets;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-import org.junit.Rule;
+import net.sourceforge.pmd.Report;
+import net.sourceforge.pmd.RuleContext;
+import net.sourceforge.pmd.RuleSets;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.mockito.Mockito;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
+import org.sonar.test.TestUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class PmdExecutorTest {
+  PmdExecutor pmdExecutor;
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+  Project project = mock(Project.class);
+  ProjectFileSystem projectFileSystem = mock(ProjectFileSystem.class);
+  RulesProfile rulesProfile = mock(RulesProfile.class);
+  PmdProfileExporter pmdProfileExporter = mock(PmdProfileExporter.class);
+  PmdConfiguration pmdConfiguration = mock(PmdConfiguration.class);
+  PmdTemplate pmdTemplate = mock(PmdTemplate.class);
 
-  @Test
-  public void executeOnManySourceDirs() throws IOException {
-    File workDir = temp.getRoot();
-    Project project = new Project("two-source-dirs");
+  @Before
+  public void setUpPmdExecutor() {
+    pmdExecutor = Mockito.spy(new PmdExecutor(project, projectFileSystem, rulesProfile, pmdProfileExporter, pmdConfiguration));
 
-    ProjectFileSystem fs = mock(ProjectFileSystem.class);
-    File root = new File(getClass().getResource("/org/sonar/plugins/pmd/PmdExecutorTest/executeOnManySourceDirs/").toURI());
-    when(fs.getSourceFiles(Java.INSTANCE)).thenReturn(Arrays.asList(new File(root, "src1/FirstClass.java"), new File(root, "src2/SecondClass.java")));
-    when(fs.getSourceCharset()).thenReturn(Charsets.UTF_8);
-    when(fs.getSonarWorkingDirectory()).thenReturn(workDir);
-    project.setFileSystem(fs);
-
-    PmdConfiguration conf = mock(PmdConfiguration.class);
-    File file = FileUtils.toFile(getClass().getResource("/org/sonar/plugins/pmd/PmdExecutorTest/executeOnManySourceDirs/pmd.xml").toURI().toURL());
-    when(conf.getRulesets()).thenReturn(Arrays.asList(file.getAbsolutePath()));
-    File xmlReport = new File(workDir, "pmd-result.xml");
-    when(conf.getTargetXMLReport()).thenReturn(xmlReport);
-
-    PmdExecutor executor = new PmdExecutor(project, conf);
-    executor.execute();
-    assertThat(xmlReport.exists(), is(true));
-
-    String xml = FileUtils.readFileToString(xmlReport);
-
-    // errors on the two source files
-    assertThat(StringUtils.countMatches(xml, "<file"), is(2));
-    assertThat(StringUtils.countMatches(xml, "<violation"), greaterThan(2));
+    doReturn(pmdTemplate).when(pmdExecutor).createPmdTemplate();
   }
 
   @Test
-  public void ignorePmdFailures() throws IOException {
-    final File workDir = temp.getRoot();
-    Project project = new Project("ignorePmdFailures");
+  public void should_execute_pmd_on_source_files_and_test_files() {
+    InputFile srcFile = file("src/Class.java");
+    InputFile tstFile = file("test/ClassTest.java");
+    when(pmdProfileExporter.exportProfile(PmdConstants.REPOSITORY_KEY, rulesProfile)).thenReturn(TestUtils.getResourceContent("/org/sonar/plugins/pmd/simple.xml"));
+    when(pmdProfileExporter.exportProfile(PmdConstants.TEST_REPOSITORY_KEY, rulesProfile)).thenReturn(TestUtils.getResourceContent("/org/sonar/plugins/pmd/junit.xml"));
+    when(projectFileSystem.getSourceCharset()).thenReturn(Charsets.UTF_8);
+    when(projectFileSystem.mainFiles(Java.KEY)).thenReturn(Arrays.asList(srcFile));
+    when(projectFileSystem.testFiles(Java.KEY)).thenReturn(Arrays.asList(tstFile));
 
-    ProjectFileSystem fs = mock(ProjectFileSystem.class);
-    when(fs.getSourceFiles(Java.INSTANCE)).thenReturn(Arrays.asList(new File("test-resources/ignorePmdFailures/DoesNotCompile.java")));
-    when(fs.getSourceCharset()).thenReturn(Charsets.UTF_8);
-    when(fs.getSonarWorkingDirectory()).thenReturn(workDir);
-    project.setFileSystem(fs);
+    Report report = pmdExecutor.execute();
 
-    PmdConfiguration conf = mock(PmdConfiguration.class);
-    when(conf.getRulesets()).thenReturn(Arrays.asList(new File("test-resources/ignorePmdFailures/pmd.xml").getAbsolutePath()));
-    File xmlReport = new File(workDir, "pmd-result.xml");
-    when(conf.getTargetXMLReport()).thenReturn(xmlReport);
-    PmdExecutor executor = new PmdExecutor(project, conf);
-
-    executor.execute();
-    assertThat(xmlReport.exists(), is(true));
+    verify(pmdTemplate).process(eq(new File("src/Class.java")), eq(Charsets.UTF_8), any(RuleSets.class), any(RuleContext.class));
+    verify(pmdTemplate).process(eq(new File("test/ClassTest.java")), eq(Charsets.UTF_8), any(RuleSets.class), any(RuleContext.class));
+    assertThat(report).isNotNull();
   }
 
   @Test
-  public void shouldNormalizeJavaVersion() {
-    assertThat(PmdExecutor.getNormalizedJavaVersion(null), nullValue());
-    assertThat(PmdExecutor.getNormalizedJavaVersion(""), is(""));
-    assertThat(PmdExecutor.getNormalizedJavaVersion("1.1"), is("1.3"));
-    assertThat(PmdExecutor.getNormalizedJavaVersion("1.2"), is("1.3"));
-    assertThat(PmdExecutor.getNormalizedJavaVersion("1.4"), is("1.4"));
-    assertThat(PmdExecutor.getNormalizedJavaVersion("5"), is("1.5"));
-    assertThat(PmdExecutor.getNormalizedJavaVersion("6"), is("1.6"));
+  public void should_dump_configuration_as_xml() {
+    when(pmdProfileExporter.exportProfile(PmdConstants.REPOSITORY_KEY, rulesProfile)).thenReturn(TestUtils.getResourceContent("/org/sonar/plugins/pmd/simple.xml"));
+    when(pmdProfileExporter.exportProfile(PmdConstants.TEST_REPOSITORY_KEY, rulesProfile)).thenReturn(TestUtils.getResourceContent("/org/sonar/plugins/pmd/junit.xml"));
+
+    Report report = pmdExecutor.execute();
+
+    verify(pmdConfiguration).dumpXmlReport(report);
   }
 
+  @Test
+  public void should_dump_ruleset_as_xml() {
+    InputFile srcFile = file("src/Class.java");
+    InputFile tstFile = file("test/ClassTest.java");
+    when(pmdProfileExporter.exportProfile(PmdConstants.REPOSITORY_KEY, rulesProfile)).thenReturn(TestUtils.getResourceContent("/org/sonar/plugins/pmd/simple.xml"));
+    when(pmdProfileExporter.exportProfile(PmdConstants.TEST_REPOSITORY_KEY, rulesProfile)).thenReturn(TestUtils.getResourceContent("/org/sonar/plugins/pmd/junit.xml"));
+    when(projectFileSystem.mainFiles(Java.KEY)).thenReturn(Arrays.asList(srcFile));
+    when(projectFileSystem.testFiles(Java.KEY)).thenReturn(Arrays.asList(tstFile));
+
+    pmdExecutor.execute();
+
+    verify(pmdConfiguration).dumpXmlRuleSet(PmdConstants.REPOSITORY_KEY, TestUtils.getResourceContent("/org/sonar/plugins/pmd/simple.xml"));
+    verify(pmdConfiguration).dumpXmlRuleSet(PmdConstants.TEST_REPOSITORY_KEY, TestUtils.getResourceContent("/org/sonar/plugins/pmd/junit.xml"));
+  }
+
+  @Test
+  public void should_ignore_empty_test_dir() {
+    InputFile srcFile = file("src/Class.java");
+    doReturn(pmdTemplate).when(pmdExecutor).createPmdTemplate();
+    when(pmdProfileExporter.exportProfile(PmdConstants.REPOSITORY_KEY, rulesProfile)).thenReturn(TestUtils.getResourceContent("/org/sonar/plugins/pmd/simple.xml"));
+    when(projectFileSystem.getSourceCharset()).thenReturn(Charsets.UTF_8);
+    when(projectFileSystem.mainFiles(Java.KEY)).thenReturn(Arrays.asList(srcFile));
+    when(projectFileSystem.testFiles(Java.KEY)).thenReturn(Collections.<InputFile> emptyList());
+
+    pmdExecutor.execute();
+
+    verify(pmdTemplate).process(eq(new File("src/Class.java")), eq(Charsets.UTF_8), any(RuleSets.class), any(RuleContext.class));
+    verifyNoMoreInteractions(pmdTemplate);
+  }
+
+  static InputFile file(String path) {
+    InputFile inputFile = mock(InputFile.class);
+    when(inputFile.getFile()).thenReturn(new File(path));
+    return inputFile;
+  }
 }

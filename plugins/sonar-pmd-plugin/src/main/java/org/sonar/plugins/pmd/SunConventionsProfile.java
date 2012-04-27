@@ -19,16 +19,16 @@
  */
 package org.sonar.plugins.pmd;
 
-import java.io.InputStreamReader;
-import java.io.Reader;
-
+import com.google.common.io.Closeables;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Java;
 import org.sonar.api.utils.ValidationMessages;
 
-public final class SunConventionsProfile extends ProfileDefinition {
+import java.io.InputStreamReader;
+import java.io.Reader;
 
+public final class SunConventionsProfile extends ProfileDefinition {
   private final PmdProfileImporter importer;
 
   public SunConventionsProfile(PmdProfileImporter importer) {
@@ -36,12 +36,18 @@ public final class SunConventionsProfile extends ProfileDefinition {
   }
 
   @Override
-  public RulesProfile createProfile(ValidationMessages messages) {
-    Reader pmdSonarWayProfile = new InputStreamReader(this.getClass().getResourceAsStream(
-        "/org/sonar/plugins/pmd/profile-sun-conventions.xml"));
-    RulesProfile profile = importer.importProfile(pmdSonarWayProfile, messages);
-    profile.setName(RulesProfile.SUN_CONVENTIONS_NAME);
-    profile.setLanguage(Java.KEY);
-    return profile;
+  public RulesProfile createProfile(ValidationMessages validation) {
+    Reader config = null;
+    try {
+      config = new InputStreamReader(this.getClass().getResourceAsStream("/org/sonar/plugins/pmd/profile-sun-conventions.xml"));
+
+      RulesProfile profile = importer.importProfile(config, validation);
+      profile.setLanguage(Java.KEY);
+      profile.setName(RulesProfile.SUN_CONVENTIONS_NAME);
+
+      return profile;
+    } finally {
+      Closeables.closeQuietly(config);
+    }
   }
 }

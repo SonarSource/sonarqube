@@ -1,0 +1,42 @@
+<rules>
+  <rule key="JUnitStaticSuite">
+    <priority>MAJOR</priority>
+    <configKey><![CDATA[rulesets/junit.xml/JUnitStaticSuite]]></configKey>
+  </rule>
+  <rule key="JUnitSpelling">
+    <priority>MAJOR</priority>
+    <configKey><![CDATA[rulesets/junit.xml/JUnitSpelling]]></configKey>
+  </rule>
+  <rule key="JUnitAssertionsShouldIncludeMessage">
+    <priority>MINOR</priority>
+    <configKey><![CDATA[rulesets/junit.xml/JUnitAssertionsShouldIncludeMessage]]></configKey>
+  </rule>
+  <rule key="JUnitTestsShouldIncludeAssert">
+    <priority>MAJOR</priority>
+    <configKey><![CDATA[rulesets/junit.xml/JUnitTestsShouldIncludeAssert]]></configKey>
+  </rule>
+  <rule key="TestClassWithoutTestCases">
+    <priority>MAJOR</priority>
+    <configKey><![CDATA[rulesets/junit.xml/TestClassWithoutTestCases]]></configKey>
+  </rule>
+  <rule key="UnnecessaryBooleanAssertion">
+    <priority>MINOR</priority>
+    <configKey><![CDATA[rulesets/junit.xml/UnnecessaryBooleanAssertion]]></configKey>
+  </rule>
+  <rule key="UseAssertEqualsInsteadOfAssertTrue">
+    <priority>MINOR</priority>
+    <configKey><![CDATA[rulesets/junit.xml/UseAssertEqualsInsteadOfAssertTrue]]></configKey>
+  </rule>
+  <rule key="UseAssertSameInsteadOfAssertTrue">
+    <priority>MINOR</priority>
+    <configKey><![CDATA[rulesets/junit.xml/UseAssertSameInsteadOfAssertTrue]]></configKey>
+  </rule>
+  <rule key="UseAssertNullInsteadOfAssertTrue">
+    <priority>MINOR</priority>
+    <configKey><![CDATA[rulesets/junit.xml/UseAssertNullInsteadOfAssertTrue]]></configKey>
+  </rule>
+  <rule key="SimplifyBooleanAssertion">
+    <priority>MINOR</priority>
+    <configKey><![CDATA[rulesets/junit.xml/SimplifyBooleanAssertion]]></configKey>
+  </rule>
+</rules>

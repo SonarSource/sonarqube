@@ -65,6 +65,13 @@
       <artifactId>sonar-testing-harness</artifactId>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.codehaus.sonar.plugins</groupId>
+      <artifactId>sonar-l10n-en-plugin</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>

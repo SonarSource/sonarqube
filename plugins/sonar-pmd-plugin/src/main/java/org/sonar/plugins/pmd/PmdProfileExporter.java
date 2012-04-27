@@ -19,12 +19,7 @@
  */
 package org.sonar.plugins.pmd;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.google.common.annotations.VisibleForTesting;
 import org.jdom.CDATA;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -40,8 +35,13 @@ import org.sonar.plugins.pmd.xml.PmdProperty;
 import org.sonar.plugins.pmd.xml.PmdRule;
 import org.sonar.plugins.pmd.xml.PmdRuleset;
 
-public class PmdProfileExporter extends ProfileExporter {
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 
+public class PmdProfileExporter extends ProfileExporter {
   public PmdProfileExporter() {
     super(PmdConstants.REPOSITORY_KEY, PmdConstants.PLUGIN_NAME);
     setSupportedLanguages(Java.KEY);
@@ -51,21 +51,25 @@ public class PmdProfileExporter extends ProfileExporter {
   @Override
   public void exportProfile(RulesProfile profile, Writer writer) {
     try {
-      PmdRuleset tree = createPmdRuleset(profile.getActiveRulesByRepository(PmdConstants.REPOSITORY_KEY), profile.getName());
-      String xmlModules = exportPmdRulesetToXml(tree);
+      String xmlModules = exportProfile(PmdConstants.REPOSITORY_KEY, profile);
       writer.append(xmlModules);
     } catch (IOException e) {
       throw new SonarException("Fail to export the profile " + profile, e);
     }
   }
 
-  protected PmdRuleset createPmdRuleset(List<ActiveRule> activeRules, String profileName) {
+  public String exportProfile(String repositoryKey, RulesProfile profile) {
+    PmdRuleset tree = createPmdRuleset(repositoryKey, profile.getActiveRulesByRepository(repositoryKey), profile.getName());
+    return exportPmdRulesetToXml(tree);
+  }
+
+  private PmdRuleset createPmdRuleset(String repositoryKey, List<ActiveRule> activeRules, String profileName) {
     PmdRuleset ruleset = new PmdRuleset(profileName);
     for (ActiveRule activeRule : activeRules) {
-      if (activeRule.getRule().getRepositoryKey().equals(PmdConstants.REPOSITORY_KEY)) {
+      if (activeRule.getRule().getRepositoryKey().equals(repositoryKey)) {
         String configKey = activeRule.getRule().getConfigKey();
         PmdRule rule = new PmdRule(configKey, PmdLevelUtils.toLevel(activeRule.getSeverity()));
-        if (activeRule.getActiveRuleParams() != null && !activeRule.getActiveRuleParams().isEmpty()) {
+        if ((activeRule.getActiveRuleParams() != null) && !activeRule.getActiveRuleParams().isEmpty()) {
           List<PmdProperty> properties = new ArrayList<PmdProperty>();
           for (ActiveRuleParam activeRuleParam : activeRule.getActiveRuleParams()) {
             properties.add(new PmdProperty(activeRuleParam.getRuleParam().getKey(), activeRuleParam.getValue()));
@@ -79,7 +83,8 @@ public class PmdProfileExporter extends ProfileExporter {
     return ruleset;
   }
 
-  protected void processXPathRule(String sonarRuleKey, PmdRule rule) {
+  @VisibleForTesting
+  void processXPathRule(String sonarRuleKey, PmdRule rule) {
     if (PmdConstants.XPATH_CLASS.equals(rule.getRef())) {
       rule.setRef(null);
       PmdProperty xpathMessage = rule.getProperty(PmdConstants.XPATH_MESSAGE_PARAM);
@@ -98,7 +103,7 @@ public class PmdProfileExporter extends ProfileExporter {
     }
   }
 
-  protected String exportPmdRulesetToXml(PmdRuleset pmdRuleset) {
+  private String exportPmdRulesetToXml(PmdRuleset pmdRuleset) {
     Element eltRuleset = new Element("ruleset");
     for (PmdRule pmdRule : pmdRuleset.getPmdRules()) {
       Element eltRule = new Element("rule");

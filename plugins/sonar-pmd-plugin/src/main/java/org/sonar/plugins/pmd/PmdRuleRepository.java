@@ -30,10 +30,8 @@ import java.io.File;
 import java.util.List;
 
 public final class PmdRuleRepository extends RuleRepository {
-
-  // for user extensions
-  private ServerFileSystem fileSystem;
-  private XMLRuleParser xmlRuleParser;
+  private final ServerFileSystem fileSystem;
+  private final XMLRuleParser xmlRuleParser;
 
   public PmdRuleRepository(ServerFileSystem fileSystem, XMLRuleParser xmlRuleParser) {
     super(PmdConstants.REPOSITORY_KEY, Java.KEY);

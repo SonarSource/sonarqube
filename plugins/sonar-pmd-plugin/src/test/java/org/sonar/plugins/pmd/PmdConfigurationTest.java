@@ -19,51 +19,90 @@
  */
 package org.sonar.plugins.pmd;
 
-import org.apache.commons.io.FileUtils;
+import net.sourceforge.pmd.Report;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
-import org.sonar.api.test.MavenTestUtils;
+import org.sonar.api.utils.SonarException;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.matches;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class PmdConfigurationTest {
+  PmdConfiguration configuration;
 
-  @Test
-  public void writeConfigurationToWorkingDir() throws IOException {
-    Project project = MavenTestUtils.loadProjectFromPom(getClass(), "writeConfigurationToWorkingDir/pom.xml");
+  Settings settings = new Settings();
+  ProjectFileSystem fs = mock(ProjectFileSystem.class);
 
-    PmdConfiguration configuration = new PmdConfiguration(new PmdProfileExporter(), RulesProfile.create(), project, null);
-    List<String> rulesets = configuration.getRulesets();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
-    assertThat(rulesets.size(), is(1));
-    File xmlFile = new File(rulesets.get(0));
-    assertThat(xmlFile.exists(), is(true));
-    assertThat(FileUtils.readFileToString(xmlFile), is("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<ruleset />\r\n\r\n"));
+  @Before
+  public void setUpPmdConfiguration() {
+    configuration = new PmdConfiguration(fs, settings);
   }
 
   @Test
-  public void shouldReturnTargetXMLReport() {
-    Project project = new Project("key");
-    ProjectFileSystem fs = mock(ProjectFileSystem.class);
-    when(fs.getSonarWorkingDirectory()).thenReturn(new File("/tmp"));
-    project.setFileSystem(fs);
-    Settings settings = new Settings();
-    PmdConfiguration configuration = new PmdConfiguration(null, null, project, settings);
+  public void should_return_default_target_xml_report_when_property_is_not_set() {
+    File targetXMLReport = configuration.getTargetXMLReport();
 
-    assertThat(configuration.getTargetXMLReport(), nullValue());
+    assertThat(targetXMLReport).isNull();
+  }
+
+  @Test
+  public void should_set_target_xml_report() {
+    when(fs.resolvePath("pmd-result.xml")).thenReturn(new File("/workingDir/pmd-result.xml"));
 
     settings.setProperty(PmdConfiguration.PROPERTY_GENERATE_XML, true);
-    assertThat(configuration.getTargetXMLReport(), equalTo(new File("/tmp/pmd-result.xml")));
+    File targetXMLReport = configuration.getTargetXMLReport();
+
+    assertThat(targetXMLReport).isEqualTo(new File("/workingDir/pmd-result.xml"));
   }
 
+  @Test
+  public void should_dump_xml_rule_set() throws IOException {
+    when(fs.writeToWorkingDirectory("<rules>", "pmd.xml")).thenReturn(new File("/workingDir/pmd.xml"));
+
+    File rulesFile = configuration.dumpXmlRuleSet("pmd", "<rules>");
+
+    assertThat(rulesFile).isEqualTo(new File("/workingDir/pmd.xml"));
+  }
+
+  @Test
+  public void should_fail_to_dump_xml_rule_set() throws IOException {
+    when(fs.writeToWorkingDirectory("<xml>", "pmd.xml")).thenThrow(new IOException("BUG"));
+
+    expectedException.expect(SonarException.class);
+    expectedException.expectMessage("Fail to save the PMD configuration");
+
+    configuration.dumpXmlRuleSet("pmd", "<xml>");
+  }
+
+  @Test
+  public void should_dump_xml_report() throws IOException {
+    when(fs.writeToWorkingDirectory(matches(".*[\r\n]*<pmd.*[\r\n].*</pmd>"), eq("pmd-result.xml"))).thenReturn(new File("/workingDir/pmd-result.xml"));
+
+    settings.setProperty(PmdConfiguration.PROPERTY_GENERATE_XML, true);
+    File reportFile = configuration.dumpXmlReport(new Report());
+
+    assertThat(reportFile).isEqualTo(new File("/workingDir/pmd-result.xml"));
+  }
+
+  @Test
+  public void should_ignore_xml_report_when_property_is_not_set() {
+    File reportFile = configuration.dumpXmlReport(new Report());
+
+    assertThat(reportFile).isNull();
+    verifyZeroInteractions(fs);
+  }
 }

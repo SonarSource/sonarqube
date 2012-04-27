@@ -25,20 +25,19 @@ import org.sonar.api.resources.Java;
 import org.sonar.api.utils.ValidationMessages;
 
 public class SonarWayWithFindbugsProfile extends ProfileDefinition {
-
-  private SonarWayProfile sonarWay;
+  private final SonarWayProfile sonarWay;
 
   public SonarWayWithFindbugsProfile(SonarWayProfile sonarWay) {
     this.sonarWay = sonarWay;
   }
 
-
   @Override
-  public RulesProfile createProfile(ValidationMessages validationMessages) {
-    RulesProfile profile = sonarWay.createProfile(validationMessages);
+  public RulesProfile createProfile(ValidationMessages validation) {
+    RulesProfile profile = sonarWay.createProfile(validation);
+
     profile.setName(RulesProfile.SONAR_WAY_FINDBUGS_NAME);
     profile.setLanguage(Java.KEY);
+
     return profile;
   }
 }
-

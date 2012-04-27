@@ -19,7 +19,7 @@
  */
 package org.sonar.plugins.pmd;
 
-import org.apache.commons.io.IOUtils;
+import com.google.common.io.Closeables;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
@@ -37,18 +37,22 @@ public enum PmdVersion {
   }
 
   private PmdVersion() {
-    InputStream input = getClass().getResourceAsStream(PROPERTIES_PATH);
-    try {
-      Properties properties = new Properties();
-      properties.load(input);
-      this.version = properties.getProperty("pmd.version");
+    version = readVersion();
+  }
 
+  public String readVersion() {
+    Properties properties = new Properties();
+
+    InputStream input = null;
+    try {
+      input = getClass().getResourceAsStream(PROPERTIES_PATH);
+      properties.load(input);
     } catch (IOException e) {
       LoggerFactory.getLogger(getClass()).warn("Can not load the PMD version from the file " + PROPERTIES_PATH);
-      this.version = "";
-
     } finally {
-      IOUtils.closeQuietly(input);
+      Closeables.closeQuietly(input);
     }
+
+    return properties.getProperty("pmd.version", "");
   }
 }

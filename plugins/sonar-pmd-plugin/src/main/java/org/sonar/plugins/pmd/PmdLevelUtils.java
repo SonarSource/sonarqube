@@ -19,49 +19,29 @@
  */
 package org.sonar.plugins.pmd;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.EnumHashBiMap;
 import org.sonar.api.rules.RulePriority;
 
+import static com.google.common.collect.ImmutableMap.of;
+
 public final class PmdLevelUtils {
+  private static final BiMap<RulePriority, String> LEVELS_PER_PRIORITY = EnumHashBiMap.create(of(
+      RulePriority.BLOCKER, "1",
+      RulePriority.CRITICAL, "2",
+      RulePriority.MAJOR, "3",
+      RulePriority.MINOR, "4",
+      RulePriority.INFO, "5"));
 
   private PmdLevelUtils() {
     // only static methods
   }
 
   public static RulePriority fromLevel(String level) {
-    if ("1".equals(level)) {
-      return RulePriority.BLOCKER;
-    }
-    if ("2".equals(level)) {
-      return RulePriority.CRITICAL;
-    }
-    if ("3".equals(level)) {
-      return RulePriority.MAJOR;
-    }
-    if ("4".equals(level)) {
-      return RulePriority.MINOR;
-    }
-    if ("5".equals(level)) {
-      return RulePriority.INFO;
-    }
-    return null;
+    return LEVELS_PER_PRIORITY.inverse().get(level);
   }
 
   public static String toLevel(RulePriority priority) {
-    if (priority.equals(RulePriority.BLOCKER)) {
-      return "1";
-    }
-    if (priority.equals(RulePriority.CRITICAL)) {
-      return "2";
-    }
-    if (priority.equals(RulePriority.MAJOR)) {
-      return "3";
-    }
-    if (priority.equals(RulePriority.MINOR)) {
-      return "4";
-    }
-    if (priority.equals(RulePriority.INFO)) {
-      return "5";
-    }
-    throw new IllegalArgumentException("Level not supported: " + priority);
+    return LEVELS_PER_PRIORITY.get(priority);
   }
 }

@@ -19,13 +19,41 @@
  */
 package org.sonar.plugins.pmd;
 
+import net.sourceforge.pmd.PMD;
+import net.sourceforge.pmd.SourceType;
 import org.junit.Test;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
-public class PmdVersionTest {
+public class PmdTemplateTest {
+  PMD pmd = mock(PMD.class);
+
   @Test
-  public void should_get_pmd_version() {
-    assertThat(PmdVersion.getVersion()).isNotEmpty().isSameAs(PmdVersion.getVersion());
+  public void should_set_java11_version() {
+    PmdTemplate.setJavaVersion(pmd, "1.1");
+
+    verify(pmd).setJavaVersion(SourceType.JAVA_13);
+  }
+
+  @Test
+  public void should_set_java12_version() {
+    PmdTemplate.setJavaVersion(pmd, "1.2");
+
+    verify(pmd).setJavaVersion(SourceType.JAVA_13);
+  }
+
+  @Test
+  public void should_set_java5_version() {
+    PmdTemplate.setJavaVersion(pmd, "5");
+
+    verify(pmd).setJavaVersion(SourceType.JAVA_15);
+  }
+
+  @Test
+  public void should_set_java6_version() {
+    PmdTemplate.setJavaVersion(pmd, "6");
+
+    verify(pmd).setJavaVersion(SourceType.JAVA_16);
   }
 }

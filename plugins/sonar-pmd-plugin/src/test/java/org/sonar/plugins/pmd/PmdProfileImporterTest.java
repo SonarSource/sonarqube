@@ -24,7 +24,11 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.*;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.rules.RulePriority;
+import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.plugins.pmd.xml.PmdRuleset;
 import org.sonar.test.TestUtils;
@@ -32,127 +36,135 @@ import org.sonar.test.TestUtils;
 import java.io.Reader;
 import java.io.StringReader;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class PmdProfileImporterTest {
-
-  private PmdProfileImporter importer;
-  private ValidationMessages messages;
+  PmdProfileImporter importer;
+  ValidationMessages messages;
 
   @Before
-  public void before() {
+  public void setUpImporter() {
     messages = ValidationMessages.create();
-    RuleFinder finder = createRuleFinder();
-    importer = new PmdProfileImporter(finder);
+    importer = new PmdProfileImporter(createRuleFinder());
   }
 
   @Test
-  public void testBuildPmdRuleset() {
-    Reader reader = new StringReader(TestUtils.getResourceContent("/org/sonar/plugins/pmd/simple.xml"));
+  public void should_import_pmd_ruleset() {
+    Reader reader = read("/org/sonar/plugins/pmd/simple.xml");
+
     PmdRuleset pmdRuleset = importer.parsePmdRuleset(reader, messages);
-    assertThat(pmdRuleset.getPmdRules().size(), is(3));
+
+    assertThat(pmdRuleset.getPmdRules()).hasSize(3);
   }
 
   @Test
-  public void testImportingSimpleProfile() {
-    Reader reader = new StringReader(TestUtils.getResourceContent("/org/sonar/plugins/pmd/simple.xml"));
+  public void should_import_simple_profile() {
+    Reader reader = read("/org/sonar/plugins/pmd/simple.xml");
+
     RulesProfile profile = importer.importProfile(reader, messages);
 
-    assertThat(profile.getActiveRules().size(), is(3));
-    assertNotNull(profile.getActiveRuleByConfigKey("pmd", "rulesets/coupling.xml/ExcessiveImports"));
-    assertNotNull(profile.getActiveRuleByConfigKey("pmd", "rulesets/design.xml/UseNotifyAllInsteadOfNotify"));
-    assertThat(messages.hasErrors(), is(false));
+    assertThat(profile.getActiveRules()).hasSize(3);
+    assertThat(profile.getActiveRuleByConfigKey("pmd", "rulesets/coupling.xml/ExcessiveImports")).isNotNull();
+    assertThat(profile.getActiveRuleByConfigKey("pmd", "rulesets/design.xml/UseNotifyAllInsteadOfNotify")).isNotNull();
+    assertThat(messages.hasErrors()).isFalse();
   }
 
   @Test
-  public void testImportingProfileWithXPathRule() {
-    Reader reader = new StringReader(TestUtils.getResourceContent("/org/sonar/plugins/pmd/export_xpath_rules.xml"));
+  public void should_import_profile_with_xpath_rule() {
+    Reader reader = read("/org/sonar/plugins/pmd/export_xpath_rules.xml");
+
     RulesProfile profile = importer.importProfile(reader, messages);
 
-    assertThat(profile.getActiveRules().size(), is(0));
-    assertThat(messages.hasWarnings(), is(true));
+    assertThat(profile.getActiveRules()).isEmpty();
+    assertThat(messages.hasWarnings()).isTrue();
   }
 
   @Test
-  public void testImportingParameters() {
-    Reader reader = new StringReader(TestUtils.getResourceContent("/org/sonar/plugins/pmd/simple.xml"));
-    RulesProfile profile = importer.importProfile(reader, messages);
+  public void should_import_parameter() {
+    Reader reader = read("/org/sonar/plugins/pmd/simple.xml");
 
+    RulesProfile profile = importer.importProfile(reader, messages);
     ActiveRule activeRule = profile.getActiveRuleByConfigKey("pmd", "rulesets/coupling.xml/ExcessiveImports");
-    assertThat(activeRule.getActiveRuleParams().size(), is(1));
-    assertThat(activeRule.getParameter("max"), is("30"));
+
+    assertThat(activeRule.getParameter("max")).isEqualTo("30");
   }
 
   @Test
-  public void testImportingDefaultPriority() {
-    Reader reader = new StringReader(TestUtils.getResourceContent("/org/sonar/plugins/pmd/simple.xml"));
+  public void should_import_default_priority() {
+    Reader reader = read("/org/sonar/plugins/pmd/simple.xml");
+
     RulesProfile profile = importer.importProfile(reader, messages);
-
     ActiveRule activeRule = profile.getActiveRuleByConfigKey("pmd", "rulesets/coupling.xml/ExcessiveImports");
-    assertThat(activeRule.getSeverity(), is(RulePriority.BLOCKER)); // reuse the rule default priority
+
+    assertThat(activeRule.getSeverity()).isSameAs(RulePriority.BLOCKER);
   }
 
   @Test
-  public void testImportingPriority() {
-    Reader reader = new StringReader(TestUtils.getResourceContent("/org/sonar/plugins/pmd/simple.xml"));
+  public void should_import_priority() {
+    Reader reader = read("/org/sonar/plugins/pmd/simple.xml");
+
     RulesProfile profile = importer.importProfile(reader, messages);
 
     ActiveRule activeRule = profile.getActiveRuleByConfigKey("pmd", "rulesets/design.xml/UseNotifyAllInsteadOfNotify");
-    assertThat(activeRule.getSeverity(), is(RulePriority.MINOR));
+    assertThat(activeRule.getSeverity()).isSameAs(RulePriority.MINOR);
 
     activeRule = profile.getActiveRuleByConfigKey("pmd", "rulesets/coupling.xml/CouplingBetweenObjects");
-    assertThat(activeRule.getSeverity(), is(RulePriority.CRITICAL));
+    assertThat(activeRule.getSeverity()).isSameAs(RulePriority.CRITICAL);
   }
 
   @Test
-  public void testImportingPmdConfigurationWithUnknownNodes() {
-    Reader reader = new StringReader(TestUtils.getResourceContent("/org/sonar/plugins/pmd/complex-with-unknown-nodes.xml"));
+  public void should_import_pmd_configuration_with_unknown_nodes() {
+    Reader reader = read("/org/sonar/plugins/pmd/complex-with-unknown-nodes.xml");
+
     RulesProfile profile = importer.importProfile(reader, messages);
 
-    assertThat(profile.getActiveRules().size(), is(3));
+    assertThat(profile.getActiveRules()).hasSize(3);
   }
 
   @Test
-  public void testUnsupportedProperty() {
-    Reader reader = new StringReader(TestUtils.getResourceContent("/org/sonar/plugins/pmd/simple.xml"));
-    RulesProfile profile = importer.importProfile(reader, messages);
+  public void should_deal_with_unsupported_property() {
+    Reader reader = read("/org/sonar/plugins/pmd/simple.xml");
 
+    RulesProfile profile = importer.importProfile(reader, messages);
     ActiveRule check = profile.getActiveRuleByConfigKey("pmd", "rulesets/coupling.xml/CouplingBetweenObjects");
-    assertThat(check.getParameter("threshold"), nullValue());
-    assertThat(messages.getWarnings().size(), is(1));
+
+    assertThat(check.getParameter("threshold")).isNull();
+    assertThat(messages.getWarnings()).hasSize(1);
   }
 
   @Test
-  public void testUnvalidXML() {
+  public void should_fail_on_invalid_xml() {
     Reader reader = new StringReader("not xml");
+
     importer.importProfile(reader, messages);
-    assertThat(messages.getErrors().size(), is(1));
+
+    assertThat(messages.getErrors()).hasSize(1);
   }
 
   @Test
-  public void testImportingUnknownRules() {
-    Reader reader = new StringReader(TestUtils.getResourceContent("/org/sonar/plugins/pmd/simple.xml"));
+  public void should_warn_on_unknown_rule() {
+    Reader reader = read("/org/sonar/plugins/pmd/simple.xml");
+
     importer = new PmdProfileImporter(mock(RuleFinder.class));
     RulesProfile profile = importer.importProfile(reader, messages);
 
-    assertThat(profile.getActiveRules().size(), is(0));
-    assertThat(messages.getWarnings().size(), is(3));
+    assertThat(profile.getActiveRules()).isEmpty();
+    assertThat(messages.getWarnings()).hasSize(3);
   }
 
-  private RuleFinder createRuleFinder() {
-    RuleFinder ruleFinder = mock(RuleFinder.class);
-    when(ruleFinder.find((RuleQuery) anyObject())).thenAnswer(new Answer<Rule>() {
+  static Reader read(String path) {
+    return new StringReader(TestUtils.getResourceContent(path));
+  }
 
-      public Rule answer(InvocationOnMock iom) throws Throwable {
-        RuleQuery query = (RuleQuery) iom.getArguments()[0];
-        Rule rule = Rule.create(query.getRepositoryKey(), query.getConfigKey(), "Rule name - " + query.getConfigKey())
-            .setConfigKey(query.getConfigKey()).setSeverity(RulePriority.BLOCKER);
+  static RuleFinder createRuleFinder() {
+    RuleFinder ruleFinder = mock(RuleFinder.class);
+    when(ruleFinder.find((RuleQuery) anyObject())).then(new Answer<Rule>() {
+      public Rule answer(InvocationOnMock invocation) {
+        RuleQuery query = (RuleQuery) invocation.getArguments()[0];
+        Rule rule = Rule.create(query.getRepositoryKey(), "", "").setConfigKey(query.getConfigKey()).setSeverity(RulePriority.BLOCKER);
         if (rule.getConfigKey().equals("rulesets/coupling.xml/ExcessiveImports")) {
           rule.createParameter("max");
         }

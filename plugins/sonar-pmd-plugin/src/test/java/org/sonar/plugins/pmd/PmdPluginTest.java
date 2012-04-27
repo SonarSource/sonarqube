@@ -19,17 +19,20 @@
  */
 package org.sonar.plugins.pmd;
 
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Test;
+import org.sonar.api.Extension;
+
+import java.util.List;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class PmdPluginTest {
+  PmdPlugin plugin = new PmdPlugin();
 
   @Test
-  public void testGetExtensions() {
-    PmdPlugin plugin = new PmdPlugin();
-    assertThat(plugin.getExtensions().size(), greaterThan(1));
-  }
+  public void should_contain_both_rule_repositories() {
+    List<Class<? extends Extension>> extensions = plugin.getExtensions();
 
+    assertThat(extensions).contains(PmdRuleRepository.class, PmdUnitTestsRuleRepository.class);
+  }
 }

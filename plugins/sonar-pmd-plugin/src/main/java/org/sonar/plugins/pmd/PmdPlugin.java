@@ -26,19 +26,20 @@ import org.sonar.api.SonarPlugin;
 import java.util.List;
 
 public class PmdPlugin extends SonarPlugin {
-
+  @SuppressWarnings("unchecked")
   public List<Class<? extends Extension>> getExtensions() {
     return ImmutableList.of(
         PmdSensor.class,
         PmdConfiguration.class,
         PmdExecutor.class,
         PmdRuleRepository.class,
+        PmdUnitTestsRuleRepository.class,
         PmdProfileExporter.class,
         PmdProfileImporter.class,
         SonarWayProfile.class,
         SonarWayWithFindbugsProfile.class,
         SunConventionsProfile.class,
-        JavaCpdMapping.class
-        );
+        JavaCpdMapping.class,
+        PmdViolationToRuleViolation.class);
   }
 }

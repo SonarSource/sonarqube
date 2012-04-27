@@ -26,7 +26,6 @@ import org.sonar.api.batch.*;
 import org.sonar.api.measures.*;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
@@ -44,7 +43,7 @@ public class ViolationsDecorator implements Decorator {
   }
 
   private boolean shouldDecorateResource(Resource resource) {
-    return !ResourceUtils.isUnitTestClass(resource);
+    return true;
   }
 
   @DependedUpon

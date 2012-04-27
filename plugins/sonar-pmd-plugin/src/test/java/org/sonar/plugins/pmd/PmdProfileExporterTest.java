@@ -19,12 +19,9 @@
  */
 package org.sonar.plugins.pmd;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.input.CharSequenceReader;
-import org.apache.commons.lang.StringUtils;
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
@@ -38,144 +35,109 @@ import org.sonar.plugins.pmd.xml.PmdProperty;
 import org.sonar.plugins.pmd.xml.PmdRule;
 import org.sonar.test.TestUtils;
 
-import java.io.Reader;
 import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.Collection;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.test.MoreConditions.equalsIgnoreEOL;
 
 public class PmdProfileExporterTest {
-
-  private final PmdProfileExporter exporter = new PmdProfileExporter();
+  PmdProfileExporter exporter = new PmdProfileExporter();
 
   @Test
-  public void testExportProfile() {
-    ServerFileSystem fileSystem = mock(ServerFileSystem.class);
-    PmdRuleRepository repository = new PmdRuleRepository(fileSystem, new XMLRuleParser());
-    List<Rule> rules = repository.createRules();
+  public void should_export_pmd_profile() {
+    String importedXml = TestUtils.getResourceContent("/org/sonar/plugins/pmd/export_simple.xml");
 
-    RuleFinder ruleFinder = new FakeRuleFinder(rules);
-    PmdProfileImporter importer = new PmdProfileImporter(ruleFinder);
-    Reader reader = new StringReader(TestUtils.getResourceContent("/org/sonar/plugins/pmd/simple.xml"));
-    RulesProfile rulesProfile = importer.importProfile(reader, ValidationMessages.create());
+    String exportedXml = exporter.exportProfile(PmdConstants.REPOSITORY_KEY, importProfile(importedXml));
 
-    StringWriter xmlOutput = new StringWriter();
-    exporter.exportProfile(rulesProfile, xmlOutput);
-
-    assertThat(xmlOutput.toString(), new IsEqualIgnoringEOL(TestUtils.getResourceContent("/org/sonar/plugins/pmd/export_simple.xml")));
+    assertThat(exportedXml).satisfies(equalsIgnoreEOL(importedXml));
   }
 
   @Test
-  public void testExportXPathRule() {
-    StringWriter xmlOutput = new StringWriter();
+  public void should_export_empty_configuration_as_xml() {
+    String exportedXml = exporter.exportProfile(PmdConstants.REPOSITORY_KEY, RulesProfile.create());
+
+    assertThat(exportedXml).satisfies(equalsIgnoreEOL("<?xml version=\"1.0\" encoding=\"UTF-8\"?><ruleset />"));
+  }
+
+  @Test
+  public void should_export_xPath_rule() {
+    Rule rule = Rule.create(PmdConstants.REPOSITORY_KEY, "MyOwnRule", "This is my own xpath rule.")
+        .setConfigKey(PmdConstants.XPATH_CLASS)
+        .setRepositoryKey(PmdConstants.REPOSITORY_KEY);
+    rule.createParameter(PmdConstants.XPATH_EXPRESSION_PARAM);
+    rule.createParameter(PmdConstants.XPATH_MESSAGE_PARAM);
+
     RulesProfile profile = RulesProfile.create();
-    Rule xpathTemplate = Rule.create(PmdConstants.REPOSITORY_KEY, "MyOwnRule", "This is my own xpath rule.")
-        .setConfigKey(PmdConstants.XPATH_CLASS).setRepositoryKey(PmdConstants.REPOSITORY_KEY);
-    xpathTemplate.createParameter(PmdConstants.XPATH_EXPRESSION_PARAM);
-    xpathTemplate.createParameter(PmdConstants.XPATH_MESSAGE_PARAM);
-    ActiveRule xpath = profile.activateRule(xpathTemplate, null);
+    ActiveRule xpath = profile.activateRule(rule, null);
     xpath.setParameter(PmdConstants.XPATH_EXPRESSION_PARAM, "//FieldDeclaration");
     xpath.setParameter(PmdConstants.XPATH_MESSAGE_PARAM, "This is bad");
-    exporter.exportProfile(profile, xmlOutput);
-    assertThat(xmlOutput.toString(), new IsEqualIgnoringEOL(TestUtils.getResourceContent("/org/sonar/plugins/pmd/export_xpath_rules.xml")));
-  }
 
-  private static class IsEqualIgnoringEOL extends TypeSafeMatcher<CharSequence> {
-    private final String expected;
+    String exportedXml = exporter.exportProfile(PmdConstants.REPOSITORY_KEY, profile);
 
-    public IsEqualIgnoringEOL(CharSequence expected) {
-      this.expected = normalize(expected);
-    }
-
-    public void describeTo(Description description) {
-      description.appendText("string equal ").appendText(expected);
-    }
-
-    @Override
-    public boolean matchesSafely(CharSequence item) {
-      return StringUtils.equals(expected, normalize(item));
-    }
-
-    private static String normalize(CharSequence charSequence) {
-      return StringUtils.join(IOUtils.lineIterator(new CharSequenceReader(charSequence)), IOUtils.LINE_SEPARATOR_UNIX);
-    }
+    assertThat(exportedXml).satisfies(equalsIgnoreEOL(TestUtils.getResourceContent("/org/sonar/plugins/pmd/export_xpath_rules.xml")));
   }
 
   @Test(expected = SonarException.class)
-  public void shouldFailIfMessageNotProvidedForXPathRule() {
-    String xpathExpression = "xpathExpression";
-
+  public void should_fail_if_message_not_provided_for_xPath_rule() {
     PmdRule rule = new PmdRule(PmdConstants.XPATH_CLASS);
-    rule.addProperty(new PmdProperty(PmdConstants.XPATH_EXPRESSION_PARAM, xpathExpression));
-    rule.setName("MyOwnRule");
 
-    exporter.processXPathRule("xpathKey", rule);
-  }
-
-  @Test(expected = SonarException.class)
-  public void shouldFailIfXPathNotProvidedForXPathRule() {
-    String message = "This is bad";
-
-    PmdRule rule = new PmdRule(PmdConstants.XPATH_CLASS);
-    rule.addProperty(new PmdProperty(PmdConstants.XPATH_MESSAGE_PARAM, message));
+    rule.addProperty(new PmdProperty(PmdConstants.XPATH_EXPRESSION_PARAM, "xpathExpression"));
     rule.setName("MyOwnRule");
 
     exporter.processXPathRule("xpathKey", rule);
   }
 
   @Test
-  public void testProcessingXPathRule() {
-    String message = "This is bad";
-    String xpathExpression = "xpathExpression";
-
+  public void should_process_xPath_rule() {
     PmdRule rule = new PmdRule(PmdConstants.XPATH_CLASS);
-    rule.addProperty(new PmdProperty(PmdConstants.XPATH_EXPRESSION_PARAM, xpathExpression));
-    rule.addProperty(new PmdProperty(PmdConstants.XPATH_MESSAGE_PARAM, message));
     rule.setName("MyOwnRule");
+    rule.addProperty(new PmdProperty(PmdConstants.XPATH_EXPRESSION_PARAM, "xpathExpression"));
+    rule.addProperty(new PmdProperty(PmdConstants.XPATH_MESSAGE_PARAM, "message"));
 
     exporter.processXPathRule("xpathKey", rule);
 
-    assertThat(rule.getMessage(), is(message));
-    assertThat(rule.getRef(), is(nullValue()));
-    assertThat(rule.getClazz(), is(PmdConstants.XPATH_CLASS));
-    assertThat(rule.getProperty(PmdConstants.XPATH_MESSAGE_PARAM), is(nullValue()));
-    assertThat(rule.getName(), is("xpathKey"));
-    assertThat(rule.getProperty(PmdConstants.XPATH_EXPRESSION_PARAM).getValue(), is(xpathExpression));
+    assertThat(rule.getMessage()).isEqualTo("message");
+    assertThat(rule.getRef()).isNull();
+    assertThat(rule.getClazz()).isEqualTo(PmdConstants.XPATH_CLASS);
+    assertThat(rule.getProperty(PmdConstants.XPATH_MESSAGE_PARAM)).isNull();
+    assertThat(rule.getName()).isEqualTo("xpathKey");
+    assertThat(rule.getProperty(PmdConstants.XPATH_EXPRESSION_PARAM).getValue()).isEqualTo("xpathExpression");
   }
 
-  private static class FakeRuleFinder implements RuleFinder {
+  @Test(expected = SonarException.class)
+  public void should_fail_if_xPath_not_provided() {
+    PmdRule rule = new PmdRule(PmdConstants.XPATH_CLASS);
+    rule.setName("MyOwnRule");
+    rule.addProperty(new PmdProperty(PmdConstants.XPATH_MESSAGE_PARAM, "This is bad"));
 
-    private final List<Rule> rules;
+    exporter.processXPathRule("xpathKey", rule);
+  }
 
-    public FakeRuleFinder(List<Rule> rules) {
-      this.rules = rules;
-    }
+  static RulesProfile importProfile(String configuration) {
+    PmdRuleRepository pmdRuleRepository = new PmdRuleRepository(mock(ServerFileSystem.class), new XMLRuleParser());
+    RuleFinder ruleFinder = createRuleFinder(pmdRuleRepository.createRules());
+    PmdProfileImporter importer = new PmdProfileImporter(ruleFinder);
 
-    public Rule findById(int ruleId) {
-      throw new UnsupportedOperationException();
-    }
+    return importer.importProfile(new StringReader(configuration), ValidationMessages.create());
+  }
 
-    public Rule findByKey(String repositoryKey, String key) {
-      throw new UnsupportedOperationException();
-    }
-
-    public Collection<Rule> findAll(RuleQuery query) {
-      throw new UnsupportedOperationException();
-    }
-
-    public Rule find(RuleQuery query) {
-      for (Rule rule : rules) {
-        if (query.getConfigKey().equals(rule.getConfigKey())) {
-          rule.setRepositoryKey(PmdConstants.REPOSITORY_KEY);
-          return rule;
+  static RuleFinder createRuleFinder(final List<Rule> rules) {
+    RuleFinder ruleFinder = mock(RuleFinder.class);
+    when(ruleFinder.find(any(RuleQuery.class))).then(new Answer<Rule>() {
+      public Rule answer(InvocationOnMock invocation) {
+        RuleQuery query = (RuleQuery) invocation.getArguments()[0];
+        for (Rule rule : rules) {
+          if (query.getConfigKey().equals(rule.getConfigKey())) {
+            return rule.setRepositoryKey(PmdConstants.REPOSITORY_KEY);
+          }
         }
+        return null;
       }
-      return null;
-    }
+    });
+    return ruleFinder;
   }
 }

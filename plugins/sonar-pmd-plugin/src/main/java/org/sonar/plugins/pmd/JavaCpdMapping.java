@@ -19,37 +19,36 @@
  */
 package org.sonar.plugins.pmd;
 
+import net.sourceforge.pmd.cpd.JavaTokenizer;
+import net.sourceforge.pmd.cpd.Tokenizer;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.CpdMapping;
+import org.sonar.api.config.Settings;
+import org.sonar.api.resources.Java;
+import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Resource;
+
 import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
-import net.sourceforge.pmd.cpd.JavaTokenizer;
-import net.sourceforge.pmd.cpd.Tokenizer;
-
-import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.CpdMapping;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.JavaFile;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
+import static com.google.common.base.Objects.firstNonNull;
 
 public class JavaCpdMapping implements CpdMapping {
+  private final String ignore_literals;
+  private final String ignore_identifiers;
 
-  private String ignore_literals;
-  private String ignore_identifiers;
-
-  public JavaCpdMapping(Project project) {
-    ignore_literals = project.getConfiguration().getString(CoreProperties.CPD_IGNORE_LITERALS_PROPERTY,
-        CoreProperties.CPD_IGNORE_LITERALS_DEFAULT_VALUE);
-    ignore_identifiers = project.getConfiguration().getString(CoreProperties.CPD_IGNORE_IDENTIFIERS_PROPERTY,
-        CoreProperties.CPD_IGNORE_IDENTIFIERS_DEFAULT_VALUE);
+  public JavaCpdMapping(Settings settings) {
+    ignore_literals = firstNonNull(settings.getString(CoreProperties.CPD_IGNORE_LITERALS_PROPERTY), CoreProperties.CPD_IGNORE_LITERALS_DEFAULT_VALUE);
+    ignore_identifiers = firstNonNull(settings.getString(CoreProperties.CPD_IGNORE_IDENTIFIERS_PROPERTY), CoreProperties.CPD_IGNORE_IDENTIFIERS_DEFAULT_VALUE);
   }
 
   public Tokenizer getTokenizer() {
     Properties props = new Properties();
     props.setProperty(JavaTokenizer.IGNORE_LITERALS, ignore_literals);
     props.setProperty(JavaTokenizer.IGNORE_IDENTIFIERS, ignore_identifiers);
+
     JavaTokenizer tokenizer = new JavaTokenizer();
     tokenizer.setProperties(props);
     return tokenizer;

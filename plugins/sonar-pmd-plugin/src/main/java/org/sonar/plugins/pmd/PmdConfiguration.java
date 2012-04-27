@@ -19,18 +19,20 @@
  */
 package org.sonar.plugins.pmd;
 
+import net.sourceforge.pmd.Report;
+import net.sourceforge.pmd.renderers.Renderer;
+import net.sourceforge.pmd.renderers.XMLRenderer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.Property;
 import org.sonar.api.config.Settings;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.utils.SonarException;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.Arrays;
-import java.util.List;
 
 @org.sonar.api.Properties({
   @Property(
@@ -42,40 +44,65 @@ import java.util.List;
   )
 })
 public class PmdConfiguration implements BatchExtension {
+  private static final Logger LOG = LoggerFactory.getLogger(PmdConfiguration.class);
 
   public static final String PROPERTY_GENERATE_XML = "sonar.pmd.generateXml";
+  public static final String PMD_RESULT_XML = "pmd-result.xml";
 
-  private PmdProfileExporter pmdProfileExporter;
-  private RulesProfile rulesProfile;
-  private Project project;
-  private Settings settings;
+  private final ProjectFileSystem projectFileSystem;
+  private final Settings settings;
 
-  public PmdConfiguration(PmdProfileExporter pmdRulesRepository, RulesProfile rulesProfile, Project project, Settings settings) {
-    this.pmdProfileExporter = pmdRulesRepository;
-    this.rulesProfile = rulesProfile;
-    this.project = project;
+  public PmdConfiguration(ProjectFileSystem projectFileSystem, Settings settings) {
+    this.projectFileSystem = projectFileSystem;
     this.settings = settings;
   }
 
-  public List<String> getRulesets() {
-    return Arrays.asList(saveXmlFile().getAbsolutePath());
+  public File getTargetXMLReport() {
+    if (settings.getBoolean(PROPERTY_GENERATE_XML)) {
+      return projectFileSystem.resolvePath(PMD_RESULT_XML);
+    }
+    return null;
   }
 
-  private File saveXmlFile() {
+  public File dumpXmlRuleSet(String repositoryKey, String rulesXml) {
     try {
-      StringWriter pmdConfiguration = new StringWriter();
-      pmdProfileExporter.exportProfile(rulesProfile, pmdConfiguration);
-      return project.getFileSystem().writeToWorkingDirectory(pmdConfiguration.toString(), "pmd.xml");
+      File configurationFile = projectFileSystem.writeToWorkingDirectory(rulesXml, repositoryKey + ".xml");
 
+      LOG.info("PMD configuration: " + configurationFile.getAbsolutePath());
+
+      return configurationFile;
     } catch (IOException e) {
       throw new SonarException("Fail to save the PMD configuration", e);
     }
   }
 
-  public File getTargetXMLReport() {
-    if (settings.getBoolean(PROPERTY_GENERATE_XML)) {
-      return new File(project.getFileSystem().getSonarWorkingDirectory(), "pmd-result.xml");
+  public File dumpXmlReport(Report report) {
+    if (!settings.getBoolean(PROPERTY_GENERATE_XML)) {
+      return null;
     }
-    return null;
+
+    try {
+      String reportAsString = reportToString(report);
+
+      File reportFile = projectFileSystem.writeToWorkingDirectory(reportAsString, PMD_RESULT_XML);
+
+      LOG.info("PMD output report: " + reportFile.getAbsolutePath());
+
+      return reportFile;
+    } catch (IOException e) {
+      throw new SonarException("Fail to save the PMD report", e);
+    }
+  }
+
+  private static String reportToString(Report report) throws IOException {
+    StringWriter output = new StringWriter();
+
+    Renderer xmlRenderer = new XMLRenderer();
+    xmlRenderer.setWriter(output);
+    xmlRenderer.start();
+    xmlRenderer.renderFileReport(report);
+    xmlRenderer.end();
+
+    return output.toString();
   }
 }
