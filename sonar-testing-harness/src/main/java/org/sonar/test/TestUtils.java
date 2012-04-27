@@ -19,13 +19,9 @@
  */
 package org.sonar.test;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.StringUtils;
 import org.custommonkey.xmlunit.Diff;
@@ -36,6 +32,11 @@ import org.xml.sax.SAXException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Utilities for unit tests
@@ -66,16 +67,16 @@ public final class TestUtils {
   }
 
   public static String getResourceContent(String path) {
-    File file = getResource(path);
-    if (file != null) {
-      try {
-        return FileUtils.readFileToString(file, CharEncoding.UTF_8);
-
-      } catch (IOException e) {
-        throw new SonarException("Can not load the resource: " + path, e);
-      }
+    URL url = TestUtils.class.getResource(path);
+    if (url == null) {
+      return null;
     }
-    return null;
+
+    try {
+      return Resources.toString(url, Charsets.UTF_8);
+    } catch (IOException e) {
+      throw new SonarException("Can not load the resource: " + path, e);
+    }
   }
 
   /**
