@@ -26,7 +26,7 @@ import org.fest.assertions.Condition;
  * Conditions for use with FestAssert.
  */
 public final class MoreConditions {
-  private static CharMatcher EOLS = CharMatcher.anyOf("\n\r");
+  private static final CharMatcher EOLS = CharMatcher.anyOf("\n\r");
 
   private MoreConditions() {
     // static utility class
