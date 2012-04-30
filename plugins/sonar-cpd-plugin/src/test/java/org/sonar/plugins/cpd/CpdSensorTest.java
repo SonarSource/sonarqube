@@ -20,8 +20,10 @@
 package org.sonar.plugins.cpd;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.batch.CpdMapping;
+import org.sonar.api.resources.Java;
+import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
 import org.sonar.plugins.cpd.index.IndexFactory;
 
@@ -29,8 +31,21 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class CpdSensorTest {
+
+  private SonarEngine sonarEngine;
+  private SonarBridgeEngine sonarBridgeEngine;
+  private CpdSensor sensor;
+
+  @Before
+  public void setUp() {
+    IndexFactory indexFactory = new IndexFactory(null);
+    sonarEngine = new SonarEngine(indexFactory);
+    sonarBridgeEngine = new SonarBridgeEngine(indexFactory);
+    sensor = new CpdSensor(sonarEngine, sonarBridgeEngine);
+  }
 
   @Test
   public void generalSkip() {
@@ -39,7 +54,6 @@ public class CpdSensorTest {
 
     Project project = createJavaProject().setConfiguration(conf);
 
-    CpdSensor sensor = new CpdSensor(new SonarEngine(new IndexFactory(null)), new PmdEngine(new CpdMapping[0]));
     assertTrue(sensor.isSkipped(project));
   }
 
@@ -47,7 +61,6 @@ public class CpdSensorTest {
   public void doNotSkipByDefault() {
     Project project = createJavaProject().setConfiguration(new PropertiesConfiguration());
 
-    CpdSensor sensor = new CpdSensor(new SonarEngine(new IndexFactory(null)), new PmdEngine(new CpdMapping[0]));
     assertFalse(sensor.isSkipped(project));
   }
 
@@ -60,28 +73,26 @@ public class CpdSensorTest {
     Project phpProject = createPhpProject().setConfiguration(conf);
     Project javaProject = createJavaProject().setConfiguration(conf);
 
-    CpdSensor sensor = new CpdSensor(new SonarEngine(new IndexFactory(null)), new PmdEngine(new CpdMapping[0]));
     assertTrue(sensor.isSkipped(phpProject));
     assertFalse(sensor.isSkipped(javaProject));
   }
 
   @Test
   public void engine() {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    Project project = createJavaProject().setConfiguration(conf);
-    CpdSensor sensor = new CpdSensor(new SonarEngine(new IndexFactory(null)), new PmdEngine(new CpdMapping[0]));
+    Project phpProject = createPhpProject();
+    Project javaProject = createJavaProject();
 
-    assertThat(sensor.isSonarEngineEnabled(project), is(true));
-    conf.setProperty("sonar.cpd.engine", "pmd");
-    assertThat(sensor.isSonarEngineEnabled(project), is(false));
+    assertThat(sensor.getEngine(javaProject), is((CpdEngine) sonarEngine));
+    assertThat(sensor.getEngine(phpProject), is((CpdEngine) sonarBridgeEngine));
   }
 
   private Project createJavaProject() {
-    return new Project("java_project").setLanguageKey("java");
+    return new Project("java_project").setLanguageKey("java").setLanguage(Java.INSTANCE);
   }
 
   private Project createPhpProject() {
-    return new Project("php_project").setLanguageKey("php");
+    Language phpLanguage = mock(Language.class);
+    return new Project("php_project").setLanguageKey("php").setLanguage(phpLanguage);
   }
 
 }

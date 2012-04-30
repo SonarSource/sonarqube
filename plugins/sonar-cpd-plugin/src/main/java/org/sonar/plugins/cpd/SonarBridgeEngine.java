@@ -22,8 +22,10 @@ package org.sonar.plugins.cpd;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.CpdMapping;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.*;
@@ -89,7 +91,7 @@ public class SonarBridgeEngine extends CpdEngine {
     }
 
     // Detect
-    Predicate<CloneGroup> minimumTokensPredicate = DuplicationPredicates.numberOfUnitsNotLessThan(PmdEngine.getMinimumTokens(project));
+    Predicate<CloneGroup> minimumTokensPredicate = DuplicationPredicates.numberOfUnitsNotLessThan(getMinimumTokens(project));
 
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     try {
@@ -135,6 +137,13 @@ public class SonarBridgeEngine extends CpdEngine {
     } else {
       return 10;
     }
+  }
+
+  @VisibleForTesting
+  static int getMinimumTokens(Project project) {
+    Configuration conf = project.getConfiguration();
+    return conf.getInt("sonar.cpd." + project.getLanguageKey() + ".minimumTokens",
+        conf.getInt("sonar.cpd.minimumTokens", CoreProperties.CPD_MINIMUM_TOKENS_DEFAULT_VALUE));
   }
 
   private CpdMapping getMapping(Language language) {

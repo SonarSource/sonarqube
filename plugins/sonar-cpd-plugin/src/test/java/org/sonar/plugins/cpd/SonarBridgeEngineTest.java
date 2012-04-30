@@ -19,7 +19,10 @@
  */
 package org.sonar.plugins.cpd;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.resources.Project;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -32,6 +35,35 @@ public class SonarBridgeEngineTest {
     assertThat(SonarBridgeEngine.getDefaultBlockSize("natur"), is(20));
     assertThat(SonarBridgeEngine.getDefaultBlockSize("abap"), is(20));
     assertThat(SonarBridgeEngine.getDefaultBlockSize("other"), is(10));
+  }
+
+  @Test
+  public void defaultMinimumTokens() {
+    Project project = new Project("foo").setConfiguration(new PropertiesConfiguration());
+
+    assertThat(SonarBridgeEngine.getMinimumTokens(project), is(CoreProperties.CPD_MINIMUM_TOKENS_DEFAULT_VALUE));
+  }
+
+  @Test
+  public void generalMinimumTokens() {
+    PropertiesConfiguration conf = new PropertiesConfiguration();
+    conf.setProperty("sonar.cpd.minimumTokens", "33");
+    Project project = new Project("foo").setConfiguration(conf);
+
+    assertThat(SonarBridgeEngine.getMinimumTokens(project), is(33));
+  }
+
+  @Test
+  public void minimumTokensByLanguage() {
+    PropertiesConfiguration conf = new PropertiesConfiguration();
+    conf.setProperty("sonar.cpd.java.minimumTokens", "42");
+    conf.setProperty("sonar.cpd.php.minimumTokens", "33");
+
+    Project javaProject = new Project("foo").setLanguageKey("java").setConfiguration(conf);
+    Project phpProject = new Project("foo").setLanguageKey("php").setConfiguration(conf);
+
+    assertThat(SonarBridgeEngine.getMinimumTokens(javaProject), is(42));
+    assertThat(SonarBridgeEngine.getMinimumTokens(phpProject), is(33));
   }
 
 }

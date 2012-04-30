@@ -20,12 +20,7 @@
 package org.sonar.plugins.cpd;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.api.BatchExtension;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.Properties;
-import org.sonar.api.Property;
-import org.sonar.api.PropertyType;
-import org.sonar.api.SonarPlugin;
+import org.sonar.api.*;
 import org.sonar.plugins.cpd.decorators.DuplicationDensityDecorator;
 import org.sonar.plugins.cpd.decorators.SumDuplicationsDecorator;
 import org.sonar.plugins.cpd.index.IndexFactory;
@@ -103,7 +98,6 @@ public final class CpdPlugin extends SonarPlugin {
         DuplicationDensityDecorator.class,
         IndexFactory.class,
         SonarEngine.class,
-        PmdEngine.class,
         SonarBridgeEngine.class);
   }
 

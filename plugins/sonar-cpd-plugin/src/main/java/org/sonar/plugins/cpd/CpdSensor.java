@@ -19,67 +19,51 @@
  */
 package org.sonar.plugins.cpd;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
-import org.sonar.api.utils.Logs;
 
 public class CpdSensor implements Sensor {
 
+  private static final Logger LOG = LoggerFactory.getLogger(CpdSensor.class);
+
   private CpdEngine sonarEngine;
-  private CpdEngine pmdEngine;
   private CpdEngine sonarBridgeEngine;
 
-  public CpdSensor(SonarEngine sonarEngine, PmdEngine pmdEngine) {
+  public CpdSensor(SonarEngine sonarEngine, SonarBridgeEngine sonarBridgeEngine) {
     this.sonarEngine = sonarEngine;
-    this.pmdEngine = pmdEngine;
-  }
-
-  public CpdSensor(SonarEngine sonarEngine, PmdEngine pmdEngine, SonarBridgeEngine sonarBridgeEngine) {
-    this.sonarEngine = sonarEngine;
-    this.pmdEngine = pmdEngine;
     this.sonarBridgeEngine = sonarBridgeEngine;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
     if (isSkipped(project)) {
-      LoggerFactory.getLogger(getClass()).info("Detection of duplicated code is skipped");
+      LOG.info("Detection of duplicated code is skipped");
       return false;
     }
 
     if (!getEngine(project).isLanguageSupported(project.getLanguage())) {
-      LoggerFactory.getLogger(getClass()).info("Detection of duplication code is not supported for {}.", project.getLanguage());
+      LOG.info("Detection of duplicated code is not supported for {}.", project.getLanguage());
       return false;
     }
 
     return true;
   }
 
-  private CpdEngine getEngine(Project project) {
-    if (isEngineEnabled(project, "sonar")) {
-      if (sonarEngine.isLanguageSupported(project.getLanguage())) {
-        return sonarEngine;
-      }
-      // falback to bridge
-    } else if (isEngineEnabled(project, "pmd")) {
-      return pmdEngine;
+  @VisibleForTesting
+  CpdEngine getEngine(Project project) {
+    if (sonarEngine.isLanguageSupported(project.getLanguage())) {
+      return sonarEngine;
+    } else {
+      return sonarBridgeEngine;
     }
-    return sonarBridgeEngine;
   }
 
-  boolean isEngineEnabled(Project project, String engineName) {
-    Configuration conf = project.getConfiguration();
-    return StringUtils.equalsIgnoreCase(conf.getString(CoreProperties.CPD_ENGINE, CoreProperties.CPD_ENGINE_DEFAULT_VALUE), engineName);
-  }
-
-  boolean isSonarEngineEnabled(Project project) {
-    return isEngineEnabled(project, "sonar");
-  }
-
+  @VisibleForTesting
   boolean isSkipped(Project project) {
     Configuration conf = project.getConfiguration();
     return conf.getBoolean("sonar.cpd." + project.getLanguageKey() + ".skip",
@@ -88,7 +72,7 @@ public class CpdSensor implements Sensor {
 
   public void analyse(Project project, SensorContext context) {
     CpdEngine engine = getEngine(project);
-    Logs.INFO.info("{} is used", engine);
+    LOG.info("{} is used", engine);
     engine.analyse(project, context);
   }
 
@@ -96,4 +80,5 @@ public class CpdSensor implements Sensor {
   public String toString() {
     return getClass().getSimpleName();
   }
+
 }
