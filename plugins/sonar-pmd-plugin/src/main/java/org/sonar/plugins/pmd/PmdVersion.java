@@ -26,29 +26,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-public enum PmdVersion {
-  INSTANCE;
-
+public final class PmdVersion {
   private static final String PROPERTIES_PATH = "/org/sonar/plugins/pmd/pmd-plugin.properties";
-  private String version;
-
-  public static String getVersion() {
-    return INSTANCE.version;
-  }
 
   private PmdVersion() {
-    version = readVersion();
+    // Static utility class
   }
 
-  public String readVersion() {
+  public static String getVersion() {
     Properties properties = new Properties();
 
     InputStream input = null;
     try {
-      input = getClass().getResourceAsStream(PROPERTIES_PATH);
+      input = PmdVersion.class.getResourceAsStream(PROPERTIES_PATH);
       properties.load(input);
     } catch (IOException e) {
-      LoggerFactory.getLogger(getClass()).warn("Can not load the PMD version from the file " + PROPERTIES_PATH);
+      LoggerFactory.getLogger(PmdVersion.class).warn("Can not load the PMD version from the file " + PROPERTIES_PATH);
     } finally {
       Closeables.closeQuietly(input);
     }

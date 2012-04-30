@@ -26,6 +26,6 @@ import static org.fest.assertions.Assertions.assertThat;
 public class PmdVersionTest {
   @Test
   public void should_get_pmd_version() {
-    assertThat(PmdVersion.getVersion()).isNotEmpty().isSameAs(PmdVersion.getVersion());
+    assertThat(PmdVersion.getVersion()).isNotEmpty();
   }
 }
