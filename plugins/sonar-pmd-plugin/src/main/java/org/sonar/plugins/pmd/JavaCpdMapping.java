@@ -36,18 +36,18 @@ import java.util.Properties;
 import static com.google.common.base.Objects.firstNonNull;
 
 public class JavaCpdMapping implements CpdMapping {
-  private final String ignore_literals;
-  private final String ignore_identifiers;
+  private final String ignoreLiterals;
+  private final String ignoreIdentifiers;
 
   public JavaCpdMapping(Settings settings) {
-    ignore_literals = firstNonNull(settings.getString(CoreProperties.CPD_IGNORE_LITERALS_PROPERTY), CoreProperties.CPD_IGNORE_LITERALS_DEFAULT_VALUE);
-    ignore_identifiers = firstNonNull(settings.getString(CoreProperties.CPD_IGNORE_IDENTIFIERS_PROPERTY), CoreProperties.CPD_IGNORE_IDENTIFIERS_DEFAULT_VALUE);
+    ignoreLiterals = firstNonNull(settings.getString(CoreProperties.CPD_IGNORE_LITERALS_PROPERTY), CoreProperties.CPD_IGNORE_LITERALS_DEFAULT_VALUE);
+    ignoreIdentifiers = firstNonNull(settings.getString(CoreProperties.CPD_IGNORE_IDENTIFIERS_PROPERTY), CoreProperties.CPD_IGNORE_IDENTIFIERS_DEFAULT_VALUE);
   }
 
   public Tokenizer getTokenizer() {
     Properties props = new Properties();
-    props.setProperty(JavaTokenizer.IGNORE_LITERALS, ignore_literals);
-    props.setProperty(JavaTokenizer.IGNORE_IDENTIFIERS, ignore_identifiers);
+    props.setProperty(JavaTokenizer.IGNORE_LITERALS, ignoreLiterals);
+    props.setProperty(JavaTokenizer.IGNORE_IDENTIFIERS, ignoreIdentifiers);
 
     JavaTokenizer tokenizer = new JavaTokenizer();
     tokenizer.setProperties(props);
