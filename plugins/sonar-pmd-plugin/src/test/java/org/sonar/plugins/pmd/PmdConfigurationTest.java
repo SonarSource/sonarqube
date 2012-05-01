@@ -90,7 +90,7 @@ public class PmdConfigurationTest {
 
   @Test
   public void should_dump_xml_report() throws IOException {
-    when(fs.writeToWorkingDirectory(matches(".*[\r\n]*<pmd.*[\r\n].*</pmd>"), eq("pmd-result.xml"))).thenReturn(new File("/workingDir/pmd-result.xml"));
+    when(fs.writeToWorkingDirectory(matches("(?s).*<pmd.*>.*</pmd>"), eq("pmd-result.xml"))).thenReturn(new File("/workingDir/pmd-result.xml"));
 
     settings.setProperty(PmdConfiguration.PROPERTY_GENERATE_XML, true);
     File reportFile = configuration.dumpXmlReport(new Report());
