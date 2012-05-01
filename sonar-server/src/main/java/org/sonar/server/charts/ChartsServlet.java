@@ -20,7 +20,7 @@
 package org.sonar.server.charts;
 
 import com.google.common.collect.Maps;
-import org.apache.commons.io.IOUtils;
+import com.google.common.io.Closeables;
 import org.jfree.chart.encoders.KeypointPNGEncoderAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -144,21 +144,17 @@ public class ChartsServlet extends HttpServlet {
       chart = new SparkLinesChart(params);
     }
 
-    OutputStream out = null;
-    try {
-      if (chart != null) {
+    if (chart != null) {
+      OutputStream out = null;
+      try {
         out = response.getOutputStream();
         response.setContentType("image/png");
         chart.exportChartAsPNG(out);
-      }
-
-    } catch (Exception e) {
-      if (chart != null) {
+      } catch (Exception e) {
         LOG.error("Generating chart " + chart.getClass().getName(), e);
+      } finally {
+        Closeables.closeQuietly(out);
       }
-    } finally {
-      IOUtils.closeQuietly(out);
     }
   }
-
 }
