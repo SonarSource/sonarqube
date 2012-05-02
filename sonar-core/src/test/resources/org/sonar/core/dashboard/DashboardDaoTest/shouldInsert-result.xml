@@ -6,7 +6,9 @@
     name="My Dashboard"
     description="This is a dashboard"
     column_layout="100%"
-    shared="[true]"/>
+    shared="[true]"
+    detached="[false]"
+  />
 
   <widgets
     id="1"
@@ -16,12 +18,14 @@
     description="Widget for code coverage"
     column_index="13"
     row_index="14"
-    configured="[true]"/>
+    configured="[true]"
+  />
 
   <widget_properties
     id="1"
     widget_id="1"
     kee="displayITs"
-    text_value="true"/>
+    text_value="true"
+  />
 
 </dataset>

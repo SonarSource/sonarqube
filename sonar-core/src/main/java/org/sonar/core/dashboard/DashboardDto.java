@@ -33,6 +33,7 @@ public final class DashboardDto {
   private String description;
   private String columnLayout;
   private boolean shared;
+  private boolean detached;
   private Date createdAt;
   private Date updatedAt;
   private List<WidgetDto> widgetDtos = Lists.newArrayList();
@@ -88,6 +89,15 @@ public final class DashboardDto {
 
   public DashboardDto setShared(boolean shared) {
     this.shared = shared;
+    return this;
+  }
+
+  public boolean getDetached() {
+    return detached;
+  }
+
+  public DashboardDto setDetached(boolean detached) {
+    this.detached = detached;
     return this;
   }
 

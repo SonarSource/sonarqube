@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.core;
 
+import org.sonar.plugins.core.dashboards.GlobalDashboard;
+
 import com.google.common.collect.Lists;
 import org.sonar.api.*;
 import org.sonar.api.checks.NoSonarFilter;
@@ -265,12 +267,14 @@ public final class CorePlugin extends SonarPlugin {
     extensions.add(ActionPlansWidget.class);
     extensions.add(ReviewsMetricsWidget.class);
     extensions.add(TreemapWidget.class);
+    extensions.add(GlobalWidget.class);
 
     // dashboards
     extensions.add(DefaultDashboard.class);
     extensions.add(HotspotsDashboard.class);
     extensions.add(ReviewsDashboard.class);
     extensions.add(TimeMachineDashboard.class);
+    extensions.add(GlobalDashboard.class);
 
     // chart
     extensions.add(XradarChart.class);

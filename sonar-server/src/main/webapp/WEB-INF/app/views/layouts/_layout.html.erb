@@ -39,6 +39,12 @@
             <li class="<%= 'selected' if controller.controller_path=='dependencies' -%>">
               <a href="<%= ApplicationController.root_context -%>/dependencies/index"><%= message('dependencies.page') -%></a></li>
 
+            <% ActiveDashboard.user_dashboards(current_user).select { |active_dashboard| active_dashboard.dashboard.detached }.each do |active_dashboard| %>
+            <li class="<%= 'selected' if @dashboard && controller.controller_path=='detached' && active_dashboard.dashboard_id==@dashboard.id -%>">
+                <a href="<%= ApplicationController.root_context -%>/detached/index/<%= active_dashboard.dashboard_id -%>"><%= active_dashboard.dashboard.name(true) -%></a>
+            </li>
+            <% end %>
+
             <% controller.java_facade.getPages(Navigation::SECTION_HOME, nil, nil, nil, nil).each do |page|
                  page_url = (page.isController() ? page.getId() : "/plugins/home/#{page.getId()}")
                  selected=request.request_uri.include?("/plugins/home/#{page_url}")
@@ -48,7 +54,7 @@
             <% end %>
 
           <% elsif (selected_section==Navigation::SECTION_RESOURCE) %>
-            <% ActiveDashboard.user_dashboards(current_user).each do |active_dashboard| %>
+            <% ActiveDashboard.user_dashboards(current_user).select { |active_dashboard| !active_dashboard.dashboard.detached }.each do |active_dashboard| %>
               <li class="<%= 'selected' if @dashboard && controller.controller_path=='dashboard' && active_dashboard.dashboard_id==@dashboard.id -%>">
                 <a href="<%= ApplicationController.root_context -%>/dashboard/index/<%= @project.id -%>?did=<%= active_dashboard.dashboard_id -%><%= "&"+period_param if period_param -%>"><%= active_dashboard.dashboard.name(true) -%></a>
               </li>

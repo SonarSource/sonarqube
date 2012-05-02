@@ -1,0 +1,35 @@
+<div class="<%= h widget.key -%>" style="height:100%;">
+  <% if widget.configured %>
+    <%
+       begin
+         widget_body=render :inline => widget.java_definition.getTarget().getTemplate(), :locals => {:widget_properties => widget.properties_as_hash, :widget => widget, :dashboard_configuration => @dashboard_configuration}
+       rescue => error
+         logger.error(message('dashboard.cannot_render_widget_x', :params => [widget.key, error]))
+         logger.error(error.backtrace.join("\n"))
+         widget_body=""
+       end
+
+       if widget_body.include?('<')
+    %>
+      <%
+         default_layout=(widget.java_definition.getWidgetLayout().name()=='DEFAULT')
+         if default_layout
+      %>
+        <div class="widget">
+      <% end %>
+      <%= widget_body -%>
+      <% if default_layout %>
+        <div class="clear"> </div></div>
+      <% end %>
+    <%
+       end
+    %>
+  <% else %>
+    <div class="widget">
+      <p>
+        <a href="<%= url_for :action => :configure, :id => @dashboard.id -%>"><%= message('dashboard.please_configure_the_widget_x', :params => widget.java_definition.getTitle()) -%></a>
+      </p>
+    </div>
+  <% end %>
+  <div style="clear: both;"></div>
+</div>

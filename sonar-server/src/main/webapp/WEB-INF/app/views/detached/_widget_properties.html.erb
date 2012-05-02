@@ -1,0 +1,30 @@
+<% form_remote_tag :url => {:action => 'save_widget', :wid => widget.id, :id => params[:id]},
+                   :method => :post,
+                   :update => {:failure => "error#{widget.id}"},
+                   :failure => "$('error#{widget.id}').show()" do -%>
+    <div id="error<%= widget.id -%>" class="error" style="display: none"></div>
+    <table class="table width100">
+      <tbody>
+      <% widget.java_definition.getWidgetProperties().sort {|w1, w2| natural_comparison(w1.key, w2.key) }.each do |property_def| %>
+          <tr>
+            <td class="form-key-cell"><%= property_def.key() -%><%= "*" unless property_def.optional()==true -%></td>
+            <td class="form-val-cell" id="row_<%= property_def.key() -%>">
+              <%= property_value_field(property_def, widget.property_text_value(property_def.key())) -%>
+              <div class="form-val-note">
+                <%= message("widget." + widget.key + ".param." + property_def.key(), :default => property_def.description()) -%>
+              </div>
+            </td>
+          </tr>
+      <% end %>
+      <tr>
+        <td colspan="2">
+          <%= submit_tag message('save') %>
+          <% if widget.configured %>
+              <a href="#" onClick="portal.cancelEditWidget(<%= widget.id -%>);return false;"><%= message('cancel') -%></a>
+          <% end %>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <%= hidden_field_tag "widgetid", "", :class => "widgetid" %>
+<% end -%>

@@ -1,0 +1,69 @@
+<script type="text/javascript">
+  <!--
+  var options = {
+    editorEnabled:true,
+    portal:'dashboard',
+    column:'dashboard-column',
+    columnhandle:'column-handle',
+    block:'block',
+    hoverclass:'block-hover',
+    handleClass: 'widget-handle',
+    dashboardstate:'dashboardstate',
+    toggle:'block-toggle',
+    blocklist:'widget_defs',
+    highlight_duration:2,
+    highlight_startcolor:'#cae3f2',
+    highlight_endcolor:'#ffffff',
+    saveurl:'<%= url_for :action => 'set_dashboard', :id => @dashboard.id -%>'
+  };
+  var portal;
+  function init_dashboard() {
+    portal = new Portal(options);
+  <% if params[:highlight] %>
+    portal.highlightWidget(<%= params[:highlight] -%>);
+  <% end %>
+  }
+  Event.observe(window, 'load', init_dashboard, false);
+
+  function filterWidgets(category) {
+    new Ajax.Updater(
+      'widget_defs',
+      '<%= url_for :controller => "detached", :action => "widget_definitions", :id => @dashboard.id -%>?category=' + encodeURIComponent(category),
+      {asynchronous:true, evalScripts:true});
+    $('filter-widgets-loading').show();
+    return false;
+  }
+
+  //-->
+</script>
+
+<div id="dashboard">
+  <%= render :partial => 'detached/header', :locals => {:back => true} %>
+
+  <div id="widget_defs">
+    <%= render :partial => 'detached/widget_definitions', :locals => {:dashboard_id => @dashboard.id, :category => @category} -%>
+  </div>
+
+
+  <%
+     columns=@dashboard.column_layout.split('-')
+     for index in 1..columns.size()
+  %>
+    <div class="dashboard-column-wrapper" style="width: <%= columns[index-1] -%>;margin: 0 -1px 0 0;">
+      <div class="dashboard-column" id="dashboard-column-<%= index -%>" style="margin: 0 <%= index<columns.size() ? "5px" : "0px" -%> 0 <%= index>1 ? "5px" : "0px" -%>;">
+        <div class="column-handle" style="display: none"></div>
+
+        <%
+           @dashboard.widgets.select { |widget| widget.column_index==index && widget.java_definition}.sort_by { |widget| widget.row_index }.each do |widget|
+        %>
+          <div class="block" id="block_<%= widget.id -%>">
+            <%= render :partial => 'dashboard/configure_widget', :locals => {:widget => widget} %>
+          </div>
+        <%
+           end
+        %>
+      </div>
+    </div>
+  <% end %>
+  <div style="clear: both;"></div>
+</div>

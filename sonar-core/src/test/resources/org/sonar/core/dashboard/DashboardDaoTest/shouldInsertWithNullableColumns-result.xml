@@ -7,8 +7,10 @@
     description="[null]"
     column_layout="[null]"
     shared="[true]"
+    detached="[false]"
     created_at="[null]"
-    updated_at="[null]"/>
+    updated_at="[null]"
+  />
 
   <widgets
     id="1"
@@ -20,12 +22,14 @@
     row_index="[null]"
     configured="[true]"
     created_at="[null]"
-    updated_at="[null]"/>
+    updated_at="[null]"
+  />
 
   <widget_properties
     id="1"
     widget_id="1"
     kee="[null]"
-    text_value="[null]"/>
+    text_value="[null]"
+  />
 
 </dataset>

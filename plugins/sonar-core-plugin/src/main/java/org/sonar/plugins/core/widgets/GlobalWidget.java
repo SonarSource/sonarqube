@@ -17,26 +17,27 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.web;
+package org.sonar.plugins.core.widgets;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.sonar.api.web.AbstractRubyTemplate;
+import org.sonar.api.web.RubyRailsWidget;
+import org.sonar.api.web.UserRole;
+import org.sonar.api.web.WidgetCategory;
 
-/**
- * @since 2.4
- */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface WidgetCategory {
-  String[] value();
+@WidgetCategory(value = "Information", detached = true)
+@UserRole(UserRole.USER)
+public class GlobalWidget extends AbstractRubyTemplate implements RubyRailsWidget {
 
-  /**
-   * Is the widget detached from any project?
-   * Before version 3.1 no widget was detached.
-   *
-   * @since 3.1
-   */
-  boolean detached() default false;
+  public String getId() {
+    return "global";
+  }
+
+  public String getTitle() {
+    return "Global";
+  }
+
+  @Override
+  protected String getTemplatePath() {
+    return "/org/sonar/plugins/core/widgets/global.html.erb";
+  }
 }

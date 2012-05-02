@@ -19,12 +19,6 @@
  */
 package org.sonar.server.ui;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.lessThan;
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Test;
 import org.sonar.api.web.DefaultTab;
 import org.sonar.api.web.NavigationSection;
@@ -32,17 +26,25 @@ import org.sonar.api.web.RequiredMeasures;
 import org.sonar.api.web.UserRole;
 import org.sonar.api.web.View;
 import org.sonar.api.web.Widget;
+import org.sonar.api.web.WidgetCategory;
 import org.sonar.api.web.WidgetProperties;
 import org.sonar.api.web.WidgetProperty;
 import org.sonar.api.web.WidgetPropertyType;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.number.OrderingComparisons.greaterThan;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertThat;
 
 public class ViewProxyTest {
 
   @Test
   public void compareTo() {
-    assertThat(new ViewProxy(new FakeView("aaa")).compareTo(new ViewProxy(new FakeView("bbb"))), lessThan(0));
-    assertThat(new ViewProxy(new FakeView("aaa")).compareTo(new ViewProxy(new FakeView("aaa"))), is(0));
-    assertThat(new ViewProxy(new FakeView("bbb")).compareTo(new ViewProxy(new FakeView("aaa"))), greaterThan(0));
+    assertThat(new ViewProxy<FakeView>(new FakeView("aaa")).compareTo(new ViewProxy<FakeView>(new FakeView("bbb"))), lessThan(0));
+    assertThat(new ViewProxy<FakeView>(new FakeView("aaa")).compareTo(new ViewProxy<FakeView>(new FakeView("aaa"))), is(0));
+    assertThat(new ViewProxy<FakeView>(new FakeView("bbb")).compareTo(new ViewProxy<FakeView>(new FakeView("aaa"))), greaterThan(0));
   }
 
   @Test
@@ -57,7 +59,7 @@ public class ViewProxyTest {
     }
 
     View view = new MyView();
-    ViewProxy proxy = new ViewProxy(view);
+    ViewProxy proxy = new ViewProxy<View>(view);
 
     assertThat(proxy.getTarget(), is(view));
     assertArrayEquals(proxy.getSections(), new String[] {NavigationSection.RESOURCE});
@@ -73,7 +75,7 @@ public class ViewProxyTest {
       }
     }
     View view = new MyView();
-    ViewProxy proxy = new ViewProxy(view);
+    ViewProxy proxy = new ViewProxy<View>(view);
 
     assertThat(proxy.getTarget(), is(view));
     assertArrayEquals(proxy.getSections(), new String[] {NavigationSection.HOME});
@@ -123,10 +125,25 @@ public class ViewProxyTest {
   }
 
   @Test
-  public void widgetShouldBeEditable() {
+  public void widget_should_be_editable() {
     ViewProxy proxy = new ViewProxy<Widget>(new EditableWidget());
-    assertThat(proxy.isEditable(), is(true));
-    assertThat(proxy.getWidgetProperties().size(), is(2));
+
+    assertThat(proxy.isEditable()).isTrue();
+    assertThat(proxy.getWidgetProperties()).hasSize(2);
+  }
+
+  @Test
+  public void widget_should_not_be_detached() {
+    ViewProxy proxy = new ViewProxy<Widget>(new EditableWidget());
+
+    assertThat(proxy.isDetached()).isFalse();
+  }
+
+  @Test
+  public void widget_should_be_detached() {
+    ViewProxy proxy = new ViewProxy<Widget>(new DetachedWidget());
+
+    assertThat(proxy.isDetached()).isTrue();
   }
 
   @Test
@@ -230,6 +247,17 @@ class EditableWidget implements Widget {
 
   public String getTitle() {
     return "W1";
+  }
+}
+
+@WidgetCategory(value = "", detached = true)
+class DetachedWidget implements Widget {
+  public String getId() {
+    return "detached";
+  }
+
+  public String getTitle() {
+    return "Detached";
   }
 }
 

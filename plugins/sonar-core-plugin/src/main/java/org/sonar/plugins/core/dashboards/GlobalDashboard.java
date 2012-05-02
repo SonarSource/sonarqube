@@ -17,26 +17,34 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.web;
+package org.sonar.plugins.core.dashboards;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.sonar.api.web.Dashboard;
+import org.sonar.api.web.DashboardLayout;
+import org.sonar.api.web.DashboardTemplate;
 
 /**
- * @since 2.4
+ * Global dashboard for Sonar.
+ *
+ * @since 3.1
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface WidgetCategory {
-  String[] value();
+public final class GlobalDashboard extends DashboardTemplate {
+  @Override
+  public String getName() {
+    return "Global";
+  }
 
-  /**
-   * Is the widget detached from any project?
-   * Before version 3.1 no widget was detached.
-   *
-   * @since 3.1
-   */
-  boolean detached() default false;
+  @Override
+  public Dashboard createDashboard() {
+    Dashboard dashboard = Dashboard.create();
+    dashboard.setLayout(DashboardLayout.ONE_COLUMN);
+
+    addWidget(dashboard);
+
+    return dashboard;
+  }
+
+  private void addWidget(Dashboard dashboard) {
+    dashboard.addWidget("global", 1);
+  }
 }
