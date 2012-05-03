@@ -157,18 +157,9 @@ class DetachedController < ApplicationController
   end
 
   def load_authorized_widget_definitions
-    if @resource
-      @authorized_widget_definitions = java_facade.getWidgets(@resource.scope, @resource.qualifier, @resource.language, @snapshot.metric_keys.to_java(:string))
-      @authorized_widget_definitions=@authorized_widget_definitions.select do |widget|
-        authorized=widget.getUserRoles().size==0
-        unless authorized
-          widget.getUserRoles().each do |role|
-            authorized=(role=='user') || (role=='viewer') || has_role?(role, @resource)
-            break if authorized
-          end
-        end
-        authorized
-      end
+    @authorized_widget_definitions=java_facade.getWidgets().select do |widget|
+      roles = widget.getUserRoles()
+      roles.empty? || roles.any? { |role| (role=='user') || (role=='viewer') }
     end
   end
 
