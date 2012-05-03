@@ -54,7 +54,6 @@ class DashboardController < ApplicationController
     unless @dashboard
       redirect_to home_path
     end
-
   end
 
   def edit_layout
@@ -122,7 +121,6 @@ class DashboardController < ApplicationController
     end
     redirect_to :action => 'configure', :did => dashboard.id, :id => params[:id], :highlight => widget_id, :category => params[:category]
   end
-
 
   def save_widget
     widget=Widget.find(params[:wid].to_i)
@@ -202,12 +200,9 @@ class DashboardController < ApplicationController
 
   def load_widget_definitions(filter_on_category=nil)
     @widget_definitions=java_facade.getWidgets()
-    @widget_categories=[]
-    @widget_definitions.each { |definition| @widget_categories<<definition.getWidgetCategories() }
-    @widget_categories=@widget_categories.flatten.uniq.sort
+    @widget_categories=@widget_definitions.map(&:getWidgetCategories).flatten.uniq.sort
     unless filter_on_category.blank?
       @widget_definitions=@widget_definitions.select { |definition| definition.getWidgetCategories().to_a.include?(filter_on_category) }
     end
   end
-
 end

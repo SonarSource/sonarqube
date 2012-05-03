@@ -21,10 +21,12 @@ class DetachedController < ApplicationController
 
   SECTION=Navigation::SECTION_HOME
 
-  verify :method => :post, :only => [:create, :update, :delete, :up, :down, :follow, :unfollow], :redirect_to => {:action => :index}
+  verify :method => :post, :only => [:set_layout, :add_widget, :set_dashboard, :save_widget], :redirect_to => {:action => :index}
   before_filter :login_required, :except => [:index]
 
   def index
+    # TODO display error page if no dashboard or no resource
+    load_resource()
     load_dashboard()
     load_authorized_widget_definitions()
     unless @dashboard
@@ -33,6 +35,8 @@ class DetachedController < ApplicationController
   end
 
   def configure
+    # TODO display error page if no dashboard or no resource
+    load_resource()
     load_dashboard()
     @category=params[:category]
     load_widget_definitions(@category)
@@ -42,11 +46,12 @@ class DetachedController < ApplicationController
   end
 
   def edit_layout
+    load_resource()
     load_dashboard()
   end
 
   def set_layout
-    dashboard=Dashboard.find(params[:id])
+    dashboard=Dashboard.find(params[:id].to_i)
     if dashboard.editable_by?(current_user)
       dashboard.column_layout=params[:layout]
       dashboard.save!
@@ -85,7 +90,7 @@ class DetachedController < ApplicationController
   end
 
   def add_widget
-    dashboard=Dashboard.find(params[:id])
+    dashboard=Dashboard.find(params[:id].to_i)
     widget_id=nil
     if dashboard.editable_by?(current_user)
       definition=java_facade.getWidget(params[:widget])
@@ -148,7 +153,23 @@ class DetachedController < ApplicationController
     @dashboard_configuration=Api::DashboardConfiguration.new(@dashboard, :period_index => params[:period], :snapshot => @snapshot) if @dashboard && @snapshot
   end
 
+  def load_resource
+  end
+
   def load_authorized_widget_definitions
+    if @resource
+      @authorized_widget_definitions = java_facade.getWidgets(@resource.scope, @resource.qualifier, @resource.language, @snapshot.metric_keys.to_java(:string))
+      @authorized_widget_definitions=@authorized_widget_definitions.select do |widget|
+        authorized=widget.getUserRoles().size==0
+        unless authorized
+          widget.getUserRoles().each do |role|
+            authorized=(role=='user') || (role=='viewer') || has_role?(role, @resource)
+            break if authorized
+          end
+        end
+        authorized
+      end
+    end
   end
 
   def load_widget_definitions(filter_on_category=nil)

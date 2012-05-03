@@ -16,6 +16,8 @@
   <% end %>
   <% for i in 0..(4-(@widget_definitions.size%4)) %>
     <td> </td>
-  <% end %> 
-  <% if @widget_definitions.size%4<3 %></tr><% end %>
+  <% end %>
+  <% if @widget_definitions.size%4<3 %>
+	  </tr>
+  <% end %>
 </table>
