@@ -22,7 +22,15 @@ module DashboardHelper
   include MetricsHelper
 
   def dashboard_action(action_name, opts={})
-    { :action => action_name, :did => @dashboard.id, :id => @resource.id }.merge!(opts)
+    if @dashboard.detached
+      { :action => action_name, :id => @dashboard.id }.merge!(opts)
+    else
+      { :action => action_name, :did => @dashboard.id, :id => @resource.id }.merge!(opts)
+    end
+  end
+
+  def add_category_to_url(url)
+    url + (url.include?('?') ? '&' : '?') + 'category='
   end
 
   def formatted_value(measure, default='')

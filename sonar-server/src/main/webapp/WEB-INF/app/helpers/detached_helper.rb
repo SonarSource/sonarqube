@@ -18,7 +18,5 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 module DetachedHelper
-  def dashboard_action(action_name, opts={})
-    { :action => action_name, :id => @dashboard.id }.merge!(opts)
-  end
+  include DashboardHelper
 end

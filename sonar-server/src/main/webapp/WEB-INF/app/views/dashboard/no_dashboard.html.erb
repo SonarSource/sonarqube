@@ -11,18 +11,17 @@
   if (stripped_url.length > 1) {
     anchor = stripped_url[1];
   }
-  
+
   // and call the resource page
-  new Ajax.Updater('resource_container', '<%= url_for params.merge({:controller => 'resource', :action => 'index', :id => @file.id}) -%>',
+  new Ajax.Updater('resource_container', '<%= url_for params.merge({:controller => 'resource', :action => :index, :id => @file.id}) -%>',
     {
       asynchronous:true,
       evalScripts:true,
       onComplete:function (transport) {
         $('page_loading').hide();
-        if (anchor!=null) {
+        if (anchor != null) {
           window.location.hash = anchor;
         }
       }
     });
-
 </script>

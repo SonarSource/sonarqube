@@ -1,23 +1,24 @@
 <p>
-    <ul class="horizontal widget_categs" id="widget-filters">
-      <li><%= message('filter_verb') -%>: </li>
-      <li class="<%= 'selected' if category.blank? -%>"><a href="#" onClick="return filterWidgets('')" id="widget-filter-none"><%= message('none') -%></a></li>
-    <% @widget_categories.each do |c| %>
-      <li class="<%= 'selected' if category==c -%>"><a href="#" onClick="return filterWidgets('<%= escape_javascript(c) -%>')" id="widget-filter-<%= u(c) -%>"><%= h(c) -%></a></li>
-    <% end %>
-    </ul>
-    <%= image_tag 'loading.gif', :style=>'vertical-align: top;display: none', :id => 'filter-widgets-loading' -%>
+<ul class="horizontal widget_categs" id="widget-filters">
+  <li><%= message('filter_verb') -%>:</li>
+  <li class="<%= 'selected' if category.blank? -%>">
+    <a href="#" onClick="return filterWidgets('')" id="widget-filter-none"><%= message('none') -%></a>
+  </li>
+  <% @widget_categories.each do |c| %>
+    <li class="<%= 'selected' if category==c -%>">
+      <a href="#" onClick="return filterWidgets('<%= escape_javascript(c) -%>')" id="widget-filter-<%= u(c) -%>"><%= h(c) -%></a>
+    </li>
+  <% end %>
+</ul>
+<%= image_tag 'loading.gif', :style => 'vertical-align: top;display: none', :id => 'filter-widgets-loading' -%>
 </p>
+
 <table width="100%">
-  <% @widget_definitions.each_with_index do |definition, index| %>
-    <% if index%4==0 %><tr><% end %>
-    <%= render :partial => 'widget_definition', :locals => {:definition => definition, :dashboard_id => dashboard_id, :resource_id => resource_id, :category => category} %>
-    <% if index%4==3 %></tr><% end %>
-  <% end %>
-  <% for i in 0..(4-(@widget_definitions.size%4)) %>
-    <td> </td>
-  <% end %>
-  <% if @widget_definitions.size%4<3 %>
-	  </tr>
+  <% @widget_definitions.each_slice(4) do |row_definitions| %>
+    <tr>
+      <% row_definitions.each do |definition| %>
+        <%= render :partial => 'widget_definition', :locals => {:definition => definition, :dashboard => @dashboard, :resource => @resource, :category => category} %>
+      <% end %>
+    </tr>
   <% end %>
 </table>

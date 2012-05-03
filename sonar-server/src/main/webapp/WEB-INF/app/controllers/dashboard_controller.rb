@@ -26,9 +26,9 @@ class DashboardController < ApplicationController
 
   def index
     # TODO display error page if no dashboard or no resource
-    load_resource
+    load_resource()
     if @resource.display_dashboard?
-      load_dashboard
+      load_dashboard()
       load_authorized_widget_definitions()
       unless @dashboard
         redirect_to home_path
@@ -62,7 +62,7 @@ class DashboardController < ApplicationController
   end
 
   def set_layout
-    dashboard=Dashboard.find(params[:did].to_i)
+    dashboard=Dashboard.find(params[:did])
     if dashboard.editable_by?(current_user)
       dashboard.column_layout=params[:layout]
       dashboard.save!
@@ -101,7 +101,7 @@ class DashboardController < ApplicationController
   end
 
   def add_widget
-    dashboard=Dashboard.find(params[:did].to_i)
+    dashboard=Dashboard.find(params[:did])
     widget_id=nil
     if dashboard.editable_by?(current_user)
       definition=java_facade.getWidget(params[:widget])
@@ -119,7 +119,7 @@ class DashboardController < ApplicationController
         end
       end
     end
-    redirect_to :action => 'configure', :did => dashboard.id, :id => params[:id], :highlight => widget_id, :category => params[:category]
+    redirect_to :action => :configure, :did => dashboard.id, :id => params[:id], :highlight => widget_id, :category => params[:category]
   end
 
   def save_widget
@@ -144,10 +144,11 @@ class DashboardController < ApplicationController
 
   def widget_definitions
     @category=params[:category]
+    load_resource()
+    load_dashboard()
     load_widget_definitions(@category)
-    render :partial => 'dashboard/widget_definitions', :locals => {:dashboard_id => params[:did], :resource_id => params[:id], :category => @category}
+    render :partial => 'widget_definitions', :locals => {:dashboard => @dashboard, :resource => @resource, :category => @category}
   end
-
 
   private
 

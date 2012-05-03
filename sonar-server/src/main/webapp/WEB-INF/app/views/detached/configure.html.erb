@@ -7,7 +7,7 @@
     columnhandle:'column-handle',
     block:'block',
     hoverclass:'block-hover',
-    handleClass: 'widget-handle',
+    handleClass:'widget-handle',
     dashboardstate:'dashboardstate',
     toggle:'block-toggle',
     blocklist:'widget_defs',
@@ -28,12 +28,11 @@
   function filterWidgets(category) {
     new Ajax.Updater(
       'widget_defs',
-      '<%= url_for :controller => "detached", :action => "widget_definitions", :id => @dashboard.id -%>?category=' + encodeURIComponent(category),
+      '<%= add_category_to_url(url_for dashboard_action(:widget_definitions))  -%>' + encodeURIComponent(category),
       {asynchronous:true, evalScripts:true});
     $('filter-widgets-loading').show();
     return false;
   }
-
   //-->
 </script>
 
@@ -41,9 +40,8 @@
   <%= render :partial => 'header', :locals => {:back => true} %>
 
   <div id="widget_defs">
-    <%= render :partial => 'widget_definitions', :locals => {:dashboard_id => @dashboard.id, :category => @category} -%>
+    <%= render :partial => 'widget_definitions', :locals => {:category => @category} -%>
   </div>
-
 
   <%
      columns=@dashboard.column_layout.split('-')
@@ -54,7 +52,7 @@
         <div class="column-handle" style="display: none"></div>
 
         <%
-           @dashboard.widgets.select { |widget| widget.column_index==index && widget.java_definition}.sort_by { |widget| widget.row_index }.each do |widget|
+           @dashboard.widgets.select { |widget| widget.column_index==index && widget.java_definition }.sort_by { |widget| widget.row_index }.each do |widget|
         %>
           <div class="block" id="block_<%= widget.id -%>">
             <%= render :partial => 'configure_widget', :locals => {:widget => widget} %>

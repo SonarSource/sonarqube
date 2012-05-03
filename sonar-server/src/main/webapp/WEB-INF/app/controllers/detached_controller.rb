@@ -51,7 +51,7 @@ class DetachedController < ApplicationController
   end
 
   def set_layout
-    dashboard=Dashboard.find(params[:id].to_i)
+    dashboard=Dashboard.find(params[:id])
     if dashboard.editable_by?(current_user)
       dashboard.column_layout=params[:layout]
       dashboard.save!
@@ -90,7 +90,7 @@ class DetachedController < ApplicationController
   end
 
   def add_widget
-    dashboard=Dashboard.find(params[:id].to_i)
+    dashboard=Dashboard.find(params[:id])
     widget_id=nil
     if dashboard.editable_by?(current_user)
       definition=java_facade.getWidget(params[:widget])
@@ -108,7 +108,7 @@ class DetachedController < ApplicationController
         end
       end
     end
-    redirect_to :action => 'configure', :id => params[:id], :highlight => widget_id, :category => params[:category]
+    redirect_to :action => :configure, :id => params[:id], :highlight => widget_id, :category => params[:category]
   end
 
   def save_widget
@@ -133,8 +133,10 @@ class DetachedController < ApplicationController
 
   def widget_definitions
     @category=params[:category]
+    load_resource()
+    load_dashboard()
     load_widget_definitions(@category)
-    render :partial => 'detached/widget_definitions', :locals => {:dashboard_id => params[:id], :category => @category}
+    render :partial => 'widget_definitions', :locals => {:dashboard => @dashboard, :category => @category}
   end
 
   private

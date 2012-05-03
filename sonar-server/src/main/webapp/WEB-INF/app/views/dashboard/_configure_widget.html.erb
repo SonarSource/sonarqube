@@ -20,11 +20,9 @@
   </div>
 </div>
 
-
 <div class="widget_props" id="widget_props_<%= widget.id -%>" style="<%= 'display:none' if widget.configured -%>">
   <%= render :partial => 'widget_properties', :locals => {:widget => widget} -%>
 </div>
-
 
 <div id="widget_<%= widget.id -%>" class="configure_widget <%= h widget.java_definition.getId() -%>" style="height:100%;<%= 'display:none;' if !widget.configured -%>">
   <!--[if lte IE 6]>

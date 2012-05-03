@@ -1,11 +1,11 @@
-<% form_remote_tag :url => {:action => 'save_widget', :wid => widget.id, :id => params[:id]},
+<% form_remote_tag :url => {:action => :save_widget, :wid => widget.id, :id => params[:id]},
                    :method => :post,
                    :update => {:failure => "error#{widget.id}"},
                    :failure => "$('error#{widget.id}').show()" do -%>
   <div id="error<%= widget.id -%>" class="error" style="display: none"></div>
   <table class="table width100">
     <tbody>
-    <% widget.java_definition.getWidgetProperties().sort {|w1, w2| natural_comparison(w1.key, w2.key) }.each do |property_def| %>
+    <% widget.java_definition.getWidgetProperties().sort { |w1, w2| natural_comparison(w1.key, w2.key) }.each do |property_def| %>
       <tr>
         <td class="form-key-cell"><%= property_def.key() -%><%= "*" unless property_def.optional()==true -%></td>
         <td class="form-val-cell" id="row_<%= property_def.key() -%>">
