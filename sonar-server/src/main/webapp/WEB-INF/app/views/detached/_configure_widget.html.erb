@@ -11,7 +11,7 @@
 <div class="widget-header">
   <div class="widget-actions">
     <% if widget.java_definition.isEditable() %>
-        <a class="link-action" onclick="portal.editWidget(<%= widget.id -%>);return false;"><%= message('edit') -%></a>
+      <a class="link-action" onclick="portal.editWidget(<%= widget.id -%>);return false;"><%= message('edit') -%></a>
     <% end %>
     <a class="link-action" onclick="portal.deleteWidget(this);return false;"><%= message('delete') -%></a>
   </div>
@@ -29,26 +29,26 @@
 <div id="widget_<%= widget.id -%>" class="configure_widget <%= h widget.java_definition.getId() -%>" style="height:100%;<%= 'display:none;' if !widget.configured -%>">
   <!--[if lte IE 6]>
   <style type="text/css">
-      #dashboard .block .content .transparent {
-          display: none;
-      }
+    #dashboard .block .content .transparent {
+      display: none;
+    }
   </style>
   <![endif]-->
   <div class="transparent"></div>
   <% if widget_body.include? '<' %>
-      <%
-         default_layout=(widget.layout=='DEFAULT')
-         if default_layout
-      %>
-          <div class="widget">
-      <% end %>
-      <%= widget_body -%>
-      <% if default_layout %>
-          <div class="clear"></div>
-          </div>
-      <% end %>
+    <%
+       default_layout=(widget.layout=='DEFAULT')
+       if default_layout
+    %>
+      <div class="widget">
+    <% end %>
+    <%= widget_body -%>
+    <% if default_layout %>
+      <div class="clear"></div>
+      </div>
+    <% end %>
   <% else %>
-      <div class="widget"><p><%= message('no_data') -%></p></div>
+    <div class="widget"><p><%= message('no_data') -%></p></div>
   <% end %>
   <div style="clear: both;"></div>
 </div>

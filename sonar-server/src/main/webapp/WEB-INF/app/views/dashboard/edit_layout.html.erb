@@ -2,27 +2,19 @@
   <%= render :partial => 'header', :locals => {:back => true} %>
 
   <div id="edit-layout" class="admin">
-      <p class="note"><%= message('dashboard.click_to_choose_layout') -%>: </p><br/>
+    <p class="note"><%= message('dashboard.click_to_choose_layout') -%>: </p><br/>
 
-      <div class="select-layout <%= 'selected' if @dashboard.layout=='100%' -%>" style="text-align:center;width: 20%;">
-        <%= link_to image_tag('layout100.png'), {:action => 'set_layout', :did => @dashboard.id, :id => @resource.id, :layout => "100%"}, :method => :post %>
+    <% {'100%', 'layout100.png',
+        '50%-50%', 'layout5050.png',
+        '30%-70%', 'layout3070.png',
+        '70%-30%', 'layout7030.png',
+        '33%-33%-33%', 'layout333333.png'
+       }.each_pair do |layout, picto| %>
+      <div class="select-layout <%= 'selected' if @dashboard.layout==layout -%>" style="text-align:center;width: 20%;">
+        <%= link_to image_tag(picto), dashboard_action(:set_layout, :layout => layout), :method => :post %>
       </div>
+    <% end %>
 
-      <div class="select-layout <%= 'selected' if @dashboard.layout=="50%-50%" -%>"  style="text-align:center;width: 20%;">
-        <%= link_to image_tag('layout5050.png'), {:action => 'set_layout', :did => @dashboard.id, :id => @resource.id, :layout => "50%-50%"}, :method => :post %>
-      </div>
-
-      <div class="select-layout <%= 'selected' if @dashboard.layout=="30%-70%" -%>"  style="text-align:center;width: 20%;">
-        <%= link_to image_tag('layout3070.png'), {:action => 'set_layout', :did => @dashboard.id, :id => @resource.id, :layout => "30%-70%"}, :method => :post %>
-      </div>
-
-      <div class="select-layout <%= 'selected' if @dashboard.layout=="70%-30%" -%>" style="text-align:center;width: 20%;">
-        <%= link_to image_tag('layout7030.png'), {:action => 'set_layout', :did => @dashboard.id, :id => @resource.id, :layout => "70%-30%"}, :method => :post %>
-      </div>
-
-      <div class="select-layout <%= 'selected' if @dashboard.layout=="33%-33%-33%" -%>" style="text-align:center;width: 19%;">
-        <%= link_to image_tag('layout333333.png'), {:action => 'set_layout', :did => @dashboard.id, :id => @resource.id, :layout => "33%-33%-33%"}, :method => :post %>
-      </div>
-      <div style="clear:both;"></div>
+    <div style="clear:both;"></div>
   </div>
 </div>

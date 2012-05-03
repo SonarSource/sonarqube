@@ -1,0 +1,28 @@
+<%= render :partial => 'gwt/base', :locals => {:resource => nil, :popup => false, :metric => nil} -%>
+<%= render :partial => 'gwt/resource_viewers' -%>
+
+<img id="page_loading" src="<%= ApplicationController.root_context -%>/images/loading.gif">
+<div id="resource_container"></div>
+
+<script type="text/javascript">
+  // see if an anchor has been passed
+  var anchor;
+  var stripped_url = document.location.toString().split("#");
+  if (stripped_url.length > 1) {
+    anchor = stripped_url[1];
+  }
+  
+  // and call the resource page
+  new Ajax.Updater('resource_container', '<%= url_for params.merge({:controller => 'resource', :action => 'index', :id => @file.id}) -%>',
+    {
+      asynchronous:true,
+      evalScripts:true,
+      onComplete:function (transport) {
+        $('page_loading').hide();
+        if (anchor!=null) {
+          window.location.hash = anchor;
+        }
+      }
+    });
+
+</script>

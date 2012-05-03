@@ -1,15 +1,15 @@
 <div class="line-block">
   <% if logged_in? %>
-	  <ul class="operations">
-		<% if back %>
-			<li class="last"><%= link_to message('dashboard.back_to_dashboard'), {:action => 'index', :id => @dashboard.id } -%></li>
-		<% else %>
-			<% if @dashboard.editable_by?(current_user) %>
-				<li><%= link_to message('dashboard.configure_widgets'), {:action => 'configure', :id => @dashboard.id } -%></li>
-				<li><%= link_to message('dashboard.edit_layout'), {:action => 'edit_layout', :id => @dashboard.id } -%></li>
-			<% end %>
-		<% end %>
-	  </ul>
+	<ul class="operations">
+	<% if back %>
+	  <li class="last"><%= link_to message('dashboard.back_to_dashboard'), dashboard_action(:index) -%></li>
+	<% else %>
+	  <% if @dashboard.editable_by?(current_user) %>
+		<li><%= link_to message('dashboard.configure_widgets'), dashboard_action(:configure) -%></li>
+		<li><%= link_to message('dashboard.edit_layout'), dashboard_action(:edit_layout) -%></li>
+	  <% end %>
+	<% end %>
+	</ul>
   <% end %>
 
   <% if @snapshot %>
@@ -18,7 +18,7 @@
 		  <%= link_to_favourite(@project) -%> <%= "Version #{@snapshot.version} - " if @snapshot.version.present? -%><%= l @snapshot.created_at -%>
 		  <% if @snapshot.project_snapshot.periods? %>
 			  <form method="GET" action="<%= url_for :controller => 'dashboard', :action => 'index', :id => @resource.id -%>" style="display: inline" class="spacer-left">
-				<input type="hidden" name="did" value="<%= @dashboard.id -%>" />
+				<input type="hidden" name="did" value="<%= @dashboard.id -%>"/>
 				<select id="select-comparison" name="period" onchange="submit()" class="small">
 				  <option value=""><%= message('time_changes') -%>...</option>
 				  <%= period_select_options(@snapshot, 1) -%>

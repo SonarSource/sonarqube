@@ -27,7 +27,7 @@
   <% else %>
     <div class="widget">
       <p>
-        <a href="<%= url_for :action => :configure, :id => @dashboard.id -%>"><%= message('dashboard.please_configure_the_widget_x', :params => widget.java_definition.getTitle()) -%></a>
+        <a href="<%= url_for(dashboard_action(:configure, :id => @dashboard.id)) -%>"><%= message('dashboard.please_configure_the_widget_x', :params => widget.java_definition.getTitle()) -%></a>
       </p>
     </div>
   <% end %>
