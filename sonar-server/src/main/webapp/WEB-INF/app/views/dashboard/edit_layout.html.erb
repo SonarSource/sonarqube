@@ -1,9 +1,9 @@
 <div id="dashboard">
-  <%= render :partial => 'dashboard/header', :locals => {:back => true} %>
+  <%= render :partial => 'header', :locals => {:back => true} %>
 
   <div id="edit-layout" class="admin">
       <p class="note"><%= message('dashboard.click_to_choose_layout') -%>: </p><br/>
-      
+
       <div class="select-layout <%= 'selected' if @dashboard.layout=='100%' -%>" style="text-align:center;width: 20%;">
         <%= link_to image_tag('layout100.png'), {:action => 'set_layout', :did => @dashboard.id, :id => @resource.id, :layout => "100%"}, :method => :post %>
       </div>

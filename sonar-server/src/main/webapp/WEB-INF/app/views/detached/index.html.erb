@@ -1,5 +1,5 @@
 <div id="dashboard">
-  <%= render :partial => 'detached/header', :locals => {:back => false} %>
+  <%= render :partial => 'header', :locals => {:back => false} %>
 <div style="width: 100%;display: block; float: none">
   <%
      columns=@dashboard.column_layout.split('-')
@@ -12,7 +12,7 @@
              @dashboard.widgets.select { |widget| widget.column_index==index }.sort_by { |widget| widget.row_index }.each do |widget|
           %>
               <div class="block" id="block_<%= widget.id -%>">
-                <%= render :partial => 'detached/widget', :locals => {:widget => widget} %>
+                <%= render :partial => 'widget', :locals => {:widget => widget} %>
               </div>
             <%
                end

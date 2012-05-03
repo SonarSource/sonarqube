@@ -1,5 +1,5 @@
 <div id="dashboard">
-  <%= render :partial => 'dashboard/header', :locals => {:back => false} %>
+  <%= render :partial => 'header', :locals => {:back => false} %>
 <div style="width: 100%;display: block; float: none">
   <%
      columns=@dashboard.column_layout.split('-')
@@ -14,7 +14,7 @@
                if widget_definition
           %>
               <div class="block" id="block_<%= widget.id -%>">
-                <%= render :partial => 'dashboard/widget', :locals => {:widget => widget} %>
+                <%= render :partial => 'widget', :locals => {:widget => widget} %>
               </div>
             <%
                end

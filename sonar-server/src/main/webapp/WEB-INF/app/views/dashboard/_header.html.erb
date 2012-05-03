@@ -4,7 +4,7 @@
     <% if back %>
       <li class="last"><%= link_to message('dashboard.back_to_dashboard'), {:action => 'index', :did => @dashboard.id, :id => @resource.id } -%></li>
     <% else %>
-      <% if @dashboard.editable_by?(current_user) %>
+    <% if @dashboard.editable_by?(current_user) %>
       <li><%= link_to message('dashboard.configure_widgets'), {:action => 'configure', :did => @dashboard.id, :id => @resource.id } -%></li>
       <li><%= link_to message('dashboard.edit_layout'), {:action => 'edit_layout', :did => @dashboard.id, :id => @resource.id } -%></li>
       <% end %>

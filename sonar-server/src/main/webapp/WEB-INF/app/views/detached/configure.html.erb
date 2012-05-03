@@ -38,10 +38,10 @@
 </script>
 
 <div id="dashboard">
-  <%= render :partial => 'detached/header', :locals => {:back => true} %>
+  <%= render :partial => 'header', :locals => {:back => true} %>
 
   <div id="widget_defs">
-    <%= render :partial => 'detached/widget_definitions', :locals => {:dashboard_id => @dashboard.id, :category => @category} -%>
+    <%= render :partial => 'widget_definitions', :locals => {:dashboard_id => @dashboard.id, :category => @category} -%>
   </div>
 
 
@@ -57,7 +57,7 @@
            @dashboard.widgets.select { |widget| widget.column_index==index && widget.java_definition}.sort_by { |widget| widget.row_index }.each do |widget|
         %>
           <div class="block" id="block_<%= widget.id -%>">
-            <%= render :partial => 'dashboard/configure_widget', :locals => {:widget => widget} %>
+            <%= render :partial => 'configure_widget', :locals => {:widget => widget} %>
           </div>
         <%
            end

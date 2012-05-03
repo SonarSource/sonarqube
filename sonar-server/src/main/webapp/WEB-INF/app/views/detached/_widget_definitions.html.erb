@@ -11,7 +11,7 @@
 <table width="100%">
   <% @widget_definitions.each_with_index do |definition, index| %>
       <% if index%4==0 %><tr><% end %>
-	  <%= render :partial => 'detached/widget_definition', :locals => {:definition => definition, :dashboard_id => dashboard_id, :category => category} %>
+	  <%= render :partial => 'widget_definition', :locals => {:definition => definition, :dashboard_id => dashboard_id, :category => category} %>
 	  <% if index%4==3 %></tr><% end %>
   <% end %>
   <% for i in 0..(4-(@widget_definitions.size%4)) %>
