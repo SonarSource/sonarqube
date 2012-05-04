@@ -27,21 +27,20 @@ class DashboardController < ApplicationController
   def index
     # TODO display error page if no dashboard or no resource
     load_resource()
-    if @resource.display_dashboard?
+
+    if !@resource || @resource.display_dashboard?
       load_dashboard()
       load_authorized_widget_definitions()
       unless @dashboard
         redirect_to home_path
       end
-    else
+    elsif @snapshot
       # display the layout of the parent, usually the directory, but display the file viewers
-      if @snapshot
-        @file = @resource
-        @project = @snapshot.parent.project
-        render :action => 'no_dashboard'
-      else
-        redirect_to home_path
-      end
+      @file = @resource
+      @project = @snapshot.parent.project
+      render :action => 'no_dashboard'
+    else
+      redirect_to home_path
     end
   end
 
@@ -50,7 +49,7 @@ class DashboardController < ApplicationController
     load_resource()
     load_dashboard()
     @category=params[:category]
-    load_widget_definitions(@category)
+    load_widget_definitions(@dashboard, @category)
     unless @dashboard
       redirect_to home_path
     end
@@ -119,11 +118,11 @@ class DashboardController < ApplicationController
         end
       end
     end
-    redirect_to :action => :configure, :did => dashboard.id, :id => params[:id], :highlight => widget_id, :category => params[:category]
+    redirect_to :action => 'configure', :did => dashboard.id, :id => params[:id], :highlight => widget_id, :category => params[:category]
   end
 
   def save_widget
-    widget=Widget.find(params[:wid].to_i)
+    widget=Widget.find(params[:wid])
     #TODO check owner of dashboard
     Widget.transaction do
       widget.properties.clear
@@ -137,7 +136,7 @@ class DashboardController < ApplicationController
       widget.configured=true
       widget.save!
       render :update do |page|
-        page.redirect_to(url_for(:action => :configure, :did => widget.dashboard_id, :id => params[:id]))
+        page.redirect_to(url_for(:action => configure, :did => widget.dashboard_id, :id => params[:id]))
       end
     end
   end
@@ -146,14 +145,15 @@ class DashboardController < ApplicationController
     @category=params[:category]
     load_resource()
     load_dashboard()
-    load_widget_definitions(@category)
-    render :partial => 'widget_definitions', :locals => {:dashboard => @dashboard, :resource => @resource, :category => @category}
+    load_widget_definitions(@dashboard, @category)
+    render :partial => 'widget_definitions', :locals => {:category => @category}
   end
 
   private
 
   def load_dashboard
     @active=nil
+
     if logged_in?
       if params[:did]
         @active=ActiveDashboard.find(:first, :include => 'dashboard', :conditions => ['active_dashboards.dashboard_id=? AND active_dashboards.user_id=?', params[:did].to_i, current_user.id])
@@ -179,21 +179,23 @@ class DashboardController < ApplicationController
   end
 
   def load_resource
-    init_resource_for_user_role
+    init_resource_for_user_role unless !params[:id]
     @project=@resource # for backward compatibility with old widgets
   end
 
   def load_authorized_widget_definitions
-    if @resource
-      @authorized_widget_definitions=java_facade.getWidgets().select do |widget|
-        roles = widget.getUserRoles()
-        roles.empty? || roles.any? { |role| (role=='user') || (role=='viewer') || has_role?(role, @resource) }
-      end
+    @authorized_widget_definitions=java_facade.getWidgets().select do |widget|
+      roles = widget.getUserRoles()
+      roles.empty? || roles.any? { |role| (role=='user') || (role=='viewer') || has_role?(role, @resource) }
     end
   end
 
-  def load_widget_definitions(filter_on_category=nil)
+  def load_widget_definitions(dashboard, filter_on_category=nil)
     @widget_definitions=java_facade.getWidgets()
+    if dashboard.detached
+      @widget_definitions=@widget_definitions.select(&:isDetached)
+    end
+
     @widget_categories=@widget_definitions.map(&:getWidgetCategories).flatten.uniq.sort
     unless filter_on_category.blank?
       @widget_definitions=@widget_definitions.select { |definition| definition.getWidgetCategories().to_a.include?(filter_on_category) }

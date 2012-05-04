@@ -1,5 +1,8 @@
 <%
    selected_section = controller.class::SECTION
+   if selected_section==Navigation::SECTION_RESOURCE && !@resource
+     selected_section = Navigation::SECTION_HOME
+   end
    @project=@resource unless @project || selected_section==Navigation::SECTION_HOME
    period_param = "period=#{params[:period]}" if params[:period]
 %>
@@ -40,9 +43,9 @@
               <a href="<%= ApplicationController.root_context -%>/dependencies/index"><%= message('dependencies.page') -%></a></li>
 
             <% ActiveDashboard.user_dashboards(current_user).select { |active_dashboard| active_dashboard.dashboard.detached }.each do |active_dashboard| %>
-            <li class="<%= 'selected' if @dashboard && controller.controller_path=='detached' && active_dashboard.dashboard_id==@dashboard.id -%>">
-                <a href="<%= ApplicationController.root_context -%>/detached/index/<%= active_dashboard.dashboard_id -%>"><%= active_dashboard.dashboard.name(true) -%></a>
-            </li>
+              <li class="<%= 'selected' if @dashboard && controller.controller_path=='dashboard' && active_dashboard.dashboard_id==@dashboard.id -%>">
+                <a href="<%= ApplicationController.root_context -%>/dashboard/index/?did=<%= active_dashboard.dashboard_id -%>"><%= active_dashboard.dashboard.name(true) -%></a>
+              </li>
             <% end %>
 
             <% controller.java_facade.getPages(Navigation::SECTION_HOME, nil, nil, nil, nil).each do |page|
@@ -53,7 +56,7 @@
                 <a href="<%= ApplicationController.root_context -%><%= page_url -%>"><%= message(page.getId() + '.page', :default => page.getTitle()) -%></a></li>
             <% end %>
 
-          <% elsif (selected_section==Navigation::SECTION_RESOURCE) %>
+          <% elsif selected_section==Navigation::SECTION_RESOURCE %>
             <% ActiveDashboard.user_dashboards(current_user).select { |active_dashboard| !active_dashboard.dashboard.detached }.each do |active_dashboard| %>
               <li class="<%= 'selected' if @dashboard && controller.controller_path=='dashboard' && active_dashboard.dashboard_id==@dashboard.id -%>">
                 <a href="<%= ApplicationController.root_context -%>/dashboard/index/<%= @project.id -%>?did=<%= active_dashboard.dashboard_id -%><%= "&"+period_param if period_param -%>"><%= active_dashboard.dashboard.name(true) -%></a>
@@ -98,7 +101,7 @@
               <% end %>
               <%
                  # NOTE: we keep "@project.view? || @project.subview?" in the test for backward compatibility with the Views plugin
-                 if (controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'modifiable_history') || @project.view? || @project.subview?) 
+                 if (controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'modifiable_history') || @project.view? || @project.subview?)
               %>
                 <li class="<%= 'selected' if request.request_uri.include?('/project/history') -%>">
                   <a href="<%= ApplicationController.root_context -%>/project/history/<%= @project.id -%>"><%= message('project_history.page') -%></a></li>

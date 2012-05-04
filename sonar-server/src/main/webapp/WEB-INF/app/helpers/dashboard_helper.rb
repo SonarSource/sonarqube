@@ -22,10 +22,10 @@ module DashboardHelper
   include MetricsHelper
 
   def dashboard_action(action_name, opts={})
-    if @dashboard.detached
-      { :action => action_name, :id => @dashboard.id }.merge!(opts)
-    else
+    if @resource
       { :action => action_name, :did => @dashboard.id, :id => @resource.id }.merge!(opts)
+    else
+      { :action => action_name, :did => @dashboard.id }.merge!(opts)
     end
   end
 
