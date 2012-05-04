@@ -17,30 +17,23 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.widgets;
+package org.sonar.plugins.core.dashboards;
 
-import org.sonar.api.web.WidgetGlobal;
+import org.junit.Test;
+import org.sonar.api.web.Dashboard;
+import org.sonar.api.web.DashboardLayout;
 
-import org.sonar.api.web.AbstractRubyTemplate;
-import org.sonar.api.web.RubyRailsWidget;
-import org.sonar.api.web.UserRole;
-import org.sonar.api.web.WidgetCategory;
+import static org.fest.assertions.Assertions.assertThat;
 
-@WidgetCategory("Beta")
-@WidgetGlobal
-@UserRole(UserRole.USER)
-public class GlobalWidget extends AbstractRubyTemplate implements RubyRailsWidget {
+public class GlobalDashboardTest {
+  @Test
+  public void should_create_dashboard() {
+    GlobalDashboard template = new GlobalDashboard();
 
-  public String getId() {
-    return "global";
-  }
+    Dashboard dashboard = template.createDashboard();
 
-  public String getTitle() {
-    return "Global";
-  }
-
-  @Override
-  protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/global.html.erb";
+    assertThat(template.getName()).isEqualTo("Global");
+    assertThat(dashboard.getLayout()).isEqualTo(DashboardLayout.ONE_COLUMN);
+    assertThat(dashboard.getWidgets()).onProperty("id").containsOnly("global");
   }
 }

@@ -40,6 +40,7 @@ public final class Dashboard {
   private String description;
   private DashboardLayout layout = DashboardLayout.TWO_COLUMNS;
   private ListMultimap<Integer, Widget> widgetsByColumn = ArrayListMultimap.create();
+  private boolean global;
 
   private Dashboard() {
   }
@@ -115,6 +116,26 @@ public final class Dashboard {
     return this;
   }
 
+  /**
+   * A dashboard is global when it doesn't display information from a projet but rather more general information.
+   * <p>Before version 3.1 no dashboard was global.</p>
+   *
+   * @since 3.1
+   */
+  public boolean isGlobal() {
+    return global;
+  }
+
+  /**
+   * A dashboard is global when it doesn't display information from a projet but rather more general information.
+   * <p>Before version 3.1 no dashboard was global.</p>
+   *
+   * @since 3.1
+   */
+  public Dashboard setGlobal(boolean global) {
+    this.global = global;
+    return this;
+  }
 
   /**
    * Note that this class is an inner class to avoid confusion with the extension point org.sonar.api.web.Widget.

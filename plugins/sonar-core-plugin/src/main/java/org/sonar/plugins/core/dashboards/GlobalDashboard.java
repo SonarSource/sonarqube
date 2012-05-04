@@ -37,6 +37,7 @@ public final class GlobalDashboard extends DashboardTemplate {
   @Override
   public Dashboard createDashboard() {
     Dashboard dashboard = Dashboard.create();
+    dashboard.setGlobal(true);
     dashboard.setLayout(DashboardLayout.ONE_COLUMN);
 
     addWidget(dashboard);

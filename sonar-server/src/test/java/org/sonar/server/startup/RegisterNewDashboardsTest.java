@@ -99,6 +99,7 @@ public class RegisterNewDashboardsTest {
     assertThat(dto.getDescription(), nullValue());
     assertThat(dto.getColumnLayout(), is("30%-70%"));
     assertThat(dto.getShared(), is(true));
+    assertThat(dto.getGlobal(), is(true));
     assertNotNull(dto.getCreatedAt());
     assertNotNull(dto.getUpdatedAt());
 
@@ -177,6 +178,7 @@ public class RegisterNewDashboardsTest {
     @Override
     public Dashboard createDashboard() {
       Dashboard dashboard = Dashboard.create();
+      dashboard.setGlobal(true);
       dashboard.setLayout(DashboardLayout.TWO_COLUMNS_30_70);
       Dashboard.Widget widget = dashboard.addWidget("fake-widget", 1);
       widget.setProperty("fake-property", "fake_metric");

@@ -25,7 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * A widget is global when it can only ne displayed on Global Dashboards.
+ * A widget is global when it can only be displayed on Global Dashboards.
  * It doesn't display information from a projet but rather more general information.
  * <p>Before version 3.1 no widget was global.</p>
  *

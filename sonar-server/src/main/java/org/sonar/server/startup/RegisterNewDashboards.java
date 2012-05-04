@@ -113,6 +113,7 @@ public final class RegisterNewDashboards {
     dashboardDto.setDescription(dashboard.getDescription());
     dashboardDto.setColumnLayout(dashboard.getLayout().getCode());
     dashboardDto.setShared(true);
+    dashboardDto.setGlobal(dashboard.isGlobal());
     dashboardDto.setCreatedAt(now);
     dashboardDto.setUpdatedAt(now);
 
