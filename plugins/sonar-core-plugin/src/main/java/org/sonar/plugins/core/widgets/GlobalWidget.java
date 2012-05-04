@@ -19,12 +19,15 @@
  */
 package org.sonar.plugins.core.widgets;
 
+import org.sonar.api.web.WidgetGlobal;
+
 import org.sonar.api.web.AbstractRubyTemplate;
 import org.sonar.api.web.RubyRailsWidget;
 import org.sonar.api.web.UserRole;
 import org.sonar.api.web.WidgetCategory;
 
-@WidgetCategory(value = "Information", detached = true)
+@WidgetCategory("Information")
+@WidgetGlobal
 @UserRole(UserRole.USER)
 public class GlobalWidget extends AbstractRubyTemplate implements RubyRailsWidget {
 

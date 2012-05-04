@@ -191,10 +191,7 @@ class DashboardController < ApplicationController
   end
 
   def load_widget_definitions(dashboard, filter_on_category=nil)
-    @widget_definitions=java_facade.getWidgets()
-    if dashboard.detached
-      @widget_definitions=@widget_definitions.select(&:isDetached)
-    end
+    @widget_definitions=java_facade.getWidgets().select { |w| w.isGlobal() == dashboard.global}
 
     @widget_categories=@widget_definitions.map(&:getWidgetCategories).flatten.uniq.sort
     unless filter_on_category.blank?

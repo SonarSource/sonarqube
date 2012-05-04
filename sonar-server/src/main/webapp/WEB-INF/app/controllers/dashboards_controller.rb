@@ -171,6 +171,7 @@ class DashboardsController < ApplicationController
   def load_dashboard_from_params(dashboard)
     dashboard.name=params[:name]
     dashboard.description=params[:description]
+    dashboard.global=(params[:global].present?)
     dashboard.shared=(params[:shared].present? && is_admin?)
     dashboard.user_id=current_user.id
     dashboard.column_layout=Dashboard::DEFAULT_LAYOUT if !dashboard.column_layout

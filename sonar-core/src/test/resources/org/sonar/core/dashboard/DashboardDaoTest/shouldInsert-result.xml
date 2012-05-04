@@ -7,7 +7,7 @@
     description="This is a dashboard"
     column_layout="100%"
     shared="[true]"
-    detached="[false]"
+    is_global="[true]"
   />
 
   <widgets

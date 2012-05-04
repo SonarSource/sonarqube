@@ -19,6 +19,8 @@
  */
 package org.sonar.server.ui;
 
+import org.sonar.api.web.WidgetGlobal;
+
 import org.junit.Test;
 import org.sonar.api.web.DefaultTab;
 import org.sonar.api.web.NavigationSection;
@@ -26,7 +28,6 @@ import org.sonar.api.web.RequiredMeasures;
 import org.sonar.api.web.UserRole;
 import org.sonar.api.web.View;
 import org.sonar.api.web.Widget;
-import org.sonar.api.web.WidgetCategory;
 import org.sonar.api.web.WidgetProperties;
 import org.sonar.api.web.WidgetProperty;
 import org.sonar.api.web.WidgetPropertyType;
@@ -133,17 +134,17 @@ public class ViewProxyTest {
   }
 
   @Test
-  public void widget_should_not_be_detached() {
+  public void widget_should_not_be_global_by_default() {
     ViewProxy proxy = new ViewProxy<Widget>(new EditableWidget());
 
-    assertThat(proxy.isDetached()).isFalse();
+    assertThat(proxy.isGlobal()).isFalse();
   }
 
   @Test
-  public void widget_should_be_detached() {
-    ViewProxy proxy = new ViewProxy<Widget>(new DetachedWidget());
+  public void widget_should_be_global() {
+    ViewProxy proxy = new ViewProxy<Widget>(new GlobalWidget());
 
-    assertThat(proxy.isDetached()).isTrue();
+    assertThat(proxy.isGlobal()).isTrue();
   }
 
   @Test
@@ -250,14 +251,14 @@ class EditableWidget implements Widget {
   }
 }
 
-@WidgetCategory(value = "", detached = true)
-class DetachedWidget implements Widget {
+@WidgetGlobal
+class GlobalWidget implements Widget {
   public String getId() {
-    return "detached";
+    return "global";
   }
 
   public String getTitle() {
-    return "Detached";
+    return "Global";
   }
 }
 

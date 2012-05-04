@@ -47,7 +47,7 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
   private WidgetLayoutType widgetLayout = WidgetLayoutType.DEFAULT;
   private boolean isDefaultTab = false;
   private boolean isWidget = false;
-  private boolean isDetached = false;
+  private boolean isGlobal = false;
   private String[] mandatoryMeasures = {};
   private String[] needOneOfMeasures = {};
 
@@ -64,7 +64,7 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
     initWidgetProperties(view);
     initWidgetCategory(view);
     initWidgetLayout(view);
-    initWidgetDetached(view);
+    initWidgetGlobal(view);
     initRequiredMeasures(view);
 
     isWidget = (view instanceof Widget);
@@ -92,11 +92,8 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
     }
   }
 
-  private void initWidgetDetached(final V view) {
-    WidgetCategory categAnnotation = AnnotationUtils.getClassAnnotation(view, WidgetCategory.class);
-    if (categAnnotation != null) {
-      isDetached = categAnnotation.detached();
-    }
+  private void initWidgetGlobal(final V view) {
+    isGlobal = null != AnnotationUtils.getClassAnnotation(view, WidgetGlobal.class);
   }
 
   private void initWidgetProperties(final V view) {
@@ -251,8 +248,8 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
     return isWidget;
   }
 
-  public boolean isDetached() {
-    return isDetached;
+  public boolean isGlobal() {
+    return isGlobal;
   }
 
   public boolean isGwt() {

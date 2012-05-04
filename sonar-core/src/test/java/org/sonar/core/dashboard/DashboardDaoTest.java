@@ -60,6 +60,7 @@ public class DashboardDaoTest extends DaoTestCase {
     dashboardDto.setDescription("This is a dashboard");
     dashboardDto.setColumnLayout("100%");
     dashboardDto.setShared(true);
+    dashboardDto.setGlobal(true);
     dashboardDto.setCreatedAt(aDate);
     dashboardDto.setUpdatedAt(aDate);
 
@@ -94,6 +95,7 @@ public class DashboardDaoTest extends DaoTestCase {
     dashboardDto.setDescription(null);
     dashboardDto.setColumnLayout(null);
     dashboardDto.setShared(true);
+    dashboardDto.setGlobal(false);
     dashboardDto.setCreatedAt(null);
     dashboardDto.setUpdatedAt(null);
 

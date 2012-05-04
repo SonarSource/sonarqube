@@ -14,6 +14,11 @@
         <%= message('description') -%>:<br/><input type="text" name="description" size="30" maxlength="1000">
       </td>
     </tr>
+    <tr>
+      <td class="left" valign="top">
+        <%= message('global') -%>:<br/><input type="checkbox" name="global" value="true">
+      </td>
+    </tr>
     <% if is_admin? %>
       <tr>
         <td class="left" valign="top">

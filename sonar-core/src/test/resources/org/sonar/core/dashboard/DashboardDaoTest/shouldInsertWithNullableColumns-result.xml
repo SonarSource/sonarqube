@@ -7,7 +7,7 @@
     description="[null]"
     column_layout="[null]"
     shared="[true]"
-    detached="[false]"
+    is_global="[false]"
     created_at="[null]"
     updated_at="[null]"
   />

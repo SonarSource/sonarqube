@@ -8,6 +8,7 @@
         <thead>
         <tr>
           <th><%= message('name') -%></th>
+          <th><%= message('global') -%></th>
           <% if is_admin %>
             <th><%= message('shared') -%></th>
           <% end %>
@@ -30,9 +31,12 @@
                   <p class="small"><%= h active.dashboard.description -%></p>
                 <% end %>
               </td>
+              <td>
+                <%= boolean_icon(active.dashboard.global?) -%>
+              </td>
               <% if is_admin %>
                 <td>
-                  <%= boolean_icon(active.dashboard.shared, {:display_false => false}) -%>
+                  <%= boolean_icon(active.dashboard.shared?) -%>
                 </td>
               <% end %>
               <td>

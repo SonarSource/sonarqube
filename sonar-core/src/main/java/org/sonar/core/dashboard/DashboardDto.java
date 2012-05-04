@@ -33,7 +33,7 @@ public final class DashboardDto {
   private String description;
   private String columnLayout;
   private boolean shared;
-  private boolean detached;
+  private boolean global;
   private Date createdAt;
   private Date updatedAt;
   private List<WidgetDto> widgetDtos = Lists.newArrayList();
@@ -92,12 +92,12 @@ public final class DashboardDto {
     return this;
   }
 
-  public boolean getDetached() {
-    return detached;
+  public boolean getGlobal() {
+    return global;
   }
 
-  public DashboardDto setDetached(boolean detached) {
-    this.detached = detached;
+  public DashboardDto setGlobal(boolean global) {
+    this.global = global;
     return this;
   }
 

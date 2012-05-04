@@ -24,7 +24,7 @@
 class AddGlobalToDashboards < ActiveRecord::Migration
 
   def self.up
-    add_column 'dashboards', 'detached', :boolean, :null => false, :default => false
+    add_column 'dashboards', 'global', :boolean, :null => false, :default => false
   end
 
 end

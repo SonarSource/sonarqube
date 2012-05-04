@@ -34,83 +34,87 @@ class Dashboard < ActiveRecord::Base
   before_destroy :check_not_default_before_destroy
 
   def name(l10n=false)
-    n=read_attribute(:name)
-    if l10n
-      Api::Utils.message("dashboard.#{n}.name", :default => n)
-    else
-      n
-    end
+	n=read_attribute(:name)
+	if l10n
+	  Api::Utils.message("dashboard.#{n}.name", :default => n)
+	else
+	  n
+	end
   end
 
   def shared?
-    read_attribute(:shared) || false
+	read_attribute(:shared) || false
+  end
+
+  def global?
+    read_attribute(:is_global) || false
   end
 
   def layout
-    column_layout
+	column_layout
   end
 
   def user_name
-    user_id ? user.name : nil
+	user_id ? user.name : nil
   end
 
   def editable_by?(user)
-    (user && self.user_id==user.id) || (user_id.nil? && user.has_role?(:admin))
+	(user && self.user_id==user.id) || (user_id.nil? && user.has_role?(:admin))
   end
 
   def owner?(user)
-    self.user_id==user.id
+	self.user_id==user.id
   end
 
   def number_of_columns
-    column_layout.split('-').size
+	column_layout.split('-').size
   end
 
   def column_size(column_index)
-    last_widget=widgets.select { |w| w.column_index==column_index }.max { |x, y| x.row_index <=> y.row_index }
-    last_widget ? last_widget.row_index : 0
+	last_widget=widgets.select { |w| w.column_index==column_index }.max { |x, y| x.row_index <=> y.row_index }
+	last_widget ? last_widget.row_index : 0
   end
 
   def deep_copy()
-    dashboard=Dashboard.new(attributes)
-    dashboard.shared=false
-    self.widgets.each do |child|
-      new_widget = Widget.create(child.attributes)
+	dashboard=Dashboard.new(attributes)
+	dashboard.shared=false
+	self.widgets.each do |child|
+	  new_widget = Widget.create(child.attributes)
 
-      child.properties.each do |prop|
-        widget_prop = WidgetProperty.create(prop.attributes)
-        new_widget.properties << widget_prop
-      end
+	  child.properties.each do |prop|
+		widget_prop = WidgetProperty.create(prop.attributes)
+		new_widget.properties << widget_prop
+	  end
 
-      new_widget.save
-      dashboard.widgets << new_widget
-    end
-    dashboard.save
-    dashboard
+	  new_widget.save
+	  dashboard.widgets << new_widget
+	end
+	dashboard.save
+	dashboard
   end
 
   def provided_programmatically?
-    shared && user_id.nil?
+	shared && user_id.nil?
   end
 
   protected
   def check_not_default_before_destroy
-    if shared?
-      default_actives = active_dashboards.select { |ad| ad.default? }
-      return default_actives.size==0
-    end
-    true
+	if shared?
+	  default_actives = active_dashboards.select { |ad| ad.default? }
+	  return default_actives.size==0
+	end
+	true
   end
 
   def validate_on_update
-    # Check that not used as default dashboard when unsharing
-    if shared_was && !shared
-      # unsharing
-      default_actives = active_dashboards.select { |ad| ad.default? }
+	# Check that not used as default dashboard when unsharing
+	if shared_was && !shared
+	  # unsharing
+	  default_actives = active_dashboards.select { |ad| ad.default? }
 
-      unless default_actives.empty?
-        errors.add_to_base(Api::Utils.message('dashboard.error_unshare_default'))
-      end
-    end
+	  unless default_actives.empty?
+		errors.add_to_base(Api::Utils.message('dashboard.error_unshare_default'))
+	  end
+	end
   end
 end

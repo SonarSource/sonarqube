@@ -25,10 +25,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @since 2.4
+ * A widget is global when it can only ne displayed on Global Dashboards.
+ * It doesn't display information from a projet but rather more general information.
+ * <p>Before version 3.1 no widget was global.</p>
+ *
+ * @since 3.1
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface WidgetCategory {
-  String[] value();
+public @interface WidgetGlobal {
 }

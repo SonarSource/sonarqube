@@ -7,7 +7,6 @@
     description="User SQALE dashboard"
     column_layout="100%"
     shared="[true]"
-    detached="[false]"
     />
 
   <dashboards
@@ -17,7 +16,6 @@
     description="Global SQALE dashboard"
     column_layout="100%"
     shared="[true]"
-    detached="[false]"
     />
 
 </dataset>
