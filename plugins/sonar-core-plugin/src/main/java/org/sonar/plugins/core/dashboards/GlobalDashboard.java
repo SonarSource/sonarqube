@@ -46,6 +46,7 @@ public final class GlobalDashboard extends DashboardTemplate {
   }
 
   private void addWidget(Dashboard dashboard) {
+    dashboard.addWidget("image", 1);
     dashboard.addWidget("global", 1);
   }
 }

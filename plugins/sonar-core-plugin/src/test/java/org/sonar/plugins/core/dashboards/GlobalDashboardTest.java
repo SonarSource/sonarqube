@@ -34,6 +34,6 @@ public class GlobalDashboardTest {
 
     assertThat(template.getName()).isEqualTo("Global");
     assertThat(dashboard.getLayout()).isEqualTo(DashboardLayout.ONE_COLUMN);
-    assertThat(dashboard.getWidgets()).onProperty("id").containsOnly("global");
+    assertThat(dashboard.getWidgets()).onProperty("id").containsOnly("global", "image");
   }
 }

@@ -23,21 +23,32 @@ import org.sonar.api.web.AbstractRubyTemplate;
 import org.sonar.api.web.RubyRailsWidget;
 import org.sonar.api.web.WidgetCategory;
 import org.sonar.api.web.WidgetGlobal;
+import org.sonar.api.web.WidgetProperties;
+import org.sonar.api.web.WidgetProperty;
+import org.sonar.api.web.WidgetPropertyType;
 
 @WidgetCategory("Beta")
 @WidgetGlobal
-public class GlobalWidget extends AbstractRubyTemplate implements RubyRailsWidget {
+@WidgetProperties(
+{
+  @WidgetProperty(key = "imageUrl", type = WidgetPropertyType.STRING, defaultValue = "http://www.sonarsource.org/wp-content/themes/sonarsource.org/images/sonar.png"),
+  @WidgetProperty(key = "alt", type = WidgetPropertyType.STRING, defaultValue = "SonarSource"),
+  @WidgetProperty(key = "link", type = WidgetPropertyType.STRING, defaultValue = "http://www.sonarsource.org"),
+  @WidgetProperty(key = "width", type = WidgetPropertyType.INTEGER, defaultValue = "100"),
+  @WidgetProperty(key = "height", type = WidgetPropertyType.INTEGER, defaultValue = "54")
+})
+public class ImageWidget extends AbstractRubyTemplate implements RubyRailsWidget {
 
   public String getId() {
-    return "global";
+    return "image";
   }
 
   public String getTitle() {
-    return "Global";
+    return "Image";
   }
 
   @Override
   protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/global.html.erb";
+    return "/org/sonar/plugins/core/widgets/image.html.erb";
   }
 }

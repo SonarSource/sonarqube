@@ -140,7 +140,7 @@ class DashboardController < ApplicationController
       widget.configured=true
       widget.save!
       render :update do |page|
-        page.redirect_to(url_for(:action => configure, :did => widget.dashboard_id, :id => params[:id]))
+        page.redirect_to(url_for(:action => 'configure', :did => widget.dashboard_id, :id => params[:id]))
       end
     end
   end
