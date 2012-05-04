@@ -30,15 +30,17 @@ class DashboardsController < ApplicationController
     active_dashboard_ids=@actives.map { |a| a.dashboard_id }
     @shared_dashboards.reject! { |d| active_dashboard_ids.include?(d.id) }
 
-    @resource=Project.by_key(params[:resource])
-    if @resource.nil?
+    if params[:resource]
+      @resource=Project.by_key(params[:resource])
+      if @resource.nil?
       # TODO display error page
-      redirect_to home_path
-      return false
+        redirect_to home_path
+        return false
+      end
+      access_denied unless has_role?(:user, @resource)
+      @snapshot = @resource.last_snapshot
+      @project=@resource # variable name used in old widgets
     end
-    access_denied unless has_role?(:user, @resource)
-    @snapshot = @resource.last_snapshot
-    @project=@resource # variable name used in old widgets
   end
 
   def create
@@ -54,7 +56,7 @@ class DashboardsController < ApplicationController
         add_default_dashboards_if_first_user_dashboard
         last_active_dashboard=current_user.active_dashboards.max { |x, y| x.order_index<=>y.order_index }
         current_user.active_dashboards.create(:dashboard => @dashboard, :user_id => current_user.id, :order_index => (last_active_dashboard ? last_active_dashboard.order_index+1 : 1))
-        redirect_to :controller => 'dashboard', :action => 'configure', :did => @dashboard.id, :id => params[:resource]
+        redirect_to :controller => 'dashboard', :action => 'configure', :did => @dashboard.id, :id => (params[:resource] unless @dashboard.global)
       else
         flash[:error]=@dashboard.errors.full_messages.join('<br/>')
         redirect_to :controller => 'dashboards', :action => 'index', :resource => params[:resource]
@@ -171,7 +173,7 @@ class DashboardsController < ApplicationController
   def load_dashboard_from_params(dashboard)
     dashboard.name=params[:name]
     dashboard.description=params[:description]
-    dashboard.global=(params[:global].present?)
+    dashboard.is_global=(params[:global].present?)
     dashboard.shared=(params[:shared].present? && is_admin?)
     dashboard.user_id=current_user.id
     dashboard.column_layout=Dashboard::DEFAULT_LAYOUT if !dashboard.column_layout

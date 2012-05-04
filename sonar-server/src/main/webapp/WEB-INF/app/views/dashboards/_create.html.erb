@@ -5,12 +5,12 @@
       <td colspan="2"><h1><%= message('dashboard.create_dashboard') -%></h1></td>
     </tr>
     <tr>
-      <td class="left" valign="top">
+      <td class="left" valign="top" colspan="2">
         <%= message('name') -%>:<br/><input type="text" name="name" size="30" maxlength="256">
       </td>
     </tr>
     <tr>
-      <td class="left" valign="top">
+      <td class="left" valign="top" colspan="2">
         <%= message('description') -%>:<br/><input type="text" name="description" size="30" maxlength="1000">
       </td>
     </tr>
@@ -18,16 +18,14 @@
       <td class="left" valign="top">
         <%= message('global') -%>:<br/><input type="checkbox" name="global" value="true">
       </td>
-    </tr>
-    <% if is_admin? %>
-      <tr>
+      <% if is_admin? %>
         <td class="left" valign="top">
           <%= message('shared') -%>:<br/><input type="checkbox" name="shared" value="true">
         </td>
-      </tr>
-    <% end %>
+      <% end %>
+    </tr>
     <tr>
-      <td class="left" valign="top">
+      <td class="left" valign="top" colspan="2">
         <input type="submit" value="<%= message('dashboard.create_dashboard') -%>" id="submit-create-dashboard"/>
       </td>
     </tr>

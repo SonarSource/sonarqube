@@ -8,9 +8,7 @@
           <li><%= link_to message('dashboard.configure_widgets'), dashboard_action(:configure) -%></li>
           <li><%= link_to message('dashboard.edit_layout'), dashboard_action(:edit_layout) -%></li>
         <% end %>
-        <% if @resource %>
-          <li class="last"><%= link_to message('dashboard.manage_dashboards'), {:controller => :dashboards, :action => :index, :resource => @resource.id} -%></li>
-        <% end %>
+        <li class="last"><%= link_to message('dashboard.manage_dashboards'), {:controller => :dashboards, :action => :index, :resource => (@resource.id if @resource)} -%></li>
       <% end %>
     </ul>
   <% end %>

@@ -46,8 +46,12 @@ class Dashboard < ActiveRecord::Base
 	read_attribute(:shared) || false
   end
 
-  def global?
-    read_attribute(:is_global) || false
+  def global=(global)
+    write_attribute(:is_global, global)
+  end
+
+  def global
+    read_attribute(:is_global)
   end
 
   def layout

@@ -3,12 +3,12 @@
 
 <table class="data" id="admin_console">
   <thead>
-  <tr>
-    <th>Name</th>
-    <th>Shared by</th>
-    <th>Order</th>
-    <th class="right">Operations</th>
-  </tr>
+    <tr>
+      <th><%= message('name') -%></th>
+      <th><%= message('global') -%></th>
+      <th><%= message('shared_by') -%></th>
+      <th colspan="2" class="right"><%= message('operations') -%></th>
+    </tr>
   </thead>
   <tbody>
   <% if @actives.empty? %>
@@ -22,6 +22,9 @@
           <%= h(active.name(true)) %>
           <br>
           <span style="font-size: 85%;font-weight: normal;"><%= active.dashboard.description %></span>
+        </td>
+        <td>
+          <%= boolean_icon(active.dashboard.global) -%>
         </td>
         <td><%= h(active.dashboard.user.name) if active.dashboard.user %></td>
         <td>
@@ -50,9 +53,10 @@
 <table class="data" id="shared">
   <thead>
   <tr>
-    <th>Name</th>
-    <th>Shared by</th>
-    <th colspan="2" class="right">Operations</th>
+    <th><%= message('name') -%></th>
+    <th><%= message('global') -%></th>
+    <th><%= message('shared_by') -%></th>
+    <th colspan="2" class="right"><%= message('operations') -%></th>
   </tr>
   </thead>
   <tbody>
@@ -67,6 +71,9 @@
           <%= h(dashboard.name(true)) -%>
           <br>
           <span class="small"><%= dashboard.description %></span>
+        </td>
+        <td>
+          <%= boolean_icon(dashboard.global) -%>
         </td>
         <td><%= h(dashboard.user.name) if dashboard.user %></td>
         <td class="thin nowrap right">

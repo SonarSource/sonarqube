@@ -42,9 +42,9 @@
             <li class="<%= 'selected' if controller.controller_path=='dependencies' -%>">
               <a href="<%= ApplicationController.root_context -%>/dependencies/index"><%= message('dependencies.page') -%></a></li>
 
-            <% ActiveDashboard.user_dashboards(current_user).select { |active_dashboard| active_dashboard.dashboard.global? }.each do |active_dashboard| %>
+            <% ActiveDashboard.user_dashboards(current_user).select { |active_dashboard| active_dashboard.dashboard.global }.each do |active_dashboard| %>
               <li class="<%= 'selected' if @dashboard && controller.controller_path=='dashboard' && active_dashboard.dashboard_id==@dashboard.id -%>">
-                <a href="<%= ApplicationController.root_context -%>/dashboard/index/?did=<%= active_dashboard.dashboard_id -%>"><%= active_dashboard.dashboard.name(true) -%></a>
+                <a href="<%= ApplicationController.root_context -%>/dashboard/?did=<%= active_dashboard.dashboard_id -%>"><%= active_dashboard.dashboard.name(true) -%></a>
               </li>
             <% end %>
 
@@ -57,7 +57,7 @@
             <% end %>
 
           <% elsif selected_section==Navigation::SECTION_RESOURCE %>
-            <% ActiveDashboard.user_dashboards(current_user).select { |active_dashboard| !active_dashboard.dashboard.global? }.each do |active_dashboard| %>
+            <% ActiveDashboard.user_dashboards(current_user).select { |active_dashboard| !active_dashboard.dashboard.global }.each do |active_dashboard| %>
               <li class="<%= 'selected' if @dashboard && controller.controller_path=='dashboard' && active_dashboard.dashboard_id==@dashboard.id -%>">
                 <a href="<%= ApplicationController.root_context -%>/dashboard/index/<%= @project.id -%>?did=<%= active_dashboard.dashboard_id -%><%= "&"+period_param if period_param -%>"><%= active_dashboard.dashboard.name(true) -%></a>
               </li>

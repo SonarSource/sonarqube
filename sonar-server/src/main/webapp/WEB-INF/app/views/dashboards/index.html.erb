@@ -26,17 +26,17 @@
              @actives.each_with_index do |active, index| %>
             <tr id="dashboard-<%= u active.name -%>" class="<%= cycle('even', 'odd', :name => 'dashboards') -%>">
               <td>
-                <%= link_to active.name(true), {:controller => :dashboard, :action => :index, :did => active.dashboard_id, :id => params[:resource]} -%>
+                <%= link_to active.name(true), {:controller => :dashboard, :action => :index, :did => active.dashboard_id, :id => (params[:resource] unless active.dashboard.global) } -%>
                 <% if active.dashboard.description.present? %>
                   <p class="small"><%= h active.dashboard.description -%></p>
                 <% end %>
               </td>
               <td>
-                <%= boolean_icon(active.dashboard.global?) -%>
+                <%= boolean_icon(active.dashboard.global) -%>
               </td>
               <% if is_admin %>
                 <td>
-                  <%= boolean_icon(active.dashboard.shared?) -%>
+                  <%= boolean_icon(active.dashboard.shared) -%>
                 </td>
               <% end %>
               <td>
@@ -51,7 +51,7 @@
               </td>
               <td class="thin nowrap right">
                 <% if active.owner?(current_user) %>
-                  <%= link_to message('dashboard.configure_widgets'), {:controller => :dashboard, :action => 'configure', :did => active.dashboard_id, :id => params[:resource]},
+                  <%= link_to message('dashboard.configure_widgets'), {:controller => :dashboard, :action => 'configure', :did => active.dashboard_id, :id => (params[:resource] unless active.dashboard.global)},
                               :id => "configure-#{u active.name}", :class => 'link-action' %>
                   |
                   <%= link_to_remote message('edit'), {:update => "admin_form", :url => {:action => "edit", :id => active.dashboard_id, :resource => params[:resource]}},
@@ -77,6 +77,7 @@
         <thead>
         <tr>
           <th><%= message('name') -%></th>
+          <th><%= message('global') -%></th>
           <th><%= message('shared_by') -%></th>
           <th><%= message('operations') -%></th>
         </tr>
@@ -95,6 +96,9 @@
                 <% if dashboard.description.present? %>
                   <p class="small"><%= h dashboard.description -%></p>
                 <% end %>
+              </td>
+              <td>
+                <%= boolean_icon(dashboard.global) -%>
               </td>
               <td>
                 <%= dashboard.user_name -%>
