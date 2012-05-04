@@ -58,6 +58,10 @@ class DashboardController < ApplicationController
   def edit_layout
     load_resource()
     load_dashboard()
+    load_widget_definitions(@dashboard)
+    unless @dashboard
+      redirect_to home_path
+    end
   end
 
   def set_layout
@@ -71,7 +75,7 @@ class DashboardController < ApplicationController
         widget.save
       end
     end
-    redirect_to :action => 'index', :did => dashboard.id, :id => params[:id]
+    redirect_to :action => 'edit_layout', :did => dashboard.id, :id => params[:id]
   end
 
   def set_dashboard
