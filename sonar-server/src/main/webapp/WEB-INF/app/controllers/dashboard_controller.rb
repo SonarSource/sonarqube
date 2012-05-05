@@ -55,15 +55,6 @@ class DashboardController < ApplicationController
     end
   end
 
-  def edit_layout
-    load_resource()
-    load_dashboard()
-    load_widget_definitions(@dashboard)
-    unless @dashboard
-      redirect_to home_path
-    end
-  end
-
   def set_layout
     dashboard=Dashboard.find(params[:did])
     if dashboard.editable_by?(current_user)
@@ -75,7 +66,7 @@ class DashboardController < ApplicationController
         widget.save
       end
     end
-    redirect_to :action => 'edit_layout', :did => dashboard.id, :id => params[:id]
+    redirect_to :action => 'configure', :did => dashboard.id, :id => params[:id]
   end
 
   def set_dashboard

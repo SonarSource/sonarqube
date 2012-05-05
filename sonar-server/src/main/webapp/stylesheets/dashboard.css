@@ -14,18 +14,6 @@
   z-index: 1000;
 }
 
-/* CONFIGURE LAYOUT */
-#dashboard .select-layout {
-  text-align: center;
-  float: left;
-  margin: 0;
-  padding: 0;
-}
-
-#dashboard .select-layout.selected img {
-  border: 3px solid #4B9FD5;
-}
-
 /* WIDGETS */
 #dashboard .widget {
   position: relative;
@@ -52,15 +40,35 @@
 }
 
 /*CONFIGURATION*/
+#dashboard #configure {
+    position: relative;
+    height: 260px;
+    margin: 5px 0 10px 0;
+}
+
+#dashboard #widget_defs, #dashboard #edit-layout {
+    height: 250px;
+    background-color: #FFF6BF;
+    border: 2px solid #FFD324;
+    padding: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+}
+
 #dashboard #widget_defs {
-  height: 250px;
-  overflow-y: auto;
-  background-color: #FFF6BF;
-  border: 2px solid #FFD324;
-  padding: 3px;
-  -moz-border-radius: 3px;
-  -webkit-border-radius: 3px;
-  margin: 5px 0 10px 0;
+    margin-right: 190px;
+    overflow-y: auto;
+}
+
+#dashboard #edit-layout {
+    width: 172px;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+#dashboard #edit-layout p {
+    margin-bottom: 5px;
 }
 
 #dashboard #widget_defs td {
@@ -85,6 +93,18 @@
 #dashboard ul.widget_categs li.selected a {
   font-weight: bold;
   text-decoration: none;
+}
+
+#dashboard .select-layout {
+    float: left;
+}
+
+#dashboard .select-layout img {
+    border: 3px solid #FFF6BF;
+}
+
+#dashboard .select-layout.selected img {
+    border: 3px solid #4B9FD5;
 }
 
 /*OPERATIONS*/
