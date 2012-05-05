@@ -20,28 +20,48 @@
 package org.sonar.api.resources;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 /**
  * @since 2.6
  */
 public interface InputFile {
-
   /**
-   * The source base directory, different than the project basedir. For example in maven projects, the basedir of a source file stored in
-   * src/main/java/org/foo/ is the directory src/main/java.
+   * The source base directory, different than the project basedir.
+   * 
+   * <p>For example in maven projects, the basedir of a source file stored in
+   * <code>src/main/java/org/foo/</code> is the directory <code>src/main/java</code>.</p>
    */
   File getFileBaseDir();
 
+  /**
+   * Get the underlying file.
+   *
+   * @return the file
+   */
   File getFile();
 
   /**
-   * Path relative to basedir. Directory separator is slash '/', whatever the platform.
-   * 
-   * Example on windows: if file basedir is c:\project\src\ and file is c:\project\src\org\foo\Bar.java, then relative path
-   * is org/foo/Bar.java
+   * Path relative to basedir. Directory separator is slash <code>'/'</code>, whatever the platform.
    *
-   * Example on unix: if file basedir is /project/src and file is /project/src/org/foo/Bar.java, then relative path
-   * is org/foo/Bar.java as well.
+   * <p>Example on windows: if file basedir is <code>c:\project\src\</code> and file is <code>c:\project\src\org\foo\Bar.java</code>, then relative path
+   * is <code>org/foo/Bar.java</code></p>
+   *
+   * <p>Example on unix: if file basedir is <code>/project/src</code> and file is <code>/project/src/org/foo/Bar.java</code>, then relative path
+   * is <code>org/foo/Bar.java</code> as well.</p>
    */
   String getRelativePath();
+
+  /**
+   * Get an {@link InputStream} that reads from the file.
+   *
+   * <p>The returned stream is buffered so there is no need to use a
+   * <code>BufferedInputStream</code></p>
+   *
+   * @return the stream
+   * @throws FileNotFoundException if the file is not found
+   * @since 3.1
+   */
+  InputStream getInputStream() throws FileNotFoundException;
 }

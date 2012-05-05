@@ -19,126 +19,164 @@
  */
 package org.sonar.api.resources;
 
-import com.google.common.collect.Lists;
+import com.google.common.io.Closeables;
+
+import org.junit.rules.ExpectedException;
+
+import org.junit.Rule;
+
+import com.google.common.base.Charsets;
+import com.google.common.io.ByteStreams;
+import com.google.common.io.Files;
 import org.junit.Test;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.text.StringEndsWith.endsWith;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class InputFileUtilsTest {
+  private static final File BASE_DIR = new File("target/tmp/InputFileUtilsTest");
+
+  @Rule
+  public ExpectedException exception = ExpectedException.none();
 
   @Test
   public void shouldCreateInputFileWithRelativePath() {
-    java.io.File basedir = new java.io.File("target/tmp/InputFileUtilsTest");
+    String relativePath = "org/sonar/Foo.java";
 
-    InputFile inputFile = InputFileUtils.create(basedir, "org/sonar/Foo.java");
+    InputFile inputFile = InputFileUtils.create(BASE_DIR, relativePath);
 
-    assertThat(inputFile.getFileBaseDir(), is(basedir));
-    assertThat(inputFile.getFile(), is(new java.io.File("target/tmp/InputFileUtilsTest/org/sonar/Foo.java")));
-    assertThat(inputFile.getRelativePath(), is("org/sonar/Foo.java"));
+    assertThat(inputFile.getFileBaseDir()).isEqualTo(BASE_DIR);
+    assertThat(inputFile.getRelativePath()).isEqualTo(relativePath);
+    assertThat(inputFile.getFile()).isEqualTo(new File("target/tmp/InputFileUtilsTest/org/sonar/Foo.java"));
   }
 
   @Test
-  public void shouldNotAcceptFileWithWrongBasedir() {
-    java.io.File basedir1 = new java.io.File("target/tmp/InputFileUtilsTest/basedir1");
-    java.io.File basedir2 = new java.io.File("target/tmp/InputFileUtilsTest/basedir2");
+  public void shouldNotAcceptFileWithWrongbaseDir() {
+    File baseDir1 = new File(BASE_DIR, "baseDir1");
+    File baseDir2 = new File(BASE_DIR, "baseDir2");
 
-    InputFile inputFile = InputFileUtils.create(basedir1, new File(basedir2, "org/sonar/Foo.java"));
+    InputFile inputFile = InputFileUtils.create(baseDir1, new File(baseDir2, "org/sonar/Foo.java"));
 
-    assertThat(inputFile, nullValue());
+    assertThat(inputFile).isNull();
   }
 
   @Test
   public void shouldGuessRelativePath() {
-    java.io.File basedir = new java.io.File("target/tmp/InputFileUtilsTest");
+    File file = new File(BASE_DIR, "org/sonar/Foo.java");
 
-    java.io.File file = new java.io.File(basedir, "org/sonar/Foo.java");
-    InputFile inputFile = InputFileUtils.create(basedir, file);
+    InputFile inputFile = InputFileUtils.create(BASE_DIR, file);
 
-    assertThat(inputFile.getFileBaseDir(), is(basedir));
-    assertThat(inputFile.getFile(), is(file));
-    assertThat(inputFile.getRelativePath(), is("org/sonar/Foo.java"));
+    assertThat(inputFile.getFileBaseDir()).isEqualTo(BASE_DIR);
+    assertThat(inputFile.getFile()).isEqualTo(file);
+    assertThat(inputFile.getRelativePath()).isEqualTo("org/sonar/Foo.java");
   }
 
   @Test
   public void testEqualsAndHashCode() {
-    java.io.File basedir = new java.io.File("target/tmp/InputFileUtilsTest");
+    InputFile inputFile1 = InputFileUtils.create(BASE_DIR, "org/sonar/Foo.java");
+    InputFile inputFile2 = InputFileUtils.create(BASE_DIR, "org/sonar/Foo.java");
+    InputFile inputFile3 = InputFileUtils.create(BASE_DIR, "org/sonar/Bar.java");
 
-    InputFile inputFile1 = InputFileUtils.create(basedir, "org/sonar/Foo.java");
-    InputFile inputFile2 = InputFileUtils.create(basedir, "org/sonar/Foo.java");
-
-    assertEquals(inputFile1, inputFile1);
-    assertEquals(inputFile1, inputFile2);
-
-    assertEquals(inputFile1.hashCode(), inputFile1.hashCode());
+    assertThat(inputFile1).isEqualTo(inputFile1).isEqualTo(inputFile2);
+    assertThat(inputFile1.hashCode()).isEqualTo(inputFile2.hashCode());
+    assertThat(inputFile1).isNotEqualTo(inputFile3);
   }
 
   @Test
   public void shouldNotEqualFile() {
-    java.io.File basedir = new java.io.File("target/tmp/InputFileUtilsTest");
-    File file = new File(basedir, "org/sonar/Foo.java");
-    InputFile inputFile = InputFileUtils.create(basedir, file);
+    File file = new File(BASE_DIR, "org/sonar/Foo.java");
 
-    assertThat(inputFile.getFile(), is(file));
-    assertThat(inputFile.equals(file), is(false));
+    InputFile inputFile = InputFileUtils.create(BASE_DIR, file);
+
+    assertThat(inputFile.getFile()).isEqualTo(file);
+    assertThat(inputFile).isNotEqualTo(file);
   }
 
   @Test
-  public void shouldNotEqualIfBasedirAreDifferents() {
-    InputFile inputFile1 = InputFileUtils.create(new File("target/tmp/InputFileUtilsTest"), "org/sonar/Foo.java");
-    InputFile inputFile2 = InputFileUtils.create(new File("target/tmp/InputFileUtilsTest/org"), "sonar/Foo.java");
-    assertThat(inputFile1.equals(inputFile2), is(false));
+  public void shouldNotEqualIfbaseDirAreDifferents() {
+    InputFile inputFile1 = InputFileUtils.create(BASE_DIR, "org/sonar/Foo.java");
+    InputFile inputFile2 = InputFileUtils.create(new File(BASE_DIR, "org"), "sonar/Foo.java");
+
+    assertThat(inputFile1).isNotEqualTo(inputFile2);
   }
 
   @Test
   public void testToString() {
-    File basedir = new File("target/tmp/InputFileUtilsTest");
-    InputFile inputFile = InputFileUtils.create(basedir, "org/sonar/Foo.java");
-    assertThat(inputFile.toString(), endsWith("InputFileUtilsTest -> org/sonar/Foo.java"));
+    InputFile inputFile = InputFileUtils.create(BASE_DIR, "org/sonar/Foo.java");
+
+    assertThat(inputFile.toString()).endsWith("InputFileUtilsTest -> org/sonar/Foo.java");
   }
 
   @Test
   public void testToFiles() {
-    File basedir = new File("target/tmp/InputFileUtilsTest");
-    List<InputFile> inputFiles = Arrays.asList(
-        InputFileUtils.create(basedir, "Foo.java"), InputFileUtils.create(basedir, "Bar.java"));
-
+    List<InputFile> inputFiles = Arrays.asList(InputFileUtils.create(BASE_DIR, "Foo.java"), InputFileUtils.create(BASE_DIR, "Bar.java"));
     List<File> files = InputFileUtils.toFiles(inputFiles);
 
-    assertThat(files.size(), is(2));
-    assertThat(files.get(0), is(new File(basedir, "Foo.java")));
-    assertThat(files.get(1), is(new File(basedir, "Bar.java")));
+    assertThat(files).containsExactly(new File(BASE_DIR, "Foo.java"), new File(BASE_DIR, "Bar.java"));
   }
 
   @Test
   public void testCreateList() {
-    java.io.File basedir = new java.io.File("target/tmp/InputFileUtilsTest");
-    File file1 = new File(basedir, "org/sonar/Foo.java");
-    File file2 = new File(basedir, "org/sonar/Bar.java");
+    File file1 = new File(BASE_DIR, "org/sonar/Foo.java");
+    File file2 = new File(BASE_DIR, "org/sonar/Bar.java");
     File wrongFile = new File("somewhere/else/org/sonar/Foo.java");
 
-    List<InputFile> inputFiles = InputFileUtils.create(basedir, Lists.newArrayList(file1, file2, wrongFile));
+    List<InputFile> inputFiles = InputFileUtils.create(BASE_DIR, Arrays.asList(file1, file2, wrongFile));
 
-    assertThat(inputFiles.size(), is(2));
-    assertThat(inputFiles.get(0).getFile(), is(file1));
-    assertThat(inputFiles.get(1).getFile(), is(file2));
+    assertThat(inputFiles).hasSize(2);
+    assertThat(inputFiles.get(0).getFile()).isEqualTo(file1);
+    assertThat(inputFiles.get(1).getFile()).isEqualTo(file2);
   }
 
   @Test
   public void shouldExtractRelativeDirectory() {
-    java.io.File basedir = new java.io.File("target/tmp/InputFileUtilsTest");
+    InputFile inputFile = InputFileUtils.create(BASE_DIR, "org/sonar/Foo.java");
+    assertThat(InputFileUtils.getRelativeDirectory(inputFile)).isEqualTo("org/sonar");
 
-    InputFile inputFile = InputFileUtils.create(basedir, "org/sonar/Foo.java");
-    assertThat(InputFileUtils.getRelativeDirectory(inputFile), is("org/sonar"));
+    inputFile = InputFileUtils.create(BASE_DIR, "Foo.java");
+    assertThat(InputFileUtils.getRelativeDirectory(inputFile)).isEmpty();
+  }
 
-    inputFile = InputFileUtils.create(basedir, "Foo.java");
-    assertThat(InputFileUtils.getRelativeDirectory(inputFile), is(""));
+  @Test
+  public void should_get_file_content_as_buffered_input_stream() throws IOException {
+    InputFile inputFile = InputFileUtils.create(BASE_DIR, "org/sonar/Foo.java");
+    write("<FILE CONTENT>", inputFile.getFile());
+
+    InputStream inputStream = inputFile.getInputStream();
+
+    assertThat(inputStream).isInstanceOf(BufferedInputStream.class);
+    assertThat(read(inputStream)).isEqualTo("<FILE CONTENT>");
+  }
+
+  @Test
+  public void should_fail_to_get_input_stream_of_unknown_file() throws IOException {
+    InputFile inputFile = InputFileUtils.create(BASE_DIR, "UNKNOWN.java");
+
+    exception.expect(FileNotFoundException.class);
+    exception.expectMessage(BASE_DIR.getPath());
+    exception.expectMessage("UNKNOWN.java");
+    exception.expectMessage("No such file");
+
+    inputFile.getInputStream();
+  }
+
+  static void write(String content, File file) throws IOException {
+    file.getParentFile().mkdirs();
+    Files.write("<FILE CONTENT>", file, Charsets.UTF_8);
+  }
+
+  static String read(InputStream input) throws IOException {
+    try {
+      return new String(ByteStreams.toByteArray(input), Charsets.UTF_8.displayName());
+    } finally {
+      Closeables.closeQuietly(input);
+    }
   }
 }

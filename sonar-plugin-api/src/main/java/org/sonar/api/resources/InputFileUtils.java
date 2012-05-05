@@ -19,10 +19,16 @@
  */
 package org.sonar.api.resources;
 
+import com.google.common.base.Objects;
+
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 
@@ -122,6 +128,13 @@ public final class InputFileUtils {
       return new java.io.File(basedir, relativePath);
     }
 
+    /**
+     * @since 3.1
+     */
+    public InputStream getInputStream() throws FileNotFoundException {
+      return new BufferedInputStream(new FileInputStream(getFile()));
+    }
+
     public String getRelativePath() {
       return relativePath;
     }
@@ -131,12 +144,11 @@ public final class InputFileUtils {
       if (this == o) {
         return true;
       }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
+      if (o instanceof DefaultInputFile) {
+        DefaultInputFile that = (DefaultInputFile) o;
+        return Objects.equal(basedir, that.basedir) && Objects.equal(relativePath, that.relativePath);
       }
-      DefaultInputFile that = (DefaultInputFile) o;
-      return basedir.equals(that.basedir) && relativePath.equals(that.relativePath);
-
+      return false;
     }
 
     @Override
