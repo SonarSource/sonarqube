@@ -30,10 +30,10 @@ import net.sourceforge.pmd.RuleSets;
 import net.sourceforge.pmd.SourceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.resources.InputFile;
 import org.sonar.api.utils.SonarException;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Map;
@@ -54,12 +54,13 @@ public class PmdTemplate {
     setJavaVersion(pmd, javaVersion);
   }
 
-  public void process(File file, Charset encoding, RuleSets rulesets, RuleContext ruleContext) {
+  public void process(InputFile inputFile, Charset encoding, RuleSets rulesets, RuleContext ruleContext) {
+    File file = inputFile.getFile();
     ruleContext.setSourceCodeFilename(file.getAbsolutePath());
 
     InputStream inputStream = null;
     try {
-      inputStream = new FileInputStream(file);
+      inputStream = inputFile.getInputStream();
 
       pmd.processFile(inputStream, encoding.displayName(), rulesets, ruleContext);
     } catch (PMDException e) {

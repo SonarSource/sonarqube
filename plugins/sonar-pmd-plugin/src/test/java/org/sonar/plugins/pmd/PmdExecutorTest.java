@@ -75,8 +75,8 @@ public class PmdExecutorTest {
 
     Report report = pmdExecutor.execute();
 
-    verify(pmdTemplate).process(eq(new File("src/Class.java")), eq(Charsets.UTF_8), any(RuleSets.class), any(RuleContext.class));
-    verify(pmdTemplate).process(eq(new File("test/ClassTest.java")), eq(Charsets.UTF_8), any(RuleSets.class), any(RuleContext.class));
+    verify(pmdTemplate).process(eq(srcFile), eq(Charsets.UTF_8), any(RuleSets.class), any(RuleContext.class));
+    verify(pmdTemplate).process(eq(tstFile), eq(Charsets.UTF_8), any(RuleSets.class), any(RuleContext.class));
     assertThat(report).isNotNull();
   }
 
@@ -116,7 +116,7 @@ public class PmdExecutorTest {
 
     pmdExecutor.execute();
 
-    verify(pmdTemplate).process(eq(new File("src/Class.java")), eq(Charsets.UTF_8), any(RuleSets.class), any(RuleContext.class));
+    verify(pmdTemplate).process(eq(srcFile), eq(Charsets.UTF_8), any(RuleSets.class), any(RuleContext.class));
     verifyNoMoreInteractions(pmdTemplate);
   }
 

@@ -19,6 +19,12 @@
  */
 package org.sonar.plugins.pmd;
 
+import org.junit.rules.ExpectedException;
+
+import org.junit.Rule;
+
+import org.sonar.api.utils.XmlParserException;
+
 import com.google.common.collect.Iterators;
 import net.sourceforge.pmd.IRuleViolation;
 import net.sourceforge.pmd.Report;
@@ -47,20 +53,34 @@ public class PmdSensorTest {
   SensorContext sensorContext = mock(SensorContext.class);
   Violation violation = mock(Violation.class);
 
+  @Rule
+  public ExpectedException exception = ExpectedException.none();
+
   @Before
   public void setUpPmdSensor() {
     pmdSensor = new PmdSensor(profile, executor, pmdViolationToRuleViolation);
   }
 
   @Test
-  public void should_execute_on_project_with_main_files_and_active_rules() {
+  public void should_execute_on_project_without_main_files() {
+    when(project.getFileSystem().mainFiles(Java.KEY).isEmpty()).thenReturn(true);
+
     boolean shouldExecute = pmdSensor.shouldExecuteOnProject(project);
 
     assertThat(shouldExecute).isTrue();
   }
 
   @Test
-  public void should_not_execute_on_project_without_files() {
+  public void should_execute_on_project_without_test_files() {
+    when(project.getFileSystem().testFiles(Java.KEY).isEmpty()).thenReturn(true);
+
+    boolean shouldExecute = pmdSensor.shouldExecuteOnProject(project);
+
+    assertThat(shouldExecute).isTrue();
+  }
+
+  @Test
+  public void should_not_execute_on_project_without_any_files() {
     when(project.getFileSystem().mainFiles(Java.KEY).isEmpty()).thenReturn(true);
     when(project.getFileSystem().testFiles(Java.KEY).isEmpty()).thenReturn(true);
 
@@ -112,6 +132,22 @@ public class PmdSensorTest {
     pmdSensor.analyse(project, sensorContext);
 
     verifyZeroInteractions(sensorContext);
+  }
+
+  @Test
+  public void should_report_analyse_failure() {
+    when(executor.execute()).thenThrow(new RuntimeException());
+
+    exception.expect(XmlParserException.class);
+
+    pmdSensor.analyse(project, sensorContext);
+  }
+
+  @Test
+  public void should_to_string() {
+    String toString = pmdSensor.toString();
+
+    assertThat(toString).isEqualTo("PmdSensor");
   }
 
   static IRuleViolation violation() {

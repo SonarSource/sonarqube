@@ -93,7 +93,7 @@ public class PmdExecutor implements BatchExtension {
     RuleSets rulesets = createRulesets(repositoryKey);
 
     for (InputFile file : files) {
-      pmdFactory.process(file.getFile(), encoding, rulesets, ruleContext);
+      pmdFactory.process(file, encoding, rulesets, ruleContext);
     }
   }
 
