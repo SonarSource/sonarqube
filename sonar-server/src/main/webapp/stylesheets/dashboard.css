@@ -19,10 +19,14 @@
   position: relative;
   overflow-x: visible;
   padding: 10px;
-  margin: 0 0 10px 0;
+  margin: 0;
   border: 1px solid #ddd;
   border-radius: 0 0 3px 3px;
   -moz-border-radius: 0 0 3px 3px;
+}
+
+#dashboard .block {
+    margin: 0 0 10px 0;
 }
 
 #dashboard .configure_widget {
