@@ -162,7 +162,6 @@ public class InputFileUtilsTest {
     exception.expect(FileNotFoundException.class);
     exception.expectMessage(BASE_DIR.getPath());
     exception.expectMessage("UNKNOWN.java");
-    exception.expectMessage("No such file");
 
     inputFile.getInputStream();
   }
