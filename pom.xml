@@ -1098,6 +1098,13 @@
       <organization>SonarSource</organization>
       <timezone>+1</timezone>
     </developer>
+    <developer>
+      <id>david.gageot</id>
+      <name>David Gageot</name>
+      <email>david.gageot@sonarsource.com</email>
+      <organization>SonarSource</organization>
+      <timezone>+1</timezone>
+    </developer>
   </developers>
 
   <profiles>
