@@ -22,7 +22,7 @@ class FiltersController < ApplicationController
   helper MetricsHelper
   helper FiltersHelper
 
-  SECTION=Navigation::SECTION_HOME
+  SECTION=Navigation::SECTION_CONFIGURATION
 
   verify :method => :post, :only => [:create, :delete, :up, :down, :activate, :deactivate, :up_column, :down_column, :add_column, :delete_column, :set_sorted_column, :set_view, :set_columns, :set_page_size], :redirect_to => {:action => :index}
   before_filter :load_active_filters, :except => ['admin_console', 'treemap', 'set_view', 'set_columns']
