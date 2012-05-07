@@ -24,7 +24,8 @@
 class AddGlobalToDashboards < ActiveRecord::Migration
 
   def self.up
-    add_column 'dashboards', 'is_global', :boolean, :null => false
+    add_column 'dashboards', 'is_global', :boolean
+    Dashboard.update_all(Dashboard.sanitize_sql_for_assignment({:is_global => false}))
   end
 
 end

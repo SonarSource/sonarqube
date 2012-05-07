@@ -30,6 +30,7 @@ class Dashboard < ActiveRecord::Base
   validates_length_of :description, :maximum => 1000, :allow_blank => true, :allow_nil => true
   validates_length_of :column_layout, :maximum => 20, :allow_blank => false, :allow_nil => false
   validates_uniqueness_of :name, :scope => :user_id
+  validates_inclusion_of :is_global, :in => [true, false]
 
   before_destroy :check_not_default_before_destroy
 
