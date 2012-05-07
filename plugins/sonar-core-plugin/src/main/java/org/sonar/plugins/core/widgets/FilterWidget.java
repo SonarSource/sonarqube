@@ -31,7 +31,7 @@ import org.sonar.api.web.WidgetGlobal;
 @WidgetCategory("Beta")
 @WidgetGlobal
 @WidgetProperties({
-  @WidgetProperty(key = "filter", type = WidgetPropertyType.INTEGER, defaultValue = "1")
+  @WidgetProperty(key = "filter", type = WidgetPropertyType.FILTER, defaultValue = "1")
 })
 public class FilterWidget extends AbstractRubyTemplate implements RubyRailsWidget {
 

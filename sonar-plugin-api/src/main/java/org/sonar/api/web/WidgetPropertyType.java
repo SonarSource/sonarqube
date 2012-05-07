@@ -24,5 +24,6 @@ public enum WidgetPropertyType {
   BOOLEAN,
   FLOAT,
   STRING,
-  METRIC // @since 2.10
+  METRIC, // @since 2.10
+  FILTER // @since 3.1
 }

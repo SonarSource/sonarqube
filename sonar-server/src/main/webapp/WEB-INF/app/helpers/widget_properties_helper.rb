@@ -23,7 +23,7 @@ module WidgetPropertiesHelper
     val=value || definition.defaultValue()
     if definition.type.name()==WidgetProperty::TYPE_INTEGER
       text_field_tag definition.key(), val, :size => 10
-      
+
     elsif definition.type.name()==WidgetProperty::TYPE_FLOAT
       text_field_tag definition.key(), val, :size => 10
 
@@ -36,9 +36,12 @@ module WidgetPropertiesHelper
     elsif definition.type.name()==WidgetProperty::TYPE_STRING
       text_field_tag definition.key(), val, :size => 10
 
+    elsif definition.type.name()==WidgetProperty::TYPE_FILTER
+      select_tag definition.key(), ::Filter.all.sort_by(&:id).collect { |f| "<option value='#{f.id}'>#{f.name}</option>" }
+
     else
       hidden_field_tag definition.key()
     end
   end
-    
-end 
+
+end

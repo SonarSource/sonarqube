@@ -81,6 +81,8 @@ class WidgetProperty < ActiveRecord::Base
         text=='true'
       when TYPE_METRIC
         Metric.by_key(text)
+      when TYPE_FILTER
+        text.to_i
       else
         text
     end
