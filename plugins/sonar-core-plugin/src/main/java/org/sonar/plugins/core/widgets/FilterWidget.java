@@ -17,27 +17,27 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core;
+package org.sonar.plugins.core.widgets;
 
-import org.junit.Test;
-import org.reflections.Reflections;
 import org.sonar.api.web.AbstractRubyTemplate;
+import org.sonar.api.web.RubyRailsWidget;
+import org.sonar.api.web.WidgetCategory;
+import org.sonar.api.web.WidgetGlobal;
 
-import java.util.Set;
+@WidgetCategory("Beta")
+@WidgetGlobal
+public class FilterWidget extends AbstractRubyTemplate implements RubyRailsWidget {
 
-import static org.fest.assertions.Assertions.assertThat;
-
-public class CorePluginTest {
-  @Test
-  public void should_define_many_extensions() {
-    assertThat(new CorePlugin().getExtensions().size()).isGreaterThan(10);
+  public String getId() {
+    return "filter";
   }
 
-  @Test
-  public void should_contain_all_core_widgets() {
-    Set<Class<? extends AbstractRubyTemplate>> widgets = new Reflections("org.sonar.plugins.core.widgets").getSubTypesOf(AbstractRubyTemplate.class);
+  public String getTitle() {
+    return "Filter";
+  }
 
-    assertThat(widgets).isNotEmpty();
-    assertThat(new CorePlugin().getExtensions()).contains(widgets.toArray());
+  @Override
+  protected String getTemplatePath() {
+    return "/org/sonar/plugins/core/widgets/filter.html.erb";
   }
 }

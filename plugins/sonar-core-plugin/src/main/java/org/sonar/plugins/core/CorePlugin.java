@@ -269,6 +269,7 @@ public final class CorePlugin extends SonarPlugin {
     extensions.add(TreemapWidget.class);
     extensions.add(GlobalWidget.class);
     extensions.add(ImageWidget.class);
+    extensions.add(FilterWidget.class);
 
     // dashboards
     extensions.add(DefaultDashboard.class);

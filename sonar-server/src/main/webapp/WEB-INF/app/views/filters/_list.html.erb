@@ -1,3 +1,25 @@
+<%
+   def column_align(column)
+     (column.on_name? || column.on_key?) ? 'left' : 'right'
+   end
+
+   def column_title(column, filter)
+     if column.sortable?
+       html=link_to h(column.display_name), url_for(:overwrite_params => {:asc => (!(column.ascending?)).to_s, :sort => column.id})
+     else
+       html=h(column.display_name)
+     end
+     if column.variation
+       html="<img src='#{ApplicationController.root_context}/images/trend-up.png'></img> #{html}"
+     end
+
+     if filter.sorted_column==column
+       html << (column.ascending? ? image_tag("asc12.png") : image_tag("desc12.png"))
+     end
+     html
+   end
+%>
+
 <% filter=@filter_context.filter %>
 <div>
 <% unless edit_mode %>
@@ -42,7 +64,7 @@
       <td colspan="<%= filter.columns.size + 1 -%>">
         <span id="results_count"><%= pluralize(@filter_context.size, message('result').downcase) %></span>
 
-        <% 
+        <%
           if @filter_context.page_count>1
             max_pages = @filter_context.page_count
             current_page = @filter_context.page_id
@@ -57,7 +79,7 @@
                 end_page = max_pages
               else
                 start_page = current_page-10
-                end_page = current_page+9              
+                end_page = current_page+9
               end
             end
         %>
