@@ -20,7 +20,6 @@
 package org.sonar.server.ui;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.configuration.Configuration;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.License;
@@ -253,8 +252,8 @@ public final class JRubyFacade {
   }
 
   public ValidationMessages restoreProfile(String xmlBackup, boolean deleteExisting) {
-      return getContainer().getComponentByType(ProfilesConsole.class).restoreProfile(xmlBackup, deleteExisting);
-    }
+    return getContainer().getComponentByType(ProfilesConsole.class).restoreProfile(xmlBackup, deleteExisting);
+  }
 
   public List<ProfileExporter> getProfileExportersForLanguage(String language) {
     return getContainer().getComponentByType(ProfilesConsole.class).getProfileExportersForLanguage(language);
@@ -337,7 +336,7 @@ public final class JRubyFacade {
   }
 
   public String getConfigurationValue(String key) {
-    return getContainer().getComponentByType(Configuration.class).getString(key, null);
+    return getContainer().getComponentByType(Settings.class).getString(key);
   }
 
   public List<InetAddress> getValidInetAddressesForServerId() {
