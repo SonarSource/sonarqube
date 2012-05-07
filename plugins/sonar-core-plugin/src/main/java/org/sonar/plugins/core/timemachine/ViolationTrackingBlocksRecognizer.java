@@ -40,6 +40,14 @@ public class ViolationTrackingBlocksRecognizer {
     this.cmp = new HashedSequenceComparator<StringText>(cmp);
   }
 
+  public boolean isValidLineInReference(int line) {
+    return (0 <= line) && (line < a.length());
+  }
+
+  public boolean isValidLineInSource(int line) {
+    return (0 <= line) && (line < b.length());
+  }
+
   /**
    * @param startA number of line from first version of text (numbering starts from 0)
    * @param startB number of line from second version of text (numbering starts from 0)

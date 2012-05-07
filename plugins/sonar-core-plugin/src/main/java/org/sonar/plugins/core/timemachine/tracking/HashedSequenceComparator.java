@@ -31,7 +31,10 @@ public class HashedSequenceComparator<S extends Sequence> implements SequenceCom
   }
 
   public boolean equals(HashedSequence<S> a, int ai, HashedSequence<S> b, int bi) {
-    return a.hashes[ai] == b.hashes[bi] && cmp.equals(a.base, ai, b.base, bi);
+    if (a.hashes[ai] == b.hashes[bi]) {
+      return cmp.equals(a.base, ai, b.base, bi);
+    }
+    return false;
   }
 
   public int hash(HashedSequence<S> seq, int i) {
