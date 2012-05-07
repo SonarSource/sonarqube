@@ -1,6 +1,0 @@
-<%
-   @filter=::Filter.find(filter_id)
-   @filter_context=Filters.execute(@filter, self, params)
-%>
-
-<%= render :partial => "filters/#{@filter.default_view}", :locals => {:edit_mode => false} %>
