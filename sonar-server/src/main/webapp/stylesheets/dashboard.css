@@ -51,7 +51,6 @@
 }
 
 #dashboard #widget_defs, #dashboard #edit-layout {
-    height: 250px;
     background-color: #FFF6BF;
     border: 2px solid #FFD324;
     padding: 3px;
@@ -60,15 +59,18 @@
 }
 
 #dashboard #widget_defs {
-    margin-right: 190px;
+    margin-right: 104px;
     overflow-y: auto;
+    height: 250px;
 }
 
 #dashboard #edit-layout {
-    width: 172px;
+    width: 86px;
+    height: 248px;
     position: absolute;
     right: 0;
     top: 0;
+    padding-top: 5px;
 }
 
 #dashboard #edit-layout p {
