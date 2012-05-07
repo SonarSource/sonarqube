@@ -23,6 +23,7 @@ class WidgetProperty < ActiveRecord::Base
   TYPE_FLOAT = 'FLOAT'
   TYPE_STRING = 'STRING'
   TYPE_METRIC = 'METRIC'
+  TYPE_FILTER = 'FILTER'
 
   belongs_to :widget
 
