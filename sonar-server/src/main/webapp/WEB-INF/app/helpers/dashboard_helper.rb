@@ -20,6 +20,7 @@
 module DashboardHelper
   include WidgetPropertiesHelper
   include MetricsHelper
+  include FiltersHelper
 
   def dashboard_action(action_name, opts={})
     if @resource

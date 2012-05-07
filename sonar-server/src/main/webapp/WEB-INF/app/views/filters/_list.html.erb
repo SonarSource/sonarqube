@@ -1,25 +1,3 @@
-<%
-   def column_align(column)
-     (column.on_name? || column.on_key?) ? 'left' : 'right'
-   end
-
-   def column_title(column, filter)
-     if column.sortable?
-       html=link_to h(column.display_name), url_for(:overwrite_params => {:asc => (!(column.ascending?)).to_s, :sort => column.id})
-     else
-       html=h(column.display_name)
-     end
-     if column.variation
-       html="<img src='#{ApplicationController.root_context}/images/trend-up.png'></img> #{html}"
-     end
-
-     if filter.sorted_column==column
-       html << (column.ascending? ? image_tag("asc12.png") : image_tag("desc12.png"))
-     end
-     html
-   end
-%>
-
 <% filter=@filter_context.filter %>
 <div>
 <% unless edit_mode %>
@@ -32,6 +10,9 @@
              <option value="<%= index+1 -%>" <%= 'selected' if @filter_context.period_index==index+1 -%>><%= name -%></value>
           <% end %>
       </select>
+      <% if params[:did] %>
+        <input type="hidden" name="did" value="<%= params[:did] %>">
+      <% end %>
     </form>
     </div>
   </div>

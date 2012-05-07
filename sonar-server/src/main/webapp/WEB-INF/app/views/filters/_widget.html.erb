@@ -1,10 +1,6 @@
 <%
-   def period_names
-     ['A','B','C','D']
-   end
-
    @filter=::Filter.find(filter_id)
    @filter_context=Filters.execute(@filter, self, params)
 %>
 
-<%= render :partial => "filters/#{@filter.default_view}", :locals => {:edit_mode => false, :period_names => period_names()} %>
+<%= render :partial => "filters/#{@filter.default_view}", :locals => {:edit_mode => false} %>
