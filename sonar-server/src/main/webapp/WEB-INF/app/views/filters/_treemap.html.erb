@@ -5,6 +5,7 @@
   <%
      metrics=treemap_metrics(@filter)
   %>
+  <div class="line-block"></div>
   <%= render :partial => 'treemap/treemap_container', :locals => {
     :treemap_id => @filter.id,
     :size_metric => metrics[0],

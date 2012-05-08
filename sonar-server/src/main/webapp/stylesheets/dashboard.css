@@ -221,3 +221,11 @@
   -moz-box-shadow: 8px 8px 8px #ddd;
   -webkit-box-shadow: 8px 8px 8px #ddd;
 }
+
+/*FILTERS*/
+#dashboard .filter-title {
+  font-style: italic;
+  font-weight: bold;
+  position: absolute;
+  top: 10px;
+}
