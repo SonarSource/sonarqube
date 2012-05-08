@@ -35,6 +35,8 @@
       <div id="sidebar">
         <ul>
           <% if selected_section==Navigation::SECTION_HOME %>
+            <li class="<%= 'selected' if controller.controller_path=='filters' -%>">
+              <a href="<%= ApplicationController.root_context -%>/filters/index"><%= message('filters.page') -%></a></li>
             <li class="<%= 'selected' if controller.controller_path=='reviews' -%>">
               <a href="<%= ApplicationController.root_context -%>/reviews/index"><%= message('reviews.page') -%></a></li>
             <li class="<%= 'selected' if controller.controller_path=='dependencies' -%>">
@@ -123,8 +125,6 @@
                 <a href="<%= ApplicationController.root_context -%>/metrics/index"><%= message('manual_metrics.page') -%></a></li>
               <li class="<%= 'selected' if controller.controller_path=='manual_rules' -%>">
                 <a href="<%= ApplicationController.root_context -%>/manual_rules/index"><%= message('manual_rules.page') -%></a></li>
-              <li class="<%= 'selected' if controller.controller_path=='filters' -%>">
-                <a href="<%= ApplicationController.root_context -%>/filters/index"><%= message('filters.page') -%></a></li>
               <li class="<%= 'selected' if controller.controller_path=='admin_filters' -%>">
                 <a href="<%= ApplicationController.root_context -%>/admin_filters/index"><%= message('default_filters.page') -%></a></li>
               <li class="<%= 'selected' if controller.controller_path=='admin_dashboards' -%>">
