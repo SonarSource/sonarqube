@@ -22,13 +22,13 @@
 # Use Sonar database (table USERS) to authenticate users.
 #
 class DefaultRealm
-  def authenticate?(username, password)
-    user = User.find_active_by_login(username)
-    if user && user.authenticated?(password)
-      return user
-    else
-      return nil
+  def authenticate?(username, password, servlet_request)
+    result=nil
+    if !username.blank? && !password.blank?
+      user=User.find_active_by_login(username)
+      result=user if user && user.authenticated?(password)
     end
+    result
   end
 
   def editable_password?
@@ -42,30 +42,33 @@ end
 #
 class PluginRealm
   def initialize(java_realm)
-    @java_authenticator = java_realm.getLoginPasswordAuthenticator()
+    @java_authenticator = java_realm.doGetAuthenticator()
     @java_users_provider = java_realm.getUsersProvider()
     @java_groups_provider = java_realm.getGroupsProvider()
-
     @save_password = Java::OrgSonarServerUi::JRubyFacade.new.getSettings().getBoolean('sonar.security.savePassword')
   end
 
-  def authenticate?(username, password)
+  def authenticate?(username, password, servlet_request)
+    details=nil
     if @java_users_provider
       begin
-        details = @java_users_provider.doGetUserDetails(username)
+        provider_context = org.sonar.api.security.ExternalUsersProvider::Context.new(username, servlet_request)
+        details = @java_users_provider.doGetUserDetails(provider_context)
       rescue Exception => e
         Rails.logger.error("Error from external users provider: #{e.message}")
-        return false if !@save_password
-        return fallback(username, password)
+        @save_password ? fallback(username, password) : false
       else
-        # User exist in external system
-        return auth(username, password, details) if details
-        # No such user in external system
-        return fallback(username, password)
+        if details
+          # User exist in external system
+          auth(username, password, servlet_request, details)
+        else
+          # No such user in external system
+          fallback(username, password)
+        end
       end
     else
       # Legacy authenticator
-      return auth(username, password, nil)
+      auth(username, password, servlet_request, nil)
     end
   end
 
@@ -73,39 +76,40 @@ class PluginRealm
   # Fallback to password from Sonar Database
   #
   def fallback(username, password)
-    user = User.find_active_by_login(username)
-    if user && user.authenticated?(password)
-      return user
-    else
-      return nil
+    result=nil
+    if !username.blank? && !password.blank?
+      user=User.find_active_by_login(username)
+      result = user if user && user.authenticated?(password)
     end
+    result
   end
 
   #
-  # Authenticate user using external system
+  # Authenticate user using external system. Return the user.
   #
-  def auth(username, password, details)
+  def auth(username, password, servlet_request, user_details)
     if @java_authenticator
       begin
-        status = @java_authenticator.authenticate(username, password)
+        authenticator_context=org.sonar.api.security.Authenticator::Context.new(username, password, servlet_request)
+        status = @java_authenticator.doAuthenticate(authenticator_context)
       rescue Exception => e
         Rails.logger.error("Error from external authenticator: #{e.message}")
-        return fallback(username, password)
+        fallback(username, password)
       else
-        return nil if !status
-        # Authenticated
-        return synchronize(username, password, details)
+        status ? synchronize(username, password, user_details) : nil
       end
     else
       # No authenticator
-      return nil
+      nil
     end
   end
 
   #
   # Authentication in external system was successful - replicate password, details and groups into Sonar
+  # Return the user.
   #
   def synchronize(username, password, details)
+    username=details.getName() if username.blank? && details
     user = User.find_by_login(username)
     if !user
       # No such user in Sonar database
@@ -134,7 +138,7 @@ class PluginRealm
     user.active=true
     # Note that validation disabled
     user.save(false)
-    return user
+    user
   end
 
   def synchronize_groups(user)
@@ -196,17 +200,15 @@ module NeedAuthentication
       # We really need a Dispatch Chain here or something.
       # This will also let us return a human error message.
       #
-      def authenticate(login, password)
-        return nil if login.blank? || password.blank?
-
+      def authenticate(login, password, servlet_request)
         # Downcase login (typically for Active Directory)
         # Note that login in Sonar DB is case-sensitive, however in this case authentication and automatic user creation will always happen with downcase login
         downcase = Java::OrgSonarServerUi::JRubyFacade.new.getSettings().getBoolean('sonar.authenticator.downcase')
-        if downcase
+        if login && downcase
           login = login.downcase
         end
 
-        return RealmFactory.realm.authenticate?(login, password)
+        RealmFactory.realm.authenticate?(login, password, servlet_request)
       end
 
       def editable_password?

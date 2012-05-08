@@ -13,7 +13,7 @@ module AuthenticatedSystem
 
     # Store the given user id in the session.
     def current_user=(new_user)
-      session[:user_id] = new_user ? new_user.id : nil
+      session[:user_id] = (new_user ? new_user.id : nil)
       @current_user = new_user || false
     end
 
@@ -113,7 +113,7 @@ module AuthenticatedSystem
     # Called from #current_user.  Now, attempt to login by basic authentication information.
     def login_from_basic_auth
       authenticate_with_http_basic do |login, password|
-        self.current_user = User.authenticate(login, password)
+        self.current_user = User.authenticate(login, password, servlet_request)
       end
     end
     

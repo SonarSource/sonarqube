@@ -20,53 +20,47 @@
 package org.sonar.api.security;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
+import org.sonar.api.ServerExtension;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * Note that prefix "do" for names of methods is reserved for future enhancements, thus should not be used in subclasses.
- *
  * @see SecurityRealm
- * @since 2.14
+ * @since 3.1
  */
-public abstract class ExternalUsersProvider {
+public abstract class Authenticator implements ServerExtension {
 
   /**
-   * This method is overridden by old versions of plugins such as LDAP 1.1. It should be overridden anymore.
-   *
-   * @return details for specified user, or null if such user doesn't exist
+   * @return true if user was successfully authenticated with specified credentials, false otherwise
    * @throws RuntimeException in case of unexpected error such as connection failure
-   * @deprecated replaced by {@link #doGetUserDetails(org.sonar.api.security.ExternalUsersProvider.Context)} since v. 3.1
    */
-  @Deprecated
-  public UserDetails doGetUserDetails(@Nullable String username) {
-    return null;
-  }
-
-  /**
-   * Override this method in order load user information.
-   *
-   * @return the user, or null if user doesn't exist
-   * @throws RuntimeException in case of unexpected error such as connection failure
-   * @since 3.1
-   */
-  public UserDetails doGetUserDetails(Context context) {
-    return doGetUserDetails(context.getUsername());
-  }
+  public abstract boolean doAuthenticate(Context context);
 
   public static final class Context {
     private String username;
+    private String password;
     private HttpServletRequest request;
 
-    public Context(@Nullable String username, HttpServletRequest request) {
-      this.username = username;
+    public Context(@Nullable String username, @Nullable String password, HttpServletRequest request) {
+      Preconditions.checkNotNull(request);
       this.request = request;
+      this.username = username;
+      this.password = password;
     }
 
+    /**
+     * Username can be null, for example when using <a href="http://www.jasig.org/cas">CAS</a>.
+     */
     public String getUsername() {
       return username;
+    }
+
+    /**
+     * Password can be null, for example when using <a href="http://www.jasig.org/cas">CAS</a>.
+     */
+    public String getPassword() {
+      return password;
     }
 
     public HttpServletRequest getRequest() {

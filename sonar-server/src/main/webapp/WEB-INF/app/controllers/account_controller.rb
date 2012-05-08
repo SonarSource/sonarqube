@@ -35,7 +35,7 @@ class AccountController < ApplicationController
 
   def change_password
     return unless request.post?
-    if User.authenticate(current_user.login, params[:old_password])
+    if User.authenticate(current_user.login, params[:old_password], servlet_request)
       if ((params[:password] == params[:password_confirmation]))
         current_user.password = params[:password]
         current_user.password_confirmation = params[:password]

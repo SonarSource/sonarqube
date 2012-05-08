@@ -41,8 +41,27 @@ public abstract class SecurityRealm implements ServerExtension {
 
   /**
    * @return {@link LoginPasswordAuthenticator} associated with this realm, never null
+   * @deprecated replaced by doGetAuthenticator in version 3.1
    */
-  public abstract LoginPasswordAuthenticator getLoginPasswordAuthenticator();
+  @Deprecated
+  public LoginPasswordAuthenticator getLoginPasswordAuthenticator() {
+    return null;
+  }
+
+  /**
+   * @since 3.1
+   */
+  public Authenticator doGetAuthenticator() {
+    if (getLoginPasswordAuthenticator() == null) {
+      return null;
+    }
+    return new Authenticator() {
+      @Override
+      public boolean doAuthenticate(Context context) {
+        return getLoginPasswordAuthenticator().authenticate(context.getUsername(), context.getPassword());
+      }
+    };
+  }
 
   /**
    * @return {@link ExternalUsersProvider} associated with this realm, null if not supported
@@ -57,5 +76,4 @@ public abstract class SecurityRealm implements ServerExtension {
   public ExternalGroupsProvider getGroupsProvider() {
     return null;
   }
-
 }

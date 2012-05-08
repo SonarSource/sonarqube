@@ -33,7 +33,7 @@ require 'java'
 #
 class Slf4jLogger
   def initialize(logger_name='rails')
-    @logger = Java::OrgSlf4j::LoggerFactory::getLogger(logger_name);
+    @logger = Java::OrgSlf4j::LoggerFactory::getLogger(logger_name)
   end
 
   attr_accessor :level
@@ -101,6 +101,10 @@ class Slf4jLogger
 
   private
 
+  def to_s
+    @logger.getName()
+  end
+  
   def full_message(message, &block)
     if message.nil?
       if block_given?

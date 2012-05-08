@@ -17,28 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+@ParametersAreNonnullByDefault
 package org.sonar.api.security;
 
-import org.sonar.api.ServerExtension;
-
-/**
- * @since 1.12
- * @see SecurityRealm
- * @deprecated replaced by Authenticator in version 3.1
- */
-public interface LoginPasswordAuthenticator extends ServerExtension {
-
-  /**
-   * @throws RuntimeException if the authenticator can not be initialized at sonar server startup, eg. if the connection to LDAP server is refused
-   * @deprecated in 2.14, but was left for backward compatibility - when this authenticator is not a part of {@link SecurityRealm}, otherwise has no effect and not invoked
-   */
-  @Deprecated
-  void init();
-
-  /**
-   * @return true, if user was successfully authenticated with specified username and password, false otherwise
-   * @throws RuntimeException in case of unexpected error such as connection failure
-   */
-  boolean authenticate(String username, String password);
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;
