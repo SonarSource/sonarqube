@@ -1,6 +1,6 @@
 <%
    selected_section = controller.class::SECTION
-   if selected_section==Navigation::SECTION_RESOURCE && !@resource
+   if selected_section==Navigation::SECTION_RESOURCE && !@project
      selected_section = Navigation::SECTION_HOME
    end
    @project=@resource unless @project || selected_section==Navigation::SECTION_HOME
