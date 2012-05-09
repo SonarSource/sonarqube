@@ -19,9 +19,6 @@
  */
 package org.sonar.api.security;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 

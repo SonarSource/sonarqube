@@ -21,8 +21,6 @@ package org.sonar.api.security;
 
 import com.google.common.base.Objects;
 
-import javax.annotation.Nullable;
-
 /**
  * This class is not intended to be subclassed by clients.
  *
