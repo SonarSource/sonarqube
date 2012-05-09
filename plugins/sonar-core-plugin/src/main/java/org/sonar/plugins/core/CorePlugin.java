@@ -249,7 +249,6 @@ public final class CorePlugin extends SonarPlugin {
     extensions.add(CommentsDuplicationsWidget.class);
     extensions.add(DescriptionWidget.class);
     extensions.add(ComplexityWidget.class);
-    extensions.add(TestComplexityWidget.class);
     extensions.add(RulesWidget.class);
     extensions.add(SizeWidget.class);
     extensions.add(EventsWidget.class);
