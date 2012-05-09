@@ -2,7 +2,6 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'users/select_group', :controller => 'users', :action => 'select_group'
   map.connect 'users/set_groups', :controller => 'users', :action => 'set_groups'
   map.resources :users
-  map.resource :session
 
   # used only for the events widget
   map.resources :events

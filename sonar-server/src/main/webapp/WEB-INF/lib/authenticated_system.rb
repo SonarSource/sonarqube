@@ -67,7 +67,7 @@ module AuthenticatedSystem
           if logged_in?
             flash[:loginerror]='You are not authorized to access this page. Please log in with more privileges and try again.'
           end
-          redirect_to new_session_path
+          redirect_to url_for :controller => 'sessions', :action => 'new'
         end
         # format.any doesn't work in rails version < http://dev.rubyonrails.org/changeset/8987
         # Add any other API formats here.  (Some browsers, notably IE6, send Accept: */* and trigger 
