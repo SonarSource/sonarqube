@@ -39,6 +39,9 @@ module WidgetPropertiesHelper
     elsif definition.type.name()==WidgetProperty::TYPE_FILTER
       select_tag definition.key(), ::Filter.all.sort_by(&:id).collect { |f| "<option value='#{f.id}'>#{f.name}</option>" }
 
+    elsif definition.type.name()==WidgetProperty::TYPE_PROJECT
+      select_tag definition.key(), Project.all(:conditions => {:scope => 'PRJ', :qualifier => 'TRK'}).collect { |f| "<option value='#{f.id}'>#{f.name}</option>" }
+
     else
       hidden_field_tag definition.key()
     end

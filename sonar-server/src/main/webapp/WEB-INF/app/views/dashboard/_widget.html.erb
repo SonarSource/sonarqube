@@ -1,3 +1,16 @@
+<%
+   @backup_resource=@resource
+   @backup_project=@project
+   @backup_snapshot=@snapshot
+   @backup_dashboard_configuration=@dashboard_configuration
+
+   if widget.property_value('project')
+     @project = @resource = Project.find(widget.property_value('project'))
+     @snapshot=@resource.last_snapshot
+     @dashboard_configuration=Api::DashboardConfiguration.new(@dashboard, :period_index => params[:period], :snapshot => @snapshot)
+   end
+%>
+
 <div class="<%= h widget.key -%>" style="height:100%;">
   <% if widget.configured
        begin
@@ -29,3 +42,10 @@
   <% end %>
   <div style="clear: both;"></div>
 </div>
+
+<%
+   @resource=@backup_resource
+   @project=@backup_project
+   @snapshot=@backup_snapshot
+   @dashboard_configuration=@backup_dashboard_configuration
+%>

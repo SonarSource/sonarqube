@@ -17,14 +17,31 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.web;
+package org.sonar.plugins.core.widgets;
 
-public enum WidgetPropertyType {
-  INTEGER,
-  BOOLEAN,
-  FLOAT,
-  STRING,
-  METRIC, // @since 2.10
-  FILTER, // @since 3.1
-  PROJECT // @since 3.1
+import org.sonar.api.web.AbstractRubyTemplate;
+import org.sonar.api.web.RubyRailsWidget;
+import org.sonar.api.web.WidgetGlobal;
+import org.sonar.api.web.WidgetProperties;
+import org.sonar.api.web.WidgetProperty;
+import org.sonar.api.web.WidgetPropertyType;
+
+@WidgetGlobal
+@WidgetProperties({
+  @WidgetProperty(key = "project", type = WidgetPropertyType.PROJECT, defaultValue = "1")
+})
+public class TestComplexityWidget extends AbstractRubyTemplate implements RubyRailsWidget {
+
+  public String getId() {
+    return "testComplexity";
+  }
+
+  public String getTitle() {
+    return "TestComplexity";
+  }
+
+  @Override
+  protected String getTemplatePath() {
+    return "/org/sonar/plugins/core/widgets/test_complexity.html.erb";
+  }
 }
