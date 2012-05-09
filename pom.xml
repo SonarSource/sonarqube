@@ -1023,11 +1023,11 @@
         <artifactId>jetty-servlet-tester</artifactId>
         <version>${jetty.version}</version>
       </dependency>
-	  <dependency>
-	    <groupId>org.reflections</groupId>
-	    <artifactId>reflections</artifactId>
-	    <version>0.9.7.RC1</version>
-	  </dependency>
+      <dependency>
+        <groupId>org.reflections</groupId>
+        <artifactId>reflections</artifactId>
+        <version>0.9.7.RC1</version>
+      </dependency>
 	</dependencies>
   </dependencyManagement>
 
