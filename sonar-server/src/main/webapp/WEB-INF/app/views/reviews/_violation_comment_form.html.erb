@@ -1,5 +1,9 @@
 <%
-   button_label=(@comment ? message('reviews.update_comment_submit') : message('reviews.comment_submit'))
+   if @review_action
+     button_label = @review_action.getName()
+   else
+     button_label=(@comment ? message('reviews.update_comment_submit') : message('reviews.comment_submit'))
+   end
 %>
 <form method="POST"
       onsubmit="new Ajax.Updater('vId<%= params[:id] -%>', '<%= url_for :action => 'violation_save_comment' -%>', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this)});return false;">
@@ -7,11 +11,18 @@
   <% if @comment %>
     <input type="hidden" name="comment_id" value="<%= @comment.id -%>"/>
   <% end %>
+  <% if @review_action %>
+    <input type="hidden" name="review_action_id" value="<%= @review_action.getId() -%>"/>
+  <% end %>
 
   <table class="width100">
     <tr>
       <td style="vertical-align:top">
-        <textarea id="commentText<%= params[:id] -%>" rows="4" name="text" style="width: 100%" onkeyup="if (this.value=='') $('submit_btn<%= params[:id] -%>').disabled='true'; else $('submit_btn<%= params[:id] -%>').disabled='';"><%= @comment.text if @comment -%></textarea>
+        <textarea id="commentText<%= params[:id] -%>"
+                  <% unless @review_action -%>
+                  onkeyup="if (this.value=='') $('submit_btn<%= params[:id] -%>').disabled='true'; else $('submit_btn<%= params[:id] -%>').disabled='';"
+                  <% end %>
+                  rows="4" name="text" style="width: 100%"><%= @comment.text if @comment -%></textarea>
       </td>
       <td class="sep"></td>
       <td style="vertical-align:top;width: 90px">
@@ -25,7 +36,7 @@
     <%= submit_to_remote "submit_btn"+params[:id],
                          button_label,
                          :url => {:action => 'violation_save_comment'},
-                         :html => {:id => "submit_btn"+params[:id], :disabled => "true"},
+                         :html => {:id => "submit_btn"+params[:id]}.merge(@review_action ? {} : {:disabled => "true"}),
                          :update => 'vId'+params[:id] -%>
     &nbsp;
     <%= link_to_function message('cancel'), "cancelViolationAction(#{params[:id]})" -%>

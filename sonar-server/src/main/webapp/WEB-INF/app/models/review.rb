@@ -24,6 +24,7 @@ class Review < ActiveRecord::Base
   belongs_to :project, :class_name => "Project", :foreign_key => "project_id"
   belongs_to :rule
   has_many :review_comments, :order => "created_at", :dependent => :destroy
+  has_many :review_data, :class_name => 'ReviewData', :dependent => :destroy
   alias_attribute :comments, :review_comments
   has_and_belongs_to_many :action_plans
 
@@ -71,12 +72,25 @@ class Review < ActiveRecord::Base
   #
   #
 
-  # params are mandatory:
+  # params of 'comment_values' are mandatory:
   # - :user
   # - :text
-  def create_comment(options={})
-    comment = comments.create!(options)
+  # 
+  # param review_action_id is optional (=> specifies an action to 
+  # trigger instead of creating a simple comment)
+  def create_comment(comment_values={}, review_action_id=nil)
+    if review_action_id
+      action = Review.getAction(review_action_id)
+      if action
+        action.execute({"review.id" => id.to_s, "user.login" => comment_values[:user].login, "comment.text" => comment_values[:text]})
+      end
+    else
+      # simple comment
+      comment = comments.create!(comment_values)
+    end
     touch
+    comments.reload
+    comment = comments.last
     notification_manager.notifyChanged(id.to_i, comment.user.login.to_java, to_java_map, to_java_map("comment" => comment.text))
   end
 
@@ -248,6 +262,25 @@ class Review < ActiveRecord::Base
   # used as long as we currently allow to link a review to only 1 action plan.
   def action_plan
     action_plans[0]
+  end
+
+  def self.available_link_actions(current_review=nil)
+    link_actions = Java::OrgSonarServerUi::JRubyFacade.getInstance().getReviewActions("org.sonar.api.reviews.LinkReviewAction")
+    if current_review
+      link_actions.select do |action|
+        data_found = false
+        current_review.review_data.each do |data|
+          data_found = true if data.key==action.getId()
+        end
+        !data_found
+      end
+    else
+      link_actions
+    end
+  end
+  
+  def self.getAction(actionId)
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().getReviewAction(actionId)
   end
 
   #

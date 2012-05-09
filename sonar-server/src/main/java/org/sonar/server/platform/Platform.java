@@ -41,7 +41,11 @@ import org.sonar.core.i18n.I18nManager;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.metric.DefaultMetricFinder;
 import org.sonar.core.notification.DefaultNotificationManager;
-import org.sonar.core.persistence.*;
+import org.sonar.core.persistence.DaoUtils;
+import org.sonar.core.persistence.DatabaseMigrator;
+import org.sonar.core.persistence.DatabaseVersion;
+import org.sonar.core.persistence.DefaultDatabase;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualitymodel.DefaultModelFinder;
 import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.core.user.DefaultUserFinder;
@@ -60,11 +64,29 @@ import org.sonar.server.database.EmbeddedDatabaseFactory;
 import org.sonar.server.filters.FilterExecutor;
 import org.sonar.server.notifications.NotificationService;
 import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
-import org.sonar.server.plugins.*;
+import org.sonar.server.plugins.ApplicationDeployer;
+import org.sonar.server.plugins.DefaultServerPluginRepository;
+import org.sonar.server.plugins.PluginDeployer;
+import org.sonar.server.plugins.PluginDownloader;
+import org.sonar.server.plugins.ServerExtensionInstaller;
+import org.sonar.server.plugins.UpdateCenterClient;
+import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.qualitymodel.DefaultModelManager;
+import org.sonar.server.reviews.ReviewActionsManager;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
-import org.sonar.server.startup.*;
+import org.sonar.server.startup.ActivateDefaultProfiles;
+import org.sonar.server.startup.DeleteDeprecatedMeasures;
+import org.sonar.server.startup.EnableProfiles;
+import org.sonar.server.startup.GeneratePluginIndex;
+import org.sonar.server.startup.GwtPublisher;
+import org.sonar.server.startup.JdbcDriverDeployer;
+import org.sonar.server.startup.RegisterMetrics;
+import org.sonar.server.startup.RegisterNewDashboards;
+import org.sonar.server.startup.RegisterProvidedProfiles;
+import org.sonar.server.startup.RegisterQualityModels;
+import org.sonar.server.startup.RegisterRules;
+import org.sonar.server.startup.ServerMetadataPersister;
 import org.sonar.server.ui.CodeColorizers;
 import org.sonar.server.ui.JRubyI18n;
 import org.sonar.server.ui.SecurityRealmFactory;
@@ -217,6 +239,9 @@ public final class Platform {
     servicesContainer.addSingleton(NotificationService.class);
     servicesContainer.addSingleton(DefaultNotificationManager.class);
     servicesContainer.addSingleton(ReviewsNotificationManager.class);
+
+    // Reviews
+    servicesContainer.addSingleton(ReviewActionsManager.class);
 
     servicesContainer.startComponents();
   }

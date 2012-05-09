@@ -138,6 +138,9 @@ class ReviewsController < ApplicationController
     if !params[:comment_id].blank? && @violation.review
       @comment = @violation.review.comments.find(params[:comment_id])
     end
+    unless params[:review_action_id].blank?
+      @review_action = Review.getAction(params[:review_action_id])
+    end
     render :partial => 'reviews/violation_comment_form'
   end
 
@@ -157,11 +160,11 @@ class ReviewsController < ApplicationController
         :user => current_user)
     end
 
-    unless params[:text].blank?
+    if !params[:text].blank? || !params[:review_action_id].blank?
       if params[:comment_id]
         violation.review.edit_comment(current_user, params[:comment_id].to_i, params[:text])
       else
-        violation.review.create_comment(:user => current_user, :text => params[:text])
+        violation.review.create_comment({:user => current_user, :text => params[:text]}, params[:review_action_id])
       end
     end
 

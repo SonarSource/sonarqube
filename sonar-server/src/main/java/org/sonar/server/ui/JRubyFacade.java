@@ -33,10 +33,15 @@ import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
+import org.sonar.api.reviews.ReviewAction;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.api.web.*;
+import org.sonar.api.web.Footer;
+import org.sonar.api.web.NavigationSection;
+import org.sonar.api.web.Page;
+import org.sonar.api.web.RubyRailsWebservice;
+import org.sonar.api.web.Widget;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.DatabaseMigrator;
@@ -52,12 +57,18 @@ import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
 import org.sonar.server.platform.GlobalSettingsUpdater;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.ServerIdGenerator;
-import org.sonar.server.plugins.*;
+import org.sonar.server.plugins.DefaultServerPluginRepository;
+import org.sonar.server.plugins.PluginDeployer;
+import org.sonar.server.plugins.PluginDownloader;
+import org.sonar.server.plugins.UpdateCenterMatrix;
+import org.sonar.server.plugins.UpdateCenterMatrixFactory;
+import org.sonar.server.reviews.ReviewActionsManager;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
 import org.sonar.updatecenter.common.Version;
 
 import javax.annotation.Nullable;
+
 import java.net.InetAddress;
 import java.sql.Connection;
 import java.util.Collection;
@@ -167,7 +178,6 @@ public final class JRubyFacade {
     return getContainer().getComponentByType(PluginRepository.class).getMetadata();
   }
 
-
   // SYNTAX HIGHLIGHTING ------------------------------------------------------
 
   public String colorizeCode(String code, String language) {
@@ -183,7 +193,6 @@ public final class JRubyFacade {
   public static String markdownToHtml(String input) {
     return Markdown.convertToHtml(input);
   }
-
 
   public List<ViewProxy<Widget>> getWidgets(String resourceScope, String resourceQualifier, String resourceLanguage, Object[] availableMeasures) {
     return getContainer().getComponentByType(Views.class).getWidgets(resourceScope, resourceQualifier, resourceLanguage, (String[]) availableMeasures);
@@ -466,4 +475,15 @@ public final class JRubyFacade {
   public ComponentContainer getContainer() {
     return Platform.getInstance().getContainer();
   }
+
+  // REVIEWS ------------------------------------------------------------------
+
+  public Collection<ReviewAction> getReviewActions(String interfaceName) {
+    return getContainer().getComponentByType(ReviewActionsManager.class).getActions(interfaceName);
+  }
+
+  public ReviewAction getReviewAction(String actionId) {
+    return getContainer().getComponentByType(ReviewActionsManager.class).getAction(actionId);
+  }
+
 }

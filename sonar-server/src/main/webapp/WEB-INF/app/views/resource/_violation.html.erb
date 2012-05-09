@@ -129,6 +129,11 @@
             <% unless violation.review && violation.review.resolved? %>
               <li><%= link_to_function message('reviews.change_severity'), "sCSF(#{violation.id})", :name => 'bChangeSeverity' -%></li>
               <li><%= link_to_function message('reviews.link_to_action_plan'), "sAPF(#{violation.id})", :name => 'bLinkActionPlan' -%></li>
+              
+              <% Review.available_link_actions(violation.review).each do |action| %>
+              <li><%= link_to_function action.getName(), "sCF(#{violation.id}, '#{action.getId()}')", :name => 'bComment' -%></li>
+              <% end %>
+              
             <% end %>
           </ul>
         </div>
