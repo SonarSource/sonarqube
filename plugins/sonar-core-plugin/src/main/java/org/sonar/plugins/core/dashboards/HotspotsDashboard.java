@@ -24,14 +24,13 @@ import org.sonar.api.web.DashboardLayout;
 import org.sonar.api.web.DashboardTemplate;
 
 /**
- * Hotspot dashboard for Sonar
+ * Default "Hotspots" dashboard
  *
  * @since 2.13
  */
 public final class HotspotsDashboard extends DashboardTemplate {
 
   private static final String HOTSPOT_METRIC = "hotspot_metric";
-  private static final String TITLE_PROPERTY = "title";
   private static final String METRIC_PROPERTY = "metric";
 
   @Override
@@ -55,15 +54,12 @@ public final class HotspotsDashboard extends DashboardTemplate {
 
     Dashboard.Widget widget = dashboard.addWidget(HOTSPOT_METRIC, 1);
     widget.setProperty(METRIC_PROPERTY, "test_execution_time");
-    widget.setProperty(TITLE_PROPERTY, "Longest unit tests");
 
     widget = dashboard.addWidget(HOTSPOT_METRIC, 1);
     widget.setProperty(METRIC_PROPERTY, "complexity");
-    widget.setProperty(TITLE_PROPERTY, "Highest complexity");
 
     widget = dashboard.addWidget(HOTSPOT_METRIC, 1);
     widget.setProperty(METRIC_PROPERTY, "duplicated_lines");
-    widget.setProperty(TITLE_PROPERTY, "Highest duplications");
   }
 
   private void addSecondColumn(Dashboard dashboard) {
@@ -71,15 +67,12 @@ public final class HotspotsDashboard extends DashboardTemplate {
 
     Dashboard.Widget widget = dashboard.addWidget(HOTSPOT_METRIC, 2);
     widget.setProperty(METRIC_PROPERTY, "uncovered_lines");
-    widget.setProperty(TITLE_PROPERTY, "Highest untested lines");
 
     widget = dashboard.addWidget(HOTSPOT_METRIC, 2);
     widget.setProperty(METRIC_PROPERTY, "function_complexity");
-    widget.setProperty(TITLE_PROPERTY, "Highest average method complexity");
 
     widget = dashboard.addWidget(HOTSPOT_METRIC, 2);
     widget.setProperty(METRIC_PROPERTY, "public_undocumented_api");
-    widget.setProperty(TITLE_PROPERTY, "Most undocumented APIs");
   }
 
 }
