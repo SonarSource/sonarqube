@@ -1,52 +1,17 @@
-<h1>Default dashboards</h1>
+<h1>Default global dashboards</h1>
 <p class="marginbottom10">These dashboards are displayed to anonymous users or users who have not customized their dashboards.</p>
 
-<table class="data" id="admin_console">
-  <thead>
-    <tr>
-      <th><%= message('name') -%></th>
-      <th><%= message('global') -%></th>
-      <th><%= message('shared_by') -%></th>
-      <th colspan="2" class="right"><%= message('operations') -%></th>
-    </tr>
-  </thead>
-  <tbody>
-  <% if @actives.empty? %>
-    <tr class="even">
-      <td colspan="5">No results.</td>
-    </tr>
-  <% else %>
-    <% @actives.each_with_index do |active, index| %>
-      <tr id="active-<%= u active.name -%>" class="<%= cycle('even', 'odd', :name => 'actives') -%>">
-        <td>
-          <%= h(active.name(true)) %>
-          <br>
-          <span style="font-size: 85%;font-weight: normal;"><%= active.dashboard.description %></span>
-        </td>
-        <td>
-          <%= boolean_icon(active.dashboard.global) -%>
-        </td>
-        <td><%= h(active.dashboard.user.name) if active.dashboard.user %></td>
-        <td>
-          <% if index>0 %>
-            <%= link_to image_tag('blue-up.png'), {:action => :up, :id => active.id}, :method => :post, :id => "up-#{u active.name}" %>
-          <% else %>
-            <%= image_tag('transparent_16.gif') %>
-          <% end %>
-          <% if index<@actives.size-1 %>
-            <%= link_to image_tag('blue-down.png'), {:action => :down, :id => active.id}, :method => :post, :id => "down-#{u active.name}" %>
-          <% end %>
-        </td>
-        <td class="thin nowrap right">
-          <%= link_to 'Remove from defaults', {:action => 'remove', :id => active.id}, {:confirm => 'Are you sure to remove it from default dashboards ?', :method => :post, :id => "remove-#{u active.name}", :class => 'link-action'} %>
-        </td>
-      </tr>
-    <% end %>
-  <% end %>
-  </tbody>
-</table>
+<%= render :partial => 'list', :locals => { :active_dashboards => @actives.select { |a| a.dashboard.global }, :group => 'activeGlobal' } %>
 
 <br/><br/>
+
+<h1>Default project dashboards</h1>
+<p class="marginbottom10">These dashboards are displayed to anonymous users or users who have not customized their dashboards.</p>
+
+<%= render :partial => 'list', :locals => { :active_dashboards => @actives.reject { |a| a.dashboard.global }, :group => 'activeProject' } %>
+
+<br/><br/>
+
 <h1>Shared dashboards</h1>
 <p class="marginbottom10">These dashboards can be added to default dashboards.</p>
 
