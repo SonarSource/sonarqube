@@ -99,7 +99,8 @@ module DashboardHelper
     if widget.resource_id
       widget_resource = Project.find_by_id(widget.resource_id)
       if widget_resource
-        @project = @resource = widget_resource
+        @resource = widget_resource
+        @project = @resource
         @snapshot=@resource.last_snapshot
         @dashboard_configuration=Api::DashboardConfiguration.new(@dashboard, :period_index => params[:period], :snapshot => @snapshot)
       end

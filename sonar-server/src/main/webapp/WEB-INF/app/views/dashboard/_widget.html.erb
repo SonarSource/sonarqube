@@ -15,7 +15,10 @@
          if default_layout
       %>
         <div class="widget">
-      <% end %>
+          <% if !widget.java_definition.global && @dashboard.global %>
+            <div class="widget-title"><%= @resource.name if @resource -%></div>
+          <% end %>
+    <% end %>
       <%= widget_body -%>
       <% if default_layout %>
         <div class="clear"></div>

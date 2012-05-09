@@ -43,6 +43,12 @@
   -moz-border-radius: 0 0 3px 3px;
 }
 
+#dashboard .widget .widget-title {
+    font-style: italic;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
 /*CONFIGURATION*/
 #dashboard #configure {
     position: relative;
