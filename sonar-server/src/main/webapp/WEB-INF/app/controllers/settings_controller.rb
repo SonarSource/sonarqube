@@ -33,9 +33,11 @@ class SettingsController < ApplicationController
 
   def update
     @project=nil
+    resource_id=nil
     if params[:resource_id]
       @project=Project.by_key(params[:resource_id])
       access_denied unless (@project && is_admin?(@project))
+      resource_id=@project.id
     else
       access_denied unless is_admin?
     end
@@ -47,12 +49,12 @@ class SettingsController < ApplicationController
     if @category && @definitions_per_category[@category]
       @definitions_per_category[@category].each do |property|
         value=params[property.getKey()]
-        persisted_property = Property.find(:first, :conditions => {:prop_key=> property.key(), :resource_id => params[:resource_id], :user_id => nil})
+        persisted_property = Property.find(:first, :conditions => {:prop_key=> property.key(), :resource_id => resource_id, :user_id => nil})
 
         # update the property
         if persisted_property
           if value.empty?
-            Property.delete_all('prop_key' => property.key(), 'resource_id' => params[:resource_id], 'user_id' => nil)
+            Property.delete_all('prop_key' => property.key(), 'resource_id' => resource_id, 'user_id' => nil)
             java_facade.setGlobalProperty(property.getKey(), nil) if is_global
           elsif persisted_property.text_value != value.to_s
             persisted_property.text_value = value.to_s
@@ -64,7 +66,7 @@ class SettingsController < ApplicationController
 
         # create the property
         elsif value.present?
-          persisted_property=Property.new(:prop_key => property.key(), :text_value => value.to_s, :resource_id => params[:resource_id])
+          persisted_property=Property.new(:prop_key => property.key(), :text_value => value.to_s, :resource_id => resource_id)
           if persisted_property.save && is_global
             java_facade.setGlobalProperty(property.getKey(), value.to_s)
           end
