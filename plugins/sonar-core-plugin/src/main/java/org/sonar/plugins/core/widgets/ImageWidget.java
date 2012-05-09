@@ -27,7 +27,7 @@ import org.sonar.api.web.WidgetProperties;
 import org.sonar.api.web.WidgetProperty;
 import org.sonar.api.web.WidgetPropertyType;
 
-@WidgetCategory("Misc")
+@WidgetCategory({"Global", "Misc"})
 @WidgetGlobal
 @WidgetProperties(
 {

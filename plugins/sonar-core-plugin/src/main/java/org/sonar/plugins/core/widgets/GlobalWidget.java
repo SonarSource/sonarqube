@@ -24,7 +24,7 @@ import org.sonar.api.web.RubyRailsWidget;
 import org.sonar.api.web.WidgetCategory;
 import org.sonar.api.web.WidgetGlobal;
 
-@WidgetCategory("Misc")
+@WidgetCategory({"Global", "Misc"})
 @WidgetGlobal
 public class GlobalWidget extends AbstractRubyTemplate implements RubyRailsWidget {
 

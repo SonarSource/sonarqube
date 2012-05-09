@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.core.widgets;
 
+import org.sonar.api.web.WidgetCategory;
+
 import org.sonar.api.web.AbstractRubyTemplate;
 import org.sonar.api.web.RubyRailsWidget;
 import org.sonar.api.web.WidgetGlobal;
@@ -26,6 +28,7 @@ import org.sonar.api.web.WidgetProperties;
 import org.sonar.api.web.WidgetProperty;
 import org.sonar.api.web.WidgetPropertyType;
 
+@WidgetCategory({"Global", "Complexity"})
 @WidgetGlobal
 @WidgetProperties({
   @WidgetProperty(key = "project", type = WidgetPropertyType.PROJECT, defaultValue = "1")

@@ -28,7 +28,7 @@ import org.sonar.api.web.WidgetProperties;
 import org.sonar.api.web.WidgetProperty;
 import org.sonar.api.web.WidgetPropertyType;
 
-@WidgetCategory("Filters")
+@WidgetCategory({"Filters", "Global"})
 @WidgetGlobal
 @WidgetProperties({
   @WidgetProperty(key = "filter", type = WidgetPropertyType.FILTER, defaultValue = "1")
