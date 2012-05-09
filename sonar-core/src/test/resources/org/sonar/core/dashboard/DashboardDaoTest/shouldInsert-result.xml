@@ -19,6 +19,7 @@
     column_index="13"
     row_index="14"
     configured="[true]"
+    resource_id="[null]"
   />
 
   <widget_properties

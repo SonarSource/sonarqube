@@ -128,6 +128,7 @@ class DashboardController < ApplicationController
           prop.save!
         end
       end
+      widget.resource_id=params[:resource_id]
       widget.configured=true
       widget.save!
       render :update do |page|
@@ -186,7 +187,7 @@ class DashboardController < ApplicationController
   end
 
   def load_widget_definitions(dashboard, filter_on_category=nil)
-    @widget_definitions=java_facade.getWidgets().select { |w| w.isGlobal() == dashboard.global}
+    @widget_definitions=java_facade.getWidgets()
 
     @widget_categories=@widget_definitions.map(&:getWidgetCategories).flatten.uniq.sort
     unless filter_on_category.blank?

@@ -89,4 +89,28 @@ module DashboardHelper
 	  nil
 	end
   end
+
+  def switch_to_widget_resource(widget)
+    @backup_resource=@resource
+    @backup_project=@project
+    @backup_snapshot=@snapshot
+    @backup_dashboard_configuration=@dashboard_configuration
+
+    if widget.resource_id
+      widget_resource = Project.find_by_id(widget.resource_id)
+      if widget_resource
+        @project = @resource = widget_resource
+        @snapshot=@resource.last_snapshot
+        @dashboard_configuration=Api::DashboardConfiguration.new(@dashboard, :period_index => params[:period], :snapshot => @snapshot)
+      end
+    end
+  end
+
+  def restore_global_resource
+    @resource=@backup_resource
+    @project=@backup_project
+    @snapshot=@backup_snapshot
+    @dashboard_configuration=@backup_dashboard_configuration
+  end
+
 end

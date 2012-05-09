@@ -4,9 +4,9 @@
 <mapper namespace="org.sonar.core.dashboard.WidgetMapper">
 
   <insert id="insert" parameterType="Widget" useGeneratedKeys="true" keyProperty ="id">
-    INSERT INTO widgets (dashboard_id, widget_key, name, description, column_index, row_index, configured, created_at, updated_at)
+    INSERT INTO widgets (dashboard_id, widget_key, name, description, column_index, row_index, configured, created_at, updated_at, resource_id)
     VALUES (#{dashboardId}, #{key}, #{name, jdbcType=VARCHAR}, #{description, jdbcType=VARCHAR}, #{columnIndex, jdbcType=INTEGER}, 
-            #{rowIndex, jdbcType=INTEGER}, #{configured}, #{createdAt, jdbcType=TIMESTAMP}, #{updatedAt, jdbcType=TIMESTAMP})
+            #{rowIndex, jdbcType=INTEGER}, #{configured}, #{createdAt, jdbcType=TIMESTAMP}, #{updatedAt, jdbcType=TIMESTAMP}, #{resourceId, jdbcType=INTEGER})
   </insert>
 
 </mapper>

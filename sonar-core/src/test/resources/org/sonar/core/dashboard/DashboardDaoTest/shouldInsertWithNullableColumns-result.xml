@@ -23,6 +23,7 @@
     configured="[true]"
     created_at="[null]"
     updated_at="[null]"
+    resource_id="[null]"
   />
 
   <widget_properties

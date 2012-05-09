@@ -16,6 +16,14 @@
         </td>
       </tr>
     <% end %>
+
+    <% if !widget.java_definition.global && @dashboard.global %>
+      <tr>
+        <td class="form-key-cell"><%= message('widget.resource_id') %></td>
+        <td class="form-val-cell" id="row_resource"><%= resource_value_field(widget.resource_id) -%></td>
+      </tr>
+    <% end %>
+
     <tr>
       <td colspan="2">
         <%= submit_tag message('save') %>

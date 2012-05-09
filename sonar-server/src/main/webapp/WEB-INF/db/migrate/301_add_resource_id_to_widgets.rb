@@ -19,12 +19,12 @@
 #
 
 #
-# Sonar 2.14
+# Sonar 3.1
 #
-class AddMeasuresPerson < ActiveRecord::Migration
+class AddResourceIdToWidgets < ActiveRecord::Migration
 
   def self.up
-	add_column 'project_measures', 'person_id', :integer, :null => true
+    add_column 'widgets', 'resource_id', :integer, :null => true
   end
 
 end

@@ -25,6 +25,5 @@ public enum WidgetPropertyType {
   FLOAT,
   STRING,
   METRIC, // @since 2.10
-  FILTER, // @since 3.1
-  PROJECT // @since 3.1
+  FILTER // @since 3.1
 }

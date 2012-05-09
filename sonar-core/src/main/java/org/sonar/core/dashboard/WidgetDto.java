@@ -37,6 +37,7 @@ public final class WidgetDto {
   private boolean configured;
   private Date createdAt;
   private Date updatedAt;
+  private Integer resourceId;
   private List<WidgetPropertyDto> widgetPropertyDtos = Lists.newArrayList();
 
   /**
@@ -191,6 +192,22 @@ public final class WidgetDto {
    */
   public void addWidgetProperty(WidgetPropertyDto widgetPropertyDto) {
     widgetPropertyDtos.add(widgetPropertyDto);
+  }
+
+  /**
+   * @return the resourceId
+   * @since 3.1
+   */
+  public Integer getResourceId() {
+    return resourceId;
+  }
+
+  /**
+   * @param resourceId the resourceId to set
+   * @since 3.1
+   */
+  public void setResourceId(Integer resourceId) {
+    this.resourceId = resourceId;
   }
 
 }

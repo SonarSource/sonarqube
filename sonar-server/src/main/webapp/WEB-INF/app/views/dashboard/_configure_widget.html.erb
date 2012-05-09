@@ -1,16 +1,4 @@
-<%
-   @backup_resource=@resource
-   @backup_project=@project
-   @backup_snapshot=@snapshot
-   @backup_dashboard_configuration=@dashboard_configuration
-
-   if widget.property_value('project')
-     @project = @resource = Project.find(widget.property_value('project'))
-     @snapshot=@resource.last_snapshot
-     @dashboard_configuration=Api::DashboardConfiguration.new(@dashboard, :period_index => params[:period], :snapshot => @snapshot)
-   end
-%>
-
+<% switch_to_widget_resource(widget) %>
 <%
    begin
      widget_body=render :inline => widget.java_definition.getTarget().getTemplate(), :locals => {:widget_properties => widget.properties_as_hash, :widget => widget, :dashboard_configuration => @dashboard_configuration}
@@ -23,7 +11,7 @@
 
 <div class="widget-header">
   <div class="widget-actions">
-    <% if widget.java_definition.isEditable() %>
+    <% if widget.java_definition.isEditable() || (!widget.java_definition.global && @dashboard.global) %>
       <a class="link-action" onclick="portal.editWidget(<%= widget.id -%>);return false;"><%= message('edit') -%></a>
     <% end %>
     <a class="link-action" onclick="portal.deleteWidget(this);return false;"><%= message('delete') -%></a>
@@ -64,11 +52,6 @@
   <div style="clear: both;"></div>
 </div>
 
-<%
-   @resource=@backup_resource
-   @project=@backup_project
-   @snapshot=@backup_snapshot
-   @dashboard_configuration=@backup_dashboard_configuration
-%>
+<% restore_global_resource %>
 
 

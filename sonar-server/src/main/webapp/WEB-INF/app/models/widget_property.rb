@@ -24,7 +24,6 @@ class WidgetProperty < ActiveRecord::Base
   TYPE_STRING = 'STRING'
   TYPE_METRIC = 'METRIC'
   TYPE_FILTER = 'FILTER'
-  TYPE_PROJECT = 'PROJECT'
 
   belongs_to :widget
 
@@ -84,8 +83,6 @@ class WidgetProperty < ActiveRecord::Base
       when TYPE_METRIC
         Metric.by_key(text)
       when TYPE_FILTER
-        text.to_i
-      when TYPE_PROJECT
         text.to_i
       else
         text

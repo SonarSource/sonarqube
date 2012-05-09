@@ -37,14 +37,15 @@ module WidgetPropertiesHelper
       text_field_tag definition.key(), val, :size => 10
 
     elsif definition.type.name()==WidgetProperty::TYPE_FILTER
-      select_tag definition.key(), ::Filter.all.sort_by(&:id).collect { |f| "<option value='#{f.id}'>#{f.name}</option>" }
-
-    elsif definition.type.name()==WidgetProperty::TYPE_PROJECT
-      select_tag definition.key(), Project.all(:conditions => {:scope => 'PRJ', :qualifier => 'TRK'}).collect { |f| "<option value='#{f.id}'>#{f.name}</option>" }
+      select_tag definition.key(), ::Filter.all.sort_by(&:id).collect { |f| "<option value='#{f.id}'" + (value == f.id.to_s ? " selected='selected'" : "") + ">#{f.name}</option>" }
 
     else
       hidden_field_tag definition.key()
     end
+  end
+
+  def resource_value_field(value)
+    select_tag 'resource_id', Project.all(:conditions => {:scope => 'PRJ', :qualifier => 'TRK'}).collect { |f| "<option value='#{f.id}'" + (value == f.id ? " selected='selected'" : "") + ">#{f.name}</option>" }
   end
 
 end
