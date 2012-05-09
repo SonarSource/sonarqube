@@ -31,7 +31,9 @@
           <% end %>
         </td>
         <td class="thin nowrap right">
-          <%= link_to 'Remove from defaults', {:action => 'remove', :id => active.id}, {:confirm => 'Are you sure to remove it from default dashboards ?', :method => :post, :id => "remove-#{u active.name}", :class => 'link-action'} %>
+          <% if active_dashboards.size() > 1 %>
+            <%= link_to 'Remove from defaults', {:action => 'remove', :id => active.id}, {:confirm => 'Are you sure to remove it from default dashboards ?', :method => :post, :id => "remove-#{u active.name}", :class => 'link-action'} %>
+          <% end %>
         </td>
       </tr>
     <% end %>

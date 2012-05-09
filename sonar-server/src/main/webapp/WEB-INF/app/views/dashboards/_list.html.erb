@@ -50,7 +50,7 @@
             |
             <%= link_to message('delete'), {:action => 'delete', :id => active.dashboard_id, :resource => params[:resource]}, :method => :post,
                         :confirm => message('dashboard.do_you_want_to_delete_dashboard'), :id => "delete-#{u active.name}", :class => 'link-action' %>
-          <% else %>
+          <% elsif active_dashboards.size() > 1 %>
             <%= link_to message('unfollow'), {:action => 'unfollow', :id => active.dashboard_id, :resource => params[:resource]}, :method => :post,
                         :id => "unfollow-#{u active.name}", :class => 'link-action' %>
           <% end %>
