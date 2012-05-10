@@ -176,12 +176,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.easytesting</groupId>
-      <artifactId>fest-assert</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
       <groupId>org.mortbay.jetty</groupId>
       <artifactId>jetty-servlet-tester</artifactId>
       <scope>test</scope>
