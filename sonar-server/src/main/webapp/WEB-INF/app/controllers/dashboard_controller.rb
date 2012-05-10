@@ -105,7 +105,7 @@ class DashboardController < ApplicationController
                                             :name => definition.getTitle(),
                                             :column_index => 1,
                                             :row_index => 1,
-                                            :configured => !definition.hasRequiredProperties() && !dashboard.global || definition.isGlobal)
+                                            :configured => !(definition.hasRequiredProperties() || (dashboard.global && !definition.isGlobal)))
         widget_id=new_widget.id
         first_column_widgets.each_with_index do |w, index|
           w.row_index=index+2
