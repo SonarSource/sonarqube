@@ -7,7 +7,7 @@
     r.id, r.created_at as createdAt, r.updated_at as updatedAt, r.user_id as userId, r.assignee_id as assigneeId,
     r.status as status, r.resolution as resolution, r.title as title, r.severity as severity,
     r.rule_failure_permanent_id as violationPermanentId, r.project_id as projectId, r.resource_id as resourceId, r.resource_line as line, r.rule_id as ruleId,
-    r.manual_severity as manualSeverity, r.manual_violation as manualViolation
+    r.manual_severity as manualSeverity, r.manual_violation as manualViolation, r.data as data
   </sql>
 
   <select id="findById" parameterType="long" resultType="Review">
@@ -38,7 +38,8 @@
     resource_line=#{line, jdbcType=INTEGER},
     rule_id=#{ruleId, jdbcType=INTEGER},
     manual_severity=#{manualSeverity},
-    manual_violation=#{manualViolation}
+    manual_violation=#{manualViolation},
+    data=#{data, jdbcType=VARCHAR}
     where id = #{id}
   </update>
 

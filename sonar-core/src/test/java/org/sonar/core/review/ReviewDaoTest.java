@@ -111,6 +111,9 @@ public class ReviewDaoTest extends DaoTestCase {
     review.setTitle("NEW_TITLE");
     review.setCreatedAt(DateUtils.parseDate("2012-05-18"));
     review.setUpdatedAt(DateUtils.parseDate("2012-07-01"));
+    review.removeKeyFromData("prop2");
+    review.addKeyValueToData("prop3", "bing");
+    review.addKeyValueToData("prop4", "bang");
 
     dao.update(reviews);
 

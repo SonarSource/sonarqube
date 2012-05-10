@@ -34,6 +34,7 @@ import org.sonar.core.review.ReviewDao;
 import org.sonar.core.review.ReviewDto;
 import org.sonar.plugins.reviews.jira.soap.JiraSOAPClient;
 
+import java.util.Collection;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.is;
@@ -93,6 +94,12 @@ public class JiraLinkReviewActionTest {
     assertThat(comment.getReviewId(), is(45L));
     assertThat(comment.getUserId(), is(12L));
     assertThat(comment.getText(), is("Hello world\n\nReview linked to JIRA issue: http://localhost:8080/browse/FOO-15"));
+
+    ArgumentCaptor<Collection> reviewCaptor = ArgumentCaptor.forClass(Collection.class);
+    verify(reviewDao).update(reviewCaptor.capture());
+    ReviewDto reviewDto = (ReviewDto) reviewCaptor.getValue().iterator().next();
+    assertThat(reviewDto.getData(), is(action.getId() + "=FOO-15"));
+
   }
 
   @Test

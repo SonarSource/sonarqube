@@ -19,11 +19,15 @@
  */
 package org.sonar.core.review;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.sonar.api.utils.KeyValueFormat;
 
 import javax.annotation.Nullable;
+
 import java.util.Date;
+import java.util.Map;
 
 /**
  * @since 2.13
@@ -55,6 +59,7 @@ public final class ReviewDto {
   private boolean manualViolation;
   private boolean manualSeverity;
   private Integer actionPlanId;
+  private String data;
 
   public Long getId() {
     return id;
@@ -215,6 +220,41 @@ public final class ReviewDto {
   public ReviewDto setActionPlanId(@Nullable Integer i) {
     this.actionPlanId = i;
     return this;
+  }
+
+  public String getData() {
+    return data;
+  }
+
+  public ReviewDto setData(String data) {
+    this.data = data;
+    return this;
+  }
+
+  /**
+   * Returns an immutable Map of the properties store in the "data" column 
+   * of the review. To modify the properties, use {@link #removeKeyFromData(String)} 
+   * or {@link #addKeyValueToData(String)}.
+   * 
+   * @return the map of properties
+   */
+  @SuppressWarnings("unchecked")
+  public ImmutableMap<String, String> getDataMap() {
+    return ImmutableMap.copyOf(KeyValueFormat.parse(data));
+  }
+
+  @SuppressWarnings("unchecked")
+  public void removeKeyFromData(String key) {
+    Map<String, String> dataMap = KeyValueFormat.parse(data);
+    dataMap.remove(key);
+    data = KeyValueFormat.format(dataMap);
+  }
+
+  @SuppressWarnings("unchecked")
+  public void addKeyValueToData(String key, String value) {
+    Map<String, String> dataMap = KeyValueFormat.parse(data);
+    dataMap.put(key, value);
+    data = KeyValueFormat.format(dataMap);
   }
 
   @Override

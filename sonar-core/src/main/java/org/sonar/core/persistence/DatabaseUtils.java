@@ -72,7 +72,6 @@ public final class DatabaseUtils {
     "resource_index",
     "reviews",
     "review_comments",
-    "review_data",
     "rules",
     "rules_parameters",
     "rules_profiles",

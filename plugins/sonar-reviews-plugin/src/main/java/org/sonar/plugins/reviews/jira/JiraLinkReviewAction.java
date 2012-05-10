@@ -20,6 +20,7 @@
 package org.sonar.plugins.reviews.jira;
 
 import com.atlassian.jira.rpc.soap.client.RemoteIssue;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.database.model.User;
 import org.sonar.api.reviews.LinkReviewAction;
@@ -75,6 +76,9 @@ public class JiraLinkReviewAction implements LinkReviewAction {
     }
 
     addCommentToReview(review, issue, user, reviewContext.get(COMMENT_TEXT_PARAM));
+
+    updateReviewWithIssueInfo(review, issue);
+
   }
 
   private ReviewDto getReviewId(Map<String, String> reviewContext) {
@@ -118,6 +122,11 @@ public class JiraLinkReviewAction implements LinkReviewAction {
     comment.setText(message.toString());
 
     reviewCommentDao.insert(comment);
+  }
+
+  protected void updateReviewWithIssueInfo(ReviewDto review, RemoteIssue issue) {
+    review.addKeyValueToData(this.getId(), issue.getKey());
+    reviewDao.update(Lists.newArrayList(review));
   }
 
 }

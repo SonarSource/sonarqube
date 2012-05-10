@@ -24,7 +24,6 @@ class Review < ActiveRecord::Base
   belongs_to :project, :class_name => "Project", :foreign_key => "project_id"
   belongs_to :rule
   has_many :review_comments, :order => "created_at", :dependent => :destroy
-  has_many :review_data, :class_name => 'ReviewData', :dependent => :destroy
   alias_attribute :comments, :review_comments
   has_and_belongs_to_many :action_plans
 
@@ -265,15 +264,10 @@ class Review < ActiveRecord::Base
   end
 
   def self.available_link_actions(current_review=nil)
+    
     link_actions = Java::OrgSonarServerUi::JRubyFacade.getInstance().getReviewActions("org.sonar.api.reviews.LinkReviewAction")
-    if current_review
-      link_actions.select do |action|
-        data_found = false
-        current_review.review_data.each do |data|
-          data_found = true if data.key==action.getId()
-        end
-        !data_found
-      end
+    if current_review && current_review.data
+      link_actions.reject {|action| current_review.data.include? (action.getId())}
     else
       link_actions
     end

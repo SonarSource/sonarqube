@@ -16,6 +16,7 @@
     resource_id="400"
     rule_id="500"
     manual_violation="[false]"
-    manual_severity="[false]"/>
+    manual_severity="[false]"
+    data="prop1=foo;prop2=bar"/>
 
 </dataset>

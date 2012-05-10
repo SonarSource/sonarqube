@@ -20,12 +20,7 @@
 class AddReviewData < ActiveRecord::Migration
 
   def self.up
-    create_table :review_data do |t|
-      t.column 'kee', :string, :null => true, :limit => 200
-      t.column :review_id, :integer, :null => true
-      t.column :data, :binary, :null => true
-    end
-    add_index :review_data, :review_id, :name => 'review_data_review_id'   
+    add_column 'reviews', 'data', :string, :null => true, :limit => 4000
   end
 
 end
