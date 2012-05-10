@@ -1,5 +1,7 @@
 <% switch_to_widget_resource(widget) %>
 
+<%= render :partial => 'widget_title', :locals => {:widget => widget} -%>
+
 <div class="<%= h widget.key -%>" style="height:100%;">
   <% if widget.configured
        begin
@@ -15,9 +17,6 @@
          if default_layout
       %>
         <div class="widget">
-          <% if !widget.java_definition.global && @dashboard.global %>
-            <div class="widget-title"><%= @resource.name if @resource -%></div>
-          <% end %>
     <% end %>
       <%= widget_body -%>
       <% if default_layout %>

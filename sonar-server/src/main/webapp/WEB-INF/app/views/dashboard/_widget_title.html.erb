@@ -1,0 +1,10 @@
+<% if @dashboard.global %>
+
+  <% if widget.properties_as_hash['filter'] %>
+    <% filter = ::Filter.find_by_id(widget.properties_as_hash['filter']) %>
+    <div class="widget-title"><%= filter.name if filter -%></div>
+  <% elsif @resource && !widget.java_definition.global %>
+    <div class="widget-title"><%= @resource.name -%></div>
+  <% end %>
+
+<% end %>

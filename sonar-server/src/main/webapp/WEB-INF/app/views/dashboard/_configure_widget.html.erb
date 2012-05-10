@@ -25,6 +25,7 @@
   <%= render :partial => 'widget_properties', :locals => {:widget => widget} -%>
 </div>
 
+<%= render :partial => 'widget_title', :locals => {:widget => widget} -%>
 <div id="widget_<%= widget.id -%>" class="configure_widget <%= h widget.java_definition.getId() -%>" style="height:100%;<%= 'display:none;' if !widget.configured -%>">
   <!--[if lte IE 6]>
   <style type="text/css">

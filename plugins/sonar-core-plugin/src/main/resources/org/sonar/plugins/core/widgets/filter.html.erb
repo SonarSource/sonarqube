@@ -3,7 +3,4 @@
   @filter_context=Filters.execute(@filter, self, params)
 %>
 
-<div class="filter_widget">
-  <div class="filter-title"><%= @filter.name %></div>
-  <%= render :partial => "filters/#{@filter.default_view}", :locals => {:edit_mode => false} %>
-</div>
+<%= render :partial => "filters/#{@filter.default_view}", :locals => {:edit_mode => false} %>

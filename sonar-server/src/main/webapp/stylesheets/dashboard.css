@@ -23,6 +23,7 @@
   border: 1px solid #ddd;
   border-radius: 0 0 3px 3px;
   -moz-border-radius: 0 0 3px 3px;
+  -webkit-border-radius: 0 0 3px 3px;
 }
 
 #dashboard .block {
@@ -41,12 +42,19 @@
   padding: 5px;
   border-radius: 0 0 3px 3px;
   -moz-border-radius: 0 0 3px 3px;
+  -webkit-border-radius: 0 0 3px 3px;
 }
 
-#dashboard .widget .widget-title {
-  font-style: italic;
-  font-weight: bold;
-  margin-bottom: 10px;
+#dashboard .widget-title {
+  background-color: #4B9FD5;
+  color: #EFEFEF;
+  padding: 3px 0 3px 5px;
+  height: 16px;
+  line-height: 16px;
+  vertical-align: middle;
+  border-radius: 3px 3px 0 0;
+  -moz-border-radius: 3px 3px 0 0;
+  -webkit-border-radius: 3px 3px 0 0;
 }
 
 /*CONFIGURATION*/
@@ -60,6 +68,7 @@
   background-color: #FFF6BF;
   border: 2px solid #FFD324;
   padding: 3px;
+  border-radius: 3px;
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
 }
@@ -157,6 +166,7 @@
   border: 1px solid #cdcdcd;
   padding: 0;
   margin: 0;
+  border-radius: 3px;
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
 }
@@ -221,7 +231,7 @@
   border-bottom: 0;
   border-radius: 3px 3px 0 0;
   -moz-border-radius: 3px 3px 0 0;
-
+  -webkit-border-radius: 3px 3px 0 0;
 }
 
 #dashboard .widget-handle {
@@ -248,6 +258,7 @@
 }
 
 #dashboard .shadow-block {
+  box-shadow: 8px 8px 8px #ddd;
   box-shadow: 8px 8px 8px #ddd;
   -moz-box-shadow: 8px 8px 8px #ddd;
   -webkit-box-shadow: 8px 8px 8px #ddd;
