@@ -40,7 +40,6 @@ import org.sonar.plugins.core.dashboards.DefaultDashboard;
 import org.sonar.plugins.core.dashboards.HotspotsDashboard;
 import org.sonar.plugins.core.dashboards.ReviewsDashboard;
 import org.sonar.plugins.core.dashboards.TimeMachineDashboard;
-import org.sonar.plugins.core.reviews.JiraLinkReviewAction;
 import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
 import org.sonar.plugins.core.sensors.BranchCoverageDecorator;
 import org.sonar.plugins.core.sensors.CheckAlertThresholds;
@@ -384,9 +383,6 @@ public final class CorePlugin extends SonarPlugin {
     extensions.add(NewCoverageFileAnalyzer.class);
     extensions.add(NewItCoverageFileAnalyzer.class);
     extensions.add(NewCoverageAggregator.class);
-
-    // reviews
-    extensions.add(JiraLinkReviewAction.class);
 
     return extensions;
   }

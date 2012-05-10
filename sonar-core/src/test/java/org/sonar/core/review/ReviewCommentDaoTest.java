@@ -19,19 +19,35 @@
  */
 package org.sonar.core.review;
 
-import org.apache.ibatis.annotations.Param;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.core.persistence.DaoTestCase;
 
-import java.util.List;
+import java.util.Date;
 
-/**
- * @since 2.13
- */
-public interface ReviewMapper {
-  ReviewDto findById(long reviewId);
+public class ReviewCommentDaoTest extends DaoTestCase {
 
-  List<ReviewDto> selectByResourceId(long resourceId);
+  private ReviewCommentDao dao;
 
-  void update(ReviewDto review);
+  @Before
+  public void createDao() {
+    dao = new ReviewCommentDao(getMyBatis());
+  }
 
-  List<ReviewDto> selectOnDeletedResources(@Param("rootProjectId") long rootProjectId, @Param("rootSnapshotId") long rootSnapshotId);
+  @Test
+  public void shouldFindReviewById() {
+    setupData("insert");
+
+    ReviewCommentDto reviewCommentDto = new ReviewCommentDto();
+    reviewCommentDto.setReviewId(12L);
+    reviewCommentDto.setUserId(8L);
+    reviewCommentDto.setText("Hello");
+    Date today = new Date();
+    reviewCommentDto.setCreatedAt(today);
+    reviewCommentDto.setUpdatedAt(today);
+
+    dao.insert(reviewCommentDto);
+
+    checkTables("insert", new String[] {"id", "created_at", "updated_at"}, "review_comments");
+  }
 }

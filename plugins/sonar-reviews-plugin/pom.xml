@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.codehaus.sonar</groupId>
+    <artifactId>sonar</artifactId>
+    <version>3.1-SNAPSHOT</version>
+    <relativePath>../..</relativePath>
+  </parent>
+  <groupId>org.codehaus.sonar.plugins</groupId>
+  <artifactId>sonar-reviews-plugin</artifactId>
+  <packaging>sonar-plugin</packaging>
+  <name>Sonar :: Plugins :: Reviews Connector</name>
+  <description>Plugin that allows to create links between Sonar reviews and other systems  
+  </description>
+
+  <properties>
+    <sonar.pluginClass>org.sonar.plugins.reviews.ReviewsPlugin</sonar.pluginClass>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-core</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-plugin-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>axis</groupId>
+      <artifactId>axis</artifactId>
+      <version>1.3</version>
+    </dependency>
+    <dependency>
+      <groupId>axis</groupId>
+      <artifactId>axis-jaxrpc</artifactId>
+      <version>1.3</version>
+    </dependency>
+    <dependency>
+      <groupId>axis</groupId>
+      <artifactId>axis-saaj</artifactId>
+      <version>1.3</version>
+    </dependency>
+    <dependency>
+      <groupId>axis</groupId>
+      <artifactId>axis-wsdl4j</artifactId>
+      <version>1.5.1</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-testing-harness</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>axistools-maven-plugin</artifactId>
+        <version>1.3</version>
+        <dependencies>
+          <dependency>
+            <groupId>axis</groupId>
+            <artifactId>axis</artifactId>
+            <version>1.3</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <wsdlFiles>
+            <wsdlFile>jirasoapservice-v2.wsdl</wsdlFile>
+          </wsdlFiles>
+          <packageSpace>com.atlassian.jira.rpc.soap.client</packageSpace>
+        </configuration>
+        <executions>
+          <execution>
+            <id>wsdl2java-generation</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>wsdl2java</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

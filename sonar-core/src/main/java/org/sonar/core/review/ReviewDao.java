@@ -32,6 +32,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 
 public class ReviewDao implements BatchComponent, ServerComponent {
@@ -48,6 +49,19 @@ public class ReviewDao implements BatchComponent, ServerComponent {
             return doSelectOpenByResourceId(resourceId);
           }
         });
+  }
+
+  /**
+   * @since 3.1
+   */
+  public ReviewDto findById(long reviewId) {
+    SqlSession session = mybatis.openSession();
+    try {
+      ReviewMapper mapper = session.getMapper(ReviewMapper.class);
+      return mapper.findById(reviewId);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
   public Collection<ReviewDto> selectOpenByResourceId(long resourceId, @Nullable Predicate<ReviewDto>... predicates) {
@@ -77,7 +91,6 @@ public class ReviewDao implements BatchComponent, ServerComponent {
       MyBatis.closeQuietly(session);
     }
   }
-
 
   public ReviewDao update(Collection<ReviewDto> reviews) {
     Preconditions.checkNotNull(reviews);

@@ -17,21 +17,25 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.review;
+package org.sonar.plugins.reviews;
 
-import org.apache.ibatis.annotations.Param;
+import com.google.common.collect.Lists;
+import org.sonar.api.Extension;
+import org.sonar.api.SonarPlugin;
+import org.sonar.plugins.reviews.jira.JiraLinkReviewAction;
+import org.sonar.plugins.reviews.jira.soap.JiraSOAPClient;
 
 import java.util.List;
 
-/**
- * @since 2.13
- */
-public interface ReviewMapper {
-  ReviewDto findById(long reviewId);
+public final class ReviewsPlugin extends SonarPlugin {
 
-  List<ReviewDto> selectByResourceId(long resourceId);
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  public List<Class<? extends Extension>> getExtensions() {
+    List extensions = Lists.newLinkedList();
 
-  void update(ReviewDto review);
+    extensions.add(JiraLinkReviewAction.class);
+    extensions.add(JiraSOAPClient.class);
 
-  List<ReviewDto> selectOnDeletedResources(@Param("rootProjectId") long rootProjectId, @Param("rootSnapshotId") long rootSnapshotId);
+    return extensions;
+  }
 }

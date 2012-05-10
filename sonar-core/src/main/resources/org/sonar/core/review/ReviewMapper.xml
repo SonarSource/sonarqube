@@ -10,6 +10,12 @@
     r.manual_severity as manualSeverity, r.manual_violation as manualViolation
   </sql>
 
+  <select id="findById" parameterType="long" resultType="Review">
+    select <include refid="reviewColumns"/>, apr.action_plan_id as actionPlanId
+    from reviews r left outer join action_plans_reviews apr on r.id=apr.review_id
+    where r.id=#{id}
+  </select>
+
   <select id="selectByResourceId" parameterType="long" resultType="Review">
     select <include refid="reviewColumns"/>, apr.action_plan_id as actionPlanId
     from reviews r left outer join action_plans_reviews apr on r.id=apr.review_id

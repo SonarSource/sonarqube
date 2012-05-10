@@ -53,6 +53,8 @@ import org.sonar.core.resource.ResourceIndexDto;
 import org.sonar.core.resource.ResourceIndexerMapper;
 import org.sonar.core.resource.ResourceMapper;
 import org.sonar.core.resource.SnapshotDto;
+import org.sonar.core.review.ReviewCommentDto;
+import org.sonar.core.review.ReviewCommentMapper;
 import org.sonar.core.review.ReviewDto;
 import org.sonar.core.review.ReviewMapper;
 import org.sonar.core.rule.RuleDto;
@@ -90,6 +92,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "Property", PropertyDto.class);
     loadAlias(conf, "PurgeableSnapshot", PurgeableSnapshotDto.class);
     loadAlias(conf, "Review", ReviewDto.class);
+    loadAlias(conf, "ReviewComment", ReviewCommentDto.class);
     loadAlias(conf, "Resource", ResourceDto.class);
     loadAlias(conf, "ResourceIndex", ResourceIndexDto.class);
     loadAlias(conf, "Rule", RuleDto.class);
@@ -107,6 +110,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadMapper(conf, PurgeMapper.class);
     loadMapper(conf, PurgeVendorMapper.class);
     loadMapper(conf, ResourceMapper.class);
+    loadMapper(conf, ReviewCommentMapper.class);
     loadMapper(conf, ReviewMapper.class);
     loadMapper(conf, ResourceIndexerMapper.class);
     loadMapper(conf, RuleMapper.class);

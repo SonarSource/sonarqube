@@ -26,6 +26,7 @@ import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceIndexerDao;
+import org.sonar.core.review.ReviewCommentDao;
 import org.sonar.core.review.ReviewDao;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.template.LoadedTemplateDao;
@@ -42,16 +43,17 @@ public final class DaoUtils {
 
   public static List<Class<?>> getDaoClasses() {
     return Collections.unmodifiableList(Arrays.asList(
-      ActiveDashboardDao.class,
-      AuthorDao.class,
-      DashboardDao.class,
-      DuplicationDao.class,
-      LoadedTemplateDao.class,
-      PropertiesDao.class,
-      PurgeDao.class,
-      ResourceIndexerDao.class,
-      ResourceDao.class,
-      ReviewDao.class,
-      RuleDao.class));
+        ActiveDashboardDao.class,
+        AuthorDao.class,
+        DashboardDao.class,
+        DuplicationDao.class,
+        LoadedTemplateDao.class,
+        PropertiesDao.class,
+        PurgeDao.class,
+        ResourceIndexerDao.class,
+        ResourceDao.class,
+        ReviewCommentDao.class,
+        ReviewDao.class,
+        RuleDao.class));
   }
 }

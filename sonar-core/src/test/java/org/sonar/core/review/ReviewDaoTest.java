@@ -40,6 +40,24 @@ public class ReviewDaoTest extends DaoTestCase {
   }
 
   @Test
+  public void shouldFindReviewById() {
+    setupData("shared");
+
+    ReviewDto review = dao.findById(100L);
+    assertThat(review.getId(), is(100L));
+    assertThat(review.getStatus(), is("OPEN"));
+    assertThat(review.getResolution(), is(nullValue()));
+    assertThat(review.getProjectId(), is(20));
+    assertThat(review.getViolationPermanentId(), is(1));
+    assertThat(review.getSeverity(), is("BLOCKER"));
+    assertThat(review.getUserId(), is(300));
+    assertThat(review.getResourceId(), is(400));
+    assertThat(review.getRuleId(), is(500));
+    assertThat(review.getManualViolation(), is(true));
+    assertThat(review.getActionPlanId(), is(1));
+  }
+
+  @Test
   public void shouldSelectOpenByResourceId() {
     setupData("shared");
 

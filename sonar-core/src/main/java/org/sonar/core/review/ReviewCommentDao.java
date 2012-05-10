@@ -19,19 +19,29 @@
  */
 package org.sonar.core.review;
 
-import org.apache.ibatis.annotations.Param;
-
-import java.util.List;
+import org.apache.ibatis.session.SqlSession;
+import org.sonar.api.BatchComponent;
+import org.sonar.api.ServerComponent;
+import org.sonar.core.persistence.MyBatis;
 
 /**
- * @since 2.13
+ * @since 3.1
  */
-public interface ReviewMapper {
-  ReviewDto findById(long reviewId);
+public class ReviewCommentDao implements BatchComponent, ServerComponent {
+  private final MyBatis mybatis;
 
-  List<ReviewDto> selectByResourceId(long resourceId);
+  public ReviewCommentDao(MyBatis mybatis) {
+    this.mybatis = mybatis;
+  }
 
-  void update(ReviewDto review);
-
-  List<ReviewDto> selectOnDeletedResources(@Param("rootProjectId") long rootProjectId, @Param("rootSnapshotId") long rootSnapshotId);
+  public void insert(ReviewCommentDto reviewCommentDto) {
+    SqlSession session = mybatis.openSession();
+    ReviewCommentMapper mapper = session.getMapper(ReviewCommentMapper.class);
+    try {
+      mapper.insert(reviewCommentDto);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
 }
