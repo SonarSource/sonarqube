@@ -25,10 +25,15 @@ class DashboardsController < ApplicationController
   before_filter :login_required
 
   def index
+    @global = !params[:resource]
+
     @actives=ActiveDashboard.user_dashboards(current_user)
+    @actives.reject! { |a| a.global? != @global}
+
     @shared_dashboards=Dashboard.find(:all, :conditions => ['(user_id<>? OR user_id IS NULL) AND shared=?', current_user.id, true], :order => 'name ASC')
-    active_dashboard_ids=@actives.map { |a| a.dashboard_id }
+    active_dashboard_ids=@actives.map(&:dashboard_id)
     @shared_dashboards.reject! { |d| active_dashboard_ids.include?(d.id) }
+    @shared_dashboards.reject! { |a| a.global != @global}
 
     if params[:resource]
       @resource=Project.by_key(params[:resource])

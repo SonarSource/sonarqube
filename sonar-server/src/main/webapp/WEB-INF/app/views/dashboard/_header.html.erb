@@ -7,7 +7,7 @@
         <% if @dashboard.editable_by?(current_user) %>
           <li><%= link_to message('dashboard.configure_widgets'), dashboard_action(:configure) -%></li>
         <% end %>
-        <li class="last"><%= link_to message('dashboard.manage_dashboards'), {:controller => :dashboards, :action => :index, :resource => (@resource.id if @resource)} -%></li>
+        <li class="last"><%= link_to message('dashboard.manage_dashboards'), {:controller => :dashboards, :action => :index, :resource => (@resource.id if @resource) } -%></li>
       <% end %>
     </ul>
   <% end %>

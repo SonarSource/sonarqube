@@ -128,6 +128,10 @@
   border: 3px solid #4B9FD5;
 }
 
+.admin_page {
+    position: relative;
+}
+
 .admin_page table {
   margin-top: 10px;
   margin-bottom: 50px;
@@ -143,14 +147,14 @@
 }
 
 #my_dasboards {
-  margin-right: 260px;
+  margin-right: 280px;
 }
 
 #create_dashboard {
-  width: 240px;
+  width: 235px;
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 0;
+  right: 28px;
 }
 
 /*OPERATIONS*/

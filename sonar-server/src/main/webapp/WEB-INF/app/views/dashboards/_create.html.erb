@@ -13,23 +13,22 @@
         <%= message('description') -%>:<br/><input type="text" name="description" size="30" maxlength="1000">
       </td>
     </tr>
-    <tr>
-      <td class="left" valign="top">
-        <%= message('global') -%>:<br/><input type="checkbox" name="global" value="true">
-      </td>
-      <% if is_admin? %>
+    <% if is_admin? %>
+      <tr>
         <td class="left" valign="top">
           <%= message('shared') -%>:<br/><input type="checkbox" name="shared" value="true">
         </td>
-      <% end %>
-    </tr>
+      </tr>
+    <% end %>
     <tr>
       <td class="left" valign="top" colspan="2">
-        <input type="submit" value="<%= message('dashboard.create_dashboard') -%>" id="submit-create-dashboard"/>
+        <input type="submit" value="<%= message(@global ? 'dashboard.create_global_dashboard' : 'dashboard.create_project_dashboard') -%>" id="submit-create-dashboard"/>
       </td>
     </tr>
     </tbody>
   </table>
+
+  <input type="hidden" name="global" value="<%= @global %>" />
 </form>
 
 <script>
