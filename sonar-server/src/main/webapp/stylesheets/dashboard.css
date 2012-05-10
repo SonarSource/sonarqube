@@ -17,7 +17,7 @@
 /* WIDGETS */
 #dashboard .widget {
   position: relative;
-  overflow-x: visible;
+  overflow-x: hidden;
   padding: 10px;
   margin: 0;
   border: 1px solid #ddd;
