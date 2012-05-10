@@ -40,7 +40,6 @@ public final class DatabaseUtils {
     "action_plans",
     "action_plans_reviews",
     "active_dashboards",
-    "active_filters",
     "active_rules",
     "active_rule_changes",
     "active_rule_parameters",

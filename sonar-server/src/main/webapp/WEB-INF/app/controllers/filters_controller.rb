@@ -22,16 +22,10 @@ class FiltersController < ApplicationController
   helper MetricsHelper
   helper FiltersHelper
 
-  #SECTION=Navigation::SECTION_CONFIGURATION
-  SECTION=Navigation::SECTION_HOME
+  SECTION=Navigation::SECTION_CONFIGURATION
 
   verify :method => :post, :only => [:create, :delete, :up, :down, :activate, :deactivate, :up_column, :down_column, :add_column, :delete_column, :set_sorted_column, :set_view, :set_columns, :set_page_size], :redirect_to => {:action => :index}
   before_filter :login_required, :except => ['index', 'treemap']
-
-  def index
-    load_active_filters()
-    load_active_filter()
-  end
 
   def manage
     @filters = ::Filter.find(:all, :conditions => ['user_id=? or user_id is null', current_user.id])
@@ -43,8 +37,6 @@ class FiltersController < ApplicationController
   end
 
   def create
-    activate_default_filters_if_needed()
-
     @filter=::Filter.new()
     load_filter_from_params(@filter, params)
 
@@ -333,53 +325,6 @@ class FiltersController < ApplicationController
     end
     if params[:criteria]['2']['metric_id'].present?
       filter.criteria<<Criterion.new_for_metric(params[:criteria]['2'])
-    end
-  end
-
-  def activate_default_filters_if_needed
-    if current_user.active_filters.empty?
-      ActiveFilter.default_active_filters.each do |default_active|
-        current_user.active_filters.create(:filter => default_active.filter, :user => current_user, :order_index => default_active.order_index)
-      end
-      @actives=current_user.active_filters
-    end
-  end
-
-  def load_masterproject()
-    @masterproject=Snapshot.find(:first, :include => 'project', :conditions => ['projects.kee=? and islast=?', 'MASTER_PROJECT', true])
-    @masterproject=nil if @masterproject && !(has_role?(:user, @masterproject))
-  end
-
-  def load_active_filters
-    @actives=nil
-    if logged_in?
-      @actives=current_user.active_filters
-      @actives=::ActiveFilter.default_active_filters if (@actives.nil? || @actives.empty?)
-    else
-      @actives=::ActiveFilter.for_anonymous
-    end
-  end
-
-  def load_active_filter()
-    @active=nil
-    if params[:name]
-      @active=@actives.to_a.find { |a| a.name==params[:name] }
-    elsif params[:id]
-      @active=@actives.to_a.find { |a| a.filter.id==params[:id].to_i }
-    end
-
-    if @active.nil? && !@actives.empty?
-      @active=@actives.first
-    end
-
-    @filter=nil
-    @period_index=params[:period].to_i
-    if @active
-      @filter=@active.filter
-      unless @filter.ajax_loading?
-        @filter_context=Filters.execute(@filter, self, params)
-        load_masterproject() if @filter.projects_homepage?
-      end
     end
   end
 end

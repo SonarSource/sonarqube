@@ -35,18 +35,16 @@
       <div id="sidebar">
         <ul>
           <% if selected_section==Navigation::SECTION_HOME %>
-            <li class="<%= 'selected' if controller.controller_path=='filters' -%>">
-              <a href="<%= ApplicationController.root_context -%>/filters/index"><%= message('filters.page') -%></a></li>
-            <li class="<%= 'selected' if controller.controller_path=='reviews' -%>">
-              <a href="<%= ApplicationController.root_context -%>/reviews/index"><%= message('reviews.page') -%></a></li>
-            <li class="<%= 'selected' if controller.controller_path=='dependencies' -%>">
-              <a href="<%= ApplicationController.root_context -%>/dependencies/index"><%= message('dependencies.page') -%></a></li>
-
             <% ActiveDashboard.user_dashboards(current_user).select(&:global?).each do |active_dashboard| %>
               <li class="<%= 'selected' if @dashboard && controller.controller_path=='dashboard' && active_dashboard.dashboard_id==@dashboard.id -%>">
                 <a href="<%= ApplicationController.root_context -%>/dashboard/?did=<%= active_dashboard.dashboard_id -%>"><%= active_dashboard.dashboard.name(true) -%></a>
               </li>
             <% end %>
+
+            <li class="<%= 'selected' if controller.controller_path=='reviews' -%>">
+              <a href="<%= ApplicationController.root_context -%>/reviews/index"><%= message('reviews.page') -%></a></li>
+            <li class="<%= 'selected' if controller.controller_path=='dependencies' -%>">
+              <a href="<%= ApplicationController.root_context -%>/dependencies/index"><%= message('dependencies.page') -%></a></li>
 
             <% controller.java_facade.getPages(Navigation::SECTION_HOME, nil, nil, nil, nil).each do |page|
                  page_url = (page.isController() ? page.getId() : "/plugins/home/#{page.getId()}")
