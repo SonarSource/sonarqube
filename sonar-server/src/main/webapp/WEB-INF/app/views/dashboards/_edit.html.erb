@@ -13,22 +13,20 @@
         <%= message('description') -%>:<br/><input type="text" name="description" size="30" maxlength="1000" value="<%= @dashboard.description -%>">
       </td>
     </tr>
-    <tr>
-      <td class="left" valign="top">
-        <%= message('global') -%>:<br/><input type="checkbox" name="global" value="true" <%= 'checked' if @dashboard.global -%>>
-      </td>
-      <% if is_admin? %>
+    <% if is_admin? %>
+      <tr>
         <td class="left" valign="top">
           <%= message('shared') -%>:<br/><input type="checkbox" name="shared" value="true" <%= 'checked' if @dashboard.shared -%>>
         </td>
-        </tr>
-      <% end %>
-      <tr>
-        <td class="left" valign="top" colspan="2">
-          <input type="submit" value="<%= message('dashboard.update_dashboard') -%>" id="submit-update-dashboard"/>
-          <a href="<%= url_for :action => 'index', :resource => params[:resource] -%>"><%= message('cancel') -%></a>
-        </td>
       </tr>
-      </tbody>
+    <% end %>
+    <tr>
+      <td class="left" valign="top" colspan="2">
+        <input type="submit" value="<%= message('dashboard.update_dashboard') -%>" id="submit-update-dashboard"/>
+        <a href="<%= url_for :action => 'index', :resource => params[:resource] -%>"><%= message('cancel') -%></a>
+      </td>
+    </tr>
+    </tbody>
   </table>
+  <input type="hidden" name="global" value="<%= @dashboard.global -%>"/>
 </form>
