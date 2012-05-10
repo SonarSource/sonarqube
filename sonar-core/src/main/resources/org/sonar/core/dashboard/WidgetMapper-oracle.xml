@@ -9,7 +9,7 @@
     </selectKey>
     INSERT INTO widgets (id, dashboard_id, widget_key, name, description, column_index, row_index, configured, created_at, updated_at, resource_id)
     VALUES (#{id}, #{dashboardId}, #{key}, #{name, jdbcType=VARCHAR}, #{description, jdbcType=VARCHAR}, #{columnIndex, jdbcType=INTEGER}, 
-            #{rowIndex, jdbcType=INTEGER}, #{configured}, #{createdAt, jdbcType=TIMESTAMP}, #{updatedAt, jdbcType=TIMESTAMP}, #{resource_id, jdbcType=INTEGER})
+            #{rowIndex, jdbcType=INTEGER}, #{configured}, #{createdAt, jdbcType=TIMESTAMP}, #{updatedAt, jdbcType=TIMESTAMP}, #{resourceId, jdbcType=INTEGER})
   </insert>
 
 </mapper>
