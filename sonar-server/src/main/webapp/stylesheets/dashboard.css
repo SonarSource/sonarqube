@@ -43,15 +43,8 @@
 }
 
 #dashboard .widget-title {
-    background-color: #DDD;
-    color: #4B9FD5;
-    /* background-color: #4B9FD5; */
-        /* background-color: #CAE3F2; */
-    /* color: #EFEFEF; */
-        /* color: #4B9FD5; */
-    /* border-top: 1px solid #DDD; */
-    /* border-left: 1px solid #DDD; */
-    /* border-right: 1px solid #DDD; */
+  background-color: #4B9FD5;
+  color: #EFEFEF;
   padding: 3px 0 3px 5px;
   height: 16px;
   line-height: 16px;
