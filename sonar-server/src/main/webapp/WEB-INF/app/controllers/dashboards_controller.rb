@@ -111,39 +111,11 @@ class DashboardsController < ApplicationController
   end
 
   def down
-    add_default_dashboards_if_first_user_dashboard
-    dashboard_index=-1
-    current_user.active_dashboards.each_with_index do |ad, index|
-      ad.order_index=index+1
-      if ad.dashboard_id==params[:id].to_i
-        dashboard_index=index
-      end
-    end
-    if dashboard_index>-1 && dashboard_index<current_user.active_dashboards.size-1
-      current_user.active_dashboards[dashboard_index].order_index+=1
-      current_user.active_dashboards[dashboard_index+1].order_index-=1
-    end
-    current_user.active_dashboards.each do |ad|
-      ad.save
-    end
-    redirect_to :action => 'index', :resource => params[:resource]
+    position(+1)
   end
 
   def up
-    add_default_dashboards_if_first_user_dashboard
-    dashboard_index=-1
-    current_user.active_dashboards.each_with_index do |ad, index|
-      ad.order_index=index+1
-      dashboard_index=index if ad.dashboard_id==params[:id].to_i
-    end
-    if dashboard_index>0
-      current_user.active_dashboards[dashboard_index].order_index-=1
-      current_user.active_dashboards[dashboard_index-1].order_index+=1
-    end
-    current_user.active_dashboards.each do |ad|
-      ad.save
-    end
-    redirect_to :action => 'index', :resource => params[:resource]
+    position(-1)
   end
 
   def follow
@@ -174,6 +146,31 @@ class DashboardsController < ApplicationController
   end
 
   private
+
+  def position(offset)
+    add_default_dashboards_if_first_user_dashboard
+
+    dashboards=current_user.active_dashboards.to_a
+
+    to_move = dashboards.find { |a| a.dashboard_id == params[:id].to_i}
+    if to_move
+      dashboards_with_same_type=dashboards.select { |a| (a.global? == to_move.global?) }
+
+      switch_with=nil
+      if offset < 0
+        switch_with = dashboards_with_same_type.select { |a| a.order_index <= (to_move.order_index + offset) }.max_by(&:order_index)
+      elsif offset > 0
+        switch_with = dashboards_with_same_type.select { |a| a.order_index >= (to_move.order_index + offset) }.min_by(&:order_index)
+      end
+      if switch_with
+        switch_with.order_index, to_move.order_index = to_move.order_index, switch_with.order_index
+        to_move.save
+        switch_with.save
+      end
+    end
+
+    redirect_to :action => 'index', :resource => params[:resource]
+  end
 
   def load_dashboard_from_params(dashboard)
     dashboard.name=params[:name]
