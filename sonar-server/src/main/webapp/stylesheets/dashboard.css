@@ -21,9 +21,6 @@
   padding: 10px;
   margin: 0;
   border: 1px solid #ddd;
-  border-radius: 0 0 3px 3px;
-  -moz-border-radius: 0 0 3px 3px;
-  -webkit-border-radius: 0 0 3px 3px;
 }
 
 #dashboard .block {
@@ -46,15 +43,19 @@
 }
 
 #dashboard .widget-title {
-  background-color: #4B9FD5;
-  color: #EFEFEF;
+    background-color: #DDD;
+    color: #4B9FD5;
+    /* background-color: #4B9FD5; */
+        /* background-color: #CAE3F2; */
+    /* color: #EFEFEF; */
+        /* color: #4B9FD5; */
+    /* border-top: 1px solid #DDD; */
+    /* border-left: 1px solid #DDD; */
+    /* border-right: 1px solid #DDD; */
   padding: 3px 0 3px 5px;
   height: 16px;
   line-height: 16px;
   vertical-align: middle;
-  border-radius: 3px 3px 0 0;
-  -moz-border-radius: 3px 3px 0 0;
-  -webkit-border-radius: 3px 3px 0 0;
 }
 
 /*CONFIGURATION*/
@@ -233,9 +234,6 @@
   background-color: #efefef;
   border: 1px solid #ddd;
   border-bottom: 0;
-  border-radius: 3px 3px 0 0;
-  -moz-border-radius: 3px 3px 0 0;
-  -webkit-border-radius: 3px 3px 0 0;
 }
 
 #dashboard .widget-handle {
@@ -266,12 +264,4 @@
   box-shadow: 8px 8px 8px #ddd;
   -moz-box-shadow: 8px 8px 8px #ddd;
   -webkit-box-shadow: 8px 8px 8px #ddd;
-}
-
-/*FILTERS*/
-#dashboard .filter-title {
-  font-style: italic;
-  font-weight: bold;
-  position: absolute;
-  top: 10px;
 }
