@@ -1,61 +1,51 @@
 <% is_admin=is_admin? %>
-<table width="100%">
-  <tr>
-    <td valign="top">
 
-      <%= render :partial => 'list', :locals => { :active_dashboards => @actives.select { |a| a.dashboard.global }, :group => 'dashboardsGlobal', :labelKey => 'dashboard.my_project_dashboards', :is_admin => is_admin } %>
-      <br/><br/>
+<div id="my_dasboards">
+  <%= render :partial => 'list', :locals => {:active_dashboards => @actives.select(&:global?), :group => 'dashboardsGlobal', :labelKey => 'dashboard.my_global_dashboards', :is_admin => is_admin} %>
+  <%= render :partial => 'list', :locals => {:active_dashboards => @actives.reject(&:global?), :group => 'dashboardsProject', :labelKey => 'dashboard.my_project_dashboards', :is_admin => is_admin} %>
 
-      <%= render :partial => 'list', :locals => { :active_dashboards => @actives.reject { |a| a.dashboard.global }, :group => 'dashboardsProject', :labelKey => 'dashboard.my_global_dashboards', :is_admin => is_admin } %>
-      <br/><br/>
-
-      <h1 class="marginbottom10"><%= message('dashboard.shared_dashboards') -%></h1>
-      <table class="data" id="shared-dashboards">
-        <thead>
-        <tr>
-          <th><%= message('name') -%></th>
-          <th><%= message('global') -%></th>
-          <th><%= message('shared_by') -%></th>
-          <th><%= message('operations') -%></th>
+  <h1><%= message('dashboard.shared_dashboards') -%></h1>
+  <table class="data" id="shared-dashboards">
+    <thead>
+    <tr>
+      <th class="dashboard_name"><%= message('name') -%></th>
+      <th><%= message('shared_by') -%></th>
+      <th><%= message('global') -%></th>
+      <th class="right"><%= message('operations') -%></th>
+    </tr>
+    </thead>
+    <tbody>
+    <% if @shared_dashboards.nil? || @shared_dashboards.empty? %>
+      <tr class="even">
+        <td colspan="5"><%= message('dashboard.no_dashboard') -%></td>
+      </tr>
+    <%
+       else
+         @shared_dashboards.each do |dashboard| %>
+        <tr id="shared-dashboard-<%= u dashboard.name -%>" class="<%= cycle('even', 'odd', :name => 'shared') -%>">
+          <td>
+            <%= link_to dashboard.name(true), {:controller => :dashboard, :action => :index, :id => params[:resource], :did => dashboard.id} -%>
+            <% if dashboard.description.present? %>
+              <p class="small"><%= h dashboard.description -%></p>
+            <% end %>
+          </td>
+          <td>
+            <%= dashboard.user_name -%>
+          </td>
+          <td>
+            <%= boolean_icon(dashboard.global) -%>
+          </td>
+          <td class="thin nowrap right">
+            <%= link_to message('follow'), {:action => 'follow', :id => dashboard.id, :resource => params[:resource]}, :method => :post, :id => "follow-#{u dashboard.name}", :class => 'link-action' %>
+          </td>
         </tr>
-        </thead>
-        <tbody>
-        <% if @shared_dashboards.nil? || @shared_dashboards.empty? %>
-          <tr class="even">
-            <td colspan="5"><%= message('dashboard.no_dashboard') -%></td>
-          </tr>
-        <%
-           else
-             @shared_dashboards.each do |dashboard| %>
-            <tr id="shared-dashboard-<%= u dashboard.name -%>" class="<%= cycle('even', 'odd', :name => 'shared') -%>">
-              <td>
-                <%= link_to dashboard.name(true), {:controller => :dashboard, :action => :index, :id => params[:resource], :did => dashboard.id} -%>
-                <% if dashboard.description.present? %>
-                  <p class="small"><%= h dashboard.description -%></p>
-                <% end %>
-              </td>
-              <td>
-                <%= boolean_icon(dashboard.global) -%>
-              </td>
-              <td>
-                <%= dashboard.user_name -%>
-              </td>
-              <td class="thin nowrap right">
-                <%= link_to message('follow'), {:action => 'follow', :id => dashboard.id, :resource => params[:resource]}, :method => :post, :id => "follow-#{u dashboard.name}",
-                            :class => 'link-action' %>
-              </td>
-            </tr>
-          <% end
-             end
-          %>
-        </tbody>
-      </table>
-    </td>
-    <td class="sep"></td>
-    <td width="210" valign="top" align="right">
-      <div id="admin_form">
-        <%= render :partial => 'dashboards/create' %>
-      </div>
-    </td>
-  </tr>
-</table>
+      <% end
+         end
+      %>
+    </tbody>
+  </table>
+</div>
+
+<div id="create_dashboard">
+  <%= render :partial => 'dashboards/create' %>
+</div>

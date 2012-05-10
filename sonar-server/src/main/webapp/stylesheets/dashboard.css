@@ -26,7 +26,7 @@
 }
 
 #dashboard .block {
-    margin: 0 0 10px 0;
+  margin: 0 0 10px 0;
 }
 
 #dashboard .configure_widget {
@@ -44,43 +44,43 @@
 }
 
 #dashboard .widget .widget-title {
-    font-style: italic;
-    font-weight: bold;
-    margin-bottom: 10px;
+  font-style: italic;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 
 /*CONFIGURATION*/
 #dashboard #configure {
-    position: relative;
-    height: 260px;
-    margin: 5px 0 10px 0;
+  position: relative;
+  height: 260px;
+  margin: 5px 0 10px 0;
 }
 
 #dashboard #widget_defs, #dashboard #edit-layout {
-    background-color: #FFF6BF;
-    border: 2px solid #FFD324;
-    padding: 3px;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
+  background-color: #FFF6BF;
+  border: 2px solid #FFD324;
+  padding: 3px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
 }
 
 #dashboard #widget_defs {
-    margin-right: 104px;
-    overflow-y: auto;
-    height: 250px;
+  margin-right: 104px;
+  overflow-y: auto;
+  height: 250px;
 }
 
 #dashboard #edit-layout {
-    width: 86px;
-    height: 248px;
-    position: absolute;
-    right: 0;
-    top: 0;
-    padding-top: 5px;
+  width: 86px;
+  height: 248px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding-top: 5px;
 }
 
 #dashboard #edit-layout p {
-    margin-bottom: 5px;
+  margin-bottom: 5px;
 }
 
 #dashboard #widget_defs td {
@@ -108,15 +108,40 @@
 }
 
 #dashboard .select-layout {
-    float: left;
+  float: left;
 }
 
 #dashboard .select-layout img {
-    border: 3px solid #FFF6BF;
+  border: 3px solid #FFF6BF;
 }
 
 #dashboard .select-layout.selected img {
-    border: 3px solid #4B9FD5;
+  border: 3px solid #4B9FD5;
+}
+
+#default_dashboards table, #my_dasboards table {
+  margin-top: 10px;
+  margin-bottom: 50px;
+}
+
+#default_dashboards .dashboard_name, #my_dasboards .dashboard_name {
+  width: 200px;
+}
+
+#default_dashboards .description, #my_dasboards .description {
+  font-size: 85%;
+  font-weight: normal;
+}
+
+#my_dasboards {
+  margin-right: 260px;
+}
+
+#create_dashboard {
+  width: 240px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
 }
 
 /*OPERATIONS*/

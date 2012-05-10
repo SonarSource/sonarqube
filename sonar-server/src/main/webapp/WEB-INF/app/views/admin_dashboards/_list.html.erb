@@ -1,32 +1,32 @@
 <table class="data">
   <thead>
   <tr>
-    <th><%= message('name') -%></th>
+    <th class="dashboard_name"><%= message('name') -%></th>
     <th><%= message('shared_by') -%></th>
-    <th colspan="2" class="right"><%= message('operations') -%></th>
+    <th><%= message('order') -%></th>
+    <th class="right"><%= message('operations') -%></th>
   </tr>
   </thead>
   <tbody>
   <% if active_dashboards.empty? %>
     <tr class="even">
-      <td colspan="5">No results.</td>
+      <td colspan="4"><%= message('dashboard.no_dashboard') -%></td>
     </tr>
   <% else %>
     <% active_dashboards.each_with_index do |active, index| %>
       <tr id="active-<%= u active.name -%>" class="<%= cycle('even', 'odd', :name => group) -%>">
         <td>
-          <%= h(active.name(true)) %>
-          <br>
-          <span style="font-size: 85%;font-weight: normal;"><%= active.dashboard.description %></span>
+          <div><%= h(active.name(true)) -%></div>
+          <div class="description"><%= active.dashboard.description -%></div>
         </td>
         <td><%= h(active.dashboard.user.name) if active.dashboard.user %></td>
         <td>
-          <% if index>0 %>
+          <% if index > 0 %>
             <%= link_to image_tag('blue-up.png'), {:action => :up, :id => active.id}, :method => :post, :id => "up-#{u active.name}" %>
           <% else %>
             <%= image_tag('transparent_16.gif') %>
           <% end %>
-          <% if index<active_dashboards.size-1 %>
+          <% if index < active_dashboards.size-1 %>
             <%= link_to image_tag('blue-down.png'), {:action => :down, :id => active.id}, :method => :post, :id => "down-#{u active.name}" %>
           <% end %>
         </td>

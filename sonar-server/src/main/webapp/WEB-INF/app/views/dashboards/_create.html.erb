@@ -1,9 +1,8 @@
-<table class="admintable" width="100%">
-  <form action="<%= url_for :action => 'create', :resource => params[:resource] -%>" id="create-dashboard-form" method="POST">
+<h1><%= message('dashboard.create_dashboard') -%></h1>
+
+<form action="<%= url_for :action => 'create', :resource => params[:resource] -%>" id="create-dashboard-form" method="POST">
+  <table class="admintable" width="100%">
     <tbody>
-    <tr>
-      <td colspan="2"><h1><%= message('dashboard.create_dashboard') -%></h1></td>
-    </tr>
     <tr>
       <td class="left" valign="top" colspan="2">
         <%= message('name') -%>:<br/><input type="text" name="name" size="30" maxlength="256">
@@ -30,8 +29,9 @@
       </td>
     </tr>
     </tbody>
-  </form>
-</table>
+  </table>
+</form>
+
 <script>
   $('create-dashboard-form').name.focus();
 </script>

@@ -1,8 +1,9 @@
-<h1 class="marginbottom10"><%= message(labelKey) -%></h1>
-<table class="data marginbottom10" id="dashboards">
+<h1><%= message(labelKey) -%></h1>
+
+<table class="data" id="dashboards">
   <thead>
   <tr>
-    <th><%= message('name') -%></th>
+    <th class="dashboard_name"><%= message('name') -%></th>
     <% if is_admin %>
       <th><%= message('shared') -%></th>
     <% end %>
@@ -13,17 +14,14 @@
   <tbody>
   <% if active_dashboards.nil? || active_dashboards.empty? %>
     <tr class="even">
-      <td colspan="5"><%= message('dashboard.no_dashboard') -%></td>
+      <td colspan="4"><%= message('dashboard.no_dashboard') -%></td>
     </tr>
-  <%
-     else
-       active_dashboards.each_with_index do |active, index| %>
+  <% else %>
+    <% active_dashboards.each_with_index do |active, index| %>
       <tr id="dashboard-<%= u active.name -%>" class="<%= cycle('even', 'odd', :name => group) -%>">
         <td>
-          <%= link_to active.name(true), {:controller => :dashboard, :action => :index, :did => active.dashboard_id, :id => (params[:resource] unless active.dashboard.global) } -%>
-          <% if active.dashboard.description.present? %>
-            <p class="small"><%= h active.dashboard.description -%></p>
-          <% end %>
+          <%= link_to active.name(true), {:controller => :dashboard, :action => :index, :did => active.dashboard_id, :id => (params[:resource] unless active.global?)} -%>
+          <div class="description"><%= h active.dashboard.description -%></div>
         </td>
         <% if is_admin %>
           <td>
@@ -31,27 +29,29 @@
           </td>
         <% end %>
         <td>
-          <% if index>0 %>
+          <% if index > 0 %>
             <%= link_to image_tag('blue-up.png'), {:action => 'up', :id => active.dashboard_id, :resource => params[:resource]}, :method => :post, :id => "up-#{u active.name}" %>
           <% else %>
             <%= image_tag('transparent_16.gif') %>
           <% end %>
-          <% if index<active_dashboards.size-1 %>
+          <% if index < active_dashboards.size-1 %>
             <%= link_to image_tag('blue-down.png'), {:action => 'down', :id => active.dashboard.id, :resource => params[:resource]}, :method => :post, :id => "down-#{u active.name}" %>
           <% end %>
         </td>
         <td class="thin nowrap right">
           <% if active.owner?(current_user) %>
-            <%= link_to message('dashboard.configure_widgets'), {:controller => :dashboard, :action => 'configure', :did => active.dashboard_id, :id => (params[:resource] unless active.dashboard.global)},
+            <%= link_to message('dashboard.configure_widgets'), {:controller => :dashboard, :action => :configure, :did => active.dashboard_id, :id => (params[:resource] unless active.global?)},
                         :id => "configure-#{u active.name}", :class => 'link-action' %>
             |
-            <%= link_to_remote message('edit'), {:update => "admin_form", :url => {:action => "edit", :id => active.dashboard_id, :resource => params[:resource]}},
+            <%= link_to_remote message('edit'), {:update => "create_dashboard", :url => {:action => :edit, :id => active.dashboard_id, :resource => params[:resource]}},
                                {:id => "edit-#{u active.name}", :method => :get, :class => 'link-action'} %>
+            <% if active_dashboards.size() > 1 %>
             |
-            <%= link_to message('delete'), {:action => 'delete', :id => active.dashboard_id, :resource => params[:resource]}, :method => :post,
+              <%= link_to message('delete'), {:action => :delete, :id => active.dashboard_id, :resource => params[:resource]}, :method => :post,
                         :confirm => message('dashboard.do_you_want_to_delete_dashboard'), :id => "delete-#{u active.name}", :class => 'link-action' %>
+            <% end %>
           <% elsif active_dashboards.size() > 1 %>
-            <%= link_to message('unfollow'), {:action => 'unfollow', :id => active.dashboard_id, :resource => params[:resource]}, :method => :post,
+            <%= link_to message('unfollow'), {:action => :unfollow, :id => active.dashboard_id, :resource => params[:resource]}, :method => :post,
                         :id => "unfollow-#{u active.name}", :class => 'link-action' %>
           <% end %>
         </td>

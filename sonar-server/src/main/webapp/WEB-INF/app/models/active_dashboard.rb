@@ -35,6 +35,10 @@ class ActiveDashboard < ActiveRecord::Base
     dashboard.shared
   end
 
+  def global?
+    dashboard.global
+  end
+
   def owner?(user)
     dashboard.owner?(user)
   end
