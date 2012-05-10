@@ -126,7 +126,7 @@
               <li class="<%= 'selected' if controller.controller_path=='manual_rules' -%>">
                 <a href="<%= ApplicationController.root_context -%>/manual_rules/index"><%= message('manual_rules.page') -%></a></li>
               <li class="<%= 'selected' if controller.controller_path=='admin_filters' -%>">
-                <a href="<%= ApplicationController.root_context -%>/admin_filters/index"><%= message('default_filters.page') -%></a></li>
+                <a href="<%= ApplicationController.root_context -%>/filters/manage"><%= message('default_filters.page') -%></a></li>
               <li class="<%= 'selected' if controller.controller_path=='admin_dashboards' -%>">
                 <a href="<%= ApplicationController.root_context -%>/admin_dashboards/index"><%= message('default_dashboards.page') -%></a></li>
               <% controller.java_facade.getPages(Navigation::SECTION_CONFIGURATION, nil, nil, nil, nil).each do |page|

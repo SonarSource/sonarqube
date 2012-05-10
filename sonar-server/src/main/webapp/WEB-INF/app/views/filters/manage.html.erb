@@ -1,80 +1,39 @@
-<%= render :partial => 'filters/tabs', :locals => {:selected_tab => nil} %>
+<%= render :partial => 'menu' %>
 
-<h1><%= message('filters.my_filters') -%></h1>
-<br/>
-<table class="data" id="actives">
-  <thead>
+<div class="admin_page">
+  <h1><%= message('filters.my_filters') -%></h1>
+
+  <table class="data" id="actives">
+    <thead>
     <tr>
       <th><%= message('name') -%></th>
-      <th><%= message('author') -%></th>
       <th><%= message('shared') -%></th>
-      <th><%= message('order') -%></th>
-      <th><%= message('operations') -%></th>
+      <th class="right"><%= message('operations') -%></th>
     </tr>
-  </thead>
-  <tbody>
-  <% if @actives.nil? || @actives.empty? %>
-  <tr class="even"><td colspan="5"><%= message('filters.no_filters') -%></td></tr>
-
-  <%
-    else
-      @actives.each_with_index do |active,index| %>
-      <tr id="active-<%= u active.name -%>" class="<%= cycle('even','odd', :name => 'actives') -%>">
-        <td><%= active.name %></td>
-        <td>
-          <%= h(active.author_name) %>
-        </td>
-        <td>
-          <%= boolean_icon(active.filter.shared, {:display_false => false}) -%>
-        </td>
-        <td>
-          <% if index>0 %>
-            <%= link_to image_tag('blue-up.png'), {:action => :up, :id => active.id}, :method => :post, :id => "up-#{u active.name}" %>
-          <% else %>
-            <%= image_tag('transparent_16.gif') %>
-          <% end %>
-          <% if index<@actives.size-1 %>
-            <%= link_to image_tag('blue-down.png'), {:action => :down, :id => active.id}, :method => :post, :id => "down-#{u active.name}" %>
-          <% end %>
-        </td>
-        <td>
-          <% if active.filter.authorized_to_edit?(self) %>
-            <%= link_to message('edit'), {:action => 'edit', :id => active.filter_id}, :id => "edit-#{u active.name}"  %> |
-            <%= link_to message('delete'), {:action => 'deactivate', :id => active.filter_id}, :method => :post, :confirm => message('filters.do_you_want_to_delete'), :id => "delete-#{u active.name}" %>
-          <% else %>
-            <%= link_to message('unfollow'), {:action => 'deactivate', :id => active.filter_id}, :method => :post, :confirm => message('filters.do_you_want_to_stop_following'), :id => "unfollow-#{u active.name}" %>
-          <% end %>
-        </td>
+    </thead>
+    <tbody>
+    <% if @filters.empty? %>
+      <tr class="even">
+        <td colspan="3"><%= message('filters.no_filters') -%></td>
       </tr>
-  <%  end
-    end
-  %>
-  </tbody>
-</table>
-
-<br/><br/><br/>
-<h1><%= message('filters.shared_filters') -%></h1>
-<p><%= message('filters.shared_filters_description') -%></p>
-<br/>
-<table class="data" id="shared">
-  <thead>
-    <tr>
-      <th><%= message('name') -%></th>
-      <th><%= message('author') -%></th>
-      <th><%= message('operations') -%></th>
-    </tr>
-  </thead>
-  <tbody>
-  <% if @shared_filters.nil? || @shared_filters.empty? %>
-    <tr class="even"><td colspan="3"><%= message('no_results') -%>.</td></tr>
-  <% else %>
-    <% @shared_filters.each do |filter| %>
-      <tr class="<%= cycle('even', 'odd') -%>">
-        <td><%= h(filter.name) -%></td>
-        <td><%= h(filter.user.name) if filter.user -%></td>
-        <td><%= link_to 'Follow', {:action => 'activate', :id => filter.id}, :method => :post, :id => "add-#{u filter.name}" %></td>
-      </tr>
+    <% else %>
+      <% @filters.each do |filter| %>
+        <tr id="active-<%= u filter.name -%>" class="<%= cycle('even', 'odd', :name => 'actives') -%>">
+          <td>
+            <%= filter.name -%>
+          </td>
+          <td>
+            <%= boolean_icon(filter.shared, {:display_false => false}) -%>
+          </td>
+          <td class="thin nowrap right">
+            <% if filter.authorized_to_edit?(self) %>
+              <%= link_to message('edit'), {:action => :edit, :id => filter.id}, :id => "edit-#{u filter.name}", :class => 'link-action' %> |
+              <%= link_to message('delete'), {:action => :delete, :id => filter.id}, :method => :post, :confirm => message('filters.do_you_want_to_delete'), :id => "delete-#{u filter.name}", :class => 'link-action' %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
     <% end %>
-  <% end %>
-  </tbody>
-</table>
+    </tbody>
+  </table>
+</div>

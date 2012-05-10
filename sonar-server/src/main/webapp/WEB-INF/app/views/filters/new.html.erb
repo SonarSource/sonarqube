@@ -1,206 +1,211 @@
-<%= render :partial => 'filters/tabs', :locals => {:selected_tab=> (@filter.id ? @filter.id : 'new')} %>
-<style>
-table#columns td {
-  text-align: left;
-   padding: 0 5px;
-   font-weight: normal;
-}
-</style>
-<script>
-  function searchPopup(elt, text) {
-    newwindow=window.open(elt.href,'search','height=500,width=700,scrollbars=1,resizable=1');
-    if (window.focus) {
-      newwindow.focus();
-    }
-    return false;
-  }
-</script>
-<div class="tabs-panel">
+<%= render :partial => 'menu' %>
+
+<h1><%= message('filters.new') -%></h1>
+
 <div class="admin">
   <form id="filter_form" name="filter_form" action="<%= url_for :action => (@filter.id ? 'update' : 'create'), :id => @filter.id -%>" method="post">
-    <input type="hidden" name="preview" value="" />
+    <input type="hidden" name="preview" value=""/>
     <%= error_messages_for 'filter', :header_message => nil, :class => 'formError', :message => nil %>
     <table class="form">
       <tbody>
       <tr>
         <td class="keyCell"><%= message('name') -%>:</td>
         <td>
-          <input type="text" name="name" id="name" value="<%= @filter.name -%>" class="spaced"></input>
+          <input type="text" name="name" id="name" value="<%= @filter.name -%>" class="spaced"/>
           <% if is_admin? %>
-          <span class="spacer"></span>
-          <label for="shared"><%= message('shared') -%>:</label>
-          <input type="checkbox" name="shared" id="shared" <%= 'checked' if @filter.shared -%>></input>
+            <span class="spacer"></span>
+            <label for="shared"><%= message('shared') -%>:</label>
+            <input type="checkbox" name="shared" id="shared" <%= 'checked' if @filter.shared -%> />
           <% end %>
         </td>
       </tr>
       </tbody>
       <tbody id="simple-form">
-        <tr>
-          <td class="keyCell"><%= message('path') -%>:</td>
-          <td>
-            <b><span id="path_name"><%= @filter.resource ? @filter.resource.path_name : params[:path_name] -%></span></b>
-            <input type="hidden" name="path_id" id="path_id" value="<%= @filter.resource ? @filter.resource.id : params[:path_id] -%>"></input>
-            <a onclick="searchPopup(this);return false;" href="<%= url_for :action => :search_path, :search => (@filter.resource ? @filter.resource.name : nil) -%>"><%= message('search_verb') -%></a>
-            <a href="#" onClick="$('path_name').innerText='';$('path_name').innerHTML='';Form.Element.clear('path_id');return false;"><%= message('reset_verb') -%></a>
-          </td>
-        </tr>
-        <tr>
-          <td class="keyCell"><%= message('filters.search_for') -%>:</td>
-          <td>
-            <% qualifiers=(@filter.criterion('qualifier') ? @filter.criterion('qualifier').text_values : []) %>
+      <tr>
+        <td class="keyCell"><%= message('path') -%>:</td>
+        <td>
+          <b><span id="path_name"><%= @filter.resource ? @filter.resource.path_name : params[:path_name] -%></span></b>
+          <input type="hidden" name="path_id" id="path_id" value="<%= @filter.resource ? @filter.resource.id : params[:path_id] -%>"/>
+          <a onclick="searchPopup(this);return false;" href="<%= url_for :action => :search_path, :search => (@filter.resource ? @filter.resource.name : nil) -%>"><%= message('search_verb') -%></a>
+          <a href="#" onClick="$('path_name').innerText='';$('path_name').innerHTML='';Form.Element.clear('path_id');return false;"><%= message('reset_verb') -%></a>
+        </td>
+      </tr>
+      <tr>
+        <td class="keyCell"><%= message('filters.search_for') -%>:</td>
+        <td>
+          <% qualifiers=(@filter.criterion('qualifier') ? @filter.criterion('qualifier').text_values : []) %>
 
-              <input type="checkbox" name="qualifiers[]" value="TRK" <%= 'checked' if qualifiers.include?('TRK') -%> id="q-TRK"></input> <label for="q-TRK"><%= message('qualifiers.TRK') -%></label>
-              <span class="spacer"> </span>
+          <input type="checkbox" name="qualifiers[]" value="TRK" <%= 'checked' if qualifiers.include?('TRK') -%> id="q-TRK"/>
+          <label for="q-TRK"><%= message('qualifiers.TRK') -%></label>
+          <span class="spacer"> </span>
 
-              <input type="checkbox" name="qualifiers[]" value="BRC" <%= 'checked' if qualifiers.include?('BRC') -%> id="q-BRC"></input> <label for="q-BRC"><%= message('qualifiers.BRC') -%></label>
-              <span class="spacer"> </span>
+          <input type="checkbox" name="qualifiers[]" value="BRC" <%= 'checked' if qualifiers.include?('BRC') -%> id="q-BRC"/>
+          <label for="q-BRC"><%= message('qualifiers.BRC') -%></label>
+          <span class="spacer"> </span>
 
-              <input type="checkbox" name="qualifiers[]" value="DIR,PAC" <%= 'checked' if qualifiers.include?('DIR') -%> id="q-DIR"></input> <label for="q-DIR"><%= message('qualifiers.DIR') -%>/<%= message('qualifiers.PAC') -%></label>
-              <span class="spacer"> </span>
+          <input type="checkbox" name="qualifiers[]" value="DIR,PAC" <%= 'checked' if qualifiers.include?('DIR') -%> id="q-DIR"/>
+          <label for="q-DIR"><%= message('qualifiers.DIR') -%>/<%= message('qualifiers.PAC') -%></label>
+          <span class="spacer"> </span>
 
-              <input type="checkbox" name="qualifiers[]" value="FIL,CLA" <%= 'checked' if qualifiers.include?('FIL') -%> id="q-FIL"></input> <label for="q-FIL"><%= message('qualifiers.FIL') -%></label>
-              <span class="spacer"> </span>
+          <input type="checkbox" name="qualifiers[]" value="FIL,CLA" <%= 'checked' if qualifiers.include?('FIL') -%> id="q-FIL"/>
+          <label for="q-FIL"><%= message('qualifiers.FIL') -%></label>
+          <span class="spacer"> </span>
 
-              <input type="checkbox" name="qualifiers[]" value="UTS" <%= 'checked' if qualifiers.include?('UTS') -%> id="q-UTS"></input> <label for="q-UTS"><%= message('qualifiers.UTS') -%></label>
-              <span class="spacer"> </span>
+          <input type="checkbox" name="qualifiers[]" value="UTS" <%= 'checked' if qualifiers.include?('UTS') -%> id="q-UTS"/>
+          <label for="q-UTS"><%= message('qualifiers.UTS') -%></label>
+          <span class="spacer"> </span>
 
-              <% for desc in controller.java_facade.getResourceTypesForFilter()
-                   qualifier = desc.getQualifier() %>
-                <input type="checkbox" name="qualifiers[]" value="<%= qualifier -%>" <%= 'checked' if qualifiers.include?(qualifier) -%> id="q-<%= qualifier -%>"></input>
-                <label for="q-<%= qualifier -%>"><%= message("qualifiers.#{qualifier}") -%></label>
-                <span class="spacer"> </span>
-              <% end %>
-          </td>
-        </tr>
-        <tr>
-          <td class="keyCell"><%= message('filters.criteria') -%>:</td>
-          <td>
-            <%= render :partial => 'filters/criterion', :locals => {:id => '0', :criterion => (@filter.measure_criteria.size>0 ? @filter.measure_criteria[0] : nil)} %>
-          </td>
-        </tr>
-        <tr>
-          <td class="keyCell"><%= message('and').downcase -%>: </td>
-          <td>
-            <%= render :partial => 'filters/criterion', :locals => {:id => '1', :criterion => (@filter.measure_criteria.size>1 ? @filter.measure_criteria[1] : nil) } %>
-          </td>
-        </tr>
-        <tr>
-          <td class="keyCell"><%= message('and').downcase -%>: </td>
-          <td>
-            <%= render :partial => 'filters/criterion', :locals => {:id => '2', :criterion => (@filter.measure_criteria.size>2 ? @filter.measure_criteria[2] : nil) } %>
-          </td>
-        </tr>
-        <% unless @filter.advanced_search? %>
+          <% for desc in controller.java_facade.getResourceTypesForFilter()
+               qualifier = desc.getQualifier() %>
+            <input type="checkbox" name="qualifiers[]" value="<%= qualifier -%>" <%= 'checked' if qualifiers.include?(qualifier) -%> id="q-<%= qualifier -%>"/>
+            <label for="q-<%= qualifier -%>"><%= message("qualifiers.#{qualifier}") -%></label>
+            <span class="spacer"> </span>
+          <% end %>
+        </td>
+      </tr>
+      <tr>
+        <td class="keyCell"><%= message('filters.criteria') -%>:</td>
+        <td>
+          <%= render :partial => 'filters/criterion', :locals => {:id => '0', :criterion => (@filter.measure_criteria.size>0 ? @filter.measure_criteria[0] : nil)} %>
+        </td>
+      </tr>
+      <tr>
+        <td class="keyCell"><%= message('and').downcase -%>:</td>
+        <td>
+          <%= render :partial => 'filters/criterion', :locals => {:id => '1', :criterion => (@filter.measure_criteria.size>1 ? @filter.measure_criteria[1] : nil)} %>
+        </td>
+      </tr>
+      <tr>
+        <td class="keyCell"><%= message('and').downcase -%>:</td>
+        <td>
+          <%= render :partial => 'filters/criterion', :locals => {:id => '2', :criterion => (@filter.measure_criteria.size>2 ? @filter.measure_criteria[2] : nil)} %>
+        </td>
+      </tr>
+      <% unless @filter.advanced_search? %>
         <tr id="advanced-search-link">
-          <td colspan="2"><a href="#" onClick="$('advanced-search').show();$('advanced-search-link').hide();return false;"><%= message('filters.advanced_search') -%></a></td>
+          <td colspan="2">
+            <a href="#" onClick="$('advanced-search').show();$('advanced-search-link').hide();return false;"><%= message('filters.advanced_search') -%></a>
+          </td>
         </tr>
-        <% end %>
+      <% end %>
       </tbody>
       <tbody id="advanced-search" style="<%= 'display: none' unless @filter.advanced_search? -%>">
-        <tr>
-          <td class="keyCell"><%= message('filters.default_period') -%>:</td>
-          <td>
-            <select id="period_index" name="period_index">
-              <option value=""><%= message('none') -%></option>
-              <% period_names.each_with_index do |name, index| %>
-                 <option value="<%= index+1 -%>" <%= 'selected' if @filter.period_index==index+1 -%>><%= name -%></value>
-              <% end %>
-            </select>
-          </td>
-        </tr>
-        <tr>
-          <td class="keyCell"><%= message('language') -%>:</td>
-          <td>
-            <% languages=(@filter.criterion('language') ? @filter.criterion('language').text_values : []) %>
-            <% controller.java_facade.getLanguages().each do |language| %>
-                <input type="checkbox" name="languages[]" value="<%= language.getKey() -%>" <%= 'checked' if languages.include?(language.getKey()) -%> id="lang-<%= language.getKey() -%>"> </input> <label for="lang-<%= language.getKey() -%>"><%= language.getName() -%></label>
+      <tr>
+        <td class="keyCell"><%= message('filters.default_period') -%>:</td>
+        <td>
+          <select id="period_index" name="period_index">
+            <option value=""><%= message('none') -%></option>
+            <% period_names.each_with_index do |name, index| %>
+              <option value="<%= index+1 -%>" <%= 'selected' if @filter.period_index==index+1 -%>><%= name -%></option>
             <% end %>
-            <span class="comments"><%= message('filters.when_no_language_no_filter_apply') -%></span>
-          </td>
-        </tr>
-        <tr>
-          <td class="keyCell"><%= image_tag 'star.png' %> <label for="favourites"><%= message('filters.favourite_only') -%>:</label></td>
-          <td>
-            <input type="checkbox" name="favourites" id="favourites" <%= 'checked' if @filter.favourites -%>></input>
-          </td>
-        </tr>
-        <tr>
-          <td class="keyCell"><label for="key_regexp"><%= message('filters.resource_key_like') -%>:</label></td>
-          <td>
-            <% key_regexp_criterion=@filter.criterion('key') %>
-            <input type="text" name="key_regexp" id="key_regexp" value="<%= key_regexp_criterion.text_value if key_regexp_criterion -%>"></input>
-            <span class="comments"><%= message('filters.use_star_to_match') -%></span>
-          </td>
-        </tr>
-        <tr>
-          <td class="keyCell"><label for="name_regexp"><%= message('filters.resource_name_like') -%>:</label></td>
-          <td>
-            <% name_regexp_criterion=@filter.criterion('name') %>
-            <input type="text" name="name_regexp" id="name_regexp" value="<%= name_regexp_criterion.text_value if name_regexp_criterion -%>"></input>
-            <span class="comments"><%= message('filters.use_star_to_match') -%></span>
-          </td>
-        </tr>
-        <tr>
-          <td class="keyCell"><label for="date"><%= message('filters.build_date') -%>:</label></td>
-          <td>
-            <% date_criterion = @filter.criterion('date') %>
-            <select id="date_operator" name="date_operator">
-              <option value=""></option>
-              <option value="<" <%= 'selected' if (date_criterion && date_criterion.operator=='<') -%>><%= message('filters.prior_to_last') -%></value>
-              <option value=">=" <%= 'selected' if (date_criterion && date_criterion.operator=='>=') -%>><%= message('filters.during_last') -%></value>
-            </select>
-            <input type="text" name="date_value" id="date_value" size="3" value="<%= date_criterion.value.to_i if date_criterion -%>"></input> <%= message('days').downcase -%>
-          </td>
-        </tr>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td class="keyCell"><%= message('language') -%>:</td>
+        <td>
+          <% languages=(@filter.criterion('language') ? @filter.criterion('language').text_values : []) %>
+          <% controller.java_facade.getLanguages().each do |language| %>
+            <input type="checkbox" name="languages[]" value="<%= language.getKey() -%>" <%= 'checked' if languages.include?(language.getKey()) -%> id="lang-<%= language.getKey() -%>"> </input>
+            <label for="lang-<%= language.getKey() -%>"><%= language.getName() -%></label>
+          <% end %>
+          <span class="comments"><%= message('filters.when_no_language_no_filter_apply') -%></span>
+        </td>
+      </tr>
+      <tr>
+        <td class="keyCell"><%= image_tag 'star.png' %>
+          <label for="favourites"><%= message('filters.favourite_only') -%>:</label></td>
+        <td>
+          <input type="checkbox" name="favourites" id="favourites" <%= 'checked' if @filter.favourites -%> />
+        </td>
+      </tr>
+      <tr>
+        <td class="keyCell"><label for="key_regexp"><%= message('filters.resource_key_like') -%>:</label></td>
+        <td>
+          <% key_regexp_criterion=@filter.criterion('key') %>
+          <input type="text" name="key_regexp" id="key_regexp" value="<%= key_regexp_criterion.text_value if key_regexp_criterion -%>"/>
+          <span class="comments"><%= message('filters.use_star_to_match') -%></span>
+        </td>
+      </tr>
+      <tr>
+        <td class="keyCell"><label for="name_regexp"><%= message('filters.resource_name_like') -%>:</label></td>
+        <td>
+          <% name_regexp_criterion=@filter.criterion('name') %>
+          <input type="text" name="name_regexp" id="name_regexp" value="<%= name_regexp_criterion.text_value if name_regexp_criterion -%>"/>
+          <span class="comments"><%= message('filters.use_star_to_match') -%></span>
+        </td>
+      </tr>
+      <tr>
+        <td class="keyCell"><label for="date"><%= message('filters.build_date') -%>:</label></td>
+        <td>
+          <% date_criterion = @filter.criterion('date') %>
+          <select id="date_operator" name="date_operator">
+            <option value=""></option>
+            <option value="<" <%= 'selected' if (date_criterion && date_criterion.operator=='<') -%>><%= message('filters.prior_to_last') -%></option>
+            <option value=">=" <%= 'selected' if (date_criterion && date_criterion.operator=='>=') -%>><%= message('filters.during_last') -%></option>
+          </select>
+          <input type="text" name="date_value" id="date_value" size="3" value="<%= date_criterion.value.to_i if date_criterion -%>"/> <%= message('days').downcase -%>
+        </td>
+      </tr>
       </tbody>
       <tbody>
-        <tr>
-          <td colspan="2">
-            <input type="submit" value="<%= message('save_and_preview') -%>" onclick="filter_form.preview.value='true';return true;"/>
+      <tr>
+        <td colspan="2">
+          <input type="submit" value="<%= message('save_and_preview') -%>" onclick="filter_form.preview.value='true';return true;"/>
+          <span class="spacer"> </span>
+          <input type="submit" value="<%= message('save_and_close') -%>"/>
+          <span class="spacer"> </span>
+          <% if @filter.id
+               confirmation_message = message('filters.do_you_want_to_delete')
+          %>
+            <input name="delete" class="red-button" value="<%= message('delete') -%>" type="button"
+                   onclick="if (confirm('<%= confirmation_message -%>')) { var f = document.createElement('form'); f.style.display = 'none'; this.parentNode.appendChild(f); f.method = 'POST'; f.action = '<%= url_for :action => 'delete', :id => @filter.id %>';f.submit(); };return false;">
             <span class="spacer"> </span>
-            <input type="submit" value="<%= message('save_and_close') -%>" />
-            <span class="spacer"> </span>
-            <% if @filter.id 
-                 confirmation_message = message('filters.do_you_want_to_delete')
-            %>
-              <input name="delete" class="red-button" value="<%= message('delete') -%>" type="button" 
-                     onclick="if (confirm('<%= confirmation_message -%>')) { var f = document.createElement('form'); f.style.display = 'none'; this.parentNode.appendChild(f); f.method = 'POST'; f.action = '<%= url_for :action => 'delete', :id => @filter.id %>';f.submit(); };return false;">
-              <span class="spacer"> </span>
-              <a href="<%= url_for :action => 'index', :name => @filter.name -%>"><%= message('cancel') -%></a>
-            <% else %>
-              <a href="<%= url_for :action => 'index' -%>"><%= message('cancel') -%></a>
-            <% end %>
-          </td>
-        </tr>
-    </tbody>
-  </table>
-</form>
+            <a href="<%= url_for :action => :manage, :name => @filter.name -%>"><%= message('cancel') -%></a>
+          <% else %>
+            <a href="<%= url_for :action => :manage -%>"><%= message('cancel') -%></a>
+          <% end %>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </form>
 </div>
-<script>
-$('name').focus();
-</script>
 <br/>
 
 <% if @filter_context %>
   <h1><%= message('filters.display_form.title') -%></h1>
+
   <div class="admin">
     <table class="form" id="view-form">
       <tr>
         <td class="keyCell"><%= message('filters.display_form.as') -%>:</td>
         <td>
           <form action="<%= url_for :action => :set_view, :id => @filter.id -%>" method="POST">
-            <input type="radio" name="view" value="list" <%= 'checked' if @filter.default_view==::Filter::VIEW_LIST -%> id="view-list" onClick="$('view-loading').show();submit();"></input> <label for="view-list"><%= message('filters.display_form.table') -%></label>
+            <input type="radio" name="view" value="list" <%= 'checked' if @filter.default_view==::Filter::VIEW_LIST -%> id="view-list" onClick="$('view-loading').show();submit();"/>
+            <label for="view-list"><%= message('filters.display_form.table') -%></label>
             <span class="spacer"> </span>
-            <input type="radio" name="view" value="treemap" <%= 'checked' if @filter.default_view==::Filter::VIEW_TREEMAP -%> id="view-treemap" onClick="$('view-loading').show();submit();"></input> <label for="view-treemap"><%= message('filters.display_form.treemap') -%></label>
+            <input type="radio" name="view" value="treemap" <%= 'checked' if @filter.default_view==::Filter::VIEW_TREEMAP -%> id="view-treemap" onClick="$('view-loading').show();submit();"/>
+            <label for="view-treemap"><%= message('filters.display_form.treemap') -%></label>
             <span class="spacer"> </span>
-            <%= image_tag 'loading.gif', :id => 'view-loading', :style=>'display: none' %>
+            <%= image_tag 'loading.gif', :id => 'view-loading', :style => 'display: none' %>
           </form>
         </td>
       </tr>
-      <%= render :partial => "filters/customize_#{@filter.default_view}" %>
+      <%= render :partial => "customize_#{@filter.default_view}" %>
     </table>
   </div>
   <br/>
-  <%= render :partial => "filters/#{@filter.default_view}", :locals => {:edit_mode => true} %>
+  <%= render :partial => "#{@filter.default_view}", :locals => {:edit_mode => true} %>
 <% end %>
-</div>
+
+<script>
+  function searchPopup(elt, text) {
+    newwindow = window.open(elt.href, 'search', 'height=500,width=700,scrollbars=1,resizable=1');
+    if (window.focus) {
+      newwindow.focus();
+    }
+    return false;
+  }
+  $('name').focus();
+</script>
