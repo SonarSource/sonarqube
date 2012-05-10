@@ -1,6 +1,6 @@
 <% is_admin=is_admin? %>
 
-<div id="my_dasboards">
+<div id="my_dasboards" class="admin_page">
   <%= render :partial => 'list', :locals => {:active_dashboards => @actives.select(&:global?), :group => 'dashboardsGlobal', :labelKey => 'dashboard.my_global_dashboards', :is_admin => is_admin} %>
   <%= render :partial => 'list', :locals => {:active_dashboards => @actives.reject(&:global?), :group => 'dashboardsProject', :labelKey => 'dashboard.my_project_dashboards', :is_admin => is_admin} %>
 
@@ -8,7 +8,7 @@
   <table class="data" id="shared-dashboards">
     <thead>
     <tr>
-      <th class="dashboard_name"><%= message('name') -%></th>
+      <th class="name"><%= message('name') -%></th>
       <th><%= message('shared_by') -%></th>
       <th><%= message('global') -%></th>
       <th class="right"><%= message('operations') -%></th>

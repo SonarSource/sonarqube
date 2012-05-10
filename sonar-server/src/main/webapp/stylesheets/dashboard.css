@@ -119,16 +119,16 @@
   border: 3px solid #4B9FD5;
 }
 
-#default_dashboards table, #my_dasboards table {
+.admin_page table {
   margin-top: 10px;
   margin-bottom: 50px;
 }
 
-#default_dashboards .dashboard_name, #my_dasboards .dashboard_name {
+.admin_page th.name {
   width: 200px;
 }
 
-#default_dashboards .description, #my_dasboards .description {
+.admin_page .description {
   font-size: 85%;
   font-weight: normal;
 }
