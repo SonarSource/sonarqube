@@ -119,8 +119,8 @@ public class JiraLinkReviewActionTest {
   public void shouldFailIfReviewIdNotProvided() throws Exception {
     Map<String, String> reviewContext = Maps.newHashMap();
 
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("The given review with id is not a valid number: NULL");
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("The review id is missing.");
     action.execute(reviewContext);
   }
 
@@ -129,7 +129,7 @@ public class JiraLinkReviewActionTest {
     Map<String, String> reviewContext = Maps.newHashMap();
     reviewContext.put(JiraLinkReviewAction.REVIEW_ID_PARAM, "toto");
 
-    thrown.expect(IllegalArgumentException.class);
+    thrown.expect(IllegalStateException.class);
     thrown.expectMessage("The given review with id is not a valid number: toto");
     action.execute(reviewContext);
   }
@@ -139,7 +139,7 @@ public class JiraLinkReviewActionTest {
     Map<String, String> reviewContext = Maps.newHashMap();
     reviewContext.put(JiraLinkReviewAction.REVIEW_ID_PARAM, "100");
 
-    thrown.expect(IllegalArgumentException.class);
+    thrown.expect(NullPointerException.class);
     thrown.expectMessage("The review with id '100' does not exist.");
     action.execute(reviewContext);
   }
@@ -150,7 +150,7 @@ public class JiraLinkReviewActionTest {
     reviewContext.put(JiraLinkReviewAction.REVIEW_ID_PARAM, "45");
     reviewContext.put(JiraLinkReviewAction.USER_LOGIN_PARAM, "invisible_man");
 
-    thrown.expect(IllegalArgumentException.class);
+    thrown.expect(NullPointerException.class);
     thrown.expectMessage("The user with login 'invisible_man' does not exist.");
     action.execute(reviewContext);
   }

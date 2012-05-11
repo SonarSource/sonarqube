@@ -20,6 +20,7 @@
 package org.sonar.plugins.reviews.jira;
 
 import com.atlassian.jira.rpc.soap.client.RemoteIssue;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.database.model.User;
@@ -83,24 +84,18 @@ public class JiraLinkReviewAction implements LinkReviewAction {
 
   private ReviewDto getReviewId(Map<String, String> reviewContext) {
     String reviewId = reviewContext.get(REVIEW_ID_PARAM);
-    ReviewDto review;
-    try {
-      review = reviewDao.findById(Long.parseLong(reviewId));
-    } catch (NumberFormatException e) {
-      throw new IllegalArgumentException("The given review with id is not a valid number: " + (reviewId == null ? "NULL" : reviewId));
-    }
-    if (review == null) {
-      throw new IllegalArgumentException("The review with id '" + reviewId + "' does not exist.");
-    }
+    Preconditions.checkState(StringUtils.isNotBlank(reviewId), "The review id is missing.");
+    Preconditions.checkState(StringUtils.isNumeric(reviewId), "The given review with id is not a valid number: " + reviewId);
+    ReviewDto review = reviewDao.findById(Long.parseLong(reviewId));
+    Preconditions.checkNotNull(review, "The review with id '" + reviewId + "' does not exist.");
     return review;
   }
 
   private User getUser(Map<String, String> reviewContext) {
     String userLogin = reviewContext.get(USER_LOGIN_PARAM);
+    Preconditions.checkState(StringUtils.isNotBlank(userLogin), "The user login is missing.");
     User user = userFinder.findByLogin(userLogin);
-    if (user == null) {
-      throw new IllegalArgumentException("The user with login '" + userLogin + "' does not exist.");
-    }
+    Preconditions.checkNotNull(user, "The user with login '" + userLogin + "' does not exist.");
     return user;
   }
 
