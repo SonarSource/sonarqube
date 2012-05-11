@@ -42,12 +42,14 @@ class CreateGlobalDashboardsForFilter < ActiveRecord::Migration
                                    :name => filter.name,
                                    :description => '',
                                    :column_layout => '100%',
-                                   :shared => false,
+                                   :shared => filter.shared,
                                    :is_global => true)
 
-      ActiveDashboard.create(:dashboard_id => dashboard.id,
-                             :user_id => activeFilter.user_id,
-                             :order_index => activeFilter.order_index)
+      if !filter.favourites || activeFilter.user_id
+        ActiveDashboard.create(:dashboard_id => dashboard.id,
+                               :user_id => activeFilter.user_id,
+                               :order_index => activeFilter.order_index)
+      end
 
       widget = Widget.create(:dashboard_id => dashboard.id,
                              :widget_key => 'filter',
