@@ -76,6 +76,10 @@ public abstract class ServletFilter implements ServerExtension, Filter {
       }
     }
 
+    public String getUrl() {
+      return url;
+    }
+
     @Override
     public String toString() {
       return url;
