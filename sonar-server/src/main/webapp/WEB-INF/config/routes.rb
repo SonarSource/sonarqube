@@ -33,8 +33,8 @@ ActionController::Routing::Routes.draw do |map|
   map.resources 'properties', :path_prefix => 'api', :controller => 'api/properties', :requirements => { :id => /.*/ }
 
   # home page
-  map.home '', :controller => :home, :action => :index
-  map.root :controller => :home, :action => :index
+  map.home '', :controller => :dashboard, :action => :index
+  map.root :controller => :dashboard, :action => :index
 
   # page plugins
   map.connect 'plugins/configuration/:page', :controller => 'plugins/configuration', :action => 'index', :requirements => { :page => /.*/ }

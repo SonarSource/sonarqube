@@ -31,16 +31,11 @@ class DashboardController < ApplicationController
     if !@resource || @resource.display_dashboard?
       load_dashboard()
       load_authorized_widget_definitions()
-      unless @dashboard
-        redirect_to home_path
-      end
     elsif @snapshot
       # display the layout of the parent, usually the directory, but display the file viewers
       @file = @resource
       @project = @snapshot.parent.project
       render :action => 'no_dashboard'
-    else
-      redirect_to home_path
     end
   end
 
@@ -155,8 +150,10 @@ class DashboardController < ApplicationController
         @active=ActiveDashboard.find(:first, :include => 'dashboard', :conditions => ['active_dashboards.dashboard_id=? AND active_dashboards.user_id=?', params[:did].to_i, current_user.id])
       elsif params[:name]
         @active=ActiveDashboard.find(:first, :include => 'dashboard', :conditions => ['dashboards.name=? AND active_dashboards.user_id=?', params[:name], current_user.id])
-      else
+      elsif params[:id]
         @active=ActiveDashboard.user_dashboards(current_user).find { |a| !a.global? }
+      else
+        @active=ActiveDashboard.user_dashboards(current_user).find { |a| a.global? }
       end
     end
 
@@ -166,8 +163,10 @@ class DashboardController < ApplicationController
         @active=ActiveDashboard.find(:first, :include => 'dashboard', :conditions => ['active_dashboards.dashboard_id=? AND active_dashboards.user_id IS NULL', params[:did].to_i])
       elsif params[:name]
         @active=ActiveDashboard.find(:first, :include => 'dashboard', :conditions => ['dashboards.name=? AND active_dashboards.user_id IS NULL', params[:name]])
-      else
+      elsif params[:id]
         @active=ActiveDashboard.user_dashboards(nil).find { |a| !a.global? }
+      else
+        @active=ActiveDashboard.user_dashboards(nil).find { |a| a.global? }
       end
     end
     @dashboard=(@active ? @active.dashboard : nil)
