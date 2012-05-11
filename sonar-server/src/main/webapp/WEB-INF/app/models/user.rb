@@ -90,7 +90,9 @@ class User < ActiveRecord::Base
   def deactivate
     self.active = false
     self.groups.clear
-    self.save!
+
+    # do not validate user, for example when user created via SSO has no password
+    self.save(false)
     self.user_roles.each {|role| role.delete}
     self.properties.each {|prop| prop.delete}
     self.filters.each {|f| f.destroy}
