@@ -22,6 +22,9 @@
 # Sonar 3.1
 #
 class CreateGlobalDashboardsForFilter < ActiveRecord::Migration
+  class ActiveFilter < ActiveRecord::Base
+  end
+
   class Dashboard < ActiveRecord::Base
   end
 

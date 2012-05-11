@@ -56,8 +56,6 @@ class FiltersController < ApplicationController
     if @filter.valid?
       @filter.save
 
-      # activate it by default
-      current_user.active_filters.create(:filter => @filter, :user_id => current_user.id, :order_index => (current_user.active_filters.size + 1))
       flash[:notice]='Filter saved'
 
       if params[:preview]=='true'

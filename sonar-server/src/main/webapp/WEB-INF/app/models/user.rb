@@ -24,16 +24,13 @@ class User < ActiveRecord::Base
   FAVOURITE_PROPERTY_KEY='favourite'
 
   has_and_belongs_to_many :groups
+
   has_many :user_roles, :dependent => :delete_all
-
   has_many :properties, :foreign_key => 'user_id', :dependent => :delete_all
-
-  has_many :active_filters, :include => 'filter', :order => 'order_index'
   has_many :filters, :dependent => :destroy
-
   has_many :active_dashboards, :dependent => :destroy, :order => 'order_index'
   has_many :dashboards, :dependent => :destroy
-   
+
   include Authentication
   include Authentication::ByPassword
   include Authentication::ByCookieToken
@@ -51,7 +48,7 @@ class User < ActiveRecord::Base
   validates_length_of       :login,    :within => 2..40
   validates_uniqueness_of   :login,    :case_sensitive => true
   validates_format_of       :login,    :with => Authentication.login_regex, :message => Authentication.bad_login_message
-  
+
 
   # HACK HACK HACK -- how to do attr_accessible from here?
   # prevents a user from submitting a crafted form that bypasses activation
@@ -84,7 +81,7 @@ class User < ActiveRecord::Base
     return 1 if other.name.nil?
     name.downcase<=>other.name.downcase
   end
-  
+
   # SONAR-3258 : we do not delete users anymore. Users are just deactivated.
   # However, all related data is removed from the DB.
   def deactivate
@@ -99,7 +96,7 @@ class User < ActiveRecord::Base
     self.dashboards.each {|d| d.destroy}
     self.active_dashboards.each {|ad| ad.destroy}
   end
-  
+
   # SONAR-3258
   def reactivate(default_group_name)
     if default_group_name
@@ -108,7 +105,7 @@ class User < ActiveRecord::Base
     end
     self.active = true
   end
-  
+
   def self.find_active_by_login(login)
     User.find(:first, :conditions => ["login=:login AND active=:active", {:login => login, :active => true}])
   end
@@ -157,11 +154,11 @@ class User < ActiveRecord::Base
       []
     end
   end
-  
+
   #---------------------------------------------------------------------
   # FAVOURITES
   #---------------------------------------------------------------------
-  
+
   def favourite_ids
     @favourite_ids ||=
       begin
