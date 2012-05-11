@@ -94,9 +94,7 @@ class ApplicationController < ActionController::Base
   end
 
   def check_authentication
-    if current_user.nil? && Property.value('sonar.forceAuthentication')=='true'
-      access_denied
-    end
+    access_denied if !current_user && java_facade.getConfigurationValue('sonar.forceAuthentication')=='true'
   end
 
   # i18n
