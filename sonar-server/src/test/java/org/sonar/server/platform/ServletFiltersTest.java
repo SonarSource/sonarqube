@@ -22,14 +22,13 @@ package org.sonar.server.platform;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.InOrder;
 import org.sonar.api.web.ServletFilter;
 
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -81,5 +80,41 @@ public class ServletFiltersTest {
     filters.doFilter(request, response, chain);
 
     verify(chain).doFilter(request, response);
+  }
+
+  @Test
+  public void doFilter_keep_same_order() throws Exception {
+    TrueFilter filter1 = new TrueFilter();
+    TrueFilter filter2 = new TrueFilter();
+
+    ServletFilters filters = new ServletFilters();
+    filters.init(mock(FilterConfig.class), Arrays.<ServletFilter>asList(filter1, filter2));
+
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    when(request.getRequestURI()).thenReturn("/foo/bar");
+    when(request.getContextPath()).thenReturn("");
+    ServletResponse response = mock(HttpServletResponse.class);
+    FilterChain chain = mock(FilterChain.class);
+    filters.doFilter(request, response, chain);
+
+    assertThat(filter1.count).isEqualTo(1);
+    assertThat(filter2.count).isEqualTo(2);
+  }
+
+  private static final class TrueFilter extends ServletFilter {
+    private static int globalCount = 0;
+    int count = 0;
+    public void init(FilterConfig filterConfig) throws ServletException {
+    }
+
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+      globalCount++;
+      count = globalCount;
+      filterChain.doFilter(servletRequest, servletResponse);
+    }
+
+    public void destroy() {
+    }
+
   }
 }
