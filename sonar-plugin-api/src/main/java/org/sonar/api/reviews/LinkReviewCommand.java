@@ -17,27 +17,14 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.reviews;
+package org.sonar.api.reviews;
 
-import com.google.common.collect.Lists;
-import org.sonar.api.Extension;
-import org.sonar.api.SonarPlugin;
-import org.sonar.plugins.reviews.jira.JiraLinkReviewAction;
-import org.sonar.plugins.reviews.jira.JiraLinkReviewCommand;
-import org.sonar.plugins.reviews.jira.soap.JiraSOAPClient;
+import com.google.common.annotations.Beta;
 
-import java.util.List;
+/**
+ * @since 3.1
+ */
+@Beta
+public interface LinkReviewCommand {
 
-public final class ReviewsPlugin extends SonarPlugin {
-
-  @SuppressWarnings({"rawtypes", "unchecked"})
-  public List<Class<? extends Extension>> getExtensions() {
-    List extensions = Lists.newLinkedList();
-
-    extensions.add(JiraLinkReviewCommand.class);
-    extensions.add(JiraLinkReviewAction.class);
-    extensions.add(JiraSOAPClient.class);
-
-    return extensions;
-  }
 }

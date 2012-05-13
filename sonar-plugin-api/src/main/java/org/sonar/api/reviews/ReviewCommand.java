@@ -20,11 +20,22 @@
 package org.sonar.api.reviews;
 
 import com.google.common.annotations.Beta;
+import org.sonar.api.ServerExtension;
+
+import java.util.Collection;
 
 /**
  * @since 3.1
  */
 @Beta
-public interface LinkReviewAction extends ReviewAction {
+public abstract class ReviewCommand implements ServerExtension {
+
+  public abstract String getId();
+
+  public abstract String getName();
+
+  public abstract Collection<ReviewAction> getActions();
+
+  public abstract boolean isAvailableFor(ReviewContext reviewContext);
 
 }

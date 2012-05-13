@@ -40,11 +40,11 @@ function hideMoreViolationActions(violation_id) {
 }
 
 // show the form to comment violation
-function sCF(violation_id, review_action_id) {
+function sCF(violation_id, review_command_id) {
   hideMoreViolationActions(violation_id);
   new Ajax.Updater('reviewForm' + violation_id,
       baseUrl + '/reviews/violation_comment_form/' + violation_id 
-      + (review_action_id==null ? "" : "?review_action_id=" + review_action_id),
+      + (review_command_id==null ? "" : "?review_command_id=" + review_command_id),
       {
         asynchronous:true,
         evalScripts:true,

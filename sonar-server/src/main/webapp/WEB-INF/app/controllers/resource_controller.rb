@@ -332,6 +332,7 @@ class ResourceController < ApplicationController
     @global_violations=[]
     @expandable=(@lines!=nil)
     @filtered=!@expanded
+    @review_commands= Review.available_commands_for( Api::ReviewContext.new(:project => @resource.root) )
 
     if params[:rule].blank?
       metric = Metric.by_id(params[:metric])

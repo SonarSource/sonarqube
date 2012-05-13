@@ -75,14 +75,12 @@ class Review < ActiveRecord::Base
   # - :user
   # - :text
   # 
-  # param review_action_id is optional (=> specifies an action to 
-  # trigger instead of creating a simple comment)
-  def create_comment(comment_values={}, review_action_id=nil)
-    if review_action_id
-      action = Review.getAction(review_action_id)
-      if action
-        action.execute({"review.id" => id.to_s, "user.login" => comment_values[:user].login, "comment.text" => comment_values[:text]})
-      end
+  # param review_command_id is optional (=> specifies which command was 
+  # triggered instead of creating a simple comment)
+  def create_comment(comment_values={}, review_command_id=nil)
+    if review_command_id
+      review_context = Api::ReviewContext.new(:review => self, :user => User.new(:login => comment_values[:user].login), :params => {"comment.text" => comment_values[:text]})
+      Java::OrgSonarServerUi::JRubyFacade.getInstance().executeCommandActions(review_command_id, review_context.to_string_map)
     else
       # simple comment
       comment = comments.create!(comment_values)
@@ -263,18 +261,21 @@ class Review < ActiveRecord::Base
     action_plans[0]
   end
 
-  def self.available_link_actions(current_review=nil)
-    
-    link_actions = Java::OrgSonarServerUi::JRubyFacade.getInstance().getReviewActions("org.sonar.api.reviews.LinkReviewAction")
-    if current_review && current_review.data
-      link_actions.reject {|action| current_review.data.include? (action.getId())}
-    else
-      link_actions
+  def self.available_commands_for(review_context)
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().getAvailableCommandsFor(review_context.to_string_map)
+  end
+
+  def self.filter_commands(commands, violation, user=nil)
+    unless commands
+      commands= Review.available_commands_for( Api::ReviewContext.new(:project => violation.snapshot.root_project) )
     end
+    
+    review_context = Api::ReviewContext.new(:review => violation.review, :user => user)
+    actions = Java::OrgSonarServerUi::JRubyFacade.getInstance().filterCommands(commands, review_context.to_string_map, "org.sonar.api.reviews.LinkReviewCommand")
   end
   
-  def self.getAction(actionId)
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().getReviewAction(actionId)
+  def self.get_command(command_id)
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().getCommand(command_id)
   end
 
   #

@@ -72,7 +72,7 @@ import org.sonar.server.plugins.ServerExtensionInstaller;
 import org.sonar.server.plugins.UpdateCenterClient;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.qualitymodel.DefaultModelManager;
-import org.sonar.server.reviews.ReviewActionsManager;
+import org.sonar.server.reviews.ReviewManager;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
 import org.sonar.server.startup.ActivateDefaultProfiles;
@@ -241,7 +241,7 @@ public final class Platform {
     servicesContainer.addSingleton(ReviewsNotificationManager.class);
 
     // Reviews
-    servicesContainer.addSingleton(ReviewActionsManager.class);
+    servicesContainer.addSingleton(ReviewManager.class);
 
     servicesContainer.startComponents();
   }

@@ -20,14 +20,15 @@
 package org.sonar.plugins.reviews.jira;
 
 import com.atlassian.jira.rpc.soap.client.RemoteIssue;
-import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.database.model.User;
+import org.sonar.api.reviews.ReviewContext;
 import org.sonar.api.security.UserFinder;
+import org.sonar.api.test.ReviewContextTestUtils;
 import org.sonar.core.review.ReviewCommentDao;
 import org.sonar.core.review.ReviewCommentDto;
 import org.sonar.core.review.ReviewDao;
@@ -35,7 +36,6 @@ import org.sonar.core.review.ReviewDto;
 import org.sonar.plugins.reviews.jira.soap.JiraSOAPClient;
 
 import java.util.Collection;
-import java.util.Map;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -77,10 +77,7 @@ public class JiraLinkReviewActionTest {
 
   @Test
   public void shouldExecute() throws Exception {
-    Map<String, String> reviewContext = Maps.newHashMap();
-    reviewContext.put(JiraLinkReviewAction.REVIEW_ID_PARAM, "45");
-    reviewContext.put(JiraLinkReviewAction.USER_LOGIN_PARAM, "paul");
-    reviewContext.put(JiraLinkReviewAction.COMMENT_TEXT_PARAM, "Hello world");
+    ReviewContext reviewContext = ReviewContextTestUtils.createReviewContext("review={id=45}; user={login=paul}; params={comment.text=Hello world}");
 
     action.execute(reviewContext);
 
@@ -104,9 +101,7 @@ public class JiraLinkReviewActionTest {
 
   @Test
   public void shouldNotAddLinesBeforeLinkIfNoTextProvided() throws Exception {
-    Map<String, String> reviewContext = Maps.newHashMap();
-    reviewContext.put(JiraLinkReviewAction.REVIEW_ID_PARAM, "45");
-    reviewContext.put(JiraLinkReviewAction.USER_LOGIN_PARAM, "paul");
+    ReviewContext reviewContext = ReviewContextTestUtils.createReviewContext("review={id=45}; user={login=paul}");
 
     action.execute(reviewContext);
 
@@ -117,7 +112,7 @@ public class JiraLinkReviewActionTest {
 
   @Test
   public void shouldFailIfReviewIdNotProvided() throws Exception {
-    Map<String, String> reviewContext = Maps.newHashMap();
+    ReviewContext reviewContext = ReviewContextTestUtils.createReviewContext("");
 
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("The review id is missing.");
@@ -126,8 +121,7 @@ public class JiraLinkReviewActionTest {
 
   @Test
   public void shouldFailIfReviewIdNotANumber() throws Exception {
-    Map<String, String> reviewContext = Maps.newHashMap();
-    reviewContext.put(JiraLinkReviewAction.REVIEW_ID_PARAM, "toto");
+    ReviewContext reviewContext = ReviewContextTestUtils.createReviewContext("review={id=toto}");
 
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("The given review with id is not a valid number: toto");
@@ -136,8 +130,7 @@ public class JiraLinkReviewActionTest {
 
   @Test
   public void shouldFailIfReviewDoesNotExist() throws Exception {
-    Map<String, String> reviewContext = Maps.newHashMap();
-    reviewContext.put(JiraLinkReviewAction.REVIEW_ID_PARAM, "100");
+    ReviewContext reviewContext = ReviewContextTestUtils.createReviewContext("review={id=100}");
 
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("The review with id '100' does not exist.");
@@ -146,9 +139,7 @@ public class JiraLinkReviewActionTest {
 
   @Test
   public void shouldFailIfUserDoesNotExist() throws Exception {
-    Map<String, String> reviewContext = Maps.newHashMap();
-    reviewContext.put(JiraLinkReviewAction.REVIEW_ID_PARAM, "45");
-    reviewContext.put(JiraLinkReviewAction.USER_LOGIN_PARAM, "invisible_man");
+    ReviewContext reviewContext = ReviewContextTestUtils.createReviewContext("review={id=45}; user={login=invisible_man}");
 
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("The user with login 'invisible_man' does not exist.");

@@ -24,7 +24,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.database.model.User;
-import org.sonar.api.reviews.LinkReviewAction;
+import org.sonar.api.reviews.ReviewAction;
+import org.sonar.api.reviews.ReviewContext;
 import org.sonar.api.security.UserFinder;
 import org.sonar.core.review.ReviewCommentDao;
 import org.sonar.core.review.ReviewCommentDto;
@@ -34,15 +35,12 @@ import org.sonar.plugins.reviews.jira.soap.JiraSOAPClient;
 
 import java.rmi.RemoteException;
 import java.util.Date;
-import java.util.Map;
 
 /**
  * @since 3.1
  */
-public class JiraLinkReviewAction implements LinkReviewAction {
+public class JiraLinkReviewAction extends ReviewAction {
 
-  public static final String REVIEW_ID_PARAM = "review.id";
-  public static final String USER_LOGIN_PARAM = "user.login";
   public static final String COMMENT_TEXT_PARAM = "comment.text";
 
   private JiraSOAPClient jiraSOAPClient;
@@ -57,15 +55,13 @@ public class JiraLinkReviewAction implements LinkReviewAction {
     this.userFinder = userFinder;
   }
 
+  @Override
   public String getId() {
-    return "jira-link";
+    return "create-link-to-jira";
   }
 
-  public String getName() {
-    return "Link to JIRA";
-  }
-
-  public void execute(Map<String, String> reviewContext) {
+  @Override
+  public void execute(ReviewContext reviewContext) {
     ReviewDto review = getReviewId(reviewContext);
     User user = getUser(reviewContext);
 
@@ -76,14 +72,14 @@ public class JiraLinkReviewAction implements LinkReviewAction {
       throw new IllegalStateException("Impossible to create an issue on JIRA: " + e.getMessage(), e);
     }
 
-    addCommentToReview(review, issue, user, reviewContext.get(COMMENT_TEXT_PARAM));
+    addCommentToReview(review, issue, user, reviewContext.getParamValue(COMMENT_TEXT_PARAM));
 
     updateReviewWithIssueInfo(review, issue);
 
   }
 
-  private ReviewDto getReviewId(Map<String, String> reviewContext) {
-    String reviewId = reviewContext.get(REVIEW_ID_PARAM);
+  private ReviewDto getReviewId(ReviewContext reviewContext) {
+    String reviewId = reviewContext.getReviewProperty("id");
     Preconditions.checkState(StringUtils.isNotBlank(reviewId), "The review id is missing.");
     Preconditions.checkState(StringUtils.isNumeric(reviewId), "The given review with id is not a valid number: " + reviewId);
     ReviewDto review = reviewDao.findById(Long.parseLong(reviewId));
@@ -91,8 +87,8 @@ public class JiraLinkReviewAction implements LinkReviewAction {
     return review;
   }
 
-  private User getUser(Map<String, String> reviewContext) {
-    String userLogin = reviewContext.get(USER_LOGIN_PARAM);
+  private User getUser(ReviewContext reviewContext) {
+    String userLogin = reviewContext.getUserProperty("login");
     Preconditions.checkState(StringUtils.isNotBlank(userLogin), "The user login is missing.");
     User user = userFinder.findByLogin(userLogin);
     Preconditions.checkNotNull(user, "The user with login '" + userLogin + "' does not exist.");
@@ -120,7 +116,7 @@ public class JiraLinkReviewAction implements LinkReviewAction {
   }
 
   protected void updateReviewWithIssueInfo(ReviewDto review, RemoteIssue issue) {
-    review.addKeyValueToData(this.getId(), issue.getKey());
+    review.addKeyValueToData(JiraLinkReviewConstants.REVIEW_DATA_PROPERTY_KEY, issue.getKey());
     reviewDao.update(Lists.newArrayList(review));
   }
 

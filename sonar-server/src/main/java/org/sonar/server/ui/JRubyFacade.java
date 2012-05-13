@@ -33,7 +33,8 @@ import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
-import org.sonar.api.reviews.ReviewAction;
+import org.sonar.api.reviews.ReviewCommand;
+import org.sonar.api.reviews.ReviewContext;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.utils.ValidationMessages;
@@ -62,7 +63,7 @@ import org.sonar.server.plugins.PluginDeployer;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.UpdateCenterMatrix;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
-import org.sonar.server.reviews.ReviewActionsManager;
+import org.sonar.server.reviews.ReviewManager;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
 import org.sonar.updatecenter.common.Version;
@@ -73,6 +74,7 @@ import java.net.InetAddress;
 import java.sql.Connection;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public final class JRubyFacade {
@@ -478,12 +480,21 @@ public final class JRubyFacade {
 
   // REVIEWS ------------------------------------------------------------------
 
-  public Collection<ReviewAction> getReviewActions(String interfaceName) {
-    return getContainer().getComponentByType(ReviewActionsManager.class).getActions(interfaceName);
+  public Collection<ReviewCommand> getAvailableCommandsFor(Map<String, Map<String, String>> reviewContextPropertiesMap) {
+    return getContainer().getComponentByType(ReviewManager.class).getAvailableCommandsFor(ReviewContext.createFromMap(reviewContextPropertiesMap));
   }
 
-  public ReviewAction getReviewAction(String actionId) {
-    return getContainer().getComponentByType(ReviewActionsManager.class).getAction(actionId);
+  public Collection<ReviewCommand> filterCommands(Collection<ReviewCommand> reviewCommands, Map<String, Map<String, String>> reviewContextPropertiesMap,
+      String interfaceName) {
+    return getContainer().getComponentByType(ReviewManager.class).filterCommands(reviewCommands, ReviewContext.createFromMap(reviewContextPropertiesMap), interfaceName);
+  }
+
+  public void executeCommandActions(String commandId, Map<String, Map<String, String>> reviewContextPropertiesMap) {
+    getContainer().getComponentByType(ReviewManager.class).executeCommandActions(commandId, ReviewContext.createFromMap(reviewContextPropertiesMap));
+  }
+
+  public ReviewCommand getCommand(String commandId) {
+    return getContainer().getComponentByType(ReviewManager.class).getCommand(commandId);
   }
 
 }
