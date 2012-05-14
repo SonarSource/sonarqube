@@ -37,7 +37,11 @@ module WidgetPropertiesHelper
       text_field_tag definition.key(), val, :size => 10
 
     elsif definition.type.name()==WidgetProperty::TYPE_FILTER
-      select_tag definition.key(), ::Filter.all.sort_by(&:id).collect { |f| "<option value='#{f.id}'" + (value == f.id.to_s ? " selected='selected'" : "") + ">#{f.name}</option>" }
+      user_filters = ::Filter.find(:all, :conditions => ['user_id=?', current_user.id]).sort_by(&:id).collect { |f| "<option value='#{f.id}'" + (value == f.id.to_s ? " selected='selected'" : "") + ">#{f.name}</option>" }
+      shared_filters = ::Filter.find(:all, :conditions => ['(user_id<>? or user_id is null) and shared is true', current_user.id]).sort_by(&:id).collect { |f| "<option value='#{f.id}'" + (value == f.id.to_s ? " selected='selected'" : "") + ">#{f.name}</option>" }
+      all_filters = '<optgroup label="My Filters">' + user_filters.to_s + '</optgroup>' + '<optgroup label="Shared Filters">' + shared_filters.to_s + '</optgroup>'
+
+      select_tag definition.key(), all_filters
 
     else
       hidden_field_tag definition.key()

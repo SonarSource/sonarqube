@@ -28,7 +28,7 @@ class FiltersController < ApplicationController
   before_filter :login_required, :except => ['index', 'treemap']
 
   def manage
-    @filters = ::Filter.find(:all, :conditions => ['user_id=? or user_id is null', current_user.id])
+    @filters = ::Filter.find(:all, :conditions => ['user_id=? or shared is true', current_user.id])
   end
 
   def new
