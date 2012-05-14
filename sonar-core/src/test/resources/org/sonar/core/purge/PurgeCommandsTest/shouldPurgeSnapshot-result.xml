@@ -50,7 +50,7 @@ Note that measures, events and reviews are not deleted.
 
   <reviews id="1" project_id="1" resource_id="1" status="OPEN"
            rule_failure_permanent_id="1" resolution="[null]" created_at="[null]" updated_at="[null]" resource_line="200" severity="BLOCKER"
-           user_id="300" assignee_id="300" rule_id="500" manual_violation="[true]" manual_severity="[false]" title="[null]"/>
+           user_id="300" assignee_id="300" rule_id="500" manual_violation="[true]" manual_severity="[false]" title="[null]" data="[null]"/>
 
 
   <!-- The following is not purged but is kept for DBUnit -->
@@ -96,6 +96,6 @@ Note that measures, events and reviews are not deleted.
 
   <reviews id="2" project_id="2" resource_id="2" status="OPEN"
            rule_failure_permanent_id="1" resolution="[null]" created_at="[null]" updated_at="[null]" resource_line="200" severity="BLOCKER"
-           user_id="300" assignee_id="300" rule_id="500" manual_violation="[true]" manual_severity="[false]" title="[null]"/>
+           user_id="300" assignee_id="300" rule_id="500" manual_violation="[true]" manual_severity="[false]" title="[null]" data="[null]"/>
 
 </dataset>

@@ -10,6 +10,6 @@ Note that the column updated_at has been removed because it's excluded from DBUn
 
   <reviews id="1" project_id="1" resource_id="1" status="CLOSED"
         rule_failure_permanent_id="1" resolution="[null]" created_at="[null]" resource_line="200" severity="BLOCKER"
-        user_id="300" assignee_id="300" rule_id="500" manual_violation="[true]" manual_severity="[false]" title="[null]"/>
+        user_id="300" assignee_id="300" rule_id="500" manual_violation="[true]" manual_severity="[false]" title="[null]" data="[null]"/>
 
 </dataset>
