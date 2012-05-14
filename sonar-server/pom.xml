@@ -485,9 +485,9 @@
           <scope>provided</scope>
         </dependency>
         <dependency>
-          <groupId>org.codehaus.sonar.plugins</groupId>
-          <artifactId>sonar-reviews-plugin</artifactId>
-          <version>${project.version}</version>
+          <groupId>org.codehaus.sonar-plugins</groupId>
+          <artifactId>sonar-jira-reviews-plugin</artifactId>
+          <version>1.0-SNAPSHOT</version>
           <type>sonar-plugin</type>
           <scope>provided</scope>
         </dependency>

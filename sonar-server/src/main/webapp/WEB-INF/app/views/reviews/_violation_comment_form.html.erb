@@ -1,6 +1,6 @@
 <%
    if @review_command
-     button_label = @review_command.getName()
+     button_label = Review.command_label(@review_command)
    else
      button_label=(@comment ? message('reviews.update_comment_submit') : message('reviews.comment_submit'))
    end

@@ -289,6 +289,10 @@ class Review < ActiveRecord::Base
     Java::OrgSonarServerUi::JRubyFacade.getInstance().getCommand(command_id)
   end
 
+  def self.command_label(command)
+    Api::Utils.message("commands.reviews." + command.getId(), :default => command.getName())
+  end
+
   #
   #
   # SEARCH METHODS
