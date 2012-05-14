@@ -43,6 +43,14 @@
                              :url => {:controller => "project_reviews", :action => "action_plan_form", :id => review.id},
                              :update => "actionForm",
                              :complete => "$('actionButtons').remove();$('actionForm').show();$('selectSeverity').focus();" -%>
+
+        <% Review.filter_commands(@review_commands, {:review => review, :user => current_user, :command_type => 'org.sonar.api.reviews.LinkReviewCommand'}).each do |command| %>
+          <%= button_to_remote command.getName(),
+                             :url => {:controller => "project_reviews", :action => "review_command_form", :id => review.id, :review_command_id => command.getId()},
+                             :update => "actionForm",
+                             :complete => "$('actionButtons').remove();$('actionForm').show();$('selectSeverity').focus();" -%>
+        <% end %>
+
       <% end %>
     </div>
   <% end %>

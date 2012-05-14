@@ -130,7 +130,7 @@
               <li><%= link_to_function message('reviews.change_severity'), "sCSF(#{violation.id})", :name => 'bChangeSeverity' -%></li>
               <li><%= link_to_function message('reviews.link_to_action_plan'), "sAPF(#{violation.id})", :name => 'bLinkActionPlan' -%></li>
               
-              <% Review.filter_commands(@review_commands, violation, current_user).each do |command| %>
+              <% Review.filter_commands(@review_commands, {:review => violation.review, :violation => violation, :user => current_user, :command_type => 'org.sonar.api.reviews.LinkReviewCommand'}).each do |command| %>
                 <li><%= link_to_function command.getName(), "sCF(#{violation.id}, '#{command.getId()}')", :name => 'bComment' -%></li>
               <% end %>
               

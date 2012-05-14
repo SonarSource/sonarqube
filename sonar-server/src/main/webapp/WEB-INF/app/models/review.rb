@@ -265,14 +265,24 @@ class Review < ActiveRecord::Base
     Java::OrgSonarServerUi::JRubyFacade.getInstance().getAvailableCommandsFor(review_context.to_string_map)
   end
 
-  def self.filter_commands(commands, violation, user=nil)
+  # Options:
+  #  - :command_type
+  #  - :review
+  #  - :violation
+  #  - :user
+  def self.filter_commands(commands, options={})
     unless commands
-      commands= available_commands_for( Api::ReviewContext.new(:project => violation.snapshot.root_project) )
+      if options[:review]
+        commands= available_commands_for( Api::ReviewContext.new(:project => options[:review].project) )
+      elsif options[:violation]
+        commands= available_commands_for( Api::ReviewContext.new(:project => options[:violation].snapshot.root_project) )
+      else      
+        commands = []
+      end
     end
     
-    review_context = Api::ReviewContext.new(:review => violation.review, :user => user)
-    puts "################# " + violation.review.data.to_s if violation.review
-    actions = Java::OrgSonarServerUi::JRubyFacade.getInstance().filterCommands(commands, review_context.to_string_map, "org.sonar.api.reviews.LinkReviewCommand")
+    review_context = Api::ReviewContext.new(:review => options[:review], :user => options[:user])
+    actions = Java::OrgSonarServerUi::JRubyFacade.getInstance().filterCommands(commands, review_context.to_string_map, options[:command_type])
   end
   
   def self.get_command(command_id)

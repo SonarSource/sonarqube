@@ -52,6 +52,7 @@ class ProjectReviewsController < ApplicationController
   def view
     @review = Review.find(params[:id], :include => ['project'])
     @resource = @review.project
+    @review_commands = Review.available_commands_for( Api::ReviewContext.new(:review => @review, :user => current_user) )
     if has_role?(:user, @review.project)
       render 'project_reviews/_view', :locals => {:review => @review}
     else
@@ -69,6 +70,7 @@ class ProjectReviewsController < ApplicationController
   def show
     @review = Review.find(params[:id], :include => ['project'])
     @resource = @review.project
+    @review_commands = Review.available_commands_for( Api::ReviewContext.new(:review => @review, :user => current_user) )
     if has_role?(:user, @resource)
       render :partial => 'project_reviews/view'
     else
@@ -242,6 +244,30 @@ class ProjectReviewsController < ApplicationController
     @review.link_to_action_plan(nil, current_user, params)
 
     render :partial => "project_reviews/review"
+  end
+
+  # GET
+  def review_command_form
+    @review = Review.find(params[:id])
+    @review_command = Review.get_command(params[:review_command_id])
+    render :partial => 'project_reviews/review_command_form'
+  end
+
+  # POST
+  def run_review_command
+    @review = Review.find(params[:id], :include => ['project'])
+    @resource = @review.project
+    unless has_rights_to_modify?(@resource)
+      render :text => "<b>Cannot create the comment</b> : access denied."
+      return
+    end
+
+    @review.create_comment({:user => current_user, :text => params[:text]}, params[:review_command_id])
+    
+    # Needs to reload as the review may have been changed on the Java side by a ReviewAction
+    @review.reload
+
+    render :partial => "project_reviews/view"
   end
   
   
