@@ -37,7 +37,7 @@ import java.util.Map;
 public final class Batch {
 
   private LoggingConfiguration logging;
-  private List components;
+  private List<Object> components;
   private ProjectReactor projectReactor;
 
   private Batch(Builder builder) {

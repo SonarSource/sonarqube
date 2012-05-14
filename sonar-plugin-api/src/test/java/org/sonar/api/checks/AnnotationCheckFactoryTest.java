@@ -19,7 +19,6 @@
  */
 package org.sonar.api.checks;
 
-import org.hamcrest.Matcher;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.profiles.RulesProfile;
@@ -29,9 +28,7 @@ import org.sonar.api.utils.SonarException;
 
 import java.util.Arrays;
 
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
@@ -167,7 +164,7 @@ public class AnnotationCheckFactoryTest {
     profile.activateRule(clonedRule, null);
     AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, "repo", Arrays.<Class> asList(CheckWithKey.class));
 
-    assertThat(factory.getChecks(), (Matcher) not(hasItems(nullValue())));
+    assertThat(factory.getChecks()).excludes(new Object[] {null});
   }
 
   /**

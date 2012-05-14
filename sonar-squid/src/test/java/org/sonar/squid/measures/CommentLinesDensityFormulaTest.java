@@ -25,11 +25,10 @@ import org.sonar.squid.api.SourceClass;
 
 import static org.junit.Assert.*;
 
-
 public class CommentLinesDensityFormulaTest {
-  
+
   CommentLinesDensityFormula formula = new CommentLinesDensityFormula();
-  Measurable measurable = new SourceClass("com.Toto");
+  Measurable<Metric> measurable = new SourceClass("com.Toto");
 
   @Test
   public void calculateDensityOnEmptyFile() {
@@ -37,7 +36,7 @@ public class CommentLinesDensityFormulaTest {
     measurable.setMeasure(Metric.COMMENT_LINES, 0);
     assertEquals(0, measurable.getDouble(Metric.COMMENT_LINES_DENSITY), 0.01);
   }
-  
+
   @Test
   public void calculate() {
     measurable.setMeasure(Metric.LINES_OF_CODE, 10);

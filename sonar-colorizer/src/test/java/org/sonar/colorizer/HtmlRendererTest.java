@@ -19,15 +19,14 @@
  */
 package org.sonar.colorizer;
 
+import org.apache.commons.io.FileUtils;
+import org.junit.Test;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
-
-import org.apache.commons.io.FileUtils;
-import org.junit.Test;
-import org.sonar.channel.Channel;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -39,16 +38,18 @@ public class HtmlRendererTest {
 
   @Test
   public void renderJavaSyntax() {
-    String html = new HtmlRenderer(HtmlOptions.ONLY_SYNTAX).render(new StringReader("public class Hello {"), Arrays
-        .<Channel<HtmlCodeBuilder>> asList(javaKeywordTokenizer));
+    HtmlRenderer htmlRenderer = new HtmlRenderer(HtmlOptions.ONLY_SYNTAX);
+
+    String html = htmlRenderer.render(new StringReader("public class Hello {"), Arrays.asList(javaKeywordTokenizer));
 
     assertThat(html, is("<span class='k'>public</span> <span class='k'>class</span> Hello {"));
   }
 
   @Test
   public void supportHtmlSpecialCharacters() {
-    String html = new HtmlRenderer(HtmlOptions.ONLY_SYNTAX).render(new StringReader("foo(\"<html>\");"), Arrays
-        .<Channel<HtmlCodeBuilder>> asList(new LiteralTokenizer("<s>", "</s>")));
+    HtmlRenderer htmlRenderer = new HtmlRenderer(HtmlOptions.ONLY_SYNTAX);
+
+    String html = htmlRenderer.render(new StringReader("foo(\"<html>\");"), Arrays.asList(new LiteralTokenizer("<s>", "</s>")));
 
     assertThat(html, is("foo(<s>\"&lt;html&gt;\"</s>);"));
   }
@@ -57,7 +58,7 @@ public class HtmlRendererTest {
   public void renderJavaFile() throws IOException {
     File java = FileUtils.toFile(getClass().getResource("/org/sonar/colorizer/HtmlRendererTest/Sample.java"));
 
-    String html = new HtmlRenderer().render(new FileReader(java), Arrays.<Channel<HtmlCodeBuilder>> asList(javaKeywordTokenizer));
+    String html = new HtmlRenderer().render(new FileReader(java), Arrays.asList(javaKeywordTokenizer));
 
     assertThat(html, containsString("<html>"));
     assertThat(html, containsString("<style"));

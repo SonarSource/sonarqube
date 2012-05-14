@@ -60,7 +60,7 @@ public class SumChildDistributionFormulaTest {
   @Test
   public void testWhenGetChildrenReturnsEmpty() {
     when(context.getTargetMetric()).thenReturn(new Metric("foo"));
-    when(data.getChildrenMeasures(new Metric("foo"))).thenReturn((List) Collections.emptyList());
+    when(data.getChildrenMeasures(new Metric("foo"))).thenReturn(Collections.<Measure> emptyList());
     assertNull(formula.calculate(data, context));
   }
 

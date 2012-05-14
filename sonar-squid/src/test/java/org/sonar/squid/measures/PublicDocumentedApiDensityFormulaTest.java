@@ -25,11 +25,10 @@ import org.sonar.squid.api.SourceClass;
 
 import static org.junit.Assert.*;
 
-
 public class PublicDocumentedApiDensityFormulaTest {
-  
+
   PublicDocumentedApiDensityFormula formula = new PublicDocumentedApiDensityFormula();
-  Measurable measurable = new SourceClass("com.Toto");
+  Measurable<Metric> measurable = new SourceClass("com.Toto");
 
   @Test
   public void calculateWhenNoPublicApi() {
@@ -37,7 +36,7 @@ public class PublicDocumentedApiDensityFormulaTest {
     measurable.setMeasure(Metric.PUBLIC_DOC_API, 0);
     assertEquals(1, measurable.getDouble(Metric.PUBLIC_DOCUMENTED_API_DENSITY), 0.01);
   }
-  
+
   @Test
   public void calculate() {
     measurable.setMeasure(Metric.PUBLIC_API, 10);

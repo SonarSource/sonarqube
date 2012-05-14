@@ -30,7 +30,7 @@ public class FilterResult {
   public static final int SORTED_COLUMN_INDEX = 3;
 
   public FilterResult(Filter filter, List rows) {
-    this.rows = new ArrayList(rows);
+    this.rows = new ArrayList<Object[]>(rows);
     this.filter = filter;
   }
 

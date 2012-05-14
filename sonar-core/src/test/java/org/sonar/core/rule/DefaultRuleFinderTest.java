@@ -23,15 +23,16 @@ import org.junit.Test;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
-import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.util.Collection;
 
-import static org.hamcrest.CoreMatchers.anyOf;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 
 public class DefaultRuleFinderTest extends AbstractDbUnitTestCase {
 
@@ -72,8 +73,8 @@ public class DefaultRuleFinderTest extends AbstractDbUnitTestCase {
     setupData("shared");
     RuleFinder finder = new DefaultRuleFinder(getSessionFactory());
     Collection<Rule> rules = finder.findAll(RuleQuery.create().withRepositoryKey("checkstyle"));
-    assertNotNull(rules);
-    assertThat(rules.size(), is(2)); // only enabled checkstyle rules
+
+    assertThat(rules).hasSize(2);
   }
 
   @Test
@@ -81,11 +82,8 @@ public class DefaultRuleFinderTest extends AbstractDbUnitTestCase {
     setupData("shared");
     RuleFinder finder = new DefaultRuleFinder(getSessionFactory());
     Collection<Rule> rules = finder.findAll(RuleQuery.create());
-    assertNotNull(rules);
-    assertThat(rules.size(), is(3)); // only enabled checkstyle+pmd rules
-    for (Rule rule : rules) {
-      assertThat(rule.getId(), anyOf(is(1), is(3), is(4)));
-    }
+
+    assertThat(rules).onProperty("id").containsOnly(1, 3, 4);
   }
 
   @Test

@@ -22,7 +22,6 @@ package org.sonar.server.platform;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.InOrder;
 import org.sonar.api.web.ServletFilter;
 
 import javax.servlet.*;

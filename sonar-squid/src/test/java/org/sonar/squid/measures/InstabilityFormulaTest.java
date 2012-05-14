@@ -27,8 +27,8 @@ import static org.junit.Assert.assertEquals;
 
 public class InstabilityFormulaTest {
 
-  InstabilityFormula distance   = new InstabilityFormula();
-  Measurable      measurable = new SourcePackage("pac1");
+  InstabilityFormula distance = new InstabilityFormula();
+  Measurable<Metric> measurable = new SourcePackage("pac1");
 
   @Test
   public void calculateBestStability() {
@@ -36,14 +36,14 @@ public class InstabilityFormulaTest {
     measurable.setMeasure(Metric.CE, 0);
     assertEquals(0, measurable.getDouble(Metric.INSTABILITY), 0.01);
   }
-  
+
   @Test
   public void calculateWorstStability() {
     measurable.setMeasure(Metric.CA, 0);
     measurable.setMeasure(Metric.CE, 10);
     assertEquals(1, measurable.getDouble(Metric.INSTABILITY), 0.01);
   }
-  
+
   @Test
   public void calculateOnIsolatedProject() {
     measurable.setMeasure(Metric.CA, 0);

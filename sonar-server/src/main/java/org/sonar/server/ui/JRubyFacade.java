@@ -362,7 +362,7 @@ public final class JRubyFacade {
     }
 
     try {
-      Class aClass = Class.forName(className);
+      Class<?> aClass = Class.forName(className);
       return getContainer().getComponentByType(aClass);
 
     } catch (ClassNotFoundException e) {
@@ -374,7 +374,7 @@ public final class JRubyFacade {
   public Object getComponentByClassname(String pluginKey, String className) {
     Object component = null;
     ComponentContainer container = getContainer();
-    Class componentClass = container.getComponentByType(DefaultServerPluginRepository.class).getClass(pluginKey, className);
+    Class<?> componentClass = container.getComponentByType(DefaultServerPluginRepository.class).getClass(pluginKey, className);
     if (componentClass != null) {
       component = container.getComponentByType(componentClass);
     }

@@ -27,8 +27,8 @@ import static org.junit.Assert.assertEquals;
 
 public class CommentLinesWithoutHeaderFormulaTest {
 
-  CommentLinesWithoutHeaderFormula formula    = new CommentLinesWithoutHeaderFormula();
-  Measurable                       measurable = new SourceClass("com.Toto");
+  CommentLinesWithoutHeaderFormula formula = new CommentLinesWithoutHeaderFormula();
+  Measurable<Metric> measurable = new SourceClass("com.Toto");
 
   @Test
   public void calculateDensityOnEmptyFile() {

@@ -30,7 +30,7 @@ import static org.junit.Assert.assertEquals;
 public class AbstractnessFormulaTest {
 
   AbstractnessFormula abstractness = new AbstractnessFormula();
-  Measurable measurable = new SourcePackage("pac1");
+  Measurable<Metric> measurable = new SourcePackage("pac1");
 
   @Test
   public void testCalculate() {
@@ -40,7 +40,7 @@ public class AbstractnessFormulaTest {
 
     assertEquals(0.2, abstractness.calculate(measurable), 0);
   }
-  
+
   @Test
   public void testCalculateOnEmptyProject() {
     measurable.setMeasure(Metric.CLASSES, 0);

@@ -28,9 +28,8 @@ import static org.junit.Assert.*;
 
 import org.sonar.squid.api.SourceClass;
 
-
 public class MeanAggregationFormulaTest {
-  
+
   MeanAggregationFormula formula = new MeanAggregationFormula();
 
   @Test
@@ -42,10 +41,10 @@ public class MeanAggregationFormulaTest {
     SourceClass class2 = new SourceClass("com.My");
     class2.setMeasure(Metric.COMPLEXITY, 3);
     measurables.add(class2);
-    
+
     assertEquals(2.5, formula.aggregate(Metric.COMPLEXITY, measurables), 0.01);
   }
-  
+
   @Test
   public void testAggregateEmptyCollections() {
     List<Measurable> measurables = new ArrayList<Measurable>();
