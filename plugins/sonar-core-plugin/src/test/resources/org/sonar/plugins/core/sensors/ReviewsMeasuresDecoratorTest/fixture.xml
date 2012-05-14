@@ -14,7 +14,8 @@
     user_id="[null]"
     rule_id="[null]"
     manual_violation="false"
-    manual_severity="false"/>
+    manual_severity="false"
+    data="[null]"/>
   <reviews
     id="2"
     status="OPEN"
@@ -24,7 +25,8 @@
     resource_line="2"
     rule_id="[null]"
     manual_violation="false"
-    manual_severity="false"/>
+    manual_severity="false"
+    data="[null]"/>
   <reviews
     id="3"
     status="OPEN"
@@ -34,7 +36,8 @@
     resource_line="0"
     rule_id="[null]"
     manual_violation="false"
-    manual_severity="false"/>
+    manual_severity="false"
+    data="[null]"/>
   <reviews
     id="4"
     status="OPEN"
@@ -44,7 +47,8 @@
     resource_line="4"
     rule_id="[null]"
     manual_violation="false"
-    manual_severity="false"/>
+    manual_severity="false"
+    data="[null]"/>
   <reviews
     id="5"
     status="OPEN"
@@ -54,7 +58,8 @@
     resource_line="[null]"
     rule_id="[null]"
     manual_violation="false"
-    manual_severity="false"/>
+    manual_severity="false"
+    data="[null]"/>
   <reviews
     id="6"
     status="OPEN"
@@ -64,6 +69,7 @@
     resource_line="[null]"
     rule_id="[null]"
     manual_violation="false"
-    manual_severity="false"/>
+    manual_severity="false"
+    data="[null]"/>
 
 </dataset>
