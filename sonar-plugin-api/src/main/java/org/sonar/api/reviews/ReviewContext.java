@@ -26,6 +26,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import java.util.Map;
 
 /**
+ * Context of a review, used by {@link ReviewCommand} to tell if a command is available, and by {@link ReviewAction} to execute an action based on it.
+ * 
  * @since 3.1
  */
 @Beta
@@ -44,6 +46,12 @@ public final class ReviewContext {
   private ReviewContext() {
   }
 
+  /**
+   * Creates a {@link ReviewContext} based on a string-based map (which will come from Ruby side).
+   * 
+   * @param propertiesMap the map of properties
+   * @return the review context
+   */
   public static ReviewContext createFromMap(Map<String, Map<String, String>> propertiesMap) {
     ReviewContext context = new ReviewContext();
     if (propertiesMap.get(PROJECT_KEY) != null) {
@@ -61,18 +69,42 @@ public final class ReviewContext {
     return context;
   }
 
+  /**
+   * Returns the property of the "project"
+   * 
+   * @param propertyKey
+   * @return
+   */
   public String getProjectProperty(String propertyKey) {
     return projectProps.get(propertyKey);
   }
 
+  /**
+   * Returns the property of the "review"
+   * 
+   * @param propertyKey
+   * @return
+   */
   public String getReviewProperty(String propertyKey) {
     return reviewProps.get(propertyKey);
   }
 
+  /**
+   * Returns the property of the "user"
+   * 
+   * @param propertyKey
+   * @return
+   */
   public String getUserProperty(String propertyKey) {
     return userProps.get(propertyKey);
   }
 
+  /**
+   * Returns the value of a parameter of the context (generally, user input).
+   * 
+   * @param propertyKey
+   * @return
+   */
   public String getParamValue(String paramKey) {
     return paramsProps.get(paramKey);
   }

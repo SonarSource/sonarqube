@@ -75,8 +75,7 @@ class Review < ActiveRecord::Base
   # - :user
   # - :text
   # 
-  # param review_command_id is optional (=> specifies which command was 
-  # triggered instead of creating a simple comment)
+  # Note: 'review_command_id' is optional (=> specifies which command was triggered instead of creating a simple comment)
   def create_comment(comment_values={}, review_command_id=nil)
     if review_command_id
       review_context = Api::ReviewContext.new(:review => self, :user => User.new(:login => comment_values[:user].login), :params => {"comment.text" => comment_values[:text]})

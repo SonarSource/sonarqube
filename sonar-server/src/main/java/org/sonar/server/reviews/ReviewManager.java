@@ -32,22 +32,37 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * This class helps handling {@link ReviewCommand} and {@link ReviewAction}, based on a {@link ReviewContext}.
+ * 
  * @since 3.1
  */
 public class ReviewManager {
 
   private Map<String, ReviewCommand> idToCommand = Maps.newLinkedHashMap();
 
+  /**
+   * Creates a {@link ReviewManager}
+   * @param reviewCommands
+   */
   public ReviewManager(ReviewCommand[] reviewCommands) {
     for (ReviewCommand reviewCommand : reviewCommands) {
       idToCommand.put(reviewCommand.getId(), reviewCommand);
     }
   }
 
+  /**
+   * Creates a {@link ReviewManager}
+   */
   public ReviewManager() {
     this(new ReviewCommand[0]);
   }
 
+  /**
+   * Returns the available commands based on the given context.
+   * 
+   * @param reviewContext the review context
+   * @return the list of available commands for this context
+   */
   public Collection<ReviewCommand> getAvailableCommandsFor(ReviewContext reviewContext) {
     Preconditions.checkNotNull(reviewContext, "The review context must not be NULL when searching for available commands.");
     List<ReviewCommand> commands = Lists.newArrayList();
@@ -59,6 +74,14 @@ public class ReviewManager {
     return commands;
   }
 
+  /**
+   * Filter the given command collection based on the review context and on the name of the interface that the command must implement.
+   * 
+   * @param initialCommands the initial list of commands
+   * @param reviewContext the review context
+   * @param interfaceName the name of the interface
+   * @return the filtered list of commands
+   */
   @SuppressWarnings({"unchecked", "rawtypes"})
   public Collection<ReviewCommand> filterCommands(Collection<ReviewCommand> initialCommands, ReviewContext reviewContext, String interfaceName) {
     Preconditions.checkNotNull(initialCommands, "The list of review commands must not be NULL when filtering commands.");
@@ -80,6 +103,12 @@ public class ReviewManager {
     return commands;
   }
 
+  /**
+   * Executes the actions linked to the command which ID is passed as a paramter. 
+   * 
+   * @param commandId the command ID
+   * @param reviewContext the review context that will be passed to the actions
+   */
   public void executeCommandActions(String commandId, ReviewContext reviewContext) {
     Preconditions.checkNotNull(reviewContext, "The review context must not be NULL when executing the actions of a command.");
     ReviewCommand command = getCommand(commandId);
@@ -90,6 +119,12 @@ public class ReviewManager {
     }
   }
 
+  /**
+   * Returns the command corresponding to the given ID.
+   * 
+   * @param commandId the command ID
+   * @return the command corresponding to the given ID, or null if none matches.
+   */
   public ReviewCommand getCommand(String commandId) {
     return idToCommand.get(commandId);
   }

@@ -22,6 +22,8 @@ package org.sonar.api.reviews;
 import com.google.common.annotations.Beta;
 
 /**
+ * A special {@link ReviewCommand} that will allow to create links from a review to an external system like JIRA. 
+ * 
  * @since 3.1
  */
 @Beta

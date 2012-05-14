@@ -18,7 +18,20 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 
+#
+# Class used to more easily handle the context of a review when it needs to be passed to the Java side
+#
+# - to create a context: (example)
+#
+#      review_context = Api::ReviewContext.new(:review => myReview, :user => current_user, :params => {"comment.text" => comment_values[:text]})
+#
+# - when it needs to be passed to the Java side, it needs to be transformed into a 'string-only' hash: 
+#
+#      review_context.to_string_map
+#
+
 class Api::ReviewContext
+  
   def initialize(options={})
     @review = options[:review]
     @project = options[:project]

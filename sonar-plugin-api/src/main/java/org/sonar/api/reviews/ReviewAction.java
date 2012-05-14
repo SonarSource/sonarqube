@@ -23,13 +23,25 @@ import com.google.common.annotations.Beta;
 import org.sonar.api.ServerExtension;
 
 /**
+ * Represents an action that can be executed when a {@link ReviewCommand} has been triggered.
+ * 
  * @since 3.1
  */
 @Beta
 public abstract class ReviewAction implements ServerExtension {
 
+  /**
+   * Returns the ID of the action.
+   *  
+   * @return the ID
+   */
   public abstract String getId();
 
+  /**
+   * Executes the action, using the given review context.
+   * 
+   * @param reviewContext the context
+   */
   public abstract void execute(ReviewContext reviewContext);
 
 }

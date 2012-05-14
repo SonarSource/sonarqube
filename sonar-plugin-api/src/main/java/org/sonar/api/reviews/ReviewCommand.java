@@ -25,17 +25,40 @@ import org.sonar.api.ServerExtension;
 import java.util.Collection;
 
 /**
+ * Represents a command that can be displayed for a review.
+ * 
  * @since 3.1
  */
 @Beta
 public abstract class ReviewCommand implements ServerExtension {
 
+  /**
+   * Returns the ID of the command.
+   * 
+   * @return the ID
+   */
   public abstract String getId();
 
+  /**
+   * Returns the name of the command.
+   * 
+   * @return the name
+   */
   public abstract String getName();
 
+  /**
+   * Returns the {@link ReviewAction} linked to this command.
+   * 
+   * @return the list of actions
+   */
   public abstract Collection<ReviewAction> getActions();
 
+  /**
+   * Tells is the command is available in the given review context.
+   * 
+   * @param reviewContext the context of the review
+   * @return true if the command is available, false otherwise
+   */
   public abstract boolean isAvailableFor(ReviewContext reviewContext);
 
 }
