@@ -237,6 +237,11 @@ div#sidebar .selected a, div#sidebar .selected a:hover, div#sidebar.selected a:v
   padding: 4px 0;
   margin-top: 10px;
 }
+.ie6-warn {
+  color: #EEE;
+  background: #FF5252;
+  padding: 0 5px;
+}
 
 #ftlinks a {
   color: #444;

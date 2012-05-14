@@ -207,6 +207,7 @@
       <% unless DatabaseVersion.production? %>
         <br/><span class="yellowHighlight" id="evaluation_warning"><%= message('layout.evaluation') -%></span>
       <% end %>
+      <!--[if lte IE 6]><br/><span class="ie6-warn"><%= message('layout.ie6_warn') -%></span><![endif]-->
     </div>
   </div>
 <% end %>
