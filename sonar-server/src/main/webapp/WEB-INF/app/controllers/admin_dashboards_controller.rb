@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
-#     
+#
 class AdminDashboardsController < ApplicationController
 
   SECTION=Navigation::SECTION_CONFIGURATION
@@ -33,52 +33,18 @@ class AdminDashboardsController < ApplicationController
     end
   end
 
-  def up
-    dashboard_index=-1
-    dashboard=nil
-    @actives.each_index do |index|
-      if @actives[index].id==params[:id].to_i
-        dashboard_index=index
-        dashboard=@actives[index]
-      end
-    end
-    if dashboard && dashboard_index>0
-      @actives[dashboard_index]=@actives[dashboard_index-1]
-      @actives[dashboard_index-1]=dashboard
-
-      @actives.each_index do |index|
-        @actives[index].order_index=index+1
-        @actives[index].save
-      end
-    end
-    redirect_to :action => 'index'
+  def down
+    position(+1)
   end
 
-  def down
-    dashboard_index=-1
-    dashboard=nil
-    @actives.each_index do |index|
-      if @actives[index].id==params[:id].to_i
-        dashboard_index=index
-        dashboard=@actives[index]
-      end
-    end
-    if dashboard && dashboard_index<@actives.size-1
-      @actives[dashboard_index]=@actives[dashboard_index+1]
-      @actives[dashboard_index+1]=dashboard
-
-      @actives.each_index do |index|
-        @actives[index].order_index=index+1
-        @actives[index].save
-      end
-    end
-    redirect_to :action => 'index'
+  def up
+    position(-1)
   end
 
   def add
     dashboard=::Dashboard.find(:first, :conditions => ['shared=? and id=?', true, params[:id].to_i()])
     if dashboard
-      ActiveDashboard.create(:dashboard => dashboard, :user => nil, :order_index => @actives.size+1)
+      ActiveDashboard.create(:dashboard => dashboard, :user => nil, :order_index => (@actives.max_by(&:order_index).order_index+1))
       flash[:notice]='Default dashboard added.'
     end
     redirect_to :action => 'index'
@@ -117,4 +83,22 @@ class AdminDashboardsController < ApplicationController
   def load_default_dashboards
     @actives=ActiveDashboard.default_dashboards
   end
+
+  def position(offset)
+    to_move = @actives.find { |a| a.id == params[:id].to_i}
+    if to_move
+      dashboards_same_type=@actives.select { |a| (a.global? == to_move.global?) }.sort_by(&:order_index)
+
+      index = dashboards_same_type.index(to_move)
+      dashboards_same_type[index], dashboards_same_type[index + offset] = dashboards_same_type[index + offset], dashboards_same_type[index]
+
+      dashboards_same_type.each_with_index do |a,i|
+        a.order_index=i+1
+        a.save
+      end
+    end
+
+    redirect_to :action => 'index'
+  end
+
 end

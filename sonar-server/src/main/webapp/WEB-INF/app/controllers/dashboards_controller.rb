@@ -59,7 +59,7 @@ class DashboardsController < ApplicationController
     else
       if @dashboard.save
         add_default_dashboards_if_first_user_dashboard
-        last_active_dashboard=current_user.active_dashboards.max { |x, y| x.order_index<=>y.order_index }
+        last_active_dashboard=current_user.active_dashboards.max_by(&:order_index)
         current_user.active_dashboards.create(:dashboard => @dashboard, :user_id => current_user.id, :order_index => (last_active_dashboard ? last_active_dashboard.order_index+1 : 1))
         redirect_to :controller => 'dashboard', :action => 'configure', :did => @dashboard.id, :id => (params[:resource] unless @dashboard.global)
       else
@@ -152,20 +152,16 @@ class DashboardsController < ApplicationController
 
     dashboards=current_user.active_dashboards.to_a
 
-    to_move = dashboards.find { |a| a.dashboard_id == params[:id].to_i}
+    to_move = dashboards.find { |a| a.id == params[:id].to_i}
     if to_move
-      dashboards_with_same_type=dashboards.select { |a| (a.global? == to_move.global?) }
+      dashboards_same_type=dashboards.select { |a| (a.global? == to_move.global?) }.sort_by(&:order_index)
 
-      switch_with=nil
-      if offset < 0
-        switch_with = dashboards_with_same_type.select { |a| a.order_index <= (to_move.order_index + offset) }.max_by(&:order_index)
-      elsif offset > 0
-        switch_with = dashboards_with_same_type.select { |a| a.order_index >= (to_move.order_index + offset) }.min_by(&:order_index)
-      end
-      if switch_with
-        switch_with.order_index, to_move.order_index = to_move.order_index, switch_with.order_index
-        to_move.save
-        switch_with.save
+      index = dashboards_same_type.index(to_move)
+      dashboards_same_type[index], dashboards_same_type[index + offset] = dashboards_same_type[index + offset], dashboards_same_type[index]
+
+      dashboards_same_type.each_with_index do |a,i|
+        a.order_index=i+1
+        a.save
       end
     end
 
