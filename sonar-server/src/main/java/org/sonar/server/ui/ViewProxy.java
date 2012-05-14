@@ -19,6 +19,7 @@
  */
 package org.sonar.server.ui;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -26,7 +27,23 @@ import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.utils.AnnotationUtils;
-import org.sonar.api.web.*;
+import org.sonar.api.web.DefaultTab;
+import org.sonar.api.web.Description;
+import org.sonar.api.web.GwtPage;
+import org.sonar.api.web.NavigationSection;
+import org.sonar.api.web.RequiredMeasures;
+import org.sonar.api.web.ResourceLanguage;
+import org.sonar.api.web.ResourceQualifier;
+import org.sonar.api.web.ResourceScope;
+import org.sonar.api.web.UserRole;
+import org.sonar.api.web.View;
+import org.sonar.api.web.Widget;
+import org.sonar.api.web.WidgetCategory;
+import org.sonar.api.web.WidgetLayout;
+import org.sonar.api.web.WidgetLayoutType;
+import org.sonar.api.web.WidgetProperties;
+import org.sonar.api.web.WidgetProperty;
+import org.sonar.api.web.WidgetScope;
 
 import java.util.Collection;
 import java.util.Map;
@@ -93,7 +110,10 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
   }
 
   private void initWidgetGlobal(final V view) {
-    isGlobal = null != AnnotationUtils.getClassAnnotation(view, WidgetGlobal.class);
+    WidgetScope scopeAnnotation = AnnotationUtils.getClassAnnotation(view, WidgetScope.class);
+    if (scopeAnnotation != null) {
+      isGlobal = ImmutableSet.copyOf(scopeAnnotation.value()).contains("GLOBAL");
+    }
   }
 
   private void initWidgetProperties(final V view) {

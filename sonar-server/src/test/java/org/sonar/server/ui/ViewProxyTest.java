@@ -19,8 +19,6 @@
  */
 package org.sonar.server.ui;
 
-import org.sonar.api.web.WidgetGlobal;
-
 import org.junit.Test;
 import org.sonar.api.web.DefaultTab;
 import org.sonar.api.web.NavigationSection;
@@ -31,6 +29,7 @@ import org.sonar.api.web.Widget;
 import org.sonar.api.web.WidgetProperties;
 import org.sonar.api.web.WidgetProperty;
 import org.sonar.api.web.WidgetPropertyType;
+import org.sonar.api.web.WidgetScope;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
@@ -251,7 +250,7 @@ class EditableWidget implements Widget {
   }
 }
 
-@WidgetGlobal
+@WidgetScope("GLOBAL")
 class GlobalWidget implements Widget {
   public String getId() {
     return "global";

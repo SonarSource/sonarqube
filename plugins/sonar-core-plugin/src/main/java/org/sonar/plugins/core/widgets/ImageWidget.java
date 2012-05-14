@@ -22,13 +22,13 @@ package org.sonar.plugins.core.widgets;
 import org.sonar.api.web.AbstractRubyTemplate;
 import org.sonar.api.web.RubyRailsWidget;
 import org.sonar.api.web.WidgetCategory;
-import org.sonar.api.web.WidgetGlobal;
 import org.sonar.api.web.WidgetProperties;
 import org.sonar.api.web.WidgetProperty;
 import org.sonar.api.web.WidgetPropertyType;
+import org.sonar.api.web.WidgetScope;
 
 @WidgetCategory({"Global", "Misc"})
-@WidgetGlobal
+@WidgetScope("GLOBAL")
 @WidgetProperties(
 {
   @WidgetProperty(key = "imageUrl", type = WidgetPropertyType.STRING, defaultValue = "http://www.sonarsource.org/wp-content/themes/sonarsource.org/images/sonar.png"),

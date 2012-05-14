@@ -19,19 +19,19 @@
  */
 package org.sonar.api.web;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
- * A widget is global when it can only be displayed on Global Dashboards.
- * It doesn't display information from a projet but rather more general information.
- * <p>Before version 3.1 no widget was global.</p>
+ * Depending on its scope, a widget can be available for project dashboards <code>(value = "PROJECT")</code>,
+ * global dashboards <code>(value = "GLOBAL")</code> or both <code>(value = {"PROJECT", "GLOBAL"})</code>.
+ * 
+ * <p>Before version 3.1 all widget had a scope <code>"PROJECT"</code>. If a widget is not annotated with {@WidgetScope},
+ * then is is assumed project scoped.</p>
  *
  * @since 3.1
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface WidgetGlobal {
+public @interface WidgetScope {
+  String[] value() default "PROJECT";
 }
