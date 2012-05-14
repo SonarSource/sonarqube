@@ -32,12 +32,14 @@ class WidgetController < ApplicationController
   private
 
   def load_resource
-    @resource=Project.by_key(params[:resource])
-    not_found("Resource not found") unless @resource
-    access_denied unless has_role?(:user, @resource)
+    if params[:resource]
+      @resource=Project.by_key(params[:resource])
+      not_found("Resource not found") unless @resource
+      access_denied unless has_role?(:user, @resource)
 
-    @project=@resource
-    @snapshot = @resource.last_snapshot
+      @project=@resource
+      @snapshot = @resource.last_snapshot
+    end
   end
 
   def load_widget
