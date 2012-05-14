@@ -19,6 +19,10 @@
  */
 package org.sonar.server.ui;
 
+import org.junit.rules.ExpectedException;
+
+import org.junit.Rule;
+
 import org.junit.Test;
 import org.sonar.api.web.DefaultTab;
 import org.sonar.api.web.NavigationSection;
@@ -39,6 +43,9 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThat;
 
 public class ViewProxyTest {
+
+  @Rule
+  public ExpectedException exception = ExpectedException.none();
 
   @Test
   public void compareTo() {
@@ -144,6 +151,15 @@ public class ViewProxyTest {
     ViewProxy proxy = new ViewProxy<Widget>(new GlobalWidget());
 
     assertThat(proxy.isGlobal()).isTrue();
+  }
+
+  @Test
+  public void should_fail_to_load_widget_with_invalid_scope() {
+    exception.expect(IllegalArgumentException.class);
+    exception.expectMessage("INVALID");
+    exception.expectMessage("WidgetWithInvalidScope");
+    
+    new ViewProxy<Widget>(new WidgetWithInvalidScope());
   }
 
   @Test
@@ -258,6 +274,17 @@ class GlobalWidget implements Widget {
 
   public String getTitle() {
     return "Global";
+  }
+}
+
+@WidgetScope("INVALID")
+class WidgetWithInvalidScope implements Widget {
+  public String getId() {
+    return "invalidScope";
+  }
+
+  public String getTitle() {
+    return "InvalidScope";
   }
 }
 
