@@ -5,6 +5,14 @@
   <div id="error<%= widget.id -%>" class="error" style="display: none"></div>
   <table class="table width100">
     <tbody>
+
+    <% if !widget.java_definition.global && @dashboard.global %>
+      <tr>
+        <td class="form-key-cell"><%= message('widget.resource_id') %> *</td>
+        <td class="form-val-cell" id="row_resource"><%= resource_value_field(widget.resource_id) -%></td>
+      </tr>
+    <% end %>
+
     <% widget.java_definition.getWidgetProperties().sort { |w1, w2| natural_comparison(w1.key, w2.key) }.each do |property_def| %>
       <tr>
         <td class="form-key-cell"><%= property_def.key() -%><%= "*" unless property_def.optional()==true -%></td>
@@ -14,13 +22,6 @@
             <%= message("widget." + widget.key + ".param." + property_def.key(), :default => property_def.description()) -%>
           </div>
         </td>
-      </tr>
-    <% end %>
-
-    <% if !widget.java_definition.global && @dashboard.global %>
-      <tr>
-        <td class="form-key-cell"><%= message('widget.resource_id') %> *</td>
-        <td class="form-val-cell" id="row_resource"><%= resource_value_field(widget.resource_id) -%></td>
       </tr>
     <% end %>
 
