@@ -3,6 +3,10 @@
     <h2><%= message('reviews.review_number', :params => h(review.id.to_s)) -%> - <%= h(review.title) -%></h2>
   </div>
 
+  <% if flash[:review_error] %>
+    <div id="review_error" class="error"><%= flash[:review_error] %> <a href="#" onclick="$('review_error').hide(); return false;"><%= message('reviews.hide_this_message') -%></a></div>
+  <% end %>
+
   <%
      if current_user && !review.closed? && review.rule_failure
        violation_switched_off = review.rule_failure.switched_off?

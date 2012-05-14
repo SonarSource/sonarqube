@@ -164,7 +164,12 @@ class ReviewsController < ApplicationController
       if params[:comment_id]
         violation.review.edit_comment(current_user, params[:comment_id].to_i, params[:text])
       else
-        violation.review.create_comment({:user => current_user, :text => params[:text]}, params[:review_command_id])
+        begin
+          violation.review.create_comment({:user => current_user, :text => params[:text]}, params[:review_command_id])
+        rescue Exception => e
+          # the review command may throw an exception
+          flash["review_error_#{violation.id}"] = e.clean_message
+        end
       end
     end
     

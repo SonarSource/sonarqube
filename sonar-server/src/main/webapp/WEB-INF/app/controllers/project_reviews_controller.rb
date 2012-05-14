@@ -262,8 +262,13 @@ class ProjectReviewsController < ApplicationController
       return
     end
 
-    @review.create_comment({:user => current_user, :text => params[:text]}, params[:review_command_id])
-    
+    begin
+      @review.create_comment({:user => current_user, :text => params[:text]}, params[:review_command_id])
+    rescue Exception => e
+      # the review command may throw an exception
+      flash[:review_error] = e.clean_message
+    end
+
     # Needs to reload as the review may have been changed on the Java side by a ReviewAction
     @review.reload
 
