@@ -95,7 +95,7 @@ public class JiraLinkReviewActionTest {
     ArgumentCaptor<Collection> reviewCaptor = ArgumentCaptor.forClass(Collection.class);
     verify(reviewDao).update(reviewCaptor.capture());
     ReviewDto reviewDto = (ReviewDto) reviewCaptor.getValue().iterator().next();
-    assertThat(reviewDto.getData(), is(action.getId() + "=FOO-15"));
+    assertThat(reviewDto.getData(), is("jira-issue-key=FOO-15"));
 
   }
 

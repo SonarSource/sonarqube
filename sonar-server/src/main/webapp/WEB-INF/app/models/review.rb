@@ -267,10 +267,11 @@ class Review < ActiveRecord::Base
 
   def self.filter_commands(commands, violation, user=nil)
     unless commands
-      commands= Review.available_commands_for( Api::ReviewContext.new(:project => violation.snapshot.root_project) )
+      commands= available_commands_for( Api::ReviewContext.new(:project => violation.snapshot.root_project) )
     end
     
     review_context = Api::ReviewContext.new(:review => violation.review, :user => user)
+    puts "################# " + violation.review.data.to_s if violation.review
     actions = Java::OrgSonarServerUi::JRubyFacade.getInstance().filterCommands(commands, review_context.to_string_map, "org.sonar.api.reviews.LinkReviewCommand")
   end
   

@@ -167,6 +167,9 @@ class ReviewsController < ApplicationController
         violation.review.create_comment({:user => current_user, :text => params[:text]}, params[:review_command_id])
       end
     end
+    
+    # Needs to reload as the review may have been changed on the Java side by a ReviewAction
+    violation.review.reload
 
     render :partial => "resource/violation", :locals => {:violation => violation}
   end
