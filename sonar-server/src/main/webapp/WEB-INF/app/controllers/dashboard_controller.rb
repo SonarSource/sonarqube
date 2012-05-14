@@ -151,9 +151,9 @@ class DashboardController < ApplicationController
       elsif params[:name]
         @active=ActiveDashboard.find(:first, :include => 'dashboard', :conditions => ['dashboards.name=? AND active_dashboards.user_id=?', params[:name], current_user.id])
       elsif params[:id]
-        @active=ActiveDashboard.user_dashboards(current_user).find { |a| !a.global? }
+        @active=ActiveDashboard.user_dashboards(current_user, false).first
       else
-        @active=ActiveDashboard.user_dashboards(current_user).find { |a| a.global? }
+        @active=ActiveDashboard.user_dashboards(current_user, true).first
       end
     end
 
@@ -164,9 +164,9 @@ class DashboardController < ApplicationController
       elsif params[:name]
         @active=ActiveDashboard.find(:first, :include => 'dashboard', :conditions => ['dashboards.name=? AND active_dashboards.user_id IS NULL', params[:name]])
       elsif params[:id]
-        @active=ActiveDashboard.user_dashboards(nil).find { |a| !a.global? }
+        @active=ActiveDashboard.user_dashboards(nil, false).first
       else
-        @active=ActiveDashboard.user_dashboards(nil).find { |a| a.global? }
+        @active=ActiveDashboard.user_dashboards(nil, true).first
       end
     end
     @dashboard=(@active ? @active.dashboard : nil)

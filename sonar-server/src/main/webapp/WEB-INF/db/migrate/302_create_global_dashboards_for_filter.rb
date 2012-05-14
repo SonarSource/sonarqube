@@ -38,21 +38,21 @@ class CreateGlobalDashboardsForFilter < ActiveRecord::Migration
   end
 
   def self.up
-    ActiveFilter.find(:all).each do |activeFilter|
-      filter = ::Filter.find(activeFilter.filter_id)
+    dashboard_per_filter = create_global_dahboards()
+    activate_dashboards(dashboard_per_filter)
+    drop_table('active_filters')
+  end
 
-      dashboard = Dashboard.create(:user_id => activeFilter.user_id,
+  def self.create_global_dahboards
+    dashboards = {}
+
+    ::Filter.find(:all).each do |filter|
+      dashboard = Dashboard.create(:user_id => filter.user_id,
                                    :name => filter.name,
                                    :description => '',
                                    :column_layout => '100%',
                                    :shared => filter.shared,
                                    :is_global => true)
-
-      if !filter.favourites || activeFilter.user_id
-        ActiveDashboard.create(:dashboard_id => dashboard.id,
-                               :user_id => activeFilter.user_id,
-                               :order_index => activeFilter.order_index)
-      end
 
       widget = Widget.create(:dashboard_id => dashboard.id,
                              :widget_key => 'filter',
@@ -64,9 +64,26 @@ class CreateGlobalDashboardsForFilter < ActiveRecord::Migration
       WidgetProperty.create(:widget_id => widget.id,
                             :kee => 'filter',
                             :text_value => filter.id)
+
+      dashboards[filter.id] = dashboard
     end
 
-    drop_table('active_filters')
+    dashboards
   end
+
+  def self.activate_dashboards(dashboard_per_filter)
+    ActiveFilter.find(:all).each do |activeFilter|
+      filter = ::Filter.find(activeFilter.filter_id)
+
+      dashboard = dashboard_per_filter[filter.id]
+
+      if !filter.favourites || activeFilter.user_id
+        ActiveDashboard.create(:dashboard_id => dashboard.id,
+                               :user_id => activeFilter.user_id,
+                               :order_index => activeFilter.order_index)
+      end
+    end
+  end
+
 end
 

@@ -27,9 +27,7 @@ class DashboardsController < ApplicationController
   def index
     @global = !params[:resource]
 
-    @actives=ActiveDashboard.user_dashboards(current_user)
-    @actives.reject! { |a| a.global? != @global}
-
+    @actives=ActiveDashboard.user_dashboards(current_user, @global)
     @shared_dashboards=Dashboard.find(:all, :conditions => ['(user_id<>? OR user_id IS NULL) AND shared=?', current_user.id, true], :order => 'name ASC')
     active_dashboard_ids=@actives.map(&:dashboard_id)
     @shared_dashboards.reject! { |d| active_dashboard_ids.include?(d.id) }
