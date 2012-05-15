@@ -75,13 +75,6 @@
       <artifactId>sonar-testing-harness</artifactId>
       <scope>test</scope>
     </dependency>
-    <!-- fbContrib used as a test dependency to test loading of custom plugins -->
-    <dependency>
-      <groupId>com.mebigfatguy</groupId>
-      <artifactId>fbcontrib</artifactId>
-      <version>4.6.1</version>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <build>
