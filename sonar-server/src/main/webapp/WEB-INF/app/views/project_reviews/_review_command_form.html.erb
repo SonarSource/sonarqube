@@ -7,7 +7,7 @@
                        Review.command_label(@review_command),
                        :url => {:action => 'run_review_command'},
                        :html => {:id => "submit_btn"},
-                       :loading => "$('loading').show();",
+                       :before => "$('loading').show();",
                        :update => 'review' -%>
   &nbsp;
   <%= link_to_remote message('cancel'), :url => {:action => 'show', :id => params[:id]}, :update => 'review' -%>

@@ -37,7 +37,7 @@
                          button_label,
                          :url => {:action => 'violation_save_comment'},
                          :html => {:id => "submit_btn"+params[:id]}.merge(@review_command ? {} : {:disabled => "true"}),
-                         :loading => "$('loading-#{params[:id]}').show();",
+                         :before => "$('loading-#{params[:id]}').show();",
                          :update => 'vId'+params[:id] -%>
     &nbsp;
     <%= link_to_function message('cancel'), "cancelViolationAction(#{params[:id]})" -%>
