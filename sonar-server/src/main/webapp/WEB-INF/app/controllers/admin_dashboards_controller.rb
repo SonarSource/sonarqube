@@ -23,50 +23,56 @@ class AdminDashboardsController < ApplicationController
 
   verify :method => :post, :only => [:up, :down, :remove, :add, :delete], :redirect_to => {:action => :index}
   before_filter :admin_required
-  before_filter :load_default_dashboards
 
   def index
-    @default_dashboards=::Dashboard.find(:all, :conditions => {:shared => true}).sort { |a, b| a.name.downcase<=>b.name.downcase }
-    ids=@actives.map { |af| af.dashboard_id }
-    if !ids.nil? && !ids.empty?
-      @default_dashboards=@default_dashboards.reject! { |f| ids.include?(f.id) }
-    end
+    load_default_dashboards
+    ids=@actives.map { |a| a.dashboard_id }
+    @shared_dashboards=Dashboard.find(:all, :conditions => { :shared => true }).sort { |a, b| a.name.downcase<=>b.name.downcase }
+    @shared_dashboards.reject! { |s| ids.include?(s.id) }
   end
 
   def down
     position(+1)
+
+    redirect_to :action => 'index'
   end
 
   def up
     position(-1)
-  end
 
-  def add
-    dashboard=::Dashboard.find(:first, :conditions => ['shared=? and id=?', true, params[:id].to_i()])
-    if dashboard
-      ActiveDashboard.create(:dashboard => dashboard, :user => nil, :order_index => (@actives.max_by(&:order_index).order_index+1))
-      flash[:notice]='Default dashboard added.'
-    end
     redirect_to :action => 'index'
   end
 
-  # Remove dashboard from defaults
+  def add
+    load_default_dashboards
+
+    dashboard=Dashboard.find(:first, :conditions => { :shared => true, :id => params[:id].to_i })
+    if dashboard
+      ActiveDashboard.create(:dashboard => dashboard, :user => nil, :order_index => @actives.max_by(&:order_index).order_index+1)
+      flash[:notice]='Default dashboard added.'
+    end
+
+    redirect_to :action => 'index'
+  end
+
   def remove
+    load_default_dashboards
+
     if @actives.size<=1
       flash[:error]='At least one dashboard must be defined as default.'
     else
-      active=@actives.to_a.find { |af| af.id==params[:id].to_i }
+      active=@actives.find { |af| af.id==params[:id].to_i }
       if active
         active.destroy
         flash[:notice]='Dashboard removed from default dashboards.'
       end
     end
+
     redirect_to :action => 'index'
   end
 
-  # Completely delete dashboard
   def delete
-    dashboard=::Dashboard.find(params[:id])
+    dashboard=Dashboard.find(params[:id])
     bad_request('Bad dashboard') unless dashboard
     bad_request('This dashboard can not be deleted') unless dashboard.provided_programmatically?
 
@@ -75,6 +81,7 @@ class AdminDashboardsController < ApplicationController
     else
       flash[:error]="Can't be deleted as long as it's used as default dashboard."
     end
+
     redirect_to :action => 'index'
   end
 
@@ -85,6 +92,8 @@ class AdminDashboardsController < ApplicationController
   end
 
   def position(offset)
+    load_default_dashboards
+
     to_move = @actives.find { |a| a.id == params[:id].to_i}
     if to_move
       dashboards_same_type=@actives.select { |a| (a.global? == to_move.global?) }.sort_by(&:order_index)
@@ -97,8 +106,6 @@ class AdminDashboardsController < ApplicationController
         a.save
       end
     end
-
-    redirect_to :action => 'index'
   end
 
 end

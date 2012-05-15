@@ -25,12 +25,12 @@
     </tr>
     </thead>
     <tbody>
-    <% if @default_dashboards.nil? || @default_dashboards.empty? %>
+    <% if @shared_dashboards.empty? %>
       <tr class="even">
         <td colspan="4"><%= message('dashboard.no_dashboard') -%></td>
       </tr>
     <% else %>
-      <% @default_dashboards.each do |dashboard| %>
+      <% @shared_dashboards.each do |dashboard| %>
         <tr class="<%= cycle('even', 'odd') -%>">
           <td>
             <div><%= h(dashboard.name(true)) -%></div>

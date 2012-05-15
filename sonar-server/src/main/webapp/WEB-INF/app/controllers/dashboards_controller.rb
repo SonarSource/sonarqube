@@ -54,16 +54,14 @@ class DashboardsController < ApplicationController
     if active_dashboard
       flash[:error]=Api::Utils.message('dashboard.error_create_existing_name')
       redirect_to :controller => 'dashboards', :action => 'index', :resource => params[:resource]
+    elsif @dashboard.save
+      add_default_dashboards_if_first_user_dashboard
+      last_active_dashboard=current_user.active_dashboards.max_by(&:order_index)
+      current_user.active_dashboards.create(:dashboard => @dashboard, :user_id => current_user.id, :order_index => (last_active_dashboard ? last_active_dashboard.order_index+1 : 1))
+      redirect_to :controller => 'dashboard', :action => 'configure', :did => @dashboard.id, :id => (params[:resource] unless @dashboard.global)
     else
-      if @dashboard.save
-        add_default_dashboards_if_first_user_dashboard
-        last_active_dashboard=current_user.active_dashboards.max_by(&:order_index)
-        current_user.active_dashboards.create(:dashboard => @dashboard, :user_id => current_user.id, :order_index => (last_active_dashboard ? last_active_dashboard.order_index+1 : 1))
-        redirect_to :controller => 'dashboard', :action => 'configure', :did => @dashboard.id, :id => (params[:resource] unless @dashboard.global)
-      else
-        flash[:error]=@dashboard.errors.full_messages.join('<br/>')
-        redirect_to :controller => 'dashboards', :action => 'index', :resource => params[:resource]
-      end
+      flash[:error]=@dashboard.errors.full_messages.join('<br/>')
+      redirect_to :controller => 'dashboards', :action => 'index', :resource => params[:resource]
     end
   end
 
