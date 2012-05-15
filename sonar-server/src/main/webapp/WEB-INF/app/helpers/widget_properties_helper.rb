@@ -37,11 +37,10 @@ module WidgetPropertiesHelper
       text_field_tag definition.key(), val, :size => 10
 
     elsif definition.type.name()==WidgetProperty::TYPE_FILTER
-      user_filters = ::Filter.find(:all, :conditions => ['user_id=?', current_user.id]).sort_by(&:id).collect { |f| "<option value='#{f.id}'" + (value == f.id.to_s ? " selected='selected'" : "") + ">#{f.name}</option>" }
-      shared_filters = ::Filter.find(:all, :conditions => ['(user_id<>? or user_id is null) and shared=?', current_user.id, true]).sort_by(&:id).collect { |f| "<option value='#{f.id}'" + (value == f.id.to_s ? " selected='selected'" : "") + ">#{f.name}</option>" }
-      all_filters = '<optgroup label="My Filters">' + user_filters.to_s + '</optgroup>' + '<optgroup label="Shared Filters">' + shared_filters.to_s + '</optgroup>'
+      user_filters = options(value, ::Filter.find(:all, :conditions => ['user_id=?', current_user.id]).sort_by(&:id))
+      shared_filters = options(value, ::Filter.find(:all, :conditions => ['(user_id<>? or user_id is null) and shared=?', current_user.id, true]).sort_by(&:id))
 
-      select_tag definition.key(), all_filters
+      select_tag definition.key(), option_group('My Filters', user_filters) + option_group('Shared Filters', shared_filters)
 
     else
       hidden_field_tag definition.key()
@@ -49,7 +48,15 @@ module WidgetPropertiesHelper
   end
 
   def resource_value_field(value)
-    select_tag 'resource_id', Project.all(:conditions => {:scope => 'PRJ', :qualifier => 'TRK'}).collect { |f| "<option value='#{f.id}'" + (value == f.id ? " selected='selected'" : "") + ">#{f.name}</option>" }
+    select_tag 'resource_id', options(value, Project.all(:conditions => {:scope => 'PRJ', :qualifier => 'TRK'}))
+  end
+
+  def options(value, values)
+    values.collect { |f| "<option value='#{f.id}'" + (value.to_s == f.id.to_s ? " selected='selected'" : "") + ">#{f.name}</option>" }.to_s
+  end
+
+  def option_group(name, options)
+    options.empty? ? '' : "<optgroup label=\"#{name}\">" + options + "</optgroup>"
   end
 
 end
