@@ -1126,4 +1126,76 @@
   <Match>
     <Bug pattern="DLS_OVERWRITTEN_INCREMENT"/>
   </Match>
+  <Match>
+    <Bug pattern="AT_OPERATION_SEQUENCE_ON_CONCURRENT_ABSTRACTION"/>
+  </Match>
+  <Match>
+    <Bug pattern="BX_UNBOXING_IMMEDIATELY_REBOXED"/>
+  </Match>
+  <Match>
+    <Bug pattern="CO_COMPARETO_RESULTS_MIN_VALUE"/>
+  </Match>
+  <Match>
+    <Bug pattern="DLS_DEAD_LOCAL_STORE_SHADOWS_FIELD"/>
+  </Match>
+  <Match>
+    <Bug pattern="DMI_ARGUMENTS_WRONG_ORDER"/>
+  </Match>
+  <Match>
+    <Bug pattern="DMI_BIGDECIMAL_CONSTRUCTED_FROM_DOUBLE"/>
+  </Match>
+  <Match>
+    <Bug pattern="DMI_DOH"/>
+  </Match>
+  <Match>
+    <Bug pattern="DMI_ENTRY_SETS_MAY_REUSE_ENTRY_OBJECTS"/>
+  </Match>
+  <Match>
+    <Bug pattern="DM_DEFAULT_ENCODING"/>
+  </Match>
+  <Match>
+    <Bug pattern="ICAST_INT_2_LONG_AS_INSTANT"/>
+  </Match>
+  <Match>
+    <Bug pattern="INT_BAD_COMPARISON_WITH_INT_VALUE"/>
+  </Match>
+  <Match>
+    <Bug pattern="JML_JSR166_CALLING_WAIT_RATHER_THAN_AWAIT"/>
+  </Match>
+  <Match>
+    <Bug pattern="NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD"/>
+  </Match>
+  <Match>
+    <Bug pattern="OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE"/>
+  </Match>
+  <Match>
+    <Bug pattern="PZ_DONT_REUSE_ENTRY_OBJECTS_IN_ITERATORS"/>
+  </Match>
+  <Match>
+    <Bug pattern="RV_CHECK_COMPARETO_FOR_SPECIFIC_RETURN_VALUE"/>
+  </Match>
+  <Match>
+    <Bug pattern="RV_NEGATING_RESULT_OF_COMPARETO"/>
+  </Match>
+  <Match>
+    <Bug pattern="RV_RETURN_VALUE_IGNORED_INFERRED"/>
+  </Match>
+  <Match>
+    <Bug pattern="SA_LOCAL_SELF_ASSIGNMENT_INSTEAD_OF_FIELD"/>
+  </Match>
+  <Match>
+    <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
+  </Match>
+  <Match>
+    <Bug pattern="UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD"/>
+  </Match>
+  <Match>
+    <Bug pattern="UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD"/>
+  </Match>
+  <Match>
+    <Bug pattern="VA_FORMAT_STRING_USES_NEWLINE"/>
+  </Match>
+  <Match>
+    <Bug pattern="VO_VOLATILE_INCREMENT"/>
+  </Match>
 </FindBugsFilter>

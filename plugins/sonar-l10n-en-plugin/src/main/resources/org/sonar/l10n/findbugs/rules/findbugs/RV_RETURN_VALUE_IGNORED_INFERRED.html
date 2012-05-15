@@ -1,0 +1,8 @@
+<p>This code calls a method and ignores the return value. The return value is the same type as the type the 
+method is invoked on, and from our analysis it looks like the return value might be important (e.g., like 
+ignoring the return value of <code>String.toLowerCase()</code>).
+</p>
+<p>We are guessing that ignoring the return value might be a bad idea just from a simple analysis of the 
+body of the method. You can use a <code>@CheckReturnValue</code> annotation to instruct FindBugs as to whether 
+ignoring the return value of this method is important or acceptable.<p>
+<p>Please investigate this closely to decide whether it is OK to ignore the return value. </p>

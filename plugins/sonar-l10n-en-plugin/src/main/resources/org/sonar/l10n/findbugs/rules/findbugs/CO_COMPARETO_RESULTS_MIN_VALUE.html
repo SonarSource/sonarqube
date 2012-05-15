@@ -1,0 +1,5 @@
+<p>In some situation, this compareTo or compare method returns the constant Integer.MIN_VALUE, 
+which is an exceptionally bad practice. The only thing that matters about the return value of 
+compareTo is the sign of the result. But people will sometimes negate the return value of compareTo, 
+expecting that this will negate the sign of the result. And it will, except in the case where 
+the value returned is Integer.MIN_VALUE. So just return -1 rather than Integer.MIN_VALUE.</p>

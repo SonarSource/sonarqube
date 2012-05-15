@@ -2751,4 +2751,172 @@
     <configKey><![CDATA[LG_LOST_LOGGER_DUE_TO_WEAK_REFERENCE]]></configKey>
 
   </rule>
+
+  <rule key="AT_OPERATION_SEQUENCE_ON_CONCURRENT_ABSTRACTION">
+    <priority>MAJOR</priority>
+    <name><![CDATA[Sequence of calls to concurrent abstraction may not be atomic]]></name>
+    <configKey><![CDATA[AT_OPERATION_SEQUENCE_ON_CONCURRENT_ABSTRACTION]]></configKey>
+
+  </rule>
+
+  <rule key="BX_UNBOXING_IMMEDIATELY_REBOXED">
+    <priority>MAJOR</priority>
+    <name><![CDATA[Boxed value is unboxed and then immediately reboxed]]></name>
+    <configKey><![CDATA[BX_UNBOXING_IMMEDIATELY_REBOXED]]></configKey>
+
+  </rule>
+
+  <rule key="CO_COMPARETO_RESULTS_MIN_VALUE">
+    <priority>MAJOR</priority>
+    <name><![CDATA[compareTo()/compare() returns Integer.MIN_VALUE]]></name>
+    <configKey><![CDATA[CO_COMPARETO_RESULTS_MIN_VALUE]]></configKey>
+
+  </rule>
+
+  <rule key="DLS_DEAD_LOCAL_STORE_SHADOWS_FIELD">
+    <priority>MAJOR</priority>
+    <name><![CDATA[Dead store to local variable that shadows field]]></name>
+    <configKey><![CDATA[DLS_DEAD_LOCAL_STORE_SHADOWS_FIELD]]></configKey>
+
+  </rule>
+
+  <rule key="DMI_ARGUMENTS_WRONG_ORDER">
+    <priority>MINOR</priority>
+    <name><![CDATA[Reversed method arguments]]></name>
+    <configKey><![CDATA[DMI_ARGUMENTS_WRONG_ORDER]]></configKey>
+
+  </rule>
+
+  <rule key="DMI_BIGDECIMAL_CONSTRUCTED_FROM_DOUBLE">
+    <priority>MAJOR</priority>
+    <name><![CDATA[BigDecimal constructed from double that isn't represented precisely]]></name>
+    <configKey><![CDATA[DMI_BIGDECIMAL_CONSTRUCTED_FROM_DOUBLE]]></configKey>
+
+  </rule>
+
+  <rule key="DMI_DOH">
+    <priority>MAJOR</priority>
+    <name><![CDATA[D'oh! A nonsensical method invocation]]></name>
+    <configKey><![CDATA[DMI_DOH]]></configKey>
+
+  </rule>
+
+  <rule key="DMI_ENTRY_SETS_MAY_REUSE_ENTRY_OBJECTS">
+    <priority>MAJOR</priority>
+    <name><![CDATA[Adding elements of an entry set may fail due to reuse of Entry objects]]></name>
+    <configKey><![CDATA[DMI_ENTRY_SETS_MAY_REUSE_ENTRY_OBJECTS]]></configKey>
+
+  </rule>
+
+  <rule key="DM_DEFAULT_ENCODING">
+    <priority>MAJOR</priority>
+    <name><![CDATA[Reliance on default encoding]]></name>
+    <configKey><![CDATA[DM_DEFAULT_ENCODING]]></configKey>
+
+  </rule>
+
+  <rule key="ICAST_INT_2_LONG_AS_INSTANT">
+    <priority>MAJOR</priority>
+    <name><![CDATA[int value converted to long and used as absolute time]]></name>
+    <configKey><![CDATA[ICAST_INT_2_LONG_AS_INSTANT]]></configKey>
+
+  </rule>
+
+  <rule key="INT_BAD_COMPARISON_WITH_INT_VALUE">
+    <priority>MAJOR</priority>
+    <name><![CDATA[Bad comparison of int value with long constant]]></name>
+    <configKey><![CDATA[INT_BAD_COMPARISON_WITH_INT_VALUE]]></configKey>
+
+  </rule>
+
+  <rule key="JML_JSR166_CALLING_WAIT_RATHER_THAN_AWAIT">
+    <priority>MAJOR</priority>
+    <name><![CDATA[Using monitor style wait methods on util.concurrent abstraction]]></name>
+    <configKey><![CDATA[JML_JSR166_CALLING_WAIT_RATHER_THAN_AWAIT]]></configKey>
+
+  </rule>
+
+  <rule key="NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD">
+    <priority>MAJOR</priority>
+    <name><![CDATA[Read of unwritten public or protected field]]></name>
+    <configKey><![CDATA[NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD]]></configKey>
+
+  </rule>
+
+  <rule key="OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE">
+    <priority>CRITICAL</priority>
+    <name><![CDATA[Method may fail to clean up stream or resource on checked exception]]></name>
+    <configKey><![CDATA[OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE]]></configKey>
+
+  </rule>
+
+  <rule key="PZ_DONT_REUSE_ENTRY_OBJECTS_IN_ITERATORS">
+    <priority>MAJOR</priority>
+    <name><![CDATA[Don't reuse entry objects in iterators]]></name>
+    <configKey><![CDATA[PZ_DONT_REUSE_ENTRY_OBJECTS_IN_ITERATORS]]></configKey>
+
+  </rule>
+
+  <rule key="RV_CHECK_COMPARETO_FOR_SPECIFIC_RETURN_VALUE">
+    <priority>MAJOR</priority>
+    <name><![CDATA[Code checks for specific values returned by compareTo]]></name>
+    <configKey><![CDATA[RV_CHECK_COMPARETO_FOR_SPECIFIC_RETURN_VALUE]]></configKey>
+
+  </rule>
+
+  <rule key="RV_NEGATING_RESULT_OF_COMPARETO">
+    <priority>MINOR</priority>
+    <name><![CDATA[Negating the result of compareTo()/compare()]]></name>
+    <configKey><![CDATA[RV_NEGATING_RESULT_OF_COMPARETO]]></configKey>
+
+  </rule>
+
+  <rule key="RV_RETURN_VALUE_IGNORED_INFERRED">
+    <priority>MINOR</priority>
+    <name><![CDATA[Method ignores return value, is this OK?]]></name>
+    <configKey><![CDATA[RV_RETURN_VALUE_IGNORED_INFERRED]]></configKey>
+
+  </rule>
+
+  <rule key="SA_LOCAL_SELF_ASSIGNMENT_INSTEAD_OF_FIELD">
+    <priority>MAJOR</priority>
+    <name><![CDATA[Self assignment of local rather than assignment to field]]></name>
+    <configKey><![CDATA[SA_LOCAL_SELF_ASSIGNMENT_INSTEAD_OF_FIELD]]></configKey>
+
+  </rule>
+
+  <rule key="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD">
+    <priority>INFO</priority>
+    <name><![CDATA[Unread public/protected field]]></name>
+    <configKey><![CDATA[URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD]]></configKey>
+
+  </rule>
+
+  <rule key="UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD">
+    <priority>INFO</priority>
+    <name><![CDATA[Unused public or protected field]]></name>
+    <configKey><![CDATA[UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD]]></configKey>
+
+  </rule>
+
+  <rule key="UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD">
+    <priority>MINOR</priority>
+    <name><![CDATA[Unwritten public or protected field]]></name>
+    <configKey><![CDATA[UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD]]></configKey>
+
+  </rule>
+
+  <rule key="VA_FORMAT_STRING_USES_NEWLINE">
+    <priority>MAJOR</priority>
+    <name><![CDATA[Format string should use %n rather than \n]]></name>
+    <configKey><![CDATA[VA_FORMAT_STRING_USES_NEWLINE]]></configKey>
+
+  </rule>
+
+  <rule key="VO_VOLATILE_INCREMENT">
+    <priority>CRITICAL</priority>
+    <name><![CDATA[An increment to a volatile field isn't atomic]]></name>
+    <configKey><![CDATA[VO_VOLATILE_INCREMENT]]></configKey>
+
+  </rule>
 </rules>

@@ -1,0 +1,4 @@
+<p>The entrySet() method is allowed to return a view of the underlying Map in which an <code>Iterator</code> 
+and <code>Map.Entry</code>. This clever idea was used in several Map implementations, but introduces the possibility of
+ nasty coding mistakes. If a map m returns such an iterator for an entrySet, then <code>c.addAll(m.entrySet())</code> will 
+ go badly wrong. All of the Map implementations in OpenJDK 1.7 have been rewritten to avoid this, you should to.</p>

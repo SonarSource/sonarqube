@@ -1,0 +1,20 @@
+<p>This code converts a 32-bit int value to a 64-bit long value, and then passes that value for a 
+method parameter that requires an absolute time value. An absolute time value is the number of 
+milliseconds since the standard base time known as "the epoch", namely January 1, 1970, 00:00:00 GMT. 
+For example, the following method, intended to convert seconds since the epoc into a Date, is badly broken:
+<pre>
+Date getDate(int seconds) { return new Date(seconds * 1000); }
+</pre>
+</p>
+<p>The multiplication is done using 32-bit arithmetic, and then converted to a 64-bit value. When a 32-bit 
+value is converted to 64-bits and used to express an absolute time value, only dates in December 1969 and 
+January 1970 can be represented.</p>
+<p>Correct implementations for the above method are:
+<pre>
+// Fails for dates after 2037
+Date getDate(int seconds) { return new Date(seconds * 1000L); }
+
+// better, works for all dates
+Date getDate(long seconds) { return new Date(seconds * 1000); }
+</pre>
+</p>
