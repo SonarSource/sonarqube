@@ -38,7 +38,7 @@ module WidgetPropertiesHelper
 
     elsif definition.type.name()==WidgetProperty::TYPE_FILTER
       user_filters = ::Filter.find(:all, :conditions => ['user_id=?', current_user.id]).sort_by(&:id).collect { |f| "<option value='#{f.id}'" + (value == f.id.to_s ? " selected='selected'" : "") + ">#{f.name}</option>" }
-      shared_filters = ::Filter.find(:all, :conditions => ['(user_id<>? or user_id is null) and shared is true', current_user.id]).sort_by(&:id).collect { |f| "<option value='#{f.id}'" + (value == f.id.to_s ? " selected='selected'" : "") + ">#{f.name}</option>" }
+      shared_filters = ::Filter.find(:all, :conditions => ['(user_id<>? or user_id is null) and shared=?', current_user.id, true]).sort_by(&:id).collect { |f| "<option value='#{f.id}'" + (value == f.id.to_s ? " selected='selected'" : "") + ">#{f.name}</option>" }
       all_filters = '<optgroup label="My Filters">' + user_filters.to_s + '</optgroup>' + '<optgroup label="Shared Filters">' + shared_filters.to_s + '</optgroup>'
 
       select_tag definition.key(), all_filters
