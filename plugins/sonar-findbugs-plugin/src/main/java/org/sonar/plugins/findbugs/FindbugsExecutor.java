@@ -19,11 +19,17 @@
  */
 package org.sonar.plugins.findbugs;
 
-import edu.umd.cs.findbugs.Priorities;
-
 import com.google.common.collect.Lists;
-import edu.umd.cs.findbugs.*;
+import edu.umd.cs.findbugs.DetectorFactoryCollection;
+import edu.umd.cs.findbugs.FindBugs;
+import edu.umd.cs.findbugs.FindBugs2;
+import edu.umd.cs.findbugs.Plugin;
+import edu.umd.cs.findbugs.PluginException;
+import edu.umd.cs.findbugs.Priorities;
+import edu.umd.cs.findbugs.Project;
+import edu.umd.cs.findbugs.XMLBugReporter;
 import edu.umd.cs.findbugs.config.UserPreferences;
+import edu.umd.cs.findbugs.plugins.DuplicatePluginIdException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
@@ -31,7 +37,6 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
-import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
 
@@ -39,8 +44,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.lang.reflect.Field;
 import java.net.URL;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -67,11 +72,12 @@ public class FindbugsExecutor implements BatchExtension {
     Thread.currentThread().setContextClassLoader(FindBugs2.class.getClassLoader());
 
     OutputStream xmlOutput = null;
+    Collection<Plugin> customPlugins = null;
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     try {
-      DetectorFactoryCollection detectorFactory = loadFindbugsPlugins();
-
       final FindBugs2 engine = new FindBugs2();
+
+      customPlugins = loadFindbugsPlugins();
 
       Project project = configuration.getFindbugsProject();
       engine.setProject(project);
@@ -106,7 +112,7 @@ public class FindbugsExecutor implements BatchExtension {
         }
       }
 
-      engine.setDetectorFactoryCollection(detectorFactory);
+      engine.setDetectorFactoryCollection(DetectorFactoryCollection.instance());
       engine.setAnalysisFeatureSettings(FindBugs.DEFAULT_EFFORT);
 
       engine.finishSettings();
@@ -115,12 +121,11 @@ public class FindbugsExecutor implements BatchExtension {
 
       profiler.stop();
 
-      resetDetectorFactoryCollection();
-
       return xmlReport;
     } catch (Exception e) {
       throw new SonarException("Can not execute Findbugs", e);
     } finally {
+      resetCustomPluginList(customPlugins);
       executorService.shutdown();
       IOUtils.closeQuietly(xmlOutput);
       Thread.currentThread().setContextClassLoader(initialClassLoader);
@@ -145,40 +150,43 @@ public class FindbugsExecutor implements BatchExtension {
     }
   }
 
-  private DetectorFactoryCollection loadFindbugsPlugins() {
-    List<URL> plugins = Lists.newArrayList();
+  private Collection<Plugin> loadFindbugsPlugins() {
+    ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+
+    List<String> pluginJarPathList = Lists.newArrayList();
     try {
-      Enumeration<URL> urls = Thread.currentThread().getContextClassLoader().getResources("findbugs.xml");
+      Enumeration<URL> urls = contextClassLoader.getResources("findbugs.xml");
       while (urls.hasMoreElements()) {
         URL url = urls.nextElement();
-        String path = StringUtils.removeStart(StringUtils.substringBefore(url.toString(), "!"), "jar:");
-        Logs.INFO.info("Found findbugs plugin: " + path);
-        plugins.add(new URL(path));
+        pluginJarPathList.add(StringUtils.removeStart(StringUtils.substringBefore(url.toString(), "!"), "jar:file:"));
       }
     } catch (IOException e) {
       throw new SonarException(e);
     }
 
-    resetDetectorFactoryCollection();
-    DetectorFactoryCollection detectorFactory = DetectorFactoryCollection.rawInstance();
-    detectorFactory.setPluginList(plugins.toArray(new URL[plugins.size()]));
-    for (Plugin plugin : detectorFactory.plugins()) {
-      Logs.INFO.info("Loaded plugin " + plugin.getPluginId());
+    List<Plugin> customPluginList = Lists.newArrayList();
+    for (String path : pluginJarPathList) {
+      try {
+        Plugin plugin = Plugin.addCustomPlugin(new File(path).toURI(), contextClassLoader);
+        if (plugin != null) {
+          customPluginList.add(plugin);
+          LOG.info("Found findbugs plugin: " + path);
+        }
+      } catch (PluginException e) {
+        LOG.warn("Failed to load plugin for custom detector: " + path);
+      } catch (DuplicatePluginIdException e) {
+        // simply ignore this
+      }
     }
 
-    return detectorFactory;
+    return customPluginList;
   }
 
-  /**
-   * Unfortunately without reflection it's impossible to reset {@link DetectorFactoryCollection}.
-   */
-  private static void resetDetectorFactoryCollection() {
-    try {
-      Field field = DetectorFactoryCollection.class.getDeclaredField("theInstance");
-      field.setAccessible(true);
-      field.set(null, null);
-    } catch (Exception e) {
-      throw new SonarException(e);
+  private static void resetCustomPluginList(Collection<Plugin> customPlugins) {
+    if (customPlugins != null) {
+      for (Plugin plugin : customPlugins) {
+        Plugin.removeCustomPlugin(plugin);
+      }
     }
   }
 

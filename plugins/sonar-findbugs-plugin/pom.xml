@@ -14,7 +14,7 @@
   <description>FindBugs is a program that uses static analysis to look for bugs in Java code. It can detect a variety of common coding mistakes, including thread synchronization problems, misuse of API methods.</description>
 
   <properties>
-    <findbugs.version>1.3.9</findbugs.version>
+    <findbugs.version>2.0.0</findbugs.version>
   </properties>
 
   <dependencies>
@@ -73,6 +73,13 @@
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-testing-harness</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <!-- fbContrib used as a test dependency to test loading of custom plugins -->
+    <dependency>
+      <groupId>com.mebigfatguy</groupId>
+      <artifactId>fbcontrib</artifactId>
+      <version>4.6.1</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -135,7 +142,7 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <maxsize>4500000</maxsize>
+                  <maxsize>4600000</maxsize>
                   <minsize>4000000</minsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}.jar</file>
