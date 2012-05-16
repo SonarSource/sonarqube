@@ -5,7 +5,9 @@
     <div class="widget-title">
       <% if filter %>
         <%= filter.name -%>
-        <%= period_names[filter.period_index] if filter.period_index -%>
+        <% if filter.period_index %>
+          (<%= period_names[filter.period_index] -%>)
+        <% end %>
       <% end %>
     </div>
   <% elsif @resource && !widget.java_definition.global %>
