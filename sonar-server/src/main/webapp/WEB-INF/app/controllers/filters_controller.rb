@@ -25,15 +25,20 @@ class FiltersController < ApplicationController
   SECTION=Navigation::SECTION_CONFIGURATION
 
   verify :method => :post, :only => [:create, :delete, :up, :down, :activate, :deactivate, :up_column, :down_column, :add_column, :delete_column, :set_sorted_column, :set_view, :set_columns, :set_page_size], :redirect_to => {:action => :index}
-  before_filter :login_required, :except => ['index', 'treemap']
+  before_filter :login_required, :except => %w(index treemap)
 
   def manage
-    @filters = ::Filter.find(:all, :conditions => ['user_id=? or shared=?', current_user.id, true])
+    if is_admin?
+      @filters = ::Filter.find(:all, :conditions => ['user_id=? or shared=?', current_user.id, true])
+    else
+      @filters = ::Filter.find(:all, :conditions => {:user_id => current_user.id})
+    end
+    @filters.sort! { |a,b| a.name.downcase <=> b.name.downcase }
   end
 
   def new
     @filter=::Filter.new()
-    @filter.criteria<<Criterion.new_for_qualifiers(['TRK'])
+    @filter.criteria<<Criterion.new_for_qualifiers(%w(TRK))
   end
 
   def create
@@ -95,11 +100,14 @@ class FiltersController < ApplicationController
   end
 
   def delete
-    filter=::Filter.find(:first, :conditions => {:id => params[:id].to_i, :user_id => current_user.id})
-    if filter
-      filter.destroy
+    @filter=::Filter.find(params[:id])
+    access_denied unless @filter.authorized_to_edit?(self)
+
+    if @filter
+      @filter.destroy
       flash[:notice]='Filter deleted'
     end
+
     redirect_to :action => 'manage'
   end
 
@@ -281,9 +289,9 @@ class FiltersController < ApplicationController
     @height=(params[:height]||'500').to_i
 
     @treemap = Sonar::Treemap.new(@filter.id, @size_metric, @width, @height, {
-      :color_metric => @color_metric,
-      :period_index => @filter_context.period_index,
-      :measures_by_snapshot => @filter_context.measures_by_snapshot
+        :color_metric => @color_metric,
+        :period_index => @filter_context.period_index,
+        :measures_by_snapshot => @filter_context.measures_by_snapshot
     })
 
 
