@@ -68,6 +68,7 @@ public class FindbugsExecutor implements BatchExtension {
 
   public File execute() {
     TimeProfiler profiler = new TimeProfiler().start("Execute Findbugs " + FindbugsVersion.getVersion());
+    SecurityManager currentSecurityManager = System.getSecurityManager();
     ClassLoader initialClassLoader = Thread.currentThread().getContextClassLoader();
     Thread.currentThread().setContextClassLoader(FindBugs2.class.getClassLoader());
 
@@ -125,6 +126,7 @@ public class FindbugsExecutor implements BatchExtension {
     } catch (Exception e) {
       throw new SonarException("Can not execute Findbugs", e);
     } finally {
+      System.setSecurityManager(currentSecurityManager);
       resetCustomPluginList(customPlugins);
       executorService.shutdown();
       IOUtils.closeQuietly(xmlOutput);
