@@ -104,8 +104,12 @@ class FiltersController < ApplicationController
     access_denied unless @filter.authorized_to_edit?(self)
 
     if @filter
-      @filter.destroy
-      flash[:notice]='Filter deleted'
+      if WidgetProperty.find(:first, :conditions => { :kee => 'filter', :text_value => @filter.id.to_s})
+        flash[:error]='The filter is used in at least one dashboard. It cannot be deleted'
+      else
+        @filter.destroy
+        flash[:notice]='Filter deleted'
+      end
     end
 
     redirect_to :action => 'manage'
