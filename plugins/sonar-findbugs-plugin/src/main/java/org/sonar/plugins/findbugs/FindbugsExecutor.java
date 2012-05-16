@@ -80,6 +80,8 @@ public class FindbugsExecutor implements BatchExtension {
 
       customPlugins = loadFindbugsPlugins();
 
+      disableUpdateChecksOnEveryPlugin();
+
       Project project = configuration.getFindbugsProject();
       engine.setProject(project);
 
@@ -182,6 +184,12 @@ public class FindbugsExecutor implements BatchExtension {
     }
 
     return customPluginList;
+  }
+
+  private void disableUpdateChecksOnEveryPlugin() {
+    for (Plugin plugin : Plugin.getAllPlugins()) {
+      plugin.setMyGlobalOption("noUpdateChecks", "true");
+    }
   }
 
   private static void resetCustomPluginList(Collection<Plugin> customPlugins) {
