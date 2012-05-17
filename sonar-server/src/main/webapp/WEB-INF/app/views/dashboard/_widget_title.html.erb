@@ -6,7 +6,7 @@
       <% if filter %>
         <%= filter.name -%>
         <% if filter.period_index %>
-          (<%= period_names[filter.period_index] -%>)
+          (<%= period_names[filter.period_index-1] -%>)
         <% end %>
       <% end %>
     </div>
