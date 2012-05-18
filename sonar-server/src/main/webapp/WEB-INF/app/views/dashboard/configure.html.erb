@@ -14,7 +14,7 @@
           '33%-33%-33%', 'layout333333.png'
          }.each_pair do |layout, picto| %>
         <div class="select-layout <%= 'selected' if @dashboard.layout==layout -%>">
-          <%= link_to image_tag(picto), dashboard_action(:set_layout, :layout => layout), :method => :post %>
+          <%= link_to image_tag(picto), dashboard_action(:set_layout, :layout => layout), :method => :post, :title => layout %>
         </div>
       <% end %>
     </div>
