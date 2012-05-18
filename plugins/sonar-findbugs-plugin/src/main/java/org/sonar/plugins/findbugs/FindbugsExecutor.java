@@ -68,6 +68,8 @@ public class FindbugsExecutor implements BatchExtension {
 
   public File execute() {
     TimeProfiler profiler = new TimeProfiler().start("Execute Findbugs " + FindbugsVersion.getVersion());
+    // We keep a handle on the current security manager because FB plays with it and we need to restore it before shutting down the executor
+    // service
     SecurityManager currentSecurityManager = System.getSecurityManager();
     ClassLoader initialClassLoader = Thread.currentThread().getContextClassLoader();
     Thread.currentThread().setContextClassLoader(FindBugs2.class.getClassLoader());
@@ -128,6 +130,7 @@ public class FindbugsExecutor implements BatchExtension {
     } catch (Exception e) {
       throw new SonarException("Can not execute Findbugs", e);
     } finally {
+      // we set back the original security manager BEFORE shutting down the executor service, otherwise there's a problem with Java 5
       System.setSecurityManager(currentSecurityManager);
       resetCustomPluginList(customPlugins);
       executorService.shutdown();
@@ -180,12 +183,16 @@ public class FindbugsExecutor implements BatchExtension {
         LOG.warn("Failed to load plugin for custom detector: " + path);
       } catch (DuplicatePluginIdException e) {
         // simply ignore this
+        LOG.debug("Plugin already loaded: exception ignored: " + e.getMessage());
       }
     }
 
     return customPluginList;
   }
 
+  /**
+   * Disable the update check for every plugin. See http://findbugs.sourceforge.net/updateChecking.html
+   */
   private void disableUpdateChecksOnEveryPlugin() {
     for (Plugin plugin : Plugin.getAllPlugins()) {
       plugin.setMyGlobalOption("noUpdateChecks", "true");
