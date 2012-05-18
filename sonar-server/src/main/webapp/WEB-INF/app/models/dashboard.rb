@@ -23,7 +23,7 @@ class Dashboard < ActiveRecord::Base
 
   belongs_to :user
 
-  has_many :widgets, :include => 'properties', :dependent => :delete_all
+  has_many :widgets, :include => 'properties', :dependent => :destroy
   has_many :active_dashboards, :dependent => :destroy
 
   validates_length_of :name, :within => 1..256
