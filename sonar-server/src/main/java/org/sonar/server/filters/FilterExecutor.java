@@ -19,6 +19,7 @@
  */
 package org.sonar.server.filters;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,9 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.core.persistence.Database;
+import org.sonar.core.persistence.dialect.Dialect;
+import org.sonar.core.persistence.dialect.MsSql;
 
 import javax.persistence.Query;
 import java.util.Collections;
@@ -35,16 +39,23 @@ public class FilterExecutor implements ServerComponent {
   private static final Logger LOG = LoggerFactory.getLogger(FilterExecutor.class);
   private static final int SQL_INITIAL_SIZE = 1000;
   private DatabaseSession session;
+  private Dialect dialect;
 
-  public FilterExecutor(DatabaseSession session) {
+  public FilterExecutor(DatabaseSession session, Database database) {
+    this(session, database.getDialect());
+  }
+
+  @VisibleForTesting
+  FilterExecutor(DatabaseSession session, Dialect dialect) {
     this.session = session;
+    this.dialect = dialect;
   }
 
   public FilterResult execute(Filter filter) {
     if (filter.mustReturnEmptyResult()) {
       return new FilterResult(filter, Collections.emptyList());
     }
-    
+
     String sql = null;
     try {
       TimeProfiler profiler = new TimeProfiler(FilterExecutor.class).setLevelToDebug().start("Build/execute SQL query");
@@ -69,7 +80,8 @@ public class FilterExecutor implements ServerComponent {
     }
   }
 
-  private String toSql(Filter filter) {
+  @VisibleForTesting
+  String toSql(Filter filter) {
     StringBuilder sql = new StringBuilder(SQL_INITIAL_SIZE);
     addSelectColumns(filter, sql);
     addFromClause(filter, sql);
@@ -122,7 +134,12 @@ public class FilterExecutor implements ServerComponent {
   private void addFromClause(Filter filter, StringBuilder sql) {
     sql.append(" FROM snapshots s ");
     if (filter.mustJoinMeasuresTable()) {
-      sql.append(" INNER JOIN project_measures pm ON s.id=pm.snapshot_id ");
+      sql.append(" INNER JOIN project_measures pm ");
+      if (MsSql.ID.equals(dialect.getId())) {
+        // SONAR-3422
+        sql.append(" WITH (INDEX(measures_sid_metric)) ");
+      }
+      sql.append(" ON s.id=pm.snapshot_id ");
     }
     sql.append(" INNER JOIN projects p ON s.project_id=p.id ");
   }
