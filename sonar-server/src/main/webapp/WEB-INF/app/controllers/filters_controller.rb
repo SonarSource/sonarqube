@@ -43,6 +43,7 @@ class FiltersController < ApplicationController
 
   def create
     @filter=::Filter.new()
+    @filter.user_id=current_user.id
     load_filter_from_params(@filter, params)
 
     @filter.columns.build(:family => 'name', :order_index => 1, :sort_direction => 'ASC')
@@ -318,7 +319,6 @@ class FiltersController < ApplicationController
     filter.shared=(params[:shared].present? && is_admin?)
     filter.favourites=params[:favourites].present?
     filter.resource_id=(params[:path_id].present? ? Project.by_key(params[:path_id]).id : nil)
-    filter.user_id=current_user.id
     filter.period_index=params[:period_index].to_i
     filter.criteria=[]
     filter.criteria<<Criterion.new_for_qualifiers(params['qualifiers'])
