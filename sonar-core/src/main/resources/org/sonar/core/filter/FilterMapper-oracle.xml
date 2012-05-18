@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.core.filter.FilterMapper">
+
+  <select id="findFilter" parameterType="string" resultType="Filter">
+    select id, name, user_id as "userId", shared, favourites, resource_id as "resourceId", default_view as "defaultView", page_size as "pageSize", period_index as "periodIndex"
+    from filters WHERE name=#{id}
+  </select>
+
+  <insert id="insert" parameterType="Filter" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    <selectKey order="BEFORE" resultType="Long" keyProperty="id">
+      select filters_seq.NEXTVAL from DUAL
+    </selectKey>
+    INSERT INTO filters (id, name, user_id, shared, favourites, resource_id, default_view, page_size, period_index)
+    VALUES (#{id}, #{name, jdbcType=VARCHAR}, #{userId, jdbcType=FLOAT}, #{shared}, #{favourites}, #{resourceId, jdbcType=INTEGER}, #{defaultView, jdbcType=VARCHAR},
+     #{pageSize, jdbcType=INTEGER}, #{periodIndex, jdbcType=INTEGER})
+  </insert>
+
+</mapper>

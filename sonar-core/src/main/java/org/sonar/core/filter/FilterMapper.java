@@ -17,20 +17,13 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.persistence;
+package org.sonar.core.filter;
 
-import org.junit.Test;
+/**
+ * @since 3.1
+ */
+public interface FilterMapper {
+  FilterDto findFilter(String name);
 
-import java.util.List;
-
-import static org.fest.assertions.Assertions.assertThat;
-
-public class DaoUtilsTest {
-
-  @Test
-  public void should_list_all_dao_classes() {
-    List<Class<?>> daoClasses = DaoUtils.getDaoClasses();
-
-    assertThat(daoClasses.size()).isGreaterThan(1);
-  }
+  void insert(FilterDto filterDto);
 }

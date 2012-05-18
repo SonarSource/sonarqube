@@ -19,9 +19,11 @@
  */
 package org.sonar.core.persistence;
 
+import com.google.common.collect.ImmutableList;
 import org.sonar.core.dashboard.ActiveDashboardDao;
 import org.sonar.core.dashboard.DashboardDao;
 import org.sonar.core.duplication.DuplicationDao;
+import org.sonar.core.filter.FilterDao;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.resource.ResourceDao;
@@ -32,8 +34,6 @@ import org.sonar.core.rule.RuleDao;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.user.AuthorDao;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public final class DaoUtils {
@@ -42,9 +42,10 @@ public final class DaoUtils {
   }
 
   public static List<Class<?>> getDaoClasses() {
-    return Collections.unmodifiableList(Arrays.asList(
+    return ImmutableList.of(
         ActiveDashboardDao.class,
         AuthorDao.class,
+        FilterDao.class,
         DashboardDao.class,
         DuplicationDao.class,
         LoadedTemplateDao.class,
@@ -54,6 +55,6 @@ public final class DaoUtils {
         ResourceDao.class,
         ReviewCommentDao.class,
         ReviewDao.class,
-        RuleDao.class));
+        RuleDao.class);
   }
 }

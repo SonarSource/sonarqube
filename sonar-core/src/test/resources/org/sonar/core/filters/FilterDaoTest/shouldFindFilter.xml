@@ -1,0 +1,27 @@
+<dataset>
+
+  <filters
+    id="1"
+    name="Projects"
+    user_id="[null]"
+    shared="[true]"
+    favourites="[false]"
+    resource_id="[null]"
+    default_view="list"
+    page_size="[null]"
+    period_index="[null]"
+    />
+
+  <filters
+    id="2"
+    name="Treemap"
+    user_id="[null]"
+    shared="[true]"
+    favourites="[false]"
+    resource_id="[null]"
+    default_view="treemap"
+    page_size="[null]"
+    period_index="[null]"
+    />
+
+</dataset>

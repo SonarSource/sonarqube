@@ -19,9 +19,12 @@
  */
 package org.sonar.core.template;
 
+import com.google.common.base.Objects;
+
 public final class LoadedTemplateDto {
 
   public static final String DASHBOARD_TYPE = "DASHBOARD";
+  public static final String FILTER_TYPE = "FILTER";
 
   private Long id;
   private String key;
@@ -70,11 +73,8 @@ public final class LoadedTemplateDto {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    LoadedTemplateDto that = (LoadedTemplateDto) o;
-    if (id != null ? !id.equals(that.id) : that.id != null) {
-      return false;
-    }
-    return true;
+    LoadedTemplateDto other = (LoadedTemplateDto) o;
+    return Objects.equal(id, other.id) && Objects.equal(key, other.key) && Objects.equal(type, other.type);
   }
 
   @Override

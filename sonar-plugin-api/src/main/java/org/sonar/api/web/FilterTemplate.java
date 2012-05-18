@@ -17,20 +17,26 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.persistence;
+package org.sonar.api.web;
 
-import org.junit.Test;
+import org.sonar.api.ServerExtension;
 
-import java.util.List;
+/**
+ * This extension point must be implemented to define a new filter.
+ *
+ * @since 3.1
+ */
+public abstract class FilterTemplate implements ServerExtension {
 
-import static org.fest.assertions.Assertions.assertThat;
+  /**
+   * Returns the {@link Filter} object that represents the filter to use.
+   *
+   * @return the filter
+   */
+  public abstract Filter createFilter();
 
-public class DaoUtilsTest {
-
-  @Test
-  public void should_list_all_dao_classes() {
-    List<Class<?>> daoClasses = DaoUtils.getDaoClasses();
-
-    assertThat(daoClasses.size()).isGreaterThan(1);
-  }
+  /**
+   * Filter name
+   */
+  public abstract String getName();
 }

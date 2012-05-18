@@ -19,6 +19,8 @@
  */
 package org.sonar.server.platform;
 
+import org.sonar.server.startup.RegisterNewFilters;
+
 import org.apache.commons.configuration.BaseConfiguration;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.Plugins;
@@ -245,6 +247,7 @@ public final class Platform {
     startupContainer.addSingleton(RegisterQualityModels.class);
     startupContainer.addSingleton(DeleteDeprecatedMeasures.class);
     startupContainer.addSingleton(GeneratePluginIndex.class);
+    startupContainer.addSingleton(RegisterNewFilters.class);
     startupContainer.addSingleton(RegisterNewDashboards.class);
     startupContainer.startComponents();
 

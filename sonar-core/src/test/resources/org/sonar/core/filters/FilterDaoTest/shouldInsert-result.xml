@@ -1,0 +1,15 @@
+<dataset>
+
+  <filters
+    id="1"
+    name="Projects"
+    user_id="[null]"
+    shared="[true]"
+    favourites="[false]"
+    resource_id="[null]"
+    default_view="list"
+    page_size="10"
+    period_index="1"
+    />
+
+</dataset>

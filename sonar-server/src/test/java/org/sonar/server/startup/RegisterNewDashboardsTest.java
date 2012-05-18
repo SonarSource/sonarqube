@@ -88,7 +88,7 @@ public class RegisterNewDashboardsTest {
 
     assertNotNull(dashboardDto);
     verify(dashboardDao).insert(dashboardDto);
-    verify(loadedTemplateDao).insert(eq(new LoadedTemplateDto("fake-dashboard", LoadedTemplateDto.DASHBOARD_TYPE)));
+    verify(loadedTemplateDao).insert(eq(new LoadedTemplateDto("Fake", LoadedTemplateDto.DASHBOARD_TYPE)));
   }
 
   @Test

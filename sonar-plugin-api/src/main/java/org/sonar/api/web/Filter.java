@@ -17,20 +17,24 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.persistence;
+package org.sonar.api.web;
 
-import org.junit.Test;
+/**
+ * Definition of a filter.
+ * <p/>
+ * Its name can be retrieved using the i18n mechanism, using the keys "dashboard.&lt;id&gt;.name".
+ *
+ * @since 3.1
+ */
+public class Filter {
+  private Filter() {
+    // The factory method should be used
+  }
 
-import java.util.List;
-
-import static org.fest.assertions.Assertions.assertThat;
-
-public class DaoUtilsTest {
-
-  @Test
-  public void should_list_all_dao_classes() {
-    List<Class<?>> daoClasses = DaoUtils.getDaoClasses();
-
-    assertThat(daoClasses.size()).isGreaterThan(1);
+  /**
+   * Creates a new {@link Filter}.
+   */
+  public static Filter create() {
+    return new Filter();
   }
 }
