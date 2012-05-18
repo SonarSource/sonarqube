@@ -48,12 +48,13 @@ class DashboardsController < ApplicationController
 
   def create
     @dashboard=Dashboard.new()
+    @dashboard.user_id=current_user.id
     load_dashboard_from_params(@dashboard)
 
     active_dashboard = current_user.active_dashboards.to_a.find { |ad| ad.name==@dashboard.name }
     if active_dashboard
       flash[:error]=Api::Utils.message('dashboard.error_create_existing_name')
-      redirect_to :controller => 'dashboards', :action => 'index', :resource => params[:resource]
+      redirect_to :action => 'index', :resource => params[:resource]
     elsif @dashboard.save
       add_default_dashboards_if_first_user_dashboard
       last_active_dashboard=current_user.active_dashboards.max_by(&:order_index)
@@ -61,22 +62,22 @@ class DashboardsController < ApplicationController
       redirect_to :controller => 'dashboard', :action => 'configure', :did => @dashboard.id, :id => (params[:resource] unless @dashboard.global)
     else
       flash[:error]=@dashboard.errors.full_messages.join('<br/>')
-      redirect_to :controller => 'dashboards', :action => 'index', :resource => params[:resource]
+      redirect_to :action => 'index', :resource => params[:resource]
     end
   end
 
   def edit
     @dashboard=Dashboard.find(params[:id])
-    if @dashboard.owner?(current_user)
+    if @dashboard.editable_by?(current_user)
       render :partial => 'edit'
     else
-      redirect_to :controller => 'dashboards', :action => 'index', :resource => params[:resource]
+      redirect_to :action => 'index', :resource => params[:resource]
     end
   end
 
   def update
     dashboard=Dashboard.find(params[:id])
-    if dashboard.owner?(current_user)
+    if dashboard.editable_by?(current_user)
       load_dashboard_from_params(dashboard)
 
       if dashboard.save
@@ -95,10 +96,10 @@ class DashboardsController < ApplicationController
   def delete
     dashboard=Dashboard.find(params[:id])
     bad_request('Unknown dashboard') unless dashboard
-    access_denied unless dashboard.owner?(current_user)
+    access_denied unless dashboard.editable_by?(current_user)
 
     if dashboard.destroy
-      flash[:error]=Api::Utils.message('dashboard.default_restored') if ActiveDashboard.count(:conditions => ['user_id=?', current_user.id])==0
+      flash[:warning]=Api::Utils.message('dashboard.default_restored') if ActiveDashboard.count(:conditions => ['user_id=?', current_user.id])==0
     else
       flash[:error]=Api::Utils.message('dashboard.error_delete_default')
     end
@@ -127,7 +128,7 @@ class DashboardsController < ApplicationController
     else
       bad_request('Unknown dashboard')
     end
-    redirect_to :action => :index, :resource => params[:resource]
+    redirect_to :action => 'index', :resource => params[:resource]
   end
 
   def unfollow
@@ -138,7 +139,7 @@ class DashboardsController < ApplicationController
     if ActiveDashboard.count(:conditions => ['user_id=?', current_user.id])==0
       flash[:notice]=Api::Utils.message('dashboard.default_restored')
     end
-    redirect_to :action => :index, :resource => params[:resource]
+    redirect_to :action => 'index', :resource => params[:resource]
   end
 
   private
@@ -169,7 +170,6 @@ class DashboardsController < ApplicationController
     dashboard.description=params[:description]
     dashboard.is_global=(params[:global].present?)
     dashboard.shared=(params[:shared].present? && is_admin?)
-    dashboard.user_id=current_user.id
     dashboard.column_layout=Dashboard::DEFAULT_LAYOUT if !dashboard.column_layout
   end
 

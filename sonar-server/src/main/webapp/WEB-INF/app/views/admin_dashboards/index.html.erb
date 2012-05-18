@@ -42,10 +42,6 @@
           </td>
           <td class="thin nowrap right">
             <%= link_to 'Add to defaults', {:action => 'add', :id => dashboard.id}, {:method => :post, :id => "add-#{u dashboard.name}", :class => 'link-action'} %>
-            <% if dashboard.provided_programmatically? %>
-              |
-              <%= link_to 'Delete', {:action => 'delete', :id => dashboard.id}, {:confirm => "Do you want to delete the dashboard #{dashboard.name(true)}?", :method => :post, :id => "delete-#{u dashboard.name}", :class => 'link-action'} %>
-            <% end %>
           </td>
         </tr>
       <% end %>
