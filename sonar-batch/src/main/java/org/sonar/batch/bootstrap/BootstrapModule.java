@@ -24,15 +24,16 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.batch.FakeMavenPluginExecutor;
 import org.sonar.batch.MavenPluginExecutor;
+import org.sonar.batch.RemoteServerMetadata;
 import org.sonar.batch.ServerMetadata;
-import org.sonar.batch.config.BatchSettings;
 import org.sonar.batch.config.BatchDatabaseSettingsLoader;
+import org.sonar.batch.config.BatchSettings;
+import org.sonar.core.persistence.DaoUtils;
 import org.sonar.core.persistence.DatabaseVersion;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.jpa.session.DatabaseSessionProvider;
 import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
-import org.sonar.core.persistence.DaoUtils;
-import org.sonar.core.persistence.MyBatis;
 
 import java.net.URLClassLoader;
 
@@ -65,6 +66,7 @@ public class BootstrapModule extends Module {
     // set as the current context classloader for hibernate, else it does not find the JDBC driver.
     Thread.currentThread().setContextClassLoader(bootstrapClassLoader);
 
+    addCoreSingleton(RemoteServerMetadata.class);
     // mybatis
     addCoreSingleton(BatchDatabase.class);
     addCoreSingleton(MyBatis.class);

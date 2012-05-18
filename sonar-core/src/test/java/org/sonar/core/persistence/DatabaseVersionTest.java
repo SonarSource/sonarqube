@@ -46,6 +46,15 @@ public class DatabaseVersionTest extends DaoTestCase {
   }
 
   @Test
+  public void getSonarCoreId() {
+    setupData("getSonarCoreId");
+
+    String sonarCoreId = new DatabaseVersion(getMyBatis()).getSonarCoreId();
+
+    assertThat(sonarCoreId, is("123456"));
+  }
+
+  @Test
   public void getStatus() {
     assertThat(DatabaseVersion.getStatus(null, 150), is(DatabaseVersion.Status.FRESH_INSTALL));
     assertThat(DatabaseVersion.getStatus(123, 150), is(DatabaseVersion.Status.REQUIRES_UPGRADE));

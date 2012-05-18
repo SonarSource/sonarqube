@@ -22,7 +22,10 @@ package org.sonar.core.persistence;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.ServerComponent;
+import org.sonar.core.properties.PropertiesMapper;
+import org.sonar.core.properties.PropertyDto;
 
 import java.util.Collections;
 import java.util.List;
@@ -58,6 +61,17 @@ public class DatabaseVersion implements BatchComponent, ServerComponent {
       // Ignore this exception -> it will be created by Ruby on Rails migrations.
       return null;
 
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public String getSonarCoreId() {
+    SqlSession session = mybatis.openSession();
+    try {
+      PropertyDto serverIdProperty = session.getMapper(PropertiesMapper.class).selectByKey(new PropertyDto().setKey(CoreProperties.SERVER_ID));
+      // this property can't be NULL
+      return serverIdProperty.getValue();
     } finally {
       MyBatis.closeQuietly(session);
     }

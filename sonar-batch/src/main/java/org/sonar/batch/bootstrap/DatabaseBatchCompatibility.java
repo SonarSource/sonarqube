@@ -20,9 +20,15 @@
 package org.sonar.batch.bootstrap;
 
 import org.sonar.api.BatchComponent;
+import org.sonar.api.config.Settings;
+import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.platform.Server;
+import org.sonar.api.utils.SonarException;
+import org.sonar.batch.RemoteServerMetadata;
 import org.sonar.core.persistence.BadDatabaseVersion;
 import org.sonar.core.persistence.DatabaseVersion;
+
+import java.io.IOException;
 
 /**
  * Detects if database is not up-to-date with the version required by the batch.
@@ -31,13 +37,44 @@ public class DatabaseBatchCompatibility implements BatchComponent {
 
   private DatabaseVersion version;
   private Server server;
+  private Settings settings;
+  private RemoteServerMetadata remoteServer;
 
-  public DatabaseBatchCompatibility(DatabaseVersion version, Server server) {
+  public DatabaseBatchCompatibility(DatabaseVersion version, Server server, RemoteServerMetadata remoteServer, Settings settings) {
     this.version = version;
     this.server = server;
+    this.settings = settings;
+    this.remoteServer = remoteServer;
   }
 
   public void start() {
+    checkCorrectServerId();
+    checkDatabaseStatus();
+  }
+
+  private void checkCorrectServerId() {
+    String remoteServerId = null;
+    try {
+      remoteServerId = remoteServer.getServerId();
+    } catch (IOException e) {
+      throw new SonarException("Impossible to get the ID of the remote server: " + server.getURL(), e);
+    }
+
+    if (!version.getSonarCoreId().equals(remoteServerId)) {
+      StringBuilder message = new StringBuilder("The current batch process and the configured remote server do not share the same DB configuration.\n");
+      message.append("\t- Batch side: ");
+      message.append(settings.getString(DatabaseProperties.PROP_URL));
+      message.append(" (");
+      String userName = settings.getString(DatabaseProperties.PROP_USER);
+      message.append(userName == null ? "sonar" : userName);
+      message.append(" / *****)\n\t- Server side: check the configuration at ");
+      message.append(server.getURL());
+      message.append("/system\n");
+      throw new BadDatabaseVersion(message.toString());
+    }
+  }
+
+  private void checkDatabaseStatus() {
     DatabaseVersion.Status status = version.getStatus();
     if (status == DatabaseVersion.Status.REQUIRES_DOWNGRADE) {
       throw new BadDatabaseVersion("Database relates to a more recent version of Sonar. Please check your settings (JDBC settings, version of Maven plugin)");
