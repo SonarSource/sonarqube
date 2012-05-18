@@ -29,7 +29,7 @@ class FiltersController < ApplicationController
 
   def manage
     if is_admin?
-      @filters = ::Filter.find(:all, :conditions => ['user_id=? or shared=?', current_user.id, true])
+      @filters = ::Filter.find(:all, :conditions => ['user_id=? or (shared=? and user_id is null)', current_user.id, true])
     else
       @filters = ::Filter.find(:all, :conditions => {:user_id => current_user.id})
     end
