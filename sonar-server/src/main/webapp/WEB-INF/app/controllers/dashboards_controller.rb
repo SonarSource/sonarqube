@@ -80,7 +80,7 @@ class DashboardsController < ApplicationController
       load_dashboard_from_params(dashboard)
 
       if dashboard.save
-        if !dashboard.shared?
+        unless dashboard.shared?
           ActiveDashboard.destroy_all(['dashboard_id = ? and (user_id<>? OR user_id IS NULL)', dashboard.id, current_user.id])
         end
       else
@@ -181,6 +181,5 @@ class DashboardsController < ApplicationController
       end
     end
   end
-
 
 end

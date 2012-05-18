@@ -43,6 +43,10 @@ class ActiveDashboard < ActiveRecord::Base
     dashboard.owner?(user)
   end
 
+  def editable_by?(user)
+    dashboard.editable_by?(user)
+  end
+
   def follower?(user)
     self.user.nil? || self.user_id==user.id
   end
