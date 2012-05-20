@@ -9,7 +9,7 @@
   <version>3.1-SNAPSHOT</version>
   <name>Sonar</name>
   <url>http://www.sonarsource.org</url>
-  <description>Put technical debt under control</description>
+  <description>Open source platform for continuous inspection of code quality</description>
 
   <modules>
     <!-- public artifacts to be deployed to central repository -->
