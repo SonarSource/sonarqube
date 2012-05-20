@@ -1,0 +1,14 @@
+<div class="admin migration">
+  <h1 class="marginbottom10">Upgrade database</h1>
+  <br/>
+  <h3>Important</h3>
+  <ul>
+    <li>The database upgrade can take several minutes.</li>
+    <li>It is recommended to <b>backup database</b> before upgrading.</li>
+    <li><b>Copy the directory /extensions</b> from previous version before upgrading.</li>
+  </ul>
+  <br/>
+  <%= button_to_remote "Upgrade", 
+                       :url => { :action => 'setup_database' },
+                       :loading => "window.location.reload();" -%>
+</div>

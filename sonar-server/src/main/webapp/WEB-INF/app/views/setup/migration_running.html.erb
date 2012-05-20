@@ -1,0 +1,15 @@
+<meta http-equiv='refresh' content='5;'>
+
+<% 
+  start_time = DatabaseMigrationManager.instance.migration_start_time
+%>
+
+<div class="admin migration" style="padding:10px">
+  <%= image_tag 'loading.gif' -%>
+  <b>Database upgrade is currently running.</b>
+  <br/>
+  <br/>
+  Started : <%= l start_time -%>
+  <br/>
+  Duration: <%= distance_of_time_in_words(start_time, Time.now) -%>
+</div>

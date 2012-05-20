@@ -25,26 +25,33 @@ class SetupController < ApplicationController
   verify :method => :post, :only => [ :setup_database ], :redirect_to => { :action => :index }
     
   def index
-    if DatabaseVersion.uptodate?
-      redirect_to home_path
-    elsif ActiveRecord::Base.connected?
-      render :template => (DatabaseVersion.production? ? 'setup/form' : 'setup/not_upgradable'), :layout => 'nonav'
-    else 
-      render :template => 'setup/dbdown', :layout => 'nonav'
+    if DatabaseMigrationManager.instance.requires_migration?
+      if ActiveRecord::Base.connected?
+        render :template => 'setup/form', :layout => 'nonav'
+      else
+        render :template => 'setup/dbdown', :layout => 'nonav'
+      end
+    elsif DatabaseMigrationManager.instance.migration_running?
+      render :template => 'setup/migration_running', :layout => 'nonav'
+    elsif DatabaseMigrationManager.instance.migration_failed?
+      render :template => 'setup/failed', :layout => 'nonav'
+    else
+      # migration succeeded, or no need for migration
+      render :template => 'setup/db_uptodate', :layout => 'nonav' 
     end
+  end
+
+  def setup_database
+    # Ask the DB migration manager to start the migration
+    # => No need to check for authorizations (actually everybody can run the upgrade)
+    # nor concurrent calls (this is handled directly by DatabaseMigrationManager)  
+    DatabaseMigrationManager.instance.start_migration
+    # and return some text that will actually never be displayed
+    render :text => DatabaseMigrationManager.instance.message
   end
 
   def maintenance
     render :template => 'setup/maintenance', :layout => 'nonav'
   end
-
-  def setup_database
-    if !DatabaseVersion.production?
-      render :text => 'Upgrade is not supported. Please use a production-ready database.', :status => 500
-    else
-      # do not forget that this code is also in /api/server/setup (see api/server_controller.rb)
-      DatabaseVersion.upgrade_and_start unless DatabaseVersion.uptodate?
-      redirect_to home_path
-    end
-  end
+  
 end

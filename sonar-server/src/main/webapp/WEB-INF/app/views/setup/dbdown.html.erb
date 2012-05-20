@@ -1,0 +1,9 @@
+<div class="warning migration" style="padding:10px">
+  <%= image_tag 'warning.png' -%>
+  <b>Fail to connect to database</b>
+  <br/>
+  <br/>
+  Database connection cannot be established. Please check database status and JDBC settings.
+  <br/>
+  <%= button_to "Try again", { :action => "index" }, :method => :get %>
+</div>

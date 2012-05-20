@@ -66,12 +66,14 @@ class Api::ServerController < Api::ApiController
 
   def setup
     begin
-      if !DatabaseVersion.production?
-        raise "Upgrade is not supported. Please use a production-ready database."
-      end
-
-      DatabaseVersion.upgrade_and_start unless DatabaseVersion.uptodate?
-      hash={:status => 'ok'}
+      # Ask the DB migration manager to start the migration
+      # => No need to check for authorizations (actually everybody can run the upgrade)
+      # nor concurrent calls (this is handled directly by DatabaseMigrationManager)  
+      DatabaseMigrationManager.instance.start_migration
+      
+      hash={:status => 'ok',
+            :migration_status => DatabaseMigrationManager.instance.status,
+            :message => DatabaseMigrationManager.instance.message}
       respond_to do |format|
         format.json{ render :json => jsonp(hash) }
         format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'setup') }

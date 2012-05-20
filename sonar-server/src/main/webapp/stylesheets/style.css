@@ -522,6 +522,13 @@ h4, .h4 {
   padding: 4px;
 }
 
+/* ------------------- SETUP / MIGRATION PAGES ------------------- */
+.migration {
+  background-image: url("../images/sonar.png");
+  background-repeat: no-repeat;
+  background-position: top right;
+}
+
 /* ------------------- LOGIN FORM ------------------- */
 #login_form {
   border: 1px solid #4b9fd5;
