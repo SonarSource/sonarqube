@@ -61,7 +61,9 @@ public class PropertiesBackup implements Backupable {
   }
 
   private void clearProperties() {
-    databaseSession.createQuery("delete " + FROM_GLOBAL_PROPERTIES).executeUpdate();
+    // "sonar.core.*" properties should not be cleared, most notably "sonar.core.id" which is the unique key used to identify the server
+    // and which is used by the batch to verify that it connects to the same DB as the remote server (see SONAR-3126).
+    databaseSession.createQuery("delete " + FROM_GLOBAL_PROPERTIES + " and prop_key NOT LIKE 'sonar.core.%'").executeUpdate();
   }
 
   public void configure(XStream xStream) {
