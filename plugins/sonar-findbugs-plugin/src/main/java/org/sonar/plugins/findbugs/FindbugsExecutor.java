@@ -58,6 +58,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class FindbugsExecutor implements BatchExtension {
 
+  private static final String FINDBUGS_CORE_PLUGIN_ID = "edu.umd.cs.findbugs.plugins.core";
+
   private static final Logger LOG = LoggerFactory.getLogger(FindbugsExecutor.class);
 
   private FindbugsConfiguration configuration;
@@ -182,8 +184,11 @@ public class FindbugsExecutor implements BatchExtension {
       } catch (PluginException e) {
         LOG.warn("Failed to load plugin for custom detector: " + path);
       } catch (DuplicatePluginIdException e) {
-        // simply ignore this
-        LOG.debug("Plugin already loaded: exception ignored: " + e.getMessage());
+        // FB Core plugin is always loaded, so we'll get an exception for it always
+        if (!FINDBUGS_CORE_PLUGIN_ID.equals(e.getPluginId())) {
+          // log only if it's not the FV Core plugin
+          LOG.debug("Plugin already loaded: exception ignored: " + e.getMessage());
+        }
       }
     }
 
