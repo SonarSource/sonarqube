@@ -1,27 +1,31 @@
 <% widget_body=widget_body(widget) %>
 
-<%= render :partial => 'widget_title', :locals => {:widget => widget} -%>
+<% if widget_body.include?('<') %>
+  <div class="block" id="block_<%= widget.id -%>">
+    <%= render :partial => 'widget_title', :locals => {:widget => widget} -%>
 
-<div class="<%= h widget.key -%>" style="height:100%;">
-  <% if widget.configured %>
-    <% if widget_body.include?('<')
-         default_layout=(widget.java_definition.getWidgetLayout().name()=='DEFAULT')
-         if default_layout %>
-        <div class="widget">
-      <% end %>
-      <%= widget_body -%>
+    <div class="<%= h widget.key -%>" style="height:100%;">
+      <% default_layout=(widget.java_definition.getWidgetLayout().name()=='DEFAULT') %>
       <% if default_layout %>
-        <div class="clear"></div>
+        <div class="widget">
+          <%= widget_body -%>
+          <div class="clear"></div>
         </div>
+      <% else %>
+        <%= widget_body -%>
       <% end %>
-    <% end %>
-  <% else %>
-    <div class="widget">
-      <p>
-        <a href="<%= url_for(dashboard_action(:configure)) -%>"><%= message('dashboard.please_configure_the_widget_x', :params => widget.java_definition.getTitle()) -%></a>
-      </p>
-    </div>
-  <% end %>
-  <div style="clear: both;"></div>
-</div>
 
+      <div style="clear: both;"></div>
+    </div>
+  </div>
+<% elsif !widget.configured %>
+  <div class="block" id="block_<%= widget.id -%>">
+    <div class="<%= h widget.key -%>" style="height:100%;">
+      <div class="widget">
+        <a href="<%= url_for(dashboard_action(:configure)) -%>"><%= message('dashboard.please_configure_the_widget_x', :params => widget.java_definition.getTitle()) -%></a>
+      </div>
+
+      <div style="clear: both;"></div>
+    </div>
+  </div>
+<% end %>

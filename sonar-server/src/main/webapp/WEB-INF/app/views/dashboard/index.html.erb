@@ -13,13 +13,11 @@
                widget_definition=@authorized_widget_definitions.find { |wd| wd.getId()==widget.widget_key }
                if widget_definition
           %>
-              <div class="block" id="block_<%= widget.id -%>">
-                <%= render :partial => 'widget', :locals => {:widget => widget} %>
-              </div>
-            <%
-               end
-               end
-            %>
+              <%= render :partial => 'widget', :locals => {:widget => widget} %>
+          <%
+             end
+             end
+          %>
         </div>
       </div>
     <% end %>
