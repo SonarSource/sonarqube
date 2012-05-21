@@ -1,3 +1,4 @@
+<% switch_to_widget_resource(widget) %>
 <% widget_body=widget_body(widget) %>
 
 <% if widget_body.include?('<') %>
@@ -29,3 +30,5 @@
     </div>
   </div>
 <% end %>
+
+<% restore_global_resource %>

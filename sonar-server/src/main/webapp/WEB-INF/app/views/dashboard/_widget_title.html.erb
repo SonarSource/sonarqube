@@ -9,5 +9,5 @@
     <% end %>
   </div>
 <% elsif @dashboard.global and @resource and !widget.java_definition.global %>
-  <div class="widget-title"><%= @resource.name -%></div>
+  <div class="widget-title" id="widget_title_<%= widget.id -%>"><%= @resource.name -%></div>
 <% end %>
