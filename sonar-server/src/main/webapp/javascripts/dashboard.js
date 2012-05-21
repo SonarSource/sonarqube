@@ -98,12 +98,12 @@ Portal.prototype = {
     },
 
     editWidget: function(id) {
-      $('widget_title_' + id).hide();
+      $('widget_title_' + id) && $('widget_title_' + id).hide();
       $('widget_' + id).hide();
       $('widget_props_' + id).show();
     },
     cancelEditWidget: function(id) {
-      $('widget_title_' + id).show();
+      $('widget_title_' + id) && $('widget_title_' + id).show();
       $('widget_' + id).show();
       $('widget_props_' + id).hide();
     },
