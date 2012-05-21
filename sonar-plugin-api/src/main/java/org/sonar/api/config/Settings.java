@@ -80,7 +80,7 @@ public class Settings implements BatchComponent, ServerComponent {
       try {
         value = encryption.decrypt(value);
       } catch (Exception e) {
-        throw new IllegalStateException("Fail to decrypt the property " + key + ". Please check your secret key.");
+        throw new IllegalStateException("Fail to decrypt the property " + key + ". Please check your secret key.", e);
       }
     }
     return value;
