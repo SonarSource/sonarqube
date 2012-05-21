@@ -70,7 +70,6 @@ public class PropertiesBackupTest extends AbstractDbUnitTestCase {
     assertTrue(CollectionUtils.isEqualCollection(sonarConfig.getProperties(), Arrays.asList(prop1, prop2)));
   }
 
-
   @Test
   public void shouldExportAnArrayProperty() {
     setupData("shouldExportAnArrayProperty");
@@ -90,6 +89,18 @@ public class PropertiesBackupTest extends AbstractDbUnitTestCase {
     new PropertiesBackup(getSession()).importXml(sonarConfig);
 
     checkTables("shouldImportProperties", "properties");
+  }
+
+  @Test
+  public void shouldNotImportSonarCoreIdProperty() {
+    setupData("shouldNotImportSonarCoreIdProperty");
+
+    Collection<Property> newProperties = Arrays.asList(new Property("sonar.core.id", "11111111"));
+    sonarConfig.setProperties(newProperties);
+
+    new PropertiesBackup(getSession()).importXml(sonarConfig);
+
+    checkTables("shouldNotImportSonarCoreIdProperty", "properties");
   }
 
   @Test

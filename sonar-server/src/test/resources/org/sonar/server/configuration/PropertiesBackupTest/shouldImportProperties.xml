@@ -10,8 +10,10 @@
   <properties id="4" prop_key="user_prop" text_value="[null]" resource_id="[null]" user_id="3"/>
   <properties id="5" prop_key="favorite" text_value="[null]" resource_id="8" user_id="3"/>
 
-  <!-- Sonar Core properties that must not be purged -->
+  <!-- Sonar Core property that must not be purged -->
   <properties id="6" prop_key="sonar.core.id" text_value="123456" resource_id="[null]" user_id="[null]"/>
+  
+  <!-- Sonar Core properties that can be purged -->
   <properties id="7" prop_key="sonar.core.version" text_value="3.1" resource_id="[null]" user_id="[null]"/>
   <properties id="8" prop_key="sonar.core.startTime" text_value="2012-04-19T11:01:45+0200" resource_id="[null]" user_id="[null]"/>
   

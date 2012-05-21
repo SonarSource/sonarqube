@@ -22,6 +22,7 @@ package org.sonar.server.configuration;
 import com.thoughtworks.xstream.XStream;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.configuration.Property;
 
@@ -55,15 +56,19 @@ public class PropertiesBackup implements Backupable {
 
     if (CollectionUtils.isNotEmpty(sonarConfig.getProperties())) {
       for (Property xmlProperty : sonarConfig.getProperties()) {
-        databaseSession.save(new Property(xmlProperty.getKey(), xmlProperty.getValue()));
+        String propKey = xmlProperty.getKey();
+        if (!CoreProperties.SERVER_ID.equals(propKey)) {
+          // "sonar.core.id" must never be restored, it is unique for a server and it created once at the 1rst server startup
+          databaseSession.save(new Property(propKey, xmlProperty.getValue()));
+        }
       }
     }
   }
 
   private void clearProperties() {
-    // "sonar.core.*" properties should not be cleared, most notably "sonar.core.id" which is the unique key used to identify the server
-    // and which is used by the batch to verify that it connects to the same DB as the remote server (see SONAR-3126).
-    databaseSession.createQuery("delete " + FROM_GLOBAL_PROPERTIES + " and prop_key NOT LIKE 'sonar.core.%'").executeUpdate();
+    // "sonar.core.id" property should not be cleared, because it is the unique key used to identify the server
+    // and it is used by the batch to verify that it connects to the same DB as the remote server (see SONAR-3126).
+    databaseSession.createQuery("delete " + FROM_GLOBAL_PROPERTIES + " and prop_key != '" + CoreProperties.SERVER_ID + "'").executeUpdate();
   }
 
   public void configure(XStream xStream) {
