@@ -33,5 +33,8 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface WidgetScope {
-  String[] value() default "PROJECT";
+  String PROJECT = "PROJECT";
+  String GLOBAL = "GLOBAL";
+
+  String[] value() default PROJECT;
 }

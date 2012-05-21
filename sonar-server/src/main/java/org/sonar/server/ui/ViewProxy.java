@@ -113,13 +113,13 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
     WidgetScope scopeAnnotation = AnnotationUtils.getClassAnnotation(view, WidgetScope.class);
     if (scopeAnnotation != null) {
       checkValidScope(view, scopeAnnotation);
-      isGlobal = ImmutableSet.copyOf(scopeAnnotation.value()).contains("GLOBAL");
+      isGlobal = ImmutableSet.copyOf(scopeAnnotation.value()).contains(WidgetScope.GLOBAL);
     }
   }
 
   private static <V> void checkValidScope(V view, WidgetScope scopeAnnotation) {
     for (String scope : scopeAnnotation.value()) {
-      if (!scope.equals("PROJECT") && !scope.equalsIgnoreCase("GLOBAL")) {
+      if (!scope.equals(WidgetScope.PROJECT) && !scope.equalsIgnoreCase(WidgetScope.GLOBAL)) {
         throw new IllegalArgumentException(String.format("Invalid widget scope %s for widget %s", scope, view.getClass().getSimpleName()));
       }
     }
