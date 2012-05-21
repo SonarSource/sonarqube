@@ -19,6 +19,7 @@
  */
 package org.sonar.server.ui;
 
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -33,21 +34,20 @@ import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
-import org.sonar.api.reviews.ReviewCommand;
-import org.sonar.api.reviews.ReviewContext;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.api.web.Footer;
-import org.sonar.api.web.NavigationSection;
-import org.sonar.api.web.Page;
-import org.sonar.api.web.RubyRailsWebservice;
-import org.sonar.api.web.Widget;
+import org.sonar.api.web.*;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.DatabaseMigrator;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.resource.ResourceIndexerDao;
+import org.sonar.core.review.workflow.WorkflowEngine;
+import org.sonar.core.review.workflow.review.DefaultWorkflowContext;
+import org.sonar.core.review.workflow.review.MutableReview;
+import org.sonar.core.review.workflow.review.Review;
+import org.sonar.core.review.workflow.screen.Screen;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
@@ -58,18 +58,12 @@ import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
 import org.sonar.server.platform.GlobalSettingsUpdater;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.ServerIdGenerator;
-import org.sonar.server.plugins.DefaultServerPluginRepository;
-import org.sonar.server.plugins.PluginDeployer;
-import org.sonar.server.plugins.PluginDownloader;
-import org.sonar.server.plugins.UpdateCenterMatrix;
-import org.sonar.server.plugins.UpdateCenterMatrixFactory;
-import org.sonar.server.reviews.ReviewManager;
+import org.sonar.server.plugins.*;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
 import org.sonar.updatecenter.common.Version;
 
 import javax.annotation.Nullable;
-
 import java.net.InetAddress;
 import java.sql.Connection;
 import java.util.Collection;
@@ -480,21 +474,19 @@ public final class JRubyFacade {
 
   // REVIEWS ------------------------------------------------------------------
 
-  public Collection<ReviewCommand> getAvailableCommandsFor(Map<String, Map<String, String>> reviewContextPropertiesMap) {
-    return getContainer().getComponentByType(ReviewManager.class).getAvailableCommandsFor(ReviewContext.createFromMap(reviewContextPropertiesMap));
+  public List<Screen> listAvailableReviewScreens(Review review, DefaultWorkflowContext context) {
+    return getContainer().getComponentByType(WorkflowEngine.class).listAvailableScreens(review, context, true);
   }
 
-  public Collection<ReviewCommand> filterCommands(Collection<ReviewCommand> reviewCommands, Map<String, Map<String, String>> reviewContextPropertiesMap,
-      String interfaceName) {
-    return getContainer().getComponentByType(ReviewManager.class).filterCommands(reviewCommands, ReviewContext.createFromMap(reviewContextPropertiesMap), interfaceName);
+  public ListMultimap<Long, Screen> listAvailableReviewsScreens(Review[] reviews, DefaultWorkflowContext context) {
+    return getContainer().getComponentByType(WorkflowEngine.class).listAvailableScreens(reviews, context, true);
   }
 
-  public void executeCommandActions(String commandId, Map<String, Map<String, String>> reviewContextPropertiesMap) {
-    getContainer().getComponentByType(ReviewManager.class).executeCommandActions(commandId, ReviewContext.createFromMap(reviewContextPropertiesMap));
+  public Screen getReviewScreen(String commandKey) {
+    return getContainer().getComponentByType(WorkflowEngine.class).getScreen(commandKey);
   }
 
-  public ReviewCommand getCommand(String commandId) {
-    return getContainer().getComponentByType(ReviewManager.class).getCommand(commandId);
+  public void executeReviewCommand(String commandKey, MutableReview review, DefaultWorkflowContext context, Map<String, String> parameters) {
+    getContainer().getComponentByType(WorkflowEngine.class).execute(commandKey, review, context, parameters);
   }
-
 }

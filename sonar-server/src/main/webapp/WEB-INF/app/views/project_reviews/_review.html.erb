@@ -48,14 +48,18 @@
                              :update => "actionForm",
                              :complete => "$('actionButtons').remove();$('actionForm').show();$('selectSeverity').focus();" -%>
 
-        <% Review.filter_commands(@review_commands, {:review => review, :user => current_user, :command_type => 'org.sonar.api.reviews.LinkReviewCommand'}).each do |command| %>
-          <%= button_to_remote Review.command_label(command),
-                             :url => {:controller => "project_reviews", :action => "review_command_form", :id => review.id, :review_command_id => command.getId()},
+        <%
+           screens = review.violation.available_java_screens(current_user)
+           screens.each do |screen|
+        %>
+          <%= button_to_remote screen.getCommandKey(),
+                             :url => {:controller => "project_reviews", :action => "screen", :id => review.id, :command => screen.getCommandKey()},
                              :update => "actionForm",
                              :complete => "$('actionButtons').remove();$('actionForm').show();$('selectSeverity').focus();" -%>
-        <% end %>
-
-      <% end %>
+        <%
+           end
+         end
+        %>
     </div>
   <% end %>
 
@@ -67,9 +71,9 @@
         <%= message('status') -%>:
       </td>
       <td class="val">
-        <%= image_tag "status/#{review.status}.png" -%> <span class="reviewStatus<%= @review.status -%>"><%= message("reviews.status.#{review.status}") -%></span>
-        <% if @review.resolution.present? %>
-          (<span class="reviewResolution<%= @review.resolution -%>"><%= message("reviews.resolution.#{@review.resolution}") -%></span>)
+        <%= image_tag "status/#{review.status}.png" -%> <span class="reviewStatus<%= review.status -%>"><%= message("reviews.status.#{review.status}") -%></span>
+        <% if review.resolution.present? %>
+          (<span class="reviewResolution<%= review.resolution -%>"><%= message("reviews.resolution.#{review.resolution}") -%></span>)
         <% end %>
       </td>
       <td class="key">

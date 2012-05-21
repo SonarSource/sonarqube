@@ -22,7 +22,7 @@ class RuleFailure < ActiveRecord::Base
 
   belongs_to :rule
   belongs_to :snapshot
-  has_one :review, :primary_key => "permanent_id", :foreign_key => "rule_failure_permanent_id", :order => "created_at"
+  has_one :review, :primary_key => 'permanent_id', :foreign_key => 'rule_failure_permanent_id', :order => 'created_at'
   after_save :update_permanent_id
   validates_presence_of :rule, :snapshot
 
@@ -132,6 +132,180 @@ class RuleFailure < ActiveRecord::Base
     self.review.save!
   end
 
+  # Options :
+  # - snapshot_id (integer)
+  # - resource_id (integer)
+  # - ancestor_resource_id (integer)
+  # - ancestor_snapshot (Snapshot)
+  # - created_after (datetime)
+  # - switched_off (boolean)
+  # - review_statuses (array of strings, can include nil)
+  # - review_assignee_id (integer, nil means no assignee)
+  # - severity
+  # - rule_id
+  # - planned (boolean)
+  #
+  # WARNING: association 'snapshot' is not loaded
+  #
+  def self.search(options={})
+    conditions=[]
+    values=[]
+    includes=[:rule, {:review => :action_plans}]
+
+    if options.has_key? :snapshot_id
+      conditions << 'rule_failures.snapshot_id = ?'
+      values << options[:snapshot_id].to_i
+    end
+
+    if options.has_key? :resource_id
+      conditions << 'rule_failures.snapshot_id in (select id from snapshots where islast=? and status=? and project_id=?)'
+      values << true
+      values << 'P'
+      values << options[:resource_id].to_i
+    end
+
+    if options.has_key? :ancestor_resource_id
+      ancestor = Snapshot.find(:first, :select => 'id,path', :conditions => {:islast => true, :status => 'P', :project_id => options[:ancestor_resource_id].to_i})
+      options[:ancestor_snapshot]=ancestor
+    end
+
+    if options.has_key? :ancestor_snapshot
+      ancestor_snapshot=options[:ancestor_snapshot]
+      if ancestor_snapshot
+        conditions << 'rule_failures.snapshot_id in (select id from snapshots where islast=? and status=? and (id=? or (root_snapshot_id=? and path like ?)))'
+        values << true
+        values << 'P'
+        values << ancestor_snapshot.id
+        values << ancestor_snapshot.id
+        values << "#{ancestor_snapshot.path}#{ancestor_snapshot.id}.%"
+      else
+        return []
+      end
+    end
+
+    if options.has_key? :rule_id
+      conditions << 'rule_failures.rule_id=?'
+      values << options[:rule_id].to_i
+    end
+
+    if options.has_key? :created_after
+      conditions << 'rule_failures.created_at>?'
+      values << options[:created_after]
+    end
+
+    if options[:switched_off]
+      conditions << 'rule_failures.switched_off=?'
+      values << true
+    else
+      conditions << '(rule_failures.switched_off is null or rule_failures.switched_off = ?)'
+      values << false
+    end
+
+    if options.has_key? :review_statuses
+      statuses = options[:review_statuses]
+      if !statuses.empty?
+        if statuses.include? nil
+          if statuses.size==1
+            # only nil : unreviewed violations
+            conditions << 'not exists(select id from reviews where rule_failure_permanent_id=rule_failures.id)'
+          else
+            conditions << '(reviews.status in (?) or not exists(select id from reviews where rule_failure_permanent_id=rule_failures.id))'
+            values << options[:review_statuses].compact
+          end
+        else
+          conditions << 'reviews.status in (?)'
+          values << options[:review_statuses]
+        end
+      end
+    end
+
+    if options.has_key? :review_assignee_id
+      review_assignee_id = options[:review_assignee_id]
+      if review_assignee_id
+        conditions << 'reviews.assignee_id=?'
+        values << review_assignee_id.to_i
+      else
+        conditions << '(reviews.assignee_id is null or not exists(select id from reviews where rule_failure_permanent_id=rule_failures.id))'
+      end
+    end
+
+    if options.has_key? :severity
+      conditions << 'failure_level=?'
+      values << Sonar::RulePriority.id(options[:severity])
+    end
+
+    result = find(:all, :include => includes, :conditions => [conditions.join(' and ')] + values, :order => 'rule_failures.failure_level DESC')
+
+    if options.has_key? :planned
+      # this condition can not be implemented with SQL
+      if options[:planned]
+        result = result.select { |violation| violation.review && violation.review.planned? }
+      else
+        result = result.reject { |violation| violation.review && violation.review.planned? }
+      end
+    end
+
+    result
+  end
+
+
+  #
+  # Constraint : all the violations are in the same project
+  #
+  def self.available_java_screens_for_violations(violations, project, user)
+    reviews = violations.map { |violation| to_java_workflow_review(violation) }
+    context = to_java_workflow_context(project, user)
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().listAvailableReviewsScreens(reviews, context)
+  end
+
+  def available_java_screens(user)
+    if user
+      review = RuleFailure.to_java_workflow_review(self)
+      context = RuleFailure.to_java_workflow_context(snapshot.root_snapshot.project, user)
+      Java::OrgSonarServerUi::JRubyFacade.getInstance().listAvailableReviewScreens(review, context)
+    else
+      []
+    end
+  end
+
+  def self.execute_command(command_key, violation, project, user, parameters)
+    review = to_java_workflow_review(violation)
+    context = to_java_workflow_context(project, user)
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().executeReviewCommand(command_key, review, context, parameters)
+  end
+
+  def self.to_java_workflow_review(violation)
+    java_review=Java::OrgSonarCoreReviewWorkflowReview::DefaultReview.new
+    java_review.setViolationId(violation.id)
+    java_review.setSeverity(violation.severity.to_s)
+    java_review.setRuleId(violation.rule_id)
+    java_review.setSwitchedOff(violation.switched_off||false)
+    java_review.setMessage(violation.message)
+    java_review.setLine(violation.line)
+
+    review = violation.review
+    if review
+      java_review.setReviewId(review.id)
+      java_review.setStatus(review.status)
+      java_review.setResolution(review.resolution)
+      java_review.setAssigneeId(review.assignee_id)
+      java_review.setManual(review.manual_violation)
+      java_review.setPropertiesAsString(review.data)
+    end
+    java_review
+  end
+
+  def self.to_java_workflow_context(project, user)
+    java_context = Java::OrgSonarCoreReviewWorkflowReview::DefaultWorkflowContext.new
+    java_context.setUserId(user.id)
+    java_context.setUserLogin(user.login)
+    java_context.setUserName(user.name)
+    java_context.setUserEmail(user.email)
+    java_context.setIsAdmin(user.has_role?(:admin))
+    java_context.setProjectId(project.id)
+    java_context
+  end
+
   private
   def update_permanent_id
     if self.permanent_id.nil? && self.id
@@ -139,4 +313,5 @@ class RuleFailure < ActiveRecord::Base
       save!
     end
   end
+
 end

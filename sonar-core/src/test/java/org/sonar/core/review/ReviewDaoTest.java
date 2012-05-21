@@ -105,7 +105,7 @@ public class ReviewDaoTest extends DaoTestCase {
     review.setResolution("NEW_RESOLUTION");
     review.setStatus("NEW_STATUS");
     review.setSeverity("NEW_SEV");
-    review.setAssigneeId(1001);
+    review.setAssigneeId(1001L);
     review.setManualSeverity(true);
     review.setManualViolation(false);
     review.setTitle("NEW_TITLE");

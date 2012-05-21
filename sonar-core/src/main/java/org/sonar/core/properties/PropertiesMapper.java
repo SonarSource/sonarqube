@@ -19,6 +19,8 @@
  */
 package org.sonar.core.properties;
 
+import org.apache.ibatis.annotations.Param;
+
 import java.util.List;
 
 public interface PropertiesMapper {
@@ -26,6 +28,7 @@ public interface PropertiesMapper {
   List<String> findUserIdsForFavouriteResource(Long resourceId);
   List<PropertyDto> selectGlobalProperties();
   List<PropertyDto> selectProjectProperties(String resourceKey);
+  List<PropertyDto> selectSetOfResourceProperties(@Param("rId") Long projectId, @Param("propKeys") List<String> propertyKeys);
   PropertyDto selectByKey(PropertyDto key);
   void update(PropertyDto property);
   void insert(PropertyDto property);

@@ -77,7 +77,7 @@ public class ReviewNotifications implements BatchExtension {
     if (review.getAssigneeId() == null) { // not assigned
       return null;
     }
-    User user = userFinder.findById(review.getAssigneeId());
+    User user = userFinder.findById(review.getAssigneeId().intValue());
     return user != null ? user.getLogin() : null;
   }
 }

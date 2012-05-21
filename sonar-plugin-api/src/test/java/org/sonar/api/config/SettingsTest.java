@@ -20,27 +20,24 @@
 package org.sonar.api.config;
 
 import com.google.common.collect.ImmutableMap;
-import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class SettingsTest {
 
   private PropertyDefinitions definitions;
 
   @Properties({
-    @Property(key = "hello", name = "Hello", defaultValue = "world"),
-    @Property(key = "date", name = "Date", defaultValue = "2010-05-18"),
-    @Property(key = "boolean", name = "Boolean", defaultValue = "true"),
-    @Property(key = "falseboolean", name = "False Boolean", defaultValue = "false"),
-    @Property(key = "integer", name = "Integer", defaultValue = "12345"),
-    @Property(key = "array", name = "Array", defaultValue = "one,two,three")
+      @Property(key = "hello", name = "Hello", defaultValue = "world"),
+      @Property(key = "date", name = "Date", defaultValue = "2010-05-18"),
+      @Property(key = "boolean", name = "Boolean", defaultValue = "true"),
+      @Property(key = "falseboolean", name = "False Boolean", defaultValue = "false"),
+      @Property(key = "integer", name = "Integer", defaultValue = "12345"),
+      @Property(key = "array", name = "Array", defaultValue = "one,two,three")
   })
   static class Init {
   }
@@ -54,57 +51,54 @@ public class SettingsTest {
   @Test
   public void defaultValuesShouldBeLoadedFromDefinitions() {
     Settings settings = new Settings(definitions);
-    assertThat(settings.getDefaultValue("hello"), is("world"));
+    assertThat(settings.getDefaultValue("hello")).isEqualTo("world");
   }
 
   @Test
   public void allValuesShouldBeTrimmed_set_property() {
     Settings settings = new Settings();
     settings.setProperty("foo", "   FOO ");
-    assertThat(settings.getString("foo"), is("FOO"));
+    assertThat(settings.getString("foo")).isEqualTo("FOO");
   }
 
   @Test
   public void allValuesShouldBeTrimmed_set_properties() {
     Settings settings = new Settings();
     settings.setProperties(ImmutableMap.of("foo", "  FOO "));
-    assertThat(settings.getString("foo"), is("FOO"));
+    assertThat(settings.getString("foo")).isEqualTo("FOO");
   }
 
   @Test
   public void testGetDefaultValue() {
     Settings settings = new Settings(definitions);
-    assertThat(settings.getDefaultValue("unknown"), nullValue());
+    assertThat(settings.getDefaultValue("unknown")).isNull();
   }
 
   @Test
   public void testGetString() {
     Settings settings = new Settings(definitions);
     settings.setProperty("hello", "Russia");
-    assertThat(settings.getString("hello"), is("Russia"));
+    assertThat(settings.getString("hello")).isEqualTo("Russia");
   }
 
   @Test
   public void testGetDate() {
     Settings settings = new Settings(definitions);
-    assertThat(settings.getDate("date").getDate(), is(18));
-    assertThat(settings.getDate("date").getMonth(), is(4));
+    assertThat(settings.getDate("date").getDate()).isEqualTo(18);
+    assertThat(settings.getDate("date").getMonth()).isEqualTo(4);
   }
 
   @Test
   public void testGetDateNotFound() {
     Settings settings = new Settings(definitions);
-    assertThat(settings.getDate("unknown"), CoreMatchers.<Object>nullValue());
+    assertThat(settings.getDate("unknown")).isNull();
   }
 
   @Test
   public void testGetArray() {
     Settings settings = new Settings(definitions);
     String[] array = settings.getStringArray("array");
-    assertThat(array.length, is(3));
-    assertThat(array[0], is("one"));
-    assertThat(array[1], is("two"));
-    assertThat(array[2], is("three"));
+    assertThat(array).isEqualTo(new String[]{"one", "two", "three"});
   }
 
   @Test
@@ -112,10 +106,7 @@ public class SettingsTest {
     Settings settings = new Settings();
     settings.setProperty("foo", "  one,  two, three  ");
     String[] array = settings.getStringArray("foo");
-    assertThat(array.length, is(3));
-    assertThat(array[0], is("one"));
-    assertThat(array[1], is("two"));
-    assertThat(array[2], is("three"));
+    assertThat(array).isEqualTo(new String[]{"one", "two", "three"});
   }
 
   @Test
@@ -123,25 +114,22 @@ public class SettingsTest {
     Settings settings = new Settings();
     settings.setProperty("foo", "  one,  , two");
     String[] array = settings.getStringArray("foo");
-    assertThat(array.length, is(3));
-    assertThat(array[0], is("one"));
-    assertThat(array[1], is(""));
-    assertThat(array[2], is("two"));
+    assertThat(array).isEqualTo(new String[]{"one", "", "two"});
   }
 
   @Test
   public void testDefaultValueOfGetString() {
     Settings settings = new Settings(definitions);
-    assertThat(settings.getString("hello"), is("world"));
+    assertThat(settings.getString("hello")).isEqualTo("world");
   }
 
   @Test
   public void testGetBoolean() {
     Settings settings = new Settings(definitions);
-    assertThat(settings.getBoolean("boolean"), is(true));
-    assertThat(settings.getBoolean("falseboolean"), is(false));
-    assertThat(settings.getBoolean("unknown"), is(false));
-    assertThat(settings.getBoolean("hello"), is(false));
+    assertThat(settings.getBoolean("boolean")).isTrue();
+    assertThat(settings.getBoolean("falseboolean")).isFalse();
+    assertThat(settings.getBoolean("unknown")).isFalse();
+    assertThat(settings.getBoolean("hello")).isFalse();
   }
 
   @Test
@@ -149,11 +137,29 @@ public class SettingsTest {
     Settings settings = Settings.createForComponent(MyComponent.class);
 
     // property definition has been loaded, ie for default value
-    assertThat(settings.getDefaultValue("foo"), is("bar"));
+    assertThat(settings.getDefaultValue("foo")).isEqualTo("bar");
   }
 
   @Property(key = "foo", name = "Foo", defaultValue = "bar")
   public static class MyComponent {
 
+  }
+
+  @Test
+  public void cloneSettings() {
+    Settings target = new Settings(definitions).setProperty("foo", "bar");
+    Settings settings = new Settings(target);
+
+    assertThat(settings.getString("foo")).isEqualTo("bar");
+    assertThat(settings.getDefinitions()).isSameAs(definitions);
+
+    // do not propagate changes
+    settings.setProperty("foo", "changed");
+    settings.setProperty("new", "value");
+
+    assertThat(settings.getString("foo")).isEqualTo("changed");
+    assertThat(settings.getString("new")).isEqualTo("value");
+    assertThat(target.getString("foo")).isEqualTo("bar");
+    assertThat(target.getString("new")).isNull();
   }
 }

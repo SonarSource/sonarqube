@@ -40,7 +40,7 @@ class ResourceController < ApplicationController
 
     if @snapshot
       load_extensions()
-  
+
       if @extension
         if @extension.getId()=='violations'
           render_violations()
@@ -103,10 +103,10 @@ class ResourceController < ApplicationController
       rule = Rule.find_or_create_manual_rule(rule_id_or_name, true)
       violation = rule.create_violation!(resource, params)
       violation.create_review!(
-        :assignee => assignee,
-        :user => current_user,
-        :status => Review::STATUS_OPEN,
-        :manual_violation => true)
+          :assignee => assignee,
+          :user => current_user,
+          :status => Review::STATUS_OPEN,
+          :manual_violation => true)
     end
 
     render :partial => 'resource/violation', :locals => {:violation => violation}
@@ -210,26 +210,26 @@ class ResourceController < ApplicationController
       to = (@period && @snapshot.period_datetime(@period) ? Java::JavaUtil::Date.new(@snapshot.period_datetime(@period).to_f * 1000) : nil)
       @filtered = true
       if ('lines_to_cover'==@coverage_filter || 'coverage'==@coverage_filter || 'line_coverage'==@coverage_filter ||
-        'new_lines_to_cover'==@coverage_filter || 'new_coverage'==@coverage_filter || 'new_line_coverage'==@coverage_filter ||
-        'it_lines_to_cover'==@coverage_filter || 'it_coverage'==@coverage_filter || 'it_line_coverage'==@coverage_filter ||
-        'new_it_lines_to_cover'==@coverage_filter || 'new_it_coverage'==@coverage_filter || 'new_it_line_coverage'==@coverage_filter)
+          'new_lines_to_cover'==@coverage_filter || 'new_coverage'==@coverage_filter || 'new_line_coverage'==@coverage_filter ||
+          'it_lines_to_cover'==@coverage_filter || 'it_coverage'==@coverage_filter || 'it_line_coverage'==@coverage_filter ||
+          'new_it_lines_to_cover'==@coverage_filter || 'new_it_coverage'==@coverage_filter || 'new_it_line_coverage'==@coverage_filter)
         @coverage_filter = "#{it_prefix}lines_to_cover"
         filter_lines { |line| line.hits && line.after(to) }
 
       elsif ('uncovered_lines'==@coverage_filter || 'new_uncovered_lines'==@coverage_filter ||
-        'it_uncovered_lines'==@coverage_filter || 'new_it_uncovered_lines'==@coverage_filter)
+          'it_uncovered_lines'==@coverage_filter || 'new_it_uncovered_lines'==@coverage_filter)
         @coverage_filter = "#{it_prefix}uncovered_lines"
         filter_lines { |line| line.hits && line.hits==0 && line.after(to) }
 
       elsif ('conditions_to_cover'==@coverage_filter || 'branch_coverage'==@coverage_filter ||
-        'new_conditions_to_cover'==@coverage_filter || 'new_branch_coverage'==@coverage_filter ||
-        'it_conditions_to_cover'==@coverage_filter || 'it_branch_coverage'==@coverage_filter ||
-        'new_it_conditions_to_cover' == @coverage_filter || 'new_it_branch_coverage'==@coverage_filter)
+          'new_conditions_to_cover'==@coverage_filter || 'new_branch_coverage'==@coverage_filter ||
+          'it_conditions_to_cover'==@coverage_filter || 'it_branch_coverage'==@coverage_filter ||
+          'new_it_conditions_to_cover' == @coverage_filter || 'new_it_branch_coverage'==@coverage_filter)
         @coverage_filter="#{it_prefix}conditions_to_cover"
         filter_lines { |line| line.conditions && line.conditions>0 && line.after(to) }
 
       elsif ('uncovered_conditions' == @coverage_filter || 'new_uncovered_conditions' == @coverage_filter ||
-        'it_uncovered_conditions'==@coverage_filter || 'new_it_uncovered_conditions' == @coverage_filter)
+          'it_uncovered_conditions'==@coverage_filter || 'new_it_uncovered_conditions' == @coverage_filter)
         @coverage_filter="#{it_prefix}uncovered_conditions"
         filter_lines { |line| line.conditions && line.covered_conditions && line.covered_conditions<line.conditions && line.after(to) }
       end
@@ -239,13 +239,13 @@ class ResourceController < ApplicationController
 
 
   def render_duplications
-    duplications_data = @snapshot.measure('duplications_data');
+    duplications_data = @snapshot.measure('duplications_data')
 
     # create duplication groups
     @duplication_groups = []
     if duplications_data && duplications_data.measure_data && duplications_data.measure_data.data
       dups = Document.new duplications_data.measure_data.data.to_s
-      if (XPath.match(dups, "//g").size() > 0)
+      if XPath.match(dups, "//g").size > 0
         parse_duplications(dups, @duplication_groups)
       else
         parse_duplications_old_format(dups, @duplication_groups)
@@ -332,80 +332,52 @@ class ResourceController < ApplicationController
     @global_violations=[]
     @expandable=(@lines!=nil)
     @filtered=!@expanded
-    @review_commands= Review.available_commands_for( Api::ReviewContext.new(:project => @resource.root) )
+    rule_param=params[:rule]
 
-    if params[:rule].blank?
+    options={:snapshot_id => @snapshot.id}
+
+    if rule_param.blank? && params[:metric]
       metric = Metric.by_id(params[:metric])
-      if metric && (metric.name=="active_reviews" || metric.name=="unassigned_reviews" || metric.name=="unplanned_reviews" || metric.name=="false_positive_reviews"|| metric.name=="unreviewed_violations" || metric.name=="new_unreviewed_violations")
-        params[:rule] = metric.name.gsub(/new_/, "")
+      if metric && (metric.name=='active_reviews' || metric.name=='unassigned_reviews' || metric.name=='unplanned_reviews' || metric.name=='false_positive_reviews'|| metric.name=='unreviewed_violations' || metric.name=='new_unreviewed_violations')
+        rule_param = metric.name.gsub(/new_/, '')
       end
     end
-    
-    conditions='snapshot_id=?'
-    values=[@snapshot.id]
-    if params[:rule].blank? || params[:rule]  == "all"
-      conditions+=' AND (switched_off IS NULL OR switched_off=?)'
-      values<<false
-    else
-      if params[:rule] == "false_positive_reviews"
-        conditions+=' AND switched_off=?'
-        values<<true
+
+    if !rule_param.blank? && rule_param!='all'
+      if rule_param=='false_positive_reviews'
+        options[:switched_off]=true
+
+      elsif rule_param=='active_reviews'
+        options[:review_statuses]=[Review::STATUS_OPEN, Review::STATUS_REOPENED, nil]
+
+      elsif rule_param=='unassigned_reviews'
+        options[:review_statuses]=[Review::STATUS_OPEN, Review::STATUS_REOPENED, nil]
+        options[:review_assignee_id]=nil
+
+      elsif rule_param=='unplanned_reviews'
+        options[:review_statuses]=[Review::STATUS_OPEN, Review::STATUS_REOPENED, nil]
+        options[:planned]=false
+
+      elsif rule_param=='unreviewed_violations'
+        options[:review_statuses]=[nil]
+
+      elsif Sonar::RulePriority.id(rule_param)
+        options[:severity]=rule_param
+
       else
-        conditions+=' AND (switched_off IS NULL OR switched_off=?)'
-        values<<false
-        if params[:rule] == "active_reviews"
-          open_reviews = Review.find(:all, :conditions => ["resource_id=? AND (status=? OR status=?)", @snapshot.resource_id, Review::STATUS_OPEN, Review::STATUS_REOPENED])
-          if open_reviews.empty?
-            conditions+=' AND permanent_id=-1'
-          else
-            conditions+=' AND permanent_id IN (?)'
-            values << open_reviews.map {|r| r.rule_failure_permanent_id}
-          end
-        elsif params[:rule] == "unassigned_reviews"
-          unassigned_reviews = Review.find(:all, :conditions => ["resource_id=? AND (status=? OR status=?) AND assignee_id IS NULL", @snapshot.resource_id, Review::STATUS_OPEN, Review::STATUS_REOPENED])
-          if unassigned_reviews.empty?
-            conditions+=' AND permanent_id=-1'
-          else
-            conditions+=' AND permanent_id IN (?)'
-            values << unassigned_reviews.map {|r| r.rule_failure_permanent_id}
-          end
-        elsif params[:rule] == "unplanned_reviews"
-          planned_reviews = Review.find(:all, :include => ['action_plans'], :conditions => ["resource_id=? AND (status=? OR status=?)", @snapshot.resource_id, Review::STATUS_OPEN, Review::STATUS_REOPENED]).reject{|r| r.planned?}
-          if planned_reviews.empty?
-            conditions+=' AND permanent_id=-1'
-          else
-            conditions+=' AND permanent_id IN (?)'
-            values << planned_reviews.map {|r| r.rule_failure_permanent_id}
-          end
-        elsif params[:rule] == "unreviewed_violations"
-          not_closed_reviews = Review.find(:all, :conditions => ["resource_id=? AND status!=?", @snapshot.resource_id, Review::STATUS_CLOSED])
-          unless not_closed_reviews.empty?
-            conditions+=' AND permanent_id NOT IN (?)'
-            values << not_closed_reviews.map {|r| r.rule_failure_permanent_id}
-          end
-        else
-          severity=Sonar::RulePriority.id(params[:rule])
-          if severity
-            conditions += ' AND failure_level=?'
-            values<<severity
-          else
-            rule=Rule.by_key_or_id(params[:rule])
-            conditions += ' AND rule_id=?'
-            values<<(rule ? rule.id : -1)
-          end
-        end
+        options[:rule_id]=rule_param
       end
     end
 
     if @period
       date=@snapshot.period_datetime(@period)
       if date
-        conditions+=' AND created_at>?'
-        values<<date.advance(:minutes => 1)
+        options[:created_after]=date.advance(:minutes => 1)
       end
     end
-    
-    RuleFailure.find(:all, :include => ['rule', 'review'], :conditions => [conditions] + values, :order => 'failure_level DESC').each do |violation|
+
+    violations = RuleFailure.search(options)
+    violations.each do |violation|
       # sorted by severity => from blocker to info
       if @lines && violation.line && violation.line>0 && violation.line<=@lines.size
         @lines[violation.line-1].add_violation(violation)
@@ -416,6 +388,11 @@ class ResourceController < ApplicationController
 
     if !@expanded && @lines
       filter_lines { |line| line.violations? }
+    end
+
+    @review_screens_by_vid=nil
+    if current_user && has_role?(:user, @resource)
+      @review_screens_by_vid = RuleFailure.available_java_screens_for_violations(violations, @resource.project, current_user)
     end
     render :action => 'index', :layout => !request.xhr?
   end
@@ -545,4 +522,5 @@ class ResourceController < ApplicationController
   def render_resource_deleted()
     render :action => 'resource_deleted', :layout => !request.xhr?
   end
+
 end

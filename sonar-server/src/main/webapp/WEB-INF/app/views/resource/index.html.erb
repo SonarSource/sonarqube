@@ -127,7 +127,7 @@
           <td class="lid"></td>
           <td class="violations">
             <% line.violations.each_with_index do |violation, index| %>
-              <%= render :partial => 'violation', :locals => {:violation => violation} -%>
+              <%= render :partial => 'violation', :locals => {:violation => violation, :review_screens => @review_screens_by_vid ? @review_screens_by_vid.get(violation.id) : []} -%>
               <% if index < line.violations.size-1 %>
                 &nbsp;
               <% end %>

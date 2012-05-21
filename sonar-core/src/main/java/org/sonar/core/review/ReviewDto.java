@@ -44,7 +44,7 @@ public final class ReviewDto {
 
   private Long id;
   private Integer userId;
-  private Integer assigneeId;
+  private Long assigneeId;
   private String title;
   private String status;
   private String resolution;
@@ -79,11 +79,11 @@ public final class ReviewDto {
     return this;
   }
 
-  public Integer getAssigneeId() {
+  public Long getAssigneeId() {
     return assigneeId;
   }
 
-  public ReviewDto setAssigneeId(@Nullable Integer assigneeId) {
+  public ReviewDto setAssigneeId(@Nullable Long assigneeId) {
     this.assigneeId = assigneeId;
     return this;
   }

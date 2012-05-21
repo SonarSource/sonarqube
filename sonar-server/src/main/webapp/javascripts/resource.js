@@ -39,12 +39,27 @@ function hideMoreViolationActions(violation_id) {
   }
 }
 
-// show the form to comment violation
-function sCF(violation_id, review_command_id) {
+function sCF(violation_id) {
   hideMoreViolationActions(violation_id);
   new Ajax.Updater('reviewForm' + violation_id,
-      baseUrl + '/reviews/violation_comment_form/' + violation_id 
-      + (review_command_id==null ? "" : "?review_command_id=" + review_command_id),
+      baseUrl + '/reviews/violation_comment_form/' + violation_id,
+      {
+        asynchronous:true,
+        evalScripts:true,
+        onComplete:function (request) {
+          $('vActions' + violation_id).remove();
+          $('reviewForm' + violation_id).show();
+          $('commentText' + violation_id).focus();
+        }
+      });
+  return false;
+}
+
+// show review screen
+function sS(violation_id, command_key) {
+  hideMoreViolationActions(violation_id);
+  new Ajax.Updater('reviewForm' + violation_id,
+      baseUrl + '/reviews/screen/' + violation_id + '?command=' + command_key,
       {
         asynchronous:true,
         evalScripts:true,

@@ -32,12 +32,12 @@ class ProjectReviewsController < ApplicationController
   def index
     @project=Project.by_key(params[:id])
     @project=Project.by_key(params[:projects]) unless @project
-    
+
     if @project
       access_denied unless has_role?(:user, @project)
-      
+
       # 'id' is the id of the project, so it should be removed from the search params
-      found_reviews = Review.search(params.reject {|k,v| k=='id'})
+      found_reviews = Review.search(params.reject { |k, v| k=='id' })
       @reviews = select_authorized(:user, found_reviews, :project)
       if found_reviews.size != @reviews.size
         @security_exclusions = true
@@ -46,13 +46,12 @@ class ProjectReviewsController < ApplicationController
       render :text => "<b>Listing reviews without a project reference is not possible</b>. Go to review search service instead."
     end
   end
-  
+
 
   # Used for the permalink, e.g. http://localhost:9000/project_reviews/view/1
   def view
     @review = Review.find(params[:id], :include => ['project'])
     @resource = @review.project
-    @review_commands = Review.available_commands_for( Api::ReviewContext.new(:review => @review, :user => current_user) )
     if has_role?(:user, @review.project)
       render 'project_reviews/_view', :locals => {:review => @review}
     else
@@ -70,7 +69,7 @@ class ProjectReviewsController < ApplicationController
   def show
     @review = Review.find(params[:id], :include => ['project'])
     @resource = @review.project
-    @review_commands = Review.available_commands_for( Api::ReviewContext.new(:review => @review, :user => current_user) )
+    @review_commands = Review.available_commands_for(Api::ReviewContext.new(:review => @review, :user => current_user))
     if has_role?(:user, @resource)
       render :partial => 'project_reviews/view'
     else
@@ -216,7 +215,7 @@ class ProjectReviewsController < ApplicationController
     @action_plans = ActionPlan.open_by_project_id(@review.project_id)
     render :partial => 'project_reviews/action_plan_form'
   end
-  
+
   # POST
   def link_to_action_plan
     @review = Review.find(params[:id])
@@ -225,13 +224,13 @@ class ProjectReviewsController < ApplicationController
       render :text => "<b>Cannot link to action plan</b> : access denied."
       return
     end
-    
+
     action_plan = params[:action_plan_id].to_i==-1 ? nil : ActionPlan.find(params[:action_plan_id])
     @review.link_to_action_plan(action_plan, current_user, params)
 
     render :partial => "project_reviews/review"
   end
-  
+
   # POST
   def unlink_from_action_plan
     @review = Review.find(params[:id])
@@ -240,42 +239,40 @@ class ProjectReviewsController < ApplicationController
       render :text => "<b>Cannot link to action plan</b> : access denied."
       return
     end
-    
+
     @review.link_to_action_plan(nil, current_user, params)
 
     render :partial => "project_reviews/review"
   end
 
   # GET
-  def review_command_form
+  def screen
     @review = Review.find(params[:id])
-    @review_command = Review.get_command(params[:review_command_id])
-    render :partial => 'project_reviews/review_command_form'
+    bad_request('Unknown violation') unless @review
+
+    command = params[:command]
+    bad_request('Missing command') if command.blank?
+
+    @screen = java_facade.getReviewScreen(command)
+    bad_request('No associated screen') unless @screen
+
+    render :partial => "project_reviews/screens/#{@screen.getKey()}"
   end
 
   # POST
-  def run_review_command
-    @review = Review.find(params[:id], :include => ['project'])
-    @resource = @review.project
-    unless has_rights_to_modify?(@resource)
-      render :text => "<b>Cannot create the comment</b> : access denied."
-      return
-    end
+  def execute
+    bad_request('Missing review id') unless params[:id]
+    review = Review.find(params[:id], :include => ['project'])
 
-    begin
-      @review.create_comment({:user => current_user, :text => params[:text]}, params[:review_command_id])
-    rescue Exception => e
-      # the review command may throw an exception
-      flash[:review_error] = e.clean_message
-    end
+    access_denied unless has_rights_to_modify?(review.resource)
 
-    # Needs to reload as the review may have been changed on the Java side by a ReviewAction
-    @review.reload
+    bad_request('Missing command') if params[:command].blank?
+    RuleFailure.execute_command(params[:command], review.violation, current_user, params)
 
-    render :partial => "project_reviews/view"
+    render :partial => "project_reviews/review", :locals => {:review => review}
   end
-  
-  
+
+
   #
   #
   # ACTIONS FROM THE REVIEW WIDGETS
@@ -293,9 +290,8 @@ class ProjectReviewsController < ApplicationController
     @dashboard_configuration=Api::DashboardConfiguration.new(nil, :period_index => params[:period], :snapshot => @snapshot)
     render :partial => 'project/widgets/reviews/reviews_list'
   end
-  
-  
-  
+
+
   ## -------------- PRIVATE -------------- ##
   private
 

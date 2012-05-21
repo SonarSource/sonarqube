@@ -25,7 +25,7 @@ class ReviewsController < ApplicationController
   verify :method => :post,
          :only => [:violation_assign, :violation_flag_as_false_positive, :violation_change_severity,
                    :violation_save_comment, :violation_delete_comment, :violation_change_status,
-                   :violation_link_to_action_plan, :violation_unlink_from_action_plan],
+                   :violation_link_to_action_plan, :violation_unlink_from_action_plan, :execute],
          :redirect_to => {:action => :error_not_post}
   helper SourceHelper, UsersHelper
 
@@ -40,6 +40,43 @@ class ReviewsController < ApplicationController
     redirect_to :controller => 'project_reviews', :action => 'view', :id => params[:id]
   end
 
+  # GET
+  def screen
+    @violation = RuleFailure.find params[:id]
+    bad_request('Unknown violation') unless @violation
+
+    command = params[:command]
+    bad_request('Missing command') if command.blank?
+
+    @screen = java_facade.getReviewScreen(command)
+    bad_request('No associated screen') unless @screen
+
+    render :partial => "reviews/screens/#{@screen.getKey()}"
+  end
+
+  # POST
+  def execute
+    bad_request('Missing violation id') unless params[:id]
+    violation = RuleFailure.find(:first, :include => [:rule, {:snapshot => :project}, {:review => :action_plans}], :conditions => {:id => params[:id].to_i})
+    bad_request('Unknown violation') unless violation
+    access_denied unless has_rights_to_modify? violation.snapshot
+
+    bad_request('Missing command') if params[:command].blank?
+
+    sanitize_violation(violation)
+    unless violation.review
+      violation.create_review!(:user_id => current_user.id)
+    end
+
+    # TODO remove parameters id and command from params
+    RuleFailure.execute_command(params[:command], violation, violation.snapshot.root_snapshot.project, current_user, params)
+
+    # reload data required for display
+    violation = RuleFailure.find(:first, :include => [:rule, :snapshot, {:review => :action_plans}], :conditions => {:id => violation.id})
+    screens = violation.available_java_screens(current_user)
+
+    render :partial => 'resource/violation', :locals => {:violation => violation, :review_screens => screens}
+  end
 
   #
   #
@@ -50,7 +87,8 @@ class ReviewsController < ApplicationController
   # GET
   def display_violation
     violation = RuleFailure.find(params[:id])
-    render :partial => "resource/violation", :locals => {:violation => violation}
+    screens = violation.available_java_screens(current_user)
+    render :partial => "resource/violation", :locals => {:violation => violation, :review_screens => screens}
   end
 
   # GET
@@ -132,14 +170,12 @@ class ReviewsController < ApplicationController
     render :partial => "resource/violation", :locals => {:violation => violation}
   end
 
+
   # GET
   def violation_comment_form
     @violation = RuleFailure.find params[:id]
     if !params[:comment_id].blank? && @violation.review
       @comment = @violation.review.comments.find(params[:comment_id])
-    end
-    unless params[:review_command_id].blank?
-      @review_command = Review.get_command(params[:review_command_id])
     end
     render :partial => 'reviews/violation_comment_form'
   end
@@ -172,7 +208,7 @@ class ReviewsController < ApplicationController
         end
       end
     end
-    
+
     # Needs to reload as the review may have been changed on the Java side by a ReviewAction
     violation.review.reload
 
@@ -228,7 +264,7 @@ class ReviewsController < ApplicationController
     @action_plans = ActionPlan.open_by_project_id(@violation.snapshot.root_project_id)
     render :partial => 'reviews/violation_action_plan_form'
   end
-  
+
   # POST
   def violation_link_to_action_plan
     violation = RuleFailure.find(params[:id], :include => 'snapshot')
@@ -237,7 +273,7 @@ class ReviewsController < ApplicationController
       return
     end
     sanitize_violation(violation)
-    
+
     if violation.review.nil?
       violation.build_review(:user_id => current_user.id)
     end
@@ -246,7 +282,7 @@ class ReviewsController < ApplicationController
 
     render :partial => "resource/violation", :locals => {:violation => violation}
   end
-  
+
   # POST
   def violation_unlink_from_action_plan
     violation = RuleFailure.find(params[:id], :include => 'snapshot')

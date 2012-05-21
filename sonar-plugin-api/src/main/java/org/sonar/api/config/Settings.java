@@ -56,6 +56,16 @@ public class Settings implements BatchComponent, ServerComponent {
     this.encryption = new Encryption(this);
   }
 
+  /**
+   * Clone settings. Actions are not propagated to cloned settings.
+   * @since 3.1
+   */
+  public Settings(Settings other) {
+    this.properties = Maps.newHashMap(other.properties);
+    this.definitions = other.definitions;
+    this.encryption = other.encryption;
+  }
+
   public final Encryption getEncryption() {
     return encryption;
   }

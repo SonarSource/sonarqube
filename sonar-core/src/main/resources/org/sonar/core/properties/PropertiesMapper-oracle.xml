@@ -21,6 +21,13 @@
     where p.resource_id=r.id and p.user_id is null and r.kee=#{id}
   </select>
 
+  <select id="selectSetOfResourceProperties" parameterType="map" resultType="Property">
+    select p.id as id, p.prop_key as "key", p.text_value as value, p.resource_id as resourceId, p.user_id as userId
+    from properties p
+    where p.resource_id=#{rId} and p.prop_key in
+    <foreach item="propKey" index="index" collection="propKeys" open="(" separator="," close=")">#{propKey}</foreach>
+  </select>
+
   <select id="selectByKey" parameterType="map" resultType="Property">
     select p.id as id, p.prop_key as "key", p.text_value as value, p.resource_id as resourceId, p.user_id as userId
     from properties p

@@ -261,38 +261,6 @@ class Review < ActiveRecord::Base
     action_plans[0]
   end
 
-  def self.available_commands_for(review_context)
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().getAvailableCommandsFor(review_context.to_string_map)
-  end
-
-  # Options:
-  #  - :command_type
-  #  - :review
-  #  - :violation
-  #  - :user
-  def self.filter_commands(commands, options={})
-    unless commands
-      if options[:review]
-        commands= available_commands_for( Api::ReviewContext.new(:project => options[:review].project) )
-      elsif options[:violation]
-        commands= available_commands_for( Api::ReviewContext.new(:project => options[:violation].snapshot.root_project) )
-      else      
-        commands = []
-      end
-    end
-    
-    review_context = Api::ReviewContext.new(:review => options[:review], :user => options[:user])
-    actions = Java::OrgSonarServerUi::JRubyFacade.getInstance().filterCommands(commands, review_context.to_string_map, options[:command_type])
-  end
-  
-  def self.get_command(command_id)
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().getCommand(command_id)
-  end
-
-  def self.command_label(command)
-    Api::Utils.message("commands.reviews." + command.getId(), :default => command.getName())
-  end
-
   #
   #
   # SEARCH METHODS
