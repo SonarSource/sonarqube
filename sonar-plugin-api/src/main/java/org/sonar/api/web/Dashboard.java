@@ -40,7 +40,7 @@ public final class Dashboard {
   private String description;
   private DashboardLayout layout = DashboardLayout.TWO_COLUMNS;
   private ListMultimap<Integer, Widget> widgetsByColumn = ArrayListMultimap.create();
-  private boolean global;
+  private boolean global = false;
 
   private Dashboard() {
   }
