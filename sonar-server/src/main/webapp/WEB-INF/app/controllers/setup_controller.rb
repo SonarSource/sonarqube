@@ -25,12 +25,10 @@ class SetupController < ApplicationController
   verify :method => :post, :only => [ :setup_database ], :redirect_to => { :action => :index }
     
   def index
-    if DatabaseMigrationManager.instance.requires_migration?
-      if ActiveRecord::Base.connected?
-        render :template => 'setup/form', :layout => 'nonav'
-      else
-        render :template => 'setup/dbdown', :layout => 'nonav'
-      end
+    if !ActiveRecord::Base.connected?
+      render :template => 'setup/dbdown', :layout => 'nonav'
+    elsif DatabaseMigrationManager.instance.requires_migration?
+      render :template => 'setup/form', :layout => 'nonav'
     elsif DatabaseMigrationManager.instance.migration_running?
       render :template => 'setup/migration_running', :layout => 'nonav'
     elsif DatabaseMigrationManager.instance.migration_failed?

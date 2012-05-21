@@ -107,13 +107,16 @@ class Api::ServerController < Api::ApiController
   end
 
   def complete_with_status(hash)
-    if DatabaseVersion.uptodate?
+    if DatabaseMigrationManager.instance.is_sonar_access_allowed?
       hash[:status]='UP'
-    elsif ActiveRecord::Base.connected?
+    elsif DatabaseMigrationManager.instance.migration_running?
+      hash[:status]='MIGRATION_RUNNING'
+    elsif DatabaseMigrationManager.instance.requires_migration?
       hash[:status]='SETUP'
     else
+      # migration failed or not connected to the database 
       hash[:status]='DOWN'
-      hash[:status_msg]='Not connected to database'
+      hash[:status_msg]=DatabaseMigrationManager.instance.message
     end
   end
 

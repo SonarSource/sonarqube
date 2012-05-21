@@ -46,7 +46,10 @@ class DatabaseMigrationManager
   @start_time
   
   def initialize
-    if DatabaseVersion.uptodate?
+    if !ActiveRecord::Base.connected?
+      @status = MIGRATION_FAILED
+      @message = "Not connected to database."
+    elsif DatabaseVersion.uptodate?
       @status = NO_MIGRATION
       @message = "Database is up-to-date, no migration needed."
     else
