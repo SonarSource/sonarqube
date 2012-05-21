@@ -34,7 +34,7 @@ public class ConditionTest {
         return false;
       }
     };
-    assertThat(condition.isOncePerGroup()).isTrue();
+    assertThat(condition.isOnContext()).isTrue();
   }
 
   @Test
@@ -45,7 +45,7 @@ public class ConditionTest {
         return false;
       }
     };
-    assertThat(condition.isOncePerGroup()).isFalse();
+    assertThat(condition.isOnContext()).isFalse();
   }
 
 }

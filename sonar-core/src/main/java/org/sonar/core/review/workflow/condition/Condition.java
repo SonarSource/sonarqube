@@ -22,18 +22,25 @@ package org.sonar.core.review.workflow.condition;
 import org.sonar.core.review.workflow.review.Review;
 import org.sonar.core.review.workflow.review.WorkflowContext;
 
+import javax.annotation.Nullable;
+
 public abstract class Condition {
 
-  private final boolean oncePerGroup;
+  private final boolean onContext;
 
-  protected Condition(boolean oncePerGroup) {
-    this.oncePerGroup = oncePerGroup;
+  protected Condition(boolean onContext) {
+    this.onContext = onContext;
   }
 
-  public final boolean isOncePerGroup() {
-    return oncePerGroup;
+  public final boolean isOnContext() {
+    return onContext;
   }
 
-  public abstract boolean doVerify(Review review, WorkflowContext context);
+  /**
+   * @param review the review on "review conditions" like StatusCondition, null on "context conditions" like AdminRoleCondition or ProjectPropertyCondition
+   * @param context
+   * @return is the condition verified ?
+   */
+  public abstract boolean doVerify(@Nullable Review review, WorkflowContext context);
 
 }

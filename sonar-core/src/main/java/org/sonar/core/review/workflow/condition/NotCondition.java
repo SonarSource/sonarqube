@@ -27,7 +27,7 @@ public final class NotCondition extends Condition {
   private Condition condition;
 
   public NotCondition(Condition c) {
-    super(c.isOncePerGroup());
+    super(c.isOnContext());
     this.condition = c;
   }
 

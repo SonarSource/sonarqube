@@ -44,6 +44,17 @@ public class Workflow implements ServerComponent {
    */
   private List<String> projectPropertyKeys = Lists.newArrayList();
 
+  /**
+   * Optimization: fast way to get all context conditions
+   */
+  private ListMultimap<String, Condition> contextConditionsByCommand = ArrayListMultimap.create();
+
+  /**
+   * Optimization: fast way to get all review conditions
+   */
+  private ListMultimap<String, Condition> reviewConditionsByCommand = ArrayListMultimap.create();
+
+
   public Workflow addCommand(String key) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(key), "Empty command key");
     commands.add(key);
@@ -62,8 +73,19 @@ public class Workflow implements ServerComponent {
     return projectPropertyKeys;
   }
 
+  /**
+   * Shortcut for: getReviewConditions(commandKey) + getContextConditions(commandKey)
+   */
   public List<Condition> getConditions(String commandKey) {
     return conditionsByCommand.get(commandKey);
+  }
+
+  public List<Condition> getReviewConditions(String commandKey) {
+    return reviewConditionsByCommand.get(commandKey);
+  }
+
+  public List<Condition> getContextConditions(String commandKey) {
+    return contextConditionsByCommand.get(commandKey);
   }
 
   public Workflow addCondition(String commandKey, Condition condition) {
@@ -72,6 +94,11 @@ public class Workflow implements ServerComponent {
     conditionsByCommand.put(commandKey, condition);
     if (condition instanceof ProjectPropertyCondition) {
       projectPropertyKeys.add(((ProjectPropertyCondition) condition).getPropertyKey());
+    }
+    if (condition.isOnContext()) {
+      contextConditionsByCommand.put(commandKey, condition);
+    } else {
+      reviewConditionsByCommand.put(commandKey, condition);
     }
     return this;
   }

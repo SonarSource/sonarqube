@@ -55,10 +55,13 @@ public class WorkflowEngine implements ServerComponent {
 
     completeProjectSettings(context);
 
-    for (Review review : reviews) {
-      for (Map.Entry<String, Screen> entry : workflow.getScreensByCommand().entrySet()) {
-        if (!verifyConditions || verifyConditions(review, context, entry.getKey())) {
-          result.put(review.getViolationId(), entry.getValue());
+    for (Map.Entry<String, Screen> entry : workflow.getScreensByCommand().entrySet()) {
+      String commandKey = entry.getKey();
+      if (!verifyConditions || verifyConditions(null, context, workflow.getContextConditions(commandKey))) {
+        for (Review review : reviews) {
+          if (!verifyConditions || verifyConditions(review, context, workflow.getReviewConditions(commandKey))) {
+            result.put(review.getViolationId(), entry.getValue());
+          }
         }
       }
     }
@@ -69,7 +72,8 @@ public class WorkflowEngine implements ServerComponent {
     List<Screen> result = Lists.newArrayList();
     completeProjectSettings(context);
     for (Map.Entry<String, Screen> entry : workflow.getScreensByCommand().entrySet()) {
-      if (!verifyConditions || verifyConditions(review, context, entry.getKey())) {
+      String commandKey = entry.getKey();
+      if (!verifyConditions || verifyConditions(review, context, workflow.getConditions(commandKey))) {
         result.add(entry.getValue());
 
       }
@@ -87,13 +91,15 @@ public class WorkflowEngine implements ServerComponent {
   public void execute(String commandKey, MutableReview review, DefaultWorkflowContext context, Map<String, String> parameters) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(commandKey), "Missing command");
     Preconditions.checkArgument(workflow.hasCommand(commandKey), "Unknown command: " + commandKey);
-    Preconditions.checkState(verifyConditions(review, context, commandKey), "Conditions are not respected");
 
     completeProjectSettings(context);
+
+    Preconditions.checkState(verifyConditions(review, context, workflow.getConditions(commandKey)), "Conditions are not respected");
+
     ImmutableMap<String, String> immutableParameters = ImmutableMap.copyOf(parameters);
 
     // TODO execute functions are change state before functions that consume state (like "create-jira-issue")
-    Review initialReview = ((DefaultReview)review).cloneImmutable();
+    Review initialReview = ((DefaultReview) review).cloneImmutable();
     for (Function function : workflow.getFunctions(commandKey)) {
       function.doExecute(review, initialReview, context, immutableParameters);
     }
@@ -102,10 +108,6 @@ public class WorkflowEngine implements ServerComponent {
     store.store(review);
 
     // TODO notify listeners
-  }
-
-  private boolean verifyConditions(Review review, WorkflowContext context, String command) {
-    return verifyConditions(review, context, workflow.getConditions(command));
   }
 
   private boolean verifyConditions(Review review, WorkflowContext context, List<Condition> conditions) {

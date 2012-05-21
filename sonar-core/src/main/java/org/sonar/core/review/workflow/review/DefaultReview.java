@@ -200,8 +200,8 @@ public final class DefaultReview implements MutableReview {
   /**
    * Note : implementation is still mutable.
    */
-  public Review cloneImmutable() {
-    DefaultReview clone = new DefaultReview();
+  public ImmutableReview cloneImmutable() {
+    ImmutableReview clone = new ImmutableReview();
     clone.setAssigneeId(assigneeId);
     clone.setLine(line);
     clone.setManual(manual);
@@ -214,6 +214,7 @@ public final class DefaultReview implements MutableReview {
     clone.setStatus(status);
     clone.setSwitchedOff(switchedOff);
     clone.setViolationId(violationId);
+    clone.setProperties(ImmutableMap.copyOf(getProperties()));
     return clone;
   }
 }

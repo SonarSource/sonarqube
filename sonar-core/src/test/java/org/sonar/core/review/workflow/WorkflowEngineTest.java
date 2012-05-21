@@ -20,18 +20,20 @@
 package org.sonar.core.review.workflow;
 
 import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Maps;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
 import org.sonar.core.review.workflow.condition.Condition;
 import org.sonar.core.review.workflow.condition.HasProjectPropertyCondition;
-import org.sonar.core.review.workflow.review.DefaultReview;
-import org.sonar.core.review.workflow.review.DefaultWorkflowContext;
-import org.sonar.core.review.workflow.review.Review;
-import org.sonar.core.review.workflow.review.WorkflowContext;
+import org.sonar.core.review.workflow.function.Function;
+import org.sonar.core.review.workflow.review.*;
 import org.sonar.core.review.workflow.screen.CommentScreen;
 import org.sonar.core.review.workflow.screen.Screen;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.matchers.JUnitMatchers.hasItem;
@@ -39,6 +41,10 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 public class WorkflowEngineTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
   @Test
   public void listAvailableScreensForReview_empty() {
     WorkflowEngine engine = new WorkflowEngine(new Workflow(), mock(ReviewStore.class), new Settings());
@@ -116,5 +122,50 @@ public class WorkflowEngineTest {
         true);
 
     verify(store).completeProjectSettings(eq(300L), any(Settings.class), (List<String>) argThat(hasItem("foo")));
+  }
+
+  @Test
+  public void execute_conditions_pass() {
+    Workflow workflow = new Workflow();
+    workflow.addCommand("resolve");
+    workflow.addCondition("resolve", new HasProjectPropertyCondition("foo"));
+    Function function = mock(Function.class);
+    workflow.addFunction("resolve", function);
+
+    ReviewStore store = mock(ReviewStore.class);
+    Settings settings = new Settings();
+    settings.setProperty("foo", "bar");
+    WorkflowEngine engine = new WorkflowEngine(workflow, store, settings);
+
+    MutableReview review = new DefaultReview().setViolationId(1000L);
+    Map<String, String> parameters = Maps.newHashMap();
+    DefaultWorkflowContext context = new DefaultWorkflowContext().setProjectId(300L);
+
+    engine.execute("resolve", review, context, parameters);
+
+    verify(store).completeProjectSettings(eq(300L), any(Settings.class), (List<String>) argThat(hasItem("foo")));
+    verify(function).doExecute(eq(review), any(ImmutableReview.class), eq(context), eq(parameters));
+  }
+
+  @Test
+  public void execute_fail_if_conditions_dont_pass() {
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Conditions are not respected");
+
+    Workflow workflow = new Workflow();
+    workflow.addCommand("resolve");
+    workflow.addCondition("resolve", new HasProjectPropertyCondition("foo"));
+    Function function = mock(Function.class);
+    workflow.addFunction("resolve", function);
+
+    ReviewStore store = mock(ReviewStore.class);
+    Settings settings = new Settings();// missing property 'foo'
+    WorkflowEngine engine = new WorkflowEngine(workflow, store, settings);
+
+    MutableReview review = new DefaultReview().setViolationId(1000L);
+    Map<String, String> parameters = Maps.newHashMap();
+    DefaultWorkflowContext context = new DefaultWorkflowContext().setProjectId(300L);
+
+    engine.execute("resolve", review, context, parameters);
   }
 }

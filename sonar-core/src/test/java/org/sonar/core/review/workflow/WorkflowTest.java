@@ -74,7 +74,7 @@ public class WorkflowTest {
   }
 
   @Test
-  public void addAndGetCondition() {
+  public void addCondition() {
     Workflow workflow = new Workflow();
     Condition condition = new StatusCondition("OPEN");
     workflow.addCommand("resolve");
@@ -110,7 +110,20 @@ public class WorkflowTest {
   }
 
   @Test
-  public void addAndGetFunctions() {
+  public void keepFastLinksToReviewAndContextConditions() {
+    Workflow workflow = new Workflow();
+    workflow.addCommand("create-jira-issue");
+    Condition contextCondition = new HasProjectPropertyCondition("jira.url");
+    workflow.addCondition("create-jira-issue", contextCondition);
+    Condition reviewCondition = new StatusCondition("OPEN");
+    workflow.addCondition("create-jira-issue", reviewCondition);
+
+    assertThat(workflow.getContextConditions("create-jira-issue")).containsExactly(contextCondition);
+    assertThat(workflow.getReviewConditions("create-jira-issue")).containsExactly(reviewCondition);
+  }
+
+  @Test
+  public void addFunction() {
     Workflow workflow = new Workflow();
     workflow.addCommand("resolve");
 
