@@ -2,7 +2,7 @@
 
   <% if widget.properties_as_hash['filter'] %>
     <% filter = ::Filter.find_by_id(widget.properties_as_hash['filter']) %>
-    <div class="widget-title">
+    <div class="widget-title" id="widget_title_<%= widget.id -%>">
       <% if filter %>
         <%= filter.name -%>
         <% if filter.period_index %>
