@@ -24,14 +24,14 @@ import org.sonar.core.review.workflow.review.WorkflowContext;
 
 public abstract class Condition {
 
-  private final boolean oncePerProject;
+  private final boolean oncePerGroup;
 
-  protected Condition(boolean oncePerProject) {
-    this.oncePerProject = oncePerProject;
+  protected Condition(boolean oncePerGroup) {
+    this.oncePerGroup = oncePerGroup;
   }
 
-  public final boolean isOncePerProject() {
-    return oncePerProject;
+  public final boolean isOncePerGroup() {
+    return oncePerGroup;
   }
 
   public abstract boolean doVerify(Review review, WorkflowContext context);

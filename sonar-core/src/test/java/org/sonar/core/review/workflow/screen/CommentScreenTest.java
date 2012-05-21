@@ -17,22 +17,21 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.review.workflow.condition;
+package org.sonar.core.review.workflow.screen;
 
-import org.sonar.core.review.workflow.review.Review;
-import org.sonar.core.review.workflow.review.WorkflowContext;
+import org.junit.Test;
 
-public final class NotCondition extends Condition {
+import static org.fest.assertions.Assertions.assertThat;
 
-  private Condition condition;
+public class CommentScreenTest {
+  @Test
+  public void testCommentScreen() {
+    CommentScreen screen = new CommentScreen();
 
-  public NotCondition(Condition c) {
-    super(c.isOncePerGroup());
-    this.condition = c;
-  }
+    assertThat(screen.getKey()).isEqualTo("comment");
 
-  @Override
-  public boolean doVerify(Review review, WorkflowContext context) {
-    return !condition.doVerify(review, context);
+    assertThat(screen.getCommandKey()).isNull();
+    assertThat(screen.setCommandKey("create-jira-issue"));
+    assertThat(screen.getCommandKey()).isEqualTo("create-jira-issue");
   }
 }

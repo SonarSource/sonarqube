@@ -27,14 +27,14 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class ConditionTest {
   @Test
-  public void checkedOncePerProject() {
+  public void checkedOncePerGroupOfReviews() {
     Condition condition = new Condition(true) {
       @Override
       public boolean doVerify(Review review, WorkflowContext context) {
         return false;
       }
     };
-    assertThat(condition.isOncePerProject()).isTrue();
+    assertThat(condition.isOncePerGroup()).isTrue();
   }
 
   @Test
@@ -45,7 +45,7 @@ public class ConditionTest {
         return false;
       }
     };
-    assertThat(condition.isOncePerProject()).isFalse();
+    assertThat(condition.isOncePerGroup()).isFalse();
   }
 
 }

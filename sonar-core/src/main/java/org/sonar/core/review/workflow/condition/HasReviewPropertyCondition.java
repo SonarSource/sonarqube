@@ -19,20 +19,27 @@
  */
 package org.sonar.core.review.workflow.condition;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import org.sonar.core.review.workflow.review.Review;
 import org.sonar.core.review.workflow.review.WorkflowContext;
 
-public final class NotCondition extends Condition {
+public class HasReviewPropertyCondition extends Condition {
 
-  private Condition condition;
+  private final String propertyKey;
 
-  public NotCondition(Condition c) {
-    super(c.isOncePerGroup());
-    this.condition = c;
+  protected HasReviewPropertyCondition(String propertyKey) {
+    super(false);
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(propertyKey));
+    this.propertyKey = propertyKey;
+  }
+
+  protected final String getPropertyKey() {
+    return propertyKey;
   }
 
   @Override
   public boolean doVerify(Review review, WorkflowContext context) {
-    return !condition.doVerify(review, context);
+    return !Strings.isNullOrEmpty(review.getProperties().get(propertyKey));
   }
 }
