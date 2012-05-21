@@ -80,6 +80,10 @@ class DatabaseMigrationManager
     @status==MIGRATION_FAILED
   end
   
+  def is_sonar_access_allowed?
+    @status==NO_MIGRATION || @status==MIGRATION_SUCCEEDED
+  end
+  
   def migration_start_time
     @start_time
   end

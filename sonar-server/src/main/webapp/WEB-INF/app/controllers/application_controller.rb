@@ -80,7 +80,7 @@ class ApplicationController < ActionController::Base
   protected
 
   def check_database_version
-    unless DatabaseVersion.uptodate?
+    unless DatabaseMigrationManager.instance.is_sonar_access_allowed?
       redirect_to :controller => 'maintenance', :action => 'index'
     end
   end
