@@ -1,25 +1,30 @@
-<table class="width100">
-  <tr>
-    <td width="100%">
-      <%
-         (1..10).each do |index|
-           metric=widget_properties["metric#{index}"]
-           if metric
-             m=measure(metric)
-             if m
-      %>
-            <div class="dashbox">
-              <p class="title"><%= metric.short_name -%></p>
-              <p>
-                <span class="big"><%= format_measure(m, :url => url_for_drilldown(m)) -%></span>
-                <%= dashboard_configuration.selected_period? ? format_variation(m) : trend_icon(m) -%>
-              </p>
-            </div>
-          <%
-             end
-             end
-             end
-          %>
-    </td>
-  </tr>
-</table>
+<%
+   measures=[]
+   (1..10).each do |index|
+     metric=widget_properties["metric#{index}"]
+     m=(metric ? measure(metric) : nil)
+     measures << m if m
+   end
+   unless measures.empty?
+%>
+
+  <table class="width100">
+    <tr>
+      <td width="100%">
+        <%
+           measures.each do |measure|
+        %>
+          <div class="dashbox">
+            <p class="title"><%= measure.metric.short_name -%></p>
+            <p>
+              <span class="big"><%= format_measure(measure, :url => url_for_drilldown(measure)) -%></span>
+              <%= dashboard_configuration.selected_period? ? format_variation(measure) : trend_icon(measure) -%>
+            </p>
+          </div>
+        <%
+           end
+        %>
+      </td>
+    </tr>
+  </table>
+<% end %>
