@@ -114,4 +114,21 @@ module DashboardHelper
     @dashboard_configuration=@backup_dashboard_configuration
   end
 
+  def widget_body(widget)
+    widget_body=""
+
+    if widget.configured
+      switch_to_widget_resource(widget)
+      begin
+        widget_body=render :inline => widget.java_definition.getTarget().getTemplate(), :locals => {:widget_properties => widget.properties_as_hash, :widget => widget, :dashboard_configuration => @dashboard_configuration}
+      rescue => error
+        logger.error(message('dashboard.cannot_render_widget_x', :params => [widget.java_definition.getId(), error]))
+        logger.error(error.backtrace.join('\n'))
+      end
+      restore_global_resource
+    end
+
+    widget_body
+  end
+
 end
