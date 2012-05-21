@@ -52,6 +52,7 @@ public class Comment {
     return new ReflectionToStringBuilder(this, ToStringStyle.SIMPLE_STYLE).toString();
   }
 
+  @Override
   public Comment clone() {
     return new Comment().setMarkdownText(markdownText).setUserId(userId);
   }

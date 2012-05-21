@@ -243,14 +243,12 @@ public final class ReviewDto {
     return ImmutableMap.copyOf(KeyValueFormat.parse(data));
   }
 
-  @SuppressWarnings("unchecked")
   public void removeKeyFromData(String key) {
     Map<String, String> dataMap = KeyValueFormat.parse(data);
     dataMap.remove(key);
     data = KeyValueFormat.format(dataMap);
   }
 
-  @SuppressWarnings("unchecked")
   public void addKeyValueToData(String key, String value) {
     Map<String, String> dataMap = KeyValueFormat.parse(data);
     dataMap.put(key, value);
