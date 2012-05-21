@@ -89,7 +89,6 @@ import org.sonar.plugins.core.widgets.FilterWidget;
 import org.sonar.plugins.core.widgets.HotspotMetricWidget;
 import org.sonar.plugins.core.widgets.HotspotMostViolatedResourcesWidget;
 import org.sonar.plugins.core.widgets.HotspotMostViolatedRulesWidget;
-import org.sonar.plugins.core.widgets.ImageWidget;
 import org.sonar.plugins.core.widgets.ItCoverageWidget;
 import org.sonar.plugins.core.widgets.RulesWidget;
 import org.sonar.plugins.core.widgets.SizeWidget;
@@ -324,7 +323,6 @@ public final class CorePlugin extends SonarPlugin {
     extensions.add(ActionPlansWidget.class);
     extensions.add(ReviewsMetricsWidget.class);
     extensions.add(TreemapWidget.class);
-    extensions.add(ImageWidget.class);
     extensions.add(FilterWidget.class);
 
     // dashboards
