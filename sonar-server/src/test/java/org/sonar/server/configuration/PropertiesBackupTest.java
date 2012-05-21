@@ -54,8 +54,9 @@ public class PropertiesBackupTest extends AbstractDbUnitTestCase {
 
     Property prop1 = new Property("key1", "value1");
     Property prop2 = new Property("key2", "value2");
+    Property prop3 = new Property("sonar.core.version", "3.1");
 
-    assertTrue(CollectionUtils.isEqualCollection(sonarConfig.getProperties(), Arrays.asList(prop1, prop2)));
+    assertTrue(CollectionUtils.isEqualCollection(sonarConfig.getProperties(), Arrays.asList(prop1, prop2, prop3)));
   }
 
   @Test

@@ -44,7 +44,11 @@ public class PropertiesBackup implements Backupable {
     List<Property> dbProperties = databaseSession.createQuery(FROM_GLOBAL_PROPERTIES).getResultList();
     if (dbProperties != null) {
       for (Property dbProperty : dbProperties) {
-        xmlProperties.add(new Property(dbProperty.getKey(), dbProperty.getValue()));
+        String propKey = dbProperty.getKey();
+        if (!CoreProperties.SERVER_ID.equals(propKey)) {
+          // "sonar.core.id" must never be restored, it is unique for a server and it created once at the 1rst server startup
+          xmlProperties.add(new Property(dbProperty.getKey(), dbProperty.getValue()));
+        }
       }
       sonarConfig.setProperties(xmlProperties);
     }
