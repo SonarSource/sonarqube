@@ -2,48 +2,64 @@
 <br/>
 
 <form action="<%= url_for :action => :search_path -%>" method="post" id="search_form">
-  <input type="text" name="search" id="search" value="<%= params[:search] -%>"></input>
-  <input type="submit" value="<%= message('search_verb') -%>" id="search_submit" /><br/>
+  <input type="text" name="search" id="search" value="<%= params[:search] -%>"/>
+  <input type="submit" value="<%= message('search_verb') -%>" id="search_submit"/><br/>
+
   <p class="note"><%= message('filters.search_by_name') -%></p>
 </form>
 <br/>
 
-<% if @snapshots %>
-<script>
-  function selectPath(pid, label) {
-    window.opener.document.getElementById('path_id').value=pid;
-    window.opener.document.getElementById('path_name').innerText=label;
-    window.opener.document.getElementById('path_name').textContent=label;
-    window.close();
-  }
-</script>
+<% if @snapshots_by_qualifier %>
+  <script>
+    function selectPath(pid, label) {
+      window.opener.document.getElementById('path_id').value = pid;
+      window.opener.document.getElementById('path_name').innerText = label;
+      window.opener.document.getElementById('path_name').textContent = label;
+      window.close();
+    }
+  </script>
 
-<table id="results" class="data">
-  <thead>
+  <table id="results" class="data">
+    <thead>
     <tr>
-      <th width="16"> </th>
-      <th> </th>
-      <th> </th>
+      <th width="16"></th>
+      <th></th>
+      <th></th>
     </tr>
-  </thead>
-  <tbody>
-  <% if @snapshots.empty? %>
-  <tr class="even"><td colspan="3"><%= message('no_results') -%></td></tr>
+    </thead>
+    <tbody>
+    <% if @snapshots_by_qualifier.empty? %>
+      <tr class="even">
+        <td colspan="3"><%= message('no_results') -%></td>
+      </tr>
 
-  <% else
-       @snapshots.each do |snapshot| %>
-  <tr class="<%= cycle('even','odd') -%>">
-    <td><%= qualifier_icon(snapshot) -%></td>
-    <td>
-      <% path_name=snapshot.path_name %>
-      <%= path_name -%>
-    </td>
-    <td><a id="select-<%= u(snapshot.project.key) -%>" href="#" onClick="selectPath(<%= snapshot.project_id-%>, '<%= escape_javascript(path_name) -%>')"><%= message('select_verb') -%></a></td>
-  </tr>
-  <% end
-  end %>
-  </tbody>
-</table>
+    <% else
+         controller.java_facade.getResourceTypes().each do |resource_type|
+           snapshots = @snapshots_by_qualifier[resource_type.getQualifier()]
+           if snapshots
+             snapshots = Api::Utils.insensitive_sort(snapshots) do |snapshot|
+               snapshot.project.long_name
+             end
+             snapshots.each do |snapshot|
+    %>
+            <tr class="<%= cycle('even', 'odd') -%>">
+              <td><%= qualifier_icon(snapshot) -%></td>
+              <td>
+                <% path_name=snapshot.path_name %>
+                <%= path_name -%>
+              </td>
+              <td>
+                <a id="select-<%= u(snapshot.project.key) -%>" href="#" onClick="selectPath(<%= snapshot.project_id-%>, '<%= escape_javascript(path_name) -%>')"><%= message('select_verb') -%></a>
+              </td>
+            </tr>
+          <%
+             end
+             end
+             end
+             end
+          %>
+    </tbody>
+  </table>
 <% end %>
 <script>
   $('search').focus();

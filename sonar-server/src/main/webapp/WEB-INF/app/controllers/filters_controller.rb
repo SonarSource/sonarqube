@@ -255,16 +255,14 @@ class FiltersController < ApplicationController
         redirect_to :action => :search_path
 
       else
-        @snapshots=Snapshot.find(:all, :include => [:project, {:root_snapshot => :project}, {:parent_snapshot => :project}],
-                                 :conditions => ['snapshots.status=? AND snapshots.islast=? AND snapshots.scope=? AND projects.scope=? AND UPPER(projects.long_name) LIKE ?', 'P', true, 'PRJ', 'PRJ', "%#{params[:search].upcase}%"],
-                                 :order => 'projects.long_name')
-        @snapshots=select_authorized(:user, @snapshots)
-        @snapshots.sort! do |s1, s2|
-          if s1.qualifier==s2.qualifier
-            s1.project.long_name<=>s2.project.long_name
-          else
-            Resourceable::QUALIFIERS.index(s1.qualifier)<=>Resourceable::QUALIFIERS.index(s2.qualifier)
-          end
+        snapshots=Snapshot.find(:all, :include => [:project, {:root_snapshot => :project}, {:parent_snapshot => :project}],
+                                 :conditions => ['snapshots.status=? AND snapshots.islast=? AND snapshots.scope=? AND projects.person_id IS NULL AND projects.scope=? AND UPPER(projects.long_name) LIKE ?', 'P', true, 'PRJ', 'PRJ', "%#{params[:search].upcase}%"])
+        snapshots=select_authorized(:user, snapshots)
+
+        @snapshots_by_qualifier = {}
+        snapshots.each do |snapshot|
+          @snapshots_by_qualifier[snapshot.qualifier]||=[]
+          @snapshots_by_qualifier[snapshot.qualifier]<<snapshot
         end
       end
     end
