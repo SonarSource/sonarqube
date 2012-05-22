@@ -72,7 +72,7 @@ class ReviewsController < ApplicationController
     RuleFailure.execute_command(params[:command], violation, violation.snapshot.root_snapshot.project, current_user, params)
 
     # reload data required for display
-    violation = RuleFailure.find(:first, :include => [:rule, :snapshot, {:review => :action_plans}], :conditions => {:id => violation.id})
+    violation.reload
     screens = violation.available_java_screens(current_user)
 
     render :partial => 'resource/violation', :locals => {:violation => violation, :review_screens => screens}

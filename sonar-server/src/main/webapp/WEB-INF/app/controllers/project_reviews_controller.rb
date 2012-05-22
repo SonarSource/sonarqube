@@ -269,6 +269,7 @@ class ProjectReviewsController < ApplicationController
     bad_request('Missing command') if params[:command].blank?
     RuleFailure.execute_command(params[:command], review.violation, current_user, params)
 
+    review.reload
     render :partial => "project_reviews/review", :locals => {:review => review}
   end
 
