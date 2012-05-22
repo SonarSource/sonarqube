@@ -21,7 +21,11 @@ package org.sonar.test;
 
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import static org.fest.assertions.Assertions.assertThat;
+import static org.sonar.test.MoreConditions.contains;
 import static org.sonar.test.MoreConditions.equalsIgnoreEOL;
 
 public class MoreConditionsTest {
@@ -48,5 +52,38 @@ public class MoreConditionsTest {
     assertThat("").satisfies(equalsIgnoreEOL(""));
     assertThat("").satisfies(equalsIgnoreEOL("\n\r"));
     assertThat("\n\r").satisfies(equalsIgnoreEOL(""));
+  }
+
+  @Test
+  public void should_find_value_in_collection() {
+    Collection<String> collection = Arrays.asList("ONE", "TWO");
+
+    assertThat(collection).satisfies(contains("ONE"));
+    assertThat(collection).satisfies(contains("TWO"));
+    assertThat(collection).doesNotSatisfy(contains("THREE"));
+  }
+
+  @Test
+  public void should_find_value_in_collection_using_reflection() {
+    Collection<Bean> collection = Arrays.asList(
+        new Bean("key1", "value1"),
+        null,
+        new Bean("key2", "value2"));
+
+    assertThat(collection).satisfies(contains(new Bean("key1", "value1")));
+    assertThat(collection).satisfies(contains(new Bean("key2", "value2")));
+    assertThat(collection).doesNotSatisfy(contains(new Bean("key1", "value2")));
+    assertThat(collection).doesNotSatisfy(contains(new Bean("key2", "value1")));
+    assertThat(collection).doesNotSatisfy(contains(new Bean("", "")));
+  }
+
+  static final class Bean {
+    final String key;
+    final String value;
+
+    Bean(String key, String value) {
+      this.key = key;
+      this.value = value;
+    }
   }
 }

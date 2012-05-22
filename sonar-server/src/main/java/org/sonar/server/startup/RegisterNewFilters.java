@@ -19,6 +19,8 @@
  */
 package org.sonar.server.startup;
 
+import org.sonar.core.filter.CriteriaDto;
+
 import com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,11 +85,24 @@ public final class RegisterNewFilters {
     return dto;
   }
 
+  private static void addCriteria(FilterDto filterDto, String family, String operator, String textValue) {
+    if (textValue != null) {
+      filterDto.addCriteria(new CriteriaDto().setFamily(family).setOperator(operator).setTextValue(textValue));
+    }
+  }
+
   protected FilterDto createDtoFromExtension(String name, Filter filter) {
-    return new FilterDto()
+    FilterDto filterDto = new FilterDto()
         .setName(name)
         .setShared(filter.isShared())
         .setFavourites(filter.isFavouritesOnly())
         .setDefaultView(filter.getDefaultPeriod());
+
+    addCriteria(filterDto, "key", "=", filter.getResourceKeyLike());
+    addCriteria(filterDto, "name", "=", filter.getResourceNameLike());
+    addCriteria(filterDto, "language", "=", filter.getLanguage());
+    addCriteria(filterDto, "qualifier", "=", filter.getSearchFor());
+
+    return filterDto;
   }
 }

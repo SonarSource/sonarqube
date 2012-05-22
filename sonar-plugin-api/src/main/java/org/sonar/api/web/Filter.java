@@ -19,6 +19,8 @@
  */
 package org.sonar.api.web;
 
+import com.google.common.base.Preconditions;
+
 /**
  * Definition of a filter.
  * <p/>
@@ -33,33 +35,13 @@ public class Filter {
   private boolean shared;
   private boolean favouritesOnly;
   private String defaultPeriod;
+  private String resourceKeyLike;
+  private String resourceNameLike;
+  private String language;
+  private String searchFor;
 
   private Filter() {
     // The factory method should be used
-  }
-
-  public boolean isShared() {
-    return shared;
-  }
-
-  public void setShared(boolean shared) {
-    this.shared = shared;
-  }
-
-  public boolean isFavouritesOnly() {
-    return favouritesOnly;
-  }
-
-  public void setFavouritesOnly(boolean favouritesOnly) {
-    this.favouritesOnly = favouritesOnly;
-  }
-
-  public String getDefaultPeriod() {
-    return defaultPeriod;
-  }
-
-  public void setDefaultPeriod(String defaultPeriod) {
-    this.defaultPeriod = defaultPeriod;
   }
 
   /**
@@ -67,5 +49,69 @@ public class Filter {
    */
   public static Filter create() {
     return new Filter();
+  }
+
+  public boolean isShared() {
+    return shared;
+  }
+
+  public Filter setShared(boolean shared) {
+    this.shared = shared;
+    return this;
+  }
+
+  public boolean isFavouritesOnly() {
+    return favouritesOnly;
+  }
+
+  public Filter setFavouritesOnly(boolean favouritesOnly) {
+    this.favouritesOnly = favouritesOnly;
+    return this;
+  }
+
+  public String getDefaultPeriod() {
+    return defaultPeriod;
+  }
+
+  public Filter setDefaultPeriod(String defaultPeriod) {
+    Preconditions.checkArgument("list".equals(defaultPeriod) || "treemap".equals(defaultPeriod), "Default period should be either list or treemap, not %s", defaultPeriod);
+    this.defaultPeriod = defaultPeriod;
+    return this;
+  }
+
+  public String getResourceKeyLike() {
+    return resourceKeyLike;
+  }
+
+  public Filter setResourceKeyLike(String resourceKeyLike) {
+    this.resourceKeyLike = resourceKeyLike;
+    return this;
+  }
+
+  public String getResourceNameLike() {
+    return resourceNameLike;
+  }
+
+  public Filter setResourceNameLike(String resourceNameLike) {
+    this.resourceNameLike = resourceNameLike;
+    return this;
+  }
+
+  public String getLanguage() {
+    return language;
+  }
+
+  public Filter setLanguage(String language) {
+    this.language = language;
+    return this;
+  }
+
+  public String getSearchFor() {
+    return searchFor;
+  }
+
+  public Filter setSearchFor(String searchFor) {
+    this.searchFor = searchFor;
+    return this;
   }
 }

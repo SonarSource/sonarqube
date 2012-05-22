@@ -19,10 +19,12 @@
  */
 package org.sonar.server.startup;
 
+import com.google.common.collect.Iterables;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.web.Filter;
 import org.sonar.api.web.FilterTemplate;
+import org.sonar.core.filter.CriteriaDto;
 import org.sonar.core.filter.FilterDao;
 import org.sonar.core.filter.FilterDto;
 import org.sonar.core.template.LoadedTemplateDao;
@@ -36,6 +38,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.test.MoreConditions.contains;
 
 public class RegisterNewFiltersTest {
   private RegisterNewFilters register;
@@ -106,18 +109,32 @@ public class RegisterNewFiltersTest {
 
   @Test
   public void should_create_dto_from_extension() {
-    Filter filter = Filter.create();
-    filter.setShared(true);
-    filter.setFavouritesOnly(false);
-    filter.setDefaultPeriod("list");
-    when(filterTemplate.createFilter()).thenReturn(filter);
+    when(filterTemplate.createFilter()).thenReturn(Filter.create()
+        .setShared(true)
+        .setFavouritesOnly(false)
+        .setDefaultPeriod("list")
+        .setResourceKeyLike("*KEY*")
+        .setResourceNameLike("*NAME*")
+        .setLanguage("java")
+        .setSearchFor("TRK,BRC")
+        );
 
     FilterDto dto = register.createDtoFromExtension("Fake", filterTemplate.createFilter());
+    CriteriaDto criteriaResourceKeyDto = Iterables.get(dto.getCriterias(), 0);
+    CriteriaDto criteriaResourceNameDto = Iterables.get(dto.getCriterias(), 1);
+    CriteriaDto criteriaLangageDto = Iterables.get(dto.getCriterias(), 2);
+    CriteriaDto criteriaSearchForDto = Iterables.get(dto.getCriterias(), 3);
 
     assertThat(dto.getUserId()).isNull();
     assertThat(dto.getName()).isEqualTo("Fake");
     assertThat(dto.isShared()).isTrue();
     assertThat(dto.isFavourites()).isFalse();
     assertThat(dto.getDefaultView()).isEqualTo("list");
+
+    assertThat(dto.getCriterias()).hasSize(4);
+    assertThat(dto.getCriterias()).satisfies(contains(new CriteriaDto().setFamily("key").setOperator("=").setTextValue("*KEY*")));
+    assertThat(dto.getCriterias()).satisfies(contains(new CriteriaDto().setFamily("name").setOperator("=").setTextValue("*NAME*")));
+    assertThat(dto.getCriterias()).satisfies(contains(new CriteriaDto().setFamily("language").setOperator("=").setTextValue("java")));
+    assertThat(dto.getCriterias()).satisfies(contains(new CriteriaDto().setFamily("qualifier").setOperator("=").setTextValue("TRK,BRC")));
   }
 }

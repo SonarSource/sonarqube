@@ -20,7 +20,10 @@
 package org.sonar.test;
 
 import com.google.common.base.CharMatcher;
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.fest.assertions.Condition;
+
+import java.util.Collection;
 
 /**
  * Conditions for use with FestAssert.
@@ -41,5 +44,19 @@ public final class MoreConditions {
         return EOLS.removeFrom(value).equals(strippedText);
       }
     }.as("equal to " + strippedText);
+  }
+
+  public static Condition<Collection<?>> contains(final Object expected) {
+    return new Condition<Collection<?>>() {
+      @Override
+      public boolean matches(Collection<?> collection) {
+        for (Object actual : collection) {
+          if (EqualsBuilder.reflectionEquals(expected, actual)) {
+            return true;
+          }
+        }
+        return false;
+      }
+    };
   }
 }
