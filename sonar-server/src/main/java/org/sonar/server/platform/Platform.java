@@ -67,7 +67,6 @@ import org.sonar.server.notifications.NotificationService;
 import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
 import org.sonar.server.plugins.*;
 import org.sonar.server.qualitymodel.DefaultModelManager;
-import org.sonar.server.reviews.ReviewManager;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
 import org.sonar.server.startup.*;
@@ -227,9 +226,6 @@ public final class Platform {
     servicesContainer.addSingleton(NotificationService.class);
     servicesContainer.addSingleton(DefaultNotificationManager.class);
     servicesContainer.addSingleton(ReviewsNotificationManager.class);
-
-    // Reviews
-    servicesContainer.addSingleton(ReviewManager.class);
 
     servicesContainer.startComponents();
   }
