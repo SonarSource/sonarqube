@@ -22,7 +22,7 @@ package org.sonar.core.filter;
 /**
  * @since 3.1
  */
-public final class CriteriaDto {
+public final class CriterionDto {
   private Long id;
   private Long filterId;
   private String family;
@@ -36,7 +36,7 @@ public final class CriteriaDto {
     return id;
   }
 
-  public CriteriaDto setId(Long id) {
+  public CriterionDto setId(Long id) {
     this.id = id;
     return this;
   }
@@ -45,7 +45,7 @@ public final class CriteriaDto {
     return filterId;
   }
 
-  public CriteriaDto setFilterId(Long filterId) {
+  public CriterionDto setFilterId(Long filterId) {
     this.filterId = filterId;
     return this;
   }
@@ -54,7 +54,7 @@ public final class CriteriaDto {
     return family;
   }
 
-  public CriteriaDto setFamily(String family) {
+  public CriterionDto setFamily(String family) {
     this.family = family;
     return this;
   }
@@ -63,7 +63,7 @@ public final class CriteriaDto {
     return key;
   }
 
-  public CriteriaDto setKey(String key) {
+  public CriterionDto setKey(String key) {
     this.key = key;
     return this;
   }
@@ -72,7 +72,7 @@ public final class CriteriaDto {
     return operator;
   }
 
-  public CriteriaDto setOperator(String operator) {
+  public CriterionDto setOperator(String operator) {
     this.operator = operator;
     return this;
   }
@@ -81,7 +81,7 @@ public final class CriteriaDto {
     return value;
   }
 
-  public CriteriaDto setValue(Float value) {
+  public CriterionDto setValue(Float value) {
     this.value = value;
     return this;
   }
@@ -90,7 +90,7 @@ public final class CriteriaDto {
     return textValue;
   }
 
-  public CriteriaDto setTextValue(String textValue) {
+  public CriterionDto setTextValue(String textValue) {
     this.textValue = textValue;
     return this;
   }
@@ -99,7 +99,7 @@ public final class CriteriaDto {
     return variation;
   }
 
-  public CriteriaDto setVariation(Boolean variation) {
+  public CriterionDto setVariation(Boolean variation) {
     this.variation = variation;
     return this;
   }

@@ -21,7 +21,7 @@ package org.sonar.core.filters;
 
 import org.sonar.core.filter.FilterColumnDto;
 
-import org.sonar.core.filter.CriteriaDto;
+import org.sonar.core.filter.CriterionDto;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -64,14 +64,14 @@ public class FilterDaoTest extends DaoTestCase {
     filterDto.setPageSize(10L);
     filterDto.setPeriodIndex(1L);
 
-    CriteriaDto criteriaDto = new CriteriaDto();
-    criteriaDto.setFamily("family");
-    criteriaDto.setKey("key");
-    criteriaDto.setOperator("=");
-    criteriaDto.setValue(1.5f);
-    criteriaDto.setTextValue("1.5");
-    criteriaDto.setVariation(true);
-    filterDto.addCriteria(criteriaDto);
+    CriterionDto criterionDto = new CriterionDto();
+    criterionDto.setFamily("family");
+    criterionDto.setKey("key");
+    criterionDto.setOperator("=");
+    criterionDto.setValue(1.5f);
+    criterionDto.setTextValue("1.5");
+    criterionDto.setVariation(true);
+    filterDto.add(criterionDto);
 
     FilterColumnDto filterColumnDto = new FilterColumnDto();
     filterColumnDto.setFamily("family");
@@ -79,7 +79,7 @@ public class FilterDaoTest extends DaoTestCase {
     filterColumnDto.setSortDirection("ASC");
     filterColumnDto.setOrderIndex(2L);
     filterColumnDto.setVariation(true);
-    filterDto.addColumn(filterColumnDto);
+    filterDto.add(filterColumnDto);
 
     dao.insert(filterDto);
 

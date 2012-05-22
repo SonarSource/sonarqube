@@ -43,8 +43,8 @@ import org.sonar.core.dashboard.WidgetPropertyDto;
 import org.sonar.core.dashboard.WidgetPropertyMapper;
 import org.sonar.core.duplication.DuplicationMapper;
 import org.sonar.core.duplication.DuplicationUnitDto;
-import org.sonar.core.filter.CriteriaDto;
-import org.sonar.core.filter.CriteriaMapper;
+import org.sonar.core.filter.CriterionDto;
+import org.sonar.core.filter.CriterionMapper;
 import org.sonar.core.filter.FilterColumnDto;
 import org.sonar.core.filter.FilterColumnMapper;
 import org.sonar.core.filter.FilterDto;
@@ -93,7 +93,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "ActiveDashboard", ActiveDashboardDto.class);
     loadAlias(conf, "Author", AuthorDto.class);
     loadAlias(conf, "Filter", FilterDto.class);
-    loadAlias(conf, "Criteria", CriteriaDto.class);
+    loadAlias(conf, "Criterion", CriterionDto.class);
     loadAlias(conf, "FilterColumn", FilterColumnDto.class);
     loadAlias(conf, "Dashboard", DashboardDto.class);
     loadAlias(conf, "DuplicationUnit", DuplicationUnitDto.class);
@@ -113,7 +113,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadMapper(conf, ActiveDashboardMapper.class);
     loadMapper(conf, AuthorMapper.class);
     loadMapper(conf, FilterMapper.class);
-    loadMapper(conf, CriteriaMapper.class);
+    loadMapper(conf, CriterionMapper.class);
     loadMapper(conf, FilterColumnMapper.class);
     loadMapper(conf, DashboardMapper.class);
     loadMapper(conf, DuplicationMapper.class);

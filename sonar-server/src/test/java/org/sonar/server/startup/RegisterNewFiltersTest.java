@@ -19,12 +19,18 @@
  */
 package org.sonar.server.startup;
 
+import org.sonar.core.filter.FilterColumnDto;
+
+import org.sonar.api.web.FilterColumn;
+
+import org.sonar.api.web.Criterion;
+
 import com.google.common.collect.Iterables;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.web.Filter;
 import org.sonar.api.web.FilterTemplate;
-import org.sonar.core.filter.CriteriaDto;
+import org.sonar.core.filter.CriterionDto;
 import org.sonar.core.filter.FilterDao;
 import org.sonar.core.filter.FilterDto;
 import org.sonar.core.template.LoadedTemplateDao;
@@ -117,24 +123,32 @@ public class RegisterNewFiltersTest {
         .setResourceNameLike("*NAME*")
         .setLanguage("java")
         .setSearchFor("TRK,BRC")
+        .setPageSize(200)
+        .add(Criterion.create().setFamily("metric").setKey("complexity").setOperator("<").setValue(12f))
+        .add(FilterColumn.create().setFamily("metric").setKey("distance").setOrderIndex(1L).setSortDirection("ASC"))
         );
 
     FilterDto dto = register.createDtoFromExtension("Fake", filterTemplate.createFilter());
-    CriteriaDto criteriaResourceKeyDto = Iterables.get(dto.getCriterias(), 0);
-    CriteriaDto criteriaResourceNameDto = Iterables.get(dto.getCriterias(), 1);
-    CriteriaDto criteriaLangageDto = Iterables.get(dto.getCriterias(), 2);
-    CriteriaDto criteriaSearchForDto = Iterables.get(dto.getCriterias(), 3);
+    CriterionDto criteriaResourceKeyDto = Iterables.get(dto.getCriteria(), 0);
+    CriterionDto criteriaResourceNameDto = Iterables.get(dto.getCriteria(), 1);
+    CriterionDto criteriaLangageDto = Iterables.get(dto.getCriteria(), 2);
+    CriterionDto criteriaSearchForDto = Iterables.get(dto.getCriteria(), 3);
 
     assertThat(dto.getUserId()).isNull();
     assertThat(dto.getName()).isEqualTo("Fake");
     assertThat(dto.isShared()).isTrue();
     assertThat(dto.isFavourites()).isFalse();
     assertThat(dto.getDefaultView()).isEqualTo("list");
+    assertThat(dto.getPageSize()).isEqualTo(200L);
 
-    assertThat(dto.getCriterias()).hasSize(4);
-    assertThat(dto.getCriterias()).satisfies(contains(new CriteriaDto().setFamily("key").setOperator("=").setTextValue("*KEY*")));
-    assertThat(dto.getCriterias()).satisfies(contains(new CriteriaDto().setFamily("name").setOperator("=").setTextValue("*NAME*")));
-    assertThat(dto.getCriterias()).satisfies(contains(new CriteriaDto().setFamily("language").setOperator("=").setTextValue("java")));
-    assertThat(dto.getCriterias()).satisfies(contains(new CriteriaDto().setFamily("qualifier").setOperator("=").setTextValue("TRK,BRC")));
+    assertThat(dto.getCriteria()).hasSize(5);
+    assertThat(dto.getCriteria()).satisfies(contains(new CriterionDto().setFamily("key").setOperator("=").setTextValue("*KEY*")));
+    assertThat(dto.getCriteria()).satisfies(contains(new CriterionDto().setFamily("name").setOperator("=").setTextValue("*NAME*")));
+    assertThat(dto.getCriteria()).satisfies(contains(new CriterionDto().setFamily("language").setOperator("=").setTextValue("java")));
+    assertThat(dto.getCriteria()).satisfies(contains(new CriterionDto().setFamily("qualifier").setOperator("=").setTextValue("TRK,BRC")));
+    assertThat(dto.getCriteria()).satisfies(contains(new CriterionDto().setFamily("metric").setKey("complexity").setOperator("<").setValue(12f).setVariation(false)));
+
+    assertThat(dto.getColumns()).hasSize(1);
+    assertThat(dto.getColumns()).satisfies(contains(new FilterColumnDto().setFamily("metric").setKey("distance").setOrderIndex(1L).setSortDirection("ASC").setVariation(false)));
   }
 }

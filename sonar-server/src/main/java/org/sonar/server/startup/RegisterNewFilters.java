@@ -19,7 +19,17 @@
  */
 package org.sonar.server.startup;
 
-import org.sonar.core.filter.CriteriaDto;
+import com.google.common.primitives.Longs;
+
+import com.google.common.primitives.Ints;
+
+import org.sonar.api.web.FilterColumn;
+
+import org.sonar.core.filter.FilterColumnDto;
+
+import org.sonar.api.web.Criterion;
+
+import org.sonar.core.filter.CriterionDto;
 
 import com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
@@ -87,13 +97,14 @@ public final class RegisterNewFilters {
 
   private static void addCriteria(FilterDto filterDto, String family, String operator, String textValue) {
     if (textValue != null) {
-      filterDto.addCriteria(new CriteriaDto().setFamily(family).setOperator(operator).setTextValue(textValue));
+      filterDto.add(new CriterionDto().setFamily(family).setOperator(operator).setTextValue(textValue));
     }
   }
 
   protected FilterDto createDtoFromExtension(String name, Filter filter) {
     FilterDto filterDto = new FilterDto()
         .setName(name)
+        .setPageSize((long) filter.getPageSize())
         .setShared(filter.isShared())
         .setFavourites(filter.isFavouritesOnly())
         .setDefaultView(filter.getDefaultPeriod());
@@ -102,6 +113,25 @@ public final class RegisterNewFilters {
     addCriteria(filterDto, "name", "=", filter.getResourceNameLike());
     addCriteria(filterDto, "language", "=", filter.getLanguage());
     addCriteria(filterDto, "qualifier", "=", filter.getSearchFor());
+    
+    for (Criterion criterion : filter.getCriteria()) {
+      filterDto.add(new CriterionDto()
+          .setFamily(criterion.getFamily())
+          .setKey(criterion.getKey())
+          .setOperator(criterion.getOperator())
+          .setTextValue(criterion.getTextValue())
+          .setValue(criterion.getValue())
+          .setVariation(criterion.isVariation()));
+    }
+
+    for (FilterColumn column : filter.getColumns()) {
+      filterDto.add(new FilterColumnDto()
+          .setFamily(column.getFamily())
+          .setKey(column.getKey())
+          .setOrderIndex(column.getOrderIndex())
+          .setSortDirection(column.getSortDirection())
+          .setVariation(column.isVariation()));
+    }
 
     return filterDto;
   }

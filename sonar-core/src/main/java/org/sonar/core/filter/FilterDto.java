@@ -37,8 +37,8 @@ public final class FilterDto {
   private String defaultView;
   private Long pageSize;
   private Long periodIndex;
-  private List<CriteriaDto> criteriaDtos = Lists.newArrayList();
-  private List<FilterColumnDto> filterColumnDtos = Lists.newArrayList();
+  private List<CriterionDto> criteria = Lists.newArrayList();
+  private List<FilterColumnDto> filterColumns = Lists.newArrayList();
 
   public Long getId() {
     return id;
@@ -121,21 +121,21 @@ public final class FilterDto {
     return this;
   }
 
-  public Collection<CriteriaDto> getCriterias() {
-    return criteriaDtos;
+  public Collection<CriterionDto> getCriteria() {
+    return criteria;
   }
 
-  public FilterDto addCriteria(CriteriaDto criteriaDto) {
-    criteriaDtos.add(criteriaDto);
+  public FilterDto add(CriterionDto criterion) {
+    criteria.add(criterion);
     return this;
   }
 
   public Collection<FilterColumnDto> getColumns() {
-    return filterColumnDtos;
+    return filterColumns;
   }
 
-  public FilterDto addColumn(FilterColumnDto filterColumnDto) {
-    filterColumnDtos.add(filterColumnDto);
+  public FilterDto add(FilterColumnDto filterColumn) {
+    filterColumns.add(filterColumn);
     return this;
   }
 }

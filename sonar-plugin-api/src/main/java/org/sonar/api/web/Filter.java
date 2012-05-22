@@ -19,19 +19,23 @@
  */
 package org.sonar.api.web;
 
+import com.google.common.collect.Lists;
+
+import java.util.List;
+
 import com.google.common.base.Preconditions;
 
 /**
  * Definition of a filter.
- * <p/>
- * Its name can be retrieved using the i18n mechanism, using the keys "dashboard.&lt;id&gt;.name".
+ *
+ * <p>Its name can be retrieved using the i18n mechanism, using the keys "filter.&lt;id&gt;.name".</p>
  *
  * @since 3.1
  */
 public class Filter {
-  // Criteria
-  // Columns
-  //
+  public static final String LIST = "list";
+  public static final String TREEMAP = "treemap";
+
   private boolean shared;
   private boolean favouritesOnly;
   private String defaultPeriod;
@@ -39,9 +43,13 @@ public class Filter {
   private String resourceNameLike;
   private String language;
   private String searchFor;
+  private int pageSize;
+  private List<Criterion> criteria;
+  private List<FilterColumn> columns;
 
   private Filter() {
-    // The factory method should be used
+    criteria = Lists.newArrayList();
+    columns = Lists.newArrayList();
   }
 
   /**
@@ -49,6 +57,24 @@ public class Filter {
    */
   public static Filter create() {
     return new Filter();
+  }
+
+  public List<Criterion> getCriteria() {
+    return criteria;
+  }
+
+  public Filter add(Criterion criterion) {
+    this.criteria.add(criterion);
+    return this;
+  }
+
+  public List<FilterColumn> getColumns() {
+    return columns;
+  }
+
+  public Filter add(FilterColumn column) {
+    this.columns.add(column);
+    return this;
   }
 
   public boolean isShared() {
@@ -74,7 +100,7 @@ public class Filter {
   }
 
   public Filter setDefaultPeriod(String defaultPeriod) {
-    Preconditions.checkArgument("list".equals(defaultPeriod) || "treemap".equals(defaultPeriod), "Default period should be either list or treemap, not %s", defaultPeriod);
+    Preconditions.checkArgument(LIST.equals(defaultPeriod) || TREEMAP.equals(defaultPeriod), "Default period should be either %s or %s, not %s", LIST, TREEMAP, defaultPeriod);
     this.defaultPeriod = defaultPeriod;
     return this;
   }
@@ -112,6 +138,15 @@ public class Filter {
 
   public Filter setSearchFor(String searchFor) {
     this.searchFor = searchFor;
+    return this;
+  }
+
+  public int getPageSize() {
+    return pageSize;
+  }
+
+  public Filter setPageSize(int pageSize) {
+    this.pageSize = pageSize;
     return this;
   }
 }

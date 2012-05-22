@@ -17,11 +17,30 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.filter;
+package org.sonar.api.web;
 
-/**
- * @since 3.1
- */
-public interface CriteriaMapper {
-  void insert(CriteriaDto criteriaDto);
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
+public class CriterionTest {
+  @Rule
+  public ExpectedException exception = ExpectedException.none();
+
+  @Test
+  public void should_accept_valid_operators() {
+    Criterion.create().setOperator("<=");
+    Criterion.create().setOperator("<");
+    Criterion.create().setOperator("=");
+    Criterion.create().setOperator(">");
+    Criterion.create().setOperator(">=");
+  }
+
+  @Test
+  public void should_fail_on_invalid_operators() {
+    exception.expect(IllegalArgumentException.class);
+    exception.expectMessage("Valid operators are [=, >, <, >=, <=], not <>");
+
+    Criterion.create().setOperator("<>");
+  }
 }

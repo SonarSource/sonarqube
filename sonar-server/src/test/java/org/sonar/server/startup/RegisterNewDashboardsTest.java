@@ -59,7 +59,7 @@ public class RegisterNewDashboardsTest {
     fakeDashboardTemplate = new FakeDashboard();
 
     task = new RegisterNewDashboards(new DashboardTemplate[]{fakeDashboardTemplate}, dashboardDao,
-      activeDashboardDao, loadedTemplateDao);
+        activeDashboardDao, loadedTemplateDao, null);
   }
 
   @Test
