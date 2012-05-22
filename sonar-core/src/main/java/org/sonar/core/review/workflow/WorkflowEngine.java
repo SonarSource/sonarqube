@@ -97,7 +97,7 @@ public class WorkflowEngine implements ServerComponent {
 
     Preconditions.checkState(verifyConditions(review, context, workflow.getConditions(commandKey)), "Conditions are not respected");
 
-    ImmutableMap<String, String> immutableParameters = ImmutableMap.copyOf(parameters);
+    Map<String, String> immutableParameters = ImmutableMap.copyOf(parameters);
 
     // TODO execute functions are change state before functions that consume state (like "create-jira-issue")
     Review initialReview = ((DefaultReview) review).cloneImmutable();
