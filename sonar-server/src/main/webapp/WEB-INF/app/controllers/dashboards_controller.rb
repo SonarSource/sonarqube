@@ -135,10 +135,13 @@ class DashboardsController < ApplicationController
   def unfollow
     add_default_dashboards_if_first_user_dashboard
 
-    ActiveDashboard.destroy_all(['user_id=? AND dashboard_id=?', current_user.id, params[:id].to_i])
+    dashboard=Dashboard.find(:first, :conditions => ['shared=? and id=? and (user_id is null or user_id<>?)', true, params[:id].to_i, current_user.id])
+    if dashboard
+      ActiveDashboard.destroy_all(['user_id=? AND dashboard_id=?', current_user.id, params[:id].to_i])
 
-    if ActiveDashboard.count(:conditions => ['user_id=?', current_user.id])==0
-      flash[:notice]=Api::Utils.message('dashboard.default_restored')
+      if ActiveDashboard.count(:conditions => ['user_id=?', current_user.id])==0
+        flash[:notice]=Api::Utils.message('dashboard.default_restored')
+      end
     end
     redirect_to :action => 'index', :resource => params[:resource]
   end
