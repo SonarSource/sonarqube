@@ -19,71 +19,92 @@
  */
 package org.sonar.api.web;
 
+import com.google.common.collect.ImmutableSortedSet;
+
+import java.util.Set;
+
+import com.google.common.base.Preconditions;
+
 /**
  * Definition of a {@see Filter} column.
  *
  * @since 3.1
  */
 public class FilterColumn {
-  private String family;
-  private String key;
-  private String sortDirection;
-  private Long orderIndex;
-  private boolean variation;
+  public static final Set<String> DIRECTIONS = ImmutableSortedSet.of("ASC", "DESC");
 
-  private FilterColumn() {
-    // The factory method should be used
+  private final String family;
+  private final String key;
+  private final String sortDirection;
+  private final int orderIndex;
+  private final boolean variation;
+
+  private FilterColumn(String family, String key, String sortDirection, int orderIndex, boolean variation) {
+    Preconditions.checkArgument(DIRECTIONS.contains(sortDirection), "Valid directions are %s, not '%s'", DIRECTIONS, sortDirection);
+
+    this.family = family;
+    this.key = key;
+    this.sortDirection = sortDirection;
+    this.orderIndex = orderIndex;
+    this.variation = variation;
   }
 
   /**
    * Creates a new {@link FilterColumn}.
+   *
+   * <p>Valid values for the {@code sortDirection} are <code>ASC</code> and <code>DESC</code></p>
+   *
+   * <p>When the @{see Filter} is persisted, a validation is made on the {@code family} and the {@code key}.
+   * They should point to a valid column description.</p>
+   *
+   * @throws IllegalArgumentException if {@code sortDirection} is not valid
    */
-  public static FilterColumn create() {
-    return new FilterColumn();
+  public static FilterColumn create(String family, String key, String sortDirection, int orderIndex, boolean variation) {
+    return new FilterColumn(family, key, sortDirection, orderIndex, variation);
   }
 
+  /**
+   * Get the the column's family.
+   * 
+   * @return the family
+   */
   public String getFamily() {
     return family;
   }
 
-  public FilterColumn setFamily(String family) {
-    this.family = family;
-    return this;
-  }
-
+  /**
+   * Get the the column's key.
+   * 
+   * @return the key
+   */
   public String getKey() {
     return key;
   }
 
-  public FilterColumn setKey(String key) {
-    this.key = key;
-    return this;
-  }
-
+  /**
+   * Get the the column's sort direction.
+   * 
+   * @return the sort direction
+   */
   public String getSortDirection() {
     return sortDirection;
   }
 
-  public FilterColumn setSortDirection(String sortDirection) {
-    this.sortDirection = sortDirection;
-    return this;
-  }
-
-  public Long getOrderIndex() {
+  /**
+   * Get the the column's index.
+   * 
+   * @return the index
+   */
+  public int getOrderIndex() {
     return orderIndex;
   }
 
-  public FilterColumn setOrderIndex(Long orderIndex) {
-    this.orderIndex = orderIndex;
-    return this;
-  }
-
+  /**
+   * A column can be based on the varation of a value rather than on the value itself.
+   * 
+   * @return <code>true</code> when the variation is used rather than the value
+   */
   public boolean isVariation() {
     return variation;
-  }
-
-  public FilterColumn setVariation(boolean variation) {
-    this.variation = variation;
-    return this;
   }
 }

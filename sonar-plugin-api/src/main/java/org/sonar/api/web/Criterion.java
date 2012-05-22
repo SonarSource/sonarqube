@@ -20,9 +20,9 @@
 package org.sonar.api.web;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSortedSet;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Definition of a criterion to be used to narrow down a {@see Filter}.
@@ -30,78 +30,105 @@ import java.util.List;
  * @since 3.1
  */
 public class Criterion {
-  public static final List<String> OPERATORS = ImmutableList.of("=", ">", "<", ">=", "<=");
+  public static final Set<String> OPERATORS = ImmutableSortedSet.of("=", ">", "<", ">=", "<=");
 
-  private String family;
-  private String key;
-  private String operator;
-  private Float value;
-  private String textValue;
-  private boolean variation;
+  private final String family;
+  private final String key;
+  private final String operator;
+  private final Float value;
+  private final String textValue;
+  private final boolean variation;
 
-  private Criterion() {
-    // The factory method should be used
+  private Criterion(String family, String key, String operator, Float value, String textValue, boolean variation) {
+    Preconditions.checkArgument(OPERATORS.contains(operator), "Valid operators are %s, not '%s'", OPERATORS, operator);
+
+    this.family = family;
+    this.key = key;
+    this.operator = operator;
+    this.value = value;
+    this.textValue = textValue;
+    this.variation = variation;
   }
 
   /**
-   * Creates a new {@link Criterion}.
+   * Creates a new {@link Criterion} with a numerical value.
+   *
+   * <p>Valid values for the {@code operator} are <code>=</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>&lt;</code> and <code>&lt;=</code></p>
+   *
+   * <p>When the {@link Filter} is persisted, a validation is made on the {@code family} and the {@code key}.
+   * They should point to a valid criterion.</p>
+   *
+   * @throws IllegalArgumentException if {@code operator} is not valid
    */
-  public static Criterion create() {
-    return new Criterion();
+  public static Criterion create(String family, String key, String operator, Float value, boolean variation) {
+    return new Criterion(family, key, operator, value, null, variation);
   }
 
+  /**
+   * Creates a new {@link Criterion} with a text value.
+   *
+   * <p>Valid values for the {@code operator} are <code>=</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>&lt;</code> and <code>&lt;=</code></p>
+   *
+   * <p>When the {@link Filter} is persisted, a validation is made on the {@code family} and the {@code key}.
+   * They should point to a valid criterion.</p>
+   *
+   * @throws IllegalArgumentException if {@code operator} is not valid
+   */
+  public static Criterion create(String family, String key, String operator, String textValue, boolean variation) {
+    return new Criterion(family, key, operator, null, textValue, variation);
+  }
+
+  /**
+   * Get the the criterion's family.
+   * 
+   * @return the family
+   */
   public String getFamily() {
     return family;
   }
 
-  public Criterion setFamily(String family) {
-    this.family = family;
-    return this;
-  }
-
+  /**
+   * Get the the criterion's key.
+   * 
+   * @return the key
+   */
   public String getKey() {
     return key;
   }
 
-  public Criterion setKey(String key) {
-    this.key = key;
-    return this;
-  }
-
+  /**
+   * Get the the criterion's operator.
+   *
+   * @return the operator
+   */
   public String getOperator() {
     return operator;
   }
 
-  public Criterion setOperator(String operator) {
-    Preconditions.checkArgument(OPERATORS.contains(operator), "Valid operators are %s, not %s", OPERATORS, operator);
-    this.operator = operator;
-    return this;
-  }
-
+  /**
+   * Get the the criterion's value.
+   * 
+   * @return the value
+   */
   public Float getValue() {
     return value;
   }
 
-  public Criterion setValue(Float value) {
-    this.value = value;
-    return this;
-  }
-
+  /**
+   * Get the the criterion's value as text.
+   * 
+   * @return the value as text
+   */
   public String getTextValue() {
     return textValue;
   }
 
-  public Criterion setTextValue(String textValue) {
-    this.textValue = textValue;
-    return this;
-  }
-
+  /**
+   * A criterion can be based on the varation of a value rather than on the value itself.
+   * 
+   * @return <code>true</code> when the variation is used rather than the value
+   */
   public boolean isVariation() {
     return variation;
-  }
-
-  public Criterion setVariation(boolean variation) {
-    this.variation = variation;
-    return this;
   }
 }

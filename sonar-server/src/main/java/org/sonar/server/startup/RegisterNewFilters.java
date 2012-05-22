@@ -128,7 +128,7 @@ public final class RegisterNewFilters {
       filterDto.add(new FilterColumnDto()
           .setFamily(column.getFamily())
           .setKey(column.getKey())
-          .setOrderIndex(column.getOrderIndex())
+          .setOrderIndex((long) column.getOrderIndex())
           .setSortDirection(column.getSortDirection())
           .setVariation(column.isVariation()));
     }

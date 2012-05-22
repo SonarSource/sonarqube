@@ -23,24 +23,22 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-public class CriterionTest {
+public class FilterColumnTest {
   @Rule
   public ExpectedException exception = ExpectedException.none();
 
   @Test
-  public void should_accept_valid_operators() {
-    Criterion.create("", "", "<=", "", false);
-    Criterion.create("", "", "<", "", false);
-    Criterion.create("", "", "=", "", false);
-    Criterion.create("", "", ">", "", false);
-    Criterion.create("", "", ">=", "", false);
+  public void should_accept_valid_direction() {
+    FilterColumn.create("", "", "ASC", 0, false);
+    FilterColumn.create("", "", "DESC", 0, false);
   }
 
   @Test
-  public void should_fail_on_invalid_operators() {
+  public void should_fail_on_invalid_direction() {
     exception.expect(IllegalArgumentException.class);
-    exception.expectMessage("Valid operators are [<, <=, =, >, >=], not '<>'");
+    exception.expectMessage("Valid directions are [ASC, DESC], not 'UNKNOWN'");
 
-    Criterion.create("", "", "<>", "", false);
+    FilterColumn.create("", "", "UNKNOWN", 0, false);
   }
+
 }

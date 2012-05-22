@@ -124,8 +124,10 @@ public class RegisterNewFiltersTest {
         .setLanguage("java")
         .setSearchFor("TRK,BRC")
         .setPageSize(200)
-        .add(Criterion.create().setFamily("metric").setKey("complexity").setOperator("<").setValue(12f))
-        .add(FilterColumn.create().setFamily("metric").setKey("distance").setOrderIndex(1L).setSortDirection("ASC"))
+        .add(Criterion.create("metric", "complexity", "<", 12f, false))
+        .add(Criterion.create("metric", "LCOM4", ">=", "5", true))
+        .add(FilterColumn.create("metric", "distance", "ASC", 1, false))
+        .add(FilterColumn.create("metric", "instability", "DESC", 2, true))
         );
 
     FilterDto dto = register.createDtoFromExtension("Fake", filterTemplate.createFilter());
@@ -141,14 +143,16 @@ public class RegisterNewFiltersTest {
     assertThat(dto.getDefaultView()).isEqualTo("list");
     assertThat(dto.getPageSize()).isEqualTo(200L);
 
-    assertThat(dto.getCriteria()).hasSize(5);
+    assertThat(dto.getCriteria()).hasSize(6);
     assertThat(dto.getCriteria()).satisfies(contains(new CriterionDto().setFamily("key").setOperator("=").setTextValue("*KEY*")));
     assertThat(dto.getCriteria()).satisfies(contains(new CriterionDto().setFamily("name").setOperator("=").setTextValue("*NAME*")));
     assertThat(dto.getCriteria()).satisfies(contains(new CriterionDto().setFamily("language").setOperator("=").setTextValue("java")));
     assertThat(dto.getCriteria()).satisfies(contains(new CriterionDto().setFamily("qualifier").setOperator("=").setTextValue("TRK,BRC")));
     assertThat(dto.getCriteria()).satisfies(contains(new CriterionDto().setFamily("metric").setKey("complexity").setOperator("<").setValue(12f).setVariation(false)));
+    assertThat(dto.getCriteria()).satisfies(contains(new CriterionDto().setFamily("metric").setKey("LCOM4").setOperator(">=").setTextValue("5").setVariation(true)));
 
-    assertThat(dto.getColumns()).hasSize(1);
+    assertThat(dto.getColumns()).hasSize(2);
     assertThat(dto.getColumns()).satisfies(contains(new FilterColumnDto().setFamily("metric").setKey("distance").setOrderIndex(1L).setSortDirection("ASC").setVariation(false)));
+    assertThat(dto.getColumns()).satisfies(contains(new FilterColumnDto().setFamily("metric").setKey("instability").setOrderIndex(2L).setSortDirection("DESC").setVariation(true)));
   }
 }
