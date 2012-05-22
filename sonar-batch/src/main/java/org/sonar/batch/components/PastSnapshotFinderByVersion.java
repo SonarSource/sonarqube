@@ -30,7 +30,7 @@ import java.util.List;
 
 public class PastSnapshotFinderByVersion implements BatchExtension {
 
-  private DatabaseSession session;
+  private final DatabaseSession session;
 
   public PastSnapshotFinderByVersion(DatabaseSession session) {
     this.session = session;
@@ -47,7 +47,7 @@ public class PastSnapshotFinderByVersion implements BatchExtension {
         .getResultList();
 
     if (snapshots.isEmpty()) {
-      return new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_VERSION);
+      throw new IllegalStateException("Unknown project version: " + version);
     }
     Snapshot snapshot = snapshots.get(0);
     Date targetDate = snapshot.getCreatedAt();

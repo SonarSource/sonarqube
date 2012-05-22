@@ -19,15 +19,18 @@
  */
 package org.sonar.batch.components;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
-
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
+import static org.fest.assertions.Assertions.assertThat;
+
 public class PastSnapshotFinderByVersionTest extends AbstractDbUnitTestCase {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void shouldFindByVersion() {
@@ -36,19 +39,19 @@ public class PastSnapshotFinderByVersionTest extends AbstractDbUnitTestCase {
     Snapshot currentProjectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1010);
     PastSnapshotFinderByVersion finder = new PastSnapshotFinderByVersion(getSession());
 
-    assertThat(finder.findByVersion(currentProjectSnapshot, "1.1").getProjectSnapshotId(), is(1009));
+    assertThat(finder.findByVersion(currentProjectSnapshot, "1.1").getProjectSnapshotId()).isEqualTo(1009);
   }
 
   @Test
-  public void shouldReturnPastSnapshotEvenWhenNoPreviousAnalysis() {
+  public void failIfUnknownVersion() {
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Unknown project version: 0.1.2");
+
     setupData("shared");
 
     Snapshot currentProjectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1010);
     PastSnapshotFinderByVersion finder = new PastSnapshotFinderByVersion(getSession());
 
-    PastSnapshot pastSnapshot = finder.findByVersion(currentProjectSnapshot, "1.0");
-    assertThat(pastSnapshot.isRelatedToSnapshot(), is(false));
-    assertThat(pastSnapshot.getProjectSnapshot(), nullValue());
-    assertThat(pastSnapshot.getTargetDate(), nullValue());
+    finder.findByVersion(currentProjectSnapshot, "0.1.2");
   }
 }
