@@ -81,7 +81,7 @@ public class RulesBackupTest extends AbstractDbUnitTestCase {
 
   private void verify() {
     assertThat(getSession().getResults(Rule.class).size(), is(2));
-    Rule importedRule = getDao().getRulesDao().getRuleByKey("repo", "key2");
+    Rule importedRule = new RulesDao(getSession()).getRuleByKey("repo", "key2");
     assertThat(importedRule.getParent(), is(rule));
     assertThat(importedRule.isEnabled(), is(true));
     assertThat(importedRule.getName(), is("name2"));
@@ -120,7 +120,7 @@ public class RulesBackupTest extends AbstractDbUnitTestCase {
     rulesBackup.importXml(sonarConfig);
 
     assertThat(getSession().getResults(Rule.class).size(), is(2));
-    RulesDao rulesDao = getDao().getRulesDao();
+    RulesDao rulesDao = new RulesDao(getSession());
     Rule importedRule = rulesDao.getRuleByKey("repo", "key2");
     assertThat(importedRule, notNullValue());
     assertThat(rulesDao.getRuleParam(importedRule, "param"), nullValue());

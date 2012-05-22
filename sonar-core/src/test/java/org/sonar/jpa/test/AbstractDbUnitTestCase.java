@@ -35,10 +35,6 @@ import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.DatabaseCommands;
 import org.sonar.core.persistence.InMemoryDatabase;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.jpa.dao.DaoFacade;
-import org.sonar.jpa.dao.MeasuresDao;
-import org.sonar.jpa.dao.ProfilesDao;
-import org.sonar.jpa.dao.RulesDao;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.JpaDatabaseSession;
@@ -57,7 +53,6 @@ import static org.junit.Assert.fail;
 public abstract class AbstractDbUnitTestCase {
 
   private JpaDatabaseSession session;
-  private DaoFacade dao;
   private IDatabaseTester databaseTester;
   private IDatabaseConnection connection;
   private static Database database;
@@ -106,13 +101,6 @@ public abstract class AbstractDbUnitTestCase {
 
   protected MyBatis getMyBatis() {
     return myBatis;
-  }
-
-  public DaoFacade getDao() {
-    if (dao == null) {
-      dao = new DaoFacade(new ProfilesDao(session), new RulesDao(session), new MeasuresDao(session));
-    }
-    return dao;
   }
 
   public DatabaseSession getSession() {

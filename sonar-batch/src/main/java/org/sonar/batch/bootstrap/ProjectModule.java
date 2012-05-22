@@ -28,7 +28,6 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
-import org.sonar.api.rules.DefaultRulesManager;
 import org.sonar.api.utils.IocContainer;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.*;
@@ -40,7 +39,6 @@ import org.sonar.batch.index.DefaultResourcePersister;
 import org.sonar.batch.phases.Phases;
 import org.sonar.batch.phases.PhasesTimeProfiler;
 import org.sonar.core.qualitymodel.DefaultModelFinder;
-import org.sonar.jpa.dao.DaoFacade;
 import org.sonar.jpa.dao.ProfilesDao;
 import org.sonar.jpa.dao.RulesDao;
 
@@ -76,7 +74,6 @@ public class ProjectModule extends Module {
     }
     addCoreSingleton(DefaultProjectClasspath.class);
     addCoreSingleton(DefaultProjectFileSystem2.class);
-    addCoreSingleton(DaoFacade.class);
     addCoreSingleton(RulesDao.class);
 
     if (!dryRun) {
@@ -86,7 +83,6 @@ public class ProjectModule extends Module {
     addCoreSingleton(TimeMachineConfiguration.class);
     addCoreSingleton(org.sonar.api.database.daos.MeasuresDao.class);
     addCoreSingleton(ProfilesDao.class);
-    addCoreSingleton(DefaultRulesManager.class);
     addCoreSingleton(DefaultSensorContext.class);
     addCoreSingleton(Languages.class);
     addCoreSingleton(BatchExtensionDictionnary.class);

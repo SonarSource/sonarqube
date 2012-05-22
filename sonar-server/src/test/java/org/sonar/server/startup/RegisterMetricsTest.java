@@ -61,11 +61,12 @@ public class RegisterMetricsTest extends AbstractDbUnitTestCase {
   public void enableOnlyLoadedMetrics() {
     setupData("enableOnlyLoadedMetrics");
 
-    RegisterMetrics loader = new RegisterMetrics(getSession(), new MeasuresDao(getSession()), null);
+    MeasuresDao measuresDao = new MeasuresDao(getSession());
+    RegisterMetrics loader = new RegisterMetrics(getSession(), measuresDao, null);
     loader.start();
 
-    assertFalse(getDao().getMeasuresDao().getMetric("deprecated").getEnabled());
-    assertTrue(getDao().getMeasuresDao().getMetric(CoreMetrics.COMPLEXITY).getEnabled());
+    assertFalse(measuresDao.getMetric("deprecated").getEnabled());
+    assertTrue(measuresDao.getMetric(CoreMetrics.COMPLEXITY).getEnabled());
   }
 
   @Test

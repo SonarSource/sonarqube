@@ -53,7 +53,7 @@ public class DatabaseBatchCompatibility implements BatchComponent {
   }
 
   private void checkCorrectServerId() {
-    String remoteServerId = null;
+    String remoteServerId;
     try {
       remoteServerId = remoteServer.getServerId();
     } catch (IOException e) {

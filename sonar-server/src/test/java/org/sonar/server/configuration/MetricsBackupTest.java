@@ -47,7 +47,7 @@ public class MetricsBackupTest extends AbstractDbUnitTestCase {
 
   @Test
   public void shouldImportMetrics() {
-    MeasuresDao measuresDao = getDao().getMeasuresDao();
+    MeasuresDao measuresDao = new MeasuresDao(getSession());
     Collection<Metric> oldMetrics = createMetrics();
     measuresDao.registerMetrics(oldMetrics);
 
