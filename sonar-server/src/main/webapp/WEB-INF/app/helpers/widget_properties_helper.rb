@@ -48,7 +48,7 @@ module WidgetPropertiesHelper
   end
 
   def resource_value_field(value)
-    select_tag 'resource_id', options(value, Project.all(:conditions => {:scope => 'PRJ', :qualifier => 'TRK'}))
+    select_tag 'resource_id', options(value, Project.all(:conditions => {:scope => 'PRJ', :qualifier => 'TRK', :enabled => true}))
   end
 
   def options(value, values)
