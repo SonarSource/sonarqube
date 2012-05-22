@@ -20,6 +20,9 @@
 package org.sonar.core.review.workflow.condition;
 
 import org.junit.Test;
+import org.sonar.api.Properties;
+import org.sonar.api.Property;
+import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.core.review.workflow.review.DefaultReview;
 import org.sonar.core.review.workflow.review.DefaultWorkflowContext;
@@ -41,5 +44,20 @@ public class HasProjectPropertyConditionTest {
     DefaultWorkflowContext context = new DefaultWorkflowContext();
     context.setSettings(new Settings());
     assertThat(condition.doVerify(new DefaultReview(), context)).isFalse();
+  }
+
+  @Test
+  public void returnTrueIfDefaultValue() {
+    HasProjectPropertyCondition condition = new HasProjectPropertyCondition("jira.url");
+    DefaultWorkflowContext context = new DefaultWorkflowContext();
+    context.setSettings(new Settings(new PropertyDefinitions().addComponent(WithDefaultValue.class)));
+    assertThat(condition.doVerify(new DefaultReview(), context)).isTrue();
+  }
+
+  @Properties({
+      @Property(key = "jira.url", name = "JIRA URL", defaultValue = "http://jira.com")
+  })
+  private static class WithDefaultValue {
+
   }
 }

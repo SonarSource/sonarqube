@@ -19,6 +19,7 @@
  */
 package org.sonar.core.review.workflow.condition;
 
+import org.sonar.api.config.Settings;
 import org.sonar.core.review.workflow.review.Review;
 import org.sonar.core.review.workflow.review.WorkflowContext;
 
@@ -33,6 +34,7 @@ public final class HasProjectPropertyCondition extends ProjectPropertyCondition 
 
   @Override
   public boolean doVerify(Review review, WorkflowContext context) {
-    return context.getProjectSettings().hasKey(getPropertyKey());
+    Settings settings = context.getProjectSettings();
+    return settings.hasKey(getPropertyKey()) || settings.getDefaultValue(getPropertyKey())!=null;
   }
 }
