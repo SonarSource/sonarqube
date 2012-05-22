@@ -39,7 +39,6 @@ public class PmdPlugin extends SonarPlugin {
         SonarWayProfile.class,
         SonarWayWithFindbugsProfile.class,
         SunConventionsProfile.class,
-        JavaCpdMapping.class,
         PmdViolationToRuleViolation.class);
   }
 }
