@@ -6,10 +6,8 @@
 
 <div class="admin migration" style="padding:10px">
   <%= image_tag 'loading.gif' -%>
-  <b>Database upgrade is currently running.</b>
+  <b>Sonar Database is currently upgrading.</b>
   <br/>
   <br/>
-  Started : <%= l start_time -%>
-  <br/>
-  Duration: <%= distance_of_time_in_words(start_time, Time.now) -%>
+  Started <%= distance_of_time_in_words(start_time, Time.now) -%> (<%= l start_time -%>) 
 </div>
