@@ -19,27 +19,33 @@
  */
 package org.sonar.core.review.workflow.condition;
 
-import com.google.common.collect.Sets;
-import org.sonar.core.review.workflow.review.Review;
-import org.sonar.core.review.workflow.review.WorkflowContext;
+public final class Conditions {
 
-import java.util.Arrays;
-import java.util.Set;
-
-public final class StatusCondition extends Condition {
-  private Set<String> statuses;
-
-  public StatusCondition(Set<String> statuses) {
-    super(false);
-    this.statuses = statuses;
+  private Conditions() {
   }
 
-  public StatusCondition(String... statuses) {
-    this(Sets.newLinkedHashSet(Arrays.asList(statuses)));
+  public static Condition not(Condition c) {
+    return new NotCondition(c);
   }
 
-  @Override
-  public boolean doVerify(Review review, WorkflowContext context) {
-    return statuses.contains(review.getStatus());
+  public static Condition hasReviewProperty(String propertyKey) {
+    return new HasReviewPropertyCondition(propertyKey);
   }
+
+  public static Condition hasProjectProperty(String propertyKey) {
+    return new HasProjectPropertyCondition(propertyKey);
+  }
+
+  public static Condition hasAdminRole() {
+    return new AdminRoleCondition();
+  }
+
+  public static Condition hasReviewStatuses(String... statuses) {
+    return new StatusCondition(statuses);
+  }
+
+  public static Condition hasReviewResolutions(String... resolutions) {
+    return new ResolutionCondition(resolutions);
+  }
+
 }
