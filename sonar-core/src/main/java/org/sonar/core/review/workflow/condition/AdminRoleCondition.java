@@ -19,13 +19,17 @@
  */
 package org.sonar.core.review.workflow.condition;
 
+import com.google.common.annotations.Beta;
 import org.sonar.core.review.workflow.review.Review;
 import org.sonar.core.review.workflow.review.WorkflowContext;
 
 /**
  * Checks that user has admin rights on project.
+ *
+ * @since 3.1
  */
-public class AdminRoleCondition extends Condition {
+@Beta
+public final class AdminRoleCondition extends Condition {
 
   public AdminRoleCondition() {
     super(true);

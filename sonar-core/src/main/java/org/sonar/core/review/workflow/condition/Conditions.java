@@ -19,11 +19,14 @@
  */
 package org.sonar.core.review.workflow.condition;
 
+import com.google.common.annotations.Beta;
+
 /**
  * Static utility methods pertaining to {@link Condition} instances.
  *
  * @since 3.1
  */
+@Beta
 public final class Conditions {
 
   private Conditions() {

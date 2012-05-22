@@ -17,34 +17,25 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.review.workflow.condition;
+package org.sonar.core.review;
 
-import com.google.common.annotations.Beta;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import org.sonar.core.review.workflow.review.Review;
-import org.sonar.core.review.workflow.review.WorkflowContext;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
-/**
- * @since 3.1
- */
-@Beta
-public final class HasReviewPropertyCondition extends Condition {
+public class ReviewDtoTest {
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
-  private final String propertyKey;
+  @Test
+  public void setData_check_maximal_length() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Review data must not exceed 4000 characters: ");
 
-  protected HasReviewPropertyCondition(String propertyKey) {
-    super(false);
-    Preconditions.checkArgument(!Strings.isNullOrEmpty(propertyKey));
-    this.propertyKey = propertyKey;
-  }
-
-  protected final String getPropertyKey() {
-    return propertyKey;
-  }
-
-  @Override
-  public boolean doVerify(Review review, WorkflowContext context) {
-    return !Strings.isNullOrEmpty(review.getProperties().get(propertyKey));
+    StringBuilder s = new StringBuilder(4500);
+    for (int i=0 ; i<4500 ; i++) {
+      s.append('a');
+    }
+    new ReviewDto().setData(s.toString());
   }
 }

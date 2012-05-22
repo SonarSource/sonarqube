@@ -17,7 +17,7 @@
       rule_id="500"
       manual_severity="[true]"
       manual_violation="[false]"
-      data="prop1=foo;prop3=bing;prop4=bang"
+      data="big=bang"
       />
 
 </dataset>

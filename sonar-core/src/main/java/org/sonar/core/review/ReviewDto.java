@@ -19,15 +19,12 @@
  */
 package org.sonar.core.review;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.base.Preconditions;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.utils.KeyValueFormat;
 
 import javax.annotation.Nullable;
-
 import java.util.Date;
-import java.util.Map;
 
 /**
  * @since 2.13
@@ -226,33 +223,11 @@ public final class ReviewDto {
     return data;
   }
 
-  public ReviewDto setData(String data) {
-    this.data = data;
+  public ReviewDto setData(String s) {
+    Preconditions.checkArgument(s == null || s.length() <= 4000,
+        "Review data must not exceed 4000 characters: " + s);
+    this.data = s;
     return this;
-  }
-
-  /**
-   * Returns an immutable Map of the properties store in the "data" column 
-   * of the review. To modify the properties, use {@link #removeKeyFromData(String)} 
-   * or {@link #addKeyValueToData(String)}.
-   * 
-   * @return the map of properties
-   */
-  @SuppressWarnings("unchecked")
-  public ImmutableMap<String, String> getDataMap() {
-    return ImmutableMap.copyOf(KeyValueFormat.parse(data));
-  }
-
-  public void removeKeyFromData(String key) {
-    Map<String, String> dataMap = KeyValueFormat.parse(data);
-    dataMap.remove(key);
-    data = KeyValueFormat.format(dataMap);
-  }
-
-  public void addKeyValueToData(String key, String value) {
-    Map<String, String> dataMap = KeyValueFormat.parse(data);
-    dataMap.put(key, value);
-    data = KeyValueFormat.format(dataMap);
   }
 
   @Override

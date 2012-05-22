@@ -19,11 +19,16 @@
  */
 package org.sonar.core.review.workflow.condition;
 
+import com.google.common.annotations.Beta;
 import org.sonar.core.review.workflow.review.Review;
 import org.sonar.core.review.workflow.review.WorkflowContext;
 
 import javax.annotation.Nullable;
 
+/**
+ * @since 3.1
+ */
+@Beta
 public abstract class Condition {
 
   private final boolean onContext;

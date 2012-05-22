@@ -19,13 +19,19 @@
  */
 package org.sonar.core.review.workflow.condition;
 
+import com.google.common.annotations.Beta;
 import org.sonar.api.config.Settings;
 import org.sonar.core.review.workflow.review.Review;
 import org.sonar.core.review.workflow.review.WorkflowContext;
 
+import javax.annotation.concurrent.Immutable;
+
 /**
  * Checks that a project property is set, whatever its value.
+ *
+ * @since 3.1
  */
+@Beta
 public final class HasProjectPropertyCondition extends ProjectPropertyCondition {
 
   public HasProjectPropertyCondition(String propertyKey) {

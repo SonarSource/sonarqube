@@ -32,6 +32,7 @@ import org.sonar.core.review.workflow.function.Function;
 import org.sonar.core.review.workflow.review.*;
 import org.sonar.core.review.workflow.screen.Screen;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
@@ -110,7 +111,7 @@ public class WorkflowEngine implements ServerComponent {
     // TODO notify listeners
   }
 
-  private boolean verifyConditions(Review review, WorkflowContext context, List<Condition> conditions) {
+  private boolean verifyConditions(@Nullable Review review, WorkflowContext context, List<Condition> conditions) {
     for (Condition condition : conditions) {
       if (!condition.doVerify(review, context)) {
         return false;
