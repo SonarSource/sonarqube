@@ -47,7 +47,7 @@ public class PastSnapshotFinderByVersion implements BatchExtension {
         .getResultList();
 
     if (snapshots.isEmpty()) {
-      throw new IllegalStateException("Unknown project version: " + version);
+      throw new IllegalStateException("Unknown project version: " + version +". Please check differential views in project settings.");
     }
     Snapshot snapshot = snapshots.get(0);
     Date targetDate = snapshot.getCreatedAt();
