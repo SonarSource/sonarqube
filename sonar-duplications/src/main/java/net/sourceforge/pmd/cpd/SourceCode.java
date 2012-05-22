@@ -23,6 +23,8 @@
  */
 package net.sourceforge.pmd.cpd;
 
+import com.google.common.io.Closeables;
+
 import java.io.*;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
@@ -69,13 +71,7 @@ public class SourceCode {
       } catch (Exception e) {
         throw new RuntimeException("Problem while reading " + getFileName() + ":" + e.getMessage(), e);
       } finally {
-        try {
-          if (lnr != null) {
-            lnr.close();
-          }
-        } catch (Exception e) {
-          throw new RuntimeException("Problem while reading " + getFileName() + ":" + e.getMessage(), e);
-        }
+        Closeables.closeQuietly(lnr);
       }
     }
   }
