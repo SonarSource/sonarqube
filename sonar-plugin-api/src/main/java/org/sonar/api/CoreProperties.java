@@ -161,23 +161,58 @@ public interface CoreProperties {
 
   /* CPD */
   String CPD_PLUGIN = "cpd";
+
+  /**
+   * @deprecated in 3.1
+   */
+  @Deprecated
   String CPD_MINIMUM_TOKENS_PROPERTY = "sonar.cpd.minimumTokens";
+
+  /**
+   * @deprecated in 3.1
+   */
+  @Deprecated
   int CPD_MINIMUM_TOKENS_DEFAULT_VALUE = 100;
+
+  /**
+   * @deprecated in 3.1
+   */
+  @Deprecated
   String CPD_IGNORE_LITERALS_PROPERTY = "sonar.cpd.ignore_literals";
+
+  /**
+   * @deprecated in 3.1
+   */
+  @Deprecated
   String CPD_IGNORE_LITERALS_DEFAULT_VALUE = "true";
+
+  /**
+   * @deprecated in 3.1
+   */
+  @Deprecated
   String CPD_IGNORE_IDENTIFIERS_PROPERTY = "sonar.cpd.ignore_identifiers";
+
+  /**
+   * @deprecated in 3.1
+   */
+  @Deprecated
   String CPD_IGNORE_IDENTIFIERS_DEFAULT_VALUE = "false";
+
   String CPD_SKIP_PROPERTY = "sonar.cpd.skip";
 
   /**
    * @since 2.11
+   * @deprecated in 3.1
    */
+  @Deprecated
   String CPD_ENGINE = "sonar.cpd.engine";
 
   /**
    * @see #CPD_ENGINE
    * @since 2.11
+   * @deprecated in 3.1
    */
+  @Deprecated
   String CPD_ENGINE_DEFAULT_VALUE = "sonar";
 
   /**
