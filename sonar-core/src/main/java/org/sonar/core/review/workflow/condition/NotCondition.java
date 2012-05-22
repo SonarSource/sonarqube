@@ -19,6 +19,7 @@
  */
 package org.sonar.core.review.workflow.condition;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.sonar.core.review.workflow.review.Review;
 import org.sonar.core.review.workflow.review.WorkflowContext;
 
@@ -34,5 +35,10 @@ public final class NotCondition extends Condition {
   @Override
   public boolean doVerify(Review review, WorkflowContext context) {
     return !condition.doVerify(review, context);
+  }
+
+  @VisibleForTesting
+  Condition getCondition() {
+    return condition;
   }
 }

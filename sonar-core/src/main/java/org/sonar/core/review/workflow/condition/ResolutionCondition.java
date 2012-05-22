@@ -19,6 +19,9 @@
  */
 package org.sonar.core.review.workflow.condition;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import org.sonar.core.review.workflow.review.Review;
 import org.sonar.core.review.workflow.review.WorkflowContext;
@@ -27,10 +30,12 @@ import java.util.Arrays;
 import java.util.Set;
 
 public final class ResolutionCondition extends Condition {
-  private Set<String> resolutions;
+  private final Set<String> resolutions;
 
   public ResolutionCondition(Set<String> resolutions) {
     super(false);
+    Preconditions.checkNotNull(resolutions);
+    Preconditions.checkArgument(!resolutions.isEmpty(), "No resolutions defined");
     this.resolutions = resolutions;
   }
 
@@ -41,5 +46,10 @@ public final class ResolutionCondition extends Condition {
   @Override
   public boolean doVerify(Review review, WorkflowContext context) {
     return resolutions.contains(review.getResolution());
+  }
+
+  @VisibleForTesting
+  Set<String> getResolutions() {
+    return ImmutableSet.copyOf(resolutions);
   }
 }

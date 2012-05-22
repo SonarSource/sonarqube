@@ -19,6 +19,11 @@
  */
 package org.sonar.core.review.workflow.condition;
 
+/**
+ * Static utility methods pertaining to {@link Condition} instances.
+ *
+ * @since 3.1
+ */
 public final class Conditions {
 
   private Conditions() {
@@ -40,11 +45,11 @@ public final class Conditions {
     return new AdminRoleCondition();
   }
 
-  public static Condition hasReviewStatuses(String... statuses) {
+  public static Condition statuses(String... statuses) {
     return new StatusCondition(statuses);
   }
 
-  public static Condition hasReviewResolutions(String... resolutions) {
+  public static Condition resolutions(String... resolutions) {
     return new ResolutionCondition(resolutions);
   }
 

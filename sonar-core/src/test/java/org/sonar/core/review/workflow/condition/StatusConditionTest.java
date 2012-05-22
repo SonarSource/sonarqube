@@ -19,37 +19,31 @@
  */
 package org.sonar.core.review.workflow.condition;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
+import org.junit.Test;
+import org.sonar.core.review.workflow.review.DefaultReview;
+import org.sonar.core.review.workflow.review.DefaultWorkflowContext;
 import org.sonar.core.review.workflow.review.Review;
-import org.sonar.core.review.workflow.review.WorkflowContext;
 
-import java.util.Arrays;
-import java.util.Set;
+import static org.fest.assertions.Assertions.assertThat;
 
-public final class StatusCondition extends Condition {
-  private final Set<String> statuses;
-
-  public StatusCondition(Set<String> statuses) {
-    super(false);
-    Preconditions.checkNotNull(statuses);
-    Preconditions.checkArgument(!statuses.isEmpty(), "No statuses defined");
-    this.statuses = statuses;
+public class StatusConditionTest {
+  @Test
+  public void getStatuses() {
+    StatusCondition condition = new StatusCondition("OPEN", "CLOSED");
+    assertThat(condition.getStatuses()).containsOnly("OPEN", "CLOSED");
   }
 
-  public StatusCondition(String... statuses) {
-    this(Sets.newLinkedHashSet(Arrays.asList(statuses)));
+  @Test
+  public void doVerify_review_has_status() {
+    Condition condition = new StatusCondition("OPEN", "CLOSED");
+    Review review = new DefaultReview().setStatus("CLOSED");
+    assertThat(condition.doVerify(review, new DefaultWorkflowContext())).isTrue();
   }
 
-  @Override
-  public boolean doVerify(Review review, WorkflowContext context) {
-    return statuses.contains(review.getStatus());
-  }
-
-  @VisibleForTesting
-  Set<String> getStatuses() {
-    return ImmutableSet.copyOf(statuses);
+  @Test
+  public void doVerify_review_does_not_have_status() {
+    Condition condition = new StatusCondition("OPEN", "CLOSED");
+    Review review = new DefaultReview().setStatus("OTHER");
+    assertThat(condition.doVerify(review, new DefaultWorkflowContext())).isFalse();
   }
 }
