@@ -19,18 +19,14 @@
  */
 package org.sonar.server.startup;
 
-import org.sonar.core.filter.FilterColumnDto;
-
-import org.sonar.api.web.FilterColumn;
-
-import org.sonar.api.web.Criterion;
-
-import com.google.common.collect.Iterables;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.web.Criterion;
 import org.sonar.api.web.Filter;
+import org.sonar.api.web.FilterColumn;
 import org.sonar.api.web.FilterTemplate;
 import org.sonar.core.filter.CriterionDto;
+import org.sonar.core.filter.FilterColumnDto;
 import org.sonar.core.filter.FilterDao;
 import org.sonar.core.filter.FilterDto;
 import org.sonar.core.template.LoadedTemplateDao;
@@ -116,25 +112,16 @@ public class RegisterNewFiltersTest {
   @Test
   public void should_create_dto_from_extension() {
     when(filterTemplate.createFilter()).thenReturn(Filter.create()
-        .setShared(true)
         .setFavouritesOnly(false)
-        .setDefaultPeriod("list")
-        .setResourceKeyLike("*KEY*")
-        .setResourceNameLike("*NAME*")
-        .setLanguage("java")
-        .setSearchFor("TRK,BRC")
+        .setDisplayAs("list")
         .setPageSize(200)
-        .add(Criterion.create("metric", "complexity", "<", 12f, false))
-        .add(Criterion.create("metric", "LCOM4", ">=", "5", true))
-        .add(FilterColumn.create("metric", "distance", "ASC", 1, false))
-        .add(FilterColumn.create("metric", "instability", "DESC", 2, true))
+        .add(Criterion.create("metric", "complexity", Criterion.LT, 12f, false))
+        .add(Criterion.create("metric", "LCOM4", Criterion.GTE, "5", true))
+        .add(FilterColumn.create("metric", "distance", "ASC", false))
+        .add(FilterColumn.create("metric", "instability", "DESC", true))
         );
 
     FilterDto dto = register.createDtoFromExtension("Fake", filterTemplate.createFilter());
-    CriterionDto criteriaResourceKeyDto = Iterables.get(dto.getCriteria(), 0);
-    CriterionDto criteriaResourceNameDto = Iterables.get(dto.getCriteria(), 1);
-    CriterionDto criteriaLangageDto = Iterables.get(dto.getCriteria(), 2);
-    CriterionDto criteriaSearchForDto = Iterables.get(dto.getCriteria(), 3);
 
     assertThat(dto.getUserId()).isNull();
     assertThat(dto.getName()).isEqualTo("Fake");
@@ -143,11 +130,7 @@ public class RegisterNewFiltersTest {
     assertThat(dto.getDefaultView()).isEqualTo("list");
     assertThat(dto.getPageSize()).isEqualTo(200L);
 
-    assertThat(dto.getCriteria()).hasSize(6);
-    assertThat(dto.getCriteria()).satisfies(contains(new CriterionDto().setFamily("key").setOperator("=").setTextValue("*KEY*")));
-    assertThat(dto.getCriteria()).satisfies(contains(new CriterionDto().setFamily("name").setOperator("=").setTextValue("*NAME*")));
-    assertThat(dto.getCriteria()).satisfies(contains(new CriterionDto().setFamily("language").setOperator("=").setTextValue("java")));
-    assertThat(dto.getCriteria()).satisfies(contains(new CriterionDto().setFamily("qualifier").setOperator("=").setTextValue("TRK,BRC")));
+    assertThat(dto.getCriteria()).hasSize(2);
     assertThat(dto.getCriteria()).satisfies(contains(new CriterionDto().setFamily("metric").setKey("complexity").setOperator("<").setValue(12f).setVariation(false)));
     assertThat(dto.getCriteria()).satisfies(contains(new CriterionDto().setFamily("metric").setKey("LCOM4").setOperator(">=").setTextValue("5").setVariation(true)));
 

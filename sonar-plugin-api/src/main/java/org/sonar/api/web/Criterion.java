@@ -30,7 +30,12 @@ import java.util.Set;
  * @since 3.1
  */
 public class Criterion {
-  public static final Set<String> OPERATORS = ImmutableSortedSet.of("=", ">", "<", ">=", "<=");
+  public static final String EQ = "=";
+  public static final String GT = ">";
+  public static final String GTE = ">=";
+  public static final String LT = "<";
+  public static final String LTE = "<=";
+  public static final Set<String> OPERATORS = ImmutableSortedSet.of(EQ, GT, GTE, LT, LTE);
 
   private final String family;
   private final String key;
@@ -53,7 +58,7 @@ public class Criterion {
   /**
    * Creates a new {@link Criterion} with a numerical value.
    *
-   * <p>Valid values for the {@code operator} are <code>=</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>&lt;</code> and <code>&lt;=</code></p>
+   * <p>Valid values for the {@code operator} are {@value #EQ}, {@value #GT}, {@value #GTE}, {@value #LT} and {@value #LTE}</p>
    *
    * <p>When the {@link Filter} is persisted, a validation is made on the {@code family} and the {@code key}.
    * They should point to a valid criterion.</p>
@@ -67,7 +72,7 @@ public class Criterion {
   /**
    * Creates a new {@link Criterion} with a text value.
    *
-   * <p>Valid values for the {@code operator} are <code>=</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>&lt;</code> and <code>&lt;=</code></p>
+   * <p>Valid values for the {@code operator} are {@value #EQ}, {@value #GT}, {@value #GTE}, {@value #LT} and {@value #LTE}</p>
    *
    * <p>When the {@link Filter} is persisted, a validation is made on the {@code family} and the {@code key}.
    * They should point to a valid criterion.</p>
@@ -98,6 +103,8 @@ public class Criterion {
 
   /**
    * Get the the criterion's operator.
+   *
+   * <p>Valid values for the {@code operator} are {@value #EQ}, {@value #GT}, {@value #GTE}, {@value #LT} and {@value #LTE}</p>
    *
    * @return the operator
    */

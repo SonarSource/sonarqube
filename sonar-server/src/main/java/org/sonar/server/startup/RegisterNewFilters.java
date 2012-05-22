@@ -81,6 +81,7 @@ public final class RegisterNewFilters {
     if (filterDao.findFilter(name) == null) {
       dto = createDtoFromExtension(name, filter);
       filterDao.insert(dto);
+      LOG.info("New filter '" + dto.getName() + "' registered");
     }
     // and save the fact that is has now already been loaded
     loadedTemplateDao.insert(new LoadedTemplateDto(name, LoadedTemplateDto.FILTER_TYPE));
@@ -97,15 +98,10 @@ public final class RegisterNewFilters {
     FilterDto filterDto = new FilterDto()
         .setName(name)
         .setPageSize((long) filter.getPageSize())
-        .setShared(filter.isShared())
+        .setShared(true)
         .setFavourites(filter.isFavouritesOnly())
-        .setDefaultView(filter.getDefaultPeriod());
+        .setDefaultView(filter.getDisplayAs());
 
-    addCriteria(filterDto, "key", "=", filter.getResourceKeyLike());
-    addCriteria(filterDto, "name", "=", filter.getResourceNameLike());
-    addCriteria(filterDto, "language", "=", filter.getLanguage());
-    addCriteria(filterDto, "qualifier", "=", filter.getSearchFor());
-    
     for (Criterion criterion : filter.getCriteria()) {
       filterDto.add(new CriterionDto()
           .setFamily(criterion.getFamily())
@@ -116,11 +112,12 @@ public final class RegisterNewFilters {
           .setVariation(criterion.isVariation()));
     }
 
+    long orderIndex = 1L;
     for (FilterColumn column : filter.getColumns()) {
       filterDto.add(new FilterColumnDto()
           .setFamily(column.getFamily())
           .setKey(column.getKey())
-          .setOrderIndex((long) column.getOrderIndex())
+          .setOrderIndex(orderIndex++)
           .setSortDirection(column.getSortDirection())
           .setVariation(column.isVariation()));
     }

@@ -31,36 +31,36 @@ import com.google.common.base.Preconditions;
  * @since 3.1
  */
 public class FilterColumn {
-  public static final Set<String> DIRECTIONS = ImmutableSortedSet.of("ASC", "DESC");
+  public static final String ASC = "ASC";
+  public static final String DESC = "DESC";
+  public static final Set<String> DIRECTIONS = ImmutableSortedSet.of(ASC, DESC);
 
   private final String family;
   private final String key;
   private final String sortDirection;
-  private final int orderIndex;
   private final boolean variation;
 
-  private FilterColumn(String family, String key, String sortDirection, int orderIndex, boolean variation) {
+  private FilterColumn(String family, String key, String sortDirection, boolean variation) {
     Preconditions.checkArgument(DIRECTIONS.contains(sortDirection), "Valid directions are %s, not '%s'", DIRECTIONS, sortDirection);
 
     this.family = family;
     this.key = key;
     this.sortDirection = sortDirection;
-    this.orderIndex = orderIndex;
     this.variation = variation;
   }
 
   /**
    * Creates a new {@link FilterColumn}.
    *
-   * <p>Valid values for the {@code sortDirection} are <code>ASC</code> and <code>DESC</code></p>
+   * <p>Valid values for the {@code sortDirection} are {@value #ASC}, {@value #DESC}</p>
    *
    * <p>When the @{see Filter} is persisted, a validation is made on the {@code family} and the {@code key}.
    * They should point to a valid column description.</p>
    *
    * @throws IllegalArgumentException if {@code sortDirection} is not valid
    */
-  public static FilterColumn create(String family, String key, String sortDirection, int orderIndex, boolean variation) {
-    return new FilterColumn(family, key, sortDirection, orderIndex, variation);
+  public static FilterColumn create(String family, String key, String sortDirection, boolean variation) {
+    return new FilterColumn(family, key, sortDirection, variation);
   }
 
   /**
@@ -88,15 +88,6 @@ public class FilterColumn {
    */
   public String getSortDirection() {
     return sortDirection;
-  }
-
-  /**
-   * Get the the column's index.
-   * 
-   * @return the index
-   */
-  public int getOrderIndex() {
-    return orderIndex;
   }
 
   /**

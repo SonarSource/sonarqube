@@ -31,8 +31,8 @@ public class FilterTest {
 
   @Test
   public void should_accept_valid_periods() {
-    Filter.create().setDefaultPeriod("list");
-    Filter.create().setDefaultPeriod("treemap");
+    Filter.create().setDisplayAs("list");
+    Filter.create().setDisplayAs("treemap");
   }
 
   @Test
@@ -40,6 +40,6 @@ public class FilterTest {
     exception.expect(IllegalArgumentException.class);
     exception.expectMessage("Default period should be either list or treemap, not <invalid>");
 
-    Filter.create().setDefaultPeriod("<invalid>");
+    Filter.create().setDisplayAs("<invalid>");
   }
 }

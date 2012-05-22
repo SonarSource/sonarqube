@@ -19,6 +19,12 @@
  */
 package org.sonar.plugins.core;
 
+import org.sonar.plugins.core.filters.MyFavouritesFilter;
+
+import org.sonar.plugins.core.filters.TreeMapFilter;
+
+import org.sonar.plugins.core.filters.ProjectFilter;
+
 import com.google.common.collect.Lists;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Extension;
@@ -297,6 +303,11 @@ public final class CorePlugin extends SonarPlugin {
     // pages
     extensions.add(TestsViewerDefinition.class);
     extensions.add(Lcom4Viewer.class);
+
+    // filters
+    extensions.add(ProjectFilter.class);
+    extensions.add(TreeMapFilter.class);
+    extensions.add(MyFavouritesFilter.class);
 
     // widgets
     extensions.add(AlertsWidget.class);

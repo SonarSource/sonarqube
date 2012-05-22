@@ -17,28 +17,24 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.web;
+package org.sonar.plugins.core.filters;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.sonar.api.web.Filter;
 
-public class FilterColumnTest {
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
+import static org.fest.assertions.Assertions.assertThat;
 
+public class MyFavouritesFilterTest {
   @Test
-  public void should_accept_valid_direction() {
-    FilterColumn.create("", "", "ASC", false);
-    FilterColumn.create("", "", "DESC", false);
+  public void should_create_filter() {
+    MyFavouritesFilter template = new MyFavouritesFilter();
+
+    Filter filter = template.createFilter();
+
+    assertThat(template.getName()).isEqualTo("My favouritesBis");
+    assertThat(filter).isNotNull();
+    assertThat(filter.isFavouritesOnly()).isTrue();
+    assertThat(filter.getCriteria()).hasSize(1);
+    assertThat(filter.getColumns()).hasSize(5);
   }
-
-  @Test
-  public void should_fail_on_invalid_direction() {
-    exception.expect(IllegalArgumentException.class);
-    exception.expectMessage("Valid directions are [ASC, DESC], not 'UNKNOWN'");
-
-    FilterColumn.create("", "", "UNKNOWN", false);
-  }
-
 }

@@ -36,18 +36,14 @@ public class Filter {
   public static final String LIST = "list";
   public static final String TREEMAP = "treemap";
 
-  private boolean shared;
   private boolean favouritesOnly;
-  private String defaultPeriod;
-  private String resourceKeyLike;
-  private String resourceNameLike;
-  private String language;
-  private String searchFor;
+  private String displayAs;
   private int pageSize;
   private List<Criterion> criteria;
   private List<FilterColumn> columns;
 
   private Filter() {
+    displayAs = LIST;
     criteria = Lists.newArrayList();
     columns = Lists.newArrayList();
   }
@@ -59,93 +55,107 @@ public class Filter {
     return new Filter();
   }
 
+  /**
+   * Get the list of {@link Criterion} used to narrow down the results of this {@link Filter}.
+   * 
+   * @return the criteria
+   */
   public List<Criterion> getCriteria() {
     return criteria;
   }
 
+  /**
+   * Add a {@link Criterion} to the list used to narrow down the results of this {@link Filter}.
+   * 
+   * @return this filter
+   */
   public Filter add(Criterion criterion) {
     this.criteria.add(criterion);
     return this;
   }
 
+  /**
+   * Get the list of {@link FilterColumn} displayed by this {@link Filter}.
+   * 
+   * @return this columns
+   */
   public List<FilterColumn> getColumns() {
     return columns;
   }
 
+  /**
+   * Add a {@link FilterColumn} to the list of columns displayed by this {@link Filter}.
+   * 
+   * @return this filter
+   */
   public Filter add(FilterColumn column) {
     this.columns.add(column);
     return this;
   }
 
-  public boolean isShared() {
-    return shared;
-  }
-
-  public Filter setShared(boolean shared) {
-    this.shared = shared;
-    return this;
-  }
-
+  /**
+   * The {@link Filter} can be configured to return only favourites.
+   * 
+   * @return <code>true</code> if favourites only are returned
+   */
   public boolean isFavouritesOnly() {
     return favouritesOnly;
   }
 
+  /**
+   * The {@link Filter} can be configured to return only favourites.
+   */
   public Filter setFavouritesOnly(boolean favouritesOnly) {
     this.favouritesOnly = favouritesOnly;
     return this;
   }
 
-  public String getDefaultPeriod() {
-    return defaultPeriod;
+  /**
+   * Get the type of display used by this {@link Filter}.
+   * 
+   * <p>Can be either {@value #LIST} or {@value #TREEMAP}</p>
+   * 
+   * @return the display type
+   */
+  public String getDisplayAs() {
+    return displayAs;
   }
 
-  public Filter setDefaultPeriod(String defaultPeriod) {
-    Preconditions.checkArgument(LIST.equals(defaultPeriod) || TREEMAP.equals(defaultPeriod), "Default period should be either %s or %s, not %s", LIST, TREEMAP, defaultPeriod);
-    this.defaultPeriod = defaultPeriod;
+  /**
+   * Set the type of display used by this {@link Filter}.
+   * 
+   * <p>Can be either {@value #LIST} or {@value #TREEMAP}</p>
+   * 
+   * @return this filter
+   * @throws IllegalArgumentException if {@code displayAs) is not {@value #LIST} or {@value #TREEMAP}
+   */
+  public Filter setDisplayAs(String displayAs) {
+    Preconditions.checkArgument(LIST.equals(displayAs) || TREEMAP.equals(displayAs), "Default period should be either %s or %s, not %s", LIST, TREEMAP, displayAs);
+    this.displayAs = displayAs;
     return this;
   }
 
-  public String getResourceKeyLike() {
-    return resourceKeyLike;
-  }
-
-  public Filter setResourceKeyLike(String resourceKeyLike) {
-    this.resourceKeyLike = resourceKeyLike;
-    return this;
-  }
-
-  public String getResourceNameLike() {
-    return resourceNameLike;
-  }
-
-  public Filter setResourceNameLike(String resourceNameLike) {
-    this.resourceNameLike = resourceNameLike;
-    return this;
-  }
-
-  public String getLanguage() {
-    return language;
-  }
-
-  public Filter setLanguage(String language) {
-    this.language = language;
-    return this;
-  }
-
-  public String getSearchFor() {
-    return searchFor;
-  }
-
-  public Filter setSearchFor(String searchFor) {
-    this.searchFor = searchFor;
-    return this;
-  }
-
+  /**
+   * Get the size of a page displayed this {@link Filter}.
+   * 
+   * <p>The page size is between <code>20</code> and <code>200</code> (included)</p>
+   * 
+   * @return the display type
+   */
   public int getPageSize() {
     return pageSize;
   }
 
+  /**
+   * Set the size of a page displayed this {@link Filter}.
+   * 
+   * <p>The page size should be between <code>20</code> and <code>200</code> (included)</p>
+   * 
+   * @return the display type
+   * @throws IllegalArgumentException if {@code pageSize) is not lower than {@code 20} or greater than {@code 200}
+   */
   public Filter setPageSize(int pageSize) {
+    Preconditions.checkArgument((pageSize >= 20) && (pageSize <= 200), "page size should be between 20 and 200");
     this.pageSize = pageSize;
     return this;
   }

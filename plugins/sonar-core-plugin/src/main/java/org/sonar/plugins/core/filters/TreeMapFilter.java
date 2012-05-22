@@ -17,28 +17,34 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.web;
+package org.sonar.plugins.core.filters;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.sonar.api.web.Criterion;
 
-public class FilterColumnTest {
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
+import org.sonar.api.web.Filter;
+import org.sonar.api.web.FilterColumn;
+import org.sonar.api.web.FilterTemplate;
 
-  @Test
-  public void should_accept_valid_direction() {
-    FilterColumn.create("", "", "ASC", false);
-    FilterColumn.create("", "", "DESC", false);
+/**
+ * Default treemap filter.
+ *
+ * @since 3.1
+ */
+public class TreeMapFilter extends FilterTemplate {
+  @Override
+  public String getName() {
+    return "TreemapBis";
   }
 
-  @Test
-  public void should_fail_on_invalid_direction() {
-    exception.expect(IllegalArgumentException.class);
-    exception.expectMessage("Valid directions are [ASC, DESC], not 'UNKNOWN'");
-
-    FilterColumn.create("", "", "UNKNOWN", false);
+  @Override
+  public Filter createFilter() {
+    Filter filter = Filter.create();
+    filter.setDisplayAs(Filter.TREEMAP);
+    filter.add(Criterion.create("qualifier", null, Criterion.EQ, "TRK", false));
+    filter.add(FilterColumn.create("name", null, FilterColumn.ASC, false));
+    filter.add(FilterColumn.create("metric", "ncloc", FilterColumn.DESC, false));
+    filter.add(FilterColumn.create("metric", "violations_density", FilterColumn.DESC, false));
+    
+    return filter;
   }
-
 }
