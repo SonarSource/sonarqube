@@ -20,7 +20,6 @@
 package org.sonar.server.startup;
 
 import com.google.common.collect.ImmutableList;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.TimeProfiler;
@@ -31,19 +30,17 @@ import org.sonar.core.filter.FilterDto;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.template.LoadedTemplateDto;
 
-import java.util.Comparator;
 import java.util.List;
 
 /**
  * @since 3.1
  */
 public final class RegisterNewFilters {
-
   private static final Logger LOG = LoggerFactory.getLogger(RegisterNewFilters.class);
 
-  private List<FilterTemplate> filterTemplates;
-  private FilterDao filterDao;
-  private LoadedTemplateDao loadedTemplateDao;
+  private final List<FilterTemplate> filterTemplates;
+  private final FilterDao filterDao;
+  private final LoadedTemplateDao loadedTemplateDao;
 
   /**
    * Constructor used in case there is no {@link FilterTemplate}.
@@ -71,7 +68,7 @@ public final class RegisterNewFilters {
     profiler.stop();
   }
 
-  protected boolean shouldRegister(String filterName) {
+  private boolean shouldRegister(String filterName) {
     return loadedTemplateDao.countByTypeAndKey(LoadedTemplateDto.FILTER_TYPE, filterName) == 0;
   }
 
@@ -87,22 +84,10 @@ public final class RegisterNewFilters {
   }
 
   protected FilterDto createDtoFromExtension(String name, Filter filter) {
-    FilterDto filterDto = new FilterDto();
-    filterDto.setName(name);
-
-    // filterDto.setShared();
-    // filterDto.setFavourites();
-    // filterDto.setResourceId();
-    // filterDto.setDefaultView();
-    // filterDto.setPageSize();
-    // filterDto.setPeriodIndex();
-
-    return filterDto;
-  }
-
-  protected static class FilterDtoComparator implements Comparator<FilterDto> {
-    public int compare(FilterDto f1, FilterDto f2) {
-      return f1.getName().compareToIgnoreCase(f2.getName());
-    }
+    return new FilterDto()
+        .setName(name)
+        .setShared(filter.isShared())
+        .setFavourites(filter.isFavouritesOnly())
+        .setDefaultView(filter.getDefaultPeriod());
   }
 }

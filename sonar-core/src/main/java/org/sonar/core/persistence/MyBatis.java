@@ -19,10 +19,6 @@
  */
 package org.sonar.core.persistence;
 
-import org.sonar.core.filter.FilterDto;
-import org.sonar.core.filter.FilterMapper;
-
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
@@ -47,6 +43,12 @@ import org.sonar.core.dashboard.WidgetPropertyDto;
 import org.sonar.core.dashboard.WidgetPropertyMapper;
 import org.sonar.core.duplication.DuplicationMapper;
 import org.sonar.core.duplication.DuplicationUnitDto;
+import org.sonar.core.filter.CriteriaDto;
+import org.sonar.core.filter.CriteriaMapper;
+import org.sonar.core.filter.FilterColumnDto;
+import org.sonar.core.filter.FilterColumnMapper;
+import org.sonar.core.filter.FilterDto;
+import org.sonar.core.filter.FilterMapper;
 import org.sonar.core.properties.PropertiesMapper;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.purge.PurgeMapper;
@@ -91,6 +93,8 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "ActiveDashboard", ActiveDashboardDto.class);
     loadAlias(conf, "Author", AuthorDto.class);
     loadAlias(conf, "Filter", FilterDto.class);
+    loadAlias(conf, "Criteria", CriteriaDto.class);
+    loadAlias(conf, "FilterColumn", FilterColumnDto.class);
     loadAlias(conf, "Dashboard", DashboardDto.class);
     loadAlias(conf, "DuplicationUnit", DuplicationUnitDto.class);
     loadAlias(conf, "LoadedTemplate", LoadedTemplateDto.class);
@@ -109,6 +113,8 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadMapper(conf, ActiveDashboardMapper.class);
     loadMapper(conf, AuthorMapper.class);
     loadMapper(conf, FilterMapper.class);
+    loadMapper(conf, CriteriaMapper.class);
+    loadMapper(conf, FilterColumnMapper.class);
     loadMapper(conf, DashboardMapper.class);
     loadMapper(conf, DuplicationMapper.class);
     loadMapper(conf, LoadedTemplateMapper.class);

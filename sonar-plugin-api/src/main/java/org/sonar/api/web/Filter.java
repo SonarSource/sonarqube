@@ -27,8 +27,39 @@ package org.sonar.api.web;
  * @since 3.1
  */
 public class Filter {
+  // Criteria
+  // Columns
+  //
+  private boolean shared;
+  private boolean favouritesOnly;
+  private String defaultPeriod;
+
   private Filter() {
     // The factory method should be used
+  }
+
+  public boolean isShared() {
+    return shared;
+  }
+
+  public void setShared(boolean shared) {
+    this.shared = shared;
+  }
+
+  public boolean isFavouritesOnly() {
+    return favouritesOnly;
+  }
+
+  public void setFavouritesOnly(boolean favouritesOnly) {
+    this.favouritesOnly = favouritesOnly;
+  }
+
+  public String getDefaultPeriod() {
+    return defaultPeriod;
+  }
+
+  public void setDefaultPeriod(String defaultPeriod) {
+    this.defaultPeriod = defaultPeriod;
   }
 
   /**

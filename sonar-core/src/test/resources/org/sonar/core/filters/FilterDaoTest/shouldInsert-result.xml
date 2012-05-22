@@ -12,4 +12,25 @@
     period_index="1"
     />
 
+  <criteria
+    id="1"
+    filter_id="1"
+    family="family"
+    kee="key"
+    operator="="
+    value="1.5"
+    text_value="1.5"
+    variation="[true]"
+    />
+
+  <filter_columns
+    id="1"
+    filter_id="1"
+    family="family"
+    kee="key"
+    sort_direction="ASC"
+    order_index="2"
+    variation="[true]"
+    />
+
 </dataset>

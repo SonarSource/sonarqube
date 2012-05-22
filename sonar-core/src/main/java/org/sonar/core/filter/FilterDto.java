@@ -19,9 +19,10 @@
  */
 package org.sonar.core.filter;
 
-import com.google.common.base.Objects;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import com.google.common.collect.Lists;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @since 3.1
@@ -30,12 +31,14 @@ public final class FilterDto {
   private Long id;
   private String name;
   private Long userId;
-  private boolean shared;
-  private boolean favourites;
+  private Boolean shared;
+  private Boolean favourites;
   private Long resourceId;
   private String defaultView;
   private Long pageSize;
   private Long periodIndex;
+  private List<CriteriaDto> criteriaDtos = Lists.newArrayList();
+  private List<FilterColumnDto> filterColumnDtos = Lists.newArrayList();
 
   public Long getId() {
     return id;
@@ -64,20 +67,20 @@ public final class FilterDto {
     return this;
   }
 
-  public boolean isShared() {
+  public Boolean isShared() {
     return shared;
   }
 
-  public FilterDto setShared(boolean shared) {
+  public FilterDto setShared(Boolean shared) {
     this.shared = shared;
     return this;
   }
 
-  public boolean isFavourites() {
+  public Boolean isFavourites() {
     return favourites;
   }
 
-  public FilterDto setFavourites(boolean favourites) {
+  public FilterDto setFavourites(Boolean favourites) {
     this.favourites = favourites;
     return this;
   }
@@ -118,35 +121,21 @@ public final class FilterDto {
     return this;
   }
 
-
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  public Collection<CriteriaDto> getCriterias() {
+    return criteriaDtos;
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-
-    FilterDto other = (FilterDto) o;
-    return Objects.equal(id, other.id) &&
-      Objects.equal(name, other.name) &&
-      Objects.equal(userId, other.userId) &&
-      Objects.equal(shared, other.shared) &&
-      Objects.equal(favourites, other.favourites) &&
-      Objects.equal(resourceId, other.resourceId) &&
-      Objects.equal(defaultView, other.defaultView) &&
-      Objects.equal(pageSize, other.pageSize) &&
-      Objects.equal(periodIndex, other.periodIndex);
+  public FilterDto addCriteria(CriteriaDto criteriaDto) {
+    criteriaDtos.add(criteriaDto);
+    return this;
   }
 
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(id);
+  public Collection<FilterColumnDto> getColumns() {
+    return filterColumnDtos;
+  }
+
+  public FilterDto addColumn(FilterColumnDto filterColumnDto) {
+    filterColumnDtos.add(filterColumnDto);
+    return this;
   }
 }

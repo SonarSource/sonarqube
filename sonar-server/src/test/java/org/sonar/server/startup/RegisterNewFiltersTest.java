@@ -21,7 +21,6 @@ package org.sonar.server.startup;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.sonar.api.web.Filter;
 import org.sonar.api.web.FilterTemplate;
 import org.sonar.core.filter.FilterDao;
@@ -29,13 +28,12 @@ import org.sonar.core.filter.FilterDto;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.template.LoadedTemplateDto;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -43,20 +41,22 @@ public class RegisterNewFiltersTest {
   private RegisterNewFilters register;
   private FilterDao filterDao;
   private LoadedTemplateDao loadedTemplateDao;
-  private FilterTemplate fakeFilterTemplate;
+  private FilterTemplate filterTemplate;
 
   @Before
   public void init() {
-    filterDao = Mockito.mock(FilterDao.class);
-    loadedTemplateDao = Mockito.mock(LoadedTemplateDao.class);
+    filterDao = mock(FilterDao.class);
+    loadedTemplateDao = mock(LoadedTemplateDao.class);
+    filterTemplate = mock(FilterTemplate.class);
 
-    fakeFilterTemplate = new FakeFilter();
-
-    register = new RegisterNewFilters(new FilterTemplate[] {fakeFilterTemplate}, filterDao, loadedTemplateDao);
+    register = new RegisterNewFilters(new FilterTemplate[] {filterTemplate}, filterDao, loadedTemplateDao);
   }
 
   @Test
-  public void should_start() {
+  public void should_insert_filters_on_start() {
+    when(loadedTemplateDao.countByTypeAndKey(eq(LoadedTemplateDto.FILTER_TYPE), anyString())).thenReturn(0);
+    when(filterTemplate.createFilter()).thenReturn(Filter.create());
+
     register.start();
 
     verify(filterDao).insert(any(FilterDto.class));
@@ -64,26 +64,29 @@ public class RegisterNewFiltersTest {
   }
 
   @Test
-  public void should_register_filter_if_not_already_loaded() {
-    when(loadedTemplateDao.countByTypeAndKey(LoadedTemplateDto.FILTER_TYPE, "Fake")).thenReturn(0);
+  public void should_insert_nothing_if_no_template_is_available() {
+    register = new RegisterNewFilters(filterDao, loadedTemplateDao);
+    register.start();
 
-    boolean shouldRegister = register.shouldRegister("Fake");
-
-    assertThat(shouldRegister).isTrue();
+    verify(filterDao, never()).insert(any(FilterDto.class));
+    verify(loadedTemplateDao, never()).insert(any(LoadedTemplateDto.class));
   }
 
   @Test
-  public void should_not_register_if_already_loaded() {
-    when(loadedTemplateDao.countByTypeAndKey(LoadedTemplateDto.FILTER_TYPE, "Fake")).thenReturn(1);
+  public void should_insert_nothing_if_templates_are_alreday_loaded() {
+    when(loadedTemplateDao.countByTypeAndKey(eq(LoadedTemplateDto.FILTER_TYPE), anyString())).thenReturn(1);
 
-    boolean shouldRegister = register.shouldRegister("Fake");
+    register.start();
 
-    assertThat(shouldRegister).isFalse();
+    verify(filterDao, never()).insert(any(FilterDto.class));
+    verify(loadedTemplateDao, never()).insert(any(LoadedTemplateDto.class));
   }
 
   @Test
   public void should_register_filter() {
-    FilterDto filterDto = register.register("Fake", fakeFilterTemplate.createFilter());
+    when(filterTemplate.createFilter()).thenReturn(Filter.create());
+
+    FilterDto filterDto = register.register("Fake", filterTemplate.createFilter());
 
     assertThat(filterDto).isNotNull();
     verify(filterDao).insert(filterDto);
@@ -91,34 +94,30 @@ public class RegisterNewFiltersTest {
   }
 
   @Test
-  public void should_create_dto_from_extension() {
-    FilterDto dto = register.createDtoFromExtension("Fake", fakeFilterTemplate.createFilter());
+  public void should_not_recreate_filter() {
+    when(filterDao.findFilter("Fake")).thenReturn(new FilterDto());
 
-    assertThat(dto.getUserId()).isNull();
-    assertThat(dto.getName()).isEqualTo("Fake");
+    FilterDto filterDto = register.register("Fake", null);
+
+    assertThat(filterDto).isNull();
+    verify(filterDao, never()).insert(filterDto);
+    verify(loadedTemplateDao).insert(eq(new LoadedTemplateDto("Fake", LoadedTemplateDto.FILTER_TYPE)));
   }
 
   @Test
-  public void should_compare_filter() {
-    FilterDto f1 = new FilterDto().setName("foo");
-    FilterDto f2 = new FilterDto().setName("Bar");
+  public void should_create_dto_from_extension() {
+    Filter filter = Filter.create();
+    filter.setShared(true);
+    filter.setFavouritesOnly(false);
+    filter.setDefaultPeriod("list");
+    when(filterTemplate.createFilter()).thenReturn(filter);
 
-    List<FilterDto> filterDtos = Arrays.asList(f1, f2);
-    Collections.sort(filterDtos, new RegisterNewFilters.FilterDtoComparator());
+    FilterDto dto = register.createDtoFromExtension("Fake", filterTemplate.createFilter());
 
-    assertThat(filterDtos).onProperty("name").containsExactly("Bar", "foo");
-  }
-
-  public class FakeFilter extends FilterTemplate {
-    @Override
-    public String getName() {
-      return "Fake";
-    }
-
-    @Override
-    public Filter createFilter() {
-      Filter filter = Filter.create();
-      return filter;
-    }
+    assertThat(dto.getUserId()).isNull();
+    assertThat(dto.getName()).isEqualTo("Fake");
+    assertThat(dto.isShared()).isTrue();
+    assertThat(dto.isFavourites()).isFalse();
+    assertThat(dto.getDefaultView()).isEqualTo("list");
   }
 }

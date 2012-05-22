@@ -46,9 +46,19 @@ public class FilterDao implements BatchComponent, ServerComponent {
 
   public void insert(FilterDto filterDto) {
     SqlSession session = mybatis.openSession();
-    FilterMapper mapper = session.getMapper(FilterMapper.class);
+    FilterMapper filterMapper = session.getMapper(FilterMapper.class);
+    CriteriaMapper criteriaMapper = session.getMapper(CriteriaMapper.class);
+    FilterColumnMapper columnMapper = session.getMapper(FilterColumnMapper.class);
     try {
-      mapper.insert(filterDto);
+      filterMapper.insert(filterDto);
+      for (CriteriaDto criteriaDto : filterDto.getCriterias()) {
+        criteriaDto.setFilterId(filterDto.getId());
+        criteriaMapper.insert(criteriaDto);
+      }
+      for (FilterColumnDto filterColumnDto : filterDto.getColumns()) {
+        filterColumnDto.setFilterId(filterDto.getId());
+        columnMapper.insert(filterColumnDto);
+      }
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
