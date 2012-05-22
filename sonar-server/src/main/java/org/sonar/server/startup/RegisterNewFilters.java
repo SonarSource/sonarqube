@@ -19,24 +19,16 @@
  */
 package org.sonar.server.startup;
 
-import com.google.common.primitives.Longs;
-
-import com.google.common.primitives.Ints;
-
-import org.sonar.api.web.FilterColumn;
-
-import org.sonar.core.filter.FilterColumnDto;
-
-import org.sonar.api.web.Criterion;
-
-import org.sonar.core.filter.CriterionDto;
-
 import com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.api.web.Criterion;
 import org.sonar.api.web.Filter;
+import org.sonar.api.web.FilterColumn;
 import org.sonar.api.web.FilterTemplate;
+import org.sonar.core.filter.CriterionDto;
+import org.sonar.core.filter.FilterColumnDto;
 import org.sonar.core.filter.FilterDao;
 import org.sonar.core.filter.FilterDto;
 import org.sonar.core.template.LoadedTemplateDao;
