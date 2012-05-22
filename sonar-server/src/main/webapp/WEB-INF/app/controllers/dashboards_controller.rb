@@ -123,7 +123,8 @@ class DashboardsController < ApplicationController
       if active_dashboard
         flash[:error]=Api::Utils.message('dashboard.error_follow_existing_name')
       else
-        current_user.active_dashboards.create(:dashboard => dashboard, :user => current_user, :order_index => current_user.active_dashboards.size+1)
+        last_active_dashboard=current_user.active_dashboards.max_by(&:order_index)
+        current_user.active_dashboards.create(:dashboard => dashboard, :user => current_user, :order_index => (last_active_dashboard ? last_active_dashboard.order_index+1 : 1))
       end
     else
       bad_request('Unknown dashboard')
