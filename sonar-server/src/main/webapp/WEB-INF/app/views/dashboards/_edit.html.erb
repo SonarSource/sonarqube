@@ -28,5 +28,7 @@
     </tr>
     </tbody>
   </table>
-  <input type="hidden" name="global" value="<%= @dashboard.global -%>"/>
+  <% if @dashboard.global %>
+    <input type="hidden" name="global" value="true" />
+  <% end %>
 </form>

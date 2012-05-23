@@ -28,7 +28,9 @@
     </tbody>
   </table>
 
-  <input type="hidden" name="global" value="<%= @global if @global %>" />
+  <% if @global %>
+    <input type="hidden" name="global" value="true" />
+  <% end %>
 </form>
 
 <script>
