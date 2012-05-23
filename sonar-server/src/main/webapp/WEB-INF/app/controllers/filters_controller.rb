@@ -25,7 +25,7 @@ class FiltersController < ApplicationController
   SECTION=Navigation::SECTION_CONFIGURATION
 
   verify :method => :post, :only => [:create, :delete, :up, :down, :activate, :deactivate, :up_column, :down_column, :add_column, :delete_column, :set_sorted_column, :set_view, :set_columns, :set_page_size], :redirect_to => {:action => :index}
-  before_filter :login_required, :except => %w(index treemap list)
+  before_filter :login_required, :except => %w(index treemap)
 
   def manage
     if is_admin?
@@ -34,14 +34,6 @@ class FiltersController < ApplicationController
       @filters = ::Filter.find(:all, :conditions => {:user_id => current_user.id})
     end
     @filters.sort! { |a,b| a.name.downcase <=> b.name.downcase }
-  end
-
-  def list
-    @widget=Widget.find(params[:widget])
-    @filter=::Filter.find(params[:id])
-    @filter_context=Filters.execute(@filter, self, params)
-
-    render :partial => 'list', :locals => {:edit_mode => params[:edit_mode], :widget => @widget}
   end
 
   def new
