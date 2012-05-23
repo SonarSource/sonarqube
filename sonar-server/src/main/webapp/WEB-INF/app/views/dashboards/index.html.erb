@@ -55,7 +55,7 @@
                               :confirm => message('dashboard.do_you_want_to_delete_dashboard'), :id => "delete-#{u active.name}", :class => 'link-action' %>
                 <% end %>
               <% end %>
-              <% if @actives.size() > 1 and active.shared? %>
+              <% if @actives.size() > 1 and active.shared? and !active.dashboard.owner?(current_user) %>
                 |
                 <%= link_to message('unfollow'), {:action => :unfollow, :id => active.dashboard_id, :resource => params[:resource]}, :method => :post,
                             :id => "unfollow-#{u active.name}", :class => 'link-action' %>
