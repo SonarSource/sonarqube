@@ -26,7 +26,6 @@ import org.sonar.api.SonarPlugin;
 import java.util.List;
 
 public class PmdPlugin extends SonarPlugin {
-  @SuppressWarnings("unchecked")
   public List<Class<? extends Extension>> getExtensions() {
     return ImmutableList.of(
         PmdSensor.class,

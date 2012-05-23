@@ -19,14 +19,6 @@
  */
 package org.sonar.duplications.detector.suffixtree;
 
-import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.sonar.duplications.detector.CloneGroupMatcher.hasCloneGroup;
-
-import java.util.Collections;
-import java.util.List;
-
 import org.junit.Test;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
@@ -34,7 +26,14 @@ import org.sonar.duplications.detector.DetectorTestCase;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.CloneIndex;
 
-import com.google.common.collect.Lists;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.sonar.duplications.detector.CloneGroupMatcher.hasCloneGroup;
 
 public class SuffixTreeCloneDetectionAlgorithmTest extends DetectorTestCase {
 
@@ -45,7 +44,7 @@ public class SuffixTreeCloneDetectionAlgorithmTest extends DetectorTestCase {
   @Test
   public void noDuplications() {
     CloneIndex index = createIndex();
-    List<Block> fileBlocks = newBlocks("a", "1 2 3");
+    Block[] fileBlocks = newBlocks("a", "1 2 3");
     List<CloneGroup> result = detect(index, fileBlocks);
     assertThat(result, sameInstance(Collections.EMPTY_LIST));
   }
@@ -65,12 +64,9 @@ public class SuffixTreeCloneDetectionAlgorithmTest extends DetectorTestCase {
   @Test
   public void huge() {
     CloneIndex index = createIndex();
-    List<Block> fileBlocks = Lists.newArrayList();
-    int indexInFile = 0;
+    Block[] fileBlocks = new Block[5000];
     for (int i = 0; i < 5000; i++) {
-      Block block = newBlock("x", new ByteArray("01"), indexInFile);
-      fileBlocks.add(block);
-      indexInFile++;
+      fileBlocks[i] = newBlock("x", new ByteArray("01"), i);
     }
     List<CloneGroup> result = detect(index, fileBlocks);
 
@@ -92,7 +88,7 @@ public class SuffixTreeCloneDetectionAlgorithmTest extends DetectorTestCase {
   @Test
   public void myTest() {
     CloneIndex index = createIndex();
-    List<Block> fileBlocks = newBlocks("x", "a 2 b 2 c 2 2 2");
+    Block[] fileBlocks = newBlocks("x", "a 2 b 2 c 2 2 2");
     List<CloneGroup> result = detect(index, fileBlocks);
 
     print(result);
@@ -128,7 +124,7 @@ public class SuffixTreeCloneDetectionAlgorithmTest extends DetectorTestCase {
   @Test
   public void myTest2() {
     CloneIndex index = createIndex();
-    List<Block> fileBlocks = newBlocks("x", "a 2 3 b 2 3 c 2 3 d 2 3 2 3 2 3");
+    Block[] fileBlocks = newBlocks("x", "a 2 3 b 2 3 c 2 3 d 2 3 2 3 2 3");
     List<CloneGroup> result = detect(index, fileBlocks);
 
     print(result);
@@ -171,7 +167,7 @@ public class SuffixTreeCloneDetectionAlgorithmTest extends DetectorTestCase {
         newBlocks("b", "4 3 2"),
         newBlocks("c", "4 3 1")
         );
-    List<Block> fileBlocks = newBlocks("a", "1 2 3 4");
+    Block[] fileBlocks = newBlocks("a", "1 2 3 4");
     List<CloneGroup> result = detect(index, fileBlocks);
 
     print(result);
@@ -197,8 +193,8 @@ public class SuffixTreeCloneDetectionAlgorithmTest extends DetectorTestCase {
   }
 
   @Override
-  protected List<CloneGroup> detect(CloneIndex index, List<Block> fileBlocks) {
-    return SuffixTreeCloneDetectionAlgorithm.detect(index, fileBlocks);
+  protected List<CloneGroup> detect(CloneIndex index, Block[] fileBlocks) {
+    return SuffixTreeCloneDetectionAlgorithm.detect(index, Arrays.asList(fileBlocks));
   }
 
 }

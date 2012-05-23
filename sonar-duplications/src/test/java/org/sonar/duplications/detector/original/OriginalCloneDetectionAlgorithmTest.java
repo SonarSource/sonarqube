@@ -19,6 +19,7 @@
  */
 package org.sonar.duplications.detector.original;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.sonar.duplications.block.Block;
@@ -29,8 +30,8 @@ import org.sonar.duplications.index.CloneIndex;
 public class OriginalCloneDetectionAlgorithmTest extends DetectorTestCase {
 
   @Override
-  protected List<CloneGroup> detect(CloneIndex index, List<Block> fileBlocks) {
-    return OriginalCloneDetectionAlgorithm.detect(index, fileBlocks);
+  protected List<CloneGroup> detect(CloneIndex index, Block[] fileBlocks) {
+    return OriginalCloneDetectionAlgorithm.detect(index, Arrays.asList(fileBlocks));
   }
 
 }

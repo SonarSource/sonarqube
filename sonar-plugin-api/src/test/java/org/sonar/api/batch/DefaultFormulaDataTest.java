@@ -19,15 +19,18 @@
  */
 package org.sonar.api.batch;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 import org.junit.Test;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.*;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.Metric;
 
 import java.util.Arrays;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DefaultFormulaDataTest {
 
@@ -36,17 +39,17 @@ public class DefaultFormulaDataTest {
     DecoratorContext context = mock(DecoratorContext.class);
     DefaultFormulaData data = new DefaultFormulaData(context);
 
-    data.getChildrenMeasures((MeasuresFilter) anyObject());
-    verify(context).getChildrenMeasures((MeasuresFilter) anyObject());
+    data.getChildrenMeasures(any(MeasuresFilter.class));
+    verify(context).getChildrenMeasures(any(MeasuresFilter.class));
 
-    data.getChildrenMeasures((Metric) anyObject());
-    verify(context).getChildrenMeasures((Metric) anyObject());
+    data.getChildrenMeasures(any(Metric.class));
+    verify(context).getChildrenMeasures(any(Metric.class));
 
-    data.getMeasures((MeasuresFilter) anyObject());
-    verify(context).getMeasures((MeasuresFilter) anyObject());
+    data.getMeasures(any(MeasuresFilter.class));
+    verify(context).getMeasures(any(MeasuresFilter.class));
 
-    data.getMeasure((Metric) anyObject());
-    verify(context).getMeasure((Metric) anyObject());
+    data.getMeasure(any(Metric.class));
+    verify(context).getMeasure(any(Metric.class));
   }
 
   @Test

@@ -62,7 +62,7 @@ public abstract class DetectorTestCase {
     return new ClonePart(resourceId, unitStart, unitStart, unitStart + cloneUnitLength + LINES_PER_BLOCK - 1);
   }
 
-  protected abstract List<CloneGroup> detect(CloneIndex index, List<Block> fileBlocks);
+  protected abstract List<CloneGroup> detect(CloneIndex index, Block[] fileBlocks);
 
   /**
    * Given:
@@ -82,7 +82,7 @@ public abstract class DetectorTestCase {
     CloneIndex index = createIndex(
         newBlocks("y", "2 3 4 5"),
         newBlocks("z", "3 4"));
-    List<Block> fileBlocks = newBlocks("x", "1 2 3 4 5 6");
+    Block[] fileBlocks = newBlocks("x", "1 2 3 4 5 6");
     List<CloneGroup> result = detect(index, fileBlocks);
 
     print(result);
@@ -116,7 +116,7 @@ public abstract class DetectorTestCase {
     CloneIndex cloneIndex = createIndex(
         newBlocks("a", "2 3 4 5"),
         newBlocks("b", "3 4"));
-    List<Block> fileBlocks = newBlocks("c", "1 2 3 4 5 6");
+    Block[] fileBlocks = newBlocks("c", "1 2 3 4 5 6");
     List<CloneGroup> clones = detect(cloneIndex, fileBlocks);
 
     print(clones);
@@ -151,7 +151,7 @@ public abstract class DetectorTestCase {
     CloneIndex index = createIndex(
         newBlocks("b", "3 4 5 6"),
         newBlocks("c", "5 6 7"));
-    List<Block> fileBlocks = newBlocks("a", "1 2 3 4 5 6 7 8 9");
+    Block[] fileBlocks = newBlocks("a", "1 2 3 4 5 6 7 8 9");
     List<CloneGroup> result = detect(index, fileBlocks);
 
     print(result);
@@ -188,7 +188,7 @@ public abstract class DetectorTestCase {
     CloneIndex index = createIndex(
         newBlocks("b", "1 2 3 4 1 2 3 4 1 2 3 4"),
         newBlocks("c", "1 2 3 4"));
-    List<Block> fileBlocks = newBlocks("a", "1 2 3 5");
+    Block[] fileBlocks = newBlocks("a", "1 2 3 5");
     List<CloneGroup> result = detect(index, fileBlocks);
 
     print(result);
@@ -216,7 +216,7 @@ public abstract class DetectorTestCase {
   @Test
   public void clonesInFileItself() {
     CloneIndex index = createIndex();
-    List<Block> fileBlocks = newBlocks("a", "1 2 3 1 2 4");
+    Block[] fileBlocks = newBlocks("a", "1 2 3 1 2 4");
     List<CloneGroup> result = detect(index, fileBlocks);
 
     print(result);
@@ -244,7 +244,7 @@ public abstract class DetectorTestCase {
   public void covered() {
     CloneIndex index = createIndex(
         newBlocks("b", "1 2 1 2"));
-    List<Block> fileBlocks = newBlocks("a", "1 2 1");
+    Block[] fileBlocks = newBlocks("a", "1 2 1");
     List<CloneGroup> result = detect(index, fileBlocks);
 
     print(result);
@@ -276,7 +276,7 @@ public abstract class DetectorTestCase {
   public void problemWithNestedCloneGroups() {
     CloneIndex index = createIndex(
         newBlocks("b", "1 2 1 2 1 2 1"));
-    List<Block> fileBlocks = newBlocks("a", "1 2 1 2 1 2");
+    Block[] fileBlocks = newBlocks("a", "1 2 1 2 1 2");
     List<CloneGroup> result = detect(index, fileBlocks);
 
     print(result);
@@ -310,7 +310,7 @@ public abstract class DetectorTestCase {
         newBlocks("a", "1 2 3"),
         newBlocks("b", "1 2 4"));
     // Note about blocks with hashes "3", "4" and "5": those blocks here in order to not face another problem - with EOF (see separate test)
-    List<Block> fileBlocks = newBlocks("a", "1 2 5");
+    Block[] fileBlocks = newBlocks("a", "1 2 5");
     List<CloneGroup> result = detect(index, fileBlocks);
 
     print(result);
@@ -328,7 +328,7 @@ public abstract class DetectorTestCase {
   @Test
   public void only_one_query_of_index_for_each_unique_hash() {
     CloneIndex index = spy(createIndex());
-    List<Block> fileBlocks = newBlocks("a", "1 2 1 2");
+    Block[] fileBlocks = newBlocks("a", "1 2 1 2");
     detect(index, fileBlocks);
 
     verify(index).getBySequenceHash(new ByteArray("01"));
@@ -342,7 +342,7 @@ public abstract class DetectorTestCase {
    */
   @Test
   public void shouldReturnEmptyListWhenNoBlocksForFile() {
-    List<CloneGroup> result = detect(null, new ArrayList<Block>());
+    List<CloneGroup> result = detect(null, new Block[0]);
     assertThat(result, sameInstance(Collections.EMPTY_LIST));
   }
 
@@ -361,7 +361,7 @@ public abstract class DetectorTestCase {
   public void problemWithEndOfFile() {
     CloneIndex cloneIndex = createIndex(
         newBlocks("b", "1 2 3 4"));
-    List<Block> fileBlocks =
+    Block[] fileBlocks =
         newBlocks("a", "1 2 3");
     List<CloneGroup> clones = detect(cloneIndex, fileBlocks);
 
@@ -393,10 +393,11 @@ public abstract class DetectorTestCase {
     Block.Builder block = Block.builder()
         .setResourceId("a")
         .setLines(0, 1);
-    List<Block> fileBlocks = Arrays.asList(
-        block.setBlockHash(new ByteArray("1".getBytes())).setIndexInFile(0).build(),
-        block.setBlockHash(new ByteArray("2".getBytes())).setIndexInFile(1).build(),
-        block.setBlockHash(new ByteArray("1".getBytes())).setIndexInFile(2).build());
+    Block[] fileBlocks = new Block[] {
+      block.setBlockHash(new ByteArray("1".getBytes())).setIndexInFile(0).build(),
+      block.setBlockHash(new ByteArray("2".getBytes())).setIndexInFile(1).build(),
+      block.setBlockHash(new ByteArray("1".getBytes())).setIndexInFile(2).build()
+    };
     List<CloneGroup> clones = detect(cloneIndex, fileBlocks);
 
     print(clones);
@@ -418,7 +419,7 @@ public abstract class DetectorTestCase {
     System.out.println();
   }
 
-  protected static List<Block> newBlocks(String resourceId, String hashes) {
+  protected static Block[] newBlocks(String resourceId, String hashes) {
     List<Block> result = Lists.newArrayList();
     int indexInFile = 0;
     for (int i = 0; i < hashes.length(); i += 2) {
@@ -426,12 +427,12 @@ public abstract class DetectorTestCase {
       result.add(block);
       indexInFile++;
     }
-    return result;
+    return result.toArray(new Block[result.size()]);
   }
 
-  protected static CloneIndex createIndex(List<Block>... blocks) {
+  protected static CloneIndex createIndex(Block[]... blocks) {
     CloneIndex cloneIndex = new MemoryCloneIndex();
-    for (List<Block> b : blocks) {
+    for (Block[] b : blocks) {
       for (Block block : b) {
         cloneIndex.insert(block);
       }

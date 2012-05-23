@@ -53,17 +53,17 @@ public class Views implements ServerComponent {
   }
 
   private void register(View view) {
-    ViewProxy proxy = new ViewProxy(view);
     if (view instanceof Widget) {
+      ViewProxy<Widget> proxy = new ViewProxy<Widget>((Widget) view);
       widgets.add(proxy);
       widgetsPerId.put(proxy.getId(), proxy);
 
     } else if (view instanceof Page) {
+      ViewProxy<Page> proxy = new ViewProxy<Page>((Page) view);
       pagesPerId.put(proxy.getId(), proxy);
       pages.add(proxy);
     }
   }
-
 
   public ViewProxy<Page> getPage(String id) {
     return pagesPerId.get(id);

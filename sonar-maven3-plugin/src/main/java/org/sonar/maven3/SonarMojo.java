@@ -19,6 +19,7 @@
  */
 package org.sonar.maven3;
 
+import com.google.common.collect.Maps;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -38,8 +39,6 @@ import org.sonar.batch.MavenProjectConverter;
 import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.bootstrapper.LoggingConfiguration;
-
-import java.util.Map;
 
 /**
  * @goal sonar
@@ -144,7 +143,7 @@ public final class SonarMojo extends AbstractMojo {
   }
 
   private void configureLogging(LoggingConfiguration logging) {
-    logging.setProperties((Map) session.getSystemProperties());
+    logging.setProperties(Maps.fromProperties(session.getSystemProperties()));
     logging.setFormat(LoggingConfiguration.FORMAT_MAVEN);
     if (getLog().isDebugEnabled()) {
       logging.setVerbose(true);

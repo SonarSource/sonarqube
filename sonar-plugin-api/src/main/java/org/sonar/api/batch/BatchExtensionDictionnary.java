@@ -199,7 +199,7 @@ public class BatchExtensionDictionnary {
     return Phase.Name.DEFAULT;
   }
 
-  private void evaluateMethod(Object extension, Method method, List results) {
+  private void evaluateMethod(Object extension, Method method, List<Object> results) {
     try {
       Object result = method.invoke(extension);
       if (result != null) {
@@ -207,8 +207,8 @@ public class BatchExtensionDictionnary {
         if (result instanceof Class) {
           results.addAll(componentContainer.getComponentsByType((Class) result));
 
-        } else if (result instanceof Collection) {
-          results.addAll((Collection) result);
+        } else if (result instanceof Collection<?>) {
+          results.addAll((Collection<?>) result);
 
         } else {
           results.add(result);
