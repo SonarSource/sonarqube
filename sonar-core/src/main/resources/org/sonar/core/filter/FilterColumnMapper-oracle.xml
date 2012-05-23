@@ -3,9 +3,12 @@
 
 <mapper namespace="org.sonar.core.filter.FilterColumnMapper">
 
-  <insert id="insert" parameterType="FilterColumn" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" parameterType="FilterColumn" keyColumn="id" useGeneratedKeys="true" keyProperty ="id">
+    <selectKey order="BEFORE" resultType="Long" keyProperty="id" >
+        select filter_columns_seq.NEXTVAL from DUAL
+    </selectKey>
     INSERT INTO filter_columns (id, filter_id, family, kee, sort_direction, order_index, variation)
-    VALUES (filter_columns_seq.NEXTVAL, #{filterId, jdbcType=INTEGER}, #{family, jdbcType=VARCHAR}, #{key, jdbcType=VARCHAR}, #{sortDirection, jdbcType=VARCHAR},
+    VALUES ((#{id}, #{filterId, jdbcType=INTEGER}, #{family, jdbcType=VARCHAR}, #{key, jdbcType=VARCHAR}, #{sortDirection, jdbcType=VARCHAR},
      #{orderIndex, jdbcType=INTEGER}, #{variation})
   </insert>
 

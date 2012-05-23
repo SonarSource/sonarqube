@@ -4,9 +4,11 @@
 <mapper namespace="org.sonar.core.filter.CriterionMapper">
 
   <insert id="insert" parameterType="Criterion" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    <selectKey order="BEFORE" resultType="Long" keyProperty="id">
+      select criteria_seq.NEXTVAL from DUAL
+    </selectKey>
     INSERT INTO criteria (id, filter_id, family, kee, operator, value, text_value, variation)
-    VALUES (criteria_seq.NEXTVAL, #{filterId, jdbcType=INTEGER}, #{family, jdbcType=VARCHAR}, #{key, jdbcType=VARCHAR}, #{operator, jdbcType=VARCHAR}, #{value, jdbcType=FLOAT},
-     #{textValue, jdbcType=VARCHAR}, #{variation})
+    VALUES (#{id}, #{filterId, jdbcType=INTEGER}, #{family, jdbcType=VARCHAR}, #{key, jdbcType=VARCHAR}, #{operator, jdbcType=VARCHAR}, #{value, jdbcType=FLOAT}, #{textValue, jdbcType=VARCHAR}, #{variation})
   </insert>
 
 </mapper>
