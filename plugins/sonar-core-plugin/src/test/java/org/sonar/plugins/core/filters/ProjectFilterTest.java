@@ -31,7 +31,7 @@ public class ProjectFilterTest {
     
     Filter filter = template.createFilter();
 
-    assertThat(template.getName()).isEqualTo("ProjectsBis");
+    assertThat(template.getName()).isEqualTo("Projects");
     assertThat(filter).isNotNull();
     assertThat(filter.getCriteria()).hasSize(1);
     assertThat(filter.getColumns()).hasSize(7);

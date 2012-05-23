@@ -97,7 +97,7 @@ public final class RegisterNewFilters {
   protected FilterDto createDtoFromExtension(String name, Filter filter) {
     FilterDto filterDto = new FilterDto()
         .setName(name)
-        .setPageSize((long) filter.getPageSize())
+        .setPageSize(0 == filter.getPageSize() ? null : (long) filter.getPageSize())
         .setShared(true)
         .setFavourites(filter.isFavouritesOnly())
         .setDefaultView(filter.getDisplayAs());

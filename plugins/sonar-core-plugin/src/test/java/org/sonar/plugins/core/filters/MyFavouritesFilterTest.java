@@ -31,7 +31,7 @@ public class MyFavouritesFilterTest {
 
     Filter filter = template.createFilter();
 
-    assertThat(template.getName()).isEqualTo("My favouritesBis");
+    assertThat(template.getName()).isEqualTo("My favourites");
     assertThat(filter).isNotNull();
     assertThat(filter.isFavouritesOnly()).isTrue();
     assertThat(filter.getCriteria()).hasSize(1);

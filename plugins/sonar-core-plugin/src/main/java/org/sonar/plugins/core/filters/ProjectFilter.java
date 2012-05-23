@@ -32,7 +32,7 @@ import org.sonar.api.web.FilterTemplate;
 public class ProjectFilter extends FilterTemplate {
   @Override
   public String getName() {
-    return "ProjectsBis";
+    return "Projects";
   }
 
   @Override

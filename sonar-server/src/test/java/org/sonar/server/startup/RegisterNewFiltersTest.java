@@ -114,7 +114,6 @@ public class RegisterNewFiltersTest {
     when(filterTemplate.createFilter()).thenReturn(Filter.create()
         .setFavouritesOnly(false)
         .setDisplayAs("list")
-        .setPageSize(200)
         .add(Criterion.create("metric", "complexity", Criterion.LT, 12f, false))
         .add(Criterion.create("metric", "LCOM4", Criterion.GTE, "5", true))
         .add(FilterColumn.create("metric", "distance", "ASC", false))
@@ -128,7 +127,7 @@ public class RegisterNewFiltersTest {
     assertThat(dto.isShared()).isTrue();
     assertThat(dto.isFavourites()).isFalse();
     assertThat(dto.getDefaultView()).isEqualTo("list");
-    assertThat(dto.getPageSize()).isEqualTo(200L);
+    assertThat(dto.getPageSize()).isNull();
 
     assertThat(dto.getCriteria()).hasSize(2);
     assertThat(dto.getCriteria()).satisfies(contains(new CriterionDto().setFamily("metric").setKey("complexity").setOperator("<").setValue(12f).setVariation(false)));

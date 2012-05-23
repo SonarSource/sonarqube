@@ -33,7 +33,7 @@ import org.sonar.api.web.FilterTemplate;
 public class MyFavouritesFilter extends FilterTemplate {
   @Override
   public String getName() {
-    return "My favouritesBis";
+    return "My favourites";
   }
 
   @Override

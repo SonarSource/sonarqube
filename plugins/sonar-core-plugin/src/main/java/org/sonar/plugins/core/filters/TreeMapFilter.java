@@ -33,7 +33,7 @@ import org.sonar.api.web.FilterTemplate;
 public class TreeMapFilter extends FilterTemplate {
   @Override
   public String getName() {
-    return "TreemapBis";
+    return "Treemap";
   }
 
   @Override

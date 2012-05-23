@@ -31,7 +31,7 @@ public class TreeMapFilterTest {
 
     Filter filter = template.createFilter();
 
-    assertThat(template.getName()).isEqualTo("TreemapBis");
+    assertThat(template.getName()).isEqualTo("Treemap");
     assertThat(filter).isNotNull();
     assertThat(filter.getCriteria()).hasSize(1);
     assertThat(filter.getColumns()).hasSize(3);
