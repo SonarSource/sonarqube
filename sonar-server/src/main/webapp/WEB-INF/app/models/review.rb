@@ -81,19 +81,8 @@ class Review < ActiveRecord::Base
   # params of 'comment_values' are mandatory:
   # - :user
   # - :text
-  # 
-  # Note: 'review_command_id' is optional (=> specifies which command was triggered instead of creating a simple comment)
-  def create_comment(comment_values={}, review_command_id=nil)
-    if review_command_id
-      review_context = Api::ReviewContext.new(:review => self, :user => User.new(:login => comment_values[:user].login), :params => {"comment.text" => comment_values[:text]})
-      Java::OrgSonarServerUi::JRubyFacade.getInstance().executeCommandActions(review_command_id, review_context.to_string_map)
-      # need to reload the comments as the executed action will have created a new one
-      comments.reload
-      comment = comments.last
-    else
-      # simple comment
-      comment = comments.create!(comment_values)
-    end
+  def create_comment(comment_values={})
+    comment = comments.create!(comment_values)
     touch
     notification_manager.notifyChanged(id.to_i, comment.user.login.to_java, to_java_map, to_java_map("comment" => comment.text))
   end

@@ -1,9 +1,5 @@
 <%
-   if @review_command
-     button_label = Review.command_label(@review_command)
-   else
-     button_label=(@comment ? message('reviews.update_comment_submit') : message('reviews.comment_submit'))
-   end
+   button_label=(@comment ? message('reviews.update_comment_submit') : message('reviews.comment_submit'))
 %>
 <form method="POST"
       onsubmit="new Ajax.Updater('vId<%= params[:id] -%>', '<%= url_for :action => 'violation_save_comment' -%>', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this)});return false;">
@@ -11,17 +7,12 @@
   <% if @comment %>
     <input type="hidden" name="comment_id" value="<%= @comment.id -%>"/>
   <% end %>
-  <% if @review_command %>
-    <input type="hidden" name="review_command_id" value="<%= @review_command.getId() -%>"/>
-  <% end %>
 
   <table class="width100">
     <tr>
       <td style="vertical-align:top">
         <textarea id="commentText<%= params[:id] -%>"
-                  <% unless @review_command -%>
                   onkeyup="if (this.value=='') $('submit_btn<%= params[:id] -%>').disabled='true'; else $('submit_btn<%= params[:id] -%>').disabled='';"
-                  <% end %>
                   rows="4" name="text" style="width: 100%"><%= @comment.text if @comment -%></textarea>
       </td>
       <td class="sep"></td>
@@ -36,7 +27,7 @@
     <%= submit_to_remote "submit_btn"+params[:id],
                          button_label,
                          :url => {:action => 'violation_save_comment'},
-                         :html => {:id => "submit_btn"+params[:id]}.merge(@review_command ? {} : {:disabled => "true"}),
+                         :html => {:id => "submit_btn"+params[:id], :disabled => "true"},
                          :before => "$('loading-#{params[:id]}').show();",
                          :update => 'vId'+params[:id] -%>
     &nbsp;
