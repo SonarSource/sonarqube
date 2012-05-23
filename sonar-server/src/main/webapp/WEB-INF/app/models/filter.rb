@@ -33,6 +33,7 @@ class Filter < ActiveRecord::Base
   validates_length_of :name, :within => 1..100
   validates_uniqueness_of :name, :scope => :user_id, :if => Proc.new { |filter| filter.user_id }
   validates_inclusion_of :default_view, :in => ['list', 'treemap'], :allow_nil => true
+  validates_uniqueness_of :kee
 
   def criterion(family, key=nil)
 	criteria.each do |criterion|
@@ -41,6 +42,10 @@ class Filter < ActiveRecord::Base
 	  end
 	end
 	nil
+  end
+
+  def key
+    kee
   end
 
   def measure_criteria

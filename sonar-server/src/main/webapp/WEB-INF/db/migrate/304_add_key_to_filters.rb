@@ -21,11 +21,23 @@
 #
 # Sonar 3.1
 #
-class MarkDefaultFiltersAsLoaded < ActiveRecord::Migration
+class AddKeyToFilters < ActiveRecord::Migration
+  class Filter < ActiveRecord::Base
+  end
+
+  class WidgetProperty < ActiveRecord::Base
+  end
+
   class LoadedTemplate < ActiveRecord::Base
   end
 
   def self.up
+    mark_default_filters_as_loaded()
+    keys = add_key_column_to_filters()
+    use_key_in_widget_properties(keys)
+  end
+
+  def self.mark_default_filters_as_loaded
     mark_filter_as_loaded('Projects')
     mark_filter_as_loaded('Treemap')
     mark_filter_as_loaded('My favourites')
@@ -38,4 +50,27 @@ class MarkDefaultFiltersAsLoaded < ActiveRecord::Migration
       end
     end
   end
+
+  def self.add_key_column_to_filters
+    keys = {}
+
+    add_column 'filters', 'kee', :string, :null => true, :limit => 100
+
+    Filter.reset_column_information
+    Filter.find(:all).each do |filter|
+      keys[filter.id]=filter.user_id ? filter.id : filter.name
+      filter.kee=keys[filter.id]
+      filter.save
+    end
+
+    keys
+  end
+
+  def self.use_key_in_widget_properties(keys)
+    WidgetProperty.find(:all, :conditions => {:kee => 'filter'}).each do |property|
+      property.text_value=keys[property.text_value.to_i]
+      property.save
+    end
+  end
+
 end

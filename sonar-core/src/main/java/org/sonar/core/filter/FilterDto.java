@@ -30,6 +30,7 @@ import java.util.List;
 public final class FilterDto {
   private Long id;
   private String name;
+  private String key;
   private Long userId;
   private Boolean shared;
   private Boolean favourites;
@@ -55,6 +56,15 @@ public final class FilterDto {
 
   public FilterDto setName(String name) {
     this.name = name;
+    return this;
+  }
+
+  public String getKey() {
+    return key;
+  }
+
+  public FilterDto setKey(String key) {
+    this.key = key;
     return this;
   }
 

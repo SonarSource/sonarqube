@@ -50,10 +50,11 @@ class FiltersController < ApplicationController
 
   def create
     @filter=::Filter.new()
-    @filter.user_id=current_user.id
     load_filter_from_params(@filter, params)
+    @filter.user_id=current_user.id
+    @filter.kee=[@filter.name, current_user.id.to_s].join('.')
 
-    @filter.columns.build(:family => 'name', :order_index => 1, :sort_direction => 'ASC')
+        @filter.columns.build(:family => 'name', :order_index => 1, :sort_direction => 'ASC')
     @filter.columns.build(:family => 'metric', :kee => 'ncloc', :order_index => 2, :variation => @filter.period?)
     @filter.columns.build(:family => 'metric', :kee => 'violations_density', :order_index => 3, :variation => @filter.period?)
     @filter.columns.build(:family => 'date', :order_index => 4)
@@ -112,7 +113,7 @@ class FiltersController < ApplicationController
     access_denied unless @filter.authorized_to_edit?(self)
 
     if @filter
-      if WidgetProperty.find(:first, :conditions => { :kee => 'filter', :text_value => @filter.id.to_s})
+      if WidgetProperty.find(:first, :conditions => { :kee => 'filter', :text_value => @filter.kee})
         flash[:error]='The filter is used in at least one dashboard. It cannot be deleted'
       else
         @filter.destroy

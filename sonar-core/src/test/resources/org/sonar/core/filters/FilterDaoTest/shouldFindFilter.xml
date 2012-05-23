@@ -3,6 +3,7 @@
   <filters
     id="1"
     name="Projects"
+    kee="Projects"
     user_id="[null]"
     shared="[true]"
     favourites="[false]"
@@ -15,6 +16,7 @@
   <filters
     id="2"
     name="Treemap"
+    kee="Treemap"
     user_id="[null]"
     shared="[true]"
     favourites="[false]"

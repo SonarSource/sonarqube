@@ -4,13 +4,13 @@
 <mapper namespace="org.sonar.core.filter.FilterMapper">
 
   <select id="findFilter" parameterType="string" resultType="Filter">
-    select id, name, user_id as "userId", shared, favourites, resource_id as "resourceId", default_view as "defaultView", page_size as "pageSize", period_index as "periodIndex"
-    from filters WHERE name=#{id} and user_id is null
+    select id, name, kee as "key", user_id as "userId", shared, favourites, resource_id as "resourceId", default_view as "defaultView", page_size as "pageSize", period_index as "periodIndex"
+    from filters WHERE kee=#{id} and user_id is null
   </select>
 
   <insert id="insert" parameterType="Filter" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO filters (name, user_id, shared, favourites, resource_id, default_view, page_size, period_index)
-    VALUES (#{name, jdbcType=VARCHAR}, #{userId, jdbcType=FLOAT}, #{shared}, #{favourites}, #{resourceId, jdbcType=INTEGER}, #{defaultView, jdbcType=VARCHAR},
+    INSERT INTO filters (name, kee, user_id, shared, favourites, resource_id, default_view, page_size, period_index)
+    VALUES (#{name, jdbcType=VARCHAR}, #{key, jdbcType=VARCHAR}, #{userId, jdbcType=FLOAT}, #{shared}, #{favourites}, #{resourceId, jdbcType=INTEGER}, #{defaultView, jdbcType=VARCHAR},
      #{pageSize, jdbcType=INTEGER}, #{periodIndex, jdbcType=INTEGER})
   </insert>
 

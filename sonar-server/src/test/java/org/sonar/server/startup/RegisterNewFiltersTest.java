@@ -124,6 +124,7 @@ public class RegisterNewFiltersTest {
 
     assertThat(dto.getUserId()).isNull();
     assertThat(dto.getName()).isEqualTo("Fake");
+    assertThat(dto.getKey()).isEqualTo("Fake");
     assertThat(dto.isShared()).isTrue();
     assertThat(dto.isFavourites()).isFalse();
     assertThat(dto.getDefaultView()).isEqualTo("list");
