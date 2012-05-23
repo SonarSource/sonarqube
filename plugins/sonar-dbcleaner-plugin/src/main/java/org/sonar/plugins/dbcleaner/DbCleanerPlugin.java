@@ -31,17 +31,24 @@ import org.sonar.plugins.dbcleaner.period.DefaultPeriodCleaner;
 import java.util.List;
 
 @Properties({
+  @Property(key = DbCleanerConstants.HOURS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_DAY, defaultValue = "24",
+    name = "Number of hours before starting to keep only one snapshot per day",
+    description = "After this number of hours, if there are several snapshots during the same day, "
+      + "the DbCleaner keeps the most recent one and fully delete the other ones.",
+    global = true,
+    project = true,
+    type = PropertyType.INTEGER),
   @Property(key = DbCleanerConstants.WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_WEEK, defaultValue = "4",
-    name = "Number of weeks before starting to keep only one snapshot by week",
+    name = "Number of weeks before starting to keep only one snapshot per week",
     description = "After this number of weeks, if there are several snapshots during the same week, "
-      + "the DbCleaner keeps the first one and fully delete the other ones.",
+      + "the DbCleaner keeps the most recent one and fully delete the other ones.",
     global = true,
     project = true,
     type = PropertyType.INTEGER),
   @Property(key = DbCleanerConstants.WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_MONTH, defaultValue = "52",
-    name = "Number of weeks before starting to keep only one snapshot by month",
+    name = "Number of weeks before starting to keep only one snapshot per month",
     description = "After this number of weeks, if there are several snapshots during the same month, "
-      + "the DbCleaner keeps the first one and fully delete the other ones.",
+      + "the DbCleaner keeps the most recent one and fully delete the other ones.",
     global = true,
     project = true,
     type = PropertyType.INTEGER),

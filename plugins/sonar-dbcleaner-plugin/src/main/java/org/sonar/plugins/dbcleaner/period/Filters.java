@@ -32,11 +32,12 @@ class Filters {
   private final List<Filter> filters = Lists.newArrayList();
 
   Filters(Settings settings) {
-    Date dateToStartKeepingOneSnapshotByWeek = getDate(settings, DbCleanerConstants.WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_WEEK);
-    Date dateToStartKeepingOneSnapshotByMonth = getDate(settings, DbCleanerConstants.WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_MONTH);
-    Date dateToStartDeletingAllSnapshots = getDate(settings, DbCleanerConstants.WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS);
+    Date dateToStartKeepingOneSnapshotByDay = getDateFromHours(settings, DbCleanerConstants.HOURS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_DAY);
+    Date dateToStartKeepingOneSnapshotByWeek = getDateFromWeeks(settings, DbCleanerConstants.WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_WEEK);
+    Date dateToStartKeepingOneSnapshotByMonth = getDateFromWeeks(settings, DbCleanerConstants.WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_MONTH);
+    Date dateToStartDeletingAllSnapshots = getDateFromWeeks(settings, DbCleanerConstants.WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS);
 
-    filters.add(new KeepOneFilter(dateToStartKeepingOneSnapshotByWeek, new Date(), Calendar.DAY_OF_YEAR, "day"));
+    filters.add(new KeepOneFilter(dateToStartKeepingOneSnapshotByWeek, dateToStartKeepingOneSnapshotByDay, Calendar.DAY_OF_YEAR, "day"));
     filters.add(new KeepOneFilter(dateToStartKeepingOneSnapshotByMonth, dateToStartKeepingOneSnapshotByWeek, Calendar.WEEK_OF_YEAR, "week"));
     filters.add(new KeepOneFilter(dateToStartDeletingAllSnapshots, dateToStartKeepingOneSnapshotByMonth, Calendar.MONTH, "month"));
     filters.add(new DeleteAllFilter(dateToStartDeletingAllSnapshots));
@@ -46,8 +47,13 @@ class Filters {
     return filters;
   }
 
-  static Date getDate(Settings settings, String propertyKey) {
+  static Date getDateFromWeeks(Settings settings, String propertyKey) {
     int weeks = settings.getInt(propertyKey);
     return DateUtils.addWeeks(new Date(), -weeks);
+  }
+
+  static Date getDateFromHours(Settings settings, String propertyKey) {
+    int hours = settings.getInt(propertyKey);
+    return DateUtils.addHours(new Date(), -hours);
   }
 }
