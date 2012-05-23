@@ -70,10 +70,18 @@ class Api::Utils
     Java::OrgSonarServerUi::JRubyFacade.getInstance().getMessage(I18n.locale, key, default, params.to_java)
   end
 
-  def self.exception_message(exception)
-    result = (exception.respond_to?(:message) ? "#{exception.message}\n" : "#{exception}\n")
-    if exception.respond_to? :backtrace
-      result << "\t" + exception.backtrace.join("\n\t") + "\n"
+  #
+  # Options :
+  # - backtrace: append backtrace if true. Default value is false.
+  #
+  def self.exception_message(exception, options={})
+    cause = exception
+    if exception.is_a?(NativeException) && exception.respond_to?(:cause)
+      cause = exception.cause
+    end
+    result = (cause.respond_to?(:message) ? "#{cause.message}\n" : "#{cause}\n")
+    if options[:backtrace]==true && cause.respond_to?(:backtrace)
+      result << "\t" + cause.backtrace.join("\n\t") + "\n"
     end
     result
   end

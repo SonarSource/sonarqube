@@ -145,7 +145,7 @@ class ApplicationController < ActionController::Base
   def render_error(error)
     # Ruby on Rails has a single logger "rails", so it's not possible to distinguish profiling logs
     # from error logs. For this reason a standard SLF4J logger is used instead of logger.error().
-    java_facade.logError("Fail to render: #{request.url}\n#{Api::Utils.exception_message(error)}")
+    java_facade.logError("Fail to render: #{request.url}\n#{Api::Utils.exception_message(error, :backtrace => true)}")
 
     if request.xhr?
       message = error.respond_to?('message') ? error.message : error.to_s

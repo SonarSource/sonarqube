@@ -266,10 +266,15 @@ class ProjectReviewsController < ApplicationController
     access_denied unless has_rights_to_modify?(@review.resource)
 
     bad_request('Missing command') if params[:command].blank?
-    RuleFailure.execute_command(params[:command], @review.violation, @review.resource.project, current_user, params)
 
+    error_message = nil
+    begin
+      RuleFailure.execute_command(params[:command], @review.violation, @review.resource.project, current_user, params)
+    rescue Exception => e
+      error_message=Api::Utils.exception_message(e, :backtrace => false)
+    end
     @review.reload
-    render :partial => "project_reviews/view"
+    render :partial => "project_reviews/view", :locals => {:review => @review, :error_message => error_message}
   end
 
 

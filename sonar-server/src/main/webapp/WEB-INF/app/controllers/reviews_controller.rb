@@ -68,14 +68,19 @@ class ReviewsController < ApplicationController
       violation.create_review!(:user_id => current_user.id)
     end
 
-    # TODO remove parameters id and command from params
-    RuleFailure.execute_command(params[:command], violation, violation.snapshot.root_snapshot.project, current_user, params)
+    # TODO remove parameters 'id' and 'command' from params
+    error_message = nil
+    begin
+      RuleFailure.execute_command(params[:command], violation, violation.snapshot.root_snapshot.project, current_user, params)
+    rescue Exception => e
+      error_message=Api::Utils.exception_message(e, :backtrace => false)
+    end
 
     # reload data required for display
     violation.reload
     screens = violation.available_java_screens(current_user)
 
-    render :partial => 'resource/violation', :locals => {:violation => violation, :review_screens => screens}
+    render :partial => 'resource/violation', :locals => {:violation => violation, :review_screens => screens, :error_message => error_message}
   end
 
   #
@@ -200,12 +205,7 @@ class ReviewsController < ApplicationController
       if params[:comment_id]
         violation.review.edit_comment(current_user, params[:comment_id].to_i, params[:text])
       else
-        begin
-          violation.review.create_comment({:user => current_user, :text => params[:text]}, params[:review_command_id])
-        rescue Exception => e
-          # the review command may throw an exception
-          flash["review_error_#{violation.id}"] = e.clean_message
-        end
+        violation.review.create_comment({:user => current_user, :text => params[:text]}, params[:review_command_id])
       end
     end
 

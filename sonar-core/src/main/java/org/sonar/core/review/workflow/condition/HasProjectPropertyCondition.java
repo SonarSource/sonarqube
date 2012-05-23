@@ -41,4 +41,8 @@ public final class HasProjectPropertyCondition extends ProjectPropertyCondition 
     Settings settings = context.getProjectSettings();
     return settings.hasKey(getPropertyKey()) || settings.getDefaultValue(getPropertyKey()) != null;
   }
+
+  public String toString() {
+    return "Property " + getPropertyKey() + " must be set";
+  }
 }

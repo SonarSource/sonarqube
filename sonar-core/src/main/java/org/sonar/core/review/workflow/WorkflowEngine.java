@@ -58,9 +58,9 @@ public class WorkflowEngine implements ServerComponent {
 
     for (Map.Entry<String, Screen> entry : workflow.getScreensByCommand().entrySet()) {
       String commandKey = entry.getKey();
-      if (!verifyConditions || verifyConditions(null, context, workflow.getContextConditions(commandKey))) {
+      if (!verifyConditions || verifyConditionsQuietly(null, context, workflow.getContextConditions(commandKey))) {
         for (Review review : reviews) {
-          if (!verifyConditions || verifyConditions(review, context, workflow.getReviewConditions(commandKey))) {
+          if (!verifyConditions || verifyConditionsQuietly(review, context, workflow.getReviewConditions(commandKey))) {
             result.put(review.getViolationId(), entry.getValue());
           }
         }
@@ -74,7 +74,7 @@ public class WorkflowEngine implements ServerComponent {
     completeProjectSettings(context);
     for (Map.Entry<String, Screen> entry : workflow.getScreensByCommand().entrySet()) {
       String commandKey = entry.getKey();
-      if (!verifyConditions || verifyConditions(review, context, workflow.getConditions(commandKey))) {
+      if (!verifyConditions || verifyConditionsQuietly(review, context, workflow.getConditions(commandKey))) {
         result.add(entry.getValue());
 
       }
@@ -95,7 +95,7 @@ public class WorkflowEngine implements ServerComponent {
 
     completeProjectSettings(context);
 
-    Preconditions.checkState(verifyConditions(review, context, workflow.getConditions(commandKey)), "Conditions are not respected");
+    verifyConditions(review, context, workflow.getConditions(commandKey));
 
     Map<String, String> immutableParameters = ImmutableMap.copyOf(parameters);
 
@@ -111,13 +111,21 @@ public class WorkflowEngine implements ServerComponent {
     // TODO notify listeners
   }
 
-  private boolean verifyConditions(@Nullable Review review, WorkflowContext context, List<Condition> conditions) {
+  private boolean verifyConditionsQuietly(@Nullable Review review, WorkflowContext context, List<Condition> conditions) {
+      for (Condition condition : conditions) {
+        if (!condition.doVerify(review, context)) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+  private void verifyConditions(@Nullable Review review, WorkflowContext context, List<Condition> conditions) {
     for (Condition condition : conditions) {
       if (!condition.doVerify(review, context)) {
-        return false;
+        throw new IllegalStateException("Condition is not respected: " + condition.toString());
       }
     }
-    return true;
   }
 
   private void completeProjectSettings(DefaultWorkflowContext context) {

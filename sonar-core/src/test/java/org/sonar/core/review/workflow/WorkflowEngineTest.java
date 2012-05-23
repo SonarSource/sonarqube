@@ -150,7 +150,7 @@ public class WorkflowEngineTest {
   @Test
   public void execute_fail_if_conditions_dont_pass() {
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Conditions are not respected");
+    thrown.expectMessage("Condition is not respected: Property foo must be set");
 
     Workflow workflow = new Workflow();
     workflow.addCommand("resolve");

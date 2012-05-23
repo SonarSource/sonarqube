@@ -106,12 +106,12 @@
        end
     %>
 
-    <% if flash["review_error_#{violation.id}"] %>
-      <div id="review_error_<%= violation.id -%>" class="error"><%= flash["review_error_#{violation.id}"] %> <a href="#" onclick="$('review_error_<%= violation.id -%>').hide(); return false;"><%= message('reviews.hide_this_message') -%></a></div>
-    <% end %>
-
     <% if current_user %>
       <div class="vActions" id="vActions<%= violation.id -%>">
+        <% if defined?(error_message) && error_message %>
+          <div id="review_error_<%= violation.id -%>" class="error"><%= h error_message -%> <a href="#" onclick="$('review_error_<%= violation.id -%>').hide(); return false;"><%= message('reviews.hide_this_message') -%></a></div>
+        <% end %>
+
         <%= link_to_function message('reviews.comment'), "sCF(#{violation.id})", :name => 'bComment', :class => 'link-action spacer-right' -%>
 
         <% unless violation.review && violation.review.resolved? %>

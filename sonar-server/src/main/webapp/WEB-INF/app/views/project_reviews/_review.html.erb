@@ -3,8 +3,8 @@
     <h2><%= message('reviews.review_number', :params => h(review.id.to_s)) -%> - <%= h(review.title) -%></h2>
   </div>
 
-  <% if flash[:review_error] %>
-    <div id="review_error" class="error"><%= flash[:review_error] %> <a href="#" onclick="$('review_error').hide(); return false;"><%= message('reviews.hide_this_message') -%></a></div>
+  <% if defined?(error_message) && error_message %>
+    <div id="review_error" class="error"><%= h error_message -%> <a href="#" onclick="$('review_error').hide(); return false;"><%= message('reviews.hide_this_message') -%></a></div>
   <% end %>
 
   <%

@@ -79,7 +79,7 @@ class Api::ApiController < ApplicationController
   #
 
   def render_error(exception, status=500)
-    message = exception.respond_to?('message') ? Api::Utils.exception_message(exception) : exception.to_s
+    message = exception.respond_to?('message') ? Api::Utils.exception_message(exception, :backtrace => true) : exception.to_s
     java_facade.logError("Fail to render: #{request.url}\n#{message}") if status==500
     respond_to do |format|
       format.json { render :json => error_to_json(status, message), :status => status }
