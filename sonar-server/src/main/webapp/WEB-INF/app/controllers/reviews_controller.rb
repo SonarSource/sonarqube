@@ -122,7 +122,7 @@ class ReviewsController < ApplicationController
     violation.review.reassign(current_user, assignee, params)
     violation.save
 
-    render :partial => "resource/violation", :locals => {:violation => violation}
+    display_violation
   end
 
   # GET
@@ -146,7 +146,7 @@ class ReviewsController < ApplicationController
     # refresh the violation that has been modified
     violation.reload
 
-    render :partial => "resource/violation", :locals => {:violation => violation}
+    display_violation
   end
 
   # GET
@@ -172,7 +172,7 @@ class ReviewsController < ApplicationController
     # refresh the violation that has been modified when setting the review to false positive
     violation.reload
 
-    render :partial => "resource/violation", :locals => {:violation => violation}
+    display_violation
   end
 
 
@@ -212,7 +212,7 @@ class ReviewsController < ApplicationController
     # Needs to reload as the review may have been changed on the Java side by a ReviewAction
     violation.review.reload
 
-    render :partial => "resource/violation", :locals => {:violation => violation}
+    display_violation
   end
 
   # POST
@@ -226,7 +226,7 @@ class ReviewsController < ApplicationController
     if violation.review
       violation.review.delete_comment(current_user, params[:comment_id].to_i)
     end
-    render :partial => "resource/violation", :locals => {:violation => violation}
+    display_violation
   end
 
   # GET
@@ -255,7 +255,7 @@ class ReviewsController < ApplicationController
       violation.review.resolve(current_user, params)
     end
 
-    render :partial => "resource/violation", :locals => {:violation => violation}
+    display_violation
   end
 
   # GET
@@ -280,7 +280,7 @@ class ReviewsController < ApplicationController
     action_plan = params[:action_plan_id].to_i==-1 ? nil : ActionPlan.find(params[:action_plan_id])
     violation.review.link_to_action_plan(action_plan, current_user, params)
 
-    render :partial => "resource/violation", :locals => {:violation => violation}
+    display_violation
   end
 
   # POST
@@ -292,7 +292,7 @@ class ReviewsController < ApplicationController
     end
     violation.review.link_to_action_plan(nil, current_user, params)
 
-    render :partial => "resource/violation", :locals => {:violation => violation}
+    display_violation
   end
 
 
