@@ -55,7 +55,7 @@
           <%= button_to_remote message("reviews.command.#{screen.getCommandKey()}.button"),
                              :url => {:controller => "project_reviews", :action => "screen", :id => review.id, :command => screen.getCommandKey()},
                              :update => "actionForm",
-                             :complete => "$('actionButtons').remove();$('actionForm').show();$('selectSeverity').focus();" -%>
+                             :complete => "$('actionButtons').remove();$('actionForm').show();$('actionText').focus();" -%>
         <%
            end
          end
