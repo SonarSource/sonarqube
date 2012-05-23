@@ -46,19 +46,16 @@ public class RemoteServerMetadata implements BatchComponent {
   public String getServerId() throws IOException {
     String remoteServerInfo = remoteContent("/api/server");
     // don't use JSON utilities to extract ID from such a small string
-    String id = extractId(remoteServerInfo);
-    return id;
+    return extractId(remoteServerInfo);
   }
 
   protected String extractId(String remoteServerInfo) {
     String partialId = StringUtils.substringAfter(remoteServerInfo, "\"id\":\"");
-    String id = StringUtils.substringBefore(partialId, "\"");
-    return id;
+    return StringUtils.substringBefore(partialId, "\"");
   }
 
   protected String getUrlFor(String path) {
-    String fullUrl = serverUrl + path;
-    return fullUrl;
+    return serverUrl + path;
   }
 
   protected String remoteContent(String path) throws IOException {
