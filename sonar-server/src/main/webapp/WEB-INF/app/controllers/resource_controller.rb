@@ -248,7 +248,8 @@ class ResourceController < ApplicationController
       if XPath.match(dups, "//g").size > 0
         parse_duplications(dups, @duplication_groups)
       else
-        parse_duplications_old_format(dups, @duplication_groups)
+        # This is the format prior to Sonar 2.12 => we display nothing but a message
+        @duplication_group_warning = message('duplications.old_format_should_reanalyze')
       end
     end
 
@@ -305,24 +306,6 @@ class ResourceController < ApplicationController
       duplication_groups << dup_group if dup_group.size > 1
     end
     @duplication_group_warning = message('duplications.dups_found_on_deleted_resource') if dups_found_on_deleted_resource
-  end
-
-  # Format before sonar 2.12
-  def parse_duplications_old_format(dups, duplication_groups)
-    resource_by_key = {}
-    dups.elements.each("duplications/duplication") do |dup|
-      group = []
-      target_key = dup.attributes['target-resource']
-      target_resource = resource_by_key[target_key]
-      unless target_resource
-        # we use the resource_by_id map for optimization
-        target_resource = Project.by_key(target_key)
-        resource_by_key[target_key] = target_resource
-      end
-      group << {:lines_count => dup.attributes['lines'], :from_line => dup.attributes['start'], :resource => @resource}
-      group << {:lines_count => dup.attributes['lines'], :from_line => dup.attributes['target-start'], :resource => target_resource}
-      duplication_groups << group
-    end
   end
 
 

@@ -198,11 +198,11 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_SIZE)
       .create();
 
-  //--------------------------------------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------------------
   //
   // DOCUMENTATION
   //
-  //--------------------------------------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------------------
 
   public static final String COMMENT_LINES_KEY = "comment_lines";
   public static final Metric COMMENT_LINES = new Metric.Builder(COMMENT_LINES_KEY, "Comment lines", Metric.ValueType.INT)
@@ -266,12 +266,11 @@ public final class CoreMetrics {
       .setOptimizedBestValue(true)
       .create();
 
-
-  //--------------------------------------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------------------
   //
   // COMPLEXITY
   //
-  //--------------------------------------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------------------
 
   public static final String COMPLEXITY_KEY = "complexity";
   public static final Metric COMPLEXITY = new Metric.Builder(COMPLEXITY_KEY, "Complexity", Metric.ValueType.INT)
@@ -346,7 +345,8 @@ public final class CoreMetrics {
       .create();
 
   public static final String FUNCTION_COMPLEXITY_DISTRIBUTION_KEY = "function_complexity_distribution";
-  public static final Metric FUNCTION_COMPLEXITY_DISTRIBUTION = new Metric.Builder(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, "Functions distribution /complexity", Metric.ValueType.DISTRIB)
+  public static final Metric FUNCTION_COMPLEXITY_DISTRIBUTION = new Metric.Builder(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, "Functions distribution /complexity",
+      Metric.ValueType.DISTRIB)
       .setDescription("Functions distribution /complexity")
       .setDirection(Metric.DIRECTION_NONE)
       .setQualitative(true)
@@ -372,7 +372,8 @@ public final class CoreMetrics {
    * @deprecated since Sonar 2.14 - See SONAR-3239
    */
   @Deprecated
-  public static final Metric PARAGRAPH_COMPLEXITY_DISTRIBUTION = new Metric.Builder(PARAGRAPH_COMPLEXITY_DISTRIBUTION_KEY, "Paragraph distribution /complexity", Metric.ValueType.DISTRIB)
+  public static final Metric PARAGRAPH_COMPLEXITY_DISTRIBUTION = new Metric.Builder(PARAGRAPH_COMPLEXITY_DISTRIBUTION_KEY, "Paragraph distribution /complexity",
+      Metric.ValueType.DISTRIB)
       .setDescription("Paragraph distribution /complexity")
       .setDirection(Metric.DIRECTION_NONE)
       .setQualitative(true)
@@ -380,11 +381,11 @@ public final class CoreMetrics {
       .setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY))
       .create();
 
-  //--------------------------------------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------------------
   //
   // UNIT TESTS
   //
-  //--------------------------------------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------------------
 
   public static final String TESTS_KEY = "tests";
 
@@ -545,7 +546,7 @@ public final class CoreMetrics {
       .setWorstValue(0.0)
       .setBestValue(100.0)
       .setDomain(DOMAIN_TESTS)
-    .setDeleteHistoricalData(true)
+      .setDeleteHistoricalData(true)
       .create();
 
   public static final String COVERAGE_LINE_HITS_DATA_KEY = "coverage_line_hits_data";
@@ -663,12 +664,11 @@ public final class CoreMetrics {
       .setDeleteHistoricalData(true)
       .create();
 
-
-  //--------------------------------------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------------------
   //
   // INTEGRATION TESTS
   //
-  //--------------------------------------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------------------
 
   /**
    * @since 2.12
@@ -948,12 +948,11 @@ public final class CoreMetrics {
       .setDeleteHistoricalData(true)
       .create();
 
-
-  //--------------------------------------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------------------
   //
   // DUPLICATIONS
   //
-  //--------------------------------------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------------------
 
   public static final String DUPLICATED_LINES_KEY = "duplicated_lines";
   public static final Metric DUPLICATED_LINES = new Metric.Builder(DUPLICATED_LINES_KEY, "Duplicated lines", Metric.ValueType.INT)
@@ -1004,9 +1003,10 @@ public final class CoreMetrics {
   public static final String DUPLICATIONS_DATA_KEY = "duplications_data";
 
   /**
-   * Information about duplications, which is represented as an XML string. There are two formats:
-   * <ul>
-   * <li>For Sonar CPD (since 2.12):
+   * Information about duplications, which is represented as an XML string.
+   * <br>
+   * <br> 
+   * Here is the format (since Sonar 2.12):
    * <pre>   {@code
    *   <duplications>
    *     <!-- Multiple groups: -->
@@ -1016,23 +1016,8 @@ public final class CoreMetrics {
    *       ...
    *     </g>
    *     ...
-   *   </duplications>}</pre>
-   * </li>
-   * <li>For PMD CPD (deprecated in 2.14 - see SONAR-3238):
-   * <pre>   {@code
-   *   <duplications>
-   *     <duplication start="[first line]" lines="[number of lines]" target-resource="[resource key]" target-start="[first line in target]" />
-   *     ...
-   *   </duplications>
-   * }</pre>
-   * Note that this format has following drawbacks:
-   * <ol>
-   * <li>assumes that amount of lines is the same for both resources</li>
-   * <li>duplication can span no more than two resources</li>
-   * <li>and they both in same project</li>
-   * </ol>
-   * </li>
-   * </ul>
+   *   </duplications>}
+   * </pre>
    */
   public static final Metric DUPLICATIONS_DATA = new Metric.Builder(DUPLICATIONS_DATA_KEY, "Duplications details", Metric.ValueType.DATA)
       .setDescription("Duplications details")
@@ -1042,11 +1027,11 @@ public final class CoreMetrics {
       .setDeleteHistoricalData(true)
       .create();
 
-  //--------------------------------------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------------------
   //
   // CODING RULES
   //
-  //--------------------------------------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------------------
 
   /**
    * @deprecated since 2.5 See SONAR-2007
@@ -1263,12 +1248,11 @@ public final class CoreMetrics {
       .setDeleteHistoricalData(true)
       .create();
 
-
-  //--------------------------------------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------------------
   //
   // DESIGN
   //
-  //--------------------------------------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------------------
 
   public static final String ABSTRACTNESS_KEY = "abstractness";
   public static final Metric ABSTRACTNESS = new Metric.Builder(ABSTRACTNESS_KEY, "Abstractness", Metric.ValueType.PERCENT)
@@ -1492,13 +1476,12 @@ public final class CoreMetrics {
       .setDeleteHistoricalData(true)
       .create();
 
-
-  //--------------------------------------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------------------
   //
   // SCM
   // These metrics are computed by the SCM Activity plugin, since version 1.2 and introduced here since version 2.7.
   //
-  //--------------------------------------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------------------
 
   /**
    * @since 2.7
@@ -1522,7 +1505,12 @@ public final class CoreMetrics {
    *
    * @since 2.7
    */
-  public static final Metric SCM_LAST_COMMIT_DATE = new Metric.Builder(SCM_LAST_COMMIT_DATE_KEY, "Last commit", Metric.ValueType.STRING /* TODO: move to date */)
+  public static final Metric SCM_LAST_COMMIT_DATE = new Metric.Builder(SCM_LAST_COMMIT_DATE_KEY, "Last commit", Metric.ValueType.STRING /*
+                                                                                                                                         * TODO:
+                                                                                                                                         * move
+                                                                                                                                         * to
+                                                                                                                                         * date
+                                                                                                                                         */)
       .setDomain(DOMAIN_SCM)
       .create();
 
@@ -1587,12 +1575,11 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_SCM)
       .create();
 
-
-  //--------------------------------------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------------------
   //
   // REVIEWS (since 2.14)
   //
-  //--------------------------------------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------------------
 
   /**
    * @since 2.14
@@ -1736,11 +1723,11 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_DOCUMENTATION)
       .create();
 
-  //--------------------------------------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------------------
   //
   // OTHERS
   //
-  //--------------------------------------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------------------
 
   public static final String ALERT_STATUS_KEY = "alert_status";
   public static final Metric ALERT_STATUS = new Metric.Builder(ALERT_STATUS_KEY, "Alert", Metric.ValueType.LEVEL)
@@ -1749,7 +1736,6 @@ public final class CoreMetrics {
       .setQualitative(true)
       .setDomain(DOMAIN_GENERAL)
       .create();
-
 
   public static final String PROFILE_KEY = "profile";
   public static final Metric PROFILE = new Metric.Builder(PROFILE_KEY, "Profile", Metric.ValueType.DATA)
