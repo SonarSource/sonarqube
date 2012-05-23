@@ -1,12 +1,21 @@
 <% filter=@filter_context.filter %>
-<div>
+<% @edit_mode=edit_mode %>
+
+<% unless defined? update_id %>
+  <% if defined? widget %>
+    <% update_id=widget.id %>
+  <% else %>
+  <% end %>
+<% end %>
+
+<div id="filter-<%= update_id -%>">
 <table class="data nowrap width100" id="results">
   <thead id="results-head">
     <tr>
       <th width="1%"></th>
       <% filter.columns.each do |column| %>
         <th <%= 'width=1% nowrap' if column.small_width? -%> class="<%= column_align(column) -%>">
-          <%= column_title(column, filter) %>
+          <%= column_title(column, filter, update_id) %>
         </th>
     <% end %>
     </tr>
@@ -49,15 +58,31 @@
         %>
           |
           <% if max_pages > 20 && start_page > 1 %>
-            <%= link_to message('paging_first'), {:overwrite_params => {:page_id => 1}} -%>
+            <%= goto_page message('paging_previous'), filter, update_id, :page_id => 1 %>
           <% end %>
-          <%= link_to_if current_page>start_page, message('paging_previous'), {:overwrite_params => {:page_id => current_page-1}} %>
+
+          <% if current_page>start_page %>
+            <%= goto_page message('paging_previous'), filter, update_id, :page_id => current_page-1 %>
+          <% else %>
+            <%= message('paging_previous') -%>
+          <% end %>
+
           <% for index in start_page..end_page %>
-            <%= link_to_unless index==current_page, index.to_s, {:overwrite_params => {:page_id => index}} %>
+            <% unless index==current_page %>
+              <%= goto_page index.to_s, filter, update_id, :page_id => index %>
+            <% else %>
+              <%= index.to_s -%>
+            <% end %>
           <% end %>
-          <%= link_to_if current_page<end_page, message('paging_next'), {:overwrite_params => {:page_id => 1+current_page}} %>
+
+          <% if current_page<end_page %>
+            <%= goto_page message('paging_next'), filter, update_id, :page_id => current_page+1 %>
+          <% else %>
+            <%= message('paging_next') -%>
+          <% end %>
+
           <% if max_pages > 20 && end_page < max_pages %>
-            <%= link_to message('paging_last'), {:overwrite_params => {:page_id => max_pages}} -%>
+            <%= goto_page message('paging_last'), filter, update_id, :page_id => max_pages %>
           <% end %>
         <% end %>
 
