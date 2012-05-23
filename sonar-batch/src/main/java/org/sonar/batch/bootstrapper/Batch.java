@@ -20,14 +20,14 @@
 package org.sonar.batch.bootstrapper;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.bootstrap.BootstrapModule;
 import org.sonar.batch.bootstrap.Module;
 import org.sonar.core.PicoUtils;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Entry point for batch bootstrappers.
@@ -46,7 +46,7 @@ public final class Batch {
     components.add(builder.environment);
     projectReactor = builder.projectReactor;
     if (builder.isEnableLoggingConfiguration()) {
-      logging = LoggingConfiguration.create().setProperties((Map) projectReactor.getRoot().getProperties());
+      logging = LoggingConfiguration.create().setProperties(Maps.fromProperties(projectReactor.getRoot().getProperties()));
     }
   }
 
@@ -89,7 +89,7 @@ public final class Batch {
   public static final class Builder {
     private ProjectReactor projectReactor;
     private EnvironmentInformation environment;
-    private List components = Lists.newArrayList();
+    private List<Object> components = Lists.newArrayList();
     private boolean enableLoggingConfiguration = true;
 
     private Builder() {
@@ -105,13 +105,13 @@ public final class Batch {
       return this;
     }
 
-    public Builder setComponents(List l) {
+    public Builder setComponents(List<Object> l) {
       this.components = l;
       return this;
     }
 
     public Builder addComponents(Object... components) {
-      this.components.addAll(Arrays.asList(components));
+      Collections.addAll(this.components, components);
       return this;
     }
 

@@ -19,6 +19,7 @@
  */
 package org.sonar.core.persistence;
 
+import com.google.common.collect.Maps;
 import org.apache.commons.io.IOUtils;
 import org.dbunit.Assertion;
 import org.dbunit.DataSourceDatabaseTester;
@@ -26,16 +27,23 @@ import org.dbunit.DatabaseUnitException;
 import org.dbunit.IDatabaseTester;
 import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.IDatabaseConnection;
-import org.dbunit.dataset.*;
+import org.dbunit.dataset.CompositeDataSet;
+import org.dbunit.dataset.DataSetException;
+import org.dbunit.dataset.IDataSet;
+import org.dbunit.dataset.ITable;
+import org.dbunit.dataset.ReplacementDataSet;
 import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.sonar.api.config.Settings;
 
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.sql.SQLException;
-import java.util.Map;
 
 import static org.junit.Assert.fail;
 
@@ -51,7 +59,7 @@ public abstract class DaoTestCase {
   @BeforeClass
   public static void startDatabase() throws Exception {
     Settings settings = new Settings();
-    settings.setProperties((Map) System.getProperties());
+    settings.setProperties(Maps.fromProperties(System.getProperties()));
     if (settings.hasKey("sonar.jdbc.dialect")) {
       database = new DefaultDatabase(settings);
     } else {

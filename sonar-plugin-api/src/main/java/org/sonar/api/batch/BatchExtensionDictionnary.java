@@ -157,7 +157,7 @@ public class BatchExtensionDictionnary {
 
 
   protected List evaluateAnnotatedClasses(Object extension, Class annotation) {
-    List results = Lists.newArrayList();
+    List<Object> results = Lists.newArrayList();
     Class aClass = extension.getClass();
     while (aClass != null) {
       evaluateClass(aClass, annotation, results);
@@ -174,7 +174,7 @@ public class BatchExtensionDictionnary {
     return results;
   }
 
-  private void evaluateClass(Class extensionClass, Class annotationClass, List results) {
+  private void evaluateClass(Class extensionClass, Class annotationClass, List<Object> results) {
     Annotation annotation = extensionClass.getAnnotation(annotationClass);
     if (annotation != null) {
       if (annotation.annotationType().isAssignableFrom(DependsUpon.class)) {

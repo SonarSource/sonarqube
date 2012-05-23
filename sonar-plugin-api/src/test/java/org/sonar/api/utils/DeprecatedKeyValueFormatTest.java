@@ -62,7 +62,7 @@ public class DeprecatedKeyValueFormatTest {
 
   @Test
   public void formatMultiset() {
-    Multiset set = TreeMultiset.create();
+    Multiset<String> set = TreeMultiset.create();
     set.add("hello", 1);
     set.add("key", 3);
     assertThat(KeyValueFormat.format(set), is("hello=1;key=3"));

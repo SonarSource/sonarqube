@@ -28,6 +28,7 @@ import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.SonarException;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -190,7 +191,7 @@ public class RangeDistributionBuilder implements MeasureBuilder {
       countBag.clear();
     }
     if (bottomLimits != null) {
-      countBag.addAll(Arrays.asList(bottomLimits));
+      Collections.addAll(countBag, bottomLimits);
     }
     isEmpty = true;
   }
