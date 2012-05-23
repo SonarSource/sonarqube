@@ -47,19 +47,23 @@
                              :url => {:controller => "project_reviews", :action => "action_plan_form", :id => review.id},
                              :update => "actionForm",
                              :complete => "$('actionButtons').remove();$('actionForm').show();$('selectSeverity').focus();" -%>
-
         <%
-           screens = review.violation.available_java_screens(current_user)
-           screens.each do |screen|
-        %>
-          <%= button_to_remote message("reviews.command.#{screen.getCommandKey()}.button"),
-                             :url => {:controller => "project_reviews", :action => "screen", :id => review.id, :command => screen.getCommandKey()},
-                             :update => "actionForm",
-                             :complete => "$('actionButtons').remove();$('actionForm').show();$('actionText').focus();" -%>
-        <%
-           end
          end
         %>
+        <%
+         puts "-------------- in template: #{review.violation.review.data} versus #{review.data}"
+          if review.violation
+            screens = review.violation.available_java_screens(current_user)
+            screens.each do |screen|
+        %>
+          <%= button_to_remote message("reviews.command.#{screen.getCommandKey()}.button"),
+                 :url => {:controller => "project_reviews", :action => "screen", :id => review.id, :command => screen.getCommandKey()},
+                 :update => "actionForm",
+                 :complete => "$('actionButtons').remove();$('actionForm').show();$('actionText').focus();" -%>
+          <%
+             end
+          end
+          %>
     </div>
   <% end %>
 

@@ -33,13 +33,13 @@ public final class HasReviewPropertyCondition extends Condition {
 
   private final String propertyKey;
 
-  protected HasReviewPropertyCondition(String propertyKey) {
+  public HasReviewPropertyCondition(String propertyKey) {
     super(false);
     Preconditions.checkArgument(!Strings.isNullOrEmpty(propertyKey));
     this.propertyKey = propertyKey;
   }
 
-  protected final String getPropertyKey() {
+  public final String getPropertyKey() {
     return propertyKey;
   }
 

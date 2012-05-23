@@ -62,12 +62,15 @@ class Review < ActiveRecord::Base
   def rule_failure
     @rule_failure ||=
       begin
-        # We need to manually run this DB request as the real relation Reviews-RuleFailures is 1:n but we want only 1 violation
-        # (more than 1 violation can have the same "permanent_id" when several analyses are run in a small time frame)
-        RuleFailure.find(:first, :conditions => {:permanent_id => rule_failure_permanent_id}, :order => 'id desc')
+          # We need to manually run this DB request as the real relation Reviews-RuleFailures is 1:n but we want only 1 violation
+          # (more than 1 violation can have the same "permanent_id" when several analyses are run in a small time frame)
+          RuleFailure.find(:first, :conditions => {:permanent_id => rule_failure_permanent_id}, :order => 'id desc')
       end
   end
 
+  def clean_violation_cache
+    @rule_failure=nil
+  end
 
   #
   #
