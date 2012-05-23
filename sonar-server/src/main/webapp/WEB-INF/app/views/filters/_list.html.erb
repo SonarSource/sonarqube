@@ -35,6 +35,7 @@
   <tfoot>
     <tr>
       <td colspan="<%= filter.columns.size + 1 -%>">
+        <div id="filter-pages-<%= update_id -%>">
         <span id="results_count"><%= pluralize(@filter_context.size, message('result').downcase) %></span>
 
         <%
@@ -68,10 +69,10 @@
           <% end %>
 
           <% for index in start_page..end_page %>
-            <% unless index==current_page %>
-              <%= goto_page index.to_s, filter, update_id, :page_id => index %>
-            <% else %>
+            <% if index==current_page %>
               <%= index.to_s -%>
+            <% else %>
+              <%= goto_page index.to_s, filter, update_id, :page_id => index %>
             <% end %>
           <% end %>
 
@@ -90,6 +91,9 @@
           &nbsp;&nbsp; <a href="<%= url_for :controller => :feeds, :action => 'projects', :id => EventCategory::KEY_ALERT -%>" class="nolink"><%= image_tag 'rss-12x12.png' %></a>
           <a href="<%= url_for :controller => :feeds, :action => 'projects', :id => EventCategory::KEY_ALERT -%>" class="action"><%= message('alerts_feed') -%></a>
         <% end %>
+        </div>
+        <div id="filter-loading-<%= update_id -%>" style="display: none"><%= image_tag 'loading.gif' %></div>
+
       </td>
     </tr>
   </tfoot>

@@ -20,7 +20,11 @@
 module FiltersHelper
 
   def goto_page(msg, filter, update_id, override={})
-    link_to_remote msg, {:update => "filter-#{update_id}", :url => params.merge({:controller => :filters, :action => :list, :id => filter.id, :edit_mode => @edit_mode, :update_id => update_id}.merge(override))}
+    link_to_remote msg, {
+      :update => "filter-#{update_id}",
+      :url => params.merge({:controller => :filters, :action => :list, :id => filter.id, :edit_mode => @edit_mode, :update_id => update_id}.merge(override)),
+      :after => "$('filter-pages-#{update_id}').hide();$('filter-loading-#{update_id}').show();"
+    }
   end
 
   def column_title(column, filter, update_id)
