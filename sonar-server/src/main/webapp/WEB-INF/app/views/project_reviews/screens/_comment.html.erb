@@ -4,7 +4,7 @@
 
   <textarea id="actionText" rows="4" name="text" style="width: 100%"></textarea>
   <%= submit_to_remote "submit_btn",
-                       @screen.getCommandKey(),
+                       message("reviews.command.#{@screen.getCommandKey()}.submit"),
                        :url => {:action => 'execute'},
                        :html => {:id => "submit_btn"},
                        :before => "$('loading').show();",

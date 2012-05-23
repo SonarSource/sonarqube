@@ -69,7 +69,6 @@ class ProjectReviewsController < ApplicationController
   def show
     @review = Review.find(params[:id], :include => ['project'])
     @resource = @review.project
-    @review_commands = Review.available_commands_for(Api::ReviewContext.new(:review => @review, :user => current_user))
     if has_role?(:user, @resource)
       render :partial => 'project_reviews/view'
     else
