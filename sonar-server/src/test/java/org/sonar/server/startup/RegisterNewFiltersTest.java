@@ -122,7 +122,6 @@ public class RegisterNewFiltersTest {
 
     FilterDto dto = register.createDtoFromExtension("Fake", filterTemplate.createFilter());
 
-    assertThat(dto.getUserId()).isNull();
     assertThat(dto.getName()).isEqualTo("Fake");
     assertThat(dto.getKey()).isEqualTo("Fake");
     assertThat(dto.isShared()).isTrue();

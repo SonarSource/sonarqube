@@ -23,5 +23,10 @@ package org.sonar.core.filter;
  * @since 3.1
  */
 public interface FilterColumnMapper {
+  /**
+   * Insert a {@link FilterColumnDto}.
+   * 
+   * @param filterColumnDto the filter column to insert
+   */
   void insert(FilterColumnDto filterColumnDto);
 }

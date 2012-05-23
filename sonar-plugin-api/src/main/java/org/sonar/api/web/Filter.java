@@ -32,7 +32,7 @@ import com.google.common.base.Preconditions;
  *
  * @since 3.1
  */
-public class Filter {
+public final class Filter {
   public static final String LIST = "list";
   public static final String TREEMAP = "treemap";
 

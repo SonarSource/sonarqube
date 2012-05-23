@@ -23,7 +23,18 @@ package org.sonar.core.filter;
  * @since 3.1
  */
 public interface FilterMapper {
-  FilterDto findFilter(String name);
+  /**
+   * Find a {@link FilterDto} by its unique key.
+   * 
+   * @param key the key to search on
+   * @return the filter
+   */
+  FilterDto findFilter(String key);
 
+  /**
+   * Insert a {@link FilterDto}.
+   * 
+   * @param filterDto the filter to insert
+   */
   void insert(FilterDto filterDto);
 }

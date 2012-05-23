@@ -30,7 +30,7 @@ import com.google.common.base.Preconditions;
  *
  * @since 3.1
  */
-public class FilterColumn {
+public final class FilterColumn {
   public static final String ASC = "ASC";
   public static final String DESC = "DESC";
   public static final Set<String> DIRECTIONS = ImmutableSortedSet.of(ASC, DESC);

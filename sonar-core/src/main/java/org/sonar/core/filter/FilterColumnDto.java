@@ -23,7 +23,6 @@ package org.sonar.core.filter;
  * @since 3.1
  */
 public final class FilterColumnDto {
-  private Long id;
   private Long filterId;
   private String family;
   private String key;
@@ -31,64 +30,49 @@ public final class FilterColumnDto {
   private Long orderIndex;
   private Boolean variation;
 
-  public Long getId() {
-    return id;
-  }
-
-  public FilterColumnDto setId(Long id) {
-    this.id = id;
-    return this;
-  }
-
-  public Long getFilterId() {
-    return filterId;
-  }
-
+  /**
+   * @param filterId the filterId to set
+   */
   public FilterColumnDto setFilterId(Long filterId) {
     this.filterId = filterId;
     return this;
   }
 
-  public String getFamily() {
-    return family;
-  }
-
+  /**
+   * @param family the family to set
+   */
   public FilterColumnDto setFamily(String family) {
     this.family = family;
     return this;
   }
 
-  public String getKey() {
-    return key;
-  }
-
+  /**
+   * @param key the key to set
+   */
   public FilterColumnDto setKey(String key) {
     this.key = key;
     return this;
   }
 
-  public String getSortDirection() {
-    return sortDirection;
-  }
-
+  /**
+   * @param sortDirection the sortDirection to set
+   */
   public FilterColumnDto setSortDirection(String sortDirection) {
     this.sortDirection = sortDirection;
     return this;
   }
 
-  public Long getOrderIndex() {
-    return orderIndex;
-  }
-
+  /**
+   * @param orderIndex the orderIndex to set
+   */
   public FilterColumnDto setOrderIndex(Long orderIndex) {
     this.orderIndex = orderIndex;
     return this;
   }
 
-  public Boolean getVariation() {
-    return variation;
-  }
-
+  /**
+   * @param variation the variation to set
+   */
   public FilterColumnDto setVariation(Boolean variation) {
     this.variation = variation;
     return this;

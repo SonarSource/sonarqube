@@ -23,5 +23,10 @@ package org.sonar.core.filter;
  * @since 3.1
  */
 public interface CriterionMapper {
-  void insert(CriterionDto criteriaDto);
+  /**
+   * Insert a {@link CriterionDto}.
+   * 
+   * @param criterionDto the criterion to insert
+   */
+  void insert(CriterionDto criterionDto);
 }

@@ -41,78 +41,91 @@ public final class FilterDto {
   private List<CriterionDto> criteria = Lists.newArrayList();
   private List<FilterColumnDto> filterColumns = Lists.newArrayList();
 
+  /**
+   * @return the id
+   */
   public Long getId() {
     return id;
   }
 
-  public FilterDto setId(Long id) {
-    this.id = id;
-    return this;
-  }
-
+  /**
+   * @return the name
+   */
   public String getName() {
     return name;
   }
 
+  /**
+   * @param name the name to set
+   */
   public FilterDto setName(String name) {
     this.name = name;
     return this;
   }
 
+  /**
+   * @return the key
+   */
   public String getKey() {
     return key;
   }
 
+  /**
+   * @param key the key to set
+   */
   public FilterDto setKey(String key) {
     this.key = key;
     return this;
   }
 
-  public Long getUserId() {
-    return userId;
-  }
-
-  public FilterDto setUserId(Long userId) {
-    this.userId = userId;
-    return this;
-  }
-
+  /**
+   * @return <code>true</code> if the filter is shared
+   */
   public Boolean isShared() {
     return shared;
   }
 
+  /**
+   * @param shared the shared to set
+   */
   public FilterDto setShared(Boolean shared) {
     this.shared = shared;
     return this;
   }
 
+  /**
+   * @return <code>true</code> if the filter displays only favourite resources.
+   */
   public Boolean isFavourites() {
     return favourites;
   }
 
+  /**
+   * @param favourites the favourites to set
+   */
   public FilterDto setFavourites(Boolean favourites) {
     this.favourites = favourites;
     return this;
   }
 
-  public Long getResourceId() {
-    return resourceId;
-  }
-
-  public FilterDto setResourceId(Long resourceId) {
-    this.resourceId = resourceId;
-    return this;
-  }
-
+  /**
+   * @return the defaut view
+   */
   public String getDefaultView() {
     return defaultView;
   }
 
+  /**
+   * @param defaultView the defaultView to set
+   */
   public FilterDto setDefaultView(String defaultView) {
     this.defaultView = defaultView;
     return this;
   }
 
+  /**
+   * @return the page size
+   */
   public Long getPageSize() {
     return pageSize;
   }
@@ -122,28 +135,35 @@ public final class FilterDto {
     return this;
   }
 
-  public Long getPeriodIndex() {
-    return periodIndex;
-  }
-
-  public FilterDto setPeriodIndex(Long periodIndex) {
-    this.periodIndex = periodIndex;
-    return this;
-  }
-
+  /**
+   * @return the criterion list
+   */
   public Collection<CriterionDto> getCriteria() {
     return criteria;
   }
 
+  /**
+   * Add a {@link CriterionDto} to the list.
+   * 
+   * @param criterion the criterion to add
+   */
   public FilterDto add(CriterionDto criterion) {
     criteria.add(criterion);
     return this;
   }
 
+  /**
+   * @return the column list
+   */
   public Collection<FilterColumnDto> getColumns() {
     return filterColumns;
   }
 
+  /**
+   * Add a {@link FilterColumnDto} to the list.
+   * 
+   * @param filterColumn the column to add
+   */
   public FilterDto add(FilterColumnDto filterColumn) {
     filterColumns.add(filterColumn);
     return this;

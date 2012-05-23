@@ -19,6 +19,8 @@
  */
 package org.sonar.core.resource;
 
+import org.fest.assertions.Assertions;
+
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.core.Is;

@@ -29,7 +29,7 @@ import java.util.Set;
  *
  * @since 3.1
  */
-public class Criterion {
+public final class Criterion {
   public static final String EQ = "=";
   public static final String GT = ">";
   public static final String GTE = ">=";

@@ -110,7 +110,7 @@ public class DatabaseBatchCompatibilityTest {
 
   @Test
   public void shouldFailIfCantGetServerId() throws Exception {
-    when(remoteServerMetadata.getServerId()).thenThrow(IOException.class);
+    when(remoteServerMetadata.getServerId()).thenThrow(new IOException());
 
     thrown.expect(SonarException.class);
     thrown.expectMessage("Impossible to get the ID of the remote server: http://localhost:9000");

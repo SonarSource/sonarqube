@@ -65,7 +65,7 @@ public final class RegisterNewFilters {
     for (FilterTemplate template : filterTemplates) {
       if (shouldRegister(template.getName())) {
         Filter filter = template.createFilter();
-        FilterDto dto = register(template.getName(), filter);
+        register(template.getName(), filter);
       }
     }
 
@@ -86,12 +86,6 @@ public final class RegisterNewFilters {
     // and save the fact that is has now already been loaded
     loadedTemplateDao.insert(new LoadedTemplateDto(name, LoadedTemplateDto.FILTER_TYPE));
     return dto;
-  }
-
-  private static void addCriteria(FilterDto filterDto, String family, String operator, String textValue) {
-    if (textValue != null) {
-      filterDto.add(new CriterionDto().setFamily(family).setOperator(operator).setTextValue(textValue));
-    }
   }
 
   protected FilterDto createDtoFromExtension(String name, Filter filter) {

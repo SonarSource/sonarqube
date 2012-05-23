@@ -19,12 +19,10 @@
  */
 package org.sonar.core.filters;
 
-import org.sonar.core.filter.FilterColumnDto;
-
-import org.sonar.core.filter.CriterionDto;
-
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.core.filter.CriterionDto;
+import org.sonar.core.filter.FilterColumnDto;
 import org.sonar.core.filter.FilterDao;
 import org.sonar.core.filter.FilterDto;
 import org.sonar.core.persistence.DaoTestCase;
@@ -48,7 +46,6 @@ public class FilterDaoTest extends DaoTestCase {
     assertThat(filter.getId()).isEqualTo(1L);
     assertThat(filter.getName()).isEqualTo("Projects");
     assertThat(filter.getKey()).isEqualTo("Projects");
-    assertThat(filter.getUserId()).isNull();
     assertThat(dao.findFilter("<UNKNOWN>")).isNull();
   }
 
@@ -59,13 +56,10 @@ public class FilterDaoTest extends DaoTestCase {
     FilterDto filterDto = new FilterDto();
     filterDto.setName("Projects");
     filterDto.setKey("Projects");
-    filterDto.setUserId(null);
     filterDto.setShared(true);
     filterDto.setFavourites(false);
-    filterDto.setResourceId(null);
     filterDto.setDefaultView("list");
     filterDto.setPageSize(10L);
-    filterDto.setPeriodIndex(1L);
 
     CriterionDto criterionDto = new CriterionDto();
     criterionDto.setFamily("family");

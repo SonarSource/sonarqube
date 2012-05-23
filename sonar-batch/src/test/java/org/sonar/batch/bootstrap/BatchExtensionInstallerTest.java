@@ -116,7 +116,7 @@ public class BatchExtensionInstallerTest {
 
     @Override
     public Object provide() {
-      return Arrays.asList(BatchService.class, ServerService.class);
+      return Arrays.<Object> asList(BatchService.class, ServerService.class);
     }
   }
 

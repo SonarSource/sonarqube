@@ -27,7 +27,12 @@ import org.junit.Test;
 import org.sonar.api.web.Dashboard;
 import org.sonar.api.web.DashboardLayout;
 import org.sonar.api.web.DashboardTemplate;
-import org.sonar.core.dashboard.*;
+import org.sonar.core.dashboard.ActiveDashboardDao;
+import org.sonar.core.dashboard.ActiveDashboardDto;
+import org.sonar.core.dashboard.DashboardDao;
+import org.sonar.core.dashboard.DashboardDto;
+import org.sonar.core.dashboard.WidgetDto;
+import org.sonar.core.dashboard.WidgetPropertyDto;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.template.LoadedTemplateDto;
 
@@ -39,8 +44,11 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class RegisterNewDashboardsTest {
 
@@ -59,7 +67,7 @@ public class RegisterNewDashboardsTest {
     fakeDashboardTemplate = new FakeDashboard();
 
     task = new RegisterNewDashboards(new DashboardTemplate[]{fakeDashboardTemplate}, dashboardDao,
-        activeDashboardDao, loadedTemplateDao, null);
+        activeDashboardDao, loadedTemplateDao);
   }
 
   @Test

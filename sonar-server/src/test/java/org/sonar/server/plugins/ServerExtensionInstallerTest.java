@@ -88,7 +88,7 @@ public class ServerExtensionInstallerTest {
 
     @Override
     public Object provide() {
-      return Arrays.asList(FakeBatchExtension.class, FakeServerExtension.class);
+      return Arrays.<Object> asList(FakeBatchExtension.class, FakeServerExtension.class);
     }
   }
 

@@ -10,7 +10,7 @@
     resource_id="[null]"
     default_view="list"
     page_size="10"
-    period_index="1"
+    period_index="[null]"
     />
 
   <criteria

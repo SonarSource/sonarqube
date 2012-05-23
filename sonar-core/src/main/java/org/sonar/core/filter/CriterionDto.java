@@ -23,7 +23,6 @@ package org.sonar.core.filter;
  * @since 3.1
  */
 public final class CriterionDto {
-  private Long id;
   private Long filterId;
   private String family;
   private String key;
@@ -32,73 +31,57 @@ public final class CriterionDto {
   private String textValue;
   private Boolean variation;
 
-  public Long getId() {
-    return id;
-  }
-
-  public CriterionDto setId(Long id) {
-    this.id = id;
-    return this;
-  }
-
-  public Long getFilterId() {
-    return filterId;
-  }
-
+  /**
+   * @param filterId the filter id to set
+   */
   public CriterionDto setFilterId(Long filterId) {
     this.filterId = filterId;
     return this;
   }
 
-  public String getFamily() {
-    return family;
-  }
-
+  /**
+   * @param family the family to set
+   */
   public CriterionDto setFamily(String family) {
     this.family = family;
     return this;
   }
 
-  public String getKey() {
-    return key;
-  }
-
+  /**
+   * @param key the key to set
+   */
   public CriterionDto setKey(String key) {
     this.key = key;
     return this;
   }
 
-  public String getOperator() {
-    return operator;
-  }
-
+  /**
+   * @param operator the operator to set
+   */
   public CriterionDto setOperator(String operator) {
     this.operator = operator;
     return this;
   }
 
-  public Float getValue() {
-    return value;
-  }
-
+  /**
+   * @param value the value to set
+   */
   public CriterionDto setValue(Float value) {
     this.value = value;
     return this;
   }
 
-  public String getTextValue() {
-    return textValue;
-  }
-
+  /**
+   * @param textValue the textValue to set
+   */
   public CriterionDto setTextValue(String textValue) {
     this.textValue = textValue;
     return this;
   }
 
-  public Boolean getVariation() {
-    return variation;
-  }
-
+  /**
+   * @param variation the variation to set
+   */
   public CriterionDto setVariation(Boolean variation) {
     this.variation = variation;
     return this;

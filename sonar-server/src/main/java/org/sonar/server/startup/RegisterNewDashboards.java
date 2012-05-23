@@ -47,20 +47,17 @@ public final class RegisterNewDashboards {
   private DashboardDao dashboardDao;
   private ActiveDashboardDao activeDashboardDao;
   private LoadedTemplateDao loadedTemplateDao;
-  private RegisterNewFilters registerNewFilters; // To force loading the filters before the dashboards
 
-  public RegisterNewDashboards(DashboardDao dashboardDao, ActiveDashboardDao activeDashboardDao, LoadedTemplateDao loadedTemplateDao, RegisterNewFilters registerNewFilters) {
-    this(new DashboardTemplate[] {}, dashboardDao, activeDashboardDao, loadedTemplateDao, registerNewFilters);
+  public RegisterNewDashboards(DashboardDao dashboardDao, ActiveDashboardDao activeDashboardDao, LoadedTemplateDao loadedTemplateDao) {
+    this(new DashboardTemplate[] {}, dashboardDao, activeDashboardDao, loadedTemplateDao);
   }
 
   public RegisterNewDashboards(DashboardTemplate[] dashboardTemplatesArray, DashboardDao dashboardDao,
-      ActiveDashboardDao activeDashboardDao, LoadedTemplateDao loadedTemplateDao,
-      RegisterNewFilters registerNewFilters) {
+      ActiveDashboardDao activeDashboardDao, LoadedTemplateDao loadedTemplateDao) {
     this.dashboardTemplates = Lists.newArrayList(dashboardTemplatesArray);
     this.dashboardDao = dashboardDao;
     this.activeDashboardDao = activeDashboardDao;
     this.loadedTemplateDao = loadedTemplateDao;
-    this.registerNewFilters = registerNewFilters;
   }
 
   public void start() {
