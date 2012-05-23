@@ -36,6 +36,10 @@ class Review < ActiveRecord::Base
   STATUS_RESOLVED = 'RESOLVED'
   STATUS_REOPENED = 'REOPENED'
   STATUS_CLOSED = 'CLOSED'
+  # "IDLE" is a non-persisted status of an non-existing review = when a violation does have a review yet
+  # It is currently used by rule_failure.rb (#to_java_workflow_review) to pass a list of reviews to the 
+  # review workflow, even for violations which don't have yet a review.
+  STATUS_IDLE = 'IDLE'
 
   RESOLUTION_FALSE_POSITIVE = 'FALSE-POSITIVE'
   RESOLUTION_FIXED = 'FIXED'

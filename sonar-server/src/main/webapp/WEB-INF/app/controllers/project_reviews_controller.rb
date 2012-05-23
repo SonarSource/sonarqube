@@ -261,15 +261,15 @@ class ProjectReviewsController < ApplicationController
   # POST
   def execute
     bad_request('Missing review id') unless params[:id]
-    review = Review.find(params[:id], :include => ['project'])
+    @review = Review.find(params[:id], :include => ['project'])
 
-    access_denied unless has_rights_to_modify?(review.resource)
+    access_denied unless has_rights_to_modify?(@review.resource)
 
     bad_request('Missing command') if params[:command].blank?
-    RuleFailure.execute_command(params[:command], review.violation, review.resource.project, current_user, params)
+    RuleFailure.execute_command(params[:command], @review.violation, @review.resource.project, current_user, params)
 
-    review.reload
-    render :partial => "project_reviews/review", :locals => {:review => review}
+    @review.reload
+    render :partial => "project_reviews/view"
   end
 
 

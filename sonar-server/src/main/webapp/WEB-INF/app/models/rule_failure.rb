@@ -291,6 +291,8 @@ class RuleFailure < ActiveRecord::Base
       java_review.setAssigneeId(review.assignee_id)
       java_review.setManual(review.manual_violation)
       java_review.setPropertiesAsString(review.data)
+    else
+      java_review.setStatus(Review::STATUS_IDLE)
     end
     java_review
   end
