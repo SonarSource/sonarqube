@@ -52,15 +52,15 @@ module WidgetPropertiesHelper
   end
 
   def options_id(value, values)
-    values.collect { |f| "<option value='#{f.id}'" + (value.to_s == f.id.to_s ? " selected='selected'" : "") + ">#{f.name}</option>" }.to_s
+    values.collect { |f| "<option value='#{f.id}'" + (value.to_s == f.id.to_s ? " selected='selected'" : "") + ">#{h(f.name)}</option>" }.to_s
   end
 
   def options_key(value, values)
-    values.collect { |f| "<option value='#{f.key}'" + (value.to_s == f.key ? " selected='selected'" : "") + ">#{f.name}</option>" }.to_s
+    values.collect { |f| "<option value='#{h(f.key)}'" + (value.to_s == f.key ? " selected='selected'" : "") + ">#{h(f.name)}</option>" }.to_s
   end
 
   def option_group(name, options)
-    options.empty? ? '' : "<optgroup label=\"#{name}\">" + options + "</optgroup>"
+    options.empty? ? '' : "<optgroup label=\"#{h(name)}\">" + options + "</optgroup>"
   end
 
 end
