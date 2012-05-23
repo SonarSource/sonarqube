@@ -51,6 +51,9 @@ public @interface Property {
    */
   String key();
 
+  /**
+   * The empty string "" is considered as null, so it's not possible to have empty strings for default values.
+   */
   String defaultValue() default "";
 
   String name();
