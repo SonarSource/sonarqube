@@ -58,7 +58,7 @@ class ActiveDashboard < ActiveRecord::Base
   def self.user_dashboards(user, global)
     result=nil
     if user && user.id
-      result=find(:all, :include => 'dashboard', :conditions => {:user_id => user.id}, :order => 'order_index').select { |a| a.global? == global}
+      result=find_for_user(user.id).select { |a| a.global? == global}
     end
     if result.nil? || result.empty?
       result=default_dashboards.select { |a| a.global? == global}
@@ -67,6 +67,13 @@ class ActiveDashboard < ActiveRecord::Base
   end
 
   def self.default_dashboards()
-    find(:all, :include => 'dashboard', :conditions => {:user_id => nil}, :order => 'order_index')
+    find_for_user(nil)
   end
+
+  private
+
+  def self.find_for_user(user_id)
+    find(:all, :include => 'dashboard', :conditions => {:user_id => user_id}, :order => 'order_index')
+  end
+
 end

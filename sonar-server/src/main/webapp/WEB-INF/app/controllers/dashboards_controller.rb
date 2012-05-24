@@ -28,15 +28,14 @@ class DashboardsController < ApplicationController
     @global = !params[:resource]
 
     @actives=ActiveDashboard.user_dashboards(current_user, @global)
-    @shared_dashboards=Dashboard.find(:all, :conditions => ['(user_id<>? OR user_id IS NULL) AND shared=?', current_user.id, true], :order => 'name ASC')
-    active_dashboard_ids=@actives.map(&:dashboard_id)
-    @shared_dashboards.reject! { |d| active_dashboard_ids.include?(d.id) }
-    @shared_dashboards.reject! { |a| a.global != @global}
+    @shared_dashboards=Dashboard.find(:all, :conditions => ['(user_id<>? OR user_id IS NULL) AND shared=? AND is_global=?', current_user.id, true, @global]).sort { |a, b| a.name.downcase<=>b.name.downcase }
+    active_ids=@actives.map(&:dashboard_id)
+    @shared_dashboards.reject! { |d| active_ids.include?(d.id) }
 
     if params[:resource]
       @resource=Project.by_key(params[:resource])
       if @resource.nil?
-      # TODO display error page
+        # TODO display error page
         redirect_to home_path
         return false
       end
@@ -54,14 +53,17 @@ class DashboardsController < ApplicationController
     active_dashboard = current_user.active_dashboards.to_a.find { |ad| ad.name==@dashboard.name }
     if active_dashboard
       flash[:error]=Api::Utils.message('dashboard.error_create_existing_name')
+
       redirect_to :action => 'index', :resource => params[:resource]
     elsif @dashboard.save
-      add_default_dashboards_if_first_user_dashboard
-      last_active_dashboard=current_user.active_dashboards.max_by(&:order_index)
-      current_user.active_dashboards.create(:dashboard => @dashboard, :user_id => current_user.id, :order_index => (last_active_dashboard ? last_active_dashboard.order_index+1 : 1))
+      add_default_dashboards_if_first_user_dashboard(@dashboard.global?)
+      last_index=current_user.active_dashboards.max_by(&:order_index).order_index
+      current_user.active_dashboards.create(:dashboard => @dashboard, :user_id => current_user.id, :order_index => last_index+1)
+
       redirect_to :controller => 'dashboard', :action => 'configure', :did => @dashboard.id, :id => (params[:resource] unless @dashboard.global)
     else
       flash[:error]=@dashboard.errors.full_messages.join('<br/>')
+
       redirect_to :action => 'index', :resource => params[:resource]
     end
   end
@@ -116,9 +118,9 @@ class DashboardsController < ApplicationController
   end
 
   def follow
-    add_default_dashboards_if_first_user_dashboard
     dashboard=Dashboard.find(:first, :conditions => ['shared=? and id=? and (user_id is null or user_id<>?)', true, params[:id].to_i, current_user.id])
     if dashboard
+      add_default_dashboards_if_first_user_dashboard(dashboard.global?)
       active_dashboard = current_user.active_dashboards.to_a.find { |ad| ad.name==dashboard.name }
       if active_dashboard
         flash[:error]=Api::Utils.message('dashboard.error_follow_existing_name')
@@ -133,10 +135,9 @@ class DashboardsController < ApplicationController
   end
 
   def unfollow
-    add_default_dashboards_if_first_user_dashboard
-
     dashboard=Dashboard.find(:first, :conditions => ['shared=? and id=? and (user_id is null or user_id<>?)', true, params[:id].to_i, current_user.id])
     if dashboard
+      add_default_dashboards_if_first_user_dashboard(dashboard.global?)
       ActiveDashboard.destroy_all(['user_id=? AND dashboard_id=?', current_user.id, params[:id].to_i])
 
       if ActiveDashboard.count(:conditions => ['user_id=?', current_user.id])==0
@@ -149,18 +150,17 @@ class DashboardsController < ApplicationController
   private
 
   def position(offset)
-    add_default_dashboards_if_first_user_dashboard
-
     dashboards=current_user.active_dashboards.to_a
 
-    to_move = dashboards.find { |a| a.id == params[:id].to_i}
+    to_move = dashboards.find { |a| a.id == params[:id].to_i }
     if to_move
+      add_default_dashboards_if_first_user_dashboard(to_move.global?)
       dashboards_same_type=dashboards.select { |a| (a.global? == to_move.global?) }.sort_by(&:order_index)
 
       index = dashboards_same_type.index(to_move)
       dashboards_same_type[index], dashboards_same_type[index + offset] = dashboards_same_type[index + offset], dashboards_same_type[index]
 
-      dashboards_same_type.each_with_index do |a,i|
+      dashboards_same_type.each_with_index do |a, i|
         a.order_index=i+1
         a.save
       end
@@ -177,11 +177,10 @@ class DashboardsController < ApplicationController
     dashboard.column_layout=Dashboard::DEFAULT_LAYOUT if !dashboard.column_layout
   end
 
-  def add_default_dashboards_if_first_user_dashboard
-    if current_user.active_dashboards.empty?
-      defaults=ActiveDashboard.default_dashboards
-      defaults.each do |default_active|
-        current_user.active_dashboards.create(:dashboard => default_active.dashboard, :user => current_user, :order_index => current_user.active_dashboards.size+1)
+  def add_default_dashboards_if_first_user_dashboard(global)
+    unless current_user.active_dashboards.any? { |a| a.global? == global }
+      ActiveDashboard.default_dashboards.select { |a| a.global? == global }.each do |default_active|
+        current_user.active_dashboards.create(:dashboard => default_active.dashboard, :user => current_user, :order_index => default_active.order_index)
       end
     end
   end

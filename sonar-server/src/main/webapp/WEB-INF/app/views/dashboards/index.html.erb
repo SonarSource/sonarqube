@@ -56,7 +56,9 @@
                 <% end %>
               <% end %>
               <% if @actives.size() > 1 and active.shared? and !active.dashboard.owner?(current_user) %>
+                <% if active.editable_by?(current_user) %>
                 |
+                <% end %>
                 <%= link_to message('unfollow'), {:action => :unfollow, :id => active.dashboard_id, :resource => params[:resource]}, :method => :post,
                             :id => "unfollow-#{u active.name}", :class => 'link-action' %>
               <% end %>
