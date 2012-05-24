@@ -10,5 +10,5 @@
   <br/>
   <%= button_to_remote "Upgrade", 
                        :url => { :action => 'setup_database' },
-                       :after => "window.location.reload();return false;" -%>
+                       :loading => "window.location.reload();" -%>
 </div>
