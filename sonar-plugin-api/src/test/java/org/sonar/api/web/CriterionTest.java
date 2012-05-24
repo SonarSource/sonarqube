@@ -29,11 +29,11 @@ public class CriterionTest {
 
   @Test
   public void should_accept_valid_operators() {
-    Criterion.create("", "", "<=", "", false);
-    Criterion.create("", "", "<", "", false);
-    Criterion.create("", "", "=", "", false);
-    Criterion.create("", "", ">", "", false);
-    Criterion.create("", "", ">=", "", false);
+    Criterion.createForMetric("", "<=", "", false);
+    Criterion.createForMetric("", "<", "", false);
+    Criterion.createForMetric("", "=", "", false);
+    Criterion.createForMetric("", ">", "", false);
+    Criterion.createForMetric("", ">=", "", false);
   }
 
   @Test
@@ -41,6 +41,6 @@ public class CriterionTest {
     exception.expect(IllegalArgumentException.class);
     exception.expectMessage("Valid operators are [<, <=, =, >, >=], not '<>'");
 
-    Criterion.create("", "", "<>", "", false);
+    Criterion.createForMetric("", "<>", "", false);
   }
 }

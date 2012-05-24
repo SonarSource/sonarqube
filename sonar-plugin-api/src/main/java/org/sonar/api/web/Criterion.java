@@ -19,6 +19,8 @@
  */
 package org.sonar.api.web;
 
+import com.google.common.base.Joiner;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSortedSet;
 
@@ -60,9 +62,6 @@ public final class Criterion {
    *
    * <p>Valid values for the {@code operator} are {@value #EQ}, {@value #GT}, {@value #GTE}, {@value #LT} and {@value #LTE}</p>
    *
-   * <p>When the {@link Filter} is persisted, a validation is made on the {@code family} and the {@code key}.
-   * They should point to a valid criterion.</p>
-   *
    * @throws IllegalArgumentException if {@code operator} is not valid
    */
   public static Criterion create(String family, String key, String operator, Float value, boolean variation) {
@@ -74,13 +73,39 @@ public final class Criterion {
    *
    * <p>Valid values for the {@code operator} are {@value #EQ}, {@value #GT}, {@value #GTE}, {@value #LT} and {@value #LTE}</p>
    *
-   * <p>When the {@link Filter} is persisted, a validation is made on the {@code family} and the {@code key}.
-   * They should point to a valid criterion.</p>
-   *
    * @throws IllegalArgumentException if {@code operator} is not valid
    */
   public static Criterion create(String family, String key, String operator, String textValue, boolean variation) {
     return new Criterion(family, key, operator, null, textValue, variation);
+  }
+
+  /**
+   * Creates a new {@link Criterion} on a metric, with a numerical value.
+   *
+   * <p>Valid values for the {@code operator} are {@value #EQ}, {@value #GT}, {@value #GTE}, {@value #LT} and {@value #LTE}</p>
+   *
+   * @throws IllegalArgumentException if {@code operator} is not valid
+   */
+  public static Criterion createForMetric(String key, String operator, Float value, boolean variation) {
+    return new Criterion("metric", key, operator, value, null, variation);
+  }
+
+  /**
+   * Creates a new {@link Criterion} on a metric, with a text value.
+   *
+   * <p>Valid values for the {@code operator} are {@value #EQ}, {@value #GT}, {@value #GTE}, {@value #LT} and {@value #LTE}</p>
+   *
+   * @throws IllegalArgumentException if {@code operator} is not valid
+   */
+  public static Criterion createForMetric(String key, String operator, String textValue, boolean variation) {
+    return new Criterion("metric", key, operator, null, textValue, variation);
+  }
+
+  /**
+   * Creates a new {@link Criterion} on a qualifier.
+   */
+  public static Criterion createForQualifier(Object... values) {
+    return new Criterion("qualifier", null, EQ, null, Joiner.on(',').join(values), false);
   }
 
   /**

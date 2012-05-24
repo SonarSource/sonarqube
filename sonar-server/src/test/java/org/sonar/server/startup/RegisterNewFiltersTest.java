@@ -114,8 +114,8 @@ public class RegisterNewFiltersTest {
     when(filterTemplate.createFilter()).thenReturn(Filter.create()
         .setFavouritesOnly(false)
         .setDisplayAs("list")
-        .add(Criterion.create("metric", "complexity", Criterion.LT, 12f, false))
-        .add(Criterion.create("metric", "LCOM4", Criterion.GTE, "5", true))
+        .add(Criterion.createForMetric("complexity", Criterion.LT, 12f, false))
+        .add(Criterion.createForMetric("LCOM4", Criterion.GTE, "5", true))
         .add(FilterColumn.create("metric", "distance", "ASC", false))
         .add(FilterColumn.create("metric", "instability", "DESC", true))
         );

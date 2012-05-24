@@ -41,7 +41,7 @@ public class MyFavouritesFilter extends FilterTemplate {
     Filter filter = Filter.create();
     filter.setDisplayAs(Filter.LIST);
     filter.setFavouritesOnly(true);
-    filter.add(Criterion.create("qualifier", null, Criterion.EQ, "VW,SVW,TRK,BRC,DIR,PAC,FIL,CLA,UTS,LIB", false));
+    filter.add(Criterion.createForQualifier("VW", "SVW", "TRK", "BRC", "DIR", "PAC", "FIL", "CLA", "UTS", "LIB"));
     filter.add(FilterColumn.create("metric", "alert_status", FilterColumn.DESC, false));
     filter.add(FilterColumn.create("name", null, FilterColumn.ASC, false));
     filter.add(FilterColumn.create("metric", "ncloc", FilterColumn.DESC, false));

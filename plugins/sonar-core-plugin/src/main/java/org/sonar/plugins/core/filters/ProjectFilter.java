@@ -39,7 +39,7 @@ public class ProjectFilter extends FilterTemplate {
   public Filter createFilter() {
     Filter filter = Filter.create();
     filter.setDisplayAs(Filter.LIST);
-    filter.add(Criterion.create("qualifier", null, Criterion.EQ, "TRK", false));
+    filter.add(Criterion.createForQualifier("TRK"));
     filter.add(FilterColumn.create("metric", "alert_status", FilterColumn.DESC, false));
     filter.add(FilterColumn.create("name", null, FilterColumn.ASC, false));
     filter.add(FilterColumn.create("version", null, FilterColumn.DESC, false));
