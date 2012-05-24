@@ -34,12 +34,12 @@
             <% end %>
             <td>
               <% if index > 0 %>
-                <%= link_to image_tag('blue-up.png'), {:action => :up, :id => active.id, :resource => params[:resource]}, :method => :post, :id => "up-#{u active.name}" %>
+                <%= link_to image_tag('blue-up.png'), {:action => :up, :id => active.dashboard_id, :resource => params[:resource]}, :method => :post, :id => "up-#{u active.name}" %>
               <% else %>
                 <%= image_tag('transparent_16.gif') %>
               <% end %>
               <% if index < @actives.size-1 %>
-                <%= link_to image_tag('blue-down.png'), {:action => :down, :id => active.id, :resource => params[:resource]}, :method => :post, :id => "down-#{u active.name}" %>
+                <%= link_to image_tag('blue-down.png'), {:action => :down, :id => active.dashboard_id, :resource => params[:resource]}, :method => :post, :id => "down-#{u active.name}" %>
               <% end %>
             </td>
             <td class="thin nowrap right">

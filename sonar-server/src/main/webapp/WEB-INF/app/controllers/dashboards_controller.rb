@@ -121,6 +121,7 @@ class DashboardsController < ApplicationController
     dashboard=Dashboard.find(:first, :conditions => ['shared=? and id=? and (user_id is null or user_id<>?)', true, params[:id].to_i, current_user.id])
     if dashboard
       add_default_dashboards_if_first_user_dashboard(dashboard.global?)
+
       active_dashboard = current_user.active_dashboards.to_a.find { |ad| ad.name==dashboard.name }
       if active_dashboard
         flash[:error]=Api::Utils.message('dashboard.error_follow_existing_name')
@@ -138,6 +139,7 @@ class DashboardsController < ApplicationController
     dashboard=Dashboard.find(:first, :conditions => ['shared=? and id=? and (user_id is null or user_id<>?)', true, params[:id].to_i, current_user.id])
     if dashboard
       add_default_dashboards_if_first_user_dashboard(dashboard.global?)
+
       ActiveDashboard.destroy_all(['user_id=? AND dashboard_id=?', current_user.id, params[:id].to_i])
 
       if ActiveDashboard.count(:conditions => ['user_id=?', current_user.id])==0
@@ -150,21 +152,23 @@ class DashboardsController < ApplicationController
   private
 
   def position(offset)
-    dashboards=current_user.active_dashboards.to_a
+    dashboard=Dashboard.find(:first, :conditions => ['shared=? and id=? and (user_id is null or user_id<>?)', true, params[:id].to_i, current_user.id])
+    if dashboard
+      add_default_dashboards_if_first_user_dashboard(dashboard.global?)
 
-    to_move = dashboards.find { |a| a.id == params[:id].to_i }
-    if to_move
-      add_default_dashboards_if_first_user_dashboard(to_move.global?)
-      dashboards_same_type=dashboards.select { |a| (a.global? == to_move.global?) }.sort_by(&:order_index)
+      actives=current_user.active_dashboards.select { |a| a.global? == dashboard.global? }.sort_by(&:order_index)
 
-      index = dashboards_same_type.index(to_move)
-      dashboards_same_type[index], dashboards_same_type[index + offset] = dashboards_same_type[index + offset], dashboards_same_type[index]
+      index = actives.index { |a| a.dashboard_id == dashboard.id }
+      if index
+        actives[index], actives[index + offset] = actives[index + offset], actives[index]
 
-      dashboards_same_type.each_with_index do |a, i|
-        a.order_index=i+1
-        a.save
+        actives.each_with_index do |a, i|
+          a.order_index=i+1
+          a.save
+        end
       end
     end
+
 
     redirect_to :action => 'index', :resource => params[:resource]
   end
