@@ -19,12 +19,6 @@
  */
 package org.sonar.plugins.core;
 
-import org.sonar.plugins.core.filters.MyFavouritesFilter;
-
-import org.sonar.plugins.core.filters.TreeMapFilter;
-
-import org.sonar.plugins.core.filters.ProjectFilter;
-
 import com.google.common.collect.Lists;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Extension;
@@ -44,8 +38,13 @@ import org.sonar.plugins.core.charts.XradarChart;
 import org.sonar.plugins.core.colorizers.JavaColorizerFormat;
 import org.sonar.plugins.core.dashboards.DefaultDashboard;
 import org.sonar.plugins.core.dashboards.HotspotsDashboard;
+import org.sonar.plugins.core.dashboards.ProjectsDashboard;
 import org.sonar.plugins.core.dashboards.ReviewsDashboard;
 import org.sonar.plugins.core.dashboards.TimeMachineDashboard;
+import org.sonar.plugins.core.dashboards.TreemapDashboard;
+import org.sonar.plugins.core.filters.MyFavouritesFilter;
+import org.sonar.plugins.core.filters.ProjectFilter;
+import org.sonar.plugins.core.filters.TreeMapFilter;
 import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
 import org.sonar.plugins.core.sensors.BranchCoverageDecorator;
 import org.sonar.plugins.core.sensors.CheckAlertThresholds;
@@ -341,6 +340,8 @@ public final class CorePlugin extends SonarPlugin {
     extensions.add(HotspotsDashboard.class);
     extensions.add(ReviewsDashboard.class);
     extensions.add(TimeMachineDashboard.class);
+    extensions.add(ProjectsDashboard.class);
+    extensions.add(TreemapDashboard.class);
 
     // chart
     extensions.add(XradarChart.class);

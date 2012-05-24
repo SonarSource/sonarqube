@@ -19,31 +19,34 @@
  */
 package org.sonar.plugins.core.dashboards;
 
-import org.junit.Test;
+import org.sonar.plugins.core.widgets.FilterWidget;
+
+import org.sonar.api.web.Dashboard.Widget;
+
 import org.sonar.api.web.Dashboard;
 import org.sonar.api.web.DashboardLayout;
-import org.sonar.plugins.core.CorePlugin;
+import org.sonar.api.web.DashboardTemplate;
 
-import static org.fest.assertions.Assertions.assertThat;
-
-public class HotspotsDashboardTest {
-  HotspotsDashboard template = new HotspotsDashboard();
-
-  @Test
-  public void should_have_a_name() {
-    assertThat(template.getName()).isEqualTo("Hotspots");
+/**
+ * Projects global dashboard for Sonar
+ *
+ * @since 3.1
+ */
+public final class ProjectsDashboard extends DashboardTemplate {
+  @Override
+  public String getName() {
+    return "Projects";
   }
 
-  @Test
-  public void should_be_registered_as_an_extension() {
-    assertThat(new CorePlugin().getExtensions()).contains(template.getClass());
-  }
+  @Override
+  public Dashboard createDashboard() {
+    Dashboard dashboard = Dashboard.create();
+    dashboard.setGlobal(true);
+    dashboard.setLayout(DashboardLayout.ONE_COLUMN);
 
-  @Test
-  public void should_create_dashboard() {
-    Dashboard dashboard = template.createDashboard();
+    Widget filterWidget = dashboard.addWidget("filter", 1);
+    filterWidget.setProperty(FilterWidget.FILTER, "Projects");
 
-    assertThat(dashboard.getLayout()).isEqualTo(DashboardLayout.TWO_COLUMNS);
-    assertThat(dashboard.getWidgets()).hasSize(8);
+    return dashboard;
   }
 }

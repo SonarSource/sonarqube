@@ -19,20 +19,31 @@
  */
 package org.sonar.plugins.core.dashboards;
 
-import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.sonar.api.web.Dashboard;
 import org.sonar.api.web.DashboardLayout;
+import org.sonar.plugins.core.CorePlugin;
 
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class DefaultDashboardTest {
+  DefaultDashboard template = new DefaultDashboard();
+
   @Test
-  public void shouldCreateDashboard() {
-    DefaultDashboard template = new DefaultDashboard();
+  public void should_have_a_name() {
+    assertThat(template.getName()).isEqualTo("Dashboard");
+  }
+
+  @Test
+  public void should_be_registered_as_an_extension() {
+    assertThat(new CorePlugin().getExtensions()).contains(template.getClass());
+  }
+
+  @Test
+  public void should_create_dashboard() {
     Dashboard dashboard = template.createDashboard();
-    assertThat(template.getName(), Is.is("Dashboard"));
-    assertThat(dashboard.getLayout(), Is.is(DashboardLayout.TWO_COLUMNS));
-    assertThat(dashboard.getWidgets().size(), Is.is(11));
+
+    assertThat(dashboard.getLayout()).isEqualTo(DashboardLayout.TWO_COLUMNS);
+    assertThat(dashboard.getWidgets()).hasSize(11);
   }
 }

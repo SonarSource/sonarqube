@@ -19,20 +19,23 @@
  */
 package org.sonar.plugins.core.dashboards;
 
+import org.sonar.plugins.core.CorePlugin;
+
+import com.google.common.collect.Iterables;
 import org.junit.Test;
 import org.sonar.api.web.Dashboard;
 import org.sonar.api.web.Dashboard.Widget;
-import org.sonar.api.web.DashboardLayout;
-import org.sonar.plugins.core.CorePlugin;
+import org.sonar.plugins.core.filters.TreeMapFilter;
+import org.sonar.plugins.core.widgets.FilterWidget;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class TimeMachineDashboardTest {
-  TimeMachineDashboard template = new TimeMachineDashboard();
+public class TreemapDashboardTest {
+  TreemapDashboard template = new TreemapDashboard();
 
   @Test
   public void should_have_a_name() {
-    assertThat(template.getName()).isEqualTo("TimeMachine");
+    assertThat(template.getName()).isEqualTo("Treemap");
   }
 
   @Test
@@ -43,14 +46,10 @@ public class TimeMachineDashboardTest {
   @Test
   public void should_create_dashboard() {
     Dashboard dashboard = template.createDashboard();
+    Widget widget = Iterables.getOnlyElement(dashboard.getWidgets());
 
-    assertThat(dashboard.getLayout()).isEqualTo(DashboardLayout.TWO_COLUMNS);
-    assertThat(dashboard.getWidgets()).hasSize(7);
-
-    for (Widget widget : dashboard.getWidgets()) {
-      if (widget.getId().equals("time_machine")) {
-        assertThat(widget.getProperty("displaySparkLine")).isEqualTo("true");
-      }
-    }
+    assertThat(dashboard.isGlobal()).isTrue();
+    assertThat(widget.getId()).isEqualTo(new FilterWidget().getId());
+    assertThat(widget.getProperty("filter")).isEqualTo(new TreeMapFilter().getName());
   }
 }
