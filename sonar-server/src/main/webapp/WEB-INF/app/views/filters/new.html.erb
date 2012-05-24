@@ -27,37 +27,42 @@
           <b><span id="path_name"><%= @filter.resource ? @filter.resource.path_name : params[:path_name] -%></span></b>
           <input type="hidden" name="path_id" id="path_id" value="<%= @filter.resource ? @filter.resource.id : params[:path_id] -%>"/>
           <a onclick="searchPopup(this);return false;" href="<%= url_for :action => :search_path, :search => (@filter.resource ? @filter.resource.name : nil) -%>"><%= message('search_verb') -%></a>
-          <a href="#" onClick="$('path_name').innerText='';$('path_name').innerHTML='';Form.Element.clear('path_id');return false;"><%= message('reset_verb') -%></a>
+          <a href="#" onClick="resetPath();return false;" id="reset_path_link" style="<%= 'display: none' unless @filter.resource -%>"><%= message('reset_verb') -%></a>
         </td>
       </tr>
       <tr>
         <td class="keyCell"><%= message('filters.search_for') -%>:</td>
         <td>
+          <div id="direct-children-option" style="<%= 'display: none' unless @filter.display_direct_children_option? -%>">
+            <input type="checkbox" name="direct-children" value="true" <%= 'checked' if @filter.on_direct_children? -%> id="direct-children-checkbox" onclick="onDirectChildrenChange()"/>
+            <label for="direct-children-checkbox"><%= message('filters.directChildrenCriterion') -%></label>
+          </div>
+
           <% qualifiers=(@filter.criterion('qualifier') ? @filter.criterion('qualifier').text_values : []) %>
 
-          <input type="checkbox" name="qualifiers[]" value="TRK" <%= 'checked' if qualifiers.include?('TRK') -%> id="q-TRK"/>
+          <input type="checkbox" name="qualifiers[]" value="TRK" <%= 'checked' if qualifiers.include?('TRK') -%> id="q-TRK" onclick="onQualifierChange()"/>
           <label for="q-TRK"><%= message('qualifiers.TRK') -%></label>
           <span class="spacer"> </span>
 
-          <input type="checkbox" name="qualifiers[]" value="BRC" <%= 'checked' if qualifiers.include?('BRC') -%> id="q-BRC"/>
+          <input type="checkbox" name="qualifiers[]" value="BRC" <%= 'checked' if qualifiers.include?('BRC') -%> id="q-BRC" onclick="onQualifierChange()"/>
           <label for="q-BRC"><%= message('qualifiers.BRC') -%></label>
           <span class="spacer"> </span>
 
-          <input type="checkbox" name="qualifiers[]" value="DIR,PAC" <%= 'checked' if qualifiers.include?('DIR') -%> id="q-DIR"/>
+          <input type="checkbox" name="qualifiers[]" value="DIR,PAC" <%= 'checked' if qualifiers.include?('DIR') -%> id="q-DIR" onclick="onQualifierChange()"/>
           <label for="q-DIR"><%= message('qualifiers.DIR') -%>/<%= message('qualifiers.PAC') -%></label>
           <span class="spacer"> </span>
 
-          <input type="checkbox" name="qualifiers[]" value="FIL,CLA" <%= 'checked' if qualifiers.include?('FIL') -%> id="q-FIL"/>
+          <input type="checkbox" name="qualifiers[]" value="FIL,CLA" <%= 'checked' if qualifiers.include?('FIL') -%> id="q-FIL" onclick="onQualifierChange()"/>
           <label for="q-FIL"><%= message('qualifiers.FIL') -%></label>
           <span class="spacer"> </span>
 
-          <input type="checkbox" name="qualifiers[]" value="UTS" <%= 'checked' if qualifiers.include?('UTS') -%> id="q-UTS"/>
+          <input type="checkbox" name="qualifiers[]" value="UTS" <%= 'checked' if qualifiers.include?('UTS') -%> id="q-UTS" onclick="onQualifierChange()"/>
           <label for="q-UTS"><%= message('qualifiers.UTS') -%></label>
           <span class="spacer"> </span>
 
           <% for desc in controller.java_facade.getResourceTypesForFilter()
                qualifier = desc.getQualifier() %>
-            <input type="checkbox" name="qualifiers[]" value="<%= qualifier -%>" <%= 'checked' if qualifiers.include?(qualifier) -%> id="q-<%= qualifier -%>"/>
+            <input type="checkbox" name="qualifiers[]" value="<%= qualifier -%>" <%= 'checked' if qualifiers.include?(qualifier) -%> id="q-<%= qualifier -%>" onclick="onQualifierChange()"/>
             <label for="q-<%= qualifier -%>"><%= message("qualifiers.#{qualifier}") -%></label>
             <span class="spacer"> </span>
           <% end %>
@@ -200,6 +205,42 @@
 <% end %>
 
 <script>
+  function setPath(resourceId, resourceLabel) {
+    $('path_id').value = resourceId;
+    $('path_name').innerText = resourceLabel;
+    $('path_name').textContent = resourceLabel;
+    $('reset_path_link').show();
+    $('direct-children-option').show();
+    return true;
+  }
+
+  function resetPath() {
+    $('path_name').innerText = '';
+    $('path_name').innerHTML = '';
+    $('path_id').clear();
+    $('reset_path_link').hide();
+    $('direct-children-checkbox').checked = false;
+    $('direct-children-option').hide();
+    return true;
+  }
+
+  function onQualifierChange() {
+    $('direct-children-checkbox').checked = false;
+    return true;
+  }
+
+  function onDirectChildrenChange() {
+    var formElements = $('filter_form').elements;
+    if ($F('direct-children-checkbox') != null) {
+      for (var i = 0; i < formElements.length; i++) {
+        if (formElements[i].name == 'qualifiers[]') {
+          formElements[i].checked = false;
+        }
+      }
+    }
+    return true;
+  }
+
   function searchPopup(elt, text) {
     newwindow = window.open(elt.href, 'search', 'height=500,width=700,scrollbars=1,resizable=1');
     if (window.focus) {
@@ -207,5 +248,6 @@
     }
     return false;
   }
+
   $('name').focus();
 </script>

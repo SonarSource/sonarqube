@@ -45,6 +45,7 @@ public class Filter {
   private DateCriterion dateCriterion;
   private String keyRegexp;
   private String nameRegexp;
+  private boolean onDirectChildren = false;
   private boolean isViewContext = false;
 
   // filters on measures
@@ -343,6 +344,14 @@ public class Filter {
 
   public boolean isOnPeriod() {
     return periodIndex > 0;
+  }
+
+  public boolean isOnDirectChildren() {
+    return onDirectChildren;
+  }
+
+  public void setOnDirectChildren(boolean b) {
+    this.onDirectChildren = b;
   }
 
   static String getVariationColumn(int periodIndex) {

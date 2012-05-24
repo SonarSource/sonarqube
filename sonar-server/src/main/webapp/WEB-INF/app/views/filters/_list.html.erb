@@ -99,13 +99,17 @@
   </tfoot>
 
   <tbody>
-  <% if @masterproject %>
+  <% 
+     if @filter_context.filter.display_path_data?
+       root_snapshot = Snapshot.find(:first, :include => 'project', :conditions => ['projects.id=? and islast=?', @filter_context.filter.resource_id, true])
+       root_snapshot=nil if root_snapshot && !(has_role?(:user, root_snapshot))
+  %>
     <tr class="highlight">
-      <td><% if logged_in? %><%= link_to_favourite(@masterproject.project) -%><% end %></td>
+      <td><% if logged_in? %><%= link_to_favourite(root_snapshot.project) -%><% end %></td>
       <% filter.columns.each do |column| %>
       <td class="<%= column_align(column) -%>">
         <% if column.on_metric?
-     	    measure=@masterproject.measure(column.metric)
+     	    measure=root_snapshot.measure(column.metric)
         %>
 	        <% if column.variation %>
 		        <%= format_variation(measure, :index => @filter_context.period_index, :style => 'light') -%>
@@ -117,13 +121,14 @@
 			        <%= trend_icon(measure, :empty => true) -%>
 		        <% end %>
 	        <% end %>
-        <% elsif column.on_name? %><%= qualifier_icon(@masterproject) %> <%= link_to_resource(@masterproject.project, h(@masterproject.project.name(true)), {:dashboard => true, :title => @masterproject.project.key}) %>
-        <% elsif column.on_date? %><%= human_short_date(@masterproject.created_at) %>
+        <% elsif column.on_name? %><%= qualifier_icon(root_snapshot) %> <%= link_to_resource(root_snapshot.project, h(root_snapshot.project.name(true)), {:dashboard => true, :title => root_snapshot.project.key}) %>
+        <% elsif column.on_date? %><%= human_short_date(root_snapshot.created_at) %>
         <% end %>
       </td>
       <% end %>
     </tr>
   <% end %>
+
   <% if @filter_context.empty? %>
     <tr class="even"><td colspan="<%= 1+filter.columns.size -%>"><%= message('no_results') -%></td></tr>
   <% else %>

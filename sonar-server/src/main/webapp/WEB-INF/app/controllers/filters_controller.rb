@@ -53,8 +53,7 @@ class FiltersController < ApplicationController
     load_filter_from_params(@filter, params)
     @filter.user_id=current_user.id
     @filter.kee=[@filter.name, current_user.id.to_s].join('.')
-
-        @filter.columns.build(:family => 'name', :order_index => 1, :sort_direction => 'ASC')
+    @filter.columns.build(:family => 'name', :order_index => 1, :sort_direction => 'ASC')
     @filter.columns.build(:family => 'metric', :kee => 'ncloc', :order_index => 2, :variation => @filter.period?)
     @filter.columns.build(:family => 'metric', :kee => 'violations_density', :order_index => 3, :variation => @filter.period?)
     @filter.columns.build(:family => 'date', :order_index => 4)
@@ -305,10 +304,7 @@ class FiltersController < ApplicationController
         :measures_by_snapshot => @filter_context.measures_by_snapshot
     })
 
-
-    #@treemap=Sonar::Treemap.new(@filter_context.measures_by_snapshot, @width, @height, @size_metric, @color_metric, treemap_options)
     render :action => "treemap", :layout => false
-
   end
 
 
@@ -332,6 +328,7 @@ class FiltersController < ApplicationController
     filter.criteria<<Criterion.new(:family => 'key', :operator => '=', :text_value => params['key_regexp']) if params['key_regexp'].present?
     filter.criteria<<Criterion.new(:family => 'name', :operator => '=', :text_value => params['name_regexp']) if params['name_regexp'].present?
     filter.criteria<<Criterion.new(:family => 'language', :operator => '=', :text_value => params['languages'].join(',')) if params['languages']
+    filter.criteria<<Criterion.new(:family => 'direct-children', :operator => '=', :text_value => 'true') if params['direct-children'].present?
 
     if params[:criteria]['0']['metric_id'].present?
       filter.criteria<<Criterion.new_for_metric(params[:criteria]['0'])

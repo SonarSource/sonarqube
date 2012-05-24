@@ -59,6 +59,8 @@ class Filters
       java_filter.setQualifiers([].to_java(:String))
     end
 
+    java_filter.setOnDirectChildren(filter.on_direct_children?)
+
     language_criterion=filter.criterion('language')
     if language_criterion
       java_filter.setLanguages(language_criterion.text_values.to_java :String)

@@ -178,7 +178,8 @@ public class FilterExecutor implements ServerComponent {
     }
     if (filter.hasQualifiers()) {
       sql.append(" AND s.qualifier IN (:qualifiers) ");
-    } else {
+    } else if (!filter.isOnDirectChildren()) {
+      // no criteria -> we should not display all rows but no rows
       sql.append(" AND s.qualifier IS NULL ");
     }
     if (filter.hasLanguages()) {
@@ -188,7 +189,11 @@ public class FilterExecutor implements ServerComponent {
       sql.append(filter.getFavouriteIds().isEmpty() ? " AND s.project_id IS NULL " : " AND s.project_id IN (:favourites) ");
     }
     if (filter.hasBaseSnapshot()) {
-      sql.append(" AND s.root_snapshot_id=:root_sid AND s.path LIKE :path ");
+      if (filter.isOnDirectChildren()) {
+        sql.append(" AND s.parent_snapshot_id=:parent_sid ");
+      } else {
+        sql.append(" AND s.root_snapshot_id=:root_sid AND s.path LIKE :path ");
+      }
     }
     if (filter.getDateCriterion() != null) {
       sql.append(" AND s.created_at");
@@ -226,9 +231,13 @@ public class FilterExecutor implements ServerComponent {
       query.setParameter("date", filter.getDateCriterion().getDate());
     }
     if (filter.hasBaseSnapshot()) {
-      query.setParameter("root_sid", filter.getRootSnapshotId());
-      query.setParameter("path", new StringBuilder().append(
-          filter.getBaseSnapshotPath()).append(filter.getBaseSnapshotId()).append(".%").toString());
+      if (filter.isOnDirectChildren()) {
+        query.setParameter("parent_sid", filter.getBaseSnapshotId());
+      } else {
+        query.setParameter("root_sid", filter.getRootSnapshotId());
+        query.setParameter("path", new StringBuilder().append(
+            filter.getBaseSnapshotPath()).append(filter.getBaseSnapshotId()).append(".%").toString());
+      }
     }
     if (StringUtils.isNotBlank(filter.getKeyRegexp())) {
       query.setParameter("kee", StringUtils.upperCase(StringUtils.replaceChars(filter.getKeyRegexp(), '*', '%')));

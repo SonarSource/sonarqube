@@ -12,9 +12,7 @@
 <% if @snapshots_by_qualifier %>
   <script>
     function selectPath(pid, label) {
-      window.opener.document.getElementById('path_id').value = pid;
-      window.opener.document.getElementById('path_name').innerText = label;
-      window.opener.document.getElementById('path_name').textContent = label;
+      window.opener.setPath(pid, label);
       window.close();
     }
   </script>

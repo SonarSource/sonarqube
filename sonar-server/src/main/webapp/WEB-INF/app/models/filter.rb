@@ -36,12 +36,12 @@ class Filter < ActiveRecord::Base
   validates_uniqueness_of :kee
 
   def criterion(family, key=nil)
-	criteria.each do |criterion|
-	  if criterion.family==family && criterion.key==key
-		return criterion if ((key.nil? && criterion.key.nil?) || (key && key==criterion.key))
-	  end
-	end
-	nil
+    criteria.each do |criterion|
+      if criterion.family==family && criterion.key==key
+        return criterion if ((key.nil? && criterion.key.nil?) || (key && key==criterion.key))
+      end
+    end
+    nil
   end
 
   def key
@@ -49,147 +49,161 @@ class Filter < ActiveRecord::Base
   end
 
   def measure_criteria
-	@measure_criteria ||=
-	  begin
-		criteria.select { |c| c.on_metric? && c.metric }
-	  end
+    @measure_criteria ||=
+      begin
+        criteria.select { |c| c.on_metric? && c.metric }
+      end
   end
 
   def first_column
-	columns.size>0 ? columns[0] : nil
+    columns.size>0 ? columns[0] : nil
   end
 
   def last_column
-	columns.size>0 ? columns[-1] : nil
+    columns.size>0 ? columns[-1] : nil
   end
 
   def column(family, key=nil)
-	columns.each do |col|
-	  if col.family==family
-		return col if ((key.nil? && col.key.nil?) || (key && key==col.key))
-	  end
-	end
-	nil
+    columns.each do |col|
+      if col.family==family
+        return col if ((key.nil? && col.key.nil?) || (key && key==col.key))
+      end
+    end
+    nil
   end
 
   def measure_columns
-	columns.select { |col| col.metric }
+    columns.select { |col| col.metric }
   end
 
   def sorted_column
-	@sorted_column ||=
-	  begin
-		columns.to_a.find { |c| c.sort_direction } || column('name')
-	  end
+    @sorted_column ||=
+      begin
+        columns.to_a.find { |c| c.sort_direction } || column('name')
+      end
   end
 
   def sorted_column=(col_or_id)
-	if col_or_id.is_a?(Fixnum)
-	  @sorted_column=columns.to_a.find { |c| c.id==col_or_id }
-	else
-	  @sorted_column=col_or_id
-	end
-  end
-
-  def display_masterproject?
-	name=='Projects'
+    if col_or_id.is_a?(Fixnum)
+      @sorted_column=columns.to_a.find { |c| c.id==col_or_id }
+    else
+      @sorted_column=col_or_id
+    end
   end
 
   def display_links?
-	column('links')
+    column('links')
   end
 
   def default_view
-	read_attribute(:default_view) || VIEW_LIST
+    read_attribute(:default_view) || VIEW_LIST
   end
 
   def page_size
-	if default_view==VIEW_TREEMAP
-	  TREEMAP_PAGE_SIZE
-	else
-	  read_attribute(:page_size) || DEFAULT_PAGE_SIZE
-	end
+    if default_view==VIEW_TREEMAP
+      TREEMAP_PAGE_SIZE
+    else
+      read_attribute(:page_size) || DEFAULT_PAGE_SIZE
+    end
   end
 
   def ajax_loading?
-	default_view==VIEW_TREEMAP
+    default_view==VIEW_TREEMAP
   end
 
   def projects_homepage?
-	name=='Projects'
+    name=='Projects'
   end
 
   def advanced_search?
-	@advanced_search ||=
-	  begin
-		!(criterion('language').nil?) || favourites || !(criterion('name').nil?) || !(criterion('key').nil?) || !(criterion('date').nil?) || period?
-	  end
+    @advanced_search ||=
+      begin
+        !(criterion('language').nil?) || favourites || !(criterion('name').nil?) || !(criterion('key').nil?) || !(criterion('date').nil?) || period?
+      end
   end
 
   def period_index=(vi)
-	if vi && vi>0
-	  write_attribute(:period_index, vi)
-	else
-	  write_attribute(:period_index, nil)
-	end
+    if vi && vi>0
+      write_attribute(:period_index, vi)
+    else
+      write_attribute(:period_index, nil)
+    end
   end
 
   def period?
-	period_index && period_index>0
+    period_index && period_index>0
   end
 
   def column_by_id(col_id)
-	columns.each do |col|
-	  return col if col.id==col_id
-	end
-	nil
+    columns.each do |col|
+      return col if col.id==col_id
+    end
+    nil
   end
 
   def clean_columns_order
-	columns.each_with_index do |col, index|
-	  col.order_index=index+1
-	  col.save
-	end
-	reload
+    columns.each_with_index do |col, index|
+      col.order_index=index+1
+      col.save
+    end
+    reload
   end
 
   def authorized_to_execute?(authenticated_system)
-	shared || (user==authenticated_system.current_user)
+    shared || (user==authenticated_system.current_user)
   end
 
   def authorized_to_edit?(authenticated_system)
-	if authenticated_system.logged_in?
-	  (user && user==authenticated_system.current_user) || (!user && authenticated_system.is_admin?)
-	else
-	  false
-	end
+    if authenticated_system.logged_in?
+      (user && user==authenticated_system.current_user) || (!user && authenticated_system.is_admin?)
+    else
+      false
+    end
+  end
+
+  def display_direct_children_option?
+    resource_id != nil
+  end
+
+  def on_direct_children?
+    if resource_id
+      c = criterion('direct-children')
+      c && c.text_value=='true'
+    else
+      false
+    end
+  end
+
+  def display_path_data?
+    # accepted limitation. Should be configurable in the section "Display"
+    on_direct_children?
   end
 
   protected
 
   def before_validation
-	# the name column is mandatory
-	if self.column('name').nil?
-	  self.columns.insert(0, FilterColumn.new(:family => 'name'))
-	end
+    # the name column is mandatory
+    if self.column('name').nil?
+      self.columns.insert(0, FilterColumn.new(:family => 'name'))
+    end
 
-	# one column must be sorted
-	sorted_col=self.columns.to_a.find { |c| c.sort_direction }
-	unless sorted_col
-	  column('name').sort_direction='ASC'
-	end
+    # one column must be sorted
+    sorted_col=self.columns.to_a.find { |c| c.sort_direction }
+    unless sorted_col
+      column('name').sort_direction='ASC'
+    end
 
-	# sanitize orders
-	self.columns.each_with_index do |col, index|
-	  col.order_index=index+1
-	end
-	true
+    # sanitize orders
+    self.columns.each_with_index do |col, index|
+      col.order_index=index+1
+    end
+    true
   end
 
   def after_save
-	self.columns.each do |col|
-	  col.save
-	end
+    self.columns.each do |col|
+      col.save
+    end
   end
 
 end
