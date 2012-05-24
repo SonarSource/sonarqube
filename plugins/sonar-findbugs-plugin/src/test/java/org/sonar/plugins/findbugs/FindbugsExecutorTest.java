@@ -19,20 +19,21 @@
  */
 package org.sonar.plugins.findbugs;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.internal.matchers.StringContains.containsString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.io.File;
-
+import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.utils.SonarException;
+
+import java.io.File;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.internal.matchers.StringContains.containsString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class FindbugsExecutorTest {
 
@@ -78,6 +79,7 @@ public class FindbugsExecutorTest {
     when(conf.getFindbugsProject()).thenReturn(project);
     when(conf.saveExcludeConfigXml()).thenReturn(new File("test-resources/findbugs-exclude.xml"));
     when(conf.saveIncludeConfigXml()).thenReturn(new File("test-resources/findbugs-include.xml"));
+    when(conf.getExcludesFilters()).thenReturn(Lists.newArrayList(new File("test-resources/findbugs-exclude.xml"), new File("test-resources/fake-file.xml")));
     when(conf.getEffort()).thenReturn("default");
     when(conf.getTimeout()).thenReturn(CoreProperties.FINDBUGS_TIMEOUT_DEFAULT_VALUE);
     return conf;

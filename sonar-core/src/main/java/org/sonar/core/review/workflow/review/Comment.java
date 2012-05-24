@@ -22,7 +22,7 @@ package org.sonar.core.review.workflow.review;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-public class Comment {
+public class Comment implements Cloneable {
   private String markdownText;
   private Long userId;
 

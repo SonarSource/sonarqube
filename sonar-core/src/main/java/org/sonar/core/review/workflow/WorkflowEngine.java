@@ -29,10 +29,15 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
 import org.sonar.core.review.workflow.condition.Condition;
 import org.sonar.core.review.workflow.function.Function;
-import org.sonar.core.review.workflow.review.*;
+import org.sonar.core.review.workflow.review.DefaultReview;
+import org.sonar.core.review.workflow.review.DefaultWorkflowContext;
+import org.sonar.core.review.workflow.review.MutableReview;
+import org.sonar.core.review.workflow.review.Review;
+import org.sonar.core.review.workflow.review.WorkflowContext;
 import org.sonar.core.review.workflow.screen.Screen;
 
 import javax.annotation.Nullable;
+
 import java.util.List;
 import java.util.Map;
 
@@ -112,13 +117,13 @@ public class WorkflowEngine implements ServerComponent {
   }
 
   private boolean verifyConditionsQuietly(@Nullable Review review, WorkflowContext context, List<Condition> conditions) {
-      for (Condition condition : conditions) {
-        if (!condition.doVerify(review, context)) {
-          return false;
-        }
+    for (Condition condition : conditions) {
+      if (!condition.doVerify(review, context)) {
+        return false;
       }
-      return true;
     }
+    return true;
+  }
 
   private void verifyConditions(@Nullable Review review, WorkflowContext context, List<Condition> conditions) {
     for (Condition condition : conditions) {
