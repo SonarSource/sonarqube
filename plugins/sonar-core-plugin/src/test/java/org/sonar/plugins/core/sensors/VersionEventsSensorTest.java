@@ -20,7 +20,9 @@
 package org.sonar.plugins.core.sensors;
 
 import com.google.common.collect.Lists;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
@@ -38,6 +40,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class VersionEventsSensorTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void shouldDoNothingIfNoVersion() {
@@ -100,6 +105,31 @@ public class VersionEventsSensorTest {
 
     verify(context).deleteEvent(snapshotVersion);
     verify(context).createEvent(eq(project), eq("1.5"), (String) isNull(), eq(Event.CATEGORY_VERSION), (Date) isNull());
+  }
+
+  @Test
+  public void shouldFailIfTryingToDeleteReleasedVersion() {
+    // Given
+    Event snapshotEvent1 = mockVersionEvent("1.5-SNAPSHOT");
+    Event releaseEvent2 = mockVersionEvent("1.4");
+    Event snapshotEvent2 = mockVersionEvent("1.3-SNAPSHOT");
+
+    VersionEventsSensor sensor = new VersionEventsSensor();
+    SensorContext context = mock(SensorContext.class);
+
+    Project project = mock(Project.class);
+    when(project.getAnalysisVersion()).thenReturn("1.4");
+
+    when(context.getEvents(project)).thenReturn(Lists.newArrayList(snapshotEvent1, releaseEvent2, snapshotEvent2));
+
+    // Expect
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("A Sonar analysis can't delete a released version that already exists in the project history (version 1.4). " +
+      "Please change the version of the project or clean its history first.");
+
+    // When
+    sensor.analyse(project, context);
+
   }
 
   private Event mockVersionEvent(String version) {

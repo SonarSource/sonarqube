@@ -19,14 +19,14 @@
  */
 package org.sonar.plugins.core.sensors;
 
-import java.util.Iterator;
-
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
 import org.sonar.core.NotDryRun;
+
+import java.util.Iterator;
 
 @NotDryRun
 public class VersionEventsSensor implements Sensor {
@@ -47,12 +47,19 @@ public class VersionEventsSensor implements Sensor {
 
   private void deleteDeprecatedEvents(Project project, SensorContext context) {
     String version = project.getAnalysisVersion();
-    String snapshotVersionToDelete = (version.endsWith(SNAPSHOT_SUFFIX) ? "" : version + SNAPSHOT_SUFFIX);
+    boolean isReleaseVersion = !version.endsWith(SNAPSHOT_SUFFIX);
+    String snapshotVersionToDelete = isReleaseVersion ? version + SNAPSHOT_SUFFIX : "";
     for (Iterator<Event> it = context.getEvents(project).iterator(); it.hasNext();) {
       Event event = it.next();
-      if (event.isVersionCategory() && (version.equals(event.getName()) || snapshotVersionToDelete.equals(event.getName()))) {
-        it.remove();
-        context.deleteEvent(event);
+      if (event.isVersionCategory()) {
+        if (snapshotVersionToDelete.equals(event.getName()) || (version.equals(event.getName()) && !isReleaseVersion)) {
+          it.remove();
+          context.deleteEvent(event);
+        } else if (version.equals(event.getName()) && isReleaseVersion) {
+          // we try to delete a released version that already exists in the project history => this shouldn't happen
+          throw new IllegalStateException("A Sonar analysis can't delete a released version that already exists in the project history (version "
+            + version + "). Please change the version of the project or clean its history first.");
+        }
       }
     }
   }
