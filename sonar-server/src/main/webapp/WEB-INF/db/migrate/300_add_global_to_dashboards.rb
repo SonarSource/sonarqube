@@ -23,8 +23,13 @@
 #
 class AddGlobalToDashboards < ActiveRecord::Migration
 
+  class Dashboard < ActiveRecord::Base
+  end
+
   def self.up
     add_column 'dashboards', 'is_global', :boolean
+
+    Dashboard.reset_column_information
     Dashboard.update_all(Dashboard.sanitize_sql_for_assignment({:is_global => false}))
   end
 

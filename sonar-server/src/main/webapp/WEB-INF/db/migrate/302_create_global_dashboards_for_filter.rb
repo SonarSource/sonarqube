@@ -42,7 +42,9 @@ class CreateGlobalDashboardsForFilter < ActiveRecord::Migration
 
   def self.up
     dashboard_per_filter = create_global_dahboards()
+
     activate_dashboards(dashboard_per_filter)
+
     drop_table('active_filters')
   end
 
