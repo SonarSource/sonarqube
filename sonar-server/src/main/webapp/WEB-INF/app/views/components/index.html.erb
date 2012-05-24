@@ -41,14 +41,19 @@
                 %>
                 <td x="<%= alert_status_x -%>" width="1%" nowrap><%= format_measure(alert_status_measure) %></td>
                 <td width="1%" nowrap>
-                  <% if logged_in? %><%= link_to_favourite(project) -%>
+                  <% if logged_in? %>
+                    <%= link_to_favourite(project) -%>
                   <% end %>
-                  <%= link_to_resource(project, image_tag('zoom.png')) %>
+                  <% if snapshot.display_dashboard? %>
+                    <%= link_to image_tag('zoom.png'), {:controller => 'dashboard', :id => snapshot.project.id} %>
+                  <% else %>
+                    <%= link_to_resource(project, image_tag('zoom.png')) %>
+                  <% end %>
                 </td>
                 <td class="left" x="<%= u(snapshot.project.name) -%>">
                   <%= qualifier_icon(snapshot) %>
                   <% if snapshot.display_dashboard? %>
-                    <a href="<%= ApplicationController.root_context + "/dashboard/index/#{snapshot.project.id}" -%>"><%= snapshot.project.name -%></a>
+                    <%= link_to_resource(project, snapshot.project.name) %>
                   <% else %>
                     <%= snapshot.project.name %>
                   <% end %>
