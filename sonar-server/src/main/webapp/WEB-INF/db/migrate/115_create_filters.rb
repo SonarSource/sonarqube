@@ -39,6 +39,7 @@ class CreateFilters < ActiveRecord::Migration
       t.column 'resource_id', :integer, :null => true
       t.column 'default_view', :string, :limit => 20, :null => true
       t.column 'page_size', :integer, :null => true
+      t.column 'kee', :string, :limit => 100, :null => true
     end
 
     create_table 'filter_columns' do |t|
@@ -86,7 +87,7 @@ class CreateFilters < ActiveRecord::Migration
   end
 
   def self.create_projects_filter
-    projects_filter=::Filter.new(:name => 'Projects', :shared => true, :favourites => false, :default_view => ::Filter::VIEW_LIST)
+    projects_filter=::Filter.new(:name => 'Projects', :kee => 'Projects', :shared => true, :favourites => false, :default_view => ::Filter::VIEW_LIST)
     projects_filter.criteria<<Criterion.new_for_qualifiers([Project::QUALIFIER_PROJECT])
     projects_filter.columns.build(:family => 'metric', :kee => 'alert_status', :order_index => 1)
     projects_filter.columns.build(:family => 'name', :order_index => 2, :sort_direction => 'ASC')
@@ -130,7 +131,7 @@ class CreateFilters < ActiveRecord::Migration
       size_metric=property_value('sonar.core.treemap.sizemetric', 'ncloc')
       color_metric=property_value('sonar.core.treemap.colormetric', 'violations_density')
 
-      treemap_filter=::Filter.new(:name => 'Treemap', :shared => true, :favourites => false, :default_view => ::Filter::VIEW_TREEMAP)
+      treemap_filter=::Filter.new(:name => 'Treemap', :kee => 'Treemap', :shared => true, :favourites => false, :default_view => ::Filter::VIEW_TREEMAP)
       treemap_filter.criteria<<Criterion.new_for_qualifiers([Project::QUALIFIER_PROJECT])
       treemap_filter.columns.build(:family => 'name', :order_index => 1)
       treemap_filter.columns.build(:family => 'metric', :kee => size_metric, :order_index => 2)
@@ -143,7 +144,7 @@ class CreateFilters < ActiveRecord::Migration
   end
 
   def self.create_favourites_filter
-    favourites_filter=::Filter.new(:name => 'My favourites', :shared => true, :favourites => true, :default_view => ::Filter::VIEW_LIST)
+    favourites_filter=::Filter.new(:name => 'My favourites', :kee => 'My favourites', :shared => true, :favourites => true, :default_view => ::Filter::VIEW_LIST)
     favourites_filter.criteria<<Criterion.new_for_qualifiers(Project::QUALIFIERS)
     favourites_filter.columns.build(:family => 'metric', :kee => 'alert_status', :order_index => 1)
     favourites_filter.columns.build(:family => 'name', :order_index => 2, :sort_direction => 'ASC')

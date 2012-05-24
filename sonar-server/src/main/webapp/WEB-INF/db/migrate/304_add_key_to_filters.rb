@@ -54,7 +54,11 @@ class AddKeyToFilters < ActiveRecord::Migration
   def self.add_key_column_to_filters
     keys = {}
 
-    add_column 'filters', 'kee', :string, :null => true, :limit => 100
+	begin
+      add_column 'filters', 'kee', :string, :null => true, :limit => 100
+    rescue
+      # Assume the column was already added by a previous migration
+    end
 
     Filter.reset_column_information
     Filter.find(:all).each do |filter|

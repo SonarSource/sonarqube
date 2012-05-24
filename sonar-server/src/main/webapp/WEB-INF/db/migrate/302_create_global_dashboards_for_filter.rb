@@ -37,6 +37,9 @@ class CreateGlobalDashboardsForFilter < ActiveRecord::Migration
   class WidgetProperty < ActiveRecord::Base
   end
 
+  class Filter < ActiveRecord::Base
+  end
+
   def self.up
     dashboard_per_filter = create_global_dahboards()
     activate_dashboards(dashboard_per_filter)
@@ -46,7 +49,7 @@ class CreateGlobalDashboardsForFilter < ActiveRecord::Migration
   def self.create_global_dahboards
     dashboards = {}
 
-    ::Filter.find(:all).each do |filter|
+    Filter.find(:all).each do |filter|
       dashboard = Dashboard.create(:user_id => filter.user_id,
                                    :name => filter.name,
                                    :description => '',
@@ -73,7 +76,7 @@ class CreateGlobalDashboardsForFilter < ActiveRecord::Migration
 
   def self.activate_dashboards(dashboard_per_filter)
     ActiveFilter.find(:all).each do |activeFilter|
-      filter = ::Filter.find(activeFilter.filter_id)
+      filter = Filter.find(activeFilter.filter_id)
 
       dashboard = dashboard_per_filter[filter.id]
 
