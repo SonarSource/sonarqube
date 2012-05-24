@@ -2093,6 +2093,10 @@ ul.bullet li {
   font-size: 93%;
 }
 
+.rule_detail p {
+  margin: 8px 0;
+}
+
 .tip:hover {
   background: #FFF;
   position: relative;
