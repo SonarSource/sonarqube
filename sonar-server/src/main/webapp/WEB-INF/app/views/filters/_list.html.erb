@@ -155,7 +155,7 @@
         <% elsif column.on_date? %><%= human_short_date(snapshot.created_at) %>
         <% elsif column.on_key? %><span class="small"><%= snapshot.project.kee -%></span>
         <% elsif column.on_links?
-             @filter_context.links(snapshot.project_id).each do |link| %>
+             @filter_context.links(snapshot.project_id).select {|link| link.href.start_with?('http')}.each do |link| %>
           <%= link_to(image_tag(link.icon, :alt => link.name), link.href, :class => 'nolink', :popup => true) unless link.custom? %>
         <%   end
            end %>
