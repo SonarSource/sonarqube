@@ -152,7 +152,7 @@ class DashboardsController < ApplicationController
   private
 
   def position(offset)
-    dashboard=Dashboard.find(:first, :conditions => ['shared=? and id=? and (user_id is null or user_id<>?)', true, params[:id].to_i, current_user.id])
+    dashboard=Dashboard.find(params[:id].to_i)
     if dashboard
       add_default_dashboards_if_first_user_dashboard(dashboard.global?)
 
