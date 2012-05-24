@@ -203,8 +203,9 @@ import java.util.List;
     name = "Period 1",
     description = "Period used to compare measures and track new violations. Values are : <ul class='bullet'><li>Number of days before " +
       "analysis, for example 5.</li><li>A custom date. Format is yyyy-MM-dd, for example 2010-12-25</li><li>'previous_analysis' to " +
-      "compare to previous analysis</li></ul>" +
-      "Changing this property only take effect after subsequent project inspections.",
+      "compare to previous analysis</li></ul>" + "<p>When specifying a number of days or a date, the snapshot selected for comparison is " +
+      " the first one available inside the corresponding time range. </p>" +
+      "<p>Changing this property only takes effect after subsequent project inspections.<p/>",
     project = false,
     global = true,
     defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_1,
@@ -231,7 +232,8 @@ import java.util.List;
     description = "Period used to compare measures and track new violations. This property is specific to the project. Values are : " +
       "<ul class='bullet'><li>Number of days before analysis, for example 5.</li><li>A custom date. Format is yyyy-MM-dd, " +
       "for example 2010-12-25</li><li>'previous_analysis' to compare to previous analysis</li><li>A version, for example 1.2</li></ul>" +
-      "Changing this property only take effect after subsequent project inspection.",
+      "<p>When specifying a number of days or a date, the snapshot selected for comparison is the first one available inside the corresponding time range. </p>" +
+      "<p>Changing this property only takes effect after subsequent project inspections.<p/>",
     project = true,
     global = false,
     defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_4,
