@@ -27,16 +27,57 @@ public final class CriterionDto {
   private String family;
   private String key;
   private String operator;
-  private Float value;
   private String textValue;
+  private Float value;
   private Boolean variation;
 
   /**
-   * @param filterId the filter id to set
+   * @return the family
    */
-  public CriterionDto setFilterId(Long filterId) {
-    this.filterId = filterId;
-    return this;
+  public String getFamily() {
+    return family;
+  }
+
+  /**
+   * @return the filter id
+   */
+  public Long getFilterId() {
+    return filterId;
+  }
+
+  /**
+   * @return the key
+   */
+  public String getKey() {
+    return key;
+  }
+
+  /**
+   * @return the operator
+   */
+  public String getOperator() {
+    return operator;
+  }
+
+  /**
+   * @return the text value
+   */
+  public String getTextValue() {
+    return textValue;
+  }
+
+  /**
+   * @return the value
+   */
+  public Float getValue() {
+    return value;
+  }
+
+  /**
+   * @return the variation
+   */
+  public Boolean getVariation() {
+    return variation;
   }
 
   /**
@@ -44,6 +85,14 @@ public final class CriterionDto {
    */
   public CriterionDto setFamily(String family) {
     this.family = family;
+    return this;
+  }
+
+  /**
+   * @param filterId the filter id to set
+   */
+  public CriterionDto setFilterId(Long filterId) {
+    this.filterId = filterId;
     return this;
   }
 
@@ -64,18 +113,18 @@ public final class CriterionDto {
   }
 
   /**
-   * @param value the value to set
-   */
-  public CriterionDto setValue(Float value) {
-    this.value = value;
-    return this;
-  }
-
-  /**
    * @param textValue the textValue to set
    */
   public CriterionDto setTextValue(String textValue) {
     this.textValue = textValue;
+    return this;
+  }
+
+  /**
+   * @param value the value to set
+   */
+  public CriterionDto setValue(Float value) {
+    this.value = value;
     return this;
   }
 

@@ -29,118 +29,17 @@ import java.util.List;
  */
 public final class FilterDto {
   private Long id;
-  private String name;
-  private String key;
   private Long userId;
-  private Boolean shared;
-  private Boolean favourites;
-  private Long resourceId;
   private String defaultView;
+  private Boolean favourites;
+  private String key;
+  private String name;
   private Long pageSize;
   private Long periodIndex;
+  private Long resourceId;
+  private Boolean shared;
   private List<CriterionDto> criteria = Lists.newArrayList();
   private List<FilterColumnDto> filterColumns = Lists.newArrayList();
-
-  /**
-   * @return the id
-   */
-  public Long getId() {
-    return id;
-  }
-
-  /**
-   * @return the name
-   */
-  public String getName() {
-    return name;
-  }
-
-  /**
-   * @param name the name to set
-   */
-  public FilterDto setName(String name) {
-    this.name = name;
-    return this;
-  }
-
-  /**
-   * @return the key
-   */
-  public String getKey() {
-    return key;
-  }
-
-  /**
-   * @param key the key to set
-   */
-  public FilterDto setKey(String key) {
-    this.key = key;
-    return this;
-  }
-
-  /**
-   * @return <code>true</code> if the filter is shared
-   */
-  public Boolean isShared() {
-    return shared;
-  }
-
-  /**
-   * @param shared the shared to set
-   */
-  public FilterDto setShared(Boolean shared) {
-    this.shared = shared;
-    return this;
-  }
-
-  /**
-   * @return <code>true</code> if the filter displays only favourite resources.
-   */
-  public Boolean isFavourites() {
-    return favourites;
-  }
-
-  /**
-   * @param favourites the favourites to set
-   */
-  public FilterDto setFavourites(Boolean favourites) {
-    this.favourites = favourites;
-    return this;
-  }
-
-  /**
-   * @return the defaut view
-   */
-  public String getDefaultView() {
-    return defaultView;
-  }
-
-  /**
-   * @param defaultView the defaultView to set
-   */
-  public FilterDto setDefaultView(String defaultView) {
-    this.defaultView = defaultView;
-    return this;
-  }
-
-  /**
-   * @return the page size
-   */
-  public Long getPageSize() {
-    return pageSize;
-  }
-
-  public FilterDto setPageSize(Long pageSize) {
-    this.pageSize = pageSize;
-    return this;
-  }
-
-  /**
-   * @return the criterion list
-   */
-  public Collection<CriterionDto> getCriteria() {
-    return criteria;
-  }
 
   /**
    * Add a {@link CriterionDto} to the list.
@@ -153,6 +52,16 @@ public final class FilterDto {
   }
 
   /**
+   * Add a {@link FilterColumnDto} to the list.
+   * 
+   * @param filterColumn the column to add
+   */
+  public FilterDto add(FilterColumnDto filterColumn) {
+    filterColumns.add(filterColumn);
+    return this;
+  }
+
+  /**
    * @return the column list
    */
   public Collection<FilterColumnDto> getColumns() {
@@ -160,12 +69,145 @@ public final class FilterDto {
   }
 
   /**
-   * Add a {@link FilterColumnDto} to the list.
-   * 
-   * @param filterColumn the column to add
+   * @return the criterion list
    */
-  public FilterDto add(FilterColumnDto filterColumn) {
-    filterColumns.add(filterColumn);
+  public Collection<CriterionDto> getCriteria() {
+    return criteria;
+  }
+
+  /**
+   * @return the defaut view
+   */
+  public String getDefaultView() {
+    return defaultView;
+  }
+
+  /**
+   * @return <code>true</code> if the filter returns only favourites
+   */
+  public Boolean getFavourites() {
+    return favourites;
+  }
+
+  /**
+   * @return the column list
+   */
+  public List<FilterColumnDto> getFilterColumns() {
+    return filterColumns;
+  }
+
+  /**
+   * @return the id
+   */
+  public Long getId() {
+    return id;
+  }
+
+  /**
+   * @return the key
+   */
+  public String getKey() {
+    return key;
+  }
+
+  /**
+   * @return the name
+   */
+  public String getName() {
+    return name;
+  }
+
+  /**
+   * @return the page size
+   */
+  public Long getPageSize() {
+    return pageSize;
+  }
+
+  /**
+   * @return the period index
+   */
+  public Long getPeriodIndex() {
+    return periodIndex;
+  }
+
+  /**
+   * @return the resource id
+   */
+  public Long getResourceId() {
+    return resourceId;
+  }
+
+  /**
+   * @return <code>true</code> if the filter is shared
+   */
+  public Boolean getShared() {
+    return shared;
+  }
+
+  /**
+   * @return the user id
+   */
+  public Long getUserId() {
+    return userId;
+  }
+
+  /**
+   * @return <code>true</code> if the filter displays only favourite resources.
+   */
+  public Boolean isFavourites() {
+    return favourites;
+  }
+
+  /**
+   * @return <code>true</code> if the filter is shared
+   */
+  public Boolean isShared() {
+    return shared;
+  }
+
+  /**
+   * @param defaultView the defaultView to set
+   */
+  public FilterDto setDefaultView(String defaultView) {
+    this.defaultView = defaultView;
+    return this;
+  }
+
+  /**
+   * @param favourites the favourites to set
+   */
+  public FilterDto setFavourites(Boolean favourites) {
+    this.favourites = favourites;
+    return this;
+  }
+
+  /**
+   * @param key the key to set
+   */
+  public FilterDto setKey(String key) {
+    this.key = key;
+    return this;
+  }
+
+  /**
+   * @param name the name to set
+   */
+  public FilterDto setName(String name) {
+    this.name = name;
+    return this;
+  }
+
+  public FilterDto setPageSize(Long pageSize) {
+    this.pageSize = pageSize;
+    return this;
+  }
+
+  /**
+   * @param shared the shared to set
+   */
+  public FilterDto setShared(Boolean shared) {
+    this.shared = shared;
     return this;
   }
 }

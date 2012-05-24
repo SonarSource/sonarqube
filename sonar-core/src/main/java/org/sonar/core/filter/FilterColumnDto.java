@@ -26,16 +26,50 @@ public final class FilterColumnDto {
   private Long filterId;
   private String family;
   private String key;
-  private String sortDirection;
   private Long orderIndex;
+  private String sortDirection;
   private Boolean variation;
 
   /**
-   * @param filterId the filterId to set
+   * @return the family
    */
-  public FilterColumnDto setFilterId(Long filterId) {
-    this.filterId = filterId;
-    return this;
+  public String getFamily() {
+    return family;
+  }
+
+  /**
+   * @return the filter id
+   */
+  public Long getFilterId() {
+    return filterId;
+  }
+
+  /**
+   * @return the key
+   */
+  public String getKey() {
+    return key;
+  }
+
+  /**
+   * @return the order index
+   */
+  public Long getOrderIndex() {
+    return orderIndex;
+  }
+
+  /**
+   * @return the sort direction
+   */
+  public String getSortDirection() {
+    return sortDirection;
+  }
+
+  /**
+   * @return the variation
+   */
+  public Boolean getVariation() {
+    return variation;
   }
 
   /**
@@ -43,6 +77,14 @@ public final class FilterColumnDto {
    */
   public FilterColumnDto setFamily(String family) {
     this.family = family;
+    return this;
+  }
+
+  /**
+   * @param filterId the filterId to set
+   */
+  public FilterColumnDto setFilterId(Long filterId) {
+    this.filterId = filterId;
     return this;
   }
 
@@ -55,18 +97,18 @@ public final class FilterColumnDto {
   }
 
   /**
-   * @param sortDirection the sortDirection to set
-   */
-  public FilterColumnDto setSortDirection(String sortDirection) {
-    this.sortDirection = sortDirection;
-    return this;
-  }
-
-  /**
    * @param orderIndex the orderIndex to set
    */
   public FilterColumnDto setOrderIndex(Long orderIndex) {
     this.orderIndex = orderIndex;
+    return this;
+  }
+
+  /**
+   * @param sortDirection the sortDirection to set
+   */
+  public FilterColumnDto setSortDirection(String sortDirection) {
+    this.sortDirection = sortDirection;
     return this;
   }
 
