@@ -71,7 +71,9 @@ class Api::ServerController < Api::ApiController
       # nor concurrent calls (this is handled directly by DatabaseMigrationManager)  
       DatabaseMigrationManager.instance.start_migration
       
-      hash={:status => 'ok',
+      current_status = DatabaseMigrationManager.instance.is_sonar_access_allowed? ? "ok" : "ko"
+      
+      hash={:status => current_status,
             :migration_status => DatabaseMigrationManager.instance.status,
             :message => DatabaseMigrationManager.instance.message}
       respond_to do |format|
