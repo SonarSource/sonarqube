@@ -135,6 +135,10 @@
   width: 200px;
 }
 
+.admin_page th.order {
+  width: 45px;
+}
+
 .admin_page .description {
   font-size: 85%;
   font-weight: normal;
