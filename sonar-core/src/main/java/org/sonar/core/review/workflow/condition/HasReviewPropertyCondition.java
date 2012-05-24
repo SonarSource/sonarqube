@@ -39,7 +39,7 @@ public final class HasReviewPropertyCondition extends Condition {
     this.propertyKey = propertyKey;
   }
 
-  public final String getPropertyKey() {
+  public String getPropertyKey() {
     return propertyKey;
   }
 
