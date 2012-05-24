@@ -572,6 +572,16 @@ h4, .h4 {
   line-height: 1.5em;
 }
 
+.doc li {
+  list-style: disc outside;
+  padding: 2px;
+}
+
+.doc ul {
+  list-style: none outside;
+  padding-left: 30px;
+}
+
 /* ------------------- TABLES ------------------- */
 .odd {
   background-color: #fff;
