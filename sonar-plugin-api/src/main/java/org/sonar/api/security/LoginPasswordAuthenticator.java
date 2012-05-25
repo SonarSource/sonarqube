@@ -26,6 +26,7 @@ import org.sonar.api.ServerExtension;
  * @see SecurityRealm
  * @deprecated replaced by Authenticator in version 3.1
  */
+@Deprecated
 public interface LoginPasswordAuthenticator extends ServerExtension {
 
   /**

@@ -81,6 +81,7 @@ public final class Icons {
    * @since 2.2
    * @deprecated since 2.5 use {@link Icons#forSeverity(String)}
    */
+  @Deprecated
   public static AbstractImagePrototype forPriority(final String priority) {
     return forSeverity(priority);
   }
