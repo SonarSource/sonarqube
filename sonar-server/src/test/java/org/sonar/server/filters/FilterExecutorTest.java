@@ -34,7 +34,6 @@ import java.util.Date;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
-
 public class FilterExecutorTest extends AbstractDbUnitTestCase {
 
   @Test
@@ -345,7 +344,7 @@ public class FilterExecutorTest extends AbstractDbUnitTestCase {
     assertThat(result.size()).isEqualTo(snapshotIds.length);
     for (int snapshotId : snapshotIds) {
       boolean found = false;
-      for (Object row : result.getRows()) {
+      for (Object[] row : result.getRows()) {
         found |= result.getSnapshotId(row) == snapshotId;
       }
       if (!found) {

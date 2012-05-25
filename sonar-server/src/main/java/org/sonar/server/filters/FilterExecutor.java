@@ -33,6 +33,7 @@ import org.sonar.core.persistence.dialect.Dialect;
 import org.sonar.core.persistence.dialect.MsSql;
 
 import javax.persistence.Query;
+
 import java.util.Collections;
 
 public class FilterExecutor implements ServerComponent {
@@ -53,7 +54,7 @@ public class FilterExecutor implements ServerComponent {
 
   public FilterResult execute(Filter filter) {
     if (filter.mustReturnEmptyResult()) {
-      return new FilterResult(filter, Collections.emptyList());
+      return new FilterResult(filter, Collections.<Object[]> emptyList());
     }
 
     String sql = null;
