@@ -78,7 +78,13 @@ class Rule < ActiveRecord::Base
           result
         end
     else
-      read_attribute(:name)
+      @raw_name ||=
+        begin
+          result = read_attribute(:name)
+          # if no name present in the DB, then name is in the English bundle for sure
+          result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getRuleName("en", repository_key, plugin_rule_key) unless result
+          result
+        end
     end
   end
 
