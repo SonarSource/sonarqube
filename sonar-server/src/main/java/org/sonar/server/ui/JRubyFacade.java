@@ -44,6 +44,7 @@ import org.sonar.core.persistence.DatabaseMigrator;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.core.review.workflow.WorkflowEngine;
+import org.sonar.core.review.workflow.review.DefaultReview;
 import org.sonar.core.review.workflow.review.DefaultWorkflowContext;
 import org.sonar.core.review.workflow.review.MutableReview;
 import org.sonar.core.review.workflow.review.Review;
@@ -478,7 +479,7 @@ public final class JRubyFacade {
     return getContainer().getComponentByType(WorkflowEngine.class).listAvailableScreens(review, context, true);
   }
 
-  public ListMultimap<Long, Screen> listAvailableReviewsScreens(Review[] reviews, DefaultWorkflowContext context) {
+  public ListMultimap<Long, Screen> listAvailableReviewsScreens(DefaultReview[] reviews, DefaultWorkflowContext context) {
     return getContainer().getComponentByType(WorkflowEngine.class).listAvailableScreens(reviews, context, true);
   }
 
@@ -486,7 +487,7 @@ public final class JRubyFacade {
     return getContainer().getComponentByType(WorkflowEngine.class).getScreen(commandKey);
   }
 
-  public void executeReviewCommand(String commandKey, MutableReview review, DefaultWorkflowContext context, Map<String, String> parameters) {
+  public void executeReviewCommand(String commandKey, DefaultReview review, DefaultWorkflowContext context, Map<String, String> parameters) {
     getContainer().getComponentByType(WorkflowEngine.class).execute(commandKey, review, context, parameters);
   }
 }

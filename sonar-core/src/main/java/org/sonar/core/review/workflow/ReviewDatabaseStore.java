@@ -34,6 +34,7 @@ import org.sonar.core.review.ReviewCommentMapper;
 import org.sonar.core.review.ReviewDto;
 import org.sonar.core.review.ReviewMapper;
 import org.sonar.core.review.workflow.review.Comment;
+import org.sonar.core.review.workflow.review.DefaultReview;
 import org.sonar.core.review.workflow.review.MutableReview;
 
 import java.util.Date;
@@ -48,12 +49,12 @@ public class ReviewDatabaseStore implements ReviewStore, ServerComponent {
     this.mybatis = mb;
   }
 
-  public void store(MutableReview review) {
+  public void store(DefaultReview review) {
     store(review, new Date());
   }
 
   @VisibleForTesting
-  void store(MutableReview review, Date now) {
+  void store(DefaultReview review, Date now) {
     if (review.getReviewId() == null) {
       LOG.error("Review has no id. Violation id is: " + review.getViolationId());
       return;
@@ -66,7 +67,6 @@ public class ReviewDatabaseStore implements ReviewStore, ServerComponent {
       ReviewDto dto = mapper.findById(review.getReviewId());
       dto.setResolution(review.getResolution());
       dto.setStatus(review.getStatus());
-      dto.setAssigneeId(review.getAssigneeId());
       dto.setData(KeyValueFormat.format(review.getProperties()));
       dto.setUpdatedAt(now);
       mapper.update(dto);

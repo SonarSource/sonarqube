@@ -34,8 +34,7 @@ public class ReviewDatabaseStoreTest extends DaoTestCase {
   public void store() {
     setupData("store");
     ReviewDatabaseStore store = new ReviewDatabaseStore(getMyBatis());
-    MutableReview review = new DefaultReview().setReviewId(1234L);
-    review.setAssigneeId(33L);
+    DefaultReview review = new DefaultReview().setReviewId(1234L);
     review.setStatus("CLOSED");
     review.setResolution("RESOLVED");
     review.setProperty("who", "me");

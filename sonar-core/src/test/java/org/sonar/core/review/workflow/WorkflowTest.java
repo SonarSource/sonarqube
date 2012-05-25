@@ -26,7 +26,8 @@ import org.junit.rules.ExpectedException;
 import org.sonar.core.review.workflow.condition.Condition;
 import org.sonar.core.review.workflow.condition.HasProjectPropertyCondition;
 import org.sonar.core.review.workflow.condition.StatusCondition;
-import org.sonar.core.review.workflow.function.TransitionFunction;
+import org.sonar.core.review.workflow.function.CommentFunction;
+import org.sonar.core.review.workflow.function.Function;
 import org.sonar.core.review.workflow.screen.CommentScreen;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -127,7 +128,7 @@ public class WorkflowTest {
     Workflow workflow = new Workflow();
     workflow.addCommand("resolve");
 
-    TransitionFunction function = new TransitionFunction("OPEN", "resolved");
+    Function function = new CommentFunction();
     workflow.addFunction("resolve", function);
 
     assertThat(workflow.getFunctions("resolve")).containsExactly(function);
@@ -145,7 +146,7 @@ public class WorkflowTest {
     thrown.expectMessage("Unknown command: resolve");
 
     Workflow workflow = new Workflow();
-    workflow.addFunction("resolve", new TransitionFunction("OPEN", "resolved"));
+    workflow.addFunction("resolve", new CommentFunction());
   }
 
   @Test

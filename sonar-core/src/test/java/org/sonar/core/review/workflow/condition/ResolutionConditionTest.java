@@ -19,7 +19,9 @@
  */
 package org.sonar.core.review.workflow.condition;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.core.review.workflow.review.DefaultReview;
 import org.sonar.core.review.workflow.review.DefaultWorkflowContext;
 import org.sonar.core.review.workflow.review.Review;
@@ -27,6 +29,16 @@ import org.sonar.core.review.workflow.review.Review;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class ResolutionConditionTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
+  @Test
+  public void failIfNoResolution() {
+    thrown.expect(IllegalArgumentException.class);
+    new ResolutionCondition();
+  }
+
   @Test
   public void getResolutions() {
     ResolutionCondition condition = new ResolutionCondition("", "RESOLVED");

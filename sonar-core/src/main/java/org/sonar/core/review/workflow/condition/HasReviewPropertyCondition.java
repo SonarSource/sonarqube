@@ -25,6 +25,8 @@ import com.google.common.base.Strings;
 import org.sonar.core.review.workflow.review.Review;
 import org.sonar.core.review.workflow.review.WorkflowContext;
 
+import javax.annotation.Nullable;
+
 /**
  * @since 3.1
  */
@@ -44,7 +46,7 @@ public final class HasReviewPropertyCondition extends Condition {
   }
 
   @Override
-  public boolean doVerify(Review review, WorkflowContext context) {
-    return !Strings.isNullOrEmpty(review.getProperties().get(propertyKey));
+  public boolean doVerify(@Nullable Review review, WorkflowContext context) {
+    return review != null && !Strings.isNullOrEmpty(review.getProperties().get(propertyKey));
   }
 }

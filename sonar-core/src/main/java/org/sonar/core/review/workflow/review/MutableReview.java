@@ -24,8 +24,6 @@ import java.util.List;
 
 public interface MutableReview extends Review {
 
-  MutableReview setAssigneeId(Long assigneeId);
-
   MutableReview setStatus(String s);
 
   MutableReview setResolution(@Nullable String resolution);

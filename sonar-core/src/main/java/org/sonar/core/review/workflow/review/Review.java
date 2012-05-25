@@ -23,13 +23,9 @@ import java.util.Map;
 
 public interface Review {
 
-  Long getViolationId();
+  String getRuleRepositoryKey();
 
-  Long getReviewId();
-
-  Long getRuleId();
-
-  Long getAssigneeId();
+  String getRuleKey();
 
   boolean isSwitchedOff();
 

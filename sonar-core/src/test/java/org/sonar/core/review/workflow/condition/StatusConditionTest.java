@@ -19,7 +19,9 @@
  */
 package org.sonar.core.review.workflow.condition;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.core.review.workflow.review.DefaultReview;
 import org.sonar.core.review.workflow.review.DefaultWorkflowContext;
 import org.sonar.core.review.workflow.review.Review;
@@ -27,6 +29,17 @@ import org.sonar.core.review.workflow.review.Review;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class StatusConditionTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
+  @Test
+  public void failIfNoStatus() {
+    thrown.expect(IllegalArgumentException.class);
+    new StatusCondition();
+  }
+
+
   @Test
   public void getStatuses() {
     StatusCondition condition = new StatusCondition("OPEN", "CLOSED");

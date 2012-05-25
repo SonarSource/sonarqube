@@ -9,6 +9,7 @@
     resource_line="200"
     severity="BLOCKER"
     user_id="300"
+    assignee_id="33"
     resource_id="400"
     rule_id="500"
     manual_violation="[true]"
@@ -17,7 +18,6 @@
     updated_at="2012-05-18"
     status="CLOSED"
     resolution="RESOLVED"
-    assignee_id="33"
     data="who=me;why=because"
     />
 

@@ -37,8 +37,8 @@ public final class DefaultReview implements MutableReview {
 
   private Long violationId;
   private Long reviewId;
-  private Long ruleId;
-  private Long assigneeId;
+  private String ruleRepositoryKey;
+  private String ruleKey;
   private Long line;
   private boolean switchedOff = false;
   private boolean manual = false;
@@ -67,12 +67,21 @@ public final class DefaultReview implements MutableReview {
     return this;
   }
 
-  public Long getRuleId() {
-    return ruleId;
+  public String getRuleRepositoryKey() {
+    return ruleRepositoryKey;
   }
 
-  public DefaultReview setRuleId(Long ruleId) {
-    this.ruleId = ruleId;
+  public DefaultReview setRuleRepositoryKey(String s) {
+    this.ruleRepositoryKey = s;
+    return this;
+  }
+
+  public String getRuleKey() {
+    return ruleKey;
+  }
+
+  public DefaultReview setRuleKey(String s) {
+    this.ruleKey = s;
     return this;
   }
 
@@ -109,15 +118,6 @@ public final class DefaultReview implements MutableReview {
 
   public DefaultReview setMessage(String message) {
     this.message = message;
-    return this;
-  }
-
-  public Long getAssigneeId() {
-    return assigneeId;
-  }
-
-  public DefaultReview setAssigneeId(Long l) {
-    this.assigneeId = l;
     return this;
   }
 
@@ -202,14 +202,14 @@ public final class DefaultReview implements MutableReview {
    */
   public ImmutableReview cloneImmutable() {
     ImmutableReview clone = new ImmutableReview();
-    clone.setAssigneeId(assigneeId);
     clone.setLine(line);
     clone.setManual(manual);
     clone.setMessage(message);
     clone.setProperties(ImmutableMap.copyOf(getProperties()));
     clone.setResolution(resolution);
     clone.setReviewId(reviewId);
-    clone.setRuleId(ruleId);
+    clone.setRuleKey(ruleKey);
+    clone.setRuleRepositoryKey(ruleRepositoryKey);
     clone.setSeverity(severity);
     clone.setStatus(status);
     clone.setSwitchedOff(switchedOff);

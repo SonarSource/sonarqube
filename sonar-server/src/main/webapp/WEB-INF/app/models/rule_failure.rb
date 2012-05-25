@@ -278,7 +278,8 @@ class RuleFailure < ActiveRecord::Base
     java_review=Java::OrgSonarCoreReviewWorkflowReview::DefaultReview.new
     java_review.setViolationId(violation.id)
     java_review.setSeverity(violation.severity.to_s)
-    java_review.setRuleId(violation.rule_id)
+    java_review.setRuleKey(violation.rule.plugin_rule_key)
+    java_review.setRuleRepositoryKey(violation.rule.repository_key)
     java_review.setSwitchedOff(violation.switched_off||false)
     java_review.setMessage(violation.message)
     java_review.setLine(violation.line)
@@ -288,7 +289,6 @@ class RuleFailure < ActiveRecord::Base
       java_review.setReviewId(review.id)
       java_review.setStatus(review.status)
       java_review.setResolution(review.resolution)
-      java_review.setAssigneeId(review.assignee_id)
       java_review.setManual(review.manual_violation)
       java_review.setPropertiesAsString(review.data)
     else

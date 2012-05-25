@@ -25,7 +25,8 @@ public class ImmutableReview implements Review {
   private Long violationId;
   private Long reviewId;
   private Long ruleId;
-  private Long assigneeId;
+  private String ruleRepositoryKey;
+  private String ruleKey;
   private Long line;
   private boolean switchedOff = false;
   private boolean manual = false;
@@ -59,12 +60,20 @@ public class ImmutableReview implements Review {
     this.ruleId = ruleId;
   }
 
-  public Long getAssigneeId() {
-    return assigneeId;
+  public String getRuleRepositoryKey() {
+    return ruleRepositoryKey;
   }
 
-  void setAssigneeId(Long assigneeId) {
-    this.assigneeId = assigneeId;
+  void setRuleRepositoryKey(String ruleRepositoryKey) {
+    this.ruleRepositoryKey = ruleRepositoryKey;
+  }
+
+  public String getRuleKey() {
+    return ruleKey;
+  }
+
+  void setRuleKey(String ruleKey) {
+    this.ruleKey = ruleKey;
   }
 
   public Long getLine() {

@@ -20,12 +20,13 @@
 package org.sonar.core.review.workflow;
 
 import org.sonar.api.config.Settings;
+import org.sonar.core.review.workflow.review.DefaultReview;
 import org.sonar.core.review.workflow.review.MutableReview;
 
 import java.util.List;
 
 public interface ReviewStore {
-  void store(MutableReview review);
+  void store(DefaultReview review);
 
   void completeProjectSettings(Long projectId, Settings settings, List<String> propertyKeys);
 }

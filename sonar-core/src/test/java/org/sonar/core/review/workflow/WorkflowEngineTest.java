@@ -86,7 +86,7 @@ public class WorkflowEngineTest {
   public void listAvailableScreensForReviews_empty() {
     WorkflowEngine engine = new WorkflowEngine(new Workflow(), mock(ReviewStore.class), new Settings());
     ListMultimap<Long, Screen> screens = engine.listAvailableScreens(
-        new Review[]{new DefaultReview().setViolationId(1000L), new DefaultReview().setViolationId(2000L)},
+        new DefaultReview[]{new DefaultReview().setViolationId(1000L), new DefaultReview().setViolationId(2000L)},
         new DefaultWorkflowContext(), true);
     assertThat(screens.size()).isEqualTo(0);
   }
@@ -100,7 +100,7 @@ public class WorkflowEngineTest {
     workflow.setScreen("resolve", screen);
     WorkflowEngine engine = new WorkflowEngine(workflow, mock(ReviewStore.class), new Settings());
     ListMultimap<Long, Screen> screens = engine.listAvailableScreens(
-        new Review[]{new DefaultReview().setViolationId(1000L), new DefaultReview().setViolationId(2000L)},
+        new DefaultReview[]{new DefaultReview().setViolationId(1000L), new DefaultReview().setViolationId(2000L)},
         new DefaultWorkflowContext(), true);
     assertThat(screens.size()).isEqualTo(2);
     assertThat(screens.get(1000L)).containsExactly(screen);
@@ -117,7 +117,7 @@ public class WorkflowEngineTest {
     WorkflowEngine engine = new WorkflowEngine(workflow, store, new Settings());
 
     engine.listAvailableScreens(
-        new Review[]{new DefaultReview().setViolationId(1000L), new DefaultReview().setViolationId(2000L)},
+        new DefaultReview[]{new DefaultReview().setViolationId(1000L), new DefaultReview().setViolationId(2000L)},
         new DefaultWorkflowContext().setProjectId(300L),
         true);
 
@@ -137,7 +137,7 @@ public class WorkflowEngineTest {
     settings.setProperty("foo", "bar");
     WorkflowEngine engine = new WorkflowEngine(workflow, store, settings);
 
-    MutableReview review = new DefaultReview().setViolationId(1000L);
+    DefaultReview review = new DefaultReview().setViolationId(1000L);
     Map<String, String> parameters = Maps.newHashMap();
     DefaultWorkflowContext context = new DefaultWorkflowContext().setProjectId(300L);
 
@@ -162,7 +162,7 @@ public class WorkflowEngineTest {
     Settings settings = new Settings();// missing property 'foo'
     WorkflowEngine engine = new WorkflowEngine(workflow, store, settings);
 
-    MutableReview review = new DefaultReview().setViolationId(1000L);
+    DefaultReview review = new DefaultReview().setViolationId(1000L);
     Map<String, String> parameters = Maps.newHashMap();
     DefaultWorkflowContext context = new DefaultWorkflowContext().setProjectId(300L);
 

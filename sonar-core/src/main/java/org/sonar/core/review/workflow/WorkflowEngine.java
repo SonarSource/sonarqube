@@ -56,7 +56,7 @@ public class WorkflowEngine implements ServerComponent {
   /**
    * @return non-null list of screens per review#violationId
    */
-  public ListMultimap<Long, Screen> listAvailableScreens(Review[] reviews, DefaultWorkflowContext context, boolean verifyConditions) {
+  public ListMultimap<Long, Screen> listAvailableScreens(DefaultReview[] reviews, DefaultWorkflowContext context, boolean verifyConditions) {
     ListMultimap<Long, Screen> result = ArrayListMultimap.create();
 
     completeProjectSettings(context);
@@ -64,7 +64,7 @@ public class WorkflowEngine implements ServerComponent {
     for (Map.Entry<String, Screen> entry : workflow.getScreensByCommand().entrySet()) {
       String commandKey = entry.getKey();
       if (!verifyConditions || verifyConditionsQuietly(null, context, workflow.getContextConditions(commandKey))) {
-        for (Review review : reviews) {
+        for (DefaultReview review : reviews) {
           if (!verifyConditions || verifyConditionsQuietly(review, context, workflow.getReviewConditions(commandKey))) {
             result.put(review.getViolationId(), entry.getValue());
           }
@@ -94,7 +94,7 @@ public class WorkflowEngine implements ServerComponent {
     return workflow.getScreen(commandKey);
   }
 
-  public void execute(String commandKey, MutableReview review, DefaultWorkflowContext context, Map<String, String> parameters) {
+  public void execute(String commandKey, DefaultReview review, DefaultWorkflowContext context, Map<String, String> parameters) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(commandKey), "Missing command");
     Preconditions.checkArgument(workflow.hasCommand(commandKey), "Unknown command: " + commandKey);
 
