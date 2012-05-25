@@ -19,8 +19,9 @@
  */
 package org.sonar.plugins.core.filters;
 
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.web.Criterion;
-
 import org.sonar.api.web.Filter;
 import org.sonar.api.web.FilterColumn;
 import org.sonar.api.web.FilterTemplate;
@@ -40,11 +41,11 @@ public class TreeMapFilter extends FilterTemplate {
   public Filter createFilter() {
     Filter filter = Filter.create();
     filter.setDisplayAs(Filter.TREEMAP);
-    filter.add(Criterion.createForQualifier("TRK"));
+    filter.add(Criterion.createForQualifier(Qualifiers.PROJECT));
     filter.add(FilterColumn.create("name", null, FilterColumn.ASC, false));
-    filter.add(FilterColumn.create("metric", "ncloc", FilterColumn.DESC, false));
-    filter.add(FilterColumn.create("metric", "violations_density", FilterColumn.DESC, false));
-    
+    filter.add(FilterColumn.create("metric", CoreMetrics.NCLOC_KEY, FilterColumn.DESC, false));
+    filter.add(FilterColumn.create("metric", CoreMetrics.VIOLATIONS_DENSITY_KEY, FilterColumn.DESC, false));
+
     return filter;
   }
 }

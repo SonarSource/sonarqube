@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.core.filters;
 
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.web.Criterion;
 import org.sonar.api.web.Filter;
 import org.sonar.api.web.FilterColumn;
@@ -39,12 +41,12 @@ public class ProjectFilter extends FilterTemplate {
   public Filter createFilter() {
     Filter filter = Filter.create();
     filter.setDisplayAs(Filter.LIST);
-    filter.add(Criterion.createForQualifier("TRK"));
-    filter.add(FilterColumn.create("metric", "alert_status", FilterColumn.DESC, false));
+    filter.add(Criterion.createForQualifier(Qualifiers.PROJECT));
+    filter.add(FilterColumn.create("metric", CoreMetrics.ALERT_STATUS_KEY, FilterColumn.DESC, false));
     filter.add(FilterColumn.create("name", null, FilterColumn.ASC, false));
     filter.add(FilterColumn.create("version", null, FilterColumn.DESC, false));
-    filter.add(FilterColumn.create("metric", "ncloc", FilterColumn.DESC, false));
-    filter.add(FilterColumn.create("metric", "violations_density", FilterColumn.DESC, false));
+    filter.add(FilterColumn.create("metric", CoreMetrics.NCLOC_KEY, FilterColumn.DESC, false));
+    filter.add(FilterColumn.create("metric", CoreMetrics.VIOLATIONS_DENSITY_KEY, FilterColumn.DESC, false));
     filter.add(FilterColumn.create("date", null, FilterColumn.DESC, false));
     filter.add(FilterColumn.create("links", null, FilterColumn.DESC, false));
     

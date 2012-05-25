@@ -27,9 +27,9 @@ class Filters
     if filter.resource_id
       snapshot=Snapshot.find(:first, :conditions => {:project_id => filter.resource_id, :islast => true})
       if snapshot
-        java_filter.setPath(snapshot.root_snapshot_id, snapshot.id, snapshot.path, (snapshot.view? || snapshot.subview?))
+        java_filter.setPath(snapshot.root_snapshot_id, snapshot.id, snapshot.path)
       else
-        java_filter.setPath(-1, -1, '', false)
+        java_filter.setPath(-1, -1, '')
       end
     end
 

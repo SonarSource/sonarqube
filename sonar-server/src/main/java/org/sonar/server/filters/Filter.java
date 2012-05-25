@@ -46,7 +46,6 @@ public class Filter {
   private String keyRegexp;
   private String nameRegexp;
   private boolean onDirectChildren = false;
-  private boolean isViewContext = false;
 
   // filters on measures
   private List<MeasureCriterion> measureCriteria = Lists.newLinkedList();
@@ -63,7 +62,7 @@ public class Filter {
   private boolean isNumericMetric = true;
   private boolean ascendingSort = true;
 
-  public Filter setPath(Integer rootSnapshotId, Integer snapshotId, String snapshotPath, boolean isViewContext) {
+  public Filter setPath(Integer rootSnapshotId, Integer snapshotId, String snapshotPath) {
     this.baseSnapshotId = snapshotId;
     if (rootSnapshotId == null) {
       this.rootSnapshotId = snapshotId;
@@ -71,7 +70,6 @@ public class Filter {
       this.rootSnapshotId = rootSnapshotId;
     }
     this.baseSnapshotPath = StringUtils.defaultString(snapshotPath, ""); //With Oracle the path can be null (see SONAR-2582)
-    this.isViewContext = isViewContext;
     return this;
   }
 

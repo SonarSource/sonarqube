@@ -90,7 +90,7 @@ public class FilterExecutorTest extends AbstractDbUnitTestCase {
   public void filterOnBaseSnapshot() {
     setupData("shared");
     FilterExecutor executor = new FilterExecutor(getSession(), new Derby());
-    FilterResult result = executor.execute(Filter.createForAllQualifiers().setPath(2, 2, "", false));
+    FilterResult result = executor.execute(Filter.createForAllQualifiers().setPath(2, 2, ""));
     assertSnapshotIds(result, 4);
   }
 
@@ -321,7 +321,7 @@ public class FilterExecutorTest extends AbstractDbUnitTestCase {
     setupData("views");
     FilterExecutor executor = new FilterExecutor(getSession(), new Derby());
     Filter filter = new Filter()
-        .setPath(2, 2, "", true)
+        .setPath(2, 2, "")
         .setQualifiers(Sets.newHashSet(Qualifiers.SUBVIEW, Qualifiers.PROJECT));
 
     FilterResult result = executor.execute(filter);
