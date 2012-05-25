@@ -31,6 +31,7 @@ class IgnoreLoadedDashboards < ActiveRecord::Migration
   def self.up
     mark_dashboard_as_loaded('Projects')
     mark_dashboard_as_loaded('Treemap')
+    mark_dashboard_as_loaded('My Favourites')
   end
 
   def self.mark_dashboard_as_loaded(name)

@@ -19,8 +19,9 @@
  */
 package org.sonar.core.dashboard;
 
-public final class ActiveDashboardDto {
+import com.google.common.base.Objects;
 
+public final class ActiveDashboardDto {
   private Long id;
   private Long dashboardId;
   private Long userId;
@@ -36,8 +37,9 @@ public final class ActiveDashboardDto {
   /**
    * @param id the id to set
    */
-  public void setId(Long id) {
+  public ActiveDashboardDto setId(Long id) {
     this.id = id;
+    return this;
   }
 
   /**
@@ -50,8 +52,9 @@ public final class ActiveDashboardDto {
   /**
    * @param dashboardId the dashboardId to set
    */
-  public void setDashboardId(Long dashboardId) {
+  public ActiveDashboardDto setDashboardId(Long dashboardId) {
     this.dashboardId = dashboardId;
+    return this;
   }
 
   /**
@@ -64,8 +67,9 @@ public final class ActiveDashboardDto {
   /**
    * @param userId the userId to set
    */
-  public void setUserId(Long userId) {
+  public ActiveDashboardDto setUserId(Long userId) {
     this.userId = userId;
+    return this;
   }
 
   /**
@@ -78,8 +82,9 @@ public final class ActiveDashboardDto {
   /**
    * @param orderIndex the orderIndex to set
    */
-  public void setOrderIndex(Integer orderIndex) {
+  public ActiveDashboardDto setOrderIndex(Integer orderIndex) {
     this.orderIndex = orderIndex;
+    return this;
   }
 
   @Override
@@ -92,11 +97,10 @@ public final class ActiveDashboardDto {
     }
     ActiveDashboardDto that = (ActiveDashboardDto) o;
     return !(id != null ? !id.equals(that.id) : that.id != null);
-
   }
 
   @Override
   public int hashCode() {
-    return id != null ? id.hashCode() : 0;
+    return Objects.hashCode(id);
   }
 }

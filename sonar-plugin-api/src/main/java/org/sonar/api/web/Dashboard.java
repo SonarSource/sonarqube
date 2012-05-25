@@ -41,6 +41,7 @@ public final class Dashboard {
   private DashboardLayout layout = DashboardLayout.TWO_COLUMNS;
   private ListMultimap<Integer, Widget> widgetsByColumn = ArrayListMultimap.create();
   private boolean global = false;
+  private boolean activated = true;
 
   private Dashboard() {
   }
@@ -138,6 +139,27 @@ public final class Dashboard {
   }
 
   /**
+   * A dashboard can be activated for all anonymous users or users who haven't configured their own dashboards.
+   * <p>Before version 3.1 every dashboard created through this extension point was automatically activated.
+   * This is still the default behavior.</p>
+   *
+   * @since 3.1
+   */
+  public boolean isActivated() {
+    return activated;
+  }
+
+  /**
+   * Set whether the dashboard is activated for all anonymous users or users who haven't configured their own dashboards.
+   *
+   * @since 3.1
+   */
+  public Dashboard setActivated(boolean activated) {
+    this.activated = activated;
+    return this;
+  }
+
+  /**
    * Note that this class is an inner class to avoid confusion with the extension point org.sonar.api.web.Widget.
    */
   public static final class Widget {
@@ -176,5 +198,4 @@ public final class Dashboard {
       return id;
     }
   }
-
 }

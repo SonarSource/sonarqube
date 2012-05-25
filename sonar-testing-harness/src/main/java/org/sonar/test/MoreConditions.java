@@ -59,4 +59,13 @@ public final class MoreConditions {
       }
     };
   }
+
+  public static Condition<Object> reflectionEqualTo(final Object expected) {
+    return new Condition<Object>() {
+      @Override
+      public boolean matches(Object actual) {
+        return EqualsBuilder.reflectionEquals(expected, actual);
+      }
+    };
+  }
 }

@@ -19,21 +19,27 @@
  */
 package org.sonar.plugins.core.dashboards;
 
-import org.sonar.plugins.core.filters.TreeMapFilter;
+import org.sonar.api.web.Dashboard;
+import org.sonar.plugins.core.filters.MyFavouritesFilter;
 
 /**
- * Treemap global dashboard for Sonar
+ * My favorites global dashboard for Sonar
  *
  * @since 3.1
  */
-public final class TreemapDashboard extends AbstractFilterDashboard {
+public final class MyFavouritesDashboard extends AbstractFilterDashboard {
   @Override
   public String getName() {
-    return "Treemap";
+    return "My Favourites";
   }
 
   @Override
   protected String getFilterKey() {
-    return new TreeMapFilter().getName();
+    return new MyFavouritesFilter().getName();
+  }
+
+  @Override
+  public Dashboard createDashboard() {
+    return super.createDashboard().setActivated(false);
   }
 }

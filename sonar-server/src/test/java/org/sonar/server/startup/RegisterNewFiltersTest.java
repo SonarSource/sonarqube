@@ -69,15 +69,6 @@ public class RegisterNewFiltersTest {
   }
 
   @Test
-  public void should_insert_nothing_if_no_template_is_available() {
-    register = new RegisterNewFilters(filterDao, loadedTemplateDao);
-    register.start();
-
-    verify(filterDao, never()).insert(any(FilterDto.class));
-    verify(loadedTemplateDao, never()).insert(any(LoadedTemplateDto.class));
-  }
-
-  @Test
   public void should_insert_nothing_if_templates_are_alreday_loaded() {
     when(loadedTemplateDao.countByTypeAndKey(eq(LoadedTemplateDto.FILTER_TYPE), anyString())).thenReturn(1);
 

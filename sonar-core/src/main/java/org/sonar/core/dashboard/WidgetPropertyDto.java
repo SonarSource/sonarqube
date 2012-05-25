@@ -20,7 +20,6 @@
 package org.sonar.core.dashboard;
 
 public final class WidgetPropertyDto {
-
   private Long id;
   private Long widgetId;
   private String key;
@@ -36,8 +35,9 @@ public final class WidgetPropertyDto {
   /**
    * @param id the id to set
    */
-  public void setId(Long id) {
+  public WidgetPropertyDto setId(Long id) {
     this.id = id;
+    return this;
   }
 
   /**
@@ -50,8 +50,9 @@ public final class WidgetPropertyDto {
   /**
    * @param widgetId the widgetId to set
    */
-  public void setWidgetId(Long widgetId) {
+  public WidgetPropertyDto setWidgetId(Long widgetId) {
     this.widgetId = widgetId;
+    return this;
   }
 
   /**
@@ -64,8 +65,9 @@ public final class WidgetPropertyDto {
   /**
    * @param key the key to set
    */
-  public void setKey(String key) {
+  public WidgetPropertyDto setKey(String key) {
     this.key = key;
+    return this;
   }
 
   /**
@@ -78,8 +80,8 @@ public final class WidgetPropertyDto {
   /**
    * @param value the value to set
    */
-  public void setValue(String value) {
+  public WidgetPropertyDto setValue(String value) {
     this.value = value;
+    return this;
   }
-
 }

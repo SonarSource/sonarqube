@@ -46,13 +46,6 @@ public final class RegisterNewFilters {
   private final FilterDao filterDao;
   private final LoadedTemplateDao loadedTemplateDao;
 
-  /**
-   * Constructor used in case there is no {@link FilterTemplate}.
-   */
-  public RegisterNewFilters(FilterDao filterDao, LoadedTemplateDao loadedTemplateDao) {
-    this(new FilterTemplate[0], filterDao, loadedTemplateDao);
-  }
-
   public RegisterNewFilters(FilterTemplate[] filterTemplates, FilterDao filterDao, LoadedTemplateDao loadedTemplateDao) {
     this.filterTemplates = ImmutableList.copyOf(filterTemplates);
     this.filterDao = filterDao;

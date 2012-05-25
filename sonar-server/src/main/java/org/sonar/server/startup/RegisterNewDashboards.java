@@ -20,17 +20,21 @@
 package org.sonar.server.startup;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.web.Dashboard;
 import org.sonar.api.web.DashboardTemplate;
-import org.sonar.core.dashboard.*;
+import org.sonar.core.dashboard.ActiveDashboardDao;
+import org.sonar.core.dashboard.ActiveDashboardDto;
+import org.sonar.core.dashboard.DashboardDao;
+import org.sonar.core.dashboard.DashboardDto;
+import org.sonar.core.dashboard.WidgetDto;
+import org.sonar.core.dashboard.WidgetPropertyDto;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.template.LoadedTemplateDto;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
@@ -39,18 +43,13 @@ import java.util.Map.Entry;
  * @since 2.13
  */
 public final class RegisterNewDashboards {
-
   private static final Logger LOG = LoggerFactory.getLogger(RegisterNewDashboards.class);
   static final String DEFAULT_DASHBOARD_NAME = "Dashboard";
 
-  private List<DashboardTemplate> dashboardTemplates;
-  private DashboardDao dashboardDao;
-  private ActiveDashboardDao activeDashboardDao;
-  private LoadedTemplateDao loadedTemplateDao;
-
-  public RegisterNewDashboards(DashboardDao dashboardDao, ActiveDashboardDao activeDashboardDao, LoadedTemplateDao loadedTemplateDao) {
-    this(new DashboardTemplate[] {}, dashboardDao, activeDashboardDao, loadedTemplateDao);
-  }
+  private final List<DashboardTemplate> dashboardTemplates;
+  private final DashboardDao dashboardDao;
+  private final ActiveDashboardDao activeDashboardDao;
+  private final LoadedTemplateDao loadedTemplateDao;
 
   public RegisterNewDashboards(DashboardTemplate[] dashboardTemplatesArray, DashboardDao dashboardDao,
       ActiveDashboardDao activeDashboardDao, LoadedTemplateDao loadedTemplateDao) {
@@ -68,7 +67,7 @@ public final class RegisterNewDashboards {
       if (shouldRegister(template.getName())) {
         Dashboard dashboard = template.createDashboard();
         DashboardDto dto = register(template.getName(), dashboard);
-        if (dto != null) {
+        if ((dto != null) && (dashboard.isActivated())) {
           registeredDashboards.add(dto);
         }
       }
@@ -81,17 +80,18 @@ public final class RegisterNewDashboards {
 
   protected void activate(List<DashboardDto> loadedDashboards) {
     int nextOrderIndex = activeDashboardDao.selectMaxOrderIndexForNullUser() + 1;
-    Collections.sort(loadedDashboards, new DashboardComparator());
-    for (DashboardDto dashboardDto : loadedDashboards) {
+
+    for (DashboardDto dashboardDto : new DashboardOrdering().sortedCopy(loadedDashboards)) {
       activate(dashboardDto, nextOrderIndex++);
     }
   }
 
   private void activate(DashboardDto dashboardDto, int index) {
-    ActiveDashboardDto activeDashboardDto = new ActiveDashboardDto();
-    activeDashboardDto.setDashboardId(dashboardDto.getId());
-    activeDashboardDto.setOrderIndex(index);
+    ActiveDashboardDto activeDashboardDto = new ActiveDashboardDto()
+        .setDashboardId(dashboardDto.getId())
+        .setOrderIndex(index);
     activeDashboardDao.insert(activeDashboardDto);
+
     LOG.info("New dashboard '" + dashboardDto.getName() + "' registered");
   }
 
@@ -108,36 +108,36 @@ public final class RegisterNewDashboards {
 
   protected DashboardDto createDtoFromExtension(String name, Dashboard dashboard) {
     Date now = new Date();
-    DashboardDto dashboardDto = new DashboardDto();
-    dashboardDto.setName(name);
-    dashboardDto.setDescription(dashboard.getDescription());
-    dashboardDto.setColumnLayout(dashboard.getLayout().getCode());
-    dashboardDto.setShared(true);
-    dashboardDto.setGlobal(dashboard.isGlobal());
-    dashboardDto.setCreatedAt(now);
-    dashboardDto.setUpdatedAt(now);
+
+    DashboardDto dashboardDto = new DashboardDto()
+        .setName(name)
+        .setDescription(dashboard.getDescription())
+        .setColumnLayout(dashboard.getLayout().getCode())
+        .setShared(true)
+        .setGlobal(dashboard.isGlobal())
+        .setCreatedAt(now)
+        .setUpdatedAt(now);
 
     for (int columnIndex = 1; columnIndex <= dashboard.getLayout().getColumns(); columnIndex++) {
       List<Dashboard.Widget> widgets = dashboard.getWidgetsOfColumn(columnIndex);
       for (int rowIndex = 1; rowIndex <= widgets.size(); rowIndex++) {
         Dashboard.Widget widget = widgets.get(rowIndex - 1);
-        WidgetDto widgetDto = new WidgetDto();
-        widgetDto.setKey(widget.getId());
-        widgetDto.setColumnIndex(columnIndex);
-        widgetDto.setRowIndex(rowIndex);
-        widgetDto.setConfigured(true);
-        widgetDto.setCreatedAt(now);
-        widgetDto.setUpdatedAt(now);
+        WidgetDto widgetDto = new WidgetDto()
+            .setKey(widget.getId())
+            .setColumnIndex(columnIndex)
+            .setRowIndex(rowIndex)
+            .setConfigured(true)
+            .setCreatedAt(now)
+            .setUpdatedAt(now);
         dashboardDto.addWidget(widgetDto);
 
         for (Entry<String, String> property : widget.getProperties().entrySet()) {
-          WidgetPropertyDto propDto = new WidgetPropertyDto();
-          propDto.setKey(property.getKey());
-          propDto.setValue(property.getValue());
+          WidgetPropertyDto propDto = new WidgetPropertyDto()
+              .setKey(property.getKey())
+              .setValue(property.getValue());
           widgetDto.addWidgetProperty(propDto);
         }
       }
-
     }
     return dashboardDto;
   }
@@ -146,7 +146,8 @@ public final class RegisterNewDashboards {
     return loadedTemplateDao.countByTypeAndKey(LoadedTemplateDto.DASHBOARD_TYPE, dashboardName) == 0;
   }
 
-  protected static class DashboardComparator implements Comparator<DashboardDto> {
+  private static class DashboardOrdering extends Ordering<DashboardDto> {
+    @Override
     public int compare(DashboardDto d1, DashboardDto d2) {
       // the default dashboard must be the first one to be activated
       if (d1.getName().equals(DEFAULT_DASHBOARD_NAME)) {
@@ -158,5 +159,4 @@ public final class RegisterNewDashboards {
       return d1.getName().compareTo(d2.getName());
     }
   }
-
 }

@@ -26,7 +26,6 @@ import java.util.Date;
 import java.util.List;
 
 public final class WidgetDto {
-
   private Long id;
   private Long dashboardId;
   private String key;
@@ -50,8 +49,9 @@ public final class WidgetDto {
   /**
    * @param id the id to set
    */
-  public void setId(Long id) {
+  public WidgetDto setId(Long id) {
     this.id = id;
+    return this;
   }
 
   /**
@@ -64,8 +64,9 @@ public final class WidgetDto {
   /**
    * @param dashboardId the dashboardId to set
    */
-  public void setDashboardId(Long dashboardId) {
+  public WidgetDto setDashboardId(Long dashboardId) {
     this.dashboardId = dashboardId;
+    return this;
   }
 
   /**
@@ -78,8 +79,9 @@ public final class WidgetDto {
   /**
    * @param key the key to set
    */
-  public void setKey(String key) {
+  public WidgetDto setKey(String key) {
     this.key = key;
+    return this;
   }
 
   /**
@@ -92,8 +94,9 @@ public final class WidgetDto {
   /**
    * @param name the name to set
    */
-  public void setName(String name) {
+  public WidgetDto setName(String name) {
     this.name = name;
+    return this;
   }
 
   /**
@@ -106,8 +109,9 @@ public final class WidgetDto {
   /**
    * @param description the description to set
    */
-  public void setDescription(String description) {
+  public WidgetDto setDescription(String description) {
     this.description = description;
+    return this;
   }
 
   /**
@@ -120,8 +124,9 @@ public final class WidgetDto {
   /**
    * @param columnIndex the columnIndex to set
    */
-  public void setColumnIndex(Integer columnIndex) {
+  public WidgetDto setColumnIndex(Integer columnIndex) {
     this.columnIndex = columnIndex;
+    return this;
   }
 
   /**
@@ -134,8 +139,9 @@ public final class WidgetDto {
   /**
    * @param rowIndex the rowIndex to set
    */
-  public void setRowIndex(Integer rowIndex) {
+  public WidgetDto setRowIndex(Integer rowIndex) {
     this.rowIndex = rowIndex;
+    return this;
   }
 
   /**
@@ -148,8 +154,9 @@ public final class WidgetDto {
   /**
    * @param configured the configured to set
    */
-  public void setConfigured(boolean configured) {
+  public WidgetDto setConfigured(boolean configured) {
     this.configured = configured;
+    return this;
   }
 
   /**
@@ -162,8 +169,9 @@ public final class WidgetDto {
   /**
    * @param createdAt the createdAt to set
    */
-  public void setCreatedAt(Date createdAt) {
+  public WidgetDto setCreatedAt(Date createdAt) {
     this.createdAt = createdAt;
+    return this;
   }
 
   /**
@@ -176,8 +184,9 @@ public final class WidgetDto {
   /**
    * @param updatedAt the updatedAt to set
    */
-  public void setUpdatedAt(Date updatedAt) {
+  public WidgetDto setUpdatedAt(Date updatedAt) {
     this.updatedAt = updatedAt;
+    return this;
   }
 
   /**
@@ -190,8 +199,9 @@ public final class WidgetDto {
   /**
    * @param widgetPropertyDto the widgetProperty to set
    */
-  public void addWidgetProperty(WidgetPropertyDto widgetPropertyDto) {
+  public WidgetDto addWidgetProperty(WidgetPropertyDto widgetPropertyDto) {
     widgetPropertyDtos.add(widgetPropertyDto);
+    return this;
   }
 
   /**
@@ -206,8 +216,8 @@ public final class WidgetDto {
    * @param resourceId the resourceId to set
    * @since 3.1
    */
-  public void setResourceId(Integer resourceId) {
+  public WidgetDto setResourceId(Integer resourceId) {
     this.resourceId = resourceId;
+    return this;
   }
-
 }

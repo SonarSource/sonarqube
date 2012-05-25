@@ -19,21 +19,32 @@
  */
 package org.sonar.plugins.core.dashboards;
 
-import org.sonar.plugins.core.filters.TreeMapFilter;
+import org.sonar.plugins.core.widgets.FilterWidget;
+
+import org.sonar.api.web.Dashboard.Widget;
+
+import org.sonar.api.web.Dashboard;
+import org.sonar.api.web.DashboardLayout;
+import org.sonar.api.web.DashboardTemplate;
 
 /**
- * Treemap global dashboard for Sonar
+ * Base class for global dashboard containing a single
+ * filter widget.
  *
  * @since 3.1
  */
-public final class TreemapDashboard extends AbstractFilterDashboard {
-  @Override
-  public String getName() {
-    return "Treemap";
-  }
+abstract class AbstractFilterDashboard extends DashboardTemplate {
+  protected abstract String getFilterKey();
 
   @Override
-  protected String getFilterKey() {
-    return new TreeMapFilter().getName();
+  public Dashboard createDashboard() {
+    Dashboard dashboard = Dashboard.create()
+        .setGlobal(true)
+        .setLayout(DashboardLayout.ONE_COLUMN);
+
+    Widget filterWidget = dashboard.addWidget("filter", 1)
+        .setProperty(FilterWidget.FILTER, getFilterKey());
+
+    return dashboard;
   }
 }

@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.core;
 
+import org.sonar.plugins.core.dashboards.MyFavouritesDashboard;
+
 import com.google.common.collect.Lists;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Extension;
@@ -344,6 +346,7 @@ public final class CorePlugin extends SonarPlugin {
     extensions.add(TimeMachineDashboard.class);
     extensions.add(ProjectsDashboard.class);
     extensions.add(TreemapDashboard.class);
+    extensions.add(MyFavouritesDashboard.class);
 
     // chart
     extensions.add(XradarChart.class);

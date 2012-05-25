@@ -24,6 +24,8 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.Collection;
 
+import static org.sonar.test.MoreConditions.reflectionEqualTo;
+
 import static org.fest.assertions.Assertions.assertThat;
 import static org.sonar.test.MoreConditions.contains;
 import static org.sonar.test.MoreConditions.equalsIgnoreEOL;
@@ -75,6 +77,24 @@ public class MoreConditionsTest {
     assertThat(collection).doesNotSatisfy(contains(new Bean("key1", "value2")));
     assertThat(collection).doesNotSatisfy(contains(new Bean("key2", "value1")));
     assertThat(collection).doesNotSatisfy(contains(new Bean("", "")));
+  }
+
+  @Test
+  public void should_compare_using_reflection() {
+    Bean bean1 = new Bean("key1", "value1");
+    Bean bean2 = new Bean("key2", "value2");
+
+    assertThat(bean1).is(reflectionEqualTo(bean1));
+    assertThat(bean2).is(reflectionEqualTo(bean2));
+    assertThat(bean1).isNot(reflectionEqualTo(bean2));
+    assertThat(bean2).isNot(reflectionEqualTo(bean1));
+    assertThat(bean1).isNot(reflectionEqualTo(null));
+    assertThat(bean2).isNot(reflectionEqualTo(null));
+    assertThat(bean1).isNot(reflectionEqualTo(new Object()));
+    assertThat(bean2).isNot(reflectionEqualTo(new Object()));
+    assertThat(bean1).isNot(reflectionEqualTo(new Bean("key1", "value2")));
+    assertThat(bean1).isNot(reflectionEqualTo(new Bean("key2", "value1")));
+    assertThat(bean1).isNot(reflectionEqualTo(new Bean("", "")));
   }
 
   static final class Bean {

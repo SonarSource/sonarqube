@@ -19,34 +19,21 @@
  */
 package org.sonar.plugins.core.dashboards;
 
-import org.sonar.plugins.core.widgets.FilterWidget;
-
-import org.sonar.api.web.Dashboard.Widget;
-
-import org.sonar.api.web.Dashboard;
-import org.sonar.api.web.DashboardLayout;
-import org.sonar.api.web.DashboardTemplate;
+import org.sonar.plugins.core.filters.ProjectFilter;
 
 /**
  * Projects global dashboard for Sonar
  *
  * @since 3.1
  */
-public final class ProjectsDashboard extends DashboardTemplate {
+public final class ProjectsDashboard extends AbstractFilterDashboard {
   @Override
   public String getName() {
     return "Projects";
   }
 
   @Override
-  public Dashboard createDashboard() {
-    Dashboard dashboard = Dashboard.create();
-    dashboard.setGlobal(true);
-    dashboard.setLayout(DashboardLayout.ONE_COLUMN);
-
-    Widget filterWidget = dashboard.addWidget("filter", 1);
-    filterWidget.setProperty(FilterWidget.FILTER, "Projects");
-
-    return dashboard;
+  protected String getFilterKey() {
+    return new ProjectFilter().getName();
   }
 }
