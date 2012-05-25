@@ -52,7 +52,8 @@ public final class RegisterNewDashboards {
   private final LoadedTemplateDao loadedTemplateDao;
 
   public RegisterNewDashboards(DashboardTemplate[] dashboardTemplatesArray, DashboardDao dashboardDao,
-      ActiveDashboardDao activeDashboardDao, LoadedTemplateDao loadedTemplateDao) {
+      ActiveDashboardDao activeDashboardDao, LoadedTemplateDao loadedTemplateDao,
+      /* filters must be registered before dashboards when filter widgets are used */ RegisterNewFilters registerNewFilters) {
     this.dashboardTemplates = Lists.newArrayList(dashboardTemplatesArray);
     this.dashboardDao = dashboardDao;
     this.activeDashboardDao = activeDashboardDao;

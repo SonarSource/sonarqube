@@ -64,7 +64,7 @@ public class RegisterNewDashboardsTest {
     fakeDashboardTemplate = mock(DashboardTemplate.class);
 
     task = new RegisterNewDashboards(new DashboardTemplate[] {fakeDashboardTemplate}, dashboardDao,
-        activeDashboardDao, loadedTemplateDao);
+        activeDashboardDao, loadedTemplateDao, null);
   }
 
   @Test
