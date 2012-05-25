@@ -19,6 +19,8 @@
  */
 package org.sonar.api.utils.dag;
 
+import com.google.common.collect.Lists;
+
 import org.sonar.api.utils.SonarException;
 
 import java.util.*;
@@ -61,7 +63,7 @@ public class DirectAcyclicGraph {
   public List sort() {
     sortNodes();
 
-    List result = new ArrayList();
+    List<Object> result = Lists.newArrayList();
     for (Node node : nodes) {
       result.add(node.getObject());
     }

@@ -28,7 +28,7 @@ import static org.junit.Assert.*;
 public class CommentLinesDensityFormulaTest {
 
   CommentLinesDensityFormula formula = new CommentLinesDensityFormula();
-  Measurable<Metric> measurable = new SourceClass("com.Toto");
+  SourceClass measurable = new SourceClass("com.Toto");
 
   @Test
   public void calculateDensityOnEmptyFile() {

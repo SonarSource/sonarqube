@@ -156,7 +156,7 @@ public class BatchExtensionDictionnary {
   }
 
 
-  protected List evaluateAnnotatedClasses(Object extension, Class annotation) {
+  protected List evaluateAnnotatedClasses(Object extension, Class<? extends Annotation> annotation) {
     List<Object> results = Lists.newArrayList();
     Class aClass = extension.getClass();
     while (aClass != null) {

@@ -49,7 +49,8 @@ public class JarLoaderTest {
 
     URL url = loader.findResource("META-INF/MANIFEST.MF");
     assertThat(url, notNullValue());
-    assertThat(url.toString(), allOf(startsWith("jar:"), endsWith("hello.jar!/META-INF/MANIFEST.MF")));
+    assertThat(url.toString(), startsWith("jar:"));
+    assertThat(url.toString(), endsWith("hello.jar!/META-INF/MANIFEST.MF"));
 
     InputStream is = url.openStream();
     try {

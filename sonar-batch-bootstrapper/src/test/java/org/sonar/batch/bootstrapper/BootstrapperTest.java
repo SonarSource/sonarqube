@@ -45,8 +45,10 @@ public class BootstrapperTest {
   public void shouldReturnUserAgent() {
     Bootstrapper bootstrapper = new Bootstrapper("test/0.1", "http://unknown.foo", new File("target"));
     String userAgent = bootstrapper.getUserAgent();
+
     assertThat(userAgent.length(), greaterThan(0));
-    assertThat(userAgent, allOf(startsWith("sonar-bootstrapper/"), endsWith(" test/0.1")));
+    assertThat(userAgent, startsWith("sonar-bootstrapper/"));
+    assertThat(userAgent, endsWith(" test/0.1"));
   }
 
   @Test

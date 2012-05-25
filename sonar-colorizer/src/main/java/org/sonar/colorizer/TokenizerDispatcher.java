@@ -26,7 +26,7 @@ import java.util.List;
 
 public class TokenizerDispatcher {
 
-  private Channel[] tokenizers;
+  private Channel<HtmlCodeBuilder>[] tokenizers;
 
   public TokenizerDispatcher(Channel<HtmlCodeBuilder>... tokenizers) {
     this.tokenizers = tokenizers;

@@ -41,6 +41,7 @@ public final class DaoUtils {
   private DaoUtils() {
   }
 
+  @SuppressWarnings("unchecked")
   public static List<Class<?>> getDaoClasses() {
     return ImmutableList.of(
         ActiveDashboardDao.class,

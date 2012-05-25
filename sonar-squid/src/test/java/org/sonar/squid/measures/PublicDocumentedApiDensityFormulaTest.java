@@ -28,7 +28,7 @@ import static org.junit.Assert.*;
 public class PublicDocumentedApiDensityFormulaTest {
 
   PublicDocumentedApiDensityFormula formula = new PublicDocumentedApiDensityFormula();
-  Measurable<Metric> measurable = new SourceClass("com.Toto");
+  SourceClass measurable = new SourceClass("com.Toto");
 
   @Test
   public void calculateWhenNoPublicApi() {

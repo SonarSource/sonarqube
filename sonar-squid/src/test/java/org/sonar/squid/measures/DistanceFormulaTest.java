@@ -28,7 +28,7 @@ import static org.junit.Assert.assertEquals;
 public class DistanceFormulaTest {
 
   DistanceFormula distance = new DistanceFormula();
-  Measurable<Metric> measurable = new SourcePackage("pac1");
+  SourcePackage measurable = new SourcePackage("pac1");
 
   @Test
   public void calculateBestDistance() {

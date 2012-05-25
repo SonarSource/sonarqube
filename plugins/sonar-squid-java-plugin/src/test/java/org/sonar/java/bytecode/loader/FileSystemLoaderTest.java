@@ -19,19 +19,18 @@
  */
 package org.sonar.java.bytecode.loader;
 
+import org.junit.Test;
+import org.sonar.java.ast.SquidTestUtils;
+
+import java.io.File;
+import java.net.URL;
+
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-
-import java.io.File;
-import java.net.URL;
-
-import org.junit.Test;
-import org.sonar.java.ast.SquidTestUtils;
 
 public class FileSystemLoaderTest {
 
@@ -49,7 +48,8 @@ public class FileSystemLoaderTest {
 
     URL url = loader.findResource("tags/TagName.class");
     assertThat(url, notNullValue());
-    assertThat(url.toString(), allOf(startsWith("file:"), endsWith("TagName.class")));
+    assertThat(url.toString(), startsWith("file:"));
+    assertThat(url.toString(), endsWith("TagName.class"));
 
     loader.close();
 
