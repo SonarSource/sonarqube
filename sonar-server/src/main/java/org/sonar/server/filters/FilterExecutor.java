@@ -207,7 +207,7 @@ public class FilterExecutor implements ServerComponent {
     if (StringUtils.isNotBlank(filter.getNameRegexp())) {
       sql.append(" AND UPPER(p.long_name) LIKE :name");
     }
-    if (!filter.isViewContext()) {
+    if (!filter.hasBaseSnapshot()) {
       sql.append(" AND p.copy_resource_id IS NULL ");
     }
     sql.append(" GROUP BY s.id");

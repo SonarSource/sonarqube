@@ -91,14 +91,6 @@ public class Filter {
     return baseSnapshotPath;
   }
 
-  public boolean isViewContext() {
-    return isViewContext;
-  }
-
-  public void setViewContext(boolean b) {
-    isViewContext = b;
-  }
-
   public Set<String> getScopes() {
     return scopes;
   }

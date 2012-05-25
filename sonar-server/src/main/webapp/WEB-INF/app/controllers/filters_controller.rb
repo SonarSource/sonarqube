@@ -33,7 +33,7 @@ class FiltersController < ApplicationController
     else
       @filters = ::Filter.find(:all, :conditions => {:user_id => current_user.id})
     end
-    @filters.sort! { |a,b| a.name.downcase <=> b.name.downcase }
+    @filters.sort! { |a, b| a.name.downcase <=> b.name.downcase }
   end
 
   def list
@@ -112,7 +112,7 @@ class FiltersController < ApplicationController
     access_denied unless @filter.authorized_to_edit?(self)
 
     if @filter
-      if WidgetProperty.find(:first, :conditions => { :kee => 'filter', :text_value => @filter.kee})
+      if WidgetProperty.find(:first, :conditions => {:kee => 'filter', :text_value => @filter.kee})
         flash[:error]='The filter is used in at least one dashboard. It cannot be deleted'
       else
         @filter.destroy
@@ -263,7 +263,7 @@ class FiltersController < ApplicationController
 
       else
         snapshots=Snapshot.find(:all, :include => [:project, {:root_snapshot => :project}, {:parent_snapshot => :project}],
-                                 :conditions => ['snapshots.status=? AND snapshots.islast=? AND snapshots.scope=? AND projects.person_id IS NULL AND projects.scope=? AND UPPER(projects.long_name) LIKE ?', 'P', true, 'PRJ', 'PRJ', "%#{params[:search].upcase}%"])
+                                :conditions => ['snapshots.status=? AND snapshots.islast=? AND snapshots.scope=? AND projects.person_id IS NULL AND projects.scope=? AND UPPER(projects.long_name) LIKE ?', 'P', true, 'PRJ', 'PRJ', "%#{params[:search].upcase}%"])
         snapshots=select_authorized(:user, snapshots)
 
         @snapshots_by_qualifier = {}
@@ -299,9 +299,9 @@ class FiltersController < ApplicationController
     @height=(params[:height]||'500').to_i
 
     @treemap = Sonar::Treemap.new(@filter.id, @size_metric, @width, @height, {
-        :color_metric => @color_metric,
-        :period_index => @filter_context.period_index,
-        :measures_by_snapshot => @filter_context.measures_by_snapshot
+      :color_metric => @color_metric,
+      :period_index => @filter_context.period_index,
+      :measures_by_snapshot => @filter_context.measures_by_snapshot
     })
 
     render :action => "treemap", :layout => false
@@ -330,14 +330,16 @@ class FiltersController < ApplicationController
     filter.criteria<<Criterion.new(:family => 'language', :operator => '=', :text_value => params['languages'].join(',')) if params['languages']
     filter.criteria<<Criterion.new(:family => 'direct-children', :operator => '=', :text_value => 'true') if params['direct-children'].present?
 
-    if params[:criteria]['0']['metric_id'].present?
-      filter.criteria<<Criterion.new_for_metric(params[:criteria]['0'])
-    end
-    if params[:criteria]['1']['metric_id'].present?
-      filter.criteria<<Criterion.new_for_metric(params[:criteria]['1'])
-    end
-    if params[:criteria]['2']['metric_id'].present?
-      filter.criteria<<Criterion.new_for_metric(params[:criteria]['2'])
+    if params[:criteria]
+      if params[:criteria]['0']['metric_id'].present?
+        filter.criteria<<Criterion.new_for_metric(params[:criteria]['0'])
+      end
+      if params[:criteria]['1']['metric_id'].present?
+        filter.criteria<<Criterion.new_for_metric(params[:criteria]['1'])
+      end
+      if params[:criteria]['2']['metric_id'].present?
+        filter.criteria<<Criterion.new_for_metric(params[:criteria]['2'])
+      end
     end
   end
 end
