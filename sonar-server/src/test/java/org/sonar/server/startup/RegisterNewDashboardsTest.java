@@ -98,7 +98,7 @@ public class RegisterNewDashboardsTest {
 
     DashboardDto dashboardDto = task.register("Fake", fakeDashboardTemplate.createDashboard());
 
-    verify(dashboardDao).insert(any(DashboardDto.class));
+    verify(dashboardDao).insert(dashboardDto);
     verify(loadedTemplateDao).insert(eq(new LoadedTemplateDto("Fake", LoadedTemplateDto.DASHBOARD_TYPE)));
   }
 

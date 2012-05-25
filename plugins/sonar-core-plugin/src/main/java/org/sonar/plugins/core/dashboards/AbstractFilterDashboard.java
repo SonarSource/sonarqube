@@ -19,13 +19,10 @@
  */
 package org.sonar.plugins.core.dashboards;
 
-import org.sonar.plugins.core.widgets.FilterWidget;
-
-import org.sonar.api.web.Dashboard.Widget;
-
 import org.sonar.api.web.Dashboard;
 import org.sonar.api.web.DashboardLayout;
 import org.sonar.api.web.DashboardTemplate;
+import org.sonar.plugins.core.widgets.FilterWidget;
 
 /**
  * Base class for global dashboard containing a single
@@ -42,7 +39,8 @@ abstract class AbstractFilterDashboard extends DashboardTemplate {
         .setGlobal(true)
         .setLayout(DashboardLayout.ONE_COLUMN);
 
-    Widget filterWidget = dashboard.addWidget("filter", 1)
+    dashboard
+        .addWidget("filter", 1)
         .setProperty(FilterWidget.FILTER, getFilterKey());
 
     return dashboard;

@@ -66,7 +66,7 @@ public class ModelTest {
   public void shouldRemoveCharacteristic() {
     Model model = Model.create();
     Characteristic efficiency = model.createCharacteristicByName("Efficiency");
-    Characteristic usability = model.createCharacteristicByName("Usability");
+    model.createCharacteristicByName("Usability");
     assertThat(model.getCharacteristics().size(), is(2));
 
     model.removeCharacteristic(efficiency);
@@ -78,7 +78,7 @@ public class ModelTest {
   @Test
   public void shouldNotFailWhenRemovingUnknownCharacteristic() {
     Model model = Model.create();
-    Characteristic efficiency = model.createCharacteristicByName("Efficiency");
+    model.createCharacteristicByName("Efficiency");
     model.removeCharacteristic(Characteristic.createByKey("foo", "Foo"));
     assertThat(model.getCharacteristics().size(), is(1));
   }
