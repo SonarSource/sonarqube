@@ -34,7 +34,7 @@ abstract class AbstractFilterDashboard extends DashboardTemplate {
   protected abstract String getFilterKey();
 
   @Override
-  public Dashboard createDashboard() {
+  public final Dashboard createDashboard() {
     Dashboard dashboard = Dashboard.create()
         .setGlobal(true)
         .setLayout(DashboardLayout.ONE_COLUMN);
@@ -43,6 +43,13 @@ abstract class AbstractFilterDashboard extends DashboardTemplate {
         .addWidget("filter", 1)
         .setProperty(FilterWidget.FILTER, getFilterKey());
 
+    doCompleteDashboard(dashboard);
     return dashboard;
+  }
+
+  /**
+   * Override this method to complete dashboard
+   */
+  protected void doCompleteDashboard(Dashboard dashboard) {
   }
 }

@@ -31,9 +31,11 @@ import org.sonar.api.web.FilterTemplate;
  * @since 3.1
  */
 public class MyFavouritesFilter extends FilterTemplate {
+  public static final String NAME = "My favourites";
+
   @Override
   public String getName() {
-    return "My favourites";
+    return NAME;
   }
 
   @Override
@@ -41,7 +43,7 @@ public class MyFavouritesFilter extends FilterTemplate {
     Filter filter = Filter.create();
     filter.setDisplayAs(Filter.LIST);
     filter.setFavouritesOnly(true);
-    filter.add(Criterion.createForQualifier("VW", "SVW", "TRK", "BRC", "DIR", "PAC", "FIL", "CLA", "UTS", "LIB"));
+    filter.add(Criterion.createForQualifier("VW", "SVW", "TRK", "BRC", "DIR", "PAC", "FIL", "CLA", "UTS"));
     filter.add(FilterColumn.create("metric", CoreMetrics.ALERT_STATUS_KEY, FilterColumn.DESC, false));
     filter.add(FilterColumn.create("name", null, FilterColumn.ASC, false));
     filter.add(FilterColumn.create("metric", CoreMetrics.NCLOC_KEY, FilterColumn.DESC, false));

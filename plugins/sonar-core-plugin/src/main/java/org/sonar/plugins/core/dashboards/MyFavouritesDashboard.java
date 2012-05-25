@@ -35,11 +35,11 @@ public final class MyFavouritesDashboard extends AbstractFilterDashboard {
 
   @Override
   protected String getFilterKey() {
-    return new MyFavouritesFilter().getName();
+    return MyFavouritesFilter.NAME;
   }
 
   @Override
-  public Dashboard createDashboard() {
-    return super.createDashboard().setActivated(false);
+  protected void doCompleteDashboard(Dashboard dashboard) {
+    dashboard.setActivated(false);
   }
 }
