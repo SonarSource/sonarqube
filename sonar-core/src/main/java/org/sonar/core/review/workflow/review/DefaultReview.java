@@ -181,7 +181,7 @@ public final class DefaultReview implements MutableReview {
     if (newComments == null) {
       newComments = Lists.newArrayList();
     }
-    Comment comment = new Comment();
+    Comment comment = new DefaultComment();
     newComments.add(comment);
     return comment;
   }

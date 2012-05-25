@@ -19,12 +19,41 @@
  */
 package org.sonar.core.review.workflow.review;
 
-public interface Comment {
-  String getMarkdownText();
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
-  Long getUserId();
+public final class DefaultComment implements Comment, Cloneable {
+  private String markdownText;
+  private Long userId;
 
-  Comment setMarkdownText(String s);
+  DefaultComment() {
+  }
 
-  Comment setUserId(Long l);
+  public String getMarkdownText() {
+    return markdownText;
+  }
+
+  public DefaultComment setMarkdownText(String s) {
+    this.markdownText = s;
+    return this;
+  }
+
+  public Long getUserId() {
+    return userId;
+  }
+
+  public DefaultComment setUserId(Long l) {
+    this.userId = l;
+    return this;
+  }
+
+  @Override
+  public String toString() {
+    return new ReflectionToStringBuilder(this, ToStringStyle.SIMPLE_STYLE).toString();
+  }
+
+  @Override
+  public Comment clone() {
+    return new DefaultComment().setMarkdownText(markdownText).setUserId(userId);
+  }
 }
