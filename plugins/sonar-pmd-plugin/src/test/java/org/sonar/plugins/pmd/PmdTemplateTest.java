@@ -19,15 +19,51 @@
  */
 package org.sonar.plugins.pmd;
 
+import com.google.common.base.Charsets;
 import net.sourceforge.pmd.PMD;
+import net.sourceforge.pmd.PMDException;
+import net.sourceforge.pmd.RuleContext;
+import net.sourceforge.pmd.RuleSets;
 import net.sourceforge.pmd.SourceType;
 import org.junit.Test;
+import org.sonar.api.resources.InputFile;
+import org.sonar.api.utils.SonarException;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class PmdTemplateTest {
+  InputFile inputFile = mock(InputFile.class);
+  RuleSets rulesets = mock(RuleSets.class);
+  RuleContext ruleContext = mock(RuleContext.class);
+  InputStream inputStream = mock(InputStream.class);
   PMD pmd = mock(PMD.class);
+
+  @Test
+  public void should_process_input_file() throws PMDException, FileNotFoundException {
+    when(inputFile.getFile()).thenReturn(new File("source.java"));
+    when(inputFile.getInputStream()).thenReturn(inputStream);
+
+    new PmdTemplate(pmd).process(inputFile, Charsets.UTF_8, rulesets, ruleContext);
+
+    verify(ruleContext).setSourceCodeFilename(new File("source.java").getAbsolutePath());
+    verify(pmd).processFile(inputStream, Charsets.UTF_8.displayName(), rulesets, ruleContext);
+  }
+
+  @Test
+  public void should_ignore_PMD_error() throws PMDException, FileNotFoundException {
+    when(inputFile.getFile()).thenReturn(new File("source.java"));
+    when(inputFile.getInputStream()).thenReturn(inputStream);
+    doThrow(new PMDException("BUG")).when(pmd).processFile(inputStream, Charsets.UTF_8.displayName(), rulesets, ruleContext);
+
+    new PmdTemplate(pmd).process(inputFile, Charsets.UTF_8, rulesets, ruleContext);
+  }
 
   @Test
   public void should_set_java11_version() {
@@ -55,5 +91,15 @@ public class PmdTemplateTest {
     PmdTemplate.setJavaVersion(pmd, "6");
 
     verify(pmd).setJavaVersion(SourceType.JAVA_16);
+  }
+
+  @Test(expected = SonarException.class)
+  public void should_fail_on_invalid_java_version() {
+    new PmdTemplate("12.2");
+  }
+
+  @Test
+  public void shouldnt_fail_on_valid_java_version() {
+    new PmdTemplate("6");
   }
 }

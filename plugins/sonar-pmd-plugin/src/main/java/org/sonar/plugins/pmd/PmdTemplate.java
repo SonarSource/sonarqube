@@ -50,8 +50,13 @@ public class PmdTemplate {
   private final PMD pmd;
 
   public PmdTemplate(String javaVersion) {
-    pmd = new PMD();
+    this(new PMD());
     setJavaVersion(pmd, javaVersion);
+  }
+
+  @VisibleForTesting
+  PmdTemplate(PMD pmd) {
+    this.pmd = pmd;
   }
 
   public void process(InputFile inputFile, Charset encoding, RuleSets rulesets, RuleContext ruleContext) {
@@ -75,10 +80,6 @@ public class PmdTemplate {
   @VisibleForTesting
   static void setJavaVersion(PMD pmd, String javaVersion) {
     String version = normalize(javaVersion);
-    if (version == null) {
-      return; // Do nothing
-    }
-
     SourceType sourceType = SourceType.getSourceTypeForId("java " + version);
     if (sourceType == null) {
       throw new SonarException("Unsupported Java version for PMD: " + version);
@@ -90,10 +91,5 @@ public class PmdTemplate {
 
   private static String normalize(String version) {
     return Functions.forMap(JAVA_VERSIONS, version).apply(version);
-  }
-
-  @Override
-  public String toString() {
-    return getClass().getSimpleName();
   }
 }

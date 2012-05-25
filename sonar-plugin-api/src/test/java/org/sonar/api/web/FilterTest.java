@@ -19,15 +19,49 @@
  */
 package org.sonar.api.web;
 
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import org.junit.Rule;
-
-import org.junit.Test;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class FilterTest {
   @Rule
   public ExpectedException exception = ExpectedException.none();
+
+  @Test
+  public void should_create_filter() {
+    Filter filter = Filter.create()
+        .setDisplayAs("list")
+        .setFavouritesOnly(true)
+        .setPageSize(100);
+
+    assertThat(filter.getDisplayAs()).isEqualTo("list");
+    assertThat(filter.isFavouritesOnly()).isTrue();
+    assertThat(filter.getPageSize()).isEqualTo(100);
+  }
+
+  @Test
+  public void should_add_criteria() {
+    Criterion criterion1 = Criterion.createForQualifier("A");
+    Criterion criterion2 = Criterion.createForQualifier("A");
+    Filter filter = Filter.create()
+        .add(criterion1)
+        .add(criterion2);
+
+    assertThat(filter.getCriteria()).containsExactly(criterion1, criterion2);
+  }
+
+  @Test
+  public void should_add_columns() {
+    FilterColumn column1 = FilterColumn.create("", "", "ASC", false);
+    FilterColumn column2 = FilterColumn.create("", "", "DESC", false);
+    Filter filter = Filter.create()
+        .add(column1)
+        .add(column2);
+
+    assertThat(filter.getColumns()).containsExactly(column1, column2);
+  }
 
   @Test
   public void should_accept_valid_periods() {
@@ -41,5 +75,27 @@ public class FilterTest {
     exception.expectMessage("Default period should be either list or treemap, not <invalid>");
 
     Filter.create().setDisplayAs("<invalid>");
+  }
+
+  @Test
+  public void should_accept_valid_pageSize() {
+    Filter.create().setPageSize(20);
+    Filter.create().setPageSize(200);
+  }
+
+  @Test
+  public void should_fail_on_pageSize_too_small() {
+    exception.expect(IllegalArgumentException.class);
+    exception.expectMessage("page size should be between 20 and 200");
+
+    Filter.create().setPageSize(19);
+  }
+
+  @Test
+  public void should_fail_on_pageSize_too_high() {
+    exception.expect(IllegalArgumentException.class);
+    exception.expectMessage("page size should be between 20 and 200");
+
+    Filter.create().setPageSize(201);
   }
 }

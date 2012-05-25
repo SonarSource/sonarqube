@@ -74,9 +74,4 @@ public class PmdViolationToRuleViolation implements BatchExtension {
     }
     return ruleFinder.findByKey(PmdConstants.TEST_REPOSITORY_KEY, ruleKey);
   }
-
-  @Override
-  public String toString() {
-    return getClass().getSimpleName();
-  }
 }
