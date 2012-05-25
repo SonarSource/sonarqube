@@ -23,6 +23,8 @@ import java.util.Map;
 
 public interface Review {
 
+  Long getReviewId();
+
   String getRuleRepositoryKey();
 
   String getRuleKey();
