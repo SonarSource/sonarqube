@@ -34,7 +34,7 @@ public class MyFavouritesDashboardTest {
 
   @Test
   public void should_have_a_name() {
-    assertThat(template.getName()).isEqualTo("My Favourites");
+    assertThat(template.getName()).isEqualTo("My favourites");
   }
 
   @Test

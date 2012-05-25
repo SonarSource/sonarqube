@@ -30,7 +30,7 @@ import org.sonar.plugins.core.filters.MyFavouritesFilter;
 public final class MyFavouritesDashboard extends AbstractFilterDashboard {
   @Override
   public String getName() {
-    return "My Favourites";
+    return "My favourites";
   }
 
   @Override
