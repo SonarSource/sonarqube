@@ -21,9 +21,8 @@ package org.sonar.plugins.core.sensors;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rules.Rule;
@@ -36,7 +35,13 @@ import org.sonar.core.review.ReviewDto;
 
 import java.util.Date;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ManualViolationInjectorTest {
 
@@ -53,14 +58,12 @@ public class ManualViolationInjectorTest {
 
     injector.decorate(new Project("key").setId(100), context);
 
-    verify(context, times(1)).saveViolation(argThat(new BaseMatcher<Violation>() {
+    verify(context, times(1)).saveViolation(argThat(new ArgumentMatcher<Violation>() {
+      @Override
       public boolean matches(Object o) {
         Violation v = (Violation) o;
         return v.getPermanentId() == 100 && v.getRule() != null && v.isManual() && v.getCreatedAt().equals(createdAt)
             && v.getSeverity().equals(RulePriority.BLOCKER);
-      }
-
-      public void describeTo(Description description) {
       }
     }));
   }

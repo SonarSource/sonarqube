@@ -19,12 +19,12 @@
  */
 package org.sonar.api.batch;
 
+import org.mockito.ArgumentMatcher;
+
 import com.google.common.collect.Lists;
 import org.apache.commons.configuration.MapConfiguration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang.CharEncoding;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.exceptions.verification.junit.ArgumentsAreDifferent;
@@ -132,14 +132,11 @@ public class AbstractSourceImporterTest {
 
     importer.analyse(project, context);
 
-    verify(context).saveSource(eq(FakeSourceImporter.TEST_RESOURCE), argThat(new BaseMatcher<String>() {
-
+    verify(context).saveSource(eq(FakeSourceImporter.TEST_RESOURCE), argThat(new ArgumentMatcher<String>() {
+      @Override
       public boolean matches(Object arg0) {
         String source = (String) arg0;
         return source.contains(aClaess) && source.contains(explicacao);
-      }
-
-      public void describeTo(Description arg0) {
       }
     }));
   }

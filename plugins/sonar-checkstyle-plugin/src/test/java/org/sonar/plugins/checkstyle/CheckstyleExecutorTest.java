@@ -23,8 +23,8 @@ import com.puppycrawl.tools.checkstyle.api.AuditEvent;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -35,7 +35,12 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.internal.matchers.StringContains.containsString;
 import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class CheckstyleExecutorTest {
 
@@ -69,25 +74,21 @@ public class CheckstyleExecutorTest {
   }
 
   private BaseMatcher<AuditEvent> newErrorMatcher(final String filename, final String rule) {
-    return new BaseMatcher<AuditEvent>(){
+    return new ArgumentMatcher<AuditEvent>() {
+      @Override
       public boolean matches(Object o) {
         AuditEvent event = (AuditEvent)o;
         return StringUtils.endsWith(event.getFileName(), filename) && StringUtils.equals(event.getSourceName(), rule);
-      }
-
-      public void describeTo(Description description) {
       }
     };
   }
 
   private BaseMatcher<AuditEvent> newFilenameMatcher(final String filename) {
-    return new BaseMatcher<AuditEvent>(){
+    return new ArgumentMatcher<AuditEvent>() {
+      @Override
       public boolean matches(Object o) {
         AuditEvent event = (AuditEvent)o;
         return StringUtils.endsWith(event.getFileName(), filename);
-      }
-
-      public void describeTo(Description description) {
       }
     };
   }

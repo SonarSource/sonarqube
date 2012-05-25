@@ -21,8 +21,8 @@ package org.sonar.plugins.dbcleaner.period;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.config.Settings;
@@ -33,8 +33,12 @@ import org.sonar.core.purge.PurgeableSnapshotDto;
 import java.util.Arrays;
 import java.util.Date;
 
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DefaultPeriodCleanerTest {
 
@@ -57,25 +61,21 @@ public class DefaultPeriodCleanerTest {
   }
 
   private BaseMatcher<PurgeSnapshotQuery> newRootSnapshotQuery() {
-    return new BaseMatcher<PurgeSnapshotQuery>() {
+    return new ArgumentMatcher<PurgeSnapshotQuery>() {
+      @Override
       public boolean matches(Object o) {
         PurgeSnapshotQuery query = (PurgeSnapshotQuery) o;
         return ObjectUtils.equals(query.getRootSnapshotId(), 999L);
-      }
-
-      public void describeTo(Description description) {
       }
     };
   }
 
   private BaseMatcher<PurgeSnapshotQuery> newSnapshotIdQuery() {
-    return new BaseMatcher<PurgeSnapshotQuery>() {
+    return new ArgumentMatcher<PurgeSnapshotQuery>() {
+      @Override
       public boolean matches(Object o) {
         PurgeSnapshotQuery query = (PurgeSnapshotQuery) o;
         return ObjectUtils.equals(query.getId(), 999L);
-      }
-
-      public void describeTo(Description description) {
       }
     };
   }

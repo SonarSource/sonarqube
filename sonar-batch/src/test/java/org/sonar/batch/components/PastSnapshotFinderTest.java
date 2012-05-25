@@ -20,10 +20,9 @@
 package org.sonar.batch.components;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.database.model.Snapshot;
 
@@ -89,13 +88,10 @@ public class PastSnapshotFinderTest {
 
     PastSnapshot variationSnapshot = finder.find(null, 2, "2010-05-18");
 
-    verify(finderByDate).findByDate((Snapshot) anyObject(), argThat(new BaseMatcher<Date>() {
+    verify(finderByDate).findByDate((Snapshot) anyObject(), argThat(new ArgumentMatcher<Date>() {
+      @Override
       public boolean matches(Object o) {
         return o.equals(date);
-      }
-
-      public void describeTo(Description description) {
-
       }
     }));
     assertThat(variationSnapshot.getIndex(), is(2));

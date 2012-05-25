@@ -19,6 +19,14 @@
  */
 package org.sonar.batch.components;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
+import org.junit.Test;
+import org.mockito.ArgumentMatcher;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.resources.Project;
+import org.sonar.jpa.test.AbstractDbUnitTestCase;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.argThat;
@@ -26,15 +34,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.junit.Test;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.Project;
-import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 public class TimeMachineConfigurationTest extends AbstractDbUnitTestCase {
 
@@ -63,12 +62,10 @@ public class TimeMachineConfigurationTest extends AbstractDbUnitTestCase {
 
     new TimeMachineConfiguration(getSession(), new Project("my:project"), conf, pastSnapshotFinder);
 
-    verify(pastSnapshotFinder).find(argThat(new BaseMatcher<Snapshot>() {
+    verify(pastSnapshotFinder).find(argThat(new ArgumentMatcher<Snapshot>() {
+      @Override
       public boolean matches(Object o) {
         return ((Snapshot) o).getResourceId() == 2 /* see database in shared.xml */;
-      }
-
-      public void describeTo(Description description) {
       }
     }), eq(conf), eq(1));
   }

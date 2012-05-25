@@ -30,11 +30,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import org.mockito.ArgumentMatcher;
+
 import java.net.URISyntaxException;
 import java.util.Arrays;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
@@ -120,12 +120,10 @@ public class AbstractSurefireParserTest {
     AbstractSurefireParser parser = newParser();
 
     SensorContext context = mock(SensorContext.class);
-    when(context.isIndexed(argThat(new BaseMatcher<Resource>() {
+    when(context.isIndexed(argThat(new ArgumentMatcher<Resource>() {
+      @Override
       public boolean matches(Object o) {
         return !((Resource) o).getName().contains("$");
-      }
-
-      public void describeTo(Description description) {
       }
     }), eq(false))).thenReturn(true);
 
