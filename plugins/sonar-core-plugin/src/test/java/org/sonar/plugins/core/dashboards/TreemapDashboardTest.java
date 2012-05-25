@@ -19,14 +19,11 @@
  */
 package org.sonar.plugins.core.dashboards;
 
-import org.sonar.plugins.core.CorePlugin;
-
 import com.google.common.collect.Iterables;
 import org.junit.Test;
 import org.sonar.api.web.Dashboard;
 import org.sonar.api.web.Dashboard.Widget;
-import org.sonar.plugins.core.filters.TreeMapFilter;
-import org.sonar.plugins.core.widgets.FilterWidget;
+import org.sonar.plugins.core.CorePlugin;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -49,7 +46,7 @@ public class TreemapDashboardTest {
     Widget widget = Iterables.getOnlyElement(dashboard.getWidgets());
 
     assertThat(dashboard.isGlobal()).isTrue();
-    assertThat(widget.getId()).isEqualTo(new FilterWidget().getId());
-    assertThat(widget.getProperty("filter")).isEqualTo(new TreeMapFilter().getName());
+    assertThat(widget.getId()).isEqualTo("filter");
+    assertThat(widget.getProperty("filter")).isEqualTo("Treemap");
   }
 }

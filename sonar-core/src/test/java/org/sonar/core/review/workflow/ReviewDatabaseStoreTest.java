@@ -24,8 +24,6 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.DaoTestCase;
 import org.sonar.core.review.workflow.review.Comment;
 import org.sonar.core.review.workflow.review.DefaultReview;
-import org.sonar.core.review.workflow.review.MutableReview;
-
 import java.util.Date;
 
 public class ReviewDatabaseStoreTest extends DaoTestCase {

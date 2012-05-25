@@ -46,7 +46,6 @@ import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.core.review.workflow.WorkflowEngine;
 import org.sonar.core.review.workflow.review.DefaultReview;
 import org.sonar.core.review.workflow.review.DefaultWorkflowContext;
-import org.sonar.core.review.workflow.review.MutableReview;
 import org.sonar.core.review.workflow.review.Review;
 import org.sonar.core.review.workflow.screen.Screen;
 import org.sonar.markdown.Markdown;

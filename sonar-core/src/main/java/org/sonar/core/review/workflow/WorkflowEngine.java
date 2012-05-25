@@ -31,7 +31,6 @@ import org.sonar.core.review.workflow.condition.Condition;
 import org.sonar.core.review.workflow.function.Function;
 import org.sonar.core.review.workflow.review.DefaultReview;
 import org.sonar.core.review.workflow.review.DefaultWorkflowContext;
-import org.sonar.core.review.workflow.review.MutableReview;
 import org.sonar.core.review.workflow.review.Review;
 import org.sonar.core.review.workflow.review.WorkflowContext;
 import org.sonar.core.review.workflow.screen.Screen;
@@ -105,7 +104,7 @@ public class WorkflowEngine implements ServerComponent {
     Map<String, String> immutableParameters = ImmutableMap.copyOf(parameters);
 
     // TODO execute functions are change state before functions that consume state (like "create-jira-issue")
-    Review initialReview = ((DefaultReview) review).cloneImmutable();
+    Review initialReview = review.cloneImmutable();
     for (Function function : workflow.getFunctions(commandKey)) {
       function.doExecute(review, initialReview, context, immutableParameters);
     }

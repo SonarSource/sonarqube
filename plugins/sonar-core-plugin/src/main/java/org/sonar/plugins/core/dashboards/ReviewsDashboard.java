@@ -29,7 +29,6 @@ import org.sonar.api.web.DashboardTemplate;
  * @since 2.14
  */
 public final class ReviewsDashboard extends DashboardTemplate {
-
   @Override
   public String getName() {
     return "Reviews";

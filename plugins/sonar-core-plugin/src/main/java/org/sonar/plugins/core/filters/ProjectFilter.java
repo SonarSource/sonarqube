@@ -32,24 +32,24 @@ import org.sonar.api.web.FilterTemplate;
  * @since 3.1
  */
 public class ProjectFilter extends FilterTemplate {
+  public static final String NAME = "Projects";
+
   @Override
   public String getName() {
-    return "Projects";
+    return NAME;
   }
 
   @Override
   public Filter createFilter() {
-    Filter filter = Filter.create();
-    filter.setDisplayAs(Filter.LIST);
-    filter.add(Criterion.createForQualifier(Qualifiers.PROJECT));
-    filter.add(FilterColumn.create("metric", CoreMetrics.ALERT_STATUS_KEY, FilterColumn.DESC, false));
-    filter.add(FilterColumn.create("name", null, FilterColumn.ASC, false));
-    filter.add(FilterColumn.create("version", null, FilterColumn.DESC, false));
-    filter.add(FilterColumn.create("metric", CoreMetrics.NCLOC_KEY, FilterColumn.DESC, false));
-    filter.add(FilterColumn.create("metric", CoreMetrics.VIOLATIONS_DENSITY_KEY, FilterColumn.DESC, false));
-    filter.add(FilterColumn.create("date", null, FilterColumn.DESC, false));
-    filter.add(FilterColumn.create("links", null, FilterColumn.DESC, false));
-    
-    return filter;
+    return Filter.create()
+        .setDisplayAs(Filter.LIST)
+        .add(Criterion.createForQualifier(Qualifiers.PROJECT))
+        .add(FilterColumn.create("metric", CoreMetrics.ALERT_STATUS_KEY, FilterColumn.DESC, false))
+        .add(FilterColumn.create("name", null, FilterColumn.ASC, false))
+        .add(FilterColumn.create("version", null, FilterColumn.DESC, false))
+        .add(FilterColumn.create("metric", CoreMetrics.NCLOC_KEY, FilterColumn.DESC, false))
+        .add(FilterColumn.create("metric", CoreMetrics.VIOLATIONS_DENSITY_KEY, FilterColumn.DESC, false))
+        .add(FilterColumn.create("date", null, FilterColumn.DESC, false))
+        .add(FilterColumn.create("links", null, FilterColumn.DESC, false));
   }
 }

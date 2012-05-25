@@ -21,8 +21,6 @@ package org.sonar.core.review.workflow;
 
 import org.sonar.api.config.Settings;
 import org.sonar.core.review.workflow.review.DefaultReview;
-import org.sonar.core.review.workflow.review.MutableReview;
-
 import java.util.List;
 
 public interface ReviewStore {

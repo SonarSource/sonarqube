@@ -34,6 +34,6 @@ public final class TreemapDashboard extends AbstractFilterDashboard {
 
   @Override
   protected String getFilterKey() {
-    return new TreeMapFilter().getName();
+    return TreeMapFilter.NAME;
   }
 }

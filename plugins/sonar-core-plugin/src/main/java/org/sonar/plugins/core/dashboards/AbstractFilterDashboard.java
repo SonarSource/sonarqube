@@ -31,8 +31,6 @@ import org.sonar.plugins.core.widgets.FilterWidget;
  * @since 3.1
  */
 abstract class AbstractFilterDashboard extends DashboardTemplate {
-  protected abstract String getFilterKey();
-
   @Override
   public final Dashboard createDashboard() {
     Dashboard dashboard = Dashboard.create()
@@ -48,7 +46,12 @@ abstract class AbstractFilterDashboard extends DashboardTemplate {
   }
 
   /**
-   * Override this method to complete dashboard
+   * The key of the filter to display.
+   */
+  protected abstract String getFilterKey();
+
+  /**
+   * Override this method to complete dashboard.
    */
   protected void doCompleteDashboard(Dashboard dashboard) {
   }

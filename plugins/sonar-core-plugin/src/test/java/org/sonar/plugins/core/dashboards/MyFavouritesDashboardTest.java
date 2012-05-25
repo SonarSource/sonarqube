@@ -24,8 +24,6 @@ import org.junit.Test;
 import org.sonar.api.web.Dashboard;
 import org.sonar.api.web.Dashboard.Widget;
 import org.sonar.plugins.core.CorePlugin;
-import org.sonar.plugins.core.filters.MyFavouritesFilter;
-import org.sonar.plugins.core.widgets.FilterWidget;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -49,7 +47,7 @@ public class MyFavouritesDashboardTest {
 
     assertThat(dashboard.isGlobal()).isTrue();
     assertThat(dashboard.isActivated()).isFalse();
-    assertThat(widget.getId()).isEqualTo(new FilterWidget().getId());
-    assertThat(widget.getProperty("filter")).isEqualTo(new MyFavouritesFilter().getName());
+    assertThat(widget.getId()).isEqualTo("filter");
+    assertThat(widget.getProperty("filter")).isEqualTo("My favourites");
   }
 }

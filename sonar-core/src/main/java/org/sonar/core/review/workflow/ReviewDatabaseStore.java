@@ -35,8 +35,6 @@ import org.sonar.core.review.ReviewDto;
 import org.sonar.core.review.ReviewMapper;
 import org.sonar.core.review.workflow.review.Comment;
 import org.sonar.core.review.workflow.review.DefaultReview;
-import org.sonar.core.review.workflow.review.MutableReview;
-
 import java.util.Date;
 import java.util.List;
 

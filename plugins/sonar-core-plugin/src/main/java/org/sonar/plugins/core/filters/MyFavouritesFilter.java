@@ -40,15 +40,14 @@ public class MyFavouritesFilter extends FilterTemplate {
 
   @Override
   public Filter createFilter() {
-    Filter filter = Filter.create();
-    filter.setDisplayAs(Filter.LIST);
-    filter.setFavouritesOnly(true);
-    filter.add(Criterion.createForQualifier("VW", "SVW", "TRK", "BRC", "DIR", "PAC", "FIL", "CLA", "UTS"));
-    filter.add(FilterColumn.create("metric", CoreMetrics.ALERT_STATUS_KEY, FilterColumn.DESC, false));
-    filter.add(FilterColumn.create("name", null, FilterColumn.ASC, false));
-    filter.add(FilterColumn.create("metric", CoreMetrics.NCLOC_KEY, FilterColumn.DESC, false));
-    filter.add(FilterColumn.create("metric", CoreMetrics.VIOLATIONS_DENSITY_KEY, FilterColumn.DESC, false));
-    filter.add(FilterColumn.create("date", null, FilterColumn.DESC, false));
-    return filter;
+    return Filter.create()
+        .setDisplayAs(Filter.LIST)
+        .setFavouritesOnly(true)
+        .add(Criterion.createForQualifier("VW", "SVW", "TRK", "BRC", "DIR", "PAC", "FIL", "CLA", "UTS"))
+        .add(FilterColumn.create("metric", CoreMetrics.ALERT_STATUS_KEY, FilterColumn.DESC, false))
+        .add(FilterColumn.create("name", null, FilterColumn.ASC, false))
+        .add(FilterColumn.create("metric", CoreMetrics.NCLOC_KEY, FilterColumn.DESC, false))
+        .add(FilterColumn.create("metric", CoreMetrics.VIOLATIONS_DENSITY_KEY, FilterColumn.DESC, false))
+        .add(FilterColumn.create("date", null, FilterColumn.DESC, false));
   }
 }

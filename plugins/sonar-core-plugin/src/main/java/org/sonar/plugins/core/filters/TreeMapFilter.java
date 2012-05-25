@@ -32,20 +32,20 @@ import org.sonar.api.web.FilterTemplate;
  * @since 3.1
  */
 public class TreeMapFilter extends FilterTemplate {
+  public static final String NAME = "Treemap";
+
   @Override
   public String getName() {
-    return "Treemap";
+    return NAME;
   }
 
   @Override
   public Filter createFilter() {
-    Filter filter = Filter.create();
-    filter.setDisplayAs(Filter.TREEMAP);
-    filter.add(Criterion.createForQualifier(Qualifiers.PROJECT));
-    filter.add(FilterColumn.create("name", null, FilterColumn.ASC, false));
-    filter.add(FilterColumn.create("metric", CoreMetrics.NCLOC_KEY, FilterColumn.DESC, false));
-    filter.add(FilterColumn.create("metric", CoreMetrics.VIOLATIONS_DENSITY_KEY, FilterColumn.DESC, false));
-
-    return filter;
+    return Filter.create()
+        .setDisplayAs(Filter.TREEMAP)
+        .add(Criterion.createForQualifier(Qualifiers.PROJECT))
+        .add(FilterColumn.create("name", null, FilterColumn.ASC, false))
+        .add(FilterColumn.create("metric", CoreMetrics.NCLOC_KEY, FilterColumn.DESC, false))
+        .add(FilterColumn.create("metric", CoreMetrics.VIOLATIONS_DENSITY_KEY, FilterColumn.DESC, false));
   }
 }

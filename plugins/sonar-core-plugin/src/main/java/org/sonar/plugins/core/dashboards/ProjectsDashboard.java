@@ -34,6 +34,6 @@ public final class ProjectsDashboard extends AbstractFilterDashboard {
 
   @Override
   protected String getFilterKey() {
-    return new ProjectFilter().getName();
+    return ProjectFilter.NAME;
   }
 }
