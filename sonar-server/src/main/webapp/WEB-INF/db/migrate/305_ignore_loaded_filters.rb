@@ -21,39 +21,24 @@
 #
 # Sonar 3.1
 #
-class AddKeyToFilters < ActiveRecord::Migration
-  class WidgetProperty < ActiveRecord::Base
+class IgnoreLoadedFilters < ActiveRecord::Migration
+  class Filter < ActiveRecord::Base
+  end
+
+  class LoadedTemplate < ActiveRecord::Base
   end
 
   def self.up
-    keys = add_key_column_to_filters()
-    use_key_in_widget_properties(keys)
+    mark_filter_as_loaded('Projects')
+    mark_filter_as_loaded('Treemap')
+    mark_filter_as_loaded('My favourites')
   end
 
-  def self.add_key_column_to_filters
-    keys = {}
-
-	begin
-      add_column 'filters', 'kee', :string, :null => true, :limit => 100
-    rescue
-      # Assume the column was already added by a previous migration
-    end
-
-    Filter.reset_column_information
-    Filter.find(:all).each do |filter|
-      keys[filter.id]=filter.user_id ? filter.id : filter.name
-      filter.kee=keys[filter.id]
-      filter.save
-    end
-
-    keys
-  end
-
-  def self.use_key_in_widget_properties(keys)
-    WidgetProperty.find(:all, :conditions => {:kee => 'filter'}).each do |property|
-      property.text_value=keys[property.text_value.to_i]
-      property.save
+  def self.mark_filter_as_loaded(name)
+    if Filter.find(:first, :conditions => {:name => name, :user_id => nil})
+      unless LoadedTemplate.find(:first, :conditions => {:kee => name, :template_type => 'FILTER'})
+        LoadedTemplate.create(:kee => name, :template_type => 'FILTER').save
+      end
     end
   end
-
 end
