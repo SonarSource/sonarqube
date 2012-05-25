@@ -30,6 +30,8 @@ import org.sonar.api.resources.Resource;
 
 import java.util.Date;
 
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -43,6 +45,16 @@ public class VersionEventsSensorTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
+
+  @Test
+  public void shouldExecuteOnProject() throws Exception {
+    assertThat(new VersionEventsSensor().shouldExecuteOnProject(null), is(true));
+  }
+
+  @Test
+  public void testToString() throws Exception {
+    assertThat(new VersionEventsSensor().toString(), is("VersionEventsSensor"));
+  }
 
   @Test
   public void shouldDoNothingIfNoVersion() {
@@ -90,52 +102,11 @@ public class VersionEventsSensorTest {
     verify(context).createEvent(eq(project), eq("1.5-SNAPSHOT"), (String) isNull(), eq(Event.CATEGORY_VERSION), (Date) isNull());
   }
 
-  @Test
-  public void shouldDeleteAssociatedSnapshotWhenReleasing() {
-    Event snapshotVersion = mockVersionEvent("1.5-SNAPSHOT");
-    Event otherEvent = mockVersionEvent("1.4");
-
-    SensorContext context = mock(SensorContext.class);
-    Project project = mock(Project.class);
-    when(project.getAnalysisVersion()).thenReturn("1.5");
-    when(context.getEvents(project)).thenReturn(Lists.newArrayList(snapshotVersion, otherEvent));
-
-    VersionEventsSensor sensor = new VersionEventsSensor();
-    sensor.analyse(project, context);
-
-    verify(context).deleteEvent(snapshotVersion);
-    verify(context).createEvent(eq(project), eq("1.5"), (String) isNull(), eq(Event.CATEGORY_VERSION), (Date) isNull());
-  }
-
-  @Test
-  public void shouldFailIfTryingToDeleteReleasedVersion() {
-    // Given
-    Event snapshotEvent1 = mockVersionEvent("1.5-SNAPSHOT");
-    Event releaseEvent2 = mockVersionEvent("1.4");
-    Event snapshotEvent2 = mockVersionEvent("1.3-SNAPSHOT");
-
-    VersionEventsSensor sensor = new VersionEventsSensor();
-    SensorContext context = mock(SensorContext.class);
-
-    Project project = mock(Project.class);
-    when(project.getAnalysisVersion()).thenReturn("1.4");
-
-    when(context.getEvents(project)).thenReturn(Lists.newArrayList(snapshotEvent1, releaseEvent2, snapshotEvent2));
-
-    // Expect
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("A Sonar analysis can't delete a released version that already exists in the project history (version 1.4). " +
-      "Please change the version of the project or clean its history first.");
-
-    // When
-    sensor.analyse(project, context);
-
-  }
-
   private Event mockVersionEvent(String version) {
     Event event = mock(Event.class);
     when(event.isVersionCategory()).thenReturn(true);
     when(event.getName()).thenReturn(version);
     return event;
   }
+
 }

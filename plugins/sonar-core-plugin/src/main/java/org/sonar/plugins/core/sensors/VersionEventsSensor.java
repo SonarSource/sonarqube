@@ -31,8 +31,6 @@ import java.util.Iterator;
 @NotDryRun
 public class VersionEventsSensor implements Sensor {
 
-  private static final String SNAPSHOT_SUFFIX = "-SNAPSHOT";
-
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }
@@ -47,19 +45,11 @@ public class VersionEventsSensor implements Sensor {
 
   private void deleteDeprecatedEvents(Project project, SensorContext context) {
     String version = project.getAnalysisVersion();
-    boolean isReleaseVersion = !version.endsWith(SNAPSHOT_SUFFIX);
-    String snapshotVersionToDelete = isReleaseVersion ? version + SNAPSHOT_SUFFIX : "";
     for (Iterator<Event> it = context.getEvents(project).iterator(); it.hasNext();) {
       Event event = it.next();
-      if (event.isVersionCategory()) {
-        if (snapshotVersionToDelete.equals(event.getName()) || (version.equals(event.getName()) && !isReleaseVersion)) {
-          it.remove();
-          context.deleteEvent(event);
-        } else if (version.equals(event.getName()) && isReleaseVersion) {
-          // we try to delete a released version that already exists in the project history => this shouldn't happen
-          throw new IllegalStateException("A Sonar analysis can't delete a released version that already exists in the project history (version "
-            + version + "). Please change the version of the project or clean its history first.");
-        }
+      if (event.isVersionCategory() && version.equals(event.getName())) {
+        it.remove();
+        context.deleteEvent(event);
       }
     }
   }
