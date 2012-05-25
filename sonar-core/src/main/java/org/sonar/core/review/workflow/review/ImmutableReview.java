@@ -24,9 +24,9 @@ import java.util.Map;
 public class ImmutableReview implements Review {
   private Long violationId;
   private Long reviewId;
-  private Long ruleId;
   private String ruleRepositoryKey;
   private String ruleKey;
+  private String ruleName;
   private Long line;
   private boolean switchedOff = false;
   private boolean manual = false;
@@ -52,12 +52,12 @@ public class ImmutableReview implements Review {
     this.reviewId = reviewId;
   }
 
-  public Long getRuleId() {
-    return ruleId;
+  public String getRuleName() {
+    return ruleName;
   }
 
-  void setRuleId(Long ruleId) {
-    this.ruleId = ruleId;
+  void setRuleName(String s) {
+    this.ruleName = s;
   }
 
   public String getRuleRepositoryKey() {

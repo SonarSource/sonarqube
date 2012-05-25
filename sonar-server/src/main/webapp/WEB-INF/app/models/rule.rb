@@ -69,13 +69,17 @@ class Rule < ActiveRecord::Base
     name.downcase<=>other.name.downcase
   end
 
-  def name
-    @l10n_name ||=
+  def name(l10n=true)
+    if l10n
+      @l10n_name ||=
         begin
           result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getRuleName(I18n.locale, repository_key, plugin_rule_key)
           result = read_attribute(:name) unless result
           result
         end
+    else
+      read_attribute(:name)
+    end
   end
 
   def name=(value)

@@ -27,6 +27,8 @@ public interface Review {
 
   String getRuleKey();
 
+  String getRuleName();
+
   boolean isSwitchedOff();
 
   String getMessage();

@@ -280,6 +280,7 @@ class RuleFailure < ActiveRecord::Base
     java_review.setSeverity(violation.severity.to_s)
     java_review.setRuleKey(violation.rule.plugin_rule_key)
     java_review.setRuleRepositoryKey(violation.rule.repository_key)
+    java_review.setRuleName(violation.rule.name(false)) # rule name is not localized
     java_review.setSwitchedOff(violation.switched_off||false)
     java_review.setMessage(violation.message)
     java_review.setLine(violation.line)

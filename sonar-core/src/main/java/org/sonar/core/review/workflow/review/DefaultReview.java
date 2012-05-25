@@ -39,6 +39,7 @@ public final class DefaultReview implements MutableReview {
   private Long reviewId;
   private String ruleRepositoryKey;
   private String ruleKey;
+  private String ruleName;
   private Long line;
   private boolean switchedOff = false;
   private boolean manual = false;
@@ -82,6 +83,15 @@ public final class DefaultReview implements MutableReview {
 
   public DefaultReview setRuleKey(String s) {
     this.ruleKey = s;
+    return this;
+  }
+
+  public String getRuleName() {
+    return ruleName;
+  }
+
+  public DefaultReview setRuleName(String s) {
+    this.ruleName = s;
     return this;
   }
 
@@ -210,6 +220,7 @@ public final class DefaultReview implements MutableReview {
     clone.setReviewId(reviewId);
     clone.setRuleKey(ruleKey);
     clone.setRuleRepositoryKey(ruleRepositoryKey);
+    clone.setRuleName(ruleName);
     clone.setSeverity(severity);
     clone.setStatus(status);
     clone.setSwitchedOff(switchedOff);
