@@ -24,6 +24,7 @@ import com.google.common.collect.Iterators;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.SonarException;
 
+import javax.annotation.Nullable;
 import java.util.NoSuchElementException;
 
 public final class DialectUtils {
@@ -42,12 +43,11 @@ public final class DialectUtils {
   }
 
   private static Dialect findByJdbcUrl(final String jdbcConnectionUrl) {
-    Dialect match = findDialect(new Predicate<Dialect>() {
-      public boolean apply(Dialect dialect) {
-        return dialect.matchesJdbcURL(StringUtils.trimToEmpty(jdbcConnectionUrl));
+    return findDialect(new Predicate<Dialect>() {
+      public boolean apply(@Nullable Dialect dialect) {
+        return dialect != null && dialect.matchesJdbcURL(StringUtils.trimToEmpty(jdbcConnectionUrl));
       }
     });
-    return match;
   }
 
   private static Dialect findById(final String dialectId) {

@@ -21,6 +21,7 @@ package org.sonar.batch.bootstrapper;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.bootstrap.BootstrapModule;
 import org.sonar.batch.bootstrap.Module;
@@ -77,6 +78,7 @@ public final class Batch {
         bootstrapModule.stop();
       } catch (Exception e) {
         // never throw exceptions in a finally block
+        LoggerFactory.getLogger(Batch.class).error("Error while stopping batch", e);
       }
     }
   }

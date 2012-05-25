@@ -20,6 +20,7 @@
 
 package org.sonar.squid.indexer;
 
+import org.apache.commons.lang.math.NumberUtils;
 import org.sonar.squid.api.Query;
 import org.sonar.squid.api.SourceCode;
 import org.sonar.squid.measures.Metric;
@@ -52,7 +53,7 @@ public class QueryByMeasure implements Query {
   public boolean match(SourceCode unit) {
     switch (operator) {
       case EQUALS:
-        return unit.getDouble(metric) == value;
+        return NumberUtils.compare(unit.getDouble(metric), value)==0;
       case GREATER_THAN:
         return unit.getDouble(metric) > value;
       case GREATER_THAN_EQUALS:

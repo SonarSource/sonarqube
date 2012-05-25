@@ -30,6 +30,7 @@ import com.google.common.collect.Maps;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -42,8 +43,8 @@ import java.util.Map;
 public final class ResourceTypes implements BatchComponent, ServerComponent {
 
   public static final Predicate<ResourceType> AVAILABLE_FOR_FILTERS = new Predicate<ResourceType>() {
-    public boolean apply(ResourceType input) {
-      return Boolean.TRUE.equals(input.getBooleanProperty("availableForFilters"));
+    public boolean apply(@Nullable ResourceType input) {
+      return input != null && Boolean.TRUE.equals(input.getBooleanProperty("availableForFilters"));
     }
   };
 

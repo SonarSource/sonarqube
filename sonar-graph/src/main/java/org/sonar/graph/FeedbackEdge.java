@@ -19,6 +19,8 @@
  */
 package org.sonar.graph;
 
+import org.apache.commons.lang.math.NumberUtils;
+
 public class FeedbackEdge implements Comparable<FeedbackEdge> {
 
   private Edge edge;
@@ -53,7 +55,7 @@ public class FeedbackEdge implements Comparable<FeedbackEdge> {
     if (this.getRelativeWeight() < feedbackEdge.getRelativeWeight()) {
       return -1;
     }
-    if (this.getRelativeWeight() == feedbackEdge.getRelativeWeight()) {
+    if (NumberUtils.compare(this.getRelativeWeight(), feedbackEdge.getRelativeWeight())==0) {
       return this.getEdge().getFrom().toString().compareTo(feedbackEdge.getEdge().getFrom().toString());
     }
     return 1;

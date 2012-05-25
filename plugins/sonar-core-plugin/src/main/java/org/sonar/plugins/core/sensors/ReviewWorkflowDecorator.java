@@ -38,6 +38,7 @@ import org.sonar.core.NotDryRun;
 import org.sonar.core.review.ReviewDao;
 import org.sonar.core.review.ReviewDto;
 
+import javax.annotation.Nullable;
 import java.util.*;
 
 @NotDryRun
@@ -164,8 +165,8 @@ public class ReviewWorkflowDecorator implements Decorator {
   }
 
   private static final class ViolationToPermanentIdFunction implements Function<Violation, Integer> {
-    public Integer apply(Violation violation) {
-      return violation.getPermanentId();
+    public Integer apply(@Nullable Violation violation) {
+      return (violation != null ? violation.getPermanentId() : null);
     }
   }
 }

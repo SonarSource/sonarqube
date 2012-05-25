@@ -35,6 +35,7 @@ import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.WildcardPattern;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -51,8 +52,8 @@ import java.util.*;
 public class DefaultProjectFileSystem implements ProjectFileSystem {
 
   protected static final Predicate<File> DIRECTORY_EXISTS = new Predicate<File>() {
-    public boolean apply(File input) {
-      return input.exists() && input.isDirectory();
+    public boolean apply(@Nullable File input) {
+      return input != null && input.exists() && input.isDirectory();
     }
   };
 

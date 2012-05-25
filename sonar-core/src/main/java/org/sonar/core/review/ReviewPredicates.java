@@ -22,6 +22,8 @@ package org.sonar.core.review;
 import com.google.common.base.Predicate;
 import org.apache.commons.lang.ArrayUtils;
 
+import javax.annotation.Nullable;
+
 /**
  * @since 2.14
  */
@@ -53,8 +55,8 @@ public final class ReviewPredicates {
       this.statuses = statuses;
     }
 
-    public boolean apply(ReviewDto review) {
-      return ArrayUtils.contains(statuses, review.getStatus());
+    public boolean apply(@Nullable ReviewDto review) {
+      return review!=null && ArrayUtils.contains(statuses, review.getStatus());
     }
   }
 
@@ -65,8 +67,8 @@ public final class ReviewPredicates {
       this.resolutions = resolutions;
     }
 
-    public boolean apply(ReviewDto review) {
-      return ArrayUtils.contains(resolutions, review.getResolution());
+    public boolean apply(@Nullable ReviewDto review) {
+      return review!=null && ArrayUtils.contains(resolutions, review.getResolution());
     }
   }
 
@@ -76,8 +78,8 @@ public final class ReviewPredicates {
     private ManualViolationPredicate() {
     }
 
-    public boolean apply(ReviewDto review) {
-      return review.isManualViolation();
+    public boolean apply(@Nullable ReviewDto review) {
+      return review!=null && review.isManualViolation();
     }
   }
 
@@ -87,8 +89,8 @@ public final class ReviewPredicates {
     private ManualSeverityPredicate() {
     }
 
-    public boolean apply(ReviewDto review) {
-      return review.isManualSeverity();
+    public boolean apply(@Nullable ReviewDto review) {
+      return review!=null && review.isManualSeverity();
     }
   }
 }

@@ -23,6 +23,8 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import org.sonar.duplications.index.CloneGroup;
 
+import javax.annotation.Nullable;
+
 @Beta
 public final class DuplicationPredicates {
 
@@ -40,8 +42,8 @@ public final class DuplicationPredicates {
       this.min = min;
     }
 
-    public boolean apply(CloneGroup input) {
-      return input.getLengthInUnits() >= min;
+    public boolean apply(@Nullable CloneGroup input) {
+      return input != null && input.getLengthInUnits() >= min;
     }
   }
 

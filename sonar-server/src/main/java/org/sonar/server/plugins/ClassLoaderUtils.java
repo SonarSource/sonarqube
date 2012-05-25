@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -92,6 +93,8 @@ public final class ClassLoaderUtils {
    * @return a list of relative paths, for example {"org/sonar/sqale", "org/sonar/sqale/foo", "org/sonar/sqale/foo/bar.txt}. Never null.
    */
   public static Collection<String> listResources(ClassLoader classLoader, String rootPath, Predicate<String> predicate) {
+    String jarPath = null;
+    JarFile jar = null;
     try {
       Collection<String> paths = Lists.newArrayList();
       rootPath = StringUtils.removeStart(rootPath, "/");
@@ -109,8 +112,8 @@ public final class ClassLoaderUtils {
         if (StringUtils.substringAfterLast(rootPath, "/").indexOf('.') >= 0) {
           rootDirectory = StringUtils.substringBeforeLast(rootPath, "/");
         }
-        String jarPath = root.getPath().substring(5, root.getPath().indexOf("!")); //strip out only the JAR file
-        JarFile jar = new JarFile(URLDecoder.decode(jarPath, CharEncoding.UTF_8));
+        jarPath = root.getPath().substring(5, root.getPath().indexOf("!")); //strip out only the JAR file
+        jar = new JarFile(URLDecoder.decode(jarPath, CharEncoding.UTF_8));
         Enumeration<JarEntry> entries = jar.entries();
         while (entries.hasMoreElements()) {
           String name = entries.nextElement().getName();
@@ -122,6 +125,14 @@ public final class ClassLoaderUtils {
       return paths;
     } catch (Exception e) {
       throw Throwables.propagate(e);
+    } finally {
+      if (jar != null) {
+        try {
+          jar.close();
+        } catch (Exception e) {
+          LoggerFactory.getLogger(ClassLoaderUtils.class).error("Fail to close JAR file: " + jarPath, e);
+        }
+      }
     }
   }
 
