@@ -172,7 +172,7 @@ public final class DefaultReview implements MutableReview {
     return this;
   }
 
-  public DefaultReview setPropertiesAsString(String s) {
+  public DefaultReview setPropertiesAsString(@Nullable String s) {
     this.properties = (s == null ? null : KeyValueFormat.parse(s));
     return this;
   }

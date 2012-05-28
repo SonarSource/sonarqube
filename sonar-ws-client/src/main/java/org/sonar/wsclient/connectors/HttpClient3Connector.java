@@ -180,7 +180,7 @@ public class HttpClient3Connector extends Connector {
         try {
           reader.close();
         } catch (Exception e) {
-          throw new RuntimeException("Fail to close HTTP stream", e);
+          // wsclient does not have logging ability -> silently ignore
         }
       }
     }

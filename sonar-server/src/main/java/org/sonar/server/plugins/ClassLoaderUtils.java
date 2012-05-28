@@ -126,12 +126,16 @@ public final class ClassLoaderUtils {
     } catch (Exception e) {
       throw Throwables.propagate(e);
     } finally {
-      if (jar != null) {
-        try {
-          jar.close();
-        } catch (Exception e) {
-          LoggerFactory.getLogger(ClassLoaderUtils.class).error("Fail to close JAR file: " + jarPath, e);
-        }
+      closeJar(jar, jarPath);
+    }
+  }
+
+  private static void closeJar(JarFile jar, String jarPath) {
+    if (jar != null) {
+      try {
+        jar.close();
+      } catch (Exception e) {
+        LoggerFactory.getLogger(ClassLoaderUtils.class).error("Fail to close JAR file: " + jarPath, e);
       }
     }
   }

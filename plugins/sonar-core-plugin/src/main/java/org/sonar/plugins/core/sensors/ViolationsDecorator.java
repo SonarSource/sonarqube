@@ -42,10 +42,6 @@ public class ViolationsDecorator implements Decorator {
     return true;
   }
 
-  private boolean shouldDecorateResource(Resource resource) {
-    return true;
-  }
-
   @DependedUpon
   public List<Metric> generatesViolationsMetrics() {
     return Arrays.asList(CoreMetrics.VIOLATIONS,
@@ -57,11 +53,9 @@ public class ViolationsDecorator implements Decorator {
   }
 
   public void decorate(Resource resource, DecoratorContext context) {
-    if (shouldDecorateResource(resource)) {
-      computeTotalViolations(context);
-      computeViolationsPerSeverities(context);
-      computeViolationsPerRules(context);
-    }
+    computeTotalViolations(context);
+    computeViolationsPerSeverities(context);
+    computeViolationsPerRules(context);
   }
 
   private void computeTotalViolations(DecoratorContext context) {
