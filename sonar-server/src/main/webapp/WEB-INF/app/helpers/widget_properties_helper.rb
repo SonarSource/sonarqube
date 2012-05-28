@@ -40,9 +40,12 @@ module WidgetPropertiesHelper
       user_filters = options_key(value, ::Filter.find(:all, :conditions => ['user_id=?', current_user.id]).sort_by(&:id))
       shared_filters = options_key(value, ::Filter.find(:all, :conditions => ['(user_id<>? or user_id is null) and shared=?', current_user.id, true]).sort_by(&:id))
 
-      select_tag definition.key(), option_group('My Filters', user_filters) + option_group('Shared Filters', shared_filters)
+      filters_combo = select_tag definition.key(), option_group('My Filters', user_filters) + option_group('Shared Filters', shared_filters)
+      filter_link = link_to message('widget.filter.edit'), {:controller => :filters, :action => :manage}, :class => 'link-action'
 
-    else
+      filters_combo + filter_link
+
+  else
       hidden_field_tag definition.key()
     end
   end
