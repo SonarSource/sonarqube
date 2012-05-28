@@ -34,34 +34,40 @@ public class AnnotationUtilsTest {
 
   @Test
   public void getClassAnnotation() {
+    FakeAnnotation annotation = AnnotationUtils.getAnnotation(new SuperClass(), FakeAnnotation.class);
+    assertThat(annotation.value(), is("foo"));
+  }
+
+  @Test
+  public void getClassAnnotationWithDeprecatedMethod() {
     FakeAnnotation annotation = AnnotationUtils.getClassAnnotation(new SuperClass(), FakeAnnotation.class);
     assertThat(annotation.value(), is("foo"));
   }
 
   @Test
   public void searchClassAnnotationInSuperClass() {
-    FakeAnnotation annotation = AnnotationUtils.getClassAnnotation(new ChildClass(), FakeAnnotation.class);
+    FakeAnnotation annotation = AnnotationUtils.getAnnotation(new ChildClass(), FakeAnnotation.class);
     assertThat(annotation.value(), is("foo"));
   }
 
   @Test
   public void searchClassAnnotationInInterface() {
-    FakeAnnotation annotation = AnnotationUtils.getClassAnnotation(new ImplementedClass(), FakeAnnotation.class);
+    FakeAnnotation annotation = AnnotationUtils.getAnnotation(new ImplementedClass(), FakeAnnotation.class);
     assertThat(annotation.value(), is("foo"));
   }
 
   @Test
   public void noClassAnnotation() {
-    FakeAnnotation annotation = AnnotationUtils.getClassAnnotation("a string", FakeAnnotation.class);
+    FakeAnnotation annotation = AnnotationUtils.getAnnotation("a string", FakeAnnotation.class);
     assertThat(annotation, nullValue());
   }
 
   @Test
   public void shouldAcceptClasses() {
-    FakeAnnotation annotation = AnnotationUtils.getClassAnnotation(SuperClass.class, FakeAnnotation.class);
+    FakeAnnotation annotation = AnnotationUtils.getAnnotation(SuperClass.class, FakeAnnotation.class);
     assertThat(annotation.value(), is("foo"));
 
-    annotation = AnnotationUtils.getClassAnnotation(ChildClass.class, FakeAnnotation.class);
+    annotation = AnnotationUtils.getAnnotation(ChildClass.class, FakeAnnotation.class);
     assertThat(annotation.value(), is("foo"));
   }
 

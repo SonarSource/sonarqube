@@ -48,11 +48,11 @@ public final class AnnotationRuleParser implements ServerComponent {
   }
 
   private Rule create(String repositoryKey, Class annotatedClass) {
-    org.sonar.check.Rule ruleAnnotation = AnnotationUtils.getClassAnnotation(annotatedClass, org.sonar.check.Rule.class);
+    org.sonar.check.Rule ruleAnnotation = AnnotationUtils.getAnnotation(annotatedClass, org.sonar.check.Rule.class);
     if (ruleAnnotation != null) {
       return toRule(repositoryKey, annotatedClass, ruleAnnotation);
     }
-    Check checkAnnotation = AnnotationUtils.getClassAnnotation(annotatedClass, Check.class);
+    Check checkAnnotation = AnnotationUtils.getAnnotation(annotatedClass, Check.class);
     if (checkAnnotation != null) {
       return toRule(repositoryKey, annotatedClass, checkAnnotation);
     }

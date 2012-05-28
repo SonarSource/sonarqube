@@ -34,11 +34,11 @@ public final class RuleAnnotationUtils {
 
   public static String getRuleKey(Class annotatedClass) {
     String key = null;
-    org.sonar.check.Rule ruleAnnotation = AnnotationUtils.getClassAnnotation(annotatedClass, org.sonar.check.Rule.class);
+    org.sonar.check.Rule ruleAnnotation = AnnotationUtils.getAnnotation(annotatedClass, org.sonar.check.Rule.class);
     if (ruleAnnotation != null) {
       key = ruleAnnotation.key();
     } else {
-      Check checkAnnotation = AnnotationUtils.getClassAnnotation(annotatedClass, Check.class);
+      Check checkAnnotation = AnnotationUtils.getAnnotation(annotatedClass, Check.class);
       if (checkAnnotation != null) {
         key = checkAnnotation.key();
       }

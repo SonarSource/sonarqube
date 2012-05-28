@@ -36,7 +36,7 @@ public class PropertyDefinitionTest {
 
   @Test
   public void createFromAnnotation() {
-    Properties props = AnnotationUtils.getClassAnnotation(Init.class, Properties.class);
+    Properties props = AnnotationUtils.getAnnotation(Init.class, Properties.class);
     Property prop = props.value()[0];
 
     PropertyDefinition def = PropertyDefinition.create(prop);
@@ -63,7 +63,7 @@ public class PropertyDefinitionTest {
 
   @Test
   public void createFromAnnotation_default_values() {
-    Properties props = AnnotationUtils.getClassAnnotation(DefaultValues.class, Properties.class);
+    Properties props = AnnotationUtils.getAnnotation(DefaultValues.class, Properties.class);
     Property prop = props.value()[0];
 
     PropertyDefinition def = PropertyDefinition.create(prop);
@@ -159,7 +159,7 @@ public class PropertyDefinitionTest {
 
   @Test
   public void autoDetectPasswordType() {
-    Properties props = AnnotationUtils.getClassAnnotation(OldScmPlugin.class, Properties.class);
+    Properties props = AnnotationUtils.getAnnotation(OldScmPlugin.class, Properties.class);
     Property prop = props.value()[0];
 
     PropertyDefinition def = PropertyDefinition.create(prop);
@@ -176,7 +176,7 @@ public class PropertyDefinitionTest {
 
   @Test
   public void autoDetectLicenseType() {
-    Properties props = AnnotationUtils.getClassAnnotation(ViewsPlugin.class, Properties.class);
+    Properties props = AnnotationUtils.getAnnotation(ViewsPlugin.class, Properties.class);
     Property prop = props.value()[0];
 
     PropertyDefinition def = PropertyDefinition.create(prop);

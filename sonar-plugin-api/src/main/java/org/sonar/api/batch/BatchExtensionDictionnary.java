@@ -192,7 +192,7 @@ public class BatchExtensionDictionnary {
   }
 
   protected Phase.Name evaluatePhase(Object extension) {
-    Phase phaseAnnotation = AnnotationUtils.getClassAnnotation(extension, Phase.class);
+    Phase phaseAnnotation = AnnotationUtils.getAnnotation(extension, Phase.class);
     if (phaseAnnotation != null) {
       return phaseAnnotation.name();
     }

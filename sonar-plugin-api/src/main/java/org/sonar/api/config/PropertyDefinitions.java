@@ -63,13 +63,13 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
   }
 
   public PropertyDefinitions addComponent(Object component, String defaultCategory) {
-    Properties annotations = AnnotationUtils.getClassAnnotation(component, Properties.class);
+    Properties annotations = AnnotationUtils.getAnnotation(component, Properties.class);
     if (annotations != null) {
       for (Property property : annotations.value()) {
         addProperty(property, defaultCategory);
       }
     }
-    Property annotation = AnnotationUtils.getClassAnnotation(component, Property.class);
+    Property annotation = AnnotationUtils.getAnnotation(component, Property.class);
     if (annotation != null) {
       addProperty(annotation, defaultCategory);
     }

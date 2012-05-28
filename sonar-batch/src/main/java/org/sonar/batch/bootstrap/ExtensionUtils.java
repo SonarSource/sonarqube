@@ -36,7 +36,7 @@ public final class ExtensionUtils {
 
   static boolean isInstantiationStrategy(Object extension, String strategy) {
     Class clazz = (extension instanceof Class ? (Class) extension : extension.getClass());
-    InstantiationStrategy extStrategy = AnnotationUtils.getClassAnnotation(clazz, InstantiationStrategy.class);
+    InstantiationStrategy extStrategy = AnnotationUtils.getAnnotation(clazz, InstantiationStrategy.class);
     if (extStrategy != null) {
       return strategy.equals(extStrategy.value());
     }
@@ -49,7 +49,7 @@ public final class ExtensionUtils {
 
   static boolean isSupportedEnvironment(Object extension, EnvironmentInformation environment) {
     Class clazz = (extension instanceof Class ? (Class) extension : extension.getClass());
-    SupportedEnvironment env = AnnotationUtils.getClassAnnotation(clazz, SupportedEnvironment.class);
+    SupportedEnvironment env = AnnotationUtils.getAnnotation(clazz, SupportedEnvironment.class);
     if (env == null) {
       return true;
     }
@@ -62,12 +62,12 @@ public final class ExtensionUtils {
   }
 
   static boolean checkDryRun(Object extension, boolean dryRun) {
-    return !dryRun || AnnotationUtils.getClassAnnotation(extension, NotDryRun.class)==null;
+    return !dryRun || AnnotationUtils.getAnnotation(extension, NotDryRun.class) == null;
   }
 
   static boolean isMavenExtensionOnly(Object extension) {
     Class clazz = (extension instanceof Class ? (Class) extension : extension.getClass());
-    SupportedEnvironment env = AnnotationUtils.getClassAnnotation(clazz, SupportedEnvironment.class);
+    SupportedEnvironment env = AnnotationUtils.getAnnotation(clazz, SupportedEnvironment.class);
     return env!=null && env.value().length==1 && StringUtils.equalsIgnoreCase("maven", env.value()[0]);
   }
 

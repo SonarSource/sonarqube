@@ -170,11 +170,11 @@ public final class AnnotationCheckFactory extends CheckFactory {
 
   private String getRuleKey(Object annotatedClassOrObject) {
     String key = null;
-    Rule ruleAnnotation = AnnotationUtils.getClassAnnotation(annotatedClassOrObject, Rule.class);
+    Rule ruleAnnotation = AnnotationUtils.getAnnotation(annotatedClassOrObject, Rule.class);
     if (ruleAnnotation != null) {
       key = ruleAnnotation.key();
     } else {
-      Check checkAnnotation = AnnotationUtils.getClassAnnotation(annotatedClassOrObject, Check.class);
+      Check checkAnnotation = AnnotationUtils.getAnnotation(annotatedClassOrObject, Check.class);
       if (checkAnnotation != null) {
         key = checkAnnotation.key();
 

@@ -36,25 +36,36 @@ public final class AnnotationUtils {
 
   /**
    * Searches for a class annotation. All inheritance tree is analysed.
+   * 
+   * @since 3.1
    */
-  public static <A extends Annotation> A getClassAnnotation(Object object, Class<A> annotationClass) {
-    Class<?> initialClass = (object instanceof Class<?> ? (Class<?>) object : object.getClass());
-    A result = null;
-    Class<?> aClass = initialClass;
-    while (aClass != null && result == null) {
-      result = aClass.getAnnotation(annotationClass);
-      aClass = aClass.getSuperclass();
-    }
-
-    if (result == null) {
-      List<Class<?>> interfaces = ClassUtils.getAllInterfaces(initialClass);
-      for (Class<?> anInterface : interfaces) {
-        result = anInterface.getAnnotation(annotationClass);
-        if (result != null) {
-          break;
-        }
+  public static <A extends Annotation> A getAnnotation(Object objectOrClass, Class<A> annotationClass) {
+    Class<?> initialClass = (objectOrClass instanceof Class<?> ? (Class<?>) objectOrClass : objectOrClass.getClass());
+    
+    for (Class<?> aClass = initialClass; aClass != null; aClass = aClass.getSuperclass()) {
+      A result = aClass.getAnnotation(annotationClass);
+      if (result != null) {
+        return result;
       }
     }
-    return result;
+
+    for (Class<?> anInterface : (List<Class<?>>) ClassUtils.getAllInterfaces(initialClass)) {
+      A result = anInterface.getAnnotation(annotationClass);
+      if (result != null) {
+        return result;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Searches for a class annotation. All inheritance tree is analysed.
+   * 
+   * @deprecated  As of 3.1, replaced by {@link #getAnnotation(Object,Class)}
+   */
+  @Deprecated
+  public static <A> A getClassAnnotation(Object object, Class<A> annotationClass) {
+    return (A) getAnnotation(object, (Class<? extends Annotation>) annotationClass);
   }
 }

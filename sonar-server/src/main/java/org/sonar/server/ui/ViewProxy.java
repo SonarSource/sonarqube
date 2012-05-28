@@ -88,7 +88,7 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
   }
 
   private void initRequiredMeasures(V view) {
-    RequiredMeasures requiredMeasuresAnnotation = AnnotationUtils.getClassAnnotation(view, RequiredMeasures.class);
+    RequiredMeasures requiredMeasuresAnnotation = AnnotationUtils.getAnnotation(view, RequiredMeasures.class);
     if (requiredMeasuresAnnotation != null) {
       mandatoryMeasures = requiredMeasuresAnnotation.allOf();
       needOneOfMeasures = requiredMeasuresAnnotation.anyOf();
@@ -96,21 +96,21 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
   }
 
   private void initWidgetLayout(final V view) {
-    WidgetLayout layoutAnnotation = AnnotationUtils.getClassAnnotation(view, WidgetLayout.class);
+    WidgetLayout layoutAnnotation = AnnotationUtils.getAnnotation(view, WidgetLayout.class);
     if (layoutAnnotation != null) {
       widgetLayout = layoutAnnotation.value();
     }
   }
 
   private void initWidgetCategory(final V view) {
-    WidgetCategory categAnnotation = AnnotationUtils.getClassAnnotation(view, WidgetCategory.class);
+    WidgetCategory categAnnotation = AnnotationUtils.getAnnotation(view, WidgetCategory.class);
     if (categAnnotation != null) {
       widgetCategories = categAnnotation.value();
     }
   }
 
   private void initWidgetGlobal(V view) {
-    WidgetScope scopeAnnotation = AnnotationUtils.getClassAnnotation(view, WidgetScope.class);
+    WidgetScope scopeAnnotation = AnnotationUtils.getAnnotation(view, WidgetScope.class);
     if (scopeAnnotation != null) {
       checkValidScope(view, scopeAnnotation);
       isGlobal = ImmutableSet.copyOf(scopeAnnotation.value()).contains(WidgetScope.GLOBAL);
@@ -126,7 +126,7 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
   }
 
   private void initWidgetProperties(final V view) {
-    WidgetProperties propAnnotation = AnnotationUtils.getClassAnnotation(view, WidgetProperties.class);
+    WidgetProperties propAnnotation = AnnotationUtils.getAnnotation(view, WidgetProperties.class);
     if (propAnnotation != null) {
       for (WidgetProperty property : propAnnotation.value()) {
         widgetPropertiesByKey.put(property.key(), property);
@@ -135,14 +135,14 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
   }
 
   private void initDescription(final V view) {
-    Description descriptionAnnotation = AnnotationUtils.getClassAnnotation(view, Description.class);
+    Description descriptionAnnotation = AnnotationUtils.getAnnotation(view, Description.class);
     if (descriptionAnnotation != null) {
       description = descriptionAnnotation.value();
     }
   }
 
   private void initDefaultTabInfo(final V view) {
-    DefaultTab defaultTabAnnotation = AnnotationUtils.getClassAnnotation(view, DefaultTab.class);
+    DefaultTab defaultTabAnnotation = AnnotationUtils.getAnnotation(view, DefaultTab.class);
     if (defaultTabAnnotation != null) {
       if (defaultTabAnnotation.metrics().length == 0) {
         isDefaultTab = true;
@@ -156,35 +156,35 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
   }
 
   private void initResourceLanguage(final V view) {
-    ResourceLanguage languageAnnotation = AnnotationUtils.getClassAnnotation(view, ResourceLanguage.class);
+    ResourceLanguage languageAnnotation = AnnotationUtils.getAnnotation(view, ResourceLanguage.class);
     if (languageAnnotation != null) {
       resourceLanguages = languageAnnotation.value();
     }
   }
 
   private void initResourceQualifier(final V view) {
-    ResourceQualifier qualifierAnnotation = AnnotationUtils.getClassAnnotation(view, ResourceQualifier.class);
+    ResourceQualifier qualifierAnnotation = AnnotationUtils.getAnnotation(view, ResourceQualifier.class);
     if (qualifierAnnotation != null) {
       resourceQualifiers = qualifierAnnotation.value();
     }
   }
 
   private void initResourceScope(final V view) {
-    ResourceScope scopeAnnotation = AnnotationUtils.getClassAnnotation(view, ResourceScope.class);
+    ResourceScope scopeAnnotation = AnnotationUtils.getAnnotation(view, ResourceScope.class);
     if (scopeAnnotation != null) {
       resourceScopes = scopeAnnotation.value();
     }
   }
 
   private void initSections(final V view) {
-    NavigationSection sectionAnnotation = AnnotationUtils.getClassAnnotation(view, NavigationSection.class);
+    NavigationSection sectionAnnotation = AnnotationUtils.getAnnotation(view, NavigationSection.class);
     if (sectionAnnotation != null) {
       sections = sectionAnnotation.value();
     }
   }
 
   private void initUserRoles(final V view) {
-    UserRole userRoleAnnotation = AnnotationUtils.getClassAnnotation(view, UserRole.class);
+    UserRole userRoleAnnotation = AnnotationUtils.getAnnotation(view, UserRole.class);
     if (userRoleAnnotation != null) {
       userRoles = userRoleAnnotation.value();
     }
