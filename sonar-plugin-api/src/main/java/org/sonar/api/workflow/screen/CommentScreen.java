@@ -17,7 +17,22 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-@ParametersAreNonnullByDefault
-package org.sonar.core.review;
+package org.sonar.api.workflow.screen;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+/**
+ * Form with only a textarea field to type a comment.
+ */
+
+import com.google.common.annotations.Beta;
+
+/**
+ * @since 3.1
+ */
+@Beta
+public final class CommentScreen extends Screen {
+
+  public CommentScreen() {
+    super("comment");
+  }
+
+}

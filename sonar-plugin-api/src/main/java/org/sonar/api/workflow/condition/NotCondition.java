@@ -17,7 +17,35 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-@ParametersAreNonnullByDefault
-package org.sonar.core.review;
+package org.sonar.api.workflow.condition;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.google.common.annotations.Beta;
+import com.google.common.annotations.VisibleForTesting;
+import org.sonar.api.workflow.Review;
+import org.sonar.api.workflow.WorkflowContext;
+
+import javax.annotation.Nullable;
+
+/**
+ * @since 3.1
+ */
+@Beta
+public final class NotCondition extends Condition {
+
+  private Condition condition;
+
+  public NotCondition(Condition c) {
+    super(c.isOnContext());
+    this.condition = c;
+  }
+
+  @Override
+  public boolean doVerify(@Nullable Review review, WorkflowContext context) {
+    return !condition.doVerify(review, context);
+  }
+
+  @VisibleForTesting
+  Condition getCondition() {
+    return condition;
+  }
+}

@@ -91,7 +91,7 @@ public final class FilterColumn {
   }
 
   /**
-   * A column can be based on the varation of a value rather than on the value itself.
+   * A column can be based on the variation of a value rather than on the value itself.
    * 
    * @return <code>true</code> when the variation is used rather than the value
    */

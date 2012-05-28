@@ -17,7 +17,26 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-@ParametersAreNonnullByDefault
-package org.sonar.core.review;
+package org.sonar.api.workflow.condition;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.google.common.annotations.Beta;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+
+/**
+ * @since 3.1
+ */
+@Beta
+public abstract class ProjectPropertyCondition extends Condition {
+  private final String propertyKey;
+
+  protected ProjectPropertyCondition(String propertyKey) {
+    super(true);
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(propertyKey));
+    this.propertyKey = propertyKey;
+  }
+
+  public final String getPropertyKey() {
+    return propertyKey;
+  }
+}

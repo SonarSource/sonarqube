@@ -17,7 +17,8 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+
 @ParametersAreNonnullByDefault
-package org.sonar.core.review;
+package org.sonar.api.workflow;
 
 import javax.annotation.ParametersAreNonnullByDefault;

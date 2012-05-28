@@ -33,7 +33,7 @@
 class Api::ReviewContext
   
   def initialize(options={})
-    @review = options[:review]
+    @review = options[:workflow]
     @project = options[:project]
     @user = options[:user]
     @params = options[:params]

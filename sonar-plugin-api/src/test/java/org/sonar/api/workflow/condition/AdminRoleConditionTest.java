@@ -17,7 +17,28 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-@ParametersAreNonnullByDefault
-package org.sonar.core.review;
+package org.sonar.api.workflow.condition;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.junit.Test;
+import org.sonar.api.workflow.internal.DefaultReview;
+import org.sonar.api.workflow.internal.DefaultWorkflowContext;
+
+import static org.fest.assertions.Assertions.assertThat;
+
+public class AdminRoleConditionTest {
+  @Test
+  public void verifiedIfAdminRole() {
+    AdminRoleCondition condition = new AdminRoleCondition();
+    DefaultWorkflowContext context = new DefaultWorkflowContext();
+    context.setIsAdmin(true);
+    assertThat(condition.doVerify(new DefaultReview(), context)).isTrue();
+  }
+
+  @Test
+  public void failIfNotAdminRole() {
+    AdminRoleCondition condition = new AdminRoleCondition();
+    DefaultWorkflowContext context = new DefaultWorkflowContext();
+    context.setIsAdmin(false);
+    assertThat(condition.doVerify(new DefaultReview(), context)).isFalse();
+  }
+}

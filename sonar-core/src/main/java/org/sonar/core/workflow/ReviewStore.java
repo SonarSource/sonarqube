@@ -17,7 +17,14 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-@ParametersAreNonnullByDefault
-package org.sonar.core.review;
+package org.sonar.core.workflow;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.sonar.api.config.Settings;
+import org.sonar.api.workflow.internal.DefaultReview;
+import java.util.List;
+
+public interface ReviewStore {
+  void store(DefaultReview review);
+
+  void completeProjectSettings(Long projectId, Settings settings, List<String> propertyKeys);
+}

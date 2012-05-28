@@ -17,7 +17,38 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-@ParametersAreNonnullByDefault
-package org.sonar.core.review;
+package org.sonar.api.workflow.screen;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.google.common.annotations.Beta;
+
+/**
+ * <h2>Localization</h2>
+ * <p>At least two buttons must have labels :</p>
+ * <ul>
+ * <li>the button in the violation toolbar that displays the form screen. Key is 'reviews.command.<command_key>.button'.</li>
+ * <li>the button in the form screen that submits the command. Key is 'reviews.command.<command_key>.submit'.</li>
+ * </ul>
+ * @since 3.1
+ */
+@Beta
+public abstract class Screen {
+  private final String key;
+  private String commandKey;
+
+  protected Screen(String key) {
+    this.key = key;
+  }
+
+  public final String getKey() {
+    return key;
+  }
+
+  public final String getCommandKey() {
+    return commandKey;
+  }
+
+  public final Screen setCommandKey(String commandKey) {
+    this.commandKey = commandKey;
+    return this;
+  }
+}

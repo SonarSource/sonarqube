@@ -275,7 +275,7 @@ class RuleFailure < ActiveRecord::Base
   end
 
   def self.to_java_workflow_review(violation)
-    java_review=Java::OrgSonarCoreReviewWorkflowReview::DefaultReview.new
+    java_review=Java::OrgSonarApiWorkflowInternal::DefaultReview.new
     java_review.setViolationId(violation.id)
     java_review.setSeverity(violation.severity.to_s)
     java_review.setRuleKey(violation.rule.plugin_rule_key)
@@ -299,7 +299,7 @@ class RuleFailure < ActiveRecord::Base
   end
 
   def self.to_java_workflow_context(project, user)
-    java_context = Java::OrgSonarCoreReviewWorkflowReview::DefaultWorkflowContext.new
+    java_context = Java::OrgSonarApiWorkflowInternal::DefaultWorkflowContext.new
     java_context.setUserId(user.id)
     java_context.setUserLogin(user.login)
     java_context.setUserName(user.name)

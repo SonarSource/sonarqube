@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform;
 
+import org.sonar.api.workflow.internal.DefaultWorkflow;
 import org.sonar.server.startup.RegisterNewFilters;
 
 import org.apache.commons.configuration.BaseConfiguration;
@@ -44,9 +45,8 @@ import org.sonar.core.metric.DefaultMetricFinder;
 import org.sonar.core.notification.DefaultNotificationManager;
 import org.sonar.core.persistence.*;
 import org.sonar.core.qualitymodel.DefaultModelFinder;
-import org.sonar.core.review.workflow.ReviewDatabaseStore;
-import org.sonar.core.review.workflow.WorkflowEngine;
-import org.sonar.core.review.workflow.Workflow;
+import org.sonar.core.workflow.ReviewDatabaseStore;
+import org.sonar.core.workflow.WorkflowEngine;
 import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.core.user.DefaultUserFinder;
 import org.sonar.jpa.dao.MeasuresDao;
@@ -176,7 +176,7 @@ public final class Platform {
     ServerExtensionInstaller extensionRegistrar = servicesContainer.getComponentByType(ServerExtensionInstaller.class);
     extensionRegistrar.registerExtensions(servicesContainer);
 
-    servicesContainer.addSingleton(Workflow.class);
+    servicesContainer.addSingleton(DefaultWorkflow.class);
     servicesContainer.addSingleton(ReviewDatabaseStore.class);
     servicesContainer.addSingleton(WorkflowEngine.class);
 

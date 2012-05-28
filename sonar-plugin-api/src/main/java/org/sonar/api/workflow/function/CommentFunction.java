@@ -17,7 +17,27 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-@ParametersAreNonnullByDefault
-package org.sonar.core.review;
+package org.sonar.api.workflow.function;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.google.common.annotations.Beta;
+import org.sonar.api.workflow.Comment;
+import org.sonar.api.workflow.MutableReview;
+import org.sonar.api.workflow.Review;
+import org.sonar.api.workflow.WorkflowContext;
+
+import java.util.Map;
+
+/**
+ * @since 3.1
+ */
+@Beta
+public final class CommentFunction extends Function {
+
+  @Override
+  public void doExecute(MutableReview review, Review initialReview, WorkflowContext context, Map<String, String> parameters) {
+    Comment comment = review.createComment();
+    comment.setMarkdownText(parameters.get("text"));
+    comment.setUserId(context.getUserId());
+  }
+
+}

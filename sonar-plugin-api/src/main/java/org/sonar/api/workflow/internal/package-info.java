@@ -17,7 +17,15 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+
+/**
+ This package is not considered as API and future versions can break backward-compatibility.
+ <p>
+ It provides some classes that can be helpful for unit tests but must
+ <b>ABSOLUTELY NOT</b> be used by plugins production code.
+ </p>
+ */
 @ParametersAreNonnullByDefault
-package org.sonar.core.review;
+package org.sonar.api.workflow.internal;
 
 import javax.annotation.ParametersAreNonnullByDefault;

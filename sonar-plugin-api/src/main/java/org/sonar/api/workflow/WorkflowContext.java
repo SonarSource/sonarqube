@@ -17,7 +17,32 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-@ParametersAreNonnullByDefault
-package org.sonar.core.review;
+package org.sonar.api.workflow;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.google.common.annotations.Beta;
+import org.sonar.api.config.Settings;
+
+/**
+ * @since 3.1
+ */
+@Beta
+public interface WorkflowContext {
+
+  /**
+   * TODO : to be replaced by getProjectKey()
+   */
+  Long getProjectId();
+
+  Long getUserId();
+
+  String getUserLogin();
+
+  String getUserName();
+
+  String getUserEmail();
+
+  boolean isAdmin();
+
+  Settings getProjectSettings();
+
+}

@@ -17,7 +17,44 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-@ParametersAreNonnullByDefault
-package org.sonar.core.review;
+package org.sonar.api.workflow.internal;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.google.common.annotations.Beta;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+import org.sonar.api.workflow.Comment;
+
+/**
+ * @since 3.1
+ */
+@Beta
+public final class DefaultComment implements Comment {
+  private String markdownText;
+  private Long userId;
+
+  DefaultComment() {
+  }
+
+  public String getMarkdownText() {
+    return markdownText;
+  }
+
+  public DefaultComment setMarkdownText(String s) {
+    this.markdownText = s;
+    return this;
+  }
+
+  public Long getUserId() {
+    return userId;
+  }
+
+  public DefaultComment setUserId(Long l) {
+    this.userId = l;
+    return this;
+  }
+
+  @Override
+  public String toString() {
+    return new ReflectionToStringBuilder(this, ToStringStyle.SIMPLE_STYLE).toString();
+  }
+}

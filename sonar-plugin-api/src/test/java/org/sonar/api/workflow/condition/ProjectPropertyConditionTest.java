@@ -17,7 +17,23 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-@ParametersAreNonnullByDefault
-package org.sonar.core.review;
+package org.sonar.api.workflow.condition;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.junit.Test;
+import org.sonar.api.workflow.Review;
+import org.sonar.api.workflow.WorkflowContext;
+
+import static org.fest.assertions.Assertions.assertThat;
+
+public class ProjectPropertyConditionTest {
+  @Test
+  public void getPropertyKey() {
+    ProjectPropertyCondition condition = new ProjectPropertyCondition("foo") {
+      @Override
+      public boolean doVerify(Review review, WorkflowContext context) {
+        return false;
+      }
+    };
+    assertThat(condition.getPropertyKey()).isEqualTo("foo");
+  }
+}

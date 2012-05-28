@@ -17,7 +17,29 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-@ParametersAreNonnullByDefault
-package org.sonar.core.review;
+package org.sonar.api.workflow;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.google.common.annotations.Beta;
+
+import javax.annotation.Nullable;
+import java.util.List;
+
+/**
+ * Review that can be changed by functions. It does not support (yet) changes
+ * on creation date, author, severity, existing comments or switched-off attribute.
+ *
+ * @since 3.1
+ */
+@Beta
+public interface MutableReview extends Review {
+
+  MutableReview setStatus(String s);
+
+  MutableReview setResolution(@Nullable String resolution);
+
+  MutableReview setProperty(String key, @Nullable String value);
+
+  Comment createComment();
+
+  List<Comment> getNewComments();
+}

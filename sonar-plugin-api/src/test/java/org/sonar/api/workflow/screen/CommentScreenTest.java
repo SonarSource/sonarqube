@@ -17,7 +17,21 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-@ParametersAreNonnullByDefault
-package org.sonar.core.review;
+package org.sonar.api.workflow.screen;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.junit.Test;
+
+import static org.fest.assertions.Assertions.assertThat;
+
+public class CommentScreenTest {
+  @Test
+  public void testCommentScreen() {
+    CommentScreen screen = new CommentScreen();
+
+    assertThat(screen.getKey()).isEqualTo("comment");
+
+    assertThat(screen.getCommandKey()).isNull();
+    assertThat(screen.setCommandKey("create-jira-issue"));
+    assertThat(screen.getCommandKey()).isEqualTo("create-jira-issue");
+  }
+}

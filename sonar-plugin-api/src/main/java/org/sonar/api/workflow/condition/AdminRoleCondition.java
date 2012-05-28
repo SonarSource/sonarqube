@@ -17,7 +17,28 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-@ParametersAreNonnullByDefault
-package org.sonar.core.review;
+package org.sonar.api.workflow.condition;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import com.google.common.annotations.Beta;
+import org.sonar.api.workflow.Review;
+import org.sonar.api.workflow.WorkflowContext;
+
+import javax.annotation.Nullable;
+
+/**
+ * Checks that user has admin rights on project.
+ *
+ * @since 3.1
+ */
+@Beta
+public final class AdminRoleCondition extends Condition {
+
+  public AdminRoleCondition() {
+    super(true);
+  }
+
+  @Override
+  public boolean doVerify(@Nullable Review review, WorkflowContext context) {
+    return context.isAdmin();
+  }
+}
