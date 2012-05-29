@@ -23,12 +23,20 @@ package org.sonar.core.filter;
  * @since 3.1
  */
 public final class FilterColumnDto {
+  private Long id;
   private Long filterId;
   private String family;
   private String key;
   private Long orderIndex;
   private String sortDirection;
   private Boolean variation;
+
+  /**
+   * @return the id
+   */
+  public Long getId() {
+    return id;
+  }
 
   /**
    * @return the family
@@ -77,6 +85,14 @@ public final class FilterColumnDto {
    */
   public FilterColumnDto setFamily(String family) {
     this.family = family;
+    return this;
+  }
+
+  /**
+   * @param family the id to set
+   */
+  public FilterColumnDto setId(Long id) {
+    this.id = id;
     return this;
   }
 

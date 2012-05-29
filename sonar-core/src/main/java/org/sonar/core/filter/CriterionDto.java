@@ -23,6 +23,7 @@ package org.sonar.core.filter;
  * @since 3.1
  */
 public final class CriterionDto {
+  private Long id;
   private Long filterId;
   private String family;
   private String key;
@@ -30,6 +31,13 @@ public final class CriterionDto {
   private String textValue;
   private Float value;
   private Boolean variation;
+
+  /**
+   * @return the id
+   */
+  public Long getId() {
+    return id;
+  }
 
   /**
    * @return the family
@@ -78,6 +86,14 @@ public final class CriterionDto {
    */
   public Boolean getVariation() {
     return variation;
+  }
+
+  /**
+   * @param family the id to set
+   */
+  public CriterionDto setId(Long id) {
+    this.id = id;
+    return this;
   }
 
   /**
