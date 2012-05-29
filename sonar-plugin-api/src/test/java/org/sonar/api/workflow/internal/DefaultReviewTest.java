@@ -17,41 +17,21 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.workflow.condition;
+package org.sonar.api.workflow.internal;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.sonar.api.workflow.Review;
-import org.sonar.api.workflow.WorkflowContext;
-
-import javax.annotation.Nullable;
+import org.sonar.api.workflow.MutableReview;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class ProjectPropertyConditionTest {
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
+public class DefaultReviewTest {
   @Test
-  public void getPropertyKey() {
-    ProjectPropertyCondition condition = new ProjectPropertyCondition("foo") {
-      @Override
-      public boolean doVerify(Review review, WorkflowContext context) {
-        return false;
-      }
-    };
-    assertThat(condition.getPropertyKey()).isEqualTo("foo");
-  }
-
-  @Test
-  public void keyIsMandatory() {
-    thrown.expect(IllegalArgumentException.class);
-    new ProjectPropertyCondition(""){
-      @Override
-      public boolean doVerify(@Nullable Review review, WorkflowContext context) {
-        return false;
-      }
-    };
+  public void createComment_keep_order() {
+    MutableReview review = new DefaultReview();
+    review.createComment().setMarkdownText("first");
+    review.createComment().setMarkdownText("second");
+    assertThat(review.getNewComments()).hasSize(2);
+    assertThat(review.getNewComments().get(0).getMarkdownText()).isEqualTo("first");
+    assertThat(review.getNewComments().get(1).getMarkdownText()).isEqualTo("second");
   }
 }
