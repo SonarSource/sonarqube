@@ -28,8 +28,8 @@ import java.text.SimpleDateFormat;
 
 public class ServerMetadataPersister {
 
-  private Server server;
-  private DatabaseSession session;
+  private final Server server;
+  private final DatabaseSession session;
 
   public ServerMetadataPersister(Server server, DatabaseSession session) {
     this.server = server;

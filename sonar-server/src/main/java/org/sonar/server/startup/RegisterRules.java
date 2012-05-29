@@ -37,13 +37,13 @@ import java.util.*;
 
 public final class RegisterRules {
 
-  private DatabaseSessionFactory sessionFactory;
-  private List<RuleRepository> repositories = Lists.newArrayList();
-  private RuleI18nManager ruleI18nManager;
+  private final DatabaseSessionFactory sessionFactory;
+  private final List<RuleRepository> repositories;
+  private final RuleI18nManager ruleI18nManager;
 
   public RegisterRules(DatabaseSessionFactory sessionFactory, RuleRepository[] repos, RuleI18nManager ruleI18nManager) {
     this.sessionFactory = sessionFactory;
-    this.repositories.addAll(Arrays.asList(repos));
+    this.repositories = Arrays.asList(repos);
     this.ruleI18nManager = ruleI18nManager;
   }
 

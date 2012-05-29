@@ -52,8 +52,8 @@ public final class DialectUtils {
 
   private static Dialect findById(final String dialectId) {
     return findDialect(new Predicate<Dialect>() {
-      public boolean apply(Dialect dialect) {
-        return dialect.getId().equals(dialectId);
+      public boolean apply(@Nullable Dialect dialect) {
+        return dialect != null && dialect.getId().equals(dialectId);
       }
     });
   }

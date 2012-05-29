@@ -37,9 +37,9 @@ import java.util.Map;
 
 public class RegisterMetrics {
 
-  private MeasuresDao measuresDao;
-  private Metrics[] metricsRepositories = null;
-  private DatabaseSession session;
+  private final MeasuresDao measuresDao;
+  private final Metrics[] metricsRepositories;
+  private final DatabaseSession session;
 
   public RegisterMetrics(DatabaseSession session, MeasuresDao measuresDao, Metrics[] metricsRepositories) {
     this.session = session;

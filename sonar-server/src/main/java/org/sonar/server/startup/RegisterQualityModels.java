@@ -24,7 +24,7 @@ import org.sonar.server.qualitymodel.ModelManager;
 
 public final class RegisterQualityModels {
 
-  private ModelManager manager;
+  private final ModelManager manager;
 
   /**
    * @param registerRulesBeforeModels used only to be started after the creation of check templates

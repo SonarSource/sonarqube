@@ -63,11 +63,11 @@ public class GwtPublisher {
     try {
       cleanDirectory();
       this.outputDir = new File(settings.getString(ServerSettings.DEPLOY_DIR), "gwt");
-      Logs.INFO.debug("publish {} GWT extensions to {}", extensions.length, outputDir);
+      LoggerFactory.getLogger(GwtPublisher.class).debug("Deploy {} GWT extensions to {}", extensions.length, outputDir);
       publish();
 
     } catch (Exception e) {
-      throw new SonarException("can not publish GWT extensions", e);
+      throw new IllegalStateException("Fail to deploy GWT extensions", e);
     }
     profiler.stop();
   }
@@ -102,7 +102,7 @@ public class GwtPublisher {
       if (sourceDir == null) {
         throw new SonarException("Can not find the directory " + module.getGwtId() + " defined by the GWT module " + module.getClass().getName());
       }
-      Logs.INFO.info("publish {} to {}", module.getGwtId(), outputDir);
+      Logs.INFO.info("Deploy {} to {}", module.getGwtId(), outputDir);
       if (sourceDir.toString().startsWith("jar:file")) {
         // unzip the JAR
         String path = StringUtils.substringBetween(sourceDir.toString(), "jar:file:", "!");

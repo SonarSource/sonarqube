@@ -17,32 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+@ParametersAreNonnullByDefault
 package org.sonar.server.startup;
 
-import org.apache.commons.io.FileUtils;
-import org.sonar.server.platform.DefaultServerFileSystem;
-
-import java.io.File;
-import java.io.IOException;
-
-public class JdbcDriverDeployer {
-
-  private final DefaultServerFileSystem fileSystem;
-
-  public JdbcDriverDeployer(DefaultServerFileSystem fileSystem) {
-    this.fileSystem = fileSystem;
-  }
-
-  public void start() {
-    File driver = fileSystem.getJdbcDriver();
-    File deployedDriver = fileSystem.getDeployedJdbcDriver();
-    if (deployedDriver == null || !deployedDriver.exists() || deployedDriver.length() != driver.length()) {
-      try {
-        FileUtils.copyFile(driver, deployedDriver);
-
-      } catch (IOException e) {
-        throw new RuntimeException("Can not copy the JDBC driver from " + driver + " to " + deployedDriver, e);
-      }
-    }
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;
