@@ -35,6 +35,7 @@ import org.sonar.core.dashboard.WidgetPropertyDto;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.template.LoadedTemplateDto;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
@@ -146,7 +147,9 @@ public final class RegisterNewDashboards {
     return loadedTemplateDao.countByTypeAndKey(LoadedTemplateDto.DASHBOARD_TYPE, dashboardName) == 0;
   }
 
-  private static class DashboardOrdering extends Ordering<DashboardDto> {
+  private static class DashboardOrdering extends Ordering<DashboardDto> implements Serializable {
+    private static final long serialVersionUID = 0;
+
     @Override
     public int compare(DashboardDto d1, DashboardDto d2) {
       // the default dashboard must be the first one to be activated
