@@ -152,11 +152,21 @@ public final class RegisterNewDashboards {
 
     @Override
     public int compare(DashboardDto d1, DashboardDto d2) {
-      // the default dashboard must be the first one to be activated
-      if (d1.getName().equals(DEFAULT_DASHBOARD_NAME)) {
+      if ((d1 == null) && (d2 == null)) {
+        return 0;
+      }
+      if ((d1 == null) || (d1.getName() == null)) {
+        return +1;
+      }
+      if ((d2 == null) || (d2.getName() == null)) {
         return -1;
       }
-      if (d2.getName().equals(DEFAULT_DASHBOARD_NAME)) {
+
+      // the default dashboard must be the first one to be activated
+      if (DEFAULT_DASHBOARD_NAME.equals(d1.getName())) {
+        return -1;
+      }
+      if (DEFAULT_DASHBOARD_NAME.equals(d2.getName())) {
         return 1;
       }
       return d1.getName().compareTo(d2.getName());
