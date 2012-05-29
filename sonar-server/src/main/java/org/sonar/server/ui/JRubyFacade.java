@@ -38,16 +38,16 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.api.web.*;
+import org.sonar.api.workflow.Review;
+import org.sonar.api.workflow.internal.DefaultReview;
+import org.sonar.api.workflow.internal.DefaultWorkflowContext;
+import org.sonar.api.workflow.screen.Screen;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.DatabaseMigrator;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.core.workflow.WorkflowEngine;
-import org.sonar.api.workflow.internal.DefaultReview;
-import org.sonar.api.workflow.internal.DefaultWorkflowContext;
-import org.sonar.api.workflow.Review;
-import org.sonar.api.workflow.screen.Screen;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
@@ -487,6 +487,11 @@ public final class JRubyFacade {
   }
 
   public void executeReviewCommand(String commandKey, DefaultReview review, DefaultWorkflowContext context, Map<String, String> parameters) {
-    getContainer().getComponentByType(WorkflowEngine.class).execute(commandKey, review, context, parameters);
+    try {
+      getContainer().getComponentByType(WorkflowEngine.class).execute(commandKey, review, context, parameters);
+    } catch (RuntimeException e) {
+      LoggerFactory.getLogger(JRubyFacade.class).error("Fail to execute command: " + commandKey + " on review " + review.getReviewId(), e);
+      throw e;
+    }
   }
 }
