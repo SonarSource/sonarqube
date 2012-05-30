@@ -19,6 +19,8 @@
  */
 package org.sonar.server.startup;
 
+import com.google.common.base.Strings;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import org.slf4j.Logger;
@@ -151,25 +153,19 @@ public final class RegisterNewDashboards {
     private static final long serialVersionUID = 0;
 
     @Override
-    public int compare(DashboardDto d1, DashboardDto d2) {
-      if ((d1 == null) && (d2 == null)) {
-        return 0;
-      }
-      if ((d1 == null) || (d1.getName() == null)) {
-        return +1;
-      }
-      if ((d2 == null) || (d2.getName() == null)) {
-        return -1;
-      }
+    public int compare(DashboardDto left, DashboardDto right) {
+      String leftName = (left == null) ? null : left.getName();
+      String rightName = (right == null) ? null : right.getName();
 
       // the default dashboard must be the first one to be activated
-      if (DEFAULT_DASHBOARD_NAME.equals(d1.getName())) {
+      if (DEFAULT_DASHBOARD_NAME.equals(leftName)) {
         return -1;
       }
-      if (DEFAULT_DASHBOARD_NAME.equals(d2.getName())) {
+      if (DEFAULT_DASHBOARD_NAME.equals(rightName)) {
         return 1;
       }
-      return d1.getName().compareTo(d2.getName());
+
+      return Ordering.natural().nullsLast().compare(leftName, rightName);
     }
   }
 }
