@@ -19,8 +19,6 @@
  */
 package org.sonar.server.startup;
 
-import com.google.common.base.Strings;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import org.slf4j.Logger;
