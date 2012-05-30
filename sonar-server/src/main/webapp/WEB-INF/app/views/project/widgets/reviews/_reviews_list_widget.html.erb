@@ -1,5 +1,5 @@
 <%
-     limit = widget_properties["numberOfLines"]
+     table_limit = widget_properties["numberOfLines"]
 
      if @dashboard_configuration.selected_period?
        search_options['from'] = @dashboard_configuration.from_datetime
@@ -12,6 +12,6 @@
 <div id="reviews-widget-<%= widget_id -%>">
   <%= render :partial => 'project/widgets/reviews/reviews_list',
              :locals => {:search_options => search_options,
-                         :limit => limit,
+                         :table_limit => table_limit,
                          :widget_id => widget_id} %>
 </div>

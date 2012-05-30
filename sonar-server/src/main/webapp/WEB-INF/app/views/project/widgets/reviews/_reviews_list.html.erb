@@ -1,5 +1,5 @@
 <%
-   limit = params[:limit] unless limit
+   table_limit = params[:table_limit] unless table_limit
    widget_id = params[:widget_id] unless widget_id
    search_options = params unless search_options
    
@@ -15,7 +15,7 @@
 
    # table pagination
    page_size = 20
-   page_size = limit.to_i
+   page_size = table_limit.to_i
    total_number = reviews.size
    if reviews.size > page_size
      page_id = (params[:page_id] ? params[:page_id].to_i : 1)
@@ -52,7 +52,7 @@
              link_params[:controller] = 'project_reviews'
              link_params[:action] = 'widget_reviews_list'
              link_params[:snapshot_id] = @snapshot.id
-             link_params[:limit] = limit
+             link_params[:table_limit] = table_limit
              link_params[:widget_id] = widget_id
              link_params[:period] = params[:period]
         %>
