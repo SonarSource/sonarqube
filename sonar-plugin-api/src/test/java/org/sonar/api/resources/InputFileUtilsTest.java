@@ -168,7 +168,7 @@ public class InputFileUtilsTest {
 
   static void write(String content, File file) throws IOException {
     file.getParentFile().mkdirs();
-    Files.write("<FILE CONTENT>", file, Charsets.UTF_8);
+    Files.write(content, file, Charsets.UTF_8);
   }
 
   static String read(InputStream input) throws IOException {
