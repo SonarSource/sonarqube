@@ -19,18 +19,13 @@
  */
 package org.sonar.batch.components;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class PastSnapshotFinderByVersionTest extends AbstractDbUnitTestCase {
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void shouldFindByVersion() {
@@ -42,16 +37,18 @@ public class PastSnapshotFinderByVersionTest extends AbstractDbUnitTestCase {
     assertThat(finder.findByVersion(currentProjectSnapshot, "1.1").getProjectSnapshotId()).isEqualTo(1009);
   }
 
+  /**
+   * Revert SONAR-3407
+   */
   @Test
-  public void failIfUnknownVersion() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Unknown project version: 0.1.2");
-
+  public void doNotFailIfUnknownVersion() {
     setupData("shared");
 
     Snapshot currentProjectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1010);
     PastSnapshotFinderByVersion finder = new PastSnapshotFinderByVersion(getSession());
 
-    finder.findByVersion(currentProjectSnapshot, "0.1.2");
+    PastSnapshot pastSnapshot = finder.findByVersion(currentProjectSnapshot, "0.1.2");
+    assertThat(pastSnapshot).isNotNull();
+    assertThat(pastSnapshot.getDate()).isNull();
   }
 }
