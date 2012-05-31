@@ -43,7 +43,7 @@ module WidgetPropertiesHelper
       filters_combo = select_tag definition.key(), option_group('My Filters', user_filters) + option_group('Shared Filters', shared_filters)
       filter_link = link_to message('widget.filter.edit'), {:controller => :filters, :action => :manage}, :class => 'link-action'
 
-      filters_combo + filter_link
+      "#{filters_combo} #{filter_link}"
 
   else
       hidden_field_tag definition.key()
