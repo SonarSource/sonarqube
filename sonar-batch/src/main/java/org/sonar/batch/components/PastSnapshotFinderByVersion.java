@@ -46,12 +46,15 @@ public class PastSnapshotFinderByVersion implements BatchExtension {
         .setMaxResults(1)
         .getResultList();
 
+    PastSnapshot result;
     if (snapshots.isEmpty()) {
-      throw new IllegalStateException("Unknown project version: " + version +". Please check differential views in project settings.");
+      result = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_VERSION);
+    } else {
+      Snapshot snapshot = snapshots.get(0);
+      Date targetDate = snapshot.getCreatedAt();
+      result = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_VERSION, targetDate, snapshot).setModeParameter(version);
     }
-    Snapshot snapshot = snapshots.get(0);
-    Date targetDate = snapshot.getCreatedAt();
-    return new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_VERSION, targetDate, snapshot).setModeParameter(version);
+    return result;
   }
 
 }

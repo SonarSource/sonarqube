@@ -21,10 +21,10 @@ package org.sonar.batch.components;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.utils.Logs;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -52,7 +52,7 @@ public class PastSnapshotFinder implements BatchExtension {
     String propertyValue = getPropertyValue(conf, index);
     PastSnapshot pastSnapshot = find(projectSnapshot, index, propertyValue);
     if (pastSnapshot == null && StringUtils.isNotBlank(propertyValue)) {
-      Logs.INFO.debug("The property " + CoreProperties.TIMEMACHINE_PERIOD_PREFIX + index + " has an unvalid value: " + propertyValue);
+      LoggerFactory.getLogger(PastSnapshotFinder.class).debug("Property " + CoreProperties.TIMEMACHINE_PERIOD_PREFIX + index + " is not valid: " + propertyValue);
     }
     return pastSnapshot;
   }
