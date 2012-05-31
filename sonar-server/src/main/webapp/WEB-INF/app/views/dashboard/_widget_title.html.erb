@@ -2,7 +2,7 @@
   <div class="widget-title" id="widget_title_<%= widget.id -%>">
     <%= h @filter.name -%>
     <% if @filter.period_index %>
-      (<%= h period_names[@filter.period_index-1] -%>)
+      (<%= period_names[@filter.period_index-1] -%>)
     <% end %>
   </div>
 <% elsif @dashboard.global and @resource and !widget.java_definition.global %>
