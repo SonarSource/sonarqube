@@ -44,7 +44,7 @@ class DashboardController < ApplicationController
     load_resource()
     load_dashboard()
     @category=params[:category]
-    load_widget_definitions(@dashboard, @category)
+    load_widget_definitions(@category)
     unless @dashboard
       redirect_to home_path
     end
@@ -136,7 +136,7 @@ class DashboardController < ApplicationController
     @category=params[:category]
     load_resource()
     load_dashboard()
-    load_widget_definitions(@dashboard, @category)
+    load_widget_definitions(@category)
     render :partial => 'widget_definitions', :locals => {:category => @category}
   end
 
@@ -185,7 +185,7 @@ class DashboardController < ApplicationController
     end
   end
 
-  def load_widget_definitions(dashboard, filter_on_category=nil)
+  def load_widget_definitions(filter_on_category)
     @widget_definitions=java_facade.getWidgets()
 
     @widget_categories=@widget_definitions.map(&:getWidgetCategories).flatten.uniq.sort
