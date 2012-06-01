@@ -1,6 +1,6 @@
 <%
    @filter=::Filter.find(:first, :conditions => {:kee => widget_properties['filter']})
-   @filter_context=Filters.execute(@filter, self, params)
+   @filter_context=Filters.execute(@filter, self, params) unless @filter.ajax_loading?
 %>
 
 <%= render :partial => "filters/#{@filter.default_view}", :locals => {:edit_mode => false, :widget => widget} %>
