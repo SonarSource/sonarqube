@@ -1,9 +1,6 @@
 <% if widget.properties_as_hash['filter'] and @filter %>
   <div class="widget-title" id="widget_title_<%= widget.id -%>">
-    <%= h @filter.name -%>
-    <% if @filter.period_index %>
-      (<%= period_names[@filter.period_index-1] -%>)
-    <% end %>
+    <%= h @filter.name -%><% if @filter.period_index %>&nbsp;-&nbsp;<%= period_names[@filter.period_index-1] -%><% end %>
   </div>
 <% elsif @dashboard.global and @resource and !widget.java_definition.global %>
   <div class="widget-title" id="widget_title_<%= widget.id -%>"><%= h @resource.name -%></div>
