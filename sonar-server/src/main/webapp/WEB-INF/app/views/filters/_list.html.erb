@@ -121,7 +121,7 @@
 			        <%= trend_icon(measure, :empty => true) -%>
 		        <% end %>
 	        <% end %>
-        <% elsif column.on_name? %><%= qualifier_icon(root_snapshot) %> <%= link_to_resource(root_snapshot.project, h(root_snapshot.project.name(true)), {:dashboard => true, :title => root_snapshot.project.key}) %>
+        <% elsif column.on_name? %><%= qualifier_icon(root_snapshot) %> <%= link_to_resource(root_snapshot.project, h(root_snapshot.project.name(true)), {:filter => true, :title => root_snapshot.project.key, :period => @filter_context.period_index}) %>
         <% elsif column.on_date? %><%= human_short_date(root_snapshot.created_at) %>
         <% end %>
       </td>
