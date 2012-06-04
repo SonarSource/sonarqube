@@ -51,7 +51,10 @@ module WidgetPropertiesHelper
   end
 
   def resource_value_field(value)
-    select_tag 'resource_id', options_id(value, Project.all(:conditions => {:scope => 'PRJ', :qualifier => 'TRK', :enabled => true}))
+    projects = Project.all(:conditions => {:scope => 'PRJ', :qualifier => 'TRK', :enabled => true})
+    sorted_projects = Api::Utils.insensitive_sort(projects, &:name)
+
+    select_tag 'resource_id', options_id(value, sorted_projects)
   end
 
   def options_id(value, values)
