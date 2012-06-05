@@ -4,7 +4,7 @@
   <% metrics=treemap_metrics(@filter) %>
 
   <%= render :partial => 'treemap/treemap_container', :locals => {
-    :treemap_id => @filter.id,
+    :treemap_id => widget.id,
     :size_metric => metrics[0],
     :color_metric => metrics[1],
     :height_in_percents => 50.0,
