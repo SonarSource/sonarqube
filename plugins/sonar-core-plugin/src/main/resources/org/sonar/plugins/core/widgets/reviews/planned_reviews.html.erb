@@ -1,6 +1,6 @@
 <%
    if has_role?(:user, @project)
-     limit = widget_properties["numberOfLines"]
+     table_limit = widget_properties["numberOfLines"]
 
      search_options = {}
      search_options['projects'] = @project.key
@@ -26,7 +26,7 @@
      else
        first_action_plan = open_action_plans[0]
        url_options = search_options.merge({:controller => 'project_reviews', :action => 'widget_reviews_list', :snapshot_id => @snapshot.id,
-                                           :limit => limit, :widget_id => widget.id, :period => params[:period] })
+                                           :table_limit => table_limit, :widget_id => widget.id, :period => params[:period] })
 %>
 
 <script type="text/javascript">
@@ -34,7 +34,6 @@
     new Ajax.Updater('reviews-widget-<%= widget.id -%>',
                      '<%= url_for url_options -%>&action_plan_id=' + actionPlanId,                      
                      {asynchronous:true, evalScripts:true});
-   $('planned-review-more-link_<%= widget.id -%>').href = '<%= url_for url_options.merge({:action => 'index'}) -%>&action_plan_id=' + actionPlanId;
   }
 </script>
 
@@ -54,7 +53,7 @@
   <% search_options['action_plan_id'] = first_action_plan.id %>
   <%= render :partial => 'project/widgets/reviews/reviews_list',
              :locals => {:search_options => search_options,
-                         :limit => limit,
+                         :table_limit => table_limit,
                          :widget_id => widget.id.to_s} %>
 </div>
 
