@@ -203,13 +203,13 @@ class RuleFailure < ActiveRecord::Base
 
     if options.has_key? :review_statuses
       statuses = options[:review_statuses]
-      if !statuses.empty?
+      unless statuses.empty?
         if statuses.include? nil
           if statuses.size==1
             # only nil : unreviewed violations
-            conditions << 'not exists(select id from reviews where rule_failure_permanent_id=rule_failures.id)'
+            conditions << 'not exists(select id from reviews where rule_failure_permanent_id=rule_failures.permanent_id)'
           else
-            conditions << '(reviews.status in (?) or not exists(select id from reviews where rule_failure_permanent_id=rule_failures.id))'
+            conditions << '(reviews.status in (?) or not exists(select id from reviews where rule_failure_permanent_id=rule_failures.permanent_id))'
             values << options[:review_statuses].compact
           end
         else
@@ -225,7 +225,7 @@ class RuleFailure < ActiveRecord::Base
         conditions << 'reviews.assignee_id=?'
         values << review_assignee_id.to_i
       else
-        conditions << '(reviews.assignee_id is null or not exists(select id from reviews where rule_failure_permanent_id=rule_failures.id))'
+        conditions << '(reviews.assignee_id is null or not exists(select id from reviews where rule_failure_permanent_id=rule_failures.permanent_id))'
       end
     end
 

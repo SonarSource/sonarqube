@@ -323,6 +323,9 @@ class ResourceController < ApplicationController
       metric = Metric.by_id(params[:metric])
       if metric && (metric.name=='active_reviews' || metric.name=='unassigned_reviews' || metric.name=='unplanned_reviews' || metric.name=='false_positive_reviews'|| metric.name=='unreviewed_violations' || metric.name=='new_unreviewed_violations')
         rule_param = metric.name.gsub(/new_/, '')
+
+        # hack to select the correct option in the rule filter select-box
+        params[:rule] = rule_param
       end
     end
 
@@ -351,6 +354,7 @@ class ResourceController < ApplicationController
         options[:rule_id]=rule_param
       end
     end
+
 
     if @period
       date=@snapshot.period_datetime(@period)
