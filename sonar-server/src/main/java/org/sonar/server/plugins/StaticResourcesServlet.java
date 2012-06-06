@@ -19,12 +19,14 @@
  */
 package org.sonar.server.plugins;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.server.platform.Platform;
 
+import javax.activation.MimetypesFileTypeMap;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -37,6 +39,7 @@ public class StaticResourcesServlet extends HttpServlet {
 
   private static final Logger LOG = LoggerFactory.getLogger(StaticResourcesServlet.class);
   private static final long serialVersionUID = -2577454614650178426L;
+  private static final MimetypesFileTypeMap MIME_TYPES = new MimetypesFileTypeMap();
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -57,6 +60,8 @@ public class StaticResourcesServlet extends HttpServlet {
       if (in != null) {
         out = response.getOutputStream();
         IOUtils.copy(in, out);
+        completeContentType(response, resource);
+
       } else {
         LOG.error("Unable to find resource '" + resource + "' in plugin '" + pluginKey + "'");
         response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -86,5 +91,10 @@ public class StaticResourcesServlet extends HttpServlet {
    */
   protected String getResourcePath(HttpServletRequest request) {
     return "static/" + StringUtils.substringAfter(getPluginKeyAndResourcePath(request), "/");
+  }
+
+  @VisibleForTesting
+  void completeContentType(HttpServletResponse response, String filename) {
+    response.setContentType(MimeTypes.getByFilename(filename));
   }
 }

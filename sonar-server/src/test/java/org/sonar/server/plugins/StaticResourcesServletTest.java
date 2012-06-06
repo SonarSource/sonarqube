@@ -23,10 +23,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class StaticResourcesServletTest {
@@ -45,13 +46,13 @@ public class StaticResourcesServletTest {
     when(request.getContextPath()).thenReturn("/");
     when(request.getServletPath()).thenReturn("static");
     when(request.getRequestURI()).thenReturn("/static/myplugin/image.png");
-    assertThat(servlet.getPluginKey(request), is("myplugin"));
+    assertThat(servlet.getPluginKey(request)).isEqualTo("myplugin");
 
     when(request.getRequestURI()).thenReturn("/static/myplugin/images/image.png");
-    assertThat(servlet.getPluginKey(request), is("myplugin"));
+    assertThat(servlet.getPluginKey(request)).isEqualTo("myplugin");
 
     when(request.getRequestURI()).thenReturn("/static/myplugin/");
-    assertThat(servlet.getPluginKey(request), is("myplugin"));
+    assertThat(servlet.getPluginKey(request)).isEqualTo("myplugin");
   }
 
   @Test
@@ -59,12 +60,19 @@ public class StaticResourcesServletTest {
     when(request.getContextPath()).thenReturn("/");
     when(request.getServletPath()).thenReturn("static");
     when(request.getRequestURI()).thenReturn("/static/myplugin/image.png");
-    assertThat(servlet.getResourcePath(request), is("static/image.png"));
+    assertThat(servlet.getResourcePath(request)).isEqualTo("static/image.png");
 
     when(request.getRequestURI()).thenReturn("/static/myplugin/images/image.png");
-    assertThat(servlet.getResourcePath(request), is("static/images/image.png"));
+    assertThat(servlet.getResourcePath(request)).isEqualTo("static/images/image.png");
 
     when(request.getRequestURI()).thenReturn("/static/myplugin/");
-    assertThat(servlet.getResourcePath(request), is("static/"));
+    assertThat(servlet.getResourcePath(request)).isEqualTo("static/");
+  }
+
+  @Test
+  public void completeMimeType() {
+    HttpServletResponse response = mock(HttpServletResponse.class);
+    servlet.completeContentType(response, "static/sqale/sqale.css");
+    verify(response).setContentType("text/css");
   }
 }
