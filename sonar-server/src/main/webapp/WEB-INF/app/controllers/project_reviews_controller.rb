@@ -269,7 +269,7 @@ class ProjectReviewsController < ApplicationController
 
     error_message = nil
     begin
-      RuleFailure.execute_command(params[:command], review.violation, review.resource.project, current_user, params)
+      RuleFailure.execute_command(params[:command], review.violation, current_user, params)
     rescue Exception => e
       error_message=Api::Utils.exception_message(e, :backtrace => false)
     end

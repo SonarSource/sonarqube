@@ -71,7 +71,7 @@ class ReviewsController < ApplicationController
     # TODO remove parameters 'id' and 'command' from params
     error_message = nil
     begin
-      RuleFailure.execute_command(params[:command], violation, violation.snapshot.root_snapshot.project, current_user, params)
+      RuleFailure.execute_command(params[:command], violation, current_user, params)
     rescue Exception => e
       error_message=Api::Utils.exception_message(e, :backtrace => false)
     end

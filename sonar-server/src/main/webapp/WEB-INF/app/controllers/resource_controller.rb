@@ -379,7 +379,7 @@ class ResourceController < ApplicationController
 
     @review_screens_by_vid=nil
     if current_user && has_role?(:user, @resource)
-      @review_screens_by_vid = RuleFailure.available_java_screens_for_violations(violations, @resource.project, current_user)
+      @review_screens_by_vid = RuleFailure.available_java_screens_for_violations(violations, @resource, current_user)
     end
     render :action => 'index', :layout => !request.xhr?
   end
