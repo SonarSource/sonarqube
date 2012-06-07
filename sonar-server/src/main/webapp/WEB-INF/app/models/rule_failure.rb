@@ -252,9 +252,9 @@ class RuleFailure < ActiveRecord::Base
   #
   # Constraint : all the violations are in the same project
   #
-  def self.available_java_screens_for_violations(violations, project, user)
+  def self.available_java_screens_for_violations(violations, resource, user)
     reviews = violations.map { |violation| to_java_workflow_review(violation) }
-    context = to_java_workflow_context(project, user)
+    context = to_java_workflow_context(resource, user)
     Java::OrgSonarServerUi::JRubyFacade.getInstance().listAvailableReviewsScreens(reviews, context)
   end
 
@@ -268,9 +268,9 @@ class RuleFailure < ActiveRecord::Base
     end
   end
 
-  def self.execute_command(command_key, violation, project, user, parameters)
+  def self.execute_command(command_key, violation, user, parameters)
     review = to_java_workflow_review(violation)
-    context = to_java_workflow_context(project, user)
+    context = to_java_workflow_context(violation.resource, user)
     Java::OrgSonarServerUi::JRubyFacade.getInstance().executeReviewCommand(command_key, review, context, parameters)
   end
 
@@ -298,14 +298,14 @@ class RuleFailure < ActiveRecord::Base
     java_review
   end
 
-  def self.to_java_workflow_context(project, user)
+  def self.to_java_workflow_context(resource, user)
     java_context = Java::OrgSonarApiWorkflowInternal::DefaultWorkflowContext.new
     java_context.setUserId(user.id)
     java_context.setUserLogin(user.login)
     java_context.setUserName(user.name)
     java_context.setUserEmail(user.email)
     java_context.setIsAdmin(user.has_role?(:admin))
-    java_context.setProjectId(project.id)
+    java_context.setProjectId(resource.root_project.id)
     java_context
   end
 
