@@ -2,139 +2,146 @@
    # Retrieve widget settings
    metric_data_map = {}
    metric_name_map = {}
+   metrics_specified = false
    (1..3).each do |index|
      metric=widget_properties["metric#{index}"]
+     # we check that the current resource has the selected metric on the last snapshot
+     # => if not, we do not display this metric at all (due to a limitation of Protovis)
      if metric
-       metric_data_map[metric.id] = []
-       metric_name_map[metric.id] = metric.short_name
+       metrics_specified = true
+       if measure(metric)
+         metric_data_map[metric.id] = []
+         metric_name_map[metric.id] = metric.short_name
+       end
      end
    end
-   if metric_data_map.empty?
+   unless metrics_specified
      # No metric has been selected, it's the first time the widget is displayed: 'ncloc' is the default metric
-     ncloc = Metric.find(:first, :conditions => "name = 'ncloc'")
+     ncloc = Metric.by_name('ncloc')
      metric_data_map[ncloc.id] = []
      metric_name_map[ncloc.id] = message('metric.ncloc.name')
    end
    chartHeight = widget_properties["chartHeight"]
 
-   # Retrieve metric trend information
-   options = {}
-   from_date = dashboard_configuration.from_datetime
-   if from_date
-     options[:from] = from_date
-   end
-   metric_count_per_snapshot_id = {}
-   TrendsChart.time_machine_measures(@resource, metric_data_map.keys, options).each() do |trend_item|
-     sid = trend_item["sid"]
-     if metric_count_per_snapshot_id[sid]
-       metric_count_per_snapshot_id[sid] += 1
-     else
-       metric_count_per_snapshot_id[sid] = 1
+  unless metric_data_map.values.empty?
+     # Retrieve metric trend information
+     options = {}
+     from_date = dashboard_configuration.from_datetime
+     if from_date
+       options[:from] = from_date
      end
-     metric_data_map[trend_item["metric_id"].to_i] << {:date => trend_item["created_at"], :value => trend_item["value"], :sid => trend_item["sid"]}
-   end
-
-   # Create JS structures to print out in the HTML page
-   js_data = "["
-   js_snapshots = "["
-   js_metrics = "["
-   total_number_of_metrics = metric_name_map.keys.size()
-   metric_data_map.keys.each_with_index() do |metric_id, index|
-     unless metric_data_map[metric_id].empty?
-       js_metrics += "\"" + metric_name_map[metric_id] + "\","
-       js_data += "["
-       metric_data_map[metric_id].each() do |metric_data|
-         # for every metric value, we need to check that the corresponding snapshot has values for each metric (if not, Protovis won't be able to display)
-         if metric_count_per_snapshot_id[metric_data[:sid]]==total_number_of_metrics
-           m_date = metric_data[:date]
-           # Only Oracle returns a Time object, so let's parse this string if it's not a Time instance
-           m_date = Time.parse(metric_data[:date]) unless m_date.is_a? Time
-           m_value = sprintf("%0.02f", metric_data[:value])
-           m_value_localized = (m_value.end_with? '.00') ? number_with_precision(metric_data[:value], :precision => 0).to_s : number_with_precision(metric_data[:value], :precision => 2).to_s
-           js_data += "{x:d("
-           js_data += m_date.year.to_s
-           js_data += ","
-           # Need to decrease by 1 the month as the JS Date object start months at 0 (= January)
-           js_data += (m_date.month - 1).to_s
-           js_data += ","
-           js_data += m_date.day.to_s
-           js_data += ","
-           js_data += m_date.hour.to_s
-           js_data += ","
-           js_data += m_date.min.to_s
-           js_data += ","
-           js_data += m_date.sec.to_s
-           js_data += "),y:"
-           js_data += m_value
-           js_data += ",yl:\""
-           js_data += m_value_localized
-           js_data += "\"},"
-           if index == 0
-             # we fill the js_snapshots array (no need to do this more than once)
-             js_snapshots += "{sid:"
-             js_snapshots += metric_data[:sid].to_s
-             js_snapshots += ",d:\""
-             js_snapshots += human_short_date m_date
-             js_snapshots += "\"},"
+     metric_count_per_snapshot_id = {}
+     TrendsChart.time_machine_measures(@resource, metric_data_map.keys, options).each() do |trend_item|
+       sid = trend_item["sid"]
+       if metric_count_per_snapshot_id[sid]
+         metric_count_per_snapshot_id[sid] += 1
+       else
+         metric_count_per_snapshot_id[sid] = 1
+       end
+       metric_data_map[trend_item["metric_id"].to_i] << {:date => trend_item["created_at"], :value => trend_item["value"], :sid => trend_item["sid"]}
+     end
+  
+     # Create JS structures to print out in the HTML page
+     js_data = "["
+     js_snapshots = "["
+     js_metrics = "["
+     total_number_of_metrics = metric_name_map.keys.size()
+     metric_data_map.keys.each_with_index() do |metric_id, index|
+       unless metric_data_map[metric_id].empty?
+         js_metrics += "\"" + metric_name_map[metric_id] + "\","
+         js_data += "["
+         metric_data_map[metric_id].each() do |metric_data|
+           # for every metric value, we need to check that the corresponding snapshot has values for each metric (if not, Protovis won't be able to display)
+           if metric_count_per_snapshot_id[metric_data[:sid]]==total_number_of_metrics
+             m_date = metric_data[:date]
+             # Only Oracle returns a Time object, so let's parse this string if it's not a Time instance
+             m_date = Time.parse(metric_data[:date]) unless m_date.is_a? Time
+             m_value = sprintf("%0.02f", metric_data[:value])
+             m_value_localized = (m_value.end_with? '.00') ? number_with_precision(metric_data[:value], :precision => 0).to_s : number_with_precision(metric_data[:value], :precision => 2).to_s
+             js_data += "{x:d("
+             js_data += m_date.year.to_s
+             js_data += ","
+             # Need to decrease by 1 the month as the JS Date object start months at 0 (= January)
+             js_data += (m_date.month - 1).to_s
+             js_data += ","
+             js_data += m_date.day.to_s
+             js_data += ","
+             js_data += m_date.hour.to_s
+             js_data += ","
+             js_data += m_date.min.to_s
+             js_data += ","
+             js_data += m_date.sec.to_s
+             js_data += "),y:"
+             js_data += m_value
+             js_data += ",yl:\""
+             js_data += m_value_localized
+             js_data += "\"},"
+             if index == 0
+               # we fill the js_snapshots array (no need to do this more than once)
+               js_snapshots += "{sid:"
+               js_snapshots += metric_data[:sid].to_s
+               js_snapshots += ",d:\""
+               js_snapshots += human_short_date m_date
+               js_snapshots += "\"},"
+             end
            end
          end
-       end
-       js_data = js_data.chomp(',') + "],"
-     end
-   end
-   js_data = js_data.chomp(',') + "]"
-   js_snapshots = js_snapshots.chomp(',') + "]"
-   js_metrics = js_metrics.chomp(',') + "]"
-
-   # Prepare also event structure if required
-   unless widget_properties["hideEvents"]
-     events = {}
-     unless from_date
-       # find the oldest date
-       metric_data_map.values.each() do |metric_data_array|
-         first_date = metric_data_array[0][:date]
-         # Only Oracle returns a Time object, so let's parse this string if it's not a Time instance
-         first_date = Time.parse(metric_data_array[0][:date]) unless first_date.is_a? Time
-         from_date = first_date if !from_date || from_date > first_date
+         js_data = js_data.chomp(',') + "],"
        end
      end
-     Event.find(:all, :conditions => ["resource_id=? AND event_date>=?", @resource.id, from_date], :order => 'event_date').each() do |event|
-       if events[event.event_date]
-         events[event.event_date] << event
-       else
-         date_entry = [event]
-         events[event.event_date] = date_entry
+     js_data = js_data.chomp(',') + "]"
+     js_snapshots = js_snapshots.chomp(',') + "]"
+     js_metrics = js_metrics.chomp(',') + "]"
+  
+     # Prepare also event structure if required
+     unless widget_properties["hideEvents"]
+       events = {}
+       unless from_date
+         # find the oldest date
+         metric_data_map.values.each() do |metric_data_array|
+           first_date = metric_data_array[0][:date]
+           # Only Oracle returns a Time object, so let's parse this string if it's not a Time instance
+           first_date = Time.parse(metric_data_array[0][:date]) unless first_date.is_a? Time
+           from_date = first_date if !from_date || from_date > first_date
+         end
        end
-     end
-     js_events = "["
-     events.keys().sort.each() do |e_date|
-       e_details = events[e_date]
-       js_events += "{sid:"
-       js_events += e_details[0].snapshot_id.to_s
-       js_events += ",d:d("
-       js_events += e_date.year.to_s
-       js_events += ","
-       # Need to decrease by 1 the month as the JS Date object start months at 0 (= January)
-       js_events += (e_date.month - 1).to_s
-       js_events += ","
-       js_events += e_date.day.to_s
-       js_events += ","
-       js_events += e_date.hour.to_s
-       js_events += ","
-       js_events += e_date.min.to_s
-       js_events += ","
-       js_events += e_date.sec.to_s
-       js_events += "),l:["
-       e_details.each() do |e|
-         js_events += "{n:\""
-         js_events += e.name
-         js_events += "\"},"
+       Event.find(:all, :conditions => ["resource_id=? AND event_date>=?", @resource.id, from_date], :order => 'event_date').each() do |event|
+         if events[event.event_date]
+           events[event.event_date] << event
+         else
+           date_entry = [event]
+           events[event.event_date] = date_entry
+         end
        end
-       js_events = js_events.chomp(',') + "]},"
+       js_events = "["
+       events.keys().sort.each() do |e_date|
+         e_details = events[e_date]
+         js_events += "{sid:"
+         js_events += e_details[0].snapshot_id.to_s
+         js_events += ",d:d("
+         js_events += e_date.year.to_s
+         js_events += ","
+         # Need to decrease by 1 the month as the JS Date object start months at 0 (= January)
+         js_events += (e_date.month - 1).to_s
+         js_events += ","
+         js_events += e_date.day.to_s
+         js_events += ","
+         js_events += e_date.hour.to_s
+         js_events += ","
+         js_events += e_date.min.to_s
+         js_events += ","
+         js_events += e_date.sec.to_s
+         js_events += "),l:["
+         e_details.each() do |e|
+           js_events += "{n:\""
+           js_events += e.name
+           js_events += "\"},"
+         end
+         js_events = js_events.chomp(',') + "]},"
+       end
+       js_events = js_events.chomp(',') + "]"
      end
-     js_events = js_events.chomp(',') + "]"
-   end
-
+  end
 %>
 
 <% if widget_properties["chartTitle"] %>
@@ -142,11 +149,15 @@
 <% end %>
 
 
-<% if metric_data_map.values[0].size == 1 %>
+<% 
+   unless metric_data_map.values.empty?
+   
+     if metric_data_map.values[0].size == 1 
+%>
 
   <span class="empty_widget"><%= message('widget.timeline.timeline_not_displayed') -%></span>
 
-<% else %>
+<%   else %>
 
   <div id="timeline-chart-<%= widget.id -%>"></div>
   <script type="text/javascript+protovis">
@@ -167,4 +178,7 @@
 
   </script>
 
-<% end %>
+<%
+     end
+   end 
+%>
