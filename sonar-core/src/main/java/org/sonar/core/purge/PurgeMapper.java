@@ -19,6 +19,8 @@
  */
 package org.sonar.core.purge;
 
+import org.apache.ibatis.annotations.Param;
+
 import java.util.List;
 
 public interface PurgeMapper {
@@ -43,9 +45,13 @@ public interface PurgeMapper {
 
   void deleteSnapshotViolations(long snapshotId);
 
-  void deleteSnapshotWastedMeasures(long snapshotId);
+  List<Long> selectMetricIdsWithoutHistoricalData();
 
-  void deleteSnapshotMeasuresOnQualityModelRequirements(long snapshotId);
+  List<Long> selectCharacteristicIdsToPurge();
+
+  void deleteSnapshotWastedMeasures(@Param("sid") long snapshotId, @Param("mids") List<Long> metricIds);
+
+  void deleteSnapshotMeasuresOnCharacteristics(@Param("sid") long snapshotId, @Param("cids") List<Long> characteristicIds);
 
   void updatePurgeStatusToOne(long snapshotId);
 

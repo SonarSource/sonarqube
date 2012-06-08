@@ -50,12 +50,13 @@ public class PurgeDao {
   public PurgeDao purge(long rootResourceId, String[] scopesWithoutHistoricalData) {
     SqlSession session = mybatis.openBatchSession();
     PurgeMapper purgeMapper = session.getMapper(PurgeMapper.class);
+    PurgeCommands commands = new PurgeCommands(session, purgeMapper, session.getMapper(PurgeVendorMapper.class));
     try {
       List<ResourceDto> projects = getProjects(rootResourceId, session);
       for (ResourceDto project : projects) {
         LOG.info("-> Clean " + project.getLongName() + " [id=" + project.getId() + "]");
-        deleteAbortedBuilds(project, session, purgeMapper);
-        purge(project, scopesWithoutHistoricalData, session, purgeMapper);
+        deleteAbortedBuilds(project, commands);
+        purge(project, scopesWithoutHistoricalData, commands);
       }
       for (ResourceDto project : projects) {
         disableOrphanResources(project, session, purgeMapper);
@@ -66,48 +67,44 @@ public class PurgeDao {
     return this;
   }
 
-  private void deleteAbortedBuilds(ResourceDto project, SqlSession session, PurgeMapper purgeMapper) {
-    if (hasAbortedBuilds(project.getId(), purgeMapper)) {
+  private void deleteAbortedBuilds(ResourceDto project, PurgeCommands commands) {
+    if (hasAbortedBuilds(project.getId(), commands)) {
       LOG.info("<- Delete aborted builds");
       PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
-          .setIslast(false)
-          .setStatus(new String[]{"U"})
-          .setRootProjectId(project.getId());
-      PurgeCommands.deleteSnapshots(query, session, purgeMapper);
-      session.commit();
+        .setIslast(false)
+        .setStatus(new String[]{"U"})
+        .setRootProjectId(project.getId());
+      commands.deleteSnapshots(query);
     }
   }
 
-  private boolean hasAbortedBuilds(Long projectId, PurgeMapper purgeMapper) {
+  private boolean hasAbortedBuilds(Long projectId, PurgeCommands commands) {
     PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
-        .setIslast(false)
-        .setStatus(new String[]{"U"})
-        .setResourceId(projectId);
-    return !purgeMapper.selectSnapshotIds(query).isEmpty();
+      .setIslast(false)
+      .setStatus(new String[]{"U"})
+      .setResourceId(projectId);
+    return !commands.selectSnapshotIds(query).isEmpty();
   }
 
-  private void purge(final ResourceDto project, final String[] scopesWithoutHistoricalData, final SqlSession session, final PurgeMapper purgeMapper) {
-    List<Long> projectSnapshotIds = purgeMapper.selectSnapshotIds(
-        PurgeSnapshotQuery.create().setResourceId(project.getId()).setIslast(false).setNotPurged(true)
+  private void purge(ResourceDto project, String[] scopesWithoutHistoricalData, PurgeCommands purgeCommands) {
+    List<Long> projectSnapshotIds = purgeCommands.selectSnapshotIds(
+      PurgeSnapshotQuery.create().setResourceId(project.getId()).setIslast(false).setNotPurged(true)
     );
     for (final Long projectSnapshotId : projectSnapshotIds) {
       LOG.info("<- Clean snapshot " + projectSnapshotId);
       if (!ArrayUtils.isEmpty(scopesWithoutHistoricalData)) {
         PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
-            .setIslast(false)
-            .setScopes(scopesWithoutHistoricalData)
-            .setRootSnapshotId(projectSnapshotId);
-        PurgeCommands.deleteSnapshots(query, session, purgeMapper);
-        session.commit();
+          .setIslast(false)
+          .setScopes(scopesWithoutHistoricalData)
+          .setRootSnapshotId(projectSnapshotId);
+        purgeCommands.deleteSnapshots(query);
       }
 
       PurgeSnapshotQuery query = PurgeSnapshotQuery.create().setRootSnapshotId(projectSnapshotId).setNotPurged(true);
-      PurgeCommands.purgeSnapshots(query, session, purgeMapper);
-      session.commit();
+      purgeCommands.purgeSnapshots(query);
 
       // must be executed at the end for reentrance
-      PurgeCommands.purgeSnapshots(PurgeSnapshotQuery.create().setId(projectSnapshotId).setNotPurged(true), session, purgeMapper);
-      session.commit();
+      purgeCommands.purgeSnapshots(PurgeSnapshotQuery.create().setId(projectSnapshotId).setNotPurged(true));
     }
   }
 
@@ -140,24 +137,22 @@ public class PurgeDao {
   public PurgeDao deleteResourceTree(long rootProjectId) {
     final SqlSession session = mybatis.openBatchSession();
     final PurgeMapper mapper = session.getMapper(PurgeMapper.class);
-    final PurgeVendorMapper vendorMapper = session.getMapper(PurgeVendorMapper.class);
     try {
-      deleteProject(rootProjectId, session, mapper, vendorMapper);
+      deleteProject(rootProjectId, mapper, new PurgeCommands(session));
       return this;
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  private void deleteProject(long rootProjectId, SqlSession session, PurgeMapper mapper, PurgeVendorMapper vendorMapper) {
+  private void deleteProject(long rootProjectId, PurgeMapper mapper, PurgeCommands commands) {
     List<Long> childrenIds = mapper.selectProjectIdsByRootId(rootProjectId);
     for (Long childId : childrenIds) {
-      deleteProject(childId, session, mapper, vendorMapper);
+      deleteProject(childId, mapper, commands);
     }
 
     List<Long> resourceIds = mapper.selectResourceIdsByRootId(rootProjectId);
-    PurgeCommands.deleteResources(resourceIds, session, mapper, vendorMapper);
-    session.commit();
+    commands.deleteResources(resourceIds);
   }
 
   @VisibleForTesting
@@ -171,9 +166,7 @@ public class PurgeDao {
   public PurgeDao deleteSnapshots(PurgeSnapshotQuery query) {
     final SqlSession session = mybatis.openBatchSession();
     try {
-      final PurgeMapper mapper = session.getMapper(PurgeMapper.class);
-      PurgeCommands.deleteSnapshots(query, session, mapper);
-      session.commit();
+      new PurgeCommands(session).deleteSnapshots(query);
       return this;
 
     } finally {

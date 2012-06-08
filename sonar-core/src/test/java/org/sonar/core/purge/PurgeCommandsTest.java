@@ -36,12 +36,12 @@ public class PurgeCommandsTest extends DaoTestCase {
 
     SqlSession session = getMyBatis().openSession();
     try {
-      PurgeCommands.deleteSnapshots(PurgeSnapshotQuery.create().setId(5L), session, session.getMapper(PurgeMapper.class));
+      new PurgeCommands(session).deleteSnapshots(PurgeSnapshotQuery.create().setId(5L));
     } finally {
       MyBatis.closeQuietly(session);
     }
     checkTables("shouldDeleteSnapshot",
-        "snapshots", "project_measures", "measure_data", "rule_failures", "snapshot_sources", "duplications_index", "events", "dependencies");
+      "snapshots", "project_measures", "measure_data", "rule_failures", "snapshot_sources", "duplications_index", "events", "dependencies");
   }
 
   /**
@@ -53,12 +53,12 @@ public class PurgeCommandsTest extends DaoTestCase {
 
     SqlSession session = getMyBatis().openSession();
     try {
-      PurgeCommands.purgeSnapshots(PurgeSnapshotQuery.create().setId(1L), session, session.getMapper(PurgeMapper.class));
+      new PurgeCommands(session).purgeSnapshots(PurgeSnapshotQuery.create().setId(1L));
     } finally {
       MyBatis.closeQuietly(session);
     }
     checkTables("shouldPurgeSnapshot",
-        "snapshots", "project_measures", "measure_data", "rule_failures", "snapshot_sources", "duplications_index", "events", "dependencies", "reviews");
+      "snapshots", "project_measures", "measure_data", "rule_failures", "snapshot_sources", "duplications_index", "events", "dependencies", "reviews");
   }
 
   @Test
@@ -67,7 +67,7 @@ public class PurgeCommandsTest extends DaoTestCase {
 
     SqlSession session = getMyBatis().openSession();
     try {
-      PurgeCommands.purgeSnapshots(PurgeSnapshotQuery.create().setId(1L), session, session.getMapper(PurgeMapper.class));
+      new PurgeCommands(session).purgeSnapshots(PurgeSnapshotQuery.create().setId(1L));
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -79,7 +79,7 @@ public class PurgeCommandsTest extends DaoTestCase {
     setupData("shouldDeleteResource");
     SqlSession session = getMyBatis().openSession();
     try {
-      PurgeCommands.deleteResources(Arrays.asList(1L), session, session.getMapper(PurgeMapper.class), session.getMapper(PurgeVendorMapper.class));
+      new PurgeCommands(session).deleteResources(Arrays.asList(1L));
     } finally {
       MyBatis.closeQuietly(session);
     }

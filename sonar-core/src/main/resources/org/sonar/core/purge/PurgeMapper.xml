@@ -68,6 +68,14 @@
     and not exists(select s.project_id from snapshots s where s.islast=${_true} and s.project_id=p.id)
   </select>
 
+  <select id="selectMetricIdsWithoutHistoricalData" resultType="long">
+    select id from metrics where delete_historical_data=${_true}
+  </select>
+
+  <select id="selectCharacteristicIdsToPurge" resultType="long">
+    select id from characteristics where rule_id is not null
+  </select>
+
   <select id="selectProjectIdsByRootId" resultType="long" parameterType="long">
     select id from projects where root_id=#{id} and scope='PRJ'
   </select>
@@ -108,14 +116,28 @@
     delete from snapshots where id=#{id}
   </delete>
 
-  <delete id="deleteSnapshotWastedMeasures" parameterType="long">
-    delete from project_measures where snapshot_id=#{id} and
-    (rule_id is not null or person_id is not null or metric_id in (select id from metrics where delete_historical_data=${_true}))
+  <delete id="deleteSnapshotWastedMeasures" parameterType="map">
+    delete from project_measures where snapshot_id=#{sid} and
+    (rule_id is not null or person_id is not null or metric_id in
+    <if test="mids.isEmpty()">
+      (-1)
+    </if>
+    <if test="!mids.isEmpty()">
+      <foreach item="mid" index="index" collection="mids" open="(" separator="," close=")">#{mid}</foreach>
+    </if>
+    )
   </delete>
 
-  <delete id="deleteSnapshotMeasuresOnQualityModelRequirements" parameterType="long">
-    delete from project_measures where snapshot_id=#{id} and
-    characteristic_id in (select id from characteristics where rule_id is not null)
+  <delete id="deleteSnapshotMeasuresOnCharacteristics" parameterType="map">
+    delete from project_measures where snapshot_id=#{sid}
+    <if test="!cids.isEmpty()">
+      and (
+      <foreach item="cid" index="index" collection="cids" open="" separator=" OR " close="">characteristic_id=#{cid}</foreach>
+      )
+    </if>
+    <if test="cids.isEmpty()">
+      and characteristic_id=-1
+    </if>
   </delete>
 
   <update id="updatePurgeStatusToOne" parameterType="long">
