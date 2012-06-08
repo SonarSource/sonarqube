@@ -31,10 +31,8 @@ import java.util.List;
   @Property(
     key = CoreProperties.CPD_CROSS_RPOJECT,
     defaultValue = CoreProperties.CPD_CROSS_RPOJECT_DEFAULT_VALUE + "",
-    name = "Cross project duplicaton detection",
-    description = "Sonar supports the detection of cross project duplications." +
-      " Activating this property will slightly increase each Sonar analysis time." +
-      " This mode can't be used along with the PMD CPD engine.",
+    name = "Cross project duplication detection",
+    description = "Sonar supports the detection of cross project duplications. Activating this property will slightly increase each Sonar analysis time.",
     project = true,
     module = true,
     global = true,
@@ -43,14 +41,14 @@ import java.util.List;
 })
 public final class CpdPlugin extends SonarPlugin {
 
-  public List<Class<? extends BatchExtension>> getExtensions() {
+  public List getExtensions() {
     return ImmutableList.of(
-        CpdSensor.class,
-        SumDuplicationsDecorator.class,
-        DuplicationDensityDecorator.class,
-        IndexFactory.class,
-        SonarEngine.class,
-        SonarBridgeEngine.class);
+      CpdSensor.class,
+      SumDuplicationsDecorator.class,
+      DuplicationDensityDecorator.class,
+      IndexFactory.class,
+      SonarEngine.class,
+      SonarBridgeEngine.class);
   }
 
 }
