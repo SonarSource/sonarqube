@@ -119,25 +119,15 @@
   <delete id="deleteSnapshotWastedMeasures" parameterType="map">
     delete from project_measures where snapshot_id=#{sid} and
     (rule_id is not null or person_id is not null or metric_id in
-    <if test="mids.isEmpty()">
-      (-1)
-    </if>
-    <if test="!mids.isEmpty()">
       <foreach item="mid" index="index" collection="mids" open="(" separator="," close=")">#{mid}</foreach>
-    </if>
     )
   </delete>
 
   <delete id="deleteSnapshotMeasuresOnCharacteristics" parameterType="map">
     delete from project_measures where snapshot_id=#{sid}
-    <if test="!cids.isEmpty()">
-      and (
+    and (
       <foreach item="cid" index="index" collection="cids" open="" separator=" OR " close="">characteristic_id=#{cid}</foreach>
-      )
-    </if>
-    <if test="cids.isEmpty()">
-      and characteristic_id=-1
-    </if>
+    )
   </delete>
 
   <update id="updatePurgeStatusToOne" parameterType="long">
