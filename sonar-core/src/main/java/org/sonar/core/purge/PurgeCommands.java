@@ -195,16 +195,20 @@ class PurgeCommands {
     session.commit();
 
     List<Long> metricIdsWithoutHistoricalData = purgeMapper.selectMetricIdsWithoutHistoricalData();
-    for (Long snapshotId : snapshotIds) {
-      purgeMapper.deleteSnapshotWastedMeasures(snapshotId, metricIdsWithoutHistoricalData);
+    if (!metricIdsWithoutHistoricalData.isEmpty()) {
+      for (Long snapshotId : snapshotIds) {
+        purgeMapper.deleteSnapshotWastedMeasures(snapshotId, metricIdsWithoutHistoricalData);
+      }
+      session.commit();
     }
-    session.commit();
 
     List<Long> characteristicIds = purgeMapper.selectCharacteristicIdsToPurge();
-    for (Long snapshotId : snapshotIds) {
-      purgeMapper.deleteSnapshotMeasuresOnCharacteristics(snapshotId, characteristicIds);
+    if (!characteristicIds.isEmpty()) {
+      for (Long snapshotId : snapshotIds) {
+        purgeMapper.deleteSnapshotMeasuresOnCharacteristics(snapshotId, characteristicIds);
+      }
+      session.commit();
     }
-    session.commit();
 
     for (Long snapshotId : snapshotIds) {
       purgeMapper.updatePurgeStatusToOne(snapshotId);
