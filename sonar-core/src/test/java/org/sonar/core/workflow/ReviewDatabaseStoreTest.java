@@ -20,13 +20,16 @@
 package org.sonar.core.workflow;
 
 import org.junit.Test;
+import org.sonar.api.config.Settings;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.core.persistence.DaoTestCase;
 import org.sonar.api.workflow.Comment;
 import org.sonar.api.workflow.internal.DefaultReview;
-import org.sonar.core.workflow.ReviewDatabaseStore;
+import org.sonar.core.persistence.DaoTestCase;
 
+import java.util.Arrays;
 import java.util.Date;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class ReviewDatabaseStoreTest extends DaoTestCase {
 
@@ -48,5 +51,19 @@ public class ReviewDatabaseStoreTest extends DaoTestCase {
 
     checkTables("store", "reviews");
     checkTables("store", new String[]{"id"}, "review_comments");
+  }
+
+  @Test
+  public void completeProjectSettings() {
+    setupData("completeProjectSettings");
+    ReviewDatabaseStore store = new ReviewDatabaseStore(getMyBatis());
+
+    Settings settings = new Settings();
+    store.completeProjectSettings(100L, settings, Arrays.asList("not.available.on.project", "jira.project.key"));
+
+    assertThat(settings.getString("not.available.on.project")).isNull();
+
+    // project property
+    assertThat(settings.getString("jira.project.key")).isEqualTo("FOO");
   }
 }

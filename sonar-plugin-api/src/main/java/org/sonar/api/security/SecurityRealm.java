@@ -52,9 +52,8 @@ public abstract class SecurityRealm implements ServerExtension {
    * @since 3.1
    */
   public Authenticator doGetAuthenticator() {
-    if (getLoginPasswordAuthenticator() == null) {
-      return null;
-    }
+    // this method is not overridden when deprecated getLoginPasswordAuthenticator
+    // is used
     return new Authenticator() {
       @Override
       public boolean doAuthenticate(Context context) {

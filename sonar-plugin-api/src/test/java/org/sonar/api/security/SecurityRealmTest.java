@@ -39,6 +39,7 @@ public class SecurityRealmTest {
       }
     };
     assertThat(realm.doGetAuthenticator()).isSameAs(authenticator);
+    assertThat(realm.getLoginPasswordAuthenticator()).isNull();
   }
 
   @Test
