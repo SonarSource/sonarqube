@@ -5,7 +5,7 @@
   <table id="global_violations" cellpadding="0" cellspacing="0" border="0">
     <% @global_violations.each do |violation| %>
       <tr>
-        <td><%= render :partial => 'violation', :locals => {:violation => violation} -%></td>
+        <td><%= render :partial => 'violation', :locals => {:violation => violation, :review_screens => @review_screens_by_vid ? @review_screens_by_vid.get(violation.id) : []} -%></td>
       </tr>
     <% end %>
   </table>
