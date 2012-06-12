@@ -37,7 +37,8 @@ class TreemapController < ApplicationController
     size_metric=Metric.by_key(params[:size_metric]||'lines')
     bad_request('Unknown metric: ' + params[:size_metric]) unless size_metric
 
-    color_metric=(params[:color_metric].present? ? Metric.by_key(params[:color_metric]) : nil)
+    color_metric=Metric.by_key(params[:color_metric])
+    bad_request('Unknown metric: ' + params[:color_metric]) unless color_metric
 
     if params[:resource]
       resource = Project.by_key(params[:resource])
@@ -51,6 +52,7 @@ class TreemapController < ApplicationController
       bad_request('Unknown filter: ' + params[:filter]) unless filter
       access_denied unless filter.authorized_to_execute?(self)
       filter.sorted_column=FilterColumn.new('family' => 'metric', :kee => size_metric.key, :sort_direction => (size_metric.direction>=0 ? 'ASC' : 'DESC'))
+      params[:metric_ids]=[size_metric.id, color_metric.id]
       filter_context=Filters.execute(filter, self, params)
     else
       bad_request('Missing parameter: resource or filter')
