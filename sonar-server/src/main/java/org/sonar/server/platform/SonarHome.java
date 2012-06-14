@@ -19,6 +19,8 @@
  */
 package org.sonar.server.platform;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.core.config.ConfigurationUtils;
 
@@ -44,14 +46,16 @@ final class SonarHome {
   }
 
   static final String PROPERTY = "SONAR_HOME";
-  private static File home;
+  static Supplier<File> homeSupplier = Suppliers.memoize(new Supplier<File>() {
+    public File get() {
+      File home = locate();
+      System.setProperty(PROPERTY, home.getAbsolutePath());
+      return home;
+    }
+  });
 
   static File getHome() {
-    if (home == null) {
-      home = locate();
-      System.setProperty(PROPERTY, home.getAbsolutePath());
-    }
-    return home;
+    return homeSupplier.get();
   }
 
   static File locate() {
