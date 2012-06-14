@@ -37,7 +37,7 @@
 
    rule_options=[]
    rule_counts.keys.sort.each do |rule|
-     label = "#{h rule.name} (#{rule_counts[rule]})"
+     label = "#{rule.name} (#{rule_counts[rule]})"
      rule_options<<[label, rule.id]
    end
 %>
