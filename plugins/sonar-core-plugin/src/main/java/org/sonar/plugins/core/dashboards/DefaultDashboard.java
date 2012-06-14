@@ -58,7 +58,6 @@ public final class DefaultDashboard extends DashboardTemplate {
     dashboard.addWidget("alerts", 2);
     dashboard.addWidget("file_design", 2);
     dashboard.addWidget("package_design", 2);
-    dashboard.addWidget("ckjm", 2);
   }
 
 }
