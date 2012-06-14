@@ -1,4 +1,12 @@
-<%= render :partial => 'menu' %>
+<% if logged_in? %>
+  <div id="page-operations">
+    <ul class="operations">
+      <li>
+        <a href="<%= url_for :action => 'new' -%>"><%= message('filters.add_filter') -%></a>
+      </li>
+    </ul>
+  </div>
+<% end %>
 
 <div class="admin_page">
   <table class="data" id="actives">
