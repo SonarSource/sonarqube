@@ -113,7 +113,8 @@ class FiltersController < ApplicationController
 
     if @filter
       if WidgetProperty.find(:first, :conditions => {:kee => 'filter', :text_value => @filter.kee})
-        flash[:error]='The filter is used in at least one dashboard. It cannot be deleted'
+        @filter.destroy
+        flash[:warning]='Filter deleted. It was used in at least one dashboard'
       else
         @filter.destroy
         flash[:notice]='Filter deleted'
