@@ -46,7 +46,7 @@ class UsersController < ApplicationController
         flash[:notice] = 'User is created.'
       end
       to_index(user.errors, nil)
-    end    
+    end
 
   end
 
@@ -91,12 +91,13 @@ class UsersController < ApplicationController
 
     if params[:user][:password].blank?
       flash[:error] = 'Password required.'
-
+      redirect_to(:action => 'change_password', :id => params[:id])
     elsif user.update_attributes(:password => params[:user][:password], :password_confirmation => params[:user][:password_confirmation])
       flash[:notice] = 'Password was successfully updated.'
+    else
+      to_index(user.errors, nil)
     end
 
-    to_index(user.errors, nil)
   end
 
   def update
@@ -111,7 +112,7 @@ class UsersController < ApplicationController
 
     to_index(user.errors, nil)
   end
-  
+
   def reactivate
     user = User.find_by_login(params[:user][:login])
     if user
