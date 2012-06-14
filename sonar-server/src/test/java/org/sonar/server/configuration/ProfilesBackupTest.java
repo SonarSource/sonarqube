@@ -25,17 +25,25 @@ import org.junit.Test;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.Alert;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.*;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.ActiveRuleParam;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleParam;
+import org.sonar.api.rules.RulePriority;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 import org.sonar.test.TestUtils;
 
 import java.io.IOException;
 import java.util.Arrays;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.collection.IsCollectionContaining.hasItem;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 
 public class ProfilesBackupTest extends AbstractDbUnitTestCase {
 
@@ -57,8 +65,8 @@ public class ProfilesBackupTest extends AbstractDbUnitTestCase {
     ProfilesBackup profilesBackup = new ProfilesBackup(Arrays.asList(profileProvided));
     profilesBackup.exportXml(sonarConfig);
 
-    assertFalse(sonarConfig.getProfiles().iterator().next() == profileProvided);
-    assertEquals(sonarConfig.getProfiles().iterator().next().getName(), "provided");
+    assertThat(sonarConfig.getProfiles().iterator().next()).isNotSameAs(profileProvided);
+    assertThat(sonarConfig.getProfiles().iterator().next().getName()).isEqualTo("provided");
   }
 
   @Test

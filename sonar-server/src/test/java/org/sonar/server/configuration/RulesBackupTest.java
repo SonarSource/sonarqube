@@ -29,11 +29,11 @@ import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.util.Arrays;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 public class RulesBackupTest extends AbstractDbUnitTestCase {
 
@@ -65,8 +65,7 @@ public class RulesBackupTest extends AbstractDbUnitTestCase {
     RulesBackup rulesBackup = new RulesBackup(Arrays.asList(userRule));
     rulesBackup.exportXml(sonarConfig);
 
-    assertThat(sonarConfig.getRules().size(), is(1));
-    assertTrue(sonarConfig.getRules().iterator().next() == userRule);
+    assertThat(sonarConfig.getRules()).containsOnly(userRule);
   }
 
   @Test

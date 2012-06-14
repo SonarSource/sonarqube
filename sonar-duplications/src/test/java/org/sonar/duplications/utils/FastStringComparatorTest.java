@@ -19,52 +19,53 @@
  */
 package org.sonar.duplications.utils;
 
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.lessThan;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
-import org.sonar.duplications.utils.FastStringComparator;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class FastStringComparatorTest {
+  static int compare(String left, String right) {
+    return FastStringComparator.INSTANCE.compare(left, right);
+  }
 
   @Test
   public void sameHashCode() {
     // Next two Strings have same hash code in Java - see http://www.drmaciver.com/2008/07/javalangstringhashcode/
     String s1 = "Od";
     String s2 = "PE";
-    assertTrue("same hash code", s1.hashCode() == s2.hashCode());
-    assertThat("s1 < s2", FastStringComparator.INSTANCE.compare(s1, s2), lessThan(0));
-    assertThat("s2 > s1", FastStringComparator.INSTANCE.compare(s2, s1), greaterThan(0));
+
+    assertThat(s1.hashCode()).isEqualTo(s2.hashCode());
+    assertThat(compare(s1, s2)).isLessThan(0);
+    assertThat(compare(s2, s1)).isGreaterThan(0);
   }
 
   @Test
   public void differentHashCode() {
     String s1 = "a";
     String s2 = "c";
-    assertTrue("different hash code", s1.hashCode() != s2.hashCode());
-    assertThat("s1 < s2", FastStringComparator.INSTANCE.compare(s1, s2), is(-1));
-    assertThat("s2 > s1", FastStringComparator.INSTANCE.compare(s2, s1), is(1));
+
+    assertThat(s1.hashCode()).isNotEqualTo(s2.hashCode());
+    assertThat(compare(s1, s2)).isEqualTo(-1);
+    assertThat(compare(s2, s1)).isEqualTo(1);
   }
 
   @Test
   public void sameObject() {
     String s1 = "a";
     String s2 = s1;
-    assertTrue("same objects", s1 == s2);
-    assertThat("s1 = s2", FastStringComparator.INSTANCE.compare(s1, s2), is(0));
-    assertThat("s2 = s1", FastStringComparator.INSTANCE.compare(s2, s1), is(0));
+
+    assertThat(s1).isSameAs(s2);
+    assertThat(compare(s1, s2)).isZero();
+    assertThat(compare(s1, s2)).isZero();
   }
 
   @Test
   public void sameString() {
     String s1 = new String("a");
     String s2 = new String("a");
-    assertTrue("different objects", s1 != s2);
-    assertThat("s1 = s2", FastStringComparator.INSTANCE.compare(s1, s2), is(0));
-    assertThat("s2 = s1", FastStringComparator.INSTANCE.compare(s2, s1), is(0));
-  }
 
+    assertThat(s1).isNotSameAs(s2);
+    assertThat(compare(s1, s2)).isZero();
+    assertThat(compare(s1, s2)).isZero();
+  }
 }

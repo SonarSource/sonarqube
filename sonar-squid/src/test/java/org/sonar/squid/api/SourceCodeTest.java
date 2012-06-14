@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.sonar.squid.measures.Measurable;
 import org.sonar.squid.measures.Metric;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -62,12 +63,13 @@ public class SourceCodeTest {
 
   @Test
   public void testEqualsAndHashCode() {
-    assertFalse((prj.equals(pac)));
-    assertFalse(prj.hashCode() == pac.hashCode());
-    assertFalse(prj.equals(new Object()));
+    assertThat(prj).isNotEqualTo(pac);
+    assertThat(prj.hashCode()).isNotEqualTo(pac.hashCode());
+    assertThat(prj).isNotEqualTo(new Object());
+
     SourceCode samePac = new SourcePackage("org.sonar");
-    assertEquals(pac, samePac);
-    assertEquals(pac.hashCode(), samePac.hashCode());
+    assertThat(pac).isEqualTo(samePac);
+    assertThat(pac.hashCode()).isEqualTo(samePac.hashCode());
   }
 
   @Test
@@ -110,7 +112,6 @@ public class SourceCodeTest {
     assertEquals(class1, method.getAncestor(SourceClass.class));
     assertEquals(file, method.getAncestor(SourceFile.class));
   }
-
 
   @Test
   public void testHasAmongParents() {

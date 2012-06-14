@@ -21,34 +21,33 @@ package org.sonar.java.bytecode.asm;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class AsmClassTest {
 
   @Test
   public void testGetFieldOrCreateIt() {
     AsmClass asmClass = new AsmClass("java/lang/String");
-    assertNull(asmClass.getField("internalString"));
-    assertNotNull(asmClass.getFieldOrCreateIt("internalString"));
-    assertNotNull(asmClass.getField("internalString"));
+
+    assertThat(asmClass.getField("internalString")).isNull();
+    assertThat(asmClass.getFieldOrCreateIt("internalString")).isNotNull();
+    assertThat(asmClass.getField("internalString")).isNotNull();
   }
 
   @Test
   public void testGetMethoddOrCreateIt() {
     AsmClass asmClass = new AsmClass("java/lang/String");
-    assertNull(asmClass.getMethod("toString()Ljava/lang/String;"));
-    assertNotNull(asmClass.getMethodOrCreateIt("toString()Ljava/lang/String;"));
-    assertNotNull(asmClass.getMethod("toString()Ljava/lang/String;"));
+
+    assertThat(asmClass.getMethod("toString()Ljava/lang/String;")).isNull();
+    assertThat(asmClass.getMethodOrCreateIt("toString()Ljava/lang/String;")).isNotNull();
+    assertThat(asmClass.getMethod("toString()Ljava/lang/String;")).isNotNull();
   }
 
   @Test
   public void testEqualsAndHashcode() {
-    assertEquals(new AsmClass("java/lang/String"), new AsmClass("java/lang/String"));
-    assertEquals(new AsmClass("java/lang/String").hashCode(), new AsmClass("java/lang/String").hashCode());
-    assertFalse(new AsmClass("java/lang/String").equals(new AsmClass("java/lang/Number")));
-    assertFalse(new AsmClass("java/lang/String").hashCode() == new AsmClass("java/lang/Number").hashCode());
+    assertThat(new AsmClass("java/lang/String")).isEqualTo(new AsmClass("java/lang/String"));
+    assertThat(new AsmClass("java/lang/String").hashCode()).isEqualTo(new AsmClass("java/lang/String").hashCode());
+    assertThat(new AsmClass("java/lang/String")).isNotEqualTo(new AsmClass("java/lang/Number"));
+    assertThat(new AsmClass("java/lang/String").hashCode()).isNotEqualTo(new AsmClass("java/lang/Number").hashCode());
   }
 }

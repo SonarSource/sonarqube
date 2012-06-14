@@ -22,111 +22,107 @@ package org.sonar.plugins.core.timemachine;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.*;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class TendencyAnalyserTest {
-  private TendencyAnalyser analyser = new TendencyAnalyser();
-
-  private List<Double> getValues(Double[] array) {
-    return Arrays.asList(array);
+  static TendencyAnalyser.SlopeData analyse(Double... values) {
+    return new TendencyAnalyser().analyse(Arrays.asList(values));
   }
 
-
-  protected void assertBetween(String typeLabel, Double value, Double min, Double max) {
-    assertTrue(typeLabel + " " + value + "<" + min, value >= min);
-    assertTrue(typeLabel + "=" + value + ">" + max, value <= max);
+  static Integer analyseLevel(Double... values) {
+    return new TendencyAnalyser().analyseLevel(Arrays.asList(values));
   }
 
   @Test
   public void testNoData() {
-    assertThat(analyser.analyse(Collections.<Double>emptyList()), nullValue());
+    TendencyAnalyser.SlopeData slopeData = analyse();
+
+    assertThat(slopeData).isNull();
   }
 
   @Test
   public void testNotEnoughData() {
-    assertThat(analyser.analyseLevel(Arrays.asList(10.0)), nullValue());
+    assertThat(analyseLevel(10.0)).isNull();
   }
 
   @Test
   public void testTendencyOnThreeDays() {
-    Double[] doubles = new Double[]{10.0, null, 9.9};
-    TendencyAnalyser.SlopeData slopeData = analyser.analyse(getValues(doubles));
-    assertBetween("slope", slopeData.getSlope(), -0.5, 0.5);
-    assertEquals(TendencyAnalyser.TENDENCY_NEUTRAL, slopeData.getLevel());
+    TendencyAnalyser.SlopeData slopeData = analyse(10.0, null, 9.9);
+
+    assertThat(slopeData.getSlope()).isGreaterThan(-0.5).isLessThan(0.5);
+    assertThat(slopeData.getLevel()).isEqualTo(TendencyAnalyser.TENDENCY_NEUTRAL);
   }
 
   @Test
   public void testTendencyOnTwoZeroDays() {
-    Double[] doubles = new Double[]{0.0, 0.0};
-    TendencyAnalyser.SlopeData slopeData = analyser.analyse(getValues(doubles));
-    assertBetween("slope", slopeData.getSlope(), -0.0, 0.0);
-    assertEquals(TendencyAnalyser.TENDENCY_NEUTRAL, slopeData.getLevel());
+    TendencyAnalyser.SlopeData slopeData = analyse(0.0, 0.0);
+
+    assertThat(slopeData.getSlope()).isZero();
+    assertThat(slopeData.getLevel()).isEqualTo(TendencyAnalyser.TENDENCY_NEUTRAL);
   }
 
   @Test
   public void testTendencyOnThreeZeroDays() {
-    Double[] doubles = new Double[]{0.0, 0.0, 0.0};
-    TendencyAnalyser.SlopeData slopeData = analyser.analyse(getValues(doubles));
-    assertBetween("slope", slopeData.getSlope(), -0.0, 0.0);
-    assertEquals(TendencyAnalyser.TENDENCY_NEUTRAL, slopeData.getLevel());
+    TendencyAnalyser.SlopeData slopeData = analyse(0.0, 0.0, 0.0);
+
+    assertThat(slopeData.getSlope()).isZero();
+    assertThat(slopeData.getLevel()).isEqualTo(TendencyAnalyser.TENDENCY_NEUTRAL);
   }
 
   @Test
   public void testBigDownOnThreeDays() {
-    Double[] doubles = new Double[]{90.0, 91.0, 50.0};
-    TendencyAnalyser.SlopeData slopeData = analyser.analyse(getValues(doubles));
-    assertTrue("slope", slopeData.getSlope() < -2.0);
-    assertEquals(TendencyAnalyser.TENDENCY_BIG_DOWN, slopeData.getLevel());
+    TendencyAnalyser.SlopeData slopeData = analyse(90.0, 91.0, 50.0);
+
+    assertThat(slopeData.getSlope()).isLessThan(-2.0);
+    assertThat(slopeData.getLevel()).isEqualTo(TendencyAnalyser.TENDENCY_BIG_DOWN);
   }
 
   @Test
   public void testFlatTendency() {
-    Double[] doubles = new Double[]{10.0, 10.2, 9.9};
-    TendencyAnalyser.SlopeData slopeData = analyser.analyse(getValues(doubles));
-    assertBetween("slope", slopeData.getSlope(), -0.5, 0.5);
-    assertEquals(TendencyAnalyser.TENDENCY_NEUTRAL, slopeData.getLevel());
+    TendencyAnalyser.SlopeData slopeData = analyse(10.0, 10.2, 9.9);
+
+    assertThat(slopeData.getSlope()).isGreaterThan(-0.5).isLessThan(0.5);
+    assertThat(slopeData.getLevel()).isEqualTo(TendencyAnalyser.TENDENCY_NEUTRAL);
   }
 
   @Test
   public void testFlatTendencyWithPeak() {
-    Double[] doubles = new Double[]{10.0, 15.0, 10.0};
-    TendencyAnalyser.SlopeData slopeData = analyser.analyse(getValues(doubles));
-    assertBetween("slope", slopeData.getSlope(), -0.5, 0.5);
-    assertEquals(TendencyAnalyser.TENDENCY_NEUTRAL, slopeData.getLevel());
+    TendencyAnalyser.SlopeData slopeData = analyse(10.0, 15.0, 10.0);
+
+    assertThat(slopeData.getSlope()).isGreaterThan(-0.5).isLessThan(0.5);
+    assertThat(slopeData.getLevel()).isEqualTo(TendencyAnalyser.TENDENCY_NEUTRAL);
   }
 
   @Test
   public void testBigUpTendencyOnThreeValues() {
-    Double[] doubles = new Double[]{10.0, 12.0, 15.5};
-    TendencyAnalyser.SlopeData slopeData = analyser.analyse(getValues(doubles));
-    assertBetween("slope", slopeData.getSlope(), 2.5, 3.0);
-    assertEquals(TendencyAnalyser.TENDENCY_BIG_UP, slopeData.getLevel());
+    TendencyAnalyser.SlopeData slopeData = analyse(10.0, 12.0, 15.5);
+
+    assertThat(slopeData.getSlope()).isGreaterThan(2.5).isLessThan(3.0);
+    assertThat(slopeData.getLevel()).isEqualTo(TendencyAnalyser.TENDENCY_BIG_UP);
   }
 
   @Test
   public void testBigUpTendencyOnTenValues() {
-    Double[] doubles = new Double[]{45.0, 60.0, 57.0, 65.0, 58.0, 68.0, 59.0, 66.0, 76.0, 80.0};
-    TendencyAnalyser.SlopeData slopeData = analyser.analyse(getValues(doubles));
-    assertBetween("slope", slopeData.getSlope(), 2.5, 3.0);
-    assertEquals(TendencyAnalyser.TENDENCY_BIG_UP, slopeData.getLevel());
+    TendencyAnalyser.SlopeData slopeData = analyse(45.0, 60.0, 57.0, 65.0, 58.0, 68.0, 59.0, 66.0, 76.0, 80.0);
+
+    assertThat(slopeData.getSlope()).isGreaterThan(2.5).isLessThan(3.0);
+    assertThat(slopeData.getLevel()).isEqualTo(TendencyAnalyser.TENDENCY_BIG_UP);
   }
 
   @Test
   public void testMediumUpTendency() {
-    Double[] doubles = new Double[]{5.0, 4.5, 5.1, 5.5, 5.3, 6.4, 6.3, 6.6, 6.8, 6.5};
-    TendencyAnalyser.SlopeData slopeData = analyser.analyse(getValues(doubles));
-    assertBetween("slope", slopeData.getSlope(), 0.0, 1.0);
-    assertEquals(TendencyAnalyser.TENDENCY_UP, slopeData.getLevel());
+    TendencyAnalyser.SlopeData slopeData = analyse(5.0, 4.5, 5.1, 5.5, 5.3, 6.4, 6.3, 6.6, 6.8, 6.5);
+
+    assertThat(slopeData.getSlope()).isGreaterThan(0.0).isLessThan(1.0);
+    assertThat(slopeData.getLevel()).isEqualTo(TendencyAnalyser.TENDENCY_UP);
   }
 
   @Test
   public void testAsymetricAlgorithm() {
-    TendencyAnalyser.SlopeData slopeData1 = analyser.analyse(getValues(new Double[]{45.0, 47.0, 95.0}));
-    TendencyAnalyser.SlopeData slopeData2 = analyser.analyse(getValues(new Double[]{95.0, 45.0, 47.0}));
-    assertTrue(slopeData1.getSlope() != slopeData2.getSlope());
+    TendencyAnalyser.SlopeData slopeData1 = analyse(45.0, 47.0, 95.0);
+    TendencyAnalyser.SlopeData slopeData2 = analyse(95.0, 45.0, 47.0);
+
+    assertThat(slopeData1.getSlope()).isNotEqualTo(slopeData2.getSlope());
   }
 }

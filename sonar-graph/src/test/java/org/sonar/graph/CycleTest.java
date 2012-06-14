@@ -19,40 +19,46 @@
  */
 package org.sonar.graph;
 
-import java.util.Arrays;
-
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class CycleTest {
-
-  private Edge[] AB_Cycle = { new StringEdge("A", "B"), new StringEdge("B", "A") };
-  private Edge[] BA_Cycle = { new StringEdge("B", "A"), new StringEdge("A", "B") };
-  private Edge[] ABC_Cycle = { new StringEdge("A", "B"), new StringEdge("B", "C"), new StringEdge("C", "A") };
-  private Edge[] HIJ_Cycle = { new StringEdge("H", "I"), new StringEdge("I", "J"), new StringEdge("J", "H") };
-  private Edge[] ABCD_Cycle = { new StringEdge("A", "B"), new StringEdge("B", "C"), new StringEdge("C", "D"), new StringEdge("D", "A") };
-  private Edge[] BCDA_Cycle = { new StringEdge("B", "C"), new StringEdge("C", "D"), new StringEdge("D", "A"), new StringEdge("A", "B"), };
+  static List<Edge> AB_BA = list(new StringEdge("A", "B"), new StringEdge("B", "A"));
+  static List<Edge> BA_AB = list(new StringEdge("B", "A"), new StringEdge("A", "B"));
+  static List<Edge> AB_BC_CA = list(new StringEdge("A", "B"), new StringEdge("B", "C"), new StringEdge("C", "A"));
+  static List<Edge> HI_IJ_JH = list(new StringEdge("H", "I"), new StringEdge("I", "J"), new StringEdge("J", "H"));
+  static List<Edge> AB_BC_CD_DA = list(new StringEdge("A", "B"), new StringEdge("B", "C"), new StringEdge("C", "D"), new StringEdge("D", "A"));
+  static List<Edge> BC_CD_DA_AB = list(new StringEdge("B", "C"), new StringEdge("C", "D"), new StringEdge("D", "A"), new StringEdge("A", "B"));
 
   @Test
   public void testHashCode() {
-    assertTrue(new Cycle(Arrays.asList(AB_Cycle)).hashCode() == new Cycle(Arrays.asList(BA_Cycle)).hashCode());
-    assertTrue(new Cycle(Arrays.asList(BCDA_Cycle)).hashCode() == new Cycle(Arrays.asList(ABCD_Cycle)).hashCode());
-    assertFalse(new Cycle(Arrays.asList(AB_Cycle)).hashCode() == new Cycle(Arrays.asList(ABC_Cycle)).hashCode());
+    assertThat(new Cycle(AB_BA).hashCode()).isEqualTo(new Cycle(BA_AB).hashCode());
+    assertThat(new Cycle(BC_CD_DA_AB).hashCode()).isEqualTo(new Cycle(AB_BC_CD_DA).hashCode());
+    assertThat(new Cycle(AB_BA).hashCode()).isNotEqualTo(new Cycle(AB_BC_CA).hashCode());
   }
 
   @Test
   public void testContains() {
-    assertTrue(new Cycle(Arrays.asList(ABCD_Cycle)).contains(new StringEdge("B", "C")));
+    assertThat(new Cycle(AB_BC_CD_DA).contains(new StringEdge("B", "C"))).isTrue();
   }
 
   @Test
   public void testEqualsObject() {
-    assertEquals(new Cycle(Arrays.asList(AB_Cycle)), new Cycle(Arrays.asList(BA_Cycle)));
-    assertEquals(new Cycle(Arrays.asList(BCDA_Cycle)), new Cycle(Arrays.asList(ABCD_Cycle)));
-    assertFalse(new Cycle(Arrays.asList(BCDA_Cycle)).equals(new Cycle(Arrays.asList(AB_Cycle))));
-    assertFalse(new Cycle(Arrays.asList(ABC_Cycle)).equals(new Cycle(Arrays.asList(HIJ_Cycle))));
+    assertThat(new Cycle(AB_BA)).isEqualTo(new Cycle(BA_AB));
+    assertThat(new Cycle(BC_CD_DA_AB)).isEqualTo(new Cycle(AB_BC_CD_DA));
+  }
+
+  @Test
+  public void testNotEqualsObject() {
+    assertThat(new Cycle(BC_CD_DA_AB)).isNotEqualTo(new Cycle(AB_BA));
+    assertThat(new Cycle(AB_BC_CA)).isNotEqualTo(new Cycle(HI_IJ_JH));
+  }
+
+  static List<Edge> list(StringEdge... edges) {
+    return Arrays.<Edge> asList(edges);
   }
 }

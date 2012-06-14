@@ -21,11 +21,7 @@ package org.sonar.api.qualitymodel;
 
 import org.junit.Test;
 
-import static junit.framework.Assert.assertTrue;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class CharacteristicTest {
 
@@ -34,12 +30,12 @@ public class CharacteristicTest {
     Characteristic characteristic = Characteristic.create();
     characteristic.setProperty("foo", "bar");
 
-    assertThat(characteristic.getProperty("foo"), notNullValue());
-    assertThat(characteristic.getPropertyTextValue("foo", null), is("bar"));
-    assertThat(characteristic.getPropertyValue("foo", null), nullValue());
+    assertThat(characteristic.getProperty("foo")).isNotNull();
+    assertThat(characteristic.getPropertyTextValue("foo", null)).isEqualTo("bar");
+    assertThat(characteristic.getPropertyValue("foo", null)).isNull();
 
-    assertThat(characteristic.getProperty("unknown"), nullValue());
-    assertThat(characteristic.getPropertyTextValue("unknown", null), nullValue());
+    assertThat(characteristic.getProperty("unknown")).isNull();
+    assertThat(characteristic.getPropertyTextValue("unknown", null)).isNull();
   }
 
   @Test
@@ -47,9 +43,9 @@ public class CharacteristicTest {
     Characteristic characteristic = Characteristic.create();
     characteristic.setProperty("foo", 3.1);
 
-    assertThat(characteristic.getProperty("foo"), notNullValue());
-    assertThat(characteristic.getPropertyValue("foo", null), is(3.1));
-    assertThat(characteristic.getPropertyTextValue("foo", null), nullValue());
+    assertThat(characteristic.getProperty("foo")).isNotNull();
+    assertThat(characteristic.getPropertyValue("foo", null)).isEqualTo(3.1);
+    assertThat(characteristic.getPropertyTextValue("foo", null)).isNull();
   }
 
   @Test
@@ -58,28 +54,27 @@ public class CharacteristicTest {
     characteristic.addProperty(CharacteristicProperty.create("foo"));
 
     CharacteristicProperty property = characteristic.getProperty("foo");
-    assertThat(property, notNullValue());
-    assertTrue(property.getCharacteristic()==characteristic);
+    assertThat(property).isNotNull();
+    assertThat(property.getCharacteristic()).isSameAs(characteristic);
   }
 
   @Test
   public void shouldCreateByName() {
     Characteristic characteristic = Characteristic.createByName("Foo");
-    assertThat(characteristic.getKey(), is("FOO"));
-    assertThat(characteristic.getName(), is("Foo"));
+
+    assertThat(characteristic.getKey()).isEqualTo("FOO");
+    assertThat(characteristic.getName()).isEqualTo("Foo");
   }
 
   @Test
   public void shouldReturnDefaultValues() {
     Characteristic characteristic = Characteristic.create();
-    characteristic.setProperty("foo", (String)null);
-    characteristic.setProperty("bar", (Double)null);
+    characteristic.setProperty("foo", (String) null);
+    characteristic.setProperty("bar", (Double) null);
 
-    assertThat(characteristic.getPropertyTextValue("foo", "foodef"), is("foodef"));
-    assertThat(characteristic.getPropertyTextValue("other", "otherdef"), is("otherdef"));
-    assertThat(characteristic.getPropertyValue("bar", 3.14), is(3.14));
-    assertThat(characteristic.getPropertyValue("other", 3.14), is(3.14));
+    assertThat(characteristic.getPropertyTextValue("foo", "foodef")).isEqualTo("foodef");
+    assertThat(characteristic.getPropertyTextValue("other", "otherdef")).isEqualTo("otherdef");
+    assertThat(characteristic.getPropertyValue("bar", 3.14)).isEqualTo(3.14);
+    assertThat(characteristic.getPropertyValue("other", 3.14)).isEqualTo(3.14);
   }
-
-  
 }
