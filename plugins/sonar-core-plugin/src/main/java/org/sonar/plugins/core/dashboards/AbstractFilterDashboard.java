@@ -52,6 +52,7 @@ abstract class AbstractFilterDashboard extends DashboardTemplate {
 
   /**
    * Override this method to complete dashboard.
+   * @param dashboard the dashboard to complete
    */
   protected void doCompleteDashboard(Dashboard dashboard) {
   }
