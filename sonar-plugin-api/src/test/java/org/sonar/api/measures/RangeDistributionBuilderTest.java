@@ -21,58 +21,58 @@ package org.sonar.api.measures;
 
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class RangeDistributionBuilderTest {
-  
+
   @Test
   public void workOnAnLimitsArrayCopy() {
-    Integer[] limits = new Integer[]{4,2,0};
+    Integer[] limits = new Integer[] {4, 2, 0};
     RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, limits);
     builder.add(3.2).add(2.0).add(6.2).build();
-    assertTrue(builder.getBottomLimits() != limits);
-    assertThat(limits[0], is(4));
-    assertThat(limits[1], is(2));
-    assertThat(limits[2], is(0));
+
+    assertThat(builder.getBottomLimits()).isNotSameAs(limits);
+    assertThat(limits[0]).isEqualTo(4);
+    assertThat(limits[1]).isEqualTo(2);
+    assertThat(limits[2]).isEqualTo(0);
   }
 
   @Test
   public void buildIntegerDistribution() {
-    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, new Integer[]{0, 2, 4});
+    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, new Integer[] {0, 2, 4});
     Measure measure = builder
         .add(3.2)
         .add(2.0)
         .add(6.2)
         .build();
 
-    assertThat(measure.getData(), is("0=0;2=2;4=1"));
+    assertThat(measure.getData()).isEqualTo("0=0;2=2;4=1");
   }
 
   @Test
   public void buildDoubleDistribution() {
-    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, new Double[]{0.0, 2.0, 4.0});
+    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, new Double[] {0.0, 2.0, 4.0});
     Measure measure = builder
         .add(3.2)
         .add(2.0)
         .add(6.2)
         .build();
 
-    assertThat(measure.getData(), is("0=0;2=2;4=1"));
+    assertThat(measure.getData()).isEqualTo("0=0;2=2;4=1");
   }
 
   @Test
   public void valueLesserThanMinimumIsIgnored() {
-    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, new Integer[]{0, 2, 4});
+    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, new Integer[] {0, 2, 4});
     Measure measure = builder
         .add(3.2)
         .add(2.0)
         .add(-3.0)
         .build();
 
-    assertThat(measure.getData(), is("0=0;2=2;4=0"));
+    assertThat(measure.getData()).isEqualTo("0=0;2=2;4=0");
   }
 
   @Test
@@ -80,30 +80,29 @@ public class RangeDistributionBuilderTest {
     Measure measureToAdd = mock(Measure.class);
     when(measureToAdd.getData()).thenReturn("0=3;2=5");
 
-    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, new Integer[]{0, 2});
+    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, new Integer[] {0, 2});
     builder.clear();
     Measure measure = builder
         .add(1)
         .add(measureToAdd)
         .build();
 
-    assertThat(measure.getData(), is("0=4;2=5"));
+    assertThat(measure.getData()).isEqualTo("0=4;2=5");
   }
-
 
   @Test
   public void addDistributionMeasureWithDifferentIntLimits() {
     Measure measureToAdd = mock(Measure.class);
     when(measureToAdd.getData()).thenReturn("0=3;2=5");
 
-    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, new Integer[]{0, 2, 4});
+    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, new Integer[] {0, 2, 4});
     builder.clear();
     Measure measure = builder
         .add(1)
         .add(measureToAdd)
         .build();
 
-    assertNull(measure);
+    assertThat(measure).isNull();
   }
 
   @Test
@@ -111,13 +110,13 @@ public class RangeDistributionBuilderTest {
     Measure measureToAdd = mock(Measure.class);
     when(measureToAdd.getData()).thenReturn("0.0=3;3.0=5;6.0=9");
 
-    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, new Double[]{0.0, 2.0, 4.0});
+    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, new Double[] {0.0, 2.0, 4.0});
     builder.clear();
     Measure measure = builder
         .add(measureToAdd)
         .build();
 
-    assertNull(measure);
+    assertThat(measure).isNull();
   }
 
   @Test
@@ -135,9 +134,8 @@ public class RangeDistributionBuilderTest {
         .add(m2)
         .build();
 
-    assertThat(measure.getData(), is("0.5=3;3.5=7;6.5=10"));
+    assertThat(measure.getData()).isEqualTo("0.5=3;3.5=7;6.5=10");
   }
-
 
   @Test
   public void keepIntRangesWhenMergingDistributions() {
@@ -154,26 +152,26 @@ public class RangeDistributionBuilderTest {
         .add(m2)
         .build();
 
-    assertThat(measure.getData(), is("0=3;3=7;6=10"));
+    assertThat(measure.getData()).isEqualTo("0=3;3=7;6=10");
   }
 
   @Test
   public void nullIfEmptyData() {
-    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, new Integer[]{0, 2, 4});
+    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, new Integer[] {0, 2, 4});
 
-    assertThat(builder.isEmpty(), is(true));
+    assertThat(builder.isEmpty()).isTrue();
     Measure measure = builder.build(false);
-    assertNull(measure);
+    assertThat(measure).isNull();
 
     measure = builder.build(true);
-    assertThat(measure.getData(), is("0=0;2=0;4=0"));
+    assertThat(measure.getData()).isEqualTo("0=0;2=0;4=0");
   }
 
   @Test
   public void aggregateEmptyDistribution() {
     RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.LCOM4_DISTRIBUTION);
-    builder.add(new Measure(CoreMetrics.LCOM4_DISTRIBUTION, (String)null));
+    builder.add(new Measure(CoreMetrics.LCOM4_DISTRIBUTION, (String) null));
     Measure distribution = builder.build();
-    assertThat(distribution.getData(), is(""));
+    assertThat(distribution.getData()).isEmpty();
   }
 }

@@ -24,8 +24,13 @@ import org.junit.Test;
 import org.sonar.java.ast.SquidTestUtils;
 import org.sonar.java.bytecode.ClassLoaderBuilder;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class AsmMethodTest {
 
@@ -38,7 +43,7 @@ public class AsmMethodTest {
     AsmClassProvider asmClassProvider = new AsmClassProviderImpl(ClassLoaderBuilder.create(SquidTestUtils.getFile("/bytecode/bin/")));
     javaBean = asmClassProvider.getClass("properties/JavaBean");
   }
-  
+
   @Test
   public void testAsmMethod() {
     AsmMethod method = new AsmMethod(new AsmClass("java/lang/String"), "toString()Ljava/lang/String;");
@@ -46,19 +51,19 @@ public class AsmMethodTest {
   }
 
   @Test
-  public void testHashCode() {
-    assertTrue(new AsmMethod(stringClass, "firstMethod()V").equals(new AsmMethod(stringClass, "firstMethod()V")));
-    assertFalse(new AsmMethod(stringClass, "firstMethod()V").equals(new AsmMethod(stringClass, "secondMethod()V")));
-    assertFalse(new AsmMethod(stringClass, "firstMethod()V").equals(new AsmMethod(numberClass, "firstMethod()V")));
+  public void testEquals() {
+    assertThat(new AsmMethod(stringClass, "firstMethod()V")).isEqualTo(new AsmMethod(stringClass, "firstMethod()V"));
+    assertThat(new AsmMethod(stringClass, "firstMethod()V")).isNotEqualTo(new AsmMethod(stringClass, "secondMethod()V"));
+    assertThat(new AsmMethod(stringClass, "firstMethod()V")).isNotEqualTo(new AsmMethod(numberClass, "firstMethod()V"));
   }
 
   @Test
-  public void testEquals() {
-    assertEquals(new AsmMethod(stringClass, "firstMethod()V").hashCode(), new AsmMethod(stringClass, "firstMethod()V").hashCode());
-    assertFalse(new AsmMethod(stringClass, "firstMethod()V").hashCode() == new AsmMethod(stringClass, "secondMethod()V").hashCode());
-    assertFalse(new AsmMethod(stringClass, "firstMethod()V").hashCode() == new AsmMethod(numberClass, "firstMethod()V").hashCode());
+  public void testHashCode() {
+    assertThat(new AsmMethod(stringClass, "firstMethod()V").hashCode()).isEqualTo(new AsmMethod(stringClass, "firstMethod()V").hashCode());
+    assertThat(new AsmMethod(stringClass, "firstMethod()V").hashCode()).isNotEqualTo(new AsmMethod(stringClass, "secondMethod()V").hashCode());
+    assertThat(new AsmMethod(stringClass, "firstMethod()V").hashCode()).isNotEqualTo(new AsmMethod(numberClass, "firstMethod()V").hashCode());
   }
-  
+
   @Test
   public void testIsAccessor() {
     assertTrue(javaBean.getMethod("getName()Ljava/lang/String;").isAccessor());
@@ -80,7 +85,7 @@ public class AsmMethodTest {
     assertFalse(javaBean.getMethod("recursiveAbsSameIncrementA(I)I").isAccessor());
     assertFalse(javaBean.getMethod("recursiveAbsDifferentIncrementA(I)I").isAccessor());
   }
-  
+
   @Test
   public void testGetAccessedField() {
     assertThat(javaBean.getMethod("getName()Ljava/lang/String;").getAccessedField().getName(), is("name"));

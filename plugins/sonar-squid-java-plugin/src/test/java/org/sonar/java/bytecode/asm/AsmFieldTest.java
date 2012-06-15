@@ -21,9 +21,7 @@ package org.sonar.java.bytecode.asm;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class AsmFieldTest {
 
@@ -31,16 +29,16 @@ public class AsmFieldTest {
   private AsmClass numberClass = new AsmClass("java/lang/Number");
 
   @Test
-  public void testHashCode() {
-    assertTrue(new AsmField(stringClass, "firstField").equals(new AsmField(stringClass, "firstField")));
-    assertFalse(new AsmField(stringClass, "firstField").equals(new AsmField(stringClass, "secondField")));
-    assertFalse(new AsmField(stringClass, "firstField").equals(new AsmField(numberClass, "firstField")));
+  public void testEquals() {
+    assertThat(new AsmField(stringClass, "firstField")).isEqualTo(new AsmField(stringClass, "firstField"));
+    assertThat(new AsmField(stringClass, "firstField")).isNotEqualTo(new AsmField(stringClass, "secondField"));
+    assertThat(new AsmField(stringClass, "firstField")).isNotEqualTo(new AsmField(numberClass, "firstField"));
   }
 
   @Test
-  public void testEquals() {
-    assertEquals(new AsmField(stringClass, "firstField").hashCode(), new AsmField(stringClass, "firstField").hashCode());
-    assertFalse(new AsmField(stringClass, "firstField").hashCode() == new AsmField(stringClass, "secondField").hashCode());
-    assertFalse(new AsmField(stringClass, "firstField").hashCode() == new AsmField(numberClass, "firstField").hashCode());
+  public void testHashCode() {
+    assertThat(new AsmField(stringClass, "firstField").hashCode()).isEqualTo(new AsmField(stringClass, "firstField").hashCode());
+    assertThat(new AsmField(stringClass, "firstField").hashCode()).isNotEqualTo(new AsmField(stringClass, "secondField").hashCode());
+    assertThat(new AsmField(stringClass, "firstField").hashCode()).isNotEqualTo(new AsmField(numberClass, "firstField").hashCode());
   }
 }

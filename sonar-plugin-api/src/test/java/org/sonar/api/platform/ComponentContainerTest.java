@@ -24,8 +24,7 @@ import org.sonar.api.Property;
 import org.sonar.api.config.PropertyDefinitions;
 
 import static junit.framework.Assert.assertTrue;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class ComponentContainerTest {
@@ -33,7 +32,8 @@ public class ComponentContainerTest {
   @Test
   public void shouldRegisterItself() {
     ComponentContainer container = new ComponentContainer();
-    assertTrue(container.getComponentByType(ComponentContainer.class) == container);
+
+    assertThat(container.getComponentByType(ComponentContainer.class)).isSameAs(container);
   }
 
   @Test
@@ -42,11 +42,11 @@ public class ComponentContainerTest {
     container.addSingleton(StartableComponent.class);
     container.startComponents();
 
-    assertThat(container.getComponentByType(StartableComponent.class).started, is(true));
-    assertThat(container.getComponentByType(StartableComponent.class).stopped, is(false));
+    assertThat(container.getComponentByType(StartableComponent.class).started).isTrue();
+    assertThat(container.getComponentByType(StartableComponent.class).stopped).isFalse();
 
     container.stopComponents();
-    assertThat(container.getComponentByType(StartableComponent.class).stopped, is(true));
+    assertThat(container.getComponentByType(StartableComponent.class).stopped).isTrue();
   }
 
   @Test
@@ -58,12 +58,12 @@ public class ComponentContainerTest {
     child.addSingleton(StartableComponent.class);
     child.startComponents();
 
-    assertTrue(child.getParent() == parent);
-    assertTrue(parent.getChild() == child);
-    assertTrue(child.getComponentByType(ComponentContainer.class) == child);
-    assertTrue(parent.getComponentByType(ComponentContainer.class) == parent);
-    assertThat(child.getComponentByType(StartableComponent.class), notNullValue());
-    assertThat(parent.getComponentByType(StartableComponent.class), nullValue());
+    assertThat(child.getParent()).isSameAs(parent);
+    assertThat(parent.getChild()).isSameAs(child);
+    assertThat(child.getComponentByType(ComponentContainer.class)).isSameAs(child);
+    assertThat(parent.getComponentByType(ComponentContainer.class)).isSameAs(parent);
+    assertThat(child.getComponentByType(StartableComponent.class)).isNotNull();
+    assertThat(parent.getComponentByType(StartableComponent.class)).isNull();
 
     parent.stopComponents();
   }
@@ -74,10 +74,10 @@ public class ComponentContainerTest {
     parent.startComponents();
 
     ComponentContainer child = parent.createChild();
-    assertTrue(parent.getChild() == child);
+    assertThat(parent.getChild()).isSameAs(child);
 
     parent.removeChild();
-    assertThat(parent.getChild(), nullValue());
+    assertThat(parent.getChild()).isNull();
   }
 
   @Test
@@ -102,8 +102,8 @@ public class ComponentContainerTest {
     container.addSingleton(ComponentWithProperty.class);
 
     PropertyDefinitions propertyDefinitions = container.getComponentByType(PropertyDefinitions.class);
-    assertThat(propertyDefinitions.get("foo"), notNullValue());
-    assertThat(propertyDefinitions.get("foo").getDefaultValue(), is("bar"));
+    assertThat(propertyDefinitions.get("foo")).isNotNull();
+    assertThat(propertyDefinitions.get("foo").getDefaultValue()).isEqualTo("bar");
   }
 
   @Test
@@ -113,8 +113,8 @@ public class ComponentContainerTest {
     container.declareExtension(plugin, ComponentWithProperty.class);
 
     PropertyDefinitions propertyDefinitions = container.getComponentByType(PropertyDefinitions.class);
-    assertThat(propertyDefinitions.get("foo"), notNullValue());
-    assertThat(container.getComponentByType(ComponentWithProperty.class), nullValue());
+    assertThat(propertyDefinitions.get("foo")).isNotNull();
+    assertThat(container.getComponentByType(ComponentWithProperty.class)).isNull();
   }
 
   @Test
@@ -124,8 +124,8 @@ public class ComponentContainerTest {
     container.addExtension(plugin, ComponentWithProperty.class);
 
     PropertyDefinitions propertyDefinitions = container.getComponentByType(PropertyDefinitions.class);
-    assertThat(propertyDefinitions.get("foo"), notNullValue());
-    assertThat(container.getComponentByType(ComponentWithProperty.class), notNullValue());
+    assertThat(propertyDefinitions.get("foo")).isNotNull();
+    assertThat(container.getComponentByType(ComponentWithProperty.class)).isNotNull();
   }
 
   public static class StartableComponent {

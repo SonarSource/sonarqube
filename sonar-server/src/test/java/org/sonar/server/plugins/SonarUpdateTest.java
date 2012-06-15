@@ -25,8 +25,7 @@ import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.Sonar;
 import org.sonar.updatecenter.common.Version;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class SonarUpdateTest {
 
@@ -34,26 +33,29 @@ public class SonarUpdateTest {
   public void incompatibleUpdateIfSomePluginsAreIncompatible() {
     SonarUpdate update = new SonarUpdate(new Release(new Sonar(), "2.3"));
     update.addIncompatiblePlugin(new Plugin("old"));
-    assertTrue(update.isIncompatible());
-    assertTrue(update.hasWarnings());
-    assertFalse(update.requiresPluginUpgrades());
+
+    assertThat(update.isIncompatible()).isTrue();
+    assertThat(update.hasWarnings()).isTrue();
+    assertThat(update.requiresPluginUpgrades()).isFalse();
   }
 
   @Test
   public void incompatibleUpdateIfRequiredPluginUpgrades() {
     SonarUpdate update = new SonarUpdate(new Release(new Sonar(), "2.3"));
     update.addPluginToUpgrade(new Release(new Plugin("old"), Version.create("0.2")));
-    assertFalse(update.isIncompatible());
-    assertTrue(update.hasWarnings());
-    assertTrue(update.requiresPluginUpgrades());
+
+    assertThat(update.isIncompatible()).isFalse();
+    assertThat(update.hasWarnings()).isTrue();
+    assertThat(update.requiresPluginUpgrades()).isTrue();
   }
 
   @Test
   public void equals() {
     SonarUpdate update1 = new SonarUpdate(new Release(new Sonar(), "2.2"));
     SonarUpdate update2 = new SonarUpdate(new Release(new Sonar(), "2.3"));
-    assertTrue(update1.equals(update1));
-    assertTrue(update1.equals(new SonarUpdate(new Release(new Sonar(), "2.2"))));
-    assertFalse(update1.equals(update2));
+
+    assertThat(update1).isEqualTo(update1);
+    assertThat(update1).isEqualTo(new SonarUpdate(new Release(new Sonar(), "2.2")));
+    assertThat(update1).isNotEqualTo(update2);
   }
 }
