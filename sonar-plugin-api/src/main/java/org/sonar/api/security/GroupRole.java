@@ -81,7 +81,7 @@ public class GroupRole extends BaseIdentifiable {
   }
 
   public boolean isAnyone() {
-    return groupId == ANYONE_GROUP_ID;
+    return groupId == null;
   }
 
   @Override
