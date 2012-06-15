@@ -49,9 +49,6 @@
                   <span class="big"><a href="<%= url_for_drilldown('new_coverage', :period => dashboard_configuration.period_index) -%>"><%= format_variation(new_coverage, :style => 'none', :default => '-') -%></a></span>
                 </p>
               <% end %>
-              <p>
-                <a href="<%= url_for_drilldown('new_lines_to_cover', :period => dashboard_configuration.period_index) -%>"><%= format_variation(new_lines_to_cover_measure, :style => 'none', :default => '-') -%><%= message('widget.code_coverage.lines_to_cover.suffix') -%></a>
-              </p>
               <% if new_line_coverage %>
                 <p>
                   <a href="<%= url_for_drilldown('new_uncovered_lines', :highlight => 'new_line_coverage', :period => dashboard_configuration.period_index) -%>"><%= format_variation(new_line_coverage, :style => 'none', :default => '-') -%><%= message('widget.code_coverage.line_coverage.suffix') -%></a>
