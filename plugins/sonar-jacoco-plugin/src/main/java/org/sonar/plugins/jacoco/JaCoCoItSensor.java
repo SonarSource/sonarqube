@@ -20,6 +20,7 @@
 package org.sonar.plugins.jacoco;
 
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.batch.ITCoverageExtension;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
@@ -35,7 +36,7 @@ import java.util.Collection;
  *
  * @author Evgeny Mandrikov
  */
-public class JaCoCoItSensor implements Sensor {
+public class JaCoCoItSensor implements Sensor, ITCoverageExtension {
   private JacocoConfiguration configuration;
 
   public JaCoCoItSensor(JacocoConfiguration configuration) {

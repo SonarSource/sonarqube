@@ -21,6 +21,7 @@ package org.sonar.plugins.jacoco;
 
 import org.apache.tools.ant.*;
 import org.sonar.api.batch.CoverageExtension;
+import org.sonar.api.batch.ITCoverageExtension;
 import org.sonar.api.batch.Initializer;
 import org.sonar.api.batch.SupportedEnvironment;
 import org.sonar.api.resources.Project;
@@ -28,7 +29,7 @@ import org.sonar.api.resources.Project;
 import java.util.Map;
 
 @SupportedEnvironment("ant")
-public class JacocoAntInitializer extends Initializer implements CoverageExtension {
+public class JacocoAntInitializer extends Initializer implements CoverageExtension, ITCoverageExtension {
 
   private final TaskEnhancer[] taskEnhancers = new TaskEnhancer[] { new JavaLikeTaskEnhancer("java"), new JavaLikeTaskEnhancer("junit"), new TestngTaskEnhancer() };
 
