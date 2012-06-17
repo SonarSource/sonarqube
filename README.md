@@ -1,16 +1,14 @@
-Sonar Core
+Sonar Core for for better integration tests
 ==========
 
-This is the Core codebase of Sonar.
+This fork aims to generalize Coverage and ITCoverage. 
+Up to now Coverage is modular and can be implemented by many plugins like cobertura, clover, emma, jacoco, etc. 
+But IT Coverage can only be achived by Jacoco IT plugin. 
 
-Project homepage:
-http://www.sonarsource.org/
+This fork aims to extend the coverage mechanism to IT coverage so that many modules can be used to run integration tests.
 
-Continuous inspection:
-http://nemo.sonarsource.org/dashboard/index/org.codehaus.sonar:sonar
+It is born as a need for android projects to separate unit tests from integration tests.
+For instance we would like to get this kind of configuration tests : 
+* Emma will be used to get coverage of integration tests in a standard android app-test project.
+* Undercover will be used to get coverage of unit tests using Roboelectric or powermockito.
 
-Issue tracking:
-http://jira.codehaus.org/browse/SONAR
-
-Wiki: 
-http://docs.codehaus.org/display/SONAR

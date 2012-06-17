@@ -132,12 +132,23 @@
   margin-bottom: 50px;
 }
 
-.admin_page th.name {
-  width: 200px;
+.admin_page .empty {
+  font-style: italic;
 }
 
-.admin_page th.order {
-  width: 45px;
+.admin_page .operations {
+  width: 260px;
+  text-align: right;
+}
+
+.admin_page .shared {
+  width: 140px;
+  text-align: center;
+}
+
+.admin_page .order, .admin_page .global {
+  width: 60px;
+  text-align: center;
 }
 
 .admin_page .description {

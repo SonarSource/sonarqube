@@ -8,11 +8,9 @@
       <thead>
       <tr>
         <th class="name"><%= message('name') -%></th>
-        <% if is_admin %>
-          <th><%= message('shared') -%></th>
-        <% end %>
+        <th class="shared"><%= message('shared_by') -%></th>
         <th class="order"><%= message('order') -%></th>
-        <th class="right"><%= message('operations') -%></th>
+        <th class="operations"><%= message('operations') -%></th>
       </tr>
       </thead>
       <tbody>
@@ -27,12 +25,12 @@
               <%= active.name(true) -%>
               <div class="description"><%= h active.dashboard.description -%></div>
             </td>
-            <% if is_admin %>
-              <td>
-                <%= boolean_icon(active.dashboard.shared) -%>
-              </td>
-            <% end %>
-            <td>
+            <td class="shared">
+              <% if active.dashboard.shared %>
+                <%= h(active.dashboard.user_name || message('dashboard.username.default')) -%>
+              <% end %>
+            </td>
+            <td class="order">
               <% if index > 0 %>
                 <%= link_to image_tag('blue-up.png'), {:action => :up, :id => active.dashboard_id, :resource => params[:resource]}, :method => :post, :id => "up-#{u active.name}" %>
               <% else %>
@@ -40,9 +38,11 @@
               <% end %>
               <% if index < @actives.size-1 %>
                 <%= link_to image_tag('blue-down.png'), {:action => :down, :id => active.dashboard_id, :resource => params[:resource]}, :method => :post, :id => "down-#{u active.name}" %>
-              <% end %>
+              <% else %>
+                <%= image_tag('transparent_16.gif') %>
+            <% end %>
             </td>
-            <td class="thin nowrap right">
+            <td class="thin nowrap operations">
               <% if active.editable_by?(current_user) %>
                 <%= link_to message('dashboard.configure_widgets'), {:controller => :dashboard, :action => :configure, :did => active.dashboard_id, :id => (params[:resource] unless active.global?)},
                             :id => "configure-#{u active.name}", :class => 'link-action' %>
@@ -76,14 +76,15 @@
       <thead>
       <tr>
         <th class="name"><%= message('name') -%></th>
-        <th><%= message('shared_by') -%></th>
-        <th class="right"><%= message('operations') -%></th>
+        <th class="shared"><%= message('shared_by') -%></th>
+        <th class="order">&nbsp;</th>
+        <th class="operations"><%= message('operations') -%></th>
       </tr>
       </thead>
       <tbody>
       <% if @shared_dashboards.nil? || @shared_dashboards.empty? %>
         <tr class="even">
-          <td colspan="5"><%= message('dashboard.no_dashboard') -%></td>
+          <td colspan="5" class="empty"><%= message('dashboard.no_dashboard') -%></td>
         </tr>
       <%
          else
@@ -93,10 +94,13 @@
               <%= dashboard.name(true) -%>
               <div class="description"><%= h dashboard.description -%></div>
             </td>
-            <td>
-              <%= dashboard.user_name -%>
+            <td class="shared">
+              <% if dashboard.shared %>
+                <%= h(dashboard.user_name || message('dashboard.username.default')) -%>
+              <% end %>
             </td>
-            <td class="thin nowrap right">
+            <td class="order">&nbsp;</td>
+            <td class="thin nowrap operations">
               <% if dashboard.editable_by?(current_user) %>
                 <%= link_to_remote message('edit'), {:update => "create_dashboard", :url => {:action => :edit, :id => dashboard.id, :resource => params[:resource]}},
                                    {:id => "edit-#{u dashboard.name}", :method => :get, :class => 'link-action'} %>

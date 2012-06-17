@@ -2,15 +2,15 @@
   <thead>
   <tr>
     <th class="name"><%= message('name') -%></th>
-    <th><%= message('shared_by') -%></th>
+    <th class="shared"><%= message('shared_by') -%></th>
     <th class="order"><%= message('order') -%></th>
-    <th class="right"><%= message('operations') -%></th>
+    <th class="operations"><%= message('operations') -%></th>
   </tr>
   </thead>
   <tbody>
   <% if active_dashboards.empty? %>
     <tr class="even">
-      <td colspan="4"><%= message('dashboard.no_dashboard') -%></td>
+      <td colspan="4" class="empty"><%= message('dashboard.no_dashboard') -%></td>
     </tr>
   <% else %>
     <% active_dashboards.each_with_index do |active, index| %>
@@ -19,8 +19,12 @@
           <div><%= h(active.name(true)) -%></div>
           <div class="description"><%= active.dashboard.description -%></div>
         </td>
-        <td><%= h(active.dashboard.user.name) if active.dashboard.user %></td>
-        <td>
+        <td class="shared">
+          <% if active.dashboard.shared %>
+            <%= h(active.dashboard.user_name || message('dashboard.username.default')) -%>
+          <% end %>
+        </td>
+        <td class="order">
           <% if index > 0 %>
             <%= link_to image_tag('blue-up.png'), {:action => :up, :id => active.id}, :method => :post, :id => "up-#{u active.name}" %>
           <% else %>
@@ -28,9 +32,11 @@
           <% end %>
           <% if index < active_dashboards.size-1 %>
             <%= link_to image_tag('blue-down.png'), {:action => :down, :id => active.id}, :method => :post, :id => "down-#{u active.name}" %>
-          <% end %>
+          <% else %>
+            <%= image_tag('transparent_16.gif') %>
+        <% end %>
         </td>
-        <td class="thin nowrap right">
+        <td class="thin nowrap operations">
           <% if active_dashboards.size() > 1 %>
             <%= link_to 'Remove from defaults', {:action => :remove, :id => active.id}, {:confirm => 'Are you sure to remove it from default dashboards ?', :method => :post, :id => "remove-#{u active.name}", :class => 'link-action'} %>
           <% end %>
