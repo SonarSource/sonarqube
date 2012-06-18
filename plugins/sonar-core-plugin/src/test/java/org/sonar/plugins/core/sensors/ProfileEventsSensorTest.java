@@ -79,7 +79,7 @@ public class ProfileEventsSensorTest {
   @Test
   public void shouldDoNothingIfNoProfileChange() {
     RulesProfile profile = mockProfileWithVersion(1);
-    TimeMachine timeMachine = mockTM(project, 22.0, "Foo", 1.0); // Same profile, same version
+    TimeMachine timeMachine = mockTM(22.0, "Foo", 1.0); // Same profile, same version
     ProfileEventsSensor sensor = new ProfileEventsSensor(profile, timeMachine);
 
     sensor.analyse(project, context);
@@ -90,7 +90,7 @@ public class ProfileEventsSensorTest {
   @Test
   public void shouldCreateEventIfProfileChange() {
     RulesProfile profile = mockProfileWithVersion(1);
-    TimeMachine timeMachine = mockTM(project, 21.0, "Bar", 1.0); // Different profile
+    TimeMachine timeMachine = mockTM(21.0, "Bar", 1.0); // Different profile
     ProfileEventsSensor sensor = new ProfileEventsSensor(profile, timeMachine);
 
     sensor.analyse(project, context);
@@ -104,7 +104,7 @@ public class ProfileEventsSensorTest {
   @Test
   public void shouldCreateEventIfProfileVersionChange() {
     RulesProfile profile = mockProfileWithVersion(2);
-    TimeMachine timeMachine = mockTM(project, 22.0, "Foo", 1.0); // Same profile, different version
+    TimeMachine timeMachine = mockTM(22.0, "Foo", 1.0); // Same profile, different version
     ProfileEventsSensor sensor = new ProfileEventsSensor(profile, timeMachine);
 
     sensor.analyse(project, context);
@@ -118,7 +118,7 @@ public class ProfileEventsSensorTest {
   @Test
   public void shouldNotCreateEventIfFirstAnalysis() {
     RulesProfile profile = mockProfileWithVersion(2);
-    TimeMachine timeMachine = mockTM(project, null, null);
+    TimeMachine timeMachine = mockTM(null, null);
     ProfileEventsSensor sensor = new ProfileEventsSensor(profile, timeMachine);
 
     sensor.analyse(project, context);
@@ -129,7 +129,7 @@ public class ProfileEventsSensorTest {
   @Test
   public void shouldCreateEventIfFirstAnalysisWithVersionsAndVersionMoreThan1() {
     RulesProfile profile = mockProfileWithVersion(2);
-    TimeMachine timeMachine = mockTM(project, 22.0, "Foo", null);
+    TimeMachine timeMachine = mockTM(22.0, "Foo", null);
     ProfileEventsSensor sensor = new ProfileEventsSensor(profile, timeMachine);
 
     sensor.analyse(project, context);
@@ -148,11 +148,11 @@ public class ProfileEventsSensorTest {
     return profile;
   }
 
-  private TimeMachine mockTM(Project project, double profileId, String profileName, Double versionValue) {
-    return mockTM(project, new Measure(CoreMetrics.PROFILE, profileId, profileName), versionValue == null ? null : new Measure(CoreMetrics.PROFILE_VERSION, versionValue));
+  private TimeMachine mockTM(double profileId, String profileName, Double versionValue) {
+    return mockTM(new Measure(CoreMetrics.PROFILE, profileId, profileName), versionValue == null ? null : new Measure(CoreMetrics.PROFILE_VERSION, versionValue));
   }
 
-  private TimeMachine mockTM(Project project, Measure result1, Measure result2) {
+  private TimeMachine mockTM(Measure result1, Measure result2) {
     TimeMachine timeMachine = mock(TimeMachine.class);
 
     when(timeMachine.getMeasures(any(TimeMachineQuery.class)))
@@ -161,5 +161,4 @@ public class ProfileEventsSensorTest {
 
     return timeMachine;
   }
-
 }

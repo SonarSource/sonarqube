@@ -19,73 +19,38 @@
  */
 package org.sonar.api.resources;
 
-import static org.hamcrest.collection.IsArrayContaining.hasItemInArray;
-import static org.junit.Assert.*;
 import org.junit.Test;
+
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import org.sonar.api.database.model.ResourceModel;
-
-import java.io.File;
-import java.util.List;
 
 public class LanguagesTest {
-
   @Test
-  public void shouldAddSeveralTimesTheSameLanguage() {
-    FakeLanguage fake = new FakeLanguage();
-    Languages languages = new Languages(fake, fake);
-    assertEquals("fake", languages.get("fake").getKey());
-  }
-
-
-  @Test
-  public void getSuffixes() {
+  public void should_add_several_times_the_same_language() {
     Languages languages = new Languages(
-        newLang("java", new String[]{"java"}),
-        newLang("php", new String[]{"php4", "php5"}));
+        language("fake"),
+        language("fake"));
 
-    assertThat(languages.getSuffixes(), hasItemInArray("java"));
-    assertThat(languages.getSuffixes(), hasItemInArray("php4"));
-    assertThat(languages.getSuffixes(), hasItemInArray("php5"));
-
-    assertArrayEquals(languages.getSuffixes("java"), new String[]{"java"});
-    assertArrayEquals(languages.getSuffixes("php"), new String[]{"php4", "php5"});
-    assertArrayEquals(languages.getSuffixes("xxx"), new String[0]);
+    assertThat(languages.get("fake").getKey()).isEqualTo("fake");
   }
 
-  private Language newLang(String key, String[] suffixes) {
+  @Test
+  public void should_get_suffixes() {
+    Languages languages = new Languages(
+        language("java", "java"),
+        language("php", "php4", "php5"));
+
+    assertThat(languages.getSuffixes()).containsOnly("java", "php4", "php5");
+    assertThat(languages.getSuffixes("java")).containsOnly("java");
+    assertThat(languages.getSuffixes("php")).containsOnly("php4", "php5");
+    assertThat(languages.getSuffixes("xxx")).isEmpty();
+  }
+
+  static Language language(String key, String... suffixes) {
     Language lang = mock(Language.class);
     when(lang.getKey()).thenReturn(key);
     when(lang.getFileSuffixes()).thenReturn(suffixes);
     return lang;
-  }
-
-  static class FakeLanguage implements Language {
-
-    public String getKey() {
-      return "fake";
-    }
-
-    public String getName() {
-      return "Fake";
-    }
-
-    public String[] getFileSuffixes() {
-      return new String[]{"fak"};
-    }
-
-    public ResourceModel getParent(ResourceModel resource) {
-      return null;
-    }
-
-    public boolean matchExclusionPattern(ResourceModel resource, String wildcardPattern) {
-      return false;
-    }
-
-    public boolean matchExclusionPattern(File source, List<File> sourceDirs, String wildcardPattern) {
-      return false;
-    }
-
   }
 }
