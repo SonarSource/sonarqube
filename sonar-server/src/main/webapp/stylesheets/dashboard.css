@@ -137,13 +137,18 @@
   text-align: right;
 }
 
-.admin_page .shared {
+.admin_page .owner {
   width: 140px;
   text-align: center;
 }
 
+.admin_page .shared {
+  width: 40px;
+  text-align: center;
+}
+
 .admin_page .order, .admin_page .global {
-  width: 60px;
+  width: 45px;
   text-align: center;
 }
 

@@ -2,7 +2,7 @@
   <thead>
   <tr>
     <th class="name"><%= message('name') -%></th>
-    <th class="shared"><%= message('shared_by') -%></th>
+    <th class="owner"><%= message('shared_by') -%></th>
     <th class="order"><%= message('order') -%></th>
     <th class="operations"><%= message('operations') -%></th>
   </tr>
@@ -19,10 +19,8 @@
           <div><%= h(active.name(true)) -%></div>
           <div class="description"><%= active.dashboard.description -%></div>
         </td>
-        <td class="shared">
-          <% if active.dashboard.shared %>
-            <%= h(active.dashboard.user_name || message('dashboard.username.default')) -%>
-          <% end %>
+        <td class="owner">
+          <%= h(active.dashboard.user_name || message('dashboard.username.default')) -%>
         </td>
         <td class="order">
           <% if index > 0 %>

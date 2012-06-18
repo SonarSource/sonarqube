@@ -28,9 +28,10 @@ class DashboardsController < ApplicationController
     @global = !params[:resource]
 
     @actives=ActiveDashboard.user_dashboards(current_user, @global)
-    @shared_dashboards=Dashboard.find(:all, :conditions => ['(user_id<>? OR user_id IS NULL) AND shared=? AND is_global=?', current_user.id, true, @global]).sort { |a, b| a.name.downcase<=>b.name.downcase }
+    @shared_dashboards=Dashboard.find(:all, :conditions => ['(shared=? or user_id=?) and is_global=?', true, current_user.id, @global])
     active_ids=@actives.map(&:dashboard_id)
     @shared_dashboards.reject! { |d| active_ids.include?(d.id) }
+    @shared_dashboards=Api::Utils.insensitive_sort(@shared_dashboards, &:name)
 
     if params[:resource]
       @resource=Project.by_key(params[:resource])
@@ -58,9 +59,8 @@ class DashboardsController < ApplicationController
     elsif @dashboard.save
       add_default_dashboards_if_first_user_dashboard(@dashboard.global?)
       last_index=current_user.active_dashboards.max_by(&:order_index).order_index
-      current_user.active_dashboards.create(:dashboard => @dashboard, :user_id => current_user.id, :order_index => last_index+1)
 
-      redirect_to :controller => 'dashboard', :action => 'configure', :did => @dashboard.id, :id => (params[:resource] unless @dashboard.global)
+      redirect_to :action => 'index', :resource => params[:resource], :highlight => @dashboard.id
     else
       flash[:error]=@dashboard.errors.full_messages.join('<br/>')
 
@@ -84,29 +84,28 @@ class DashboardsController < ApplicationController
 
       if dashboard.save
         unless dashboard.shared?
-          ActiveDashboard.destroy_all(['dashboard_id = ? and (user_id<>? OR user_id IS NULL)', dashboard.id, current_user.id])
+          ActiveDashboard.destroy_all(:dashboard_id => dashboard.id)
         end
       else
         flash[:error]=dashboard.errors.full_messages.join('<br/>')
       end
-    else
-      # TODO explicit error
     end
+
     redirect_to :action => 'index', :resource => params[:resource]
   end
 
   def delete
     dashboard=Dashboard.find(params[:id])
-    bad_request('Unknown dashboard') unless dashboard
+
     access_denied unless dashboard.editable_by?(current_user)
 
     if dashboard.destroy
-      flash[:warning]=Api::Utils.message('dashboard.default_restored') if ActiveDashboard.count(:conditions => ['user_id=?', current_user.id])==0
+      flash[:warning]=Api::Utils.message('dashboard.default_restored') if ActiveDashboard.count(:conditions => {:user_id => current_user.id})==0
     else
       flash[:error]=Api::Utils.message('dashboard.error_delete_default')
     end
-    redirect_to :action => 'index', :resource => params[:resource]
 
+    redirect_to :action => 'index', :resource => params[:resource]
   end
 
   def down
@@ -118,57 +117,50 @@ class DashboardsController < ApplicationController
   end
 
   def follow
-    dashboard=Dashboard.find(:first, :conditions => ['shared=? and id=? and (user_id is null or user_id<>?)', true, params[:id].to_i, current_user.id])
-    if dashboard
-      add_default_dashboards_if_first_user_dashboard(dashboard.global?)
+    dashboard=Dashboard.find(params[:id])
 
-      active_dashboard = current_user.active_dashboards.to_a.find { |ad| ad.name==dashboard.name }
-      if active_dashboard
-        flash[:error]=Api::Utils.message('dashboard.error_follow_existing_name')
-      else
-        last_active_dashboard=current_user.active_dashboards.max_by(&:order_index)
-        current_user.active_dashboards.create(:dashboard => dashboard, :user => current_user, :order_index => (last_active_dashboard ? last_active_dashboard.order_index+1 : 1))
-      end
+    add_default_dashboards_if_first_user_dashboard(dashboard.global?)
+    active_dashboard = current_user.active_dashboards.to_a.find { |ad| ad.name==dashboard.name }
+    if active_dashboard
+      flash[:error]=Api::Utils.message('dashboard.error_follow_existing_name')
     else
-      bad_request('Unknown dashboard')
+      last_active_dashboard=current_user.active_dashboards.max_by(&:order_index)
+      current_user.active_dashboards.create(:dashboard => dashboard, :user => current_user, :order_index => (last_active_dashboard ? last_active_dashboard.order_index+1 : 1))
     end
+
     redirect_to :action => 'index', :resource => params[:resource]
   end
 
   def unfollow
-    dashboard=Dashboard.find(:first, :conditions => ['shared=? and id=? and (user_id is null or user_id<>?)', true, params[:id].to_i, current_user.id])
-    if dashboard
-      add_default_dashboards_if_first_user_dashboard(dashboard.global?)
+    dashboard=Dashboard.find(params[:id])
 
-      ActiveDashboard.destroy_all(['user_id=? AND dashboard_id=?', current_user.id, params[:id].to_i])
+    add_default_dashboards_if_first_user_dashboard(dashboard.global?)
+    ActiveDashboard.destroy_all(:user_id => current_user.id, :dashboard_id => params[:id].to_i)
 
-      if ActiveDashboard.count(:conditions => ['user_id=?', current_user.id])==0
-        flash[:notice]=Api::Utils.message('dashboard.default_restored')
-      end
+    if ActiveDashboard.count(:conditions => {:user_id => current_user.id})==0
+      flash[:notice]=Api::Utils.message('dashboard.default_restored')
     end
+
     redirect_to :action => 'index', :resource => params[:resource]
   end
 
   private
 
   def position(offset)
-    dashboard=Dashboard.find(params[:id].to_i)
-    if dashboard
-      add_default_dashboards_if_first_user_dashboard(dashboard.global?)
+    dashboard=Dashboard.find(params[:id])
 
-      actives=current_user.active_dashboards.select { |a| a.global? == dashboard.global? }.sort_by(&:order_index)
+    add_default_dashboards_if_first_user_dashboard(dashboard.global?)
+    actives=current_user.active_dashboards.select { |a| a.global? == dashboard.global? }.sort_by(&:order_index)
 
-      index = actives.index { |a| a.dashboard_id == dashboard.id }
-      if index
-        actives[index], actives[index + offset] = actives[index + offset], actives[index]
+    index = actives.index { |a| a.dashboard_id == dashboard.id }
+    if index
+      actives[index], actives[index + offset] = actives[index + offset], actives[index]
 
-        actives.each_with_index do |a, i|
-          a.order_index=i+1
-          a.save
-        end
+      actives.each_with_index do |a, i|
+        a.order_index=i+1
+        a.save
       end
     end
-
 
     redirect_to :action => 'index', :resource => params[:resource]
   end

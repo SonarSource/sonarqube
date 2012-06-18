@@ -19,7 +19,7 @@
     <thead>
     <tr>
       <th class="name"><%= message('name') -%></th>
-      <th class="shared"><%= message('shared_by') -%></th>
+      <th class="owner"><%= message('shared_by') -%></th>
       <th class="global"><%= message('global') -%></th>
       <th class="operations"><%= message('operations') -%></th>
     </tr>
@@ -36,10 +36,8 @@
             <div><%= h(dashboard.name(true)) -%></div>
             <div class="description"><%= dashboard.description -%></div>
           </td>
-          <td class="shared">
-            <% if dashboard.shared %>
-              <%= h(dashboard.user_name || message('dashboard.username.default')) -%>
-            <% end %>
+          <td class="owner">
+            <%= h(dashboard.user_name || message('dashboard.username.default')) -%>
           </td>
           <td class="global">
             <%= boolean_icon(dashboard.global) -%>

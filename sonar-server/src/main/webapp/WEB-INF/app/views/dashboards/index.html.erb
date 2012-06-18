@@ -8,7 +8,8 @@
       <thead>
       <tr>
         <th class="name"><%= message('name') -%></th>
-        <th class="shared"><%= message('shared_by') -%></th>
+        <th class="shared"><%= message('shared') -%></th>
+        <th class="owner"><%= message('owner') -%></th>
         <th class="order"><%= message('order') -%></th>
         <th class="operations"><%= message('operations') -%></th>
       </tr>
@@ -20,15 +21,16 @@
         </tr>
       <% else %>
         <% @actives.each_with_index do |active, index| %>
-          <tr id="dashboard-<%= u active.name -%>" class="<%= cycle('even', 'odd', :name => 'dashboard') -%>">
+          <tr id="dashboard-<%= active.id -%>" class="<%= cycle('even', 'odd', :name => 'dashboard') -%>">
             <td>
               <%= active.name(true) -%>
               <div class="description"><%= h active.dashboard.description -%></div>
             </td>
             <td class="shared">
-              <% if active.dashboard.shared %>
-                <%= h(active.dashboard.user_name || message('dashboard.username.default')) -%>
-              <% end %>
+              <%= boolean_icon(active.dashboard.shared) -%>
+            </td>
+            <td class="owner">
+              <%= h(active.dashboard.user_name || message('dashboard.username.default')) -%>
             </td>
             <td class="order">
               <% if index > 0 %>
@@ -53,12 +55,10 @@
                   |
                   <%= link_to message('delete'), {:action => :delete, :id => active.dashboard_id, :resource => params[:resource]}, :method => :post,
                               :confirm => message('dashboard.do_you_want_to_delete_dashboard'), :id => "delete-#{u active.name}", :class => 'link-action' %>
+                  |
                 <% end %>
               <% end %>
-              <% if @actives.size() > 1 and active.shared? and !active.dashboard.owner?(current_user) %>
-                <% if active.editable_by?(current_user) %>
-                |
-                <% end %>
+              <% if @actives.size() > 1 %>
                 <%= link_to message('unfollow'), {:action => :unfollow, :id => active.dashboard_id, :resource => params[:resource]}, :method => :post,
                             :id => "unfollow-#{u active.name}", :class => 'link-action' %>
               <% end %>
@@ -70,13 +70,14 @@
       </tbody>
     </table>
 
-    <h1><%= message('dashboard.shared_dashboards') -%></h1>
+    <h1><%= message('dashboard.available_dashboards') -%></h1>
 
     <table class="data" id="shared-dashboards">
       <thead>
       <tr>
         <th class="name"><%= message('name') -%></th>
-        <th class="shared"><%= message('shared_by') -%></th>
+        <th class="shared"><%= message('shared') -%></th>
+        <th class="owner"><%= message('owner') -%></th>
         <th class="order">&nbsp;</th>
         <th class="operations"><%= message('operations') -%></th>
       </tr>
@@ -89,15 +90,16 @@
       <%
          else
            @shared_dashboards.each do |dashboard| %>
-          <tr id="shared-dashboard-<%= u dashboard.name -%>" class="<%= cycle('even', 'odd', :name => 'shared') -%>">
+          <tr id="dashboard-<%= dashboard.id -%>" class="<%= cycle('even', 'odd', :name => 'shared') -%>">
             <td>
               <%= dashboard.name(true) -%>
               <div class="description"><%= h dashboard.description -%></div>
             </td>
             <td class="shared">
-              <% if dashboard.shared %>
-                <%= h(dashboard.user_name || message('dashboard.username.default')) -%>
-              <% end %>
+              <%= boolean_icon(dashboard.shared) -%>
+            </td>
+            <td class="owner">
+              <%= h(dashboard.user_name || message('dashboard.username.default')) -%>
             </td>
             <td class="order">&nbsp;</td>
             <td class="thin nowrap operations">
@@ -108,7 +110,7 @@
                 <%= link_to message('delete'), {:action => :delete, :id => dashboard.id, :resource => params[:resource]}, :method => :post,
                             :confirm => message('dashboard.do_you_want_to_delete_dashboard'), :id => "delete-#{u dashboard.name}", :class => 'link-action' %>
                 |
-            <% end %>
+              <% end %>
               <%= link_to message('follow'), {:action => :follow, :id => dashboard.id, :resource => params[:resource]}, :method => :post, :id => "follow-#{u dashboard.name}", :class => 'link-action' %>
             </td>
           </tr>
@@ -123,3 +125,9 @@
     <%= render :partial => 'dashboards/create' %>
   </div>
 </div>
+
+<% if params[:highlight] %>
+<script type="text/javascript">
+  new Effect.Highlight('dashboard-<%= h params[:highlight] -%>', {duration: 2, startcolor: '#cae3f2'});
+</script>
+<% end %>
