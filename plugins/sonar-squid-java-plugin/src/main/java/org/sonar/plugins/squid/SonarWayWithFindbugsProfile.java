@@ -19,13 +19,22 @@
  */
 package org.sonar.plugins.squid;
 
-import org.junit.Test;
+import org.sonar.api.profiles.ProfileDefinition;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.utils.ValidationMessages;
 
-import static org.fest.assertions.Assertions.assertThat;
+public class SonarWayWithFindbugsProfile extends ProfileDefinition {
+  private final SonarWayProfile sonarWay;
 
-public class SquidPluginTest {
-  @Test
-  public void coverageForFun() {
-    assertThat(new SquidPlugin().getExtensions()).hasSize(10);
+  public SonarWayWithFindbugsProfile(SonarWayProfile sonarWay) {
+    this.sonarWay = sonarWay;
+  }
+
+  @Override
+  public RulesProfile createProfile(ValidationMessages validationMessages) {
+    RulesProfile profile = sonarWay.createProfile(validationMessages);
+    profile.setName(RulesProfile.SONAR_WAY_FINDBUGS_NAME);
+    return profile;
   }
 }
+

@@ -19,6 +19,8 @@
  */
 package org.sonar.java.ast.check;
 
+import org.sonar.check.BelongsToProfile;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -42,6 +44,7 @@ import com.puppycrawl.tools.checkstyle.api.TokenTypes;
  * @since 2.13
  */
 @Rule(key = "CommentedOutCodeLine", priority = Priority.MAJOR)
+@BelongsToProfile(title = "Sonar way", priority = Priority.MAJOR)
 public class CommentedOutCodeLineCheck extends JavaAstVisitor {
 
   private static final double THRESHOLD = 0.9;

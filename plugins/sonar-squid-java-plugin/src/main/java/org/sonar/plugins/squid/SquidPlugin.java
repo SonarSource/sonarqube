@@ -67,14 +67,15 @@ public final class SquidPlugin extends SonarPlugin {
 
   public List<Class<? extends Extension>> getExtensions() {
     return ImmutableList.of(
-        SquidSensor.class,
-        SquidRuleRepository.class,
-        JavaSourceImporter.class,
+        ChidamberKemererDistributionBuilder.class,
+        ClassesDecorator.class,
         FileComplexityDistributionDecorator.class,
         FunctionComplexityDistributionBuilder.class,
-        ClassesDecorator.class,
-        ChidamberKemererDistributionBuilder.class,
-        FunctionsDecorator.class);
+        FunctionsDecorator.class,
+        JavaSourceImporter.class,
+        SonarWayProfile.class,
+        SonarWayWithFindbugsProfile.class,
+        SquidRuleRepository.class,
+        SquidSensor.class);
   }
-
 }
