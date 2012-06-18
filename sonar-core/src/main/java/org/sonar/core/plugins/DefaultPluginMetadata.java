@@ -19,6 +19,10 @@
  */
 package org.sonar.core.plugins;
 
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Splitter;
+import com.google.common.collect.ComparisonChain;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -35,6 +39,7 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
   private String[] pathsToInternalDeps = new String[0];
   private String key;
   private String version;
+  private String sonarVersion;
   private String name;
   private String mainClass;
   private String description;
@@ -164,6 +169,46 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
   public DefaultPluginMetadata setVersion(String version) {
     this.version = version;
     return this;
+  }
+
+  public String getSonarVersion() {
+    return sonarVersion;
+  }
+
+  public DefaultPluginMetadata setSonarVersion(String sonarVersion) {
+    this.sonarVersion = sonarVersion;
+    return this;
+  }
+
+  /**
+   * Find out if this plugin is compatible with a given version of Sonar.
+   * The version of sonar must be greater than or equal to the minimal version
+   * needed by the plugin.
+   *
+   * @param sonarVersion
+   * @return <code>true</code> if the plugin is compatible
+   */
+  public boolean isCompatibleWith(String sonarVersion) {
+    if (null == this.sonarVersion) {
+      return true; // Plugins without sonar version are so old, they are compatible with a version containing this code
+    }
+    if (null == sonarVersion) {
+      return true;
+    }
+
+    return ComparisonChain.start()
+        .compare(part(sonarVersion, 0), part(this.sonarVersion, 0))
+        .compare(part(sonarVersion, 1), part(this.sonarVersion, 1))
+        .compare(part(sonarVersion, 2), part(this.sonarVersion, 2))
+        .result() >= 0;
+  }
+
+  private static int part(String version, int index) {
+    Iterable<String> parts = Splitter.on('.').split(version);
+    String part = Iterables.get(parts, index, "0");
+    String onlyDigits = CharMatcher.DIGIT.retainFrom(part);
+
+    return Integer.parseInt(onlyDigits);
   }
 
   public String getHomepage() {

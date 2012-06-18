@@ -116,6 +116,7 @@ public class PluginInstaller {
       metadata.setOrganizationUrl(manifest.getOrganizationUrl());
       metadata.setMainClass(manifest.getMainClass());
       metadata.setVersion(manifest.getVersion());
+      metadata.setSonarVersion(manifest.getSonarVersion());
       metadata.setHomepage(manifest.getHomepage());
       metadata.setPathsToInternalDeps(manifest.getDependencies());
       metadata.setUseChildFirstClassLoader(manifest.isUseChildFirstClassLoader());

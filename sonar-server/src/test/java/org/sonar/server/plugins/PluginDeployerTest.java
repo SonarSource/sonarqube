@@ -19,12 +19,13 @@
  */
 package org.sonar.server.plugins;
 
-import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TestName;
 import org.sonar.api.platform.PluginMetadata;
+import org.sonar.api.platform.Server;
 import org.sonar.core.plugins.PluginInstaller;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.server.platform.ServerStartException;
@@ -32,8 +33,9 @@ import org.sonar.test.TestUtils;
 
 import java.io.File;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PluginDeployerTest {
 
@@ -42,17 +44,22 @@ public class PluginDeployerTest {
   private File homeDir;
   private File deployDir;
   private PluginDeployer deployer;
+  private Server server = mock(Server.class);
 
   @Rule
   public TestName name = new TestName();
 
+  @Rule
+  public ExpectedException exception = ExpectedException.none();
+
   @Before
   public void start() {
+    when(server.getVersion()).thenReturn("3.1");
     homeDir = TestUtils.getResource(PluginDeployerTest.class, name.getMethodName());
     deployDir = TestUtils.getTestTempDir(PluginDeployerTest.class, name.getMethodName() + "/deploy");
     fileSystem = new DefaultServerFileSystem(null, homeDir, deployDir);
     extractor = new PluginInstaller();
-    deployer = new PluginDeployer(fileSystem, extractor);
+    deployer = new PluginDeployer(server, fileSystem, extractor);
   }
 
   @Test
@@ -60,18 +67,18 @@ public class PluginDeployerTest {
     deployer.start();
 
     // check that the plugin is registered
-    assertThat(deployer.getMetadata().size(), Is.is(1)); // no more checkstyle
+    assertThat(deployer.getMetadata()).hasSize(1); // no more checkstyle
 
     PluginMetadata plugin = deployer.getMetadata("foo");
-    assertThat(plugin.getName(), is("Foo"));
-    assertThat(plugin.getDeployedFiles().size(), is(1));
-    assertThat(plugin.isCore(), is(false));
-    assertThat(plugin.isUseChildFirstClassLoader(), is(false));
+    assertThat(plugin.getName()).isEqualTo("Foo");
+    assertThat(plugin.getDeployedFiles()).hasSize(1);
+    assertThat(plugin.isCore()).isFalse();
+    assertThat(plugin.isUseChildFirstClassLoader()).isFalse();
 
     // check that the file is deployed
     File deployedJar = new File(deployDir, "plugins/foo/foo-plugin.jar");
-    assertThat(deployedJar.exists(), is(true));
-    assertThat(deployedJar.isFile(), is(true));
+    assertThat(deployedJar.exists()).isTrue();
+    assertThat(deployedJar.isFile()).isTrue();
   }
 
   @Test
@@ -79,16 +86,16 @@ public class PluginDeployerTest {
     deployer.start();
 
     // check that the plugin is registered
-    assertThat(deployer.getMetadata().size(), Is.is(1)); // no more checkstyle
+    assertThat(deployer.getMetadata()).hasSize(1); // no more checkstyle
 
     PluginMetadata plugin = deployer.getMetadata("buildbreaker");
-    assertThat(plugin.isCore(), is(false));
-    assertThat(plugin.isUseChildFirstClassLoader(), is(false));
+    assertThat(plugin.isCore()).isFalse();
+    assertThat(plugin.isUseChildFirstClassLoader()).isFalse();
 
     // check that the file is deployed
     File deployedJar = new File(deployDir, "plugins/buildbreaker/sonar-build-breaker-plugin-0.1.jar");
-    assertThat(deployedJar.exists(), is(true));
-    assertThat(deployedJar.isFile(), is(true));
+    assertThat(deployedJar.exists()).isTrue();
+    assertThat(deployedJar.isFile()).isTrue();
   }
 
   @Test
@@ -96,24 +103,34 @@ public class PluginDeployerTest {
     deployer.start();
 
     // check that the plugin is registered
-    assertThat(deployer.getMetadata().size(), Is.is(1)); // no more checkstyle
+    assertThat(deployer.getMetadata()).hasSize(1); // no more checkstyle
 
     PluginMetadata plugin = deployer.getMetadata("foo");
-    assertThat(plugin.getDeployedFiles().size(), is(2));
+    assertThat(plugin.getDeployedFiles()).hasSize(2);
     File extFile = plugin.getDeployedFiles().get(1);
-    assertThat(extFile.getName(), is("foo-extension.txt"));
+    assertThat(extFile.getName()).isEqualTo("foo-extension.txt");
 
     // check that the extension file is deployed
     File deployedJar = new File(deployDir, "plugins/foo/foo-extension.txt");
-    assertThat(deployedJar.exists(), is(true));
-    assertThat(deployedJar.isFile(), is(true));
+    assertThat(deployedJar.exists()).isTrue();
+    assertThat(deployedJar.isFile()).isTrue();
   }
 
   @Test
   public void ignoreJarsWhichAreNotPlugins() {
     deployer.start();
 
-    assertThat(deployer.getMetadata().size(), Is.is(0));
+    assertThat(deployer.getMetadata()).isEmpty();
+  }
+
+  @Test
+  public void should_fail_on_plugin_depending_on_more_recent_sonar() {
+    when(server.getVersion()).thenReturn("2.0");
+
+    exception.expect(IllegalStateException.class);
+    exception.expectMessage("Plugin switchoffviolations needs a more recent version of Sonar than 2.0. At least 2.5 is expected");
+
+    deployer.start();
   }
 
   @Test(expected = ServerStartException.class)
@@ -125,5 +142,4 @@ public class PluginDeployerTest {
   public void failIfTwoDeprecatedPluginsWithSameKey() {
     deployer.start();
   }
-
 }

@@ -20,86 +20,95 @@
 package org.sonar.core.plugins;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class PluginInstallerTest {
 
-  private PluginInstaller extractor= new PluginInstaller();
+  private PluginInstaller extractor = new PluginInstaller();
+
+  @ClassRule
+  public static TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   @Test
   public void shouldExtractMetadata() {
     DefaultPluginMetadata metadata = extractor.extractMetadata(getFile("sonar-checkstyle-plugin-2.8.jar"), true);
-    assertThat(metadata.getKey(), is("checkstyle"));
-    assertThat(metadata.getBasePlugin(), nullValue());
-    assertThat(metadata.getName(), is("Checkstyle"));
-    assertThat(metadata.isCore(), is(true));
-    assertThat(metadata.getFile().getName(), is("sonar-checkstyle-plugin-2.8.jar"));
+
+    assertThat(metadata.getKey()).isEqualTo("checkstyle");
+    assertThat(metadata.getBasePlugin()).isNull();
+    assertThat(metadata.getName()).isEqualTo("Checkstyle");
+    assertThat(metadata.isCore()).isEqualTo(true);
+    assertThat(metadata.getFile().getName()).isEqualTo("sonar-checkstyle-plugin-2.8.jar");
+    assertThat(metadata.getVersion()).isEqualTo("2.8");
+  }
+
+  @Test
+  public void should_read_sonar_version() {
+    DefaultPluginMetadata metadata = extractor.extractMetadata(getFile("sonar-switch-off-violations-plugin-1.1.jar"), false);
+
+    assertThat(metadata.getVersion()).isEqualTo("1.1");
+    assertThat(metadata.getSonarVersion()).isEqualTo("2.5");
   }
 
   @Test
   public void shouldExtractDeprecatedMetadata() {
     DefaultPluginMetadata metadata = extractor.extractMetadata(getFile("sonar-emma-plugin-0.3.jar"), false);
-    assertThat(metadata.getKey(), is("emma"));
-    assertThat(metadata.getBasePlugin(), nullValue());
-    assertThat(metadata.getName(), is("Emma"));
+
+    assertThat(metadata.getKey()).isEqualTo("emma");
+    assertThat(metadata.getBasePlugin()).isNull();
+    assertThat(metadata.getName()).isEqualTo("Emma");
   }
 
   @Test
   public void shouldExtractExtensionMetadata() {
     DefaultPluginMetadata metadata = extractor.extractMetadata(getFile("sonar-checkstyle-extensions-plugin-0.1-SNAPSHOT.jar"), true);
-    assertThat(metadata.getKey(), is("checkstyleextensions"));
-    assertThat(metadata.getBasePlugin(), is("checkstyle"));
+
+    assertThat(metadata.getKey()).isEqualTo("checkstyleextensions");
+    assertThat(metadata.getBasePlugin()).isEqualTo("checkstyle");
   }
 
   @Test
   public void shouldCopyAndExtractDependencies() throws IOException {
-    File toDir = new File("target/test-tmp/PluginInstallerTest/shouldCopyAndExtractDependencies");
-    FileUtils.forceMkdir(toDir);
-    FileUtils.cleanDirectory(toDir);
+    File toDir = temporaryFolder.newFolder();
 
     DefaultPluginMetadata metadata = extractor.install(getFile("sonar-checkstyle-plugin-2.8.jar"), true, null, toDir);
 
-    assertThat(metadata.getKey(), is("checkstyle"));
-    assertThat(new File(toDir, "sonar-checkstyle-plugin-2.8.jar").exists(), is(true));
-    assertThat(new File(toDir, "META-INF/lib/checkstyle-5.1.jar").exists(), is(true));
+    assertThat(metadata.getKey()).isEqualTo("checkstyle");
+    assertThat(new File(toDir, "sonar-checkstyle-plugin-2.8.jar")).exists();
+    assertThat(new File(toDir, "META-INF/lib/checkstyle-5.1.jar")).exists();
   }
 
   @Test
   public void shouldExtractOnlyDependencies() throws IOException {
-    File toDir = new File("target/test-tmp/PluginInstallerTest/shouldExtractOnlyDependencies");
-    FileUtils.forceMkdir(toDir);
-    FileUtils.cleanDirectory(toDir);
+    File toDir = temporaryFolder.newFolder();
 
     extractor.install(getFile("sonar-checkstyle-plugin-2.8.jar"), true, null, toDir);
 
-    assertThat(new File(toDir, "sonar-checkstyle-plugin-2.8.jar").exists(), is(true));
-    assertThat(new File(toDir, "META-INF/MANIFEST.MF").exists(), is(false));
-    assertThat(new File(toDir, "org/sonar/plugins/checkstyle/CheckstyleVersion.class").exists(), is(false));
+    assertThat(new File(toDir, "sonar-checkstyle-plugin-2.8.jar")).exists();
+    assertThat(new File(toDir, "META-INF/MANIFEST.MF")).doesNotExist();
+    assertThat(new File(toDir, "org/sonar/plugins/checkstyle/CheckstyleVersion.class")).doesNotExist();
   }
 
   @Test
   public void shouldCopyRuleExtensionsOnServerSide() throws IOException {
-    File toDir = new File("target/test-tmp/PluginInstallerTest/shouldCopyRuleExtensionsOnServerSide");
-    FileUtils.forceMkdir(toDir);
-    FileUtils.cleanDirectory(toDir);
+    File toDir = temporaryFolder.newFolder();
 
     DefaultPluginMetadata metadata = DefaultPluginMetadata.create(getFile("sonar-checkstyle-plugin-2.8.jar"))
         .setKey("checkstyle")
-        .addDeprecatedExtension(getFile("PluginInstallerTest/shouldCopyRuleExtensionsOnServerSide/checkstyle-extension.xml"));
+        .addDeprecatedExtension(getFile("checkstyle-extension.xml"));
     extractor.install(metadata, toDir);
 
-    assertThat(new File(toDir, "sonar-checkstyle-plugin-2.8.jar").exists(), is(true));
-    assertThat(new File(toDir, "checkstyle-extension.xml").exists(), is(true));
+    assertThat(new File(toDir, "sonar-checkstyle-plugin-2.8.jar")).exists();
+    assertThat(new File(toDir, "checkstyle-extension.xml")).exists();
   }
 
-  private File getFile(String filename) {
-    return FileUtils.toFile(getClass().getResource("/org/sonar/core/plugins/" + filename));
+  static File getFile(String filename) {
+    return FileUtils.toFile(PluginInstallerTest.class.getResource("/org/sonar/core/plugins/" + filename));
   }
 }

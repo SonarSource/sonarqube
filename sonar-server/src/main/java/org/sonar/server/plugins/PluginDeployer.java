@@ -19,6 +19,7 @@
  */
 package org.sonar.server.plugins;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.io.FileUtils;
@@ -27,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.platform.PluginMetadata;
-import org.sonar.api.utils.Logs;
+import org.sonar.api.platform.Server;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.plugins.DefaultPluginMetadata;
@@ -45,15 +46,17 @@ public class PluginDeployer implements ServerComponent {
 
   private static final Logger LOG = LoggerFactory.getLogger(PluginDeployer.class);
 
+  private final Server server;
   private final DefaultServerFileSystem fileSystem;
-  private final Map<String, PluginMetadata> pluginByKeys = Maps.newHashMap();
   private final PluginInstaller installer;
+  private final Map<String, PluginMetadata> pluginByKeys = Maps.newHashMap();
 
-  public PluginDeployer(DefaultServerFileSystem fileSystem) {
-    this(fileSystem, new PluginInstaller());
+  public PluginDeployer(Server server, DefaultServerFileSystem fileSystem) {
+    this(server, fileSystem, new PluginInstaller());
   }
 
-  PluginDeployer(DefaultServerFileSystem fileSystem, PluginInstaller installer) {
+  PluginDeployer(Server server, DefaultServerFileSystem fileSystem, PluginInstaller installer) {
+    this.server = server;
     this.fileSystem = fileSystem;
     this.installer = installer;
   }
@@ -91,19 +94,20 @@ public class PluginDeployer implements ServerComponent {
 
   private void registerPlugin(File file, boolean isCore, boolean canDelete) {
     DefaultPluginMetadata metadata = installer.extractMetadata(file, isCore);
-    if (StringUtils.isNotBlank(metadata.getKey())) {
-      PluginMetadata existing = pluginByKeys.get(metadata.getKey());
-      if (existing != null) {
-        if (canDelete) {
-          FileUtils.deleteQuietly(existing.getFile());
-          Logs.INFO.info("Plugin " + metadata.getKey() + " replaced by new version");
+    if (StringUtils.isBlank(metadata.getKey())) {
+      return;
+    }
 
-        } else {
-          throw new ServerStartException("Found two plugins with the same key '" + metadata.getKey() + "': " + metadata.getFile().getName() + " and "
-            + existing.getFile().getName());
-        }
-      }
-      pluginByKeys.put(metadata.getKey(), metadata);
+    PluginMetadata existing = pluginByKeys.put(metadata.getKey(), metadata);
+
+    if ((existing != null) && !canDelete) {
+      throw new ServerStartException("Found two plugins with the same key '" + metadata.getKey() + "': " + metadata.getFile().getName() + " and "
+        + existing.getFile().getName());
+    }
+
+    if (existing != null) {
+      FileUtils.deleteQuietly(existing.getFile());
+      LOG.info("Plugin " + metadata.getKey() + " replaced by new version");
     }
   }
 
@@ -186,9 +190,13 @@ public class PluginDeployer implements ServerComponent {
   }
 
   private void deploy(DefaultPluginMetadata plugin) {
-    try {
-      LOG.debug("Deploy plugin " + plugin);
+    LOG.debug("Deploy plugin " + plugin);
 
+    Preconditions.checkState(plugin.isCompatibleWith(server.getVersion()),
+        "Plugin %s needs a more recent version of Sonar than %s. At least %s is expected",
+        plugin.getKey(), server.getVersion(), plugin.getSonarVersion());
+
+    try {
       File pluginDeployDir = new File(fileSystem.getDeployedPluginsDir(), plugin.getKey());
       FileUtils.forceMkdir(pluginDeployDir);
       FileUtils.cleanDirectory(pluginDeployDir);
@@ -199,7 +207,6 @@ public class PluginDeployer implements ServerComponent {
       }
 
       installer.install(plugin, pluginDeployDir);
-
     } catch (IOException e) {
       throw new RuntimeException("Fail to deploy the plugin " + plugin, e);
     }
