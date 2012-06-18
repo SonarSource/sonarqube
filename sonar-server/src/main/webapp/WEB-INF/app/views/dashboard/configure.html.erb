@@ -77,5 +77,34 @@
     $('filter-widgets-loading').show();
     return false;
   }
+  
+  var widgetContents = [
+  <% 
+    number_of_widgets = @widget_definitions.size()
+    @widget_definitions.each_with_index do |definition, index|
+      widget_id = "def_#{definition.id.tr('_', '')}"
+      widget_title = message("widget.#{definition.id}.name", :default => definition.title).downcase
+      widget_description = message("widget.#{definition.id}.description", :default => definition.description).downcase 
+  %>
+    { id:"<%= widget_id -%>", c:"<%= widget_title.gsub(/\r\n?/, " ") -%> <%= widget_description.gsub(/\r\n?/, " ") -%>" } <%= "," unless index==number_of_widgets-1 -%>
+  <% end %>
+  ]
+  
+  function findWidgetsByContent(text) {
+    var userInput = text.toLowerCase();
+    widgetContents.each(function (widget) {
+      var element = $(widget.id);
+      if (element != null) {
+        if (widget.c.indexOf(userInput) != -1) {
+          element.show();
+        } else {
+          element.hide();
+        }
+      }
+    });
+    return false;
+  }
   //-->
+  
+  $('filter-widget-box').focus();
 </script>

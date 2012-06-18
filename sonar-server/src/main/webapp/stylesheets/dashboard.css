@@ -87,19 +87,15 @@
   margin-bottom: 5px;
 }
 
-#dashboard #widget_defs td {
-  white-space: normal;
-  vertical-align: top;
-  width: 25%;
-}
-
 #dashboard .widget_def {
   border: 1px solid #FFD324;
   padding: 5px;
   margin: 3px;
   white-space: normal;
   vertical-align: top;
-  height: 80px;
+  width: 250px;
+  float: left;
+  min-height: 100px;
 }
 
 #dashboard ul.widget_categs li {

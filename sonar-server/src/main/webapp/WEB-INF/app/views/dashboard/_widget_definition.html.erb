@@ -1,4 +1,3 @@
-<td>
   <div class="widget_def" id="def_<%= definition.id.tr('_', '') -%>">
     <p><b><%= h message("widget.#{definition.id}.name", :default => definition.title) -%></b></p>
 
@@ -9,4 +8,3 @@
       <input type="submit" value="<%= message('dashboard.add_widget') -%>" id="add-widget-<%= u(definition.id) -%>">
     <% end -%>
   </div>
-</td>

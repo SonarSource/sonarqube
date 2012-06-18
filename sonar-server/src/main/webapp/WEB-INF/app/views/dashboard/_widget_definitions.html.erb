@@ -1,24 +1,26 @@
-<p>
-<ul class="horizontal widget_categs" id="widget-filters">
-  <li><%= message('filter_verb') -%>:</li>
-  <li class="<%= 'selected' if category.blank? -%>">
-    <a href="#" onClick="return filterWidgets('')" id="widget-filter-none"><%= message('none') -%></a>
-  </li>
-  <% @widget_categories.each do |c| %>
-    <li class="<%= 'selected' if category==c -%>">
-      <a href="#" onClick="return filterWidgets('<%= escape_javascript(c) -%>')" id="widget-filter-<%= u(c) -%>"><%= h(c) -%></a>
+<div style="line-height: 20px; vertical-align: middle; padding: 0px 3px; margin-right: 10px">
+  <ul class="horizontal widget_categs" id="widget-filters">
+    <li>Filter by category:</li>
+    <li class="<%= 'selected' if category.blank? -%>">
+      <a href="#" onClick="return filterWidgets('')" id="widget-filter-none"><%= message('none') -%></a>
     </li>
-  <% end %>
-</ul>
-<%= image_tag 'loading.gif', :style => 'vertical-align: top;display: none', :id => 'filter-widgets-loading' -%>
-</p>
+    <% @widget_categories.each do |c| %>
+      <li class="<%= 'selected' if category==c -%>">
+        <a href="#" onClick="return filterWidgets('<%= escape_javascript(c) -%>')" id="widget-filter-<%= u(c) -%>"><%= h(c) -%></a>
+      </li>
+    <% end %>
+  </ul>
+</div>
+<div style="float: left; padding: 0px 3px">
+  Filter by content: 
+  <input id="filter-widget-box" name="filter-widget-box" size="20" onKeyUp="findWidgetsByContent(this.value);"/>
+</div>
+<div style="float: left; padding: 0px 3px;">
+  <%= image_tag 'loading.gif', :style => 'vertical-align: top; display: none', :id => 'filter-widgets-loading' -%>
+</div>
+<div style="clear: both"></div>
 
-<table width="100%">
-  <% @widget_definitions.each_slice(4) do |row_definitions| %>
-    <tr>
-      <% row_definitions.each do |definition| %>
-        <%= render :partial => 'widget_definition', :locals => {:definition => definition, :dashboard => @dashboard, :resource => @resource, :category => category} %>
-      <% end %>
-    </tr>
-  <% end %>
-</table>
+<% @widget_definitions.each do |definition| %>
+  <%= render :partial => 'widget_definition', :locals => {:definition => definition, :dashboard => @dashboard, :resource => @resource, :category => category} %>
+<% end %>
+
