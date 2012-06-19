@@ -17,78 +17,57 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.resource;
+package org.sonar.core.dependency;
 
-public final class ResourceDto {
-
+public final class DependencyDto {
   private Long id;
-  private String key;
-  private String name;
-  private String longName;
-  private Integer rootId;
-  private String scope;
-  private String qualifier;
+  private Long fromResourceId;
+  private Long toResourceId;
+  private String usage;
+  private Integer weight;
 
   public Long getId() {
     return id;
   }
 
-  public ResourceDto setId(Long id) {
+  public DependencyDto setId(Long id) {
     this.id = id;
     return this;
   }
 
-  public String getName() {
-    return name;
+  public Long getFromResourceId() {
+    return fromResourceId;
   }
 
-  public ResourceDto setName(String name) {
-    this.name = name;
+  public DependencyDto setFromResourceId(Long fromResourceId) {
+    this.fromResourceId = fromResourceId;
     return this;
   }
 
-  public String getKey() {
-    return key;
+  public Long getToResourceId() {
+    return toResourceId;
   }
 
-  public ResourceDto setKey(String s) {
-    this.key = s;
+  public DependencyDto setToResourceId(Long toResourceId) {
+    this.toResourceId = toResourceId;
     return this;
   }
 
-  public Integer getRootId() {
-    return rootId;
+  public String getUsage() {
+    return usage;
   }
 
-  public ResourceDto setRootId(Integer rootId) {
-    this.rootId = rootId;
+  public DependencyDto setUsage(String usage) {
+    this.usage = usage;
     return this;
   }
 
-  public String getLongName() {
-    return longName;
+  public Integer getWeight() {
+    return weight;
   }
 
-  public ResourceDto setLongName(String longName) {
-    this.longName = longName;
-    return this;
-  }
-
-  public String getScope() {
-    return scope;
-  }
-
-  public ResourceDto setScope(String scope) {
-    this.scope = scope;
-    return this;
-  }
-
-  public String getQualifier() {
-    return qualifier;
-  }
-
-  public ResourceDto setQualifier(String qualifier) {
-    this.qualifier = qualifier;
+  public DependencyDto setWeight(Integer weight) {
+    this.weight = weight;
     return this;
   }
 }

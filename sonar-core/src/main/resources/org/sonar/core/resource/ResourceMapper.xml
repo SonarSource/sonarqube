@@ -23,6 +23,7 @@
 
   <resultMap id="resourceResultMap" type="Resource">
     <id property="id" column="id"/>
+    <result property="key" column="kee"/>
     <result property="name" column="name"/>
     <result property="longName" column="long_name"/>
     <result property="rootId" column="root_id"/>

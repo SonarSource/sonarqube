@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.core.dependency.DependencyMapper">
+
+  <select id="selectAll" resultType="dependency">
+    select id, from_resource_id as fromResourceId, to_resource_id as toResourceId, dep_usage as usage, dep_weight as weight from dependencies
+  </select>
+
+</mapper>
+

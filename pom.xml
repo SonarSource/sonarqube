@@ -7,7 +7,7 @@
   <packaging>pom</packaging>
   <version>3.2-SNAPSHOT</version>
   <name>Sonar</name>
-  <url>http://www.sonarsource.org</url>
+  <url>http://www.sonarsource.org/</url>
   <description>Open source platform for continuous inspection of code quality</description>
 
   <modules>
