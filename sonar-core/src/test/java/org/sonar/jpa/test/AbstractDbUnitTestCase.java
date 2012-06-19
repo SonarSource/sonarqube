@@ -25,23 +25,30 @@ import org.dbunit.DataSourceDatabaseTester;
 import org.dbunit.DatabaseUnitException;
 import org.dbunit.IDatabaseTester;
 import org.dbunit.database.IDatabaseConnection;
-import org.dbunit.dataset.*;
+import org.dbunit.dataset.Column;
+import org.dbunit.dataset.CompositeDataSet;
+import org.dbunit.dataset.DataSetException;
+import org.dbunit.dataset.IDataSet;
+import org.dbunit.dataset.ITable;
+import org.dbunit.dataset.ITableMetaData;
+import org.dbunit.dataset.ReplacementDataSet;
 import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.operation.DatabaseOperation;
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.DatabaseCommands;
 import org.sonar.core.persistence.InMemoryDatabase;
-import org.sonar.core.persistence.MyBatis;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.JpaDatabaseSession;
 import org.sonar.jpa.session.MemoryDatabaseConnector;
 
 import java.io.InputStream;
-import java.io.StringWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -51,22 +58,18 @@ import static org.junit.Assert.fail;
  * Heavily duplicates DaoTestCase as long as Hibernate is in use.
  */
 public abstract class AbstractDbUnitTestCase {
+  private static Database database;
+  private static DefaultDatabaseConnector dbConnector;
+  private static DatabaseCommands databaseCommands;
 
   private JpaDatabaseSession session;
   private IDatabaseTester databaseTester;
   private IDatabaseConnection connection;
-  private static Database database;
-  private static MyBatis myBatis;
-  private static DefaultDatabaseConnector dbConnector;
-  private static DatabaseCommands databaseCommands;
 
   @BeforeClass
   public static void startDatabase() throws Exception {
     database = new InMemoryDatabase();
     database.start();
-
-    myBatis = new MyBatis(database);
-    myBatis.start();
 
     dbConnector = new MemoryDatabaseConnector(database);
     dbConnector.start();
@@ -76,7 +79,7 @@ public abstract class AbstractDbUnitTestCase {
 
   @Before
   public void startConnection() throws Exception {
-    databaseCommands.truncateDatabase(myBatis.openSession().getConnection());
+    databaseCommands.truncateDatabase(database.getDataSource().getConnection());
     databaseTester = new DataSourceDatabaseTester(database.getDataSource());
 
     session = new JpaDatabaseSession(dbConnector);
@@ -97,10 +100,6 @@ public abstract class AbstractDbUnitTestCase {
   public static void stopDatabase() {
     dbConnector.stop();
     database.stop();
-  }
-
-  protected MyBatis getMyBatis() {
-    return myBatis;
   }
 
   public DatabaseSession getSession() {
@@ -140,7 +139,7 @@ public abstract class AbstractDbUnitTestCase {
     }
   }
 
-  protected final void setupData(InputStream... dataSetStream) {
+  private final void setupData(InputStream... dataSetStream) {
     try {
       IDataSet[] dataSets = new IDataSet[dataSetStream.length];
       for (int i = 0; i < dataSetStream.length; i++) {
@@ -180,10 +179,10 @@ public abstract class AbstractDbUnitTestCase {
   }
 
   protected final void checkTables(String testName, String... tables) {
-    checkTablesWithExcludedColumns(testName, new String[]{}, tables);
+    checkTables(testName, new String[0], tables);
   }
 
-  protected final void checkTablesWithExcludedColumns(String testName, String[] excludedColumnNames, String... tables) {
+  protected final void checkTables(String testName, String[] excludedColumnNames, String... tables) {
     getSession().commit();
     try {
       IDataSet dataSet = getCurrentDataSet();
@@ -200,17 +199,7 @@ public abstract class AbstractDbUnitTestCase {
     }
   }
 
-  protected final void assertEmptyTables(String... emptyTables) {
-    for (String table : emptyTables) {
-      try {
-        Assert.assertEquals(0, getCurrentDataSet().getTable(table).getRowCount());
-      } catch (DataSetException e) {
-        throw translateException("Error while checking results", e);
-      }
-    }
-  }
-
-  protected final IDataSet getExpectedData(String testName) {
+  private final IDataSet getExpectedData(String testName) {
     String className = getClass().getName();
     className = String.format("/%s/%s-result.xml", className.replace(".", "/"), testName);
 
@@ -222,7 +211,7 @@ public abstract class AbstractDbUnitTestCase {
     }
   }
 
-  protected final IDataSet getData(InputStream stream) {
+  private final IDataSet getData(InputStream stream) {
     try {
       ReplacementDataSet dataSet = new ReplacementDataSet(new FlatXmlDataSet(stream));
       dataSet.addReplacementObject("[null]", null);
@@ -232,25 +221,11 @@ public abstract class AbstractDbUnitTestCase {
     }
   }
 
-  protected final IDataSet getCurrentDataSet() {
+  private final IDataSet getCurrentDataSet() {
     try {
       return connection.createDataSet();
     } catch (SQLException e) {
       throw translateException("Could not create the current dataset", e);
-    }
-  }
-
-  protected String getCurrentDataSetAsXML() {
-    return getDataSetAsXML(getCurrentDataSet());
-  }
-
-  protected String getDataSetAsXML(IDataSet dataset) {
-    try {
-      StringWriter writer = new StringWriter();
-      FlatXmlDataSet.write(dataset, writer);
-      return writer.getBuffer().toString();
-    } catch (Exception e) {
-      throw translateException("Could not build XML from dataset", e);
     }
   }
 
@@ -260,17 +235,8 @@ public abstract class AbstractDbUnitTestCase {
     return runtimeException;
   }
 
-  protected Long getHQLCount(final Class<?> hqlClass) {
+  protected Long getHQLCount(Class<?> hqlClass) {
     String hqlCount = "SELECT count(o) from " + hqlClass.getSimpleName() + " o";
     return (Long) getSession().createQuery(hqlCount).getSingleResult();
   }
-
-  protected IDatabaseConnection getConnection() {
-    return connection;
-  }
-
-  protected IDatabaseTester getDatabaseTester() {
-    return databaseTester;
-  }
-
 }

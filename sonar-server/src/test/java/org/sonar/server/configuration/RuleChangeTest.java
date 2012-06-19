@@ -50,42 +50,42 @@ public class RuleChangeTest extends AbstractDbUnitTestCase {
   public void testRuleActivated() {
     setupData("initialData");
     profilesManager.activated(2, 3, "admin");
-    checkTablesWithExcludedColumns("ruleActivated", new String[]{"change_date"}, "active_rule_changes");
+    checkTables("ruleActivated", new String[]{"change_date"}, "active_rule_changes");
   }
 
   @Test
   public void testRuleDeactivated() {
     setupData("initialData");
     profilesManager.deactivated(2, 3, "admin");
-    checkTablesWithExcludedColumns("ruleDeactivated", new String[]{"change_date"}, "active_rule_changes");
+    checkTables("ruleDeactivated", new String[]{"change_date"}, "active_rule_changes");
   }
 
   @Test
   public void testRuleParamChanged() {
     setupData("initialData");
     profilesManager.ruleParamChanged(2, 3, "param1", "20", "30", "admin");
-    checkTablesWithExcludedColumns("ruleParamChanged", new String[]{"change_date"}, "active_rule_changes", "active_rule_param_changes");
+    checkTables("ruleParamChanged", new String[]{"change_date"}, "active_rule_changes", "active_rule_param_changes");
   }
 
   @Test
   public void testRuleSeverityChanged() {
     setupData("initialData");
     profilesManager.ruleSeverityChanged(2, 3, RulePriority.BLOCKER, RulePriority.CRITICAL, "admin");
-    checkTablesWithExcludedColumns("ruleSeverityChanged", new String[]{"change_date"}, "active_rule_changes");
+    checkTables("ruleSeverityChanged", new String[]{"change_date"}, "active_rule_changes");
   }
 
   @Test
   public void testRuleReverted() {
     setupData("ruleReverted");
     profilesManager.revert(2, 3, "admin");
-    checkTablesWithExcludedColumns("ruleReverted", new String[]{"change_date"}, "active_rule_changes", "active_rule_param_changes");
+    checkTables("ruleReverted", new String[]{"change_date"}, "active_rule_changes", "active_rule_param_changes");
   }
 
   @Test
   public void testChangeParentProfile() {
     setupData("changeParentProfile");
     profilesManager.changeParentProfile(2, "parent", "admin");
-    checkTablesWithExcludedColumns("changeParentProfile", new String[]{"change_date"}, "active_rule_changes");
+    checkTables("changeParentProfile", new String[]{"change_date"}, "active_rule_changes");
   }
 
 

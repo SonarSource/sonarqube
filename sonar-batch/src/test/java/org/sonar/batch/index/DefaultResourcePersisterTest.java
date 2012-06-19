@@ -67,7 +67,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     ResourcePersister persister = new DefaultResourcePersister(getSession());
     persister.saveProject(singleProject, null);
 
-    checkTablesWithExcludedColumns("shouldSaveNewProject", new String[] {"build_date"}, "projects", "snapshots");
+    checkTables("shouldSaveNewProject", new String[] {"build_date"}, "projects", "snapshots");
   }
 
   @Test
@@ -80,7 +80,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     persister.saveProject(moduleB, multiModuleProject);
     persister.saveProject(moduleB1, moduleB);
 
-    checkTablesWithExcludedColumns("shouldSaveNewMultiModulesProject", new String[] {"build_date"}, "projects", "snapshots");
+    checkTables("shouldSaveNewMultiModulesProject", new String[] {"build_date"}, "projects", "snapshots");
   }
 
   @Test
@@ -92,7 +92,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     persister.saveResource(singleProject, new JavaPackage("org.foo").setEffectiveKey("foo:org.foo"));
 
     // check that the directory is attached to the project
-    checkTablesWithExcludedColumns("shouldSaveNewDirectory", new String[] {"build_date"}, "projects", "snapshots");
+    checkTables("shouldSaveNewDirectory", new String[] {"build_date"}, "projects", "snapshots");
   }
 
   @Test
@@ -105,7 +105,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     persister.saveResource(singleProject, new Library("junit:junit", "4.8.2").setEffectiveKey("junit:junit"));// do nothing, already saved
     persister.saveResource(singleProject, new Library("junit:junit", "3.2").setEffectiveKey("junit:junit"));
 
-    checkTablesWithExcludedColumns("shouldSaveNewLibrary", new String[] {"build_date"}, "projects", "snapshots");
+    checkTables("shouldSaveNewLibrary", new String[] {"build_date"}, "projects", "snapshots");
   }
 
   @Test
@@ -133,7 +133,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     singleProject.setDescription("new description");
     persister.saveProject(singleProject, null);
 
-    checkTablesWithExcludedColumns("shouldUpdateExistingResource", new String[] {"build_date"}, "projects", "snapshots");
+    checkTables("shouldUpdateExistingResource", new String[] {"build_date"}, "projects", "snapshots");
   }
 
   // SONAR-1700
@@ -144,7 +144,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     ResourcePersister persister = new DefaultResourcePersister(getSession());
     persister.saveProject(singleProject, null);
 
-    checkTablesWithExcludedColumns("shouldRemoveRootIndexIfResourceIsProject", new String[] {"build_date"}, "projects", "snapshots");
+    checkTables("shouldRemoveRootIndexIfResourceIsProject", new String[] {"build_date"}, "projects", "snapshots");
   }
 
 }

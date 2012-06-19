@@ -22,8 +22,8 @@ package org.sonar.server.platform;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.junit.Test;
 import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.core.persistence.DaoTestCase;
 import org.sonar.core.properties.PropertiesDao;
-import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.io.File;
 import java.net.URISyntaxException;
@@ -32,7 +32,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class ServerSettingsTest extends AbstractDbUnitTestCase {
+public class ServerSettingsTest extends DaoTestCase {
 
   private static File home = getHome();
 

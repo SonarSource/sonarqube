@@ -32,17 +32,23 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.violations.ViolationQuery;
 import org.sonar.batch.index.ResourcePersister;
+import org.sonar.core.persistence.DaoTestCase;
 import org.sonar.core.review.ReviewDao;
 import org.sonar.core.review.ReviewDto;
-import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.util.Collections;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-public class ReviewWorkflowDecoratorTest extends AbstractDbUnitTestCase {
+public class ReviewWorkflowDecoratorTest extends DaoTestCase {
   private ReviewWorkflowDecorator decorator;
   private ReviewNotifications notifications;
 
@@ -82,7 +88,7 @@ public class ReviewWorkflowDecoratorTest extends AbstractDbUnitTestCase {
     decorator.decorate(resource, context);
 
     verify(notifications, times(2)).notifyClosed(any(ReviewDto.class), any(Project.class), eq(resource));
-    checkTablesWithExcludedColumns("shouldCloseReviewsOnResolvedViolations", new String[]{"updated_at"}, "reviews");
+    checkTables("shouldCloseReviewsOnResolvedViolations", new String[] {"updated_at"}, "reviews");
   }
 
   @Test
@@ -95,7 +101,7 @@ public class ReviewWorkflowDecoratorTest extends AbstractDbUnitTestCase {
     decorator.decorate(resource, context);
 
     verify(notifications).notifyClosed(any(ReviewDto.class), any(Project.class), eq(resource));
-    checkTablesWithExcludedColumns("shouldCloseResolvedManualViolations", new String[]{"updated_at"}, "reviews");
+    checkTables("shouldCloseResolvedManualViolations", new String[] {"updated_at"}, "reviews");
   }
 
   @Test
@@ -110,7 +116,7 @@ public class ReviewWorkflowDecoratorTest extends AbstractDbUnitTestCase {
     decorator.decorate(resource, context);
 
     verify(notifications).notifyReopened(any(ReviewDto.class), any(Project.class), eq(resource));
-    checkTablesWithExcludedColumns("shouldReopenViolations", new String[]{"updated_at"}, "reviews");
+    checkTables("shouldReopenViolations", new String[] {"updated_at"}, "reviews");
   }
 
   @Test
