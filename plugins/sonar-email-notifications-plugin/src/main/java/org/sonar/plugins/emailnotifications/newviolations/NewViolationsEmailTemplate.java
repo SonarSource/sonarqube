@@ -20,7 +20,7 @@
 package org.sonar.plugins.emailnotifications.newviolations;
 
 import org.sonar.api.notifications.Notification;
-import org.sonar.plugins.emailnotifications.EmailConfiguration;
+import org.sonar.api.platform.EmailSettings;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.sonar.plugins.emailnotifications.api.EmailTemplate;
 
@@ -31,9 +31,9 @@ import org.sonar.plugins.emailnotifications.api.EmailTemplate;
  */
 public class NewViolationsEmailTemplate extends EmailTemplate {
 
-  private EmailConfiguration configuration;
+  private EmailSettings configuration;
 
-  public NewViolationsEmailTemplate(EmailConfiguration configuration) {
+  public NewViolationsEmailTemplate(EmailSettings configuration) {
     this.configuration = configuration;
   }
 

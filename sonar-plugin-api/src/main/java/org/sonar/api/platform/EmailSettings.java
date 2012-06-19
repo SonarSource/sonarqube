@@ -17,19 +17,20 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.emailnotifications;
+package org.sonar.api.platform;
 
-import org.apache.commons.configuration.Configuration;
+import com.google.common.base.Objects;
+import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.ServerExtension;
+import org.sonar.api.ServerComponent;
+import org.sonar.api.config.Settings;
 
 /**
  * Ruby uses constants from this class.
  * 
- * @since 2.10
+ * @since 3.2
  */
-public class EmailConfiguration implements ServerExtension {
-
+public class EmailSettings implements BatchComponent, ServerComponent {
   public static final String SMTP_HOST = "email.smtp_host.secured";
   public static final String SMTP_HOST_DEFAULT = "";
   public static final String SMTP_PORT = "email.smtp_port.secured";
@@ -45,42 +46,45 @@ public class EmailConfiguration implements ServerExtension {
   public static final String PREFIX = "email.prefix";
   public static final String PREFIX_DEFAULT = "[SONAR]";
 
-  private Configuration configuration;
+  private final Settings settings;
 
-  public EmailConfiguration(Configuration configuration) {
-    this.configuration = configuration;
+  public EmailSettings(Settings settings) {
+    this.settings = settings;
   }
 
   public String getSmtpHost() {
-    return configuration.getString(SMTP_HOST, SMTP_HOST_DEFAULT);
+    return get(SMTP_HOST, SMTP_HOST_DEFAULT);
   }
 
   public String getSmtpPort() {
-    return configuration.getString(SMTP_PORT, SMTP_PORT_DEFAULT);
+    return get(SMTP_PORT, SMTP_PORT_DEFAULT);
   }
 
   public String getSecureConnection() {
-    return configuration.getString(SMTP_SECURE_CONNECTION, SMTP_SECURE_CONNECTION_DEFAULT);
+    return get(SMTP_SECURE_CONNECTION, SMTP_SECURE_CONNECTION_DEFAULT);
   }
 
   public String getSmtpUsername() {
-    return configuration.getString(SMTP_USERNAME, SMTP_USERNAME_DEFAULT);
+    return get(SMTP_USERNAME, SMTP_USERNAME_DEFAULT);
   }
 
   public String getSmtpPassword() {
-    return configuration.getString(SMTP_PASSWORD, SMTP_PASSWORD_DEFAULT);
+    return get(SMTP_PASSWORD, SMTP_PASSWORD_DEFAULT);
   }
 
   public String getFrom() {
-    return configuration.getString(FROM, FROM_DEFAULT);
+    return get(FROM, FROM_DEFAULT);
   }
 
   public String getPrefix() {
-    return configuration.getString(PREFIX, PREFIX_DEFAULT);
+    return get(PREFIX, PREFIX_DEFAULT);
   }
 
   public String getServerBaseURL() {
-    return configuration.getString(CoreProperties.SERVER_BASE_URL, CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE);
+    return get(CoreProperties.SERVER_BASE_URL, CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE);
   }
 
+  private String get(String key, String defaultValue) {
+    return Objects.firstNonNull(settings.getString(key), defaultValue);
+  }
 }

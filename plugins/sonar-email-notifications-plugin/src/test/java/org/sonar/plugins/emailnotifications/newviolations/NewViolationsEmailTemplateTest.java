@@ -19,17 +19,17 @@
  */
 package org.sonar.plugins.emailnotifications.newviolations;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.api.notifications.Notification;
+import org.sonar.api.platform.EmailSettings;
+import org.sonar.plugins.emailnotifications.api.EmailMessage;
+
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.sonar.api.notifications.Notification;
-import org.sonar.plugins.emailnotifications.EmailConfiguration;
-import org.sonar.plugins.emailnotifications.api.EmailMessage;
 
 public class NewViolationsEmailTemplateTest {
 
@@ -37,7 +37,7 @@ public class NewViolationsEmailTemplateTest {
 
   @Before
   public void setUp() {
-    EmailConfiguration configuration = mock(EmailConfiguration.class);
+    EmailSettings configuration = mock(EmailSettings.class);
     when(configuration.getServerBaseURL()).thenReturn("http://nemo.sonarsource.org");
     template = new NewViolationsEmailTemplate(configuration);
   }

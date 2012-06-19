@@ -21,6 +21,7 @@ package org.sonar.batch.bootstrap;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.platform.EmailSettings;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.batch.FakeMavenPluginExecutor;
 import org.sonar.batch.MavenPluginExecutor;
@@ -61,6 +62,7 @@ public class BootstrapModule extends Module {
     addCoreSingleton(HttpDownloader.class);// registered here because used by BootstrapClassLoader
     addCoreSingleton(ArtifactDownloader.class);// registered here because used by BootstrapClassLoader
     addCoreSingleton(JdbcDriverHolder.class);
+    addCoreSingleton(EmailSettings.class);
 
     URLClassLoader bootstrapClassLoader = getComponentByType(JdbcDriverHolder.class).getClassLoader();
     // set as the current context classloader for hibernate, else it does not find the JDBC driver.

@@ -19,9 +19,7 @@
  */
 package org.sonar.plugins.core;
 
-import org.sonar.plugins.core.dashboards.MyFavouritesDashboard;
-
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Extension;
 import org.sonar.api.Properties;
@@ -40,6 +38,7 @@ import org.sonar.plugins.core.charts.XradarChart;
 import org.sonar.plugins.core.colorizers.JavaColorizerFormat;
 import org.sonar.plugins.core.dashboards.DefaultDashboard;
 import org.sonar.plugins.core.dashboards.HotspotsDashboard;
+import org.sonar.plugins.core.dashboards.MyFavouritesDashboard;
 import org.sonar.plugins.core.dashboards.ProjectsDashboard;
 import org.sonar.plugins.core.dashboards.ReviewsDashboard;
 import org.sonar.plugins.core.dashboards.TimeMachineDashboard;
@@ -289,116 +288,113 @@ import java.util.List;
 })
 public final class CorePlugin extends SonarPlugin {
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
+  @SuppressWarnings("unchecked")
   public List<Class<? extends Extension>> getExtensions() {
-    List extensions = Lists.newLinkedList();
+    return ImmutableList.of(
+        DefaultResourceTypes.class,
+        UserManagedMetrics.class,
+        ProjectFileSystemLogger.class,
 
-    extensions.add(DefaultResourceTypes.class);
-    extensions.add(UserManagedMetrics.class);
-    extensions.add(ProjectFileSystemLogger.class);
+        // maven
+        MavenInitializer.class,
 
-    // maven
-    extensions.add(MavenInitializer.class);
+        // languages
+        Java.class,
 
-    // languages
-    extensions.add(Java.class);
+        // pages
+        TestsViewerDefinition.class,
+        Lcom4Viewer.class,
 
-    // pages
-    extensions.add(TestsViewerDefinition.class);
-    extensions.add(Lcom4Viewer.class);
+        // filters
+        ProjectFilter.class,
+        TreeMapFilter.class,
+        MyFavouritesFilter.class,
 
-    // filters
-    extensions.add(ProjectFilter.class);
-    extensions.add(TreeMapFilter.class);
-    extensions.add(MyFavouritesFilter.class);
+        // widgets
+        AlertsWidget.class,
+        CoverageWidget.class,
+        ItCoverageWidget.class,
+        CommentsDuplicationsWidget.class,
+        DescriptionWidget.class,
+        ComplexityWidget.class,
+        RulesWidget.class,
+        SizeWidget.class,
+        EventsWidget.class,
+        CustomMeasuresWidget.class,
+        TimelineWidget.class,
+        TimeMachineWidget.class,
+        HotspotMetricWidget.class,
+        HotspotMostViolatedResourcesWidget.class,
+        HotspotMostViolatedRulesWidget.class,
+        MyReviewsWidget.class,
+        ProjectReviewsWidget.class,
+        FalsePositiveReviewsWidget.class,
+        ReviewsPerDeveloperWidget.class,
+        PlannedReviewsWidget.class,
+        UnplannedReviewsWidget.class,
+        ActionPlansWidget.class,
+        ReviewsMetricsWidget.class,
+        TreemapWidget.class,
+        FilterWidget.class,
 
-    // widgets
-    extensions.add(AlertsWidget.class);
-    extensions.add(CoverageWidget.class);
-    extensions.add(ItCoverageWidget.class);
-    extensions.add(CommentsDuplicationsWidget.class);
-    extensions.add(DescriptionWidget.class);
-    extensions.add(ComplexityWidget.class);
-    extensions.add(RulesWidget.class);
-    extensions.add(SizeWidget.class);
-    extensions.add(EventsWidget.class);
-    extensions.add(CustomMeasuresWidget.class);
-    extensions.add(TimelineWidget.class);
-    extensions.add(TimeMachineWidget.class);
-    extensions.add(HotspotMetricWidget.class);
-    extensions.add(HotspotMostViolatedResourcesWidget.class);
-    extensions.add(HotspotMostViolatedRulesWidget.class);
-    extensions.add(MyReviewsWidget.class);
-    extensions.add(ProjectReviewsWidget.class);
-    extensions.add(FalsePositiveReviewsWidget.class);
-    extensions.add(ReviewsPerDeveloperWidget.class);
-    extensions.add(PlannedReviewsWidget.class);
-    extensions.add(UnplannedReviewsWidget.class);
-    extensions.add(ActionPlansWidget.class);
-    extensions.add(ReviewsMetricsWidget.class);
-    extensions.add(TreemapWidget.class);
-    extensions.add(FilterWidget.class);
+        // dashboards
+        DefaultDashboard.class,
+        HotspotsDashboard.class,
+        ReviewsDashboard.class,
+        TimeMachineDashboard.class,
+        ProjectsDashboard.class,
+        TreemapDashboard.class,
+        MyFavouritesDashboard.class,
 
-    // dashboards
-    extensions.add(DefaultDashboard.class);
-    extensions.add(HotspotsDashboard.class);
-    extensions.add(ReviewsDashboard.class);
-    extensions.add(TimeMachineDashboard.class);
-    extensions.add(ProjectsDashboard.class);
-    extensions.add(TreemapDashboard.class);
-    extensions.add(MyFavouritesDashboard.class);
+        // chart
+        XradarChart.class,
+        DistributionBarChart.class,
+        DistributionAreaChart.class,
 
-    // chart
-    extensions.add(XradarChart.class);
-    extensions.add(DistributionBarChart.class);
-    extensions.add(DistributionAreaChart.class);
+        // colorizers
+        JavaColorizerFormat.class,
 
-    // colorizers
-    extensions.add(JavaColorizerFormat.class);
+        // batch
+        ProfileSensor.class,
+        ProfileEventsSensor.class,
+        ProjectLinksSensor.class,
+        UnitTestDecorator.class,
+        VersionEventsSensor.class,
+        CheckAlertThresholds.class,
+        GenerateAlertEvents.class,
+        ViolationsDecorator.class,
+        WeightedViolationsDecorator.class,
+        ViolationsDensityDecorator.class,
+        LineCoverageDecorator.class,
+        CoverageDecorator.class,
+        BranchCoverageDecorator.class,
+        ItLineCoverageDecorator.class,
+        ItCoverageDecorator.class,
+        ItBranchCoverageDecorator.class,
+        ApplyProjectRolesDecorator.class,
+        ExcludedResourceFilter.class,
+        CommentDensityDecorator.class,
+        NoSonarFilter.class,
+        DirectoriesDecorator.class,
+        FilesDecorator.class,
+        ReviewNotifications.class,
+        ReviewWorkflowDecorator.class,
+        ReferenceAnalysis.class,
+        ManualMeasureDecorator.class,
+        ManualViolationInjector.class,
+        ViolationSeverityUpdater.class,
+        IndexProjectPostJob.class,
+        ReviewsMeasuresDecorator.class,
 
-    // batch
-    extensions.add(ProfileSensor.class);
-    extensions.add(ProfileEventsSensor.class);
-    extensions.add(ProjectLinksSensor.class);
-    extensions.add(UnitTestDecorator.class);
-    extensions.add(VersionEventsSensor.class);
-    extensions.add(CheckAlertThresholds.class);
-    extensions.add(GenerateAlertEvents.class);
-    extensions.add(ViolationsDecorator.class);
-    extensions.add(WeightedViolationsDecorator.class);
-    extensions.add(ViolationsDensityDecorator.class);
-    extensions.add(LineCoverageDecorator.class);
-    extensions.add(CoverageDecorator.class);
-    extensions.add(BranchCoverageDecorator.class);
-    extensions.add(ItLineCoverageDecorator.class);
-    extensions.add(ItCoverageDecorator.class);
-    extensions.add(ItBranchCoverageDecorator.class);
-    extensions.add(ApplyProjectRolesDecorator.class);
-    extensions.add(ExcludedResourceFilter.class);
-    extensions.add(CommentDensityDecorator.class);
-    extensions.add(NoSonarFilter.class);
-    extensions.add(DirectoriesDecorator.class);
-    extensions.add(FilesDecorator.class);
-    extensions.add(ReviewNotifications.class);
-    extensions.add(ReviewWorkflowDecorator.class);
-    extensions.add(ReferenceAnalysis.class);
-    extensions.add(ManualMeasureDecorator.class);
-    extensions.add(ManualViolationInjector.class);
-    extensions.add(ViolationSeverityUpdater.class);
-    extensions.add(IndexProjectPostJob.class);
-    extensions.add(ReviewsMeasuresDecorator.class);
-
-    // time machine
-    extensions.add(TendencyDecorator.class);
-    extensions.add(VariationDecorator.class);
-    extensions.add(ViolationTrackingDecorator.class);
-    extensions.add(ViolationPersisterDecorator.class);
-    extensions.add(NewViolationsDecorator.class);
-    extensions.add(TimeMachineConfigurationPersister.class);
-    extensions.add(NewCoverageFileAnalyzer.class);
-    extensions.add(NewItCoverageFileAnalyzer.class);
-    extensions.add(NewCoverageAggregator.class);
-
-    return extensions;
+        // time machine
+        TendencyDecorator.class,
+        VariationDecorator.class,
+        ViolationTrackingDecorator.class,
+        ViolationPersisterDecorator.class,
+        NewViolationsDecorator.class,
+        TimeMachineConfigurationPersister.class,
+        NewCoverageFileAnalyzer.class,
+        NewItCoverageFileAnalyzer.class,
+        NewCoverageAggregator.class);
   }
 }

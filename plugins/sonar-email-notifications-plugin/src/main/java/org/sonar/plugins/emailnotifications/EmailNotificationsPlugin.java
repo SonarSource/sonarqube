@@ -30,17 +30,12 @@ import org.sonar.plugins.emailnotifications.reviews.ReviewEmailTemplate;
 import java.util.List;
 
 public class EmailNotificationsPlugin extends SonarPlugin {
-
   public List<Class<? extends ServerExtension>> getExtensions() {
     return ImmutableList.of(
-        EmailConfiguration.class,
-        EmailNotificationChannel.class,
-
-        ReviewEmailTemplate.class,
         ChangesInReviewAssignedToMeOrCreatedByMe.class,
-
+        EmailNotificationChannel.class,
         NewViolationsEmailTemplate.class,
-        NewViolationsOnMyFavouriteProject.class);
+        NewViolationsOnMyFavouriteProject.class,
+        ReviewEmailTemplate.class);
   }
-
 }

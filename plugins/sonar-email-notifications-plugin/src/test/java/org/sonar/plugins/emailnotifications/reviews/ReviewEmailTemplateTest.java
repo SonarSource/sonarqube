@@ -19,6 +19,14 @@
  */
 package org.sonar.plugins.emailnotifications.reviews;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.api.database.model.User;
+import org.sonar.api.notifications.Notification;
+import org.sonar.api.platform.EmailSettings;
+import org.sonar.api.security.UserFinder;
+import org.sonar.plugins.emailnotifications.api.EmailMessage;
+
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -26,21 +34,13 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.sonar.api.database.model.User;
-import org.sonar.api.notifications.Notification;
-import org.sonar.api.security.UserFinder;
-import org.sonar.plugins.emailnotifications.EmailConfiguration;
-import org.sonar.plugins.emailnotifications.api.EmailMessage;
-
 public class ReviewEmailTemplateTest {
 
   private ReviewEmailTemplate template;
 
   @Before
   public void setUp() {
-    EmailConfiguration configuration = mock(EmailConfiguration.class);
+    EmailSettings configuration = mock(EmailSettings.class);
     when(configuration.getServerBaseURL()).thenReturn("http://nemo.sonarsource.org");
     UserFinder userFinder = mock(UserFinder.class);
     when(userFinder.findByLogin(eq("freddy.mallet"))).thenReturn(new User().setName("Freddy Mallet"));

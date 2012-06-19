@@ -23,16 +23,20 @@ import org.apache.commons.mail.EmailException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.platform.EmailSettings;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 
 import javax.mail.internet.MimeMessage;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.List;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -42,7 +46,7 @@ public class EmailNotificationChannelTest {
 
   private int port;
   private Wiser server;
-  private EmailConfiguration configuration;
+  private EmailSettings configuration;
   private EmailNotificationChannel channel;
 
   private static int getNextAvailablePort() {
@@ -63,7 +67,7 @@ public class EmailNotificationChannelTest {
     server.setPort(port);
     server.start();
 
-    configuration = mock(EmailConfiguration.class);
+    configuration = mock(EmailSettings.class);
     channel = new EmailNotificationChannel(configuration, null, null);
   }
 

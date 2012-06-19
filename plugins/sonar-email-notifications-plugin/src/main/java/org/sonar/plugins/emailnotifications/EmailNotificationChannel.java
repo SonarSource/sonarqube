@@ -19,9 +19,6 @@
  */
 package org.sonar.plugins.emailnotifications;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
@@ -30,10 +27,14 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.database.model.User;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
+import org.sonar.api.platform.EmailSettings;
 import org.sonar.api.security.UserFinder;
 import org.sonar.api.utils.SonarException;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.sonar.plugins.emailnotifications.api.EmailTemplate;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * References:
@@ -82,11 +83,11 @@ public class EmailNotificationChannel extends NotificationChannel {
   private static final String FROM_NAME_DEFAULT = "Sonar";
   private static final String SUBJECT_DEFAULT = "Notification";
 
-  private EmailConfiguration configuration;
+  private EmailSettings configuration;
   private EmailTemplate[] templates;
   private UserFinder userFinder;
 
-  public EmailNotificationChannel(EmailConfiguration configuration, EmailTemplate[] templates, UserFinder userFinder) {
+  public EmailNotificationChannel(EmailSettings configuration, EmailTemplate[] templates, UserFinder userFinder) {
     this.configuration = configuration;
     this.templates = templates;
     this.userFinder = userFinder;
