@@ -1,0 +1,66 @@
+<table class="data" id="dashboards">
+  <thead>
+  <tr>
+    <th class="name"><%= message('name') -%></th>
+    <th class="shared"><%= message('shared') -%></th>
+    <th class="owner"><%= message('owner') -%></th>
+    <th class="order"><%= message('order') -%></th>
+    <th class="operations"><%= message('operations') -%></th>
+  </tr>
+  </thead>
+  <tbody>
+  <% if @actives.nil? || @actives.empty? %>
+    <tr class="even">
+      <td colspan="5" class="empty"><%= message('dashboard.no_dashboard') -%></td>
+    </tr>
+  <% else %>
+    <% @actives.map(&:dashboard).each_with_index do |dashboard, index| %>
+      <tr id="dashboard-<%= dashboard.id -%>" class="<%= cycle('even', 'odd', :name => 'dashboard') -%>">
+        <td>
+          <%= link_to h(dashboard.name(true)), {:controller => :dashboard, :action => :index, :did => dashboard.id, :id => (params[:resource] unless dashboard.global?)},
+                      :id => "view-#{u dashboard.name}", :class => 'link-action' %>
+          <div class="description"><%= h dashboard.description -%></div>
+        </td>
+        <td class="shared">
+          <%= boolean_icon(dashboard.shared) -%>
+        </td>
+        <td class="owner">
+          <%= h(dashboard.user_name || message('dashboard.username.default')) -%>
+        </td>
+        <td class="order">
+          <% if index > 0 %>
+            <%= link_to image_tag('blue-up.png'), {:action => :up, :id => dashboard.id, :resource => params[:resource]}, :method => :post, :id => "up-#{u dashboard.name}" %>
+          <% else %>
+            <%= image_tag('transparent_16.gif') %>
+          <% end %>
+          <% if index < @actives.size-1 %>
+            <%= link_to image_tag('blue-down.png'), {:action => :down, :id => dashboard.id, :resource => params[:resource]}, :method => :post, :id => "down-#{u dashboard.name}" %>
+          <% else %>
+            <%= image_tag('transparent_16.gif') %>
+        <% end %>
+        </td>
+        <td class="thin nowrap operations">
+          <% if dashboard.editable_by?(current_user) %>
+            <%= link_to message('dashboard.configure_widgets'), {:controller => :dashboard, :action => :configure, :did => dashboard.id, :id => (params[:resource] unless dashboard.global?)},
+                        :id => "configure-#{u dashboard.name}", :class => 'link-action' %>
+            |
+            <%= link_to_remote message('edit'), {:update => "create_dashboard", :url => {:action => :edit, :id => dashboard.id, :resource => params[:resource]}},
+                               {:id => "edit-#{u dashboard.name}", :method => :get, :class => 'link-action'} %>
+            <% if @actives.size() > 1 %>
+              |
+              <%= link_to message('delete'), {:action => :delete, :id => dashboard.id, :resource => params[:resource]}, :method => :post,
+                          :confirm => message('dashboard.do_you_want_to_delete_dashboard'), :id => "delete-#{u dashboard.name}", :class => 'link-action' %>
+              |
+            <% end %>
+          <% end %>
+          <% if @actives.size() > 1 %>
+            <%= link_to message('unfollow'), {:action => :unfollow, :id => dashboard.id, :resource => params[:resource]}, :method => :post,
+                        :id => "unfollow-#{u dashboard.name}", :class => 'link-action' %>
+          <% end %>
+        </td>
+      </tr>
+    <% end
+       end
+    %>
+  </tbody>
+</table>

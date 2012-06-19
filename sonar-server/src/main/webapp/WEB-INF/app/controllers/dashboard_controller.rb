@@ -143,33 +143,38 @@ class DashboardController < ApplicationController
   private
 
   def load_dashboard
-    @active=nil
+    active=nil
+    @dashboard=nil
 
     if logged_in?
       if params[:did]
-        @active=ActiveDashboard.find(:first, :include => 'dashboard', :conditions => ['active_dashboards.dashboard_id=? AND active_dashboards.user_id=?', params[:did].to_i, current_user.id])
+        @dashboard=Dashboard.find(:first, :conditions => ['id=? AND user_id=?', params[:did].to_i, current_user.id])
       elsif params[:name]
-        @active=ActiveDashboard.find(:first, :include => 'dashboard', :conditions => ['dashboards.name=? AND active_dashboards.user_id=?', params[:name], current_user.id])
+        @dashboard=Dashboard.find(:first, :conditions => ['name=? AND user_id=?', params[:name], current_user.id])
       elsif params[:id]
-        @active=ActiveDashboard.user_dashboards(current_user, false).first
+        active=ActiveDashboard.user_dashboards(current_user, false).first
       else
-        @active=ActiveDashboard.user_dashboards(current_user, true).first
+        active=ActiveDashboard.user_dashboards(current_user, true).first
       end
     end
 
-    if @active.nil?
+    unless active or @dashboard
       # anonymous or not found in user dashboards
       if params[:did]
-        @active=ActiveDashboard.find(:first, :include => 'dashboard', :conditions => ['active_dashboards.dashboard_id=? AND active_dashboards.user_id IS NULL', params[:did].to_i])
+        @dashboard=Dashboard.find(:first, :conditions => ['id=? AND shared=?', params[:did].to_i, true])
       elsif params[:name]
-        @active=ActiveDashboard.find(:first, :include => 'dashboard', :conditions => ['dashboards.name=? AND active_dashboards.user_id IS NULL', params[:name]])
+        @dashboard=Dashboard.find(:first, :conditions => ['name=? AND shared=?', params[:name], true])
       elsif params[:id]
-        @active=ActiveDashboard.user_dashboards(nil, false).first
+        active=ActiveDashboard.user_dashboards(nil, false).first
       else
-        @active=ActiveDashboard.user_dashboards(nil, true).first
+        active=ActiveDashboard.user_dashboards(nil, true).first
       end
     end
-    @dashboard=(@active ? @active.dashboard : nil)
+
+    unless @dashboard
+      @dashboard=(active ? active.dashboard : nil)
+    end
+
     @dashboard_configuration=Api::DashboardConfiguration.new(@dashboard, :period_index => params[:period], :snapshot => @snapshot) if @dashboard && @snapshot
   end
 
