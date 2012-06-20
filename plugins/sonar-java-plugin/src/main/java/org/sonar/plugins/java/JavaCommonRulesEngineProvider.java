@@ -19,15 +19,31 @@
  */
 package org.sonar.plugins.java;
 
-import org.junit.Test;
+import org.sonar.api.BatchExtension;
+import org.sonar.api.ExtensionProvider;
+import org.sonar.api.ServerExtension;
+import org.sonar.api.resources.Language;
+import org.sonar.commonrules.api.CommonRulesEngine;
 
-import static org.fest.assertions.Assertions.assertThat;
+import java.util.List;
 
-public class JavaPluginTest {
+public class JavaCommonRulesEngineProvider extends ExtensionProvider implements ServerExtension, BatchExtension {
 
-  @Test
-  public void testGetExtensions() {
-    assertThat(new JavaPlugin().getExtensions().size()).isEqualTo(1);
+  private Language language;
+
+  public JavaCommonRulesEngineProvider(Language language) {
+    this.language = language;
+  }
+
+  @Override
+  public List provide() {
+    CommonRulesEngine engine = new CommonRulesEngine(language);
+    engine.activateRule("InsufficientBranchCoverage");
+    engine.activateRule("InsufficientCommentDensity");
+    engine.activateRule("DuplicatedBlocks");
+    engine.activateRule("InsufficientLineCoverage");
+
+    return engine.getExtensions();
   }
 
 }

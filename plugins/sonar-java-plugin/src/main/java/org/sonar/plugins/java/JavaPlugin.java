@@ -20,15 +20,14 @@
 package org.sonar.plugins.java;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.api.Extension;
 import org.sonar.api.SonarPlugin;
 
 import java.util.List;
 
 public class JavaPlugin extends SonarPlugin {
 
-  public List<Class<? extends Extension>> getExtensions() {
-    return ImmutableList.of();
+  public List<?> getExtensions() {
+    return ImmutableList.of(JavaCommonRulesEngineProvider.class);
   }
 
 }
