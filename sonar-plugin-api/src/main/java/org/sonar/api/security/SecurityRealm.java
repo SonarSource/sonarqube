@@ -27,7 +27,7 @@ import org.sonar.api.ServerExtension;
 public abstract class SecurityRealm implements ServerExtension {
 
   /**
-   * @return unique name of this realm, e.g. "LDAP"
+   * @return unique name of this realm, e.g. "ldap"
    */
   public String getName() {
     return getClass().getSimpleName();
