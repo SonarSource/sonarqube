@@ -1,6 +1,6 @@
-<% if administrator? %>
 <div class="line-block marginbottom10">
-  <ul class="operations">
+<% if administrator? %>
+  <ul style="float: right" class="operations">
     <li>
       <%= image_tag 'compare.png' -%>
       <a href="<%= ApplicationController.root_context-%>/profiles/compare" id="compare-link"><%= message('quality_profiles.compare_profiles') -%></a>
@@ -10,7 +10,11 @@
       <a href="#" onclick="$('restore-form').show();return false;" id="restore-link"><%= message('quality_profiles.restore_profile') -%></a>
     </li>
   </ul>
+<% end %>
+  <h1 class="marginbottom10"><%= message('quality_profiles.quality_profiles') -%></h1>
 </div>
+
+<% if administrator? %>
 <form class="admin marginbottom10" id="restore-form" action="<%= url_for :action => 'restore' -%>" enctype="multipart/form-data" style="display: none" method="post">
     <table class="spaced width100">
       <tr>

@@ -1,12 +1,13 @@
+<div class="line-block">
 <% if logged_in? %>
-  <div id="page-operations">
-    <ul class="operations">
-      <li>
-        <a href="<%= url_for :action => 'new' -%>"><%= message('filters.add_filter') -%></a>
-      </li>
-    </ul>
-  </div>
+  <ul style="float: right" class="operations">
+    <li>
+      <a href="<%= url_for :action => 'new' -%>"><%= message('filters.add_filter') -%></a>
+    </li>
+  </ul>
 <% end %>
+  <h1 class="marginbottom10"><%= message('default_filters.page') -%></h1>
+</div>
 
 <div class="admin_page">
   <table class="data" id="actives">

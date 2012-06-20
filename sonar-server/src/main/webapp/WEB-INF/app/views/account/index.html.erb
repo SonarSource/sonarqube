@@ -1,4 +1,4 @@
-<h1><%= message('my_profile.page') -%></h1>
+<h1 class="marginbottom10"><%= message('my_profile.page') -%></h1>
 <div class="admin marginbottom10">
 <table class="form">
   <tr>
@@ -21,7 +21,7 @@
 </div>
 
 <% if User.editable_password? %>
-<h1><%= message('my_profile.password.title') -%></h1>
+<h2><%= message('my_profile.password.title') -%></h2>
 <div class="admin marginbottom10">
   <% form_tag( {:action => 'change_password' }, :id => 'pass_form_tag', :name => 'pass_form_tag') do -%>
   <table class="form">
@@ -52,7 +52,7 @@
 </div>
 <% end -%>
 
-<h1><%= message('my_profile.notifications.title') -%></h1>
+<h2><%= message('my_profile.notifications.title') -%></h2>
 <div class="admin marginbottom10">
 <% form_tag({:action => 'update_notifications'}, {:method => 'post'}) do %>
   <table class="form">
