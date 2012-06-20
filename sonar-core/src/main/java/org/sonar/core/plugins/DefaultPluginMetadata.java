@@ -19,15 +19,12 @@
  */
 package org.sonar.core.plugins;
 
-import com.google.common.base.CharMatcher;
-import com.google.common.base.Splitter;
-import com.google.common.collect.ComparisonChain;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.platform.PluginMetadata;
+import org.sonar.updatecenter.common.Version;
 
 import java.io.File;
 import java.util.List;
@@ -86,7 +83,7 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
   }
 
   public DefaultPluginMetadata setDeprecatedExtensions(List<File> files) {
-    this.deprecatedExtensions = (files==null ? Lists.<File>newArrayList() : files);
+    this.deprecatedExtensions = (files == null ? Lists.<File> newArrayList() : files);
     return this;
   }
 
@@ -192,31 +189,10 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
     if (null == this.sonarVersion) {
       return true; // Plugins without sonar version are so old, they are compatible with a version containing this code
     }
-    if (null == sonarVersion) {
-      return true;
-    }
 
-    // A version takes this form: x[.y][.z][-RCi|FCS|SNAPSHOT]
-    return ComparisonChain.start()
-        .compare(part(sonarVersion, 0), part(this.sonarVersion, 0)) // x
-        .compare(part(sonarVersion, 1), part(this.sonarVersion, 1)) // y
-        .compare(part(sonarVersion, 2), part(this.sonarVersion, 2)) // z
-        .compare(increment(sonarVersion), increment(this.sonarVersion)) // i
-        .result() >= 0;
-  }
-
-  private static int part(String version, int index) {
-    Iterable<String> parts = Splitter.on('.').split(StringUtils.substringBefore(version, "-"));
-    String part = Iterables.get(parts, index, "0");
-
-    return Integer.parseInt(part);
-  }
-
-  private static int increment(String version) {
-    String onlyDigits = CharMatcher.DIGIT.retainFrom(StringUtils.substringAfter(version, "-"));
-    String increment = StringUtils.defaultIfBlank(onlyDigits, "0");
-
-    return Integer.parseInt(increment);
+    Version minimumVersion = Version.create(this.sonarVersion);
+    Version actualVersion = Version.create(sonarVersion);
+    return actualVersion.compareTo(minimumVersion) >= 0;
   }
 
   public String getHomepage() {
