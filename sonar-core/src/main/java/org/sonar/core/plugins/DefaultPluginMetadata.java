@@ -196,19 +196,27 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
       return true;
     }
 
+    // A version takes this form: x[.y][.z][-RCi|FCS|SNAPSHOT]
     return ComparisonChain.start()
-        .compare(part(sonarVersion, 0), part(this.sonarVersion, 0))
-        .compare(part(sonarVersion, 1), part(this.sonarVersion, 1))
-        .compare(part(sonarVersion, 2), part(this.sonarVersion, 2))
+        .compare(part(sonarVersion, 0), part(this.sonarVersion, 0)) // x
+        .compare(part(sonarVersion, 1), part(this.sonarVersion, 1)) // y
+        .compare(part(sonarVersion, 2), part(this.sonarVersion, 2)) // z
+        .compare(increment(sonarVersion), increment(this.sonarVersion)) // i
         .result() >= 0;
   }
 
   private static int part(String version, int index) {
-    Iterable<String> parts = Splitter.on('.').split(version);
+    Iterable<String> parts = Splitter.on('.').split(StringUtils.substringBefore(version, "-"));
     String part = Iterables.get(parts, index, "0");
-    String onlyDigits = CharMatcher.DIGIT.retainFrom(part);
 
-    return Integer.parseInt(onlyDigits);
+    return Integer.parseInt(part);
+  }
+
+  private static int increment(String version) {
+    String onlyDigits = CharMatcher.DIGIT.retainFrom(StringUtils.substringAfter(version, "-"));
+    String increment = StringUtils.defaultIfBlank(onlyDigits, "0");
+
+    return Integer.parseInt(increment);
   }
 
   public String getHomepage() {

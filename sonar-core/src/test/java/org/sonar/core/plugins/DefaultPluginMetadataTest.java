@@ -122,6 +122,11 @@ public class DefaultPluginMetadataTest {
     assertThat(pluginWithVersion("1.1-SNAPSHOT").isCompatibleWith("1.2")).isTrue();
     assertThat(pluginWithVersion("1.0.1-SNAPSHOT").isCompatibleWith("1.0")).isFalse();
 
+    assertThat(pluginWithVersion("3.1-RC2").isCompatibleWith("3.2-SNAPSHOT")).isTrue();
+    assertThat(pluginWithVersion("3.1-RC1").isCompatibleWith("3.2-RC2")).isTrue();
+    assertThat(pluginWithVersion("3.1-RC1").isCompatibleWith("3.1-RC2")).isTrue();
+    assertThat(pluginWithVersion("3.1-RC2").isCompatibleWith("3.1-RC1")).isFalse();
+
     assertThat(pluginWithVersion(null).isCompatibleWith("0")).isTrue();
     assertThat(pluginWithVersion(null).isCompatibleWith("3.1")).isTrue();
   }
