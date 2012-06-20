@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.codehaus.sonar</groupId>
@@ -104,7 +105,7 @@
     <skipSanityChecks>false</skipSanityChecks>
 
     <!-- default GWT configuration. It's overridden by the profile 'dev' to speed up compilation in dev environments-->
-    <gwt.permutationSuffix />
+    <gwt.permutationSuffix/>
     <gwt.extraJvmArgs>-Xmx512m -Xss1024k</gwt.extraJvmArgs>
     <sonar.snapshotRepository.url>dav:https://dav.codehaus.org/snapshots.repository/sonar</sonar.snapshotRepository.url>
   </properties>
@@ -218,6 +219,13 @@
           <configuration>
             <author>false</author>
             <linksource>true</linksource>
+            <excludePackageNames>
+              net.*:org.sonar.application:org.sonar.server:org.sonar.graph:org.sonar.batch:org.sonar.channel:org.sonar.java:org.sonar.maven*:org.sonar.plugins.*:org.sonar.colorizer:org.sonar.squid:org.sonar.core:org.sonar.jpa:org.sonar.duplications:org.sonar.markdown:com.*
+            </excludePackageNames>
+            <author>false</author>
+            <linksource>true</linksource>
+            <reportOutputDirectory>${project.reporting.outputDirectory}/${project.version}/apidocs
+            </reportOutputDirectory>
           </configuration>
         </plugin>
         <plugin>
@@ -1028,7 +1036,7 @@
         <artifactId>reflections</artifactId>
         <version>0.9.7.RC1</version>
       </dependency>
-	</dependencies>
+    </dependencies>
   </dependencyManagement>
 
   <mailingLists>
@@ -1158,26 +1166,6 @@
       </build>
     </profile>
 
-    <profile>
-      <id>javadoc</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <configuration>
-              <excludePackageNames>
-                net.*:org.sonar.application:org.sonar.server:org.sonar.graph:org.sonar.batch:org.sonar.channel:org.sonar.java:org.sonar.maven*:org.sonar.plugins.*:org.sonar.colorizer:org.sonar.squid:org.sonar.core:org.sonar.jpa:org.sonar.duplications:org.sonar.markdown:com.*
-              </excludePackageNames>
-              <author>false</author>
-              <linksource>true</linksource>
-              <reportOutputDirectory>${project.reporting.outputDirectory}/${project.version}/apidocs
-              </reportOutputDirectory>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
 
     <profile>
       <id>m2e</id>
@@ -1207,7 +1195,7 @@
                         </goals>
                       </pluginExecutionFilter>
                       <action>
-                        <ignore />
+                        <ignore/>
                       </action>
                     </pluginExecution>
                     <pluginExecution>
@@ -1220,7 +1208,7 @@
                         </goals>
                       </pluginExecutionFilter>
                       <action>
-                        <ignore />
+                        <ignore/>
                       </action>
                     </pluginExecution>
                     <pluginExecution>
@@ -1233,7 +1221,7 @@
                         </goals>
                       </pluginExecutionFilter>
                       <action>
-                        <ignore />
+                        <ignore/>
                       </action>
                     </pluginExecution>
                     <pluginExecution>
@@ -1247,7 +1235,7 @@
                         </goals>
                       </pluginExecutionFilter>
                       <action>
-                        <ignore />
+                        <ignore/>
                       </action>
                     </pluginExecution>
                     <pluginExecution>
@@ -1260,7 +1248,7 @@
                         </goals>
                       </pluginExecutionFilter>
                       <action>
-                        <ignore />
+                        <ignore/>
                       </action>
                     </pluginExecution>
                   </pluginExecutions>
