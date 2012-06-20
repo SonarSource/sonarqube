@@ -113,3 +113,14 @@ Portal.prototype = {
     }
 };
 
+autoResize = function(everyMs, callback) {
+  var resizeTimer = null;
+  Event.observe(window, 'resize', function() {
+    if (resizeTimer == null) {
+      resizeTimer = window.setTimeout(function() {
+        resizeTimer = null;
+        callback();
+      }, everyMs);
+    }
+  });
+};

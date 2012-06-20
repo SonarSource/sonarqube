@@ -176,9 +176,12 @@
       .events(events);
     timeline.render();
 
+    autoResize(200, function() {
+      timeline.render();
+    });
   </script>
 
 <%
      end
-   end 
+   end
 %>

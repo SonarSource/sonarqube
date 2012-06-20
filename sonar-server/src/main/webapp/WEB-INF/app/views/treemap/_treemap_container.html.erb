@@ -29,6 +29,11 @@
 </div>
 
 <script>
-  new Treemap(<%= treemap_id -%>, '<%= size_metric ? size_metric.key : '' -%>', '<%= color_metric ? color_metric.key : '' -%>',
-    <%= height_in_percents -%>).init('<%= context_type -%>', <%= context_id -%>).load();
+  var treemap = new Treemap(<%= treemap_id -%>, '<%= size_metric ? size_metric.key : '' -%>', '<%= color_metric ? color_metric.key : '' -%>',
+      <%= height_in_percents -%>);
+  treemap.init('<%= context_type -%>', <%= context_id -%>).load();
+
+  autoResize(200, function() {
+    treemap.load();
+  });
 </script>
