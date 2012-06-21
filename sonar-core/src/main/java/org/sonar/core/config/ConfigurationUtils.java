@@ -24,6 +24,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.text.StrSubstitutor;
 
+import javax.annotation.WillClose;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -55,7 +57,7 @@ public final class ConfigurationUtils {
   /**
    * Note that the input stream is closed in this method.
    */
-  public static Properties readInputStream(InputStream input) throws IOException {
+  public static Properties readInputStream(@WillClose InputStream input) throws IOException {
     try {
       Properties p = new Properties();
       p.load(input);
