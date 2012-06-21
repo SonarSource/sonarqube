@@ -31,6 +31,7 @@ import java.net.URLClassLoader;
 import java.util.Locale;
 import java.util.Map;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -42,6 +43,7 @@ public class I18nManagerTest {
   private I18nManager manager;
   private ClassLoader coreClassLoader;
   private ClassLoader sqaleClassLoader;
+  private ClassLoader forgeClassLoader;
 
   /**
    * See http://jira.codehaus.org/browse/SONAR-2927
@@ -59,13 +61,20 @@ public class I18nManagerTest {
 
   @Before
   public void init() {
-    coreClassLoader = newCoreClassLoader();
-    sqaleClassLoader = newSqaleClassLoader();
     Map<String, ClassLoader> bundleToClassLoaders = Maps.newHashMap();
+    // following represents the English language pack + a core plugin : they use the same classloader
+    coreClassLoader = newCoreClassLoader();
     bundleToClassLoaders.put(BUNDLE_PACKAGE + "core", coreClassLoader);
     bundleToClassLoaders.put(BUNDLE_PACKAGE + "checkstyle", coreClassLoader);
+    // following represents a commercial plugin that must embed all its bundles, whatever the language
+    sqaleClassLoader = newSqaleClassLoader();
     bundleToClassLoaders.put(BUNDLE_PACKAGE + "sqale", sqaleClassLoader);
-    manager = new I18nManager(bundleToClassLoaders);
+    // following represents a forge plugin that embeds only the english bundle, and lets the language
+    // packs embed all the bundles for the other languages
+    forgeClassLoader = newForgeClassLoader();
+    bundleToClassLoaders.put(BUNDLE_PACKAGE + "forge", forgeClassLoader);
+
+    manager = new I18nManager(bundleToClassLoaders, coreClassLoader);
     manager.start();
   }
 
@@ -75,7 +84,7 @@ public class I18nManagerTest {
     bundleToClassLoaders.put(BUNDLE_PACKAGE + "core", getClass().getClassLoader());
     bundleToClassLoaders.put(BUNDLE_PACKAGE + "checkstyle", getClass().getClassLoader());
     bundleToClassLoaders.put(BUNDLE_PACKAGE + "sqale", getClass().getClassLoader());
-    I18nManager i18n = new I18nManager(bundleToClassLoaders);
+    I18nManager i18n = new I18nManager(bundleToClassLoaders, coreClassLoader);
     i18n.start();
 
     assertThat(i18n.extractBundleFromKey("by"), Is.is(BUNDLE_PACKAGE + "core"));
@@ -134,14 +143,22 @@ public class I18nManagerTest {
 
   @Test
   public void shouldGetClassLoaderByProperty() {
-    assertThat(manager.getClassLoaderForProperty("foo.unknown"), nullValue());
-    assertThat(manager.getClassLoaderForProperty("by"), Is.is(coreClassLoader));
-    assertThat(manager.getClassLoaderForProperty("sqale.page"), Is.is(sqaleClassLoader));
+    assertThat(manager.getClassLoaderForProperty("foo.unknown", Locale.ENGLISH), nullValue());
+    assertThat(manager.getClassLoaderForProperty("by", Locale.ENGLISH), Is.is(coreClassLoader));
+    // The following plugin defines its own bundles, whatever the language
+    assertThat(manager.getClassLoaderForProperty("sqale.page", Locale.ENGLISH), Is.is(sqaleClassLoader));
+    assertThat(manager.getClassLoaderForProperty("sqale.page", Locale.FRENCH), Is.is(sqaleClassLoader));
+    // The following plugin defines only the English bundle, and lets the language packs handle the translations
+    assertThat(manager.getClassLoaderForProperty("forge_plugin.page", Locale.ENGLISH), Is.is(forgeClassLoader));
+    assertThat(manager.getClassLoaderForProperty("forge_plugin.page", Locale.FRENCH), Is.is(coreClassLoader));
   }
 
   @Test
   public void shouldFindEnglishFile() {
-    String html = manager.messageFromFile(Locale.ENGLISH, "ArchitectureRule.html", "checkstyle.rule1.name" /* any property in the same bundle */, false);
+    String html = manager.messageFromFile(Locale.ENGLISH, "ArchitectureRule.html", "checkstyle.rule1.name" /*
+                                                                                                            * any property in the same
+                                                                                                            * bundle
+                                                                                                            */, false);
     assertThat(html, Is.is("This is the architecture rule"));
   }
 
@@ -167,7 +184,10 @@ public class I18nManagerTest {
   public void shouldNotKeepInCache() {
     assertThat(manager.getFileContentCache().size(), Is.is(0));
     boolean keepInCache = false;
-    String html = manager.messageFromFile(Locale.ENGLISH, "ArchitectureRule.html", "checkstyle.rule1.name" /* any property in the same bundle */, keepInCache);
+    String html = manager.messageFromFile(Locale.ENGLISH, "ArchitectureRule.html", "checkstyle.rule1.name" /*
+                                                                                                            * any property in the same
+                                                                                                            * bundle
+                                                                                                            */, keepInCache);
 
     assertThat(html, not(nullValue()));
     assertThat(manager.getFileContentCache().size(), Is.is(0));
@@ -177,7 +197,10 @@ public class I18nManagerTest {
   public void shouldKeepInCache() {
     assertThat(manager.getFileContentCache().size(), Is.is(0));
     boolean keepInCache = true;
-    String html = manager.messageFromFile(Locale.ENGLISH, "ArchitectureRule.html", "checkstyle.rule1.name" /* any property in the same bundle */, keepInCache);
+    String html = manager.messageFromFile(Locale.ENGLISH, "ArchitectureRule.html", "checkstyle.rule1.name" /*
+                                                                                                            * any property in the same
+                                                                                                            * bundle
+                                                                                                            */, keepInCache);
 
     assertThat(html, not(nullValue()));
     Map<String, Map<Locale, String>> cache = manager.getFileContentCache();
@@ -185,6 +208,16 @@ public class I18nManagerTest {
     assertThat(cache.get("ArchitectureRule.html").get(Locale.ENGLISH), Is.is("This is the architecture rule"));
   }
 
+  // see SONAR-3596
+  @Test
+  public void shouldLookInCoreClassloaderForPluginsThatDontEmbedAllLanguages() {
+    assertThat(manager.message(Locale.ENGLISH, "forge_plugin.page", null)).isEqualTo("This is my plugin");
+    assertThat(manager.message(Locale.FRENCH, "forge_plugin.page", null)).isEqualTo("C'est mon plugin");
+  }
+
+  private URLClassLoader newForgeClassLoader() {
+    return newClassLoader("/org/sonar/core/i18n/forgePlugin/");
+  }
 
   private URLClassLoader newSqaleClassLoader() {
     return newClassLoader("/org/sonar/core/i18n/sqalePlugin/");

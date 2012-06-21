@@ -19,6 +19,7 @@
  */
 package org.sonar.core.i18n;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -58,8 +59,10 @@ public class I18nManager implements I18n, ServerExtension, BatchExtension {
     this.pluginRepository = pluginRepository;
   }
 
-  I18nManager(Map<String, ClassLoader> bundleToClassloaders) {
+  @VisibleForTesting
+  I18nManager(Map<String, ClassLoader> bundleToClassloaders, ClassLoader languagePackClassLoader) {
     this.bundleToClassloaders = bundleToClassloaders;
+    this.languagePackClassLoader = languagePackClassLoader;
   }
 
   public void start() {
@@ -109,7 +112,10 @@ public class I18nManager implements I18n, ServerExtension, BatchExtension {
 
   public String message(Locale locale, String key, String defaultValue, Object... parameters) {
     String bundleKey = propertyToBundles.get(key);
-    ResourceBundle resourceBundle = getBundle(bundleKey, locale);
+    ResourceBundle resourceBundle = null;
+    if (bundleKey != null) {
+      resourceBundle = getBundle(bundleKey, locale);
+    }
     return message(resourceBundle, key, defaultValue, parameters);
   }
 
@@ -123,7 +129,7 @@ public class I18nManager implements I18n, ServerExtension, BatchExtension {
       return fileCache.get(locale);
     }
 
-    ClassLoader classloader = getClassLoaderForProperty(relatedProperty);
+    ClassLoader classloader = getClassLoaderForProperty(relatedProperty, locale);
     String result = null;
     if (classloader != null) {
       String bundleBase = propertyToBundles.get(relatedProperty);
@@ -161,20 +167,38 @@ public class I18nManager implements I18n, ServerExtension, BatchExtension {
   }
 
   ResourceBundle getBundle(String bundleKey, Locale locale) {
+    ResourceBundle bundle = null;
     try {
+      // First, we check if the bundle exists in the language pack classloader
+      bundle = ResourceBundle.getBundle(bundleKey, locale, languagePackClassLoader);
+    } catch (MissingResourceException e1) {
+      // well, maybe the plugin has specified its own bundles, let's see
       ClassLoader classloader = bundleToClassloaders.get(bundleKey);
       if (classloader != null) {
-        return ResourceBundle.getBundle(bundleKey, locale, classloader);
+        try {
+          bundle = ResourceBundle.getBundle(bundleKey, locale, classloader);
+        } catch (MissingResourceException e2) {
+          // Well, here, there's nothing much we can do...
+        }
       }
-    } catch (MissingResourceException e) {
-      // ignore
     }
-    return null;
+    return bundle;
   }
 
-  ClassLoader getClassLoaderForProperty(String propertyKey) {
+  ClassLoader getClassLoaderForProperty(String propertyKey, Locale locale) {
     String bundleKey = propertyToBundles.get(propertyKey);
-    return (bundleKey != null ? bundleToClassloaders.get(bundleKey) : null);
+    if (bundleKey == null) {
+      return null;
+    }
+
+    try {
+      // First, we check if the bundle exists in the language pack classloader
+      ResourceBundle.getBundle(bundleKey, locale, languagePackClassLoader);
+      return languagePackClassLoader;
+    } catch (MissingResourceException e) {
+      // the plugin has specified its own bundles
+      return bundleToClassloaders.get(bundleKey);
+    }
   }
 
   String message(ResourceBundle resourceBundle, String key, String defaultValue, Object... parameters) {
