@@ -24,6 +24,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.platform.PluginMetadata;
@@ -33,9 +34,15 @@ import org.sonar.api.utils.SonarException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Locale;
+import java.util.Map;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+import java.util.Set;
 
-public class I18nManager implements I18n, ServerExtension {
+public class I18nManager implements I18n, ServerExtension, BatchExtension {
   private static final Logger LOG = LoggerFactory.getLogger(I18nManager.class);
 
   public static final String ENGLISH_PACK_PLUGIN_KEY = "l10nen";
@@ -164,7 +171,6 @@ public class I18nManager implements I18n, ServerExtension {
     }
     return null;
   }
-
 
   ClassLoader getClassLoaderForProperty(String propertyKey) {
     String bundleKey = propertyToBundles.get(propertyKey);

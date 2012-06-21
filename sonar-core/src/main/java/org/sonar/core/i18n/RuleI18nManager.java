@@ -21,12 +21,14 @@ package org.sonar.core.i18n;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchExtension;
+import org.sonar.api.ServerExtension;
+import org.sonar.api.i18n.RuleI18n;
 
 import java.util.List;
 import java.util.Locale;
 
-public class RuleI18nManager implements ServerComponent {
+public class RuleI18nManager implements RuleI18n, ServerExtension, BatchExtension {
 
   private static final String NAME_SUFFIX = ".name";
   private static final String RULE_PREFIX = "rule.";

@@ -29,6 +29,8 @@ import org.sonar.batch.RemoteServerMetadata;
 import org.sonar.batch.ServerMetadata;
 import org.sonar.batch.config.BatchDatabaseSettingsLoader;
 import org.sonar.batch.config.BatchSettings;
+import org.sonar.core.i18n.I18nManager;
+import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.persistence.DaoUtils;
 import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.core.persistence.MyBatis;
@@ -63,6 +65,8 @@ public class BootstrapModule extends Module {
     addCoreSingleton(ArtifactDownloader.class);// registered here because used by BootstrapClassLoader
     addCoreSingleton(JdbcDriverHolder.class);
     addCoreSingleton(EmailSettings.class);
+    addCoreSingleton(I18nManager.class);
+    addCoreSingleton(RuleI18nManager.class);
 
     URLClassLoader bootstrapClassLoader = getComponentByType(JdbcDriverHolder.class).getClassLoader();
     // set as the current context classloader for hibernate, else it does not find the JDBC driver.

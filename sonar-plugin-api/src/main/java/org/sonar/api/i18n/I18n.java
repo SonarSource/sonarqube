@@ -19,14 +19,17 @@
  */
 package org.sonar.api.i18n;
 
+import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 
 import java.util.Locale;
 
 /**
+ * Main component that provides translation facilities.
+ * 
  * @since 2.10
  */
-public interface I18n extends ServerComponent {
+public interface I18n extends ServerComponent, BatchComponent {
 
   /**
    * Searches the message of the <code>key</code> for the <code>locale</code> in the list of available bundles.
@@ -36,10 +39,10 @@ public interface I18n extends ServerComponent {
    * If additional parameters are given (in the objects list), the result is used as a message pattern
    * to use in a MessageFormat object along with the given parameters.
    *
-   * @param locale       the locale to translate into
-   * @param key          the key of the pattern to translate
+   * @param locale the locale to translate into
+   * @param key the key of the pattern to translate
    * @param defaultValue the default pattern returned when the key is not found in any bundle
-   * @param parameters   the parameters used to format the message from the translated pattern.
+   * @param parameters the parameters used to format the message from the translated pattern.
    * @return the message formatted with the translated pattern and the given parameters
    */
   String message(final Locale locale, final String key, final String defaultValue, final Object... parameters);
