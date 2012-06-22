@@ -40,7 +40,7 @@
        end
        metric_data_map[trend_item["metric_id"].to_i] << {:date => trend_item["created_at"], :value => trend_item["value"], :sid => trend_item["sid"]}
      end
-  
+     
      # Create JS structures to print out in the HTML page
      js_data = "["
      js_snapshots = "["
@@ -57,7 +57,7 @@
              # Only Oracle returns a Time object, so let's parse this string if it's not a Time instance
              m_date = Time.parse(metric_data[:date]) unless m_date.is_a? Time
              m_value = sprintf("%0.02f", metric_data[:value])
-             m_value_localized = (m_value.end_with? '.00') ? number_with_precision(metric_data[:value], :precision => 0).to_s : number_with_precision(metric_data[:value], :precision => 2).to_s
+             m_value_localized = (m_value.end_with? '.00') ? number_with_precision(metric_data[:value], :precision => 0).to_s : number_with_precision(metric_data[:value], :precision => 1).to_s
              js_data += "{x:d("
              js_data += m_date.year.to_s
              js_data += ","
