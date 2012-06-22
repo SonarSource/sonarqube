@@ -71,6 +71,12 @@
    display_sparkline = !sparkline_urls_by_row.empty?
 %>
 
+<% if widget_properties["title"] %>
+  <div style="position: absolute">
+    <h3><%= h(widget_properties["title"]) -%></h3>
+  </div>
+<% end %>
+
 <div style="overflow: auto;font-size: 12px;padding: 1px;">
   <table class="table table-bordered">
 
