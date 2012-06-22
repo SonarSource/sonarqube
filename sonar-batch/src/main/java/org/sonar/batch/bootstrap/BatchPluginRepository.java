@@ -37,12 +37,18 @@ import org.sonar.core.plugins.PluginInstaller;
 import org.sonar.core.plugins.RemotePlugin;
 
 import java.io.File;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class BatchPluginRepository implements PluginRepository {
 
   private static final Logger LOG = LoggerFactory.getLogger(BatchPluginRepository.class);
   private static final String CORE_PLUGIN = "core";
+  private static final String ENGLISH_PACK_PLUGIN = "l10nen";
 
   private ArtifactDownloader artifactDownloader;
   private Map<String, Plugin> pluginsByKey;
@@ -124,7 +130,7 @@ public class BatchPluginRepository implements PluginRepository {
   }
 
   boolean isAccepted(String pluginKey) {
-    if (CORE_PLUGIN.equals(pluginKey)) {
+    if (CORE_PLUGIN.equals(pluginKey) || ENGLISH_PACK_PLUGIN.equals(pluginKey)) {
       return true;
     }
     if (whiteList != null) {
@@ -133,7 +139,7 @@ public class BatchPluginRepository implements PluginRepository {
     return blackList == null || !blackList.contains(pluginKey);
   }
 
-  public Map<PluginMetadata,Plugin> getPluginsByMetadata() {
+  public Map<PluginMetadata, Plugin> getPluginsByMetadata() {
     Map<PluginMetadata, Plugin> result = Maps.newHashMap();
     for (Map.Entry<String, PluginMetadata> entry : metadataByKey.entrySet()) {
       String pluginKey = entry.getKey();
