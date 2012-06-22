@@ -11,7 +11,7 @@
                        :before => "$('submit_settings').hide();$('loading_settings').show()",
                        :update => 'properties' do -%>
 
-      <table class="data marginbottom10">
+      <table class="data marginbottom10" style="margin: 10px">
         <thead>
         <tr>
           <th>
@@ -77,7 +77,7 @@
           %>
         </tbody>
       </table>
-      <div>
+      <div style="padding-left: 16px">
       <%= submit_tag(message('settings.save_category', :params => [category_name]), :id => 'submit_settings') -%>
       <img src="<%= ApplicationController.root_context -%>/images/loading.gif" id="loading_settings" style="display:none">
       </div>
