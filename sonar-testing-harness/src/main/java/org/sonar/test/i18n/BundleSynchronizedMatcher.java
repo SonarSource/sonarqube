@@ -19,6 +19,7 @@
  */
 package org.sonar.test.i18n;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.io.IOUtils;
@@ -26,8 +27,16 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.sonar.test.TestUtils;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Map;
@@ -42,22 +51,32 @@ import static org.junit.Assert.fail;
 public class BundleSynchronizedMatcher extends BaseMatcher<String> {
 
   public static final String L10N_PATH = "/org/sonar/l10n/";
-  private static final String GITHUB_RAW_FILE_PATH = "https://raw.github.com/SonarSource/sonar/master/plugins/sonar-l10n-en-plugin/src/main/resources/org/sonar/l10n/";
   private static final Collection<String> CORE_BUNDLES = Lists.newArrayList("checkstyle.properties", "core.properties",
-    "findbugs.properties", "gwt.properties", "pmd.properties", "squidjava.properties");
+      "findbugs.properties", "gwt.properties", "pmd.properties", "squidjava.properties");
+  private static final String GITHUB_RAW_FILE_PATH = "https://raw.github.com/SonarSource/sonar/master/plugins/sonar-l10n-en-plugin/src/main/resources/org/sonar/l10n/";
 
   private String sonarVersion;
+  private URI referenceEnglishBundleURI;
   // we use this variable to be able to unit test this class without looking at the real Github core bundles that change all the time
   private String remote_file_path;
   private String bundleName;
   private SortedMap<String, String> missingKeys;
   private SortedMap<String, String> additionalKeys;
 
+  public BundleSynchronizedMatcher() {
+    this(null, GITHUB_RAW_FILE_PATH);
+  }
+
+  public BundleSynchronizedMatcher(URI referenceEnglishBundleURI) {
+    this.referenceEnglishBundleURI = referenceEnglishBundleURI;
+  }
+
   public BundleSynchronizedMatcher(String sonarVersion) {
     this(sonarVersion, GITHUB_RAW_FILE_PATH);
   }
 
-  public BundleSynchronizedMatcher(String sonarVersion, String remote_file_path) {
+  @VisibleForTesting
+  BundleSynchronizedMatcher(String sonarVersion, String remote_file_path) {
     this.sonarVersion = sonarVersion;
     this.remote_file_path = remote_file_path;
   }
@@ -75,6 +94,8 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
     File defaultBundle;
     if (isCoreBundle(defaultBundleName)) {
       defaultBundle = getBundleFileFromGithub(defaultBundleName);
+    } else if (referenceEnglishBundleURI != null) {
+      defaultBundle = getBundleFileFromProvidedURI(defaultBundleName);
     } else {
       defaultBundle = getBundleFileFromClasspath(defaultBundleName);
     }
@@ -167,18 +188,14 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
   }
 
   protected File getBundleFileFromGithub(String defaultBundleName) {
-    File localBundle = new File("target/l10n/download/" + defaultBundleName);
+    String remoteFile = computeGitHubURL(defaultBundleName, sonarVersion);
+    URL remoteFileURL = null;
     try {
-      String remoteFile = computeGitHubURL(defaultBundleName, sonarVersion);
-      saveUrlToLocalFile(remoteFile, localBundle);
+      remoteFileURL = new URL(remoteFile);
     } catch (MalformedURLException e) {
       fail("Could not download the original core bundle at: " + remote_file_path + defaultBundleName);
-    } catch (IOException e) {
-      fail("Could not download the original core bundle at: " + remote_file_path + defaultBundleName);
     }
-    assertThat("File 'target/tmp/" + defaultBundleName + "' has been downloaded but does not exist.", localBundle, notNullValue());
-    assertThat("File 'target/tmp/" + defaultBundleName + "' has been downloaded but does not exist.", localBundle.exists(), is(true));
-    return localBundle;
+    return downloadRemoteFile(defaultBundleName, remoteFileURL);
   }
 
   protected String computeGitHubURL(String defaultBundleName, String sonarVersion) {
@@ -196,18 +213,29 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
     return bundle;
   }
 
-  protected String extractDefaultBundleName(String bundleName) {
-    int firstUnderScoreIndex = bundleName.indexOf('_');
-    assertThat("The bundle '" + bundleName + "' is a default bundle (without locale), so it can't be compared.", firstUnderScoreIndex > 0,
-      is(true));
-    return bundleName.substring(0, firstUnderScoreIndex) + ".properties";
+  private File getBundleFileFromProvidedURI(String defaultBundleName) {
+    URL remoteFileURL = null;
+    try {
+      remoteFileURL = referenceEnglishBundleURI.toURL();
+    } catch (MalformedURLException e) {
+      fail("Could not download the original bundle at: " + remote_file_path + defaultBundleName);
+    }
+    return downloadRemoteFile(defaultBundleName, remoteFileURL);
   }
 
-  protected boolean isCoreBundle(String defaultBundleName) {
-    return CORE_BUNDLES.contains(defaultBundleName);
+  private File downloadRemoteFile(String defaultBundleName, URL remoteFileUrl) {
+    File localBundle = new File("target/l10n/download/" + defaultBundleName);
+    try {
+      saveUrlToLocalFile(remoteFileUrl, localBundle);
+    } catch (IOException e) {
+      fail("Could not download the original core bundle at: " + remoteFileUrl.toString() + defaultBundleName);
+    }
+    assertThat("File 'target/tmp/" + defaultBundleName + "' has been downloaded but does not exist.", localBundle, notNullValue());
+    assertThat("File 'target/tmp/" + defaultBundleName + "' has been downloaded but does not exist.", localBundle.exists(), is(true));
+    return localBundle;
   }
 
-  private void saveUrlToLocalFile(String url, File localFile) throws IOException {
+  private void saveUrlToLocalFile(URL url, File localFile) throws IOException {
     if (localFile.exists()) {
       localFile.delete();
     }
@@ -216,7 +244,7 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
     InputStream in = null;
     OutputStream fout = null;
     try {
-      in = new BufferedInputStream(new URL(url).openStream());
+      in = new BufferedInputStream(url.openStream());
       fout = new FileOutputStream(localFile);
 
       byte data[] = new byte[1024];
@@ -228,6 +256,17 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
       IOUtils.closeQuietly(in);
       IOUtils.closeQuietly(fout);
     }
+  }
+
+  public static String extractDefaultBundleName(String bundleName) {
+    int firstUnderScoreIndex = bundleName.indexOf('_');
+    assertThat("The bundle '" + bundleName + "' is a default bundle (without locale), so it can't be compared.", firstUnderScoreIndex > 0,
+        is(true));
+    return bundleName.substring(0, firstUnderScoreIndex) + ".properties";
+  }
+
+  public static boolean isCoreBundle(String defaultBundleName) {
+    return CORE_BUNDLES.contains(defaultBundleName);
   }
 
 }

@@ -24,50 +24,56 @@ import org.junit.Test;
 import org.sonar.test.TestUtils;
 
 import java.io.File;
+import java.net.URI;
 import java.util.SortedMap;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.sonar.test.i18n.I18nMatchers.isBundleUpToDate;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class BundleSynchronizedTest {
 
-  private static final String GITHUB_RAW_FILE_PATH = "https://raw.github.com/SonarSource/sonar/master/sonar-testing-harness/src/test/resources/org/sonar/l10n/";
+  private static final String GITHUB_RAW_TESTING_FILE_PATH = "https://raw.github.com/SonarSource/sonar/master/sonar-testing-harness/src/test/resources/org/sonar/l10n/";
   private BundleSynchronizedMatcher matcher;
 
   @Before
-  public void test() throws Exception {
-    matcher = new BundleSynchronizedMatcher(null);
+  public void init() {
+    matcher = new BundleSynchronizedMatcher();
   }
 
   @Test
-  // The case of a Sonar plugin that embeds all the bundles for every language
-  public void testBundlesInsideSonarPlugin() {
+  // The case of a Sonar Language Pack that translates the Core bundles
+  public void shouldMatchBundlesOfLanguagePack() {
     // synchronized bundle
-    assertThat("myPlugin_fr_CA.properties", isBundleUpToDate());
-    assertFalse(new File("target/l10n/myPlugin_fr_CA.properties.report.txt").exists());
+    assertThat("core_fr_CA.properties", new BundleSynchronizedMatcher(null, GITHUB_RAW_TESTING_FILE_PATH));
     // missing keys
     try {
-      assertThat("myPlugin_fr.properties", isBundleUpToDate());
-      assertTrue(new File("target/l10n/myPlugin_fr.properties.report.txt").exists());
+      assertThat("core_fr.properties", new BundleSynchronizedMatcher(null, GITHUB_RAW_TESTING_FILE_PATH));
     } catch (AssertionError e) {
       assertThat(e.getMessage(), containsString("Missing translations are:\nsecond.prop"));
     }
   }
 
   @Test
-  public void shouldNotFailIfNoMissingKeysButAdditionalKeys() {
-    assertThat("noMissingKeys_fr.properties", isBundleUpToDate());
+  // The case of a Sonar Language Pack that translates plugin bundles
+  public void shouldMatchWithProvidedURI() throws Exception {
+    matcher = new BundleSynchronizedMatcher(new URI("http://svn.codehaus.org/sonar-plugins/tags/sonar-abacus-plugin-0.1/src/main/resources/org/sonar/l10n/abacus.properties"));
+    assertThat("abacus_fr.properties", matcher);
   }
 
   @Test
-  // The case of a Sonar Language Pack that translates the Core bundles
-  public void testBundlesOfLanguagePack() {
+  // The case of a Sonar plugin that embeds all the bundles for every language
+  public void testBundlesInsideSonarPlugin() {
     // synchronized bundle
-    assertThat("core_fr_CA.properties", new BundleSynchronizedMatcher(null, GITHUB_RAW_FILE_PATH));
+    assertThat("myPlugin_fr_CA.properties", matcher);
+    assertFalse(new File("target/l10n/myPlugin_fr_CA.properties.report.txt").exists());
     // missing keys
     try {
-      assertThat("core_fr.properties", new BundleSynchronizedMatcher(null, GITHUB_RAW_FILE_PATH));
+      assertThat("myPlugin_fr.properties", matcher);
+      assertTrue(new File("target/l10n/myPlugin_fr.properties.report.txt").exists());
     } catch (AssertionError e) {
       assertThat(e.getMessage(), containsString("Missing translations are:\nsecond.prop"));
     }
@@ -85,7 +91,7 @@ public class BundleSynchronizedTest {
 
   @Test
   public void testGetBundleFileFromGithub() throws Exception {
-    matcher = new BundleSynchronizedMatcher(null, GITHUB_RAW_FILE_PATH);
+    matcher = new BundleSynchronizedMatcher(null, GITHUB_RAW_TESTING_FILE_PATH);
     matcher.getBundleFileFromGithub("core.properties");
     assertTrue(new File("target/l10n/download/core.properties").exists());
   }
@@ -133,4 +139,5 @@ public class BundleSynchronizedTest {
     assertThat(matcher.computeGitHubURL("core.properties", "2.10"),
         is("https://raw.github.com/SonarSource/sonar/2.10/plugins/sonar-l10n-en-plugin/src/main/resources/org/sonar/l10n/core.properties"));
   }
+
 }
