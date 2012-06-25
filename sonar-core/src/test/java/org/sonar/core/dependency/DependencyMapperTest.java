@@ -43,13 +43,13 @@ public class DependencyMapperTest extends DaoTestCase {
       DependencyDto dep = dependencies.get(0);
       assertThat(dep.getUsage()).isEqualTo("compile");
       assertThat(dep.getFromResourceId()).isEqualTo(100L);
+      assertThat(dep.getFromVersion()).isEqualTo("1.0");
       assertThat(dep.getToResourceId()).isEqualTo(101L);
+      assertThat(dep.getToVersion()).isEqualTo("3.0");
       assertThat(dep.getId()).isEqualTo(1L);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
-
-
 }
 

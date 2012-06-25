@@ -22,7 +22,9 @@ package org.sonar.core.dependency;
 public final class DependencyDto {
   private Long id;
   private Long fromResourceId;
+  private String fromVersion;
   private Long toResourceId;
+  private String toVersion;
   private String usage;
   private Integer weight;
 
@@ -44,12 +46,30 @@ public final class DependencyDto {
     return this;
   }
 
+  public String getFromVersion() {
+    return fromVersion;
+  }
+
+  public DependencyDto setFromVersion(String fromVersion) {
+    this.fromVersion = fromVersion;
+    return this;
+  }
+
   public Long getToResourceId() {
     return toResourceId;
   }
 
   public DependencyDto setToResourceId(Long toResourceId) {
     this.toResourceId = toResourceId;
+    return this;
+  }
+
+  public String getToVersion() {
+    return toVersion;
+  }
+
+  public DependencyDto setToVersion(String toVersion) {
+    this.toVersion = toVersion;
     return this;
   }
 
