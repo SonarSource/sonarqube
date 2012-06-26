@@ -123,7 +123,7 @@ import java.util.List;
     category = CoreProperties.CATEGORY_GENERAL),
   @Property(
     key = CoreProperties.CORE_COVERAGE_PLUGIN_PROPERTY,
-    defaultValue = "cobertura",
+    defaultValue = "jacoco",
     name = "Code coverage plugin",
     description = "Key of the code coverage plugin to use.",
     project = true,
