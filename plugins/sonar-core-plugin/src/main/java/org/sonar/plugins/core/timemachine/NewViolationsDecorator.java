@@ -93,7 +93,7 @@ public class NewViolationsDecorator implements Decorator {
     }
   }
 
-  private boolean shouldDecorateResource(Resource<?> resource, DecoratorContext context) {
+  private boolean shouldDecorateResource(Resource resource, DecoratorContext context) {
     return (StringUtils.equals(Scopes.PROJECT, resource.getScope()) || StringUtils.equals(Scopes.DIRECTORY, resource.getScope()) || StringUtils
         .equals(Scopes.FILE, resource.getScope()))
       && (context.getMeasure(CoreMetrics.NEW_VIOLATIONS) == null);

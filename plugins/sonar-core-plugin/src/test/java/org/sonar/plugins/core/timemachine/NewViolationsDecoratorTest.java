@@ -71,7 +71,7 @@ public class NewViolationsDecoratorTest {
 
   private NewViolationsDecorator decorator;
   private DecoratorContext context;
-  private Resource<?> resource;
+  private Resource resource;
   private NotificationManager notificationManager;
 
   private Date rightNow;

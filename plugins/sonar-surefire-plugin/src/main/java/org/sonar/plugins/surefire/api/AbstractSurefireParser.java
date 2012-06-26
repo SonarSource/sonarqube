@@ -137,6 +137,6 @@ public abstract class AbstractSurefireParser {
     context.saveMeasure(resource, new Measure(CoreMetrics.TEST_DATA, report.toXml()));
   }
 
-  protected abstract Resource<?> getUnitTestResource(String classKey);
+  protected abstract Resource getUnitTestResource(String classKey);
 
 }

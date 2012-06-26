@@ -30,7 +30,7 @@ import java.util.List;
  *
  * @since 1.10
  */
-public class JavaFile extends Resource<JavaPackage> {
+public class JavaFile extends Resource {
 
   private String filename;
   private String longName;

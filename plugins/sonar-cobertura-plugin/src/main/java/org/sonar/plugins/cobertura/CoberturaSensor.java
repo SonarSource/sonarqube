@@ -64,7 +64,7 @@ public class CoberturaSensor implements Sensor, CoverageExtension {
 
   private static final class JavaCoberturaParser extends AbstractCoberturaParser {
     @Override
-    protected Resource<?> getResource(String fileName) {
+    protected Resource getResource(String fileName) {
       return new JavaFile(fileName);
     }
   }
