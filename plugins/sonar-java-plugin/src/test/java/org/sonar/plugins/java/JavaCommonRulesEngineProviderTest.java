@@ -19,25 +19,16 @@
  */
 package org.sonar.plugins.java;
 
-import org.sonar.api.BatchExtension;
-import org.sonar.api.ExtensionProvider;
-import org.sonar.api.ServerExtension;
-import org.sonar.api.resources.Java;
-import org.sonar.commonrules.api.CommonRulesEngine;
+import org.junit.Test;
 
-import java.util.List;
+import static org.fest.assertions.Assertions.assertThat;
 
-public class JavaCommonRulesEngineProvider extends ExtensionProvider implements ServerExtension, BatchExtension {
+public class JavaCommonRulesEngineProviderTest {
 
-  @Override
-  public List provide() {
-    CommonRulesEngine engine = new CommonRulesEngine(Java.KEY, Java.NAME);
-    engine.activateRule("InsufficientBranchCoverage");
-    engine.activateRule("InsufficientCommentDensity");
-    engine.activateRule("DuplicatedBlocks");
-    engine.activateRule("InsufficientLineCoverage");
-
-    return engine.getExtensions();
+  @Test
+  public void shouldProvideExpectedExtensions() {
+    JavaCommonRulesEngineProvider provider = new JavaCommonRulesEngineProvider();
+    assertThat(provider.provide().size()).isGreaterThan(1);
   }
 
 }

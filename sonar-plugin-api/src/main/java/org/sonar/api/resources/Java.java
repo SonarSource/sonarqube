@@ -35,6 +35,11 @@ public class Java extends AbstractLanguage {
    * Java key
    */
   public static final String KEY = "java";
+
+  /**
+   * Java name
+   */
+  public static final String NAME = "Java";
   /**
    * Default package name for classes without package def
    */
@@ -48,7 +53,7 @@ public class Java extends AbstractLanguage {
    * Default constructor
    */
   public Java() {
-    super(KEY, "Java");
+    super(KEY, NAME);
   }
 
   /**
