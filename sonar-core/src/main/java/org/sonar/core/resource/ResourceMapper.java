@@ -19,6 +19,8 @@
  */
 package org.sonar.core.resource;
 
+import org.apache.ibatis.session.ResultHandler;
+
 import java.util.List;
 
 public interface ResourceMapper {
@@ -37,4 +39,9 @@ public interface ResourceMapper {
    * @since 3.0
    */
   List<Long> selectResourceIds(ResourceQuery query);
+
+  /**
+   * @since 3.2
+   */
+  void selectResources(ResourceQuery query, ResultHandler resultHandler);
 }

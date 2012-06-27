@@ -19,6 +19,9 @@
  */
 package org.sonar.core.dependency;
 
+import com.google.common.collect.Lists;
+import org.apache.ibatis.session.ResultContext;
+import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Test;
 import org.sonar.core.persistence.DaoTestCase;
@@ -51,5 +54,32 @@ public class DependencyMapperTest extends DaoTestCase {
       MyBatis.closeQuietly(session);
     }
   }
-}
 
+  @Test
+  public void should_use_result_handler() {
+    setupData("fixture");
+
+    final List<DependencyDto> dependencies = Lists.newArrayList();
+
+    SqlSession session = getMyBatis().openSession();
+    try {
+      session.getMapper(DependencyMapper.class).selectAll(new ResultHandler() {
+        public void handleResult(ResultContext context) {
+          dependencies.add((DependencyDto) context.getResultObject());
+        }
+      });
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+
+    assertThat(dependencies).hasSize(2);
+
+    DependencyDto dep = dependencies.get(0);
+    assertThat(dep.getUsage()).isEqualTo("compile");
+    assertThat(dep.getFromResourceId()).isEqualTo(100L);
+    assertThat(dep.getFromVersion()).isEqualTo("1.0");
+    assertThat(dep.getToResourceId()).isEqualTo(101L);
+    assertThat(dep.getToVersion()).isEqualTo("3.0");
+    assertThat(dep.getId()).isEqualTo(1L);
+  }
+}
