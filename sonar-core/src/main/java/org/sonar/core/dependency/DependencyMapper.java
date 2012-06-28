@@ -21,10 +21,6 @@ package org.sonar.core.dependency;
 
 import org.apache.ibatis.session.ResultHandler;
 
-import java.util.List;
-
 public interface DependencyMapper {
-  List<DependencyDto> selectAll();
-
   void selectAll(ResultHandler handler);
 }

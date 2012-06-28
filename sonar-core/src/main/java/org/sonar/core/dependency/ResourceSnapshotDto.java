@@ -19,45 +19,35 @@
  */
 package org.sonar.core.dependency;
 
-public final class DependencyDto {
+public final class ResourceSnapshotDto {
   private Long id;
-  private Long fromSnapshotId;
-  private Long toSnapshotId;
-  private String usage;
+  private Long projectId;
+  private String version;
 
   public Long getId() {
     return id;
   }
 
-  public DependencyDto setId(Long id) {
+  public ResourceSnapshotDto setId(Long id) {
     this.id = id;
     return this;
   }
 
-  public Long getFromSnapshotId() {
-    return fromSnapshotId;
+  public Long getProjectId() {
+    return projectId;
   }
 
-  public DependencyDto setFromSnapshotId(Long fromSnapshotId) {
-    this.fromSnapshotId = fromSnapshotId;
+  public ResourceSnapshotDto setProjectId(Long projectId) {
+    this.projectId = projectId;
     return this;
   }
 
-  public Long getToSnapshotId() {
-    return toSnapshotId;
+  public String getVersion() {
+    return version;
   }
 
-  public DependencyDto setToSnapshotId(Long toSnapshotId) {
-    this.toSnapshotId = toSnapshotId;
-    return this;
-  }
-
-  public String getUsage() {
-    return usage;
-  }
-
-  public DependencyDto setUsage(String usage) {
-    this.usage = usage;
+  public ResourceSnapshotDto setVersion(String version) {
+    this.version = version;
     return this;
   }
 }

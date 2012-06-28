@@ -19,45 +19,8 @@
  */
 package org.sonar.core.dependency;
 
-public final class DependencyDto {
-  private Long id;
-  private Long fromSnapshotId;
-  private Long toSnapshotId;
-  private String usage;
+import org.apache.ibatis.session.ResultHandler;
 
-  public Long getId() {
-    return id;
-  }
-
-  public DependencyDto setId(Long id) {
-    this.id = id;
-    return this;
-  }
-
-  public Long getFromSnapshotId() {
-    return fromSnapshotId;
-  }
-
-  public DependencyDto setFromSnapshotId(Long fromSnapshotId) {
-    this.fromSnapshotId = fromSnapshotId;
-    return this;
-  }
-
-  public Long getToSnapshotId() {
-    return toSnapshotId;
-  }
-
-  public DependencyDto setToSnapshotId(Long toSnapshotId) {
-    this.toSnapshotId = toSnapshotId;
-    return this;
-  }
-
-  public String getUsage() {
-    return usage;
-  }
-
-  public DependencyDto setUsage(String usage) {
-    this.usage = usage;
-    return this;
-  }
+public interface ResourceSnapshotMapper {
+  void selectAll(ResultHandler handler);
 }

@@ -1,8 +1,4 @@
 <dataset>
   <dependencies id="1" from_resource_id="100" to_resource_id="101" from_snapshot_id="1000" to_snapshot_id="1001" dep_usage="compile" dep_weight="1" />
   <dependencies id="2" from_resource_id="200" to_resource_id="201" from_snapshot_id="2000" to_snapshot_id="2001" dep_usage="provided" dep_weight="1" />
-  <snapshots id="1000" version="1.0" project_id="1" />
-  <snapshots id="2000" version="2.0" project_id="1" />
-  <snapshots id="1001" version="3.0" project_id="1" />
-  <snapshots id="2001" version="4.0" project_id="1" />
 </dataset>

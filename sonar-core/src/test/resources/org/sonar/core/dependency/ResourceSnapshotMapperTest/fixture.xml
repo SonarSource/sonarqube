@@ -1,0 +1,4 @@
+<dataset>
+  <snapshots id="1" project_id="1000" version="1.0" />
+  <snapshots id="2" project_id="1001" version="2.0-SNAPSHOT" />
+</dataset>

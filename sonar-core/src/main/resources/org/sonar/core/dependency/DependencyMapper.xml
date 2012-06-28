@@ -4,10 +4,7 @@
 <mapper namespace="org.sonar.core.dependency.DependencyMapper">
 
   <select id="selectAll" resultType="dependency">
-    SELECT dependencies.id as id, from_resource_id as fromResourceId, sLeft.version as fromVersion, to_resource_id as toResourceId, sRight.version as toVersion, dep_usage as "usage", dep_weight as weight
-    FROM dependencies
-    JOIN snapshots as sLeft ON dependencies.from_snapshot_id = sLeft.id
-    JOIN snapshots as sRight ON dependencies.to_snapshot_id = sRight.id
+    SELECT id, from_snapshot_id as fromSnapshotId, to_snapshot_id as toSnapshotId, dep_usage as "usage" FROM dependencies
   </select>
 
 </mapper>

@@ -31,30 +31,29 @@ import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class DependencyMapperTest extends DaoTestCase {
+public class ResourceSnapshotMapperTest extends DaoTestCase {
   @Test
   public void should_find_all() {
     setupData("fixture");
 
-    final List<DependencyDto> dependencies = Lists.newArrayList();
+    final List<ResourceSnapshotDto> snapshots = Lists.newArrayList();
 
     SqlSession session = getMyBatis().openSession();
     try {
-      session.getMapper(DependencyMapper.class).selectAll(new ResultHandler() {
+      session.getMapper(ResourceSnapshotMapper.class).selectAll(new ResultHandler() {
         public void handleResult(ResultContext context) {
-          dependencies.add((DependencyDto) context.getResultObject());
+          snapshots.add((ResourceSnapshotDto) context.getResultObject());
         }
       });
     } finally {
       MyBatis.closeQuietly(session);
     }
 
-    assertThat(dependencies).hasSize(2);
+    assertThat(snapshots).hasSize(2);
 
-    DependencyDto dep = dependencies.get(0);
+    ResourceSnapshotDto dep = snapshots.get(0);
     assertThat(dep.getId()).isEqualTo(1L);
-    assertThat(dep.getFromSnapshotId()).isEqualTo(1000L);
-    assertThat(dep.getToSnapshotId()).isEqualTo(1001L);
-    assertThat(dep.getUsage()).isEqualTo("compile");
+    assertThat(dep.getProjectId()).isEqualTo(1000L);
+    assertThat(dep.getVersion()).isEqualTo("1.0");
   }
 }
