@@ -19,25 +19,23 @@
  */
 package org.sonar.core.persistence.dialect;
 
-import org.hamcrest.core.Is;
 import org.junit.Test;
-import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.SonarException;
 
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class DialectUtilsTest {
 
   @Test
   public void testFindById() {
-    Dialect d = DialectUtils.find(DatabaseProperties.DIALECT_MYSQL, null);
-    assertThat(d, Is.is(MySql.class));
+    Dialect d = DialectUtils.find("mysql", null);
+    assertThat(d).isInstanceOf(MySql.class);
   }
 
   @Test
   public void testFindByJdbcUrl() {
     Dialect d = DialectUtils.find(null, "jdbc:mysql:foo:bar");
-    assertThat(d, Is.is(MySql.class));
+    assertThat(d).isInstanceOf(MySql.class);
   }
 
   @Test(expected = SonarException.class)

@@ -23,7 +23,6 @@ public interface DatabaseProperties {
 
   int MAX_TEXT_SIZE = 16777215;
 
-  String PROP_ISOLATION = "sonar.jdbc.defaultTransactionIsolation";
   String PROP_URL = "sonar.jdbc.url";
   String PROP_URL_DEFAULT_VALUE = "jdbc:derby://localhost:1527/sonar";
   String PROP_DRIVER = "sonar.jdbc.driverClassName";
@@ -37,15 +36,7 @@ public interface DatabaseProperties {
   String PROP_HIBERNATE_HBM2DLL = "sonar.jdbc.hibernate.hbm2ddl";
   String PROP_HIBERNATE_GENERATE_STATISTICS = "sonar.jdbc.hibernate.generate_statistics";
   String PROP_DIALECT = "sonar.jdbc.dialect";
-  String PROP_DIALECT_CLASS = "sonar.jdbc.dialectClass";
-  String PROP_EMBEDDED_PORT = "sonar.embeddedDatabase.port";
   String PROP_HIBERNATE_DEFAULT_SCHEMA = "sonar.hibernate.default_schema";
 
   String PROP_EMBEDDED_DATA_DIR = "sonar.embeddedDatabase.dataDir";
-  String DIALECT_DERBY = "derby";
-  String DIALECT_MYSQL = "mysql";
-  String DIALECT_POSTGRESQL = "postgresql";
-  String DIALECT_ORACLE = "oracle";
-  String DIALECT_DB2 = "db2";
-  String DIALECT_MSSQL = "mssql";
 }
