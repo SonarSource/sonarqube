@@ -78,14 +78,15 @@ class CreateGlobalDashboardsForFilter < ActiveRecord::Migration
 
   def self.activate_dashboards(dashboard_per_filter)
     ActiveFilter.find(:all).each do |activeFilter|
-      filter = Filter.find(activeFilter.filter_id)
+      filter = Filter.find_by_id(activeFilter.filter_id)
+      if filter
+        dashboard = dashboard_per_filter[filter.id]
 
-      dashboard = dashboard_per_filter[filter.id]
-
-      if !filter.favourites || activeFilter.user_id
-        ActiveDashboard.create(:dashboard_id => dashboard.id,
-                               :user_id => activeFilter.user_id,
-                               :order_index => activeFilter.order_index)
+        if !filter.favourites || activeFilter.user_id
+          ActiveDashboard.create(:dashboard_id => dashboard.id,
+                                 :user_id => activeFilter.user_id,
+                                 :order_index => activeFilter.order_index)
+        end
       end
     end
   end
