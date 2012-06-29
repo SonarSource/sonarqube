@@ -856,6 +856,9 @@
     <param key="allowMissingParamTags" type="b">
 
     </param>
+    <param key="allowUnknownTags" type="b">
+
+    </param>
     <param key="tokens" type="s[INTERFACE_DEF,CLASS_DEF]">
 
     </param>
