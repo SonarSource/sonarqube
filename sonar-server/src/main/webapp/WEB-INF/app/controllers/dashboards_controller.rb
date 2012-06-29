@@ -59,6 +59,7 @@ class DashboardsController < ApplicationController
     elsif @dashboard.save
       add_default_dashboards_if_first_user_dashboard(@dashboard.global?)
       last_index=current_user.active_dashboards.max_by(&:order_index).order_index
+      current_user.active_dashboards.create(:dashboard => @dashboard, :user => current_user, :order_index => (last_index+1))
 
       redirect_to :action => 'index', :resource => params[:resource], :highlight => @dashboard.id
     else
