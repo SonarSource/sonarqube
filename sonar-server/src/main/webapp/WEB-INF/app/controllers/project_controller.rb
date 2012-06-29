@@ -18,7 +18,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 class ProjectController < ApplicationController
-  verify :method => :post, :only => [:set_links, :set_exclusions, :delete_exclusions], :redirect_to => {:action => :index}
+  verify :method => :post, :only => [:set_links, :set_exclusions, :delete_exclusions, :update_key, :perform_key_bulk_update], 
+         :redirect_to => {:action => :index}
   verify :method => :delete, :only => [:delete], :redirect_to => {:action => :index}
 
   SECTION=Navigation::SECTION_RESOURCE
@@ -28,9 +29,7 @@ class ProjectController < ApplicationController
   end
 
   def deletion
-    @project=Project.by_key(params[:id])
-    not_found("Project not found") unless @project
-    access_denied unless is_admin?(@project)
+    @project = get_current_project(params[:id])
 
     unless java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'deletable')
       redirect_to :action => 'index', :id => params[:id]
@@ -48,11 +47,84 @@ class ProjectController < ApplicationController
     end
     redirect_to_default
   end
+  
+  def key
+    @project = get_current_project(params[:id])
+      
+    if params[:old_prefix] && params[:new_prefix]
+      @old_prefix = params[:old_prefix]
+      @new_prefix = params[:new_prefix]
+    end
+  end
+  
+  def update_key
+    project = get_current_project(params[:id])
+    
+    new_key = params[:new_key].strip
+    if new_key.blank?
+      flash[:error] = message('update_key.new_key_cant_be_blank_for_x', :params => project.key)
+    elsif new_key == project.key
+      flash[:warning] = message('update_key.same_key_for_x', :params => project.key)
+    elsif Project.by_key(new_key)
+      flash[:error] = message('update_key.cant_update_x_because_resource_already_exist_with_key_x', :params => [project.key, new_key])
+    else
+      begin
+        java_facade.updateResourceKey(project.id, new_key)
+        flash[:notice] = message('update_key.key_updated')
+      rescue Exception => e
+        flash[:error] = message('update_key.error_occured_while_renaming_key_of_x', 
+                                :params => [project.key, Api::Utils.exception_message(e, :backtrace => false)])
+      end
+    end
+    
+    redirect_to :action => 'key', :id => project.root_project.id
+  end
+  
+  def prepare_key_bulk_update
+    project = get_current_project(params[:id])
+    
+    old_prefix = params[:old_prefix].strip
+    new_prefix = params[:new_prefix].strip
+    if old_prefix.blank? || new_prefix.blank?
+      error_message = message('update_key.fieds_cant_be_blank_for_bulk_update')
+    elsif !project.key.start_with?(old_prefix)
+      error_message = message('update_key.key_does_not_start_with_x', :params => [project.key, old_prefix])
+    else
+      new_key = new_prefix + project.key[old_prefix.size..project.key.size]
+      if Project.by_key(new_key)
+        error_message = message('update_key.cant_update_x_because_resource_already_exist_with_key_x', :params => [project.key, new_key])  
+      end
+    end
+    
+    if error_message
+      flash[:error] = error_message
+      redirect_to :action => 'key', :id => project.id
+    else
+      redirect_to :action => 'key', :id => project.id, :old_prefix => old_prefix, :new_prefix => new_prefix
+    end
+  end
+
+  def perform_key_bulk_update
+    project = get_current_project(params[:id])
+    
+    old_prefix = params[:old_prefix].strip
+    new_prefix = params[:new_prefix].strip
+      
+    unless old_prefix.blank? || new_prefix.blank? || !project.key.start_with?(old_prefix)
+      begin
+        java_facade.bulkUpdateKey(project.id, old_prefix, new_prefix)
+        flash[:notice] = message('update_key.key_updated')
+      rescue Exception => e
+        flash[:error] = message('update_key.error_occured_while_renaming_key_of_x', 
+                                :params => [project.key, Api::Utils.exception_message(e, :backtrace => false)])
+      end
+    end
+    
+    redirect_to :action => 'key', :id => project.id
+  end
 
   def history
-    @project=Project.by_key(params[:id])
-    not_found("Project not found") unless @project
-    access_denied unless is_admin?(@project)
+    @project = get_current_project(params[:id])
 
     # NOTE: we keep "@project.view? || @project.subview?" in the test for backward compatibility with the Views plugin
     unless java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'modifiable_history') || @project.view? || @project.subview?
@@ -65,9 +137,7 @@ class ProjectController < ApplicationController
   end
 
   def delete_snapshot_history
-    @project=Project.by_key(params[:id])
-    not_found("Project not found") unless @project
-    access_denied unless is_admin?(@project)
+    @project = get_current_project(params[:id])
 
     sid = params[:snapshot_id]
     if sid
@@ -79,9 +149,7 @@ class ProjectController < ApplicationController
   end
 
   def links
-    @project=Project.by_key(params[:id])
-    not_found("Project not found") unless @project
-    access_denied unless is_admin?(@project)
+    @project = get_current_project(params[:id])
 
     @snapshot=@project.last_snapshot
     if !@project.project?
@@ -90,9 +158,7 @@ class ProjectController < ApplicationController
   end
 
   def set_links
-    project = Project.by_key(params[:project_id])
-    not_found("Project not found") unless project
-    access_denied unless is_admin?(project)
+    project = get_current_project(params[:project_id])
 
     project.links.clear
 
@@ -118,9 +184,7 @@ class ProjectController < ApplicationController
 
 
   def settings
-    @project=Project.by_key(params[:id])
-    not_found("Project not found") unless @project
-    access_denied unless is_admin?(@project)
+    @project = get_current_project(params[:id])
 
     @snapshot=@project.last_snapshot
     if !@project.project? && !@project.module?
@@ -166,9 +230,7 @@ class ProjectController < ApplicationController
 
 
   def exclusions
-    @project=Project.by_key(params[:id])
-    not_found("Project not found") unless @project
-    access_denied unless is_admin?(@project)
+    @project = get_current_project(params[:id])
 
     @snapshot=@project.last_snapshot
     if !@project.project? && !@project.module?
@@ -177,9 +239,7 @@ class ProjectController < ApplicationController
   end
 
   def set_exclusions
-    @project = Project.find(params[:id])
-    not_found("Project not found") unless @project
-    access_denied unless is_admin?(@project)
+    @project = get_current_project(params[:id])
 
     patterns=params['patterns'].reject { |p| p.blank? }.uniq
     if patterns.empty?
@@ -193,9 +253,7 @@ class ProjectController < ApplicationController
   end
 
   def delete_exclusions
-    @project = Project.find(params[:id])
-    not_found("Project not found") unless @project
-    access_denied unless is_admin?(@project)
+    @project = get_current_project(params[:id])
 
     Property.clear('sonar.exclusions', @project.id)
     flash[:notice]='Filters deleted'
@@ -310,6 +368,13 @@ class ProjectController < ApplicationController
 
   protected
 
+  def get_current_project(project_id)
+    project=Project.by_key(project_id)
+    not_found("Project not found") unless project
+    access_denied unless is_admin?(project)
+    project
+  end
+  
   def find_project_snapshots(root_snapshot_id)
     snapshots = Snapshot.find(:all, :include => 'events', :conditions => ["(root_snapshot_id = ? OR id = ?) AND scope = 'PRJ'", root_snapshot_id, root_snapshot_id])
   end

@@ -62,6 +62,13 @@ class Project < ActiveRecord::Base
       end
   end
 
+  def modules
+    @modules ||=
+      begin
+        Project.find(:all, :conditions => {:root_id => self.id, :scope => 'PRJ'})
+      end
+  end
+
   # bottom-up array of projects,
   def ancestor_projects
     node, nodes = self, []

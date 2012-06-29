@@ -1,0 +1,92 @@
+<% 
+  if controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'updatable_key')
+    has_modules = !@project.modules.empty?
+%>
+
+  <script type="text/javascript">
+    function update_launched() {
+      $$('input.action').each(function(input) {
+        input.disabled=true;
+      });
+    }
+  </script>
+
+<%    
+    if @old_prefix && @new_prefix
+      # validation screen for bulk update
+      key_suffix = @project.key[@old_prefix.size..@project.key.size]
+%>  
+  
+  <h1><%= message('update_key.bulk_update') -%></h1>
+  <br/>
+  <p>
+    <%= message('update_key.are_you_sure_to_bulk_rename_x_into_x', :params => [@old_prefix, key_suffix, @new_prefix]) -%>
+  </p>
+  <% form_tag( {:action => 'perform_key_bulk_update', :id => @project.id }) do -%>
+    <input type="hidden" value="<%= @project.id -%>" name="id" id="project_id">
+    <input type="hidden" value="<%= @old_prefix -%>" name="old_prefix" id="old_prefix">
+    <input type="hidden" value="<%= @new_prefix -%>" name="new_prefix" id="new_prefix">
+    <br/>
+    <%= submit_tag message('update_key.rename'), :id => 'bulk_update_button', :class => 'action',
+                         :onclick => "update_launched();$('loading_bulk_update').show();" %>
+    <a href="<%= url_for :action => 'key', :id => @project.key -%>"><%= message('cancel') -%></a>
+    <span class="loading" id="loading_bulk_update" style="display: none; padding: 3px 10px;"></span>
+  <% end %>
+    
+<%
+    else
+      # main screen
+      reset_cycle 'modules_tree'
+%>
+
+<% if has_modules %>
+  <h1><%= message('update_key.bulk_update') -%></h1>
+  <br/>
+  <p>
+    <%= message('update_key.bulk_change_description') -%>
+    <br/><br/>
+    <%= message('update_key.current_key_for_project_x_is_x', :params => [@project.name, @project.key]) -%>
+  </p>
+  <br/>
+  <% form_tag( {:action => 'prepare_key_bulk_update', :id => @project.id }) do -%>
+    <table>
+      <tr>
+        <td style="padding-right: 20px">Replace:</td>
+        <td><input type="text" value="" name="old_prefix" id="old_prefix" size="40"></td>
+      </tr>
+      <tr>
+        <td style="padding-right: 20px">By:</td>
+        <td><input type="text" value="" name="new_prefix" id="new_prefix" size="40"></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td style="padding-top: 5px">
+          <%= submit_tag message('update_key.rename'), :id => 'bulk_update_button', :class => 'action',
+                         :onclick => "update_launched();$('loading_bulk_update').show();" %>
+          <span class="loading" id="loading_bulk_update" style="display: none; padding: 3px 10px;"></span>
+        </td>
+      </tr>      
+    </table>
+  <% end %>
+  <br/>
+  <br/>
+<% end %>
+
+  <h1><%= has_modules ? message('update_key.fine_grained_key_update') : message('update_key.update_resource_key') -%></h1>
+  <br/>
+  <table id="project-history" class="data" style="width:1%">
+    <thead>
+      <tr>
+        <th><%= message('update_key.old_key') -%></th>
+        <th><%= message('update_key.new_key') -%></th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= render :partial => 'key_modules', :locals => {:current_module => @project, :module_depth => 0, :id_prefix => "0"} -%>
+    </tbody>
+  </table>
+  
+<% 
+    end
+  end 
+%>

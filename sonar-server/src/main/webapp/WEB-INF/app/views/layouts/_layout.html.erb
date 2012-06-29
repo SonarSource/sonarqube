@@ -104,6 +104,10 @@
                 <li class="<%= 'selected' if request.request_uri.include?('/project/history') -%>">
                   <a href="<%= ApplicationController.root_context -%>/project/history/<%= @project.id -%>"><%= message('project_history.page') -%></a></li>
               <% end %>
+              <% if controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'updatable_key') %>
+                <li class="<%= 'selected' if request.request_uri.include?('/project/key') -%>">
+                  <a href="<%= ApplicationController.root_context -%>/project/key/<%= @project.id -%>"><%= message('update_key.page') -%></a></li>
+              <% end %>
               <% if controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'deletable') %>
                 <li class="<%= 'selected' if request.request_uri.include?('/project/deletion') -%>">
                   <a href="<%= ApplicationController.root_context -%>/project/deletion/<%= @project.id -%>"><%= message('resource_deletion.page', :params => message('qualifier.' + @project.qualifier)) -%></a></li>

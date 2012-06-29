@@ -28,6 +28,7 @@ import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceIndexerDao;
+import org.sonar.core.resource.ResourceKeyUpdaterDao;
 import org.sonar.core.review.ReviewCommentDao;
 import org.sonar.core.review.ReviewDao;
 import org.sonar.core.rule.RuleDao;
@@ -54,6 +55,7 @@ public final class DaoUtils {
         PurgeDao.class,
         ResourceIndexerDao.class,
         ResourceDao.class,
+        ResourceKeyUpdaterDao.class,
         ReviewCommentDao.class,
         ReviewDao.class,
         RuleDao.class);

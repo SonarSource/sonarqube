@@ -61,6 +61,7 @@ import org.sonar.core.purge.PurgeableSnapshotDto;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceIndexDto;
 import org.sonar.core.resource.ResourceIndexerMapper;
+import org.sonar.core.resource.ResourceKeyUpdaterMapper;
 import org.sonar.core.resource.ResourceMapper;
 import org.sonar.core.resource.SnapshotDto;
 import org.sonar.core.review.ReviewCommentDto;
@@ -130,6 +131,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadMapper(conf, PurgeMapper.class);
     loadMapper(conf, PurgeVendorMapper.class);
     loadMapper(conf, ResourceMapper.class);
+    loadMapper(conf, ResourceKeyUpdaterMapper.class);
     loadMapper(conf, ReviewCommentMapper.class);
     loadMapper(conf, ReviewMapper.class);
     loadMapper(conf, ResourceIndexerMapper.class);
