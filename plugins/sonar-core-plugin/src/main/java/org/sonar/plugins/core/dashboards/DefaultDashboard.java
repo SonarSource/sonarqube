@@ -48,7 +48,6 @@ public final class DefaultDashboard extends DashboardTemplate {
     dashboard.addWidget("size", 1);
     dashboard.addWidget("comments_duplications", 1);
     dashboard.addWidget("complexity", 1);
-    dashboard.addWidget("code_coverage", 1);
     dashboard.addWidget("events", 1);
     dashboard.addWidget("description", 1);
   }
@@ -58,6 +57,7 @@ public final class DefaultDashboard extends DashboardTemplate {
     dashboard.addWidget("alerts", 2);
     dashboard.addWidget("file_design", 2);
     dashboard.addWidget("package_design", 2);
+    dashboard.addWidget("code_coverage", 2);
   }
 
 }
