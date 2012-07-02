@@ -1,0 +1,4 @@
+<dataset>
+  <group_roles id="1" group_id="100" resource_id="200" role="admin"/>
+  <group_roles id="2" group_id="[null]" resource_id="200" role="user"/>
+</dataset>

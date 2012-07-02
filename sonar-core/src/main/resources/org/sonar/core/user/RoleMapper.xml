@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.core.user.RoleMapper">
+
+  <insert id="insertGroupRole" parameterType="GroupRole" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO group_roles (group_id, resource_id, role)
+    VALUES (#{groupId, jdbcType=INTEGER}, #{resourceId, jdbcType=INTEGER}, #{role, jdbcType=VARCHAR})
+  </insert>
+
+  <insert id="insertUserRole" parameterType="UserRole" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO user_roles (user_id, resource_id, role)
+    VALUES (#{userId, jdbcType=INTEGER}, #{resourceId, jdbcType=INTEGER}, #{role, jdbcType=VARCHAR})
+  </insert>
+</mapper>

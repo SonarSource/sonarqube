@@ -24,46 +24,25 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.mapping.Environment;
-import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.apache.ibatis.session.*;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
-import org.sonar.core.dashboard.ActiveDashboardDto;
-import org.sonar.core.dashboard.ActiveDashboardMapper;
-import org.sonar.core.dashboard.DashboardDto;
-import org.sonar.core.dashboard.DashboardMapper;
-import org.sonar.core.dashboard.WidgetDto;
-import org.sonar.core.dashboard.WidgetMapper;
-import org.sonar.core.dashboard.WidgetPropertyDto;
-import org.sonar.core.dashboard.WidgetPropertyMapper;
+import org.sonar.core.dashboard.*;
 import org.sonar.core.dependency.DependencyDto;
 import org.sonar.core.dependency.DependencyMapper;
 import org.sonar.core.dependency.ResourceSnapshotDto;
 import org.sonar.core.dependency.ResourceSnapshotMapper;
 import org.sonar.core.duplication.DuplicationMapper;
 import org.sonar.core.duplication.DuplicationUnitDto;
-import org.sonar.core.filter.CriterionDto;
-import org.sonar.core.filter.CriterionMapper;
-import org.sonar.core.filter.FilterColumnDto;
-import org.sonar.core.filter.FilterColumnMapper;
-import org.sonar.core.filter.FilterDto;
-import org.sonar.core.filter.FilterMapper;
+import org.sonar.core.filter.*;
 import org.sonar.core.properties.PropertiesMapper;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.purge.PurgeMapper;
 import org.sonar.core.purge.PurgeVendorMapper;
 import org.sonar.core.purge.PurgeableSnapshotDto;
-import org.sonar.core.resource.ResourceDto;
-import org.sonar.core.resource.ResourceIndexDto;
-import org.sonar.core.resource.ResourceIndexerMapper;
-import org.sonar.core.resource.ResourceKeyUpdaterMapper;
-import org.sonar.core.resource.ResourceMapper;
-import org.sonar.core.resource.SnapshotDto;
+import org.sonar.core.resource.*;
 import org.sonar.core.review.ReviewCommentDto;
 import org.sonar.core.review.ReviewCommentMapper;
 import org.sonar.core.review.ReviewDto;
@@ -72,8 +51,7 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleMapper;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.core.template.LoadedTemplateMapper;
-import org.sonar.core.user.AuthorDto;
-import org.sonar.core.user.AuthorMapper;
+import org.sonar.core.user.*;
 
 import java.io.InputStream;
 
@@ -102,18 +80,22 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "FilterColumn", FilterColumnDto.class);
     loadAlias(conf, "Dashboard", DashboardDto.class);
     loadAlias(conf, "Dependency", DependencyDto.class);
-    loadAlias(conf, "ResourceSnapshot", ResourceSnapshotDto.class);
     loadAlias(conf, "DuplicationUnit", DuplicationUnitDto.class);
+    loadAlias(conf, "Group", GroupDto.class);
+    loadAlias(conf, "GroupRole", GroupRoleDto.class);
     loadAlias(conf, "LoadedTemplate", LoadedTemplateDto.class);
     loadAlias(conf, "Property", PropertyDto.class);
     loadAlias(conf, "PurgeableSnapshot", PurgeableSnapshotDto.class);
-    loadAlias(conf, "Review", ReviewDto.class);
-    loadAlias(conf, "ReviewComment", ReviewCommentDto.class);
     loadAlias(conf, "Resource", ResourceDto.class);
     loadAlias(conf, "ResourceIndex", ResourceIndexDto.class);
+    loadAlias(conf, "ResourceSnapshot", ResourceSnapshotDto.class);
+    loadAlias(conf, "Review", ReviewDto.class);
+    loadAlias(conf, "ReviewComment", ReviewCommentDto.class);
     loadAlias(conf, "Rule", RuleDto.class);
     loadAlias(conf, "Snapshot", SnapshotDto.class);
     loadAlias(conf, "SchemaMigration", SchemaMigrationDto.class);
+    loadAlias(conf, "User", UserDto.class);
+    loadAlias(conf, "UserRole", UserRoleDto.class);
     loadAlias(conf, "Widget", WidgetDto.class);
     loadAlias(conf, "WidgetProperty", WidgetPropertyDto.class);
 
@@ -124,19 +106,21 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadMapper(conf, FilterColumnMapper.class);
     loadMapper(conf, DashboardMapper.class);
     loadMapper(conf, DependencyMapper.class);
-    loadMapper(conf, ResourceSnapshotMapper.class);
     loadMapper(conf, DuplicationMapper.class);
     loadMapper(conf, LoadedTemplateMapper.class);
     loadMapper(conf, PropertiesMapper.class);
     loadMapper(conf, PurgeMapper.class);
     loadMapper(conf, PurgeVendorMapper.class);
-    loadMapper(conf, ResourceMapper.class);
     loadMapper(conf, ResourceKeyUpdaterMapper.class);
+    loadMapper(conf, ResourceIndexerMapper.class);
+    loadMapper(conf, ResourceMapper.class);
+    loadMapper(conf, ResourceSnapshotMapper.class);
     loadMapper(conf, ReviewCommentMapper.class);
     loadMapper(conf, ReviewMapper.class);
-    loadMapper(conf, ResourceIndexerMapper.class);
+    loadMapper(conf, RoleMapper.class);
     loadMapper(conf, RuleMapper.class);
     loadMapper(conf, SchemaMigrationMapper.class);
+    loadMapper(conf, UserMapper.class);
     loadMapper(conf, WidgetMapper.class);
     loadMapper(conf, WidgetPropertyMapper.class);
 
@@ -183,7 +167,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
 
   private InputStream getPathToMapper(Class mapperClass) {
     InputStream input = getClass().getResourceAsStream(
-        "/" + StringUtils.replace(mapperClass.getName(), ".", "/") + "-" + database.getDialect().getId() + ".xml");
+      "/" + StringUtils.replace(mapperClass.getName(), ".", "/") + "-" + database.getDialect().getId() + ".xml");
     if (input == null) {
       input = getClass().getResourceAsStream("/" + StringUtils.replace(mapperClass.getName(), ".", "/") + ".xml");
     }

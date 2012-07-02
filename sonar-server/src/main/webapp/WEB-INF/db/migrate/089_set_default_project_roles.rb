@@ -20,18 +20,7 @@
 # sonar 2.0
 class SetDefaultProjectRoles < ActiveRecord::Migration
 
-  # Do not use faux models
-
   def self.up
-    administrators=Group.find_by_name('sonar-administrators')
-    users=Group.find_by_name('sonar-users')
-
-    # default project roles
-    GroupRole.create(:resource_id => nil, :role => 'default-admin', :group_id => administrators.id)
-    GroupRole.create(:resource_id => nil, :role => 'default-user', :group_id => users.id)
-    GroupRole.create(:resource_id => nil, :role => 'default-user', :group_id => nil)
-    GroupRole.create(:resource_id => nil, :role => 'default-codeviewer', :group_id => users.id)
-    GroupRole.create(:resource_id => nil, :role => 'default-codeviewer', :group_id => nil)
   end
 
 end

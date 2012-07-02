@@ -34,6 +34,8 @@ import org.sonar.core.review.ReviewDao;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.user.AuthorDao;
+import org.sonar.core.user.RoleDao;
+import org.sonar.core.user.UserDao;
 
 import java.util.List;
 
@@ -45,19 +47,21 @@ public final class DaoUtils {
   @SuppressWarnings("unchecked")
   public static List<Class<?>> getDaoClasses() {
     return ImmutableList.of(
-        ActiveDashboardDao.class,
-        AuthorDao.class,
-        FilterDao.class,
-        DashboardDao.class,
-        DuplicationDao.class,
-        LoadedTemplateDao.class,
-        PropertiesDao.class,
-        PurgeDao.class,
-        ResourceIndexerDao.class,
-        ResourceDao.class,
-        ResourceKeyUpdaterDao.class,
-        ReviewCommentDao.class,
-        ReviewDao.class,
-        RuleDao.class);
+      ActiveDashboardDao.class,
+      AuthorDao.class,
+      FilterDao.class,
+      DashboardDao.class,
+      DuplicationDao.class,
+      LoadedTemplateDao.class,
+      PropertiesDao.class,
+      PurgeDao.class,
+      ResourceIndexerDao.class,
+      ResourceDao.class,
+      ResourceKeyUpdaterDao.class,
+      ReviewCommentDao.class,
+      ReviewDao.class,
+      RoleDao.class,
+      RuleDao.class,
+      UserDao.class);
   }
 }
