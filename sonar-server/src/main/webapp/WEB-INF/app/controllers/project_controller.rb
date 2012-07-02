@@ -18,7 +18,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 class ProjectController < ApplicationController
-  verify :method => :post, :only => [:set_links, :set_exclusions, :delete_exclusions, :update_key, :perform_key_bulk_update], 
+  verify :method => :post, :only => [:set_links, :set_exclusions, :delete_exclusions, :update_key, :perform_key_bulk_update, :update_quality_profile], 
          :redirect_to => {:action => :index}
   verify :method => :delete, :only => [:delete], :redirect_to => {:action => :index}
 
@@ -46,6 +46,27 @@ class ProjectController < ApplicationController
       end
     end
     redirect_to_default
+  end
+  
+  def quality_profile
+    @project = get_current_project(params[:id])
+    @profiles = Profile.find(:all, :conditions => {:language => @project.language, :enabled => true})
+  end
+  
+  def update_quality_profile
+    project = get_current_project(params[:id])
+    
+    selected_profile = Profile.find(:first, :conditions => {:id => params[:quality_profile]})
+    if selected_profile && selected_profile.language == project.language 
+      project.profile = selected_profile
+      project.save!
+      flash[:notice] = message('project_quality_profile.profile_successfully_updated')
+    else
+      selected_profile_name = selected_profile ? selected_profile.name + "(" + selected_profile.language + ")" : "Unknown profile"
+      flash[:error] = message('project_quality_profile.project_cannot_be_update_with_profile_x', :params => selected_profile_name)
+    end
+    
+    redirect_to :action => 'quality_profile', :id => project.id
   end
   
   def key

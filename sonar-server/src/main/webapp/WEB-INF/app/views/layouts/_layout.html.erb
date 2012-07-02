@@ -75,6 +75,10 @@
             <% end %>
             <% if has_role?(:admin, @project) %>
               <li class="h2"><%= message('sidebar.project_settings') -%></li>
+              <% if (@project.project?) %>
+                <li class="<%= 'selected' if request.request_uri.include?('/project/quality_profile') -%>">
+                  <a href="<%= ApplicationController.root_context -%>/project/quality_profile/<%= @project.id -%>"><%= message('project_quality_profile.page') -%></a></li>
+              <% end %>
               <li class="<%= 'selected' if request.request_uri.include?('/manual_measures') -%>">
                 <a href="<%= ApplicationController.root_context -%>/manual_measures/index/<%= @project.id -%>"><%= message('manual_measures.page') -%></a></li>
               <% if (@project.project?) %>
