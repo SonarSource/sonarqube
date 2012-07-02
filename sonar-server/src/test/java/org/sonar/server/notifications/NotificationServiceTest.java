@@ -86,16 +86,19 @@ public class NotificationServiceTest {
   @Test
   public void shouldPeriodicallyProcessQueue() throws Exception {
     NotificationQueueElement queueElement = mock(NotificationQueueElement.class);
-    Notification notification = mock(Notification.class);
-    when(queueElement.getNotification()).thenReturn(notification);
+    Notification startNotification = mock(Notification.class);
+    Notification afterDelayNotification = mock(Notification.class);
+    Notification stopNotification = mock(Notification.class);
+    when(queueElement.getNotification()).thenReturn(startNotification, afterDelayNotification, stopNotification);
     when(manager.getFromQueue()).thenReturn(queueElement).thenReturn(null).thenReturn(queueElement).thenReturn(null).thenReturn(queueElement).thenReturn(null);
     doNothing().when(service).deliver(any(Notification.class));
 
     service.start();
-    Thread.sleep(1500); // sleep 1.5 second to process queue
-    service.stop();
+    verify(service, timeout(15000)).deliver(startNotification);
+    verify(service, timeout(1500)).deliver(afterDelayNotification);
 
-    verify(service, times(3)).deliver(notification); // 3 times - 1 on start, 1 after delay, 1 on stop
+    service.stop();
+    verify(service, timeout(1500)).deliver(stopNotification);
   }
 
   /**
