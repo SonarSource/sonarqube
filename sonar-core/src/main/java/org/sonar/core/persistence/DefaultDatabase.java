@@ -27,10 +27,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
-import org.sonar.core.persistence.dialect.*;
+import org.sonar.core.persistence.dialect.Dialect;
+import org.sonar.core.persistence.dialect.DialectUtils;
+import org.sonar.core.persistence.dialect.H2;
+import org.sonar.core.persistence.dialect.Oracle;
+import org.sonar.core.persistence.dialect.PostgreSql;
 import org.sonar.jpa.session.CustomHibernateConnectionProvider;
 
 import javax.sql.DataSource;
+
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
@@ -84,8 +89,8 @@ public class DefaultDatabase implements Database {
     if (dialect == null) {
       throw new IllegalStateException("Can not guess the JDBC dialect. Please check the property sonar.jdbc.url.");
     }
-    if (Derby.ID.equals(dialect.getId())) {
-      LoggerFactory.getLogger(DefaultDatabase.class).warn("Derby database should be used for evaluation purpose only");
+    if (H2.ID.equals(dialect.getId())) {
+      LoggerFactory.getLogger(DefaultDatabase.class).warn("H2 database should be used for evaluation purpose only");
     }
     if (!properties.containsKey("sonar.jdbc.driverClassName")) {
       properties.setProperty("sonar.jdbc.driverClassName", dialect.getDefaultDriverClassName());
@@ -107,7 +112,7 @@ public class DefaultDatabase implements Database {
     }
   }
 
-  private void initDatasource() throws Exception {//NOSONAR this exception is thrown by BasicDataSourceFactory
+  private void initDatasource() throws Exception {// NOSONAR this exception is thrown by BasicDataSourceFactory
     // but it's correctly caught by start()
 
     LOG.info("Create JDBC datasource");

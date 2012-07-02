@@ -22,33 +22,29 @@ package org.sonar.core.persistence;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbcp.BasicDataSourceFactory;
 import org.hibernate.cfg.Environment;
-import org.sonar.core.persistence.dialect.Derby;
 import org.sonar.core.persistence.dialect.Dialect;
+import org.sonar.core.persistence.dialect.H2;
 import org.sonar.jpa.session.CustomHibernateConnectionProvider;
 
 import javax.sql.DataSource;
-import java.sql.*;
+
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Properties;
 
 /**
- * Derby in-memory database, used for unit tests only.
+ * H2 in-memory database, used for unit tests only.
  *
- * @since 2.12
+ * @since 3.2
  */
-public class InMemoryDatabase implements Database {
-
-  static {
-    DerbyUtils.fixDerbyLogs();
-  }
-
+public class H2Database implements Database {
   private static BasicDataSource datasource;
 
-  public InMemoryDatabase start() {
+  public H2Database start() {
     if (datasource == null) {
       startDatabase();
       createSchema();
     }
-    truncateTables();
     return this;
   }
 
@@ -58,10 +54,10 @@ public class InMemoryDatabase implements Database {
   void startDatabase() {
     try {
       Properties properties = new Properties();
-      properties.put("driverClassName", "org.apache.derby.jdbc.EmbeddedDriver");
+      properties.put("driverClassName", "org.h2.Driver");
       properties.put("username", "sonar");
       properties.put("password", "sonar");
-      properties.put("url", "jdbc:derby:memory:sonar2;create=true;user=sonar;password=sonar");
+      properties.put("url", "jdbc:h2:mem:sonar2");
 
       // limit to 2 because of Hibernate and MyBatis
       properties.put("maxActive", "2");
@@ -69,7 +65,7 @@ public class InMemoryDatabase implements Database {
       datasource = (BasicDataSource) BasicDataSourceFactory.createDataSource(properties);
 
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to start Derby", e);
+      throw new IllegalStateException("Fail to start H2", e);
     }
   }
 
@@ -77,45 +73,11 @@ public class InMemoryDatabase implements Database {
     Connection connection = null;
     try {
       connection = datasource.getConnection();
-      DdlUtils.createSchema(connection, "derby");
-
+      DdlUtils.createSchema(connection, "h2");
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to create schema", e);
-
     } finally {
       closeQuietly(connection);
-    }
-  }
-
-  private void truncateTables() {
-    Connection connection = null;
-    try {
-      connection = datasource.getConnection();
-
-      DatabaseMetaData meta = connection.getMetaData();
-      Statement statement = connection.createStatement();
-
-      ResultSet res = meta.getTables(null, null, null, new String[]{"TABLE"});
-      while (res.next()) {
-        String tableName = res.getString("TABLE_NAME");
-        statement.executeUpdate("TRUNCATE TABLE " + tableName);
-      }
-      res.close();
-
-      // See https://issues.apache.org/jira/browse/DERBY-5403
-      res = meta.getColumns(null, null, null, "ID");
-      while (res.next()) {
-        String tableName = res.getString("TABLE_NAME");
-        statement.executeUpdate("ALTER TABLE " + tableName + " ALTER COLUMN ID RESTART WITH 1");
-      }
-      res.close();
-
-      statement.close();
-    } catch (SQLException e) {
-      throw new IllegalStateException("Fail to truncate tables", e);
-
-    } finally {
-      closeQuietly(connection); // Important, otherwise tests can stuck
     }
   }
 
@@ -125,19 +87,12 @@ public class InMemoryDatabase implements Database {
         datasource.close();
         datasource = null;
       }
-      DriverManager.getConnection("jdbc:derby:;shutdown=true");
-
     } catch (SQLException e) {
-      // See http://db.apache.org/derby/docs/dev/getstart/rwwdactivity3.html
-      // XJ015 indicates successful shutdown of Derby
-      // 08006 successful shutdown of a single database
-      if (!"XJ015".equals(e.getSQLState())) {
-        throw new IllegalStateException("Fail to stop Derby", e);
-      }
+      // Ignore error
     }
   }
 
-  public InMemoryDatabase stop() {
+  public H2Database stop() {
     return this;
   }
 
@@ -146,7 +101,7 @@ public class InMemoryDatabase implements Database {
   }
 
   public Dialect getDialect() {
-    return new Derby();
+    return new H2();
   }
 
   public String getSchema() {

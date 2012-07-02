@@ -60,17 +60,21 @@ public abstract class DaoTestCase {
   public static void startDatabase() throws Exception {
     Settings settings = new Settings();
     settings.setProperties(Maps.fromProperties(System.getProperties()));
-    if (settings.hasKey("sonar.jdbc.dialect")) {
-      database = new DefaultDatabase(settings);
-    } else {
-      database = new InMemoryDatabase();
+    boolean hasDialect = settings.hasKey("sonar.jdbc.dialect");
+
+    if ((null == database) || (hasDialect)) { // Create database only once per vm (Only for in mempry database)
+      if (hasDialect) {
+        database = new DefaultDatabase(settings);
+      } else {
+        database = new H2Database();
+      }
+      database.start();
+
+      myBatis = new MyBatis(database);
+      myBatis.start();
+
+      databaseCommands = DatabaseCommands.forDialect(database.getDialect());
     }
-    database.start();
-
-    myBatis = new MyBatis(database);
-    myBatis.start();
-
-    databaseCommands = DatabaseCommands.forDialect(database.getDialect());
   }
 
   @Before
@@ -145,7 +149,7 @@ public abstract class DaoTestCase {
   }
 
   protected final void checkTables(String testName, String... tables) {
-    checkTables(testName, new String[]{}, tables);
+    checkTables(testName, new String[] {}, tables);
   }
 
   protected final void checkTables(String testName, String[] excludedColumnNames, String... tables) {

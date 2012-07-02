@@ -36,13 +36,13 @@ public class ConfigurationUtilsTest {
     input.setProperty("url", "${env:SONAR_JDBC_URL}");
     input.setProperty("do_not_change", "${SONAR_JDBC_URL}");
     Map<String, String> variables = Maps.newHashMap();
-    variables.put("SONAR_JDBC_URL", "jdbc:derby:mem");
+    variables.put("SONAR_JDBC_URL", "jdbc:h2:mem");
 
     Properties output = ConfigurationUtils.interpolateVariables(input, variables);
 
     assertThat(output.size(), is(3));
     assertThat(output.getProperty("hello"), is("world"));
-    assertThat(output.getProperty("url"), is("jdbc:derby:mem"));
+    assertThat(output.getProperty("url"), is("jdbc:h2:mem"));
     assertThat(output.getProperty("do_not_change"), is("${SONAR_JDBC_URL}"));
 
     // input is not changed

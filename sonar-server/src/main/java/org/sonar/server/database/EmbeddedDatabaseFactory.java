@@ -21,20 +21,25 @@ package org.sonar.server.database;
 
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
+import org.sonar.core.persistence.dialect.H2;
 
 public class EmbeddedDatabaseFactory {
-  private Settings settings;
+  private final Settings settings;
+  private final H2 dialect;
   private EmbeddedDatabase embeddedDatabase;
 
   public EmbeddedDatabaseFactory(Settings settings) {
     this.settings = settings;
+    dialect = new H2();
   }
 
   public void start() {
-    String jdbcUrl = settings.getString(DatabaseProperties.PROP_URL);
-    if (jdbcUrl != null && jdbcUrl.startsWith("jdbc:derby://") && jdbcUrl.contains("create=true") && embeddedDatabase == null) {
-      embeddedDatabase = new EmbeddedDatabase(settings);
-      embeddedDatabase.start();
+    if (embeddedDatabase == null) {
+      String jdbcUrl = settings.getString(DatabaseProperties.PROP_URL);
+      if (dialect.matchesJdbcURL(jdbcUrl)) {
+        embeddedDatabase = new EmbeddedDatabase(settings);
+        embeddedDatabase.start();
+      }
     }
   }
 

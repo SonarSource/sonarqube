@@ -19,8 +19,7 @@
  */
 package org.sonar.core.persistence;
 
-import org.apache.derby.jdbc.EmbeddedDriver;
-import org.hamcrest.core.Is;
+import org.h2.Driver;
 import org.junit.Test;
 
 import java.sql.Connection;
@@ -28,39 +27,37 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class DdlUtilsTest {
 
-  static {
-    DerbyUtils.fixDerbyLogs();
+  @Test
+  public void shouldSupportOnlyH2() {
+    assertThat(DdlUtils.supportsDialect("h2")).isTrue();
+    assertThat(DdlUtils.supportsDialect("mysql")).isFalse();
+    assertThat(DdlUtils.supportsDialect("oracle")).isFalse();
+    assertThat(DdlUtils.supportsDialect("mssql")).isFalse();
   }
 
   @Test
-  public void shouldSupportOnlyDerby() {
-    assertThat(DdlUtils.supportsDialect("derby"), Is.is(true));
-    assertThat(DdlUtils.supportsDialect("mysql"), Is.is(false));
-    assertThat(DdlUtils.supportsDialect("oracle"), Is.is(false));
-    assertThat(DdlUtils.supportsDialect("mssql"), Is.is(false));
+  public void shouldCreateSchema() throws SQLException {
+    DriverManager.registerDriver(new Driver());
+    Connection connection = DriverManager.getConnection("jdbc:h2:mem:sonar_test");
+    DdlUtils.createSchema(connection, "h2");
+
+    int tables = countTables(connection);
+
+    connection.close();
+    assertThat(tables).isGreaterThan(30);
   }
 
-  @Test
-  public void shouldCreateDerbySchema() throws SQLException {
-    int tables = 0;
-    DriverManager.registerDriver(new EmbeddedDriver());
-    Connection connection = DriverManager.getConnection("jdbc:derby:memory:sonar;create=true");
-    DdlUtils.createSchema(connection, "derby");
-
-    ResultSet resultSet = connection.getMetaData().getTables("", null, null, new String[]{"TABLE"});
+  private int countTables(Connection connection) throws SQLException {
+    int count = 0;
+    ResultSet resultSet = connection.getMetaData().getTables(null, null, null, new String[] {"TABLE"});
     while (resultSet.next()) {
-      tables++;
+      count++;
     }
     resultSet.close();
-    connection.commit();
-    connection.close();
-    assertThat(tables, greaterThan(30));
-
-    DerbyUtils.dropInMemoryDatabase();
+    return count;
   }
 }

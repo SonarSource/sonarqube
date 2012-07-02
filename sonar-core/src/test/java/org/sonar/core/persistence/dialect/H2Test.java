@@ -17,36 +17,26 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.persistence;
+package org.sonar.core.persistence.dialect;
 
-import java.io.OutputStream;
-import java.sql.DriverManager;
+import org.junit.Test;
 
-public final class DerbyUtils {
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
-  private DerbyUtils() {
+public class H2Test {
+
+  private H2 h2 = new H2();
+
+  @Test
+  public void matchesJdbcURL() {
+    assertThat(h2.matchesJdbcURL("jdbc:h2:foo"), is(true));
+    assertThat(h2.matchesJdbcURL("jdbc:hsql:foo"), is(false));
   }
 
-  public static final OutputStream DEV_NULL = new OutputStream() {
-    @Override
-    public void write(int b) {
-    }
-  };
-
-  /**
-   * Disables Derby log.
-   * Note: in order to work properly this method should be called before Derby boot.
-   * See http://db.apache.org/derby/docs/10.7/ref/rrefproper33027.html
-   */
-  public static void fixDerbyLogs() {
-    System.setProperty("derby.stream.error.field", "org.sonar.core.persistence.DerbyUtils.DEV_NULL");
-  }
-
-  public static void dropInMemoryDatabase() {
-    try {
-      DriverManager.getConnection("jdbc:derby:memory:sonar;drop=true");
-    } catch (Exception e) {
-      // silently ignore
-    }
+  @Test
+  public void testBooleanSqlValues() {
+    assertThat(h2.getTrueSqlValue(), is("true"));
+    assertThat(h2.getFalseSqlValue(), is("false"));
   }
 }

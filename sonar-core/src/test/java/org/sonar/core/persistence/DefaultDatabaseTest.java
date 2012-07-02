@@ -33,10 +33,6 @@ import static org.junit.Assert.assertThat;
 
 public class DefaultDatabaseTest {
 
-  static {
-    DerbyUtils.fixDerbyLogs();
-  }
-
   @Test
   public void shouldLoadDefaultValues() {
     DefaultDatabase db = new DefaultDatabase(new Settings());
@@ -45,8 +41,8 @@ public class DefaultDatabaseTest {
     Properties props = db.getProperties();
     assertThat(props.getProperty("sonar.jdbc.username"), Is.is("sonar"));
     assertThat(props.getProperty("sonar.jdbc.password"), Is.is("sonar"));
-    assertThat(props.getProperty("sonar.jdbc.url"), Is.is("jdbc:derby://localhost:1527/sonar"));
-    assertThat(props.getProperty("sonar.jdbc.driverClassName"), Is.is("org.apache.derby.jdbc.ClientDriver"));
+    assertThat(props.getProperty("sonar.jdbc.url"), Is.is("jdbc:h2:tcp://localhost/sonar"));
+    assertThat(props.getProperty("sonar.jdbc.driverClassName"), Is.is("org.h2.Driver"));
   }
 
   @Test
@@ -97,21 +93,17 @@ public class DefaultDatabaseTest {
   @Test
   public void shouldStart() {
     Settings settings = new Settings();
-    settings.setProperty("sonar.jdbc.url", "jdbc:derby:memory:sonar;create=true;user=sonar;password=sonar");
-    settings.setProperty("sonar.jdbc.driverClassName", "org.apache.derby.jdbc.EmbeddedDriver");
+    settings.setProperty("sonar.jdbc.url", "jdbc:h2:mem:sonar");
+    settings.setProperty("sonar.jdbc.driverClassName", "org.h2.Driver");
     settings.setProperty("sonar.jdbc.username", "sonar");
     settings.setProperty("sonar.jdbc.password", "sonar");
     settings.setProperty("sonar.jdbc.maxActive", "1");
 
-    try {
-      DefaultDatabase db = new DefaultDatabase(settings);
-      db.start();
+    DefaultDatabase db = new DefaultDatabase(settings);
+    db.start();
 
-      assertThat(db.getDialect().getId(), Is.is("derby"));
-      assertThat(((BasicDataSource) db.getDataSource()).getMaxActive(), Is.is(1));
-    } finally {
-      DerbyUtils.dropInMemoryDatabase();
-    }
+    assertThat(db.getDialect().getId(), Is.is("h2"));
+    assertThat(((BasicDataSource) db.getDataSource()).getMaxActive(), Is.is(1));
   }
 
   @Test

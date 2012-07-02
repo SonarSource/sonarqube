@@ -13,7 +13,7 @@
       <excludes>
         <exclude>org.codehaus.sonar:sonar-server</exclude>
         <exclude>mysql:mysql-connector-java</exclude>
-        <exclude>org.apache.derby:derbyclient</exclude>
+        <exclude>com.h2database:h2</exclude>
         <exclude>postgresql:postgresql</exclude>
         <exclude>net.sourceforge.jtds:jtds</exclude>
         <exclude>org.codehaus.sonar.plugins:*</exclude>
@@ -45,9 +45,9 @@
       <scope>runtime</scope>
     </dependencySet>
     <dependencySet>
-      <outputDirectory>extensions/jdbc-driver/derby/</outputDirectory>
+      <outputDirectory>extensions/jdbc-driver/h2/</outputDirectory>
       <includes>
-        <include>org.apache.derby:derbyclient</include>
+        <include>com.h2database:h2</include>
       </includes>
       <unpack>false</unpack>
       <scope>runtime</scope>

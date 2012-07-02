@@ -52,11 +52,6 @@
       <artifactId>sonar-update-center-common</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.derby</groupId>
-      <artifactId>derbyclient</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-plugin-api</artifactId>
       <version>${project.version}</version>
@@ -76,12 +71,8 @@
       <artifactId>commons-configuration</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.derby</groupId>
-      <artifactId>derby</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.derby</groupId>
-      <artifactId>derbynet</artifactId>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
     </dependency>
     <dependency>
       <groupId>com.thoughtworks.xstream</groupId>
@@ -613,9 +604,9 @@
     </profile>
 
     <profile>
-      <id>derby</id>
+      <id>h2</id>
       <properties>
-        <jdbcDialect>derby</jdbcDialect>
+        <jdbcDialect>h2</jdbcDialect>
       </properties>
       <build>
         <plugins>
@@ -632,7 +623,7 @@
                   <outputDirectory>${project.build.directory}/classes</outputDirectory>
                   <resources>
                     <resource>
-                      <directory>${basedir}/src/dev/derby</directory>
+                      <directory>${basedir}/src/dev/h2</directory>
                       <filtering>false</filtering>
                     </resource>
                   </resources>
@@ -653,10 +644,9 @@
                 <configuration>
                   <overWriteIfNewer>true</overWriteIfNewer>
                   <overWriteReleases>true</overWriteReleases>
-                  <includeGroupIds>org.apache.derby</includeGroupIds>
-                  <includeArtifactIds>derbyclient</includeArtifactIds>
-                  <outputDirectory>${project.build.directory}/sonar-dev-home/extensions/jdbc-driver/derby/
-                  </outputDirectory>
+                  <includeGroupIds>com.h2database</includeGroupIds>
+                  <includeArtifactIds>h2</includeArtifactIds>
+                  <outputDirectory>${project.build.directory}/sonar-dev-home/extensions/jdbc-driver/h2/</outputDirectory>
                 </configuration>
               </execution>
             </executions>
@@ -665,8 +655,8 @@
       </build>
       <dependencies>
         <dependency>
-          <groupId>org.apache.derby</groupId>
-          <artifactId>derbyclient</artifactId>
+          <groupId>com.h2database</groupId>
+          <artifactId>h2</artifactId>
         </dependency>
       </dependencies>
     </profile>

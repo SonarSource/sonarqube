@@ -32,16 +32,12 @@ import static org.junit.Assert.assertThat;
 
 public class MyBatisTest {
 
-  static {
-    DerbyUtils.fixDerbyLogs();
-  }
-
   private static MyBatis myBatis;
-  private static InMemoryDatabase database;
+  private static H2Database database;
 
   @BeforeClass
   public static void start() {
-    database = new InMemoryDatabase();
+    database = new H2Database();
     myBatis = new MyBatis(database.start());
     myBatis.start();
   }

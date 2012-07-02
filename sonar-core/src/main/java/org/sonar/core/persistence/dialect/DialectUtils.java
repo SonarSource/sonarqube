@@ -32,7 +32,7 @@ public final class DialectUtils {
   private DialectUtils() {
   }
 
-  private static final Dialect[] DIALECTS = new Dialect[]{new Derby(), new MySql(), new Oracle(), new PostgreSql(), new MsSql()};
+  private static final Dialect[] DIALECTS = new Dialect[] {new H2(), new MySql(), new Oracle(), new PostgreSql(), new MsSql()};
 
   public static Dialect find(final String dialectId, final String jdbcConnectionUrl) {
     Dialect match = StringUtils.isNotBlank(dialectId) ? findById(dialectId) : findByJdbcUrl(jdbcConnectionUrl);

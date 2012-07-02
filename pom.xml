@@ -81,13 +81,7 @@
   </prerequisites>
 
   <properties>
-    <!--
-    Warning before upgrading Derby to 10.8 : new conversion from BOOLEAN to CHAR.
-    "If you use setBoolean() or setObject() with a CHAR(1) datatype you must change your code and use setInt() or Derby will try to store "true" or
-    "false" strings."
-    -->
-    <derby.version>10.7.1.1</derby.version>
-
+    <h2.version>1.3.167</h2.version>
     <jetty.version>6.1.25</jetty.version>
     <sonar.skippedModules>sonar-gwt-api,sonar-core-gwt</sonar.skippedModules>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -792,19 +786,9 @@
         <version>0.9.30</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.derby</groupId>
-        <artifactId>derbyclient</artifactId>
-        <version>${derby.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.derby</groupId>
-        <artifactId>derby</artifactId>
-        <version>${derby.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.derby</groupId>
-        <artifactId>derbynet</artifactId>
-        <version>${derby.version}</version>
+        <groupId>com.h2database</groupId>
+        <artifactId>h2</artifactId>
+        <version>${h2.version}</version>
       </dependency>
       <dependency>
         <!--

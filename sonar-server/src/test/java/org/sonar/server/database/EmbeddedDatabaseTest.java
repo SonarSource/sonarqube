@@ -19,120 +19,45 @@
  */
 package org.sonar.server.database;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.SystemUtils;
-import org.apache.derby.jdbc.ClientDriver;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.core.persistence.InMemoryDatabase;
+import org.sonar.api.database.DatabaseProperties;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.sql.Connection;
 import java.sql.DriverManager;
-import java.util.Properties;
 
 import static junit.framework.Assert.fail;
-import static org.junit.Assert.assertTrue;
 
 public class EmbeddedDatabaseTest {
+  @Test(timeout = 5000)
+  public void should_start_and_stop() throws IOException {
+    int port = freeServerPort();
 
-  private final static String TEST_ROOT_DIR = "./target/";
-  private final static String TEST_DB_DIR_PREFIX = "testDB";
-
-  private EmbeddedDatabase database;
-  private String driverUrl;
-  private Properties defaultProps;
-  private static String testPort;
-
-  @Before
-  public void setUp() throws Exception {
-    // This test doesn't work if InMemoryDatabase is active
-    try {
-      InMemoryDatabase.stopDatabase();
-    } catch (Exception e) {
-    }
-
-    windowsCleanup();
-    if (testPort == null) {
-      testPort = Integer.toString(findFreeServerPort());
-    }
-    defaultProps = EmbeddedDatabase.getDefaultProperties(new Settings());
-    defaultProps.put("derby.drda.portNumber", testPort); // changing the default port
-    driverUrl = "jdbc:derby://localhost:" + testPort + "/sonar;create=true;user=sonar;password=sonar";
-  }
-
-  private void windowsCleanup() {
-    String os = System.getProperty("os.name");
-    if (os.toLowerCase().contains("windows")) {
-      File testRoot = new File(TEST_ROOT_DIR);
-      File[] files = testRoot.listFiles();
-      for (File file : files) {
-        if (file.isDirectory() &&
-          file.getName().startsWith(TEST_DB_DIR_PREFIX)) {
-          try {
-            FileUtils.deleteDirectory(file);
-          } catch (IOException e) {
-          }
-        }
-      }
-    }
-  }
-
-  private int findFreeServerPort() throws IOException, InterruptedException {
-    ServerSocket srv = new ServerSocket(0);
-    int port = srv.getLocalPort();
-    srv.close();
-    Thread.sleep(1500);
-    return port;
-  }
-
-  @Test
-  public void shouldStartAndStop() throws Exception {
-    database = new EmbeddedDatabase(new File(TEST_ROOT_DIR + TEST_DB_DIR_PREFIX + testPort), defaultProps);
+    EmbeddedDatabase database = new EmbeddedDatabase(settings(port));
     database.start();
-    ClientDriver.class.newInstance();
-    Connection conn;
+
     try {
-      conn = DriverManager.getConnection(driverUrl);
-      conn.close();
+      String driverUrl = String.format("jdbc:h2:tcp://localhost:%d/sonar;USER=login;PASSWORD=pwd", port);
+      DriverManager.getConnection(driverUrl).close();
     } catch (Exception ex) {
       fail("Unable to connect after start");
     }
-    try {
-      conn = DriverManager.getConnection("jdbc:derby://localhost:" + testPort + "/sonar;user=foo;password=bar");
-      conn.close();
-      fail("Able to connect with wrong username and password");
-    } catch (Exception ex) {
-    }
-
-    File testDb = new File(database.getDataDir(), "sonar");
-    assertTrue(testDb.exists());
-    assertTrue(testDb.isDirectory());
 
     database.stop();
-
-    try {
-      conn = DriverManager.getConnection(driverUrl);
-      conn.close();
-      fail("Able to connect after stop");
-    } catch (Exception ex) {
-    }
   }
 
-  @After
-  public void tearDown() throws IOException {
-    if (database.getDataDir().exists()) {
-      if (!SystemUtils.IS_OS_WINDOWS) {
-        // avoid an issue with file lock issue under windows..
-        // thank you mr microsoft
-        // solution : no really good solution found.., the db home is not deleted under windows on teardown but only during test startup
-        FileUtils.deleteDirectory(database.getDataDir());
-      }
-    }
+  static Settings settings(int port) {
+    return new Settings()
+        .setProperty(DatabaseProperties.PROP_USER, "login")
+        .setProperty(DatabaseProperties.PROP_PASSWORD, "pwd")
+        .setProperty(DatabaseProperties.PROP_EMBEDDED_PORT, "" + port)
+        .setProperty(DatabaseProperties.PROP_EMBEDDED_DATA_DIR, "./target/testDB");
   }
 
+  static int freeServerPort() throws IOException {
+    ServerSocket srv = new ServerSocket(0);
+    srv.close();
+    return srv.getLocalPort();
+  }
 }

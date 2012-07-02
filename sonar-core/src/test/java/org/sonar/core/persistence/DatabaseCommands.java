@@ -20,15 +20,19 @@
 package org.sonar.core.persistence;
 
 import org.apache.commons.lang.StringUtils;
-import org.dbunit.dataset.datatype.DefaultDataTypeFactory;
 import org.dbunit.dataset.datatype.IDataTypeFactory;
+import org.dbunit.ext.h2.H2DataTypeFactory;
 import org.dbunit.ext.mssql.InsertIdentityOperation;
 import org.dbunit.ext.mssql.MsSqlDataTypeFactory;
 import org.dbunit.ext.mysql.MySqlDataTypeFactory;
 import org.dbunit.ext.oracle.Oracle10DataTypeFactory;
 import org.dbunit.ext.postgresql.PostgresqlDataTypeFactory;
 import org.dbunit.operation.DatabaseOperation;
-import org.sonar.core.persistence.dialect.*;
+import org.sonar.core.persistence.dialect.Dialect;
+import org.sonar.core.persistence.dialect.MsSql;
+import org.sonar.core.persistence.dialect.MySql;
+import org.sonar.core.persistence.dialect.Oracle;
+import org.sonar.core.persistence.dialect.PostgreSql;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -64,7 +68,7 @@ public abstract class DatabaseCommands {
     return DatabaseOperation.CLEAN_INSERT;
   }
 
-  static final DatabaseCommands DERBY = new DatabaseCommands(new DefaultDataTypeFactory()) {
+  static final DatabaseCommands H2 = new DatabaseCommands(new H2DataTypeFactory()) {
     @Override
     public String truncate(String table) {
       return "TRUNCATE TABLE " + table;
@@ -117,7 +121,7 @@ public abstract class DatabaseCommands {
       return Arrays.asList(
           "DROP SEQUENCE " + sequence,
           "CREATE SEQUENCE " + sequence + " INCREMENT BY 1 MINVALUE 1 START WITH 1"
-      );
+          );
     }
 
     @Override
@@ -143,10 +147,9 @@ public abstract class DatabaseCommands {
     }
   };
 
-
   public static DatabaseCommands forDialect(Dialect dialect) {
-    if (Derby.ID.equals(dialect.getId())) {
-      return DERBY;
+    if (org.sonar.core.persistence.dialect.H2.ID.equals(dialect.getId())) {
+      return H2;
     }
     if (MsSql.ID.equals(dialect.getId())) {
       return MSSQL;

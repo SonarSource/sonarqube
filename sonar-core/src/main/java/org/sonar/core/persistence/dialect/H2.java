@@ -19,24 +19,49 @@
  */
 package org.sonar.core.persistence.dialect;
 
-import org.junit.Test;
+import org.apache.commons.lang.StringUtils;
+import org.hibernate.dialect.H2Dialect;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+/**
+ * @since 1.12
+ */
+public class H2 implements Dialect {
 
-public class DerbyTest {
+  public static final String ID = "h2";
 
-  private Derby derby = new Derby();
-
-  @Test
-  public void matchesJdbcURL() {
-    assertThat(derby.matchesJdbcURL("jdbc:derby:foo"), is(true));
-    assertThat(derby.matchesJdbcURL("jdbc:hsql:foo"), is(false));
+  public String getId() {
+    return ID;
   }
 
-  @Test
-  public void testBooleanSqlValues() {
-    assertThat(derby.getTrueSqlValue(), is("true"));
-    assertThat(derby.getFalseSqlValue(), is("false"));
+  public String getActiveRecordDialectCode() {
+    return "h2";
+  }
+
+  public String getActiveRecordJdbcAdapter() {
+    return "jdbc";
+  }
+
+  public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {
+    return H2Dialect.class;
+  }
+
+  public boolean matchesJdbcURL(String jdbcConnectionURL) {
+    return StringUtils.startsWithIgnoreCase(jdbcConnectionURL, "jdbc:h2:");
+  }
+
+  public String getDefaultDriverClassName() {
+    return "org.h2.Driver";
+  }
+
+  public String getConnectionInitStatement(String schema) {
+    return null;
+  }
+
+  public String getTrueSqlValue() {
+    return "true";
+  }
+
+  public String getFalseSqlValue() {
+    return "false";
   }
 }

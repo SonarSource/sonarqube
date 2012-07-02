@@ -24,32 +24,30 @@ import org.dbunit.Assertion;
 import org.dbunit.DataSourceDatabaseTester;
 import org.dbunit.DatabaseUnitException;
 import org.dbunit.IDatabaseTester;
+import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.IDatabaseConnection;
-import org.dbunit.dataset.Column;
 import org.dbunit.dataset.CompositeDataSet;
 import org.dbunit.dataset.DataSetException;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
-import org.dbunit.dataset.ITableMetaData;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
+import org.dbunit.ext.h2.H2DataTypeFactory;
 import org.dbunit.operation.DatabaseOperation;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.DatabaseCommands;
-import org.sonar.core.persistence.InMemoryDatabase;
+import org.sonar.core.persistence.H2Database;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.JpaDatabaseSession;
 import org.sonar.jpa.session.MemoryDatabaseConnector;
 
 import java.io.InputStream;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import static org.junit.Assert.fail;
@@ -68,13 +66,15 @@ public abstract class AbstractDbUnitTestCase {
 
   @BeforeClass
   public static void startDatabase() throws Exception {
-    database = new InMemoryDatabase();
-    database.start();
+    if (null == database) { // Create only once per vm
+      database = new H2Database();
+      database.start();
 
-    dbConnector = new MemoryDatabaseConnector(database);
-    dbConnector.start();
+      dbConnector = new MemoryDatabaseConnector(database);
+      dbConnector.start();
 
-    databaseCommands = DatabaseCommands.forDialect(database.getDialect());
+      databaseCommands = DatabaseCommands.forDialect(database.getDialect());
+    }
   }
 
   @Before
@@ -94,12 +94,6 @@ public abstract class AbstractDbUnitTestCase {
       connection.close();
     }
     session.stop();
-  }
-
-  @AfterClass
-  public static void stopDatabase() {
-    dbConnector.stop();
-    database.stop();
   }
 
   public DatabaseSession getSession() {
@@ -152,29 +146,11 @@ public abstract class AbstractDbUnitTestCase {
       databaseTester.setDataSet(compositeDataSet);
       connection = databaseTester.getConnection();
 
+      connection.getConfig().setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, new H2DataTypeFactory());
       DatabaseOperation.CLEAN_INSERT.execute(connection, databaseTester.getDataSet());
-      resetDerbySequence(compositeDataSet);
 
     } catch (Exception e) {
       throw translateException("Could not setup DBUnit data", e);
-    }
-  }
-
-  private void resetDerbySequence(CompositeDataSet compositeDataSet) throws DataSetException, SQLException {
-    for (ITable table : compositeDataSet.getTables()) {
-      ITableMetaData tableMetaData = table.getTableMetaData();
-      String tableName = tableMetaData.getTableName();
-      for (Column column : tableMetaData.getColumns()) {
-        if ("id".equalsIgnoreCase(column.getColumnName())) { // TODO hard-coded value
-          String maxSql = "SELECT MAX(id) FROM " + tableName;
-          ResultSet res = connection.getConnection().prepareStatement(maxSql).executeQuery();
-          res.next();
-          int max = res.getInt(1);
-          res.close();
-          String alterSql = "ALTER TABLE " + tableName + " ALTER COLUMN id RESTART WITH " + (max + 1);
-          connection.getConnection().prepareStatement(alterSql).execute();
-        }
-      }
     }
   }
 

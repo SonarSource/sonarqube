@@ -37,7 +37,7 @@ public final class DdlUtils {
   }
 
   public static boolean supportsDialect(String dialect) {
-    return "derby".equals(dialect);
+    return "h2".equals(dialect);
   }
 
   /**

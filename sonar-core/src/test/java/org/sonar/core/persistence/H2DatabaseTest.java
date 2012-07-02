@@ -31,16 +31,12 @@ import static org.hamcrest.number.OrderingComparisons.greaterThan;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
-public class InMemoryDatabaseTest {
-
-  static {
-    DerbyUtils.fixDerbyLogs();
-  }
+public class H2DatabaseTest {
 
   @Test
   public void shouldExecuteDdlAtStartup() throws SQLException {
     int tables = 0;
-    InMemoryDatabase db = new InMemoryDatabase();
+    H2Database db = new H2Database();
     try {
       db.start();
       assertNotNull(db.getDataSource());
@@ -60,7 +56,7 @@ public class InMemoryDatabaseTest {
 
   @Test
   public void shouldLimitThePoolSize() {
-    InMemoryDatabase db = new InMemoryDatabase();
+    H2Database db = new H2Database();
     try {
       db.startDatabase();
       assertThat(((BasicDataSource) db.getDataSource()).getMaxActive(), Is.is(2));
