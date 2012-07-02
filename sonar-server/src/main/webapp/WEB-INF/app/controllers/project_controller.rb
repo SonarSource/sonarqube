@@ -56,7 +56,7 @@ class ProjectController < ApplicationController
   def update_quality_profile
     project = get_current_project(params[:id])
     
-    selected_profile = Profile.find(:first, :conditions => {:id => params[:quality_profile]})
+    selected_profile = Profile.find(:first, :conditions => {:id => params[:quality_profile].to_i})
     if selected_profile && selected_profile.language == project.language 
       project.profile = selected_profile
       project.save!
