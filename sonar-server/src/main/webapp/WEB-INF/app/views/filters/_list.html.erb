@@ -36,7 +36,7 @@
     <tr>
       <td colspan="<%= filter.columns.size + 1 -%>">
         <div id="filter-pages-<%= update_id -%>">
-        <span id="results_count"><%= pluralize(@filter_context.size, message('result').downcase) %></span>
+        <span id="results_count"><%= message('x_results', :params => [@filter_context.size]) -%></span>
 
         <%
           if @filter_context.page_count>1
