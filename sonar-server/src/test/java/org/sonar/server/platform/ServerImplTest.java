@@ -20,50 +20,67 @@
 package org.sonar.server.platform;
 
 import org.hamcrest.core.Is;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 
-import java.io.IOException;
-import java.util.Date;
-
-import static org.junit.Assert.*;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.junit.Assert.assertThat;
 
 public class ServerImplTest {
+  @Rule
+  public ExpectedException exception = ExpectedException.none();
 
   @Test
   public void alwaysReturnTheSameValues() {
-    ServerImpl server = new ServerImpl(new Settings());
+    ServerImpl server = new ServerImpl(new Settings(), "/org/sonar/server/platform/ServerImplTest/pom-with-version.properties");
     server.start();
 
-    assertNotNull(server.getId());
-    assertEquals(server.getId(), server.getId());
+    assertThat(server.getId()).isNotNull();
+    assertThat(server.getId()).isEqualTo(server.getId());
 
-    assertNotNull(server.getVersion());
-    assertEquals(server.getVersion(), server.getVersion());
+    assertThat(server.getVersion()).isNotNull();
+    assertThat(server.getVersion()).isEqualTo(server.getVersion());
 
-    assertNotNull(server.getStartedAt());
-    assertEquals(server.getStartedAt(), server.getStartedAt());
+    assertThat(server.getStartedAt()).isNotNull();
+    assertThat(server.getStartedAt()).isEqualTo(server.getStartedAt());
   }
 
   @Test
-  public void getVersionFromFile() throws IOException {
-    assertEquals("1.0", new ServerImpl(new Settings()).loadVersionFromManifest("/org/sonar/server/platform/ServerImplTest/pom-with-version.properties"));
+  public void getVersionFromFile() {
+    ServerImpl server = new ServerImpl(new Settings(), "/org/sonar/server/platform/ServerImplTest/pom-with-version.properties");
+    server.start();
+
+    assertThat(server.getVersion()).isEqualTo("1.0");
   }
 
   @Test
-  public void testFileWithNoVersion() throws IOException {
-    assertEquals("", new ServerImpl(new Settings()).loadVersionFromManifest("/org/sonar/server/platform/ServerImplTest/pom-without-version.properties"));
+  public void testFileWithNoVersion() {
+    exception.expect(ServerStartException.class);
+    exception.expectMessage("Unknown Sonar version");
+
+    ServerImpl server = new ServerImpl(new Settings(), "/org/sonar/server/platform/ServerImplTest/pom-without-version.properties");
+    server.start();
   }
 
   @Test
-  public void testFileWithEmptyVersionParameter() throws IOException {
-    assertEquals("", new ServerImpl(new Settings()).loadVersionFromManifest("/org/sonar/server/platform/ServerImplTest/pom-with-empty-version.properties"));
+  public void testFileWithEmptyVersionParameter() {
+    exception.expect(ServerStartException.class);
+    exception.expectMessage("Unknown Sonar version");
+
+    ServerImpl server = new ServerImpl(new Settings(), "/org/sonar/server/platform/ServerImplTest/pom-with-empty-version.properties");
+    server.start();
   }
 
   @Test
-  public void shouldNotFailIfFileNotFound() throws IOException {
-    assertEquals("", new ServerImpl(new Settings()).loadVersionFromManifest("/org/sonar/server/platform/ServerImplTest/unknown-file.properties"));
+  public void shouldFailIfFileNotFound() {
+    exception.expect(ServerStartException.class);
+    exception.expectMessage("Unknown Sonar version");
+
+    ServerImpl server = new ServerImpl(new Settings(), "/org/sonar/server/platform/ServerImplTest/unknown-file.properties");
+    server.start();
   }
 
   @Test
@@ -71,7 +88,7 @@ public class ServerImplTest {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.PERMANENT_SERVER_ID, "abcde");
 
-    ServerImpl server = new ServerImpl(settings, new Date());
+    ServerImpl server = new ServerImpl(settings);
 
     assertThat(server.getPermanentServerId(), Is.is("abcde"));
   }

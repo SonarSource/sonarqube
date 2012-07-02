@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
@@ -37,20 +38,23 @@ public final class ServerImpl extends Server {
   private String version;
   private final Date startedAt;
   private Settings settings;
+  private final String manifest;
 
   public ServerImpl(Settings settings) {
-    this(settings, new Date());
+    this(settings, "/META-INF/maven/org.codehaus.sonar/sonar-plugin-api/pom.properties");
   }
 
-  ServerImpl(Settings settings, Date startedAt) {
+  @VisibleForTesting
+  ServerImpl(Settings settings, String manifest) {
     this.settings = settings;
-    this.startedAt = startedAt;
+    this.startedAt = new Date();
+    this.manifest = manifest;
   }
 
   public void start() {
     try {
       id = new SimpleDateFormat("yyyyMMddHHmmss").format(startedAt);
-      version = loadVersionFromManifest("/META-INF/maven/org.codehaus.sonar/sonar-plugin-api/pom.properties");
+      version = loadVersionFromManifest(manifest);
       if (StringUtils.isBlank(version)) {
         throw new ServerStartException("Unknown Sonar version");
       }
@@ -80,7 +84,7 @@ public final class ServerImpl extends Server {
     return startedAt;
   }
 
-  String loadVersionFromManifest(String pomFilename) throws IOException {
+  private String loadVersionFromManifest(String pomFilename) throws IOException {
     InputStream pomFileStream = getClass().getResourceAsStream(pomFilename);
     try {
       return readVersion(pomFileStream);
