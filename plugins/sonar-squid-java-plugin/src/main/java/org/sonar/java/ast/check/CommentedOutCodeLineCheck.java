@@ -19,13 +19,12 @@
  */
 package org.sonar.java.ast.check;
 
-import org.sonar.check.BelongsToProfile;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-
+import com.google.common.collect.Sets;
+import com.puppycrawl.tools.checkstyle.api.DetailAST;
+import com.puppycrawl.tools.checkstyle.api.TextBlock;
+import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.java.ast.visitor.AstUtils;
@@ -35,10 +34,9 @@ import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.recognizer.CodeRecognizer;
 
-import com.google.common.collect.Sets;
-import com.puppycrawl.tools.checkstyle.api.DetailAST;
-import com.puppycrawl.tools.checkstyle.api.TextBlock;
-import com.puppycrawl.tools.checkstyle.api.TokenTypes;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @since 2.13
@@ -87,8 +85,21 @@ public class CommentedOutCodeLineCheck extends JavaAstVisitor {
     }
     for (List<TextBlock> listOfComments : getFileContents().getCComments().values()) {
       // This list contains not only comments in C style, but also documentation comments and JSNI comments
-      comments.addAll(listOfComments);
+      for (TextBlock comment : listOfComments) {
+        if (!isHeader(comment)) {
+          comments.addAll(listOfComments);
+        }
+      }
     }
+  }
+
+  /**
+   * We assume that comment on a first line - is a header with license.
+   * However possible to imagine corner case: file may contain commented-out code starting from first line.
+   * But we assume that probability of this is really low.
+   */
+  private static boolean isHeader(TextBlock comment) {
+    return comment.getStartLineNo() == 1;
   }
 
   /**

@@ -1,3 +1,9 @@
+/* No detection of commented-out code in header
+ * for (Visitor visitor : visitors) {
+ *   continue;
+ * }
+ */
+
 /**
  * No detection of commented-out code in Javadoc for class
  * for (Visitor visitor : visitors) {

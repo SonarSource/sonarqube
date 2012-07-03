@@ -19,9 +19,6 @@
  */
 package org.sonar.java.ast.check;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.java.CheckMessages;
@@ -32,6 +29,9 @@ import org.sonar.java.squid.SquidScanner;
 import org.sonar.squid.Squid;
 import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.measures.Metric;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class CommentedOutCodeLineCheckTest {
 
@@ -53,26 +53,26 @@ public class CommentedOutCodeLineCheckTest {
     SourceFile sourceFile = (SourceFile) squid.search("CommentedCode.java");
     CheckMessages checkMessages = new CheckMessages(sourceFile);
 
-    checkMessages.assertNext().atLine(26).withMessage("This block of commented-out lines of code should be removed.");
-    checkMessages.assertNext().atLine(27);
-    checkMessages.assertNext().atLine(28);
-
-    checkMessages.assertNext().atLine(32);
+    checkMessages.assertNext().atLine(32).withMessage("This block of commented-out lines of code should be removed.");
+    checkMessages.assertNext().atLine(33);
+    checkMessages.assertNext().atLine(34);
 
     checkMessages.assertNext().atLine(38);
-    checkMessages.assertNext().atLine(39);
-    checkMessages.assertNext().atLine(40);
 
     checkMessages.assertNext().atLine(44);
+    checkMessages.assertNext().atLine(45);
+    checkMessages.assertNext().atLine(46);
 
-    checkMessages.assertNext().atLine(60);
+    checkMessages.assertNext().atLine(50);
 
-    checkMessages.assertNext().atLine(69);
+    checkMessages.assertNext().atLine(66);
+
+    checkMessages.assertNext().atLine(75);
 
     checkMessages.assertNoMore();
 
-    assertThat(sourceFile.getInt(Metric.COMMENT_LINES), is(40)); // TODO but in fact 46, so without fake-JSNI
-    assertThat(sourceFile.getInt(Metric.COMMENT_BLANK_LINES), is(16));
+    assertThat(sourceFile.getInt(Metric.COMMENT_LINES), is(44)); // TODO but in fact 50, so without fake-JSNI
+    assertThat(sourceFile.getInt(Metric.COMMENT_BLANK_LINES), is(17));
   }
 
 }
