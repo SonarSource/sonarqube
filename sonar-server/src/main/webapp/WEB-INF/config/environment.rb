@@ -80,8 +80,8 @@ class ActiveRecord::Migration
       execute "ALTER TABLE #{tablename} ALTER COLUMN id TYPE bigint"
     when "mysql"
       execute "ALTER TABLE #{tablename} CHANGE id id BIGINT AUTO_INCREMENT"
-    when "derby"
-      # do nothing as alter can not do the job in Derby
+    when "h2"
+      # not needed?
     when "oracle"
       # do nothing, oracle integer are big enough
     when "sqlserver"

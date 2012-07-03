@@ -106,7 +106,7 @@ class DatabaseVersion
   def self.production?
     @@production ||=
       begin
-        dialect()!='derby'
+        dialect()!='h2'
       end
   end
 end
