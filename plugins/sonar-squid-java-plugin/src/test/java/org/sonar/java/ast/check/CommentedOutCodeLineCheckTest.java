@@ -54,19 +54,10 @@ public class CommentedOutCodeLineCheckTest {
     CheckMessages checkMessages = new CheckMessages(sourceFile);
 
     checkMessages.assertNext().atLine(32).withMessage("This block of commented-out lines of code should be removed.");
-    checkMessages.assertNext().atLine(33);
-    checkMessages.assertNext().atLine(34);
-
     checkMessages.assertNext().atLine(38);
-
     checkMessages.assertNext().atLine(44);
-    checkMessages.assertNext().atLine(45);
-    checkMessages.assertNext().atLine(46);
-
     checkMessages.assertNext().atLine(50);
-
     checkMessages.assertNext().atLine(66);
-
     checkMessages.assertNext().atLine(75);
 
     checkMessages.assertNoMore();

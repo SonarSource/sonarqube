@@ -19,6 +19,7 @@
  */
 package org.sonar.java.ast.check;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.TextBlock;
@@ -35,6 +36,7 @@ import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.recognizer.CodeRecognizer;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -133,18 +135,34 @@ public class CommentedOutCodeLineCheck extends JavaAstVisitor {
    */
   @Override
   public void leaveFile(DetailAST ast) {
-    SourceFile sourceFile = (SourceFile) peekSourceCode();
+    List<Integer> commentedOutCodeLines = Lists.newArrayList();
     for (TextBlock comment : comments) {
       String[] lines = comment.getText();
       for (int i = 0; i < lines.length; i++) {
         if (codeRecognizer.isLineOfCode(lines[i])) {
-          CheckMessage message = new CheckMessage(this, "This block of commented-out lines of code should be removed.");
-          message.setLine(comment.getStartLineNo() + i);
-          sourceFile.log(message);
+          // Mark all remaining lines from this comment as a commented out lines of code
+          for (int j = i; j < lines.length; j++) {
+            commentedOutCodeLines.add(comment.getStartLineNo() + j);
+          }
           break;
         }
       }
     }
+
+    // Greedy algorithm to split lines on blocks and to report only one violation per block
+    SourceFile sourceFile = (SourceFile) peekSourceCode();
+    Collections.sort(commentedOutCodeLines);
+    int prev = Integer.MIN_VALUE;
+    for (int i = 0; i < commentedOutCodeLines.size(); i++) {
+      int current = commentedOutCodeLines.get(i);
+      if (prev + 1 < current) {
+        CheckMessage message = new CheckMessage(this, "This block of commented-out lines of code should be removed.");
+        message.setLine(current);
+        sourceFile.log(message);
+      }
+      prev = current;
+    }
+
     comments = null;
   }
 
