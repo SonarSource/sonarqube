@@ -19,6 +19,8 @@
  */
 package org.sonar.core.persistence;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbcp.BasicDataSourceFactory;
 import org.apache.commons.lang.StringUtils;
@@ -60,7 +62,6 @@ public class DefaultDatabase implements Database {
 
   public final DefaultDatabase start() {
     try {
-      doBeforeStart();
       initSettings();
       initDatasource();
       return this;
@@ -70,6 +71,7 @@ public class DefaultDatabase implements Database {
     }
   }
 
+  @VisibleForTesting
   void initSettings() {
     initProperties();
     initDialect();
@@ -124,11 +126,7 @@ public class DefaultDatabase implements Database {
     }
   }
 
-  protected void doBeforeStart() {
-  }
-
   public final DefaultDatabase stop() {
-    doBeforeStop();
     if (datasource != null) {
       try {
         datasource.close();
@@ -137,10 +135,6 @@ public class DefaultDatabase implements Database {
       }
     }
     return this;
-  }
-
-  protected void doBeforeStop() {
-
   }
 
   public final Dialect getDialect() {
@@ -182,7 +176,7 @@ public class DefaultDatabase implements Database {
 
   }
 
-  static void completeProperties(Settings settings, Properties properties, String prefix) {
+  private static void completeProperties(Settings settings, Properties properties, String prefix) {
     List<String> jdbcKeys = settings.getKeysStartingWith(prefix);
     for (String jdbcKey : jdbcKeys) {
       String value = settings.getString(jdbcKey);
@@ -190,6 +184,7 @@ public class DefaultDatabase implements Database {
     }
   }
 
+  @VisibleForTesting
   static Properties extractCommonsDbcpProperties(Properties properties) {
     Properties result = new Properties();
     for (Map.Entry<Object, Object> entry : properties.entrySet()) {
@@ -205,7 +200,7 @@ public class DefaultDatabase implements Database {
     return result;
   }
 
-  static String getSchemaPropertyValue(Properties props, String deprecatedKey) {
+  private static String getSchemaPropertyValue(Properties props, String deprecatedKey) {
     String value = props.getProperty("sonar.jdbc.schema");
     if (StringUtils.isBlank(value) && deprecatedKey != null) {
       value = props.getProperty(deprecatedKey);
