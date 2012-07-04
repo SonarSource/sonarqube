@@ -71,11 +71,6 @@ class ProjectController < ApplicationController
   
   def key
     @project = get_current_project(params[:id])
-      
-    if params[:old_prefix] && params[:new_prefix]
-      @old_prefix = params[:old_prefix]
-      @new_prefix = params[:new_prefix]
-    end
   end
   
   def update_key
@@ -102,26 +97,19 @@ class ProjectController < ApplicationController
   end
   
   def prepare_key_bulk_update
-    project = get_current_project(params[:id])
+    @project = get_current_project(params[:id])
     
-    old_prefix = params[:old_prefix].strip
-    new_prefix = params[:new_prefix].strip
-    if old_prefix.blank? || new_prefix.blank?
-      error_message = message('update_key.fieds_cant_be_blank_for_bulk_update')
-    elsif !project.key.start_with?(old_prefix)
-      error_message = message('update_key.key_does_not_start_with_x', :params => [project.key, old_prefix])
+    @old_prefix = params[:old_prefix].strip
+    @new_prefix = params[:new_prefix].strip
+    if @old_prefix.blank? || @new_prefix.blank?
+      flash[:error] = message('update_key.fieds_cant_be_blank_for_bulk_update')
+      redirect_to :action => 'key', :id => @project.id
     else
-      new_key = new_prefix + project.key[old_prefix.size..project.key.size]
-      if Project.by_key(new_key)
-        error_message = message('update_key.cant_update_x_because_resource_already_exist_with_key_x', :params => [project.key, new_key])  
+      @key_check_results = java_facade.checkModuleKeysBeforeRenaming(@project.id, @old_prefix, @new_prefix)
+      @can_update = true
+      @key_check_results.each do |key, value|
+        @can_update = false if value=="#duplicate_key#"
       end
-    end
-    
-    if error_message
-      flash[:error] = error_message
-      redirect_to :action => 'key', :id => project.id
-    else
-      redirect_to :action => 'key', :id => project.id, :old_prefix => old_prefix, :new_prefix => new_prefix
     end
   end
 
@@ -131,7 +119,7 @@ class ProjectController < ApplicationController
     old_prefix = params[:old_prefix].strip
     new_prefix = params[:new_prefix].strip
       
-    unless old_prefix.blank? || new_prefix.blank? || !project.key.start_with?(old_prefix)
+    unless old_prefix.blank? || new_prefix.blank?
       begin
         java_facade.bulkUpdateKey(project.id, old_prefix, new_prefix)
         flash[:notice] = message('update_key.key_updated')

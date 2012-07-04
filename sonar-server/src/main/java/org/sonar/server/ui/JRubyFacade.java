@@ -516,8 +516,12 @@ public final class JRubyFacade {
     getContainer().getComponentByType(ResourceKeyUpdaterDao.class).updateKey(projectId, newKey);
   }
 
-  public void bulkUpdateKey(long projectId, String oldPrefix, String newPrefix) {
-    getContainer().getComponentByType(ResourceKeyUpdaterDao.class).bulkUpdateKey(projectId, oldPrefix, newPrefix);
+  public Map<String, String> checkModuleKeysBeforeRenaming(long projectId, String stringToReplace, String replacementString) {
+    return getContainer().getComponentByType(ResourceKeyUpdaterDao.class).checkModuleKeysBeforeRenaming(projectId, stringToReplace, replacementString);
+  }
+
+  public void bulkUpdateKey(long projectId, String stringToReplace, String replacementString) {
+    getContainer().getComponentByType(ResourceKeyUpdaterDao.class).bulkUpdateKey(projectId, stringToReplace, replacementString);
   }
 
 }

@@ -1,0 +1,49 @@
+<%    
+    if @old_prefix && @new_prefix
+      # validation screen for bulk update
+      reset_cycle 'modules_tree'
+%>
+
+  <script type="text/javascript">
+    function update_launched() {
+      $$('input.action').each(function(input) {
+        input.disabled=true;
+      });
+    }
+  </script>  
+  
+  <h1><%= message('update_key.bulk_update') -%></h1>
+  <br/>
+  <p>
+    <%= @can_update ? message('update_key.keys_will_be_updated_as_follows') : message('update_key.cant_update_because_duplicate_keys', :params => [@old_prefix, @new_prefix]) -%>
+  </p>
+  
+  <table class="data" style="width:1%; margin-top: 10px">
+    <thead>
+      <tr>
+        <th><%= message('update_key.old_key') -%></th>
+        <th><%= message('update_key.new_key') -%></th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= render :partial => 'prepare_keys', :locals => {:current_module => @project, :module_depth => 0, :key_check_results => @key_check_results} -%>
+    </tbody>
+  </table>
+  
+  <% if @can_update %>
+    <% form_tag( {:action => 'perform_key_bulk_update', :id => @project.id }) do -%>
+      <input type="hidden" value="<%= @project.id -%>" name="id" id="project_id">
+      <input type="hidden" value="<%= @old_prefix -%>" name="old_prefix" id="old_prefix">
+      <input type="hidden" value="<%= @new_prefix -%>" name="new_prefix" id="new_prefix">
+      <br/>
+      <%= submit_tag message('update_key.rename'), :id => 'bulk_update_button', :class => 'action',
+                             :onclick => "update_launched();$('loading_bulk_update').show();" %>
+      <a href="<%= url_for :action => 'key', :id => @project.key -%>"><%= message('cancel') -%></a>
+      <span class="loading" id="loading_bulk_update" style="display: none; padding: 3px 10px;"></span>
+    <% end %>
+  <% else %>
+    <br/>
+    <a href="<%= url_for :action => 'key', :id => @project.key -%>"><%= message('back') -%></a>
+  <% end %>
+    
+<% end %>

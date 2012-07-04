@@ -19,12 +19,15 @@
  */
 package org.sonar.core.resource;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -62,20 +65,46 @@ public class ResourceKeyUpdaterDao {
     }
   }
 
-  public void bulkUpdateKey(long projectId, String oldPrefix, String newPrefix) {
+  public Map<String, String> checkModuleKeysBeforeRenaming(long projectId, String stringToReplace, String replacementString) {
+    SqlSession session = mybatis.openSession();
+    ResourceKeyUpdaterMapper mapper = session.getMapper(ResourceKeyUpdaterMapper.class);
+    Map<String, String> result = Maps.newHashMap();
+    try {
+      Set<ResourceDto> modules = collectAllModules(projectId, stringToReplace, mapper);
+      for (ResourceDto module : modules) {
+        String newKey = computeNewKey(module, stringToReplace, replacementString);
+        if (mapper.countResourceByKey(newKey) > 0) {
+          result.put(module.getKey(), "#duplicate_key#");
+        } else {
+          result.put(module.getKey(), newKey);
+        }
+      }
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+    return result;
+  }
+
+  public void bulkUpdateKey(long projectId, String stringToReplace, String replacementString) {
     SqlSession session = mybatis.openBatchSession();
     ResourceKeyUpdaterMapper mapper = session.getMapper(ResourceKeyUpdaterMapper.class);
     try {
       // must SELECT first everything
-      Set<ResourceDto> modules = collectAllModules(projectId, oldPrefix, mapper);
-      checkNewNameOfAllModules(modules, oldPrefix, newPrefix, mapper);
-      Set<ResourceDto> allResources = Sets.newHashSet(modules);
+      Set<ResourceDto> modules = collectAllModules(projectId, stringToReplace, mapper);
+      checkNewNameOfAllModules(modules, stringToReplace, replacementString, mapper);
+      Map<ResourceDto, List<ResourceDto>> allResourcesByModuleMap = Maps.newHashMap();
       for (ResourceDto module : modules) {
-        allResources.addAll(mapper.selectProjectResources(module.getId()));
+        allResourcesByModuleMap.put(module, mapper.selectProjectResources(module.getId()));
       }
 
       // and then proceed with the batch UPDATE at once
-      runBatchUpdateForAllResources(allResources, oldPrefix, newPrefix, mapper);
+      for (ResourceDto module : modules) {
+        String oldModuleKey = module.getKey();
+        String newModuleKey = computeNewKey(module, stringToReplace, replacementString);
+        Collection<ResourceDto> resources = Lists.newArrayList(module);
+        resources.addAll(allResourcesByModuleMap.get(module));
+        runBatchUpdateForAllResources(resources, oldModuleKey, newModuleKey, mapper);
+      }
 
       session.commit();
     } finally {
@@ -83,33 +112,33 @@ public class ResourceKeyUpdaterDao {
     }
   }
 
-  private String computeNewKey(ResourceDto resource, String oldPrefix, String newPrefix) {
-    String resourceKey = resource.getKey();
-    return newPrefix + resourceKey.substring(oldPrefix.length(), resourceKey.length());
+  private String computeNewKey(ResourceDto resource, String stringToReplace, String replacementString) {
+    return resource.getKey().replaceAll(stringToReplace, replacementString);
   }
 
-  private void runBatchUpdateForAllResources(Collection<ResourceDto> resources, String oldPrefix, String newPrefix, ResourceKeyUpdaterMapper mapper) {
+  private void runBatchUpdateForAllResources(Collection<ResourceDto> resources, String oldKey, String newKey, ResourceKeyUpdaterMapper mapper) {
     for (ResourceDto resource : resources) {
-      resource.setKey(computeNewKey(resource, oldPrefix, newPrefix));
+      String resourceKey = resource.getKey();
+      resource.setKey(newKey + resourceKey.substring(oldKey.length(), resourceKey.length()));
       mapper.update(resource);
     }
   }
 
-  private Set<ResourceDto> collectAllModules(long projectId, String oldPrefix, ResourceKeyUpdaterMapper mapper) {
+  private Set<ResourceDto> collectAllModules(long projectId, String stringToReplace, ResourceKeyUpdaterMapper mapper) {
     ResourceDto project = mapper.selectProject(projectId);
     Set<ResourceDto> modules = Sets.newHashSet();
-    if (project.getKey().startsWith(oldPrefix)) {
+    if (project.getKey().contains(stringToReplace)) {
       modules.add(project);
     }
     for (ResourceDto submodule : mapper.selectDescendantProjects(projectId)) {
-      modules.addAll(collectAllModules(submodule.getId(), oldPrefix, mapper));
+      modules.addAll(collectAllModules(submodule.getId(), stringToReplace, mapper));
     }
     return modules;
   }
 
-  private void checkNewNameOfAllModules(Set<ResourceDto> modules, String oldPrefix, String newPrefix, ResourceKeyUpdaterMapper mapper) {
+  private void checkNewNameOfAllModules(Set<ResourceDto> modules, String stringToReplace, String replacementString, ResourceKeyUpdaterMapper mapper) {
     for (ResourceDto module : modules) {
-      String newName = computeNewKey(module, oldPrefix, newPrefix);
+      String newName = computeNewKey(module, stringToReplace, replacementString);
       if (mapper.countResourceByKey(newName) > 0) {
         throw new IllegalStateException("Impossible to update key: a resource with \"" + newName + "\" key already exists.");
       }

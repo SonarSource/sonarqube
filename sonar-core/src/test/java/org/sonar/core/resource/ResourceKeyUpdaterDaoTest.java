@@ -25,6 +25,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.core.persistence.DaoTestCase;
 
+import java.util.Map;
+
+import static org.fest.assertions.Assertions.assertThat;
+
 public class ResourceKeyUpdaterDaoTest extends DaoTestCase {
 
   @Rule
@@ -66,6 +70,15 @@ public class ResourceKeyUpdaterDaoTest extends DaoTestCase {
   }
 
   @Test
+  public void shouldBulkUpdateKeyOnOnlyOneSubmodule() {
+    setupData("shared");
+
+    dao.bulkUpdateKey(1, "struts-ui", "struts-web");
+
+    checkTables("shouldBulkUpdateKeyOnOnlyOneSubmodule", "projects");
+  }
+
+  @Test
   public void shouldFailBulkUpdateKeyIfKeyAlreadyExist() {
     setupData("shared");
 
@@ -82,6 +95,17 @@ public class ResourceKeyUpdaterDaoTest extends DaoTestCase {
     dao.bulkUpdateKey(1, "org.struts", "org.apache.struts");
 
     checkTables("shouldNotUpdateAllSubmodules", "projects");
+  }
+
+  @Test
+  public void shouldCheckModuleKeysBeforeRenaming() {
+    setupData("shared");
+
+    Map<String, String> checkResults = dao.checkModuleKeysBeforeRenaming(1, "org.struts", "foo");
+    assertThat(checkResults.size()).isEqualTo(3);
+    assertThat(checkResults.get("org.struts:struts")).isEqualTo("foo:struts");
+    assertThat(checkResults.get("org.struts:struts-core")).isEqualTo("update_impossible");
+    assertThat(checkResults.get("org.struts:struts-ui")).isEqualTo("foo:struts-ui");
   }
 
 }

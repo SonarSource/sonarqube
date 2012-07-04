@@ -1,0 +1,19 @@
+<%
+  future_key = key_check_results[current_module.key]
+  if future_key=="#duplicate_key#"
+    duplicate_key = true
+    future_key = message('update_key.duplicate_key')
+  end
+%>
+    <tr class="<%= cycle 'even', 'odd', :name => 'modules_tree' -%>">
+      <td class="thin nowrap" style="padding-left: <%= 3+ module_depth*15 -%>px;">
+        <%= h(current_module.key) -%>
+      </td>
+      <td class="thin nowrap <%= 'error' if duplicate_key -%>" style="<%= 'font-weight: bold;' if future_key -%>">
+        <%= future_key ? future_key : current_module.key -%>
+      </td>
+    </tr>
+    <% current_module.modules.each_with_index do |sub_module, index| %>
+      <%= render :partial => 'prepare_keys', :locals => {:current_module => sub_module, :module_depth => module_depth+1, 
+                                                        :key_check_results => key_check_results} -%>
+    <% end %>
