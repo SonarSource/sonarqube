@@ -19,24 +19,26 @@
  */
 package org.sonar.api.web;
 
-import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface WidgetProperty {
-
+public @interface WidgetPropertySet {
   String key();
 
-  WidgetPropertyType type() default WidgetPropertyType.STRING;
+  WidgetProperty[] value();
 
-  String defaultValue() default "";
+  static WidgetPropertySet DEFAULT = new WidgetPropertySet() {
+    public Class<WidgetPropertySet> annotationType() {
+      return WidgetPropertySet.class;
+    }
 
-  String description() default "";
+    public WidgetProperty[] value() {
+      return null;
+    }
 
-  boolean optional() default true;
-
-  Class<? extends PropertyValidation> validation() default PropertyValidation.None.class;
+    public String key() {
+      return "";
+    }
+  };
 }

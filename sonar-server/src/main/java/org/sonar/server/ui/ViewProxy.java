@@ -20,7 +20,10 @@
 package org.sonar.server.ui;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSetMultimap;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.SetMultimap;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
@@ -43,6 +46,7 @@ import org.sonar.api.web.WidgetLayout;
 import org.sonar.api.web.WidgetLayoutType;
 import org.sonar.api.web.WidgetProperties;
 import org.sonar.api.web.WidgetProperty;
+import org.sonar.api.web.WidgetPropertySet;
 import org.sonar.api.web.WidgetScope;
 
 import java.util.Collection;
@@ -51,7 +55,8 @@ import java.util.Map;
 @SuppressWarnings("rawtypes")
 public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
 
-  private V view;
+  private final V view;
+  private final boolean isWidget;
   private String[] sections = {NavigationSection.HOME};
   private String[] userRoles = {};
   private String[] resourceScopes = {};
@@ -60,16 +65,17 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
   private String[] defaultForMetrics = {};
   private String description = "";
   private Map<String, WidgetProperty> widgetPropertiesByKey = Maps.newHashMap();
+  private SetMultimap<WidgetPropertySet, WidgetProperty> widgetPropertiesBySet = LinkedHashMultimap.create();
   private String[] widgetCategories = {};
   private WidgetLayoutType widgetLayout = WidgetLayoutType.DEFAULT;
   private boolean isDefaultTab = false;
-  private boolean isWidget = false;
   private boolean isGlobal = false;
   private String[] mandatoryMeasures = {};
   private String[] needOneOfMeasures = {};
 
-  public ViewProxy(final V view) {
+  public ViewProxy(V view) {
     this.view = view;
+    this.isWidget = (view instanceof Widget);
 
     initUserRoles(view);
     initSections(view);
@@ -83,8 +89,6 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
     initWidgetLayout(view);
     initWidgetGlobal(view);
     initRequiredMeasures(view);
-
-    isWidget = (view instanceof Widget);
   }
 
   private void initRequiredMeasures(V view) {
@@ -95,14 +99,14 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
     }
   }
 
-  private void initWidgetLayout(final V view) {
+  private void initWidgetLayout(V view) {
     WidgetLayout layoutAnnotation = AnnotationUtils.getAnnotation(view, WidgetLayout.class);
     if (layoutAnnotation != null) {
       widgetLayout = layoutAnnotation.value();
     }
   }
 
-  private void initWidgetCategory(final V view) {
+  private void initWidgetCategory(V view) {
     WidgetCategory categAnnotation = AnnotationUtils.getAnnotation(view, WidgetCategory.class);
     if (categAnnotation != null) {
       widgetCategories = categAnnotation.value();
@@ -125,29 +129,35 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
     }
   }
 
-  private void initWidgetProperties(final V view) {
+  private void initWidgetProperties(V view) {
     WidgetProperties propAnnotation = AnnotationUtils.getAnnotation(view, WidgetProperties.class);
     if (propAnnotation != null) {
+      for (WidgetPropertySet set : propAnnotation.sets()) {
+        for (WidgetProperty property : set.value()) {
+          widgetPropertiesBySet.put(set, property);
+          widgetPropertiesByKey.put(property.key(), property);
+        }
+      }
       for (WidgetProperty property : propAnnotation.value()) {
+        widgetPropertiesBySet.put(WidgetPropertySet.DEFAULT, property);
         widgetPropertiesByKey.put(property.key(), property);
       }
     }
   }
 
-  private void initDescription(final V view) {
+  private void initDescription(V view) {
     Description descriptionAnnotation = AnnotationUtils.getAnnotation(view, Description.class);
     if (descriptionAnnotation != null) {
       description = descriptionAnnotation.value();
     }
   }
 
-  private void initDefaultTabInfo(final V view) {
+  private void initDefaultTabInfo(V view) {
     DefaultTab defaultTabAnnotation = AnnotationUtils.getAnnotation(view, DefaultTab.class);
     if (defaultTabAnnotation != null) {
       if (defaultTabAnnotation.metrics().length == 0) {
         isDefaultTab = true;
         defaultForMetrics = new String[0];
-
       } else {
         isDefaultTab = false;
         defaultForMetrics = defaultTabAnnotation.metrics();
@@ -155,35 +165,35 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
     }
   }
 
-  private void initResourceLanguage(final V view) {
+  private void initResourceLanguage(V view) {
     ResourceLanguage languageAnnotation = AnnotationUtils.getAnnotation(view, ResourceLanguage.class);
     if (languageAnnotation != null) {
       resourceLanguages = languageAnnotation.value();
     }
   }
 
-  private void initResourceQualifier(final V view) {
+  private void initResourceQualifier(V view) {
     ResourceQualifier qualifierAnnotation = AnnotationUtils.getAnnotation(view, ResourceQualifier.class);
     if (qualifierAnnotation != null) {
       resourceQualifiers = qualifierAnnotation.value();
     }
   }
 
-  private void initResourceScope(final V view) {
+  private void initResourceScope(V view) {
     ResourceScope scopeAnnotation = AnnotationUtils.getAnnotation(view, ResourceScope.class);
     if (scopeAnnotation != null) {
       resourceScopes = scopeAnnotation.value();
     }
   }
 
-  private void initSections(final V view) {
+  private void initSections(V view) {
     NavigationSection sectionAnnotation = AnnotationUtils.getAnnotation(view, NavigationSection.class);
     if (sectionAnnotation != null) {
       sections = sectionAnnotation.value();
     }
   }
 
-  private void initUserRoles(final V view) {
+  private void initUserRoles(V view) {
     UserRole userRoleAnnotation = AnnotationUtils.getAnnotation(view, UserRole.class);
     if (userRoleAnnotation != null) {
       userRoles = userRoleAnnotation.value();
@@ -200,7 +210,7 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
 
   public boolean isController() {
     String id = view.getId();
-    return id !=null && id.length()>0 && id.charAt(0)=='/';
+    return id != null && !id.isEmpty() && id.charAt(0) == '/';
   }
 
   public String getTitle() {
@@ -213,6 +223,10 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
 
   public Collection<WidgetProperty> getWidgetProperties() {
     return widgetPropertiesByKey.values();
+  }
+
+  public SetMultimap<WidgetPropertySet, WidgetProperty> getWidgetPropertiesBySet() {
+    return ImmutableSetMultimap.copyOf(widgetPropertiesBySet);
   }
 
   public WidgetProperty getWidgetProperty(String propertyKey) {
@@ -254,23 +268,24 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
   public boolean supportsMetric(String metricKey) {
     return ArrayUtils.contains(defaultForMetrics, metricKey);
   }
-  
+
   public boolean acceptsAvailableMeasures(String[] availableMeasures) {
     for (String mandatoryMeasure : mandatoryMeasures) {
       if (!ArrayUtils.contains(availableMeasures, mandatoryMeasure)) {
         return false;
       }
     }
+
     if (needOneOfMeasures.length == 0) {
       return true;
-    } else {
-      for (String neededMeasure : needOneOfMeasures) {
-        if (ArrayUtils.contains(availableMeasures, neededMeasure)) {
-          return true;
-        }
-      }
-      return false;
     }
+
+    for (String neededMeasure : needOneOfMeasures) {
+      if (ArrayUtils.contains(availableMeasures, neededMeasure)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   public boolean isWidget() {
@@ -294,13 +309,20 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
   }
 
   public boolean hasRequiredProperties() {
-    boolean requires = false;
     for (WidgetProperty property : getWidgetProperties()) {
       if (!property.optional() && StringUtils.isEmpty(property.defaultValue())) {
-        requires = true;
+        return true;
       }
     }
-    return requires;
+    return false;
+  }
+
+  public boolean validate(WidgetProperty property, String value) {
+    try {
+      return property.validation().newInstance().validate(value);
+    } catch (Exception e) {
+    }
+    return true;
   }
 
   @Override
@@ -336,7 +358,6 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
         .append("languages", resourceLanguages)
         .append("metrics", defaultForMetrics)
         .toString();
-
   }
 
   public int compareTo(ViewProxy other) {
@@ -344,6 +365,5 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
         .append(getTitle(), other.getTitle())
         .append(getId(), other.getId())
         .toComparison();
-
   }
 }

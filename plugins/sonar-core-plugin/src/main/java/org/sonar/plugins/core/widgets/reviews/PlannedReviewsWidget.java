@@ -26,13 +26,11 @@ import org.sonar.api.web.WidgetProperties;
 import org.sonar.api.web.WidgetProperty;
 import org.sonar.api.web.WidgetPropertyType;
 
-@WidgetCategory({ "Action plans", "Reviews" })
-@WidgetProperties(
-    {
-        @WidgetProperty(key = "numberOfLines", type = WidgetPropertyType.INTEGER, defaultValue = "5", 
-                        description="Maximum number of reviews displayed at the same time.")
-    }
-)
+@WidgetCategory({"Action plans", "Reviews"})
+@WidgetProperties({
+  @WidgetProperty(key = "numberOfLines", type = WidgetPropertyType.INTEGER, defaultValue = "5",
+    description = "Maximum number of reviews displayed at the same time.")
+})
 public class PlannedReviewsWidget extends AbstractRubyTemplate implements RubyRailsWidget {
   public String getId() {
     return "planned_reviews";

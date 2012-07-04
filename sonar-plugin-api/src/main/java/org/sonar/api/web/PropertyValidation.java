@@ -19,24 +19,12 @@
  */
 package org.sonar.api.web;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+public interface PropertyValidation {
+  boolean validate(String value);
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface WidgetProperty {
-
-  String key();
-
-  WidgetPropertyType type() default WidgetPropertyType.STRING;
-
-  String defaultValue() default "";
-
-  String description() default "";
-
-  boolean optional() default true;
-
-  Class<? extends PropertyValidation> validation() default PropertyValidation.None.class;
+  class None implements PropertyValidation {
+    public boolean validate(String value) {
+      return true;
+    }
+  };
 }

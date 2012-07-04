@@ -17,7 +17,9 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.widgets.reviews;
+package org.sonar.plugins.core.widgets;
+
+import org.sonar.api.web.WidgetPropertySet;
 
 import org.sonar.api.web.AbstractRubyTemplate;
 import org.sonar.api.web.RubyRailsWidget;
@@ -25,23 +27,34 @@ import org.sonar.api.web.WidgetCategory;
 import org.sonar.api.web.WidgetProperties;
 import org.sonar.api.web.WidgetProperty;
 import org.sonar.api.web.WidgetPropertyType;
+import org.sonar.api.web.WidgetScope;
 
-@WidgetCategory({"Action plans", "Reviews"})
-@WidgetProperties({
-  @WidgetProperty(key = "numberOfLines", type = WidgetPropertyType.INTEGER, defaultValue = "5",
-    description = "Maximum number of reviews displayed at the same time.")
+import static org.sonar.api.web.WidgetScope.*;
+
+@WidgetCategory("Global")
+@WidgetScope(GLOBAL)
+@WidgetProperties(sets = {
+  @WidgetPropertySet(key = "set1",
+    value = {
+      @WidgetProperty(key = "key1", type = WidgetPropertyType.STRING),
+      @WidgetProperty(key = "key2", type = WidgetPropertyType.STRING)
+    }), @WidgetPropertySet(key = "set2",
+    value = {
+      @WidgetProperty(key = "key3", type = WidgetPropertyType.STRING)
+    })}, value = {
+  @WidgetProperty(key = "key4", type = WidgetPropertyType.STRING)
 })
-public class UnplannedReviewsWidget extends AbstractRubyTemplate implements RubyRailsWidget {
+public class DemoWidget extends AbstractRubyTemplate implements RubyRailsWidget {
   public String getId() {
-    return "unplanned_reviews";
+    return "demo";
   }
 
   public String getTitle() {
-    return "Unplanned reviews";
+    return "Demo";
   }
 
   @Override
   protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/reviews/unplanned_reviews.html.erb";
+    return "/org/sonar/plugins/core/widgets/demo.html.erb";
   }
 }

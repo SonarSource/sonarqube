@@ -26,14 +26,12 @@ import org.sonar.api.web.WidgetProperties;
 import org.sonar.api.web.WidgetProperty;
 import org.sonar.api.web.WidgetPropertyType;
 
-@WidgetCategory({ "Hotspots" })
-@WidgetProperties(
-    {
-        @WidgetProperty(key = "title", type = WidgetPropertyType.STRING),
-        @WidgetProperty(key = "metric", type = WidgetPropertyType.METRIC, defaultValue = "ncloc"),
-        @WidgetProperty(key = "numberOfLines", type = WidgetPropertyType.INTEGER, defaultValue = "5")
-    }
-)
+@WidgetCategory("Hotspots")
+@WidgetProperties({
+  @WidgetProperty(key = "title", type = WidgetPropertyType.STRING),
+  @WidgetProperty(key = "metric", type = WidgetPropertyType.METRIC, defaultValue = "ncloc"),
+  @WidgetProperty(key = "numberOfLines", type = WidgetPropertyType.INTEGER, defaultValue = "5")
+})
 public class HotspotMetricWidget extends AbstractRubyTemplate implements RubyRailsWidget {
   public String getId() {
     return "hotspot_metric";
