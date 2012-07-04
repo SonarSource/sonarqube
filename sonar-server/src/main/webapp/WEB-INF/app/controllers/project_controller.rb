@@ -99,13 +99,13 @@ class ProjectController < ApplicationController
   def prepare_key_bulk_update
     @project = get_current_project(params[:id])
     
-    @old_prefix = params[:old_prefix].strip
-    @new_prefix = params[:new_prefix].strip
-    if @old_prefix.blank? || @new_prefix.blank?
+    @string_to_replace = params[:string_to_replace].strip
+    @replacement_string = params[:replacement_string].strip
+    if @string_to_replace.blank? || @replacement_string.blank?
       flash[:error] = message('update_key.fieds_cant_be_blank_for_bulk_update')
       redirect_to :action => 'key', :id => @project.id
     else
-      @key_check_results = java_facade.checkModuleKeysBeforeRenaming(@project.id, @old_prefix, @new_prefix)
+      @key_check_results = java_facade.checkModuleKeysBeforeRenaming(@project.id, @string_to_replace, @replacement_string)
       @can_update = false
       @duplicate_key_found = false
       @key_check_results.each do |key, value|
@@ -122,12 +122,12 @@ class ProjectController < ApplicationController
   def perform_key_bulk_update
     project = get_current_project(params[:id])
     
-    old_prefix = params[:old_prefix].strip
-    new_prefix = params[:new_prefix].strip
+    string_to_replace = params[:string_to_replace].strip
+    replacement_string = params[:replacement_string].strip
       
-    unless old_prefix.blank? || new_prefix.blank?
+    unless string_to_replace.blank? || replacement_string.blank?
       begin
-        java_facade.bulkUpdateKey(project.id, old_prefix, new_prefix)
+        java_facade.bulkUpdateKey(project.id, string_to_replace, replacement_string)
         flash[:notice] = message('update_key.key_updated')
       rescue Exception => e
         flash[:error] = message('update_key.error_occured_while_renaming_key_of_x', 
