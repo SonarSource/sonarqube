@@ -51,12 +51,14 @@
   <% form_tag( {:action => 'prepare_key_bulk_update', :id => @project.id }) do -%>
     <table>
       <tr>
-        <td style="padding-right: 20px">Replace:</td>
+        <td style="padding-right: 20px"><%= message('update_key.replace') -%>:</td>
         <td><input type="text" value="" name="old_prefix" id="old_prefix" size="40"></td>
+        <td class="form-val-note" style="padding-left: 10px;"><%= message('update_key.replace_example') -%></td>
       </tr>
       <tr>
-        <td style="padding-right: 20px">By:</td>
+        <td style="padding-right: 20px"><%= message('update_key.by') -%>:</td>
         <td><input type="text" value="" name="new_prefix" id="new_prefix" size="40"></td>
+        <td class="form-val-note" style="padding-left: 10px;"><%= message('update_key.by_example') -%></td>
       </tr>
       <tr>
         <td></td>
@@ -65,6 +67,7 @@
                          :onclick => "update_launched();$('loading_bulk_update').show();" %>
           <span class="loading" id="loading_bulk_update" style="display: none; padding: 3px 10px;"></span>
         </td>
+        <td></td>
       </tr>      
     </table>
   <% end %>
