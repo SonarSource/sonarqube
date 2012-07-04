@@ -59,7 +59,7 @@ public class EmbeddedDatabase {
     try {
       createDatabase(dbHome, user, password);
 
-      Server server = Server.createTcpServer("-tcpPort", port, "-tcpAllowOthers", "-ifExists", "-baseDir", dbHome.getAbsolutePath());
+      server = Server.createTcpServer("-tcpPort", port, "-tcpAllowOthers", "-ifExists", "-baseDir", dbHome.getAbsolutePath());
 
       LOG.info("Starting embedded database on port " + server.getPort());
       server.start();
