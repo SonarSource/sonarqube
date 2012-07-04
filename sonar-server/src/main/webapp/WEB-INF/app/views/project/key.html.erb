@@ -4,16 +4,20 @@
     reset_cycle 'modules_tree'
 %>
 
-  <script type="text/javascript">
-    function update_launched() {
-      $$('input.action').each(function(input) {
-        input.disabled=true;
-      });
-    }
-  </script>
+<script type="text/javascript">
+  function update_launched() {
+    $$('input.action').each(function(input) {
+      input.disabled=true;
+    });
+  }
+</script>
+  
+<h1><%= message('update_key.update_resource_key') -%></h1>
+
+<p style="margin: 15px 0px"><%= message('update_key.description') -%></p>
 
 <% if has_modules %>
-  <h1><%= message('update_key.bulk_update') -%></h1>
+  <h2><%= message('update_key.bulk_update') -%></h2>
   <br/>
   <p>
     <%= message('update_key.bulk_change_description') -%>
@@ -46,10 +50,10 @@
   <% end %>
   <br/>
   <br/>
+  <h2><%= message('update_key.fine_grained_key_update') -%></h2>
+  <br/>
 <% end %>
 
-  <h1><%= has_modules ? message('update_key.fine_grained_key_update') : message('update_key.update_resource_key') -%></h1>
-  <br/>
   <table class="data" style="width:1%">
     <thead>
       <tr>
