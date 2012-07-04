@@ -210,7 +210,7 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
 
   public boolean isController() {
     String id = view.getId();
-    return id != null && !id.isEmpty() && id.charAt(0) == '/';
+    return StringUtils.isNotEmpty(id) && id.charAt(0) == '/';
   }
 
   public String getTitle() {
