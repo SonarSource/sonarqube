@@ -19,7 +19,7 @@
 #
 
 #
-# Class taht centralizes the management the DB migration
+# Class that centralizes the management the DB migration
 #
 
 require 'singleton'

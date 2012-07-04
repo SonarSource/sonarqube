@@ -1,0 +1,116 @@
+<h1 class="marginbottom10"><%= message('bulk_deletion.page') -%></h1>
+
+<ul class="tabs">
+  <li>
+    <a href="<%= url_for :action => 'index', :resource_type => 'projects' %>" <%= "class='selected'" if @selected_tab=='projects' -%>><%= message('bulk_deletion.resource.projects') -%></a>
+  </li>
+  <% if @should_display_views_tab %>
+  <li>
+    <a href="<%= url_for :action => 'index', :resource_type => 'views' -%>" <%= "class='selected'" if @selected_tab=='views' -%>><%= message('bulk_deletion.resource.views') -%></a>
+  </li>
+  <% end %>
+  <% if @should_display_devs_tab %>
+  <li>
+    <a href="<%= url_for :action => 'index', :resource_type => 'devs' -%>" <%= "class='selected'" if @selected_tab=='devs' -%>><%= message('bulk_deletion.resource.devs') -%></a>
+  </li>
+  <% end %>
+</ul>
+
+<div class="tabs-panel marginbottom10">
+
+<% 
+  found_resources_count = @resources.size
+  found_resources_ids = @resources.map {|r| r.id.to_s}.join(',')
+  page_size = (params[:page_size] && params[:page_size].to_i) || 20
+%>
+
+  <% form_tag( {:action => 'index'}, :method => :get ) do %>
+    <%= message('bulk_deletion.resource_name_filter_by_name') -%>: <input type="text" id="resource_filter" name="name_filter" size="40px" value=""/>
+    <input type="hidden" name="resource_type" value="<%= @selected_tab -%>"/>
+    <%= submit_tag message('bulk_deletion.search'), :id => 'filter_resources' %>
+  <% end %>
+  
+  <% if @resources.empty? %>
+    <br/>
+    <%= message('bulk_deletion.no_resource_to_delete') -%>
+  <% else %>
+
+    <% form_remote_tag( :url => {:action => 'delete_resources'}, :loading => "window.location='#{url_for :action => 'pending_deletions'}';") do %>
+  
+    <table class="data">
+      <tfoot>
+        <tr>
+          <td colspan="2"><%= paginate @resources, {:page_size => page_size} %></td>
+        </tr>
+        <tr>
+          <td colspan="2">
+            <%= submit_tag message('delete'), :id => 'delete_resources', :class => 'action red-button', :confirm => message('bulk_deletion.sure_to_delete_the_resources') %>
+          </td>
+        </tr>
+      </tfoot>
+      <thead>
+        <tr>
+          <th><input id="r-all" type="checkbox" onclick="selectOrDeselect()"></th>
+          <th>
+            <span>&laquo; <%= message('bulk_deletion.select_all') -%></span>
+            <% if found_resources_count - @resources.size > 0 %>
+              <a id="select_all_action" style="padding-left: 10px; font-weight: normal; display: none"
+                 href="#" onclick="handleSelectAllAction(); return false;"><%= message('bulk_deletion.select_all_x_resources', :params => found_resources_count) -%></a>
+              <input type="hidden" id="all_resources" name="all_resources" value=""/>
+            <% end %>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+      <% @resources.each_with_index do |resource, index| %>
+        <tr class="<%= cycle 'even', 'odd' -%>">
+          <td class="thin">
+            <input id="r-<%= index -%>" type="checkbox" value="<%= resource.id -%>" name="resources[]">
+          </td>
+          <td><%= resource.name -%></td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+    
+    <% end %>
+  
+    <script>
+      function selectOrDeselect() {
+        status = $('r-all').checked
+        $$('tbody input').each(function(input) {
+          input.checked = status;
+        });
+        <% if found_resources_count - @resources.size > 0 %>
+        selectNotAllResources();
+        if (status) {
+          $('select_all_action').show();
+        } else {
+          $('select_all_action').hide();
+        }
+        <% end %>
+      }
+      
+      function handleSelectAllAction() {
+        if ($('all_resources').value=='') {
+          selectAllResources();
+        } else {
+          $('r-all').checked = false;
+          selectOrDeselect();
+        }
+      }
+      
+      function selectAllResources() {
+        $('all_resources').value = '<%= found_resources_ids -%>';
+        $('select_all_action').text = '<%= message('bulk_deletion.clear_selection', :params => found_resources_count) -%>';
+      }
+      
+      function selectNotAllResources() {
+        $('all_resources').value = '';
+        $('select_all_action').text = '<%= message('bulk_deletion.select_all_x_resources', :params => found_resources_count) -%>';
+      }
+    </script>
+
+  <% end %>
+  
+</div>

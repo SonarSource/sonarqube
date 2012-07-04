@@ -447,7 +447,12 @@ public final class JRubyFacade {
   }
 
   public void deleteResourceTree(long rootProjectId) {
-    getContainer().getComponentByType(PurgeDao.class).deleteResourceTree(rootProjectId);
+    try {
+      getContainer().getComponentByType(PurgeDao.class).deleteResourceTree(rootProjectId);
+    } catch (RuntimeException e) {
+      LoggerFactory.getLogger(JRubyFacade.class).error("Fail to delete resource with ID: " + rootProjectId, e);
+      throw e;
+    }
   }
 
   public void logError(String message) {

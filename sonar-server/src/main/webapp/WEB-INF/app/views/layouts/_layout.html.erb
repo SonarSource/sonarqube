@@ -158,6 +158,8 @@
                 <a href="<%= ApplicationController.root_context -%>/settings/index"><%= message('settings.page') -%></a></li>
               <li class="<%= 'selected' if controller.controller_path=='backup' -%>"><a href="<%= ApplicationController.root_context -%>/backup"><%= message('backup.page') -%></a>
               </li>
+              <li class="<%= 'selected' if controller.controller_path=='bulk_deletion' -%>"><a href="<%= ApplicationController.root_context -%>/bulk_deletion"><%= message('bulk_deletion.page') -%></a>
+              </li>
               <li class="<%= 'selected' if controller.controller_path=='system' -%>">
                 <a href="<%= ApplicationController.root_context -%>/system"><%= message('system_info.page') -%></a></li>
               <% update_center_activated = controller.java_facade.getSettings().getBoolean('sonar.updatecenter.activate')
