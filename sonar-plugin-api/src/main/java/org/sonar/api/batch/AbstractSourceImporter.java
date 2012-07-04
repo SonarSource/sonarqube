@@ -46,9 +46,10 @@ public abstract class AbstractSourceImporter implements Sensor {
   }
 
   /**
-   * {@inheritDoc}
+   * Generally this method should not be overridden in subclasses, but if it is, then it should be executed anyway (see SONAR-3419).
    */
   public boolean shouldExecuteOnProject(Project project) {
+    enabled = isEnabled(project);
     return language.equals(project.getLanguage());
   }
 
@@ -56,7 +57,6 @@ public abstract class AbstractSourceImporter implements Sensor {
    * {@inheritDoc}
    */
   public void analyse(Project project, SensorContext context) {
-    enabled = isEnabled(project);
     analyse(project.getFileSystem(), context);
     onFinished();
   }

@@ -19,21 +19,15 @@
  */
 package org.sonar.api.batch;
 
-import org.mockito.ArgumentMatcher;
-
 import com.google.common.collect.Lists;
 import org.apache.commons.configuration.MapConfiguration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang.CharEncoding;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 import org.mockito.exceptions.verification.junit.ArgumentsAreDifferent;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.JavaFile;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectFileSystem;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.*;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -130,6 +124,7 @@ public class AbstractSourceImporterTest {
     when(fileSystem.getSourceFiles((Language) anyObject())).thenReturn(Arrays.asList(
         new File("test-resources/org/sonar/api/batch/AbstractSourceImporterTest/encoding/" + testFile)));
 
+    importer.shouldExecuteOnProject(project);
     importer.analyse(project, context);
 
     verify(context).saveSource(eq(FakeSourceImporter.TEST_RESOURCE), argThat(new ArgumentMatcher<String>() {
@@ -163,7 +158,7 @@ public class AbstractSourceImporterTest {
     private final static Resource TEST_RESOURCE = new JavaFile("Test");
 
     private FakeSourceImporter() {
-      super(null);
+      super(Java.INSTANCE);
     }
 
     @Override
