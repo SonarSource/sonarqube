@@ -98,10 +98,10 @@ public class BundleSynchronizedTest {
 
   @Test
   public void testExtractDefaultBundleName() throws Exception {
-    assertThat(matcher.extractDefaultBundleName("myPlugin_fr.properties"), is("myPlugin.properties"));
-    assertThat(matcher.extractDefaultBundleName("myPlugin_fr_QB.properties"), is("myPlugin.properties"));
+    assertThat(BundleSynchronizedMatcher.extractDefaultBundleName("myPlugin_fr.properties"), is("myPlugin.properties"));
+    assertThat(BundleSynchronizedMatcher.extractDefaultBundleName("myPlugin_fr_QB.properties"), is("myPlugin.properties"));
     try {
-      matcher.extractDefaultBundleName("myPlugin.properties");
+      BundleSynchronizedMatcher.extractDefaultBundleName("myPlugin.properties");
     } catch (AssertionError e) {
       assertThat(e.getMessage(),
           containsString("The bundle 'myPlugin.properties' is a default bundle (without locale), so it can't be compared."));
@@ -110,8 +110,8 @@ public class BundleSynchronizedTest {
 
   @Test
   public void testIsCoreBundle() throws Exception {
-    assertTrue(matcher.isCoreBundle("core.properties"));
-    assertFalse(matcher.isCoreBundle("myPlugin.properties"));
+    assertTrue(BundleSynchronizedMatcher.isCoreBundle("core.properties"));
+    assertFalse(BundleSynchronizedMatcher.isCoreBundle("myPlugin.properties"));
   }
 
   @Test
