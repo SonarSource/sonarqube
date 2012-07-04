@@ -20,50 +20,46 @@
 package org.sonar.core.persistence;
 
 import org.apache.commons.dbcp.BasicDataSource;
-import org.hamcrest.core.Is;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class H2DatabaseTest {
+  H2Database db = new H2Database();
+
+  @Before
+  public void startDb() {
+    db.start();
+  }
+
+  @Before
+  public void stopDb() {
+    db.stop();
+  }
 
   @Test
   public void shouldExecuteDdlAtStartup() throws SQLException {
+    Connection connection = db.getDataSource().getConnection();
+
     int tables = 0;
-    H2Database db = new H2Database();
-    try {
-      db.start();
-      assertNotNull(db.getDataSource());
-      Connection connection = db.getDataSource().getConnection();
-      assertNotNull(connection);
-
-      ResultSet resultSet = connection.getMetaData().getTables("", null, null, new String[] {"TABLE"});
-      while (resultSet.next()) {
-        tables++;
-      }
-
-    } finally {
-      db.stop();
+    ResultSet resultSet = connection.getMetaData().getTables(null, null, null, new String[] {"TABLE"});
+    while (resultSet.next()) {
+      tables++;
     }
-    assertThat(tables, greaterThan(30));
+
+    connection.close();
+
+    assertThat(tables).isGreaterThan(30);
   }
 
   @Test
   public void shouldLimitThePoolSize() {
-    H2Database db = new H2Database();
-    try {
-      db.startDatabase();
-      assertThat(((BasicDataSource) db.getDataSource()).getMaxActive(), Is.is(2));
-      assertThat(((BasicDataSource) db.getDataSource()).getMaxIdle(), Is.is(2));
-
-    } finally {
-      db.stop();
-    }
+    assertThat(((BasicDataSource) db.getDataSource()).getMaxActive()).isEqualTo(2);
+    assertThat(((BasicDataSource) db.getDataSource()).getMaxIdle()).isEqualTo(2);
   }
 }

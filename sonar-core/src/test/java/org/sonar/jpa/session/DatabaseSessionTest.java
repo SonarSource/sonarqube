@@ -50,7 +50,7 @@ public class DatabaseSessionTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void performaceTestOnBatchInserts() throws Exception {
+  public void performanceTestOnBatchInserts() throws Exception {
     getSession().save(project1);
     Snapshot snapshot = new Snapshot(project1, true, "", new Date(1));
     getSession().save(snapshot);

@@ -51,7 +51,7 @@ public class H2Database implements Database {
   /**
    * IMPORTANT: DB name changed from "sonar" to "sonar2" in order to not conflict with {@link DefaultDatabaseTest}
    */
-  void startDatabase() {
+  private void startDatabase() {
     try {
       Properties properties = new Properties();
       properties.put("driverClassName", "org.h2.Driver");
@@ -69,7 +69,7 @@ public class H2Database implements Database {
     }
   }
 
-  void createSchema() {
+  private void createSchema() {
     Connection connection = null;
     try {
       connection = datasource.getConnection();
@@ -77,11 +77,17 @@ public class H2Database implements Database {
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to create schema", e);
     } finally {
-      closeQuietly(connection);
+      if (connection != null) {
+        try {
+          connection.close();
+        } catch (SQLException e) {
+          // ignore
+        }
+      }
     }
   }
 
-  public static void stopDatabase() {
+  public H2Database stop() {
     try {
       if (datasource != null) {
         datasource.close();
@@ -90,9 +96,6 @@ public class H2Database implements Database {
     } catch (SQLException e) {
       // Ignore error
     }
-  }
-
-  public H2Database stop() {
     return this;
   }
 
@@ -115,15 +118,4 @@ public class H2Database implements Database {
     properties.put(Environment.CONNECTION_PROVIDER, CustomHibernateConnectionProvider.class.getName());
     return properties;
   }
-
-  private static void closeQuietly(Connection connection) {
-    if (connection != null) {
-      try {
-        connection.close();
-      } catch (SQLException e) {
-        // ignore
-      }
-    }
-  }
-
 }
