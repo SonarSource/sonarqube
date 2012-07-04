@@ -22,13 +22,13 @@ package org.sonar.core.rule;
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.core.persistence.DaoTestCase;
+import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.List;
 
 import static org.junit.Assert.assertThat;
 
-public class RuleDaoTest extends DaoTestCase {
+public class RuleDaoTest extends AbstractDaoTestCase {
 
   private static RuleDao dao;
 

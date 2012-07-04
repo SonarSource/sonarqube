@@ -24,14 +24,14 @@ import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Test;
-import org.sonar.core.persistence.DaoTestCase;
+import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class DependencyMapperTest extends DaoTestCase {
+public class DependencyMapperTest extends AbstractDaoTestCase {
   @Test
   public void should_find_all() {
     setupData("fixture");

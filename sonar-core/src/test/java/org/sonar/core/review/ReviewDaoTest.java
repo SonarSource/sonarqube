@@ -22,7 +22,7 @@ package org.sonar.core.review;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.core.persistence.DaoTestCase;
+import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.Collection;
 
@@ -30,7 +30,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
-public class ReviewDaoTest extends DaoTestCase {
+public class ReviewDaoTest extends AbstractDaoTestCase {
 
   private ReviewDao dao;
 

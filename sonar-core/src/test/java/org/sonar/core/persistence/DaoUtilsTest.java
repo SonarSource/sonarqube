@@ -31,6 +31,6 @@ public class DaoUtilsTest {
   public void should_list_all_dao_classes() {
     List<Class<?>> daoClasses = DaoUtils.getDaoClasses();
 
-    assertThat(daoClasses.size()).isGreaterThan(1);
+    assertThat(daoClasses).isNotEmpty();
   }
 }

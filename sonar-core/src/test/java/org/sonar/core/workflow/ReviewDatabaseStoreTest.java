@@ -24,14 +24,14 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.workflow.Comment;
 import org.sonar.api.workflow.internal.DefaultReview;
-import org.sonar.core.persistence.DaoTestCase;
+import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.Arrays;
 import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class ReviewDatabaseStoreTest extends DaoTestCase {
+public class ReviewDatabaseStoreTest extends AbstractDaoTestCase {
 
   @Test
   public void store() {

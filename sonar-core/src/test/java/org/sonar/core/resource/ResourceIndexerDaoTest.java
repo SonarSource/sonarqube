@@ -23,7 +23,7 @@ import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.core.persistence.DaoTestCase;
+import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -32,7 +32,7 @@ import java.sql.SQLException;
 import static org.hamcrest.number.OrderingComparisons.greaterThan;
 import static org.junit.Assert.assertThat;
 
-public class ResourceIndexerDaoTest extends DaoTestCase {
+public class ResourceIndexerDaoTest extends AbstractDaoTestCase {
 
   private static ResourceIndexerDao dao;
 

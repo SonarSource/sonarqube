@@ -21,12 +21,12 @@ package org.sonar.core.dashboard;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.core.persistence.DaoTestCase;
+import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class ActiveDashboardDaoTest extends DaoTestCase {
+public class ActiveDashboardDaoTest extends AbstractDaoTestCase {
 
   private ActiveDashboardDao dao;
 

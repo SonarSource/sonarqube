@@ -21,11 +21,11 @@ package org.sonar.core.review;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.core.persistence.DaoTestCase;
+import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.Date;
 
-public class ReviewCommentDaoTest extends DaoTestCase {
+public class ReviewCommentDaoTest extends AbstractDaoTestCase {
 
   private ReviewCommentDao dao;
 

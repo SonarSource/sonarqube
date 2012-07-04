@@ -21,7 +21,7 @@ package org.sonar.core.properties;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.core.persistence.DaoTestCase;
+import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.List;
 
@@ -29,7 +29,7 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class PropertiesDaoTest extends DaoTestCase {
+public class PropertiesDaoTest extends AbstractDaoTestCase {
 
   private PropertiesDao dao;
 

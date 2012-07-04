@@ -20,14 +20,13 @@
 package org.sonar.core.persistence;
 
 import com.google.common.collect.Maps;
-import org.apache.commons.io.IOUtils;
+import com.google.common.io.Closeables;
 import org.dbunit.Assertion;
 import org.dbunit.DataSourceDatabaseTester;
 import org.dbunit.DatabaseUnitException;
 import org.dbunit.IDatabaseTester;
 import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.IDatabaseConnection;
-import org.dbunit.dataset.CompositeDataSet;
 import org.dbunit.dataset.DataSetException;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
@@ -42,13 +41,11 @@ import org.junit.BeforeClass;
 import org.sonar.api.config.Settings;
 
 import java.io.InputStream;
-import java.io.StringWriter;
 import java.sql.SQLException;
 
 import static org.junit.Assert.fail;
 
-public abstract class DaoTestCase {
-
+public abstract class AbstractDaoTestCase {
   private static Database database;
   private static MyBatis myBatis;
   private static DatabaseCommands databaseCommands;
@@ -58,10 +55,9 @@ public abstract class DaoTestCase {
 
   @BeforeClass
   public static void startDatabase() throws Exception {
-    Settings settings = new Settings();
-    settings.setProperties(Maps.fromProperties(System.getProperties()));
-    boolean hasDialect = settings.hasKey("sonar.jdbc.dialect");
+    Settings settings = new Settings().setProperties(Maps.fromProperties(System.getProperties()));
 
+    boolean hasDialect = settings.hasKey("sonar.jdbc.dialect");
     if (hasDialect) {
       database = new DefaultDatabase(settings);
     } else {
@@ -82,7 +78,7 @@ public abstract class DaoTestCase {
   }
 
   @After
-  public void tearDownDbUnit() throws Exception {
+  public void stopConnection() throws Exception {
     if (databaseTester != null) {
       databaseTester.onTearDown();
     }
@@ -102,40 +98,30 @@ public abstract class DaoTestCase {
     return myBatis;
   }
 
-  protected final void setupData(String... testNames) {
-    InputStream[] streams = new InputStream[testNames.length];
+  protected void setupData(String testName) {
+    InputStream stream = null;
     try {
-      for (int i = 0; i < testNames.length; i++) {
-        String className = getClass().getName();
-        className = String.format("/%s/%s.xml", className.replace(".", "/"), testNames[i]);
-        streams[i] = getClass().getResourceAsStream(className);
-        if (streams[i] == null) {
-          throw new RuntimeException("Test not found :" + className);
-        }
+      String className = getClass().getName();
+      className = String.format("/%s/%s.xml", className.replace(".", "/"), testName);
+      stream = getClass().getResourceAsStream(className);
+      if (stream == null) {
+        throw new RuntimeException("Test not found :" + className);
       }
 
-      setupData(streams);
-
+      setupData(stream);
     } finally {
-      for (InputStream stream : streams) {
-        IOUtils.closeQuietly(stream);
-      }
+      Closeables.closeQuietly(stream);
     }
   }
 
-  protected final void setupData(InputStream... dataSetStream) {
+  private void setupData(InputStream dataStream) {
     try {
-      IDataSet[] dataSets = new IDataSet[dataSetStream.length];
-      for (int i = 0; i < dataSetStream.length; i++) {
-        ReplacementDataSet dataSet = new ReplacementDataSet(new FlatXmlDataSet(dataSetStream[i]));
-        dataSet.addReplacementObject("[null]", null);
-        dataSet.addReplacementObject("[false]", databaseCommands.getFalse());
-        dataSet.addReplacementObject("[true]", databaseCommands.getTrue());
-        dataSets[i] = dataSet;
-      }
-      CompositeDataSet compositeDataSet = new CompositeDataSet(dataSets);
+      ReplacementDataSet dataSet = new ReplacementDataSet(new FlatXmlDataSet(dataStream));
+      dataSet.addReplacementObject("[null]", null);
+      dataSet.addReplacementObject("[false]", databaseCommands.getFalse());
+      dataSet.addReplacementObject("[true]", databaseCommands.getTrue());
 
-      databaseTester.setDataSet(compositeDataSet);
+      databaseTester.setDataSet(dataSet);
       connection = databaseTester.getConnection();
 
       connection.getConfig().setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, databaseCommands.getDbUnitFactory());
@@ -146,11 +132,11 @@ public abstract class DaoTestCase {
     }
   }
 
-  protected final void checkTables(String testName, String... tables) {
+  protected void checkTables(String testName, String... tables) {
     checkTables(testName, new String[] {}, tables);
   }
 
-  protected final void checkTables(String testName, String[] excludedColumnNames, String... tables) {
+  protected void checkTables(String testName, String[] excludedColumnNames, String... tables) {
     try {
       IDataSet dataSet = getCurrentDataSet();
       IDataSet expectedDataSet = getExpectedData(testName);
@@ -165,7 +151,7 @@ public abstract class DaoTestCase {
     }
   }
 
-  protected final void assertEmptyTables(String... emptyTables) {
+  protected void assertEmptyTables(String... emptyTables) {
     for (String table : emptyTables) {
       try {
         Assert.assertEquals("Table " + table + " not empty.", 0, getCurrentDataSet().getTable(table).getRowCount());
@@ -175,7 +161,7 @@ public abstract class DaoTestCase {
     }
   }
 
-  protected final IDataSet getExpectedData(String testName) {
+  private IDataSet getExpectedData(String testName) {
     String className = getClass().getName();
     className = String.format("/%s/%s-result.xml", className.replace(".", "/"), testName);
 
@@ -183,11 +169,11 @@ public abstract class DaoTestCase {
     try {
       return getData(in);
     } finally {
-      IOUtils.closeQuietly(in);
+      Closeables.closeQuietly(in);
     }
   }
 
-  protected final IDataSet getData(InputStream stream) {
+  private IDataSet getData(InputStream stream) {
     try {
       ReplacementDataSet dataSet = new ReplacementDataSet(new FlatXmlDataSet(stream));
       dataSet.addReplacementObject("[null]", null);
@@ -199,25 +185,11 @@ public abstract class DaoTestCase {
     }
   }
 
-  protected final IDataSet getCurrentDataSet() {
+  private IDataSet getCurrentDataSet() {
     try {
       return connection.createDataSet();
     } catch (SQLException e) {
       throw translateException("Could not create the current dataset", e);
-    }
-  }
-
-  protected String getCurrentDataSetAsXML() {
-    return getDataSetAsXML(getCurrentDataSet());
-  }
-
-  protected String getDataSetAsXML(IDataSet dataset) {
-    try {
-      StringWriter writer = new StringWriter();
-      FlatXmlDataSet.write(dataset, writer);
-      return writer.getBuffer().toString();
-    } catch (Exception e) {
-      throw translateException("Could not build XML from dataset", e);
     }
   }
 
@@ -230,9 +202,4 @@ public abstract class DaoTestCase {
   protected IDatabaseConnection getConnection() {
     return connection;
   }
-
-  protected IDatabaseTester getDatabaseTester() {
-    return databaseTester;
-  }
-
 }

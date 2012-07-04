@@ -23,13 +23,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.core.persistence.DaoTestCase;
+import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class ResourceKeyUpdaterDaoTest extends DaoTestCase {
+public class ResourceKeyUpdaterDaoTest extends AbstractDaoTestCase {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();

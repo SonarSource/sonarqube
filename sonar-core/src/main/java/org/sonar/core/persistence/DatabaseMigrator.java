@@ -45,25 +45,30 @@ public class DatabaseMigrator implements ServerComponent {
    * @return true if the database has been created, false if this database is not supported
    */
   public boolean createDatabase() {
-    if (DdlUtils.supportsDialect(database.getDialect().getId())) {
-      LoggerFactory.getLogger(getClass()).info("Create database");
-      SqlSession session = myBatis.openSession();
-      Connection connection = session.getConnection();
-      try {
-        DdlUtils.createSchema(connection, database.getDialect().getId());
-      } finally {
-        try {
-          MyBatis.closeQuietly(session);
-
-          // The connection is probably already closed by session.close()
-          // but it's not documented in mybatis javadoc.
-          connection.close();
-        } catch (Exception e) {
-          // ignore
-        }
-      }
-      return true;
+    if (!DdlUtils.supportsDialect(database.getDialect().getId())) {
+      return false;
     }
-    return false;
+
+    LoggerFactory.getLogger(getClass()).info("Create database");
+    SqlSession session = null;
+    Connection connection = null;
+    try {
+      session = myBatis.openSession();
+      connection = session.getConnection();
+      DdlUtils.createSchema(connection, database.getDialect().getId());
+    } finally {
+      try {
+        MyBatis.closeQuietly(session);
+
+        // The connection is probably already closed by session.close()
+        // but it's not documented in mybatis javadoc.
+        if (null != connection) {
+          connection.close();
+        }
+      } catch (Exception e) {
+        // ignore
+      }
+    }
+    return true;
   }
 }

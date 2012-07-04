@@ -21,7 +21,7 @@ package org.sonar.core.duplication;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.core.persistence.DaoTestCase;
+import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +29,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class DuplicationDaoTest extends DaoTestCase {
+public class DuplicationDaoTest extends AbstractDaoTestCase {
 
   private DuplicationDao dao;
 

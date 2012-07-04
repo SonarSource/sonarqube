@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -45,21 +44,17 @@ public class H2DatabaseTest {
   @Test
   public void shouldExecuteDdlAtStartup() throws SQLException {
     Connection connection = db.getDataSource().getConnection();
-
-    int tables = 0;
-    ResultSet resultSet = connection.getMetaData().getTables(null, null, null, new String[] {"TABLE"});
-    while (resultSet.next()) {
-      tables++;
-    }
-
+    int tableCount = DdlUtilsTest.countTables(connection);
     connection.close();
 
-    assertThat(tables).isGreaterThan(30);
+    assertThat(tableCount).isGreaterThan(30);
   }
 
   @Test
   public void shouldLimitThePoolSize() {
-    assertThat(((BasicDataSource) db.getDataSource()).getMaxActive()).isEqualTo(2);
-    assertThat(((BasicDataSource) db.getDataSource()).getMaxIdle()).isEqualTo(2);
+    BasicDataSource dataSource = (BasicDataSource) db.getDataSource();
+
+    assertThat(dataSource.getMaxActive()).isEqualTo(2);
+    assertThat(dataSource.getMaxIdle()).isEqualTo(2);
   }
 }

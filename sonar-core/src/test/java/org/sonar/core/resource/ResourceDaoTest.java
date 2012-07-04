@@ -21,13 +21,13 @@ package org.sonar.core.resource;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.core.persistence.DaoTestCase;
+import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class ResourceDaoTest extends DaoTestCase {
+public class ResourceDaoTest extends AbstractDaoTestCase {
 
   private ResourceDao dao;
 

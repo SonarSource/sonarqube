@@ -19,6 +19,8 @@
  */
 package org.sonar.jpa.test;
 
+import org.junit.AfterClass;
+
 import org.apache.commons.io.IOUtils;
 import org.dbunit.Assertion;
 import org.dbunit.DataSourceDatabaseTester;
@@ -53,7 +55,7 @@ import java.sql.SQLException;
 import static org.junit.Assert.fail;
 
 /**
- * Heavily duplicates DaoTestCase as long as Hibernate is in use.
+ * Heavily duplicates AbstractDaoTestCase as long as Hibernate is in use.
  */
 public abstract class AbstractDbUnitTestCase {
   private static Database database;
@@ -97,11 +99,18 @@ public abstract class AbstractDbUnitTestCase {
     }
   }
 
-  public DatabaseSession getSession() {
+  @AfterClass
+  public static void stopDatabase() {
+    if (database != null) {
+      database.stop();
+    }
+  }
+
+  protected DatabaseSession getSession() {
     return session;
   }
 
-  public DatabaseSessionFactory getSessionFactory() {
+  protected DatabaseSessionFactory getSessionFactory() {
     return new DatabaseSessionFactory() {
 
       public DatabaseSession getSession() {
@@ -113,7 +122,7 @@ public abstract class AbstractDbUnitTestCase {
     };
   }
 
-  protected final void setupData(String... testNames) {
+  protected void setupData(String... testNames) {
     InputStream[] streams = new InputStream[testNames.length];
     try {
       for (int i = 0; i < testNames.length; i++) {
@@ -134,7 +143,7 @@ public abstract class AbstractDbUnitTestCase {
     }
   }
 
-  private final void setupData(InputStream... dataSetStream) {
+  private void setupData(InputStream... dataSetStream) {
     try {
       IDataSet[] dataSets = new IDataSet[dataSetStream.length];
       for (int i = 0; i < dataSetStream.length; i++) {
@@ -155,11 +164,11 @@ public abstract class AbstractDbUnitTestCase {
     }
   }
 
-  protected final void checkTables(String testName, String... tables) {
+  protected void checkTables(String testName, String... tables) {
     checkTables(testName, new String[0], tables);
   }
 
-  protected final void checkTables(String testName, String[] excludedColumnNames, String... tables) {
+  protected void checkTables(String testName, String[] excludedColumnNames, String... tables) {
     getSession().commit();
     try {
       IDataSet dataSet = getCurrentDataSet();
@@ -176,7 +185,7 @@ public abstract class AbstractDbUnitTestCase {
     }
   }
 
-  private final IDataSet getExpectedData(String testName) {
+  private IDataSet getExpectedData(String testName) {
     String className = getClass().getName();
     className = String.format("/%s/%s-result.xml", className.replace(".", "/"), testName);
 
@@ -188,7 +197,7 @@ public abstract class AbstractDbUnitTestCase {
     }
   }
 
-  private final IDataSet getData(InputStream stream) {
+  private IDataSet getData(InputStream stream) {
     try {
       ReplacementDataSet dataSet = new ReplacementDataSet(new FlatXmlDataSet(stream));
       dataSet.addReplacementObject("[null]", null);
@@ -198,7 +207,7 @@ public abstract class AbstractDbUnitTestCase {
     }
   }
 
-  private final IDataSet getCurrentDataSet() {
+  private IDataSet getCurrentDataSet() {
     try {
       return connection.createDataSet();
     } catch (SQLException e) {

@@ -114,7 +114,6 @@ public class H2Database implements Database {
   public Properties getHibernateProperties() {
     Properties properties = new Properties();
     properties.put("hibernate.hbm2ddl.auto", "validate");
-    properties.put(Environment.DIALECT, getDialect().getHibernateDialectClass().getName());
     properties.put(Environment.CONNECTION_PROVIDER, CustomHibernateConnectionProvider.class.getName());
     return properties;
   }

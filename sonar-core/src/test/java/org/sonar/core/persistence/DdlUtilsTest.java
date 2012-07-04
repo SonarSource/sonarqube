@@ -45,13 +45,13 @@ public class DdlUtilsTest {
     Connection connection = DriverManager.getConnection("jdbc:h2:mem:sonar_test");
     DdlUtils.createSchema(connection, "h2");
 
-    int tables = countTables(connection);
+    int tableCount = countTables(connection);
 
     connection.close();
-    assertThat(tables).isGreaterThan(30);
+    assertThat(tableCount).isGreaterThan(30);
   }
 
-  private int countTables(Connection connection) throws SQLException {
+  static int countTables(Connection connection) throws SQLException {
     int count = 0;
     ResultSet resultSet = connection.getMetaData().getTables(null, null, null, new String[] {"TABLE"});
     while (resultSet.next()) {

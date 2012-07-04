@@ -32,7 +32,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.violations.ViolationQuery;
 import org.sonar.batch.index.ResourcePersister;
-import org.sonar.core.persistence.DaoTestCase;
+import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.review.ReviewDao;
 import org.sonar.core.review.ReviewDto;
 
@@ -48,7 +48,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class ReviewWorkflowDecoratorTest extends DaoTestCase {
+public class ReviewWorkflowDecoratorTest extends AbstractDaoTestCase {
   private ReviewWorkflowDecorator decorator;
   private ReviewNotifications notifications;
 

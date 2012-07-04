@@ -22,7 +22,7 @@ package org.sonar.server.platform;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.junit.Test;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.core.persistence.DaoTestCase;
+import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.properties.PropertiesDao;
 
 import java.io.File;
@@ -32,7 +32,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class ServerSettingsTest extends DaoTestCase {
+public class ServerSettingsTest extends AbstractDaoTestCase {
 
   private static File home = getHome();
 

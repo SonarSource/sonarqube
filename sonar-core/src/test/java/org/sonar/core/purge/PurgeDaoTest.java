@@ -25,7 +25,7 @@ import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Scopes;
-import org.sonar.core.persistence.DaoTestCase;
+import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 
@@ -35,7 +35,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
 
-public class PurgeDaoTest extends DaoTestCase {
+public class PurgeDaoTest extends AbstractDaoTestCase {
 
   private PurgeDao dao;
 

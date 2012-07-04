@@ -26,7 +26,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
-public class DatabaseVersionTest extends DaoTestCase {
+public class DatabaseVersionTest extends AbstractDaoTestCase {
   @Test
   public void getVersion() {
     setupData("getVersion");

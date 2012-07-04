@@ -101,6 +101,7 @@ public class DefaultDatabaseTest {
 
     DefaultDatabase db = new DefaultDatabase(settings);
     db.start();
+    db.stop();
 
     assertThat(db.getDialect().getId(), Is.is("h2"));
     assertThat(((BasicDataSource) db.getDataSource()).getMaxActive(), Is.is(1));

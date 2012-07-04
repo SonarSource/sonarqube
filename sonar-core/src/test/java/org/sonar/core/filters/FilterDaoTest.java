@@ -25,11 +25,11 @@ import org.sonar.core.filter.CriterionDto;
 import org.sonar.core.filter.FilterColumnDto;
 import org.sonar.core.filter.FilterDao;
 import org.sonar.core.filter.FilterDto;
-import org.sonar.core.persistence.DaoTestCase;
+import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class FilterDaoTest extends DaoTestCase {
+public class FilterDaoTest extends AbstractDaoTestCase {
   private FilterDao dao;
 
   @Before

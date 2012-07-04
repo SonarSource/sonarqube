@@ -21,12 +21,12 @@ package org.sonar.core.purge;
 
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Test;
-import org.sonar.core.persistence.DaoTestCase;
+import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.Arrays;
 
-public class PurgeCommandsTest extends DaoTestCase {
+public class PurgeCommandsTest extends AbstractDaoTestCase {
   /**
    * Test that all related data is deleted.
    */

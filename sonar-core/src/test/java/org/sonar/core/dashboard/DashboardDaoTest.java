@@ -21,7 +21,7 @@ package org.sonar.core.dashboard;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.core.persistence.DaoTestCase;
+import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.Date;
 
@@ -30,7 +30,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
-public class DashboardDaoTest extends DaoTestCase {
+public class DashboardDaoTest extends AbstractDaoTestCase {
 
   private DashboardDao dao;
 
