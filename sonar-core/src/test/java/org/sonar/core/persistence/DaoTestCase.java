@@ -62,19 +62,17 @@ public abstract class DaoTestCase {
     settings.setProperties(Maps.fromProperties(System.getProperties()));
     boolean hasDialect = settings.hasKey("sonar.jdbc.dialect");
 
-    if ((null == database) || (hasDialect)) { // Create database only once per vm (Only for in mempry database)
-      if (hasDialect) {
-        database = new DefaultDatabase(settings);
-      } else {
-        database = new H2Database();
-      }
-      database.start();
-
-      myBatis = new MyBatis(database);
-      myBatis.start();
-
-      databaseCommands = DatabaseCommands.forDialect(database.getDialect());
+    if (hasDialect) {
+      database = new DefaultDatabase(settings);
+    } else {
+      database = new H2Database();
     }
+    database.start();
+
+    myBatis = new MyBatis(database);
+    myBatis.start();
+
+    databaseCommands = DatabaseCommands.forDialect(database.getDialect());
   }
 
   @Before

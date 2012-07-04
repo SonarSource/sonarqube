@@ -66,15 +66,13 @@ public abstract class AbstractDbUnitTestCase {
 
   @BeforeClass
   public static void startDatabase() throws Exception {
-    if (null == database) { // Create only once per vm
-      database = new H2Database();
-      database.start();
+    database = new H2Database();
+    database.start();
 
-      dbConnector = new MemoryDatabaseConnector(database);
-      dbConnector.start();
+    dbConnector = new MemoryDatabaseConnector(database);
+    dbConnector.start();
 
-      databaseCommands = DatabaseCommands.forDialect(database.getDialect());
-    }
+    databaseCommands = DatabaseCommands.forDialect(database.getDialect());
   }
 
   @Before
@@ -88,12 +86,15 @@ public abstract class AbstractDbUnitTestCase {
 
   @After
   public void stopConnection() throws Exception {
-    databaseTester.onTearDown();
-    // Important: close the connection and session, otherwise tests can stuck
+    if (databaseTester != null) {
+      databaseTester.onTearDown();
+    }
     if (connection != null) {
       connection.close();
     }
-    session.stop();
+    if (session != null) {
+      session.stop();
+    }
   }
 
   public DatabaseSession getSession() {
