@@ -280,11 +280,11 @@ class EditableWidget implements Widget {
   @WidgetPropertySet(key = "set1",
     value = {
       @WidgetProperty(key = "foo", optional = false),
-      @WidgetProperty(key = "bar", optional = false),
+      @WidgetProperty(key = "bar", optional = false)
     }),
   @WidgetPropertySet(key = "set2",
     value = {
-      @WidgetProperty(key = "qix", optional = false),
+      @WidgetProperty(key = "qix", optional = false)
     })},
   value = {
     @WidgetProperty(key = "fizz", optional = false)
