@@ -77,7 +77,7 @@
   
     <script>
       function selectOrDeselect() {
-        status = $('r-all').checked
+        status = $('r-all').checked;
         $$('tbody input').each(function(input) {
           input.checked = status;
         });
