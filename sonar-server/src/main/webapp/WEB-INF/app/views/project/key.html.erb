@@ -25,7 +25,7 @@
     <%= message('update_key.current_key_for_project_x_is_x', :params => [@project.name, @project.key]) -%>
   </p>
   <br/>
-  <% form_tag( {:action => 'prepare_key_bulk_update', :id => @project.id }) do -%>
+  <% form_tag( {:action => 'prepare_key_bulk_update', :id => @project.id }, :onsubmit => "update_launched();$('loading_bulk_update').show();") do -%>
     <table>
       <tr>
         <td style="padding-right: 20px"><%= message('update_key.replace') -%>:</td>
@@ -40,8 +40,7 @@
       <tr>
         <td></td>
         <td style="padding-top: 5px">
-          <%= submit_tag message('update_key.rename'), :id => 'bulk_update_button', :class => 'action',
-                         :onclick => "update_launched();$('loading_bulk_update').show();" %>
+          <%= submit_tag message('update_key.rename'), :id => 'bulk_update_button', :class => 'action' -%>
           <span class="loading" id="loading_bulk_update" style="display: none; padding: 3px 10px;"></span>
         </td>
         <td></td>

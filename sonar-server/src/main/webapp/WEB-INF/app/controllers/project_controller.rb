@@ -106,10 +106,16 @@ class ProjectController < ApplicationController
       redirect_to :action => 'key', :id => @project.id
     else
       @key_check_results = java_facade.checkModuleKeysBeforeRenaming(@project.id, @old_prefix, @new_prefix)
-      @can_update = true
+      @can_update = false
+      @duplicate_key_found = false
       @key_check_results.each do |key, value|
-        @can_update = false if value=="#duplicate_key#"
+        if value=="#duplicate_key#"
+          @duplicate_key_found = true
+        else
+          @can_update = true
+        end
       end
+      @can_update = false if @duplicate_key_found
     end
   end
 

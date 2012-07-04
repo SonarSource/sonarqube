@@ -12,10 +12,18 @@
     }
   </script>  
   
-  <h1><%= message('update_key.bulk_update_confirmation_page') -%></h1>
+  <h1><%= @can_update ? message('update_key.bulk_update_confirmation_page') : message('update_key.bulk_update_impossible') -%></h1>
   <br/>
   <p>
-    <%= @can_update ? message('update_key.keys_will_be_updated_as_follows') : message('update_key.cant_update_because_duplicate_keys', :params => [@old_prefix, @new_prefix]) -%>
+    <% if @can_update %>
+      <%= message('update_key.keys_will_be_updated_as_follows') -%>
+    <% else %>
+      <% if @duplicate_key_found %>
+        <%= message('update_key.cant_update_because_duplicate_keys', :params => [@old_prefix, @new_prefix]) -%>
+      <% else %>
+        <%= message('update_key.no_key_to_update', :params => @old_prefix) -%>
+      <% end %>
+    <% end %>
   </p>
   
   <table class="data" style="width:1%; margin-top: 10px">
@@ -31,13 +39,12 @@
   </table>
   
   <% if @can_update %>
-    <% form_tag( {:action => 'perform_key_bulk_update', :id => @project.id }) do -%>
+    <% form_tag( {:action => 'perform_key_bulk_update', :id => @project.id }, :onsubmit => "update_launched();$('loading_bulk_update').show();") do -%>
       <input type="hidden" value="<%= @project.id -%>" name="id" id="project_id">
       <input type="hidden" value="<%= @old_prefix -%>" name="old_prefix" id="old_prefix">
       <input type="hidden" value="<%= @new_prefix -%>" name="new_prefix" id="new_prefix">
       <br/>
-      <%= submit_tag message('update_key.rename'), :id => 'bulk_update_button', :class => 'action',
-                             :onclick => "update_launched();$('loading_bulk_update').show();" %>
+      <%= submit_tag message('update_key.rename'), :id => 'bulk_update_button', :class => 'action' -%>
       <a href="<%= url_for :action => 'key', :id => @project.key -%>"><%= message('cancel') -%></a>
       <span class="loading" id="loading_bulk_update" style="display: none; padding: 3px 10px;"></span>
     <% end %>
