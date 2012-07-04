@@ -19,11 +19,9 @@
  */
 package org.sonar.server.notifications;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
@@ -32,73 +30,45 @@ import org.sonar.core.notification.DefaultNotificationManager;
 import org.sonar.core.notification.NotificationQueueElement;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class NotificationServiceTest {
+  private static String CREATOR_SIMON = "simon";
+  private static String CREATOR_EVGENY = "evgeny";
+  private static String ASSIGNEE_SIMON = "simon";
 
-  private static String USER_SIMON = "simon";
-  private static String USER_EVGENY = "evgeny";
+  private final DefaultNotificationManager manager = mock(DefaultNotificationManager.class);
+  private final NotificationQueueElement queueElement = mock(NotificationQueueElement.class);
+  private final Notification notification = mock(Notification.class);
+  private final NotificationChannel emailChannel = mock(NotificationChannel.class);
+  private final NotificationChannel gtalkChannel = mock(NotificationChannel.class);
+  private final NotificationDispatcher commentOnReviewAssignedToMe = mock(NotificationDispatcher.class);
+  private final NotificationDispatcher commentOnReviewCreatedByMe = mock(NotificationDispatcher.class);
 
-  private NotificationChannel emailChannel;
-  private NotificationChannel gtalkChannel;
-
-  private String assignee;
-  private String creator;
-
-  private DefaultNotificationManager manager;
   private NotificationService service;
 
-  @Before
-  public void setUp() {
-    emailChannel = mock(NotificationChannel.class);
+  private void setUpMocks(String creator, String assignee) {
     when(emailChannel.getKey()).thenReturn("email");
-
-    gtalkChannel = mock(NotificationChannel.class);
     when(gtalkChannel.getKey()).thenReturn("gtalk");
-
-    NotificationDispatcher commentOnReviewAssignedToMe = mock(NotificationDispatcher.class);
     when(commentOnReviewAssignedToMe.getKey()).thenReturn("comment on review assigned to me");
-    doAnswer(new Answer<Object>() {
-      public Object answer(InvocationOnMock invocation) throws Throwable {
-        ((NotificationDispatcher.Context) invocation.getArguments()[1]).addUser(assignee);
-        return null;
-      }
-    }).when(commentOnReviewAssignedToMe).dispatch(any(Notification.class), any(NotificationDispatcher.Context.class));
-
-    NotificationDispatcher commentOnReviewCreatedByMe = mock(NotificationDispatcher.class);
     when(commentOnReviewCreatedByMe.getKey()).thenReturn("comment on review created by me");
-    doAnswer(new Answer<Object>() {
-      public Object answer(InvocationOnMock invocation) throws Throwable {
-        ((NotificationDispatcher.Context) invocation.getArguments()[1]).addUser(creator);
-        return null;
-      }
-    }).when(commentOnReviewCreatedByMe).dispatch(any(Notification.class), any(NotificationDispatcher.Context.class));
+    when(queueElement.getNotification()).thenReturn(notification);
+    when(manager.getFromQueue()).thenReturn(queueElement).thenReturn(null);
+    doAnswer(addUser(assignee)).when(commentOnReviewAssignedToMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
+    doAnswer(addUser(creator)).when(commentOnReviewCreatedByMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
 
-    NotificationDispatcher[] dispatchers = new NotificationDispatcher[] {commentOnReviewAssignedToMe, commentOnReviewCreatedByMe};
-    NotificationChannel[] channels = new NotificationChannel[] { emailChannel, gtalkChannel };
-    manager = mock(DefaultNotificationManager.class);
-    Settings settings = new Settings(new PropertyDefinitions(NotificationService.class));
-    settings.setProperty("sonar.notifications.delay", 1L); // delay 1 second
-    service = spy(new NotificationService(settings, manager, dispatchers, channels));
-    doReturn(false).when(manager).isEnabled(any(String.class), any(String.class), any(String.class));
-  }
+    Settings settings = new Settings().setProperty("sonar.notifications.delay", 1L); // delay 1 second
 
-  @Test
-  public void shouldPeriodicallyProcessQueue() throws Exception {
-    NotificationQueueElement queueElement = mock(NotificationQueueElement.class);
-    Notification startNotification = mock(Notification.class);
-    Notification afterDelayNotification = mock(Notification.class);
-    Notification stopNotification = mock(Notification.class);
-    when(queueElement.getNotification()).thenReturn(startNotification, afterDelayNotification, stopNotification);
-    when(manager.getFromQueue()).thenReturn(queueElement).thenReturn(null).thenReturn(queueElement).thenReturn(null).thenReturn(queueElement).thenReturn(null);
-    doNothing().when(service).deliver(any(Notification.class));
-
-    service.start();
-    verify(service, timeout(15000)).deliver(startNotification);
-    verify(service, timeout(1500)).deliver(afterDelayNotification);
-
-    service.stop();
-    verify(service, timeout(1500)).deliver(stopNotification);
+    service = new NotificationService(settings, manager,
+        new NotificationDispatcher[] {commentOnReviewAssignedToMe, commentOnReviewCreatedByMe},
+        new NotificationChannel[] {emailChannel, gtalkChannel});
   }
 
   /**
@@ -113,20 +83,15 @@ public class NotificationServiceTest {
    */
   @Test
   public void scenario1() {
-    doReturn(true).when(manager).isEnabled(USER_SIMON, "email", "comment on review assigned to me");
-    doReturn(true).when(manager).isEnabled(USER_SIMON, "email", "comment on review created by me");
+    setUpMocks(CREATOR_SIMON, ASSIGNEE_SIMON);
+    when(manager.isEnabled(CREATOR_SIMON, "email", "comment on review created by me")).thenReturn(true);
+    when(manager.isEnabled(ASSIGNEE_SIMON, "email", "comment on review assigned to me")).thenReturn(true);
 
-    Notification notification = mock(Notification.class);
-    creator = USER_SIMON;
-    assignee = USER_SIMON;
+    service.start();
+    verify(emailChannel, timeout(2000)).deliver(notification, ASSIGNEE_SIMON);
+    service.stop();
 
-    service.deliver(notification);
-
-    verify(emailChannel, atLeast(1)).getKey();
-    verify(gtalkChannel, atLeast(1)).getKey();
-    verify(emailChannel).deliver(notification, USER_SIMON);
-    verifyNoMoreInteractions(emailChannel);
-    verifyNoMoreInteractions(gtalkChannel);
+    verify(gtalkChannel, never()).deliver(notification, ASSIGNEE_SIMON);
   }
 
   /**
@@ -142,21 +107,17 @@ public class NotificationServiceTest {
    */
   @Test
   public void scenario2() {
-    doReturn(true).when(manager).isEnabled(USER_EVGENY, "gtalk", "comment on review created by me");
-    doReturn(true).when(manager).isEnabled(USER_SIMON, "email", "comment on review assigned to me");
+    setUpMocks(CREATOR_EVGENY, ASSIGNEE_SIMON);
+    when(manager.isEnabled(CREATOR_EVGENY, "gtalk", "comment on review created by me")).thenReturn(true);
+    when(manager.isEnabled(ASSIGNEE_SIMON, "email", "comment on review assigned to me")).thenReturn(true);
 
-    Notification notification = mock(Notification.class);
-    creator = USER_EVGENY;
-    assignee = USER_SIMON;
+    service.start();
+    verify(emailChannel, timeout(2000)).deliver(notification, ASSIGNEE_SIMON);
+    verify(gtalkChannel, timeout(2000)).deliver(notification, CREATOR_EVGENY);
+    service.stop();
 
-    service.deliver(notification);
-
-    verify(emailChannel, atLeast(1)).getKey();
-    verify(gtalkChannel, atLeast(1)).getKey();
-    verify(emailChannel).deliver(notification, USER_SIMON);
-    verify(gtalkChannel).deliver(notification, USER_EVGENY);
-    verifyNoMoreInteractions(emailChannel);
-    verifyNoMoreInteractions(gtalkChannel);
+    verify(emailChannel, never()).deliver(notification, CREATOR_EVGENY);
+    verify(gtalkChannel, never()).deliver(notification, ASSIGNEE_SIMON);
   }
 
   /**
@@ -171,21 +132,17 @@ public class NotificationServiceTest {
    */
   @Test
   public void scenario3() {
-    doReturn(true).when(manager).isEnabled(USER_SIMON, "email", "comment on review assigned to me");
-    doReturn(true).when(manager).isEnabled(USER_SIMON, "gtalk", "comment on review assigned to me");
+    setUpMocks(CREATOR_EVGENY, ASSIGNEE_SIMON);
+    when(manager.isEnabled(ASSIGNEE_SIMON, "email", "comment on review assigned to me")).thenReturn(true);
+    when(manager.isEnabled(ASSIGNEE_SIMON, "gtalk", "comment on review assigned to me")).thenReturn(true);
 
-    Notification notification = mock(Notification.class);
-    creator = USER_EVGENY;
-    assignee = USER_SIMON;
+    service.start();
+    verify(emailChannel, timeout(2000)).deliver(notification, ASSIGNEE_SIMON);
+    verify(gtalkChannel, timeout(2000)).deliver(notification, ASSIGNEE_SIMON);
+    service.stop();
 
-    service.deliver(notification);
-
-    verify(emailChannel, atLeast(1)).getKey();
-    verify(gtalkChannel, atLeast(1)).getKey();
-    verify(emailChannel).deliver(notification, USER_SIMON);
-    verify(gtalkChannel).deliver(notification, USER_SIMON);
-    verifyNoMoreInteractions(emailChannel);
-    verifyNoMoreInteractions(gtalkChannel);
+    verify(emailChannel, never()).deliver(notification, CREATOR_EVGENY);
+    verify(gtalkChannel, never()).deliver(notification, CREATOR_EVGENY);
   }
 
   /**
@@ -200,16 +157,21 @@ public class NotificationServiceTest {
    */
   @Test
   public void scenario4() {
-    Notification notification = mock(Notification.class);
-    creator = USER_EVGENY;
-    assignee = USER_SIMON;
+    setUpMocks(CREATOR_EVGENY, ASSIGNEE_SIMON);
 
-    service.deliver(notification);
+    service.start();
+    service.stop();
 
-    verify(emailChannel, atLeast(1)).getKey();
-    verify(gtalkChannel, atLeast(1)).getKey();
-    verifyNoMoreInteractions(emailChannel);
-    verifyNoMoreInteractions(gtalkChannel);
+    verify(emailChannel, never()).deliver(any(Notification.class), anyString());
+    verify(gtalkChannel, never()).deliver(any(Notification.class), anyString());
   }
 
+  private static Answer<Object> addUser(final String user) {
+    return new Answer<Object>() {
+      public Object answer(InvocationOnMock invocation) {
+        ((NotificationDispatcher.Context) invocation.getArguments()[1]).addUser(user);
+        return null;
+      }
+    };
+  }
 }

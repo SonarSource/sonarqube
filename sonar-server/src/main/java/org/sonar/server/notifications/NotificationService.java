@@ -19,10 +19,13 @@
  */
 package org.sonar.server.notifications;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
-import org.sonar.api.*;
+import org.sonar.api.Properties;
+import org.sonar.api.Property;
+import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
@@ -32,7 +35,11 @@ import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.notification.DefaultNotificationManager;
 import org.sonar.core.notification.NotificationQueueElement;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -40,27 +47,25 @@ import java.util.concurrent.TimeUnit;
 /**
  * @since 2.10
  */
-@org.sonar.api.Properties({
-    @Property(
-        key = NotificationService.PROPERTY_DELAY,
-        defaultValue = "60",
-        name = "Delay of notifications, in seconds",
-        project = false,
-        global = false)
+@Properties({
+  @Property(
+    key = NotificationService.PROPERTY_DELAY,
+    defaultValue = "60",
+    name = "Delay of notifications, in seconds",
+    project = false,
+    global = false)
 })
 public class NotificationService implements ServerComponent {
+  public static final String PROPERTY_DELAY = "sonar.notifications.delay";
 
   private static final TimeProfiler TIME_PROFILER = new TimeProfiler(Logs.INFO).setLevelToDebug();
 
-  public static final String PROPERTY_DELAY = "sonar.notifications.delay";
+  private final long delayInSeconds;
+  private final DefaultNotificationManager manager;
+  private final NotificationChannel[] channels;
+  private final NotificationDispatcher[] dispatchers;
 
   private ScheduledExecutorService executorService;
-  private long delayInSeconds;
-
-  private DefaultNotificationManager manager;
-  private NotificationChannel[] channels;
-  private NotificationDispatcher[] dispatchers;
-
   private boolean stopping = false;
 
   /**
@@ -68,7 +73,7 @@ public class NotificationService implements ServerComponent {
    */
   public NotificationService(Settings settings, DefaultNotificationManager manager, NotificationDispatcher[] dispatchers) {
     this(settings, manager, dispatchers, new NotificationChannel[0]);
-    Logs.INFO.warn("There is no channels - all notifications would be ignored!");
+    Logs.INFO.warn("There is no channels - all notifications will be ignored!");
   }
 
   public NotificationService(Settings settings, DefaultNotificationManager manager, NotificationDispatcher[] dispatchers, NotificationChannel[] channels) {
@@ -91,19 +96,18 @@ public class NotificationService implements ServerComponent {
   public void stop() {
     try {
       stopping = true;
-      executorService.awaitTermination(5, TimeUnit.SECONDS);
       executorService.shutdown();
+      executorService.awaitTermination(5, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
       Logs.INFO.error("Error during stop of notification service", e);
     }
     Logs.INFO.info("Notification service stopped");
   }
 
-  /**
-   * Visibility has been relaxed for tests.
-   */
-  void processQueue() {
+  @VisibleForTesting
+  synchronized void processQueue() {
     TIME_PROFILER.start("Processing notifications queue");
+
     NotificationQueueElement queueElement = manager.getFromQueue();
     while (queueElement != null) {
       deliver(queueElement.getNotification());
@@ -112,13 +116,11 @@ public class NotificationService implements ServerComponent {
       }
       queueElement = manager.getFromQueue();
     }
+
     TIME_PROFILER.stop();
   }
 
-  /**
-   * Visibility has been relaxed for tests.
-   */
-  void deliver(Notification notification) {
+  private void deliver(Notification notification) {
     Logs.INFO.debug("Delivering notification " + notification);
     SetMultimap<String, NotificationChannel> recipients = HashMultimap.create();
     for (NotificationChannel channel : channels) {
