@@ -5,12 +5,16 @@
      project_profile = @project.profile 
 %>
 
-  <span style= "padding-right: 10px"><%= message('project_quality_profile.current_profile_for_x', :params => @project.name) -%></span>
+  <span style= "padding-right: 10px"><%= message('project_quality_profile.select_profile_for_x', :params => @project.name) -%></span>
 
   <select name="quality_profile" id="quality_profile">
-    <% @profiles.each do |profile| %>
-      <option <%= 'selected' if (project_profile && project_profile==profile) || (!project_profile && profile.default_profile) -%> 
-              value="<%= profile.id -%>"><%= profile.name -%></option>
+    <% 
+       @profiles.each do |profile| 
+         should_be_selected = (project_profile && project_profile==profile) || (!project_profile && profile.default_profile)
+         label = profile.name
+         label += ' (' + message('project_quality_profile.default_profile') + ')' if profile.default_profile
+    %>
+      <option <%= 'selected' if should_be_selected -%> value="<%= profile.id -%>"><%= label -%></option>
     <% end %>
   </select>
   
