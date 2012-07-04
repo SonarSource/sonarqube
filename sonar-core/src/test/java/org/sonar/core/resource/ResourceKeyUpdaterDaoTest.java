@@ -104,7 +104,7 @@ public class ResourceKeyUpdaterDaoTest extends DaoTestCase {
     Map<String, String> checkResults = dao.checkModuleKeysBeforeRenaming(1, "org.struts", "foo");
     assertThat(checkResults.size()).isEqualTo(3);
     assertThat(checkResults.get("org.struts:struts")).isEqualTo("foo:struts");
-    assertThat(checkResults.get("org.struts:struts-core")).isEqualTo("update_impossible");
+    assertThat(checkResults.get("org.struts:struts-core")).isEqualTo("#duplicate_key#");
     assertThat(checkResults.get("org.struts:struts-ui")).isEqualTo("foo:struts-ui");
   }
 
