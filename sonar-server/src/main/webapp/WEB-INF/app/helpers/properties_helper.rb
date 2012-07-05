@@ -24,17 +24,17 @@ module PropertiesHelper
     if definition.type.name()==PropertyType::TYPE_INTEGER
       text_field_tag definition.key(), val, :size => 10
 
-    elsif definition.type.name()==PropertyType::TYPE_FLOAT
-      text_field_tag definition.key(), val, :size => 10
-
     elsif definition.type.name()==PropertyType::TYPE_BOOLEAN
       check_box_tag definition.key(), "true", val=='true'
 
-    elsif definition.type.name()==PropertyType::TYPE_METRIC
-      select_tag definition.key(), options_grouped_by_domain(Metric.all.select{|m| m.display?}.sort_by{|m| m.short_name}, val, :include_empty => true)
+    elsif definition.type.name()==PropertyType::TYPE_FLOAT
+      text_field_tag definition.key(), val, :size => 10
 
     elsif definition.type.name()==PropertyType::TYPE_STRING
       text_field_tag definition.key(), val, :size => 10
+
+    elsif definition.type.name()==PropertyType::TYPE_METRIC
+      select_tag definition.key(), options_grouped_by_domain(Metric.all.select{|m| m.display?}.sort_by(&:short_name), val, :include_empty => true)
 
     elsif definition.type.name()==PropertyType::TYPE_FILTER
       user_filters = options_key(value, ::Filter.find(:all, :conditions => ['user_id=?', current_user.id]).sort_by(&:id))
@@ -44,6 +44,9 @@ module PropertiesHelper
       filter_link = link_to message('widget.filter.edit'), {:controller => :filters, :action => :manage}, :class => 'link-action'
 
       "#{filters_combo} #{filter_link}"
+
+    elsif definition.type.name()==PropertyType::TYPE_TEXT
+      text_area_tag definition.key(), val, :size => '40x6'
   else
       hidden_field_tag definition.key()
     end

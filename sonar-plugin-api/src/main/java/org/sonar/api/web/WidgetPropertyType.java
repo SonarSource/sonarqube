@@ -20,10 +20,44 @@
 package org.sonar.api.web;
 
 public enum WidgetPropertyType {
+  /**
+   * Integer value, positive or negative
+   */
   INTEGER,
+
+  /**
+   * True/False
+   */
   BOOLEAN,
+
+  /**
+   * Floating point number
+   */
   FLOAT,
+
+  /**
+   * Basic single line input field
+   */
   STRING,
-  METRIC, // @since 2.10
-  FILTER // @since 3.1
+
+  /**
+   * Sonar Metric
+   *
+   * @since 2.10
+   */
+  METRIC,
+
+  /**
+   * Filter id
+   *
+   * @since 3.1
+   */
+  FILTER,
+
+  /**
+   * Multiple line text-area
+   *
+   * @since 3.2
+   */
+  TEXT
 }
