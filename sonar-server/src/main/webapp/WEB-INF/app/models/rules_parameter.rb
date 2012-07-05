@@ -18,18 +18,11 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 class RulesParameter < ActiveRecord::Base
-
-  validates_presence_of :name, :param_type
+  include RulesParametersHelper
 
   PARAM_MAX_NUMBER = 4
 
-  PARAM_TYPE_STRING = "s"
-  PARAM_TYPE_STRING_LIST = "s{}"
-  PARAM_TYPE_INTEGER = "i"
-  PARAM_TYPE_INTEGER_LIST = "i{}"
-  PARAM_TYPE_BOOLEAN = "b"
-  PARAM_TYPE_REGEXP = "r"
-
+  validates_presence_of :name, :param_type
   belongs_to :rule
 
   def is_set_type
@@ -42,11 +35,11 @@ class RulesParameter < ActiveRecord::Base
 
   def description
     @l10n_description ||=
-        begin
-          result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getRuleParamDescription(I18n.locale, rule.repository_key, rule.plugin_rule_key, name())
-          result = read_attribute(:description) unless result
-          result
-        end
+      begin
+        result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getRuleParamDescription(I18n.locale, rule.repository_key, rule.plugin_rule_key, name())
+        result = read_attribute(:description) unless result
+        result
+      end
   end
 
   def description=(value)
@@ -54,24 +47,11 @@ class RulesParameter < ActiveRecord::Base
   end
 
   def readable_param_type
-    return "String" if param_type == PARAM_TYPE_STRING
-    return "Set of string (, as delimiter)" if param_type == PARAM_TYPE_STRING_LIST
-    return "Number" if param_type == PARAM_TYPE_INTEGER
-    return "Set of number (, as delimiter)" if param_type == PARAM_TYPE_INTEGER_LIST
-    return "Boolean" if param_type == PARAM_TYPE_BOOLEAN
-    return "Regular expression" if param_type == PARAM_TYPE_REGEXP
-    return "Set of values (, as delimiter)" if is_set_type
+    readable_type(param_type)
   end
 
   def input_box_size
-    return 15 if param_type == PARAM_TYPE_STRING or param_type == PARAM_TYPE_STRING_LIST or param_type == PARAM_TYPE_REGEXP
-    return 8 if param_type == PARAM_TYPE_INTEGER or param_type == PARAM_TYPE_INTEGER_LIST
-    return 4 if param_type == PARAM_TYPE_BOOLEAN
-    if is_set_type
-      size = (param_type.length / 2).to_i
-      size = 64 if size > 64
-      return size
-    end
+    input_size(param_type)
   end
 
   def validate_value(attribute, errors, value)
@@ -84,13 +64,13 @@ class RulesParameter < ActiveRecord::Base
           errors.add("#{value}", "Invalid value '" + provided_token + "'. Must be one of : " + allowed_tokens.join(", "))
         end
       end
-    elsif param_type == RulesParameter::PARAM_TYPE_INTEGER
+    elsif param_type == RulesParametersHelper::PARAM_TYPE_INTEGER
       begin
         Kernel.Integer(attribute)
       rescue
         errors.add("#{value}", "Invalid value '" + attribute + "'. Must be an integer.")
       end
-    elsif param_type == RulesParameter::PARAM_TYPE_INTEGER_LIST
+    elsif param_type == RulesParametersHelper::PARAM_TYPE_INTEGER_LIST
       provided_numbers = attribute.split(",")
       provided_numbers.each do |provided_number|
         begin
@@ -100,11 +80,11 @@ class RulesParameter < ActiveRecord::Base
           return
         end
       end
-    elsif param_type == RulesParameter::PARAM_TYPE_BOOLEAN
+    elsif param_type == RulesParametersHelper::PARAM_TYPE_BOOLEAN
       if attribute != "true" && attribute != "false"
         errors.add("#{value}", "Invalid value '" + attribute + "'. Must be one of : true,false")
       end
-    elsif param_type == RulesParameter::PARAM_TYPE_REGEXP
+    elsif param_type == RulesParametersHelper::PARAM_TYPE_REGEXP
       begin
         Regexp.new(attribute)
       rescue
