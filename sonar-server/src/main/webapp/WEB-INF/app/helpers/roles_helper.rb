@@ -18,43 +18,54 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 module RolesHelper
-  
+
   def users(role, resource_id=nil)
     resource_id=(resource_id.blank? ? nil : resource_id.to_i)
     user_roles=UserRole.find(:all, :include => 'user', :conditions => {:role => role, :resource_id => resource_id})
     users = user_roles.map { |ur| ur.user }
-    Api::Utils.insensitive_sort(users) {|user| user.name}
+    Api::Utils.insensitive_sort(users) { |user| user.name }
   end
 
   def all_users
     users = User.find(:all, :conditions => ["active=?", true])
-    Api::Utils.insensitive_sort(users) {|user| user.name}
+    Api::Utils.insensitive_sort(users) { |user| user.name }
   end
 
   def groups(role, resource_id=nil)
     resource_id=(resource_id.blank? ? nil : resource_id.to_i)
     group_roles=GroupRole.find(:all, :include => 'group', :conditions => {:role => role, :resource_id => resource_id})
-    groups = group_roles.map{|ur| ur.group}
-    Api::Utils.insensitive_sort(groups) {|group| group ? group.name : ''}
+    groups = group_roles.map { |ur| ur.group }
+    Api::Utils.insensitive_sort(groups) { |group| group ? group.name : '' }
   end
 
   def all_groups
-    [nil].concat(Api::Utils.insensitive_sort(Group.all) {|group| group.name})
+    [nil].concat(Api::Utils.insensitive_sort(Group.all) { |group| group.name })
   end
 
   def group_name(group)
     group ? group.name : 'Anyone'
   end
 
+  def default_project_groups(role, qualifier)
+    property_value=(controller.java_facade.getConfigurationValue("sonar.role.#{role}.#{qualifier}.defaultGroups")||'')
+    Api::Utils.insensitive_sort(property_value.split(','))
+  end
+
+  def default_project_users(role, qualifier)
+    property_value=(controller.java_facade.getConfigurationValue("sonar.role.#{role}.#{qualifier}.defaultUsers") || '')
+    Api::Utils.insensitive_sort(property_value.split(','))
+  end
+
   def role_name(role)
-    case(role.to_s)
-      when 'admin' then 'Administrators'
-      when 'default-admin' then 'Administrators'
-      when 'user' then 'Users'
-      when 'default-user' then 'Users'
-      when 'codeviewer' then 'Code viewers'
-      when 'default-codeviewer' then 'Code viewers'
-      else role.to_s
+    case (role.to_s)
+      when 'admin' then
+        'Administrators'
+      when 'user' then
+        'Users'
+      when 'codeviewer' then
+        'Code viewers'
+      else
+        role.to_s
     end
   end
 end

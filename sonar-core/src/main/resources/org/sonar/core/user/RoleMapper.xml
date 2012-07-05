@@ -12,4 +12,22 @@
     INSERT INTO user_roles (user_id, resource_id, role)
     VALUES (#{userId, jdbcType=INTEGER}, #{resourceId, jdbcType=INTEGER}, #{role, jdbcType=VARCHAR})
   </insert>
+
+  <delete id="deleteGroupRolesByResourceId" parameterType="long">
+    delete from group_roles where resource_id=#{id}
+  </delete>
+
+  <delete id="deleteUserRolesByResourceId" parameterType="long">
+    delete from user_roles where resource_id=#{id}
+  </delete>
+
+  <select id="countUserRoles" parameterType="long" resultType="int">
+    SELECT count(id)
+    FROM user_roles WHERE resource_id=#{id}
+  </select>
+
+  <select id="countGroupRoles" parameterType="long" resultType="int">
+    SELECT count(id)
+    FROM group_roles WHERE resource_id=#{id}
+  </select>
 </mapper>

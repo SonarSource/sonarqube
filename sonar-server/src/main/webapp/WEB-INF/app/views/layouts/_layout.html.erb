@@ -99,7 +99,7 @@
               <% end %>
               <% if (@project.project? || @project.view? || @project.subview?) %>
                 <li class="<%= 'selected' if request.request_uri.include?('/project_roles') -%>">
-                  <a href="<%= ApplicationController.root_context -%>/project_roles/index?resource=<%= @project.id -%>"><%= message('project_roles.page') -%></a></li>
+                  <a href="<%= ApplicationController.root_context -%>/project_roles/index?resource=<%= @project.id -%>"><%= message('roles.page') -%></a></li>
               <% end %>
               <%
                  # NOTE: we keep "@project.view? || @project.subview?" in the test for backward compatibility with the Views plugin
@@ -149,9 +149,9 @@
               <li class="<%= 'selected' if request.request_uri.include?('/groups') -%>">
                 <a href="<%= ApplicationController.root_context -%>/groups/index"><%= message('user_groups.page') -%></a></li>
               <li class="<%= 'selected' if request.request_uri.include?('/roles/global') -%>">
-                <a href="<%= ApplicationController.root_context -%>/roles/global"><%= message('global_roles.page') -%></a></li>
+                <a href="<%= ApplicationController.root_context -%>/roles/global"><%= message('system_administrators.page') -%></a></li>
               <li class="<%= 'selected' if request.request_uri.include?('/roles/projects') -%>">
-                <a href="<%= ApplicationController.root_context -%>/roles/projects"><%= message('project_roles.page') -%></a></li>
+                <a href="<%= ApplicationController.root_context -%>/roles/projects"><%= message('roles.page') -%></a></li>
 
               <li class="h2"><%= message('sidebar.system') -%></li>
               <li class="<%= 'selected' if request.request_uri.include?('/settings') -%>">

@@ -1,20 +1,15 @@
 <%
-  granted_groups=groups(@role, params[:resource])
+  granted_groups=default_project_groups(params[:role], params[:qualifier])
+  all_groups = ['Anyone'].concat(Api::Utils.insensitive_sort(Group.all.map{|group| group.name}))
   ungranted_groups=all_groups - granted_groups
-  if @project
-     title=h(@project.name)
-   else
-     title='System administrators'
-   end
 %>
 <div class="subtitle">&raquo; <a href="<%= url_for :action => params[:redirect], :q => params[:q], :qualifier => params[:qualifier] -%>">Back</a></div>
-<h1><%= title %></h1>
+<h1>TO BE DEFINED</h1>
 <br/>
 <div>
-  <form action="<%= url_for :action => 'set_groups' -%>" method="post">
-    <input name="resource" value="<%= params[:resource] -%>" type="hidden"/>
-    <input name="role" value="<%= @role -%>" type="hidden"/>
-    <input name="redirect" value="<%= params[:redirect] -%>" type="hidden"/>
+  <form action="<%= url_for :action => 'set_default_project_groups' -%>" method="POST">
+    <input name="role" value="<%= params[:role] -%>" type="hidden"/>
+    <input name="redirect" value="projects" type="hidden"/>
     <input name="q" value="<%= params[:q] -%>" type="hidden" />
     <input name="qualifier" value="<%= params[:qualifier] -%>" type="hidden" />
     <input name="page" value="<%= params[:page] -%>" type="hidden" />
@@ -25,7 +20,7 @@
             <h2>Ungranted groups</h2>
             <select name="from" id="from" size="20" style="margin: 5px 0; width: 300px;" multiple="multiple">
               <% ungranted_groups.each do |group| %>
-                <option value="<%= group ? group.id : '' -%>"><%= group_name(group) -%></option>
+                <option value="<%= h group -%>"><%= group -%></option>
               <% end %>
             </select>
           </td>
@@ -36,11 +31,11 @@
             <button id="select_left_all" onclick="SelectBox.move_all('to', 'from');return false;"><< unselect all</button>
           </td>
           <td class="box" style="padding: 5px 10px;" valign="top">
-            <h2>Role: <%= role_name(@role) -%></h2>
+            <h2>Role: <%= role_name(params[:role]) -%></h2>
 
-            <select name="groups[]" id="to" size="20" multiple="multiple" style="margin: 5px 0pt; width: 300px;">
+            <select name="groups[]" id="to" size="20" multiple="multiple" style="margin: 5px 0; width: 300px;">
               <% granted_groups.each do |group| %>
-                <option value="<%= group ? group.id : '' -%>"><%= group_name(group) -%></option>
+                <option value="<%= h group -%>"><%= group -%></option>
               <% end %>
             </select><br>
 

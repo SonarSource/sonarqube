@@ -21,17 +21,15 @@ package org.sonar.api.security;
 
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
-public class GroupRoleTest {
-
+public class DefaultGroupsTest {
   @Test
-  public void isAnyone() {
-    GroupRole gr = GroupRole.buildGlobalRole(GroupRole.ANYONE_GROUP_ID, "admin");
-    assertThat(gr.isAnyone(), is(true));
+  public void isAnyone_is_not_case_sensitive() {
+    assertThat(DefaultGroups.isAnyone("ANYONE")).isTrue();
+    assertThat(DefaultGroups.isAnyone("anyone")).isTrue();
+    assertThat(DefaultGroups.isAnyone(DefaultGroups.ANYONE)).isTrue();
 
-    gr = GroupRole.buildGlobalRole(3, "admin");
-    assertThat(gr.isAnyone(), is(false));
+    assertThat(DefaultGroups.isAnyone(DefaultGroups.ADMINISTRATORS)).isFalse();
   }
 }

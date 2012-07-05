@@ -22,33 +22,30 @@ package org.sonar.plugins.core.security;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Project;
-import org.sonar.api.security.GroupRole;
-
-import java.util.ArrayList;
-import java.util.Arrays;
+import org.sonar.api.security.ResourcePermissioning;
 
 import static org.mockito.Mockito.*;
 
 public class ApplyProjectRolesDecoratorTest {
 
-  private RoleManager roleManager;
+  private ResourcePermissioning resourcePermissioning;
   private ApplyProjectRolesDecorator decorator;
 
   @Before
   public void before() {
-    roleManager = mock(RoleManager.class);
-    decorator = new ApplyProjectRolesDecorator(roleManager);
+    resourcePermissioning = mock(ResourcePermissioning.class);
+    decorator = new ApplyProjectRolesDecorator(resourcePermissioning);
   }
 
   @Test
-  public void doNotApplySecurityWhenExistingRoles() {
+  public void doNotApplySecurityWhenExistingPermissions() {
     Project project = new Project("project");
     project.setId(10);
-    when(roleManager.getGroupRoles(10)).thenReturn(Arrays.<GroupRole>asList(new GroupRole()));
+    when(resourcePermissioning.hasPermissions(project)).thenReturn(true);
 
     decorator.decorate(project, null);
 
-    verify(roleManager, never()).affectDefaultRolesToResource(anyInt());
+    verify(resourcePermissioning, never()).grantDefaultPermissions(project);
   }
 
   @Test
@@ -56,23 +53,22 @@ public class ApplyProjectRolesDecoratorTest {
     Project project = new Project("project");
     Project module = new Project("module").setParent(project);
     module.setId(10);
-
-    when(roleManager.getGroupRoles(10)).thenReturn(Arrays.<GroupRole>asList());
+    when(resourcePermissioning.hasPermissions(project)).thenReturn(false);
 
     decorator.decorate(module, null);
 
-    verify(roleManager, never()).affectDefaultRolesToResource(anyInt());
+    verify(resourcePermissioning, never()).grantDefaultPermissions(module);
   }
 
   @Test
-  public void applySecurityWhenNoRoles() {
+  public void applySecurityWhenNoPermissions() {
     Project project = new Project("project");
     project.setId(10);
-    when(roleManager.getGroupRoles(10)).thenReturn(new ArrayList<GroupRole>());
+    when(resourcePermissioning.hasPermissions(project)).thenReturn(false);
 
     decorator.decorate(project, null);
 
-    verify(roleManager).affectDefaultRolesToResource(10);
+    verify(resourcePermissioning).grantDefaultPermissions(project);
   }
 
 }

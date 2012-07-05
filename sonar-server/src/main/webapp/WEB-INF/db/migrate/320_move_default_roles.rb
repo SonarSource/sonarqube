@@ -39,13 +39,13 @@ class MoveDefaultRoles < ActiveRecord::Migration
   end
 
   def self.up
-    if GroupRole.count==0
-      # fresh install
-      Property.delete_all(['prop_key like ?', 'sonar.role.%'])
-      Property.create(:prop_key => 'sonar.role.admin.project.defaultGroups', :text_value => 'sonar-administrators')
-      Property.create(:prop_key => 'sonar.role.user.project.defaultGroups', :text_value => 'sonar-users,Anyone')
-      Property.create(:prop_key => 'sonar.role.codeviewer.project.defaultGroups', :text_value => 'sonar-users,Anyone')
-    else
+    Group.reset_column_information
+    GroupRole.reset_column_information
+    User.reset_column_information
+    UserRole.reset_column_information
+    Property.reset_column_information
+
+    if GroupRole.count(:conditions => ['role like ?', 'default-%'])>0
       # upgrade from version < 3.2.
       move_groups
       move_users
@@ -74,10 +74,10 @@ class MoveDefaultRoles < ActiveRecord::Migration
     end
 
     groups_per_role.each_pair do |role, groups|
-      Property.create(:prop_key => "sonar.role.#{role}.project.defaultGroups", :text_value => groups.join(','))
+      Property.create(:prop_key => "sonar.role.#{role}.TRK.defaultGroups", :text_value => groups.join(','))
     end
 
-    #GroupRole.delete_all ['role like ?', 'default-%']
+    GroupRole.delete_all ['role like ?', 'default-%']
   end
 
   def self.move_users
@@ -94,9 +94,9 @@ class MoveDefaultRoles < ActiveRecord::Migration
     end
 
     users_per_role.each_pair do |role, users|
-      Property.create(:prop_key => "sonar.role.#{role}.project.defaultUsers", :text_value => users.join(','))
+      Property.create(:prop_key => "sonar.role.#{role}.TRK.defaultUsers", :text_value => users.join(','))
     end
 
-    #UserRole.delete_all ['role like ?', 'default-%']
+    UserRole.delete_all ['role like ?', 'default-%']
   end
 end

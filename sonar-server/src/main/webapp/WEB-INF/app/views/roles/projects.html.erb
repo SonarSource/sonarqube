@@ -1,55 +1,6 @@
-<h1 class="marginbottom10">Default Roles for New <%= @qualifiers.map { |q| message("qualifiers.#{q}") }.join(', ') -%></h1>
-
-<table class="data width100" id="default-project-roles">
-  <thead>
-  <tr>
-    <th>Role</th>
-    <th width="35%">Users</th>
-    <th width="35%">Groups</th>
-  </tr>
-  </thead>
-  <tbody>
-  <tr class="even">
-    <td valign="top"><b>Administrators</b><br/><span class="small gray">Ability to perform administration functions for a project by accessing its settings.</span></td>
-    <td valign="top" style="word-break:break-all;width:35%;">
-      <div style="vertical-align:top">
-        <span><%= users('default-admin').map(&:login).join(', ') %></span>
-        (<%= link_to "select", {:action => 'edit_users', :role => 'default-admin', :redirect => 'projects'}, :class => 'link-action' %>)
-      </div>
-    </td>
-    <td valign="top" style="word-break:break-all;width:35%;">
-      <span><%= groups('default-admin').map { |g| group_name(g) }.join(', ') %></span>
-      (<%= link_to "select", {:action => 'edit_groups', :role => 'default-admin', :redirect => 'projects'}, :class => 'link-action' %>)
-    </td>
-  </tr>
-  <tr class="odd">
-    <td valign="top"><b>Users</b><br/><span class="small gray">Ability to navigate through every service of a project, except viewing source code and settings.</span></td>
-    <td valign="top" style="word-break:break-all;width:35%;">
-      <span><%= users('default-user').map(&:login).join(', ') %></span>
-      (<%= link_to "select", {:action => 'edit_users', :role => 'default-user', :redirect => 'projects'}, :class => 'link-action' %>)
-    </td>
-    <td valign="top" style="word-break:break-all;width:35%;">
-      <span><%= groups('default-user').map { |g| group_name(g) }.join(', ') %></span>
-      (<%= link_to "select", {:action => 'edit_groups', :role => 'default-user', :redirect => 'projects'}, :class => 'link-action' %>)
-    </td>
-  </tr>
-  <tr class="even">
-    <td valign="top"><b>Code viewers</b><br/><span class="small gray">Ability to view source code of a project.</span></td>
-    <td valign="top" style="word-break:break-all;width:35%;">
-      <span><%= users('default-codeviewer').map(&:login).join(', ') %></span>
-      (<%= link_to "select", {:action => 'edit_users', :role => 'default-codeviewer', :redirect => 'projects'}, :class => 'link-action' %>)
-    </td>
-    <td valign="top" style="word-break:break-all;width:35%;">
-      <span><%= groups('default-codeviewer').map { |g| group_name(g) }.join(', ') %></span>
-      (<%= link_to "select", {:action => 'edit_groups', :role => 'default-codeviewer', :redirect => 'projects'}, :class => 'link-action' %>)
-    </td>
-  </tr>
-  </tbody>
-</table>
-<br/><br/>
+<h1 class="marginbottom10"><%= message('roles.page') -%></h1>
 
 <% if @qualifiers.size>1 %>
-
 <ul class="tabs" id="qualifier-tabs">
   <% @qualifiers.each do |q|
       css_class = (q==@qualifier ? 'selected' : '')
@@ -59,9 +10,57 @@
     </li>
   <% end %>
 </ul>
-<% else %>
-  <h1 class="spacer-bottom"><%= message("qualifiers.#{@qualifiers[0]}") -%></h1>
 <% end %>
+
+<table class="data width100" id="default-project-roles">
+  <thead>
+  <tr>
+    <th>Default Permissions For New <%= message("qualifiers.#{@qualifier}") -%></th>
+    <th width="35%">Users</th>
+    <th width="35%">Groups</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr class="even">
+    <td valign="top"><b>Role: Administrators</b><br/><span class="small gray">Ability to perform administration functions for a project by accessing its settings.</span></td>
+    <td valign="top" style="word-break:break-all;width:35%;">
+      <div style="vertical-align:top">
+        <span><%= default_project_users('admin', @qualifier).join(', ') -%></span>
+        (<%= link_to "select", {:action => 'edit_default_project_users', :role => 'admin', :redirect => 'projects', :qualifier => @qualifier}, :class => 'link-action' %>)
+      </div>
+    </td>
+    <td valign="top" style="word-break:break-all;width:35%;">
+      <span><%= default_project_groups('admin', @qualifier).join(', ') -%></span>
+      (<%= link_to "select", {:action => 'edit_default_project_groups', :role => 'admin', :redirect => 'projects', :qualifier => @qualifier}, :class => 'link-action' %>)
+    </td>
+  </tr>
+  <tr class="odd">
+    <td valign="top"><b>Role: Users</b><br/><span class="small gray">Ability to navigate through every service of a project, except viewing source code and settings.</span></td>
+    <td valign="top" style="word-break:break-all;width:35%;">
+      <span><%= default_project_users('user', @qualifier).join(', ') -%></span>
+      (<%= link_to "select", {:action => 'edit_default_project_users', :role => 'user', :redirect => 'projects', :qualifier => @qualifier}, :class => 'link-action' %>)
+    </td>
+    <td valign="top" style="word-break:break-all;width:35%;">
+      <span><%= default_project_groups('user', @qualifier).join(', ') -%></span>
+      (<%= link_to "select", {:action => 'edit_default_project_groups', :role => 'user', :redirect => 'projects', :qualifier => @qualifier}, :class => 'link-action' %>)
+    </td>
+  </tr>
+  <tr class="even">
+    <td valign="top"><b>Role: Code viewers</b><br/><span class="small gray">Ability to view source code of a project.</span></td>
+    <td valign="top" style="word-break:break-all;width:35%;">
+      <span><%= default_project_users('codeviewer', @qualifier).join(', ') -%></span>
+      (<%= link_to "select", {:action => 'edit_default_project_users', :role => 'codeviewer', :redirect => 'projects', :qualifier => @qualifier}, :class => 'link-action' %>)
+    </td>
+    <td valign="top" style="word-break:break-all;width:35%;">
+      <span><%= default_project_groups('codeviewer', @qualifier).join(', ') -%></span>
+      (<%= link_to "select", {:action => 'edit_default_project_groups', :role => 'codeviewer', :redirect => 'projects', :qualifier => @qualifier}, :class => 'link-action' %>)
+    </td>
+  </tr>
+  </tbody>
+</table>
+
+
+<br/><br/>
 
 <div class="<%= @qualifiers.size>1 ? 'tabs-panel' : '' -%>">
 

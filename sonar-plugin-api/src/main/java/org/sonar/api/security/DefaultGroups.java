@@ -17,22 +17,22 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.user;
+package org.sonar.api.security;
 
 /**
+ * Name of the default user groups
+ *
  * @since 3.2
  */
-public interface RoleMapper {
+public final class DefaultGroups {
+  private DefaultGroups() {
+  }
 
-  void insertGroupRole(GroupRoleDto groupRole);
+  public static final String ANYONE = "Anyone";
+  public static final String ADMINISTRATORS = "sonar-administrators";
+  public static final String USERS = "sonar-users";
 
-  void insertUserRole(UserRoleDto userRole);
-
-  void deleteGroupRolesByResourceId(Long resourceId);
-
-  void deleteUserRolesByResourceId(Long resourceId);
-
-  int countGroupRoles(Long resourceId);
-
-  int countUserRoles(Long resourceId);
+  public static boolean isAnyone(String groupName) {
+    return ANYONE.equalsIgnoreCase(groupName);
+  }
 }

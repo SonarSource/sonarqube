@@ -24,7 +24,10 @@ class RolesController < ApplicationController
   PER_PAGE = 2
 
   before_filter :admin_required
-  verify :method => :post, :only => [:grant_users, :grant_groups], :redirect_to => {:action => 'global'}
+  verify :method => :post, :only => [:set_users, :set_groups, :set_default_project_groups, :set_default_project_users], :redirect_to => {:action => 'global'}
+
+
+  # GET REQUESTS
 
   def global
   end
@@ -38,41 +41,69 @@ class RolesController < ApplicationController
     end
     @qualifier = params[:qualifier] || 'TRK'
 
+
     conditions_sql = 'projects.enabled=:enabled and projects.qualifier=:qualifier and projects.copy_resource_id is null'
     conditions_values = {:enabled => true, :qualifier => @qualifier}
-
+    joins = nil
     if params[:q].present?
-      conditions_sql += ' and projects.id in (select ri.resource_id from resource_index ri where ri.qualifier=:qualifier and ri.kee like :search)'
-      conditions_values[:search]="#{params[:q].downcase}%"
+      joins = "INNER JOIN resource_index on resource_index.resource_id=projects.id and resource_index.qualifier=#{ActiveRecord::Base::sanitize(@qualifier)} and resource_index.kee like #{ActiveRecord::Base::sanitize(params[:q] + '%')}"
     end
 
     @pagination = Api::Pagination.new(params)
     @projects=Project.find(:all,
-                           :include => %w(user_roles group_roles index),
+                           :joins => joins,
                            :conditions => [conditions_sql, conditions_values],
-                           :order => 'resource_index.kee',
+                           :order => 'projects.name',
                            :offset => @pagination.offset,
                            :limit => @pagination.limit)
-    @pagination.count=Project.count(:conditions => [conditions_sql, conditions_values])
+    @pagination.count=Project.count(:joins => joins, :conditions => [conditions_sql, conditions_values])
   end
 
   def edit_users
-    @project=Project.by_key(params[:resource]) if !params[:resource].blank?
+    @project=Project.by_key(params[:resource]) if params[:resource].present?
     @role = params[:role]
   end
 
   def edit_groups
-    @project=Project.by_key(params[:resource]) if !params[:resource].blank?
+    @project=Project.by_key(params[:resource]) if params[:resource].present?
     @role = params[:role]
   end
 
-  def grant_users
+  def edit_default_project_groups
+    bad_request('Missing role') if params[:role].blank?
+    bad_request('Missing qualifier') if params[:qualifier].blank?
+  end
+
+  def edit_default_project_users
+    bad_request('Missing role') if params[:role].blank?
+    bad_request('Missing qualifier') if params[:qualifier].blank?
+  end
+
+  # POST REQUESTS
+
+  def set_users
+    bad_request('Missing role') if params[:role].blank?
     UserRole.grant_users(params[:users], params[:role], params[:resource])
     redirect
   end
 
-  def grant_groups
+  def set_groups
+    bad_request('Missing role') if params[:role].blank?
     GroupRole.grant_groups(params[:groups], params[:role], params[:resource])
+    redirect
+  end
+
+  def set_default_project_groups
+    bad_request('Missing role') if params[:role].blank?
+    bad_request('Missing qualifier') if params[:qualifier].blank?
+    Property.set("sonar.role.#{params[:role]}.#{params[:qualifier]}.defaultGroups", params[:groups].join(','))
+    redirect
+  end
+
+  def set_default_project_users
+    bad_request('Missing role') if params[:role].blank?
+    bad_request('Missing qualifier') if params[:qualifier].blank?
+    Property.set("sonar.role.#{params[:role]}.#{params[:qualifier]}.defaultUsers", params[:users].join(','))
     redirect
   end
 

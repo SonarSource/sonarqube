@@ -21,21 +21,17 @@ package org.sonar.plugins.core.security;
 
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.security.ResourcePermissioning;
 
 public class ApplyProjectRolesDecorator implements Decorator {
 
-  private RoleManager roleManager;
+  private final ResourcePermissioning resourcePermissioning;
 
-  ApplyProjectRolesDecorator(RoleManager roleManager) {
-    this.roleManager = roleManager;
-  }
-
-  public ApplyProjectRolesDecorator(DatabaseSession session) {
-    this.roleManager = new RoleManager(session);
+  public ApplyProjectRolesDecorator(ResourcePermissioning resourcePermissioning) {
+    this.resourcePermissioning = resourcePermissioning;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -44,29 +40,15 @@ public class ApplyProjectRolesDecorator implements Decorator {
 
   public void decorate(Resource resource, DecoratorContext context) {
     if (shouldDecorateResource(resource)) {
-      Project project = (Project) resource;
-      roleManager.affectDefaultRolesToResource(project.getId());
+      resourcePermissioning.grantDefaultPermissions(resource);
     }
   }
 
   private boolean shouldDecorateResource(Resource resource) {
-    if (isProject(resource)) {
-      Project project = (Project) resource;
-      return project.getId() != null && countRoles(project.getId()) == 0;
-    }
-    return false;
+    return resource.getId() != null && isProject(resource) && !resourcePermissioning.hasPermissions(resource);
   }
 
   private boolean isProject(Resource resource) {
-    if (Qualifiers.PROJECT.equals(resource.getQualifier()) ||
-        Qualifiers.VIEW.equals(resource.getQualifier()) ||
-        Qualifiers.SUBVIEW.equals(resource.getQualifier())) {
-      return resource instanceof Project;
-    }
-    return false;
-  }
-
-  private int countRoles(int resourceId) {
-    return roleManager.getUserRoles(resourceId).size() + roleManager.getGroupRoles(resourceId).size();
+    return Qualifiers.PROJECT.equals(resource.getQualifier()) || Qualifiers.VIEW.equals(resource.getQualifier());
   }
 }

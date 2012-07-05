@@ -1,0 +1,167 @@
+/*
+ * Sonar, open source software quality management tool.
+ * Copyright (C) 2008-2012 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * Sonar is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * Sonar is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Sonar; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ */
+package org.sonar.plugins.core.security;
+
+import org.apache.ibatis.session.SqlSession;
+import org.sonar.api.BatchExtension;
+import org.sonar.api.Properties;
+import org.sonar.api.Property;
+import org.sonar.api.config.Settings;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.security.DefaultGroups;
+import org.sonar.api.security.ResourcePermissioning;
+import org.sonar.api.web.UserRole;
+import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.user.*;
+
+/**
+ * @since 3.2
+ */
+@Properties({
+  @Property(key = "sonar.role." + UserRole.ADMIN + ".TRK.defaultGroups",
+    name = "Default groups for project administrators",
+    defaultValue = DefaultGroups.ADMINISTRATORS,
+    global = false,
+    project = false),
+  @Property(key = "sonar.role." + UserRole.USER + ".TRK.defaultGroups",
+    name = "Default groups for project users",
+    defaultValue = DefaultGroups.USERS + "," + DefaultGroups.ANYONE,
+    global = false,
+    project = false),
+  @Property(key = "sonar.role." + UserRole.CODEVIEWER + ".TRK.defaultGroups",
+    name = "Default groups for project code viewers",
+    defaultValue = DefaultGroups.USERS + "," + DefaultGroups.ANYONE,
+    global = false,
+    project = false)
+})
+public class DefaultResourcePermissioning implements ResourcePermissioning, BatchExtension {
+
+  private final Settings settings;
+  private final MyBatis myBatis;
+
+  public DefaultResourcePermissioning(Settings settings, MyBatis myBatis) {
+    this.settings = settings;
+    this.myBatis = myBatis;
+  }
+
+  public boolean hasPermissions(Resource resource) {
+    if (resource.getId() != null) {
+      SqlSession session = myBatis.openSession();
+      try {
+        RoleMapper roleMapper = session.getMapper(RoleMapper.class);
+        Long resourceId = new Long(resource.getId());
+        return roleMapper.countGroupRoles(resourceId) + roleMapper.countUserRoles(resourceId) > 0;
+
+      } finally {
+        MyBatis.closeQuietly(session);
+      }
+    }
+    return false;
+  }
+
+  public void addUserPermissions(Resource resource, String login, String role) {
+    if (resource.getId() != null) {
+      SqlSession session = myBatis.openSession();
+      try {
+        UserDto user = session.getMapper(UserMapper.class).selectUserByLogin(login);
+        if (user != null) {
+          UserRoleDto userRole = new UserRoleDto()
+            .setRole(role)
+            .setUserId(user.getId())
+            .setResourceId(new Long(resource.getId()));
+          session.getMapper(RoleMapper.class).insertUserRole(userRole);
+          session.commit();
+        }
+      } finally {
+        MyBatis.closeQuietly(session);
+      }
+    }
+  }
+
+  public void addGroupPermissions(Resource resource, String groupName, String role) {
+    if (resource.getId() != null) {
+      SqlSession session = myBatis.openSession();
+      try {
+        GroupRoleDto groupRole = new GroupRoleDto()
+          .setRole(role)
+          .setResourceId(new Long(resource.getId()));
+        if (DefaultGroups.isAnyone(groupName)) {
+          session.getMapper(RoleMapper.class).insertGroupRole(groupRole);
+          session.commit();
+        } else {
+          GroupDto group = session.getMapper(UserMapper.class).selectGroupByName(groupName);
+          if (group != null) {
+            session.getMapper(RoleMapper.class).insertGroupRole(groupRole.setGroupId(group.getId()));
+            session.commit();
+          }
+        }
+      } finally {
+        MyBatis.closeQuietly(session);
+      }
+    }
+  }
+
+  public void grantDefaultPermissions(Resource resource) {
+    if (resource.getId() != null) {
+      SqlSession session = myBatis.openSession();
+      try {
+        removePermissions(resource, session);
+        grantDefaultPermissions(resource, UserRole.ADMIN, session);
+        grantDefaultPermissions(resource, UserRole.USER, session);
+        grantDefaultPermissions(resource, UserRole.CODEVIEWER, session);
+        session.commit();
+      } finally {
+        MyBatis.closeQuietly(session);
+      }
+    }
+  }
+
+  private void removePermissions(Resource resource, SqlSession session) {
+    Long resourceId = new Long(resource.getId());
+    RoleMapper mapper = session.getMapper(RoleMapper.class);
+    mapper.deleteGroupRolesByResourceId(resourceId);
+    mapper.deleteUserRolesByResourceId(resourceId);
+  }
+
+  private void grantDefaultPermissions(Resource resource, String role, SqlSession session) {
+    UserMapper userMapper = session.getMapper(UserMapper.class);
+    RoleMapper roleMapper = session.getMapper(RoleMapper.class);
+    String[] groupNames = settings.getStringArrayBySeparator("sonar.role." + role + "." + resource.getQualifier() + ".defaultGroups", ",");
+    for (String groupName : groupNames) {
+      GroupRoleDto groupRole = new GroupRoleDto().setRole(role).setResourceId(new Long(resource.getId()));
+      if (DefaultGroups.isAnyone(groupName)) {
+        roleMapper.insertGroupRole(groupRole);
+      } else {
+        GroupDto group = userMapper.selectGroupByName(groupName);
+        if (group != null) {
+          roleMapper.insertGroupRole(groupRole.setGroupId(group.getId()));
+        }
+      }
+    }
+
+    String[] logins = settings.getStringArrayBySeparator("sonar.role." + role + "." + resource.getQualifier() + ".defaultUsers", ",");
+    for (String login : logins) {
+      UserDto user = userMapper.selectUserByLogin(login);
+      if (user != null) {
+        roleMapper.insertUserRole(new UserRoleDto().setRole(role).setUserId(user.getId()).setResourceId(new Long(resource.getId())));
+      }
+    }
+  }
+}

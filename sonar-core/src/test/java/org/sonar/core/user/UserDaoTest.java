@@ -21,12 +21,12 @@ package org.sonar.core.user;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.core.persistence.DaoTestCase;
+import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 
-public class UserDaoTest extends DaoTestCase {
+public class UserDaoTest extends AbstractDaoTestCase {
 
   private UserDao dao;
 

@@ -17,22 +17,25 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.user;
+package org.sonar.api.security;
+
+import org.sonar.api.BatchComponent;
+import org.sonar.api.resources.Resource;
 
 /**
+ * Grant access to newly created projects.
+ *
+ * <p>This component is not supposed to be called by standard plugins.</p>
+ *
  * @since 3.2
  */
-public interface RoleMapper {
+public interface ResourcePermissioning extends BatchComponent {
 
-  void insertGroupRole(GroupRoleDto groupRole);
+  boolean hasPermissions(Resource resource);
 
-  void insertUserRole(UserRoleDto userRole);
+  void grantDefaultPermissions(Resource resource);
 
-  void deleteGroupRolesByResourceId(Long resourceId);
+  void addUserPermissions(Resource resource, String login, String role);
 
-  void deleteUserRolesByResourceId(Long resourceId);
-
-  int countGroupRoles(Long resourceId);
-
-  int countUserRoles(Long resourceId);
+  void addGroupPermissions(Resource resource, String groupName, String role);
 }
