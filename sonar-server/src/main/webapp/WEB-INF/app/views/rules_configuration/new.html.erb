@@ -14,7 +14,7 @@
   <tr>
     <td width="1%" nowrap><%= message('name') -%>:</td>
     <td class="sep"> </td>
-    <td><input type="text" name="rule[name]" size="80"></input></td>
+    <td><input type="text" name="rule[name]" size="80"/></td>
   </tr>
   <tr>
     <td width="1%" nowrap><%= message('default_severity') -%>:</td>
@@ -30,7 +30,7 @@
       <td width="1%" nowrap><%= parameter.name %>:</td>
       <td class="sep"> </td>
       <td>
-        <input type="text" name="rule_param[<%= parameter.name -%>]" value=""></input>
+        <input type="text" name="rule_param[<%= parameter.name -%>]" value=""/>
         <span class="small"><%= parameter.description %></span>
       </td>
     </tr>
@@ -45,7 +45,7 @@
   </tr>
   <tr>
     <td colspan="3">
-      <input type="submit" value="<%= message('create') -%>"></input> <a href="<%= url_for :action => 'index', :id => @profile.id -%>"><%= message('cancel') -%></a>
+      <input type="submit" value="<%= message('create') -%>"/> <a href="<%= url_for :action => 'index', :id => @profile.id -%>"><%= message('cancel') -%></a>
     </td>
   </tr>
 </table>

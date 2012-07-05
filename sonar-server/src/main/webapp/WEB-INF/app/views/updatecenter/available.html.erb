@@ -71,10 +71,10 @@ function installPlugin(key) {
             <tr>
               <td colspan="2">
               <% if plugin.getTermsConditionsUrl() %>
-              <input type="checkbox" id="tc-<%= plugin.getKey() -%>"></input> I accept the <%= link_to 'Terms and Conditions', plugin.getTermsConditionsUrl(), :class => 'external' %>
+              <input type="checkbox" id="tc-<%= plugin.getKey() -%>"/> I accept the <%= link_to 'Terms and Conditions', plugin.getTermsConditionsUrl(), :class => 'external' %>
               <% end %>
               <form method="post" action="<%= ApplicationController.root_context -%>/updatecenter/install?from=available&key=<%= plugin.getKey() -%>&version=<%= update.getRelease().getVersion() -%>" style="display: inline-block" id="install-form-<%= plugin.getKey() -%>">
-                <input type="submit" value="Install" onClick="installPlugin('<%= plugin.getKey() -%>');return false;" id="submit-<%= plugin.getKey() -%>"></input>
+                <input type="submit" value="Install" onClick="installPlugin('<%= plugin.getKey() -%>');return false;" id="submit-<%= plugin.getKey() -%>"/>
               </form>
             </td>
             </tr>

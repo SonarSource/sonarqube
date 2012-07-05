@@ -27,7 +27,7 @@
         </optgroup>
       <% end %>
     </select>
-    <input type="submit" id="add_column_button" value="<%= message('add_verb') -%>"></input>
+    <input type="submit" id="add_column_button" value="<%= message('add_verb') -%>"/>
     </form>
   </td>
 </tr>
@@ -55,8 +55,8 @@
   <td class="keyCell"><%= message('page_size') -%>:</td>
   <td>
     <form id="page_size_form" action="<%= url_for :action => 'set_page_size' -%>" method="post">
-      <input type="hidden" name="id" value="<%= @filter.id -%>"></input>
-      <input type="text" name="size" value="<%= @filter.page_size -%>" maxsize="3" size="3"></input>
+      <input type="hidden" name="id" value="<%= @filter.id -%>"/>
+      <input type="text" name="size" value="<%= @filter.page_size -%>" maxsize="3" size="3"/>
       <input type="submit" id="set_page_size_submit" value="<%= message('change_verb') -%>"/>
       <span class="comments"><%= message('min') -%> <%= ::Filter::MIN_PAGE_SIZE -%>, <%= message('max').downcase -%> <%= ::Filter::MAX_PAGE_SIZE -%></span>
    </td>

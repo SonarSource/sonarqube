@@ -50,17 +50,17 @@
 
 <% if administrator? %>
   <form class="admin" id="create-form-<%= language.getKey()-%>" action="<%= url_for :action => 'create' -%>" style="display: none" enctype="multipart/form-data" method="post">
-    <input type="hidden" name="language" value="<%= language.getKey() -%>"></input>
+    <input type="hidden" name="language" value="<%= language.getKey() -%>"/>
     <table class="spaced width100">
       <tr>
         <td width="1%" nowrap><%= message('name') -%>: </td>
-        <td><input type="text" name="name" id="create-form-<%= language.getKey()-%>-name"></input></td>
+        <td><input type="text" name="name" id="create-form-<%= language.getKey()-%>-name"/></td>
       </tr>
       <% importers.to_a.sort{|x,y| x.getName() <=> y.getName()}.each do |importer| %>
       <tr>
         <td width="1%" nowrap><%= importer.getName() -%>: </td>
         <td>
-          <%= file_field_tag "backup[#{importer.getKey()}]" %></input>
+          <%= file_field_tag "backup[#{importer.getKey()}]" %>
           <span class="note"><%= message('quality_profiles.optional_configuration_file') -%></span>
         </td>
       </tr>
@@ -68,7 +68,7 @@
 
       <tr>
         <td colspan="2">
-          <input type="submit" value="<%= message('quality_profiles.create_x_language_profile', :params => language.getName()) -%>" id="create-submit-<%= language.getKey() -%>"></input>
+          <input type="submit" value="<%= message('quality_profiles.create_x_language_profile', :params => language.getName()) -%>" id="create-submit-<%= language.getKey() -%>"/>
           <a href="#" onclick="$('create-form-<%= language.getKey()-%>').reset();$('create-form-<%= language.getKey()-%>').hide();return false;"><%= message('cancel') -%></a>
         </td>
       </tr>
@@ -124,7 +124,7 @@
          <td align="right">
           <% if !profile.provided? %>
              <% form_tag(:action => 'backup', :id => profile.id) do -%>
-              <input type="submit" name="button_backup" id="backup_<%= u profile.key %>" value="<%= message('backup_verb') -%>"></input>
+              <input type="submit" name="button_backup" id="backup_<%= u profile.key %>" value="<%= message('backup_verb') -%>"/>
             <% end
             end %>
         </td>

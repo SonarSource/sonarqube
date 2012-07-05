@@ -53,7 +53,7 @@ function upgradePlugin(key) {
          <td> </td>
          <td colspan="5">
           <form method="post" id="upgrade-form-<%= plugin.getKey() -%>" action="<%= ApplicationController.root_context -%>/updatecenter/install?from=updates&key=<%= plugin.getKey() -%>&version=<%= @last_compatible[plugin.getKey()] -%>" style="display: inline-block">
-             <input type="submit" id="upgrade-submit-<%= plugin.getKey() -%>" value="Upgrade to <%= @last_compatible[plugin.getKey()] -%>" onClick="upgradePlugin('<%= plugin.getKey() -%>');return false;"></input>
+             <input type="submit" id="upgrade-submit-<%= plugin.getKey() -%>" value="Upgrade to <%= @last_compatible[plugin.getKey()] -%>" onClick="upgradePlugin('<%= plugin.getKey() -%>');return false;"/>
            </form>
           </td>
         </tr>

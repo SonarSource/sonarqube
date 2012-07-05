@@ -4,7 +4,7 @@
 <div class="tabs-panel">
 <% if is_admin? %>
 <form action="<%= url_for :action => 'set_projects' -%>" method="post" id="select_projects_form">
-  <input type="hidden" name="id" value="<%= @profile.id -%>"></input>
+  <input type="hidden" name="id" value="<%= @profile.id -%>"/>
 <table>
   <tr>
     <td style="padding: 5px 0" valign="top">
@@ -27,7 +27,7 @@
       <%= options_from_collection_for_select(@profile.projects, "id", "name") %>
       </select><br/>
     <div style="padding:5px 0">
-	   <input type="submit" id="save" value="<%= message('save') -%>" onclick="SelectBox.select_all('to');submit();"></input>
+	   <input type="submit" id="save" value="<%= message('save') -%>" onclick="SelectBox.select_all('to');submit();"/>
 	  </div>
   </td>
 </tr>

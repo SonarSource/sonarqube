@@ -28,5 +28,5 @@
   <option value=">" <%= 'selected' if (criterion && criterion.operator=='>') -%>><%= message('greater_than') -%></option>
   <option value=">=" <%= 'selected' if (criterion && criterion.operator=='>=') -%>><%= message('greater_or_equals') -%></option>
 </select>
-<input type="text" name="criteria[<%= id -%>][value]" size="5" value="<%= criterion.value if criterion -%>" id="val-<%= id -%>"></input>
+<input type="text" name="criteria[<%= id -%>][value]" size="5" value="<%= criterion.value if criterion -%>" id="val-<%= id -%>"/>
 <a href="#" onClick="reset_criterion(<%= id -%>);return false;"><%= message('reset_verb') -%></a>

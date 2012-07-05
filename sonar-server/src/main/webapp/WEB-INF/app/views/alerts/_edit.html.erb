@@ -20,7 +20,7 @@
     <%= value_field(alert, alert.value_error, 'alert[value_error]') %> <%= alert.metric.suffix if alert.metric %>
   </td>
   <td width="120px" nowrap>
-    <input id="alert_submit" type="submit" value="<%= message('update_verb') -%>"></input>
+    <input id="alert_submit" type="submit" value="<%= message('update_verb') -%>"/>
     <%= link_to message('delete'), {:action => 'delete', :id => alert.id, :profile_id =>@profile.id}, :confirm => message('are_you_sure'), :method => :post, :class => 'action', :id => "delete_#{u alert.name}" %>
   </td>
 </tr>

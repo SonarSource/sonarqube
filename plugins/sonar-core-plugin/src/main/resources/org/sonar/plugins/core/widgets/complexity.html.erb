@@ -85,25 +85,25 @@ complexity=measure('complexity')
  if function_distribution
    count_dist+=1
  %>
-<input type="radio" name="cmp_dist" value="function_complexity_distribution" id="cmp_dist_function_complexity_distribution" onClick="selectComplexity('function_complexity_distribution');" <%= 'checked' if function_distribution==selected_distribution -%>></input> <label for="cmp_dist_function_complexity_distribution"><%= message('metric.functions.name') -%></label>
+<input type="radio" name="cmp_dist" value="function_complexity_distribution" id="cmp_dist_function_complexity_distribution" onClick="selectComplexity('function_complexity_distribution');" <%= 'checked' if function_distribution==selected_distribution -%>/> <label for="cmp_dist_function_complexity_distribution"><%= message('metric.functions.name') -%></label>
 <%
 end
 if paragraph_distribution
   count_dist+=1
 %>
-<input type="radio" name="cmp_dist" value="paragraph_complexity_distribution" id="cmp_dist_paragraph_complexity_distribution" onClick="selectComplexity('paragraph_complexity_distribution');" <%= 'checked' if paragraph_distribution==selected_distribution -%>></input> <label for="cmp_dist_paragraph_complexity_distribution"><%= message('metric.paragraphs.name') -%></label><%= '<br/>' if count_dist==2 %>
+<input type="radio" name="cmp_dist" value="paragraph_complexity_distribution" id="cmp_dist_paragraph_complexity_distribution" onClick="selectComplexity('paragraph_complexity_distribution');" <%= 'checked' if paragraph_distribution==selected_distribution -%>/> <label for="cmp_dist_paragraph_complexity_distribution"><%= message('metric.paragraphs.name') -%></label><%= '<br/>' if count_dist==2 %>
 <%
 end
 if class_distribution
   count_dist+=1
 %>
-<input type="radio" name="cmp_dist" value="class_complexity_distribution" id="cmp_dist_class_complexity_distribution" onClick="selectComplexity('class_complexity_distribution');" <%= 'checked' if class_distribution==selected_distribution -%>></input> <label for="cmp_dist_class_complexity_distribution"><%= message('metric.classes.name') -%></label><%= '<br/>' if count_dist==2 %>
+<input type="radio" name="cmp_dist" value="class_complexity_distribution" id="cmp_dist_class_complexity_distribution" onClick="selectComplexity('class_complexity_distribution');" <%= 'checked' if class_distribution==selected_distribution -%>/> <label for="cmp_dist_class_complexity_distribution"><%= message('metric.classes.name') -%></label><%= '<br/>' if count_dist==2 %>
 <%
 end
 if file_distribution
    count_dist+=1
 %>
-<input type="radio" name="cmp_dist" value="file_complexity_distribution" id="cmp_dist_file_complexity_distribution" onClick="selectComplexity('file_complexity_distribution');" <%= 'checked' if file_distribution==selected_distribution -%>></input> <label for="cmp_dist_file_complexity_distribution"><%= message('metric.files.name') -%></label>
+<input type="radio" name="cmp_dist" value="file_complexity_distribution" id="cmp_dist_file_complexity_distribution" onClick="selectComplexity('file_complexity_distribution');" <%= 'checked' if file_distribution==selected_distribution -%>/> <label for="cmp_dist_file_complexity_distribution"><%= message('metric.files.name') -%></label>
 <% end %>
 
  </form>
