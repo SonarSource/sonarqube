@@ -18,7 +18,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 module DashboardHelper
-  include WidgetPropertiesHelper
+  include PropertiesHelper
   include MetricsHelper
   include FiltersHelper
 

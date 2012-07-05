@@ -18,13 +18,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 class WidgetProperty < ActiveRecord::Base
-  TYPE_INTEGER = 'INTEGER'
-  TYPE_BOOLEAN = 'BOOLEAN'
-  TYPE_FLOAT = 'FLOAT'
-  TYPE_STRING = 'STRING'
-  TYPE_METRIC = 'METRIC'
-  TYPE_FILTER = 'FILTER'
-
   belongs_to :widget
 
   validates_length_of :kee, :within => 1..100
@@ -73,31 +66,13 @@ class WidgetProperty < ActiveRecord::Base
   end
 
   def self.text_to_value(text, type)
-    case type
-      when TYPE_INTEGER
-        text.to_i
-      when TYPE_FLOAT
-        Float(text)
-      when TYPE_BOOLEAN
-        text=='true'
-      when TYPE_METRIC
-        Metric.by_key(text)
-      else
-        text
-    end
+    PropertyType.text_to_value(text, type);
   end
 
   protected
   def validate
     errors.add_to_base("Unknown property: #{key}") unless java_definition
-    errors.add_to_base("Unknown type for property #{key}") unless type
-    if text_value.empty?
-      errors.add_to_base("#{key} is empty") unless java_definition.optional()
-    else
-      errors.add_to_base("#{key} is not an integer") if type==TYPE_INTEGER && !Api::Utils.is_integer?(text_value)
-      errors.add_to_base("#{key} is not a decimal number") if type==TYPE_FLOAT && !Api::Utils.is_number?(text_value)
-      errors.add_to_base("#{key} is not a boolean") if type==TYPE_BOOLEAN && !(text_value=="true" || text_value=="false")
-    end
+    PropertyType::validate(key, type, java_definition.optional(), text_value, errors);
   end
 
 end

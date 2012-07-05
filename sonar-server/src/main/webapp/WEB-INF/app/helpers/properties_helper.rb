@@ -17,26 +17,26 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-module WidgetPropertiesHelper
+module PropertiesHelper
 
   def property_value_field(definition, value)
     val=value || definition.defaultValue()
-    if definition.type.name()==WidgetProperty::TYPE_INTEGER
+    if definition.type.name()==PropertyType::TYPE_INTEGER
       text_field_tag definition.key(), val, :size => 10
 
-    elsif definition.type.name()==WidgetProperty::TYPE_FLOAT
+    elsif definition.type.name()==PropertyType::TYPE_FLOAT
       text_field_tag definition.key(), val, :size => 10
 
-    elsif definition.type.name()==WidgetProperty::TYPE_BOOLEAN
+    elsif definition.type.name()==PropertyType::TYPE_BOOLEAN
       check_box_tag definition.key(), "true", val=='true'
 
-    elsif definition.type.name()==WidgetProperty::TYPE_METRIC
+    elsif definition.type.name()==PropertyType::TYPE_METRIC
       select_tag definition.key(), options_grouped_by_domain(Metric.all.select{|m| m.display?}.sort_by{|m| m.short_name}, val, :include_empty => true)
 
-    elsif definition.type.name()==WidgetProperty::TYPE_STRING
+    elsif definition.type.name()==PropertyType::TYPE_STRING
       text_field_tag definition.key(), val, :size => 10
 
-    elsif definition.type.name()==WidgetProperty::TYPE_FILTER
+    elsif definition.type.name()==PropertyType::TYPE_FILTER
       user_filters = options_key(value, ::Filter.find(:all, :conditions => ['user_id=?', current_user.id]).sort_by(&:id))
       shared_filters = options_key(value, ::Filter.find(:all, :conditions => ['(user_id<>? or user_id is null) and shared=?', current_user.id, true]).sort_by(&:id))
 
@@ -44,7 +44,6 @@ module WidgetPropertiesHelper
       filter_link = link_to message('widget.filter.edit'), {:controller => :filters, :action => :manage}, :class => 'link-action'
 
       "#{filters_combo} #{filter_link}"
-
   else
       hidden_field_tag definition.key()
     end
