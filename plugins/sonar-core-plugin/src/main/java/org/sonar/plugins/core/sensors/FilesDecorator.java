@@ -28,6 +28,8 @@ import org.sonar.api.measures.MeasureUtils;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.utils.SonarException;
 
 import java.util.Collection;
 
@@ -45,8 +47,10 @@ public final class FilesDecorator implements Decorator {
     return CoreMetrics.FILES;
   }
 
+  @SuppressWarnings("rawtypes")
   public void decorate(Resource resource, DecoratorContext context) {
     if (MeasureUtils.hasValue(context.getMeasure(CoreMetrics.FILES))) {
+      checkRootProjectHasFiles(resource, context.getMeasure(CoreMetrics.FILES).getValue());
       return;
     }
 
@@ -56,9 +60,17 @@ public final class FilesDecorator implements Decorator {
     } else {
       Collection<Measure> childrenMeasures = context.getChildrenMeasures(CoreMetrics.FILES);
       Double sum = MeasureUtils.sum(false, childrenMeasures);
+      checkRootProjectHasFiles(resource, sum);
       if (sum != null) {
         context.saveMeasure(CoreMetrics.FILES, sum);
       }
+    }
+  }
+
+  @SuppressWarnings("rawtypes")
+  private void checkRootProjectHasFiles(Resource resource, Double sum) {
+    if (ResourceUtils.isRootProject(resource) && (sum == null || sum.doubleValue() == 0)) {
+      throw new SonarException("Project \"" + resource.getName() + "\" does not contain any file. Please check your project configuration.");
     }
   }
 }
