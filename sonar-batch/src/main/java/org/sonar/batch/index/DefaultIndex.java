@@ -299,20 +299,26 @@ public class DefaultIndex extends SonarIndex {
     if (resource == null) {
       throw new IllegalArgumentException("A resource must be set on the ViolationQuery in order to search for violations.");
     }
+
     Bucket bucket = buckets.get(resource);
     if (bucket == null) {
       return Collections.emptyList();
     }
+
     List<Violation> filteredViolations = Lists.newArrayList();
     ViolationQuery.SwitchMode mode = violationQuery.getSwitchMode();
     for (Violation violation : bucket.getViolations()) {
-      if (mode == ViolationQuery.SwitchMode.BOTH ||
-          (mode == ViolationQuery.SwitchMode.OFF && violation.isSwitchedOff()) ||
-          (mode == ViolationQuery.SwitchMode.ON && !violation.isSwitchedOff())) {
+      if (isFiltered(violation, mode)) {
         filteredViolations.add(violation);
       }
     }
     return filteredViolations;
+  }
+
+  private static boolean isFiltered(Violation violation, ViolationQuery.SwitchMode mode) {
+    return (mode == ViolationQuery.SwitchMode.BOTH
+      || (mode == ViolationQuery.SwitchMode.OFF && violation.isSwitchedOff())
+      || (mode == ViolationQuery.SwitchMode.ON && !violation.isSwitchedOff()));
   }
 
   @Override
@@ -330,32 +336,31 @@ public class DefaultIndex extends SonarIndex {
     }
 
     Bucket bucket = checkIndexed(resource);
-    if (bucket != null && !bucket.isExcluded()) {
-      boolean isIgnored = !force && violationFilters != null && violationFilters.isIgnored(violation);
-      if (!isIgnored) {
+    if (bucket == null || bucket.isExcluded()) {
+      return;
+    }
 
-        // TODO this code is not the responsibility of this index. It should be moved somewhere else.
+    boolean isIgnored = !force && violationFilters != null && violationFilters.isIgnored(violation);
+    if (!isIgnored) {
+      addViolation(violation, bucket);
+    }
+  }
 
-        if (violation.isManual()) {
-          doAddViolation(violation, bucket);
-        } else {
-          ActiveRule activeRule = profile.getActiveRule(violation.getRule());
-          if (activeRule == null) {
-            if (currentProject.getReuseExistingRulesConfig()) {
-              violation.setSeverity(violation.getRule().getSeverity());
-              doAddViolation(violation, bucket);
-
-            } else {
-              LoggerFactory.getLogger(getClass()).debug("Rule is not activated, ignoring violation {}", violation);
-            }
-
-          } else {
-            violation.setSeverity(activeRule.getSeverity());
-            doAddViolation(violation, bucket);
-          }
-        }
+  private void addViolation(Violation violation, Bucket bucket) {
+    // TODO this code is not the responsibility of this index. It should be moved somewhere else.
+    if (!violation.isManual()) {
+      ActiveRule activeRule = profile.getActiveRule(violation.getRule());
+      if (activeRule != null) {
+        violation.setSeverity(activeRule.getSeverity());
+      } else if (currentProject.getReuseExistingRulesConfig()) {
+        violation.setSeverity(violation.getRule().getSeverity());
+      } else {
+        LoggerFactory.getLogger(getClass()).debug("Rule is not activated, ignoring violation {}", violation);
+        return;
       }
     }
+
+    doAddViolation(violation, bucket);
   }
 
   private void doAddViolation(Violation violation, Bucket bucket) {
