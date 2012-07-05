@@ -299,7 +299,7 @@ class RulesConfigurationController < ApplicationController
         active_param = ActiveRuleParameter.new(:rules_parameter => rule_param, :active_rule => active_rule ) if active_param.nil?
         old_value = active_param.value
         active_param.value = value
-        if active_param.save && active_param.valid?
+        if active_param.save! && active_param.valid?
           active_param.reload
           java_facade.ruleParamChanged(profile.id, active_rule.id, rule_param.name, old_value, value, current_user.name)
         end
