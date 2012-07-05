@@ -31,21 +31,48 @@ class ProjectController < ApplicationController
   def deletion
     @project = get_current_project(params[:id])
 
-    unless java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'deletable')
+    if java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'deletable')
+      deletion_manager = ResourceDeletionManager.instance
+      if deletion_manager.currently_deleting_resources? || 
+        (!deletion_manager.currently_deleting_resources? && deletion_manager.deletion_failures_occured?)
+        # a deletion is happening or it has just finished with errors => display the message from the Resource Deletion Manager
+        render :template => 'project/pending_deletion'
+      else    
+        @snapshot=@project.last_snapshot
+      end
+    else
       redirect_to :action => 'index', :id => params[:id]
     end
-    
-    @snapshot=@project.last_snapshot
   end
 
   def delete
-    if params[:id]
-      @project = Project.by_key(params[:id])
-      if @project && is_admin?(@project)
-        Project.delete_resource_tree(@project)
-      end
+    @project = get_current_project(params[:id])
+    
+    # Ask the resource deletion manager to start the migration
+    # => this is an asynchronous AJAX call
+    ResourceDeletionManager.instance.delete_resources([@project.id])
+    
+    # and return some text that will actually never be displayed
+    render :text => ResourceDeletionManager.instance.message
+  end
+  
+  def pending_deletion
+    deletion_manager = ResourceDeletionManager.instance
+    
+    if deletion_manager.currently_deleting_resources? || 
+      (!deletion_manager.currently_deleting_resources? && deletion_manager.deletion_failures_occured?)
+      # display the same page again and again
+      # => implicit render "pending_deletion.html.erb"
+    else
+      redirect_to_default
     end
-    redirect_to_default
+  end
+  
+  def dismiss_deletion_message
+    # It is important to reinit the ResourceDeletionManager so that the deletion screens can be available again
+    ResourceDeletionManager.instance.reinit
+    
+    redirect_to :action => 'deletion', :id => params[:id]
   end
   
   def quality_profile

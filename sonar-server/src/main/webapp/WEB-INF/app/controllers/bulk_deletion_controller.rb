@@ -76,7 +76,7 @@ class BulkDeletionController < ApplicationController
     if deletion_manager.currently_deleting_resources? || 
       (!deletion_manager.currently_deleting_resources? && deletion_manager.deletion_failures_occured?)
       # display the same page again and again
-      @deletion_manager = deletion_manager
+      # => implicit render "pending_deletions.html.erb"
     else
       redirect_to :action => 'index'
     end

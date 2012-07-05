@@ -75,7 +75,7 @@ class ResourceDeletionManager
       unless currently_deleting_resources?
         reinit()
         @status = WORKING
-        @message = "Deleting resources..."
+        @message = Api::Utils.message('bulk_deletion.deletion_manager.deleting_resources')
         can_start_deletion = true
       end
     end
@@ -83,13 +83,13 @@ class ResourceDeletionManager
     if can_start_deletion
       if resource_ids.empty?
         @status = AVAILABLE
-        @message = "No resource to delete."
+        @message = Api::Utils.message('bulk_deletion.deletion_manager.no_resource_to_delete')
       else
         java_facade = Java::OrgSonarServerUi::JRubyFacade.getInstance()
         # launch the deletion
         resource_ids.each_with_index do |resource_id, index|
           resource = Project.find(:first, :conditions => {:id => resource_id.to_i})
-          @message = "Currently deleting resources... (" + (index+1).to_s + " out of " + resource_ids.size.to_s + ")"
+          @message = Api::Utils.message('bulk_deletion.deletion_manager.currently_deleting_x_out_of_x', :params => [(index+1).to_s, resource_ids.size.to_s])
           if resource && 
             # next line add 'VW' and 'DEV' tests because those resource types don't have the 'deletable' property yet...
             (java_facade.getResourceTypeBooleanProperty(resource.qualifier, 'deletable') || resource.qualifier=='VW' || resource.qualifier=='DEV')
@@ -102,7 +102,8 @@ class ResourceDeletionManager
           end
         end
         @status = AVAILABLE
-        @message = "Resource deletion completed."
+        @message = Api::Utils.message('bulk_deletion.deletion_manager.deletion_completed')
+        @message += ' ' + Api::Utils.message('bulk_deletion.deletion_manager.however_failures_occurred') unless @failed_deletions.empty?
       end
     end    
   end
