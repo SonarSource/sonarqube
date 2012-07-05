@@ -1,10 +1,10 @@
 <%
-  granted_groups=default_project_groups(params[:role], params[:qualifier])
+  granted_groups=default_project_group_names(params[:role], params[:qualifier])
   all_groups = ['Anyone'].concat(Api::Utils.insensitive_sort(Group.all.map{|group| group.name}))
   ungranted_groups=all_groups - granted_groups
 %>
 <div class="subtitle">&raquo; <a href="<%= url_for :action => params[:redirect], :q => params[:q], :qualifier => params[:qualifier] -%>">Back</a></div>
-<h1>TO BE DEFINED</h1>
+<h1>Role Membership For New <%= message("qualifiers.#{params[:qualifier]}") -%></h1>
 <br/>
 <div>
   <form action="<%= url_for :action => 'set_default_project_groups' -%>" method="POST">
@@ -17,7 +17,7 @@
       <tbody>
         <tr>
           <td style="padding: 5px 0;" valign="top">
-            <h2>Ungranted groups</h2>
+            <h2>Add Groups</h2>
             <select name="from" id="from" size="20" style="margin: 5px 0; width: 300px;" multiple="multiple">
               <% ungranted_groups.each do |group| %>
                 <option value="<%= h group -%>"><%= group -%></option>
@@ -41,6 +41,7 @@
 
             <div style="padding: 5px 0;">
               <input id="save" value="Save" onclick="SelectBox.select_all('to');submit();return false;" type="submit">
+              <a href="<%= url_for :action => params[:redirect], :q => params[:q], :qualifier => params[:qualifier] -%>"><%= message 'cancel' -%></a>
             </div>
           </td>
         </tr>

@@ -2,9 +2,9 @@
   granted_groups=groups(@role, params[:resource])
   ungranted_groups=all_groups - granted_groups
   if @project
-     title=h(@project.name)
+     title='Role Membership For: ' + h(@project.name)
    else
-     title='System administrators'
+     title='System Administrators'
    end
 %>
 <div class="subtitle">&raquo; <a href="<%= url_for :action => params[:redirect], :q => params[:q], :qualifier => params[:qualifier] -%>">Back</a></div>
@@ -22,7 +22,7 @@
       <tbody>
         <tr>
           <td style="padding: 5px 0;" valign="top">
-            <h2>Ungranted groups</h2>
+            <h2>Add Groups</h2>
             <select name="from" id="from" size="20" style="margin: 5px 0; width: 300px;" multiple="multiple">
               <% ungranted_groups.each do |group| %>
                 <option value="<%= group ? group.id : '' -%>"><%= group_name(group) -%></option>
@@ -46,6 +46,7 @@
 
             <div style="padding: 5px 0;">
               <input id="save" value="Save" onclick="SelectBox.select_all('to');submit();return false;" type="submit">
+              <a href="<%= url_for :action => params[:redirect], :q => params[:q], :qualifier => params[:qualifier] -%>"><%= message 'cancel' -%></a>
             </div>
           </td>
         </tr>

@@ -79,6 +79,8 @@ class RolesController < ApplicationController
     bad_request('Missing qualifier') if params[:qualifier].blank?
   end
 
+
+
   # POST REQUESTS
 
   def set_users
@@ -96,14 +98,16 @@ class RolesController < ApplicationController
   def set_default_project_groups
     bad_request('Missing role') if params[:role].blank?
     bad_request('Missing qualifier') if params[:qualifier].blank?
-    Property.set("sonar.role.#{params[:role]}.#{params[:qualifier]}.defaultGroups", params[:groups].join(','))
+    group_names = params[:groups] || []
+    Property.set("sonar.role.#{params[:role]}.#{params[:qualifier]}.defaultGroups", group_names.join(','))
     redirect
   end
 
   def set_default_project_users
     bad_request('Missing role') if params[:role].blank?
     bad_request('Missing qualifier') if params[:qualifier].blank?
-    Property.set("sonar.role.#{params[:role]}.#{params[:qualifier]}.defaultUsers", params[:users].join(','))
+    logins = params[:logins] || []
+    Property.set("sonar.role.#{params[:role]}.#{params[:qualifier]}.defaultUsers", logins.join(','))
     redirect
   end
 

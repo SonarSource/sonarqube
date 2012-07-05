@@ -2,7 +2,7 @@
 <tr>
   <td colspan="<%= colspan || 1 -%>">
     <% if pagination.count>0 %>
-    <%= pagination.count -%> <%= message('results').downcase -%>
+    <%= message('x_results', :params => [pagination.count]) -%>
     <% end %>
     <%
        if pagination.pages>1

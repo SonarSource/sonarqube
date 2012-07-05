@@ -2,11 +2,9 @@
   granted_users=users(@role, params[:resource])
   ungranted_users=(all_users - granted_users)
   if @project
-     title=h(@project.name)
-   elsif @role.starts_with?('default-')
-     title="Default project #{role_name(@role)}"
+     title='Role Membership For: ' + h(@project.name)
    else
-     title="Global #{role_name(@role)}"
+     title="System #{role_name(@role)}"
    end
 %>
 <div class="subtitle">&raquo; <a href="<%= url_for :action => params[:redirect], :q => params[:q], :qualifier => params[:qualifier] -%>">Back</a></div>
@@ -24,7 +22,7 @@
       <tbody>
         <tr>
           <td style="padding: 5px 0;" valign="top">
-            <h2>Ungranted users</h2>
+            <h2>Add Users</h2>
             <select name="from" id="from" size="30" style="margin: 5px 0; width: 300px;" multiple="multiple">
               <% ungranted_users.each do |user| %>
                 <option value="<%= user.id -%>"><%= user.name -%></option>
@@ -46,6 +44,7 @@
 
             <div style="padding: 5px 0;">
               <input id="save" value="Save" onclick="SelectBox.select_all('to');submit();return false;" type="submit">
+              <a href="<%= url_for :action => params[:redirect], :q => params[:q], :qualifier => params[:qualifier] -%>"><%= message 'cancel' -%></a>
             </div>
           </td>
         </tr>

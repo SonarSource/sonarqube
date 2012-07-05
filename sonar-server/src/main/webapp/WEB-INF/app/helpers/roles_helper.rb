@@ -21,7 +21,7 @@ module RolesHelper
 
   def users(role, resource_id=nil)
     resource_id=(resource_id.blank? ? nil : resource_id.to_i)
-    user_roles=UserRole.find(:all, :include => 'user', :conditions => {:role => role, :resource_id => resource_id})
+    user_roles=UserRole.find(:all, :include => 'user', :conditions => {:role => role, :resource_id => resource_id, :users => {:active => true}})
     users = user_roles.map { |ur| ur.user }
     Api::Utils.insensitive_sort(users) { |user| user.name }
   end
@@ -46,14 +46,16 @@ module RolesHelper
     group ? group.name : 'Anyone'
   end
 
-  def default_project_groups(role, qualifier)
+  def default_project_group_names(role, qualifier)
     property_value=(controller.java_facade.getConfigurationValue("sonar.role.#{role}.#{qualifier}.defaultGroups")||'')
     Api::Utils.insensitive_sort(property_value.split(','))
   end
 
   def default_project_users(role, qualifier)
     property_value=(controller.java_facade.getConfigurationValue("sonar.role.#{role}.#{qualifier}.defaultUsers") || '')
-    Api::Utils.insensitive_sort(property_value.split(','))
+    logins=property_value.split(',')
+    users = User.find(:all, :conditions => ['login in (?) and active=?', logins, true])
+    Api::Utils.insensitive_sort(users) { |user| user.name }
   end
 
   def role_name(role)
@@ -63,7 +65,7 @@ module RolesHelper
       when 'user' then
         'Users'
       when 'codeviewer' then
-        'Code viewers'
+        'Code Viewers'
       else
         role.to_s
     end

@@ -1,0 +1,54 @@
+<%
+  granted_users=default_project_users(params[:role], params[:qualifier])
+  ungranted_users=all_users - granted_users
+%>
+<div class="subtitle">&raquo; <a href="<%= url_for :action => params[:redirect], :q => params[:q], :qualifier => params[:qualifier] -%>">Back</a></div>
+<h1>Role Membership For New <%= message("qualifiers.#{params[:qualifier]}") -%></h1>
+<br/>
+<div>
+  <form action="<%= url_for :action => 'set_default_project_users' -%>" method="POST">
+    <input name="role" value="<%= params[:role] -%>" type="hidden"/>
+    <input name="redirect" value="projects" type="hidden"/>
+    <input name="q" value="<%= params[:q] -%>" type="hidden" />
+    <input name="qualifier" value="<%= params[:qualifier] -%>" type="hidden" />
+    <input name="page" value="<%= params[:page] -%>" type="hidden" />
+    <table>
+      <tbody>
+        <tr>
+          <td style="padding: 5px 0;" valign="top">
+            <h2>Add Users</h2>
+            <select name="from" id="from" size="20" style="margin: 5px 0; width: 300px;" multiple="multiple">
+              <% ungranted_users.each do |user| %>
+                <option value="<%= h user.login -%>"><%= h user.name -%></option>
+              <% end %>
+            </select>
+          </td>
+          <td style="padding: 0 10px;" align="center">
+            <button id="select_right" onclick="SelectBox.move('from', 'to');SelectBox.sort('to');SelectBox.redisplay('to');return false;">select >></button><br>
+            <button id="select_right_all" onclick="SelectBox.move_all('from', 'to');return false;">select all >></button><br><br>
+            <button id="select_left" onclick="SelectBox.move('to', 'from');return false;"><< unselect</button><br>
+            <button id="select_left_all" onclick="SelectBox.move_all('to', 'from');return false;"><< unselect all</button>
+          </td>
+          <td class="box" style="padding: 5px 10px;" valign="top">
+            <h2>Role: <%= role_name(params[:role]) -%></h2>
+
+            <select name="logins[]" id="to" size="20" multiple="multiple" style="margin: 5px 0; width: 300px;">
+              <% granted_users.each do |user| %>
+                <option value="<%= h user.login -%>"><%= h user.name -%></option>
+              <% end %>
+            </select><br>
+
+            <div style="padding: 5px 0;">
+              <input id="save" value="Save" onclick="SelectBox.select_all('to');submit();return false;" type="submit">
+              <a href="<%= url_for :action => params[:redirect], :q => params[:q], :qualifier => params[:qualifier] -%>"><%= message 'cancel' -%></a>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </form>
+  <script>
+    SelectBox.init('from');
+    SelectBox.init('to');
+  </script>
+</div>
