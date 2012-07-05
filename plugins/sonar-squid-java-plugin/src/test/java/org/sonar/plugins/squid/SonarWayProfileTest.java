@@ -41,7 +41,7 @@ public class SonarWayProfileTest {
     SonarWayProfile definition = new SonarWayProfile(new AnnotationProfileParser(ruleFinder()));
     RulesProfile profile = definition.createProfile(validation);
 
-    assertThat(profile.getActiveRulesByRepository(SquidConstants.REPOSITORY_KEY)).hasSize(1);
+    assertThat(profile.getActiveRulesByRepository(SquidConstants.REPOSITORY_KEY)).hasSize(2);
     assertThat(profile.getName()).isEqualTo(RulesProfile.SONAR_WAY_NAME);
     assertThat(validation.hasErrors()).isFalse();
   }
@@ -53,7 +53,7 @@ public class SonarWayProfileTest {
     SonarWayWithFindbugsProfile definition = new SonarWayWithFindbugsProfile(new SonarWayProfile(new AnnotationProfileParser(ruleFinder())));
     RulesProfile profile = definition.createProfile(validation);
 
-    assertThat(profile.getActiveRulesByRepository(SquidConstants.REPOSITORY_KEY)).hasSize(1);
+    assertThat(profile.getActiveRulesByRepository(SquidConstants.REPOSITORY_KEY)).hasSize(2);
     assertThat(profile.getName()).isEqualTo(RulesProfile.SONAR_WAY_FINDBUGS_NAME);
     assertThat(validation.hasErrors()).isFalse();
   }

@@ -21,6 +21,7 @@ package org.sonar.java.squid.check;
 
 import org.sonar.api.checks.CheckFactory;
 import org.sonar.api.rules.ActiveRule;
+import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 
@@ -28,8 +29,11 @@ import javax.annotation.CheckForNull;
 
 /**
  * Companion of {@link org.sonar.plugins.squid.bridges.DesignBridge} which actually does the job on finding cycles and creation of violations.
+ *
+ * @since 3.2
  */
 @Rule(key = "CycleBetweenPackages", priority = Priority.MAJOR)
+@BelongsToProfile(title = "Sonar way", priority = Priority.MAJOR)
 public class CycleBetweenPackagesCheck extends SquidCheck {
 
   /**

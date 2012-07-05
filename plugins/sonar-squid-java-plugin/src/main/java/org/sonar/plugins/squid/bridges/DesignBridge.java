@@ -165,7 +165,8 @@ public class DesignBridge extends Bridge {
         // If resource cannot be obtained, then silently ignore, because anyway warning will be printed by method saveEdge
         if ((fromFile != null) && (toFile != null)) {
           Violation violation = Violation.create(rule, fromFile)
-              .setMessage("Remove the dependency on the source file \"" + toFile.getLongName() + "\" to break a package cycle.");
+              .setMessage("Remove the dependency on the source file \"" + toFile.getLongName() + "\" to break a package cycle.")
+              .setCost((double) subEdge.getWeight());
           context.saveViolation(violation);
         }
       }

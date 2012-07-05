@@ -19,16 +19,11 @@
  */
 package org.sonar.plugins.squid;
 
-import org.sonar.api.resources.Java;
-
-import com.google.common.collect.ImmutableList;
 import org.sonar.api.profiles.AnnotationProfileParser;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.Java;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.java.ast.check.CommentedOutCodeLineCheck;
-
-import java.util.Collection;
 
 public class SonarWayProfile extends ProfileDefinition {
   private final AnnotationProfileParser annotationProfileParser;
@@ -39,8 +34,6 @@ public class SonarWayProfile extends ProfileDefinition {
 
   @Override
   public RulesProfile createProfile(ValidationMessages messages) {
-    Collection<Class> rules = ImmutableList.<Class> of(CommentedOutCodeLineCheck.class);
-
-    return annotationProfileParser.parse(SquidConstants.REPOSITORY_KEY, RulesProfile.SONAR_WAY_NAME, Java.KEY, rules, messages);
+    return annotationProfileParser.parse(SquidConstants.REPOSITORY_KEY, RulesProfile.SONAR_WAY_NAME, Java.KEY, SquidRuleRepository.getCheckClasses(), messages);
   }
 }
