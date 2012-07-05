@@ -21,6 +21,7 @@ module PropertiesHelper
 
   def property_value_field(definition, value)
     val=value || definition.defaultValue()
+
     if definition.type.name()==PropertyType::TYPE_INTEGER
       text_field_tag definition.key(), val, :size => 10
 
@@ -47,7 +48,11 @@ module PropertiesHelper
 
     elsif definition.type.name()==PropertyType::TYPE_TEXT
       text_area_tag definition.key(), val, :size => '40x6'
-  else
+
+    elsif definition.type.name()==PropertyType::TYPE_PASSWORD
+      password_field_tag definition.key(), val, :size => 10
+
+    else
       hidden_field_tag definition.key()
     end
   end

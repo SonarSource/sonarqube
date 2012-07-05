@@ -25,6 +25,7 @@ class PropertyType
   TYPE_METRIC = 'METRIC'
   TYPE_FILTER = 'FILTER'
   TYPE_TEXT = 'TEXT'
+  TYPE_PASSWORD = 'PASSWORD'
 
   def self.text_to_value(text, type)
     case type
