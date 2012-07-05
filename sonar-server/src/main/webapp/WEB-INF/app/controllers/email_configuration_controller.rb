@@ -65,7 +65,7 @@ class EmailConfigurationController < ApplicationController
   private
 
   def configuration
-	java_facade.getComponentByClassname('emailnotifications', 'org.sonar.api.platform.EmailSettings').class
+	java_facade.getComponentByClassname('emailnotifications', 'org.sonar.api.config.EmailSettings').class
   end
 
 end

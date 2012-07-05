@@ -24,10 +24,10 @@ import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.config.EmailSettings;
 import org.sonar.api.database.model.User;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
-import org.sonar.api.platform.EmailSettings;
 import org.sonar.api.security.UserFinder;
 import org.sonar.api.utils.SonarException;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
@@ -175,13 +175,13 @@ public class EmailNotificationChannel extends NotificationChannel {
       email.setHostName(configuration.getSmtpHost());
       if (StringUtils.equalsIgnoreCase(configuration.getSecureConnection(), "SSL")) {
         email.setSSL(true);
-        email.setSslSmtpPort(configuration.getSmtpPort());
+        email.setSslSmtpPort(String.valueOf(configuration.getSmtpPort()));
 
         // this port is not used except in EmailException message, that's why it's set with the same value than SSL port.
         // It prevents from getting bad message.
-        email.setSmtpPort(Integer.parseInt(configuration.getSmtpPort()));
+        email.setSmtpPort(configuration.getSmtpPort());
       } else if (StringUtils.isBlank(configuration.getSecureConnection())) {
-        email.setSmtpPort(Integer.parseInt(configuration.getSmtpPort()));
+        email.setSmtpPort(configuration.getSmtpPort());
       } else {
         throw new SonarException("Unknown type of SMTP secure connection: " + configuration.getSecureConnection());
       }

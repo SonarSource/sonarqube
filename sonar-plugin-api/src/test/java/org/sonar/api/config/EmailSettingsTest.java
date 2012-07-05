@@ -17,11 +17,12 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.platform;
+package org.sonar.api.config;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.config.EmailSettings;
 import org.sonar.api.config.Settings;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -37,7 +38,7 @@ public class EmailSettingsTest {
   @Test
   public void should_return_default_values() {
     assertThat(emailSettings.getSmtpHost()).isEqualTo("");
-    assertThat(emailSettings.getSmtpPort()).isEqualTo("25");
+    assertThat(emailSettings.getSmtpPort()).isEqualTo(25);
     assertThat(emailSettings.getSmtpUsername()).isEmpty();
     assertThat(emailSettings.getSmtpPassword()).isEmpty();
     assertThat(emailSettings.getSecureConnection()).isEmpty();

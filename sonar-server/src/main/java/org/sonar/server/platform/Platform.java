@@ -19,7 +19,7 @@
  */
 package org.sonar.server.platform;
 
-import org.sonar.api.platform.EmailSettings;
+import org.sonar.api.config.EmailSettings;
 
 import org.apache.commons.configuration.BaseConfiguration;
 import org.slf4j.LoggerFactory;

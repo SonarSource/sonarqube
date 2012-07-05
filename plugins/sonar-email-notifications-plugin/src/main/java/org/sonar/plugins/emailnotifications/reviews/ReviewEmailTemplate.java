@@ -20,9 +20,9 @@
 package org.sonar.plugins.emailnotifications.reviews;
 
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.config.EmailSettings;
 import org.sonar.api.database.model.User;
 import org.sonar.api.notifications.Notification;
-import org.sonar.api.platform.EmailSettings;
 import org.sonar.api.security.UserFinder;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.sonar.plugins.emailnotifications.api.EmailTemplate;

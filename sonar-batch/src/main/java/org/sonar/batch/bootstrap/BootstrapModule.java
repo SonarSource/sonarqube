@@ -21,7 +21,7 @@ package org.sonar.batch.bootstrap;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.api.platform.EmailSettings;
+import org.sonar.api.config.EmailSettings;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.batch.FakeMavenPluginExecutor;
 import org.sonar.batch.MavenPluginExecutor;

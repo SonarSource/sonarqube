@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.platform;
+package org.sonar.api.config;
 
 import com.google.common.base.Objects;
 import org.sonar.api.BatchComponent;
@@ -56,8 +56,8 @@ public class EmailSettings implements BatchComponent, ServerComponent {
     return get(SMTP_HOST, SMTP_HOST_DEFAULT);
   }
 
-  public String getSmtpPort() {
-    return get(SMTP_PORT, SMTP_PORT_DEFAULT);
+  public int getSmtpPort() {
+    return Integer.parseInt(get(SMTP_PORT, SMTP_PORT_DEFAULT));
   }
 
   public String getSecureConnection() {

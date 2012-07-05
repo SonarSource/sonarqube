@@ -23,7 +23,7 @@ import org.apache.commons.mail.EmailException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.platform.EmailSettings;
+import org.sonar.api.config.EmailSettings;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
@@ -187,7 +187,7 @@ public class EmailNotificationChannelTest {
 
   private void configure() {
     when(configuration.getSmtpHost()).thenReturn("localhost");
-    when(configuration.getSmtpPort()).thenReturn(Integer.toString(port));
+    when(configuration.getSmtpPort()).thenReturn(port);
     when(configuration.getFrom()).thenReturn("server@nowhere");
     when(configuration.getPrefix()).thenReturn("[SONAR]");
     when(configuration.getServerBaseURL()).thenReturn("http://nemo.sonarsource.org");
