@@ -26,7 +26,7 @@ import org.sonar.api.web.WidgetProperties;
 import org.sonar.api.web.WidgetProperty;
 import org.sonar.api.web.WidgetPropertyType;
 
-@WidgetCategory("History")
+@WidgetCategory({"History"})
 @WidgetProperties({
   @WidgetProperty(key = "title", type = WidgetPropertyType.STRING),
   @WidgetProperty(key = "numberOfColumns", type = WidgetPropertyType.INTEGER, defaultValue = "3"),

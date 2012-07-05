@@ -19,8 +19,6 @@
  */
 package org.sonar.plugins.core;
 
-import org.sonar.plugins.core.widgets.DemoWidget;
-
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Extension;
@@ -338,7 +336,6 @@ public final class CorePlugin extends SonarPlugin {
         ReviewsMetricsWidget.class,
         TreemapWidget.class,
         FilterWidget.class,
-        DemoWidget.class,
 
         // dashboards
         DefaultDashboard.class,

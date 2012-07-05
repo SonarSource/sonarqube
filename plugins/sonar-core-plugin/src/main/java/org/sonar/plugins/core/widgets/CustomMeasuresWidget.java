@@ -21,18 +21,20 @@ package org.sonar.plugins.core.widgets;
 
 import org.sonar.api.web.*;
 
-@WidgetProperties({
-  @WidgetProperty(key = "metric1", type = WidgetPropertyType.METRIC),
-  @WidgetProperty(key = "metric2", type = WidgetPropertyType.METRIC),
-  @WidgetProperty(key = "metric3", type = WidgetPropertyType.METRIC),
-  @WidgetProperty(key = "metric4", type = WidgetPropertyType.METRIC),
-  @WidgetProperty(key = "metric5", type = WidgetPropertyType.METRIC),
-  @WidgetProperty(key = "metric6", type = WidgetPropertyType.METRIC),
-  @WidgetProperty(key = "metric7", type = WidgetPropertyType.METRIC),
-  @WidgetProperty(key = "metric8", type = WidgetPropertyType.METRIC),
-  @WidgetProperty(key = "metric9", type = WidgetPropertyType.METRIC),
-  @WidgetProperty(key = "metric10", type = WidgetPropertyType.METRIC)
-})
+@WidgetProperties(
+    {
+        @WidgetProperty(key = "metric1", type = WidgetPropertyType.METRIC),
+        @WidgetProperty(key = "metric2", type = WidgetPropertyType.METRIC),
+        @WidgetProperty(key = "metric3", type = WidgetPropertyType.METRIC),
+        @WidgetProperty(key = "metric4", type = WidgetPropertyType.METRIC),
+        @WidgetProperty(key = "metric5", type = WidgetPropertyType.METRIC),
+        @WidgetProperty(key = "metric6", type = WidgetPropertyType.METRIC),
+        @WidgetProperty(key = "metric7", type = WidgetPropertyType.METRIC),
+        @WidgetProperty(key = "metric8", type = WidgetPropertyType.METRIC),
+        @WidgetProperty(key = "metric9", type = WidgetPropertyType.METRIC),
+        @WidgetProperty(key = "metric10", type = WidgetPropertyType.METRIC)
+    }
+)
 public class CustomMeasuresWidget extends AbstractRubyTemplate implements RubyRailsWidget {
   public String getId() {
     return "custom_measures";

@@ -19,8 +19,6 @@
  */
 package org.sonar.server.ui;
 
-import org.sonar.api.web.WidgetPropertySet;
-
 import org.junit.rules.ExpectedException;
 
 import org.junit.Rule;
@@ -142,15 +140,6 @@ public class ViewProxyTest {
   }
 
   @Test
-  public void should_support_property_sets() {
-    ViewProxy proxy = new ViewProxy<Widget>(new EditableWidgetWithSets());
-
-    assertThat(proxy.getWidgetProperties()).hasSize(4);
-    assertThat(proxy.getWidgetPropertiesBySet().keySet()).hasSize(3);
-    assertThat(proxy.getWidgetPropertiesBySet().values()).hasSize(4);
-  }
-
-  @Test
   public void widget_should_not_be_global_by_default() {
     ViewProxy proxy = new ViewProxy<Widget>(new EditableWidget());
 
@@ -169,7 +158,7 @@ public class ViewProxyTest {
     exception.expect(IllegalArgumentException.class);
     exception.expectMessage("INVALID");
     exception.expectMessage("WidgetWithInvalidScope");
-
+    
     new ViewProxy<Widget>(new WidgetWithInvalidScope());
   }
 
@@ -267,35 +256,13 @@ class FakeView implements View {
   @WidgetProperty(key = "bar", defaultValue = "30", type = WidgetPropertyType.INTEGER)
 })
 class EditableWidget implements Widget {
+
   public String getId() {
     return "w1";
   }
 
   public String getTitle() {
     return "W1";
-  }
-}
-
-@WidgetProperties(sets = {
-  @WidgetPropertySet(key = "set1",
-    value = {
-      @WidgetProperty(key = "foo", optional = false),
-      @WidgetProperty(key = "bar", optional = false),
-    }),
-  @WidgetPropertySet(key = "set2",
-    value = {
-      @WidgetProperty(key = "qix", optional = false),
-    })},
-  value = {
-    @WidgetProperty(key = "fizz", optional = false)
-  })
-class EditableWidgetWithSets implements Widget {
-  public String getId() {
-    return "w3";
-  }
-
-  public String getTitle() {
-    return "W3";
   }
 }
 
@@ -326,6 +293,7 @@ class WidgetWithInvalidScope implements Widget {
   @WidgetProperty(key = "bar")
 })
 class WidgetWithOptionalProperties implements Widget {
+
   public String getId() {
     return "w2";
   }

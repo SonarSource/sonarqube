@@ -37,6 +37,4 @@ public @interface WidgetProperty {
   String description() default "";
 
   boolean optional() default true;
-
-  Class<? extends PropertyValidation> validation() default PropertyValidation.None.class;
 }

@@ -25,6 +25,4 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface WidgetProperties {
   WidgetProperty[] value() default {};
-
-  WidgetPropertySet[] sets() default {};
 }
