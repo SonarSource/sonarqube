@@ -21,8 +21,7 @@ package org.sonar.server.ui;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
-import com.google.common.collect.LinkedListMultimap;
-import com.google.common.collect.ListMultimap;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.SetMultimap;
 import org.apache.commons.lang.ArrayUtils;
@@ -66,7 +65,7 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
   private String[] defaultForMetrics = {};
   private String description = "";
   private Map<String, WidgetProperty> widgetPropertiesByKey = Maps.newHashMap();
-  private ListMultimap<WidgetPropertySet, WidgetProperty> widgetPropertiesBySet = LinkedListMultimap.create();
+  private SetMultimap<WidgetPropertySet, WidgetProperty> widgetPropertiesBySet = LinkedHashMultimap.create();
   private String[] widgetCategories = {};
   private WidgetLayoutType widgetLayout = WidgetLayoutType.DEFAULT;
   private boolean isDefaultTab = false;
@@ -226,8 +225,8 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
     return widgetPropertiesByKey.values();
   }
 
-  public ListMultimap<WidgetPropertySet, WidgetProperty> getWidgetPropertiesBySet() {
-    return widgetPropertiesBySet;
+  public SetMultimap<WidgetPropertySet, WidgetProperty> getWidgetPropertiesBySet() {
+    return ImmutableSetMultimap.copyOf(widgetPropertiesBySet);
   }
 
   public WidgetProperty getWidgetProperty(String propertyKey) {
