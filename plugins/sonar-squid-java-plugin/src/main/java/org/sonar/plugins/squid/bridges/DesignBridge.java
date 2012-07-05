@@ -29,8 +29,11 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.graph.*;
+import org.sonar.java.squid.check.CycleBetweenPackagesCheck;
 import org.sonar.squid.Squid;
 import org.sonar.squid.api.SourceCode;
 import org.sonar.squid.api.SourceCodeEdge;
@@ -70,6 +73,7 @@ public class DesignBridge extends Bridge {
       LOG.debug("{} feedback edges", feedbackEdges.size());
       int tangles = cyclesAndFESSolver.getWeightOfFeedbackEdgeSet();
 
+      saveViolations(feedbackEdges);
       savePositiveMeasure(sonarProject, CoreMetrics.PACKAGE_CYCLES, cyclesAndFESSolver.getCycles().size());
       savePositiveMeasure(sonarProject, CoreMetrics.PACKAGE_FEEDBACK_EDGES, feedbackEdges.size());
       savePositiveMeasure(sonarProject, CoreMetrics.PACKAGE_TANGLES, tangles);
@@ -140,6 +144,29 @@ public class DesignBridge extends Bridge {
           for (SourceCodeEdge subEdge : edge.getRootEdges()) {
             saveEdge(subEdge, context, dependency);
           }
+        }
+      }
+    }
+  }
+
+  private void saveViolations(Set<Edge> feedbackEdges) {
+    ActiveRule rule = CycleBetweenPackagesCheck.getActiveRule(checkFactory);
+    if (rule == null) {
+      // Rule inactive
+      return;
+    }
+    for (Edge feedbackEdge : feedbackEdges) {
+      SourceCode fromPackage = (SourcePackage) feedbackEdge.getFrom();
+      SourceCode toPackage = (SourcePackage) feedbackEdge.getTo();
+      SourceCodeEdge edge = squid.getEdge(fromPackage, toPackage);
+      for (SourceCodeEdge subEdge : edge.getRootEdges()) {
+        Resource fromFile = resourceIndex.get(subEdge.getFrom());
+        Resource toFile = resourceIndex.get(subEdge.getTo());
+        // If resource cannot be obtained, then silently ignore, because anyway warning will be printed by method saveEdge
+        if ((fromFile != null) && (toFile != null)) {
+          Violation violation = Violation.create(rule, fromFile)
+              .setMessage("Remove the dependency on the source file \"" + toFile.getLongName() + "\" to break a package cycle.");
+          context.saveViolation(violation);
         }
       }
     }
