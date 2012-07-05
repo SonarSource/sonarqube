@@ -19,49 +19,40 @@
 #
 module PropertiesHelper
 
-  def property_value_field(definition, value)
-    val=value || definition.defaultValue()
+  def property_value(key, type, value)
+    if type==PropertyType::TYPE_INTEGER
+      text_field_tag key, value, :size => 10
 
-    if definition.type.name()==PropertyType::TYPE_INTEGER
-      text_field_tag definition.key(), val, :size => 10
+    elsif type==PropertyType::TYPE_BOOLEAN
+      check_box_tag key, "true", value=='true'
 
-    elsif definition.type.name()==PropertyType::TYPE_BOOLEAN
-      check_box_tag definition.key(), "true", val=='true'
+    elsif type==PropertyType::TYPE_FLOAT
+      text_field_tag key, value, :size => 10
 
-    elsif definition.type.name()==PropertyType::TYPE_FLOAT
-      text_field_tag definition.key(), val, :size => 10
+    elsif type==PropertyType::TYPE_STRING
+      text_field_tag key, value, :size => 10
 
-    elsif definition.type.name()==PropertyType::TYPE_STRING
-      text_field_tag definition.key(), val, :size => 10
+    elsif type==PropertyType::TYPE_METRIC
+      select_tag key, options_grouped_by_domain(Metric.all.select{|m| m.display?}.sort_by(&:short_name), value, :include_empty => true)
 
-    elsif definition.type.name()==PropertyType::TYPE_METRIC
-      select_tag definition.key(), options_grouped_by_domain(Metric.all.select{|m| m.display?}.sort_by(&:short_name), val, :include_empty => true)
-
-    elsif definition.type.name()==PropertyType::TYPE_FILTER
+    elsif type==PropertyType::TYPE_FILTER
       user_filters = options_key(value, ::Filter.find(:all, :conditions => ['user_id=?', current_user.id]).sort_by(&:id))
       shared_filters = options_key(value, ::Filter.find(:all, :conditions => ['(user_id<>? or user_id is null) and shared=?', current_user.id, true]).sort_by(&:id))
 
-      filters_combo = select_tag definition.key(), option_group('My Filters', user_filters) + option_group('Shared Filters', shared_filters)
+      filters_combo = select_tag key, option_group('My Filters', user_filters) + option_group('Shared Filters', shared_filters)
       filter_link = link_to message('widget.filter.edit'), {:controller => :filters, :action => :manage}, :class => 'link-action'
 
       "#{filters_combo} #{filter_link}"
 
-    elsif definition.type.name()==PropertyType::TYPE_TEXT
-      text_area_tag definition.key(), val, :size => '40x6'
+    elsif type==PropertyType::TYPE_TEXT
+      text_area_tag key, value, :size => '40x6'
 
-    elsif definition.type.name()==PropertyType::TYPE_PASSWORD
-      password_field_tag definition.key(), val, :size => 10
+    elsif type==PropertyType::TYPE_PASSWORD
+      password_field_tag key, value, :size => 10
 
     else
-      hidden_field_tag definition.key()
+      hidden_field_tag key
     end
-  end
-
-  def resource_value_field(value)
-    projects = Project.all(:conditions => {:scope => 'PRJ', :qualifier => 'TRK', :enabled => true})
-    sorted_projects = Api::Utils.insensitive_sort(projects, &:name)
-
-    select_tag 'resource_id', options_id(value, sorted_projects)
   end
 
   def options_id(value, values)
