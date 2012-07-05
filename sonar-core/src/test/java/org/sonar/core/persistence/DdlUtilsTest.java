@@ -53,7 +53,7 @@ public class DdlUtilsTest {
 
   static int countTables(Connection connection) throws SQLException {
     int count = 0;
-    ResultSet resultSet = connection.getMetaData().getTables(null, null, null, new String[] {"TABLE"});
+    ResultSet resultSet = connection.getMetaData().getTables("", null, null, new String[] {"TABLE"});
     while (resultSet.next()) {
       count++;
     }
