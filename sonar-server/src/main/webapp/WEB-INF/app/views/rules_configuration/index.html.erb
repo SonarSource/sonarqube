@@ -48,7 +48,7 @@
          <%= text_field_tag "searchtext", @searchtext, :id => 'searchtext' %>
        </td>
        <td class="left" valign="top" width="1%" nowrap>
-         <span class="note"><%= message('plugin') -%></span><br/>
+         <span class="note"><%= message('rules_configuration.repository') -%></span><br/>
          <%= select_tag "plugins", options_for_select(@select_plugins, @plugins), :id => 'search_plugin', :multiple => true, :size => 6 %>
        </td>
        <td class="left" valign="top" width="1%" nowrap>
