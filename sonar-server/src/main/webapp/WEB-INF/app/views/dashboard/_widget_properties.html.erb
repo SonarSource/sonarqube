@@ -13,28 +13,22 @@
       </tr>
     <% end %>
 
-    <% widget.java_definition.getWidgetPropertiesBySet().asMap().sort { |(s1,p1), (s2,p2)| natural_comparison(s1.key, s2.key) }.each do |set,properties| %>
-        <% if widget.java_definition.getWidgetPropertiesBySet().asMap().size > 1 %>
-          <% if set.key().empty? %>
-             <tr>
-              <td celspan="2"><h3>other</h3></td>
-            </tr>
-          <% else %>
-            <tr>
-              <td celspan="2"><h3><%= set.key() -%></h3></td>
-            </tr>
-          <% end %>
-        <% end %>
-        <% properties.sort { |w1, w2| natural_comparison(w1.key, w2.key) }.each do |property_def| %>
-         <tr>
-            <td class="form-key-cell"><%= property_def.key() -%><%= " *" unless property_def.optional() -%></td>
-            <td class="form-val-cell" id="row_<%= property_def.key() -%>">
-                <%= property_value_field(property_def, widget.property_text_value(property_def.key())) -%>
-                <div class="form-val-note">
-                    <%= message("widget." + widget.key + ".param." + property_def.key(), :default => property_def.description()) -%>
-                </div>
-            </td>
-         </tr>
+    <% widget.java_definition.getWidgetPropertiesBySet().asMap().each do |set, properties| %>
+      <% if widget.java_definition.getWidgetPropertiesBySet().asMap().size > 1 or !set.key().empty? %>
+        <tr>
+          <td celspan="2"><h3><%= set.key().empty? ? 'other' : set.key() -%></h3></td>
+        </tr>
+      <% end %>
+      <% properties.each do |property_def| %>
+        <tr>
+          <td class="form-key-cell"><%= property_def.key() -%><%= " *" unless property_def.optional() -%></td>
+          <td class="form-val-cell" id="row_<%= property_def.key() -%>">
+            <%= property_value_field(property_def, widget.property_text_value(property_def.key())) -%>
+            <div class="form-val-note">
+              <%= message("widget." + widget.key + ".param." + property_def.key(), :default => property_def.description()) -%>
+            </div>
+          </td>
+        </tr>
       <% end %>
     <% end %>
 
