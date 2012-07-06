@@ -2,8 +2,8 @@
 
   <rules id="2" name="bar" description="test2" plugin_config_key="checker/bar"
          plugin_rule_key="checkstyle.rule2" plugin_name="plugin" enabled="true" cardinality="SINGLE" parent_id="[null]"/>
-  <rules_parameters id="13" rule_id="2" name="param1" description="[null]" param_type="r"/>
-  <rules_parameters id="14" rule_id="2" name="param2" description="[null]" param_type="r"/>
+  <rules_parameters id="13" rule_id="2" name="param1" description="[null]" param_type="REGULAR_EXPRESSION"/>
+  <rules_parameters id="14" rule_id="2" name="param2" description="[null]" param_type="REGULAR_EXPRESSION"/>
 
   <rules_profiles id="1" version="1" used_profile="true" provided="false" name="parent" default_profile="0" language="java" parent_name="[null]" enabled="true"/>
   

@@ -20,20 +20,29 @@
 module PropertiesHelper
 
   def property_value(key, type, value, options = {})
-    if type==PropertyType::TYPE_INTEGER
-      text_field_tag key, value, {:size => 10}.update(options)
+    if type==PropertyType::TYPE_STRING
+      text_field_tag key, value, {:size => 25}.update(options)
+
+    elsif type==PropertyType::TYPE_TEXT
+      text_area_tag key, value, {:size => '40x6'}.update(options)
+
+    elsif type==PropertyType::TYPE_PASSWORD
+      password_field_tag key, value, {:size => 25}.update(options)
 
     elsif type==PropertyType::TYPE_BOOLEAN
       check_box_tag key, "true", value=='true', options
 
+    elsif type==PropertyType::TYPE_INTEGER
+      text_field_tag key, value, {:size => 10}.update(options)
+
     elsif type==PropertyType::TYPE_FLOAT
       text_field_tag key, value, {:size => 10}.update(options)
 
-    elsif type==PropertyType::TYPE_STRING
-      text_field_tag key, value, {:size => 25}.update(options)
-
     elsif type==PropertyType::TYPE_METRIC
       select_tag key, options_grouped_by_domain(Metric.all.select{|m| m.display?}.sort_by(&:short_name), value, :include_empty => true), options
+
+    elsif type==PropertyType::TYPE_REGULAR_EXPRESSION
+      text_field_tag key, value, {:size => 25}.update(options)
 
     elsif type==PropertyType::TYPE_FILTER
       user_filters = options_key(value, ::Filter.find(:all, :conditions => ['user_id=?', current_user.id]).sort_by(&:id))
@@ -43,12 +52,6 @@ module PropertiesHelper
       filter_link = link_to message('widget.filter.edit'), {:controller => :filters, :action => :manage}, :class => 'link-action'
 
       "#{filters_combo} #{filter_link}"
-
-    elsif type==PropertyType::TYPE_TEXT
-      text_area_tag key, value, {:size => '40x6'}.update(options)
-
-    elsif type==PropertyType::TYPE_PASSWORD
-      password_field_tag key, value, {:size => 25}.update(options)
 
     else
       hidden_field_tag key, options

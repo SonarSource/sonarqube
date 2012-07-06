@@ -1661,7 +1661,7 @@
     <configKey><![CDATA[rulesets/basic.xml/AvoidUsingHardCodedIP]]></configKey>
 
 
-    <param key="pattern" type="r">
+    <param key="pattern" type="REGULAR_EXPRESSION">
 
 
     </param>

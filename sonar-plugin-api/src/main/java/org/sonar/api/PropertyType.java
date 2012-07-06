@@ -66,5 +66,12 @@ public enum PropertyType {
   /**
    * SonarSource license
    */
-  LICENSE
+  LICENSE,
+
+  /**
+   * Regular expression
+   *
+   * @since 3.2
+   */
+  REGULAR_EXPRESSION
 }

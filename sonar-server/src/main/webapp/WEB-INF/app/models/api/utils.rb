@@ -47,7 +47,7 @@ class Api::Utils
 
   def self.is_regexp?(s)
     begin
-      Regexp.new(S)
+      Regexp.new(s)
       true
     rescue
       false

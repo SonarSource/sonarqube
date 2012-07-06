@@ -7,11 +7,11 @@
          plugin_rule_key="checkstyle.new2" plugin_name="PLUGIN_KEY" enabled="true" cardinality="SINGLE" parent_id="[null]"/>
 
   <!-- Rules parameters -->
-  <rules_parameters id="1" rule_id="1" name="rule1_param1" description="rule1_desc1" param_type="r"
+  <rules_parameters id="1" rule_id="1" name="rule1_param1" description="rule1_desc1" param_type="REGULAR_EXPRESSION"
       />
-  <rules_parameters id="2" rule_id="1" name="rule1_param2" description="rule1_desc2" param_type="r"
+  <rules_parameters id="2" rule_id="1" name="rule1_param2" description="rule1_desc2" param_type="REGULAR_EXPRESSION"
       />
-  <rules_parameters id="3" rule_id="2" name="rule2_param1" description="rule2_desc1" param_type="r"
+  <rules_parameters id="3" rule_id="2" name="rule2_param1" description="rule2_desc1" param_type="REGULAR_EXPRESSION"
       />
 
 </dataset>

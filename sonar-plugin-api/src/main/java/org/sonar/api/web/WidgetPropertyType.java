@@ -66,5 +66,12 @@ public enum WidgetPropertyType {
    *
    * @since 3.2
    */
-  PASSWORD
+  PASSWORD,
+
+  /**
+   * Regular expression
+   *
+   * @since 3.2
+   */
+  REGULAR_EXPRESSION
 }

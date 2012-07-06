@@ -5,9 +5,9 @@
   <rules id="2" name="rule two" description="desc" plugin_config_key="config"
          plugin_rule_key="rule_two" plugin_name="other plugin" enabled="true" cardinality="SINGLE" parent_id="[null]"/>
 
-  <rules_parameters id="1" rule_id="1" name="rule1_param1" description="rule1_desc1" param_type="r"
+  <rules_parameters id="1" rule_id="1" name="rule1_param1" description="rule1_desc1" param_type="REGULAR_EXPRESSION"
       />
-  <rules_parameters id="2" rule_id="2" name="rule2_param1" description="rule2_desc1" param_type="r"
+  <rules_parameters id="2" rule_id="2" name="rule2_param1" description="rule2_desc1" param_type="REGULAR_EXPRESSION"
       />
 
 </dataset>

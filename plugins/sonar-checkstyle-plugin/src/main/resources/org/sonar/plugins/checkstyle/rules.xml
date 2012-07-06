@@ -273,7 +273,7 @@
     <name><![CDATA[Abstract Class Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/AbstractClassName]]></configKey>
 
-    <param key="format" type="r">
+    <param key="format" type="REGULAR_EXPRESSION">
       <defaultValue>^Abstract.*$|^.*Factory$</defaultValue>
     </param>
     <param key="ignoreModifier" type="BOOLEAN">
@@ -380,7 +380,7 @@
     <configKey><![CDATA[Checker/TreeWalker/ConstantName]]></configKey>
     <cardinality>MULTIPLE</cardinality>
 
-    <param key="format" type="r">
+    <param key="format" type="REGULAR_EXPRESSION">
       <defaultValue>^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$</defaultValue>
     </param>
     <param key="applyToPublic" type="BOOLEAN">
@@ -524,7 +524,7 @@
     <param key="checkLastCaseGroup" type="BOOLEAN">
 
     </param>
-    <param key="reliefPattern" type="r">
+    <param key="reliefPattern" type="REGULAR_EXPRESSION">
 
 
     </param>
@@ -576,7 +576,7 @@
     <param key="tokens" type="s[PARAMETER_DEF,VARIABLE_DEF]">
 
     </param>
-    <param key="ignoreFormat" type="r">
+    <param key="ignoreFormat" type="REGULAR_EXPRESSION">
 
 
     </param>
@@ -658,7 +658,7 @@
     <param key="tokens" type="s{}">
 
     </param>
-    <param key="format" type="r">
+    <param key="format" type="REGULAR_EXPRESSION">
 
     </param>
     <param key="ignoreCase" type="BOOLEAN">
@@ -686,7 +686,7 @@
     <param key="ignoredMethodNames" type="s{}">
 
     </param>
-    <param key="format" type="r">
+    <param key="format" type="REGULAR_EXPRESSION">
 
     </param>
   </rule>
@@ -847,10 +847,10 @@
     <param key="excludeScope" type="s[nothing,public,protected,package,private,anoninner]">
 
     </param>
-    <param key="authorFormat" type="r">
+    <param key="authorFormat" type="REGULAR_EXPRESSION">
 
     </param>
-    <param key="versionFormat" type="r">
+    <param key="versionFormat" type="REGULAR_EXPRESSION">
 
     </param>
     <param key="allowMissingParamTags" type="BOOLEAN">
@@ -900,7 +900,7 @@
     <configKey><![CDATA[Checker/TreeWalker/LineLength]]></configKey>
 
 
-    <param key="ignorePattern" type="r">
+    <param key="ignorePattern" type="REGULAR_EXPRESSION">
 
 
     </param>
@@ -917,7 +917,7 @@
     <name><![CDATA[Local Final Variable Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/LocalFinalVariableName]]></configKey>
 
-    <param key="format" type="r">
+    <param key="format" type="REGULAR_EXPRESSION">
       <defaultValue>^[a-z][a-zA-Z0-9]*$</defaultValue>
     </param>
   </rule>
@@ -927,7 +927,7 @@
     <name><![CDATA[Local Variable Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/LocalVariableName]]></configKey>
 
-    <param key="format" type="r">
+    <param key="format" type="REGULAR_EXPRESSION">
       <defaultValue>^[a-z][a-zA-Z0-9]*$</defaultValue>
     </param>
     <param key="tokens" type="s[VARIABLE_DEF,PARAMETER_DEF]">
@@ -956,7 +956,7 @@
     <name><![CDATA[Member name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MemberName]]></configKey>
 
-    <param key="format" type="r">
+    <param key="format" type="REGULAR_EXPRESSION">
       <defaultValue>^[a-z][a-zA-Z0-9]*$</defaultValue>
     </param>
     <param key="applyToPublic" type="BOOLEAN">
@@ -997,7 +997,7 @@
     <name><![CDATA[Method Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/MethodName]]></configKey>
 
-    <param key="format" type="r">
+    <param key="format" type="REGULAR_EXPRESSION">
       <defaultValue>^[a-z][a-zA-Z0-9]*$</defaultValue>
     </param>
     <param key="allowClassName" type="BOOLEAN">
@@ -1059,7 +1059,7 @@
     <param key="allowedDuplicates" type="INTEGER">
 
     </param>
-    <param key="ignoreStringsRegexp" type="r">
+    <param key="ignoreStringsRegexp" type="REGULAR_EXPRESSION">
 
     </param>
     <param key="ignoreOccurrenceContext" type="STRING">
@@ -1079,7 +1079,7 @@
     <configKey><![CDATA[Checker/TreeWalker/MutableException]]></configKey>
 
 
-    <param key="format" type="r">
+    <param key="format" type="REGULAR_EXPRESSION">
 
 
     </param>
@@ -1195,7 +1195,7 @@
     <configKey><![CDATA[Checker/TreeWalker/PackageName]]></configKey>
 
 
-    <param key="format" type="r">
+    <param key="format" type="REGULAR_EXPRESSION">
       <defaultValue>^[a-z]+(\.[a-zA-Z_][a-zA-Z0-9_]*)*$</defaultValue>
     </param>
   </rule>
@@ -1211,7 +1211,7 @@
     <name><![CDATA[Parameter Name]]></name>
     <configKey><![CDATA[Checker/TreeWalker/ParameterName]]></configKey>
 
-    <param key="format" type="r">
+    <param key="format" type="REGULAR_EXPRESSION">
       <defaultValue>^[a-z][a-zA-Z0-9]*$</defaultValue>
     </param>
   </rule>
@@ -1269,7 +1269,7 @@
 
     <cardinality>MULTIPLE</cardinality>
 
-    <param key="format" type="r">
+    <param key="format" type="REGULAR_EXPRESSION">
 
     </param>
     <param key="message" type="STRING">
@@ -1314,7 +1314,7 @@
     <param key="max" type="INTEGER">
 
     </param>
-    <param key="format" type="r">
+    <param key="format" type="REGULAR_EXPRESSION">
 
     </param>
   </rule>
@@ -1353,7 +1353,7 @@
     <configKey><![CDATA[Checker/TreeWalker/StaticVariableName]]></configKey>
     <cardinality>MULTIPLE</cardinality>
 
-    <param key="format" type="r">
+    <param key="format" type="REGULAR_EXPRESSION">
       <defaultValue>^[a-z][a-zA-Z0-9]*$</defaultValue>
     </param>
     <param key="applyToPublic" type="BOOLEAN">
@@ -1424,7 +1424,7 @@
 
     <cardinality>MULTIPLE</cardinality>
 
-    <param key="format" type="r">
+    <param key="format" type="REGULAR_EXPRESSION">
 
     </param>
   </rule>
@@ -1464,7 +1464,7 @@
     <configKey><![CDATA[Checker/TreeWalker/TypeName]]></configKey>
     <cardinality>MULTIPLE</cardinality>
 
-    <param key="format" type="r">
+    <param key="format" type="REGULAR_EXPRESSION">
       <defaultValue>^[A-Z][a-zA-Z0-9]*$</defaultValue>
     </param>
     <param key="tokens" type="s[CLASS_DEF,INTERFACE_DEF]">
@@ -1508,7 +1508,7 @@
     <configKey><![CDATA[Checker/TreeWalker/UncommentedMain]]></configKey>
 
 
-    <param key="excludedClasses" type="r">
+    <param key="excludedClasses" type="REGULAR_EXPRESSION">
 
 
     </param>
@@ -1548,7 +1548,7 @@
     <param key="protectedAllowed" type="BOOLEAN">
 
     </param>
-    <param key="publicMemberPattern" type="r">
+    <param key="publicMemberPattern" type="REGULAR_EXPRESSION">
 
     </param>
   </rule>
@@ -1590,7 +1590,7 @@
     <param key="tag" type="STRING">
 
     </param>
-    <param key="tagFormat" type="r">
+    <param key="tagFormat" type="REGULAR_EXPRESSION">
 
     </param>
     <param key="tagSeverity" type="s[ignore,info,warning,error]">

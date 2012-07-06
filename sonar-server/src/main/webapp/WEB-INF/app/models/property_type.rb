@@ -18,14 +18,18 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 class PropertyType
-  TYPE_INTEGER = 'INTEGER'
-  TYPE_BOOLEAN = 'BOOLEAN'
-  TYPE_FLOAT = 'FLOAT'
   TYPE_STRING = 'STRING'
-  TYPE_METRIC = 'METRIC'
-  TYPE_FILTER = 'FILTER'
   TYPE_TEXT = 'TEXT'
   TYPE_PASSWORD = 'PASSWORD'
+  TYPE_BOOLEAN = 'BOOLEAN'
+  TYPE_INTEGER = 'INTEGER'
+  TYPE_FLOAT = 'FLOAT'
+  #TYPE_SINGLE_SELECT_LIST = 'SINGLE_SELECT_LIST'
+  TYPE_METRIC = 'METRIC'
+  TYPE_LICENSE = 'LICENSE'
+  TYPE_REGULAR_EXPRESSION = 'REGULAR_EXPRESSION'
+
+  TYPE_FILTER = 'FILTER'
 
   def self.text_to_value(text, type)
     case type
@@ -46,10 +50,12 @@ class PropertyType
     errors.add_to_base("Unknown type for property #{key}") unless type
     if text_value.empty?
       errors.add_to_base("#{key} is empty") unless optional
-    else
-      errors.add_to_base("#{key} is not an integer") if type==PropertyType::TYPE_INTEGER && !Api::Utils.is_integer?(text_value)
-      errors.add_to_base("#{key} is not a decimal number") if type==PropertyType::TYPE_FLOAT && !Api::Utils.is_number?(text_value)
-      errors.add_to_base("#{key} is not a boolean") if type==PropertyType::TYPE_BOOLEAN && !(text_value=="true" || text_value=="false")
+      return
     end
+
+    errors.add_to_base("#{key} is not an integer") if type==TYPE_INTEGER && !Api::Utils.is_integer?(text_value)
+    errors.add_to_base("#{key} is not a decimal number") if type==TYPE_FLOAT && !Api::Utils.is_number?(text_value)
+    errors.add_to_base("#{key} is not a boolean") if type==TYPE_BOOLEAN && !Api::Utils.is_boolean?(text_value)
+    errors.add_to_base("#{key} is not a regular expression") if type==TYPE_REGULAR_EXPRESSION && !Api::Utils.is_regexp?(text_value)
   end
 end

@@ -22,7 +22,6 @@ module RulesConfigurationHelper
 
   PARAM_TYPE_STRING_LIST = "s{}"
   PARAM_TYPE_INTEGER_LIST = "i{}"
-  PARAM_TYPE_REGEXP = "r"
 
   # Kept for compatibility with old rule param type
   def type_with_compatibility(type)
@@ -31,23 +30,27 @@ module RulesConfigurationHelper
     return PropertyType::TYPE_INTEGER if type == 'i'
     return PropertyType::TYPE_INTEGER if type == PARAM_TYPE_INTEGER_LIST
     return PropertyType::TYPE_BOOLEAN if type == 'b'
-    return PropertyType::TYPE_STRING if type == PARAM_TYPE_REGEXP
+    return PropertyType::TYPE_REGULAR_EXPRESSION if type == 'r'
     return PropertyType::TYPE_STRING if is_set(type)
 
     type
   end
 
-  def readable_type(type)
-    return "Set of comma delimited strings" if type == PARAM_TYPE_STRING_LIST
-    return "Number" if type_with_compatibility(type) == PropertyType::TYPE_INTEGER
-    return "Set of comma delimited numbers" if type == PARAM_TYPE_INTEGER_LIST
-    return "Regular expression" if type == PARAM_TYPE_REGEXP
-    return "Set of comma delimited values" if is_set(type)
+  def readable_type(param_type)
+    type=type_with_compatibility(param_type)
+
+    return "Set of comma delimited strings" if param_type == PARAM_TYPE_STRING_LIST
+    return "Number" if type == PropertyType::TYPE_INTEGER
+    return "Set of comma delimited numbers" if param_type == PARAM_TYPE_INTEGER_LIST
+    return "Regular expression" if type == PropertyType::TYPE_REGULAR_EXPRESSION
+    return "Set of comma delimited values" if is_set(param_type)
     ""
   end
 
   def param_value_input(parameter, value, options = {})
-    property_value 'value', type_with_compatibility(parameter.param_type), value, {:id => parameter.id}.update(options)
+    type=type_with_compatibility(parameter.param_type)
+
+    property_value 'value', type, value, {:id => parameter.id}.update(options)
   end
 
   def is_set(type)
@@ -71,18 +74,12 @@ module RulesConfigurationHelper
           errors.add("#{value}", "'#{n}' must be an integer.")
         end
       end
-    elsif param_type == RulesConfigurationHelper::PARAM_TYPE_REGEXP
-      if !Api::Utils.is_regexp?(attribute)
-        errors.add("#{value}", "'#{attribute}' must be a regular expression")
-      end
+    elsif type == PropertyType::TYPE_REGULAR_EXPRESSION
+      errors.add("#{value}", "'#{attribute}' must be a regular expression") unless Api::Utils.is_regexp?(attribute)
     elsif type == PropertyType::TYPE_INTEGER
-      if !Api::Utils.is_integer?(attribute)
-        errors.add("#{value}", "'#{attribute}' must be an integer.")
-      end
+      errors.add("#{value}", "'#{attribute}' must be an integer.") unless Api::Utils.is_integer?(attribute)
     elsif type == PropertyType::TYPE_BOOLEAN
-      if !Api::Utils.is_boolean?(attribute)
-        errors.add("#{value}", "'#{attribute}' must be one of : true,false")
-      end
+      errors.add("#{value}", "'#{attribute}' must be one of : true,false") unless Api::Utils.is_boolean?(attribute)
     end
   end
 end
