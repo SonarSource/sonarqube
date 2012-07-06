@@ -41,6 +41,19 @@ class Api::Utils
     s.to_s =~ /\A[+-]?\d+\Z/
   end
 
+  def self.is_boolean?(s)
+    s == 'true' || s == 'false'
+  end
+
+  def self.is_regexp?(s)
+    begin
+      Regexp.new(S)
+      true
+    rescue
+      false
+    end
+  end
+
   def self.markdown_to_html(markdown)
     markdown ? Java::OrgSonarServerUi::JRubyFacade.markdownToHtml(ERB::Util.html_escape(markdown)) : ''
   end

@@ -42,7 +42,7 @@ module RulesConfigurationHelper
 
   def readable_type(type)
     return "Set of string (, as delimiter)" if type == PARAM_TYPE_STRING_LIST
-    return "Number" if type == PARAM_TYPE_INTEGER
+    return "Number" if type_with_compatibility(type) == PropertyType::TYPE_INTEGER
     return "Set of number (, as delimiter)" if type == PARAM_TYPE_INTEGER_LIST
     return "Regular expression" if type == PARAM_TYPE_REGEXP
     return "Set of values (, as delimiter)" if is_set(type)
@@ -55,6 +55,40 @@ module RulesConfigurationHelper
 
   def is_set(type)
     type.at(1) == "[" && type.ends_with?("]")
+  end
+
+  def validate_rule_param(attribute, param_type, errors, value)
+    return if attribute.nil? or attribute.length == 0
+
+    type=type_with_compatibility(param_type)
+
+    if is_set_type
+      allowed_tokens = get_allowed_tokens
+      attribute.split(',').each do |provided_token|
+        if !allowed_tokens.include?(provided_token)
+          errors.add("#{value}", "'#{provided_token}' kust be one of : " + allowed_tokens.join(', '))
+        end
+      end
+    elsif param_type == RulesConfigurationHelper::PARAM_TYPE_INTEGER_LIST
+      attribute.split(',').each do |n|
+        if !Api::Utils.is_integer?(n)
+          errors.add("#{value}", "'#{n}' must be an integer.")
+          return
+        end
+      end
+    elsif param_type == RulesConfigurationHelper::PARAM_TYPE_REGEXP
+      if !Api::Utils.is_regexp?(attribute)
+        errors.add("#{value}", "'#{attribute}' must be a regular expression")
+      end
+    elsif type == PropertyType::TYPE_INTEGER
+      if !Api::Utils.is_integer?(attribute)
+        errors.add("#{value}", "'#{attribute}' must be an integer.")
+      end
+    elsif type == PropertyType::TYPE_BOOLEAN
+      if !Api::Utils.is_boolean?(attribute)
+        errors.add("#{value}", "'#{attribute}' must be one of : true,false")
+      end
+    end
   end
 end
 

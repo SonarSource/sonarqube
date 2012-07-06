@@ -47,38 +47,7 @@ class RulesParameter < ActiveRecord::Base
   end
 
   def validate_value(attribute, errors, value)
-    return if attribute.nil? or attribute.length == 0
-    if is_set_type
-      provided_tokens = attribute.split(",")
-      allowed_tokens = get_allowed_tokens
-      provided_tokens.each do |provided_token|
-        if !allowed_tokens.include?(provided_token)
-          errors.add("#{value}", "'#{provided_token}' kust be one of : " + allowed_tokens.join(", "))
-        end
-      end
-    elsif param_type == RulesConfigurationHelper::PARAM_TYPE_INTEGER
-      if !Api::Utils.is_integer?(attribute)
-        errors.add("#{value}", "'#{attribute}' must be an integer.")
-      end
-    elsif param_type == RulesConfigurationHelper::PARAM_TYPE_INTEGER_LIST
-      provided_numbers = attribute.split(",")
-      provided_numbers.each do |provided_number|
-        if !Api::Utils.is_integer?(provided_number)
-          errors.add("#{value}", "'#{provided_number}' must be an integer.")
-          return
-        end
-      end
-    elsif param_type == RulesConfigurationHelper::PARAM_TYPE_BOOLEAN
-      if attribute != "true" && attribute != "false"
-        errors.add("#{value}", "'#{attribute}' must be one of : true,false")
-      end
-    elsif param_type == RulesConfigurationHelper::PARAM_TYPE_REGEXP
-      begin
-        Regexp.new(attribute)
-      rescue
-        errors.add("#{value}", "'#{attribute}' must be a regular expression")
-      end
-    end
+    validate_rule_param(attribute, param_type, errors, value)
   end
 
   def to_hash_json(active_rule)

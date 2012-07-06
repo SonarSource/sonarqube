@@ -15,13 +15,13 @@
 
 <td class="form-val-cell">
   <%= form_remote_tag :url => {:action => :update_param, :id => active_param_id, :profile_id => profile.id, :param_id => parameter.id, :active_rule_id => active_rule_id},
-                      :update => {:success => "rule_#{rule.id}", :failure => "error_#{rule.id}"},
+                      :update => {:success => "rule_#{rule.id}", :failure => "error_#{parameter.id}"},
                       :loading => "$('param_loading_#{parameter.id}').show();",
                       :complete => "$('desc_#{rule.id}').show();",
-                      :failure => "$('error_#{rule.id}').show();$('param_loading_#{parameter.id}').hide();",
+                      :failure => "$('error_#{parameter.id}').show();$('param_loading_#{parameter.id}').hide();",
                       :html => {:name => "form-#{u parameter.name}"} %>
 
-  <div id="error_<%= rule.id -%>" class="error" style="display: none"></div>
+  <div id="error_<%= parameter.id -%>" class="error" style="display: none"></div>
 
   <span id="<%= span_id -%>"><%= param_value_input(parameter, param_value, :disabled => read_only) -%></span>
 
