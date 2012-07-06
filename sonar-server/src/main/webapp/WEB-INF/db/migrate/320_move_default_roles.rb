@@ -49,10 +49,27 @@ class MoveDefaultRoles < ActiveRecord::Migration
       # upgrade from version < 3.2.
       move_groups
       move_users
+    else
+      create_default_groups('admin', 'TRK', 'sonar-administrators')
+      create_default_groups('user', 'TRK', 'Anyone,sonar-users')
+      create_default_groups('codeviewer', 'TRK', 'Anyone,sonar-users')
+
+      # Support old versions of Views plugin
+      create_default_groups('admin', 'VW', 'sonar-administrators')
+      create_default_groups('user', 'VW', 'Anyone,sonar-users')
+      create_default_groups('codeviewer', 'VW', 'Anyone,sonar-users')
+      create_default_groups('admin', 'SVW', 'sonar-administrators')
+      create_default_groups('user', 'SVW', 'Anyone,sonar-users')
+      create_default_groups('codeviewer', 'SVW', 'Anyone,sonar-users')
     end
   end
 
   private
+
+  def self.create_default_groups(role, qualifier, groups)
+    Property.create(:prop_key => "sonar.role.#{role}.#{qualifier}.defaultGroups", :text_value => groups)
+    Property.create(:prop_key => "sonar.role.#{role}.#{qualifier}.defaultUsers", :text_value => '')
+  end
 
   def self.move_groups
     groups_per_role={}
