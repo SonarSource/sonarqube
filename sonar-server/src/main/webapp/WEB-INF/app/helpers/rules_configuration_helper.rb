@@ -17,7 +17,7 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-module RulesParametersHelper
+module RulesConfigurationHelper
   include PropertiesHelper
 
   PARAM_TYPE_STRING = "s"
@@ -27,14 +27,27 @@ module RulesParametersHelper
   PARAM_TYPE_BOOLEAN = "b"
   PARAM_TYPE_REGEXP = "r"
 
+  def property_type_for_param_type(type)
+    return PropertyType::TYPE_STRING if type == PARAM_TYPE_STRING
+    return PropertyType::TYPE_STRING if type == PARAM_TYPE_STRING_LIST
+    return PropertyType::TYPE_INTEGER if type == PARAM_TYPE_INTEGER
+    return PropertyType::TYPE_INTEGER if type == PARAM_TYPE_INTEGER_LIST
+    return PropertyType::TYPE_BOOLEAN if type == PARAM_TYPE_BOOLEAN
+    return PropertyType::TYPE_STRING if type == PARAM_TYPE_REGEXP
+  end
+
   def readable_type(type)
-    return "String" if type == PARAM_TYPE_STRING
+    return "" if type == PARAM_TYPE_STRING
     return "Set of string (, as delimiter)" if type == PARAM_TYPE_STRING_LIST
     return "Number" if type == PARAM_TYPE_INTEGER
     return "Set of number (, as delimiter)" if type == PARAM_TYPE_INTEGER_LIST
-    return "Boolean" if type == PARAM_TYPE_BOOLEAN
+    return "" if type == PARAM_TYPE_BOOLEAN
     return "Regular expression" if type == PARAM_TYPE_REGEXP
     return "Set of values (, as delimiter)" if is_set(type)
+  end
+
+  def param_value_input(parameter, value, options = {})
+    property_value 'value', property_type_for_param_type(parameter.param_type), value, {:id => parameter.id}.update(options)
   end
 
   def input_size(type)

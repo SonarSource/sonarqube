@@ -19,39 +19,39 @@
 #
 module PropertiesHelper
 
-  def property_value(key, type, value)
+  def property_value(key, type, value, options = {})
     if type==PropertyType::TYPE_INTEGER
-      text_field_tag key, value, :size => 10
+      text_field_tag key, value, {:size => 10}.update(options)
 
     elsif type==PropertyType::TYPE_BOOLEAN
-      check_box_tag key, "true", value=='true'
+      check_box_tag key, "true", value=='true', options
 
     elsif type==PropertyType::TYPE_FLOAT
-      text_field_tag key, value, :size => 10
+      text_field_tag key, value, {:size => 10}.update(options)
 
     elsif type==PropertyType::TYPE_STRING
-      text_field_tag key, value, :size => 10
+      text_field_tag key, value, {:size => 10}.update(options)
 
     elsif type==PropertyType::TYPE_METRIC
-      select_tag key, options_grouped_by_domain(Metric.all.select{|m| m.display?}.sort_by(&:short_name), value, :include_empty => true)
+      select_tag key, options_grouped_by_domain(Metric.all.select{|m| m.display?}.sort_by(&:short_name), value, :include_empty => true), options
 
     elsif type==PropertyType::TYPE_FILTER
       user_filters = options_key(value, ::Filter.find(:all, :conditions => ['user_id=?', current_user.id]).sort_by(&:id))
       shared_filters = options_key(value, ::Filter.find(:all, :conditions => ['(user_id<>? or user_id is null) and shared=?', current_user.id, true]).sort_by(&:id))
 
-      filters_combo = select_tag key, option_group('My Filters', user_filters) + option_group('Shared Filters', shared_filters)
+      filters_combo = select_tag key, option_group('My Filters', user_filters) + option_group('Shared Filters', shared_filters), options
       filter_link = link_to message('widget.filter.edit'), {:controller => :filters, :action => :manage}, :class => 'link-action'
 
       "#{filters_combo} #{filter_link}"
 
     elsif type==PropertyType::TYPE_TEXT
-      text_area_tag key, value, :size => '40x6'
+      text_area_tag key, value, {:size => '40x6'}.update(options)
 
     elsif type==PropertyType::TYPE_PASSWORD
-      password_field_tag key, value, :size => 10
+      password_field_tag key, value, {:size => 10}.update(options)
 
     else
-      hidden_field_tag key
+      hidden_field_tag key, options
     end
   end
 

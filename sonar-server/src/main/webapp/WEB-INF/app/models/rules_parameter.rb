@@ -18,7 +18,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 class RulesParameter < ActiveRecord::Base
-  include RulesParametersHelper
+  include RulesConfigurationHelper
 
   PARAM_MAX_NUMBER = 4
 
@@ -46,14 +46,6 @@ class RulesParameter < ActiveRecord::Base
     write_attribute(:description, value)
   end
 
-  def readable_param_type
-    readable_type(param_type)
-  end
-
-  def input_box_size
-    input_size(param_type)
-  end
-
   def validate_value(attribute, errors, value)
     return if attribute.nil? or attribute.length == 0
     if is_set_type
@@ -61,34 +53,30 @@ class RulesParameter < ActiveRecord::Base
       allowed_tokens = get_allowed_tokens
       provided_tokens.each do |provided_token|
         if !allowed_tokens.include?(provided_token)
-          errors.add("#{value}", "Invalid value '" + provided_token + "'. Must be one of : " + allowed_tokens.join(", "))
+          errors.add("#{value}", "'#{provided_token}' kust be one of : " + allowed_tokens.join(", "))
         end
       end
-    elsif param_type == RulesParametersHelper::PARAM_TYPE_INTEGER
-      begin
-        Kernel.Integer(attribute)
-      rescue
-        errors.add("#{value}", "Invalid value '" + attribute + "'. Must be an integer.")
+    elsif param_type == RulesConfigurationHelper::PARAM_TYPE_INTEGER
+      if !Api::Utils.is_integer?(attribute)
+        errors.add("#{value}", "'#{attribute}' must be an integer.")
       end
-    elsif param_type == RulesParametersHelper::PARAM_TYPE_INTEGER_LIST
+    elsif param_type == RulesConfigurationHelper::PARAM_TYPE_INTEGER_LIST
       provided_numbers = attribute.split(",")
       provided_numbers.each do |provided_number|
-        begin
-          Kernel.Integer(provided_number)
-        rescue
-          errors.add("#{value}", "Invalid value '" + provided_number + "'. Must be an integer.")
+        if !Api::Utils.is_integer?(provided_number)
+          errors.add("#{value}", "'#{provided_number}' must be an integer.")
           return
         end
       end
-    elsif param_type == RulesParametersHelper::PARAM_TYPE_BOOLEAN
+    elsif param_type == RulesConfigurationHelper::PARAM_TYPE_BOOLEAN
       if attribute != "true" && attribute != "false"
-        errors.add("#{value}", "Invalid value '" + attribute + "'. Must be one of : true,false")
+        errors.add("#{value}", "'#{attribute}' must be one of : true,false")
       end
-    elsif param_type == RulesParametersHelper::PARAM_TYPE_REGEXP
+    elsif param_type == RulesConfigurationHelper::PARAM_TYPE_REGEXP
       begin
         Regexp.new(attribute)
       rescue
-        errors.add("#{value}", "Invalid regular expression '" + attribute + "'.")
+        errors.add("#{value}", "'#{attribute}' must be a regular expression")
       end
     end
   end

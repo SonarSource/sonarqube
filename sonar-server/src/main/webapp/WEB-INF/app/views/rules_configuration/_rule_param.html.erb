@@ -23,17 +23,9 @@
   <%
      span_id = "text_#{parameter.id}"
      read_only = !active_rule || !enable_modification
-
-     if param_value.length < 50
-       textfield = text_field_tag parameter.id, param_value, :size => parameter.input_box_size, :name => "value", :disabled => read_only
-       textfield += link_to_function(image_tag("zoom.png"), "replaceTextField('#{span_id}', '#{parameter.id}')", :id => "toggle_text", :class => 'nolink') unless read_only
-     else
-       textfield = text_area_tag parameter.id, param_value, :size => "100x10", :name => "value", :disabled => read_only
-       textfield += "<br/>"
-     end
   %>
   <div id="error_<%= rule.id -%>" class="error" style="display: none"></div>
-  <span id="<%= span_id -%>"><%= textfield -%></span>
+  <span id="<%= span_id -%>"><%= param_value_input(parameter, param_value, :disabled => read_only) -%></span>
 
   <% if !read_only %>
     <%= submit_tag message('update_verb') %>
@@ -60,7 +52,5 @@
     %>
   </form>
 
-  <% if parameter.description && !parameter.description.blank? %>
-    <div class="form-val-note"><%= h parameter.description -%></div>
-  <% end %>
+  <div class="form-val-note"><%= h(parameter.description || "") -%> <%= ('(' + readable_type(parameter.param_type) + ')') if !readable_type(parameter.param_type).empty? -%></div>
 </td>
