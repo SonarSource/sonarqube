@@ -2,6 +2,7 @@
   deletion_manager = ResourceDeletionManager.instance
   pending_deletions = deletion_manager.currently_deleting_resources?
   failed_deletions = deletion_manager.failed_deletions
+  start_time = deletion_manager.deletion_start_time
 %>
 
 <% if pending_deletions %>
@@ -18,6 +19,9 @@
   <b><%= deletion_manager.message -%></b>
   <br/>
   <br/>
+  <%= message('bulk_deletion.started_since_x', :params => distance_of_time_in_words(start_time, Time.now) ) -%> (<%= l start_time -%>)
+  <br/>
+  <br/> 
   
   <% if !pending_deletions && !failed_deletions.empty? %>
     <p>

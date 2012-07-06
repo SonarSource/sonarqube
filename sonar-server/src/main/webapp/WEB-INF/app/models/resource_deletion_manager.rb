@@ -42,6 +42,9 @@ class ResourceDeletionManager
   # list of resources that could not be deleted because of a problem
   @failed_deletions
   
+  # the time when the deletion was started
+  @start_time
+  
   def initialize
     reinit()
   end
@@ -68,6 +71,10 @@ class ResourceDeletionManager
     @failed_deletions
   end
   
+  def deletion_start_time
+    @start_time
+  end
+  
   def delete_resources(resource_ids=[])
     # Use an exclusive block of code to ensure that only 1 thread will be able to proceed with the deletion
     can_start_deletion = false
@@ -86,6 +93,7 @@ class ResourceDeletionManager
         @message = Api::Utils.message('bulk_deletion.deletion_manager.no_resource_to_delete')
       else
         java_facade = Java::OrgSonarServerUi::JRubyFacade.getInstance()
+        @start_time = Time.now
         # launch the deletion
         resource_ids.each_with_index do |resource_id, index|
           resource = Project.find(:first, :conditions => {:id => resource_id.to_i})
