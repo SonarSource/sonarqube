@@ -3,11 +3,11 @@
   <rules id="1" plugin_rule_key="rule1" plugin_name="fake" plugin_config_key="old_config_key" name="old name" description="old description"
                    enabled="true" priority="2" cardinality="SINGLE" parent_id="[null]" />
 
-  <rules_parameters id="1" rule_id="1" name="param1" description="[null]" param_type="s"/>
-  <rules_parameters id="2" rule_id="1" name="param2" description="[null]" param_type="s"/>
+  <rules_parameters id="1" rule_id="1" name="param1" description="[null]" param_type="STRING"/>
+  <rules_parameters id="2" rule_id="1" name="param2" description="[null]" param_type="STRING"/>
 
   <!-- to be removed -->
-  <rules_parameters id="3" rule_id="1" name="param3" description="[null]" param_type="s"/>
+  <rules_parameters id="3" rule_id="1" name="param3" description="[null]" param_type="STRING"/>
 
 
   <rules_profiles id="1" version="1" used_profile="true" name="profile name" language="java" default_profile="false" provided="false"  enabled="true"/>

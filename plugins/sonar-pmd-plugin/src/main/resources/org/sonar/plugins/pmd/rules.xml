@@ -94,14 +94,14 @@
     <configKey>rulesets/codesize.xml/CyclomaticComplexity</configKey>
 
 
-    <param key="reportLevel" type="i">
+    <param key="reportLevel" type="INTEGER">
 
     </param>
-    <param key="showClassesComplexity" type="b">
+    <param key="showClassesComplexity" type="BOOLEAN">
 
 
     </param>
-    <param key="showMethodsComplexity" type="b">
+    <param key="showMethodsComplexity" type="BOOLEAN">
 
 
     </param>
@@ -129,7 +129,7 @@
     <configKey><![CDATA[rulesets/codesize.xml/TooManyMethods]]></configKey>
 
 
-    <param key="maxmethods" type="i">
+    <param key="maxmethods" type="INTEGER">
 
 
     </param>
@@ -149,7 +149,7 @@
     <configKey><![CDATA[rulesets/design.xml/TooFewBranchesForASwitchStatement]]></configKey>
 
 
-    <param key="minimumNumberCaseForASwitch" type="i">
+    <param key="minimumNumberCaseForASwitch" type="INTEGER">
 
     </param>
   </rule>
@@ -193,7 +193,7 @@
     <configKey><![CDATA[rulesets/codesize.xml/NPathComplexity]]></configKey>
 
 
-    <param key="minimum" type="i">
+    <param key="minimum" type="INTEGER">
 
 
     </param>
@@ -510,11 +510,11 @@
     <configKey><![CDATA[rulesets/controversial.xml/DataflowAnomalyAnalysis]]></configKey>
 
 
-    <param key="maxviolations" type="i">
+    <param key="maxviolations" type="INTEGER">
 
 
     </param>
-    <param key="maxpaths" type="i">
+    <param key="maxpaths" type="INTEGER">
 
 
     </param>
@@ -525,7 +525,7 @@
     <configKey><![CDATA[rulesets/coupling.xml/CouplingBetweenObjects]]></configKey>
 
 
-    <param key="threshold" type="i">
+    <param key="threshold" type="INTEGER">
 
 
     </param>
@@ -536,7 +536,7 @@
     <configKey><![CDATA[rulesets/coupling.xml/ExcessiveImports]]></configKey>
 
 
-    <param key="minimum" type="i">
+    <param key="minimum" type="INTEGER">
 
 
     </param>
@@ -617,7 +617,7 @@
     <configKey><![CDATA[rulesets/basic.xml/EmptyCatchBlock]]></configKey>
 
 
-    <param key="allowCommentedBlocks" type="b">
+    <param key="allowCommentedBlocks" type="BOOLEAN">
 
 
     </param>
@@ -747,7 +747,7 @@
     <configKey><![CDATA[rulesets/basic.xml/UselessOverridingMethod]]></configKey>
 
 
-    <param key="ignoreAnnotations" type="b">
+    <param key="ignoreAnnotations" type="BOOLEAN">
 
     </param>
   </rule>
@@ -827,7 +827,7 @@
     <configKey><![CDATA[rulesets/design.xml/AvoidDeeplyNestedIfStmts]]></configKey>
 
 
-    <param key="problemDepth" type="i">
+    <param key="problemDepth" type="INTEGER">
 
 
     </param>
@@ -845,7 +845,7 @@
     <configKey><![CDATA[rulesets/design.xml/SwitchDensity]]></configKey>
 
 
-    <param key="minimum" type="i">
+    <param key="minimum" type="INTEGER">
 
 
     </param>
@@ -877,10 +877,10 @@
     <configKey><![CDATA[rulesets/design.xml/CloseResource]]></configKey>
 
 
-    <param key="types" type="s">
+    <param key="types" type="STRING">
 
     </param>
-    <param key="closeTargets" type="s">
+    <param key="closeTargets" type="STRING">
 
     </param>
   </rule>
@@ -1051,12 +1051,12 @@
     <configKey><![CDATA[rulesets/design.xml/NonThreadSafeSingleton]]></configKey>
 
 
-    <param key="checkNonStaticMethods" type="b">
+    <param key="checkNonStaticMethods" type="BOOLEAN">
       <priority>MAJOR</priority>
 
 
     </param>
-    <param key="checkNonStaticFields" type="b">
+    <param key="checkNonStaticFields" type="BOOLEAN">
       <priority>MAJOR</priority>
 
 
@@ -1075,7 +1075,7 @@
     <configKey><![CDATA[rulesets/design.xml/UncommentedEmptyConstructor]]></configKey>
 
 
-    <param key="ignoreExplicitConstructorInvocation" type="b">
+    <param key="ignoreExplicitConstructorInvocation" type="BOOLEAN">
 
 
     </param>
@@ -1177,7 +1177,7 @@
     <configKey><![CDATA[rulesets/javabeans.xml/BeanMembersShouldSerialize]]></configKey>
 
 
-    <param key="prefix" type="s">
+    <param key="prefix" type="STRING">
 
 
     </param>
@@ -1202,21 +1202,21 @@
     <configKey><![CDATA[rulesets/strings.xml/AvoidDuplicateLiterals]]></configKey>
 
 
-    <param key="threshold" type="i">
+    <param key="threshold" type="INTEGER">
 
 
     </param>
-    <param key="skipAnnotations" type="b">
+    <param key="skipAnnotations" type="BOOLEAN">
 
     </param>
-    <param key="exceptionlist" type="s">
+    <param key="exceptionlist" type="STRING">
 
     </param>
-    <param key="separator" type="s">
+    <param key="separator" type="STRING">
 
 
     </param>
-    <param key="exceptionfile" type="s">
+    <param key="exceptionfile" type="STRING">
 
     </param>
   </rule>
@@ -1268,7 +1268,7 @@
     <configKey><![CDATA[rulesets/strings.xml/ConsecutiveLiteralAppends]]></configKey>
 
 
-    <param key="threshold" type="i">
+    <param key="threshold" type="INTEGER">
 
 
     </param>
@@ -1314,7 +1314,7 @@
     <configKey><![CDATA[rulesets/codesize.xml/ExcessiveMethodLength]]></configKey>
 
 
-    <param key="minimum" type="i">
+    <param key="minimum" type="INTEGER">
 
 
     </param>
@@ -1325,7 +1325,7 @@
     <configKey><![CDATA[rulesets/codesize.xml/ExcessiveParameterList]]></configKey>
 
 
-    <param key="minimum" type="i">
+    <param key="minimum" type="INTEGER">
 
 
     </param>
@@ -1336,7 +1336,7 @@
     <configKey><![CDATA[rulesets/codesize.xml/ExcessiveClassLength]]></configKey>
 
 
-    <param key="minimum" type="i">
+    <param key="minimum" type="INTEGER">
 
 
     </param>
@@ -1347,7 +1347,7 @@
     <configKey><![CDATA[rulesets/codesize.xml/ExcessivePublicCount]]></configKey>
 
 
-    <param key="minimum" type="i">
+    <param key="minimum" type="INTEGER">
 
 
     </param>
@@ -1358,7 +1358,7 @@
     <configKey><![CDATA[rulesets/codesize.xml/TooManyFields]]></configKey>
 
 
-    <param key="maxfields" type="i">
+    <param key="maxfields" type="INTEGER">
 
 
     </param>
@@ -1369,7 +1369,7 @@
     <configKey><![CDATA[rulesets/codesize.xml/NcssMethodCount]]></configKey>
 
 
-    <param key="minimum" type="i">
+    <param key="minimum" type="INTEGER">
 
     </param>
   </rule>
@@ -1379,7 +1379,7 @@
     <configKey><![CDATA[rulesets/codesize.xml/NcssTypeCount]]></configKey>
 
 
-    <param key="minimum" type="i">
+    <param key="minimum" type="INTEGER">
 
     </param>
   </rule>
@@ -1389,7 +1389,7 @@
     <configKey><![CDATA[rulesets/codesize.xml/NcssConstructorCount]]></configKey>
 
 
-    <param key="minimum" type="i">
+    <param key="minimum" type="INTEGER">
 
     </param>
   </rule>
@@ -1434,7 +1434,7 @@
     <configKey><![CDATA[rulesets/logging-jakarta-commons.xml/ProperLogger]]></configKey>
 
 
-    <param key="staticLoggerName" type="s">
+    <param key="staticLoggerName" type="STRING">
 
 
     </param>
@@ -1452,7 +1452,7 @@
     <configKey><![CDATA[rulesets/naming.xml/LongVariable]]></configKey>
 
 
-    <param key="minimum" type="i">
+    <param key="minimum" type="INTEGER">
 
 
     </param>
@@ -1470,19 +1470,19 @@
     <configKey><![CDATA[rulesets/naming.xml/VariableNamingConventions]]></configKey>
 
 
-    <param key="staticPrefix" type="s">
+    <param key="staticPrefix" type="STRING">
 
 
     </param>
-    <param key="staticSuffix" type="s">
+    <param key="staticSuffix" type="STRING">
 
 
     </param>
-    <param key="memberPrefix" type="s">
+    <param key="memberPrefix" type="STRING">
 
 
     </param>
-    <param key="memberSuffix" type="s">
+    <param key="memberSuffix" type="STRING">
 
 
     </param>
@@ -1714,7 +1714,7 @@
     <configKey><![CDATA[rulesets/imports.xml/TooManyStaticImports]]></configKey>
 
 
-    <param key="maximumStaticImports" type="i">
+    <param key="maximumStaticImports" type="INTEGER">
 
 
     </param>
@@ -1802,7 +1802,7 @@
     <configKey><![CDATA[rulesets/naming.xml/BooleanGetMethodName]]></configKey>
 
 
-    <param key="checkParameterizedMethods" type="b">
+    <param key="checkParameterizedMethods" type="BOOLEAN">
 
 
     </param>
@@ -1817,7 +1817,7 @@
     <param key="xpath" type="TEXT">
 
     </param>
-    <param key="message" type="s">
+    <param key="message" type="STRING">
 
     </param>
   </rule>

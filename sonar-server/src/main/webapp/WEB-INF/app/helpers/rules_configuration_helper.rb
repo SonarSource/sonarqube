@@ -27,7 +27,8 @@ module RulesConfigurationHelper
   PARAM_TYPE_BOOLEAN = "b"
   PARAM_TYPE_REGEXP = "r"
 
-  def property_type_for_param_type(type)
+  # Kept for compatibility with old rule param type
+  def type_with_compatibility(type)
     return PropertyType::TYPE_STRING if type == PARAM_TYPE_STRING
     return PropertyType::TYPE_STRING if type == PARAM_TYPE_STRING_LIST
     return PropertyType::TYPE_INTEGER if type == PARAM_TYPE_INTEGER
@@ -49,7 +50,7 @@ module RulesConfigurationHelper
   end
 
   def param_value_input(parameter, value, options = {})
-    property_value 'value', property_type_for_param_type(parameter.param_type), value, {:id => parameter.id}.update(options)
+    property_value 'value', type_with_compatibility(parameter.param_type), value, {:id => parameter.id}.update(options)
   end
 
   def is_set(type)
