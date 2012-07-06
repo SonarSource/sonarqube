@@ -224,6 +224,8 @@ module ActiveRecord
       end
 
       def jdbc_columns(table_name, name = nil)
+        # sonar
+        return @connection.columns(table_name.to_s).reject { |c| (c.name=='admin' || c.name=='remarks') } if table_name=='users'
         @connection.columns(table_name.to_s)
       end
       alias_chained_method :columns, :query_cache, :jdbc_columns
