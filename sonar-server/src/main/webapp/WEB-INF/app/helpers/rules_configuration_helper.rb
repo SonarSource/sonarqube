@@ -20,20 +20,17 @@
 module RulesConfigurationHelper
   include PropertiesHelper
 
-  PARAM_TYPE_STRING = "s"
   PARAM_TYPE_STRING_LIST = "s{}"
-  PARAM_TYPE_INTEGER = "i"
   PARAM_TYPE_INTEGER_LIST = "i{}"
-  PARAM_TYPE_BOOLEAN = "b"
   PARAM_TYPE_REGEXP = "r"
 
   # Kept for compatibility with old rule param type
   def type_with_compatibility(type)
-    return PropertyType::TYPE_STRING if type == PARAM_TYPE_STRING
+    return PropertyType::TYPE_STRING if type == 's'
     return PropertyType::TYPE_STRING if type == PARAM_TYPE_STRING_LIST
-    return PropertyType::TYPE_INTEGER if type == PARAM_TYPE_INTEGER
+    return PropertyType::TYPE_INTEGER if type == 'i'
     return PropertyType::TYPE_INTEGER if type == PARAM_TYPE_INTEGER_LIST
-    return PropertyType::TYPE_BOOLEAN if type == PARAM_TYPE_BOOLEAN
+    return PropertyType::TYPE_BOOLEAN if type == 'b'
     return PropertyType::TYPE_STRING if type == PARAM_TYPE_REGEXP
     return PropertyType::TYPE_STRING if is_set(type)
 
@@ -41,11 +38,11 @@ module RulesConfigurationHelper
   end
 
   def readable_type(type)
-    return "Set of string (, as delimiter)" if type == PARAM_TYPE_STRING_LIST
+    return "Set of comma delimited strings" if type == PARAM_TYPE_STRING_LIST
     return "Number" if type_with_compatibility(type) == PropertyType::TYPE_INTEGER
-    return "Set of number (, as delimiter)" if type == PARAM_TYPE_INTEGER_LIST
+    return "Set of comma delimited numbers" if type == PARAM_TYPE_INTEGER_LIST
     return "Regular expression" if type == PARAM_TYPE_REGEXP
-    return "Set of values (, as delimiter)" if is_set(type)
+    return "Set of comma delimited values" if is_set(type)
     ""
   end
 
@@ -63,17 +60,15 @@ module RulesConfigurationHelper
     type=type_with_compatibility(param_type)
 
     if is_set_type
-      allowed_tokens = get_allowed_tokens
-      attribute.split(',').each do |provided_token|
-        if !allowed_tokens.include?(provided_token)
-          errors.add("#{value}", "'#{provided_token}' kust be one of : " + allowed_tokens.join(', '))
+      attribute.split(',').each do |v|
+        if !get_allowed_tokens.include?(v)
+          errors.add("#{value}", "'#{v}' must be one of : " + get_allowed_tokens.join(', '))
         end
       end
     elsif param_type == RulesConfigurationHelper::PARAM_TYPE_INTEGER_LIST
       attribute.split(',').each do |n|
         if !Api::Utils.is_integer?(n)
           errors.add("#{value}", "'#{n}' must be an integer.")
-          return
         end
       end
     elsif param_type == RulesConfigurationHelper::PARAM_TYPE_REGEXP
