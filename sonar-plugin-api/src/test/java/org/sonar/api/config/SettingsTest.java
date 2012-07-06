@@ -21,7 +21,9 @@ package org.sonar.api.config;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 
@@ -43,6 +45,9 @@ public class SettingsTest {
   static class Init {
   }
 
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
   @Before
   public void initDefinitions() {
     definitions = new PropertyDefinitions();
@@ -53,6 +58,42 @@ public class SettingsTest {
   public void defaultValuesShouldBeLoadedFromDefinitions() {
     Settings settings = new Settings(definitions);
     assertThat(settings.getDefaultValue("hello")).isEqualTo("world");
+  }
+
+  @Test
+  public void setProperty_int() {
+    Settings settings = new Settings();
+    settings.setProperty("foo", 123);
+    assertThat(settings.getInt("foo")).isEqualTo(123);
+    assertThat(settings.getString("foo")).isEqualTo("123");
+    assertThat(settings.getBoolean("foo")).isFalse();
+  }
+
+  @Test
+  public void setProperty_boolean() {
+    Settings settings = new Settings();
+    settings.setProperty("foo", true);
+    settings.setProperty("bar", false);
+    assertThat(settings.getBoolean("foo")).isTrue();
+    assertThat(settings.getBoolean("bar")).isFalse();
+    assertThat(settings.getString("foo")).isEqualTo("true");
+    assertThat(settings.getString("bar")).isEqualTo("false");
+  }
+
+  @Test
+  public void default_number_values_are_zero() {
+    Settings settings = new Settings();
+    assertThat(settings.getInt("foo")).isEqualTo(0);
+    assertThat(settings.getLong("foo")).isEqualTo(0L);
+  }
+
+  @Test
+  public void getInt_value_must_be_valid() {
+    thrown.expect(NumberFormatException.class);
+
+    Settings settings = new Settings();
+    settings.setProperty("foo", "not a number");
+    settings.getInt("foo");
   }
 
   @Test
@@ -85,6 +126,7 @@ public class SettingsTest {
   @Test
   public void testGetDate() {
     Settings settings = new Settings(definitions);
+    assertThat(settings.getDate("unknown")).isNull();
     assertThat(settings.getDate("date").getDate()).isEqualTo(18);
     assertThat(settings.getDate("date").getMonth()).isEqualTo(4);
   }
@@ -98,16 +140,24 @@ public class SettingsTest {
   @Test
   public void testGetDateTime() {
     Settings settings = new Settings(definitions);
+    assertThat(settings.getDateTime("unknown")).isNull();
     assertThat(settings.getDateTime("datetime").getDate()).isEqualTo(18);
     assertThat(settings.getDateTime("datetime").getMonth()).isEqualTo(4);
     assertThat(settings.getDateTime("datetime").getMinutes()).isEqualTo(50);
   }
 
   @Test
-  public void testGetArray() {
+  public void getStringArray() {
     Settings settings = new Settings(definitions);
     String[] array = settings.getStringArray("array");
     assertThat(array).isEqualTo(new String[]{"one", "two", "three"});
+  }
+
+  @Test
+  public void getStringArray_no_value() {
+    Settings settings = new Settings();
+    String[] array = settings.getStringArray("array");
+    assertThat(array).isEmpty();
   }
 
   @Test
@@ -221,6 +271,5 @@ public class SettingsTest {
     assertThat(settings.getKeysStartingWith("sonar")).containsOnly("sonar.jdbc.url", "sonar.jdbc.username", "sonar.security");
     assertThat(settings.getKeysStartingWith("sonar.jdbc")).containsOnly("sonar.jdbc.url", "sonar.jdbc.username");
     assertThat(settings.getKeysStartingWith("other")).hasSize(0);
-
   }
 }

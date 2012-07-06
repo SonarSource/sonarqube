@@ -114,6 +114,9 @@ public class Settings implements BatchComponent, ServerComponent {
     return StringUtils.isNotEmpty(value) && Boolean.parseBoolean(value);
   }
 
+  /**
+   * @return the value as int. If the property does not exist and has no default value, then 0 is returned.
+   */
   public final int getInt(String key) {
     String value = getString(key);
     if (StringUtils.isNotEmpty(value)) {
