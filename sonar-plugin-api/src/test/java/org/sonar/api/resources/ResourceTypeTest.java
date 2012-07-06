@@ -19,35 +19,35 @@
  */
 package org.sonar.api.resources;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Test;
+
+import static org.fest.assertions.Assertions.assertThat;
+
 
 public class ResourceTypeTest {
 
   @Test
   public void shouldCreateWithDefaults() {
     ResourceType def = ResourceType.builder("qualifier")
-        .build();
-    assertThat(def.getQualifier(), is("qualifier"));
-    assertThat(def.getIconPath(), is("/images/q/qualifier.png"));
-    assertThat(def.hasSourceCode(), is(false));
+      .build();
+    assertThat(def.getQualifier()).isEqualTo("qualifier");
+    assertThat(def.getIconPath()).isEqualTo("/images/q/qualifier.png");
+    assertThat(def.hasSourceCode()).isFalse();
   }
 
   @Test
   public void shouldCreate() {
     ResourceType def = ResourceType.builder("qualifier")
-        .setIconPath("/custom-icon.png")
-        .hasSourceCode()
-        .setProperty("availableForFilters", "true")
-        .setProperty("anotherProperty", "foo")
-        .build();
-    assertThat(def.getQualifier(), is("qualifier"));
-    assertThat(def.getIconPath(), is("/custom-icon.png"));
-    assertThat(def.hasSourceCode(), is(true));
-    assertThat(def.getBooleanProperty("availableForFilters"), is(true));
-    assertThat(def.getStringProperty("anotherProperty"), is("foo"));
+      .setIconPath("/custom-icon.png")
+      .hasSourceCode()
+      .setProperty("availableForFilters", "true")
+      .setProperty("anotherProperty", "foo")
+      .build();
+    assertThat(def.getQualifier()).isEqualTo("qualifier");
+    assertThat(def.getIconPath()).isEqualTo("/custom-icon.png");
+    assertThat(def.hasSourceCode()).isTrue();
+    assertThat(def.getBooleanProperty("availableForFilters")).isTrue();
+    assertThat(def.getStringProperty("anotherProperty")).isEqualTo("foo");
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -61,26 +61,41 @@ public class ResourceTypeTest {
     ResourceType foo2 = ResourceType.builder("FOO").build();
     ResourceType bar = ResourceType.builder("BAR").build();
 
-    assertThat(foo1.equals(foo1), is(true));
-    assertThat(foo1.equals(foo2), is(true));
-    assertThat(foo1.equals(bar), is(false));
+    assertThat(foo1.equals(foo1)).isTrue();
+    assertThat(foo1.equals(foo2)).isTrue();
+    assertThat(foo1.equals(bar)).isFalse();
 
-    assertThat(foo1.hashCode(), is(foo1.hashCode()));
+    assertThat(foo1.hashCode()).isEqualTo(foo1.hashCode());
   }
 
   @Test
   public void testDeprecatedIsAvailableForFiltesCompatibility() {
-    // test getter
-    ResourceType def = ResourceType.builder("qualifier")
-        .setProperty("availableForFilters", "true")
-        .build();
-    assertThat(def.isAvailableForFilters(), is(true));
+    ResourceType def = ResourceType.builder("qualifier").build();
+    assertThat(def.getBooleanProperty("availableForFilters")).isFalse();
 
-    // test setter on Builder
-    def = ResourceType.builder("qualifier")
-        .availableForFilters()
-        .build();
-    assertThat(def.getBooleanProperty("availableForFilters"), is(true));
+    def = ResourceType.builder("qualifier").availableForFilters().build();
+    assertThat(def.getBooleanProperty("availableForFilters")).isTrue();
   }
 
+  @Test
+  public void getBooleanProperty_is_set() {
+    // set with boolean parameter
+    ResourceType def = ResourceType.builder("qualifier").setProperty("availableForFilters", true).build();
+    assertThat(def.getBooleanProperty("availableForFilters")).isTrue();
+
+    def = ResourceType.builder("qualifier").setProperty("availableForFilters", false).build();
+    assertThat(def.getBooleanProperty("availableForFilters")).isFalse();
+
+    def = ResourceType.builder("qualifier").setProperty("availableForFilters", "true").build();
+    assertThat(def.getBooleanProperty("availableForFilters")).isTrue();
+
+    def = ResourceType.builder("qualifier").setProperty("availableForFilters", "false").build();
+    assertThat(def.getBooleanProperty("availableForFilters")).isFalse();
+  }
+
+  @Test
+  public void getBooleanProperty_is_not_set() {
+    ResourceType def = ResourceType.builder("qualifier").build();
+    assertThat(def.getBooleanProperty("availableForFilters")).isFalse();
+  }
 }

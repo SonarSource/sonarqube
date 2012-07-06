@@ -30,33 +30,31 @@ import org.sonar.api.resources.ResourceTypeTree;
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 public final class DefaultResourceTypes extends ExtensionProvider implements BatchExtension, ServerExtension {
 
-  private static final String TRUE = "true";
-
   @Override
   public ResourceTypeTree provide() {
     return ResourceTypeTree.builder()
 
-        .addType(ResourceType.builder(Qualifiers.PROJECT)
-            .setProperty("deletable", TRUE)
-            .setProperty("modifiable_history", TRUE)
-            .setProperty("hasRolePolicy", TRUE)
-            .setProperty("updatable_key", TRUE)
-            .build())
-        .addType(ResourceType.builder(Qualifiers.MODULE)
-            .setProperty("updatable_key", TRUE)
-            .build())
-        .addType(ResourceType.builder(Qualifiers.DIRECTORY).build())
-        .addType(ResourceType.builder(Qualifiers.PACKAGE).build())
-        .addType(ResourceType.builder(Qualifiers.FILE).hasSourceCode().build())
-        .addType(ResourceType.builder(Qualifiers.CLASS).hasSourceCode().build())
-        .addType(ResourceType.builder(Qualifiers.UNIT_TEST_FILE).hasSourceCode().build())
+      .addType(ResourceType.builder(Qualifiers.PROJECT)
+        .setProperty("deletable", true)
+        .setProperty("modifiable_history", true)
+        .setProperty("hasRolePolicy", true)
+        .setProperty("updatable_key", true)
+        .build())
+      .addType(ResourceType.builder(Qualifiers.MODULE)
+        .setProperty("updatable_key", true)
+        .build())
+      .addType(ResourceType.builder(Qualifiers.DIRECTORY).build())
+      .addType(ResourceType.builder(Qualifiers.PACKAGE).build())
+      .addType(ResourceType.builder(Qualifiers.FILE).hasSourceCode().build())
+      .addType(ResourceType.builder(Qualifiers.CLASS).hasSourceCode().build())
+      .addType(ResourceType.builder(Qualifiers.UNIT_TEST_FILE).hasSourceCode().build())
 
-        .addRelations(Qualifiers.PROJECT, Qualifiers.MODULE)
-        .addRelations(Qualifiers.MODULE, Qualifiers.DIRECTORY, Qualifiers.PACKAGE)
-        .addRelations(Qualifiers.DIRECTORY, Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE)
-        .addRelations(Qualifiers.PACKAGE, Qualifiers.CLASS, Qualifiers.UNIT_TEST_FILE)
+      .addRelations(Qualifiers.PROJECT, Qualifiers.MODULE)
+      .addRelations(Qualifiers.MODULE, Qualifiers.DIRECTORY, Qualifiers.PACKAGE)
+      .addRelations(Qualifiers.DIRECTORY, Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE)
+      .addRelations(Qualifiers.PACKAGE, Qualifiers.CLASS, Qualifiers.UNIT_TEST_FILE)
 
-        .build();
+      .build();
 
   }
 

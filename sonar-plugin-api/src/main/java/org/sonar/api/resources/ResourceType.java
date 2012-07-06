@@ -19,29 +19,28 @@
  */
 package org.sonar.api.resources;
 
-import java.util.Map;
-
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
-
 import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+import java.util.Map;
+
 /**
  * <p>Experimental extension to declare types of resources.</p>
  * <p>
  * Since 3.0, ResourceType object can declare properties that give information about the capabilities of the
- * resource type. Those properties may be used, of instance, to adapt the Web UI according to the type of 
+ * resource type. Those properties may be used, of instance, to adapt the Web UI according to the type of
  * the resource being displayed.
  * <br>
  * Currently, the following properties can be defined:
  * </p>
  * <ul>
- *   <li>"deletable": if set to "true", then this resource can be deleted/purged.</li>
- *   <li>"availableForFilters": if set to "true", then this resource can be displayed in the filters results</li>
- *   <li>"modifiable_history": if set to "true", then the history of this resource may be modified (deletion of snapshots, modification of events, ...)</li>
+ * <li>"deletable": if set to "true", then this resource can be deleted/purged.</li>
+ * <li>"availableForFilters": if set to "true", then this resource can be displayed in the filters results</li>
+ * <li>"modifiable_history": if set to "true", then the history of this resource may be modified (deletion of snapshots, modification of events, ...)</li>
  * </ul>
  *
  * @since 2.14
@@ -61,6 +60,7 @@ public final class ResourceType {
 
     /**
      * Creates a new {@link Builder}
+     *
      * @param qualifier
      */
     public Builder(String qualifier) {
@@ -69,7 +69,7 @@ public final class ResourceType {
 
     /**
      * Relative path of the icon used to represent the resource type.
-     * 
+     *
      * @param iconPath path to icon, relative to context of web-application (e.g. "/images/q/DIR.png")
      */
     public Builder setIconPath(@Nullable String iconPath) {
@@ -96,7 +96,7 @@ public final class ResourceType {
 
     /**
      * Sets a property on the resource type. See the description of {@link ResourceType} class for more information.
-     * 
+     *
      * @since 3.0
      */
     public Builder setProperty(String key, String value) {
@@ -104,6 +104,13 @@ public final class ResourceType {
       Preconditions.checkNotNull(value);
       properties.put(key, value);
       return this;
+    }
+
+    /**
+     * @since 3.2
+     */
+    public Builder setProperty(String key, boolean value) {
+      return setProperty(key, String.valueOf(value));
     }
 
     /**
@@ -119,6 +126,7 @@ public final class ResourceType {
 
   /**
    * Creates a new {@link Builder}
+   *
    * @param qualifier
    */
   public static Builder builder(String qualifier) {
@@ -141,7 +149,7 @@ public final class ResourceType {
 
   /**
    * Qualifier is the unique key.
-   * 
+   *
    * @return the qualifier
    */
   public String getQualifier() {
@@ -150,7 +158,7 @@ public final class ResourceType {
 
   /**
    * Returns the relative path of the icon used to represent the resource type
-   * 
+   *
    * @return the relative path.
    */
   public String getIconPath() {
@@ -158,17 +166,8 @@ public final class ResourceType {
   }
 
   /**
-   * @deprecated since 3.0. Use {@link #getBooleanProperty(String)} with "availableForFilters".
-   */
-  @Deprecated
-  public boolean isAvailableForFilters() {
-    Boolean availableForFilters = getBooleanProperty("availableForFilters");
-    return availableForFilters == null ? false : availableForFilters.booleanValue();
-  }
-
-  /**
    * Tells whether resources of this type has source code or not.
-   * 
+   *
    * @return true if the type has source code
    */
   public boolean hasSourceCode() {
@@ -177,7 +176,7 @@ public final class ResourceType {
 
   /**
    * Returns the value of the property for this resource type.
-   * 
+   *
    * @return the String value of the property, or NULL if the property hasn't been set.
    * @since 3.0
    */
@@ -188,13 +187,14 @@ public final class ResourceType {
 
   /**
    * Returns the value of the property for this resource type.
-   * 
+   *
    * @return the Boolean value of the property. If the property hasn't been set, False is returned.
    * @since 3.0
    */
-  public Boolean getBooleanProperty(String key) {
+  public boolean getBooleanProperty(String key) {
     Preconditions.checkNotNull(key);
-    return Boolean.valueOf(properties.get(key));
+    String value = properties.get(key);
+    return value != null && Boolean.parseBoolean(value);
   }
 
   @Override
