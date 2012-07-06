@@ -34,6 +34,8 @@ module RulesConfigurationHelper
     return PropertyType::TYPE_INTEGER if type == PARAM_TYPE_INTEGER_LIST
     return PropertyType::TYPE_BOOLEAN if type == PARAM_TYPE_BOOLEAN
     return PropertyType::TYPE_STRING if type == PARAM_TYPE_REGEXP
+
+    PropertyType::TYPE_STRING
   end
 
   def readable_type(type)
