@@ -19,11 +19,9 @@
  */
 package org.sonar.server.ui;
 
-import org.junit.rules.ExpectedException;
-
 import org.junit.Rule;
-
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.web.DefaultTab;
 import org.sonar.api.web.NavigationSection;
 import org.sonar.api.web.RequiredMeasures;
@@ -35,6 +33,7 @@ import org.sonar.api.web.WidgetProperty;
 import org.sonar.api.web.WidgetPropertyType;
 import org.sonar.api.web.WidgetScope;
 
+import static com.google.common.collect.Iterables.getOnlyElement;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.lessThan;
@@ -133,22 +132,29 @@ public class ViewProxyTest {
 
   @Test
   public void widget_should_be_editable() {
-    ViewProxy proxy = new ViewProxy<Widget>(new EditableWidget());
+    ViewProxy<Widget> proxy = new ViewProxy<Widget>(new EditableWidget());
 
     assertThat(proxy.isEditable()).isTrue();
     assertThat(proxy.getWidgetProperties()).hasSize(2);
   }
 
   @Test
+  public void widget_should_have_text_property() {
+    ViewProxy<Widget> proxy = new ViewProxy<Widget>(new TextWidget());
+
+    assertThat(getOnlyElement(proxy.getWidgetProperties()).type()).isEqualTo(WidgetPropertyType.TEXT);
+  }
+
+  @Test
   public void widget_should_not_be_global_by_default() {
-    ViewProxy proxy = new ViewProxy<Widget>(new EditableWidget());
+    ViewProxy<Widget> proxy = new ViewProxy<Widget>(new EditableWidget());
 
     assertThat(proxy.isGlobal()).isFalse();
   }
 
   @Test
   public void widget_should_be_global() {
-    ViewProxy proxy = new ViewProxy<Widget>(new GlobalWidget());
+    ViewProxy<Widget> proxy = new ViewProxy<Widget>(new GlobalWidget());
 
     assertThat(proxy.isGlobal()).isTrue();
   }
@@ -164,13 +170,13 @@ public class ViewProxyTest {
 
   @Test
   public void widgetShouldRequireMandatoryProperties() {
-    ViewProxy proxy = new ViewProxy<Widget>(new EditableWidget());
+    ViewProxy<Widget> proxy = new ViewProxy<Widget>(new EditableWidget());
     assertThat(proxy.hasRequiredProperties(), is(true));
   }
 
   @Test
   public void widgetShouldDefineOnlyOptionalProperties() {
-    ViewProxy proxy = new ViewProxy<Widget>(new WidgetWithOptionalProperties());
+    ViewProxy<Widget> proxy = new ViewProxy<Widget>(new WidgetWithOptionalProperties());
     assertThat(proxy.hasRequiredProperties(), is(false));
   }
 
@@ -256,13 +262,23 @@ class FakeView implements View {
   @WidgetProperty(key = "bar", defaultValue = "30", type = WidgetPropertyType.INTEGER)
 })
 class EditableWidget implements Widget {
-
   public String getId() {
     return "w1";
   }
 
   public String getTitle() {
     return "W1";
+  }
+}
+
+@WidgetProperties(@WidgetProperty(key = "message", defaultValue = "", type = WidgetPropertyType.TEXT))
+class TextWidget implements Widget {
+  public String getId() {
+    return "text";
+  }
+
+  public String getTitle() {
+    return "TEXT";
   }
 }
 
@@ -293,7 +309,6 @@ class WidgetWithInvalidScope implements Widget {
   @WidgetProperty(key = "bar")
 })
 class WidgetWithOptionalProperties implements Widget {
-
   public String getId() {
     return "w2";
   }
