@@ -19,6 +19,8 @@
  */
 package org.sonar.api.rules;
 
+import org.sonar.api.utils.SonarException;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
@@ -107,7 +109,7 @@ public final class AnnotationRuleParser implements ServerComponent {
         try {
           param.setType(PropertyType.valueOf(propertyAnnotation.type().trim()).name());
         } catch (IllegalArgumentException e) {
-          throw new IllegalArgumentException("Invalid property type [" + propertyAnnotation.type() + "]", e);
+          throw new SonarException("Invalid property type [" + propertyAnnotation.type() + "]", e);
         }
       } else {
         param.setType(guessType(field.getType()).name());

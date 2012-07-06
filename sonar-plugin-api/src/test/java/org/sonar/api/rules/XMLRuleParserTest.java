@@ -21,6 +21,7 @@ package org.sonar.api.rules;
 
 import org.hamcrest.core.Is;
 import org.junit.Test;
+import org.sonar.api.PropertyType;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.Cardinality;
 
@@ -28,6 +29,8 @@ import java.io.File;
 import java.io.StringReader;
 import java.util.List;
 
+import static com.google.common.collect.Iterables.getOnlyElement;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -74,6 +77,25 @@ public class XMLRuleParserTest {
   @Test(expected = SonarException.class)
   public void failIfMissingPropertyKey() {
     new XMLRuleParser().parse(new StringReader("<rules><rule><key>foo</key><name>Foo</name><param></param></rule></rules>"));
+  }
+
+  @Test
+  public void should_read_rule_parameter_type() {
+    assertThat(typeOf("<rules><rule><key>foo</key><name>Foo</name><param><key>key</key><type>STRING</type></param></rule></rules>")).isEqualTo(PropertyType.STRING.name());
+    assertThat(typeOf("<rules><rule><key>foo</key><name>Foo</name><param><key>key</key><type>INTEGER</type></param></rule></rules>")).isEqualTo(PropertyType.INTEGER.name());
+    assertThat(typeOf("<rules><rule><key>foo</key><name>Foo</name><param><key>key</key><type>s</type></param></rule></rules>")).isEqualTo(PropertyType.STRING.name());
+    assertThat(typeOf("<rules><rule><key>foo</key><name>Foo</name><param><key>key</key><type>s{}</type></param></rule></rules>")).isEqualTo("s{}");
+    assertThat(typeOf("<rules><rule><key>foo</key><name>Foo</name><param><key>key</key><type>i{}</type></param></rule></rules>")).isEqualTo("i{}");
+    assertThat(typeOf("<rules><rule><key>foo</key><name>Foo</name><param><key>key</key><type>s[foo,bar]</type></param></rule></rules>")).isEqualTo("s[foo,bar]");
+  }
+
+  static String typeOf(String xml) {
+    return getOnlyElement(new XMLRuleParser().parse(new StringReader(xml))).getParam("key").getType();
+  }
+
+  @Test(expected = SonarException.class)
+  public void fail_on_invalid_rule_parameter_type() {
+    new XMLRuleParser().parse(new StringReader("<rules><rule><key>foo</key><name>Foo</name><param><key>key</key><type>INVALID</type></param></rule></rules>"));
   }
 
   @Test

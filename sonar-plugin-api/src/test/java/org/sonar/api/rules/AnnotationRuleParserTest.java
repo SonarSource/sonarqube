@@ -19,6 +19,8 @@
  */
 package org.sonar.api.rules;
 
+import org.sonar.api.utils.SonarException;
+
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.PropertyType;
@@ -73,7 +75,7 @@ public class AnnotationRuleParserTest {
 
   @Test
   public void should_reject_invalid_prroperty_types() {
-    exception.expect(IllegalArgumentException.class);
+    exception.expect(SonarException.class);
     exception.expectMessage("Invalid property type [INVALID]");
 
     parseAnnotatedClass(RuleWithInvalidPropertyType.class);

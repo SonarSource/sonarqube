@@ -19,13 +19,16 @@
  */
 package org.sonar.api.rules;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Maps;
+import com.google.common.io.Closeables;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
+import org.sonar.api.PropertyType;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.Cardinality;
@@ -33,14 +36,20 @@ import org.sonar.check.Cardinality;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @since 2.3
  */
 public final class XMLRuleParser implements ServerComponent {
+  private final static Map<String, String> TYPE_MAP = typeMapWithDeprecatedValues();
 
   public List<Rule> parse(File file) {
     Reader reader = null;
@@ -52,7 +61,7 @@ public final class XMLRuleParser implements ServerComponent {
       throw new SonarException("Fail to load the file: " + file, e);
 
     } finally {
-      IOUtils.closeQuietly(reader);
+      Closeables.closeQuietly(reader);
     }
   }
 
@@ -69,7 +78,7 @@ public final class XMLRuleParser implements ServerComponent {
       throw new SonarException("Fail to load the xml stream", e);
 
     } finally {
-      IOUtils.closeQuietly(reader);
+      Closeables.closeQuietly(reader);
     }
   }
 
@@ -158,7 +167,7 @@ public final class XMLRuleParser implements ServerComponent {
     String typeAttribute = ruleC.getAttrValue("type");
     if (StringUtils.isNotBlank(typeAttribute)) {
       /* BACKWARD COMPATIBILITY WITH DEPRECATED FORMAT */
-      param.setType(StringUtils.trim(typeAttribute));
+      param.setType(type(StringUtils.trim(typeAttribute)));
     }
 
     SMInputCursor paramC = ruleC.childElementCursor();
@@ -172,7 +181,7 @@ public final class XMLRuleParser implements ServerComponent {
         param.setDescription(propText);
 
       } else if (StringUtils.equalsIgnoreCase("type", propNodeName)) {
-        param.setType(propText);
+        param.setType(type(propText));
 
       } else if (StringUtils.equalsIgnoreCase("defaultValue", propNodeName)) {
         param.setDefaultValue(propText);
@@ -181,5 +190,32 @@ public final class XMLRuleParser implements ServerComponent {
     if (StringUtils.isEmpty(param.getKey())) {
       throw new SonarException("Node <key> is missing in <param>");
     }
+  }
+
+  private static Map<String, String> typeMapWithDeprecatedValues() {
+    Map<String, String> map = Maps.newHashMap();
+    map.put("i", PropertyType.INTEGER.name());
+    map.put("s", PropertyType.STRING.name());
+    map.put("b", PropertyType.BOOLEAN.name());
+    map.put("r", PropertyType.REGULAR_EXPRESSION.name());
+    map.put("s{}", "s{}");
+    map.put("i{}", "i{}");
+    for (PropertyType propertyType : PropertyType.values()) {
+      map.put(propertyType.name(), propertyType.name());
+    }
+    return map;
+  }
+
+  @VisibleForTesting
+  static String type(String type) {
+    String validType = TYPE_MAP.get(type);
+    if (null != validType) {
+      return validType;
+    }
+
+    if (type.matches(".\\[.+\\]")) {
+      return type;
+    }
+    throw new SonarException("Invalid property type [" + type + "]");
   }
 }
