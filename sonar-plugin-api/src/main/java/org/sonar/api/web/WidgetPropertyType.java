@@ -63,6 +63,8 @@ public enum WidgetPropertyType {
 
   /**
    * Variation of {#STRING} with masked characters
+   *
+   * @since 3.2
    */
   PASSWORD
 }
