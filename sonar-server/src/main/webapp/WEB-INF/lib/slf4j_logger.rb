@@ -30,6 +30,7 @@ require 'java'
 # - logger key is 'rails'
 # - silence is not implemented
 # - level FATAL does not exist in SLF4J. It's linked to ERROR level.
+# - progname is an excpetion
 #
 class Slf4jLogger
   def initialize(logger_name='rails')
@@ -65,22 +66,27 @@ class Slf4jLogger
 
   def debug(message = nil, progname = nil, &block)
     @logger.debug(full_message(message, &block))
+    progname.backtrace.each { |line| @logger.debug('  ' + line) } if progname
   end
 
   def info(message = nil, progname = nil, &block)
     @logger.info(full_message(message, &block))
+    progname.backtrace.each { |line| @logger.info('  ' + line) } if progname
   end
 
   def warn(message = nil, progname = nil, &block)
     @logger.warn(full_message(message, &block))
+    progname.backtrace.each { |line| @logger.warn('  ' + line) } if progname
   end
 
   def error(message = nil, progname = nil, &block)
     @logger.error(full_message(message, &block))
+    progname.backtrace.each { |line| @logger.error('  ' + line) } if progname
   end
 
   def fatal(message = nil, progname = nil, &block)
     @logger.error(full_message(message, &block))
+    progname.backtrace.each { |line| @logger.error('  ' + line) } if progname
   end
 
   def flush
