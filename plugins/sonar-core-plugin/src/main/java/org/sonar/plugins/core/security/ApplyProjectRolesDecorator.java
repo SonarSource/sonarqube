@@ -40,12 +40,12 @@ public class ApplyProjectRolesDecorator implements Decorator {
 
   public void decorate(Resource resource, DecoratorContext context) {
     if (shouldDecorateResource(resource)) {
-      resourcePermissioning.grantDefaultPermissions(resource);
+      resourcePermissioning.grantDefaultRoles(resource);
     }
   }
 
   private boolean shouldDecorateResource(Resource resource) {
-    return resource.getId() != null && isProject(resource) && !resourcePermissioning.hasPermissions(resource);
+    return resource.getId() != null && isProject(resource) && !resourcePermissioning.hasRoles(resource);
   }
 
   private boolean isProject(Resource resource) {

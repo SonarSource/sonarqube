@@ -34,99 +34,99 @@ public class DefaultResourcePermissioningTest extends AbstractDaoTestCase {
   private Resource project = new Project("project").setId(123);
 
   @Test
-  public void addGroupPermissions() {
-    setupData("addGroupPermissions");
+  public void grantGroupRole() {
+    setupData("grantGroupRole");
 
     DefaultResourcePermissioning permissioning = new DefaultResourcePermissioning(new Settings(), getMyBatis());
-    permissioning.addGroupPermissions(project, "sonar-administrators", "admin");
+    permissioning.grantGroupRole(project, "sonar-administrators", "admin");
 
-    checkTables("addGroupPermissions", "group_roles");
+    checkTables("grantGroupRole", "group_roles");
   }
 
   @Test
-  public void addGroupPermissions_anyone() {
-    setupData("addGroupPermissions_anyone");
+  public void grantGroupRole_anyone() {
+    setupData("grantGroupRole_anyone");
 
     DefaultResourcePermissioning permissioning = new DefaultResourcePermissioning(new Settings(), getMyBatis());
-    permissioning.addGroupPermissions(project, DefaultGroups.ANYONE, "admin");
+    permissioning.grantGroupRole(project, DefaultGroups.ANYONE, "admin");
 
-    checkTables("addGroupPermissions_anyone", "group_roles");
+    checkTables("grantGroupRole_anyone", "group_roles");
   }
 
   @Test
-  public void addGroupPermissions_ignore_if_group_not_found() {
-    setupData("addGroupPermissions_ignore_if_group_not_found");
+  public void grantGroupRole_ignore_if_group_not_found() {
+    setupData("grantGroupRole_ignore_if_group_not_found");
 
     DefaultResourcePermissioning permissioning = new DefaultResourcePermissioning(new Settings(), getMyBatis());
-    permissioning.addGroupPermissions(project, "not_found", "admin");
+    permissioning.grantGroupRole(project, "not_found", "admin");
 
-    checkTables("addGroupPermissions_ignore_if_group_not_found", "group_roles");
+    checkTables("grantGroupRole_ignore_if_group_not_found", "group_roles");
   }
 
   @Test
-  public void addGroupPermissions_ignore_if_not_persisted() {
-    setupData("addGroupPermissions_ignore_if_not_persisted");
+  public void grantGroupRole_ignore_if_not_persisted() {
+    setupData("grantGroupRole_ignore_if_not_persisted");
 
     DefaultResourcePermissioning permissioning = new DefaultResourcePermissioning(new Settings(), getMyBatis());
     Project resourceWithoutId = new Project("");
-    permissioning.addGroupPermissions(resourceWithoutId, "sonar-users", "admin");
+    permissioning.grantGroupRole(resourceWithoutId, "sonar-users", "admin");
 
-    checkTables("addGroupPermissions_ignore_if_not_persisted", "group_roles");
+    checkTables("grantGroupRole_ignore_if_not_persisted", "group_roles");
   }
 
   @Test
-  public void grantDefaultPermissions() {
-    setupData("grantDefaultPermissions");
+  public void grantDefaultRoles() {
+    setupData("grantDefaultRoles");
 
     Settings settings = new Settings(new PropertyDefinitions(DefaultResourcePermissioning.class));
     DefaultResourcePermissioning permissioning = new DefaultResourcePermissioning(settings, getMyBatis());
-    permissioning.grantDefaultPermissions(project);
+    permissioning.grantDefaultRoles(project);
 
-    checkTables("grantDefaultPermissions", "user_roles", "group_roles");
+    checkTables("grantDefaultRoles", "user_roles", "group_roles");
   }
 
   @Test
-  public void grantDefaultPermissions_unknown_group() {
-    setupData("grantDefaultPermissions_unknown_group");
+  public void grantDefaultRoles_unknown_group() {
+    setupData("grantDefaultRoles_unknown_group");
 
     Settings settings = new Settings();
     settings.setProperty("sonar.role.admin.TRK.defaultGroups", "sonar-administrators,unknown");
     DefaultResourcePermissioning permissioning = new DefaultResourcePermissioning(settings, getMyBatis());
-    permissioning.grantDefaultPermissions(project);
+    permissioning.grantDefaultRoles(project);
 
-    checkTables("grantDefaultPermissions_unknown_group", "group_roles");
+    checkTables("grantDefaultRoles_unknown_group", "group_roles");
   }
 
   @Test
-  public void grantDefaultPermissions_users() {
-    setupData("grantDefaultPermissions_users");
+  public void grantDefaultRoles_users() {
+    setupData("grantDefaultRoles_users");
 
     Settings settings = new Settings();
     settings.setProperty("sonar.role.admin.TRK.defaultUsers", "marius,disabled,notfound");
     DefaultResourcePermissioning permissioning = new DefaultResourcePermissioning(settings, getMyBatis());
-    permissioning.grantDefaultPermissions(project);
+    permissioning.grantDefaultRoles(project);
 
-    checkTables("grantDefaultPermissions_users", "user_roles");
+    checkTables("grantDefaultRoles_users", "user_roles");
   }
 
   @Test
-  public void hasPermissions() {
-    setupData("hasPermissions");
+  public void hasRoles() {
+    setupData("hasRoles");
     DefaultResourcePermissioning permissioning = new DefaultResourcePermissioning(new Settings(), getMyBatis());
 
     // no groups and at least one user
-    assertThat(permissioning.hasPermissions(new Project("only_users").setId(1))).isTrue();
+    assertThat(permissioning.hasRoles(new Project("only_users").setId(1))).isTrue();
 
     // no users and at least one group
-    assertThat(permissioning.hasPermissions(new Project("only_groups").setId(2))).isTrue();
+    assertThat(permissioning.hasRoles(new Project("only_groups").setId(2))).isTrue();
 
     // groups and users
-    assertThat(permissioning.hasPermissions(new Project("groups_and_users").setId(3))).isTrue();
+    assertThat(permissioning.hasRoles(new Project("groups_and_users").setId(3))).isTrue();
 
     // no groups, no users
-    assertThat(permissioning.hasPermissions(new Project("no_groups_no_users").setId(4))).isFalse();
+    assertThat(permissioning.hasRoles(new Project("no_groups_no_users").setId(4))).isFalse();
 
     // does not exist
-    assertThat(permissioning.hasPermissions(new Project("not_found"))).isFalse();
+    assertThat(permissioning.hasRoles(new Project("not_found"))).isFalse();
   }
 }

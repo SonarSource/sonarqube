@@ -41,11 +41,11 @@ public class ApplyProjectRolesDecoratorTest {
   public void doNotApplySecurityWhenExistingPermissions() {
     Project project = new Project("project");
     project.setId(10);
-    when(resourcePermissioning.hasPermissions(project)).thenReturn(true);
+    when(resourcePermissioning.hasRoles(project)).thenReturn(true);
 
     decorator.decorate(project, null);
 
-    verify(resourcePermissioning, never()).grantDefaultPermissions(project);
+    verify(resourcePermissioning, never()).grantDefaultRoles(project);
   }
 
   @Test
@@ -53,22 +53,22 @@ public class ApplyProjectRolesDecoratorTest {
     Project project = new Project("project");
     Project module = new Project("module").setParent(project);
     module.setId(10);
-    when(resourcePermissioning.hasPermissions(project)).thenReturn(false);
+    when(resourcePermissioning.hasRoles(project)).thenReturn(false);
 
     decorator.decorate(module, null);
 
-    verify(resourcePermissioning, never()).grantDefaultPermissions(module);
+    verify(resourcePermissioning, never()).grantDefaultRoles(module);
   }
 
   @Test
   public void applySecurityWhenNoPermissions() {
     Project project = new Project("project");
     project.setId(10);
-    when(resourcePermissioning.hasPermissions(project)).thenReturn(false);
+    when(resourcePermissioning.hasRoles(project)).thenReturn(false);
 
     decorator.decorate(project, null);
 
-    verify(resourcePermissioning).grantDefaultPermissions(project);
+    verify(resourcePermissioning).grantDefaultRoles(project);
   }
 
 }

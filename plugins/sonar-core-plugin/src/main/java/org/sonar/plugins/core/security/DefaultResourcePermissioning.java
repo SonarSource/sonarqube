@@ -61,7 +61,7 @@ public class DefaultResourcePermissioning implements ResourcePermissioning, Batc
     this.myBatis = myBatis;
   }
 
-  public boolean hasPermissions(Resource resource) {
+  public boolean hasRoles(Resource resource) {
     if (resource.getId() != null) {
       SqlSession session = myBatis.openSession();
       try {
@@ -76,7 +76,7 @@ public class DefaultResourcePermissioning implements ResourcePermissioning, Batc
     return false;
   }
 
-  public void addUserPermissions(Resource resource, String login, String role) {
+  public void grantUserRole(Resource resource, String login, String role) {
     if (resource.getId() != null) {
       SqlSession session = myBatis.openSession();
       try {
@@ -95,7 +95,7 @@ public class DefaultResourcePermissioning implements ResourcePermissioning, Batc
     }
   }
 
-  public void addGroupPermissions(Resource resource, String groupName, String role) {
+  public void grantGroupRole(Resource resource, String groupName, String role) {
     if (resource.getId() != null) {
       SqlSession session = myBatis.openSession();
       try {
@@ -118,14 +118,14 @@ public class DefaultResourcePermissioning implements ResourcePermissioning, Batc
     }
   }
 
-  public void grantDefaultPermissions(Resource resource) {
+  public void grantDefaultRoles(Resource resource) {
     if (resource.getId() != null) {
       SqlSession session = myBatis.openSession();
       try {
-        removePermissions(resource, session);
-        grantDefaultPermissions(resource, UserRole.ADMIN, session);
-        grantDefaultPermissions(resource, UserRole.USER, session);
-        grantDefaultPermissions(resource, UserRole.CODEVIEWER, session);
+        removeRoles(resource, session);
+        grantDefaultRoles(resource, UserRole.ADMIN, session);
+        grantDefaultRoles(resource, UserRole.USER, session);
+        grantDefaultRoles(resource, UserRole.CODEVIEWER, session);
         session.commit();
       } finally {
         MyBatis.closeQuietly(session);
@@ -133,14 +133,14 @@ public class DefaultResourcePermissioning implements ResourcePermissioning, Batc
     }
   }
 
-  private void removePermissions(Resource resource, SqlSession session) {
+  private void removeRoles(Resource resource, SqlSession session) {
     Long resourceId = new Long(resource.getId());
     RoleMapper mapper = session.getMapper(RoleMapper.class);
     mapper.deleteGroupRolesByResourceId(resourceId);
     mapper.deleteUserRolesByResourceId(resourceId);
   }
 
-  private void grantDefaultPermissions(Resource resource, String role, SqlSession session) {
+  private void grantDefaultRoles(Resource resource, String role, SqlSession session) {
     UserMapper userMapper = session.getMapper(UserMapper.class);
     RoleMapper roleMapper = session.getMapper(RoleMapper.class);
     String[] groupNames = settings.getStringArrayBySeparator("sonar.role." + role + "." + resource.getQualifier() + ".defaultGroups", ",");

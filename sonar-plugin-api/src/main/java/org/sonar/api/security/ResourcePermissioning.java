@@ -31,11 +31,11 @@ import org.sonar.api.resources.Resource;
  */
 public interface ResourcePermissioning extends BatchComponent {
 
-  boolean hasPermissions(Resource resource);
+  boolean hasRoles(Resource resource);
 
-  void grantDefaultPermissions(Resource resource);
+  void grantDefaultRoles(Resource resource);
 
-  void addUserPermissions(Resource resource, String login, String role);
+  void grantUserRole(Resource resource, String login, String role);
 
-  void addGroupPermissions(Resource resource, String groupName, String role);
+  void grantGroupRole(Resource resource, String groupName, String role);
 }
