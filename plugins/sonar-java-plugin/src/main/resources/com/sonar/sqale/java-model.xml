@@ -3184,7 +3184,7 @@
         </prop>
       </chc>
       <chc>
-        <rule-repo>sqale-java</rule-repo>
+        <rule-repo>common-java</rule-repo>
         <rule-key>CommentDensityCheck</rule-key>
         <prop>
           <key>remediationFactor</key>
@@ -4883,7 +4883,7 @@
         </prop>
       </chc>
       <chc>
-        <rule-repo>sqale-java</rule-repo>
+        <rule-repo>common-java</rule-repo>
         <rule-key>DuplicatedBlocksCheck</rule-key>
         <prop>
           <key>remediationFactor</key>
@@ -9456,7 +9456,7 @@
       <key>UNIT_TESTS</key>
       <name>Unit tests</name>
       <chc>
-        <rule-repo>sqale-java</rule-repo>
+        <rule-repo>common-java</rule-repo>
         <rule-key>LineCoverageCheck</rule-key>
         <prop>
           <key>remediationFactor</key>
@@ -9469,7 +9469,7 @@
         </prop>
       </chc>
       <chc>
-        <rule-repo>sqale-java</rule-repo>
+        <rule-repo>common-java</rule-repo>
         <rule-key>BranchCoverageCheck</rule-key>
         <prop>
           <key>remediationFactor</key>
