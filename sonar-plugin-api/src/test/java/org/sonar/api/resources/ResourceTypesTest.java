@@ -25,98 +25,99 @@ import org.junit.Test;
 
 import java.util.Collection;
 
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
-import static org.junit.internal.matchers.IsCollectionContaining.hasItems;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class ResourceTypesTest {
 
   private ResourceTypeTree viewsTree = ResourceTypeTree.builder()
-      .addType(ResourceType.builder(Qualifiers.VIEW).setProperty("availableForFilters", "true").build())
-      .addType(ResourceType.builder(Qualifiers.SUBVIEW).build())
-      .addRelations(Qualifiers.VIEW, Qualifiers.SUBVIEW)
-      .addRelations(Qualifiers.SUBVIEW, Qualifiers.PROJECT)
-      .build();
+    .addType(ResourceType.builder(Qualifiers.VIEW).setProperty("availableForFilters", "true").build())
+    .addType(ResourceType.builder(Qualifiers.SUBVIEW).build())
+    .addRelations(Qualifiers.VIEW, Qualifiers.SUBVIEW)
+    .addRelations(Qualifiers.SUBVIEW, Qualifiers.PROJECT)
+    .build();
 
   private ResourceTypeTree defaultTree = ResourceTypeTree.builder()
-      .addType(ResourceType.builder(Qualifiers.PROJECT).setProperty("availableForFilters", "true").build())
-      .addType(ResourceType.builder(Qualifiers.DIRECTORY).build())
-      .addType(ResourceType.builder(Qualifiers.FILE).build())
-      .addRelations(Qualifiers.PROJECT, Qualifiers.DIRECTORY)
-      .addRelations(Qualifiers.DIRECTORY, Qualifiers.FILE)
-      .build();
+    .addType(ResourceType.builder(Qualifiers.PROJECT).setProperty("availableForFilters", "true").build())
+    .addType(ResourceType.builder(Qualifiers.DIRECTORY).build())
+    .addType(ResourceType.builder(Qualifiers.FILE).build())
+    .addRelations(Qualifiers.PROJECT, Qualifiers.DIRECTORY)
+    .addRelations(Qualifiers.DIRECTORY, Qualifiers.FILE)
+    .build();
 
-  private ResourceTypes types = new ResourceTypes(new ResourceTypeTree[] {viewsTree, defaultTree});
+  private ResourceTypes types = new ResourceTypes(new ResourceTypeTree[]{viewsTree, defaultTree});
 
   @Test
   public void get() {
-    assertThat(types.get(Qualifiers.PROJECT).getQualifier(), is(Qualifiers.PROJECT));
+    assertThat(types.get(Qualifiers.PROJECT).getQualifier()).isEqualTo(Qualifiers.PROJECT);
 
     // does not return null
-    assertThat(types.get("xxx").getQualifier(), is("xxx"));
+    assertThat(types.get("xxx").getQualifier()).isEqualTo("xxx");
   }
 
   @Test
   public void getAll() {
-    assertThat(types.getAll().size(), is(5));
-    assertThat(qualifiers(types.getAll()), hasItems(
-        Qualifiers.PROJECT, Qualifiers.DIRECTORY, Qualifiers.FILE, Qualifiers.VIEW, Qualifiers.SUBVIEW));
+    assertThat(qualifiers(types.getAll())).containsOnly(Qualifiers.PROJECT, Qualifiers.DIRECTORY, Qualifiers.FILE, Qualifiers.VIEW, Qualifiers.SUBVIEW);
   }
 
   @Test
   public void getAll_predicate() {
     Collection<ResourceType> forFilters = types.getAll(ResourceTypes.AVAILABLE_FOR_FILTERS);
-    assertThat(forFilters.size(), is(2));
-    assertThat(qualifiers(forFilters), hasItems(Qualifiers.PROJECT, Qualifiers.VIEW));
+    assertThat(qualifiers(forFilters)).containsOnly(Qualifiers.PROJECT, Qualifiers.VIEW).doesNotHaveDuplicates();
+  }
+
+  @Test
+  public void getAllWithPropertyKey() {
+    assertThat(qualifiers(types.getAllWithPropertyKey("availableForFilters"))).containsOnly(Qualifiers.VIEW, Qualifiers.PROJECT);
+  }
+
+  @Test
+  public void getAllWithPropertyValue() {
+    assertThat(qualifiers(types.getAllWithPropertyValue("availableForFilters", "true"))).containsOnly(Qualifiers.VIEW, Qualifiers.PROJECT);
+    assertThat(qualifiers(types.getAllWithPropertyValue("availableForFilters", true))).containsOnly(Qualifiers.VIEW, Qualifiers.PROJECT);
+    assertThat(qualifiers(types.getAllWithPropertyValue("availableForFilters", false))).containsOnly(Qualifiers.SUBVIEW, Qualifiers.DIRECTORY, Qualifiers.FILE);
   }
 
   @Test
   public void getChildrenQualifiers() {
-    assertThat(types.getChildrenQualifiers(Qualifiers.PROJECT).size(), is(1));
-    assertThat(types.getChildrenQualifiers(Qualifiers.PROJECT), hasItem(Qualifiers.DIRECTORY));
-    assertThat(types.getChildrenQualifiers(Qualifiers.SUBVIEW), hasItem(Qualifiers.PROJECT));
-    assertThat(types.getChildrenQualifiers("xxx").isEmpty(), is(true));
-    assertThat(types.getChildrenQualifiers(Qualifiers.FILE).isEmpty(), is(true));
+    assertThat(types.getChildrenQualifiers(Qualifiers.PROJECT)).containsExactly(Qualifiers.DIRECTORY);
+    assertThat(types.getChildrenQualifiers(Qualifiers.SUBVIEW)).containsExactly(Qualifiers.PROJECT);
+    assertThat(types.getChildrenQualifiers("xxx")).isEmpty();
+    assertThat(types.getChildrenQualifiers(Qualifiers.FILE)).isEmpty();
   }
 
   @Test
   public void getChildren() {
-    assertThat(qualifiers(types.getChildren(Qualifiers.PROJECT)), hasItem(Qualifiers.DIRECTORY));
-    assertThat(qualifiers(types.getChildren(Qualifiers.SUBVIEW)), hasItem(Qualifiers.PROJECT));
+    assertThat(qualifiers(types.getChildren(Qualifiers.PROJECT))).contains(Qualifiers.DIRECTORY);
+    assertThat(qualifiers(types.getChildren(Qualifiers.SUBVIEW))).contains(Qualifiers.PROJECT);
   }
 
   @Test
   public void getLeavesQualifiers() {
-    assertThat(types.getLeavesQualifiers(Qualifiers.PROJECT).size(), is(1));
-    assertThat(types.getLeavesQualifiers(Qualifiers.PROJECT), hasItem(Qualifiers.FILE));
+    assertThat(types.getLeavesQualifiers(Qualifiers.PROJECT)).containsExactly(Qualifiers.FILE);
 
-    assertThat(types.getLeavesQualifiers(Qualifiers.DIRECTORY).size(), is(1));
-    assertThat(types.getLeavesQualifiers(Qualifiers.DIRECTORY), hasItem(Qualifiers.FILE));
+    assertThat(types.getLeavesQualifiers(Qualifiers.DIRECTORY)).containsExactly(Qualifiers.FILE);
 
-    assertThat(types.getLeavesQualifiers(Qualifiers.VIEW).size(), is(1));
-    assertThat(types.getLeavesQualifiers(Qualifiers.VIEW), hasItem(Qualifiers.PROJECT));
+    assertThat(types.getLeavesQualifiers(Qualifiers.VIEW)).containsExactly(Qualifiers.PROJECT);
 
-    assertThat(types.getLeavesQualifiers("xxx").size(), is(0));
+    assertThat(types.getLeavesQualifiers("xxx")).isEmpty();
   }
 
   @Test
   public void getTree() {
-    assertThat(qualifiers(types.getTree(Qualifiers.VIEW).getTypes()), hasItems(Qualifiers.VIEW, Qualifiers.SUBVIEW));
-    assertThat(types.getTree("xxx"), nullValue());
+    assertThat(qualifiers(types.getTree(Qualifiers.VIEW).getTypes())).containsOnly(Qualifiers.VIEW, Qualifiers.SUBVIEW).doesNotHaveDuplicates();
+    assertThat(types.getTree("xxx")).isNull();
   }
 
   @Test(expected = IllegalStateException.class)
   public void failOnDuplicatedQualifier() {
     ResourceTypeTree tree1 = ResourceTypeTree.builder()
-        .addType(ResourceType.builder("foo").build())
-        .build();
+      .addType(ResourceType.builder("foo").build())
+      .build();
     ResourceTypeTree tree2 = ResourceTypeTree.builder()
-        .addType(ResourceType.builder("foo").build())
-        .build();
+      .addType(ResourceType.builder("foo").build())
+      .build();
 
-    new ResourceTypes(new ResourceTypeTree[] {tree1, tree2});
+    new ResourceTypes(new ResourceTypeTree[]{tree1, tree2});
   }
 
   static Collection<String> qualifiers(Collection<ResourceType> types) {

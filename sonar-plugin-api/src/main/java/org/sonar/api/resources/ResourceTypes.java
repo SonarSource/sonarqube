@@ -21,6 +21,7 @@ package org.sonar.api.resources;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
@@ -44,7 +45,7 @@ public final class ResourceTypes implements BatchComponent, ServerComponent {
 
   public static final Predicate<ResourceType> AVAILABLE_FOR_FILTERS = new Predicate<ResourceType>() {
     public boolean apply(@Nullable ResourceType input) {
-      return input != null && Boolean.TRUE.equals(input.getBooleanProperty("availableForFilters"));
+      return input != null && input.getBooleanProperty("availableForFilters");
     }
   };
 
@@ -81,6 +82,30 @@ public final class ResourceTypes implements BatchComponent, ServerComponent {
 
   public Collection<ResourceType> getAll(Predicate<ResourceType> predicate) {
     return Collections2.filter(typeByQualifier.values(), predicate);
+  }
+
+  public Collection<ResourceType> getAllWithPropertyKey(final String propertyKey) {
+    return Collections2.filter(typeByQualifier.values(), new Predicate<ResourceType>() {
+      public boolean apply(@Nullable ResourceType input) {
+        return input != null && input.hasProperty(propertyKey);
+      }
+    });
+  }
+
+  public Collection<ResourceType> getAllWithPropertyValue(final String propertyKey, final String propertyValue) {
+    return Collections2.filter(typeByQualifier.values(), new Predicate<ResourceType>() {
+      public boolean apply(@Nullable ResourceType input) {
+        return input != null && Objects.equal(propertyValue, input.getStringProperty(propertyKey));
+      }
+    });
+  }
+
+  public Collection<ResourceType> getAllWithPropertyValue(final String propertyKey, final boolean propertyValue) {
+    return Collections2.filter(typeByQualifier.values(), new Predicate<ResourceType>() {
+      public boolean apply(@Nullable ResourceType input) {
+        return input != null && input.getBooleanProperty(propertyKey) == propertyValue;
+      }
+    });
   }
 
   public List<String> getChildrenQualifiers(String qualifier) {

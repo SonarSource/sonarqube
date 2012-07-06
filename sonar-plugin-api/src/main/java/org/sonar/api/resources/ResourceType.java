@@ -174,6 +174,11 @@ public final class ResourceType {
     return hasSourceCode;
   }
 
+  public boolean hasProperty(String key) {
+    Preconditions.checkNotNull(key);
+    return properties.containsKey(key);
+  }
+
   /**
    * Returns the value of the property for this resource type.
    *

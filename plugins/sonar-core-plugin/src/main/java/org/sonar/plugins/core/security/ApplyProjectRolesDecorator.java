@@ -19,16 +19,22 @@
  */
 package org.sonar.plugins.core.security;
 
+import com.google.common.collect.ImmutableSet;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.security.ResourcePermissioning;
+
+import java.util.Set;
 
 public class ApplyProjectRolesDecorator implements Decorator {
 
   private final ResourcePermissioning resourcePermissioning;
+  private final Set<String> QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.SUBVIEW);
 
   public ApplyProjectRolesDecorator(ResourcePermissioning resourcePermissioning) {
     this.resourcePermissioning = resourcePermissioning;
@@ -40,15 +46,13 @@ public class ApplyProjectRolesDecorator implements Decorator {
 
   public void decorate(Resource resource, DecoratorContext context) {
     if (shouldDecorateResource(resource)) {
+      LoggerFactory.getLogger(ApplyProjectRolesDecorator.class).info("Grant default permissions to {}", resource.getKey());
       resourcePermissioning.grantDefaultRoles(resource);
     }
   }
 
   private boolean shouldDecorateResource(Resource resource) {
-    return resource.getId() != null && isProject(resource) && !resourcePermissioning.hasRoles(resource);
+    return resource.getId() != null && QUALIFIERS.contains(resource.getQualifier()) && !resourcePermissioning.hasRoles(resource);
   }
 
-  private boolean isProject(Resource resource) {
-    return Qualifiers.PROJECT.equals(resource.getQualifier()) || Qualifiers.VIEW.equals(resource.getQualifier());
-  }
 }

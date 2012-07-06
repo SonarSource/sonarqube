@@ -98,4 +98,13 @@ public class ResourceTypeTest {
     ResourceType def = ResourceType.builder("qualifier").build();
     assertThat(def.getBooleanProperty("availableForFilters")).isFalse();
   }
+
+  @Test
+  public void hasProperty() {
+    ResourceType def = ResourceType.builder("qualifier").build();
+    assertThat(def.hasProperty("foo")).isFalse();
+
+    def = ResourceType.builder("qualifier").setProperty("foo", "bar").build();
+    assertThat(def.hasProperty("foo")).isTrue();
+  }
 }

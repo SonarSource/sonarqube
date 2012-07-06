@@ -1,22 +1,22 @@
 /*
- * Sonar, open source software quality management tool.
- * Copyright (C) 2008-2012 SonarSource
- * mailto:contact AT sonarsource DOT com
- *
- * Sonar is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
- *
- * Sonar is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Sonar; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
- */
+* Sonar, open source software quality management tool.
+* Copyright (C) 2008-2012 SonarSource
+* mailto:contact AT sonarsource DOT com
+*
+* Sonar is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public
+* License as published by the Free Software Foundation; either
+* version 3 of the License, or (at your option) any later version.
+*
+* Sonar is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+* Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public
+* License along with Sonar; if not, write to the Free Software
+* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+*/
 package org.sonar.plugins.core.security;
 
 import org.junit.Before;
@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.sonar.api.resources.Project;
 import org.sonar.api.security.ResourcePermissioning;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class ApplyProjectRolesDecoratorTest {
@@ -32,13 +33,18 @@ public class ApplyProjectRolesDecoratorTest {
   private ApplyProjectRolesDecorator decorator;
 
   @Before
-  public void before() {
+  public void init() {
     resourcePermissioning = mock(ResourcePermissioning.class);
     decorator = new ApplyProjectRolesDecorator(resourcePermissioning);
   }
 
   @Test
-  public void doNotApplySecurityWhenExistingPermissions() {
+  public void alwaysExecute() {
+    assertThat(decorator.shouldExecuteOnProject(new Project("project"))).isTrue();
+  }
+
+  @Test
+  public void doNotGrantDefaultRolesWhenExistingPermissions() {
     Project project = new Project("project");
     project.setId(10);
     when(resourcePermissioning.hasRoles(project)).thenReturn(true);
@@ -61,7 +67,7 @@ public class ApplyProjectRolesDecoratorTest {
   }
 
   @Test
-  public void applySecurityWhenNoPermissions() {
+  public void grantDefaultRolesWhenNoPermissions() {
     Project project = new Project("project");
     project.setId(10);
     when(resourcePermissioning.hasRoles(project)).thenReturn(false);

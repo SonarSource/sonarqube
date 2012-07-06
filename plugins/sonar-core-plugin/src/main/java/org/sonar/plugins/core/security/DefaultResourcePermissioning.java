@@ -19,11 +19,13 @@
  */
 package org.sonar.plugins.core.security;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.config.Settings;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.security.ResourcePermissioning;
@@ -143,7 +145,9 @@ public class DefaultResourcePermissioning implements ResourcePermissioning, Batc
   private void grantDefaultRoles(Resource resource, String role, SqlSession session) {
     UserMapper userMapper = session.getMapper(UserMapper.class);
     RoleMapper roleMapper = session.getMapper(RoleMapper.class);
-    String[] groupNames = settings.getStringArrayBySeparator("sonar.role." + role + "." + resource.getQualifier() + ".defaultGroups", ",");
+
+    String strategy = getStrategy(resource);
+    String[] groupNames = settings.getStringArrayBySeparator("sonar.role." + role + "." + strategy + ".defaultGroups", ",");
     for (String groupName : groupNames) {
       GroupRoleDto groupRole = new GroupRoleDto().setRole(role).setResourceId(new Long(resource.getId()));
       if (DefaultGroups.isAnyone(groupName)) {
@@ -156,12 +160,36 @@ public class DefaultResourcePermissioning implements ResourcePermissioning, Batc
       }
     }
 
-    String[] logins = settings.getStringArrayBySeparator("sonar.role." + role + "." + resource.getQualifier() + ".defaultUsers", ",");
+    String[] logins = settings.getStringArrayBySeparator("sonar.role." + role + "." + strategy + ".defaultUsers", ",");
     for (String login : logins) {
       UserDto user = userMapper.selectUserByLogin(login);
       if (user != null) {
         roleMapper.insertUserRole(new UserRoleDto().setRole(role).setUserId(user.getId()).setResourceId(new Long(resource.getId())));
       }
     }
+  }
+
+  /**
+   * This is workaround to support old versions of the Views plugin.
+   * If the Views plugin does not define default permissions, then the standard permissions are re-used for new views.
+   */
+  @VisibleForTesting
+  String getStrategy(Resource resource) {
+    String qualifier = resource.getQualifier();
+    String result;
+    if (Qualifiers.PROJECT.equals(qualifier)) {
+      result = qualifier;
+
+    } else if (hasRoleSettings(UserRole.ADMIN, qualifier) || hasRoleSettings(UserRole.USER, qualifier) || hasRoleSettings(UserRole.CODEVIEWER, qualifier)) {
+      result = qualifier;
+    } else {
+      result = Qualifiers.PROJECT;
+    }
+    return result;
+  }
+
+  private boolean hasRoleSettings(String role, String qualifier) {
+    return settings.getString("sonar.role." + role + "." + qualifier + ".defaultGroups") != null
+      || settings.getString("sonar.role." + role + "." + qualifier + ".defaultUsers") != null;
   }
 }
