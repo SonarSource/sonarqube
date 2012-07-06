@@ -32,12 +32,13 @@ public class SettingsTest {
   private PropertyDefinitions definitions;
 
   @Properties({
-      @Property(key = "hello", name = "Hello", defaultValue = "world"),
-      @Property(key = "date", name = "Date", defaultValue = "2010-05-18"),
-      @Property(key = "boolean", name = "Boolean", defaultValue = "true"),
-      @Property(key = "falseboolean", name = "False Boolean", defaultValue = "false"),
-      @Property(key = "integer", name = "Integer", defaultValue = "12345"),
-      @Property(key = "array", name = "Array", defaultValue = "one,two,three")
+    @Property(key = "hello", name = "Hello", defaultValue = "world"),
+    @Property(key = "date", name = "Date", defaultValue = "2010-05-18"),
+    @Property(key = "datetime", name = "DateTime", defaultValue = "2010-05-18T15:50:45+0100"),
+    @Property(key = "boolean", name = "Boolean", defaultValue = "true"),
+    @Property(key = "falseboolean", name = "False Boolean", defaultValue = "false"),
+    @Property(key = "integer", name = "Integer", defaultValue = "12345"),
+    @Property(key = "array", name = "Array", defaultValue = "one,two,three")
   })
   static class Init {
   }
@@ -92,6 +93,14 @@ public class SettingsTest {
   public void testGetDateNotFound() {
     Settings settings = new Settings(definitions);
     assertThat(settings.getDate("unknown")).isNull();
+  }
+
+  @Test
+  public void testGetDateTime() {
+    Settings settings = new Settings(definitions);
+    assertThat(settings.getDateTime("datetime").getDate()).isEqualTo(18);
+    assertThat(settings.getDateTime("datetime").getMonth()).isEqualTo(4);
+    assertThat(settings.getDateTime("datetime").getMinutes()).isEqualTo(50);
   }
 
   @Test
@@ -161,5 +170,57 @@ public class SettingsTest {
     assertThat(settings.getString("new")).isEqualTo("value");
     assertThat(target.getString("foo")).isEqualTo("bar");
     assertThat(target.getString("new")).isNull();
+  }
+
+  @Test
+  public void getStringLines_no_value() {
+    assertThat(new Settings().getStringLines("foo")).hasSize(0);
+  }
+
+  @Test
+  public void getStringLines_single_line() {
+    Settings settings = new Settings();
+    settings.setProperty("foo", "the line");
+    assertThat(settings.getStringLines("foo")).isEqualTo(new String[]{"the line"});
+  }
+
+  @Test
+  public void getStringLines_linux() {
+    Settings settings = new Settings();
+    settings.setProperty("foo", "one\ntwo");
+    assertThat(settings.getStringLines("foo")).isEqualTo(new String[]{"one", "two"});
+
+    settings.setProperty("foo", "one\ntwo\n");
+    assertThat(settings.getStringLines("foo")).isEqualTo(new String[]{"one", "two"});
+  }
+
+  @Test
+  public void getStringLines_windows() {
+    Settings settings = new Settings();
+    settings.setProperty("foo", "one\r\ntwo");
+    assertThat(settings.getStringLines("foo")).isEqualTo(new String[]{"one", "two"});
+
+    settings.setProperty("foo", "one\r\ntwo\r\n");
+    assertThat(settings.getStringLines("foo")).isEqualTo(new String[]{"one", "two"});
+  }
+
+  @Test
+  public void getStringLines_mix() {
+    Settings settings = new Settings();
+    settings.setProperty("foo", "one\r\ntwo\nthree");
+    assertThat(settings.getStringLines("foo")).isEqualTo(new String[]{"one", "two", "three"});
+  }
+
+  @Test
+  public void getKeysStartingWith() {
+    Settings settings = new Settings();
+    settings.setProperty("sonar.jdbc.url", "foo");
+    settings.setProperty("sonar.jdbc.username", "bar");
+    settings.setProperty("sonar.security", "admin");
+
+    assertThat(settings.getKeysStartingWith("sonar")).containsOnly("sonar.jdbc.url", "sonar.jdbc.username", "sonar.security");
+    assertThat(settings.getKeysStartingWith("sonar.jdbc")).containsOnly("sonar.jdbc.url", "sonar.jdbc.username");
+    assertThat(settings.getKeysStartingWith("other")).hasSize(0);
+
   }
 }

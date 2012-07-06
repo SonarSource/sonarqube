@@ -19,6 +19,7 @@
  */
 package org.sonar.api.config;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.ArrayUtils;
@@ -33,7 +34,7 @@ import java.util.*;
 /**
  * Project Settings on batch side, Global Settings on server side. This component does not access to database, so
  * property changed via setter methods are not persisted.
- *
+ * <p/>
  * <p>
  * This component replaces the deprecated org.apache.commons.configuration.Configuration
  * </p>
@@ -58,6 +59,7 @@ public class Settings implements BatchComponent, ServerComponent {
 
   /**
    * Clone settings. Actions are not propagated to cloned settings.
+   *
    * @since 3.1
    */
   public Settings(Settings other) {
@@ -145,7 +147,7 @@ public class Settings implements BatchComponent, ServerComponent {
   }
 
   /**
-   * Value is splitted by comma and trimmed.
+   * Value is split by comma and trimmed.
    * <p/>
    * Examples :
    * <ul>
@@ -156,6 +158,20 @@ public class Settings implements BatchComponent, ServerComponent {
    */
   public final String[] getStringArray(String key) {
     return getStringArrayBySeparator(key, ",");
+  }
+
+  /**
+   * Value is split by carriage returns.
+   *
+   * @return non-null array of lines. The line termination characters are excluded.
+   * @since 3.2
+   */
+  public final String[] getStringLines(String key) {
+    String value = getString(key);
+    if (Strings.isNullOrEmpty(value)) {
+      return ArrayUtils.EMPTY_STRING_ARRAY;
+    }
+    return value.split("\r?\n|\r", -1);
   }
 
   /**
