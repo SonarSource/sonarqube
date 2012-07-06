@@ -19,7 +19,6 @@
  */
 package org.sonar.core.user;
 
-import javax.annotation.Nullable;
 
 /**
  * @since 3.2
