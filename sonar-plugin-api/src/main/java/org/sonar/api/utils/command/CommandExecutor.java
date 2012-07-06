@@ -27,6 +27,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Map;
 import java.util.concurrent.*;
 
 /**
@@ -62,6 +63,10 @@ public final class CommandExecutor {
       ProcessBuilder builder = new ProcessBuilder(command.toStrings());
       if (command.getDirectory() != null) {
         builder.directory(command.getDirectory());
+      }
+      Map<String, String> envVars = command.getEnvironmentVariables();
+      if (!envVars.isEmpty()) {
+        builder.environment().putAll(envVars);
       }
       process = builder.start();
 

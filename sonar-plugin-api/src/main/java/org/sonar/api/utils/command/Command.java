@@ -21,12 +21,14 @@ package org.sonar.api.utils.command;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @since 2.7
@@ -36,6 +38,7 @@ public final class Command {
   private String executable;
   private List<String> arguments = Lists.newArrayList();
   private File directory;
+  private Map<String, String> env = Maps.newHashMap();
 
   private Command(String executable) {
     this.executable = executable;
@@ -68,9 +71,27 @@ public final class Command {
     return directory;
   }
 
+  /**
+   * Sets working directory.
+   */
   public Command setDirectory(File d) {
     this.directory = d;
     return this;
+  }
+
+  /**
+   * @since 3.2
+   */
+  public Command setEnvironmentVariable(String name, String value) {
+    this.env.put(name, value);
+    return this;
+  }
+
+  /**
+   * @since 3.2
+   */
+  public Map<String, String> getEnvironmentVariables() {
+    return Collections.unmodifiableMap(env);
   }
 
   String[] toStrings() {
