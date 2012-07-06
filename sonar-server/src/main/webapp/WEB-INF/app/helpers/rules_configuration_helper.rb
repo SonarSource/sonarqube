@@ -34,18 +34,18 @@ module RulesConfigurationHelper
     return PropertyType::TYPE_INTEGER if type == PARAM_TYPE_INTEGER_LIST
     return PropertyType::TYPE_BOOLEAN if type == PARAM_TYPE_BOOLEAN
     return PropertyType::TYPE_STRING if type == PARAM_TYPE_REGEXP
+    return PropertyType::TYPE_STRING if is_set(type)
 
-    PropertyType::TYPE_STRING
+    type
   end
 
   def readable_type(type)
-    return "" if type == PARAM_TYPE_STRING
     return "Set of string (, as delimiter)" if type == PARAM_TYPE_STRING_LIST
     return "Number" if type == PARAM_TYPE_INTEGER
     return "Set of number (, as delimiter)" if type == PARAM_TYPE_INTEGER_LIST
-    return "" if type == PARAM_TYPE_BOOLEAN
     return "Regular expression" if type == PARAM_TYPE_REGEXP
     return "Set of values (, as delimiter)" if is_set(type)
+    ""
   end
 
   def param_value_input(parameter, value, options = {})

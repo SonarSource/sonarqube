@@ -19,8 +19,11 @@
  */
 package org.sonar.plugins.pmd;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.PropertyType;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.XMLRuleParser;
@@ -74,6 +77,17 @@ public class PmdRuleRepositoryTest {
     List<Rule> rules = repository.createRules();
 
     assertThat(rules).onProperty("key").excludes("JUnitStaticSuite");
+  }
+
+  @Test
+  public void should_use_text_parameter_for_xpath_rule() {
+    Rule xpathRule = Iterables.find(repository.createRules(), new Predicate<Rule>() {
+      public boolean apply(Rule rule) {
+        return rule.getKey().equals("XPathRule");
+      }
+    });
+
+    assertThat(xpathRule.getParam("xpath").getType()).isEqualTo(PropertyType.TEXT.name());
   }
 
   @Test

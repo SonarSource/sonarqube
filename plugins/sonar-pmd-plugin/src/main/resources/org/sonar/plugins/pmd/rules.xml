@@ -1814,7 +1814,7 @@
 
     <cardinality>MULTIPLE</cardinality>
 
-    <param key="xpath" type="s">
+    <param key="xpath" type="TEXT">
 
     </param>
     <param key="message" type="s">
