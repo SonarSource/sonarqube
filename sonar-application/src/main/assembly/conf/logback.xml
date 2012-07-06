@@ -37,16 +37,22 @@
     </encoder>
   </appender>
 
+  <!-- Display Rails warnings and errors in the standard Sonar log -->
+  <logger name="rails" additivity="false">
+    <level value="WARN"/>
+    <appender-ref ref="SONAR_FILE"/>
+  </logger>
   <!--
-   Profiling of HTTP requests. Set level to DEBUG in order to log all the HTTP and SQL requests.
+   Profiling of HTTP and SQL requests in Rails:
+   
+  <logger name="rails" additivity="false">
+    <level value="DEBUG"/>
+    <appender-ref ref="PROFILING_FILE"/>
+  </logger>
+  
    Example of command-line to get the HTTP requests with execution time greater than 10s :
    grep 'rails  Completed in [0-9]\{5,\}ms' < profiling.log
   -->
-  <logger name="rails" additivity="false">
-    <level value="WARN"/>
-    <appender-ref ref="PROFILING_FILE"/>
-  </logger>
-
 
   <logger name="org.hibernate.cache.ReadWriteCache">
     <!-- removing "An item was expired by the cache while it was locked (increase your cache timeout)" msg -->
