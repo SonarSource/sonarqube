@@ -19,6 +19,8 @@
  */
 package org.sonar.server.database;
 
+import org.h2.Driver;
+
 import org.apache.commons.lang.StringUtils;
 import org.h2.tools.Server;
 import org.slf4j.Logger;
@@ -85,6 +87,7 @@ public class EmbeddedDatabase {
   private void createDatabase(File dbHome, String user, String password) throws SQLException {
     String url = String.format("jdbc:h2:%s/sonar;USER=%s;PASSWORD=%s", dbHome.getAbsolutePath(), user, password);
 
+    DriverManager.registerDriver(new Driver());
     DriverManager.getConnection(url).close();
   }
 

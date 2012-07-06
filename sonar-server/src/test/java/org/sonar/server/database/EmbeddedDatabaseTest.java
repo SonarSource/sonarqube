@@ -19,6 +19,8 @@
  */
 package org.sonar.server.database;
 
+import org.h2.Driver;
+
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
@@ -39,6 +41,7 @@ public class EmbeddedDatabaseTest {
 
     try {
       String driverUrl = String.format("jdbc:h2:tcp://localhost:%d/sonar;USER=login;PASSWORD=pwd", port);
+      DriverManager.registerDriver(new Driver());
       DriverManager.getConnection(driverUrl).close();
     } catch (Exception ex) {
       fail("Unable to connect after start");
