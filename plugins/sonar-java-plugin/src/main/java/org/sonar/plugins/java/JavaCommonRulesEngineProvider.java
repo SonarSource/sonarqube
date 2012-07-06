@@ -31,7 +31,7 @@ public class JavaCommonRulesEngineProvider extends ExtensionProvider implements 
 
   @Override
   public List provide() {
-    CommonRulesEngine engine = new CommonRulesEngine(Java.KEY, Java.NAME);
+    CommonRulesEngine engine = new CommonRulesEngine(Java.KEY);
     engine.activateRule("InsufficientBranchCoverage");
     engine.activateRule("InsufficientCommentDensity");
     engine.activateRule("DuplicatedBlocks");
