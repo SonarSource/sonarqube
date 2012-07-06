@@ -54,7 +54,7 @@ class BulkDeletionController < ApplicationController
         values[:name] = '%' + params[:name_filter].strip + '%'
       end
         
-      @resources = Project.find(:all, :conditions => [conditions, values])
+      @resources = Project.find(:all, :conditions => [conditions, values], :order => 'name ASC')
     end
   end
   
