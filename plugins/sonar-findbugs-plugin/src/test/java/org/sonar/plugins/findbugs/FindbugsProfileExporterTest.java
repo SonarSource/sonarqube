@@ -19,15 +19,6 @@
  */
 package org.sonar.plugins.findbugs;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import org.junit.Test;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
@@ -37,6 +28,14 @@ import org.sonar.plugins.findbugs.xml.Bug;
 import org.sonar.plugins.findbugs.xml.FindBugsFilter;
 import org.sonar.plugins.findbugs.xml.Match;
 import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class FindbugsProfileExporterTest extends FindbugsTests {
 
@@ -66,7 +65,7 @@ public class FindbugsProfileExporterTest extends FindbugsTests {
   @Test
   public void shouldBuildOnlyOneModuleWhenNoActiveRules() {
     FindBugsFilter filter = FindbugsProfileExporter.buildFindbugsFilter(Collections.<ActiveRule> emptyList());
-    assertThat(filter.getMatchs().size(), is(0));
+    assertThat(filter.getMatchs()).hasSize(0);
   }
 
   @Test
@@ -76,10 +75,10 @@ public class FindbugsProfileExporterTest extends FindbugsTests {
     FindBugsFilter filter = FindbugsProfileExporter.buildFindbugsFilter(Arrays.asList(activeRule1, activeRule2));
 
     List<Match> matches = filter.getMatchs();
-    assertThat(matches.size(), is(2));
+    assertThat(matches).hasSize(2);
 
-    assertThat(matches.get(0).getBug().getPattern(), is("DLS_DEAD_LOCAL_STORE"));
-    assertThat(matches.get(1).getBug().getPattern(), is("SS_SHOULD_BE_STATIC"));
+    assertThat(matches.get(0).getBug().getPattern()).isEqualTo("DLS_DEAD_LOCAL_STORE");
+    assertThat(matches.get(1).getBug().getPattern()).isEqualTo("SS_SHOULD_BE_STATIC");
   }
 
   @Test
@@ -88,7 +87,7 @@ public class FindbugsProfileExporterTest extends FindbugsTests {
     ActiveRule activeRule2 = anActiveRuleFromAnotherPlugin();
 
     FindBugsFilter filter = FindbugsProfileExporter.buildFindbugsFilter(Arrays.asList(activeRule1, activeRule2));
-    assertThat(filter.getMatchs().size(), is(0));
+    assertThat(filter.getMatchs()).hasSize(0);
   }
 
   @Test
@@ -96,8 +95,8 @@ public class FindbugsProfileExporterTest extends FindbugsTests {
     ActiveRule activeRule = anActiveRule(DLS_DEAD_LOCAL_STORE);
     FindBugsFilter filter = FindbugsProfileExporter.buildFindbugsFilter(Arrays.asList(activeRule));
 
-    assertThat(filter.getMatchs().size(), is(1));
-    assertThat(filter.getMatchs().get(0).getBug().getPattern(), is("DLS_DEAD_LOCAL_STORE"));
+    assertThat(filter.getMatchs()).hasSize(1);
+    assertThat(filter.getMatchs().get(0).getBug().getPattern()).isEqualTo("DLS_DEAD_LOCAL_STORE");
   }
 
   @Test

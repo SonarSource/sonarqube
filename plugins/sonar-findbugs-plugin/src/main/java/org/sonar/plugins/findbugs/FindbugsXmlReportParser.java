@@ -19,17 +19,20 @@
  */
 package org.sonar.plugins.findbugs;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMInputCursor;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.XmlParserException;
+
+import javax.annotation.CheckForNull;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+
+import java.io.File;
+import java.util.List;
 
 class FindbugsXmlReportParser {
 
@@ -39,58 +42,82 @@ class FindbugsXmlReportParser {
   public FindbugsXmlReportParser(File findbugsXmlReport) {
     this.findbugsXmlReport = findbugsXmlReport;
     findbugsXmlReportPath = findbugsXmlReport.getAbsolutePath();
-    if ( !findbugsXmlReport.exists()) {
+    if (!findbugsXmlReport.exists()) {
       throw new SonarException("The findbugs XML report can't be found at '" + findbugsXmlReportPath + "'");
     }
   }
 
-  public List<Violation> getViolations() {
-    List<Violation> violations = new ArrayList<Violation>();
+  public List<XmlBugInstance> getBugInstances() {
+    List<XmlBugInstance> result = Lists.newArrayList();
     try {
       SMInputFactory inf = new SMInputFactory(XMLInputFactory.newInstance());
       SMInputCursor cursor = inf.rootElementCursor(findbugsXmlReport).advance();
       SMInputCursor bugInstanceCursor = cursor.childElementCursor("BugInstance").advance();
       while (bugInstanceCursor.asEvent() != null) {
-        String type = bugInstanceCursor.getAttrValue("type");
-        String longMessage = "";
+        XmlBugInstance xmlBugInstance = new XmlBugInstance();
+        xmlBugInstance.type = bugInstanceCursor.getAttrValue("type");
+        xmlBugInstance.longMessage = "";
+        result.add(xmlBugInstance);
+
+        ImmutableList.Builder<XmlSourceLineAnnotation> lines = ImmutableList.builder();
         SMInputCursor bugInstanceChildCursor = bugInstanceCursor.childElementCursor().advance();
         while (bugInstanceChildCursor.asEvent() != null) {
           String nodeName = bugInstanceChildCursor.getLocalName();
           if ("LongMessage".equals(nodeName)) {
-            longMessage = bugInstanceChildCursor.collectDescendantText();
+            xmlBugInstance.longMessage = bugInstanceChildCursor.collectDescendantText();
           } else if ("SourceLine".equals(nodeName)) {
-            Violation fbViolation = new Violation();
-            fbViolation.type = type;
-            fbViolation.longMessage = longMessage;
-            fbViolation.parseStart(bugInstanceChildCursor.getAttrValue("start"));
-            fbViolation.parseEnd(bugInstanceChildCursor.getAttrValue("end"));
-            fbViolation.className = bugInstanceChildCursor.getAttrValue("classname");
-            fbViolation.sourcePath = bugInstanceChildCursor.getAttrValue("sourcepath");
-            violations.add(fbViolation);
+            XmlSourceLineAnnotation xmlSourceLineAnnotation = new XmlSourceLineAnnotation();
+            xmlSourceLineAnnotation.parseStart(bugInstanceChildCursor.getAttrValue("start"));
+            xmlSourceLineAnnotation.parseEnd(bugInstanceChildCursor.getAttrValue("end"));
+            xmlSourceLineAnnotation.parsePrimary(bugInstanceChildCursor.getAttrValue("primary"));
+            xmlSourceLineAnnotation.className = bugInstanceChildCursor.getAttrValue("classname");
+            lines.add(xmlSourceLineAnnotation);
           }
           bugInstanceChildCursor.advance();
         }
+        xmlBugInstance.sourceLines = lines.build();
         bugInstanceCursor.advance();
       }
       cursor.getStreamReader().closeCompletely();
     } catch (XMLStreamException e) {
       throw new XmlParserException("Unable to parse the Findbugs XML Report '" + findbugsXmlReportPath + "'", e);
     }
-    return violations;
+    return result;
   }
 
-  public static class Violation {
-
+  public static class XmlBugInstance {
     private String type;
     private String longMessage;
-    private Integer start;
-    private Integer end;
-    protected String className;
-    protected String sourcePath;
+    private List<XmlSourceLineAnnotation> sourceLines;
 
     public String getType() {
       return type;
     }
+
+    public String getLongMessage() {
+      return longMessage;
+    }
+
+    @CheckForNull
+    public XmlSourceLineAnnotation getPrimarySourceLine() {
+      for (XmlSourceLineAnnotation sourceLine : sourceLines) {
+        if (sourceLine.isPrimary()) {
+          // According to source code of Findbugs 2.0 - should be exactly one primary
+          return sourceLine;
+        }
+      }
+      // As a last resort - return first line
+      return sourceLines.isEmpty() ? null : sourceLines.get(0);
+    }
+
+  }
+
+  public static class XmlSourceLineAnnotation {
+    private boolean primary;
+    private Integer start;
+    private Integer end;
+    @VisibleForTesting
+    protected String className;
 
     public void parseStart(String attrValue) {
       try {
@@ -108,8 +135,12 @@ class FindbugsXmlReportParser {
       }
     }
 
-    public String getLongMessage() {
-      return longMessage;
+    public void parsePrimary(String attrValue) {
+      primary = Boolean.parseBoolean(attrValue);
+    }
+
+    public boolean isPrimary() {
+      return primary;
     }
 
     public Integer getStart() {
@@ -124,16 +155,13 @@ class FindbugsXmlReportParser {
       return className;
     }
 
-    public String getSourcePath() {
-      return sourcePath;
-    }
-
     public String getSonarJavaFileKey() {
       if (className.indexOf('$') > -1) {
         return className.substring(0, className.indexOf('$'));
       }
       return className;
     }
+
   }
 
 }

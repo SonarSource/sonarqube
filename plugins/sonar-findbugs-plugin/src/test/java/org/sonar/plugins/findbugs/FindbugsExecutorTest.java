@@ -29,9 +29,7 @@ import org.sonar.api.utils.SonarException;
 
 import java.io.File;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.internal.matchers.StringContains.containsString;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -45,11 +43,11 @@ public class FindbugsExecutorTest {
 
     new FindbugsExecutor(conf).execute();
 
-    assertThat(reportFile.exists(), is(true));
+    assertThat(reportFile.exists()).isTrue();
     String report = FileUtils.readFileToString(reportFile);
-    assertThat("Report should contain bug instance", report, containsString("<BugInstance"));
-    assertThat("Report should be generated with messages", report, containsString("<Message>"));
-    assertThat(report, containsString("synthetic=\"true\""));
+    assertThat(report).as("Report should contain bug instance").contains("<BugInstance");
+    assertThat(report).as("Report should be generated with messages").contains("<Message>");
+    assertThat(report).contains("synthetic=\"true\"");
   }
 
   @Test(expected = SonarException.class)
@@ -65,7 +63,7 @@ public class FindbugsExecutorTest {
     Project project = mock(Project.class);
     ProjectFileSystem fs = mock(ProjectFileSystem.class);
     when(project.getFileSystem()).thenReturn(fs);
-    FindbugsConfiguration conf = new FindbugsConfiguration(project, null, null, null);
+    FindbugsConfiguration conf = new FindbugsConfiguration(project, null, null, null, null);
 
     new FindbugsExecutor(conf).execute();
   }

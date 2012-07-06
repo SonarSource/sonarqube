@@ -35,9 +35,7 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class FindbugsProfileImporterTest {
 
@@ -48,9 +46,9 @@ public class FindbugsProfileImporterTest {
     String findbugsConf = TestUtils.getResourceContent("/org/sonar/plugins/findbugs/shouldImportPatterns.xml");
     RulesProfile profile = importer.importProfile(new StringReader(findbugsConf), ValidationMessages.create());
 
-    assertThat(profile.getActiveRules().size(), is(2));
-    assertThat(profile.getActiveRule(FindbugsConstants.REPOSITORY_KEY, "NP_CLOSING_NULL"), is(notNullValue()));
-    assertThat(profile.getActiveRule(FindbugsConstants.REPOSITORY_KEY, "RC_REF_COMPARISON_BAD_PRACTICE"), is(notNullValue()));
+    assertThat(profile.getActiveRules()).hasSize(2);
+    assertThat(profile.getActiveRule(FindbugsConstants.REPOSITORY_KEY, "NP_CLOSING_NULL")).isNotNull();
+    assertThat(profile.getActiveRule(FindbugsConstants.REPOSITORY_KEY, "RC_REF_COMPARISON_BAD_PRACTICE")).isNotNull();
   }
 
   @Test
@@ -59,9 +57,9 @@ public class FindbugsProfileImporterTest {
     RulesProfile profile = importer.importProfile(new InputStreamReader(input), ValidationMessages.create());
     List<ActiveRule> results = profile.getActiveRules();
 
-    assertThat(results.size(), is(18));
-    assertThat(profile.getActiveRule(FindbugsConstants.REPOSITORY_KEY, "EC_INCOMPATIBLE_ARRAY_COMPARE"), is(notNullValue()));
-    assertThat(profile.getActiveRule(FindbugsConstants.REPOSITORY_KEY, "BC_IMPOSSIBLE_DOWNCAST_OF_TOARRAY"), is(notNullValue()));
+    assertThat(results).hasSize(18);
+    assertThat(profile.getActiveRule(FindbugsConstants.REPOSITORY_KEY, "EC_INCOMPATIBLE_ARRAY_COMPARE")).isNotNull();
+    assertThat(profile.getActiveRule(FindbugsConstants.REPOSITORY_KEY, "BC_IMPOSSIBLE_DOWNCAST_OF_TOARRAY")).isNotNull();
   }
 
   @Test
@@ -70,8 +68,8 @@ public class FindbugsProfileImporterTest {
     RulesProfile profile = importer.importProfile(new InputStreamReader(input), ValidationMessages.create());
     List<ActiveRule> results = profile.getActiveRules();
 
-    assertThat(results.size(), is(182));
-    assertThat(profile.getActiveRule(FindbugsConstants.REPOSITORY_KEY, "LG_LOST_LOGGER_DUE_TO_WEAK_REFERENCE"), is(notNullValue()));
+    assertThat(results).hasSize(182);
+    assertThat(profile.getActiveRule(FindbugsConstants.REPOSITORY_KEY, "LG_LOST_LOGGER_DUE_TO_WEAK_REFERENCE")).isNotNull();
   }
 
   @Test
@@ -80,8 +78,8 @@ public class FindbugsProfileImporterTest {
     RulesProfile profile = importer.importProfile(new InputStreamReader(input), ValidationMessages.create());
     List<ActiveRule> results = profile.getActiveRules();
 
-    assertThat(results.size(), is(11));
-    assertThat(profile.getActiveRule(FindbugsConstants.REPOSITORY_KEY, "RC_REF_COMPARISON_BAD_PRACTICE"), is(notNullValue()));
+    assertThat(results).hasSize(11);
+    assertThat(profile.getActiveRule(FindbugsConstants.REPOSITORY_KEY, "RC_REF_COMPARISON_BAD_PRACTICE")).isNotNull();
   }
 
   @Test
@@ -92,9 +90,9 @@ public class FindbugsProfileImporterTest {
     FindBugsFilter filter = (FindBugsFilter) xStream.fromXML(IOUtils.toString(input));
 
     List<Match> matches = filter.getMatchs();
-    assertThat(matches.size(), is(2));
-    assertThat(matches.get(0).getBug().getPattern(), is("DLS_DEAD_LOCAL_STORE"));
-    assertThat(matches.get(1).getBug().getPattern(), is("URF_UNREAD_FIELD"));
+    assertThat(matches).hasSize(2);
+    assertThat(matches.get(0).getBug().getPattern()).isEqualTo("DLS_DEAD_LOCAL_STORE");
+    assertThat(matches.get(1).getBug().getPattern()).isEqualTo("URF_UNREAD_FIELD");
   }
 
   @Test
@@ -104,8 +102,8 @@ public class FindbugsProfileImporterTest {
     RulesProfile profile = importer.importProfile(new StringReader(uncorrectFindbugsXml), messages);
     List<ActiveRule> results = profile.getActiveRules();
 
-    assertThat(results.size(), is(0));
-    assertThat(messages.getErrors().size(), is(1));
+    assertThat(results).hasSize(0);
+    assertThat(messages.getErrors()).hasSize(1);
   }
 
   @Test
@@ -115,8 +113,8 @@ public class FindbugsProfileImporterTest {
     RulesProfile profile = importer.importProfile(new StringReader(uncorrectFindbugsXml), messages);
     List<ActiveRule> results = profile.getActiveRules();
 
-    assertThat(results.size(), is(1));
-    assertThat(messages.getWarnings().size(), is(1));
+    assertThat(results).hasSize(1);
+    assertThat(messages.getWarnings()).hasSize(1);
   }
 
   @Test
@@ -126,8 +124,8 @@ public class FindbugsProfileImporterTest {
     RulesProfile profile = importer.importProfile(new StringReader(uncorrectFindbugsXml), messages);
     List<ActiveRule> results = profile.getActiveRules();
 
-    assertThat(results.size(), is(141));
-    assertThat(messages.getWarnings().size(), is(1));
+    assertThat(results).hasSize(141);
+    assertThat(messages.getWarnings()).hasSize(1);
   }
 
   @Test
@@ -137,7 +135,7 @@ public class FindbugsProfileImporterTest {
     RulesProfile profile = importer.importProfile(new StringReader(uncorrectFindbugsXml), messages);
     List<ActiveRule> results = profile.getActiveRules();
 
-    assertThat(results.size(), is(9));
-    assertThat(messages.getWarnings().size(), is(1));
+    assertThat(results).hasSize(9);
+    assertThat(messages.getWarnings()).hasSize(1);
   }
 }

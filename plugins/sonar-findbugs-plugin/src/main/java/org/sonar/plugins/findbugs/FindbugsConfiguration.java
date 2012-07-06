@@ -25,12 +25,15 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.ProjectClasspath;
+import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
 import org.sonar.plugins.findbugs.xml.ClassFilter;
 import org.sonar.plugins.findbugs.xml.FindBugsFilter;
 import org.sonar.plugins.findbugs.xml.Match;
+
+import javax.annotation.CheckForNull;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -41,20 +44,23 @@ import java.util.List;
  */
 public class FindbugsConfiguration implements BatchExtension {
 
-  private Project project;
-  private RulesProfile profile;
-  private FindbugsProfileExporter exporter;
-  private ProjectClasspath projectClasspath;
+  private final Project project;
+  private final Settings settings;
+  private final RulesProfile profile;
+  private final FindbugsProfileExporter exporter;
+  private final ProjectClasspath projectClasspath;
 
-  public FindbugsConfiguration(Project project, RulesProfile profile, FindbugsProfileExporter exporter, ProjectClasspath classpath) {
+  public FindbugsConfiguration(Project project, Settings settings, RulesProfile profile, FindbugsProfileExporter exporter, ProjectClasspath classpath) {
     this.project = project;
+    this.settings = settings;
     this.profile = profile;
     this.exporter = exporter;
     this.projectClasspath = classpath;
   }
 
+  @CheckForNull
   public File getTargetXMLReport() {
-    if (project.getConfiguration().getBoolean(FindbugsConstants.GENERATE_XML_KEY, FindbugsConstants.GENERATE_XML_DEFAULT_VALUE)) {
+    if (settings.getBoolean(FindbugsConstants.GENERATE_XML_KEY)) {
       return new File(project.getFileSystem().getSonarWorkingDirectory(), "findbugs-result.xml");
     }
     return null;
@@ -102,7 +108,7 @@ public class FindbugsConfiguration implements BatchExtension {
 
   public List<File> getExcludesFilters() {
     List<File> result = new ArrayList<File>();
-    String[] filters = project.getConfiguration().getStringArray(FindbugsConstants.EXCLUDES_FILTERS_PROPERTY);
+    String[] filters = settings.getStringArray(FindbugsConstants.EXCLUDES_FILTERS_PROPERTY);
     for (String excludesFilterPath : filters) {
       excludesFilterPath = StringUtils.trim(excludesFilterPath);
       if (StringUtils.isNotBlank(excludesFilterPath)) {
@@ -113,12 +119,11 @@ public class FindbugsConfiguration implements BatchExtension {
   }
 
   public String getEffort() {
-    return StringUtils.lowerCase(project.getConfiguration().getString(CoreProperties.FINDBUGS_EFFORT_PROPERTY,
-        CoreProperties.FINDBUGS_EFFORT_DEFAULT_VALUE));
+    return StringUtils.lowerCase(settings.getString(CoreProperties.FINDBUGS_EFFORT_PROPERTY));
   }
 
   public long getTimeout() {
-    return project.getConfiguration().getLong(CoreProperties.FINDBUGS_TIMEOUT_PROPERTY, CoreProperties.FINDBUGS_TIMEOUT_DEFAULT_VALUE);
+    return settings.getLong(CoreProperties.FINDBUGS_TIMEOUT_PROPERTY);
   }
 
   private File jsr305Lib;
@@ -151,4 +156,5 @@ public class FindbugsConfiguration implements BatchExtension {
       throw new SonarException(e);
     }
   }
+
 }

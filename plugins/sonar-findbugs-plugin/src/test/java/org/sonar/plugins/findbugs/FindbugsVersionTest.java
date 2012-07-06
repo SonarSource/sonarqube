@@ -19,16 +19,15 @@
  */
 package org.sonar.plugins.findbugs;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-
 import org.junit.Test;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class FindbugsVersionTest {
 
   @Test
   public void getFindbugsVersion() {
-    assertThat(FindbugsVersion.getVersion().length(), greaterThan(1));
+    assertThat(FindbugsVersion.getVersion().length()).isGreaterThan(1);
   }
 
 }

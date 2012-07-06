@@ -19,17 +19,15 @@
  */
 package org.sonar.plugins.findbugs;
 
-import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-
-import java.util.List;
-
 import org.junit.Test;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.XMLRuleParser;
+
+import java.util.List;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class FindbugsRuleRepositoryTest {
 
@@ -38,11 +36,12 @@ public class FindbugsRuleRepositoryTest {
     ServerFileSystem fileSystem = mock(ServerFileSystem.class);
     FindbugsRuleRepository repository = new FindbugsRuleRepository(fileSystem, new XMLRuleParser());
     List<Rule> rules = repository.createRules();
-    assertThat(rules.size(), greaterThan(300));
+    assertThat(rules.size()).isGreaterThan(300);
     for (Rule rule : rules) {
-      assertNotNull(rule.getKey());
-      assertNotNull(rule.getConfigKey());
-      assertNotNull(rule.getName());
+      assertThat(rule.getKey()).isNotNull();
+      assertThat(rule.getConfigKey()).isNotNull();
+      assertThat(rule.getName()).isNotNull();
     }
   }
+
 }

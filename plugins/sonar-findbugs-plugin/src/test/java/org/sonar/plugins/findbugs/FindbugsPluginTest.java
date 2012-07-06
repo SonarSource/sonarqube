@@ -19,16 +19,15 @@
  */
 package org.sonar.plugins.findbugs;
 
-import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Test;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class FindbugsPluginTest {
 
   @Test
   public void testGetExtensions() {
-    assertThat(new FindbugsPlugin().getExtensions().size(), greaterThan(1));
+    assertThat(new FindbugsPlugin().getExtensions().size()).isGreaterThan(1);
   }
 
 }

@@ -19,13 +19,12 @@
  */
 package org.sonar.plugins.findbugs;
 
-import static org.junit.Assert.assertThat;
-
-import org.hamcrest.core.Is;
 import org.junit.Test;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class FindbugsAntConverterTest {
 
@@ -60,7 +59,7 @@ public class FindbugsAntConverterTest {
   }
 
   private void assertAntPatternEqualsToFindBugsRegExp(String antPattern, String regExp, String example) {
-    assertThat(FindbugsAntConverter.antToJavaRegexpConvertor(antPattern), Is.is(regExp));
+    assertThat(FindbugsAntConverter.antToJavaRegexpConvertor(antPattern)).isEqualTo(regExp);
     String javaRegexp = regExp.substring(1, regExp.length());
     assertJavaRegexpResult(javaRegexp, example, true);
   }
@@ -68,7 +67,7 @@ public class FindbugsAntConverterTest {
   private void assertJavaRegexpResult(String javaRegexp, String example, boolean expectedResult) {
     Pattern pattern = Pattern.compile(javaRegexp);
     Matcher matcher = pattern.matcher(example);
-    assertThat(example + " tested with pattern " + javaRegexp, matcher.matches(), Is.is(expectedResult));
+    assertThat(matcher.matches()).as(example + " tested with pattern " + javaRegexp).isEqualTo(expectedResult);
   }
 
 }

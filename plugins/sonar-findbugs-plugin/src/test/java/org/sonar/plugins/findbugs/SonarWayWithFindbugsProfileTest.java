@@ -23,8 +23,7 @@ import org.junit.Test;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.utils.ValidationMessages;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class SonarWayWithFindbugsProfileTest {
 
@@ -34,7 +33,8 @@ public class SonarWayWithFindbugsProfileTest {
     SonarWayWithFindbugsProfile sonarWayWithFindbugs = new SonarWayWithFindbugsProfile(importer);
     ValidationMessages validation = ValidationMessages.create();
     RulesProfile profile = sonarWayWithFindbugs.createProfile(validation);
-    assertThat(profile.getActiveRulesByRepository(FindbugsConstants.REPOSITORY_KEY).size(), is(399));
-    assertThat(validation.hasErrors(), is(false));
+    assertThat(profile.getActiveRulesByRepository(FindbugsConstants.REPOSITORY_KEY)).hasSize(399);
+    assertThat(validation.hasErrors()).isFalse();
   }
+
 }

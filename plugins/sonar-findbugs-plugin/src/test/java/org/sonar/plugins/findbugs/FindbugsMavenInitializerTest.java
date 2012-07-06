@@ -19,20 +19,19 @@
  */
 package org.sonar.plugins.findbugs;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import org.apache.commons.configuration.Configuration;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.api.resources.Project;
+import org.sonar.api.test.MavenTestUtils;
+
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import org.apache.commons.configuration.Configuration;
-import org.junit.Before;
-import org.junit.Test;
-import org.sonar.api.resources.Project;
-import org.sonar.api.test.MavenTestUtils;
 
 public class FindbugsMavenInitializerTest {
 
@@ -58,7 +57,7 @@ public class FindbugsMavenInitializerTest {
   public void shouldGetExcludesFiltersFromPom() {
     Project project = MavenTestUtils.loadProjectFromPom(getClass(), "pom.xml");
     initializer.execute(project);
-    assertThat(project.getConfiguration().getString(FindbugsConstants.EXCLUDES_FILTERS_PROPERTY), is("foo.xml"));
+    assertThat(project.getConfiguration().getString(FindbugsConstants.EXCLUDES_FILTERS_PROPERTY)).isEqualTo("foo.xml");
   }
 
 }

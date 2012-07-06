@@ -19,22 +19,20 @@
  */
 package org.sonar.plugins.findbugs;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import org.apache.commons.configuration.BaseConfiguration;
-import org.apache.commons.configuration.Configuration;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.test.SimpleProjectFileSystem;
 
 import java.io.File;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class FindbugsConfigurationTest {
 
@@ -42,36 +40,37 @@ public class FindbugsConfigurationTest {
   public TemporaryFolder tempFolder = new TemporaryFolder();
 
   private Project project;
+  private Settings settings;
   private File findbugsTempDir;
 
   @Before
   public void setup() {
     project = mock(Project.class);
+    settings = new Settings();
     findbugsTempDir = tempFolder.newFolder("findbugs");
     when(project.getFileSystem()).thenReturn(new SimpleProjectFileSystem(findbugsTempDir));
   }
 
   @Test
   public void shouldSaveConfigFiles() throws Exception {
-    FindbugsConfiguration conf = new FindbugsConfiguration(project, RulesProfile.create(), new FindbugsProfileExporter(), null);
+    FindbugsConfiguration conf = new FindbugsConfiguration(project, settings, RulesProfile.create(), new FindbugsProfileExporter(), null);
 
     conf.saveIncludeConfigXml();
     conf.saveExcludeConfigXml();
 
     File findbugsIncludeFile = new File(findbugsTempDir + "/target/sonar/findbugs-include.xml");
     File findbugsExcludeFile = new File(findbugsTempDir + "/target/sonar/findbugs-exclude.xml");
-    assertThat(findbugsIncludeFile.exists(), is(true));
-    assertThat(findbugsExcludeFile.exists(), is(true));
+    assertThat(findbugsIncludeFile.exists()).isTrue();
+    assertThat(findbugsExcludeFile.exists()).isTrue();
   }
 
   @Test
   public void shouldReturnExcludesFilters() {
-    Configuration projectConfiguration = new BaseConfiguration();
-    when(project.getConfiguration()).thenReturn(projectConfiguration);
-    FindbugsConfiguration conf = new FindbugsConfiguration(project, RulesProfile.create(), new FindbugsProfileExporter(), null);
+    FindbugsConfiguration conf = new FindbugsConfiguration(project, settings, RulesProfile.create(), new FindbugsProfileExporter(), null);
 
-    assertThat(conf.getExcludesFilters().size(), is(0));
-    projectConfiguration.setProperty(FindbugsConstants.EXCLUDES_FILTERS_PROPERTY, " foo.xml , bar.xml,");
-    assertThat(conf.getExcludesFilters().size(), is(2));
+    assertThat(conf.getExcludesFilters()).isEmpty();
+    settings.setProperty(FindbugsConstants.EXCLUDES_FILTERS_PROPERTY, " foo.xml , bar.xml,");
+    assertThat(conf.getExcludesFilters()).hasSize(2);
   }
+
 }

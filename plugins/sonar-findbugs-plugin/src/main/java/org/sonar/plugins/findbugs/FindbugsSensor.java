@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.findbugs;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
@@ -28,12 +30,14 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
-import org.sonar.api.utils.Logs;
 
 import java.io.File;
 import java.util.List;
 
 public class FindbugsSensor implements Sensor {
+
+  private static final Logger LOG = LoggerFactory.getLogger(FindbugsSensor.class);
+
   private RulesProfile profile;
   private RuleFinder ruleFinder;
   private FindbugsExecutor executor;
@@ -51,24 +55,35 @@ public class FindbugsSensor implements Sensor {
 
   public void analyse(Project project, SensorContext context) {
     if (project.getReuseExistingRulesConfig()) {
-      Logs.INFO.warn("Reusing existing Findbugs configuration not supported any more.");
+      LOG.warn("Reusing existing Findbugs configuration not supported any more.");
     }
     File report = getFindbugsReportFile(project);
     if (report == null) {
       report = executor.execute();
     }
     FindbugsXmlReportParser reportParser = new FindbugsXmlReportParser(report);
-    List<FindbugsXmlReportParser.Violation> fbViolations = reportParser.getViolations();
-    for (FindbugsXmlReportParser.Violation fbViolation : fbViolations) {
-      Rule rule = ruleFinder.findByKey(FindbugsConstants.REPOSITORY_KEY, fbViolation.getType());
-      if (rule != null) { // ignore violations from report, if rule not activated in Sonar
-        JavaFile resource = new JavaFile(fbViolation.getSonarJavaFileKey());
-        if (context.getResource(resource) != null) {
-          Violation violation = Violation.create(rule, resource).setLineId(fbViolation.getStart()).setMessage(fbViolation.getLongMessage());
-          context.saveViolation(violation);
-        }
-      } else {
-        Logs.INFO.warn("Findbugs rule '{}' not active in Sonar.", fbViolation.getType());
+    List<FindbugsXmlReportParser.XmlBugInstance> bugInstances = reportParser.getBugInstances();
+
+    for (FindbugsXmlReportParser.XmlBugInstance bugInstance : bugInstances) {
+      FindbugsXmlReportParser.XmlSourceLineAnnotation sourceLine = bugInstance.getPrimarySourceLine();
+      if (sourceLine == null) {
+        LOG.warn("No source line for " + bugInstance.getType());
+        continue;
+      }
+
+      Rule rule = ruleFinder.findByKey(FindbugsConstants.REPOSITORY_KEY, bugInstance.getType());
+      if (rule == null) {
+        // ignore violations from report, if rule not activated in Sonar
+        LOG.warn("Findbugs rule '{}' not active in Sonar.", bugInstance.getType());
+        continue;
+      }
+
+      JavaFile resource = new JavaFile(sourceLine.getSonarJavaFileKey());
+      if (context.getResource(resource) != null) {
+        Violation violation = Violation.create(rule, resource)
+            .setLineId(sourceLine.getStart())
+            .setMessage(bugInstance.getLongMessage());
+        context.saveViolation(violation);
       }
     }
   }
