@@ -50,20 +50,6 @@ module RulesConfigurationHelper
     property_value 'value', property_type_for_param_type(parameter.param_type), value, {:id => parameter.id}.update(options)
   end
 
-  def input_size(type)
-    return 15 if type == PARAM_TYPE_STRING
-    return 15 if type == PARAM_TYPE_STRING_LIST
-    return  8 if type == PARAM_TYPE_INTEGER
-    return  8 if type == PARAM_TYPE_INTEGER_LIST
-    return  4 if type == PARAM_TYPE_BOOLEAN
-    return 15 if type == PARAM_TYPE_REGEXP
-    if is_set(type)
-      size = (type.length / 2).to_i
-      size = 64 if size > 64
-      size
-    end
-  end
-
   def is_set(type)
     type.at(1) == "[" && type.ends_with?("]")
   end
