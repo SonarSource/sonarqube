@@ -10,6 +10,28 @@ ALTER TABLE GROUP_ROLES ALTER COLUMN ID RESTART WITH 2;
 INSERT INTO GROUPS_USERS(USER_ID, GROUP_ID) VALUES (1, 1);
 INSERT INTO GROUPS_USERS(USER_ID, GROUP_ID) VALUES (1, 2);
 
+INSERT INTO PROPERTIES(ID, PROP_KEY, TEXT_VALUE) VALUES (1, 'sonar.role.admin.TRK.defaultGroups', 'sonar-administrators');
+INSERT INTO PROPERTIES(ID, PROP_KEY, TEXT_VALUE) VALUES (2, 'sonar.role.admin.TRK.defaultUsers', '');
+INSERT INTO PROPERTIES(ID, PROP_KEY, TEXT_VALUE) VALUES (3, 'sonar.role.user.TRK.defaultGroups', 'Anyone,sonar-users');
+INSERT INTO PROPERTIES(ID, PROP_KEY, TEXT_VALUE) VALUES (4, 'sonar.role.user.TRK.defaultUsers', '');
+INSERT INTO PROPERTIES(ID, PROP_KEY, TEXT_VALUE) VALUES (5, 'sonar.role.codeviewer.TRK.defaultGroups', 'Anyone,sonar-users');
+INSERT INTO PROPERTIES(ID, PROP_KEY, TEXT_VALUE) VALUES (6, 'sonar.role.codeviewer.TRK.defaultUsers', '');
+
+-- COMPATIBILITY WITH OLD VERSIONS OF VIEWS PLUGIN -> see migration 320
+INSERT INTO PROPERTIES(ID, PROP_KEY, TEXT_VALUE) VALUES (7, 'sonar.role.admin.VW.defaultGroups', 'sonar-administrators');
+INSERT INTO PROPERTIES(ID, PROP_KEY, TEXT_VALUE) VALUES (8, 'sonar.role.admin.VW.defaultUsers', '');
+INSERT INTO PROPERTIES(ID, PROP_KEY, TEXT_VALUE) VALUES (9, 'sonar.role.user.VW.defaultGroups', 'Anyone,sonar-users');
+INSERT INTO PROPERTIES(ID, PROP_KEY, TEXT_VALUE) VALUES (10, 'sonar.role.user.VW.defaultUsers', '');
+INSERT INTO PROPERTIES(ID, PROP_KEY, TEXT_VALUE) VALUES (11, 'sonar.role.codeviewer.VW.defaultGroups', 'Anyone,sonar-users');
+INSERT INTO PROPERTIES(ID, PROP_KEY, TEXT_VALUE) VALUES (12, 'sonar.role.codeviewer.VW.defaultUsers', '');
+INSERT INTO PROPERTIES(ID, PROP_KEY, TEXT_VALUE) VALUES (13, 'sonar.role.admin.SVW.defaultGroups', 'sonar-administrators');
+INSERT INTO PROPERTIES(ID, PROP_KEY, TEXT_VALUE) VALUES (14, 'sonar.role.admin.SVW.defaultUsers', '');
+INSERT INTO PROPERTIES(ID, PROP_KEY, TEXT_VALUE) VALUES (15, 'sonar.role.user.SVW.defaultGroups', 'Anyone,sonar-users');
+INSERT INTO PROPERTIES(ID, PROP_KEY, TEXT_VALUE) VALUES (16, 'sonar.role.user.SVW.defaultUsers', '');
+INSERT INTO PROPERTIES(ID, PROP_KEY, TEXT_VALUE) VALUES (17, 'sonar.role.codeviewer.SVW.defaultGroups', 'Anyone,sonar-users');
+INSERT INTO PROPERTIES(ID, PROP_KEY, TEXT_VALUE) VALUES (18, 'sonar.role.codeviewer.SVW.defaultUsers', '');
+ALTER TABLE PROPERTIES ALTER COLUMN ID RESTART WITH 19;
+
 INSERT INTO SCHEMA_MIGRATIONS(VERSION) VALUES ('1');
 INSERT INTO SCHEMA_MIGRATIONS(VERSION) VALUES ('2');
 INSERT INTO SCHEMA_MIGRATIONS(VERSION) VALUES ('10');

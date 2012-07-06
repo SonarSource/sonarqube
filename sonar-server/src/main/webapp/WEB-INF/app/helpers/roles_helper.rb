@@ -47,13 +47,20 @@ module RolesHelper
   end
 
   def default_project_group_names(role, qualifier)
-    property_value=(controller.java_facade.getConfigurationValue("sonar.role.#{role}.#{qualifier}.defaultGroups")||'')
-    Api::Utils.insensitive_sort(property_value.split(','))
+    group_names=(controller.java_facade.getConfigurationValue("sonar.role.#{role}.#{qualifier}.defaultGroups")||'').split(',')
+
+    # verify that groups still exist
+    result = []
+    if group_names.size>0
+      groups = Group.find(:all, :conditions => ['name in (?)', group_names])
+      result = Api::Utils.insensitive_sort(groups.map{|g| g.name})
+      result = ['Anyone'].concat(result) if group_names.include? 'Anyone'
+    end
+    result
   end
 
   def default_project_users(role, qualifier)
-    property_value=(controller.java_facade.getConfigurationValue("sonar.role.#{role}.#{qualifier}.defaultUsers") || '')
-    logins=property_value.split(',')
+    logins=(controller.java_facade.getConfigurationValue("sonar.role.#{role}.#{qualifier}.defaultUsers") || '').split(',')
     users = User.find(:all, :conditions => ['login in (?) and active=?', logins, true])
     Api::Utils.insensitive_sort(users) { |user| user.name }
   end
