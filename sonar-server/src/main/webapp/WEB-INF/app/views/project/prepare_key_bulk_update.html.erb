@@ -45,7 +45,7 @@
       <input type="hidden" value="<%= @replacement_string -%>" name="replacement_string" id="replacement_string">
       <br/>
       <%= submit_tag message('update_key.rename'), :id => 'bulk_update_button', :class => 'action' -%>
-      <a href="<%= url_for :action => 'key', :id => @project.key -%>"><%= message('cancel') -%></a>
+      &nbsp;<a href="<%= url_for :action => 'key', :id => @project.key -%>"><%= message('cancel') -%></a>
       <span class="loading" id="loading_bulk_update" style="display: none; padding: 3px 10px;"></span>
     <% end %>
   <% else %>

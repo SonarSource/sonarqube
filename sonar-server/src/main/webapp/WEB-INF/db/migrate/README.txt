@@ -2,8 +2,8 @@ HOW TO ADD A MIGRATION
 
 * Jump some versions when adding the first Ruby on Rails migration of a new sonar version. For example if sonar 2.10 is 193, then sonar 2.11 should start at 200.
 * Complete the DDL files for Derby :
-  + sonar-core/src/main/resources/org/sonar/core/persistence/schema-derby.ddl
-  + sonar-core/src/main/resources/org/sonar/core/persistence/rows-derby.sql :
+  + sonar-core/src/main/resources/org/sonar/core/persistence/schema-h2.ddl
+  + sonar-core/src/main/resources/org/sonar/core/persistence/rows-h2.sql :
     - add "INSERT INTO SCHEMA_MIGRATIONS(VERSION) VALUES ('<THE MIGRATION ID>')"
 * Update the migration id defined in sonar-core/src/main/java/org/sonar/core/persistence/DatabaseVersion.java
 * If a table is added or removed, then edit sonar-core/src/main/java/org/sonar/core/persistence/DatabaseUtils.java
