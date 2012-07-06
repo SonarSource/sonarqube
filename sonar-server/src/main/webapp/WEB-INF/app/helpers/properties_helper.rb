@@ -30,7 +30,7 @@ module PropertiesHelper
       text_field_tag key, value, {:size => 10}.update(options)
 
     elsif type==PropertyType::TYPE_STRING
-      text_field_tag key, value, {:size => 10}.update(options)
+      text_field_tag key, value, {:size => 25}.update(options)
 
     elsif type==PropertyType::TYPE_METRIC
       select_tag key, options_grouped_by_domain(Metric.all.select{|m| m.display?}.sort_by(&:short_name), value, :include_empty => true), options
@@ -48,7 +48,7 @@ module PropertiesHelper
       text_area_tag key, value, {:size => '40x6'}.update(options)
 
     elsif type==PropertyType::TYPE_PASSWORD
-      password_field_tag key, value, {:size => 10}.update(options)
+      password_field_tag key, value, {:size => 25}.update(options)
 
     else
       hidden_field_tag key, options
