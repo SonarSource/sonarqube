@@ -46,7 +46,8 @@ class RolesController < ApplicationController
     conditions_values = {:enabled => true, :qualifier => @qualifier}
     joins = nil
     if params[:q].present?
-      joins = "INNER JOIN resource_index on resource_index.resource_id=projects.id and resource_index.qualifier=#{ActiveRecord::Base::sanitize(@qualifier)} and resource_index.kee like #{ActiveRecord::Base::sanitize(params[:q] + '%')}"
+      query = params[:q].downcase + '%'
+      joins = "INNER JOIN resource_index on resource_index.resource_id=projects.id and resource_index.qualifier=#{ActiveRecord::Base::sanitize(@qualifier)} and resource_index.kee like #{ActiveRecord::Base::sanitize(query)}"
     end
 
     @pagination = Api::Pagination.new(params)
