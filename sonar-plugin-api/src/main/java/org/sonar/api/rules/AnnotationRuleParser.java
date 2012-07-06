@@ -19,18 +19,19 @@
  */
 package org.sonar.api.rules;
 
-import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.List;
-
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.PropertyType;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.check.Check;
 
-import com.google.common.collect.Lists;
+import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @since 2.3
@@ -102,6 +103,15 @@ public final class AnnotationRuleParser implements ServerComponent {
       RuleParam param = rule.createParameter(fieldKey);
       param.setDescription(propertyAnnotation.description());
       param.setDefaultValue(propertyAnnotation.defaultValue());
+      if (!StringUtils.isBlank(propertyAnnotation.type())) {
+        try {
+          param.setType(PropertyType.valueOf(propertyAnnotation.type().trim()).name());
+        } catch (IllegalArgumentException e) {
+          throw new IllegalArgumentException("Invalid property type [" + propertyAnnotation.type() + "]", e);
+        }
+      } else {
+        param.setType(guessType(field.getType()).name());
+      }
     }
   }
 
@@ -112,5 +122,17 @@ public final class AnnotationRuleParser implements ServerComponent {
       RuleParam param = rule.createParameter(fieldKey);
       param.setDescription(propertyAnnotation.description());
     }
+  }
+
+  @VisibleForTesting
+  static PropertyType guessType(Class<?> type) {
+    if ((type == Integer.class) || (type == int.class)) {
+      return PropertyType.INTEGER;
+    } else if ((type == Float.class) || (type == float.class)) {
+      return PropertyType.FLOAT;
+    } else if ((type == Boolean.class) || (type == boolean.class)) {
+      return PropertyType.BOOLEAN;
+    }
+    return PropertyType.STRING;
   }
 }

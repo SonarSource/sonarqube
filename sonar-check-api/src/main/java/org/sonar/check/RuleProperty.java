@@ -46,4 +46,13 @@ public @interface RuleProperty {
    * Optional default value.
    */
   String defaultValue() default "";
+
+  /**
+   * Optional type.
+   * See {@org.sonar.api.PropertyType} for possible values.
+   * If <code>type</code> is ommited, it is guessed from the type of the annotated field.
+   *
+   * @since 3.2
+   */
+  String type() default "";
 }
