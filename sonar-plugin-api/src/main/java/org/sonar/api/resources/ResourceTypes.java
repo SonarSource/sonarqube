@@ -84,28 +84,56 @@ public final class ResourceTypes implements BatchComponent, ServerComponent {
     return Collections2.filter(typeByQualifier.values(), predicate);
   }
 
+  private static class PropertyKeyPredicate implements Predicate<ResourceType> {
+    private final String propertyKey;
+
+    public PropertyKeyPredicate(String propertyKey) {
+      this.propertyKey = propertyKey;
+    }
+
+    public boolean apply(@Nullable ResourceType input) {
+      return input != null && input.hasProperty(propertyKey);
+    }
+  }
+
   public Collection<ResourceType> getAllWithPropertyKey(final String propertyKey) {
-    return Collections2.filter(typeByQualifier.values(), new Predicate<ResourceType>() {
-      public boolean apply(@Nullable ResourceType input) {
-        return input != null && input.hasProperty(propertyKey);
-      }
-    });
+    return Collections2.filter(typeByQualifier.values(), new PropertyKeyPredicate(propertyKey));
+  }
+
+  private static class StringPropertyValuePredicate implements Predicate<ResourceType> {
+    private final String propertyValue;
+    private final String propertyKey;
+
+    public StringPropertyValuePredicate(String propertyValue, String propertyKey) {
+      this.propertyValue = propertyValue;
+      this.propertyKey = propertyKey;
+    }
+
+    public boolean apply(@Nullable ResourceType input) {
+      return input != null && Objects.equal(propertyValue, input.getStringProperty(propertyKey));
+    }
   }
 
   public Collection<ResourceType> getAllWithPropertyValue(final String propertyKey, final String propertyValue) {
-    return Collections2.filter(typeByQualifier.values(), new Predicate<ResourceType>() {
-      public boolean apply(@Nullable ResourceType input) {
-        return input != null && Objects.equal(propertyValue, input.getStringProperty(propertyKey));
-      }
-    });
+    return Collections2.filter(typeByQualifier.values(), new StringPropertyValuePredicate(propertyValue, propertyKey));
+  }
+
+  private static class BooleanPropertyValuePredicate implements Predicate<ResourceType> {
+    private final String propertyKey;
+    private final boolean propertyValue;
+
+    public BooleanPropertyValuePredicate(String propertyKey, boolean propertyValue) {
+      this.propertyKey = propertyKey;
+      this.propertyValue = propertyValue;
+    }
+
+    public boolean apply(@Nullable ResourceType input) {
+      return input != null && input.getBooleanProperty(propertyKey) == propertyValue;
+    }
   }
 
   public Collection<ResourceType> getAllWithPropertyValue(final String propertyKey, final boolean propertyValue) {
-    return Collections2.filter(typeByQualifier.values(), new Predicate<ResourceType>() {
-      public boolean apply(@Nullable ResourceType input) {
-        return input != null && input.getBooleanProperty(propertyKey) == propertyValue;
-      }
-    });
+    return Collections2.filter(typeByQualifier.values(), new BooleanPropertyValuePredicate(propertyKey, propertyValue));
   }
 
   public List<String> getChildrenQualifiers(String qualifier) {
@@ -135,4 +163,5 @@ public final class ResourceTypes implements BatchComponent, ServerComponent {
   public ResourceTypeTree getTree(String qualifier) {
     return treeByQualifier.get(qualifier);
   }
+
 }

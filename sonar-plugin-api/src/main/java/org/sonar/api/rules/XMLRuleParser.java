@@ -49,7 +49,7 @@ import java.util.Map;
  * @since 2.3
  */
 public final class XMLRuleParser implements ServerComponent {
-  private final static Map<String, String> TYPE_MAP = typeMapWithDeprecatedValues();
+  private static final Map<String, String> TYPE_MAP = typeMapWithDeprecatedValues();
 
   public List<Rule> parse(File file) {
     Reader reader = null;

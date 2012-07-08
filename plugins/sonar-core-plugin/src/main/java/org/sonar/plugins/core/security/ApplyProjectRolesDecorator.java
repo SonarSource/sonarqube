@@ -26,7 +26,6 @@ import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.security.ResourcePermissioning;
 
 import java.util.Set;
