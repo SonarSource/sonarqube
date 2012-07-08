@@ -20,13 +20,19 @@
 package org.sonar.plugins.core.security;
 
 import org.junit.Test;
+import org.sonar.api.Properties;
+import org.sonar.api.Property;
+import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DefaultResourcePermissioningTest extends AbstractDaoTestCase {
 
@@ -77,15 +83,8 @@ public class DefaultResourcePermissioningTest extends AbstractDaoTestCase {
   public void grantDefaultRoles() {
     setupData("grantDefaultRoles");
 
-    Settings settings = new Settings();
-    settings.setProperty("sonar.role.admin.TRK.defaultGroups", "sonar-administrators");
-    settings.setProperty("sonar.role.admin.TRK.defaultUsers", "");
-    settings.setProperty("sonar.role.user.TRK.defaultGroups", "Anyone,sonar-users");
-    settings.setProperty("sonar.role.user.TRK.defaultUsers", "");
-    settings.setProperty("sonar.role.codeviewer.TRK.defaultGroups", "Anyone,sonar-users");
-    settings.setProperty("sonar.role.codeviewer.TRK.defaultUsers", "");
+    Settings settings = new Settings(new PropertyDefinitions(DefaultResourcePermissioning.class));
     DefaultResourcePermissioning permissioning = new DefaultResourcePermissioning(settings, getMyBatis());
-
     permissioning.grantDefaultRoles(project);
 
     checkTables("grantDefaultRoles", "user_roles", "group_roles");
@@ -134,5 +133,44 @@ public class DefaultResourcePermissioningTest extends AbstractDaoTestCase {
 
     // does not exist
     assertThat(permissioning.hasRoles(new Project("not_found"))).isFalse();
+  }
+
+  @Test
+  public void use_default_project_roles_when_old_version_of_views_plugin() {
+    DefaultResourcePermissioning permissioning = new DefaultResourcePermissioning(new Settings(), getMyBatis());
+    Resource view = mock(Resource.class);
+    when(view.getQualifier()).thenReturn(Qualifiers.VIEW);
+
+    assertThat(permissioning.getStrategy(view)).isEqualTo(Qualifiers.PROJECT);
+  }
+
+  @Test
+  public void use_existing_view_roles() {
+    Settings settings = new Settings();
+    settings.setProperty("sonar.role.admin.VW.defaultUsers", "sonar-administrators");
+
+    DefaultResourcePermissioning permissioning = new DefaultResourcePermissioning(settings, getMyBatis());
+    Resource view = mock(Resource.class);
+    when(view.getQualifier()).thenReturn(Qualifiers.VIEW);
+
+    assertThat(permissioning.getStrategy(view)).isEqualTo(Qualifiers.VIEW);
+  }
+
+  @Test
+  public void use_existing_default_view_roles() {
+    Settings settings = new Settings(new PropertyDefinitions(RecentViewPlugin.class));
+
+    DefaultResourcePermissioning permissioning = new DefaultResourcePermissioning(settings, getMyBatis());
+    Resource view = mock(Resource.class);
+    when(view.getQualifier()).thenReturn(Qualifiers.VIEW);
+
+    assertThat(permissioning.getStrategy(view)).isEqualTo(Qualifiers.VIEW);
+  }
+
+  @Properties({
+    @Property(key = "sonar.role.user.VW.defaultUsers", defaultValue = "sonar-users", name = "")
+  })
+  static class RecentViewPlugin {
+
   }
 }
