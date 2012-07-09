@@ -19,13 +19,16 @@
  */
 package org.sonar.batch.index;
 
+import org.sonar.api.database.model.MeasureDto;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.ibatis.session.SqlSession;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.MeasureModel;
+import org.sonar.api.database.model.MeasureModelMapper;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
@@ -35,20 +38,21 @@ import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.SonarException;
+import org.sonar.core.persistence.MyBatis;
 
 import java.util.Collection;
 import java.util.Map;
 
 public final class MeasurePersister {
-  private final DatabaseSession session;
+  private final MyBatis mybatis;
   private final ResourcePersister resourcePersister;
   private final RuleFinder ruleFinder;
   private final MemoryOptimizer memoryOptimizer;
   private final SetMultimap<Resource, Measure> unsavedMeasuresByResource = LinkedHashMultimap.create();
   private boolean delayedMode = false;
 
-  public MeasurePersister(DatabaseSession session, ResourcePersister resourcePersister, RuleFinder ruleFinder, MemoryOptimizer memoryOptimizer) {
-    this.session = session;
+  public MeasurePersister(MyBatis mybatis, ResourcePersister resourcePersister, RuleFinder ruleFinder, MemoryOptimizer memoryOptimizer) {
+    this.mybatis = mybatis;
     this.resourcePersister = resourcePersister;
     this.ruleFinder = ruleFinder;
     this.memoryOptimizer = memoryOptimizer;
@@ -64,17 +68,13 @@ public final class MeasurePersister {
       return;
     }
 
-    if (measure.getId() != null) { // update
-      MeasureModel model = session.reattach(MeasureModel.class, measure.getId());
-      model = mergeModel(measure, model);
-
-      model.save(session);
-      memoryOptimizer.evictDataMeasure(measure, model);
-    } else if (shouldPersistMeasure(resource, measure)) { // insert
-      Snapshot snapshot = resourcePersister.getSnapshotOrFail(resource);
-      MeasureModel model = createModel(measure).setSnapshotId(snapshot.getId());
-
-      model.save(session);
+    MeasureModel model = null;
+    if (measure.getId() != null) {
+      model = update(measure);
+    } else if (shouldPersistMeasure(resource, measure)) {
+      model = insert(measure, resourcePersister.getSnapshotOrFail(resource));
+    }
+    if (model != null) {
       memoryOptimizer.evictDataMeasure(measure, model);
     }
   }
@@ -114,57 +114,91 @@ public final class MeasurePersister {
   public void dump() {
     LoggerFactory.getLogger(getClass()).debug("{} measures to dump", unsavedMeasuresByResource.size());
 
-    Map<Resource, Collection<Measure>> map = unsavedMeasuresByResource.asMap();
-    for (Map.Entry<Resource, Collection<Measure>> entry : map.entrySet()) {
-      Resource resource = entry.getKey();
-      Snapshot snapshot = resourcePersister.getSnapshot(entry.getKey());
-      for (Measure measure : entry.getValue()) {
-        if (shouldPersistMeasure(resource, measure)) {
-          MeasureModel model = createModel(measure).setSnapshotId(snapshot.getId());
-          model.save(session);
+    SqlSession session = mybatis.openSession();
+    try {
+      MeasureModelMapper mapper = session.getMapper(MeasureModelMapper.class);
+
+      Map<Resource, Collection<Measure>> map = unsavedMeasuresByResource.asMap();
+      for (Map.Entry<Resource, Collection<Measure>> entry : map.entrySet()) {
+        Resource resource = entry.getKey();
+        Snapshot snapshot = resourcePersister.getSnapshot(entry.getKey());
+        for (Measure measure : entry.getValue()) {
+          if (shouldPersistMeasure(resource, measure)) {
+            mapper.insert(new MeasureDto(model(measure).setSnapshotId(snapshot.getId())));
+          }
         }
       }
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
     }
 
-    session.commit();
     unsavedMeasuresByResource.clear();
   }
 
-  private MeasureModel createModel(Measure measure) {
-    return mergeModel(measure, new MeasureModel());
-  }
-
-  private MeasureModel mergeModel(Measure measure, MeasureModel merge) {
-    merge.setMetricId(measure.getMetric().getId()); // we assume that the index has updated the metric
-    merge.setDescription(measure.getDescription());
-    merge.setData(measure.getData());
-    merge.setAlertStatus(measure.getAlertStatus());
-    merge.setAlertText(measure.getAlertText());
-    merge.setTendency(measure.getTendency());
-    merge.setVariationValue1(measure.getVariation1());
-    merge.setVariationValue2(measure.getVariation2());
-    merge.setVariationValue3(measure.getVariation3());
-    merge.setVariationValue4(measure.getVariation4());
-    merge.setVariationValue5(measure.getVariation5());
-    merge.setUrl(measure.getUrl());
-    merge.setCharacteristic(measure.getCharacteristic());
-    merge.setPersonId(measure.getPersonId());
+  private MeasureModel model(Measure measure) {
+    MeasureModel model = new MeasureModel();
+    model.setMetricId(measure.getMetric().getId()); // we assume that the index has updated the metric
+    model.setDescription(measure.getDescription());
+    model.setData(measure.getData());
+    model.setAlertStatus(measure.getAlertStatus());
+    model.setAlertText(measure.getAlertText());
+    model.setTendency(measure.getTendency());
+    model.setVariationValue1(measure.getVariation1());
+    model.setVariationValue2(measure.getVariation2());
+    model.setVariationValue3(measure.getVariation3());
+    model.setVariationValue4(measure.getVariation4());
+    model.setVariationValue5(measure.getVariation5());
+    model.setUrl(measure.getUrl());
+    model.setCharacteristic(measure.getCharacteristic());
+    model.setPersonId(measure.getPersonId());
     if (measure.getValue() != null) {
-      merge.setValue(measure.getValue().doubleValue());
+      model.setValue(measure.getValue().doubleValue());
     } else {
-      merge.setValue(null);
+      model.setValue(null);
     }
     if (measure instanceof RuleMeasure) {
       RuleMeasure ruleMeasure = (RuleMeasure) measure;
-      merge.setRulePriority(ruleMeasure.getSeverity());
+      model.setRulePriority(ruleMeasure.getSeverity());
       if (ruleMeasure.getRule() != null) {
         Rule ruleWithId = ruleFinder.findByKey(ruleMeasure.getRule().getRepositoryKey(), ruleMeasure.getRule().getKey());
         if (ruleWithId == null) {
           throw new SonarException("Can not save a measure with unknown rule " + ruleMeasure);
         }
-        merge.setRuleId(ruleWithId.getId());
+        model.setRuleId(ruleWithId.getId());
       }
     }
-    return merge;
+    return model;
+  }
+
+  private MeasureModel insert(Measure measure, Snapshot snapshot) {
+    MeasureModel model = model(measure).setSnapshotId(snapshot.getId());
+
+    SqlSession session = mybatis.openSession();
+    try {
+      MeasureModelMapper mapper = session.getMapper(MeasureModelMapper.class);
+      mapper.insert(new MeasureDto(model));
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+
+    return model;
+  }
+
+  private MeasureModel update(Measure measure) {
+    MeasureModel model = model(measure);
+    model.setId(measure.getId());
+
+    SqlSession session = mybatis.openSession();
+    try {
+      MeasureModelMapper mapper = session.getMapper(MeasureModelMapper.class);
+      mapper.update(new MeasureDto(model));
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+
+    return model;
   }
 }

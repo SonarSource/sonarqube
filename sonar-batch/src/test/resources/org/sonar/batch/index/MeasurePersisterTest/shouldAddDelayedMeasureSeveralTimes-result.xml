@@ -1,6 +1,6 @@
 <dataset>
 
-  <project_measures id="1" VALUE="1234.0" METRIC_ID="1" SNAPSHOT_ID="3001" alert_text="[null]" RULES_CATEGORY_ID="[null]"
+  <project_measures id="1" VALUE="300.0" METRIC_ID="1" SNAPSHOT_ID="3001" alert_text="[null]" RULES_CATEGORY_ID="[null]"
                     RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
                     alert_status="[null]" description="[null]" rule_priority="[null]" characteristic_id="[null]" url="[null]"
                     person_id="[null]"

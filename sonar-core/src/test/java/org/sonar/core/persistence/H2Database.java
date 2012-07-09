@@ -57,6 +57,7 @@ public class H2Database implements Database {
       properties.put("driverClassName", "org.h2.Driver");
       properties.put("username", "sonar");
       properties.put("password", "sonar");
+      // properties.put("url", "jdbc:h2:mem:sonar2;TRACE_LEVEL_SYSTEM_OUT=2");
       properties.put("url", "jdbc:h2:mem:sonar2");
 
       // limit to 2 because of Hibernate and MyBatis

@@ -27,12 +27,14 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PersistenceMode;
+import org.sonar.api.measures.RuleMeasure;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.JavaPackage;
 import org.sonar.api.resources.Project;
-import org.sonar.jpa.test.AbstractDbUnitTestCase;
-
-import java.util.List;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.rules.RulePriority;
+import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -41,7 +43,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class MeasurePersisterTest extends AbstractDbUnitTestCase {
+public class MeasurePersisterTest extends AbstractDaoTestCase {
 
   public static final int PROJECT_SNAPSHOT_ID = 3001;
   public static final int PACKAGE_SNAPSHOT_ID = 3002;
@@ -49,6 +51,7 @@ public class MeasurePersisterTest extends AbstractDbUnitTestCase {
   public static final int COVERAGE_METRIC_ID = 2;
 
   private MeasurePersister measurePersister;
+  private RuleFinder ruleFinder = mock(RuleFinder.class);
   private ResourcePersister resourcePersister = mock(ResourcePersister.class);
   private MemoryOptimizer memoryOptimizer = mock(MemoryOptimizer.class);
   private Project project = new Project("foo");
@@ -63,30 +66,36 @@ public class MeasurePersisterTest extends AbstractDbUnitTestCase {
     when(resourcePersister.getSnapshot(project)).thenReturn(projectSnapshot);
     when(resourcePersister.getSnapshot(aPackage)).thenReturn(packageSnapshot);
 
-    measurePersister = new MeasurePersister(getSession(), resourcePersister, null, memoryOptimizer);
+    measurePersister = new MeasurePersister(getMyBatis(), resourcePersister, ruleFinder, memoryOptimizer);
   }
 
   @Test
   public void shouldInsertMeasure() {
-    setupData("shared");
+    setupData("empty");
 
     Measure measure = new Measure(ncloc()).setValue(1234.0);
     measurePersister.saveMeasure(project, measure);
 
     checkTables("shouldInsertMeasure", "project_measures");
-  }
-
-  @Test
-  public void shouldRegisterPersistedMeasureToMemoryOptimizer() {
-    Measure measure = new Measure(ncloc()).setValue(1234.0);
-    measurePersister.saveMeasure(project, measure);
-
     verify(memoryOptimizer).evictDataMeasure(eq(measure), any(MeasureModel.class));
   }
 
   @Test
+  public void shouldInsertRuleMeasure() {
+    setupData("empty");
+
+    Rule rule = Rule.create("pmd", "key");
+    when(ruleFinder.findByKey("pmd", "key")).thenReturn(rule);
+
+    Measure measure = new RuleMeasure(ncloc(), rule, RulePriority.MAJOR, 1).setValue(1234.0);
+    measurePersister.saveMeasure(project, measure);
+
+    checkTables("shouldInsertRuleMeasure", "project_measures");
+  }
+
+  @Test
   public void shouldUpdateMeasure() {
-    setupData("shared");
+    setupData("data");
 
     Measure measure = new Measure(coverage()).setValue(12.5).setId(1L);
     measurePersister.saveMeasure(project, measure);
@@ -96,8 +105,11 @@ public class MeasurePersisterTest extends AbstractDbUnitTestCase {
 
   @Test
   public void shouldAddDelayedMeasureSeveralTimes() {
-    Measure measure = new Measure(ncloc()).setValue(200.0);
+    setupData("empty");
 
+    Measure measure = new Measure(ncloc());
+
+    measure.setValue(200.0);
     measurePersister.setDelayedMode(true);
     measurePersister.saveMeasure(project, measure);
 
@@ -105,19 +117,18 @@ public class MeasurePersisterTest extends AbstractDbUnitTestCase {
     measurePersister.saveMeasure(project, measure);
     measurePersister.dump();
 
-    List<MeasureModel> coverageMeasures = getSession().getResults(MeasureModel.class, "snapshotId", PROJECT_SNAPSHOT_ID, "metricId", 1);
-    assertThat(coverageMeasures).onProperty("value").containsExactly(300.0);
+    checkTables("shouldAddDelayedMeasureSeveralTimes", "project_measures");
   }
 
   @Test
   public void shouldDelaySaving() {
-    setupData("shared");
+    setupData("empty");
 
     measurePersister.setDelayedMode(true);
     measurePersister.saveMeasure(project, new Measure(ncloc()).setValue(1234.0));
     measurePersister.saveMeasure(aPackage, new Measure(ncloc()).setValue(50.0));
 
-    assertThat(getSession().getResults(MeasureModel.class, "metricId", 1)).isEmpty();
+    assertEmptyTables("project_measures");
 
     measurePersister.dump();
     checkTables("shouldDelaySaving", "project_measures");
@@ -125,42 +136,40 @@ public class MeasurePersisterTest extends AbstractDbUnitTestCase {
 
   @Test
   public void shouldNotDelaySavingWithDatabaseOnlyMeasure() {
-    setupData("shared");
+    setupData("empty");
 
     measurePersister.setDelayedMode(true);
-    measurePersister.saveMeasure(project, new Measure(ncloc()).setValue(1234.0).setPersistenceMode(PersistenceMode.DATABASE)); // database
-    measurePersister.saveMeasure(aPackage, new Measure(ncloc()).setValue(50.0)); // database + memory
+    measurePersister.saveMeasure(project, new Measure(ncloc()).setValue(1234.0).setPersistenceMode(PersistenceMode.DATABASE));
+    measurePersister.saveMeasure(aPackage, new Measure(ncloc()).setValue(50.0));
 
-    checkTables("shouldNotDelaySavingWithDatabaseOnlyMeasure", "project_measures");
+    checkTables("shouldInsertMeasure", "project_measures");
   }
 
   @Test
   public void shouldNotSaveBestValues() {
-    Measure measure = new Measure(coverage()).setValue(0.0);
-    assertThat(MeasurePersister.shouldPersistMeasure(aFile, measure)).isTrue();
-
-    measure = new Measure(coverage()).setValue(75.8);
-    assertThat(MeasurePersister.shouldPersistMeasure(aFile, measure)).isTrue();
-
-    measure = new Measure(coverage()).setValue(100.0);
-    assertThat(MeasurePersister.shouldPersistMeasure(aFile, measure)).isFalse();
+    assertThat(MeasurePersister.shouldPersistMeasure(aFile, new Measure(coverage()).setValue(0.0))).isTrue();
+    assertThat(MeasurePersister.shouldPersistMeasure(aFile, new Measure(coverage()).setValue(75.8))).isTrue();
+    assertThat(MeasurePersister.shouldPersistMeasure(aFile, new Measure(coverage()).setValue(100.0))).isFalse();
   }
 
   @Test
   public void shouldNotSaveBestValueMeasuresInDelayedMode() {
+    setupData("empty");
+
     measurePersister.setDelayedMode(true);
     measurePersister.saveMeasure(aFile, new Measure(coverage()).setValue(100.0));
 
-    assertThat(getSession().getResults(MeasureModel.class, "metricId", COVERAGE_METRIC_ID, "snapshotId", FILE_SNAPSHOT_ID)).isEmpty();
+    assertEmptyTables("project_measures");
 
     measurePersister.dump();
 
-    assertThat(getSession().getResults(MeasureModel.class, "metricId", COVERAGE_METRIC_ID, "snapshotId", FILE_SNAPSHOT_ID)).isEmpty();
+    assertEmptyTables("project_measures");
   }
 
   @Test
   public void shouldNotSaveMemoryOnlyMeasures() {
     Measure measure = new Measure("ncloc").setPersistenceMode(PersistenceMode.MEMORY);
+
     assertThat(MeasurePersister.shouldPersistMeasure(aPackage, measure)).isFalse();
   }
 

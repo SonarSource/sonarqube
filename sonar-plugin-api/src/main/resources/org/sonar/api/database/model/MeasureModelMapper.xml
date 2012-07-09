@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.api.database.model.MeasureModelMapper">
+
+  <insert id="insert" parameterType="MeasureDto" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO project_measures (
+      value, metric_id, snapshot_id, rule_id, text_value, tendency, measure_date,
+      project_id, alert_status, alert_text, url, description, rule_priority, characteristic_id, variation_value_1,
+      variation_value_2, variation_value_3, variation_value_4, variation_value_5, person_id)
+    VALUES (
+      #{value}, #{metricId}, #{snapshotId}, #{ruleId}, #{textValue, jdbcType=VARCHAR}, #{tendency},
+      #{measureDate, jdbcType=TIMESTAMP}, #{projectId}, #{alertStatus, jdbcType=VARCHAR}, #{alertText, jdbcType=VARCHAR},
+      #{url, jdbcType=VARCHAR}, #{description, jdbcType=VARCHAR}, #{rulePriority}, #{characteristicId}, #{variationValue1},
+      #{variationValue2}, #{variationValue3}, #{variationValue4}, #{variationValue5}, #{personId}
+    )
+  </insert>
+  
+
+  <update id="update" parameterType="MeasureDto">
+    UPDATE project_measures
+    SET
+      value = #{value},
+      metric_id = #{metricId},
+      rule_id = #{ruleId},
+      text_value = #{textValue, jdbcType=VARCHAR},
+      tendency = #{tendency},
+      alert_status = #{alertStatus, jdbcType=VARCHAR},
+      alert_text = #{alertText, jdbcType=VARCHAR},
+      url = #{url, jdbcType=VARCHAR},
+      description = #{description, jdbcType=VARCHAR},
+      rule_priority = #{rulePriority},
+      characteristic_id = #{characteristicId},
+      variation_value_1 = #{variationValue1},
+      variation_value_2 = #{variationValue2},
+      variation_value_3 = #{variationValue3},
+      variation_value_4 = #{variationValue4},
+      variation_value_5 = #{variationValue5},
+      person_id = #{personId}
+    WHERE id = #{id}
+  </update>
+
+</mapper>

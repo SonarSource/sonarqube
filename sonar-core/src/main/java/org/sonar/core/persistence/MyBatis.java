@@ -19,6 +19,12 @@
  */
 package org.sonar.core.persistence;
 
+import org.sonar.api.database.model.MeasureDto;
+
+import org.sonar.api.database.model.MeasureModel;
+
+import org.sonar.api.database.model.MeasureModelMapper;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
@@ -98,6 +104,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "UserRole", UserRoleDto.class);
     loadAlias(conf, "Widget", WidgetDto.class);
     loadAlias(conf, "WidgetProperty", WidgetPropertyDto.class);
+    loadAlias(conf, "MeasureDto", MeasureDto.class);
 
     loadMapper(conf, ActiveDashboardMapper.class);
     loadMapper(conf, AuthorMapper.class);
@@ -123,6 +130,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadMapper(conf, UserMapper.class);
     loadMapper(conf, WidgetMapper.class);
     loadMapper(conf, WidgetPropertyMapper.class);
+    loadMapper(conf, MeasureModelMapper.class);
 
     sessionFactory = new SqlSessionFactoryBuilder().build(conf);
     return this;
