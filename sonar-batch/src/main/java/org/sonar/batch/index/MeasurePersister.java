@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.index;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
 import org.apache.commons.lang.math.NumberUtils;
@@ -39,14 +40,12 @@ import java.util.Collection;
 import java.util.Map;
 
 public final class MeasurePersister {
-
+  private final DatabaseSession session;
+  private final ResourcePersister resourcePersister;
+  private final RuleFinder ruleFinder;
+  private final MemoryOptimizer memoryOptimizer;
+  private final SetMultimap<Resource, Measure> unsavedMeasuresByResource = LinkedHashMultimap.create();
   private boolean delayedMode = false;
-  private SetMultimap<Resource, Measure> unsavedMeasuresByResource = LinkedHashMultimap.create();
-  private DatabaseSession session;
-  private ResourcePersister resourcePersister;
-  private RuleFinder ruleFinder;
-  private MemoryOptimizer memoryOptimizer;
-
 
   public MeasurePersister(DatabaseSession session, ResourcePersister resourcePersister, RuleFinder ruleFinder, MemoryOptimizer memoryOptimizer) {
     this.session = session;
@@ -60,29 +59,23 @@ public final class MeasurePersister {
   }
 
   public void saveMeasure(Resource resource, Measure measure) {
-    boolean saveLater = (measure.getPersistenceMode().useMemory() && delayedMode);
-    if (saveLater) {
+    if (shouldSaveLater(measure)) {
       unsavedMeasuresByResource.put(resource, measure);
+      return;
+    }
 
-    } else {
+    if (measure.getId() != null) { // update
+      MeasureModel model = session.reattach(MeasureModel.class, measure.getId());
+      model = mergeModel(measure, model);
+
+      model.save(session);
+      memoryOptimizer.evictDataMeasure(measure, model);
+    } else if (shouldPersistMeasure(resource, measure)) { // insert
       Snapshot snapshot = resourcePersister.getSnapshotOrFail(resource);
-      MeasureModel model = null;
-      if (measure.getId() != null) {
-        // update
-        model = session.reattach(MeasureModel.class, measure.getId());
-        model = mergeModel(measure, model);
-        model.save(session);
+      MeasureModel model = createModel(measure).setSnapshotId(snapshot.getId());
 
-      } else if (shouldPersistMeasure(resource, measure)) {
-        // insert
-        model = createModel(measure);
-        model.setSnapshotId(snapshot.getId());
-        model.save(session);
-        measure.setId(model.getId()); // could be removed
-      }
-      if (model != null) {
-        memoryOptimizer.evictDataMeasure(measure, model);
-      }
+      model.save(session);
+      memoryOptimizer.evictDataMeasure(measure, model);
     }
   }
 
@@ -90,39 +83,44 @@ public final class MeasurePersister {
     return memoryOptimizer.reloadMeasure(measure);
   }
 
-  static boolean shouldPersistMeasure(Resource resource, Measure measure) {
-    Metric metric = measure.getMetric();
-    return measure.getPersistenceMode().useDatabase() &&
-        !(ResourceUtils.isEntity(resource) && isBestValueMeasure(measure, metric));
+  private boolean shouldSaveLater(Measure measure) {
+    return delayedMode && measure.getPersistenceMode().useMemory();
   }
 
+  @VisibleForTesting
+  static boolean shouldPersistMeasure(Resource resource, Measure measure) {
+    return measure.getPersistenceMode().useDatabase() &&
+      !(ResourceUtils.isEntity(resource) && isBestValueMeasure(measure, measure.getMetric()));
+  }
+
+  @VisibleForTesting
   static boolean isBestValueMeasure(Measure measure, Metric metric) {
-    return measure.getId() == null &&
-        metric.isOptimizedBestValue() == Boolean.TRUE &&
-        metric.getBestValue() != null &&
-        (measure.getValue() == null || NumberUtils.compare(metric.getBestValue(), measure.getValue()) == 0) &&
-        measure.getAlertStatus() == null &&
-        measure.getDescription() == null &&
-        measure.getTendency() == null &&
-        measure.getUrl() == null &&
-        !measure.hasData() &&
-        (measure.getVariation1() == null || NumberUtils.compare(measure.getVariation1().doubleValue(), 0.0) == 0) &&
-        (measure.getVariation2() == null || NumberUtils.compare(measure.getVariation2().doubleValue(), 0.0) == 0) &&
-        (measure.getVariation3() == null || NumberUtils.compare(measure.getVariation3().doubleValue(), 0.0) == 0) &&
-        (measure.getVariation4() == null || NumberUtils.compare(measure.getVariation4().doubleValue(), 0.0) == 0) &&
-        (measure.getVariation5() == null || NumberUtils.compare(measure.getVariation5().doubleValue(), 0.0) == 0);
+    return measure.getId() == null
+      && metric.isOptimizedBestValue() == Boolean.TRUE
+      && metric.getBestValue() != null
+      && (measure.getValue() == null || NumberUtils.compare(metric.getBestValue(), measure.getValue()) == 0)
+      && measure.getAlertStatus() == null
+      && measure.getDescription() == null
+      && measure.getTendency() == null
+      && measure.getUrl() == null
+      && !measure.hasData()
+      && (measure.getVariation1() == null || NumberUtils.compare(measure.getVariation1().doubleValue(), 0.0) == 0)
+      && (measure.getVariation2() == null || NumberUtils.compare(measure.getVariation2().doubleValue(), 0.0) == 0)
+      && (measure.getVariation3() == null || NumberUtils.compare(measure.getVariation3().doubleValue(), 0.0) == 0)
+      && (measure.getVariation4() == null || NumberUtils.compare(measure.getVariation4().doubleValue(), 0.0) == 0)
+      && (measure.getVariation5() == null || NumberUtils.compare(measure.getVariation5().doubleValue(), 0.0) == 0);
   }
 
   public void dump() {
     LoggerFactory.getLogger(getClass()).debug("{} measures to dump", unsavedMeasuresByResource.size());
+
     Map<Resource, Collection<Measure>> map = unsavedMeasuresByResource.asMap();
     for (Map.Entry<Resource, Collection<Measure>> entry : map.entrySet()) {
       Resource resource = entry.getKey();
       Snapshot snapshot = resourcePersister.getSnapshot(entry.getKey());
       for (Measure measure : entry.getValue()) {
         if (shouldPersistMeasure(resource, measure)) {
-          MeasureModel model = createModel(measure);
-          model.setSnapshotId(snapshot.getId());
+          MeasureModel model = createModel(measure).setSnapshotId(snapshot.getId());
           model.save(session);
         }
       }
@@ -132,12 +130,12 @@ public final class MeasurePersister {
     unsavedMeasuresByResource.clear();
   }
 
-  MeasureModel createModel(Measure measure) {
+  private MeasureModel createModel(Measure measure) {
     return mergeModel(measure, new MeasureModel());
   }
 
-  MeasureModel mergeModel(Measure measure, MeasureModel merge) {
-    merge.setMetricId(measure.getMetric().getId());// we assume that the index has updated the metric
+  private MeasureModel mergeModel(Measure measure, MeasureModel merge) {
+    merge.setMetricId(measure.getMetric().getId()); // we assume that the index has updated the metric
     merge.setDescription(measure.getDescription());
     merge.setData(measure.getData());
     merge.setAlertStatus(measure.getAlertStatus());
@@ -161,11 +159,10 @@ public final class MeasurePersister {
       merge.setRulePriority(ruleMeasure.getSeverity());
       if (ruleMeasure.getRule() != null) {
         Rule ruleWithId = ruleFinder.findByKey(ruleMeasure.getRule().getRepositoryKey(), ruleMeasure.getRule().getKey());
-        if (ruleWithId != null) {
-          merge.setRuleId(ruleWithId.getId());
-        } else {
+        if (ruleWithId == null) {
           throw new SonarException("Can not save a measure with unknown rule " + ruleMeasure);
         }
+        merge.setRuleId(ruleWithId.getId());
       }
     }
     return merge;
