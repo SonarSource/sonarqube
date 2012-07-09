@@ -20,19 +20,11 @@
 package org.sonar.plugins.findbugs;
 
 import com.google.common.collect.Lists;
-import edu.umd.cs.findbugs.DetectorFactoryCollection;
-import edu.umd.cs.findbugs.FindBugs;
-import edu.umd.cs.findbugs.FindBugs2;
-import edu.umd.cs.findbugs.Plugin;
-import edu.umd.cs.findbugs.PluginException;
-import edu.umd.cs.findbugs.Priorities;
-import edu.umd.cs.findbugs.Project;
-import edu.umd.cs.findbugs.XMLBugReporter;
+import edu.umd.cs.findbugs.*;
 import edu.umd.cs.findbugs.config.UserPreferences;
 import edu.umd.cs.findbugs.plugins.DuplicatePluginIdException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,12 +86,8 @@ public class FindbugsExecutor implements BatchExtension {
       xmlBugReporter.setAddMessages(true);
 
       File xmlReport = configuration.getTargetXMLReport();
-      if (xmlReport != null) {
-        LOG.info("Findbugs output report: " + xmlReport.getAbsolutePath());
-        xmlOutput = FileUtils.openOutputStream(xmlReport);
-      } else {
-        xmlOutput = new NullOutputStream();
-      }
+      LOG.info("Findbugs output report: " + xmlReport.getAbsolutePath());
+      xmlOutput = FileUtils.openOutputStream(xmlReport);
       xmlBugReporter.setOutputStream(new PrintStream(xmlOutput));
 
       engine.setBugReporter(xmlBugReporter);

@@ -33,8 +33,6 @@ import org.sonar.plugins.findbugs.xml.ClassFilter;
 import org.sonar.plugins.findbugs.xml.FindBugsFilter;
 import org.sonar.plugins.findbugs.xml.Match;
 
-import javax.annotation.CheckForNull;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,12 +56,8 @@ public class FindbugsConfiguration implements BatchExtension {
     this.projectClasspath = classpath;
   }
 
-  @CheckForNull
   public File getTargetXMLReport() {
-    if (settings.getBoolean(FindbugsConstants.GENERATE_XML_KEY)) {
-      return new File(project.getFileSystem().getSonarWorkingDirectory(), "findbugs-result.xml");
-    }
-    return null;
+    return new File(project.getFileSystem().getSonarWorkingDirectory(), "findbugs-result.xml");
   }
 
   public edu.umd.cs.findbugs.Project getFindbugsProject() {

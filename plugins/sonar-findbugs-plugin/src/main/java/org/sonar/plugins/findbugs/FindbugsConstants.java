@@ -29,12 +29,6 @@ public final class FindbugsConstants {
   public static final String PLUGIN_KEY = CoreProperties.FINDBUGS_PLUGIN;
 
   /**
-   * @since 2.4
-   */
-  public static final String GENERATE_XML_KEY = "sonar.findbugs.generateXml";
-  public static final boolean GENERATE_XML_DEFAULT_VALUE = true; // TODO should be false - see SONAR-1880
-
-  /**
    * @since 2.10
    */
   public static final String EXCLUDES_FILTERS_PROPERTY = "sonar.findbugs.excludesFilters";
