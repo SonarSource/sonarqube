@@ -25,9 +25,15 @@ public final class ResourceDto {
   private String key;
   private String name;
   private String longName;
-  private Integer rootId;
+  private Long rootId;
   private String scope;
   private String qualifier;
+  private boolean enabled = true;
+  private String description;
+  private String language;
+  private Long copyResourceId;
+  private Long personId;
+  private Long profileId;
 
   public Long getId() {
     return id;
@@ -56,11 +62,11 @@ public final class ResourceDto {
     return this;
   }
 
-  public Integer getRootId() {
+  public Long getRootId() {
     return rootId;
   }
 
-  public ResourceDto setRootId(Integer rootId) {
+  public ResourceDto setRootId(Long rootId) {
     this.rootId = rootId;
     return this;
   }
@@ -92,34 +98,57 @@ public final class ResourceDto {
     return this;
   }
 
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((id == null) ? 0 : id.hashCode());
-    return result;
+  public boolean isEnabled() {
+    return enabled;
   }
 
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    ResourceDto other = (ResourceDto) obj;
-    if (id == null) {
-      if (other.id != null) {
-        return false;
-      }
-    } else if (!id.equals(other.id)) {
-      return false;
-    }
-    return true;
+  public ResourceDto setEnabled(boolean b) {
+    this.enabled = b;
+    return this;
   }
 
+  public String getDescription() {
+    return description;
+  }
+
+  public ResourceDto setDescription(String description) {
+    this.description = description;
+    return this;
+  }
+
+  public String getLanguage() {
+    return language;
+  }
+
+  public ResourceDto setLanguage(String language) {
+    this.language = language;
+    return this;
+  }
+
+  public Long getCopyResourceId() {
+    return copyResourceId;
+  }
+
+  public ResourceDto setCopyResourceId(Long copyResourceId) {
+    this.copyResourceId = copyResourceId;
+    return this;
+  }
+
+  public Long getPersonId() {
+    return personId;
+  }
+
+  public ResourceDto setPersonId(Long personId) {
+    this.personId = personId;
+    return this;
+  }
+
+  public Long getProfileId() {
+    return profileId;
+  }
+
+  public ResourceDto setProfileId(Long profileId) {
+    this.profileId = profileId;
+    return this;
+  }
 }

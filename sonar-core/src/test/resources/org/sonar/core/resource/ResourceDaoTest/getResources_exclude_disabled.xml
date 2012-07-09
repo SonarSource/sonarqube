@@ -1,0 +1,12 @@
+<dataset>
+
+  <!-- disabled -->
+  <projects id="1" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
+            description="the description" long_name="Apache Struts"
+            enabled="[false]" language="java" copy_resource_id="[null]" person_id="[null]"/>
+
+  <!-- enabled -->
+  <projects id="2" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
+            description="the description" long_name="Apache Struts"
+            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"/>
+</dataset>

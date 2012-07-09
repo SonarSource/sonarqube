@@ -21,6 +21,8 @@ package org.sonar.core.resource;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Scopes;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.List;
@@ -63,6 +65,9 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     assertThat(resource.getName()).isEqualTo("Struts");
     assertThat(resource.getLongName()).isEqualTo("Apache Struts");
     assertThat(resource.getScope()).isEqualTo("PRJ");
+    assertThat(resource.getDescription()).isEqualTo("the description");
+    assertThat(resource.getLanguage()).isEqualTo("java");
+    assertThat(resource.isEnabled()).isTrue();
   }
 
   @Test
@@ -96,6 +101,15 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void getResources_filter_by_key() {
+    setupData("fixture");
+
+    List<ResourceDto> resources = dao.getResources(ResourceQuery.create().setKey("org.struts:struts-core"));
+    assertThat(resources).hasSize(1);
+    assertThat(resources.get(0).getKey()).isEqualTo("org.struts:struts-core");
+  }
+
+  @Test
   public void getResourceIds_all() {
     setupData("fixture");
 
@@ -117,5 +131,40 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     ids = dao.getResourceIds(ResourceQuery.create().setQualifiers(new String[]{}));
     assertThat(ids).hasSize(4);
   }
+
+  @Test
+  public void getResources_exclude_disabled() {
+    setupData("getResources_exclude_disabled");
+
+    assertThat(dao.getResourceIds(ResourceQuery.create().setExcludeDisabled(false))).containsOnly(1L, 2L);
+    assertThat(dao.getResourceIds(ResourceQuery.create().setExcludeDisabled(true))).containsOnly(2L);
+  }
+
+  @Test
+  public void insertOrUpdate() {
+    setupData("insertOrUpdate");
+
+    // update because already persisted
+    ResourceDto project = new ResourceDto()
+      .setKey("org.struts:struts").setScope(Scopes.PROJECT).setQualifier(Qualifiers.PROJECT)
+      .setName("Struts").setLongName("Apache Struts").setLanguage("java").setDescription("MVC Framework")
+      .setId(1L);
+
+    // insert
+    ResourceDto file1 = new ResourceDto()
+      .setKey("org.struts:struts:org.struts.Action").setScope(Scopes.FILE).setQualifier(Qualifiers.FILE)
+      .setLanguage("java").setName("Action").setLongName("org.struts.Action");
+    ResourceDto file2 = new ResourceDto()
+          .setKey("org.struts:struts:org.struts.Filter").setScope(Scopes.FILE).setQualifier(Qualifiers.FILE)
+          .setLanguage("java").setName("Filter").setLongName("org.struts.Filter");
+
+    dao.insertOrUpdate(project, file1, file2);
+
+    assertThat(project.getId()).isNotNull();
+    assertThat(file1.getId()).isNotNull();
+    assertThat(file2.getId()).isNotNull();
+    checkTables("insertOrUpdate", "projects");
+  }
+
 }
 

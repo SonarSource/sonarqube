@@ -139,11 +139,11 @@ public class ResourceIndexerDao {
       ResourceIndexerMapper mapper = session.getMapper(ResourceIndexerMapper.class);
       ResourceDto resource = mapper.selectResourceToIndex(id);
       if (resource != null) {
-        Integer rootId = resource.getRootId();
+        Long rootId = resource.getRootId();
         if (rootId == null) {
-          rootId = resource.getId().intValue();
+          rootId = resource.getId();
         }
-        indexed = indexResource(resource.getId().intValue(), resource.getName(), resource.getQualifier(), rootId, session, mapper);
+        indexed = indexResource(resource.getId(), resource.getName(), resource.getQualifier(), rootId, session, mapper);
       }
       return indexed;
     } finally {
@@ -163,7 +163,7 @@ public class ResourceIndexerDao {
     return indexed;
   }
 
-  private boolean indexResource(int id, String name, String qualifier, int rootId, SqlSession session, ResourceIndexerMapper mapper) {
+  private boolean indexResource(long id, String name, String qualifier, long rootId, SqlSession session, ResourceIndexerMapper mapper) {
     boolean indexed = false;
     String key = nameToKey(name);
     if (key.length() >= MINIMUM_KEY_SIZE) {
@@ -193,7 +193,7 @@ public class ResourceIndexerDao {
    * If the resource is indexed with a different key, then this index is dropped and the
    * resource must be indexed again.
    */
-  private boolean sanitizeIndex(int resourceId, String key, ResourceIndexerMapper mapper) {
+  private boolean sanitizeIndex(long resourceId, String key, ResourceIndexerMapper mapper) {
     ResourceIndexDto masterIndex = mapper.selectMasterIndexByResourceId(resourceId);
     if (masterIndex != null && !StringUtils.equals(key, masterIndex.getKey())) {
       // resource has been renamed -> drop existing indexes

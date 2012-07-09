@@ -44,4 +44,8 @@ public interface ResourceMapper {
    * @since 3.2
    */
   void selectResources(ResourceQuery query, ResultHandler resultHandler);
+
+  void insert(ResourceDto resource);
+
+  void update(ResourceDto resource);
 }

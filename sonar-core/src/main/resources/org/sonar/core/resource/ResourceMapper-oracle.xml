@@ -84,10 +84,14 @@
   </select>
 
   <insert id="insert" parameterType="Resource" useGeneratedKeys="true" keyProperty="id">
+    <selectKey order="BEFORE" resultType="Long" keyProperty="id">
+      select projects_seq.NEXTVAL from DUAL
+    </selectKey>
+
     insert into projects
-    (name, long_name, description, scope, qualifier, kee, language, root_id, copy_resource_id, person_id, profile_id, enabled)
+    (id, name, long_name, description, scope, qualifier, kee, language, root_id, copy_resource_id, person_id, profile_id, enabled)
     values (
-    #{name, jdbcType=VARCHAR}, #{longName, jdbcType=VARCHAR}, #{description, jdbcType=VARCHAR}, #{scope, jdbcType=VARCHAR}, #{qualifier, jdbcType=VARCHAR},
+    #{id}, #{name, jdbcType=VARCHAR}, #{longName, jdbcType=VARCHAR}, #{description, jdbcType=VARCHAR}, #{scope, jdbcType=VARCHAR}, #{qualifier, jdbcType=VARCHAR},
     #{key, jdbcType=VARCHAR}, #{language, jdbcType=VARCHAR}, #{rootId, jdbcType=INTEGER}, #{copyResourceId, jdbcType=INTEGER},
     #{personId, jdbcType=INTEGER}, #{profileId, jdbcType=INTEGER}, #{enabled, jdbcType=BOOLEAN}
     )

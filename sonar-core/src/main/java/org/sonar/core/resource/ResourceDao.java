@@ -86,4 +86,22 @@ public class ResourceDao {
       appendChildProjects(subProject.getId(), mapper, resources);
     }
   }
+
+  public ResourceDao insertOrUpdate(ResourceDto... resources) {
+    SqlSession session = mybatis.openSession();
+    ResourceMapper mapper = session.getMapper(ResourceMapper.class);
+    try {
+      for (ResourceDto resource : resources) {
+        if (resource.getId()==null) {
+          mapper.insert(resource);
+        } else {
+          mapper.update(resource);
+        }
+      }
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+    return this;
+  }
 }

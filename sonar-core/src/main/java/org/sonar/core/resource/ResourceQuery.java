@@ -24,6 +24,8 @@ package org.sonar.core.resource;
  */
 public final class ResourceQuery {
   private String[] qualifiers = null;
+  private String key = null;
+  private boolean excludeDisabled = false;
 
   private ResourceQuery() {
   }
@@ -38,6 +40,24 @@ public final class ResourceQuery {
 
   public ResourceQuery setQualifiers(String[] qualifiers) {
     this.qualifiers = qualifiers;
+    return this;
+  }
+
+  public String getKey() {
+    return key;
+  }
+
+  public ResourceQuery setKey(String key) {
+    this.key = key;
+    return this;
+  }
+
+  public boolean isExcludeDisabled() {
+    return excludeDisabled;
+  }
+
+  public ResourceQuery setExcludeDisabled(boolean b) {
+    this.excludeDisabled = b;
     return this;
   }
 }
