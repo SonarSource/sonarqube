@@ -16,7 +16,11 @@
     )
   </insert>
   
-
+  <insert id="insertData" parameterType="MeasureDataDto" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO measure_data (measure_id, snapshot_id, data)
+    VALUES (#{measureId}, #{snapshotId}, #{data}) 
+  </insert>
+  
   <update id="update" parameterType="MeasureDto">
     UPDATE project_measures
     SET

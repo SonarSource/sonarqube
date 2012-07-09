@@ -22,29 +22,28 @@ package org.sonar.api.database.model;
 import java.util.Date;
 
 public class MeasureDto {
-  private final  Long id;
-  private final  Double value;
-  private final  String textValue;
-  private final  Integer tendency;
-  private final  Integer metricId;
-  private final  Integer snapshotId;
-  private final  Integer projectId;
-  private final  String description;
-  private final  Date measureDate;
-  private final  Integer ruleId;
+  private final Long id;
+  private final Double value;
+  private final String textValue;
+  private final Integer tendency;
+  private final Integer metricId;
+  private final Integer snapshotId;
+  private final Integer projectId;
+  private final String description;
+  private final Date measureDate;
+  private final Integer ruleId;
   private final Integer rulePriority;
   private final String alertStatus;
-  private final  String alertText;
-  private final  Double variationValue1;
-  private final  Double variationValue2;
-  private final  Double variationValue3;
-  private final  Double variationValue4;
-  private final  Double variationValue5;
-  private final  String url;
-  private final  Integer characteristicId;
-  private final  Integer personId;
-
-  // private List<MeasureData> measureData = new ArrayList<MeasureData>();
+  private final String alertText;
+  private final Double variationValue1;
+  private final Double variationValue2;
+  private final Double variationValue3;
+  private final Double variationValue4;
+  private final Double variationValue5;
+  private final String url;
+  private final Integer characteristicId;
+  private final Integer personId;
+  private final MeasureData measureData;
 
   public MeasureDto(MeasureModel model) {
     id = model.getId();
@@ -68,6 +67,7 @@ public class MeasureDto {
     url = model.getUrl();
     characteristicId = (null == model.getCharacteristic()) ? null : model.getCharacteristic().getId();
     personId = model.getPersonId();
+    measureData = model.getMeasureData();
   }
 
   public Long getId() {
@@ -152,5 +152,9 @@ public class MeasureDto {
 
   public Integer getPersonId() {
     return personId;
+  }
+
+  public MeasureData getMeasureData() {
+    return measureData;
   }
 }

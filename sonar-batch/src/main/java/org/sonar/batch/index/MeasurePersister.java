@@ -19,14 +19,20 @@
  */
 package org.sonar.batch.index;
 
-import org.sonar.api.database.model.MeasureDto;
+import javax.annotation.Nullable;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.SetMultimap;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.database.model.MeasureDataDto;
+import org.sonar.api.database.model.MeasureDto;
 import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.database.model.MeasureModelMapper;
 import org.sonar.api.database.model.Snapshot;
@@ -41,7 +47,12 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+
+import static com.google.common.collect.Iterables.filter;
+
+import static com.google.common.base.Predicates.not;
 
 public final class MeasurePersister {
   private final MyBatis mybatis;
@@ -62,25 +73,38 @@ public final class MeasurePersister {
     this.delayedMode = delayedMode;
   }
 
+  public Measure reloadMeasure(Measure measure) {
+    return memoryOptimizer.reloadMeasure(measure);
+  }
+
+  public void dump() {
+    LoggerFactory.getLogger(getClass()).debug("{} measures to dump", unsavedMeasuresByResource.size());
+
+    List<MeasureDto> measuresToSave = getMeasuresToSave();
+    insert(filter(measuresToSave, HAS_LARGE_DATA));
+    batchInsert(filter(measuresToSave, not(HAS_LARGE_DATA)));
+  }
+
   public void saveMeasure(Resource resource, Measure measure) {
     if (shouldSaveLater(measure)) {
       unsavedMeasuresByResource.put(resource, measure);
       return;
     }
 
-    MeasureModel model = null;
-    if (measure.getId() != null) {
-      model = update(measure);
-    } else if (shouldPersistMeasure(resource, measure)) {
-      model = insert(measure, resourcePersister.getSnapshotOrFail(resource));
-    }
+    MeasureModel model = insertOrUpdate(resource, measure);
     if (model != null) {
       memoryOptimizer.evictDataMeasure(measure, model);
     }
   }
 
-  public Measure reloadMeasure(Measure measure) {
-    return memoryOptimizer.reloadMeasure(measure);
+  private MeasureModel insertOrUpdate(Resource resource, Measure measure) {
+    if (measure.getId() != null) {
+      return update(measure);
+    }
+    if (shouldPersistMeasure(resource, measure)) {
+      return insert(measure, resourcePersister.getSnapshotOrFail(resource));
+    }
+    return null;
   }
 
   private boolean shouldSaveLater(Measure measure) {
@@ -111,29 +135,22 @@ public final class MeasurePersister {
       && (measure.getVariation5() == null || NumberUtils.compare(measure.getVariation5().doubleValue(), 0.0) == 0);
   }
 
-  public void dump() {
-    LoggerFactory.getLogger(getClass()).debug("{} measures to dump", unsavedMeasuresByResource.size());
+  private List<MeasureDto> getMeasuresToSave() {
+    List<MeasureDto> batch = Lists.newArrayList();
 
-    SqlSession session = mybatis.openSession();
-    try {
-      MeasureModelMapper mapper = session.getMapper(MeasureModelMapper.class);
-
-      Map<Resource, Collection<Measure>> map = unsavedMeasuresByResource.asMap();
-      for (Map.Entry<Resource, Collection<Measure>> entry : map.entrySet()) {
-        Resource resource = entry.getKey();
-        Snapshot snapshot = resourcePersister.getSnapshot(entry.getKey());
-        for (Measure measure : entry.getValue()) {
-          if (shouldPersistMeasure(resource, measure)) {
-            mapper.insert(new MeasureDto(model(measure).setSnapshotId(snapshot.getId())));
-          }
+    Map<Resource, Collection<Measure>> map = unsavedMeasuresByResource.asMap();
+    for (Map.Entry<Resource, Collection<Measure>> entry : map.entrySet()) {
+      Resource resource = entry.getKey();
+      Snapshot snapshot = resourcePersister.getSnapshot(entry.getKey());
+      for (Measure measure : entry.getValue()) {
+        if (shouldPersistMeasure(resource, measure)) {
+          batch.add(new MeasureDto(model(measure).setSnapshotId(snapshot.getId())));
         }
       }
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
     }
 
     unsavedMeasuresByResource.clear();
+    return batch;
   }
 
   private MeasureModel model(Measure measure) {
@@ -171,13 +188,44 @@ public final class MeasurePersister {
     return model;
   }
 
+  private void batchInsert(Iterable<MeasureDto> values) {
+    SqlSession session = mybatis.openBatchSession();
+    try {
+      MeasureModelMapper mapper = session.getMapper(MeasureModelMapper.class);
+      for (MeasureDto value : values) {
+        mapper.insert(value);
+      }
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  private void insert(Iterable<MeasureDto> values) {
+    SqlSession session = mybatis.openSession();
+    try {
+      MeasureModelMapper mapper = session.getMapper(MeasureModelMapper.class);
+      for (MeasureDto value : values) {
+        mapper.insert(value);
+        mapper.insertData(new MeasureDataDto(value.getId(), value.getSnapshotId(), value.getMeasureData().getData()));
+      }
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   private MeasureModel insert(Measure measure, Snapshot snapshot) {
     MeasureModel model = model(measure).setSnapshotId(snapshot.getId());
 
     SqlSession session = mybatis.openSession();
     try {
       MeasureModelMapper mapper = session.getMapper(MeasureModelMapper.class);
-      mapper.insert(new MeasureDto(model));
+      MeasureDto value = new MeasureDto(model);
+      mapper.insert(value);
+      if (value.getMeasureData() != null) {
+        mapper.insertData(new MeasureDataDto(value.getId(), value.getSnapshotId(), value.getMeasureData().getData()));
+      }
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -201,4 +249,10 @@ public final class MeasurePersister {
 
     return model;
   }
+
+  private static final Predicate<MeasureDto> HAS_LARGE_DATA = new Predicate<MeasureDto>() {
+    public boolean apply(@Nullable MeasureDto measure) {
+      return (null != measure) && (measure.getMeasureData() != null);
+    }
+  };
 }

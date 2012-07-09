@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.index;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.database.model.MeasureModel;
@@ -91,6 +92,16 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
     measurePersister.saveMeasure(project, measure);
 
     checkTables("shouldInsertRuleMeasure", "project_measures");
+  }
+
+  @Test
+  public void shouldInsertMeasureWithTextData() {
+    setupData("empty");
+
+    measurePersister.saveMeasure(project, new Measure(ncloc()).setData("SHORT"));
+    measurePersister.saveMeasure(project, new Measure(ncloc()).setData(StringUtils.repeat("0123456789", 10)));
+
+    checkTables("shouldInsertMeasureWithLargeData", "project_measures", "measure_data");
   }
 
   @Test

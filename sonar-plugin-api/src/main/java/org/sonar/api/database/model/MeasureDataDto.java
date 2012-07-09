@@ -19,10 +19,26 @@
  */
 package org.sonar.api.database.model;
 
-public interface MeasureModelMapper {
-  void insert(MeasureDto measure);
+public class MeasureDataDto {
+  private final Long measureId;
+  private final Integer snapshotId;
+  private final byte[] data;
 
-  void insertData(MeasureDataDto data);
+  public MeasureDataDto(Long measureId, Integer snapshotId, byte[] data) {
+    this.measureId = measureId;
+    this.snapshotId = snapshotId;
+    this.data = data;
+  }
 
-  void update(MeasureDto measure);
+  public Long getMeasureId() {
+    return measureId;
+  }
+
+  public Integer getSnapshotId() {
+    return snapshotId;
+  }
+
+  public byte[] getData() {
+    return data;
+  }
 }
