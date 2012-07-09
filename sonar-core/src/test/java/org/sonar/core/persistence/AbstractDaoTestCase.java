@@ -33,11 +33,7 @@ import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.*;
 import org.sonar.api.config.Settings;
 
 import java.io.InputStream;
@@ -133,7 +129,7 @@ public abstract class AbstractDaoTestCase {
   }
 
   protected void checkTables(String testName, String... tables) {
-    checkTables(testName, new String[] {}, tables);
+    checkTables(testName, new String[]{}, tables);
   }
 
   protected void checkTables(String testName, String[] excludedColumnNames, String... tables) {
@@ -146,6 +142,24 @@ public abstract class AbstractDaoTestCase {
       }
     } catch (DataSetException e) {
       throw translateException("Error while checking results", e);
+    } catch (DatabaseUnitException e) {
+      fail(e.getMessage());
+    }
+  }
+
+  /**
+   * Opposite of {@link #checkTables(String, String[], String...)}.
+   */
+  protected void checkColumns(String testName, String table, String... columns) {
+    try {
+      IDataSet dataSet = getCurrentDataSet();
+      IDataSet expectedDataSet = getExpectedData(testName);
+      ITable filteredTable = DefaultColumnFilter.includedColumnsTable(dataSet.getTable(table), columns);
+      ITable filteredExpectedTable = DefaultColumnFilter.includedColumnsTable(expectedDataSet.getTable(table), columns);
+      Assertion.assertEquals(filteredExpectedTable, filteredTable);
+
+    } catch (DataSetException e) {
+      throw translateException("Error while checking columns", e);
     } catch (DatabaseUnitException e) {
       fail(e.getMessage());
     }

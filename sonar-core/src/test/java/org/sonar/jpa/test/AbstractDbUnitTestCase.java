@@ -19,8 +19,6 @@
  */
 package org.sonar.jpa.test;
 
-import org.junit.AfterClass;
-
 import org.apache.commons.io.IOUtils;
 import org.dbunit.Assertion;
 import org.dbunit.DataSourceDatabaseTester;
@@ -28,16 +26,13 @@ import org.dbunit.DatabaseUnitException;
 import org.dbunit.IDatabaseTester;
 import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.IDatabaseConnection;
-import org.dbunit.dataset.CompositeDataSet;
-import org.dbunit.dataset.DataSetException;
-import org.dbunit.dataset.IDataSet;
-import org.dbunit.dataset.ITable;
-import org.dbunit.dataset.ReplacementDataSet;
+import org.dbunit.dataset.*;
 import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.ext.h2.H2DataTypeFactory;
 import org.dbunit.operation.DatabaseOperation;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.sonar.api.database.DatabaseSession;
@@ -180,6 +175,25 @@ public abstract class AbstractDbUnitTestCase {
       }
     } catch (DataSetException e) {
       throw translateException("Error while checking results", e);
+    } catch (DatabaseUnitException e) {
+      fail(e.getMessage());
+    }
+  }
+
+  /**
+   * Opposite of {@link #checkTables(String, String[], String...)}.
+   */
+  protected void checkColumns(String testName, String table, String... columns) {
+    getSession().commit();
+    try {
+      IDataSet dataSet = getCurrentDataSet();
+      IDataSet expectedDataSet = getExpectedData(testName);
+      ITable filteredTable = DefaultColumnFilter.includedColumnsTable(dataSet.getTable(table), columns);
+      ITable filteredExpectedTable = DefaultColumnFilter.includedColumnsTable(expectedDataSet.getTable(table), columns);
+      Assertion.assertEquals(filteredExpectedTable, filteredTable);
+
+    } catch (DataSetException e) {
+      throw translateException("Error while checking columns", e);
     } catch (DatabaseUnitException e) {
       fail(e.getMessage());
     }
