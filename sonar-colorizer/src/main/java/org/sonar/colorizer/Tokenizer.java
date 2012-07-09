@@ -24,8 +24,8 @@ import org.sonar.channel.Channel;
 /**
  * A token highlighter is in charge to optionally consume the next characters (token) of a CodeReader
  * and to add the highlighted token to an HtmlCodeBuilder.
- * 
- * IMPORTANT: a Tokenizer must be THREAD-SAFE otherwise see NotThreadSafeTokenizer
+ *
+ * IMPORTANT: a Tokenizer must be THREAD-SAFE otherwise use {@link NotThreadSafeTokenizer}
  */
 public abstract class Tokenizer extends Channel<HtmlCodeBuilder> {
 }

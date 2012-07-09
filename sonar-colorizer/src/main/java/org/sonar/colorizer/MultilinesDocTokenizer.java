@@ -19,10 +19,10 @@
  */
 package org.sonar.colorizer;
 
-import java.util.Arrays;
-
 import org.sonar.channel.CodeReader;
 import org.sonar.channel.EndMatcher;
+
+import java.util.Arrays;
 
 public class MultilinesDocTokenizer extends Tokenizer {
 
@@ -59,7 +59,7 @@ public class MultilinesDocTokenizer extends Tokenizer {
   public boolean consume(CodeReader code, HtmlCodeBuilder codeBuilder) {
     if (hasNextToken(code, codeBuilder)) {
       codeBuilder.appendWithoutTransforming(tagBefore);
-      code.popTo(new MultilineEndTokenMatcher(codeBuilder), codeBuilder);
+      code.popTo(new MultilineEndTokenMatcher(code, codeBuilder), codeBuilder);
       codeBuilder.appendWithoutTransforming(tagAfter);
       return true;
     } else {
@@ -69,33 +69,33 @@ public class MultilinesDocTokenizer extends Tokenizer {
 
   private class MultilineEndTokenMatcher implements EndMatcher {
 
-    private final HtmlCodeBuilder code;
-    private final StringBuilder colorizedCode;
+    private final CodeReader code;
+    private final HtmlCodeBuilder codeBuilder;
     private int commentSize = 0;
 
-    public MultilineEndTokenMatcher(HtmlCodeBuilder code) {
+    public MultilineEndTokenMatcher(CodeReader code, HtmlCodeBuilder codeBuilder) {
       this.code = code;
-      this.colorizedCode = code.getColorizedCode();
+      this.codeBuilder = codeBuilder;
     }
 
     public boolean match(int endFlag) {
       commentSize++;
-      if (commentSize >= endToken.length + startToken.length || (commentSize >= endToken.length && isCommentStartedOnPreviousLine(code))) {
+      if (commentSize >= endToken.length + startToken.length || (commentSize >= endToken.length && isCommentStartedOnPreviousLine(codeBuilder))) {
         boolean matches = true;
         for (int i = 1; i <= endToken.length; i++) {
-          if (colorizedCode.charAt(colorizedCode.length() - i) != endToken[endToken.length - i]) {
+          if (code.charAt(-i) != endToken[endToken.length - i]) {
             matches = false;
             break;
           }
         }
         if (matches) {
-          setCommentStartedOnPreviousLine(code, Boolean.FALSE);
+          setCommentStartedOnPreviousLine(codeBuilder, Boolean.FALSE);
           return true;
         }
       }
 
       if (endFlag == '\r' || endFlag == '\n') {
-        setCommentStartedOnPreviousLine(code, Boolean.TRUE);
+        setCommentStartedOnPreviousLine(codeBuilder, Boolean.TRUE);
         return true;
       }
       return false;
@@ -115,4 +115,5 @@ public class MultilinesDocTokenizer extends Tokenizer {
   private String getTokenizerId() {
     return getClass().getSimpleName();
   }
+
 }
