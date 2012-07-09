@@ -19,10 +19,13 @@
  */
 package org.sonar.plugins.findbugs;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
@@ -42,32 +45,64 @@ public class FindbugsConfigurationTest {
   private Project project;
   private Settings settings;
   private File findbugsTempDir;
+  private FindbugsConfiguration conf;
 
   @Before
-  public void setup() {
+  public void setUp() {
     project = mock(Project.class);
-    settings = new Settings();
+    settings = new Settings(new PropertyDefinitions().addComponent(FindbugsPlugin.class));
     findbugsTempDir = tempFolder.newFolder("findbugs");
     when(project.getFileSystem()).thenReturn(new SimpleProjectFileSystem(findbugsTempDir));
+    conf = new FindbugsConfiguration(project, settings, RulesProfile.create(), new FindbugsProfileExporter(), null);
   }
 
   @Test
-  public void shouldSaveConfigFiles() throws Exception {
-    FindbugsConfiguration conf = new FindbugsConfiguration(project, settings, RulesProfile.create(), new FindbugsProfileExporter(), null);
+  public void should_return_report_file() throws Exception {
+    assertThat(conf.getTargetXMLReport()).isEqualTo(new File(findbugsTempDir, "target/sonar/findbugs-result.xml"));
+  }
 
+  @Test
+  public void should_save_include_config() throws Exception {
     conf.saveIncludeConfigXml();
-    conf.saveExcludeConfigXml();
-
     File findbugsIncludeFile = new File(findbugsTempDir + "/target/sonar/findbugs-include.xml");
-    File findbugsExcludeFile = new File(findbugsTempDir + "/target/sonar/findbugs-exclude.xml");
     assertThat(findbugsIncludeFile.exists()).isTrue();
-    assertThat(findbugsExcludeFile.exists()).isTrue();
   }
 
   @Test
-  public void shouldReturnExcludesFilters() {
-    FindbugsConfiguration conf = new FindbugsConfiguration(project, settings, RulesProfile.create(), new FindbugsProfileExporter(), null);
+  public void should_save_exclude_config() throws Exception {
+    when(project.getExclusionPatterns()).thenReturn(new String[] {"dir/**/*.java"});
+    conf.saveExcludeConfigXml();
+    File findbugsExcludeFile = new File(findbugsTempDir + "/target/sonar/findbugs-exclude.xml");
+    assertThat(findbugsExcludeFile.exists()).isTrue();
+    String findbugsExclude = FileUtils.readFileToString(findbugsExcludeFile);
+    assertThat(findbugsExclude).contains("Match");
+  }
 
+  @Test
+  public void should_save_empty_exclude_config() throws Exception {
+    conf.saveExcludeConfigXml();
+    File findbugsExcludeFile = new File(findbugsTempDir + "/target/sonar/findbugs-exclude.xml");
+    assertThat(findbugsExcludeFile.exists()).isTrue();
+    String findbugsExclude = FileUtils.readFileToString(findbugsExcludeFile);
+    assertThat(findbugsExclude).doesNotContain("Match");
+  }
+
+  @Test
+  public void should_return_effort() {
+    assertThat(conf.getEffort()).as("default effort").isEqualTo("default");
+    settings.setProperty(CoreProperties.FINDBUGS_EFFORT_PROPERTY, "Max");
+    assertThat(conf.getEffort()).isEqualTo("max");
+  }
+
+  @Test
+  public void should_return_timeout() {
+    assertThat(conf.getTimeout()).as("default timeout").isEqualTo(600000);
+    settings.setProperty(CoreProperties.FINDBUGS_TIMEOUT_PROPERTY, 1);
+    assertThat(conf.getTimeout()).isEqualTo(1);
+  }
+
+  @Test
+  public void should_return_excludes_filters() {
     assertThat(conf.getExcludesFilters()).isEmpty();
     settings.setProperty(FindbugsConstants.EXCLUDES_FILTERS_PROPERTY, " foo.xml , bar.xml,");
     assertThat(conf.getExcludesFilters()).hasSize(2);

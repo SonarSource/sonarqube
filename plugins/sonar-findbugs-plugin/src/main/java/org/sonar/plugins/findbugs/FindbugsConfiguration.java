@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.findbugs;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -83,13 +84,15 @@ public class FindbugsConfiguration implements BatchExtension {
     return findbugsProject;
   }
 
-  public File saveIncludeConfigXml() throws IOException {
+  @VisibleForTesting
+  File saveIncludeConfigXml() throws IOException {
     StringWriter conf = new StringWriter();
     exporter.exportProfile(profile, conf);
     return project.getFileSystem().writeToWorkingDirectory(conf.toString(), "findbugs-include.xml");
   }
 
-  public File saveExcludeConfigXml() throws IOException {
+  @VisibleForTesting
+  File saveExcludeConfigXml() throws IOException {
     FindBugsFilter findBugsFilter = new FindBugsFilter();
     if (project.getExclusionPatterns() != null) {
       for (String exclusion : project.getExclusionPatterns()) {
@@ -100,7 +103,8 @@ public class FindbugsConfiguration implements BatchExtension {
     return project.getFileSystem().writeToWorkingDirectory(findBugsFilter.toXml(), "findbugs-exclude.xml");
   }
 
-  public List<File> getExcludesFilters() {
+  @VisibleForTesting
+  List<File> getExcludesFilters() {
     List<File> result = new ArrayList<File>();
     String[] filters = settings.getStringArray(FindbugsConstants.EXCLUDES_FILTERS_PROPERTY);
     for (String excludesFilterPath : filters) {
