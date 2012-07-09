@@ -24,7 +24,7 @@ module PropertiesHelper
       text_field_tag key, value, {:size => 25}.update(options)
 
     elsif type==PropertyType::TYPE_TEXT
-      text_area_tag key, value, {:size => '40x6'}.update(options)
+      text_area_tag key, value, {:size => '120x6'}.update(options)
 
     elsif type==PropertyType::TYPE_PASSWORD
       password_field_tag key, value, {:size => 25}.update(options)
