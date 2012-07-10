@@ -102,6 +102,12 @@ module ApplicationHelper
         else
           label = message('since_previous_analysis')
         end
+      elsif mode=='previous_version'
+        unless mode_param.nil?
+          label = message('since_previous_version_detailed', :params => mode_param.to_s)
+        else
+          label = message('since_previous_version')
+        end
       elsif mode=='date'
         label = message('since_x', :params => date.strftime("%Y %b %d").to_s)
       end

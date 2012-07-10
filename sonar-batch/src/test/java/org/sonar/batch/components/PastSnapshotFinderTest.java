@@ -19,10 +19,14 @@
  */
 package org.sonar.batch.components;
 
+import org.apache.commons.configuration.BaseConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.database.model.Snapshot;
 
@@ -38,25 +42,44 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class PastSnapshotFinderTest {
 
+  @Mock
   private PastSnapshotFinderByDays finderByDays;
+  @Mock
   private PastSnapshotFinderByDate finderByDate;
+  @Mock
   private PastSnapshotFinderByVersion finderByVersion;
+  @Mock
   private PastSnapshotFinderByPreviousAnalysis finderByPreviousAnalysis;
+  @Mock
+  private PastSnapshotFinderByPreviousVersion finderByPreviousVersion;
+
   private PastSnapshotFinder finder;
 
   @Before
   public void initFinders() {
-    finderByDays = mock(PastSnapshotFinderByDays.class);
-    finderByDate = mock(PastSnapshotFinderByDate.class);
-    finderByVersion = mock(PastSnapshotFinderByVersion.class);
-    finderByPreviousAnalysis = mock(PastSnapshotFinderByPreviousAnalysis.class);
-    finder = new PastSnapshotFinder(finderByDays, finderByVersion, finderByDate, finderByPreviousAnalysis);
+    MockitoAnnotations.initMocks(this);
+
+    finder = new PastSnapshotFinder(finderByDays, finderByVersion, finderByDate, finderByPreviousAnalysis, finderByPreviousVersion);
+  }
+
+  @Test
+  public void shouldFind() {
+    Configuration conf = new BaseConfiguration();
+    conf.addProperty("sonar.timemachine.period5", "1.2");
+
+    when(finderByVersion.findByVersion(null, "1.2")).thenReturn(new PastSnapshot("version", new Date(), new Snapshot()));
+
+    PastSnapshot variationSnapshot = finder.find(null, conf, 5);
+
+    verify(finderByVersion).findByVersion(null, "1.2");
+    assertThat(variationSnapshot.getIndex(), is(5));
+    assertThat(variationSnapshot.getMode(), is("version"));
+    assertThat(variationSnapshot.getProjectSnapshot(), not(nullValue()));
   }
 
   @Test
@@ -134,6 +157,22 @@ public class PastSnapshotFinderTest {
     verify(finderByPreviousAnalysis).findByPreviousAnalysis(null);
 
     assertNull(variationSnapshot);
+  }
+
+  @Test
+  public void shouldFindByPreviousVersion() throws ParseException {
+    final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    final Date date = format.parse("2010-05-18");
+    Snapshot snapshot = new Snapshot();
+    snapshot.setCreatedAt(date);
+    when(finderByPreviousVersion.findByPreviousVersion(null)).thenReturn(new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION, date, snapshot));
+
+    PastSnapshot variationSnapshot = finder.find(null, 2, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
+
+    verify(finderByPreviousVersion).findByPreviousVersion(null);
+    assertThat(variationSnapshot.getIndex(), is(2));
+    assertThat(variationSnapshot.getMode(), is(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION));
+    assertThat(variationSnapshot.getProjectSnapshot(), not(nullValue()));
   }
 
   @Test

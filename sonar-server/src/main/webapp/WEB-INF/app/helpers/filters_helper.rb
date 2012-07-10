@@ -72,6 +72,8 @@ module FiltersHelper
   def period_name(property)
     if property=='previous_analysis'
       message('delta_since_previous_analysis')
+    elsif property=='previous_version'
+      message('delta_since_previous_version')
     elsif property =~ /^[\d]+(\.[\d]+){0,1}$/
       # is integer
       message('delta_over_x_days', :params => property)

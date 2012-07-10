@@ -20,21 +20,28 @@
 package org.sonar.batch.components;
 
 import org.junit.Test;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class PastSnapshotFinderByVersionTest extends AbstractDbUnitTestCase {
+public class PastSnapshotFinderByPreviousVersionTest extends AbstractDbUnitTestCase {
 
   @Test
-  public void shouldFindByVersion() {
+  public void shouldFindByPreviousVersion() {
     setupData("shared");
+    PastSnapshotFinderByPreviousVersion finder = new PastSnapshotFinderByPreviousVersion(getSession());
 
     Snapshot currentProjectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1010);
-    PastSnapshotFinderByVersion finder = new PastSnapshotFinderByVersion(getSession());
+    PastSnapshot foundSnapshot = finder.findByPreviousVersion(currentProjectSnapshot);
+    assertThat(foundSnapshot.getProjectSnapshotId()).isEqualTo(1009);
+    assertThat(foundSnapshot.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
+    assertThat(foundSnapshot.getModeParameter()).isEqualTo("1.1");
 
-    assertThat(finder.findByVersion(currentProjectSnapshot, "1.1").getProjectSnapshotId()).isEqualTo(1009);
+    // and test also another version to verify that unprocessed snapshots are ignored
+    currentProjectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1009);
+    assertThat(finder.findByPreviousVersion(currentProjectSnapshot).getProjectSnapshotId()).isEqualTo(1003);
   }
 
 }

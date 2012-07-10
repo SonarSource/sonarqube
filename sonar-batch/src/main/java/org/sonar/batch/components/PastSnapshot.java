@@ -121,6 +121,13 @@ public class PastSnapshot {
       }
       return label;
     }
+    if (StringUtils.equals(mode, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION)) {
+      String label = "Compare to previous version";
+      if (isRelatedToSnapshot()) {
+        label += String.format(" (%s)", DateUtils.formatDate(getDate()));
+      }
+      return label;
+    }
     if (StringUtils.equals(mode, CoreProperties.TIMEMACHINE_MODE_DATE)) {
       String label = "Compare to date " + DateUtils.formatDate(getTargetDate());
       if (isRelatedToSnapshot()) {

@@ -19,11 +19,7 @@
  */
 package org.sonar.batch.components;
 
-import java.util.Date;
-import java.util.List;
-
-import javax.persistence.Query;
-
+import com.google.common.collect.Lists;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
@@ -35,7 +31,10 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.Logs;
 
-import com.google.common.collect.Lists;
+import javax.persistence.Query;
+
+import java.util.Date;
+import java.util.List;
 
 public class TimeMachineConfiguration implements BatchExtension {
 
@@ -83,6 +82,7 @@ public class TimeMachineConfiguration implements BatchExtension {
       snapshot.setResourceId(projectId.intValue());
       snapshot.setCreatedAt(project.getAnalysisDate());
       snapshot.setBuildDate(new Date());
+      snapshot.setVersion(project.getAnalysisVersion());
     }
     return snapshot;
   }

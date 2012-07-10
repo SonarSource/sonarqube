@@ -32,7 +32,6 @@ public interface CoreProperties {
    */
   String ENCRYPTION_SECRET_KEY_PATH = "sonar.secretKeyPath";
 
-
   /**
    * @since 2.11
    */
@@ -67,7 +66,6 @@ public interface CoreProperties {
    * @since 2.11
    */
   String CATEGORY_DIFFERENTIAL_VIEWS = "differentialViews";
-
 
   /* Global settings */
   String SONAR_HOME = "SONAR_HOME";
@@ -272,6 +270,7 @@ public interface CoreProperties {
   String TIMEMACHINE_MODE_DATE = "date";
   String TIMEMACHINE_MODE_VERSION = "version";
   String TIMEMACHINE_MODE_DAYS = "days";
+  String TIMEMACHINE_MODE_PREVIOUS_VERSION = "previous_version";
   String TIMEMACHINE_DEFAULT_PERIOD_1 = TIMEMACHINE_MODE_PREVIOUS_ANALYSIS;
   String TIMEMACHINE_DEFAULT_PERIOD_2 = "5";
   String TIMEMACHINE_DEFAULT_PERIOD_3 = "30";

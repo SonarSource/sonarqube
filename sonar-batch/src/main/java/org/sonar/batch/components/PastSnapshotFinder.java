@@ -39,13 +39,16 @@ public class PastSnapshotFinder implements BatchExtension {
   private PastSnapshotFinderByVersion finderByVersion;
   private PastSnapshotFinderByDate finderByDate;
   private PastSnapshotFinderByPreviousAnalysis finderByPreviousAnalysis;
+  private PastSnapshotFinderByPreviousVersion finderByPreviousVersion;
 
   public PastSnapshotFinder(PastSnapshotFinderByDays finderByDays, PastSnapshotFinderByVersion finderByVersion,
-                            PastSnapshotFinderByDate finderByDate, PastSnapshotFinderByPreviousAnalysis finderByPreviousAnalysis) {
+      PastSnapshotFinderByDate finderByDate, PastSnapshotFinderByPreviousAnalysis finderByPreviousAnalysis,
+      PastSnapshotFinderByPreviousVersion finderByPreviousVersion) {
     this.finderByDays = finderByDays;
     this.finderByVersion = finderByVersion;
     this.finderByDate = finderByDate;
     this.finderByPreviousAnalysis = finderByPreviousAnalysis;
+    this.finderByPreviousVersion = finderByPreviousVersion;
   }
 
   public PastSnapshot find(Snapshot projectSnapshot, Configuration conf, int index) {
@@ -94,7 +97,10 @@ public class PastSnapshotFinder implements BatchExtension {
       if (result == null) {
         result = findByPreviousAnalysis(projectSnapshot, property);
         if (result == null) {
-          result = findByVersion(projectSnapshot, property);
+          result = findByPreviousVersion(projectSnapshot, property);
+          if (result == null) {
+            result = findByVersion(projectSnapshot, property);
+          }
         }
       }
     }
@@ -110,6 +116,14 @@ public class PastSnapshotFinder implements BatchExtension {
     PastSnapshot pastSnapshot = null;
     if (StringUtils.equals(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, property)) {
       pastSnapshot = finderByPreviousAnalysis.findByPreviousAnalysis(projectSnapshot);
+    }
+    return pastSnapshot;
+  }
+
+  private PastSnapshot findByPreviousVersion(Snapshot projectSnapshot, String property) {
+    PastSnapshot pastSnapshot = null;
+    if (StringUtils.equals(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION, property)) {
+      pastSnapshot = finderByPreviousVersion.findByPreviousVersion(projectSnapshot);
     }
     return pastSnapshot;
   }
