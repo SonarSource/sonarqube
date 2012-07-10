@@ -80,9 +80,7 @@ public final class Command {
   }
 
   /**
-   * Adds or overrides an environment variable. The initial values are a copy of the environment
-   * of the current process.
-   *
+   * @see {@link org.sonar.api.utils.command.Command#getEnvironmentVariables()}
    * @since 3.2
    */
   public Command setEnvironmentVariable(String name, String value) {
@@ -91,6 +89,10 @@ public final class Command {
   }
 
   /**
+   * Environment variables that are propagated during command execution.
+   * The initial value is a copy of the environment of the current process.
+   *
+   * @return a non-null and immutable map of variables
    * @since 3.2
    */
   public Map<String, String> getEnvironmentVariables() {
@@ -115,6 +117,7 @@ public final class Command {
 
   /**
    * Create a command line without any arguments
+   *
    * @param executable
    */
   public static Command create(String executable) {
