@@ -21,7 +21,6 @@ class RolesController < ApplicationController
   helper RolesHelper
 
   SECTION=Navigation::SECTION_CONFIGURATION
-  PER_PAGE = 2
 
   before_filter :admin_required
   verify :method => :post, :only => [:set_users, :set_groups, :set_default_project_groups, :set_default_project_users], :redirect_to => {:action => 'global'}
@@ -52,6 +51,7 @@ class RolesController < ApplicationController
 
     @pagination = Api::Pagination.new(params)
     @projects=Project.find(:all,
+                           :include => ['user_roles','group_roles'],
                            :joins => joins,
                            :conditions => [conditions_sql, conditions_values],
                            :order => 'projects.name',
