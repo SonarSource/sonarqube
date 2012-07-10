@@ -64,10 +64,7 @@ public class CommandExecutor {
       if (command.getDirectory() != null) {
         builder.directory(command.getDirectory());
       }
-      Map<String, String> envVars = command.getEnvironmentVariables();
-      if (!envVars.isEmpty()) {
-        builder.environment().putAll(envVars);
-      }
+      builder.environment().putAll(command.getEnvironmentVariables());
       process = builder.start();
 
       outputGobbler = new StreamGobbler(process.getInputStream(), stdOut);

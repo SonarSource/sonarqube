@@ -33,12 +33,12 @@ import java.util.Map;
 /**
  * @since 2.7
  */
-public final class Command {
+public class Command {
 
   private String executable;
   private List<String> arguments = Lists.newArrayList();
   private File directory;
-  private Map<String, String> env = Maps.newHashMap();
+  private Map<String, String> env = Maps.newHashMap(System.getenv());
 
   private Command(String executable) {
     this.executable = executable;

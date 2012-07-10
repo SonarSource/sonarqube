@@ -19,23 +19,30 @@
  */
 package org.sonar.api.utils.command;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.io.File;
+import java.util.Arrays;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
+
 
 public class CommandTest {
 
-  @Test(expected = IllegalArgumentException.class)
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
+  @Test
   public void shouldFailWhenBlankExecutable() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
     Command.create("  ");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void shouldFailWhenNullExecutable() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
     Command.create(null);
   }
 
@@ -43,19 +50,40 @@ public class CommandTest {
   public void shouldCreateCommand() throws Exception {
     Command command = Command.create("java");
     command.addArgument("-Xmx512m");
-    command.addArgument("-Dfoo=bar");
-    assertThat(command.getExecutable(), is("java"));
-    assertThat(command.getArguments().size(), is(2));
-    assertThat(command.toCommandLine(), is("java -Xmx512m -Dfoo=bar"));
+    command.addArguments(Arrays.asList("-a", "-b"));
+    command.addArguments(new String[]{"-x", "-y"});
+    assertThat(command.getExecutable()).isEqualTo("java");
+    assertThat(command.getArguments()).hasSize(5);
+    assertThat(command.toCommandLine()).isEqualTo("java -Xmx512m -a -b -x -y");
+  }
+
+  @Test
+  public void toString_is_the_command_line() {
+    Command command = Command.create("java");
+    command.addArgument("-Xmx512m");
+    assertThat(command.toString()).isEqualTo(command.toCommandLine());
   }
 
   @Test
   public void shouldSetWorkingDirectory() throws Exception {
     Command command = Command.create("java");
-    assertThat(command.getDirectory(), nullValue());
+    assertThat(command.getDirectory()).isNull();
 
     File working = new File("working");
     command = Command.create("java").setDirectory(working);
-    assertThat(command.getDirectory(), is(working));
+    assertThat(command.getDirectory()).isEqualTo(working);
+  }
+
+  @Test
+  public void initialize_with_current_env() throws Exception {
+    Command command = Command.create("java");
+    assertThat(command.getEnvironmentVariables()).isNotEmpty();
+  }
+
+  @Test
+  public void override_env_variables() throws Exception {
+    Command command = Command.create("java");
+    command.setEnvironmentVariable("JAVA_HOME", "/path/to/java");
+    assertThat(command.getEnvironmentVariables().get("JAVA_HOME")).isEqualTo("/path/to/java");
   }
 }
