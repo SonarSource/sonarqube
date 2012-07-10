@@ -69,7 +69,6 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <!-- Do not forget to check correctness of those numbers, when obfuscation disabled -->
                   <maxsize>50000</maxsize>
                   <minsize>20000</minsize>
                   <files>
