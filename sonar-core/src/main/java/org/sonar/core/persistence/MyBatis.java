@@ -19,6 +19,8 @@
  */
 package org.sonar.core.persistence;
 
+import org.apache.ibatis.type.JdbcType;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
@@ -100,6 +102,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     conf.setEnvironment(new Environment("production", createTransactionFactory(), database.getDataSource()));
     conf.setUseGeneratedKeys(true);
     conf.setLazyLoadingEnabled(false);
+    conf.setJdbcTypeForNull(JdbcType.NULL);
     conf.getVariables().setProperty("_true", database.getDialect().getTrueSqlValue());
     conf.getVariables().setProperty("_false", database.getDialect().getFalseSqlValue());
 
