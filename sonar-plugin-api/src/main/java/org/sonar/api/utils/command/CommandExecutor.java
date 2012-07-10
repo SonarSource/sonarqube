@@ -76,23 +76,17 @@ public final class CommandExecutor {
       errorGobbler.start();
 
       final Process finalProcess = process;
-      Callable<Integer> call = new Callable<Integer>() {
+      executorService = Executors.newSingleThreadExecutor();
+      Future<Integer> ft = executorService.submit(new Callable<Integer>() {
         public Integer call() throws Exception {
           return finalProcess.waitFor();
         }
-      };
-
-      executorService = Executors.newSingleThreadExecutor();
-      Future<Integer> ft = executorService.submit(call);
+      });
       int exitCode = ft.get(timeoutMilliseconds, TimeUnit.MILLISECONDS);
       waitUntilFinish(outputGobbler);
       waitUntilFinish(errorGobbler);
-      if (outputGobbler.getException() != null) {
-        throw new CommandException(command, "Error inside stdOut parser", outputGobbler.getException());
-      }
-      if (errorGobbler.getException() != null) {
-        throw new CommandException(command, "Error inside stdErr parser", errorGobbler.getException());
-      }
+      verifyGobbler(command, outputGobbler, "stdOut");
+      verifyGobbler(command, errorGobbler, "stdErr");
       return exitCode;
 
     } catch (TimeoutException te) {
@@ -113,6 +107,12 @@ public final class CommandExecutor {
       if (executorService != null) {
         executorService.shutdown();
       }
+    }
+  }
+
+  private void verifyGobbler(Command command, StreamGobbler gobbler, String type) {
+    if (gobbler.getException() != null) {
+      throw new CommandException(command, "Error inside " + type + " stream", gobbler.getException());
     }
   }
 

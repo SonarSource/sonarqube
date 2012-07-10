@@ -80,6 +80,9 @@ public final class Command {
   }
 
   /**
+   * Adds or overrides an environment variable. The initial values are a copy of the environment
+   * of the current process.
+   *
    * @since 3.2
    */
   public Command setEnvironmentVariable(String name, String value) {

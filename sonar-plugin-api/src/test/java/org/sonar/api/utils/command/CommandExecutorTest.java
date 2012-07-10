@@ -82,7 +82,7 @@ public class CommandExecutorTest {
   public void stdOut_consumer_can_throw_exception() throws Exception {
     Command command = Command.create(getScript("output")).setDirectory(workDir);
     thrown.expect(CommandException.class);
-    thrown.expectMessage("Error inside stdOut parser");
+    thrown.expectMessage("Error inside stdOut stream");
     CommandExecutor.create().execute(command, BAD_CONSUMER, NOP_CONSUMER, 1000L);
   }
 
@@ -90,7 +90,7 @@ public class CommandExecutorTest {
   public void stdErr_consumer_can_throw_exception() throws Exception {
     Command command = Command.create(getScript("output")).setDirectory(workDir);
     thrown.expect(CommandException.class);
-    thrown.expectMessage("Error inside stdErr parser");
+    thrown.expectMessage("Error inside stdErr stream");
     CommandExecutor.create().execute(command, NOP_CONSUMER, BAD_CONSUMER, 1000L);
   }
 
