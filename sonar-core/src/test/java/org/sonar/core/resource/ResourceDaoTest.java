@@ -141,16 +141,24 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void insertOrUpdate() {
-    setupData("insertOrUpdate");
+  public void should_update() {
+    setupData("update");
 
-    // to be updated
     ResourceDto project = new ResourceDto()
-      .setKey("org.struts:struts").setScope(Scopes.PROJECT).setQualifier(Qualifiers.PROJECT)
-      .setName("Struts").setLongName("Apache Struts").setLanguage("java").setDescription("MVC Framework")
-      .setId(100L);
+        .setKey("org.struts:struts").setScope(Scopes.PROJECT).setQualifier(Qualifiers.PROJECT)
+        .setName("Struts").setLongName("Apache Struts").setLanguage("java").setDescription("MVC Framework")
+        .setId(1L);
 
-    // to be inserted
+    dao.insertOrUpdate(project);
+
+    assertThat(project.getId()).isNotNull();
+    checkTables("update", "projects");
+  }
+
+  @Test
+  public void should_insert() {
+    setupData("insert");
+
     ResourceDto file1 = new ResourceDto()
       .setKey("org.struts:struts:org.struts.Action").setScope(Scopes.FILE).setQualifier(Qualifiers.FILE)
       .setLanguage("java").setName("Action").setLongName("org.struts.Action");
@@ -158,13 +166,11 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
           .setKey("org.struts:struts:org.struts.Filter").setScope(Scopes.FILE).setQualifier(Qualifiers.FILE)
           .setLanguage("java").setName("Filter").setLongName("org.struts.Filter");
 
-    dao.insertOrUpdate(project, file1, file2);
+    dao.insertOrUpdate(file1, file2);
 
-    assertThat(project.getId()).isNotNull();
     assertThat(file1.getId()).isNotNull();
     assertThat(file2.getId()).isNotNull();
-    checkTables("insertOrUpdate", new String[]{"id"}, "projects");
+    checkTables("insert", "projects");
   }
-
 }
 
