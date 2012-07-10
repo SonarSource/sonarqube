@@ -33,9 +33,8 @@ import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.database.model.MeasureDataDto;
-import org.sonar.api.database.model.MeasureDto;
-import org.sonar.api.database.model.MeasureModelMapper;
+import org.sonar.api.database.model.MeasureMapper;
+import org.sonar.api.database.model.MeasureModel;
 import org.sonar.core.dashboard.ActiveDashboardDto;
 import org.sonar.core.dashboard.ActiveDashboardMapper;
 import org.sonar.core.dashboard.DashboardDto;
@@ -129,8 +128,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "UserRole", UserRoleDto.class);
     loadAlias(conf, "Widget", WidgetDto.class);
     loadAlias(conf, "WidgetProperty", WidgetPropertyDto.class);
-    loadAlias(conf, "MeasureDto", MeasureDto.class);
-    loadAlias(conf, "MeasureDataDto", MeasureDataDto.class);
+    loadAlias(conf, "MeasureModel", MeasureModel.class);
 
     loadMapper(conf, ActiveDashboardMapper.class);
     loadMapper(conf, AuthorMapper.class);
@@ -156,7 +154,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadMapper(conf, UserMapper.class);
     loadMapper(conf, WidgetMapper.class);
     loadMapper(conf, WidgetPropertyMapper.class);
-    loadMapper(conf, MeasureModelMapper.class);
+    loadMapper(conf, MeasureMapper.class);
 
     sessionFactory = new SqlSessionFactoryBuilder().build(conf);
     return this;

@@ -19,22 +19,16 @@
  */
 package org.sonar.batch.index;
 
-import javax.annotation.Nullable;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.SetMultimap;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.database.model.MeasureDataDto;
-import org.sonar.api.database.model.MeasureDto;
+import org.sonar.api.database.model.MeasureMapper;
 import org.sonar.api.database.model.MeasureModel;
-import org.sonar.api.database.model.MeasureModelMapper;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
@@ -46,13 +40,14 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.SonarException;
 import org.sonar.core.persistence.MyBatis;
 
+import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static com.google.common.collect.Iterables.filter;
-
 import static com.google.common.base.Predicates.not;
+import static com.google.common.collect.Iterables.filter;
 
 public final class MeasurePersister {
   private final MyBatis mybatis;
@@ -80,9 +75,9 @@ public final class MeasurePersister {
   public void dump() {
     LoggerFactory.getLogger(getClass()).debug("{} measures to dump", unsavedMeasuresByResource.size());
 
-    List<MeasureDto> measuresToSave = getMeasuresToSave();
-    insert(filter(measuresToSave, HAS_LARGE_DATA));
-    batchInsert(filter(measuresToSave, not(HAS_LARGE_DATA)));
+    List<MeasureModel> measures = getMeasuresToSave();
+    insert(filter(measures, HAS_MEASURE_DATA));
+    batchInsert(filter(measures, not(HAS_MEASURE_DATA)));
   }
 
   public void saveMeasure(Resource resource, Measure measure) {
@@ -135,8 +130,8 @@ public final class MeasurePersister {
       && (measure.getVariation5() == null || NumberUtils.compare(measure.getVariation5().doubleValue(), 0.0) == 0);
   }
 
-  private List<MeasureDto> getMeasuresToSave() {
-    List<MeasureDto> batch = Lists.newArrayList();
+  private List<MeasureModel> getMeasuresToSave() {
+    List<MeasureModel> measures = Lists.newArrayList();
 
     Map<Resource, Collection<Measure>> map = unsavedMeasuresByResource.asMap();
     for (Map.Entry<Resource, Collection<Measure>> entry : map.entrySet()) {
@@ -144,13 +139,13 @@ public final class MeasurePersister {
       Snapshot snapshot = resourcePersister.getSnapshot(entry.getKey());
       for (Measure measure : entry.getValue()) {
         if (shouldPersistMeasure(resource, measure)) {
-          batch.add(new MeasureDto(model(measure).setSnapshotId(snapshot.getId())));
+          measures.add(model(measure).setSnapshotId(snapshot.getId()));
         }
       }
     }
 
     unsavedMeasuresByResource.clear();
-    return batch;
+    return measures;
   }
 
   private MeasureModel model(Measure measure) {
@@ -188,27 +183,31 @@ public final class MeasurePersister {
     return model;
   }
 
-  private void batchInsert(Iterable<MeasureDto> values) {
+  private void batchInsert(Iterable<MeasureModel> values) {
     SqlSession session = mybatis.openBatchSession();
     try {
-      MeasureModelMapper mapper = session.getMapper(MeasureModelMapper.class);
-      for (MeasureDto value : values) {
+      MeasureMapper mapper = session.getMapper(MeasureMapper.class);
+
+      for (MeasureModel value : values) {
         mapper.insert(value);
       }
+
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  private void insert(Iterable<MeasureDto> values) {
+  private void insert(Iterable<MeasureModel> values) {
     SqlSession session = mybatis.openSession();
     try {
-      MeasureModelMapper mapper = session.getMapper(MeasureModelMapper.class);
-      for (MeasureDto value : values) {
+      MeasureMapper mapper = session.getMapper(MeasureMapper.class);
+
+      for (MeasureModel value : values) {
         mapper.insert(value);
-        mapper.insertData(new MeasureDataDto(value.getId(), value.getSnapshotId(), value.getMeasureData().getData()));
+        mapper.insertData(value);
       }
+
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -216,42 +215,46 @@ public final class MeasurePersister {
   }
 
   private MeasureModel insert(Measure measure, Snapshot snapshot) {
-    MeasureModel model = model(measure).setSnapshotId(snapshot.getId());
+    MeasureModel value = model(measure);
+    value.setSnapshotId(snapshot.getId());
 
     SqlSession session = mybatis.openSession();
     try {
-      MeasureModelMapper mapper = session.getMapper(MeasureModelMapper.class);
-      MeasureDto value = new MeasureDto(model);
+      MeasureMapper mapper = session.getMapper(MeasureMapper.class);
+
       mapper.insert(value);
       if (value.getMeasureData() != null) {
-        mapper.insertData(new MeasureDataDto(value.getId(), value.getSnapshotId(), value.getMeasureData().getData()));
+        mapper.insertData(value);
       }
+
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
 
-    return model;
+    return value;
   }
 
   private MeasureModel update(Measure measure) {
-    MeasureModel model = model(measure);
-    model.setId(measure.getId());
+    MeasureModel value = model(measure);
+    value.setId(measure.getId());
 
     SqlSession session = mybatis.openSession();
     try {
-      MeasureModelMapper mapper = session.getMapper(MeasureModelMapper.class);
-      mapper.update(new MeasureDto(model));
+      MeasureMapper mapper = session.getMapper(MeasureMapper.class);
+
+      mapper.update(value);
+
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
 
-    return model;
+    return value;
   }
 
-  private static final Predicate<MeasureDto> HAS_LARGE_DATA = new Predicate<MeasureDto>() {
-    public boolean apply(@Nullable MeasureDto measure) {
+  private static final Predicate<MeasureModel> HAS_MEASURE_DATA = new Predicate<MeasureModel>() {
+    public boolean apply(@Nullable MeasureModel measure) {
       return (null != measure) && (measure.getMeasureData() != null);
     }
   };

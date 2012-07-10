@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.sonar.api.database.model.MeasureModelMapper">
+<mapper namespace="org.sonar.api.database.model.MeasureMapper">
 
-  <insert id="insert" parameterType="MeasureDto" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" parameterType="MeasureModel" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     <selectKey order="BEFORE" resultType="Long" keyProperty="id">
       select project_measures_seq.NEXTVAL from DUAL
     </selectKey>
@@ -14,13 +14,20 @@
     VALUES (#{id},
       #{value}, #{metricId}, #{snapshotId}, #{ruleId}, #{textValue, jdbcType=VARCHAR}, #{tendency},
       #{measureDate, jdbcType=TIMESTAMP}, #{projectId}, #{alertStatus, jdbcType=VARCHAR}, #{alertText, jdbcType=VARCHAR},
-      #{url, jdbcType=VARCHAR}, #{description, jdbcType=VARCHAR}, #{rulePriority}, #{characteristicId}, #{variationValue1},
+      #{url, jdbcType=VARCHAR}, #{description, jdbcType=VARCHAR}, #{rulePriority.ordinal}, #{characteristic.id}, #{variationValue1},
       #{variationValue2}, #{variationValue3}, #{variationValue4}, #{variationValue5}, #{personId}
     )
   </insert>
-  
 
-  <update id="update" parameterType="MeasureDto">
+  <insert id="insertData" parameterType="MeasureModel" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    <selectKey order="BEFORE" resultType="Long" keyProperty="id">
+      select measure_data_seq.NEXTVAL from DUAL
+    </selectKey>
+    INSERT INTO measure_data (id, measure_id, snapshot_id, data)
+    VALUES (#{id}, #{measureData.measure.id}, #{snapshotId}, #{measureData.data}) 
+  </insert>
+  
+  <update id="update" parameterType="MeasureModel">
     UPDATE project_measures
     SET
       value = #{value},
@@ -32,8 +39,8 @@
       alert_text = #{alertText, jdbcType=VARCHAR},
       url = #{url, jdbcType=VARCHAR},
       description = #{description, jdbcType=VARCHAR},
-      rule_priority = #{rulePriority},
-      characteristic_id = #{characteristicId},
+      rule_priority = #{rulePriority.ordinal},
+      characteristic_id = #{characteristic.id},
       variation_value_1 = #{variationValue1},
       variation_value_2 = #{variationValue2},
       variation_value_3 = #{variationValue3},

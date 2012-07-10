@@ -19,10 +19,10 @@
  */
 package org.sonar.api.database.model;
 
-public interface MeasureModelMapper {
-  void insert(MeasureDto measure);
+public interface MeasureMapper {
+  void insert(MeasureModel measure);
 
-  void insertData(MeasureDataDto data);
+  void insertData(MeasureModel data);
 
-  void update(MeasureDto measure);
+  void update(MeasureModel measure);
 }
