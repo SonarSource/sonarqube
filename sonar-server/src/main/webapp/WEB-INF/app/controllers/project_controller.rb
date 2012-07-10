@@ -342,7 +342,16 @@ class ProjectController < ApplicationController
     snapshot=Snapshot.find(params[:sid])
     not_found("Snapshot not found") unless snapshot
     access_denied unless is_admin?(snapshot)
+    
+    # We update all the related snapshots to have the same version as the next snapshot
+    next_snapshot = Snapshot.find(:first, :conditions => ['created_at>? and project_id=?', snapshot.created_at, snapshot.project_id], :order => 'created_at asc')
+    snapshots = find_project_snapshots(snapshot.id)
+    snapshots.each do |snapshot|
+      snapshot.version = next_snapshot.version
+      snapshot.save!
+    end
 
+    # and we delete the events
     event = snapshot.event(EventCategory::KEY_VERSION)
     old_version_name = event.name
     events = find_events(event)
