@@ -9,9 +9,9 @@
       project_id, alert_status, alert_text, url, description, rule_priority, characteristic_id, variation_value_1,
       variation_value_2, variation_value_3, variation_value_4, variation_value_5, person_id)
     VALUES (
-      #{value}, #{metricId}, #{snapshotId}, #{ruleId}, #{textValue, jdbcType=VARCHAR}, #{tendency},
-      #{measureDate, jdbcType=TIMESTAMP}, #{projectId}, #{alertStatus, jdbcType=VARCHAR}, #{alertText, jdbcType=VARCHAR},
-      #{url, jdbcType=VARCHAR}, #{description, jdbcType=VARCHAR}, #{rulePriority.ordinal}, #{characteristic.id}, #{variationValue1},
+      #{value}, #{metricId}, #{snapshotId}, #{ruleId}, #{textValue}, #{tendency},
+      #{measureDate}, #{projectId}, #{alertStatus}, #{alertText},
+      #{url}, #{description}, #{rulePriority.ordinal}, #{characteristic.id}, #{variationValue1},
       #{variationValue2}, #{variationValue3}, #{variationValue4}, #{variationValue5}, #{personId}
     )
   </insert>
@@ -22,9 +22,9 @@
       project_id, alert_status, alert_text, url, description, rule_priority, characteristic_id, variation_value_1,
       variation_value_2, variation_value_3, variation_value_4, variation_value_5, person_id)
     VALUES (
-      #{value}, #{metricId}, #{snapshotId}, #{ruleId}, #{textValue, jdbcType=VARCHAR}, #{tendency},
-      #{measureDate, jdbcType=TIMESTAMP}, #{projectId}, #{alertStatus, jdbcType=VARCHAR}, #{alertText, jdbcType=VARCHAR},
-      #{url, jdbcType=VARCHAR}, #{description, jdbcType=VARCHAR}, #{rulePriority.ordinal}, #{characteristic.id}, #{variationValue1},
+      #{value}, #{metricId}, #{snapshotId}, #{ruleId}, #{textValue}, #{tendency},
+      #{measureDate}, #{projectId}, #{alertStatus}, #{alertText},
+      #{url}, #{description}, #{rulePriority.ordinal}, #{characteristic.id}, #{variationValue1},
       #{variationValue2}, #{variationValue3}, #{variationValue4}, #{variationValue5}, #{personId}
     )
   </insert>
@@ -40,12 +40,12 @@
       value = #{value},
       metric_id = #{metricId},
       rule_id = #{ruleId},
-      text_value = #{textValue, jdbcType=VARCHAR},
+      text_value = #{textValue},
       tendency = #{tendency},
-      alert_status = #{alertStatus, jdbcType=VARCHAR},
-      alert_text = #{alertText, jdbcType=VARCHAR},
-      url = #{url, jdbcType=VARCHAR},
-      description = #{description, jdbcType=VARCHAR},
+      alert_status = #{alertStatus},
+      alert_text = #{alertText},
+      url = #{url},
+      description = #{description},
       rule_priority = #{rulePriority.ordinal},
       characteristic_id = #{characteristic.id},
       variation_value_1 = #{variationValue1},
