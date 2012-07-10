@@ -20,6 +20,9 @@
 package org.sonar.core.persistence;
 
 import org.apache.ibatis.executor.BatchResult;
+import org.apache.ibatis.executor.keygen.KeyGenerator;
+import org.apache.ibatis.executor.keygen.NoKeyGenerator;
+import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
@@ -102,13 +105,28 @@ public final class BatchSession implements SqlSession {
   }
 
   public int insert(String statement) {
+    makeSureGeneratedKeysAreNotUsedInBatchInserts(statement);
     increment();
     return session.insert(statement);
   }
 
   public int insert(String statement, Object parameter) {
+    makeSureGeneratedKeysAreNotUsedInBatchInserts(statement);
     increment();
     return session.insert(statement, parameter);
+  }
+
+  private void makeSureGeneratedKeysAreNotUsedInBatchInserts(String statement) {
+    Configuration configuration = session.getConfiguration();
+    if (null != configuration) {
+      MappedStatement mappedStatement = configuration.getMappedStatement(statement);
+      if (null != mappedStatement) {
+        KeyGenerator keyGenerator = mappedStatement.getKeyGenerator();
+        if (!(keyGenerator instanceof NoKeyGenerator)) {
+          throw new IllegalStateException("Batch updates cannot use generated keys");
+        }
+      }
+    }
   }
 
   public int update(String statement) {
