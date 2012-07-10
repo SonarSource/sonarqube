@@ -36,11 +36,8 @@
   </insert>
 
   <insert id="insertData" parameterType="MeasureModel" useGeneratedKeys="false">
-    <selectKey order="BEFORE" resultType="Long" keyProperty="id">
-      select measure_data_seq.NEXTVAL from DUAL
-    </selectKey>
     INSERT INTO measure_data (id, measure_id, snapshot_id, data)
-    VALUES (#{id}, #{measureData.measure.id}, #{snapshotId}, #{measureData.data}) 
+    VALUES (measure_data_seq.NEXTVAL, #{id}, #{snapshotId}, #{measureData.data})
   </insert>
   
   <update id="update" parameterType="MeasureModel">

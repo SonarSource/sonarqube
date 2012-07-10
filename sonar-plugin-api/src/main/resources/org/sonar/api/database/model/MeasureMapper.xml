@@ -31,7 +31,7 @@
   
   <insert id="insertData" parameterType="MeasureModel" useGeneratedKeys="false">
     INSERT INTO measure_data (measure_id, snapshot_id, data)
-    VALUES (#{measureData.measure.id}, #{snapshotId}, #{measureData.data}) 
+    VALUES (#{id}, #{snapshotId}, #{measureData.data})
   </insert>
   
   <update id="update" parameterType="MeasureModel">
