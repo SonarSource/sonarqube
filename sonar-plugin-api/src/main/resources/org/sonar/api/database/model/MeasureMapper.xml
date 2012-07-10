@@ -16,7 +16,20 @@
     )
   </insert>
   
-  <insert id="insertData" parameterType="MeasureModel" useGeneratedKeys="true" keyProperty="id">
+  <insert id="batchInsert" parameterType="MeasureModel" useGeneratedKeys="false">
+    INSERT INTO project_measures (
+      value, metric_id, snapshot_id, rule_id, text_value, tendency, measure_date,
+      project_id, alert_status, alert_text, url, description, rule_priority, characteristic_id, variation_value_1,
+      variation_value_2, variation_value_3, variation_value_4, variation_value_5, person_id)
+    VALUES (
+      #{value}, #{metricId}, #{snapshotId}, #{ruleId}, #{textValue, jdbcType=VARCHAR}, #{tendency},
+      #{measureDate, jdbcType=TIMESTAMP}, #{projectId}, #{alertStatus, jdbcType=VARCHAR}, #{alertText, jdbcType=VARCHAR},
+      #{url, jdbcType=VARCHAR}, #{description, jdbcType=VARCHAR}, #{rulePriority.ordinal}, #{characteristic.id}, #{variationValue1},
+      #{variationValue2}, #{variationValue3}, #{variationValue4}, #{variationValue5}, #{personId}
+    )
+  </insert>
+  
+  <insert id="insertData" parameterType="MeasureModel" useGeneratedKeys="false">
     INSERT INTO measure_data (measure_id, snapshot_id, data)
     VALUES (#{measureData.measure.id}, #{snapshotId}, #{measureData.data}) 
   </insert>

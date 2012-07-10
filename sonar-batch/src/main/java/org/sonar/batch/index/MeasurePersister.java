@@ -189,7 +189,7 @@ public final class MeasurePersister {
       MeasureMapper mapper = session.getMapper(MeasureMapper.class);
 
       for (MeasureModel value : values) {
-        mapper.insert(value);
+        mapper.batchInsert(value);
       }
 
       session.commit();
@@ -204,7 +204,7 @@ public final class MeasurePersister {
       MeasureMapper mapper = session.getMapper(MeasureMapper.class);
 
       for (MeasureModel value : values) {
-        mapper.insert(value);
+        mapper.batchInsert(value);
         mapper.insertData(value);
       }
 
