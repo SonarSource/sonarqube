@@ -36,7 +36,7 @@ import java.util.concurrent.*;
  *
  * @since 2.7
  */
-public final class CommandExecutor {
+public class CommandExecutor {
 
   private static final Logger LOG = LoggerFactory.getLogger(CommandExecutor.class);
 
