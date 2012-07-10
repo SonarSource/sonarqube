@@ -20,8 +20,8 @@
 package org.sonar.core.persistence;
 
 import org.apache.ibatis.executor.BatchResult;
+import org.apache.ibatis.executor.keygen.Jdbc3KeyGenerator;
 import org.apache.ibatis.executor.keygen.KeyGenerator;
-import org.apache.ibatis.executor.keygen.NoKeyGenerator;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
@@ -122,7 +122,7 @@ public final class BatchSession implements SqlSession {
       MappedStatement mappedStatement = configuration.getMappedStatement(statement);
       if (null != mappedStatement) {
         KeyGenerator keyGenerator = mappedStatement.getKeyGenerator();
-        if (!(keyGenerator instanceof NoKeyGenerator)) {
+        if (keyGenerator instanceof Jdbc3KeyGenerator) {
           throw new IllegalStateException("Batch updates cannot use generated keys");
         }
       }
