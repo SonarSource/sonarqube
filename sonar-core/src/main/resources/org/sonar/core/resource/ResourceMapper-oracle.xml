@@ -87,7 +87,6 @@
     <selectKey order="BEFORE" resultType="Long" keyProperty="id">
       select projects_seq.NEXTVAL from DUAL
     </selectKey>
-
     insert into projects
     (id, name, long_name, description, scope, qualifier, kee, language, root_id, copy_resource_id, person_id, profile_id, enabled)
     values (

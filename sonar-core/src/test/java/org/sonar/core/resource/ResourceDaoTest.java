@@ -144,13 +144,13 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   public void insertOrUpdate() {
     setupData("insertOrUpdate");
 
-    // update because already persisted
+    // to be updated
     ResourceDto project = new ResourceDto()
       .setKey("org.struts:struts").setScope(Scopes.PROJECT).setQualifier(Qualifiers.PROJECT)
       .setName("Struts").setLongName("Apache Struts").setLanguage("java").setDescription("MVC Framework")
-      .setId(1L);
+      .setId(100L);
 
-    // insert
+    // to be inserted
     ResourceDto file1 = new ResourceDto()
       .setKey("org.struts:struts:org.struts.Action").setScope(Scopes.FILE).setQualifier(Qualifiers.FILE)
       .setLanguage("java").setName("Action").setLongName("org.struts.Action");
@@ -163,7 +163,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     assertThat(project.getId()).isNotNull();
     assertThat(file1.getId()).isNotNull();
     assertThat(file2.getId()).isNotNull();
-    checkTables("insertOrUpdate", "projects");
+    checkTables("insertOrUpdate", new String[]{"id"}, "projects");
   }
 
 }

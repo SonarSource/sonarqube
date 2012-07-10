@@ -1,14 +1,14 @@
 <dataset>
 
-  <projects id="1" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
+  <projects root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
             description="MVC Framework" long_name="Apache Struts"
             enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" profile_id="[null]"/>
 
-  <projects id="2" root_id="[null]" scope="FIL" qualifier="FIL" kee="org.struts:struts:org.struts.Action" name="Action"
+  <projects root_id="[null]" scope="FIL" qualifier="FIL" kee="org.struts:struts:org.struts.Action" name="Action"
             description="[null]" long_name="org.struts.Action"
             enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" profile_id="[null]"/>
 
-  <projects id="3" root_id="[null]" scope="FIL" qualifier="FIL" kee="org.struts:struts:org.struts.Filter" name="Filter"
+  <projects root_id="[null]" scope="FIL" qualifier="FIL" kee="org.struts:struts:org.struts.Filter" name="Filter"
             description="[null]" long_name="org.struts.Filter"
             enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" profile_id="[null]"/>
 
