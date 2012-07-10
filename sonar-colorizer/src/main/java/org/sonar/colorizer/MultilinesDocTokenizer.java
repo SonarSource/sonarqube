@@ -104,16 +104,12 @@ public class MultilinesDocTokenizer extends Tokenizer {
 
   private boolean isCommentStartedOnPreviousLine(HtmlCodeBuilder codeBuilder) {
     Boolean b = (Boolean) codeBuilder.getVariable(COMMENT_STARTED_ON_PREVIOUS_LINE, Boolean.FALSE);
-    return (b == Boolean.TRUE) && (getTokenizerId().equals(codeBuilder.getVariable(COMMENT_TOKENIZER)));
+    return (b == Boolean.TRUE) && (this.equals(codeBuilder.getVariable(COMMENT_TOKENIZER)));
   }
 
   private void setCommentStartedOnPreviousLine(HtmlCodeBuilder codeBuilder, Boolean b) {
     codeBuilder.setVariable(COMMENT_STARTED_ON_PREVIOUS_LINE, b);
-    codeBuilder.setVariable(COMMENT_TOKENIZER, b ? getTokenizerId() : null);
-  }
-
-  private String getTokenizerId() {
-    return getClass().getSimpleName();
+    codeBuilder.setVariable(COMMENT_TOKENIZER, b ? this : null);
   }
 
 }

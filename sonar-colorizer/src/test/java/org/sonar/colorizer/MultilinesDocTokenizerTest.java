@@ -83,6 +83,19 @@ public class MultilinesDocTokenizerTest {
     assertThat(codeBuilder.toString()).isEqualTo("&lt;!-- multi-line comment--&gt;");
   }
 
+  /**
+   * SONAR-3531
+   */
+  @Test
+  public void should_be_possible_to_use_two_instances() {
+    CodeReader reader = new CodeReader("<!-- multi-line comment\n--> private part");
+    MultilinesDocTokenizer tokenizer1 = new MultiLineDocTokenizerImpl("<!--", "-->");
+    MultilinesDocTokenizer tokenizer2 = new MultiLineDocTokenizerImpl("<!--", "-->");
+    assertThat(tokenizer1.consume(reader, codeBuilder)).isTrue();
+    reader.pop();
+    assertThat(tokenizer2.consume(reader, codeBuilder)).isFalse();
+  }
+
   public class MultiLineDocTokenizerImpl extends MultilinesDocTokenizer {
     public MultiLineDocTokenizerImpl(String startToken, String endToken) {
       super(startToken, endToken, "", "");

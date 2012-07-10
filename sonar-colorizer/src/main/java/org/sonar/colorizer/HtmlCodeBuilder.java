@@ -25,7 +25,7 @@ import java.util.Map;
 public class HtmlCodeBuilder implements Appendable {
 
   private StringBuilder colorizedCode = new StringBuilder();
-  private Map variables = new HashMap(); // stateful data
+  private Map variables = new HashMap();
 
   public Appendable append(CharSequence csq) {
     for (int i = 0; i < csq.length(); i++) {
@@ -67,7 +67,7 @@ public class HtmlCodeBuilder implements Appendable {
 
   /**
    * Save a stateful variable.
-   * 
+   *
    * @param key
    *          can NOT be null
    * @param value
