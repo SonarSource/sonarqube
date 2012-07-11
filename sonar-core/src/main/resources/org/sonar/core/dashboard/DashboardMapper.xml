@@ -10,8 +10,8 @@
 
   <insert id="insert" parameterType="Dashboard" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO dashboards (user_id, name, description, column_layout, shared, is_global, created_at, updated_at)
-    VALUES (#{userId, jdbcType=FLOAT}, #{name, jdbcType=VARCHAR}, #{description, jdbcType=VARCHAR},
-    #{columnLayout, jdbcType=INTEGER}, #{shared}, #{global}, #{createdAt, jdbcType=TIMESTAMP}, #{updatedAt, jdbcType=TIMESTAMP})
+    VALUES (#{userId}, #{name}, #{description},
+    #{columnLayout}, #{shared}, #{global}, #{createdAt}, #{updatedAt})
   </insert>
 
 </mapper>

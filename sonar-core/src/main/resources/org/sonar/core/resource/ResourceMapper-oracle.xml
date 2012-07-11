@@ -90,17 +90,17 @@
     insert into projects
     (id, name, long_name, description, scope, qualifier, kee, language, root_id, copy_resource_id, person_id, profile_id, enabled)
     values (
-    #{id}, #{name, jdbcType=VARCHAR}, #{longName, jdbcType=VARCHAR}, #{description, jdbcType=VARCHAR}, #{scope, jdbcType=VARCHAR}, #{qualifier, jdbcType=VARCHAR},
-    #{key, jdbcType=VARCHAR}, #{language, jdbcType=VARCHAR}, #{rootId, jdbcType=INTEGER}, #{copyResourceId, jdbcType=INTEGER},
-    #{personId, jdbcType=INTEGER}, #{profileId, jdbcType=INTEGER}, #{enabled, jdbcType=BOOLEAN}
+    #{id}, #{name}, #{longName}, #{description}, #{scope}, #{qualifier},
+    #{key}, #{language}, #{rootId}, #{copyResourceId},
+    #{personId}, #{profileId}, #{enabled}
     )
   </insert>
 
   <update id="update" parameterType="Resource">
-    update projects set name=#{name, jdbcType=VARCHAR}, long_name=#{longName, jdbcType=VARCHAR}, description=#{description, jdbcType=VARCHAR},
-    scope=#{scope, jdbcType=VARCHAR}, qualifier=#{qualifier, jdbcType=VARCHAR}, kee=#{key, jdbcType=VARCHAR},
-    language=#{language, jdbcType=VARCHAR}, root_id=#{rootId, jdbcType=INTEGER}, copy_resource_id=#{copyResourceId, jdbcType=INTEGER},
-    person_id=#{personId, jdbcType=INTEGER}, profile_id=#{profileId, jdbcType=INTEGER}, enabled=#{enabled, jdbcType=BOOLEAN} where id=#{id,jdbcType=INTEGER}
+    update projects set name=#{name}, long_name=#{longName}, description=#{description},
+    scope=#{scope}, qualifier=#{qualifier}, kee=#{key},
+    language=#{language}, root_id=#{rootId}, copy_resource_id=#{copyResourceId},
+    person_id=#{personId}, profile_id=#{profileId}, enabled=#{enabled} where id=#{id}
   </update>
 </mapper>
 

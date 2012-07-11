@@ -47,12 +47,12 @@
   </select>
 
   <update id="update" parameterType="Property">
-    update properties set text_value = #{value, jdbcType=VARCHAR} where id = #{id}
+    update properties set text_value = #{value} where id = #{id}
   </update>
 
   <insert id="insert" parameterType="Property" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO properties (prop_key, resource_id, user_id, text_value)
-    VALUES (#{key, jdbcType=VARCHAR}, #{resourceId, jdbcType=INTEGER}, #{userId, jdbcType=INTEGER}, #{value, jdbcType=VARCHAR})
+    VALUES (#{key}, #{resourceId}, #{userId}, #{value})
   </insert>
 
 </mapper>

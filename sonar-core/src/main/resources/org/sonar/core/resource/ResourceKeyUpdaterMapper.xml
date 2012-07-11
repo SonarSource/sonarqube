@@ -30,7 +30,7 @@
   
   <update id="update" parameterType="Resource">
     update projects 
-    set kee = #{key, jdbcType=VARCHAR}
+    set kee = #{key}
     where id = #{id}
   </update>
   

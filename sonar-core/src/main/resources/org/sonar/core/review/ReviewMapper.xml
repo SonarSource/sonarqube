@@ -24,22 +24,22 @@
 
   <update id="update" parameterType="Review">
     update reviews set
-    created_at=#{createdAt, jdbcType=TIMESTAMP},
-    updated_at=#{updatedAt, jdbcType=TIMESTAMP},
-    user_id=#{userId, jdbcType=INTEGER},
-    assignee_id=#{assigneeId, jdbcType=INTEGER},
-    status=#{status, jdbcType=VARCHAR},
-    resolution=#{resolution, jdbcType=VARCHAR},
-    title=#{title, jdbcType=VARCHAR},
-    severity=#{severity, jdbcType=VARCHAR},
-    rule_failure_permanent_id=#{violationPermanentId, jdbcType=INTEGER},
-    project_id=#{projectId, jdbcType=INTEGER},
-    resource_id=#{resourceId, jdbcType=INTEGER},
-    resource_line=#{line, jdbcType=INTEGER},
-    rule_id=#{ruleId, jdbcType=INTEGER},
+    created_at=#{createdAt},
+    updated_at=#{updatedAt},
+    user_id=#{userId},
+    assignee_id=#{assigneeId},
+    status=#{status},
+    resolution=#{resolution},
+    title=#{title},
+    severity=#{severity},
+    rule_failure_permanent_id=#{violationPermanentId},
+    project_id=#{projectId},
+    resource_id=#{resourceId},
+    resource_line=#{line},
+    rule_id=#{ruleId},
     manual_severity=#{manualSeverity},
     manual_violation=#{manualViolation},
-    data=#{data, jdbcType=VARCHAR}
+    data=#{data}
     where id = #{id}
   </update>
 

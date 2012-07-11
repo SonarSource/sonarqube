@@ -8,7 +8,7 @@
       select criteria_seq.NEXTVAL from DUAL
     </selectKey>
     INSERT INTO criteria (id, filter_id, family, kee, operator, value, text_value, variation)
-    VALUES (#{id}, #{filterId, jdbcType=INTEGER}, #{family, jdbcType=VARCHAR}, #{key, jdbcType=VARCHAR}, #{operator, jdbcType=VARCHAR}, #{value, jdbcType=FLOAT}, #{textValue, jdbcType=VARCHAR}, #{variation})
+    VALUES (#{id}, #{filterId}, #{family}, #{key}, #{operator}, #{value}, #{textValue}, #{variation})
   </insert>
 
 </mapper>

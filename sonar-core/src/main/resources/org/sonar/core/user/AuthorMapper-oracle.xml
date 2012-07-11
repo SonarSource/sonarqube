@@ -18,8 +18,8 @@
       select authors_seq.NEXTVAL from DUAL
     </selectKey>
     INSERT INTO authors (id, person_id, login, created_at, updated_at)
-    VALUES (#{id}, #{personId, jdbcType=INTEGER}, #{login, jdbcType=VARCHAR},
-    #{createdAt, jdbcType=TIMESTAMP}, #{updatedAt, jdbcType=TIMESTAMP})
+    VALUES (#{id}, #{personId}, #{login},
+    #{createdAt}, #{updatedAt})
   </insert>
 
 </mapper>

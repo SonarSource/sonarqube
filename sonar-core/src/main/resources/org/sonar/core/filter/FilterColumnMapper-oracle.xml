@@ -8,8 +8,8 @@
         select filter_columns_seq.NEXTVAL from DUAL
     </selectKey>
     INSERT INTO filter_columns (id, filter_id, family, kee, sort_direction, order_index, variation)
-    VALUES (#{id}, #{filterId, jdbcType=INTEGER}, #{family, jdbcType=VARCHAR}, #{key, jdbcType=VARCHAR}, #{sortDirection, jdbcType=VARCHAR},
-     #{orderIndex, jdbcType=INTEGER}, #{variation})
+    VALUES (#{id}, #{filterId}, #{family}, #{key}, #{sortDirection},
+     #{orderIndex}, #{variation})
   </insert>
 
 </mapper>

@@ -8,8 +8,8 @@
         select review_comments_seq.NEXTVAL from DUAL
     </selectKey>    
     INSERT INTO review_comments (id, review_id, user_id, review_text, created_at, updated_at)
-    VALUES (#{id}, #{reviewId, jdbcType=BIGINT}, #{userId, jdbcType=BIGINT}, #{text, jdbcType=VARCHAR},
-            #{createdAt, jdbcType=TIMESTAMP}, #{updatedAt, jdbcType=TIMESTAMP})
+    VALUES (#{id}, #{reviewId}, #{userId}, #{text},
+            #{createdAt}, #{updatedAt})
   </insert>
 
 </mapper>

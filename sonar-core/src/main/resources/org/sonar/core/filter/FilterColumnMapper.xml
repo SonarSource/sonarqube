@@ -5,8 +5,8 @@
 
   <insert id="insert" parameterType="FilterColumn" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO filter_columns (filter_id, family, kee, sort_direction, order_index, variation)
-    VALUES (#{filterId, jdbcType=INTEGER}, #{family, jdbcType=VARCHAR}, #{key, jdbcType=VARCHAR}, #{sortDirection, jdbcType=VARCHAR},
-     #{orderIndex, jdbcType=INTEGER}, #{variation})
+    VALUES (#{filterId}, #{family}, #{key}, #{sortDirection},
+     #{orderIndex}, #{variation})
   </insert>
 
 </mapper>

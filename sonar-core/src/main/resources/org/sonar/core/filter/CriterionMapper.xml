@@ -5,8 +5,8 @@
 
   <insert id="insert" parameterType="Criterion" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO criteria (filter_id, family, kee, operator, value, text_value, variation)
-    VALUES (#{filterId, jdbcType=INTEGER}, #{family, jdbcType=VARCHAR}, #{key, jdbcType=VARCHAR}, #{operator, jdbcType=VARCHAR}, #{value, jdbcType=FLOAT},
-     #{textValue, jdbcType=VARCHAR}, #{variation})
+    VALUES (#{filterId}, #{family}, #{key}, #{operator}, #{value},
+     #{textValue}, #{variation})
   </insert>
 
 </mapper>

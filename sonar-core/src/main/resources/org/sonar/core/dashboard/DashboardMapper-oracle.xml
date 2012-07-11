@@ -13,8 +13,8 @@
       select dashboards_seq.NEXTVAL from DUAL
     </selectKey>
     INSERT INTO dashboards (id, user_id, name, description, column_layout, shared, is_global, created_at, updated_at)
-    VALUES (#{id}, #{userId, jdbcType=FLOAT}, #{name, jdbcType=VARCHAR}, #{description, jdbcType=VARCHAR},
-    #{columnLayout, jdbcType=INTEGER}, #{shared}, #{global}, #{createdAt, jdbcType=TIMESTAMP}, #{updatedAt, jdbcType=TIMESTAMP})
+    VALUES (#{id}, #{userId}, #{name}, #{description},
+    #{columnLayout}, #{shared}, #{global}, #{createdAt}, #{updatedAt})
   </insert>
 
 </mapper>

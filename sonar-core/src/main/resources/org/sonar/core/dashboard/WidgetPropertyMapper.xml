@@ -5,7 +5,7 @@
 
   <insert id="insert" parameterType="WidgetProperty" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO widget_properties (widget_id, kee, text_value)
-    VALUES (#{widgetId}, #{key, jdbcType=VARCHAR}, #{value, jdbcType=VARCHAR})
+    VALUES (#{widgetId}, #{key}, #{value})
   </insert>
 
 </mapper>

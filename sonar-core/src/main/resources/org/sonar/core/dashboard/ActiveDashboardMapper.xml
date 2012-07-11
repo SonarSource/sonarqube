@@ -5,7 +5,7 @@
 
   <insert id="insert" parameterType="ActiveDashboard" useGeneratedKeys="true" keyProperty ="id">
     INSERT INTO active_dashboards (dashboard_id, user_id, order_index)
-    VALUES (#{dashboardId}, #{userId, jdbcType=FLOAT}, #{orderIndex, jdbcType=INTEGER})
+    VALUES (#{dashboardId}, #{userId}, #{orderIndex})
   </insert>
 
   <select id="selectMaxOrderIndexForNullUser" resultType="Integer">

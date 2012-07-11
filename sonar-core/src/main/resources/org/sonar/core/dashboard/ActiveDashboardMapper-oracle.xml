@@ -8,7 +8,7 @@
         select active_dashboards_seq.NEXTVAL from DUAL
     </selectKey>
     INSERT INTO active_dashboards (id, dashboard_id, user_id, order_index)
-    VALUES (#{id}, #{dashboardId}, #{userId, jdbcType=FLOAT}, #{orderIndex})
+    VALUES (#{id}, #{dashboardId}, #{userId}, #{orderIndex})
   </insert>
 
   <select id="selectMaxOrderIndexForNullUser" resultType="Integer">

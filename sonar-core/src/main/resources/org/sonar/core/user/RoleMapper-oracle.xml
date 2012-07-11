@@ -8,7 +8,7 @@
       select group_roles_seq.NEXTVAL from DUAL
     </selectKey>
     INSERT INTO group_roles (id, group_id, resource_id, role)
-    VALUES (#{id}, #{groupId, jdbcType=INTEGER}, #{resourceId, jdbcType=INTEGER}, #{role, jdbcType=VARCHAR})
+    VALUES (#{id}, #{groupId}, #{resourceId}, #{role})
   </insert>
 
   <insert id="insertUserRole" parameterType="UserRole" useGeneratedKeys="true" keyProperty="id">
@@ -16,7 +16,7 @@
       select user_roles_seq.NEXTVAL from DUAL
     </selectKey>
     INSERT INTO user_roles (id, user_id, resource_id, role)
-    VALUES (#{id}, #{userId, jdbcType=INTEGER}, #{resourceId, jdbcType=INTEGER}, #{role, jdbcType=VARCHAR})
+    VALUES (#{id}, #{userId}, #{resourceId}, #{role})
   </insert>
 
   <delete id="deleteGroupRolesByResourceId" parameterType="long">

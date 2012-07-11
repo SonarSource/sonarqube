@@ -10,8 +10,8 @@
 
   <insert id="insert" parameterType="Filter" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO filters (name, kee, user_id, shared, favourites, resource_id, default_view, page_size, period_index)
-    VALUES (#{name, jdbcType=VARCHAR}, #{key, jdbcType=VARCHAR}, #{userId, jdbcType=FLOAT}, #{shared}, #{favourites}, #{resourceId, jdbcType=INTEGER}, #{defaultView, jdbcType=VARCHAR},
-     #{pageSize, jdbcType=INTEGER}, #{periodIndex, jdbcType=INTEGER})
+    VALUES (#{name}, #{key}, #{userId}, #{shared}, #{favourites}, #{resourceId}, #{defaultView},
+     #{pageSize}, #{periodIndex})
   </insert>
 
 </mapper>

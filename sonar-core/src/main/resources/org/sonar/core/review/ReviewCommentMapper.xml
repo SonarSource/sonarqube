@@ -5,8 +5,8 @@
 
   <insert id="insert" parameterType="ReviewComment" useGeneratedKeys="true" keyProperty ="id">
     INSERT INTO review_comments (review_id, user_id, review_text, created_at, updated_at)
-    VALUES (#{reviewId, jdbcType=BIGINT}, #{userId, jdbcType=BIGINT}, #{text, jdbcType=VARCHAR},
-            #{createdAt, jdbcType=TIMESTAMP}, #{updatedAt, jdbcType=TIMESTAMP})
+    VALUES (#{reviewId}, #{userId}, #{text},
+            #{createdAt}, #{updatedAt})
   </insert>
 
 </mapper>
