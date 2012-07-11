@@ -39,9 +39,9 @@ class BulkDeletionController < ApplicationController
       @should_display_views_tab = Project.count(:all, :conditions => {:qualifier => 'VW'}) > 0
       @should_display_devs_tab = Project.count(:all, :conditions => {:qualifier => 'DEV'}) > 0
       
-      # Search for resources
-      conditions = "scope=:scope AND qualifier=:qualifier"
-      values = {:scope => 'PRJ'}
+      # Search for resources      
+      values = {}
+      conditions = "qualifier=:qualifier"
       qualifier = 'TRK'
       if @selected_tab == 'views'
         qualifier = 'VW'
@@ -50,11 +50,16 @@ class BulkDeletionController < ApplicationController
       end
       values[:qualifier] = qualifier
       if params[:name_filter]
-        conditions += " AND name LIKE :name"
-        values[:name] = '%' + params[:name_filter].strip + '%'
+        conditions += " AND kee LIKE :kee"
+        values[:kee] = '%' + params[:name_filter].strip.downcase + '%'
       end
-        
-      @resources = Project.find(:all, :conditions => [conditions, values], :order => 'name ASC')
+      
+      resource_ids = ResourceIndex.find(:all,
+                                        :select => 'resource_id',
+                                        :conditions => [conditions, values],
+                                        :order => 'name_size').map {|rid| rid.resource_id}.uniq
+      
+      @resources = Project.find(:all, :conditions => ['id in (?) and enabled=?', resource_ids, true], :order => 'name ASC')
     end
   end
   
