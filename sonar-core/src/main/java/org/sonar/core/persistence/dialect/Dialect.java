@@ -71,7 +71,7 @@ public interface Dialect {
 
   /**
    * Query used to validate the jdbc connection.
-   * 
+   *
    * @since 3.2
    */
   String getValidationQuery();

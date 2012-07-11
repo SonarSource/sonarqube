@@ -20,6 +20,7 @@
 package org.sonar.core.persistence;
 
 import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp.BasicDataSourceFactory;
 import org.hibernate.cfg.Environment;
 import org.sonar.core.persistence.dialect.Dialect;
 import org.sonar.core.persistence.dialect.H2;
@@ -52,13 +53,18 @@ public class H2Database implements Database {
    */
   private void startDatabase() {
     try {
-      datasource = new BasicDataSource();
-      datasource.setDriverClassName("org.h2.Driver");
-      datasource.setUsername("sonar");
-      datasource.setPassword("sonar");
-      datasource.setUrl("jdbc:h2:mem:sonar2");
-      datasource.setMaxActive(2);
-      datasource.setMaxIdle(2);
+      Properties properties = new Properties();
+      properties.put("driverClassName", "org.h2.Driver");
+      properties.put("username", "sonar");
+      properties.put("password", "sonar");
+      // properties.put("url", "jdbc:h2:mem:sonar2;TRACE_LEVEL_SYSTEM_OUT=2");
+      properties.put("url", "jdbc:h2:mem:sonar2");
+
+      // limit to 2 because of Hibernate and MyBatis
+      properties.put("maxActive", "2");
+      properties.put("maxIdle", "2");
+      datasource = (BasicDataSource) BasicDataSourceFactory.createDataSource(properties);
+
     } catch (Exception e) {
       throw new IllegalStateException("Fail to start H2", e);
     }
