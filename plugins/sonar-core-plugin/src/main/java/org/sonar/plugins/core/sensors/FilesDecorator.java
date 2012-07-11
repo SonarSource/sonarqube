@@ -31,6 +31,7 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.utils.SonarException;
 
+import java.io.File;
 import java.util.Collection;
 
 /**
@@ -70,7 +71,19 @@ public final class FilesDecorator implements Decorator {
   @SuppressWarnings("rawtypes")
   private void checkRootProjectHasFiles(Resource resource, Double sum) {
     if (ResourceUtils.isRootProject(resource) && (sum == null || sum.doubleValue() == 0)) {
-      throw new SonarException("Project \"" + resource.getName() + "\" does not contain any file. Please check your project configuration.");
+      String sourceFoldersList = printSourceFoldersList((Project) resource);
+      throw new SonarException("Project \"" + resource.getName() + "\" does not contain any file in its source folders:\n" +
+        sourceFoldersList + "\nPlease check your project configuration.");
     }
+  }
+
+  private String printSourceFoldersList(Project project) {
+    StringBuilder result = new StringBuilder();
+    for (File sourceDir : project.getFileSystem().getSourceDirs()) {
+      result.append("   - ");
+      result.append(sourceDir.getAbsolutePath());
+      result.append("\n");
+    }
+    return result.toString();
   }
 }

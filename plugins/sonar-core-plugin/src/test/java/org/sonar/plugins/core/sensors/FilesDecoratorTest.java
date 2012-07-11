@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.core.sensors;
 
+import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,10 +30,12 @@ import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.SonarException;
 
+import java.io.File;
 import java.util.Arrays;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -112,25 +115,35 @@ public class FilesDecoratorTest {
 
   @Test
   public void shouldFailOnRootProjectIfNoFile() {
-    when(resource.getQualifier()).thenReturn(Qualifiers.PROJECT);
-    when(resource.getName()).thenReturn("Foo");
+    Project project = createMockProject();
     when(context.getChildrenMeasures(CoreMetrics.FILES)).thenReturn(Arrays.asList(new Measure(CoreMetrics.FILES, 0.0)));
 
     thrown.expect(SonarException.class);
-    thrown.expectMessage("Project \"Foo\" does not contain any file. Please check your project configuration.");
+    thrown.expectMessage("Project \"Foo\" does not contain any file in its source folders:\n");
+    thrown.expectMessage("- " + new File("target/temp").getAbsolutePath() + "\n");
+    thrown.expectMessage("\nPlease check your project configuration.");
 
-    decorator.decorate(resource, context);
+    decorator.decorate(project, context);
   }
 
   @Test
   public void shouldFailOnRootProjectIfNoFileMeasure() {
-    when(resource.getQualifier()).thenReturn(Qualifiers.PROJECT);
-    when(resource.getName()).thenReturn("Foo");
+    Project project = createMockProject();
 
     thrown.expect(SonarException.class);
-    thrown.expectMessage("Project \"Foo\" does not contain any file. Please check your project configuration.");
+    thrown.expectMessage("Project \"Foo\" does not contain any file in its source folders");
 
-    decorator.decorate(resource, context);
+    decorator.decorate(project, context);
+  }
+
+  private Project createMockProject() {
+    Project project = mock(Project.class);
+    when(project.getQualifier()).thenReturn(Qualifiers.PROJECT);
+    when(project.getName()).thenReturn("Foo");
+    ProjectFileSystem fileSystem = mock(ProjectFileSystem.class);
+    when(fileSystem.getSourceDirs()).thenReturn(Lists.newArrayList(new File("target/temp")));
+    when(project.getFileSystem()).thenReturn(fileSystem);
+    return project;
   }
 
   @Test
