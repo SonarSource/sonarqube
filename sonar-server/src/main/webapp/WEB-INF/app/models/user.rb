@@ -207,10 +207,6 @@ class User < ActiveRecord::Base
   private
 
   def on_create
-    facade = Java::OrgSonarServerUi::JRubyFacade.getInstance()
-    if facade
-      # the facade is null when creating the administration in migration 011
-      facade.onNewUser({'login' => self.login, 'name' => self.name, 'email' => self.email})
-    end
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().onNewUser({'login' => self.login, 'name' => self.name, 'email' => self.email})
   end
 end

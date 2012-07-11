@@ -520,10 +520,14 @@ public final class JRubyFacade {
 
   // USERS
   public void onNewUser(Map<String, String> fields) {
-    getContainer().getComponentByType(NewUserNotifier.class).onNewUser(NewUserHandler.Context.builder()
-      .setLogin(fields.get("login"))
-      .setName(fields.get("name"))
-      .setEmail(fields.get("email"))
-      .build());
+    NewUserNotifier notifier = getContainer().getComponentByType(NewUserNotifier.class);
+    // notifier is null when creating the administrator in the migration script 011.
+    if (notifier != null) {
+      notifier.onNewUser(NewUserHandler.Context.builder()
+        .setLogin(fields.get("login"))
+        .setName(fields.get("name"))
+        .setEmail(fields.get("email"))
+        .build());
+    }
   }
 }
