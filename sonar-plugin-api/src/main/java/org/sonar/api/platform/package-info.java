@@ -17,27 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+@ParametersAreNonnullByDefault
 package org.sonar.api.platform;
 
-import org.sonar.api.ServerComponent;
-
-/**
- * @since 2.11
- */
-public interface ServerPluginRepository extends PluginRepository, ServerComponent {
-
-  /**
-   * Disabled plugins are not loaded by batch, but they are still installed :
-   * <ul>
-   *   <li>Plugin properties are available in General Settings</li>
-   *   <li>Plugin is marked as installed in Update Center</li>
-   * </ul>
-   */
-  void disable(String pluginKey);
-
-  /**
-   * @param pluginKey can not be null
-   */
-  boolean isDisabled(String pluginKey);
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;
