@@ -9,4 +9,13 @@
      #{textValue}, #{variation})
   </insert>
 
+  <!-- Oracle -->
+  <insert id="insert" databaseId="oracle" parameterType="Criterion" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    <selectKey order="BEFORE" resultType="Long" keyProperty="id">
+      select criteria_seq.NEXTVAL from DUAL
+    </selectKey>
+    INSERT INTO criteria (id, filter_id, family, kee, operator, value, text_value, variation)
+    VALUES (#{id}, #{filterId}, #{family}, #{key}, #{operator}, #{value}, #{textValue}, #{variation})
+  </insert>
+
 </mapper>

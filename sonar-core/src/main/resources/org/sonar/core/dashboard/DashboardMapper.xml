@@ -14,4 +14,14 @@
     #{columnLayout}, #{shared}, #{global}, #{createdAt}, #{updatedAt})
   </insert>
 
+  <!-- Oracle -->
+  <insert id="insert" databaseId="oracle" parameterType="Dashboard" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    <selectKey order="BEFORE" resultType="Long" keyProperty="id">
+      select dashboards_seq.NEXTVAL from DUAL
+    </selectKey>
+    INSERT INTO dashboards (id, user_id, name, description, column_layout, shared, is_global, created_at, updated_at)
+    VALUES (#{id}, #{userId}, #{name}, #{description},
+    #{columnLayout}, #{shared}, #{global}, #{createdAt}, #{updatedAt})
+  </insert>
+
 </mapper>

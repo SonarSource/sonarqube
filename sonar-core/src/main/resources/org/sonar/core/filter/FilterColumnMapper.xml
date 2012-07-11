@@ -9,4 +9,14 @@
      #{orderIndex}, #{variation})
   </insert>
 
+  <!-- Oracle -->
+  <insert id="insert" databaseId="oracle" parameterType="FilterColumn" keyColumn="id" useGeneratedKeys="true" keyProperty ="id">
+    <selectKey order="BEFORE" resultType="Long" keyProperty="id" >
+        select filter_columns_seq.NEXTVAL from DUAL
+    </selectKey>
+    INSERT INTO filter_columns (id, filter_id, family, kee, sort_direction, order_index, variation)
+    VALUES (#{id}, #{filterId}, #{family}, #{key}, #{sortDirection},
+     #{orderIndex}, #{variation})
+  </insert>
+
 </mapper>

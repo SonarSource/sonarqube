@@ -20,4 +20,13 @@
     VALUES (#{key}, #{type})
   </insert>
 
+  <!-- Oracle -->
+  <insert id="insert" databaseId="oracle" parameterType="LoadedTemplate" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    <selectKey order="BEFORE" resultType="Long" keyProperty="id">
+      select loaded_templates_seq.NEXTVAL from DUAL
+    </selectKey>
+    INSERT INTO loaded_templates (id, kee, template_type)
+    VALUES (#{id}, #{key}, #{type})
+  </insert>
+
 </mapper>

@@ -9,4 +9,14 @@
             #{createdAt}, #{updatedAt})
   </insert>
 
+  <!-- Oracle -->
+  <insert id="insert" databaseId="oracle" parameterType="ReviewComment" keyColumn="id" useGeneratedKeys="true" keyProperty ="id">
+    <selectKey order="BEFORE" resultType="Long" keyProperty="id" >
+        select review_comments_seq.NEXTVAL from DUAL
+    </selectKey>    
+    INSERT INTO review_comments (id, review_id, user_id, review_text, created_at, updated_at)
+    VALUES (#{id}, #{reviewId}, #{userId}, #{text},
+            #{createdAt}, #{updatedAt})
+  </insert>
+
 </mapper>

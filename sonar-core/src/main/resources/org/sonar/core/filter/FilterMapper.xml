@@ -14,4 +14,14 @@
      #{pageSize}, #{periodIndex})
   </insert>
 
+  <!-- Oracle -->
+  <insert id="insert" databaseId="oracle" parameterType="Filter" keyColumn="id" useGeneratedKeys="true" keyProperty ="id">
+    <selectKey order="BEFORE" resultType="Long" keyProperty="id" >
+        select filters_seq.NEXTVAL from DUAL
+    </selectKey>
+    INSERT INTO filters (id, name, kee, user_id, shared, favourites, resource_id, default_view, page_size, period_index)
+    VALUES (#{id}, #{name}, #{key}, #{userId}, #{shared}, #{favourites}, #{resourceId}, #{defaultView},
+     #{pageSize}, #{periodIndex})
+  </insert>
+
 </mapper>

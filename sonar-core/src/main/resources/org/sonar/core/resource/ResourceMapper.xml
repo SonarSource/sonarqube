@@ -93,6 +93,20 @@
     )
   </insert>
 
+  <!-- Oracle -->
+  <insert id="insert" databaseId="oracle" parameterType="Resource" useGeneratedKeys="true" keyProperty="id">
+    <selectKey order="BEFORE" resultType="Long" keyProperty="id">
+      select projects_seq.NEXTVAL from DUAL
+    </selectKey>
+    insert into projects
+    (id, name, long_name, description, scope, qualifier, kee, language, root_id, copy_resource_id, person_id, profile_id, enabled)
+    values (
+    #{id}, #{name}, #{longName}, #{description}, #{scope}, #{qualifier},
+    #{key}, #{language}, #{rootId}, #{copyResourceId},
+    #{personId}, #{profileId}, #{enabled}
+    )
+  </insert>
+
   <update id="update" parameterType="Resource">
     update projects set name=#{name}, long_name=#{longName}, description=#{description},
     scope=#{scope}, qualifier=#{qualifier}, kee=#{key},
