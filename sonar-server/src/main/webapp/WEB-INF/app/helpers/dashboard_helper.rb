@@ -120,7 +120,7 @@ module DashboardHelper
   end
 
   def widget_body(widget)
-    widget_body=""
+    widget_body=nil
 
     if widget.configured
       begin

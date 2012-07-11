@@ -1,12 +1,27 @@
-<% switch_to_widget_resource(widget) %>
-<% widget_body=widget_body(widget) %>
+<% 
+  switch_to_widget_resource(widget)
+  widget_body=widget_body(widget)
+  default_layout=(widget.java_definition.getWidgetLayout().name()=='DEFAULT')
+%>
 
-<% if widget_body.include?('<') %>
+<% if !widget_body %>
+
+  <div class="block">
+   <% if default_layout %>
+     <div class="widget">   
+       <span class="empty_widget"><%= message('widget.error_occurred_please_read_logs', :params => widget.name) -%></span>
+       <div class="clear"></div>
+     </div>
+   <% else %>
+     <span class="empty_widget"><%= message('widget.error_occurred_please_read_logs', :params => widget.name) -%></span>
+   <% end %>
+  </div>
+
+<% elsif widget_body.include?('<') %>
   <div class="block" id="block_<%= widget.id -%>">
     <%= render :partial => 'widget_title', :locals => {:widget => widget} -%>
 
     <div class="<%= h widget.key -%>" style="height:100%;">
-      <% default_layout=(widget.java_definition.getWidgetLayout().name()=='DEFAULT') %>
       <% if default_layout %>
         <div class="widget">
           <%= widget_body -%>

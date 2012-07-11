@@ -1,29 +1,39 @@
 <div id="block_1" class="block" style="width: <%= @widget_width -%>">
   <div class="<%= @widget_definition.getId() %>" style="height:100%;">
     <%
+       widget_body=nil
        begin
          widget_body=render :inline => @widget_definition.getTarget().getTemplate(), :locals => {:widget_properties => @widget.properties_as_hash, :widget => @widget, :dashboard_configuration => @dashboard_configuration}
        rescue => error
          logger.error(message('dashboard.cannot_render_widget_x', :params => [@widget_definition.getId(), error]), error)
-         widget_body=""
        end
+       default_layout=(@widget_definition.getWidgetLayout().name()=='DEFAULT')
+    %>
 
-       if widget_body.include?('<')
-    %>
-      <%
-         default_layout=(@widget_definition.getWidgetLayout().name()=='DEFAULT')
-         if default_layout
-      %>
-        <div class="widget">
-      <% end %>
-      <%= widget_body -%>
-      <% if default_layout %>
+<% if !widget_body %>
+
+   <% if default_layout %>
+     <div class="widget">   
+       <span class="empty_widget"><%= message('widget.error_occurred_please_read_logs', :params => @widget.key) -%></span>
+       <div class="clear"></div>
+     </div>
+   <% else %>
+     <span class="empty_widget"><%= message('widget.error_occurred_please_read_logs', :params => @widget.key) -%></span>
+   <% end %>
+
+<% 
+   elsif widget_body.include?('<') 
+%>
+   <% if default_layout %>
+     <div class="widget">
+        <%= widget_body -%>
         <div class="clear"></div>
-        </div>
-      <% end %>
-    <%
-       end
-    %>
+      </div>
+   <% else %>
+     <%= widget_body -%>
+   <% end %>
+<% end %>
+
     <div style="clear: both;"></div>
   </div>
 </div>

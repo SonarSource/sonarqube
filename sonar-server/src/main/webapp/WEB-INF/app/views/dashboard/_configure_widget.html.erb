@@ -1,5 +1,8 @@
-<% switch_to_widget_resource(widget) %>
-<% widget_body=widget_body(widget) %>
+<% 
+  switch_to_widget_resource(widget)
+  widget_body=widget_body(widget) 
+  default_layout=(widget.layout=='DEFAULT')
+%>
 
 <div class="widget-header">
   <div class="widget-actions">
@@ -27,9 +30,20 @@
   </style>
   <![endif]-->
   <div class="transparent"></div>
-  <% if widget_body.include? '<' %>
+  <% if !widget_body %>
+    <div class="block">
+      <% if default_layout %>
+      <div class="widget">   
+        <span class="empty_widget"><%= message('widget.error_occurred_please_read_logs', :params => widget.name) -%></span>
+        <div class="clear"></div>
+      </div>
+      <% else %>
+        <span class="empty_widget"><%= message('widget.error_occurred_please_read_logs', :params => widget.name) -%></span>
+      <% end %>
+    </div>
+  <% elsif widget_body.include? '<' %>
     <%
-       default_layout=(widget.layout=='DEFAULT')
+       
        if default_layout
     %>
       <div class="widget">
