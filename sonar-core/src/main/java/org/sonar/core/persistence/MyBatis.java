@@ -19,55 +19,36 @@
  */
 package org.sonar.core.persistence;
 
-import org.apache.ibatis.type.JdbcType;
-
+import ch.qos.logback.classic.Level;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.mapping.Environment;
-import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.apache.ibatis.session.*;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
+import org.apache.ibatis.type.JdbcType;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.MeasureMapper;
 import org.sonar.api.database.model.MeasureModel;
-import org.sonar.core.dashboard.ActiveDashboardDto;
-import org.sonar.core.dashboard.ActiveDashboardMapper;
-import org.sonar.core.dashboard.DashboardDto;
-import org.sonar.core.dashboard.DashboardMapper;
-import org.sonar.core.dashboard.WidgetDto;
-import org.sonar.core.dashboard.WidgetMapper;
-import org.sonar.core.dashboard.WidgetPropertyDto;
-import org.sonar.core.dashboard.WidgetPropertyMapper;
+import org.sonar.core.config.Logback;
+import org.sonar.core.dashboard.*;
 import org.sonar.core.dependency.DependencyDto;
 import org.sonar.core.dependency.DependencyMapper;
 import org.sonar.core.dependency.ResourceSnapshotDto;
 import org.sonar.core.dependency.ResourceSnapshotMapper;
 import org.sonar.core.duplication.DuplicationMapper;
 import org.sonar.core.duplication.DuplicationUnitDto;
-import org.sonar.core.filter.CriterionDto;
-import org.sonar.core.filter.CriterionMapper;
-import org.sonar.core.filter.FilterColumnDto;
-import org.sonar.core.filter.FilterColumnMapper;
-import org.sonar.core.filter.FilterDto;
-import org.sonar.core.filter.FilterMapper;
+import org.sonar.core.filter.*;
 import org.sonar.core.properties.PropertiesMapper;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.purge.PurgeMapper;
 import org.sonar.core.purge.PurgeVendorMapper;
 import org.sonar.core.purge.PurgeableSnapshotDto;
-import org.sonar.core.resource.ResourceDto;
-import org.sonar.core.resource.ResourceIndexDto;
-import org.sonar.core.resource.ResourceIndexerMapper;
-import org.sonar.core.resource.ResourceKeyUpdaterMapper;
-import org.sonar.core.resource.ResourceMapper;
-import org.sonar.core.resource.SnapshotDto;
+import org.sonar.core.resource.*;
 import org.sonar.core.review.ReviewCommentDto;
 import org.sonar.core.review.ReviewCommentMapper;
 import org.sonar.core.review.ReviewDto;
@@ -76,24 +57,21 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleMapper;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.core.template.LoadedTemplateMapper;
-import org.sonar.core.user.AuthorDto;
-import org.sonar.core.user.AuthorMapper;
-import org.sonar.core.user.GroupDto;
-import org.sonar.core.user.GroupRoleDto;
-import org.sonar.core.user.RoleMapper;
-import org.sonar.core.user.UserDto;
-import org.sonar.core.user.UserMapper;
-import org.sonar.core.user.UserRoleDto;
+import org.sonar.core.user.*;
 
 import java.io.InputStream;
 
 public class MyBatis implements BatchComponent, ServerComponent {
 
   private final Database database;
+  private final Settings settings;
+  private final Logback logback;
   private SqlSessionFactory sessionFactory;
 
-  public MyBatis(Database database) {
+  public MyBatis(Database database, Settings settings, Logback logback) {
     this.database = database;
+    this.settings = settings;
+    this.logback = logback;
   }
 
   public MyBatis start() {
@@ -133,32 +111,13 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "WidgetProperty", WidgetPropertyDto.class);
     loadAlias(conf, "MeasureModel", MeasureModel.class);
 
-    loadMapper(conf, ActiveDashboardMapper.class);
-    loadMapper(conf, AuthorMapper.class);
-    loadMapper(conf, FilterMapper.class);
-    loadMapper(conf, CriterionMapper.class);
-    loadMapper(conf, FilterColumnMapper.class);
-    loadMapper(conf, DashboardMapper.class);
-    loadMapper(conf, DependencyMapper.class);
-    loadMapper(conf, DuplicationMapper.class);
-    loadMapper(conf, LoadedTemplateMapper.class);
-    loadMapper(conf, PropertiesMapper.class);
-    loadMapper(conf, PurgeMapper.class);
-    loadMapper(conf, PurgeVendorMapper.class);
-    loadMapper(conf, ResourceKeyUpdaterMapper.class);
-    loadMapper(conf, ResourceIndexerMapper.class);
-    loadMapper(conf, ResourceMapper.class);
-    loadMapper(conf, ResourceSnapshotMapper.class);
-    loadMapper(conf, ReviewCommentMapper.class);
-    loadMapper(conf, ReviewMapper.class);
-    loadMapper(conf, RoleMapper.class);
-    loadMapper(conf, RuleMapper.class);
-    loadMapper(conf, SchemaMigrationMapper.class);
-    loadMapper(conf, UserMapper.class);
-    loadMapper(conf, WidgetMapper.class);
-    loadMapper(conf, WidgetPropertyMapper.class);
-    loadMapper(conf, MeasureMapper.class);
-
+    Class[] mappers = {ActiveDashboardMapper.class, AuthorMapper.class, FilterMapper.class, CriterionMapper.class, FilterColumnMapper.class, DashboardMapper.class,
+      DependencyMapper.class, DuplicationMapper.class, LoadedTemplateMapper.class, PropertiesMapper.class, PurgeMapper.class, PurgeVendorMapper.class,
+      ResourceKeyUpdaterMapper.class, ResourceIndexerMapper.class, ResourceMapper.class, ResourceSnapshotMapper.class, ReviewCommentMapper.class,
+      ReviewMapper.class, RoleMapper.class, RuleMapper.class, SchemaMigrationMapper.class, UserMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
+      MeasureMapper.class};
+    loadMappers(conf, mappers);
+    configureLogback(mappers);
     sessionFactory = new SqlSessionFactoryBuilder().build(conf);
     return this;
   }
@@ -187,13 +146,31 @@ public class MyBatis implements BatchComponent, ServerComponent {
     }
   }
 
-  private void loadMapper(Configuration conf, Class mapperClass) {
+  private void loadMappers(Configuration mybatisConf, Class... mapperClasses) {
+    for (Class mapperClass : mapperClasses) {
+      loadMapper(mybatisConf, mapperClass);
+    }
+  }
+
+  /**
+   * See http://www.mybatis.org/core/logging.html :
+   */
+  private void configureLogback(Class[] mapperClasses) {
+    if (settings.getBoolean("sonar.showSql")) {
+      Level level = (settings.getBoolean("sonar.showSqlResults") ? Level.TRACE : Level.DEBUG);
+      for (Class mapperClass : mapperClasses) {
+        logback.setLoggerLevel(mapperClass.getName(), level);
+      }
+    }
+  }
+
+  private void loadMapper(Configuration mybatisConf, Class mapperClass) {
     // trick to use database-specific XML files for a single Mapper Java interface
     InputStream input = getPathToMapper(mapperClass);
     try {
-      XMLMapperBuilder mapperParser = new XMLMapperBuilder(input, conf, mapperClass.getName(), conf.getSqlFragments());
+      XMLMapperBuilder mapperParser = new XMLMapperBuilder(input, mybatisConf, mapperClass.getName(), mybatisConf.getSqlFragments());
       mapperParser.parse();
-      conf.addLoadedResource(mapperClass.getName());
+      mybatisConf.addLoadedResource(mapperClass.getName());
 
     } finally {
       IOUtils.closeQuietly(input);
@@ -202,7 +179,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
 
   private InputStream getPathToMapper(Class mapperClass) {
     InputStream input = getClass().getResourceAsStream(
-        "/" + StringUtils.replace(mapperClass.getName(), ".", "/") + "-" + database.getDialect().getId() + ".xml");
+      "/" + StringUtils.replace(mapperClass.getName(), ".", "/") + "-" + database.getDialect().getId() + ".xml");
     if (input == null) {
       input = getClass().getResourceAsStream("/" + StringUtils.replace(mapperClass.getName(), ".", "/") + ".xml");
     }

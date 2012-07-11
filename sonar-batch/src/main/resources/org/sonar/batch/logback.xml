@@ -41,6 +41,9 @@
   <logger name="org.apache.ibatis">
     <level value="${SQL_LOGGER_LEVEL:-WARN}"/>
   </logger>
+  <logger name="org.mybatis">
+      <level value="${SQL_LOGGER_LEVEL:-WARN}"/>
+    </logger>
   <logger name="java.sql">
     <level value="${SQL_LOGGER_LEVEL:-WARN}"/>
   </logger>

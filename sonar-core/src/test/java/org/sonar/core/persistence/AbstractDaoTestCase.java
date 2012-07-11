@@ -35,6 +35,7 @@ import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.junit.*;
 import org.sonar.api.config.Settings;
+import org.sonar.core.config.Logback;
 
 import java.io.InputStream;
 import java.sql.SQLException;
@@ -61,7 +62,7 @@ public abstract class AbstractDaoTestCase {
     }
     database.start();
 
-    myBatis = new MyBatis(database);
+    myBatis = new MyBatis(database, settings, new Logback());
     myBatis.start();
 
     databaseCommands = DatabaseCommands.forDialect(database.getDialect());

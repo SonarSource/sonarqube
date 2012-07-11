@@ -38,6 +38,7 @@ import org.sonar.api.utils.IocContainer;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.workflow.internal.DefaultWorkflow;
 import org.sonar.core.PicoUtils;
+import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.GwtI18n;
 import org.sonar.core.i18n.I18nManager;
 import org.sonar.core.i18n.RuleI18nManager;
@@ -158,6 +159,7 @@ public final class Platform {
     rootContainer.addSingleton(new BaseConfiguration());
     rootContainer.addSingleton(ServerSettings.class);
     rootContainer.addSingleton(ServerImpl.class);
+    rootContainer.addSingleton(Logback.class);
     rootContainer.addSingleton(EmbeddedDatabaseFactory.class);
     rootContainer.addSingleton(DefaultDatabase.class);
     rootContainer.addSingleton(MyBatis.class);

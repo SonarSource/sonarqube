@@ -19,27 +19,30 @@
  */
 package org.sonar.core.persistence;
 
+import ch.qos.logback.classic.Level;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
 import org.hamcrest.core.Is;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.sonar.api.config.Settings;
+import org.sonar.core.config.Logback;
 import org.sonar.core.rule.RuleMapper;
 
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class MyBatisTest {
 
-  private static MyBatis myBatis;
   private static H2Database database;
 
   @BeforeClass
   public static void start() {
     database = new H2Database();
-    myBatis = new MyBatis(database.start());
-    myBatis.start();
+    database.start();
   }
 
   @AfterClass
@@ -49,6 +52,9 @@ public class MyBatisTest {
 
   @Test
   public void shouldConfigureMyBatis() {
+    MyBatis myBatis = new MyBatis(database, new Settings(), new Logback());
+    myBatis.start();
+
     Configuration conf = myBatis.getSessionFactory().getConfiguration();
     assertThat(conf.isUseGeneratedKeys(), Is.is(true));
     assertThat(conf.hasMapper(RuleMapper.class), Is.is(true));
@@ -57,6 +63,9 @@ public class MyBatisTest {
 
   @Test
   public void shouldOpenBatchSession() {
+    MyBatis myBatis = new MyBatis(database, new Settings(), new Logback());
+    myBatis.start();
+
     SqlSession session = myBatis.openBatchSession();
     try {
       assertThat(session.getConnection(), notNullValue());
@@ -64,5 +73,28 @@ public class MyBatisTest {
     } finally {
       session.close();
     }
+  }
+
+  @Test
+  public void log_sql_requests() {
+    Logback logback = mock(Logback.class);
+    Settings settings = new Settings();
+    settings.setProperty("sonar.showSql", true);
+    MyBatis myBatis = new MyBatis(database, settings, logback);
+    myBatis.start();
+
+    verify(logback).setLoggerLevel("org.sonar.core.resource.ResourceIndexerMapper", Level.DEBUG);
+  }
+
+  @Test
+  public void log_sql_requests_and_responses() {
+    Logback logback = mock(Logback.class);
+    Settings settings = new Settings();
+    settings.setProperty("sonar.showSql", true);
+    settings.setProperty("sonar.showSqlResults", true);
+    MyBatis myBatis = new MyBatis(database, settings, logback);
+    myBatis.start();
+
+    verify(logback).setLoggerLevel("org.sonar.core.resource.ResourceIndexerMapper", Level.TRACE);
   }
 }

@@ -19,6 +19,7 @@
  */
 package org.sonar.core.config;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
@@ -26,6 +27,8 @@ import ch.qos.logback.core.util.StatusPrinter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.BatchComponent;
+import org.sonar.api.ServerComponent;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,11 +41,7 @@ import java.util.Map;
  *
  * @since 2.12
  */
-public final class Logback {
-
-  private Logback() {
-    // only static methods
-  }
+public class Logback implements BatchComponent, ServerComponent {
 
   public static void configure(String classloaderPath, Map<String, String> substitutionVariables) {
     InputStream input = Logback.class.getResourceAsStream(classloaderPath);
@@ -84,5 +83,9 @@ public final class Logback {
       context.putProperty(entry.getKey(), entry.getValue());
     }
     return context;
+  }
+
+  public void setLoggerLevel(String loggerName, Level level) {
+    ((ch.qos.logback.classic.Logger) LoggerFactory.getLogger(loggerName)).setLevel(level);
   }
 }

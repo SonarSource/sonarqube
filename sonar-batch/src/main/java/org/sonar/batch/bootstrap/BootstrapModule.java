@@ -29,6 +29,7 @@ import org.sonar.batch.RemoteServerMetadata;
 import org.sonar.batch.ServerMetadata;
 import org.sonar.batch.config.BatchDatabaseSettingsLoader;
 import org.sonar.batch.config.BatchSettings;
+import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.I18nManager;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.persistence.DaoUtils;
@@ -59,6 +60,7 @@ public class BootstrapModule extends Module {
     addCoreSingleton(new PropertiesConfiguration());
     addCoreSingleton(BatchSettings.class);
     addCoreSingleton(DryRun.class);
+    addCoreSingleton(Logback.class);
     addCoreSingleton(ServerMetadata.class);// registered here because used by BootstrapClassLoader
     addCoreSingleton(TempDirectories.class);// registered here because used by BootstrapClassLoader
     addCoreSingleton(HttpDownloader.class);// registered here because used by BootstrapClassLoader
