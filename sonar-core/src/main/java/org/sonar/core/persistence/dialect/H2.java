@@ -64,4 +64,8 @@ public class H2 implements Dialect {
   public String getFalseSqlValue() {
     return "false";
   }
+
+  public String getValidationQuery() {
+    return "SELECT 1";
+  }
 }

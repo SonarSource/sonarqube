@@ -85,5 +85,9 @@ public class MsSql implements Dialect {
   public String getFalseSqlValue() {
     return "0";
   }
+
+  public String getValidationQuery() {
+    return "SELECT 1";
+  }
 }
 

@@ -124,6 +124,8 @@ public class DefaultDatabase implements Database {
     if (StringUtils.isNotBlank(initStatement)) {
       datasource.setConnectionInitSqls(Arrays.asList(initStatement));
     }
+
+    datasource.setValidationQuery(dialect.getValidationQuery());
   }
 
   public final DefaultDatabase stop() {

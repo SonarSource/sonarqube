@@ -81,4 +81,8 @@ public class PostgreSql implements Dialect {
   public String getFalseSqlValue() {
     return "false";
   }
+
+  public String getValidationQuery() {
+    return "SELECT 1";
+  }
 }

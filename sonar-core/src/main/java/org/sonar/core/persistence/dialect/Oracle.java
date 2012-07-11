@@ -84,4 +84,8 @@ public class Oracle implements Dialect {
   public String getFalseSqlValue() {
     return "0";
   }
+
+  public String getValidationQuery() {
+    return "SELECT 1 FROM DUAL";
+  }
 }

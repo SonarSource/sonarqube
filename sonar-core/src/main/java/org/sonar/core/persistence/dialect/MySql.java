@@ -77,4 +77,8 @@ public class MySql implements Dialect {
   public String getFalseSqlValue() {
     return "false";
   }
+
+  public String getValidationQuery() {
+    return "SELECT 1";
+  }
 }

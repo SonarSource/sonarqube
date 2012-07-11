@@ -68,4 +68,11 @@ public interface Dialect {
    * @since 2.14
    */
   String getFalseSqlValue();
+
+  /**
+   * Query used to validate the jdbc connection.
+   * 
+   * @since 3.2
+   */
+  String getValidationQuery();
 }
