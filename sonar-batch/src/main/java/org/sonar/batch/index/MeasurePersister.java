@@ -20,7 +20,6 @@
 package org.sonar.batch.index;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Predicate;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.SetMultimap;
@@ -40,14 +39,9 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.SonarException;
 import org.sonar.core.persistence.MyBatis;
 
-import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
-import static com.google.common.base.Predicates.not;
-import static com.google.common.collect.Iterables.filter;
 
 public final class MeasurePersister {
   private final MyBatis mybatis;
@@ -75,9 +69,7 @@ public final class MeasurePersister {
   public void dump() {
     LoggerFactory.getLogger(getClass()).debug("{} measures to dump", unsavedMeasuresByResource.size());
 
-    List<MeasureModel> measures = getMeasuresToSave();
-    insert(filter(measures, HAS_MEASURE_DATA));
-    batchInsert(filter(measures, not(HAS_MEASURE_DATA)));
+    insert(getMeasuresToSave());
   }
 
   public void saveMeasure(Resource resource, Measure measure) {
@@ -183,21 +175,6 @@ public final class MeasurePersister {
     return model;
   }
 
-  private void batchInsert(Iterable<MeasureModel> values) {
-    SqlSession session = mybatis.openSession();
-    try {
-      MeasureMapper mapper = session.getMapper(MeasureMapper.class);
-
-      for (MeasureModel value : values) {
-        mapper.insert(value);
-      }
-
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
   private void insert(Iterable<MeasureModel> values) {
     SqlSession session = mybatis.openSession();
     try {
@@ -205,7 +182,9 @@ public final class MeasurePersister {
 
       for (MeasureModel value : values) {
         mapper.insert(value);
-        mapper.insertData(value);
+        if (value.getMeasureData() != null) {
+          mapper.insertData(value);
+        }
       }
 
       session.commit();
@@ -252,10 +231,4 @@ public final class MeasurePersister {
 
     return value;
   }
-
-  private static final Predicate<MeasureModel> HAS_MEASURE_DATA = new Predicate<MeasureModel>() {
-    public boolean apply(@Nullable MeasureModel measure) {
-      return (null != measure) && (measure.getMeasureData() != null);
-    }
-  };
 }
