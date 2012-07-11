@@ -116,8 +116,7 @@ class UsersController < ApplicationController
   def reactivate
     user = User.find_by_login(params[:user][:login])
     if user
-      user.reactivate(java_facade.getSettings().getString('sonar.defaultGroup'))
-      user.save!
+      user.reactivate!(java_facade.getSettings().getString('sonar.defaultGroup'))
       flash[:notice] = 'User was successfully reactivated.'
     else
       flash[:error] = "A user with login #{params[:user][:login]} does not exist."

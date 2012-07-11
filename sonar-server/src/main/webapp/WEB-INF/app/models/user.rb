@@ -23,6 +23,7 @@ class User < ActiveRecord::Base
 
   FAVOURITE_PROPERTY_KEY='favourite'
 
+  after_create :on_create
   has_and_belongs_to_many :groups
 
   has_many :user_roles, :dependent => :delete_all
@@ -37,17 +38,17 @@ class User < ActiveRecord::Base
   include NeedAuthorization::ForUser
   include NeedAuthentication::ForUser
 
-  validates_length_of       :name,  :maximum => 200, :allow_blank => true, :allow_nil => true
-  validates_length_of       :email, :maximum => 100, :allow_blank => true, :allow_nil => true
+  validates_length_of :name, :maximum => 200, :allow_blank => true, :allow_nil => true
+  validates_length_of :email, :maximum => 100, :allow_blank => true, :allow_nil => true
 
   # The following two validations not needed, because they come with Authentication::ByPassword - see SONAR-2656
   #validates_length_of       :password, :within => 4..40, :if => :password_required?
   #validates_confirmation_of :password, :if => :password_required?
 
-  validates_presence_of     :login
-  validates_length_of       :login,    :within => 2..40
-  validates_uniqueness_of   :login,    :case_sensitive => true
-  validates_format_of       :login,    :with => Authentication.login_regex, :message => Authentication.bad_login_message
+  validates_presence_of :login
+  validates_length_of :login, :within => 2..40
+  validates_uniqueness_of :login, :case_sensitive => true
+  validates_format_of :login, :with => Authentication.login_regex, :message => Authentication.bad_login_message
 
 
   # HACK HACK HACK -- how to do attr_accessible from here?
@@ -90,20 +91,22 @@ class User < ActiveRecord::Base
 
     # do not validate user, for example when user created via SSO has no password
     self.save(false)
-    self.user_roles.each {|role| role.delete}
-    self.properties.each {|prop| prop.delete}
-    self.filters.each {|f| f.destroy}
-    self.dashboards.each {|d| d.destroy}
-    self.active_dashboards.each {|ad| ad.destroy}
+    self.user_roles.each { |role| role.delete }
+    self.properties.each { |prop| prop.delete }
+    self.filters.each { |f| f.destroy }
+    self.dashboards.each { |d| d.destroy }
+    self.active_dashboards.each { |ad| ad.destroy }
   end
 
   # SONAR-3258
-  def reactivate(default_group_name)
+  def reactivate!(default_group_name)
     if default_group_name
       default_group=Group.find_by_name(default_group_name)
       self.groups<<default_group if default_group
     end
     self.active = true
+    save!
+    on_create
   end
 
   def self.find_active_by_login(login)
@@ -149,7 +152,7 @@ class User < ActiveRecord::Base
 
   def self.logins_to_ids(logins=[])
     if logins.size>0
-      User.find(:all, :select => 'id', :conditions => ['login in (?)', logins]).map{|user| user.id}
+      User.find(:all, :select => 'id', :conditions => ['login in (?)', logins]).map { |user| user.id }
     else
       []
     end
@@ -162,7 +165,7 @@ class User < ActiveRecord::Base
   def favourite_ids
     @favourite_ids ||=
       begin
-        properties().select{|p| p.key==FAVOURITE_PROPERTY_KEY}.map{|p| p.resource_id}
+        properties().select { |p| p.key==FAVOURITE_PROPERTY_KEY }.map { |p| p.resource_id }
       end
     @favourite_ids
   end
@@ -187,7 +190,7 @@ class User < ActiveRecord::Base
       rid = resource.id if resource
     end
     if rid
-      props=properties().select{|p| p.key==FAVOURITE_PROPERTY_KEY && p.resource_id==rid}
+      props=properties().select { |p| p.key==FAVOURITE_PROPERTY_KEY && p.resource_id==rid }
       if props.size>0
         properties().delete(props)
         return true
@@ -198,5 +201,12 @@ class User < ActiveRecord::Base
 
   def favourite?(resource_id)
     favourite_ids().include?(resource_id.to_i)
+  end
+
+
+  private
+
+  def on_create
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().onNewUser({'login' => self.login, 'name' => self.name, 'email' => self.email})
   end
 end
