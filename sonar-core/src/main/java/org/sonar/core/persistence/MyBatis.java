@@ -83,6 +83,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     conf.setJdbcTypeForNull(JdbcType.NULL);
     conf.getVariables().setProperty("_true", database.getDialect().getTrueSqlValue());
     conf.getVariables().setProperty("_false", database.getDialect().getFalseSqlValue());
+    conf.setDatabaseId(database.getDialect().getId());
 
     loadAlias(conf, "ActiveDashboard", ActiveDashboardDto.class);
     loadAlias(conf, "Author", AuthorDto.class);

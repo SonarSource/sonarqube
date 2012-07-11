@@ -85,11 +85,12 @@ public final class MeasurePersister {
   }
 
   private MeasureModel insertOrUpdate(Resource resource, Measure measure) {
+    Snapshot snapshot = resourcePersister.getSnapshotOrFail(resource);
     if (measure.getId() != null) {
-      return update(measure);
+      return update(measure, snapshot);
     }
     if (shouldPersistMeasure(resource, measure)) {
-      return insert(measure, resourcePersister.getSnapshotOrFail(resource));
+      return insert(measure, snapshot);
     }
     return null;
   }
@@ -218,9 +219,10 @@ public final class MeasurePersister {
     return value;
   }
 
-  private MeasureModel update(Measure measure) {
+  private MeasureModel update(Measure measure, Snapshot snapshot) {
     MeasureModel value = model(measure);
     value.setId(measure.getId());
+    value.setSnapshotId(snapshot.getId());
 
     SqlSession session = mybatis.openSession();
     try {

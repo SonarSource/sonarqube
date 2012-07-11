@@ -122,7 +122,7 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
 
     measurePersister.saveMeasure(aFile, new Measure(coverage()).setValue(100.0));
 
-    assertEmptyTables("project_measures");
+    assertEmptyTables("project_measures", "measure_data");
   }
 
   @Test
@@ -131,7 +131,7 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
 
     measurePersister.saveMeasure(aFile, new Measure("ncloc").setPersistenceMode(PersistenceMode.MEMORY));
 
-    assertEmptyTables("project_measures");
+    assertEmptyTables("project_measures", "measure_data");
   }
 
   @Test
@@ -150,9 +150,9 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
 
     measurePersister.saveMeasure(project, new Measure(coverage()).setValue(12.5).setId(1L));
     measurePersister.saveMeasure(project, new Measure(coverage()).setData(SHORT).setId(2L));
-    measurePersister.saveMeasure(project, new Measure(coverage()).setData(LONG).setId(3L));
+    measurePersister.saveMeasure(aPackage, new Measure(coverage()).setData(LONG).setId(3L));
 
-    checkTables("shouldUpdateMeasure", "project_measures");
+    checkTables("shouldUpdateMeasure", "project_measures", "measure_data");
   }
 
   @Test
@@ -180,7 +180,7 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
     assertEmptyTables("project_measures");
 
     measurePersister.dump();
-    checkTables("shouldDelaySaving", "project_measures");
+    checkTables("shouldDelaySaving", "project_measures", "measure_data");
   }
 
   @Test
@@ -201,11 +201,11 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
     measurePersister.setDelayedMode(true);
     measurePersister.saveMeasure(aFile, new Measure(coverage()).setValue(100.0));
 
-    assertEmptyTables("project_measures");
+    assertEmptyTables("project_measures", "measure_data");
 
     measurePersister.dump();
 
-    assertEmptyTables("project_measures");
+    assertEmptyTables("project_measures", "measure_data");
   }
 
   @Test
