@@ -45,6 +45,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class MeasurePersisterTest extends AbstractDaoTestCase {
+  private static final String SHORT = "SHORT";
+  private static final String LONG = StringUtils.repeat("0123456789", 10);
 
   public static final int PROJECT_SNAPSHOT_ID = 3001;
   public static final int PACKAGE_SNAPSHOT_ID = 3002;
@@ -64,6 +66,7 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
   @Before
   public void mockResourcePersister() {
     when(resourcePersister.getSnapshotOrFail(project)).thenReturn(projectSnapshot);
+    when(resourcePersister.getSnapshotOrFail(aPackage)).thenReturn(packageSnapshot);
     when(resourcePersister.getSnapshot(project)).thenReturn(projectSnapshot);
     when(resourcePersister.getSnapshot(aPackage)).thenReturn(packageSnapshot);
 
@@ -71,7 +74,7 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void shouldInsertMeasure() {
+  public void should_insert_measure() {
     setupData("empty");
 
     Measure measure = new Measure(ncloc()).setValue(1234.0);
@@ -82,7 +85,16 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void shouldInsertRuleMeasure() {
+  public void should_reload_measure() {
+    Measure measure = new Measure(ncloc());
+
+    measurePersister.reloadMeasure(measure);
+
+    verify(memoryOptimizer).reloadMeasure(measure);
+  }
+
+  @Test
+  public void should_insert_rule_measure() {
     setupData("empty");
 
     Rule rule = Rule.create("pmd", "key");
@@ -95,49 +107,75 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void shouldInsertMeasureWithTextData() {
+  public void should_insert_measure_with_text_data() {
     setupData("empty");
 
-    measurePersister.saveMeasure(project, new Measure(ncloc()).setData("SHORT"));
-    measurePersister.saveMeasure(project, new Measure(ncloc()).setData(StringUtils.repeat("0123456789", 10)));
+    measurePersister.saveMeasure(project, new Measure(ncloc()).setData(SHORT));
+    measurePersister.saveMeasure(project, new Measure(ncloc()).setData(LONG));
 
     checkTables("shouldInsertMeasureWithLargeData", "project_measures", "measure_data");
   }
 
   @Test
-  public void shouldUpdateMeasure() {
+  public void should_not_save_best_values() {
+    setupData("empty");
+
+    measurePersister.saveMeasure(aFile, new Measure(coverage()).setValue(100.0));
+
+    assertEmptyTables("project_measures");
+  }
+
+  @Test
+  public void should_not_save_memory_only_measures() {
+    setupData("empty");
+
+    measurePersister.saveMeasure(aFile, new Measure("ncloc").setPersistenceMode(PersistenceMode.MEMORY));
+
+    assertEmptyTables("project_measures");
+  }
+
+  @Test
+  public void should_always_save_non_file_measures() {
+    setupData("empty");
+
+    measurePersister.saveMeasure(project, new Measure(ncloc()).setValue(200.0));
+    measurePersister.saveMeasure(aPackage, new Measure(ncloc()).setValue(300.0));
+
+    checkTables("shouldAlwaysPersistNonFileMeasures", "project_measures");
+  }
+
+  @Test
+  public void should_update_measure() {
     setupData("data");
 
-    Measure measure = new Measure(coverage()).setValue(12.5).setId(1L);
-    measurePersister.saveMeasure(project, measure);
+    measurePersister.saveMeasure(project, new Measure(coverage()).setValue(12.5).setId(1L));
+    measurePersister.saveMeasure(project, new Measure(coverage()).setData(SHORT).setId(2L));
+    measurePersister.saveMeasure(project, new Measure(coverage()).setData(LONG).setId(3L));
 
     checkTables("shouldUpdateMeasure", "project_measures");
   }
 
   @Test
-  public void shouldAddDelayedMeasureSeveralTimes() {
+  public void should_add_delayed_measure_several_times() {
     setupData("empty");
 
     Measure measure = new Measure(ncloc());
 
-    measure.setValue(200.0);
     measurePersister.setDelayedMode(true);
-    measurePersister.saveMeasure(project, measure);
-
-    measure.setValue(300.0);
-    measurePersister.saveMeasure(project, measure);
+    measurePersister.saveMeasure(project, measure.setValue(200.0));
+    measurePersister.saveMeasure(project, measure.setValue(300.0));
     measurePersister.dump();
 
     checkTables("shouldAddDelayedMeasureSeveralTimes", "project_measures");
   }
 
   @Test
-  public void shouldDelaySaving() {
+  public void should_delay_saving() {
     setupData("empty");
 
     measurePersister.setDelayedMode(true);
-    measurePersister.saveMeasure(project, new Measure(ncloc()).setValue(1234.0));
-    measurePersister.saveMeasure(aPackage, new Measure(ncloc()).setValue(50.0));
+    measurePersister.saveMeasure(project, new Measure(ncloc()).setValue(1234.0).setData(SHORT));
+    measurePersister.saveMeasure(aPackage, new Measure(ncloc()).setValue(50.0).setData(LONG));
 
     assertEmptyTables("project_measures");
 
@@ -146,7 +184,7 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void shouldNotDelaySavingWithDatabaseOnlyMeasure() {
+  public void should_not_delay_saving_with_database_only_measure() {
     setupData("empty");
 
     measurePersister.setDelayedMode(true);
@@ -157,14 +195,7 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void shouldNotSaveBestValues() {
-    assertThat(MeasurePersister.shouldPersistMeasure(aFile, new Measure(coverage()).setValue(0.0))).isTrue();
-    assertThat(MeasurePersister.shouldPersistMeasure(aFile, new Measure(coverage()).setValue(75.8))).isTrue();
-    assertThat(MeasurePersister.shouldPersistMeasure(aFile, new Measure(coverage()).setValue(100.0))).isFalse();
-  }
-
-  @Test
-  public void shouldNotSaveBestValueMeasuresInDelayedMode() {
+  public void should_not_save_best_value_measures_in_delayed_mode() {
     setupData("empty");
 
     measurePersister.setDelayedMode(true);
@@ -178,20 +209,7 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void shouldNotSaveMemoryOnlyMeasures() {
-    Measure measure = new Measure("ncloc").setPersistenceMode(PersistenceMode.MEMORY);
-
-    assertThat(MeasurePersister.shouldPersistMeasure(aPackage, measure)).isFalse();
-  }
-
-  @Test
-  public void shouldAlwaysPersistNonFileMeasures() {
-    assertThat(MeasurePersister.shouldPersistMeasure(project, new Measure(CoreMetrics.LINES, 200.0))).isTrue();
-    assertThat(MeasurePersister.shouldPersistMeasure(aPackage, new Measure(CoreMetrics.LINES, 200.0))).isTrue();
-  }
-
-  @Test
-  public void shouldNotPersistSomeFileMeasuresWithBestValue() {
+  public void should_not_save_some_file_measures_with_best_value() {
     assertThat(MeasurePersister.shouldPersistMeasure(aFile, new Measure(CoreMetrics.LINES, 200.0))).isTrue();
     assertThat(MeasurePersister.shouldPersistMeasure(aFile, new Measure(CoreMetrics.DUPLICATED_LINES_DENSITY, 3.0))).isTrue();
 
@@ -206,10 +224,13 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void nullValueAndNullVariationsShouldBeConsideredAsBestValue() {
-    Measure measure = new Measure(CoreMetrics.NEW_VIOLATIONS_KEY);
-
-    assertThat(MeasurePersister.isBestValueMeasure(measure, CoreMetrics.NEW_VIOLATIONS)).isTrue();
+  public void null_value_and_null_variations_should_be_considered_as_best_value() {
+    assertThat(MeasurePersister.isBestValueMeasure(new Measure(CoreMetrics.NEW_VIOLATIONS_KEY).setVariation1(0.0), CoreMetrics.NEW_VIOLATIONS)).isTrue();
+    assertThat(MeasurePersister.isBestValueMeasure(new Measure(CoreMetrics.NEW_VIOLATIONS_KEY).setVariation1(1.0), CoreMetrics.NEW_VIOLATIONS)).isFalse();
+    assertThat(MeasurePersister.isBestValueMeasure(new Measure(CoreMetrics.NEW_VIOLATIONS_KEY).setVariation2(1.0), CoreMetrics.NEW_VIOLATIONS)).isFalse();
+    assertThat(MeasurePersister.isBestValueMeasure(new Measure(CoreMetrics.NEW_VIOLATIONS_KEY).setVariation3(1.0), CoreMetrics.NEW_VIOLATIONS)).isFalse();
+    assertThat(MeasurePersister.isBestValueMeasure(new Measure(CoreMetrics.NEW_VIOLATIONS_KEY).setVariation4(1.0), CoreMetrics.NEW_VIOLATIONS)).isFalse();
+    assertThat(MeasurePersister.isBestValueMeasure(new Measure(CoreMetrics.NEW_VIOLATIONS_KEY).setVariation5(1.0), CoreMetrics.NEW_VIOLATIONS)).isFalse();
   }
 
   private static Snapshot snapshot(int id) {

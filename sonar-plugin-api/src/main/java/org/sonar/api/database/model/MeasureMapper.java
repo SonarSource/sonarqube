@@ -24,5 +24,7 @@ public interface MeasureMapper {
 
   void insertData(MeasureModel data);
 
+  void deleteData(MeasureModel data);
+
   void update(MeasureModel measure);
 }

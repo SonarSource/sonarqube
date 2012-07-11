@@ -115,11 +115,15 @@ public final class MeasurePersister {
       && measure.getTendency() == null
       && measure.getUrl() == null
       && !measure.hasData()
-      && (measure.getVariation1() == null || NumberUtils.compare(measure.getVariation1().doubleValue(), 0.0) == 0)
-      && (measure.getVariation2() == null || NumberUtils.compare(measure.getVariation2().doubleValue(), 0.0) == 0)
-      && (measure.getVariation3() == null || NumberUtils.compare(measure.getVariation3().doubleValue(), 0.0) == 0)
-      && (measure.getVariation4() == null || NumberUtils.compare(measure.getVariation4().doubleValue(), 0.0) == 0)
-      && (measure.getVariation5() == null || NumberUtils.compare(measure.getVariation5().doubleValue(), 0.0) == 0);
+      && isZeroVariation(measure.getVariation1())
+      && isZeroVariation(measure.getVariation2())
+      && isZeroVariation(measure.getVariation3())
+      && isZeroVariation(measure.getVariation4())
+      && isZeroVariation(measure.getVariation5());
+  }
+
+  private static boolean isZeroVariation(Double variation) {
+    return (variation == null) || NumberUtils.compare(variation.doubleValue(), 0.0) == 0;
   }
 
   private List<MeasureModel> getMeasuresToSave() {
@@ -223,6 +227,10 @@ public final class MeasurePersister {
       MeasureMapper mapper = session.getMapper(MeasureMapper.class);
 
       mapper.update(value);
+      mapper.deleteData(value);
+      if (value.getMeasureData() != null) {
+        mapper.insertData(value);
+      }
 
       session.commit();
     } finally {

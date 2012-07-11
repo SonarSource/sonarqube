@@ -15,12 +15,16 @@
       #{variationValue2}, #{variationValue3}, #{variationValue4}, #{variationValue5}, #{personId}
     )
   </insert>
-  
+
   <insert id="insertData" parameterType="MeasureModel" useGeneratedKeys="true">
     INSERT INTO measure_data (measure_id, snapshot_id, data)
     VALUES (#{id}, #{snapshotId}, #{measureData.data})
   </insert>
-  
+
+  <update id="deleteData" parameterType="MeasureModel">
+    DELETE FROM measure_data WHERE measure_id = #{id} AND snapshot_id = #{snapshotId}
+  </update>
+
   <update id="update" parameterType="MeasureModel">
     UPDATE project_measures
     SET
