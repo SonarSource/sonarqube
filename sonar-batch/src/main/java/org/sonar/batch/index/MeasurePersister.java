@@ -184,12 +184,12 @@ public final class MeasurePersister {
   }
 
   private void batchInsert(Iterable<MeasureModel> values) {
-    SqlSession session = mybatis.openBatchSession();
+    SqlSession session = mybatis.openSession();
     try {
       MeasureMapper mapper = session.getMapper(MeasureMapper.class);
 
       for (MeasureModel value : values) {
-        mapper.batchInsert(value);
+        mapper.insert(value);
       }
 
       session.commit();
@@ -204,7 +204,7 @@ public final class MeasurePersister {
       MeasureMapper mapper = session.getMapper(MeasureMapper.class);
 
       for (MeasureModel value : values) {
-        mapper.batchInsert(value);
+        mapper.insert(value);
         mapper.insertData(value);
       }
 

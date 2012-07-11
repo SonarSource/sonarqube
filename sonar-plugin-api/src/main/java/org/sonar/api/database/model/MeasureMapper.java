@@ -22,8 +22,6 @@ package org.sonar.api.database.model;
 public interface MeasureMapper {
   void insert(MeasureModel measure);
 
-  void batchInsert(MeasureModel measure);
-
   void insertData(MeasureModel data);
 
   void update(MeasureModel measure);
