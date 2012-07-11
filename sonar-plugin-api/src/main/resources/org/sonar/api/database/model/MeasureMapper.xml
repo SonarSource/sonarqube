@@ -16,7 +16,7 @@
     )
   </insert>
   
-  <insert id="insertData" parameterType="MeasureModel" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insertData" parameterType="MeasureModel" useGeneratedKeys="true">
     INSERT INTO measure_data (measure_id, snapshot_id, data)
     VALUES (#{id}, #{snapshotId}, #{measureData.data})
   </insert>
