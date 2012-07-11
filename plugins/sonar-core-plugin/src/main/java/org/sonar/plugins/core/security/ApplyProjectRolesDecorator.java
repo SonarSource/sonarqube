@@ -26,17 +26,17 @@ import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.security.ResourcePermissioning;
+import org.sonar.api.security.ResourcePermissions;
 
 import java.util.Set;
 
 public class ApplyProjectRolesDecorator implements Decorator {
 
-  private final ResourcePermissioning resourcePermissioning;
+  private final ResourcePermissions resourcePermissions;
   private final Set<String> QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.SUBVIEW);
 
-  public ApplyProjectRolesDecorator(ResourcePermissioning resourcePermissioning) {
-    this.resourcePermissioning = resourcePermissioning;
+  public ApplyProjectRolesDecorator(ResourcePermissions resourcePermissions) {
+    this.resourcePermissions = resourcePermissions;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -46,12 +46,12 @@ public class ApplyProjectRolesDecorator implements Decorator {
   public void decorate(Resource resource, DecoratorContext context) {
     if (shouldDecorateResource(resource)) {
       LoggerFactory.getLogger(ApplyProjectRolesDecorator.class).info("Grant default permissions to {}", resource.getKey());
-      resourcePermissioning.grantDefaultRoles(resource);
+      resourcePermissions.grantDefaultRoles(resource);
     }
   }
 
   private boolean shouldDecorateResource(Resource resource) {
-    return resource.getId() != null && QUALIFIERS.contains(resource.getQualifier()) && !resourcePermissioning.hasRoles(resource);
+    return resource.getId() != null && QUALIFIERS.contains(resource.getQualifier()) && !resourcePermissions.hasRoles(resource);
   }
 
 }

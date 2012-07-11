@@ -22,20 +22,20 @@ package org.sonar.plugins.core.security;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Project;
-import org.sonar.api.security.ResourcePermissioning;
+import org.sonar.api.security.ResourcePermissions;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class ApplyProjectRolesDecoratorTest {
 
-  private ResourcePermissioning resourcePermissioning;
+  private ResourcePermissions resourcePermissions;
   private ApplyProjectRolesDecorator decorator;
 
   @Before
   public void init() {
-    resourcePermissioning = mock(ResourcePermissioning.class);
-    decorator = new ApplyProjectRolesDecorator(resourcePermissioning);
+    resourcePermissions = mock(ResourcePermissions.class);
+    decorator = new ApplyProjectRolesDecorator(resourcePermissions);
   }
 
   @Test
@@ -47,11 +47,11 @@ public class ApplyProjectRolesDecoratorTest {
   public void doNotGrantDefaultRolesWhenExistingPermissions() {
     Project project = new Project("project");
     project.setId(10);
-    when(resourcePermissioning.hasRoles(project)).thenReturn(true);
+    when(resourcePermissions.hasRoles(project)).thenReturn(true);
 
     decorator.decorate(project, null);
 
-    verify(resourcePermissioning, never()).grantDefaultRoles(project);
+    verify(resourcePermissions, never()).grantDefaultRoles(project);
   }
 
   @Test
@@ -59,22 +59,22 @@ public class ApplyProjectRolesDecoratorTest {
     Project project = new Project("project");
     Project module = new Project("module").setParent(project);
     module.setId(10);
-    when(resourcePermissioning.hasRoles(project)).thenReturn(false);
+    when(resourcePermissions.hasRoles(project)).thenReturn(false);
 
     decorator.decorate(module, null);
 
-    verify(resourcePermissioning, never()).grantDefaultRoles(module);
+    verify(resourcePermissions, never()).grantDefaultRoles(module);
   }
 
   @Test
   public void grantDefaultRolesWhenNoPermissions() {
     Project project = new Project("project");
     project.setId(10);
-    when(resourcePermissioning.hasRoles(project)).thenReturn(false);
+    when(resourcePermissions.hasRoles(project)).thenReturn(false);
 
     decorator.decorate(project, null);
 
-    verify(resourcePermissioning).grantDefaultRoles(project);
+    verify(resourcePermissions).grantDefaultRoles(project);
   }
 
 }

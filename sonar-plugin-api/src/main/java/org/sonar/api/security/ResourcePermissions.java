@@ -29,7 +29,7 @@ import org.sonar.api.resources.Resource;
  *
  * @since 3.2
  */
-public interface ResourcePermissioning extends BatchComponent {
+public interface ResourcePermissions extends BatchComponent {
 
   boolean hasRoles(Resource resource);
 

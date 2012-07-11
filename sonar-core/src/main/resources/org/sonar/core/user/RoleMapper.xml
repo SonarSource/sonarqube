@@ -31,6 +31,22 @@
     VALUES (#{id}, #{userId}, #{resourceId}, #{role})
   </insert>
 
+  <delete id="deleteGroupRole" parameterType="map">
+    delete from group_roles where resource_id=#{resourceId} and role=#{role}
+    <choose>
+      <when test="groupId != null">
+        and group_id=#{groupId}
+      </when>
+      <otherwise>
+        and group_id is null
+      </otherwise>
+    </choose>
+  </delete>
+
+  <delete id="deleteUserRole" parameterType="map">
+    delete from user_roles where resource_id=#{resourceId} and user_id=#{userId} and role=#{role}
+  </delete>
+
   <delete id="deleteGroupRolesByResourceId" parameterType="long">
     delete from group_roles where resource_id=#{id}
   </delete>

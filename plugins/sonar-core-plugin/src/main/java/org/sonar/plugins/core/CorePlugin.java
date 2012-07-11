@@ -36,7 +36,7 @@ import org.sonar.plugins.core.filters.MyFavouritesFilter;
 import org.sonar.plugins.core.filters.ProjectFilter;
 import org.sonar.plugins.core.filters.TreeMapFilter;
 import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
-import org.sonar.plugins.core.security.DefaultResourcePermissioning;
+import org.sonar.plugins.core.security.DefaultResourcePermissions;
 import org.sonar.plugins.core.sensors.*;
 import org.sonar.plugins.core.testdetailsviewer.TestsViewerDefinition;
 import org.sonar.plugins.core.timemachine.*;
@@ -306,7 +306,7 @@ public final class CorePlugin extends SonarPlugin {
       ItLineCoverageDecorator.class,
       ItCoverageDecorator.class,
       ItBranchCoverageDecorator.class,
-      DefaultResourcePermissioning.class,
+      DefaultResourcePermissions.class,
       ApplyProjectRolesDecorator.class,
       ExcludedResourceFilter.class,
       CommentDensityDecorator.class,

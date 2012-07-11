@@ -28,7 +28,7 @@ import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class DefaultResourcePermissioningTest extends AbstractDaoTestCase {
+public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
 
   private Resource project = new Project("project").setId(123);
 
@@ -36,18 +36,21 @@ public class DefaultResourcePermissioningTest extends AbstractDaoTestCase {
   public void grantGroupRole() {
     setupData("grantGroupRole");
 
-    DefaultResourcePermissioning permissioning = new DefaultResourcePermissioning(new Settings(), getMyBatis());
-    permissioning.grantGroupRole(project, "sonar-administrators", "admin");
+    DefaultResourcePermissions permissions = new DefaultResourcePermissions(new Settings(), getMyBatis());
+    permissions.grantGroupRole(project, "sonar-administrators", "admin");
 
-    checkTables("grantGroupRole", "group_roles");
+    // do not insert duplicated rows
+    permissions.grantGroupRole(project, "sonar-administrators", "admin");
+
+    checkColumns("grantGroupRole", "group_roles", "group_id", "resource_id", "role");
   }
 
   @Test
   public void grantGroupRole_anyone() {
     setupData("grantGroupRole_anyone");
 
-    DefaultResourcePermissioning permissioning = new DefaultResourcePermissioning(new Settings(), getMyBatis());
-    permissioning.grantGroupRole(project, DefaultGroups.ANYONE, "admin");
+    DefaultResourcePermissions permissions = new DefaultResourcePermissions(new Settings(), getMyBatis());
+    permissions.grantGroupRole(project, DefaultGroups.ANYONE, "admin");
 
     checkTables("grantGroupRole_anyone", "group_roles");
   }
@@ -56,8 +59,8 @@ public class DefaultResourcePermissioningTest extends AbstractDaoTestCase {
   public void grantGroupRole_ignore_if_group_not_found() {
     setupData("grantGroupRole_ignore_if_group_not_found");
 
-    DefaultResourcePermissioning permissioning = new DefaultResourcePermissioning(new Settings(), getMyBatis());
-    permissioning.grantGroupRole(project, "not_found", "admin");
+    DefaultResourcePermissions permissions = new DefaultResourcePermissions(new Settings(), getMyBatis());
+    permissions.grantGroupRole(project, "not_found", "admin");
 
     checkTables("grantGroupRole_ignore_if_group_not_found", "group_roles");
   }
@@ -66,11 +69,24 @@ public class DefaultResourcePermissioningTest extends AbstractDaoTestCase {
   public void grantGroupRole_ignore_if_not_persisted() {
     setupData("grantGroupRole_ignore_if_not_persisted");
 
-    DefaultResourcePermissioning permissioning = new DefaultResourcePermissioning(new Settings(), getMyBatis());
+    DefaultResourcePermissions permissions = new DefaultResourcePermissions(new Settings(), getMyBatis());
     Project resourceWithoutId = new Project("");
-    permissioning.grantGroupRole(resourceWithoutId, "sonar-users", "admin");
+    permissions.grantGroupRole(resourceWithoutId, "sonar-users", "admin");
 
     checkTables("grantGroupRole_ignore_if_not_persisted", "group_roles");
+  }
+
+  @Test
+  public void grantUserRole() {
+    setupData("grantUserRole");
+
+    DefaultResourcePermissions permissions = new DefaultResourcePermissions(new Settings(), getMyBatis());
+    permissions.grantUserRole(project, "marius", "admin");
+
+    // do not insert duplicated rows
+    permissions.grantUserRole(project, "marius", "admin");
+
+    checkColumns("grantUserRole", "user_roles", "user_id", "resource_id", "role");
   }
 
   @Test
@@ -84,9 +100,9 @@ public class DefaultResourcePermissioningTest extends AbstractDaoTestCase {
     settings.setProperty("sonar.role.user.TRK.defaultUsers", "");
     settings.setProperty("sonar.role.codeviewer.TRK.defaultGroups", "Anyone,sonar-users");
     settings.setProperty("sonar.role.codeviewer.TRK.defaultUsers", "");
-    DefaultResourcePermissioning permissioning = new DefaultResourcePermissioning(settings, getMyBatis());
+    DefaultResourcePermissions permissions = new DefaultResourcePermissions(settings, getMyBatis());
 
-    permissioning.grantDefaultRoles(project);
+    permissions.grantDefaultRoles(project);
 
     checkTables("grantDefaultRoles", "user_roles", "group_roles");
   }
@@ -97,8 +113,8 @@ public class DefaultResourcePermissioningTest extends AbstractDaoTestCase {
 
     Settings settings = new Settings();
     settings.setProperty("sonar.role.admin.TRK.defaultGroups", "sonar-administrators,unknown");
-    DefaultResourcePermissioning permissioning = new DefaultResourcePermissioning(settings, getMyBatis());
-    permissioning.grantDefaultRoles(project);
+    DefaultResourcePermissions permissions = new DefaultResourcePermissions(settings, getMyBatis());
+    permissions.grantDefaultRoles(project);
 
     checkTables("grantDefaultRoles_unknown_group", "group_roles");
   }
@@ -109,8 +125,8 @@ public class DefaultResourcePermissioningTest extends AbstractDaoTestCase {
 
     Settings settings = new Settings();
     settings.setProperty("sonar.role.admin.TRK.defaultUsers", "marius,disabled,notfound");
-    DefaultResourcePermissioning permissioning = new DefaultResourcePermissioning(settings, getMyBatis());
-    permissioning.grantDefaultRoles(project);
+    DefaultResourcePermissions permissions = new DefaultResourcePermissions(settings, getMyBatis());
+    permissions.grantDefaultRoles(project);
 
     checkTables("grantDefaultRoles_users", "user_roles");
   }
@@ -118,21 +134,21 @@ public class DefaultResourcePermissioningTest extends AbstractDaoTestCase {
   @Test
   public void hasRoles() {
     setupData("hasRoles");
-    DefaultResourcePermissioning permissioning = new DefaultResourcePermissioning(new Settings(), getMyBatis());
+    DefaultResourcePermissions permissions = new DefaultResourcePermissions(new Settings(), getMyBatis());
 
     // no groups and at least one user
-    assertThat(permissioning.hasRoles(new Project("only_users").setId(1))).isTrue();
+    assertThat(permissions.hasRoles(new Project("only_users").setId(1))).isTrue();
 
     // no users and at least one group
-    assertThat(permissioning.hasRoles(new Project("only_groups").setId(2))).isTrue();
+    assertThat(permissions.hasRoles(new Project("only_groups").setId(2))).isTrue();
 
     // groups and users
-    assertThat(permissioning.hasRoles(new Project("groups_and_users").setId(3))).isTrue();
+    assertThat(permissions.hasRoles(new Project("groups_and_users").setId(3))).isTrue();
 
     // no groups, no users
-    assertThat(permissioning.hasRoles(new Project("no_groups_no_users").setId(4))).isFalse();
+    assertThat(permissions.hasRoles(new Project("no_groups_no_users").setId(4))).isFalse();
 
     // does not exist
-    assertThat(permissioning.hasRoles(new Project("not_found"))).isFalse();
+    assertThat(permissions.hasRoles(new Project("not_found"))).isFalse();
   }
 }

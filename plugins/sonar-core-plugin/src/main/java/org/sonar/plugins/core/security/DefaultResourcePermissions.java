@@ -24,7 +24,7 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.security.DefaultGroups;
-import org.sonar.api.security.ResourcePermissioning;
+import org.sonar.api.security.ResourcePermissions;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.user.*;
@@ -32,12 +32,12 @@ import org.sonar.core.user.*;
 /**
  * @since 3.2
  */
-public class DefaultResourcePermissioning implements ResourcePermissioning, BatchExtension {
+public class DefaultResourcePermissions implements ResourcePermissions, BatchExtension {
 
   private final Settings settings;
   private final MyBatis myBatis;
 
-  public DefaultResourcePermissioning(Settings settings, MyBatis myBatis) {
+  public DefaultResourcePermissions(Settings settings, MyBatis myBatis) {
     this.settings = settings;
     this.myBatis = myBatis;
   }
@@ -66,8 +66,10 @@ public class DefaultResourcePermissioning implements ResourcePermissioning, Batc
           UserRoleDto userRole = new UserRoleDto()
             .setRole(role)
             .setUserId(user.getId())
-              .setResourceId(Long.valueOf(resource.getId()));
-          session.getMapper(RoleMapper.class).insertUserRole(userRole);
+            .setResourceId(Long.valueOf(resource.getId()));
+          RoleMapper roleMapper = session.getMapper(RoleMapper.class);
+          roleMapper.deleteUserRole(userRole);
+          roleMapper.insertUserRole(userRole);
           session.commit();
         }
       } finally {
@@ -82,14 +84,18 @@ public class DefaultResourcePermissioning implements ResourcePermissioning, Batc
       try {
         GroupRoleDto groupRole = new GroupRoleDto()
           .setRole(role)
-            .setResourceId(Long.valueOf(resource.getId()));
+          .setResourceId(Long.valueOf(resource.getId()));
+        RoleMapper roleMapper = session.getMapper(RoleMapper.class);
         if (DefaultGroups.isAnyone(groupName)) {
-          session.getMapper(RoleMapper.class).insertGroupRole(groupRole);
+          roleMapper.deleteGroupRole(groupRole);
+          roleMapper.insertGroupRole(groupRole);
           session.commit();
         } else {
           GroupDto group = session.getMapper(UserMapper.class).selectGroupByName(groupName);
           if (group != null) {
-            session.getMapper(RoleMapper.class).insertGroupRole(groupRole.setGroupId(group.getId()));
+            groupRole.setGroupId(group.getId());
+            roleMapper.deleteGroupRole(groupRole);
+            roleMapper.insertGroupRole(groupRole);
             session.commit();
           }
         }

@@ -1,0 +1,6 @@
+<dataset>
+  <users id="200" login="marius" name="Marius" email="[null]" active="[true]"/>
+
+  <user_roles user_id="200" resource_id="123" role="admin"/>
+
+</dataset>
