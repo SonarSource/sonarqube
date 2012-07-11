@@ -47,7 +47,7 @@ public class DefaultResourcePermissioning implements ResourcePermissioning, Batc
       SqlSession session = myBatis.openSession();
       try {
         RoleMapper roleMapper = session.getMapper(RoleMapper.class);
-        Long resourceId = new Long(resource.getId());
+        Long resourceId = Long.valueOf(resource.getId());
         return roleMapper.countGroupRoles(resourceId) + roleMapper.countUserRoles(resourceId) > 0;
 
       } finally {
@@ -66,7 +66,7 @@ public class DefaultResourcePermissioning implements ResourcePermissioning, Batc
           UserRoleDto userRole = new UserRoleDto()
             .setRole(role)
             .setUserId(user.getId())
-            .setResourceId(new Long(resource.getId()));
+              .setResourceId(Long.valueOf(resource.getId()));
           session.getMapper(RoleMapper.class).insertUserRole(userRole);
           session.commit();
         }
@@ -82,7 +82,7 @@ public class DefaultResourcePermissioning implements ResourcePermissioning, Batc
       try {
         GroupRoleDto groupRole = new GroupRoleDto()
           .setRole(role)
-          .setResourceId(new Long(resource.getId()));
+            .setResourceId(Long.valueOf(resource.getId()));
         if (DefaultGroups.isAnyone(groupName)) {
           session.getMapper(RoleMapper.class).insertGroupRole(groupRole);
           session.commit();
@@ -115,7 +115,7 @@ public class DefaultResourcePermissioning implements ResourcePermissioning, Batc
   }
 
   private void removeRoles(Resource resource, SqlSession session) {
-    Long resourceId = new Long(resource.getId());
+    Long resourceId = Long.valueOf(resource.getId());
     RoleMapper mapper = session.getMapper(RoleMapper.class);
     mapper.deleteGroupRolesByResourceId(resourceId);
     mapper.deleteUserRolesByResourceId(resourceId);
@@ -127,7 +127,7 @@ public class DefaultResourcePermissioning implements ResourcePermissioning, Batc
 
     String[] groupNames = settings.getStringArrayBySeparator("sonar.role." + role + "." + resource.getQualifier() + ".defaultGroups", ",");
     for (String groupName : groupNames) {
-      GroupRoleDto groupRole = new GroupRoleDto().setRole(role).setResourceId(new Long(resource.getId()));
+      GroupRoleDto groupRole = new GroupRoleDto().setRole(role).setResourceId(Long.valueOf(resource.getId()));
       if (DefaultGroups.isAnyone(groupName)) {
         roleMapper.insertGroupRole(groupRole);
       } else {
@@ -142,7 +142,7 @@ public class DefaultResourcePermissioning implements ResourcePermissioning, Batc
     for (String login : logins) {
       UserDto user = userMapper.selectUserByLogin(login);
       if (user != null) {
-        roleMapper.insertUserRole(new UserRoleDto().setRole(role).setUserId(user.getId()).setResourceId(new Long(resource.getId())));
+        roleMapper.insertUserRole(new UserRoleDto().setRole(role).setUserId(user.getId()).setResourceId(Long.valueOf(resource.getId())));
       }
     }
   }
