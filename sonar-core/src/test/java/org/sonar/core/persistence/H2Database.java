@@ -37,28 +37,29 @@ import java.util.Properties;
  * @since 3.2
  */
 public class H2Database implements Database {
-  private static BasicDataSource datasource;
+  private final String name;
+  private BasicDataSource datasource;
+
+  /**
+   * IMPORTANT: change DB name in order to not conflict with {@link DefaultDatabaseTest}
+   */
+  public H2Database(String name) {
+    this.name = name;
+  }
 
   public H2Database start() {
-    if (datasource == null) {
-      startDatabase();
-      createSchema();
-    }
+    startDatabase();
+    createSchema();
     return this;
   }
 
-  /**
-   * IMPORTANT: DB name changed from "sonar" to "sonar2" in order to not conflict with {@link DefaultDatabaseTest}
-   */
   private void startDatabase() {
     try {
       datasource = new BasicDataSource();
       datasource.setDriverClassName("org.h2.Driver");
       datasource.setUsername("sonar");
       datasource.setPassword("sonar");
-      datasource.setUrl("jdbc:h2:mem:sonar2");
-      datasource.setMaxActive(2);
-      datasource.setMaxIdle(2);
+      datasource.setUrl("jdbc:h2:mem:" + name);
     } catch (Exception e) {
       throw new IllegalStateException("Fail to start H2", e);
     }
@@ -84,10 +85,7 @@ public class H2Database implements Database {
 
   public H2Database stop() {
     try {
-      if (datasource != null) {
-        datasource.close();
-        datasource = null;
-      }
+      datasource.close();
     } catch (SQLException e) {
       // Ignore error
     }

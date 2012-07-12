@@ -19,7 +19,8 @@
  */
 package org.sonar.core.persistence;
 
-import org.apache.commons.dbcp.BasicDataSource;
+import org.junit.After;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,14 +30,14 @@ import java.sql.SQLException;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class H2DatabaseTest {
-  H2Database db = new H2Database();
+  H2Database db = new H2Database("sonar2");
 
   @Before
   public void startDb() {
     db.start();
   }
 
-  @Before
+  @After
   public void stopDb() {
     db.stop();
   }
@@ -48,13 +49,5 @@ public class H2DatabaseTest {
     connection.close();
 
     assertThat(tableCount).isGreaterThan(30);
-  }
-
-  @Test
-  public void shouldLimitThePoolSize() {
-    BasicDataSource dataSource = (BasicDataSource) db.getDataSource();
-
-    assertThat(dataSource.getMaxActive()).isEqualTo(2);
-    assertThat(dataSource.getMaxIdle()).isEqualTo(2);
   }
 }

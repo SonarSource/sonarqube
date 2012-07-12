@@ -26,11 +26,12 @@ import org.dbunit.DatabaseUnitException;
 import org.dbunit.IDatabaseTester;
 import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.IDatabaseConnection;
-import org.dbunit.dataset.*;
+import org.dbunit.dataset.CompositeDataSet;
+import org.dbunit.dataset.IDataSet;
+import org.dbunit.dataset.ITable;
+import org.dbunit.dataset.ReplacementDataSet;
 import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
-import org.dbunit.ext.h2.H2DataTypeFactory;
-import org.dbunit.operation.DatabaseOperation;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -56,41 +57,33 @@ public abstract class AbstractDbUnitTestCase {
   private static Database database;
   private static DefaultDatabaseConnector dbConnector;
   private static DatabaseCommands databaseCommands;
-
-  private JpaDatabaseSession session;
-  private IDatabaseTester databaseTester;
-  private IDatabaseConnection connection;
+  private static IDatabaseTester databaseTester;
+  private static JpaDatabaseSession session;
 
   @BeforeClass
-  public static void startDatabase() throws Exception {
-    database = new H2Database();
+  public static void startDatabase() {
+    database = new H2Database("sonarHibernate");
     database.start();
 
     dbConnector = new MemoryDatabaseConnector(database);
     dbConnector.start();
 
     databaseCommands = DatabaseCommands.forDialect(database.getDialect());
-  }
-
-  @Before
-  public void startConnection() throws Exception {
-    databaseCommands.truncateDatabase(database.getDataSource().getConnection());
     databaseTester = new DataSourceDatabaseTester(database.getDataSource());
 
     session = new JpaDatabaseSession(dbConnector);
     session.start();
   }
 
+  @Before
+  public void setupDbUnit() throws SQLException {
+    databaseCommands.truncateDatabase(database.getDataSource().getConnection());
+  }
+
   @After
   public void stopConnection() throws Exception {
-    if (databaseTester != null) {
-      databaseTester.onTearDown();
-    }
-    if (connection != null) {
-      connection.close();
-    }
     if (session != null) {
-      session.stop();
+      session.rollback();
     }
   }
 
@@ -107,7 +100,6 @@ public abstract class AbstractDbUnitTestCase {
 
   protected DatabaseSessionFactory getSessionFactory() {
     return new DatabaseSessionFactory() {
-
       public DatabaseSession getSession() {
         return session;
       }
@@ -139,23 +131,30 @@ public abstract class AbstractDbUnitTestCase {
   }
 
   private void setupData(InputStream... dataSetStream) {
+    IDatabaseConnection connection = null;
     try {
       IDataSet[] dataSets = new IDataSet[dataSetStream.length];
       for (int i = 0; i < dataSetStream.length; i++) {
-        ReplacementDataSet dataSet = new ReplacementDataSet(new FlatXmlDataSet(dataSetStream[i]));
-        dataSet.addReplacementObject("[null]", null);
-        dataSets[i] = dataSet;
+        dataSets[i] = getData(dataSetStream[i]);
       }
-      CompositeDataSet compositeDataSet = new CompositeDataSet(dataSets);
+      databaseTester.setDataSet(new CompositeDataSet(dataSets));
 
-      databaseTester.setDataSet(compositeDataSet);
-      connection = databaseTester.getConnection();
+      connection = createConnection();
 
-      connection.getConfig().setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, new H2DataTypeFactory());
-      DatabaseOperation.CLEAN_INSERT.execute(connection, databaseTester.getDataSet());
-
+      databaseCommands.getDbunitDatabaseOperation().execute(connection, databaseTester.getDataSet());
     } catch (Exception e) {
       throw translateException("Could not setup DBUnit data", e);
+    } finally {
+      closeQuietly(connection);
+    }
+  }
+
+  private void closeQuietly(IDatabaseConnection connection) {
+    try {
+      if (connection != null) {
+        connection.close();
+      }
+    } catch (SQLException e) {
     }
   }
 
@@ -164,44 +163,39 @@ public abstract class AbstractDbUnitTestCase {
   }
 
   protected void checkTables(String testName, String[] excludedColumnNames, String... tables) {
-    getSession().commit();
+    IDatabaseConnection connection = null;
     try {
-      IDataSet dataSet = getCurrentDataSet();
+      connection = createConnection();
+
+      IDataSet dataSet = connection.createDataSet();
       IDataSet expectedDataSet = getExpectedData(testName);
       for (String table : tables) {
         ITable filteredTable = DefaultColumnFilter.excludedColumnsTable(dataSet.getTable(table), excludedColumnNames);
         ITable filteredExpectedTable = DefaultColumnFilter.excludedColumnsTable(expectedDataSet.getTable(table), excludedColumnNames);
         Assertion.assertEquals(filteredExpectedTable, filteredTable);
       }
-    } catch (DataSetException e) {
-      throw translateException("Error while checking results", e);
     } catch (DatabaseUnitException e) {
       fail(e.getMessage());
+    } catch (SQLException e) {
+      throw translateException("Error while checking results", e);
+    } finally {
+      closeQuietly(connection);
     }
   }
 
-  /**
-   * Opposite of {@link #checkTables(String, String[], String...)}.
-   */
-  protected void checkColumns(String testName, String table, String... columns) {
-    getSession().commit();
+  private IDatabaseConnection createConnection() {
     try {
-      IDataSet dataSet = getCurrentDataSet();
-      IDataSet expectedDataSet = getExpectedData(testName);
-      ITable filteredTable = DefaultColumnFilter.includedColumnsTable(dataSet.getTable(table), columns);
-      ITable filteredExpectedTable = DefaultColumnFilter.includedColumnsTable(expectedDataSet.getTable(table), columns);
-      Assertion.assertEquals(filteredExpectedTable, filteredTable);
-
-    } catch (DataSetException e) {
-      throw translateException("Error while checking columns", e);
-    } catch (DatabaseUnitException e) {
-      fail(e.getMessage());
+      IDatabaseConnection connection = databaseTester.getConnection();
+      connection.getConfig().setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, databaseCommands.getDbUnitFactory());
+      return connection;
+    } catch (Exception e) {
+      throw translateException("Error while getting connection", e);
     }
   }
 
   private IDataSet getExpectedData(String testName) {
     String className = getClass().getName();
-    className = String.format("/%s/%s-result.xml", className.replace(".", "/"), testName);
+    className = String.format("/%s/%s-result.xml", className.replace('.', '/'), testName);
 
     InputStream in = getClass().getResourceAsStream(className);
     try {
@@ -215,17 +209,11 @@ public abstract class AbstractDbUnitTestCase {
     try {
       ReplacementDataSet dataSet = new ReplacementDataSet(new FlatXmlDataSet(stream));
       dataSet.addReplacementObject("[null]", null);
+      dataSet.addReplacementObject("[false]", databaseCommands.getFalse());
+      dataSet.addReplacementObject("[true]", databaseCommands.getTrue());
       return dataSet;
     } catch (Exception e) {
       throw translateException("Could not read the dataset stream", e);
-    }
-  }
-
-  private IDataSet getCurrentDataSet() {
-    try {
-      return connection.createDataSet();
-    } catch (SQLException e) {
-      throw translateException("Could not create the current dataset", e);
     }
   }
 

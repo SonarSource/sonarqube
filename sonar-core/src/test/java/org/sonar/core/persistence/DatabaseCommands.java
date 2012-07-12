@@ -41,8 +41,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public abstract class DatabaseCommands {
-
-  private IDataTypeFactory dbUnitFactory;
+  private final IDataTypeFactory dbUnitFactory;
 
   private DatabaseCommands(IDataTypeFactory dbUnitFactory) {
     this.dbUnitFactory = dbUnitFactory;
@@ -52,20 +51,20 @@ public abstract class DatabaseCommands {
 
   public abstract List<String> resetPrimaryKey(String table);
 
-  Object getTrue() {
+  public Object getTrue() {
     return Boolean.TRUE;
   }
 
-  Object getFalse() {
+  public Object getFalse() {
     return Boolean.FALSE;
   }
 
-  IDataTypeFactory getDbUnitFactory() {
+  public IDataTypeFactory getDbUnitFactory() {
     return dbUnitFactory;
   }
 
-  DatabaseOperation getDbunitDatabaseOperation() {
-    return DatabaseOperation.CLEAN_INSERT;
+  public DatabaseOperation getDbunitDatabaseOperation() {
+    return new InsertIdentityOperation(DatabaseOperation.INSERT);
   }
 
   static final DatabaseCommands H2 = new DatabaseCommands(new H2DataTypeFactory()) {
@@ -92,7 +91,7 @@ public abstract class DatabaseCommands {
     }
 
     @Override
-    DatabaseOperation getDbunitDatabaseOperation() {
+    public DatabaseOperation getDbunitDatabaseOperation() {
       return new InsertIdentityOperation(DatabaseOperation.CLEAN_INSERT);
     }
   };
@@ -125,12 +124,12 @@ public abstract class DatabaseCommands {
     }
 
     @Override
-    Object getTrue() {
+    public Object getTrue() {
       return 1;
     }
 
     @Override
-    Object getFalse() {
+    public Object getFalse() {
       return 0;
     }
   };

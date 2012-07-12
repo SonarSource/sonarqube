@@ -36,12 +36,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class MyBatisTest {
-
   private static H2Database database;
+  private Logback logback = mock(Logback.class);
 
   @BeforeClass
   public static void start() {
-    database = new H2Database();
+    database = new H2Database("sonar2");
     database.start();
   }
 
@@ -52,7 +52,7 @@ public class MyBatisTest {
 
   @Test
   public void shouldConfigureMyBatis() {
-    MyBatis myBatis = new MyBatis(database, new Settings(), new Logback());
+    MyBatis myBatis = new MyBatis(database, new Settings(), logback);
     myBatis.start();
 
     Configuration conf = myBatis.getSessionFactory().getConfiguration();
@@ -63,7 +63,7 @@ public class MyBatisTest {
 
   @Test
   public void shouldOpenBatchSession() {
-    MyBatis myBatis = new MyBatis(database, new Settings(), new Logback());
+    MyBatis myBatis = new MyBatis(database, new Settings(), logback);
     myBatis.start();
 
     SqlSession session = myBatis.openBatchSession();
@@ -77,9 +77,9 @@ public class MyBatisTest {
 
   @Test
   public void log_sql_requests() {
-    Logback logback = mock(Logback.class);
-    Settings settings = new Settings();
-    settings.setProperty("sonar.showSql", true);
+    Settings settings = new Settings()
+        .setProperty("sonar.showSql", true);
+
     MyBatis myBatis = new MyBatis(database, settings, logback);
     myBatis.start();
 
@@ -88,10 +88,10 @@ public class MyBatisTest {
 
   @Test
   public void log_sql_requests_and_responses() {
-    Logback logback = mock(Logback.class);
-    Settings settings = new Settings();
-    settings.setProperty("sonar.showSql", true);
-    settings.setProperty("sonar.showSqlResults", true);
+    Settings settings = new Settings()
+        .setProperty("sonar.showSql", true)
+        .setProperty("sonar.showSqlResults", true);
+
     MyBatis myBatis = new MyBatis(database, settings, logback);
     myBatis.start();
 

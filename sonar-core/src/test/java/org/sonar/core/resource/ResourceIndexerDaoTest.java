@@ -47,7 +47,7 @@ public class ResourceIndexerDaoTest extends AbstractDaoTestCase {
 
     dao.indexResource(10, "ZipUtils", "FIL", 8);
 
-    checkTables("shouldIndexResource", new String[]{"id"}, "resource_index");
+    checkTables("shouldIndexResource", new String[] {"id"}, "resource_index");
   }
 
   @Test
@@ -56,7 +56,7 @@ public class ResourceIndexerDaoTest extends AbstractDaoTestCase {
 
     dao.indexProjects();
 
-    checkTables("shouldIndexProjects", new String[]{"id"}, "resource_index");
+    checkTables("shouldIndexProjects", new String[] {"id"}, "resource_index");
   }
 
   @Test
@@ -65,7 +65,7 @@ public class ResourceIndexerDaoTest extends AbstractDaoTestCase {
 
     dao.indexProject(1);
 
-    checkTables("shouldIndexMultiModulesProject", new String[]{"id"}, "resource_index");
+    checkTables("shouldIndexMultiModulesProject", new String[] {"id"}, "resource_index");
   }
 
   @Test
@@ -74,7 +74,7 @@ public class ResourceIndexerDaoTest extends AbstractDaoTestCase {
 
     dao.indexProject(1);
 
-    checkTables("shouldReindexProjectAfterRenaming", new String[]{"id"}, "resource_index");
+    checkTables("shouldReindexProjectAfterRenaming", new String[] {"id"}, "resource_index");
   }
 
   @Test
@@ -83,7 +83,7 @@ public class ResourceIndexerDaoTest extends AbstractDaoTestCase {
 
     dao.indexProject(1);
 
-    Connection connection = getConnection().getConnection();
+    Connection connection = getConnection();
     ResultSet rs = null;
     try {
       // project
@@ -114,7 +114,7 @@ public class ResourceIndexerDaoTest extends AbstractDaoTestCase {
 
     dao.indexResource(10, "AB", Qualifiers.FILE, 3);
 
-    checkTables("empty", new String[]{"id"}, "resource_index");
+    checkTables("empty", new String[] {"id"}, "resource_index");
   }
 
   @Test
@@ -123,7 +123,7 @@ public class ResourceIndexerDaoTest extends AbstractDaoTestCase {
 
     dao.indexResource(1, "New Struts", Qualifiers.PROJECT, 1);
 
-    checkTables("shouldReindexResource", new String[]{"id"}, "resource_index");
+    checkTables("shouldReindexResource", new String[] {"id"}, "resource_index");
   }
 
   @Test
@@ -132,6 +132,6 @@ public class ResourceIndexerDaoTest extends AbstractDaoTestCase {
 
     dao.indexResource(1, "Struts", Qualifiers.PROJECT, 1);
 
-    checkTables("shouldNotReindexUnchangedResource", new String[]{"id"}, "resource_index");
+    checkTables("shouldNotReindexUnchangedResource", new String[] {"id"}, "resource_index");
   }
 }

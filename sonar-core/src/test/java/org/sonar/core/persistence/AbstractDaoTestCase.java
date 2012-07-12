@@ -21,67 +21,61 @@ package org.sonar.core.persistence;
 
 import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
+import org.apache.commons.io.IOUtils;
 import org.dbunit.Assertion;
 import org.dbunit.DataSourceDatabaseTester;
 import org.dbunit.DatabaseUnitException;
 import org.dbunit.IDatabaseTester;
 import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.IDatabaseConnection;
+import org.dbunit.dataset.CompositeDataSet;
 import org.dbunit.dataset.DataSetException;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.sonar.api.config.Settings;
 import org.sonar.core.config.Logback;
 
 import java.io.InputStream;
+import java.sql.Connection;
 import java.sql.SQLException;
 
 import static org.junit.Assert.fail;
 
 public abstract class AbstractDaoTestCase {
   private static Database database;
-  private static MyBatis myBatis;
   private static DatabaseCommands databaseCommands;
-
-  private IDatabaseTester databaseTester;
-  private IDatabaseConnection connection;
+  private static IDatabaseTester databaseTester;
+  private static MyBatis myBatis;
 
   @BeforeClass
-  public static void startDatabase() throws Exception {
+  public static void startDatabase() {
     Settings settings = new Settings().setProperties(Maps.fromProperties(System.getProperties()));
 
     boolean hasDialect = settings.hasKey("sonar.jdbc.dialect");
     if (hasDialect) {
       database = new DefaultDatabase(settings);
     } else {
-      database = new H2Database();
+      database = new H2Database("sonarMyBatis");
     }
     database.start();
 
+    databaseCommands = DatabaseCommands.forDialect(database.getDialect());
+    databaseTester = new DataSourceDatabaseTester(database.getDataSource());
+
     myBatis = new MyBatis(database, settings, new Logback());
     myBatis.start();
-
-    databaseCommands = DatabaseCommands.forDialect(database.getDialect());
   }
 
   @Before
   public void setupDbUnit() throws SQLException {
-    databaseCommands.truncateDatabase(myBatis.openSession().getConnection());
-    databaseTester = new DataSourceDatabaseTester(database.getDataSource());
-  }
-
-  @After
-  public void stopConnection() throws Exception {
-    if (databaseTester != null) {
-      databaseTester.onTearDown();
-    }
-    if (connection != null) {
-      connection.close();
-    }
+    databaseCommands.truncateDatabase(database.getDataSource().getConnection());
   }
 
   @AfterClass
@@ -95,90 +89,113 @@ public abstract class AbstractDaoTestCase {
     return myBatis;
   }
 
-  protected void setupData(String testName) {
-    InputStream stream = null;
+  protected void setupData(String... testNames) {
+    InputStream[] streams = new InputStream[testNames.length];
     try {
-      String className = getClass().getName();
-      className = String.format("/%s/%s.xml", className.replace(".", "/"), testName);
-      stream = getClass().getResourceAsStream(className);
-      if (stream == null) {
-        throw new RuntimeException("Test not found :" + className);
+      for (int i = 0; i < testNames.length; i++) {
+        String className = getClass().getName();
+        className = String.format("/%s/%s.xml", className.replace(".", "/"), testNames[i]);
+        streams[i] = getClass().getResourceAsStream(className);
+        if (streams[i] == null) {
+          throw new RuntimeException("Test not found :" + className);
+        }
       }
 
-      setupData(stream);
+      setupData(streams);
+
     } finally {
-      Closeables.closeQuietly(stream);
+      for (InputStream stream : streams) {
+        IOUtils.closeQuietly(stream);
+      }
     }
   }
 
-  private void setupData(InputStream dataStream) {
+  private void setupData(InputStream... dataSetStream) {
+    IDatabaseConnection connection = null;
     try {
-      ReplacementDataSet dataSet = new ReplacementDataSet(new FlatXmlDataSet(dataStream));
-      dataSet.addReplacementObject("[null]", null);
-      dataSet.addReplacementObject("[false]", databaseCommands.getFalse());
-      dataSet.addReplacementObject("[true]", databaseCommands.getTrue());
+      IDataSet[] dataSets = new IDataSet[dataSetStream.length];
+      for (int i = 0; i < dataSetStream.length; i++) {
+        dataSets[i] = getData(dataSetStream[i]);
+      }
+      databaseTester.setDataSet(new CompositeDataSet(dataSets));
 
-      databaseTester.setDataSet(dataSet);
-      connection = databaseTester.getConnection();
+      connection = createConnection();
 
-      connection.getConfig().setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, databaseCommands.getDbUnitFactory());
       databaseCommands.getDbunitDatabaseOperation().execute(connection, databaseTester.getDataSet());
-
     } catch (Exception e) {
       throw translateException("Could not setup DBUnit data", e);
+    } finally {
+      closeQuietly(connection);
+    }
+  }
+
+  private void closeQuietly(IDatabaseConnection connection) {
+    try {
+      if (connection != null) {
+        connection.close();
+      }
+    } catch (SQLException e) {
     }
   }
 
   protected void checkTables(String testName, String... tables) {
-    checkTables(testName, new String[]{}, tables);
+    checkTables(testName, new String[0], tables);
   }
 
   protected void checkTables(String testName, String[] excludedColumnNames, String... tables) {
+    IDatabaseConnection connection = null;
     try {
-      IDataSet dataSet = getCurrentDataSet();
+      connection = createConnection();
+
+      IDataSet dataSet = connection.createDataSet();
       IDataSet expectedDataSet = getExpectedData(testName);
       for (String table : tables) {
         ITable filteredTable = DefaultColumnFilter.excludedColumnsTable(dataSet.getTable(table), excludedColumnNames);
-        Assertion.assertEquals(expectedDataSet.getTable(table), filteredTable);
+        ITable filteredExpectedTable = DefaultColumnFilter.excludedColumnsTable(expectedDataSet.getTable(table), excludedColumnNames);
+        Assertion.assertEquals(filteredExpectedTable, filteredTable);
       }
-    } catch (DataSetException e) {
+    } catch (DatabaseUnitException e) {
+      fail(e.getMessage());
+    } catch (SQLException e) {
       throw translateException("Error while checking results", e);
-    } catch (DatabaseUnitException e) {
-      fail(e.getMessage());
-    }
-  }
-
-  /**
-   * Opposite of {@link #checkTables(String, String[], String...)}.
-   */
-  protected void checkColumns(String testName, String table, String... columns) {
-    try {
-      IDataSet dataSet = getCurrentDataSet();
-      IDataSet expectedDataSet = getExpectedData(testName);
-      ITable filteredTable = DefaultColumnFilter.includedColumnsTable(dataSet.getTable(table), columns);
-      ITable filteredExpectedTable = DefaultColumnFilter.includedColumnsTable(expectedDataSet.getTable(table), columns);
-      Assertion.assertEquals(filteredExpectedTable, filteredTable);
-
-    } catch (DataSetException e) {
-      throw translateException("Error while checking columns", e);
-    } catch (DatabaseUnitException e) {
-      fail(e.getMessage());
+    } finally {
+      closeQuietly(connection);
     }
   }
 
   protected void assertEmptyTables(String... emptyTables) {
-    for (String table : emptyTables) {
-      try {
-        Assert.assertEquals("Table " + table + " not empty.", 0, getCurrentDataSet().getTable(table).getRowCount());
-      } catch (DataSetException e) {
-        throw translateException("Error while checking results", e);
+    IDatabaseConnection connection = null;
+    try {
+      connection = createConnection();
+
+      IDataSet dataSet = connection.createDataSet();
+      for (String table : emptyTables) {
+        try {
+          Assert.assertEquals("Table " + table + " not empty.", 0, dataSet.getTable(table).getRowCount());
+        } catch (DataSetException e) {
+          throw translateException("Error while checking results", e);
+        }
       }
+    } catch (SQLException e) {
+      throw translateException("Error while checking results", e);
+    } finally {
+      closeQuietly(connection);
+    }
+  }
+
+  private IDatabaseConnection createConnection() {
+    try {
+      IDatabaseConnection connection = databaseTester.getConnection();
+      connection.getConfig().setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, databaseCommands.getDbUnitFactory());
+      return connection;
+    } catch (Exception e) {
+      throw translateException("Error while getting connection", e);
     }
   }
 
   private IDataSet getExpectedData(String testName) {
     String className = getClass().getName();
-    className = String.format("/%s/%s-result.xml", className.replace(".", "/"), testName);
+    className = String.format("/%s/%s-result.xml", className.replace('.', '/'), testName);
 
     InputStream in = getClass().getResourceAsStream(className);
     try {
@@ -200,21 +217,13 @@ public abstract class AbstractDaoTestCase {
     }
   }
 
-  private IDataSet getCurrentDataSet() {
-    try {
-      return connection.createDataSet();
-    } catch (SQLException e) {
-      throw translateException("Could not create the current dataset", e);
-    }
-  }
-
   private static RuntimeException translateException(String msg, Exception cause) {
     RuntimeException runtimeException = new RuntimeException(String.format("%s: [%s] %s", msg, cause.getClass().getName(), cause.getMessage()));
     runtimeException.setStackTrace(cause.getStackTrace());
     return runtimeException;
   }
 
-  protected IDatabaseConnection getConnection() {
-    return connection;
+  protected Connection getConnection() throws SQLException {
+    return database.getDataSource().getConnection();
   }
 }

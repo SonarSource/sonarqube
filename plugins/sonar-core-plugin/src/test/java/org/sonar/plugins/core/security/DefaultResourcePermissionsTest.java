@@ -42,7 +42,7 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
     // do not insert duplicated rows
     permissions.grantGroupRole(project, "sonar-administrators", "admin");
 
-    checkColumns("grantGroupRole", "group_roles", "group_id", "resource_id", "role");
+    checkTables("grantGroupRole", new String[] {"id"}, "group_roles");
   }
 
   @Test
@@ -86,7 +86,7 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
     // do not insert duplicated rows
     permissions.grantUserRole(project, "marius", "admin");
 
-    checkColumns("grantUserRole", "user_roles", "user_id", "resource_id", "role");
+    checkTables("grantUserRole", new String[] {"id"}, "user_roles");
   }
 
   @Test
