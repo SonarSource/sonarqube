@@ -32,23 +32,21 @@ class BulkDeletionController < ApplicationController
       # a mass deletion is happening or it has just finished with errors => display the message from the Resource Deletion Manager
       @deletion_manager = deletion_manager
       render :template => 'bulk_deletion/pending_deletions'
-    else
-      @selected_tab = params[:resource_type] || 'projects'
-      
-      # search if there are VIEWS or DEVS to know if we should display the tabs or not
-      @should_display_views_tab = Project.count(:all, :conditions => {:qualifier => 'VW'}) > 0
-      @should_display_devs_tab = Project.count(:all, :conditions => {:qualifier => 'DEV'}) > 0
-      
-      # Search for resources      
-      values = {}
-      conditions = "qualifier=:qualifier"
-      qualifier = 'TRK'
-      if @selected_tab == 'views'
-        qualifier = 'VW'
-      elsif @selected_tab == 'devs'
-        qualifier = 'DEV'
+    else      
+      # the "Projects" tab is always displayed
+      @tabs = ['TRK']
+      Java::OrgSonarServerUi::JRubyFacade.getInstance().getQualifiersWithProperty('deletable').each do |qualifier|
+        if qualifier!='TRK' && Project.count(:all, :conditions => {:qualifier => qualifier}) > 0
+          @tabs << qualifier
+        end
       end
-      values[:qualifier] = qualifier
+      
+      @selected_tab = params[:resource_type]
+      @selected_tab = 'TRK' unless @tabs.include?(@selected_tab)
+      
+      # Search for resources
+      conditions = "qualifier=:qualifier"
+      values = {:qualifier => @selected_tab}
       if params[:name_filter]
         conditions += " AND kee LIKE :kee"
         values[:kee] = '%' + params[:name_filter].strip.downcase + '%'

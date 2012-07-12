@@ -1,19 +1,11 @@
 <h1 class="marginbottom10"><%= message('bulk_deletion.page') -%></h1>
 
 <ul class="tabs">
+<% @tabs.each do |tab| %>
   <li>
-    <a href="<%= url_for :action => 'index', :resource_type => 'projects' %>" <%= "class='selected'" if @selected_tab=='projects' -%>><%= message('bulk_deletion.resource.projects') -%></a>
+    <a href="<%= url_for :action => 'index', :resource_type => tab %>" <%= "class='selected'" if @selected_tab==tab -%>><%= message('qualifiers.' + tab) -%></a>
   </li>
-  <% if @should_display_views_tab %>
-  <li>
-    <a href="<%= url_for :action => 'index', :resource_type => 'views' -%>" <%= "class='selected'" if @selected_tab=='views' -%>><%= message('bulk_deletion.resource.views') -%></a>
-  </li>
-  <% end %>
-  <% if @should_display_devs_tab %>
-  <li>
-    <a href="<%= url_for :action => 'index', :resource_type => 'devs' -%>" <%= "class='selected'" if @selected_tab=='devs' -%>><%= message('bulk_deletion.resource.devs') -%></a>
-  </li>
-  <% end %>
+<% end %>
 </ul>
 
 <div class="tabs-panel marginbottom10">
