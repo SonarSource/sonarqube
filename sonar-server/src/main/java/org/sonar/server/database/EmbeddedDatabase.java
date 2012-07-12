@@ -57,13 +57,17 @@ public class EmbeddedDatabase {
     String port = getSetting(DatabaseProperties.PROP_EMBEDDED_PORT, DatabaseProperties.PROP_EMBEDDED_PORT_DEFAULT_VALUE);
     String user = getSetting(DatabaseProperties.PROP_USER, DatabaseProperties.PROP_USER_DEFAULT_VALUE);
     String password = getSetting(DatabaseProperties.PROP_PASSWORD, DatabaseProperties.PROP_PASSWORD_DEFAULT_VALUE);
+    String url = getSetting(DatabaseProperties.PROP_URL, DatabaseProperties.PROP_USER_DEFAULT_VALUE);
 
     try {
-      createDatabase(dbHome, user, password);
+      if (url.contains("/mem:")) {
+        server = Server.createTcpServer("-tcpPort", port, "-tcpAllowOthers", "-baseDir", dbHome.getAbsolutePath());
+      } else {
+        createDatabase(dbHome, user, password);
+        server = Server.createTcpServer("-tcpPort", port, "-tcpAllowOthers", "-ifExists", "-baseDir", dbHome.getAbsolutePath());
+      }
 
-      server = Server.createTcpServer("-tcpPort", port, "-tcpAllowOthers", "-ifExists", "-baseDir", dbHome.getAbsolutePath());
-
-      LOG.info("Starting embedded database on port " + server.getPort());
+      LOG.info("Starting embedded database on port " + server.getPort() + " with url " + url);
       server.start();
 
       LOG.info("Embedded database started. Data stored in: " + dbHome.getAbsolutePath());
