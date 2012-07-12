@@ -21,72 +21,72 @@ package org.sonar.api.measures;
 
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class MeasureTest {
+
+  @org.junit.Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void valueCanBeNull() {
     Measure measure = new Measure("metric_key").setValue(null);
-    assertThat(measure.getValue(), nullValue());
+    assertThat(measure.getValue()).isNull();
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void valueShouldNotBeNaN() {
+    thrown.expect(IllegalArgumentException.class);
     new Measure("metric_key").setValue(Double.NaN);
   }
 
   @Test
   public void scaleValue() {
-    assertThat(new Measure(CoreMetrics.COVERAGE, 80.666666).getValue(), is(80.7));
-    assertThat(new Measure(CoreMetrics.COVERAGE, 80.666666, 2).getValue(), is(80.67));
+    assertThat(new Measure(CoreMetrics.COVERAGE, 80.666666).getValue()).isEqualTo(80.7);
+    assertThat(new Measure(CoreMetrics.COVERAGE, 80.666666, 2).getValue()).isEqualTo(80.67);
   }
 
   @Test
   public void defaultPersistenceModeIsFull() {
-    assertThat(new Measure(CoreMetrics.LINES, 32.0).getPersistenceMode(), is(PersistenceMode.FULL));
+    assertThat(new Measure(CoreMetrics.LINES, 32.0).getPersistenceMode()).isEqualTo(PersistenceMode.FULL);
   }
 
   @Test
   public void persistenceModeIsDatabaseForBigDataMeasures() {
     Measure bigDataMeasure = new Measure(CoreMetrics.COVERAGE_LINE_HITS_DATA, "long data")
-        .setPersistenceMode(PersistenceMode.DATABASE);
-    assertThat(bigDataMeasure.getPersistenceMode(), is(PersistenceMode.DATABASE));
+      .setPersistenceMode(PersistenceMode.DATABASE);
+    assertThat(bigDataMeasure.getPersistenceMode()).isEqualTo(PersistenceMode.DATABASE);
   }
 
   @Test
   public void measureWithLevelValue() {
-    assertThat(new Measure(CoreMetrics.ALERT_STATUS, Metric.Level.ERROR).getData(), is("ERROR"));
-    assertThat(new Measure(CoreMetrics.ALERT_STATUS, Metric.Level.ERROR).getDataAsLevel(), is(Metric.Level.ERROR));
-    assertThat(new Measure(CoreMetrics.ALERT_STATUS).setData(Metric.Level.ERROR).getDataAsLevel(), is(Metric.Level.ERROR));
+    assertThat(new Measure(CoreMetrics.ALERT_STATUS, Metric.Level.ERROR).getData()).isEqualTo("ERROR");
+    assertThat(new Measure(CoreMetrics.ALERT_STATUS, Metric.Level.ERROR).getDataAsLevel()).isEqualTo(Metric.Level.ERROR);
+    assertThat(new Measure(CoreMetrics.ALERT_STATUS).setData(Metric.Level.ERROR).getDataAsLevel()).isEqualTo(Metric.Level.ERROR);
   }
 
   @Test
   public void measureWithIntegerValue() {
-    assertThat(new Measure(CoreMetrics.LINES).setIntValue(3).getValue(), is(3.0));
-    assertThat(new Measure(CoreMetrics.LINES).setIntValue(null).getValue(), nullValue());
+    assertThat(new Measure(CoreMetrics.LINES).setIntValue(3).getValue()).isEqualTo(3.0);
+    assertThat(new Measure(CoreMetrics.LINES).setIntValue(null).getValue()).isNull();
 
-    assertThat(new Measure(CoreMetrics.LINES).setIntValue(3).getIntValue(), is(3));
-    assertThat(new Measure(CoreMetrics.LINES).setIntValue(null).getIntValue(), nullValue());
+    assertThat(new Measure(CoreMetrics.LINES).setIntValue(3).getIntValue()).isEqualTo(3);
+    assertThat(new Measure(CoreMetrics.LINES).setIntValue(null).getIntValue()).isNull();
 
-    assertThat(new Measure(CoreMetrics.LINES).setValue(3.6).getIntValue(), is(3));
+    assertThat(new Measure(CoreMetrics.LINES).setValue(3.6).getIntValue()).isEqualTo(3);
   }
 
   @Test
   public void valuesAreRoundUp() {
-    assertThat(new Measure(CoreMetrics.COVERAGE, 5.22222222).getValue(), is(5.2));
-    assertThat(new Measure(CoreMetrics.COVERAGE, 5.7777777).getValue(), is(5.8));
+    assertThat(new Measure(CoreMetrics.COVERAGE, 5.22222222).getValue()).isEqualTo(5.2);
+    assertThat(new Measure(CoreMetrics.COVERAGE, 5.7777777).getValue()).isEqualTo(5.8);
 
-    assertThat(new Measure(CoreMetrics.COVERAGE, 5.22222222, 3).getValue(), is(5.222));
-    assertThat(new Measure(CoreMetrics.COVERAGE, 5.7777777, 3).getValue(), is(5.778));
+    assertThat(new Measure(CoreMetrics.COVERAGE, 5.22222222, 3).getValue()).isEqualTo(5.222);
+    assertThat(new Measure(CoreMetrics.COVERAGE, 5.7777777, 3).getValue()).isEqualTo(5.778);
   }
 
   /**
@@ -97,60 +97,60 @@ public class MeasureTest {
     Measure measure1 = new Measure();
     Measure measure2 = new Measure();
 
-    assertThat(measure1.equals(null), is(false));
+    assertThat(measure1.equals(null)).isFalse();
 
     // another class
-    assertThat(measure1.equals(""), is(false));
+    assertThat(measure1.equals("")).isFalse();
 
     // same instance
-    assertThat(measure1.equals(measure1), is(true));
-    assertThat(measure1.hashCode(), equalTo(measure2.hashCode()));
+    assertThat(measure1.equals(measure1)).isTrue();
+    assertThat(measure1.hashCode()).isEqualTo(measure2.hashCode());
 
     // same key - null
-    assertThat(measure1.equals(measure2), is(true));
-    assertThat(measure2.equals(measure1), is(true));
-    assertThat(measure1.hashCode(), equalTo(measure2.hashCode()));
+    assertThat(measure1.equals(measure2)).isTrue();
+    assertThat(measure2.equals(measure1)).isTrue();
+    assertThat(measure1.hashCode()).isEqualTo(measure2.hashCode());
 
     // different keys
     measure1.setMetric(CoreMetrics.COVERAGE);
-    assertThat(measure1.equals(measure2), is(false));
-    assertThat(measure2.equals(measure1), is(false));
-    assertThat(measure1.hashCode(), not(equalTo(measure2.hashCode())));
+    assertThat(measure1.equals(measure2)).isFalse();
+    assertThat(measure2.equals(measure1)).isFalse();
+    assertThat(measure1.hashCode()).isNotEqualTo(measure2.hashCode());
 
     measure2.setMetric(CoreMetrics.LINES);
-    assertThat(measure1.equals(measure2), is(false));
-    assertThat(measure2.equals(measure1), is(false));
-    assertThat(measure1.hashCode(), not(equalTo(measure2.hashCode())));
+    assertThat(measure1.equals(measure2)).isFalse();
+    assertThat(measure2.equals(measure1)).isFalse();
+    assertThat(measure1.hashCode()).isNotEqualTo(measure2.hashCode());
 
     // same key
     measure2.setMetric(CoreMetrics.COVERAGE);
-    assertThat(measure1.equals(measure2), is(true));
-    assertThat(measure2.equals(measure1), is(true));
-    assertThat(measure1.hashCode(), equalTo(measure2.hashCode()));
+    assertThat(measure1.equals(measure2)).isTrue();
+    assertThat(measure2.equals(measure1)).isTrue();
+    assertThat(measure1.hashCode()).isEqualTo(measure2.hashCode());
 
     // different committer
     measure1.setPersonId(1);
-    assertThat(measure1.equals(measure2), is(false));
-    assertThat(measure2.equals(measure1), is(false));
-    assertThat(measure1.hashCode(), not(equalTo(measure2.hashCode())));
+    assertThat(measure1.equals(measure2)).isFalse();
+    assertThat(measure2.equals(measure1)).isFalse();
+    assertThat(measure1.hashCode()).isNotEqualTo(measure2.hashCode());
 
     measure2.setPersonId(2);
-    assertThat(measure1.equals(measure2), is(false));
-    assertThat(measure2.equals(measure1), is(false));
-    assertThat(measure1.hashCode(), not(equalTo(measure2.hashCode())));
+    assertThat(measure1.equals(measure2)).isFalse();
+    assertThat(measure2.equals(measure1)).isFalse();
+    assertThat(measure1.hashCode()).isNotEqualTo(measure2.hashCode());
 
     // same committer
     measure2.setPersonId(1);
-    assertThat(measure1.equals(measure2), is(true));
-    assertThat(measure2.equals(measure1), is(true));
-    assertThat(measure1.hashCode(), equalTo(measure2.hashCode()));
+    assertThat(measure1.equals(measure2)).isTrue();
+    assertThat(measure2.equals(measure1)).isTrue();
+    assertThat(measure1.hashCode()).isEqualTo(measure2.hashCode());
 
     // value doesn't matter
     measure1.setValue(1.0);
     measure2.setValue(2.0);
-    assertThat(measure1.equals(measure2), is(true));
-    assertThat(measure2.equals(measure1), is(true));
-    assertThat(measure1.hashCode(), equalTo(measure2.hashCode()));
+    assertThat(measure1.equals(measure2)).isTrue();
+    assertThat(measure2.equals(measure1)).isTrue();
+    assertThat(measure1.hashCode()).isEqualTo(measure2.hashCode());
   }
 
   @Test
@@ -161,37 +161,37 @@ public class MeasureTest {
   @Test
   public void shouldGetAndSetVariations() {
     Measure measure = new Measure(CoreMetrics.LINES).setVariation1(1d).setVariation2(2d).setVariation3(3d);
-    assertThat(measure.getVariation1(), is(1d));
-    assertThat(measure.getVariation2(), is(2d));
-    assertThat(measure.getVariation3(), is(3d));
+    assertThat(measure.getVariation1()).isEqualTo(1d);
+    assertThat(measure.getVariation2()).isEqualTo(2d);
+    assertThat(measure.getVariation3()).isEqualTo(3d);
   }
 
   @Test
   public void shouldSetVariationsWithIndex() {
     Measure measure = new Measure(CoreMetrics.LINES).setVariation(2, 3.3);
-    assertThat(measure.getVariation1(), nullValue());
-    assertThat(measure.getVariation2(), is(3.3));
-    assertThat(measure.getVariation3(), nullValue());
+    assertThat(measure.getVariation1()).isNull();
+    assertThat(measure.getVariation2()).isEqualTo(3.3);
+    assertThat(measure.getVariation3()).isNull();
   }
 
   @Test
   public void notEqualRuleMeasures() {
     Measure measure = new Measure(CoreMetrics.VIOLATIONS, 30.0);
     RuleMeasure ruleMeasure = new RuleMeasure(CoreMetrics.VIOLATIONS, new Rule("foo", "bar"), RulePriority.CRITICAL, 3);
-    assertFalse(measure.equals(ruleMeasure));
-    assertFalse(ruleMeasure.equals(measure));
+    assertThat(measure.equals(ruleMeasure)).isFalse();
+    assertThat(ruleMeasure.equals(measure)).isFalse();
   }
 
   @Test
   public void shouldUnsetData() {
     String data = "1=10;21=456";
     Measure measure = new Measure(CoreMetrics.CONDITIONS_BY_LINE).setData(data);
-    assertThat(measure.hasData(), is(true));
-    assertThat(measure.getData(), is(data));
+    assertThat(measure.hasData()).isTrue();
+    assertThat(measure.getData()).isEqualTo(data);
 
     measure.unsetData();
 
-    assertThat(measure.hasData(), is(false));
-    assertThat(measure.getData(), nullValue());
+    assertThat(measure.hasData()).isFalse();
+    assertThat(measure.getData()).isNull();
   }
 }
