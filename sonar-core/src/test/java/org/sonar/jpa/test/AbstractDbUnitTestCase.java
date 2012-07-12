@@ -33,9 +33,7 @@ import org.dbunit.dataset.ReplacementDataSet;
 import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.DatabaseCommands;
@@ -55,28 +53,25 @@ import static org.junit.Assert.fail;
  */
 public abstract class AbstractDbUnitTestCase {
   private static Database database;
-  private static DefaultDatabaseConnector dbConnector;
   private static DatabaseCommands databaseCommands;
   private static IDatabaseTester databaseTester;
   private static JpaDatabaseSession session;
 
-  @BeforeClass
-  public static void startDatabase() {
-    database = new H2Database("sonarHibernate");
-    database.start();
-
-    dbConnector = new MemoryDatabaseConnector(database);
-    dbConnector.start();
-
-    databaseCommands = DatabaseCommands.forDialect(database.getDialect());
-    databaseTester = new DataSourceDatabaseTester(database.getDataSource());
-
-    session = new JpaDatabaseSession(dbConnector);
-    session.start();
-  }
-
   @Before
-  public void setupDbUnit() throws SQLException {
+  public void startDatabase() throws SQLException {
+    if (database == null) {
+      database = new H2Database("sonarHibernate");
+      database.start();
+
+      databaseCommands = DatabaseCommands.forDialect(database.getDialect());
+      databaseTester = new DataSourceDatabaseTester(database.getDataSource());
+
+      DefaultDatabaseConnector dbConnector = new MemoryDatabaseConnector(database);
+      dbConnector.start();
+      session = new JpaDatabaseSession(dbConnector);
+      session.start();
+    }
+
     databaseCommands.truncateDatabase(database.getDataSource().getConnection());
   }
 
@@ -84,13 +79,6 @@ public abstract class AbstractDbUnitTestCase {
   public void stopConnection() throws Exception {
     if (session != null) {
       session.rollback();
-    }
-  }
-
-  @AfterClass
-  public static void stopDatabase() {
-    if (database != null) {
-      database.stop();
     }
   }
 

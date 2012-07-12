@@ -33,12 +33,12 @@ import static org.mockito.Mockito.mock;
 public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
 
   @Test
-  public void shouldUnflagPenultimateLastSnapshot() throws Exception {
+  public void shouldUnflagPenultimateLastSnapshot() {
     assertAnalysis(11, "shouldUnflagPenultimateLastSnapshot");
   }
 
   @Test
-  public void doNotFailIfNoPenultimateLast() throws Exception {
+  public void doNotFailIfNoPenultimateLast() {
     assertAnalysis(5, "doNotFailIfNoPenultimateLast");
   }
 
@@ -49,11 +49,11 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
 
   private void assertAnalysis(int snapshotId, String fixture) {
     setupData("sharedFixture", fixture);
+
     DatabaseSession session = getSession();
     UpdateStatusJob sensor = new UpdateStatusJob(mock(ServerMetadata.class), session, new DefaultResourcePersister(session), loadSnapshot(snapshotId));
     sensor.execute();
 
-    getSession().stop();
     checkTables(fixture, "snapshots");
   }
 

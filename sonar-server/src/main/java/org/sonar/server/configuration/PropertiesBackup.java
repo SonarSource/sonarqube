@@ -67,6 +67,7 @@ public class PropertiesBackup implements Backupable {
         }
       }
     }
+    databaseSession.commit();
   }
 
   private void clearProperties() {

@@ -166,6 +166,8 @@ public abstract class DatabaseCommands {
   }
 
   public void truncateDatabase(Connection connection) throws SQLException {
+    connection.setAutoCommit(false);
+
     Statement statement = connection.createStatement();
     for (String table : DatabaseUtils.TABLE_NAMES) {
       // 1. truncate

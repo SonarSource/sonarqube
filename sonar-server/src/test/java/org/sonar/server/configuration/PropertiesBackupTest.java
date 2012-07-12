@@ -112,8 +112,6 @@ public class PropertiesBackupTest extends AbstractDbUnitTestCase {
         FileUtils.readFileToString(
             TestUtils.getResource(getClass(), "backup-with-multiline-property.xml"), CharEncoding.UTF_8));
 
-    getSession().commit();
-
     Property property = getSession().getSingleResult(Property.class, "key", "sonar.multiline.secured");
     assertThat(property.getValue(), startsWith("ONQwdcwcwwdadalkdmaiQGMqMVnhtAbhxwjjoVkHbWgx"));
     assertThat(property.getValue(), endsWith("mmmm"));

@@ -35,10 +35,8 @@ import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.sonar.api.config.Settings;
 import org.sonar.core.config.Logback;
 
@@ -54,35 +52,27 @@ public abstract class AbstractDaoTestCase {
   private static IDatabaseTester databaseTester;
   private static MyBatis myBatis;
 
-  @BeforeClass
-  public static void startDatabase() {
-    Settings settings = new Settings().setProperties(Maps.fromProperties(System.getProperties()));
-
-    boolean hasDialect = settings.hasKey("sonar.jdbc.dialect");
-    if (hasDialect) {
-      database = new DefaultDatabase(settings);
-    } else {
-      database = new H2Database("sonarMyBatis");
-    }
-    database.start();
-
-    databaseCommands = DatabaseCommands.forDialect(database.getDialect());
-    databaseTester = new DataSourceDatabaseTester(database.getDataSource());
-
-    myBatis = new MyBatis(database, settings, new Logback());
-    myBatis.start();
-  }
-
   @Before
-  public void setupDbUnit() throws SQLException {
-    databaseCommands.truncateDatabase(database.getDataSource().getConnection());
-  }
+  public void startDatabase() throws SQLException {
+    if (database == null) {
+      Settings settings = new Settings().setProperties(Maps.fromProperties(System.getProperties()));
 
-  @AfterClass
-  public static void stopDatabase() {
-    if (database != null) {
-      database.stop();
+      boolean hasDialect = settings.hasKey("sonar.jdbc.dialect");
+      if (hasDialect) {
+        database = new DefaultDatabase(settings);
+      } else {
+        database = new H2Database("sonarMyBatis");
+      }
+      database.start();
+
+      databaseCommands = DatabaseCommands.forDialect(database.getDialect());
+      databaseTester = new DataSourceDatabaseTester(database.getDataSource());
+
+      myBatis = new MyBatis(database, settings, new Logback());
+      myBatis.start();
     }
+
+    databaseCommands.truncateDatabase(database.getDataSource().getConnection());
   }
 
   protected MyBatis getMyBatis() {
