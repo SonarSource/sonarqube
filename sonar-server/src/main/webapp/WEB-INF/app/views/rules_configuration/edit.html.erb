@@ -44,8 +44,8 @@
       <td width="1%" nowrap><%= parameter.name %>:</td>
       <td class="sep"> </td>
       <td>
-        <%= param_value_input(parameter, "#{h parameter.default_value}", {:name => "rule_param[#{u parameter.name }]", :size => '80x10'}) -%>
-        <span class="small"><%= parameter.description %></span>
+        <%= param_value_input(parameter, "#{h parameter.default_value}", {:name => "rule_param[#{h parameter.name }]", :size => '80x10'}) -%>
+        <span class="small"><%= h parameter.description %></span>
       </td>
     </tr>
   <% end %>
