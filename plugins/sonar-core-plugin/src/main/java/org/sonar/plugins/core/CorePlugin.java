@@ -47,6 +47,7 @@ import org.sonar.plugins.core.filters.MyFavouritesFilter;
 import org.sonar.plugins.core.filters.ProjectFilter;
 import org.sonar.plugins.core.filters.TreeMapFilter;
 import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
+import org.sonar.plugins.core.security.DefaultResourcePermissions;
 import org.sonar.plugins.core.sensors.BranchCoverageDecorator;
 import org.sonar.plugins.core.sensors.CheckAlertThresholds;
 import org.sonar.plugins.core.sensors.CommentDensityDecorator;
