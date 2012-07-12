@@ -57,7 +57,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void getResource() {
+  public void get_resource_by_id() {
     setupData("fixture");
 
     ResourceDto resource = dao.getResource(1L);
@@ -104,9 +104,12 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   public void getResources_filter_by_key() {
     setupData("fixture");
 
-    List<ResourceDto> resources = dao.getResources(ResourceQuery.create().setKey("org.struts:struts-core"));
+    ResourceQuery query = ResourceQuery.create().setKey("org.struts:struts-core");
+    List<ResourceDto> resources = dao.getResources(query);
     assertThat(resources).hasSize(1);
     assertThat(resources.get(0).getKey()).isEqualTo("org.struts:struts-core");
+
+    assertThat(dao.getResource(query).getKey()).isEqualTo("org.struts:struts-core");
   }
 
   @Test

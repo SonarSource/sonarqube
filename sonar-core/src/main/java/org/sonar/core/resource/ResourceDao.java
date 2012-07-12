@@ -41,6 +41,18 @@ public class ResourceDao {
     }
   }
 
+  /**
+   * Return a single result or null. If the request returns multiple rows, then
+   * the first row is returned.
+   */
+  public ResourceDto getResource(ResourceQuery query) {
+    List<ResourceDto> resources = getResources(query);
+    if (!resources.isEmpty()) {
+      return resources.get(0);
+    }
+    return null;
+  }
+
   public List<Long> getResourceIds(ResourceQuery query) {
     SqlSession session = mybatis.openSession();
     try {
@@ -92,7 +104,7 @@ public class ResourceDao {
     ResourceMapper mapper = session.getMapper(ResourceMapper.class);
     try {
       for (ResourceDto resource : resources) {
-        if (resource.getId()==null) {
+        if (resource.getId() == null) {
           mapper.insert(resource);
         } else {
           mapper.update(resource);
