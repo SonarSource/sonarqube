@@ -20,6 +20,7 @@
 package org.sonar.api.security;
 
 import org.sonar.api.BatchComponent;
+import org.sonar.api.ServerComponent;
 import org.sonar.api.resources.Resource;
 
 /**
@@ -29,7 +30,7 @@ import org.sonar.api.resources.Resource;
  *
  * @since 3.2
  */
-public interface ResourcePermissions extends BatchComponent {
+public interface ResourcePermissions extends BatchComponent, ServerComponent {
 
   boolean hasRoles(Resource resource);
 

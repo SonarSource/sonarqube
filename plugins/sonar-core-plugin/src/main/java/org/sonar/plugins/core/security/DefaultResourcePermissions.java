@@ -21,6 +21,7 @@ package org.sonar.plugins.core.security;
 
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchExtension;
+import org.sonar.api.ServerExtension;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.security.DefaultGroups;
@@ -32,7 +33,7 @@ import org.sonar.core.user.*;
 /**
  * @since 3.2
  */
-public class DefaultResourcePermissions implements ResourcePermissions, BatchExtension {
+public class DefaultResourcePermissions implements ResourcePermissions, BatchExtension, ServerExtension {
 
   private final Settings settings;
   private final MyBatis myBatis;
