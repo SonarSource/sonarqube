@@ -19,20 +19,30 @@
  */
 package org.sonar.plugins.core;
 
+import org.sonar.api.resources.ResourceType;
+
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypeTree;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class DefaultResourceTypesTest {
   @Test
-  public void provide() {
+  public void should_provide() {
     ResourceTypeTree tree = new DefaultResourceTypes().provide();
-    assertThat(tree.getTypes().size(), is(7));
-    assertThat(tree.getChildren(Qualifiers.PROJECT).size(), is(1));
-    assertThat(tree.getChildren(Qualifiers.PROJECT), hasItem(Qualifiers.MODULE));
+
+    assertThat(tree.getTypes()).hasSize(7);
+    assertThat(tree.getChildren(Qualifiers.PROJECT)).containsExactly(Qualifiers.MODULE);
+  }
+
+  @Test
+  public void projects_should_be_available_for_global_widgets() {
+    ResourceTypeTree tree = new DefaultResourceTypes().provide();
+
+    ResourceType projectResourceType = tree.getTypes().get(0);
+
+    assertThat(projectResourceType.getQualifier()).isEqualTo(Qualifiers.PROJECT);
+    assertThat(projectResourceType.getBooleanProperty("supportsGlobalDashboards")).isTrue();
   }
 }

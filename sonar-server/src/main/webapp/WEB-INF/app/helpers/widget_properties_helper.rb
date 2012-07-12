@@ -25,10 +25,20 @@ module WidgetPropertiesHelper
   end
 
   def resource_value_field(value)
-    projects = Project.all(:conditions => {:scope => 'PRJ', :qualifier => 'TRK', :enabled => true})
-    sorted_projects = Api::Utils.insensitive_sort(projects, &:name)
+    combo = ''
 
-    select_tag 'resource_id', options_id(value, sorted_projects)
+    visible_qualifiers=Java::OrgSonarServerUi::JRubyFacade.getInstance().getQualifiersWithProperty('supportsGlobalDashboards')
+
+    visible_qualifiers.each do |qualifier|
+      projects = Project.all(:conditions => {:qualifier => qualifier, :enabled => true})
+
+      unless projects.nil? || projects.empty?
+        sorted_projects = Api::Utils.insensitive_sort(projects, &:name)
+        combo += option_group(message('qualifiers.' + qualifier), options_id(value, sorted_projects))
+      end
+    end
+
+    select_tag 'resource_id', combo
   end
 
 end
