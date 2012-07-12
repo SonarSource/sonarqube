@@ -117,7 +117,7 @@ public class DefaultDatabase implements Database {
   private void initDatasource() throws Exception {// NOSONAR this exception is thrown by BasicDataSourceFactory
     // but it's correctly caught by start()
 
-    LOG.info("Create JDBC datasource");
+    LOG.info("Create JDBC datasource to url " + properties.getProperty(DatabaseProperties.PROP_URL, DatabaseProperties.PROP_URL_DEFAULT_VALUE));
     datasource = (BasicDataSource) BasicDataSourceFactory.createDataSource(extractCommonsDbcpProperties(properties));
 
     String initStatement = dialect.getConnectionInitStatement(getSchema());
