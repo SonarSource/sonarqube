@@ -33,13 +33,7 @@ class BulkDeletionController < ApplicationController
       @deletion_manager = deletion_manager
       render :template => 'bulk_deletion/pending_deletions'
     else      
-      # the "Projects" tab is always displayed
-      @tabs = ['TRK']
-      Java::OrgSonarServerUi::JRubyFacade.getInstance().getQualifiersWithProperty('deletable').each do |qualifier|
-        if qualifier!='TRK' && Project.count(:all, :conditions => {:qualifier => qualifier}) > 0
-          @tabs << qualifier
-        end
-      end
+      @tabs = Java::OrgSonarServerUi::JRubyFacade.getInstance().getQualifiersWithProperty('deletable')
       
       @selected_tab = params[:resource_type]
       @selected_tab = 'TRK' unless @tabs.include?(@selected_tab)
