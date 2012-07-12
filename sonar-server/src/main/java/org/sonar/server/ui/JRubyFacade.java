@@ -83,20 +83,24 @@ public final class JRubyFacade {
     return SINGLETON;
   }
 
+  private <T> T get(Class<T> componentType) {
+    return getContainer().getComponentByType(componentType);
+  }
+
   public FilterResult executeFilter(Filter filter) {
-    return getContainer().getComponentByType(FilterExecutor.class).execute(filter);
+    return get(FilterExecutor.class).execute(filter);
   }
 
   public Collection<ResourceType> getResourceTypesForFilter() {
-    return getContainer().getComponentByType(ResourceTypes.class).getAll(ResourceTypes.AVAILABLE_FOR_FILTERS);
+    return get(ResourceTypes.class).getAll(ResourceTypes.AVAILABLE_FOR_FILTERS);
   }
 
   public Collection<ResourceType> getResourceTypes() {
-    return getContainer().getComponentByType(ResourceTypes.class).getAll();
+    return get(ResourceTypes.class).getAll();
   }
 
   public ResourceType getResourceType(String qualifier) {
-    return getContainer().getComponentByType(ResourceTypes.class).get(qualifier);
+    return get(ResourceTypes.class).get(qualifier);
   }
 
   public String getResourceTypeStringProperty(String resourceTypeQualifier, String resourceTypeProperty) {
@@ -126,63 +130,59 @@ public final class JRubyFacade {
   }
 
   public Collection<String> getResourceLeavesQualifiers(String qualifier) {
-    return getContainer().getComponentByType(ResourceTypes.class).getLeavesQualifiers(qualifier);
+    return get(ResourceTypes.class).getLeavesQualifiers(qualifier);
   }
 
   public Collection<String> getResourceChildrenQualifiers(String qualifier) {
-    return getContainer().getComponentByType(ResourceTypes.class).getChildrenQualifiers(qualifier);
+    return get(ResourceTypes.class).getChildrenQualifiers(qualifier);
   }
 
   // UPDATE CENTER ------------------------------------------------------------
-
   public void downloadPlugin(String pluginKey, String pluginVersion) {
-    getContainer().getComponentByType(PluginDownloader.class).download(pluginKey, Version.create(pluginVersion));
+    get(PluginDownloader.class).download(pluginKey, Version.create(pluginVersion));
   }
 
   public void cancelPluginDownloads() {
-    getContainer().getComponentByType(PluginDownloader.class).cancelDownloads();
+    get(PluginDownloader.class).cancelDownloads();
   }
 
   public List<String> getPluginDownloads() {
-    return getContainer().getComponentByType(PluginDownloader.class).getDownloads();
+    return get(PluginDownloader.class).getDownloads();
   }
 
   public void uninstallPlugin(String pluginKey) {
-    getContainer().getComponentByType(PluginDeployer.class).uninstall(pluginKey);
+    get(PluginDeployer.class).uninstall(pluginKey);
   }
 
   public void cancelPluginUninstalls() {
-    getContainer().getComponentByType(PluginDeployer.class).cancelUninstalls();
+    get(PluginDeployer.class).cancelUninstalls();
   }
 
   public List<String> getPluginUninstalls() {
-    return getContainer().getComponentByType(PluginDeployer.class).getUninstalls();
+    return get(PluginDeployer.class).getUninstalls();
   }
 
   public UpdateCenterMatrix getUpdateCenterMatrix(boolean forceReload) {
-    return getContainer().getComponentByType(UpdateCenterMatrixFactory.class).getMatrix(forceReload);
+    return get(UpdateCenterMatrixFactory.class).getMatrix(forceReload);
   }
 
   // PLUGINS ------------------------------------------------------------------
-
   public PropertyDefinitions getPropertyDefinitions() {
-    return getContainer().getComponentByType(PropertyDefinitions.class);
+    return get(PropertyDefinitions.class);
   }
 
   public boolean hasPlugin(String key) {
-    return getContainer().getComponentByType(PluginRepository.class).getPlugin(key) != null;
+    return get(PluginRepository.class).getPlugin(key) != null;
   }
 
   public Collection<PluginMetadata> getPluginsMetadata() {
-    return getContainer().getComponentByType(PluginRepository.class).getMetadata();
+    return get(PluginRepository.class).getMetadata();
   }
 
   // SYNTAX HIGHLIGHTING ------------------------------------------------------
-
   public String colorizeCode(String code, String language) {
     try {
-      return getContainer().getComponentByType(CodeColorizers.class).toHtml(code, language);
-
+      return get(CodeColorizers.class).toHtml(code, language);
     } catch (Exception e) {
       LoggerFactory.getLogger(getClass()).error("Can not highlight the code, language= " + language, e);
       return code;
@@ -194,35 +194,35 @@ public final class JRubyFacade {
   }
 
   public List<ViewProxy<Widget>> getWidgets(String resourceScope, String resourceQualifier, String resourceLanguage, Object[] availableMeasures) {
-    return getContainer().getComponentByType(Views.class).getWidgets(resourceScope, resourceQualifier, resourceLanguage, (String[]) availableMeasures);
+    return get(Views.class).getWidgets(resourceScope, resourceQualifier, resourceLanguage, (String[]) availableMeasures);
   }
 
   public List<ViewProxy<Widget>> getWidgets() {
-    return getContainer().getComponentByType(Views.class).getWidgets();
+    return get(Views.class).getWidgets();
   }
 
   public ViewProxy<Widget> getWidget(String id) {
-    return getContainer().getComponentByType(Views.class).getWidget(id);
+    return get(Views.class).getWidget(id);
   }
 
   public List<ViewProxy<Page>> getPages(String section, String resourceScope, String resourceQualifier, String resourceLanguage, Object[] availableMeasures) {
-    return getContainer().getComponentByType(Views.class).getPages(section, resourceScope, resourceQualifier, resourceLanguage, (String[]) availableMeasures);
+    return get(Views.class).getPages(section, resourceScope, resourceQualifier, resourceLanguage, (String[]) availableMeasures);
   }
 
   public List<ViewProxy<Page>> getResourceTabs() {
-    return getContainer().getComponentByType(Views.class).getPages(NavigationSection.RESOURCE_TAB, null, null, null, null);
+    return get(Views.class).getPages(NavigationSection.RESOURCE_TAB, null, null, null, null);
   }
 
   public List<ViewProxy<Page>> getResourceTabs(String scope, String qualifier, String language, Object[] availableMeasures) {
-    return getContainer().getComponentByType(Views.class).getPages(NavigationSection.RESOURCE_TAB, scope, qualifier, language, (String[]) availableMeasures);
+    return get(Views.class).getPages(NavigationSection.RESOURCE_TAB, scope, qualifier, language, (String[]) availableMeasures);
   }
 
   public List<ViewProxy<Page>> getResourceTabsForMetric(String scope, String qualifier, String language, Object[] availableMeasures, String metric) {
-    return getContainer().getComponentByType(Views.class).getPagesForMetric(NavigationSection.RESOURCE_TAB, scope, qualifier, language, (String[]) availableMeasures, metric);
+    return get(Views.class).getPagesForMetric(NavigationSection.RESOURCE_TAB, scope, qualifier, language, (String[]) availableMeasures, metric);
   }
 
   public ViewProxy<Page> getPage(String id) {
-    return getContainer().getComponentByType(Views.class).getPage(id);
+    return get(Views.class).getPage(id);
   }
 
   public Collection<RubyRailsWebservice> getRubyRailsWebservices() {
@@ -234,56 +234,55 @@ public final class JRubyFacade {
   }
 
   public Database getDatabase() {
-    return getContainer().getComponentByType(Database.class);
+    return get(Database.class);
   }
 
   public boolean createDatabase() {
-    return getContainer().getComponentByType(DatabaseMigrator.class).createDatabase();
+    return get(DatabaseMigrator.class).createDatabase();
   }
 
   /* PROFILES CONSOLE : RULES AND METRIC THRESHOLDS */
-
   public List<RuleRepository> getRuleRepositories() {
-    return getContainer().getComponentByType(RulesConsole.class).getRepositories();
+    return get(RulesConsole.class).getRepositories();
   }
 
   public RuleRepository getRuleRepository(String repositoryKey) {
-    return getContainer().getComponentByType(RulesConsole.class).getRepository(repositoryKey);
+    return get(RulesConsole.class).getRepository(repositoryKey);
   }
 
   public Set<RuleRepository> getRuleRepositoriesByLanguage(String languageKey) {
-    return getContainer().getComponentByType(RulesConsole.class).getRepositoriesByLanguage(languageKey);
+    return get(RulesConsole.class).getRepositoriesByLanguage(languageKey);
   }
 
   public String backupProfile(int profileId) {
-    return getContainer().getComponentByType(ProfilesConsole.class).backupProfile(profileId);
+    return get(ProfilesConsole.class).backupProfile(profileId);
   }
 
   public ValidationMessages restoreProfile(String xmlBackup, boolean deleteExisting) {
-    return getContainer().getComponentByType(ProfilesConsole.class).restoreProfile(xmlBackup, deleteExisting);
+    return get(ProfilesConsole.class).restoreProfile(xmlBackup, deleteExisting);
   }
 
   public List<ProfileExporter> getProfileExportersForLanguage(String language) {
-    return getContainer().getComponentByType(ProfilesConsole.class).getProfileExportersForLanguage(language);
+    return get(ProfilesConsole.class).getProfileExportersForLanguage(language);
   }
 
   public List<ProfileImporter> getProfileImportersForLanguage(String language) {
-    return getContainer().getComponentByType(ProfilesConsole.class).getProfileImportersForLanguage(language);
+    return get(ProfilesConsole.class).getProfileImportersForLanguage(language);
   }
 
   /**
    * @throws IllegalArgumentException if no such exporter
    */
   public String exportProfile(int profileId, String exporterKey) {
-    return getContainer().getComponentByType(ProfilesConsole.class).exportProfile(profileId, exporterKey);
+    return get(ProfilesConsole.class).exportProfile(profileId, exporterKey);
   }
 
   public ValidationMessages importProfile(String profileName, String language, String importerKey, String fileContent) {
-    return getContainer().getComponentByType(ProfilesConsole.class).importProfile(profileName, language, importerKey, fileContent);
+    return get(ProfilesConsole.class).importProfile(profileName, language, importerKey, fileContent);
   }
 
   public String getProfileExporterMimeType(String exporterKey) {
-    return getContainer().getComponentByType(ProfilesConsole.class).getProfileExporter(exporterKey).getMimeType();
+    return get(ProfilesConsole.class).getProfileExporter(exporterKey).getMimeType();
   }
 
   public void renameProfile(int profileId, String newProfileName) {
@@ -328,36 +327,36 @@ public final class JRubyFacade {
   }
 
   public Backup getBackup() {
-    return getContainer().getComponentByType(Backup.class);
+    return get(Backup.class);
   }
 
   private ProfilesManager getProfilesManager() {
-    return getContainer().getComponentByType(ProfilesManager.class);
+    return get(ProfilesManager.class);
   }
 
   public void setGlobalProperty(String key, @Nullable String value) {
-    getContainer().getComponentByType(GlobalSettingsUpdater.class).setProperty(key, value);
+    get(GlobalSettingsUpdater.class).setProperty(key, value);
   }
 
   public Settings getSettings() {
-    return getContainer().getComponentByType(Settings.class);
+    return get(Settings.class);
   }
 
   public String getConfigurationValue(String key) {
-    return getContainer().getComponentByType(Settings.class).getString(key);
+    return get(Settings.class).getString(key);
   }
 
   public List<InetAddress> getValidInetAddressesForServerId() {
-    return getContainer().getComponentByType(ServerIdGenerator.class).getAvailableAddresses();
+    return get(ServerIdGenerator.class).getAvailableAddresses();
   }
 
   public String generateServerId(String organisation, String ipAddress) {
-    return getContainer().getComponentByType(ServerIdGenerator.class).generate(organisation, ipAddress);
+    return get(ServerIdGenerator.class).generate(organisation, ipAddress);
   }
 
   public Connection getConnection() {
     try {
-      return getContainer().getComponentByType(Database.class).getDataSource().getConnection();
+      return get(Database.class).getDataSource().getConnection();
     } catch (Exception e) {
       /* activerecord does not correctly manage exceptions when connection can not be opened. */
       return null;
@@ -370,9 +369,7 @@ public final class JRubyFacade {
     }
 
     try {
-      Class<?> aClass = Class.forName(className);
-      return getContainer().getComponentByType(aClass);
-
+      return get(Class.forName(className));
     } catch (ClassNotFoundException e) {
       LoggerFactory.getLogger(getClass()).error("Component not found: " + className, e);
       return null;
@@ -381,67 +378,55 @@ public final class JRubyFacade {
 
   public Object getComponentByClassname(String pluginKey, String className) {
     Object component = null;
-    ComponentContainer container = getContainer();
-    Class<?> componentClass = container.getComponentByType(DefaultServerPluginRepository.class).getClass(pluginKey, className);
+    Class<?> componentClass = get(DefaultServerPluginRepository.class).getClass(pluginKey, className);
     if (componentClass != null) {
-      component = container.getComponentByType(componentClass);
+      component = get(componentClass);
     }
     return component;
   }
 
-  public String getMessage(String rubyLocale, String key, String defaultValue, Object... parameters) {
+  private JRubyI18n getJRubyI18n() {
     if (i18n == null) {
-      i18n = getContainer().getComponentByType(JRubyI18n.class);
+      i18n = get(JRubyI18n.class);
     }
-    return i18n.message(rubyLocale, key, defaultValue, parameters);
+    return i18n;
+  }
+
+  public String getMessage(String rubyLocale, String key, String defaultValue, Object... parameters) {
+    return getJRubyI18n().message(rubyLocale, key, defaultValue, parameters);
   }
 
   public String getRuleName(String rubyLocale, String repositoryKey, String key) {
-    if (i18n == null) {
-      i18n = getContainer().getComponentByType(JRubyI18n.class);
-    }
-    return i18n.getRuleName(rubyLocale, repositoryKey, key);
+    return getJRubyI18n().getRuleName(rubyLocale, repositoryKey, key);
   }
 
   public String getRuleDescription(String rubyLocale, String repositoryKey, String key) {
-    if (i18n == null) {
-      i18n = getContainer().getComponentByType(JRubyI18n.class);
-    }
-    return i18n.getRuleDescription(rubyLocale, repositoryKey, key);
+    return getJRubyI18n().getRuleDescription(rubyLocale, repositoryKey, key);
   }
 
   public String getRuleParamDescription(String rubyLocale, String repositoryKey, String key, String paramKey) {
-    if (i18n == null) {
-      i18n = getContainer().getComponentByType(JRubyI18n.class);
-    }
-    return i18n.getRuleParamDescription(rubyLocale, repositoryKey, key, paramKey);
+    return getJRubyI18n().getRuleParamDescription(rubyLocale, repositoryKey, key, paramKey);
   }
 
   public List<RuleI18nManager.RuleKey> searchRuleName(String rubyLocale, String searchText) {
-    if (i18n == null) {
-      i18n = getContainer().getComponentByType(JRubyI18n.class);
-    }
-    return i18n.searchRuleName(rubyLocale, searchText);
+    return getJRubyI18n().searchRuleName(rubyLocale, searchText);
   }
 
   public String getJsL10nDictionnary(String rubyLocale) {
-    if (i18n == null) {
-      i18n = getContainer().getComponentByType(JRubyI18n.class);
-    }
-    return i18n.getJsDictionnary(rubyLocale);
+    return getJRubyI18n().getJsDictionnary(rubyLocale);
   }
 
   public void indexProjects() {
-    getContainer().getComponentByType(ResourceIndexerDao.class).indexProjects();
+    get(ResourceIndexerDao.class).indexProjects();
   }
 
   public void indexResource(long resourceId) {
-    getContainer().getComponentByType(ResourceIndexerDao.class).indexResource(resourceId);
+    get(ResourceIndexerDao.class).indexResource(resourceId);
   }
 
   public void deleteResourceTree(long rootProjectId) {
     try {
-      getContainer().getComponentByType(PurgeDao.class).deleteResourceTree(rootProjectId);
+      get(PurgeDao.class).deleteResourceTree(rootProjectId);
     } catch (RuntimeException e) {
       LoggerFactory.getLogger(JRubyFacade.class).error("Fail to delete resource with ID: " + rootProjectId, e);
       throw e;
@@ -453,15 +438,15 @@ public final class JRubyFacade {
   }
 
   public boolean hasSecretKey() {
-    return getContainer().getComponentByType(Settings.class).getEncryption().hasSecretKey();
+    return get(Settings.class).getEncryption().hasSecretKey();
   }
 
   public String encrypt(String clearText) {
-    return getContainer().getComponentByType(Settings.class).getEncryption().encrypt(clearText);
+    return get(Settings.class).getEncryption().encrypt(clearText);
   }
 
   public String generateRandomSecretKey() {
-    return getContainer().getComponentByType(Settings.class).getEncryption().generateRandomSecretKey();
+    return get(Settings.class).getEncryption().generateRandomSecretKey();
   }
 
   public License parseLicense(String base64) {
@@ -469,11 +454,11 @@ public final class JRubyFacade {
   }
 
   public String getServerHome() {
-    return getContainer().getComponentByType(Settings.class).getString(CoreProperties.SONAR_HOME);
+    return get(Settings.class).getString(CoreProperties.SONAR_HOME);
   }
 
   public ReviewsNotificationManager getReviewsNotificationManager() {
-    return getContainer().getComponentByType(ReviewsNotificationManager.class);
+    return get(ReviewsNotificationManager.class);
   }
 
   public ComponentContainer getContainer() {
@@ -481,22 +466,21 @@ public final class JRubyFacade {
   }
 
   // REVIEWS ------------------------------------------------------------------
-
   public List<Screen> listAvailableReviewScreens(Review review, DefaultWorkflowContext context) {
-    return getContainer().getComponentByType(WorkflowEngine.class).listAvailableScreens(review, context, true);
+    return get(WorkflowEngine.class).listAvailableScreens(review, context, true);
   }
 
   public ListMultimap<Long, Screen> listAvailableReviewsScreens(DefaultReview[] reviews, DefaultWorkflowContext context) {
-    return getContainer().getComponentByType(WorkflowEngine.class).listAvailableScreens(reviews, context, true);
+    return get(WorkflowEngine.class).listAvailableScreens(reviews, context, true);
   }
 
   public Screen getReviewScreen(String commandKey) {
-    return getContainer().getComponentByType(WorkflowEngine.class).getScreen(commandKey);
+    return get(WorkflowEngine.class).getScreen(commandKey);
   }
 
   public void executeReviewCommand(String commandKey, DefaultReview review, DefaultWorkflowContext context, Map<String, String> parameters) {
     try {
-      getContainer().getComponentByType(WorkflowEngine.class).execute(commandKey, review, context, parameters);
+      get(WorkflowEngine.class).execute(commandKey, review, context, parameters);
     } catch (RuntimeException e) {
       LoggerFactory.getLogger(JRubyFacade.class).error("Fail to execute command: " + commandKey + " on review " + review.getReviewId(), e);
       throw e;
@@ -504,23 +488,21 @@ public final class JRubyFacade {
   }
 
   // UPDATE PROJECT KEY ------------------------------------------------------------------
-
   public void updateResourceKey(long projectId, String newKey) {
-    getContainer().getComponentByType(ResourceKeyUpdaterDao.class).updateKey(projectId, newKey);
+    get(ResourceKeyUpdaterDao.class).updateKey(projectId, newKey);
   }
 
   public Map<String, String> checkModuleKeysBeforeRenaming(long projectId, String stringToReplace, String replacementString) {
-    return getContainer().getComponentByType(ResourceKeyUpdaterDao.class).checkModuleKeysBeforeRenaming(projectId, stringToReplace, replacementString);
+    return get(ResourceKeyUpdaterDao.class).checkModuleKeysBeforeRenaming(projectId, stringToReplace, replacementString);
   }
 
   public void bulkUpdateKey(long projectId, String stringToReplace, String replacementString) {
-    getContainer().getComponentByType(ResourceKeyUpdaterDao.class).bulkUpdateKey(projectId, stringToReplace, replacementString);
+    get(ResourceKeyUpdaterDao.class).bulkUpdateKey(projectId, stringToReplace, replacementString);
   }
-
 
   // USERS
   public void onNewUser(Map<String, String> fields) {
-    NewUserNotifier notifier = getContainer().getComponentByType(NewUserNotifier.class);
+    NewUserNotifier notifier = get(NewUserNotifier.class);
     // notifier is null when creating the administrator in the migration script 011.
     if (notifier != null) {
       notifier.onNewUser(NewUserHandler.Context.builder()
