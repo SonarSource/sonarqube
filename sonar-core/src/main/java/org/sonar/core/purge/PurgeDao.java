@@ -50,7 +50,7 @@ public class PurgeDao {
   public PurgeDao purge(long rootResourceId, String[] scopesWithoutHistoricalData) {
     SqlSession session = mybatis.openBatchSession();
     PurgeMapper purgeMapper = session.getMapper(PurgeMapper.class);
-    PurgeCommands commands = new PurgeCommands(session, purgeMapper, session.getMapper(PurgeVendorMapper.class));
+    PurgeCommands commands = new PurgeCommands(session, purgeMapper);
     try {
       List<ResourceDto> projects = getProjects(rootResourceId, session);
       for (ResourceDto project : projects) {

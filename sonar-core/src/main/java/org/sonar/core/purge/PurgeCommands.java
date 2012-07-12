@@ -27,17 +27,15 @@ import java.util.List;
 class PurgeCommands {
   private final SqlSession session;
   private final PurgeMapper purgeMapper;
-  private final PurgeVendorMapper purgeVendorMapper;
 
-  PurgeCommands(SqlSession session, PurgeMapper purgeMapper, PurgeVendorMapper purgeVendorMapper) {
+  PurgeCommands(SqlSession session, PurgeMapper purgeMapper) {
     this.session = session;
     this.purgeMapper = purgeMapper;
-    this.purgeVendorMapper = purgeVendorMapper;
   }
 
   @VisibleForTesting
   PurgeCommands(SqlSession session) {
-    this(session, session.getMapper(PurgeMapper.class), session.getMapper(PurgeVendorMapper.class));
+    this(session, session.getMapper(PurgeMapper.class));
   }
 
   List<Long> selectSnapshotIds(PurgeSnapshotQuery query) {
@@ -86,12 +84,12 @@ class PurgeCommands {
     session.commit();
 
     for (Long resourceId : resourceIds) {
-      purgeVendorMapper.deleteResourceReviewComments(resourceId);
+      purgeMapper.deleteResourceReviewComments(resourceId);
     }
     session.commit();
 
     for (Long resourceId : resourceIds) {
-      purgeVendorMapper.deleteResourceActionPlansReviews(resourceId);
+      purgeMapper.deleteResourceActionPlansReviews(resourceId);
     }
     session.commit();
 

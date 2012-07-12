@@ -194,5 +194,38 @@
   <update id="setSnapshotIsLastToFalse" parameterType="long">
     update snapshots set islast=${_false} where project_id=#{id}
   </update>
+
+  <delete id="deleteResourceReviewComments" parameterType="long">
+    delete from review_comments rc where exists (select * from reviews r where rc.review_id=r.id and
+    r.resource_id=#{id})
+  </delete>
+
+  <delete id="deleteResourceActionPlansReviews" parameterType="long">
+    delete from action_plans_reviews apr where exists (select * from action_plans ap where ap.id=apr.action_plan_id and
+    ap.project_id=#{id})
+  </delete>
+
+  <!-- Mssql -->
+  <delete id="deleteResourceReviewComments" databaseId="mssql" parameterType="long">
+    delete review_comments from review_comments
+    inner join reviews on review_comments.review_id=reviews.id
+    where reviews.resource_id=#{id}
+  </delete>
+
+  <delete id="deleteResourceActionPlansReviews" databaseId="mssql" parameterType="long">
+    delete action_plans_reviews from action_plans_reviews
+    inner join action_plans on action_plans.id=action_plans_reviews.action_plan_id
+    where action_plans.project_id=#{id}
+  </delete>
+
+  <!-- Mysql -->
+  <delete id="deleteResourceReviewComments" databaseId="mysql" parameterType="long">
+    delete rc from review_comments as rc, reviews as r where rc.review_id=r.id and r.resource_id=#{id}
+  </delete>
+
+  <delete id="deleteResourceActionPlansReviews" databaseId="mysql" parameterType="long">
+    delete apr from action_plans_reviews as apr, action_plans as ap where ap.id=apr.action_plan_id and ap.project_id=#{id}
+  </delete>
+
 </mapper>
 

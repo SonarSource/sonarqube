@@ -90,4 +90,8 @@ public interface PurgeMapper {
   List<PurgeableSnapshotDto> selectPurgeableSnapshotsWithoutEvents(long resourceId);
 
   List<Long> selectResourceIdsByRootId(long rootProjectId);
+
+  void deleteResourceReviewComments(long resourceId);
+
+  void deleteResourceActionPlansReviews(long resourceId);
 }

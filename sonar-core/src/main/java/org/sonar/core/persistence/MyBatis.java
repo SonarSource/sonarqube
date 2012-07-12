@@ -61,7 +61,6 @@ import org.sonar.core.filter.FilterMapper;
 import org.sonar.core.properties.PropertiesMapper;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.purge.PurgeMapper;
-import org.sonar.core.purge.PurgeVendorMapper;
 import org.sonar.core.purge.PurgeableSnapshotDto;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceIndexDto;
@@ -141,7 +140,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "MeasureModel", MeasureModel.class);
 
     Class<?>[] mappers = {ActiveDashboardMapper.class, AuthorMapper.class, FilterMapper.class, CriterionMapper.class, FilterColumnMapper.class, DashboardMapper.class,
-      DependencyMapper.class, DuplicationMapper.class, LoadedTemplateMapper.class, PropertiesMapper.class, PurgeMapper.class, PurgeVendorMapper.class,
+      DependencyMapper.class, DuplicationMapper.class, LoadedTemplateMapper.class, PropertiesMapper.class, PurgeMapper.class,
       ResourceKeyUpdaterMapper.class, ResourceIndexerMapper.class, ResourceMapper.class, ResourceSnapshotMapper.class, ReviewCommentMapper.class,
       ReviewMapper.class, RoleMapper.class, RuleMapper.class, SchemaMigrationMapper.class, UserMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
       MeasureMapper.class};
