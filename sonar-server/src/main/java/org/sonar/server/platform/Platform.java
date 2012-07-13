@@ -78,19 +78,7 @@ import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.qualitymodel.DefaultModelManager;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
-import org.sonar.server.startup.ActivateDefaultProfiles;
-import org.sonar.server.startup.DeleteDeprecatedMeasures;
-import org.sonar.server.startup.EnableProfiles;
-import org.sonar.server.startup.GeneratePluginIndex;
-import org.sonar.server.startup.GwtPublisher;
-import org.sonar.server.startup.JdbcDriverDeployer;
-import org.sonar.server.startup.RegisterMetrics;
-import org.sonar.server.startup.RegisterNewDashboards;
-import org.sonar.server.startup.RegisterNewFilters;
-import org.sonar.server.startup.RegisterProvidedProfiles;
-import org.sonar.server.startup.RegisterQualityModels;
-import org.sonar.server.startup.RegisterRules;
-import org.sonar.server.startup.ServerMetadataPersister;
+import org.sonar.server.startup.*;
 import org.sonar.server.ui.CodeColorizers;
 import org.sonar.server.ui.JRubyI18n;
 import org.sonar.server.ui.SecurityRealmFactory;
@@ -184,7 +172,7 @@ public final class Platform {
 
   private void startCoreComponents() {
     coreContainer = rootContainer.createChild();
-    coreContainer.addSingleton(ServerDatabaseSettingsLoader.class);
+    coreContainer.addSingleton(PersistentSettings.class);
     coreContainer.addSingleton(DefaultDatabaseConnector.class);
     coreContainer.addSingleton(ServerExtensionInstaller.class);
     coreContainer.addSingleton(ThreadLocalDatabaseSessionFactory.class);
@@ -204,7 +192,6 @@ public final class Platform {
     servicesContainer.addSingleton(ReviewDatabaseStore.class);
     servicesContainer.addSingleton(WorkflowEngine.class);
 
-    servicesContainer.addSingleton(GlobalSettingsUpdater.class);
     servicesContainer.addSingleton(HttpDownloader.class);
     servicesContainer.addSingleton(UpdateCenterClient.class);
     servicesContainer.addSingleton(UpdateCenterMatrixFactory.class);
@@ -267,6 +254,7 @@ public final class Platform {
     startupContainer.addSingleton(GeneratePluginIndex.class);
     startupContainer.addSingleton(RegisterNewFilters.class);
     startupContainer.addSingleton(RegisterNewDashboards.class);
+    startupContainer.addSingleton(SetDefaultProjectPermissions.class);
     startupContainer.startComponents();
 
     startupContainer.getComponentByType(ServerLifecycleNotifier.class).notifyStart();

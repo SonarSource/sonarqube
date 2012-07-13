@@ -31,6 +31,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.core.persistence.DatabaseVersion;
+import org.sonar.server.platform.PersistentSettings;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -52,12 +53,12 @@ public class Backup {
     backupables = new ArrayList<Backupable>();
   }
 
-  public Backup(DatabaseSession session) {
+  public Backup(DatabaseSession session, PersistentSettings persistentSettings) {
     this();
     this.session = session;
 
     backupables.add(new MetricsBackup(session));
-    backupables.add(new PropertiesBackup(session));
+    backupables.add(new PropertiesBackup(persistentSettings));
     // Note that order is important, because profile can have reference to rule
     backupables.add(new RulesBackup(session));
     backupables.add(new ProfilesBackup(session));
@@ -153,27 +154,27 @@ public class Backup {
 
   private XStream getConfiguredXstream() {
     XStream xStream = new XStream(
-        new XppDriver() {
-          @Override
-          public HierarchicalStreamWriter createWriter(Writer out) {
-            return new PrettyPrintWriter(out) {
-              @Override
-              protected void writeText(QuickWriter writer, @Nullable String text) {
-                if (text != null) {
-                  writer.write("<![CDATA[");
-                  /*
-                  * See http://jira.codehaus.org/browse/SONAR-1605 According to XML specification (
-                  * http://www.w3.org/TR/REC-xml/#sec-cdata-sect ) CData section may contain everything except of sequence ']]>' so we will
-                  * split all occurrences of this sequence into two CDATA first one would contain ']]' and second '>'
-                  */
-                  text = StringUtils.replace(text, "]]>", "]]]]><![CDATA[>");
-                  writer.write(text);
-                  writer.write("]]>");
-                }
+      new XppDriver() {
+        @Override
+        public HierarchicalStreamWriter createWriter(Writer out) {
+          return new PrettyPrintWriter(out) {
+            @Override
+            protected void writeText(QuickWriter writer, @Nullable String text) {
+              if (text != null) {
+                writer.write("<![CDATA[");
+                /*
+                * See http://jira.codehaus.org/browse/SONAR-1605 According to XML specification (
+                * http://www.w3.org/TR/REC-xml/#sec-cdata-sect ) CData section may contain everything except of sequence ']]>' so we will
+                * split all occurrences of this sequence into two CDATA first one would contain ']]' and second '>'
+                */
+                text = StringUtils.replace(text, "]]>", "]]]]><![CDATA[>");
+                writer.write(text);
+                writer.write("]]>");
               }
-            };
-          }
-        });
+            }
+          };
+        }
+      });
 
     xStream.processAnnotations(SonarConfig.class);
     xStream.addDefaultImplementation(ArrayList.class, Collection.class);

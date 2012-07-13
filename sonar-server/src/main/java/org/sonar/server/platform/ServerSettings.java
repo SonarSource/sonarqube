@@ -22,15 +22,17 @@ package org.sonar.server.platform;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.configuration.Configuration;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.ServerComponent;
+import org.sonar.api.config.GlobalPropertyChangeHandler;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.core.config.ConfigurationUtils;
-import org.sonar.core.properties.PropertiesDao;
-import org.sonar.core.properties.PropertyDto;
 
+import javax.annotation.Nullable;
 import javax.servlet.ServletContext;
 import java.io.File;
-import java.util.List;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -44,50 +46,42 @@ import java.util.Properties;
  *
  * @since 2.12
  */
-public class ServerSettings extends Settings {
+public class ServerSettings extends Settings implements ServerComponent {
 
   public static final String DEPLOY_DIR = "sonar.web.deployDir";
 
-  private PropertiesDao propertiesDao;
   private Configuration deprecatedConfiguration;
   private File deployDir;
+  private GlobalPropertyChangeHandler[] changeHandlers;
+
+  public ServerSettings(PropertyDefinitions definitions, Configuration deprecatedConfiguration, ServletContext servletContext, GlobalPropertyChangeHandler[] changeHandlers) {
+    this(definitions, deprecatedConfiguration, getDeployDir(servletContext), SonarHome.getHome(), changeHandlers);
+  }
 
   public ServerSettings(PropertyDefinitions definitions, Configuration deprecatedConfiguration, ServletContext servletContext) {
-    super(definitions);
-    this.deprecatedConfiguration = deprecatedConfiguration;
-    this.deployDir = getDeployDir(servletContext);
-    load();
-  }
-
-  ServerSettings(PropertyDefinitions definitions, Configuration deprecatedConfiguration, File deployDir, File sonarHome) {
-    super(definitions);
-    this.deprecatedConfiguration = deprecatedConfiguration;
-    this.deployDir = deployDir;
-    load(sonarHome);
-  }
-
-  public ServerSettings activateDatabaseSettings(PropertiesDao dao) {
-    return activateDatabaseSettings(dao, SonarHome.getHome());
+    this(definitions, deprecatedConfiguration, servletContext, new GlobalPropertyChangeHandler[0]);
   }
 
   @VisibleForTesting
-  ServerSettings activateDatabaseSettings(PropertiesDao dao, File sonarHome) {
-    this.propertiesDao = dao;
-    load(sonarHome);
-    return this;
+  ServerSettings(PropertyDefinitions definitions, Configuration deprecatedConfiguration, File deployDir, File sonarHome, GlobalPropertyChangeHandler[] changeHandlers) {
+    super(definitions);
+    this.deprecatedConfiguration = deprecatedConfiguration;
+    this.deployDir = deployDir;
+    this.changeHandlers = changeHandlers;
+    load(sonarHome, Collections.<String, String>emptyMap());
   }
 
-  private ServerSettings load() {
-    return load(SonarHome.getHome());
+  public ServerSettings activateDatabaseSettings(File sonarHome, Map<String, String> databaseProperties) {
+    return load(sonarHome, databaseProperties);
   }
 
-  private ServerSettings load(File sonarHome) {
-    clear();
-    setProperty(CoreProperties.SONAR_HOME, sonarHome.getAbsolutePath());
-    setProperty(DEPLOY_DIR, deployDir.getAbsolutePath());
+  private ServerSettings load(File sonarHome, Map<String, String> databaseSettings) {
+    properties.clear();
+    properties.put(CoreProperties.SONAR_HOME, sonarHome.getAbsolutePath());
+    properties.put(DEPLOY_DIR, deployDir.getAbsolutePath());
 
     // order is important : the last override the first
-    loadDatabaseSettings();
+    properties.putAll(databaseSettings);
     loadPropertiesFile(sonarHome);
     addEnvironmentVariables();
     addSystemProperties();
@@ -96,15 +90,6 @@ public class ServerSettings extends Settings {
     ConfigurationUtils.copyToCommonsConfiguration(properties, deprecatedConfiguration);
 
     return this;
-  }
-
-  private void loadDatabaseSettings() {
-    if (propertiesDao != null) {
-      List<PropertyDto> dpProps = propertiesDao.selectGlobalProperties();
-      for (PropertyDto dbProp : dpProps) {
-        setProperty(dbProp.getKey(), dbProp.getValue());
-      }
-    }
   }
 
   private void loadPropertiesFile(File sonarHome) {
@@ -116,7 +101,9 @@ public class ServerSettings extends Settings {
     try {
       Properties p = ConfigurationUtils.openProperties(propertiesFile);
       p = ConfigurationUtils.interpolateEnvVariables(p);
-      addProperties(p);
+      for (Map.Entry<Object, Object> entry : p.entrySet()) {
+        properties.put(entry.getKey().toString(), entry.getValue().toString());
+      }
     } catch (Exception e) {
       throw new IllegalStateException("Fail to load configuration file: " + propertiesFile, e);
     }
@@ -132,5 +119,25 @@ public class ServerSettings extends Settings {
       throw new IllegalArgumentException("Web app directory does not exist: " + dir);
     }
     return dir;
+  }
+
+  @Override
+  protected void doOnSetProperty(String key, @Nullable String value) {
+    deprecatedConfiguration.setProperty(key, value);
+
+    GlobalPropertyChangeHandler.PropertyChange change = GlobalPropertyChangeHandler.PropertyChange.create(key, value);
+    for (GlobalPropertyChangeHandler changeHandler : changeHandlers) {
+      changeHandler.onChange(change);
+    }
+  }
+
+  @Override
+  protected void doOnRemoveProperty(String key) {
+    deprecatedConfiguration.clearProperty(key);
+  }
+
+  @Override
+  protected void doOnClearProperties() {
+    deprecatedConfiguration.clear();
   }
 }

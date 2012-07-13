@@ -93,7 +93,7 @@ public final class RegisterNewDashboards {
         .setOrderIndex(index);
     activeDashboardDao.insert(activeDashboardDto);
 
-    LOG.info("New dashboard '" + dashboardDto.getName() + "' registered");
+    LoggerFactory.getLogger(getClass()).info("New dashboard '" + dashboardDto.getName() + "' registered");
   }
 
   protected DashboardDto register(String name, Dashboard dashboard) {

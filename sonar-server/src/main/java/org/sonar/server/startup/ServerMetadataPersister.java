@@ -19,43 +19,29 @@
  */
 package org.sonar.server.startup;
 
+import com.google.common.collect.ImmutableMap;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.database.configuration.Property;
 import org.sonar.api.platform.Server;
+import org.sonar.server.platform.PersistentSettings;
 
 import java.text.SimpleDateFormat;
 
-public class ServerMetadataPersister {
+public final class ServerMetadataPersister {
 
   private final Server server;
-  private final DatabaseSession session;
+  private final PersistentSettings persistentSettings;
 
-  public ServerMetadataPersister(Server server, DatabaseSession session) {
+  public ServerMetadataPersister(Server server, PersistentSettings persistentSettings) {
     this.server = server;
-    this.session = session;
+    this.persistentSettings = persistentSettings;
   }
 
   public void start() {
-    setProperty(CoreProperties.SERVER_ID, server.getId());
-    setProperty(CoreProperties.SERVER_VERSION, server.getVersion());
-    setProperty(CoreProperties.SERVER_STARTTIME, new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(server.getStartedAt()));
-    session.commit();
-  }
-
-  private void setProperty(String key, String value) {
-    Property prop = session.getSingleResult(Property.class, "key", key);
-
-    if (value == null && prop != null) {
-      session.removeWithoutFlush(prop);
-
-    } else if (value != null) {
-      if (prop == null) {
-        prop = new Property(key, value);
-      } else {
-        prop.setValue(value);
-      }
-      session.saveWithoutFlush(prop);
-    }
+    LoggerFactory.getLogger(getClass()).debug("Persisting server metadata");
+    persistentSettings.saveProperties(ImmutableMap.of(
+      CoreProperties.SERVER_ID, server.getId(),
+      CoreProperties.SERVER_VERSION, server.getVersion(),
+      CoreProperties.SERVER_STARTTIME, new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(server.getStartedAt())));
   }
 }

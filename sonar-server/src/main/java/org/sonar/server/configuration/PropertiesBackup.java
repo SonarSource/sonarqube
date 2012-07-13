@@ -19,61 +19,56 @@
  */
 package org.sonar.server.configuration;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.thoughtworks.xstream.XStream;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.configuration.Property;
+import org.sonar.server.platform.PersistentSettings;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class PropertiesBackup implements Backupable {
 
-  private DatabaseSession databaseSession;
-  private static final String FROM_GLOBAL_PROPERTIES = "from " + Property.class.getSimpleName() + " p WHERE p.resourceId IS NULL and user_id is null";
+  private final PersistentSettings persistentSettings;
 
-  public PropertiesBackup(DatabaseSession databaseSession) {
-    this.databaseSession = databaseSession;
+  public PropertiesBackup(PersistentSettings persistentSettings) {
+    this.persistentSettings = persistentSettings;
   }
 
   public void exportXml(SonarConfig sonarConfig) {
-    List<Property> xmlProperties = new ArrayList<Property>();
+    List<Property> xmlProperties = Lists.newArrayList();
 
-    List<Property> dbProperties = databaseSession.createQuery(FROM_GLOBAL_PROPERTIES).getResultList();
-    if (dbProperties != null) {
-      for (Property dbProperty : dbProperties) {
-        String propKey = dbProperty.getKey();
-        if (!CoreProperties.SERVER_ID.equals(propKey)) {
-          // "sonar.core.id" must never be restored, it is unique for a server and it created once at the 1rst server startup
-          xmlProperties.add(new Property(dbProperty.getKey(), dbProperty.getValue()));
-        }
+    for (Map.Entry<String, String> entry : persistentSettings.getProperties().entrySet()) {
+      // "sonar.core.id" must never be restored, it is unique for a server and it created once at the 1rst server startup
+      if (!CoreProperties.SERVER_ID.equals(entry.getKey())) {
+        xmlProperties.add(new Property(entry.getKey(), entry.getValue()));
       }
-      sonarConfig.setProperties(xmlProperties);
     }
+    sonarConfig.setProperties(xmlProperties);
   }
 
   public void importXml(SonarConfig sonarConfig) {
     LoggerFactory.getLogger(getClass()).info("Restore properties");
-    clearProperties();
 
-    if (CollectionUtils.isNotEmpty(sonarConfig.getProperties())) {
-      for (Property xmlProperty : sonarConfig.getProperties()) {
-        String propKey = xmlProperty.getKey();
-        if (!CoreProperties.SERVER_ID.equals(propKey)) {
-          // "sonar.core.id" must never be restored, it is unique for a server and it created once at the 1rst server startup
-          databaseSession.save(new Property(propKey, xmlProperty.getValue()));
-        }
-      }
-    }
-    databaseSession.commit();
-  }
-
-  private void clearProperties() {
     // "sonar.core.id" property should not be cleared, because it is the unique key used to identify the server
     // and it is used by the batch to verify that it connects to the same DB as the remote server (see SONAR-3126).
-    databaseSession.createQuery("delete " + FROM_GLOBAL_PROPERTIES + " and prop_key != '" + CoreProperties.SERVER_ID + "'").executeUpdate();
+    String serverId = persistentSettings.getString(CoreProperties.SERVER_ID);
+    String serverStartTime = persistentSettings.getString(CoreProperties.SERVER_STARTTIME);
+
+    Map<String, String> properties = Maps.newHashMap();
+    if (CollectionUtils.isNotEmpty(sonarConfig.getProperties())) {
+      for (Property xmlProperty : sonarConfig.getProperties()) {
+        properties.put(xmlProperty.getKey(), xmlProperty.getValue());
+      }
+    }
+    properties.put(CoreProperties.SERVER_ID, serverId);
+    properties.put(CoreProperties.SERVER_STARTTIME, serverStartTime);
+    persistentSettings.deleteProperties();
+    persistentSettings.saveProperties(properties);
   }
 
   public void configure(XStream xStream) {

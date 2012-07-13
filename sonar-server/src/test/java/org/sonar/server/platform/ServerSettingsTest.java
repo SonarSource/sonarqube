@@ -19,54 +19,62 @@
  */
 package org.sonar.server.platform;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.junit.Test;
+import org.sonar.api.config.GlobalPropertyChangeHandler;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.core.persistence.AbstractDaoTestCase;
-import org.sonar.core.properties.PropertiesDao;
 
 import java.io.File;
 import java.net.URISyntaxException;
+import java.util.Map;
 
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
-public class ServerSettingsTest extends AbstractDaoTestCase {
+public class ServerSettingsTest {
 
   private static File home = getHome();
 
   @Test
   public void shouldLoadPropertiesFile() {
-    ServerSettings settings = new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), home);
+    ServerSettings settings = new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), home, new GlobalPropertyChangeHandler[0]);
 
-    assertThat(settings.getString("hello"), is("world"));
+    assertThat(settings.getString("hello")).isEqualTo("world");
   }
 
   @Test
   public void systemPropertiesShouldOverridePropertiesFile() {
     System.setProperty("ServerSettingsTestEnv", "in_env");
-    ServerSettings settings = new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), home);
+    ServerSettings settings = new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), home, new GlobalPropertyChangeHandler[0]);
 
-    assertThat(settings.getString("ServerSettingsTestEnv"), is("in_env"));
+    assertThat(settings.getString("ServerSettingsTestEnv")).isEqualTo("in_env");
   }
 
   @Test(expected = IllegalStateException.class)
   public void shouldFailIfPropertiesFileNotFound() {
     File sonarHome = new File("unknown/path");
-    new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), sonarHome);
+    new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), sonarHome, new GlobalPropertyChangeHandler[0]);
   }
 
   @Test
-  public void shouldActivateDatabaseSettings() {
-    setupData("db/shared");
+  public void activateDatabaseSettings() {
+    ServerSettings settings = new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), home, new GlobalPropertyChangeHandler[0]);
 
-    ServerSettings settings = new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), home);
-    settings.activateDatabaseSettings(new PropertiesDao(getMyBatis()), home);
+    Map<String, String> databaseProperties = ImmutableMap.of("in_db", "true");
+    settings.activateDatabaseSettings(home, databaseProperties);
 
-    assertThat(settings.getString("global_only"), is("is_global"));
-    assertThat(settings.getString("global_and_project"), is("is_global"));
-    assertThat(settings.getString("project_only"), nullValue());
+    assertThat(settings.getString("in_db")).isEqualTo("true");
+  }
+
+  @Test
+  public void file_settings_override_db_settings() {
+    ServerSettings settings = new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), home, new GlobalPropertyChangeHandler[0]);
+    assertThat(settings.getString("in_file")).isEqualTo("true");
+
+    Map<String, String> databaseProperties = ImmutableMap.of("in_file", "false");
+    settings.activateDatabaseSettings(home, databaseProperties);
+
+    assertThat(settings.getString("in_file")).isEqualTo("true");
   }
 
   private static File getHome() {

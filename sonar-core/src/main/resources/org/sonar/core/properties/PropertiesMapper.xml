@@ -50,18 +50,26 @@
     update properties set text_value = #{value} where id = #{id}
   </update>
 
-  <insert id="insert" parameterType="Property" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" parameterType="Property" useGeneratedKeys="false">
     INSERT INTO properties (prop_key, resource_id, user_id, text_value)
     VALUES (#{key}, #{resourceId}, #{userId}, #{value})
   </insert>
 
   <!-- Oracle -->
-  <insert id="insert" databaseId="oracle" parameterType="Property" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" databaseId="oracle" parameterType="Property" useGeneratedKeys="false">
     <selectKey order="BEFORE" resultType="Long" keyProperty="id">
       select properties_seq.NEXTVAL from DUAL
     </selectKey>
     INSERT INTO properties (id, prop_key, resource_id, user_id, text_value)
     VALUES (#{id}, #{key}, #{resourceId}, #{userId}, #{value})
   </insert>
+
+  <delete id="deleteGlobalProperty" parameterType="string">
+    delete from properties where prop_key=#{id} and resource_id is null and user_id is null
+  </delete>
+
+  <delete id="deleteGlobalProperties">
+    delete from properties where resource_id is null and user_id is null
+  </delete>
 
 </mapper>

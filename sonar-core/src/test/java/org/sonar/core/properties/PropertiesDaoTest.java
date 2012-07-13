@@ -19,11 +19,13 @@
  */
 package org.sonar.core.properties;
 
+import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.List;
+import java.util.TreeMap;
 
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
@@ -34,12 +36,12 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
   private PropertiesDao dao;
 
   @Before
-  public void createDao() throws Exception {
+  public void createDao() {
     dao = new PropertiesDao(getMyBatis());
   }
 
   @Test
-  public void shouldFindUserIdsForFavouriteResource() throws Exception {
+  public void shouldFindUserIdsForFavouriteResource() {
     setupData("shouldFindUserIdsForFavouriteResource");
     List<String> userIds = dao.findUserIdsForFavouriteResource(2L);
     assertThat(userIds.size(), is(2));
@@ -47,7 +49,7 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void selectGlobalProperties() throws Exception {
+  public void selectGlobalProperties() {
     setupData("selectGlobalProperties");
     List<PropertyDto> properties = dao.selectGlobalProperties();
     assertThat(properties.size(), is(2));
@@ -62,7 +64,7 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void selectProjectProperties() throws Exception {
+  public void selectProjectProperties() {
     setupData("selectProjectProperties");
     List<PropertyDto> properties = dao.selectProjectProperties("org.struts:struts");
     assertThat(properties.size(), is(1));
@@ -73,7 +75,7 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void setProperty_update() throws Exception {
+  public void setProperty_update() {
     setupData("update");
 
     dao.setProperty(new PropertyDto().setKey("global.key").setValue("new_global"));
@@ -85,7 +87,7 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void setProperty_insert() throws Exception {
+  public void setProperty_insert() {
     setupData("insert");
 
     dao.setProperty(new PropertyDto().setKey("global.key").setValue("new_global"));
@@ -93,6 +95,36 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
     dao.setProperty(new PropertyDto().setKey("user.key").setUserId(100L).setValue("new_user"));
 
     checkTables("insert", "properties");
+  }
+
+  @Test
+  public void deleteGlobalProperties() {
+    setupData("deleteGlobalProperties");
+
+    dao.deleteGlobalProperties();
+
+    checkTables("deleteGlobalProperties", "properties");
+  }
+
+  @Test
+  public void deleteGlobalProperty() {
+    setupData("deleteGlobalProperty");
+
+    dao.deleteGlobalProperty("to_be_deleted");
+
+    checkTables("deleteGlobalProperty", "properties");
+  }
+
+  @Test
+  public void saveGlobalProperties() {
+    setupData("saveGlobalProperties");
+
+    TreeMap<String, String> props = Maps.newTreeMap();
+    props.put("to_be_inserted", "inserted");
+    props.put("to_be_updated", "updated");
+    dao.saveGlobalProperties(props);
+
+    checkTable("saveGlobalProperties", "properties", "prop_key", "text_value", "resource_id", "user_id");
   }
 
   private PropertyDto findById(List<PropertyDto> properties, int id) {

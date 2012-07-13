@@ -57,10 +57,7 @@ import org.sonar.server.filters.Filter;
 import org.sonar.server.filters.FilterExecutor;
 import org.sonar.server.filters.FilterResult;
 import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
-import org.sonar.server.platform.GlobalSettingsUpdater;
-import org.sonar.server.platform.NewUserNotifier;
-import org.sonar.server.platform.Platform;
-import org.sonar.server.platform.ServerIdGenerator;
+import org.sonar.server.platform.*;
 import org.sonar.server.plugins.*;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
@@ -335,7 +332,7 @@ public final class JRubyFacade {
   }
 
   public void setGlobalProperty(String key, @Nullable String value) {
-    get(GlobalSettingsUpdater.class).setProperty(key, value);
+    get(ServerSettings.class).setProperty(key, value);
   }
 
   public Settings getSettings() {

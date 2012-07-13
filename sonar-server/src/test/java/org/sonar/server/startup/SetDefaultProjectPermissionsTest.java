@@ -21,57 +21,28 @@ package org.sonar.server.startup;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.platform.Server;
+import org.sonar.api.config.Settings;
 import org.sonar.server.platform.PersistentSettings;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Map;
-import java.util.TimeZone;
 
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
 
-public class ServerMetadataPersisterTest {
-
-  private TimeZone initialTimeZone;
-  private PersistentSettings persistentSettings;
-
-  @Before
-  public void fixTimeZone() {
-    initialTimeZone = TimeZone.getDefault();
-    TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
-    persistentSettings = mock(PersistentSettings.class);
-  }
-
-  @After
-  public void revertTimeZone() {
-    TimeZone.setDefault(initialTimeZone);
-  }
-
+public class SetDefaultProjectPermissionsTest {
   @Test
-  public void testSaveProperties() throws ParseException {
-    Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm").parse("2010-05-18 17:59");
-    Server server = mock(Server.class);
-    when(server.getPermanentServerId()).thenReturn("1abcdef");
-    when(server.getId()).thenReturn("123");
-    when(server.getVersion()).thenReturn("3.2");
-    when(server.getStartedAt()).thenReturn(date);
-    ServerMetadataPersister persister = new ServerMetadataPersister(server, persistentSettings);
-    persister.start();
+  public void set_default_permissions_if_none() {
+    PersistentSettings persistentSettings = mock(PersistentSettings.class);
+    Settings settings = new Settings();
+    when(persistentSettings.getSettings()).thenReturn(settings);
+
+    new SetDefaultProjectPermissions(persistentSettings).start();
 
     verify(persistentSettings).saveProperties(argThat(new BaseMatcher<Map<String, String>>() {
       public boolean matches(Object o) {
         Map<String, String> map = (Map<String, String>) o;
-        return map.get(CoreProperties.SERVER_ID).equals("123")
-          && map.get(CoreProperties.SERVER_VERSION).equals("3.2")
-          && map.get(CoreProperties.SERVER_STARTTIME).equals("2010-05-18T17:59:00+0000")
-          && map.size() == 3;
+        return map.size() == 9 && map.get("sonar.role.admin.TRK.defaultGroups").equals("sonar-administrators");
       }
 
       public void describeTo(Description description) {
@@ -79,5 +50,14 @@ public class ServerMetadataPersisterTest {
     }));
   }
 
+  @Test
+  public void do_not_set_default_permissions_if_exist() {
+    PersistentSettings persistentSettings = mock(PersistentSettings.class);
+    Settings settings = new Settings().setProperty("sonar.role.admin.TRK.defaultGroups", "custom-group");
+    when(persistentSettings.getSettings()).thenReturn(settings);
 
+    new SetDefaultProjectPermissions(persistentSettings).start();
+
+    verify(persistentSettings, never()).saveProperties(any(Map.class));
+  }
 }

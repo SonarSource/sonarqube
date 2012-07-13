@@ -19,102 +19,93 @@
  */
 package org.sonar.server.configuration;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.CharEncoding;
+import com.google.common.collect.ImmutableMap;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.database.configuration.Property;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
-import org.sonar.test.TestUtils;
+import org.sonar.server.platform.PersistentSettings;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
 
-import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.startsWith;
-import static org.hamcrest.collection.IsCollectionContaining.hasItem;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.*;
 
 public class PropertiesBackupTest extends AbstractDbUnitTestCase {
 
-  private SonarConfig sonarConfig;
+  private PersistentSettings persistentSettings;
+  private PropertiesBackup backup;
 
   @Before
   public void setup() {
-    sonarConfig = new SonarConfig();
+    persistentSettings = mock(PersistentSettings.class);
+    backup = new PropertiesBackup(persistentSettings);
   }
 
   @Test
-  public void shouldExportProperties() {
-    setupData("shouldExportProperties");
+  public void export_properties() {
+    when(persistentSettings.getProperties()).thenReturn(ImmutableMap.of("key1", "value1", "key2", "value2"));
 
-    new PropertiesBackup(getSession()).exportXml(sonarConfig);
+    SonarConfig config = new SonarConfig();
+    backup.exportXml(config);
 
-    Property prop1 = new Property("key1", "value1");
-    Property prop2 = new Property("key2", "value2");
-    Property prop3 = new Property("sonar.core.version", "3.1");
-
-    assertTrue(CollectionUtils.isEqualCollection(sonarConfig.getProperties(), Arrays.asList(prop1, prop2, prop3)));
+    assertThat(config.getProperties()).containsOnly(new Property("key1", "value1"), new Property("key2", "value2"));
   }
 
   @Test
-  public void shouldNotExportPropertiesLinkedToResources() {
-    setupData("shouldNotExportPropertiesLinkedToResources");
+  public void do_not_export_server_id() {
+    when(persistentSettings.getProperties()).thenReturn(ImmutableMap.of(CoreProperties.SERVER_ID, "111"));
 
-    new PropertiesBackup(getSession()).exportXml(sonarConfig);
+    SonarConfig config = new SonarConfig();
+    backup.exportXml(config);
 
-    Property prop1 = new Property("key1", "value1");
-    Property prop2 = new Property("key2", "value2");
+    assertThat(config.getProperties()).isEmpty();
+  }
 
-    assertTrue(CollectionUtils.isEqualCollection(sonarConfig.getProperties(), Arrays.asList(prop1, prop2)));
+
+  @Test
+  public void import_backup_of_properties() {
+    Collection<Property> newProperties = Arrays.asList(new Property("key1", "value1"), new Property("key2", "value2"));
+    SonarConfig config = new SonarConfig();
+    config.setProperties(newProperties);
+
+    backup.importXml(config);
+
+    verify(persistentSettings).saveProperties(argThat(new BaseMatcher<Map<String, String>>() {
+      public boolean matches(Object o) {
+        Map<String, String> map = (Map<String, String>) o;
+        return map.get("key1").equals("value1") && map.get("key2").equals("value2");
+      }
+
+      public void describeTo(Description description) {
+      }
+    }));
   }
 
   @Test
-  public void shouldExportAnArrayProperty() {
-    setupData("shouldExportAnArrayProperty");
+  public void do_not_import_server_id() {
+    // initial server id
+    when(persistentSettings.getString(CoreProperties.SERVER_ID)).thenReturn("111");
 
-    new PropertiesBackup(getSession()).exportXml(sonarConfig);
+    Collection<Property> newProperties = Arrays.asList(new Property(CoreProperties.SERVER_ID, "999"));
+    SonarConfig config = new SonarConfig();
+    config.setProperties(newProperties);
+    backup.importXml(config);
 
-    assertThat(sonarConfig.getProperties(), hasItem(new Property("key1", "value1,value2,value3")));
-  }
+    verify(persistentSettings).saveProperties(argThat(new BaseMatcher<Map<String, String>>() {
+      public boolean matches(Object o) {
+        Map<String, String> map = (Map<String, String>) o;
+        return map.get(CoreProperties.SERVER_ID).equals("111");
+      }
 
-  @Test
-  public void shouldImportProperties() {
-    setupData("shouldImportProperties");
-
-    Collection<Property> newProperties = Arrays.asList(new Property("key1", "value1"), new Property("key2", "value2"), new Property("key3", "value3"));
-    sonarConfig.setProperties(newProperties);
-
-    new PropertiesBackup(getSession()).importXml(sonarConfig);
-
-    checkTables("shouldImportProperties", "properties");
-  }
-
-  @Test
-  public void shouldNotImportSonarCoreIdProperty() {
-    setupData("shouldNotImportSonarCoreIdProperty");
-
-    Collection<Property> newProperties = Arrays.asList(new Property("sonar.core.id", "11111111"));
-    sonarConfig.setProperties(newProperties);
-
-    new PropertiesBackup(getSession()).importXml(sonarConfig);
-
-    checkTables("shouldNotImportSonarCoreIdProperty", "properties");
-  }
-
-  @Test
-  public void shouldImportMultilineProperties() throws Exception {
-    setupData("shouldImportMultilineProperties");
-
-    new Backup(getSession()).doImportXml(
-        FileUtils.readFileToString(
-            TestUtils.getResource(getClass(), "backup-with-multiline-property.xml"), CharEncoding.UTF_8));
-
-    Property property = getSession().getSingleResult(Property.class, "key", "sonar.multiline.secured");
-    assertThat(property.getValue(), startsWith("ONQwdcwcwwdadalkdmaiQGMqMVnhtAbhxwjjoVkHbWgx"));
-    assertThat(property.getValue(), endsWith("mmmm"));
-
+      public void describeTo(Description description) {
+      }
+    }));
   }
 }

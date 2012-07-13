@@ -53,7 +53,7 @@ public final class RegisterNewFilters {
   }
 
   public void start() {
-    TimeProfiler profiler = new TimeProfiler().start("Register filters");
+    TimeProfiler profiler = new TimeProfiler(LoggerFactory.getLogger(getClass())).start("Register filters");
 
     for (FilterTemplate template : filterTemplates) {
       if (shouldRegister(template.getName())) {

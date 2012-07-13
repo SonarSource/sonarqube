@@ -32,5 +32,6 @@ public interface PropertiesMapper {
   PropertyDto selectByKey(PropertyDto key);
   void update(PropertyDto property);
   void insert(PropertyDto property);
-
+  void deleteGlobalProperty(String key);
+  void deleteGlobalProperties();
 }

@@ -210,43 +210,34 @@ public class Settings implements BatchComponent, ServerComponent {
     } else {
       newValue += "," + StringUtils.trim(value);
     }
-    properties.put(key, newValue);
-    return this;
+    return setProperty(key, newValue);
   }
 
   public final Settings setProperty(String key, @Nullable String value) {
-    if (!clearIfNullValue(key, value)) {
+    if (value == null) {
+      properties.remove(key);
+      doOnRemoveProperty(key);
+    } else {
       properties.put(key, StringUtils.trim(value));
+      doOnSetProperty(key, value);
     }
     return this;
   }
 
   public final Settings setProperty(String key, @Nullable Boolean value) {
-    if (!clearIfNullValue(key, value)) {
-      properties.put(key, String.valueOf(value));
-    }
-    return this;
+    return setProperty(key, String.valueOf(value));
   }
 
   public final Settings setProperty(String key, @Nullable Integer value) {
-    if (!clearIfNullValue(key, value)) {
-      properties.put(key, String.valueOf(value));
-    }
-    return this;
+    return setProperty(key, String.valueOf(value));
   }
 
   public final Settings setProperty(String key, @Nullable Long value) {
-    if (!clearIfNullValue(key, value)) {
-      properties.put(key, String.valueOf(value));
-    }
-    return this;
+    return setProperty(key, String.valueOf(value));
   }
 
   public final Settings setProperty(String key, @Nullable Double value) {
-    if (!clearIfNullValue(key, value)) {
-      properties.put(key, String.valueOf(value));
-    }
-    return this;
+    return setProperty(key, String.valueOf(value));
   }
 
   public final Settings setProperty(String key, @Nullable Date date) {
@@ -276,24 +267,21 @@ public class Settings implements BatchComponent, ServerComponent {
   }
 
   public final Settings setProperties(Map<String, String> props) {
-    properties.clear();
+    clear();
     return addProperties(props);
   }
 
   public final Settings setProperty(String key, @Nullable Date date, boolean includeTime) {
-    if (!clearIfNullValue(key, date)) {
-      properties.put(key, includeTime ? DateUtils.formatDateTime(date) : DateUtils.formatDate(date));
-    }
-    return this;
+    return setProperty(key, includeTime ? DateUtils.formatDateTime(date) : DateUtils.formatDate(date));
   }
 
   public final Settings removeProperty(String key) {
-    properties.remove(key);
-    return this;
+    return setProperty(key, (String) null);
   }
 
   public final Settings clear() {
     properties.clear();
+    doOnClearProperties();
     return this;
   }
 
@@ -308,19 +296,20 @@ public class Settings implements BatchComponent, ServerComponent {
     return definitions;
   }
 
-  private boolean clearIfNullValue(String key, @Nullable Object value) {
-    if (value == null) {
-      properties.remove(key);
-      return true;
-    }
-    return false;
-  }
-
   /**
    * Create empty settings. Definition of available properties is loaded from the given annotated class.
    * This method is usually used by unit tests.
    */
   public static Settings createForComponent(Object component) {
     return new Settings(new PropertyDefinitions(component));
+  }
+
+  protected void doOnSetProperty(String key, @Nullable String value) {
+  }
+
+  protected void doOnRemoveProperty(String key) {
+  }
+
+  protected void doOnClearProperties() {
   }
 }

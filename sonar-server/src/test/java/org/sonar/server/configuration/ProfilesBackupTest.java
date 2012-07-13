@@ -31,6 +31,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
+import org.sonar.server.platform.PersistentSettings;
 import org.sonar.test.TestUtils;
 
 import java.io.IOException;
@@ -44,6 +45,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class ProfilesBackupTest extends AbstractDbUnitTestCase {
 
@@ -157,7 +159,7 @@ public class ProfilesBackupTest extends AbstractDbUnitTestCase {
    */
   @Test
   public void shouldSupportMissingEnabledField() throws IOException {
-    Backup backup = new Backup(getSession());
+    Backup backup = new Backup(getSession(), mock(PersistentSettings.class));
     backup.doImportXml(FileUtils.readFileToString(TestUtils.getResource(getClass(), "shouldSupportMissingEnabledField.xml")));
 
     RulesProfile profile = getSession().getSingleResult(RulesProfile.class, "name", "Missing enabled field");
@@ -166,7 +168,7 @@ public class ProfilesBackupTest extends AbstractDbUnitTestCase {
 
   @Test
   public void shouldSupportEnabledField() throws IOException {
-    Backup backup = new Backup(getSession());
+    Backup backup = new Backup(getSession(), mock(PersistentSettings.class));
     backup.doImportXml(FileUtils.readFileToString(TestUtils.getResource(getClass(), "shouldSupportEnabledField.xml")));
 
     RulesProfile enabledProfile = getSession().getSingleResult(RulesProfile.class, "name", "Enabled");

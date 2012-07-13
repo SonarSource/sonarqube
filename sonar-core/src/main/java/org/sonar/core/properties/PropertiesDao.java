@@ -26,6 +26,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.List;
+import java.util.Map;
 
 public class PropertiesDao implements BatchComponent, ServerComponent {
 
@@ -85,6 +86,47 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
         mapper.insert(property);
         session.commit();
       }
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void deleteGlobalProperties() {
+    SqlSession session = mybatis.openSession();
+    PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
+    try {
+      mapper.deleteGlobalProperties();
+      session.commit();
+
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void deleteGlobalProperty(String key) {
+    SqlSession session = mybatis.openSession();
+    PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
+    try {
+      mapper.deleteGlobalProperty(key);
+      session.commit();
+
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void saveGlobalProperties(Map<String, String> properties) {
+    SqlSession session = mybatis.openBatchSession();
+    PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
+    try {
+      for (Map.Entry<String, String> entry : properties.entrySet()) {
+        mapper.deleteGlobalProperty(entry.getKey());
+      }
+      for (Map.Entry<String, String> entry : properties.entrySet()) {
+        mapper.insert(new PropertyDto().setKey(entry.getKey()).setValue(entry.getValue()));
+      }
+      session.commit();
+
     } finally {
       MyBatis.closeQuietly(session);
     }
