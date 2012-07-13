@@ -43,6 +43,7 @@ import java.util.Map;
  * <li>"availableForFilters": if set to "true", then this resource can be displayed in the filters results</li>
  * <li>"modifiable_history": if set to "true", then the history of this resource may be modified (deletion of snapshots, modification of events, ...)</li>
  * <li>"updatable_key" (since 3.2): if set to "true", then it is possible to update the key of this resource</li>
+ * <li>"supportsGlobalDashboards" (since 3.2): if true, this resource can be displayed in global dashboards</li>
  * </ul>
  *
  * @since 2.14
