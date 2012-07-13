@@ -106,7 +106,7 @@ public class JaCoCoItSensorTest {
 
     sensor.analyse(project, context);
 
-    verify(context).getResource(eq(resource));
+    verify(context).getResource(resource);
     verify(context).saveMeasure(eq(resource), argThat(new IsMeasure(CoreMetrics.IT_LINES_TO_COVER, 7.0)));
     verify(context).saveMeasure(eq(resource), argThat(new IsMeasure(CoreMetrics.IT_UNCOVERED_LINES, 3.0)));
     verify(context).saveMeasure(eq(resource),

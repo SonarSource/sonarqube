@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.jacoco;
 
+import org.sonar.api.resources.ResourceUtils;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
@@ -81,9 +83,8 @@ public abstract class AbstractAnalyzer {
 
     int analyzedResources = 0;
     for (ISourceFileCoverage coverage : coverageBuilder.getSourceFiles()) {
-      JavaFile resource = getResource(coverage);
-      // Do not save measures on resource which doesn't exist in the context
-      if (context.getResource(resource) != null) {
+      JavaFile resource = getResource(coverage, context);
+      if (resource != null) {
         if (!isExcluded(coverage, excludes)) {
           analyzeFile(resource, coverage, context);
         }
@@ -101,10 +102,21 @@ public abstract class AbstractAnalyzer {
   }
 
   @VisibleForTesting
-  static JavaFile getResource(ISourceFileCoverage coverage) {
+  static JavaFile getResource(ISourceFileCoverage coverage, SensorContext context) {
     String packageName = StringUtils.replaceChars(coverage.getPackageName(), '/', '.');
     String fileName = StringUtils.substringBeforeLast(coverage.getName(), ".");
-    return new JavaFile(packageName, fileName);
+
+    JavaFile resource = new JavaFile(packageName, fileName);
+
+    JavaFile resourceInContext = context.getResource(resource);
+    if (null == resourceInContext) {
+      return null; // Do not save measures on resource which doesn't exist in the context
+    }
+    if (ResourceUtils.isUnitTestClass(resourceInContext)) {
+      return null; // Ignore unit tests
+    }
+
+    return resourceInContext;
   }
 
   /**
