@@ -117,6 +117,13 @@ module DashboardHelper
     @project=@backup_project
     @snapshot=@backup_snapshot
     @dashboard_configuration=@backup_dashboard_configuration
+    @widget_title=nil
+  end
+
+  def widget_title(widget)
+    resource_name=h(@resource.name) if @resource && @dashboard.global && !widget.java_definition.global
+
+    [resource_name, @widget_title].compact.join(' - ')
   end
 
   def widget_body(widget)

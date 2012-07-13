@@ -1,6 +1,10 @@
 <%
-   @filter=::Filter.find(:first, :conditions => {:kee => widget_properties['filter']})
-   @filter_context=Filters.execute(@filter, self, params) unless @filter.ajax_loading?
+  @filter=::Filter.find(:first, :conditions => {:kee => widget_properties['filter']})
+  @filter_context=Filters.execute(@filter, self, params) unless @filter.ajax_loading?
+
+  name=@filter.name
+  period=period_names[@filter.period_index - 1] if @filter.period_index
+  @widget_title=[h(name), period].compact.join(' - ')
 %>
 
 <%= render :partial => "filters/#{@filter.default_view}", :locals => {:edit_mode => false, :widget => widget} %>
