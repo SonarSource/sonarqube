@@ -3,7 +3,7 @@
 
 # Avoid conflict with local ruby installations
 # See http://jira.codehaus.org/browse/SONAR-3579
-ENV["GEM_HOME"]= ENV.fetch("GEM_PATH", []).first
+ENV["GEM_HOME"] = ENV["GEM_PATH"] = nil
 
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
