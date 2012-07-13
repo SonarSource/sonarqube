@@ -19,7 +19,9 @@
  */
 package org.sonar.plugins.jacoco;
 
+import com.google.common.io.Files;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
@@ -30,8 +32,10 @@ import org.sonar.api.resources.Project.AnalysisType;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.test.IsMeasure;
+import org.sonar.test.TestUtils;
 
 import java.io.File;
+import java.io.IOException;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -39,11 +43,26 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class JaCoCoItSensorTest {
+  private static File outputDir;
+  private static File jacocoExecutionData;
+
   private JacocoConfiguration configuration;
   private JaCoCoItSensor sensor;
+
+  @BeforeClass
+  public static void setUpOutputDir() throws IOException {
+    outputDir = TestUtils.getResource("/org/sonar/plugins/jacoco/JaCoCoSensorTest/");
+    jacocoExecutionData = new File(outputDir, "jacoco.exec");
+
+    Files.copy(TestUtils.getResource("Hello.class.toCopy"), new File(jacocoExecutionData.getParentFile(), "Hello.class"));
+  }
 
   @Before
   public void setUp() {
@@ -58,34 +77,31 @@ public class JaCoCoItSensorTest {
 
   @Test
   public void doNotExecuteWhenReportPathNotSpecified() {
-    when(configuration.getItReportPath()).thenReturn("");
     Project project = mock(Project.class);
+    when(configuration.getItReportPath()).thenReturn("");
+
     assertThat(sensor.shouldExecuteOnProject(project), is(false));
   }
 
   @Test
   public void shouldExecuteOnProject() {
-    when(configuration.getItReportPath()).thenReturn("target/it-jacoco.exec");
     Project project = mock(Project.class);
+    when(configuration.getItReportPath()).thenReturn("target/it-jacoco.exec");
     when(project.getAnalysisType()).thenReturn(AnalysisType.DYNAMIC).thenReturn(AnalysisType.REUSE_REPORTS);
+
     assertThat(sensor.shouldExecuteOnProject(project), is(true));
     assertThat(sensor.shouldExecuteOnProject(project), is(true));
   }
 
   @Test
-  public void testReadExecutionData() throws Exception {
-    File jacocoExecutionData = new File(getClass().getResource("/org/sonar/plugins/jacoco/JaCoCoSensorTest/jacoco.exec").getFile());
-    File buildOutputDir = jacocoExecutionData.getParentFile();
+  public void testReadExecutionData() {
+    JavaFile resource = new JavaFile("org.sonar.plugins.jacoco.tests.Hello");
     SensorContext context = mock(SensorContext.class);
-
-    final JavaFile resource = new JavaFile("org.sonar.plugins.jacoco.tests.Hello");
-    when(context.getResource(any(Resource.class))).thenReturn(resource);
-
     ProjectFileSystem pfs = mock(ProjectFileSystem.class);
-    when(pfs.getBuildOutputDir()).thenReturn(buildOutputDir);
-    when(pfs.resolvePath(anyString())).thenReturn(jacocoExecutionData);
-
     Project project = mock(Project.class);
+    when(context.getResource(any(Resource.class))).thenReturn(resource);
+    when(pfs.getBuildOutputDir()).thenReturn(outputDir);
+    when(pfs.resolvePath(anyString())).thenReturn(jacocoExecutionData);
     when(project.getFileSystem()).thenReturn(pfs);
 
     sensor.analyse(project, context);
@@ -103,16 +119,12 @@ public class JaCoCoItSensorTest {
   }
 
   @Test
-  public void doNotSaveMeasureOnResourceWhichDoesntExistInTheContext() throws Exception {
-    File jacocoExecutionData = new File(getClass().getResource("/org/sonar/plugins/jacoco/JaCoCoSensorTest/jacoco.exec").getFile());
-    File buildOutputDir = jacocoExecutionData.getParentFile();
+  public void doNotSaveMeasureOnResourceWhichDoesntExistInTheContext() {
     SensorContext context = mock(SensorContext.class);
-    when(context.getResource(any(Resource.class))).thenReturn(null);
-
     ProjectFileSystem pfs = mock(ProjectFileSystem.class);
-    when(pfs.getBuildOutputDir()).thenReturn(buildOutputDir);
-
     Project project = mock(Project.class);
+    when(context.getResource(any(Resource.class))).thenReturn(null);
+    when(pfs.getBuildOutputDir()).thenReturn(outputDir);
     when(project.getFileSystem()).thenReturn(pfs);
 
     sensor.analyse(project, context);

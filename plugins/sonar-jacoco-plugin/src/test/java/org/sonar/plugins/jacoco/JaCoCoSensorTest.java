@@ -19,31 +19,54 @@
  */
 package org.sonar.plugins.jacoco;
 
+import com.google.common.io.Files;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.resources.Java;
+import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.test.IsMeasure;
+import org.sonar.test.TestUtils;
+
+import java.io.File;
+import java.io.IOException;
+
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.resources.*;
-import org.sonar.api.test.IsMeasure;
-
-import java.io.File;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Evgeny Mandrikov
  */
 public class JaCoCoSensorTest {
 
+  private static File jacocoExecutionData;
+  private static File outputDir;
+
   private JacocoConfiguration configuration;
   private JaCoCoSensor sensor;
+
+  @BeforeClass
+  public static void setUpOutputDir() throws IOException {
+    outputDir = TestUtils.getResource("/org/sonar/plugins/jacoco/JaCoCoSensorTest/");
+    jacocoExecutionData = new File(outputDir, "jacoco.exec");
+
+    Files.copy(TestUtils.getResource("Hello.class.toCopy"), new File(jacocoExecutionData.getParentFile(), "Hello.class"));
+  }
 
   @Before
   public void setUp() {
@@ -60,6 +83,7 @@ public class JaCoCoSensorTest {
   public void shouldNotExecuteOnProject() {
     Project project = mock(Project.class);
     when(project.getLanguageKey()).thenReturn("flex");
+
     assertThat(sensor.shouldExecuteOnProject(project), is(false));
   }
 
@@ -67,23 +91,19 @@ public class JaCoCoSensorTest {
   public void shouldExecuteOnProject() {
     Project project = mock(Project.class);
     when(project.getLanguageKey()).thenReturn(Java.KEY);
+
     assertThat(sensor.shouldExecuteOnProject(project), is(true));
   }
 
   @Test
-  public void testReadExecutionData() throws Exception {
-    File jacocoExecutionData = new File(getClass().getResource("/org/sonar/plugins/jacoco/JaCoCoSensorTest/jacoco.exec").getFile());
-    File buildOutputDir = jacocoExecutionData.getParentFile();
+  public void testReadExecutionData() {
+    JavaFile resource = new JavaFile("org.sonar.plugins.jacoco.tests.Hello");
     SensorContext context = mock(SensorContext.class);
-
-    final JavaFile resource = new JavaFile("org.sonar.plugins.jacoco.tests.Hello");
-    when(context.getResource(any(Resource.class))).thenReturn(resource);
-
     ProjectFileSystem pfs = mock(ProjectFileSystem.class);
-    when(pfs.getBuildOutputDir()).thenReturn(buildOutputDir);
-    when(pfs.resolvePath(anyString())).thenReturn(jacocoExecutionData);
-
     Project project = mock(Project.class);
+    when(context.getResource(any(Resource.class))).thenReturn(resource);
+    when(pfs.getBuildOutputDir()).thenReturn(outputDir);
+    when(pfs.resolvePath(anyString())).thenReturn(jacocoExecutionData);
     when(project.getFileSystem()).thenReturn(pfs);
 
     sensor.analyse(project, context);
@@ -95,22 +115,19 @@ public class JaCoCoSensorTest {
         argThat(new IsMeasure(CoreMetrics.COVERAGE_LINE_HITS_DATA, "6=1;7=1;8=1;11=1;15=0;16=0;18=0")));
     verify(context).saveMeasure(eq(resource), argThat(new IsMeasure(CoreMetrics.CONDITIONS_TO_COVER, 2.0)));
     verify(context).saveMeasure(eq(resource), argThat(new IsMeasure(CoreMetrics.UNCOVERED_CONDITIONS, 2.0)));
-    verify(context).saveMeasure(eq(resource), argThat(new IsMeasure(CoreMetrics.CONDITIONS_BY_LINE, "15=2")));
+    verify(context).saveMeasure(eq(resource), argThat(new IsMeasure(CoreMetrics.CONDITIONS_BY_LINE, "15=2" +
+      "")));
     verify(context).saveMeasure(eq(resource), argThat(new IsMeasure(CoreMetrics.COVERED_CONDITIONS_BY_LINE, "15=0")));
     verifyNoMoreInteractions(context);
   }
 
   @Test
-  public void doNotSaveMeasureOnResourceWhichDoesntExistInTheContext() throws Exception {
-    File jacocoExecutionData = new File(getClass().getResource("/org/sonar/plugins/jacoco/JaCoCoSensorTest/jacoco.exec").getFile());
-    File buildOutputDir = jacocoExecutionData.getParentFile();
+  public void doNotSaveMeasureOnResourceWhichDoesntExistInTheContext() {
     SensorContext context = mock(SensorContext.class);
-    when(context.getResource(any(Resource.class))).thenReturn(null);
-
     ProjectFileSystem pfs = mock(ProjectFileSystem.class);
-    when(pfs.getBuildOutputDir()).thenReturn(buildOutputDir);
-
     Project project = mock(Project.class);
+    when(context.getResource(any(Resource.class))).thenReturn(null);
+    when(pfs.getBuildOutputDir()).thenReturn(outputDir);
     when(project.getFileSystem()).thenReturn(pfs);
 
     sensor.analyse(project, context);
