@@ -52,6 +52,7 @@ public class ServerSettings extends Settings implements ServerComponent {
 
   private Configuration deprecatedConfiguration;
   private File deployDir;
+  private File sonarHome;
   private GlobalPropertyChangeHandler[] changeHandlers;
 
   public ServerSettings(PropertyDefinitions definitions, Configuration deprecatedConfiguration, ServletContext servletContext, GlobalPropertyChangeHandler[] changeHandlers) {
@@ -67,15 +68,16 @@ public class ServerSettings extends Settings implements ServerComponent {
     super(definitions);
     this.deprecatedConfiguration = deprecatedConfiguration;
     this.deployDir = deployDir;
+    this.sonarHome = sonarHome;
     this.changeHandlers = changeHandlers;
-    load(sonarHome, Collections.<String, String>emptyMap());
+    load(Collections.<String, String>emptyMap());
   }
 
-  public ServerSettings activateDatabaseSettings(File sonarHome, Map<String, String> databaseProperties) {
-    return load(sonarHome, databaseProperties);
+  public ServerSettings activateDatabaseSettings(Map<String, String> databaseProperties) {
+    return load(databaseProperties);
   }
 
-  private ServerSettings load(File sonarHome, Map<String, String> databaseSettings) {
+  private ServerSettings load(Map<String, String> databaseSettings) {
     properties.clear();
     properties.put(CoreProperties.SONAR_HOME, sonarHome.getAbsolutePath());
     properties.put(DEPLOY_DIR, deployDir.getAbsolutePath());

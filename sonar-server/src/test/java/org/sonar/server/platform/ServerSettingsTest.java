@@ -61,7 +61,7 @@ public class ServerSettingsTest {
     ServerSettings settings = new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), home, new GlobalPropertyChangeHandler[0]);
 
     Map<String, String> databaseProperties = ImmutableMap.of("in_db", "true");
-    settings.activateDatabaseSettings(home, databaseProperties);
+    settings.activateDatabaseSettings(databaseProperties);
 
     assertThat(settings.getString("in_db")).isEqualTo("true");
   }
@@ -72,7 +72,7 @@ public class ServerSettingsTest {
     assertThat(settings.getString("in_file")).isEqualTo("true");
 
     Map<String, String> databaseProperties = ImmutableMap.of("in_file", "false");
-    settings.activateDatabaseSettings(home, databaseProperties);
+    settings.activateDatabaseSettings(databaseProperties);
 
     assertThat(settings.getString("in_file")).isEqualTo("true");
   }

@@ -45,7 +45,7 @@ public class PersistentSettings implements ServerComponent {
     for (PropertyDto property : propertiesDao.selectGlobalProperties()) {
       databaseProperties.put(property.getKey(), property.getValue());
     }
-    settings.activateDatabaseSettings(SonarHome.getHome(), databaseProperties);
+    settings.activateDatabaseSettings(databaseProperties);
   }
 
   public PersistentSettings saveProperty(String key, @Nullable String value) {
@@ -54,7 +54,7 @@ public class PersistentSettings implements ServerComponent {
     return this;
   }
 
-  public PersistentSettings removeProperty(String key) {
+  public PersistentSettings deleteProperty(String key) {
     settings.removeProperty(key);
     propertiesDao.deleteGlobalProperty(key);
     return this;
