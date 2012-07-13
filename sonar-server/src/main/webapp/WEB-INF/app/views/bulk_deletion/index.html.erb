@@ -17,9 +17,9 @@
 %>
 
   <% form_tag( {:action => 'index'}, :method => :get ) do %>
-    <%= message('bulk_deletion.resource_name_filter_by_name') -%> <input type="text" id="resource_filter" name="name_filter" size="40px" value=""/>
+    <%= message('bulk_deletion.resource_name_filter_by_name') -%> <input type="text" id="resource_filter" name="name_filter" size="40px" value="<%= h params[:name_filter] -%>"/>
     <input type="hidden" name="resource_type" value="<%= @selected_tab -%>"/>
-    <%= submit_tag message('bulk_deletion.search'), :id => 'filter_resources' %>
+    <%= submit_tag message('bulk_deletion.filter'), :id => 'filter_resources' %>
   <% end %>
   
   <% if @resources.empty? %>
