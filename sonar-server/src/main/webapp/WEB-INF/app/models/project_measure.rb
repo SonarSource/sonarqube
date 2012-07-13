@@ -145,19 +145,17 @@ class ProjectMeasure < ActiveRecord::Base
       hours = ( value / HOUR ).to_i
       mins = ( value % HOUR / MIN ).to_i
       secs = ( value % MIN / SEC ).to_i
-      return hours.to_s + ":" + leading_zero( mins ) + ":" + leading_zero( secs ) + " h"
+      return hours.to_s + ':' + leading_zero( mins ) + ':' + leading_zero( secs ) + ' h'
     elsif value.abs >= MIN
       mins = ( value / MIN ).to_i
       secs = ( value % MIN / SEC ).to_i
-      millisecs = ( value % MIN % SEC ).to_i
-      return mins.to_s + ":" + leading_zero( secs ) + " min"
+      return mins.to_s + ':' + leading_zero( secs ) + ' min'
     elsif value.abs >= SEC
       secs = ( value / SEC ).to_i
-      millisecs = ( value % SEC ).to_i
-      return secs.to_s + "." + millisecs.to_s[0, 1] + " sec" if millisecs != 0
-      return secs.to_s+ " sec" if millisecs == 0
+      ms = ( value % SEC ).to_i
+      return secs.to_s + (ms < 100 ? '' : '.' + ms.to_s[-3,1]) + ' sec'
     else
-      ( "%d" % value ) + " ms"
+      ( '%d' % value ) + ' ms'
     end
   end
 
