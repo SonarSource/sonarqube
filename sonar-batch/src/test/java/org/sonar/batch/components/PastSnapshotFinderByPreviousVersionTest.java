@@ -30,7 +30,7 @@ public class PastSnapshotFinderByPreviousVersionTest extends AbstractDbUnitTestC
 
   @Test
   public void shouldFindByPreviousVersion() {
-    setupData("shared");
+    setupData("with-previous-version");
     PastSnapshotFinderByPreviousVersion finder = new PastSnapshotFinderByPreviousVersion(getSession());
 
     Snapshot currentProjectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1010);
@@ -42,6 +42,18 @@ public class PastSnapshotFinderByPreviousVersionTest extends AbstractDbUnitTestC
     // and test also another version to verify that unprocessed snapshots are ignored
     currentProjectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1009);
     assertThat(finder.findByPreviousVersion(currentProjectSnapshot).getProjectSnapshotId()).isEqualTo(1003);
+  }
+
+  @Test
+  public void testWithNoPreviousVersion() {
+    setupData("no-previous-version");
+    PastSnapshotFinderByPreviousVersion finder = new PastSnapshotFinderByPreviousVersion(getSession());
+
+    Snapshot currentProjectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1003);
+    PastSnapshot foundSnapshot = finder.findByPreviousVersion(currentProjectSnapshot);
+    assertThat(foundSnapshot.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
+    assertThat(foundSnapshot.getProjectSnapshot()).isNull();
+    assertThat(foundSnapshot.getModeParameter()).isNull();
   }
 
 }

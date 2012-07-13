@@ -20,6 +20,7 @@
 package org.sonar.batch.components;
 
 import org.junit.Test;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
@@ -34,7 +35,22 @@ public class PastSnapshotFinderByVersionTest extends AbstractDbUnitTestCase {
     Snapshot currentProjectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1010);
     PastSnapshotFinderByVersion finder = new PastSnapshotFinderByVersion(getSession());
 
-    assertThat(finder.findByVersion(currentProjectSnapshot, "1.1").getProjectSnapshotId()).isEqualTo(1009);
+    PastSnapshot foundSnapshot = finder.findByVersion(currentProjectSnapshot, "1.1");
+    assertThat(foundSnapshot.getProjectSnapshotId()).isEqualTo(1009);
+    assertThat(foundSnapshot.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_VERSION);
+  }
+
+  @Test
+  public void testIfNoVersionFound() {
+    setupData("shared");
+
+    Snapshot currentProjectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1010);
+    PastSnapshotFinderByVersion finder = new PastSnapshotFinderByVersion(getSession());
+
+    PastSnapshot foundSnapshot = finder.findByVersion(currentProjectSnapshot, "2.1");
+    assertThat(foundSnapshot.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_VERSION);
+    assertThat(foundSnapshot.getProjectSnapshot()).isNull();
+    assertThat(foundSnapshot.getModeParameter()).isNull();
   }
 
 }
