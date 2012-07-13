@@ -171,6 +171,26 @@ public abstract class AbstractDbUnitTestCase {
     }
   }
 
+  protected void checkTable(String testName, String table, String... columns) {
+    IDatabaseConnection connection = null;
+    try {
+      connection = createConnection();
+
+      IDataSet dataSet = connection.createDataSet();
+      IDataSet expectedDataSet = getExpectedData(testName);
+      ITable filteredTable = DefaultColumnFilter.includedColumnsTable(dataSet.getTable(table), columns);
+      ITable filteredExpectedTable = DefaultColumnFilter.includedColumnsTable(expectedDataSet.getTable(table), columns);
+      Assertion.assertEquals(filteredExpectedTable, filteredTable);
+
+    } catch (DatabaseUnitException e) {
+      fail(e.getMessage());
+    } catch (SQLException e) {
+      throw translateException("Error while checking results", e);
+    } finally {
+      closeQuietly(connection);
+    }
+  }
+
   private IDatabaseConnection createConnection() {
     try {
       IDatabaseConnection connection = databaseTester.getConnection();
