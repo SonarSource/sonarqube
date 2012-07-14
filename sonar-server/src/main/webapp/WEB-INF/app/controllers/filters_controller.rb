@@ -289,10 +289,7 @@ class FiltersController < ApplicationController
 
     @size_metric=Metric.by_key(params[:size_metric])
     @color_metric=Metric.by_key(params[:color_metric])
-
     params[:metric_ids]=[@size_metric, @color_metric]
-
-    @filter.sorted_column=FilterColumn.new('family' => 'metric', :kee => @size_metric.key, :sort_direction => (@size_metric.direction>=0 ? 'ASC' : 'DESC'))
 
     @filter_context=Filters.execute(@filter, self, params)
 

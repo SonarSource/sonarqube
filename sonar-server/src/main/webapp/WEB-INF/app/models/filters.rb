@@ -74,45 +74,47 @@ class Filters
 
 
     #----- SORTED COLUMN
+
     if filter_context.sorted_column_id
       filter.sorted_column=filter_context.sorted_column_id
     end
-    if filter.sorted_column.on_name?
-      java_filter.setSortedByName()
+    if filter.sorted_column
+      if filter.sorted_column.on_name?
+        java_filter.setSortedByName()
 
-    elsif filter.sorted_column.on_date?
-      java_filter.setSortedByDate()
+      elsif filter.sorted_column.on_date?
+        java_filter.setSortedByDate()
 
-    elsif filter.sorted_column.on_version?
-      java_filter.setSortedByVersion()
+      elsif filter.sorted_column.on_version?
+        java_filter.setSortedByVersion()
 
-    elsif filter.sorted_column.on_language?
-      java_filter.setSortedByLanguage()
-  
-    elsif filter.sorted_column.on_key?
-      java_filter.setSortedByKey()
+      elsif filter.sorted_column.on_language?
+        java_filter.setSortedByLanguage()
 
-    elsif filter.sorted_column.on_metric? && filter.sorted_column.metric
-      metric=filter.sorted_column.metric
-      java_filter.setSortedMetricId(metric.id, metric.numeric?, filter.sorted_column.variation)
+      elsif filter.sorted_column.on_key?
+        java_filter.setSortedByKey()
 
+      elsif filter.sorted_column.on_metric? && filter.sorted_column.metric
+        metric=filter.sorted_column.metric
+        java_filter.setSortedMetricId(metric.id, metric.numeric?, filter.sorted_column.variation)
+      end
     end
 
 
     #----- SORTING DIRECTION
-    if filter_context.ascending_sort.nil?
-      java_filter.setAscendingSort(filter.sorted_column.ascending?)
-    else
-      filter.sorted_column.ascending=filter_context.ascending_sort
+    if filter.sorted_column
+      if filter_context.ascending_sort.nil?
+        java_filter.setAscendingSort(filter.sorted_column.ascending?)
+      else
+        filter.sorted_column.ascending=filter_context.ascending_sort
+        java_filter.setAscendingSort(filter.sorted_column.ascending?)
+      end
+
+      if filter_context.ascending_sort
+        filter.sorted_column.ascending=filter_context.ascending_sort
+      end
       java_filter.setAscendingSort(filter.sorted_column.ascending?)
     end
-
-
-    if filter_context.ascending_sort
-      filter.sorted_column.ascending=filter_context.ascending_sort
-    end
-    java_filter.setAscendingSort(filter.sorted_column.ascending?)
-
 
     #----- VARIATION
     java_filter.setPeriodIndex(filter_context.period_index)

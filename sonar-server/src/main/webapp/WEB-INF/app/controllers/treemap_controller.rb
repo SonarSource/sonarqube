@@ -51,7 +51,6 @@ class TreemapController < ApplicationController
       filter=::Filter.find(params[:filter])
       bad_request('Unknown filter: ' + params[:filter]) unless filter
       access_denied unless filter.authorized_to_execute?(self)
-      filter.sorted_column=FilterColumn.new('family' => 'metric', :kee => size_metric.key, :sort_direction => (size_metric.direction>=0 ? 'ASC' : 'DESC'))
       params[:metric_ids]=[size_metric.id, color_metric.id]
       filter_context=Filters.execute(filter, self, params)
     else

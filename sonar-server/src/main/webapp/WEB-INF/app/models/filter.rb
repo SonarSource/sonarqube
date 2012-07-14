@@ -79,7 +79,7 @@ class Filter < ActiveRecord::Base
   def sorted_column
     @sorted_column ||=
       begin
-        columns.to_a.find { |c| c.sort_direction } || column('name')
+        default_view==VIEW_TREEMAP ? nil : (columns.to_a.find { |c| c.sort_direction }||column('name') )
       end
   end
 
