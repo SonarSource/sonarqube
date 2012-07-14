@@ -41,18 +41,6 @@ public final class UpdateCenterMatrix {
     this.installedSonarVersion = installedSonarVersion;
   }
 
-  public UpdateCenterMatrix(UpdateCenter center, String installedSonarVersion) {
-    this(center, Version.create(installedSonarVersion));
-  }
-
-  public UpdateCenter getCenter() {
-    return center;
-  }
-
-  public Version getInstalledSonarVersion() {
-    return installedSonarVersion;
-  }
-
   public UpdateCenterMatrix registerInstalledPlugin(String pluginKey, Version pluginVersion) {
     Plugin plugin = center.getPlugin(pluginKey);
     if (plugin != null) {
@@ -61,21 +49,30 @@ public final class UpdateCenterMatrix {
     return this;
   }
 
+  /**
+   * Used by ruby webapp
+   */
+  public UpdateCenter getCenter() {
+    return center;
+  }
+
   public UpdateCenterMatrix registerPendingPluginsByFilename(String filename) {
     pendingPluginFilenames.add(filename);
     return this;
   }
 
   public List<PluginUpdate> findAvailablePlugins() {
+    Version adjustedSonarVersion = getAdjustedSonarVersion();
+
     List<PluginUpdate> availables = Lists.newArrayList();
     for (Plugin plugin : center.getPlugins()) {
       if (!installedPlugins.containsKey(plugin) && !isAlreadyDownloaded(plugin)) {
-        Release release = plugin.getLastCompatibleRelease(installedSonarVersion);
+        Release release = plugin.getLastCompatibleRelease(adjustedSonarVersion);
         if (release != null) {
           availables.add(PluginUpdate.createWithStatus(release, PluginUpdate.Status.COMPATIBLE));
 
         } else {
-          release = plugin.getLastCompatibleReleaseIfUpgrade(installedSonarVersion);
+          release = plugin.getLastCompatibleReleaseIfUpgrade(adjustedSonarVersion);
           if (release != null) {
             availables.add(PluginUpdate.createWithStatus(release, PluginUpdate.Status.REQUIRE_SONAR_UPGRADE));
           }
@@ -96,13 +93,15 @@ public final class UpdateCenterMatrix {
   }
 
   public List<PluginUpdate> findPluginUpdates() {
+    Version adjustedSonarVersion = getAdjustedSonarVersion();
+
     List<PluginUpdate> updates = Lists.newArrayList();
     for (Map.Entry<Plugin, Version> entry : installedPlugins.entrySet()) {
       Plugin plugin = entry.getKey();
       if (!isAlreadyDownloaded(plugin)) {
         Version pluginVersion = entry.getValue();
         for (Release release : plugin.getReleasesGreaterThan(pluginVersion)) {
-          updates.add(PluginUpdate.createForPluginRelease(release, installedSonarVersion));
+          updates.add(PluginUpdate.createForPluginRelease(release, adjustedSonarVersion));
         }
       }
     }
@@ -155,5 +154,14 @@ public final class UpdateCenterMatrix {
   public UpdateCenterMatrix setDate(Date d) {
     this.date = d;
     return this;
+  }
+
+  /**
+   * Update center declares RELEASE versions of Sonar, for instance 3.2 but not 3.2-SNAPSHOT.
+   * We assume that SNAPSHOT, milestones and release candidates of Sonar support the
+   * same plugins than related RELEASE.
+   */
+  private Version getAdjustedSonarVersion() {
+    return Version.createRelease(installedSonarVersion.toString());
   }
 }

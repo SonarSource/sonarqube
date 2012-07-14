@@ -28,9 +28,7 @@ import org.sonar.updatecenter.common.Version;
 
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class UpdateCenterMatrixTest {
   private UpdateCenter center;
@@ -66,29 +64,29 @@ public class UpdateCenterMatrixTest {
 
   @Test
   public void findPluginUpdates() {
-    UpdateCenterMatrix matrix = new UpdateCenterMatrix(center, "2.1");
+    UpdateCenterMatrix matrix = new UpdateCenterMatrix(center, Version.create("2.1"));
     matrix.registerInstalledPlugin("foo", Version.create("1.0"));
     List<PluginUpdate> updates = matrix.findPluginUpdates();
-    assertThat(updates.size(), is(2));
+    assertThat(updates).hasSize(2);
 
-    assertThat(updates.get(0).getRelease(), is(foo11));
-    assertThat(updates.get(0).isCompatible(), is(true));
+    assertThat(updates.get(0).getRelease()).isEqualTo(foo11);
+    assertThat(updates.get(0).isCompatible()).isTrue();
 
-    assertThat(updates.get(1).getRelease(), is(foo12));
-    assertThat(updates.get(1).isCompatible(), is(false));
-    assertThat(updates.get(1).requiresSonarUpgrade(), is(true));
+    assertThat(updates.get(1).getRelease()).isEqualTo(foo12);
+    assertThat(updates.get(1).isCompatible()).isFalse();
+    assertThat(updates.get(1).requiresSonarUpgrade()).isTrue();
   }
 
   @Test
   public void noPluginUpdatesIfLastReleaseIsInstalled() {
-    UpdateCenterMatrix matrix = new UpdateCenterMatrix(center, "2.3");
+    UpdateCenterMatrix matrix = new UpdateCenterMatrix(center, Version.create("2.3"));
     matrix.registerInstalledPlugin("foo", Version.create("1.2"));
-    assertTrue(matrix.findPluginUpdates().isEmpty());
+    assertThat(matrix.findPluginUpdates()).isEmpty();
   }
 
   @Test
   public void availablePluginsAreOnlyTheBestReleases() {
-    UpdateCenterMatrix matrix = new UpdateCenterMatrix(center, "2.2");
+    UpdateCenterMatrix matrix = new UpdateCenterMatrix(center, Version.create("2.2"));
     matrix.registerInstalledPlugin("foo", Version.create("1.0"));
 
     List<PluginUpdate> availables = matrix.findAvailablePlugins();
@@ -96,14 +94,14 @@ public class UpdateCenterMatrixTest {
     // bar 1.0 is compatible with the installed sonar
     // bar 1.1 requires sonar to be upgraded to 2.2.2 or 2.3
     // => available plugin to install is bar 1.0
-    assertThat(availables.size(), is(1));
-    assertThat(availables.get(0).getRelease(), is(bar10));
-    assertThat(availables.get(0).isCompatible(), is(true));
+    assertThat(availables.size()).isEqualTo(1);
+    assertThat(availables.get(0).getRelease()).isEqualTo(bar10);
+    assertThat(availables.get(0).isCompatible()).isTrue();
   }
 
   @Test
   public void availablePluginsRequireSonarUpgrade() {
-    UpdateCenterMatrix matrix = new UpdateCenterMatrix(center, "2.2.1");
+    UpdateCenterMatrix matrix = new UpdateCenterMatrix(center, Version.create("2.2.1"));
     matrix.registerInstalledPlugin("foo", Version.create("1.0"));
 
     List<PluginUpdate> availables = matrix.findAvailablePlugins();
@@ -111,9 +109,9 @@ public class UpdateCenterMatrixTest {
     // bar 1.0 is not compatible with the installed sonar
     // bar 1.1 requires sonar to be upgraded to 2.2.2 or 2.3
     // => available plugin to install is bar 1.1
-    assertThat(availables.size(), is(1));
-    assertThat(availables.get(0).getRelease(), is(bar11));
-    assertThat(availables.get(0).requiresSonarUpgrade(), is(true));
+    assertThat(availables.size()).isEqualTo(1);
+    assertThat(availables.get(0).getRelease()).isEqualTo(bar11);
+    assertThat(availables.get(0).requiresSonarUpgrade()).isTrue();
   }
 
   @Test
@@ -121,13 +119,13 @@ public class UpdateCenterMatrixTest {
     center.getSonar().addRelease(Version.create("2.3"));
     center.getSonar().addRelease(Version.create("2.4"));
 
-    UpdateCenterMatrix matrix = new UpdateCenterMatrix(center, "2.2");
+    UpdateCenterMatrix matrix = new UpdateCenterMatrix(center, Version.create("2.2"));
     List<SonarUpdate> updates = matrix.findSonarUpdates();
 
     // no plugins are installed, so both sonar versions are compatible
-    assertThat(updates.size(), is(2));
-    assertThat(updates.get(0).hasWarnings(), is(false));
-    assertThat(updates.get(1).hasWarnings(), is(false));
+    assertThat(updates).hasSize(2);
+    assertThat(updates.get(0).hasWarnings()).isFalse();
+    assertThat(updates.get(1).hasWarnings()).isFalse();
   }
 
   @Test
@@ -135,40 +133,40 @@ public class UpdateCenterMatrixTest {
     center.getSonar().addRelease(Version.create("2.3"));
     center.getSonar().addRelease(Version.create("2.4"));
 
-    UpdateCenterMatrix matrix = new UpdateCenterMatrix(center, "2.2");
+    UpdateCenterMatrix matrix = new UpdateCenterMatrix(center, Version.create("2.2"));
     matrix.registerInstalledPlugin("foo", Version.create("1.0"));
     matrix.registerInstalledPlugin("bar", Version.create("1.0"));
     List<SonarUpdate> updates = matrix.findSonarUpdates();
 
-    assertThat(updates.size(), is(2));
+    assertThat(updates).hasSize(2);
 
     // sonar 2.3 supports foo 1.1/1.2 and bar 1.1
     // => 2 plugin upgrades are required
-    assertThat(updates.get(0).hasWarnings(), is(true));
-    assertThat(updates.get(0).requiresPluginUpgrades(), is(true));
-    assertThat(updates.get(0).getPluginsToUpgrade().size(), is(2));
+    assertThat(updates.get(0).hasWarnings()).isTrue();
+    assertThat(updates.get(0).requiresPluginUpgrades()).isTrue();
+    assertThat(updates.get(0).getPluginsToUpgrade()).hasSize(2);
 
     // sonar 2.4 supports no plugins
-    assertThat(updates.get(1).hasWarnings(), is(true));
-    assertThat(updates.get(1).isIncompatible(), is(true));
-    assertThat(updates.get(1).getIncompatiblePlugins().size(), is(2));
+    assertThat(updates.get(1).hasWarnings()).isTrue();
+    assertThat(updates.get(1).isIncompatible()).isTrue();
+    assertThat(updates.get(1).getIncompatiblePlugins()).hasSize(2);
   }
 
   @Test
   public void excludePendingDownloadsFromPluginUpdates() {
-    UpdateCenterMatrix matrix = new UpdateCenterMatrix(center, "2.1");
+    UpdateCenterMatrix matrix = new UpdateCenterMatrix(center, Version.create("2.1"));
     matrix.registerInstalledPlugin("foo", Version.create("1.0"));
     matrix.registerPendingPluginsByFilename("foo-1.0.jar");
     List<PluginUpdate> updates = matrix.findPluginUpdates();
-    assertThat(updates.size(), is(0));
+    assertThat(updates.size()).isEqualTo(0);
   }
 
   @Test
   public void excludePendingDownloadsFromAvailablePlugins() {
-    UpdateCenterMatrix matrix = new UpdateCenterMatrix(center, "2.1");
+    UpdateCenterMatrix matrix = new UpdateCenterMatrix(center, Version.create("2.1"));
     matrix.registerPendingPluginsByFilename("foo-1.0.jar");
     matrix.registerPendingPluginsByFilename("bar-1.1.jar");
     List<PluginUpdate> updates = matrix.findAvailablePlugins();
-    assertThat(updates.size(), is(0));
+    assertThat(updates.size()).isEqualTo(0);
   }
 }

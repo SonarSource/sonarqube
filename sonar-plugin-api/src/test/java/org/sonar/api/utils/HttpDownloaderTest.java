@@ -19,6 +19,7 @@
  */
 package org.sonar.api.utils;
 
+import com.google.common.base.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.SystemUtils;
@@ -31,15 +32,14 @@ import org.sonar.api.platform.Server;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.*;
 import java.util.Arrays;
 import java.util.Properties;
 
-import static org.hamcrest.Matchers.greaterThan;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeThat;
-import static org.junit.internal.matchers.StringContains.containsString;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -161,21 +161,28 @@ public class HttpDownloaderTest {
   }
 
   @Test
-  public void downloadBytes() throws URISyntaxException {
-    byte[] bytes = new HttpDownloader(new Settings()).download(new URI(baseUrl));
-    assertThat(bytes.length, greaterThan(10));
+  public void downloadBytes() throws Exception {
+    byte[] bytes = new HttpDownloader(new Settings()).readBytes(new URI(baseUrl));
+    assertThat(bytes.length).isGreaterThan(10);
   }
 
   @Test
-  public void downloadPlainText() throws URISyntaxException {
-    String text = new HttpDownloader(new Settings()).downloadPlainText(new URI(baseUrl), "UTF-8");
-    assertThat(text.length(), greaterThan(10));
+  public void readString() throws Exception {
+    String text = new HttpDownloader(new Settings()).readString(new URI(baseUrl), Charsets.UTF_8);
+    assertThat(text.length()).isGreaterThan(10);
+  }
+
+  @Test
+  public void openStream() throws Exception {
+    InputStream input = new HttpDownloader(new Settings()).openStream(new URI(baseUrl));
+    assertThat(IOUtils.toByteArray(input).length).isGreaterThan(10);
+    IOUtils.closeQuietly(input);
   }
 
   @Test(expected = SonarException.class)
-  public void failIfServerDown() throws URISyntaxException {
+  public void failIfServerDown() throws Exception {
     // I hope that the port 1 is not used !
-    new HttpDownloader(new Settings()).download(new URI("http://localhost:1/unknown"));
+    new HttpDownloader(new Settings()).readBytes(new URI("http://localhost:1/unknown"));
   }
 
   @Test
@@ -186,8 +193,8 @@ public class HttpDownloaderTest {
     File toFile = new File(toDir, "downloadToFile.txt");
 
     new HttpDownloader(new Settings()).download(new URI(baseUrl), toFile);
-    assertThat(toFile.exists(), is(true));
-    assertThat(toFile.length(), greaterThan(10l));
+    assertThat(toFile).exists();
+    assertThat(toFile.length()).isGreaterThan(10l);
   }
 
   @Test
@@ -201,7 +208,7 @@ public class HttpDownloaderTest {
       // I hope that the port 1 is not used !
       new HttpDownloader(new Settings()).download(new URI("http://localhost:1/unknown"), toFile);
     } catch (SonarException e) {
-      assertThat(toFile.exists(), is(false));
+      assertThat(toFile).doesNotExist();
     }
   }
 
@@ -210,30 +217,42 @@ public class HttpDownloaderTest {
     Server server = mock(Server.class);
     when(server.getVersion()).thenReturn("2.2");
 
-    byte[] bytes = new HttpDownloader(server, new Settings()).download(new URI(baseUrl));
+    byte[] bytes = new HttpDownloader(server, new Settings()).readBytes(new URI(baseUrl));
     Properties props = new Properties();
     props.load(IOUtils.toInputStream(new String(bytes)));
-    assertThat(props.getProperty("agent"), is("Sonar 2.2"));
+    assertThat(props.getProperty("agent")).isEqualTo("Sonar 2.2");
   }
 
   @Test
   public void followRedirect() throws URISyntaxException {
-    byte[] bytes = new HttpDownloader(new Settings()).download(new URI(baseUrl + "/redirect/"));
-    assertThat(new String(bytes), containsString("count"));
+    byte[] bytes = new HttpDownloader(new Settings()).readBytes(new URI(baseUrl + "/redirect/"));
+    assertThat(new String(bytes)).contains("count");
   }
 
   @Test
   public void shouldGetDirectProxySynthesis() throws URISyntaxException {
     ProxySelector proxySelector = mock(ProxySelector.class);
     when(proxySelector.select((URI) anyObject())).thenReturn(Arrays.asList(Proxy.NO_PROXY));
-    assertThat(HttpDownloader.getProxySynthesis(new URI("http://an_url"), proxySelector), is("no proxy"));
+    assertThat(HttpDownloader.getProxySynthesis(new URI("http://an_url"), proxySelector)).isEqualTo("no proxy");
   }
 
   @Test
   public void shouldGetProxySynthesis() throws URISyntaxException {
     ProxySelector proxySelector = mock(ProxySelector.class);
     when(proxySelector.select((URI) anyObject())).thenReturn(Arrays.asList((Proxy) new FakeProxy()));
-    assertThat(HttpDownloader.getProxySynthesis(new URI("http://an_url"), proxySelector), is("proxy: http://proxy_url:4040"));
+    assertThat(HttpDownloader.getProxySynthesis(new URI("http://an_url"), proxySelector)).isEqualTo("proxy: http://proxy_url:4040");
+  }
+
+  @Test
+  public void supported_schemes() {
+    assertThat(new HttpDownloader(new Settings()).getSupportedSchemes()).contains("http");
+  }
+
+  @Test
+  public void uri_description() throws Exception {
+    HttpDownloader downloader = new HttpDownloader(new Settings());
+    String description = downloader.description(new URI("http://sonarsource.org"));
+    assertThat(description).matches("http://sonarsource.org \\(.*\\)");
   }
 }
 

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.plugins;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.Properties;
@@ -26,8 +27,7 @@ import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
-import org.sonar.api.utils.HttpDownloader;
-import org.sonar.api.utils.Logs;
+import org.sonar.api.utils.UriReader;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.UpdateCenterDeserializer;
 
@@ -67,19 +67,17 @@ public class UpdateCenterClient implements ServerComponent {
   private URI uri;
   private UpdateCenter center = null;
   private long lastRefreshDate = 0;
-  private HttpDownloader downloader;
+  private UriReader uriReader;
 
-  /**
-   * for unit tests
-   */
-  UpdateCenterClient(HttpDownloader downloader, URI uri) {
-    this.downloader = downloader;
+  @VisibleForTesting
+  UpdateCenterClient(UriReader uriReader, URI uri) {
+    this.uriReader = uriReader;
     this.uri = uri;
-    Logs.INFO.info("Update center: " + uri + " (" + downloader.getProxySynthesis(uri) + ")");
+    LoggerFactory.getLogger(getClass()).info("Update center: " + uriReader.description(uri));
   }
 
-  public UpdateCenterClient(HttpDownloader downloader, Settings configuration) throws URISyntaxException {
-    this(downloader, new URI(configuration.getString(URL_PROPERTY)));
+  public UpdateCenterClient(UriReader uriReader, Settings settings) throws URISyntaxException {
+    this(uriReader, new URI(settings.getString(URL_PROPERTY)));
   }
 
   public UpdateCenter getCenter() {
@@ -88,7 +86,7 @@ public class UpdateCenterClient implements ServerComponent {
 
   public UpdateCenter getCenter(boolean forceRefresh) {
     if (center == null || forceRefresh || needsRefresh()) {
-      center = download();
+      center = init();
       lastRefreshDate = System.currentTimeMillis();
     }
     return center;
@@ -102,10 +100,10 @@ public class UpdateCenterClient implements ServerComponent {
     return lastRefreshDate + PERIOD_IN_MILLISECONDS < System.currentTimeMillis();
   }
 
-  private UpdateCenter download() {
+  private UpdateCenter init() {
     InputStream input = null;
     try {
-      input = downloader.openStream(uri);
+      input = uriReader.openStream(uri);
       if (input != null) {
         java.util.Properties properties = new java.util.Properties();
         properties.load(input);
@@ -113,7 +111,7 @@ public class UpdateCenterClient implements ServerComponent {
       }
 
     } catch (Exception e) {
-      LoggerFactory.getLogger(getClass()).error("Fail to download data from update center", e);
+      LoggerFactory.getLogger(getClass()).error("Fail to connect to update center", e);
 
     } finally {
       IOUtils.closeQuietly(input);

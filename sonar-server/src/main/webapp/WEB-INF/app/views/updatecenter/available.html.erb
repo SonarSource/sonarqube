@@ -1,7 +1,7 @@
 <script>
 function installPlugin(key) {
   /* check terms & conditions */
-  var tc=$('tc-' + key)
+  var tc=$('tc-' + key);
   if (tc!=null && !tc.checked) {
     alert('Please accept the Terms and Conditions');
     return false;
@@ -14,7 +14,8 @@ function installPlugin(key) {
   return false;
 }
 </script>
- <%= render :partial => 'updatecenter/tabs', :locals => {:tab => 'available'} -%>
+<h1 class="marginbottom10"><%= message('update_center.page') -%></h1>
+<%= render :partial => 'updatecenter/tabs', :locals => {:tab => 'available'} -%>
 <div class="tabs-panel">
 
 <%= render :partial => 'updatecenter/operations' -%>

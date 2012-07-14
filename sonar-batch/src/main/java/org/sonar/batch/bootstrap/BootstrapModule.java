@@ -23,6 +23,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.utils.HttpDownloader;
+import org.sonar.api.utils.UriReader;
 import org.sonar.batch.FakeMavenPluginExecutor;
 import org.sonar.batch.MavenPluginExecutor;
 import org.sonar.batch.RemoteServerMetadata;
@@ -64,6 +65,7 @@ public class BootstrapModule extends Module {
     addCoreSingleton(ServerMetadata.class);// registered here because used by BootstrapClassLoader
     addCoreSingleton(TempDirectories.class);// registered here because used by BootstrapClassLoader
     addCoreSingleton(HttpDownloader.class);// registered here because used by BootstrapClassLoader
+    addCoreSingleton(UriReader.class);// registered here because used by BootstrapClassLoader
     addCoreSingleton(ArtifactDownloader.class);// registered here because used by BootstrapClassLoader
     addCoreSingleton(JdbcDriverHolder.class);
     addCoreSingleton(EmailSettings.class);

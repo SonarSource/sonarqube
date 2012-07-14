@@ -34,6 +34,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.*;
+import java.nio.charset.Charset;
 import java.util.List;
 
 /**
@@ -41,7 +42,7 @@ import java.util.List;
  *
  * @since 2.2
  */
-public class HttpDownloader implements BatchComponent, ServerComponent {
+public class HttpDownloader implements UriReader.SchemeProcessor, BatchComponent, ServerComponent {
 
   public static final int TIMEOUT_MILLISECONDS = 20 * 1000;
 
@@ -91,9 +92,13 @@ public class HttpDownloader implements BatchComponent, ServerComponent {
     return Joiner.on(", ").join(descriptions);
   }
 
+  public String description(URI uri) {
+    return String.format("%s (%s)", uri.toString(), getProxySynthesis(uri));
+  }
+
   private void registerProxyCredentials(Settings settings) {
     Authenticator.setDefault(new ProxyAuthenticator(settings.getString("http.proxyUser"), settings
-        .getString("http.proxyPassword")));
+      .getString("http.proxyPassword")));
   }
 
   private boolean requiresProxyAuthentication(Settings settings) {
@@ -163,6 +168,18 @@ public class HttpDownloader implements BatchComponent, ServerComponent {
     } finally {
       IOUtils.closeQuietly(input);
     }
+  }
+
+  public String[] getSupportedSchemes() {
+    return new String[]{"http", "https"};
+  }
+
+  public byte[] readBytes(URI uri) {
+    return download(uri);
+  }
+
+  public String readString(URI uri, Charset charset) {
+    return downloadPlainText(uri, charset.name());
   }
 
   public InputStream openStream(URI uri) {

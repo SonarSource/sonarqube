@@ -22,64 +22,61 @@ package org.sonar.server.plugins;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.UriReader;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import static junit.framework.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.internal.matchers.IsCollectionContaining.hasItems;
-import static org.mockito.Matchers.anyObject;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class UpdateCenterClientTest {
 
   private UpdateCenterClient client;
-  private HttpDownloader downloader;
+  private UriReader reader;
   private static final String BASE_URL = "http://update.sonarsource.org";
 
   @Before
   public void startServer() throws Exception {
-    downloader = mock(HttpDownloader.class);
-    client = new UpdateCenterClient(downloader, new URI(BASE_URL));
+    reader = mock(UriReader.class);
+    client = new UpdateCenterClient(reader, new URI(BASE_URL));
   }
 
   @Test
   public void downloadUpdateCenter() throws URISyntaxException {
-    when(downloader.openStream(new URI(BASE_URL))).thenReturn(IOUtils.toInputStream("sonar.versions=2.2,2.3"));
+    when(reader.openStream(new URI(BASE_URL))).thenReturn(IOUtils.toInputStream("sonar.versions=2.2,2.3"));
     UpdateCenter center = client.getCenter();
-    verify(downloader, times(1)).openStream(new URI(BASE_URL));
-    assertThat(center.getSonar().getVersions(), hasItems(Version.create("2.2"), Version.create("2.3")));
+    verify(reader, times(1)).openStream(new URI(BASE_URL));
+    assertThat(center.getSonar().getVersions()).containsOnly(Version.create("2.2"), Version.create("2.3"));
   }
 
   @Test
-  public void ignoreWhenServerIsDown() {
-    when(downloader.download((URI) anyObject())).thenThrow(new SonarException());
-    assertNull(client.getCenter());
+  public void ignore_connection_errors() {
+    when(reader.openStream(any(URI.class))).thenThrow(new SonarException());
+    assertThat(client.getCenter()).isNull();
   }
 
 
   @Test
-  public void cacheData() throws URISyntaxException {
-    when(downloader.openStream(new URI(BASE_URL))).thenReturn(IOUtils.toInputStream("sonar.versions=2.2,2.3"));
+  public void cache_data() throws Exception {
+    when(reader.openStream(new URI(BASE_URL))).thenReturn(IOUtils.toInputStream("sonar.versions=2.2,2.3"));
 
     client.getCenter();
     client.getCenter();
 
-    verify(downloader, times(1)).openStream(new URI(BASE_URL));
+    verify(reader, times(1)).openStream(new URI(BASE_URL));
   }
 
   @Test
-  public void forceRefresh() throws URISyntaxException {
-    when(downloader.openStream(new URI(BASE_URL))).thenReturn(IOUtils.toInputStream("sonar.versions=2.2,2.3"));
+  public void forceRefresh() throws Exception {
+    when(reader.openStream(new URI(BASE_URL))).thenReturn(IOUtils.toInputStream("sonar.versions=2.2,2.3"));
 
     client.getCenter();
     client.getCenter(true);
 
-    verify(downloader, times(2)).openStream(new URI(BASE_URL));
+    verify(reader, times(2)).openStream(new URI(BASE_URL));
   }
 }

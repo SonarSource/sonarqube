@@ -36,6 +36,7 @@ import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.IocContainer;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.api.utils.UriReader;
 import org.sonar.api.workflow.internal.DefaultWorkflow;
 import org.sonar.core.PicoUtils;
 import org.sonar.core.config.Logback;
@@ -193,6 +194,7 @@ public final class Platform {
     servicesContainer.addSingleton(WorkflowEngine.class);
 
     servicesContainer.addSingleton(HttpDownloader.class);
+    servicesContainer.addSingleton(UriReader.class);
     servicesContainer.addSingleton(UpdateCenterClient.class);
     servicesContainer.addSingleton(UpdateCenterMatrixFactory.class);
     servicesContainer.addSingleton(PluginDownloader.class);
