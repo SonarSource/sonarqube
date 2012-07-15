@@ -94,29 +94,29 @@ public class UriReader implements BatchComponent, ServerComponent {
     return processor;
   }
 
-  static interface SchemeProcessor extends BatchComponent, ServerComponent {
-    String[] getSupportedSchemes();
+  abstract static class SchemeProcessor implements BatchComponent, ServerComponent {
+    abstract String[] getSupportedSchemes();
 
-    byte[] readBytes(URI uri);
+    abstract byte[] readBytes(URI uri);
 
-    String readString(URI uri, Charset charset);
+    abstract String readString(URI uri, Charset charset);
 
-    InputStream openStream(URI uri);
+    abstract InputStream openStream(URI uri);
 
-    String description(URI uri);
+    abstract String description(URI uri);
   }
 
 
   /**
    * This implementation is not exposed in API and is kept private.
    */
-  private static class FileProcessor implements SchemeProcessor {
+  private static class FileProcessor extends SchemeProcessor {
 
     public String[] getSupportedSchemes() {
       return new String[]{"file"};
     }
 
-    public byte[] readBytes(URI uri) {
+    byte[] readBytes(URI uri) {
       try {
         return Files.toByteArray(new File(uri));
       } catch (IOException e) {
@@ -124,7 +124,7 @@ public class UriReader implements BatchComponent, ServerComponent {
       }
     }
 
-    public String readString(URI uri, Charset charset) {
+    String readString(URI uri, Charset charset) {
       try {
         return Files.toString(new File(uri), charset);
       } catch (IOException e) {
@@ -132,7 +132,7 @@ public class UriReader implements BatchComponent, ServerComponent {
       }
     }
 
-    public InputStream openStream(URI uri) {
+    InputStream openStream(URI uri) {
       try {
         return Files.newInputStreamSupplier(new File(uri)).getInput();
       } catch (IOException e) {
@@ -140,7 +140,7 @@ public class UriReader implements BatchComponent, ServerComponent {
       }
     }
 
-    public String description(URI uri) {
+    String description(URI uri) {
       return new File(uri).getAbsolutePath();
     }
   }

@@ -42,7 +42,7 @@ import java.util.List;
  *
  * @since 2.2
  */
-public class HttpDownloader implements UriReader.SchemeProcessor, BatchComponent, ServerComponent {
+public class HttpDownloader extends UriReader.SchemeProcessor implements BatchComponent, ServerComponent {
 
   public static final int TIMEOUT_MILLISECONDS = 20 * 1000;
 
@@ -92,7 +92,7 @@ public class HttpDownloader implements UriReader.SchemeProcessor, BatchComponent
     return Joiner.on(", ").join(descriptions);
   }
 
-  public String description(URI uri) {
+  String description(URI uri) {
     return String.format("%s (%s)", uri.toString(), getProxySynthesis(uri));
   }
 
@@ -170,19 +170,19 @@ public class HttpDownloader implements UriReader.SchemeProcessor, BatchComponent
     }
   }
 
-  public String[] getSupportedSchemes() {
+  String[] getSupportedSchemes() {
     return new String[]{"http", "https"};
   }
 
-  public byte[] readBytes(URI uri) {
+  byte[] readBytes(URI uri) {
     return download(uri);
   }
 
-  public String readString(URI uri, Charset charset) {
+  String readString(URI uri, Charset charset) {
     return downloadPlainText(uri, charset.name());
   }
 
-  public InputStream openStream(URI uri) {
+  InputStream openStream(URI uri) {
     try {
       HttpURLConnection connection = newHttpConnection(uri);
       return connection.getInputStream();

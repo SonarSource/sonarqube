@@ -22,6 +22,7 @@ package org.sonar.server.plugins;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.config.Settings;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.UriReader;
 import org.sonar.updatecenter.common.UpdateCenter;
@@ -42,7 +43,8 @@ public class UpdateCenterClientTest {
   @Before
   public void startServer() throws Exception {
     reader = mock(UriReader.class);
-    client = new UpdateCenterClient(reader, new URI(BASE_URL));
+    Settings settings = new Settings().setProperty(UpdateCenterClient.URL_PROPERTY, BASE_URL);
+    client = new UpdateCenterClient(reader, settings);
   }
 
   @Test
@@ -51,7 +53,13 @@ public class UpdateCenterClientTest {
     UpdateCenter center = client.getCenter();
     verify(reader, times(1)).openStream(new URI(BASE_URL));
     assertThat(center.getSonar().getVersions()).containsOnly(Version.create("2.2"), Version.create("2.3"));
+    assertThat(client.getLastRefreshDate()).isNotNull();
   }
+
+  @Test
+    public void not_available_before_initialization() {
+      assertThat(client.getLastRefreshDate()).isNull();
+    }
 
   @Test
   public void ignore_connection_errors() {
