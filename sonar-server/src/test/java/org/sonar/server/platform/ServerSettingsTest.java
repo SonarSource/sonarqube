@@ -37,7 +37,7 @@ public class ServerSettingsTest {
 
   @Test
   public void shouldLoadPropertiesFile() {
-    ServerSettings settings = new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), home, new GlobalPropertyChangeHandler[0]);
+    ServerSettings settings = new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), home);
 
     assertThat(settings.getString("hello")).isEqualTo("world");
   }
@@ -45,7 +45,7 @@ public class ServerSettingsTest {
   @Test
   public void systemPropertiesShouldOverridePropertiesFile() {
     System.setProperty("ServerSettingsTestEnv", "in_env");
-    ServerSettings settings = new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), home, new GlobalPropertyChangeHandler[0]);
+    ServerSettings settings = new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), home);
 
     assertThat(settings.getString("ServerSettingsTestEnv")).isEqualTo("in_env");
   }
@@ -53,12 +53,12 @@ public class ServerSettingsTest {
   @Test(expected = IllegalStateException.class)
   public void shouldFailIfPropertiesFileNotFound() {
     File sonarHome = new File("unknown/path");
-    new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), sonarHome, new GlobalPropertyChangeHandler[0]);
+    new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), sonarHome);
   }
 
   @Test
   public void activateDatabaseSettings() {
-    ServerSettings settings = new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), home, new GlobalPropertyChangeHandler[0]);
+    ServerSettings settings = new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), home);
 
     Map<String, String> databaseProperties = ImmutableMap.of("in_db", "true");
     settings.activateDatabaseSettings(databaseProperties);
@@ -68,7 +68,7 @@ public class ServerSettingsTest {
 
   @Test
   public void file_settings_override_db_settings() {
-    ServerSettings settings = new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), home, new GlobalPropertyChangeHandler[0]);
+    ServerSettings settings = new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), home);
     assertThat(settings.getString("in_file")).isEqualTo("true");
 
     Map<String, String> databaseProperties = ImmutableMap.of("in_file", "false");

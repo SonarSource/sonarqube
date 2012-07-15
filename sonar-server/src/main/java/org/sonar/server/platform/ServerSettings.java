@@ -22,7 +22,6 @@ package org.sonar.server.platform;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.configuration.Configuration;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.GlobalPropertyChangeHandler;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.core.config.ConfigurationUtils;
@@ -52,23 +51,17 @@ public class ServerSettings extends Settings {
   private Configuration deprecatedConfiguration;
   private File deployDir;
   private File sonarHome;
-  private GlobalPropertyChangeHandler[] changeHandlers;
-
-  public ServerSettings(PropertyDefinitions definitions, Configuration deprecatedConfiguration, ServletContext servletContext, GlobalPropertyChangeHandler[] changeHandlers) {
-    this(definitions, deprecatedConfiguration, getDeployDir(servletContext), SonarHome.getHome(), changeHandlers);
-  }
 
   public ServerSettings(PropertyDefinitions definitions, Configuration deprecatedConfiguration, ServletContext servletContext) {
-    this(definitions, deprecatedConfiguration, servletContext, new GlobalPropertyChangeHandler[0]);
+    this(definitions, deprecatedConfiguration, getDeployDir(servletContext), SonarHome.getHome());
   }
 
   @VisibleForTesting
-  ServerSettings(PropertyDefinitions definitions, Configuration deprecatedConfiguration, File deployDir, File sonarHome, GlobalPropertyChangeHandler[] changeHandlers) {
+  ServerSettings(PropertyDefinitions definitions, Configuration deprecatedConfiguration, File deployDir, File sonarHome) {
     super(definitions);
     this.deprecatedConfiguration = deprecatedConfiguration;
     this.deployDir = deployDir;
     this.sonarHome = sonarHome;
-    this.changeHandlers = changeHandlers;
     load(Collections.<String, String>emptyMap());
   }
 
@@ -125,11 +118,6 @@ public class ServerSettings extends Settings {
   @Override
   protected void doOnSetProperty(String key, @Nullable String value) {
     deprecatedConfiguration.setProperty(key, value);
-
-    GlobalPropertyChangeHandler.PropertyChange change = GlobalPropertyChangeHandler.PropertyChange.create(key, value);
-    for (GlobalPropertyChangeHandler changeHandler : changeHandlers) {
-      changeHandler.onChange(change);
-    }
   }
 
   @Override

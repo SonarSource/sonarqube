@@ -333,6 +333,7 @@ public final class JRubyFacade {
 
   public void setGlobalProperty(String key, @Nullable String value) {
     get(ServerSettings.class).setProperty(key, value);
+    get(SettingsChangeNotifier.class).onGlobalPropertyChange(key, value);
   }
 
   public Settings getSettings() {

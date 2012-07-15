@@ -231,6 +231,7 @@ public final class Platform {
     servicesContainer.addSingleton(GwtI18n.class);
     servicesContainer.addSingleton(ResourceTypes.class);
     servicesContainer.addSingleton(NewUserNotifier.class);
+    servicesContainer.addSingleton(SettingsChangeNotifier.class);
 
     // Notifications
     servicesContainer.addSingleton(EmailSettings.class);

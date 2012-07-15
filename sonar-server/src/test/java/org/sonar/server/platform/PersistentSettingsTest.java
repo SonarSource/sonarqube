@@ -25,7 +25,6 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.config.GlobalPropertyChangeHandler;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
@@ -50,8 +49,7 @@ public class PersistentSettingsTest {
       new PropertyDefinitions(),
       new PropertiesConfiguration(),
       new File("."),
-      new File(PersistentSettingsTest.class.getResource("/org/sonar/server/platform/PersistentSettingsTest/").toURI()),
-      new GlobalPropertyChangeHandler[0]);
+      new File(PersistentSettingsTest.class.getResource("/org/sonar/server/platform/PersistentSettingsTest/").toURI()));
   }
 
   @Test

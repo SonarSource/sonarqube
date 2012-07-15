@@ -19,7 +19,6 @@
  */
 package org.sonar.server.plugins;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.Properties;
@@ -69,15 +68,10 @@ public class UpdateCenterClient implements ServerComponent {
   private long lastRefreshDate = 0;
   private UriReader uriReader;
 
-  @VisibleForTesting
-  UpdateCenterClient(UriReader uriReader, URI uri) {
-    this.uriReader = uriReader;
-    this.uri = uri;
-    LoggerFactory.getLogger(getClass()).info("Update center: " + uriReader.description(uri));
-  }
-
   public UpdateCenterClient(UriReader uriReader, Settings settings) throws URISyntaxException {
-    this(uriReader, new URI(settings.getString(URL_PROPERTY)));
+    this.uriReader = uriReader;
+    this.uri = new URI(settings.getString(URL_PROPERTY));
+    LoggerFactory.getLogger(getClass()).info("Update center: " + uriReader.description(uri));
   }
 
   public UpdateCenter getCenter() {
