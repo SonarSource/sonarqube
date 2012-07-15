@@ -21,17 +21,11 @@ package org.sonar.server.startup;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.web.Dashboard;
 import org.sonar.api.web.DashboardTemplate;
-import org.sonar.core.dashboard.ActiveDashboardDao;
-import org.sonar.core.dashboard.ActiveDashboardDto;
-import org.sonar.core.dashboard.DashboardDao;
-import org.sonar.core.dashboard.DashboardDto;
-import org.sonar.core.dashboard.WidgetDto;
-import org.sonar.core.dashboard.WidgetPropertyDto;
+import org.sonar.core.dashboard.*;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.template.LoadedTemplateDto;
 
@@ -44,7 +38,6 @@ import java.util.Map.Entry;
  * @since 2.13
  */
 public final class RegisterNewDashboards {
-  private static final Logger LOG = LoggerFactory.getLogger(RegisterNewDashboards.class);
   static final String DEFAULT_DASHBOARD_NAME = "Dashboard";
 
   private final List<DashboardTemplate> dashboardTemplates;
@@ -53,7 +46,7 @@ public final class RegisterNewDashboards {
   private final LoadedTemplateDao loadedTemplateDao;
 
   public RegisterNewDashboards(DashboardTemplate[] dashboardTemplatesArray, DashboardDao dashboardDao,
-      ActiveDashboardDao activeDashboardDao, LoadedTemplateDao loadedTemplateDao) {
+                               ActiveDashboardDao activeDashboardDao, LoadedTemplateDao loadedTemplateDao) {
     this.dashboardTemplates = Lists.newArrayList(dashboardTemplatesArray);
     this.dashboardDao = dashboardDao;
     this.activeDashboardDao = activeDashboardDao;
@@ -89,8 +82,8 @@ public final class RegisterNewDashboards {
 
   private void activate(DashboardDto dashboardDto, int index) {
     ActiveDashboardDto activeDashboardDto = new ActiveDashboardDto()
-        .setDashboardId(dashboardDto.getId())
-        .setOrderIndex(index);
+      .setDashboardId(dashboardDto.getId())
+      .setOrderIndex(index);
     activeDashboardDao.insert(activeDashboardDto);
 
     LoggerFactory.getLogger(getClass()).info("New dashboard '" + dashboardDto.getName() + "' registered");
@@ -111,31 +104,31 @@ public final class RegisterNewDashboards {
     Date now = new Date();
 
     DashboardDto dashboardDto = new DashboardDto()
-        .setName(name)
-        .setDescription(dashboard.getDescription())
-        .setColumnLayout(dashboard.getLayout().getCode())
-        .setShared(true)
-        .setGlobal(dashboard.isGlobal())
-        .setCreatedAt(now)
-        .setUpdatedAt(now);
+      .setName(name)
+      .setDescription(dashboard.getDescription())
+      .setColumnLayout(dashboard.getLayout().getCode())
+      .setShared(true)
+      .setGlobal(dashboard.isGlobal())
+      .setCreatedAt(now)
+      .setUpdatedAt(now);
 
     for (int columnIndex = 1; columnIndex <= dashboard.getLayout().getColumns(); columnIndex++) {
       List<Dashboard.Widget> widgets = dashboard.getWidgetsOfColumn(columnIndex);
       for (int rowIndex = 1; rowIndex <= widgets.size(); rowIndex++) {
         Dashboard.Widget widget = widgets.get(rowIndex - 1);
         WidgetDto widgetDto = new WidgetDto()
-            .setKey(widget.getId())
-            .setColumnIndex(columnIndex)
-            .setRowIndex(rowIndex)
-            .setConfigured(true)
-            .setCreatedAt(now)
-            .setUpdatedAt(now);
+          .setKey(widget.getId())
+          .setColumnIndex(columnIndex)
+          .setRowIndex(rowIndex)
+          .setConfigured(true)
+          .setCreatedAt(now)
+          .setUpdatedAt(now);
         dashboardDto.addWidget(widgetDto);
 
         for (Entry<String, String> property : widget.getProperties().entrySet()) {
           WidgetPropertyDto propDto = new WidgetPropertyDto()
-              .setKey(property.getKey())
-              .setValue(property.getValue());
+            .setKey(property.getKey())
+            .setValue(property.getValue());
           widgetDto.addWidgetProperty(propDto);
         }
       }

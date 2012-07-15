@@ -21,9 +21,7 @@ package org.sonar.api.design;
 
 import org.junit.Test;
 
-import static junit.framework.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class DependencyTest {
 
@@ -33,13 +31,13 @@ public class DependencyTest {
     DependencyDto dep1Clone = new DependencyDto().setFromSnapshotId(10).setToSnapshotId(30);
     DependencyDto dep2 = new DependencyDto().setFromSnapshotId(10).setToSnapshotId(31);
 
-    assertFalse(dep1.equals(dep2));
-    assertTrue(dep1.equals(dep1));
-    assertTrue(dep1.equals(dep1Clone));
+    assertThat(dep1.equals(dep2)).isFalse();
+    assertThat(dep1.equals(dep1)).isTrue();
+    assertThat(dep1.equals(dep1Clone)).isTrue();
 
-    assertEquals(dep1.hashCode(), dep1.hashCode());
-    assertEquals(dep1.hashCode(), dep1Clone.hashCode());
-    assertEquals(dep1.toString(), dep1.toString());
+    assertThat(dep1.hashCode()).isEqualTo(dep1.hashCode());
+    assertThat(dep1.hashCode()).isEqualTo(dep1Clone.hashCode());
+    assertThat(dep1.toString()).isEqualTo(dep1.toString());
   }
 
   @Test(expected = IllegalArgumentException.class)

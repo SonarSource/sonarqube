@@ -24,9 +24,7 @@ public interface DatabaseProperties {
   int MAX_TEXT_SIZE = 16777215;
 
   String PROP_URL = "sonar.jdbc.url";
-  String PROP_URL_DEFAULT_VALUE = "jdbc:h2:tcp://localhost/sonar";
   String PROP_DRIVER = "sonar.jdbc.driverClassName";
-  String PROP_DRIVER_DEFAULT_VALUE = "org.h2.Driver";
   String PROP_DRIVER_DEPRECATED = "sonar.jdbc.driver";
   String PROP_USER = "sonar.jdbc.username";
   String PROP_USER_DEPRECATED = "sonar.jdbc.user";

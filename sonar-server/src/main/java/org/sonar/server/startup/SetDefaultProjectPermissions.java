@@ -29,6 +29,9 @@ import java.util.Map;
  * @since 3.2
  */
 public class SetDefaultProjectPermissions {
+  private static final String SONAR_ADMINISTRATORS = "sonar-administrators";
+  private static final String ANYONE_AND_USERS = "Anyone,sonar-users";
+
   private final PersistentSettings persistentSettings;
 
   public SetDefaultProjectPermissions(PersistentSettings persistentSettings) {
@@ -39,17 +42,17 @@ public class SetDefaultProjectPermissions {
     if (persistentSettings.getSettings().getKeysStartingWith("sonar.role.").isEmpty()) {
       LoggerFactory.getLogger(SetDefaultProjectPermissions.class).info("Setting default project permissions");
       Map<String, String> props = Maps.newHashMap();
-      props.put("sonar.role.admin.TRK.defaultGroups", "sonar-administrators");
-      props.put("sonar.role.user.TRK.defaultGroups", "Anyone,sonar-users");
-      props.put("sonar.role.codeviewer.TRK.defaultGroups", "Anyone,sonar-users");
+      props.put("sonar.role.admin.TRK.defaultGroups", SONAR_ADMINISTRATORS);
+      props.put("sonar.role.user.TRK.defaultGroups", ANYONE_AND_USERS);
+      props.put("sonar.role.codeviewer.TRK.defaultGroups", ANYONE_AND_USERS);
 
       // Support old versions of Views plugin
-      props.put("sonar.role.admin.VW.defaultGroups", "sonar-administrators");
-      props.put("sonar.role.user.VW.defaultGroups", "Anyone,sonar-users");
-      props.put("sonar.role.codeviewer.VW.defaultGroups", "Anyone,sonar-users");
-      props.put("sonar.role.admin.SVW.defaultGroups", "sonar-administrators");
-      props.put("sonar.role.user.SVW.defaultGroups", "Anyone,sonar-users");
-      props.put("sonar.role.codeviewer.SVW.defaultGroups", "Anyone,sonar-users");
+      props.put("sonar.role.admin.VW.defaultGroups", SONAR_ADMINISTRATORS);
+      props.put("sonar.role.user.VW.defaultGroups", ANYONE_AND_USERS);
+      props.put("sonar.role.codeviewer.VW.defaultGroups", ANYONE_AND_USERS);
+      props.put("sonar.role.admin.SVW.defaultGroups", SONAR_ADMINISTRATORS);
+      props.put("sonar.role.user.SVW.defaultGroups", ANYONE_AND_USERS);
+      props.put("sonar.role.codeviewer.SVW.defaultGroups", ANYONE_AND_USERS);
 
       persistentSettings.saveProperties(props);
     }

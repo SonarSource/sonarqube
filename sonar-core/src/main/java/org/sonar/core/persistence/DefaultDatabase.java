@@ -20,7 +20,6 @@
 package org.sonar.core.persistence;
 
 import com.google.common.annotations.VisibleForTesting;
-
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbcp.BasicDataSourceFactory;
 import org.apache.commons.lang.StringUtils;
@@ -29,15 +28,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
-import org.sonar.core.persistence.dialect.Dialect;
-import org.sonar.core.persistence.dialect.DialectUtils;
-import org.sonar.core.persistence.dialect.H2;
-import org.sonar.core.persistence.dialect.Oracle;
-import org.sonar.core.persistence.dialect.PostgreSql;
+import org.sonar.core.persistence.dialect.*;
 import org.sonar.jpa.session.CustomHibernateConnectionProvider;
 
 import javax.sql.DataSource;
-
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
@@ -50,6 +44,8 @@ import java.util.Properties;
 public class DefaultDatabase implements Database {
 
   private static final Logger LOG = LoggerFactory.getLogger(Database.class);
+
+  private static final String DEFAULT_URL = "jdbc:h2:tcp://localhost/sonar";
 
   private Settings settings;
   private BasicDataSource datasource;
@@ -117,7 +113,7 @@ public class DefaultDatabase implements Database {
   private void initDatasource() throws Exception {// NOSONAR this exception is thrown by BasicDataSourceFactory
     // but it's correctly caught by start()
 
-    LOG.info("Create JDBC datasource to url " + properties.getProperty(DatabaseProperties.PROP_URL, DatabaseProperties.PROP_URL_DEFAULT_VALUE));
+    LOG.info("Create JDBC datasource to url " + properties.getProperty(DatabaseProperties.PROP_URL, DEFAULT_URL));
     datasource = (BasicDataSource) BasicDataSourceFactory.createDataSource(extractCommonsDbcpProperties(properties));
 
     String initStatement = dialect.getConnectionInitStatement(getSchema());
@@ -212,7 +208,7 @@ public class DefaultDatabase implements Database {
 
   private static void completeDefaultProperties(Properties props) {
     completeDefaultProperty(props, DatabaseProperties.PROP_DRIVER, props.getProperty(DatabaseProperties.PROP_DRIVER_DEPRECATED));
-    completeDefaultProperty(props, DatabaseProperties.PROP_URL, DatabaseProperties.PROP_URL_DEFAULT_VALUE);
+    completeDefaultProperty(props, DatabaseProperties.PROP_URL, DEFAULT_URL);
     completeDefaultProperty(props, DatabaseProperties.PROP_USER, props.getProperty(DatabaseProperties.PROP_USER_DEPRECATED, DatabaseProperties.PROP_USER_DEFAULT_VALUE));
     completeDefaultProperty(props, DatabaseProperties.PROP_PASSWORD, DatabaseProperties.PROP_PASSWORD_DEFAULT_VALUE);
     completeDefaultProperty(props, DatabaseProperties.PROP_HIBERNATE_HBM2DLL, "validate");

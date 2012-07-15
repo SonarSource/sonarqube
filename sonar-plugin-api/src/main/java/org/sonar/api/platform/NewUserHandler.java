@@ -58,7 +58,7 @@ public interface NewUserHandler extends ServerExtension {
       return new Builder();
     }
 
-    public static class Builder {
+    public static final class Builder {
       private String login;
       private String name;
       private String email;

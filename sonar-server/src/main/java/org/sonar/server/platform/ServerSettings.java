@@ -22,7 +22,6 @@ package org.sonar.server.platform;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.configuration.Configuration;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.ServerComponent;
 import org.sonar.api.config.GlobalPropertyChangeHandler;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
@@ -46,7 +45,7 @@ import java.util.Properties;
  *
  * @since 2.12
  */
-public class ServerSettings extends Settings implements ServerComponent {
+public class ServerSettings extends Settings {
 
   public static final String DEPLOY_DIR = "sonar.web.deployDir";
 
