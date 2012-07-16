@@ -145,6 +145,10 @@ public class NotificationService implements ServerComponent {
         }
       }
     }
+    dispatch(notification, recipients);
+  }
+
+  private void dispatch(Notification notification, SetMultimap<String, NotificationChannel> recipients) {
     for (Map.Entry<String, Collection<NotificationChannel>> entry : recipients.asMap().entrySet()) {
       String username = entry.getKey();
       Collection<NotificationChannel> userChannels = entry.getValue();
