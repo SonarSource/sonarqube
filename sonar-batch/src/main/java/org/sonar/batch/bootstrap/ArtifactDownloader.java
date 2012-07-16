@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.bootstrap;
 
+import com.google.common.base.Charsets;
+
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.CharUtils;
@@ -89,7 +91,7 @@ public class ArtifactDownloader implements BatchComponent {
     String url = baseUrl + "/deploy/plugins/index.txt";
     try {
       LOG.debug("Downloading index of plugins");
-      String indexContent = httpDownloader.downloadPlainText(new URI(url), "UTF-8");
+      String indexContent = httpDownloader.downloadPlainText(new URI(url), Charsets.UTF_8);
       String[] rows = StringUtils.split(indexContent, CharUtils.LF);
       List<RemotePlugin> remoteLocations = Lists.newArrayList();
       for (String row : rows) {

@@ -155,12 +155,12 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
     }
   }
 
-  public String downloadPlainText(URI uri, String encoding) {
+  public String downloadPlainText(URI uri, Charset charset) {
     InputStream input = null;
     try {
       HttpURLConnection connection = newHttpConnection(uri);
       input = connection.getInputStream();
-      return IOUtils.toString(input, encoding);
+      return IOUtils.toString(input, charset.name());
 
     } catch (Exception e) {
       throw new SonarException("Fail to download the file: " + uri + " (" + getProxySynthesis(uri) + ")", e);
@@ -182,7 +182,7 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
 
   @Override
   String readString(URI uri, Charset charset) {
-    return downloadPlainText(uri, charset.name());
+    return downloadPlainText(uri, charset);
   }
 
   private HttpURLConnection newHttpConnection(URI uri) throws IOException {
