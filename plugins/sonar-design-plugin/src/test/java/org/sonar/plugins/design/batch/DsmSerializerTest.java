@@ -27,6 +27,7 @@ import org.sonar.api.resources.Resource;
 import org.sonar.graph.DirectedGraph;
 import org.sonar.graph.Dsm;
 import org.sonar.graph.DsmManualSorter;
+import org.sonar.graph.Edge;
 
 import java.io.IOException;
 
@@ -36,7 +37,7 @@ import static org.junit.Assert.assertThat;
 public class DsmSerializerTest {
   @Test
   public void serializeEmptyDsm() {
-    Dsm dsm = new Dsm(new DirectedGraph());
+    Dsm<Resource> dsm = new Dsm<Resource>(new DirectedGraph<Resource, Edge<Resource>>());
     assertThat(DsmSerializer.serialize(dsm), is("[]"));
   }
 
