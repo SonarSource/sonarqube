@@ -12,3 +12,6 @@ config.whiny_nils = true
 config.action_controller.consider_all_requests_local = true
 config.action_view.debug_rjs                         = true
 config.action_controller.perform_caching             = false
+
+config.logger = Slf4jLogger.new
+ActiveRecord::Base.logger = config.logger

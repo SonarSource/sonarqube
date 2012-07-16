@@ -31,8 +31,8 @@
     <level value="INFO"/>
   </logger>
 
-  <logger name="rails.sonar">
-    <level value="INFO"/>
+  <logger name="rails">
+    <level value="DEBUG"/>
   </logger>
 
   <root>
