@@ -131,7 +131,6 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
       IOUtils.copy(input, output);
 
     } catch (Exception e) {
-      IOUtils.closeQuietly(output);
       FileUtils.deleteQuietly(toFile);
       throw new SonarException("Fail to download the file: " + uri + " (" + getProxySynthesis(uri) + ")", e);
 
