@@ -19,10 +19,10 @@
  */
 package org.sonar.server.startup;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentMatcher;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.platform.Server;
 import org.sonar.server.platform.PersistentSettings;
@@ -30,10 +30,8 @@ import org.sonar.server.platform.PersistentSettings;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Map;
 import java.util.TimeZone;
 
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -66,16 +64,10 @@ public class ServerMetadataPersisterTest {
     ServerMetadataPersister persister = new ServerMetadataPersister(server, persistentSettings);
     persister.start();
 
-    verify(persistentSettings).saveProperties(argThat(new ArgumentMatcher<Map<String, String>>() {
-      @Override
-      public boolean matches(Object o) {
-        Map<String, String> map = (Map<String, String>) o;
-        return map.get(CoreProperties.SERVER_ID).equals("123")
-          && map.get(CoreProperties.SERVER_VERSION).equals("3.2")
-          && map.get(CoreProperties.SERVER_STARTTIME).equals("2010-05-18T17:59:00+0000")
-          && map.size() == 3;
-      }
-    }));
+    verify(persistentSettings).saveProperties(ImmutableMap.of(
+        CoreProperties.SERVER_ID, "123",
+        CoreProperties.SERVER_VERSION, "3.2",
+        CoreProperties.SERVER_STARTTIME, "2010-05-18T17:59:00+0000"));
   }
 
 }

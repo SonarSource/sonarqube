@@ -33,6 +33,7 @@ public abstract class ExternalUsersProvider {
   /**
    * This method is overridden by old versions of plugins such as LDAP 1.1. It should be overridden anymore.
    *
+   * @param username the username
    * @return details for specified user, or null if such user doesn't exist
    * @throws RuntimeException in case of unexpected error such as connection failure
    * @deprecated replaced by {@link #doGetUserDetails(org.sonar.api.security.ExternalUsersProvider.Context)} since v. 3.1
