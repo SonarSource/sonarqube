@@ -94,7 +94,7 @@ public class UriReader implements BatchComponent, ServerComponent {
     return processor;
   }
 
-  abstract static class SchemeProcessor implements BatchComponent, ServerComponent {
+  abstract static class SchemeProcessor {
     abstract String[] getSupportedSchemes();
 
     abstract byte[] readBytes(URI uri);
