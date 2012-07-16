@@ -26,7 +26,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -48,7 +47,7 @@ public class UriReaderTest {
   }
 
   @Test
-  public void file_processor_is_always_available() throws URISyntaxException {
+  public void file_processor_is_always_available() {
     UriReader uriReader = new UriReader(new UriReader.SchemeProcessor[0]);
 
     assertThat(uriReader.searchForSupportedProcessor(testFile)).isNotNull();

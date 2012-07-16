@@ -22,7 +22,6 @@ package org.sonar.server.platform;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.junit.Test;
-import org.sonar.api.config.GlobalPropertyChangeHandler;
 import org.sonar.api.config.PropertyDefinitions;
 
 import java.io.File;
