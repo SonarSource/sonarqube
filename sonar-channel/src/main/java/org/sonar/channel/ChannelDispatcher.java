@@ -32,8 +32,7 @@ public class ChannelDispatcher<OUTPUT> extends Channel<OUTPUT> {
   private static final Logger LOG = LoggerFactory.getLogger(ChannelDispatcher.class);
   private final boolean failIfNoChannelToConsumeOneCharacter;
 
-  @SuppressWarnings("rawtypes")
-  private final Channel[] channels;
+  private final Channel<OUTPUT>[] channels;
 
   /**
    * @deprecated in version 2.9. Please use the builder() method
