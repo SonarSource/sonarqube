@@ -204,8 +204,8 @@ public class BatchExtensionDictionnary {
       Object result = method.invoke(extension);
       if (result != null) {
         //TODO add arrays/collections of objects/classes
-        if (result instanceof Class) {
-          results.addAll(componentContainer.getComponentsByType((Class) result));
+        if (result instanceof Class<?>) {
+          results.addAll(componentContainer.getComponentsByType((Class<?>) result));
 
         } else if (result instanceof Collection<?>) {
           results.addAll((Collection<?>) result);
