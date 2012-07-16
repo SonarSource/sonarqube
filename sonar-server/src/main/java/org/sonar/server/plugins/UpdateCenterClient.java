@@ -31,8 +31,7 @@ import org.sonar.api.utils.UriReader;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.UpdateCenterDeserializer;
 
-import java.io.Reader;
-import java.io.StringReader;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
@@ -97,12 +96,12 @@ public class UpdateCenterClient implements ServerComponent {
   }
 
   private UpdateCenter init() {
-    Reader reader = null;
+    InputStream input = null;
     try {
       String content = uriReader.readString(uri, Charsets.UTF_8);
       java.util.Properties properties = new java.util.Properties();
-      reader = new StringReader(content);
-      properties.load(reader);
+      input = IOUtils.toInputStream(content, Charsets.UTF_8.name());
+      properties.load(input);
       return UpdateCenterDeserializer.fromProperties(properties);
 
 
@@ -111,7 +110,7 @@ public class UpdateCenterClient implements ServerComponent {
       return null;
 
     } finally {
-      IOUtils.closeQuietly(reader);
+      IOUtils.closeQuietly(input);
     }
   }
 }
