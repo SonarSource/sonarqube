@@ -1,0 +1,12 @@
+<dataset>
+
+  <!-- global -->
+  <!--<properties prop_key="to_be_updated" text_value="old value" resource_id="[null]" user_id="[null]"/>-->
+  <properties prop_key="to_not_change" text_value="xxx" resource_id="[null]" user_id="[null]"/>
+
+  <!-- project - do not update this project property that has the same key -->
+  <properties prop_key="to_be_updated" text_value="new_project" resource_id="10" user_id="[null]"/>
+
+
+  <properties prop_key="to_be_updated" text_value="updated" resource_id="[null]" user_id="[null]"/>
+</dataset>

@@ -19,13 +19,12 @@
  */
 package org.sonar.core.properties;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.List;
-import java.util.TreeMap;
 
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
@@ -116,15 +115,21 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void saveGlobalProperties() {
-    setupData("saveGlobalProperties");
+  public void insertGlobalProperties() {
+    setupData("insertGlobalProperties");
 
-    TreeMap<String, String> props = Maps.newTreeMap();
-    props.put("to_be_inserted", "inserted");
-    props.put("to_be_updated", "updated");
-    dao.saveGlobalProperties(props);
+    dao.saveGlobalProperties(ImmutableMap.of("to_be_inserted", "inserted"));
 
-    checkTable("saveGlobalProperties", "properties", "prop_key", "text_value", "resource_id", "user_id");
+    checkTable("insertGlobalProperties", "properties", "prop_key", "text_value", "resource_id", "user_id");
+  }
+
+  @Test
+  public void updateGlobalProperties() {
+    setupData("updateGlobalProperties");
+
+    dao.saveGlobalProperties(ImmutableMap.of("to_be_updated", "updated"));
+
+    checkTable("updateGlobalProperties", "properties", "prop_key", "text_value", "resource_id", "user_id");
   }
 
   private PropertyDto findById(List<PropertyDto> properties, int id) {

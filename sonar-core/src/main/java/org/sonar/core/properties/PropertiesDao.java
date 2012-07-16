@@ -122,7 +122,6 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
       for (Map.Entry<String, String> entry : properties.entrySet()) {
         mapper.deleteGlobalProperty(entry.getKey());
       }
-      session.commit();//required for postgresql bulk inserts (?)
       for (Map.Entry<String, String> entry : properties.entrySet()) {
         mapper.insert(new PropertyDto().setKey(entry.getKey()).setValue(entry.getValue()));
       }
