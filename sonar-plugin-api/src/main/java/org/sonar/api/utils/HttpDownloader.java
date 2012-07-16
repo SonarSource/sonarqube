@@ -19,10 +19,16 @@
  */
 package org.sonar.api.utils;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.io.ByteStreams;
+import com.google.common.io.CharStreams;
+import com.google.common.io.Files;
+import com.google.common.io.InputSupplier;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
@@ -30,10 +36,14 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.*;
+import java.net.Authenticator;
+import java.net.HttpURLConnection;
+import java.net.PasswordAuthentication;
+import java.net.Proxy;
+import java.net.ProxySelector;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.List;
 
@@ -45,6 +55,9 @@ import java.util.List;
 public class HttpDownloader extends UriReader.SchemeProcessor implements BatchComponent, ServerComponent {
 
   public static final int TIMEOUT_MILLISECONDS = 20 * 1000;
+  private static final List<String> PROXY_SETTINGS = ImmutableList.of(
+      "http.proxyHost", "http.proxyPort", "http.nonProxyHosts",
+      "http.auth.ntlm.domain", "socksProxyHost", "socksProxyPort");
 
   private String userAgent;
 
@@ -73,33 +86,30 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
     System.setProperty("http.agent", userAgent);
   }
 
-  public String getProxySynthesis(URI uri) {
+  private static String getProxySynthesis(URI uri) {
     return getProxySynthesis(uri, ProxySelector.getDefault());
   }
 
+  @VisibleForTesting
   static String getProxySynthesis(URI uri, ProxySelector proxySelector) {
-    List<String> descriptions = Lists.newArrayList();
     List<Proxy> proxies = proxySelector.select(uri);
     if (proxies.size() == 1 && proxies.get(0).type().equals(Proxy.Type.DIRECT)) {
-      descriptions.add("no proxy");
-    } else {
-      for (Proxy proxy : proxies) {
-        if (!proxy.type().equals(Proxy.Type.DIRECT)) {
-          descriptions.add("proxy: " + proxy.address().toString());
-        }
+      return "no proxy";
+    }
+
+    List<String> descriptions = Lists.newArrayList();
+    for (Proxy proxy : proxies) {
+      if (proxy.type() != Proxy.Type.DIRECT) {
+        descriptions.add("proxy: " + proxy.address());
       }
     }
-    return Joiner.on(", ").join(descriptions);
-  }
 
-  @Override
-  String description(URI uri) {
-    return String.format("%s (%s)", uri.toString(), getProxySynthesis(uri));
+    return Joiner.on(", ").join(descriptions);
   }
 
   private void registerProxyCredentials(Settings settings) {
     Authenticator.setDefault(new ProxyAuthenticator(settings.getString("http.proxyUser"), settings
-      .getString("http.proxyPassword")));
+        .getString("http.proxyPassword")));
   }
 
   private boolean requiresProxyAuthentication(Settings settings) {
@@ -107,93 +117,76 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
   }
 
   private void propagateProxySystemProperties(Settings settings) {
-    propagateSystemProperty(settings, "http.proxyHost");
-    propagateSystemProperty(settings, "http.proxyPort");
-    propagateSystemProperty(settings, "http.nonProxyHosts");
-    propagateSystemProperty(settings, "http.auth.ntlm.domain");
-    propagateSystemProperty(settings, "socksProxyHost");
-    propagateSystemProperty(settings, "socksProxyPort");
-  }
-
-  private void propagateSystemProperty(Settings settings, String key) {
-    if (settings.getString(key) != null) {
-      System.setProperty(key, settings.getString(key));
+    for (String key : PROXY_SETTINGS) {
+      if (settings.getString(key) != null) {
+        System.setProperty(key, settings.getString(key));
+      }
     }
   }
 
-  public void download(URI uri, File toFile) {
-    InputStream input = null;
-    FileOutputStream output = null;
-    try {
-      HttpURLConnection connection = newHttpConnection(uri);
-      output = new FileOutputStream(toFile, false);
-      input = connection.getInputStream();
-      IOUtils.copy(input, output);
-
-    } catch (Exception e) {
-      FileUtils.deleteQuietly(toFile);
-      throw new SonarException("Fail to download the file: " + uri + " (" + getProxySynthesis(uri) + ")", e);
-
-    } finally {
-      IOUtils.closeQuietly(input);
-      IOUtils.closeQuietly(output);
-    }
-  }
-
-  public byte[] download(URI uri) {
-    InputStream input = null;
-    try {
-      HttpURLConnection connection = newHttpConnection(uri);
-      input = connection.getInputStream();
-      return IOUtils.toByteArray(input);
-
-    } catch (Exception e) {
-      throw new SonarException("Fail to download the file: " + uri + " (" + getProxySynthesis(uri) + ")", e);
-
-    } finally {
-      IOUtils.closeQuietly(input);
-    }
-  }
-
-  public String downloadPlainText(URI uri, Charset charset) {
-    InputStream input = null;
-    try {
-      HttpURLConnection connection = newHttpConnection(uri);
-      input = connection.getInputStream();
-      return IOUtils.toString(input, charset.name());
-
-    } catch (Exception e) {
-      throw new SonarException("Fail to download the file: " + uri + " (" + getProxySynthesis(uri) + ")", e);
-
-    } finally {
-      IOUtils.closeQuietly(input);
-    }
+  @Override
+  String description(URI uri) {
+    return String.format("%s (%s)", uri.toString(), getProxySynthesis(uri));
   }
 
   @Override
   String[] getSupportedSchemes() {
-    return new String[]{"http", "https"};
+    return new String[] {"http", "https"};
   }
 
   @Override
   byte[] readBytes(URI uri) {
-    return download(uri);
+    try {
+      return ByteStreams.toByteArray(new HttpInputSupplier(uri));
+    } catch (IOException e) {
+      throw failToDownload(uri, e);
+    }
   }
 
   @Override
   String readString(URI uri, Charset charset) {
-    return downloadPlainText(uri, charset);
+    try {
+      return CharStreams.toString(CharStreams.newReaderSupplier(new HttpInputSupplier(uri), charset));
+    } catch (IOException e) {
+      throw failToDownload(uri, e);
+    }
   }
 
-  private HttpURLConnection newHttpConnection(URI uri) throws IOException {
-    LoggerFactory.getLogger(getClass()).debug("Download: " + uri + " (" + getProxySynthesis(uri) + ")");
-    HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
-    connection.setConnectTimeout(TIMEOUT_MILLISECONDS);
-    connection.setReadTimeout(TIMEOUT_MILLISECONDS);
-    connection.setUseCaches(true);
-    connection.setInstanceFollowRedirects(true);
-    connection.setRequestProperty("User-Agent", userAgent);
-    return connection;
+  public String downloadPlainText(URI uri, Charset charset) {
+    return readString(uri, charset);
+  }
+
+  public void download(URI uri, File toFile) {
+    try {
+      Files.copy(new HttpInputSupplier(uri), toFile);
+    } catch (IOException e) {
+      FileUtils.deleteQuietly(toFile);
+      throw failToDownload(uri, e);
+    }
+  }
+
+  private static SonarException failToDownload(URI uri, IOException e) {
+    return new SonarException(String.format("Fail to download the file: %s (%s)", uri, getProxySynthesis(uri)), e);
+  }
+
+  class HttpInputSupplier implements InputSupplier<InputStream> {
+    private final URI uri;
+
+    HttpInputSupplier(URI uri) {
+      this.uri = uri;
+    }
+
+    public InputStream getInput() throws IOException {
+      LoggerFactory.getLogger(getClass()).debug("Download: " + uri + " (" + getProxySynthesis(uri) + ")");
+
+      HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
+      connection.setConnectTimeout(TIMEOUT_MILLISECONDS);
+      connection.setReadTimeout(TIMEOUT_MILLISECONDS);
+      connection.setUseCaches(true);
+      connection.setInstanceFollowRedirects(true);
+      connection.setRequestProperty("User-Agent", userAgent);
+      return connection.getInputStream();
+    }
   }
 }
 
