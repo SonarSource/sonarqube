@@ -20,8 +20,11 @@
 package org.sonar.server.platform;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Joiner;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
@@ -33,31 +36,40 @@ import java.util.Date;
 import java.util.Properties;
 
 public final class ServerImpl extends Server {
+  private static final Logger LOG = LoggerFactory.getLogger(ServerImpl.class);
 
+  private final Settings settings;
+  private final Date startedAt;
+  private final String buildProperties;
+  private final String pomProperties;
   private String id;
   private String version;
-  private final Date startedAt;
-  private Settings settings;
-  private final String manifest;
+  private String implementationBuild;
 
   public ServerImpl(Settings settings) {
-    this(settings, "/META-INF/maven/org.codehaus.sonar/sonar-plugin-api/pom.properties");
+    this(settings, "/build.properties", "/META-INF/maven/org.codehaus.sonar/sonar-plugin-api/pom.properties");
   }
 
   @VisibleForTesting
-  ServerImpl(Settings settings, String manifest) {
+  ServerImpl(Settings settings, String buildProperties, String pomProperties) {
     this.settings = settings;
     this.startedAt = new Date();
-    this.manifest = manifest;
+    this.buildProperties = buildProperties;
+    this.pomProperties = pomProperties;
   }
 
   public void start() {
     try {
       id = new SimpleDateFormat("yyyyMMddHHmmss").format(startedAt);
-      version = loadVersionFromManifest(manifest);
+
+      version = read(pomProperties).getProperty("version", "");
+      implementationBuild = read(buildProperties).getProperty("Implementation-Build");
+
       if (StringUtils.isBlank(version)) {
         throw new ServerStartException("Unknown Sonar version");
       }
+
+      LOG.info("Sonar {}", Joiner.on(" / ").skipNulls().join("Server", version, implementationBuild));
 
     } catch (IOException e) {
       throw new ServerStartException("Can not load metadata", e);
@@ -79,31 +91,30 @@ public final class ServerImpl extends Server {
     return version;
   }
 
+  public String getImplementationBuild() {
+    return implementationBuild;
+  }
+
   @Override
   public Date getStartedAt() {
     return startedAt;
   }
 
-  private String loadVersionFromManifest(String pomFilename) throws IOException {
-    InputStream pomFileStream = getClass().getResourceAsStream(pomFilename);
+  private static Properties read(String filename) throws IOException {
+    Properties properties = new Properties();
+
+    InputStream stream = null;
     try {
-      return readVersion(pomFileStream);
-
+      stream = ServerImpl.class.getResourceAsStream(filename);
+      if (stream != null) {
+        properties.load(stream);
+      }
     } finally {
-      IOUtils.closeQuietly(pomFileStream);
+      IOUtils.closeQuietly(stream);
     }
-  }
 
-  protected static String readVersion(InputStream pomFileStream) throws IOException {
-    String result = null;
-    if (pomFileStream != null) {
-      Properties pomProp = new Properties();
-      pomProp.load(pomFileStream);
-      result = pomProp.getProperty("version");
-    }
-    return StringUtils.defaultIfEmpty(result, "");
+    return properties;
   }
-
   @Override
   public String getURL() {
     return null;

@@ -47,6 +47,7 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
   private boolean useChildFirstClassLoader;
   private String basePlugin;
   private boolean core;
+  private String implementationBuild;
 
   private DefaultPluginMetadata() {
   }
@@ -236,6 +237,15 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
 
   public DefaultPluginMetadata setCore(boolean b) {
     this.core = b;
+    return this;
+  }
+
+  public String getImplementationBuild() {
+    return implementationBuild;
+  }
+
+  public DefaultPluginMetadata setImplementationBuild(String implementationBuild) {
+    this.implementationBuild = implementationBuild;
     return this;
   }
 

@@ -121,6 +121,7 @@ public class PluginInstaller {
       metadata.setPathsToInternalDeps(manifest.getDependencies());
       metadata.setUseChildFirstClassLoader(manifest.isUseChildFirstClassLoader());
       metadata.setBasePlugin(manifest.getBasePlugin());
+      metadata.setImplementationBuild(manifest.getImplementationBuild());
       metadata.setCore(isCore);
       if (metadata.isOldManifest()) {
         completeDeprecatedMetadata(metadata);

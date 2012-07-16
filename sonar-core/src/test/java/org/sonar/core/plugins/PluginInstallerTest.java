@@ -38,14 +38,15 @@ public class PluginInstallerTest {
 
   @Test
   public void shouldExtractMetadata() {
-    DefaultPluginMetadata metadata = extractor.extractMetadata(getFile("sonar-checkstyle-plugin-2.8.jar"), true);
+    DefaultPluginMetadata metadata = extractor.extractMetadata(getFile("sonar-cobertura-plugin-3.1.1.jar"), true);
 
-    assertThat(metadata.getKey()).isEqualTo("checkstyle");
+    assertThat(metadata.getKey()).isEqualTo("cobertura");
     assertThat(metadata.getBasePlugin()).isNull();
-    assertThat(metadata.getName()).isEqualTo("Checkstyle");
+    assertThat(metadata.getName()).isEqualTo("Cobertura");
     assertThat(metadata.isCore()).isEqualTo(true);
-    assertThat(metadata.getFile().getName()).isEqualTo("sonar-checkstyle-plugin-2.8.jar");
-    assertThat(metadata.getVersion()).isEqualTo("2.8");
+    assertThat(metadata.getFile().getName()).isEqualTo("sonar-cobertura-plugin-3.1.1.jar");
+    assertThat(metadata.getVersion()).isEqualTo("3.1.1");
+    assertThat(metadata.getImplementationBuild()).isEqualTo("b9283404030db9ce1529b1fadfb98331686b116d");
   }
 
   @Test

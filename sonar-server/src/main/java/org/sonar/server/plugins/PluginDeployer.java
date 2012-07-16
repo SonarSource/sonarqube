@@ -19,6 +19,8 @@
  */
 package org.sonar.server.plugins;
 
+import com.google.common.base.Joiner;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -190,7 +192,7 @@ public class PluginDeployer implements ServerComponent {
   }
 
   private void deploy(DefaultPluginMetadata plugin) {
-    LOG.debug("Deploy plugin " + plugin);
+    LOG.info("Deploy plugin {}", Joiner.on(" / ").skipNulls().join(plugin.getName(), plugin.getVersion(), plugin.getImplementationBuild()));
 
     Preconditions.checkState(plugin.isCompatibleWith(server.getVersion()),
         "Plugin %s needs a more recent version of Sonar than %s. At least %s is expected",

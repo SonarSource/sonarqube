@@ -35,7 +35,7 @@ public class ServerImplTest {
 
   @Test
   public void alwaysReturnTheSameValues() {
-    ServerImpl server = new ServerImpl(new Settings(), "/org/sonar/server/platform/ServerImplTest/pom-with-version.properties");
+    ServerImpl server = new ServerImpl(new Settings(), "", "/org/sonar/server/platform/ServerImplTest/pom-with-version.properties");
     server.start();
 
     assertThat(server.getId()).isNotNull();
@@ -50,10 +50,20 @@ public class ServerImplTest {
 
   @Test
   public void getVersionFromFile() {
-    ServerImpl server = new ServerImpl(new Settings(), "/org/sonar/server/platform/ServerImplTest/pom-with-version.properties");
+    ServerImpl server = new ServerImpl(new Settings(), "", "/org/sonar/server/platform/ServerImplTest/pom-with-version.properties");
     server.start();
 
     assertThat(server.getVersion()).isEqualTo("1.0");
+  }
+
+  @Test
+  public void getImplementationBuildFromManifest() {
+    ServerImpl server = new ServerImpl(new Settings(),
+        "/org/sonar/server/platform/ServerImplTest/build.properties",
+        "/org/sonar/server/platform/ServerImplTest/pom-with-version.properties");
+    server.start();
+
+    assertThat(server.getImplementationBuild()).isEqualTo("0b9545a8b74aca473cb776275be4dc93a327c363");
   }
 
   @Test
@@ -61,7 +71,7 @@ public class ServerImplTest {
     exception.expect(ServerStartException.class);
     exception.expectMessage("Unknown Sonar version");
 
-    ServerImpl server = new ServerImpl(new Settings(), "/org/sonar/server/platform/ServerImplTest/pom-without-version.properties");
+    ServerImpl server = new ServerImpl(new Settings(), "", "/org/sonar/server/platform/ServerImplTest/pom-without-version.properties");
     server.start();
   }
 
@@ -70,7 +80,7 @@ public class ServerImplTest {
     exception.expect(ServerStartException.class);
     exception.expectMessage("Unknown Sonar version");
 
-    ServerImpl server = new ServerImpl(new Settings(), "/org/sonar/server/platform/ServerImplTest/pom-with-empty-version.properties");
+    ServerImpl server = new ServerImpl(new Settings(), "", "/org/sonar/server/platform/ServerImplTest/pom-with-empty-version.properties");
     server.start();
   }
 
@@ -79,7 +89,7 @@ public class ServerImplTest {
     exception.expect(ServerStartException.class);
     exception.expectMessage("Unknown Sonar version");
 
-    ServerImpl server = new ServerImpl(new Settings(), "/org/sonar/server/platform/ServerImplTest/unknown-file.properties");
+    ServerImpl server = new ServerImpl(new Settings(), "", "/org/sonar/server/platform/ServerImplTest/unknown-file.properties");
     server.start();
   }
 

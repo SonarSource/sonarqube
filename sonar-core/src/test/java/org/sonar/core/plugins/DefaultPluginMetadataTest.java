@@ -44,7 +44,8 @@ public class DefaultPluginMetadataTest {
         .setVersion("1.1")
         .setSonarVersion("3.0")
         .setUseChildFirstClassLoader(true)
-        .setCore(false);
+        .setCore(false)
+        .setImplementationBuild("abcdef");
 
     assertThat(metadata.getKey()).isEqualTo("checkstyle");
     assertThat(metadata.getLicense()).isEqualTo("LGPL");
@@ -60,6 +61,7 @@ public class DefaultPluginMetadataTest {
     assertThat(metadata.getBasePlugin()).isNull();
     assertThat(metadata.getFile()).isNotNull();
     assertThat(metadata.getDeployedFiles()).isEmpty();
+    assertThat(metadata.getImplementationBuild()).isEqualTo("abcdef");
   }
 
   @Test
