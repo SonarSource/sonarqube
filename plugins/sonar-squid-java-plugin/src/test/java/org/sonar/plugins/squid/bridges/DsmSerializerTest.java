@@ -41,7 +41,7 @@ public class DsmSerializerTest {
 
   @Test
   public void serializeEmptyDsm() {
-    Dsm dsm = new Dsm(new DirectedGraph());
+    Dsm<SourceCode> dsm = new Dsm<SourceCode>(new DirectedGraph<SourceCode, SourceCodeEdge>());
     assertThat(DsmSerializer.serialize(dsm, new DependencyIndex(), new ResourceIndex()), is("[]"));
   }
 
