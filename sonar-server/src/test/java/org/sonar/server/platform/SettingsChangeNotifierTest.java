@@ -24,6 +24,7 @@ import org.hamcrest.Description;
 import org.junit.Test;
 import org.sonar.api.config.GlobalPropertyChangeHandler;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -45,5 +46,15 @@ public class SettingsChangeNotifierTest {
       public void describeTo(Description description) {
       }
     }));
+  }
+
+  @Test
+  public void no_handlers() {
+    SettingsChangeNotifier notifier = new SettingsChangeNotifier();
+
+    assertThat(notifier.changeHandlers).isEmpty();
+
+    // does not fail
+    notifier.onGlobalPropertyChange("foo", "bar");
   }
 }

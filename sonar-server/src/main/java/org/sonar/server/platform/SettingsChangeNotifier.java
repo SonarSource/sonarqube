@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.config.GlobalPropertyChangeHandler;
 
@@ -26,7 +27,8 @@ import javax.annotation.Nullable;
 
 public class SettingsChangeNotifier implements ServerComponent {
 
-  private GlobalPropertyChangeHandler[] changeHandlers;
+  @VisibleForTesting
+  GlobalPropertyChangeHandler[] changeHandlers;
 
   public SettingsChangeNotifier(GlobalPropertyChangeHandler[] changeHandlers) {
     this.changeHandlers = changeHandlers;
