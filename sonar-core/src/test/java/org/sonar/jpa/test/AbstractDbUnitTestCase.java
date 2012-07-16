@@ -19,6 +19,9 @@
  */
 package org.sonar.jpa.test;
 
+import org.dbunit.ext.mssql.InsertIdentityOperation;
+import org.dbunit.operation.DatabaseOperation;
+
 import org.apache.commons.io.IOUtils;
 import org.dbunit.Assertion;
 import org.dbunit.DataSourceDatabaseTester;
@@ -72,7 +75,7 @@ public abstract class AbstractDbUnitTestCase {
       session.start();
     }
 
-    databaseCommands.truncateDatabase(database.getDataSource().getConnection());
+    databaseCommands.truncateDatabase(database.getDataSource());
   }
 
   @After
@@ -110,7 +113,9 @@ public abstract class AbstractDbUnitTestCase {
       }
 
       setupData(streams);
-
+      databaseCommands.resetPrimaryKeys(database.getDataSource());
+    } catch (SQLException e) {
+      throw translateException("Could not setup DBUnit data", e);
     } finally {
       for (InputStream stream : streams) {
         IOUtils.closeQuietly(stream);
@@ -129,7 +134,7 @@ public abstract class AbstractDbUnitTestCase {
 
       connection = createConnection();
 
-      databaseCommands.getDbunitDatabaseOperation().execute(connection, databaseTester.getDataSet());
+      new InsertIdentityOperation(DatabaseOperation.INSERT).execute(connection, databaseTester.getDataSet());
     } catch (Exception e) {
       throw translateException("Could not setup DBUnit data", e);
     } finally {
@@ -217,8 +222,8 @@ public abstract class AbstractDbUnitTestCase {
     try {
       ReplacementDataSet dataSet = new ReplacementDataSet(new FlatXmlDataSet(stream));
       dataSet.addReplacementObject("[null]", null);
-      dataSet.addReplacementObject("[false]", databaseCommands.getFalse());
-      dataSet.addReplacementObject("[true]", databaseCommands.getTrue());
+      dataSet.addReplacementObject("[false]", Boolean.FALSE);
+      dataSet.addReplacementObject("[true]", Boolean.TRUE);
       return dataSet;
     } catch (Exception e) {
       throw translateException("Could not read the dataset stream", e);

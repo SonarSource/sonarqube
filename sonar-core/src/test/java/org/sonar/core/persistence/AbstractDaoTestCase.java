@@ -19,6 +19,9 @@
  */
 package org.sonar.core.persistence;
 
+import org.dbunit.ext.mssql.InsertIdentityOperation;
+import org.dbunit.operation.DatabaseOperation;
+
 import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
 import org.apache.commons.io.IOUtils;
@@ -68,7 +71,7 @@ public abstract class AbstractDaoTestCase {
       myBatis.start();
     }
 
-    databaseCommands.truncateDatabase(database.getDataSource().getConnection());
+    databaseCommands.truncateDatabase(database.getDataSource());
   }
 
   protected MyBatis getMyBatis() {
@@ -88,7 +91,9 @@ public abstract class AbstractDaoTestCase {
       }
 
       setupData(streams);
-
+      databaseCommands.resetPrimaryKeys(database.getDataSource());
+    } catch (SQLException e) {
+      throw translateException("Could not setup DBUnit data", e);
     } finally {
       for (InputStream stream : streams) {
         IOUtils.closeQuietly(stream);
@@ -107,7 +112,7 @@ public abstract class AbstractDaoTestCase {
 
       connection = createConnection();
 
-      databaseCommands.getDbunitDatabaseOperation().execute(connection, databaseTester.getDataSet());
+      new InsertIdentityOperation(DatabaseOperation.INSERT).execute(connection, databaseTester.getDataSet());
     } catch (Exception e) {
       throw translateException("Could not setup DBUnit data", e);
     } finally {
@@ -215,8 +220,8 @@ public abstract class AbstractDaoTestCase {
     try {
       ReplacementDataSet dataSet = new ReplacementDataSet(new FlatXmlDataSet(stream));
       dataSet.addReplacementObject("[null]", null);
-      dataSet.addReplacementObject("[false]", databaseCommands.getFalse());
-      dataSet.addReplacementObject("[true]", databaseCommands.getTrue());
+      dataSet.addReplacementObject("[false]", Boolean.FALSE);
+      dataSet.addReplacementObject("[true]", Boolean.TRUE);
       return dataSet;
     } catch (Exception e) {
       throw translateException("Could not read the dataset stream", e);

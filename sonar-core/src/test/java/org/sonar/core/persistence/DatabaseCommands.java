@@ -19,22 +19,25 @@
  */
 package org.sonar.core.persistence;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
 import org.dbunit.dataset.datatype.IDataTypeFactory;
 import org.dbunit.ext.h2.H2DataTypeFactory;
-import org.dbunit.ext.mssql.InsertIdentityOperation;
 import org.dbunit.ext.mssql.MsSqlDataTypeFactory;
 import org.dbunit.ext.mysql.MySqlDataTypeFactory;
 import org.dbunit.ext.oracle.Oracle10DataTypeFactory;
 import org.dbunit.ext.postgresql.PostgresqlDataTypeFactory;
-import org.dbunit.operation.DatabaseOperation;
 import org.sonar.core.persistence.dialect.Dialect;
 import org.sonar.core.persistence.dialect.MsSql;
 import org.sonar.core.persistence.dialect.MySql;
 import org.sonar.core.persistence.dialect.Oracle;
 import org.sonar.core.persistence.dialect.PostgreSql;
 
+import javax.sql.DataSource;
+
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
@@ -47,147 +50,105 @@ public abstract class DatabaseCommands {
     this.dbUnitFactory = dbUnitFactory;
   }
 
-  public abstract String truncate(String table);
-
-  public abstract List<String> resetPrimaryKey(String table);
-
-  public Object getTrue() {
-    return Boolean.TRUE;
-  }
-
-  public Object getFalse() {
-    return Boolean.FALSE;
-  }
-
-  public IDataTypeFactory getDbUnitFactory() {
+  public final IDataTypeFactory getDbUnitFactory() {
     return dbUnitFactory;
   }
 
-  public DatabaseOperation getDbunitDatabaseOperation() {
-    return new InsertIdentityOperation(DatabaseOperation.INSERT);
+  abstract List<String> resetPrimaryKey(String table, int minSequenceValue);
+
+  public static DatabaseCommands forDialect(Dialect dialect) {
+    DatabaseCommands command = ImmutableMap.of(
+        org.sonar.core.persistence.dialect.H2.ID, H2,
+        MsSql.ID, MSSQL,
+        MySql.ID, MYSQL,
+        Oracle.ID, ORACLE,
+        PostgreSql.ID, POSTGRESQL).get(dialect.getId());
+
+    return Preconditions.checkNotNull(command, "Unknown database: " + dialect);
   }
 
-  static final DatabaseCommands H2 = new DatabaseCommands(new H2DataTypeFactory()) {
+  private static final DatabaseCommands H2 = new DatabaseCommands(new H2DataTypeFactory()) {
     @Override
-    public String truncate(String table) {
-      return "TRUNCATE TABLE " + table;
-    }
-
-    @Override
-    public List<String> resetPrimaryKey(String table) {
-      return Arrays.asList("ALTER TABLE " + table + " ALTER COLUMN ID RESTART WITH 1");
+    List<String> resetPrimaryKey(String table, int minSequenceValue) {
+      return Arrays.asList("ALTER TABLE " + table + " ALTER COLUMN ID RESTART WITH " + minSequenceValue);
     }
   };
 
-  static final DatabaseCommands MSSQL = new DatabaseCommands(new MsSqlDataTypeFactory()) {
+  private static final DatabaseCommands POSTGRESQL = new DatabaseCommands(new PostgresqlDataTypeFactory()) {
     @Override
-    public String truncate(String table) {
-      return "TRUNCATE TABLE " + table;
-    }
-
-    @Override
-    public List<String> resetPrimaryKey(String table) {
-      return Arrays.asList("DBCC CHECKIDENT('" + table + "', RESEED, 1)");
-    }
-
-    @Override
-    public DatabaseOperation getDbunitDatabaseOperation() {
-      return new InsertIdentityOperation(DatabaseOperation.CLEAN_INSERT);
+    List<String> resetPrimaryKey(String table, int minSequenceValue) {
+      return Arrays.asList("ALTER SEQUENCE " + table + "_id_seq RESTART WITH " + minSequenceValue);
     }
   };
 
-  static final DatabaseCommands MYSQL = new DatabaseCommands(new MySqlDataTypeFactory()) {
+  private static final DatabaseCommands ORACLE = new DatabaseCommands(new Oracle10DataTypeFactory()) {
     @Override
-    public String truncate(String table) {
-      return "TRUNCATE TABLE " + table;
-    }
-
-    @Override
-    public List<String> resetPrimaryKey(String table) {
-      return Arrays.asList("ALTER TABLE " + table + " AUTO_INCREMENT = 1");
-    }
-  };
-
-  static final DatabaseCommands ORACLE = new DatabaseCommands(new Oracle10DataTypeFactory()) {
-    @Override
-    public String truncate(String table) {
-      return "TRUNCATE TABLE " + table;
-    }
-
-    @Override
-    public List<String> resetPrimaryKey(String table) {
+    List<String> resetPrimaryKey(String table, int minSequenceValue) {
       String sequence = StringUtils.upperCase(table) + "_SEQ";
       return Arrays.asList(
           "DROP SEQUENCE " + sequence,
-          "CREATE SEQUENCE " + sequence + " INCREMENT BY 1 MINVALUE 1 START WITH 1"
-          );
-    }
-
-    @Override
-    public Object getTrue() {
-      return 1;
-    }
-
-    @Override
-    public Object getFalse() {
-      return 0;
+          "CREATE SEQUENCE " + sequence + " INCREMENT BY 1 MINVALUE 1 START WITH " + minSequenceValue);
     }
   };
 
-  static final DatabaseCommands POSTGRESQL = new DatabaseCommands(new PostgresqlDataTypeFactory()) {
+  private static final DatabaseCommands MSSQL = new DatabaseCommands(new MsSqlDataTypeFactory()) {
     @Override
-    public String truncate(String table) {
-      return "TRUNCATE TABLE " + table;
+    public void resetPrimaryKeys(DataSource dataSource) {
     }
 
     @Override
-    public List<String> resetPrimaryKey(String table) {
-      return Arrays.asList("ALTER SEQUENCE " + table + "_id_seq RESTART WITH 1");
+    List<String> resetPrimaryKey(String table, int minSequenceValue) {
+      return null;
     }
   };
 
-  public static DatabaseCommands forDialect(Dialect dialect) {
-    if (org.sonar.core.persistence.dialect.H2.ID.equals(dialect.getId())) {
-      return H2;
+  private static final DatabaseCommands MYSQL = new DatabaseCommands(new MySqlDataTypeFactory()) {
+    @Override
+    public void resetPrimaryKeys(DataSource dataSource) {
     }
-    if (MsSql.ID.equals(dialect.getId())) {
-      return MSSQL;
-    }
-    if (MySql.ID.equals(dialect.getId())) {
-      return MYSQL;
-    }
-    if (Oracle.ID.equals(dialect.getId())) {
-      return ORACLE;
-    }
-    if (PostgreSql.ID.equals(dialect.getId())) {
-      return POSTGRESQL;
-    }
-    throw new IllegalArgumentException("Unknown database: " + dialect);
-  }
 
-  public void truncateDatabase(Connection connection) throws SQLException {
+    @Override
+    List<String> resetPrimaryKey(String table, int minSequenceValue) {
+      return null;
+    }
+  };
+
+  public void truncateDatabase(DataSource dataSource) throws SQLException {
+    Connection connection = dataSource.getConnection();
     connection.setAutoCommit(false);
 
     Statement statement = connection.createStatement();
     for (String table : DatabaseUtils.TABLE_NAMES) {
-      // 1. truncate
-      String truncateCommand = truncate(table);
-      statement.executeUpdate(truncateCommand);
+      statement.executeUpdate("TRUNCATE TABLE " + table);
       connection.commit();
+    }
 
-      // 2. reset primary keys
+    statement.close();
+    connection.close();
+  }
+
+  public void resetPrimaryKeys(DataSource dataSource) throws SQLException {
+    Connection connection = dataSource.getConnection();
+    connection.setAutoCommit(false);
+
+    Statement statement = connection.createStatement();
+    for (String table : DatabaseUtils.TABLE_NAMES) {
       try {
-        for (String resetCommand : resetPrimaryKey(table)) {
+        ResultSet result = statement.executeQuery("SELECT CASE WHEN MAX(ID) IS NULL THEN 1 ELSE MAX(ID)+1 END FROM " + table);
+        result.next();
+        int maxId = result.getInt(1);
+        result.close();
+
+        for (String resetCommand : resetPrimaryKey(table, maxId)) {
           statement.executeUpdate(resetCommand);
         }
         connection.commit();
       } catch (Exception e) {
-        // this table has no primary key
-        connection.rollback();
+        connection.rollback(); // this table has no primary key
       }
     }
+
     statement.close();
-    connection.commit();
     connection.close();
   }
 }
