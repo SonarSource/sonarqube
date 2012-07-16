@@ -20,9 +20,9 @@
 package org.sonar.server.configuration;
 
 import com.google.common.collect.ImmutableMap;
+import org.hamcrest.collection.IsMapContaining;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentMatcher;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.database.configuration.Property;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
@@ -30,7 +30,6 @@ import org.sonar.server.platform.PersistentSettings;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
@@ -69,22 +68,14 @@ public class PropertiesBackupTest extends AbstractDbUnitTestCase {
     assertThat(config.getProperties()).isEmpty();
   }
 
-
   @Test
   public void import_backup_of_properties() {
-    Collection<Property> newProperties = Arrays.asList(new Property("key1", "value1"), new Property("key2", "value2"));
     SonarConfig config = new SonarConfig();
-    config.setProperties(newProperties);
+    config.setProperties(Arrays.asList(new Property("key1", "value1")));
 
     backup.importXml(config);
 
-    verify(persistentSettings).saveProperties(argThat(new ArgumentMatcher<Map<String, String>>() {
-      @Override
-      public boolean matches(Object o) {
-        Map<String, String> map = (Map<String, String>) o;
-        return map.get("key1").equals("value1") && map.get("key2").equals("value2");
-      }
-    }));
+    verify(persistentSettings).saveProperties(argThat(IsMapContaining.hasEntry("key1", "value1")));
   }
 
   @Test
@@ -97,12 +88,6 @@ public class PropertiesBackupTest extends AbstractDbUnitTestCase {
     config.setProperties(newProperties);
     backup.importXml(config);
 
-    verify(persistentSettings).saveProperties(argThat(new ArgumentMatcher<Map<String, String>>() {
-      @Override
-      public boolean matches(Object o) {
-        Map<String, String> map = (Map<String, String>) o;
-        return map.get(CoreProperties.SERVER_ID).equals("111");
-      }
-    }));
+    verify(persistentSettings).saveProperties(argThat(IsMapContaining.hasEntry(CoreProperties.SERVER_ID, "111")));
   }
 }
