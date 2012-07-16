@@ -19,9 +19,8 @@
  */
 package org.sonar.server.platform;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 import org.sonar.api.config.GlobalPropertyChangeHandler;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -37,13 +36,11 @@ public class SettingsChangeNotifierTest {
 
     notifier.onGlobalPropertyChange("foo", "bar");
 
-    verify(handler).onChange(argThat(new BaseMatcher<GlobalPropertyChangeHandler.PropertyChange>() {
+    verify(handler).onChange(argThat(new ArgumentMatcher<GlobalPropertyChangeHandler.PropertyChange>() {
+      @Override
       public boolean matches(Object o) {
         GlobalPropertyChangeHandler.PropertyChange change = (GlobalPropertyChangeHandler.PropertyChange) o;
         return change.getKey().equals("foo") && change.getNewValue().equals("bar");
-      }
-
-      public void describeTo(Description description) {
       }
     }));
   }

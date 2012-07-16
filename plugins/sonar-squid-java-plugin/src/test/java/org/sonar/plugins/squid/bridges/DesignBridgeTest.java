@@ -19,16 +19,17 @@
  */
 package org.sonar.plugins.squid.bridges;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.JavaPackage;
 
 import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.anyDouble;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -64,7 +65,7 @@ public class DesignBridgeTest extends BridgeTestCase {
     verify(context).saveMeasure(eq(new JavaPackage("org.apache.struts.config")), eq(CoreMetrics.FILE_EDGES_WEIGHT), argThat(greaterThan(1.0)));
   }
 
-  static class DependencyMatcher extends BaseMatcher<Dependency> {
+  static class DependencyMatcher extends ArgumentMatcher<Dependency> {
     private String from;
     private String to;
 
@@ -73,15 +74,13 @@ public class DesignBridgeTest extends BridgeTestCase {
       this.to = to;
     }
 
+    @Override
     public boolean matches(Object o) {
       if (!(o instanceof Dependency)) {
         return false;
       }
       Dependency dep = (Dependency) o;
       return from.equals(dep.getFrom().getKey()) && to.equals(dep.getTo().getKey());
-    }
-
-    public void describeTo(Description description) {
     }
   }
 }

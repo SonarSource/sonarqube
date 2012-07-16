@@ -21,11 +21,10 @@ package org.sonar.api.test;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
+import org.mockito.ArgumentMatcher;
 import org.sonar.api.resources.Resource;
 
-public class IsResource extends BaseMatcher<Resource> {
+public class IsResource extends ArgumentMatcher<Resource> {
 
   private String scope;
   private String qualifier;
@@ -41,13 +40,10 @@ public class IsResource extends BaseMatcher<Resource> {
     this.key = key;
   }
 
+  @Override
   public boolean matches(Object o) {
     Resource r = (Resource) o;
     boolean keyMatch = (key != null) ? StringUtils.equals(r.getKey(), key) : true;
     return ObjectUtils.equals(r.getScope(), scope) && ObjectUtils.equals(r.getQualifier(), qualifier) && keyMatch;
-  }
-
-  public void describeTo(Description description) {
-
   }
 }

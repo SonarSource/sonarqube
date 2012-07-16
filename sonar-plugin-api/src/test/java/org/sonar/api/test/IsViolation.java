@@ -19,13 +19,12 @@
  */
 package org.sonar.api.test;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
+import org.mockito.ArgumentMatcher;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 
-public class IsViolation extends BaseMatcher<Violation> {
+public class IsViolation extends ArgumentMatcher<Violation> {
 
   private Rule rule;
   private String message;
@@ -46,6 +45,7 @@ public class IsViolation extends BaseMatcher<Violation> {
     this.lineId = lineId;
   }
 
+  @Override
   public boolean matches(Object o) {
     Violation violation = (Violation) o;
     if (lineId != null && !lineId.equals(violation.getLineId())) {
@@ -65,9 +65,5 @@ public class IsViolation extends BaseMatcher<Violation> {
     }
 
     return true;
-  }
-
-  public void describeTo(Description description) {
-
   }
 }

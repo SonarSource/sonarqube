@@ -20,10 +20,9 @@
 package org.sonar.server.configuration;
 
 import com.google.common.collect.ImmutableMap;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.database.configuration.Property;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
@@ -35,7 +34,9 @@ import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class PropertiesBackupTest extends AbstractDbUnitTestCase {
 
@@ -77,13 +78,11 @@ public class PropertiesBackupTest extends AbstractDbUnitTestCase {
 
     backup.importXml(config);
 
-    verify(persistentSettings).saveProperties(argThat(new BaseMatcher<Map<String, String>>() {
+    verify(persistentSettings).saveProperties(argThat(new ArgumentMatcher<Map<String, String>>() {
+      @Override
       public boolean matches(Object o) {
         Map<String, String> map = (Map<String, String>) o;
         return map.get("key1").equals("value1") && map.get("key2").equals("value2");
-      }
-
-      public void describeTo(Description description) {
       }
     }));
   }
@@ -98,13 +97,11 @@ public class PropertiesBackupTest extends AbstractDbUnitTestCase {
     config.setProperties(newProperties);
     backup.importXml(config);
 
-    verify(persistentSettings).saveProperties(argThat(new BaseMatcher<Map<String, String>>() {
+    verify(persistentSettings).saveProperties(argThat(new ArgumentMatcher<Map<String, String>>() {
+      @Override
       public boolean matches(Object o) {
         Map<String, String> map = (Map<String, String>) o;
         return map.get(CoreProperties.SERVER_ID).equals("111");
-      }
-
-      public void describeTo(Description description) {
       }
     }));
   }

@@ -21,10 +21,9 @@ package org.sonar.server.platform;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
@@ -35,7 +34,9 @@ import java.util.Arrays;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class PersistentSettingsTest {
 
@@ -71,13 +72,11 @@ public class PersistentSettingsTest {
 
     // kept in memory cache and persisted in db
     assertThat(settings.getString("foo")).isEqualTo("bar");
-    verify(dao).setProperty(argThat(new BaseMatcher<PropertyDto>() {
+    verify(dao).setProperty(argThat(new ArgumentMatcher<PropertyDto>() {
+      @Override
       public boolean matches(Object o) {
         PropertyDto dto = (PropertyDto) o;
         return dto.getKey().equals("foo");
-      }
-
-      public void describeTo(Description description) {
       }
     }));
   }

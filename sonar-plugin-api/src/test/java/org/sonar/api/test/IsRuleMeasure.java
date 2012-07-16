@@ -21,14 +21,13 @@ package org.sonar.api.test;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
+import org.mockito.ArgumentMatcher;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.RuleMeasure;
 import org.sonar.api.rules.Rule;
 
-public class IsRuleMeasure extends BaseMatcher<Measure> {
+public class IsRuleMeasure extends ArgumentMatcher<Measure> {
 
   private Metric metric = null;
   private Rule rule = null;
@@ -40,6 +39,7 @@ public class IsRuleMeasure extends BaseMatcher<Measure> {
     this.value = value;
   }
 
+  @Override
   public boolean matches(Object o) {
     if (!(o instanceof RuleMeasure)) {
       return false;
@@ -48,9 +48,5 @@ public class IsRuleMeasure extends BaseMatcher<Measure> {
     return ObjectUtils.equals(metric, m.getMetric()) &&
       ObjectUtils.equals(rule, m.getRule()) &&
       NumberUtils.compare(value, m.getValue()) == 0;
-  }
-
-  public void describeTo(Description description) {
-
   }
 }

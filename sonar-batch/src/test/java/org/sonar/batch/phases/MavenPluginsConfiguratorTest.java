@@ -19,9 +19,8 @@
  */
 package org.sonar.batch.phases;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.maven.MavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
@@ -30,8 +29,12 @@ import org.sonar.api.test.MavenTestUtils;
 
 import java.util.Arrays;
 
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class MavenPluginsConfiguratorTest {
 
@@ -57,19 +60,16 @@ public class MavenPluginsConfiguratorTest {
     verify(handler2).configure(eq(project), argThat(new IsMavenPlugin("myartifact2")));
   }
 
-  private class IsMavenPlugin extends BaseMatcher<MavenPlugin> {
+  private class IsMavenPlugin extends ArgumentMatcher<MavenPlugin> {
     private String artifactId;
 
     public IsMavenPlugin(String artifactId) {
       this.artifactId = artifactId;
     }
 
+    @Override
     public boolean matches(Object o) {
       return artifactId.equals(((MavenPlugin) o).getPlugin().getArtifactId());
-    }
-
-    public void describeTo(Description description) {
-
     }
   }
 }

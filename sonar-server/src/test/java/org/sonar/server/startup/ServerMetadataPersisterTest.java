@@ -19,11 +19,10 @@
  */
 package org.sonar.server.startup;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.platform.Server;
 import org.sonar.server.platform.PersistentSettings;
@@ -35,7 +34,9 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ServerMetadataPersisterTest {
 
@@ -65,7 +66,8 @@ public class ServerMetadataPersisterTest {
     ServerMetadataPersister persister = new ServerMetadataPersister(server, persistentSettings);
     persister.start();
 
-    verify(persistentSettings).saveProperties(argThat(new BaseMatcher<Map<String, String>>() {
+    verify(persistentSettings).saveProperties(argThat(new ArgumentMatcher<Map<String, String>>() {
+      @Override
       public boolean matches(Object o) {
         Map<String, String> map = (Map<String, String>) o;
         return map.get(CoreProperties.SERVER_ID).equals("123")
@@ -73,11 +75,7 @@ public class ServerMetadataPersisterTest {
           && map.get(CoreProperties.SERVER_STARTTIME).equals("2010-05-18T17:59:00+0000")
           && map.size() == 3;
       }
-
-      public void describeTo(Description description) {
-      }
     }));
   }
-
 
 }

@@ -19,20 +19,23 @@
  */
 package org.sonar.plugins.core.sensors;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.project.MavenProject;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.test.MavenTestUtils;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class ProjectLinksSensorTest {
 
@@ -77,7 +80,7 @@ public class ProjectLinksSensorTest {
     verify(context).deleteLink(ProjectLinksSensor.KEY_SCM_DEVELOPER_CONNECTION);
   }
 
-  private class MatchLink extends BaseMatcher<ProjectLink> {
+  private class MatchLink extends ArgumentMatcher<ProjectLink> {
     private String key;
     private String name;
     private String url;
@@ -88,13 +91,10 @@ public class ProjectLinksSensorTest {
       this.url = url;
     }
 
+    @Override
     public boolean matches(Object o) {
       ProjectLink link = (ProjectLink) o;
       return StringUtils.equals(link.getHref(), url) && StringUtils.equals(link.getKey(), key) && StringUtils.equals(link.getName(), name);
-    }
-
-    public void describeTo(Description description) {
-
     }
   }
 

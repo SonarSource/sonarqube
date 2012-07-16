@@ -19,9 +19,8 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
@@ -34,7 +33,12 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class NewCoverageFileAnalyzerTest {
 
@@ -142,7 +146,7 @@ public class NewCoverageFileAnalyzerTest {
   }
 
 
-  static class VariationMatcher extends BaseMatcher<Measure> {
+  static class VariationMatcher extends ArgumentMatcher<Measure> {
     Metric metric;
     int index;
     Double variation;
@@ -153,6 +157,7 @@ public class NewCoverageFileAnalyzerTest {
       this.variation = variation;
     }
 
+    @Override
     public boolean matches(Object o) {
       Measure m = (Measure)o;
       if (m.getMetric().equals(metric)) {
@@ -162,10 +167,6 @@ public class NewCoverageFileAnalyzerTest {
         }
       }
       return false;
-    }
-
-    public void describeTo(Description description) {
-
     }
   }
 

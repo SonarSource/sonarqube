@@ -19,16 +19,19 @@
  */
 package org.sonar.server.startup;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 import org.sonar.api.config.Settings;
 import org.sonar.server.platform.PersistentSettings;
 
 import java.util.Map;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class SetDefaultProjectPermissionsTest {
   @Test
@@ -39,13 +42,11 @@ public class SetDefaultProjectPermissionsTest {
 
     new SetDefaultProjectPermissions(persistentSettings).start();
 
-    verify(persistentSettings).saveProperties(argThat(new BaseMatcher<Map<String, String>>() {
+    verify(persistentSettings).saveProperties(argThat(new ArgumentMatcher<Map<String, String>>() {
+      @Override
       public boolean matches(Object o) {
         Map<String, String> map = (Map<String, String>) o;
         return map.size() == 9 && map.get("sonar.role.admin.TRK.defaultGroups").equals("sonar-administrators");
-      }
-
-      public void describeTo(Description description) {
       }
     }));
   }
