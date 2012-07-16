@@ -20,13 +20,11 @@
 package org.sonar.api.utils;
 
 import com.google.common.base.Charsets;
-import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 
