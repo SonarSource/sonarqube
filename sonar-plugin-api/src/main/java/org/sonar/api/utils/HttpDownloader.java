@@ -152,8 +152,12 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
     }
   }
 
-  public String downloadPlainText(URI uri, Charset charset) {
-    return readString(uri, charset);
+  public byte[] download(URI uri) {
+    return readBytes(uri);
+  }
+
+  public String downloadPlainText(URI uri, String encoding) {
+    return readString(uri, Charset.forName(encoding));
   }
 
   public void download(URI uri, File toFile) {
