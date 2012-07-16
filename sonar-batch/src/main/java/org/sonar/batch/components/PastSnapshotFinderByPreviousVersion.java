@@ -38,7 +38,7 @@ public class PastSnapshotFinderByPreviousVersion implements BatchExtension {
 
   PastSnapshot findByPreviousVersion(Snapshot projectSnapshot) {
     String hql = "from " + Snapshot.class.getSimpleName() +
-      " where version!=:version AND version!='' AND resourceId=:resourceId AND status=:status AND qualifier<>:lib order by createdAt desc";
+      " where version<>:version AND version IS NOT NULL AND resourceId=:resourceId AND status=:status AND qualifier<>:lib order by createdAt desc";
     List<Snapshot> snapshots = session.createQuery(hql)
         .setParameter("version", projectSnapshot.getVersion())
         .setParameter("resourceId", projectSnapshot.getResourceId())
