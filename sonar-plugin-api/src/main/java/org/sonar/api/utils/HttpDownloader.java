@@ -92,6 +92,7 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
     return Joiner.on(", ").join(descriptions);
   }
 
+  @Override
   String description(URI uri) {
     return String.format("%s (%s)", uri.toString(), getProxySynthesis(uri));
   }
@@ -170,18 +171,22 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
     }
   }
 
+  @Override
   String[] getSupportedSchemes() {
     return new String[]{"http", "https"};
   }
 
+  @Override
   byte[] readBytes(URI uri) {
     return download(uri);
   }
 
+  @Override
   String readString(URI uri, Charset charset) {
     return downloadPlainText(uri, charset.name());
   }
 
+  @Override
   InputStream openStream(URI uri) {
     try {
       HttpURLConnection connection = newHttpConnection(uri);

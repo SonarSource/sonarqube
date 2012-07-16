@@ -112,10 +112,12 @@ public class UriReader implements BatchComponent, ServerComponent {
    */
   private static class FileProcessor extends SchemeProcessor {
 
+    @Override
     public String[] getSupportedSchemes() {
       return new String[]{"file"};
     }
 
+    @Override
     byte[] readBytes(URI uri) {
       try {
         return Files.toByteArray(new File(uri));
@@ -124,6 +126,7 @@ public class UriReader implements BatchComponent, ServerComponent {
       }
     }
 
+    @Override
     String readString(URI uri, Charset charset) {
       try {
         return Files.toString(new File(uri), charset);
@@ -132,6 +135,7 @@ public class UriReader implements BatchComponent, ServerComponent {
       }
     }
 
+    @Override
     InputStream openStream(URI uri) {
       try {
         return Files.newInputStreamSupplier(new File(uri)).getInput();
@@ -140,6 +144,7 @@ public class UriReader implements BatchComponent, ServerComponent {
       }
     }
 
+    @Override
     String description(URI uri) {
       return new File(uri).getAbsolutePath();
     }
