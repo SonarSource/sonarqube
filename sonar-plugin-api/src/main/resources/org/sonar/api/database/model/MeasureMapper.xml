@@ -16,9 +16,9 @@
     )
   </insert>
 
-  <insert id="insertData" parameterType="MeasureModel" useGeneratedKeys="true">
+  <insert id="insertData" parameterType="MeasureData" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO measure_data (measure_id, snapshot_id, data)
-    VALUES (#{id}, #{snapshotId}, #{measureData.data})
+    VALUES (#{measure.id}, #{measure.snapshotId}, #{data})
   </insert>
 
   <update id="deleteData" parameterType="MeasureModel">
@@ -64,9 +64,9 @@
     )
   </insert>
 
-  <insert id="insertData" databaseId="oracle" parameterType="MeasureModel" useGeneratedKeys="true">
+  <insert id="insertData" databaseId="oracle" parameterType="MeasureData" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO measure_data (id, measure_id, snapshot_id, data)
-    VALUES (measure_data_seq.NEXTVAL, #{id}, #{snapshotId}, #{measureData.data})
+    VALUES (measure_data_seq.NEXTVAL, #{measure.id}, #{measure.snapshotId}, #{data})
   </insert>
 
 </mapper>

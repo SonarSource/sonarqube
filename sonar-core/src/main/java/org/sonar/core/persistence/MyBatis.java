@@ -19,6 +19,8 @@
  */
 package org.sonar.core.persistence;
 
+import org.sonar.api.database.model.MeasureData;
+
 import ch.qos.logback.classic.Level;
 import com.google.common.io.Closeables;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
@@ -138,6 +140,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "Widget", WidgetDto.class);
     loadAlias(conf, "WidgetProperty", WidgetPropertyDto.class);
     loadAlias(conf, "MeasureModel", MeasureModel.class);
+    loadAlias(conf, "MeasureData", MeasureData.class);
 
     Class<?>[] mappers = {ActiveDashboardMapper.class, AuthorMapper.class, FilterMapper.class, CriterionMapper.class, FilterColumnMapper.class, DashboardMapper.class,
       DependencyMapper.class, DuplicationMapper.class, LoadedTemplateMapper.class, PropertiesMapper.class, PurgeMapper.class,

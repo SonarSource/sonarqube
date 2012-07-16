@@ -188,7 +188,7 @@ public final class MeasurePersister {
       for (MeasureModel value : values) {
         mapper.insert(value);
         if (value.getMeasureData() != null) {
-          mapper.insertData(value);
+          mapper.insertData(value.getMeasureData());
         }
       }
 
@@ -208,7 +208,7 @@ public final class MeasurePersister {
 
       mapper.insert(value);
       if (value.getMeasureData() != null) {
-        mapper.insertData(value);
+        mapper.insertData(value.getMeasureData());
       }
 
       session.commit();
@@ -231,7 +231,7 @@ public final class MeasurePersister {
       mapper.update(value);
       mapper.deleteData(value);
       if (value.getMeasureData() != null) {
-        mapper.insertData(value);
+        mapper.insertData(value.getMeasureData());
       }
 
       session.commit();

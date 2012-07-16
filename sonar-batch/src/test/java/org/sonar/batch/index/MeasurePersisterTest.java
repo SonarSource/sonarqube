@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.index;
 
+import org.mockito.ArgumentCaptor;
+
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -110,10 +112,14 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
   public void should_insert_measure_with_text_data() {
     setupData("empty");
 
-    measurePersister.saveMeasure(project, new Measure(ncloc()).setData(SHORT));
-    measurePersister.saveMeasure(project, new Measure(ncloc()).setData(LONG));
+    Measure withLargeData = new Measure(ncloc()).setData(LONG);
+    measurePersister.saveMeasure(project, withLargeData);
 
     checkTables("shouldInsertMeasureWithLargeData", "project_measures", "measure_data");
+
+    ArgumentCaptor<MeasureModel> validMeasureModel = ArgumentCaptor.forClass(MeasureModel.class);
+    verify(memoryOptimizer).evictDataMeasure(eq(withLargeData), validMeasureModel.capture());
+    assertThat(validMeasureModel.getValue().getMeasureData().getId()).isNotNull();
   }
 
   @Test
