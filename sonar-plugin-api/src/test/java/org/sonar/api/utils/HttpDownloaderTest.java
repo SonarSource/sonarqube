@@ -32,7 +32,6 @@ import org.sonar.api.platform.Server;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.*;
 import java.util.Arrays;
 import java.util.Properties;
@@ -170,13 +169,6 @@ public class HttpDownloaderTest {
   public void readString() throws Exception {
     String text = new HttpDownloader(new Settings()).readString(new URI(baseUrl), Charsets.UTF_8);
     assertThat(text.length()).isGreaterThan(10);
-  }
-
-  @Test
-  public void openStream() throws Exception {
-    InputStream input = new HttpDownloader(new Settings()).openStream(new URI(baseUrl));
-    assertThat(IOUtils.toByteArray(input).length).isGreaterThan(10);
-    IOUtils.closeQuietly(input);
   }
 
   @Test(expected = SonarException.class)

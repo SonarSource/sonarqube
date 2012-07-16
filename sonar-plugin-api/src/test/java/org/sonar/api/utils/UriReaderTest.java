@@ -66,14 +66,6 @@ public class UriReaderTest {
   }
 
   @Test
-  public void file_openStream() throws Exception {
-    UriReader uriReader = new UriReader(new UriReader.SchemeProcessor[0]);
-    InputStream input = uriReader.openStream(testFile);
-    assertThat(IOUtils.toString(input)).isEqualTo("in foo");
-    IOUtils.closeQuietly(input);
-  }
-
-  @Test
   public void file_readString_fails_if_file_not_found() throws Exception {
     thrown.expect(RuntimeException.class);
     UriReader uriReader = new UriReader(new UriReader.SchemeProcessor[0]);
@@ -85,13 +77,6 @@ public class UriReaderTest {
     thrown.expect(RuntimeException.class);
     UriReader uriReader = new UriReader(new UriReader.SchemeProcessor[0]);
     uriReader.readBytes(new URI("file:/notfound"));
-  }
-
-  @Test
-  public void file_openStream_fails_if_file_not_found() throws Exception {
-    thrown.expect(RuntimeException.class);
-    UriReader uriReader = new UriReader(new UriReader.SchemeProcessor[0]);
-    uriReader.openStream(new URI("file:/notfound"));
   }
 
   @Test

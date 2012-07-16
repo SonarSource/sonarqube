@@ -19,7 +19,7 @@
  */
 package org.sonar.server.plugins;
 
-import org.apache.commons.io.IOUtils;
+import com.google.common.base.Charsets;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
@@ -49,42 +49,42 @@ public class UpdateCenterClientTest {
 
   @Test
   public void downloadUpdateCenter() throws URISyntaxException {
-    when(reader.openStream(new URI(BASE_URL))).thenReturn(IOUtils.toInputStream("sonar.versions=2.2,2.3"));
+    when(reader.readString(new URI(BASE_URL), Charsets.UTF_8)).thenReturn("sonar.versions=2.2,2.3");
     UpdateCenter center = client.getCenter();
-    verify(reader, times(1)).openStream(new URI(BASE_URL));
+    verify(reader, times(1)).readString(new URI(BASE_URL), Charsets.UTF_8);
     assertThat(center.getSonar().getVersions()).containsOnly(Version.create("2.2"), Version.create("2.3"));
     assertThat(client.getLastRefreshDate()).isNotNull();
   }
 
   @Test
-    public void not_available_before_initialization() {
-      assertThat(client.getLastRefreshDate()).isNull();
-    }
+  public void not_available_before_initialization() {
+    assertThat(client.getLastRefreshDate()).isNull();
+  }
 
   @Test
   public void ignore_connection_errors() {
-    when(reader.openStream(any(URI.class))).thenThrow(new SonarException());
+    when(reader.readString(any(URI.class), eq(Charsets.UTF_8))).thenThrow(new SonarException());
     assertThat(client.getCenter()).isNull();
   }
 
 
   @Test
   public void cache_data() throws Exception {
-    when(reader.openStream(new URI(BASE_URL))).thenReturn(IOUtils.toInputStream("sonar.versions=2.2,2.3"));
+    when(reader.readString(new URI(BASE_URL), Charsets.UTF_8)).thenReturn("sonar.versions=2.2,2.3");
 
     client.getCenter();
     client.getCenter();
 
-    verify(reader, times(1)).openStream(new URI(BASE_URL));
+    verify(reader, times(1)).readString(new URI(BASE_URL), Charsets.UTF_8);
   }
 
   @Test
   public void forceRefresh() throws Exception {
-    when(reader.openStream(new URI(BASE_URL))).thenReturn(IOUtils.toInputStream("sonar.versions=2.2,2.3"));
+    when(reader.readString(new URI(BASE_URL), Charsets.UTF_8)).thenReturn("sonar.versions=2.2,2.3");
 
     client.getCenter();
     client.getCenter(true);
 
-    verify(reader, times(2)).openStream(new URI(BASE_URL));
+    verify(reader, times(2)).readString(new URI(BASE_URL), Charsets.UTF_8);
   }
 }

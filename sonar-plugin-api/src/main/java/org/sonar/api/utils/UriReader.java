@@ -71,13 +71,6 @@ public class UriReader implements BatchComponent, ServerComponent {
   }
 
   /**
-   * Opens an input stream over the given uri.
-   */
-  public InputStream openStream(URI uri) {
-    return searchForSupportedProcessor(uri).openStream(uri);
-  }
-
-  /**
    * Returns a detailed description of the given uri. For example HTTP URIs are completed
    * with the configured HTTP proxy.
    */
@@ -100,8 +93,6 @@ public class UriReader implements BatchComponent, ServerComponent {
     abstract byte[] readBytes(URI uri);
 
     abstract String readString(URI uri, Charset charset);
-
-    abstract InputStream openStream(URI uri);
 
     abstract String description(URI uri);
   }
@@ -130,15 +121,6 @@ public class UriReader implements BatchComponent, ServerComponent {
     String readString(URI uri, Charset charset) {
       try {
         return Files.toString(new File(uri), charset);
-      } catch (IOException e) {
-        throw Throwables.propagate(e);
-      }
-    }
-
-    @Override
-    InputStream openStream(URI uri) {
-      try {
-        return Files.newInputStreamSupplier(new File(uri)).getInput();
       } catch (IOException e) {
         throw Throwables.propagate(e);
       }

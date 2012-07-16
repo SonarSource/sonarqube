@@ -19,6 +19,7 @@
  */
 package org.sonar.server.plugins;
 
+import com.google.common.base.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.Properties;
@@ -30,7 +31,8 @@ import org.sonar.api.utils.UriReader;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.UpdateCenterDeserializer;
 
-import java.io.InputStream;
+import java.io.Reader;
+import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
@@ -95,21 +97,21 @@ public class UpdateCenterClient implements ServerComponent {
   }
 
   private UpdateCenter init() {
-    InputStream input = null;
+    Reader reader = null;
     try {
-      input = uriReader.openStream(uri);
-      if (input != null) {
-        java.util.Properties properties = new java.util.Properties();
-        properties.load(input);
-        return UpdateCenterDeserializer.fromProperties(properties);
-      }
+      String content = uriReader.readString(uri, Charsets.UTF_8);
+      java.util.Properties properties = new java.util.Properties();
+      reader = new StringReader(content);
+      properties.load(reader);
+      return UpdateCenterDeserializer.fromProperties(properties);
+
 
     } catch (Exception e) {
       LoggerFactory.getLogger(getClass()).error("Fail to connect to update center", e);
+      return null;
 
     } finally {
-      IOUtils.closeQuietly(input);
+      IOUtils.closeQuietly(reader);
     }
-    return null;
   }
 }

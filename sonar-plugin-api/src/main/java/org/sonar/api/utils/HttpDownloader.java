@@ -185,17 +185,6 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
     return downloadPlainText(uri, charset.name());
   }
 
-  @Override
-  InputStream openStream(URI uri) {
-    try {
-      HttpURLConnection connection = newHttpConnection(uri);
-      return connection.getInputStream();
-
-    } catch (Exception e) {
-      throw new SonarException("Fail to download the file: " + uri + " (" + getProxySynthesis(uri) + ")", e);
-    }
-  }
-
   private HttpURLConnection newHttpConnection(URI uri) throws IOException {
     LoggerFactory.getLogger(getClass()).debug("Download: " + uri + " (" + getProxySynthesis(uri) + ")");
     HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
