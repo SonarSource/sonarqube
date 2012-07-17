@@ -108,7 +108,7 @@ public class Squid implements DirectedGraphAccessor<SourceCode, SourceCodeEdge>,
     return project;
   }
 
-  private void addToPicocontainer(Class classToExpose) {
+  private void addToPicocontainer(Class<?> classToExpose) {
     if (pico.getComponent(classToExpose) == null) {
       pico.addComponent(classToExpose);
     }
