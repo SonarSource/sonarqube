@@ -109,14 +109,10 @@ public final class MeasurePersister {
 
   @VisibleForTesting
   static boolean isBestValueMeasure(Measure measure, Metric metric) {
-    return measure.getId() == null
-      && metric.isOptimizedBestValue() == Boolean.TRUE
+    return metric.isOptimizedBestValue() == Boolean.TRUE
       && metric.getBestValue() != null
       && (measure.getValue() == null || NumberUtils.compare(metric.getBestValue(), measure.getValue()) == 0)
-      && measure.getAlertStatus() == null
-      && measure.getDescription() == null
-      && measure.getTendency() == null
-      && measure.getUrl() == null
+      && allNull(measure.getId(), measure.getAlertStatus(), measure.getDescription(), measure.getTendency(), measure.getUrl())
       && !measure.hasData()
       && isZeroVariation(measure.getVariation1())
       && isZeroVariation(measure.getVariation2())
@@ -127,6 +123,15 @@ public final class MeasurePersister {
 
   private static boolean isZeroVariation(Double variation) {
     return (variation == null) || NumberUtils.compare(variation.doubleValue(), 0.0) == 0;
+  }
+
+  private static boolean allNull(Object... values) {
+    for (Object value : values) {
+      if (null != value) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private List<MeasureModel> getMeasuresToSave() {
