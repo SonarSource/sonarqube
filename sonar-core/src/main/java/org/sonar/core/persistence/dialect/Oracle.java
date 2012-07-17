@@ -28,20 +28,12 @@ import java.sql.Types;
 /**
  * @since 1.12
  */
-public class Oracle implements Dialect {
+public class Oracle extends AbstractDialect {
 
   public static final String ID = "oracle";
 
-  public String getId() {
-    return ID;
-  }
-
-  public String getActiveRecordDialectCode() {
-    return "oracle";
-  }
-
-  public String getActiveRecordJdbcAdapter() {
-    return "oracle_enhanced";
+  public Oracle() {
+    super(ID, "oracle", "oracle");
   }
 
   public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {

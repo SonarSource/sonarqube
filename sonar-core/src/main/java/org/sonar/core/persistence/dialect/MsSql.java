@@ -25,20 +25,12 @@ import org.sonar.api.database.DatabaseProperties;
 
 import java.sql.Types;
 
-public class MsSql implements Dialect {
+public class MsSql extends AbstractDialect {
 
   public static final String ID = "mssql";
 
-  public String getId() {
-    return ID;
-  }
-
-  public String getActiveRecordDialectCode() {
-    return "sqlserver";
-  }
-
-  public String getActiveRecordJdbcAdapter() {
-    return "jdbc";
+  public MsSql() {
+    super(ID, "sqlserver", "jdbc");
   }
 
   public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {

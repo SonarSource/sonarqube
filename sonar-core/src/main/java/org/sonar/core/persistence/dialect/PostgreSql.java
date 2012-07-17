@@ -27,20 +27,12 @@ import java.sql.Types;
 /**
  * @since 1.12
  */
-public class PostgreSql implements Dialect {
+public class PostgreSql extends AbstractDialect {
 
   public static final String ID = "postgresql";
 
-  public String getId() {
-    return ID;
-  }
-
-  public String getActiveRecordDialectCode() {
-    return "postgre";
-  }
-
-  public String getActiveRecordJdbcAdapter() {
-    return "jdbc";
+  public PostgreSql() {
+    super(ID, "postgre", "jdbc");
   }
 
   public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {

@@ -28,20 +28,12 @@ import java.sql.Types;
 /**
  * @since 1.12
  */
-public class MySql implements Dialect {
+public class MySql extends AbstractDialect {
 
   public static final String ID = "mysql";
 
-  public String getId() {
-    return ID;
-  }
-
-  public String getActiveRecordDialectCode() {
-    return "mysql";
-  }
-
-  public String getActiveRecordJdbcAdapter() {
-    return "jdbc";
+  public MySql() {
+    super(ID, "mysql", "jdbc");
   }
 
   public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {

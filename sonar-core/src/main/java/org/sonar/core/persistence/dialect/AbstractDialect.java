@@ -19,45 +19,29 @@
  */
 package org.sonar.core.persistence.dialect;
 
-import org.apache.commons.lang.StringUtils;
-import org.hibernate.dialect.H2Dialect;
-
 /**
- * @since 1.12
+ * @since 3.2
  */
-public class H2 extends AbstractDialect {
+abstract class AbstractDialect implements Dialect {
+  private final String id;
+  private final String activeRecordDialectCode;
+  private final String activeRecordJdbcAdapter;
 
-  public static final String ID = "h2";
-
-  public H2() {
-    super(ID, "h2", "jdbc");
+  protected AbstractDialect(String id, String activeRecordDialectCode, String activeRecordJdbcAdapter) {
+    this.id = id;
+    this.activeRecordDialectCode = activeRecordDialectCode;
+    this.activeRecordJdbcAdapter = activeRecordJdbcAdapter;
   }
 
-  public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {
-    return H2Dialect.class;
+  public String getId() {
+    return id;
   }
 
-  public boolean matchesJdbcURL(String jdbcConnectionURL) {
-    return StringUtils.startsWithIgnoreCase(jdbcConnectionURL, "jdbc:h2:");
+  public String getActiveRecordDialectCode() {
+    return activeRecordDialectCode;
   }
 
-  public String getDefaultDriverClassName() {
-    return "org.h2.Driver";
-  }
-
-  public String getConnectionInitStatement(String schema) {
-    return null;
-  }
-
-  public String getTrueSqlValue() {
-    return "true";
-  }
-
-  public String getFalseSqlValue() {
-    return "false";
-  }
-
-  public String getValidationQuery() {
-    return "SELECT 1";
+  public String getActiveRecordJdbcAdapter() {
+    return activeRecordJdbcAdapter;
   }
 }
