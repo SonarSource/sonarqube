@@ -94,8 +94,10 @@ class UsersController < ApplicationController
       redirect_to(:action => 'change_password', :id => params[:id])
     elsif user.update_attributes(:password => params[:user][:password], :password_confirmation => params[:user][:password_confirmation])
       flash[:notice] = 'Password was successfully updated.'
-    else
       to_index(user.errors, nil)
+    else
+      flash[:error] = user.errors.full_messages.join("<br/>\n")
+      redirect_to(:action => 'change_password', :id => params[:id])
     end
 
   end
