@@ -19,27 +19,20 @@
  */
 package org.sonar.colorizer;
 
-import java.util.Collections;
-import java.util.HashSet;
+import com.google.common.collect.ImmutableSet;
+
 import java.util.Set;
 
 public final class GroovyKeywords {
-
-  private static final Set<String> KEYWORDS = new HashSet<String>();
-
-  private static final String[] GROOVY_KEYWORDS = {
-    "as", "assert", "break", "case", "catch", "class", "continue", "def",
-    "default", "do", "else", "extends", "finally", "for", "if", "in", "implements", "import", "instanceof", "interface", "new", "package",
-    "property", "return", "switch", "throw", "throws", "try", "while"};
-
-  static {
-    Collections.addAll(KEYWORDS, GROOVY_KEYWORDS);
-  }
+  private static final Set<String> KEYWORDS = ImmutableSet.of(
+      "as", "assert", "break", "case", "catch", "class", "continue", "def",
+      "default", "do", "else", "extends", "finally", "for", "if", "in", "implements", "import", "instanceof", "interface", "new", "package",
+      "property", "return", "switch", "throw", "throws", "try", "while");
 
   private GroovyKeywords() {
   }
 
   public static Set<String> get() {
-    return Collections.unmodifiableSet(KEYWORDS);
+    return KEYWORDS;
   }
 }

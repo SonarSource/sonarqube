@@ -19,7 +19,8 @@
  */
 package org.sonar.colorizer;
 
-import org.apache.commons.io.IOUtils;
+import com.google.common.io.ByteStreams;
+import com.google.common.io.Closeables;
 import org.sonar.channel.CodeReader;
 
 import java.io.IOException;
@@ -44,7 +45,7 @@ public class HtmlDecorator extends Tokenizer {
     StringBuilder sb = new StringBuilder();
     if (options.isGenerateHtmlHeader()) {
       sb.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" "
-          + "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"><html><head><style type=\"text/css\">");
+        + "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"><html><head><style type=\"text/css\">");
       sb.append(getCss());
       sb.append("</style></head><body>");
     }
@@ -91,13 +92,13 @@ public class HtmlDecorator extends Tokenizer {
     InputStream input = null;
     try {
       input = HtmlRenderer.class.getResourceAsStream(CSS_PATH);
-      return IOUtils.toString(input);
+      return new String(ByteStreams.toByteArray(input));
 
     } catch (IOException e) {
       throw new SynhtaxHighlightingException("Sonar Colorizer CSS file not found: " + CSS_PATH, e);
 
     } finally {
-      IOUtils.closeQuietly(input);
+      Closeables.closeQuietly(input);
     }
   }
 }

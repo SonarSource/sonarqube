@@ -19,31 +19,25 @@
  */
 package org.sonar.colorizer;
 
-import java.util.Collections;
-import java.util.HashSet;
+import com.google.common.collect.ImmutableSet;
+
 import java.util.Set;
 
 public final class JavaKeywords {
 
-  private static final Set<String> KEYWORDS = new HashSet<String>();
-
-  private static final String[] JAVA_KEYWORDS = {
-    "abstract", "assert", "boolean", "break", "byte", "case", "catch", "char",
-    "class", "const", "continue", "default",
-    "do", "double", "else", "enum", "extends", "false", "final", "finally", "float", "for",
-    "goto", "if", "implements", "import", "instanceof",
-    "int", "interface", "long", "native", "new", "null", "package", "private",
-    "protected", "public", "return", "short", "static", "strictfp",
-    "super", "switch", "synchronized", "this", "throw", "throws", "transient", "true", "try", "void", "volatile", "while"};
-
-  static {
-    Collections.addAll(KEYWORDS, JAVA_KEYWORDS);
-  }
+  private static final Set<String> KEYWORDS = ImmutableSet.of(
+      "abstract", "assert", "boolean", "break", "byte", "case", "catch", "char",
+      "class", "const", "continue", "default",
+      "do", "double", "else", "enum", "extends", "false", "final", "finally", "float", "for",
+      "goto", "if", "implements", "import", "instanceof",
+      "int", "interface", "long", "native", "new", "null", "package", "private",
+      "protected", "public", "return", "short", "static", "strictfp",
+      "super", "switch", "synchronized", "this", "throw", "throws", "transient", "true", "try", "void", "volatile", "while");
 
   private JavaKeywords() {
   }
 
   public static Set<String> get() {
-    return Collections.unmodifiableSet(KEYWORDS);
+    return KEYWORDS;
   }
 }
