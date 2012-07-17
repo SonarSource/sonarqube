@@ -35,6 +35,7 @@
   </logger>
 
   <!-- sonar.showSql -->
+  <!-- see also org.sonar.core.persistence.MyBatis#configureLogback() -->
   <logger name="org.hibernate.SQL">
     <level value="${SQL_LOGGER_LEVEL:-ERROR}"/>
   </logger>
@@ -42,8 +43,8 @@
     <level value="${SQL_LOGGER_LEVEL:-WARN}"/>
   </logger>
   <logger name="org.mybatis">
-      <level value="${SQL_LOGGER_LEVEL:-WARN}"/>
-    </logger>
+    <level value="${SQL_LOGGER_LEVEL:-WARN}"/>
+  </logger>
   <logger name="java.sql">
     <level value="${SQL_LOGGER_LEVEL:-WARN}"/>
   </logger>
