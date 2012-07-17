@@ -30,7 +30,7 @@ public class MsSql extends AbstractDialect {
   public static final String ID = "mssql";
 
   public MsSql() {
-    super(ID, "sqlserver", "jdbc");
+    super(ID, "sqlserver", "jdbc", "net.sourceforge.jtds.jdbc.Driver", "1", "0", "SELECT 1");
   }
 
   public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {
@@ -62,24 +62,8 @@ public class MsSql extends AbstractDialect {
     }
   }
 
-  public String getDefaultDriverClassName() {
-    return "net.sourceforge.jtds.jdbc.Driver";
-  }
-
   public String getConnectionInitStatement(String schema) {
     return null;
-  }
-
-  public String getTrueSqlValue() {
-    return "1";
-  }
-
-  public String getFalseSqlValue() {
-    return "0";
-  }
-
-  public String getValidationQuery() {
-    return "SELECT 1";
   }
 }
 

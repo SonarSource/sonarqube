@@ -33,7 +33,7 @@ public class MySql extends AbstractDialect {
   public static final String ID = "mysql";
 
   public MySql() {
-    super(ID, "mysql", "jdbc");
+    super(ID, "mysql", "jdbc", "com.mysql.jdbc.Driver", "true", "false", "SELECT 1");
   }
 
   public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {
@@ -54,23 +54,7 @@ public class MySql extends AbstractDialect {
     }
   }
 
-  public String getDefaultDriverClassName() {
-    return "com.mysql.jdbc.Driver";
-  }
-
   public String getConnectionInitStatement(String schema) {
     return null;
-  }
-
-  public String getTrueSqlValue() {
-    return "true";
-  }
-
-  public String getFalseSqlValue() {
-    return "false";
-  }
-
-  public String getValidationQuery() {
-    return "SELECT 1";
   }
 }

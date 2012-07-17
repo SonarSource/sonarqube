@@ -26,11 +26,20 @@ abstract class AbstractDialect implements Dialect {
   private final String id;
   private final String activeRecordDialectCode;
   private final String activeRecordJdbcAdapter;
+  private final String defaultDriverClassName;
+  private final String trueSqlValue;
+  private final String falseSqlValue;
+  private final String validationQuery;
 
-  protected AbstractDialect(String id, String activeRecordDialectCode, String activeRecordJdbcAdapter) {
+  protected AbstractDialect(String id, String activeRecordDialectCode, String activeRecordJdbcAdapter, String defaultDriverClassName, String trueSqlValue, String falseSqlValue,
+      String validationQuery) {
     this.id = id;
     this.activeRecordDialectCode = activeRecordDialectCode;
     this.activeRecordJdbcAdapter = activeRecordJdbcAdapter;
+    this.defaultDriverClassName = defaultDriverClassName;
+    this.trueSqlValue = trueSqlValue;
+    this.falseSqlValue = falseSqlValue;
+    this.validationQuery = validationQuery;
   }
 
   public String getId() {
@@ -43,5 +52,21 @@ abstract class AbstractDialect implements Dialect {
 
   public String getActiveRecordJdbcAdapter() {
     return activeRecordJdbcAdapter;
+  }
+
+  public String getDefaultDriverClassName() {
+    return defaultDriverClassName;
+  }
+
+  public final String getTrueSqlValue() {
+    return trueSqlValue;
+  }
+
+  public final String getFalseSqlValue() {
+    return falseSqlValue;
+  }
+
+  public final String getValidationQuery() {
+    return validationQuery;
   }
 }

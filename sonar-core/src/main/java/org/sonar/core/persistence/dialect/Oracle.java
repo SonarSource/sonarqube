@@ -33,7 +33,7 @@ public class Oracle extends AbstractDialect {
   public static final String ID = "oracle";
 
   public Oracle() {
-    super(ID, "oracle", "oracle");
+    super(ID, "oracle", "oracle", "oracle.jdbc.OracleDriver", "1", "0", "SELECT 1 FROM DUAL");
   }
 
   public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {
@@ -58,26 +58,10 @@ public class Oracle extends AbstractDialect {
     }
   }
 
-  public String getDefaultDriverClassName() {
-    return "oracle.jdbc.OracleDriver";
-  }
-
   public String getConnectionInitStatement(String schema) {
     if (StringUtils.isNotBlank(schema)) {
       return "ALTER SESSION SET CURRENT_SCHEMA = \"" + schema + "\"";
     }
     return null;
-  }
-
-  public String getTrueSqlValue() {
-    return "1";
-  }
-
-  public String getFalseSqlValue() {
-    return "0";
-  }
-
-  public String getValidationQuery() {
-    return "SELECT 1 FROM DUAL";
   }
 }

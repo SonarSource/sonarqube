@@ -32,7 +32,7 @@ public class PostgreSql extends AbstractDialect {
   public static final String ID = "postgresql";
 
   public PostgreSql() {
-    super(ID, "postgre", "jdbc");
+    super(ID, "postgre", "jdbc", "org.postgresql.Driver", "true", "false", "SELECT 1");
   }
 
   public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {
@@ -55,26 +55,10 @@ public class PostgreSql extends AbstractDialect {
     }
   }
 
-  public String getDefaultDriverClassName() {
-    return "org.postgresql.Driver";
-  }
-
   public String getConnectionInitStatement(String schema) {
     if (StringUtils.isNotBlank(schema)) {
       return "SET SEARCH_PATH TO " + schema;
     }
     return null;
-  }
-
-  public String getTrueSqlValue() {
-    return "true";
-  }
-
-  public String getFalseSqlValue() {
-    return "false";
-  }
-
-  public String getValidationQuery() {
-    return "SELECT 1";
   }
 }
