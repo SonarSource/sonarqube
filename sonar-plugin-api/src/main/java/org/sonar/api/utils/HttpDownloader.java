@@ -86,7 +86,7 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
     System.setProperty("http.agent", userAgent);
   }
 
-  private static String getProxySynthesis(URI uri) {
+  public String getProxySynthesis(URI uri) {
     return getProxySynthesis(uri, ProxySelector.getDefault());
   }
 
@@ -160,6 +160,14 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
     return readString(uri, Charset.forName(encoding));
   }
 
+  public InputStream openStream(URI uri) {
+    try {
+      return new HttpInputSupplier(uri).getInput();
+    } catch (Exception e) {
+      throw new SonarException("Fail to download the file: " + uri + " (" + getProxySynthesis(uri) + ")", e);
+    }
+  }
+
   public void download(URI uri, File toFile) {
     try {
       Files.copy(new HttpInputSupplier(uri), toFile);
@@ -169,7 +177,7 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
     }
   }
 
-  private static SonarException failToDownload(URI uri, IOException e) {
+  private SonarException failToDownload(URI uri, IOException e) {
     return new SonarException(String.format("Fail to download the file: %s (%s)", uri, getProxySynthesis(uri)), e);
   }
 
