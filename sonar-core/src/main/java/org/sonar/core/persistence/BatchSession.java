@@ -59,42 +59,42 @@ public final class BatchSession implements SqlSession {
     session.select(statement, handler);
   }
 
-  public Object selectOne(String statement) {
+  public <T> T selectOne(String statement) {
     reset();
-    return session.selectOne(statement);
+    return (T) session.selectOne(statement);
   }
 
-  public Object selectOne(String statement, Object parameter) {
+  public <T> T selectOne(String statement, Object parameter) {
     reset();
-    return session.selectOne(statement, parameter);
+    return (T) session.selectOne(statement, parameter);
   }
 
-  public List selectList(String statement) {
+  public <E> List<E> selectList(String statement) {
     reset();
     return session.selectList(statement);
   }
 
-  public List selectList(String statement, Object parameter) {
+  public <E> List<E> selectList(String statement, Object parameter) {
     reset();
     return session.selectList(statement, parameter);
   }
 
-  public List selectList(String statement, Object parameter, RowBounds rowBounds) {
+  public <E> List<E> selectList(String statement, Object parameter, RowBounds rowBounds) {
     reset();
     return session.selectList(statement, parameter, rowBounds);
   }
 
-  public Map selectMap(String statement, String mapKey) {
+  public <K, V> Map<K, V> selectMap(String statement, String mapKey) {
     reset();
     return session.selectMap(statement, mapKey);
   }
 
-  public Map selectMap(String statement, Object parameter, String mapKey) {
+  public <K, V> Map<K, V> selectMap(String statement, Object parameter, String mapKey) {
     reset();
     return session.selectMap(statement, parameter, mapKey);
   }
 
-  public Map selectMap(String statement, Object parameter, String mapKey, RowBounds rowBounds) {
+  public <K, V> Map<K, V> selectMap(String statement, Object parameter, String mapKey, RowBounds rowBounds) {
     reset();
     return session.selectMap(statement, parameter, mapKey, rowBounds);
   }
