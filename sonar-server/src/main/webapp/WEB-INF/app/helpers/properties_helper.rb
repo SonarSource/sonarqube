@@ -30,7 +30,7 @@ module PropertiesHelper
       password_field_tag key, value, {:size => 25}.update(options)
 
     elsif type==PropertyType::TYPE_BOOLEAN
-      check_box_tag key, "true", value=='true', options
+      (hidden_field_tag key, 'false', options) + (check_box_tag key, 'true', value=='true', options)
 
     elsif type==PropertyType::TYPE_INTEGER
       text_field_tag key, value, {:size => 10}.update(options)

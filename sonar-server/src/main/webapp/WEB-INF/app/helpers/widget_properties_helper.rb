@@ -21,7 +21,7 @@ module WidgetPropertiesHelper
   include PropertiesHelper
 
   def property_value_field(definition, value)
-    property_value definition.key(), definition.type.name(), value || definition.defaultValue()
+    property_value definition.key(), definition.type.name(), value.nil? ? definition.defaultValue() : value
   end
 
   def resource_value_field(value)
