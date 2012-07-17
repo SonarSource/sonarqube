@@ -29,7 +29,7 @@ import javax.annotation.Nullable;
  */
 public interface NewUserHandler extends ServerExtension {
 
-  public static final class Context {
+  class Context {
     private String login;
     private String name;
     private String email;
