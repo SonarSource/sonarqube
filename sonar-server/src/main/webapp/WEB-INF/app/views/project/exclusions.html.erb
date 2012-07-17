@@ -1,10 +1,12 @@
-<h1>Exclude sources from code analysis</h1>
-<br/>
+<h1><%= message('project_exclusions.page') -%></h1>
+
+<p style="margin: 15px 0px">
+  Exclude sources from code analysis. Changes will be applied during next code analysis.
+</p>
+
 <div class="yui-g widget" id="widget_exclusions">
 
-
   <div class="yui-u first">
-    <p>Changes will be applied during next code analysis.</p>
     <% form_for( 'set_exclusions', :url => { :action => 'set_exclusions', :id => @project.id } ) do |form| 
        pattern_index=0
     %>
