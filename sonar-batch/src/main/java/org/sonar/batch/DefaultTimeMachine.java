@@ -73,7 +73,7 @@ public class DefaultTimeMachine implements TimeMachine {
     return rows;
   }
 
-  protected List<Object[]> execute(TimeMachineQuery query, boolean selectAllFields, Set<Integer> metricIds) {
+  protected List execute(TimeMachineQuery query, boolean selectAllFields, Set<Integer> metricIds) {
     Resource resource = query.getResource();
     if (resource != null && resource.getId() == null) {
       resource = index.getResource(query.getResource());
