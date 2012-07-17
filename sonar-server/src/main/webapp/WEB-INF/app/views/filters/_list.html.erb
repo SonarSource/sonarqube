@@ -102,7 +102,7 @@
   <% 
      if @filter_context.filter.display_path_data?
        root_snapshot = Snapshot.find(:first, :include => 'project', :conditions => ['projects.id=? and islast=?', @filter_context.filter.resource_id, true])
-       root_snapshot=nil if root_snapshot && !(has_role?(:user, root_snapshot))
+       if root_snapshot && has_role?(:user, root_snapshot)
   %>
     <tr class="highlight">
       <td><% if logged_in? %><%= link_to_favourite(root_snapshot.project) -%><% end %></td>
@@ -127,7 +127,9 @@
       </td>
       <% end %>
     </tr>
-  <% end %>
+  <% end
+  end
+  %>
 
   <% if @filter_context.empty? %>
     <tr class="even"><td colspan="<%= 1+filter.columns.size -%>"><%= message('no_results') -%></td></tr>
