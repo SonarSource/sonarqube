@@ -25,9 +25,10 @@ import java.awt.*;
 
 public class CustomBarRenderer extends BarRenderer {
 
-  public static final Paint[] COLORS = new Paint[]{Color.red, Color.blue, Color.green,
-      Color.yellow, Color.orange, Color.cyan,
-      Color.magenta, Color.blue};
+  public static final Paint[] COLORS = {
+    Color.red, Color.blue, Color.green,
+    Color.yellow, Color.orange, Color.cyan,
+    Color.magenta, Color.blue};
 
   /**
    * The colors.

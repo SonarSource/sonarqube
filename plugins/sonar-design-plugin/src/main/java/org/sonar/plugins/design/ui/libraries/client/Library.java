@@ -47,7 +47,6 @@ public class Library extends TreeItem {
     return text.toUpperCase();
   }
 
-
   /**
    * @param keyword upper-case keyword
    */
@@ -74,7 +73,6 @@ public class Library extends TreeItem {
     return html;
   }
 
-
   public boolean filter(String keyword, boolean testFiltered) {
     if (testFiltered && "test".equals(usage)) {
       setVisible(false);
@@ -88,7 +86,7 @@ public class Library extends TreeItem {
 
     boolean hasVisibleChild = false;
     for (int index = 0; index < getChildCount(); index++) {
-        hasVisibleChild |= !((Library) getChild(index)).filter(keyword, testFiltered);
+      hasVisibleChild |= !((Library) getChild(index)).filter(keyword, testFiltered);
     }
 
     boolean visible = !filtered || hasVisibleChild;

@@ -63,25 +63,23 @@ public final class AlertUtils {
 
     int comparison = metricValue.compareTo(criteriaValue);
     return !(// NOSONAR complexity of this boolean expression is under control
-        (alert.isNotEqualsOperator() && comparison == 0) ||
-        (alert.isGreaterOperator() && comparison != 1) ||
-        (alert.isSmallerOperator() && comparison != -1) ||
-        (alert.isEqualsOperator() && comparison != 0)
-    );
+    (alert.isNotEqualsOperator() && comparison == 0)
+      || (alert.isGreaterOperator() && comparison != 1)
+      || (alert.isSmallerOperator() && comparison != -1)
+      || (alert.isEqualsOperator() && comparison != 0));
   }
-
 
   private static Comparable<?> getValueForComparison(Metric metric, String value) {
     if (metric.getType() == Metric.ValueType.FLOAT ||
-        metric.getType() == Metric.ValueType.PERCENT) {
+      metric.getType() == Metric.ValueType.PERCENT) {
       return Double.parseDouble(value);
     }
     if (metric.getType() == Metric.ValueType.INT ||
-        metric.getType() == Metric.ValueType.MILLISEC) {
+      metric.getType() == Metric.ValueType.MILLISEC) {
       return value.contains(".") ? Integer.parseInt(value.substring(0, value.indexOf('.'))) : Integer.parseInt(value);
     }
     if (metric.getType() == Metric.ValueType.STRING ||
-        metric.getType() == Metric.ValueType.LEVEL) {
+      metric.getType() == Metric.ValueType.LEVEL) {
       return value;
     }
     if (metric.getType() == Metric.ValueType.BOOL) {
@@ -95,15 +93,15 @@ public final class AlertUtils {
 
   private static Comparable<?> getMeasureValue(Metric metric, Measure measure) {
     if (metric.getType() == Metric.ValueType.FLOAT ||
-        metric.getType() == Metric.ValueType.PERCENT) {
+      metric.getType() == Metric.ValueType.PERCENT) {
       return measure.getValue();
     }
     if (metric.getType() == Metric.ValueType.INT ||
-        metric.getType() == Metric.ValueType.MILLISEC) {
+      metric.getType() == Metric.ValueType.MILLISEC) {
       return measure.getValue().intValue();
     }
     if (metric.getType() == Metric.ValueType.STRING ||
-        metric.getType() == Metric.ValueType.LEVEL) {
+      metric.getType() == Metric.ValueType.LEVEL) {
       return measure.getData();
     }
     if (metric.getType() == Metric.ValueType.BOOL) {
