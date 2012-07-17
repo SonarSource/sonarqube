@@ -29,14 +29,14 @@
 
     <% form_remote_tag( :url => {:action => 'delete_resources'}, :loading => "window.location='#{url_for :action => 'pending_deletions'}';") do %>
   
-    <table class="data">
+    <table class="data" id="resources-to-delete">
       <tfoot>
         <tr>
           <td colspan="2"><%= paginate @resources, {:page_size => page_size} %></td>
         </tr>
         <tr>
           <td colspan="2">
-            <%= submit_tag message('delete'), :id => 'delete_resources', :class => 'action red-button', :confirm => message('bulk_deletion.sure_to_delete_the_resources') %>
+            <input id="delete_resources" class="action red-button" type="submit" value="<%= message('delete') -%>" onclick="return checkBeforeDeleting();" name="commit">
           </td>
         </tr>
       </tfoot>
@@ -68,6 +68,23 @@
     <% end %>
   
     <script>
+      function checkBeforeDeleting() {
+        var resource_selected = false;
+        $$("#resources-to-delete input[type='checkbox']").each(function(input) {
+          if (input.checked) resource_selected =  true;
+        });
+        if (!resource_selected) {
+          alert("<%= message('bulk_deletion.please_select_at_least_one_resource') -%>");
+          return false;
+        }
+        
+        if (!confirm("<%= message('bulk_deletion.sure_to_delete_the_resources') -%>")) {
+          return false;
+        } 
+        
+        return true;
+      }
+      
       function selectOrDeselect() {
         var status = $('r-all').checked;
         $$('tbody input').each(function(input) {
