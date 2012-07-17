@@ -84,6 +84,7 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
 
     checkTables("shouldInsertMeasure", "project_measures");
     verify(memoryOptimizer).evictDataMeasure(eq(measure), any(MeasureModel.class));
+    assertThat(measure.getId()).isNotNull();
   }
 
   @Test
@@ -106,6 +107,7 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
     measurePersister.saveMeasure(project, measure);
 
     checkTables("shouldInsertRuleMeasure", "project_measures");
+    assertThat(measure.getId()).isNotNull();
   }
 
   @Test
@@ -120,6 +122,7 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
     ArgumentCaptor<MeasureModel> validMeasureModel = ArgumentCaptor.forClass(MeasureModel.class);
     verify(memoryOptimizer).evictDataMeasure(eq(withLargeData), validMeasureModel.capture());
     assertThat(validMeasureModel.getValue().getMeasureData().getId()).isNotNull();
+    assertThat(withLargeData.getId()).isNotNull();
   }
 
   @Test

@@ -90,7 +90,9 @@ public final class MeasurePersister {
       return update(measure, snapshot);
     }
     if (shouldPersistMeasure(resource, measure)) {
-      return insert(measure, snapshot);
+      MeasureModel insert = insert(measure, snapshot);
+      measure.setId(insert.getId());
+      return insert;
     }
     return null;
   }
