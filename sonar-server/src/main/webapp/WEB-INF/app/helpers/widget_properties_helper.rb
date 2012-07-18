@@ -30,7 +30,7 @@ module WidgetPropertiesHelper
     visible_qualifiers=Java::OrgSonarServerUi::JRubyFacade.getInstance().getQualifiersWithProperty('supportsGlobalDashboards')
 
     visible_qualifiers.each do |qualifier|
-      projects = Project.all(:conditions => {:qualifier => qualifier, :enabled => true})
+      projects = Project.all(:conditions => {:qualifier => qualifier, :enabled => true, :copy_resource_id => nil})
 
       unless projects.nil? || projects.empty?
         sorted_projects = Api::Utils.insensitive_sort(projects, &:name)
