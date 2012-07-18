@@ -25,7 +25,6 @@ class DashboardController < ApplicationController
   before_filter :login_required, :except => [:index]
 
   def index
-    # TODO display error page if no dashboard or no resource
     load_resource()
 
     if !@resource || @resource.display_dashboard?
@@ -40,14 +39,11 @@ class DashboardController < ApplicationController
   end
 
   def configure
-    # TODO display error page if no dashboard or no resource
     load_resource()
     load_dashboard()
+
     @category=params[:category]
     load_widget_definitions(@category)
-    unless @dashboard
-      redirect_to home_path
-    end
   end
 
   def set_layout
@@ -174,6 +170,8 @@ class DashboardController < ApplicationController
     unless @dashboard
       @dashboard=(active ? active.dashboard : nil)
     end
+
+    not_found('dashboard') unless @dashboard
 
     @dashboard_configuration=Api::DashboardConfiguration.new(@dashboard, :period_index => params[:period], :snapshot => @snapshot) if @dashboard && @snapshot
   end
