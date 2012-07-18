@@ -232,16 +232,6 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
     assertThat(MeasurePersister.shouldPersistMeasure(aFile, duplicatedLines)).isTrue();
   }
 
-  @Test
-  public void null_value_and_null_variations_should_be_considered_as_best_value() {
-    assertThat(MeasurePersister.isBestValueMeasure(new Measure(CoreMetrics.NEW_VIOLATIONS_KEY).setVariation1(0.0), CoreMetrics.NEW_VIOLATIONS)).isTrue();
-    assertThat(MeasurePersister.isBestValueMeasure(new Measure(CoreMetrics.NEW_VIOLATIONS_KEY).setVariation1(1.0), CoreMetrics.NEW_VIOLATIONS)).isFalse();
-    assertThat(MeasurePersister.isBestValueMeasure(new Measure(CoreMetrics.NEW_VIOLATIONS_KEY).setVariation2(1.0), CoreMetrics.NEW_VIOLATIONS)).isFalse();
-    assertThat(MeasurePersister.isBestValueMeasure(new Measure(CoreMetrics.NEW_VIOLATIONS_KEY).setVariation3(1.0), CoreMetrics.NEW_VIOLATIONS)).isFalse();
-    assertThat(MeasurePersister.isBestValueMeasure(new Measure(CoreMetrics.NEW_VIOLATIONS_KEY).setVariation4(1.0), CoreMetrics.NEW_VIOLATIONS)).isFalse();
-    assertThat(MeasurePersister.isBestValueMeasure(new Measure(CoreMetrics.NEW_VIOLATIONS_KEY).setVariation5(1.0), CoreMetrics.NEW_VIOLATIONS)).isFalse();
-  }
-
   private static Snapshot snapshot(int id) {
     Snapshot snapshot = mock(Snapshot.class);
     when(snapshot.getId()).thenReturn(id);

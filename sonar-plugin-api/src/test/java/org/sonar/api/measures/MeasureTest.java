@@ -58,7 +58,7 @@ public class MeasureTest {
   @Test
   public void persistenceModeIsDatabaseForBigDataMeasures() {
     Measure bigDataMeasure = new Measure(CoreMetrics.COVERAGE_LINE_HITS_DATA, "long data")
-      .setPersistenceMode(PersistenceMode.DATABASE);
+        .setPersistenceMode(PersistenceMode.DATABASE);
     assertThat(bigDataMeasure.getPersistenceMode()).isEqualTo(PersistenceMode.DATABASE);
   }
 
@@ -194,4 +194,15 @@ public class MeasureTest {
     assertThat(measure.hasData()).isFalse();
     assertThat(measure.getData()).isNull();
   }
+
+  @Test
+  public void null_value_and_null_variations_should_be_considered_as_best_value() {
+    assertThat(new Measure(CoreMetrics.NEW_VIOLATIONS).setVariation1(0.0).isBestValue()).isTrue();
+    assertThat(new Measure(CoreMetrics.NEW_VIOLATIONS).setVariation1(1.0).isBestValue()).isFalse();
+    assertThat(new Measure(CoreMetrics.NEW_VIOLATIONS).setVariation2(1.0).isBestValue()).isFalse();
+    assertThat(new Measure(CoreMetrics.NEW_VIOLATIONS).setVariation3(1.0).isBestValue()).isFalse();
+    assertThat(new Measure(CoreMetrics.NEW_VIOLATIONS).setVariation4(1.0).isBestValue()).isFalse();
+    assertThat(new Measure(CoreMetrics.NEW_VIOLATIONS).setVariation5(1.0).isBestValue()).isFalse();
+  }
+
 }

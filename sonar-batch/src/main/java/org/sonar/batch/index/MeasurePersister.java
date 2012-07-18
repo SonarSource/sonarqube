@@ -23,14 +23,12 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.SetMultimap;
-import org.apache.commons.lang.math.NumberUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.database.model.MeasureMapper;
 import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.RuleMeasure;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
@@ -104,34 +102,7 @@ public final class MeasurePersister {
   @VisibleForTesting
   static boolean shouldPersistMeasure(Resource resource, Measure measure) {
     return measure.getPersistenceMode().useDatabase() &&
-      !(ResourceUtils.isEntity(resource) && isBestValueMeasure(measure, measure.getMetric()));
-  }
-
-  @VisibleForTesting
-  static boolean isBestValueMeasure(Measure measure, Metric metric) {
-    return metric.isOptimizedBestValue() == Boolean.TRUE
-      && metric.getBestValue() != null
-      && (measure.getValue() == null || NumberUtils.compare(metric.getBestValue(), measure.getValue()) == 0)
-      && allNull(measure.getId(), measure.getAlertStatus(), measure.getDescription(), measure.getTendency(), measure.getUrl())
-      && !measure.hasData()
-      && isZeroVariation(measure.getVariation1())
-      && isZeroVariation(measure.getVariation2())
-      && isZeroVariation(measure.getVariation3())
-      && isZeroVariation(measure.getVariation4())
-      && isZeroVariation(measure.getVariation5());
-  }
-
-  private static boolean isZeroVariation(Double variation) {
-    return (variation == null) || NumberUtils.compare(variation.doubleValue(), 0.0) == 0;
-  }
-
-  private static boolean allNull(Object... values) {
-    for (Object value : values) {
-      if (null != value) {
-        return false;
-      }
-    }
-    return true;
+      !(ResourceUtils.isEntity(resource) && measure.isBestValue());
   }
 
   private List<MeasureModel> getMeasuresToSave() {

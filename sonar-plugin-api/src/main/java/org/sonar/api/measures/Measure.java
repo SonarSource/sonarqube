@@ -21,6 +21,7 @@ package org.sonar.api.measures;
 
 import com.google.common.annotations.Beta;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.math.NumberUtils;
 import org.sonar.api.qualitymodel.Characteristic;
 
 import java.math.BigDecimal;
@@ -607,6 +608,35 @@ public class Measure {
   public Measure setPersonId(Integer i) {
     this.personId = i;
     return this;
+  }
+
+  /**
+   * @since 3.2
+   */
+  public boolean isBestValue() {
+    return metric.isOptimizedBestValue() == Boolean.TRUE
+      && metric.getBestValue() != null
+      && (value == null || NumberUtils.compare(metric.getBestValue(), value) == 0)
+      && allNull(id, alertStatus, description, tendency, url, data)
+      && isZeroVariation(variation1, variation2, variation3, variation4, variation5);
+  }
+
+  private static boolean isZeroVariation(Double... variations) {
+    for (Double variation : variations) {
+      if (!((variation == null) || NumberUtils.compare(variation.doubleValue(), 0.0) == 0)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private static boolean allNull(Object... values) {
+    for (Object value : values) {
+      if (null != value) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @Override
