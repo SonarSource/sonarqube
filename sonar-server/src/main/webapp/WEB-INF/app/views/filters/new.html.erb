@@ -24,7 +24,7 @@
         <td>
           <b><span id="path_name"><%= @filter.resource ? @filter.resource.path_name : params[:path_name] -%></span></b>
           <input type="hidden" name="path_id" id="path_id" value="<%= @filter.resource ? @filter.resource.id : params[:path_id] -%>"/>
-          <a onclick="searchPopup(this);return false;" href="<%= url_for :action => :search_path, :search => (@filter.resource ? @filter.resource.name : nil) -%>"><%= message('search_verb') -%></a>
+          <a onclick="searchPopup(this);return false;" href="<%= url_for :action => :search_path, :search => (@filter.resource ? @filter.resource.name : nil) -%>" id="open-path-popup"><%= message('search_verb') -%></a>
           <a href="#" onClick="resetPath();return false;" id="reset_path_link" style="<%= 'display: none' unless @filter.resource -%>"><%= message('reset_verb') -%></a>
         </td>
       </tr>
@@ -154,9 +154,9 @@
       <tbody>
       <tr>
         <td colspan="2">
-          <input type="submit" value="<%= message('save_and_preview') -%>" onclick="filter_form.preview.value='true';return true;"/>
+          <input type="submit" value="<%= message('save_and_preview') -%>" onclick="filter_form.preview.value='true';return true;" id="submit_save_preview"/>
           <span class="spacer"> </span>
-          <input type="submit" value="<%= message('save_and_close') -%>"/>
+          <input type="submit" value="<%= message('save_and_close') -%>" id="submit_save_close"/>
           <span class="spacer"> </span>
           <% if @filter.id
                confirmation_message = message('filters.do_you_want_to_delete')
