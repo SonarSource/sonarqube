@@ -21,8 +21,7 @@ package org.sonar.core.persistence.dialect;
 
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class H2Test {
 
@@ -30,13 +29,22 @@ public class H2Test {
 
   @Test
   public void matchesJdbcURL() {
-    assertThat(h2.matchesJdbcURL("jdbc:h2:foo"), is(true));
-    assertThat(h2.matchesJdbcURL("jdbc:hsql:foo"), is(false));
+    assertThat(h2.matchesJdbcURL("jdbc:h2:foo")).isTrue();
+    assertThat(h2.matchesJdbcURL("jdbc:hsql:foo")).isFalse();
   }
 
   @Test
   public void testBooleanSqlValues() {
-    assertThat(h2.getTrueSqlValue(), is("true"));
-    assertThat(h2.getFalseSqlValue(), is("false"));
+    assertThat(h2.getTrueSqlValue()).isEqualTo("true");
+    assertThat(h2.getFalseSqlValue()).isEqualTo("false");
+  }
+
+  @Test
+  public void should_configure() {
+    assertThat(h2.getId()).isEqualTo("h2");
+    assertThat(h2.getActiveRecordDialectCode()).isEqualTo("h2");
+    assertThat(h2.getActiveRecordJdbcAdapter()).isEqualTo("jdbc");
+    assertThat(h2.getDefaultDriverClassName()).isEqualTo("org.h2.Driver");
+    assertThat(h2.getValidationQuery()).isEqualTo("SELECT 1");
   }
 }

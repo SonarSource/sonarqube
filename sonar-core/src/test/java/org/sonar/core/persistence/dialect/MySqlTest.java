@@ -21,8 +21,7 @@ package org.sonar.core.persistence.dialect;
 
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class MySqlTest {
 
@@ -30,17 +29,25 @@ public class MySqlTest {
 
   @Test
   public void matchesJdbcURL() {
-    assertThat(mySql.matchesJdbcURL("jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8"), is(true));
-    assertThat(mySql.matchesJdbcURL("JDBC:MYSQL://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8"), is(true));
+    assertThat(mySql.matchesJdbcURL("jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8")).isTrue();
+    assertThat(mySql.matchesJdbcURL("JDBC:MYSQL://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8")).isTrue();
 
-    assertThat(mySql.matchesJdbcURL("jdbc:hsql:foo"), is(false));
-    assertThat(mySql.matchesJdbcURL("jdbc:oracle:foo"), is(false));
+    assertThat(mySql.matchesJdbcURL("jdbc:hsql:foo")).isFalse();
+    assertThat(mySql.matchesJdbcURL("jdbc:oracle:foo")).isFalse();
   }
 
   @Test
   public void testBooleanSqlValues() {
-    assertThat(mySql.getTrueSqlValue(), is("true"));
-    assertThat(mySql.getFalseSqlValue(), is("false"));
+    assertThat(mySql.getTrueSqlValue()).isEqualTo("true");
+    assertThat(mySql.getFalseSqlValue()).isEqualTo("false");
+  }
+
+  @Test
+  public void should_configure() {
+    assertThat(mySql.getId()).isEqualTo("mysql");
+    assertThat(mySql.getActiveRecordDialectCode()).isEqualTo("mysql");
+    assertThat(mySql.getActiveRecordJdbcAdapter()).isEqualTo("jdbc");
+    assertThat(mySql.getDefaultDriverClassName()).isEqualTo("com.mysql.jdbc.Driver");
+    assertThat(mySql.getValidationQuery()).isEqualTo("SELECT 1");
   }
 }
-

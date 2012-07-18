@@ -22,8 +22,7 @@ package org.sonar.core.persistence.dialect;
 import org.hamcrest.core.Is;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNull;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertThat;
 
 public class PostgreSqlTest {
@@ -32,15 +31,12 @@ public class PostgreSqlTest {
 
   @Test
   public void matchesJdbcURL() {
-    assertThat(postgreSql.matchesJdbcURL("jdbc:postgresql://localhost/sonar"), is(true));
-    assertThat(postgreSql.matchesJdbcURL("jdbc:hsql:foo"), is(false));
+    assertThat(postgreSql.matchesJdbcURL("jdbc:postgresql://localhost/sonar")).isTrue();
+    assertThat(postgreSql.matchesJdbcURL("jdbc:hsql:foo")).isFalse();
   }
 
-  /**
-   * Avoid conflicts with other schemas
-   */
   @Test
-  public void shouldChangePostgreSearchPath() {
+  public void should_avoid_conflict_with_other_schemas() {
     String initStatement = postgreSql.getConnectionInitStatement("my_schema");
 
     assertThat(initStatement, Is.is("SET SEARCH_PATH TO my_schema"));
@@ -48,12 +44,21 @@ public class PostgreSqlTest {
 
   @Test
   public void shouldNotChangePostgreSearchPathByDefault() {
-    assertNull(postgreSql.getConnectionInitStatement(null));
+    assertThat(postgreSql.getConnectionInitStatement(null)).isNull();
   }
 
   @Test
   public void testBooleanSqlValues() {
-    assertThat(postgreSql.getTrueSqlValue(), is("true"));
-    assertThat(postgreSql.getFalseSqlValue(), is("false"));
+    assertThat(postgreSql.getTrueSqlValue()).isEqualTo("true");
+    assertThat(postgreSql.getFalseSqlValue()).isEqualTo("false");
+  }
+
+  @Test
+  public void should_configure() {
+    assertThat(postgreSql.getId()).isEqualTo("postgresql");
+    assertThat(postgreSql.getActiveRecordDialectCode()).isEqualTo("postgre");
+    assertThat(postgreSql.getActiveRecordJdbcAdapter()).isEqualTo("jdbc");
+    assertThat(postgreSql.getDefaultDriverClassName()).isEqualTo("org.postgresql.Driver");
+    assertThat(postgreSql.getValidationQuery()).isEqualTo("SELECT 1");
   }
 }

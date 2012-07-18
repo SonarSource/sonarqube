@@ -19,21 +19,18 @@
  */
 package org.sonar.core.persistence.dialect;
 
-import org.hamcrest.core.Is;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class OracleTest {
-  
+
   private Oracle oracle = new Oracle();
 
   @Test
   public void matchesJdbcURL() {
-    assertThat(oracle.matchesJdbcURL("jdbc:oracle:thin:@localhost/XE"), is(true));
-    assertThat(oracle.matchesJdbcURL("jdbc:hsql:foo"), is(false));
+    assertThat(oracle.matchesJdbcURL("jdbc:oracle:thin:@localhost/XE")).isTrue();
+    assertThat(oracle.matchesJdbcURL("jdbc:hsql:foo")).isFalse();
   }
 
   /**
@@ -43,17 +40,26 @@ public class OracleTest {
   public void shouldChangeOracleSchema() {
     String initStatement = oracle.getConnectionInitStatement("my_schema");
 
-    assertThat(initStatement, Is.is("ALTER SESSION SET CURRENT_SCHEMA = \"my_schema\""));
+    assertThat(initStatement).isEqualTo("ALTER SESSION SET CURRENT_SCHEMA = \"my_schema\"");
   }
 
   @Test
   public void shouldNotChangeOracleSchemaByDefault() {
-    assertNull(oracle.getConnectionInitStatement(null));
+    assertThat(oracle.getConnectionInitStatement(null)).isNull();
   }
 
   @Test
   public void testBooleanSqlValues() {
-    assertThat(oracle.getTrueSqlValue(), is("1"));
-    assertThat(oracle.getFalseSqlValue(), is("0"));
+    assertThat(oracle.getTrueSqlValue()).isEqualTo("1");
+    assertThat(oracle.getFalseSqlValue()).isEqualTo("0");
+  }
+
+  @Test
+  public void should_configure() {
+    assertThat(oracle.getId()).isEqualTo("oracle");
+    assertThat(oracle.getActiveRecordDialectCode()).isEqualTo("oracle");
+    assertThat(oracle.getActiveRecordJdbcAdapter()).isEqualTo("oracle_enhanced");
+    assertThat(oracle.getDefaultDriverClassName()).isEqualTo("oracle.jdbc.OracleDriver");
+    assertThat(oracle.getValidationQuery()).isEqualTo("SELECT 1 FROM DUAL");
   }
 }

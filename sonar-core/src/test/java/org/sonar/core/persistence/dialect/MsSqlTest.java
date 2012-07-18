@@ -21,8 +21,7 @@ package org.sonar.core.persistence.dialect;
 
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class MsSqlTest {
 
@@ -30,16 +29,25 @@ public class MsSqlTest {
 
   @Test
   public void matchesJdbcURL() {
-    assertThat(msSql.matchesJdbcURL("jdbc:jtds:sqlserver://localhost;databaseName=SONAR;SelectMethod=Cursor"), is(true));
-    assertThat(msSql.matchesJdbcURL("jdbc:microsoft:sqlserver://localhost:1433;databasename=sonar"), is(true));
+    assertThat(msSql.matchesJdbcURL("jdbc:jtds:sqlserver://localhost;databaseName=SONAR;SelectMethod=Cursor")).isTrue();
+    assertThat(msSql.matchesJdbcURL("jdbc:microsoft:sqlserver://localhost:1433;databasename=sonar")).isTrue();
 
-    assertThat(msSql.matchesJdbcURL("jdbc:hsql:foo"), is(false));
-    assertThat(msSql.matchesJdbcURL("jdbc:mysql:foo"), is(false));
+    assertThat(msSql.matchesJdbcURL("jdbc:hsql:foo")).isFalse();
+    assertThat(msSql.matchesJdbcURL("jdbc:mysql:foo")).isFalse();
   }
 
   @Test
   public void testBooleanSqlValues() {
-    assertThat(msSql.getTrueSqlValue(), is("1"));
-    assertThat(msSql.getFalseSqlValue(), is("0"));
+    assertThat(msSql.getTrueSqlValue()).isEqualTo("1");
+    assertThat(msSql.getFalseSqlValue()).isEqualTo("0");
+  }
+
+  @Test
+  public void should_configure() {
+    assertThat(msSql.getId()).isEqualTo("mssql");
+    assertThat(msSql.getActiveRecordDialectCode()).isEqualTo("sqlserver");
+    assertThat(msSql.getActiveRecordJdbcAdapter()).isEqualTo("jdbc");
+    assertThat(msSql.getDefaultDriverClassName()).isEqualTo("net.sourceforge.jtds.jdbc.Driver");
+    assertThat(msSql.getValidationQuery()).isEqualTo("SELECT 1");
   }
 }
