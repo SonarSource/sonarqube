@@ -25,18 +25,30 @@ import org.sonar.api.resources.Resource;
 
 /**
  * Grant access to newly created projects.
- *
+ * <p/>
  * <p>This component is not supposed to be called by standard plugins.</p>
  *
  * @since 3.2
  */
 public interface ResourcePermissions extends BatchComponent, ServerComponent {
 
+  /**
+   * Limitation - the resource id is used instead of logical key.
+   */
   boolean hasRoles(Resource resource);
 
+  /**
+   * Limitation - the resource id is used instead of logical key.
+   */
   void grantDefaultRoles(Resource resource);
 
+  /**
+   * Limitation - the resource id is used instead of logical key.
+   */
   void grantUserRole(Resource resource, String login, String role);
 
+  /**
+   * Limitation - the resource id is used instead of logical key.
+   */
   void grantGroupRole(Resource resource, String groupName, String role);
 }

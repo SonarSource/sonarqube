@@ -23,7 +23,6 @@ class User < ActiveRecord::Base
 
   FAVOURITE_PROPERTY_KEY='favourite'
 
-  after_create :on_create
   has_and_belongs_to_many :groups
 
   has_many :user_roles, :dependent => :delete_all
@@ -106,7 +105,6 @@ class User < ActiveRecord::Base
     end
     self.active = true
     save!
-    on_create
   end
 
   def self.find_active_by_login(login)
@@ -204,9 +202,7 @@ class User < ActiveRecord::Base
   end
 
 
-  private
-
-  def on_create
+  def notify_creation_handlers
     Java::OrgSonarServerUi::JRubyFacade.getInstance().onNewUser({'login' => self.login, 'name' => self.name, 'email' => self.email})
   end
 end

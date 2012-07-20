@@ -43,6 +43,7 @@ class UsersController < ApplicationController
     else
       user=prepare_user
       if user.save
+        user.notify_creation_handlers
         flash[:notice] = 'User is created.'
       end
       to_index(user.errors, nil)
@@ -56,6 +57,7 @@ class UsersController < ApplicationController
     cookies.delete :auth_token
     @user=prepare_user
     if @user.save
+      @user.notify_creation_handlers
       flash[:notice] = 'Please log in now.'
       redirect_to home_url
     else
@@ -119,6 +121,7 @@ class UsersController < ApplicationController
     user = User.find_by_login(params[:user][:login])
     if user
       user.reactivate!(java_facade.getSettings().getString('sonar.defaultGroup'))
+      user.notify_creation_handlers
       flash[:notice] = 'User was successfully reactivated.'
     else
       flash[:error] = "A user with login #{params[:user][:login]} does not exist."
