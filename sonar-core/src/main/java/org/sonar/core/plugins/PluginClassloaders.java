@@ -122,8 +122,8 @@ public class PluginClassloaders {
         realm.addURL(url);
       }
       return realm;
-    } catch (Exception e) {
-      throw new SonarException(e);
+    } catch (Throwable e) {
+      throw new SonarException("Fail to build the classloader of " + plugin.getKey(), e);
     }
   }
 
@@ -143,8 +143,8 @@ public class PluginClassloaders {
         base.addURL(file.toURI().toURL());
       }
       return true;
-    } catch (Exception e) {
-      throw new SonarException(e);
+    } catch (Throwable e) {
+      throw new SonarException("Fail to extend the plugin " + plugin.getBasePlugin() + " for " + plugin.getKey(), e);
     }
   }
 
@@ -207,7 +207,9 @@ public class PluginClassloaders {
       Class claz = get(metadata.getKey()).loadClass(metadata.getMainClass());
       return (Plugin) claz.newInstance();
 
-    } catch (Exception e) {
+    } catch (Throwable e) {
+      // Do not catch only Exception in order to detect the plugins compiled for Java > 5
+      // (it raises a java.lang.UnsupportedClassVersionError)
       throw new SonarException("Fail to load plugin " + metadata.getKey(), e);
     }
   }
