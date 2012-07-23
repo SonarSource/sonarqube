@@ -85,7 +85,7 @@
 
     <% if active_rule %>
       <div id="active_rule_note_<%= active_rule.id -%>">
-        <%= render :partial => 'active_rule_note', :locals => {:active_rule => active_rule, :is_admin => is_admin} %>
+        <%= render :partial => 'active_rule_note', :locals => {:active_rule => active_rule, :is_admin => is_admin, :profile => profile} %>
       </div>
     <% end %>
 
