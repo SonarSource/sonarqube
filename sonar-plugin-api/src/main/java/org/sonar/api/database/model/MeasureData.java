@@ -19,11 +19,14 @@
  */
 package org.sonar.api.database.model;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Throwables;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.database.BaseIdentifiable;
 
 import javax.persistence.*;
+import java.io.UnsupportedEncodingException;
 
 @Entity
 @Table(name = "measure_data")
@@ -50,7 +53,12 @@ public class MeasureData extends BaseIdentifiable {
 
   public MeasureData(MeasureModel measure, String dataString) {
     this.measure = measure;
-    this.data = dataString.getBytes();
+    try {
+      this.data = dataString.getBytes(Charsets.UTF_8.name());
+    } catch (UnsupportedEncodingException e) {
+      // how is it possible to not support UTF-8 ?
+      Throwables.propagate(e);
+    }
   }
 
   public MeasureData() {
@@ -70,7 +78,12 @@ public class MeasureData extends BaseIdentifiable {
 
   public String getText() {
     if (data != null) {
-      return new String(data);
+      try {
+        return new String(data, Charsets.UTF_8.name());
+      } catch (UnsupportedEncodingException e) {
+        // how is it possible to not support UTF-8 ?
+        Throwables.propagate(e);
+      }
     }
     return null;
   }
@@ -90,10 +103,10 @@ public class MeasureData extends BaseIdentifiable {
   @Override
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-        .append("snapshotId", snapshotId)
-        .append("mesasure", measure)
-        .append("data", data)
-        .toString();
+      .append("snapshotId", snapshotId)
+      .append("mesasure", measure)
+      .append("data", data)
+      .toString();
   }
 }
 
