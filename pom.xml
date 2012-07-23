@@ -213,13 +213,6 @@
           <configuration>
             <author>false</author>
             <linksource>true</linksource>
-            <excludePackageNames>
-              net.*:org.sonar.application:org.sonar.server:org.sonar.graph:org.sonar.batch:org.sonar.channel:org.sonar.java:org.sonar.maven*:org.sonar.plugins.*:org.sonar.colorizer:org.sonar.squid:org.sonar.core:org.sonar.jpa:org.sonar.duplications:org.sonar.markdown:com.*
-            </excludePackageNames>
-            <author>false</author>
-            <linksource>true</linksource>
-            <reportOutputDirectory>${project.reporting.outputDirectory}/${project.version}/apidocs
-            </reportOutputDirectory>
           </configuration>
         </plugin>
         <plugin>
@@ -1151,6 +1144,26 @@
       </build>
     </profile>
 
+    <profile>
+      <id>javadoc</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <configuration>
+              <excludePackageNames>
+                net.*:org.sonar.application:org.sonar.server:org.sonar.graph:org.sonar.batch:org.sonar.channel:org.sonar.java:org.sonar.maven*:org.sonar.plugins.*:org.sonar.colorizer:org.sonar.squid:org.sonar.core:org.sonar.jpa:org.sonar.duplications:org.sonar.markdown:com.*
+              </excludePackageNames>
+              <author>false</author>
+              <linksource>true</linksource>
+              <reportOutputDirectory>${project.reporting.outputDirectory}/${project.version}/apidocs
+              </reportOutputDirectory>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
 
     <profile>
       <id>m2e</id>
