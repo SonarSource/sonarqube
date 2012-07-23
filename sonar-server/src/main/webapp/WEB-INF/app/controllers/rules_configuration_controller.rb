@@ -342,7 +342,7 @@ class RulesConfigurationController < ApplicationController
     note.text = params[:note]
     note.user_login = current_user.login
     note.save!
-    render :partial => 'active_rule_note', :locals => {:active_rule => active_rule, :is_admin => true } 
+    render :partial => 'active_rule_note', :locals => {:active_rule => active_rule, :is_admin => true, :profile => active_rule.rules_profile }
   end
 
   
@@ -350,7 +350,7 @@ class RulesConfigurationController < ApplicationController
     active_rule = ActiveRule.find(params[:active_rule_id])
     active_rule.note.destroy if active_rule.note
     active_rule.note = nil
-    render :partial => 'active_rule_note', :locals => {:active_rule => active_rule, :is_admin => true }
+    render :partial => 'active_rule_note', :locals => {:active_rule => active_rule, :is_admin => true, :profile => active_rule.rules_profile }
   end
   
   

@@ -34,6 +34,12 @@ class RulesParameter < ActiveRecord::Base
   end
 
   def description
+    description(rule)
+  end
+
+  # We provide the rule as parameter to avoid reloading this rule_parameter's rule.
+  # This hack would be useless if we could use :inverse_of on :rule
+  def description(rule)
     @l10n_description ||=
       begin
         result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getRuleParamDescription(I18n.locale, rule.repository_key, rule.plugin_rule_key, name())
