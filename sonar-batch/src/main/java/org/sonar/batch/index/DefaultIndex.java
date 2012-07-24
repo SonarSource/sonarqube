@@ -340,13 +340,15 @@ public class DefaultIndex extends SonarIndex {
       return;
     }
 
-    boolean isIgnored = !force && violationFilters != null && violationFilters.isIgnored(violation);
-    if (!isIgnored) {
-      addViolation(violation, bucket);
-    }
+    addViolation(violation, bucket, force);
   }
 
-  private void addViolation(Violation violation, Bucket bucket) {
+  private void addViolation(Violation violation, Bucket bucket, boolean force) {
+    boolean isIgnored = !force && violationFilters != null && violationFilters.isIgnored(violation);
+    if (isIgnored) {
+      return;
+    }
+
     // TODO this code is not the responsibility of this index. It should be moved somewhere else.
     if (!violation.isManual()) {
       ActiveRule activeRule = profile.getActiveRule(violation.getRule());
@@ -360,10 +362,6 @@ public class DefaultIndex extends SonarIndex {
       }
     }
 
-    doAddViolation(violation, bucket);
-  }
-
-  private void doAddViolation(Violation violation, Bucket bucket) {
     bucket.addViolation(violation);
   }
 
