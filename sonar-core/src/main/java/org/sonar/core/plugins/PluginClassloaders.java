@@ -123,6 +123,10 @@ public class PluginClassloaders {
       }
       return realm;
     } catch (Throwable e) {
+      // SONAR-3688
+      // Throwable is explicitely caught instead of Exception in order to log the plugins
+      // that are compiled for Java > 5. In such case java.lang.UnsupportedClassVersionError
+      // is raised. 
       throw new SonarException("Fail to build the classloader of " + plugin.getKey(), e);
     }
   }
@@ -144,6 +148,10 @@ public class PluginClassloaders {
       }
       return true;
     } catch (Throwable e) {
+      // SONAR-3688
+      // Throwable is explicitely caught instead of Exception in order to log the plugins
+      // that are compiled for Java > 5. In such case java.lang.UnsupportedClassVersionError
+      // is raised. 
       throw new SonarException("Fail to extend the plugin " + plugin.getBasePlugin() + " for " + plugin.getKey(), e);
     }
   }
@@ -208,8 +216,10 @@ public class PluginClassloaders {
       return (Plugin) claz.newInstance();
 
     } catch (Throwable e) {
-      // Do not catch only Exception in order to detect the plugins compiled for Java > 5
-      // (it raises a java.lang.UnsupportedClassVersionError)
+      // SONAR-3688
+      // Throwable is explicitely caught instead of Exception in order to log the plugins
+      // that are compiled for Java > 5. In such case java.lang.UnsupportedClassVersionError
+      // is raised. 
       throw new SonarException("Fail to load plugin " + metadata.getKey(), e);
     }
   }
