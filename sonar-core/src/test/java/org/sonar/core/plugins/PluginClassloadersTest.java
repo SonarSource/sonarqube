@@ -20,25 +20,33 @@
 package org.sonar.core.plugins;
 
 import org.apache.commons.io.FileUtils;
+import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.Plugin;
 import org.sonar.api.platform.PluginMetadata;
+import org.sonar.api.utils.SonarException;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PluginClassloadersTest {
 
   private PluginClassloaders classloaders;
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Before
   public void before() {
@@ -47,7 +55,9 @@ public class PluginClassloadersTest {
 
   @After
   public void clean() {
-    classloaders.clean();
+    if (classloaders != null) {
+      classloaders.clean();
+    }
   }
 
   @Test
@@ -57,23 +67,23 @@ public class PluginClassloadersTest {
     classloaders.done();
 
     String resourceName = "org/sonar/plugins/bar/api/resource.txt";
-    assertThat(classloaders.get("bar").getResourceAsStream(resourceName), notNullValue());
-    assertThat(classloaders.get("foo").getResourceAsStream(resourceName), notNullValue());
+    assertThat(classloaders.get("bar").getResourceAsStream(resourceName)).isNotNull();
+    assertThat(classloaders.get("foo").getResourceAsStream(resourceName)).isNotNull();
   }
 
   @Test
   public void shouldCreateBaseClassloader() {
     classloaders = new PluginClassloaders(getClass().getClassLoader());
     DefaultPluginMetadata checkstyle = DefaultPluginMetadata.create(null)
-        .setKey("checkstyle")
-        .setMainClass("org.sonar.plugins.checkstyle.CheckstylePlugin")
-        .addDeployedFile(getFile("sonar-checkstyle-plugin-2.8.jar"));
+      .setKey("checkstyle")
+      .setMainClass("org.sonar.plugins.checkstyle.CheckstylePlugin")
+      .addDeployedFile(getFile("sonar-checkstyle-plugin-2.8.jar"));
 
     Map<String, Plugin> map = classloaders.init(Arrays.<PluginMetadata>asList(checkstyle));
 
     Plugin checkstyleEntryPoint = map.get("checkstyle");
     ClassRealm checkstyleRealm = (ClassRealm) checkstyleEntryPoint.getClass().getClassLoader();
-    assertThat(checkstyleRealm.getId(), is("checkstyle"));
+    assertThat(checkstyleRealm.getId()).isEqualTo("checkstyle");
   }
 
   @Test
@@ -81,22 +91,40 @@ public class PluginClassloadersTest {
     classloaders = new PluginClassloaders(getClass().getClassLoader());
 
     DefaultPluginMetadata checkstyle = DefaultPluginMetadata.create(null)
-        .setKey("checkstyle")
-        .setMainClass("org.sonar.plugins.checkstyle.CheckstylePlugin")
-        .addDeployedFile(getFile("sonar-checkstyle-plugin-2.8.jar"));
+      .setKey("checkstyle")
+      .setMainClass("org.sonar.plugins.checkstyle.CheckstylePlugin")
+      .addDeployedFile(getFile("sonar-checkstyle-plugin-2.8.jar"));
 
     DefaultPluginMetadata checkstyleExt = DefaultPluginMetadata.create(null)
-        .setKey("checkstyle-ext")
-        .setBasePlugin("checkstyle")
-        .setMainClass("com.mycompany.sonar.checkstyle.CheckstyleExtensionsPlugin")
-        .addDeployedFile(getFile("sonar-checkstyle-extensions-plugin-0.1-SNAPSHOT.jar"));
+      .setKey("checkstyle-ext")
+      .setBasePlugin("checkstyle")
+      .setMainClass("com.mycompany.sonar.checkstyle.CheckstyleExtensionsPlugin")
+      .addDeployedFile(getFile("sonar-checkstyle-extensions-plugin-0.1-SNAPSHOT.jar"));
 
     Map<String, Plugin> map = classloaders.init(Arrays.<PluginMetadata>asList(checkstyle, checkstyleExt));
 
     Plugin checkstyleEntryPoint = map.get("checkstyle");
     Plugin checkstyleExtEntryPoint = map.get("checkstyle-ext");
 
-    assertEquals(checkstyleEntryPoint.getClass().getClassLoader(), checkstyleExtEntryPoint.getClass().getClassLoader());
+    assertThat(checkstyleEntryPoint.getClass().getClassLoader().equals(checkstyleExtEntryPoint.getClass().getClassLoader())).isTrue();
+  }
+
+  @Test
+  public void detect_plugins_compiled_for_bad_java_version() throws Exception {
+    thrown.expect(SonarException.class);
+    thrown.expectMessage("The plugin checkstyle is not supported with Java 1.");
+
+    ClassWorld world = mock(ClassWorld.class);
+    when(world.newRealm(anyString(), any(ClassLoader.class))).thenThrow(new UnsupportedClassVersionError());
+
+    classloaders = new PluginClassloaders(getClass().getClassLoader(), world);
+
+    DefaultPluginMetadata checkstyle = DefaultPluginMetadata.create(null)
+      .setKey("checkstyle")
+      .setMainClass("org.sonar.plugins.checkstyle.CheckstylePlugin")
+      .addDeployedFile(getFile("sonar-checkstyle-plugin-2.8.jar"));
+
+    classloaders.init(Arrays.<PluginMetadata>asList(checkstyle));
   }
 
   private File getFile(String filename) {

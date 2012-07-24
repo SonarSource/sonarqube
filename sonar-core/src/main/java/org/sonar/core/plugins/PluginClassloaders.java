@@ -19,9 +19,11 @@
  */
 package org.sonar.core.plugins;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.classworlds.realm.NoSuchRealmException;
@@ -60,12 +62,18 @@ public class PluginClassloaders {
   private static final String[] PREFIXES_TO_EXPORT = {"org.sonar.plugins.", "com.sonar.plugins.", "com.sonarsource.plugins."};
   private static final Logger LOG = LoggerFactory.getLogger(PluginClassloaders.class);
 
-  private ClassWorld world = new ClassWorld();
+  private ClassWorld world;
   private ClassLoader baseClassloader;
   private boolean done = false;
 
   public PluginClassloaders(ClassLoader baseClassloader) {
+    this(baseClassloader, new ClassWorld());
+  }
+
+  @VisibleForTesting
+  PluginClassloaders(ClassLoader baseClassloader, ClassWorld world) {
     this.baseClassloader = baseClassloader;
+    this.world = world;
   }
 
   public Map<String, Plugin> init(Collection<PluginMetadata> plugins) {
@@ -122,6 +130,9 @@ public class PluginClassloaders {
         realm.addURL(url);
       }
       return realm;
+    } catch (UnsupportedClassVersionError e) {
+      throw new SonarException("The plugin " + plugin.getKey() + " is not supported with Java " + SystemUtils.JAVA_VERSION_TRIMMED, e);
+
     } catch (Throwable e) {
       // SONAR-3688
       // Throwable is explicitely caught instead of Exception in order to log the plugins
@@ -147,6 +158,9 @@ public class PluginClassloaders {
         base.addURL(file.toURI().toURL());
       }
       return true;
+    } catch (UnsupportedClassVersionError e) {
+      throw new SonarException("The plugin " + plugin.getKey() + " is not supported with Java " + SystemUtils.JAVA_VERSION_TRIMMED, e);
+
     } catch (Throwable e) {
       // SONAR-3688
       // Throwable is explicitely caught instead of Exception in order to log the plugins
@@ -210,10 +224,13 @@ public class PluginClassloaders {
     }
   }
 
-  public Plugin instantiatePlugin(PluginMetadata metadata) {
+  public Plugin instantiatePlugin(PluginMetadata plugin) {
     try {
-      Class claz = get(metadata.getKey()).loadClass(metadata.getMainClass());
-      return (Plugin) claz.newInstance();
+      Class clazz = get(plugin.getKey()).loadClass(plugin.getMainClass());
+      return (Plugin) clazz.newInstance();
+
+    } catch (UnsupportedClassVersionError e) {
+      throw new SonarException("The plugin " + plugin.getKey() + " is not supported with Java " + SystemUtils.JAVA_VERSION_TRIMMED, e);
 
     } catch (Throwable e) {
       // SONAR-3688
@@ -235,7 +252,7 @@ public class PluginClassloaders {
       } catch (Exception e) {
         // Ignore
       }
-      world=null;
+      world = null;
     }
   }
 }
