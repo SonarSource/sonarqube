@@ -53,12 +53,7 @@ public class MeasureData extends BaseIdentifiable {
 
   public MeasureData(MeasureModel measure, String dataString) {
     this.measure = measure;
-    try {
-      this.data = dataString.getBytes(Charsets.UTF_8.name());
-    } catch (UnsupportedEncodingException e) {
-      // how is it possible to not support UTF-8 ?
-      Throwables.propagate(e);
-    }
+    this.data = dataString.getBytes();
   }
 
   public MeasureData() {
