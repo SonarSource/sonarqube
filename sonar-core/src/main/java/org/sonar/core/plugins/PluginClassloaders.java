@@ -19,9 +19,11 @@
  */
 package org.sonar.core.plugins;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.classworlds.realm.NoSuchRealmException;
@@ -60,12 +62,18 @@ public class PluginClassloaders {
   private static final String[] PREFIXES_TO_EXPORT = {"org.sonar.plugins.", "com.sonar.plugins.", "com.sonarsource.plugins."};
   private static final Logger LOG = LoggerFactory.getLogger(PluginClassloaders.class);
 
-  private ClassWorld world = new ClassWorld();
+  private ClassWorld world;
   private ClassLoader baseClassloader;
   private boolean done = false;
 
   public PluginClassloaders(ClassLoader baseClassloader) {
+    this(baseClassloader, new ClassWorld());
+  }
+
+  @VisibleForTesting
+  PluginClassloaders(ClassLoader baseClassloader, ClassWorld world) {
     this.baseClassloader = baseClassloader;
+    this.world = world;
   }
 
   public Map<String, Plugin> init(Collection<PluginMetadata> plugins) {
@@ -122,6 +130,9 @@ public class PluginClassloaders {
         realm.addURL(url);
       }
       return realm;
+    } catch (UnsupportedClassVersionError e) {
+      throw new SonarException("The plugin " + plugin.getKey() + " is not supported with Java " + SystemUtils.JAVA_VERSION_TRIMMED, e);
+
     } catch (Throwable e) {
       throw new SonarException("Fail to build the classloader of " + plugin.getKey(), e);
     }
@@ -143,8 +154,11 @@ public class PluginClassloaders {
         base.addURL(file.toURI().toURL());
       }
       return true;
+    } catch (UnsupportedClassVersionError e) {
+      throw new SonarException("The plugin " + plugin.getKey() + " is not supported with Java " + SystemUtils.JAVA_VERSION_TRIMMED, e);
+
     } catch (Throwable e) {
-      throw new SonarException("Fail to extend the plugin " + plugin.getBasePlugin() + " for " + plugin.getKey(), e);
+      throw new SonarException("Fail to extend the plugin " + plugin.getBasePlugin() + " with " + plugin.getKey(), e);
     }
   }
 
@@ -202,15 +216,16 @@ public class PluginClassloaders {
     }
   }
 
-  public Plugin instantiatePlugin(PluginMetadata metadata) {
+  public Plugin instantiatePlugin(PluginMetadata plugin) {
     try {
-      Class claz = get(metadata.getKey()).loadClass(metadata.getMainClass());
-      return (Plugin) claz.newInstance();
+      Class clazz = get(plugin.getKey()).loadClass(plugin.getMainClass());
+      return (Plugin) clazz.newInstance();
+
+    } catch (UnsupportedClassVersionError e) {
+      throw new SonarException("The plugin " + plugin.getKey() + " is not supported with Java " + SystemUtils.JAVA_VERSION_TRIMMED, e);
 
     } catch (Throwable e) {
-      // Do not catch only Exception in order to detect the plugins compiled for Java > 5
-      // (it raises a java.lang.UnsupportedClassVersionError)
-      throw new SonarException("Fail to load plugin " + metadata.getKey(), e);
+      throw new SonarException("Fail to load the plugin " + plugin.getKey(), e);
     }
   }
 
@@ -225,7 +240,7 @@ public class PluginClassloaders {
       } catch (Exception e) {
         // Ignore
       }
-      world=null;
+      world = null;
     }
   }
 }
