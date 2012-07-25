@@ -23,6 +23,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
 
 import java.io.File;
 import java.util.Arrays;
@@ -39,6 +40,7 @@ public class Command {
   private List<String> arguments = Lists.newArrayList();
   private File directory;
   private Map<String, String> env = Maps.newHashMap(System.getenv());
+  private boolean newShell = false;
 
   private Command(String executable) {
     this.executable = executable;
@@ -99,8 +101,32 @@ public class Command {
     return Collections.unmodifiableMap(env);
   }
 
+  /**
+   * @since 3.3
+   */
+  public boolean isNewShell() {
+    return newShell;
+  }
+
+  /**
+   * Set to true if the script to execute has not enough rights (+x on unix).
+   * @since 3.3
+   */
+  public Command setNewShell(boolean b) {
+    this.newShell = b;
+    return this;
+  }
+
   String[] toStrings() {
     List<String> command = Lists.newArrayList();
+    if (newShell) {
+      if (SystemUtils.IS_OS_WINDOWS) {
+        command.add("cmd");
+        command.add("/C");
+      } else {
+        command.add("sh");
+      }
+    }
     command.add(executable);
     command.addAll(arguments);
     return command.toArray(new String[command.size()]);

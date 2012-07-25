@@ -19,6 +19,7 @@
  */
 package org.sonar.api.utils.command;
 
+import org.apache.commons.lang.SystemUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -35,19 +36,19 @@ public class CommandTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void shouldFailWhenBlankExecutable() throws Exception {
+  public void fail_if_blank_executable() {
     thrown.expect(IllegalArgumentException.class);
     Command.create("  ");
   }
 
   @Test
-  public void shouldFailWhenNullExecutable() throws Exception {
+  public void fail_if_null_executable() {
     thrown.expect(IllegalArgumentException.class);
     Command.create(null);
   }
 
   @Test
-  public void shouldCreateCommand() throws Exception {
+  public void create_command() {
     Command command = Command.create("java");
     command.addArgument("-Xmx512m");
     command.addArguments(Arrays.asList("-a", "-b"));
@@ -65,7 +66,7 @@ public class CommandTest {
   }
 
   @Test
-  public void shouldSetWorkingDirectory() throws Exception {
+  public void working_directory() {
     Command command = Command.create("java");
     assertThat(command.getDirectory()).isNull();
 
@@ -75,15 +76,28 @@ public class CommandTest {
   }
 
   @Test
-  public void initialize_with_current_env() throws Exception {
+  public void initialize_with_current_env() {
     Command command = Command.create("java");
     assertThat(command.getEnvironmentVariables()).isNotEmpty();
   }
 
   @Test
-  public void override_env_variables() throws Exception {
+  public void override_env_variables() {
     Command command = Command.create("java");
     command.setEnvironmentVariable("JAVA_HOME", "/path/to/java");
     assertThat(command.getEnvironmentVariables().get("JAVA_HOME")).isEqualTo("/path/to/java");
+  }
+
+  @Test
+  public void use_new_shell() {
+    if (SystemUtils.IS_OS_WINDOWS) {
+      Command command = Command.create("foo.bat");
+      command.setNewShell(true);
+      assertThat(command.toCommandLine()).isEqualTo("cmd /C foo.bat");
+    } else {
+      Command command = Command.create("foo.sh");
+      command.setNewShell(true);
+      assertThat(command.toCommandLine()).isEqualTo("sh foo.sh");
+    }
   }
 }
