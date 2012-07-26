@@ -29,7 +29,6 @@ import java.util.Arrays;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-
 public class CommandTest {
 
   @Rule
@@ -52,7 +51,7 @@ public class CommandTest {
     Command command = Command.create("java");
     command.addArgument("-Xmx512m");
     command.addArguments(Arrays.asList("-a", "-b"));
-    command.addArguments(new String[]{"-x", "-y"});
+    command.addArguments(new String[] {"-x", "-y"});
     assertThat(command.getExecutable()).isEqualTo("java");
     assertThat(command.getArguments()).hasSize(5);
     assertThat(command.toCommandLine()).isEqualTo("java -Xmx512m -a -b -x -y");
@@ -89,15 +88,24 @@ public class CommandTest {
   }
 
   @Test
-  public void use_new_shell() {
+  public void should_use_new_shell() {
     if (SystemUtils.IS_OS_WINDOWS) {
       Command command = Command.create("foo.bat");
       command.setNewShell(true);
       assertThat(command.toCommandLine()).isEqualTo("cmd /C foo.bat");
+      assertThat(command.isNewShell()).isTrue();
     } else {
       Command command = Command.create("foo.sh");
       command.setNewShell(true);
       assertThat(command.toCommandLine()).isEqualTo("sh foo.sh");
+      assertThat(command.isNewShell()).isTrue();
     }
+  }
+
+  @Test
+  public void shouldnt_use_new_shell_by_default() {
+    Command command = Command.create("foo.sh");
+
+    assertThat(command.isNewShell()).isFalse();
   }
 }

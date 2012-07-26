@@ -20,13 +20,15 @@
 package org.sonar.api.utils.command;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -35,14 +37,14 @@ import java.util.Map;
  * @since 2.7
  */
 public class Command {
-
-  private String executable;
-  private List<String> arguments = Lists.newArrayList();
+  private final String executable;
+  private final List<String> arguments = Lists.newArrayList();
+  private final Map<String, String> env = Maps.newHashMap(System.getenv());
   private File directory;
-  private Map<String, String> env = Maps.newHashMap(System.getenv());
   private boolean newShell = false;
 
   private Command(String executable) {
+    Preconditions.checkArgument(!StringUtils.isBlank(executable), "Command executable can not be blank");
     this.executable = executable;
   }
 
@@ -51,7 +53,7 @@ public class Command {
   }
 
   public List<String> getArguments() {
-    return Collections.unmodifiableList(arguments);
+    return ImmutableList.copyOf(arguments);
   }
 
   public Command addArgument(String arg) {
@@ -65,7 +67,7 @@ public class Command {
   }
 
   public Command addArguments(String[] args) {
-    arguments.addAll(Arrays.asList(args));
+    Collections.addAll(arguments, args);
     return this;
   }
 
@@ -98,10 +100,13 @@ public class Command {
    * @since 3.2
    */
   public Map<String, String> getEnvironmentVariables() {
-    return Collections.unmodifiableMap(env);
+    return ImmutableMap.copyOf(env);
   }
 
   /**
+   * <code>true</code> if a new shell should be used to execute the command.
+   * The default behavior is to not use a new shell.
+   *
    * @since 3.3
    */
   public boolean isNewShell() {
@@ -109,7 +114,12 @@ public class Command {
   }
 
   /**
-   * Set to true if the script to execute has not enough rights (+x on unix).
+   * Set to <code>true</code> if a new shell should be used to execute the command.
+   * This is useful when the executed command is a script with no execution rights (+x on unix).
+   *
+   * On windows, the command will be executed with <code>cmd /C executable</code>.
+   * On other platforms, the command will be executed with <code>sh executable</code>.
+   *
    * @since 3.3
    */
   public Command setNewShell(boolean b) {
@@ -117,19 +127,18 @@ public class Command {
     return this;
   }
 
-  String[] toStrings() {
-    List<String> command = Lists.newArrayList();
+  List<String> toStrings() {
+    ImmutableList.Builder<String> command = ImmutableList.builder();
     if (newShell) {
       if (SystemUtils.IS_OS_WINDOWS) {
-        command.add("cmd");
-        command.add("/C");
+        command.add("cmd", "/C");
       } else {
         command.add("sh");
       }
     }
     command.add(executable);
     command.addAll(arguments);
-    return command.toArray(new String[command.size()]);
+    return command.build();
   }
 
   public String toCommandLine() {
@@ -147,9 +156,6 @@ public class Command {
    * @param executable
    */
   public static Command create(String executable) {
-    if (StringUtils.isBlank(executable)) {
-      throw new IllegalArgumentException("Command executable can not be blank");
-    }
     return new Command(executable);
   }
 }
