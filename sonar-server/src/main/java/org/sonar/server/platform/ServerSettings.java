@@ -70,18 +70,15 @@ public class ServerSettings extends Settings {
   }
 
   private ServerSettings load(Map<String, String> databaseSettings) {
-    properties.clear();
-    properties.put(CoreProperties.SONAR_HOME, sonarHome.getAbsolutePath());
-    properties.put(DEPLOY_DIR, deployDir.getAbsolutePath());
+    clear();
+    setProperty(CoreProperties.SONAR_HOME, sonarHome.getAbsolutePath());
+    setProperty(DEPLOY_DIR, deployDir.getAbsolutePath());
 
     // order is important : the last override the first
-    properties.putAll(databaseSettings);
+    addProperties(databaseSettings);
     loadPropertiesFile(sonarHome);
     addEnvironmentVariables();
     addSystemProperties();
-
-    // update deprecated configuration
-    ConfigurationUtils.copyToCommonsConfiguration(properties, deprecatedConfiguration);
 
     return this;
   }
@@ -91,13 +88,9 @@ public class ServerSettings extends Settings {
     if (!propertiesFile.isFile() || !propertiesFile.exists()) {
       throw new IllegalStateException("Properties file does not exist: " + propertiesFile);
     }
-
     try {
       Properties p = ConfigurationUtils.openProperties(propertiesFile);
-      p = ConfigurationUtils.interpolateEnvVariables(p);
-      for (Map.Entry<Object, Object> entry : p.entrySet()) {
-        properties.put(entry.getKey().toString(), entry.getValue().toString());
-      }
+      addProperties(ConfigurationUtils.interpolateEnvVariables(p));
     } catch (Exception e) {
       throw new IllegalStateException("Fail to load configuration file: " + propertiesFile, e);
     }

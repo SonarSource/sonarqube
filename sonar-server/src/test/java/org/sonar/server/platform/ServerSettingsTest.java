@@ -35,7 +35,7 @@ public class ServerSettingsTest {
   private static File home = getHome();
 
   @Test
-  public void shouldLoadPropertiesFile() {
+  public void load_properties_file() {
     ServerSettings settings = new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), home);
 
     assertThat(settings.getString("hello")).isEqualTo("world");
@@ -50,7 +50,7 @@ public class ServerSettingsTest {
   }
 
   @Test(expected = IllegalStateException.class)
-  public void shouldFailIfPropertiesFileNotFound() {
+  public void fail_if_properties_file_is_not_found() {
     File sonarHome = new File("unknown/path");
     new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), sonarHome);
   }
@@ -74,6 +74,21 @@ public class ServerSettingsTest {
     settings.activateDatabaseSettings(databaseProperties);
 
     assertThat(settings.getString("in_file")).isEqualTo("true");
+  }
+
+  @Test
+  public void synchronize_deprecated_commons_configuration() {
+    BaseConfiguration deprecated = new BaseConfiguration();
+    ServerSettings settings = new ServerSettings(new PropertyDefinitions(), deprecated, new File("."), home);
+
+    assertThat(settings.getString("in_file")).isEqualTo("true");
+    assertThat(deprecated.getString("in_file")).isEqualTo("true");
+
+    assertThat(deprecated.getString("foo")).isNull();
+    settings.setProperty("foo", "bar");
+    assertThat(deprecated.getString("foo")).isEqualTo("bar");
+    settings.removeProperty("foo");
+    assertThat(deprecated.getString("foo")).isNull();
   }
 
   private static File getHome() {
