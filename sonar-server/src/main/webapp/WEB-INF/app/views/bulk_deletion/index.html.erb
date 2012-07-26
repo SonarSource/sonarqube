@@ -3,7 +3,7 @@
 <ul class="tabs">
 <% @tabs.each do |tab| %>
   <li>
-    <a href="<%= url_for :action => 'index', :resource_type => tab %>" <%= "class='selected'" if @selected_tab==tab -%>><%= message('qualifiers.' + tab) -%></a>
+    <a href="<%= url_for :action => 'index', :resource_type => tab %>" <%= "class='selected'" if @selected_tab==tab -%> id="tab-<%= u tab -%>"><%= message('qualifiers.' + tab) -%></a>
   </li>
 <% end %>
 </ul>
