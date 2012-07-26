@@ -6,7 +6,7 @@
       css_class = (q==@qualifier ? 'selected' : '')
     %>
       <li>
-        <%= link_to message("qualifiers.#{q}"), {:action => 'projects', :qualifier => q}, {:class => css_class} -%>
+        <%= link_to message("qualifiers.#{q}"), {:action => 'projects', :qualifier => q}, {:class => css_class, :id => "tab-#{u q}"} -%>
       </li>
     <% end %>
   </ul>
