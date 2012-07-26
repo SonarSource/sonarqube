@@ -19,11 +19,10 @@
  */
 package org.sonar.api.rules;
 
-import org.sonar.api.utils.SonarException;
-
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.PropertyType;
+import org.sonar.api.utils.SonarException;
 import org.sonar.check.IsoCategory;
 import org.sonar.check.Priority;
 
@@ -116,6 +115,18 @@ public class AnnotationRuleParserTest {
   }
 
   @Test
+  public void overridden_rule() {
+    List<Rule> rules = parseAnnotatedClass(OverridingRule.class);
+    assertThat(rules).hasSize(1);
+    Rule rule = rules.get(0);
+    assertThat(rule.getKey()).isEqualTo("overriding_foo");
+    assertThat(rule.getName()).isEqualTo("Overriding Foo");
+    assertThat(rule.getDescription()).isNull();
+    assertThat(rule.getSeverity()).isEqualTo(RulePriority.MAJOR);
+    assertThat(rule.getParams()).hasSize(2);
+  }
+
+  @Test
   public void supportDeprecatedAnnotations() {
     List<Rule> rules = parseAnnotatedClass(Check.class);
     assertThat(rules).hasSize(1);
@@ -141,19 +152,25 @@ public class AnnotationRuleParserTest {
   @org.sonar.check.Rule(key = "foo", name = "bar", description = "Foo Bar", priority = Priority.BLOCKER)
   static class RuleWithProperty {
     @org.sonar.check.RuleProperty(description = "Ignore ?", defaultValue = "false")
-    public String property;
+    private String property;
+  }
+
+  @org.sonar.check.Rule(key = "overriding_foo", name = "Overriding Foo")
+  static class OverridingRule extends RuleWithProperty {
+    @org.sonar.check.RuleProperty
+    private String additionalProperty;
   }
 
   @org.sonar.check.Rule(key = "foo", name = "bar", description = "Foo Bar", priority = Priority.BLOCKER)
   static class RuleWithIntegerProperty {
     @org.sonar.check.RuleProperty(description = "Max", defaultValue = "12")
-    public Integer property;
+    private Integer property;
   }
 
   @org.sonar.check.Rule(key = "foo", name = "bar", description = "Foo Bar", priority = Priority.BLOCKER)
   static class RuleWithTextProperty {
     @org.sonar.check.RuleProperty(description = "text", defaultValue = "Long text", type = "TEXT")
-    public String property;
+    protected String property;
   }
 
   @org.sonar.check.Rule(key = "foo", name = "bar", description = "Foo Bar", priority = Priority.BLOCKER)
