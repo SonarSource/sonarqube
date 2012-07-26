@@ -29,6 +29,9 @@ public class JavaCommonRulesEngineProviderTest {
   public void shouldProvideExpectedExtensions() {
     JavaCommonRulesEngineProvider provider = new JavaCommonRulesEngineProvider();
     assertThat(provider.provide().size()).isGreaterThan(1);
+
+    provider = new JavaCommonRulesEngineProvider(null);
+    assertThat(provider.provide().size()).isGreaterThan(1);
   }
 
 }

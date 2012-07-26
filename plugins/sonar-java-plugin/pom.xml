@@ -22,7 +22,7 @@
     <dependency>
       <groupId>org.codehaus.sonar.common-rules</groupId>
       <artifactId>sonar-common-rules</artifactId>
-      <version>1.0</version>
+      <version>1.0.1</version>
     </dependency>
 
     <!-- unit tests -->

@@ -19,25 +19,32 @@
  */
 package org.sonar.plugins.java;
 
-import org.sonar.api.BatchExtension;
-import org.sonar.api.ExtensionProvider;
-import org.sonar.api.ServerExtension;
 import org.sonar.api.resources.Java;
+import org.sonar.api.resources.Project;
 import org.sonar.commonrules.api.CommonRulesEngine;
+import org.sonar.commonrules.api.CommonRulesEngineProvider;
 
-import java.util.List;
+public class JavaCommonRulesEngineProvider extends CommonRulesEngineProvider {
 
-public class JavaCommonRulesEngineProvider extends ExtensionProvider implements ServerExtension, BatchExtension {
+  public JavaCommonRulesEngineProvider() {
+    super();
+  }
+
+  public JavaCommonRulesEngineProvider(Project project) {
+    super(project);
+  }
 
   @Override
-  public List provide() {
-    CommonRulesEngine engine = new CommonRulesEngine(Java.KEY);
+  protected void doActivation(CommonRulesEngine engine) {
     engine.activateRule("InsufficientBranchCoverage");
     engine.activateRule("InsufficientCommentDensity");
     engine.activateRule("DuplicatedBlocks");
     engine.activateRule("InsufficientLineCoverage");
+  }
 
-    return engine.getExtensions();
+  @Override
+  protected String getLanguageKey() {
+    return Java.KEY;
   }
 
 }
