@@ -14,7 +14,7 @@
   <description>FindBugs is a program that uses static analysis to look for bugs in Java code. It can detect a variety of common coding mistakes, including thread synchronization problems, misuse of API methods.</description>
 
   <properties>
-    <findbugs.version>2.0.0</findbugs.version>
+    <findbugs.version>2.0.1</findbugs.version>
   </properties>
 
   <dependencies>

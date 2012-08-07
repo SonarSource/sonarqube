@@ -2919,4 +2919,47 @@
     <configKey><![CDATA[VO_VOLATILE_INCREMENT]]></configKey>
 
   </rule>
+
+  <rule key="PT_ABSOLUTE_PATH_TRAVERSAL">
+    <priority>MAJOR</priority>
+    <name><![CDATA[Absolute path traversal in servlet]]></name>
+    <configKey><![CDATA[PT_ABSOLUTE_PATH_TRAVERSAL]]></configKey>
+
+  </rule>
+
+  <rule key="PT_RELATIVE_PATH_TRAVERSAL">
+    <priority>MAJOR</priority>
+    <name><![CDATA[Relative path traversal in servlet]]></name>
+    <configKey><![CDATA[PT_RELATIVE_PATH_TRAVERSAL]]></configKey>
+
+  </rule>
+
+  <rule key="NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR">
+    <priority>CRITICAL</priority>
+    <name><![CDATA[Nonnull field is not initialized]]></name>
+    <configKey><![CDATA[NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR]]></configKey>
+
+  </rule>
+
+  <rule key="MS_SHOULD_BE_REFACTORED_TO_BE_FINAL">
+    <priority>MAJOR</priority>
+    <name><![CDATA[Field isn't final but should be refactored to be so]]></name>
+    <configKey><![CDATA[MS_SHOULD_BE_REFACTORED_TO_BE_FINAL]]></configKey>
+
+  </rule>
+
+  <rule key="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE">
+    <priority>CRITICAL</priority>
+    <name><![CDATA[Unchecked/unconfirmed cast of return value from method]]></name>
+    <configKey><![CDATA[BC_UNCONFIRMED_CAST_OF_RETURN_VALUE]]></configKey>
+
+  </rule>
+
+  <rule key="TQ_COMPARING_VALUES_WITH_INCOMPATIBLE_TYPE_QUALIFIERS">
+    <priority>MAJOR</priority>
+    <name><![CDATA[Comparing values with incompatible type qualifiers]]></name>
+    <configKey><![CDATA[TQ_COMPARING_VALUES_WITH_INCOMPATIBLE_TYPE_QUALIFIERS]]></configKey>
+
+  </rule>
+
 </rules>

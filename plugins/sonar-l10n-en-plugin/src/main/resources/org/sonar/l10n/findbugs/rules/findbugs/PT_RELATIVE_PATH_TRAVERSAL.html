@@ -1,0 +1,12 @@
+<p>
+The software uses an HTTP request parameter to construct a pathname that should be within a restricted directory,
+but it does not properly neutralize sequences such as ".." that can resolve to a location that is outside of that directory.
+
+See <a href="http://cwe.mitre.org/data/definitions/23.html">http://cwe.mitre.org/data/definitions/23.html</a> for more information.</p>
+
+<p>
+FindBugs looks only for the most blatant, obvious cases of relative path traversal.
+If FindBugs found <em>any</em>, you <em>almost certainly</em> have more
+vulnerabilities that FindBugs doesn't report. If you are concerned about relative path traversal, you should seriously
+consider using a commercial static analysis or pen-testing tool.
+</p>

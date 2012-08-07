@@ -1,0 +1,8 @@
+<p>
+This static field public but not final, and
+could be changed by malicious code or
+by accident from another package.
+The field could be made final to avoid
+this vulnerability. However, the static initializer contains more than one write
+to the field, so doing so will require some refactoring.
+</p>

@@ -57,7 +57,7 @@ public class FindbugsProfileImporterTest {
     RulesProfile profile = importer.importProfile(new InputStreamReader(input), ValidationMessages.create());
     List<ActiveRule> results = profile.getActiveRules();
 
-    assertThat(results).hasSize(18);
+    assertThat(results).hasSize(19);
     assertThat(profile.getActiveRule(FindbugsConstants.REPOSITORY_KEY, "EC_INCOMPATIBLE_ARRAY_COMPARE")).isNotNull();
     assertThat(profile.getActiveRule(FindbugsConstants.REPOSITORY_KEY, "BC_IMPOSSIBLE_DOWNCAST_OF_TOARRAY")).isNotNull();
   }
@@ -135,7 +135,7 @@ public class FindbugsProfileImporterTest {
     RulesProfile profile = importer.importProfile(new StringReader(uncorrectFindbugsXml), messages);
     List<ActiveRule> results = profile.getActiveRules();
 
-    assertThat(results).hasSize(9);
+    assertThat(results).hasSize(10);
     assertThat(messages.getWarnings()).hasSize(1);
   }
 }

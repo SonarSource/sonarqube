@@ -1,0 +1,22 @@
+<p>
+A value specified as carrying a type qualifier annotation is
+compared with a value that doesn't ever carry that qualifier.
+</p>
+
+<p>
+More precisely, a value annotated with a type qualifier specifying when=ALWAYS
+is compared with a value that where the same type qualifier specifies when=NEVER.
+</p>
+
+<p>
+For example, say that @NonNegative is a nickname for
+the type qualifier annotation @Negative(when=When.NEVER).
+The following code will generate this warning because
+the return statement requires a @NonNegative value,
+but receives one that is marked as @Negative.
+</p>
+<pre>
+public boolean example(@Negative Integer value1, @NonNegative Integer value2) {
+  return value1.equals(value2);
+}
+</pre>

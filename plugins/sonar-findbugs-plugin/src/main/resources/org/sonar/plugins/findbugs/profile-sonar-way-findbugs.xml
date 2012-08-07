@@ -1198,4 +1198,22 @@
   <Match>
     <Bug pattern="VO_VOLATILE_INCREMENT"/>
   </Match>
+  <Match>
+    <Bug pattern="PT_ABSOLUTE_PATH_TRAVERSAL"/>
+  </Match>
+  <Match>
+    <Bug pattern="PT_RELATIVE_PATH_TRAVERSAL"/>
+  </Match>
+  <Match>
+    <Bug pattern="NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
+  </Match>
+  <Match>
+    <Bug pattern="MS_SHOULD_BE_REFACTORED_TO_BE_FINAL"/>
+  </Match>
+  <Match>
+    <Bug pattern="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE"/>
+  </Match>
+  <Match>
+    <Bug pattern="TQ_COMPARING_VALUES_WITH_INCOMPATIBLE_TYPE_QUALIFIERS"/>
+  </Match>
 </FindBugsFilter>
