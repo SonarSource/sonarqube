@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.checkstyle;
 
-import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -31,20 +30,20 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.ValidationMessages;
 
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class SunConventionsProfileTest {
+
   @Test
   public void shouldCreateProfile() {
     ProfileDefinition definition = new SunConventionsProfile(new XMLProfileParser(newRuleFinder(), mock(MetricFinder.class)));
     ValidationMessages validation = ValidationMessages.create();
     RulesProfile sunProfile = definition.createProfile(validation);
-    assertThat(sunProfile.getActiveRulesByRepository(CheckstyleConstants.REPOSITORY_KEY).size(), greaterThan(1));
-    assertThat(validation.hasErrors(), Is.is(false));
+    assertThat(sunProfile.getActiveRulesByRepository(CheckstyleConstants.REPOSITORY_KEY).size()).isEqualTo(59);
+    assertThat(validation.hasErrors()).isFalse();
   }
 
   private RuleFinder newRuleFinder() {

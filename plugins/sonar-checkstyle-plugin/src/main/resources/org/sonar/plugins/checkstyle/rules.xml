@@ -1645,4 +1645,25 @@
     <name><![CDATA[One Statement Per Line]]></name>
     <configKey><![CDATA[Checker/TreeWalker/OneStatementPerLine]]></configKey>
   </rule>
+
+  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.ClassTypeParameterName">
+    <priority>MAJOR</priority>
+    <name><![CDATA[Class Type Parameter Name]]></name>
+    <configKey><![CDATA[Checker/TreeWalker/ClassTypeParameterName]]></configKey>
+
+    <param key="format" type="REGULAR_EXPRESSION">
+      <defaultValue>^[A-Z]$</defaultValue>
+    </param>
+  </rule>
+
+  <rule key="com.puppycrawl.tools.checkstyle.checks.naming.MethodTypeParameterName">
+    <priority>MAJOR</priority>
+    <name><![CDATA[Method Type Parameter Name]]></name>
+    <configKey><![CDATA[Checker/TreeWalker/MethodTypeParameterName]]></configKey>
+
+    <param key="format" type="REGULAR_EXPRESSION">
+      <defaultValue>^[A-Z]$</defaultValue>
+    </param>
+  </rule>
+
 </rules>

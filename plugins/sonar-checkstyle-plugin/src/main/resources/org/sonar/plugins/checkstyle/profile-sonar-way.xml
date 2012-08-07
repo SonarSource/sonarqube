@@ -146,5 +146,13 @@
         </parameter>
       </parameters>
     </rule>
+    <rule>
+      <repositoryKey>checkstyle</repositoryKey>
+      <key>com.puppycrawl.tools.checkstyle.checks.naming.ClassTypeParameterName</key>
+    </rule>
+    <rule>
+      <repositoryKey>checkstyle</repositoryKey>
+      <key>com.puppycrawl.tools.checkstyle.checks.naming.MethodTypeParameterName</key>
+    </rule>
   </rules>
 </profile>

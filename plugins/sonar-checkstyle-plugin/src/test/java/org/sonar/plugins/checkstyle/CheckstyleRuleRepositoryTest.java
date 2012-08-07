@@ -26,8 +26,7 @@ import org.sonar.api.rules.XMLRuleParser;
 
 import java.util.List;
 
-import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class CheckstyleRuleRepositoryTest {
@@ -37,6 +36,7 @@ public class CheckstyleRuleRepositoryTest {
     ServerFileSystem fileSystem = mock(ServerFileSystem.class);
     CheckstyleRuleRepository repository = new CheckstyleRuleRepository(fileSystem, new XMLRuleParser());
     List<Rule> rules = repository.createRules();
-    assertThat(rules.size(), greaterThan(100));
+    assertThat(rules.size()).isEqualTo(129);
   }
+
 }
