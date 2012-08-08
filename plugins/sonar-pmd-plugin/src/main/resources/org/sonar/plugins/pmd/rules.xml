@@ -1,1824 +1,1254 @@
 <rules>
-  <!-- PMD 4.3 -->
+
   <rule key="DontCallThreadRun">
     <priority>MAJOR</priority>
     <configKey>rulesets/basic.xml/DontCallThreadRun</configKey>
   </rule>
+
   <rule key="GuardDebugLogging">
     <priority>MAJOR</priority>
     <configKey>rulesets/logging-jakarta-commons.xml/GuardDebugLogging</configKey>
   </rule>
 
-  <!-- PMD 4.2.6 -->
   <rule key="GenericsNaming">
     <priority>MAJOR</priority>
     <configKey>rulesets/naming.xml/GenericsNaming</configKey>
   </rule>
+
   <rule key="AvoidCatchingGenericException">
     <priority>MAJOR</priority>
     <configKey>rulesets/strictexception.xml/AvoidCatchingGenericException</configKey>
   </rule>
+
   <rule key="AvoidLosingExceptionInformation">
     <priority>MAJOR</priority>
     <configKey>rulesets/strictexception.xml/AvoidLosingExceptionInformation</configKey>
   </rule>
+
   <rule key="AvoidLiteralsInIfCondition">
     <priority>MAJOR</priority>
     <configKey>rulesets/controversial.xml/AvoidLiteralsInIfCondition</configKey>
   </rule>
+
   <rule key="UseConcurrentHashMap">
     <priority>MAJOR</priority>
     <configKey>rulesets/controversial.xml/UseConcurrentHashMap</configKey>
   </rule>
+
   <rule key="DoNotHardCodeSDCard">
     <priority>MAJOR</priority>
     <configKey>rulesets/android.xml/DoNotHardCodeSDCard</configKey>
   </rule>
 
-  <!-- PMD 4.2.5 -->
   <rule key="AvoidThrowingNewInstanceOfSameException">
     <priority>MAJOR</priority>
-
     <configKey>rulesets/strictexception.xml/AvoidThrowingNewInstanceOfSameException</configKey>
-
-
   </rule>
 
   <rule key="CallSuperFirst">
     <priority>MAJOR</priority>
-
     <configKey>rulesets/android.xml/CallSuperFirst</configKey>
-
-
   </rule>
 
   <rule key="CallSuperLast">
     <priority>MAJOR</priority>
-
     <configKey>rulesets/android.xml/CallSuperLast</configKey>
-
-
   </rule>
 
   <rule key="ProtectLogD">
     <priority>MAJOR</priority>
-
     <configKey>rulesets/android.xml/ProtectLogD</configKey>
-
-
   </rule>
 
   <rule key="ProtectLogV">
     <priority>MAJOR</priority>
-
     <configKey>rulesets/android.xml/ProtectLogV</configKey>
-
-
   </rule>
 
-
-  <!-- PMD 4.2.3 -->
   <rule key="EmptyInitializer">
     <priority>MAJOR</priority>
-
     <configKey>rulesets/basic.xml/EmptyInitializer</configKey>
-
-
   </rule>
 
-
-  <!-- PMD 4.2.2 -->
   <rule key="CyclomaticComplexity">
     <priority>MAJOR</priority>
-
     <configKey>rulesets/codesize.xml/CyclomaticComplexity</configKey>
-
-
     <param key="reportLevel" type="INTEGER">
-
     </param>
     <param key="showClassesComplexity" type="BOOLEAN">
-
-
     </param>
     <param key="showMethodsComplexity" type="BOOLEAN">
-
-
     </param>
   </rule>
 
   <rule key="AvoidStringBufferField">
     <priority>MAJOR</priority>
-
     <configKey>rulesets/strings.xml/AvoidStringBufferField</configKey>
-
-
   </rule>
 
   <rule key="DoNotThrowExceptionInFinally">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/strictexception.xml/DoNotThrowExceptionInFinally]]></configKey>
-
-
   </rule>
 
   <rule key="TooManyMethods">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/codesize.xml/TooManyMethods]]></configKey>
-
-
     <param key="maxmethods" type="INTEGER">
-
-
     </param>
   </rule>
 
   <rule key="ReturnEmptyArrayRatherThanNull">
     <priority>MINOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/ReturnEmptyArrayRatherThanNull]]></configKey>
-
-
   </rule>
 
   <rule key="TooFewBranchesForASwitchStatement">
     <priority>MINOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/TooFewBranchesForASwitchStatement]]></configKey>
-
-
     <param key="minimumNumberCaseForASwitch" type="INTEGER">
-
     </param>
   </rule>
 
   <rule key="AbstractClassWithoutAnyMethod">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/AbstractClassWithoutAnyMethod]]></configKey>
-
-
   </rule>
 
   <rule key="DoNotCallGarbageCollectionExplicitly">
     <priority>CRITICAL</priority>
-
     <configKey><![CDATA[rulesets/controversial.xml/DoNotCallGarbageCollectionExplicitly]]></configKey>
-
-
   </rule>
 
   <rule key="AvoidMultipleUnaryOperators">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/AvoidMultipleUnaryOperators]]></configKey>
-
-
   </rule>
-
 
   <rule key="DoubleCheckedLocking">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/DoubleCheckedLocking]]></configKey>
-
-
   </rule>
 
   <rule key="NPathComplexity">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/codesize.xml/NPathComplexity]]></configKey>
-
-
     <param key="minimum" type="INTEGER">
-
-
     </param>
   </rule>
 
-
   <rule key="SimplifyBooleanReturns">
     <priority>MINOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/SimplifyBooleanReturns]]></configKey>
-
-
   </rule>
 
   <rule key="SimplifyBooleanExpressions">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/SimplifyBooleanExpressions]]></configKey>
-
-
   </rule>
 
   <rule key="SwitchStmtsShouldHaveDefault">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/SwitchStmtsShouldHaveDefault]]></configKey>
-
-
   </rule>
 
   <rule key="DefaultLabelNotLastInSwitchStmt">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/DefaultLabelNotLastInSwitchStmt]]></configKey>
-
-
   </rule>
-
 
   <rule key="ClassWithOnlyPrivateConstructorsShouldBeFinal">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/ClassWithOnlyPrivateConstructorsShouldBeFinal]]></configKey>
-
-
   </rule>
 
   <rule key="AvoidFinalLocalVariable">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/controversial.xml/AvoidFinalLocalVariable]]></configKey>
-
-
   </rule>
 
   <rule key="UnnecessaryParentheses">
     <priority>MINOR</priority>
-
     <configKey><![CDATA[rulesets/controversial.xml/UnnecessaryParentheses]]></configKey>
-
-
   </rule>
 
   <rule key="OverrideBothEqualsAndHashcode">
     <priority>CRITICAL</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/OverrideBothEqualsAndHashcode]]></configKey>
-
-
   </rule>
-
 
   <rule key="UnusedImports">
     <priority>INFO</priority>
-
     <configKey><![CDATA[rulesets/imports.xml/UnusedImports]]></configKey>
-
-
   </rule>
 
   <rule key="LocalVariableCouldBeFinal">
     <priority>MINOR</priority>
-
     <configKey><![CDATA[rulesets/optimizations.xml/LocalVariableCouldBeFinal]]></configKey>
-
-
   </rule>
-
 
   <rule key="AbstractNaming">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/naming.xml/AbstractNaming]]></configKey>
-
-
   </rule>
 
   <rule key="NoPackage">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/naming.xml/NoPackage]]></configKey>
-
-
   </rule>
-
 
   <rule key="PackageCase">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/naming.xml/PackageCase]]></configKey>
-
-
   </rule>
 
   <rule key="ByteInstantiation">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/migrating.xml/ByteInstantiation]]></configKey>
-
-
   </rule>
 
   <rule key="ShortInstantiation">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/migrating.xml/ShortInstantiation]]></configKey>
-
-
   </rule>
-
 
   <rule key="LongInstantiation">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/migrating.xml/LongInstantiation]]></configKey>
-
-
   </rule>
 
   <rule key="ProperCloneImplementation">
     <priority>CRITICAL</priority>
-
     <configKey><![CDATA[rulesets/clone.xml/ProperCloneImplementation]]></configKey>
-
-
   </rule>
 
-
-  <!-- PMD <= 4.1.1 -->
   <rule key="EmptyFinalizer">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/finalizers.xml/EmptyFinalizer]]></configKey>
-
-
   </rule>
+
   <rule key="FinalizeOnlyCallsSuperFinalize">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/finalizers.xml/FinalizeOnlyCallsSuperFinalize]]></configKey>
-
-
   </rule>
+
   <rule key="FinalizeOverloaded">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/finalizers.xml/FinalizeOverloaded]]></configKey>
-
-
   </rule>
+
   <rule key="FinalizeDoesNotCallSuperFinalize">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/finalizers.xml/FinalizeDoesNotCallSuperFinalize]]></configKey>
-
-
   </rule>
+
   <rule key="FinalizeShouldBeProtected">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/finalizers.xml/FinalizeShouldBeProtected]]></configKey>
-
-
   </rule>
+
   <rule key="AvoidCallingFinalize">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/finalizers.xml/AvoidCallingFinalize]]></configKey>
-
-
   </rule>
+
   <rule key="DontNestJsfInJstlIteration">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/basic-jsf.xml/DontNestJsfInJstlIteration]]></configKey>
-
-
   </rule>
+
   <rule key="UnusedPrivateField">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/unusedcode.xml/UnusedPrivateField]]></configKey>
-
-
   </rule>
+
   <rule key="UnusedLocalVariable">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/unusedcode.xml/UnusedLocalVariable]]></configKey>
-
-
   </rule>
+
   <rule key="UnusedPrivateMethod">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/unusedcode.xml/UnusedPrivateMethod]]></configKey>
-
-
   </rule>
+
   <rule key="UnusedFormalParameter">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/unusedcode.xml/UnusedFormalParameter]]></configKey>
-
-
   </rule>
+
   <rule key="UnnecessaryConstructor">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/controversial.xml/UnnecessaryConstructor]]></configKey>
-
-
   </rule>
+
   <rule key="NullAssignment">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/controversial.xml/NullAssignment]]></configKey>
-
-
   </rule>
+
   <rule key="OnlyOneReturn">
     <priority>MINOR</priority>
-
     <configKey><![CDATA[rulesets/controversial.xml/OnlyOneReturn]]></configKey>
-
-
   </rule>
+
   <rule key="UnusedModifier">
     <priority>INFO</priority>
-
     <configKey><![CDATA[rulesets/controversial.xml/UnusedModifier]]></configKey>
-
-
   </rule>
+
   <rule key="AssignmentInOperand">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/controversial.xml/AssignmentInOperand]]></configKey>
-
-
   </rule>
+
   <rule key="AtLeastOneConstructor">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/controversial.xml/AtLeastOneConstructor]]></configKey>
-
-
   </rule>
+
   <rule key="DontImportSun">
     <priority>MINOR</priority>
-
     <configKey><![CDATA[rulesets/controversial.xml/DontImportSun]]></configKey>
-
-
   </rule>
+
   <rule key="SuspiciousOctalEscape">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/controversial.xml/SuspiciousOctalEscape]]></configKey>
-
-
   </rule>
+
   <rule key="CallSuperInConstructor">
     <priority>MINOR</priority>
-
     <configKey><![CDATA[rulesets/controversial.xml/CallSuperInConstructor]]></configKey>
-
-
   </rule>
+
   <rule key="SingularField">
     <priority>MINOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/SingularField]]></configKey>
-
-
   </rule>
+
   <rule key="DefaultPackage">
     <priority>MINOR</priority>
-
     <configKey><![CDATA[rulesets/controversial.xml/DefaultPackage]]></configKey>
-
-
   </rule>
+
   <rule key="BooleanInversion">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/controversial.xml/BooleanInversion]]></configKey>
-
-
   </rule>
+
   <rule key="DataflowAnomalyAnalysis">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/controversial.xml/DataflowAnomalyAnalysis]]></configKey>
-
-
     <param key="maxviolations" type="INTEGER">
-
-
     </param>
     <param key="maxpaths" type="INTEGER">
-
-
     </param>
   </rule>
+
   <rule key="CouplingBetweenObjects">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/coupling.xml/CouplingBetweenObjects]]></configKey>
-
-
     <param key="threshold" type="INTEGER">
-
-
     </param>
   </rule>
+
   <rule key="ExcessiveImports">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/coupling.xml/ExcessiveImports]]></configKey>
-
-
     <param key="minimum" type="INTEGER">
-
-
     </param>
   </rule>
+
   <rule key="LooseCoupling">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/coupling.xml/LooseCoupling]]></configKey>
-
-
   </rule>
+
   <rule key="MethodArgumentCouldBeFinal">
     <priority>MINOR</priority>
-
     <configKey><![CDATA[rulesets/optimizations.xml/MethodArgumentCouldBeFinal]]></configKey>
-
-
   </rule>
+
   <rule key="AvoidInstantiatingObjectsInLoops">
     <priority>MINOR</priority>
-
     <configKey><![CDATA[rulesets/optimizations.xml/AvoidInstantiatingObjectsInLoops]]></configKey>
-
-
   </rule>
+
   <rule key="UseArrayListInsteadOfVector">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/optimizations.xml/UseArrayListInsteadOfVector]]></configKey>
-
-
   </rule>
+
   <rule key="SimplifyStartsWith">
     <priority>MINOR</priority>
-
     <configKey><![CDATA[rulesets/optimizations.xml/SimplifyStartsWith]]></configKey>
-
-
   </rule>
+
   <rule key="UseStringBufferForStringAppends">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/optimizations.xml/UseStringBufferForStringAppends]]></configKey>
-
-
   </rule>
+
   <rule key="UseArraysAsList">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/optimizations.xml/UseArraysAsList]]></configKey>
-
-
   </rule>
+
   <rule key="AvoidArrayLoops">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/optimizations.xml/AvoidArrayLoops]]></configKey>
-
-
   </rule>
+
   <rule key="UnnecessaryWrapperObjectCreation">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/optimizations.xml/UnnecessaryWrapperObjectCreation]]></configKey>
-
-
   </rule>
+
   <rule key="UseProperClassLoader">
     <priority>CRITICAL</priority>
-
     <configKey><![CDATA[rulesets/j2ee.xml/UseProperClassLoader]]></configKey>
-
-
   </rule>
+
   <rule key="EmptyCatchBlock">
     <priority>CRITICAL</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/EmptyCatchBlock]]></configKey>
-
-
     <param key="allowCommentedBlocks" type="BOOLEAN">
-
-
     </param>
   </rule>
+
   <rule key="EmptyIfStmt">
     <priority>CRITICAL</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/EmptyIfStmt]]></configKey>
-
-
   </rule>
+
   <rule key="EmptyWhileStmt">
     <priority>CRITICAL</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/EmptyWhileStmt]]></configKey>
-
-
   </rule>
+
   <rule key="EmptyTryBlock">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/EmptyTryBlock]]></configKey>
-
-
   </rule>
+
   <rule key="EmptyFinallyBlock">
     <priority>CRITICAL</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/EmptyFinallyBlock]]></configKey>
-
-
   </rule>
+
   <rule key="EmptySwitchStatements">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/EmptySwitchStatements]]></configKey>
-
-
   </rule>
+
   <rule key="JumbledIncrementer">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/JumbledIncrementer]]></configKey>
-
-
   </rule>
+
   <rule key="ForLoopShouldBeWhileLoop">
     <priority>MINOR</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/ForLoopShouldBeWhileLoop]]></configKey>
-
-
   </rule>
+
   <rule key="UnnecessaryConversionTemporary">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/UnnecessaryConversionTemporary]]></configKey>
-
-
   </rule>
+
   <rule key="ReturnFromFinallyBlock">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/ReturnFromFinallyBlock]]></configKey>
-
-
   </rule>
+
   <rule key="EmptySynchronizedBlock">
     <priority>CRITICAL</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/EmptySynchronizedBlock]]></configKey>
-
-
   </rule>
+
   <rule key="UnnecessaryReturn">
     <priority>MINOR</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/UnnecessaryReturn]]></configKey>
-
-
   </rule>
+
   <rule key="EmptyStaticInitializer">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/EmptyStaticInitializer]]></configKey>
-
-
   </rule>
+
   <rule key="UnconditionalIfStatement">
     <priority>CRITICAL</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/UnconditionalIfStatement]]></configKey>
-
-
   </rule>
+
   <rule key="EmptyStatementNotInLoop">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/EmptyStatementNotInLoop]]></configKey>
-
-
   </rule>
+
   <rule key="BooleanInstantiation">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/BooleanInstantiation]]></configKey>
-
-
   </rule>
+
   <rule key="UnnecessaryFinalModifier">
     <priority>INFO</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/UnnecessaryFinalModifier]]></configKey>
-
-
   </rule>
+
   <rule key="CollapsibleIfStatements">
     <priority>MINOR</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/CollapsibleIfStatements]]></configKey>
-
-
   </rule>
+
   <rule key="UselessOverridingMethod">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/UselessOverridingMethod]]></configKey>
-
-
     <param key="ignoreAnnotations" type="BOOLEAN">
-
     </param>
   </rule>
+
   <rule key="ClassCastExceptionWithToArray">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/ClassCastExceptionWithToArray]]></configKey>
-
-
   </rule>
+
   <rule key="AvoidDecimalLiteralsInBigDecimalConstructor">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/AvoidDecimalLiteralsInBigDecimalConstructor]]></configKey>
-
-
   </rule>
+
   <rule key="UselessOperationOnImmutable">
     <priority>CRITICAL</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/UselessOperationOnImmutable]]></configKey>
-
-
   </rule>
+
   <rule key="MisplacedNullCheck">
     <priority>CRITICAL</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/MisplacedNullCheck]]></configKey>
-
-
   </rule>
+
   <rule key="UnusedNullCheckInEquals">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/UnusedNullCheckInEquals]]></configKey>
-
-
   </rule>
+
   <rule key="AvoidThreadGroup">
     <priority>CRITICAL</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/AvoidThreadGroup]]></configKey>
-
-
   </rule>
+
   <rule key="BrokenNullCheck">
     <priority>CRITICAL</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/BrokenNullCheck]]></configKey>
-
-
   </rule>
+
   <rule key="BigIntegerInstantiation">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/BigIntegerInstantiation]]></configKey>
-
-
   </rule>
+
   <rule key="AvoidUsingOctalValues">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/AvoidUsingOctalValues]]></configKey>
-
-
   </rule>
+
   <rule key="UseSingleton">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/UseSingleton]]></configKey>
-
-
   </rule>
+
   <rule key="AvoidDeeplyNestedIfStmts">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/AvoidDeeplyNestedIfStmts]]></configKey>
-
-
     <param key="problemDepth" type="INTEGER">
-
-
     </param>
   </rule>
+
   <rule key="AvoidReassigningParameters">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/AvoidReassigningParameters]]></configKey>
-
-
   </rule>
+
   <rule key="SwitchDensity">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/SwitchDensity]]></configKey>
-
-
     <param key="minimum" type="INTEGER">
-
-
     </param>
   </rule>
+
   <rule key="ConstructorCallsOverridableMethod">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/ConstructorCallsOverridableMethod]]></configKey>
-
-
   </rule>
+
   <rule key="AccessorClassGeneration">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/AccessorClassGeneration]]></configKey>
-
-
   </rule>
+
   <rule key="FinalFieldCouldBeStatic">
     <priority>MINOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/FinalFieldCouldBeStatic]]></configKey>
-
-
   </rule>
+
   <rule key="CloseResource">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/CloseResource]]></configKey>
-
-
     <param key="types" type="STRING">
-
     </param>
     <param key="closeTargets" type="STRING">
-
     </param>
   </rule>
+
   <rule key="NonStaticInitializer">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/NonStaticInitializer]]></configKey>
-
-
   </rule>
+
   <rule key="NonCaseLabelInSwitchStatement">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/NonCaseLabelInSwitchStatement]]></configKey>
-
-
   </rule>
+
   <rule key="OptimizableToArrayCall">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/OptimizableToArrayCall]]></configKey>
-
-
   </rule>
+
   <rule key="BadComparison">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/BadComparison]]></configKey>
-
-
   </rule>
+
   <rule key="EqualsNull">
     <priority>CRITICAL</priority>
-
     <configKey><![CDATA[rulesets/design.xml/EqualsNull]]></configKey>
-
-
   </rule>
+
   <rule key="ConfusingTernary">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/ConfusingTernary]]></configKey>
-
-
   </rule>
+
   <rule key="InstantiationToGetClass">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/InstantiationToGetClass]]></configKey>
-
-
   </rule>
+
   <rule key="IdempotentOperations">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/IdempotentOperations]]></configKey>
-
-
   </rule>
+
   <rule key="SimpleDateFormatNeedsLocale">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/SimpleDateFormatNeedsLocale]]></configKey>
-
-
   </rule>
+
   <rule key="ImmutableField">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/ImmutableField]]></configKey>
-
-
   </rule>
+
   <rule key="UseLocaleWithCaseConversions">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/UseLocaleWithCaseConversions]]></configKey>
-
-
   </rule>
+
   <rule key="AvoidProtectedFieldInFinalClass">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/AvoidProtectedFieldInFinalClass]]></configKey>
-
-
   </rule>
+
   <rule key="AssignmentToNonFinalStatic">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/AssignmentToNonFinalStatic]]></configKey>
-
-
   </rule>
+
   <rule key="MissingStaticMethodInNonInstantiatableClass">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/MissingStaticMethodInNonInstantiatableClass]]></configKey>
-
-
   </rule>
+
   <rule key="AvoidSynchronizedAtMethodLevel">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/AvoidSynchronizedAtMethodLevel]]></configKey>
-
-
   </rule>
+
   <rule key="MissingBreakInSwitch">
     <priority>CRITICAL</priority>
-
     <configKey><![CDATA[rulesets/design.xml/MissingBreakInSwitch]]></configKey>
-
-
   </rule>
+
   <rule key="UseNotifyAllInsteadOfNotify">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/UseNotifyAllInsteadOfNotify]]></configKey>
-
-
   </rule>
+
   <rule key="AvoidInstanceofChecksInCatchClause">
     <priority>MINOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/AvoidInstanceofChecksInCatchClause]]></configKey>
-
-
   </rule>
+
   <rule key="AbstractClassWithoutAbstractMethod">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/AbstractClassWithoutAbstractMethod]]></configKey>
-
-
   </rule>
+
   <rule key="SimplifyConditional">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/SimplifyConditional]]></configKey>
-
-
   </rule>
+
   <rule key="CompareObjectsWithEquals">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/CompareObjectsWithEquals]]></configKey>
-
-
   </rule>
+
   <rule key="PositionLiteralsFirstInComparisons">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/PositionLiteralsFirstInComparisons]]></configKey>
-
-
   </rule>
+
   <rule key="UnnecessaryLocalBeforeReturn">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/UnnecessaryLocalBeforeReturn]]></configKey>
-
-
   </rule>
+
   <rule key="NonThreadSafeSingleton">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/NonThreadSafeSingleton]]></configKey>
-
-
     <param key="checkNonStaticMethods" type="BOOLEAN">
-      <priority>MAJOR</priority>
-
-
     </param>
     <param key="checkNonStaticFields" type="BOOLEAN">
-      <priority>MAJOR</priority>
-
-
     </param>
   </rule>
+
   <rule key="UncommentedEmptyMethod">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/UncommentedEmptyMethod]]></configKey>
-
-
   </rule>
+
   <rule key="UncommentedEmptyConstructor">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/UncommentedEmptyConstructor]]></configKey>
-
-
     <param key="ignoreExplicitConstructorInvocation" type="BOOLEAN">
-
-
     </param>
   </rule>
+
   <rule key="AvoidConstantsInterface">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/AvoidConstantsInterface]]></configKey>
-
-
   </rule>
+
   <rule key="UnsynchronizedStaticDateFormatter">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/UnsynchronizedStaticDateFormatter]]></configKey>
-
-
   </rule>
+
   <rule key="PreserveStackTrace">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/PreserveStackTrace]]></configKey>
-
-
   </rule>
+
   <rule key="UseCollectionIsEmpty">
     <priority>MINOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/UseCollectionIsEmpty]]></configKey>
-
-
   </rule>
+
   <rule key="MethodReturnsInternalArray">
     <priority>CRITICAL</priority>
-
     <configKey><![CDATA[rulesets/sunsecure.xml/MethodReturnsInternalArray]]></configKey>
-
-
   </rule>
+
   <rule key="ArrayIsStoredDirectly">
     <priority>CRITICAL</priority>
-
     <configKey><![CDATA[rulesets/sunsecure.xml/ArrayIsStoredDirectly]]></configKey>
-
-
   </rule>
+
   <rule key="AvoidCatchingThrowable">
     <priority>CRITICAL</priority>
-
     <configKey><![CDATA[rulesets/strictexception.xml/AvoidCatchingThrowable]]></configKey>
-
-
   </rule>
+
   <rule key="SignatureDeclareThrowsException">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/strictexception.xml/SignatureDeclareThrowsException]]></configKey>
-
-
   </rule>
+
   <rule key="ExceptionAsFlowControl">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/strictexception.xml/ExceptionAsFlowControl]]></configKey>
-
-
   </rule>
+
   <rule key="AvoidCatchingNPE">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/strictexception.xml/AvoidCatchingNPE]]></configKey>
-
-
   </rule>
+
   <rule key="AvoidThrowingRawExceptionTypes">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/strictexception.xml/AvoidThrowingRawExceptionTypes]]></configKey>
-
-
   </rule>
+
   <rule key="AvoidThrowingNullPointerException">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/strictexception.xml/AvoidThrowingNullPointerException]]></configKey>
-
-
   </rule>
+
   <rule key="AvoidRethrowingException">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/strictexception.xml/AvoidRethrowingException]]></configKey>
-
-
   </rule>
+
   <rule key="BeanMembersShouldSerialize">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/javabeans.xml/BeanMembersShouldSerialize]]></configKey>
-
-
     <param key="prefix" type="STRING">
-
-
     </param>
   </rule>
+
   <rule key="MissingSerialVersionUID">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/javabeans.xml/MissingSerialVersionUID]]></configKey>
-
-
   </rule>
+
   <rule key="CloneMethodMustImplementCloneable">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/clone.xml/CloneMethodMustImplementCloneable]]></configKey>
-
-
   </rule>
+
   <rule key="AvoidDuplicateLiterals">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/strings.xml/AvoidDuplicateLiterals]]></configKey>
-
-
     <param key="threshold" type="INTEGER">
-
-
     </param>
     <param key="skipAnnotations" type="BOOLEAN">
-
     </param>
     <param key="exceptionlist" type="STRING">
-
     </param>
     <param key="separator" type="STRING">
-
-
     </param>
     <param key="exceptionfile" type="STRING">
-
     </param>
   </rule>
+
   <rule key="StringInstantiation">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/strings.xml/StringInstantiation]]></configKey>
-
-
   </rule>
+
   <rule key="StringToString">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/strings.xml/StringToString]]></configKey>
-
-
   </rule>
+
   <rule key="InefficientStringBuffering">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/strings.xml/InefficientStringBuffering]]></configKey>
-
-
   </rule>
+
   <rule key="UnnecessaryCaseChange">
     <priority>MINOR</priority>
-
     <configKey><![CDATA[rulesets/strings.xml/UnnecessaryCaseChange]]></configKey>
-
-
   </rule>
+
   <rule key="UseStringBufferLength">
     <priority>MINOR</priority>
-
     <configKey><![CDATA[rulesets/strings.xml/UseStringBufferLength]]></configKey>
-
-
   </rule>
+
   <rule key="AppendCharacterWithChar">
     <priority>MINOR</priority>
-
     <configKey><![CDATA[rulesets/strings.xml/AppendCharacterWithChar]]></configKey>
-
-
   </rule>
+
   <rule key="ConsecutiveLiteralAppends">
     <priority>MINOR</priority>
-
     <configKey><![CDATA[rulesets/strings.xml/ConsecutiveLiteralAppends]]></configKey>
-
-
     <param key="threshold" type="INTEGER">
-
-
     </param>
   </rule>
+
   <rule key="UseIndexOfChar">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/strings.xml/UseIndexOfChar]]></configKey>
-
-
   </rule>
+
   <rule key="InefficientEmptyStringCheck">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/strings.xml/InefficientEmptyStringCheck]]></configKey>
-
-
   </rule>
+
   <rule key="InsufficientStringBufferDeclaration">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/strings.xml/InsufficientStringBufferDeclaration]]></configKey>
-
-
   </rule>
+
   <rule key="UselessStringValueOf">
     <priority>MINOR</priority>
-
     <configKey><![CDATA[rulesets/strings.xml/UselessStringValueOf]]></configKey>
-
-
   </rule>
+
   <rule key="StringBufferInstantiationWithChar">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/strings.xml/StringBufferInstantiationWithChar]]></configKey>
-
-
   </rule>
+
   <rule key="ExcessiveMethodLength">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/codesize.xml/ExcessiveMethodLength]]></configKey>
-
-
     <param key="minimum" type="INTEGER">
-
-
     </param>
   </rule>
+
   <rule key="ExcessiveParameterList">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/codesize.xml/ExcessiveParameterList]]></configKey>
-
-
     <param key="minimum" type="INTEGER">
-
-
     </param>
   </rule>
+
   <rule key="ExcessiveClassLength">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/codesize.xml/ExcessiveClassLength]]></configKey>
-
-
     <param key="minimum" type="INTEGER">
-
-
     </param>
   </rule>
+
   <rule key="ExcessivePublicCount">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/codesize.xml/ExcessivePublicCount]]></configKey>
-
-
     <param key="minimum" type="INTEGER">
-
-
     </param>
   </rule>
+
   <rule key="TooManyFields">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/codesize.xml/TooManyFields]]></configKey>
-
-
     <param key="maxfields" type="INTEGER">
-
-
     </param>
   </rule>
+
   <rule key="NcssMethodCount">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/codesize.xml/NcssMethodCount]]></configKey>
-
-
     <param key="minimum" type="INTEGER">
-
     </param>
   </rule>
+
   <rule key="NcssTypeCount">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/codesize.xml/NcssTypeCount]]></configKey>
-
-
     <param key="minimum" type="INTEGER">
-
     </param>
   </rule>
+
   <rule key="NcssConstructorCount">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/codesize.xml/NcssConstructorCount]]></configKey>
-
-
     <param key="minimum" type="INTEGER">
-
     </param>
   </rule>
+
   <rule key="DuplicateImports">
     <priority>MINOR</priority>
-
     <configKey><![CDATA[rulesets/imports.xml/DuplicateImports]]></configKey>
-
-
   </rule>
+
   <rule key="DontImportJavaLang">
     <priority>MINOR</priority>
-
     <configKey><![CDATA[rulesets/imports.xml/DontImportJavaLang]]></configKey>
-
-
   </rule>
+
   <rule key="ImportFromSamePackage">
     <priority>MINOR</priority>
-
     <configKey><![CDATA[rulesets/imports.xml/ImportFromSamePackage]]></configKey>
-
-
   </rule>
+
   <rule key="CloneThrowsCloneNotSupportedException">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/clone.xml/CloneThrowsCloneNotSupportedException]]></configKey>
-
-
   </rule>
+
   <rule key="UseCorrectExceptionLogging">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/logging-jakarta-commons.xml/UseCorrectExceptionLogging]]></configKey>
-
-
   </rule>
+
   <rule key="ProperLogger">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/logging-jakarta-commons.xml/ProperLogger]]></configKey>
-
-
     <param key="staticLoggerName" type="STRING">
-
-
     </param>
   </rule>
+
   <rule key="ShortVariable">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/naming.xml/ShortVariable]]></configKey>
-
-
   </rule>
+
   <rule key="LongVariable">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/naming.xml/LongVariable]]></configKey>
-
-
     <param key="minimum" type="INTEGER">
-
-
     </param>
   </rule>
+
   <rule key="ShortMethodName">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/naming.xml/ShortMethodName]]></configKey>
-
-
   </rule>
+
   <rule key="VariableNamingConventions">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/naming.xml/VariableNamingConventions]]></configKey>
-
-
     <param key="staticPrefix" type="STRING">
-
-
     </param>
     <param key="staticSuffix" type="STRING">
-
-
     </param>
     <param key="memberPrefix" type="STRING">
-
-
     </param>
     <param key="memberSuffix" type="STRING">
-
-
     </param>
   </rule>
+
   <rule key="MethodNamingConventions">
     <priority>MAJOR</priority>
-
     <configKey>rulesets/naming.xml/MethodNamingConventions</configKey>
-
-
   </rule>
+
   <rule key="ClassNamingConventions">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/naming.xml/ClassNamingConventions]]></configKey>
-
-
   </rule>
+
   <rule key="AvoidDollarSigns">
     <priority>MINOR</priority>
-
     <configKey><![CDATA[rulesets/naming.xml/AvoidDollarSigns]]></configKey>
-
-
   </rule>
+
   <rule key="MethodWithSameNameAsEnclosingClass">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/naming.xml/MethodWithSameNameAsEnclosingClass]]></configKey>
-
-
   </rule>
+
   <rule key="SuspiciousHashcodeMethodName">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/naming.xml/SuspiciousHashcodeMethodName]]></configKey>
-
-
   </rule>
+
   <rule key="SuspiciousConstantFieldName">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/naming.xml/SuspiciousConstantFieldName]]></configKey>
-
-
   </rule>
+
   <rule key="SuspiciousEqualsMethodName">
     <priority>CRITICAL</priority>
-
     <configKey><![CDATA[rulesets/naming.xml/SuspiciousEqualsMethodName]]></configKey>
-
-
   </rule>
+
   <rule key="AvoidFieldNameMatchingTypeName">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/naming.xml/AvoidFieldNameMatchingTypeName]]></configKey>
-
-
   </rule>
+
   <rule key="AvoidFieldNameMatchingMethodName">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/naming.xml/AvoidFieldNameMatchingMethodName]]></configKey>
-
-
   </rule>
+
   <rule key="MisleadingVariableName">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/naming.xml/MisleadingVariableName]]></configKey>
-
-
   </rule>
+
   <rule key="ReplaceVectorWithList">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/migrating.xml/ReplaceVectorWithList]]></configKey>
-
-
   </rule>
+
   <rule key="ReplaceHashtableWithMap">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/migrating.xml/ReplaceHashtableWithMap]]></configKey>
-
-
   </rule>
+
   <rule key="ReplaceEnumerationWithIterator">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/migrating.xml/ReplaceEnumerationWithIterator]]></configKey>
-
-
   </rule>
+
   <rule key="AvoidEnumAsIdentifier">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/migrating.xml/AvoidEnumAsIdentifier]]></configKey>
-
-
   </rule>
+
   <rule key="AvoidAssertAsIdentifier">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/migrating.xml/AvoidAssertAsIdentifier]]></configKey>
-
-
   </rule>
+
   <rule key="IntegerInstantiation">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/migrating.xml/IntegerInstantiation]]></configKey>
-
-
   </rule>
+
   <rule key="MoreThanOneLogger">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/logging-java.xml/MoreThanOneLogger]]></configKey>
-
-
   </rule>
+
   <rule key="LoggerIsNotStaticFinal">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/logging-java.xml/LoggerIsNotStaticFinal]]></configKey>
-
-
   </rule>
+
   <rule key="SystemPrintln">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/logging-java.xml/SystemPrintln]]></configKey>
-
-
   </rule>
+
   <rule key="AvoidPrintStackTrace">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/logging-java.xml/AvoidPrintStackTrace]]></configKey>
-
-
   </rule>
+
   <rule key="IfStmtsMustUseBraces">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/braces.xml/IfStmtsMustUseBraces]]></configKey>
-
-
   </rule>
+
   <rule key="WhileLoopsMustUseBraces">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/braces.xml/WhileLoopsMustUseBraces]]></configKey>
-
-
   </rule>
+
   <rule key="IfElseStmtsMustUseBraces">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/braces.xml/IfElseStmtsMustUseBraces]]></configKey>
-
-
   </rule>
+
   <rule key="ForLoopsMustUseBraces">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/braces.xml/ForLoopsMustUseBraces]]></configKey>
-
-
   </rule>
+
   <rule key="AvoidUsingHardCodedIP">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/AvoidUsingHardCodedIP]]></configKey>
-
-
     <param key="pattern" type="REGULAR_EXPRESSION">
-
-
     </param>
   </rule>
+
   <rule key="CheckResultSet">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/basic.xml/CheckResultSet]]></configKey>
-
-
   </rule>
+
   <rule key="AvoidUsingShortType">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/controversial.xml/AvoidUsingShortType]]></configKey>
-
-
   </rule>
+
   <rule key="AvoidUsingVolatile">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/controversial.xml/AvoidUsingVolatile]]></configKey>
-
-
   </rule>
+
   <rule key="AvoidUsingNativeCode">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/controversial.xml/AvoidUsingNativeCode]]></configKey>
-
-
   </rule>
+
   <rule key="AvoidAccessibilityAlteration">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/controversial.xml/AvoidAccessibilityAlteration]]></configKey>
-
-
   </rule>
+
   <rule key="EmptyMethodInAbstractClassShouldBeAbstract">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/design.xml/EmptyMethodInAbstractClassShouldBeAbstract]]></configKey>
-
-
   </rule>
+
   <rule key="TooManyStaticImports">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/imports.xml/TooManyStaticImports]]></configKey>
-
-
     <param key="maximumStaticImports" type="INTEGER">
-
-
     </param>
   </rule>
+
   <rule key="DoNotCallSystemExit">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/j2ee.xml/DoNotCallSystemExit]]></configKey>
-
-
   </rule>
+
   <rule key="StaticEJBFieldShouldBeFinal">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/j2ee.xml/StaticEJBFieldShouldBeFinal]]></configKey>
-
-
   </rule>
+
   <rule key="DoNotUseThreads">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/j2ee.xml/DoNotUseThreads]]></configKey>
-
-
   </rule>
+
   <rule key="MDBAndSessionBeanNamingConvention">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/j2ee.xml/MDBAndSessionBeanNamingConvention]]></configKey>
-
-
   </rule>
+
   <rule key="RemoteSessionInterfaceNamingConvention">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/j2ee.xml/RemoteSessionInterfaceNamingConvention]]></configKey>
-
-
   </rule>
+
   <rule key="LocalInterfaceSessionNamingConvention">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/j2ee.xml/LocalInterfaceSessionNamingConvention]]></configKey>
-
-
   </rule>
+
   <rule key="LocalHomeNamingConvention">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/j2ee.xml/LocalHomeNamingConvention]]></configKey>
-
-
   </rule>
+
   <rule key="RemoteInterfaceNamingConvention">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/j2ee.xml/RemoteInterfaceNamingConvention]]></configKey>
-
-
   </rule>
+
   <rule key="UseEqualsToCompareStrings">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/strings.xml/UseEqualsToCompareStrings]]></configKey>
-
-
   </rule>
+
   <rule key="DoNotExtendJavaLangError">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/strictexception.xml/DoNotExtendJavaLangError]]></configKey>
-
-
   </rule>
+
   <rule key="AddEmptyString">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/optimizations.xml/AddEmptyString]]></configKey>
-
-
   </rule>
+
   <rule key="BooleanGetMethodName">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[rulesets/naming.xml/BooleanGetMethodName]]></configKey>
-
-
     <param key="checkParameterizedMethods" type="BOOLEAN">
-
-
     </param>
   </rule>
+
   <rule key="XPathRule">
     <priority>MAJOR</priority>
-
     <configKey><![CDATA[net.sourceforge.pmd.rules.XPathRule]]></configKey>
-
     <cardinality>MULTIPLE</cardinality>
-
     <param key="xpath" type="TEXT">
-
     </param>
     <param key="message" type="STRING">
-
     </param>
   </rule>
+
 </rules>
