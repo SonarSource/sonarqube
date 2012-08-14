@@ -1,4 +1,6 @@
 /**
+ * Protovis 3.3.1, provided under the BSD License
+ *
  * @class The built-in Array class.
  * @name Array
  */
