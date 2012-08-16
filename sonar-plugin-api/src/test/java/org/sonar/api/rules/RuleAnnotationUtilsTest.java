@@ -33,12 +33,6 @@ public class RuleAnnotationUtilsTest {
   }
 
   @Test
-  public void shouldGetKeyFromDeprecatedCheckAnnotation() {
-    String key = RuleAnnotationUtils.getRuleKey(DeprecatedAnnotatedCheck.class);
-    assertThat(key, is(DeprecatedAnnotatedCheck.class.getName()));
-  }
-
-  @Test
   public void shouldGetKey() {
     String key = RuleAnnotationUtils.getRuleKey(AnnotatedCheckWithParameters.class);
     assertThat(key, is("overridden_key"));

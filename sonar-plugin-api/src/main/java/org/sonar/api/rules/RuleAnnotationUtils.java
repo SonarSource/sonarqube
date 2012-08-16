@@ -21,7 +21,6 @@ package org.sonar.api.rules;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.AnnotationUtils;
-import org.sonar.check.Check;
 
 /**
  * @since 2.3
@@ -37,11 +36,6 @@ public final class RuleAnnotationUtils {
     org.sonar.check.Rule ruleAnnotation = AnnotationUtils.getAnnotation(annotatedClass, org.sonar.check.Rule.class);
     if (ruleAnnotation != null) {
       key = ruleAnnotation.key();
-    } else {
-      Check checkAnnotation = AnnotationUtils.getAnnotation(annotatedClass, Check.class);
-      if (checkAnnotation != null) {
-        key = checkAnnotation.key();
-      }
     }
     return StringUtils.defaultIfEmpty(key, annotatedClass.getCanonicalName());
   }

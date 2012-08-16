@@ -29,7 +29,6 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.api.utils.FieldUtils2;
 import org.sonar.api.utils.SonarException;
-import org.sonar.check.Check;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -55,10 +54,6 @@ public final class AnnotationRuleParser implements ServerComponent {
     if (ruleAnnotation != null) {
       return toRule(repositoryKey, annotatedClass, ruleAnnotation);
     }
-    Check checkAnnotation = AnnotationUtils.getAnnotation(annotatedClass, Check.class);
-    if (checkAnnotation != null) {
-      return toRule(repositoryKey, annotatedClass, checkAnnotation);
-    }
     LOG.warn("The class " + annotatedClass.getCanonicalName() + " should be annotated with " + Rule.class);
     return null;
   }
@@ -79,20 +74,6 @@ public final class AnnotationRuleParser implements ServerComponent {
     return rule;
   }
 
-  private Rule toRule(String repositoryKey, Class clazz, Check checkAnnotation) {
-    String ruleKey = StringUtils.defaultIfEmpty(checkAnnotation.key(), clazz.getCanonicalName());
-    String ruleName = StringUtils.defaultIfEmpty(checkAnnotation.title(), ruleKey);
-    Rule rule = Rule.create(repositoryKey, ruleKey, ruleName);
-    rule.setDescription(checkAnnotation.description());
-    rule.setSeverity(RulePriority.fromCheckPriority(checkAnnotation.priority()));
-
-    List<Field> fields = FieldUtils2.getFields(clazz, true);
-    for (Field field : fields) {
-      addCheckProperty(rule, field);
-    }
-    return rule;
-  }
-
   private void addRuleProperty(Rule rule, Field field) {
     org.sonar.check.RuleProperty propertyAnnotation = field.getAnnotation(org.sonar.check.RuleProperty.class);
     if (propertyAnnotation != null) {
@@ -109,15 +90,6 @@ public final class AnnotationRuleParser implements ServerComponent {
       } else {
         param.setType(guessType(field.getType()).name());
       }
-    }
-  }
-
-  private void addCheckProperty(Rule rule, Field field) {
-    org.sonar.check.CheckProperty propertyAnnotation = field.getAnnotation(org.sonar.check.CheckProperty.class);
-    if (propertyAnnotation != null) {
-      String fieldKey = StringUtils.defaultIfEmpty(propertyAnnotation.key(), field.getName());
-      RuleParam param = rule.createParameter(fieldKey);
-      param.setDescription(propertyAnnotation.description());
     }
   }
 

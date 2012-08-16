@@ -27,8 +27,6 @@ import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.api.utils.FieldUtils2;
 import org.sonar.api.utils.SonarException;
-import org.sonar.check.Check;
-import org.sonar.check.CheckProperty;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 
@@ -156,13 +154,6 @@ public final class AnnotationCheckFactory extends CheckFactory {
         if (StringUtils.equals(key, field.getName()) || StringUtils.equals(key, propertyAnnotation.key())) {
           return field;
         }
-      } else {
-        CheckProperty checkAnnotation = field.getAnnotation(CheckProperty.class);
-        if (checkAnnotation != null) {
-          if (StringUtils.equals(key, field.getName()) || StringUtils.equals(key, checkAnnotation.key())) {
-            return field;
-          }
-        }
       }
     }
     return null;
@@ -173,12 +164,6 @@ public final class AnnotationCheckFactory extends CheckFactory {
     Rule ruleAnnotation = AnnotationUtils.getAnnotation(annotatedClassOrObject, Rule.class);
     if (ruleAnnotation != null) {
       key = ruleAnnotation.key();
-    } else {
-      Check checkAnnotation = AnnotationUtils.getAnnotation(annotatedClassOrObject, Check.class);
-      if (checkAnnotation != null) {
-        key = checkAnnotation.key();
-
-      }
     }
     Class clazz = annotatedClassOrObject.getClass();
     if (annotatedClassOrObject instanceof Class) {

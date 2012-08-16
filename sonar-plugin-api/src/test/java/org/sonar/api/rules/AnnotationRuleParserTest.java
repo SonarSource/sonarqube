@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.PropertyType;
 import org.sonar.api.utils.SonarException;
-import org.sonar.check.IsoCategory;
 import org.sonar.check.Priority;
 
 import java.util.Collections;
@@ -126,17 +125,6 @@ public class AnnotationRuleParserTest {
     assertThat(rule.getParams()).hasSize(2);
   }
 
-  @Test
-  public void supportDeprecatedAnnotations() {
-    List<Rule> rules = parseAnnotatedClass(Check.class);
-    assertThat(rules).hasSize(1);
-    Rule rule = rules.get(0);
-    assertThat(rule.getKey()).isEqualTo(Check.class.getCanonicalName());
-    assertThat(rule.getName()).isEqualTo(Check.class.getCanonicalName());
-    assertThat(rule.getDescription()).isEqualTo("Deprecated check");
-    assertThat(rule.getSeverity()).isEqualTo(RulePriority.BLOCKER);
-  }
-
   private List<Rule> parseAnnotatedClass(Class annotatedClass) {
     return new AnnotationRuleParser().parse("repo", Collections.singleton(annotatedClass));
   }
@@ -177,9 +165,5 @@ public class AnnotationRuleParserTest {
   static class RuleWithInvalidPropertyType {
     @org.sonar.check.RuleProperty(description = "text", defaultValue = "Long text", type = "INVALID")
     public String property;
-  }
-
-  @org.sonar.check.Check(description = "Deprecated check", priority = Priority.BLOCKER, isoCategory = IsoCategory.Maintainability)
-  static class Check {
   }
 }
