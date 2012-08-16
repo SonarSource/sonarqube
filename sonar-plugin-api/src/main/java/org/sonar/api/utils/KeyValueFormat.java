@@ -34,8 +34,10 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
- * Formats and parses key/value pairs with the string representation : "key1=value1;key2=value2". Conversion
- * of fields is supported and can be extended.
+ * <p>Formats and parses key/value pairs with the string representation : "key1=value1;key2=value2". Conversion
+ * of fields is supported and can be extended.</p>
+ *
+ * <p>This format can easily be parsed with Ruby code: <code>hash=Hash[*(my_string.split(';').map { |elt| elt.split('=') }.flatten)]</code></p>
  *
  * @since 1.10
  */
