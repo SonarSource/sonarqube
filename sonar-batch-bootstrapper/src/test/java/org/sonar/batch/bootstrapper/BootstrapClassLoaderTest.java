@@ -19,18 +19,42 @@
  */
 package org.sonar.batch.bootstrapper;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class BootstrapClassLoaderTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void shouldRestrictLoadingFromParent() throws Exception {
     BootstrapClassLoader classLoader = new BootstrapClassLoader(getClass().getClassLoader(), "org.sonar.ant");
-    assertThat(classLoader.canLoadFromParent("org.sonar.ant.Launcher"), is(true));
-    assertThat(classLoader.canLoadFromParent("org.objectweb.asm.ClassVisitor"), is(false));
+    assertThat(classLoader.canLoadFromParent("org.sonar.ant.Launcher")).isTrue();
+    assertThat(classLoader.canLoadFromParent("org.objectweb.asm.ClassVisitor")).isFalse();
   }
 
+  @Test
+  public void use_isolated_system_classloader_when_parent_is_excluded() throws ClassNotFoundException {
+    thrown.expect(ClassNotFoundException.class);
+    thrown.expectMessage("org.junit.Test");
+    ClassLoader parent = getClass().getClassLoader();
+    BootstrapClassLoader classLoader = new BootstrapClassLoader(parent);
+
+    // JUnit is available in the parent classloader (classpath used to execute this test) but not in the core JVM
+    assertThat(classLoader.loadClass("java.lang.String", false)).isNotNull();
+    classLoader.loadClass("org.junit.Test", false);
+  }
+
+  @Test
+  public void find_in_parent_when_matches_unmasked_packages() throws ClassNotFoundException {
+    ClassLoader parent = getClass().getClassLoader();
+    BootstrapClassLoader classLoader = new BootstrapClassLoader(parent, "org.junit");
+
+    // JUnit is available in the parent classloader (classpath used to execute this test) but not in the core JVM
+    assertThat(classLoader.loadClass("org.junit.Test", false)).isNotNull();
+  }
 }

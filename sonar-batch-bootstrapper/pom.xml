@@ -19,8 +19,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.hamcrest</groupId>
-      <artifactId>hamcrest-all</artifactId>
+      <groupId>org.easytesting</groupId>
+      <artifactId>fest-assert</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

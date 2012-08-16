@@ -29,7 +29,7 @@ import java.util.Enumeration;
  */
 public class BootstrapClassLoader extends URLClassLoader {
 
-  private String[] unmaskedPackages;
+  private final String[] unmaskedPackages;
 
   public BootstrapClassLoader(ClassLoader parent, String... unmaskedPackages) {
     super(new URL[0], parent);
@@ -74,11 +74,19 @@ public class BootstrapClassLoader extends URLClassLoader {
     if (c == null) {
       try {
         // Load from parent
-        if ((getParent() != null) && canLoadFromParent(name)) {
+        if (getParent() != null && canLoadFromParent(name)) {
           c = getParent().loadClass(name);
         } else {
           // Load from system
-          c = getSystemClassLoader().loadClass(name);
+
+          // I don't know for other vendors, but for Oracle JVM :
+          // - ClassLoader.getSystemClassLoader() is sun.misc.Launcher$AppClassLoader. It contains app classpath.
+          // - ClassLoader.getSystemClassLoader().getParent() is sun.misc.Launcher$ExtClassLoader. It contains core JVM
+          ClassLoader systemClassLoader = getSystemClassLoader();
+          if (systemClassLoader.getParent() != null) {
+            systemClassLoader = systemClassLoader.getParent();
+          }
+          c = systemClassLoader.loadClass(name);
         }
       } catch (ClassNotFoundException e) {
         // If still not found, then invoke findClass in order

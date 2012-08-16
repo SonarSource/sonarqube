@@ -19,20 +19,19 @@
  */
 package org.sonar.batch.bootstrapper;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 
-import org.junit.Test;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class BootstrapperTest {
 
   @Test
   public void shouldRemoveLastUrlSlash() {
     Bootstrapper bootstrapper = new Bootstrapper("", "http://test/", new File("target"));
-    assertThat(bootstrapper.getServerUrl(), is("http://test"));
+    assertThat(bootstrapper.getServerUrl()).isEqualTo("http://test");
   }
 
   @Test(expected = Exception.class)
@@ -46,9 +45,9 @@ public class BootstrapperTest {
     Bootstrapper bootstrapper = new Bootstrapper("test/0.1", "http://unknown.foo", new File("target"));
     String userAgent = bootstrapper.getUserAgent();
 
-    assertThat(userAgent.length(), greaterThan(0));
-    assertThat(userAgent, startsWith("sonar-bootstrapper/"));
-    assertThat(userAgent, endsWith(" test/0.1"));
+    assertThat(userAgent.length()).isGreaterThan(0);
+    assertThat(userAgent).startsWith("sonar-bootstrapper/");
+    assertThat(userAgent).endsWith(" test/0.1");
   }
 
   @Test
@@ -59,7 +58,7 @@ public class BootstrapperTest {
         return "2.6";
       }
     };
-    assertThat(bootstrapper.getServerVersion(), is("2.6"));
+    assertThat(bootstrapper.getServerVersion()).isEqualTo("2.6");
   }
 
 }
