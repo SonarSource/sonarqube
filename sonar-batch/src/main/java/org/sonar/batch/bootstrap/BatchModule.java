@@ -24,28 +24,12 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ResourceTypes;
-import org.sonar.api.utils.ServerHttpClient;
 import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectConfigurator;
 import org.sonar.batch.ProjectTree;
-import org.sonar.batch.components.PastMeasuresLoader;
-import org.sonar.batch.components.PastSnapshotFinder;
-import org.sonar.batch.components.PastSnapshotFinderByDate;
-import org.sonar.batch.components.PastSnapshotFinderByDays;
-import org.sonar.batch.components.PastSnapshotFinderByPreviousAnalysis;
-import org.sonar.batch.components.PastSnapshotFinderByPreviousVersion;
-import org.sonar.batch.components.PastSnapshotFinderByVersion;
-import org.sonar.batch.index.DefaultIndex;
-import org.sonar.batch.index.DefaultPersistenceManager;
-import org.sonar.batch.index.DefaultResourcePersister;
-import org.sonar.batch.index.DependencyPersister;
-import org.sonar.batch.index.EventPersister;
-import org.sonar.batch.index.LinkPersister;
-import org.sonar.batch.index.MeasurePersister;
-import org.sonar.batch.index.MemoryOptimizer;
-import org.sonar.batch.index.ReadOnlyPersistenceManager;
-import org.sonar.batch.index.SourcePersister;
+import org.sonar.batch.components.*;
+import org.sonar.batch.index.*;
 import org.sonar.core.metric.CacheMetricFinder;
 import org.sonar.core.notification.DefaultNotificationManager;
 import org.sonar.core.rule.CacheRuleFinder;
@@ -86,7 +70,6 @@ public class BatchModule extends Module {
     }
 
     addCoreSingleton(Plugins.class);
-    addCoreSingleton(ServerHttpClient.class);
     addCoreSingleton(MeasuresDao.class);
     addCoreSingleton(CacheRuleFinder.class);
     addCoreSingleton(CacheMetricFinder.class);
