@@ -191,8 +191,8 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
       return true; // Plugins without sonar version are so old, they are compatible with a version containing this code
     }
 
-    Version minimumVersion = Version.create(this.sonarVersion);
-    Version actualVersion = Version.create(sonarVersion);
+    Version minimumVersion = Version.createRelease(this.sonarVersion);
+    Version actualVersion = Version.createRelease(sonarVersion);
     return actualVersion.compareTo(minimumVersion) >= 0;
   }
 

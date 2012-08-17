@@ -113,6 +113,9 @@ public class DefaultPluginMetadataTest {
     assertThat(pluginWithVersion("1.0").isCompatibleWith("1.1")).isTrue();
     assertThat(pluginWithVersion("1.1.1").isCompatibleWith("1.1.2")).isTrue();
     assertThat(pluginWithVersion("2.0").isCompatibleWith("2.1.0")).isTrue();
+    assertThat(pluginWithVersion("3.2").isCompatibleWith("3.2-RC1")).isTrue();
+    assertThat(pluginWithVersion("3.2").isCompatibleWith("3.2-RC2")).isTrue();
+    assertThat(pluginWithVersion("3.2").isCompatibleWith("3.1-RC2")).isFalse();
 
     assertThat(pluginWithVersion("1.1").isCompatibleWith("1.0")).isFalse();
     assertThat(pluginWithVersion("2.0.1").isCompatibleWith("2.0.0")).isFalse();
@@ -127,7 +130,6 @@ public class DefaultPluginMetadataTest {
     assertThat(pluginWithVersion("3.1-RC2").isCompatibleWith("3.2-SNAPSHOT")).isTrue();
     assertThat(pluginWithVersion("3.1-RC1").isCompatibleWith("3.2-RC2")).isTrue();
     assertThat(pluginWithVersion("3.1-RC1").isCompatibleWith("3.1-RC2")).isTrue();
-    assertThat(pluginWithVersion("3.1-RC2").isCompatibleWith("3.1-RC1")).isFalse();
 
     assertThat(pluginWithVersion(null).isCompatibleWith("0")).isTrue();
     assertThat(pluginWithVersion(null).isCompatibleWith("3.1")).isTrue();
