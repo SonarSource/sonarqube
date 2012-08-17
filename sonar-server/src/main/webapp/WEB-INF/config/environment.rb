@@ -39,6 +39,11 @@ Rails::Initializer.run do |config|
   config.reload_plugins=(RAILS_ENV == 'development')
 
   config.plugin_loader = EagerPluginLoader
+
+  # Load the applications that are packaged with sonar plugins.
+  # The development mode (real-time edition of ruby code) can be enabled on an app by replacing the
+  # following line by :
+  # config.plugin_paths << '/absolute/path/to/myproject/src/main/resources/org/sonar/ror'
   config.plugin_paths << "#{Java::OrgSonarServerUi::JRubyFacade.getInstance().getServerHome()}/temp/ror"
 
   # Force all environments to use the same logger level
