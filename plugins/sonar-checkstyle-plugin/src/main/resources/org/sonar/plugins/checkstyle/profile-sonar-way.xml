@@ -148,11 +148,11 @@
     </rule>
     <rule>
       <repositoryKey>checkstyle</repositoryKey>
-      <key>com.puppycrawl.tools.checkstyle.checks.naming.ClassTypeParameterName</key>
+      <key>com.puppycrawl.tools.checkstyle.checks.naming.ClassTypeParameterNameCheck</key>
     </rule>
     <rule>
       <repositoryKey>checkstyle</repositoryKey>
-      <key>com.puppycrawl.tools.checkstyle.checks.naming.MethodTypeParameterName</key>
+      <key>com.puppycrawl.tools.checkstyle.checks.naming.MethodTypeParameterNameCheck</key>
     </rule>
   </rules>
 </profile>

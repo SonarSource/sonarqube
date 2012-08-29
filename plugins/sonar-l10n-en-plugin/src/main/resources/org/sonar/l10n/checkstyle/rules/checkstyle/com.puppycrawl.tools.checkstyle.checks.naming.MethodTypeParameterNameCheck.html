@@ -1,0 +1,13 @@
+Checks that method type parameter names conform to the specified format
+
+<p>
+The following code snippet illustrates this rule for format "^[A-Z]$":
+</p>
+<pre>
+public <type> type method() { // Non-compliant
+  return null;
+}
+
+public <T> T method() { // Compliant
+}
+</pre>
