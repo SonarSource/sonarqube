@@ -1119,7 +1119,7 @@
     </param>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.indentation.TrailingCommentCheck">
+  <rule key="com.puppycrawl.tools.checkstyle.checks.TrailingCommentCheck">
     <priority>MINOR</priority>
     <name><![CDATA[Trailing Comment]]></name>
     <configKey><![CDATA[Checker/TreeWalker/TrailingComment]]></configKey>
