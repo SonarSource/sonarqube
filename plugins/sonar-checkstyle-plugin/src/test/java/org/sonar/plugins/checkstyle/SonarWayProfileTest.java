@@ -42,7 +42,7 @@ public class SonarWayProfileTest {
     ProfileDefinition sonarWay = new SonarWayProfile(new XMLProfileParser(newRuleFinder(), mock(MetricFinder.class)));
     ValidationMessages validation = ValidationMessages.create();
     RulesProfile profile = sonarWay.createProfile(validation);
-    assertThat(profile.getActiveRulesByRepository(CheckstyleConstants.REPOSITORY_KEY).size()).isEqualTo(32);
+    assertThat(profile.getActiveRulesByRepository(CheckstyleConstants.REPOSITORY_KEY).size()).isEqualTo(33);
     assertThat(validation.hasErrors()).isFalse();
   }
 
