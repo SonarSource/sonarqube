@@ -221,7 +221,16 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_DOCUMENTATION)
       .create();
 
+  /**
+   * @deprecated since 3.3 - see SONAR-3768
+   */
+  @Deprecated
   public static final String COMMENT_BLANK_LINES_KEY = "comment_blank_lines";
+
+  /**
+   * @deprecated since 3.3 - see SONAR-3768
+   */
+  @Deprecated
   public static final Metric COMMENT_BLANK_LINES = new Metric.Builder(COMMENT_BLANK_LINES_KEY, "Blank comments", Metric.ValueType.INT)
       .setDescription("Comments that do not contain comments")
       .setDirection(Metric.DIRECTION_WORST)
@@ -1004,11 +1013,10 @@ public final class CoreMetrics {
 
   /**
    * Information about duplications, which is represented as an XML string.
-   * <br>
-   * <br> 
+   * <p>
    * Here is the format (since Sonar 2.12):
-   * <pre>   {@code
-   *   <duplications>
+   * <pre>
+   *   {@code<duplications>
    *     <!-- Multiple groups: -->
    *     <g>
    *       <!-- Multiple blocks: -->
@@ -1018,6 +1026,7 @@ public final class CoreMetrics {
    *     ...
    *   </duplications>}
    * </pre>
+   * </p>
    */
   public static final Metric DUPLICATIONS_DATA = new Metric.Builder(DUPLICATIONS_DATA_KEY, "Duplications details", Metric.ValueType.DATA)
       .setDescription("Duplications details")
