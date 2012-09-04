@@ -207,9 +207,9 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.sonar.plugins</groupId>
+      <groupId>org.codehaus.sonar-plugins.java</groupId>
       <artifactId>sonar-java-plugin</artifactId>
-      <version>${project.version}</version>
+      <version>1.0-SNAPSHOT</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>

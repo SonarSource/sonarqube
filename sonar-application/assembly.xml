@@ -17,6 +17,7 @@
         <exclude>postgresql:postgresql</exclude>
         <exclude>net.sourceforge.jtds:jtds</exclude>
         <exclude>org.codehaus.sonar.plugins:*</exclude>
+        <exclude>org.codehaus.sonar-plugins.*:*</exclude>
       </excludes>
     </dependencySet>
     <!-- Plugins -->
@@ -25,6 +26,7 @@
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <includes>
         <include>org.codehaus.sonar.plugins:*</include>
+        <include>org.codehaus.sonar-plugins.*:*</include>
       </includes>
     </dependencySet>
     <!-- Server -->
