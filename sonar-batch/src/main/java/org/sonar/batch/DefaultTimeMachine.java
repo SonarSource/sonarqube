@@ -99,7 +99,7 @@ public class DefaultTimeMachine implements TimeMachine {
     params.put("status", Snapshot.STATUS_PROCESSED);
     params.put("lib", Qualifiers.LIBRARY);
 
-    sb.append(" AND m.characteristic IS NULL");
+    sb.append(" AND m.characteristicId IS NULL");
     sb.append(" AND m.personId IS NULL");
     sb.append(" AND m.ruleId IS NULL AND m.rulePriority IS NULL");
     if (!metricIds.isEmpty()) {
@@ -161,8 +161,6 @@ public class DefaultTimeMachine implements TimeMachine {
     measure.setVariation4(model.getVariationValue4());
     measure.setVariation5(model.getVariationValue5());
     measure.setUrl(model.getUrl());
-    measure.setCharacteristic(model.getCharacteristic());
-    measure.setPersonId(model.getPersonId());
     return measure;
   }
 }

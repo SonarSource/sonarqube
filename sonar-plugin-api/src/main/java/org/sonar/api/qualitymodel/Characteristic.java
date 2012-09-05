@@ -94,7 +94,7 @@ public final class Characteristic implements Comparable<Characteristic> {
     return id;
   }
 
-  Characteristic setId(Integer id) {
+  public Characteristic setId(Integer id) {
     this.id = id;
     return this;
   }

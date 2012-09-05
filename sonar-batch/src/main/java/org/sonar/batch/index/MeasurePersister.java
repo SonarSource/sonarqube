@@ -137,7 +137,9 @@ public final class MeasurePersister {
     model.setVariationValue4(measure.getVariation4());
     model.setVariationValue5(measure.getVariation5());
     model.setUrl(measure.getUrl());
-    model.setCharacteristic(measure.getCharacteristic());
+    if (measure.getCharacteristic()!=null) {
+      model.setCharacteristicId(measure.getCharacteristic().getId());
+    }
     model.setPersonId(measure.getPersonId());
     if (measure.getValue() != null) {
       model.setValue(measure.getValue().doubleValue());

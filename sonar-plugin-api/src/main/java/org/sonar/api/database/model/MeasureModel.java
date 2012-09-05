@@ -19,6 +19,7 @@
  */
 package org.sonar.api.database.model;
 
+import com.google.common.base.Preconditions;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.database.DatabaseSession;
@@ -27,7 +28,6 @@ import org.sonar.api.qualitymodel.Characteristic;
 import org.sonar.api.rules.RulePriority;
 
 import javax.persistence.*;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -112,9 +112,8 @@ public class MeasureModel implements Cloneable {
   @OneToMany(mappedBy = "measure", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
   private List<MeasureData> measureData = new ArrayList<MeasureData>();
 
-  @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "characteristic_id")
-  private Characteristic characteristic;
+  @Column(name = "characteristic_id", updatable = true, nullable = true)
+  private Integer characteristicId;
 
   @Column(name = "person_id", updatable = true, nullable = true)
   private Integer personId;
@@ -497,12 +496,38 @@ public class MeasureModel implements Cloneable {
     return this;
   }
 
-  public Characteristic getCharacteristic() {
-    return characteristic;
+  public Integer getCharacteristicId() {
+    return characteristicId;
   }
 
+  public MeasureModel setCharacteristicId(Integer i) {
+    this.characteristicId = i;
+    return this;
+  }
+
+  /**
+   * @deprecated replaced by {@link org.sonar.api.database.model.MeasureModel#getCharacteristicId()} since 3.3. See https://jira.codehaus.org/browse/SONAR-3778
+   */
+  @Deprecated
+  public Characteristic getCharacteristic() {
+    Characteristic c = null;
+    if (characteristicId != null) {
+      c = Characteristic.create().setId(characteristicId);
+    }
+    return c;
+  }
+
+  /**
+   * @deprecated replaced by {@link org.sonar.api.database.model.MeasureModel#setCharacteristicId(Integer)} since 3.3. See https://jira.codehaus.org/browse/SONAR-3778
+   */
+  @Deprecated
   public MeasureModel setCharacteristic(Characteristic c) {
-    this.characteristic = c;
+    if (c == null) {
+      this.characteristicId = null;
+    } else {
+      Preconditions.checkArgument(c.getId()!=null, "Characteristic id must not be null");
+      this.characteristicId = c.getId();
+    }
     return this;
   }
 
@@ -535,7 +560,7 @@ public class MeasureModel implements Cloneable {
     clone.setSnapshotId(getSnapshotId());
     clone.setMeasureDate(getMeasureDate());
     clone.setUrl(getUrl());
-    clone.setCharacteristic(getCharacteristic());
+    clone.setCharacteristicId(getCharacteristicId());
     clone.setPersonId(getPersonId());
     return clone;
   }
