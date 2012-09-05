@@ -242,7 +242,6 @@
                 <include>**/prototype-min.js</include>
                 <include>**/scriptaculous-min.js</include>
                 <include>**/tablekit-min.js</include>
-                <include>**/prototip-min.js</include>
                 <include>**/dashboard-min.js</include>
                 <include>**/protovis-min.js</include>
                 <include>**/protovis-sonar-min.js</include>

@@ -1,18 +1,8 @@
-<% dist_measure = measure(metric) 
+<% dist_measure = measure(metric)
    if dist_measure && !dist_measure.data.blank?
+     query="w=220&h=100&fs=10&bgc=ffffff&ck=distbar&c=777777&v=" + u(dist_measure.data)
 %>
-<div id="chart_<%=metric -%>" class="chart" style="display: <%= visible ? "block" : "none" %>">
-<%
-   query="ck=distbar&c=777777&v=" + u(dist_measure.data)
-   small_size_query=query + '&w=220&h=100&fs=8&bgc=ffffff'
-   big_size_query=query + '&w=300&h=150&fs=12&bgc=CAE3F2'
-%><%= chart(small_size_query, :id => 'chart_img_' + metric, :alt => title) -%>
-
-  <script type='text/javascript'>
-  //<![CDATA[
-  new Tip('chart_img_<%=metric-%>', '<div style="width:300px;"><b><%= title -%></b><br>'+
-    '<%= chart(big_size_query, :id => 'chart_img_' + metric, :alt => title) -%></div>');
-  //]]>
-  </script>
-</div>
+  <div id="chart_<%= metric -%>" class="chart" style="display: <%= visible ? "block" : "none" %>">
+    <%= chart(query, :id => 'chart_img_' + metric, :alt => title) -%>
+  </div>
 <% end %>
