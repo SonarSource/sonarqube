@@ -19,8 +19,6 @@
  */
 package org.sonar.api.rules;
 
-import org.sonar.api.utils.SonarException;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
@@ -29,6 +27,8 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.PropertyType;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.AnnotationUtils;
+import org.sonar.api.utils.FieldUtils2;
+import org.sonar.api.utils.SonarException;
 import org.sonar.check.Check;
 
 import java.lang.reflect.Field;
@@ -72,13 +72,10 @@ public final class AnnotationRuleParser implements ServerComponent {
     rule.setSeverity(RulePriority.fromCheckPriority(ruleAnnotation.priority()));
     rule.setCardinality(ruleAnnotation.cardinality());
 
-    Field[] fields = clazz.getDeclaredFields();
-    if (fields != null) {
-      for (Field field : fields) {
-        addRuleProperty(rule, field);
-      }
+    List<Field> fields = FieldUtils2.getFields(clazz, true);
+    for (Field field : fields) {
+      addRuleProperty(rule, field);
     }
-
     return rule;
   }
 
@@ -89,11 +86,9 @@ public final class AnnotationRuleParser implements ServerComponent {
     rule.setDescription(checkAnnotation.description());
     rule.setSeverity(RulePriority.fromCheckPriority(checkAnnotation.priority()));
 
-    Field[] fields = clazz.getDeclaredFields();
-    if (fields != null) {
-      for (Field field : fields) {
-        addCheckProperty(rule, field);
-      }
+    List<Field> fields = FieldUtils2.getFields(clazz, true);
+    for (Field field : fields) {
+      addCheckProperty(rule, field);
     }
     return rule;
   }
