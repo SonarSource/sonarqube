@@ -46,7 +46,7 @@ public class SetDefaultProjectPermissionsTest {
       @Override
       public boolean matches(Object o) {
         Map<String, String> map = (Map<String, String>) o;
-        return map.size() == 9 && map.get("sonar.role.admin.TRK.defaultGroups").equals("sonar-administrators");
+        return map.size()>1 && map.get("sonar.role.admin.TRK.defaultGroups").equals("sonar-administrators");
       }
     }));
   }
@@ -54,7 +54,10 @@ public class SetDefaultProjectPermissionsTest {
   @Test
   public void do_not_set_default_permissions_if_exist() {
     PersistentSettings persistentSettings = mock(PersistentSettings.class);
-    Settings settings = new Settings().setProperty("sonar.role.admin.TRK.defaultGroups", "custom-group");
+    Settings settings = new Settings()
+      .setProperty("sonar.role.user.TRK.defaultGroups", "custom-group")
+      .setProperty("sonar.role.user.VW.defaultGroups", "custom-group")
+      .setProperty("sonar.role.user.SVW.defaultGroups", "custom-group");
     when(persistentSettings.getSettings()).thenReturn(settings);
 
     new SetDefaultProjectPermissions(persistentSettings).start();

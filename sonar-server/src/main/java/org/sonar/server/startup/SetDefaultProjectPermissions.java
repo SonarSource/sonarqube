@@ -20,6 +20,7 @@
 package org.sonar.server.startup;
 
 import com.google.common.collect.Maps;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.server.platform.PersistentSettings;
 
@@ -39,22 +40,30 @@ public class SetDefaultProjectPermissions {
   }
 
   public void start() {
-    if (persistentSettings.getSettings().getKeysStartingWith("sonar.role.").isEmpty()) {
-      LoggerFactory.getLogger(SetDefaultProjectPermissions.class).info("Setting default project permissions");
-      Map<String, String> props = Maps.newHashMap();
-      props.put("sonar.role.admin.TRK.defaultGroups", SONAR_ADMINISTRATORS);
-      props.put("sonar.role.user.TRK.defaultGroups", ANYONE_AND_USERS);
-      props.put("sonar.role.codeviewer.TRK.defaultGroups", ANYONE_AND_USERS);
+    Map<String, String> props = Maps.newHashMap();
+    props.putAll(missingProperties("TRK"));
 
-      // Support old versions of Views plugin
-      props.put("sonar.role.admin.VW.defaultGroups", SONAR_ADMINISTRATORS);
-      props.put("sonar.role.user.VW.defaultGroups", ANYONE_AND_USERS);
-      props.put("sonar.role.codeviewer.VW.defaultGroups", ANYONE_AND_USERS);
-      props.put("sonar.role.admin.SVW.defaultGroups", SONAR_ADMINISTRATORS);
-      props.put("sonar.role.user.SVW.defaultGroups", ANYONE_AND_USERS);
-      props.put("sonar.role.codeviewer.SVW.defaultGroups", ANYONE_AND_USERS);
+    // Support old versions of Views plugin
+    props.putAll(missingProperties("VW"));
+    props.putAll(missingProperties("SVW"));
 
+    if (!props.isEmpty()) {
+      LoggerFactory.getLogger(SetDefaultProjectPermissions.class).info("Set default project roles");
       persistentSettings.saveProperties(props);
     }
+  }
+
+  private Map<String, String> missingProperties(String qualifier) {
+    Map<String, String> props = Maps.newHashMap();
+    if (StringUtils.isBlank(persistentSettings.getSettings().getString("sonar.role.user." + qualifier + ".defaultGroups"))) {
+      completeDefaultRoles(qualifier, props);
+    }
+    return props;
+  }
+
+  private void completeDefaultRoles(String qualifier, Map<String, String> props) {
+    props.put("sonar.role.admin." + qualifier + ".defaultGroups", SONAR_ADMINISTRATORS);
+    props.put("sonar.role.user." + qualifier + ".defaultGroups", ANYONE_AND_USERS);
+    props.put("sonar.role.codeviewer." + qualifier + ".defaultGroups", ANYONE_AND_USERS);
   }
 }
