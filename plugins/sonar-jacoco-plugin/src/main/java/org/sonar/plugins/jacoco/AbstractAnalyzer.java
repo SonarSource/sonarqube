@@ -49,7 +49,7 @@ public abstract class AbstractAnalyzer {
   public final void analyse(Project project, SensorContext context) {
     final File buildOutputDir = project.getFileSystem().getBuildOutputDir();
     if (!buildOutputDir.exists()) {
-      JaCoCoUtils.LOG.info("Project coverage is set to 0% as build output directory doesn't exists: {}", buildOutputDir);
+      JaCoCoUtils.LOG.info("Project coverage is set to 0% as build output directory does not exist: {}", buildOutputDir);
       return;
     }
     String path = getReportPath(project);
