@@ -782,18 +782,9 @@
         <version>${h2.version}</version>
       </dependency>
       <dependency>
-        <!--
-        IMPORTANT: DO NOT UPGRADE THIS LIB. Indeed v.1.0.0.1 is a dedicated branch to support Servlet 2.4. Versions 1.0.5 and greater 
-        support Servlet 2.5+.
-        Note that Servlet 2.4 will be supported until the end of life of Tomcat 5.5, in 2012 Q4.
-        See :
-        - http://www.tomcatexpert.com/blog/2011/08/10/end-life-announced-apache-tomcat-55
-        - http://jira.codehaus.org/browse/SONAR-2212
-        - http://kenai.com/jira/browse/JRUBY_RACK-31
-        -->
         <groupId>org.jruby.rack</groupId>
         <artifactId>jruby-rack</artifactId>
-        <version>1.0.0.1</version>
+        <version>1.1.10</version>
       </dependency>
       <dependency>
         <groupId>mysql</groupId>
@@ -915,10 +906,9 @@
         <version>1.2</version>
       </dependency>
       <dependency>
-        <!-- do not upgrade to 1.6.4 due to Solaris incompatibility. See https://jira.codehaus.org/browse/SONAR-2915 -->
         <groupId>org.jruby</groupId>
         <artifactId>jruby-complete</artifactId>
-        <version>1.6.1</version>
+        <version>1.6.7.2</version>
       </dependency>
       <dependency>
         <groupId>geronimo-spec</groupId>
@@ -929,6 +919,11 @@
         <groupId>org.codehaus.woodstox</groupId>
         <artifactId>stax2-api</artifactId>
         <version>3.0.1</version>
+      </dependency>
+      <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>servlet-api</artifactId>
+        <version>2.5</version>
       </dependency>
       <dependency>
         <groupId>org.mortbay.jetty</groupId>

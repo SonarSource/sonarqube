@@ -1,13 +1,18 @@
-# Specifies gem version of Rails to use when vendor/rails is not present
-#RAILS_GEM_VERSION = '2.3.5' unless defined? RAILS_GEM_VERSION
+RAILS_GEM_VERSION = '2.3.14'
 
 # Avoid conflict with local ruby installations
 # See http://jira.codehaus.org/browse/SONAR-3579
-ENV["GEM_HOME"] = ENV["GEM_PATH"] = nil
+ENV['GEM_HOME'] = $servlet_context.getRealPath('/WEB-INF/gems')
 
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
 require 'color'
+
+# Disable all the warnings :
+# Gem::SourceIndex#initialize called from /xxx/sonar/sonar-application/target/sonar-3.3-SNAPSHOT/war/sonar-server/WEB-INF/gems/gems/rails-2.3.14/lib/rails/vendor_gem_source_index.rb:100.
+# The other solutions are to upgrade to rails 3 or to use gembundler.com
+require 'rubygems'
+Gem::Deprecate.skip = (RAILS_ENV == 'production')
 
 #
 # Limitation of Rails 2.3 and Rails Engines (plugins) when threadsafe! is enabled in production mode

@@ -10,20 +10,25 @@
     <param-name>public.root</param-name>
     <param-value>/</param-value>
   </context-param>
-
   <context-param>
     <param-name>rails.env</param-name>
     <param-value>production</param-value>
   </context-param>
-
   <context-param>
     <param-name>jruby.min.runtimes</param-name>
     <param-value>1</param-value>
   </context-param>
-
   <context-param>
     <param-name>jruby.max.runtimes</param-name>
     <param-value>1</param-value>
+  </context-param>
+  <context-param>
+    <param-name>jruby.compat.version</param-name>
+    <param-value>1.8</param-value>
+  </context-param>
+  <context-param>
+    <param-name>jruby.rack.logging</param-name>
+    <param-value>slf4j</param-value>
   </context-param>
 
   <filter>

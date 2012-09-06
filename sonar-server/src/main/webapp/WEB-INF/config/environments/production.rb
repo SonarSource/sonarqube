@@ -14,7 +14,7 @@ config.threadsafe!
 config.action_controller.consider_all_requests_local = false
 config.action_controller.perform_caching             = true
 
-config.load_paths += %W( #{RAILS_ROOT}/lib )
+config.autoload_paths += %W( #{RAILS_ROOT}/lib )
 
 # Use a different cache store in production
 # config.cache_store = :mem_cache_store

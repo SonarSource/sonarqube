@@ -134,7 +134,6 @@
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
-      <version>2.4</version>
       <optional>true</optional>
     </dependency>
 
