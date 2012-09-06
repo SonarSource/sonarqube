@@ -32,6 +32,7 @@ import java.util.Map;
 public class SetDefaultProjectPermissions {
   private static final String SONAR_ADMINISTRATORS = "sonar-administrators";
   private static final String ANYONE_AND_USERS = "Anyone,sonar-users";
+  private static final String SUFFIX = ".defaultGroups";
 
   private final PersistentSettings persistentSettings;
 
@@ -55,15 +56,15 @@ public class SetDefaultProjectPermissions {
 
   private Map<String, String> missingProperties(String qualifier) {
     Map<String, String> props = Maps.newHashMap();
-    if (StringUtils.isBlank(persistentSettings.getSettings().getString("sonar.role.user." + qualifier + ".defaultGroups"))) {
+    if (StringUtils.isBlank(persistentSettings.getSettings().getString("sonar.role.user." + qualifier + SUFFIX))) {
       completeDefaultRoles(qualifier, props);
     }
     return props;
   }
 
   private void completeDefaultRoles(String qualifier, Map<String, String> props) {
-    props.put("sonar.role.admin." + qualifier + ".defaultGroups", SONAR_ADMINISTRATORS);
-    props.put("sonar.role.user." + qualifier + ".defaultGroups", ANYONE_AND_USERS);
-    props.put("sonar.role.codeviewer." + qualifier + ".defaultGroups", ANYONE_AND_USERS);
+    props.put("sonar.role.admin." + qualifier + SUFFIX, SONAR_ADMINISTRATORS);
+    props.put("sonar.role.user." + qualifier + SUFFIX, ANYONE_AND_USERS);
+    props.put("sonar.role.codeviewer." + qualifier + SUFFIX, ANYONE_AND_USERS);
   }
 }
