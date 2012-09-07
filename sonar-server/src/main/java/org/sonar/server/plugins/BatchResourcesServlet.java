@@ -48,8 +48,8 @@ public class BatchResourcesServlet extends HttpServlet {
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    String resource = getResource(request);
-    if (StringUtils.isEmpty(resource)) {
+    String filename = filename(request);
+    if (StringUtils.isBlank(filename)) {
       PrintWriter writer = null;
       try {
         response.setContentType("text/plain");
@@ -62,19 +62,19 @@ public class BatchResourcesServlet extends HttpServlet {
         IOUtils.closeQuietly(writer);
       }
     } else {
-      response.setContentType("application/java-archive");
       InputStream in = null;
       OutputStream out = null;
       try {
-        in = getServletContext().getResourceAsStream("/WEB-INF/lib/" + resource);
+        in = getServletContext().getResourceAsStream("/WEB-INF/lib/" + filename);
         if (in == null) {
           // TODO
         } else {
+          response.setContentType("application/java-archive");
           out = response.getOutputStream();
           IOUtils.copy(in, out);
         }
       } catch (Exception e) {
-        LOG.error("Unable to load batch resource '" + resource + "'", e);
+        LOG.error("Unable to load batch resource '" + filename + "'", e);
         response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       } finally {
         IOUtils.closeQuietly(in);
@@ -115,8 +115,12 @@ public class BatchResourcesServlet extends HttpServlet {
   /**
    * @return part of request URL after servlet path
    */
-  String getResource(HttpServletRequest request) {
-    return StringUtils.substringAfter(request.getRequestURI(), request.getContextPath() + request.getServletPath() + "/");
+  String filename(HttpServletRequest request) {
+    String filename = null;
+    if (StringUtils.endsWithIgnoreCase(request.getRequestURI(), "jar")) {
+      filename = StringUtils.substringAfterLast(request.getRequestURI(), "/");
+    }
+    return filename;
   }
 
 }

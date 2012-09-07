@@ -15,18 +15,27 @@
     <param-name>rails.env</param-name>
     <param-value>development</param-value>
   </context-param>
-
-
   <context-param>
     <param-name>jruby.min.runtimes</param-name>
     <param-value>1</param-value>
   </context-param>
-
   <context-param>
     <param-name>jruby.max.runtimes</param-name>
     <param-value>3</param-value>
   </context-param>
+  <context-param>
+    <param-name>jruby.compat.version</param-name>
+    <param-value>1.8</param-value>
+  </context-param>
+  <context-param>
+    <param-name>jruby.rack.logging</param-name>
+    <param-value>slf4j</param-value>
+  </context-param>
 
+  <filter>
+    <filter-name>ServletFilters</filter-name>
+    <filter-class>org.sonar.server.platform.ServletFilters</filter-class>
+  </filter>
   <filter>
     <filter-name>DatabaseSessionFilter</filter-name>
     <filter-class>org.sonar.server.ui.DatabaseSessionFilter</filter-class>
@@ -34,10 +43,6 @@
   <filter>
     <filter-name>RackFilter</filter-name>
     <filter-class>org.jruby.rack.RackFilter</filter-class>
-  </filter>
-  <filter>
-    <filter-name>ServletFilters</filter-name>
-    <filter-class>org.sonar.server.platform.ServletFilters</filter-class>
   </filter>
 
   <filter-mapping>

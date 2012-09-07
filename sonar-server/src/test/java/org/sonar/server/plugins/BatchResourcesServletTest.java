@@ -23,18 +23,13 @@ import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Set;
-
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Set;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class BatchResourcesServletTest {
   private BatchResourcesServlet servlet;
@@ -47,18 +42,24 @@ public class BatchResourcesServletTest {
   }
 
   @Test
-  public void shouldDetermineResource() {
+  public void test_filename() {
     when(request.getContextPath()).thenReturn("sonar");
     when(request.getServletPath()).thenReturn("/batch");
 
     when(request.getRequestURI()).thenReturn("/sonar/batch/sonar-core-2.6.jar");
-    assertThat(servlet.getResource(request), is("sonar-core-2.6.jar"));
+    assertThat(servlet.filename(request)).isEqualTo("sonar-core-2.6.jar");
 
     when(request.getRequestURI()).thenReturn("/sonar/batch/");
-    assertThat(servlet.getResource(request), is(""));
+    assertThat(servlet.filename(request)).isNull();
 
     when(request.getRequestURI()).thenReturn("/sonar/batch");
-    assertThat(servlet.getResource(request), is(""));
+    assertThat(servlet.filename(request)).isNull();
+
+    when(request.getRequestURI()).thenReturn("/sonar/batch.html");
+    assertThat(servlet.filename(request)).isNull();
+
+    when(request.getRequestURI()).thenReturn("/sonar/batch/index.html");
+    assertThat(servlet.filename(request)).isNull();
   }
 
   @Test
@@ -72,21 +73,21 @@ public class BatchResourcesServletTest {
     libs.add("/WEB-INF/lib/directory/");
     when(servletContext.getResourcePaths(anyString())).thenReturn(libs);
 
-    assertThat(servlet.getLibs().size(), is(1));
-    assertThat(servlet.getLibs().get(0), is("sonar-core-2.6.jar"));
+    assertThat(servlet.getLibs()).hasSize(1);
+    assertThat(servlet.getLibs().get(0)).isEqualTo("sonar-core-2.6.jar");
   }
 
   @Test
   public void shouldIgnore() {
-    assertThat(BatchResourcesServlet.isIgnored("sonar-batch-2.6-SNAPSHOT.jar"), is(false));
-    assertThat(BatchResourcesServlet.isIgnored("h2-1.3.166.jar"), is(true));
-    assertThat(BatchResourcesServlet.isIgnored("mysql-connector-java-5.1.13.jar"), is(true));
-    assertThat(BatchResourcesServlet.isIgnored("postgresql-9.0-801.jdbc3.jar"), is(true));
-    assertThat(BatchResourcesServlet.isIgnored("jtds-1.2.4.jar"), is(true));
-    assertThat(BatchResourcesServlet.isIgnored("jfreechart-1.0.9.jar"), is(true));
-    assertThat(BatchResourcesServlet.isIgnored("eastwood-1.1.0.jar"), is(true));
-    assertThat(BatchResourcesServlet.isIgnored("jetty-util-6.1.24.jar"), is(true));
-    assertThat(BatchResourcesServlet.isIgnored("jruby-complete-1.5.6.jar"), is(true));
-    assertThat(BatchResourcesServlet.isIgnored("jruby-rack-1.0.5.jar"), is(true));
+    assertThat(BatchResourcesServlet.isIgnored("sonar-batch-2.6-SNAPSHOT.jar")).isFalse();
+    assertThat(BatchResourcesServlet.isIgnored("h2-1.3.166.jar")).isTrue();
+    assertThat(BatchResourcesServlet.isIgnored("mysql-connector-java-5.1.13.jar")).isTrue();
+    assertThat(BatchResourcesServlet.isIgnored("postgresql-9.0-801.jdbc3.jar")).isTrue();
+    assertThat(BatchResourcesServlet.isIgnored("jtds-1.2.4.jar")).isTrue();
+    assertThat(BatchResourcesServlet.isIgnored("jfreechart-1.0.9.jar")).isTrue();
+    assertThat(BatchResourcesServlet.isIgnored("eastwood-1.1.0.jar")).isTrue();
+    assertThat(BatchResourcesServlet.isIgnored("jetty-util-6.1.24.jar")).isTrue();
+    assertThat(BatchResourcesServlet.isIgnored("jruby-complete-1.5.6.jar")).isTrue();
+    assertThat(BatchResourcesServlet.isIgnored("jruby-rack-1.0.5.jar")).isTrue();
   }
 }
