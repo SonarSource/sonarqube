@@ -52,7 +52,7 @@ public class BatchResourcesServlet extends HttpServlet {
     if (StringUtils.isEmpty(resource)) {
       PrintWriter writer = null;
       try {
-        response.setContentType("text/html");
+        response.setContentType("text/plain");
         writer = response.getWriter();
         writer.print(StringUtils.join(getLibs(), ','));
       } catch (IOException e) {
@@ -62,6 +62,7 @@ public class BatchResourcesServlet extends HttpServlet {
         IOUtils.closeQuietly(writer);
       }
     } else {
+      response.setContentType("application/java-archive");
       InputStream in = null;
       OutputStream out = null;
       try {
