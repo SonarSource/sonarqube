@@ -130,6 +130,14 @@ import java.util.List;
     project = true,
     global = true,
     category = CoreProperties.CATEGORY_CODE_COVERAGE),
+    @Property(
+    key = CoreProperties.CORE_IT_COVERAGE_PLUGIN_PROPERTY,
+    defaultValue = "jacoco",
+    name = "Code IT coverage plugin",
+    description = "Key of the code IT coverage plugin to use.",
+    project = true,
+    global = true,
+    category = CoreProperties.CATEGORY_CODE_COVERAGE),
   @Property(
     key = CoreProperties.CORE_IMPORT_SOURCES_PROPERTY,
     defaultValue = "" + CoreProperties.CORE_IMPORT_SOURCES_DEFAULT_VALUE,

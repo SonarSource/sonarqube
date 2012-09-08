@@ -26,6 +26,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
 import org.sonar.api.batch.AbstractCoverageExtension;
+import org.sonar.api.batch.AbstractITCoverageExtension;
 import org.sonar.api.batch.CoverageExtension;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.config.Settings;
@@ -112,12 +113,16 @@ public final class ProjectExtensionInstaller implements BatchComponent {
     }
 
     if (StringUtils.equals(project.getLanguageKey(), Java.KEY)) {
-      String[] selectedPluginKeys = settings.getStringArray(CoreProperties.CORE_COVERAGE_PLUGIN_PROPERTY);
-      if (ArrayUtils.isEmpty(selectedPluginKeys)) {
-        selectedPluginKeys = new String[]{AbstractCoverageExtension.DEFAULT_PLUGIN};
+        String[] selectedPluginKeys = settings.getStringArray(CoreProperties.CORE_COVERAGE_PLUGIN_PROPERTY);
+        if (ArrayUtils.isEmpty(selectedPluginKeys)) {
+          selectedPluginKeys = new String[]{AbstractCoverageExtension.DEFAULT_PLUGIN};
+        }
+        String[] selectedPluginKeysIT = settings.getStringArray(CoreProperties.CORE_IT_COVERAGE_PLUGIN_PROPERTY);
+        if (ArrayUtils.isEmpty(selectedPluginKeysIT)) {
+      	  selectedPluginKeysIT = new String[]{AbstractITCoverageExtension.DEFAULT_PLUGIN};
+        }
+        return !(ArrayUtils.contains(selectedPluginKeys, pluginKey) || ArrayUtils.contains(selectedPluginKeysIT, pluginKey));
       }
-      return !ArrayUtils.contains(selectedPluginKeys, pluginKey);
-    }
     return false;
   }
 }

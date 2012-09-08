@@ -20,6 +20,7 @@
 package org.sonar.plugins.jacoco;
 
 import org.sonar.api.batch.CoverageExtension;
+import org.sonar.api.batch.ITCoverageExtension;
 import org.sonar.api.batch.Initializer;
 import org.sonar.api.batch.SupportedEnvironment;
 import org.sonar.api.batch.maven.DependsUponMavenPlugin;
@@ -28,7 +29,7 @@ import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 
 @SupportedEnvironment("maven")
-public class JacocoMavenInitializer extends Initializer implements CoverageExtension, DependsUponMavenPlugin {
+public class JacocoMavenInitializer extends Initializer implements CoverageExtension, ITCoverageExtension, DependsUponMavenPlugin {
 
   private JaCoCoMavenPluginHandler handler;
 

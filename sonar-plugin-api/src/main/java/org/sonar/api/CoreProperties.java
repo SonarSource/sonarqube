@@ -122,6 +122,7 @@ public interface CoreProperties {
   String CORE_VIOLATION_LOCALE_PROPERTY = "sonar.violationLocale";
   String CORE_VIOLATION_LOCALE_DEFAULT_VALUE = "en";
   String CORE_COVERAGE_PLUGIN_PROPERTY = "sonar.core.codeCoveragePlugin";
+  String CORE_IT_COVERAGE_PLUGIN_PROPERTY = "sonar.core.codeItCoveragePlugin";
   String CORE_IMPORT_SOURCES_PROPERTY = "sonar.importSources";
   boolean CORE_IMPORT_SOURCES_DEFAULT_VALUE = true;
   String CORE_SKIPPED_MODULES_PROPERTY = "sonar.skippedModules";
