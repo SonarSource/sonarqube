@@ -57,7 +57,7 @@ public class SurefireSensor implements Sensor {
     logger.info("parsing {}", reportsDir);
     new AbstractSurefireParser() {
       @Override
-      protected Resource<?> getUnitTestResource(String classKey) {
+      protected Resource getUnitTestResource(String classKey) {
         if (!StringUtils.contains(classKey, "$")) {
           // temporary hack waiting for http://jira.codehaus.org/browse/SONAR-1865
           return new JavaFile(classKey, true);

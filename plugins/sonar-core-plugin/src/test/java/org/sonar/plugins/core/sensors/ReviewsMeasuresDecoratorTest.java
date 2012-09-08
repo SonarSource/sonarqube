@@ -96,7 +96,7 @@ public class ReviewsMeasuresDecoratorTest {
   public void shouldDecoratePersistableResource() throws Exception {
     ReviewsMeasuresDecorator decorator = new ReviewsMeasuresDecorator(null, null);
     DecoratorContext context = mock(DecoratorContext.class);
-    Resource<?> resource = mock(Resource.class);
+    Resource resource = mock(Resource.class);
     when(resource.getScope()).thenReturn(Scopes.BLOCK_UNIT);
     decorator.decorate(resource, context);
     verify(context, never()).saveMeasure(any(Metric.class), anyDouble());
@@ -106,7 +106,7 @@ public class ReviewsMeasuresDecoratorTest {
   public void shouldNotDecorateUnitTest() throws Exception {
     ReviewsMeasuresDecorator decorator = new ReviewsMeasuresDecorator(null, null);
     DecoratorContext context = mock(DecoratorContext.class);
-    Resource<?> resource = mock(Resource.class);
+    Resource resource = mock(Resource.class);
     when(resource.getScope()).thenReturn(Scopes.FILE);
     when(resource.getQualifier()).thenReturn(Qualifiers.UNIT_TEST_FILE);
     decorator.decorate(resource, context);
@@ -115,7 +115,7 @@ public class ReviewsMeasuresDecoratorTest {
 
   @Test
   public void shouldTrackNewViolationsWithoutReview() throws Exception {
-    Resource<?> resource = new File("foo").setId(1);
+    Resource resource = new File("foo").setId(1);
     Violation v1 = Violation.create((Rule) null, resource).setPermanentId(1); // test the null case for the created_at date
     Violation v2 = Violation.create((Rule) null, resource).setPermanentId(2).setCreatedAt(rightNow);
     Violation v3 = Violation.create((Rule) null, resource).setPermanentId(3).setCreatedAt(fiveDaysAgo);

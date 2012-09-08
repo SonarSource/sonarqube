@@ -99,7 +99,7 @@ public class JavaPackage extends Resource {
    * {@inheritDoc}
    */
   @Override
-  public Resource<?> getParent() {
+  public Resource getParent() {
     return null;
   }
 

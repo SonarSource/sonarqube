@@ -134,7 +134,7 @@ public class ReviewsMeasuresDecorator implements Decorator {
     return newViolationCount - newReviewedViolationCount;
   }
 
-  private int sumChildren(Resource<?> resource, DecoratorContext context, Metric metric) {
+  private int sumChildren(Resource resource, DecoratorContext context, Metric metric) {
     int sum = 0;
     if (!ResourceUtils.isFile(resource)) {
       sum = MeasureUtils.sum(true, context.getChildrenMeasures(metric)).intValue();
