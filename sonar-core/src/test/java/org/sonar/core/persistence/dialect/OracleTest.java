@@ -58,7 +58,7 @@ public class OracleTest {
   public void should_configure() {
     assertThat(oracle.getId()).isEqualTo("oracle");
     assertThat(oracle.getActiveRecordDialectCode()).isEqualTo("oracle");
-    assertThat(oracle.getActiveRecordJdbcAdapter()).isEqualTo("oracle_enhanced");
+    assertThat(oracle.getActiveRecordJdbcAdapter()).isEqualTo("jdbc");
     assertThat(oracle.getDefaultDriverClassName()).isEqualTo("oracle.jdbc.OracleDriver");
     assertThat(oracle.getValidationQuery()).isEqualTo("SELECT 1 FROM DUAL");
   }

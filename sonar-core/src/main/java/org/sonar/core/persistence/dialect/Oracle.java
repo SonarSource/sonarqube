@@ -33,7 +33,7 @@ public class Oracle extends AbstractDialect {
   public static final String ID = "oracle";
 
   public Oracle() {
-    super(ID, "oracle", "oracle_enhanced", "oracle.jdbc.OracleDriver", "1", "0", "SELECT 1 FROM DUAL");
+    super(ID, "oracle", "jdbc", "oracle.jdbc.OracleDriver", "1", "0", "SELECT 1 FROM DUAL");
   }
 
   public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {

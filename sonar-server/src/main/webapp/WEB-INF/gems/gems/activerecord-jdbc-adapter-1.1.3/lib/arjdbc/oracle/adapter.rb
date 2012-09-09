@@ -45,18 +45,11 @@ module ::ArJdbc
         end
       end
 
+      #sonar
       def type_cast(value)
         return nil if value.nil?
         case type
-        when :datetime then ArJdbc::Oracle::Column.string_to_time(value, self.class)
-        else
-          super
-        end
-      end
-
-      def type_cast_code(var_name)
-        case type
-        when :datetime  then "ArJdbc::Oracle::Column.string_to_time(#{var_name}, self.class)"
+          when :datetime then ArJdbc::Oracle::Column.string_to_time(value, self.class)
         else
           super
         end
@@ -70,8 +63,14 @@ module ::ArJdbc
       def self.guess_date_or_time(value)
         return value if Date === value
         (value && value.hour == 0 && value.min == 0 && value.sec == 0) ?
-        Date.new(value.year, value.month, value.day) : value
+            Date.new(value.year, value.month, value.day) : value
       end
+
+      def self.string_to_date(string) #:nodoc:
+        return string.to_date if string.is_a?(Time) || string.is_a?(DateTime)
+        super
+      end
+      #/sonar
 
       private
       def simplified_type(field_type)
@@ -200,6 +199,13 @@ module ::ArJdbc
       tp[:integer] = { :name => "NUMBER", :limit => 38 }
       tp[:time] = { :name => "DATE" }
       tp[:date] = { :name => "DATE" }
+
+      # sonar
+      tp[:datetime]={ :name => "TIMESTAMP" }
+      tp[:timestamp]={ :name => "TIMESTAMP" }
+      tp[:boolean]={ :name => "NUMBER", :limit => 1 }
+      tp[:big_integer]={ :name => "NUMBER", :limit => 38 }
+      #/sonar
       tp
     end
 
@@ -375,11 +381,11 @@ module ::ArJdbc
           return value.to_i.to_s
         end
         quoted = super
-        if value.acts_like?(:date)
-          quoted = %Q{DATE'#{quoted_date(value)}'}
-        elsif value.acts_like?(:time)
-          quoted = %Q{TIMESTAMP'#{quoted_date(value)}'}
+        #sonar
+        if value.acts_like?(:date) || value.acts_like?(:time) || value.acts_like?(:timestamp)
+          quoted = "TO_TIMESTAMP('#{value.strftime('%Y-%m-%d %H:%M:%S')}:#{("%.6f"%value.to_f).split('.')[1]}','YYYY-MM-DD HH24:MI:SS:FF6')"
         end
+        #/sonar
         quoted
       end
     end

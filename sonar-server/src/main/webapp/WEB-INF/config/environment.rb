@@ -87,6 +87,14 @@ end
 
 
 class ActiveRecord::Migration
+  def self.add_index(table_name, column_name, options = {})
+    # ActiveRecord can generate index names longer than 30 characters, but that's
+    # not supported by Oracle, the "Enterprise" database.
+    # For this reason we force to set name of indexes.
+    raise ArgumentError, 'Missing index name' unless options[:name]
+    super
+  end
+
   def self.alter_to_big_primary_key(tablename)
     dialect = ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getDatabase().getDialect().getActiveRecordDialectCode()
     case dialect
