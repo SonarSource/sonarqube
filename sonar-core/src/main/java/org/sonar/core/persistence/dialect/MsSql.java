@@ -30,7 +30,7 @@ public class MsSql extends AbstractDialect {
   public static final String ID = "mssql";
 
   public MsSql() {
-    super(ID, "sqlserver", "jdbc", "net.sourceforge.jtds.jdbc.Driver", "1", "0", "SELECT 1");
+    super(ID, "sqlserver", "net.sourceforge.jtds.jdbc.Driver", "1", "0", "SELECT 1");
   }
 
   public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {

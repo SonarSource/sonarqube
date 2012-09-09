@@ -33,7 +33,7 @@ public class MySql extends AbstractDialect {
   public static final String ID = "mysql";
 
   public MySql() {
-    super(ID, "mysql", "jdbc", "com.mysql.jdbc.Driver", "true", "false", "SELECT 1");
+    super(ID, "mysql", "com.mysql.jdbc.Driver", "true", "false", "SELECT 1");
   }
 
   public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {
