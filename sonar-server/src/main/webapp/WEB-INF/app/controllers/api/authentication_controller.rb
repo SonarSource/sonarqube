@@ -30,7 +30,10 @@ class Api::AuthenticationController < Api::ApiController
   def validate
     hash={:valid => valid?}
 
+    # make sure no authentication information is left by
+    # this validation 
     reset_session
+    cookies[:auth_token]
 
     respond_to do |format|
       format.json { render :json => jsonp(hash) }
