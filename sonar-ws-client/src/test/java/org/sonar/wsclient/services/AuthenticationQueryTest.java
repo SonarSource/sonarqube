@@ -28,7 +28,7 @@ public class AuthenticationQueryTest extends QueryTestCase {
   public void should_query_right_url() {
     AuthenticationQuery query = new AuthenticationQuery();
 
-    assertThat(query.getUrl()).isEqualTo("/api/authentication/index");
+    assertThat(query.getUrl()).isEqualTo("/api/authentication/validate");
     assertThat(query.getModelClass().getName()).isEqualTo(Authentication.class.getName());
   }
 }

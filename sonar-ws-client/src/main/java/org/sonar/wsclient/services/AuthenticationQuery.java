@@ -20,7 +20,7 @@
 package org.sonar.wsclient.services;
 
 public class AuthenticationQuery extends Query<Authentication> {
-  public static final String BASE_URL = "/api/authentication/index";
+  public static final String BASE_URL = "/api/authentication/validate";
 
   @Override
   public String getUrl() {

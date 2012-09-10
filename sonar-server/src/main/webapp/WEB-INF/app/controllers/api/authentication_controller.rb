@@ -21,14 +21,16 @@ class Api::AuthenticationController < Api::ApiController
   skip_before_filter :check_authentication
 
   # prevent HTTP proxies from caching authentication status
-  before_filter :set_cache_buster, :only => 'index'
+  before_filter :set_cache_buster
 
   #
-  # GET /api/authentication/index
-  # curl http://localhost:9000/api/authentication/index -v -u admin:admin
+  # GET /api/authentication/validate
+  # curl http://localhost:9000/api/authentication/validate -v -u admin:admin
   #
-  def index
+  def validate
     hash={:valid => valid?}
+
+    reset_session
 
     respond_to do |format|
       format.json { render :json => jsonp(hash) }
