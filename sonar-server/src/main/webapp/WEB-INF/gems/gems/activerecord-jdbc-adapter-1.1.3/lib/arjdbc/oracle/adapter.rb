@@ -382,7 +382,9 @@ module ::ArJdbc
         end
         quoted = super
         #sonar
-        if value.acts_like?(:date) || value.acts_like?(:time) || value.acts_like?(:timestamp)
+        if value.acts_like?(:date)
+          quoted = "TO_DATE('#{value.strftime('%Y-%m-%d')}','YYYY-MM-DD')"
+        elsif value.acts_like?(:time) || value.acts_like?(:timestamp)
           quoted = "TO_TIMESTAMP('#{value.strftime('%Y-%m-%d %H:%M:%S')}:#{("%.6f"%value.to_f).split('.')[1]}','YYYY-MM-DD HH24:MI:SS:FF6')"
         end
         #/sonar
