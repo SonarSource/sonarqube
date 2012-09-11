@@ -25,17 +25,15 @@ package org.sonar.core.persistence.dialect;
 abstract class AbstractDialect implements Dialect {
   private final String id;
   private final String activeRecordDialectCode;
-  private final String activeRecordJdbcAdapter;
   private final String defaultDriverClassName;
   private final String trueSqlValue;
   private final String falseSqlValue;
   private final String validationQuery;
 
-  protected AbstractDialect(String id, String activeRecordDialectCode, String activeRecordJdbcAdapter, String defaultDriverClassName, String trueSqlValue, String falseSqlValue,
+  protected AbstractDialect(String id, String activeRecordDialectCode, String defaultDriverClassName, String trueSqlValue, String falseSqlValue,
       String validationQuery) {
     this.id = id;
     this.activeRecordDialectCode = activeRecordDialectCode;
-    this.activeRecordJdbcAdapter = activeRecordJdbcAdapter;
     this.defaultDriverClassName = defaultDriverClassName;
     this.trueSqlValue = trueSqlValue;
     this.falseSqlValue = falseSqlValue;
@@ -48,10 +46,6 @@ abstract class AbstractDialect implements Dialect {
 
   public String getActiveRecordDialectCode() {
     return activeRecordDialectCode;
-  }
-
-  public String getActiveRecordJdbcAdapter() {
-    return activeRecordJdbcAdapter;
   }
 
   public String getDefaultDriverClassName() {

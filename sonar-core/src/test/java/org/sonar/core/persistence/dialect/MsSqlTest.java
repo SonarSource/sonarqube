@@ -46,7 +46,6 @@ public class MsSqlTest {
   public void should_configure() {
     assertThat(msSql.getId()).isEqualTo("mssql");
     assertThat(msSql.getActiveRecordDialectCode()).isEqualTo("sqlserver");
-    assertThat(msSql.getActiveRecordJdbcAdapter()).isEqualTo("jdbc");
     assertThat(msSql.getDefaultDriverClassName()).isEqualTo("net.sourceforge.jtds.jdbc.Driver");
     assertThat(msSql.getValidationQuery()).isEqualTo("SELECT 1");
   }

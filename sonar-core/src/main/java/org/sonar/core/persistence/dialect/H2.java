@@ -30,7 +30,7 @@ public class H2 extends AbstractDialect {
   public static final String ID = "h2";
 
   public H2() {
-    super(ID, "h2", "jdbc", "org.h2.Driver", "true", "false", "SELECT 1");
+    super(ID, "h2", "org.h2.Driver", "true", "false", "SELECT 1");
   }
 
   public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {

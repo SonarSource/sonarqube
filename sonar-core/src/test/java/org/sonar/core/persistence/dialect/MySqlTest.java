@@ -46,7 +46,6 @@ public class MySqlTest {
   public void should_configure() {
     assertThat(mySql.getId()).isEqualTo("mysql");
     assertThat(mySql.getActiveRecordDialectCode()).isEqualTo("mysql");
-    assertThat(mySql.getActiveRecordJdbcAdapter()).isEqualTo("jdbc");
     assertThat(mySql.getDefaultDriverClassName()).isEqualTo("com.mysql.jdbc.Driver");
     assertThat(mySql.getValidationQuery()).isEqualTo("SELECT 1");
   }

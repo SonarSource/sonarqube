@@ -32,7 +32,7 @@ public class PostgreSql extends AbstractDialect {
   public static final String ID = "postgresql";
 
   public PostgreSql() {
-    super(ID, "postgre", "jdbc", "org.postgresql.Driver", "true", "false", "SELECT 1");
+    super(ID, "postgre", "org.postgresql.Driver", "true", "false", "SELECT 1");
   }
 
   public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {

@@ -24,7 +24,7 @@ class CreateGroupsUsers < ActiveRecord::Migration
       t.integer :user_id
 	    t.integer :group_id
     end
-    add_index "groups_users", "user_id"
-	  add_index "groups_users", "group_id"
+    add_index "groups_users", "user_id", :name => 'index_groups_users_on_user_id'
+	  add_index "groups_users", "group_id", :name => 'index_groups_users_on_group_id'
   end
 end
