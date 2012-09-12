@@ -50,6 +50,11 @@ class MoveDefaultRoles < ActiveRecord::Migration
       # upgrade from version < 3.2.
       move_groups
       move_users
+    else
+      # fresh install
+      create_default_roles('TRK')
+      create_default_roles('VW')
+      create_default_roles('SVW')
     end
   end
 
@@ -76,6 +81,8 @@ class MoveDefaultRoles < ActiveRecord::Migration
 
     groups_per_role.each_pair do |role, groups|
       Property.create(:prop_key => "sonar.role.#{role}.TRK.defaultGroups", :text_value => groups.join(','))
+      Property.create(:prop_key => "sonar.role.#{role}.VW.defaultGroups", :text_value => groups.join(','))
+      Property.create(:prop_key => "sonar.role.#{role}.SVW.defaultGroups", :text_value => groups.join(','))
     end
 
     GroupRole.delete_all ['role like ?', 'default-%']
@@ -96,8 +103,17 @@ class MoveDefaultRoles < ActiveRecord::Migration
 
     users_per_role.each_pair do |role, users|
       Property.create(:prop_key => "sonar.role.#{role}.TRK.defaultUsers", :text_value => users.join(','))
+      Property.create(:prop_key => "sonar.role.#{role}.VW.defaultUsers", :text_value => users.join(','))
+      Property.create(:prop_key => "sonar.role.#{role}.SVW.defaultUsers", :text_value => users.join(','))
     end
 
     UserRole.delete_all ['role like ?', 'default-%']
   end
+
+  def self.create_default_roles(qualifier)
+    Property.create(:prop_key => "sonar.role.admin.#{qualifier}.defaultGroups", :text_value => 'sonar-administrators')
+    Property.create(:prop_key => "sonar.role.user.#{qualifier}.defaultGroups", :text_value => 'Anyone,sonar-users')
+    Property.create(:prop_key => "sonar.role.codeviewer.#{qualifier}.defaultGroups", :text_value => 'Anyone,sonar-users')
+  end
+
 end

@@ -19,11 +19,10 @@
  */
 package org.sonar.server.platform;
 
-import org.sonar.api.config.EmailSettings;
-
 import org.apache.commons.configuration.BaseConfiguration;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.Plugins;
+import org.sonar.api.config.EmailSettings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.Server;
 import org.sonar.api.profiles.AnnotationProfileParser;
@@ -45,11 +44,7 @@ import org.sonar.core.i18n.I18nManager;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.metric.DefaultMetricFinder;
 import org.sonar.core.notification.DefaultNotificationManager;
-import org.sonar.core.persistence.DaoUtils;
-import org.sonar.core.persistence.DatabaseMigrator;
-import org.sonar.core.persistence.DatabaseVersion;
-import org.sonar.core.persistence.DefaultDatabase;
-import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.persistence.*;
 import org.sonar.core.qualitymodel.DefaultModelFinder;
 import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.core.user.DefaultUserFinder;
@@ -69,13 +64,7 @@ import org.sonar.server.database.EmbeddedDatabaseFactory;
 import org.sonar.server.filters.FilterExecutor;
 import org.sonar.server.notifications.NotificationService;
 import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
-import org.sonar.server.plugins.ApplicationDeployer;
-import org.sonar.server.plugins.DefaultServerPluginRepository;
-import org.sonar.server.plugins.PluginDeployer;
-import org.sonar.server.plugins.PluginDownloader;
-import org.sonar.server.plugins.ServerExtensionInstaller;
-import org.sonar.server.plugins.UpdateCenterClient;
-import org.sonar.server.plugins.UpdateCenterMatrixFactory;
+import org.sonar.server.plugins.*;
 import org.sonar.server.qualitymodel.DefaultModelManager;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
@@ -257,7 +246,6 @@ public final class Platform {
     startupContainer.addSingleton(GeneratePluginIndex.class);
     startupContainer.addSingleton(RegisterNewFilters.class);
     startupContainer.addSingleton(RegisterNewDashboards.class);
-    startupContainer.addSingleton(SetDefaultProjectPermissions.class);
     startupContainer.startComponents();
 
     startupContainer.getComponentByType(ServerLifecycleNotifier.class).notifyStart();

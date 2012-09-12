@@ -10,6 +10,18 @@ ALTER TABLE GROUP_ROLES ALTER COLUMN ID RESTART WITH 2;
 INSERT INTO GROUPS_USERS(USER_ID, GROUP_ID) VALUES (1, 1);
 INSERT INTO GROUPS_USERS(USER_ID, GROUP_ID) VALUES (1, 2);
 
+-- see migration 320
+INSERT INTO PROPERTIES(ID, prop_key, resource_id, text_value, user_id) VALUES (1, 'sonar.role.admin.TRK.defaultGroups', NULL, 'sonar-administrators', NULL);
+INSERT INTO PROPERTIES(ID, prop_key, resource_id, text_value, user_id) VALUES (2, 'sonar.role.user.TRK.defaultGroups', NULL, 'Anyone,sonar-users', NULL);
+INSERT INTO PROPERTIES(ID, prop_key, resource_id, text_value, user_id) VALUES (3, 'sonar.role.codeviewer.TRK.defaultGroups', NULL, 'Anyone,sonar-users', NULL);
+INSERT INTO PROPERTIES(ID, prop_key, resource_id, text_value, user_id) VALUES (4, 'sonar.role.admin.VW.defaultGroups', NULL, 'sonar-administrators', NULL);
+INSERT INTO PROPERTIES(ID, prop_key, resource_id, text_value, user_id) VALUES (5, 'sonar.role.user.VW.defaultGroups', NULL, 'Anyone,sonar-users', NULL);
+INSERT INTO PROPERTIES(ID, prop_key, resource_id, text_value, user_id) VALUES (6, 'sonar.role.codeviewer.VW.defaultGroups', NULL, 'Anyone,sonar-users', NULL);
+INSERT INTO PROPERTIES(ID, prop_key, resource_id, text_value, user_id) VALUES (7, 'sonar.role.admin.SVW.defaultGroups', NULL, 'sonar-administrators', NULL);
+INSERT INTO PROPERTIES(ID, prop_key, resource_id, text_value, user_id) VALUES (8, 'sonar.role.user.SVW.defaultGroups', NULL, 'Anyone,sonar-users', NULL);
+INSERT INTO PROPERTIES(ID, prop_key, resource_id, text_value, user_id) VALUES (9, 'sonar.role.codeviewer.SVW.defaultGroups', NULL, 'Anyone,sonar-users', NULL);
+ALTER TABLE PROPERTIES ALTER COLUMN ID RESTART WITH 10;
+
 INSERT INTO SCHEMA_MIGRATIONS(VERSION) VALUES ('1');
 INSERT INTO SCHEMA_MIGRATIONS(VERSION) VALUES ('2');
 INSERT INTO SCHEMA_MIGRATIONS(VERSION) VALUES ('10');
