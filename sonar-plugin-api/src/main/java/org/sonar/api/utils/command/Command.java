@@ -131,7 +131,7 @@ public class Command {
     ImmutableList.Builder<String> command = ImmutableList.builder();
     if (newShell) {
       if (SystemUtils.IS_OS_WINDOWS) {
-        command.add("cmd", "/C");
+        command.add("cmd", "/C", "call");
       } else {
         command.add("sh");
       }
