@@ -235,13 +235,18 @@
           <aggregations>
             <aggregation>
               <includes>
-                <include>**/application-min.js</include>
+                <!--
+                Order is important for jquery and prototype. Don't forget to also check the order
+                in layouts/_head.html.erb for the dev mode.
+                -->
                 <include>**/prototype-min.js</include>
                 <include>**/scriptaculous-min.js</include>
                 <include>**/tablekit-min.js</include>
-                <include>**/dashboard-min.js</include>
                 <include>**/protovis-min.js</include>
                 <include>**/protovis-sonar-min.js</include>
+                <include>**/jquery-*.min.js</include>
+                <include>**/application-min.js</include>
+                <include>**/dashboard-min.js</include>
                 <include>**/duplication-min.js</include>
                 <include>**/resource-min.js</include>
               </includes>
