@@ -26,7 +26,7 @@
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <includes>
         <include>org.codehaus.sonar.plugins:*</include>
-        <include>org.codehaus.sonar-plugins.*:*</include>
+        <include>org.codehaus.sonar-plugins.*:sonar-*-plugin</include>
       </includes>
     </dependencySet>
     <!-- Server -->
