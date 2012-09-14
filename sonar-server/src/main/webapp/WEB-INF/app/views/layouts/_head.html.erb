@@ -2,7 +2,15 @@
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta name="gwt:property" content="locale=<%= I18n.locale.to_s.gsub(/-/, '_') -%>">
 <meta http-equiv="X-UA-Compatible" content="IE=9">
+<link rel="shortcut icon" type="image/x-icon" href="<%= image_path('favicon.ico') -%>" />
 <%
+  if @project
+%><link rel="alternate" title="Sonar Alerts on <%= @project.name -%>" href="<%= ApplicationController.root_context -%>/feeds/project/<%= @project.key -%>?category=<%= EventCategory::KEY_ALERT -%>" type="application/atom+xml">
+<%
+   else
+%><link rel="alternate" title="Sonar Alerts" href="<%= ApplicationController.root_context -%>/feeds/projects/<%= EventCategory::KEY_ALERT -%>" type="application/atom+xml"><%
+  end
+
   if @page_title
     title="Sonar - #{h(@page_title)}"
   elsif @project
@@ -13,11 +21,12 @@
     title='Sonar'
   end
 %>
-<title><%= title %></title>
+<title><%= title -%></title>
 <% if ENV['RAILS_ENV'] == 'production'
 %><%= stylesheet_link_tag 'sonar', :media => 'all' -%><%= javascript_include_tag 'sonar'
 -%><% else %>
-<%= stylesheet_link_tag 'yui-2.6.0.css', :media => 'all' %>
+<%= stylesheet_link_tag 'yui-reset-font.css', :media => 'all' %>
+<%= stylesheet_link_tag 'layout.css', :media => 'all' %>
 <%= stylesheet_link_tag 'style', :media => 'all' %>
 <%= stylesheet_link_tag 'sonar-colorizer', :media => 'all' %>
 <%= stylesheet_link_tag 'dashboard', :media => 'all' %>
@@ -33,11 +42,5 @@
 <%= javascript_include_tag 'resource' %>
 <% end %>
 <!--[if lte IE 8]><%= javascript_include_tag 'protovis-msie' -%><![endif]-->
-<link rel="shortcut icon" type="image/x-icon" href="<%= image_path('favicon.ico') -%>" />
-<%
-if @project %>
-<link rel="alternate" title="Sonar Alerts on <%= @project.name -%>" href="<%= ApplicationController.root_context -%>/feeds/project/<%= @project.key -%>?category=<%= EventCategory::KEY_ALERT -%>" type="application/atom+xml">
-<% else
-%><link rel="alternate" title="Sonar Alerts" href="<%= ApplicationController.root_context -%>/feeds/projects/<%= EventCategory::KEY_ALERT -%>" type="application/atom+xml"><%
-end %><script>var baseUrl = '<%= ApplicationController.root_context -%>';var $j = jQuery.noConflict();</script>
+<script>var baseUrl = '<%= ApplicationController.root_context -%>';var $j = jQuery.noConflict();</script>
 </head><body>
