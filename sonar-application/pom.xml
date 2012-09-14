@@ -108,7 +108,6 @@
     <dependency>
       <groupId>org.codehaus.sonar-plugins.java</groupId>
       <artifactId>sonar-squid-java-plugin</artifactId>
-      <version>1.0-SNAPSHOT</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -150,7 +149,6 @@
     <dependency>
       <groupId>org.codehaus.sonar-plugins.java</groupId>
       <artifactId>sonar-java-plugin</artifactId>
-      <version>1.0-SNAPSHOT</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
