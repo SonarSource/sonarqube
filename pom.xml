@@ -6,7 +6,7 @@
   <groupId>org.codehaus.sonar</groupId>
   <artifactId>sonar</artifactId>
   <packaging>pom</packaging>
-  <version>3.3-SNAPSHOT</version>
+  <version>3.3-M3</version>
   <name>Sonar</name>
   <url>http://www.sonarsource.org/</url>
   <description>Open source platform for continuous inspection of code quality</description>
@@ -78,7 +78,7 @@
   </prerequisites>
 
   <properties>
-    <sonarJava.version>1.0-SNAPSHOT</sonarJava.version>
+    <sonarJava.version>1.0-M1</sonarJava.version>
     <h2.version>1.3.167</h2.version>
     <jetty.version>6.1.25</jetty.version>
     <sonar.skippedModules>sonar-gwt-api,sonar-core-gwt</sonar.skippedModules>
