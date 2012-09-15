@@ -8,7 +8,7 @@
 %>
 <div id="container">
 <div id="hd">
-  <div id="nav1">
+  <div id="crumbs">
     <ul>
       <li>
         <% global_dashboards = ActiveDashboard.user_dashboards(current_user, true)
@@ -25,7 +25,7 @@
       <%= render :partial => 'layouts/breadcrumb' -%>
     </ul>
   </div>
-  <div id="nav2">
+  <div id="hd-right">
     <ul>
       <li>
         <input type="text" size="15" name="search" id="searchInput" onFocus="autocompleteResources()" value="<%= message('search_verb') -%>"/>
