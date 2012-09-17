@@ -20,6 +20,8 @@
 
 package org.sonar.squid.text;
 
+import org.junit.After;
+
 import org.junit.Test;
 import org.sonar.squid.text.StringArrayReader.EndOfLineDelimiter;
 
@@ -29,11 +31,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class StringArrayReaderTest {
+  StringArrayReader reader;
+
+  @After
+  public void closeReader() throws IOException {
+    reader.close();
+  }
 
   @Test
   public void read() throws IOException {
     String[] lines = {"import java.util.*;", "//NOSONAR comment",};
-    StringArrayReader reader = new StringArrayReader(lines);
+    reader = new StringArrayReader(lines);
     assertEquals('i', reader.read());
     assertEquals('m', reader.read());
   }
@@ -41,7 +49,7 @@ public class StringArrayReaderTest {
   @Test
   public void testLFEndOfLineDelimiter() throws IOException {
     String[] lines = {";", ";",};
-    StringArrayReader reader = new StringArrayReader(lines, EndOfLineDelimiter.LF);
+    reader = new StringArrayReader(lines, EndOfLineDelimiter.LF);
     assertEquals(';', reader.read());
     assertEquals('\n', reader.read());
     assertEquals(';', reader.read());
@@ -50,7 +58,7 @@ public class StringArrayReaderTest {
   @Test
   public void testCREndOfLineDelimiter() throws IOException {
     String[] lines = {";", ";",};
-    StringArrayReader reader = new StringArrayReader(lines, EndOfLineDelimiter.CR);
+    reader = new StringArrayReader(lines, EndOfLineDelimiter.CR);
     assertEquals(';', reader.read());
     assertEquals('\r', reader.read());
     assertEquals(';', reader.read());
@@ -59,7 +67,7 @@ public class StringArrayReaderTest {
   @Test
   public void testCRPlusLFEndOfLineDelimiter() throws IOException {
     String[] lines = {";", ";",};
-    StringArrayReader reader = new StringArrayReader(lines, EndOfLineDelimiter.CR_PLUS_LF);
+    reader = new StringArrayReader(lines, EndOfLineDelimiter.CR_PLUS_LF);
     assertEquals(';', reader.read());
     assertEquals('\r', reader.read());
     assertEquals('\n', reader.read());
@@ -69,21 +77,21 @@ public class StringArrayReaderTest {
   @Test
   public void ready() throws IOException {
     String[] lines = {";", "//NOSONAR",};
-    StringArrayReader reader = new StringArrayReader(lines);
+    reader = new StringArrayReader(lines);
     assertTrue(reader.ready());
   }
 
   @Test
   public void markSupported() {
     String[] lines = {};
-    StringArrayReader reader = new StringArrayReader(lines);
+    reader = new StringArrayReader(lines);
     assertTrue(reader.markSupported());
   }
 
   @Test
   public void mark() throws IOException {
     String[] lines = {";", "//NOSONAR",};
-    StringArrayReader reader = new StringArrayReader(lines);
+    reader = new StringArrayReader(lines);
     reader.read(new char[4], 0, 4);
     reader.mark(4);
     reader.read(new char[2], 0, 2);
@@ -95,7 +103,7 @@ public class StringArrayReaderTest {
   @Test(expected = IOException.class)
   public void close() throws IOException {
     String[] lines = {";", "//NOSONAR",};
-    StringArrayReader reader = new StringArrayReader(lines);
+    reader = new StringArrayReader(lines);
     assertTrue(reader.ready());
     reader.close();
     reader.ready();
@@ -104,7 +112,7 @@ public class StringArrayReaderTest {
   @Test
   public void readEndOfArray() throws IOException {
     String[] lines = {";"};
-    StringArrayReader reader = new StringArrayReader(lines);
+    reader = new StringArrayReader(lines);
     assertEquals(';', reader.read());
     assertEquals(-1, reader.read());
   }
@@ -112,7 +120,7 @@ public class StringArrayReaderTest {
   @Test
   public void readMultipleCharacters() throws IOException {
     String[] lines = {";", "//NOSONAR",};
-    StringArrayReader reader = new StringArrayReader(lines);
+    reader = new StringArrayReader(lines);
     char[] chars = new char[4];
     assertEquals(4, reader.read(chars, 0, 4));
     assertEquals(";\n//", new String(chars));
@@ -121,7 +129,7 @@ public class StringArrayReaderTest {
   @Test
   public void readMultipleCharactersTillEndOfArray() throws IOException {
     String[] lines = {";", "//NOSONAR",};
-    StringArrayReader reader = new StringArrayReader(lines);
+    reader = new StringArrayReader(lines);
     char[] chars = new char[11];
     assertEquals(11, reader.read(chars, 0, 11));
     assertEquals(";\n//NOSONAR", new String(chars));
@@ -130,7 +138,7 @@ public class StringArrayReaderTest {
   @Test
   public void readEmptyArray() throws IOException {
     String[] lines = {};
-    StringArrayReader reader = new StringArrayReader(lines);
+    reader = new StringArrayReader(lines);
     char[] cbuf = new char[10000];
     assertEquals(-1, reader.read(cbuf, 0, 10000));
   }
@@ -138,7 +146,7 @@ public class StringArrayReaderTest {
   @Test
   public void readMultipleCharactersWithEmptyLineAtEnd() throws IOException {
     String[] lines = {";", "//NOSONAR", "", ""};
-    StringArrayReader reader = new StringArrayReader(lines);
+    reader = new StringArrayReader(lines);
     char[] cbuf = new char[10000];
     assertEquals(13, reader.read(cbuf, 0, 10000));
     assertEquals(";\n//NOSONAR\n\n", new String(cbuf, 0, 13));
@@ -147,7 +155,7 @@ public class StringArrayReaderTest {
   @Test
   public void readOneCharacter() throws IOException {
     String[] lines = {";", "//NOSONAR"};
-    StringArrayReader reader = new StringArrayReader(lines);
+    reader = new StringArrayReader(lines);
     char[] chars = new char[1];
     assertEquals(1, reader.read(chars, 0, 1));
     assertEquals(";", new String(chars));
@@ -156,7 +164,7 @@ public class StringArrayReaderTest {
   @Test
   public void readBlankLines() throws IOException {
     String[] lines = {"", "", ""};
-    StringArrayReader reader = new StringArrayReader(lines);
+    reader = new StringArrayReader(lines);
     assertEquals('\n', reader.read());
     assertEquals('\n', reader.read());
     assertEquals(-1, reader.read());
@@ -165,7 +173,7 @@ public class StringArrayReaderTest {
   @Test
   public void skip() throws IOException {
     String[] lines = {"//NOSONAR",};
-    StringArrayReader reader = new StringArrayReader(lines);
+    reader = new StringArrayReader(lines);
     reader.skip(2);
     assertEquals('N', reader.read());
   }
@@ -173,7 +181,7 @@ public class StringArrayReaderTest {
   @Test
   public void readEOF() throws IOException {
     String[] emptyLines = {};
-    StringArrayReader reader = new StringArrayReader(emptyLines);
+    reader = new StringArrayReader(emptyLines);
     assertEquals(-1, reader.read());
 
     String[] lines = {"a"};
