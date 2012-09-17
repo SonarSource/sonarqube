@@ -92,7 +92,7 @@ public class CheckAlertThresholdsTest {
 
     decorator.decorate(project, context);
 
-    verify(context, never()).saveMeasure((Measure) anyObject());
+    verify(context, never()).saveMeasure(any(Measure.class));
   }
 
   @Test

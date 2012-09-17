@@ -19,19 +19,22 @@
  */
 package org.sonar.plugins.cpd.decorators;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.junit.Assert.assertThat;
 import org.junit.Test;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.test.IsMeasure;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.number.OrderingComparisons.greaterThan;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 public class SumDuplicationsDecoratorTest {
 
@@ -50,7 +53,7 @@ public class SumDuplicationsDecoratorTest {
 
     decorator.decorate(unitTest, context);
 
-    verify(context, never()).saveMeasure((Measure) anyObject());
+    verify(context, never()).saveMeasure(any(Measure.class));
   }
 
   @Test

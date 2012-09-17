@@ -38,7 +38,7 @@ import java.util.Date;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
@@ -89,7 +89,7 @@ public class GenerateAlertEventsTest {
 
   @Test
   public void shouldCreateEventWhenWarnToError() {
-    when(timeMachine.getMeasures((TimeMachineQuery) anyObject())).thenReturn(Arrays.asList(newAlertStatus(Metric.Level.WARN, "desc")));
+    when(timeMachine.getMeasures(any(TimeMachineQuery.class))).thenReturn(Arrays.asList(newAlertStatus(Metric.Level.WARN, "desc")));
     when(context.getMeasure(CoreMetrics.ALERT_STATUS)).thenReturn(newAlertStatus(Metric.Level.ERROR, "desc"));
 
     decorator.decorate(project, context);
@@ -99,7 +99,7 @@ public class GenerateAlertEventsTest {
 
   @Test
   public void shouldCreateEventWhenErrorToOk() {
-    when(timeMachine.getMeasures((TimeMachineQuery) anyObject())).thenReturn(Arrays.asList(newAlertStatus(Metric.Level.ERROR, "desc")));
+    when(timeMachine.getMeasures(any(TimeMachineQuery.class))).thenReturn(Arrays.asList(newAlertStatus(Metric.Level.ERROR, "desc")));
     when(context.getMeasure(CoreMetrics.ALERT_STATUS)).thenReturn(newAlertStatus(Metric.Level.OK, null));
 
     decorator.decorate(project, context);
@@ -109,7 +109,7 @@ public class GenerateAlertEventsTest {
 
   @Test
   public void shouldCreateEventWhenErrorToWarn() {
-    when(timeMachine.getMeasures((TimeMachineQuery) anyObject())).thenReturn(Arrays.asList(newAlertStatus(Metric.Level.ERROR, "desc")));
+    when(timeMachine.getMeasures(any(TimeMachineQuery.class))).thenReturn(Arrays.asList(newAlertStatus(Metric.Level.ERROR, "desc")));
     when(context.getMeasure(CoreMetrics.ALERT_STATUS)).thenReturn(newAlertStatus(Metric.Level.WARN, "desc"));
 
     decorator.decorate(project, context);
@@ -126,7 +126,7 @@ public class GenerateAlertEventsTest {
 
   @Test
   public void shouldNotCreateEventWhenSameLevel() {
-    when(timeMachine.getMeasures((TimeMachineQuery) anyObject())).thenReturn(Arrays.asList(newAlertStatus(Metric.Level.ERROR, "desc")));
+    when(timeMachine.getMeasures(any(TimeMachineQuery.class))).thenReturn(Arrays.asList(newAlertStatus(Metric.Level.ERROR, "desc")));
     when(context.getMeasure(CoreMetrics.ALERT_STATUS)).thenReturn(newAlertStatus(Metric.Level.ERROR, "desc"));
 
     decorator.decorate(project, context);
@@ -136,7 +136,7 @@ public class GenerateAlertEventsTest {
 
   @Test
   public void shouldNotCreateEventIfNoMoreAlertStatus() {
-    when(timeMachine.getMeasures((TimeMachineQuery) anyObject())).thenReturn(Arrays.asList(newAlertStatus(Metric.Level.ERROR, "desc")));
+    when(timeMachine.getMeasures(any(TimeMachineQuery.class))).thenReturn(Arrays.asList(newAlertStatus(Metric.Level.ERROR, "desc")));
     when(context.getMeasure(CoreMetrics.ALERT_STATUS)).thenReturn(null);
 
     decorator.decorate(project, context);

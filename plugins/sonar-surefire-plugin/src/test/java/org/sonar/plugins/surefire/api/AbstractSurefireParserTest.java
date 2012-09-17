@@ -19,23 +19,8 @@
  */
 package org.sonar.plugins.surefire.api;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyDouble;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import org.mockito.ArgumentMatcher;
-
-import java.net.URISyntaxException;
-import java.util.Arrays;
-
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
@@ -46,6 +31,19 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.test.IsMeasure;
 import org.sonar.api.test.IsResource;
+
+import java.net.URISyntaxException;
+import java.util.Arrays;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyDouble;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class AbstractSurefireParserTest {
 
@@ -112,7 +110,7 @@ public class AbstractSurefireParserTest {
 
     parser.collect(new Project("foo"), context, getDir("noTests"));
 
-    verify(context, never()).saveMeasure(any(Resource.class), (Metric) anyObject(), anyDouble());
+    verify(context, never()).saveMeasure(any(Resource.class), any(Metric.class), anyDouble());
   }
 
   @Test

@@ -36,8 +36,15 @@ import org.sonar.api.test.IsRuleMeasure;
 import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyDouble;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ViolationsDecoratorTest {
   private Rule ruleA1;
@@ -63,7 +70,7 @@ public class ViolationsDecoratorTest {
   public void shouldCountViolations() {
     when(resource.getScope()).thenReturn(Scopes.PROJECT);
     when(context.getViolations()).thenReturn(createViolations());
-    when(context.getChildrenMeasures((MeasuresFilter) anyObject())).thenReturn(Collections.<Measure>emptyList());
+    when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.<Measure> emptyList());
 
     decorator.decorate(resource, context);
 
@@ -77,7 +84,7 @@ public class ViolationsDecoratorTest {
   public void shouldNotCountViolationsIfMeasureAlreadyExists() {
     when(resource.getScope()).thenReturn(Scopes.PROJECT);
     when(context.getViolations()).thenReturn(createViolations());
-    when(context.getChildrenMeasures((MeasuresFilter) anyObject())).thenReturn(Collections.<Measure>emptyList());
+    when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.<Measure> emptyList());
     when(context.getMeasure(CoreMetrics.VIOLATIONS)).thenReturn(new Measure(CoreMetrics.VIOLATIONS, 3000.0));
     when(context.getMeasure(CoreMetrics.MAJOR_VIOLATIONS)).thenReturn(new Measure(CoreMetrics.MAJOR_VIOLATIONS, 500.0));
 
@@ -91,8 +98,8 @@ public class ViolationsDecoratorTest {
   @Test
   public void shouldSaveZeroOnProjects() {
     when(resource.getScope()).thenReturn(Scopes.PROJECT);
-    when(context.getViolations()).thenReturn(Collections.<Violation>emptyList());
-    when(context.getChildrenMeasures((MeasuresFilter) anyObject())).thenReturn(Collections.<Measure>emptyList());
+    when(context.getViolations()).thenReturn(Collections.<Violation> emptyList());
+    when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.<Measure> emptyList());
 
     decorator.decorate(resource, context);
 
@@ -102,8 +109,8 @@ public class ViolationsDecoratorTest {
   @Test
   public void shouldSaveZeroOnDirectories() {
     when(resource.getScope()).thenReturn(Scopes.DIRECTORY);
-    when(context.getViolations()).thenReturn(Collections.<Violation>emptyList());
-    when(context.getChildrenMeasures((MeasuresFilter) anyObject())).thenReturn(Collections.<Measure>emptyList());
+    when(context.getViolations()).thenReturn(Collections.<Violation> emptyList());
+    when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.<Measure> emptyList());
 
     decorator.decorate(resource, context);
 
@@ -114,7 +121,7 @@ public class ViolationsDecoratorTest {
   public void shouldCountViolationsBySeverity() {
     when(resource.getScope()).thenReturn(Scopes.PROJECT);
     when(context.getViolations()).thenReturn(createViolations());
-    when(context.getChildrenMeasures((MeasuresFilter) anyObject())).thenReturn(Collections.<Measure>emptyList());
+    when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.<Measure> emptyList());
 
     decorator.decorate(resource, context);
 

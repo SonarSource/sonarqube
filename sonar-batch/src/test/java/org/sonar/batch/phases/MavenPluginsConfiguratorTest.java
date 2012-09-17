@@ -29,7 +29,7 @@ import org.sonar.api.test.MavenTestUtils;
 
 import java.util.Arrays;
 
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -40,7 +40,7 @@ public class MavenPluginsConfiguratorTest {
 
   private MavenPluginsConfigurator newConfigurator(MavenPluginHandler... handlers) {
     BatchExtensionDictionnary selector = mock(BatchExtensionDictionnary.class);
-    when(selector.selectMavenPluginHandlers((Project) anyObject())).thenReturn(Arrays.asList(handlers));
+    when(selector.selectMavenPluginHandlers(any(Project.class))).thenReturn(Arrays.asList(handlers));
     return new MavenPluginsConfigurator(selector);
   }
 

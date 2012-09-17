@@ -19,13 +19,6 @@
  */
 package org.sonar.plugins.core.sensors;
 
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
@@ -35,6 +28,13 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.test.IsMeasure;
+
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class WeightedViolationsDecoratorTest {
 
@@ -66,7 +66,7 @@ public class WeightedViolationsDecoratorTest {
     decorator.start();
     decorator.decorate(context);
 
-    verify(context).saveMeasure((Measure) anyObject());
+    verify(context).saveMeasure(any(Measure.class));
   }
 
   @Test

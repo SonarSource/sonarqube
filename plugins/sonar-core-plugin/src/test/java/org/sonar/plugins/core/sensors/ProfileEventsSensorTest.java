@@ -38,7 +38,6 @@ import java.util.Date;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
@@ -73,7 +72,7 @@ public class ProfileEventsSensorTest {
 
     sensor.analyse(project, context);
 
-    verify(context, never()).createEvent((Resource) anyObject(), anyString(), anyString(), anyString(), (Date) anyObject());
+    verify(context, never()).createEvent(any(Resource.class), anyString(), anyString(), anyString(), any(Date.class));
   }
 
   @Test
@@ -98,7 +97,7 @@ public class ProfileEventsSensorTest {
     verify(context).createEvent(same(project),
         eq("Foo version 1"),
         eq("Foo version 1 is used instead of Bar version 1"),
-        same(Event.CATEGORY_PROFILE), (Date) anyObject());
+        same(Event.CATEGORY_PROFILE), any(Date.class));
   }
 
   @Test
@@ -112,7 +111,7 @@ public class ProfileEventsSensorTest {
     verify(context).createEvent(same(project),
         eq("Foo version 2"),
         eq("Foo version 2 is used instead of Foo version 1"),
-        same(Event.CATEGORY_PROFILE), (Date) anyObject());
+        same(Event.CATEGORY_PROFILE), any(Date.class));
   }
 
   @Test
@@ -137,7 +136,7 @@ public class ProfileEventsSensorTest {
     verify(context).createEvent(same(project),
         eq("Foo version 2"),
         eq("Foo version 2 is used instead of Foo version 1"),
-        same(Event.CATEGORY_PROFILE), (Date) anyObject());
+        same(Event.CATEGORY_PROFILE), any(Date.class));
   }
 
   private RulesProfile mockProfileWithVersion(int version) {

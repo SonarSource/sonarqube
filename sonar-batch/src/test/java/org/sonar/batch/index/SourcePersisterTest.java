@@ -27,7 +27,7 @@ import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Resource;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -40,7 +40,7 @@ public class SourcePersisterTest extends AbstractDbUnitTestCase {
     setupData("shared");
     Snapshot snapshot = getSession().getSingleResult(Snapshot.class, "id", 1000);
     ResourcePersister resourcePersister = mock(ResourcePersister.class);
-    when(resourcePersister.getSnapshotOrFail((Resource) anyObject())).thenReturn(snapshot);
+    when(resourcePersister.getSnapshotOrFail(any(Resource.class))).thenReturn(snapshot);
     sourcePersister = new SourcePersister(getSession(), resourcePersister);
   }
 

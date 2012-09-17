@@ -77,7 +77,7 @@ public class FormulaDecoratorTest {
     when(context.getMeasure(fake)).thenReturn(new Measure(fake, 10.0));
     decorator.decorate(null, context);
 
-    verify(context, never()).saveMeasure((Measure) anyObject());
+    verify(context, never()).saveMeasure(any(Measure.class));
   }
 
   class FakeFormula implements Formula {

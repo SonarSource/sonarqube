@@ -37,7 +37,7 @@ import java.io.Reader;
 import java.io.StringReader;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -161,7 +161,7 @@ public class PmdProfileImporterTest {
 
   static RuleFinder createRuleFinder() {
     RuleFinder ruleFinder = mock(RuleFinder.class);
-    when(ruleFinder.find((RuleQuery) anyObject())).then(new Answer<Rule>() {
+    when(ruleFinder.find(any(RuleQuery.class))).then(new Answer<Rule>() {
       public Rule answer(InvocationOnMock invocation) {
         RuleQuery query = (RuleQuery) invocation.getArguments()[0];
         Rule rule = Rule.create(query.getRepositoryKey(), "", "").setConfigKey(query.getConfigKey()).setSeverity(RulePriority.BLOCKER);

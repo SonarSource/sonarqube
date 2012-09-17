@@ -55,7 +55,7 @@ public class AbstractDivisionDecoratorTest {
 
     decorator.decorate(mock(Resource.class), context);
 
-    verify(context, never()).saveMeasure((Measure) anyObject());
+    verify(context, never()).saveMeasure(any(Measure.class));
   }
 
   @Test
@@ -83,7 +83,7 @@ public class AbstractDivisionDecoratorTest {
 
     decorator.decorate(mock(Resource.class), context);
 
-    verify(context, never()).saveMeasure((Measure) anyObject());
+    verify(context, never()).saveMeasure(any(Measure.class));
   }
 
 

@@ -27,7 +27,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.exceptions.verification.junit.ArgumentsAreDifferent;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.Java;
+import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
+import org.sonar.api.resources.Resource;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -39,7 +44,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
@@ -83,7 +88,7 @@ public class AbstractSourceImporterTest {
     when(fileSystem.getSourceFiles(Java.INSTANCE)).thenReturn(Arrays.<File> asList(new File("Foo.java"), new File("Bar.java")));
     nullImporter.analyse(fileSystem, context);
 
-    verify(context, never()).saveSource((Resource) anyObject(), anyString());
+    verify(context, never()).saveSource(any(Resource.class), anyString());
   }
 
   @Test
@@ -121,7 +126,7 @@ public class AbstractSourceImporterTest {
     when(project.getFileSystem()).thenReturn(fileSystem);
     when(fileSystem.getSourceCharset()).thenReturn(Charset.forName(encoding));
     when(project.getConfiguration()).thenReturn(new MapConfiguration(new HashMap<String, String>()));
-    when(fileSystem.getSourceFiles((Language) anyObject())).thenReturn(Arrays.asList(
+    when(fileSystem.getSourceFiles(any(Language.class))).thenReturn(Arrays.asList(
         new File("test-resources/org/sonar/api/batch/AbstractSourceImporterTest/encoding/" + testFile)));
 
     importer.shouldExecuteOnProject(project);

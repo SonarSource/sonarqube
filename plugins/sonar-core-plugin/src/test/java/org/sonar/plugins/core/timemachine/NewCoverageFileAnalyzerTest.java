@@ -33,7 +33,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -50,7 +50,7 @@ public class NewCoverageFileAnalyzerTest {
 
     AbstractNewCoverageFileAnalyzer decorator = newDecorator();
     decorator.doDecorate(context);
-    verify(context, never()).saveMeasure((Measure) anyObject());
+    verify(context, never()).saveMeasure(any(Measure.class));
   }
 
   @Test
@@ -62,7 +62,7 @@ public class NewCoverageFileAnalyzerTest {
     AbstractNewCoverageFileAnalyzer decorator = newDecorator();
     decorator.doDecorate(context);
 
-    verify(context, never()).saveMeasure((Measure) anyObject());
+    verify(context, never()).saveMeasure(any(Measure.class));
   }
 
   @Test

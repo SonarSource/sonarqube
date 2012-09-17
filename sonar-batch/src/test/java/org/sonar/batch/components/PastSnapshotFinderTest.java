@@ -33,6 +33,7 @@ import org.sonar.api.database.model.Snapshot;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import static org.mockito.Matchers.any;
 
 import static junit.framework.Assert.assertNull;
 import static org.hamcrest.Matchers.nullValue;
@@ -40,7 +41,6 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -111,7 +111,7 @@ public class PastSnapshotFinderTest {
 
     PastSnapshot variationSnapshot = finder.find(null, 2, "2010-05-18");
 
-    verify(finderByDate).findByDate((Snapshot) anyObject(), argThat(new ArgumentMatcher<Date>() {
+    verify(finderByDate).findByDate(any(Snapshot.class), argThat(new ArgumentMatcher<Date>() {
       @Override
       public boolean matches(Object o) {
         return o.equals(date);
@@ -124,11 +124,11 @@ public class PastSnapshotFinderTest {
 
   @Test
   public void shouldNotFindByDate() {
-    when(finderByDate.findByDate((Snapshot) anyObject(), (Date) anyObject())).thenReturn(null);
+    when(finderByDate.findByDate(any(Snapshot.class), any(Date.class))).thenReturn(null);
 
     PastSnapshot variationSnapshot = finder.find(null, 2, "2010-05-18");
 
-    verify(finderByDate).findByDate((Snapshot) anyObject(), (Date) anyObject());
+    verify(finderByDate).findByDate(any(Snapshot.class), any(Date.class));
     assertNull(variationSnapshot);
   }
 

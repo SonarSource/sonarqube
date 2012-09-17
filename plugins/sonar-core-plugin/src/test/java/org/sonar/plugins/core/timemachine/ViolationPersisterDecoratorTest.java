@@ -35,7 +35,7 @@ import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.util.Arrays;
 
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -54,7 +54,7 @@ public class ViolationPersisterDecoratorTest extends AbstractDbUnitTestCase {
     setupData("shared");
     Snapshot snapshot = getSession().getSingleResult(Snapshot.class, "id", 1000);
     ResourcePersister resourcePersister = mock(ResourcePersister.class);
-    when(resourcePersister.saveResource((Project) anyObject(), eq(javaFile))).thenReturn(snapshot);
+    when(resourcePersister.saveResource(any(Project.class), eq(javaFile))).thenReturn(snapshot);
     when(resourcePersister.getSnapshot(javaFile)).thenReturn(snapshot);
     tracker = mock(ViolationTrackingDecorator.class);
     decorator = new ViolationPersisterDecorator(tracker, resourcePersister, new DefaultRuleFinder(getSessionFactory()), getSession());

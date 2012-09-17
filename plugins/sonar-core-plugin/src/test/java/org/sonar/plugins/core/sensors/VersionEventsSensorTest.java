@@ -32,7 +32,7 @@ import java.util.Date;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
@@ -65,8 +65,8 @@ public class VersionEventsSensorTest {
 
     sensor.analyse(project, context);
 
-    verify(context, never()).createEvent((Resource) anyObject(), anyString(), anyString(), anyString(), (Date) anyObject());
-    verify(context, never()).deleteEvent((Event) anyObject());
+    verify(context, never()).createEvent(any(Resource.class), anyString(), anyString(), anyString(), any(Date.class));
+    verify(context, never()).deleteEvent(any(Event.class));
   }
 
   @Test

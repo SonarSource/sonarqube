@@ -25,7 +25,11 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.*;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.rules.RulePriority;
+import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.test.TestUtils;
 
@@ -37,7 +41,7 @@ import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -115,7 +119,8 @@ public class CheckstyleProfileImporterTest {
     RulesProfile profile = importer.importProfile(reader, messages);
 
     assertNotNull(profile.getActiveRuleByConfigKey("checkstyle", "Checker/JavadocPackage"));
-    assertThat(profile.getActiveRuleByConfigKey("checkstyle", "Checker/JavadocPackage").getRule().getKey(), is("com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocPackageCheck_12345"));
+    assertThat(profile.getActiveRuleByConfigKey("checkstyle", "Checker/JavadocPackage").getRule().getKey(),
+        is("com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocPackageCheck_12345"));
     assertThat(messages.getWarnings().size(), is(0));
   }
 
@@ -139,7 +144,7 @@ public class CheckstyleProfileImporterTest {
 
   private RuleFinder newRuleFinder() {
     RuleFinder ruleFinder = mock(RuleFinder.class);
-    when(ruleFinder.find((RuleQuery) anyObject())).thenAnswer(new Answer<Rule>() {
+    when(ruleFinder.find(any(RuleQuery.class))).thenAnswer(new Answer<Rule>() {
       public Rule answer(InvocationOnMock iom) throws Throwable {
         RuleQuery query = (RuleQuery) iom.getArguments()[0];
         Rule rule = null;
