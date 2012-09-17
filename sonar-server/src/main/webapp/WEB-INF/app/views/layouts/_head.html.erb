@@ -26,6 +26,7 @@
 %><%= stylesheet_link_tag 'sonar', :media => 'all' -%><%= javascript_include_tag 'sonar'
 -%><% else %>
 <%= stylesheet_link_tag 'yui-reset-font.css', :media => 'all' %>
+<%= stylesheet_link_tag 'select2', :media => 'all' %>
 <%= stylesheet_link_tag 'layout.css', :media => 'all' %>
 <%= stylesheet_link_tag 'style', :media => 'all' %>
 <%= stylesheet_link_tag 'sonar-colorizer', :media => 'all' %>
@@ -33,7 +34,8 @@
 <%= javascript_include_tag 'prototype' %>
 <%= javascript_include_tag 'scriptaculous' %>
 <%= javascript_include_tag 'tablekit' %>
-<%= javascript_include_tag 'jquery-1.8.1.min' %>
+<%= javascript_include_tag 'jquery.min' %>
+<%= javascript_include_tag 'select2.min' %>
 <%= javascript_include_tag 'protovis' %>
 <%= javascript_include_tag 'protovis-sonar' %>
 <%= javascript_include_tag 'application' %>

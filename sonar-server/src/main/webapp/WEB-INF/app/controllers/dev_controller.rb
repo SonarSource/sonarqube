@@ -21,6 +21,9 @@ class DevController < ApplicationController
 
   SECTION=Navigation::SECTION_HOME
 
+  # some actions load secured information
+  before_filter :admin_required
+
   def layout
     render :text => '', :layout => true
   end
@@ -29,4 +32,13 @@ class DevController < ApplicationController
     render :text => ''
   end
 
+  def breadcrumb
+    files = Project.find(:all, :conditions => {:qualifier => ['FIL', 'CLA'], :enabled => true})
+    @resource = files[0] unless files.empty?
+    render :text => '', :layout => true
+  end
+
+  def form
+
+  end
 end

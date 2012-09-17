@@ -244,7 +244,8 @@
                 <include>**/tablekit-min.js</include>
                 <include>**/protovis-min.js</include>
                 <include>**/protovis-sonar-min.js</include>
-                <include>**/jquery-*.min.js</include>
+                <include>**/jquery.min.js</include>
+                <include>**/select2.min.js</include>
                 <include>**/application-min.js</include>
                 <include>**/dashboard-min.js</include>
                 <include>**/duplication-min.js</include>
@@ -255,6 +256,7 @@
             <aggregation>
               <includes>
                 <include>**/yui-reset-font-min.css</include>
+                <include>**/select2-min.css</include>
                 <include>**/layout-min.css</include>
                 <include>**/style-min.css</include>
                 <include>**/sonar-colorizer-min.css</include>
