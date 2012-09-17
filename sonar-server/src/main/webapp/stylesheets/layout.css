@@ -73,13 +73,13 @@ body, a {
   vertical-align: middle;
 }
 
-#hd-right {
+#nav {
   float: right;
   padding: 0 0 0 10px;
   vertical-align: middle;
 }
 
-#crumbs img, #hd-right img {
+#crumbs img, #nav img {
   vertical-align: text-bottom;
 }
 
@@ -88,7 +88,7 @@ body, a {
   padding: 0 10px 0 5px;
 }
 
-#hd-right > ul> li {
+#nav > ul> li {
   float: right;
   padding: 0 0 0 10px;
 }
