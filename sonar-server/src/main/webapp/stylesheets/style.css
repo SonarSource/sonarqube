@@ -1651,8 +1651,7 @@ ul.bullet li {
 .tabs li a.selected:link, .tabs li a.selected:visited {
   text-decoration: none;
   background-color: #4B9FD5;
-  color: #efefef;
-  font-weight: bold;
+  color: #FFF;
   border: 1px solid #CAE3F2;
   margin: 0 1px 0 0;
 }

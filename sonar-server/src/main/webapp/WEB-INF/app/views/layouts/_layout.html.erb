@@ -22,7 +22,6 @@
           <a href="<%= ApplicationController.root_context -%>/dashboard/?did=<%= main_global_dashboard.dashboard_id -%>"><%= h main_global_dashboard.dashboard.name(true) -%></a>
         <% end %>
       </li>
-      <%= render :partial => 'layouts/breadcrumb' -%>
     </ul>
   </div>
   <div id="hd-right">
@@ -46,6 +45,7 @@
     </ul>
   </div>
 </div>
+<%= render 'layouts/breadcrumb' -%>
 <div id="body">
   <div id="searchResourcesResults" class="autocomplete" style="display:none"></div>
   <div id="sb">

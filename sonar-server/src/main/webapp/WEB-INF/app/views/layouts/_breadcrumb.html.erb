@@ -1,48 +1,60 @@
-<%
-resource_link = {}
-only_resource = true
-if @review
-  resource_link = {:controller => 'dashboard', :action => 'index'}
-  only_resource = false
-end
+<% if @resource || @project %>
+  <div id="bc">
+    <ul>
+      <%
+         resource_link = {}
+         if @review
+           resource_link = {:controller => 'dashboard', :action => 'index'}
+         end
 
-# ======== Path for resources ========
-displayed_resource = @resource || @project
-if displayed_resource && displayed_resource.last_snapshot
-  resources=[]
-  s=displayed_resource.last_snapshot
-  while (s!=nil) do
-    resources<<s.project
-    s=s.parent
-  end
+         # ======== Path for resources ========
+         displayed_resource = @resource || @project
+         if displayed_resource && displayed_resource.last_snapshot
+           resources=[]
+           s=displayed_resource.last_snapshot
+           while (s!=nil) do
+             resources<<s.project
+             s=s.parent
+           end
 
-  resources.reverse.each do |resource|
-%>
-  <li>
-    <%= qualifier_icon(resource) -%> 
-    &nbsp;
-    <%= link_to( h(resource.name), 
-                 {:overwrite_params => { :id => resource.key }.merge(resource_link)}
+           items_count = resources.size
+           items_count+=1 if @review
+           resources.reverse.each_with_index do |resource, index|
+             if items_count==1
+               css_class='first-selected'
+             else
+               css_class=
+                 case index
+                   when 0 then
+                     'first'
+                   when (items_count-1) then
+                     'selected'
+                   else
+                     ''
+                 end
+             end
+      %>
+          <li class="<%= css_class -%>">
+            <%= qualifier_icon(resource) -%>
+            &nbsp;
+            <%= link_to(h(resource.name),
+                        {:overwrite_params => {:id => resource.key}.merge(resource_link)}
                 ) -%>
-    
-    <% if resource==displayed_resource && only_resource %>
-    &nbsp;
-    <%= link_to( image_tag('permalink.gif'), 
-                 {:overwrite_params => { :id => resource.key }.merge(resource_link)}, 
-                 {:title => message('layout.permalink')}
-                ) -%>
-    <% end %>
-  </li>
-<%
-  end
-end
+          </li>
+        <%
+           end
+           end
 
-# ======== Path for review ========
-if @review
-%>
-  <li>
-    » <%= link_to message('review') + ' #' + @review.id.to_s -%>
-  </li>
-<%
-end
-%>
+           # ======== Path for review ========
+           if @review
+        %>
+        <li class="selected">
+          <%= link_to message('review') + ' #' + @review.id.to_s -%>
+        </li>
+      <%
+         end
+      %>
+      <li class="last">&nbsp;</li>
+    </ul>
+  </div>
+<% end %>

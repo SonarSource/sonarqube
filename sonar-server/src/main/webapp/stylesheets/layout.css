@@ -68,7 +68,6 @@ body, a {
   text-decoration: underline;
 }
 
-
 #crumbs {
   float: left;
   vertical-align: middle;
@@ -92,6 +91,62 @@ body, a {
 #hd-right > ul> li {
   float: right;
   padding: 0 0 0 10px;
+}
+
+#bc {
+  color: #444;
+  background: #EFEFEF;
+  height: 22px;
+  line-height: 22px;
+  font-size: 93%;
+  margin: 0 10px;
+  border-bottom: 1px solid #CCC;
+  border-right: 2px solid #CCC;
+}
+
+#bc > ul > li {
+  float: left;
+  margin: 0;
+  background: #EFEFEF url("../images/bc-gray.png") no-repeat left;
+  border-bottom: 1px solid #CCC;
+  padding: 0 10px 0 20px;
+}
+
+#bc > ul > li.first {
+  background: #EFEFEF;
+  border-left: 2px solid #CCC;
+  padding: 0 10px 0 5px;
+}
+
+#bc > ul > li.first-selected {
+  background: #4B9FD5;
+  border-left: 2px solid #4B9FD5;
+  border-bottom: 1px solid #4B9FD5;
+  padding: 0 10px 0 5px;
+}
+
+#bc > ul > li.selected {
+  background: #4B9FD5 url("../images/bc-gray-blue.png") no-repeat left;
+}
+
+#bc > ul > li.last {
+  background: #EFEFEF url("../images/bc-blue-gray.png") no-repeat left;
+  border-bottom: #CCC;
+}
+
+#bc > ul > li img {
+  vertical-align: text-bottom;
+  margin-right: -5px;
+}
+
+#bc > ul > li.selected a, #bc > ul > li.first-selected a {
+  color: #FFF;
+}
+#bc > ul > li a {
+  text-decoration: none;
+}
+#bc > ul > li a:hover, #bc > ul > li a:focus {
+  text-decoration: underline;
 }
 
 #nonav {
@@ -135,7 +190,7 @@ body, a {
   text-align: left;
   line-height: 1.1em;
   border: 2px solid #4b9fd5;
-  border-top: 0;
+  border-top-width: 1px;
   padding: 10px 0;
 }
 
@@ -166,7 +221,6 @@ body, a {
 }
 
 #sidebar .selected a, #sidebar .selected a:hover, #sidebar.selected a:visited {
-  font-weight: bold;
   color: #FEFEFE;
 }
 
@@ -186,7 +240,7 @@ body, a {
 
 #sidebarconf {
   background-color: #EFEFEF;
-  border: 2px solid #DDD;
+  border: 2px solid #CCC;
   color: #666;
   line-height: 1.1em;
   margin-top: 10px;
