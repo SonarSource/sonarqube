@@ -75,16 +75,11 @@ public class I18nManager implements I18n, ServerExtension, BatchExtension {
       languagePackClassLoader = pluginRepository.getPlugin(ENGLISH_PACK_PLUGIN_KEY).getClass().getClassLoader();
       bundleToClassloaders = Maps.newHashMap();
       for (PluginMetadata metadata : pluginRepository.getMetadata()) {
-        if (!metadata.isCore() && !ENGLISH_PACK_PLUGIN_KEY.equals(metadata.getBasePlugin())) {
-          // plugin but not a language pack
-          // => plugins embedd only their own bundles with all locales
+        if (!ENGLISH_PACK_PLUGIN_KEY.equals(metadata.getKey())
+          && !ENGLISH_PACK_PLUGIN_KEY.equals(metadata.getBasePlugin())) {
+          // This is a "simple" plugin, not a Language Pack
           ClassLoader classLoader = pluginRepository.getPlugin(metadata.getKey()).getClass().getClassLoader();
           bundleToClassloaders.put(BUNDLE_PACKAGE + metadata.getKey(), classLoader);
-
-        } else if (metadata.isCore()) {
-          // bundles of core plugins are defined into language packs. All language packs are supposed
-          // to share the same classloader (english pack classloader)
-          bundleToClassloaders.put(BUNDLE_PACKAGE + metadata.getKey(), languagePackClassLoader);
         }
       }
     }
