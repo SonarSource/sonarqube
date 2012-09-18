@@ -57,7 +57,7 @@
              # Only Oracle returns a Time object, so let's parse this string if it's not a Time instance
              m_date = Time.parse(metric_data[:date]) unless m_date.is_a? Time
              m_value = sprintf("%0.02f", metric_data[:value])
-             m_value_localized = ProjectMeasure.new (:metric => metric_map[metric_id]).format_numeric_value(metric_data[:value], {})
+             m_value_localized = ProjectMeasure.new(:metric => metric_map[metric_id]).format_numeric_value(metric_data[:value], {})
              js_data += "{x:d("
              js_data += m_date.year.to_s
              js_data += ","
