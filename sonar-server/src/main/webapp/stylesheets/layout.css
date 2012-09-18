@@ -68,7 +68,7 @@ body, a {
   text-decoration: underline;
 }
 
-#crumbs {
+#nav-left {
   float: left;
   vertical-align: middle;
 }
@@ -79,11 +79,11 @@ body, a {
   vertical-align: middle;
 }
 
-#crumbs img, #nav img {
+#nav-left img, #nav img {
   vertical-align: text-bottom;
 }
 
-#crumbs > ul> li {
+#nav-left > ul> li {
   float: left;
   padding: 0 10px 0 5px;
 }
@@ -93,7 +93,7 @@ body, a {
   padding: 0 0 0 10px;
 }
 
-#bc {
+#crumbs {
   color: #444;
   background: #EFEFEF;
   height: 22px;
@@ -104,7 +104,7 @@ body, a {
   border-right: 2px solid #CCC;
 }
 
-#bc > ul > li {
+#crumbs > ul > li {
   float: left;
   margin: 0;
   background: #EFEFEF url("../images/bc-gray.png") no-repeat left;
@@ -112,40 +112,40 @@ body, a {
   padding: 0 10px 0 20px;
 }
 
-#bc > ul > li.first {
+#crumbs > ul > li.first {
   background: #EFEFEF;
   border-left: 2px solid #CCC;
   padding: 0 10px 0 5px;
 }
 
-#bc > ul > li.first-selected {
+#crumbs > ul > li.first-selected {
   background: #4B9FD5;
   border-left: 2px solid #4B9FD5;
   border-bottom: 1px solid #4B9FD5;
   padding: 0 10px 0 5px;
 }
 
-#bc > ul > li.selected {
+#crumbs > ul > li.selected {
   background: #4B9FD5 url("../images/bc-gray-blue.png") no-repeat left;
 }
 
-#bc > ul > li.last {
+#crumbs > ul > li.last {
   background: #EFEFEF url("../images/bc-blue-gray.png") no-repeat left;
   border-bottom: #CCC;
 }
 
-#bc > ul > li img {
+#crumbs > ul > li img {
   vertical-align: text-bottom;
   margin-right: -5px;
 }
 
-#bc > ul > li.selected a, #bc > ul > li.first-selected a {
+#crumbs > ul > li.selected a, #crumbs > ul > li.first-selected a {
   color: #FFF;
 }
-#bc > ul > li a {
+#crumbs > ul > li a {
   text-decoration: none;
 }
-#bc > ul > li a:hover, #bc > ul > li a:focus {
+#crumbs > ul > li a:hover, #crumbs > ul > li a:focus {
   text-decoration: underline;
 }
 
