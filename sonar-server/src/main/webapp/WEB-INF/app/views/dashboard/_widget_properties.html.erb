@@ -10,7 +10,11 @@
       <tr>
         <td class="form-key-cell"><%= message('widget.resource_id') %> *</td>
         <td class="form-val-cell" id="row_resource">
-          <%= resource_dropdown('resource_id', {:resource_type_property => 'supportsGlobalDashboards', :selected_resource => widget.resource, :width => '250px', :html_id => "sel-prj-#{widget.id}"}) -%>
+          <%= resource_select_tag 'resource_id', {
+              :resource_type_property => 'supportsGlobalDashboards',
+              :selected_resource => widget.resource,
+              :width => '250px',
+              :html_id => "sel-prj-#{widget.id}"} -%>
         </td>
       </tr>
     <% end %>

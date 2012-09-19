@@ -19,14 +19,15 @@
 #
 class Api::ResourcesController < Api::ApiController
 
+  # since version 3.3
   def search
       search_text = params[:s]||''
       page=(params[:p] ? params[:p].to_i : 1)
       page_size=(params[:ps] ? params[:ps].to_i : 10)
       if params[:q]
         qualifiers=params[:q].split(',')
-      elsif params[:rtp]
-        qualifiers=Java::OrgSonarServerUi::JRubyFacade.getInstance().getQualifiersWithProperty(params[:rtp])
+      elsif params[:qp]
+        qualifiers=Java::OrgSonarServerUi::JRubyFacade.getInstance().getQualifiersWithProperty(params[:qp])
       else
         qualifiers=[]
       end

@@ -39,7 +39,7 @@ module PropertiesHelper
       text_field_tag key, value, {:size => 10}.update(options)
 
     elsif type==PropertyType::TYPE_METRIC
-      select_tag key, options_grouped_by_domain(Metric.all.select{|m| m.display?}.sort_by(&:short_name), value, :include_empty => true), options
+      metric_select_tag key, Metric.all.select{|m| m.display?}, :selected_key => value, :allow_empty => true
 
     elsif type==PropertyType::TYPE_REGULAR_EXPRESSION
       text_field_tag key, value, {:size => 25}.update(options)

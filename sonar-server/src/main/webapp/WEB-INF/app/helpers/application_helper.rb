@@ -633,7 +633,17 @@ module ApplicationHelper
     return 0
   end
 
-  def resource_dropdown(name, options={})
+
+  #
+  # Creates an enhanced dropdown selection box of resources. Values are loaded on the fly via Ajax requests.
+  # ==== Options
+  # * <tt>:width</tt> - The width suffixed with unit, for example '300px' or '100%'. Default is '250px'
+  # * <tt>:html_id</tt> - The id of the HTML element. Default is the name.
+  # * <tt>:qualifiers</tt> - Array of resource qualifiers to filter.
+  # * <tt>:resource_type_property</tt> -Filter on resource types on which the property is enabled, for example 'supportsGlobalDashboards'.
+  # * <tt>:selected_resource</tt> - the resource that is selected by default.
+  #
+  def resource_select_tag(name, options={})
     width=options[:width]
     html_id=options[:html_id]||name
 
@@ -641,7 +651,7 @@ module ApplicationHelper
     if options[:qualifiers]
       ws_url+="q=#{options[:qualifiers].join(',')}"
     elsif options[:resource_type_property]
-      ws_url+="rtp=#{options[:resource_type_property]}"
+      ws_url+="qp=#{options[:resource_type_property]}"
     end
 
     ajax_options={
@@ -660,11 +670,18 @@ FUNC
     }
     ajax_options.merge!(options[:select2_ajax_options]) if options[:select2_ajax_options]
 
-    js_options={'minimumInputLength' => options[:minimumInputLength]||3}
+    min_length = 3 # see limitation in /api/resources/search
+    js_options={
+        'minimumInputLength' => min_length,
+        'formatNoMatches' => "function(term){return '#{escape_javascript message('select2.noMatches')}'}",
+        'formatSearching' => "function(){return '#{escape_javascript message('select2.searching')}'}",
+        'formatInputTooShort' => "function(term, minLength){return '#{escape_javascript message('select2.tooShort', :params => [min_length])}'}"
+    }
+    js_options['width']= "'#{width}'" if width
     js_options['ajax']='{' + ajax_options.map{|k,v| "#{k}:#{v}"}.join(',') + '}'
     js_options.merge!(options[:select2_options]) if options[:select2_options]
 
-    html = "<input type='hidden' id='#{html_id}' name='#{name}' style='width:#{width}'/>"
+    html = "<input type='hidden' id='#{html_id}' name='#{name}'/>"
     js = "$j('##{html_id}').select2({#{js_options.map{|k,v| "#{k}:#{v}"}.join(',')}});"
 
     resource = options[:selected_resource]
@@ -675,4 +692,39 @@ FUNC
     "#{html}<script>#{js}</script>"
   end
 
+
+  #
+  # Creates an enhanced dropdown selection box of metrics.
+  # ==== Options
+  # * <tt>:selected_key</tt> - the key of the metric that is selected by default.
+  # * <tt>:multiple</tt> - If set to true the selection will allow multiple choices.
+  # * <tt>:disabled</tt> - If set to true, the user will not be able to use this input.
+  # * <tt>:allow_empty</tt> - If set to true, selecting a value is not mandatory
+  # * <tt>:width</tt> - The width suffixed with unit, for example '300px' or '100%'. Default is '250px'
+  # * <tt>:html_id</tt> - The id of the HTML element. Default is the name.
+  #
+  def metric_select_tag(name, metrics, options={})
+    width=options[:width]||'250px'
+    html_id=options[:html_id]||name
+    js_options={
+      'formatNoMatches' => "function(term){return '#{escape_javascript message('select2.noMatches')}'}",
+      'width' => "'#{width}'"
+    }
+
+    select_tag_prompt=nil
+    if options[:allow_empty]
+      # add a cross icon to the select2 box
+      js_options['placeholder']="''"
+      js_options['allowClear']=true
+
+      # add a select <option> with empty value
+      select_tag_prompt=''
+    end
+
+    metrics_by_domain=metrics.sort_by(&:short_name).inject({}) { |h, metric| h[metric.domain]||=[]; h[metric.domain]<<[metric.short_name, metric.key]; h }
+
+    html = select_tag(name, grouped_options_for_select(metrics_by_domain, options[:selected_key], select_tag_prompt), :multiple => options[:multiple], :disabled => options[:disabled])
+    js = "$j('##{html_id}').select2({#{js_options.map{|k,v| "#{k}:#{v}"}.join(',')}});"
+    "#{html}<script>#{js}</script>"
+  end
 end
