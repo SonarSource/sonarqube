@@ -13,26 +13,17 @@
            resources=[]
            s=displayed_resource.last_snapshot
            while (s!=nil) do
-             resources<<s.project
+             resources.insert(0, s.project)
              s=s.parent
            end
 
            items_count = resources.size
            items_count+=1 if @review
-           resources.reverse.each_with_index do |resource, index|
-             if items_count==1
-               css_class='first-selected'
-             else
-               css_class=
-                 case index
-                   when 0 then
-                     'first'
-                   when (items_count-1) then
-                     'selected'
-                   else
-                     ''
-                 end
-             end
+      %>
+        <li class="first"><%= message("qualifiers.#{resources[0].qualifier}") -%></li>
+      <%
+           resources.each_with_index do |resource, index|
+           css_class=(index==items_count-1 ? 'selected' : '')
       %>
           <li class="<%= css_class -%>">
             <%= qualifier_icon(resource) -%>
