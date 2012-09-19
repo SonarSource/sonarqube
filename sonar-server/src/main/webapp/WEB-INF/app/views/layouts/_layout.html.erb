@@ -11,16 +11,10 @@
   <div id="nav-left">
     <ul>
       <li>
-        <% global_dashboards = ActiveDashboard.user_dashboards(current_user, true)
-           if global_dashboards.empty?
-        %>
-          <a href="<%= ApplicationController.root_context -%>/"><%= message('layout.home') -%></a>
-        <%
-           else
-             main_global_dashboard = global_dashboards[0]
-        %>
-          <a href="<%= ApplicationController.root_context -%>/dashboard/?did=<%= main_global_dashboard.dashboard_id -%>"><%= h main_global_dashboard.dashboard.name(true) -%></a>
-        <% end %>
+        <a href="<%= ApplicationController.root_context -%>"><%= message('layout.dashboards') -%></a>
+      </li>
+      <li>
+        <a href="<%= ApplicationController.root_context -%>/reviews"><%= message('layout.reviews') -%></a>
       </li>
     </ul>
   </div>
@@ -58,8 +52,6 @@
             </li>
           <% end %>
 
-          <li class="<%= 'selected' if controller.controller_path=='reviews' -%>">
-            <a href="<%= ApplicationController.root_context -%>/reviews/index"><%= message('reviews.page') -%></a></li>
           <li class="<%= 'selected' if controller.controller_path=='dependencies' -%>">
             <a href="<%= ApplicationController.root_context -%>/dependencies/index"><%= message('dependencies.page') -%></a></li>
 
