@@ -554,7 +554,7 @@ module ApplicationHelper
 
     html
   end
-  
+
   #
   # Used on the reviews listing page (http://localhost:9000/project_reviews)
   # Prints a label for the given parameter that is used to filter the review list.
@@ -576,7 +576,7 @@ module ApplicationHelper
     html += message('reviews.remove_this_filter')
     html += "\">X</a></span>"
   end
-  
+
   #
   # Compares 2 strings using the human natural order.
   # For instance, the following array:
@@ -611,7 +611,7 @@ module ApplicationHelper
 
       # Compare the non-digits
       case (chars1 <=> chars2)
-      when 0 
+      when 0
         # Non-digits are the same, compare the digits...
         # If either number begins with a zero, then compare
         # alphabetically, otherwise compare numerically
@@ -631,6 +631,48 @@ module ApplicationHelper
 
     # Strings are naturally equal
     return 0
+  end
+
+  def resource_dropdown(name, options={})
+    width=options[:width]
+    html_id=options[:html_id]||name
+
+    ws_url="#{ApplicationController::root_context}/api/resources/search?"
+    if options[:qualifiers]
+      ws_url+="q=#{options[:qualifiers].join(',')}"
+    elsif options[:resource_type_property]
+      ws_url+="rtp=#{options[:resource_type_property]}"
+    end
+
+    ajax_options={
+      'quietMillis' => 300,
+      'url' => "'#{ws_url}'",
+      'data' => 'function (term, page) {return {s:term, p:page}}',
+      'results' => <<FUNC
+function (data, page) {
+  var more=(data.page * data.page_size)<data.total;
+  var results=$j.map(data.data, function(elt, i) {
+    return {id: elt.id, text: elt.nm};
+  });
+  return {more: more, results: results};
+}
+FUNC
+    }
+    ajax_options.merge!(options[:select2_ajax_options]) if options[:select2_ajax_options]
+
+    js_options={'minimumInputLength' => options[:minimumInputLength]||3}
+    js_options['ajax']='{' + ajax_options.map{|k,v| "#{k}:#{v}"}.join(',') + '}'
+    js_options.merge!(options[:select2_options]) if options[:select2_options]
+
+    html = "<input type='hidden' id='#{html_id}' name='#{name}' style='width:#{width}'/>"
+    js = "$j('##{html_id}').select2({#{js_options.map{|k,v| "#{k}:#{v}"}.join(',')}});"
+
+    resource = options[:selected_resource]
+    if resource
+      js += "$j('##{html_id}').select2('data', {id: #{resource.id}, text: '#{escape_javascript(resource.name(true))}'});"
+    end
+
+    "#{html}<script>#{js}</script>"
   end
 
 end

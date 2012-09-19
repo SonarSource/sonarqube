@@ -24,21 +24,5 @@ module WidgetPropertiesHelper
     property_value definition.key(), definition.type.name(), value.nil? ? definition.defaultValue() : value
   end
 
-  def resource_value_field(value)
-    combo = ''
-
-    visible_qualifiers=Java::OrgSonarServerUi::JRubyFacade.getInstance().getQualifiersWithProperty('supportsGlobalDashboards')
-
-    visible_qualifiers.each do |qualifier|
-      projects = Project.all(:conditions => {:qualifier => qualifier, :enabled => true, :copy_resource_id => nil})
-
-      unless projects.nil? || projects.empty?
-        sorted_projects = Api::Utils.insensitive_sort(projects, &:name)
-        combo += option_group(message('qualifiers.' + qualifier), options_id(value, sorted_projects))
-      end
-    end
-
-    select_tag 'resource_id', combo
-  end
 
 end

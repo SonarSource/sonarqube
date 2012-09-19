@@ -19,6 +19,54 @@
 #
 class Api::ResourcesController < Api::ApiController
 
+  def search
+      search_text = params[:s]||''
+      page=(params[:p] ? params[:p].to_i : 1)
+      page_size=(params[:ps] ? params[:ps].to_i : 10)
+      if params[:q]
+        qualifiers=params[:q].split(',')
+      elsif params[:rtp]
+        qualifiers=Java::OrgSonarServerUi::JRubyFacade.getInstance().getQualifiersWithProperty(params[:rtp])
+      else
+        qualifiers=[]
+      end
+
+      bad_request("Minimum search is #{ResourceIndex::MIN_SEARCH_SIZE} characters") if search_text.size<ResourceIndex::MIN_SEARCH_SIZE
+      bad_request("Page index must be greater than 0") if page<=0
+      bad_request("Page size must be greater than 0") if page_size<=0
+
+      key = search_text.downcase
+      conditions=['kee like ?']
+      condition_values=[key + '%']
+
+      unless qualifiers.empty?
+        conditions<<'qualifier in (?)'
+        condition_values<<qualifiers
+      end
+      indexes = ResourceIndex.find(:all,
+                                   :select => 'resource_id,root_project_id,qualifier', # optimization to not load unused columns like 'kee'
+                                   :conditions => [conditions.join(' and ')].concat(condition_values),
+                                   :order => 'name_size')
+
+      indexes = select_authorized(:user, indexes)
+      total = indexes.size
+      offset=(page-1)*page_size
+      resource_ids=indexes[offset...offset+page_size].map { |index| index.resource_id }
+
+      resources=[]
+      unless resource_ids.empty?
+        resources=Project.find(:all, :select => 'id,qualifier,name,long_name', :conditions => ['id in (?) and enabled=?', resource_ids, true])
+      end
+
+      json = {:total => total, :page => page, :page_size => page_size, :data => resources.map { |r| {:id => r.id, :nm => r.name(true), :q => r.qualifier} }}
+
+      respond_to do |format|
+        format.json { render :json => jsonp(json) }
+        format.xml { render :xml => xml_not_supported }
+        format.text { render :text => text_not_supported }
+      end
+  end
+
   def index
     begin
       resource_id=params[:resource]

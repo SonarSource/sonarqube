@@ -20,6 +20,7 @@
 class Widget < ActiveRecord::Base
   has_many :properties, :dependent => :delete_all, :class_name => 'WidgetProperty'
   belongs_to :dashboards
+  belongs_to :resource, :class_name => 'Project'
 
   validates_presence_of :widget_key
   validates_length_of :widget_key, :within => 1..256

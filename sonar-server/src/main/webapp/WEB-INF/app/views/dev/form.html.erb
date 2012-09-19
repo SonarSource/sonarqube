@@ -1,9 +1,0 @@
-Select a file:
-<select id="select-file" name="file" multiple="multiple" style="width: 300px">
-  <% Project.find(:all, :conditions => {:qualifier => ['FIL', 'CLA'], :enabled => true}, :order => 'name').each do |file| %>
-    <option value="<%= file.id -%>"><%= h file.name -%></option>
-  <% end %>
-</select>
-<script>
-  $j('#select-file').select2();
-</script>
