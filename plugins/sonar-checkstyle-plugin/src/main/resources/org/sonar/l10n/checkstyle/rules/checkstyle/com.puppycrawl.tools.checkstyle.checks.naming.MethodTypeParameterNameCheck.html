@@ -4,10 +4,10 @@ Checks that method type parameter names conform to the specified format
 The following code snippet illustrates this rule for format "^[A-Z]$":
 </p>
 <pre>
-public <type> type method() { // Non-compliant
+public <type> boolean containsAll(Collection<type> c) { // Non-compliant
   return null;
 }
 
-public <T> T method() { // Compliant
+public <T> boolean containsAll(Collection<T> c) { // Compliant
 }
 </pre>
