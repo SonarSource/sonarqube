@@ -68,7 +68,9 @@ class Property < ActiveRecord::Base
     definition = Java::OrgSonarServerUi::JRubyFacade.getInstance().propertyDefinitions.get(key)
     if definition && definition.multi_values
       if value.kind_of? Array
-        value = value.map { |v| v.gsub(',', '%2C') }.join(',')
+        values = value.map { |v| v.gsub(',', '%2C') }
+        values = values.reverse.drop_while(&:blank?).reverse
+        value = values.join(',')
       end
     else
       if value.kind_of? Array
