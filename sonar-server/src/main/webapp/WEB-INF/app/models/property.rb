@@ -65,8 +65,15 @@ class Property < ActiveRecord::Base
   end
 
   def self.set(key, value, resource_id=nil, user_id=nil)
-    if value.kind_of? Array
-      value = value.map { |v| v.gsub(',', '%2C') }.join(',')
+    definition = Java::OrgSonarServerUi::JRubyFacade.getInstance().propertyDefinitions.get(key)
+    if definition && definition.multi_values
+      if value.kind_of? Array
+        value = value.map { |v| v.gsub(',', '%2C') }.join(',')
+      end
+    else
+      if value.kind_of? Array
+        value = value.first
+      end
     end
 
     text_value = (value.nil? ? nil : value.to_s)
