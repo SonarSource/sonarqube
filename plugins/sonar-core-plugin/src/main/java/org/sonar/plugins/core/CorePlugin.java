@@ -123,6 +123,14 @@ import java.util.List;
     global = true,
     category = CoreProperties.CATEGORY_GENERAL),
   @Property(
+    key = CoreProperties.PROJECT_LANGUAGE_PROPERTY,
+    defaultValue = Java.KEY,
+    name = "Default language",
+    description = "Default language of the source code to analyse.",
+    project = false,
+    global = true,
+    category = CoreProperties.CATEGORY_GENERAL),
+  @Property(
     key = CoreProperties.CORE_COVERAGE_PLUGIN_PROPERTY,
     defaultValue = "jacoco",
     name = "Code coverage plugin",
