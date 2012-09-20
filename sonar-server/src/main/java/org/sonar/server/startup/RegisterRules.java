@@ -33,7 +33,12 @@ import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public final class RegisterRules {
 
@@ -118,7 +123,13 @@ public final class RegisterRules {
       throw new SonarException("The following rule (repository: " + repositoryKey + ") must have a name: " + rule);
     }
     if (rule.getDescription() == null && ruleI18nManager.getDescription(repositoryKey, rule.getKey(), Locale.ENGLISH) == null) {
-      throw new SonarException("The following rule (repository: " + repositoryKey + ") must have a description: " + rule);
+      if (rule.getName() != null && ruleI18nManager.getName(repositoryKey, rule.getKey(), Locale.ENGLISH) == null) {
+        // specific case
+        throw new SonarException("No description found for the rule '" + rule.getName() + "' (repository: " + repositoryKey + ") because the entry 'rule."
+          + repositoryKey + "." + rule.getKey() + ".name' is missing from the bundle.");
+      } else {
+        throw new SonarException("The following rule (repository: " + repositoryKey + ") must have a description: " + rule);
+      }
     }
   }
 

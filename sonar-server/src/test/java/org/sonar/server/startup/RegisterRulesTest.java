@@ -19,23 +19,6 @@
  */
 package org.sonar.server.startup;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rules.ActiveRule;
@@ -48,15 +31,32 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.number.OrderingComparisons.greaterThan;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class RegisterRulesTest extends AbstractDbUnitTestCase {
 
   private RegisterRules task;
 
   @Before
   public void init() {
-    task = new RegisterRules(getSessionFactory(), new RuleRepository[]{new FakeRepository()}, null);
+    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new FakeRepository()}, null);
   }
-  
+
   @Test
   public void saveNewRepositories() {
     setupData("shared");
@@ -78,8 +78,8 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     task.start();
 
     List<Rule> rules = getSession()
-      .createQuery("from " + Rule.class.getSimpleName() + " where pluginName<>'fake'")
-      .getResultList();
+        .createQuery("from " + Rule.class.getSimpleName() + " where pluginName<>'fake'")
+        .getResultList();
     assertThat(rules.size(), greaterThan(0));
     for (Rule rule : rules) {
       assertThat(rule.isEnabled(), is(false));
@@ -190,14 +190,14 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
 
   @Test
   public void volumeTesting() {
-    task = new RegisterRules(getSessionFactory(), new RuleRepository[]{new VolumeRepository()}, null);
+    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new VolumeRepository()}, null);
     setupData("shared");
     task.start();
 
     List<Rule> result = getSession().getResults(Rule.class, "enabled", true);
     assertThat(result.size(), is(VolumeRepository.SIZE));
   }
-  
+
   // http://jira.codehaus.org/browse/SONAR-3305
   @Test
   public void shouldFailRuleWithoutName() throws Exception {
@@ -212,17 +212,18 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     } catch (SonarException e) {
       assertThat(e.getMessage(), containsString("must have a name"));
     }
-    
+
     // now it is ok, the rule has a name in the English bundle
     when(ruleI18nManager.getName(anyString(), anyString(), any(Locale.class))).thenReturn("Name");
     when(ruleI18nManager.getDescription(anyString(), anyString(), any(Locale.class))).thenReturn("Description");
     task.start();
   }
-  
+
   // http://jira.codehaus.org/browse/SONAR-3305
   @Test
   public void shouldFailRuleWithoutDescription() throws Exception {
     RuleI18nManager ruleI18nManager = mock(RuleI18nManager.class);
+    when(ruleI18nManager.getName(anyString(), anyString(), any(Locale.class))).thenReturn("Name");
     task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutDescriptionRepository()}, ruleI18nManager);
     setupData("shared");
 
@@ -233,11 +234,28 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     } catch (SonarException e) {
       assertThat(e.getMessage(), containsString("must have a description"));
     }
-    
+
     // now it is ok, the rule has a name & a description in the English bundle
     when(ruleI18nManager.getName(anyString(), anyString(), any(Locale.class))).thenReturn("Name");
     when(ruleI18nManager.getDescription(anyString(), anyString(), any(Locale.class))).thenReturn("Description");
     task.start();
+  }
+
+  // http://jira.codehaus.org/browse/SONAR-3722
+  @Test
+  public void shouldFailRuleWithoutNameInBundle() throws Exception {
+    RuleI18nManager ruleI18nManager = mock(RuleI18nManager.class);
+    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutDescriptionRepository()}, ruleI18nManager);
+    setupData("shared");
+
+    // the rule has no name, it should fail
+    try {
+      task.start();
+      fail("Rule must have a description");
+    } catch (SonarException e) {
+      assertThat(e.getMessage(), containsString("No description found for the rule 'Rule 1' (repository: rule-without-description-repo) " +
+        "because the entry 'rule.rule-without-description-repo.rule1.name' is missing from the bundle."));
+    }
   }
 }
 
