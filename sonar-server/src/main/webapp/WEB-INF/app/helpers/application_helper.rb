@@ -647,7 +647,7 @@ module ApplicationHelper
     width=options[:width]
     html_id=options[:html_id]||name
 
-    ws_url="#{ApplicationController::root_context}/api/resources/search?"
+    ws_url="#{ApplicationController::root_context}/api/resources/search?f=s2&"
     if options[:qualifiers]
       ws_url+="q=#{options[:qualifiers].join(',')}"
     elsif options[:resource_type_property]
@@ -658,15 +658,7 @@ module ApplicationHelper
       'quietMillis' => 300,
       'url' => "'#{ws_url}'",
       'data' => 'function (term, page) {return {s:term, p:page}}',
-      'results' => <<FUNC
-function (data, page) {
-  var more=(data.page * data.page_size)<data.total;
-  var results=$j.map(data.data, function(elt, i) {
-    return {id: elt.id, text: elt.nm};
-  });
-  return {more: more, results: results};
-}
-FUNC
+      'results' => 'function (data, page) {return {more: data.more, results: data.results}}'
     }
     ajax_options.merge!(options[:select2_ajax_options]) if options[:select2_ajax_options]
 

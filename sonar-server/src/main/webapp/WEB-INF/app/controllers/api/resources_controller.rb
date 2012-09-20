@@ -21,51 +21,76 @@ class Api::ResourcesController < Api::ApiController
 
   # since version 3.3
   def search
-      search_text = params[:s]||''
-      page=(params[:p] ? params[:p].to_i : 1)
-      page_size=(params[:ps] ? params[:ps].to_i : 10)
-      if params[:q]
-        qualifiers=params[:q].split(',')
-      elsif params[:qp]
-        qualifiers=Java::OrgSonarServerUi::JRubyFacade.getInstance().getQualifiersWithProperty(params[:qp])
-      else
-        qualifiers=[]
-      end
+    search_text = params[:s]||''
+    page=(params[:p] ? params[:p].to_i : 1)
+    page_size=(params[:ps] ? params[:ps].to_i : 10)
+    if params[:q]
+      qualifiers=params[:q].split(',')
+    elsif params[:qp]
+      qualifiers=Java::OrgSonarServerUi::JRubyFacade.getInstance().getQualifiersWithProperty(params[:qp])
+    else
+      qualifiers=[]
+    end
 
-      bad_request("Minimum search is #{ResourceIndex::MIN_SEARCH_SIZE} characters") if search_text.size<ResourceIndex::MIN_SEARCH_SIZE
-      bad_request("Page index must be greater than 0") if page<=0
-      bad_request("Page size must be greater than 0") if page_size<=0
+    bad_request("Minimum search is #{ResourceIndex::MIN_SEARCH_SIZE} characters") if search_text.size<ResourceIndex::MIN_SEARCH_SIZE
+    bad_request("Page index must be greater than 0") if page<=0
+    bad_request("Page size must be greater than 0") if page_size<=0
 
-      key = search_text.downcase
-      conditions=['kee like ?']
-      condition_values=[key + '%']
+    key = search_text.downcase
+    conditions=['kee like ?']
+    condition_values=[key + '%']
 
-      unless qualifiers.empty?
-        conditions<<'qualifier in (?)'
-        condition_values<<qualifiers
-      end
-      indexes = ResourceIndex.find(:all,
-                                   :select => 'resource_id,root_project_id,qualifier', # optimization to not load unused columns like 'kee'
-                                   :conditions => [conditions.join(' and ')].concat(condition_values),
-                                   :order => 'name_size')
+    unless qualifiers.empty?
+      conditions<<'qualifier in (?)'
+      condition_values<<qualifiers
+    end
+    indexes = ResourceIndex.find(:all,
+                                 :select => 'resource_id,root_project_id,qualifier', # optimization to not load unused columns like 'kee'
+                                 :conditions => [conditions.join(' and ')].concat(condition_values),
+                                 :order => 'name_size')
 
-      indexes = select_authorized(:user, indexes)
-      total = indexes.size
+    indexes = select_authorized(:user, indexes)
+    total = indexes.size
+
+    select2_format=(params[:f]=='s2')
+
+    if select2_format && qualifiers.size>1
+      # select2.js does not manage lazy loading of grouped options -> (almost) all the results are returned
+      resource_ids=indexes[0...100].map { |index| index.resource_id }
+    else
+      # we don't group results when only one qualifier is requested, so we can enable lazy loading (pagination)
       offset=(page-1)*page_size
       resource_ids=indexes[offset...offset+page_size].map { |index| index.resource_id }
+    end
 
-      resources=[]
-      unless resource_ids.empty?
-        resources=Project.find(:all, :select => 'id,qualifier,name,long_name', :conditions => ['id in (?) and enabled=?', resource_ids, true])
+    resources=[]
+    unless resource_ids.empty?
+      resources=Project.find(:all, :select => 'id,qualifier,name,long_name', :conditions => ['id in (?) and enabled=?', resource_ids, true])
+    end
+
+    if select2_format
+      # customize format for select2.js (see ApplicationHelper::resource_select_tag)
+      if qualifiers.size>1
+        resources_by_qualifier = resources.group_by(&:qualifier)
+        json = {
+          :more => false,
+          :results => resources_by_qualifier.map { |qualifier, grouped_resources| {:text => message("qualifiers.#{qualifier}"), :children => grouped_resources.map { |r| {:id => r.id, :text => r.name(true)} }} }
+        }
+      else
+        json = {
+          :more => (page * page_size)<total,
+          :results => resources.map { |resource| {:id => resource.id, :text => resource.name(true)} }
+        }
       end
-
+    else
       json = {:total => total, :page => page, :page_size => page_size, :data => resources.map { |r| {:id => r.id, :nm => r.name(true), :q => r.qualifier} }}
+    end
 
-      respond_to do |format|
-        format.json { render :json => jsonp(json) }
-        format.xml { render :xml => xml_not_supported }
-        format.text { render :text => text_not_supported }
-      end
+    respond_to do |format|
+      format.json { render :json => jsonp(json) }
+      format.xml { render :xml => xml_not_supported }
+      format.text { render :text => text_not_supported }
+    end
   end
 
   def index
@@ -157,11 +182,11 @@ class Api::ResourcesController < Api::ApiController
         add_characteristic_filters(measures_conditions, measures_values)
 
         measures=ProjectMeasure.find(:all,
-          :joins => :snapshot,
-          :select => select_columns_for_measures,
-          :conditions => [ (snapshots_conditions + measures_conditions).join(' AND '), snapshots_values.merge(measures_values)],
-          :order => measures_order,
-          :limit => measures_limit)
+                                     :joins => :snapshot,
+                                     :select => select_columns_for_measures,
+                                     :conditions => [(snapshots_conditions + measures_conditions).join(' AND '), snapshots_values.merge(measures_values)],
+                                     :order => measures_order,
+                                     :limit => measures_limit)
 
         measures.each do |measure|
           measures_by_sid[measure.snapshot_id]||=[]
@@ -176,7 +201,7 @@ class Api::ResourcesController < Api::ApiController
 
         # load coding rules
         rules_by_id={}
-        rule_ids=measures.map{|m| m.rule_id}.compact.uniq
+        rule_ids=measures.map { |m| m.rule_id }.compact.uniq
         unless rule_ids.empty?
           Rule.find(rule_ids).each do |rule|
             rules_by_id[rule.id]=rule
@@ -225,10 +250,10 @@ class Api::ResourcesController < Api::ApiController
       sorted_resources=sorted_resources.uniq.compact
 
       # ---------- FORMAT RESPONSE
-      objects={ :sorted_resources => sorted_resources, :snapshots_by_rid => snapshots_by_rid, :measures_by_sid => measures_by_sid, :params => params, :rules_by_id => rules_by_id}
+      objects={:sorted_resources => sorted_resources, :snapshots_by_rid => snapshots_by_rid, :measures_by_sid => measures_by_sid, :params => params, :rules_by_id => rules_by_id}
       respond_to do |format|
         format.json { render :json => jsonp(to_json(objects)) }
-        format.xml  { render :xml => to_xml(objects) }
+        format.xml { render :xml => to_xml(objects) }
         format.text { render :text => text_not_supported }
       end
     rescue ApiException => e
@@ -302,9 +327,9 @@ class Api::ResourcesController < Api::ApiController
     @characteristic_by_id={}
     if params[:model].present? && params[:characteristics].present?
       @characteristics=Characteristic.find(:all,
-        :select => 'characteristics.id,characteristics.kee,characteristics.name',
-        :joins => :quality_model,
-        :conditions => ['quality_models.name=? AND characteristics.kee IN (?)', params[:model], params[:characteristics].split(',')])
+                                           :select => 'characteristics.id,characteristics.kee,characteristics.name',
+                                           :joins => :quality_model,
+                                           :conditions => ['quality_models.name=? AND characteristics.kee IN (?)', params[:model], params[:characteristics].split(',')])
       if @characteristics.empty?
         measures_conditions<<'project_measures.characteristic_id=-1'
       else
