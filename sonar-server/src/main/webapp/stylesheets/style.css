@@ -2087,6 +2087,11 @@ table.nowrap td, td.nowrap, th.nowrap {
   padding: 2px 0 2px 20px;
 }
 
+.delete {
+  background: url("../images/cross.png") no-repeat scroll left 50% transparent;
+  padding: 2px 0 2px 20px;
+}
+
 .restore {
   display: block;
   background: url("../images/restore.gif") no-repeat scroll left 50% transparent;

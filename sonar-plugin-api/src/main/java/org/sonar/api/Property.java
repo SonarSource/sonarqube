@@ -92,4 +92,10 @@ public @interface Property {
    */
   String[] options() default {};
 
+  /**
+   * Can the property take multiple values. Eg: list of email addresses.
+   *
+   * @since 3.3
+   */
+  boolean multiValues() default false;
 }

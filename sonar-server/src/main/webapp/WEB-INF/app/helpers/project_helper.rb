@@ -19,6 +19,7 @@
  #
 module ProjectHelper
   include ActionView::Helpers::UrlHelper
+  include SettingsHelper
 
   def formatted_value(measure, default='')
     measure ? measure.formatted_value : default

@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -86,5 +87,24 @@ public class PropertyDefinitionsTest {
     @Property(key = "noCateg", name = "No categ")
   })
   static final class Categories {
+  }
+
+  @Test
+  public void should_group_by_category() {
+    PropertyDefinitions def = new PropertyDefinitions(ByCategory.class);
+
+    assertThat(def.getGlobalPropertiesByCategory().keySet()).containsOnly("catGlobal1", "catGlobal2");
+    assertThat(def.getProjectPropertiesByCategory().keySet()).containsOnly("catProject");
+    assertThat(def.getModulePropertiesByCategory().keySet()).containsOnly("catModule");
+  }
+
+  @Properties({
+    @Property(key = "global1", name = "Global1", category = "catGlobal1", global = true, project = false, module = false),
+    @Property(key = "global2", name = "Global2", category = "catGlobal1", global = true, project = false, module = false),
+    @Property(key = "global3", name = "Global3", category = "catGlobal2", global = true, project = false, module = false),
+    @Property(key = "project", name = "Project", category = "catProject", global = false, project = true, module = false),
+    @Property(key = "module", name = "Module", category = "catModule", global = false, project = false, module = true)
+  })
+  static final class ByCategory {
   }
 }

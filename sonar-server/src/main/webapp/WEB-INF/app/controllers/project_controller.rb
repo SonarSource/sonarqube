@@ -18,7 +18,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 class ProjectController < ApplicationController
-  verify :method => :post, :only => [:set_links, :set_exclusions, :delete_exclusions, :update_key, :perform_key_bulk_update, :update_quality_profile], 
+  verify :method => :post, :only => [:set_links, :set_exclusions, :delete_exclusions, :update_key, :perform_key_bulk_update, :update_quality_profile],
          :redirect_to => {:action => :index}
   verify :method => :delete, :only => [:delete], :redirect_to => {:action => :index}
 
@@ -33,11 +33,11 @@ class ProjectController < ApplicationController
 
     if java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'deletable')
       deletion_manager = ResourceDeletionManager.instance
-      if deletion_manager.currently_deleting_resources? || 
+      if deletion_manager.currently_deleting_resources? ||
         (!deletion_manager.currently_deleting_resources? && deletion_manager.deletion_failures_occured?)
         # a deletion is happening or it has just finished with errors => display the message from the Resource Deletion Manager
         render :template => 'project/pending_deletion'
-      else    
+      else
         @snapshot=@project.last_snapshot
       end
     else
@@ -47,19 +47,19 @@ class ProjectController < ApplicationController
 
   def delete
     @project = get_current_project(params[:id])
-    
+
     # Ask the resource deletion manager to start the migration
     # => this is an asynchronous AJAX call
     ResourceDeletionManager.instance.delete_resources([@project.id])
-    
+
     # and return some text that will actually never be displayed
     render :text => ResourceDeletionManager.instance.message
   end
-  
+
   def pending_deletion
     deletion_manager = ResourceDeletionManager.instance
-    
-    if deletion_manager.currently_deleting_resources? || 
+
+    if deletion_manager.currently_deleting_resources? ||
       (!deletion_manager.currently_deleting_resources? && deletion_manager.deletion_failures_occured?)
       # display the same page again and again
       # => implicit render "pending_deletion.html.erb"
@@ -67,24 +67,24 @@ class ProjectController < ApplicationController
       redirect_to_default
     end
   end
-  
+
   def dismiss_deletion_message
     # It is important to reinit the ResourceDeletionManager so that the deletion screens can be available again
     ResourceDeletionManager.instance.reinit
-    
+
     redirect_to :action => 'deletion', :id => params[:id]
   end
-  
+
   def quality_profile
     @project = get_current_project(params[:id])
     @profiles = Profile.find(:all, :conditions => {:language => @project.language, :enabled => true})
   end
-  
+
   def update_quality_profile
     project = get_current_project(params[:id])
-    
+
     selected_profile = Profile.find(:first, :conditions => {:id => params[:quality_profile].to_i})
-    if selected_profile && selected_profile.language == project.language 
+    if selected_profile && selected_profile.language == project.language
       project.profile = selected_profile
       project.save!
       flash[:notice] = message('project_quality_profile.profile_successfully_updated')
@@ -92,17 +92,17 @@ class ProjectController < ApplicationController
       selected_profile_name = selected_profile ? selected_profile.name + "(" + selected_profile.language + ")" : "Unknown profile"
       flash[:error] = message('project_quality_profile.project_cannot_be_update_with_profile_x', :params => selected_profile_name)
     end
-    
+
     redirect_to :action => 'quality_profile', :id => project.id
   end
-  
+
   def key
     @project = get_current_project(params[:id])
   end
-  
+
   def update_key
     project = get_current_project(params[:id])
-    
+
     new_key = params[:new_key].strip
     if new_key.blank?
       flash[:error] = message('update_key.new_key_cant_be_blank_for_x', :params => project.key)
@@ -115,17 +115,17 @@ class ProjectController < ApplicationController
         java_facade.updateResourceKey(project.id, new_key)
         flash[:notice] = message('update_key.key_updated')
       rescue Exception => e
-        flash[:error] = message('update_key.error_occured_while_renaming_key_of_x', 
+        flash[:error] = message('update_key.error_occured_while_renaming_key_of_x',
                                 :params => [project.key, Api::Utils.exception_message(e, :backtrace => false)])
       end
     end
-    
+
     redirect_to :action => 'key', :id => project.root_project.id
   end
-  
+
   def prepare_key_bulk_update
     @project = get_current_project(params[:id])
-    
+
     @string_to_replace = params[:string_to_replace].strip
     @replacement_string = params[:replacement_string].strip
     if @string_to_replace.blank? || @replacement_string.blank?
@@ -148,20 +148,20 @@ class ProjectController < ApplicationController
 
   def perform_key_bulk_update
     project = get_current_project(params[:id])
-    
+
     string_to_replace = params[:string_to_replace].strip
     replacement_string = params[:replacement_string].strip
-      
+
     unless string_to_replace.blank? || replacement_string.blank?
       begin
         java_facade.bulkUpdateKey(project.id, string_to_replace, replacement_string)
         flash[:notice] = message('update_key.key_updated')
       rescue Exception => e
-        flash[:error] = message('update_key.error_occured_while_renaming_key_of_x', 
+        flash[:error] = message('update_key.error_occured_while_renaming_key_of_x',
                                 :params => [project.key, Api::Utils.exception_message(e, :backtrace => false)])
       end
     end
-    
+
     redirect_to :action => 'key', :id => project.id
   end
 
@@ -224,32 +224,34 @@ class ProjectController < ApplicationController
     redirect_to :action => 'links', :id => project.id
   end
 
-
   def settings
-    @project = get_current_project(params[:id])
+    @resource = get_current_project(params[:id])
 
-    @snapshot=@project.last_snapshot
-    if !@project.project? && !@project.module?
+    @snapshot = @resource.last_snapshot
+    if !@resource.project? && !@resource.module?
       redirect_to :action => 'index', :id => params[:id]
     end
 
-    @category=params[:category] ||= 'general'
-    @definitions_per_category={}
-    definitions = java_facade.getPropertyDefinitions()
-    properties = definitions.getAll().select { |property| (@project.module? && property.isOnModule()) || (@project.project? && property.isOnProject()) }
-    properties.each do |property|
-      category = definitions.getCategory(property.getKey())
-      @definitions_per_category[category]||=[]
-      @definitions_per_category[category]<<property
+    if @resource.nil?
+      definitions_per_category = java_facade.propertyDefinitions.globalPropertiesByCategory
+    elsif @resource.project?
+      definitions_per_category = java_facade.propertyDefinitions.projectPropertiesByCategory
+    elsif @resource.module?
+      definitions_per_category = java_facade.propertyDefinitions.modulePropertiesByCategory
     end
-  end
 
+    @category = params[:category] || 'general'
+    @categories = definitions_per_category.keys
+    @definitions = definitions_per_category[@category] || []
+
+    not_found('category') unless @categories.include? @category
+  end
 
   def events
     @categories = EventCategory.categories(true)
     @snapshot = Snapshot.find(params[:id])
     @category = params[:category]
-      
+
     conditions = "resource_id=:resource_id"
     values = {:resource_id => @snapshot.project_id}
     unless @category.blank?
@@ -260,7 +262,7 @@ class ProjectController < ApplicationController
     snapshots_to_be_deleted = Snapshot.find(:all, :conditions => ["status='U' AND project_id=?", @snapshot.project_id])
     unless snapshots_to_be_deleted.empty?
       conditions << " AND snapshot_id NOT IN (:sids)"
-      values[:sids] = snapshots_to_be_deleted.map {|s| s.id}
+      values[:sids] = snapshots_to_be_deleted.map { |s| s.id }
     end
 
     category_names=@categories.map { |cat| cat.name }
@@ -342,7 +344,7 @@ class ProjectController < ApplicationController
     snapshot=Snapshot.find(params[:sid])
     not_found("Snapshot not found") unless snapshot
     access_denied unless is_admin?(snapshot)
-    
+
     # We update all the related snapshots to have the same version as the next snapshot
     next_snapshot = Snapshot.find(:first, :conditions => ['created_at>? and project_id=?', snapshot.created_at, snapshot.project_id], :order => 'created_at asc')
     snapshots = find_project_snapshots(snapshot.id)
@@ -371,11 +373,11 @@ class ProjectController < ApplicationController
     else
       snapshots = find_project_snapshots(snapshot.id)
       snapshots.each do |s|
-      e = Event.new({:name => params[:event_name], 
-                     :category => EventCategory::KEY_OTHER,
-                     :snapshot => s,
-                     :resource_id => s.project_id,
-                     :event_date => s.created_at})
+        e = Event.new({:name => params[:event_name],
+                       :category => EventCategory::KEY_OTHER,
+                       :snapshot => s,
+                       :resource_id => s.project_id,
+                       :event_date => s.created_at})
         e.save!
       end
       flash[:notice] = message('project_history.event_created', :params => params[:event_name])
@@ -425,7 +427,7 @@ class ProjectController < ApplicationController
     access_denied unless is_admin?(project)
     project
   end
-  
+
   def find_project_snapshots(root_snapshot_id)
     snapshots = Snapshot.find(:all, :include => 'events', :conditions => ["(root_snapshot_id = ? OR id = ?) AND scope = 'PRJ'", root_snapshot_id, root_snapshot_id])
   end

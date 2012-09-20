@@ -66,6 +66,7 @@ public final class PropertyDefinition {
   private boolean onProject = false;
   private boolean onModule = false;
   private boolean isGlobal = true;
+  private boolean multiValues;
 
   private PropertyDefinition(Property annotation) {
     this.key = annotation.key();
@@ -78,20 +79,20 @@ public final class PropertyDefinition {
     this.category = annotation.category();
     this.type = fixType(annotation.key(), annotation.type());
     this.options = annotation.options();
+    this.multiValues = annotation.multiValues();
   }
 
-  private PropertyType fixType(String key, PropertyType type) {
+  private static PropertyType fixType(String key, PropertyType type) {
     // Auto-detect passwords and licenses for old versions of plugins that
     // do not declare property types
-    PropertyType fix = type;
     if (type == PropertyType.STRING) {
       if (StringUtils.endsWith(key, ".password.secured")) {
-        fix = PropertyType.PASSWORD;
+        return PropertyType.PASSWORD;
       } else if (StringUtils.endsWith(key, ".license.secured")) {
-        fix = PropertyType.LICENSE;
+        return PropertyType.LICENSE;
       }
     }
-    return fix;
+    return type;
   }
 
   private PropertyDefinition(String key, PropertyType type, String[] options) {
@@ -109,30 +110,28 @@ public final class PropertyDefinition {
   }
 
   public Result validate(@Nullable String value) {
-    // TODO REFACTORING REQUIRED HERE
-    Result result = Result.SUCCESS;
     if (StringUtils.isNotBlank(value)) {
       if (type == PropertyType.BOOLEAN) {
         if (!StringUtils.equalsIgnoreCase(value, "true") && !StringUtils.equalsIgnoreCase(value, "false")) {
-          result = Result.newError("notBoolean");
+          return Result.newError("notBoolean");
         }
       } else if (type == PropertyType.INTEGER) {
         if (!NumberUtils.isDigits(value)) {
-          result = Result.newError("notInteger");
+          return Result.newError("notInteger");
         }
       } else if (type == PropertyType.FLOAT) {
         try {
           Double.parseDouble(value);
         } catch (NumberFormatException e) {
-          result = Result.newError("notFloat");
+          return Result.newError("notFloat");
         }
       } else if (type == PropertyType.SINGLE_SELECT_LIST) {
         if (!ArrayUtils.contains(options, value)) {
-          result = Result.newError("notInOptions");
+          return Result.newError("notInOptions");
         }
       }
     }
-    return result;
+    return Result.SUCCESS;
   }
 
   public String getKey() {
@@ -173,5 +172,12 @@ public final class PropertyDefinition {
 
   public boolean isGlobal() {
     return isGlobal;
+  }
+
+  /**
+   * @since 3.3
+   */
+  public boolean isMultiValues() {
+    return multiValues;
   }
 }

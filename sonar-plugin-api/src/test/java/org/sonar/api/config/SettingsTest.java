@@ -40,7 +40,8 @@ public class SettingsTest {
     @Property(key = "boolean", name = "Boolean", defaultValue = "true"),
     @Property(key = "falseboolean", name = "False Boolean", defaultValue = "false"),
     @Property(key = "integer", name = "Integer", defaultValue = "12345"),
-    @Property(key = "array", name = "Array", defaultValue = "one,two,three")
+    @Property(key = "array", name = "Array", defaultValue = "one,two,three"),
+    @Property(key = "multi_values", name = "Array", defaultValue = "1,2,3", multiValues = true)
   })
   static class Init {
   }
@@ -151,6 +152,52 @@ public class SettingsTest {
     Settings settings = new Settings(definitions);
     String[] array = settings.getStringArray("array");
     assertThat(array).isEqualTo(new String[]{"one", "two", "three"});
+  }
+
+  @Test
+  public void setStringArray() {
+    Settings settings = new Settings(definitions);
+    settings.setProperty("multi_values", new String[] {"A", "B"});
+    String[] array = settings.getStringArray("multi_values");
+    assertThat(array).isEqualTo(new String[] {"A", "B"});
+  }
+
+  @Test
+  public void setStringArrayTrimValues() {
+    Settings settings = new Settings(definitions);
+    settings.setProperty("multi_values", new String[] {" A ", " B "});
+    String[] array = settings.getStringArray("multi_values");
+    assertThat(array).isEqualTo(new String[] {"A", "B"});
+  }
+
+  @Test
+  public void setStringArrayEscapeCommas() {
+    Settings settings = new Settings(definitions);
+    settings.setProperty("multi_values", new String[] {"A,B", "C,D"});
+    String[] array = settings.getStringArray("multi_values");
+    assertThat(array).isEqualTo(new String[] {"A,B", "C,D"});
+  }
+
+  @Test
+  public void setStringArrayWithEmptyValues() {
+    Settings settings = new Settings(definitions);
+    settings.setProperty("multi_values", new String[] {"A,B", "", "C,D"});
+    String[] array = settings.getStringArray("multi_values");
+    assertThat(array).isEqualTo(new String[] {"A,B", "", "C,D"});
+  }
+
+  @Test
+  public void setStringArrayWithNullValues() {
+    Settings settings = new Settings(definitions);
+    settings.setProperty("multi_values", new String[] {"A,B", null, "C,D"});
+    String[] array = settings.getStringArray("multi_values");
+    assertThat(array).isEqualTo(new String[] {"A,B", "", "C,D"});
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void shouldFailToSetArrayValueOnSingleValueProperty() {
+    Settings settings = new Settings(definitions);
+    settings.setProperty("array", new String[] {"A", "B", "C"});
   }
 
   @Test

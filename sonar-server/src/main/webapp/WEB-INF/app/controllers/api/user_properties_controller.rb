@@ -43,7 +43,7 @@ class Api::UserPropertiesController < Api::ApiController
   # curl http://localhost:9000/api/user_properties/<key> -v -u admin:admin
   #
   def show
-    property = Property.find(:first, :conditions => ['user_id=? and prop_key=?', current_user.id, params[:id]])
+    property = Property.by_key(params[:id], nil, current_user.id)
     if property
       respond_to do |format|
         format.json { render :json => jsonp(properties_to_json([property])) }
@@ -65,7 +65,7 @@ class Api::UserPropertiesController < Api::ApiController
     value = params[:value]
     if key
       begin
-        Property.delete_all(['prop_key=? AND user_id=?', key,current_user.id])
+        Property.clear(key, nil, current_user.id)
         property=Property.create(:prop_key => key, :text_value => value, :user_id => current_user.id)
         respond_to do |format|
           format.json { render :json => jsonp(properties_to_json([property])) }
@@ -88,10 +88,9 @@ class Api::UserPropertiesController < Api::ApiController
   def destroy
     begin
       if params[:id]
-        Property.delete_all(['prop_key=? AND user_id=?', params[:id], current_user.id])
+        Property.clear(params[:id], nil, current_user.id)
       end
       render_success("Property deleted")
-
     rescue Exception => e
       logger.error("Fails to execute #{request.url} : #{e.message}")
       render_error(e.message)

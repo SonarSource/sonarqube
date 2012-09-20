@@ -19,6 +19,8 @@
  */
 package org.sonar.api.config;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -29,7 +31,12 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.DateUtils;
 
 import javax.annotation.Nullable;
-import java.util.*;
+
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Project Settings on batch side, Global Settings on server side. This component does not access to database, so
@@ -160,6 +167,20 @@ public class Settings implements BatchComponent, ServerComponent {
    * </ul>
    */
   public final String[] getStringArray(String key) {
+    PropertyDefinition property = getDefinitions().get(key);
+    if ((null != property) && (property.isMultiValues())) {
+      String value = getString(key);
+      if (value == null) {
+        return ArrayUtils.EMPTY_STRING_ARRAY;
+      }
+
+      List<String> values = Lists.newArrayList();
+      for (String v : Splitter.on(",").trimResults().split(value)) {
+        values.add(v.replace("%2C", ","));
+      }
+      return values.toArray(new String[values.size()]);
+    }
+
     return getStringArrayBySeparator(key, ",");
   }
 
@@ -211,6 +232,32 @@ public class Settings implements BatchComponent, ServerComponent {
       newValue += "," + StringUtils.trim(value);
     }
     return setProperty(key, newValue);
+  }
+
+  public final Settings setProperty(String key, @Nullable String[] values) {
+    PropertyDefinition property = getDefinitions().get(key);
+    if ((null == property) || (!property.isMultiValues())) {
+      throw new IllegalStateException("Fail to set multiple values on a single value property " + key);
+    }
+
+    if (values == null) {
+      properties.remove(key);
+      doOnRemoveProperty(key);
+    } else {
+      List<String> escaped = Lists.newArrayList();
+      for (String value : values) {
+        if (null != value) {
+          escaped.add(value.replace(",", "%2C"));
+        } else {
+          escaped.add("");
+        }
+      }
+
+      String escapedValue = Joiner.on(',').join(escaped);
+      properties.put(key, StringUtils.trim(escapedValue));
+      doOnSetProperty(key, escapedValue);
+    }
+    return this;
   }
 
   public final Settings setProperty(String key, @Nullable String value) {

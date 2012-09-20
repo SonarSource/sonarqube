@@ -1,87 +1,67 @@
-<% if @category && @definitions_per_category[@category]
-     category_name = message("property.category.#{@category}", :default => @category)
-     if SettingsController::SPECIAL_CATEGORIES.include?(@category)
-%>
-    <%= render :partial => 'special', :locals => {:url => url_for(:controller => "#{@category}_configuration")} -%>
-  <%
-     elsif !@definitions_per_category[@category].empty?
-  %>
-    <% form_remote_tag :url => {:controller => 'settings', :action => 'update', :category => @category, :resource_id => @project ? @project.id : nil},
-                       :method => :post,
-                       :before => "$('submit_settings').hide();$('loading_settings').show()",
-                       :update => 'properties' do -%>
+<% if SettingsController::SPECIAL_CATEGORIES.include?(@category) -%>
+  <%= render 'special', :url => url_for(:controller => "#{@category}_configuration") -%>
+<% else -%>
+  <% form_remote_tag :url => {:controller => 'settings', :action => 'update', :category => @category, :resource_id => @resource ? @resource.id : nil},
+                     :method => :post,
+                     :before => "$('submit_settings').hide();$('loading_settings').show();",
+                     :update => 'properties',
+                     :script => false do -%>
 
-      <table class="data marginbottom10" style="margin: 10px">
-        <thead>
-        <tr>
-          <th>
-            <span><%= h(category_name) -%></span>
-          </th>
+    <table class="data marginbottom10" style="margin: 10px;">
+      <thead>
+      <tr>
+        <th><%= h category_name(@category) -%></th>
+      </tr>
+      </thead>
+      <tbody>
+      <% @definitions.each do |property| -%>
+        <tr class="<%= cycle('even', 'odd', :name => 'properties') -%>">
+          <td style="padding: 10px" id="block_<%= property.key -%>">
+            <h3>
+              <div><%= property_name(property) -%></div>
+              <div class="note"><%= property.key -%></div>
+            </h3>
+            <% desc=property_description(property) -%>
+            <% unless desc.blank? %>
+              <p class="marginbottom10"><%= desc -%></p>
+            <% end -%>
+
+            <% value = property_value(property) -%>
+            <% if property.multi_values -%>
+              <% value.each do |sub_value| -%>
+                <%= render "settings/multi_value", :property => property, :value => sub_value -%>
+              <% end -%>
+              <div class="template" style="display:none;">
+                <%= render "settings/multi_value", :property => property, :value => nil -%>
+              </div>
+              <a href="#" class="add"><%= message('settings.add') -%></a>
+            <% else -%>
+              <%= render "settings/type_#{property_type(property, value)}", :property => property, :value => value -%>
+            <% end -%>
+
+            <% default_prop_value = (@resource ? Property.value(property.key, nil, property.defaultValue) : property.defaultValue) -%>
+            <% unless default_prop_value.blank? %>
+              <p class="note">Default: <%= property.type.to_s=='PASSWORD' ? '********' : h(default_prop_value) -%></p>
+            <% end -%>
+          </td>
         </tr>
-        </thead>
-        <tbody>
-        <%
-           if @definitions_per_category[@category]
-             @definitions_per_category[@category].each do |property|
-               value = nil
+      <% end -%>
+      </tbody>
+    </table>
+    <div style="padding-left: 16px;">
+      <%= submit_tag(message('settings.save_category', :params => [category_name(@category)]), :id => 'submit_settings') -%>
+      <img src="<%= ApplicationController.root_context -%>/images/loading.gif" id="loading_settings" style="display:none;">
+    </div>
+  <% end -%>
+<% end -%>
 
-               # set when form has been submitted but some errors have been raised
-               if @persisted_properties_per_key
-                 p = @persisted_properties_per_key[property.key]
-                 if p
-                   value = p.text_value
-                 end
-               end
+<script type="text/javascript">
+  $j('.delete').live('click', function () {
+    $j(this).parent('.multi_value').remove();
+  });
 
-
-               # if fresh form or no error, get the current value
-               value = Property.value(property.getKey(), (@project ? @project.id : nil), '') unless value
-
-               # for backward-compatibility with properties that do not define the type TEXT
-               property_type = property.getType()
-               if property_type.to_s=='STRING' && value.include?("\n")
-                 property_type = 'TEXT'
-               end
-
-        %>
-            <tr class="<%= cycle('even', 'odd', :name => 'properties') -%>">
-              <td style="padding: 10px" id="block_<%= property.getKey() -%>">
-                <h3>
-                  <%= message("property.#{property.key()}.name", :default => property.name()) -%>
-                  <br/><span class="note"><%= property.getKey() -%></span>
-                </h3>
-                <%
-                   desc=message("property.#{property.key()}.description", :default => property.description())
-                   if desc.present? %>
-                  <p class="marginbottom10"><%= desc -%></p>
-                <% end %>
-                <div><%= render :partial => "settings/type_#{property_type}", :locals => {:property => property, :value => value} -%></div>
-                <%
-                   if p && !p.valid?
-                %>
-                    <div class="error"><%= p.validation_error_message -%></div>
-                  <%
-                     end
-                  %>
-                <p>
-                  <%
-                     default_prop_value = (@project ? Property.value(property.key(), nil, property.defaultValue()) : property.defaultValue())
-                     unless default_prop_value.blank? %>
-                    <span class="note">Default : <%= property.getType().to_s=='PASSWORD' ? '********' : h(default_prop_value) -%></span>
-                  <% end %>
-                </p>
-              </td>
-            </tr>
-          <% end
-             end
-          %>
-        </tbody>
-      </table>
-      <div style="padding-left: 16px">
-      <%= submit_tag(message('settings.save_category', :params => [category_name]), :id => 'submit_settings') -%>
-      <img src="<%= ApplicationController.root_context -%>/images/loading.gif" id="loading_settings" style="display:none">
-      </div>
-    <% end %>
-  <% end
-     end
-  %>
+  $j('.add').live('click', function () {
+    var template = $j(this).siblings('.template');
+    template.before(template.html());
+  });
+</script>

@@ -19,7 +19,9 @@
  */
 package org.sonar.api.config;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.Properties;
@@ -97,12 +99,57 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
     return definitions.values();
   }
 
+  /**
+   * since 3.3
+   */
+  public Map<String, Collection<PropertyDefinition>> getGlobalPropertiesByCategory() {
+    Multimap<String, PropertyDefinition> byCategory = ArrayListMultimap.create();
+
+    for (PropertyDefinition definition : getAll()) {
+      if (definition.isGlobal()) {
+        byCategory.put(getCategory(definition.getKey()), definition);
+      }
+    }
+
+    return byCategory.asMap();
+  }
+
+  /**
+   * since 3.3
+   */
+  public Map<String, Collection<PropertyDefinition>> getProjectPropertiesByCategory() {
+    Multimap<String, PropertyDefinition> byCategory = ArrayListMultimap.create();
+
+    for (PropertyDefinition definition : getAll()) {
+      if (definition.isOnProject()) {
+        byCategory.put(getCategory(definition.getKey()), definition);
+      }
+    }
+
+    return byCategory.asMap();
+  }
+
+  /**
+   * since 3.3
+   */
+  public Map<String, Collection<PropertyDefinition>> getModulePropertiesByCategory() {
+    Multimap<String, PropertyDefinition> byCategory = ArrayListMultimap.create();
+
+    for (PropertyDefinition definition : getAll()) {
+      if (definition.isOnModule()) {
+        byCategory.put(getCategory(definition.getKey()), definition);
+      }
+    }
+
+    return byCategory.asMap();
+  }
+
   public String getDefaultValue(String key) {
     PropertyDefinition def = get(key);
-    if (def != null) {
-      return StringUtils.defaultIfEmpty(def.getDefaultValue(), null);
+    if (def == null) {
+      return null;
     }
-    return null;
+    return StringUtils.defaultIfEmpty(def.getDefaultValue(), null);
   }
 
   public String getCategory(String key) {

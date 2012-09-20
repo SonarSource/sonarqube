@@ -20,6 +20,10 @@
 class Property < ActiveRecord::Base
   validates_presence_of :prop_key
 
+  named_scope :with_key, lambda { |value| {:conditions => {:prop_key, value}} }
+  named_scope :with_resource, lambda { |value| {:conditions => {:resource_id => value}} }
+  named_scope :with_user, lambda { |value| {:conditions => {:user_id => value}} }
+
   def key
     prop_key
   end
@@ -28,33 +32,48 @@ class Property < ActiveRecord::Base
     text_value
   end
 
-  def self.hash(resource_id=nil)
-    hash={}
-    Property.find(:all, :conditions => {'resource_id' => resource_id, 'user_id' => nil}).each do |prop|
-      hash[prop.key]=prop.value
+  def self.hash(resource_id=nil, user_id=nil)
+    properties = Property.with_resource(resource_id).with_user(user_id)
+
+    Hash[properties.map { |prop| [prop.key, prop.value] }]
+  end
+
+  def self.clear(key, resource_id=nil, user_id=nil)
+    all(key, resource_id, user_id).delete_all
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().setGlobalProperty(key, nil) unless resource_id
+  end
+
+  def self.by_key(key, resource_id=nil, user_id=nil)
+    all(key, resource_id, user_id).first
+  end
+
+  def self.by_key_prefix(prefix)
+    Property.find(:all, :conditions => ['prop_key like ?', prefix + '%'])
+  end
+
+  def self.value(key, resource_id=nil, default_value=nil, user_id=nil)
+    property = by_key(key, resource_id, user_id)
+    return default_value unless property
+
+    property.text_value || default_value
+  end
+
+  def self.values(key, resource_id=nil, user_id=nil)
+    value = value(key, resource_id, '', user_id)
+    values = value.split(',')
+    values.empty? ? [nil] : values.map { |v| v.gsub('%2C', ',') }
+  end
+
+  def self.set(key, value, resource_id=nil, user_id=nil)
+    if value.kind_of? Array
+      value = value.map { |v| v.gsub(',', '%2C') }.join(',')
     end
-    hash
-  end
 
-  def self.value(key, resource_id=nil, default_value=nil)
-    prop=Property.find(:first, :conditions => {'prop_key' => key, 'resource_id' => resource_id, 'user_id' => nil})
-    if prop
-      prop.text_value || default_value
-    else
-      default_value
-    end
-  end
-
-  def self.values(key, resource_id=nil)
-    Property.find(:all, :conditions => {'prop_key' => key, 'resource_id' => resource_id, 'user_id' => nil}).collect { |p| p.text_value }
-  end
-
-  def self.set(key, value, resource_id=nil)
     text_value = (value.nil? ? nil : value.to_s)
-    prop = Property.new(:prop_key => key, :text_value => text_value, :resource_id => resource_id)
+    prop = Property.new(:prop_key => key, :text_value => text_value, :resource_id => resource_id, :user_id => user_id)
     if prop.valid?
       Property.transaction do
-        Property.delete_all('prop_key' => key, 'resource_id' => resource_id, 'user_id' => nil)
+        Property.delete_all(:prop_key => key, :resource_id => resource_id, :user_id => user_id)
         prop.save
       end
       Java::OrgSonarServerUi::JRubyFacade.getInstance().setGlobalProperty(key, text_value) unless resource_id
@@ -62,25 +81,8 @@ class Property < ActiveRecord::Base
     prop
   end
 
-  def self.clear(key, resource_id=nil)
-    Property.delete_all('prop_key' => key, 'resource_id' => resource_id, 'user_id' => nil)
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().setGlobalProperty(key, nil) unless resource_id
-  end
-
-  def self.by_key(key, resource_id=nil)
-    Property.find(:first, :conditions => {'prop_key' => key, 'resource_id' => resource_id, 'user_id' => nil})
-  end
-
-  def self.by_key_prefix(prefix)
-    Property.find(:all, :conditions => ["prop_key like ?", prefix + '%'])
-  end
-
-  def self.update(key, value)
-    property = Property.find(:first, :conditions => {:prop_key => key, :resource_id => nil, :user_id => nil});
-    property.text_value = value
-    property.save
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().setGlobalProperty(key, value)
-    property
+  def self.update(key, value, resource_id=nil, user_id=nil)
+    set(key, value, resource_id, user_id)
   end
 
   def to_hash_json
@@ -111,6 +113,10 @@ class Property < ActiveRecord::Base
   end
 
   private
+
+  def self.all(key, resource_id=nil, user_id=nil)
+    Property.with_key(key).with_resource(resource_id).with_user(user_id)
+  end
 
   def validate
     if java_definition

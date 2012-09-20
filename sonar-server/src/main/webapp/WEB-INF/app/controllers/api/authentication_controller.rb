@@ -49,7 +49,7 @@ class Api::AuthenticationController < Api::ApiController
   end
 
   def force_authentication?
-    property = Property.find(:first, :conditions => {:prop_key => org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY, :resource_id => nil, :user_id => nil})
+    property = Property.by_key(org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY)
     property ? property.value == 'true' : false
   end
 
