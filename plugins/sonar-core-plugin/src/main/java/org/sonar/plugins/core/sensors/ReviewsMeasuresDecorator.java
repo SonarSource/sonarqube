@@ -38,7 +38,11 @@ import org.sonar.core.review.ReviewDao;
 import org.sonar.core.review.ReviewDto;
 import org.sonar.core.review.ReviewPredicates;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Decorator that creates measures related to reviews.
@@ -68,7 +72,7 @@ public class ReviewsMeasuresDecorator implements Decorator {
 
   @SuppressWarnings({"rawtypes"})
   public void decorate(Resource resource, DecoratorContext context) {
-    if (!ResourceUtils.isPersistable(resource) || ResourceUtils.isUnitTestClass(resource) || resource.getId()==null) {
+    if (!ResourceUtils.isPersistable(resource) || resource.getId() == null) {
       return;
     }
 
@@ -119,7 +123,7 @@ public class ReviewsMeasuresDecorator implements Decorator {
   }
 
   protected int countNewUnreviewedViolationsForSnapshot(PastSnapshot pastSnapshot, List<Violation> violations,
-                                                        Map<Integer, ReviewDto> openReviewsByViolationPermanentIds) {
+      Map<Integer, ReviewDto> openReviewsByViolationPermanentIds) {
     Date targetDate = pastSnapshot.getTargetDate();
     int newViolationCount = 0;
     int newReviewedViolationCount = 0;

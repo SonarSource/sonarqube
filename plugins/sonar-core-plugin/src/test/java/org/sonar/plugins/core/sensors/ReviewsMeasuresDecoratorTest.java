@@ -31,7 +31,11 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.RuleMeasure;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.File;
+import org.sonar.api.resources.Method;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 import org.sonar.batch.components.PastSnapshot;
@@ -48,7 +52,11 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ReviewsMeasuresDecoratorTest {
 
@@ -93,24 +101,25 @@ public class ReviewsMeasuresDecoratorTest {
   }
 
   @Test
-  public void shouldDecoratePersistableResource() throws Exception {
+  public void shouldNotDecoratePersistableResource() throws Exception {
     ReviewsMeasuresDecorator decorator = new ReviewsMeasuresDecorator(null, null);
     DecoratorContext context = mock(DecoratorContext.class);
-    Resource<?> resource = mock(Resource.class);
-    when(resource.getScope()).thenReturn(Scopes.BLOCK_UNIT);
+    Resource<?> resource = Method.createMethod("foo", null).setId(1);
     decorator.decorate(resource, context);
     verify(context, never()).saveMeasure(any(Metric.class), anyDouble());
   }
 
+  /**
+   * SONAR-3746
+   */
   @Test
-  public void shouldNotDecorateUnitTest() throws Exception {
-    ReviewsMeasuresDecorator decorator = new ReviewsMeasuresDecorator(null, null);
+  public void shouldDecorateUnitTest() throws Exception {
     DecoratorContext context = mock(DecoratorContext.class);
-    Resource<?> resource = mock(Resource.class);
-    when(resource.getScope()).thenReturn(Scopes.FILE);
-    when(resource.getQualifier()).thenReturn(Qualifiers.UNIT_TEST_FILE);
+    File resource = new File("foo");
+    resource.setQualifier(Qualifiers.UNIT_TEST_FILE);
+    resource.setId(1);
     decorator.decorate(resource, context);
-    verify(context, never()).saveMeasure(any(Metric.class), anyDouble());
+    verify(context, atLeast(1)).saveMeasure(any(Metric.class), anyDouble());
   }
 
   @Test
