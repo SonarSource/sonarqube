@@ -284,13 +284,9 @@ Treemap.prototype.onLoaded = function (componentsSize) {
                 draggable:false,
                 autoOpen:false,
                 modal:true,
+                minHeight: 50,
                 resizable:false,
                 dialogClass:o.dialogClass,
-                open:function (event,ui) {
-                  $j('.ui-widget-overlay').bind('click', function () {
-                    $j('#modal').dialog('close');
-                  })
-                },
                 close: function() {
                   $j('#modal').remove();
                 }
@@ -306,8 +302,6 @@ Treemap.prototype.onLoaded = function (componentsSize) {
 
           return false;
         });
-
-
       });
     }
   });
@@ -315,4 +309,5 @@ Treemap.prototype.onLoaded = function (componentsSize) {
 
 function closeModalWindow() {
   $j('#modal').dialog('close');
+  return false;
 }

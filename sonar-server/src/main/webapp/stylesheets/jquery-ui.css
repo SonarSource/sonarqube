@@ -17,14 +17,12 @@
 .ui-helper-clearfix { zoom: 1; }
 .ui-helper-zfix { width: 100%; height: 100%; top: 0; left: 0; position: absolute; opacity: 0; filter:Alpha(Opacity=0); }
 .ui-widget-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%;background: none repeat scroll 0 0 rgba(0, 0, 0, 0.5) }
-.ui-widget { font-family: Trebuchet MS, Tahoma, Verdana, Arial, sans-serif; font-size: 1.1em; }
 .ui-widget .ui-widget { font-size: 1em; }
-.ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button { font-family: Trebuchet MS, Tahoma, Verdana, Arial, sans-serif; font-size: 1em; }
 .ui-widget-content { border: 1px solid #dddddd; background: #eeeeee 50% top repeat-x; color: #333333; }
 .ui-widget-content a { color: #333333; }
 .ui-widget-header { border: 1px solid #e78f08; background: #f6a828 50% 50% repeat-x; color: #ffffff; font-weight: bold; }
 .ui-widget-header a { color: #ffffff; }
 .ui-widget-shadow { margin: -5px 0 0 -5px; padding: 5px; background: #000000 50% 50% repeat-x; opacity: .20;filter:Alpha(Opacity=20); -moz-border-radius: 5px; -khtml-border-radius: 5px; -webkit-border-radius: 5px; border-radius: 5px; }
-.ui-dialog { position: absolute; padding: .2em; width: 300px; overflow: hidden; box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5);background-color: #FFF}
+.ui-dialog { position: absolute; width: 300px; overflow: hidden; box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5);background-color: #FFF}
 .ui-dialog .ui-dialog-titlebar { display:none }
-.ui-dialog .ui-dialog-content { position: relative; border: 0; padding: .5em 1em; background: none; overflow: auto; zoom: 1; }
+.ui-dialog .ui-dialog-content { position: relative; border: 0; background: none; overflow: auto; zoom: 1; }

@@ -130,12 +130,9 @@
         </td>
 
         <td align="right">
-          <% if !(profile.provided?) %>
-             <% form_tag(:action => 'rename', :id => profile.id) do -%>
-              <%= hidden_field_tag 'rename_' + profile.id.to_s %>
-              <input type="button" name="button_rename" id="rename_<%= u profile.key %>" value="<%= message('rename') -%>" onClick='var name=prompt("<%= message('quality_profiles.new_name') -%>", "<%= profile.name -%>"); if (name!=null) {$("rename_<%= profile.id %>").value=name; submit();} else {return false;}'>
-            <% end
-            end %>
+          <% if !profile.provided? %>
+            <a id="rename-<%= profile.key.parameterize -%>" href="<%= ApplicationController.root_context -%>/profiles/rename_form?id=<%= profile.id -%>" class="button open-modal"><%= message('rename') -%></a>
+          <% end %>
         </td>
 
         <td align="right">
@@ -153,11 +150,16 @@
                         :method => :post %>
           <% end %>
         </td>
-
       <% end %>
     </tr>
     <% end %>
     </tbody>
 </table>
 <br/><br/>
+<% end %>
+
+<% content_for :javascript_header do %>
+  $j(document).ready(function () {
+    $j('.open-modal').modal();
+  });
 <% end %>

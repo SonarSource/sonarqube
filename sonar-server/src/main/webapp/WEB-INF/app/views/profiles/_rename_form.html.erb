@@ -1,0 +1,38 @@
+<h2 class="modal-title" xmlns="http://www.w3.org/1999/html">Rename Profile</h2>
+<form id="form-rename-profile" method="post" action="profiles/rename">
+  <input type="hidden" name="id" value="<%= @profile.id -%>"/>
+
+  <% if @error %>
+    <p class="error"><%= h @error -%></p>
+  <% end %>
+
+  <fieldset>
+    <div class="form-field">
+      <label for="">Old name</label>
+      <input type="text" disabled="disabled" value="<%= h @profile.name -%>"/>
+    </div>
+    <div class="form-field">
+      <label for="name">New name</label>
+      <input id="new-name" name="name" type="text"/>
+    </div>
+    <div class="form-footer">
+      <input type="submit" value="Rename"/>
+      <a href="#" onclick="return closeModalWindow()"><%= message('cancel') -%></a>
+    </div>
+  </fieldset>
+</form>
+<script>
+  $j('#new-name').focus();
+  $j("#form-rename-profile").submit(function (event) {
+    $j('input[type=submit]', this).attr('disabled', 'disabled');
+    $j.ajax({type:"POST", data:$j(this).serialize(), url:$j(this).attr('action'),
+      success:function (data) {
+        location.reload();
+      },
+      error:function (xhr, textStatus, errorThrown) {
+        $j("#modal").html(xhr.responseText);
+      }
+    });
+    return false;
+  });
+</script>

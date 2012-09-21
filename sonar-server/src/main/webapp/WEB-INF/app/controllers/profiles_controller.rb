@@ -298,27 +298,41 @@ class ProfilesController < ApplicationController
   end
 
 
+  # GET /profiles/rename_form?id=<id>
+  def rename_form
+    @profile = Profile.find(params[:id])
+    render :partial => 'profiles/rename_form'
+  end
 
   #
   #
-  # POST /profiles/rename/<id>?name=<new name>
+  # POST /profiles/rename?id=<id>&name=<new name>
   #
   #
   def rename
-    profile = Profile.find(params[:id])
-    name = params['rename_' + profile.id.to_s]
+    render :text => 'Not an ajax request', :status => '400' unless request.xhr?
 
+    @profile = Profile.find(params[:id])
+    name = params[:name]
+
+    success=false
     if name.blank?
-      flash[:warning]=message('quality_profiles.profile_name_cant_be_blank')
+      @error=message('quality_profiles.profile_name_cant_be_blank')
     else
-      existing=Profile.find(:first, :conditions => {:name => name, :language => profile.language, :enabled => true})
+      existing=Profile.find(:first, :conditions => {:name => name, :language => @profile.language, :enabled => true})
       if existing
-        flash[:warning]=message('quality_profiles.profile_name_already_exists')
-      elsif !profile.provided?
-        java_facade.renameProfile(profile.id, name)
+        @error=message('quality_profiles.profile_name_already_exists')
+      elsif !@profile.provided?
+        java_facade.renameProfile(@profile.id, name)
+        success=true
       end
     end
-    redirect_to :action => 'index'
+
+    if success
+      render :text => 'ok', :status => 200
+    else
+      render :partial => 'profiles/rename_form', :status => 400
+    end
   end
 
 

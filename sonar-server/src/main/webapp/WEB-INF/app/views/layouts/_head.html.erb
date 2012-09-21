@@ -46,5 +46,5 @@
 <%= javascript_include_tag 'resource' %>
 <% end %>
 <!--[if lte IE 8]><%= javascript_include_tag 'protovis-msie' -%><![endif]-->
-<script>var baseUrl = '<%= ApplicationController.root_context -%>';var $j = jQuery.noConflict();</script>
+<script>var baseUrl = '<%= ApplicationController.root_context -%>';var $j = jQuery.noConflict();<%= yield :javascript_header -%></script>
 </head><body>
