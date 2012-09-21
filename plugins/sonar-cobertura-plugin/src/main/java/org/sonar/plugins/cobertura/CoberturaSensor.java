@@ -35,7 +35,9 @@ import java.io.File;
 public class CoberturaSensor implements Sensor, CoverageExtension {
 
   public boolean shouldExecuteOnProject(Project project) {
-    return Java.KEY.equals(project.getLanguageKey()) && project.getAnalysisType().isDynamic(true);
+    return Java.KEY.equals(project.getLanguageKey())
+      && !project.getFileSystem().mainFiles(Java.KEY).isEmpty()
+      && project.getAnalysisType().isDynamic(true);
   }
 
   public void analyse(Project project, SensorContext context) {

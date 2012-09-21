@@ -19,13 +19,15 @@
  */
 package org.sonar.plugins.cobertura;
 
+import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
-import org.sonar.api.resources.Java;
+import org.sonar.api.resources.InputFile;
+import org.sonar.api.resources.InputFileUtils;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.JavaPackage;
 import org.sonar.api.resources.Project;
@@ -38,10 +40,10 @@ import org.sonar.api.test.IsResource;
 
 import java.io.File;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.anyString;
@@ -67,24 +69,50 @@ public class CoberturaSensorTest {
   public void shouldNotAnalyseIfNoJavaProject() {
     Project project = mock(Project.class);
     when(project.getLanguageKey()).thenReturn("php");
-    when(project.getAnalysisType()).thenReturn(Project.AnalysisType.DYNAMIC);
-    assertFalse(sensor.shouldExecuteOnProject(project));
+    assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
   }
 
   @Test
-  public void shouldNotAnalyseIfStaticAnalysis() {
+  public void shouldNotAnalyseIfJavaProjectButNoSource() {
     Project project = mock(Project.class);
-    when(project.getLanguageKey()).thenReturn(Java.KEY);
+    ProjectFileSystem fs = mock(ProjectFileSystem.class);
+    when(fs.mainFiles("java")).thenReturn(new ArrayList<InputFile>());
+    when(project.getFileSystem()).thenReturn(fs);
+    when(project.getLanguageKey()).thenReturn("java");
+    assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
+  }
+
+  @Test
+  public void shouldNotAnalyseIfJavaProjectWithSourceButStatic() {
+    Project project = mock(Project.class);
+    ProjectFileSystem fs = mock(ProjectFileSystem.class);
+    when(fs.mainFiles("java")).thenReturn(Lists.newArrayList(InputFileUtils.create(null, "")));
+    when(project.getFileSystem()).thenReturn(fs);
+    when(project.getLanguageKey()).thenReturn("java");
     when(project.getAnalysisType()).thenReturn(Project.AnalysisType.STATIC);
-    assertFalse(sensor.shouldExecuteOnProject(project));
+    assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
+  }
+
+  @Test
+  public void shouldAnalyse() {
+    Project project = mock(Project.class);
+    ProjectFileSystem fs = mock(ProjectFileSystem.class);
+    when(fs.mainFiles("java")).thenReturn(Lists.newArrayList(InputFileUtils.create(null, "")));
+    when(project.getFileSystem()).thenReturn(fs);
+    when(project.getLanguageKey()).thenReturn("java");
+    when(project.getAnalysisType()).thenReturn(Project.AnalysisType.DYNAMIC);
+    assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
   }
 
   @Test
   public void shouldAnalyseIfReuseDynamicReports() {
     Project project = mock(Project.class);
-    when(project.getLanguageKey()).thenReturn(Java.KEY);
+    ProjectFileSystem fs = mock(ProjectFileSystem.class);
+    when(fs.mainFiles("java")).thenReturn(Lists.newArrayList(InputFileUtils.create(null, "")));
+    when(project.getFileSystem()).thenReturn(fs);
+    when(project.getLanguageKey()).thenReturn("java");
     when(project.getAnalysisType()).thenReturn(Project.AnalysisType.REUSE_REPORTS);
-    assertThat(sensor.shouldExecuteOnProject(project), is(true));
+    assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
   }
 
   @Test

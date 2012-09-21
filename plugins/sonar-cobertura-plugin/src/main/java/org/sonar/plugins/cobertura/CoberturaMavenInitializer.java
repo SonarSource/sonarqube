@@ -51,8 +51,9 @@ public class CoberturaMavenInitializer extends Initializer implements CoverageEx
 
   @Override
   public boolean shouldExecuteOnProject(Project project) {
-    return project.getAnalysisType().isDynamic(true) &&
-        !project.getFileSystem().mainFiles(Java.KEY).isEmpty();
+    return Java.KEY.equals(project.getLanguageKey())
+      && !project.getFileSystem().mainFiles(Java.KEY).isEmpty()
+      && project.getAnalysisType().isDynamic(true);
   }
 
   @Override
