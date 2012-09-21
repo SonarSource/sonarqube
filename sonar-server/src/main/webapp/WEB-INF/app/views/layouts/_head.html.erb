@@ -1,50 +1,61 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="gwt:property" content="locale=<%= I18n.locale.to_s.gsub(/-/, '_') -%>">
-<meta http-equiv="X-UA-Compatible" content="IE=9">
-<link rel="shortcut icon" type="image/x-icon" href="<%= image_path('favicon.ico') -%>" />
-<%
-  if @project
-%><link rel="alternate" title="Sonar Alerts on <%= @project.name -%>" href="<%= ApplicationController.root_context -%>/feeds/project/<%= @project.key -%>?category=<%= EventCategory::KEY_ALERT -%>" type="application/atom+xml">
-<%
-   else
-%><link rel="alternate" title="Sonar Alerts" href="<%= ApplicationController.root_context -%>/feeds/projects/<%= EventCategory::KEY_ALERT -%>" type="application/atom+xml"><%
-  end
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="gwt:property" content="locale=<%= I18n.locale.to_s.gsub(/-/, '_') -%>">
+  <meta http-equiv="X-UA-Compatible" content="IE=9">
+  <link rel="shortcut icon" type="image/x-icon" href="<%= image_path('favicon.ico') -%>"/>
+  <%
+     if @project
+  %>
+    <link rel="alternate" title="Sonar Alerts on <%= @project.name -%>" href="<%= ApplicationController.root_context -%>/feeds/project/<%= @project.key -%>?category=<%= EventCategory::KEY_ALERT -%>" type="application/atom+xml">
+  <%
+     else
+  %>
+    <link rel="alternate" title="Sonar Alerts" href="<%= ApplicationController.root_context -%>/feeds/projects/<%= EventCategory::KEY_ALERT -%>" type="application/atom+xml">
+  <%
+     end
 
-  if @page_title
-    title="Sonar - #{h(@page_title)}"
-  elsif @project
-    title="Sonar - #{h(@project.name)}"
-  elsif @resource
-    title="#{h(@resource.long_name)}"
-  else
-    title='Sonar'
-  end
-%>
-<title><%= title -%></title>
-<% if ENV['RAILS_ENV'] == 'production'
-%><%= stylesheet_link_tag 'sonar', :media => 'all' -%><%= javascript_include_tag 'sonar'
--%><% else %>
-<%= stylesheet_link_tag 'yui-reset-font', :media => 'all' %>
-<%= stylesheet_link_tag 'select2', :media => 'all' %>
-<%= stylesheet_link_tag 'layout', :media => 'all' %>
-<%= stylesheet_link_tag 'jquery-ui', :media => 'all' %>
-<%= stylesheet_link_tag 'style', :media => 'all' %>
-<%= stylesheet_link_tag 'sonar-colorizer', :media => 'all' %>
-<%= stylesheet_link_tag 'dashboard', :media => 'all' %>
-<%= javascript_include_tag 'prototype' %>
-<%= javascript_include_tag 'scriptaculous' %>
-<%= javascript_include_tag 'tablekit' %>
-<%= javascript_include_tag 'jquery.min' %>
-<%= javascript_include_tag 'jquery-ui.min' %>
-<%= javascript_include_tag 'select2.min' %>
-<%= javascript_include_tag 'protovis' %>
-<%= javascript_include_tag 'protovis-sonar' %>
-<%= javascript_include_tag 'application' %>
-<%= javascript_include_tag 'dashboard' %>
-<%= javascript_include_tag 'duplication' %>
-<%= javascript_include_tag 'resource' %>
-<% end %>
-<!--[if lte IE 8]><%= javascript_include_tag 'protovis-msie' -%><![endif]-->
-<script>var baseUrl = '<%= ApplicationController.root_context -%>';var $j = jQuery.noConflict();<%= yield :javascript_header -%></script>
-</head><body>
+     if @page_title
+       title="Sonar - #{h(@page_title)}"
+     elsif @project
+       title="Sonar - #{h(@project.name)}"
+     elsif @resource
+       title="#{h(@resource.long_name)}"
+     else
+       title='Sonar'
+     end
+  %>
+  <title><%= title -%></title>
+  <% if ENV['RAILS_ENV'] == 'production'
+  %>
+    <%= stylesheet_link_tag 'sonar', :media => 'all' -%>
+    <%= yield :css -%>
+    <%= javascript_include_tag 'sonar' -%>
+  <% else %>
+    <%= stylesheet_link_tag 'yui-reset-font', :media => 'all' %>
+    <%= stylesheet_link_tag 'select2', :media => 'all' %>
+    <%= stylesheet_link_tag 'layout', :media => 'all' %>
+    <%= stylesheet_link_tag 'jquery-ui', :media => 'all' %>
+    <%= stylesheet_link_tag 'style', :media => 'all' %>
+    <%= stylesheet_link_tag 'sonar-colorizer', :media => 'all' %>
+    <%= stylesheet_link_tag 'dashboard', :media => 'all' %>
+    <%= javascript_include_tag 'prototype' %>
+    <%= javascript_include_tag 'scriptaculous' %>
+    <%= javascript_include_tag 'tablekit' %>
+    <%= javascript_include_tag 'jquery.min' %>
+    <%= javascript_include_tag 'jquery-ui.min' %>
+    <%= javascript_include_tag 'select2.min' %>
+    <%= javascript_include_tag 'protovis' %>
+    <%= javascript_include_tag 'protovis-sonar' %>
+    <%= javascript_include_tag 'application' %>
+    <%= javascript_include_tag 'dashboard' %>
+    <%= javascript_include_tag 'duplication' %>
+    <%= javascript_include_tag 'resource' %>
+  <% end %>
+  <!--[if lte IE 8]><%= javascript_include_tag 'protovis-msie' -%><![endif]-->
+  <script>var baseUrl = '<%= ApplicationController.root_context -%>';
+  var $j = jQuery.noConflict();</script>
+  <%= yield :script -%>
+</head>
+<body>

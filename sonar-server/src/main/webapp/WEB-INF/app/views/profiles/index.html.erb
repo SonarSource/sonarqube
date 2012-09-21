@@ -158,8 +158,10 @@
 <br/><br/>
 <% end %>
 
-<% content_for :javascript_header do %>
+<% content_for :script do %>
+<script>
   $j(document).ready(function () {
     $j('.open-modal').modal();
   });
+</script>
 <% end %>

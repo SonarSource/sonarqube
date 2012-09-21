@@ -2368,13 +2368,13 @@ select.medium-width {
 }
 .form-footer {
   text-align: right;
-  padding: 0.5em;
+  padding: 4px 10px;
   border-top: 1px solid #CCC;
 }
 .form-footer input {
   margin-right: 10px;
 }
 input[type=text],input[type=password] {
-  height: 20px;
-  padding: 0 5px;
+  height: 18px;
+  padding: 0 3px;
 }

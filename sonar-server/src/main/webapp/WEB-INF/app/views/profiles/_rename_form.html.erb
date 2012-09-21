@@ -1,4 +1,4 @@
-<h2 class="modal-title" xmlns="http://www.w3.org/1999/html">Rename Profile</h2>
+<h2 class="modal-title">Rename Profile: <%= h @profile.name -%></h2>
 <form id="form-rename-profile" method="post" action="profiles/rename">
   <input type="hidden" name="id" value="<%= @profile.id -%>"/>
 
@@ -7,10 +7,6 @@
   <% end %>
 
   <fieldset>
-    <div class="form-field">
-      <label for="">Old name</label>
-      <input type="text" disabled="disabled" value="<%= h @profile.name -%>"/>
-    </div>
     <div class="form-field">
       <label for="name">New name</label>
       <input id="new-name" name="name" type="text"/>
