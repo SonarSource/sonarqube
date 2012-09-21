@@ -40,8 +40,8 @@ import java.util.Map;
  */
 public final class PropertyDefinitions implements BatchComponent, ServerComponent {
 
-  private Map<String, PropertyDefinition> definitions = Maps.newHashMap();
-  private Map<String, String> categories = Maps.newHashMap();
+  private final Map<String, PropertyDefinition> definitions = Maps.newHashMap();
+  private final Map<String, String> categories = Maps.newHashMap();
 
   public PropertyDefinitions(Object... components) {
     if (components != null) {
@@ -99,49 +99,60 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
     return definitions.values();
   }
 
-  /**
-   * since 3.3
-   */
-  public Map<String, Collection<PropertyDefinition>> getGlobalPropertiesByCategory() {
+  static enum PropertyDefinitionFilter {
+    GLOBAL {
+      @Override
+      boolean accept(PropertyDefinition propertyDefinition) {
+        return propertyDefinition.isGlobal();
+      }
+    },
+    PROJECT {
+      @Override
+      boolean accept(PropertyDefinition propertyDefinition) {
+        return propertyDefinition.isOnProject();
+      }
+    },
+    MODULE {
+      @Override
+      boolean accept(PropertyDefinition propertyDefinition) {
+        return propertyDefinition.isOnModule();
+      }
+    };
+
+    abstract boolean accept(PropertyDefinition propertyDefinition);
+  }
+
+  private Map<String, Collection<PropertyDefinition>> getPropertiesByCategory(PropertyDefinitionFilter filter) {
     Multimap<String, PropertyDefinition> byCategory = ArrayListMultimap.create();
 
     for (PropertyDefinition definition : getAll()) {
-      if (definition.isGlobal()) {
+      if (filter.accept(definition)) {
         byCategory.put(getCategory(definition.getKey()), definition);
       }
     }
 
     return byCategory.asMap();
+  }
+
+  /**
+   * since 3.3
+   */
+  public Map<String, Collection<PropertyDefinition>> getGlobalPropertiesByCategory() {
+    return getPropertiesByCategory(PropertyDefinitionFilter.GLOBAL);
   }
 
   /**
    * since 3.3
    */
   public Map<String, Collection<PropertyDefinition>> getProjectPropertiesByCategory() {
-    Multimap<String, PropertyDefinition> byCategory = ArrayListMultimap.create();
-
-    for (PropertyDefinition definition : getAll()) {
-      if (definition.isOnProject()) {
-        byCategory.put(getCategory(definition.getKey()), definition);
-      }
-    }
-
-    return byCategory.asMap();
+    return getPropertiesByCategory(PropertyDefinitionFilter.PROJECT);
   }
 
   /**
    * since 3.3
    */
   public Map<String, Collection<PropertyDefinition>> getModulePropertiesByCategory() {
-    Multimap<String, PropertyDefinition> byCategory = ArrayListMultimap.create();
-
-    for (PropertyDefinition definition : getAll()) {
-      if (definition.isOnModule()) {
-        byCategory.put(getCategory(definition.getKey()), definition);
-      }
-    }
-
-    return byCategory.asMap();
+    return getPropertiesByCategory(PropertyDefinitionFilter.MODULE);
   }
 
   public String getDefaultValue(String key) {
