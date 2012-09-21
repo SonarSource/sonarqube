@@ -1,29 +1,31 @@
-<h1 class="marginbottom10"><%= message('settings.page') -%></h1>
+<div id="plugins">
+  <h1 class="marginbottom10"><%= message('settings.page') -%></h1>
 
-<table width="100%">
-  <tr>
-    <td width="1%" nowrap class="column first">
-      <table class="data">
-        <thead>
-        <tr>
-          <th><%= message('category') -%></th>
-        </tr>
-        </thead>
-        <tbody>
-        <% by_name(@categories).each do |category| -%>
-          <tr id="select_<%= category -%>" class="select <%= cycle('even', 'odd', :name => 'category') -%> <%= 'selected' if @category==category -%>">
-            <td><%= link_to category_name(category), :category => category -%></td>
+  <table width="100%">
+    <tr>
+      <td width="1%" nowrap class="column first">
+        <table class="data">
+          <thead>
+          <tr>
+            <th><%= message('category') -%></th>
           </tr>
-        <% end -%>
-        </tbody>
-      </table>
-      <br/>
-    </td>
+          </thead>
+          <tbody>
+          <% by_name(@categories).each do |category| -%>
+            <tr id="select_<%= category -%>" class="select <%= cycle('even', 'odd', :name => 'category') -%> <%= 'selected' if @category==category -%>">
+              <td><%= link_to category_name(category), :category => category -%></td>
+            </tr>
+          <% end -%>
+          </tbody>
+        </table>
+        <br/>
+      </td>
 
-    <td class="column">
-      <div id="properties">
-        <%= render 'settings/properties' -%>
-      </div>
-    </td>
-  </tr>
-</table>
+      <td class="column">
+        <div id="properties">
+          <%= render 'settings/properties' -%>
+        </div>
+      </td>
+    </tr>
+  </table>
+</div>
