@@ -59,7 +59,7 @@ public class ProjectTest {
   @Test
   public void shouldTrimExclusionPatterns() {
     Configuration conf = new PropertiesConfiguration();
-    conf.setProperty("sonar.exclusions", "  **/*Foo.java   , **/Bar.java    ");
+    conf.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "  **/*Foo.java   , **/Bar.java    ");
     Project project = new Project("foo").setConfiguration(conf);
 
     String[] exclusions = project.getExclusionPatterns();

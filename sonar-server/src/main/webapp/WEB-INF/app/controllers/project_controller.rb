@@ -272,38 +272,6 @@ class ProjectController < ApplicationController
     render :action => 'events', :layout => !request.xhr?
   end
 
-
-  def exclusions
-    @project = get_current_project(params[:id])
-
-    @snapshot=@project.last_snapshot
-    if !@project.project? && !@project.module?
-      redirect_to :action => 'index', :id => params[:id]
-    end
-  end
-
-  def set_exclusions
-    @project = get_current_project(params[:id])
-
-    patterns=params['patterns'].reject { |p| p.blank? }.uniq
-    if patterns.empty?
-      Property.clear('sonar.exclusions', @project.id)
-    else
-      # Trim spaces in patterns before merging into one String - see http://jira.codehaus.org/browse/SONAR-2261
-      Property.set('sonar.exclusions', patterns.collect { |x| x.strip }.join(','), @project.id)
-    end
-    flash[:notice]='Filters added'
-    redirect_to :action => 'exclusions', :id => @project.id
-  end
-
-  def delete_exclusions
-    @project = get_current_project(params[:id])
-
-    Property.clear('sonar.exclusions', @project.id)
-    flash[:notice]='Filters deleted'
-    redirect_to :action => 'exclusions', :id => @project.id
-  end
-
   def update_version
     snapshot=Snapshot.find(params[:sid])
     not_found("Snapshot not found") unless snapshot

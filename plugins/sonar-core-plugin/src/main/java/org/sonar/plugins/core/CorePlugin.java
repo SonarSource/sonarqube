@@ -131,6 +131,14 @@ import java.util.List;
     global = true,
     category = CoreProperties.CATEGORY_GENERAL),
   @Property(
+    key = CoreProperties.PROJECT_EXCLUSIONS_PROPERTY,
+    name = "Exclusions",
+    description = "Exclude sources from code analysis. Changes will be applied during next code analysis.",
+    project = true,
+    global = false,
+    multiValues = true,
+    category = CoreProperties.CATEGORY_EXCLUSIONS),
+  @Property(
     key = CoreProperties.CORE_COVERAGE_PLUGIN_PROPERTY,
     defaultValue = "jacoco",
     name = "Code coverage plugin",

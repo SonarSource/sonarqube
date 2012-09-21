@@ -19,14 +19,6 @@
  */
 package org.sonar.api.resources;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
@@ -37,6 +29,7 @@ import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.FileFilter;
 import org.sonar.api.test.MavenTestUtils;
 
@@ -44,6 +37,12 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DefaultProjectFileSystemTest {
 
@@ -81,7 +80,7 @@ public class DefaultProjectFileSystemTest {
     assertThat(fs.hasJavaSourceFiles(), is(true));
 
     PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty("sonar.exclusions", "**/*.java");
+    conf.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "**/*.java");
     project.setConfiguration(conf);
     assertThat(fs.hasJavaSourceFiles(), is(false));
   }
@@ -97,7 +96,7 @@ public class DefaultProjectFileSystemTest {
   @Test
   public void applyExclusionPatternsToSourceFiles() {
     PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty("sonar.exclusions", "**/B*.java");
+    conf.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "**/B*.java");
     project.setConfiguration(conf);
 
     final DefaultProjectFileSystem fs = newDefaultProjectFileSystem(project);
@@ -112,7 +111,7 @@ public class DefaultProjectFileSystemTest {
   @Test
   public void exclusionPatternOnAjFiles() {
     PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty("sonar.exclusions", "**/*.aj");
+    conf.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "**/*.aj");
     project.setConfiguration(conf);
 
     final DefaultProjectFileSystem fs = newDefaultProjectFileSystem(project);
@@ -125,7 +124,7 @@ public class DefaultProjectFileSystemTest {
   @Test
   public void doNotApplyExclusionPatternsToTestFiles() {
     PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty("sonar.exclusions", "**/B*.java");
+    conf.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "**/B*.java");
     project.setConfiguration(conf);
 
     final DefaultProjectFileSystem fs = newDefaultProjectFileSystem(project);
@@ -220,7 +219,7 @@ public class DefaultProjectFileSystemTest {
   @Test
   public void testSelectiveFileFilter() {
     DefaultProjectFileSystem.FileSelectionFilter filter = new DefaultProjectFileSystem.FileSelectionFilter(
-        Arrays.asList(new File("foo/Bar.java"), new File("hello/Bar.java"), new File("hello/World.java")));
+      Arrays.asList(new File("foo/Bar.java"), new File("hello/Bar.java"), new File("hello/World.java")));
     assertThat(filter.accept(new File("foo/Bar.java")), Matchers.is(true));
     assertThat(filter.accept(new File("hello/Bar.java")), Matchers.is(true));
     assertThat(filter.accept(new File("hello/World.java")), Matchers.is(true));

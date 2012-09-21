@@ -67,6 +67,11 @@ public interface CoreProperties {
    */
   String CATEGORY_DIFFERENTIAL_VIEWS = "differentialViews";
 
+  /**
+   * @since 3.3
+   */
+  String CATEGORY_EXCLUSIONS = "exclusions";
+
   /* Global settings */
   String SONAR_HOME = "SONAR_HOME";
   String PROJECT_BRANCH_PROPERTY = "sonar.branch";
@@ -98,8 +103,11 @@ public interface CoreProperties {
    * Value format is yyyy-MM-dd
    */
   String PROJECT_DATE_PROPERTY = "sonar.projectDate";
+
   String PROJECT_LANGUAGE_PROPERTY = "sonar.language";
   String DYNAMIC_ANALYSIS_PROPERTY = "sonar.dynamicAnalysis";
+
+  /* Exclusions */
   String PROJECT_EXCLUSIONS_PROPERTY = "sonar.exclusions";
 
   /**

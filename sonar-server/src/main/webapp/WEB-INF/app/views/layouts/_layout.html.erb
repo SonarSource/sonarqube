@@ -97,11 +97,8 @@
             <% end %>
             <% if (@project.project? || @project.module?) %>
               <li class="<%= 'selected' if request.request_uri.include?('/project/settings') -%>">
-                <a href="<%= ApplicationController.root_context -%>/project/settings/<%= @project.id -%>"><%= message('project_settings.page') -%></a></li>
-            <% end %>
-            <% if (@project.project? || @project.module?) %>
-              <li class="<%= 'selected' if request.request_uri.include?('/project/exclusions') -%>">
-                <a href="<%= ApplicationController.root_context -%>/project/exclusions/<%= @project.id -%>"><%= message('project_exclusions.page') -%></a></li>
+                <a href="<%= ApplicationController.root_context -%>/project/settings/<%= @project.id -%>"><%= message('project_settings.page') -%></a>
+              </li>
             <% end %>
             <% if (@project.project?) %>
               <li class="<%= 'selected' if request.request_uri.include?('/project/links') -%>">
