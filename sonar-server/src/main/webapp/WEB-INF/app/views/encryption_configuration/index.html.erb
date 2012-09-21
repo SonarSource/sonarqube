@@ -1,20 +1,39 @@
-<h3 class="spacer-bottom">Encryption</h3>
-<p class="spacer-bottom">Secret key is registered. You can encrypt any property value with the following form :</p>
+<style>
+  #body {
+    padding: 0 1px 0 0;
+  }
+</style>
 
-<%= form_remote_tag :url => {:action => 'encrypt'},
-                    :update => {:success => 'encrypted_section', :failure => 'encryption_error'},
-                    :success => "$('encrypted_section').show();$('encryption_error').hide();",
-                    :failure => "$('encryption_error').show()",
-                    :html => {:class => 'spacer-bottom'} -%>
-<input type="text" name="text" id="clear_text"/>
-<input type="submit" value="Encrypt" id="submit_encrypt"/>
-</form>
+<table class="data marginbottom10">
+  <thead>
+  <tr>
+    <th>Encryption</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr class="even">
+    <td style="padding: 10px">
+      <p class="spacer-bottom">Secret key is registered. You can encrypt any property value with the following form :</p>
 
-<div id="encrypted_section" style="display:none"></div>
-<span id="encryption_error" class="error" style="display:none"></span>
+      <%= form_remote_tag :url => {:action => 'encrypt'},
+                          :update => {:success => 'encrypted_section', :failure => 'encryption_error'},
+                          :success => "$('encrypted_section').show();$('encryption_error').hide();",
+                          :failure => "$('encryption_error').show()",
+                          :html => {:class => 'spacer-bottom'} -%>
+      <input type="text" name="text" id="clear_text"/>
+      <input type="submit" value="Encrypt" id="submit_encrypt"/>
+      </form>
 
-<p>Note that the <%= link_to 'secret key can be changed', {:action => 'generate_secret_form'}, :class => 'link-action', :id => 'link-generate-key' %>
-  but all the encrypted properties will have to be updated. <a href="http://docs.codehaus.org/display/SONAR/Settings+Encryption" class="external" target="sonar_doc">More information</a>.</p>
+      <div id="encrypted_section" style="display:none"></div>
+      <span id="encryption_error" class="error" style="display:none"></span>
+
+      <p>Note that the <%= link_to 'secret key can be changed', {:action => 'generate_secret_form'}, :class => 'link-action', :id => 'link-generate-key' %>
+        but all the encrypted properties will have to be updated. <a href="http://docs.codehaus.org/display/SONAR/Settings+Encryption" class="external" target="sonar_doc">More information</a>.</p>
+    </td>
+  </tr>
+  </tbody>
+</table>
+
 <script>
-  $('clear_text').focus();
+  $j('#clear_text').focus();
 </script>
