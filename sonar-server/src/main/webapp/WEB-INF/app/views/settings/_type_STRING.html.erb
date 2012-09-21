@@ -1,2 +1,4 @@
-<input type="text" name="<%= h property.key -%>[]" value="<%= h value if value -%>" size="50" id="input_<%= h property.key -%>"/>
-<%= link_to_function(image_tag('zoom.png'), "enlargeTextInput('#{property.key}')", :class => 'nolink') -%>
+<input type="text" name="<%= h property.key -%>[]" value="<%= h value if value -%>" size="50" id="input_<%= property.key.parameterize -%>"/>
+<% unless property.multi_values -%>
+  <%= link_to_function(image_tag('zoom.png'), "enlargeTextInput('input_#{property.key.parameterize}')", :class => 'nolink') -%>
+<% end -%>

@@ -7,7 +7,7 @@
                      :update => 'properties',
                      :script => false do -%>
 
-    <table class="data marginbottom10" style="margin: 10px;">
+    <table class="data marginbottom10">
       <thead>
       <tr>
         <th><%= h category_name(@category) -%></th>
@@ -34,14 +34,22 @@
               <div class="template" style="display:none;">
                 <%= render "settings/multi_value", :property => property, :value => nil -%>
               </div>
-              <a href="#" class="add"><%= message('settings.add') -%></a>
-            <% else -%>
+              <button class="add_value"><%= message('settings.add') -%></button>
+              <br/>
+          <% else -%>
               <%= render "settings/type_#{property_type(property, value)}", :property => property, :value => value -%>
             <% end -%>
 
             <% default_prop_value = (@resource ? Property.value(property.key, nil, property.defaultValue) : property.defaultValue) -%>
-            <% unless default_prop_value.blank? %>
-              <p class="note">Default: <%= property.type.to_s=='PASSWORD' ? '********' : h(default_prop_value) -%></p>
+            <% unless default_prop_value.blank? -%>
+              <div class="note">Default: <%= property.type.to_s=='PASSWORD' ? '********' : h(default_prop_value) -%></div>
+            <% end -%>
+
+            <% details = property_help(property) -%>
+            <% unless details.blank? -%>
+              <br/>
+
+              <div class="help"><%= details -%></div>
             <% end -%>
           </td>
         </tr>
@@ -55,13 +63,21 @@
   <% end -%>
 <% end -%>
 
-<script type="text/javascript">
+<script>
   $j('.delete').live('click', function () {
     $j(this).parent('.multi_value').remove();
+    return false;
   });
 
-  $j('.add').live('click', function () {
+  $j('.add_value').live('click', function () {
     var template = $j(this).siblings('.template');
     template.before(template.html());
+    return false;
   });
+
+  function enlargeTextInput(propertyKey) {
+    var input = $j('#' + propertyKey);
+    var textArea = '<textarea class="width100" rows="10" name="' + input.attr('name') + '" id="input_' + propertyKey + '">' + input.val() + '</textarea>';
+    input.replaceWith(textArea);
+  }
 </script>

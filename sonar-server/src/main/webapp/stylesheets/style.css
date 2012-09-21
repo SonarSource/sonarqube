@@ -2031,6 +2031,10 @@ div.break30 {
   margin-bottom: 10px;
 }
 
+.marginbottom5 {
+  margin-bottom: 5px;
+}
+
 .marginright10 {
   margin-right: 10px;
 }
@@ -2084,11 +2088,6 @@ table.nowrap td, td.nowrap, th.nowrap {
 .add {
   display: block;
   background: url("../images/add.png") no-repeat scroll left 50% transparent;
-  padding: 2px 0 2px 20px;
-}
-
-.delete {
-  background: url("../images/cross.png") no-repeat scroll left 50% transparent;
   padding: 2px 0 2px 20px;
 }
 

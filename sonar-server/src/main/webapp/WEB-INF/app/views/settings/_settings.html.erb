@@ -3,7 +3,7 @@
 <table width="100%">
   <tr>
     <td width="1%" nowrap class="column first">
-      <table class="data selector">
+      <table class="data">
         <thead>
         <tr>
           <th><%= message('category') -%></th>
@@ -27,12 +27,3 @@
     </td>
   </tr>
 </table>
-
-<script type="text/javascript">
-  function enlargeTextInput(propertyKey) {
-    var eltId = 'input_' + propertyKey;
-    var textValue = $F(eltId);
-    var textArea = '<textarea class="width100" id="' + propertyKey + '" name="' + propertyKey + '" rows="10" id="input_' + propertyKey + '">' + textValue + '</textarea>';
-    $(eltId).parentNode.replace(textArea);
-  }
-</script>

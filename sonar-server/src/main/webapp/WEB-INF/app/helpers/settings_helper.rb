@@ -19,15 +19,19 @@
 #
 module SettingsHelper
   def category_name(category)
-    message_or_default("property.category.#{category}", category)
+    message("property.category.#{category}", :default => category)
   end
 
   def property_name(property)
-    message_or_default("property.#{property.key()}.name", property.name())
+    message("property.#{property.key()}.name", :default => property.name())
   end
 
   def property_description(property)
-    message_or_default("property.#{property.key()}.description", property.description())
+    message("property.#{property.key()}.description", :default => property.description())
+  end
+
+  def property_help(property)
+    message("property.#{property.key()}.help", :default => '')
   end
 
   def property_value(property)
@@ -44,10 +48,6 @@ module SettingsHelper
       return 'TEXT'
     end
     property.getType()
-  end
-
-  def message_or_default(message_key, default)
-    message(message_key, :default => default)
   end
 
   def by_name(categories)
