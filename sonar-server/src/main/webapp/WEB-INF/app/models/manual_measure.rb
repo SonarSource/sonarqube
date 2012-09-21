@@ -96,7 +96,9 @@ class ManualMeasure < ActiveRecord::Base
       return ''
     end
 
-    if metric.numeric?
+    if metric.value_type==Metric::VALUE_TYPE_INT
+      value ? value.to_i.to_s : ''
+    elsif metric.numeric?
       value ? value.to_s : ''
     elsif metric.value_type==Metric::VALUE_TYPE_BOOLEAN
       value ? (value==1 ? 'Yes' : 'No') : ''
