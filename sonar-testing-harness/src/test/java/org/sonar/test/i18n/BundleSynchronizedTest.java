@@ -20,6 +20,7 @@
 package org.sonar.test.i18n;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.test.TestUtils;
 
@@ -45,6 +46,7 @@ public class BundleSynchronizedTest {
   }
 
   @Test
+  @Ignore("Deactivated because files were removed from the master in Sonar 3.3-SNAPSHOT")
   // The case of a Sonar Language Pack that translates the Core bundles
   public void shouldMatchBundlesOfLanguagePack() {
     // synchronized bundle
@@ -90,6 +92,7 @@ public class BundleSynchronizedTest {
   }
 
   @Test
+  @Ignore("Deactivated because files were removed from the master in Sonar 3.3-SNAPSHOT")
   public void testGetBundleFileFromGithub() throws Exception {
     matcher = new BundleSynchronizedMatcher(null, GITHUB_RAW_TESTING_FILE_PATH);
     matcher.getBundleFileFromGithub("core.properties");
