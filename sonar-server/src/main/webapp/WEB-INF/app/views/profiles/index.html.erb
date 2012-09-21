@@ -133,7 +133,7 @@
           <% if !(profile.provided?) %>
              <% form_tag(:action => 'rename', :id => profile.id) do -%>
               <%= hidden_field_tag 'rename_' + profile.id.to_s %>
-              <input type="button" name="button_rename" id="rename_<%= u profile.key %>" value="<%= message('rename') -%>" onClick='var name=prompt("<%= message('quality_profiles.new_name') -%>", "<%= u(profile.name) -%>"); if (name!=null) {$("rename_<%= profile.id %>").value=name; submit();} else {return false;}'>
+              <input type="button" name="button_rename" id="rename_<%= u profile.key %>" value="<%= message('rename') -%>" onClick='var name=prompt("<%= message('quality_profiles.new_name') -%>", "<%= profile.name -%>"); if (name!=null) {$("rename_<%= profile.id %>").value=name; submit();} else {return false;}'>
             <% end
             end %>
         </td>
