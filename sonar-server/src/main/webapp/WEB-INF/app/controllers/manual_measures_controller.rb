@@ -46,6 +46,7 @@ class ManualMeasuresController < ApplicationController
     end
     @measure.typed_value=params[:val]
     @measure.description=params[:desc]
+    @measure.user_login=current_user.login
     if @measure.valid?
       @measure.save
       if (params[:redirect_to_new]=='true')
