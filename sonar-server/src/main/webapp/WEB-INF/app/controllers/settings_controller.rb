@@ -39,13 +39,14 @@ class SettingsController < ApplicationController
 
     load_properties()
 
+    @updated_properties = {}
     @definitions.map(&:key).each do |key|
       value = params[key]
 
       if value.blank?
         Property.clear(key, resource_id)
       else
-        Property.set(key, value, resource_id)
+        @updated_properties[key] = Property.set(key, value, resource_id)
       end
     end
 

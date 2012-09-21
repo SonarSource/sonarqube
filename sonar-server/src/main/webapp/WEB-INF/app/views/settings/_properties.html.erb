@@ -36,8 +36,13 @@
               </div>
               <button class="add_value"><%= message('settings.add') -%></button>
               <br/>
-          <% else -%>
+            <% else -%>
               <%= render "settings/type_#{property_type(property, value)}", :property => property, :value => value -%>
+            <% end -%>
+
+            <% p = @updated_properties[property.key] if @updated_properties -%>
+            <% if p && !p.valid? -%>
+              <div class="error"><%= p.validation_error_message -%></div>
             <% end -%>
 
             <% default_prop_value = (@resource ? Property.value(property.key, nil, property.defaultValue) : property.defaultValue) -%>
