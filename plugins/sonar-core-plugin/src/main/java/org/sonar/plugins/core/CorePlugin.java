@@ -170,9 +170,10 @@ import java.util.List;
   @Property(
     key = CoreProperties.CORE_SKIPPED_MODULES_PROPERTY,
     name = "Exclude modules",
-    description = "Maven artifact ids of modules to exclude (comma-separated).",
+    description = "Maven artifact ids of modules to exclude.",
     project = true,
     global = false,
+    multiValues = true,
     category = CoreProperties.CATEGORY_GENERAL),
   @Property(
     key = CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY,

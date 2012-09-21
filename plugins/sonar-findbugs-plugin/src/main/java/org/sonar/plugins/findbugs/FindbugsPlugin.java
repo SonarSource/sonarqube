@@ -52,8 +52,12 @@ import java.util.List;
   @Property(
     key = FindbugsConstants.EXCLUDES_FILTERS_PROPERTY,
     name = "Excludes Filters",
-    description = "Paths to findbugs filter-files with exclusions (comma-separated).",
-    project = true, module = true, global = true)})
+    description = "Paths to findbugs filter-files with exclusions.",
+    project = true,
+    module = true,
+    global = true,
+    multiValues = true
+  )})
 public class FindbugsPlugin extends SonarPlugin {
 
   public List<Class<? extends Extension>> getExtensions() {
