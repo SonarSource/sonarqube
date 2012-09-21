@@ -246,6 +246,7 @@
                 <include>**/protovis-min.js</include>
                 <include>**/protovis-sonar-min.js</include>
                 <include>**/jquery.min.js</include>
+                <include>**/jquery-ui.min.js</include>
                 <include>**/select2.min.js</include>
                 <include>**/application-min.js</include>
                 <include>**/dashboard-min.js</include>

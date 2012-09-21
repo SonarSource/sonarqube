@@ -206,8 +206,9 @@ Treemap.prototype.load = function () {
   this.breadcrumb.each(function (ctx) {
     output += ctx.label + '&nbsp;/&nbsp;';
   });
-  if ($('tm-bc-' + this.id)!=null) {
-  $('tm-bc-' + this.id).innerHTML = output;}
+  if ($('tm-bc-' + this.id) != null) {
+    $('tm-bc-' + this.id).innerHTML = output;
+  }
   var loadingIcon = $('tm-loading-' + this.id);
   if (loadingIcon != null) {
     loadingIcon.show();
@@ -257,3 +258,61 @@ Treemap.prototype.onLoaded = function (componentsSize) {
     elt.observe('mouseup', this.handleClick.bind(this));
   }
 };
+
+(function ($j) {
+  $j.fn.extend({
+    modal:function (options) {
+      var defaults = {
+        width:540,
+        urlAttr:'href'
+      };
+      var options = $j.extend(defaults, options);
+
+      return this.each(function () {
+        var o = options;
+        var obj = $j(this);
+        var $link = obj.bind('click', function () {
+          if ($j('#modal').length) {
+            return; // another window is already opening
+          }
+          var $dialog = $j('<div id="modal"></div>').appendTo('body');
+          $j.get($link.attr(o.urlAttr), {}, function (html) {
+            $dialog.html(html);
+            $dialog
+              .dialog({
+                width:o.width,
+                draggable:false,
+                autoOpen:false,
+                modal:true,
+                resizable:false,
+                dialogClass:o.dialogClass,
+                open:function (event,ui) {
+                  $j('.ui-widget-overlay').bind('click', function () {
+                    $j('#modal').dialog('close');
+                  })
+                },
+                close: function() {
+                  $j('#modal').remove();
+                }
+              });
+            $dialog.dialog("open");
+          });
+
+
+          $link.click(function () {
+            $dialog.dialog('open');
+            return false;
+          });
+
+          return false;
+        });
+
+
+      });
+    }
+  });
+})(jQuery);
+
+function closeModalWindow() {
+  $j('#modal').dialog('close');
+}

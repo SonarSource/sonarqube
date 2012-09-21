@@ -25,9 +25,10 @@
 <% if ENV['RAILS_ENV'] == 'production'
 %><%= stylesheet_link_tag 'sonar', :media => 'all' -%><%= javascript_include_tag 'sonar'
 -%><% else %>
-<%= stylesheet_link_tag 'yui-reset-font.css', :media => 'all' %>
+<%= stylesheet_link_tag 'yui-reset-font', :media => 'all' %>
 <%= stylesheet_link_tag 'select2', :media => 'all' %>
-<%= stylesheet_link_tag 'layout.css', :media => 'all' %>
+<%= stylesheet_link_tag 'layout', :media => 'all' %>
+<%= stylesheet_link_tag 'jquery-ui', :media => 'all' %>
 <%= stylesheet_link_tag 'style', :media => 'all' %>
 <%= stylesheet_link_tag 'sonar-colorizer', :media => 'all' %>
 <%= stylesheet_link_tag 'dashboard', :media => 'all' %>
@@ -35,6 +36,7 @@
 <%= javascript_include_tag 'scriptaculous' %>
 <%= javascript_include_tag 'tablekit' %>
 <%= javascript_include_tag 'jquery.min' %>
+<%= javascript_include_tag 'jquery-ui.min' %>
 <%= javascript_include_tag 'select2.min' %>
 <%= javascript_include_tag 'protovis' %>
 <%= javascript_include_tag 'protovis-sonar' %>
