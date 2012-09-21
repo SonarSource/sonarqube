@@ -23,7 +23,7 @@ class Filter < ActiveRecord::Base
   TREEMAP_PAGE_SIZE=200
   DEFAULT_PAGE_SIZE=50
   MAX_PAGE_SIZE=200
-  MIN_PAGE_SIZE=20
+  MIN_PAGE_SIZE=5
 
   belongs_to :user
   belongs_to :resource, :class_name => 'Project', :foreign_key => 'resource_id'
