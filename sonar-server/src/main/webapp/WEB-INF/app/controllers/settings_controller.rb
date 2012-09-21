@@ -42,6 +42,9 @@ class SettingsController < ApplicationController
     @updated_properties = {}
     @definitions.map(&:key).each do |key|
       value = params[key]
+      if value.kind_of? Array
+        value = value.reverse.drop_while(&:blank?).reverse
+      end
 
       if value.blank?
         Property.clear(key, resource_id)

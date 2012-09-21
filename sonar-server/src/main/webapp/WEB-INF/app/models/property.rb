@@ -39,8 +39,11 @@ class Property < ActiveRecord::Base
   end
 
   def self.clear(key, resource_id=nil, user_id=nil)
-    all(key, resource_id, user_id).delete_all
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().setGlobalProperty(key, nil) unless resource_id
+    prop = by_key(key, resource_id, user_id)
+    if prop
+      all(key, resource_id, user_id).delete_all
+      Java::OrgSonarServerUi::JRubyFacade.getInstance().setGlobalProperty(key, nil) unless resource_id
+    end
   end
 
   def self.by_key(key, resource_id=nil, user_id=nil)
@@ -68,25 +71,29 @@ class Property < ActiveRecord::Base
     definition = Java::OrgSonarServerUi::JRubyFacade.getInstance().propertyDefinitions.get(key)
     if definition && definition.multi_values
       if value.kind_of? Array
-        values = value.map { |v| v.gsub(',', '%2C') }
-        values = values.reverse.drop_while(&:blank?).reverse
-        value = values.join(',')
+        value = value.map { |v| v.gsub(',', '%2C') }.join(',')
+      end
+    elsif value.kind_of? Array
+      value = value.first
+    end
+
+    text_value = (value.blank? ? nil : value.to_s)
+
+    prop = by_key(key, resource_id, user_id)
+    if prop
+      if prop.text_value != text_value
+        prop.text_value = text_value
+        if prop.save
+          Java::OrgSonarServerUi::JRubyFacade.getInstance().setGlobalProperty(key, text_value) unless resource_id
+        end
       end
     else
-      if value.kind_of? Array
-        value = value.first
+      prop = Property.new(:prop_key => key, :text_value => text_value, :resource_id => resource_id, :user_id => user_id)
+      if prop.save
+        Java::OrgSonarServerUi::JRubyFacade.getInstance().setGlobalProperty(key, text_value) unless resource_id
       end
     end
 
-    text_value = (value.nil? ? nil : value.to_s)
-    prop = Property.new(:prop_key => key, :text_value => text_value, :resource_id => resource_id, :user_id => user_id)
-    if prop.valid?
-      Property.transaction do
-        Property.delete_all(:prop_key => key, :resource_id => resource_id, :user_id => user_id)
-        prop.save
-      end
-      Java::OrgSonarServerUi::JRubyFacade.getInstance().setGlobalProperty(key, text_value) unless resource_id
-    end
     prop
   end
 
