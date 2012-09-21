@@ -30,14 +30,16 @@ import org.sonar.plugins.design.batch.SuspectLcom4DensityDecorator;
 import org.sonar.plugins.design.ui.dependencies.DependenciesViewer;
 import org.sonar.plugins.design.ui.libraries.GwtLibrariesPage;
 import org.sonar.plugins.design.ui.page.GwtDesignPage;
-import org.sonar.plugins.design.ui.widgets.ChidamberKemererWidget;
 import org.sonar.plugins.design.ui.widgets.FileDesignWidget;
+import org.sonar.plugins.design.ui.widgets.LCOM4Widget;
 import org.sonar.plugins.design.ui.widgets.PackageDesignWidget;
+import org.sonar.plugins.design.ui.widgets.ResponseForClassWidget;
 
 import java.util.List;
 
 public class DesignPlugin extends SonarPlugin {
 
+  @SuppressWarnings("unchecked")
   public List<Class<? extends Extension>> getExtensions() {
     return ImmutableList.of(
         // Batch
@@ -53,6 +55,7 @@ public class DesignPlugin extends SonarPlugin {
         DependenciesViewer.class,
         FileDesignWidget.class,
         PackageDesignWidget.class,
-        ChidamberKemererWidget.class);
+        LCOM4Widget.class,
+        ResponseForClassWidget.class);
   }
 }

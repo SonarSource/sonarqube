@@ -1,0 +1,30 @@
+<%
+  rfc=measure('rfc')
+  if rfc
+    rfc_distribution=measure('rfc_distribution')
+%>
+<table width="100%">
+  <tbody>
+    <tr>
+      <td valign="top">
+        <div class="dashbox">
+          <h3><%= message('widget.rfc.title') -%></h3>
+          <p><span class="big">
+            <%= format_measure(rfc, :suffix => '', :default => '-', :url => url_for_drilldown('rfc')) -%></span><%= message('widget.rfc.per_class.suffix') -%> <%= dashboard_configuration.selected_period? ? format_variation(rfc) : trend_icon(rfc, :big => true) -%>
+          </p>
+        </div>
+      </td>
+
+      <%
+        if rfc_distribution && !rfc_distribution.data.blank?
+          query="ck=distbar&c=777777&w=180&h=100&fs=8&bgc=ffffff&v=" + u(rfc_distribution.data)
+      %>
+      <td>
+        <a href="<%= url_for_drilldown('rfc') -%>"><%= chart(query, :id => 'rfc_distribution', :alt => '') -%></a>
+      </td>
+      <% end %>
+
+    </tr>
+  </tbody>
+</table>
+<% end %>

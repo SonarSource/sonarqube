@@ -25,19 +25,19 @@ import org.sonar.api.web.UserRole;
 import org.sonar.api.web.WidgetCategory;
 
 @UserRole(UserRole.USER)
-@WidgetCategory({ "Design" })
-public final class ChidamberKemererWidget extends AbstractRubyTemplate implements RubyRailsWidget {
+@WidgetCategory({"Design"})
+public final class LCOM4Widget extends AbstractRubyTemplate implements RubyRailsWidget {
 
   public String getId() {
-    return "ckjm";
+    return "lcom4";
   }
 
   public String getTitle() {
-    return "Chidamber & Kemerer";
+    return "LCOM4";
   }
 
   @Override
   protected String getTemplatePath() {
-    return "/org/sonar/plugins/design/ui/widgets/chidamber_kemerer.html.erb";
+    return "/org/sonar/plugins/design/ui/widgets/lcom4.html.erb";
   }
 }
