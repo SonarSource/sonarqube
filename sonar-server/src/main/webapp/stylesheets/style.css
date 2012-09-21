@@ -2374,6 +2374,7 @@ select.medium-width {
 .form-footer input {
   margin-right: 10px;
 }
-input[type=text] {
+input[type=text],input[type=password] {
   height: 20px;
+  padding: 0 5px;
 }
