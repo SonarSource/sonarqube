@@ -25,7 +25,14 @@ package org.sonar.wsclient.services;
 public class Server extends Model {
 
   public static enum Status {
-    SETUP, UP, DOWN
+    SETUP,
+    UP,
+    DOWN,
+
+    /**
+     * @since 3.3
+     */
+    MIGRATION_RUNNING
   }
 
   private String id;
