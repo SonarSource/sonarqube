@@ -1,17 +1,23 @@
-<h2 class="modal-title">Rename Profile: <%= h @profile.name -%></h2>
 <form id="form-rename-profile" method="post" action="profiles/rename">
   <input type="hidden" name="id" value="<%= @profile.id -%>"/>
-
-  <% if @error %>
-    <p class="error"><%= h @error -%></p>
-  <% end %>
-
   <fieldset>
-    <div class="form-field">
-      <label for="name">New name</label>
-      <input id="new-name" name="name" type="text"/>
+
+    <div class="form-head">
+      <h2>Rename Profile: <%= h @profile.name -%></h2>
     </div>
-    <div class="form-footer">
+    <div class="form-body">
+      <% if @error %>
+        <div class="form-field">
+          <p class="error"><%= h @error -%></p>
+        </div>
+      <% end %>
+
+      <div class="form-field">
+        <label for="name">New name</label>
+        <input id="new-name" name="name" type="text" size="50" maxlength="100"/>
+      </div>
+    </div>
+    <div class="form-foot">
       <input type="submit" value="Rename"/>
       <a href="#" onclick="return closeModalWindow()"><%= message('cancel') -%></a>
     </div>

@@ -261,39 +261,30 @@ Treemap.prototype.onLoaded = function (componentsSize) {
 
 (function ($j) {
   $j.fn.extend({
-    modal:function (options) {
-      var defaults = {
-        width:540,
-        urlAttr:'href'
-      };
-      var options = $j.extend(defaults, options);
-
+    modal:function () {
       return this.each(function () {
-        var o = options;
         var obj = $j(this);
         var $link = obj.bind('click', function () {
           if ($j('#modal').length) {
             return; // another window is already opening
           }
           var $dialog = $j('<div id="modal"></div>').appendTo('body');
-          $j.get($link.attr(o.urlAttr), {}, function (html) {
+          $j.get($link.attr('href'), {}, function (html) {
             $dialog.html(html);
             $dialog
               .dialog({
-                width:o.width,
+                width:($link.attr('modal-width')||540),
                 draggable:false,
                 autoOpen:false,
                 modal:true,
                 minHeight: 50,
                 resizable:false,
-                dialogClass:o.dialogClass,
                 close: function() {
                   $j('#modal').remove();
                 }
               });
             $dialog.dialog("open");
           });
-
 
           $link.click(function () {
             $dialog.dialog('open');

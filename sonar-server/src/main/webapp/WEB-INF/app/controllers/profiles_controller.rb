@@ -24,7 +24,7 @@ class ProfilesController < ApplicationController
   verify :method => :post, :only => ['create', 'delete', 'copy', 'set_as_default', 'restore', 'set_projects', 'rename', 'change_parent'], :redirect_to => { :action => 'index' }
 
   # the backup action is allow to non-admin users : see http://jira.codehaus.org/browse/SONAR-2039
-  before_filter :admin_required, :only => ['create', 'delete', 'set_as_default', 'copy', 'restore', 'change_parent', 'set_projects', 'rename']
+  before_filter :admin_required, :only => ['create', 'delete', 'set_as_default', 'copy', 'restore', 'change_parent', 'set_projects', 'rename_form', 'rename']
 
   #
   #
@@ -95,7 +95,6 @@ class ProfilesController < ApplicationController
     @profile = Profile.find(params[:id])
     if @profile && @profile.deletable?
       java_facade.deleteProfile(@profile.id)
-      flash[:notice]=message('quality_profiles.profile_x_deleted', :params => @profile.name)
     end
     redirect_to(:controller => 'profiles', :action => 'index')
   end

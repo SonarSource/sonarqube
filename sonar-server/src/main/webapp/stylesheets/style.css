@@ -2347,13 +2347,17 @@ select.medium-width {
   //vertical-align: baseline;
 }
 
-.modal-title {
-  border-bottom: 1px solid #ccc;
-  padding: 0.5em;
+.form-head {
+  padding: 0 10px;
   background-color: #EFEFEF;
+  line-height: 30px;
+  height: 30px;
+}
+.form-body {
+  border-top: 1px solid #ccc;
 }
 .form-field {
-  padding: 5px;
+  padding: 5px 10px;
 }
 .form-field label:before {
   content: "";
@@ -2366,12 +2370,14 @@ select.medium-width {
   line-height: 1;
   padding: 5px 5px 0 0;
 }
-.form-footer {
+.form-foot {
   text-align: right;
-  padding: 4px 10px;
+  padding: 0 10px;
   border-top: 1px solid #CCC;
+  line-height: 30px;
+  height: 30px;
 }
-.form-footer input {
+.form-foot input {
   margin-right: 10px;
 }
 input[type=text],input[type=password] {

@@ -719,4 +719,29 @@ module ApplicationHelper
     js = "$j('##{html_id}').select2({#{js_options.map{|k,v| "#{k}:#{v}"}.join(',')}});"
     "#{html}<script>#{js}</script>"
   end
+
+  #
+  # Creates a button linked to a POST action. A confirmation popup is opened when user clicks on the button.
+  # ==== Options
+  # * <tt>:id</tt> - HTML ID of the button
+  # * <tt>:class</tt> - Additional CSS class, generally 'red-button' for deletions
+  # * <tt>:message_key</tt> -
+  # * <tt>:message_params</tt> -
+  # * <tt>:width</tt> - width in pixels
+  #
+  def button_to_action(label, post_url, options={})
+    clazz = options[:class]
+    id = "id='#{options[:id]}'" if options[:id]
+    message_key = options[:message_key]
+    message_params = options[:message_params]
+    width = options[:width]||450
+
+    url = "#{ApplicationController.root_context}/confirm?url=#{u post_url}"
+    if message_key
+      url += "&k=#{message_key}&"
+      url += message_params.map{|p| "p=#{p}"}.join('&') if message_params
+    end
+
+    "<a href='#{url}' modal-width='#{width}' class='open-modal button #{clazz}' #{id}>#{label}</a>"
+  end
 end
