@@ -26,7 +26,8 @@
           counter_no_assignee += 1
         end
       end
-      counter_max = reviews_by_dev.values.max
+      counter_max = 0
+      counter_max = reviews_by_dev.values.max unless reviews_by_dev.empty?
       counter_max = counter_no_assignee if counter_no_assignee > counter_max
       
       div_id = "review-per-dev-widget-#{widget.id.to_s}"
