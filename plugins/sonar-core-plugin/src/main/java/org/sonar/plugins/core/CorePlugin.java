@@ -135,7 +135,7 @@ import java.util.List;
     name = "Exclusions",
     description = "Exclude sources from code analysis. Changes will be applied during next code analysis.",
     project = true,
-    global = false,
+    global = true,
     multiValues = true,
     category = CoreProperties.CATEGORY_EXCLUSIONS),
   @Property(
