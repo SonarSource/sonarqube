@@ -1073,7 +1073,8 @@ div.progress div.note {
 
 /* SEARCH AUTOCOMPLETE FIELDS */
 #searchInput {
-  color: #777;
+  color: #444;
+  font-size: 13px;
   padding-right: 20px;
 }
 
@@ -2380,7 +2381,8 @@ select.medium-width {
 .form-foot input {
   margin-right: 10px;
 }
-input[type=text],input[type=password] {
+input[type=text],input[type=password],input[type=file] {
   height: 18px;
   padding: 0 3px;
+  color: #444;
 }
