@@ -734,7 +734,7 @@ module ApplicationHelper
     id = "id='#{options[:id]}'" if options[:id]
     message_key = options[:message_key]
     message_params = options[:message_params]
-    width = options[:width]||450
+    width = options[:width]||500
 
     url = "#{ApplicationController.root_context}/confirm?url=#{u post_url}"
     if message_key

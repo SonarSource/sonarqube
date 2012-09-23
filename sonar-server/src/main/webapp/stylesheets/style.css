@@ -2049,13 +2049,6 @@ div.break30 {
   width: 100%;
 }
 
-textarea.width100 {
-  width: 100%;
-  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-  -moz-box-sizing: border-box; /* Firefox, other Gecko */
-  box-sizing: border-box; /* Opera/IE 8+ */
-}
-
 ul.horizontal {
   list-style-type: none;
 }
@@ -2187,6 +2180,7 @@ table.nowrap td, td.nowrap, th.nowrap {
   text-align: left;
   white-space: normal;
 }
+
 .form-val-cell li {
   margin-bottom: 5px;
 }
@@ -2345,7 +2339,7 @@ select.medium-width {
 }
 
 #dependencies .colbody > div > img {
-  //vertical-align: baseline;
+/ / vertical-align : baseline;
 }
 
 .form-head {
@@ -2354,15 +2348,19 @@ select.medium-width {
   line-height: 30px;
   height: 30px;
 }
+
 .form-body {
   border-top: 1px solid #ccc;
 }
+
 .form-field {
   padding: 5px 10px;
 }
+
 .form-field label:before {
   content: "";
 }
+
 .form-field label {
   display: block;
   text-align: right;
@@ -2371,6 +2369,7 @@ select.medium-width {
   line-height: 1;
   padding: 5px 5px 0 0;
 }
+
 .form-foot {
   text-align: right;
   padding: 0 10px;
@@ -2378,11 +2377,25 @@ select.medium-width {
   line-height: 30px;
   height: 30px;
 }
+
 .form-foot input {
   margin-right: 10px;
 }
-input[type=text],input[type=password],input[type=file] {
+
+input[type=text], input[type=password]{
   height: 18px;
   padding: 0 3px;
   color: #444;
 }
+
+textarea {
+  padding: 3px;
+}
+
+textarea.width100 {
+  width: 100%;
+  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+  -moz-box-sizing: border-box; /* Firefox, other Gecko */
+  box-sizing: border-box; /* Opera/IE 8+ */
+}
+
