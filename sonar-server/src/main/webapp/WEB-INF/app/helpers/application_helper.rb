@@ -739,7 +739,7 @@ module ApplicationHelper
     url = "#{ApplicationController.root_context}/confirm?url=#{u post_url}"
     if message_key
       url += "&k=#{message_key}&"
-      url += message_params.map{|p| "p=#{p}"}.join('&') if message_params
+      url += message_params.map{|p| "p=#{u p}"}.join('&') if message_params
     end
 
     "<a href='#{url}' modal-width='#{width}' class='open-modal button #{clazz}' #{id}>#{label}</a>"

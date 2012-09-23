@@ -1,9 +1,8 @@
-<form id="form-rename-profile" method="post" action="profiles/rename">
+<form id="form-copy-profile" method="post" action="profiles/copy">
   <input type="hidden" name="id" value="<%= @profile.id -%>"/>
   <fieldset>
-
     <div class="form-head">
-      <h2>Rename Profile: <%= h @profile.name -%></h2>
+      <h2>Copy Profile: <%= h @profile.name -%></h2>
     </div>
     <div class="form-body">
       <% if @error %>
@@ -11,19 +10,18 @@
           <p class="error"><%= h @error -%></p>
         </div>
       <% end %>
-
       <div class="form-field">
         <label for="name">New name</label>
         <input id="new-name" name="name" type="text" size="50" maxlength="100"/>
       </div>
     </div>
     <div class="form-foot">
-      <input type="submit" value="Rename"/>
+      <input type="submit" value="Copy"/>
       <a href="#" onclick="return closeModalWindow()"><%= message('cancel') -%></a>
     </div>
   </fieldset>
 </form>
 <script>
-  $j("#form-rename-profile").modalForm();
+  $j("#form-copy-profile").modalForm();
   $j('#new-name').focus();
 </script>

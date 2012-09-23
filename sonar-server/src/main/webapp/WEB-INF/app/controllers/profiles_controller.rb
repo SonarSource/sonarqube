@@ -113,6 +113,10 @@ class ProfilesController < ApplicationController
   end
 
 
+  def copy_form
+    @profile = Profile.find(params[:id])
+    render :partial => 'profiles/copy_form'
+  end
 
   #
   #
@@ -120,18 +124,20 @@ class ProfilesController < ApplicationController
   #
   #
   def copy
-    profile = Profile.find(params[:id])
-    name = params['copy_' + profile.id.to_s]
+    render :text => 'Not an ajax request', :status => '400' unless request.xhr?
 
-    validation_errors = profile.validate_copy(name)
+    @profile = Profile.find(params[:id])
+    name = params['name']
+
+    validation_errors = @profile.validate_copy(name)
     if validation_errors.empty?
-      java_facade.copyProfile(profile.id, name)
+      java_facade.copyProfile(@profile.id, name)
       flash[:notice]= message('quality_profiles.profile_x_not_activated', :params => name)
+      render :text => 'ok', :status => 200
     else
-      flash[:error] = validation_errors.full_messages.first
+      @error = validation_errors.full_messages.first
+      render :partial => 'profiles/copy_form', :status => 400
     end
-
-    redirect_to :action => 'index'
   end
 
 

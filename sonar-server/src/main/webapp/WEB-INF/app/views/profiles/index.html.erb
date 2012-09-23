@@ -133,15 +133,12 @@
 
           <td align="right">
             <% if !profile.provided? %>
-              <a id="rename-<%= profile.key.parameterize -%>" href="profiles/rename_form?id=<%= profile.id -%>" class="button open-modal"><%= message('rename') -%></a>
+              <a id="rename-<%= profile.key.parameterize -%>" href="profiles/rename_form/<%= profile.id -%>" class="button open-modal"><%= message('rename') -%></a>
             <% end %>
           </td>
 
           <td align="right">
-            <% form_tag(:action => 'copy', :id => profile.id) do -%>
-              <%= hidden_field_tag 'copy_' + profile.id.to_s %>
-              <input type="button" name="button_copy" id="copy_<%= u profile.key %>" value="<%= message('copy') -%>" onClick='var name=prompt("<%= message('quality_profiles.name_for_new_profile') -%>"); if (name!=null) {$("copy_<%= profile.id %>").value=name; submit();} else {return false;}'>
-            <% end %>
+            <a id="copy-<%= profile.key.parameterize -%>" href="profiles/copy_form/<%= profile.id -%>" class="button open-modal"><%= message('copy') -%></a>
           </td>
 
           <td>

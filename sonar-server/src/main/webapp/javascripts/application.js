@@ -215,11 +215,11 @@ Treemap.prototype.load = function () {
   }
 
   new Ajax.Request(
-    baseUrl + '/treemap/index?id=' + this.id + '&width=' + width + '&height=' + height + '&size_metric=' + this.sizeMetric + '&color_metric=' + this.colorMetric + '&' + context.type + '=' + context.id,
-    {
-      asynchronous:true,
-      evalScripts:true
-    });
+      baseUrl + '/treemap/index?id=' + this.id + '&width=' + width + '&height=' + height + '&size_metric=' + this.sizeMetric + '&color_metric=' + this.colorMetric + '&' + context.type + '=' + context.id,
+      {
+        asynchronous:true,
+        evalScripts:true
+      });
 };
 Treemap.prototype.htmlNode = function (nodeId) {
   return $('tm-node-' + this.id + '-' + nodeId);
@@ -272,17 +272,17 @@ Treemap.prototype.onLoaded = function (componentsSize) {
           $j.get($link.attr('href'), {}, function (html) {
             $dialog.html(html);
             $dialog
-              .dialog({
-                width:($link.attr('modal-width')||540),
-                draggable:false,
-                autoOpen:false,
-                modal:true,
-                minHeight: 50,
-                resizable:false,
-                close: function() {
-                  $j('#modal').remove();
-                }
-              });
+                .dialog({
+                  width:($link.attr('modal-width') || 540),
+                  draggable:false,
+                  autoOpen:false,
+                  modal:true,
+                  minHeight:50,
+                  resizable:false,
+                  close:function () {
+                    $j('#modal').remove();
+                  }
+                });
             $dialog.dialog("open");
           });
 
@@ -291,6 +291,26 @@ Treemap.prototype.onLoaded = function (componentsSize) {
             return false;
           });
 
+          return false;
+        });
+      });
+    },
+    modalForm:function () {
+      return this.each(function () {
+        var obj = $j(this);
+        obj.submit(function (event) {
+          $j('input[type=submit]', this).attr('disabled', 'disabled');
+          $j.ajax({
+            type:'POST',
+            url:obj.attr('action'),
+            data:obj.serialize(),
+            success:function (data) {
+              location.reload();
+            },
+            error:function (xhr, textStatus, errorThrown) {
+              $j("#modal").html(xhr.responseText);
+            }
+          });
           return false;
         });
       });

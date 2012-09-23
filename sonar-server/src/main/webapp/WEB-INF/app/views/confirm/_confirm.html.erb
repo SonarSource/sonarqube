@@ -6,7 +6,7 @@
   <fieldset>
     <div class="form-head">
       <img src="<%= ApplicationController.root_context -%>/images/warning.png" style="vertical-align: text-bottom"/>
-      <%= message(message_key, :params => message_params) -%>
+      <%= h message(message_key, :params => message_params) -%>
     </div>
     <div class="form-foot">
       <input type="submit" value="Confirm"/>
