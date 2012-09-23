@@ -268,8 +268,10 @@ Treemap.prototype.onLoaded = function (componentsSize) {
           if ($j('#modal').length) {
             return; // another window is already opening
           }
-          var $dialog = $j('<div id="modal"></div>').appendTo('body');
-          $j.get($link.attr('href'), {}, function (html) {
+          var $dialog = $j('<div id="modal" class="ui-widget-overlay"></div>').appendTo('body');
+          var url = $link.attr('modal-url') || $link.attr('href');
+          $j.get(url,function (html) {
+            $dialog.removeClass('ui-widget-overlay');
             $dialog.html(html);
             $dialog
                 .dialog({
@@ -284,6 +286,10 @@ Treemap.prototype.onLoaded = function (componentsSize) {
                   }
                 });
             $dialog.dialog("open");
+          }).error(function () {
+            alert("Server error. Please contact your administrator.");
+          }).complete(function() {
+            $dialog.removeClass('ui-widget-overlay');
           });
 
           $link.click(function () {

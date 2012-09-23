@@ -1,16 +1,22 @@
 <%
-   message_key = params[:k] || 'are_you_sure'
-   message_params = params[:p] || []
+   title_key = params[:tk] || 'are_you_sure'
+   message_key = params[:mk] || 'are_you_sure'
+   message_params = params[:mp] || []
 %>
 <form id="form-confirm" method="post" action="<%= params[:url] -%>">
   <fieldset>
     <div class="form-head">
-      <img src="<%= ApplicationController.root_context -%>/images/warning.png" style="vertical-align: text-bottom"/>
-      <%= h message(message_key, :params => message_params) -%>
+      <h2><%= h message title_key -%></h2>
+    </div>
+    <div class="form-body">
+      <div class="info">
+        <img src="<%= ApplicationController.root_context -%>/images/information.png" style="vertical-align: text-bottom"/>
+        <%= h message(message_key, :params => message_params) -%>
+      </div>
     </div>
     <div class="form-foot">
-      <input type="submit" value="Confirm"/>
-      <a href="#" onclick="return closeModalWindow()"><%= message('cancel') -%></a>
+      <input type="submit" value="<%= h message('confirm') -%>"/>
+      <a href="#" onclick="return closeModalWindow()"><%= h message('cancel') -%></a>
     </div>
   </fieldset>
 </form>

@@ -19,7 +19,7 @@
 #
 class ConfirmController < ApplicationController
 
-  # GET /confirm?url=<return_to_url>&[t=<title_key]
+  # GET /confirm?url=<return_to_url>[&tk=<title_key][&mk=<message_key][&mp=<message_parameters]
   def index
     render :partial => 'confirm/confirm'
   end

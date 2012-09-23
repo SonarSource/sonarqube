@@ -725,6 +725,7 @@ module ApplicationHelper
   # ==== Options
   # * <tt>:id</tt> - HTML ID of the button
   # * <tt>:class</tt> - Additional CSS class, generally 'red-button' for deletions
+  # * <tt>:title_key</tt> -
   # * <tt>:message_key</tt> -
   # * <tt>:message_params</tt> -
   # * <tt>:width</tt> - width in pixels
@@ -732,16 +733,18 @@ module ApplicationHelper
   def button_to_action(label, post_url, options={})
     clazz = options[:class]
     id = "id='#{options[:id]}'" if options[:id]
+    title_key = options[:title_key]
     message_key = options[:message_key]
     message_params = options[:message_params]
     width = options[:width]||500
 
     url = "#{ApplicationController.root_context}/confirm?url=#{u post_url}"
+    url += "&tk=#{title_key}" if title_key
     if message_key
-      url += "&k=#{message_key}&"
-      url += message_params.map{|p| "p=#{u p}"}.join('&') if message_params
+      url += "&mk=#{message_key}&"
+      url += message_params.map{|p| "mp=#{u p}"}.join('&') if message_params
     end
 
-    "<a href='#{url}' modal-width='#{width}' class='open-modal button #{clazz}' #{id}>#{label}</a>"
+    "<a href='#{url}' modal-width='#{width}' class='open-modal button #{clazz}' #{id}>#{h label}</a>"
   end
 end

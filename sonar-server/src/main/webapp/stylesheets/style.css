@@ -304,6 +304,12 @@ h4, .h4 {
   padding: 4px;
 }
 
+.info {
+  background-color: #CAE3F2;
+  padding: 4px;
+  border: 1px solid #4B9FD5;
+}
+
 /* ------------------- SETUP / MIGRATION PAGES ------------------- */
 .migration {
   background-image: url("../images/sonar.png");
@@ -316,7 +322,7 @@ h4, .h4 {
   border: 1px solid #4b9fd5;
   width: 230px;
   text-align: left;
-  background-color: #d4e7ff;
+  background-color: #CAE3F2;
   padding: 15px 20px;
 }
 
@@ -2347,27 +2353,35 @@ select.medium-width {
   background-color: #EFEFEF;
   line-height: 30px;
   height: 30px;
+  border-bottom: 1px solid #ccc;
 }
 
 .form-body {
-  border-top: 1px solid #ccc;
+  padding: 5px;
 }
 
 .form-field {
-  padding: 5px 10px;
+  clear: both;
+  display: block;
+  padding: 5px 0 5px 140px;
 }
 
-.form-field label:before {
-  content: "";
+.form-field label em {
+  color: #990000;
+  font-style: italic;
 }
 
 .form-field label {
   display: block;
-  text-align: right;
-  width: 120px;
   float: left;
+  text-align: right;
+  width: 130px;
+  left: -140px;
+  margin-right: -130px;
   line-height: 1;
-  padding: 5px 5px 0 0;
+  word-wrap: break-word;
+  position: relative;
+  padding-top: 5px;
 }
 
 .form-foot {
@@ -2380,6 +2394,12 @@ select.medium-width {
 
 .form-foot input {
   margin-right: 10px;
+}
+
+.form-field-description {
+  clear: both;
+  font-size: 11px;
+  color: #777;
 }
 
 input[type=text], input[type=password]{
