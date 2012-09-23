@@ -1,4 +1,4 @@
-<form id="form-copy-profile" method="post" action="profiles/copy">
+<form id="copy-profile-form" method="post" action="profiles/copy">
   <input type="hidden" name="id" value="<%= @profile.id -%>"/>
   <fieldset>
     <div class="form-head">
@@ -10,16 +10,16 @@
       <% end %>
       <div class="form-field">
         <label for="name">New name <em>*</em></label>
-        <input id="new-name" name="name" type="text" size="50" maxlength="100"/>
+        <input id="copy-name" name="name" type="text" size="50" maxlength="100"/>
       </div>
     </div>
     <div class="form-foot">
-      <input type="submit" value="Copy"/>
-      <a href="#" onclick="return closeModalWindow()"><%= message('cancel') -%></a>
+      <input type="submit" value="<%= h message('copy') -%>" id="copy-submit"/>
+      <a href="#" onclick="return closeModalWindow()" id="copy-cancel"><%= h message('cancel') -%></a>
     </div>
   </fieldset>
 </form>
 <script>
-  $j("#form-copy-profile").modalForm();
-  $j('#new-name').focus();
+  $j("#copy-profile-form").modalForm();
+  $j('#copy-name').focus();
 </script>
