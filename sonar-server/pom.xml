@@ -258,6 +258,7 @@
             <aggregation>
               <includes>
                 <include>**/yui-reset-font-min.css</include>
+                <include>**/jquery-ui-min.css</include>
                 <include>**/select2-min.css</include>
                 <include>**/layout-min.css</include>
                 <include>**/style-min.css</include>
