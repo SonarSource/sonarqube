@@ -1,0 +1,6 @@
+<% @property_sets.each do |property_set| -%>
+  <% property_set.fields.each do |field| -%>
+    <%= field.name %>
+    <%= field.type %>
+  <% end -%>
+<% end -%>

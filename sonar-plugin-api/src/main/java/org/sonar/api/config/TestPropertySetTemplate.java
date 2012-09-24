@@ -17,68 +17,18 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api;
+package org.sonar.api.config;
 
-/**
- * @since 3.0
- */
-public enum PropertyType {
-  /**
-   * Basic single line input field
-   */
-  STRING,
+import org.sonar.api.PropertyType;
 
-  /**
-   * Multiple line text-area
-   */
-  TEXT,
+public class TestPropertySetTemplate extends PropertySetTemplate {
+  public PropertySet createPropertySet() {
+    return new PropertySet()
+      .add(PropertySetField.create("firstName", PropertyType.TEXT))
+      .add(PropertySetField.create("lastName", PropertyType.TEXT));
+  }
 
-  /**
-   * Variation of {#STRING} with masked characters
-   */
-  PASSWORD,
-
-  /**
-   * True/False
-   */
-  BOOLEAN,
-
-  /**
-   * Integer value, positive or negative
-   */
-  INTEGER,
-
-  /**
-   * Floating point number
-   */
-  FLOAT,
-
-  /**
-   * Single select list with a list of options
-   */
-  SINGLE_SELECT_LIST,
-
-  /**
-   * Sonar Metric
-   */
-  METRIC,
-
-  /**
-   * SonarSource license
-   */
-  LICENSE,
-
-  /**
-   * Regular expression
-   *
-   * @since 3.2
-   */
-  REGULAR_EXPRESSION,
-
-  /**
-   * Property set instance
-   *
-   * @since 3.3
-   */
-  PROPERTY_SET
+  public String getName() {
+    return "test";
+  }
 }
