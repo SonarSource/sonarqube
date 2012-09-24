@@ -22,6 +22,26 @@ package org.sonar.api.web;
 import org.sonar.api.ServerExtension;
 
 /**
+ * Adds content to HTML pages. A PageDecoration is a Rails template (html.erb file) that executes content_for blocks on predefined locations :
+ * <ul>
+ *   <li><code>script</code> : javascript header</li>
+ *   <li><code>style</code> : CSS header</li>
+ *   <li><code>header</code> : area over the black top navigation bar</li>
+ *   <li><code>footer</code> : area below the main page</li>
+ *   <li><code>sidebar</code> : area in the sidebar between the menu and the sonar logo</li>
+ * </ul>
+ *
+ * <p>Example of template: </p>
+<pre>
+ <% content_for :script do %>
+   <script>alert('page loaded')</script>
+ <% end %>
+
+ <% content_for :footer do %>
+  <div>this is <b>my footer</b></div>
+<% end %>
+</pre>
+ *
  * @since 3.3
  */
 public abstract class PageDecoration extends AbstractRubyTemplate implements ServerExtension {

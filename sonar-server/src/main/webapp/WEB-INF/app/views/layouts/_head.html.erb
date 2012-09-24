@@ -30,7 +30,7 @@
   <% if ENV['RAILS_ENV'] == 'production'
   %>
     <%= stylesheet_link_tag 'sonar', :media => 'all' -%>
-    <%= yield :css -%>
+    <%= yield :style -%>
     <%= javascript_include_tag 'sonar' -%>
   <% else %>
     <%= stylesheet_link_tag 'yui-reset-font', :media => 'all' %>
