@@ -3,78 +3,30 @@
     <ul style="float: right" class="operations">
       <li>
         <%= image_tag 'compare.png' -%>
-        <a href="<%= ApplicationController.root_context -%>/profiles/compare" id="compare-link"><%= message('quality_profiles.compare_profiles') -%></a>
+        <a href="profiles/compare" id="compare-link"><%= message('quality_profiles.compare_profiles') -%></a>
       </li>
       <li class="last">
         <%= image_tag 'restore.gif' -%>
-        <a href="#" onclick="$('restore-form').show();return false;" id="restore-link"><%= message('quality_profiles.restore_profile') -%></a>
+        <a href="profiles/restore_form" class="open-modal" id="restore-link"><%= message('quality_profiles.restore_profile') -%></a>
       </li>
     </ul>
   <% end %>
   <h1 class="marginbottom10"><%= message('quality_profiles.page') -%></h1>
 </div>
 
-<% if administrator? %>
-  <form class="admin marginbottom10" id="restore-form" action="<%= url_for :action => 'restore' -%>" enctype="multipart/form-data" style="display: none" method="post">
-    <table class="spaced width100">
-      <tr>
-        <td width="1%" nowrap><%= message('backup_verb') -%>:</td>
-        <td><%= file_field_tag 'backup' %></td>
-      </tr>
-
-      <tr>
-        <td colspan="2">
-          <input type="submit" value="<%= message('quality_profiles.restore_profile') -%>"/>
-          <a href="#" onclick="$('restore-form').reset();$('restore-form').hide();return false;"><%= message('cancel') -%></a>
-        </td>
-      </tr>
-    </table>
-  </form>
-<% end %>
-
-
 <%
    languages.sort { |x, y| x.getName() <=> y.getName() }.each do |language|
-     importers=controller.java_facade.getProfileImportersForLanguage(language.getKey())
 %>
   <div class="line-block">
     <% if administrator? %>
       <ul style="float: right" class="horizontal">
         <li class="marginleft10 add">
-          <a href="#" onClick="$('create-form-<%= language.getKey() -%>').show();$('create-form-<%= language.getKey() -%>-name').focus();return false;" id="create-link-<%= language.getKey() -%>"><%= message('create') -%></a>
-        </li>
+          <a id="create-link-<%= language.getKey() -%>" href="profiles/create_form?language=<%= language.getKey() -%>" class="open-modal"><%= message('create') -%></a>
+      </li>
       </ul>
     <% end %>
     <h2><%= message('quality_profiles.x_language_profiles', :params => language.getName()) -%></h2>
   </div>
-
-  <% if administrator? %>
-    <form class="admin" id="create-form-<%= language.getKey() -%>" action="<%= url_for :action => 'create' -%>" style="display: none" enctype="multipart/form-data" method="post">
-      <input type="hidden" name="language" value="<%= language.getKey() -%>"/>
-      <table class="spaced width100">
-        <tr>
-          <td width="1%" nowrap><%= message('name') -%>:</td>
-          <td><input type="text" name="name" id="create-form-<%= language.getKey() -%>-name"/></td>
-        </tr>
-        <% importers.to_a.sort { |x, y| x.getName() <=> y.getName() }.each do |importer| %>
-          <tr>
-            <td width="1%" nowrap><%= importer.getName() -%>:</td>
-            <td>
-              <%= file_field_tag "backup[#{importer.getKey()}]" %>
-              <span class="note"><%= message('quality_profiles.optional_configuration_file') -%></span>
-            </td>
-          </tr>
-        <% end %>
-
-        <tr>
-          <td colspan="2">
-            <input type="submit" value="<%= message('quality_profiles.create_x_language_profile', :params => language.getName()) -%>" id="create-submit-<%= language.getKey() -%>"/>
-            <a href="#" onclick="$('create-form-<%= language.getKey()-%>').reset();$('create-form-<%= language.getKey()-%>').hide();return false;"><%= message('cancel') -%></a>
-          </td>
-        </tr>
-      </table>
-    </form>
-  <% end %>
 
   <table class="data width100" id="profiles_<%= language.getKey() -%>">
     <thead>

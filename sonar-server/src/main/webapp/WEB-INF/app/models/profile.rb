@@ -24,25 +24,41 @@ class Profile < ActiveRecord::Base
   has_many :active_rules, :class_name => 'ActiveRule', :foreign_key => 'profile_id', :dependent => :destroy, :include => ['rule']
   has_many :projects, :order => 'name asc'
   has_many :active_rules_with_params, :class_name => 'ActiveRule', :foreign_key => 'profile_id',
-      :include => ['active_rule_parameters', 'active_rule_note']
+           :include => ['active_rule_parameters', 'active_rule_note']
 
-  validates_uniqueness_of :name, :scope => :language, :case_sensitive => false
-  validates_presence_of :name
-  
-  DEFAULT_PROFILE_NAME = 'Sun checks'
-  
+  validates_uniqueness_of :name, :scope => :language, :case_sensitive => false, :message => Api::Utils.message('quality_profiles.already_exists')
+  validates_presence_of :name, :message => Api::Utils.message('quality_profiles.please_type_profile_name')
+
+  # The warnings that are set on this record, equivalent to normal ActiveRecord errors but does not prevent
+  # the record from saving.
+  def warnings
+    @warnings ||= ActiveRecord::Errors.new(self)
+  end
+
+  def warnings?
+    not warnings.empty?
+  end
+
+  def notices
+    @notices ||= ActiveRecord::Errors.new(self)
+  end
+
+  def notices?
+    not notices.empty?
+  end
+
   def active?
     active
   end
-  
+
   def key
     "#{language}_#{name}"
   end
-  
+
   def provided?
     provided
   end
-  
+
   def validate_copy(name)
     new_rule_profile = Profile.new(:name => name, :provided => false, :default_profile => false, :language => language)
     new_rule_profile.valid?
@@ -90,6 +106,7 @@ class Profile < ActiveRecord::Base
   end
 
   @active_hash_by_rule_id=nil
+
   def active_hash_by_rule_id
     if @active_hash_by_rule_id.nil?
       @active_hash_by_rule_id={}
@@ -106,9 +123,9 @@ class Profile < ActiveRecord::Base
 
   def count_overriding_rules
     @count_overriding_rules||=
-      begin
-        active_rules.count(:conditions => ['inheritance=?', 'OVERRIDES'])
-      end
+        begin
+          active_rules.count(:conditions => ['inheritance=?', 'OVERRIDES'])
+        end
   end
 
   def inherited?
@@ -117,35 +134,48 @@ class Profile < ActiveRecord::Base
 
   def parent
     @parent||=
-      begin
-        if parent_name.present?
-          Profile.find(:first, :conditions => ['language=? and name=? and enabled=?', language, parent_name, true])
-        else
-          nil
+        begin
+          if parent_name.present?
+            Profile.find(:first, :conditions => ['language=? and name=? and enabled=?', language, parent_name, true])
+          else
+            nil
+          end
         end
-      end
   end
 
   def count_active_rules
-    active_rules.select{|ar| ar.rule.enabled}.size
+    active_rules.select { |ar| ar.rule.enabled }.size
   end
 
   def ancestors
     @ancestors ||=
-      begin
-        array=[]
-        if parent
-          array<<parent
-          array.concat(parent.ancestors)
+        begin
+          array=[]
+          if parent
+            array<<parent
+            array.concat(parent.ancestors)
+          end
+          array
         end
-        array
-      end
   end
 
   def children
     @children ||=
-      begin
-        Profile.find(:all, :conditions => ['language=? and parent_name=? and enabled=?', language, name, true], :order => 'name')
-      end
+        begin
+          Profile.find(:all, :conditions => ['language=? and parent_name=? and enabled=?', language, name, true], :order => 'name')
+        end
+  end
+
+  def import_configuration(importer_key, file)
+    messages = Api::Utils.java_facade.importProfile(name, language, importer_key, Api::Utils.read_post_request_param(file))
+    messages.getErrors().each do |msg|
+      errors.add_to_base msg
+    end
+    messages.getWarnings().each do |msg|
+      warnings.add_to_base msg
+    end
+    messages.getInfos().each do |msg|
+      notices.add_to_base msg
+    end
   end
 end

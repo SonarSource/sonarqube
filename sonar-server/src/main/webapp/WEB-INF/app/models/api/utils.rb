@@ -165,4 +165,8 @@ class Api::Utils
       nil
     end
   end
+
+  def self.java_facade
+    Java::OrgSonarServerUi::JRubyFacade.getInstance()
+  end
 end

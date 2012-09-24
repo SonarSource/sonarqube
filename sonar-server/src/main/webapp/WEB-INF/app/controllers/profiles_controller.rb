@@ -46,6 +46,13 @@ class ProfilesController < ApplicationController
   end
 
 
+  # GET /profiles/create_form?language=<language>
+  def create_form
+    language = params[:language]
+    bad_request 'Missing parameter: language' if language.blank?
+    profile = Profile.new(:language => language)
+    render :partial => 'profiles/create_form', :locals => {:language_key => language}
+  end
 
   #
   #
@@ -55,33 +62,25 @@ class ProfilesController < ApplicationController
   def create
     profile_name=params[:name]
     language=params[:language]
-    if profile_name.blank?|| language.blank?
-      flash[:warning]=message('quality_profiles.please_type_profile_name')
-    else
-      profile=Profile.find_by_name_and_language(profile_name, language)
-      if profile
-        flash[:error]=message('quality_profiles.profile_x_already_exists', :params => profile_name)
 
-      else
-        profile = Profile.create(:name => profile_name, :language => language, :default_profile => false, :enabled => true)
-        ok=profile.errors.empty?
-        if ok && params[:backup]
-          params[:backup].each_pair do |importer_key, file|
-            if !file.blank? && ok
-              messages = java_facade.importProfile(profile_name, language, importer_key, read_file_param(file))
-              flash_validation_messages(messages)
-              ok &= !messages.hasErrors()
-            end
-          end
-        end
-        if ok
-          flash[:notice]=message('quality_profiles.profile_x_created', :params => profile.name)
-        else
-          profile.reload
-          profile.destroy
+    profile = Profile.create(:name => profile_name, :language => language, :default_profile => false, :enabled => true)
+    ok = profile.errors.empty?
+    if ok && params[:backup]
+      params[:backup].each_pair do |importer_key, file|
+        if !file.blank? && ok
+          profile.import_configuration(importer_key, file)
+          ok &= profile.errors.empty?
         end
       end
     end
+
+    flash_profile(profile)
+    if ok
+      flash[:notice]=message('quality_profiles.profile_x_created', :params => profile.name)
+    elsif profile.id
+      Profile.destroy(profile.id)
+    end
+
     redirect_to :action => 'index'
   end
 
@@ -155,18 +154,17 @@ class ProfilesController < ApplicationController
   end
 
 
+  def restore_form
+    render :partial => 'profiles/restore_form'
+  end
 
-  #
-  #
   # POST /profiles/restore/<id>
-  #
-  #
   def restore
     if params[:backup].blank?
       flash[:warning]=message('quality_profiles.please_upload_backup_file')
     else
-      messages=java_facade.restoreProfile(read_file_param(params[:backup]), false)
-      flash_validation_messages(messages)
+      messages=java_facade.restoreProfile(Api::Utils.read_post_request_param(params[:backup]), false)
+      flash_messages(messages)
     end
     redirect_to :action => 'index'
   end
@@ -186,7 +184,7 @@ class ProfilesController < ApplicationController
       profile = Profile.find_by_name_and_language(CGI::unescape(params[:name]), language)
     end
     not_found('Profile not found') unless profile
-    
+
     if (params[:format].blank?)
       # standard sonar format
       result = java_facade.backupProfile(profile.id)
@@ -205,7 +203,7 @@ class ProfilesController < ApplicationController
   #
   def inheritance
     @profile = Profile.find(params[:id])
-    
+
     profiles=Profile.find(:all, :conditions => ['language=? and id<>? and (parent_name is null or parent_name<>?) and enabled=?', @profile.language, @profile.id, @profile.name, true], :order => 'name')
     @select_parent = [[message('none'), nil]] + profiles.collect{ |profile| [profile.name, profile.name] }
   end
@@ -256,7 +254,7 @@ class ProfilesController < ApplicationController
     else
       messages = java_facade.changeParentProfile(id, parent_name, current_user.name)
     end
-    flash_validation_messages(messages)
+    flash_messages(messages)
     redirect_to :action => 'inheritance', :id => id
   end
 
@@ -278,8 +276,8 @@ class ProfilesController < ApplicationController
   #
   def projects
     @profile = Profile.find(params[:id])
-    @available_projects=Project.find(:all, 
-      :include => ['profile','snapshots'], 
+    @available_projects=Project.find(:all,
+      :include => ['profile','snapshots'],
       :conditions => ['projects.qualifier=? AND projects.scope=? AND snapshots.islast=?', Project::QUALIFIER_PROJECT, Project::SCOPE_SET, true],
       :order => 'projects.name asc')
     @available_projects-=@profile.projects
@@ -326,7 +324,7 @@ class ProfilesController < ApplicationController
     else
       existing=Profile.find(:first, :conditions => {:name => name, :language => @profile.language, :enabled => true})
       if existing
-        @error=message('quality_profiles.profile_name_already_exists')
+        @error=message('quality_profiles.already_exists')
       elsif !@profile.provided?
         java_facade.renameProfile(@profile.id, name)
         success=true
@@ -351,7 +349,7 @@ class ProfilesController < ApplicationController
     if params[:id1].present? && params[:id2].present?
       @profile1 = Profile.find(params[:id1])
       @profile2 = Profile.find(params[:id2])
-      
+
       arules1 = ActiveRule.find(:all, :include => [{:active_rule_parameters => :rules_parameter}, :rule],
         :conditions => ['active_rules.profile_id=?', @profile1.id])
       arules2 = ActiveRule.find(:all, :order => 'rules.plugin_name, rules.plugin_rule_key', :include => [{:active_rule_parameters => :rules_parameter}, :rule],
@@ -385,7 +383,7 @@ class ProfilesController < ApplicationController
   DIFF_IN2=2
   DIFF_MODIFIED=3
   DIFF_SAME=4
-  
+
   private
 
   class RuleDiff
@@ -417,7 +415,7 @@ class ProfilesController < ApplicationController
                       end
                     else
                       @removed_params<<@arule1.parameter(param.name)
-                    end          
+                    end
                   elsif v2
                     @added_params<<@arule2.parameter(param.name)
                   end
@@ -435,7 +433,7 @@ class ProfilesController < ApplicationController
       rule.name()<=>other.rule.name
     end
   end
-  
+
   #
   # Remove active rules that are identical in both collections (same severity and same parameters)
   # and return a map with results {:added => X, :removed => Y, :modified => Z, 
@@ -497,19 +495,20 @@ class ProfilesController < ApplicationController
         rules[rule] = [active_rule1, active_rule2]
       end
     end while !arules1.empty? || !arules2.empty?
-    return {:same => same, :added => added, :removed => removed, :modified => modified,  :rules => rules}
+    return {:same => same, :added => added, :removed => removed, :modified => modified, :rules => rules}
   end
 
-  def read_file_param(configuration_file)
-    # configuration file is a StringIO
-    if configuration_file.respond_to?(:read)
-      return configuration_file.read
+  def flash_profile(profile)
+    # only 4 messages are kept each time to avoid cookie overflow.
+    if !profile.errors.empty?
+      flash[:error]=profile.errors.full_messages.to_a[0...4].join('<br/>')
     end
-    # configuration file is not a readable object
-    nil
+    if profile.warnings?
+      flash[:warning]=profile.warnings.full_messages.to_a[0...4].join('<br/>')
+    end
   end
 
-  def flash_validation_messages(messages)
+  def flash_messages(messages)
     # only 4 messages are kept each time to avoid cookie overflow.
     if messages.hasErrors()
       flash[:error]=messages.getErrors().to_a[0...4].join('<br/>')
