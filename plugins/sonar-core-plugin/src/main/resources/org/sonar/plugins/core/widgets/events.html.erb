@@ -1,6 +1,108 @@
-<% if @project.scope=='PRJ' %>
-<div id="widget_events"><div id="events_portlet"></div></div>
-<script>
-<%= remote_function(:update => "events_portlet", :url => { :controller => :project, :action => :events, :id => @snapshot.id }, :method => 'get') %>
+<% 
+  if @resource.scope=='PRJ'
+
+    conditions = "resource_id=:resource_id"
+    values = {:resource_id => @resource.id}
+    # in order to not display events linked to deleted snapshot, we build the SQL request with 'NOT IN' as most of the time, there won't be unprocessed snapshots
+    snapshots_to_be_deleted = Snapshot.find(:all, :conditions => ["status='U' AND project_id=?", @resource.id])
+    unless snapshots_to_be_deleted.empty?
+      conditions << " AND snapshot_id NOT IN (:sids)"
+      values[:sids] = snapshots_to_be_deleted.map { |s| s.id }
+    end
+
+    events=Event.find(:all, :conditions => [conditions, values], :order => 'event_date desc')
+    
+    categories = EventCategory.categories(true)
+%>
+
+<script type="text/javascript">
+  function changeCategory(categoryId, widgetId) {
+    var eventTableMaxSize = 8;
+    $$('#events_' + widgetId + ' tr.event').invoke('hide');
+    var elements;
+    if (categoryId=='all') {
+      elements = $$('#events_' + widgetId + ' tr.event');
+    } else {
+      elements = $$('#events_' + widgetId + ' tr.cat_' + categoryId);
+    }
+    var elementsToDisplay = elements.slice(0,eventTableMaxSize);
+    if (elementsToDisplay.size()==0) {
+      $('events_' + widgetId).hide();
+      $('show_more_events_' + widgetId).hide();
+      $('no_event_message_' + widgetId).show();
+    } else {
+      $('events_' + widgetId).show();
+      $('no_event_message_' + widgetId).hide();
+      elementsToDisplay.invoke('show');
+      if (elements.size() > eventTableMaxSize) {
+        $('show_more_events_' + widgetId).show();
+      } else {
+        $('show_more_events_' + widgetId).hide();
+      }
+    }
+  }
+  
+  function showAllEvents(widgetId) {
+    var selectedCategory = $('select_category_' + widgetId).value;
+    if (selectedCategory=='all') {
+      $$('#events_' + widgetId + ' tr.event').invoke('show');
+    } else {
+      $$('#events_' + widgetId + ' tr.cat_' + selectedCategory).invoke('show');
+    }
+    $('show_more_events_' + widgetId).hide();
+  }
 </script>
+
+
+<h3><%= message('widget.events.title') -%> &nbsp;&nbsp;
+
+  <select class="small" id="select_category_<%= widget.id -%>" onchange="changeCategory(this.value, <%= widget.id -%>);">
+    <option value="all"><%= message('widget.events.all') -%></option>
+    <% categories.each do |categ| %>
+    <option value="<%= categ.name.parameterize -%>"><%= h message('event.category.' + categ.name, :default => categ.name) %></option>
+    <% end %>
+  </select>
+
+</h3>
+
+<table id="events_<%= widget.id -%>" class="spaced data">
+  <thead>
+    <tr>
+      <th colspan="4"></th>
+    </tr>
+  </thead>
+  
+  <tbody>
+<%
+   events.each do |event|
+     categ = event.category
+%>
+<tr class="<%= cycle 'even','odd' -%> event cat_<%= categ.parameterize -%>">
+    <td x="<%= event.event_date -%>"><%= l(event.event_date.to_date) %></td>
+    <td><%= h message('event.category.' + categ, :default => categ) %></td>
+    <td><%= event.name %></td>
+    <td>
+      <% unless event.description.blank? %>
+      <a href="#" class="nolink" title="<%= h event.description -%>" alt="<%= h event.description -%>">
+        <img src="<%= ApplicationController.root_context -%>/images/information.png" />
+      </a>
+      <% end %>
+    </td>
+</tr>
+<%
+   end
+%>
+  </tbody>
+</table>
+
+<div id="no_event_message_<%= widget.id -%>" style="margin: 5px">
+  <span class="empty_widget"><%= message('widget.events.no_event') -%></span>
+</div>
+
+<a href="#" onclick="showAllEvents(<%= widget.id -%>);" id="show_more_events_<%= widget.id -%>" class="action"><%= message('widget.events.show_more') -%></a>
+
+<script type="text/javascript">
+  changeCategory('all', <%= widget.id -%>);
+</script>
+
 <% end %>
