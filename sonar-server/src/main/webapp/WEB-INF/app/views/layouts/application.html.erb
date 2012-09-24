@@ -1,3 +1,14 @@
+<%
+   controller.java_facade.getCoreComponentByClassname('org.sonar.server.ui.PageDecorations').get().each do |decoration|
+     begin
+%>
+    <%= render :inline => decoration.getTemplate() -%>
+  <%
+     rescue => error
+       logger.error(error)
+     end
+   end
+  %>
 <%= render :partial => 'layouts/head' unless params[:hd]=='false' %>
 <% if params[:layout]=='false' %>
   <%= render :partial => 'layouts/nolayout' %>

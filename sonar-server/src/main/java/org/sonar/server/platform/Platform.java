@@ -69,10 +69,7 @@ import org.sonar.server.qualitymodel.DefaultModelManager;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
 import org.sonar.server.startup.*;
-import org.sonar.server.ui.CodeColorizers;
-import org.sonar.server.ui.JRubyI18n;
-import org.sonar.server.ui.SecurityRealmFactory;
-import org.sonar.server.ui.Views;
+import org.sonar.server.ui.*;
 
 import javax.servlet.ServletContext;
 
@@ -221,6 +218,7 @@ public final class Platform {
     servicesContainer.addSingleton(ResourceTypes.class);
     servicesContainer.addSingleton(NewUserNotifier.class);
     servicesContainer.addSingleton(SettingsChangeNotifier.class);
+    servicesContainer.addSingleton(PageDecorations.class);
 
     // Notifications
     servicesContainer.addSingleton(EmailSettings.class);

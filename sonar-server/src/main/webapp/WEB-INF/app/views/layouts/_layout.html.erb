@@ -7,6 +7,7 @@
    period_param = "period=#{params[:period]}" if params[:period]
 %>
 <div id="container">
+<%= yield :header -%>
 <div id="hd">
   <div id="nav-left">
     <ul>
@@ -180,6 +181,7 @@
 
         <% end %>
       </ul>
+      <%= yield :sidebar %>
       <div id="logo">
         <center><a href="http://www.sonarsource.org/" target="SonarSource"><%= image_tag('sonar.png', :alt => message('layout.sonar.slogan'), :class => 'png') -%></a></center>
       </div>
@@ -211,6 +213,7 @@
 </div>
 
 <% unless params[:hd]=='false' %>
+  <%= yield :footer %>
   <div id="footer">
     <% controller.java_facade.getWebFooters().each do |footer| %>
       <% if footer.getHtml() %>
