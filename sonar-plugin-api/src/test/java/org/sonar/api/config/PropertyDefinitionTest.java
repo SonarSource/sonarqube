@@ -47,6 +47,7 @@ public class PropertyDefinitionTest {
     assertThat(def.isOnProject()).isTrue();
     assertThat(def.isOnModule()).isTrue();
     assertThat(def.isMultiValues()).isTrue();
+    assertThat(def.getProperty_set_name()).isEmpty();
   }
 
   @Properties(@Property(key = "hello", name = "Hello", defaultValue = "world", description = "desc",
@@ -72,6 +73,21 @@ public class PropertyDefinitionTest {
     assertThat(def.isOnProject()).isFalse();
     assertThat(def.isOnModule()).isFalse();
     assertThat(def.isMultiValues()).isFalse();
+  }
+
+  @Properties(@Property(key = "hello", name = "Hello", type = PropertyType.PROPERTY_SET, property_set_name = "set1"))
+  static class WithPropertySet {
+  }
+
+  @Test
+  public void should_support_property_sets() {
+    Properties props = AnnotationUtils.getAnnotation(WithPropertySet.class, Properties.class);
+    Property prop = props.value()[0];
+
+    PropertyDefinition def = PropertyDefinition.create(prop);
+
+    assertThat(def.getType()).isEqualTo(PropertyType.PROPERTY_SET);
+    assertThat(def.getProperty_set_name()).isEqualTo("set1");
   }
 
   @Properties(@Property(key = "hello", name = "Hello"))
@@ -131,7 +147,7 @@ public class PropertyDefinitionTest {
 
   @Test
   public void validate_single_select_list() {
-    PropertyDefinition def = PropertyDefinition.create("foo", PropertyType.SINGLE_SELECT_LIST, new String[] {"de", "en"});
+    PropertyDefinition def = PropertyDefinition.create("foo", PropertyType.SINGLE_SELECT_LIST, new String[]{"de", "en"});
 
     assertThat(def.validate(null).isValid()).isTrue();
     assertThat(def.validate("").isValid()).isTrue();

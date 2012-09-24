@@ -1,4 +1,4 @@
-<select name="<%= h property.getKey() -%>" id="input_<%= h property.getKey() -%>">
+<select name="<%= input_name(property) -%>" id="input_<%= h property.getKey() -%>">
   <option value=""><%= message('default') -%></option>
   <%
    metrics_per_domain={}

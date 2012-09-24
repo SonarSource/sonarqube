@@ -1,1 +1,7 @@
-NOT IMPLEMENTED YET
+<select name="<%= input_name(property) -%>" id="input_<%= h property.key -%>">
+  <option value=""><%= message('default') -%></option>
+  <% property_set_values(property).each do |option| %>
+    <option value="<%= h option -%>" <%= 'selected' if value && value==option -%>><%= h option -%></option>
+  <% end %>
+  <option value="">New value...</option>
+</select>

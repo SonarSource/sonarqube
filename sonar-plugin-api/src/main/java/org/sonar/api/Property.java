@@ -98,4 +98,11 @@ public @interface Property {
    * @since 3.3
    */
   boolean multiValues() default false;
+
+  /**
+   * Name of the property set. Used only when type = <code>PropertyType.PROPERTY_SET</code>.
+   *
+   * @since 3.3
+   */
+  String property_set_name() default "";
 }

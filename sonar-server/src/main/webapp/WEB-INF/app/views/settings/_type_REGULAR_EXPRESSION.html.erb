@@ -1,2 +1,2 @@
-<input type="text" name="<%= h property.getKey() -%>" value="<%= h value if value -%>" size="50" id="input_<%= h property.getKey() -%>"/>
+<input type="text" name="<%= input_name(property) -%>" value="<%= h value if value -%>" size="50" id="input_<%= h property.getKey() -%>"/>
 <%= link_to_function(image_tag('zoom.png'), "enlargeTextInput('#{property.getKey()}')", :class => 'nolink') -%>

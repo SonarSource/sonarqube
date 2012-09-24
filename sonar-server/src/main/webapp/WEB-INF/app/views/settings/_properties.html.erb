@@ -29,15 +29,15 @@
             <% value = property_value(property) -%>
             <% if property.multi_values -%>
               <% value.each do |sub_value| -%>
-                <%= render "settings/multi_value", :property => property, :value => sub_value -%>
+                <%= render "settings/multi_value", :property => property, :value => sub_value, :multi => true -%>
               <% end -%>
               <div class="template" style="display:none;">
-                <%= render "settings/multi_value", :property => property, :value => nil -%>
+                <%= render "settings/multi_value", :property => property, :value => nil, :multi => true -%>
               </div>
               <button class="add_value"><%= message('settings.add') -%></button>
               <br/>
             <% else -%>
-              <%= render "settings/type_#{property_type(property, value)}", :property => property, :value => value -%>
+              <%= render "settings/type_#{property_type(property, value)}", :property => property, :value => value, :multi => false -%>
             <% end -%>
 
             <% p = @updated_properties[property.key] if @updated_properties -%>
