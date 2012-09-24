@@ -246,6 +246,7 @@ public final class Platform {
     startupContainer.addSingleton(GeneratePluginIndex.class);
     startupContainer.addSingleton(RegisterNewFilters.class);
     startupContainer.addSingleton(RegisterNewDashboards.class);
+    startupContainer.addSingleton(RegisterPropertySets.class);
     startupContainer.startComponents();
 
     startupContainer.getComponentByType(ServerLifecycleNotifier.class).notifyStart();
