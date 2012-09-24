@@ -319,7 +319,7 @@ h4, .h4 {
 
 /* ------------------- LOGIN FORM ------------------- */
 #login_form {
-  border: 1px solid #4b9fd5;
+  border: 2px solid #4b9fd5;
   width: 230px;
   text-align: left;
   background-color: #CAE3F2;
