@@ -25,6 +25,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.Java;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rules.Rule;
@@ -49,8 +50,9 @@ public class FindbugsSensor implements Sensor {
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return project.getFileSystem().hasJavaSourceFiles()
-        && !profile.getActiveRulesByRepository(FindbugsConstants.REPOSITORY_KEY).isEmpty();
+    return Java.KEY.equals(project.getLanguageKey())
+      && !project.getFileSystem().mainFiles(Java.KEY).isEmpty()
+      && !profile.getActiveRulesByRepository(FindbugsConstants.REPOSITORY_KEY).isEmpty();
   }
 
   public void analyse(Project project, SensorContext context) {

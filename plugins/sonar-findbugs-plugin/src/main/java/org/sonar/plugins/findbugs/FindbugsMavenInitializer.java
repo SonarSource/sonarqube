@@ -24,6 +24,7 @@ import org.sonar.api.batch.Initializer;
 import org.sonar.api.batch.SupportedEnvironment;
 import org.sonar.api.batch.maven.MavenPlugin;
 import org.sonar.api.batch.maven.MavenUtils;
+import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 
 /**
@@ -37,6 +38,12 @@ public class FindbugsMavenInitializer extends Initializer {
 
   private static final String FINDBUGS_GROUP_ID = MavenUtils.GROUP_ID_CODEHAUS_MOJO;
   private static final String FINDBUGS_ARTIFACT_ID = "findbugs-maven-plugin";
+
+  @Override
+  public boolean shouldExecuteOnProject(Project project) {
+    return Java.KEY.equals(project.getLanguageKey())
+      && !project.getFileSystem().mainFiles(Java.KEY).isEmpty();
+  }
 
   @Override
   public void execute(Project project) {

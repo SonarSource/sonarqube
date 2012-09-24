@@ -19,11 +19,14 @@
  */
 package org.sonar.plugins.findbugs;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.configuration.Configuration;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.InputFile;
+import org.sonar.api.resources.InputFileUtils;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
@@ -33,9 +36,9 @@ import org.sonar.api.rules.Violation;
 import org.sonar.api.test.IsViolation;
 
 import java.io.File;
+import java.util.ArrayList;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
@@ -47,17 +50,48 @@ import static org.mockito.Mockito.when;
 public class FindbugsSensorTest extends FindbugsTests {
 
   @Test
-  public void shouldExecuteWhenSomeRulesAreActive() throws Exception {
-    FindbugsSensor sensor = new FindbugsSensor(createRulesProfileWithActiveRules(), new FakeRuleFinder(), null);
-    Project project = createProject();
-    assertTrue(sensor.shouldExecuteOnProject(project));
+  public void shouldNotAnalyseIfNoJavaProject() {
+    Project project = mock(Project.class);
+    when(project.getLanguageKey()).thenReturn("php");
+
+    FindbugsSensor sensor = new FindbugsSensor(null, null, null);
+    assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
   }
 
   @Test
-  public void shouldNotExecuteWhenNoRulesAreActive() throws Exception {
-    FindbugsSensor analyser = new FindbugsSensor(RulesProfile.create(), new FakeRuleFinder(), null);
-    Project project = createProject();
-    assertFalse(analyser.shouldExecuteOnProject(project));
+  public void shouldNotAnalyseIfJavaProjectButNoSource() {
+    Project project = mock(Project.class);
+    ProjectFileSystem fs = mock(ProjectFileSystem.class);
+    when(fs.mainFiles("java")).thenReturn(new ArrayList<InputFile>());
+    when(project.getFileSystem()).thenReturn(fs);
+    when(project.getLanguageKey()).thenReturn("java");
+
+    FindbugsSensor sensor = new FindbugsSensor(null, null, null);
+    assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
+  }
+
+  @Test
+  public void shouldNotAnalyseIfJavaProjectButNoRules() {
+    Project project = mock(Project.class);
+    ProjectFileSystem fs = mock(ProjectFileSystem.class);
+    when(fs.mainFiles("java")).thenReturn(Lists.newArrayList(InputFileUtils.create(null, "")));
+    when(project.getFileSystem()).thenReturn(fs);
+    when(project.getLanguageKey()).thenReturn("java");
+
+    FindbugsSensor sensor = new FindbugsSensor(RulesProfile.create(), null, null);
+    assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
+  }
+
+  @Test
+  public void shouldAnalyse() {
+    Project project = mock(Project.class);
+    ProjectFileSystem fs = mock(ProjectFileSystem.class);
+    when(fs.mainFiles("java")).thenReturn(Lists.newArrayList(InputFileUtils.create(null, "")));
+    when(project.getFileSystem()).thenReturn(fs);
+    when(project.getLanguageKey()).thenReturn("java");
+
+    FindbugsSensor sensor = new FindbugsSensor(createRulesProfileWithActiveRules(), null, null);
+    assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
   }
 
   @Test
