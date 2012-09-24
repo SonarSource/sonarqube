@@ -56,7 +56,7 @@ class ProfilesController < ApplicationController
 
   #
   #
-  # POST /profiles/create?name=<profile name>&language=<language>
+  # POST /profiles/create?name=<profile name>&language=<language>&[backup=<file>]
   #
   #
   def create
@@ -154,6 +154,7 @@ class ProfilesController < ApplicationController
   end
 
 
+  # Modal window to restore profile backup
   def restore_form
     render :partial => 'profiles/restore_form'
   end

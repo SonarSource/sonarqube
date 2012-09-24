@@ -50,8 +50,13 @@
             </li>
           <% end %>
 
+          <li class="<%= 'selected' if controller.controller_path=='reviews' -%>">
+          <a href="<%= ApplicationController.root_context -%>/reviews/index"><%= message('reviews.page') -%></a>
+          </li>
+
           <li class="<%= 'selected' if controller.controller_path=='dependencies' -%>">
-            <a href="<%= ApplicationController.root_context -%>/dependencies/index"><%= message('dependencies.page') -%></a></li>
+            <a href="<%= ApplicationController.root_context -%>/dependencies/index"><%= message('dependencies.page') -%></a>
+          </li>
 
           <% controller.java_facade.getPages(Navigation::SECTION_HOME, nil, nil, nil, nil).each do |page|
             page_url = (page.isController() ? page.getId() : "/plugins/home/#{page.getId()}")
