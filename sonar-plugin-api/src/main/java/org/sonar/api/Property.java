@@ -66,7 +66,7 @@ public @interface Property {
   String category() default "";
 
   /**
-   * Is the property displayed in projet settings page ?
+   * Is the property displayed in project settings page ?
    */
   boolean project() default false;
 
