@@ -27,16 +27,12 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.PropertyType;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.DateUtils;
 
 import javax.annotation.Nullable;
-
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Project Settings on batch side, Global Settings on server side. This component does not access to database, so
@@ -182,6 +178,20 @@ public class Settings implements BatchComponent, ServerComponent {
     }
 
     return getStringArrayBySeparator(key, ",");
+  }
+
+  public final PropertySetValue getPropertySetValue(String key) {
+    PropertyDefinition property = getDefinitions().get(key);
+    if ((null == property) || (property.getType() != PropertyType.PROPERTY_SET)) {
+      throw new IllegalArgumentException("Property " + key + " is not of type PROPERTY_SET");
+    }
+
+    String propertySetValueName = getString(key);
+
+    // read json for given key
+    // search value for given propertySetValueName
+
+    return null;
   }
 
   /**

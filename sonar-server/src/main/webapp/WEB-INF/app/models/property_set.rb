@@ -17,8 +17,31 @@
 # License along with {library}; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-class PropertySet
-  def self.findAll(property_set_name)
-    [property_set_name + '1', property_set_name + '2']
+class PropertySet < ActiveRecord::Base
+  attr_accessor :name
+
+  def self.columns
+    @columns ||= [];
+  end
+
+  def self.column(name, sql_type = nil, default = nil, null = true)
+    columns << ActiveRecord::ConnectionAdapters::Column.new(name.to_s, default, sql_type.to_s, null)
+  end
+
+  def self.findAll(set_name)
+    ActiveSupport::JSON.decode(values_as_json(set_name)).map { |set| PropertySet.new(set) }
+  end
+
+  def save(validate = true)
+    validate ? valid? : true
+  end
+
+  private
+
+  def self.values_as_json(set_name)
+    json = Property.value('sonar.property_set.' + set_name)
+
+    #json || '[]'
+    json || '[{"name":"set1"},{"name":"set2"}]'
   end
 end
