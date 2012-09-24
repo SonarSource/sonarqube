@@ -23,9 +23,7 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.License;
-import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.*;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.NewUserHandler;
 import org.sonar.api.platform.PluginMetadata;
@@ -509,5 +507,9 @@ public final class JRubyFacade {
         .setEmail(fields.get("email"))
         .build());
     }
+  }
+
+  public List<PropertySet> listPropertySets() {
+    return get(PropertySetDefinitions.class).findAll();
   }
 }

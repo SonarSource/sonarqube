@@ -26,8 +26,9 @@ import java.util.List;
 public class PropertySet {
   private final List<PropertySetField> fields = Lists.newArrayList();
 
-  public void add(PropertySetField field) {
+  public PropertySet add(PropertySetField field) {
     fields.add(field);
+    return this;
   }
 
   public List<PropertySetField> getFields() {

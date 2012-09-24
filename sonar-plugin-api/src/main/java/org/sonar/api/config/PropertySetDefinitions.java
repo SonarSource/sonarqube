@@ -19,18 +19,25 @@
  */
 package org.sonar.api.config;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
+import org.sonar.api.ServerExtension;
 
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-public class PropertySetDefinitions {
+public class PropertySetDefinitions implements ServerExtension {
   private final Map<String, PropertySet> index = Maps.newHashMap();
 
   public void register(String name, PropertySet propertySet) {
     if (null != index.put(name, propertySet)) {
       throw new IllegalStateException("Unable to register two property sets with same name " + name);
     }
+  }
+
+  public List<PropertySet> findAll() {
+    return ImmutableList.copyOf(index.values());
   }
 
   public PropertySet findByName(String name) {

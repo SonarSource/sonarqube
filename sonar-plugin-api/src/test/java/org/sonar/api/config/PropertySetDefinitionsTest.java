@@ -38,6 +38,7 @@ public class PropertySetDefinitionsTest {
 
     assertThat(definitions.findByName("name")).isSameAs(set);
     assertThat(definitions.findByName("other")).isSameAs(other);
+    assertThat(definitions.findAll()).containsOnly(set, other);
   }
 
   @Test(expected = IllegalStateException.class)
