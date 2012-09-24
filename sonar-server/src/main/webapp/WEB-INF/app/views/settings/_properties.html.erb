@@ -79,10 +79,4 @@
     template.before(template.html());
     return false;
   });
-
-  function enlargeTextInput(propertyKey) {
-    var input = $j('#' + propertyKey);
-    var textArea = '<textarea class="width100" rows="10" name="' + input.attr('name') + '" id="input_' + propertyKey + '">' + input.val() + '</textarea>';
-    input.replaceWith(textArea);
-  }
 </script>
