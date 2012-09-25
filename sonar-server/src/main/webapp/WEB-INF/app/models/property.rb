@@ -42,7 +42,7 @@ class Property < ActiveRecord::Base
     prop = by_key(key, resource_id, user_id)
     if prop
       all(key, resource_id, user_id).delete_all
-      Java::OrgSonarServerUi::JRubyFacade.getInstance().setGlobalProperty(key, nil) unless resource_id
+      setGlobalProperty(key, nil, resource_id, user_id)
     end
   end
 
@@ -84,13 +84,13 @@ class Property < ActiveRecord::Base
       if prop.text_value != text_value
         prop.text_value = text_value
         if prop.save
-          Java::OrgSonarServerUi::JRubyFacade.getInstance().setGlobalProperty(key, text_value) unless resource_id
+          setGlobalProperty(key, text_value, resource_id, user_id)
         end
       end
     else
       prop = Property.new(:prop_key => key, :text_value => text_value, :resource_id => resource_id, :user_id => user_id)
       if prop.save
-        Java::OrgSonarServerUi::JRubyFacade.getInstance().setGlobalProperty(key, text_value) unless resource_id
+        setGlobalProperty(key, text_value, resource_id, user_id)
       end
     end
 
@@ -129,6 +129,10 @@ class Property < ActiveRecord::Base
   end
 
   private
+
+  def self.setGlobalProperty(key, value, resource_id, user_id)
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().setGlobalProperty(key, value) unless (resource_id || user_id)
+  end
 
   def self.all(key, resource_id=nil, user_id=nil)
     Property.with_key(key).with_resource(resource_id).with_user(user_id)
