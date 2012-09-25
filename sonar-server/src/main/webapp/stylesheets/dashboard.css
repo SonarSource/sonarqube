@@ -66,6 +66,7 @@
   border-radius: 3px;
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
+  overflow-x: hidden;
 }
 
 #dashboard #widget_defs {
