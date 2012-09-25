@@ -254,6 +254,8 @@ public interface CoreProperties {
   String FINDBUGS_PLUGIN = "findbugs";
   String FINDBUGS_EFFORT_PROPERTY = "sonar.findbugs.effort";
   String FINDBUGS_EFFORT_DEFAULT_VALUE = "Default";
+  String FINDBUGS_CONFIDENCE_LEVEL_PROPERTY = "sonar.findbugs.confidenceLevel";
+  String FINDBUGS_CONFIDENCE_LEVEL_DEFAULT_VALUE = "medium";
   String FINDBUGS_REPORT_PATH = "sonar.findbugs.reportPath";
   String FINDBUGS_TIMEOUT_PROPERTY = "sonar.findbugs.timeout";
   long FINDBUGS_TIMEOUT_DEFAULT_VALUE = 600000;

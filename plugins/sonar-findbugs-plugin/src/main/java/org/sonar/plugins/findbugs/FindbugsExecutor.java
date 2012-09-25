@@ -20,7 +20,14 @@
 package org.sonar.plugins.findbugs;
 
 import com.google.common.collect.Lists;
-import edu.umd.cs.findbugs.*;
+import edu.umd.cs.findbugs.DetectorFactoryCollection;
+import edu.umd.cs.findbugs.FindBugs;
+import edu.umd.cs.findbugs.FindBugs2;
+import edu.umd.cs.findbugs.Plugin;
+import edu.umd.cs.findbugs.PluginException;
+import edu.umd.cs.findbugs.Priorities;
+import edu.umd.cs.findbugs.Project;
+import edu.umd.cs.findbugs.XMLBugReporter;
 import edu.umd.cs.findbugs.config.UserPreferences;
 import edu.umd.cs.findbugs.plugins.DuplicatePluginIdException;
 import org.apache.commons.io.FileUtils;
@@ -39,8 +46,10 @@ import java.io.PrintStream;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -54,6 +63,16 @@ public class FindbugsExecutor implements BatchExtension {
   private static final String FINDBUGS_CORE_PLUGIN_ID = "edu.umd.cs.findbugs.plugins.core";
 
   private static final Logger LOG = LoggerFactory.getLogger(FindbugsExecutor.class);
+
+  /** Map of priority level names to their numeric values. */
+  private static Map<String, Integer> priorityNameToValueMap = new HashMap<String, Integer>();
+  static {
+    priorityNameToValueMap.put("high", (Priorities.HIGH_PRIORITY));
+    priorityNameToValueMap.put("medium", (Priorities.NORMAL_PRIORITY));
+    priorityNameToValueMap.put("low", (Priorities.LOW_PRIORITY));
+    priorityNameToValueMap.put("experimental", (Priorities.EXP_PRIORITY));
+  }
+  private final static Integer DEFAULT_PRIORITY = Priorities.NORMAL_PRIORITY;
 
   private FindbugsConfiguration configuration;
 
@@ -87,7 +106,7 @@ public class FindbugsExecutor implements BatchExtension {
       engine.setProject(project);
 
       XMLBugReporter xmlBugReporter = new XMLBugReporter(project);
-      xmlBugReporter.setPriorityThreshold(Priorities.LOW_PRIORITY);
+      xmlBugReporter.setPriorityThreshold(determinePriorityThreshold());
       xmlBugReporter.setAddMessages(true);
 
       File xmlReport = configuration.getTargetXMLReport();
@@ -133,6 +152,14 @@ public class FindbugsExecutor implements BatchExtension {
       Thread.currentThread().setContextClassLoader(initialClassLoader);
       Locale.setDefault(initialLocale);
     }
+  }
+
+  private Integer determinePriorityThreshold() {
+    Integer integer = priorityNameToValueMap.get(configuration.getConfidenceLevel());
+    if (integer == null) {
+      integer = DEFAULT_PRIORITY;
+    }
+    return integer;
   }
 
   private static class FindbugsTask implements Callable<Object> {

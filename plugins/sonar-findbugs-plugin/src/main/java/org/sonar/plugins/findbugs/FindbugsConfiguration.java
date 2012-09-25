@@ -34,7 +34,11 @@ import org.sonar.plugins.findbugs.xml.ClassFilter;
 import org.sonar.plugins.findbugs.xml.FindBugsFilter;
 import org.sonar.plugins.findbugs.xml.Match;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -66,7 +70,7 @@ public class FindbugsConfiguration implements BatchExtension {
     File classesDir = project.getFileSystem().getBuildOutputDir();
     if (classesDir == null || !classesDir.exists()) {
       throw new SonarException("Findbugs needs sources to be compiled. "
-          + "Please build project before executing sonar and check the location of compiled classes.");
+        + "Please build project before executing sonar and check the location of compiled classes.");
     }
 
     edu.umd.cs.findbugs.Project findbugsProject = new edu.umd.cs.findbugs.Project();
@@ -119,6 +123,10 @@ public class FindbugsConfiguration implements BatchExtension {
 
   public String getEffort() {
     return StringUtils.lowerCase(settings.getString(CoreProperties.FINDBUGS_EFFORT_PROPERTY));
+  }
+
+  public String getConfidenceLevel() {
+    return StringUtils.lowerCase(settings.getString(CoreProperties.FINDBUGS_CONFIDENCE_LEVEL_PROPERTY));
   }
 
   public long getTimeout() {

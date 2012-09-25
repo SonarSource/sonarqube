@@ -115,4 +115,11 @@ public class FindbugsConfigurationTest {
     assertThat(conf.getExcludesFilters()).hasSize(2);
   }
 
+  @Test
+  public void should_return_confidence_level() {
+    assertThat(conf.getConfidenceLevel()).as("default confidence level").isEqualTo("medium");
+    settings.setProperty(CoreProperties.FINDBUGS_EFFORT_PROPERTY, "HIGH");
+    assertThat(conf.getEffort()).isEqualTo("high");
+  }
+
 }

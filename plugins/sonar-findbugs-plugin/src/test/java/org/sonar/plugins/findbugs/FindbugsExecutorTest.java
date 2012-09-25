@@ -49,6 +49,25 @@ public class FindbugsExecutorTest {
     String report = FileUtils.readFileToString(reportFile);
     assertThat(report).as("Report should contain bug instance").contains("<BugInstance");
     assertThat(report).as("Report should be generated with messages").contains("<Message>");
+    assertThat(report).contains("priority=\"1\"");
+    assertThat(report).doesNotContain("priority=\"3\"");
+  }
+
+  @Test
+  public void canGenerateXMLReportWithCustomConfidence() throws Exception {
+    FindbugsConfiguration conf = mockConf();
+    File reportFile = new File("target/test-tmp/customized-findbugs-report.xml");
+    when(conf.getTargetXMLReport()).thenReturn(reportFile);
+    when(conf.getConfidenceLevel()).thenReturn("low");
+
+    new FindbugsExecutor(conf).execute();
+
+    assertThat(reportFile.exists()).isTrue();
+    String report = FileUtils.readFileToString(reportFile);
+    assertThat(report).as("Report should contain bug instance").contains("<BugInstance");
+    assertThat(report).as("Report should be generated with messages").contains("<Message>");
+    assertThat(report).contains("priority=\"1\"");
+    assertThat(report).contains("priority=\"3\"");
     assertThat(report).contains("synthetic=\"true\"");
   }
 

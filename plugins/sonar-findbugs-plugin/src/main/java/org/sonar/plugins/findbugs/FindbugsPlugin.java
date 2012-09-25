@@ -56,8 +56,17 @@ import java.util.List;
     project = true,
     module = true,
     global = true,
-    multiValues = true
-  )})
+    multiValues = true),
+  @Property(
+    key = CoreProperties.FINDBUGS_CONFIDENCE_LEVEL_PROPERTY,
+    defaultValue = CoreProperties.FINDBUGS_CONFIDENCE_LEVEL_DEFAULT_VALUE,
+    name = "Confidence Level",
+    description = "Specifies the confidence threshold (previously called \"priority\") for reporting issues. If set to \"low\", confidence is not used to filter bugs. " +
+      "If set to \"medium\" (the default), low confidence issues are supressed. If set to \"high\", only high confidence bugs are reported. ",
+    project = true,
+    module = true,
+    global = true)
+})
 public class FindbugsPlugin extends SonarPlugin {
 
   public List<Class<? extends Extension>> getExtensions() {
