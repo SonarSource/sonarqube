@@ -63,7 +63,7 @@ import java.util.List;
     name = "Toto",
     global = true,
     type = PropertyType.PROPERTY_SET,
-    property_set_name = "myset",
+    propertySetName = "myset",
     category = CoreProperties.CATEGORY_GENERAL),
   @Property(
     key = CoreProperties.PROJECT_LANGUAGE_PROPERTY,

@@ -24,6 +24,7 @@ class PropertySetsController < ApplicationController
 
   def index
     @property_sets = java_facade.listPropertySets()
+    render :partial => 'property_sets/list'
   end
 
 end

@@ -42,6 +42,6 @@ class PropertySet < ActiveRecord::Base
     json = Property.value('sonar.property_set.' + set_name)
 
     #json || '[]'
-    json || '[{"name":"set1"},{"name":"set2"}]'
+    json || '[{"name":"set2"},{"name":"set1"}]'
   end
 end

@@ -47,7 +47,7 @@ public class PropertyDefinitionTest {
     assertThat(def.isOnProject()).isTrue();
     assertThat(def.isOnModule()).isTrue();
     assertThat(def.isMultiValues()).isTrue();
-    assertThat(def.getProperty_set_name()).isEmpty();
+    assertThat(def.getPropertySetName()).isEmpty();
   }
 
   @Properties(@Property(key = "hello", name = "Hello", defaultValue = "world", description = "desc",
@@ -75,7 +75,7 @@ public class PropertyDefinitionTest {
     assertThat(def.isMultiValues()).isFalse();
   }
 
-  @Properties(@Property(key = "hello", name = "Hello", type = PropertyType.PROPERTY_SET, property_set_name = "set1"))
+  @Properties(@Property(key = "hello", name = "Hello", type = PropertyType.PROPERTY_SET, propertySetName = "set1"))
   static class WithPropertySet {
   }
 
@@ -87,7 +87,7 @@ public class PropertyDefinitionTest {
     PropertyDefinition def = PropertyDefinition.create(prop);
 
     assertThat(def.getType()).isEqualTo(PropertyType.PROPERTY_SET);
-    assertThat(def.getProperty_set_name()).isEqualTo("set1");
+    assertThat(def.getPropertySetName()).isEqualTo("set1");
   }
 
   @Properties(@Property(key = "hello", name = "Hello"))

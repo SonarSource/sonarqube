@@ -23,6 +23,7 @@ class Property < ActiveRecord::Base
   named_scope :with_key, lambda { |value| {:conditions => {:prop_key, value}} }
   named_scope :with_resource, lambda { |value| {:conditions => {:resource_id => value}} }
   named_scope :with_user, lambda { |value| {:conditions => {:user_id => value}} }
+  named_scope :on_resource, :conditions => ['resource_id is not ?', nil]
 
   def key
     prop_key

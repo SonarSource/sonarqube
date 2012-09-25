@@ -67,7 +67,7 @@ public final class PropertyDefinition {
   private boolean onModule = false;
   private boolean isGlobal = true;
   private boolean multiValues;
-  private String property_set_name;
+  private String propertySetName;
 
   private PropertyDefinition(Property annotation) {
     this.key = annotation.key();
@@ -81,7 +81,7 @@ public final class PropertyDefinition {
     this.type = fixType(annotation.key(), annotation.type());
     this.options = annotation.options();
     this.multiValues = annotation.multiValues();
-    this.property_set_name = annotation.property_set_name();
+    this.propertySetName = annotation.propertySetName();
   }
 
   private static PropertyType fixType(String key, PropertyType type) {
@@ -186,7 +186,7 @@ public final class PropertyDefinition {
   /**
    * @since 3.3
    */
-  public String getProperty_set_name() {
-    return property_set_name;
+  public String getPropertySetName() {
+    return propertySetName;
   }
 }

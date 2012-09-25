@@ -104,5 +104,5 @@ public @interface Property {
    *
    * @since 3.3
    */
-  String property_set_name() default "";
+  String propertySetName() default "";
 }

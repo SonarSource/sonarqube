@@ -28,11 +28,11 @@
 
             <% value = property_value(property) -%>
             <% if property.multi_values -%>
-              <% value.each do |sub_value| -%>
-                <%= render "settings/multi_value", :property => property, :value => sub_value -%>
+              <% value.each_with_index do |sub_value, index| -%>
+                <%= render "settings/multi_value", :property => property, :value => sub_value, :delete_link => true -%>
               <% end -%>
               <div class="template" style="display:none;">
-                <%= render "settings/multi_value", :property => property, :value => nil -%>
+                <%= render "settings/multi_value", :property => property, :value => nil, :delete_link => true -%>
               </div>
               <button class="add_value"><%= message('settings.add') -%></button>
               <br/>

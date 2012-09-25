@@ -24,5 +24,4 @@ module WidgetPropertiesHelper
     property_value definition.key(), definition.type.name(), value.nil? ? definition.defaultValue() : value
   end
 
-
 end

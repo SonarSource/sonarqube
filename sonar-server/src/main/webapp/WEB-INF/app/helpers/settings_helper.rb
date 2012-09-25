@@ -51,14 +51,15 @@ module SettingsHelper
   end
 
   def by_name(categories)
-    categories.sort_by { |category| category_name(category) }
+    Api::Utils.insensitive_sort(categories) { |category| category_name(category) }
   end
 
   def input_name(property)
     h(property.key) + (property.multi_values ? '[]' : '')
   end
 
-  def property_set_values(property)
-    PropertySet.findAll(property.property_set_name);
+  def property_set_value_names(property)
+    names = PropertySet.findAll(property.propertySetName).map(&:name);
+    Api::Utils.insensitive_sort(names)
   end
 end

@@ -19,6 +19,8 @@
  */
 package org.sonar.api.config;
 
+import com.google.common.collect.Iterables;
+
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
@@ -33,6 +35,8 @@ import org.sonar.api.utils.DateUtils;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Project Settings on batch side, Global Settings on server side. This component does not access to database, so
@@ -186,14 +190,17 @@ public class Settings implements BatchComponent, ServerComponent {
       throw new IllegalArgumentException("Property " + key + " is not of type PROPERTY_SET");
     }
 
-    String propertySetValueName = getString(key);
+    String propertySetName = property.getPropertySetName();
+    String valueName = getString(key);
+    String propertySetJson = getString("sonar.property_set." + propertySetName);
 
-    // read json for given key
-    // search value for given propertySetValueName
-
-    return null;
+    return PropertySetValue.create(lowTechJsonParsing(valueName, propertySetJson));
   }
 
+  private static Map<String, String> lowTechJsonParsing(String valueName, String json) {
+    return Maps.newHashMap();
+  }
+  
   /**
    * Value is split by carriage returns.
    *
