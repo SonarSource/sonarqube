@@ -3,11 +3,13 @@
   if lcom
     lcom_distribution=measure('lcom4_distribution')
     suspect_lcom4_density=measure('suspect_lcom4_density')
+    
+    display_chart = suspect_lcom4_density && suspect_lcom4_density.value>1.0 && lcom_distribution && !lcom_distribution.data.blank?
 %>
 <table width="100%">
   <tbody>
     <tr>
-      <td valign="top">
+      <td valign="top" width="<%= display_chart ? '50' : '100' -%>%">
         <div class="dashbox">
           <h3><%= message('widget.lcom4.title') -%></h3>
           <p>
@@ -20,10 +22,10 @@
       </td>
 
       <%
-        if suspect_lcom4_density && suspect_lcom4_density.value>1.0 && lcom_distribution && !lcom_distribution.data.blank?
+        if display_chart
           query="ck=distbar&c=777777&w=180&h=100&fs=8&bgc=ffffff&v=" + u(lcom_distribution.data)
       %>
-      <td>
+      <td valign="top" width="50px">
         <a href="<%= url_for_drilldown('lcom4') -%>"><%= chart(query, :id => 'lcom4_distribution', :alt => '') -%></a>
       </td>
       <% end %>
