@@ -149,6 +149,10 @@ public final class Platform {
     rootContainer.addSingleton(DefaultServerPluginRepository.class);
     rootContainer.addSingleton(DefaultServerFileSystem.class);
     rootContainer.addSingleton(ApplicationDeployer.class);
+    rootContainer.addSingleton(JRubyI18n.class);
+    rootContainer.addSingleton(I18nManager.class);
+    rootContainer.addSingleton(RuleI18nManager.class);
+    rootContainer.addSingleton(GwtI18n.class);
     rootContainer.startComponents();
   }
 
@@ -210,11 +214,7 @@ public final class Platform {
     servicesContainer.addSingleton(DefaultMetricFinder.class);
     servicesContainer.addSingleton(ProfilesConsole.class);
     servicesContainer.addSingleton(RulesConsole.class);
-    servicesContainer.addSingleton(JRubyI18n.class);
     servicesContainer.addSingleton(DefaultUserFinder.class);
-    servicesContainer.addSingleton(I18nManager.class);
-    servicesContainer.addSingleton(RuleI18nManager.class);
-    servicesContainer.addSingleton(GwtI18n.class);
     servicesContainer.addSingleton(ResourceTypes.class);
     servicesContainer.addSingleton(NewUserNotifier.class);
     servicesContainer.addSingleton(SettingsChangeNotifier.class);
