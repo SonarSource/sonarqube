@@ -41,6 +41,6 @@ public final class PageDecorations implements ServerComponent {
   }
 
   public PageDecoration[] get() {
-    return decorations;
+    return decorations;//NOSONAR expose internal representation
   }
 }
