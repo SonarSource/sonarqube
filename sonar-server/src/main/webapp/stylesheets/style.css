@@ -306,7 +306,7 @@ h4, .h4 {
 
 .info {
   background-color: #CAE3F2;
-  padding: 4px;
+  padding: 5px;
   border: 1px solid #4B9FD5;
 }
 
@@ -2357,7 +2357,7 @@ select.medium-width {
 }
 
 .form-body {
-  padding: 5px;
+  padding: 10px;
 }
 
 .form-field {

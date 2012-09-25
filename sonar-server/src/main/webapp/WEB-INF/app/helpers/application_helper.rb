@@ -725,6 +725,7 @@ module ApplicationHelper
   # ==== Options
   # * <tt>:id</tt> - HTML ID of the button
   # * <tt>:class</tt> - Additional CSS class, generally 'red-button' for deletions
+  # * <tt>:button_key</tt> - Default is 'confirm'
   # * <tt>:title_key</tt> -
   # * <tt>:message_key</tt> -
   # * <tt>:message_params</tt> -
@@ -734,6 +735,7 @@ module ApplicationHelper
     clazz = options[:class]
     id = "id='#{options[:id]}'" if options[:id]
     title_key = options[:title_key]
+    button_key = options[:button_key]
     message_key = options[:message_key]
     message_params = options[:message_params]
     width = options[:width]||500
@@ -743,6 +745,9 @@ module ApplicationHelper
     if message_key
       url += "&mk=#{message_key}&"
       url += message_params.map{|p| "mp=#{u p}"}.join('&') if message_params
+    end
+    if button_key
+      url += "&bk=#{button_key}"
     end
 
     "<a href='#{url}' modal-width='#{width}' class='open-modal button #{clazz}' #{id}>#{h label}</a>"
