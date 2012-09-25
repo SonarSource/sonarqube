@@ -21,26 +21,18 @@ class ProfilesController < ApplicationController
   SECTION=Navigation::SECTION_CONFIGURATION
 
   # GETs should be safe (see http://www.w3.org/2001/tag/doc/whenToUseGet.html)
-  verify :method => :post, :only => ['create', 'delete', 'copy', 'set_as_default', 'restore', 'set_projects', 'rename', 'change_parent'], :redirect_to => { :action => 'index' }
+  verify :method => :post, :only => ['create', 'delete', 'copy', 'set_as_default', 'restore', 'set_projects', 'rename', 'change_parent'], :redirect_to => {:action => 'index'}
 
   # the backup action is allow to non-admin users : see http://jira.codehaus.org/browse/SONAR-2039
   before_filter :admin_required, :only => ['create', 'delete', 'set_as_default', 'copy', 'restore', 'change_parent', 'set_projects', 'rename_form', 'rename']
 
-  #
-  #
   # GET /profiles/index
-  #
-  #
   def index
     @profiles = Profile.find(:all, :conditions => ['enabled=?', true], :order => 'name')
   end
 
 
-  #
-  #
   # GET /profiles/show/<id>
-  #
-  #
   def show
     @profile = Profile.find(params[:id])
   end
@@ -54,11 +46,7 @@ class ProfilesController < ApplicationController
     render :partial => 'profiles/create_form', :locals => {:language_key => language}
   end
 
-  #
-  #
   # POST /profiles/create?name=<profile name>&language=<language>&[backup=<file>]
-  #
-  #
   def create
     profile_name=params[:name]
     language=params[:language]
@@ -85,11 +73,7 @@ class ProfilesController < ApplicationController
   end
 
 
-  #
-  #
   # POST /profiles/delete/<id>
-  #
-  #
   def delete
     @profile = Profile.find(params[:id])
     if @profile && @profile.deletable?
@@ -99,11 +83,7 @@ class ProfilesController < ApplicationController
   end
 
 
-  #
-  #
   # POST /profiles/set_as_default/<id>
-  #
-  #
   def set_as_default
     profile = Profile.find(params[:id])
     profile.set_as_default
@@ -112,16 +92,13 @@ class ProfilesController < ApplicationController
   end
 
 
+  # GET /profiles/copy_form/<profile id>
   def copy_form
     @profile = Profile.find(params[:id])
     render :partial => 'profiles/copy_form'
   end
 
-  #
-  #
   # POST /profiles/copy/<id>?name=<name of new profile>
-  #
-  #
   def copy
     render :text => 'Not an ajax request', :status => '400' unless request.xhr?
 
@@ -140,12 +117,7 @@ class ProfilesController < ApplicationController
   end
 
 
-
-  #
-  #
   # POST /profiles/backup/<id>
-  #
-  #
   def backup
     profile = Profile.find(params[:id])
     xml = java_facade.backupProfile(profile.id)
@@ -155,11 +127,12 @@ class ProfilesController < ApplicationController
 
 
   # Modal window to restore profile backup
+  # GET /profiles/restore_form/<profile id>
   def restore_form
     render :partial => 'profiles/restore_form'
   end
 
-  # POST /profiles/restore/<id>
+  # POST /profiles/restore?backup=<file>
   def restore
     if params[:backup].blank?
       flash[:warning]=message('quality_profiles.please_upload_backup_file')
@@ -171,12 +144,7 @@ class ProfilesController < ApplicationController
   end
 
 
-
-  #
-  #
   # GET /profiles/export?name=<profile name>&language=<language>&format<exporter key>
-  #
-  #
   def export
     language = params[:language]
     if (params[:name].blank?)
@@ -206,7 +174,7 @@ class ProfilesController < ApplicationController
     @profile = Profile.find(params[:id])
 
     profiles=Profile.find(:all, :conditions => ['language=? and id<>? and (parent_name is null or parent_name<>?) and enabled=?', @profile.language, @profile.id, @profile.name, true], :order => 'name')
-    @select_parent = [[message('none'), nil]] + profiles.collect{ |profile| [profile.name, profile.name] }
+    @select_parent = [[message('none'), nil]] + profiles.collect { |profile| [profile.name, profile.name] }
   end
 
   #
@@ -218,7 +186,7 @@ class ProfilesController < ApplicationController
     @profile = Profile.find(params[:id])
 
     versions = ActiveRuleChange.find(:all, :select => 'profile_version, MAX(change_date) AS change_date', :conditions => ['profile_id=?', @profile.id], :group => 'profile_version')
-    versions.sort! { |a,b| b.profile_version <=> a.profile_version }
+    versions.sort! { |a, b| b.profile_version <=> a.profile_version }
 
     if !versions.empty?
       last_version = versions[0].profile_version
@@ -237,7 +205,7 @@ class ProfilesController < ApplicationController
       end
       @changes = ActiveRuleChange.find(:all, :conditions => ['profile_id=? and ?<profile_version and profile_version<=?', @profile.id, @since_version, @to_version], :order => 'id desc')
 
-      @select_versions = versions.map {|u| [ message(u.profile_version == last_version ? 'quality_profiles.last_version_x_with_date' : 'quality_profiles.version_x_with_date', :params => [u.profile_version.to_s, l(u.change_date)]), u.profile_version ]} | [[message('quality_profiles.no_version'), 0]];
+      @select_versions = versions.map { |u| [message(u.profile_version == last_version ? 'quality_profiles.last_version_x_with_date' : 'quality_profiles.version_x_with_date', :params => [u.profile_version.to_s, l(u.change_date)]), u.profile_version] } | [[message('quality_profiles.no_version'), 0]];
     end
   end
 
@@ -278,12 +246,11 @@ class ProfilesController < ApplicationController
   def projects
     @profile = Profile.find(params[:id])
     @available_projects=Project.find(:all,
-      :include => ['profile','snapshots'],
-      :conditions => ['projects.qualifier=? AND projects.scope=? AND snapshots.islast=?', Project::QUALIFIER_PROJECT, Project::SCOPE_SET, true],
-      :order => 'projects.name asc')
+                                     :include => ['profile', 'snapshots'],
+                                     :conditions => ['projects.qualifier=? AND projects.scope=? AND snapshots.islast=?', Project::QUALIFIER_PROJECT, Project::SCOPE_SET, true],
+                                     :order => 'projects.name asc')
     @available_projects-=@profile.projects
   end
-
 
 
   #
@@ -352,9 +319,9 @@ class ProfilesController < ApplicationController
       @profile2 = Profile.find(params[:id2])
 
       arules1 = ActiveRule.find(:all, :include => [{:active_rule_parameters => :rules_parameter}, :rule],
-        :conditions => ['active_rules.profile_id=?', @profile1.id])
+                                :conditions => ['active_rules.profile_id=?', @profile1.id])
       arules2 = ActiveRule.find(:all, :order => 'rules.plugin_name, rules.plugin_rule_key', :include => [{:active_rule_parameters => :rules_parameter}, :rule],
-        :conditions => ['active_rules.profile_id=?', @profile2.id])
+                                :conditions => ['active_rules.profile_id=?', @profile2.id])
 
       diffs_by_rule={}
       arules1.each do |arule1|
@@ -371,10 +338,14 @@ class ProfilesController < ApplicationController
       @sames=[]
       diffs_by_rule.values.sort.each do |diff|
         case diff.status
-        when DIFF_IN1 then @in1<<diff
-        when DIFF_IN2 then @in2<<diff
-        when DIFF_MODIFIED then @modified<<diff
-        when DIFF_SAME then @sames<<diff
+          when DIFF_IN1 then
+            @in1<<diff
+          when DIFF_IN2 then
+            @in2<<diff
+          when DIFF_MODIFIED then
+            @modified<<diff
+          when DIFF_SAME then
+            @sames<<diff
         end
       end
     end
@@ -397,37 +368,37 @@ class ProfilesController < ApplicationController
 
     def status
       @status ||=
-          begin
-            if @arule1.nil?
-              @status=(@arule2 ? DIFF_IN2 : nil)
-            else
-              if @arule2
-                # compare severity and parameters
-                @removed_params=[]
-                @added_params=[]
-                @rule.parameters.each do |param|
-                  v1=@arule1.value(param.id)
-                  v2=@arule2.value(param.id)
-                  if v1
-                    if v2
-                      if v1!=v2
-                        @removed_params<<@arule1.parameter(param.name)
-                        @added_params<<@arule2.parameter(param.name)
-                      end
-                    else
+        begin
+          if @arule1.nil?
+            @status=(@arule2 ? DIFF_IN2 : nil)
+          else
+            if @arule2
+              # compare severity and parameters
+              @removed_params=[]
+              @added_params=[]
+              @rule.parameters.each do |param|
+                v1=@arule1.value(param.id)
+                v2=@arule2.value(param.id)
+                if v1
+                  if v2
+                    if v1!=v2
                       @removed_params<<@arule1.parameter(param.name)
+                      @added_params<<@arule2.parameter(param.name)
                     end
-                  elsif v2
-                    @added_params<<@arule2.parameter(param.name)
+                  else
+                    @removed_params<<@arule1.parameter(param.name)
                   end
+                elsif v2
+                  @added_params<<@arule2.parameter(param.name)
                 end
-                diff=(@arule1.priority!=@arule2.priority) || !@removed_params.empty? || !@added_params.empty?
-                @status=(diff ? DIFF_MODIFIED : DIFF_SAME)
-              else
-                @status=DIFF_IN1
               end
+              diff=(@arule1.priority!=@arule2.priority) || !@removed_params.empty? || !@added_params.empty?
+              @status=(diff ? DIFF_MODIFIED : DIFF_SAME)
+            else
+              @status=DIFF_IN1
             end
           end
+        end
     end
 
     def <=>(other)
@@ -466,9 +437,9 @@ class ProfilesController < ApplicationController
           added = added +1
         else
           rule = active_rule1.rule # = active_rule2.rule
-          #compare severity
+                                   #compare severity
           diff = true if active_rule1.priority != active_rule2.priority
-          #compare parameters
+                                   #compare parameters
           rule.parameters.each do |param|
             diff = true if active_rule1.value(param.id) != active_rule2.value(param.id)
           end
