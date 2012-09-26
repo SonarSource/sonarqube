@@ -72,7 +72,7 @@ public class FindbugsExecutor implements BatchExtension {
     priorityNameToValueMap.put("low", (Priorities.LOW_PRIORITY));
     priorityNameToValueMap.put("experimental", (Priorities.EXP_PRIORITY));
   }
-  private final static Integer DEFAULT_PRIORITY = Priorities.NORMAL_PRIORITY;
+  private static final Integer DEFAULT_PRIORITY = Priorities.NORMAL_PRIORITY;
 
   private FindbugsConfiguration configuration;
 
