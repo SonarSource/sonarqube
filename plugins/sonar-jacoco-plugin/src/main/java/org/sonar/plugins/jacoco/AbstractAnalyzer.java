@@ -19,8 +19,6 @@
  */
 package org.sonar.plugins.jacoco;
 
-import org.sonar.api.resources.ResourceUtils;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
@@ -34,6 +32,7 @@ import org.sonar.api.measures.CoverageMeasuresBuilder;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.utils.SonarException;
 
 import java.io.File;
@@ -127,7 +126,7 @@ public abstract class AbstractAnalyzer {
       for (File f : file.listFiles()) {
         analyzeAll(analyzer, f);
       }
-    } else {
+    } else if (file.getName().endsWith(".class")) {
       try {
         analyzer.analyzeAll(file);
       } catch (Exception e) {
