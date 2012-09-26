@@ -198,7 +198,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     assertThat(result.size(), is(VolumeRepository.SIZE));
   }
 
-  // http://jira.codehaus.org/browse/SONAR-3305
+  // SONAR-3305
   @Test
   public void shouldFailRuleWithoutName() throws Exception {
     RuleI18nManager ruleI18nManager = mock(RuleI18nManager.class);
@@ -219,7 +219,24 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     task.start();
   }
 
-  // http://jira.codehaus.org/browse/SONAR-3305
+  // SONAR-3769
+  @Test
+  public void shouldFailRuleWithBlankName() throws Exception {
+    RuleI18nManager ruleI18nManager = mock(RuleI18nManager.class);
+    when(ruleI18nManager.getName(anyString(), anyString(), any(Locale.class))).thenReturn("");
+    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutNameRepository()}, ruleI18nManager);
+    setupData("shared");
+
+    // the rule has no name, it should fail
+    try {
+      task.start();
+      fail("Rule must have a name");
+    } catch (SonarException e) {
+      assertThat(e.getMessage(), containsString("must have a name"));
+    }
+  }
+
+  // SONAR-3305
   @Test
   public void shouldFailRuleWithoutDescription() throws Exception {
     RuleI18nManager ruleI18nManager = mock(RuleI18nManager.class);

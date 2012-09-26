@@ -119,11 +119,11 @@ public final class RegisterRules {
   }
 
   private void validateRule(Rule rule, String repositoryKey) {
-    if (rule.getName() == null && ruleI18nManager.getName(repositoryKey, rule.getKey(), Locale.ENGLISH) == null) {
+    if (StringUtils.isBlank(rule.getName()) && StringUtils.isBlank(ruleI18nManager.getName(repositoryKey, rule.getKey(), Locale.ENGLISH))) {
       throw new SonarException("The following rule (repository: " + repositoryKey + ") must have a name: " + rule);
     }
-    if (rule.getDescription() == null && ruleI18nManager.getDescription(repositoryKey, rule.getKey(), Locale.ENGLISH) == null) {
-      if (rule.getName() != null && ruleI18nManager.getName(repositoryKey, rule.getKey(), Locale.ENGLISH) == null) {
+    if (StringUtils.isBlank(rule.getDescription()) && StringUtils.isBlank(ruleI18nManager.getDescription(repositoryKey, rule.getKey(), Locale.ENGLISH))) {
+      if (StringUtils.isNotBlank(rule.getName()) && StringUtils.isBlank(ruleI18nManager.getName(repositoryKey, rule.getKey(), Locale.ENGLISH))) {
         // specific case
         throw new SonarException("No description found for the rule '" + rule.getName() + "' (repository: " + repositoryKey + ") because the entry 'rule."
           + repositoryKey + "." + rule.getKey() + ".name' is missing from the bundle.");
