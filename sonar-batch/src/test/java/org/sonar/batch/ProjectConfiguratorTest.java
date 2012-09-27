@@ -37,25 +37,6 @@ import static org.junit.Assert.assertTrue;
 public class ProjectConfiguratorTest extends AbstractDbUnitTestCase {
 
   @Test
-  public void getLanguageFromConfiguration() {
-    Settings configuration = new Settings();
-    configuration.setProperty(CoreProperties.PROJECT_LANGUAGE_PROPERTY, "foo");
-
-    Project project = new Project("key");
-    new ProjectConfigurator(getSession(), configuration).configure(project);
-
-    assertThat(project.getLanguageKey(), is("foo"));
-  }
-
-  @Test
-  public void defaultLanguageIsJava() {
-    Project project = new Project("key");
-    new ProjectConfigurator(getSession(), new Settings()).configure(project);
-
-    assertThat(project.getLanguageKey(), is(Java.KEY));
-  }
-
-  @Test
   public void analysisIsTodayByDefault() {
     Project project = new Project("key");
     new ProjectConfigurator(getSession(), new Settings()).configure(project);

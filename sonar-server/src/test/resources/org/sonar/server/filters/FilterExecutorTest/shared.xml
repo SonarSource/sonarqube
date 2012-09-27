@@ -1,15 +1,15 @@
 <dataset>
   <projects long_name="java project" id="1" scope="PRJ" kee="project:java" qualifier="TRK" name="java project"
             root_id="[null]"
-            description="[null]" enabled="true" profile_id="[null]" language="java" copy_resource_id="[null]" person_id="[null]"/>
+            description="[null]" enabled="true"  language="java" copy_resource_id="[null]" person_id="[null]"/>
 
   <projects long_name="php project" id="2" scope="PRJ" kee="project:a-php-project" qualifier="TRK" name="php project"
             root_id="[null]"
-            description="[null]" enabled="true" profile_id="[null]" language="php" copy_resource_id="[null]" person_id="[null]"/>
+            description="[null]" enabled="true"  language="php" copy_resource_id="[null]" person_id="[null]"/>
 
   <projects long_name="org.sonar.foo" id="3" scope="DIR" kee="project:java:org.sonar.foo" qualifier="PAC" name="org.sonar.foo"
             root_id="1"
-            description="[null]" enabled="true" profile_id="[null]" language="java" copy_resource_id="[null]" person_id="[null]"/>
+            description="[null]" enabled="true"  language="java" copy_resource_id="[null]" person_id="[null]"/>
 
 
   <!-- Java project -->

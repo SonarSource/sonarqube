@@ -2,14 +2,18 @@
   <input type="hidden" name="id" value="<%= @profile.id -%>"/>
   <fieldset>
     <div class="form-head">
-      <h2>Copy Profile: <%= h @profile.name -%></h2>
+      <h2> <%= message('quality_profiles.copy_x_title', :params => [h @profile.name]) -%></h2>
     </div>
     <div class="form-body">
-      <% if @error %>
-        <p class="error"><%= h @error -%></p>
-      <% end %>
+      <% if @errors
+          @errors.each do |error|
+      %>
+        <p class="error"><%= h error -%></p>
+      <% end
+      end
+      %>
       <div class="form-field">
-        <label for="name">New name <em>*</em></label>
+        <label for="name"><%= message 'quality_profiles.copy_new_name' -%> <em>*</em></label>
         <input id="copy-name" name="name" type="text" size="50" maxlength="100"/>
       </div>
     </div>

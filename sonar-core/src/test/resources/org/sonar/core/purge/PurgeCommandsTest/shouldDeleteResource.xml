@@ -2,7 +2,7 @@
 
   <projects id="1" enabled="[true]" root_id="[null]"
             long_name="[null]" scope="PRJ" qualifier="TRK" kee="project" name="project"
-            description="[null]" language="java" copy_resource_id="[null]" person_id="[null]" profile_id="[null]"/>
+            description="[null]" language="java" copy_resource_id="[null]" person_id="[null]" />
 
   <snapshots id="1" project_id="1" parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]"
              status="P" islast="[false]" purge_status="[null]"

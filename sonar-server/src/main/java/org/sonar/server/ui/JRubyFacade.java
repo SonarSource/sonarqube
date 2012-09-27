@@ -280,16 +280,8 @@ public final class JRubyFacade {
     return get(ProfilesConsole.class).getProfileExporter(exporterKey).getMimeType();
   }
 
-  public void renameProfile(int profileId, String newProfileName) {
-    getProfilesManager().renameProfile(profileId, newProfileName);
-  }
-
   public void copyProfile(long profileId, String newProfileName) {
     getProfilesManager().copyProfile((int) profileId, newProfileName);
-  }
-
-  public void deleteProfile(long profileId) {
-    getProfilesManager().deleteProfile((int) profileId);
   }
 
   public ValidationMessages changeParentProfile(int profileId, String parentName, String userName) {

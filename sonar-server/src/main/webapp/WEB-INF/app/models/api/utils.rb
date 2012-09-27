@@ -169,4 +169,8 @@ class Api::Utils
   def self.java_facade
     Java::OrgSonarServerUi::JRubyFacade.getInstance()
   end
+
+  def self.languages
+    java_facade.getLanguages()
+  end
 end

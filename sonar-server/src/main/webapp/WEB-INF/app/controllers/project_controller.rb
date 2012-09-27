@@ -18,7 +18,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 class ProjectController < ApplicationController
-  verify :method => :post, :only => [:set_links, :set_exclusions, :delete_exclusions, :update_key, :perform_key_bulk_update, :update_quality_profile],
+  verify :method => :post, :only => [:set_links, :set_exclusions, :delete_exclusions, :update_key, :perform_key_bulk_update],
          :redirect_to => {:action => :index}
   verify :method => :delete, :only => [:delete], :redirect_to => {:action => :index}
 
@@ -75,25 +75,29 @@ class ProjectController < ApplicationController
     redirect_to :action => 'deletion', :id => params[:id]
   end
 
-  def quality_profile
+  # GET /project/profile?id=<project id>
+  def profile
+    require_parameters :id
     @project = get_current_project(params[:id])
-    @profiles = Profile.find(:all, :conditions => {:language => @project.language, :enabled => true})
   end
 
-  def update_quality_profile
+  # POST /project/set_profile?id=<project id>&language=<language>[&profile_id=<profile id>]
+  def set_profile
+    require_parameters :id, :language
+    verify_post_request
+
+    language=params[:language]
     project = get_current_project(params[:id])
 
-    selected_profile = Profile.find(:first, :conditions => {:id => params[:quality_profile].to_i})
-    if selected_profile && selected_profile.language == project.language
-      project.profile = selected_profile
-      project.save!
-      flash[:notice] = message('project_quality_profile.profile_successfully_updated')
+    if params[:profile_id].blank?
+      Profile.reset_default_profile_for_project_id(language, project.id)
     else
-      selected_profile_name = selected_profile ? selected_profile.name + "(" + selected_profile.language + ")" : "Unknown profile"
-      flash[:error] = message('project_quality_profile.project_cannot_be_update_with_profile_x', :params => selected_profile_name)
+      profile = Profile.find(params[:profile_id])
+      bad_request('Bad language') if profile.language!=language
+      profile.add_project_id(project.id)
     end
 
-    redirect_to :action => 'quality_profile', :id => project.id
+    redirect_to :action => 'profile', :id => project.id
   end
 
   def key

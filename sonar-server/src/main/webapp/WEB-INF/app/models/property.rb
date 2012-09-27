@@ -21,9 +21,11 @@ class Property < ActiveRecord::Base
   validates_presence_of :prop_key
 
   named_scope :with_key, lambda { |value| {:conditions => {:prop_key, value}} }
+  named_scope :with_value, lambda { |value| {:conditions => {:text_value, value}} }
   named_scope :with_resource, lambda { |value| {:conditions => {:resource_id => value}} }
   named_scope :with_user, lambda { |value| {:conditions => {:user_id => value}} }
-  named_scope :on_resource, :conditions => ['resource_id is not ?', nil]
+  named_scope :with_resources, :conditions => 'resource_id is not null'
+  named_scope :with_users, :conditions => 'user_id is not null'
 
   def key
     prop_key
@@ -45,6 +47,18 @@ class Property < ActiveRecord::Base
       all(key, resource_id, user_id).delete_all
       setGlobalProperty(key, nil, resource_id, user_id)
     end
+  end
+
+  def self.clear_for_resources(key, value=nil)
+    scope=Property.with_resources().with_key(key)
+    if value
+      scope.with_value(value)
+    end
+    scope.delete_all
+  end
+
+  def self.clear_for_users(key)
+    Property.with_users().with_key(key).delete_all
   end
 
   def self.by_key(key, resource_id=nil, user_id=nil)

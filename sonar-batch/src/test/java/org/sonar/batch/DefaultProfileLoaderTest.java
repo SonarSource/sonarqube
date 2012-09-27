@@ -19,27 +19,20 @@
  */
 package org.sonar.batch;
 
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Collections;
-import java.util.HashMap;
-
-import org.apache.commons.configuration.MapConfiguration;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.profiles.Alert;
+import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
-import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.utils.SonarException;
 import org.sonar.jpa.dao.ProfilesDao;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DefaultProfileLoaderTest {
 
@@ -47,76 +40,54 @@ public class DefaultProfileLoaderTest {
   public ExpectedException thrown = ExpectedException.none();
 
   private ProfilesDao dao;
-  private ProfileLoader loader;
+  private Project javaProject = new Project("project").setLanguageKey(Java.KEY);
 
   @Before
   public void setUp() {
     dao = mock(ProfilesDao.class);
-    loader = new DefaultProfileLoader(dao);
   }
 
   @Test
-  public void shouldGetProjectProfile() {
-    Project project = new Project("project").setLanguageKey(Java.KEY);
-    Project module = new Project("module").setParent(project).setLanguageKey(Java.KEY);
+  public void should_get_configured_profile() {
+    Settings settings = new Settings();
+    settings.setProperty("sonar.profile.java", "legacy profile");
+    when(dao.getProfile(Java.KEY, "legacy profile")).thenReturn(RulesProfile.create("legacy profile", "java"));
 
-    when(dao.getActiveProfile(Java.KEY, "project")).thenReturn(newProfile());
+    RulesProfile profile = new DefaultProfileLoader(dao, settings).load(javaProject);
 
-    assertNotNull(loader.load(module));
-
-    verify(dao, never()).getActiveProfile(Java.KEY, "module");
-    verify(dao).getActiveProfile(Java.KEY, "project");
-  }
-
-  private RulesProfile newProfile() {
-    RulesProfile profile = new RulesProfile();
-    profile.setAlerts(Collections.<Alert> emptyList());
-    profile.setActiveRules(Collections.<ActiveRule> emptyList());
-    return profile;
+    assertThat(profile.getName()).isEqualTo("legacy profile");
   }
 
   @Test
-  public void mavenPropertyShouldOverrideProfile() {
-    Project project = new Project("project").setLanguageKey(Java.KEY);
+  public void should_get_default_profile() {
+    Settings settings = new Settings();
+    when(dao.getDefaultProfile(Java.KEY)).thenReturn(RulesProfile.create("default profile", "java"));
 
-    MapConfiguration conf = new MapConfiguration(new HashMap());
-    conf.addProperty(DefaultProfileLoader.PARAM_PROFILE, "profile1");
-    project.setConfiguration(conf);
+    RulesProfile profile = new DefaultProfileLoader(dao, settings).load(javaProject);
 
-    when(dao.getProfile(Java.KEY, "profile1")).thenReturn(newProfile());
-
-    loader.load(project);
-
-    verify(dao).getProfile(Java.KEY, "profile1");
-    verify(dao, never()).getActiveProfile(Java.KEY, "project");
+    assertThat(profile.getName()).isEqualTo("default profile");
   }
 
   @Test
-  public void shouldFailIfProfileIsNotFound() {
-    Project project = new Project("project").setLanguageKey(Java.KEY);
-
-    MapConfiguration conf = new MapConfiguration(new HashMap());
-    conf.addProperty(DefaultProfileLoader.PARAM_PROFILE, "unknown");
-    project.setConfiguration(conf);
-
-    when(dao.getProfile(Java.KEY, "profile1")).thenReturn(null);
+  public void should_fail_if_not_found() {
+    Settings settings = new Settings();
+    settings.setProperty("sonar.profile.java", "unknown");
 
     thrown.expect(SonarException.class);
     thrown.expectMessage("Quality profile not found : unknown, language java");
-    loader.load(project);
+    new DefaultProfileLoader(dao, settings).load(javaProject);
   }
 
   /**
    * SONAR-3125
    */
   @Test
-  public void shouldGiveExplicitMessageIfNoProfileFound() {
-    Project project = new Project("foo:project").setLanguageKey("unknown-language");
-    when(dao.getProfile(Java.KEY, "profile1")).thenReturn(null);
+  public void should_give_explicit_message_if_default_profile_not_found() {
+    Project cobolProject = new Project("cobol-javaProject").setLanguageKey("cobol");
 
     thrown.expect(SonarException.class);
-    thrown.expectMessage("You must intall a Sonar plugin that supports language 'unknown-language' in order to analyse the following project: foo:project");
-    loader.load(project);
+    thrown.expectMessage("You must install a plugin that supports the language 'cobol'");
+    new DefaultProfileLoader(dao, new Settings()).load(cobolProject);
   }
 
 }

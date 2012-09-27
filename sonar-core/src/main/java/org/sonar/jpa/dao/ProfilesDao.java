@@ -20,7 +20,6 @@
 package org.sonar.jpa.dao;
 
 import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.profiles.RulesProfile;
 
 public class ProfilesDao extends BaseDao {
@@ -29,16 +28,12 @@ public class ProfilesDao extends BaseDao {
     super(session);
   }
 
-  public RulesProfile getActiveProfile(String languageKey, String projectResourceKey) {
-    ResourceModel projectResource = getSession().getSingleResult(ResourceModel.class, "key", projectResourceKey, "scope", ResourceModel.SCOPE_PROJECT);
-    if (projectResource != null && projectResource.getRulesProfile() != null && projectResource.getRulesProfile().isEnabled()) {
-      return projectResource.getRulesProfile();
-    }
-    return getSession().getSingleResult(RulesProfile.class, "defaultProfile", true, "language", languageKey, "enabled", true);
+  public RulesProfile getDefaultProfile(String languageKey) {
+    return getSession().getSingleResult(RulesProfile.class, "defaultProfile", true, "language", languageKey);
   }
 
   public RulesProfile getProfile(String languageKey, String profileName) {
-    return getSession().getSingleResult(RulesProfile.class, "language", languageKey, "name", profileName, "enabled", true);
+    return getSession().getSingleResult(RulesProfile.class, "language", languageKey, "name", profileName);
   }
 
 }

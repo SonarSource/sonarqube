@@ -22,7 +22,6 @@ package org.sonar.server.configuration;
 import org.apache.commons.lang.ObjectUtils;
 import org.codehaus.plexus.util.StringUtils;
 import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.*;
 import org.sonar.api.utils.ValidationMessages;
@@ -40,20 +39,6 @@ public class ProfilesManager extends BaseDao {
     this.rulesDao = rulesDao;
   }
 
-  public void renameProfile(int profileId, String newProfileName) {
-    RulesProfile profile = getSession().getSingleResult(RulesProfile.class, "id", profileId);
-    if (profile != null && !profile.getProvided()) {
-      String hql = "UPDATE " + RulesProfile.class.getSimpleName() + " o SET o.parentName=:newName  WHERE o.parentName=:oldName";
-      getSession().getEntityManager().createQuery(hql)
-          .setParameter("oldName", profile.getName())
-          .setParameter("newName", newProfileName)
-          .executeUpdate();
-      profile.setName(newProfileName);
-      getSession().save(profile);
-      getSession().commit();
-    }
-  }
-
   public void copyProfile(int profileId, String newProfileName) {
     RulesProfile profile = getSession().getSingleResult(RulesProfile.class, "id", profileId);
     RulesProfile toImport = (RulesProfile) profile.clone();
@@ -65,27 +50,12 @@ public class ProfilesManager extends BaseDao {
     getSession().commit();
   }
 
-  public void deleteProfile(int profileId) {
-    RulesProfile profile = getSession().getEntity(RulesProfile.class, profileId);
-    if (profile != null && !profile.getProvided() && getChildren(profile).isEmpty()) {
-      // Remove history of rule changes
-      String hqlDeleteRc = "DELETE " + ActiveRuleChange.class.getSimpleName() + " rc WHERE rc.rulesProfile=:rulesProfile";
-      getSession().createQuery(hqlDeleteRc).setParameter("rulesProfile", profile).executeUpdate();
-
-      String hql = "UPDATE " + ResourceModel.class.getSimpleName() + " o SET o.rulesProfile=null WHERE o.rulesProfile=:rulesProfile";
-      getSession().createQuery(hql).setParameter("rulesProfile", profile).executeUpdate();
-      getSession().remove(profile);
-      getSession().commit();
-    }
-  }
 
   public void deleteAllProfiles() {
     // Remove history of rule changes
     String hqlDeleteRc = "DELETE " + ActiveRuleChange.class.getSimpleName() + " rc";
     getSession().createQuery(hqlDeleteRc).executeUpdate();
 
-    String hql = "UPDATE " + ResourceModel.class.getSimpleName() + " o SET o.rulesProfile = null WHERE o.rulesProfile IS NOT NULL";
-    getSession().createQuery(hql).executeUpdate();
     List profiles = getSession().createQuery("FROM " + RulesProfile.class.getSimpleName()).getResultList();
     for (Object profile : profiles) {
       getSession().removeWithoutFlush(profile);

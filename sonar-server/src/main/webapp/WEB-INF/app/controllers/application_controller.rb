@@ -125,6 +125,23 @@ class ApplicationController < ActionController::Base
     raise Errors::AccessDenied
   end
 
+  # since 3.3
+  def require_parameters(*keys)
+    keys.each do |key|
+      bad_request("Missing parameter: #{key}") if params[key].blank?
+    end
+  end
+
+  # since 3.3
+  def verify_post_request
+    bad_request('Not a POST request') unless request.post?
+  end
+
+  # since 3.3
+  def verify_ajax_request
+    bad_request('Not an AJAX request') unless request.xhr?
+  end
+
   def render_not_found(error)
     render :file => "#{Rails.public_path}/404.html", :status => 404
   end

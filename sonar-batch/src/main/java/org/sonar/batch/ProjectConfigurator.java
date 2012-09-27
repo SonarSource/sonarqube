@@ -73,8 +73,7 @@ public class ProjectConfigurator implements BatchComponent {
         .setAnalysisDate(analysisDate)
         .setLatestAnalysis(isLatestAnalysis(project.getKey(), analysisDate))
         .setAnalysisVersion(loadAnalysisVersion())
-        .setAnalysisType(loadAnalysisType())
-        .setLanguageKey(loadLanguageKey());
+        .setAnalysisType(loadAnalysisType());
     return this;
   }
 
@@ -88,7 +87,7 @@ public class ProjectConfigurator implements BatchComponent {
   }
 
   Date loadAnalysisDate() {
-    Date date = null;
+    Date date;
     try {
       // sonar.projectDate may have been specified as a time
       date = settings.getDateTime(CoreProperties.PROJECT_DATE_PROPERTY);
@@ -118,9 +117,5 @@ public class ProjectConfigurator implements BatchComponent {
 
   String loadAnalysisVersion() {
     return settings.getString(CoreProperties.PROJECT_VERSION_PROPERTY);
-  }
-
-  String loadLanguageKey() {
-    return StringUtils.defaultIfBlank(settings.getString(CoreProperties.PROJECT_LANGUAGE_PROPERTY), Java.KEY);
   }
 }

@@ -35,7 +35,6 @@ public final class ResourceDto {
   private String language;
   private Long copyResourceId;
   private Long personId;
-  private Long profileId;
   private Date createdAt;
 
   public Long getId() {
@@ -143,15 +142,6 @@ public final class ResourceDto {
 
   public ResourceDto setPersonId(Long personId) {
     this.personId = personId;
-    return this;
-  }
-
-  public Long getProfileId() {
-    return profileId;
-  }
-
-  public ResourceDto setProfileId(Long profileId) {
-    this.profileId = profileId;
     return this;
   }
 

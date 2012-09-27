@@ -26,6 +26,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
+import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.core.config.ConfigurationUtils;
 import org.sonar.core.properties.PropertiesDao;
@@ -48,6 +49,13 @@ public class ProjectSettings extends Settings {
     this.projectDefinition = projectDefinition;
     this.propertiesDao = propertiesDao;
     load();
+    updateProject(project);
+  }
+
+  private void updateProject(Project project) {
+    // The class org.sonar.api.batch.Project should be deeply refactored and should load language from settings.
+    // Meanwhile the language must be updated :
+    project.setLanguageKey(StringUtils.defaultIfBlank(getString("sonar.language"), Java.KEY));
   }
 
   public ProjectSettings load() {

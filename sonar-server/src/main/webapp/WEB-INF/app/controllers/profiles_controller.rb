@@ -20,38 +20,37 @@
 class ProfilesController < ApplicationController
   SECTION=Navigation::SECTION_CONFIGURATION
 
-  # GETs should be safe (see http://www.w3.org/2001/tag/doc/whenToUseGet.html)
-  verify :method => :post, :only => ['create', 'delete', 'copy', 'set_as_default', 'restore', 'set_projects', 'rename', 'change_parent'], :redirect_to => {:action => 'index'}
-
   # the backup action is allow to non-admin users : see http://jira.codehaus.org/browse/SONAR-2039
   before_filter :admin_required, :only => ['create', 'delete', 'set_as_default', 'copy', 'restore', 'change_parent', 'set_projects', 'rename_form', 'rename']
 
   # GET /profiles/index
   def index
-    @profiles = Profile.find(:all, :conditions => ['enabled=?', true], :order => 'name')
+    @profiles = Profile.find(:all, :order => 'name')
   end
 
 
   # GET /profiles/show/<id>
   def show
+    require_parameters 'id'
     @profile = Profile.find(params[:id])
   end
 
 
   # GET /profiles/create_form?language=<language>
   def create_form
-    language = params[:language]
-    bad_request 'Missing parameter: language' if language.blank?
-    profile = Profile.new(:language => language)
-    render :partial => 'profiles/create_form', :locals => {:language_key => language}
+    require_parameters 'language'
+    render :partial => 'profiles/create_form', :locals => {:language_key => params[:language]}
   end
 
   # POST /profiles/create?name=<profile name>&language=<language>&[backup=<file>]
   def create
+    verify_post_request
+    require_parameters 'language'
+
     profile_name=params[:name]
     language=params[:language]
 
-    profile = Profile.create(:name => profile_name, :language => language, :default_profile => false, :enabled => true)
+    profile = Profile.create(:name => profile_name, :language => language, :default_profile => false)
     ok = profile.errors.empty?
     if ok && params[:backup]
       params[:backup].each_pair do |importer_key, file|
@@ -75,9 +74,12 @@ class ProfilesController < ApplicationController
 
   # POST /profiles/delete/<id>
   def delete
+    verify_post_request
+    require_parameters 'id'
+
     @profile = Profile.find(params[:id])
     if @profile && @profile.deletable?
-      java_facade.deleteProfile(@profile.id)
+      @profile.destroy
     end
     redirect_to(:controller => 'profiles', :action => 'index')
   end
@@ -85,40 +87,50 @@ class ProfilesController < ApplicationController
 
   # POST /profiles/set_as_default/<id>
   def set_as_default
+    verify_post_request
+    require_parameters 'id'
+
     profile = Profile.find(params[:id])
     profile.set_as_default
-    flash[:notice]=message('quality_profiles.default_profile_is_x', :params => profile.name)
+    #TODO remove l10n key: flash[:notice]=message('quality_profiles.default_profile_is_x', :params => profile.name)
     redirect_to :action => 'index'
   end
 
 
   # GET /profiles/copy_form/<profile id>
   def copy_form
+    require_parameters 'id'
     @profile = Profile.find(params[:id])
     render :partial => 'profiles/copy_form'
   end
 
   # POST /profiles/copy/<id>?name=<name of new profile>
   def copy
-    render :text => 'Not an ajax request', :status => '400' unless request.xhr?
+    verify_post_request
+    verify_ajax_request
+    require_parameters 'id'
 
     @profile = Profile.find(params[:id])
     name = params['name']
 
-    validation_errors = @profile.validate_copy(name)
-    if validation_errors.empty?
+    target_profile=Profile.new(:name => name, :language => @profile.language, :provided => false, :default_profile => false)
+    if target_profile.valid?
       java_facade.copyProfile(@profile.id, name)
       flash[:notice]= message('quality_profiles.profile_x_not_activated', :params => name)
       render :text => 'ok', :status => 200
     else
-      @error = validation_errors.full_messages.first
+      @errors = []
+      target_profile.errors.each{|attr,msg| @errors<<msg}
       render :partial => 'profiles/copy_form', :status => 400
     end
   end
 
 
-  # POST /profiles/backup/<id>
+  # POST /profiles/backup?id=<profile id>
   def backup
+    verify_post_request
+    require_parameters 'id'
+
     profile = Profile.find(params[:id])
     xml = java_facade.backupProfile(profile.id)
     filename=profile.name.gsub(' ', '_')
@@ -129,11 +141,13 @@ class ProfilesController < ApplicationController
   # Modal window to restore profile backup
   # GET /profiles/restore_form/<profile id>
   def restore_form
+    verify_ajax_request
     render :partial => 'profiles/restore_form'
   end
 
   # POST /profiles/restore?backup=<file>
   def restore
+    verify_post_request
     if params[:backup].blank?
       flash[:warning]=message('quality_profiles.please_upload_backup_file')
     else
@@ -148,7 +162,7 @@ class ProfilesController < ApplicationController
   def export
     language = params[:language]
     if (params[:name].blank?)
-      profile = Profile.find_active_profile_by_language(language)
+      profile = Profile.by_default(language)
     else
       profile = Profile.find_by_name_and_language(CGI::unescape(params[:name]), language)
     end
@@ -165,24 +179,18 @@ class ProfilesController < ApplicationController
     end
   end
 
-  #
-  #
   # GET /profiles/inheritance?id=<profile id>
-  #
-  #
   def inheritance
+    require_parameters 'id'
     @profile = Profile.find(params[:id])
 
-    profiles=Profile.find(:all, :conditions => ['language=? and id<>? and (parent_name is null or parent_name<>?) and enabled=?', @profile.language, @profile.id, @profile.name, true], :order => 'name')
+    profiles=Profile.find(:all, :conditions => ['language=? and id<>? and (parent_name is null or parent_name<>?)', @profile.language, @profile.id, @profile.name], :order => 'name')
     @select_parent = [[message('none'), nil]] + profiles.collect { |profile| [profile.name, profile.name] }
   end
 
-  #
-  #
   # GET /profiles/changelog?id=<profile id>
-  #
-  #
   def changelog
+    require_parameters 'id'
     @profile = Profile.find(params[:id])
 
     versions = ActiveRuleChange.find(:all, :select => 'profile_version, MAX(change_date) AS change_date', :conditions => ['profile_id=?', @profile.id], :group => 'profile_version')
@@ -210,12 +218,11 @@ class ProfilesController < ApplicationController
   end
 
 
-  #
-  #
   # POST /profiles/change_parent?id=<profile id>&parent_name=<parent profile name>
-  #
-  #
   def change_parent
+    verify_post_request
+    require_parameters 'id'
+
     id = params[:id].to_i
     parent_name = params[:parent_name]
     if parent_name.blank?
@@ -234,6 +241,7 @@ class ProfilesController < ApplicationController
   #
   #
   def permalinks
+    require_parameters 'id'
     @profile = Profile.find(params[:id])
   end
 
@@ -244,62 +252,68 @@ class ProfilesController < ApplicationController
   #
   #
   def projects
+    require_parameters 'id'
     @profile = Profile.find(params[:id])
-    @available_projects=Project.find(:all,
-                                     :include => ['profile', 'snapshots'],
-                                     :conditions => ['projects.qualifier=? AND projects.scope=? AND snapshots.islast=?', Project::QUALIFIER_PROJECT, Project::SCOPE_SET, true],
-                                     :order => 'projects.name asc')
-    @available_projects-=@profile.projects
   end
 
 
-  #
-  #
-  # POST /profiles/set_projects/<id>?projects=<project ids>
-  #
-  #
-  def set_projects
-    @profile = Profile.find(params[:id])
-    @profile.projects.clear
+  # POST /profiles/add_project?id=<profile id>&project_id=<project id>
+  def add_project
+    verify_post_request
+    require_parameters 'id', 'project_id'
+    admin_required
 
-    projects=Project.find(params[:projects] || [])
-    @profile.projects=projects
-    flash[:notice]=message('quality_profiles.profile_x_associated_to_x_projects', :params => [@profile.name, projects.size])
-    redirect_to :action => 'projects', :id => @profile.id
+    profile=Profile.find(params[:id])
+    bad_request('Unknown profile') unless profile
+    project=Project.find(params[:project_id])
+    bad_request('Unknown project') unless project
+
+    profile.add_project_id(project.id)
+    redirect_to :action => 'projects', :id => profile.id
   end
 
+  # POST /profiles/remove_project?id=<profile id>&project_id=<project id>
+  def remove_project
+    verify_post_request
+    require_parameters 'id', 'project_id'
+    admin_required
+
+    profile=Profile.find(params[:id])
+    bad_request('Unknown profile') unless profile
+
+    Profile.reset_default_profile_for_project_id(profile.language, params[:project_id])
+    redirect_to :action => 'projects', :id => profile.id
+  end
+
+  # POST /profiles/remove_projects?id=<profile id>
+  def remove_projects
+    verify_post_request
+    require_parameters 'id'
+    admin_required
+
+    profile=Profile.find(params[:id])
+    bad_request('Unknown profile') unless profile
+
+    profile.remove_projects
+    redirect_to :action => 'projects', :id => profile.id
+  end
 
   # GET /profiles/rename_form?id=<id>
   def rename_form
+    require_parameters 'id'
     @profile = Profile.find(params[:id])
     render :partial => 'profiles/rename_form'
   end
 
-  #
-  #
   # POST /profiles/rename?id=<id>&name=<new name>
-  #
-  #
   def rename
-    render :text => 'Not an ajax request', :status => '400' unless request.xhr?
+    verify_post_request
+    verify_ajax_request
+    require_parameters 'id'
 
     @profile = Profile.find(params[:id])
-    name = params[:name]
 
-    success=false
-    if name.blank?
-      @error=message('quality_profiles.profile_name_cant_be_blank')
-    else
-      existing=Profile.find(:first, :conditions => {:name => name, :language => @profile.language, :enabled => true})
-      if existing
-        @error=message('quality_profiles.already_exists')
-      elsif !@profile.provided?
-        java_facade.renameProfile(@profile.id, name)
-        success=true
-      end
-    end
-
-    if success
+    if @profile.rename(params[:name]).errors.empty?
       render :text => 'ok', :status => 200
     else
       render :partial => 'profiles/rename_form', :status => 400
@@ -307,13 +321,9 @@ class ProfilesController < ApplicationController
   end
 
 
-  #
-  #
   # GET /profiles/compare?id1=<profile1 id>&id2=<profile2 id>
-  #
-  #
   def compare
-    @profiles = Profile.find(:all, :conditions => ['enabled=?', true], :order => 'language asc, name')
+    @profiles = Profile.find(:all, :order => 'language asc, name')
     if params[:id1].present? && params[:id2].present?
       @profile1 = Profile.find(params[:id1])
       @profile2 = Profile.find(params[:id2])

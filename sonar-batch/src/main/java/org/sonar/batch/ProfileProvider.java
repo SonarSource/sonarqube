@@ -34,7 +34,7 @@ public class ProfileProvider extends ProviderAdapter {
   public RulesProfile provide(Project project, ProfileLoader profileLoader) {
     if (profile == null) {
       profile = profileLoader.load(project);
-      LOG.info("Selected quality profile : {}", profile);
+      LOG.info("Quality profile : {}", profile);
     }
     return profile;
   }

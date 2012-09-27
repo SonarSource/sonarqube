@@ -25,7 +25,6 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.BatchSize;
 import org.sonar.api.database.BaseIdentifiable;
-import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
 
@@ -98,10 +97,6 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
   @OneToMany(mappedBy = "resource", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE})
   @BatchSize(size = 8)
   private List<ProjectLink> projectLinks = new ArrayList<ProjectLink>();
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "profile_id", updatable = true, nullable = true)
-  private RulesProfile rulesProfile;
 
   /**
    * Default constructor
@@ -264,14 +259,6 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
     this.rootId = rootId;
   }
 
-  public RulesProfile getRulesProfile() {
-    return rulesProfile;
-  }
-
-  public void setRulesProfile(RulesProfile rulesProfile) {
-    this.rulesProfile = rulesProfile;
-  }
-
   public String getQualifier() {
     return qualifier;
   }
@@ -337,7 +324,6 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
     clone.setDescription(getDescription());
     clone.setEnabled(getEnabled());
     clone.setProjectLinks(getProjectLinks());
-    clone.setRulesProfile(getRulesProfile());
     clone.setLanguageKey(getLanguageKey());
     clone.setCopyResourceId(getCopyResourceId());
     clone.setLongName(getLongName());

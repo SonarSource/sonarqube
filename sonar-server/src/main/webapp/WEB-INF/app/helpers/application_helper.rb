@@ -721,7 +721,7 @@ module ApplicationHelper
   end
 
   #
-  # Creates a button linked to a POST action. A confirmation popup is opened when user clicks on the button.
+  # Creates a link linked to a POST action. A confirmation popup is opened when user clicks on the button.
   # ==== Options
   # * <tt>:id</tt> - HTML ID of the button
   # * <tt>:class</tt> - Additional CSS class, generally 'red-button' for deletions
@@ -731,7 +731,7 @@ module ApplicationHelper
   # * <tt>:message_params</tt> -
   # * <tt>:width</tt> - width in pixels
   #
-  def button_to_action(label, post_url, options={})
+  def link_to_action(label, post_url, options={})
     clazz = options[:class]
     id = "id='#{options[:id]}'" if options[:id]
     title_key = options[:title_key]
@@ -750,6 +750,6 @@ module ApplicationHelper
       url += "&bk=#{button_key}"
     end
 
-    "<a href='#{url}' modal-width='#{width}' class='open-modal button #{clazz}' #{id}>#{h label}</a>"
+    "<a href='#{url}' modal-width='#{width}' class='open-modal #{clazz}' #{id}>#{h label}</a>"
   end
 end

@@ -91,9 +91,6 @@ public class RulesProfile implements Cloneable {
   @OneToMany(mappedBy = "rulesProfile", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE})
   private List<Alert> alerts = Lists.newArrayList();
 
-  @OneToMany(mappedBy = "rulesProfile", fetch = FetchType.LAZY)
-  private List<ResourceModel> projects = Lists.newArrayList();
-
   /**
    * @deprecated use the factory method create()
    */
@@ -110,7 +107,6 @@ public class RulesProfile implements Cloneable {
     this.language = language;
     this.activeRules = Lists.newArrayList();
     this.alerts = Lists.newArrayList();
-    this.projects = Lists.newArrayList();
   }
 
   /**
@@ -291,20 +287,6 @@ public class RulesProfile implements Cloneable {
   }
 
   /**
-   * @return the list of projects attached to the profile
-   */
-  public List<ResourceModel> getProjects() {
-    return projects;
-  }
-
-  /**
-   * Sets the list of projects attached to the profile
-   */
-  public void setProjects(List<ResourceModel> projects) {
-    this.projects = projects;
-  }
-
-  /**
    * Note: disabled rules are excluded.
    *
    * @return the list of active rules for a given severity
@@ -421,13 +403,6 @@ public class RulesProfile implements Cloneable {
       clone.setAlerts(new ArrayList<Alert>(CollectionUtils.collect(getAlerts(), new Transformer() {
         public Object transform(Object input) {
           return ((Alert) input).clone();
-        }
-      })));
-    }
-    if (CollectionUtils.isNotEmpty(getProjects())) {
-      clone.setProjects(new ArrayList<ResourceModel>(CollectionUtils.collect(getProjects(), new Transformer() {
-        public Object transform(Object input) {
-          return ((ResourceModel) input).clone();
         }
       })));
     }

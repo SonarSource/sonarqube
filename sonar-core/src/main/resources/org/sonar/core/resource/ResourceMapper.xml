@@ -34,7 +34,6 @@
     <result property="language" column="language"/>
     <result property="copyResourceId" column="copy_resource_id"/>
     <result property="personId" column="person_id"/>
-    <result property="profileId" column="profile_id"/>
     <result property="createdAt" column="created_at"/>
   </resultMap>
 
@@ -86,11 +85,11 @@
 
   <insert id="insert" parameterType="Resource" useGeneratedKeys="true" keyProperty="id">
     insert into projects
-    (name, long_name, description, scope, qualifier, kee, language, root_id, copy_resource_id, person_id, profile_id, enabled, created_at)
+    (name, long_name, description, scope, qualifier, kee, language, root_id, copy_resource_id, person_id, enabled, created_at)
     values (
     #{name}, #{longName}, #{description}, #{scope}, #{qualifier},
     #{key}, #{language}, #{rootId}, #{copyResourceId},
-    #{personId}, #{profileId}, #{enabled}, #{createdAt}
+    #{personId}, #{enabled}, #{createdAt}
     )
   </insert>
 
@@ -100,11 +99,11 @@
       select projects_seq.NEXTVAL from DUAL
     </selectKey>
     insert into projects
-    (id, name, long_name, description, scope, qualifier, kee, language, root_id, copy_resource_id, person_id, profile_id, enabled, created_at)
+    (id, name, long_name, description, scope, qualifier, kee, language, root_id, copy_resource_id, person_id, enabled, created_at)
     values (
     #{id}, #{name}, #{longName}, #{description}, #{scope}, #{qualifier},
     #{key}, #{language}, #{rootId}, #{copyResourceId},
-    #{personId}, #{profileId}, #{enabled}, #{createdAt}
+    #{personId}, #{enabled}, #{createdAt}
     )
   </insert>
 
@@ -112,7 +111,7 @@
     update projects set name=#{name}, long_name=#{longName}, description=#{description},
     scope=#{scope}, qualifier=#{qualifier}, kee=#{key},
     language=#{language}, root_id=#{rootId}, copy_resource_id=#{copyResourceId},
-    person_id=#{personId}, profile_id=#{profileId}, enabled=#{enabled} where id=#{id}
+    person_id=#{personId}, enabled=#{enabled} where id=#{id}
   </update>
 </mapper>
 

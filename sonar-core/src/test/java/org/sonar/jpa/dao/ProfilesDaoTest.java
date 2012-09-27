@@ -21,12 +21,10 @@ package org.sonar.jpa.dao;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class ProfilesDaoTest extends AbstractDbUnitTestCase {
 
@@ -37,22 +35,24 @@ public class ProfilesDaoTest extends AbstractDbUnitTestCase {
     profilesDao = new ProfilesDao(getSession());
   }
 
+  @Test
+  public void should_get_profile_by_name() {
+    RulesProfile profile = RulesProfile.create("my profile", "java");
+    getSession().save(profile);
+
+    assertThat(profilesDao.getProfile("unknown language", "my profile")).isNull();
+    assertThat(profilesDao.getProfile("java", "my profile").getName()).isEqualTo("my profile");
+  }
 
   @Test
-  public void testGetActiveProfile() {
-    RulesProfile testDefaultProfile = new RulesProfile("default", "java", true, true);
-    RulesProfile testProfile = new RulesProfile("not default", "java", false, false);
-    getSession().save(testDefaultProfile, testProfile);
+  public void should_get_default_profile() {
+    RulesProfile defaultProfile = RulesProfile.create("default profile", "java");
+    defaultProfile.setDefaultProfile(true);
+    RulesProfile otherProfile = RulesProfile.create("other profile", "java");
+    otherProfile.setDefaultProfile(false);
+    getSession().save(defaultProfile, otherProfile);
 
-    ResourceModel testResourceWithProfile = new ResourceModel(ResourceModel.SCOPE_PROJECT, "withProfile", "TRK", null, "test");
-    testResourceWithProfile.setRulesProfile(testProfile);
-    ResourceModel testResourceWithNoProfile = new ResourceModel(ResourceModel.SCOPE_PROJECT, "withoutProfile", "TRK", null, "test");
-    getSession().save(testResourceWithProfile, testResourceWithNoProfile);
-
-    assertNull(profilesDao.getActiveProfile("wrongLanguage", "withoutProfile"));
-    assertEquals(testDefaultProfile.getId(), profilesDao.getActiveProfile("java", "wrongKey").getId());
-    assertEquals(testDefaultProfile.getId(), profilesDao.getActiveProfile("java", "withoutProfile").getId());
-    assertEquals(testProfile.getId(), profilesDao.getActiveProfile("java", "withProfile").getId());
+    assertThat(profilesDao.getDefaultProfile("java").getName()).isEqualTo("default profile");
   }
 
 }

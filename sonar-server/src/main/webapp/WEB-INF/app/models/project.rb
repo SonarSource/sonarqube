@@ -25,7 +25,6 @@ class Project < ActiveRecord::Base
   has_many :processed_snapshots, :class_name => 'Snapshot', :conditions => "status='#{Snapshot::STATUS_PROCESSED}' AND qualifier<>'LIB'", :order => 'created_at asc'
   has_many :events, :foreign_key => 'resource_id', :order => 'event_date DESC'
   has_many :project_links, :dependent => :delete_all, :order => 'link_type'
-  belongs_to :profile, :class_name => 'Profile', :foreign_key => 'profile_id'
   has_many :user_roles, :foreign_key => 'resource_id'
   has_many :group_roles, :foreign_key => 'resource_id'
   has_many :manual_measures, :foreign_key => 'resource_id'
@@ -180,6 +179,10 @@ class Project < ActiveRecord::Base
 
   def path_name
     last_snapshot ? last_snapshot.path_name : nil
+  end
+
+  def profile(lang, returns_default_if_nil=false)
+    Profile.by_project_id(lang, id, returns_default_if_nil)
   end
 
   private

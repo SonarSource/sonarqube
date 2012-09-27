@@ -49,7 +49,7 @@
         </td>
 
         <td align="right">
-          <span id="activated_rules_<%= u profile.key -%>"><%= profile.count_active_rules -%></span>
+          <span id="activated_rules_<%= u profile.key -%>"><%= profile.active_rules.count -%></span>
         </td>
 
         <td align="right"><span id="alerts_<%= u profile.key -%>"><%= profile.alerts.size -%></span></td>
@@ -62,8 +62,9 @@
 
         <td align="right">
           <% if !profile.default_profile? && administrator? %>
-            <%= button_to_action message('set_as_default'), "profiles/set_as_default?id=#{profile.id}",
+            <%= link_to_action message('set_as_default'), "profiles/set_as_default?id=#{profile.id}",
                                                :id => "activate_#{profile.key.parameterize}",
+                                               :class => 'button',
                                                :title_key => 'set_as_default',
                                                :message_key => 'quality_profiles.are_you_sure_want_x_profile_as_default',
                                                :message_params => [profile.name] -%>
@@ -96,8 +97,8 @@
 
           <td>
             <% if profile.deletable? %>
-              <%= button_to_action message('delete'), "profiles/delete/#{profile.id}",
-                                   :class => 'red-button',
+              <%= link_to_action message('delete'), "profiles/delete/#{profile.id}",
+                                   :class => 'button red-button',
                                    :id => "delete_#{profile.key.parameterize}",
                                    :button_key => 'delete',
                                    :title_key => 'quality_profiles.delete_confirm_title',

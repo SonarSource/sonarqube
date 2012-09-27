@@ -19,6 +19,8 @@
  */
 package org.sonar.batch;
 
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rules.ActiveRule;
@@ -26,27 +28,26 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.jpa.dao.ProfilesDao;
 
 public class DefaultProfileLoader implements ProfileLoader {
-  static final String PARAM_PROFILE = "sonar.profile";
-
   private ProfilesDao dao;
+  private Settings settings;
 
-  public DefaultProfileLoader(ProfilesDao dao) {
+  public DefaultProfileLoader(ProfilesDao dao, Settings settings) {
     this.dao = dao;
+    this.settings = settings;
   }
 
   public RulesProfile load(Project project) {
-    String profileName = (String) project.getProperty(PARAM_PROFILE);
+    String profileName = StringUtils.defaultIfBlank(settings.getString("sonar.profile." + project.getLanguageKey()), settings.getString("sonar.profile"));
     RulesProfile profile;
-    if (profileName == null) {
-      Project root = project.getRoot();
-      profile = dao.getActiveProfile(root.getLanguageKey(), root.getKey());
+
+    // temporary
+    if (StringUtils.isBlank(profileName)) {
+      profile = dao.getDefaultProfile(project.getLanguageKey());
       if (profile == null) {
         // This means that the current language is not supported by any installed plugin, otherwise at least a
         // "Default <Language Name>" profile would have been created by ActivateDefaultProfiles class.
-        throw new SonarException("You must intall a Sonar plugin that supports language '" + root.getLanguageKey()
-          + "' in order to analyse the following project: " + root.getKey());
+        throw new SonarException("You must install a plugin that supports the language '" + project.getLanguageKey() + "'");
       }
-
     } else {
       profile = dao.getProfile(project.getLanguageKey(), profileName);
       if (profile == null) {
@@ -56,6 +57,7 @@ public class DefaultProfileLoader implements ProfileLoader {
 
     // hack to lazy initialize the profile collections
     profile.getActiveRules().size();
+
     for (ActiveRule activeRule : profile.getActiveRules()) {
       activeRule.getActiveRuleParams().size();
       activeRule.getRule().getParams().size();

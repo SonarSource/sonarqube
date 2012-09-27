@@ -3,12 +3,12 @@
   <fieldset>
 
     <div class="form-head">
-      <h2>Rename Profile: <%= h @profile.name -%></h2>
+      <h2>Rename Profile: <%= h @profile.name_was -%></h2>
     </div>
 
     <div class="form-body">
-      <% if @error %>
-        <p class="error"><%= h @error -%></p>
+      <% @profile.errors.each do |attr, msg| %>
+        <p class="error"><%= h msg -%></p>
       <% end %>
 
       <div class="form-field">
