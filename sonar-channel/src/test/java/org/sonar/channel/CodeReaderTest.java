@@ -19,17 +19,22 @@
  */
 package org.sonar.channel;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.io.StringReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.junit.Test;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 public class CodeReaderTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void testPopWithAppendable() {
@@ -93,6 +98,24 @@ public class CodeReaderTest {
     assertEquals(3, reader.popTo(Pattern.compile("\\w+").matcher(new String()), token));
     assertEquals("123ABC", token.toString());
     assertEquals( -1, reader.popTo(Pattern.compile("\\w+").matcher(new String()), token));
+  }
+
+  @Test
+  public void test() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("\n");
+    for (int i = 0; i < 10000; i++) {
+      sb.append(Integer.toHexString(i));
+    }
+    CodeReader reader = new CodeReader(sb.toString());
+    reader.pop();
+    reader.pop();
+
+    thrown.expect(ChannelException.class);
+    thrown.expectMessage("Unable to apply regular expression '([a-fA-F]|\\d)+' at line 2 and column 1," +
+        " because it led to a stack overflow error." +
+        " This error may be due to an inefficient use of alternations - see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5050507");
+    reader.popTo(Pattern.compile("([a-fA-F]|\\d)+").matcher(""), new StringBuilder());
   }
 
   @Test

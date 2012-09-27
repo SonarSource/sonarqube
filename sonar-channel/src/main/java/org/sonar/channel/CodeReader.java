@@ -48,7 +48,7 @@ public class CodeReader extends CodeBuffer {
   /**
    * Creates a code reader with specific configuration parameters.
    * Note that this constructor will read everything from reader and will close it.
-   * 
+   *
    * @param code
    *          the Reader to read code from
    * @param configuration
@@ -60,7 +60,7 @@ public class CodeReader extends CodeBuffer {
 
   /**
    * Creates a code reader with specific configuration parameters.
-   * 
+   *
    * @param code
    *          the code itself
    * @param configuration
@@ -72,7 +72,7 @@ public class CodeReader extends CodeBuffer {
 
   /**
    * Read and consume the next character
-   * 
+   *
    * @param appendable
    *          the read character is appended to appendable
    */
@@ -86,7 +86,7 @@ public class CodeReader extends CodeBuffer {
 
   /**
    * Read without consuming the next characters
-   * 
+   *
    * @param length
    *          number of character to read
    * @return array of characters
@@ -104,7 +104,7 @@ public class CodeReader extends CodeBuffer {
 
   /**
    * Read without consuming the next characters until a condition is reached (EndMatcher)
-   * 
+   *
    * @param matcher
    *          the EndMatcher used to stop the reading
    * @param appendable
@@ -114,7 +114,7 @@ public class CodeReader extends CodeBuffer {
     int index = 0;
     char nextChar = charAt(index);
     try {
-      while ( !matcher.match(nextChar) && nextChar != -1) {
+      while (!matcher.match(nextChar) && nextChar != -1) {
         appendable.append(nextChar);
         nextChar = charAt(++index);
       }
@@ -142,7 +142,7 @@ public class CodeReader extends CodeBuffer {
     try {
       do {
         appendable.append((char) pop());
-      } while ( !matcher.match(peek()) && peek() != -1);
+      } while (!matcher.match(peek()) && peek() != -1);
     } catch (IOException e) {
       throw new ChannelException(e.getMessage(), e);
     }
@@ -150,7 +150,7 @@ public class CodeReader extends CodeBuffer {
 
   /**
    * Read and consume the next characters according to a given regular expression
-   * 
+   *
    * @param matcher
    *          the regular expression matcher
    * @param appendable
@@ -164,7 +164,7 @@ public class CodeReader extends CodeBuffer {
   /**
    * Read and consume the next characters according to a given regular expression. Moreover the character sequence immediately following the
    * desired characters must also match a given regular expression.
-   * 
+   *
    * @param matcher
    *          the Matcher used to try consuming next characters
    * @param afterMatcher
@@ -180,7 +180,7 @@ public class CodeReader extends CodeBuffer {
         if (afterMatcher != null) {
           afterMatcher.reset(this);
           afterMatcher.region(matcher.end(), length());
-          if ( !afterMatcher.lookingAt()) {
+          if (!afterMatcher.lookingAt()) {
             return -1;
           }
         }
@@ -190,6 +190,11 @@ public class CodeReader extends CodeBuffer {
         }
         return matcher.end();
       }
+    } catch (StackOverflowError e) {
+      throw new ChannelException("Unable to apply regular expression '" + matcher.pattern().pattern()
+          + "' at line " + getCursor().getLine() + " and column " + getCursor().getColumn()
+          + ", because it led to a stack overflow error."
+          + " This error may be due to an inefficient use of alternations - see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5050507");
     } catch (IndexOutOfBoundsException e) {
       return -1;
     } catch (IOException e) {

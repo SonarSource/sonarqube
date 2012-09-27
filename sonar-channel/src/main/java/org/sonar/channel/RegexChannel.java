@@ -29,46 +29,36 @@ public abstract class RegexChannel<OUTPUT> extends Channel<OUTPUT> {
 
   private final StringBuilder tmpBuilder = new StringBuilder();
   private final Matcher matcher;
-  private final String regex;
 
   /**
    * Create a RegexChannel object with the required regular expression
-   * 
+   *
    * @param regex
    *          regular expression to be used to try matching the next characters in the stream
    */
   public RegexChannel(String regex) {
     matcher = Pattern.compile(regex).matcher("");
-    this.regex = regex;
   }
 
   @Override
   public final boolean consume(CodeReader code, OUTPUT output) {
-    try {
-      if (code.popTo(matcher, tmpBuilder) > 0) {
-        consume(tmpBuilder, output);
-        tmpBuilder.delete(0, tmpBuilder.length());
-        return true;
-      }
-      return false;
-    } catch (StackOverflowError e) {
-      throw new IllegalArgumentException(
-          "The regular expression "
-              + regex
-              + " has led to a stack overflow error. "
-              + "This error is certainly due to an inefficient use of alternations. See http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5050507",
-          e);
+    if (code.popTo(matcher, tmpBuilder) > 0) {
+      consume(tmpBuilder, output);
+      tmpBuilder.delete(0, tmpBuilder.length());
+      return true;
     }
+    return false;
   }
 
   /**
    * The consume method is called each time the regular expression used to create the RegexChannel object matches the next characters in the
    * character streams.
-   * 
+   *
    * @param token
    *          the token consumed in the character stream and matching the regular expression
    * @param the
    *          OUPUT object which can be optionally fed
    */
   protected abstract void consume(CharSequence token, OUTPUT output);
+
 }
