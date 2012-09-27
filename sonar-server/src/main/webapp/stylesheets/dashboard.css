@@ -52,6 +52,10 @@
   vertical-align: middle;
 }
 
+#dashboard .widget-title a {
+  color: #FEFEFE;
+}
+
 /*CONFIGURATION*/
 #dashboard #configure {
   position: relative;
