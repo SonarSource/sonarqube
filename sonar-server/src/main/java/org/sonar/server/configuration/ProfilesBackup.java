@@ -60,6 +60,7 @@ public class ProfilesBackup implements Backupable {
     xStream.aliasField("default-profile", RulesProfile.class, "defaultProfile");
     xStream.omitField(RulesProfile.class, "id");
     xStream.omitField(RulesProfile.class, "projects");
+    xStream.omitField(RulesProfile.class, "enabled");
     xStream.registerConverter(getActiveRuleConverter());
     xStream.registerConverter(getAlertsConverter());
   }
