@@ -21,6 +21,7 @@ package org.sonar.batch.index;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.JavaPackage;
 import org.sonar.api.resources.Library;
@@ -30,6 +31,7 @@ import org.sonar.jpa.test.AbstractDbUnitTestCase;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
@@ -68,6 +70,10 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     persister.saveProject(singleProject, null);
 
     checkTables("shouldSaveNewProject", new String[] {"build_date", "created_at"}, "projects", "snapshots");
+
+    // SONAR-3636 : created_at must be fed when inserting a new entry in the 'projects' table
+    ResourceModel model = getSession().getSingleResult(ResourceModel.class, "key", singleProject.getKey());
+    assertThat(model.getCreatedAt()).isNotNull();
   }
 
   @Test
