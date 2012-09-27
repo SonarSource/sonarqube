@@ -35,6 +35,7 @@
     <result property="copyResourceId" column="copy_resource_id"/>
     <result property="personId" column="person_id"/>
     <result property="profileId" column="profile_id"/>
+    <result property="date" column="created_at"/>
   </resultMap>
 
   <select id="selectResources" parameterType="map" resultMap="resourceResultMap">
@@ -85,11 +86,11 @@
 
   <insert id="insert" parameterType="Resource" useGeneratedKeys="true" keyProperty="id">
     insert into projects
-    (name, long_name, description, scope, qualifier, kee, language, root_id, copy_resource_id, person_id, profile_id, enabled)
+    (name, long_name, description, scope, qualifier, kee, language, root_id, copy_resource_id, person_id, profile_id, enabled, created_at)
     values (
     #{name}, #{longName}, #{description}, #{scope}, #{qualifier},
     #{key}, #{language}, #{rootId}, #{copyResourceId},
-    #{personId}, #{profileId}, #{enabled}
+    #{personId}, #{profileId}, #{enabled}, #{date}
     )
   </insert>
 
@@ -99,11 +100,11 @@
       select projects_seq.NEXTVAL from DUAL
     </selectKey>
     insert into projects
-    (id, name, long_name, description, scope, qualifier, kee, language, root_id, copy_resource_id, person_id, profile_id, enabled)
+    (id, name, long_name, description, scope, qualifier, kee, language, root_id, copy_resource_id, person_id, profile_id, enabled, created_at)
     values (
     #{id}, #{name}, #{longName}, #{description}, #{scope}, #{qualifier},
     #{key}, #{language}, #{rootId}, #{copyResourceId},
-    #{personId}, #{profileId}, #{enabled}
+    #{personId}, #{profileId}, #{enabled}, #{date}
     )
   </insert>
 

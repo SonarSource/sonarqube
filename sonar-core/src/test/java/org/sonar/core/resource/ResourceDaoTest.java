@@ -90,13 +90,13 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   public void getResources_filter_by_qualifier() {
     setupData("fixture");
 
-    List<ResourceDto> resources = dao.getResources(ResourceQuery.create().setQualifiers(new String[]{"TRK", "BRC"}));
+    List<ResourceDto> resources = dao.getResources(ResourceQuery.create().setQualifiers(new String[] {"TRK", "BRC"}));
     assertThat(resources).onProperty("qualifier").containsOnly("TRK", "BRC");
 
-    resources = dao.getResources(ResourceQuery.create().setQualifiers(new String[]{"XXX"}));
+    resources = dao.getResources(ResourceQuery.create().setQualifiers(new String[] {"XXX"}));
     assertThat(resources).isEmpty();
 
-    resources = dao.getResources(ResourceQuery.create().setQualifiers(new String[]{}));
+    resources = dao.getResources(ResourceQuery.create().setQualifiers(new String[] {}));
     assertThat(resources).hasSize(4);
   }
 
@@ -125,13 +125,13 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   public void getResourceIds_filter_by_qualifier() {
     setupData("fixture");
 
-    List<Long> ids = dao.getResourceIds(ResourceQuery.create().setQualifiers(new String[]{"TRK", "BRC"}));
+    List<Long> ids = dao.getResourceIds(ResourceQuery.create().setQualifiers(new String[] {"TRK", "BRC"}));
     assertThat(ids).containsOnly(1L, 2L);
 
-    ids = dao.getResourceIds(ResourceQuery.create().setQualifiers(new String[]{"XXX"}));
+    ids = dao.getResourceIds(ResourceQuery.create().setQualifiers(new String[] {"XXX"}));
     assertThat(ids).isEmpty();
 
-    ids = dao.getResourceIds(ResourceQuery.create().setQualifiers(new String[]{}));
+    ids = dao.getResourceIds(ResourceQuery.create().setQualifiers(new String[] {}));
     assertThat(ids).hasSize(4);
   }
 
@@ -163,17 +163,20 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     setupData("insert");
 
     ResourceDto file1 = new ResourceDto()
-      .setKey("org.struts:struts:org.struts.Action").setScope(Scopes.FILE).setQualifier(Qualifiers.FILE)
-      .setLanguage("java").setName("Action").setLongName("org.struts.Action");
+        .setKey("org.struts:struts:org.struts.Action").setScope(Scopes.FILE).setQualifier(Qualifiers.FILE)
+        .setLanguage("java").setName("Action").setLongName("org.struts.Action");
     ResourceDto file2 = new ResourceDto()
-          .setKey("org.struts:struts:org.struts.Filter").setScope(Scopes.FILE).setQualifier(Qualifiers.FILE)
-          .setLanguage("java").setName("Filter").setLongName("org.struts.Filter");
+        .setKey("org.struts:struts:org.struts.Filter").setScope(Scopes.FILE).setQualifier(Qualifiers.FILE)
+        .setLanguage("java").setName("Filter").setLongName("org.struts.Filter");
 
     dao.insertOrUpdate(file1, file2);
 
     assertThat(file1.getId()).isNotNull();
     assertThat(file2.getId()).isNotNull();
-    checkTables("insert", "projects");
+    checkTables("insert", new String[] {"created_at"}, "projects");
+
+    // SONAR-3636 : created_at must be fed when inserting a new entry in the 'projects' table
+    ResourceDto fileLoadedFromDB = dao.getResource(file1.getId());
+    assertThat(fileLoadedFromDB.getDate()).isNotNull();
   }
 }
-

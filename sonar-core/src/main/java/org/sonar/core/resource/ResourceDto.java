@@ -19,6 +19,8 @@
  */
 package org.sonar.core.resource;
 
+import java.util.Date;
+
 public final class ResourceDto {
 
   private Long id;
@@ -34,6 +36,7 @@ public final class ResourceDto {
   private Long copyResourceId;
   private Long personId;
   private Long profileId;
+  private Date date;
 
   public Long getId() {
     return id;
@@ -149,6 +152,15 @@ public final class ResourceDto {
 
   public ResourceDto setProfileId(Long profileId) {
     this.profileId = profileId;
+    return this;
+  }
+
+  public Date getDate() {
+    return date;// NOSONAR May expose internal representation by returning reference to mutable object
+  }
+
+  public ResourceDto setDate(Date date) {
+    this.date = date;// NOSONAR May expose internal representation by incorporating reference to mutable object
     return this;
   }
 }

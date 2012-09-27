@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.core.persistence.MyBatis;
 
+import java.util.Date;
 import java.util.List;
 
 public class ResourceDao {
@@ -105,6 +106,7 @@ public class ResourceDao {
     try {
       for (ResourceDto resource : resources) {
         if (resource.getId() == null) {
+          resource.setDate(new Date());
           mapper.insert(resource);
         } else {
           mapper.update(resource);
