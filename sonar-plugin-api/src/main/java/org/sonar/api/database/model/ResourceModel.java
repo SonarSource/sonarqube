@@ -29,8 +29,19 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -80,6 +91,10 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
   @Column(name = "person_id", updatable = true, nullable = true)
   private Integer personId;
 
+  @Temporal(TemporalType.TIMESTAMP)
+  @Column(name = "created_at", updatable = true, nullable = true)
+  private Date createdAt;
+
   @OneToMany(mappedBy = "resource", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE})
   @BatchSize(size = 8)
   private List<ProjectLink> projectLinks = new ArrayList<ProjectLink>();
@@ -92,6 +107,7 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
    * Default constructor
    */
   public ResourceModel() {
+    this.createdAt = new Date();
   }
 
   /**
@@ -104,6 +120,8 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
    * @param name      the short name of the resource
    */
   public ResourceModel(String scope, String key, String qualifier, Integer rootId, String name) {
+    // call this to have the "createdAt" field initialized
+    this();
     this.scope = scope;
     this.key = key;
     this.rootId = rootId;
@@ -262,6 +280,10 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
     this.qualifier = qualifier;
   }
 
+  public Date getCreatedAt() {
+    return createdAt;
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (!(obj instanceof ResourceModel)) {
@@ -272,36 +294,36 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
     }
     ResourceModel other = (ResourceModel) obj;
     return new EqualsBuilder()
-      .append(key, other.key)
-      .append(enabled, other.enabled)
-      .append(rootId, other.rootId)
-      .isEquals();
+        .append(key, other.key)
+        .append(enabled, other.enabled)
+        .append(rootId, other.rootId)
+        .isEquals();
   }
 
   @Override
   public int hashCode() {
     return new HashCodeBuilder(17, 37)
-      .append(key)
-      .append(enabled)
-      .append(rootId)
-      .toHashCode();
+        .append(key)
+        .append(enabled)
+        .append(rootId)
+        .toHashCode();
   }
 
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-      .append("id", getId())
-      .append("key", key)
-      .append("scope", scope)
-      .append("qualifier", qualifier)
-      .append("name", name)
-      .append("longName", longName)
-      .append("lang", languageKey)
-      .append("enabled", enabled)
-      .append("rootId", rootId)
-      .append("copyResourceId", copyResourceId)
-      .append("personId", personId)
-      .toString();
+        .append("id", getId())
+        .append("key", key)
+        .append("scope", scope)
+        .append("qualifier", qualifier)
+        .append("name", name)
+        .append("longName", longName)
+        .append("lang", languageKey)
+        .append("enabled", enabled)
+        .append("rootId", rootId)
+        .append("copyResourceId", copyResourceId)
+        .append("personId", personId)
+        .toString();
   }
 
   @Override
