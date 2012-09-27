@@ -36,7 +36,7 @@ public final class ResourceDto {
   private Long copyResourceId;
   private Long personId;
   private Long profileId;
-  private Date date;
+  private Date createdAt;
 
   public Long getId() {
     return id;
@@ -155,12 +155,12 @@ public final class ResourceDto {
     return this;
   }
 
-  public Date getDate() {
-    return date;// NOSONAR May expose internal representation by returning reference to mutable object
+  public Date getCreatedAt() {
+    return createdAt;// NOSONAR May expose internal representation by returning reference to mutable object
   }
 
-  public ResourceDto setDate(Date date) {
-    this.date = date;// NOSONAR May expose internal representation by incorporating reference to mutable object
+  public ResourceDto setCreatedAt(Date date) {
+    this.createdAt = date;// NOSONAR May expose internal representation by incorporating reference to mutable object
     return this;
   }
 }

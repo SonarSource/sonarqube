@@ -106,7 +106,7 @@ public class ResourceDao {
     try {
       for (ResourceDto resource : resources) {
         if (resource.getId() == null) {
-          resource.setDate(new Date());
+          resource.setCreatedAt(new Date());
           mapper.insert(resource);
         } else {
           mapper.update(resource);

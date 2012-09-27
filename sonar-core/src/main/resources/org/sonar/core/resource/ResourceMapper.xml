@@ -35,7 +35,7 @@
     <result property="copyResourceId" column="copy_resource_id"/>
     <result property="personId" column="person_id"/>
     <result property="profileId" column="profile_id"/>
-    <result property="date" column="created_at"/>
+    <result property="createdAt" column="created_at"/>
   </resultMap>
 
   <select id="selectResources" parameterType="map" resultMap="resourceResultMap">
@@ -90,7 +90,7 @@
     values (
     #{name}, #{longName}, #{description}, #{scope}, #{qualifier},
     #{key}, #{language}, #{rootId}, #{copyResourceId},
-    #{personId}, #{profileId}, #{enabled}, #{date}
+    #{personId}, #{profileId}, #{enabled}, #{createdAt}
     )
   </insert>
 
@@ -104,7 +104,7 @@
     values (
     #{id}, #{name}, #{longName}, #{description}, #{scope}, #{qualifier},
     #{key}, #{language}, #{rootId}, #{copyResourceId},
-    #{personId}, #{profileId}, #{enabled}, #{date}
+    #{personId}, #{profileId}, #{enabled}, #{createdAt}
     )
   </insert>
 

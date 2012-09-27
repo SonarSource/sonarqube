@@ -177,6 +177,6 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
 
     // SONAR-3636 : created_at must be fed when inserting a new entry in the 'projects' table
     ResourceDto fileLoadedFromDB = dao.getResource(file1.getId());
-    assertThat(fileLoadedFromDB.getDate()).isNotNull();
+    assertThat(fileLoadedFromDB.getCreatedAt()).isNotNull();
   }
 }
