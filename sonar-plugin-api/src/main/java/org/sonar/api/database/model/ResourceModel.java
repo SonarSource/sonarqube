@@ -284,6 +284,10 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
     return createdAt;
   }
 
+  public void setCreatedAt(Date createdAt) {
+    this.createdAt = createdAt;
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (!(obj instanceof ResourceModel)) {
@@ -323,6 +327,7 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
         .append("rootId", rootId)
         .append("copyResourceId", copyResourceId)
         .append("personId", personId)
+        .append("createdAt", createdAt)
         .toString();
   }
 
@@ -337,6 +342,7 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
     clone.setCopyResourceId(getCopyResourceId());
     clone.setLongName(getLongName());
     clone.setPersonId(getPersonId());
+    clone.setCreatedAt(getCreatedAt());
     return clone;
   }
 
