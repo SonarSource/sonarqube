@@ -19,7 +19,6 @@
  */
 package org.sonar.server.configuration;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.measures.Metric;
@@ -31,21 +30,16 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
-import org.sonar.server.platform.PersistentSettings;
-import org.sonar.test.TestUtils;
 
-import java.io.IOException;
 import java.util.Arrays;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.collection.IsCollectionContaining.hasItem;
-import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class ProfilesBackupTest extends AbstractDbUnitTestCase {
 
@@ -151,30 +145,5 @@ public class ProfilesBackupTest extends AbstractDbUnitTestCase {
     assertEquals(2, newProfile.getActiveRules().size());
     assertEquals(1, newProfile.getActiveRules(RulePriority.MAJOR).get(0).getActiveRuleParams().size());
     assertEquals(2, newProfile.getAlerts().size());
-  }
-
-  /**
-   * The field <profile><enabled> has been added in version 2.6. Profiles imported from backup of previous releases must
-   * be considered as enabled.
-   */
-  @Test
-  public void shouldSupportMissingEnabledField() throws IOException {
-    Backup backup = new Backup(getSession(), mock(PersistentSettings.class));
-    backup.doImportXml(FileUtils.readFileToString(TestUtils.getResource(getClass(), "shouldSupportMissingEnabledField.xml")));
-
-    RulesProfile profile = getSession().getSingleResult(RulesProfile.class, "name", "Missing enabled field");
-    assertThat(profile.getEnabled(), is(Boolean.TRUE));
-  }
-
-  @Test
-  public void shouldSupportEnabledField() throws IOException {
-    Backup backup = new Backup(getSession(), mock(PersistentSettings.class));
-    backup.doImportXml(FileUtils.readFileToString(TestUtils.getResource(getClass(), "shouldSupportEnabledField.xml")));
-
-    RulesProfile enabledProfile = getSession().getSingleResult(RulesProfile.class, "name", "Enabled");
-    assertThat(enabledProfile.getEnabled(), is(Boolean.TRUE));
-
-    RulesProfile disabledProfile = getSession().getSingleResult(RulesProfile.class, "name", "Disabled");
-    assertThat(disabledProfile.getEnabled(), is(Boolean.FALSE));
   }
 }

@@ -90,10 +90,6 @@ public class ProfilesBackup implements Backupable {
   }
 
   public void importProfile(RulesDao rulesDao, RulesProfile toImport) {
-    if (toImport.getEnabled() == null) {
-      // backward-compatibility with versions < 2.6. The field "enabled" did not exist. Default value is true.
-      toImport.setEnabled(true);
-    }
     if (toImport.getVersion() == 0) {
       // backward-compatibility with versions < 2.9. The field "version" did not exist. Default value is 1.
       toImport.setVersion(1);

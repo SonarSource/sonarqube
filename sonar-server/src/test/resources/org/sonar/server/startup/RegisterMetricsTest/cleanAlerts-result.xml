@@ -6,8 +6,8 @@
   <metrics delete_historical_data="[null]" id="2" name="disabledkey2" val_type="INT" description="description"  domain="domain"
            short_name="name2" qualitative="false" user_managed="false" enabled="false" origin="JAV" worst_value="[null]" optimized_best_value="[null]" best_value="[null]" direction="1" hidden="false"/>
 
-  <rules_profiles id="1" version="1" used_profile="true" name="profile1" default_profile="true" provided="true" language="JAV" enabled="true"/>
-  <rules_profiles id="2" version="1" used_profile="true" name="profile2" default_profile="false" provided="false" language="JAV" enabled="true"/>
+  <rules_profiles id="1" version="1" used_profile="true" name="profile1" default_profile="true" provided="true" language="JAV" />
+  <rules_profiles id="2" version="1" used_profile="true" name="profile2" default_profile="false" provided="false" language="JAV" />
 
   <!-- ok -->
   <alerts id="1" profile_id="1" metric_id="1" operator=">" value_error="30" value_warning="[null]"/>

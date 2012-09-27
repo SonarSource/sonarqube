@@ -235,7 +235,6 @@ public final class Platform {
     startupContainer.addSingleton(RegisterMetrics.class);
     startupContainer.addSingleton(RegisterRules.class);
     startupContainer.addSingleton(RegisterProvidedProfiles.class);
-    startupContainer.addSingleton(EnableProfiles.class);
     startupContainer.addSingleton(ActivateDefaultProfiles.class);
     startupContainer.addSingleton(JdbcDriverDeployer.class);
     startupContainer.addSingleton(ServerMetadataPersister.class);

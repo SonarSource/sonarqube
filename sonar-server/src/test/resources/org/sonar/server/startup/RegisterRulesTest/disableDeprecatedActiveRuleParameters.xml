@@ -10,7 +10,7 @@
   <rules_parameters id="3" rule_id="1" name="param3" description="[null]" param_type="STRING"/>
 
 
-  <rules_profiles id="1" version="1" used_profile="true" name="profile name" language="java" default_profile="false" provided="false"  enabled="true"/>
+  <rules_profiles id="1" version="1" used_profile="true" name="profile name" language="java" default_profile="false" provided="false" />
   <active_rules id="1" rule_id="1" profile_id="1" failure_level="4" />
   <active_rule_parameters id="1" active_rule_id="1" rules_parameter_id="1" value="one" />
   <active_rule_parameters id="2" active_rule_id="1" rules_parameter_id="2" value="two" />

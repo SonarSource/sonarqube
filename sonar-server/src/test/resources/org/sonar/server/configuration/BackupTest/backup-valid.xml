@@ -41,7 +41,6 @@
       <provided><![CDATA[true]]></provided>
       <used><![CDATA[false]]></used>
       <language><![CDATA[test language]]></language>
-      <enabled><![CDATA[true]]></enabled>
       <active-rules>
         <active-rule>
           <key><![CDATA[test key]]></key>
@@ -70,7 +69,6 @@
       <default-profile><![CDATA[false]]></default-profile>
       <provided><![CDATA[false]]></provided>
       <language><![CDATA[test language]]></language>
-      <enabled><![CDATA[true]]></enabled>
       <used><![CDATA[false]]></used>
       <parentName><![CDATA[test name]]></parentName>
       <active-rules>

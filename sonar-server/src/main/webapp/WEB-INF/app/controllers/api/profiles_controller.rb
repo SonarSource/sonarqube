@@ -30,9 +30,9 @@ class Api::ProfilesController < Api::ApiController
 
       name=params[:name]
       if name.blank?
-        @profile=Profile.find(:first, :conditions => ['language=? and default_profile=? and enabled=?', language, true, true])
+        @profile=Profile.find(:first, :conditions => ['language=? and default_profile=?', language, true])
       else
-        @profile=Profile.find(:first, :conditions => ['language=? and name=? and enabled=?', language, name, true])
+        @profile=Profile.find(:first, :conditions => ['language=? and name=?', language, name])
       end
       raise ApiException.new(404, "Profile not found") if @profile.nil?
 
@@ -60,9 +60,9 @@ class Api::ProfilesController < Api::ApiController
     bad_request('Missing parameter: language') if params[:language].blank?
 
     if params[:name].blank?
-      profile=Profile.find(:first, :conditions => ['language=? and default_profile=? and enabled=?', params[:language], true, true])
+      profile=Profile.find(:first, :conditions => ['language=? and default_profile=?', params[:language], true])
     else
-      profile=Profile.find(:first, :conditions => ['language=? and name=? and enabled=?', params[:language], params[:name], true])
+      profile=Profile.find(:first, :conditions => ['language=? and name=?', params[:language], params[:name]])
     end
     not_found('Profile not found') unless profile
 

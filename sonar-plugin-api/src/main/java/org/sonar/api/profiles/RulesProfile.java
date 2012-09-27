@@ -73,9 +73,6 @@ public class RulesProfile implements Cloneable {
   @Column(name = "provided", updatable = true, nullable = false)
   private Boolean provided = Boolean.FALSE;
 
-  @Column(name = "enabled", updatable = true, nullable = false)
-  private Boolean enabled = Boolean.TRUE;
-
   @Column(name = "used_profile", updatable = true, nullable = false)
   private Boolean used = Boolean.FALSE;
 
@@ -226,17 +223,31 @@ public class RulesProfile implements Cloneable {
     this.provided = b;
   }
 
+  /**
+   * @deprecated since 3.3. Always return true.
+   * @return
+   */
+  @Deprecated
   public Boolean getEnabled() {
-    return enabled;
+    return Boolean.TRUE;
   }
 
+  /**
+   * @deprecated since 3.3. Always return true.
+   * @return
+   */
+@Deprecated
   public boolean isEnabled() {
-    return enabled == Boolean.TRUE;
+    return true;
   }
 
+  /**
+   * @deprecated since 3.3.
+   * @return
+   */
+  @Deprecated
   public RulesProfile setEnabled(Boolean b) {
-    this.enabled = b;
-    return this;
+    throw new UnsupportedOperationException("The field RulesProfile#enabled is not supported since 3.3.");
   }
 
   /**
