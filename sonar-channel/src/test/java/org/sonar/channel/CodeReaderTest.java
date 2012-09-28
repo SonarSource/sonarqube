@@ -101,7 +101,7 @@ public class CodeReaderTest {
   }
 
   @Test
-  public void test() {
+  public void testStackOverflowError() {
     StringBuilder sb = new StringBuilder();
     sb.append("\n");
     for (int i = 0; i < 10000; i++) {

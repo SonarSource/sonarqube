@@ -194,7 +194,7 @@ public class CodeReader extends CodeBuffer {
       throw new ChannelException("Unable to apply regular expression '" + matcher.pattern().pattern()
           + "' at line " + getCursor().getLine() + " and column " + getCursor().getColumn()
           + ", because it led to a stack overflow error."
-          + " This error may be due to an inefficient use of alternations - see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5050507");
+          + " This error may be due to an inefficient use of alternations - see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5050507", e);
     } catch (IndexOutOfBoundsException e) {
       return -1;
     } catch (IOException e) {
