@@ -26,7 +26,6 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.bootstrap.ProjectInitializer;
 import org.sonar.core.config.ConfigurationUtils;

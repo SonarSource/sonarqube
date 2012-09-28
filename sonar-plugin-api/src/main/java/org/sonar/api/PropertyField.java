@@ -17,23 +17,39 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.config;
+package org.sonar.api;
 
-import org.junit.Test;
-import org.sonar.api.PropertyType;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import static org.fest.assertions.Assertions.assertThat;
+/**
+ * Property field.
+ *
+ * @since 3.3
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface PropertyField {
+  /**
+   * Unique key within a property.
+   */
+  String key();
 
-public class PropertySetTest {
-  @Test
-  public void should_add_fields() {
-    PropertySetField firstField = PropertySetField.create("first", PropertyType.STRING);
-    PropertySetField secondField = PropertySetField.create("second", PropertyType.STRING);
+  /**
+   * The empty string "" is considered as null, so it's not possible to have empty strings for default values.
+   */
+  String defaultValue() default "";
 
-    PropertySet set = new PropertySet();
-    set.add(firstField);
-    set.add(secondField);
+  String name();
 
-    assertThat(set.getFields()).containsExactly(firstField, secondField);
-  }
+  String description() default "";
+
+  PropertyType type() default PropertyType.STRING;
+
+  /**
+   * Options for *_LIST types
+   */
+  String[] options() default {};
 }

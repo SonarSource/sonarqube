@@ -57,9 +57,4 @@ module SettingsHelper
   def input_name(property)
     h(property.key) + (property.multi_values ? '[]' : '')
   end
-
-  def property_set_value_names(property)
-    names = PropertySet.findAll(property.propertySetName).map(&:name);
-    Api::Utils.insensitive_sort(names)
-  end
 end

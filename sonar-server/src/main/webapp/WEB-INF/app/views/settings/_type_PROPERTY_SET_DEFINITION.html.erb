@@ -1,0 +1,17 @@
+<% Property.set('sonar.test.jira.servers', 'jira1,jira2') -%>
+<% Property.set('sonar.test.jira.servers.jira1.url', 'http://url1') -%>
+<% Property.set('sonar.test.jira.servers.jira1.port', '1234') -%>
+<% Property.set('sonar.test.jira.servers.jira2.url', 'http://url2') -%>
+<% Property.set('sonar.test.jira.servers.jira2.port', '9999') -%>
+
+<% Property.values(property.key).reject(&:blank?).each do |set_key| -%>
+  <h3><%= set_key -%></h3>
+
+  <% property.fields.each do |field| -%>
+    <label><%= field.key -%>: </label><input type="text" value="<%= Property.value([property.key, set_key, field.key].join('.')) -%>"/><br/>
+  <% end -%>
+
+  <a href="#" class="delete link-action"><%= message('delete') -%></a>
+<% end -%>
+
+<button class="add_value"><%= message('settings.add') -%></button>

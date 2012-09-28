@@ -1,5 +1,5 @@
 <div class="multi_value marginbottom5">
-  <%= render "settings/type_#{property_type(property, value)}", :property => property, :value => value -%>
+  <%= render "settings/single_value", :property => property, :value => value -%>
   <% if delete_link -%>
     <a href="#" class="delete link-action"><%= message('delete') -%></a>
   <% end -%>

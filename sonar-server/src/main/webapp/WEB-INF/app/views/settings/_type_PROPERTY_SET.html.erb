@@ -1,7 +1,7 @@
-<select name="<%= input_name(property) -%>" id="input_<%= h property.key -%>">
+<select name="<%= input_name(property) -%>" id="input_<%= h property.getKey() -%>">
   <option value=""><%= message('default') -%></option>
-  <% property_set_value_names(property).each do |option| %>
-    <option value="<%= h option -%>" <%= 'selected' if value && value==option -%>><%= h option -%></option>
-  <% end %>
+
+  <% Property.values(property.propertySetKey).reject(&:blank?).each do |set_key| -%>
+    <option value="<%= set_key -%>"><%= set_key -%></option>
+  <% end -%>
 </select>
-<a id="edit-set-<%= h property.key -%>" href="property_sets/index" class="open-modal link-action">Edit property set...</a>

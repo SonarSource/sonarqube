@@ -19,6 +19,8 @@
  */
 package org.sonar.api.config;
 
+import org.sonar.api.PropertyField;
+
 import org.junit.Test;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
@@ -47,11 +49,12 @@ public class PropertyDefinitionTest {
     assertThat(def.isOnProject()).isTrue();
     assertThat(def.isOnModule()).isTrue();
     assertThat(def.isMultiValues()).isTrue();
-    assertThat(def.getPropertySetName()).isEmpty();
+    assertThat(def.getPropertySetKey()).isEqualTo("set");
+    assertThat(def.getFields()).isEmpty();
   }
 
   @Properties(@Property(key = "hello", name = "Hello", defaultValue = "world", description = "desc",
-    options = {"de", "en"}, category = "categ", type = PropertyType.FLOAT, global = false, project = true, module = true, multiValues = true))
+    options = {"de", "en"}, category = "categ", type = PropertyType.FLOAT, global = false, project = true, module = true, multiValues = true, propertySetKey = "set"))
   static class Init {
   }
 
@@ -73,9 +76,13 @@ public class PropertyDefinitionTest {
     assertThat(def.isOnProject()).isFalse();
     assertThat(def.isOnModule()).isFalse();
     assertThat(def.isMultiValues()).isFalse();
+    assertThat(def.getPropertySetKey()).isEmpty();
+    assertThat(def.getFields()).isEmpty();
   }
 
-  @Properties(@Property(key = "hello", name = "Hello", type = PropertyType.PROPERTY_SET, propertySetName = "set1"))
+  @Properties(@Property(key = "hello", name = "Hello", fields = {
+    @PropertyField(key = "first", name = "First"),
+    @PropertyField(key = "second", name = "Second", type = PropertyType.INTEGER)}))
   static class WithPropertySet {
   }
 
@@ -86,8 +93,13 @@ public class PropertyDefinitionTest {
 
     PropertyDefinition def = PropertyDefinition.create(prop);
 
-    assertThat(def.getType()).isEqualTo(PropertyType.PROPERTY_SET);
-    assertThat(def.getPropertySetName()).isEqualTo("set1");
+    assertThat(def.getFields()).hasSize(2);
+    assertThat(def.getFields()[0].getKey()).isEqualTo("first");
+    assertThat(def.getFields()[0].getName()).isEqualTo("First");
+    assertThat(def.getFields()[0].getType()).isEqualTo(PropertyType.STRING);
+    assertThat(def.getFields()[1].getKey()).isEqualTo("second");
+    assertThat(def.getFields()[1].getName()).isEqualTo("Second");
+    assertThat(def.getFields()[1].getType()).isEqualTo(PropertyType.INTEGER);
   }
 
   @Properties(@Property(key = "hello", name = "Hello"))

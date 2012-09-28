@@ -19,8 +19,6 @@
  */
 package org.sonar.api.config;
 
-import com.google.common.collect.Iterables;
-
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
@@ -29,14 +27,16 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.PropertyType;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.DateUtils;
 
 import javax.annotation.Nullable;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Project Settings on batch side, Global Settings on server side. This component does not access to database, so
@@ -184,23 +184,6 @@ public class Settings implements BatchComponent, ServerComponent {
     return getStringArrayBySeparator(key, ",");
   }
 
-  public final PropertySetValue getPropertySetValue(String key) {
-    PropertyDefinition property = getDefinitions().get(key);
-    if ((null == property) || (property.getType() != PropertyType.PROPERTY_SET)) {
-      throw new IllegalArgumentException("Property " + key + " is not of type PROPERTY_SET");
-    }
-
-    String propertySetName = property.getPropertySetName();
-    String valueName = getString(key);
-    String propertySetJson = getString("sonar.property_set." + propertySetName);
-
-    return PropertySetValue.create(lowTechJsonParsing(valueName, propertySetJson));
-  }
-
-  private static Map<String, String> lowTechJsonParsing(String valueName, String json) {
-    return Maps.newHashMap();
-  }
-  
   /**
    * Value is split by carriage returns.
    *

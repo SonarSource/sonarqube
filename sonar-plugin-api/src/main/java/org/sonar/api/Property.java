@@ -100,9 +100,17 @@ public @interface Property {
   boolean multiValues() default false;
 
   /**
-   * Name of the property set. Used only when type = <code>PropertyType.PROPERTY_SET</code>.
+   * A Property of type <code>PropertyType.PROPERTY_SET</code> can reference a set of properties
+   * by its key.
    *
    * @since 3.3
    */
-  String propertySetName() default "";
+  String propertySetKey() default "";
+
+  /**
+   * A Property with fields is considered a property set.
+   *
+   * @since 3.3
+   */
+  PropertyField[] fields() default {};
 }

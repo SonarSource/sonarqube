@@ -37,7 +37,7 @@
               <button class="add_value"><%= message('settings.add') -%></button>
               <br/>
             <% else -%>
-              <%= render "settings/type_#{property_type(property, value)}", :property => property, :value => value -%>
+              <%= render "settings/single_value", :property => property, :value => value -%>
             <% end -%>
 
             <% p = @updated_properties[property.key] if @updated_properties -%>

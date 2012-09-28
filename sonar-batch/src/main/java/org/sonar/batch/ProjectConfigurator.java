@@ -19,8 +19,6 @@
  */
 package org.sonar.batch;
 
-import java.util.Date;
-
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.project.MavenProject;
@@ -31,9 +29,10 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
+
+import java.util.Date;
 
 public class ProjectConfigurator implements BatchComponent {
 

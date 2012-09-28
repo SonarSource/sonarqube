@@ -23,7 +23,9 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.*;
+import org.sonar.api.config.License;
+import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.NewUserHandler;
 import org.sonar.api.platform.PluginMetadata;
@@ -36,7 +38,11 @@ import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.api.web.*;
+import org.sonar.api.web.Footer;
+import org.sonar.api.web.NavigationSection;
+import org.sonar.api.web.Page;
+import org.sonar.api.web.RubyRailsWebservice;
+import org.sonar.api.web.Widget;
 import org.sonar.api.workflow.Review;
 import org.sonar.api.workflow.internal.DefaultReview;
 import org.sonar.api.workflow.internal.DefaultWorkflowContext;
@@ -55,13 +61,22 @@ import org.sonar.server.filters.Filter;
 import org.sonar.server.filters.FilterExecutor;
 import org.sonar.server.filters.FilterResult;
 import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
-import org.sonar.server.platform.*;
-import org.sonar.server.plugins.*;
+import org.sonar.server.platform.NewUserNotifier;
+import org.sonar.server.platform.Platform;
+import org.sonar.server.platform.ServerIdGenerator;
+import org.sonar.server.platform.ServerSettings;
+import org.sonar.server.platform.SettingsChangeNotifier;
+import org.sonar.server.plugins.DefaultServerPluginRepository;
+import org.sonar.server.plugins.PluginDeployer;
+import org.sonar.server.plugins.PluginDownloader;
+import org.sonar.server.plugins.UpdateCenterMatrix;
+import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
 import org.sonar.updatecenter.common.Version;
 
 import javax.annotation.Nullable;
+
 import java.net.InetAddress;
 import java.sql.Connection;
 import java.util.Collection;
@@ -298,7 +313,7 @@ public final class JRubyFacade {
 
   public void ruleSeverityChanged(int parentProfileId, int activeRuleId, int oldSeverityId, int newSeverityId, String userName) {
     getProfilesManager().ruleSeverityChanged(parentProfileId, activeRuleId, RulePriority.values()[oldSeverityId],
-      RulePriority.values()[newSeverityId], userName);
+        RulePriority.values()[newSeverityId], userName);
   }
 
   public void ruleDeactivated(int parentProfileId, int deactivatedRuleId, String userName) {
@@ -494,14 +509,10 @@ public final class JRubyFacade {
     // notifier is null when creating the administrator in the migration script 011.
     if (notifier != null) {
       notifier.onNewUser(NewUserHandler.Context.builder()
-        .setLogin(fields.get("login"))
-        .setName(fields.get("name"))
-        .setEmail(fields.get("email"))
-        .build());
+          .setLogin(fields.get("login"))
+          .setName(fields.get("name"))
+          .setEmail(fields.get("email"))
+          .build());
     }
-  }
-
-  public List<PropertySet> listPropertySets() {
-    return get(PropertySetDefinitions.class).findAll();
   }
 }

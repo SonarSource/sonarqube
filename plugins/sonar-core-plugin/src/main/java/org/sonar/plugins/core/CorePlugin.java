@@ -20,10 +20,14 @@
 package org.sonar.plugins.core;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.api.*;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.Extension;
+import org.sonar.api.Properties;
+import org.sonar.api.Property;
+import org.sonar.api.PropertyField;
+import org.sonar.api.PropertyType;
+import org.sonar.api.SonarPlugin;
 import org.sonar.api.checks.NoSonarFilter;
-import org.sonar.api.config.PropertySetDefinitions;
-import org.sonar.api.config.TestPropertySetTemplate;
 import org.sonar.api.resources.Java;
 import org.sonar.plugins.core.batch.ExcludedResourceFilter;
 import org.sonar.plugins.core.batch.IndexProjectPostJob;
@@ -33,19 +37,80 @@ import org.sonar.plugins.core.charts.DistributionAreaChart;
 import org.sonar.plugins.core.charts.DistributionBarChart;
 import org.sonar.plugins.core.charts.XradarChart;
 import org.sonar.plugins.core.colorizers.JavaColorizerFormat;
-import org.sonar.plugins.core.dashboards.*;
+import org.sonar.plugins.core.dashboards.DefaultDashboard;
+import org.sonar.plugins.core.dashboards.HotspotsDashboard;
+import org.sonar.plugins.core.dashboards.MyFavouritesDashboard;
+import org.sonar.plugins.core.dashboards.ProjectsDashboard;
+import org.sonar.plugins.core.dashboards.ReviewsDashboard;
+import org.sonar.plugins.core.dashboards.TimeMachineDashboard;
+import org.sonar.plugins.core.dashboards.TreemapDashboard;
 import org.sonar.plugins.core.filters.MyFavouritesFilter;
 import org.sonar.plugins.core.filters.ProjectFilter;
 import org.sonar.plugins.core.filters.TreeMapFilter;
 import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
 import org.sonar.plugins.core.security.DefaultResourcePermissions;
-import org.sonar.plugins.core.sensors.*;
+import org.sonar.plugins.core.sensors.BranchCoverageDecorator;
+import org.sonar.plugins.core.sensors.CheckAlertThresholds;
+import org.sonar.plugins.core.sensors.CommentDensityDecorator;
+import org.sonar.plugins.core.sensors.CoverageDecorator;
+import org.sonar.plugins.core.sensors.DirectoriesDecorator;
+import org.sonar.plugins.core.sensors.FilesDecorator;
+import org.sonar.plugins.core.sensors.GenerateAlertEvents;
+import org.sonar.plugins.core.sensors.ItBranchCoverageDecorator;
+import org.sonar.plugins.core.sensors.ItCoverageDecorator;
+import org.sonar.plugins.core.sensors.ItLineCoverageDecorator;
+import org.sonar.plugins.core.sensors.LineCoverageDecorator;
+import org.sonar.plugins.core.sensors.ManualMeasureDecorator;
+import org.sonar.plugins.core.sensors.ManualViolationInjector;
+import org.sonar.plugins.core.sensors.ProfileEventsSensor;
+import org.sonar.plugins.core.sensors.ProfileSensor;
+import org.sonar.plugins.core.sensors.ProjectLinksSensor;
+import org.sonar.plugins.core.sensors.ReviewNotifications;
+import org.sonar.plugins.core.sensors.ReviewWorkflowDecorator;
+import org.sonar.plugins.core.sensors.ReviewsMeasuresDecorator;
+import org.sonar.plugins.core.sensors.UnitTestDecorator;
+import org.sonar.plugins.core.sensors.VersionEventsSensor;
+import org.sonar.plugins.core.sensors.ViolationSeverityUpdater;
+import org.sonar.plugins.core.sensors.ViolationsDecorator;
+import org.sonar.plugins.core.sensors.ViolationsDensityDecorator;
+import org.sonar.plugins.core.sensors.WeightedViolationsDecorator;
 import org.sonar.plugins.core.testdetailsviewer.TestsViewerDefinition;
-import org.sonar.plugins.core.timemachine.*;
+import org.sonar.plugins.core.timemachine.NewCoverageAggregator;
+import org.sonar.plugins.core.timemachine.NewCoverageFileAnalyzer;
+import org.sonar.plugins.core.timemachine.NewItCoverageFileAnalyzer;
+import org.sonar.plugins.core.timemachine.NewViolationsDecorator;
+import org.sonar.plugins.core.timemachine.ReferenceAnalysis;
+import org.sonar.plugins.core.timemachine.TendencyDecorator;
+import org.sonar.plugins.core.timemachine.TimeMachineConfigurationPersister;
+import org.sonar.plugins.core.timemachine.VariationDecorator;
+import org.sonar.plugins.core.timemachine.ViolationPersisterDecorator;
+import org.sonar.plugins.core.timemachine.ViolationTrackingDecorator;
 import org.sonar.plugins.core.web.Lcom4Viewer;
-import org.sonar.plugins.core.widgets.*;
+import org.sonar.plugins.core.widgets.AlertsWidget;
+import org.sonar.plugins.core.widgets.CommentsDuplicationsWidget;
+import org.sonar.plugins.core.widgets.ComplexityWidget;
+import org.sonar.plugins.core.widgets.CoverageWidget;
+import org.sonar.plugins.core.widgets.CustomMeasuresWidget;
+import org.sonar.plugins.core.widgets.DescriptionWidget;
+import org.sonar.plugins.core.widgets.EventsWidget;
+import org.sonar.plugins.core.widgets.FilterWidget;
+import org.sonar.plugins.core.widgets.HotspotMetricWidget;
+import org.sonar.plugins.core.widgets.HotspotMostViolatedResourcesWidget;
+import org.sonar.plugins.core.widgets.HotspotMostViolatedRulesWidget;
+import org.sonar.plugins.core.widgets.ItCoverageWidget;
+import org.sonar.plugins.core.widgets.RulesWidget;
+import org.sonar.plugins.core.widgets.SizeWidget;
+import org.sonar.plugins.core.widgets.TimeMachineWidget;
+import org.sonar.plugins.core.widgets.TimelineWidget;
+import org.sonar.plugins.core.widgets.TreemapWidget;
 import org.sonar.plugins.core.widgets.actionPlans.ActionPlansWidget;
-import org.sonar.plugins.core.widgets.reviews.*;
+import org.sonar.plugins.core.widgets.reviews.FalsePositiveReviewsWidget;
+import org.sonar.plugins.core.widgets.reviews.MyReviewsWidget;
+import org.sonar.plugins.core.widgets.reviews.PlannedReviewsWidget;
+import org.sonar.plugins.core.widgets.reviews.ProjectReviewsWidget;
+import org.sonar.plugins.core.widgets.reviews.ReviewsMetricsWidget;
+import org.sonar.plugins.core.widgets.reviews.ReviewsPerDeveloperWidget;
+import org.sonar.plugins.core.widgets.reviews.UnplannedReviewsWidget;
 
 import java.util.List;
 
@@ -59,12 +124,27 @@ import java.util.List;
     global = true,
     category = CoreProperties.CATEGORY_GENERAL),
   @Property(
-    key = "toto",
-    name = "Toto",
+    key = "sonar.test.jira.servers",
+    name = "Jira Servers",
     global = true,
+    project = true,
+    category = "DEV",
+    fields = {
+      @PropertyField(
+        key = "url",
+        name = "Url",
+        type = PropertyType.STRING),
+      @PropertyField(
+        key = "port",
+        name = "Port",
+        type = PropertyType.INTEGER)}),
+  @Property(
+    key = "sonar.test.jira",
+    name = "Jira",
+    project = true,
+    category = "DEV",
     type = PropertyType.PROPERTY_SET,
-    propertySetName = "myset",
-    category = CoreProperties.CATEGORY_GENERAL),
+    propertySetKey = "sonar.test.jira.servers"),
   @Property(
     key = CoreProperties.PROJECT_LANGUAGE_PROPERTY,
     defaultValue = Java.KEY,
@@ -254,115 +334,111 @@ public final class CorePlugin extends SonarPlugin {
   @SuppressWarnings("unchecked")
   public List<Class<? extends Extension>> getExtensions() {
     return ImmutableList.of(
-      DefaultResourceTypes.class,
-      UserManagedMetrics.class,
-      ProjectFileSystemLogger.class,
+        DefaultResourceTypes.class,
+        UserManagedMetrics.class,
+        ProjectFileSystemLogger.class,
 
-      // maven
-      MavenInitializer.class,
+        // maven
+        MavenInitializer.class,
 
-      // languages
-      Java.class,
+        // languages
+        Java.class,
 
-      // pages
-      TestsViewerDefinition.class,
-      Lcom4Viewer.class,
+        // pages
+        TestsViewerDefinition.class,
+        Lcom4Viewer.class,
 
-      // filters
-      ProjectFilter.class,
-      TreeMapFilter.class,
-      MyFavouritesFilter.class,
+        // filters
+        ProjectFilter.class,
+        TreeMapFilter.class,
+        MyFavouritesFilter.class,
 
-      // widgets
-      AlertsWidget.class,
-      CoverageWidget.class,
-      ItCoverageWidget.class,
-      CommentsDuplicationsWidget.class,
-      DescriptionWidget.class,
-      ComplexityWidget.class,
-      RulesWidget.class,
-      SizeWidget.class,
-      EventsWidget.class,
-      CustomMeasuresWidget.class,
-      TimelineWidget.class,
-      TimeMachineWidget.class,
-      HotspotMetricWidget.class,
-      HotspotMostViolatedResourcesWidget.class,
-      HotspotMostViolatedRulesWidget.class,
-      MyReviewsWidget.class,
-      ProjectReviewsWidget.class,
-      FalsePositiveReviewsWidget.class,
-      ReviewsPerDeveloperWidget.class,
-      PlannedReviewsWidget.class,
-      UnplannedReviewsWidget.class,
-      ActionPlansWidget.class,
-      ReviewsMetricsWidget.class,
-      TreemapWidget.class,
-      FilterWidget.class,
+        // widgets
+        AlertsWidget.class,
+        CoverageWidget.class,
+        ItCoverageWidget.class,
+        CommentsDuplicationsWidget.class,
+        DescriptionWidget.class,
+        ComplexityWidget.class,
+        RulesWidget.class,
+        SizeWidget.class,
+        EventsWidget.class,
+        CustomMeasuresWidget.class,
+        TimelineWidget.class,
+        TimeMachineWidget.class,
+        HotspotMetricWidget.class,
+        HotspotMostViolatedResourcesWidget.class,
+        HotspotMostViolatedRulesWidget.class,
+        MyReviewsWidget.class,
+        ProjectReviewsWidget.class,
+        FalsePositiveReviewsWidget.class,
+        ReviewsPerDeveloperWidget.class,
+        PlannedReviewsWidget.class,
+        UnplannedReviewsWidget.class,
+        ActionPlansWidget.class,
+        ReviewsMetricsWidget.class,
+        TreemapWidget.class,
+        FilterWidget.class,
 
-      // dashboards
-      DefaultDashboard.class,
-      HotspotsDashboard.class,
-      ReviewsDashboard.class,
-      TimeMachineDashboard.class,
-      ProjectsDashboard.class,
-      TreemapDashboard.class,
-      MyFavouritesDashboard.class,
+        // dashboards
+        DefaultDashboard.class,
+        HotspotsDashboard.class,
+        ReviewsDashboard.class,
+        TimeMachineDashboard.class,
+        ProjectsDashboard.class,
+        TreemapDashboard.class,
+        MyFavouritesDashboard.class,
 
-      // Property sets
-      PropertySetDefinitions.class,
-      TestPropertySetTemplate.class,
+        // chart
+        XradarChart.class,
+        DistributionBarChart.class,
+        DistributionAreaChart.class,
 
-      // chart
-      XradarChart.class,
-      DistributionBarChart.class,
-      DistributionAreaChart.class,
+        // colorizers
+        JavaColorizerFormat.class,
 
-      // colorizers
-      JavaColorizerFormat.class,
+        // batch
+        ProfileSensor.class,
+        ProfileEventsSensor.class,
+        ProjectLinksSensor.class,
+        UnitTestDecorator.class,
+        VersionEventsSensor.class,
+        CheckAlertThresholds.class,
+        GenerateAlertEvents.class,
+        ViolationsDecorator.class,
+        WeightedViolationsDecorator.class,
+        ViolationsDensityDecorator.class,
+        LineCoverageDecorator.class,
+        CoverageDecorator.class,
+        BranchCoverageDecorator.class,
+        ItLineCoverageDecorator.class,
+        ItCoverageDecorator.class,
+        ItBranchCoverageDecorator.class,
+        DefaultResourcePermissions.class,
+        ApplyProjectRolesDecorator.class,
+        ExcludedResourceFilter.class,
+        CommentDensityDecorator.class,
+        NoSonarFilter.class,
+        DirectoriesDecorator.class,
+        FilesDecorator.class,
+        ReviewNotifications.class,
+        ReviewWorkflowDecorator.class,
+        ReferenceAnalysis.class,
+        ManualMeasureDecorator.class,
+        ManualViolationInjector.class,
+        ViolationSeverityUpdater.class,
+        IndexProjectPostJob.class,
+        ReviewsMeasuresDecorator.class,
 
-      // batch
-      ProfileSensor.class,
-      ProfileEventsSensor.class,
-      ProjectLinksSensor.class,
-      UnitTestDecorator.class,
-      VersionEventsSensor.class,
-      CheckAlertThresholds.class,
-      GenerateAlertEvents.class,
-      ViolationsDecorator.class,
-      WeightedViolationsDecorator.class,
-      ViolationsDensityDecorator.class,
-      LineCoverageDecorator.class,
-      CoverageDecorator.class,
-      BranchCoverageDecorator.class,
-      ItLineCoverageDecorator.class,
-      ItCoverageDecorator.class,
-      ItBranchCoverageDecorator.class,
-      DefaultResourcePermissions.class,
-      ApplyProjectRolesDecorator.class,
-      ExcludedResourceFilter.class,
-      CommentDensityDecorator.class,
-      NoSonarFilter.class,
-      DirectoriesDecorator.class,
-      FilesDecorator.class,
-      ReviewNotifications.class,
-      ReviewWorkflowDecorator.class,
-      ReferenceAnalysis.class,
-      ManualMeasureDecorator.class,
-      ManualViolationInjector.class,
-      ViolationSeverityUpdater.class,
-      IndexProjectPostJob.class,
-      ReviewsMeasuresDecorator.class,
-
-      // time machine
-      TendencyDecorator.class,
-      VariationDecorator.class,
-      ViolationTrackingDecorator.class,
-      ViolationPersisterDecorator.class,
-      NewViolationsDecorator.class,
-      TimeMachineConfigurationPersister.class,
-      NewCoverageFileAnalyzer.class,
-      NewItCoverageFileAnalyzer.class,
-      NewCoverageAggregator.class);
+        // time machine
+        TendencyDecorator.class,
+        VariationDecorator.class,
+        ViolationTrackingDecorator.class,
+        ViolationPersisterDecorator.class,
+        NewViolationsDecorator.class,
+        TimeMachineConfigurationPersister.class,
+        NewCoverageFileAnalyzer.class,
+        NewItCoverageFileAnalyzer.class,
+        NewCoverageAggregator.class);
   }
 }
