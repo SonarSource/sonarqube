@@ -76,7 +76,7 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
   @Column(name = "kee", updatable = false, nullable = false, length = KEY_SIZE)
   private String key;
 
-  @Column(name = "language", updatable = true, nullable = true, length = 5)
+  @Column(name = "language", updatable = true, nullable = true, length = 20)
   private String languageKey;
 
   @Column(name = "root_id", updatable = true, nullable = true)
@@ -283,37 +283,37 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
     }
     ResourceModel other = (ResourceModel) obj;
     return new EqualsBuilder()
-      .append(key, other.key)
-      .append(enabled, other.enabled)
-      .append(rootId, other.rootId)
-      .isEquals();
+        .append(key, other.key)
+        .append(enabled, other.enabled)
+        .append(rootId, other.rootId)
+        .isEquals();
   }
 
   @Override
   public int hashCode() {
     return new HashCodeBuilder(17, 37)
-      .append(key)
-      .append(enabled)
-      .append(rootId)
-      .toHashCode();
+        .append(key)
+        .append(enabled)
+        .append(rootId)
+        .toHashCode();
   }
 
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-      .append("id", getId())
-      .append("key", key)
-      .append("scope", scope)
-      .append("qualifier", qualifier)
-      .append("name", name)
-      .append("longName", longName)
-      .append("lang", languageKey)
-      .append("enabled", enabled)
-      .append("rootId", rootId)
-      .append("copyResourceId", copyResourceId)
-      .append("personId", personId)
-      .append("createdAt", createdAt)
-      .toString();
+        .append("id", getId())
+        .append("key", key)
+        .append("scope", scope)
+        .append("qualifier", qualifier)
+        .append("name", name)
+        .append("longName", longName)
+        .append("lang", languageKey)
+        .append("enabled", enabled)
+        .append("rootId", rootId)
+        .append("copyResourceId", copyResourceId)
+        .append("personId", personId)
+        .append("createdAt", createdAt)
+        .toString();
   }
 
   @Override

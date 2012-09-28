@@ -83,7 +83,7 @@ public class RulesProfile implements Cloneable {
   @Column(name = "used_profile", updatable = true, nullable = false)
   private Boolean used = Boolean.FALSE;
 
-  @Column(name = "language", updatable = true, nullable = false)
+  @Column(name = "language", updatable = true, nullable = false, length = 20)
   private String language;
 
   @Column(name = "parent_name", updatable = true, nullable = true)
@@ -243,7 +243,7 @@ public class RulesProfile implements Cloneable {
    * @deprecated since 3.3. Always return true.
    * @return
    */
-@Deprecated
+  @Deprecated
   public boolean isEnabled() {
     return true;
   }

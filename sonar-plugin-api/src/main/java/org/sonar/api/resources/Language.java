@@ -32,7 +32,7 @@ import org.sonar.api.batch.InstantiationStrategy;
 public interface Language extends BatchExtension, ServerExtension {
 
   /**
-   * For example "java". Should not be more than 5 chars.
+   * For example "java". Should not be more than 20 chars.
    */
   String getKey();
 

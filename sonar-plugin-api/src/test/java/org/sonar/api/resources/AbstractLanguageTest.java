@@ -19,14 +19,39 @@
  */
 package org.sonar.api.resources;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
+import static org.junit.Assert.assertEquals;
 
 public class AbstractLanguageTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void aLanguageShouldEqualItselft() {
     assertEquals(new Java(), new Java());
+  }
+
+  @Test
+  public void shouldNotDefineLanguageWithTooLongKey() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("The following language key exceeds 20 characters: 'aKeyWhichIsVeryVeryVeryVeryVeryLong'");
+
+    new TooLongKeyLanguage();
+  }
+
+  class TooLongKeyLanguage extends AbstractLanguage {
+    public TooLongKeyLanguage() {
+      super("aKeyWhichIsVeryVeryVeryVeryVeryLong");
+    }
+
+    public String[] getFileSuffixes() {
+      // TODO Auto-generated method stub
+      return null;
+    }
   }
 
 }

@@ -19,6 +19,8 @@
  */
 package org.sonar.api.resources;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Locale;
 
 /**
@@ -32,6 +34,8 @@ public abstract class AbstractLanguage implements Language {
 
   /**
    * Better to use AbstractLanguage(key, name). In this case, key and name will be the same
+   * 
+   * @param key The key of the language. Must not be more than 20 chars.
    */
   public AbstractLanguage(String key) {
     this(key, key);
@@ -40,10 +44,11 @@ public abstract class AbstractLanguage implements Language {
   /**
    * Should be the constructor used to build an AbstractLanguage.
    *
-   * @param key the key that will be used to retrieve the language. This key is important as it will be used to teint rules repositories...
+   * @param key the key that will be used to retrieve the language. Must not be more than 20 chars. This key is important as it will be used to teint rules repositories...
    * @param name the display name of the language in the interface
    */
   public AbstractLanguage(String key, String name) {
+    Preconditions.checkArgument(key.length() < 21, "The following language key exceeds 20 characters: '" + key + "'");
     this.key = key.toLowerCase(Locale.ENGLISH);
     this.name = name;
   }
