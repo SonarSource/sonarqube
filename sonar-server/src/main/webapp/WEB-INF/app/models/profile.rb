@@ -188,7 +188,7 @@ class Profile < ActiveRecord::Base
     @projects ||=
       begin
         Project.find(:all,
-                     :conditions => ['id in (select prop.resource_id from properties prop where prop.resource_id is not null and prop.prop_key=? and prop.text_value=?)', "sonar.profile.#{language}", name])
+                     :conditions => ['id in (select prop.resource_id from properties prop where prop.resource_id is not null and prop.prop_key=? and prop.text_value like ?)', "sonar.profile.#{language}", name])
       end
   end
 
