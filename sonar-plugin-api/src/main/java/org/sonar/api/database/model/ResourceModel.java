@@ -32,8 +32,6 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -268,11 +266,11 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
   }
 
   public Date getCreatedAt() {
-    return createdAt;
+    return createdAt; // NOSONAR May expose internal representation by returning reference to mutable object
   }
 
   public void setCreatedAt(Date createdAt) {
-    this.createdAt = createdAt;
+    this.createdAt = createdAt; // NOSONAR May expose internal representation by returning reference to mutable object
   }
 
   @Override
