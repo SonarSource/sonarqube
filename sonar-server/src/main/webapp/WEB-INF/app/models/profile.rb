@@ -23,9 +23,6 @@ class Profile < ActiveRecord::Base
   has_many :alerts, :dependent => :delete_all
   has_many :active_rules, :class_name => 'ActiveRule', :foreign_key => 'profile_id', :dependent => :destroy, :include => ['rule']
   has_many :active_rules_with_params, :class_name => 'ActiveRule', :foreign_key => 'profile_id', :include => ['active_rule_parameters', 'active_rule_note']
-  has_many :projects, :class_name => 'Project', :finder_sql => %q(
-    select prj.* from projects prj, properties prop where prj.id=prop.resource_id and prop.resource_id is not null and prop.prop_key='sonar.profile.#{language}' and prop.text_value='#{name}'
-  )
   has_many :changes, :class_name => 'ActiveRuleChange', :dependent => :destroy
   has_many :children, :class_name => 'Profile', :finder_sql => %q(
       select c.* from rules_profiles c where c.parent_name='#{name}' and c.language='#{language}'
@@ -183,12 +180,30 @@ class Profile < ActiveRecord::Base
     self
   end
 
+  def projects?
+    !projects.empty?
+  end
+
+  def projects
+    @projects ||=
+      begin
+        Project.find(:all,
+                     :conditions => ['id in (select prop.resource_id from properties prop where prop.resource_id is not null and prop.prop_key=? and prop.text_value=?)', "sonar.profile.#{language}", name])
+      end
+  end
+
+  def sorted_projects
+    Api::Utils.insensitive_sort(projects){|p| p.name}
+  end
+
   def add_project_id(project_id)
     Property.set("sonar.profile.#{language}", name, project_id)
+    @projects = nil
   end
 
   def remove_projects
     Property.clear_for_resources("sonar.profile.#{language}", name)
+    @projects = nil
   end
 
   def self.reset_default_profile_for_project_id(lang, project_id)
