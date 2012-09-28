@@ -21,12 +21,14 @@ package org.sonar.api.resources;
 
 import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
+import org.sonar.api.batch.InstantiationStrategy;
 
 /**
  * The extension point to define a new language
  *
  * @since 1.10
  */
+@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 public interface Language extends BatchExtension, ServerExtension {
 
   /**

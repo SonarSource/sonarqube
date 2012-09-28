@@ -28,6 +28,7 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.bootstrap.ProjectInitializer;
 import org.sonar.core.config.ConfigurationUtils;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
@@ -43,19 +44,15 @@ public class ProjectSettings extends Settings {
   private ProjectDefinition projectDefinition;
   private PropertiesDao propertiesDao;
 
-  public ProjectSettings(PropertyDefinitions definitions, ProjectDefinition projectDefinition, PropertiesDao propertiesDao, Project project) {
+  public ProjectSettings(PropertyDefinitions definitions, ProjectDefinition projectDefinition, PropertiesDao propertiesDao, Project project, ProjectInitializer initializer) {
     super(definitions);
     this.deprecatedCommonsConf = project.getConfiguration(); // Configuration is not a parameter to be sure that the project conf is used, not the global one
     this.projectDefinition = projectDefinition;
     this.propertiesDao = propertiesDao;
     load();
-    updateProject(project);
-  }
 
-  private void updateProject(Project project) {
-    // The class org.sonar.api.batch.Project should be deeply refactored and should load language from settings.
-    // Meanwhile the language must be updated :
-    project.setLanguageKey(StringUtils.defaultIfBlank(getString("sonar.language"), Java.KEY));
+    // TODO should be refactored in a clean way
+    initializer.execute(project, this);
   }
 
   public ProjectSettings load() {

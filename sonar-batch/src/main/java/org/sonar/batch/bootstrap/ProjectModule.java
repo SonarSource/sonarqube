@@ -24,12 +24,8 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.utils.IocContainer;
-import org.sonar.api.utils.SonarException;
 import org.sonar.batch.*;
 import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.batch.config.ProjectSettings;
@@ -66,6 +62,7 @@ public class ProjectModule extends Module {
     addCoreSingleton(projectDefinition);
     addCoreSingleton(project);
     addCoreSingleton(project.getConfiguration());
+    addCoreSingleton(ProjectInitializer.class);
     addCoreSingleton(ProjectSettings.class);
     addCoreSingleton(IocContainer.class);
 
@@ -84,7 +81,6 @@ public class ProjectModule extends Module {
     addCoreSingleton(org.sonar.api.database.daos.MeasuresDao.class);
     addCoreSingleton(ProfilesDao.class);
     addCoreSingleton(DefaultSensorContext.class);
-    addCoreSingleton(Languages.class);
     addCoreSingleton(BatchExtensionDictionnary.class);
     addCoreSingleton(DefaultTimeMachine.class);
     addCoreSingleton(ViolationFilters.class);
@@ -120,21 +116,11 @@ public class ProjectModule extends Module {
    */
   @Override
   protected void doStart() {
-    Language language = getComponentByType(Languages.class).get(project.getLanguageKey());
-    if (language == null) {
-      throw new SonarException("Language with key '" + project.getLanguageKey() + "' not found");
-    }
-    project.setLanguage(language);
-
     DefaultIndex index = getComponentByType(DefaultIndex.class);
     index.setCurrentProject(project,
       getComponentByType(ResourceFilters.class),
       getComponentByType(ViolationFilters.class),
       getComponentByType(RulesProfile.class));
-
-    // TODO See http://jira.codehaus.org/browse/SONAR-2126
-    // previously MavenProjectBuilder was responsible for creation of ProjectFileSystem
-    project.setFileSystem(getComponentByType(ProjectFileSystem.class));
 
     getComponentByType(Phases.class).execute(project);
   }
