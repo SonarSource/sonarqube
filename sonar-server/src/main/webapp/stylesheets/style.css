@@ -389,11 +389,11 @@ table.data > thead > tr > th {
 table.data > tfoot > tr > td {
   font-size: 93%;
   color: #777;
-  padding: 4px 0 4px 10px;
+  padding: 5px;
 }
 
 table.data > tbody > tr > td {
-  padding: 4px 7px 4px 3px;
+  padding: 5px;
   vertical-align: text-top;
 }
 
