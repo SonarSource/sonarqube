@@ -129,7 +129,7 @@
     <div class="scrollable" id="col_<%= index -%>">
       <table class="spaced">
         <%
-           column.measures.each do |measure|
+           column.measures.each_with_index do |measure, row_index|
              resource=column.resource(measure)
              clazz = cycle('even', 'odd', :name => "col_#{index}")
              selected = column.selected_snapshot && column.selected_snapshot.project_id==resource.id
@@ -138,14 +138,15 @@
                paths << [h(resource.name), @selected_rids-[resource.id]]
              end
         %>
-          <tr class="<%= clazz -%>">
+          <tr class="<%= clazz -%>" id="row_<%= index -%>_<%= row_index -%>">
             <td nowrap>
               <% unless resource.source_code? %>
                 <%= link_to(image_tag('zoom.png'), {:id => resource.id}, {:class => 'nolink'}) %>
               <% end %>
               <%= qualifier_icon(resource) -%>&nbsp;
               <% if resource.source_code? %>
-                <a href="#" onclick="d(<%= resource.id -%>, '<%= @period_index -%>', '<%= @rule ? @rule.key : @severity -%>');" alt="<%= resource.name(true) -%>" title="<%= resource.name(true) -%>"><%= resource.name(false) %></a>
+                <a href="#" onclick="$$('#col_<%= index -%> tr').invoke('removeClassName', 'selected'); $('row_<%= index -%>_<%= row_index -%>').addClassName('selected'); d(<%= resource.id -%>, '<%= @period_index -%>', '<%= @rule ? @rule.key : @severity -%>');" 
+                   alt="<%= resource.name(true) -%>" title="<%= resource.name(true) -%>"><%= resource.name(false) %></a>
               <% else %>
                 <%= link_to(h(resource.name), {:only_path => true, :overwrite_params => {:rids => (selected ? rids-[resource.id] : rids+[resource.id])}}) -%>
               <% end %>
