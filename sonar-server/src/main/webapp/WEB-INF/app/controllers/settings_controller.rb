@@ -38,12 +38,40 @@ class SettingsController < ApplicationController
     access_denied if (@resource.nil? && !is_admin?)
 
     load_properties()
+    save_properties(resource_id)
+    save_property_sets(resource_id)
 
+    render :partial => 'settings/properties'
+  end
+
+  private
+
+  # TODO: Validation
+  def save_property_sets(resource_id)
+    params[:property_sets].each do |key, value|
+      value = drop_trailing_blank_values(value)
+
+      # TODO: clear all
+      Property.set(key, value.map { |v| v.gsub(',', '%2C') }.join(','), resource_id)
+
+      fields = params[key]
+
+      fields.each do |field_key, field_values|
+        field_values.each_with_index do |field_value, index|
+          set_key = value[index]
+          if set_key
+            Property.set(key + "." + set_key + "." + field_key, field_value, resource_id)
+          end
+        end
+      end
+    end
+  end
+
+  def save_properties(resource_id)
     @updated_properties = {}
-    @definitions.map(&:key).each do |key|
-      value = params[key]
+    params[:settings].each do |key, value|
       if value.kind_of? Array
-        value = value.reverse.drop_while(&:blank?).reverse
+        value = drop_trailing_blank_values(value)
       end
 
       if value.blank?
@@ -52,11 +80,11 @@ class SettingsController < ApplicationController
         @updated_properties[key] = Property.set(key, value, resource_id)
       end
     end
-
-    render :partial => 'settings/properties'
   end
 
-  private
+  def drop_trailing_blank_values(array)
+    array.reverse.drop_while(&:blank?).reverse
+  end
 
   def load_properties
     @category = params[:category] || 'general'
