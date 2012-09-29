@@ -46,12 +46,10 @@ class Api::Utils
   end
 
   def self.is_regexp?(s)
-    begin
-      Regexp.new(s)
-      true
-    rescue
-      false
-    end
+    Regexp.new(s)
+    true
+  rescue
+    false
   end
 
   def self.markdown_to_html(markdown)
