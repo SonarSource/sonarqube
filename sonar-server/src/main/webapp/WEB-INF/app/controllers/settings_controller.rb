@@ -49,19 +49,15 @@ class SettingsController < ApplicationController
   # TODO: Validation
   def save_property_sets(resource_id)
     params[:property_sets].each do |key, value|
-      value = drop_trailing_blank_values(value)
+      set_keys = drop_trailing_blank_values(value)
 
-      # TODO: clear all
-      Property.set(key, value.map { |v| v.gsub(',', '%2C') }.join(','), resource_id)
+      Property.with_key_prefix(key + '.').delete_all
+      Property.set(key, to_string(set_keys), resource_id)
 
-      fields = params[key]
-
-      fields.each do |field_key, field_values|
+      params[key].each do |field_key, field_values|
         field_values.each_with_index do |field_value, index|
-          set_key = value[index]
-          if set_key
-            Property.set(key + "." + set_key + "." + field_key, field_value, resource_id)
-          end
+          set_key = set_keys[index]
+          Property.set("#{key}.#{set_key}.#{field_key}", field_value, resource_id) if set_key
         end
       end
     end
@@ -86,6 +82,10 @@ class SettingsController < ApplicationController
     array.reverse.drop_while(&:blank?).reverse
   end
 
+  def to_string(set_keys)
+    set_keys.map { |v| v.gsub(',', '%2C') }.join(',')
+  end
+
   def load_properties
     @category = params[:category] || 'general'
 
@@ -102,5 +102,4 @@ class SettingsController < ApplicationController
 
     not_found('category') unless @categories.include? @category
   end
-
 end

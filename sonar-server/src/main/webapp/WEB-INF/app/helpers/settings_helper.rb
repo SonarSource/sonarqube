@@ -44,9 +44,14 @@ module SettingsHelper
 
   # for backward-compatibility with properties that do not define the type TEXT
   def property_type(property, value)
+    unless property.fields.blank?
+      return 'PROPERTY_SET_DEFINITION'
+    end
+
     if property.getType().to_s=='STRING' && value && value.include?('\n')
       return 'TEXT'
     end
+
     property.getType()
   end
 

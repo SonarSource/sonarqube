@@ -1,21 +1,13 @@
-<% if Property.value('sonar.test.jira.servers').blank? -%>
-  <% Property.set('sonar.test.jira.servers', 'jira1,jira2') -%>
-  <% Property.set('sonar.test.jira.servers.jira1.url', 'http://url1') -%>
-  <% Property.set('sonar.test.jira.servers.jira1.port', '1234') -%>
-  <% Property.set('sonar.test.jira.servers.jira2.url', 'http://url2') -%>
-  <% Property.set('sonar.test.jira.servers.jira2.port', '9999') -%>
-<% end -%>
-
 <% resource_id = @resource.id if @resource -%>
 
 <% Property.values(property.key, resource_id).reject(&:blank?).each do |set_key| -%>
   <div class="multi_value">
-    <label>Key: </label><br/>
-    <input name="property_sets[<%= property.key -%>][]" value="<%= set_key -%>"/><br/>
+    <%= text_field_tag "property_sets[#{property.key}][]", set_key -%>
+    <br/>
 
     <% property.fields.each do |field| -%>
       <label><%= field.key -%>: </label><br/>
-      <input type="text" name="<%= property.key -%>[<%= field.key -%>][]" value="<%= Property.value("#{property.key}.#{set_key}.#{field.key}", resource_id) -%>"/>
+      <%= text_field_tag "#{property.key}[#{field.key}][]", Property.value("#{property.key}.#{set_key}.#{field.key}", resource_id) -%>
       <br/>
     <% end -%>
 
@@ -26,12 +18,12 @@
 
 <div class="template" style="display:none;">
   <div class="multi_value">
-    <label>Key: </label><br/>
-    <input name="property_sets[<%= property.key -%>][]" value=""/><br/>
+    <%= text_field_tag "property_sets[#{property.key}][]" %>
+    <br/>
 
     <% property.fields.each do |field| -%>
       <label><%= field.key -%>: </label><br/>
-      <input type="text" name="<%= property.key -%>[<%= field.key -%>][]" value=""/>
+      <%= text_field_tag "#{property.key}[#{field.key}][]" -%>
       <br/>
     <% end -%>
 

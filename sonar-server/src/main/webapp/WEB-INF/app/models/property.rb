@@ -21,7 +21,8 @@ class Property < ActiveRecord::Base
   validates_presence_of :prop_key
 
   named_scope :with_key, lambda { |value| {:conditions => {:prop_key, value}} }
-  named_scope :with_value, lambda { |value| {:conditions => ['text_value like ?', value] } }
+  named_scope :with_key_prefix, lambda { |value| {:conditions => ['prop_key like ?', value + '%']} }
+  named_scope :with_value, lambda { |value| {:conditions => ['text_value like ?', value]} }
   named_scope :with_resource, lambda { |value| {:conditions => {:resource_id => value}} }
   named_scope :with_user, lambda { |value| {:conditions => {:user_id => value}} }
   named_scope :with_resources, :conditions => 'resource_id is not null'
@@ -50,7 +51,7 @@ class Property < ActiveRecord::Base
   end
 
   def self.clear_for_resources(key, value=nil)
-    scope=Property.with_resources().with_key(key)
+    scope = Property.with_resources().with_key(key)
     if value
       scope.with_value(value)
     end
@@ -66,7 +67,7 @@ class Property < ActiveRecord::Base
   end
 
   def self.by_key_prefix(prefix)
-    Property.find(:all, :conditions => ['prop_key like ?', prefix + '%'])
+    Property.with_key_prefix(prefix)
   end
 
   def self.value(key, resource_id=nil, default_value=nil, user_id=nil)

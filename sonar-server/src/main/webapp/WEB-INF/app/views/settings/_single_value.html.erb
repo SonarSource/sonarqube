@@ -1,5 +1,1 @@
-<% if property.fields.blank? -%>
-  <%= render "settings/type_#{property_type(property, value)}", :property => property, :value => value -%>
-<% else -%>
-  <%= render "settings/type_PROPERTY_SET_DEFINITION", :property => property, :value => value -%>
-<% end -%>
+<%= render "settings/type_#{property_type(property, value)}", :property => property, :value => value -%>
