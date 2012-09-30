@@ -16,16 +16,12 @@
              resources.insert(0, s.project)
              s=s.parent
            end
-
-           items_count = resources.size
-           items_count+=1 if @review
       %>
         <li class="first"><%= message("qualifiers.#{resources[0].qualifier}") -%></li>
       <%
            resources.each_with_index do |resource, index|
-           css_class=(index==items_count-1 ? 'selected' : '')
       %>
-          <li class="<%= css_class -%>">
+          <li>
             <%= qualifier_icon(resource) -%>
             &nbsp;
             <%= link_to(h(resource.name),
@@ -39,13 +35,13 @@
            # ======== Path for review ========
            if @review
         %>
-        <li class="selected">
+        <li>
           <%= link_to message('review') + ' #' + @review.id.to_s -%>
         </li>
       <%
          end
       %>
-      <li class="last">&nbsp;</li>
+      <li>&nbsp;</li>
     </ul>
   </div>
 <% end %>

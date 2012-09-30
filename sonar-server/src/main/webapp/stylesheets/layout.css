@@ -119,30 +119,11 @@ body, a {
   padding: 0 10px 0 5px;
 }
 
-#crumbs > ul > li.first-selected {
-  background: #4B9FD5;
-  border-left: 2px solid #4B9FD5;
-  border-bottom: 1px solid #4B9FD5;
-  padding: 0 10px 0 5px;
-}
-
-#crumbs > ul > li.selected {
-  background: #4B9FD5 url("../images/bc-gray-blue.png") no-repeat left;
-}
-
-#crumbs > ul > li.last {
-  background: #EFEFEF url("../images/bc-blue-gray.png") no-repeat left;
-  border-bottom: #CCC;
-}
-
 #crumbs > ul > li img {
   vertical-align: text-bottom;
   margin-right: -5px;
 }
 
-#crumbs > ul > li.selected a, #crumbs > ul > li.first-selected a {
-  color: #FFF;
-}
 #crumbs > ul > li a {
   text-decoration: none;
 }
