@@ -65,9 +65,9 @@
             <%= link_to_action message('set_as_default'), "profiles/set_as_default?id=#{profile.id}",
                                                :id => "activate_#{profile.key.parameterize}",
                                                :class => 'button',
-                                               :title_key => 'set_as_default',
-                                               :message_key => 'quality_profiles.are_you_sure_want_x_profile_as_default',
-                                               :message_params => [profile.name] -%>
+                                               :confirm_title => 'set_as_default',
+                                               :confirm_msg => 'quality_profiles.are_you_sure_want_x_profile_as_default',
+                                               :confirm_msg_params => [profile.name] -%>
           <% end %>
           <% if profile.default_profile? %>
             <%= image_tag 'tick.png', :id => "is_active_#{u profile.key}" %>
@@ -100,10 +100,10 @@
               <%= link_to_action message('delete'), "profiles/delete/#{profile.id}",
                                    :class => 'button red-button',
                                    :id => "delete_#{profile.key.parameterize}",
-                                   :button_key => 'delete',
-                                   :title_key => 'quality_profiles.delete_confirm_title',
-                                   :message_key => 'quality_profiles.are_you_sure_want_delete_profile_x',
-                                   :message_params => [profile.name]
+                                   :confirm_button => 'delete',
+                                   :confirm_title => 'quality_profiles.delete_confirm_title',
+                                   :confirm_msg => 'quality_profiles.are_you_sure_want_delete_profile_x',
+                                   :confirm_msg_params => [profile.name]
               -%>
             <% end %>
           </td>

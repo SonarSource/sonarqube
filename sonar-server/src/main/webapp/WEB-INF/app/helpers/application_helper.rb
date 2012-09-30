@@ -725,29 +725,29 @@ module ApplicationHelper
   # ==== Options
   # * <tt>:id</tt> - HTML ID of the button
   # * <tt>:class</tt> - Additional CSS class, generally 'red-button' for deletions
-  # * <tt>:button_key</tt> - Default is 'confirm'
-  # * <tt>:title_key</tt> -
-  # * <tt>:message_key</tt> -
-  # * <tt>:message_params</tt> -
-  # * <tt>:width</tt> - width in pixels
+  # * <tt>:confirm_button</tt> - L10n key of the confirmation button
+  # * <tt>:confirm_title</tt> - L10n key of the confirmation title
+  # * <tt>:confirm_msg</tt> - L10n key of the confirmation message
+  # * <tt>:confirm_msg_params</tt> - Array of parameters used for building the confirmation message
+  # * <tt>:confirm_width</tt> - width in pixels of the confirmation pop-up
   #
   def link_to_action(label, post_url, options={})
     clazz = options[:class]
     id = "id='#{options[:id]}'" if options[:id]
-    title_key = options[:title_key]
-    button_key = options[:button_key]
-    message_key = options[:message_key]
-    message_params = options[:message_params]
-    width = options[:width]||500
+    title_key = options[:confirm_title]
+    button_key = options[:confirm_button]
+    message_key = options[:confirm_msg]
+    message_params = options[:confirm_msg_params]
+    width = options[:confirm_width]||500
 
     url = "#{ApplicationController.root_context}/confirm?url=#{u post_url}"
-    url += "&tk=#{title_key}" if title_key
+    url += "&tk=#{u title_key}" if title_key
     if message_key
-      url += "&mk=#{message_key}&"
-      url += message_params.map{|p| "mp=#{u p}"}.join('&') if message_params
+      url += "&mk=#{u message_key}&"
+      url += message_params.map{|p| "mp[]=#{u p}"}.join('&') if message_params
     end
     if button_key
-      url += "&bk=#{button_key}"
+      url += "&bk=#{u button_key}"
     end
 
     "<a href='#{url}' modal-width='#{width}' class='open-modal #{clazz}' #{id}>#{h label}</a>"

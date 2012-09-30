@@ -1,4 +1,5 @@
-<h1 class="marginbottom10"><%= link_to message('quality_profiles.quality_profiles'), :controller => 'profiles', :action => 'index' -%> / <%= h @profile.language -%>
+<h1 class="marginbottom10"><%= link_to message('quality_profiles.quality_profiles'), :controller => 'profiles', :action => 'index' -%>
+  / <%= h @profile.language -%>
   / <%= h @profile.name %></h1>
 <%= render :partial => 'profiles/tabs', :locals => {:selected_tab => 'Projects'} %>
 
@@ -30,10 +31,15 @@
         <% @profile.sorted_projects.each do |project| %>
           <tr class="<%= cycle('even', 'odd') -%>">
             <td class="thin">
-              <%= link_to_action message('remove'),
+              <%= link_to_action message('quality_profiles.remove_project_action'),
                                  "#{ApplicationController.root_context}/profiles/remove_project?id=#{@profile.id}&project_id=#{project.id}",
                                  :class => 'link-action',
-                                 :id => "link-remove-#{project.key.parameterize}" -%>
+                                 :id => "link-remove-#{project.key.parameterize}",
+                                 :confirm_title => 'quality_profiles.remove_project_confirm_title',
+                                 :confirm_button => 'quality_profiles.remove_project_confirm_button',
+                                 :confirm_msg => 'quality_profiles.remove_project_confirm_message',
+                                 :confirm_msg_params => [project.name]
+              -%>
             </td>
             <td><%= h project.name -%> <span class="small gray"><%= h project.key -%></span></td>
           </tr>
@@ -45,7 +51,11 @@
             <%= link_to_action message('quality_profiles.remove_projects_action'),
                                "#{ApplicationController.root_context}/profiles/remove_projects?id=#{@profile.id}",
                                :class => 'link-action',
-                               :id => "link-remove-projects" -%>
+                               :id => "link-remove-projects",
+                               :confirm_title => 'quality_profiles.remove_projects_confirm_title',
+                               :confirm_button => 'quality_profiles.remove_projects_confirm_button',
+                               :confirm_msg => 'quality_profiles.remove_projects_confirm_message'
+            -%>
           </td>
         </tr>
         </tfoot>

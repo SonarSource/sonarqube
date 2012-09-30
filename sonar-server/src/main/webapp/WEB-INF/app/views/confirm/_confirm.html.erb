@@ -1,7 +1,7 @@
 <%
    title_key = params[:tk] || 'confirm'
    message_key = params[:mk] || 'are_you_sure'
-   message_params = params[:mp] || []
+   message_params = params['mp'] || []
    button_key = params[:bk] || title_key
 %>
 <form id="confirm-form" method="post" action="<%= params[:url] -%>">
