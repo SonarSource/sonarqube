@@ -2120,6 +2120,11 @@ table.nowrap td, td.nowrap, th.nowrap {
   color: #4183C4 !important;
 }
 
+.link-red {
+  color: #990000 !important;
+}
+
+
 .link-more {
   background-image: url('../images/bullet_arrow_down.png');
   background-repeat: no-repeat;

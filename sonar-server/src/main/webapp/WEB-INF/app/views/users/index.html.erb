@@ -23,11 +23,11 @@
               </td>
               <td class="left" valign="top">
                 <%= link_to "Edit", { :id => user.id, :action => 'edit'}, {:id => "edit-#{u user.login}", :class => 'link-action'} %>
-                |
+                &nbsp;
                 <%= link_to "Change password", { :id => user.id, :action => 'change_password'}, {:id => "change-password-#{u user.login}", :class => 'link-action'} %>
-                |
+                &nbsp;
                 <%= link_to "Delete", {:action => 'destroy', :id => user.id}, {:confirm => "Warning : are you sure to delete this user ?", :method => 'delete',
-                                                                               :id => "delete-#{u user.login}", :class => 'link-action'} %>
+                                                                               :id => "delete-#{u user.login}", :class => 'link-action link-red'} %>
               </td>
             </tr>
           <% end %>

@@ -62,10 +62,10 @@
       <td class="thin nowrap">
         <a href="<%= url_for :controller => 'manual_measures', :action => 'new', :metric => measure.metric.key, :id => @resource.id -%>" class="link-action"><%= message('edit')
         -%></a>
-        |
+        &nbsp;
         <%= link_to message('delete'), {:action => 'delete', :metric => measure.metric.key, :id => @resource.id}, {:method => 'POST',
                                                                                                                    :confirm => "This measure will be deleted during next project
-                                                                                                                   analysis", :class => 'link-action'} -%>
+                                                                                                                   analysis", :class => 'link-action link-red'} -%>
       </td>
     </tr>
   <% end %>

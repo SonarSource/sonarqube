@@ -23,9 +23,9 @@
             <td class="left">
               <%= link_to "Edit", { :action => 'index', :id => group.id},
                                   { :method => :get, :id => "edit-#{u group.name}", :class => 'link-action'} %>
-              |
+              &nbsp;
               <%= link_to "Delete", { :action => 'destroy', :id => group.id},
-                                    {:confirm => "Are you sure that you want to delete this group? Members will not be deleted.", :class => 'link-action', :method => 'get', :id => "delete-#{u group.name}"} %>
+                                    {:confirm => "Are you sure that you want to delete this group? Members will not be deleted.", :class => 'link-action link-red', :method => 'get', :id => "delete-#{u group.name}"} %>
             </td>
           </tr>
         <% end %>

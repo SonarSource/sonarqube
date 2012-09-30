@@ -21,8 +21,8 @@
     <% if administrator? %>
       <ul style="float: right" class="horizontal">
         <li class="marginleft10 add">
-          <a id="create-link-<%= language.getKey() -%>" href="profiles/create_form?language=<%= language.getKey() -%>" class="open-modal"><%= message('create') -%></a>
-      </li>
+          <a id="create-link-<%= language.getKey() -%>" href="profiles/create_form?language=<%= language.getKey() -%>" class="open-modal link-action"><%= message('create') -%></a>
+        </li>
       </ul>
     <% end %>
     <h2><%= message('quality_profiles.x_language_profiles', :params => language.getName()) -%></h2>
@@ -44,30 +44,31 @@
     <tbody>
     <% @profiles.select { |p| p.language==language.getKey() }.each do |profile| %>
       <tr class="<%= cycle 'even', 'odd', :name => language.getKey() -%>" id="<%= u profile.key %>">
-        <td>
+        <td  width="40%">
           <a href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => profile.id -%>" id="rules-<%= language.getKey() -%>-<%= u(profile.name) -%>"><%= h profile.name %></a>
         </td>
 
-        <td align="right">
+        <td align="right" width="10%">
           <span id="activated_rules_<%= u profile.key -%>"><%= profile.active_rules.count -%></span>
         </td>
 
-        <td align="right"><span id="alerts_<%= u profile.key -%>"><%= profile.alerts.size -%></span></td>
+        <td align="right" width="10%"><span id="alerts_<%= u profile.key -%>"><%= profile.alerts.size -%></span></td>
 
-        <td align="right">
+        <td align="right" width="10%" nowrap>
           <% unless profile.default_profile? %>
             <span id="projects_<%= u profile.key -%>"><%= profile.projects.size -%></span>
           <% end %>
         </td>
 
-        <td align="right">
+        <td align="right" width="10%" nowrap>
           <% if !profile.default_profile? && administrator? %>
             <%= link_to_action message('set_as_default'), "profiles/set_as_default?id=#{profile.id}",
-                                               :id => "activate_#{profile.key.parameterize}",
-                                               :class => 'button',
-                                               :confirm_title => 'set_as_default',
-                                               :confirm_msg => 'quality_profiles.are_you_sure_want_x_profile_as_default',
-                                               :confirm_msg_params => [profile.name] -%>
+                               :id => "activate_#{profile.key.parameterize}",
+                               :class => 'link-action',
+                               :confirm_title => message('set_as_default'),
+                               :confirm_msg => message('quality_profiles.are_you_sure_want_x_profile_as_default', :params => [profile.name]),
+                               :confirm_button => message('set_as_default')
+            -%>
           <% end %>
           <% if profile.default_profile? %>
             <%= image_tag 'tick.png', :id => "is_active_#{u profile.key}" %>
@@ -79,31 +80,31 @@
 
           <td align="right">
             <% if !profile.provided? %>
-              <% form_tag(:action => 'backup', :id => profile.id) do -%>
-                <input type="submit" name="button_backup" id="backup_<%= u profile.key %>" value="<%= message('backup_verb') -%>"/>
-              <% end
-                 end %>
-          </td>
-
-          <td align="right">
-            <% if !profile.provided? %>
-              <a id="rename-<%= profile.key.parameterize -%>" href="profiles/rename_form/<%= profile.id -%>" class="button open-modal"><%= message('rename') -%></a>
+              <form method="post" action="/dev/profiles/backup/<%= profile.id -%>" id="backup-<%= profile.key.parameterize -%>-form">
+                <a href="#" class="link-action" name="button_backup" id="backup_<%= u profile.key %>" onclick="$j('#backup-<%= profile.key.parameterize -%>-form').submit();return false;"><%= message('backup_verb') -%></a>
+              </form>
             <% end %>
           </td>
 
           <td align="right">
-            <a id="copy-<%= profile.key.parameterize -%>" href="profiles/copy_form/<%= profile.id -%>" class="button open-modal"><%= message('copy') -%></a>
+            <% if !profile.provided? %>
+              <a id="rename-<%= profile.key.parameterize -%>" href="profiles/rename_form/<%= profile.id -%>" class="link-action open-modal"><%= message('rename') -%></a>
+            <% end %>
+          </td>
+
+          <td align="right">
+            <a id="copy-<%= profile.key.parameterize -%>" href="profiles/copy_form/<%= profile.id -%>" class="link-action open-modal"><%= message('copy') -%></a>
           </td>
 
           <td>
             <% if profile.deletable? %>
               <%= link_to_action message('delete'), "profiles/delete/#{profile.id}",
-                                   :class => 'button red-button',
-                                   :id => "delete_#{profile.key.parameterize}",
-                                   :confirm_button => 'delete',
-                                   :confirm_title => 'quality_profiles.delete_confirm_title',
-                                   :confirm_msg => 'quality_profiles.are_you_sure_want_delete_profile_x',
-                                   :confirm_msg_params => [profile.name]
+                                 :class => 'link-action link-red',
+                                 :id => "delete_#{profile.key.parameterize}",
+                                 :confirm_button => message('delete'),
+                                 :confirm_title => 'quality_profiles.delete_confirm_title',
+                                 :confirm_msg => 'quality_profiles.are_you_sure_want_delete_profile_x',
+                                 :confirm_msg_params => [profile.name]
               -%>
             <% end %>
           </td>

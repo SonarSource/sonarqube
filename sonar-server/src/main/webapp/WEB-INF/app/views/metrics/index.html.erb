@@ -26,7 +26,8 @@
               <%= link_to 'Edit', {:action => 'index', :id => metric.id}, {:class => 'link-action', :id => "edit_#{h(metric.short_name)}", :method => 'get'} %>
             <% end %>
             <% if is_admin? && metric.updatable_online? %>
-              <%= link_to 'Delete', {:action => 'delete_from_web', :id => metric.id}, {:confirm => "Warning : all the measures will be deleted.", :class => 'link-action', :id => "delete_#{h(metric.short_name)}"} %>
+              &nbsp;
+              <%= link_to 'Delete', {:action => 'delete_from_web', :id => metric.id}, {:confirm => "Warning : all the measures will be deleted.", :class => 'link-action link-red', :id => "delete_#{h(metric.short_name)}"} %>
             <% end %>
           </td>
         </tr>

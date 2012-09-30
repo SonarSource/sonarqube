@@ -34,8 +34,9 @@
           </td>
           <td class="thin nowrap right">
             <% if filter.authorized_to_edit?(self) %>
-              <%= link_to message('edit'), {:action => :edit, :id => filter.id}, :id => "edit-#{u filter.name}", :class => 'link-action' %> |
-              <%= link_to message('delete'), {:action => :delete, :id => filter.id}, :method => :post, :confirm => message('filters.do_you_want_to_delete'), :id => "delete-#{u filter.name}", :class => 'link-action' %>
+              <%= link_to message('edit'), {:action => :edit, :id => filter.id}, :id => "edit-#{u filter.name}", :class => 'link-action' %>
+              &nbsp;
+              <%= link_to message('delete'), {:action => :delete, :id => filter.id}, :method => :post, :confirm => message('filters.do_you_want_to_delete'), :id => "delete-#{u filter.name}", :class => 'link-action link-red' %>
             <% end %>
           </td>
         </tr>
