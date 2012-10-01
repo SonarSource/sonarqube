@@ -3,9 +3,6 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'users/set_groups', :controller => 'users', :action => 'set_groups'
   map.resources :users
 
-  # used only for the events widget
-  map.resources :events
-
   map.namespace :api do |api|
     api.resources :events, :only => [:index, :show, :create, :destroy]
     api.resources :user_properties, :only => [:index, :show, :create, :destroy], :requirements => { :id => /.*/ }
