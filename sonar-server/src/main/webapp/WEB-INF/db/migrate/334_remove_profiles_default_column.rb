@@ -31,7 +31,7 @@ class RemoveProfilesDefaultColumn < ActiveRecord::Migration
   end
 
   def self.up
-    Profile.find(:all, :conditions => ['default_profile=true']).each do |profile|
+    Profile.find(:all, :conditions => ['default_profile=?', true]).each do |profile|
       Property.create :prop_key => "sonar.profile.#{profile.language}", :text_value => profile.name
     end
 
