@@ -45,11 +45,24 @@ public class NewViolationsEmailTemplate extends EmailTemplate {
     StringBuilder sb = new StringBuilder();
 
     String projectName = notification.getFieldValue("projectName");
-    String violationsCount = notification.getFieldValue("count");
     String fromDate = notification.getFieldValue("fromDate");
+
+    String violationsCount = notification.getFieldValue("count");
+    String blockerViolationsCount = notification.getFieldValue("count-blocker");
+    String criticalViolationsCount = notification.getFieldValue("count-critical");
+    String majorViolationsCount = notification.getFieldValue("count-major");
+    String minorViolationsCount = notification.getFieldValue("count-minor");
+    String infoViolationsCount = notification.getFieldValue("count-info");
 
     sb.append("Project: ").append(projectName).append('\n');
     sb.append(violationsCount).append(" new violations introduced since ").append(fromDate).append('\n');
+    sb.append("\n")
+      .append(" Blocker: ").append(blockerViolationsCount).append(" ")
+      .append(" Critical: ").append(criticalViolationsCount).append(" ")
+      .append(" Major: ").append(majorViolationsCount).append(" ")
+      .append(" Minor: ").append(minorViolationsCount).append(" ")
+      .append(" Info: ").append(infoViolationsCount).append("\n")
+    ;
     appendFooter(sb, notification);
 
     EmailMessage message = new EmailMessage()

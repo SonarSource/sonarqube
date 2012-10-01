@@ -57,6 +57,8 @@ public class NewViolationsEmailTemplateTest {
    * Project: Foo
    * 32 new violations introduced since 2012-01-02
    * 
+   *  Blocker: 12  Critical: 10  Major: 5  Minor: 5  Info: 0
+   * 
    * See it in Sonar: http://nemo.sonarsource.org/drilldown/measures/org.sonar.foo:foo?metric=new_violations&period=1
    * </pre>
    */
@@ -64,6 +66,11 @@ public class NewViolationsEmailTemplateTest {
   public void shouldFormatCommentAdded() {
     Notification notification = new Notification("new-violations")
         .setFieldValue("count", "32")
+        .setFieldValue("count-blocker", "12")
+        .setFieldValue("count-critical", "10")
+        .setFieldValue("count-major", "5")
+        .setFieldValue("count-minor", "5")
+        .setFieldValue("count-info", "0")
         .setFieldValue("projectName", "Foo")
         .setFieldValue("projectKey", "org.sonar.foo:foo")
         .setFieldValue("projectId", "45")
@@ -75,6 +82,8 @@ public class NewViolationsEmailTemplateTest {
     assertThat(message.getMessage(), is("" +
       "Project: Foo\n" +
       "32 new violations introduced since 2012-01-02\n" +
+      "\n" + 
+      " Blocker: 12  Critical: 10  Major: 5  Minor: 5  Info: 0\n" + 
       "\n" +
       "See it in Sonar: http://nemo.sonarsource.org/drilldown/measures/org.sonar.foo:foo?metric=new_violations&period=1\n"));
   }
