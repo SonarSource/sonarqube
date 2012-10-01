@@ -17,47 +17,96 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-require 'fastercsv'
-require "json"
+require 'json'
 
 class Api::ProfilesController < Api::ApiController
-  verify :method => :post, :only => [:restore]
 
-  def index
-    begin
-      language=params[:language]
-      raise ApiException.new(400, "Missing parameter: language") if language.blank?
+  # GET /api/profiles/list?[language=<language][&project=<project id or key>]
+  #
+  # ==== Examples
+  # - get all the profiles : GET /api/profiles/list
+  # - get all the Java profiles : GET /api/profiles/list?language=java
+  # - get the profiles used by the project 'foo' : GET /api/profiles/list?project=foo
+  # - get the Java profile used by the project 'foo' : GET /api/profiles/list?project=foo&language=java
+  def list
+    language=params[:language]
+    project_key=params[:project]
 
-      name=params[:name]
-      if name.blank?
-        @profile=Profile.by_default(language)
+    if project_key.present?
+      project = Project.by_key(project_key)
+      not_found('Unknown project') unless project
+      if language.present?
+        profiles=[Profile.by_project_id(language, project.id, true)]
       else
-        @profile=Profile.find_by_name_and_language(name, language)
+        profiles=Api::Utils.languages.map { |lang| Profile.by_project_id(lang, project.id, true) }
       end
-      raise ApiException.new(404, "Profile not found") if @profile.nil?
+    elsif language.present?
+      profiles=Profile.all_by_language(language)
+    else
+      profiles=Profile.all
+    end
 
-      @active_rules=filter_rules()
-
-      respond_to do |format|
-        format.json { render :json => jsonp(to_json) }
-        format.xml { render :xml => to_xml }
-        format.text { render :text => text_not_supported }
-      end
-
-    rescue ApiException => e
-      render_error(e.msg, e.code)
+    json=profiles.compact.map { |profile| {:name => profile.name, :language => profile.language, :default => profile.default_profile?} }
+    respond_to do |format|
+      format.json { render :json => jsonp(json) }
+      format.xml { render :xml => xml_not_supported }
+      format.text { render :text => text_not_supported }
     end
   end
 
+  # POST /api/profiles/destroy?language=<language>&name=<name>
+  def destroy
+    verify_post_request
+    access_denied unless has_role?(:admin)
+    require_parameters :language, :name
 
-  #
+    profile=Profile.find_by_name_and_language(params[:name], params[:language])
+    if profile
+      bad_request('This profile can not be deleted') unless profile.deletable?
+      profile.destroy
+    end
+    render_success(profile ? 'Profile destroyed' : 'Profile did not exist')
+  end
+
+  # POST /api/profiles/set_as_default?language=<language>&name=<name>
+  def set_as_default
+    verify_post_request
+    access_denied unless has_role?(:admin)
+    require_parameters :language, :name
+
+    profile=Profile.find_by_name_and_language(params[:name], params[:language])
+    not_found('Profile not found') unless profile
+    profile.set_as_default
+    render_success
+  end
+
+  # GET /api/profiles?language=<language>[&name=<name>]
+  def index
+    require_parameters :language
+
+    language=params[:language]
+    name=params[:name]
+    if name.blank?
+      @profile=Profile.by_default(language)
+    else
+      @profile=Profile.find_by_name_and_language(name, language)
+    end
+    not_found('Profile not found') unless @profile
+
+    @active_rules=filter_rules()
+
+    respond_to do |format|
+      format.json { render :json => jsonp(to_json) }
+      format.xml { render :xml => to_xml }
+      format.text { render :text => text_not_supported }
+    end
+  end
+
   # Backup a profile. If output format is xml, then backup is directly returned.
-  #
-  # curl -u admin:admin  http://localhost:9000/api/profiles/backup?language=java[&name=my_profile] -v
-  #
+  # GET /api/profiles/backup?language=<language>[&name=my_profile] -v
   def backup
     access_denied unless has_role?(:admin)
-    bad_request('Missing parameter: language') if params[:language].blank?
+    require_parameters :language
 
     if params[:name].blank?
       profile=Profile.by_default(params[:language])
@@ -73,15 +122,13 @@ class Api::ProfilesController < Api::ApiController
     end
   end
 
-  #
   # Restore a profile backup.
-  #
   # curl -X POST -u admin:admin -F 'backup=<my>backup</my>' -v http://localhost:9000/api/profiles/restore
   # curl -X POST -u admin:admin -F 'backup=@backup.xml' -v http://localhost:9000/api/profiles/restore
-  #
   def restore
+    verify_post_request
     access_denied unless has_role?(:admin)
-    bad_request('Missing parameter: backup') if params[:backup].blank?
+    require_parameters :backup
 
     backup = Api::Utils.read_post_request_param(params[:backup])
 
