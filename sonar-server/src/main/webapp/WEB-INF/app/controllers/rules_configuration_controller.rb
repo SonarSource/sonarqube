@@ -36,19 +36,15 @@ class RulesConfigurationController < ApplicationController
   before_filter :admin_required, :except => ['index', 'export']
 
   def index
-    unless params[:id].blank?
-      if params[:id].to_i<=0
-        redirect_to :controller => 'profiles'
-        return
-      end
-      begin
-        @profile = Profile.find(params[:id].to_i)
-      rescue
-        redirect_to :controller => 'profiles'
-        return
-      end
-    else
-      @profile = Profile.default_profile
+    if params[:id].to_i<=0
+      redirect_to :controller => 'profiles'
+      return
+    end
+    begin
+      @profile = Profile.find(params[:id].to_i)
+    rescue
+      redirect_to :controller => 'profiles'
+      return
     end
 
     init_params()
