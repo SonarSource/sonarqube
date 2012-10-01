@@ -1,7 +1,14 @@
-<select name="<%= name -%>" id="<%= id -%>">
-  <option value=""><%= message('default') -%></option>
+<% choices = Property.values(property.propertySetKey).reject(&:blank?) -%>
+<% prompt = [[message('default'), '']] -%>
 
-  <% Property.values(property.propertySetKey).reject(&:blank?).each do |set_key| -%>
-    <option value="<%= set_key -%>"><%= set_key -%></option>
-  <% end -%>
-</select>
+<% if choices.exclude? value -%>
+  <% missing = [[h(value + ' <' + message('deleted') + '>'), value]] -%>
+<% else -%>
+  <% missing = [] -%>
+<% end -%>
+
+<%= select_tag name, options_for_select(prompt + choices + missing, value), :id => id -%>
+
+<% if choices.exclude? value -%>
+  <%= image_tag 'exclamation.png' -%>
+<% end -%>
