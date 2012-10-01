@@ -53,7 +53,7 @@ public final class RegisterNewFilters {
   }
 
   public void start() {
-    TimeProfiler profiler = new TimeProfiler(LoggerFactory.getLogger(getClass())).start("Register filters");
+    TimeProfiler profiler = new TimeProfiler(LOG).start("Register filters");
 
     for (FilterTemplate template : filterTemplates) {
       if (shouldRegister(template.getName())) {
@@ -72,9 +72,9 @@ public final class RegisterNewFilters {
   protected FilterDto register(String name, Filter filter) {
     FilterDto dto = null;
     if (filterDao.findFilter(name) == null) {
+      LOG.info("Register filter: " + name);
       dto = createDtoFromExtension(name, filter);
       filterDao.insert(dto);
-      LOG.info("New filter '" + dto.getName() + "' registered");
     }
     // and save the fact that is has now already been loaded
     loadedTemplateDao.insert(new LoadedTemplateDto(name, LoadedTemplateDto.FILTER_TYPE));

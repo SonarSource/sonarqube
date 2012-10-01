@@ -21,6 +21,7 @@ package org.sonar.server.startup;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.web.Dashboard;
@@ -38,6 +39,8 @@ import java.util.Map.Entry;
  * @since 2.13
  */
 public final class RegisterNewDashboards {
+  private static final Logger LOG = LoggerFactory.getLogger(RegisterNewDashboards.class);
+
   static final String DEFAULT_DASHBOARD_NAME = "Dashboard";
 
   private final List<DashboardTemplate> dashboardTemplates;
@@ -54,7 +57,7 @@ public final class RegisterNewDashboards {
   }
 
   public void start() {
-    TimeProfiler profiler = new TimeProfiler().start("Register dashboards");
+    TimeProfiler profiler = new TimeProfiler(LOG).start("Register dashboards");
 
     List<DashboardDto> registeredDashboards = Lists.newArrayList();
     for (DashboardTemplate template : dashboardTemplates) {
@@ -81,12 +84,11 @@ public final class RegisterNewDashboards {
   }
 
   private void activate(DashboardDto dashboardDto, int index) {
+    LOG.info("Register dashboard: " + dashboardDto.getName());
     ActiveDashboardDto activeDashboardDto = new ActiveDashboardDto()
       .setDashboardId(dashboardDto.getId())
       .setOrderIndex(index);
     activeDashboardDao.insert(activeDashboardDto);
-
-    LoggerFactory.getLogger(getClass()).info("New dashboard '" + dashboardDto.getName() + "' registered");
   }
 
   protected DashboardDto register(String name, Dashboard dashboard) {

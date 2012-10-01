@@ -75,7 +75,7 @@ public class RegisterNewProfiles {
   }
 
   public void start() {
-    TimeProfiler profiler = new TimeProfiler().start("Register Quality Profiles");
+    TimeProfiler profiler = new TimeProfiler(LOGGER).start("Register Quality Profiles");
     session = sessionFactory.getSession();
     ListMultimap<String, RulesProfile> profilesByLanguage = loadDefinitions();
     for (String language : profilesByLanguage.keySet()) {
@@ -99,7 +99,7 @@ public class RegisterNewProfiles {
     String propertyKey = "sonar.profile." + language;
     if (settings.getString(propertyKey) == null) {
       String defaultProfileName = defaultProfileName(profiles);
-      LOGGER.info("Set default profile for " + language + ": " + defaultProfileName);
+      LOGGER.info("Set default " + language + " profile: " + defaultProfileName);
       settings.saveProperty(propertyKey, defaultProfileName);
     }
   }
@@ -122,6 +122,7 @@ public class RegisterNewProfiles {
   }
 
   private void register(String language, String name, Collection<RulesProfile> profiles) {
+    LOGGER.info("Register " + language + " profile: " + name);
     clean(language, name);
     insert(language, name, profiles);
     loadedTemplateDao.insert(new LoadedTemplateDto(templateKey(language, name), LoadedTemplateDto.QUALITY_PROFILE_TYPE));

@@ -19,11 +19,13 @@
  */
 package org.sonar.server.startup;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.server.qualitymodel.ModelManager;
 
 public final class RegisterQualityModels {
-
+  private static final Logger LOG = LoggerFactory.getLogger(RegisterQualityModels.class);
   private final ModelManager manager;
 
   /**
@@ -34,7 +36,7 @@ public final class RegisterQualityModels {
   }
 
   public void start() {
-    TimeProfiler profiler = new TimeProfiler().start("Register quality models");
+    TimeProfiler profiler = new TimeProfiler(LOG).start("Register Quality Models");
     manager.registerDefinitions();
     profiler.stop();
   }
