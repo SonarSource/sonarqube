@@ -66,12 +66,7 @@ class SettingsController < ApplicationController
   def save_properties(resource_id)
     @updated_properties = {}
 
-    puts params[:settings]
-    puts params[:settings].keys
-
-
     (params[:settings] || []).each do |key, value|
-      puts value
       if value.kind_of? Array
         value = drop_trailing_blank_values(value)
       end
