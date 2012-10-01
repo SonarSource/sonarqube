@@ -1,0 +1,7 @@
+<% if @updated_properties -%>
+  <% p = @updated_properties[key] -%>
+
+  <% if p && !p.valid? -%>
+    <div class="error"><%= p.validation_error_message -%></div>
+  <% end -%>
+<% end -%>

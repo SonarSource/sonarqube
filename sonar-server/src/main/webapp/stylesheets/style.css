@@ -2440,7 +2440,7 @@ textarea.width100 {
   padding-right: 5px;
 }
 
-.field .note {
+.field .note, .field .error  {
   margin-top: 3px;
-  margin-left: 90px;
+  margin-left: 88px;
 }

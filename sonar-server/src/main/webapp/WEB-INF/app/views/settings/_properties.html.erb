@@ -40,10 +40,7 @@
               <%= render "settings/single_value", :property => property, :value => value -%>
             <% end -%>
 
-            <% p = @updated_properties[property.key] if @updated_properties -%>
-            <% if p && !p.valid? -%>
-              <div class="error"><%= p.validation_error_message -%></div>
-            <% end -%>
+            <%= render "settings/error", :key => property.key -%>
 
             <% default_prop_value = (@resource ? Property.value(property.key, nil, property.defaultValue) : property.defaultValue) -%>
             <% unless default_prop_value.blank? -%>

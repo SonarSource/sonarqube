@@ -137,6 +137,18 @@ class Property < ActiveRecord::Base
       end
   end
 
+  def java_field_definition
+    @java_field_definition ||=
+      begin
+        if /(.*)\..*\.(.*)/.match(key)
+          property_definition = Java::OrgSonarServerUi::JRubyFacade.getInstance().getPropertyDefinitions().get(Regexp.last_match(1))
+          if property_definition
+            property_definition.fields.find { |field| field.key == Regexp.last_match(2) }
+          end
+        end
+      end
+  end
+
   def validation_error_message
     msg=''
     errors.each_full do |error|
@@ -156,8 +168,20 @@ class Property < ActiveRecord::Base
   end
 
   def validate
+    validate_property()
+    validate_field()
+  end
+
+  def validate_property
     if java_definition
       validation_result = java_definition.validate(text_value)
+      errors.add_to_base(validation_result.getErrorKey()) unless validation_result.isValid()
+    end
+  end
+
+  def validate_field
+    if java_field_definition
+      validation_result = java_field_definition.validate(text_value)
       errors.add_to_base(validation_result.getErrorKey()) unless validation_result.isValid()
     end
   end

@@ -38,6 +38,8 @@ class SettingsController < ApplicationController
     access_denied if (@resource.nil? && !is_admin?)
 
     load_properties()
+
+    @updated_properties = {}
     save_properties(resource_id)
     save_property_sets(resource_id)
 
@@ -46,7 +48,6 @@ class SettingsController < ApplicationController
 
   private
 
-  # TODO: Validation
   def save_property_sets(resource_id)
     (params[:property_sets] || []).each do |key, value|
       set_keys = drop_trailing_blank_values(value)
@@ -57,15 +58,16 @@ class SettingsController < ApplicationController
       params[key].each do |field_key, field_values|
         field_values.each_with_index do |field_value, index|
           set_key = set_keys[index]
-          Property.set("#{key}.#{set_key}.#{field_key}", field_value, resource_id) if set_key
+          if set_key
+            field_property_key = "#{key}.#{set_key}.#{field_key}"
+            @updated_properties[field_property_key] = Property.set(field_property_key, field_value, resource_id)
+          end
         end
       end
     end
   end
 
   def save_properties(resource_id)
-    @updated_properties = {}
-
     (params[:settings] || []).each do |key, value|
       if value.kind_of? Array
         value = drop_trailing_blank_values(value)

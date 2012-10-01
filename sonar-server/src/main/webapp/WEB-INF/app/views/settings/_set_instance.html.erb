@@ -6,16 +6,19 @@
   </div>
 
   <% property.fields.each do |field| -%>
+    <% key = "#{property.key}.#{set_key}.#{field.key}" if set_key -%>
+    <% value = Property.value(key, resource_id) if set_key -%>
+
     <div class="field">
       <label><%= field_name(property, field) -%>: </label>
-
-      <% value = Property.value("#{property.key}.#{set_key}.#{field.key}", resource_id) if set_key -%>
-      <%= render "settings/type_#{field.type}", :property => field, :value => value, :name => "#{property.key}[#{field.key}][]", :id => "input_#{h field.key}" -%>
+      <%= render "settings/type_#{field.type}", :property => field, :field => field, :value => value, :name => "#{property.key}[#{field.key}][]", :id => "input_#{h field.key}" -%>
 
       <% desc=field_description(property, field) -%>
       <% unless desc.blank? %>
         <p class="note"><%= desc -%></p>
       <% end -%>
+
+      <%= render "settings/error", :key => key -%>
     </div>
   <% end -%>
   <br/>

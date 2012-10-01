@@ -38,6 +38,14 @@ module SettingsHelper
     message("field.#{property.key}.#{field.key}.description", :default => field.description)
   end
 
+  def option_name(property, field, option)
+    if field
+      message("option.#{property.key}.#{field.key}.#{option}.name", :default => option)
+    else
+      message("option.#{property.key}.#{option}.name", :default => option)
+    end
+  end
+
   def property_help(property)
     message("property.#{property.key}.help", :default => '')
   end
