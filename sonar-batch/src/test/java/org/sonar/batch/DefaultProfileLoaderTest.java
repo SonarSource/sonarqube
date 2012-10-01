@@ -59,16 +59,6 @@ public class DefaultProfileLoaderTest {
   }
 
   @Test
-  public void should_get_default_profile() {
-    Settings settings = new Settings();
-    when(dao.getDefaultProfile(Java.KEY)).thenReturn(RulesProfile.create("default profile", "java"));
-
-    RulesProfile profile = new DefaultProfileLoader(dao, settings).load(javaProject);
-
-    assertThat(profile.getName()).isEqualTo("default profile");
-  }
-
-  @Test
   public void should_fail_if_not_found() {
     Settings settings = new Settings();
     settings.setProperty("sonar.profile.java", "unknown");

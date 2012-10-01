@@ -43,16 +43,4 @@ public class ProfilesDaoTest extends AbstractDbUnitTestCase {
     assertThat(profilesDao.getProfile("unknown language", "my profile")).isNull();
     assertThat(profilesDao.getProfile("java", "my profile").getName()).isEqualTo("my profile");
   }
-
-  @Test
-  public void should_get_default_profile() {
-    RulesProfile defaultProfile = RulesProfile.create("default profile", "java");
-    defaultProfile.setDefaultProfile(true);
-    RulesProfile otherProfile = RulesProfile.create("other profile", "java");
-    otherProfile.setDefaultProfile(false);
-    getSession().save(defaultProfile, otherProfile);
-
-    assertThat(profilesDao.getDefaultProfile("java").getName()).isEqualTo("default profile");
-  }
-
 }

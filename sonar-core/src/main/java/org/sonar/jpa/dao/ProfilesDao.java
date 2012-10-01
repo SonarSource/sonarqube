@@ -28,10 +28,6 @@ public class ProfilesDao extends BaseDao {
     super(session);
   }
 
-  public RulesProfile getDefaultProfile(String languageKey) {
-    return getSession().getSingleResult(RulesProfile.class, "defaultProfile", true, "language", languageKey);
-  }
-
   public RulesProfile getProfile(String languageKey, String profileName) {
     return getSession().getSingleResult(RulesProfile.class, "language", languageKey, "name", profileName);
   }

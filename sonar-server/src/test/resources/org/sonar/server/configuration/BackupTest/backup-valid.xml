@@ -37,8 +37,6 @@
     <profile>
       <name><![CDATA[test name]]></name>
       <version><![CDATA[1]]></version>
-      <default-profile><![CDATA[true]]></default-profile>
-      <provided><![CDATA[true]]></provided>
       <used><![CDATA[false]]></used>
       <language><![CDATA[test language]]></language>
       <active-rules>
@@ -66,8 +64,6 @@
     <profile>
       <name><![CDATA[test2 name]]></name>
       <version><![CDATA[1]]></version>
-      <default-profile><![CDATA[false]]></default-profile>
-      <provided><![CDATA[false]]></provided>
       <language><![CDATA[test language]]></language>
       <used><![CDATA[false]]></used>
       <parentName><![CDATA[test name]]></parentName>

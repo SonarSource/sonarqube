@@ -60,21 +60,12 @@ class Profile < ActiveRecord::Base
     "#{language}_#{name}"
   end
 
-  def provided?
-    provided
+  def default_profile?
+    Property.value("sonar.profile.#{language}")==name
   end
 
   def set_as_default
-    Profile.transaction do
-      Profile.find(:all, :conditions => {:language => language}).each do |profile|
-        if profile.id==id
-          profile.default_profile=true
-        else
-          profile.default_profile=false
-        end
-        profile.save
-      end
-    end
+    Property.set("sonar.profile.#{language}", name)
     self
   end
 
@@ -105,14 +96,14 @@ class Profile < ActiveRecord::Base
   end
 
   def deletable?
-    !provided? && !default_profile? && children.empty?
+    !default_profile? && children.empty?
   end
 
   def count_overriding_rules
     @count_overriding_rules||=
-      begin
-        active_rules.count(:conditions => ['inheritance=?', 'OVERRIDES'])
-      end
+        begin
+          active_rules.count(:conditions => ['inheritance=?', 'OVERRIDES'])
+        end
   end
 
   def inherited?
@@ -121,13 +112,13 @@ class Profile < ActiveRecord::Base
 
   def parent
     @parent||=
-      begin
-        if parent_name.present?
-          Profile.find(:first, :conditions => ['language=? and name=?', language, parent_name])
-        else
-          nil
+        begin
+          if parent_name.present?
+            Profile.find(:first, :conditions => ['language=? and name=?', language, parent_name])
+          else
+            nil
+          end
         end
-      end
   end
 
   def count_active_rules
@@ -136,14 +127,14 @@ class Profile < ActiveRecord::Base
 
   def ancestors
     @ancestors ||=
-      begin
-        array=[]
-        if parent
-          array<<parent
-          array.concat(parent.ancestors)
+        begin
+          array=[]
+          if parent
+            array<<parent
+            array.concat(parent.ancestors)
+          end
+          array
         end
-        array
-      end
   end
 
   def import_configuration(importer_key, file)
@@ -160,8 +151,8 @@ class Profile < ActiveRecord::Base
   end
 
   def before_destroy
+    raise 'This profile can not be deleted' unless deletable?
     Property.clear_for_resources("sonar.profile.#{language}", name)
-    #TODO clear global property sonar.profile.#{language} with value #{name}
   end
 
   def rename(new_name)
@@ -186,14 +177,14 @@ class Profile < ActiveRecord::Base
 
   def projects
     @projects ||=
-      begin
-        Project.find(:all,
-                     :conditions => ['id in (select prop.resource_id from properties prop where prop.resource_id is not null and prop.prop_key=? and prop.text_value like ?)', "sonar.profile.#{language}", name])
-      end
+        begin
+          Project.find(:all,
+                       :conditions => ['id in (select prop.resource_id from properties prop where prop.resource_id is not null and prop.prop_key=? and prop.text_value like ?)', "sonar.profile.#{language}", name])
+        end
   end
 
   def sorted_projects
-    Api::Utils.insensitive_sort(projects){|p| p.name}
+    Api::Utils.insensitive_sort(projects) { |p| p.name }
   end
 
   def add_project_id(project_id)
@@ -221,7 +212,8 @@ class Profile < ActiveRecord::Base
   end
 
   def self.by_default(language)
-    Profile.find(:first, :conditions => {:default_profile => true, :language => language})
+    default_name = Property.value("sonar.profile.#{language}")
+    default_name.present? ? Profile.find(:first, :conditions => {:name => default_name, :language => language}) : nil
   end
 
   # Results are NOT sorted

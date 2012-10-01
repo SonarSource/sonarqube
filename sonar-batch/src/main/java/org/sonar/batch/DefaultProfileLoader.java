@@ -37,27 +37,28 @@ public class DefaultProfileLoader implements ProfileLoader {
   }
 
   public RulesProfile load(Project project) {
-    String profileName = StringUtils.defaultIfBlank(settings.getString("sonar.profile." + project.getLanguageKey()), settings.getString("sonar.profile"));
-    RulesProfile profile;
+    String profileName = StringUtils.defaultIfBlank(
+      settings.getString("sonar.profile"),
+      settings.getString("sonar.profile." + project.getLanguageKey())
+    );
 
-    // temporary
     if (StringUtils.isBlank(profileName)) {
-      profile = dao.getDefaultProfile(project.getLanguageKey());
-      if (profile == null) {
-        // This means that the current language is not supported by any installed plugin, otherwise at least a
-        // "Default <Language Name>" profile would have been created by ActivateDefaultProfiles class.
-        throw new SonarException("You must install a plugin that supports the language '" + project.getLanguageKey() + "'");
-      }
-    } else {
-      profile = dao.getProfile(project.getLanguageKey(), profileName);
-      if (profile == null) {
-        throw new SonarException("Quality profile not found : " + profileName + ", language " + project.getLanguageKey());
-      }
+      // This means that the current language is not supported by any installed plugin, otherwise at least a
+      // "Default <Language Name>" profile would have been created by ActivateDefaultProfiles class.
+      throw new SonarException("You must install a plugin that supports the language '" + project.getLanguageKey() + "'");
     }
 
+    RulesProfile profile = dao.getProfile(project.getLanguageKey(), profileName);
+    if (profile == null) {
+      throw new SonarException("Quality profile not found : " + profileName + ", language " + project.getLanguageKey());
+    }
+
+    return hibernateHack(profile);
+  }
+
+  private RulesProfile hibernateHack(RulesProfile profile) {
     // hack to lazy initialize the profile collections
     profile.getActiveRules().size();
-
     for (ActiveRule activeRule : profile.getActiveRules()) {
       activeRule.getActiveRuleParams().size();
       activeRule.getRule().getParams().size();

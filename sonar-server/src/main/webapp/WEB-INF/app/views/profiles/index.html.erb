@@ -79,17 +79,13 @@
         <% if administrator? %>
 
           <td align="right">
-            <% if !profile.provided? %>
-              <form method="post" action="/dev/profiles/backup/<%= profile.id -%>" id="backup-<%= profile.key.parameterize -%>-form">
-                <a href="#" class="link-action" name="button_backup" id="backup_<%= u profile.key %>" onclick="$j('#backup-<%= profile.key.parameterize -%>-form').submit();return false;"><%= message('backup_verb') -%></a>
-              </form>
-            <% end %>
+            <form method="post" action="/dev/profiles/backup/<%= profile.id -%>" id="backup-<%= profile.key.parameterize -%>-form">
+              <a href="#" class="link-action" name="button_backup" id="backup_<%= u profile.key %>" onclick="$j('#backup-<%= profile.key.parameterize -%>-form').submit();return false;"><%= message('backup_verb') -%></a>
+            </form>
           </td>
 
           <td align="right">
-            <% if !profile.provided? %>
-              <a id="rename-<%= profile.key.parameterize -%>" href="profiles/rename_form/<%= profile.id -%>" class="link-action open-modal"><%= message('rename') -%></a>
-            <% end %>
+            <a id="rename-<%= profile.key.parameterize -%>" href="profiles/rename_form/<%= profile.id -%>" class="link-action open-modal"><%= message('rename') -%></a>
           </td>
 
           <td align="right">

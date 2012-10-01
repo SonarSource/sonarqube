@@ -25,7 +25,8 @@ class ProfilesController < ApplicationController
 
   # GET /profiles/index
   def index
-    @profiles = Profile.find(:all, :order => 'name')
+    @profiles = Profile.find(:all)
+    Api::Utils.insensitive_sort!(@profiles){|profile| profile.name}
   end
 
 
@@ -50,7 +51,7 @@ class ProfilesController < ApplicationController
     profile_name=params[:name]
     language=params[:language]
 
-    profile = Profile.create(:name => profile_name, :language => language, :default_profile => false)
+    profile = Profile.create(:name => profile_name, :language => language)
     ok = profile.errors.empty?
     if ok && params[:backup]
       params[:backup].each_pair do |importer_key, file|
@@ -92,7 +93,6 @@ class ProfilesController < ApplicationController
 
     profile = Profile.find(params[:id])
     profile.set_as_default
-    #TODO remove l10n key: flash[:notice]=message('quality_profiles.default_profile_is_x', :params => profile.name)
     redirect_to :action => 'index'
   end
 
@@ -113,7 +113,7 @@ class ProfilesController < ApplicationController
     @profile = Profile.find(params[:id])
     name = params['name']
 
-    target_profile=Profile.new(:name => name, :language => @profile.language, :provided => false, :default_profile => false)
+    target_profile=Profile.new(:name => name, :language => @profile.language)
     if target_profile.valid?
       java_facade.copyProfile(@profile.id, name)
       flash[:notice]= message('quality_profiles.profile_x_not_activated', :params => name)
@@ -257,31 +257,33 @@ class ProfilesController < ApplicationController
   end
 
 
-  # POST /profiles/add_project?id=<profile id>&project_id=<project id>
+  # POST /profiles/add_project?id=<profile id>&project=<project id or key>
   def add_project
     verify_post_request
-    require_parameters 'id', 'project_id'
+    require_parameters 'id', 'project'
     admin_required
 
     profile=Profile.find(params[:id])
     bad_request('Unknown profile') unless profile
-    project=Project.find(params[:project_id])
+    project=Project.by_key(params[:project])
     bad_request('Unknown project') unless project
 
     profile.add_project_id(project.id)
     redirect_to :action => 'projects', :id => profile.id
   end
 
-  # POST /profiles/remove_project?id=<profile id>&project_id=<project id>
+  # POST /profiles/remove_project?id=<profile id>&project=<project id or key>
   def remove_project
     verify_post_request
-    require_parameters 'id', 'project_id'
+    require_parameters 'id', 'project'
     admin_required
 
     profile=Profile.find(params[:id])
     bad_request('Unknown profile') unless profile
+    project=Project.by_key(params[:project])
+    bad_request('Unknown project') unless project
 
-    Profile.reset_default_profile_for_project_id(profile.language, params[:project_id])
+    Profile.reset_default_profile_for_project_id(profile.language, project.id)
     redirect_to :action => 'projects', :id => profile.id
   end
 

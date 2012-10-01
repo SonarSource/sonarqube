@@ -43,8 +43,6 @@ public class ProfilesManager extends BaseDao {
     RulesProfile profile = getSession().getSingleResult(RulesProfile.class, "id", profileId);
     RulesProfile toImport = (RulesProfile) profile.clone();
     toImport.setName(newProfileName);
-    toImport.setDefaultProfile(false);
-    toImport.setProvided(false);
     ProfilesBackup pb = new ProfilesBackup(getSession());
     pb.importProfile(rulesDao, toImport);
     getSession().commit();
@@ -68,7 +66,7 @@ public class ProfilesManager extends BaseDao {
   public ValidationMessages changeParentProfile(Integer profileId, String parentName, String userName) {
     ValidationMessages messages = ValidationMessages.create();
     RulesProfile profile = getSession().getEntity(RulesProfile.class, profileId);
-    if (profile != null && !profile.getProvided()) {
+    if (profile != null) {
       RulesProfile oldParent = getParentProfile(profile);
       RulesProfile newParent = getProfile(profile.getLanguage(), parentName);
       if (isCycle(profile, newParent)) {
@@ -344,8 +342,7 @@ public class ProfilesManager extends BaseDao {
   private List<RulesProfile> getChildren(RulesProfile parent) {
     return getSession().getResults(RulesProfile.class,
         "language", parent.getLanguage(),
-        "parentName", parent.getName(),
-        "provided", false);
+        "parentName", parent.getName());
   }
 
   private void removeActiveRule(RulesProfile profile, ActiveRule activeRule) {

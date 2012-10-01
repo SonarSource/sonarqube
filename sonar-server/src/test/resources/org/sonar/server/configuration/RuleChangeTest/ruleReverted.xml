@@ -5,9 +5,9 @@
   <rules_parameters id="13" rule_id="2" name="param1" description="[null]" param_type="REGULAR_EXPRESSION"/>
   <rules_parameters id="14" rule_id="2" name="param2" description="[null]" param_type="REGULAR_EXPRESSION"/>
 
-  <rules_profiles id="1" version="1" used_profile="true" provided="false" name="parent" default_profile="0" language="java" parent_name="[null]" />
+  <rules_profiles id="1" version="1" used_profile="true" name="parent" language="java" parent_name="[null]" />
   
-  <rules_profiles id="2" version="1" used_profile="true" provided="false" name="child" default_profile="0" language="java" parent_name="parent" />
+  <rules_profiles id="2" version="1" used_profile="true" name="child" language="java" parent_name="parent" />
 
   <active_rules id="2" profile_id="1" rule_id="2" failure_level="2" inheritance="[null]"/>
   <active_rule_parameters id="3" active_rule_id="2" rules_parameter_id="14" value="50"/>

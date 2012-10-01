@@ -29,14 +29,7 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,11 +67,8 @@ public class RulesProfile implements Cloneable {
   @Column(name = "version", updatable = true, nullable = false)
   private int version = 1;
 
-  @Column(name = "default_profile", updatable = true, nullable = false)
+  @Transient
   private Boolean defaultProfile = Boolean.FALSE;
-
-  @Column(name = "provided", updatable = true, nullable = false)
-  private Boolean provided = Boolean.FALSE;
 
   @Column(name = "used_profile", updatable = true, nullable = false)
   private Boolean used = Boolean.FALSE;
@@ -111,16 +101,6 @@ public class RulesProfile implements Cloneable {
     this.language = language;
     this.activeRules = Lists.newArrayList();
     this.alerts = Lists.newArrayList();
-  }
-
-  /**
-   * @deprecated since 2.3. Use the factory method create()
-   */
-  @Deprecated
-  public RulesProfile(String name, String language, boolean defaultProfile, boolean provided) {
-    this(name, language);
-    this.defaultProfile = defaultProfile;
-    this.provided = provided;
   }
 
   public Integer getId() {
@@ -216,18 +196,18 @@ public class RulesProfile implements Cloneable {
   }
 
   /**
-   * @return whether the profile is defined in a plugin. Provided profiles are automatically restored during server startup and can not be
-   *         updated by end users.
+   * @deprecated since 3.3 not replaced
    */
+  @Deprecated
   public Boolean getProvided() {
-    return provided;
+    return false;
   }
 
   /**
-   * Set whether the profile is provided by a plugin
+   * @deprecated since 3.3 not replaced
    */
+  @Deprecated
   public void setProvided(Boolean b) {
-    this.provided = b;
   }
 
   /**

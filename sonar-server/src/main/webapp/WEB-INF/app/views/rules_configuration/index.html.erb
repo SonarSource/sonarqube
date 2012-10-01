@@ -30,14 +30,8 @@
 
 <%= render :partial => 'profiles/tabs', :locals => {:selected_tab=>'Coding rules'} %>
 
-<% enable_modification = is_admin? && !@profile.provided? %>
+<% enable_modification = is_admin? %>
 <div class="tabs-panel marginbottom10 background-gray">
-
-  <% if is_admin? && @profile.provided? %>
-  <div class="line-info note marginbottom10">
-    <%= message('rules_configuration.profile_cant_be_updated_description') -%>
-  </div>
-  <% end %>
 
 <% form_tag({:action => 'index'}, {:method => 'get'}) do %>
     <% hidden_field_tag "id", @id %>

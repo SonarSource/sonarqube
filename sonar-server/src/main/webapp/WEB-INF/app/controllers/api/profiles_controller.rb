@@ -30,9 +30,9 @@ class Api::ProfilesController < Api::ApiController
 
       name=params[:name]
       if name.blank?
-        @profile=Profile.find(:first, :conditions => ['language=? and default_profile=?', language, true])
+        @profile=Profile.by_default(language)
       else
-        @profile=Profile.find(:first, :conditions => ['language=? and name=?', language, name])
+        @profile=Profile.find_by_name_and_language(name, language)
       end
       raise ApiException.new(404, "Profile not found") if @profile.nil?
 
@@ -60,9 +60,9 @@ class Api::ProfilesController < Api::ApiController
     bad_request('Missing parameter: language') if params[:language].blank?
 
     if params[:name].blank?
-      profile=Profile.find(:first, :conditions => ['language=? and default_profile=?', params[:language], true])
+      profile=Profile.by_default(params[:language])
     else
-      profile=Profile.find(:first, :conditions => ['language=? and name=?', params[:language], params[:name]])
+      profile=Profile.find_by_name_and_language(params[:name], params[:language])
     end
     not_found('Profile not found') unless profile
 
@@ -124,8 +124,7 @@ class Api::ProfilesController < Api::ApiController
     result[:name]=@profile.name
     result[:language]=@profile.language
     result[:parent]=@profile.parent_name if @profile.parent_name.present?
-    result[:default]=@profile.default_profile
-    result[:provided]=@profile.provided
+    result[:default]=@profile.default_profile?
 
     rules=[]
     @active_rules.each do |active_rule|
@@ -162,8 +161,7 @@ class Api::ProfilesController < Api::ApiController
       xml.name(@profile.name)
       xml.language(@profile.language)
       xml.parent(@profile.parent_name) if @profile.parent_name.present?
-      xml.default(@profile.default_profile)
-      xml.provided(@profile.provided)
+      xml.default(@profile.default_profile?)
 
       @active_rules.each do |active_rule|
         xml.rule do

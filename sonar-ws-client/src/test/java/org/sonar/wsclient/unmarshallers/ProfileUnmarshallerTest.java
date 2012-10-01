@@ -42,7 +42,6 @@ public class ProfileUnmarshallerTest extends UnmarshallerTestCase {
     assertThat(profile.getName(), is("Sonar way"));
     assertThat(profile.getParentName(), nullValue());
     assertThat(profile.isDefaultProfile(), is(true));
-    assertThat(profile.isProvided(), is(true));
 
     assertThat(profile.getRules().size(), is(116));
     Profile.Rule rule1 = profile.getRules().get(0);

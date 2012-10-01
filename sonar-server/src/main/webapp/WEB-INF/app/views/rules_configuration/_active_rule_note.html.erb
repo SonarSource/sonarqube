@@ -28,7 +28,7 @@
       </cite>
       <p><%= note.html_text -%></p>
     </blockquote>
-  <% elsif is_admin && !profile.provided? %>
+  <% elsif is_admin %>
     <a href="#" onclick="$('<%= active_note_form_div_id -%>').show();$('<%= active_note_detail_div_id -%>').hide();$('<%= active_note_textarea_id -%>').focus(); return false;"
        class="link-action spacer-right" id="<%= add_active_note_button_id -%>"><%= message('rules_configuration.add_note') -%></a>
   <% end %>

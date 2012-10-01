@@ -30,10 +30,6 @@
      <% if is_admin? %>
        <td valign="top" width="300">
          <div class="admin">
-         <% if @profile.provided? %>
-           <p><%= message('quality_profiles.profile_cant_be_edited') -%></p>
-
-         <% else %>
            <h3><%= message('quality_profiles.set_parent') -%>:</h3>
            <p><%= message('quality_profiles.inherit_rules_from_profile') -%>:</p>
            <% form_tag({:action => 'change_parent'}, {:method => 'post'}) do %>
@@ -41,7 +37,6 @@
              <%= select_tag "parent_name", options_for_select(@select_parent, @profile.parent_name) %>
              <%= submit_tag message('change_verb'), :id => 'submit_parent'%>
            <% end %>
-         <% end %>
          </div>
        </td>
      <% end %>

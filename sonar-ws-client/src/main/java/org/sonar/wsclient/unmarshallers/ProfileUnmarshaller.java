@@ -32,8 +32,7 @@ public class ProfileUnmarshaller extends AbstractUnmarshaller<Profile> {
         .setLanguage(utils.getString(json, "language"))
         .setName(utils.getString(json, "name"))
         .setDefaultProfile(utils.getBoolean(json, "default"))
-        .setParentName(utils.getString(json, "parent"))
-        .setProvided(utils.getBoolean(json, "provided"));
+        .setParentName(utils.getString(json, "parent"));
 
     parseRules(utils, profile, json);
     return profile;

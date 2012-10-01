@@ -8,7 +8,7 @@
     <form method="POST" action="<%= ApplicationController.root_context -%>/profiles/add_project" id="add_project_form">
       <input type="hidden" name="id" value="<%= @profile.id -%>"/>
 
-      Add project: <%= resource_select_tag 'project_id', {
+      Add project: <%= resource_select_tag 'project', {
       :qualifiers => ['TRK'],
       :width => '400px',
       :html_id => "select-project",
@@ -32,7 +32,7 @@
           <tr class="<%= cycle('even', 'odd') -%>">
             <td class="thin">
               <%= link_to_action message('quality_profiles.remove_project_action'),
-                                 "#{ApplicationController.root_context}/profiles/remove_project?id=#{@profile.id}&project_id=#{project.id}",
+                                 "#{ApplicationController.root_context}/profiles/remove_project?id=#{@profile.id}&project=#{project.id}",
                                  :class => 'link-action',
                                  :id => "link-remove-#{project.key.parameterize}",
                                  :confirm_title => 'quality_profiles.remove_project_confirm_title',

@@ -25,6 +25,7 @@ public final class LoadedTemplateDto {
 
   public static final String DASHBOARD_TYPE = "DASHBOARD";
   public static final String FILTER_TYPE = "FILTER";
+  public static final String QUALITY_PROFILE_TYPE = "QUALITY_PROFILE";
 
   private Long id;
   private String key;

@@ -2,17 +2,9 @@
 <%= render :partial => 'profiles/tabs', :locals => {:selected_tab=>'Alerts'} %>
 
 <% if is_admin? %>
-  <% if @profile.provided? %>
-    <div class="tabs-panel marginbottom10 background-gray">
-      <div class="line-info note">
-        <%= message('rules_configuration.profile_cant_be_updated_description') -%>
-      </div>
-    </div>
-  <% else %>
-    <div class="tabs-panel marginbottom10 admin" id="new_alert_form">
-      <%= render :partial => 'new' %>
-    </div>
-  <% end %>
+  <div class="tabs-panel marginbottom10 admin" id="new_alert_form">
+    <%= render :partial => 'new' %>
+  </div>
 <% else %>
   <div class="break10"> </div>
 <% end %>
@@ -28,10 +20,8 @@
       <% for alert in @alerts %>
           <tr class="<%= cycle('even','odd') -%>">
             <td id="row_alert_<%= alert.id -%>">
-              <% if is_admin? && !@profile.provided? %>
+              <% if is_admin?  %>
               <%= render :partial => 'edit', :locals => {:alert => alert} %>
-              <% else %>
-              <%= render :partial => 'show', :locals => {:alert => alert} %>
               <% end %>
             </td>
           </tr>

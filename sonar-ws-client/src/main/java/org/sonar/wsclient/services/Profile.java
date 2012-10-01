@@ -30,7 +30,6 @@ public class Profile extends Model {
   private String language;
   private String name;
   private boolean defaultProfile;
-  private boolean provided;
   private String parentName;
   private List<Rule> rules = new ArrayList<Rule>();
 
@@ -58,15 +57,6 @@ public class Profile extends Model {
 
   public Profile setDefaultProfile(boolean b) {
     this.defaultProfile = b;
-    return this;
-  }
-
-  public boolean isProvided() {
-    return provided;
-  }
-
-  public Profile setProvided(boolean b) {
-    this.provided = b;
     return this;
   }
 
