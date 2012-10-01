@@ -24,7 +24,6 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.Extension;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
-import org.sonar.api.PropertyField;
 import org.sonar.api.PropertyType;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.checks.NoSonarFilter;
@@ -123,22 +122,6 @@ import java.util.List;
     project = false,
     global = true,
     category = CoreProperties.CATEGORY_GENERAL),
-  @Property(
-    key = "sonar.test.jira.servers",
-    name = "Jira Servers",
-    global = true,
-    project = true,
-    category = "DEV",
-    fields = {
-      @PropertyField(
-        key = "url",
-        name = "Url",
-        description = "l'url du serveur jira",
-        type = PropertyType.STRING),
-      @PropertyField(
-        key = "port",
-        name = "Port",
-        type = PropertyType.INTEGER)}),
   @Property(
     key = "sonar.test.jira",
     name = "Jira",
