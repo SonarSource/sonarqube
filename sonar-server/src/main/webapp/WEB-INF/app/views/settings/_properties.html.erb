@@ -28,7 +28,7 @@
 
             <% value = property_value(property) -%>
             <% if property.multi_values -%>
-              <% value.each_with_index do |sub_value, index| -%>
+              <% value.each do |sub_value| -%>
                 <%= render "settings/multi_value", :property => property, :value => sub_value, :delete_link => true -%>
               <% end -%>
               <div class="template" style="display:none;">
@@ -70,7 +70,7 @@
 
 <script>
   $j('.delete').live('click', function () {
-    $j(this).parent('.multi_value').remove();
+    $j(this).parents('.multi_value').remove();
     return false;
   });
 

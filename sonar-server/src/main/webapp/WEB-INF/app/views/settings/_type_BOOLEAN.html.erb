@@ -1,4 +1,4 @@
-<select name="<%= input_name(property) -%>" id="input_<%= h property.getKey() -%>">
+<select name="<%= name -%>" id="<%= id -%>">
   <option value="" <%= 'selected' if value.blank? -%>><%= message('default') -%></option>
   <option value="true" <%= 'selected' if value=='true' -%>><%= message('true') -%></option>
   <option value="false" <%= 'selected' if value=='false' -%>><%= message('false') -%></option>

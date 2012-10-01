@@ -157,7 +157,7 @@ class Property < ActiveRecord::Base
 
   def validate
     if java_definition
-      validation_result=java_definition.validate(text_value)
+      validation_result = java_definition.validate(text_value)
       errors.add_to_base(validation_result.getErrorKey()) unless validation_result.isValid()
     end
   end

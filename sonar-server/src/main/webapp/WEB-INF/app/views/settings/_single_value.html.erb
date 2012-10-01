@@ -1,1 +1,1 @@
-<%= render "settings/type_#{property_type(property, value)}", :property => property, :value => value -%>
+<%= render "settings/type_#{property_type(property, value)}", :property => property, :value => value, :name => input_name(property), :id => "input_#{h property.key}" -%>

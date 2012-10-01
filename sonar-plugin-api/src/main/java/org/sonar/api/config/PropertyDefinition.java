@@ -114,6 +114,10 @@ public final class PropertyDefinition {
   }
 
   public Result validate(@Nullable String value) {
+    return validate(type, value, options);
+  }
+
+  static Result validate(PropertyType type, @Nullable String value, String[] options) {
     if (StringUtils.isNotBlank(value)) {
       if (type == PropertyType.BOOLEAN) {
         if (!StringUtils.equalsIgnoreCase(value, "true") && !StringUtils.equalsIgnoreCase(value, "false")) {

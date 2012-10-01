@@ -1,12 +1,12 @@
 <% if !value || value.blank? %>
-  <textarea rows="5" cols="80" class="width100" name="<%= input_name(property) -%>" id="input_<%= h property.getKey() -%>"></textarea>
+  <textarea rows="5" cols="80" class="width100" name="<%= name -%>" id="<%= id -%>"></textarea>
 <%
    else
      license = controller.java_facade.parseLicense(value)
      date = license.getExpirationDateAsString()
 %>
   <div class="width100">
-    <textarea rows="6" name="<%= input_name(property) -%>" id="input_<%= h property.getKey() -%>" style="float: left;width: 390px"><%= h value -%></textarea>
+    <textarea rows="6" name="<%= name -%>" id="<%= id -%>" style="float: left;width: 390px"><%= h value -%></textarea>
 
     <div style="margin-left: 400px">
       <table>

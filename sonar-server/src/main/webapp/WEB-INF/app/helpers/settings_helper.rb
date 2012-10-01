@@ -23,15 +23,23 @@ module SettingsHelper
   end
 
   def property_name(property)
-    message("property.#{property.key()}.name", :default => property.name())
+    message("property.#{property.key}.name", :default => property.name())
   end
 
   def property_description(property)
-    message("property.#{property.key()}.description", :default => property.description())
+    message("property.#{property.key}.description", :default => property.description)
+  end
+
+  def field_name(property, field)
+    message("field.#{property.key}.#{field.key}.name", :default => field.name)
+  end
+
+  def field_description(property, field)
+    message("field.#{property.key}.#{field.key}.description", :default => field.description)
   end
 
   def property_help(property)
-    message("property.#{property.key()}.help", :default => '')
+    message("property.#{property.key}.help", :default => '')
   end
 
   def property_value(property)
@@ -60,6 +68,10 @@ module SettingsHelper
   end
 
   def input_name(property)
-    "settings[#{h property.key}]" + (property.multi_values ? '[]' : '')
+    name = "settings[#{h property.key}]"
+    if property.multi_values
+      name += '[]'
+    end
+    name
   end
 end

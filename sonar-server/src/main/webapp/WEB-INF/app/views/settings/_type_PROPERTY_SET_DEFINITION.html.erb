@@ -1,35 +1,11 @@
 <% resource_id = @resource.id if @resource -%>
 
 <% Property.values(property.key, resource_id).reject(&:blank?).each do |set_key| -%>
-  <div class="multi_value">
-    <%= text_field_tag "property_sets[#{property.key}][]", set_key -%>
-    <br/>
-
-    <% property.fields.each do |field| -%>
-      <label><%= field.key -%>: </label><br/>
-      <%= text_field_tag "#{property.key}[#{field.key}][]", Property.value("#{property.key}.#{set_key}.#{field.key}", resource_id) -%>
-      <br/>
-    <% end -%>
-
-    <a href="#" class="delete link-action"><%= message('delete') -%></a>
-    <br/><br/>
-  </div>
+  <%= render 'settings/set_instance', :property => property, :set_key => set_key, :resource_id => resource_id %>
 <% end -%>
 
 <div class="template" style="display:none;">
-  <div class="multi_value">
-    <%= text_field_tag "property_sets[#{property.key}][]" %>
-    <br/>
-
-    <% property.fields.each do |field| -%>
-      <label><%= field.key -%>: </label><br/>
-      <%= text_field_tag "#{property.key}[#{field.key}][]" -%>
-      <br/>
-    <% end -%>
-
-    <a href="#" class="delete link-action"><%= message('delete') -%></a>
-    <br/><br/>
-  </div>
+  <%= render 'settings/set_instance', :property => property, :set_key => nil, :resource_id => resource_id %>
 </div>
 
 <button class="add_value"><%= message('settings.add') -%></button>

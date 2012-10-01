@@ -2424,3 +2424,23 @@ textarea.width100 {
   box-sizing: border-box; /* Opera/IE 8+ */
 }
 
+.field {
+  margin-bottom: 5px;
+}
+
+.field label {
+  text-align: right;
+  width: 80px;
+  display: block;
+  float: left;
+  line-height: 1;
+  word-wrap: break-word;
+  position: relative;
+  padding-top: 5px;
+  padding-right: 5px;
+}
+
+.field .note {
+  margin-top: 3px;
+  margin-left: 90px;
+}

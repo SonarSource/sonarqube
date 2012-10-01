@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface PropertyField {
   /**
-   * Unique key within a property.
+   * Unique key within a property. It shouldn't be prefixed.
    */
   String key();
 
@@ -42,8 +42,16 @@ public @interface PropertyField {
    */
   String defaultValue() default "";
 
+  /**
+   * This name will be displayed on the Settings page. This can be overridden/translated
+   * by adding a a value for: <code>field.{key of parent property}.{key of this field}.name</code> in the language bundle.
+   */
   String name();
 
+  /**
+   * If not empty, this description will be displayed on the Settings page. This can be overridden/translated
+   * by adding a a value for: <code>field.{key of parent property}.{key of this field}.description</code> in the language bundle.
+   */
   String description() default "";
 
   PropertyType type() default PropertyType.STRING;

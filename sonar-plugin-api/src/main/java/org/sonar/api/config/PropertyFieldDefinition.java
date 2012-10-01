@@ -22,6 +22,8 @@ package org.sonar.api.config;
 import org.sonar.api.PropertyField;
 import org.sonar.api.PropertyType;
 
+import javax.annotation.Nullable;
+
 /**
  * @since 3.3
  */
@@ -56,7 +58,6 @@ public final class PropertyFieldDefinition {
     return definitions;
   }
 
-
   public String getKey() {
     return key;
   }
@@ -79,5 +80,9 @@ public final class PropertyFieldDefinition {
 
   public String getDescription() {
     return description;
+  }
+
+  public PropertyDefinition.Result validate(@Nullable String value) {
+    return PropertyDefinition.validate(type, value, options);
   }
 }

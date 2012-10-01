@@ -133,6 +133,7 @@ import java.util.List;
       @PropertyField(
         key = "url",
         name = "Url",
+        description = "l'url du serveur jira",
         type = PropertyType.STRING),
       @PropertyField(
         key = "port",
