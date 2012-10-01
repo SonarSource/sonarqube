@@ -93,7 +93,8 @@ class Property < ActiveRecord::Base
       value = value.first
     end
 
-    text_value = (value.blank? ? nil : value.to_s)
+    value = value.to_s if value
+    text_value = (value.blank? ? nil : value)
 
     prop = by_key(key, resource_id, user_id)
     if prop

@@ -48,7 +48,7 @@ class SettingsController < ApplicationController
 
   # TODO: Validation
   def save_property_sets(resource_id)
-    params[:property_sets].each do |key, value|
+    (params[:property_sets] || []).each do |key, value|
       set_keys = drop_trailing_blank_values(value)
 
       Property.with_key_prefix(key + '.').delete_all
@@ -65,7 +65,13 @@ class SettingsController < ApplicationController
 
   def save_properties(resource_id)
     @updated_properties = {}
-    params[:settings].each do |key, value|
+
+    puts params[:settings]
+    puts params[:settings].keys
+
+
+    (params[:settings] || []).each do |key, value|
+      puts value
       if value.kind_of? Array
         value = drop_trailing_blank_values(value)
       end

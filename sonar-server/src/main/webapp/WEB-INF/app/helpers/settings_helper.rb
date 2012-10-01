@@ -60,6 +60,6 @@ module SettingsHelper
   end
 
   def input_name(property)
-    "settings[#{h property.key}#{property.multi_values ? '[]' : ''}]"
+    "settings[#{h property.key}]" + (property.multi_values ? '[]' : '')
   end
 end
