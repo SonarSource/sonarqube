@@ -34,6 +34,9 @@ import java.lang.annotation.Target;
 public @interface PropertyField {
   /**
    * Unique key within a property. It shouldn't be prefixed.
+   * Settings for this field are stored into the database with a composite key
+   * <code>{key of parent property}.{key of the set}.{key of this field}</code>
+   * eg. <code>sonar.jira.servers.JIRA1.url</code>
    */
   String key();
 

@@ -28,11 +28,11 @@
 
             <% value = property_value(property) -%>
             <% if property.multi_values -%>
-              <% value.each do |sub_value| -%>
-                <%= render "settings/multi_value", :property => property, :value => sub_value, :delete_link => true -%>
+              <% value.each_with_index do |sub_value, index| -%>
+                <%= render "settings/multi_value", :property => property, :value => sub_value, :hide_delete => ((index == 0) || (value == 1)) -%>
               <% end -%>
               <div class="template" style="display:none;">
-                <%= render "settings/multi_value", :property => property, :value => nil, :delete_link => true -%>
+                <%= render "settings/multi_value", :property => property, :value => nil, :hide_delete => false -%>
               </div>
               <button class="add_value"><%= message('settings.add') -%></button>
               <br/>
@@ -72,6 +72,8 @@
   });
 
   $j('.add_value').live('click', function () {
+    $j('.delete').show();
+
     var template = $j(this).siblings('.template');
     template.before(template.html());
     return false;

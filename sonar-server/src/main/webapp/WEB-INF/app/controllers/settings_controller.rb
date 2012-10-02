@@ -40,53 +40,37 @@ class SettingsController < ApplicationController
     load_properties()
 
     @updated_properties = {}
-    save_properties(resource_id)
-    save_property_sets(resource_id)
+    update_properties(resource_id)
+    update_property_sets(resource_id)
 
     render :partial => 'settings/properties'
   end
 
   private
 
-  def save_property_sets(resource_id)
-    (params[:property_sets] || []).each do |key, value|
-      set_keys = drop_trailing_blank_values(value)
+  def update_properties(resource_id)
+    (params[:settings] || []).each do |key, value|
+      update_property(key, value, resource_id)
+    end
+  end
 
+  def update_property_sets(resource_id)
+    (params[:property_sets] || []).each do |key, set_keys|
       Property.with_key_prefix(key + '.').delete_all
-      Property.set(key, to_string(set_keys), resource_id)
+      update_property(key, set_keys, resource_id)
 
       params[key].each do |field_key, field_values|
-        field_values.each_with_index do |field_value, index|
-          set_key = set_keys[index]
+        field_values.zip(set_keys).each do |field_value, set_key|
           if set_key
-            field_property_key = "#{key}.#{set_key}.#{field_key}"
-            @updated_properties[field_property_key] = Property.set(field_property_key, field_value, resource_id)
+            update_property("#{key}.#{set_key}.#{field_key}", field_value, resource_id)
           end
         end
       end
     end
   end
 
-  def save_properties(resource_id)
-    (params[:settings] || []).each do |key, value|
-      if value.kind_of? Array
-        value = drop_trailing_blank_values(value)
-      end
-
-      if value.blank?
-        Property.clear(key, resource_id)
-      else
-        @updated_properties[key] = Property.set(key, value, resource_id)
-      end
-    end
-  end
-
-  def drop_trailing_blank_values(array)
-    array.reverse.drop_while(&:blank?).reverse
-  end
-
-  def to_string(set_keys)
-    set_keys.map { |v| v.gsub(',', '%2C') }.join(',')
+  def update_property(key, value, resource_id)
+    @updated_properties[key] = Property.set(key, value, resource_id)
   end
 
   def load_properties

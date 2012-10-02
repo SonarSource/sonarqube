@@ -48,6 +48,7 @@ class Property < ActiveRecord::Base
       all(key, resource_id, user_id).delete_all
       setGlobalProperty(key, nil, resource_id, user_id)
     end
+    prop
   end
 
   def self.clear_for_resources(key, value=nil)
@@ -84,31 +85,36 @@ class Property < ActiveRecord::Base
   end
 
   def self.set(key, value, resource_id=nil, user_id=nil)
-    definition = Java::OrgSonarServerUi::JRubyFacade.getInstance().propertyDefinitions.get(key)
-    if definition && definition.multi_values
-      if value.kind_of? Array
+    if value.kind_of? Array
+      value = drop_trailing_blank_values(value)
+
+      definition = Java::OrgSonarServerUi::JRubyFacade.getInstance().propertyDefinitions.get(key)
+      if definition && (definition.multi_values || !definition.fields.blank?)
         value = value.map { |v| v.gsub(',', '%2C') }.join(',')
+      else
+        value = value.first
       end
-    elsif value.kind_of? Array
-      value = value.first
     end
 
     text_value = value.to_s if defined? value
     text_value = nil if text_value.blank?
 
+    if text_value.blank?
+      return Property.clear(key, resource_id)
+    end
+
     prop = by_key(key, resource_id, user_id)
-    if prop
-      if prop.text_value != text_value
-        prop.text_value = text_value
-        if prop.save
-          setGlobalProperty(key, text_value, resource_id, user_id)
-        end
-      end
-    else
-      prop = Property.new(:prop_key => key, :text_value => text_value, :resource_id => resource_id, :user_id => user_id)
-      if prop.save
-        setGlobalProperty(key, text_value, resource_id, user_id)
-      end
+    if prop && prop.text_value == text_value
+      return prop
+    end
+
+    unless prop
+      prop = Property.new(:prop_key => key, :resource_id => resource_id, :user_id => user_id)
+    end
+
+    prop.text_value = text_value
+    if prop.save
+      setGlobalProperty(key, text_value, resource_id, user_id)
     end
 
     prop
@@ -165,6 +171,10 @@ class Property < ActiveRecord::Base
 
   def self.all(key, resource_id=nil, user_id=nil)
     Property.with_key(key).with_resource(resource_id).with_user(user_id)
+  end
+
+  def self.drop_trailing_blank_values(array)
+    array.reverse.drop_while(&:blank?).reverse
   end
 
   def validate
