@@ -105,7 +105,6 @@ class Api::ProfilesController < Api::ApiController
   # Backup a profile. If output format is xml, then backup is directly returned.
   # GET /api/profiles/backup?language=<language>[&name=my_profile] -v
   def backup
-    access_denied unless has_role?(:admin)
     require_parameters :language
 
     if params[:name].blank?
