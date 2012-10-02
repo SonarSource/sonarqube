@@ -56,7 +56,7 @@ class SettingsController < ApplicationController
 
   def update_property_sets(resource_id)
     (params[:property_sets] || []).each do |key, set_keys|
-      Property.with_key_prefix(key + '.').delete_all
+      Property.with_key_prefix(key + '.').with_resource(resource_id).delete_all
       update_property(key, set_keys, resource_id)
 
       params[key].each do |field_key, field_values|

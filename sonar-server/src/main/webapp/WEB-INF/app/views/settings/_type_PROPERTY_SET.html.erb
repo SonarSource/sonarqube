@@ -1,14 +1,11 @@
 <% choices = Property.values(property.propertySetKey).reject(&:blank?) -%>
 <% prompt = [[message('default'), '']] -%>
 
-<% if choices.exclude? value -%>
+<% if !value.blank? && (choices.exclude? value) -%>
+  <%= image_tag 'exclamation.png' -%>
   <% missing = [[h(value + ' <' + message('deleted') + '>'), value]] -%>
 <% else -%>
   <% missing = [] -%>
 <% end -%>
 
 <%= select_tag name, options_for_select(prompt + choices + missing, value), :id => id -%>
-
-<% if choices.exclude? value -%>
-  <%= image_tag 'exclamation.png' -%>
-<% end -%>
