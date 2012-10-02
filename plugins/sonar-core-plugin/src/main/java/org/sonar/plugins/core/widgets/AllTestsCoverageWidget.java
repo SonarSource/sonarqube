@@ -17,29 +17,27 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.jacoco;
+package org.sonar.plugins.core.widgets;
 
-import com.google.common.collect.ImmutableList;
-import org.sonar.api.BatchExtension;
-import org.sonar.api.SonarPlugin;
+import org.sonar.api.web.AbstractRubyTemplate;
+import org.sonar.api.web.RubyRailsWidget;
+import org.sonar.api.web.UserRole;
+import org.sonar.api.web.WidgetCategory;
 
-import java.util.List;
+@WidgetCategory({ "Tests" })
+@UserRole(UserRole.USER)
+public class AllTestsCoverageWidget extends AbstractRubyTemplate implements RubyRailsWidget {
 
-public class JaCoCoPlugin extends SonarPlugin {
+  public String getId() {
+    return "merged-coverage";
+  }
 
-  public List<Class<? extends BatchExtension>> getExtensions() {
-    return ImmutableList.of(
-        JacocoConfiguration.class,
-        JaCoCoAgentDownloader.class,
-        // Ant
-        JacocoAntInitializer.class,
-        // Maven
-        JacocoMavenInitializer.class,
-        JaCoCoMavenPluginHandler.class,
-        // Unit tests
-        JaCoCoSensor.class,
-        // Integration tests
-        JaCoCoItSensor.class,
-        JaCoCoAllTestsSensor.class);
+  public String getTitle() {
+    return "All Tests Coverage";
+  }
+
+  @Override
+  protected String getTemplatePath() {
+    return "/org/sonar/plugins/core/widgets/merged_coverage.html.erb";
   }
 }

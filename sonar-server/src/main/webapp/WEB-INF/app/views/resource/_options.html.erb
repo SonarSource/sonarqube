@@ -81,6 +81,14 @@
                     <option value="it_uncovered_conditions" <%= 'selected' if @coverage_filter=='it_uncovered_conditions' -%>><%= Metric.name_for('it_uncovered_conditions') -%></option>
                   </optgroup>
                 <% end %>
+                <% if @display_all_tests_coverage %>
+                  <optgroup label="<%= h message('coverage_viewer.all_tests') -%>">
+                    <option value="merged_lines_to_cover" <%= 'selected' if @coverage_filter=='merged_lines_to_cover' -%>><%= Metric.name_for('merged_lines_to_cover') -%></option>
+                    <option value="merged_uncovered_lines" <%= 'selected' if @coverage_filter=='merged_uncovered_lines' -%>><%= Metric.name_for('merged_uncovered_lines') -%></option>
+                    <option value="merged_conditions_to_cover" <%= 'selected' if @coverage_filter=='merged_conditions_to_cover' -%>><%= Metric.name_for('merged_conditions_to_cover') -%></option>
+                    <option value="merged_uncovered_conditions" <%= 'selected' if @coverage_filter=='merged_uncovered_conditions' -%>><%= Metric.name_for('merged_uncovered_conditions') -%></option>
+                  </optgroup>
+                <% end %>
               </select>
             </td>
           <% first=false

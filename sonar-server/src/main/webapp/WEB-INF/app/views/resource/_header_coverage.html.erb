@@ -84,7 +84,7 @@
       </table>
     <% else %>
       <table>
-        <% if @display_it_coverage %>
+        <% if @display_it_coverage || @display_all_tests_coverage %>
           <tr>
             <td colspan="7"><%= message('coverage_viewer.unit_tests') -%></td>
           </tr>
@@ -103,24 +103,43 @@
           <%= render :partial => 'measure', :locals => {:measure => measure('uncovered_conditions'), :title => Metric.name_for('uncovered_conditions'), :ratio => measure('conditions_to_cover')} -%>
         </tr>
 
-      <% if @display_it_coverage %>
-        <tr>
-          <td colspan="7"><br/><%= message('coverage_viewer.integration_tests') -%></td>
-        </tr>
-        <tr>
-          <td class="big" rowspan="2"><%= format_measure('it_coverage', :default => '-') -%></td>
-          <td class="sep"> </td>
-          <%= render :partial => 'measure', :locals => {:measure => measure('it_line_coverage'), :title => Metric.name_for('it_line_coverage')} -%>
-          <td class="sep"> </td>
-          <%= render :partial => 'measure', :locals => {:measure => measure('it_branch_coverage'), :title => Metric.name_for('it_branch_coverage')} -%>
-        </tr>
-        <tr>
-          <td class="sep"> </td>
-          <%= render :partial => 'measure', :locals => {:measure => measure('it_uncovered_lines'), :title => Metric.name_for('it_uncovered_lines'), :ratio => measure('it_lines_to_cover')} -%>
-          <td class="sep"> </td>
-          <%= render :partial => 'measure', :locals => {:measure => measure('it_uncovered_conditions'), :title => Metric.name_for('it_uncovered_conditions'), :ratio => measure('it_conditions_to_cover')} -%>
-        </tr>
-      <% end %>
+        <% if @display_it_coverage %>
+          <tr>
+            <td colspan="7"><br/><%= message('coverage_viewer.integration_tests') -%></td>
+          </tr>
+          <tr>
+            <td class="big" rowspan="2"><%= format_measure('it_coverage', :default => '-') -%></td>
+            <td class="sep"></td>
+            <%= render :partial => 'measure', :locals => {:measure => measure('it_line_coverage'), :title => Metric.name_for('it_line_coverage')} -%>
+            <td class="sep"></td>
+            <%= render :partial => 'measure', :locals => {:measure => measure('it_branch_coverage'), :title => Metric.name_for('it_branch_coverage')} -%>
+          </tr>
+          <tr>
+            <td class="sep"></td>
+            <%= render :partial => 'measure', :locals => {:measure => measure('it_uncovered_lines'), :title => Metric.name_for('it_uncovered_lines'), :ratio => measure('it_lines_to_cover')} -%>
+            <td class="sep"></td>
+            <%= render :partial => 'measure', :locals => {:measure => measure('it_uncovered_conditions'), :title => Metric.name_for('it_uncovered_conditions'), :ratio => measure('it_conditions_to_cover')} -%>
+          </tr>
+        <% end %>
+
+        <% if @display_all_tests_coverage %>
+          <tr>
+            <td colspan="7"><br/><%= message('coverage_viewer.all_tests') -%></td>
+          </tr>
+          <tr>
+            <td class="big" rowspan="2"><%= format_measure('merged_coverage', :default => '-') -%></td>
+            <td class="sep"> </td>
+            <%= render :partial => 'measure', :locals => {:measure => measure('merged_line_coverage'), :title => Metric.name_for('merged_line_coverage')} -%>
+            <td class="sep"> </td>
+            <%= render :partial => 'measure', :locals => {:measure => measure('merged_branch_coverage'), :title => Metric.name_for('merged_branch_coverage')} -%>
+          </tr>
+          <tr>
+            <td class="sep"> </td>
+            <%= render :partial => 'measure', :locals => {:measure => measure('merged_uncovered_lines'), :title => Metric.name_for('merged_uncovered_lines'), :ratio => measure('merged_lines_to_cover')} -%>
+            <td class="sep"> </td>
+            <%= render :partial => 'measure', :locals => {:measure => measure('merged_uncovered_conditions'), :title => Metric.name_for('merged_uncovered_conditions'), :ratio => measure('merged_conditions_to_cover')} -%>
+          </tr>
+        <% end %>
       </table>
     <% end %>
 

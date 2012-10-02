@@ -40,6 +40,7 @@ public final class CoreMetrics {
   public static final String DOMAIN_SIZE = "Size";
   public static final String DOMAIN_TESTS = "Tests";
   public static final String DOMAIN_INTEGRATION_TESTS = "Integration Tests";
+  public static final String DOMAIN_MERGED_TESTS = "Merged Tests";
   public static final String DOMAIN_COMPLEXITY = "Complexity";
   public static final String DOMAIN_DOCUMENTATION = "Documentation";
   public static final String DOMAIN_RULES = "Rules";
@@ -956,6 +957,291 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_INTEGRATION_TESTS)
       .setDeleteHistoricalData(true)
       .create();
+
+  // --------------------------------------------------------------------------------------------------------------------
+  //
+  // MERGED TESTS
+  //
+  // --------------------------------------------------------------------------------------------------------------------
+
+  /**
+   * @since 3.3
+   */
+  public static final String MERGED_COVERAGE_KEY = "merged_coverage";
+
+  /**
+   * @since 3.3
+   */
+  public static final Metric MERGED_COVERAGE = new Metric.Builder(MERGED_COVERAGE_KEY, "All Tests Coverage", Metric.ValueType.PERCENT)
+    .setDescription("Coverage by All Tests")
+    .setDirection(Metric.DIRECTION_BETTER)
+    .setQualitative(true)
+    .setDomain(DOMAIN_MERGED_TESTS)
+    .setWorstValue(0.0)
+    .setBestValue(100.0)
+    .create();
+
+  /**
+   * @since 3.3
+   */
+  public static final String NEW_MERGED_COVERAGE_KEY = "new_merged_coverage";
+
+  /**
+   * @since 3.3
+   */
+  public static final Metric NEW_MERGED_COVERAGE = new Metric.Builder(NEW_MERGED_COVERAGE_KEY, "New Coverage by All Tests", Metric.ValueType.PERCENT)
+    .setDescription("All Tests Coverage of new/changed code")
+    .setDirection(Metric.DIRECTION_BETTER)
+    .setQualitative(true)
+    .setDomain(DOMAIN_MERGED_TESTS)
+    .setWorstValue(0.0)
+    .setBestValue(100.0)
+    .setDeleteHistoricalData(true)
+    .create();
+
+  /**
+   * @since 3.3
+   */
+  public static final String MERGED_LINES_TO_COVER_KEY = "merged_lines_to_cover";
+
+  /**
+   * @since 3.3
+   */
+  public static final Metric MERGED_LINES_TO_COVER = new Metric.Builder(MERGED_LINES_TO_COVER_KEY, "All Tests Lines to Cover", Metric.ValueType.INT)
+    .setDescription("Lines to cover by All Tests")
+    .setDirection(Metric.DIRECTION_BETTER)
+    .setDomain(DOMAIN_MERGED_TESTS)
+    .setQualitative(false)
+    .setFormula(new SumChildValuesFormula(false))
+    .setHidden(true)
+    .setDeleteHistoricalData(true)
+    .create();
+
+  /**
+   * @since 3.3
+   */
+  public static final String NEW_MERGED_LINES_TO_COVER_KEY = "new_merged_lines_to_cover";
+
+  /**
+   * @since 3.3
+   */
+  public static final Metric NEW_MERGED_LINES_TO_COVER = new Metric.Builder(NEW_MERGED_LINES_TO_COVER_KEY, "New Lines to Cover by All Tests", Metric.ValueType.INT)
+    .setDescription("New lines to cover by All Tests")
+    .setDirection(Metric.DIRECTION_WORST)
+    .setQualitative(false)
+    .setDomain(DOMAIN_MERGED_TESTS)
+    .setFormula(new SumChildValuesFormula(false))
+    .setDeleteHistoricalData(true)
+    .create();
+
+  /**
+   * @since 3.3
+   */
+  public static final String MERGED_UNCOVERED_LINES_KEY = "merged_uncovered_lines";
+
+  /**
+   * @since 3.3
+   */
+  public static final Metric MERGED_UNCOVERED_LINES = new Metric.Builder(MERGED_UNCOVERED_LINES_KEY, "All Tests Uncovered Lines", Metric.ValueType.INT)
+    .setDescription("All Tests uncovered lines")
+    .setDirection(Metric.DIRECTION_WORST)
+    .setQualitative(false)
+    .setDomain(DOMAIN_MERGED_TESTS)
+    .setFormula(new SumChildValuesFormula(false))
+    .create();
+
+  /**
+   * @since 3.3
+   */
+  public static final String NEW_MERGED_UNCOVERED_LINES_KEY = "new_merged_uncovered_lines";
+
+  /**
+   * @since 3.3
+   */
+  public static final Metric NEW_MERGED_UNCOVERED_LINES = new Metric.Builder(NEW_MERGED_UNCOVERED_LINES_KEY, "New Uncovered Lines by All Tests", Metric.ValueType.INT)
+    .setDescription("New uncovered lines by All Tests")
+    .setDirection(Metric.DIRECTION_WORST)
+    .setDomain(DOMAIN_MERGED_TESTS)
+    .setFormula(new SumChildValuesFormula(false))
+    .setBestValue(0.0)
+    .setDeleteHistoricalData(true)
+    .create();
+
+  /**
+   * @since 3.3
+   */
+  public static final String MERGED_LINE_COVERAGE_KEY = "merged_line_coverage";
+
+  /**
+   * @since 3.3
+   */
+  public static final Metric MERGED_LINE_COVERAGE = new Metric.Builder(MERGED_LINE_COVERAGE_KEY, "All Tests Line coverage", Metric.ValueType.PERCENT)
+    .setDescription("All Tests line coverage")
+    .setDirection(Metric.DIRECTION_BETTER)
+    .setQualitative(true)
+    .setDomain(DOMAIN_MERGED_TESTS)
+    .create();
+
+  /**
+   * @since 3.3
+   */
+  public static final String NEW_MERGED_LINE_COVERAGE_KEY = "new_merged_line_coverage";
+
+  /**
+   * @since 3.3
+   */
+  public static final Metric NEW_MERGED_LINE_COVERAGE = new Metric.Builder(NEW_MERGED_LINE_COVERAGE_KEY, "New Line Coverage by All Tests", Metric.ValueType.PERCENT)
+    .setDescription("Line Coverage by All Tests of added/changed code")
+    .setDirection(Metric.DIRECTION_BETTER)
+    .setQualitative(true)
+    .setWorstValue(0.0)
+    .setBestValue(100.0)
+    .setDomain(DOMAIN_MERGED_TESTS)
+    .setDeleteHistoricalData(true)
+    .create();
+
+  /**
+   * @since 3.3
+   */
+  public static final String MERGED_COVERAGE_LINE_HITS_DATA_KEY = "merged_coverage_line_hits_data";
+
+  /**
+   * @since 3.3
+   */
+  public static final Metric MERGED_COVERAGE_LINE_HITS_DATA = new Metric.Builder(MERGED_COVERAGE_LINE_HITS_DATA_KEY, "All Tests Coverage Hits Data", Metric.ValueType.DATA)
+    .setDescription("All Tests Code coverage line hits data")
+    .setDirection(Metric.DIRECTION_NONE)
+    .setQualitative(false)
+    .setDomain(DOMAIN_MERGED_TESTS)
+    .setDeleteHistoricalData(true)
+    .create();
+
+  /**
+   * @since 3.3
+   */
+  public static final String MERGED_CONDITIONS_TO_COVER_KEY = "merged_conditions_to_cover";
+
+  /**
+   * @since 3.3
+   */
+  public static final Metric MERGED_CONDITIONS_TO_COVER = new Metric.Builder(MERGED_CONDITIONS_TO_COVER_KEY, "All Tests Branches to Cover", Metric.ValueType.INT)
+    .setDescription("All Tests Conditions to cover")
+    .setDirection(Metric.DIRECTION_BETTER)
+    .setQualitative(false)
+    .setDomain(DOMAIN_MERGED_TESTS)
+    .setFormula(new SumChildValuesFormula(false))
+    .setHidden(true)
+    .setDeleteHistoricalData(true)
+    .create();
+
+  /**
+   * @since 3.3
+   */
+  public static final String NEW_MERGED_CONDITIONS_TO_COVER_KEY = "new_merged_conditions_to_cover";
+
+  /**
+   * @since 3.3
+   */
+  public static final Metric NEW_MERGED_CONDITIONS_TO_COVER = new Metric.Builder(NEW_MERGED_CONDITIONS_TO_COVER_KEY, "New Conditions to Cover by All Tests", Metric.ValueType.INT)
+    .setDescription("New conditions to cover by All Tests")
+    .setDomain(DOMAIN_MERGED_TESTS)
+    .setFormula(new SumChildValuesFormula(false))
+    .setDeleteHistoricalData(true)
+    .create();
+
+  /**
+   * @since 3.3
+   */
+  public static final String MERGED_UNCOVERED_CONDITIONS_KEY = "merged_uncovered_conditions";
+
+  /**
+   * @since 3.3
+   */
+  public static final Metric MERGED_UNCOVERED_CONDITIONS = new Metric.Builder(MERGED_UNCOVERED_CONDITIONS_KEY, "All Tests Uncovered Branches", Metric.ValueType.INT)
+    .setDescription("All Tests Uncovered conditions")
+    .setDirection(Metric.DIRECTION_WORST)
+    .setDomain(DOMAIN_MERGED_TESTS)
+    .setFormula(new SumChildValuesFormula(false))
+    .create();
+
+  /**
+   * @since 3.3
+   */
+  public static final String NEW_MERGED_UNCOVERED_CONDITIONS_KEY = "new_merged_uncovered_conditions";
+
+  /**
+   * @since 3.3
+   */
+  public static final Metric NEW_MERGED_UNCOVERED_CONDITIONS = new Metric.Builder(NEW_MERGED_UNCOVERED_CONDITIONS_KEY, "New Uncovered Conditions by All Tests", Metric.ValueType.INT)
+    .setDescription("New uncovered conditions by All Tests")
+    .setDirection(Metric.DIRECTION_WORST)
+    .setDomain(DOMAIN_MERGED_TESTS)
+    .setFormula(new SumChildValuesFormula(false))
+    .setBestValue(0.0)
+    .setDeleteHistoricalData(true)
+    .create();
+
+  /**
+   * @since 3.3
+   */
+  public static final String MERGED_BRANCH_COVERAGE_KEY = "merged_branch_coverage";
+
+  /**
+   * @since 3.3
+   */
+  public static final Metric MERGED_BRANCH_COVERAGE = new Metric.Builder(MERGED_BRANCH_COVERAGE_KEY, "All Tests Branch Coverage", Metric.ValueType.PERCENT)
+    .setDescription("All Tests Branch coverage")
+    .setDirection(Metric.DIRECTION_BETTER)
+    .setQualitative(true)
+    .setDomain(DOMAIN_MERGED_TESTS)
+    .setWorstValue(0.0)
+    .setBestValue(100.0)
+    .create();
+
+  /**
+   * @since 3.3
+   */
+  public static final String NEW_MERGED_BRANCH_COVERAGE_KEY = "new_merged_branch_coverage";
+
+  /**
+   * @since 3.3
+   */
+  public static final Metric NEW_MERGED_BRANCH_COVERAGE = new Metric.Builder(NEW_MERGED_BRANCH_COVERAGE_KEY, "New Branch Coverage by All Tests", Metric.ValueType.PERCENT)
+    .setDescription("Branch coverage by All Tests of new/changed code")
+    .setDirection(Metric.DIRECTION_BETTER)
+    .setQualitative(true)
+    .setDomain(DOMAIN_MERGED_TESTS)
+    .setWorstValue(0.0)
+    .setBestValue(100.0)
+    .setDeleteHistoricalData(true)
+    .create();
+
+  /**
+   * @since 3.3
+   */
+  public static final String MERGED_CONDITIONS_BY_LINE_KEY = "merged_conditions_by_line";
+
+  /**
+   * @since 3.3
+   */
+  public static final Metric MERGED_CONDITIONS_BY_LINE = new Metric.Builder(MERGED_CONDITIONS_BY_LINE_KEY, "All Tests Branches by Line", Metric.ValueType.DATA)
+    .setDomain(DOMAIN_MERGED_TESTS)
+    .setDeleteHistoricalData(true)
+    .create();
+
+  /**
+   * @since 3.3
+   */
+  public static final String MERGED_COVERED_CONDITIONS_BY_LINE_KEY = "merged_covered_conditions_by_line";
+
+  /**
+   * @since 3.3
+   */
+  public static final Metric MERGED_COVERED_CONDITIONS_BY_LINE = new Metric.Builder(MERGED_COVERED_CONDITIONS_BY_LINE_KEY, "All Tests Covered Branches by Line", Metric.ValueType.DATA)
+    .setDomain(DOMAIN_MERGED_TESTS)
+    .setDeleteHistoricalData(true)
+    .create();
+
 
   // --------------------------------------------------------------------------------------------------------------------
   //
