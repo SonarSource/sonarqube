@@ -177,7 +177,7 @@ public class DefaultProjectFileSystemTest {
   public void resolvePathShouldReturnCanonicalFile() {
     MavenProject pom = mock(MavenProject.class);
     when(pom.getBasedir()).thenReturn(new File("/project"));
-    Project project = new Project("").setPom(pom);
+    Project project = new Project("foo").setPom(pom);
     DefaultProjectFileSystem fs = new DefaultProjectFileSystem(project, null);
 
     assertThat(fs.resolvePath(".").getAbsolutePath(), endsWith("project"));
@@ -236,7 +236,7 @@ public class DefaultProjectFileSystemTest {
   public void shouldExcludeDirectoriesStartingWithDot() {
     List<File> dirs = Arrays.asList(new File("test-resources/org/sonar/api/resources/DefaultProjectFileSystemTest/shouldExcludeDirectoriesStartingWithDot/src"));
 
-    List<InputFile> files = new DefaultProjectFileSystem(null, null).getFiles(dirs, Collections.<File>emptyList(), false);
+    List<InputFile> files = new DefaultProjectFileSystem(new Project("foo"), null).getFiles(dirs, Collections.<File>emptyList(), false);
     assertThat(files.size(), is(1));
     assertThat(files.get(0).getRelativePath(), is("org/sonar/Included.java"));
   }

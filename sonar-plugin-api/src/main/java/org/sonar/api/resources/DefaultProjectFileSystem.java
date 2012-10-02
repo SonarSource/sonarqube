@@ -64,6 +64,9 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
   public DefaultProjectFileSystem(Project project, Languages languages) {
     this.project = project;
     this.languages = languages;
+    // TODO See http://jira.codehaus.org/browse/SONAR-2126
+    // previously MavenProjectBuilder was responsible for creation of ProjectFileSystem
+    project.setFileSystem(this);
   }
 
   public DefaultProjectFileSystem(Project project, Languages languages, FileFilter... fileFilters) {

@@ -34,19 +34,16 @@ public class ProjectInitializer implements BatchComponent {
 
   private ResourceDao resourceDao;
   private DryRun dryRun;
-  private ProjectFileSystem fileSystem;
   private Languages languages;
 
-  public ProjectInitializer(ResourceDao resourceDao, DryRun dryRun, ProjectFileSystem fileSystem, Languages languages) {
+  public ProjectInitializer(ResourceDao resourceDao, DryRun dryRun, Languages languages) {
     this.resourceDao = resourceDao;
     this.dryRun = dryRun;
-    this.fileSystem = fileSystem;
     this.languages = languages;
   }
 
   public void execute(Project project, ProjectSettings settings) {
     initLanguage(project, settings);
-    initFileSystem(project);
   }
 
   private void initLanguage(Project project, ProjectSettings settings) {
@@ -61,13 +58,6 @@ public class ProjectInitializer implements BatchComponent {
       dto.setLanguage(project.getLanguageKey());
       resourceDao.insertOrUpdate(dto);
     }
-
-  }
-
-  private void initFileSystem(Project project) {
-    // TODO See http://jira.codehaus.org/browse/SONAR-2126
-    // previously MavenProjectBuilder was responsible for creation of ProjectFileSystem
-    project.setFileSystem(fileSystem);
 
   }
 }
