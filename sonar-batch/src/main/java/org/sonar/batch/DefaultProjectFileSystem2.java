@@ -173,4 +173,10 @@ public class DefaultProjectFileSystem2 extends DefaultProjectFileSystem {
   protected List<File> getInitialTestFiles() {
     return resolvePaths(def.getTestFiles());
   }
+
+  // Hack to instantiate DefaultProjectFileSystem2 before executing Phases.
+  // TODO all the project bootstrapping must be refactored. It's overcomplicated.
+  public void start() {
+
+  }
 }
