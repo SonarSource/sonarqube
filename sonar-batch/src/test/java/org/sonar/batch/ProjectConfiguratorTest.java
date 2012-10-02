@@ -72,16 +72,6 @@ public class ProjectConfiguratorTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void sonarLightIsDeprecated() {
-    Settings configuration = new Settings();
-    configuration.setProperty("sonar.light", "true");
-    Project project = new Project("key");
-    new ProjectConfigurator(getSession(), configuration).configure(project);
-
-    assertThat(project.getAnalysisType(), is(Project.AnalysisType.STATIC));
-  }
-
-  @Test
   public void defaultAnalysisTypeIsDynamic() {
     Project project = new Project("key");
     new ProjectConfigurator(getSession(), new Settings()).configure(project);

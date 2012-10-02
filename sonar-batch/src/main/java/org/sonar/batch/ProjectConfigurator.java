@@ -103,7 +103,7 @@ public class ProjectConfigurator implements BatchComponent {
   Project.AnalysisType loadAnalysisType() {
     String value = settings.getString(CoreProperties.DYNAMIC_ANALYSIS_PROPERTY);
     if (value == null) {
-      return ("true".equals(settings.getString("sonar.light")) ? Project.AnalysisType.STATIC : Project.AnalysisType.DYNAMIC);
+      return Project.AnalysisType.DYNAMIC;
     }
     if ("true".equals(value)) {
       return Project.AnalysisType.DYNAMIC;

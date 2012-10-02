@@ -29,6 +29,7 @@ import org.sonar.api.utils.IocContainer;
 import org.sonar.batch.*;
 import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.batch.config.ProjectSettings;
+import org.sonar.batch.config.UnsupportedProperties;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.DefaultResourcePersister;
@@ -64,6 +65,7 @@ public class ProjectModule extends Module {
     addCoreSingleton(project.getConfiguration());
     addCoreSingleton(ProjectInitializer.class);
     addCoreSingleton(ProjectSettings.class);
+    addCoreSingleton(UnsupportedProperties.class);
     addCoreSingleton(IocContainer.class);
 
     for (Object component : projectDefinition.getContainerExtensions()) {
