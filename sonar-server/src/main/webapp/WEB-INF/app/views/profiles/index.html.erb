@@ -62,7 +62,7 @@
 
         <td align="right" width="10%" nowrap>
           <% if !profile.default_profile? && administrator? %>
-            <%= link_to_action message('set_as_default'), "profiles/set_as_default?id=#{profile.id}",
+            <%= link_to_action message('set_as_default'), "#{ApplicationController.root_context}/profiles/set_as_default?id=#{profile.id}",
                                :id => "activate_#{profile.key.parameterize}",
                                :class => 'link-action',
                                :confirm_title => message('set_as_default'),
@@ -79,22 +79,22 @@
         <% if administrator? %>
 
           <td align="right">
-            <form method="post" action="/dev/profiles/backup/<%= profile.id -%>" id="backup-<%= profile.key.parameterize -%>-form">
+            <form method="post" action="<%= ApplicationController.root_context -%>/profiles/backup/<%= profile.id -%>" id="backup-<%= profile.key.parameterize -%>-form">
               <a href="#" class="link-action" name="button_backup" id="backup_<%= u profile.key %>" onclick="$j('#backup-<%= profile.key.parameterize -%>-form').submit();return false;"><%= message('backup_verb') -%></a>
             </form>
           </td>
 
           <td align="right">
-            <a id="rename-<%= profile.key.parameterize -%>" href="profiles/rename_form/<%= profile.id -%>" class="link-action open-modal"><%= message('rename') -%></a>
+            <a id="rename-<%= profile.key.parameterize -%>" href="<%= ApplicationController.root_context -%>/profiles/rename_form/<%= profile.id -%>" class="link-action open-modal"><%= message('rename') -%></a>
           </td>
 
           <td align="right">
-            <a id="copy-<%= profile.key.parameterize -%>" href="profiles/copy_form/<%= profile.id -%>" class="link-action open-modal"><%= message('copy') -%></a>
+            <a id="copy-<%= profile.key.parameterize -%>" href="<%= ApplicationController.root_context -%>/profiles/copy_form/<%= profile.id -%>" class="link-action open-modal"><%= message('copy') -%></a>
           </td>
 
           <td>
             <% if profile.deletable? %>
-              <%= link_to_action message('delete'), "profiles/delete/#{profile.id}",
+              <%= link_to_action message('delete'), "#{ApplicationController.root_context}/profiles/delete/#{profile.id}",
                                  :class => 'link-action link-red',
                                  :id => "delete_#{profile.key.parameterize}",
                                  :confirm_button => message('delete'),
