@@ -19,20 +19,19 @@
  */
 package org.sonar.plugins.core.sensors;
 
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.MeasureUtils;
 import org.sonar.api.measures.Metric;
 
-import java.util.Arrays;
 import java.util.Collection;
 
 public final class AllTestsCoverageDecorator extends AbstractCoverageDecorator {
-
   @DependsUpon
   public Collection<Metric> usedMetrics() {
-    return Arrays.asList(CoreMetrics.MERGED_LINES_TO_COVER, CoreMetrics.MERGED_UNCOVERED_LINES, CoreMetrics.NEW_MERGED_LINES_TO_COVER,
+    return ImmutableList.of(CoreMetrics.MERGED_LINES_TO_COVER, CoreMetrics.MERGED_UNCOVERED_LINES, CoreMetrics.NEW_MERGED_LINES_TO_COVER,
         CoreMetrics.NEW_MERGED_UNCOVERED_LINES, CoreMetrics.MERGED_CONDITIONS_TO_COVER, CoreMetrics.MERGED_UNCOVERED_CONDITIONS,
         CoreMetrics.NEW_MERGED_CONDITIONS_TO_COVER, CoreMetrics.NEW_MERGED_UNCOVERED_CONDITIONS);
   }
@@ -46,6 +45,7 @@ public final class AllTestsCoverageDecorator extends AbstractCoverageDecorator {
   protected Long countElements(DecoratorContext context) {
     long lines = MeasureUtils.getValueAsLong(context.getMeasure(CoreMetrics.MERGED_LINES_TO_COVER), 0L);
     long conditions = MeasureUtils.getValueAsLong(context.getMeasure(CoreMetrics.MERGED_CONDITIONS_TO_COVER), 0L);
+
     return lines + conditions;
   }
 
@@ -55,9 +55,9 @@ public final class AllTestsCoverageDecorator extends AbstractCoverageDecorator {
     long lines = MeasureUtils.getValueAsLong(context.getMeasure(CoreMetrics.MERGED_LINES_TO_COVER), 0L);
     long uncoveredConditions = MeasureUtils.getValueAsLong(context.getMeasure(CoreMetrics.MERGED_UNCOVERED_CONDITIONS), 0L);
     long conditions = MeasureUtils.getValueAsLong(context.getMeasure(CoreMetrics.MERGED_CONDITIONS_TO_COVER), 0L);
+
     return lines + conditions - uncoveredConditions - uncoveredLines;
   }
-
 
   @Override
   protected Metric getGeneratedMetricForNewCode() {
@@ -67,11 +67,13 @@ public final class AllTestsCoverageDecorator extends AbstractCoverageDecorator {
   @Override
   protected Long countElementsForNewCode(DecoratorContext context, int periodIndex) {
     Long newLinesToCover = MeasureUtils.getVariationAsLong(context.getMeasure(CoreMetrics.NEW_MERGED_LINES_TO_COVER), periodIndex);
-    if (newLinesToCover != null) {
-      long newConditionsToCover = MeasureUtils.getVariationAsLong(context.getMeasure(CoreMetrics.NEW_MERGED_CONDITIONS_TO_COVER), periodIndex, 0L);
-      return newLinesToCover + newConditionsToCover;
+    if (newLinesToCover == null) {
+      return null;
     }
-    return null;
+
+    long newConditionsToCover = MeasureUtils.getVariationAsLong(context.getMeasure(CoreMetrics.NEW_MERGED_CONDITIONS_TO_COVER), periodIndex, 0L);
+
+    return newLinesToCover + newConditionsToCover;
   }
 
   @Override
@@ -80,6 +82,7 @@ public final class AllTestsCoverageDecorator extends AbstractCoverageDecorator {
     long newUncoveredLines = MeasureUtils.getVariationAsLong(context.getMeasure(CoreMetrics.NEW_MERGED_UNCOVERED_LINES), periodIndex, 0L);
     long newUncoveredConditions = MeasureUtils.getVariationAsLong(context.getMeasure(CoreMetrics.NEW_MERGED_UNCOVERED_CONDITIONS), periodIndex, 0L);
     long newConditions = MeasureUtils.getVariationAsLong(context.getMeasure(CoreMetrics.NEW_MERGED_CONDITIONS_TO_COVER), periodIndex, 0L);
+
     return newLines + newConditions - newUncoveredConditions - newUncoveredLines;
   }
 }

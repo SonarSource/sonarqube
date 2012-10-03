@@ -31,7 +31,6 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.utils.SonarException;
 
 import java.io.BufferedInputStream;
@@ -47,11 +46,9 @@ public class JaCoCoAllTestsSensor implements Sensor {
   private static final String MERGED_EXEC = "target/merged.exec";
 
   private final JacocoConfiguration configuration;
-  private final ProjectFileSystem projectFileSystem;
 
-  public JaCoCoAllTestsSensor(JacocoConfiguration configuration, ProjectFileSystem projectFileSystem) {
+  public JaCoCoAllTestsSensor(JacocoConfiguration configuration) {
     this.configuration = configuration;
-    this.projectFileSystem = projectFileSystem;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -60,32 +57,32 @@ public class JaCoCoAllTestsSensor implements Sensor {
   }
 
   public void analyse(Project project, SensorContext context) {
-    mergeReports();
+    mergeReports(project);
+
     new AllTestsAnalyzer().analyse(project, context);
   }
 
-  private void mergeReports() {
-    String reportUTs = configuration.getReportPath();
-    String reportITs = configuration.getItReportPath();
-    String reportAllTests = MERGED_EXEC;
+  private void mergeReports(Project project) {
+    File baseDir = project.getFileSystem().getBasedir();
 
-    File baseDir = projectFileSystem.getBasedir();
-    File destFile = new File(baseDir, reportAllTests);
+    File reportUTs = new File(baseDir, configuration.getReportPath());
+    File reportITs = new File(baseDir, configuration.getItReportPath());
+    File reportAllTests = new File(baseDir, MERGED_EXEC);
 
-    final SessionInfoStore infoStore = new SessionInfoStore();
-    final ExecutionDataStore dataStore = new ExecutionDataStore();
+    SessionInfoStore infoStore = new SessionInfoStore();
+    ExecutionDataStore dataStore = new ExecutionDataStore();
 
-    loadSourceFiles(infoStore, dataStore, new File(baseDir, reportUTs), new File(baseDir, reportITs));
+    loadSourceFiles(infoStore, dataStore, reportUTs, reportITs);
 
     BufferedOutputStream outputStream = null;
     try {
-      outputStream = new BufferedOutputStream(new FileOutputStream(destFile));
+      outputStream = new BufferedOutputStream(new FileOutputStream(reportAllTests));
       ExecutionDataWriter dataWriter = new ExecutionDataWriter(outputStream);
 
       infoStore.accept(dataWriter);
       dataStore.accept(dataWriter);
     } catch (IOException e) {
-      throw new SonarException(String.format("Unable to write merged file %s", destFile.getAbsolutePath()), e);
+      throw new SonarException(String.format("Unable to write merged file %s", reportAllTests.getAbsolutePath()), e);
     } finally {
       Closeables.closeQuietly(outputStream);
     }
@@ -122,14 +119,14 @@ public class JaCoCoAllTestsSensor implements Sensor {
     @Override
     protected void saveMeasures(SensorContext context, JavaFile resource, Collection<Measure> measures) {
       for (Measure measure : measures) {
-        Measure mergedMeasure = convertForIT(measure);
+        Measure mergedMeasure = convertForAllTests(measure);
         if (mergedMeasure != null) {
           context.saveMeasure(resource, mergedMeasure);
         }
       }
     }
 
-    private Measure convertForIT(Measure measure) {
+    private Measure convertForAllTests(Measure measure) {
       if (CoreMetrics.LINES_TO_COVER.equals(measure.getMetric())) {
         return new Measure(CoreMetrics.MERGED_LINES_TO_COVER, measure.getValue());
       } else if (CoreMetrics.UNCOVERED_LINES.equals(measure.getMetric())) {

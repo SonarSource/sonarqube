@@ -19,20 +19,19 @@
  */
 package org.sonar.plugins.core.sensors;
 
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.MeasureUtils;
 import org.sonar.api.measures.Metric;
 
-import java.util.Arrays;
 import java.util.List;
 
 public final class ItLineCoverageDecorator extends AbstractCoverageDecorator {
-
   @DependsUpon
   public List<Metric> dependsUponMetrics() {
-    return Arrays.asList(CoreMetrics.IT_UNCOVERED_LINES, CoreMetrics.IT_LINES_TO_COVER, CoreMetrics.NEW_IT_UNCOVERED_LINES,
+    return ImmutableList.of(CoreMetrics.IT_UNCOVERED_LINES, CoreMetrics.IT_LINES_TO_COVER, CoreMetrics.NEW_IT_UNCOVERED_LINES,
         CoreMetrics.NEW_IT_LINES_TO_COVER);
   }
 
@@ -50,9 +49,9 @@ public final class ItLineCoverageDecorator extends AbstractCoverageDecorator {
   protected long countCoveredElements(DecoratorContext context) {
     long uncoveredLines = MeasureUtils.getValueAsLong(context.getMeasure(CoreMetrics.IT_UNCOVERED_LINES), 0L);
     long lines = MeasureUtils.getValueAsLong(context.getMeasure(CoreMetrics.IT_LINES_TO_COVER), 0L);
+
     return lines - uncoveredLines;
   }
-
 
   @Override
   protected Metric getGeneratedMetricForNewCode() {
@@ -68,6 +67,7 @@ public final class ItLineCoverageDecorator extends AbstractCoverageDecorator {
   protected long countCoveredElementsForNewCode(DecoratorContext context, int periodIndex) {
     long uncoveredLines = MeasureUtils.getVariationAsLong(context.getMeasure(CoreMetrics.NEW_IT_UNCOVERED_LINES), periodIndex, 0L);
     long lines = MeasureUtils.getVariationAsLong(context.getMeasure(CoreMetrics.NEW_IT_LINES_TO_COVER), periodIndex, 0L);
+
     return lines - uncoveredLines;
   }
 }

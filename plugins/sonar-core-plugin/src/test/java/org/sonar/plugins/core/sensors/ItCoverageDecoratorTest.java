@@ -24,8 +24,11 @@ import org.junit.Test;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Scopes;
+
+import java.util.Collection;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.anyDouble;
@@ -42,6 +45,15 @@ public class ItCoverageDecoratorTest {
   @Before
   public void before() {
     when(project.getScope()).thenReturn(Scopes.PROJECT);
+  }
+
+  @Test
+  public void should_use_metrics() {
+    Collection<Metric> metrics = decorator.usedMetrics();
+
+    assertThat(metrics).containsOnly(CoreMetrics.IT_LINES_TO_COVER, CoreMetrics.IT_UNCOVERED_LINES, CoreMetrics.NEW_IT_LINES_TO_COVER,
+        CoreMetrics.NEW_IT_UNCOVERED_LINES, CoreMetrics.IT_CONDITIONS_TO_COVER, CoreMetrics.IT_UNCOVERED_CONDITIONS,
+        CoreMetrics.NEW_IT_CONDITIONS_TO_COVER, CoreMetrics.NEW_IT_UNCOVERED_CONDITIONS);
   }
 
   @Test
