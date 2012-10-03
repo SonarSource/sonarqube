@@ -79,7 +79,9 @@ class Api::PropertiesController < Api::ApiController
       resource_id_or_key = resource.id
     end
     prop=Property.set(key, value, resource_id_or_key)
-    if prop.valid?
+    if prop.nil?
+      render_success('property created') # Cleared
+    elsif prop.valid?
       render_success('property created')
     else
       render_bad_request(prop.validation_error_message)
