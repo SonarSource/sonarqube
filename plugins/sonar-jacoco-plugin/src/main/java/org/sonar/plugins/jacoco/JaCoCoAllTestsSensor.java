@@ -63,11 +63,9 @@ public class JaCoCoAllTestsSensor implements Sensor {
   }
 
   private void mergeReports(Project project) {
-    File baseDir = project.getFileSystem().getBasedir();
-
-    File reportUTs = new File(baseDir, configuration.getReportPath());
-    File reportITs = new File(baseDir, configuration.getItReportPath());
-    File reportAllTests = new File(baseDir, MERGED_EXEC);
+    File reportUTs = project.getFileSystem().resolvePath(configuration.getReportPath());
+    File reportITs = project.getFileSystem().resolvePath(configuration.getItReportPath());
+    File reportAllTests = project.getFileSystem().resolvePath(MERGED_EXEC);
 
     SessionInfoStore infoStore = new SessionInfoStore();
     ExecutionDataStore dataStore = new ExecutionDataStore();
@@ -97,7 +95,7 @@ public class JaCoCoAllTestsSensor implements Sensor {
         reader.setSessionInfoVisitor(infoStore);
         reader.setExecutionDataVisitor(dataStore);
         reader.read();
-      } catch (final IOException e) {
+      } catch (IOException e) {
         throw new SonarException(String.format("Unable to read %s", file.getAbsolutePath()), e);
       } finally {
         Closeables.closeQuietly(resourceStream);
