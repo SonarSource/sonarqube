@@ -58,6 +58,7 @@ body, a {
   line-height: 30px;
   font-size: 93%;
   margin: 0 10px;
+  position: relative;
 }
 
 #hd a {
@@ -92,6 +93,14 @@ body, a {
 #nav > ul> li {
   float: right;
   padding: 0 0 0 10px;
+}
+
+#searchResourcesResults {
+  position: absolute;
+  float: right;
+  width: 600px;
+  top: 30px;
+  right: 0;
 }
 
 #crumbs {

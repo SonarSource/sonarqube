@@ -1091,20 +1091,13 @@ div.progress div.note {
 }
 
 div.autocomplete {
-  position: absolute;
-  width: 600px;
-  right: 10px;
-  top: 10px;
   background-color: #fff;
   border: 1px solid #ccc;
   margin: 0;
   padding: 0;
   color: #111;
   line-height: 18px;
-  -moz-box-shadow: 0 0 10px 5px #EFEFEF;
-  -webkit-box-shadow: 0 0 10px 5px #EFEFEF;
-  -o-box-shadow: 0 0 10px 5px #EFEFEF;
-  box-shadow: 0 0 10px 5px #EFEFEF;
+  box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5);
   z-index: 999999;
 }
 
