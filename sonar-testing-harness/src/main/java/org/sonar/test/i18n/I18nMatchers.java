@@ -48,10 +48,10 @@ public final class I18nMatchers {
   /**
    * Checks that all the translation bundles found on the classpath are up to date with the corresponding default ones found in the classpath.
    */
-  public static void assertAllBundlesUpToDate() {
+  public static void assertBundlesUpToDate() {
     File bundleFolder = TestUtils.getResource(BundleSynchronizedMatcher.L10N_PATH);
     if (bundleFolder == null || !bundleFolder.isDirectory()) {
-      fail("No bundle found in '" + BundleSynchronizedMatcher.L10N_PATH + "'");
+      fail("No bundle found in: " + BundleSynchronizedMatcher.L10N_PATH);
     }
 
     Collection<File> bundles = FileUtils.listFiles(bundleFolder, new String[] {"properties"}, false);

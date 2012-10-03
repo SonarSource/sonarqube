@@ -97,7 +97,8 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
     details.append("' is not up-to-date.");
     print("\n\n Missing translations are:", missingKeys, details);
     print("\n\nThe following translations do not exist in the reference bundle:", additionalKeys, details);
-    details.append("\n\nSee report file located at: " + dumpFile.getAbsolutePath());
+    details.append("\n\nSee report file located at: ");
+    details.append(dumpFile.getAbsolutePath());
     details.append("\n=======================");
     return details;
   }
