@@ -237,13 +237,28 @@ public class NewViolationsDecoratorTest {
     PastSnapshot pastSnapshot = new PastSnapshot("", pastDate.getTime());
     when(timeMachineConfiguration.getProjectPastSnapshots()).thenReturn(Lists.newArrayList(pastSnapshot, pastSnapshot));
     Measure m = new Measure(CoreMetrics.NEW_VIOLATIONS).setVariation1(32.0);
+    Measure mblocker = new Measure(CoreMetrics.NEW_BLOCKER_VIOLATIONS).setVariation1(12.0);
+    Measure mcritical = new Measure(CoreMetrics.NEW_CRITICAL_VIOLATIONS).setVariation1(10.0);
+    Measure mmajor = new Measure(CoreMetrics.NEW_MAJOR_VIOLATIONS).setVariation1(5.0);
+    Measure mminor = new Measure(CoreMetrics.NEW_MINOR_VIOLATIONS).setVariation1(5.0);
+    Measure minfo = new Measure(CoreMetrics.NEW_INFO_VIOLATIONS).setVariation1(0.0);
     when(context.getMeasure(CoreMetrics.NEW_VIOLATIONS)).thenReturn(m);
+    when(context.getMeasure(CoreMetrics.NEW_BLOCKER_VIOLATIONS)).thenReturn(mblocker);
+    when(context.getMeasure(CoreMetrics.NEW_CRITICAL_VIOLATIONS)).thenReturn(mcritical);
+    when(context.getMeasure(CoreMetrics.NEW_MAJOR_VIOLATIONS)).thenReturn(mmajor);
+    when(context.getMeasure(CoreMetrics.NEW_MINOR_VIOLATIONS)).thenReturn(mminor);
+    when(context.getMeasure(CoreMetrics.NEW_INFO_VIOLATIONS)).thenReturn(minfo);
 
     decorator.decorate(project, context);
 
-    DateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd");
+    DateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     Notification notification = new Notification("new-violations")
         .setFieldValue("count", "32")
+        .setFieldValue("count-blocker", "12")
+        .setFieldValue("count-critical", "10")
+        .setFieldValue("count-major", "5")
+        .setFieldValue("count-minor", "5")
+        .setFieldValue("count-info", "0")        
         .setFieldValue("projectName", "LongName")
         .setFieldValue("projectKey", "key")
         .setFieldValue("projectId", "45")

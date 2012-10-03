@@ -216,16 +216,29 @@ public class NewViolationsDecorator implements Decorator {
       // Do not send notification if this is the first analysis or if there's no violation
       if (pastSnapshot.getTargetDate() != null && newViolationsCount != null && newViolationsCount > 0) {
         // Maybe we should check if this is the first analysis or not?
-        DateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd");
+        DateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Notification notification = new Notification("new-violations")
             .setFieldValue("count", String.valueOf(newViolationsCount.intValue()))
             .setFieldValue("projectName", project.getLongName())
             .setFieldValue("projectKey", project.getKey())
             .setFieldValue("projectId", String.valueOf(project.getId()))
             .setFieldValue("fromDate", dateformat.format(pastSnapshot.getTargetDate()));
+
+        // Add violation detailed counters
+        addViolationDetail(context, notification, CoreMetrics.NEW_BLOCKER_VIOLATIONS, "count-blocker");
+        addViolationDetail(context, notification, CoreMetrics.NEW_CRITICAL_VIOLATIONS, "count-critical");
+        addViolationDetail(context, notification, CoreMetrics.NEW_MAJOR_VIOLATIONS, "count-major");
+        addViolationDetail(context, notification, CoreMetrics.NEW_MINOR_VIOLATIONS, "count-minor");
+        addViolationDetail(context, notification, CoreMetrics.NEW_INFO_VIOLATIONS, "count-info");
+
         notificationManager.scheduleForSending(notification);
       }
     }
+  }
+
+  private void addViolationDetail(DecoratorContext context, Notification notification, Metric metric, String fieldName) {
+    Double variation = context.getMeasure(metric).getVariation1();
+    notification.setFieldValue(fieldName, String.valueOf(variation.intValue()));
   }
 
   @Override
