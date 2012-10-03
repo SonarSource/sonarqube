@@ -38,8 +38,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class AllTestsLineCoverageDecoratorTest {
-  private final AllTestsLineCoverageDecorator decorator = new AllTestsLineCoverageDecorator();
+public class OverallLineCoverageDecoratorTest {
+  private final OverallLineCoverageDecorator decorator = new OverallLineCoverageDecorator();
   private final Project project = mock(Project.class);
 
   @Before
@@ -51,8 +51,8 @@ public class AllTestsLineCoverageDecoratorTest {
   public void should_depend_on_coverage_metrics() {
     List<Metric> metrics = decorator.dependsUponMetrics();
 
-    assertThat(metrics).containsOnly(CoreMetrics.MERGED_UNCOVERED_LINES, CoreMetrics.MERGED_LINES_TO_COVER, CoreMetrics.NEW_MERGED_UNCOVERED_LINES,
-        CoreMetrics.NEW_MERGED_LINES_TO_COVER);
+    assertThat(metrics).containsOnly(CoreMetrics.OVERALL_UNCOVERED_LINES, CoreMetrics.OVERALL_LINES_TO_COVER, CoreMetrics.NEW_OVERALL_UNCOVERED_LINES,
+        CoreMetrics.NEW_OVERALL_LINES_TO_COVER);
   }
 
   @Test
@@ -74,7 +74,7 @@ public class AllTestsLineCoverageDecoratorTest {
     decorator.decorate(project, context);
 
     // 50-10 covered lines / 50 lines
-    verify(context).saveMeasure(CoreMetrics.MERGED_LINE_COVERAGE, 80.0);
+    verify(context).saveMeasure(CoreMetrics.OVERALL_LINE_COVERAGE, 80.0);
   }
 
   @Test
@@ -83,7 +83,7 @@ public class AllTestsLineCoverageDecoratorTest {
 
     decorator.decorate(project, context);
 
-    verify(context).saveMeasure(CoreMetrics.MERGED_LINE_COVERAGE, 0.0);
+    verify(context).saveMeasure(CoreMetrics.OVERALL_LINE_COVERAGE, 0.0);
   }
 
   @Test
@@ -92,7 +92,7 @@ public class AllTestsLineCoverageDecoratorTest {
 
     decorator.decorate(project, context);
 
-    verify(context).saveMeasure(CoreMetrics.MERGED_LINE_COVERAGE, 100.0);
+    verify(context).saveMeasure(CoreMetrics.OVERALL_LINE_COVERAGE, 100.0);
   }
 
   @Test
@@ -101,13 +101,13 @@ public class AllTestsLineCoverageDecoratorTest {
 
     decorator.decorate(project, context);
 
-    verify(context, never()).saveMeasure(eq(CoreMetrics.MERGED_LINE_COVERAGE), anyDouble());
+    verify(context, never()).saveMeasure(eq(CoreMetrics.OVERALL_LINE_COVERAGE), anyDouble());
   }
 
   private static DecoratorContext mockContext(int lines, int uncoveredLines) {
     DecoratorContext context = mock(DecoratorContext.class);
-    when(context.getMeasure(CoreMetrics.MERGED_LINES_TO_COVER)).thenReturn(new Measure(CoreMetrics.MERGED_LINES_TO_COVER, (double) lines));
-    when(context.getMeasure(CoreMetrics.MERGED_UNCOVERED_LINES)).thenReturn(new Measure(CoreMetrics.MERGED_UNCOVERED_LINES, (double) uncoveredLines));
+    when(context.getMeasure(CoreMetrics.OVERALL_LINES_TO_COVER)).thenReturn(new Measure(CoreMetrics.OVERALL_LINES_TO_COVER, (double) lines));
+    when(context.getMeasure(CoreMetrics.OVERALL_UNCOVERED_LINES)).thenReturn(new Measure(CoreMetrics.OVERALL_UNCOVERED_LINES, (double) uncoveredLines));
     return context;
   }
 }

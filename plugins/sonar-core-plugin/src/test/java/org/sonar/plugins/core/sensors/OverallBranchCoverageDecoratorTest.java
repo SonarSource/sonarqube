@@ -35,8 +35,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class AllTestsBranchCoverageDecoratorTest {
-  private final AllTestsBranchCoverageDecorator decorator = new AllTestsBranchCoverageDecorator();
+public class OverallBranchCoverageDecoratorTest {
+  private final OverallBranchCoverageDecorator decorator = new OverallBranchCoverageDecorator();
   private final Project resource = mock(Project.class);
 
   @Before
@@ -51,7 +51,7 @@ public class AllTestsBranchCoverageDecoratorTest {
 
     decorator.decorate(resource, context);
 
-    verify(context).saveMeasure(CoreMetrics.MERGED_BRANCH_COVERAGE, 25.0);
+    verify(context).saveMeasure(CoreMetrics.OVERALL_BRANCH_COVERAGE, 25.0);
   }
 
   @Test
@@ -60,13 +60,13 @@ public class AllTestsBranchCoverageDecoratorTest {
 
     decorator.decorate(resource, context);
 
-    verify(context, never()).saveMeasure(eq(CoreMetrics.MERGED_BRANCH_COVERAGE), anyDouble());
+    verify(context, never()).saveMeasure(eq(CoreMetrics.OVERALL_BRANCH_COVERAGE), anyDouble());
   }
 
   private static DecoratorContext mockContext(int conditions, int uncoveredConditions) {
     DecoratorContext context = mock(DecoratorContext.class);
-    when(context.getMeasure(CoreMetrics.MERGED_CONDITIONS_TO_COVER)).thenReturn(new Measure(CoreMetrics.MERGED_CONDITIONS_TO_COVER, (double) conditions));
-    when(context.getMeasure(CoreMetrics.MERGED_UNCOVERED_CONDITIONS)).thenReturn(new Measure(CoreMetrics.MERGED_UNCOVERED_CONDITIONS, (double) uncoveredConditions));
+    when(context.getMeasure(CoreMetrics.OVERALL_CONDITIONS_TO_COVER)).thenReturn(new Measure(CoreMetrics.OVERALL_CONDITIONS_TO_COVER, (double) conditions));
+    when(context.getMeasure(CoreMetrics.OVERALL_UNCOVERED_CONDITIONS)).thenReturn(new Measure(CoreMetrics.OVERALL_UNCOVERED_CONDITIONS, (double) uncoveredConditions));
     return context;
   }
 }

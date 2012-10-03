@@ -40,7 +40,7 @@ public final class CoreMetrics {
   public static final String DOMAIN_SIZE = "Size";
   public static final String DOMAIN_TESTS = "Tests";
   public static final String DOMAIN_INTEGRATION_TESTS = "Integration Tests";
-  public static final String DOMAIN_MERGED_TESTS = "Merged Tests";
+  public static final String DOMAIN_OVERALL_TESTS = "All Tests";
   public static final String DOMAIN_COMPLEXITY = "Complexity";
   public static final String DOMAIN_DOCUMENTATION = "Documentation";
   public static final String DOMAIN_RULES = "Rules";
@@ -688,7 +688,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric IT_COVERAGE = new Metric.Builder(IT_COVERAGE_KEY, "IT Coverage", Metric.ValueType.PERCENT)
+  public static final Metric IT_COVERAGE = new Metric.Builder(IT_COVERAGE_KEY, "IT coverage", Metric.ValueType.PERCENT)
       .setDescription("Coverage by integration tests")
       .setDirection(Metric.DIRECTION_BETTER)
       .setQualitative(true)
@@ -705,7 +705,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric NEW_IT_COVERAGE = new Metric.Builder(NEW_IT_COVERAGE_KEY, "New Coverage by IT", Metric.ValueType.PERCENT)
+  public static final Metric NEW_IT_COVERAGE = new Metric.Builder(NEW_IT_COVERAGE_KEY, "New coverage by IT", Metric.ValueType.PERCENT)
       .setDescription("Integration Tests Coverage of new/changed code")
       .setDirection(Metric.DIRECTION_BETTER)
       .setQualitative(true)
@@ -723,7 +723,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric IT_LINES_TO_COVER = new Metric.Builder(IT_LINES_TO_COVER_KEY, "IT Lines to Cover", Metric.ValueType.INT)
+  public static final Metric IT_LINES_TO_COVER = new Metric.Builder(IT_LINES_TO_COVER_KEY, "IT lines to cover", Metric.ValueType.INT)
       .setDescription("Lines to cover by Integration Tests")
       .setDirection(Metric.DIRECTION_BETTER)
       .setDomain(DOMAIN_INTEGRATION_TESTS)
@@ -741,7 +741,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric NEW_IT_LINES_TO_COVER = new Metric.Builder(NEW_IT_LINES_TO_COVER_KEY, "New Lines to Cover by IT", Metric.ValueType.INT)
+  public static final Metric NEW_IT_LINES_TO_COVER = new Metric.Builder(NEW_IT_LINES_TO_COVER_KEY, "New lines to cover by IT", Metric.ValueType.INT)
       .setDescription("New lines to cover by Integration Tests")
       .setDirection(Metric.DIRECTION_WORST)
       .setQualitative(false)
@@ -758,7 +758,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric IT_UNCOVERED_LINES = new Metric.Builder(IT_UNCOVERED_LINES_KEY, "IT Uncovered Lines", Metric.ValueType.INT)
+  public static final Metric IT_UNCOVERED_LINES = new Metric.Builder(IT_UNCOVERED_LINES_KEY, "IT uncovered lines", Metric.ValueType.INT)
       .setDescription("IT uncovered lines")
       .setDirection(Metric.DIRECTION_WORST)
       .setQualitative(false)
@@ -774,7 +774,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric NEW_IT_UNCOVERED_LINES = new Metric.Builder(NEW_IT_UNCOVERED_LINES_KEY, "New Uncovered Lines by IT", Metric.ValueType.INT)
+  public static final Metric NEW_IT_UNCOVERED_LINES = new Metric.Builder(NEW_IT_UNCOVERED_LINES_KEY, "New uncovered lines by IT", Metric.ValueType.INT)
       .setDescription("New uncovered lines by Integration Tests")
       .setDirection(Metric.DIRECTION_WORST)
       .setDomain(DOMAIN_INTEGRATION_TESTS)
@@ -791,7 +791,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric IT_LINE_COVERAGE = new Metric.Builder(IT_LINE_COVERAGE_KEY, "IT Line coverage", Metric.ValueType.PERCENT)
+  public static final Metric IT_LINE_COVERAGE = new Metric.Builder(IT_LINE_COVERAGE_KEY, "IT line coverage", Metric.ValueType.PERCENT)
       .setDescription("IT line coverage")
       .setDirection(Metric.DIRECTION_BETTER)
       .setQualitative(true)
@@ -806,7 +806,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric NEW_IT_LINE_COVERAGE = new Metric.Builder(NEW_IT_LINE_COVERAGE_KEY, "New Line Coverage by IT", Metric.ValueType.PERCENT)
+  public static final Metric NEW_IT_LINE_COVERAGE = new Metric.Builder(NEW_IT_LINE_COVERAGE_KEY, "New line coverage by IT", Metric.ValueType.PERCENT)
       .setDescription("Line Coverage by Integration Tests of added/changed code")
       .setDirection(Metric.DIRECTION_BETTER)
       .setQualitative(true)
@@ -824,7 +824,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric IT_COVERAGE_LINE_HITS_DATA = new Metric.Builder(IT_COVERAGE_LINE_HITS_DATA_KEY, "IT Coverage Hits Data", Metric.ValueType.DATA)
+  public static final Metric IT_COVERAGE_LINE_HITS_DATA = new Metric.Builder(IT_COVERAGE_LINE_HITS_DATA_KEY, "IT coverage hits data", Metric.ValueType.DATA)
       .setDescription("IT Code coverage line hits data")
       .setDirection(Metric.DIRECTION_NONE)
       .setQualitative(false)
@@ -840,7 +840,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric IT_CONDITIONS_TO_COVER = new Metric.Builder(IT_CONDITIONS_TO_COVER_KEY, "IT Branches to Cover", Metric.ValueType.INT)
+  public static final Metric IT_CONDITIONS_TO_COVER = new Metric.Builder(IT_CONDITIONS_TO_COVER_KEY, "IT branches to cover", Metric.ValueType.INT)
       .setDescription("IT Conditions to cover")
       .setDirection(Metric.DIRECTION_BETTER)
       .setQualitative(false)
@@ -858,7 +858,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric NEW_IT_CONDITIONS_TO_COVER = new Metric.Builder(NEW_IT_CONDITIONS_TO_COVER_KEY, "New Conditions to Cover by IT", Metric.ValueType.INT)
+  public static final Metric NEW_IT_CONDITIONS_TO_COVER = new Metric.Builder(NEW_IT_CONDITIONS_TO_COVER_KEY, "New conditions to cover by IT", Metric.ValueType.INT)
       .setDescription("New conditions to cover by Integration Tests")
       .setDomain(DOMAIN_INTEGRATION_TESTS)
       .setFormula(new SumChildValuesFormula(false))
@@ -873,7 +873,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric IT_UNCOVERED_CONDITIONS = new Metric.Builder(IT_UNCOVERED_CONDITIONS_KEY, "IT Uncovered Branches", Metric.ValueType.INT)
+  public static final Metric IT_UNCOVERED_CONDITIONS = new Metric.Builder(IT_UNCOVERED_CONDITIONS_KEY, "IT uncovered branches", Metric.ValueType.INT)
       .setDescription("IT Uncovered conditions")
       .setDirection(Metric.DIRECTION_WORST)
       .setDomain(DOMAIN_INTEGRATION_TESTS)
@@ -888,7 +888,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric NEW_IT_UNCOVERED_CONDITIONS = new Metric.Builder(NEW_IT_UNCOVERED_CONDITIONS_KEY, "New Uncovered Conditions by IT", Metric.ValueType.INT)
+  public static final Metric NEW_IT_UNCOVERED_CONDITIONS = new Metric.Builder(NEW_IT_UNCOVERED_CONDITIONS_KEY, "New uncovered conditions by IT", Metric.ValueType.INT)
       .setDescription("New uncovered conditions by Integration Tests")
       .setDirection(Metric.DIRECTION_WORST)
       .setDomain(DOMAIN_INTEGRATION_TESTS)
@@ -905,7 +905,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric IT_BRANCH_COVERAGE = new Metric.Builder(IT_BRANCH_COVERAGE_KEY, "IT Branch Coverage", Metric.ValueType.PERCENT)
+  public static final Metric IT_BRANCH_COVERAGE = new Metric.Builder(IT_BRANCH_COVERAGE_KEY, "IT branch coverage", Metric.ValueType.PERCENT)
       .setDescription("IT Branch coverage")
       .setDirection(Metric.DIRECTION_BETTER)
       .setQualitative(true)
@@ -922,7 +922,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric NEW_IT_BRANCH_COVERAGE = new Metric.Builder(NEW_IT_BRANCH_COVERAGE_KEY, "New Branch Coverage by IT", Metric.ValueType.PERCENT)
+  public static final Metric NEW_IT_BRANCH_COVERAGE = new Metric.Builder(NEW_IT_BRANCH_COVERAGE_KEY, "New branch coverage by IT", Metric.ValueType.PERCENT)
       .setDescription("Branch coverage by Integration Tests of new/changed code")
       .setDirection(Metric.DIRECTION_BETTER)
       .setQualitative(true)
@@ -940,7 +940,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric IT_CONDITIONS_BY_LINE = new Metric.Builder(IT_CONDITIONS_BY_LINE_KEY, "IT Branches by Line", Metric.ValueType.DATA)
+  public static final Metric IT_CONDITIONS_BY_LINE = new Metric.Builder(IT_CONDITIONS_BY_LINE_KEY, "IT branches by line", Metric.ValueType.DATA)
       .setDomain(DOMAIN_INTEGRATION_TESTS)
       .setDeleteHistoricalData(true)
       .create();
@@ -953,30 +953,30 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric IT_COVERED_CONDITIONS_BY_LINE = new Metric.Builder(IT_COVERED_CONDITIONS_BY_LINE_KEY, "IT Covered Branches by Line", Metric.ValueType.DATA)
+  public static final Metric IT_COVERED_CONDITIONS_BY_LINE = new Metric.Builder(IT_COVERED_CONDITIONS_BY_LINE_KEY, "IT covered branches by line", Metric.ValueType.DATA)
       .setDomain(DOMAIN_INTEGRATION_TESTS)
       .setDeleteHistoricalData(true)
       .create();
 
   // --------------------------------------------------------------------------------------------------------------------
   //
-  // MERGED TESTS
+  // OVERALL TESTS
   //
   // --------------------------------------------------------------------------------------------------------------------
 
   /**
    * @since 3.3
    */
-  public static final String MERGED_COVERAGE_KEY = "merged_coverage";
+  public static final String OVERALL_COVERAGE_KEY = "overall_coverage";
 
   /**
    * @since 3.3
    */
-  public static final Metric MERGED_COVERAGE = new Metric.Builder(MERGED_COVERAGE_KEY, "All Tests Coverage", Metric.ValueType.PERCENT)
-    .setDescription("Coverage by All Tests")
+  public static final Metric OVERALL_COVERAGE = new Metric.Builder(OVERALL_COVERAGE_KEY, "Overall coverage", Metric.ValueType.PERCENT)
+    .setDescription("Overall test coverage")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
-    .setDomain(DOMAIN_MERGED_TESTS)
+    .setDomain(DOMAIN_OVERALL_TESTS)
     .setWorstValue(0.0)
     .setBestValue(100.0)
     .create();
@@ -984,16 +984,16 @@ public final class CoreMetrics {
   /**
    * @since 3.3
    */
-  public static final String NEW_MERGED_COVERAGE_KEY = "new_merged_coverage";
+  public static final String NEW_OVERALL_COVERAGE_KEY = "new_overall_coverage";
 
   /**
    * @since 3.3
    */
-  public static final Metric NEW_MERGED_COVERAGE = new Metric.Builder(NEW_MERGED_COVERAGE_KEY, "New Coverage by All Tests", Metric.ValueType.PERCENT)
-    .setDescription("All Tests Coverage of new/changed code")
+  public static final Metric NEW_OVERALL_COVERAGE = new Metric.Builder(NEW_OVERALL_COVERAGE_KEY, "Overall new coverage", Metric.ValueType.PERCENT)
+    .setDescription("Overall coverage of new/changed code")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
-    .setDomain(DOMAIN_MERGED_TESTS)
+    .setDomain(DOMAIN_OVERALL_TESTS)
     .setWorstValue(0.0)
     .setBestValue(100.0)
     .setDeleteHistoricalData(true)
@@ -1002,15 +1002,15 @@ public final class CoreMetrics {
   /**
    * @since 3.3
    */
-  public static final String MERGED_LINES_TO_COVER_KEY = "merged_lines_to_cover";
+  public static final String OVERALL_LINES_TO_COVER_KEY = "overall_lines_to_cover";
 
   /**
    * @since 3.3
    */
-  public static final Metric MERGED_LINES_TO_COVER = new Metric.Builder(MERGED_LINES_TO_COVER_KEY, "All Tests Lines to Cover", Metric.ValueType.INT)
-    .setDescription("Lines to cover by All Tests")
+  public static final Metric OVERALL_LINES_TO_COVER = new Metric.Builder(OVERALL_LINES_TO_COVER_KEY, "Overall lines to cover", Metric.ValueType.INT)
+    .setDescription("Overall lines to cover by all tests")
     .setDirection(Metric.DIRECTION_BETTER)
-    .setDomain(DOMAIN_MERGED_TESTS)
+    .setDomain(DOMAIN_OVERALL_TESTS)
     .setQualitative(false)
     .setFormula(new SumChildValuesFormula(false))
     .setHidden(true)
@@ -1020,16 +1020,16 @@ public final class CoreMetrics {
   /**
    * @since 3.3
    */
-  public static final String NEW_MERGED_LINES_TO_COVER_KEY = "new_merged_lines_to_cover";
+  public static final String NEW_OVERALL_LINES_TO_COVER_KEY = "new_overall_lines_to_cover";
 
   /**
    * @since 3.3
    */
-  public static final Metric NEW_MERGED_LINES_TO_COVER = new Metric.Builder(NEW_MERGED_LINES_TO_COVER_KEY, "New Lines to Cover by All Tests", Metric.ValueType.INT)
-    .setDescription("New lines to cover by All Tests")
+  public static final Metric NEW_OVERALL_LINES_TO_COVER = new Metric.Builder(NEW_OVERALL_LINES_TO_COVER_KEY, "Overall new lines to cover", Metric.ValueType.INT)
+    .setDescription("New lines to cover by all tests")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
-    .setDomain(DOMAIN_MERGED_TESTS)
+    .setDomain(DOMAIN_OVERALL_TESTS)
     .setFormula(new SumChildValuesFormula(false))
     .setDeleteHistoricalData(true)
     .create();
@@ -1037,31 +1037,31 @@ public final class CoreMetrics {
   /**
    * @since 3.3
    */
-  public static final String MERGED_UNCOVERED_LINES_KEY = "merged_uncovered_lines";
+  public static final String OVERALL_UNCOVERED_LINES_KEY = "overall_uncovered_lines";
 
   /**
    * @since 3.3
    */
-  public static final Metric MERGED_UNCOVERED_LINES = new Metric.Builder(MERGED_UNCOVERED_LINES_KEY, "All Tests Uncovered Lines", Metric.ValueType.INT)
-    .setDescription("All Tests uncovered lines")
+  public static final Metric OVERALL_UNCOVERED_LINES = new Metric.Builder(OVERALL_UNCOVERED_LINES_KEY, "Overall uncovered lines", Metric.ValueType.INT)
+    .setDescription("Uncovered lines by all tests")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
-    .setDomain(DOMAIN_MERGED_TESTS)
+    .setDomain(DOMAIN_OVERALL_TESTS)
     .setFormula(new SumChildValuesFormula(false))
     .create();
 
   /**
    * @since 3.3
    */
-  public static final String NEW_MERGED_UNCOVERED_LINES_KEY = "new_merged_uncovered_lines";
+  public static final String NEW_OVERALL_UNCOVERED_LINES_KEY = "new_overall_uncovered_lines";
 
   /**
    * @since 3.3
    */
-  public static final Metric NEW_MERGED_UNCOVERED_LINES = new Metric.Builder(NEW_MERGED_UNCOVERED_LINES_KEY, "New Uncovered Lines by All Tests", Metric.ValueType.INT)
-    .setDescription("New uncovered lines by All Tests")
+  public static final Metric NEW_OVERALL_UNCOVERED_LINES = new Metric.Builder(NEW_OVERALL_UNCOVERED_LINES_KEY, "Overall new lines uncovered", Metric.ValueType.INT)
+    .setDescription("New lines that are not covered by any tests")
     .setDirection(Metric.DIRECTION_WORST)
-    .setDomain(DOMAIN_MERGED_TESTS)
+    .setDomain(DOMAIN_OVERALL_TESTS)
     .setFormula(new SumChildValuesFormula(false))
     .setBestValue(0.0)
     .setDeleteHistoricalData(true)
@@ -1070,65 +1070,65 @@ public final class CoreMetrics {
   /**
    * @since 3.3
    */
-  public static final String MERGED_LINE_COVERAGE_KEY = "merged_line_coverage";
+  public static final String OVERALL_LINE_COVERAGE_KEY = "overall_line_coverage";
 
   /**
    * @since 3.3
    */
-  public static final Metric MERGED_LINE_COVERAGE = new Metric.Builder(MERGED_LINE_COVERAGE_KEY, "All Tests Line coverage", Metric.ValueType.PERCENT)
-    .setDescription("All Tests line coverage")
+  public static final Metric OVERALL_LINE_COVERAGE = new Metric.Builder(OVERALL_LINE_COVERAGE_KEY, "Overall line coverage", Metric.ValueType.PERCENT)
+    .setDescription("Line coverage by all tests")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
-    .setDomain(DOMAIN_MERGED_TESTS)
+    .setDomain(DOMAIN_OVERALL_TESTS)
     .create();
 
   /**
    * @since 3.3
    */
-  public static final String NEW_MERGED_LINE_COVERAGE_KEY = "new_merged_line_coverage";
+  public static final String NEW_OVERALL_LINE_COVERAGE_KEY = "new_overall_line_coverage";
 
   /**
    * @since 3.3
    */
-  public static final Metric NEW_MERGED_LINE_COVERAGE = new Metric.Builder(NEW_MERGED_LINE_COVERAGE_KEY, "New Line Coverage by All Tests", Metric.ValueType.PERCENT)
-    .setDescription("Line Coverage by All Tests of added/changed code")
+  public static final Metric NEW_OVERALL_LINE_COVERAGE = new Metric.Builder(NEW_OVERALL_LINE_COVERAGE_KEY, "Overall new line coverage", Metric.ValueType.PERCENT)
+    .setDescription("Line coverage of added/changed code by all tests")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
     .setWorstValue(0.0)
     .setBestValue(100.0)
-    .setDomain(DOMAIN_MERGED_TESTS)
+    .setDomain(DOMAIN_OVERALL_TESTS)
     .setDeleteHistoricalData(true)
     .create();
 
   /**
    * @since 3.3
    */
-  public static final String MERGED_COVERAGE_LINE_HITS_DATA_KEY = "merged_coverage_line_hits_data";
+  public static final String OVERALL_COVERAGE_LINE_HITS_DATA_KEY = "overall_coverage_line_hits_data";
 
   /**
    * @since 3.3
    */
-  public static final Metric MERGED_COVERAGE_LINE_HITS_DATA = new Metric.Builder(MERGED_COVERAGE_LINE_HITS_DATA_KEY, "All Tests Coverage Hits Data", Metric.ValueType.DATA)
-    .setDescription("All Tests Code coverage line hits data")
+  public static final Metric OVERALL_COVERAGE_LINE_HITS_DATA = new Metric.Builder(OVERALL_COVERAGE_LINE_HITS_DATA_KEY, "Overall coverage hits by line", Metric.ValueType.DATA)
+    .setDescription("Coverage hits by all tests and by line")
     .setDirection(Metric.DIRECTION_NONE)
     .setQualitative(false)
-    .setDomain(DOMAIN_MERGED_TESTS)
+    .setDomain(DOMAIN_OVERALL_TESTS)
     .setDeleteHistoricalData(true)
     .create();
 
   /**
    * @since 3.3
    */
-  public static final String MERGED_CONDITIONS_TO_COVER_KEY = "merged_conditions_to_cover";
+  public static final String OVERALL_CONDITIONS_TO_COVER_KEY = "overall_conditions_to_cover";
 
   /**
    * @since 3.3
    */
-  public static final Metric MERGED_CONDITIONS_TO_COVER = new Metric.Builder(MERGED_CONDITIONS_TO_COVER_KEY, "All Tests Branches to Cover", Metric.ValueType.INT)
-    .setDescription("All Tests Conditions to cover")
+  public static final Metric OVERALL_CONDITIONS_TO_COVER = new Metric.Builder(OVERALL_CONDITIONS_TO_COVER_KEY, "Overall branches to cover", Metric.ValueType.INT)
+    .setDescription("Branches to cover by all tests")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(false)
-    .setDomain(DOMAIN_MERGED_TESTS)
+    .setDomain(DOMAIN_OVERALL_TESTS)
     .setFormula(new SumChildValuesFormula(false))
     .setHidden(true)
     .setDeleteHistoricalData(true)
@@ -1137,14 +1137,14 @@ public final class CoreMetrics {
   /**
    * @since 3.3
    */
-  public static final String NEW_MERGED_CONDITIONS_TO_COVER_KEY = "new_merged_conditions_to_cover";
+  public static final String NEW_OVERALL_CONDITIONS_TO_COVER_KEY = "new_overall_conditions_to_cover";
 
   /**
    * @since 3.3
    */
-  public static final Metric NEW_MERGED_CONDITIONS_TO_COVER = new Metric.Builder(NEW_MERGED_CONDITIONS_TO_COVER_KEY, "New Conditions to Cover by All Tests", Metric.ValueType.INT)
-    .setDescription("New conditions to cover by All Tests")
-    .setDomain(DOMAIN_MERGED_TESTS)
+  public static final Metric NEW_OVERALL_CONDITIONS_TO_COVER = new Metric.Builder(NEW_OVERALL_CONDITIONS_TO_COVER_KEY, "Overall new branches to cover", Metric.ValueType.INT)
+    .setDescription("New branches to cover by all tests")
+    .setDomain(DOMAIN_OVERALL_TESTS)
     .setFormula(new SumChildValuesFormula(false))
     .setDeleteHistoricalData(true)
     .create();
@@ -1152,30 +1152,30 @@ public final class CoreMetrics {
   /**
    * @since 3.3
    */
-  public static final String MERGED_UNCOVERED_CONDITIONS_KEY = "merged_uncovered_conditions";
+  public static final String OVERALL_UNCOVERED_CONDITIONS_KEY = "overall_uncovered_conditions";
 
   /**
    * @since 3.3
    */
-  public static final Metric MERGED_UNCOVERED_CONDITIONS = new Metric.Builder(MERGED_UNCOVERED_CONDITIONS_KEY, "All Tests Uncovered Branches", Metric.ValueType.INT)
-    .setDescription("All Tests Uncovered conditions")
+  public static final Metric OVERALL_UNCOVERED_CONDITIONS = new Metric.Builder(OVERALL_UNCOVERED_CONDITIONS_KEY, "Overall uncovered branches", Metric.ValueType.INT)
+    .setDescription("Uncovered branches by all tests")
     .setDirection(Metric.DIRECTION_WORST)
-    .setDomain(DOMAIN_MERGED_TESTS)
+    .setDomain(DOMAIN_OVERALL_TESTS)
     .setFormula(new SumChildValuesFormula(false))
     .create();
 
   /**
    * @since 3.3
    */
-  public static final String NEW_MERGED_UNCOVERED_CONDITIONS_KEY = "new_merged_uncovered_conditions";
+  public static final String NEW_OVERALL_UNCOVERED_CONDITIONS_KEY = "new_overall_uncovered_conditions";
 
   /**
    * @since 3.3
    */
-  public static final Metric NEW_MERGED_UNCOVERED_CONDITIONS = new Metric.Builder(NEW_MERGED_UNCOVERED_CONDITIONS_KEY, "New Uncovered Conditions by All Tests", Metric.ValueType.INT)
-    .setDescription("New uncovered conditions by All Tests")
+  public static final Metric NEW_OVERALL_UNCOVERED_CONDITIONS = new Metric.Builder(NEW_OVERALL_UNCOVERED_CONDITIONS_KEY, "Overall new branches uncovered", Metric.ValueType.INT)
+    .setDescription("New branches that are not covered by any test")
     .setDirection(Metric.DIRECTION_WORST)
-    .setDomain(DOMAIN_MERGED_TESTS)
+    .setDomain(DOMAIN_OVERALL_TESTS)
     .setFormula(new SumChildValuesFormula(false))
     .setBestValue(0.0)
     .setDeleteHistoricalData(true)
@@ -1184,16 +1184,16 @@ public final class CoreMetrics {
   /**
    * @since 3.3
    */
-  public static final String MERGED_BRANCH_COVERAGE_KEY = "merged_branch_coverage";
+  public static final String OVERALL_BRANCH_COVERAGE_KEY = "overall_branch_coverage";
 
   /**
    * @since 3.3
    */
-  public static final Metric MERGED_BRANCH_COVERAGE = new Metric.Builder(MERGED_BRANCH_COVERAGE_KEY, "All Tests Branch Coverage", Metric.ValueType.PERCENT)
-    .setDescription("All Tests Branch coverage")
+  public static final Metric OVERALL_BRANCH_COVERAGE = new Metric.Builder(OVERALL_BRANCH_COVERAGE_KEY, "Overall branch coverage", Metric.ValueType.PERCENT)
+    .setDescription("Branch coverage by all tests")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
-    .setDomain(DOMAIN_MERGED_TESTS)
+    .setDomain(DOMAIN_OVERALL_TESTS)
     .setWorstValue(0.0)
     .setBestValue(100.0)
     .create();
@@ -1201,16 +1201,16 @@ public final class CoreMetrics {
   /**
    * @since 3.3
    */
-  public static final String NEW_MERGED_BRANCH_COVERAGE_KEY = "new_merged_branch_coverage";
+  public static final String NEW_OVERALL_BRANCH_COVERAGE_KEY = "new_overall_branch_coverage";
 
   /**
    * @since 3.3
    */
-  public static final Metric NEW_MERGED_BRANCH_COVERAGE = new Metric.Builder(NEW_MERGED_BRANCH_COVERAGE_KEY, "New Branch Coverage by All Tests", Metric.ValueType.PERCENT)
-    .setDescription("Branch coverage by All Tests of new/changed code")
+  public static final Metric NEW_OVERALL_BRANCH_COVERAGE = new Metric.Builder(NEW_OVERALL_BRANCH_COVERAGE_KEY, "Overall new branch coverage", Metric.ValueType.PERCENT)
+    .setDescription("Branch coverage of new/changed code by all tests")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
-    .setDomain(DOMAIN_MERGED_TESTS)
+    .setDomain(DOMAIN_OVERALL_TESTS)
     .setWorstValue(0.0)
     .setBestValue(100.0)
     .setDeleteHistoricalData(true)
@@ -1219,26 +1219,28 @@ public final class CoreMetrics {
   /**
    * @since 3.3
    */
-  public static final String MERGED_CONDITIONS_BY_LINE_KEY = "merged_conditions_by_line";
+  public static final String OVERALL_CONDITIONS_BY_LINE_KEY = "overall_conditions_by_line";
 
   /**
    * @since 3.3
    */
-  public static final Metric MERGED_CONDITIONS_BY_LINE = new Metric.Builder(MERGED_CONDITIONS_BY_LINE_KEY, "All Tests Branches by Line", Metric.ValueType.DATA)
-    .setDomain(DOMAIN_MERGED_TESTS)
+  public static final Metric OVERALL_CONDITIONS_BY_LINE = new Metric.Builder(OVERALL_CONDITIONS_BY_LINE_KEY, "Overall branches by line", Metric.ValueType.DATA)
+    .setDescription("Overall branches by all tests and by line")
+    .setDomain(DOMAIN_OVERALL_TESTS)
     .setDeleteHistoricalData(true)
     .create();
 
   /**
    * @since 3.3
    */
-  public static final String MERGED_COVERED_CONDITIONS_BY_LINE_KEY = "merged_covered_conditions_by_line";
+  public static final String OVERALL_COVERED_CONDITIONS_BY_LINE_KEY = "overall_covered_conditions_by_line";
 
   /**
    * @since 3.3
    */
-  public static final Metric MERGED_COVERED_CONDITIONS_BY_LINE = new Metric.Builder(MERGED_COVERED_CONDITIONS_BY_LINE_KEY, "All Tests Covered Branches by Line", Metric.ValueType.DATA)
-    .setDomain(DOMAIN_MERGED_TESTS)
+  public static final Metric OVERALL_COVERED_CONDITIONS_BY_LINE = new Metric.Builder(OVERALL_COVERED_CONDITIONS_BY_LINE_KEY, "Overall covered branches by line", Metric.ValueType.DATA)
+    .setDescription("Overall covered branches by all tests and by line")
+    .setDomain(DOMAIN_OVERALL_TESTS)
     .setDeleteHistoricalData(true)
     .create();
 

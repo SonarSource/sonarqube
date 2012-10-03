@@ -40,6 +40,6 @@ public class JaCoCoPlugin extends SonarPlugin {
         JaCoCoSensor.class,
         // Integration tests
         JaCoCoItSensor.class,
-        JaCoCoAllTestsSensor.class);
+        JaCoCoOverallSensor.class);
   }
 }

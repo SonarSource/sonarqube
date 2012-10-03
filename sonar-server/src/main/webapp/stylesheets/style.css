@@ -2437,3 +2437,11 @@ textarea.width100 {
   margin-top: 3px;
   margin-left: 88px;
 }
+
+.coverage tr {
+  line-height: 1.8em;
+}
+
+.coverage td.name {
+  text-align: right;
+}

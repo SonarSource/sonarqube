@@ -42,12 +42,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 
-public class JaCoCoAllTestsSensor implements Sensor {
-  private static final String MERGED_EXEC = "target/sonar/merged.exec";
+public class JaCoCoOverallSensor implements Sensor {
+  private static final String JACOCO_OVERALL = "target/sonar/jacoco-overall.exec";
 
   private final JacocoConfiguration configuration;
 
-  public JaCoCoAllTestsSensor(JacocoConfiguration configuration) {
+  public JaCoCoOverallSensor(JacocoConfiguration configuration) {
     this.configuration = configuration;
   }
 
@@ -59,14 +59,14 @@ public class JaCoCoAllTestsSensor implements Sensor {
   public void analyse(Project project, SensorContext context) {
     mergeReports(project);
 
-    new AllTestsAnalyzer().analyse(project, context);
+    new OverallAnalyzer().analyse(project, context);
   }
 
   private void mergeReports(Project project) {
     File reportUTs = project.getFileSystem().resolvePath(configuration.getReportPath());
     File reportITs = project.getFileSystem().resolvePath(configuration.getItReportPath());
-    File reportAllTests = project.getFileSystem().resolvePath(MERGED_EXEC);
-    reportAllTests.getParentFile().mkdirs();
+    File reportOverall = project.getFileSystem().resolvePath(JACOCO_OVERALL);
+    reportOverall.getParentFile().mkdirs();
 
     SessionInfoStore infoStore = new SessionInfoStore();
     ExecutionDataStore dataStore = new ExecutionDataStore();
@@ -75,13 +75,13 @@ public class JaCoCoAllTestsSensor implements Sensor {
 
     BufferedOutputStream outputStream = null;
     try {
-      outputStream = new BufferedOutputStream(new FileOutputStream(reportAllTests));
+      outputStream = new BufferedOutputStream(new FileOutputStream(reportOverall));
       ExecutionDataWriter dataWriter = new ExecutionDataWriter(outputStream);
 
       infoStore.accept(dataWriter);
       dataStore.accept(dataWriter);
     } catch (IOException e) {
-      throw new SonarException(String.format("Unable to write merged file %s", reportAllTests.getAbsolutePath()), e);
+      throw new SonarException(String.format("Unable to write overall coverage report %s", reportOverall.getAbsolutePath()), e);
     } finally {
       Closeables.closeQuietly(outputStream);
     }
@@ -104,10 +104,10 @@ public class JaCoCoAllTestsSensor implements Sensor {
     }
   }
 
-  class AllTestsAnalyzer extends AbstractAnalyzer {
+  class OverallAnalyzer extends AbstractAnalyzer {
     @Override
     protected String getReportPath(Project project) {
-      return MERGED_EXEC;
+      return JACOCO_OVERALL;
     }
 
     @Override
@@ -127,19 +127,19 @@ public class JaCoCoAllTestsSensor implements Sensor {
 
     private Measure convertForAllTests(Measure measure) {
       if (CoreMetrics.LINES_TO_COVER.equals(measure.getMetric())) {
-        return new Measure(CoreMetrics.MERGED_LINES_TO_COVER, measure.getValue());
+        return new Measure(CoreMetrics.OVERALL_LINES_TO_COVER, measure.getValue());
       } else if (CoreMetrics.UNCOVERED_LINES.equals(measure.getMetric())) {
-        return new Measure(CoreMetrics.MERGED_UNCOVERED_LINES, measure.getValue());
+        return new Measure(CoreMetrics.OVERALL_UNCOVERED_LINES, measure.getValue());
       } else if (CoreMetrics.COVERAGE_LINE_HITS_DATA.equals(measure.getMetric())) {
-        return new Measure(CoreMetrics.MERGED_COVERAGE_LINE_HITS_DATA, measure.getData());
+        return new Measure(CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA, measure.getData());
       } else if (CoreMetrics.CONDITIONS_TO_COVER.equals(measure.getMetric())) {
-        return new Measure(CoreMetrics.MERGED_CONDITIONS_TO_COVER, measure.getValue());
+        return new Measure(CoreMetrics.OVERALL_CONDITIONS_TO_COVER, measure.getValue());
       } else if (CoreMetrics.UNCOVERED_CONDITIONS.equals(measure.getMetric())) {
-        return new Measure(CoreMetrics.MERGED_UNCOVERED_CONDITIONS, measure.getValue());
+        return new Measure(CoreMetrics.OVERALL_UNCOVERED_CONDITIONS, measure.getValue());
       } else if (CoreMetrics.COVERED_CONDITIONS_BY_LINE.equals(measure.getMetric())) {
-        return new Measure(CoreMetrics.MERGED_COVERED_CONDITIONS_BY_LINE, measure.getData());
+        return new Measure(CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE, measure.getData());
       } else if (CoreMetrics.CONDITIONS_BY_LINE.equals(measure.getMetric())) {
-        return new Measure(CoreMetrics.MERGED_CONDITIONS_BY_LINE, measure.getData());
+        return new Measure(CoreMetrics.OVERALL_CONDITIONS_BY_LINE, measure.getData());
       }
       return null;
     }

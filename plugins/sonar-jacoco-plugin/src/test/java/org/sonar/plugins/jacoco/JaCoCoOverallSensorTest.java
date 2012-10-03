@@ -40,12 +40,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-public class JaCoCoAllTestsSensorTest {
+public class JaCoCoOverallSensorTest {
   private final JacocoConfiguration configuration= mock(JacocoConfiguration.class);
   private final SensorContext context = mock(SensorContext.class);
   private final ProjectFileSystem pfs = mock(ProjectFileSystem.class);
   private final Project project = mock(Project.class);
-  private final JaCoCoAllTestsSensor sensor  = new JaCoCoAllTestsSensor(configuration);
+  private final JaCoCoOverallSensor sensor  = new JaCoCoOverallSensor(configuration);
 
   @Test
   public void should_execute_on_project() {
@@ -66,7 +66,7 @@ public class JaCoCoAllTestsSensorTest {
 
   @Test
   public void should_save_measures() throws IOException {
-    File outputDir = TestUtils.getResource(JaCoCoAllTestsSensorTest.class, ".");
+    File outputDir = TestUtils.getResource(JaCoCoOverallSensorTest.class, ".");
     Files.copy(TestUtils.getResource("HelloWorld.class.toCopy"), new File(outputDir, "HelloWorld.class"));
 
     JavaFile resource = new JavaFile("com.sonar.coverages.HelloWorld");
@@ -78,19 +78,19 @@ public class JaCoCoAllTestsSensorTest {
     when(pfs.getBuildOutputDir()).thenReturn(outputDir);
     when(pfs.resolvePath("ut.exec")).thenReturn(new File(outputDir, "ut.exec"));
     when(pfs.resolvePath("it.exec")).thenReturn(new File(outputDir, "it.exec"));
-    when(pfs.resolvePath("target/sonar/merged.exec")).thenReturn(new File("target/sonar/merged.exec"));
+    when(pfs.resolvePath("target/sonar/jacoco-overall.exec")).thenReturn(new File("target/sonar/jacoco-overall.exec"));
 
     sensor.analyse(project, context);
 
     verify(context).getResource(resource);
-    verify(context).saveMeasure(resource, new Measure(CoreMetrics.MERGED_LINES_TO_COVER, 5.0));
-    verify(context).saveMeasure(resource, new Measure(CoreMetrics.MERGED_UNCOVERED_LINES, 0.0));
-    verify(context).saveMeasure(resource, new Measure(CoreMetrics.MERGED_COVERAGE_LINE_HITS_DATA, "3=1;6=1;7=1;10=1;11=1"));
+    verify(context).saveMeasure(resource, new Measure(CoreMetrics.OVERALL_LINES_TO_COVER, 5.0));
+    verify(context).saveMeasure(resource, new Measure(CoreMetrics.OVERALL_UNCOVERED_LINES, 0.0));
+    verify(context).saveMeasure(resource, new Measure(CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA, "3=1;6=1;7=1;10=1;11=1"));
     verifyNoMoreInteractions(context);
   }
 
   @Test
   public void testSensorDefinition() {
-    assertThat(sensor.toString()).isEqualTo("JaCoCoAllTestsSensor");
+    assertThat(sensor.toString()).isEqualTo("JaCoCoOverallSensor");
   }
 }

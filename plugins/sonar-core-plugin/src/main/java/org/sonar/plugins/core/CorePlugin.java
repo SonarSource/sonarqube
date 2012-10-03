@@ -48,9 +48,9 @@ import org.sonar.plugins.core.filters.ProjectFilter;
 import org.sonar.plugins.core.filters.TreeMapFilter;
 import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
 import org.sonar.plugins.core.security.DefaultResourcePermissions;
-import org.sonar.plugins.core.sensors.AllTestsBranchCoverageDecorator;
-import org.sonar.plugins.core.sensors.AllTestsCoverageDecorator;
-import org.sonar.plugins.core.sensors.AllTestsLineCoverageDecorator;
+import org.sonar.plugins.core.sensors.OverallBranchCoverageDecorator;
+import org.sonar.plugins.core.sensors.OverallCoverageDecorator;
+import org.sonar.plugins.core.sensors.OverallLineCoverageDecorator;
 import org.sonar.plugins.core.sensors.BranchCoverageDecorator;
 import org.sonar.plugins.core.sensors.CheckAlertThresholds;
 import org.sonar.plugins.core.sensors.CommentDensityDecorator;
@@ -89,7 +89,6 @@ import org.sonar.plugins.core.timemachine.ViolationPersisterDecorator;
 import org.sonar.plugins.core.timemachine.ViolationTrackingDecorator;
 import org.sonar.plugins.core.web.Lcom4Viewer;
 import org.sonar.plugins.core.widgets.AlertsWidget;
-import org.sonar.plugins.core.widgets.AllTestsCoverageWidget;
 import org.sonar.plugins.core.widgets.CommentsDuplicationsWidget;
 import org.sonar.plugins.core.widgets.ComplexityWidget;
 import org.sonar.plugins.core.widgets.CoverageWidget;
@@ -345,7 +344,6 @@ public final class CorePlugin extends SonarPlugin {
         AlertsWidget.class,
         CoverageWidget.class,
         ItCoverageWidget.class,
-        AllTestsCoverageWidget.class,
         CommentsDuplicationsWidget.class,
         DescriptionWidget.class,
         ComplexityWidget.class,
@@ -403,9 +401,9 @@ public final class CorePlugin extends SonarPlugin {
         ItLineCoverageDecorator.class,
         ItCoverageDecorator.class,
         ItBranchCoverageDecorator.class,
-        AllTestsLineCoverageDecorator.class,
-        AllTestsCoverageDecorator.class,
-        AllTestsBranchCoverageDecorator.class,
+        OverallLineCoverageDecorator.class,
+        OverallCoverageDecorator.class,
+        OverallBranchCoverageDecorator.class,
         DefaultResourcePermissions.class,
         ApplyProjectRolesDecorator.class,
         ExcludedResourceFilter.class,
