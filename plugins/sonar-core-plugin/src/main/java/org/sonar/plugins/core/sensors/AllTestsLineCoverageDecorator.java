@@ -29,7 +29,6 @@ import java.util.Arrays;
 import java.util.List;
 
 public final class AllTestsLineCoverageDecorator extends AbstractCoverageDecorator {
-
   @DependsUpon
   public List<Metric> dependsUponMetrics() {
     return Arrays.asList(CoreMetrics.MERGED_UNCOVERED_LINES, CoreMetrics.MERGED_LINES_TO_COVER, CoreMetrics.NEW_MERGED_UNCOVERED_LINES,

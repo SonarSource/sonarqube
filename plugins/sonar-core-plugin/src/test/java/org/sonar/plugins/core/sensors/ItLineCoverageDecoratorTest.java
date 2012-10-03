@@ -38,8 +38,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class LineCoverageDecoratorTest {
-  private final LineCoverageDecorator decorator = new LineCoverageDecorator();
+public class ItLineCoverageDecoratorTest {
+  private final ItLineCoverageDecorator decorator = new ItLineCoverageDecorator();
   private final Project project = mock(Project.class);
 
   @Before
@@ -51,7 +51,7 @@ public class LineCoverageDecoratorTest {
   public void should_depend_on_coverage_metrics() {
     List<Metric> metrics = decorator.dependsUponMetrics();
 
-    assertThat(metrics).containsOnly(CoreMetrics.UNCOVERED_LINES, CoreMetrics.LINES_TO_COVER, CoreMetrics.NEW_UNCOVERED_LINES, CoreMetrics.NEW_LINES_TO_COVER);
+    assertThat(metrics).containsOnly(CoreMetrics.IT_UNCOVERED_LINES, CoreMetrics.IT_LINES_TO_COVER, CoreMetrics.NEW_IT_UNCOVERED_LINES, CoreMetrics.NEW_IT_LINES_TO_COVER);
   }
 
   @Test
@@ -73,7 +73,7 @@ public class LineCoverageDecoratorTest {
     decorator.decorate(project, context);
 
     // 50-10 covered lines / 50 lines
-    verify(context).saveMeasure(CoreMetrics.LINE_COVERAGE, 80.0);
+    verify(context).saveMeasure(CoreMetrics.IT_LINE_COVERAGE, 80.0);
   }
 
   @Test
@@ -82,7 +82,7 @@ public class LineCoverageDecoratorTest {
 
     decorator.decorate(project, context);
 
-    verify(context).saveMeasure(CoreMetrics.LINE_COVERAGE, 0.0);
+    verify(context).saveMeasure(CoreMetrics.IT_LINE_COVERAGE, 0.0);
   }
 
   @Test
@@ -91,7 +91,7 @@ public class LineCoverageDecoratorTest {
 
     decorator.decorate(project, context);
 
-    verify(context).saveMeasure(CoreMetrics.LINE_COVERAGE, 100.0);
+    verify(context).saveMeasure(CoreMetrics.IT_LINE_COVERAGE, 100.0);
   }
 
   @Test
@@ -100,13 +100,13 @@ public class LineCoverageDecoratorTest {
 
     decorator.decorate(project, context);
 
-    verify(context, never()).saveMeasure(eq(CoreMetrics.LINE_COVERAGE), anyDouble());
+    verify(context, never()).saveMeasure(eq(CoreMetrics.IT_LINE_COVERAGE), anyDouble());
   }
 
   private static DecoratorContext mockContext(int lines, int uncoveredLines) {
     DecoratorContext context = mock(DecoratorContext.class);
-    when(context.getMeasure(CoreMetrics.LINES_TO_COVER)).thenReturn(new Measure(CoreMetrics.LINES_TO_COVER, (double) lines));
-    when(context.getMeasure(CoreMetrics.UNCOVERED_LINES)).thenReturn(new Measure(CoreMetrics.UNCOVERED_LINES, (double) uncoveredLines));
+    when(context.getMeasure(CoreMetrics.IT_LINES_TO_COVER)).thenReturn(new Measure(CoreMetrics.IT_LINES_TO_COVER, (double) lines));
+    when(context.getMeasure(CoreMetrics.IT_UNCOVERED_LINES)).thenReturn(new Measure(CoreMetrics.IT_UNCOVERED_LINES, (double) uncoveredLines));
     return context;
   }
 }

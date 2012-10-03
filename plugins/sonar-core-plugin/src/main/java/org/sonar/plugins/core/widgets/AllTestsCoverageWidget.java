@@ -24,10 +24,9 @@ import org.sonar.api.web.RubyRailsWidget;
 import org.sonar.api.web.UserRole;
 import org.sonar.api.web.WidgetCategory;
 
-@WidgetCategory({ "Tests" })
+@WidgetCategory("Tests")
 @UserRole(UserRole.USER)
 public class AllTestsCoverageWidget extends AbstractRubyTemplate implements RubyRailsWidget {
-
   public String getId() {
     return "merged-coverage";
   }

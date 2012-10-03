@@ -27,7 +27,6 @@ import org.sonar.api.web.WidgetCategory;
 @WidgetCategory("Tests")
 @UserRole(UserRole.USER)
 public class CoverageWidget extends AbstractRubyTemplate implements RubyRailsWidget {
-
   public String getId() {
     return "code_coverage";
   }

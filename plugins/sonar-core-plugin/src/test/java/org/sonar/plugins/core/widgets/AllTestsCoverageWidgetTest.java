@@ -19,24 +19,23 @@
  */
 package org.sonar.plugins.core.widgets;
 
-import org.sonar.api.web.AbstractRubyTemplate;
-import org.sonar.api.web.RubyRailsWidget;
-import org.sonar.api.web.UserRole;
-import org.sonar.api.web.WidgetCategory;
+import org.junit.Test;
 
-@WidgetCategory("Tests")
-@UserRole(UserRole.USER)
-public class ItCoverageWidget extends AbstractRubyTemplate implements RubyRailsWidget {
-  public String getId() {
-    return "it-coverage";
+import static org.fest.assertions.Assertions.assertThat;
+
+public class AllTestsCoverageWidgetTest {
+  @Test
+  public void should_define_widget() {
+    AllTestsCoverageWidget widget = new AllTestsCoverageWidget();
+
+    assertThat(widget.getId()).isEqualTo("merged-coverage");
+    assertThat(widget.getTitle()).isEqualTo("All Tests Coverage");
   }
 
-  public String getTitle() {
-    return "Integration Test Coverage";
-  }
+  @Test
+  public void should_use_relative_path_for_template() {
+    AllTestsCoverageWidget widget = new AllTestsCoverageWidget();
 
-  @Override
-  protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/it_coverage.html.erb";
+    assertThat(widget.getTemplatePath()).startsWith("/");
   }
 }
