@@ -14,12 +14,13 @@
 # Lesser General Public License for more details.
 #
 # You should have received a copy of the GNU Lesser General Public
-# License along with {library}; if not, write to the Free Software
+# License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 class Property < ActiveRecord::Base
   validates_presence_of :prop_key
 
+  named_scope :with_keys, lambda { |values| {:conditions => ['prop_key in (?)', values]} }
   named_scope :with_key, lambda { |value| {:conditions => {:prop_key, value}} }
   named_scope :with_key_prefix, lambda { |value| {:conditions => ['prop_key like ?', value + '%']} }
   named_scope :with_value, lambda { |value| {:conditions => ['text_value like ?', value]} }
@@ -88,7 +89,7 @@ class Property < ActiveRecord::Base
     if value.kind_of? Array
       value = drop_trailing_blank_values(value)
 
-      definition = Java::OrgSonarServerUi::JRubyFacade.getInstance().propertyDefinitions.get(key)
+      definition = Api::Utils.java_facade.propertyDefinitions.get(key)
       if definition && (definition.multi_values || !definition.fields.blank?)
         value = value.map { |v| v.gsub(',', '%2C') }.join(',')
       else
@@ -139,7 +140,7 @@ class Property < ActiveRecord::Base
   def java_definition
     @java_definition ||=
       begin
-        Java::OrgSonarServerUi::JRubyFacade.getInstance().getPropertyDefinitions().get(key)
+        Api::Utils.java_facade.getPropertyDefinitions().get(key)
       end
   end
 
@@ -147,7 +148,7 @@ class Property < ActiveRecord::Base
     @java_field_definition ||=
       begin
         if /(.*)\..*\.(.*)/.match(key)
-          property_definition = Java::OrgSonarServerUi::JRubyFacade.getInstance().getPropertyDefinitions().get(Regexp.last_match(1))
+          property_definition = Api::Utils.java_facade.getPropertyDefinitions().get(Regexp.last_match(1))
           if property_definition
             property_definition.fields.find { |field| field.key == Regexp.last_match(2) }
           end
@@ -166,7 +167,7 @@ class Property < ActiveRecord::Base
   private
 
   def self.setGlobalProperty(key, value, resource_id, user_id)
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().setGlobalProperty(key, value) unless (resource_id || user_id)
+    Api::Utils.java_facade.setGlobalProperty(key, value) unless (resource_id || user_id)
   end
 
   def self.all(key, resource_id=nil, user_id=nil)
