@@ -24,13 +24,9 @@
 					</form>
 					<% if flash[:loginerror] %>
 						<div class="error" style=""> <%= flash[:loginerror]  %></div>
-					<% end %>	
-				</div>				
+					<% end %>
+				</div>
 			</td>
 		</tr>
-	</table>	
-<script type="text/javascript">
-//<![CDATA[
-    $('login').activate();
-//]]>
-</script>
+	</table>
+  <script>$j('#login').focus()</script>
