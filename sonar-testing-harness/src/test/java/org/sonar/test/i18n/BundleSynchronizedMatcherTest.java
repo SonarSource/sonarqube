@@ -58,12 +58,19 @@ public class BundleSynchronizedMatcherTest {
   }
 
   @Test
+  public void shouldMatchEvenWithAdditionalKeys() {
+    assertThat("myPlugin_fr_QB.properties", matcher);
+    assertFalse(new File("target/l10n/myPlugin_fr_CA.properties.report.txt").exists());
+  }
+
+  @Test
   public void shouldNotMatch() {
     try {
       assertThat("myPlugin_fr.properties", matcher);
       assertTrue(new File("target/l10n/myPlugin_fr.properties.report.txt").exists());
     } catch (AssertionError e) {
       assertThat(e.getMessage(), containsString("Missing translations are:\nsecond.prop"));
+      assertThat(e.getMessage(), containsString("The following translations do not exist in the reference bundle:\nfourth.prop"));
     }
   }
 

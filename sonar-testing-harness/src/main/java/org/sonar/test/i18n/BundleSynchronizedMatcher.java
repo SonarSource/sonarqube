@@ -60,8 +60,15 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
 
     // and now let's compare!
     try {
+      // search for missing keys
       missingKeys = retrieveMissingTranslations(bundleInputStream, defaultBundleInputStream);
+
+      // and now for additional keys
+      bundleInputStream = getBundleFileInputStream(bundleName);
+      defaultBundleInputStream = getDefaultBundleFileInputStream(bundleName);
       additionalKeys = retrieveMissingTranslations(defaultBundleInputStream, bundleInputStream);
+
+      // And fail only if there are missing keys
       return missingKeys.isEmpty();
     } catch (IOException e) {
       fail("An error occured while reading the bundles: " + e.getMessage());
