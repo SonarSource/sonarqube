@@ -43,7 +43,7 @@ import java.io.InputStream;
 import java.util.Collection;
 
 public class JaCoCoAllTestsSensor implements Sensor {
-  private static final String MERGED_EXEC = "target/merged.exec";
+  private static final String MERGED_EXEC = "target/sonar/merged.exec";
 
   private final JacocoConfiguration configuration;
 
@@ -66,6 +66,7 @@ public class JaCoCoAllTestsSensor implements Sensor {
     File reportUTs = project.getFileSystem().resolvePath(configuration.getReportPath());
     File reportITs = project.getFileSystem().resolvePath(configuration.getItReportPath());
     File reportAllTests = project.getFileSystem().resolvePath(MERGED_EXEC);
+    reportAllTests.getParentFile().mkdirs();
 
     SessionInfoStore infoStore = new SessionInfoStore();
     ExecutionDataStore dataStore = new ExecutionDataStore();
