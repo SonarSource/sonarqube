@@ -78,7 +78,7 @@ class Api::Utils
   def self.message(key, options={})
     default = options[:default]
     params = options[:params]||[]
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().getMessage(I18n.locale, key, default, params.to_java)
+    java_facade.getMessage(I18n.locale, key, default, params.to_java)
   end
 
   #
