@@ -48,9 +48,6 @@ import org.sonar.plugins.core.filters.ProjectFilter;
 import org.sonar.plugins.core.filters.TreeMapFilter;
 import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
 import org.sonar.plugins.core.security.DefaultResourcePermissions;
-import org.sonar.plugins.core.sensors.OverallBranchCoverageDecorator;
-import org.sonar.plugins.core.sensors.OverallCoverageDecorator;
-import org.sonar.plugins.core.sensors.OverallLineCoverageDecorator;
 import org.sonar.plugins.core.sensors.BranchCoverageDecorator;
 import org.sonar.plugins.core.sensors.CheckAlertThresholds;
 import org.sonar.plugins.core.sensors.CommentDensityDecorator;
@@ -64,6 +61,9 @@ import org.sonar.plugins.core.sensors.ItLineCoverageDecorator;
 import org.sonar.plugins.core.sensors.LineCoverageDecorator;
 import org.sonar.plugins.core.sensors.ManualMeasureDecorator;
 import org.sonar.plugins.core.sensors.ManualViolationInjector;
+import org.sonar.plugins.core.sensors.OverallBranchCoverageDecorator;
+import org.sonar.plugins.core.sensors.OverallCoverageDecorator;
+import org.sonar.plugins.core.sensors.OverallLineCoverageDecorator;
 import org.sonar.plugins.core.sensors.ProfileEventsSensor;
 import org.sonar.plugins.core.sensors.ProfileSensor;
 import org.sonar.plugins.core.sensors.ProjectLinksSensor;
@@ -80,6 +80,7 @@ import org.sonar.plugins.core.testdetailsviewer.TestsViewerDefinition;
 import org.sonar.plugins.core.timemachine.NewCoverageAggregator;
 import org.sonar.plugins.core.timemachine.NewCoverageFileAnalyzer;
 import org.sonar.plugins.core.timemachine.NewItCoverageFileAnalyzer;
+import org.sonar.plugins.core.timemachine.NewOverallCoverageFileAnalyzer;
 import org.sonar.plugins.core.timemachine.NewViolationsDecorator;
 import org.sonar.plugins.core.timemachine.ReferenceAnalysis;
 import org.sonar.plugins.core.timemachine.TendencyDecorator;
@@ -429,6 +430,7 @@ public final class CorePlugin extends SonarPlugin {
         TimeMachineConfigurationPersister.class,
         NewCoverageFileAnalyzer.class,
         NewItCoverageFileAnalyzer.class,
+        NewOverallCoverageFileAnalyzer.class,
         NewCoverageAggregator.class);
   }
 }
