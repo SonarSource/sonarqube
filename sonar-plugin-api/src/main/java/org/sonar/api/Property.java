@@ -88,7 +88,15 @@ public @interface Property {
   /**
    * Options for *_LIST types
    *
-   * @since 3.0
+   * @since 3.0  Options for property of type PropertyType.SINGLE_SELECT_LIST</code>
+   *
+   * @since 3.3  Options for property of type PropertyType.METRIC</code>.
+   * If no option is specified, any metric will match.
+   * If options are specified, all must match for the metric to be displayed.
+   * Three types of filter are supported <code>key:REGEXP</code>, <code>domain:REGEXP</code> and <code>type:comma_separated__list_of_types</code>.
+   * For example <code>key:new_.*</code> will match any metric which key starts by <code>new_</code>.
+   * For example <code>type:INT,FLOAT</code> will match any metric of type <code>INT</code> or <code>FLOAT</code>.
+   * For example <code>type:NUMERIC</code> will match any metric of numerictype.
    */
   String[] options() default {};
 

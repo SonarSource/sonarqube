@@ -177,7 +177,9 @@ import java.util.List;
       @PropertyField(
         key = "metric",
         name = "metric",
-        type = PropertyType.METRIC),
+        type = PropertyType.METRIC,
+        options = {"regexp_on_key: new_.*"}
+      ),
       @PropertyField(
         key = "password",
         name = "password",
