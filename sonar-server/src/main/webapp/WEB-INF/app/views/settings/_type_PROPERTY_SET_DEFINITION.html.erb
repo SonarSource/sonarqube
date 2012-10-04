@@ -5,7 +5,13 @@
   <tr>
     <th><%= message('key') -%></th>
     <% property.fields.each do |field| -%>
-      <th><%= field_name(property, field) -%></th>
+      <th>
+        <%= field_name(property, field) -%>
+        <% desc = field_description(property, field) -%>
+        <% unless desc.blank? %>
+          <p class="note"><%= desc -%></p>
+        <% end -%>
+      </th>
     <% end -%>
     <th></th>
   </tr>

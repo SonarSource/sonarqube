@@ -1,3 +1,5 @@
+<% errors = [] -%>
+
 <tr class="multi_value <%= 'template' unless set_key -%>" style="<%= 'display:none' unless set_key -%>">
   <td><%= text_field_tag "property_sets[#{property.key}][]", set_key, :size => 50 -%></td>
 
@@ -6,7 +8,19 @@
     <% value = Property.value(key, resource_id) if set_key -%>
 
     <td><%= render "settings/type_#{field.type}", :property => field, :field => field, :value => value, :name => "#{property.key}[#{field.key}][]", :id => "input_#{h field.key}" -%></td>
+
+    <% errors << (render "settings/error", :key => key) if set_key -%>
   <% end -%>
 
   <td><a href="#" class="delete link-action"><%= message('delete') -%></a></td>
 </tr>
+
+<% unless errors.all?(&:blank?) -%>
+  <tr>
+    <td></td>
+    <% errors.each do |error| -%>
+      <td><%= error -%></td>
+    <% end -%>
+    <td></td>
+  </tr>
+<% end -%>
