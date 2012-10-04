@@ -1,7 +1,8 @@
 <% form_remote_tag :url => {:action => :save_widget, :wid => widget.id, :id => params[:id]},
                    :method => :post,
                    :update => {:failure => "error#{widget.id}"},
-                   :failure => "$('error#{widget.id}').show()" do -%>
+                   :failure => "$('error#{widget.id}').show()",
+                   :id => "form-edit-#{widget.key.parameterize}" do -%>
   <div id="error<%= widget.id -%>" class="error" style="display: none"></div>
   <table class="table width100">
     <tbody>
@@ -14,7 +15,7 @@
               :resource_type_property => 'supportsGlobalDashboards',
               :selected_resource => widget.resource,
               :width => '250px',
-              :html_id => "sel-prj-#{widget.id}"} -%>
+              :html_id => "widget-select-prj-#{widget.key.parameterize}"} -%>
         </td>
       </tr>
     <% end %>
@@ -33,7 +34,7 @@
 
     <tr>
       <td colspan="2">
-        <%= submit_tag message('save') %>
+        <%= submit_tag message('save'), :id => "widget-save-#{widget.key.parameterize}" -%>
         <% if widget.configured %>
           <a href="#" onClick="portal.cancelEditWidget(<%= widget.id -%>);return false;"><%= message('cancel') -%></a>
         <% end %>
