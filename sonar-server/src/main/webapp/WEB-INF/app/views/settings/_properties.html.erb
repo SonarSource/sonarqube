@@ -15,7 +15,7 @@
       </thead>
       <tbody>
       <% @definitions.each do |property| -%>
-        <tr class="<%= cycle('even', 'odd', :name => 'properties') -%>">
+        <tr class="property <%= cycle('even', 'odd', :name => 'properties') -%>">
           <td style="padding: 10px" id="block_<%= property.key -%>">
             <h3>
               <div><%= property_name(property) -%></div>
@@ -74,8 +74,9 @@
   $j('.add_value').live('click', function () {
     $j('.delete').show();
 
-    var template = $j(this).siblings('.template');
-    template.before(template.html());
+    var template = $j(this).parents('.property').find('.template').last();
+    template.clone().insertBefore(template).show();
+
     return false;
   });
 </script>

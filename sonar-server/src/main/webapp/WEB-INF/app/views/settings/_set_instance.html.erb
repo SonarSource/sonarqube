@@ -1,25 +1,12 @@
-<div class="multi_value">
-  <div class="field">
-    <label><%= message('key') %>:</label>
-    <%= text_field_tag "property_sets[#{property.key}][]", set_key, :size => 50 -%>
-    <a href="#" class="delete link-action"><%= message('delete') -%></a>
-  </div>
+<tr class="multi_value <%= 'template' unless set_key -%>" style="<%= 'display:none' unless set_key -%>">
+  <td><%= text_field_tag "property_sets[#{property.key}][]", set_key, :size => 50 -%></td>
 
   <% property.fields.each do |field| -%>
     <% key = "#{property.key}.#{set_key}.#{field.key}" if set_key -%>
     <% value = Property.value(key, resource_id) if set_key -%>
 
-    <div class="field">
-      <label><%= field_name(property, field) -%>: </label>
-      <%= render "settings/type_#{field.type}", :property => field, :field => field, :value => value, :name => "#{property.key}[#{field.key}][]", :id => "input_#{h field.key}" -%>
-
-      <% desc=field_description(property, field) -%>
-      <% unless desc.blank? %>
-        <p class="note"><%= desc -%></p>
-      <% end -%>
-
-      <%= render "settings/error", :key => key -%>
-    </div>
+    <td><%= render "settings/type_#{field.type}", :property => field, :field => field, :value => value, :name => "#{property.key}[#{field.key}][]", :id => "input_#{h field.key}" -%></td>
   <% end -%>
-  <br/>
-</div>
+
+  <td><a href="#" class="delete link-action"><%= message('delete') -%></a></td>
+</tr>

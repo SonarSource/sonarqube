@@ -1,11 +1,29 @@
 <% resource_id = @resource.id if @resource -%>
 
-<% Property.values(property.key, resource_id).reject(&:blank?).each do |set_key| -%>
-  <%= render 'settings/set_instance', :property => property, :set_key => set_key, :resource_id => resource_id %>
-<% end -%>
+<table class="data">
+  <thead>
+  <tr>
+    <th><%= message('key') -%></th>
+    <% property.fields.each do |field| -%>
+      <th><%= field_name(property, field) -%></th>
+    <% end -%>
+    <th></th>
+  </tr>
+  </thead>
 
-<div class="template" style="display:none;">
+  <tbody>
+  <% Property.values(property.key, resource_id).reject(&:blank?).each do |set_key| -%>
+    <%= render 'settings/set_instance', :property => property, :set_key => set_key, :resource_id => resource_id %>
+  <% end -%>
   <%= render 'settings/set_instance', :property => property, :set_key => nil, :resource_id => resource_id %>
-</div>
 
-<button class="add_value"><%= message('settings.add') -%></button>
+  </tbody>
+
+  <tfoot>
+  <tr>
+    <td>
+      <button class="add_value"><%= message('settings.add') -%></button>
+    </td>
+  </tr>
+  </tfoot>
+</table>

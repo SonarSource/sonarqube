@@ -1091,13 +1091,20 @@ div.progress div.note {
 }
 
 div.autocomplete {
+  position: absolute;
+  width: 600px;
+  right: 10px;
+  top: 10px;
   background-color: #fff;
   border: 1px solid #ccc;
   margin: 0;
   padding: 0;
   color: #111;
   line-height: 18px;
-  box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5);
+  -moz-box-shadow: 0 0 10px 5px #EFEFEF;
+  -webkit-box-shadow: 0 0 10px 5px #EFEFEF;
+  -o-box-shadow: 0 0 10px 5px #EFEFEF;
+  box-shadow: 0 0 10px 5px #EFEFEF;
   z-index: 999999;
 }
 
@@ -2415,27 +2422,6 @@ textarea.width100 {
   -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
   -moz-box-sizing: border-box; /* Firefox, other Gecko */
   box-sizing: border-box; /* Opera/IE 8+ */
-}
-
-.field {
-  margin-bottom: 5px;
-}
-
-.field label {
-  text-align: right;
-  width: 80px;
-  display: block;
-  float: left;
-  line-height: 1;
-  word-wrap: break-word;
-  position: relative;
-  padding-top: 5px;
-  padding-right: 5px;
-}
-
-.field .note, .field .error  {
-  margin-top: 3px;
-  margin-left: 88px;
 }
 
 .coverage tr {
