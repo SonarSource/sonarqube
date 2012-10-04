@@ -1783,50 +1783,6 @@ public final class CoreMetrics {
   /**
    * @since 2.7
    */
-  public static final String SCM_COMMITS_KEY = "commits";
-
-  /**
-   * @since 2.7
-   */
-  public static final Metric SCM_COMMITS = new Metric.Builder(SCM_COMMITS_KEY, "Commits", Metric.ValueType.INT)
-      .setDomain(DOMAIN_SCM)
-      .create();
-
-  /**
-   * @since 2.7
-   */
-  public static final String SCM_LAST_COMMIT_DATE_KEY = "last_commit_date";
-
-  /**
-   * Date of last commit, which is represented as string in format {@link org.sonar.api.utils.DateUtils#DATE_FORMAT}.
-   *
-   * @since 2.7
-   */
-  public static final Metric SCM_LAST_COMMIT_DATE = new Metric.Builder(SCM_LAST_COMMIT_DATE_KEY, "Last commit", Metric.ValueType.STRING /*
-                                                                                                                                         * TODO:
-                                                                                                                                         * move
-                                                                                                                                         * to
-                                                                                                                                         * date
-                                                                                                                                         */)
-      .setDomain(DOMAIN_SCM)
-      .create();
-
-  /**
-   * @since 2.7
-   */
-  public static final String SCM_REVISION_KEY = "revision";
-
-  /**
-   * @since 2.7
-   */
-  public static final Metric SCM_REVISION = new Metric.Builder(SCM_REVISION_KEY, "Revision", Metric.ValueType.STRING)
-      .setDomain(DOMAIN_SCM)
-      .setHidden(true)
-      .create();
-
-  /**
-   * @since 2.7
-   */
   public static final String SCM_AUTHORS_BY_LINE_KEY = "authors_by_line";
 
   /**
