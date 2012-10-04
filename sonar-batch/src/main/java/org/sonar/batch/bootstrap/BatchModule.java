@@ -22,7 +22,6 @@ package org.sonar.batch.bootstrap;
 import org.sonar.api.Plugins;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.batch.DefaultFileLinesContextFactory;
@@ -84,7 +83,6 @@ public class BatchModule extends Module {
     addCoreSingleton(DefaultNotificationManager.class);
     addCoreSingleton(DefaultUserFinder.class);
     addCoreSingleton(ResourceTypes.class);
-    addCoreSingleton(Languages.class);
     addCoreMetrics();
     addBatchExtensions();
   }

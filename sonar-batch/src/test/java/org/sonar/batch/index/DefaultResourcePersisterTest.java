@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.index;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.database.model.ResourceModel;
@@ -43,22 +44,22 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
   @Before
   public void before() throws ParseException {
     SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-    singleProject = new Project("foo");
-    singleProject.setName("Foo").setDescription("some description").setLanguageKey("java").setAnalysisDate(format.parse("25/12/2010"));
+    singleProject = newProject("foo", "java");
+    singleProject.setName("Foo").setDescription("some description").setAnalysisDate(format.parse("25/12/2010"));
 
-    multiModuleProject = new Project("root");
-    multiModuleProject.setName("Root").setLanguageKey("java").setAnalysisDate(format.parse("25/12/2010"));
+    multiModuleProject = newProject("root", "java");
+    multiModuleProject.setName("Root").setAnalysisDate(format.parse("25/12/2010"));
 
-    moduleA = new Project("a");
-    moduleA.setName("A").setLanguageKey("java").setAnalysisDate(format.parse("25/12/2010"));
+    moduleA = newProject("a", "java");
+    moduleA.setName("A").setAnalysisDate(format.parse("25/12/2010"));
     moduleA.setParent(multiModuleProject);
 
-    moduleB = new Project("b");
-    moduleB.setName("B").setLanguageKey("java").setAnalysisDate(format.parse("25/12/2010"));
+    moduleB = newProject("b", "java");
+    moduleB.setName("B").setAnalysisDate(format.parse("25/12/2010"));
     moduleB.setParent(multiModuleProject);
 
-    moduleB1 = new Project("b1");
-    moduleB1.setName("B1").setLanguageKey("java").setAnalysisDate(format.parse("25/12/2010"));
+    moduleB1 = newProject("b1", "java");
+    moduleB1.setName("B1").setAnalysisDate(format.parse("25/12/2010"));
     moduleB1.setParent(moduleB);
   }
 
@@ -100,7 +101,6 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     // check that the directory is attached to the project
     checkTables("shouldSaveNewDirectory", new String[] {"build_date", "created_at"}, "projects", "snapshots");
   }
-
   @Test
   public void shouldSaveNewLibrary() {
     setupData("shared");
@@ -151,6 +151,12 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     persister.saveProject(singleProject, null);
 
     checkTables("shouldRemoveRootIndexIfResourceIsProject", new String[] {"build_date", "created_at"}, "projects", "snapshots");
+  }
+
+  private static Project newProject(String key, String language) {
+    PropertiesConfiguration configuration = new PropertiesConfiguration();
+    configuration.setProperty("sonar.language", language);
+    return new Project(key).setConfiguration(configuration).setAnalysisType(Project.AnalysisType.DYNAMIC);
   }
 
 }

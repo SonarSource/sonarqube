@@ -48,7 +48,7 @@ public abstract class AbstractLanguage implements Language {
    * @param name the display name of the language in the interface
    */
   public AbstractLanguage(String key, String name) {
-    Preconditions.checkArgument(key.length() < 21, "The following language key exceeds 20 characters: '" + key + "'");
+    Preconditions.checkArgument(key.length() <= 20, "The following language key exceeds 20 characters: '" + key + "'");
     this.key = key.toLowerCase(Locale.ENGLISH);
     this.name = name;
   }

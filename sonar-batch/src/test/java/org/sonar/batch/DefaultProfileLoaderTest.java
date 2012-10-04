@@ -19,6 +19,7 @@
  */
 package org.sonar.batch;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,7 +41,7 @@ public class DefaultProfileLoaderTest {
   public ExpectedException thrown = ExpectedException.none();
 
   private ProfilesDao dao;
-  private Project javaProject = new Project("project").setLanguageKey(Java.KEY);
+  private Project javaProject = newProject(Java.KEY);
 
   @Before
   public void setUp() {
@@ -73,11 +74,16 @@ public class DefaultProfileLoaderTest {
    */
   @Test
   public void should_give_explicit_message_if_default_profile_not_found() {
-    Project cobolProject = new Project("cobol-javaProject").setLanguageKey("cobol");
+    Project cobolProject = newProject("cobol");
 
     thrown.expect(SonarException.class);
     thrown.expectMessage("You must install a plugin that supports the language 'cobol'");
     new DefaultProfileLoader(dao, new Settings()).load(cobolProject);
   }
 
+  private Project newProject(String language) {
+    PropertiesConfiguration configuration = new PropertiesConfiguration();
+    configuration.setProperty("sonar.language", language);
+    return new Project("project").setConfiguration(configuration);
+  }
 }

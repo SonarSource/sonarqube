@@ -39,31 +39,35 @@ public class SonarBridgeEngineTest {
 
   @Test
   public void defaultMinimumTokens() {
-    Project project = new Project("foo").setConfiguration(new PropertiesConfiguration());
+    Project project = newProject("foo", "java");
 
     assertThat(SonarBridgeEngine.getMinimumTokens(project), is(CoreProperties.CPD_MINIMUM_TOKENS_DEFAULT_VALUE));
   }
 
   @Test
   public void generalMinimumTokens() {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty("sonar.cpd.minimumTokens", "33");
-    Project project = new Project("foo").setConfiguration(conf);
+    Project project = newProject("foo", "java");
+    project.getConfiguration().setProperty("sonar.cpd.minimumTokens", "33");
 
     assertThat(SonarBridgeEngine.getMinimumTokens(project), is(33));
   }
 
   @Test
   public void minimumTokensByLanguage() {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty("sonar.cpd.java.minimumTokens", "42");
-    conf.setProperty("sonar.cpd.php.minimumTokens", "33");
-
-    Project javaProject = new Project("foo").setLanguageKey("java").setConfiguration(conf);
-    Project phpProject = new Project("foo").setLanguageKey("php").setConfiguration(conf);
-
+    Project javaProject = newProject("foo", "java");
+    javaProject.getConfiguration().setProperty("sonar.cpd.java.minimumTokens", "42");
+    javaProject.getConfiguration().setProperty("sonar.cpd.php.minimumTokens", "33");
     assertThat(SonarBridgeEngine.getMinimumTokens(javaProject), is(42));
+
+    Project phpProject = newProject("foo", "php");
+    phpProject.getConfiguration().setProperty("sonar.cpd.java.minimumTokens", "42");
+    phpProject.getConfiguration().setProperty("sonar.cpd.php.minimumTokens", "33");
     assertThat(SonarBridgeEngine.getMinimumTokens(phpProject), is(33));
   }
 
+  private static Project newProject(String key, String language) {
+    PropertiesConfiguration conf = new PropertiesConfiguration();
+    conf.setProperty("sonar.language", language);
+    return new Project(key).setConfiguration(conf).setAnalysisType(Project.AnalysisType.DYNAMIC);
+  }
 }

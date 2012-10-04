@@ -17,13 +17,14 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.batch.phases;
 
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Languages;
+import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.config.ProjectSettings;
+import org.sonar.batch.bootstrap.DryRun;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 
@@ -42,12 +43,11 @@ public class ProjectInitializer implements BatchComponent {
     this.languages = languages;
   }
 
-  public void execute(Project project, ProjectSettings settings) {
-    initLanguage(project, settings);
+  public void execute(Project project) {
+    initLanguage(project);
   }
 
-  private void initLanguage(Project project, ProjectSettings settings) {
-    project.setLanguageKey(StringUtils.defaultIfBlank(settings.getString("sonar.language"), Java.KEY));
+  private void initLanguage(Project project) {
     Language language = languages.get(project.getLanguageKey());
     if (language == null) {
       throw new SonarException("Language with key '" + project.getLanguageKey() + "' not found");

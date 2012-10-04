@@ -27,7 +27,6 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.bootstrap.ProjectInitializer;
 import org.sonar.core.config.ConfigurationUtils;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
@@ -43,15 +42,12 @@ public class ProjectSettings extends Settings {
   private ProjectDefinition projectDefinition;
   private PropertiesDao propertiesDao;
 
-  public ProjectSettings(PropertyDefinitions definitions, ProjectDefinition projectDefinition, PropertiesDao propertiesDao, Project project, ProjectInitializer initializer) {
+  public ProjectSettings(PropertyDefinitions definitions, ProjectDefinition projectDefinition, PropertiesDao propertiesDao, Project project) {
     super(definitions);
     this.deprecatedCommonsConf = project.getConfiguration(); // Configuration is not a parameter to be sure that the project conf is used, not the global one
     this.projectDefinition = projectDefinition;
     this.propertiesDao = propertiesDao;
     load();
-
-    // TODO should be refactored in a clean way
-    initializer.execute(project, this);
   }
 
   public ProjectSettings load() {

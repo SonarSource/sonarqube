@@ -35,7 +35,6 @@ import org.sonar.api.batch.InstantiationStrategy;
  * 
  * @since 1.10
  */
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 public class Languages implements BatchComponent, ServerComponent {
 
   private final Map<String, Language> map = Maps.newHashMap();

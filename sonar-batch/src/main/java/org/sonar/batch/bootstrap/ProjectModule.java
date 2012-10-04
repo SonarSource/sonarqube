@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.IocContainer;
 import org.sonar.batch.*;
@@ -63,7 +64,6 @@ public class ProjectModule extends Module {
     addCoreSingleton(projectDefinition);
     addCoreSingleton(project);
     addCoreSingleton(project.getConfiguration());
-    addCoreSingleton(ProjectInitializer.class);
     addCoreSingleton(ProjectSettings.class);
     addCoreSingleton(UnsupportedProperties.class);
     addCoreSingleton(IocContainer.class);
@@ -71,6 +71,7 @@ public class ProjectModule extends Module {
     for (Object component : projectDefinition.getContainerExtensions()) {
       addCoreSingleton(component);
     }
+    addCoreSingleton(Languages.class);
     addCoreSingleton(DefaultProjectClasspath.class);
     addCoreSingleton(DefaultProjectFileSystem2.class);
     addCoreSingleton(RulesDao.class);

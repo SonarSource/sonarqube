@@ -65,16 +65,18 @@ public class CpdSensorTest {
   }
 
   @Test
-  public void skipByLanguage() {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty("sonar.cpd.skip", "false");
-    conf.setProperty("sonar.cpd.php.skip", "true");
+  public void shouldSkipByLanguage() {
 
-    Project phpProject = createPhpProject().setConfiguration(conf);
-    Project javaProject = createJavaProject().setConfiguration(conf);
-
+    Project phpProject = createPhpProject();
+    phpProject.getConfiguration().setProperty("sonar.cpd.skip", "false");
+    phpProject.getConfiguration().setProperty("sonar.cpd.php.skip", "true");
     assertTrue(sensor.isSkipped(phpProject));
+
+    Project javaProject = createJavaProject();
+    javaProject.getConfiguration().setProperty("sonar.cpd.skip", "false");
+    javaProject.getConfiguration().setProperty("sonar.cpd.php.skip", "true");
     assertFalse(sensor.isSkipped(javaProject));
+
   }
 
   @Test
@@ -87,12 +89,16 @@ public class CpdSensorTest {
   }
 
   private Project createJavaProject() {
-    return new Project("java_project").setLanguageKey("java").setLanguage(Java.INSTANCE);
+    PropertiesConfiguration conf = new PropertiesConfiguration();
+    conf.setProperty("sonar.language", "java");
+    return new Project("java_project").setConfiguration(conf).setLanguage(Java.INSTANCE);
   }
 
   private Project createPhpProject() {
+    PropertiesConfiguration conf = new PropertiesConfiguration();
+    conf.setProperty("sonar.language", "php");
     Language phpLanguage = mock(Language.class);
-    return new Project("php_project").setLanguageKey("php").setLanguage(phpLanguage);
+    return new Project("php_project").setConfiguration(conf).setLanguage(phpLanguage);
   }
 
 }

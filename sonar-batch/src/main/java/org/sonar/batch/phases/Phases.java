@@ -22,6 +22,7 @@ package org.sonar.batch.phases;
 import com.google.common.collect.Lists;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.phases.ProjectInitializer;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.PersistenceManager;
@@ -34,7 +35,7 @@ public final class Phases {
   public static Collection<Class> getPhaseClasses(boolean dryRun) {
     List<Class> classes = Lists.<Class>newArrayList(DecoratorsExecutor.class, MavenPhaseExecutor.class, MavenPluginsConfigurator.class,
         PostJobsExecutor.class, SensorsExecutor.class,
-        InitializersExecutor.class);
+        InitializersExecutor.class, ProjectInitializer.class);
     if (!dryRun) {
       classes.add(UpdateStatusJob.class);
     }
@@ -52,12 +53,13 @@ public final class Phases {
   private PersistenceManager persistenceManager;
   private SensorContext sensorContext;
   private DefaultIndex index;
+  private ProjectInitializer pi;
 
   public Phases(DecoratorsExecutor decoratorsExecutor, MavenPhaseExecutor mavenPhaseExecutor,
                 MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
                 PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
                 PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
-                EventBus eventBus, UpdateStatusJob updateStatusJob) {
+                EventBus eventBus, UpdateStatusJob updateStatusJob, ProjectInitializer pi) {
     this.decoratorsExecutor = decoratorsExecutor;
     this.mavenPhaseExecutor = mavenPhaseExecutor;
     this.mavenPluginsConfigurator = mavenPluginsConfigurator;
@@ -69,21 +71,23 @@ public final class Phases {
     this.index = index;
     this.eventBus = eventBus;
     this.updateStatusJob = updateStatusJob;
+    this.pi = pi;
   }
 
   public Phases(DecoratorsExecutor decoratorsExecutor, MavenPhaseExecutor mavenPhaseExecutor,
                 MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
                 PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
                 PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
-                EventBus eventBus) {
+                EventBus eventBus, ProjectInitializer pi) {
     this(decoratorsExecutor, mavenPhaseExecutor, mavenPluginsConfigurator, initializersExecutor, postJobsExecutor,
-        sensorsExecutor, persistenceManager, sensorContext, index, eventBus, null);
+        sensorsExecutor, persistenceManager, sensorContext, index, eventBus, null, pi);
   }
 
   /**
    * Executed on each module
    */
   public void execute(Project project) {
+    pi.execute(project);
     eventBus.fireEvent(new ProjectAnalysisEvent(project, true));
     mavenPluginsConfigurator.execute(project);
     mavenPhaseExecutor.execute(project);

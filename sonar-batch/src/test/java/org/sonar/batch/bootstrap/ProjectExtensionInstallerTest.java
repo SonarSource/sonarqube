@@ -21,6 +21,7 @@ package org.sonar.batch.bootstrap;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.maven.project.MavenProject;
 import org.junit.Test;
 import org.sonar.api.BatchExtension;
@@ -101,12 +102,16 @@ public class ProjectExtensionInstallerTest {
   }
 
   private static Project newJavaProject() {
-    Project project = new Project("foo").setLanguageKey(Java.KEY).setAnalysisType(Project.AnalysisType.DYNAMIC);
+    PropertiesConfiguration configuration = new PropertiesConfiguration();
+    configuration.setProperty("sonar.language", Java.KEY);
+    Project project = new Project("foo").setConfiguration(configuration).setAnalysisType(Project.AnalysisType.DYNAMIC);
     return project;
   }
 
   private static Project newGroovyProject() {
-    return new Project("foo").setLanguageKey("grvy").setAnalysisType(Project.AnalysisType.DYNAMIC);
+    PropertiesConfiguration configuration = new PropertiesConfiguration();
+        configuration.setProperty("sonar.language", "grvy");
+    return new Project("foo").setConfiguration(configuration).setAnalysisType(Project.AnalysisType.DYNAMIC);
   }
 
   @Test

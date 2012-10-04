@@ -98,7 +98,6 @@ public class Project extends Resource {
   private String description;
   private String packaging;
   private Language language;
-  private String languageKey;
   private Date analysisDate;
   private AnalysisType analysisType;
   private String analysisVersion;
@@ -260,15 +259,7 @@ public class Project extends Resource {
    * @return the language key
    */
   public String getLanguageKey() {
-    return languageKey;
-  }
-
-  /**
-   * For internal use only.
-   */
-  public Project setLanguageKey(String languageKey) {
-    this.languageKey = languageKey;
-    return this;
+    return configuration.getString("sonar.language", Java.KEY);
   }
 
   /**
