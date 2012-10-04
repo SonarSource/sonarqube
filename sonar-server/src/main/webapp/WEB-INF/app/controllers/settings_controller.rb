@@ -56,27 +56,26 @@ class SettingsController < ApplicationController
 
   def update_property_sets(resource_id)
     (params[:property_sets] || []).each do |key, set_keys|
-      Property.transaction do
-        # clear
-        Property.with_key_prefix(key + '.').with_resource(resource_id).delete_all
+      if params[key][:auto_generate]
+        set_keys = Array.new(set_keys.size - 1) { |i| i.to_s }
+      end
 
-        if params[key][:auto_generate]
-          set_keys = Array.new(set_keys.size - 1) { |i| i.to_s }
-        end
+      update_property_set(key, set_keys, params[key], resource_id)
+    end
+  end
 
-        # set keys
-        update_property(key, set_keys, resource_id)
-        set_keys.each do |set_key|
-          update_property("#{key}.#{set_key}.key", set_key, resource_id)
-        end
+  def update_property_set(key, set_keys, fields_hash, resource_id)
+    Property.transaction do
+      Property.with_key_prefix(key + '.').with_resource(resource_id).delete_all
 
-        # set fields
-        params[key].each do |field_key, field_values|
-          field_values.zip(set_keys).each do |field_value, set_key|
-            if set_key
-              update_property("#{key}.#{set_key}.#{field_key}", field_value, resource_id)
-            end
-          end
+      update_property(key, set_keys, resource_id)
+      set_keys.each do |set_key|
+        update_property("#{key}.#{set_key}.key", set_key, resource_id)
+      end
+
+      fields_hash.each do |field_key, field_values|
+        field_values.zip(set_keys).each do |field_value, set_key|
+          update_property("#{key}.#{set_key}.#{field_key}", field_value, resource_id) if set_key
         end
       end
     end

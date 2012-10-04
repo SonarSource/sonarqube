@@ -9,12 +9,13 @@
   <% end -%>
 
   <% property.fields.reject { |field| field.key == 'key' }.each do |field| -%>
-    <% key = "#{property.key}.#{set_key}.#{field.key}" if set_key -%>
-    <% value = Property.value(key, resource_id) if set_key -%>
+    <% if set_key -%>
+      <% key = "#{property.key}.#{set_key}.#{field.key}" -%>
+      <% value = Property.value(key, resource_id) -%>
+      <% errors << (render "settings/error", :key => key) -%>
+    <% end -%>
 
     <td><%= render "settings/type_#{field.type}", :property => field, :field => field, :value => value, :name => "#{property.key}[#{field.key}][]", :id => "input_#{h field.key}", :size => field.indicativeSize -%></td>
-
-    <% errors << (render "settings/error", :key => key) if set_key -%>
   <% end -%>
 
   <td><a href="#" class="delete link-action"><%= message('delete') -%></a></td>
