@@ -1,1 +1,1 @@
-<input type="text" name="<%= name -%>" value="<%= h value if value -%>" size="50" id="<%= id -%>"/>
+<input type="text" name="<%= name -%>" value="<%= h value if value -%>" size="<%= (defined? size) ? size : 50 -%>" id="<%= id -%>"/>

@@ -1,13 +1,18 @@
 <% errors = [] -%>
+<% key_field = key_field(property) -%>
 
-<tr class="multi_value <%= 'template' unless set_key -%>" style="<%= 'display:none' unless set_key -%>">
-  <td><%= text_field_tag "property_sets[#{property.key}][]", set_key, :size => 50 -%></td>
+<tr class="top multi_value <%= 'template' unless set_key -%>" style="<%= 'display:none' unless set_key -%>">
+  <% if key_field -%>
+    <td><%= render "settings/type_#{key_field.type}", :property => key_field, :field => key_field, :value => set_key, :name => "property_sets[#{property.key}][]", :id => "input_#{h key_field.key}", :size => key_field.indicativeSize -%></td>
+  <% else -%>
+    <%= hidden_field_tag "property_sets[#{property.key}][]", set_key -%>
+  <% end -%>
 
-  <% property.fields.each do |field| -%>
+  <% property.fields.reject { |field| field.key == 'key' }.each do |field| -%>
     <% key = "#{property.key}.#{set_key}.#{field.key}" if set_key -%>
     <% value = Property.value(key, resource_id) if set_key -%>
 
-    <td><%= render "settings/type_#{field.type}", :property => field, :field => field, :value => value, :name => "#{property.key}[#{field.key}][]", :id => "input_#{h field.key}" -%></td>
+    <td><%= render "settings/type_#{field.type}", :property => field, :field => field, :value => value, :name => "#{property.key}[#{field.key}][]", :id => "input_#{h field.key}", :size => field.indicativeSize -%></td>
 
     <% errors << (render "settings/error", :key => key) if set_key -%>
   <% end -%>
@@ -17,10 +22,14 @@
 
 <% unless errors.all?(&:blank?) -%>
   <tr>
-    <td></td>
+    <% if key_field -%>
+      <td></td>
+    <% end -%>
+
     <% errors.each do |error| -%>
       <td><%= error -%></td>
     <% end -%>
+
     <td></td>
   </tr>
 <% end -%>

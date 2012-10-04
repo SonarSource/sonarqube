@@ -2431,3 +2431,12 @@ textarea.width100 {
 .coverage td.name {
   text-align: right;
 }
+
+.property table.data > tbody > tr > td {
+  vertical-align: top;
+}
+
+.property table.data {
+  width: auto;
+  min-width: 600px;
+}

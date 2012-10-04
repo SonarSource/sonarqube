@@ -130,19 +130,67 @@ import java.util.List;
   @Property(
     key = "sonar.test.jira.servers",
     name = "Jira Servers",
+    description = "List of jira server definitions",
     global = true,
     project = true,
     category = "DEV",
     fields = {
       @PropertyField(
+        key = "key",
+        name = "Key",
+        type = PropertyType.STRING,
+        indicativeSize = 10),
+      @PropertyField(
         key = "url",
         name = "Url",
         description = "l'url du serveur jira",
-        type = PropertyType.STRING),
+        type = PropertyType.STRING,
+        indicativeSize = 20),
       @PropertyField(
         key = "port",
         name = "Port",
-        type = PropertyType.INTEGER)}),
+        type = PropertyType.INTEGER,
+        indicativeSize = 5)}),
+  @Property(
+    key = "sonar.demo",
+    name = "Demo",
+    global = true,
+    project = true,
+    category = "DEV",
+    fields = {
+      @PropertyField(
+        key = "text",
+        name = "text",
+        type = PropertyType.TEXT),
+      @PropertyField(
+        key = "boolean",
+        name = "boolean",
+        type = PropertyType.BOOLEAN),
+      @PropertyField(
+        key = "float",
+        name = "float",
+        type = PropertyType.FLOAT),
+      @PropertyField(
+        key = "license",
+        name = "license",
+        type = PropertyType.LICENSE),
+      @PropertyField(
+        key = "metric",
+        name = "metric",
+        type = PropertyType.METRIC),
+      @PropertyField(
+        key = "password",
+        name = "password",
+        type = PropertyType.PASSWORD),
+      @PropertyField(
+        key = "regexp",
+        name = "regexp",
+        type = PropertyType.REGULAR_EXPRESSION),
+      @PropertyField(
+        key = "list",
+        name = "list",
+        type = PropertyType.SINGLE_SELECT_LIST,
+        options = {"AAA", "BBB"})}),
   @Property(
     key = "sonar.test.jira",
     name = "Jira",

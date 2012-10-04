@@ -45,7 +45,6 @@ class ResourceController < ApplicationController
         if @extension.getId()=='violations'
           render_violations()
         elsif (@extension.getId()=='coverage')
-          puts '-------------------------------------------'
           render_coverage()
         elsif (@extension.getId()=='source')
           render_source()

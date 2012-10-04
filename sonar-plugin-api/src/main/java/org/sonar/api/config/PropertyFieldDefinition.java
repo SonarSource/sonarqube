@@ -19,43 +19,42 @@
  */
 package org.sonar.api.config;
 
+import com.google.common.collect.Lists;
 import org.sonar.api.PropertyField;
 import org.sonar.api.PropertyType;
 
 import javax.annotation.Nullable;
 
+import java.util.List;
+
 /**
  * @since 3.3
  */
 public final class PropertyFieldDefinition {
-  private String key;
-  private String defaultValue;
-  private String name;
-  private PropertyType type = PropertyType.STRING;
-  private String[] options;
-  private String description;
+  private final String key;
+  private final String defaultValue;
+  private final String name;
+  private final String description;
+  private final int indicativeSize;
+  private final PropertyType type;
+  private final String[] options;
 
   private PropertyFieldDefinition(PropertyField annotation) {
     this.key = annotation.key();
-    this.name = annotation.name();
     this.defaultValue = annotation.defaultValue();
+    this.name = annotation.name();
     this.description = annotation.description();
+    this.indicativeSize = annotation.indicativeSize();
     this.type = annotation.type();
     this.options = annotation.options();
   }
 
-  public static PropertyFieldDefinition create(PropertyField annotation) {
-    return new PropertyFieldDefinition(annotation);
-  }
-
   public static PropertyFieldDefinition[] create(PropertyField[] fields) {
-    PropertyFieldDefinition[] definitions = new PropertyFieldDefinition[fields.length];
-
-    for (int i = 0; i < fields.length; i++) {
-      definitions[i] = create(fields[i]);
+    List<PropertyFieldDefinition> definitions = Lists.newArrayList();
+    for (PropertyField field : fields) {
+      definitions.add(new PropertyFieldDefinition(field));
     }
-
-    return definitions;
+    return definitions.toArray(new PropertyFieldDefinition[definitions.size()]);
   }
 
   public String getKey() {
@@ -70,16 +69,20 @@ public final class PropertyFieldDefinition {
     return name;
   }
 
+  public String getDescription() {
+    return description;
+  }
+
+  public int getIndicativeSize() {
+    return indicativeSize;
+  }
+
   public PropertyType getType() {
     return type;
   }
 
   public String[] getOptions() {
     return options.clone();
-  }
-
-  public String getDescription() {
-    return description;
   }
 
   public PropertyDefinition.Result validate(@Nullable String value) {

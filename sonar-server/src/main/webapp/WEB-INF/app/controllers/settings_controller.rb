@@ -56,13 +56,22 @@ class SettingsController < ApplicationController
 
   def update_property_sets(resource_id)
     (params[:property_sets] || []).each do |key, set_keys|
-      Property.with_key_prefix(key + '.').with_resource(resource_id).delete_all
-      update_property(key, set_keys, resource_id)
+      Property.transaction do
+        # clear
+        Property.with_key_prefix(key + '.').with_resource(resource_id).delete_all
 
-      params[key].each do |field_key, field_values|
-        field_values.zip(set_keys).each do |field_value, set_key|
-          if set_key
-            update_property("#{key}.#{set_key}.#{field_key}", field_value, resource_id)
+        # set keys
+        update_property(key, set_keys, resource_id)
+        set_keys.each do |set_key|
+          update_property("#{key}.#{set_key}.key", set_key, resource_id)
+        end
+
+        # set fields
+        params[key].each do |field_key, field_values|
+          field_values.zip(set_keys).each do |field_value, set_key|
+            if set_key
+              update_property("#{key}.#{set_key}.#{field_key}", field_value, resource_id)
+            end
           end
         end
       end

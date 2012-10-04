@@ -38,6 +38,10 @@ module SettingsHelper
     message("field.#{property.key}.#{field.key}.description", :default => field.description)
   end
 
+  def key_field(property)
+    property.fields.find { |f| f.key == 'key' }
+  end
+
   def option_name(property, field, option)
     if field
       message("option.#{property.key}.#{field.key}.#{option}.name", :default => option)

@@ -82,7 +82,7 @@ public class PropertyDefinitionTest {
 
   @Properties(@Property(key = "hello", name = "Hello", fields = {
     @PropertyField(key = "first", name = "First", description = "Description", options = {"A", "B"}),
-    @PropertyField(key = "second", name = "Second", type = PropertyType.INTEGER)}))
+    @PropertyField(key = "second", name = "Second", type = PropertyType.INTEGER, indicativeSize = 5)}))
   static class WithPropertySet {
   }
 
@@ -99,10 +99,12 @@ public class PropertyDefinitionTest {
     assertThat(def.getFields()[0].getDescription()).isEqualTo("Description");
     assertThat(def.getFields()[0].getType()).isEqualTo(PropertyType.STRING);
     assertThat(def.getFields()[0].getOptions()).containsOnly("A", "B");
+    assertThat(def.getFields()[0].getIndicativeSize()).isEqualTo(20);
     assertThat(def.getFields()[1].getKey()).isEqualTo("second");
     assertThat(def.getFields()[1].getName()).isEqualTo("Second");
     assertThat(def.getFields()[1].getType()).isEqualTo(PropertyType.INTEGER);
     assertThat(def.getFields()[1].getOptions()).isEmpty();
+    assertThat(def.getFields()[1].getIndicativeSize()).isEqualTo(5);
   }
 
   @Properties(@Property(key = "hello", name = "Hello"))
