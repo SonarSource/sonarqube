@@ -60,6 +60,10 @@ class SettingsController < ApplicationController
         # clear
         Property.with_key_prefix(key + '.').with_resource(resource_id).delete_all
 
+        if params[key][:auto_generate]
+          set_keys = Array.new(set_keys.size - 1) { |i| i.to_s }
+        end
+
         # set keys
         update_property(key, set_keys, resource_id)
         set_keys.each do |set_key|

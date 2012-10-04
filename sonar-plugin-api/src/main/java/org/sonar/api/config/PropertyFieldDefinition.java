@@ -32,7 +32,6 @@ import java.util.List;
  */
 public final class PropertyFieldDefinition {
   private final String key;
-  private final String defaultValue;
   private final String name;
   private final String description;
   private final int indicativeSize;
@@ -41,7 +40,6 @@ public final class PropertyFieldDefinition {
 
   private PropertyFieldDefinition(PropertyField annotation) {
     this.key = annotation.key();
-    this.defaultValue = annotation.defaultValue();
     this.name = annotation.name();
     this.description = annotation.description();
     this.indicativeSize = annotation.indicativeSize();
@@ -59,10 +57,6 @@ public final class PropertyFieldDefinition {
 
   public String getKey() {
     return key;
-  }
-
-  public String getDefaultValue() {
-    return defaultValue;
   }
 
   public String getName() {

@@ -41,11 +41,6 @@ public @interface PropertyField {
   String key();
 
   /**
-   * The empty string "" is considered as null, so it's not possible to have empty strings for default values.
-   */
-  String defaultValue() default "";
-
-  /**
    * This name will be displayed on the Settings page. This can be overridden/translated
    * by adding a a value for: <code>field.{key of parent property}.{key of this field}.name</code> in the language bundle.
    */

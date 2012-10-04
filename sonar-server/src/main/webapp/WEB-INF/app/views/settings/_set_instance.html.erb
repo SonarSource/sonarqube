@@ -5,7 +5,7 @@
   <% if key_field -%>
     <td><%= render "settings/type_#{key_field.type}", :property => key_field, :field => key_field, :value => set_key, :name => "property_sets[#{property.key}][]", :id => "input_#{h key_field.key}", :size => key_field.indicativeSize -%></td>
   <% else -%>
-    <%= hidden_field_tag "property_sets[#{property.key}][]", set_key -%>
+    <%= hidden_field_tag "property_sets[#{property.key}][]", 'auto-generated' -%>
   <% end -%>
 
   <% property.fields.reject { |field| field.key == 'key' }.each do |field| -%>

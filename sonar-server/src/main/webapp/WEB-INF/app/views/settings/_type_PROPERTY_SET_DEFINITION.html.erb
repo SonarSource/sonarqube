@@ -5,6 +5,8 @@
   <tr>
     <% if key_field(property) -%>
       <th><%= message('key') -%></th>
+    <% else %>
+      <%= hidden_field_tag "#{property.key}[auto_generate]", true -%>
     <% end -%>
     <% property.fields.reject { |field| field.key == 'key' }.each do |field| -%>
       <th>
