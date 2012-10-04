@@ -9,20 +9,6 @@
     </encoder>
   </appender>
 
-  <!-- Display SQL requests and results by setting the following loggers to level DEBUG -->
-  <logger name="org.hibernate.SQL">
-    <level value="DEBUG"/>
-  </logger>
-  <logger name="org.apache.ibatis">
-    <level value="DEBUG"/>
-  </logger>
-  <logger name="java.sql">
-    <level value="DEBUG"/>
-  </logger>
-  <logger name="java.sql.ResultSet">
-    <level value="DEBUG"/>
-  </logger>
-
   <logger name="org.hibernate.cache.ReadWriteCache">
     <!-- removing "An item was expired by the cache while it was locked (increase your cache timeout)" msg -->
     <level value="ERROR"/>
