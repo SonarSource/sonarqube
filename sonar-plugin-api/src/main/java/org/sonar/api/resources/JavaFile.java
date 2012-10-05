@@ -174,9 +174,6 @@ public class JavaFile extends Resource<JavaPackage> {
    */
   @Override
   public boolean matchFilePattern(String antPattern) {
-    if (unitTest) {
-      return false;
-    }
     String fileKey = getKey();
     if (!fileKey.endsWith(".java")) {
       fileKey += ".java";

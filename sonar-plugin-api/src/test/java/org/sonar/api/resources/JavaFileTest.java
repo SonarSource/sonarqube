@@ -210,16 +210,16 @@ public class JavaFileTest {
    * See http://jira.codehaus.org/browse/SONAR-1449
    */
   @Test
-  public void doNotMatchAjPattern() {
+  public void doNotMatchAPattern() {
     JavaFile file = new JavaFile("org.sonar.commons.Foo");
     assertFalse(file.matchFilePattern("**/*.aj"));
     assertTrue(file.matchFilePattern("**/*.java"));
   }
 
   @Test
-  public void doNotExcludeTestFiles() {
+  public void should_exclude_test_files() {
     JavaFile unitTest = new JavaFile("org.sonar.commons.FooTest", true);
-    assertFalse(unitTest.matchFilePattern("**/*"));
+    assertTrue(unitTest.matchFilePattern("**/*"));
   }
 
   private File newDir(String dirName) {

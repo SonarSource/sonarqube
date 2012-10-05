@@ -185,7 +185,8 @@ import java.util.List;
     name = "Global test exclusions",
     description = "Exclude tests from code analysis. Applies to every project. Cannot be overriden. Changes will be applied during next code analysis.",
     multiValues = true,
-    category = CoreProperties.CATEGORY_EXCLUSIONS),
+    category = CoreProperties.CATEGORY_EXCLUSIONS,
+    defaultValue = "**/package-info.java"),
   @Property(
     key = CoreProperties.PROJECT_EXCLUSIONS_PROPERTY,
     name = "Exclusions",
