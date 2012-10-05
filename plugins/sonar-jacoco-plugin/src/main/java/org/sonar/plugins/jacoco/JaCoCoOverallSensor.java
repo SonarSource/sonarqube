@@ -118,30 +118,31 @@ public class JaCoCoOverallSensor implements Sensor {
     @Override
     protected void saveMeasures(SensorContext context, JavaFile resource, Collection<Measure> measures) {
       for (Measure measure : measures) {
-        Measure mergedMeasure = convertForAllTests(measure);
+        Measure mergedMeasure = convertForOverall(measure);
         if (mergedMeasure != null) {
           context.saveMeasure(resource, mergedMeasure);
         }
       }
     }
 
-    private Measure convertForAllTests(Measure measure) {
+    private Measure convertForOverall(Measure measure) {
+      Measure itMeasure = null;
       if (CoreMetrics.LINES_TO_COVER.equals(measure.getMetric())) {
-        return new Measure(CoreMetrics.OVERALL_LINES_TO_COVER, measure.getValue());
+        itMeasure = new Measure(CoreMetrics.OVERALL_LINES_TO_COVER, measure.getValue());
       } else if (CoreMetrics.UNCOVERED_LINES.equals(measure.getMetric())) {
-        return new Measure(CoreMetrics.OVERALL_UNCOVERED_LINES, measure.getValue());
+        itMeasure = new Measure(CoreMetrics.OVERALL_UNCOVERED_LINES, measure.getValue());
       } else if (CoreMetrics.COVERAGE_LINE_HITS_DATA.equals(measure.getMetric())) {
-        return new Measure(CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA, measure.getData());
+        itMeasure = new Measure(CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA, measure.getData());
       } else if (CoreMetrics.CONDITIONS_TO_COVER.equals(measure.getMetric())) {
-        return new Measure(CoreMetrics.OVERALL_CONDITIONS_TO_COVER, measure.getValue());
+        itMeasure = new Measure(CoreMetrics.OVERALL_CONDITIONS_TO_COVER, measure.getValue());
       } else if (CoreMetrics.UNCOVERED_CONDITIONS.equals(measure.getMetric())) {
-        return new Measure(CoreMetrics.OVERALL_UNCOVERED_CONDITIONS, measure.getValue());
+        itMeasure = new Measure(CoreMetrics.OVERALL_UNCOVERED_CONDITIONS, measure.getValue());
       } else if (CoreMetrics.COVERED_CONDITIONS_BY_LINE.equals(measure.getMetric())) {
-        return new Measure(CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE, measure.getData());
+        itMeasure = new Measure(CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE, measure.getData());
       } else if (CoreMetrics.CONDITIONS_BY_LINE.equals(measure.getMetric())) {
-        return new Measure(CoreMetrics.OVERALL_CONDITIONS_BY_LINE, measure.getData());
+        itMeasure = new Measure(CoreMetrics.OVERALL_CONDITIONS_BY_LINE, measure.getData());
       }
-      return null;
+      return itMeasure;
     }
   }
 
