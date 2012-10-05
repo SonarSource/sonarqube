@@ -35,13 +35,13 @@ public final class RuleRepositoryTestHelper {
     // Static utility class
   }
 
-  public static List<Rule> createRulesWithNameAndDescription(String plugin, RuleRepository repository) {
-    Properties props = loadProperties(String.format("/org/sonar/l10n/%s.properties", plugin));
+  public static List<Rule> createRulesWithNameAndDescription(String pluginKey, RuleRepository repository) {
+    Properties props = loadProperties(String.format("/org/sonar/l10n/%s.properties", pluginKey));
 
     List<Rule> rules = repository.createRules();
     for (Rule rule : rules) {
       String name = props.getProperty(String.format("rule.%s.%s.name", repository.getKey(), rule.getKey()));
-      String description = TestUtils.getResourceContent(String.format("/org/sonar/l10n/%s/rules/%s/%s.html", plugin, repository.getKey(), rule.getKey()));
+      String description = TestUtils.getResourceContent(String.format("/org/sonar/l10n/%s/rules/%s/%s.html", pluginKey, repository.getKey(), rule.getKey()));
 
       rule.setName(name);
       rule.setDescription(description);

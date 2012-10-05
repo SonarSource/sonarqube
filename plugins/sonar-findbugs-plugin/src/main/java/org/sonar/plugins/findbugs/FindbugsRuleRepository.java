@@ -19,32 +19,30 @@
  */
 package org.sonar.plugins.findbugs;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.google.common.collect.Lists;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.resources.Java;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.rules.XMLRuleParser;
 
+import java.io.File;
+import java.util.List;
+
 public final class FindbugsRuleRepository extends RuleRepository {
-
-  private XMLRuleParser xmlRuleParser;
-
-  private ServerFileSystem fileSystem;
+  private final ServerFileSystem fileSystem;
+  private final XMLRuleParser xmlRuleParser;
 
   public FindbugsRuleRepository(ServerFileSystem fileSystem, XMLRuleParser xmlRuleParser) {
     super(FindbugsConstants.REPOSITORY_KEY, Java.KEY);
     setName(FindbugsConstants.REPOSITORY_NAME);
-    this.xmlRuleParser = xmlRuleParser;
     this.fileSystem = fileSystem;
+    this.xmlRuleParser = xmlRuleParser;
   }
 
   @Override
   public List<Rule> createRules() {
-    List<Rule> rules = new ArrayList<Rule>();
+    List<Rule> rules = Lists.newArrayList();
     rules.addAll(xmlRuleParser.parse(getClass().getResourceAsStream("/org/sonar/plugins/findbugs/rules.xml")));
     for (File userExtensionXml : fileSystem.getExtensions(FindbugsConstants.REPOSITORY_KEY, "xml")) {
       rules.addAll(xmlRuleParser.parse(userExtensionXml));

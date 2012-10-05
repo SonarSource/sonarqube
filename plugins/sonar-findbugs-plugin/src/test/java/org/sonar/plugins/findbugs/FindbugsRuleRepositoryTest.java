@@ -19,10 +19,12 @@
  */
 package org.sonar.plugins.findbugs;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.XMLRuleParser;
+import org.sonar.test.i18n.RuleRepositoryTestHelper;
 
 import java.util.List;
 
@@ -30,12 +32,17 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class FindbugsRuleRepositoryTest {
+  FindbugsRuleRepository repository;
+
+  @Before
+  public void setUpRuleRepository() {
+    repository = new FindbugsRuleRepository(mock(ServerFileSystem.class), new XMLRuleParser());
+  }
 
   @Test
   public void testLoadRepositoryFromXml() {
-    ServerFileSystem fileSystem = mock(ServerFileSystem.class);
-    FindbugsRuleRepository repository = new FindbugsRuleRepository(fileSystem, new XMLRuleParser());
     List<Rule> rules = repository.createRules();
+
     assertThat(rules.size()).isGreaterThan(300);
     for (Rule rule : rules) {
       assertThat(rule.getKey()).isNotNull();
@@ -44,4 +51,11 @@ public class FindbugsRuleRepositoryTest {
     }
   }
 
+  @Test
+  public void should_provide_a_name_and_description_for_each_rule() {
+    List<Rule> rules = RuleRepositoryTestHelper.createRulesWithNameAndDescription("findbugs", repository);
+
+    assertThat(rules).onProperty("name").excludes(null, "");
+    assertThat(rules).onProperty("description").excludes(null, "");
+  }
 }

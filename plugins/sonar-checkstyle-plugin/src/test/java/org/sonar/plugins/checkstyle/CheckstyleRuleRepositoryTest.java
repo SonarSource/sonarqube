@@ -19,10 +19,12 @@
  */
 package org.sonar.plugins.checkstyle;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.XMLRuleParser;
+import org.sonar.test.i18n.RuleRepositoryTestHelper;
 
 import java.util.List;
 
@@ -30,13 +32,26 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class CheckstyleRuleRepositoryTest {
+  CheckstyleRuleRepository repository;
+
+  @Before
+  public void setUpRuleRepository() {
+    repository = new CheckstyleRuleRepository(mock(ServerFileSystem.class), new XMLRuleParser());
+  }
 
   @Test
   public void loadRepositoryFromXml() {
-    ServerFileSystem fileSystem = mock(ServerFileSystem.class);
-    CheckstyleRuleRepository repository = new CheckstyleRuleRepository(fileSystem, new XMLRuleParser());
     List<Rule> rules = repository.createRules();
+
+    assertThat(repository.getKey()).isEqualTo("checkstyle");
     assertThat(rules.size()).isEqualTo(129);
   }
 
+  @Test
+  public void should_provide_a_name_and_description_for_each_rule() {
+    List<Rule> rules = RuleRepositoryTestHelper.createRulesWithNameAndDescription("checkstyle", repository);
+
+    assertThat(rules).onProperty("name").excludes(null, "");
+    assertThat(rules).onProperty("description").excludes(null, "");
+  }
 }
