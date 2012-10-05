@@ -21,7 +21,7 @@ module WidgetPropertiesHelper
   include PropertiesHelper
 
   def property_value_field(definition, value)
-    property_value definition.key(), definition.type.name(), value.nil? ? definition.defaultValue() : value
+    property_input_field definition.key, definition.type.name, value.nil? ? definition.defaultValue : value, definition.options
   end
 
 end

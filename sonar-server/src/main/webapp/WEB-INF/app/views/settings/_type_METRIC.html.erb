@@ -2,7 +2,7 @@
   <option value=""><%= message('default') -%></option>
   <%
      metrics_per_domain={}
-     metrics_for_property(property).each do |metric|
+     metrics_filtered_by(property.options).each do |metric|
        domain=metric.domain || ''
        metrics_per_domain[domain]||=[]
        metrics_per_domain[domain]<<metric

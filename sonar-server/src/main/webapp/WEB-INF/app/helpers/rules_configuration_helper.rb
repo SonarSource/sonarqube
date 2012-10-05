@@ -50,7 +50,7 @@ module RulesConfigurationHelper
   def param_value_input(parameter, value, options = {})
     type=type_with_compatibility(parameter.param_type)
 
-    property_value 'value', type, value, {:id => parameter.id}.update(options)
+    property_input_field 'value', type, value, nil, {:id => parameter.id}.update(options)
   end
 
   def is_set(type)

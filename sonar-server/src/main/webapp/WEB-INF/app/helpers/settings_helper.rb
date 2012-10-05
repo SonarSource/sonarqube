@@ -18,6 +18,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 module SettingsHelper
+  include PropertiesHelper
+
   def category_name(category)
     message("property.category.#{category}", :default => category)
   end
@@ -85,24 +87,5 @@ module SettingsHelper
       name += '[]'
     end
     name
-  end
-
-  def metrics_for_property(property)
-    Metric.all.select(&:display?).sort_by(&:short_name).select do |metric|
-      property.options.blank? || property.options.any? { |option| metric_matches(metric, option) }
-    end
-  end
-
-  def metric_matches(metric, option)
-    if /key:(.*)/.match(option)
-      Regexp.new(Regexp.last_match(1).strip).match(metric.key)
-    elsif /domain:(.*)/.match(option)
-      Regexp.new(Regexp.last_match(1)).match(metric.domain)
-    elsif /type:(.*)/.match(option)
-      false
-      Regexp.last_match(1).split(',').any? { |type| (type == metric.value_type) || ((type == 'NUMERIC') && metric.numeric?) }
-    else
-      false
-    end
   end
 end
