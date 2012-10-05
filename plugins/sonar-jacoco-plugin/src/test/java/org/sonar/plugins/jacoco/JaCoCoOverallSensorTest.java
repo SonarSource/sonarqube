@@ -23,11 +23,11 @@ import com.google.common.io.Files;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.test.IsMeasure;
 import org.sonar.test.TestUtils;
 
 import java.io.File;
@@ -35,17 +35,19 @@ import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class JaCoCoOverallSensorTest {
-  private final JacocoConfiguration configuration= mock(JacocoConfiguration.class);
+  private final JacocoConfiguration configuration = mock(JacocoConfiguration.class);
   private final SensorContext context = mock(SensorContext.class);
   private final ProjectFileSystem pfs = mock(ProjectFileSystem.class);
   private final Project project = mock(Project.class);
-  private final JaCoCoOverallSensor sensor  = new JaCoCoOverallSensor(configuration);
+  private final JaCoCoOverallSensor sensor = new JaCoCoOverallSensor(configuration);
 
   @Test
   public void should_execute_on_project() {
@@ -83,9 +85,13 @@ public class JaCoCoOverallSensorTest {
     sensor.analyse(project, context);
 
     verify(context).getResource(resource);
-    verify(context).saveMeasure(resource, new Measure(CoreMetrics.OVERALL_LINES_TO_COVER, 5.0));
-    verify(context).saveMeasure(resource, new Measure(CoreMetrics.OVERALL_UNCOVERED_LINES, 0.0));
-    verify(context).saveMeasure(resource, new Measure(CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA, "3=1;6=1;7=1;10=1;11=1"));
+    verify(context).saveMeasure(eq(resource), argThat(new IsMeasure(CoreMetrics.OVERALL_LINES_TO_COVER, 12.0)));
+    verify(context).saveMeasure(eq(resource), argThat(new IsMeasure(CoreMetrics.OVERALL_UNCOVERED_LINES, 2.0)));
+    verify(context).saveMeasure(eq(resource), argThat(new IsMeasure(CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA, "3=1;6=1;7=1;10=1;11=1;14=1;15=1;17=1;18=1;20=1;23=0;24=0")));
+    verify(context).saveMeasure(eq(resource), argThat(new IsMeasure(CoreMetrics.OVERALL_CONDITIONS_TO_COVER, 2.0)));
+    verify(context).saveMeasure(eq(resource), argThat(new IsMeasure(CoreMetrics.OVERALL_UNCOVERED_CONDITIONS, 0.0)));
+    verify(context).saveMeasure(eq(resource), argThat(new IsMeasure(CoreMetrics.OVERALL_CONDITIONS_BY_LINE, "14=2")));
+    verify(context).saveMeasure(eq(resource), argThat(new IsMeasure(CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE, (String) null)));
     verifyNoMoreInteractions(context);
   }
 

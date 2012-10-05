@@ -94,17 +94,17 @@ public class PropertyDefinitionTest {
     PropertyDefinition def = PropertyDefinition.create(prop);
 
     assertThat(def.getFields()).hasSize(2);
-    assertThat(def.getFields()[0].getKey()).isEqualTo("first");
-    assertThat(def.getFields()[0].getName()).isEqualTo("First");
-    assertThat(def.getFields()[0].getDescription()).isEqualTo("Description");
-    assertThat(def.getFields()[0].getType()).isEqualTo(PropertyType.STRING);
-    assertThat(def.getFields()[0].getOptions()).containsOnly("A", "B");
-    assertThat(def.getFields()[0].getIndicativeSize()).isEqualTo(20);
-    assertThat(def.getFields()[1].getKey()).isEqualTo("second");
-    assertThat(def.getFields()[1].getName()).isEqualTo("Second");
-    assertThat(def.getFields()[1].getType()).isEqualTo(PropertyType.INTEGER);
-    assertThat(def.getFields()[1].getOptions()).isEmpty();
-    assertThat(def.getFields()[1].getIndicativeSize()).isEqualTo(5);
+    assertThat(def.getFields().get(0).getKey()).isEqualTo("first");
+    assertThat(def.getFields().get(0).getName()).isEqualTo("First");
+    assertThat(def.getFields().get(0).getDescription()).isEqualTo("Description");
+    assertThat(def.getFields().get(0).getType()).isEqualTo(PropertyType.STRING);
+    assertThat(def.getFields().get(0).getOptions()).containsOnly("A", "B");
+    assertThat(def.getFields().get(0).getIndicativeSize()).isEqualTo(20);
+    assertThat(def.getFields().get(1).getKey()).isEqualTo("second");
+    assertThat(def.getFields().get(1).getName()).isEqualTo("Second");
+    assertThat(def.getFields().get(1).getType()).isEqualTo(PropertyType.INTEGER);
+    assertThat(def.getFields().get(1).getOptions()).isEmpty();
+    assertThat(def.getFields().get(1).getIndicativeSize()).isEqualTo(5);
   }
 
   @Properties(@Property(key = "hello", name = "Hello"))

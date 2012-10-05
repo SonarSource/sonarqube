@@ -20,6 +20,9 @@
 package org.sonar.api.rules;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -93,15 +96,19 @@ public final class AnnotationRuleParser implements ServerComponent {
     }
   }
 
+  private static final Function<Class<?>, PropertyType> TYPE_FOR_CLASS = Functions.forMap(
+      ImmutableMap.<Class<?>, PropertyType> builder()
+          .put(Integer.class, PropertyType.INTEGER)
+          .put(int.class, PropertyType.INTEGER)
+          .put(Float.class, PropertyType.FLOAT)
+          .put(float.class, PropertyType.FLOAT)
+          .put(Boolean.class, PropertyType.BOOLEAN)
+          .put(boolean.class, PropertyType.BOOLEAN)
+          .build(),
+      PropertyType.STRING);
+
   @VisibleForTesting
   static PropertyType guessType(Class<?> type) {
-    if ((type == Integer.class) || (type == int.class)) {
-      return PropertyType.INTEGER;
-    } else if ((type == Float.class) || (type == float.class)) {
-      return PropertyType.FLOAT;
-    } else if ((type == Boolean.class) || (type == boolean.class)) {
-      return PropertyType.BOOLEAN;
-    }
-    return PropertyType.STRING;
+    return TYPE_FOR_CLASS.apply(type);
   }
 }

@@ -973,13 +973,13 @@ public final class CoreMetrics {
    * @since 3.3
    */
   public static final Metric OVERALL_COVERAGE = new Metric.Builder(OVERALL_COVERAGE_KEY, "Overall coverage", Metric.ValueType.PERCENT)
-    .setDescription("Overall test coverage")
-    .setDirection(Metric.DIRECTION_BETTER)
-    .setQualitative(true)
-    .setDomain(DOMAIN_OVERALL_TESTS)
-    .setWorstValue(0.0)
-    .setBestValue(100.0)
-    .create();
+      .setDescription("Overall test coverage")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(true)
+      .setDomain(DOMAIN_OVERALL_TESTS)
+      .setWorstValue(0.0)
+      .setBestValue(100.0)
+      .create();
 
   /**
    * @since 3.3
@@ -990,14 +990,14 @@ public final class CoreMetrics {
    * @since 3.3
    */
   public static final Metric NEW_OVERALL_COVERAGE = new Metric.Builder(NEW_OVERALL_COVERAGE_KEY, "Overall new coverage", Metric.ValueType.PERCENT)
-    .setDescription("Overall coverage of new/changed code")
-    .setDirection(Metric.DIRECTION_BETTER)
-    .setQualitative(true)
-    .setDomain(DOMAIN_OVERALL_TESTS)
-    .setWorstValue(0.0)
-    .setBestValue(100.0)
-    .setDeleteHistoricalData(true)
-    .create();
+      .setDescription("Overall coverage of new/changed code")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(true)
+      .setDomain(DOMAIN_OVERALL_TESTS)
+      .setWorstValue(0.0)
+      .setBestValue(100.0)
+      .setDeleteHistoricalData(true)
+      .create();
 
   /**
    * @since 3.3
@@ -1008,14 +1008,14 @@ public final class CoreMetrics {
    * @since 3.3
    */
   public static final Metric OVERALL_LINES_TO_COVER = new Metric.Builder(OVERALL_LINES_TO_COVER_KEY, "Overall lines to cover", Metric.ValueType.INT)
-    .setDescription("Overall lines to cover by all tests")
-    .setDirection(Metric.DIRECTION_BETTER)
-    .setDomain(DOMAIN_OVERALL_TESTS)
-    .setQualitative(false)
-    .setFormula(new SumChildValuesFormula(false))
-    .setHidden(true)
-    .setDeleteHistoricalData(true)
-    .create();
+      .setDescription("Overall lines to cover by all tests")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setDomain(DOMAIN_OVERALL_TESTS)
+      .setQualitative(false)
+      .setFormula(new SumChildValuesFormula(false))
+      .setHidden(true)
+      .setDeleteHistoricalData(true)
+      .create();
 
   /**
    * @since 3.3
@@ -1026,13 +1026,13 @@ public final class CoreMetrics {
    * @since 3.3
    */
   public static final Metric NEW_OVERALL_LINES_TO_COVER = new Metric.Builder(NEW_OVERALL_LINES_TO_COVER_KEY, "Overall new lines to cover", Metric.ValueType.INT)
-    .setDescription("New lines to cover by all tests")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setQualitative(false)
-    .setDomain(DOMAIN_OVERALL_TESTS)
-    .setFormula(new SumChildValuesFormula(false))
-    .setDeleteHistoricalData(true)
-    .create();
+      .setDescription("New lines to cover by all tests")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_OVERALL_TESTS)
+      .setFormula(new SumChildValuesFormula(false))
+      .setDeleteHistoricalData(true)
+      .create();
 
   /**
    * @since 3.3
@@ -1043,12 +1043,12 @@ public final class CoreMetrics {
    * @since 3.3
    */
   public static final Metric OVERALL_UNCOVERED_LINES = new Metric.Builder(OVERALL_UNCOVERED_LINES_KEY, "Overall uncovered lines", Metric.ValueType.INT)
-    .setDescription("Uncovered lines by all tests")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setQualitative(false)
-    .setDomain(DOMAIN_OVERALL_TESTS)
-    .setFormula(new SumChildValuesFormula(false))
-    .create();
+      .setDescription("Uncovered lines by all tests")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_OVERALL_TESTS)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
 
   /**
    * @since 3.3
@@ -1059,13 +1059,13 @@ public final class CoreMetrics {
    * @since 3.3
    */
   public static final Metric NEW_OVERALL_UNCOVERED_LINES = new Metric.Builder(NEW_OVERALL_UNCOVERED_LINES_KEY, "Overall new lines uncovered", Metric.ValueType.INT)
-    .setDescription("New lines that are not covered by any tests")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setDomain(DOMAIN_OVERALL_TESTS)
-    .setFormula(new SumChildValuesFormula(false))
-    .setBestValue(0.0)
-    .setDeleteHistoricalData(true)
-    .create();
+      .setDescription("New lines that are not covered by any tests")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setDomain(DOMAIN_OVERALL_TESTS)
+      .setFormula(new SumChildValuesFormula(false))
+      .setBestValue(0.0)
+      .setDeleteHistoricalData(true)
+      .create();
 
   /**
    * @since 3.3
@@ -1076,11 +1076,11 @@ public final class CoreMetrics {
    * @since 3.3
    */
   public static final Metric OVERALL_LINE_COVERAGE = new Metric.Builder(OVERALL_LINE_COVERAGE_KEY, "Overall line coverage", Metric.ValueType.PERCENT)
-    .setDescription("Line coverage by all tests")
-    .setDirection(Metric.DIRECTION_BETTER)
-    .setQualitative(true)
-    .setDomain(DOMAIN_OVERALL_TESTS)
-    .create();
+      .setDescription("Line coverage by all tests")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(true)
+      .setDomain(DOMAIN_OVERALL_TESTS)
+      .create();
 
   /**
    * @since 3.3
@@ -1091,14 +1091,14 @@ public final class CoreMetrics {
    * @since 3.3
    */
   public static final Metric NEW_OVERALL_LINE_COVERAGE = new Metric.Builder(NEW_OVERALL_LINE_COVERAGE_KEY, "Overall new line coverage", Metric.ValueType.PERCENT)
-    .setDescription("Line coverage of added/changed code by all tests")
-    .setDirection(Metric.DIRECTION_BETTER)
-    .setQualitative(true)
-    .setWorstValue(0.0)
-    .setBestValue(100.0)
-    .setDomain(DOMAIN_OVERALL_TESTS)
-    .setDeleteHistoricalData(true)
-    .create();
+      .setDescription("Line coverage of added/changed code by all tests")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(true)
+      .setWorstValue(0.0)
+      .setBestValue(100.0)
+      .setDomain(DOMAIN_OVERALL_TESTS)
+      .setDeleteHistoricalData(true)
+      .create();
 
   /**
    * @since 3.3
@@ -1109,12 +1109,12 @@ public final class CoreMetrics {
    * @since 3.3
    */
   public static final Metric OVERALL_COVERAGE_LINE_HITS_DATA = new Metric.Builder(OVERALL_COVERAGE_LINE_HITS_DATA_KEY, "Overall coverage hits by line", Metric.ValueType.DATA)
-    .setDescription("Coverage hits by all tests and by line")
-    .setDirection(Metric.DIRECTION_NONE)
-    .setQualitative(false)
-    .setDomain(DOMAIN_OVERALL_TESTS)
-    .setDeleteHistoricalData(true)
-    .create();
+      .setDescription("Coverage hits by all tests and by line")
+      .setDirection(Metric.DIRECTION_NONE)
+      .setQualitative(false)
+      .setDomain(DOMAIN_OVERALL_TESTS)
+      .setDeleteHistoricalData(true)
+      .create();
 
   /**
    * @since 3.3
@@ -1125,14 +1125,14 @@ public final class CoreMetrics {
    * @since 3.3
    */
   public static final Metric OVERALL_CONDITIONS_TO_COVER = new Metric.Builder(OVERALL_CONDITIONS_TO_COVER_KEY, "Overall branches to cover", Metric.ValueType.INT)
-    .setDescription("Branches to cover by all tests")
-    .setDirection(Metric.DIRECTION_BETTER)
-    .setQualitative(false)
-    .setDomain(DOMAIN_OVERALL_TESTS)
-    .setFormula(new SumChildValuesFormula(false))
-    .setHidden(true)
-    .setDeleteHistoricalData(true)
-    .create();
+      .setDescription("Branches to cover by all tests")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(false)
+      .setDomain(DOMAIN_OVERALL_TESTS)
+      .setFormula(new SumChildValuesFormula(false))
+      .setHidden(true)
+      .setDeleteHistoricalData(true)
+      .create();
 
   /**
    * @since 3.3
@@ -1143,11 +1143,11 @@ public final class CoreMetrics {
    * @since 3.3
    */
   public static final Metric NEW_OVERALL_CONDITIONS_TO_COVER = new Metric.Builder(NEW_OVERALL_CONDITIONS_TO_COVER_KEY, "Overall new branches to cover", Metric.ValueType.INT)
-    .setDescription("New branches to cover by all tests")
-    .setDomain(DOMAIN_OVERALL_TESTS)
-    .setFormula(new SumChildValuesFormula(false))
-    .setDeleteHistoricalData(true)
-    .create();
+      .setDescription("New branches to cover by all tests")
+      .setDomain(DOMAIN_OVERALL_TESTS)
+      .setFormula(new SumChildValuesFormula(false))
+      .setDeleteHistoricalData(true)
+      .create();
 
   /**
    * @since 3.3
@@ -1158,11 +1158,11 @@ public final class CoreMetrics {
    * @since 3.3
    */
   public static final Metric OVERALL_UNCOVERED_CONDITIONS = new Metric.Builder(OVERALL_UNCOVERED_CONDITIONS_KEY, "Overall uncovered branches", Metric.ValueType.INT)
-    .setDescription("Uncovered branches by all tests")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setDomain(DOMAIN_OVERALL_TESTS)
-    .setFormula(new SumChildValuesFormula(false))
-    .create();
+      .setDescription("Uncovered branches by all tests")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setDomain(DOMAIN_OVERALL_TESTS)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
 
   /**
    * @since 3.3
@@ -1173,13 +1173,13 @@ public final class CoreMetrics {
    * @since 3.3
    */
   public static final Metric NEW_OVERALL_UNCOVERED_CONDITIONS = new Metric.Builder(NEW_OVERALL_UNCOVERED_CONDITIONS_KEY, "Overall new branches uncovered", Metric.ValueType.INT)
-    .setDescription("New branches that are not covered by any test")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setDomain(DOMAIN_OVERALL_TESTS)
-    .setFormula(new SumChildValuesFormula(false))
-    .setBestValue(0.0)
-    .setDeleteHistoricalData(true)
-    .create();
+      .setDescription("New branches that are not covered by any test")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setDomain(DOMAIN_OVERALL_TESTS)
+      .setFormula(new SumChildValuesFormula(false))
+      .setBestValue(0.0)
+      .setDeleteHistoricalData(true)
+      .create();
 
   /**
    * @since 3.3
@@ -1190,13 +1190,13 @@ public final class CoreMetrics {
    * @since 3.3
    */
   public static final Metric OVERALL_BRANCH_COVERAGE = new Metric.Builder(OVERALL_BRANCH_COVERAGE_KEY, "Overall branch coverage", Metric.ValueType.PERCENT)
-    .setDescription("Branch coverage by all tests")
-    .setDirection(Metric.DIRECTION_BETTER)
-    .setQualitative(true)
-    .setDomain(DOMAIN_OVERALL_TESTS)
-    .setWorstValue(0.0)
-    .setBestValue(100.0)
-    .create();
+      .setDescription("Branch coverage by all tests")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(true)
+      .setDomain(DOMAIN_OVERALL_TESTS)
+      .setWorstValue(0.0)
+      .setBestValue(100.0)
+      .create();
 
   /**
    * @since 3.3
@@ -1207,14 +1207,14 @@ public final class CoreMetrics {
    * @since 3.3
    */
   public static final Metric NEW_OVERALL_BRANCH_COVERAGE = new Metric.Builder(NEW_OVERALL_BRANCH_COVERAGE_KEY, "Overall new branch coverage", Metric.ValueType.PERCENT)
-    .setDescription("Branch coverage of new/changed code by all tests")
-    .setDirection(Metric.DIRECTION_BETTER)
-    .setQualitative(true)
-    .setDomain(DOMAIN_OVERALL_TESTS)
-    .setWorstValue(0.0)
-    .setBestValue(100.0)
-    .setDeleteHistoricalData(true)
-    .create();
+      .setDescription("Branch coverage of new/changed code by all tests")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(true)
+      .setDomain(DOMAIN_OVERALL_TESTS)
+      .setWorstValue(0.0)
+      .setBestValue(100.0)
+      .setDeleteHistoricalData(true)
+      .create();
 
   /**
    * @since 3.3
@@ -1225,10 +1225,10 @@ public final class CoreMetrics {
    * @since 3.3
    */
   public static final Metric OVERALL_CONDITIONS_BY_LINE = new Metric.Builder(OVERALL_CONDITIONS_BY_LINE_KEY, "Overall branches by line", Metric.ValueType.DATA)
-    .setDescription("Overall branches by all tests and by line")
-    .setDomain(DOMAIN_OVERALL_TESTS)
-    .setDeleteHistoricalData(true)
-    .create();
+      .setDescription("Overall branches by all tests and by line")
+      .setDomain(DOMAIN_OVERALL_TESTS)
+      .setDeleteHistoricalData(true)
+      .create();
 
   /**
    * @since 3.3
@@ -1238,12 +1238,12 @@ public final class CoreMetrics {
   /**
    * @since 3.3
    */
-  public static final Metric OVERALL_COVERED_CONDITIONS_BY_LINE = new Metric.Builder(OVERALL_COVERED_CONDITIONS_BY_LINE_KEY, "Overall covered branches by line", Metric.ValueType.DATA)
-    .setDescription("Overall covered branches by all tests and by line")
-    .setDomain(DOMAIN_OVERALL_TESTS)
-    .setDeleteHistoricalData(true)
-    .create();
-
+  public static final Metric OVERALL_COVERED_CONDITIONS_BY_LINE = new Metric.Builder(OVERALL_COVERED_CONDITIONS_BY_LINE_KEY, "Overall covered branches by line",
+      Metric.ValueType.DATA)
+      .setDescription("Overall covered branches by all tests and by line")
+      .setDomain(DOMAIN_OVERALL_TESTS)
+      .setDeleteHistoricalData(true)
+      .create();
 
   // --------------------------------------------------------------------------------------------------------------------
   //

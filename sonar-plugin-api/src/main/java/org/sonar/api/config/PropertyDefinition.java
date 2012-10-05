@@ -19,6 +19,7 @@
  */
 package org.sonar.api.config;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -26,6 +27,8 @@ import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
 
 import javax.annotation.Nullable;
+
+import java.util.List;
 
 /**
  * @since 3.0
@@ -56,19 +59,19 @@ public final class PropertyDefinition {
     }
   }
 
-  private String key;
-  private String defaultValue;
-  private String name;
-  private PropertyType type = PropertyType.STRING;
-  private String[] options;
-  private String description;
-  private String category;
-  private boolean onProject = false;
-  private boolean onModule = false;
-  private boolean isGlobal = true;
-  private boolean multiValues;
-  private String propertySetKey;
-  private PropertyFieldDefinition[] fields;
+  private final String key;
+  private final String defaultValue;
+  private final String name;
+  private final PropertyType type;
+  private final String[] options;
+  private final String description;
+  private final String category;
+  private final boolean onProject;
+  private final boolean onModule;
+  private final boolean isGlobal;
+  private final boolean multiValues;
+  private final String propertySetKey;
+  private final List<PropertyFieldDefinition> fields;
 
   private PropertyDefinition(Property annotation) {
     this.key = annotation.key();
@@ -82,8 +85,24 @@ public final class PropertyDefinition {
     this.type = fixType(annotation.key(), annotation.type());
     this.options = annotation.options();
     this.multiValues = annotation.multiValues();
-    propertySetKey = annotation.propertySetKey();
-    this.fields = PropertyFieldDefinition.create(annotation.fields());
+    this.propertySetKey = annotation.propertySetKey();
+    this.fields = ImmutableList.copyOf(PropertyFieldDefinition.create(annotation.fields()));
+  }
+
+  private PropertyDefinition(String key, PropertyType type, String[] options) {
+    this.key = key;
+    this.name = null;
+    this.defaultValue = null;
+    this.description = null;
+    this.isGlobal = true;
+    this.onProject = false;
+    this.onModule = false;
+    this.category = null;
+    this.type = type;
+    this.options = options;
+    this.multiValues = false;
+    this.propertySetKey = null;
+    this.fields = null;
   }
 
   private static PropertyType fixType(String key, PropertyType type) {
@@ -97,12 +116,6 @@ public final class PropertyDefinition {
       }
     }
     return type;
-  }
-
-  private PropertyDefinition(String key, PropertyType type, String[] options) {
-    this.key = key;
-    this.type = type;
-    this.options = options;
   }
 
   public static PropertyDefinition create(Property annotation) {
@@ -199,7 +212,7 @@ public final class PropertyDefinition {
   /**
    * @since 3.3
    */
-  public PropertyFieldDefinition[] getFields() {
+  public List<PropertyFieldDefinition> getFields() {
     return fields;
   }
 }

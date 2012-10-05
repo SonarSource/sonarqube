@@ -47,12 +47,12 @@ public final class PropertyFieldDefinition {
     this.options = annotation.options();
   }
 
-  public static PropertyFieldDefinition[] create(PropertyField[] fields) {
+  public static List<PropertyFieldDefinition> create(PropertyField[] fields) {
     List<PropertyFieldDefinition> definitions = Lists.newArrayList();
     for (PropertyField field : fields) {
       definitions.add(new PropertyFieldDefinition(field));
     }
-    return definitions.toArray(new PropertyFieldDefinition[definitions.size()]);
+    return definitions;
   }
 
   public String getKey() {
