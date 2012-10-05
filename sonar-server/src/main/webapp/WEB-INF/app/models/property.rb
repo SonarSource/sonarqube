@@ -81,20 +81,14 @@ class Property < ActiveRecord::Base
 
   def self.values(key, resource_id=nil, user_id=nil)
     value = value(key, resource_id, '', user_id)
-    values = value.split(',')
-    values.empty? ? [nil] : values.map { |v| v.gsub('%2C', ',') }
+    values = Property.string_to_array_value(value)
+    values.empty? ? [nil] : values
   end
 
   def self.set(key, value, resource_id=nil, user_id=nil)
     if value.kind_of? Array
       value = drop_trailing_blank_values(value)
-
-      definition = Api::Utils.java_facade.propertyDefinitions.get(key)
-      if definition && (definition.multi_values || !definition.fields.blank?)
-        value = value.map { |v| v.gsub(',', '%2C') }.join(',')
-      else
-        value = value.first
-      end
+      value = Property.new({:prop_key => key}).multi_values? ? array_value_to_string(value) : value.first
     end
 
     text_value = value.to_s if defined? value
@@ -126,13 +120,20 @@ class Property < ActiveRecord::Base
   end
 
   def to_hash_json
-    {:key => key, :value => value.to_s}
+    hash = {:key => key, :value => value.to_s}
+    hash.merge! (:values => Property.string_to_array_value(value.to_s)) if multi_values?
+    hash
+  end
+
+  def multi_values?
+    (java_definition && (java_definition.multi_values || !java_definition.fields.blank?)) || (java_field_definition && java_field_definition.multi_values)
   end
 
   def to_xml(xml=Builder::XmlMarkup.new(:indent => 0))
     xml.property do
       xml.key(prop_key)
-      xml.value { xml.cdata!(text_value.to_s) }
+      xml.value { xml.cdata!(value.to_s) }
+      Property.string_to_array_value(value.to_s).each { |v| xml.values { xml.cdata!(v) } } if multi_values?
     end
     xml
   end
@@ -140,7 +141,7 @@ class Property < ActiveRecord::Base
   def java_definition
     @java_definition ||=
       begin
-        Api::Utils.java_facade.getPropertyDefinitions().get(key)
+        Api::Utils.java_facade.propertyDefinitions.get(key)
       end
   end
 
@@ -148,7 +149,7 @@ class Property < ActiveRecord::Base
     @java_field_definition ||=
       begin
         if /(.*)\..*\.(.*)/.match(key)
-          property_definition = Api::Utils.java_facade.getPropertyDefinitions().get(Regexp.last_match(1))
+          property_definition = Api::Utils.java_facade.propertyDefinitions.get(Regexp.last_match(1))
           if property_definition
             property_definition.fields.find { |field| field.key == Regexp.last_match(2) }
           end
@@ -162,6 +163,14 @@ class Property < ActiveRecord::Base
       msg += Api::Utils.message("property.error.#{error}")
     end
     msg
+  end
+
+  def self.string_to_array_value(value)
+    value.split(',').map { |v| v.gsub('%2C', ',') }
+  end
+
+  def self.array_value_to_string(array)
+    array.map { |v| v.gsub(',', '%2C') }.join(',')
   end
 
   private
