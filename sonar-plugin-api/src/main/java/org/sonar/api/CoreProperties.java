@@ -301,4 +301,29 @@ public interface CoreProperties {
    * @since 2.11
    */
   String SERVER_ID_IP_ADDRESS = "sonar.server_id.ip_address";
+
+  /**
+   * @since 3.3
+   */
+  String LINKS_HOME_PAGE = "sonar.links.homepage";
+
+  /**
+   * @since 3.3
+   */
+  String LINKS_CI = "sonar.links.ci";
+
+  /**
+   * @since 3.3
+   */
+  String LINKS_ISSUE_TRACKER = "sonar.links.issue";
+
+  /**
+   * @since 3.3
+   */
+  String LINKS_SOURCES = "sonar.links.scm";
+
+  /**
+   * @since 3.3
+   */
+  String LINKS_SOURCES_DEV = "sonar.links.scm_dev";
 }

@@ -20,64 +20,64 @@
 package org.sonar.plugins.core.sensors;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.maven.project.MavenProject;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectLink;
-import org.sonar.api.test.MavenTestUtils;
+import org.sonar.core.i18n.I18nManager;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import java.util.Locale;
+
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class ProjectLinksSensorTest {
 
   @Test
+  public void testToString() {
+    assertThat(new ProjectLinksSensor(null, null).toString()).isEqualTo("ProjectLinksSensor");
+  }
+
+  @Test
   public void shouldExecuteOnlyForLatestAnalysis() {
-    MavenProject pom = mock(MavenProject.class);
     Project project = mock(Project.class);
     when(project.isLatestAnalysis()).thenReturn(true).thenReturn(false);
-    assertThat(new ProjectLinksSensor(pom).shouldExecuteOnProject(project), is(true));
-    assertThat(new ProjectLinksSensor(pom).shouldExecuteOnProject(project), is(false));
-    verify(project, times(2)).isLatestAnalysis();
-    verifyNoMoreInteractions(project);
+    assertThat(new ProjectLinksSensor(null, null).shouldExecuteOnProject(project)).isTrue();
+    assertThat(new ProjectLinksSensor(null, null).shouldExecuteOnProject(project)).isFalse();
   }
 
   @Test
   public void shouldSaveLinks() {
-    SensorContext context = mock(SensorContext.class);
-    MavenProject pom = MavenTestUtils.loadPom("/org/sonar/plugins/core/sensors/ProjectLinksSensorTest/shouldSaveLinks.xml");
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.LINKS_HOME_PAGE, "http://home");
+    I18nManager i18nManager = mock(I18nManager.class);
+    when(i18nManager.message(Locale.getDefault(), "project_links.homepage", CoreProperties.LINKS_HOME_PAGE)).thenReturn("HOME");
     Project project = mock(Project.class);
+    SensorContext context = mock(SensorContext.class);
 
-    new ProjectLinksSensor(pom).analyse(project, context);
+    new ProjectLinksSensor(settings, i18nManager).analyse(project, context);
 
-    verify(context).saveLink(argThat(new MatchLink(ProjectLinksSensor.KEY_HOME, "Home", "http://sonar.codehaus.org")));
-    verify(context).saveLink(argThat(new MatchLink(ProjectLinksSensor.KEY_ISSUE_TRACKER, "Issues", "http://jira.codehaus.org/browse/SONAR")));
-    verify(context).saveLink(argThat(new MatchLink(ProjectLinksSensor.KEY_CONTINUOUS_INTEGRATION, "Continuous integration", "http://bamboo.ci.codehaus.org/browse/SONAR/")));
-    verify(context).saveLink(argThat(new MatchLink(ProjectLinksSensor.KEY_SCM, "Sources", "http://svn.sonar.codehaus.org")));
-    verify(context).saveLink(argThat(new MatchLink(ProjectLinksSensor.KEY_SCM_DEVELOPER_CONNECTION, "Developer connection", "scm:svn:https://svn.codehaus.org/sonar/trunk")));
+    verify(context).saveLink(argThat(new MatchLink("homepage", "HOME", "http://home")));
   }
 
   @Test
-  public void shouldDeleteMissingLinks() {
-    SensorContext context = mock(SensorContext.class);
-    MavenProject pom = MavenTestUtils.loadPom("/org/sonar/plugins/core/sensors/ProjectLinksSensorTest/shouldDeleteMissingLinks.xml");
+  public void shouldDeleteLink() {
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.LINKS_HOME_PAGE, "");
+    I18nManager i18nManager = mock(I18nManager.class);
+    when(i18nManager.message(Locale.getDefault(), "project_links.homepage", CoreProperties.LINKS_HOME_PAGE)).thenReturn("HOME");
     Project project = mock(Project.class);
+    SensorContext context = mock(SensorContext.class);
 
-    new ProjectLinksSensor(pom).analyse(project, context);
+    new ProjectLinksSensor(settings, i18nManager).analyse(project, context);
 
-    verify(context).deleteLink(ProjectLinksSensor.KEY_HOME);
-    verify(context).deleteLink(ProjectLinksSensor.KEY_ISSUE_TRACKER);
-    verify(context).deleteLink(ProjectLinksSensor.KEY_CONTINUOUS_INTEGRATION);
-    verify(context).deleteLink(ProjectLinksSensor.KEY_SCM);
-    verify(context).deleteLink(ProjectLinksSensor.KEY_SCM_DEVELOPER_CONNECTION);
+    verify(context).deleteLink("homepage");
   }
 
   private class MatchLink extends ArgumentMatcher<ProjectLink> {

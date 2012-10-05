@@ -24,6 +24,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.Extension;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
+import org.sonar.api.PropertyField;
 import org.sonar.api.PropertyType;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.checks.NoSonarFilter;
@@ -126,6 +127,117 @@ import java.util.List;
     project = false,
     global = true,
     category = CoreProperties.CATEGORY_GENERAL),
+  @Property(
+    key = CoreProperties.LINKS_HOME_PAGE,
+    defaultValue = "",
+    name = "Project Home Page",
+    description = "HTTP URL of the home page of the project.",
+    project = false,
+    global = false,
+    category = CoreProperties.CATEGORY_GENERAL),
+  @Property(
+    key = CoreProperties.LINKS_CI,
+    defaultValue = "",
+    name = "CI server",
+    description = "HTTP URL of the continuous integration server.",
+    project = false,
+    global = false,
+    category = CoreProperties.CATEGORY_GENERAL),
+  @Property(
+    key = CoreProperties.LINKS_ISSUE_TRACKER,
+    defaultValue = "",
+    name = "Issue Tracker",
+    description = "HTTP URL of the issue tracker.",
+    project = false,
+    global = false,
+    category = CoreProperties.CATEGORY_GENERAL),
+  @Property(
+    key = CoreProperties.LINKS_SOURCES,
+    defaultValue = "",
+    name = "SCM server",
+    description = "HTTP URL of the server which hosts the sources of the project.",
+    project = false,
+    global = false,
+    category = CoreProperties.CATEGORY_GENERAL),
+  @Property(
+    key = CoreProperties.LINKS_SOURCES_DEV,
+    defaultValue = "",
+    name = "SCM connection for developers",
+    description = "HTTP URL used by developers to connect to the SCM server for the project.",
+    project = false,
+    global = false,
+    category = CoreProperties.CATEGORY_GENERAL),
+  @Property(
+    key = "sonar.test.jira.servers",
+    name = "Jira Servers",
+    description = "List of jira server definitions",
+    global = true,
+    project = true,
+    category = "DEV",
+    fields = {
+      @PropertyField(
+        key = "key",
+        name = "Key",
+        type = PropertyType.STRING,
+        indicativeSize = 10),
+      @PropertyField(
+        key = "url",
+        name = "Url",
+        description = "l'url du serveur jira",
+        type = PropertyType.STRING,
+        indicativeSize = 20),
+      @PropertyField(
+        key = "port",
+        name = "Port",
+        type = PropertyType.INTEGER,
+        indicativeSize = 5)}),
+  @Property(
+    key = "sonar.demo",
+    name = "Demo",
+    global = true,
+    project = true,
+    category = "DEV",
+    fields = {
+      @PropertyField(
+        key = "text",
+        name = "text",
+        type = PropertyType.TEXT),
+      @PropertyField(
+        key = "boolean",
+        name = "boolean",
+        type = PropertyType.BOOLEAN),
+      @PropertyField(
+        key = "float",
+        name = "float",
+        type = PropertyType.FLOAT),
+      @PropertyField(
+        key = "license",
+        name = "license",
+        type = PropertyType.LICENSE),
+      @PropertyField(
+        key = "metric",
+        name = "metric",
+        type = PropertyType.METRIC),
+      @PropertyField(
+        key = "password",
+        name = "password",
+        type = PropertyType.PASSWORD),
+      @PropertyField(
+        key = "regexp",
+        name = "regexp",
+        type = PropertyType.REGULAR_EXPRESSION),
+      @PropertyField(
+        key = "list",
+        name = "list",
+        type = PropertyType.SINGLE_SELECT_LIST,
+        options = {"AAA", "BBB"})}),
+  @Property(
+    key = "sonar.test.jira",
+    name = "Jira",
+    project = true,
+    category = "DEV",
+    type = PropertyType.PROPERTY_SET,
+    propertySetKey = "sonar.test.jira.servers"),
   @Property(
     key = CoreProperties.PROJECT_LANGUAGE_PROPERTY,
     defaultValue = Java.KEY,

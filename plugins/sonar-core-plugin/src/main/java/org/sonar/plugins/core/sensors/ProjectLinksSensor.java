@@ -20,29 +20,24 @@
 package org.sonar.plugins.core.sensors;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.maven.model.CiManagement;
-import org.apache.maven.model.IssueManagement;
-import org.apache.maven.model.Scm;
-import org.apache.maven.project.MavenProject;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.batch.SupportedEnvironment;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectLink;
+import org.sonar.core.i18n.I18nManager;
 
-@SupportedEnvironment("maven")
+import java.util.Locale;
+
 public class ProjectLinksSensor implements Sensor {
 
-  public static final String KEY_HOME = "homepage";
-  public static final String KEY_CONTINUOUS_INTEGRATION = "ci";
-  public static final String KEY_ISSUE_TRACKER = "issue";
-  public static final String KEY_SCM = "scm";
-  public static final String KEY_SCM_DEVELOPER_CONNECTION = "scm_dev";
+  private Settings settings;
+  private I18nManager i18nManager;
 
-  private MavenProject pom;
-
-  public ProjectLinksSensor(MavenProject pom) {
-    this.pom = pom;
+  public ProjectLinksSensor(Settings settings, I18nManager i18nManager) {
+    this.settings = settings;
+    this.i18nManager = i18nManager;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -50,26 +45,18 @@ public class ProjectLinksSensor implements Sensor {
   }
 
   public void analyse(Project project, SensorContext context) {
-    updateLink(context, KEY_HOME, "Home", pom.getUrl());
+    handleLink(context, CoreProperties.LINKS_HOME_PAGE);
+    handleLink(context, CoreProperties.LINKS_CI);
+    handleLink(context, CoreProperties.LINKS_ISSUE_TRACKER);
+    handleLink(context, CoreProperties.LINKS_SOURCES);
+    handleLink(context, CoreProperties.LINKS_SOURCES_DEV);
+  }
 
-    Scm scm = pom.getScm();
-    if (scm == null) {
-      scm = new Scm();
-    }
-    updateLink(context, KEY_SCM, "Sources", scm.getUrl());
-    updateLink(context, KEY_SCM_DEVELOPER_CONNECTION, "Developer connection", scm.getDeveloperConnection());
-
-    CiManagement ci = pom.getCiManagement();
-    if (ci == null) {
-      ci = new CiManagement();
-    }
-    updateLink(context, KEY_CONTINUOUS_INTEGRATION, "Continuous integration", ci.getUrl());
-
-    IssueManagement issues = pom.getIssueManagement();
-    if (issues == null) {
-      issues = new IssueManagement();
-    }
-    updateLink(context, KEY_ISSUE_TRACKER, "Issues", issues.getUrl());
+  private void handleLink(SensorContext context, String linkProperty) {
+    String home = settings.getString(linkProperty);
+    String linkType = StringUtils.substringAfterLast(linkProperty, ".");
+    String name = i18nManager.message(Locale.getDefault(), "project_links." + linkType, linkProperty);
+    updateLink(context, linkType, name, home);
   }
 
   private void updateLink(SensorContext context, String key, String name, String url) {

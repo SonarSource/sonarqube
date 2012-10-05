@@ -37,6 +37,7 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Properties;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
@@ -148,6 +149,38 @@ public class MavenProjectConverterTest {
     assertThat(rootDef.getSubProjects().size(), is(0));
     assertNull(rootDef.getParent());
     assertThat(rootDef.getBaseDir(), is(rootDir));
+  }
+
+  @Test
+  public void shouldConvertLinksToProperties() throws Exception {
+    MavenProject pom = loadPom("/org/sonar/batch/MavenProjectConverterTest/projectWithLinks/pom.xml", true);
+
+    ProjectDefinition rootDef = MavenProjectConverter.convert(Arrays.asList(pom), pom);
+
+    Properties props = rootDef.getProperties();
+    assertThat(props.getProperty(CoreProperties.LINKS_HOME_PAGE)).isEqualTo("http://home.com");
+    assertThat(props.getProperty(CoreProperties.LINKS_CI)).isEqualTo("http://ci.com");
+    assertThat(props.getProperty(CoreProperties.LINKS_ISSUE_TRACKER)).isEqualTo("http://issues.com");
+    assertThat(props.getProperty(CoreProperties.LINKS_SOURCES)).isEqualTo("http://sources.com");
+    assertThat(props.getProperty(CoreProperties.LINKS_SOURCES_DEV)).isEqualTo("http://sources-dev.com");
+  }
+
+  @Test
+  public void shouldNotConvertLinksToPropertiesIfPropertyAlreadyDefined() throws Exception {
+    MavenProject pom = loadPom("/org/sonar/batch/MavenProjectConverterTest/projectWithLinksAndProperties/pom.xml", true);
+
+    ProjectDefinition rootDef = MavenProjectConverter.convert(Arrays.asList(pom), pom);
+
+    Properties props = rootDef.getProperties();
+
+    // Those properties have been fed by the POM elements <ciManagement>, <issueManagement>, ...
+    assertThat(props.getProperty(CoreProperties.LINKS_CI)).isEqualTo("http://ci.com");
+    assertThat(props.getProperty(CoreProperties.LINKS_ISSUE_TRACKER)).isEqualTo("http://issues.com");
+    assertThat(props.getProperty(CoreProperties.LINKS_SOURCES_DEV)).isEqualTo("http://sources-dev.com");
+
+    // ... but those ones have been overridden by <properties> in the POM
+    assertThat(props.getProperty(CoreProperties.LINKS_SOURCES)).isEqualTo("http://sources.com-OVERRIDEN-BY-PROPS");
+    assertThat(props.getProperty(CoreProperties.LINKS_HOME_PAGE)).isEqualTo("http://home.com-OVERRIDEN-BY-PROPS");
   }
 
   private MavenProject loadPom(String pomPath, boolean isRoot) throws URISyntaxException, IOException, XmlPullParserException {

@@ -19,21 +19,27 @@
  */
 package org.sonar.batch;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Maps;
+import org.apache.commons.lang.StringUtils;
+import org.apache.maven.model.CiManagement;
+import org.apache.maven.model.IssueManagement;
+import org.apache.maven.model.Scm;
+import org.apache.maven.project.MavenProject;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.utils.SonarException;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.maven.project.MavenProject;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.utils.SonarException;
-
-import com.google.common.collect.Maps;
+import java.util.Properties;
 
 public final class MavenProjectConverter {
 
   private static final String UNABLE_TO_DETERMINE_PROJECT_STRUCTURE_EXCEPTION_MESSAGE = "Unable to determine structure of project." +
-      " Probably you use Maven Advanced Reactor Options, which is not supported by Sonar and should not be used.";
+    " Probably you use Maven Advanced Reactor Options, which is not supported by Sonar and should not be used.";
 
   public static ProjectDefinition convert(List<MavenProject> poms, MavenProject root) {
     Map<String, MavenProject> paths = Maps.newHashMap(); // projects by canonical path to pom.xml
@@ -78,22 +84,55 @@ public final class MavenProjectConverter {
     return rootProject;
   }
 
-  /**
-   * Visibility has been relaxed for tests.
-   */
+  @VisibleForTesting
   static ProjectDefinition convert(MavenProject pom) {
     String key = new StringBuilder().append(pom.getGroupId()).append(":").append(pom.getArtifactId()).toString();
     ProjectDefinition definition = ProjectDefinition.create();
     // IMPORTANT NOTE : reference on properties from POM model must not be saved, instead they should be copied explicitly - see SONAR-2896
+    Properties properties = pom.getModel().getProperties();
+    convertMavenLinksToProperties(pom, properties);
     definition
-        .setProperties(pom.getModel().getProperties())
+        .setProperties(properties)
         .setKey(key)
         .setVersion(pom.getVersion())
         .setName(pom.getName())
         .setDescription(pom.getDescription())
         .addContainerExtension(pom);
     synchronizeFileSystem(pom, definition);
+
     return definition;
+  }
+
+  /**
+   * For SONAR-3676
+   */
+  private static void convertMavenLinksToProperties(MavenProject pom, Properties properties) {
+    setPropertyIfNotAlreadyExists(properties, CoreProperties.LINKS_HOME_PAGE, pom.getUrl());
+
+    Scm scm = pom.getScm();
+    if (scm == null) {
+      scm = new Scm();
+    }
+    setPropertyIfNotAlreadyExists(properties, CoreProperties.LINKS_SOURCES, scm.getUrl());
+    setPropertyIfNotAlreadyExists(properties, CoreProperties.LINKS_SOURCES_DEV, scm.getDeveloperConnection());
+
+    CiManagement ci = pom.getCiManagement();
+    if (ci == null) {
+      ci = new CiManagement();
+    }
+    setPropertyIfNotAlreadyExists(properties, CoreProperties.LINKS_CI, ci.getUrl());
+
+    IssueManagement issues = pom.getIssueManagement();
+    if (issues == null) {
+      issues = new IssueManagement();
+    }
+    setPropertyIfNotAlreadyExists(properties, CoreProperties.LINKS_ISSUE_TRACKER, issues.getUrl());
+  }
+
+  private static void setPropertyIfNotAlreadyExists(Properties properties, String propertyKey, String propertyValue) {
+    if (StringUtils.isBlank(properties.getProperty(propertyKey))) {
+      properties.setProperty(propertyKey, StringUtils.defaultString(propertyValue));
+    }
   }
 
   public static void synchronizeFileSystem(MavenProject pom, ProjectDefinition into) {
