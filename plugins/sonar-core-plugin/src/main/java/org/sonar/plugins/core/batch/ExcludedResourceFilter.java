@@ -28,27 +28,24 @@ import org.sonar.api.resources.ResourceUtils;
  * @since 1.12
  */
 public class ExcludedResourceFilter implements ResourceFilter {
-
-  private Project project;
+  private final Project project;
 
   public ExcludedResourceFilter(Project project) {
     this.project = project;
   }
 
   public boolean isIgnored(Resource resource) {
-    if (ResourceUtils.isUnitTestClass(resource)) {
-      // See SONAR-1115 Exclusion patterns do not apply to unit tests.
+    String[] patterns = ResourceUtils.isUnitTestClass(resource) ? project.getTestExclusionPatterns() : project.getExclusionPatterns();
+    if (patterns == null) {
       return false;
     }
 
-    String[] patterns = project.getExclusionPatterns();
-    if (patterns != null) {
-      for (String pattern : patterns) {
-        if (resource.matchFilePattern(pattern)) {
-          return true;
-        }
+    for (String pattern : patterns) {
+      if (resource.matchFilePattern(pattern)) {
+        return true;
       }
     }
+
     return false;
   }
 }

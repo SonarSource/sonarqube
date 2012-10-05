@@ -19,6 +19,8 @@
  */
 package org.sonar.api.resources;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -86,7 +88,7 @@ public class Project extends Resource {
      */
     public boolean isDynamic(boolean includeReuseReportMode) {
       return equals(Project.AnalysisType.DYNAMIC) ||
-          (equals(Project.AnalysisType.REUSE_REPORTS) && includeReuseReportMode);
+        (equals(Project.AnalysisType.REUSE_REPORTS) && includeReuseReportMode);
     }
   }
 
@@ -304,8 +306,6 @@ public class Project extends Resource {
     return parent;
   }
 
-
-
   /**
    * For internal use only.
    */
@@ -358,14 +358,34 @@ public class Project extends Resource {
 
   /**
    * Patterns of resource exclusion as defined in project settings page.
+   *
+   * @since 3.3 also applies exclusions in general settings page and global exclusions.
    */
   public String[] getExclusionPatterns() {
-    String[] exclusions = configuration.getStringArray(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY);
-    for (int index=0 ; index<exclusions.length ; index++) {
-      // http://jira.codehaus.org/browse/SONAR-2261 - exclusion must be trimmed
-      exclusions[index]=StringUtils.trim(exclusions[index]);
+    return trimExclusions(ImmutableList.<String> builder()
+      .add(configuration.getStringArray(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY))
+      .add(configuration.getStringArray(CoreProperties.GLOBAL_EXCLUSIONS_PROPERTY)).build());
+  }
+
+  /**
+   * Patterns of test exclusion as defined in project settings page.
+   * Also applies exclusions in general settings page and global exclusions.
+   *
+   * @since 3.3
+   */
+  public String[] getTestExclusionPatterns() {
+    return trimExclusions(ImmutableList.<String> builder()
+        .add(configuration.getStringArray(CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY))
+        .add(configuration.getStringArray(CoreProperties.GLOBAL_TEST_EXCLUSIONS_PROPERTY)).build());
+  }
+
+  // http://jira.codehaus.org/browse/SONAR-2261 - exclusion must be trimmed
+  private static String[] trimExclusions(List<String> exclusions) {
+    List<String> trimmed = Lists.newArrayList();
+    for (String exclusion : exclusions) {
+      trimmed.add(StringUtils.trim(exclusion));
     }
-    return exclusions;
+    return trimmed.toArray(new String[trimmed.size()]);
   }
 
   /**

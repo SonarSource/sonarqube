@@ -19,36 +19,36 @@
  */
 package org.sonar.api.resources;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.test.MavenTestUtils;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class ProjectTest {
+  PropertiesConfiguration conf = new PropertiesConfiguration();
+
   @Test
   public void equalsProject() {
     Project project1 = MavenTestUtils.loadProjectFromPom(getClass(), "equalsProject/pom.xml");
     Project project2 = MavenTestUtils.loadProjectFromPom(getClass(), "equalsProject/pom.xml");
-    assertEquals(project1, project2);
-    assertFalse("foo:bar".equals(project1));
-    assertEquals(project1.hashCode(), project2.hashCode());
+
+    assertThat(project1).isEqualTo(project2);
+    assertThat(project1).isNotEqualTo("foo:bar");
+    assertThat(project1.hashCode()).isEqualTo(project2.hashCode());
   }
 
   @Test
   public void effectiveKeyShouldEqualKey() {
-    assertThat(new Project("my:project").getEffectiveKey(), is("my:project"));
+    assertThat(new Project("my:project").getEffectiveKey()).isEqualTo("my:project");
   }
 
   @Test
   public void createFromMavenIds() {
     Project project = Project.createFromMavenIds("my", "artifact");
-    assertThat(project.getKey(), is("my:artifact"));
+
+    assertThat(project.getKey()).isEqualTo("my:artifact");
   }
 
   /**
@@ -58,45 +58,48 @@ public class ProjectTest {
    */
   @Test
   public void shouldTrimExclusionPatterns() {
-    Configuration conf = new PropertiesConfiguration();
     conf.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "  **/*Foo.java   , **/Bar.java    ");
-    Project project = new Project("foo").setConfiguration(conf);
+    conf.setProperty(CoreProperties.GLOBAL_EXCLUSIONS_PROPERTY, "  **/*Test.java   ");
 
+    Project project = new Project("foo").setConfiguration(conf);
     String[] exclusions = project.getExclusionPatterns();
 
-    assertThat(exclusions.length, Is.is(2));
-    assertThat(exclusions[0], Is.is("**/*Foo.java"));
-    assertThat(exclusions[1], Is.is("**/Bar.java"));
+    assertThat(exclusions).containsOnly("**/*Foo.java", "**/Bar.java", "**/*Test.java");
   }
 
   @Test
   public void testNoExclusionPatterns() {
-    Project project = new Project("key").setConfiguration(new PropertiesConfiguration());
+    Project project = new Project("key").setConfiguration(conf);
 
-    MatcherAssert.assertThat(project.getExclusionPatterns().length, Is.is(0));
+    assertThat(project.getExclusionPatterns()).isEmpty();
   }
 
   @Test
-  public void testManyExclusionPatterns() {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
+  public void should_exclude_many_patterns() {
     conf.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "**/*,foo,*/bar");
+    conf.setProperty(CoreProperties.GLOBAL_EXCLUSIONS_PROPERTY, "*/exclude");
 
     Project project = new Project("key").setConfiguration(conf);
 
-    MatcherAssert.assertThat(project.getExclusionPatterns().length, Is.is(3));
-    MatcherAssert.assertThat(project.getExclusionPatterns()[0], Is.is("**/*"));
-    MatcherAssert.assertThat(project.getExclusionPatterns()[1], Is.is("foo"));
-    MatcherAssert.assertThat(project.getExclusionPatterns()[2], Is.is("*/bar"));
+    assertThat(project.getExclusionPatterns()).containsOnly("**/*", "foo", "*/bar", "*/exclude");
+  }
+
+  @Test
+  public void should_exclude_test_patterns() {
+    conf.setProperty(CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY, "**/*Test.java, **/*IntegrationTest.java");
+    conf.setProperty(CoreProperties.GLOBAL_TEST_EXCLUSIONS_PROPERTY, "**/*FunctionalTest.java");
+
+    Project project = new Project("key").setConfiguration(conf);
+
+    assertThat(project.getTestExclusionPatterns()).containsOnly("**/*Test.java", "**/*IntegrationTest.java", "**/*FunctionalTest.java");
   }
 
   @Test
   public void testSetExclusionPatterns() {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
     Project project = new Project("key").setConfiguration(conf);
 
-    project.setExclusionPatterns(new String[]{"**/*Foo.java", "**/*Bar.java"});
-    MatcherAssert.assertThat(project.getExclusionPatterns().length, Is.is(2));
-    MatcherAssert.assertThat(project.getExclusionPatterns()[0], Is.is("**/*Foo.java"));
-    MatcherAssert.assertThat(project.getExclusionPatterns()[1], Is.is("**/*Bar.java"));
+    project.setExclusionPatterns(new String[] {"**/*Foo.java", "**/*Bar.java"});
+
+    assertThat(project.getExclusionPatterns()).containsOnly("**/*Foo.java", "**/*Bar.java");
   }
 }

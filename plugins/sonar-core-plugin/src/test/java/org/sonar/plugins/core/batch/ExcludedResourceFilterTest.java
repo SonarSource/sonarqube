@@ -50,9 +50,6 @@ public class ExcludedResourceFilterTest {
     assertThat(filter.isIgnored(mock(Resource.class)), is(false));
   }
 
-  /**
-   * See SONAR-1115 Exclusion patterns do not apply to unit tests.
-   */
   @Test
   public void ignoreResourceIfMatchesPattern() {
     PropertiesConfiguration conf = new PropertiesConfiguration();
@@ -66,6 +63,23 @@ public class ExcludedResourceFilterTest {
     assertThat(filter.isIgnored(resource), is(true));
   }
 
+  @Test
+  public void ignoreTestIfMatchesPattern() {
+    PropertiesConfiguration conf = new PropertiesConfiguration();
+    conf.setProperty(CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY, new String[]{"**/foo/*.java", "**/bar/*"});
+    Project project = new Project("foo").setConfiguration(conf);
+    ExcludedResourceFilter filter = new ExcludedResourceFilter(project);
+
+    Resource resource = mock(Resource.class);
+    when(resource.getQualifier()).thenReturn(Qualifiers.UNIT_TEST_FILE);
+    when(resource.matchFilePattern("**/bar/*")).thenReturn(true);
+
+    assertThat(filter.isIgnored(resource), is(true));
+  }
+
+  /**
+   * See SONAR-1115 Source exclusion patterns do not apply to unit tests.
+   */
   @Test
   public void doNotExcludeUnitTestFiles() {
     PropertiesConfiguration conf = new PropertiesConfiguration();

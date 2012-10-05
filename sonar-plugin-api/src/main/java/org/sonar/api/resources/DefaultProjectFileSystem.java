@@ -211,14 +211,14 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
     return !testFiles(lang.getKey()).isEmpty();
   }
 
-  List<InputFile> getFiles(List<File> directories, List<File> initialFiles, boolean applyExclusionPatterns, String... langs) {
+  List<InputFile> getFiles(List<File> directories, List<File> initialFiles, String[] patterns, String... langs) {
     List<InputFile> result = Lists.newArrayList();
     if (directories == null) {
       return result;
     }
 
     IOFileFilter suffixFilter = getFileSuffixFilter(langs);
-    WildcardPattern[] exclusionPatterns = getExclusionPatterns(applyExclusionPatterns);
+    WildcardPattern[] exclusionPatterns = WildcardPattern.create(patterns);
 
     IOFileFilter initialFilesFilter = TrueFileFilter.INSTANCE;
     if (initialFiles != null && !initialFiles.isEmpty()) {
@@ -401,14 +401,14 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
    * @since 2.6
    */
   public List<InputFile> mainFiles(String... langs) {
-    return getFiles(getSourceDirs(), getInitialSourceFiles(), true, langs);
+    return getFiles(getSourceDirs(), getInitialSourceFiles(), project.getExclusionPatterns(), langs);
   }
 
   /**
    * @since 2.6
    */
   public List<InputFile> testFiles(String... langs) {
-    return getFiles(getTestDirs(), getInitialTestFiles(), false /* FIXME should be true? */, langs);
+    return getFiles(getTestDirs(), getInitialTestFiles(), project.getTestExclusionPatterns(), langs);
   }
 
   protected List<File> getInitialSourceFiles() {

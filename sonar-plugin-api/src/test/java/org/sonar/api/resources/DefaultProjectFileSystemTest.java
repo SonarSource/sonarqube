@@ -236,7 +236,7 @@ public class DefaultProjectFileSystemTest {
   public void shouldExcludeDirectoriesStartingWithDot() {
     List<File> dirs = Arrays.asList(new File("test-resources/org/sonar/api/resources/DefaultProjectFileSystemTest/shouldExcludeDirectoriesStartingWithDot/src"));
 
-    List<InputFile> files = new DefaultProjectFileSystem(new Project("foo"), null).getFiles(dirs, Collections.<File>emptyList(), false);
+    List<InputFile> files = new DefaultProjectFileSystem(new Project("foo"), null).getFiles(dirs, Collections.<File>emptyList(), new String[0]);
     assertThat(files.size(), is(1));
     assertThat(files.get(0).getRelativePath(), is("org/sonar/Included.java"));
   }
