@@ -19,16 +19,15 @@
  */
 package org.sonar.api.resources;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.ArrayUtils;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.batch.InstantiationStrategy;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A class to store the list of languages
