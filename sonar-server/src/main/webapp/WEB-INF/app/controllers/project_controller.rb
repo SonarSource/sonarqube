@@ -206,7 +206,7 @@ class ProjectController < ApplicationController
   def set_links
     project = get_current_project(params[:project_id])
 
-    project.links.clear
+    project.custom_links.each {|link| link.delete}
 
     params.each_pair do |param_key, value|
       if (param_key.starts_with?('name_'))
