@@ -105,6 +105,19 @@ public class CoverageDecoratorTest {
     verify(context, never()).saveMeasure(eq(CoreMetrics.COVERAGE), anyDouble());
   }
 
+  @Test
+  public void should_count_covered_elements_for_new_code() {
+    Measure newLines = measureWithVariation(1, 100.0);
+    Measure newUncoveredConditions = measureWithVariation(1, 10.0);
+    Measure newUncoveredLines = measureWithVariation(1, 5.0);
+    Measure newConditions = measureWithVariation(1, 1.0);
+    DecoratorContext context = mockNewContext(newLines, newUncoveredConditions, newUncoveredLines, newConditions);
+
+    long count = decorator.countCoveredElementsForNewCode(context, 1);
+
+    assertThat(count).isEqualTo(86).isEqualTo(100 + 1 - 10 - 5);
+  }
+
   private static DecoratorContext mockContext(int lines, int uncoveredLines, int conditions, int uncoveredConditions) {
     DecoratorContext context = mock(DecoratorContext.class);
     when(context.getMeasure(CoreMetrics.LINES_TO_COVER)).thenReturn(new Measure(CoreMetrics.LINES_TO_COVER, (double) lines));
@@ -112,5 +125,20 @@ public class CoverageDecoratorTest {
     when(context.getMeasure(CoreMetrics.CONDITIONS_TO_COVER)).thenReturn(new Measure(CoreMetrics.CONDITIONS_TO_COVER, (double) conditions));
     when(context.getMeasure(CoreMetrics.UNCOVERED_CONDITIONS)).thenReturn(new Measure(CoreMetrics.UNCOVERED_CONDITIONS, (double) uncoveredConditions));
     return context;
+  }
+
+  private static DecoratorContext mockNewContext(Measure newLines, Measure newUncoveredConditions, Measure newUncoveredLines, Measure newConditions) {
+    DecoratorContext context = mock(DecoratorContext.class);
+    when(context.getMeasure(CoreMetrics.NEW_LINES_TO_COVER)).thenReturn(newLines);
+    when(context.getMeasure(CoreMetrics.NEW_UNCOVERED_LINES)).thenReturn(newUncoveredLines);
+    when(context.getMeasure(CoreMetrics.NEW_UNCOVERED_CONDITIONS)).thenReturn(newUncoveredConditions);
+    when(context.getMeasure(CoreMetrics.NEW_CONDITIONS_TO_COVER)).thenReturn(newConditions);
+    return context;
+  }
+
+  private static Measure measureWithVariation(int period, double variation) {
+    Measure measure = mock(Measure.class);
+    when(measure.getVariation(period)).thenReturn(variation);
+    return measure;
   }
 }
