@@ -14,7 +14,7 @@
       </tr>
       </thead>
       <tbody>
-      <% @definitions.each do |property| -%>
+      <% by_property_name(@definitions).each do |property| -%>
         <tr class="property <%= cycle('even', 'odd', :name => 'properties') -%>">
           <td style="padding: 10px" id="block_<%= property.key -%>">
             <h3>

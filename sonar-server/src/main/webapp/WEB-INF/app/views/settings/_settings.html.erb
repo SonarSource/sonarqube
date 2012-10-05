@@ -11,7 +11,7 @@
           </tr>
           </thead>
           <tbody>
-          <% by_name(@categories).each do |category| -%>
+          <% by_category_name(@categories).each do |category| -%>
             <tr id="select_<%= category -%>" class="select <%= cycle('even', 'odd', :name => 'category') -%> <%= 'selected' if @category==category -%>">
               <td><%= link_to category_name(category), :category => category -%></td>
             </tr>
