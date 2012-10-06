@@ -20,11 +20,14 @@
 package org.sonar.core.purge;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Iterables;
 import org.apache.ibatis.session.SqlSession;
 
 import java.util.List;
 
 class PurgeCommands {
+  private static final int MAX_CHARACTERISTICS_PER_QUERY = 1000;
+
   private final SqlSession session;
   private final PurgeMapper purgeMapper;
 
@@ -203,7 +206,10 @@ class PurgeCommands {
     List<Long> characteristicIds = purgeMapper.selectCharacteristicIdsToPurge();
     if (!characteristicIds.isEmpty()) {
       for (Long snapshotId : snapshotIds) {
-        purgeMapper.deleteSnapshotMeasuresOnCharacteristics(snapshotId, characteristicIds);
+        // SONAR-3641 We cannot process all characteristics at once
+        for (List<Long> ids : Iterables.partition(characteristicIds, MAX_CHARACTERISTICS_PER_QUERY)) {
+          purgeMapper.deleteSnapshotMeasuresOnCharacteristics(snapshotId, ids);
+        }
       }
       session.commit();
     }
