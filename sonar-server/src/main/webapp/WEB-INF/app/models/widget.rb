@@ -18,7 +18,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 class Widget < ActiveRecord::Base
-  has_many :properties, :dependent => :delete_all, :class_name => 'WidgetProperty'
+  has_many :properties, :dependent => :delete_all, :class_name => 'WidgetProperty', :inverse_of => :widget
   belongs_to :dashboards
   belongs_to :resource, :class_name => 'Project'
 

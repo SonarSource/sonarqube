@@ -24,11 +24,11 @@ class Rule < ActiveRecord::Base
   validates_presence_of :name, :description, :plugin_name
   validates_presence_of :plugin_rule_key, :if => 'name.present?'
 
-  has_many :rules_parameters
-  has_many :rule_failures
-  has_many :active_rules
+  has_many :rules_parameters, :inverse_of => :rule
+  has_many :rule_failures, :inverse_of => :rule
+  has_many :active_rules, :inverse_of => :rule
   belongs_to :parent, :class_name => 'Rule', :foreign_key => 'parent_id'
-  has_one :rule_note
+  has_one :rule_note, :inverse_of => :rule
   alias_attribute :note, :rule_note
 
   def repository_key

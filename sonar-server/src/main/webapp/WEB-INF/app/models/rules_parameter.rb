@@ -33,17 +33,6 @@ class RulesParameter < ActiveRecord::Base
     param_type[2, param_type.length-3].split(",")
   end
 
-  # We can provide the rule as parameter to avoid reloading this rule_parameter's rule.
-  # This hack would be useless if we could use :inverse_of on :rule
-  def description(param_rule = rule)
-    @l10n_description ||=
-      begin
-        result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getRuleParamDescription(I18n.locale, param_rule.repository_key, param_rule.plugin_rule_key, name())
-        result = read_attribute(:description) unless result
-        result
-      end
-  end
-
   def description=(value)
     write_attribute(:description, value)
   end

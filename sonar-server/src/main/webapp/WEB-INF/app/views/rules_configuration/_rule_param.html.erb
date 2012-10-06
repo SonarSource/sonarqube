@@ -40,7 +40,7 @@
     <% end %>
   <% end %>
 
-  <div class="form-val-note"><%= h(parameter.description(rule) || "") -%> <%= ('(' + readable_type(parameter.param_type) + ')') if !readable_type(parameter.param_type).empty? -%></div>
+  <div class="form-val-note"><%= h(parameter.rule.description || "") -%> <%= ('(' + readable_type(parameter.param_type) + ')') if !readable_type(parameter.param_type).empty? -%></div>
 
   </form>
 </td>
