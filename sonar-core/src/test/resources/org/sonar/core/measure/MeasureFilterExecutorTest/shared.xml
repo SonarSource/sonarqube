@@ -152,11 +152,11 @@
 
 
   <!-- two favourites : Big.java and PHP project -->
-  <properties prop_key="favourite" resource_id="3" text_value="[null]" user_id="50"/>
-  <properties prop_key="favourite" resource_id="10" text_value="[null]" user_id="50"/>
+  <properties id="1" prop_key="favourite" resource_id="3" text_value="[null]" user_id="50"/>
+  <properties id="2" prop_key="favourite" resource_id="10" text_value="[null]" user_id="50"/>
 
   <!-- another properties -->
-  <properties prop_key="favourite" resource_id="1" text_value="[null]" user_id="1234"/>
-  <properties prop_key="sonar.profile" resource_id="1" text_value="Sonar way" user_id="[null]"/>
+  <properties id="3" prop_key="favourite" resource_id="1" text_value="[null]" user_id="1234"/>
+  <properties id="4" prop_key="sonar.profile" resource_id="1" text_value="Sonar way" user_id="[null]"/>
 
 </dataset>
