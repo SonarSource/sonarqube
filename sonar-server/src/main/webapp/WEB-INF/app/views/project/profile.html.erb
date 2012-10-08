@@ -13,7 +13,7 @@
        selected_profile=@project.profile(language.getKey(), false)
   %>
     <tr class="<%= cycle 'even', 'odd' -%>">
-      <td class="thin"><%= h language.getName() -%></td>
+      <td class="thin" nowrap><%= h language.getName() -%></td>
       <td>
         <form id="form-<%= language.getKey().parameterize -%>" method="POST" action="<%= ApplicationController.root_context -%>/project/set_profile">
           <input type="hidden" name="id" value="<%= @project.id -%>"/>
