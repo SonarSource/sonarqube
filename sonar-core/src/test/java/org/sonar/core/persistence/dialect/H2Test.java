@@ -42,7 +42,7 @@ public class H2Test {
   @Test
   public void should_configure() {
     assertThat(h2.getId()).isEqualTo("h2");
-    assertThat(h2.getActiveRecordDialectCode()).isEqualTo("h2");
+    assertThat(h2.getActiveRecordDialectCode()).isEqualTo(".h2.");
     assertThat(h2.getDefaultDriverClassName()).isEqualTo("org.h2.Driver");
     assertThat(h2.getValidationQuery()).isEqualTo("SELECT 1");
   }
