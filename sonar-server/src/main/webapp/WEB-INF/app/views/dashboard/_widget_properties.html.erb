@@ -24,7 +24,7 @@
       <tr>
         <td class="form-key-cell"><%= property_def.key() -%><%= " *" unless property_def.optional() -%></td>
         <td class="form-val-cell" id="row_<%= property_def.key() -%>">
-          <%= property_value_field(property_def, widget.property_text_value(property_def.key())) -%>
+          <%= property_value_field(property_def, widget.property_text_value(property_def.key()), widget) -%>
           <div class="form-val-note">
             <%= message("widget." + widget.key + ".param." + property_def.key(), :default => property_def.description()) -%>
           </div>

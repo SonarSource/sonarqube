@@ -19,42 +19,45 @@
 #
 module PropertiesHelper
 
-  def property_input_field(key, type, value, options, additionalOptions = {})
+  # html_options support :
+  # :html_id - the id of the generated HTML element
+  #
+  def property_input_field(key, type, value, options, html_options = {})
     if type==PropertyType::TYPE_STRING
-      text_field_tag key, value, {:size => 25}.update(additionalOptions)
+      text_field_tag key, value, {:size => 25}.update(html_options)
 
     elsif type==PropertyType::TYPE_TEXT
-      text_area_tag key, value, {:rows => '6', :style => 'width: 100%'}.update(additionalOptions)
+      text_area_tag key, value, {:rows => '6', :style => 'width: 100%'}.update(html_options)
 
     elsif type==PropertyType::TYPE_PASSWORD
-      password_field_tag key, value, {:size => 25}.update(additionalOptions)
+      password_field_tag key, value, {:size => 25}.update(html_options)
 
     elsif type==PropertyType::TYPE_BOOLEAN
-      (hidden_field_tag key, 'false', additionalOptions) + (check_box_tag key, 'true', value=='true', additionalOptions)
+      (hidden_field_tag key, 'false', html_options) + (check_box_tag key, 'true', value=='true', html_options)
 
     elsif type==PropertyType::TYPE_INTEGER
-      text_field_tag key, value, {:size => 10}.update(additionalOptions)
+      text_field_tag key, value, {:size => 10}.update(html_options)
 
     elsif type==PropertyType::TYPE_FLOAT
-      text_field_tag key, value, {:size => 10}.update(additionalOptions)
+      text_field_tag key, value, {:size => 10}.update(html_options)
 
     elsif type==PropertyType::TYPE_METRIC
-      metric_select_tag key, metrics_filtered_by(options), :selected_key => value, :allow_empty => true
+      metric_select_tag key, metrics_filtered_by(options), {:selected_key => value, :allow_empty => true}.update(html_options)
 
     elsif type==PropertyType::TYPE_REGULAR_EXPRESSION
-      text_field_tag key, value, {:size => 25}.update(additionalOptions)
+      text_field_tag key, value, {:size => 25}.update(html_options)
 
     elsif type==PropertyType::TYPE_FILTER
       user_filters = options_key(value, ::Filter.find(:all, :conditions => ['user_id=?', current_user.id]).sort_by(&:id))
       shared_filters = options_key(value, ::Filter.find(:all, :conditions => ['(user_id<>? or user_id is null) and shared=?', current_user.id, true]).sort_by(&:id))
 
-      filters_combo = select_tag key, option_group('My Filters', user_filters) + option_group('Shared Filters', shared_filters), additionalOptions
+      filters_combo = select_tag key, option_group('My Filters', user_filters) + option_group('Shared Filters', shared_filters), html_options
       filter_link = link_to message('widget.filter.edit'), {:controller => :filters, :action => :manage}, :class => 'link-action'
 
       "#{filters_combo} #{filter_link}"
 
     else
-      hidden_field_tag key, additionalOptions
+      hidden_field_tag key, html_options
     end
   end
 

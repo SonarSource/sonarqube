@@ -20,8 +20,8 @@
 module WidgetPropertiesHelper
   include PropertiesHelper
 
-  def property_value_field(definition, value)
-    property_input_field definition.key, definition.type.name, value.nil? ? definition.defaultValue : value, definition.options
+  def property_value_field(definition, value, widget)
+    property_input_field definition.key, definition.type.name, value.nil? ? definition.defaultValue : value, definition.options, {:html_id => "prop-#{widget.key.parameterize}-#{definition.key.parameterize}"}
   end
 
 end

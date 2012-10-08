@@ -715,7 +715,10 @@ module ApplicationHelper
 
     metrics_by_domain=metrics.sort_by(&:short_name).inject({}) { |h, metric| h[metric.domain]||=[]; h[metric.domain]<<[metric.short_name, metric.key]; h }
 
-    html = select_tag(name, grouped_options_for_select(metrics_by_domain, options[:selected_key], select_tag_prompt), :multiple => options[:multiple], :disabled => options[:disabled])
+    html = select_tag(name, grouped_options_for_select(metrics_by_domain, options[:selected_key], select_tag_prompt),
+                      :multiple => options[:multiple],
+                      :disabled => options[:disabled],
+                      :id => html_id)
     js = "$j('##{html_id}').select2({#{js_options.map{|k,v| "#{k}:#{v}"}.join(',')}});"
     "#{html}<script>#{js}</script>"
   end
