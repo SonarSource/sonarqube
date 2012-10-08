@@ -212,7 +212,16 @@ public class I18nManagerTest {
   @Test
   public void shouldLookInCoreClassloaderForPluginsThatDontEmbedAllLanguages() {
     assertThat(manager.message(Locale.ENGLISH, "forge_plugin.page", null)).isEqualTo("This is my plugin");
-    assertThat(manager.message(Locale.FRENCH, "forge_plugin.page", null)).isEqualTo("C'est mon plugin");
+    assertThat(manager.message(Locale.FRENCH, "forge_plugin.page", null)).isEqualTo("Mon plugin!");
+  }
+
+  // see SONAR-3783 => test that there will be no future regression on fallback for keys spread accross several classloaders
+  @Test
+  public void shouldFallbackOnOriginalPluginIfTranslationNotPresentInLanguagePack() {
+    // the "forge_plugin.page" has been translated in French
+    assertThat(manager.message(Locale.FRENCH, "forge_plugin.page", null)).isEqualTo("Mon plugin!");
+    // but not the "forge_plugin.key_not_translated" key
+    assertThat(manager.message(Locale.FRENCH, "forge_plugin.key_not_translated", null)).isEqualTo("Key Not Translated");
   }
 
   private URLClassLoader newForgeClassLoader() {

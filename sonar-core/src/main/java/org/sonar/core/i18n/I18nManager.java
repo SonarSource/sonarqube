@@ -109,7 +109,15 @@ public class I18nManager implements I18n, ServerExtension, BatchExtension {
     String bundleKey = propertyToBundles.get(key);
     ResourceBundle resourceBundle = null;
     if (bundleKey != null) {
-      resourceBundle = getBundle(bundleKey, locale);
+      try {
+        // First, we check if the bundle exists in the language pack classloader
+        resourceBundle = ResourceBundle.getBundle(bundleKey, locale, languagePackClassLoader);
+        String message = resourceBundle.getString(key);
+        return MessageFormat.format(message, parameters);
+      } catch (MissingResourceException e1) {
+        // well, maybe the plugin has specified its own bundles, let's see
+        resourceBundle = getBundleFromCorrespondingPluginClassloader(bundleKey, locale);
+      }
     }
     return message(resourceBundle, key, defaultValue, parameters);
   }
@@ -135,14 +143,7 @@ public class I18nManager implements I18n, ServerExtension, BatchExtension {
       filePath += "/" + filename;
       InputStream input = classloader.getResourceAsStream(filePath);
       if (input != null) {
-        try {
-          result = IOUtils.toString(input, "UTF-8");
-
-        } catch (IOException e) {
-          throw new SonarException("Fail to load file: " + filePath, e);
-        } finally {
-          IOUtils.closeQuietly(input);
-        }
+        result = readInputStream(filePath, input);
       }
 
       if (keepInCache) {
@@ -157,27 +158,32 @@ public class I18nManager implements I18n, ServerExtension, BatchExtension {
     return result;
   }
 
+  String readInputStream(String filePath, InputStream input) {
+    String result = null;
+    try {
+      result = IOUtils.toString(input, "UTF-8");
+    } catch (IOException e) {
+      throw new SonarException("Fail to load file: " + filePath, e);
+    } finally {
+      IOUtils.closeQuietly(input);
+    }
+    return result;
+  }
+
   Set<String> getPropertyKeys() {
     return propertyToBundles.keySet();
   }
 
-  ResourceBundle getBundle(String bundleKey, Locale locale) {
-    ResourceBundle bundle = null;
-    try {
-      // First, we check if the bundle exists in the language pack classloader
-      bundle = ResourceBundle.getBundle(bundleKey, locale, languagePackClassLoader);
-    } catch (MissingResourceException e1) {
-      // well, maybe the plugin has specified its own bundles, let's see
-      ClassLoader classloader = bundleToClassloaders.get(bundleKey);
-      if (classloader != null) {
-        try {
-          bundle = ResourceBundle.getBundle(bundleKey, locale, classloader);
-        } catch (MissingResourceException e2) {
-          // Well, here, there's nothing much we can do...
-        }
+  ResourceBundle getBundleFromCorrespondingPluginClassloader(String bundleKey, Locale locale) {
+    ClassLoader classloader = bundleToClassloaders.get(bundleKey);
+    if (classloader != null) {
+      try {
+        return ResourceBundle.getBundle(bundleKey, locale, classloader);
+      } catch (MissingResourceException e2) {
+        // Well, here, there's nothing much we can do...
       }
     }
-    return bundle;
+    return null;
   }
 
   ClassLoader getClassLoaderForProperty(String propertyKey, Locale locale) {
