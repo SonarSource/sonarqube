@@ -121,7 +121,7 @@ class Property < ActiveRecord::Base
 
   def to_hash_json
     hash = {:key => key, :value => value.to_s}
-    hash.merge! (:values => Property.string_to_array_value(value.to_s)) if multi_values?
+    hash.merge!(:values => Property.string_to_array_value(value.to_s)) if multi_values?
     hash
   end
 
