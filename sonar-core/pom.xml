@@ -171,6 +171,7 @@
             <configuration>
               <includes>
                 <include>org/sonar/core/**/*DaoTest.java</include>
+                <include>org/sonar/core/measure/MeasureFilterExecutorTest.java</include>
               </includes>
             </configuration>
           </plugin>
