@@ -19,28 +19,32 @@
  */
 package org.sonar.plugins.core.batch;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Initializer;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
 
-public class ProjectFileSystemLogger extends Initializer {
+import java.util.Arrays;
+import java.util.List;
 
+public class ProjectFileSystemLogger extends Initializer {
   private static final Logger LOG = LoggerFactory.getLogger(ProjectFileSystemLogger.class);
 
   @Override
   public void execute(Project project) {
-    String[] exclusionPatterns = project.getExclusionPatterns();
-    if (exclusionPatterns != null && exclusionPatterns.length > 0) {
-      LOG.info("Excluded sources: {}", Arrays.toString(exclusionPatterns));
-    }
+    logExclusionPatterns("Excluded sources: {}", project.getExclusionPatterns());
+    logExclusionPatterns("Excluded tests: {}", project.getTestExclusionPatterns());
+
     ProjectFileSystem projectFileSystem = project.getFileSystem();
     logDirectories("Source directories:", projectFileSystem.getSourceDirs());
     logDirectories("Test directories:", projectFileSystem.getTestDirs());
+  }
+
+  private void logExclusionPatterns(String message, String[] exclusionPatterns) {
+    if (exclusionPatterns != null && exclusionPatterns.length > 0) {
+      LOG.info(message, Arrays.toString(exclusionPatterns));
+    }
   }
 
   private void logDirectories(String name, List<java.io.File> dirs) {
@@ -51,5 +55,4 @@ public class ProjectFileSystemLogger extends Initializer {
       }
     }
   }
-
 }
