@@ -1,0 +1,245 @@
+/*
+ * Sonar, open source software quality management tool.
+ * Copyright (C) 2008-2012 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * Sonar is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * Sonar is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Sonar; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ */
+package org.sonar.core.measure;
+
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.measures.Metric;
+import org.sonar.core.persistence.Database;
+import org.sonar.core.persistence.dialect.PostgreSql;
+import org.sonar.core.resource.SnapshotDto;
+
+import javax.annotation.Nullable;
+import java.sql.*;
+import java.util.Collection;
+import java.util.List;
+
+class MeasureFilterSql {
+
+  private final Database database;
+  private final MeasureFilter filter;
+  private final MesasureFilterContext context;
+  private final StringBuilder sql = new StringBuilder(1000);
+  private final List<Date> dateParameters = Lists.newArrayList();
+
+  MeasureFilterSql(Database database, MeasureFilter filter, MesasureFilterContext context) {
+    this.database = database;
+    this.filter = filter;
+    this.context = context;
+    init();
+  }
+
+  List<MeasureFilterRow> execute(Connection connection) throws SQLException {
+    PreparedStatement statement = connection.prepareStatement(sql.toString());
+    ResultSet rs = null;
+    try {
+      for (int index = 0; index < dateParameters.size(); index++) {
+        statement.setDate(index + 1, dateParameters.get(index));
+      }
+      rs = statement.executeQuery();
+      return process(rs);
+
+    } finally {
+      closeQuietly(statement, rs);
+    }
+  }
+
+  String sql() {
+    return sql.toString();
+  }
+
+  private void init() {
+    sql.append("SELECT block.id, max(block.rid) rid, max(block.rootid) rootid, max(sortval) sortval");
+    for (int index = 0; index < filter.measureConditions().size(); index++) {
+      sql.append(", max(crit_").append(index).append(")");
+    }
+    sql.append(" FROM (");
+
+    appendSortBlock();
+    for (int index = 0; index < filter.measureConditions().size(); index++) {
+      MeasureFilterValueCondition condition = filter.measureConditions().get(index);
+      sql.append(" UNION ");
+      appendConditionBlock(index, condition);
+    }
+
+    sql.append(") block GROUP BY block.id");
+    if (!filter.measureConditions().isEmpty()) {
+      sql.append(" HAVING ");
+      for (int index = 0; index < filter.measureConditions().size(); index++) {
+        if (index > 0) {
+          sql.append(" AND ");
+        }
+        sql.append(" max(crit_").append(index).append(") IS NOT NULL ");
+      }
+    }
+    if (filter.sort().isSortedByDatabase()) {
+      sql.append(" ORDER BY sortval");
+      sql.append(filter.sort().isAsc() ? " ASC " : " DESC ");
+    }
+  }
+
+  private void appendSortBlock() {
+    sql.append(" SELECT s.id, s.project_id rid, s.root_project_id rootid, ").append(filter.sort().column()).append(" sortval");
+    for (int index = 0; index < filter.measureConditions().size(); index++) {
+      MeasureFilterValueCondition condition = filter.measureConditions().get(index);
+      sql.append(", ").append(nullSelect(condition.metric())).append(" crit_").append(index);
+    }
+    sql.append(" FROM snapshots s INNER JOIN projects p ON s.project_id=p.id ");
+    if (filter.sort().onMeasures()) {
+      sql.append(" LEFT OUTER JOIN project_measures pm ON s.id=pm.snapshot_id AND pm.metric_id=");
+      sql.append(filter.sort().metric().getId());
+      sql.append(" AND pm.rule_id IS NULL AND pm.rule_priority IS NULL AND pm.characteristic_id IS NULL AND pm.person_id IS NULL ");
+    }
+    sql.append(" WHERE ");
+    appendResourceConditions();
+  }
+
+  private void appendConditionBlock(int conditionIndex, MeasureFilterValueCondition condition) {
+    sql.append(" SELECT s.id, s.project_id rid, s.root_project_id rootid, null sortval");
+    for (int j = 0; j < filter.measureConditions().size(); j++) {
+      sql.append(", ");
+      if (j == conditionIndex) {
+        sql.append(condition.valueColumn());
+      } else {
+        sql.append(nullSelect(filter.measureConditions().get(j).metric()));
+      }
+      sql.append(" crit_").append(j);
+    }
+    sql.append(" FROM snapshots s INNER JOIN projects p ON s.project_id=p.id INNER JOIN project_measures pm ON s.id=pm.snapshot_id ");
+    sql.append(" WHERE ");
+    appendResourceConditions();
+    sql.append(" AND pm.rule_id IS NULL AND pm.rule_priority IS NULL AND pm.characteristic_id IS NULL AND pm.person_id IS NULL AND ");
+    condition.appendSql(sql);
+  }
+
+  private void appendResourceConditions() {
+    sql.append(" s.status='P' AND s.islast=").append(database.getDialect().getTrueSqlValue());
+    sql.append(" AND p.copy_resource_id IS NULL ");
+    if (!filter.resourceQualifiers().isEmpty()) {
+      sql.append(" AND s.qualifier IN ");
+      appendInStatement(filter.resourceQualifiers(), sql);
+    }
+    if (!filter.resourceScopes().isEmpty()) {
+      sql.append(" AND s.scope IN ");
+      appendInStatement(filter.resourceScopes(), sql);
+    }
+    if (!filter.resourceLanguages().isEmpty()) {
+      sql.append(" AND p.language IN ");
+      appendInStatement(filter.resourceLanguages(), sql);
+    }
+    if (filter.fromDate() != null) {
+      sql.append(" AND s.created_at >= ? ");
+      dateParameters.add(new java.sql.Date(filter.fromDate().getTime()));
+    }
+    if (filter.toDate() != null) {
+      sql.append(" AND s.created_at <= ? ");
+      dateParameters.add(new java.sql.Date(filter.toDate().getTime()));
+    }
+    if (filter.userFavourites() && context.getUserId() != null) {
+      sql.append(" AND s.project_id IN (SELECT props.resource_id FROM properties props WHERE props.prop_key='favourite' AND props.user_id=");
+      sql.append(context.getUserId());
+      sql.append(" AND props.resource_id IS NOT NULL) ");
+    }
+    if (StringUtils.isNotBlank(filter.resourceName())) {
+      sql.append(" AND s.project_id IN (SELECT rindex.resource_id FROM resource_index rindex WHERE rindex.kee like '");
+      sql.append(StringEscapeUtils.escapeSql(StringUtils.lowerCase(filter.resourceName())));
+      sql.append("%'");
+      if (!filter.resourceQualifiers().isEmpty()) {
+        sql.append(" AND rindex.qualifier IN ");
+        appendInStatement(filter.resourceQualifiers(), sql);
+      }
+      sql.append(") ");
+    }
+    SnapshotDto baseSnapshot = context.getBaseSnapshot();
+    if (baseSnapshot != null) {
+      if (filter.isOnBaseResourceChildren()) {
+        sql.append(" AND s.parent_snapshot_id=").append(baseSnapshot.getId());
+      } else {
+        Long rootSnapshotId = (baseSnapshot.getRootId() != null ? baseSnapshot.getRootId() : baseSnapshot.getId());
+        sql.append(" AND s.root_snapshot_id=").append(rootSnapshotId);
+        sql.append(" AND s.path LIKE '").append(baseSnapshot.getPath()).append(baseSnapshot.getId()).append(".%'");
+      }
+    }
+  }
+
+  List<MeasureFilterRow> process(ResultSet rs) throws SQLException {
+    List<MeasureFilterRow> rows = Lists.newArrayList();
+    boolean sortTextValues = !filter.sort().isSortedByDatabase();
+    while (rs.next()) {
+      MeasureFilterRow row = new MeasureFilterRow(rs.getLong(1), rs.getLong(2), rs.getLong(3));
+      if (sortTextValues) {
+        row.setSortText(rs.getString(4));
+      }
+      rows.add(row);
+    }
+    if (sortTextValues) {
+      // database does not manage case-insensitive text sorting. It must be done programmatically
+      Function<MeasureFilterRow, String> function = new Function<MeasureFilterRow, String>() {
+        public String apply(@Nullable MeasureFilterRow row) {
+          return (row != null ? StringUtils.defaultString(row.getSortText()) : "");
+        }
+      };
+      Ordering<MeasureFilterRow> ordering = Ordering.from(String.CASE_INSENSITIVE_ORDER).onResultOf(function).nullsFirst();
+      if (!filter.sort().isAsc()) {
+        ordering = ordering.reverse();
+      }
+      rows = ordering.sortedCopy(rows);
+    }
+    return rows;
+  }
+
+  private String nullSelect(Metric metric) {
+    if (metric.isNumericType() && PostgreSql.ID.equals(database.getDialect().getId())) {
+      return "null::integer";
+    }
+    return "null";
+  }
+
+
+  private static void appendInStatement(Collection<String> values, StringBuilder to) {
+    to.append(" ('");
+    to.append(StringUtils.join(values, "','"));
+    to.append("') ");
+  }
+
+  private static void closeQuietly(@Nullable Statement stmt, @Nullable ResultSet rs) {
+    if (rs != null) {
+      try {
+        rs.close();
+      } catch (SQLException e) {
+        LoggerFactory.getLogger(MeasureFilterSql.class).warn("Fail to close result set", e);
+        // ignore
+      }
+    }
+    if (stmt != null) {
+      try {
+        stmt.close();
+      } catch (SQLException e) {
+        LoggerFactory.getLogger(MeasureFilterSql.class).warn("Fail to close statement", e);
+        // ignore
+      }
+    }
+
+  }
+}

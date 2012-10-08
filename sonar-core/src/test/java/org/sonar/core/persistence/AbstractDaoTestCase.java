@@ -19,9 +19,6 @@
  */
 package org.sonar.core.persistence;
 
-import org.dbunit.ext.mssql.InsertIdentityOperation;
-import org.dbunit.operation.DatabaseOperation;
-
 import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
 import org.apache.commons.io.IOUtils;
@@ -34,6 +31,8 @@ import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.*;
 import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
+import org.dbunit.ext.mssql.InsertIdentityOperation;
+import org.dbunit.operation.DatabaseOperation;
 import org.junit.Assert;
 import org.junit.Before;
 import org.sonar.api.config.Settings;
@@ -76,6 +75,10 @@ public abstract class AbstractDaoTestCase {
 
   protected MyBatis getMyBatis() {
     return myBatis;
+  }
+
+  protected Database getDatabase() {
+    return database;
   }
 
   protected void setupData(String... testNames) {

@@ -76,6 +76,10 @@ public class ResourceDao {
     return session.getMapper(ResourceMapper.class).selectResource(projectId);
   }
 
+  public SnapshotDto getLastSnapshot(String resourceKey, SqlSession session) {
+    return session.getMapper(ResourceMapper.class).selectLastSnapshotByKey(resourceKey);
+  }
+
   public List<ResourceDto> getDescendantProjects(long projectId) {
     SqlSession session = mybatis.openSession();
     try {
@@ -91,6 +95,7 @@ public class ResourceDao {
     appendChildProjects(projectId, mapper, resources);
     return resources;
   }
+
 
   private void appendChildProjects(long projectId, ResourceMapper mapper, List<ResourceDto> resources) {
     List<ResourceDto> subProjects = mapper.selectDescendantProjects(projectId);

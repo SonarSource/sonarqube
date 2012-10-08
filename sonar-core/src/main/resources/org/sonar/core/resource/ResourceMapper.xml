@@ -79,6 +79,10 @@
     select * from snapshots where id=#{id}
   </select>
 
+  <select id="selectLastSnapshotByKey" parameterType="string" resultMap="snapshotResultMap">
+    select s.* from snapshots s, projects p where p.kee=#{id} and p.enabled=${_true} and p.copy_resource_id is null and s.islast=${_true} and p.id=s.project_id
+  </select>
+
   <select id="selectDescendantProjects" parameterType="long" resultMap="resourceResultMap">
     select * from projects where scope='PRJ' and root_id=#{id}
   </select>

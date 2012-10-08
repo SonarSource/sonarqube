@@ -17,37 +17,27 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.resource;
+package org.sonar.core.measure;
 
-import org.apache.ibatis.session.ResultHandler;
+import org.sonar.core.resource.SnapshotDto;
 
-import java.util.List;
+public class MesasureFilterContext {
+  private Long userId;
+  private SnapshotDto baseSnapshot;
 
-public interface ResourceMapper {
-  SnapshotDto selectSnapshot(Long snapshotId);
+  public Long getUserId() {
+    return userId;
+  }
 
-  SnapshotDto selectLastSnapshotByKey(String resourceKey);
+  public void setUserId(Long userId) {
+    this.userId = userId;
+  }
 
-  ResourceDto selectResource(long id);
+  public SnapshotDto getBaseSnapshot() {
+    return baseSnapshot;
+  }
 
-  List<ResourceDto> selectDescendantProjects(long rootProjectId);
-
-  /**
-   * @since 3.0
-   */
-  List<ResourceDto> selectResources(ResourceQuery query);
-
-  /**
-   * @since 3.0
-   */
-  List<Long> selectResourceIds(ResourceQuery query);
-
-  /**
-   * @since 3.2
-   */
-  void selectResources(ResourceQuery query, ResultHandler resultHandler);
-
-  void insert(ResourceDto resource);
-
-  void update(ResourceDto resource);
+  public void setBaseSnapshot(SnapshotDto baseSnapshot) {
+    this.baseSnapshot = baseSnapshot;
+  }
 }

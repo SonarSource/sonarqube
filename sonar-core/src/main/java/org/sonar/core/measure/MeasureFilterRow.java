@@ -17,37 +17,38 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.resource;
+package org.sonar.core.measure;
 
-import org.apache.ibatis.session.ResultHandler;
+public class MeasureFilterRow {
+  private final long snapshotId;
+  private final long resourceId;
+  private final long resourceRootId;
+  private String sortText;
 
-import java.util.List;
+  MeasureFilterRow(long snapshotId, long resourceId, long resourceRootId) {
+    this.snapshotId = snapshotId;
+    this.resourceId = resourceId;
+    this.resourceRootId = resourceRootId;
+  }
 
-public interface ResourceMapper {
-  SnapshotDto selectSnapshot(Long snapshotId);
+  public long getSnapshotId() {
+    return snapshotId;
+  }
 
-  SnapshotDto selectLastSnapshotByKey(String resourceKey);
+  public long getResourceId() {
+    return resourceId;
+  }
 
-  ResourceDto selectResource(long id);
+  public long getResourceRootId() {
+    return resourceRootId;
+  }
 
-  List<ResourceDto> selectDescendantProjects(long rootProjectId);
+  public String getSortText() {
+    return sortText;
+  }
 
-  /**
-   * @since 3.0
-   */
-  List<ResourceDto> selectResources(ResourceQuery query);
-
-  /**
-   * @since 3.0
-   */
-  List<Long> selectResourceIds(ResourceQuery query);
-
-  /**
-   * @since 3.2
-   */
-  void selectResources(ResourceQuery query, ResultHandler resultHandler);
-
-  void insert(ResourceDto resource);
-
-  void update(ResourceDto resource);
+  MeasureFilterRow setSortText(String s) {
+    this.sortText = s;
+    return this;
+  }
 }
