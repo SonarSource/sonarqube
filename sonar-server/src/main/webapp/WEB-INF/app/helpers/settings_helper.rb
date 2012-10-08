@@ -57,7 +57,7 @@ module SettingsHelper
   end
 
   def property_value(property)
-    if property.multi_values
+    if property.multi_values?
       Property.values(property.key, @resource ? @resource.id : nil)
     else
       Property.value(property.key, @resource ? @resource.id : nil, '')
@@ -87,7 +87,7 @@ module SettingsHelper
 
   def input_name(property)
     name = "settings[#{h property.key}]"
-    if property.multi_values
+    if property.multi_values?
       name += '[]'
     end
     name
