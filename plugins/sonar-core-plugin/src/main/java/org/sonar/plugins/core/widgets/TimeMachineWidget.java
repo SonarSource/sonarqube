@@ -31,16 +31,16 @@ import org.sonar.api.web.WidgetPropertyType;
   @WidgetProperty(key = "title", type = WidgetPropertyType.STRING),
   @WidgetProperty(key = "numberOfColumns", type = WidgetPropertyType.INTEGER, defaultValue = "3"),
   @WidgetProperty(key = "displaySparkLine", type = WidgetPropertyType.BOOLEAN),
-  @WidgetProperty(key = "metric1", type = WidgetPropertyType.METRIC, defaultValue = "ncloc", options = {"key:^(?!new_).*"}),
-  @WidgetProperty(key = "metric2", type = WidgetPropertyType.METRIC, options = {"key:^(?!new_).*"}),
-  @WidgetProperty(key = "metric3", type = WidgetPropertyType.METRIC, options = {"key:^(?!new_).*"}),
-  @WidgetProperty(key = "metric4", type = WidgetPropertyType.METRIC, options = {"key:^(?!new_).*"}),
-  @WidgetProperty(key = "metric5", type = WidgetPropertyType.METRIC, options = {"key:^(?!new_).*"}),
-  @WidgetProperty(key = "metric6", type = WidgetPropertyType.METRIC, options = {"key:^(?!new_).*"}),
-  @WidgetProperty(key = "metric7", type = WidgetPropertyType.METRIC, options = {"key:^(?!new_).*"}),
-  @WidgetProperty(key = "metric8", type = WidgetPropertyType.METRIC, options = {"key:^(?!new_).*"}),
-  @WidgetProperty(key = "metric9", type = WidgetPropertyType.METRIC, options = {"key:^(?!new_).*"}),
-  @WidgetProperty(key = "metric10", type = WidgetPropertyType.METRIC, options = {"key:^(?!new_).*"})
+  @WidgetProperty(key = "metric1", type = WidgetPropertyType.METRIC, defaultValue = "ncloc", options = {WidgetsConstants.FILTER_OUT_NEW_METRICS}),
+  @WidgetProperty(key = "metric2", type = WidgetPropertyType.METRIC, options = {WidgetsConstants.FILTER_OUT_NEW_METRICS}),
+  @WidgetProperty(key = "metric3", type = WidgetPropertyType.METRIC, options = {WidgetsConstants.FILTER_OUT_NEW_METRICS}),
+  @WidgetProperty(key = "metric4", type = WidgetPropertyType.METRIC, options = {WidgetsConstants.FILTER_OUT_NEW_METRICS}),
+  @WidgetProperty(key = "metric5", type = WidgetPropertyType.METRIC, options = {WidgetsConstants.FILTER_OUT_NEW_METRICS}),
+  @WidgetProperty(key = "metric6", type = WidgetPropertyType.METRIC, options = {WidgetsConstants.FILTER_OUT_NEW_METRICS}),
+  @WidgetProperty(key = "metric7", type = WidgetPropertyType.METRIC, options = {WidgetsConstants.FILTER_OUT_NEW_METRICS}),
+  @WidgetProperty(key = "metric8", type = WidgetPropertyType.METRIC, options = {WidgetsConstants.FILTER_OUT_NEW_METRICS}),
+  @WidgetProperty(key = "metric9", type = WidgetPropertyType.METRIC, options = {WidgetsConstants.FILTER_OUT_NEW_METRICS}),
+  @WidgetProperty(key = "metric10", type = WidgetPropertyType.METRIC, options = {WidgetsConstants.FILTER_OUT_NEW_METRICS})
 })
 public class TimeMachineWidget extends AbstractRubyTemplate implements RubyRailsWidget {
   public String getId() {

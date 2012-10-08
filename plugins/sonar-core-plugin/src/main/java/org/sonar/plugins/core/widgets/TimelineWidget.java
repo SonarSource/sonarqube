@@ -29,9 +29,9 @@ import org.sonar.api.web.WidgetPropertyType;
 @WidgetCategory("History")
 @WidgetProperties({
   @WidgetProperty(key = "chartTitle", type = WidgetPropertyType.STRING),
-  @WidgetProperty(key = "metric1", type = WidgetPropertyType.METRIC, defaultValue = "ncloc", options = {"key:^(?!new_).*"}),
-  @WidgetProperty(key = "metric2", type = WidgetPropertyType.METRIC, options = {"key:^(?!new_).*"}),
-  @WidgetProperty(key = "metric3", type = WidgetPropertyType.METRIC, options = {"key:^(?!new_).*"}),
+  @WidgetProperty(key = "metric1", type = WidgetPropertyType.METRIC, defaultValue = "ncloc", options = {WidgetsConstants.FILTER_OUT_NEW_METRICS}),
+  @WidgetProperty(key = "metric2", type = WidgetPropertyType.METRIC, options = {WidgetsConstants.FILTER_OUT_NEW_METRICS}),
+  @WidgetProperty(key = "metric3", type = WidgetPropertyType.METRIC, options = {WidgetsConstants.FILTER_OUT_NEW_METRICS}),
   @WidgetProperty(key = "hideEvents", type = WidgetPropertyType.BOOLEAN),
   @WidgetProperty(key = "chartHeight", type = WidgetPropertyType.INTEGER, defaultValue = "80")
 })
