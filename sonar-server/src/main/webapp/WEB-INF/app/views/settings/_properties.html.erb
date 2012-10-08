@@ -29,7 +29,7 @@
             <% value = property_value(property) -%>
             <% if property.multi_values -%>
               <% value.each_with_index do |sub_value, index| -%>
-                <%= render "settings/multi_value", :property => property, :value => sub_value, :hide_delete => ((index == 0) || (value == 1)) -%>
+                <%= render "settings/multi_value", :property => property, :value => sub_value, :hide_delete => index == 0 -%>
               <% end -%>
               <div class="template" style="display:none;">
                 <%= render "settings/multi_value", :property => property, :value => nil, :hide_delete => false -%>
@@ -67,12 +67,17 @@
 
 <script>
   $j('.delete').live('click', function () {
+    var value_count = $j(this).parents('.property').find('.delete').size() - 2;
+    //if (0 == value_count) {
+    //  var template = $j(this).parents('.property').find('.template').last();
+    //  template.clone().insertBefore(template).show();
+    //}
     $j(this).parents('.multi_value').remove();
     return false;
   });
 
   $j('.add_value').live('click', function () {
-    $j('.delete').show();
+    //$j(this).parents('.property').find('.delete').show();
 
     var template = $j(this).parents('.property').find('.template').last();
     template.clone().insertBefore(template).show();

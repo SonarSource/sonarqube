@@ -6,7 +6,7 @@
     <% if key_field(property) -%>
       <th><%= message('key') -%></th>
     <% else %>
-      <%= hidden_field_tag "#{property.key}[auto_generate]", true -%>
+      <%= hidden_field_tag "auto_generate[#{property.key}]", true -%>
     <% end -%>
     <% property.fields.reject { |field| field.key == 'key' }.each do |field| -%>
       <th>
@@ -22,10 +22,12 @@
   </thead>
 
   <tbody>
-  <% Property.values(property.key, resource_id).reject(&:blank?).each do |set_key| -%>
-    <%= render 'settings/set_instance', :property => property, :set_key => set_key, :resource_id => resource_id %>
+  <% set_keys = Property.values(property.key, resource_id) -%>
+  <% set_keys = [''] if set_keys.all?(&:blank?) -%>
+  <% set_keys.each_with_index do |set_key, index| -%>
+    <%= render 'settings/set_instance', :property => property, :set_key => set_key, :resource_id => resource_id, :hide_delete => (index == 0) %>
   <% end -%>
-  <%= render 'settings/set_instance', :property => property, :set_key => nil, :resource_id => resource_id %>
+  <%= render 'settings/set_instance', :property => property, :set_key => nil, :resource_id => resource_id, :hide_delete => false %>
   </tbody>
 
   <tfoot>

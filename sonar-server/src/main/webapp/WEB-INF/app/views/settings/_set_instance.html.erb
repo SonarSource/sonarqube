@@ -1,7 +1,7 @@
 <% errors = [] -%>
 <% key_field = key_field(property) -%>
 
-<tr class="top multi_value <%= 'template' unless set_key -%>" style="<%= 'display:none' unless set_key -%>">
+<tr class="top multi_value <%= 'template' unless set_key -%> odd" style="<%= 'display:none' unless set_key -%>">
   <% if key_field -%>
     <td><%= render "settings/type_#{key_field.type}", :property => key_field, :field => key_field, :value => set_key, :name => "property_sets[#{property.key}][]", :id => "input_#{h key_field.key}", :size => key_field.indicativeSize -%></td>
   <% else -%>
@@ -18,7 +18,11 @@
     <td><%= render "settings/type_#{field.type}", :property => field, :field => field, :value => value, :name => "#{property.key}[#{field.key}][]", :id => "input_#{h field.key}", :size => field.indicativeSize -%></td>
   <% end -%>
 
-  <td><a href="#" class="delete link-action"><%= message('delete') -%></a></td>
+  <td style="width: 60px;">
+    <% unless hide_delete -%>
+      <a href="#" class="delete link-action"><%= message('delete') -%></a>
+    <% end -%>
+  </td>
 </tr>
 
 <% unless errors.all?(&:blank?) -%>
