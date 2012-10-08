@@ -34,7 +34,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 public final class MavenProjectConverter {
 
@@ -89,15 +88,16 @@ public final class MavenProjectConverter {
     String key = new StringBuilder().append(pom.getGroupId()).append(":").append(pom.getArtifactId()).toString();
     ProjectDefinition definition = ProjectDefinition.create();
     // IMPORTANT NOTE : reference on properties from POM model must not be saved, instead they should be copied explicitly - see SONAR-2896
-    Properties properties = pom.getModel().getProperties();
-    convertMavenLinksToProperties(pom, properties);
     definition
-        .setProperties(properties)
+        .setProperties(pom.getModel().getProperties())
         .setKey(key)
         .setVersion(pom.getVersion())
         .setName(pom.getName())
         .setDescription(pom.getDescription())
         .addContainerExtension(pom);
+
+    convertMavenLinksToProperties(definition, pom);
+
     synchronizeFileSystem(pom, definition);
 
     return definition;
@@ -106,32 +106,32 @@ public final class MavenProjectConverter {
   /**
    * For SONAR-3676
    */
-  private static void convertMavenLinksToProperties(MavenProject pom, Properties properties) {
-    setPropertyIfNotAlreadyExists(properties, CoreProperties.LINKS_HOME_PAGE, pom.getUrl());
+  private static void convertMavenLinksToProperties(ProjectDefinition definition, MavenProject pom) {
+    setPropertyIfNotAlreadyExists(definition, CoreProperties.LINKS_HOME_PAGE, pom.getUrl());
 
     Scm scm = pom.getScm();
     if (scm == null) {
       scm = new Scm();
     }
-    setPropertyIfNotAlreadyExists(properties, CoreProperties.LINKS_SOURCES, scm.getUrl());
-    setPropertyIfNotAlreadyExists(properties, CoreProperties.LINKS_SOURCES_DEV, scm.getDeveloperConnection());
+    setPropertyIfNotAlreadyExists(definition, CoreProperties.LINKS_SOURCES, scm.getUrl());
+    setPropertyIfNotAlreadyExists(definition, CoreProperties.LINKS_SOURCES_DEV, scm.getDeveloperConnection());
 
     CiManagement ci = pom.getCiManagement();
     if (ci == null) {
       ci = new CiManagement();
     }
-    setPropertyIfNotAlreadyExists(properties, CoreProperties.LINKS_CI, ci.getUrl());
+    setPropertyIfNotAlreadyExists(definition, CoreProperties.LINKS_CI, ci.getUrl());
 
     IssueManagement issues = pom.getIssueManagement();
     if (issues == null) {
       issues = new IssueManagement();
     }
-    setPropertyIfNotAlreadyExists(properties, CoreProperties.LINKS_ISSUE_TRACKER, issues.getUrl());
+    setPropertyIfNotAlreadyExists(definition, CoreProperties.LINKS_ISSUE_TRACKER, issues.getUrl());
   }
 
-  private static void setPropertyIfNotAlreadyExists(Properties properties, String propertyKey, String propertyValue) {
-    if (StringUtils.isBlank(properties.getProperty(propertyKey))) {
-      properties.setProperty(propertyKey, StringUtils.defaultString(propertyValue));
+  private static void setPropertyIfNotAlreadyExists(ProjectDefinition definition, String propertyKey, String propertyValue) {
+    if (StringUtils.isBlank(definition.getProperties().getProperty(propertyKey))) {
+      definition.setProperty(propertyKey, StringUtils.defaultString(propertyValue));
     }
   }
 
