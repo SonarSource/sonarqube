@@ -51,7 +51,7 @@ public class MeasureFilterDecoderTest {
   @Test
   public void should_decode() throws ParseException {
     String json = "{\"base\": \"org.struts\", \"onBaseChildren\": true, \"scopes\": [\"PRJ\"], " +
-      "\"qualifiers\": [\"TRK\",\"CLA\"], " +
+      "\"qualifiers\": [\"TRK\",\"CLA\"], \"keyRegexp\": \"*foo*\"" +
       "\"languages\": [\"java\", \"php\"], \"name\": \"Struts\", \"fromDate\": \"2012-12-25\", " +
       "\"toDate\": \"2013-01-31\", " +
       "\"favourites\": true, " +
@@ -66,6 +66,7 @@ public class MeasureFilterDecoderTest {
     assertThat(filter.getResourceQualifiers()).containsExactly("TRK", "CLA");
     assertThat(filter.getResourceLanguages()).containsExactly("java", "php");
     assertThat(filter.getResourceName()).isEqualTo("Struts");
+    assertThat(filter.getResourceKeyRegexp()).isEqualTo("*foo*");
     assertThat(filter.getFromDate().getYear()).isEqualTo(2012 - 1900);
     assertThat(filter.getToDate().getYear()).isEqualTo(2013 - 1900);
     assertThat(filter.isOnFavourites()).isTrue();
@@ -107,6 +108,7 @@ public class MeasureFilterDecoderTest {
     assertThat(filter.getResourceQualifiers()).isEmpty();
     assertThat(filter.getResourceLanguages()).isEmpty();
     assertThat(filter.getResourceName()).isNull();
+    assertThat(filter.getResourceKeyRegexp()).isNull();
     assertThat(filter.getFromDate()).isNull();
     assertThat(filter.getToDate()).isNull();
     assertThat(filter.isOnFavourites()).isFalse();

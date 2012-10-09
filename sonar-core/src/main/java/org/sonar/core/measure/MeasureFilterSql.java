@@ -173,6 +173,14 @@ class MeasureFilterSql {
       }
       sql.append(") ");
     }
+    if (StringUtils.isNotBlank(filter.getResourceKeyRegexp())) {
+      sql.append(" AND UPPER(p.kee) LIKE '");
+      // limitation : special characters _ and % are not escaped
+      String regexp = StringEscapeUtils.escapeSql(filter.getResourceKeyRegexp());
+      regexp = StringUtils.replaceChars(regexp, '*', '%');
+      regexp = StringUtils.replaceChars(regexp, '?', '_');
+      sql.append(StringUtils.upperCase(regexp)).append("'");
+    }
     SnapshotDto baseSnapshot = context.getBaseSnapshot();
     if (baseSnapshot != null) {
       if (filter.isOnBaseResourceChildren()) {

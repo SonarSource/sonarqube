@@ -311,6 +311,23 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void filter_by_resource_key_star_regexp() throws SQLException {
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("TRK").setResourceKeyRegexp("java*");
+    List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
+
+    assertThat(rows).hasSize(1);
+    verifyJavaProject(rows.get(0));
+  }
+
+  @Test
+  public void filter_by_resource_key_exclamation_mark() throws SQLException {
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("TRK").setResourceKeyRegexp("JaV?_proje*");
+    List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
+    assertThat(rows).hasSize(1);
+    verifyJavaProject(rows.get(0));
+  }
+
+  @Test
   public void filter_by_base_resource() throws SQLException {
     MeasureFilter filter = new MeasureFilter().setResourceQualifiers("CLA").setBaseResourceKey("java_project");
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());

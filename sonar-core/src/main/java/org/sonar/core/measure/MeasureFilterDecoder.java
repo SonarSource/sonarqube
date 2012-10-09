@@ -58,6 +58,7 @@ public class MeasureFilterDecoder implements ServerComponent {
     filter.setResourceQualifiers((List<String>) map.get("qualifiers"));
     filter.setResourceLanguages((List<String>) map.get("languages"));
     filter.setResourceName((String) map.get("name"));
+    filter.setResourceKeyRegexp((String) map.get("keyRegexp"));
 
     if (map.containsKey("fromDate")) {
       filter.setFromDate(toDate(map, "fromDate"));

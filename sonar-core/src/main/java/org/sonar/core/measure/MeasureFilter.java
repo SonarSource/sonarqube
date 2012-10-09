@@ -34,6 +34,7 @@ public class MeasureFilter {
   private List<String> resourceScopes = Lists.newArrayList();
   private List<String> resourceQualifiers = Lists.newArrayList();
   private List<String> resourceLanguages = Lists.newArrayList();
+  private String resourceKeyRegexp;
   private String resourceName;
   private Date fromDate = null, toDate = null;
   private boolean userFavourites = false;
@@ -102,6 +103,15 @@ public class MeasureFilter {
 
   public MeasureFilter setResourceName(String s) {
     this.resourceName = s;
+    return this;
+  }
+
+  public String getResourceKeyRegexp() {
+    return resourceKeyRegexp;
+  }
+
+  public MeasureFilter setResourceKeyRegexp(String s) {
+    this.resourceKeyRegexp = s;
     return this;
   }
 
