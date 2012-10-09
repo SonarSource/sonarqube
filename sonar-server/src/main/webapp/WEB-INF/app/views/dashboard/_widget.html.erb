@@ -9,11 +9,11 @@
   <div class="block">
    <% if default_layout %>
      <div class="widget">   
-       <span class="empty_widget"><%= message('widget.error_occurred_please_read_logs', :params => widget.name) -%></span>
+       <span class="empty_widget"><%= message('widget.error_occurred_please_read_logs', :params => [widget.key]) -%></span>
        <div class="clear"></div>
      </div>
    <% else %>
-     <span class="empty_widget"><%= message('widget.error_occurred_please_read_logs', :params => widget.name) -%></span>
+     <span class="empty_widget"><%= message('widget.error_occurred_please_read_logs', :params => [widget.key]) -%></span>
    <% end %>
   </div>
 

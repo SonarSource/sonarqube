@@ -91,21 +91,21 @@ module Resourceable
   def leaves_qualifiers
     @leaves_qualifiers ||=
         begin
-          Java::OrgSonarServerUi::JRubyFacade.getInstance().getResourceLeavesQualifiers(qualifier)
+          Api::Utils.java_facade.getResourceLeavesQualifiers(qualifier)
         end
   end
 
   def children_qualifiers
     @children_qualifiers ||=
         begin
-          Java::OrgSonarServerUi::JRubyFacade.getInstance().getResourceChildrenQualifiers(qualifier)
+          Api::Utils.java_facade.getResourceChildrenQualifiers(qualifier)
         end
   end
 
   def java_resource_type
     @java_resource_type ||=
         begin
-          Java::OrgSonarServerUi::JRubyFacade.getInstance().getResourceType(qualifier)
+          Api::Utils.java_facade.getResourceType(qualifier)
         end
   end
 end
