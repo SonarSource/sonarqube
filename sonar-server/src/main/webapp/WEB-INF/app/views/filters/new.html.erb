@@ -135,7 +135,6 @@
         <td>
           <% name_regexp_criterion=@filter.criterion('name') %>
           <input type="text" name="name_regexp" id="name_regexp" value="<%= name_regexp_criterion.text_value if name_regexp_criterion -%>"/>
-          <span class="comments"><%= message('filters.use_star_to_match') -%></span>
         </td>
       </tr>
       <tr>
