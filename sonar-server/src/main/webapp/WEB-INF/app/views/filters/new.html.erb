@@ -123,7 +123,7 @@
         </td>
       </tr>
       <tr>
-        <td class="keyCell"><label for="key_regexp"><%= message('filters.resource_key_like') -%>:</label></td>
+        <td class="keyCell"><label for="key_regexp"><%= message('filters.key_like') -%>:</label></td>
         <td>
           <% key_regexp_criterion=@filter.criterion('key') %>
           <input type="text" name="key_regexp" id="key_regexp" value="<%= key_regexp_criterion.text_value if key_regexp_criterion -%>"/>
@@ -131,7 +131,7 @@
         </td>
       </tr>
       <tr>
-        <td class="keyCell"><label for="name_regexp"><%= message('filters.resource_name_like') -%>:</label></td>
+        <td class="keyCell"><label for="name_regexp"><%= message('filters.name_contains') -%>:</label></td>
         <td>
           <% name_regexp_criterion=@filter.criterion('name') %>
           <input type="text" name="name_regexp" id="name_regexp" value="<%= name_regexp_criterion.text_value if name_regexp_criterion -%>"/>
