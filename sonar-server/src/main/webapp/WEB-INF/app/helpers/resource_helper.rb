@@ -28,7 +28,7 @@ module ResourceHelper
     end
   end
 
-  def format_difference(new, prefix, measure_name1, measure_name2)
-    format(new, prefix, measure_name1).to_i - format(new, prefix, measure_name2).to_i
+  def format_ratio(new, prefix, measure_name1, measure_name2)
+    '(' + (format(new, prefix, measure_name1).to_i - format(new, prefix, measure_name2).to_i).to_s + '/' + format(new, prefix, measure_name1) + ')'
   end
 end
