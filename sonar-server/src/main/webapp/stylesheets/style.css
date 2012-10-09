@@ -2424,14 +2424,6 @@ textarea.width100 {
   box-sizing: border-box; /* Opera/IE 8+ */
 }
 
-.coverage tr {
-  line-height: 1.8em;
-}
-
-.coverage td.name {
-  text-align: right;
-}
-
 .property table.data > tbody > tr > td {
   vertical-align: top;
 }

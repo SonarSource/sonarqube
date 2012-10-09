@@ -20,15 +20,15 @@
 module ResourceHelper
   DUPLICATION_SNIPPET_DEFAULT_NB_OF_LINES = 6
 
-  def format(new, prefix, measure_name, options = {})
+  def format(new, prefix, measure_name)
     if new
       format_variation(measure('new_' + prefix + measure_name), :period => @period, :default => '-', :style => 'none')
     else
-      format_measure(measure(prefix + measure_name), options)
+      measure(prefix + measure_name).formatted_value
     end
   end
 
-  def format_difference(new, prefix, measure_name1, measure_name2, options = {})
-    format(new, prefix, measure_name1, options).to_i - format(new, prefix, measure_name2, options).to_i;
+  def format_difference(new, prefix, measure_name1, measure_name2)
+    format(new, prefix, measure_name1).to_i - format(new, prefix, measure_name2).to_i
   end
 end
