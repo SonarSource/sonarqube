@@ -52,7 +52,6 @@ public class MeasureFilterExecutor implements ServerComponent {
       if (isValid(filter, context)) {
         MeasureFilterSql sql = new MeasureFilterSql(database, filter, context);
         context.setSql(sql.sql());
-        System.out.println(sql.sql());
         Connection connection = session.getConnection();
         rows = sql.execute(connection);
       } else {
