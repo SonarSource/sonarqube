@@ -38,7 +38,7 @@
   </div>
   <div id="searchResourcesResults" class="autocomplete" style="display:none"></div>
 </div>
-<%= render 'layouts/breadcrumb' -%>
+<%= render 'layouts/breadcrumb' if selected_section==Navigation::SECTION_RESOURCE-%>
 <div id="body">
   <div id="sb">
     <div id="sidebar">
