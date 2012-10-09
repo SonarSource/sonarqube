@@ -1101,10 +1101,7 @@ div.autocomplete {
   padding: 0;
   color: #111;
   line-height: 18px;
-  -moz-box-shadow: 0 0 10px 5px #EFEFEF;
-  -webkit-box-shadow: 0 0 10px 5px #EFEFEF;
-  -o-box-shadow: 0 0 10px 5px #EFEFEF;
-  box-shadow: 0 0 10px 5px #EFEFEF;
+  box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5);
   z-index: 999999;
 }
 
@@ -1118,7 +1115,7 @@ div.autocomplete ul li {
   list-style-type: none;
   display: block;
   margin: 0;
-  padding: 3px 10px;
+  padding: 3px 5px;
   cursor: pointer;
   color: #333;
   line-height: 18px;
@@ -1129,7 +1126,7 @@ div.autocomplete ul li {
 div.autocomplete div.q {
   font-size: 93%;
   color: #777;
-  width: 85px;
+  width: 90px;
   text-align: right;
   margin-right: 5px;
   display: inline-block;
@@ -2354,7 +2351,7 @@ select.medium-width {
 }
 
 .form-head {
-  padding: 0 10px;
+  padding: 2px 10px;
   background-color: #EFEFEF;
   line-height: 30px;
   height: 30px;
@@ -2391,7 +2388,7 @@ select.medium-width {
 
 .form-foot {
   text-align: right;
-  padding: 0 10px;
+  padding: 2px 10px;
   border-top: 1px solid #CCC;
   line-height: 30px;
   height: 30px;

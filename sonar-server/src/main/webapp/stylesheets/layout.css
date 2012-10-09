@@ -181,7 +181,7 @@ body, a {
   text-align: left;
   line-height: 1.1em;
   border: 2px solid #4b9fd5;
-  border-top-width: 1px;
+  border-top: none;
   padding: 10px 0;
 }
 
