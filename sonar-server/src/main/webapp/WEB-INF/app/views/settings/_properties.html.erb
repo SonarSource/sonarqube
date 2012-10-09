@@ -66,21 +66,13 @@
 
 <script>
   $j('.delete').live('click', function () {
-    var value_count = $j(this).parents('.property').find('.delete').size() - 2;
-    //if (0 == value_count) {
-    //  var template = $j(this).parents('.property').find('.template').last();
-    //  template.clone().insertBefore(template).show();
-    //}
     $j(this).parents('.multi_value').remove();
     return false;
   });
 
   $j('.add_value').live('click', function () {
-    //$j(this).parents('.property').find('.delete').show();
-
     var template = $j(this).parents('.property').find('.template').last();
     template.clone().insertBefore(template).show();
-
     return false;
   });
 </script>
