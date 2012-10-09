@@ -17,31 +17,25 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.server.filters;
+package org.sonar.core.measure;
 
-import org.apache.commons.lang.time.DateUtils;
 import org.junit.Test;
 
-import java.util.Date;
+import static org.fest.assertions.Assertions.assertThat;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
-public class DateCriterionTest {
+public class MeasureFilterContextTest {
   @Test
-  public void ignoreTime() {
-    DateCriterion criterion = new DateCriterion().setDate(3);
-    Date date = criterion.getDate();
-    assertThat(date.getHours(), is(0));
-    assertThat(date.getMinutes(), is(0));
+  public void test_empty_toString() {
+    MeasureFilterContext context = new MeasureFilterContext();
+    assertThat(context.toString()).isNotEmpty();
   }
 
   @Test
-  public void testDaysAgo() {
-    DateCriterion criterion = new DateCriterion().setDate(3);
-    Date date = criterion.getDate();
-    assertThat(date.getMinutes(), is(0));
-    assertThat(date.getHours(), is(0));
-    assertThat(DateUtils.isSameDay(date, DateUtils.addDays(new Date(), -3)), is(true));
+  public void test_toString() {
+    MeasureFilterContext context = new MeasureFilterContext();
+    context.setJson("{}");
+    context.setSql("SELECT *");
+    context.setUserId(50L);
+    assertThat(context.toString()).isEqualTo("MeasureFilterContext[json={},sql=SELECT *,user=50]");
   }
 }

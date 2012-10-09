@@ -39,11 +39,11 @@ class MeasureFilterSql {
 
   private final Database database;
   private final MeasureFilter filter;
-  private final MesasureFilterContext context;
+  private final MeasureFilterContext context;
   private final StringBuilder sql = new StringBuilder(1000);
   private final List<Date> dateParameters = Lists.newArrayList();
 
-  MeasureFilterSql(Database database, MeasureFilter filter, MesasureFilterContext context) {
+  MeasureFilterSql(Database database, MeasureFilter filter, MeasureFilterContext context) {
     this.database = database;
     this.filter = filter;
     this.context = context;
@@ -71,22 +71,22 @@ class MeasureFilterSql {
 
   private void init() {
     sql.append("SELECT block.id, max(block.rid) rid, max(block.rootid) rootid, max(sortval) sortval");
-    for (int index = 0; index < filter.measureConditions().size(); index++) {
+    for (int index = 0; index < filter.getMeasureConditions().size(); index++) {
       sql.append(", max(crit_").append(index).append(")");
     }
     sql.append(" FROM (");
 
     appendSortBlock();
-    for (int index = 0; index < filter.measureConditions().size(); index++) {
-      MeasureFilterValueCondition condition = filter.measureConditions().get(index);
+    for (int index = 0; index < filter.getMeasureConditions().size(); index++) {
+      MeasureFilterCondition condition = filter.getMeasureConditions().get(index);
       sql.append(" UNION ");
       appendConditionBlock(index, condition);
     }
 
     sql.append(") block GROUP BY block.id");
-    if (!filter.measureConditions().isEmpty()) {
+    if (!filter.getMeasureConditions().isEmpty()) {
       sql.append(" HAVING ");
-      for (int index = 0; index < filter.measureConditions().size(); index++) {
+      for (int index = 0; index < filter.getMeasureConditions().size(); index++) {
         if (index > 0) {
           sql.append(" AND ");
         }
@@ -101,8 +101,8 @@ class MeasureFilterSql {
 
   private void appendSortBlock() {
     sql.append(" SELECT s.id, s.project_id rid, s.root_project_id rootid, ").append(filter.sort().column()).append(" sortval");
-    for (int index = 0; index < filter.measureConditions().size(); index++) {
-      MeasureFilterValueCondition condition = filter.measureConditions().get(index);
+    for (int index = 0; index < filter.getMeasureConditions().size(); index++) {
+      MeasureFilterCondition condition = filter.getMeasureConditions().get(index);
       sql.append(", ").append(nullSelect(condition.metric())).append(" crit_").append(index);
     }
     sql.append(" FROM snapshots s INNER JOIN projects p ON s.project_id=p.id ");
@@ -115,14 +115,14 @@ class MeasureFilterSql {
     appendResourceConditions();
   }
 
-  private void appendConditionBlock(int conditionIndex, MeasureFilterValueCondition condition) {
+  private void appendConditionBlock(int conditionIndex, MeasureFilterCondition condition) {
     sql.append(" SELECT s.id, s.project_id rid, s.root_project_id rootid, null sortval");
-    for (int j = 0; j < filter.measureConditions().size(); j++) {
+    for (int j = 0; j < filter.getMeasureConditions().size(); j++) {
       sql.append(", ");
       if (j == conditionIndex) {
         sql.append(condition.valueColumn());
       } else {
-        sql.append(nullSelect(filter.measureConditions().get(j).metric()));
+        sql.append(nullSelect(filter.getMeasureConditions().get(j).metric()));
       }
       sql.append(" crit_").append(j);
     }
@@ -130,44 +130,46 @@ class MeasureFilterSql {
     sql.append(" WHERE ");
     appendResourceConditions();
     sql.append(" AND pm.rule_id IS NULL AND pm.rule_priority IS NULL AND pm.characteristic_id IS NULL AND pm.person_id IS NULL AND ");
-    condition.appendSql(sql);
+    condition.appendSqlCondition(sql);
   }
 
   private void appendResourceConditions() {
     sql.append(" s.status='P' AND s.islast=").append(database.getDialect().getTrueSqlValue());
-    sql.append(" AND p.copy_resource_id IS NULL ");
-    if (!filter.resourceQualifiers().isEmpty()) {
+    if (context.getBaseSnapshot() == null) {
+      sql.append(" AND p.copy_resource_id IS NULL ");
+    }
+    if (!filter.getResourceQualifiers().isEmpty()) {
       sql.append(" AND s.qualifier IN ");
-      appendInStatement(filter.resourceQualifiers(), sql);
+      appendInStatement(filter.getResourceQualifiers(), sql);
     }
-    if (!filter.resourceScopes().isEmpty()) {
+    if (!filter.getResourceScopes().isEmpty()) {
       sql.append(" AND s.scope IN ");
-      appendInStatement(filter.resourceScopes(), sql);
+      appendInStatement(filter.getResourceScopes(), sql);
     }
-    if (!filter.resourceLanguages().isEmpty()) {
+    if (!filter.getResourceLanguages().isEmpty()) {
       sql.append(" AND p.language IN ");
-      appendInStatement(filter.resourceLanguages(), sql);
+      appendInStatement(filter.getResourceLanguages(), sql);
     }
-    if (filter.fromDate() != null) {
+    if (filter.getFromDate() != null) {
       sql.append(" AND s.created_at >= ? ");
-      dateParameters.add(new java.sql.Date(filter.fromDate().getTime()));
+      dateParameters.add(new java.sql.Date(filter.getFromDate().getTime()));
     }
-    if (filter.toDate() != null) {
+    if (filter.getToDate() != null) {
       sql.append(" AND s.created_at <= ? ");
-      dateParameters.add(new java.sql.Date(filter.toDate().getTime()));
+      dateParameters.add(new java.sql.Date(filter.getToDate().getTime()));
     }
-    if (filter.userFavourites() && context.getUserId() != null) {
+    if (filter.isOnFavourites() && context.getUserId() != null) {
       sql.append(" AND s.project_id IN (SELECT props.resource_id FROM properties props WHERE props.prop_key='favourite' AND props.user_id=");
       sql.append(context.getUserId());
       sql.append(" AND props.resource_id IS NOT NULL) ");
     }
-    if (StringUtils.isNotBlank(filter.resourceName())) {
+    if (StringUtils.isNotBlank(filter.getResourceName())) {
       sql.append(" AND s.project_id IN (SELECT rindex.resource_id FROM resource_index rindex WHERE rindex.kee like '");
-      sql.append(StringEscapeUtils.escapeSql(StringUtils.lowerCase(filter.resourceName())));
+      sql.append(StringEscapeUtils.escapeSql(StringUtils.lowerCase(filter.getResourceName())));
       sql.append("%'");
-      if (!filter.resourceQualifiers().isEmpty()) {
+      if (!filter.getResourceQualifiers().isEmpty()) {
         sql.append(" AND rindex.qualifier IN ");
-        appendInStatement(filter.resourceQualifiers(), sql);
+        appendInStatement(filter.getResourceQualifiers(), sql);
       }
       sql.append(") ");
     }
@@ -178,7 +180,7 @@ class MeasureFilterSql {
       } else {
         Long rootSnapshotId = (baseSnapshot.getRootId() != null ? baseSnapshot.getRootId() : baseSnapshot.getId());
         sql.append(" AND s.root_snapshot_id=").append(rootSnapshotId);
-        sql.append(" AND s.path LIKE '").append(baseSnapshot.getPath()).append(baseSnapshot.getId()).append(".%'");
+        sql.append(" AND s.path LIKE '").append(StringUtils.defaultString(baseSnapshot.getPath())).append(baseSnapshot.getId()).append(".%'");
       }
     }
   }

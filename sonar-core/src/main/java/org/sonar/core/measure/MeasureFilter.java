@@ -20,31 +20,31 @@
 package org.sonar.core.measure;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.sonar.api.measures.Metric;
 
+import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 public class MeasureFilter {
   // conditions on resources
   private String baseResourceKey;
-  private boolean onBaseResourceChildren = false; // only if baseResourceKey is set
-  private Set<String> resourceScopes = Sets.newHashSet();
-  private Set<String> resourceQualifiers = Sets.newHashSet();
-  private Set<String> resourceLanguages = Sets.newHashSet();
+  private boolean onBaseResourceChildren = false; // only if getBaseResourceKey is set
+  private List<String> resourceScopes = Lists.newArrayList();
+  private List<String> resourceQualifiers = Lists.newArrayList();
+  private List<String> resourceLanguages = Lists.newArrayList();
   private String resourceName;
   private Date fromDate = null, toDate = null;
   private boolean userFavourites = false;
 
   // conditions on measures
-  private List<MeasureFilterValueCondition> measureConditions = Lists.newArrayList();
+  private List<MeasureFilterCondition> measureConditions = Lists.newArrayList();
 
   // sort
   private MeasureFilterSort sort = new MeasureFilterSort();
 
-  public String baseResourceKey() {
+  public String getBaseResourceKey() {
     return baseResourceKey;
   }
 
@@ -62,18 +62,28 @@ public class MeasureFilter {
     return onBaseResourceChildren;
   }
 
-  public MeasureFilter setResourceScopes(Set<String> resourceScopes) {
-    this.resourceScopes = resourceScopes;
+  public MeasureFilter setResourceScopes(@Nullable List<String> l) {
+    this.resourceScopes = (l != null ? l : Collections.<String>emptyList());
     return this;
   }
 
-  public MeasureFilter setResourceQualifiers(String... qualifiers) {
-    this.resourceQualifiers = Sets.newHashSet(qualifiers);
+  public MeasureFilter setResourceQualifiers(List<String> l) {
+    this.resourceQualifiers = (l != null ? l : Collections.<String>emptyList());
     return this;
   }
 
-  public MeasureFilter setResourceLanguages(String... languages) {
-    this.resourceLanguages = Sets.newHashSet(languages);
+  public MeasureFilter setResourceQualifiers(String... l) {
+    this.resourceQualifiers = Lists.newArrayList(l);
+    return this;
+  }
+
+  public MeasureFilter setResourceLanguages(List<String> l) {
+    this.resourceLanguages = (l != null ? l : Collections.<String>emptyList());
+    return this;
+  }
+
+  public MeasureFilter setResourceLanguages(String... l) {
+    this.resourceLanguages = Lists.newArrayList(l);
     return this;
   }
 
@@ -82,11 +92,11 @@ public class MeasureFilter {
     return this;
   }
 
-  public boolean userFavourites() {
+  public boolean isOnFavourites() {
     return userFavourites;
   }
 
-  public String resourceName() {
+  public String getResourceName() {
     return resourceName;
   }
 
@@ -95,7 +105,7 @@ public class MeasureFilter {
     return this;
   }
 
-  public MeasureFilter addCondition(MeasureFilterValueCondition condition) {
+  public MeasureFilter addCondition(MeasureFilterCondition condition) {
     this.measureConditions.add(condition);
     return this;
   }
@@ -111,6 +121,7 @@ public class MeasureFilter {
   }
 
   public MeasureFilter setSortOnMetric(Metric m) {
+    this.sort.setField(MeasureFilterSort.Field.METRIC);
     this.sort.setMetric(m);
     return this;
   }
@@ -130,27 +141,27 @@ public class MeasureFilter {
     return this;
   }
 
-  public Date fromDate() {
+  public Date getFromDate() {
     return fromDate;
   }
 
-  public Date toDate() {
+  public Date getToDate() {
     return toDate;
   }
 
-  public Set<String> resourceScopes() {
+  public List<String> getResourceScopes() {
     return resourceScopes;
   }
 
-  public Set<String> resourceQualifiers() {
+  public List<String> getResourceQualifiers() {
     return resourceQualifiers;
   }
 
-  public Set<String> resourceLanguages() {
+  public List<String> getResourceLanguages() {
     return resourceLanguages;
   }
 
-  public List<MeasureFilterValueCondition> measureConditions() {
+  public List<MeasureFilterCondition> getMeasureConditions() {
     return measureConditions;
   }
 

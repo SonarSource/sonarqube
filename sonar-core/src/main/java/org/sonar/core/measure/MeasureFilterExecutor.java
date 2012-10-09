@@ -20,20 +20,17 @@
 package org.sonar.core.measure;
 
 import org.apache.ibatis.session.SqlSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 
-import javax.annotation.Nullable;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 
 public class MeasureFilterExecutor implements ServerComponent {
-  private static final Logger FILTER_LOG = LoggerFactory.getLogger("org.sonar.MEASURE_FILTER");
 
   private MyBatis mybatis;
   private Database database;
@@ -45,24 +42,21 @@ public class MeasureFilterExecutor implements ServerComponent {
     this.resourceDao = resourceDao;
   }
 
-  public List<MeasureFilterRow> execute(MeasureFilter filter, @Nullable Long userId) {
+  public List<MeasureFilterRow> execute(MeasureFilter filter, MeasureFilterContext context) throws SQLException {
     List<MeasureFilterRow> rows;
     SqlSession session = null;
     try {
       session = mybatis.openSession();
-      MesasureFilterContext context = prepareContext(filter, userId, session);
+      prepareContext(context, filter, session);
 
       if (isValid(filter, context)) {
         MeasureFilterSql sql = new MeasureFilterSql(database, filter, context);
+        context.setSql(sql.sql());
         Connection connection = session.getConnection();
         rows = sql.execute(connection);
       } else {
         rows = Collections.emptyList();
       }
-
-    } catch (Exception e) {
-      throw new IllegalStateException(e);
-
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -70,19 +64,31 @@ public class MeasureFilterExecutor implements ServerComponent {
     return rows;
   }
 
-  private MesasureFilterContext prepareContext(MeasureFilter filter, Long userId, SqlSession session) {
-    MesasureFilterContext context = new MesasureFilterContext();
-    context.setUserId(userId);
-    if (filter.baseResourceKey() != null) {
-      context.setBaseSnapshot(resourceDao.getLastSnapshot(filter.baseResourceKey(), session));
+
+  private void prepareContext(MeasureFilterContext context, MeasureFilter filter, SqlSession session) {
+    if (filter.getBaseResourceKey() != null) {
+      context.setBaseSnapshot(resourceDao.getLastSnapshot(filter.getBaseResourceKey(), session));
     }
-    return context;
   }
 
-  static boolean isValid(MeasureFilter filter, MesasureFilterContext context) {
-    return
-      !(filter.resourceQualifiers().isEmpty() && !filter.userFavourites()) &&
+  static boolean isValid(MeasureFilter filter, MeasureFilterContext context) {
+    boolean valid =
       !(filter.isOnBaseResourceChildren() && context.getBaseSnapshot() == null) &&
-      !(filter.userFavourites() && context.getUserId() == null);
+        !(filter.isOnFavourites() && context.getUserId() == null);
+    for (MeasureFilterCondition condition : filter.getMeasureConditions()) {
+      if (condition.period() != null && condition.period() < 1) {
+        valid = false;
+      }
+      if (condition.metric() == null) {
+        valid = false;
+      }
+    }
+    if (filter.sort().getPeriod() != null && filter.sort().getPeriod() < 1) {
+      valid = false;
+    }
+    if (filter.sort().onMeasures() && filter.sort().metric() == null) {
+      valid = false;
+    }
+    return valid;
   }
 }

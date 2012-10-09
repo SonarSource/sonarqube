@@ -135,25 +135,15 @@
 
   private
 
-  def extract_snapshot_ids(sql_rows)
+  def extract_snapshot_ids(filter_rows)
     sids=[]
-    project_ids=sql_rows.map{|r| r[2] ? to_integer(r[2]) : to_integer(r[1])}.compact.uniq
+    project_ids=filter_rows.map{|row| row.getResourceRootId()}.compact.uniq
     authorized_pids=select_authorized(:user, project_ids)
-    sql_rows.each do |row|
-      pid=(row[2] ? to_integer(row[2]) : to_integer(row[1]))
-      if authorized_pids.include?(pid)
-        sids<<to_integer(row[0])
+    filter_rows.each do |row|
+      if authorized_pids.include?(row.getResourceRootId())
+        sids<<row.getSnapshotId()
       end
     end
     sids
-  end
-
-  def to_integer(obj)
-    if obj.is_a?(Fixnum)
-      obj
-    else
-      # java.math.BigDecimal
-      obj.intValue()
-    end
   end
  end

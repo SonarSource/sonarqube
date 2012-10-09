@@ -21,82 +21,71 @@ class Filters
 
   def self.execute(filter, authenticated_system, options={})
     filter_context = FilterContext.new(filter, options)
-    java_filter=Java::OrgSonarServerFilters::Filter.new
+
+    filter_json={}
 
     #----- FILTER ON RESOURCES
     if filter.resource_id
-      snapshot=Snapshot.find(:first, :conditions => {:project_id => filter.resource_id, :islast => true})
-      if snapshot
-        java_filter.setPath(snapshot.root_snapshot_id, snapshot.id, snapshot.path)
-      else
-        java_filter.setPath(-1, -1, '')
-      end
+      filter_json[:base]=filter.resource.key
     end
 
     if filter.favourites
-      java_filter.setFavouriteIds((authenticated_system.current_user.favourite_ids||[]).to_java(:Integer))
+      filter_json[:favourites]=true
     end
 
     date_criterion=filter.criterion('date')
     if date_criterion
-      java_filter.setDateCriterion(date_criterion.operator, date_criterion.value.to_i)
+      if date_criterion.operator=='<'
+        filter_json[:beforeDays]=date_criterion.value.to_i
+      else
+        filter_json[:afterDays]=date_criterion.value.to_i
+      end
     end
 
     key_criterion=filter.criterion('key')
     if key_criterion
-      java_filter.setKeyRegexp(key_criterion.text_value)
+      #java_filter.setKeyRegexp(key_criterion.text_value)
     end
 
     name_criterion=filter.criterion('name')
     if name_criterion
-      java_filter.setNameRegexp(name_criterion.text_value)
+      filter_json[:name]=name_criterion.text_value
     end
 
     qualifier_criterion=filter.criterion('qualifier')
     if qualifier_criterion
-      java_filter.setQualifiers(qualifier_criterion.text_values.to_java(:String))
-    else
-      java_filter.setQualifiers([].to_java(:String))
+      filter_json[:qualifiers]=qualifier_criterion.text_values
     end
 
-    java_filter.setOnDirectChildren(filter.on_direct_children?)
+    filter_json[:onBaseChildren]=filter.on_direct_children?
 
     language_criterion=filter.criterion('language')
     if language_criterion
-      java_filter.setLanguages(language_criterion.text_values.to_java :String)
+      filter_json[:languages]=language_criterion.text_values
     end
 
 
     #----- FILTER ON MEASURES
-    filter.measure_criteria.each do |c|
-      java_filter.createMeasureCriterionOnValue(c.metric.id, c.operator, c.value, c.variation)
+    filter_json[:conditions]=filter.measure_criteria.map do |c|
+      hash = {:metric => c.metric.key, :op => c.operator, :val => c.value}
+      if c.variation
+        hash[:period] = filter_context.period_index || -1
+      end
+      hash
     end
 
 
     #----- SORTED COLUMN
-
     if filter_context.sorted_column_id
       filter.sorted_column=filter_context.sorted_column_id
     end
     if filter.sorted_column
-      if filter.sorted_column.on_name?
-        java_filter.setSortedByName()
-
-      elsif filter.sorted_column.on_date?
-        java_filter.setSortedByDate()
-
-      elsif filter.sorted_column.on_version?
-        java_filter.setSortedByVersion()
-
-      elsif filter.sorted_column.on_language?
-        java_filter.setSortedByLanguage()
-
-      elsif filter.sorted_column.on_key?
-        java_filter.setSortedByKey()
-
-      elsif filter.sorted_column.on_metric? && filter.sorted_column.metric
-        metric=filter.sorted_column.metric
-        java_filter.setSortedMetricId(metric.id, metric.numeric?, filter.sorted_column.variation)
+      filter_json[:sortField]=filter.sorted_column.family.upcase
+      if filter.sorted_column.on_metric? && filter.sorted_column.metric
+        filter_json[:sortMetric]=filter.sorted_column.metric.key
+        if filter.sorted_column.variation
+          filter_json[:sortPeriod]=filter_context.period_index || -1
+        end
       end
     end
 
@@ -104,51 +93,39 @@ class Filters
     #----- SORTING DIRECTION
     if filter.sorted_column
       if filter_context.ascending_sort.nil?
-        java_filter.setAscendingSort(filter.sorted_column.ascending?)
+        filter_json[:sortAsc]=filter.sorted_column.ascending?
       else
         filter.sorted_column.ascending=filter_context.ascending_sort
-        java_filter.setAscendingSort(filter.sorted_column.ascending?)
+        filter_json[:sortAsc]=filter.sorted_column.ascending?
       end
 
       if filter_context.ascending_sort
         filter.sorted_column.ascending=filter_context.ascending_sort
       end
-      java_filter.setAscendingSort(filter.sorted_column.ascending?)
+      filter_json[:sortAsc]=filter.sorted_column.ascending?
     end
 
-    #----- VARIATION
-    java_filter.setPeriodIndex(filter_context.period_index)
-
     #----- EXECUTION
-    java_result=Java::OrgSonarServerUi::JRubyFacade.getInstance().execute_filter(java_filter)
-    snapshot_ids=extract_snapshot_ids(java_result.getRows(), authenticated_system)
+    user=authenticated_system.current_user
+    rows=Api::Utils.java_facade.executeMeasureFilter(filter_json.to_json, user ? user.id : nil)
+    snapshot_ids=extract_snapshot_ids(rows, authenticated_system)
 
-    has_security_exclusions=(snapshot_ids.size < java_result.size())
+    has_security_exclusions=(snapshot_ids.size < rows.size)
     filter_context.process_results(snapshot_ids, has_security_exclusions)
     filter_context
   end
 
   private
 
-  def self.extract_snapshot_ids(sql_rows, authenticated_system)
+  def self.extract_snapshot_ids(rows, authenticated_system)
     sids=[]
-    project_ids=sql_rows.map { |r| r[2] ? to_integer(r[2]) : to_integer(r[1]) }.compact.uniq
+    project_ids=rows.map { |row| row.getResourceRootId() }.compact.uniq
     authorized_pids=authenticated_system.select_authorized(:user, project_ids)
-    sql_rows.each do |row|
-      pid=(row[2] ? to_integer(row[2]) : to_integer(row[1]))
-      if authorized_pids.include?(pid)
-        sids<<to_integer(row[0])
+    rows.each do |row|
+      if authorized_pids.include?(row.getResourceRootId())
+        sids<<row.getSnapshotId()
       end
     end
     sids
-  end
-
-  def self.to_integer(obj)
-    if obj.is_a?(Fixnum)
-      obj
-    else
-      # java.math.BigDecimal
-      obj.intValue()
-    end
   end
 end

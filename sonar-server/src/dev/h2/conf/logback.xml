@@ -31,6 +31,10 @@
     <level value="DEBUG"/>
   </logger>
 
+  <logger name="org.sonar.MEASURE_FILTER">
+    <level value="DEBUG"/>
+  </logger>
+
   <root>
     <level value="INFO"/>
     <appender-ref ref="STDOUT"/>

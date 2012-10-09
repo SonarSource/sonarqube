@@ -21,35 +21,21 @@ package org.sonar.core.measure;
 
 import org.sonar.api.measures.Metric;
 
-public class MeasureFilterValueCondition {
-
-  public static enum Operator {
-    GREATER(">"), GREATER_OR_EQUALS(">="), EQUALS("="), LESS("<"), LESS_OR_EQUALS("<=");
-
-    private String sql;
-
-    private Operator(String sql) {
-      this.sql = sql;
-    }
-
-    public String getSql() {
-      return sql;
-    }
-  }
+public class MeasureFilterCondition {
 
   private final Metric metric;
-  private final Operator operator;
-  private final float value;
-  private int period = -1;
+  private final String operator;
+  private final double value;
+  private Integer period = null;
 
-  public MeasureFilterValueCondition(Metric metric, Operator operator, float value) {
+  public MeasureFilterCondition(Metric metric, String operator, double value) {
     this.metric = metric;
     this.operator = operator;
     this.value = value;
   }
 
-  public MeasureFilterValueCondition setPeriod(int period) {
-    this.period = (period > 0 ? period : -1);
+  public MeasureFilterCondition setPeriod(Integer period) {
+    this.period = period;
     return this;
   }
 
@@ -57,7 +43,7 @@ public class MeasureFilterValueCondition {
     return metric;
   }
 
-  public Operator operator() {
+  public String operator() {
     return operator;
   }
 
@@ -65,20 +51,20 @@ public class MeasureFilterValueCondition {
     return value;
   }
 
-  public int period() {
+  public Integer period() {
     return period;
   }
 
   String valueColumn() {
-    if (period > 0) {
+    if (period != null) {
       return "pm.variation_value_" + period;
     }
     return "pm.value";
   }
 
-  void appendSql(StringBuilder sql) {
+  void appendSqlCondition(StringBuilder sql) {
     sql.append(" pm.metric_id=");
     sql.append(metric.getId());
-    sql.append(" AND ").append(valueColumn()).append(operator.getSql()).append(value);
+    sql.append(" AND ").append(valueColumn()).append(operator).append(value);
   }
 }

@@ -17,57 +17,60 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.server.filters;
+package org.sonar.core.measure;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.apache.commons.lang.time.DateUtils;
+import org.sonar.core.resource.SnapshotDto;
 
-import java.util.Calendar;
-import java.util.Date;
+class MeasureFilterContext {
+  private Long userId;
+  private SnapshotDto baseSnapshot;
+  private String sql;
+  private String json;
 
-public class DateCriterion {
-
-  private String operator;
-  private Date date;
-
-  public DateCriterion(String operator, Date date) {
-    this.operator = operator;
-    this.date = date;
+  Long getUserId() {
+    return userId;
   }
 
-  public DateCriterion() {
-  }
-
-  public String getOperator() {
-    return operator;
-  }
-
-  public DateCriterion setOperator(String operator) {
-    this.operator = operator;
+  MeasureFilterContext setUserId(Long userId) {
+    this.userId = userId;
     return this;
   }
 
-  public Date getDate() {
-    return date;
+  SnapshotDto getBaseSnapshot() {
+    return baseSnapshot;
   }
 
-  public DateCriterion setDate(Date date) {
-    this.date = date;
+  MeasureFilterContext setBaseSnapshot(SnapshotDto baseSnapshot) {
+    this.baseSnapshot = baseSnapshot;
     return this;
   }
 
-  public DateCriterion setDate(int daysAgo) {
-    this.date = DateUtils.addDays(new Date(), -daysAgo);
-    this.date = DateUtils.truncate(this.date, Calendar.DATE);
+  String getSql() {
+    return sql;
+  }
+
+  MeasureFilterContext setSql(String sql) {
+    this.sql = sql;
+    return this;
+  }
+
+  String getJson() {
+    return json;
+  }
+
+  MeasureFilterContext setJson(String json) {
+    this.json = json;
     return this;
   }
 
   @Override
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-        .append("operator", operator)
-        .append("date", date)
-        .toString();
+      .append("json", json)
+      .append("sql", sql)
+      .append("user", userId)
+      .toString();
   }
 }

@@ -168,7 +168,7 @@ class Filter < ActiveRecord::Base
   def on_direct_children?
     if resource_id
       c = criterion('direct-children')
-      c && c.text_value=='true'
+      c ? c.text_value=='true' : false
     else
       false
     end

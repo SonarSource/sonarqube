@@ -28,7 +28,7 @@ class MeasureFilterSort {
 
   private Field field = Field.NAME;
   private Metric metric = null;
-  private int period = -1;
+  private Integer period = null;
   private boolean asc = true;
 
   MeasureFilterSort() {
@@ -43,8 +43,12 @@ class MeasureFilterSort {
     this.metric = metric;
   }
 
-  void setPeriod(int period) {
-    this.period = (period > 0 ? period : -1);
+  Integer getPeriod() {
+    return period;
+  }
+
+  void setPeriod(Integer period) {
+    this.period = period;
   }
 
   void setAsc(boolean asc) {
@@ -92,7 +96,7 @@ class MeasureFilterSort {
         break;
       case METRIC:
         if (metric.isNumericType()) {
-          column = (period > 0 ? "pm.variation_value_" + period : "pm.value");
+          column = (period != null ? "pm.variation_value_" + period : "pm.value");
         } else {
           column = "pm.text_value";
         }

@@ -81,6 +81,10 @@
     <level value="WARN"/>
   </logger>
 
+  <logger name="org.sonar.MEASURE_FILTER">
+    <level value="WARN"/>
+  </logger>
+
   <root>
     <level value="INFO"/>
     <appender-ref ref="SONAR_FILE"/>
