@@ -46,14 +46,13 @@
             <% unless default_prop_value.blank? -%>
               <div class="note">Default: <%= property.type.to_s=='PASSWORD' ? '********' : h(default_prop_value) -%></div>
             <% end -%>
-
-            <% details = property_help(property) -%>
-            <% unless details.blank? -%>
-              <br/>
-
-              <div class="help"><%= details -%></div>
-            <% end -%>
           </td>
+        </tr>
+      <% end -%>
+
+      <% unless category_help(@category).blank? -%>
+        <tr class="property <%= cycle('even', 'odd', :name => 'properties') -%>">
+          <td class="help"><%= category_help(@category) -%> </td>
         </tr>
       <% end -%>
       </tbody>

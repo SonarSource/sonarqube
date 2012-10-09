@@ -52,8 +52,8 @@ module SettingsHelper
     end
   end
 
-  def property_help(property)
-    message("property.#{property.key}.help", :default => '')
+  def category_help(category)
+    message("category.#{category}.help", :default => '')
   end
 
   def property_value(property)
