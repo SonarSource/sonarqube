@@ -20,11 +20,13 @@
 package org.sonar.core.measure;
 
 import org.apache.ibatis.session.SqlSession;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 
+import javax.annotation.Nullable;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collections;
@@ -45,6 +47,7 @@ public class MeasureFilterExecutor implements ServerComponent {
   public List<MeasureFilterRow> execute(MeasureFilter filter, MeasureFilterContext context) throws SQLException {
     List<MeasureFilterRow> rows;
     SqlSession session = null;
+    Connection connection = null;
     try {
       session = mybatis.openSession();
       prepareContext(context, filter, session);
@@ -52,16 +55,29 @@ public class MeasureFilterExecutor implements ServerComponent {
       if (isValid(filter, context)) {
         MeasureFilterSql sql = new MeasureFilterSql(database, filter, context);
         context.setSql(sql.sql());
-        Connection connection = session.getConnection();
+        connection = session.getConnection();
         rows = sql.execute(connection);
       } else {
         rows = Collections.emptyList();
       }
     } finally {
       MyBatis.closeQuietly(session);
+      // connection is supposed to be closed by the session
+      closeQuietly(connection);
     }
 
     return rows;
+  }
+
+  private void closeQuietly(@Nullable Connection connection) {
+    if (connection != null) {
+      try {
+        connection.close();
+      } catch (SQLException e) {
+        LoggerFactory.getLogger(MeasureFilterExecutor.class).warn("Fail to close connection", e);
+        // ignore
+      }
+    }
   }
 
 
