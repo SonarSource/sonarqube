@@ -1,139 +1,41 @@
 <div id="coverage_header" class="tab_header">
-  <% if @period && (measure('new_coverage') || measure('new_it_coverage') || measure('new_overall_coverage')) %>
+  <% new = @period && (measure('new_coverage') || measure('new_it_coverage') || measure('new_overall_coverage')) %>
+
+  <% if new -%>
     <p><%= message('coverage_viewer.on_new_code') -%> :</p>
-    <table>
+  <% end -%>
+
+  <table class="coverage">
+    <% [('overall_' if @display_overall_coverage), '', ('it_' if @display_it_coverage)].compact.each_with_index do |prefix, index| -%>
       <tr>
-        <td class="big" rowspan="2"><%= format_variation('new_coverage', :period => @period, :default => '-', :style => 'none') -%></td>
-
-        <td class="sep"></td>
-
-        <% if m=measure('new_line_coverage') %>
-          <td class="name"><%= Metric.name_for('line_coverage') -%>:</td>
-          <td class="value"><%= format_variation(m, :period => @period, :default => '-', :style => 'none') -%></td>
-        <% else %>
+        <% if index == 0 -%>
+          <td class="right big" style="width: 80px;"><%= format(new, prefix, 'coverage', :default => '-') -%></td>
+          <td></td>
+          <td class="sep"></td>
+          <td class="name"><%= h Metric.name_for('line_coverage') -%>:</td>
+          <td class="value">
+            <%= format(new, prefix, 'line_coverage') -%>
+            (<%= format_difference(new, prefix, 'lines_to_cover', 'uncovered_lines') -%>
+            / <%= format(new, prefix, 'lines_to_cover') -%>)
+          </td>
+          <td class="sep"></td>
+          <td class="name"><%= h Metric.name_for('branch_coverage') -%>:</td>
+          <td class="value">
+            <%= format(new, prefix, 'branch_coverage') -%>
+            (<%= format_difference(new, prefix, 'conditions_to_cover', 'uncovered_conditions') -%>
+            / <%= format(new, prefix, 'conditions_to_cover') -%>)
+          </td>
+        <% else -%>
+          <td class="right"><%= format(new, prefix, 'coverage', :default => '-') -%></td>
+          <td><%= message(prefix + 'coverage_viewer.by') -%></td>
+          <td class="sep"></td>
           <td colspan="2"></td>
-        <% end %>
-
-        <td class="sep"></td>
-        <% if m=measure('new_branch_coverage') %>
-          <td class="name"><%= Metric.name_for('branch_coverage') -%>:</td>
-          <td class="value"><%= format_variation(m, :period => @period, :default => '-', :style => 'none') -%></td>
-        <% else %>
+          <td class="sep"></td>
           <td colspan="2"></td>
-        <% end %>
+        <% end -%>
       </tr>
-      <tr>
-        <td class="sep"></td>
-        <% if m=measure('new_uncovered_lines') %>
-          <td class="name"><%= Metric.name_for('uncovered_lines') -%>:</td>
-          <td class="value"><%= format_variation(m, :period => @period, :style => 'none') -%>
-            /<%= format_variation('new_lines_to_cover', :period => @period, :style => 'none') -%></td>
-        <% else %>
-          <td colspan="2"></td>
-        <% end %>
-
-        <td class="sep"></td>
-        <% if m=measure('new_uncovered_conditions') %>
-          <td class="name"><%= Metric.name_for('uncovered_conditions') -%>:</td>
-          <td class="value"><%= format_variation(m, :period => @period, :style => 'none') -%>
-            /<%= format_variation('new_conditions_to_cover', :period => @period, :style => 'none') -%></td>
-        <% else %>
-          <td colspan="2"></td>
-        <% end %>
-      </tr>
-      <% if measure('new_it_coverage') %>
-        <tr>
-          <td colspan="7"><br/><%= message('coverage_viewer.integration_tests') -%></td>
-        </tr>
-        <tr>
-          <td class="big" rowspan="2"><%= format_variation('new_it_coverage', :period => @period, :default => '-', :style => 'none') -%></td>
-
-          <td class="sep"></td>
-
-          <% if m=measure('new_it_line_coverage') %>
-            <td class="name"><%= Metric.name_for('it_line_coverage') -%>:</td>
-            <td class="value"><%= format_variation(m, :period => @period, :default => '-', :style => 'none') -%></td>
-          <% else %>
-            <td colspan="2"></td>
-          <% end %>
-
-          <td class="sep"></td>
-          <% if m=measure('new_it_branch_coverage') %>
-            <td class="name"><%= Metric.name_for('it_branch_coverage') -%>:</td>
-            <td class="value"><%= format_variation(m, :period => @period, :default => '-', :style => 'none') -%></td>
-          <% else %>
-            <td colspan="2"></td>
-          <% end %>
-        </tr>
-        <tr>
-          <td class="sep"></td>
-          <% if m=measure('new_it_uncovered_lines') %>
-            <td class="name"><%= Metric.name_for('it_uncovered_lines') -%>:</td>
-            <td class="value"><%= format_variation(m, :period => @period, :style => 'none') -%>
-              /<%= format_variation('new_it_lines_to_cover', :period => @period, :style => 'none') -%></td>
-          <% else %>
-            <td colspan="2"></td>
-          <% end %>
-
-          <td class="sep"></td>
-          <% if m=measure('new_it_uncovered_conditions') %>
-            <td class="name"><%= Metric.name_for('it_uncovered_conditions') -%>:</td>
-            <td class="value"><%= format_variation(m, :period => @period, :style => 'none') -%>
-              /<%= format_variation('new_it_conditions_to_cover', :period => @period, :style => 'none') -%></td>
-          <% else %>
-            <td colspan="2"></td>
-          <% end %>
-        </tr>
-      <% end %>
-    </table>
-  <% else %>
-    <% if @display_it_coverage || @display_overall_coverage -%>
-      <table class="coverage">
-        <tr>
-          <td class="big"><%= format_measure('overall_coverage', :default => '-') -%></td>
-          <td class="sep"></td>
-          <td class="sep"></td>
-          <%= render :partial => 'measure', :locals => {:measure => measure('overall_uncovered_lines'), :title => Metric.name_for('uncovered_lines'), :ratio => measure('overall_lines_to_cover')} -%>
-          <td class="sep"></td>
-          <%= render :partial => 'measure', :locals => {:measure => measure('overall_uncovered_conditions'), :title => Metric.name_for('uncovered_conditions'), :ratio => measure('overall_conditions_to_cover')} -%>
-        </tr>
-
-        <tr>
-          <td><%= format_measure('coverage', :default => '-') -%> <%= message('coverage_viewer.unit_tests') -%></td>
-          <td class="sep"></td>
-          <td class="sep"></td>
-          <%= render :partial => 'measure', :locals => {:measure => measure('uncovered_lines'), :title => message('coverage_viewer.by.unit_tests'), :ratio => measure('lines_to_cover')} -%>
-          <td class="sep"></td>
-          <%= render :partial => 'measure', :locals => {:measure => measure('uncovered_conditions'), :title => message('coverage_viewer.by.unit_tests'), :ratio => measure('conditions_to_cover')} -%>
-        </tr>
-
-        <tr>
-          <td><%= format_measure('it_coverage', :default => '-') -%> <%= message('coverage_viewer.integration_tests') -%></td>
-          <td class="sep"></td>
-          <td class="sep"></td>
-          <%= render :partial => 'measure', :locals => {:measure => measure('it_uncovered_lines'), :title => message('coverage_viewer.by.integration_tests'), :ratio => measure('it_lines_to_cover')} -%>
-          <td class="sep"></td>
-          <%= render :partial => 'measure', :locals => {:measure => measure('it_uncovered_conditions'), :title => message('coverage_viewer.by.integration_tests'), :ratio => measure('it_conditions_to_cover')} -%>
-        </tr>
-      </table>
-    <% else -%>
-      <table>
-        <tr>
-          <td class="big" rowspan="2"><%= format_measure('coverage', :default => '-') -%></td>
-          <td class="sep"></td>
-          <%= render :partial => 'measure', :locals => {:measure => measure('line_coverage'), :title => Metric.name_for('line_coverage')} -%>
-          <td class="sep"></td>
-          <%= render :partial => 'measure', :locals => {:measure => measure('branch_coverage'), :title => Metric.name_for('branch_coverage')} -%>
-        </tr>
-        <tr>
-          <td class="sep"></td>
-          <%= render :partial => 'measure', :locals => {:measure => measure('uncovered_lines'), :title => Metric.name_for('uncovered_lines'), :ratio => measure('lines_to_cover')} -%>
-          <td class="sep"></td>
-          <%= render :partial => 'measure', :locals => {:measure => measure('uncovered_conditions'), :title => Metric.name_for('uncovered_conditions'), :ratio => measure('conditions_to_cover')} -%>
-        </tr>
-      </table>
     <% end -%>
-  <% end %>
+  </table>
 
   <%= render :partial => 'options' -%>
 </div>
