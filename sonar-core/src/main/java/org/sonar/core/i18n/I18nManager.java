@@ -113,7 +113,7 @@ public class I18nManager implements I18n, ServerExtension, BatchExtension {
         // First, we check if the bundle exists in the language pack classloader
         resourceBundle = ResourceBundle.getBundle(bundleKey, locale, languagePackClassLoader);
         String message = resourceBundle.getString(key);
-        return MessageFormat.format(message, parameters);
+        return formatMessage(message, parameters);
       } catch (MissingResourceException e1) {
         // well, maybe the plugin has specified its own bundles, let's see
         resourceBundle = getBundleFromCorrespondingPluginClassloader(bundleKey, locale);
@@ -214,10 +214,14 @@ public class I18nManager implements I18n, ServerExtension, BatchExtension {
     if (value == null) {
       value = defaultValue;
     }
-    if (value != null && parameters.length > 0) {
-      return MessageFormat.format(value, parameters);
+    return formatMessage(value, parameters);
+  }
+
+  private String formatMessage(String message, Object... parameters) {
+    if (message == null || parameters.length == 0) {
+      return message;
     }
-    return value;
+    return MessageFormat.format(message.replaceAll("'", "''"), parameters);
   }
 
   String extractBundleFromKey(String key) {
