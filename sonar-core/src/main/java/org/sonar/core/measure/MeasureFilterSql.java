@@ -156,37 +156,33 @@ class MeasureFilterSql {
       sql.append(" AND p.language IN ");
       appendInStatement(filter.getResourceLanguages(), sql);
     }
+    appendDateConditions();
+    appendFavouritesCondition();
+    appendResourceNameCondition();
+    appendResourceKeyCondition();
+    appendResourceBaseCondition();
+  }
+
+  private void appendDateConditions() {
     if (filter.getFromDate() != null) {
       sql.append(" AND s.created_at >= ? ");
-      dateParameters.add(new java.sql.Date(filter.getFromDate().getTime()));
+      dateParameters.add(new Date(filter.getFromDate().getTime()));
     }
     if (filter.getToDate() != null) {
       sql.append(" AND s.created_at <= ? ");
-      dateParameters.add(new java.sql.Date(filter.getToDate().getTime()));
+      dateParameters.add(new Date(filter.getToDate().getTime()));
     }
+  }
+
+  private void appendFavouritesCondition() {
     if (filter.isOnFavourites()) {
       sql.append(" AND props.prop_key='favourite' AND props.resource_id IS NOT NULL AND props.user_id=");
       sql.append(context.getUserId());
       sql.append(" ");
     }
-    if (StringUtils.isNotBlank(filter.getResourceName())) {
-      sql.append(" AND s.project_id IN (SELECT rindex.resource_id FROM resource_index rindex WHERE rindex.kee like '");
-      sql.append(StringEscapeUtils.escapeSql(StringUtils.lowerCase(filter.getResourceName())));
-      sql.append("%'");
-      if (!filter.getResourceQualifiers().isEmpty()) {
-        sql.append(" AND rindex.qualifier IN ");
-        appendInStatement(filter.getResourceQualifiers(), sql);
-      }
-      sql.append(") ");
-    }
-    if (StringUtils.isNotBlank(filter.getResourceKeyRegexp())) {
-      sql.append(" AND UPPER(p.kee) LIKE '");
-      // limitation : special characters _ and % are not escaped
-      String regexp = StringEscapeUtils.escapeSql(filter.getResourceKeyRegexp());
-      regexp = StringUtils.replaceChars(regexp, '*', '%');
-      regexp = StringUtils.replaceChars(regexp, '?', '_');
-      sql.append(StringUtils.upperCase(regexp)).append("'");
-    }
+  }
+
+  private void appendResourceBaseCondition() {
     SnapshotDto baseSnapshot = context.getBaseSnapshot();
     if (baseSnapshot != null) {
       if (filter.isOnBaseResourceChildren()) {
@@ -196,6 +192,30 @@ class MeasureFilterSql {
         sql.append(" AND s.root_snapshot_id=").append(rootSnapshotId);
         sql.append(" AND s.path LIKE '").append(StringUtils.defaultString(baseSnapshot.getPath())).append(baseSnapshot.getId()).append(".%'");
       }
+    }
+  }
+
+  private void appendResourceKeyCondition() {
+    if (StringUtils.isNotBlank(filter.getResourceKeyRegexp())) {
+      sql.append(" AND UPPER(p.kee) LIKE '");
+      // limitation : special characters _ and % are not escaped
+      String regexp = StringEscapeUtils.escapeSql(filter.getResourceKeyRegexp());
+      regexp = StringUtils.replaceChars(regexp, '*', '%');
+      regexp = StringUtils.replaceChars(regexp, '?', '_');
+      sql.append(StringUtils.upperCase(regexp)).append("'");
+    }
+  }
+
+  private void appendResourceNameCondition() {
+    if (StringUtils.isNotBlank(filter.getResourceName())) {
+      sql.append(" AND s.project_id IN (SELECT rindex.resource_id FROM resource_index rindex WHERE rindex.kee like '");
+      sql.append(StringEscapeUtils.escapeSql(StringUtils.lowerCase(filter.getResourceName())));
+      sql.append("%'");
+      if (!filter.getResourceQualifiers().isEmpty()) {
+        sql.append(" AND rindex.qualifier IN ");
+        appendInStatement(filter.getResourceQualifiers(), sql);
+      }
+      sql.append(") ");
     }
   }
 

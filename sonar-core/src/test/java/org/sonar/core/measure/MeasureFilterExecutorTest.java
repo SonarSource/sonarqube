@@ -126,6 +126,28 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void sort_by_ascending_resource_key() throws SQLException {
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("CLA").setSortAsc(true).setSortOn(MeasureFilterSort.Field.KEY);
+    List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
+
+    // Big -> Tiny
+    assertThat(rows).hasSize(2);
+    verifyJavaBigFile(rows.get(0));
+    verifyJavaTinyFile(rows.get(1));
+  }
+
+  @Test
+  public void sort_by_ascending_resource_version() throws SQLException {
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("TRK").setSortAsc(true).setSortOn(MeasureFilterSort.Field.VERSION);
+    List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
+
+    // Java Project 1.0 then Php Project 3.0
+    assertThat(rows).hasSize(2);
+    verifyJavaProject(rows.get(0));
+    verifyPhpProject(rows.get(1));
+  }
+
+  @Test
   public void sort_by_descending_resource_name() throws SQLException {
     MeasureFilter filter = new MeasureFilter().setResourceQualifiers("CLA").setSortAsc(false);
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());

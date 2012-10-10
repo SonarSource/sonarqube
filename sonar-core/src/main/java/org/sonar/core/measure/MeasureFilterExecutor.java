@@ -88,9 +88,15 @@ public class MeasureFilterExecutor implements ServerComponent {
   }
 
   static boolean isValid(MeasureFilter filter, MeasureFilterContext context) {
-    boolean valid =
-      !(filter.isOnBaseResourceChildren() && context.getBaseSnapshot() == null) &&
-        !(filter.isOnFavourites() && context.getUserId() == null);
+    boolean valid = !(filter.isOnBaseResourceChildren() && context.getBaseSnapshot() == null);
+    valid &= !(filter.isOnFavourites() && context.getUserId() == null);
+    valid &= validateMeasureConditions(filter);
+    valid &= validateSort(filter);
+    return valid;
+  }
+
+  private static boolean validateMeasureConditions(MeasureFilter filter) {
+    boolean valid = true;
     for (MeasureFilterCondition condition : filter.getMeasureConditions()) {
       if (condition.period() != null && condition.period() < 1) {
         valid = false;
@@ -99,6 +105,11 @@ public class MeasureFilterExecutor implements ServerComponent {
         valid = false;
       }
     }
+    return valid;
+  }
+
+  private static boolean validateSort(MeasureFilter filter) {
+    boolean valid = true;
     if (filter.sort().getPeriod() != null && filter.sort().getPeriod() < 1) {
       valid = false;
     }

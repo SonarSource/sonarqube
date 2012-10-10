@@ -101,6 +101,8 @@ class MeasureFilterSort {
           column = "pm.text_value";
         }
         break;
+      default:
+        throw new IllegalArgumentException("Unsupported sorting: " + field);
     }
     return column;
   }
