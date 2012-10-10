@@ -243,16 +243,6 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
     return result;
   }
 
-  private WildcardPattern[] getExclusionPatterns(boolean applyExclusionPatterns) {
-    WildcardPattern[] exclusionPatterns;
-    if (applyExclusionPatterns) {
-      exclusionPatterns = WildcardPattern.create(project.getExclusionPatterns());
-    } else {
-      exclusionPatterns = new WildcardPattern[0];
-    }
-    return exclusionPatterns;
-  }
-
   private IOFileFilter getFileSuffixFilter(String... langKeys) {
     IOFileFilter suffixFilter = FileFilterUtils.trueFileFilter();
     if (langKeys != null && langKeys.length > 0) {
