@@ -396,7 +396,6 @@ public class RulesProfile implements Cloneable {
   public Object clone() {
     RulesProfile clone = RulesProfile.create(getName(), getLanguage());
     clone.setDefaultProfile(getDefaultProfile());
-    clone.setProvided(getProvided());
     clone.setParentName(getParentName());
     if (CollectionUtils.isNotEmpty(activeRules)) {
       clone.setActiveRules(new ArrayList<ActiveRule>(CollectionUtils.collect(activeRules, new Transformer() {

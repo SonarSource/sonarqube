@@ -92,7 +92,7 @@ public class CommandTest {
     if (SystemUtils.IS_OS_WINDOWS) {
       Command command = Command.create("foo.bat");
       command.setNewShell(true);
-      assertThat(command.toCommandLine()).isEqualTo("cmd /C foo.bat");
+      assertThat(command.toCommandLine()).isEqualTo("cmd /C call foo.bat");
       assertThat(command.isNewShell()).isTrue();
     } else {
       Command command = Command.create("foo.sh");

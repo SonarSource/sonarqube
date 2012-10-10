@@ -19,8 +19,6 @@
  */
 package org.sonar.plugins.core.widgets;
 
-import org.sonar.api.web.WidgetProperty;
-
 /**
  * Constants shared accross multiple widgets
  */
@@ -28,7 +26,8 @@ interface WidgetsConstants {
 
   /**
    * Widget property option used to filter out all the metrics which keys start with "new_".
-   * @see WidgetProperty#options()
+   *
+   * @see org.sonar.api.web.WidgetProperty#options()
    */
   String FILTER_OUT_NEW_METRICS = "key:^(?!new_).*";
 }
