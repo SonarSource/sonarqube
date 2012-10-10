@@ -9,7 +9,7 @@
     <% [('overall_' if @display_overall_coverage), '', ('it_' if @display_it_coverage)].compact.each_with_index do |prefix, index| -%>
       <tr>
         <% if index == 0 -%>
-          <td class="right big" style="width: 60px;"><%= format(new, prefix, 'coverage') -%></td>
+          <td class="right big" style="width: 60px;"><%= format(new, prefix, 'coverage', :span => true) -%></td>
           <td></td>
           <td class="name"><%= h Metric.name_for('line_coverage') -%>:</td>
           <td class="value">
@@ -23,7 +23,7 @@
             <%= format_ratio(new, prefix, 'conditions_to_cover', 'uncovered_conditions') -%>
           </td>
         <% else -%>
-          <td class="right value"><%= format(new, prefix, 'coverage') -%></td>
+          <td class="right value"><%= format(new, prefix, 'coverage', :span => true) -%></td>
           <td><%= message(prefix + 'coverage_viewer.by') -%></td>
           <td colspan="2"></td>
           <td class="sep"></td>
