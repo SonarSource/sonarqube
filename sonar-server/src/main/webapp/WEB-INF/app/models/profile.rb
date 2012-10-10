@@ -179,7 +179,8 @@ class Profile < ActiveRecord::Base
     @projects ||=
         begin
           Project.find(:all,
-                       :conditions => ['id in (select prop.resource_id from properties prop where prop.resource_id is not null and prop.prop_key=? and prop.text_value like ?)', "sonar.profile.#{language}", name])
+                        :joins => 'LEFT JOIN properties ON properties.resource_id = projects.id',
+                        :conditions => ['properties.resource_id is not null and properties.prop_key=? and properties.text_value like ?', "sonar.profile.#{language}", name])
         end
   end
 
