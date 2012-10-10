@@ -64,7 +64,7 @@ public class MeasureFilterEngine implements ServerComponent {
     if (logger.isDebugEnabled()) {
       StringBuilder log = new StringBuilder();
       log.append(SystemUtils.LINE_SEPARATOR);
-      log.append("   json: ").append(context.getJson()).append(SystemUtils.LINE_SEPARATOR);
+      log.append(" filter: ").append(context.getJson()).append(SystemUtils.LINE_SEPARATOR);
       log.append("    sql: ").append(context.getSql()).append(SystemUtils.LINE_SEPARATOR);
       log.append("results: ").append(rows.size()).append(" rows in ").append(durationMs).append("ms").append(SystemUtils.LINE_SEPARATOR);
       logger.debug(log.toString());

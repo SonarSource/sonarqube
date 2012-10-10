@@ -36,6 +36,6 @@ public class MeasureFilterContextTest {
     context.setJson("{}");
     context.setSql("SELECT *");
     context.setUserId(50L);
-    assertThat(context.toString()).isEqualTo("MeasureFilterContext[json={},sql=SELECT *,user=50]");
+    assertThat(context.toString()).isEqualTo("MeasureFilterContext[filter={},sql=SELECT *,user=50]");
   }
 }

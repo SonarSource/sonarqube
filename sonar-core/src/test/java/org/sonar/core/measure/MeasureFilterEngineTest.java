@@ -21,13 +21,20 @@ package org.sonar.core.measure;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
+import org.json.simple.parser.ParseException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.slf4j.Logger;
 
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
 
 public class MeasureFilterEngineTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
   @Test
   public void should_decode_json_and_execute_filter() throws Exception {
     MeasureFilterDecoder decoder = mock(MeasureFilterDecoder.class);
@@ -51,5 +58,18 @@ public class MeasureFilterEngineTest {
       }
     }));
     verify(logger).debug(anyString());
+  }
+
+  @Test
+  public void throw_definition_of_filter_on_error() throws Exception {
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("filter=<xml>");
+
+    MeasureFilterDecoder decoder = mock(MeasureFilterDecoder.class);
+    when(decoder.decode("<xml>")).thenThrow(new ParseException(0));
+    MeasureFilterExecutor executor = mock(MeasureFilterExecutor.class);
+
+    MeasureFilterEngine engine = new MeasureFilterEngine(decoder, executor);
+    engine.execute("<xml>", 50L);
   }
 }
