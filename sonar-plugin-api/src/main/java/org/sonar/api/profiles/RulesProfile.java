@@ -30,7 +30,6 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 
 import javax.persistence.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -101,6 +100,15 @@ public class RulesProfile implements Cloneable {
     this.language = language;
     this.activeRules = Lists.newArrayList();
     this.alerts = Lists.newArrayList();
+  }
+
+  /**
+   * @deprecated since 2.3. Use the factory method create()
+   */
+  @Deprecated
+  public RulesProfile(String name, String language, boolean defaultProfile, /* kept for backward-compatibility */boolean provided) {
+    this(name, language);
+    this.defaultProfile = defaultProfile;
   }
 
   public Integer getId() {
@@ -211,8 +219,8 @@ public class RulesProfile implements Cloneable {
   }
 
   /**
-   * @deprecated since 3.3. Always return true.
    * @return
+   * @deprecated since 3.3. Always return true.
    */
   @Deprecated
   public Boolean getEnabled() {
@@ -220,8 +228,8 @@ public class RulesProfile implements Cloneable {
   }
 
   /**
-   * @deprecated since 3.3. Always return true.
    * @return
+   * @deprecated since 3.3. Always return true.
    */
   @Deprecated
   public boolean isEnabled() {
@@ -229,8 +237,8 @@ public class RulesProfile implements Cloneable {
   }
 
   /**
-   * @deprecated since 3.3.
    * @return
+   * @deprecated since 3.3.
    */
   @Deprecated
   public RulesProfile setEnabled(Boolean b) {
