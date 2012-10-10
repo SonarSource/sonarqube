@@ -106,6 +106,9 @@ class MeasureFilterSql {
       sql.append(", ").append(nullSelect(condition.metric())).append(" crit_").append(index);
     }
     sql.append(" FROM snapshots s INNER JOIN projects p ON s.project_id=p.id ");
+    if (filter.isOnFavourites()) {
+      sql.append(" INNER JOIN properties props ON props.resource_id=s.project_id ");
+    }
     if (filter.sort().onMeasures()) {
       sql.append(" LEFT OUTER JOIN project_measures pm ON s.id=pm.snapshot_id AND pm.metric_id=");
       sql.append(filter.sort().metric().getId());
@@ -127,6 +130,9 @@ class MeasureFilterSql {
       sql.append(" crit_").append(j);
     }
     sql.append(" FROM snapshots s INNER JOIN projects p ON s.project_id=p.id INNER JOIN project_measures pm ON s.id=pm.snapshot_id ");
+    if (filter.isOnFavourites()) {
+      sql.append(" INNER JOIN properties props ON props.resource_id=s.project_id ");
+    }
     sql.append(" WHERE ");
     appendResourceConditions();
     sql.append(" AND pm.rule_id IS NULL AND pm.rule_priority IS NULL AND pm.characteristic_id IS NULL AND pm.person_id IS NULL AND ");
@@ -158,10 +164,10 @@ class MeasureFilterSql {
       sql.append(" AND s.created_at <= ? ");
       dateParameters.add(new java.sql.Date(filter.getToDate().getTime()));
     }
-    if (filter.isOnFavourites() && context.getUserId() != null) {
-      sql.append(" AND s.project_id IN (SELECT props.resource_id FROM properties props WHERE props.prop_key='favourite' AND props.user_id=");
+    if (filter.isOnFavourites()) {
+      sql.append(" AND props.prop_key='favourite' AND props.resource_id IS NOT NULL AND props.user_id=");
       sql.append(context.getUserId());
-      sql.append(" AND props.resource_id IS NOT NULL) ");
+      sql.append(" ");
     }
     if (StringUtils.isNotBlank(filter.getResourceName())) {
       sql.append(" AND s.project_id IN (SELECT rindex.resource_id FROM resource_index rindex WHERE rindex.kee like '");
