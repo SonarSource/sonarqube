@@ -45,7 +45,7 @@ public final class JdkUtils extends WSUtils {
       return URLEncoder.encode(url, "UTF-8");
 
     } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException(e);
+      throw new IllegalStateException(e);
     }
   }
 
