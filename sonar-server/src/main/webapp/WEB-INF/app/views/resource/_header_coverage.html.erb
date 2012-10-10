@@ -13,14 +13,12 @@
           <td></td>
           <td class="name"><%= h Metric.name_for('line_coverage') -%>:</td>
           <td class="value">
-            <%= format(new, prefix, 'line_coverage') -%>
-            <%= format_ratio(new, prefix, 'lines_to_cover', 'uncovered_lines') -%>
+            <%= format(new, prefix, 'line_coverage') -%>&nbsp;<%= format_ratio(new, prefix, 'lines_to_cover', 'uncovered_lines') -%>
           </td>
           <td class="sep"></td>
           <td class="name"><%= h Metric.name_for('branch_coverage') -%>:</td>
           <td class="value">
-            <%= format(new, prefix, 'branch_coverage') -%>
-            <%= format_ratio(new, prefix, 'conditions_to_cover', 'uncovered_conditions') -%>
+            <%= format(new, prefix, 'branch_coverage') -%>&nbsp;<%= format_ratio(new, prefix, 'conditions_to_cover', 'uncovered_conditions') -%>
           </td>
         <% else -%>
           <td class="right value"><%= format(new, prefix, 'coverage', :span => true) -%></td>
