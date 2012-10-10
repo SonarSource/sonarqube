@@ -184,8 +184,8 @@ class ResourceController < ApplicationController
       @coverage_filter = (metric ? metric.key : 'coverage')
 
       it_prefix = ''
-      it_prefix = 'it_' if @coverage_filter.start_with?('it_')
-      it_prefix = 'overall_' if @coverage_filter.start_with?('overall_')
+      it_prefix = 'it_' if (@coverage_filter.start_with?('it_') || @coverage_filter.start_with?('new_it_'))
+      it_prefix = 'overall_' if (@coverage_filter.start_with?('overall_') || @coverage_filter.start_with?('new_overall_'))
 
       @hits_by_line = load_distribution("#{it_prefix}coverage_line_hits_data")
       @conditions_by_line = load_distribution("#{it_prefix}conditions_by_line")

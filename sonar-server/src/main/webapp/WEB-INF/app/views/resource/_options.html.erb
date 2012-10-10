@@ -67,14 +67,6 @@
           <% if @display_coverage %>
             <td class="<%= 'first' if first -%>">
               <select id="coverage_filter" name="coverage_filter" onchange="applyOptions()">
-                <% if @display_overall_coverage %>
-                  <optgroup label="<%= h message('coverage_viewer.overall_tests') -%>">
-                    <option value="overall_lines_to_cover" <%= 'selected' if @coverage_filter=='overall_lines_to_cover' -%>><%= Metric.name_for('overall_lines_to_cover') -%></option>
-                    <option value="overall_uncovered_lines" <%= 'selected' if @coverage_filter=='overall_uncovered_lines' -%>><%= Metric.name_for('overall_uncovered_lines') -%></option>
-                    <option value="overall_conditions_to_cover" <%= 'selected' if @coverage_filter=='overall_conditions_to_cover' -%>><%= Metric.name_for('overall_conditions_to_cover') -%></option>
-                    <option value="overall_uncovered_conditions" <%= 'selected' if @coverage_filter=='overall_uncovered_conditions' -%>><%= Metric.name_for('overall_uncovered_conditions') -%></option>
-                  </optgroup>
-                <% end %>
                 <optgroup label="<%= h message('coverage_viewer.unit_tests') -%>">
                   <option value="lines_to_cover" <%= 'selected' if @coverage_filter=='lines_to_cover' -%>><%= Metric.name_for('lines_to_cover') -%></option>
                   <option value="uncovered_lines" <%= 'selected' if @coverage_filter=='uncovered_lines' -%>><%= Metric.name_for('uncovered_lines') -%></option>
@@ -87,6 +79,14 @@
                     <option value="it_uncovered_lines" <%= 'selected' if @coverage_filter=='it_uncovered_lines' -%>><%= Metric.name_for('it_uncovered_lines') -%></option>
                     <option value="it_conditions_to_cover" <%= 'selected' if @coverage_filter=='it_conditions_to_cover' -%>><%= Metric.name_for('it_conditions_to_cover') -%></option>
                     <option value="it_uncovered_conditions" <%= 'selected' if @coverage_filter=='it_uncovered_conditions' -%>><%= Metric.name_for('it_uncovered_conditions') -%></option>
+                  </optgroup>
+                <% end %>
+                <% if @display_overall_coverage %>
+                  <optgroup label="<%= h message('coverage_viewer.overall_tests') -%>">
+                    <option value="overall_lines_to_cover" <%= 'selected' if @coverage_filter=='overall_lines_to_cover' -%>><%= Metric.name_for('overall_lines_to_cover') -%></option>
+                    <option value="overall_uncovered_lines" <%= 'selected' if @coverage_filter=='overall_uncovered_lines' -%>><%= Metric.name_for('overall_uncovered_lines') -%></option>
+                    <option value="overall_conditions_to_cover" <%= 'selected' if @coverage_filter=='overall_conditions_to_cover' -%>><%= Metric.name_for('overall_conditions_to_cover') -%></option>
+                    <option value="overall_uncovered_conditions" <%= 'selected' if @coverage_filter=='overall_uncovered_conditions' -%>><%= Metric.name_for('overall_uncovered_conditions') -%></option>
                   </optgroup>
                 <% end %>
               </select>

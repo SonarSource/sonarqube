@@ -39,8 +39,8 @@ public final class CoreMetrics {
 
   public static final String DOMAIN_SIZE = "Size";
   public static final String DOMAIN_TESTS = "Tests";
-  public static final String DOMAIN_INTEGRATION_TESTS = "Integration Tests";
-  public static final String DOMAIN_OVERALL_TESTS = "All Tests";
+  public static final String DOMAIN_INTEGRATION_TESTS = "Tests (Integration)";
+  public static final String DOMAIN_OVERALL_TESTS = "Tests (Overall)";
   public static final String DOMAIN_COMPLEXITY = "Complexity";
   public static final String DOMAIN_DOCUMENTATION = "Documentation";
   public static final String DOMAIN_RULES = "Rules";
