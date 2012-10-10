@@ -44,7 +44,7 @@ class Filters
 
     key_criterion=filter.criterion('key')
     if key_criterion
-      filter_json[:keyRegexp]=name_criterion.text_value
+      filter_json[:keyRegexp]=key_criterion.text_value
     end
 
     name_criterion=filter.criterion('name')
