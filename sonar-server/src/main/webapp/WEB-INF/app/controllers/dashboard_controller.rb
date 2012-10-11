@@ -119,7 +119,7 @@ class DashboardController < ApplicationController
           prop.save!
         end
       end
-      widget.resource_id=Project.by_key(params[:resource_id]).id if params[:resource_id]
+      widget.resource_id=Project.by_key(params[:resource_id]).id if params[:resource_id].present?
       widget.configured=true
       widget.save!
       render :update do |page|
