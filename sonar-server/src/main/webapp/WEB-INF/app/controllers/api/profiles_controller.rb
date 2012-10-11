@@ -23,6 +23,8 @@ class Api::ProfilesController < Api::ApiController
 
   # GET /api/profiles/list?[language=<language][&project=<project id or key>]
   #
+  # Since v.3.3
+  #
   # ==== Examples
   # - get all the profiles : GET /api/profiles/list
   # - get all the Java profiles : GET /api/profiles/list?language=java
@@ -38,7 +40,7 @@ class Api::ProfilesController < Api::ApiController
       if language.present?
         profiles=[Profile.by_project_id(language, project.id, true)]
       else
-        profiles=Api::Utils.languages.map { |lang| Profile.by_project_id(lang, project.id, true) }
+        profiles=Api::Utils.languages.map { |lang| Profile.by_project_id(lang.getKey(), project.id, true) }
       end
     elsif language.present?
       profiles=Profile.all_by_language(language)
@@ -69,6 +71,8 @@ class Api::ProfilesController < Api::ApiController
   end
 
   # POST /api/profiles/set_as_default?language=<language>&name=<name>
+  #
+  # Since v.3.3
   def set_as_default
     verify_post_request
     access_denied unless has_role?(:admin)

@@ -27,6 +27,7 @@ class Api::AuthenticationController < Api::ApiController
   # GET /api/authentication/validate
   # curl http://localhost:9000/api/authentication/validate -v -u admin:admin
   #
+  # Since v.3.3
   def validate
     hash={:valid => valid?}
 
