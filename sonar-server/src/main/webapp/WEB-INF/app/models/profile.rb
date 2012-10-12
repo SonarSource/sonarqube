@@ -165,7 +165,9 @@ class Profile < ActiveRecord::Base
           child.parent_name=new_name
           child.save
         end
-        Property.update_all({:text_value => new_name}, ['prop_key=? and text_value=?', "sonar.profile.#{language}", old_name])
+        # PROPERTIES.TEXT_VALUE is CLOB but not VARCHAR. The operator '=' is supported by all the databases except Oracle. For this reason 'like' must be used.
+        # Repeat avec me : Oracle rocks. 
+        Property.update_all({:text_value => new_name}, ['prop_key=? and text_value like ?', "sonar.profile.#{language}", old_name])
       end
     end
     self
