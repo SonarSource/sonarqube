@@ -8,7 +8,7 @@
 <script>
   function deleteRule() {
     var count = <%= ActiveRule.count(:conditions => {:rule_id => @rule.id}) -%>;
-    var message = 'Are you sure ?';
+    var message = 'Are you sure?';
     if (count>0) {
       message += ' This rule is activated in ' + count + ' profiles.';
     }
