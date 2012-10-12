@@ -165,7 +165,7 @@ class Profile < ActiveRecord::Base
           child.parent_name=new_name
           child.save
         end
-        Property.update_all("text_value='#{new_name}'", ['prop_key=? and text_value=?', "sonar.profile.#{language}", old_name])
+        Property.update_all({:text_value => new_name}, ['prop_key=? and text_value=?', "sonar.profile.#{language}", old_name])
       end
     end
     self

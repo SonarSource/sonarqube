@@ -57,7 +57,7 @@ class EventCategory
     if errors.empty?
       from_categ=EventCategory.category(from)
       if from_categ
-        Event.update_all("category='#{name}'", "category='#{from_categ.name}'")
+        Event.update_all({:category => name}, "category='#{from_categ.name}'")
         from_categ.delete
       end
     end
