@@ -24,9 +24,6 @@ class Profile < ActiveRecord::Base
   has_many :active_rules, :class_name => 'ActiveRule', :foreign_key => 'profile_id', :dependent => :destroy, :include => ['rule']
   has_many :active_rules_with_params, :class_name => 'ActiveRule', :foreign_key => 'profile_id', :include => ['active_rule_parameters', 'active_rule_note']
   has_many :changes, :class_name => 'ActiveRuleChange', :dependent => :destroy
-  has_many :children, :class_name => 'Profile', :finder_sql => %q(
-      select c.* from rules_profiles c where c.parent_name='#{name}' and c.language='#{language}'
-  )
 
   validates_uniqueness_of :name, :scope => :language, :case_sensitive => false, :message => Api::Utils.message('quality_profiles.already_exists')
   validates_presence_of :name, :message => Api::Utils.message('quality_profiles.please_type_profile_name')
@@ -119,6 +116,13 @@ class Profile < ActiveRecord::Base
             nil
           end
         end
+  end
+
+  def children
+    @children ||=
+      begin
+        Profile.find(:all, :conditions => ['parent_name=? and language=?', name, language])
+      end
   end
 
   def count_active_rules
