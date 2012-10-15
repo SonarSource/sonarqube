@@ -1,6 +1,13 @@
-<% if @resource || @project %>
+<% if @resource || @project
+     displayed_resource = @resource || @project
+%>
   <div id="crumbs">
-    <ul>
+    <% if !@review %>
+    <ul id="crumbs-ops">
+      <li><a href="<%= url_for(:overwrite_params => {:id => displayed_resource.key})-%>"><img src="<%= ApplicationController.root_context -%>/images/permalink.png" width="16" height="16" title="<%= message('permalink') -%>"/></a></li>
+    </ul>
+    <% end %>
+    <ul id="bc">
       <%
          resource_link = {}
          if @review
@@ -8,7 +15,7 @@
          end
 
          # ======== Path for resources ========
-         displayed_resource = @resource || @project
+
          if displayed_resource && displayed_resource.last_snapshot
            resources=[]
            s=displayed_resource.last_snapshot
@@ -18,9 +25,9 @@
            end
       %>
         <li class="first"><%= message("qualifiers.#{resources[0].qualifier}") -%></li>
-      <%
+        <%
            resources.each_with_index do |resource, index|
-      %>
+        %>
           <li>
             <%= qualifier_icon(resource) -%>
             &nbsp;

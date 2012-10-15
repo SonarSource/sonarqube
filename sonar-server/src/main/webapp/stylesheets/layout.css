@@ -111,10 +111,13 @@ body, a {
   font-size: 93%;
   margin: 0 10px;
   border-bottom: 1px solid #CCC;
-  border-right: 2px solid #CCC;
+  border-right: 1px solid #CCC;
+}
+#crumbs img {
+  vertical-align: text-bottom;
 }
 
-#crumbs > ul > li {
+#bc li {
   float: left;
   margin: 0;
   background: #EFEFEF url("../images/bc-gray.png") no-repeat left;
@@ -122,22 +125,25 @@ body, a {
   padding: 0 10px 0 20px;
 }
 
-#crumbs > ul > li.first {
+#bc li.first {
   background: #EFEFEF;
   border-left: 2px solid #CCC;
   padding: 0 10px 0 5px;
 }
 
-#crumbs > ul > li img {
-  vertical-align: text-bottom;
+#bc li img {
   margin-right: -5px;
 }
 
-#crumbs > ul > li a {
+#bc li a {
   text-decoration: none;
 }
-#crumbs > ul > li a:hover, #crumbs > ul > li a:focus {
+#bc li a:hover, #bc li a:focus {
   text-decoration: underline;
+}
+#crumbs-ops {
+  float: right;
+  padding: 0 5px 0 0;
 }
 
 #nonav {
