@@ -106,6 +106,17 @@ public class ItCoverageDecoratorTest {
   }
 
   @Test
+  public void should_count_elements_for_new_code() {
+    Measure newLines = measureWithVariation(1, 100.0);
+    Measure newConditions = measureWithVariation(1, 1.0);
+    DecoratorContext context = mockNewContext(newLines, null, null, newConditions);
+
+    long count = decorator.countElementsForNewCode(context, 1);
+
+    assertThat(count).isEqualTo(101).isEqualTo(100 + 1);
+  }
+
+  @Test
   public void should_count_covered_elements_for_new_code() {
     Measure newLines = measureWithVariation(1, 100.0);
     Measure newUncoveredConditions = measureWithVariation(1, 10.0);
