@@ -21,6 +21,7 @@ package org.sonar.server.ui;
 
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
+import org.json.simple.parser.ParseException;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.License;
@@ -83,7 +84,7 @@ public final class JRubyFacade {
     return getContainer().getComponentByType(componentType);
   }
 
-  public List<MeasureFilterRow> executeMeasureFilter(String json, @Nullable Long userId) throws Exception {
+  public List<MeasureFilterRow> executeMeasureFilter(String json, @Nullable Long userId) throws ParseException {
     return get(MeasureFilterEngine.class).execute(json, userId);
   }
 

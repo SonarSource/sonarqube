@@ -28,12 +28,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
-import org.sonar.core.persistence.dialect.*;
+import org.sonar.core.persistence.dialect.Dialect;
+import org.sonar.core.persistence.dialect.DialectUtils;
+import org.sonar.core.persistence.dialect.H2;
+import org.sonar.core.persistence.dialect.Oracle;
+import org.sonar.core.persistence.dialect.PostgreSql;
 import org.sonar.jpa.session.CustomHibernateConnectionProvider;
 
 import javax.sql.DataSource;
+
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
