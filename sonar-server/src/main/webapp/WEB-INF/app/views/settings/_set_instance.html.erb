@@ -2,20 +2,22 @@
 <% key_field = key_field(property) -%>
 
 <tr class="top multi_value <%= 'template' unless set_key -%> odd" style="<%= 'display:none' unless set_key -%>">
-  <% if key_field -%>
-    <td><%= render "settings/type_#{key_field.type}", :property => key_field, :field => key_field, :value => set_key, :name => "property_sets[#{property.key}][]", :id => "input_#{h key_field.key}", :size => key_field.indicativeSize -%></td>
-  <% else -%>
+  <% unless key_field -%>
     <%= hidden_field_tag "property_sets[#{property.key}][]", 'auto-generated' -%>
   <% end -%>
 
-  <% property.fields.reject { |field| field.key == 'key' }.each do |field| -%>
+  <% property.fields.each do |field| -%>
     <% if set_key -%>
       <% key = "#{property.key}.#{set_key}.#{field.key}" -%>
       <% value = Property.value(key, resource_id) -%>
       <% errors << (render "settings/error", :key => key) -%>
     <% end -%>
 
-    <td><%= render "settings/type_#{field.type}", :property => field, :field => field, :value => value, :name => "#{property.key}[#{field.key}][]", :id => "input_#{h field.key}", :size => field.indicativeSize -%></td>
+    <% if field == key_field -%>
+      <td><%= render "settings/type_#{field.type}", :property => field, :field => field, :value => value, :name => "#{property.key}[#{field.key}][]", :id => "input_#{h field.key}", :size => field.indicativeSize -%></td>
+    <% else -%>
+      <td><%= render "settings/type_#{field.type}", :property => field, :field => field, :value => value, :name => "property_sets[#{property.key}][]", :id => "input_#{h field.key}", :size => field.indicativeSize -%></td>
+    <% end -%>
   <% end -%>
 
   <td style="width: 60px;">

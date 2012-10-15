@@ -56,7 +56,7 @@ class SettingsController < ApplicationController
 
   def update_property_sets(resource_id)
     (params[:property_sets] || []).each do |key, set_keys|
-      update_property_set(key, set_keys, params[key], resource_id, params[:auto_generate][key])
+      update_property_set(key, set_keys, params[key], resource_id, params[:auto_generate] && params[:auto_generate][key])
     end
   end
 

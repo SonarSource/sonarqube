@@ -3,12 +3,10 @@
 <table class="data">
   <thead>
   <tr>
-    <% if key_field(property) -%>
-      <th><%= message('key') -%></th>
-    <% else %>
+    <% unless key_field(property) -%>
       <%= hidden_field_tag "auto_generate[#{property.key}]", true -%>
     <% end -%>
-    <% property.fields.reject { |field| field.key == 'key' }.each do |field| -%>
+    <% property.fields.each do |field| -%>
       <th>
         <%= field_name(property, field) -%>
         <% desc = field_description(property, field) -%>
