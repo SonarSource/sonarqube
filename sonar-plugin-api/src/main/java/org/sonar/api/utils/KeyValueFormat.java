@@ -317,7 +317,7 @@ public final class KeyValueFormat {
   }
 
   /**
-   * Transforms a string with the following format : "key1=value1;key2=value2..."
+   * Transforms a string with the following format: "key1=value1;key2=value2..."
    * into a Map<KEY, VALUE>. Requires to implement the transform(key,value) method
    *
    * @param data        the input string

@@ -13,7 +13,7 @@
   <tbody>
   <tr class="even">
     <td style="padding: 10px">
-      <p class="spacer-bottom">Secret key is registered. You can encrypt any property value with the following form :</p>
+      <p class="spacer-bottom">Secret key is registered. You can encrypt any property value with the following form:</p>
 
       <%= form_remote_tag :url => {:action => 'encrypt'},
                           :update => {:success => 'encrypted_section', :failure => 'encryption_error'},
