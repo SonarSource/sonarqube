@@ -26,7 +26,7 @@ module ResourceHelper
       value = format_variation(measure(key), :period => @period, :default => '-', :style => 'none')
     else
       key = prefix + measure_name
-      value = measure(key).formatted_value
+      value = measure(key) ? measure(key).formatted_value : '0'
     end
 
     if options[:span]
