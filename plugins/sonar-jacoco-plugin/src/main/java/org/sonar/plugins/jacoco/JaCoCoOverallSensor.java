@@ -89,17 +89,19 @@ public class JaCoCoOverallSensor implements Sensor {
 
   private void loadSourceFiles(SessionInfoStore infoStore, ExecutionDataStore dataStore, File... files) {
     for (File file : files) {
-      InputStream resourceStream = null;
-      try {
-        resourceStream = new BufferedInputStream(new FileInputStream(file));
-        ExecutionDataReader reader = new ExecutionDataReader(resourceStream);
-        reader.setSessionInfoVisitor(infoStore);
-        reader.setExecutionDataVisitor(dataStore);
-        reader.read();
-      } catch (IOException e) {
-        throw new SonarException(String.format("Unable to read %s", file.getAbsolutePath()), e);
-      } finally {
-        Closeables.closeQuietly(resourceStream);
+      if (file.exists()) {
+        InputStream resourceStream = null;
+        try {
+          resourceStream = new BufferedInputStream(new FileInputStream(file));
+          ExecutionDataReader reader = new ExecutionDataReader(resourceStream);
+          reader.setSessionInfoVisitor(infoStore);
+          reader.setExecutionDataVisitor(dataStore);
+          reader.read();
+        } catch (IOException e) {
+          throw new SonarException(String.format("Unable to read %s", file.getAbsolutePath()), e);
+        } finally {
+          Closeables.closeQuietly(resourceStream);
+        }
       }
     }
   }
