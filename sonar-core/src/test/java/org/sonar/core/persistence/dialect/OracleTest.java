@@ -21,6 +21,8 @@ package org.sonar.core.persistence.dialect;
 
 import org.junit.Test;
 
+import java.util.List;
+
 import static org.fest.assertions.Assertions.assertThat;
 
 public class OracleTest {
@@ -38,14 +40,14 @@ public class OracleTest {
    */
   @Test
   public void shouldChangeOracleSchema() {
-    String initStatement = oracle.getConnectionInitStatement("my_schema");
+    List<String> initStatements = oracle.getConnectionInitStatements("my_schema");
 
-    assertThat(initStatement).isEqualTo("ALTER SESSION SET CURRENT_SCHEMA = \"my_schema\"");
+    assertThat(initStatements).containsExactly("ALTER SESSION SET CURRENT_SCHEMA = \"my_schema\"");
   }
 
   @Test
   public void shouldNotChangeOracleSchemaByDefault() {
-    assertThat(oracle.getConnectionInitStatement(null)).isNull();
+    assertThat(oracle.getConnectionInitStatements(null)).isEmpty();
   }
 
   @Test

@@ -53,8 +53,4 @@ public class MySql extends AbstractDialect {
       registerColumnType(Types.BLOB, "blob");
     }
   }
-
-  public String getConnectionInitStatement(String schema) {
-    return null;
-  }
 }

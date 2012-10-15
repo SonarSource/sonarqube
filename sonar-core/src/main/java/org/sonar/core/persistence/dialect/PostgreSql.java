@@ -19,10 +19,12 @@
  */
 package org.sonar.core.persistence.dialect;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.dialect.PostgreSQLDialect;
 
 import java.sql.Types;
+import java.util.List;
 
 /**
  * @since 1.12
@@ -55,10 +57,12 @@ public class PostgreSql extends AbstractDialect {
     }
   }
 
-  public String getConnectionInitStatement(String schema) {
+  @Override
+  public List<String> getConnectionInitStatements(String schema) {
+    List<String> statements = Lists.newArrayList("SET standard_conforming_strings=on", "SET backslash_quote=off");
     if (StringUtils.isNotBlank(schema)) {
-      return "SET SEARCH_PATH TO " + schema;
+      statements.add("SET SEARCH_PATH TO " + schema);
     }
-    return null;
+    return statements;
   }
 }

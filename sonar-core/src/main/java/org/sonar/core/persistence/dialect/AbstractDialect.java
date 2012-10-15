@@ -19,6 +19,9 @@
  */
 package org.sonar.core.persistence.dialect;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * @since 3.2
  */
@@ -62,5 +65,9 @@ abstract class AbstractDialect implements Dialect {
 
   public final String getValidationQuery() {
     return validationQuery;
+  }
+
+  public List<String> getConnectionInitStatements(String schema) {
+    return Collections.emptyList();
   }
 }

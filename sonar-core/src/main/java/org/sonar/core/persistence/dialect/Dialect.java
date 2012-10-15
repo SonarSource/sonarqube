@@ -19,6 +19,8 @@
  */
 package org.sonar.core.persistence.dialect;
 
+import java.util.List;
+
 /**
  * @since 1.12
  */
@@ -52,7 +54,7 @@ public interface Dialect {
    */
   String getDefaultDriverClassName();
 
-  String getConnectionInitStatement(String schema);
+  List<String> getConnectionInitStatements(String schema);
 
   /**
    * @since 2.14

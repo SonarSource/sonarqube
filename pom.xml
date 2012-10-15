@@ -803,8 +803,8 @@
       <dependency>
         <groupId>postgresql</groupId>
         <artifactId>postgresql</artifactId>
-        <!-- do not upgrade to version 9.0-801.jdbc4, not compatible with Java 5 -->
-        <version>9.0-801.jdbc3</version>
+        <!-- do not upgrade to version 9.1-901.jdbc4, not compatible with Java 5 -->
+        <version>9.1-901.jdbc3</version>
       </dependency>
       <dependency>
         <groupId>net.sourceforge.jtds</groupId>

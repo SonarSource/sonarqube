@@ -112,15 +112,9 @@ public class DefaultDatabase implements Database {
 
   private void initDatasource() throws Exception {// NOSONAR this exception is thrown by BasicDataSourceFactory
     // but it's correctly caught by start()
-
     LOG.info("Create JDBC datasource to url " + properties.getProperty(DatabaseProperties.PROP_URL, DEFAULT_URL));
     datasource = (BasicDataSource) BasicDataSourceFactory.createDataSource(extractCommonsDbcpProperties(properties));
-
-    String initStatement = dialect.getConnectionInitStatement(getSchema());
-    if (StringUtils.isNotBlank(initStatement)) {
-      datasource.setConnectionInitSqls(Arrays.asList(initStatement));
-    }
-
+    datasource.setConnectionInitSqls(dialect.getConnectionInitStatements(getSchema()));
     datasource.setValidationQuery(dialect.getValidationQuery());
   }
 

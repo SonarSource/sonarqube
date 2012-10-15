@@ -61,9 +61,5 @@ public class MsSql extends AbstractDialect {
       }
     }
   }
-
-  public String getConnectionInitStatement(String schema) {
-    return null;
-  }
 }
 

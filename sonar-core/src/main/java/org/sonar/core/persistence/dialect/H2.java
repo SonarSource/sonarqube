@@ -41,7 +41,4 @@ public class H2 extends AbstractDialect {
     return StringUtils.startsWithIgnoreCase(jdbcConnectionURL, "jdbc:h2:");
   }
 
-  public String getConnectionInitStatement(String schema) {
-    return null;
-  }
 }

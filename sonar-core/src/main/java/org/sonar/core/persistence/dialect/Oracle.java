@@ -19,11 +19,13 @@
  */
 package org.sonar.core.persistence.dialect;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.dialect.Oracle10gDialect;
 import org.sonar.api.database.DatabaseProperties;
 
 import java.sql.Types;
+import java.util.List;
 
 /**
  * @since 1.12
@@ -58,10 +60,12 @@ public class Oracle extends AbstractDialect {
     }
   }
 
-  public String getConnectionInitStatement(String schema) {
+  @Override
+  public List<String> getConnectionInitStatements(String schema) {
+    List<String> statements = Lists.newArrayList();
     if (StringUtils.isNotBlank(schema)) {
-      return "ALTER SESSION SET CURRENT_SCHEMA = \"" + schema + "\"";
+      statements.add("ALTER SESSION SET CURRENT_SCHEMA = \"" + schema + "\"");
     }
-    return null;
+    return statements;
   }
 }
