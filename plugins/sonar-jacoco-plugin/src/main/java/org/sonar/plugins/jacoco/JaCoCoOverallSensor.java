@@ -31,6 +31,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.utils.SonarException;
 
 import java.io.BufferedInputStream;
@@ -43,7 +44,7 @@ import java.io.InputStream;
 import java.util.Collection;
 
 public class JaCoCoOverallSensor implements Sensor {
-  private static final String JACOCO_OVERALL = "target/sonar/jacoco-overall.exec";
+  public static final String JACOCO_OVERALL = "jacoco-overall.exec";
 
   private final JacocoConfiguration configuration;
 
@@ -57,21 +58,23 @@ public class JaCoCoOverallSensor implements Sensor {
   }
 
   public void analyse(Project project, SensorContext context) {
-    mergeReports(project);
+    ProjectFileSystem fs = project.getFileSystem();
 
-    new OverallAnalyzer().analyse(project, context);
-  }
-
-  private void mergeReports(Project project) {
-    File reportUTs = project.getFileSystem().resolvePath(configuration.getReportPath());
-    File reportITs = project.getFileSystem().resolvePath(configuration.getItReportPath());
-    File reportOverall = project.getFileSystem().resolvePath(JACOCO_OVERALL);
+    File reportUTs = fs.resolvePath(configuration.getReportPath());
+    File reportITs = fs.resolvePath(configuration.getItReportPath());
+    File reportOverall = new File(fs.getSonarWorkingDirectory(), JACOCO_OVERALL);
     reportOverall.getParentFile().mkdirs();
 
+    mergeReports(reportOverall, reportUTs, reportITs);
+
+    new OverallAnalyzer(reportOverall).analyse(project, context);
+  }
+
+  private void mergeReports(File reportOverall, File... reports) {
     SessionInfoStore infoStore = new SessionInfoStore();
     ExecutionDataStore dataStore = new ExecutionDataStore();
 
-    loadSourceFiles(infoStore, dataStore, reportUTs, reportITs);
+    loadSourceFiles(infoStore, dataStore, reports);
 
     BufferedOutputStream outputStream = null;
     try {
@@ -87,18 +90,18 @@ public class JaCoCoOverallSensor implements Sensor {
     }
   }
 
-  private void loadSourceFiles(SessionInfoStore infoStore, ExecutionDataStore dataStore, File... files) {
-    for (File file : files) {
-      if (file.exists()) {
+  private void loadSourceFiles(SessionInfoStore infoStore, ExecutionDataStore dataStore, File... reports) {
+    for (File report : reports) {
+      if (report.exists()) {
         InputStream resourceStream = null;
         try {
-          resourceStream = new BufferedInputStream(new FileInputStream(file));
+          resourceStream = new BufferedInputStream(new FileInputStream(report));
           ExecutionDataReader reader = new ExecutionDataReader(resourceStream);
           reader.setSessionInfoVisitor(infoStore);
           reader.setExecutionDataVisitor(dataStore);
           reader.read();
         } catch (IOException e) {
-          throw new SonarException(String.format("Unable to read %s", file.getAbsolutePath()), e);
+          throw new SonarException(String.format("Unable to read %s", report.getAbsolutePath()), e);
         } finally {
           Closeables.closeQuietly(resourceStream);
         }
@@ -107,9 +110,15 @@ public class JaCoCoOverallSensor implements Sensor {
   }
 
   class OverallAnalyzer extends AbstractAnalyzer {
+    private final File report;
+
+    OverallAnalyzer(File report) {
+      this.report = report;
+    }
+
     @Override
     protected String getReportPath(Project project) {
-      return JACOCO_OVERALL;
+      return report.getAbsolutePath();
     }
 
     @Override

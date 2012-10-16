@@ -80,7 +80,8 @@ public class JaCoCoOverallSensorTest {
     when(pfs.getBuildOutputDir()).thenReturn(outputDir);
     when(pfs.resolvePath("ut.exec")).thenReturn(new File(outputDir, "ut.exec"));
     when(pfs.resolvePath("it.exec")).thenReturn(new File(outputDir, "it.exec"));
-    when(pfs.resolvePath("target/sonar/jacoco-overall.exec")).thenReturn(new File("target/sonar/jacoco-overall.exec"));
+    when(pfs.getSonarWorkingDirectory()).thenReturn(new File("target/sonar"));
+    when(pfs.resolvePath(new File("target/sonar/jacoco-overall.exec").getAbsolutePath())).thenReturn(new File("target/sonar/jacoco-overall.exec"));
 
     sensor.analyse(project, context);
 
