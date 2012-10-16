@@ -1,6 +1,4 @@
-<h1 class="marginbottom10"><%= link_to message('quality_profiles.quality_profiles'), :controller => 'profiles', :action => 'index' -%>
-  / <%= h @profile.language -%>
-  / <%= h @profile.name %></h1>
+<h1 class="marginbottom10"><%= link_to message('quality_profiles.quality_profiles'), :controller => 'profiles', :action => 'index' -%> / <%= h @profile.language -%> / <%= h @profile.name %></h1>
 <%= render :partial => 'profiles/tabs', :locals => {:selected_tab => 'Projects'} %>
 
 <div class="tabs-panel">
