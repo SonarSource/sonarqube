@@ -14,9 +14,9 @@
     <% end -%>
 
     <% if field == key_field -%>
-      <td><%= render "settings/type_#{field.type}", :property => field, :field => field, :value => value, :name => "#{property.key}[#{field.key}][]", :id => "input_#{h field.key}", :size => field.indicativeSize -%></td>
-    <% else -%>
       <td><%= render "settings/type_#{field.type}", :property => field, :field => field, :value => value, :name => "property_sets[#{property.key}][]", :id => "input_#{h field.key}", :size => field.indicativeSize -%></td>
+    <% else -%>
+      <td><%= render "settings/type_#{field.type}", :property => field, :field => field, :value => value, :name => "#{property.key}[#{field.key}][]", :id => "input_#{h field.key}", :size => field.indicativeSize -%></td>
     <% end -%>
   <% end -%>
 
