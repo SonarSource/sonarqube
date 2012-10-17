@@ -2429,3 +2429,7 @@ textarea.width100 {
   width: auto;
   min-width: 600px;
 }
+
+.property table.data > thead > tr > th {
+  vertical-align: top;
+}
