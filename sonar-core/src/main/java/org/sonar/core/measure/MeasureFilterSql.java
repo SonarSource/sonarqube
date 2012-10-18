@@ -24,14 +24,19 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.measures.Metric;
 import org.sonar.core.persistence.Database;
+import org.sonar.core.persistence.DatabaseUtils;
 import org.sonar.core.persistence.dialect.PostgreSql;
 import org.sonar.core.resource.SnapshotDto;
 
 import javax.annotation.Nullable;
-import java.sql.*;
+
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 
@@ -61,7 +66,8 @@ class MeasureFilterSql {
       return process(rs);
 
     } finally {
-      closeQuietly(statement, rs);
+      DatabaseUtils.closeQuietly(rs);
+      DatabaseUtils.closeQuietly(statement);
     }
   }
 
@@ -257,25 +263,5 @@ class MeasureFilterSql {
     to.append(" ('");
     to.append(StringUtils.join(values, "','"));
     to.append("') ");
-  }
-
-  private static void closeQuietly(@Nullable Statement stmt, @Nullable ResultSet rs) {
-    if (rs != null) {
-      try {
-        rs.close();
-      } catch (SQLException e) {
-        LoggerFactory.getLogger(MeasureFilterSql.class).warn("Fail to close result set", e);
-        // ignore
-      }
-    }
-    if (stmt != null) {
-      try {
-        stmt.close();
-      } catch (SQLException e) {
-        LoggerFactory.getLogger(MeasureFilterSql.class).warn("Fail to close statement", e);
-        // ignore
-      }
-    }
-
   }
 }

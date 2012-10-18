@@ -37,6 +37,7 @@ import org.sonar.jpa.session.CustomHibernateConnectionProvider;
 
 import javax.sql.DataSource;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +65,7 @@ public class DefaultDatabase implements Database {
     try {
       initSettings();
       initDatasource();
+      checkConnection();
       return this;
 
     } catch (Exception e) {
@@ -116,11 +118,24 @@ public class DefaultDatabase implements Database {
 
   private void initDatasource() throws Exception {// NOSONAR this exception is thrown by BasicDataSourceFactory
     // but it's correctly caught by start()
-    LOG.info("Create JDBC datasource to url " + properties.getProperty(DatabaseProperties.PROP_URL, DEFAULT_URL));
+    LOG.info("Create JDBC datasource for " + properties.getProperty(DatabaseProperties.PROP_URL, DEFAULT_URL));
     datasource = (BasicDataSource) BasicDataSourceFactory.createDataSource(extractCommonsDbcpProperties(properties));
     datasource.setConnectionInitSqls(dialect.getConnectionInitStatements(getSchema()));
     datasource.setValidationQuery(dialect.getValidationQuery());
   }
+
+  private void checkConnection() {
+    Connection connection = null;
+    try {
+      LOG.debug("Testing JDBC connection");
+      connection = datasource.getConnection();
+    } catch (Exception e) {
+      LOG.error("Can not connect to database. Please check connectivity and settings (see the properties prefixed by 'sonar.jdbc.').", e);
+    } finally {
+      DatabaseUtils.closeQuietly(connection);
+    }
+  }
+
 
   public final DefaultDatabase stop() {
     if (datasource != null) {
