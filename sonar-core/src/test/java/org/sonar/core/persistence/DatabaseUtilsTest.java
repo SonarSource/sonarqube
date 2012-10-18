@@ -37,10 +37,10 @@ public class DatabaseUtilsTest extends AbstractDaoTestCase {
   @Test
   public void should_close_connection() throws SQLException {
     Connection connection = getConnection();
-    assertThat(connection.isClosed()).isFalse();
+    assertThat(isClosed(connection)).isFalse();
 
     DatabaseUtils.closeQuietly(connection);
-    assertThat(connection.isClosed()).isTrue();
+    assertThat(isClosed(connection)).isTrue();
   }
 
   @Test
@@ -59,8 +59,8 @@ public class DatabaseUtilsTest extends AbstractDaoTestCase {
       DatabaseUtils.closeQuietly(rs);
       DatabaseUtils.closeQuietly(statement);
 
-      assertThat(statement.isClosed()).isTrue();
-      // can not execute: assertThat(rs.isClosed()).isTrue(); -> isClosed() has been introduced in Java 6
+      assertThat(isClosed(statement)).isTrue();
+      assertThat(isClosed(rs)).isTrue();
     } finally {
       DatabaseUtils.closeQuietly(connection);
     }
@@ -97,5 +97,41 @@ public class DatabaseUtilsTest extends AbstractDaoTestCase {
 
     // no failure
     verify(rs).close(); // just to be sure
+  }
+
+  /**
+   * Connection.isClosed() has been introduced in java 1.6
+   */
+  private boolean isClosed(Connection c) {
+    try {
+      c.createStatement().execute("SELECT 1");
+      return false;
+    } catch (Exception e) {
+      return true;
+    }
+  }
+
+  /**
+   * Statement.isClosed() has been introduced in java 1.6
+   */
+  private boolean isClosed(Statement s) {
+    try {
+      s.execute("SELECT 1");
+      return false;
+    } catch (Exception e) {
+      return true;
+    }
+  }
+
+  /**
+   * ResultSet.isClosed() has been introduced in java 1.6
+   */
+  private boolean isClosed(ResultSet rs) {
+    try {
+      rs.next();
+      return false;
+    } catch (Exception e) {
+      return true;
+    }
   }
 }
