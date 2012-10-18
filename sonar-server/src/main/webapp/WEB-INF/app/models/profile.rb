@@ -98,9 +98,9 @@ class Profile < ActiveRecord::Base
 
   def count_overriding_rules
     @count_overriding_rules||=
-        begin
-          active_rules.count(:conditions => ['inheritance=?', 'OVERRIDES'])
-        end
+      begin
+        active_rules.count(:conditions => ['inheritance=?', 'OVERRIDES'])
+      end
   end
 
   def inherited?
@@ -109,13 +109,13 @@ class Profile < ActiveRecord::Base
 
   def parent
     @parent||=
-        begin
-          if parent_name.present?
-            Profile.find(:first, :conditions => ['language=? and name=?', language, parent_name])
-          else
-            nil
-          end
+      begin
+        if parent_name.present?
+          Profile.find(:first, :conditions => ['language=? and name=?', language, parent_name])
+        else
+          nil
         end
+      end
   end
 
   def children
@@ -131,14 +131,14 @@ class Profile < ActiveRecord::Base
 
   def ancestors
     @ancestors ||=
-        begin
-          array=[]
-          if parent
-            array<<parent
-            array.concat(parent.ancestors)
-          end
-          array
+      begin
+        array=[]
+        if parent
+          array<<parent
+          array.concat(parent.ancestors)
         end
+        array
+      end
   end
 
   def import_configuration(importer_key, file)
@@ -186,11 +186,11 @@ class Profile < ActiveRecord::Base
 
   def projects
     @projects ||=
-        begin
-          Project.find(:all,
-                        :joins => 'LEFT JOIN properties ON properties.resource_id = projects.id',
-                        :conditions => ['properties.resource_id is not null and properties.prop_key=? and properties.text_value like ?', "sonar.profile.#{language}", name])
-        end
+      begin
+        Project.find(:all,
+                     :joins => 'LEFT JOIN properties ON properties.resource_id = projects.id',
+                     :conditions => ['properties.resource_id is not null and properties.prop_key=? and properties.text_value like ?', "sonar.profile.#{language}", name])
+      end
   end
 
   def sorted_projects
@@ -205,6 +205,15 @@ class Profile < ActiveRecord::Base
   def remove_projects
     Property.clear_for_resources("sonar.profile.#{language}", name)
     @projects = nil
+  end
+
+  def to_hash_json
+    {
+      :name => name,
+      :language => language,
+      :version => version,
+      :rules => active_rules.map { |active| active.rule.to_hash_json(self, active) }
+    }
   end
 
   def self.reset_default_profile_for_project_id(lang, project_id)

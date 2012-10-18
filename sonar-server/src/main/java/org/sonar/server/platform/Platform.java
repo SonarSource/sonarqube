@@ -47,7 +47,11 @@ import org.sonar.core.measure.MeasureFilterEngine;
 import org.sonar.core.measure.MeasureFilterExecutor;
 import org.sonar.core.metric.DefaultMetricFinder;
 import org.sonar.core.notification.DefaultNotificationManager;
-import org.sonar.core.persistence.*;
+import org.sonar.core.persistence.DaoUtils;
+import org.sonar.core.persistence.DatabaseMigrator;
+import org.sonar.core.persistence.DatabaseVersion;
+import org.sonar.core.persistence.DefaultDatabase;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualitymodel.DefaultModelFinder;
 import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.core.user.DefaultUserFinder;
@@ -64,14 +68,35 @@ import org.sonar.server.charts.ChartFactory;
 import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.database.EmbeddedDatabaseFactory;
+import org.sonar.server.database.LocalDatabaseFactory;
 import org.sonar.server.notifications.NotificationService;
 import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
-import org.sonar.server.plugins.*;
+import org.sonar.server.plugins.ApplicationDeployer;
+import org.sonar.server.plugins.DefaultServerPluginRepository;
+import org.sonar.server.plugins.PluginDeployer;
+import org.sonar.server.plugins.PluginDownloader;
+import org.sonar.server.plugins.ServerExtensionInstaller;
+import org.sonar.server.plugins.UpdateCenterClient;
+import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.qualitymodel.DefaultModelManager;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
-import org.sonar.server.startup.*;
-import org.sonar.server.ui.*;
+import org.sonar.server.startup.DeleteDeprecatedMeasures;
+import org.sonar.server.startup.GeneratePluginIndex;
+import org.sonar.server.startup.GwtPublisher;
+import org.sonar.server.startup.JdbcDriverDeployer;
+import org.sonar.server.startup.RegisterMetrics;
+import org.sonar.server.startup.RegisterNewDashboards;
+import org.sonar.server.startup.RegisterNewFilters;
+import org.sonar.server.startup.RegisterNewProfiles;
+import org.sonar.server.startup.RegisterQualityModels;
+import org.sonar.server.startup.RegisterRules;
+import org.sonar.server.startup.ServerMetadataPersister;
+import org.sonar.server.ui.CodeColorizers;
+import org.sonar.server.ui.JRubyI18n;
+import org.sonar.server.ui.PageDecorations;
+import org.sonar.server.ui.SecurityRealmFactory;
+import org.sonar.server.ui.Views;
 
 import javax.servlet.ServletContext;
 
@@ -155,6 +180,7 @@ public final class Platform {
     rootContainer.addSingleton(I18nManager.class);
     rootContainer.addSingleton(RuleI18nManager.class);
     rootContainer.addSingleton(GwtI18n.class);
+    rootContainer.addSingleton(LocalDatabaseFactory.class);
     rootContainer.startComponents();
   }
 
@@ -223,6 +249,7 @@ public final class Platform {
     servicesContainer.addSingleton(MeasureFilterDecoder.class);
     servicesContainer.addSingleton(MeasureFilterExecutor.class);
     servicesContainer.addSingleton(MeasureFilterEngine.class);
+    servicesContainer.addSingleton(LocalDatabaseFactory.class);
 
     // Notifications
     servicesContainer.addSingleton(EmailSettings.class);

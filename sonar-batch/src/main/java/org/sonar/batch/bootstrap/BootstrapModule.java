@@ -30,6 +30,7 @@ import org.sonar.batch.RemoteServerMetadata;
 import org.sonar.batch.ServerMetadata;
 import org.sonar.batch.config.BatchDatabaseSettingsLoader;
 import org.sonar.batch.config.BatchSettings;
+import org.sonar.batch.local.LocalDatabase;
 import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.I18nManager;
 import org.sonar.core.i18n.RuleI18nManager;
@@ -77,11 +78,15 @@ public class BootstrapModule extends Module {
     Thread.currentThread().setContextClassLoader(bootstrapClassLoader);
 
     addCoreSingleton(RemoteServerMetadata.class);
+
+    // local mode
+    addCoreSingleton(LocalMode.class);
+    addCoreSingleton(LocalDatabase.class);
+
     // mybatis
     addCoreSingleton(BatchDatabase.class);
     addCoreSingleton(MyBatis.class);
     addCoreSingleton(DatabaseVersion.class);
-    addCoreSingleton(DatabaseBatchCompatibility.class);
     for (Class daoClass : DaoUtils.getDaoClasses()) {
       addCoreSingleton(daoClass);
     }
@@ -91,6 +96,7 @@ public class BootstrapModule extends Module {
     addCoreSingleton(ThreadLocalDatabaseSessionFactory.class);
     addAdapter(new DatabaseSessionProvider());
 
+    addCoreSingleton(DatabaseBatchCompatibility.class);
     for (Object component : boostrapperComponents) {
       addCoreSingleton(component);
     }

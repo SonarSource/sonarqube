@@ -43,11 +43,11 @@ class ActiveRule < ActiveRecord::Base
   def warning?
     Sonar::RulePriority::minor?(failure_level)
   end
-  
+
   def info?
-     Sonar::RulePriority::info?(failure_level)
+    Sonar::RulePriority::info?(failure_level)
   end
-  
+
   def minor?
     Sonar::RulePriority::minor?(failure_level)
   end
@@ -55,11 +55,11 @@ class ActiveRule < ActiveRecord::Base
   def major?
     Sonar::RulePriority::major?(failure_level)
   end
-  
+
   def critical?
     Sonar::RulePriority::critical?(failure_level)
   end
-  
+
   def blocker?
     Sonar::RulePriority::blocker?(failure_level)
   end
@@ -98,8 +98,8 @@ class ActiveRule < ActiveRecord::Base
     new_active_rule = ActiveRule.new(:rule => rule, :failure_level => failure_level)
     self.active_rule_parameters.each do |active_rule_parameter|
       new_active_rule.active_rule_parameters << active_rule_parameter.copy
-    end     
-    new_active_rule 
+    end
+    new_active_rule
   end
 
   def inherited?

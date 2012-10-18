@@ -94,11 +94,11 @@ class Rule < ActiveRecord::Base
 
   def description
     @l10n_description ||=
-        begin
-          result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getRuleDescription(I18n.locale, repository_key, plugin_rule_key)
-          result = read_attribute(:description) unless result
-          result
-        end
+      begin
+        result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getRuleDescription(I18n.locale, repository_key, plugin_rule_key)
+        result = read_attribute(:description) unless result
+        result
+      end
   end
 
   def description=(value)
@@ -139,7 +139,7 @@ class Rule < ActiveRecord::Base
 
   def self.manual_rules
     rules = Rule.find(:all, :conditions => ['enabled=? and plugin_name=?', true, MANUAL_REPOSITORY_KEY])
-    Api::Utils.insensitive_sort(rules) {|rule| rule.name}
+    Api::Utils.insensitive_sort(rules) { |rule| rule.name }
   end
 
   def self.manual_rule(id)
@@ -154,7 +154,7 @@ class Rule < ActiveRecord::Base
       rule = Rule.find(:first, :conditions => {:enabled => true, :plugin_name => MANUAL_REPOSITORY_KEY, :plugin_rule_key => key})
       if rule==nil && create_if_not_found
         description = options[:description] || Api::Utils.message('manual_rules.should_provide_real_description')
-        rule = Rule.create!(:enabled => true, :plugin_name => MANUAL_REPOSITORY_KEY, :plugin_rule_key => key, 
+        rule = Rule.create!(:enabled => true, :plugin_name => MANUAL_REPOSITORY_KEY, :plugin_rule_key => key,
                             :name => rule_id_or_name, :description => description)
       end
     end
@@ -166,23 +166,22 @@ class Rule < ActiveRecord::Base
     checksum = nil
     level = Sonar::RulePriority.id(options['severity']||Severity::MAJOR)
     RuleFailure.create!(
-        :snapshot => resource.last_snapshot,
-        :rule => self,
-        :failure_level => level,
-        :message => options['message'],
-        :cost => (options['cost'] ? options['cost'].to_f : nil),
-        :switched_off => false,
-        :line => line,
-        :checksum => checksum)
+      :snapshot => resource.last_snapshot,
+      :rule => self,
+      :failure_level => level,
+      :message => options['message'],
+      :cost => (options['cost'] ? options['cost'].to_f : nil),
+      :switched_off => false,
+      :line => line,
+      :checksum => checksum)
   end
 
 
-  def to_hash_json(profile)
+  def to_hash_json(profile, active_rule = nil)
     json = {'title' => name, 'key' => key, 'plugin' => plugin_name, 'config_key' => config_key}
     json['description'] = description if description
-    active_rule = nil
     if profile
-      active_rule = profile.active_by_rule_id(id)
+      active_rule = active_rule || profile.active_by_rule_id(id)
       if active_rule
         json['priority'] = active_rule.priority_text
         json['status'] = 'ACTIVE'
