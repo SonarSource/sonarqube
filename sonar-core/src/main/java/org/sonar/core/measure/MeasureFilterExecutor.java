@@ -23,6 +23,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.Database;
+import org.sonar.core.persistence.DatabaseUtils;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 
@@ -63,23 +64,11 @@ public class MeasureFilterExecutor implements ServerComponent {
     } finally {
       MyBatis.closeQuietly(session);
       // connection is supposed to be closed by the session
-      closeQuietly(connection);
+      DatabaseUtils.closeQuietly(connection);
     }
 
     return rows;
   }
-
-  private void closeQuietly(@Nullable Connection connection) {
-    if (connection != null) {
-      try {
-        connection.close();
-      } catch (SQLException e) {
-        LoggerFactory.getLogger(MeasureFilterExecutor.class).warn("Fail to close connection", e);
-        // ignore
-      }
-    }
-  }
-
 
   private void prepareContext(MeasureFilterContext context, MeasureFilter filter, SqlSession session) {
     if (filter.getBaseResourceKey() != null) {

@@ -19,6 +19,15 @@
  */
 package org.sonar.core.persistence;
 
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 /**
  * @since 2.13
  */
@@ -78,4 +87,37 @@ public final class DatabaseUtils {
     "user_roles",
     "widgets",
     "widget_properties"};
+
+  public static void closeQuietly(@Nullable Connection connection) {
+    if (connection != null) {
+      try {
+        connection.close();
+      } catch (SQLException e) {
+        LoggerFactory.getLogger(DatabaseUtils.class).warn("Fail to close connection", e);
+        // ignore
+      }
+    }
+  }
+
+  public static void closeQuietly(@Nullable Statement stmt) {
+    if (stmt != null) {
+      try {
+        stmt.close();
+      } catch (SQLException e) {
+        LoggerFactory.getLogger(DatabaseUtils.class).warn("Fail to close statement", e);
+        // ignore
+      }
+    }
+  }
+
+  public static void closeQuietly(@Nullable ResultSet rs) {
+    if (rs != null) {
+      try {
+        rs.close();
+      } catch (SQLException e) {
+        LoggerFactory.getLogger(DatabaseUtils.class).warn("Fail to close result set", e);
+        // ignore
+      }
+    }
+  }
 }
