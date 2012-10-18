@@ -9,7 +9,7 @@
 
     <% if !widget.java_definition.global && @dashboard.global %>
       <tr>
-        <td class="form-key-cell"><%= message('widget.resource_id') %> *</td>
+        <td class="form-key-cell"><%= message('widget.resource_id') %> <em class="mandatory">*</em></td>
         <td class="form-val-cell" id="row_resource">
           <%= resource_select_tag 'resource_id', {
               :resource_type_property => 'supportsGlobalDashboards',

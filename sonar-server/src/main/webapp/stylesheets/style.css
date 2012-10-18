@@ -96,6 +96,11 @@ em {
   font-weight: bold;
 }
 
+em.mandatory {
+  color: #990000;
+  font-style: italic;
+}
+
 a.external {
   background: url('../images/links/external.png') no-repeat 100% 0;
   padding: 0 16px 0 0;
@@ -2121,7 +2126,6 @@ table.nowrap td, td.nowrap, th.nowrap {
   color: #990000 !important;
 }
 
-
 .link-more {
   background-image: url('../images/bullet_arrow_down.png');
   background-repeat: no-repeat;
@@ -2368,11 +2372,6 @@ select.medium-width {
   padding: 5px 0 5px 140px;
 }
 
-.form-field label em {
-  color: #990000;
-  font-style: italic;
-}
-
 .form-field label {
   display: block;
   float: left;
@@ -2404,7 +2403,7 @@ select.medium-width {
   color: #777;
 }
 
-input[type=text], input[type=password]{
+input[type=text], input[type=password] {
   height: 18px;
   padding: 0 3px;
   color: #444;
