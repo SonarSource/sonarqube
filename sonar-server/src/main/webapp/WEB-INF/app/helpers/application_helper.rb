@@ -713,7 +713,12 @@ module ApplicationHelper
       select_tag_prompt=''
     end
 
-    metrics_by_domain=metrics.sort_by(&:short_name).inject({}) { |h, metric| h[metric.domain]||=[]; h[metric.domain]<<[metric.short_name, metric.key]; h }
+    metrics_by_domain=metrics.sort_by(&:short_name).inject({}) do |h, metric|
+      domain=metric.domain||''
+      h[domain]||=[]
+      h[domain]<<[metric.short_name, metric.key]
+      h
+    end
 
     html = select_tag(name, grouped_options_for_select(metrics_by_domain, options[:selected_key], select_tag_prompt),
                       :multiple => options[:multiple],
