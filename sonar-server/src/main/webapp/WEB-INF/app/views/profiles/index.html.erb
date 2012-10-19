@@ -15,7 +15,7 @@
 </div>
 
 <%
-   languages.sort { |x, y| x.getName() <=> y.getName() }.each do |language|
+   Api::Utils.insensitive_sort(languages){|l| l.getName()}.each do |language|
 %>
   <div class="line-block">
     <% if administrator? %>
