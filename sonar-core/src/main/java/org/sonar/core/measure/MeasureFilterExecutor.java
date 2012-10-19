@@ -20,14 +20,12 @@
 package org.sonar.core.measure;
 
 import org.apache.ibatis.session.SqlSession;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.DatabaseUtils;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 
-import javax.annotation.Nullable;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collections;
