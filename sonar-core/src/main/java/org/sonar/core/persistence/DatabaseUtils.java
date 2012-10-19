@@ -80,6 +80,7 @@ public final class DatabaseUtils {
     "rules_parameters",
     "rules_profiles",
     "rule_failures",
+    "semaphores",
     "schema_migrations",
     "snapshots",
     "snapshot_sources",

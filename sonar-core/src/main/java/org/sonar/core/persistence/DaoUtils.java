@@ -60,6 +60,7 @@ public final class DaoUtils {
       ReviewCommentDao.class,
       ReviewDao.class,
       RuleDao.class,
+      SemaphoreDao.class,
       UserDao.class);
   }
 }

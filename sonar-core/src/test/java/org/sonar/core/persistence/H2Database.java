@@ -73,13 +73,7 @@ public class H2Database implements Database {
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to create schema", e);
     } finally {
-      if (connection != null) {
-        try {
-          connection.close();
-        } catch (SQLException e) {
-          // ignore
-        }
-      }
+      DatabaseUtils.closeQuietly(connection);
     }
   }
 

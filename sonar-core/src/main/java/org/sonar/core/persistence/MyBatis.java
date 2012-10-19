@@ -116,7 +116,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     Class<?>[] mappers = {ActiveDashboardMapper.class, AuthorMapper.class, FilterMapper.class, CriterionMapper.class, FilterColumnMapper.class, DashboardMapper.class,
       DependencyMapper.class, DuplicationMapper.class, LoadedTemplateMapper.class, PropertiesMapper.class, PurgeMapper.class,
       ResourceKeyUpdaterMapper.class, ResourceIndexerMapper.class, ResourceMapper.class, ResourceSnapshotMapper.class, ReviewCommentMapper.class,
-      ReviewMapper.class, RoleMapper.class, RuleMapper.class, SchemaMigrationMapper.class, UserMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
+      ReviewMapper.class, RoleMapper.class, RuleMapper.class, SchemaMigrationMapper.class, SemaphoreMapper.class, UserMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
       MeasureMapper.class};
     loadMappers(conf, mappers);
     configureLogback(mappers);

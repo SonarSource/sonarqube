@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.core.persistence.SemaphoreMapper">
+
+  <insert id="initialize" parameterType="map" useGeneratedKeys="false">
+    INSERT INTO semaphores (name, created_at, updated_at, locked_at)
+    VALUES (#{name}, current_timestamp, current_timestamp, #{lockedAt})
+  </insert>
+
+  <select id="now" resultType="Date">
+    select current_timestamp
+  </select>
+
+  <update id="lock" parameterType="map">
+    update semaphores
+    set updated_at = current_timestamp, locked_at = current_timestamp
+    where name=#{name}
+    AND locked_at &lt; #{lockedBefore}
+  </update>
+
+  <delete id="unlock" parameterType="String">
+    delete from semaphores where name=#{id}
+  </delete>
+
+</mapper>
+
