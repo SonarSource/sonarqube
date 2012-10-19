@@ -17,19 +17,20 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.persistence;
+package org.sonar.api.utils;
 
-import org.apache.ibatis.annotations.Param;
+import org.sonar.api.BatchComponent;
+import org.sonar.api.ServerComponent;
 
-import java.util.Date;
+/**
+ * A semaphore shared among all the processes that can connect to the central database.
+ *
+ * @since 3.4
+ */
+public interface DatabaseSemaphore extends BatchComponent, ServerComponent {
 
-public interface SemaphoreMapper {
-
-  int initialize(@Param("name") String name, @Param("lockedAt") Date lockedAt);
-
-  int acquire(@Param("name") String name, @Param("lockedBefore") Date lockedBefore);
-
-  Date now();
+  boolean acquire(String name, int maxDurationInSeconds);
 
   void release(String name);
+
 }

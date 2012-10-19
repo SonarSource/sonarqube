@@ -37,34 +37,34 @@ public class SemaphoreDao {
     this.mybatis = mybatis;
   }
 
-  public boolean lock(String name, int durationInSeconds) {
+  public boolean acquire(String name, int maxDurationInSeconds) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "Semaphore name must not be empty");
-    Preconditions.checkArgument(durationInSeconds > 0, "Semaphore duration must be positive");
+    Preconditions.checkArgument(maxDurationInSeconds > 0, "Semaphore max duration must be positive");
 
     SqlSession session = mybatis.openSession();
     try {
       SemaphoreMapper mapper = session.getMapper(SemaphoreMapper.class);
       initialize(name, session, mapper);
-      return doLock(name, durationInSeconds, session, mapper);
+      return doAcquire(name, maxDurationInSeconds, session, mapper);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public void unlock(String name) {
+  public void release(String name) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "Semaphore name must not be empty");
     SqlSession session = mybatis.openSession();
     try {
-      session.getMapper(SemaphoreMapper.class).unlock(name);
+      session.getMapper(SemaphoreMapper.class).release(name);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  private boolean doLock(String name, int durationInSeconds, SqlSession session, SemaphoreMapper mapper) {
+  private boolean doAcquire(String name, int durationInSeconds, SqlSession session, SemaphoreMapper mapper) {
     Date lockedBefore = DateUtils.addSeconds(mapper.now(), -durationInSeconds);
-    boolean ok = mapper.lock(name, lockedBefore) == 1;
+    boolean ok = mapper.acquire(name, lockedBefore) == 1;
     session.commit();
     return ok;
   }

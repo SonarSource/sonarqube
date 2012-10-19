@@ -374,11 +374,12 @@ import java.util.List;
 public final class CorePlugin extends SonarPlugin {
 
   @SuppressWarnings("unchecked")
-  public List<Class<? extends Extension>> getExtensions() {
+  public List getExtensions() {
     return ImmutableList.of(
         DefaultResourceTypes.class,
         UserManagedMetrics.class,
         ProjectFileSystemLogger.class,
+        DatabaseSemaphoreImpl.class,
 
         // maven
         MavenInitializer.class,

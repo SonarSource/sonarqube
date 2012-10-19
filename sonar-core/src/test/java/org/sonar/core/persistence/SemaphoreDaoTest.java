@@ -36,9 +36,9 @@ import static org.fest.assertions.Assertions.assertThat;
 public class SemaphoreDaoTest extends AbstractDaoTestCase {
 
   @Test
-  public void create_and_lock_semaphore() throws Exception {
+  public void create_and_acquire_semaphore() throws Exception {
     SemaphoreDao dao = new SemaphoreDao(getMyBatis());
-    assertThat(dao.lock("foo", 60)).isTrue();
+    assertThat(dao.acquire("foo", 60)).isTrue();
 
     Semaphore semaphore = selectSemaphore("foo");
     assertThat(semaphore).isNotNull();
@@ -47,7 +47,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
     assertThat(isRecent(semaphore.updatedAt, 60)).isTrue();
     assertThat(isRecent(semaphore.lockedAt, 60)).isTrue();
 
-    dao.unlock("foo");
+    dao.release("foo");
     assertThat(selectSemaphore("foo")).isNull();
   }
 
@@ -55,7 +55,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   public void fail_to_acquire_locked_semaphore() throws Exception {
     setupData("old_semaphore");
     SemaphoreDao dao = new SemaphoreDao(getMyBatis());
-    assertThat(dao.lock("foo", Integer.MAX_VALUE)).isFalse();
+    assertThat(dao.acquire("foo", Integer.MAX_VALUE)).isFalse();
 
     Semaphore semaphore = selectSemaphore("foo");
     assertThat(semaphore).isNotNull();
@@ -69,7 +69,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   public void acquire_long_locked_semaphore() throws Exception {
     setupData("old_semaphore");
     SemaphoreDao dao = new SemaphoreDao(getMyBatis());
-    assertThat(dao.lock("foo", 60)).isTrue();
+    assertThat(dao.acquire("foo", 60)).isTrue();
 
     Semaphore semaphore = selectSemaphore("foo");
     assertThat(semaphore).isNotNull();
@@ -83,8 +83,8 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   public void test_concurrent_locks() throws Exception {
     SemaphoreDao dao = new SemaphoreDao(getMyBatis());
 
-    for (int tests = 0; tests < 5000; tests++) {
-      dao.unlock("my-lock");
+    for (int tests = 0; tests < 5; tests++) {
+      dao.release("my-lock");
       int size = 5;
       CyclicBarrier barrier = new CyclicBarrier(size);
       CountDownLatch latch = new CountDownLatch(size);
@@ -152,7 +152,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
       try {
         barrier.await();
         for (int i = 0; i < 100; i++) {
-          if (dao.lock("my-lock", 60 * 5)) {
+          if (dao.acquire("my-lock", 60 * 5)) {
             locks.incrementAndGet();
           }
         }

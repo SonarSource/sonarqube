@@ -17,19 +17,27 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.persistence;
+package org.sonar.plugins.core;
 
-import org.apache.ibatis.annotations.Param;
+import org.sonar.api.utils.DatabaseSemaphore;
+import org.sonar.core.persistence.SemaphoreDao;
 
-import java.util.Date;
+/**
+ * @since 3.4
+ */
+public class DatabaseSemaphoreImpl implements DatabaseSemaphore {
 
-public interface SemaphoreMapper {
+  private SemaphoreDao dao;
 
-  int initialize(@Param("name") String name, @Param("lockedAt") Date lockedAt);
+  public DatabaseSemaphoreImpl(SemaphoreDao dao) {
+    this.dao = dao;
+  }
 
-  int acquire(@Param("name") String name, @Param("lockedBefore") Date lockedBefore);
+  public boolean acquire(String name, int maxDurationInSeconds) {
+    return dao.acquire(name, maxDurationInSeconds);
+  }
 
-  Date now();
-
-  void release(String name);
+  public void release(String name) {
+    dao.release(name);
+  }
 }

@@ -12,14 +12,14 @@
     select current_timestamp
   </select>
 
-  <update id="lock" parameterType="map">
+  <update id="acquire" parameterType="map">
     update semaphores
     set updated_at = current_timestamp, locked_at = current_timestamp
     where name=#{name}
     AND locked_at &lt; #{lockedBefore}
   </update>
 
-  <delete id="unlock" parameterType="String">
+  <delete id="release" parameterType="String">
     delete from semaphores where name=#{id}
   </delete>
 

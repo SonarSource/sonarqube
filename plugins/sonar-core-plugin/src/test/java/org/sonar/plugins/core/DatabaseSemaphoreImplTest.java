@@ -17,19 +17,25 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.persistence;
+package org.sonar.plugins.core;
 
-import org.apache.ibatis.annotations.Param;
+import org.junit.Test;
+import org.sonar.core.persistence.SemaphoreDao;
 
-import java.util.Date;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
-public interface SemaphoreMapper {
+public class DatabaseSemaphoreImplTest {
 
-  int initialize(@Param("name") String name, @Param("lockedAt") Date lockedAt);
+  @Test
+  public void should_be_a_bridge_over_dao() {
+    SemaphoreDao dao = mock(SemaphoreDao.class);
+    DatabaseSemaphoreImpl impl = new DatabaseSemaphoreImpl(dao);
 
-  int acquire(@Param("name") String name, @Param("lockedBefore") Date lockedBefore);
+    impl.acquire("do-xxx", 50000);
+    verify(dao).acquire("do-xxx", 50000);
 
-  Date now();
-
-  void release(String name);
+    impl.release("do-xxx");
+    verify(dao).release("do-xxx");
+  }
 }
