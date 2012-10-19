@@ -23,9 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class AuthorDaoTest extends AbstractDaoTestCase {
 
@@ -41,11 +39,11 @@ public class AuthorDaoTest extends AbstractDaoTestCase {
     setupData("shouldSelectByLogin");
 
     AuthorDto authorDto = dao.selectByLogin("godin");
-    assertThat(authorDto.getId(), is(1L));
-    assertThat(authorDto.getPersonId(), is(13L));
-    assertThat(authorDto.getLogin(), is("godin"));
+    assertThat(authorDto.getId()).isEqualTo(1L);
+    assertThat(authorDto.getPersonId()).isEqualTo(13L);
+    assertThat(authorDto.getLogin()).isEqualTo("godin");
 
-    assertThat(dao.selectByLogin("simon"), is(nullValue()));
+    assertThat(dao.selectByLogin("simon")).isNull();
   }
 
   @Test
@@ -53,8 +51,8 @@ public class AuthorDaoTest extends AbstractDaoTestCase {
     setupData("shouldInsert");
 
     AuthorDto authorDto = new AuthorDto()
-        .setLogin("godin")
-        .setPersonId(13L);
+      .setLogin("godin")
+      .setPersonId(13L);
 
     dao.insert(authorDto);
 
@@ -65,7 +63,22 @@ public class AuthorDaoTest extends AbstractDaoTestCase {
   public void countDeveloperLogins() {
     setupData("countDeveloperLogins");
 
-    assertThat(dao.countDeveloperLogins(1L), is(2));
-    assertThat(dao.countDeveloperLogins(98765L), is(0));
+    assertThat(dao.countDeveloperLogins(1L)).isEqualTo(2);
+    assertThat(dao.countDeveloperLogins(98765L)).isEqualTo(0);
+  }
+
+  @Test
+  public void shouldPreventConcurrentInserts() {
+    setupData("shouldPreventConcurrentInserts");
+
+    // already exists in database with id 1
+    AuthorDto authorDto = new AuthorDto()
+      .setLogin("godin")
+      .setPersonId(13L);
+    dao.insert(authorDto);
+
+    checkTables("shouldPreventConcurrentInserts", new String[]{"created_at", "updated_at"}, "authors");
+    assertThat(authorDto.getId()).isEqualTo(1L);
+    assertThat(authorDto.getPersonId()).isEqualTo(100L);
   }
 }

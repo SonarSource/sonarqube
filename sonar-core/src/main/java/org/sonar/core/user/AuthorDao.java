@@ -66,6 +66,7 @@ public class AuthorDao implements BatchComponent, ServerComponent {
       AuthorDto persistedAuthor = mapper.selectByLogin(authorDto.getLogin());
       if (persistedAuthor != null) {
         authorDto.setId(persistedAuthor.getId());
+        authorDto.setPersonId(persistedAuthor.getPersonId());
       } else {
         throw e;
       }
