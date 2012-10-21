@@ -26,6 +26,7 @@ class CreateSemaphores < ActiveRecord::Migration
   def self.up
     create_table :semaphores do |t|
       t.string :name, :limit => 4000, :null => false
+      t.string :checksum, :limit => 200, :null => false
       t.datetime :locked_at
       t.timestamps
     end

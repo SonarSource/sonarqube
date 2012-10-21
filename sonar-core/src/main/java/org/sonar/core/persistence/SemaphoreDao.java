@@ -71,7 +71,10 @@ public class SemaphoreDao {
 
   private void initialize(String name, SqlSession session, SemaphoreMapper mapper) {
     try {
-      mapper.initialize(name, org.sonar.api.utils.DateUtils.parseDate("2001-01-01"));
+      SemaphoreDto semaphore = new SemaphoreDto()
+        .setName(name)
+        .setLockedAt(org.sonar.api.utils.DateUtils.parseDate("2001-01-01"));
+      mapper.initialize(semaphore);
       session.commit();
 
     } catch (Exception e) {

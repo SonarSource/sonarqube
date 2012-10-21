@@ -4,8 +4,8 @@
 <mapper namespace="org.sonar.core.persistence.SemaphoreMapper">
 
   <insert id="initialize" parameterType="map" useGeneratedKeys="false">
-    INSERT INTO semaphores (name, created_at, updated_at, locked_at)
-    VALUES (#{name}, current_timestamp, current_timestamp, #{lockedAt})
+    INSERT INTO semaphores (name, checksum, created_at, updated_at, locked_at)
+    VALUES (#{name}, #{checksum}, current_timestamp, current_timestamp, #{lockedAt})
   </insert>
 
   <select id="now" resultType="Date">

@@ -19,17 +19,34 @@
  */
 package org.sonar.core.persistence;
 
-import org.apache.ibatis.annotations.Param;
+import org.apache.commons.codec.digest.DigestUtils;
 
 import java.util.Date;
 
-public interface SemaphoreMapper {
+/**
+ * @since 3.4
+ */
+public class SemaphoreDto {
+  private String name;
+  private String checksum;
+  private Date lockedAt;
 
-  int initialize(SemaphoreDto semaphore);
+  public String getName() {
+    return name;
+  }
 
-  int acquire(@Param("name") String name, @Param("lockedBefore") Date lockedBefore);
+  public SemaphoreDto setName(String s) {
+    this.name = s;
+    this.checksum = DigestUtils.md5Hex(s);
+    return this;
+  }
 
-  Date now();
+  public Date getLockedAt() {
+    return lockedAt;
+  }
 
-  void release(String name);
+  public SemaphoreDto setLockedAt(Date d) {
+    this.lockedAt = d;
+    return this;
+  }
 }
