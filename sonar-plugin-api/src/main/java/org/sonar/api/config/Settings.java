@@ -156,6 +156,30 @@ public class Settings implements BatchComponent, ServerComponent {
     return null;
   }
 
+  public final Float getFloat(String key) {
+    String value = getString(key);
+    if (StringUtils.isNotEmpty(value)) {
+      try {
+        return Float.valueOf(value);
+      } catch (NumberFormatException e) {
+        throw new IllegalStateException(String.format("The property '%s' is not a float value", key));
+      }
+    }
+    return null;
+  }
+
+  public final Double getDouble(String key) {
+    String value = getString(key);
+    if (StringUtils.isNotEmpty(value)) {
+      try {
+        return Double.valueOf(value);
+      } catch (NumberFormatException e) {
+        throw new IllegalStateException(String.format("The property '%s' is not a double value", key));
+      }
+    }
+    return null;
+  }
+
   /**
    * Value is split by comma and trimmed.
    * <p/>
@@ -272,19 +296,23 @@ public class Settings implements BatchComponent, ServerComponent {
   }
 
   public final Settings setProperty(String key, @Nullable Boolean value) {
-    return setProperty(key, String.valueOf(value));
+    return setProperty(key, value==null ? null : String.valueOf(value));
   }
 
   public final Settings setProperty(String key, @Nullable Integer value) {
-    return setProperty(key, String.valueOf(value));
+    return setProperty(key, value==null ? null : String.valueOf(value));
   }
 
   public final Settings setProperty(String key, @Nullable Long value) {
-    return setProperty(key, String.valueOf(value));
+    return setProperty(key, value==null ? null : String.valueOf(value));
   }
 
   public final Settings setProperty(String key, @Nullable Double value) {
-    return setProperty(key, String.valueOf(value));
+    return setProperty(key, value==null ? null : String.valueOf(value));
+  }
+
+  public final Settings setProperty(String key, @Nullable Float value) {
+    return setProperty(key, value==null ? null : String.valueOf(value));
   }
 
   public final Settings setProperty(String key, @Nullable Date date) {

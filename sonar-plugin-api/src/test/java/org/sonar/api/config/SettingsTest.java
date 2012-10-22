@@ -20,6 +20,7 @@
 package org.sonar.api.config;
 
 import com.google.common.collect.ImmutableMap;
+import org.fest.assertions.Delta;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -150,56 +151,110 @@ public class SettingsTest {
   }
 
   @Test
+  public void testGetDouble() {
+    Settings settings = new Settings();
+    settings.setProperty("from_double", 3.14159);
+    settings.setProperty("from_string", "3.14159");
+    assertThat(settings.getDouble("from_double")).isEqualTo(3.14159, Delta.delta(0.00001));
+    assertThat(settings.getDouble("from_string")).isEqualTo(3.14159, Delta.delta(0.00001));
+    assertThat(settings.getDouble("unknown")).isNull();
+  }
+
+  @Test
+  public void testGetFloat() {
+    Settings settings = new Settings();
+    settings.setProperty("from_float", 3.14159f);
+    settings.setProperty("from_string", "3.14159");
+    assertThat(settings.getDouble("from_float")).isEqualTo(3.14159f, Delta.delta(0.00001));
+    assertThat(settings.getDouble("from_string")).isEqualTo(3.14159f, Delta.delta(0.00001));
+    assertThat(settings.getDouble("unknown")).isNull();
+  }
+
+  @Test
+  public void testGetBadFloat() {
+    Settings settings = new Settings();
+    settings.setProperty("foo", "bar");
+
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("The property 'foo' is not a float value");
+    settings.getFloat("foo");
+  }
+
+  @Test
+  public void testGetBadDouble() {
+    Settings settings = new Settings();
+    settings.setProperty("foo", "bar");
+
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("The property 'foo' is not a double value");
+    settings.getDouble("foo");
+  }
+
+  @Test
+  public void testSetNullFloat() {
+    Settings settings = new Settings();
+    settings.setProperty("foo", (Float) null);
+    assertThat(settings.getFloat("foo")).isNull();
+  }
+
+  @Test
+  public void testSetNullDouble() {
+    Settings settings = new Settings();
+    settings.setProperty("foo", (Double) null);
+    assertThat(settings.getDouble("foo")).isNull();
+  }
+
+  @Test
   public void getStringArray() {
     Settings settings = new Settings(definitions);
     String[] array = settings.getStringArray("array");
-    assertThat(array).isEqualTo(new String[] {"one", "two", "three"});
+    assertThat(array).isEqualTo(new String[]{"one", "two", "three"});
   }
 
   @Test
   public void setStringArray() {
     Settings settings = new Settings(definitions);
-    settings.setProperty("multi_values", new String[] {"A", "B"});
+    settings.setProperty("multi_values", new String[]{"A", "B"});
     String[] array = settings.getStringArray("multi_values");
-    assertThat(array).isEqualTo(new String[] {"A", "B"});
+    assertThat(array).isEqualTo(new String[]{"A", "B"});
   }
 
   @Test
   public void setStringArrayTrimValues() {
     Settings settings = new Settings(definitions);
-    settings.setProperty("multi_values", new String[] {" A ", " B "});
+    settings.setProperty("multi_values", new String[]{" A ", " B "});
     String[] array = settings.getStringArray("multi_values");
-    assertThat(array).isEqualTo(new String[] {"A", "B"});
+    assertThat(array).isEqualTo(new String[]{"A", "B"});
   }
 
   @Test
   public void setStringArrayEscapeCommas() {
     Settings settings = new Settings(definitions);
-    settings.setProperty("multi_values", new String[] {"A,B", "C,D"});
+    settings.setProperty("multi_values", new String[]{"A,B", "C,D"});
     String[] array = settings.getStringArray("multi_values");
-    assertThat(array).isEqualTo(new String[] {"A,B", "C,D"});
+    assertThat(array).isEqualTo(new String[]{"A,B", "C,D"});
   }
 
   @Test
   public void setStringArrayWithEmptyValues() {
     Settings settings = new Settings(definitions);
-    settings.setProperty("multi_values", new String[] {"A,B", "", "C,D"});
+    settings.setProperty("multi_values", new String[]{"A,B", "", "C,D"});
     String[] array = settings.getStringArray("multi_values");
-    assertThat(array).isEqualTo(new String[] {"A,B", "", "C,D"});
+    assertThat(array).isEqualTo(new String[]{"A,B", "", "C,D"});
   }
 
   @Test
   public void setStringArrayWithNullValues() {
     Settings settings = new Settings(definitions);
-    settings.setProperty("multi_values", new String[] {"A,B", null, "C,D"});
+    settings.setProperty("multi_values", new String[]{"A,B", null, "C,D"});
     String[] array = settings.getStringArray("multi_values");
-    assertThat(array).isEqualTo(new String[] {"A,B", "", "C,D"});
+    assertThat(array).isEqualTo(new String[]{"A,B", "", "C,D"});
   }
 
   @Test(expected = IllegalStateException.class)
   public void shouldFailToSetArrayValueOnSingleValueProperty() {
     Settings settings = new Settings(definitions);
-    settings.setProperty("array", new String[] {"A", "B", "C"});
+    settings.setProperty("array", new String[]{"A", "B", "C"});
   }
 
   @Test
@@ -214,7 +269,7 @@ public class SettingsTest {
     Settings settings = new Settings();
     settings.setProperty("foo", "  one,  two, three  ");
     String[] array = settings.getStringArray("foo");
-    assertThat(array).isEqualTo(new String[] {"one", "two", "three"});
+    assertThat(array).isEqualTo(new String[]{"one", "two", "three"});
   }
 
   @Test
@@ -222,7 +277,7 @@ public class SettingsTest {
     Settings settings = new Settings();
     settings.setProperty("foo", "  one,  , two");
     String[] array = settings.getStringArray("foo");
-    assertThat(array).isEqualTo(new String[] {"one", "", "two"});
+    assertThat(array).isEqualTo(new String[]{"one", "", "two"});
   }
 
   @Test
@@ -280,34 +335,34 @@ public class SettingsTest {
   public void getStringLines_single_line() {
     Settings settings = new Settings();
     settings.setProperty("foo", "the line");
-    assertThat(settings.getStringLines("foo")).isEqualTo(new String[] {"the line"});
+    assertThat(settings.getStringLines("foo")).isEqualTo(new String[]{"the line"});
   }
 
   @Test
   public void getStringLines_linux() {
     Settings settings = new Settings();
     settings.setProperty("foo", "one\ntwo");
-    assertThat(settings.getStringLines("foo")).isEqualTo(new String[] {"one", "two"});
+    assertThat(settings.getStringLines("foo")).isEqualTo(new String[]{"one", "two"});
 
     settings.setProperty("foo", "one\ntwo\n");
-    assertThat(settings.getStringLines("foo")).isEqualTo(new String[] {"one", "two"});
+    assertThat(settings.getStringLines("foo")).isEqualTo(new String[]{"one", "two"});
   }
 
   @Test
   public void getStringLines_windows() {
     Settings settings = new Settings();
     settings.setProperty("foo", "one\r\ntwo");
-    assertThat(settings.getStringLines("foo")).isEqualTo(new String[] {"one", "two"});
+    assertThat(settings.getStringLines("foo")).isEqualTo(new String[]{"one", "two"});
 
     settings.setProperty("foo", "one\r\ntwo\r\n");
-    assertThat(settings.getStringLines("foo")).isEqualTo(new String[] {"one", "two"});
+    assertThat(settings.getStringLines("foo")).isEqualTo(new String[]{"one", "two"});
   }
 
   @Test
   public void getStringLines_mix() {
     Settings settings = new Settings();
     settings.setProperty("foo", "one\r\ntwo\nthree");
-    assertThat(settings.getStringLines("foo")).isEqualTo(new String[] {"one", "two", "three"});
+    assertThat(settings.getStringLines("foo")).isEqualTo(new String[]{"one", "two", "three"});
   }
 
   @Test
