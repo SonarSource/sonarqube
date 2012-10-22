@@ -24,13 +24,20 @@
 class CreateSemaphores < ActiveRecord::Migration
 
   def self.up
+
+    # MySQL does not manage unique indexes on columns with more than 767 characters
+    # A letter can be encoded with up to 3 characters (it depends on the db charset),
+    # so unique indexes are allowed only on columns with less than 767/3=255 characters.
+    # For this reason the checksum of semaphore name is computed and declared as unique.
+    # There are no constraints on the semaphore name itself.
     create_table :semaphores do |t|
       t.string :name, :limit => 4000, :null => false
       t.string :checksum, :limit => 200, :null => false
       t.datetime :locked_at
       t.timestamps
     end
-    add_index :semaphores, :name, :unique => true, :name => 'uniq_semaphore_names'
+    add_index :semaphores, :checksum, :unique => true, :name => 'uniq_semaphore_checksums'
+    add_index :semaphores, :name, :name => 'semaphore_names'
   end
 
 end
