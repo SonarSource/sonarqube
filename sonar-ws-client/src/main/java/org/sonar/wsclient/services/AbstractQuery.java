@@ -24,7 +24,7 @@ import java.util.Date;
 /**
  * @since 2.2
  */
-public abstract class AbstractQuery<MODEL extends Model> {
+public abstract class AbstractQuery<M extends Model> {
 
   /**
    * Default timeout for waiting data, in milliseconds.
@@ -72,7 +72,7 @@ public abstract class AbstractQuery<MODEL extends Model> {
    *
    * @since 2.10
    */
-  public final AbstractQuery<MODEL> setTimeoutMilliseconds(int i) {
+  public final AbstractQuery<M> setTimeoutMilliseconds(int i) {
     this.timeoutMilliseconds = (i < 0 ? 0 : i);
     return this;
   }
@@ -91,7 +91,7 @@ public abstract class AbstractQuery<MODEL extends Model> {
    *
    * @since 2.10
    */
-  public final AbstractQuery<MODEL> setLocale(String locale) {
+  public final AbstractQuery<M> setLocale(String locale) {
     this.locale = locale;
     return this;
   }

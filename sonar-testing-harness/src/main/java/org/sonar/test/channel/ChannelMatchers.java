@@ -26,12 +26,12 @@ public final class ChannelMatchers {
   private ChannelMatchers() {
   }
 
-  public static <OUTPUT> ChannelMatcher<OUTPUT> consume(String sourceCode, OUTPUT output) {
-    return new ChannelMatcher<OUTPUT>(sourceCode, output);
+  public static <O> ChannelMatcher<O> consume(String sourceCode, O output) {
+    return new ChannelMatcher<O>(sourceCode, output);
   }
 
-  public static <OUTPUT> ChannelMatcher<OUTPUT> consume(CodeReader codeReader, OUTPUT output) {
-    return new ChannelMatcher<OUTPUT>(codeReader, output);
+  public static <O> ChannelMatcher<O> consume(CodeReader codeReader, O output) {
+    return new ChannelMatcher<O>(codeReader, output);
   }
 
   public static ReaderHasNextCharMatcher hasNextChar(char nextChar) {

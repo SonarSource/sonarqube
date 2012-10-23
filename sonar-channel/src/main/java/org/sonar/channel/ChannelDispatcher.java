@@ -27,12 +27,12 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ChannelDispatcher<OUTPUT> extends Channel<OUTPUT> {
+public class ChannelDispatcher<O> extends Channel<O> {
 
   private static final Logger LOG = LoggerFactory.getLogger(ChannelDispatcher.class);
   private final boolean failIfNoChannelToConsumeOneCharacter;
 
-  private final Channel<OUTPUT>[] channels;
+  private final Channel<O>[] channels;
 
   /**
    * @deprecated in version 2.9. Please use the builder() method
@@ -68,11 +68,11 @@ public class ChannelDispatcher<OUTPUT> extends Channel<OUTPUT> {
   }
 
   @Override
-  public boolean consume(CodeReader code, OUTPUT output) {
+  public boolean consume(CodeReader code, O output) {
     int nextChar = code.peek();
     while (nextChar != -1) {
       boolean characterConsumed = false;
-      for (Channel<OUTPUT> channel : channels) {
+      for (Channel<O> channel : channels) {
         if (channel.consume(code, output)) {
           characterConsumed = true;
           break;

@@ -22,8 +22,8 @@ package org.sonar.wsclient.services;
 /**
  * @since 2.1
  */
-public abstract class Query<MODEL extends Model> extends AbstractQuery<MODEL> {
+public abstract class Query<M extends Model> extends AbstractQuery<M> {
 
-  public abstract Class<MODEL> getModelClass();
+  public abstract Class<M> getModelClass();
 
 }

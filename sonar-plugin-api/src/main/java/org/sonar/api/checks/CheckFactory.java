@@ -29,10 +29,10 @@ import java.util.Map;
 /**
  * @since 2.3
  */
-public abstract class CheckFactory<CHECK> {
+public abstract class CheckFactory<C> {
   
-  private Map<ActiveRule, CHECK> checkByActiveRule = Maps.newIdentityHashMap();
-  private Map<CHECK, ActiveRule> activeRuleByCheck = Maps.newIdentityHashMap();
+  private Map<ActiveRule, C> checkByActiveRule = Maps.newIdentityHashMap();
+  private Map<C, ActiveRule> activeRuleByCheck = Maps.newIdentityHashMap();
   private RulesProfile profile;
   private String repositoryKey;
 
@@ -45,27 +45,27 @@ public abstract class CheckFactory<CHECK> {
     checkByActiveRule.clear();
     activeRuleByCheck.clear();
     for (ActiveRule activeRule : profile.getActiveRulesByRepository(repositoryKey)) {
-      CHECK check = createCheck(activeRule);
+      C check = createCheck(activeRule);
       checkByActiveRule.put(activeRule, check);
       activeRuleByCheck.put(check, activeRule);
     }
   }
 
-  abstract CHECK createCheck(ActiveRule activeRule);
+  abstract C createCheck(ActiveRule activeRule);
 
   public final String getRepositoryKey() {
     return repositoryKey;
   }
 
-  public final Collection<CHECK> getChecks() {
+  public final Collection<C> getChecks() {
     return checkByActiveRule.values();
   }
 
-  public final CHECK getCheck(ActiveRule activeRule) {
+  public final C getCheck(ActiveRule activeRule) {
     return checkByActiveRule.get(activeRule);
   }
 
-  public final ActiveRule getActiveRule(CHECK check) {
+  public final ActiveRule getActiveRule(C check) {
     return activeRuleByCheck.get(check);
   }
 }

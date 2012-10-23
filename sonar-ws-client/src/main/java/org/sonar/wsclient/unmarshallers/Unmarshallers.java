@@ -70,7 +70,7 @@ public final class Unmarshallers {
     unmarshallers.put(Authentication.class, new AuthenticationUnmarshaller());
   }
 
-  public static <MODEL extends Model> Unmarshaller<MODEL> forModel(Class<MODEL> modelClass) {
+  public static <M extends Model> Unmarshaller<M> forModel(Class<M> modelClass) {
     return unmarshallers.get(modelClass);
   }
 }

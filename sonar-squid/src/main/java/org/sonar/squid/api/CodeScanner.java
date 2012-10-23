@@ -24,17 +24,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public abstract class CodeScanner<VISITOR extends CodeVisitor> {
+public abstract class CodeScanner<V extends CodeVisitor> {
 
   private List<CodeVisitor> visitors = new ArrayList<CodeVisitor>();
 
-  public abstract Collection<Class<? extends VISITOR>> getVisitorClasses();
+  public abstract Collection<Class<? extends V>> getVisitorClasses();
 
   public void accept(CodeVisitor visitor) {
     visitors.add(visitor);
   }
 
-  public List<VISITOR> getVisitors() {
-    return (List<VISITOR>) visitors;
+  public List<V> getVisitors() {
+    return (List<V>) visitors;
   }
 }

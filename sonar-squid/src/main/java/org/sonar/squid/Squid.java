@@ -74,12 +74,12 @@ public class Squid implements DirectedGraphAccessor<SourceCode, SourceCodeEdge>,
     externalCodeVisitors.add(pico.getComponent(visitor));
   }
 
-  public <SCANNER extends CodeScanner> SCANNER register(Class<SCANNER> scannerClass) {
+  public <S extends CodeScanner> S register(Class<S> scannerClass) {
     if(pico.getComponent(scannerClass) != null){
       throw new IllegalStateException("The Squid SCANNER '" + scannerClass.getName() + "' can't be registered multiple times.");
     }
     addToPicocontainer(scannerClass);
-    SCANNER scanner = pico.getComponent(scannerClass);
+    S scanner = pico.getComponent(scannerClass);
     for (Object clazz : scanner.getVisitorClasses()) {
       addToPicocontainer((Class) clazz);
       scanner.accept(pico.<CodeVisitor> getComponent((Class) clazz));

@@ -27,30 +27,30 @@ import java.util.TreeMap;
 /**
  * @since 1.10
  */
-public class PropertiesBuilder<KEY, VALUE> {
+public class PropertiesBuilder<K, V> {
   private Metric metric;
-  private Map<KEY, VALUE> props;
+  private Map<K, V> props;
 
-  public PropertiesBuilder(Metric metric, Map<KEY, VALUE> map) {
-    this.props = new TreeMap<KEY, VALUE>(map);
+  public PropertiesBuilder(Metric metric, Map<K, V> map) {
+    this.props = new TreeMap<K, V>(map);
     this.metric = metric;
   }
 
   public PropertiesBuilder(Metric metric) {
-    this.props = new TreeMap<KEY, VALUE>();
+    this.props = new TreeMap<K, V>();
     this.metric = metric;
   }
 
   public PropertiesBuilder() {
-    this.props = new TreeMap<KEY, VALUE>();
+    this.props = new TreeMap<K, V>();
   }
 
-  public PropertiesBuilder<KEY, VALUE> clear() {
+  public PropertiesBuilder<K, V> clear() {
     this.props.clear();
     return this;
   }
 
-  public Map<KEY, VALUE> getProps() {
+  public Map<K, V> getProps() {
     return props;
   }
 
@@ -58,17 +58,17 @@ public class PropertiesBuilder<KEY, VALUE> {
     return metric;
   }
 
-  public PropertiesBuilder<KEY, VALUE> setMetric(Metric metric) {
+  public PropertiesBuilder<K, V> setMetric(Metric metric) {
     this.metric = metric;
     return this;
   }
 
-  public PropertiesBuilder<KEY, VALUE> add(KEY key, VALUE value) {
+  public PropertiesBuilder<K, V> add(K key, V value) {
     props.put(key, value);
     return this;
   }
 
-  public PropertiesBuilder<KEY, VALUE> addAll(Map<KEY, VALUE> map) {
+  public PropertiesBuilder<K, V> addAll(Map<K, V> map) {
     props.putAll(map);
     return this;
   }

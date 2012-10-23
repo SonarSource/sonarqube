@@ -27,10 +27,10 @@ import java.io.Reader;
  * declared for the CodeReader.
  * 
  */
-public final class ChannelCodeReaderFilter<OUTPUT> extends CodeReaderFilter<OUTPUT> {
+public final class ChannelCodeReaderFilter<O> extends CodeReaderFilter<O> {
 
   @SuppressWarnings("unchecked")
-  private Channel<OUTPUT>[] channels = new Channel[0];
+  private Channel<O>[] channels = new Channel[0];
 
   private CodeReader internalCodeReader;
 
@@ -40,7 +40,7 @@ public final class ChannelCodeReaderFilter<OUTPUT> extends CodeReaderFilter<OUTP
    * @param channels
    *          the different channels
    */
-  public ChannelCodeReaderFilter(Channel<OUTPUT>... channels) {
+  public ChannelCodeReaderFilter(Channel<O>... channels) {
     super();
     this.channels = channels;
   }
@@ -54,7 +54,7 @@ public final class ChannelCodeReaderFilter<OUTPUT> extends CodeReaderFilter<OUTP
    * @param channels
    *          the different channels
    */
-  public ChannelCodeReaderFilter(OUTPUT output, Channel<OUTPUT>... channels) {
+  public ChannelCodeReaderFilter(O output, Channel<O>... channels) {
     super(output);
     this.channels = channels;
   }
@@ -82,7 +82,7 @@ public final class ChannelCodeReaderFilter<OUTPUT> extends CodeReaderFilter<OUTP
         break;
       }
       boolean consumed = false;
-      for (Channel<OUTPUT> channel : channels) {
+      for (Channel<O> channel : channels) {
         if (channel.consume(internalCodeReader, getOutput())) {
           consumed = true;
           break;

@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 /**
  * The RegexChannel can be used to be called each time the next characters in the character stream match a regular expression
  */
-public abstract class RegexChannel<OUTPUT> extends Channel<OUTPUT> {
+public abstract class RegexChannel<O> extends Channel<O> {
 
   private final StringBuilder tmpBuilder = new StringBuilder();
   private final Matcher matcher;
@@ -41,7 +41,7 @@ public abstract class RegexChannel<OUTPUT> extends Channel<OUTPUT> {
   }
 
   @Override
-  public final boolean consume(CodeReader code, OUTPUT output) {
+  public final boolean consume(CodeReader code, O output) {
     if (code.popTo(matcher, tmpBuilder) > 0) {
       consume(tmpBuilder, output);
       tmpBuilder.delete(0, tmpBuilder.length());
@@ -59,6 +59,6 @@ public abstract class RegexChannel<OUTPUT> extends Channel<OUTPUT> {
    * @param the
    *          OUPUT object which can be optionally fed
    */
-  protected abstract void consume(CharSequence token, OUTPUT output);
+  protected abstract void consume(CharSequence token, O output);
 
 }

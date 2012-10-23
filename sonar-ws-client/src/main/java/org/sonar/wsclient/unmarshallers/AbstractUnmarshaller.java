@@ -25,11 +25,11 @@ import org.sonar.wsclient.services.WSUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractUnmarshaller<MODEL extends Model> implements Unmarshaller<MODEL> {
+public abstract class AbstractUnmarshaller<M extends Model> implements Unmarshaller<M> {
 
-  public final MODEL toModel(String json) {
+  public final M toModel(String json) {
     WSUtils utils = WSUtils.getINSTANCE();
-    MODEL result = null;
+    M result = null;
     Object array = utils.parse(json);
     if (utils.getArraySize(array) >= 1) {
       Object elt = utils.getArrayElement(array, 0);
@@ -41,9 +41,9 @@ public abstract class AbstractUnmarshaller<MODEL extends Model> implements Unmar
 
   }
 
-  public final List<MODEL> toModels(String json) {
+  public final List<M> toModels(String json) {
     WSUtils utils = WSUtils.getINSTANCE();
-    List<MODEL> result = new ArrayList<MODEL>();
+    List<M> result = new ArrayList<M>();
     Object array = utils.parse(json);
     for (int i = 0; i < utils.getArraySize(array); i++) {
       Object elt = utils.getArrayElement(array, i);
@@ -54,5 +54,5 @@ public abstract class AbstractUnmarshaller<MODEL extends Model> implements Unmar
     return result;
   }
 
-  protected abstract MODEL parse(Object elt);
+  protected abstract M parse(Object elt);
 }

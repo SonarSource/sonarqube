@@ -45,12 +45,12 @@ public class Sonar {
     return connector;
   }
 
-  public <MODEL extends Model> MODEL find(Query<MODEL> query) {
+  public <M extends Model> M find(Query<M> query) {
     String json = connector.execute(query);
-    MODEL result = null;
+    M result = null;
     if (json != null) {
       try {
-        Unmarshaller<MODEL> unmarshaller = Unmarshallers.forModel(query.getModelClass());
+        Unmarshaller<M> unmarshaller = Unmarshallers.forModel(query.getModelClass());
         result = unmarshaller.toModel(json);
       } catch (Exception e) {
         throw new UnmarshalException(query, json, e);
@@ -59,14 +59,14 @@ public class Sonar {
     return result;
   }
 
-  public <MODEL extends Model> List<MODEL> findAll(Query<MODEL> query) {
+  public <M extends Model> List<M> findAll(Query<M> query) {
     String json = connector.execute(query);
-    List<MODEL> result;
+    List<M> result;
     if (json == null) {
       result = Collections.emptyList();
     } else {
       try {
-        Unmarshaller<MODEL> unmarshaller = Unmarshallers.forModel(query.getModelClass());
+        Unmarshaller<M> unmarshaller = Unmarshallers.forModel(query.getModelClass());
         result = unmarshaller.toModels(json);
       } catch (Exception e) {
         throw new UnmarshalException(query, json, e);
@@ -75,12 +75,12 @@ public class Sonar {
     return result;
   }
 
-  public <MODEL extends Model> MODEL create(CreateQuery<MODEL> query) {
+  public <M extends Model> M create(CreateQuery<M> query) {
     String json = connector.execute(query);
-    MODEL result = null;
+    M result = null;
     if (json != null) {
       try {
-        Unmarshaller<MODEL> unmarshaller = Unmarshallers.forModel(query.getModelClass());
+        Unmarshaller<M> unmarshaller = Unmarshallers.forModel(query.getModelClass());
         result = unmarshaller.toModel(json);
       } catch (Exception e) {
         throw new UnmarshalException(query, json, e);

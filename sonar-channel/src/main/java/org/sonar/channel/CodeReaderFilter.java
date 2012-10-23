@@ -33,18 +33,18 @@ import java.io.Reader;
  * @see CodeBufferTest#testSeveralCodeReaderFilter()
  * 
  */
-public abstract class CodeReaderFilter<OUTPUT> {
+public abstract class CodeReaderFilter<O> {
 
   private Reader reader;
 
-  private OUTPUT output;
+  private O output;
 
   private CodeReaderConfiguration configuration;
 
   public CodeReaderFilter() {
   }
 
-  public CodeReaderFilter(OUTPUT output) {
+  public CodeReaderFilter(O output) {
     this.output = output;
   }
 
@@ -72,7 +72,7 @@ public abstract class CodeReaderFilter<OUTPUT> {
    * 
    * @return the output
    */
-  public OUTPUT getOutput() {
+  public O getOutput() {
     return output;
   }
 
@@ -82,7 +82,7 @@ public abstract class CodeReaderFilter<OUTPUT> {
    * @param output
    *          the output to set
    */
-  public void setOutput(OUTPUT output) {
+  public void setOutput(O output) {
     this.output = output;
   }
 

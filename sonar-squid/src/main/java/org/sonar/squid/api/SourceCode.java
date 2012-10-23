@@ -203,20 +203,20 @@ public abstract class SourceCode implements Measurable, Comparable<SourceCode> {
     return this;
   }
 
-  public <SOURCECODE extends SourceCode> SOURCECODE getParent(Class<SOURCECODE> sourceCode) {
+  public <S extends SourceCode> S getParent(Class<S> sourceCode) {
     if (parent == null) {
       return null;
     }
     if (parent.getClass().equals(sourceCode)) {
-      return (SOURCECODE) parent;
+      return (S) parent;
     }
     return parent.getParent(sourceCode);
   }
 
-  public <SOURCECODE extends SourceCode> SOURCECODE getAncestor(Class<SOURCECODE> withClass) {
-    SOURCECODE ancestor = getParent(withClass);
+  public <S extends SourceCode> S getAncestor(Class<S> withClass) {
+    S ancestor = getParent(withClass);
     if (ancestor!=null) {
-      SOURCECODE parentAncestor = ancestor.getAncestor(withClass);
+      S parentAncestor = ancestor.getAncestor(withClass);
       if (parentAncestor!=null) {
         ancestor = parentAncestor;
       }

@@ -326,11 +326,11 @@ public final class KeyValueFormat {
    * @deprecated since 2.7
    */
   @Deprecated
-  public static <KEY, VALUE> Map<KEY, VALUE> parse(String data, Transformer<KEY, VALUE> transformer) {
+  public static <K, V> Map<K, V> parse(String data, Transformer<K, V> transformer) {
     Map<String, String> rawData = parse(data);
-    Map<KEY, VALUE> map = new HashMap<KEY, VALUE>();
+    Map<K, V> map = new HashMap<K, V>();
     for (Map.Entry<String, String> entry : rawData.entrySet()) {
-      KeyValue<KEY, VALUE> keyVal = transformer.transform(entry.getKey(), entry.getValue());
+      KeyValue<K, V> keyVal = transformer.transform(entry.getKey(), entry.getValue());
       if (keyVal != null) {
         map.put(keyVal.getKey(), keyVal.getValue());
       }

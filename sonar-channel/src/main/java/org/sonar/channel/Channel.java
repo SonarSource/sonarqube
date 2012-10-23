@@ -19,7 +19,7 @@
  */
 package org.sonar.channel;
 
-public abstract class Channel<OUTPUT> {
+public abstract class Channel<O> {
 
   /**
    * Tries to consume the character stream at the current reading cursor position (provided by the {@link org.sonar.channel.CodeReader}). If
@@ -31,5 +31,5 @@ public abstract class Channel<OUTPUT> {
    *          the OUTPUT that can be optionally fed by the Channel
    * @return false if the Channel doesn't want to consume the character stream, true otherwise.
    */
-  public abstract boolean consume(CodeReader code, OUTPUT output);
+  public abstract boolean consume(CodeReader code, O output);
 }
