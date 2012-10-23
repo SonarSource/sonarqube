@@ -24,15 +24,15 @@ package org.sonar.api.utils;
  *
  * @since 1.10
  */
-public class KeyValue<KEY, VALUE> {
+public class KeyValue<K, V> {
 
-  private KEY key;
-  private VALUE value;
+  private K key;
+  private V value;
 
   /**
    * Creates a key / value object
    */
-  public KeyValue(KEY key, VALUE value) {
+  public KeyValue(K key, V value) {
     super();
     this.key = key;
     this.value = value;
@@ -41,7 +41,7 @@ public class KeyValue<KEY, VALUE> {
   /**
    * @return the key of the couple
    */
-  public KEY getKey() {
+  public K getKey() {
     return key;
   }
 
@@ -50,7 +50,7 @@ public class KeyValue<KEY, VALUE> {
    *
    * @param key the key
    */
-  public void setKey(KEY key) {
+  public void setKey(K key) {
     this.key = key;
   }
 
@@ -58,14 +58,14 @@ public class KeyValue<KEY, VALUE> {
    *
    * @return the value of the couple
    */
-  public VALUE getValue() {
+  public V getValue() {
     return value;
   }
 
   /**
    * Sets the value of the couple
    */
-  public void setValue(VALUE value) {
+  public void setValue(V value) {
     this.value = value;
   }
 

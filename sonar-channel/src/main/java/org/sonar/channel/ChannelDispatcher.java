@@ -133,8 +133,8 @@ public class ChannelDispatcher<O> extends Channel<O> {
       return this;
     }
 
-    public <OUTPUT> ChannelDispatcher<OUTPUT> build() {
-      return new ChannelDispatcher<OUTPUT>(this);
+    public <O> ChannelDispatcher<O> build() {
+      return new ChannelDispatcher<O>(this);
     }
 
   }
