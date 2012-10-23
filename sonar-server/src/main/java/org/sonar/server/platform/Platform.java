@@ -68,7 +68,7 @@ import org.sonar.server.charts.ChartFactory;
 import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.database.EmbeddedDatabaseFactory;
-import org.sonar.server.database.LocalDatabaseFactory;
+import org.sonar.core.persistence.LocalDatabaseFactory;
 import org.sonar.server.notifications.NotificationService;
 import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
 import org.sonar.server.plugins.ApplicationDeployer;

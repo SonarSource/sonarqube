@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.server.database;
+package org.sonar.core.persistence;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.lang.StringUtils;
@@ -25,55 +25,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.SonarException;
-import org.sonar.core.persistence.Database;
-import org.sonar.core.persistence.DdlUtils;
 
 import javax.sql.DataSource;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class LocalDatabaseFactory implements ServerComponent {
-  private static final Logger LOG = LoggerFactory.getLogger(LocalDatabaseFactory.class);
+public class DbTemplate implements ServerComponent {
+  private static final Logger LOG = LoggerFactory.getLogger(DbTemplate.class);
 
-  private static final String H2_DIALECT = "h2";
-  private static final String H2_DRIVER = "org.h2.Driver";
-  private static final String H2_URL = "jdbc:h2:";
-  private static final String H2_USER = "sonar";
-  private static final String H2_PASSWORD = "sonar";
-
-  private Database database;
-
-  public LocalDatabaseFactory(Database database) {
-    this.database = database;
-  }
-
-  public String createDatabaseForLocalMode() throws SQLException {
-    String name = "/tmp/" + System.nanoTime();
-
-    DataSource source = database.getDataSource();
-    BasicDataSource destination = dataSource(H2_DRIVER, H2_USER, H2_PASSWORD, H2_URL + name);
-
-    create(destination, H2_DIALECT);
-
-    copyTable(source, destination, "PROPERTIES", "SELECT * FROM PROPERTIES WHERE (USER_ID IS NULL) AND (RESOURCE_ID IS NULL)");
-    copyTable(source, destination, "RULES_PROFILES", "SELECT * FROM RULES_PROFILES");
-    copyTable(source, destination, "RULES", "SELECT * FROM RULES");
-    copyTable(source, destination, "RULES_PARAMETERS", "SELECT * FROM RULES_PARAMETERS");
-    copyTable(source, destination, "ACTIVE_RULES", "SELECT * FROM ACTIVE_RULES");
-    copyTable(source, destination, "ACTIVE_RULE_PARAMETERS", "SELECT * FROM ACTIVE_RULE_PARAMETERS");
-    copyTable(source, destination, "METRICS", "SELECT * FROM METRICS");
-
-    destination.close();
-
-    return new File(name + ".h2.db").getAbsolutePath();
-  }
-
-  private void copyTable(DataSource source, DataSource dest, String table, String query) throws SQLException {
+  public DbTemplate copyTable(DataSource source, DataSource dest, String table, String query) {
     LOG.info("Copy table " + table);
 
     int colCount = getColumnCount(source, table);
@@ -105,6 +69,8 @@ public class LocalDatabaseFactory implements ServerComponent {
       destStatement.executeBatch();
       destConnection.commit();
       destStatement.close();
+    } catch (SQLException e) {
+      throw new SonarException("Fail to copy table " + table, e);
     } finally {
       closeQuietly(destResultSet);
       closeQuietly(destConnection);
@@ -112,9 +78,11 @@ public class LocalDatabaseFactory implements ServerComponent {
       closeQuietly(sourceStatement);
       closeQuietly(sourceConnection);
     }
+
+    return this;
   }
 
-  private int getColumnCount(DataSource dataSource, String table) throws SQLException {
+  public int getColumnCount(DataSource dataSource, String table) {
     Connection connection = null;
     ResultSet metaData = null;
     try {
@@ -127,26 +95,51 @@ public class LocalDatabaseFactory implements ServerComponent {
       }
 
       return nbColumns;
+    } catch (SQLException e) {
+      throw new SonarException("Fail to get column count for table " + table, e);
     } finally {
       closeQuietly(metaData);
       closeQuietly(connection);
     }
   }
 
-  private void truncate(DataSource dataSource, String table) throws SQLException {
+  public int getRowCount(BasicDataSource dataSource, String table) {
+    Connection connection = null;
+    Statement statement = null;
+    ResultSet resultSet = null;
+    try {
+      connection = dataSource.getConnection();
+      statement = connection.createStatement();
+      resultSet = statement.executeQuery("SELECT count(*) from " + table);
+
+      return resultSet.next() ? resultSet.getInt(1) : 0;
+    } catch (SQLException e) {
+      throw new SonarException("Fail to get row count for table " + table, e);
+    } finally {
+      closeQuietly(resultSet);
+      closeQuietly(statement);
+      closeQuietly(connection);
+    }
+  }
+
+  public DbTemplate truncate(DataSource dataSource, String table) {
     Connection connection = null;
     Statement statement = null;
     try {
       connection = dataSource.getConnection();
       statement = connection.createStatement();
       statement.executeUpdate("TRUNCATE TABLE " + table);
+    } catch (SQLException e) {
+      throw new SonarException("Fail to truncate table " + table, e);
     } finally {
       closeQuietly(statement);
       closeQuietly(connection);
     }
+
+    return this;
   }
 
-  private BasicDataSource dataSource(String driver, String user, String password, String url) {
+  public BasicDataSource dataSource(String driver, String user, String password, String url) {
     BasicDataSource dataSource = new BasicDataSource();
     dataSource.setDriverClassName(driver);
     dataSource.setUsername(user);
@@ -155,16 +148,18 @@ public class LocalDatabaseFactory implements ServerComponent {
     return dataSource;
   }
 
-  public void create(DataSource dataSource, String dialect) throws SQLException {
+  public DbTemplate createSchema(DataSource dataSource, String dialect) {
     Connection connection = null;
     try {
       connection = dataSource.getConnection();
       DdlUtils.createSchema(connection, dialect);
     } catch (SQLException e) {
-      throw new SonarException("Fail to create local database schema", e);
+      throw new SonarException("Fail to createSchema local database schema", e);
     } finally {
       closeQuietly(connection);
     }
+
+    return this;
   }
 
   private void closeQuietly(Connection connection) {

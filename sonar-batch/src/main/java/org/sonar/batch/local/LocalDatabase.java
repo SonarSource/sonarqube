@@ -19,11 +19,8 @@
  */
 package org.sonar.batch.local;
 
-import com.google.common.io.Closeables;
-import com.google.gson.Gson;
-import org.apache.commons.dbcp.BasicDataSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.google.common.io.Files;
+import com.google.common.io.InputSupplier;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
@@ -31,19 +28,18 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrap.LocalMode;
+import org.sonar.batch.bootstrap.TempDirectories;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URI;
-import java.sql.SQLException;
 
 /**
  * @since 3.4
  */
 public class LocalDatabase implements BatchComponent {
-  private static final Logger LOG = LoggerFactory.getLogger(LocalDatabase.class);
-
-  public static final String API_SYNCHRO = "/api/synchro";
+  private static final String API_SYNCHRO = "/api/synchro";
   private static final String DIALECT = "h2";
   private static final String DRIVER = "org.h2.Driver";
   private static final String URL = "jdbc:h2:";
@@ -54,13 +50,14 @@ public class LocalDatabase implements BatchComponent {
   private final Settings settings;
   private final Server server;
   private final HttpDownloader httpDownloader;
-  private BasicDataSource dataSource;
+  private final TempDirectories tempDirectories;
 
-  public LocalDatabase(LocalMode localMode, Settings settings, Server server, HttpDownloader httpDownloader) {
+  public LocalDatabase(LocalMode localMode, Settings settings, Server server, HttpDownloader httpDownloader, TempDirectories tempDirectories) {
     this.localMode = localMode;
     this.settings = settings;
     this.server = server;
     this.httpDownloader = httpDownloader;
+    this.tempDirectories = tempDirectories;
   }
 
   public void start() {
@@ -68,58 +65,31 @@ public class LocalDatabase implements BatchComponent {
       return;
     }
 
-    LOG.info("Download database");
-    Path path = downloadDatabase();
+    File file = tempDirectories.getFile("local", "db.h2.db");
+    String h2DatabasePath = file.getAbsolutePath().replaceAll(".h2.db", "");
 
-    LOG.info("Starting local database");
-    replaceSettings(path);
-    configureDataSource(path);
+    downloadDatabase(file);
+    replaceSettings(h2DatabasePath);
   }
 
-  private Path downloadDatabase() {
-    InputStream stream = null;
+  private void downloadDatabase(File toFile) {
     try {
-      stream = httpDownloader.openStream(URI.create(server.getURL() + API_SYNCHRO));
-      return new Gson().fromJson(new InputStreamReader(stream), Path.class);
-    } finally {
-      Closeables.closeQuietly(stream);
+      Files.copy(new InputSupplier<InputStream>() {
+        public InputStream getInput() {
+          return httpDownloader.openStream(URI.create(server.getURL() + API_SYNCHRO));
+        }
+      }, toFile);
+    } catch (IOException e) {
+      throw new SonarException("Unable to download database", e);
     }
   }
 
-  static class Path {
-    String path;
-
-    String getName() {
-      return path.replaceAll(".h2.db", "");
-    }
-  }
-
-  public void stop() {
-    try {
-      dataSource.close();
-    } catch (SQLException e) {
-      // Ignore error
-    }
-  }
-
-  private void replaceSettings(Path path) {
+  private void replaceSettings(String h2DatabasePath) {
     settings
         .setProperty(DatabaseProperties.PROP_DIALECT, DIALECT)
         .setProperty(DatabaseProperties.PROP_DRIVER, DRIVER)
         .setProperty(DatabaseProperties.PROP_USER, USER)
         .setProperty(DatabaseProperties.PROP_PASSWORD, PASSWORD)
-        .setProperty(DatabaseProperties.PROP_URL, URL + path.getName());
-  }
-
-  private void configureDataSource(Path path) {
-    try {
-      dataSource = new BasicDataSource();
-      dataSource.setDriverClassName(DRIVER);
-      dataSource.setUsername(USER);
-      dataSource.setPassword(PASSWORD);
-      dataSource.setUrl(URL + path.getName());
-    } catch (Exception e) {
-      throw new SonarException("Fail to start local database", e);
-    }
+        .setProperty(DatabaseProperties.PROP_URL, URL + h2DatabasePath);
   }
 }

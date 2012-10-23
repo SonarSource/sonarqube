@@ -24,14 +24,10 @@ class Api::SynchroController < Api::ApiController
 
   # curl http://localhost:9000/api/synchro -v
   def index
-    database_factory = java_facade.getCoreComponentByClassname('org.sonar.server.database.LocalDatabaseFactory')
+    database_factory = java_facade.getCoreComponentByClassname('org.sonar.core.persistence.LocalDatabaseFactory')
 
-    path = database_factory.createDatabaseForLocalMode()
+    dbFileContent = database_factory.createDatabaseForLocalMode()
 
-    hash = {:path => path}
-
-    respond_to do |format|
-      format.json { render :json => jsonp(hash) }
-    end
+    send_data String.from_java_bytes(dbFileContent)
   end
 end
