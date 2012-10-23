@@ -21,7 +21,6 @@ package org.sonar.plugins.core;
 
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.Extension;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
