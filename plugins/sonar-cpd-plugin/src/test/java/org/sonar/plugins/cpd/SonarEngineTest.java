@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.resources.File;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.test.IsMeasure;
@@ -127,6 +128,22 @@ public class SonarEngineTest {
             + "<b s=\"15\" l=\"200\" r=\"key3\"/>"
             + "</g>"
             + "</duplications>")));
+  }
+
+  @Test
+  public void shouldEscapeXmlEntities() {
+    File csharpFile = new File("Loads/File Loads/Subs & Reds/SubsRedsDelivery.cs");
+    List<CloneGroup> groups = Arrays.asList(newCloneGroup(
+      new ClonePart("Loads/File Loads/Subs & Reds/SubsRedsDelivery.cs", 0, 5, 204),
+      new ClonePart("Loads/File Loads/Subs & Reds/SubsRedsDelivery2.cs", 0, 15, 214)));
+    SonarEngine.save(context, csharpFile, groups);
+
+    verify(context).saveMeasure(
+        eq(csharpFile),
+        argThat(new IsMeasure(CoreMetrics.DUPLICATIONS_DATA, "<duplications><g>"
+            + "<b s=\"5\" l=\"200\" r=\"Loads/File Loads/Subs &amp; Reds/SubsRedsDelivery.cs\"/>"
+            + "<b s=\"15\" l=\"200\" r=\"Loads/File Loads/Subs &amp; Reds/SubsRedsDelivery2.cs\"/>"
+            + "</g></duplications>")));
   }
 
   private CloneGroup newCloneGroup(ClonePart... parts) {
