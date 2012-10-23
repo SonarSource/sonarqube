@@ -20,7 +20,9 @@
 package org.sonar.core.persistence;
 
 import org.apache.commons.lang.time.DateUtils;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -34,6 +36,36 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class SemaphoreDaoTest extends AbstractDaoTestCase {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
+  @Test
+  public void should_fail_to_acquire_if_blank_semaphore_name() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Semaphore name must not be empty");
+
+    SemaphoreDao dao = new SemaphoreDao(getMyBatis());
+    dao.acquire(null, 5000);
+  }
+
+  @Test
+  public void should_fail_to_acquire_if_negative_timeout() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Semaphore max duration must be positive: -5000");
+
+    SemaphoreDao dao = new SemaphoreDao(getMyBatis());
+    dao.acquire("foo", -5000);
+  }
+
+  @Test
+  public void should_fail_to_release_if_blank_semaphore_name() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Semaphore name must not be empty");
+
+    SemaphoreDao dao = new SemaphoreDao(getMyBatis());
+    dao.release(null);
+  }
 
   @Test
   public void create_and_acquire_semaphore() throws Exception {

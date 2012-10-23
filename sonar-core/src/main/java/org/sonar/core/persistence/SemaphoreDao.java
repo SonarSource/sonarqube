@@ -39,7 +39,7 @@ public class SemaphoreDao {
 
   public boolean acquire(String name, int maxDurationInSeconds) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "Semaphore name must not be empty");
-    Preconditions.checkArgument(maxDurationInSeconds > 0, "Semaphore max duration must be positive");
+    Preconditions.checkArgument(maxDurationInSeconds > 0, "Semaphore max duration must be positive: " + maxDurationInSeconds);
 
     SqlSession session = mybatis.openSession();
     try {
