@@ -24,19 +24,19 @@ import org.hamcrest.Description;
 import org.sonar.channel.Channel;
 import org.sonar.channel.CodeReader;
 
-public class ChannelMatcher<OUTPUT> extends BaseMatcher<Channel<OUTPUT>> {
+public class ChannelMatcher<O> extends BaseMatcher<Channel<O>> {
 
   private final String sourceCode;
-  private final OUTPUT output;
+  private final O output;
   private final CodeReader reader;
 
-  public ChannelMatcher(String sourceCode, OUTPUT output) {
+  public ChannelMatcher(String sourceCode, O output) {
     this.sourceCode = sourceCode;
     this.output = output;
     this.reader = new CodeReader(sourceCode);
   }
 
-  public ChannelMatcher(CodeReader reader, OUTPUT output) {
+  public ChannelMatcher(CodeReader reader, O output) {
     this.output = output;
     this.sourceCode = new String(reader.peek(30));
     this.reader = reader;
@@ -46,7 +46,7 @@ public class ChannelMatcher<OUTPUT> extends BaseMatcher<Channel<OUTPUT>> {
     if ( !(arg0 instanceof Channel)) {
       return false;
     }
-    Channel<OUTPUT> channel = (Channel<OUTPUT>) arg0;
+    Channel<O> channel = (Channel<O>) arg0;
     return channel.consume(reader, output);
   }
 

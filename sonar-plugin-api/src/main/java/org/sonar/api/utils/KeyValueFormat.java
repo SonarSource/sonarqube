@@ -50,10 +50,10 @@ public final class KeyValueFormat {
     // only static methods
   }
 
-  public abstract static class Converter<TYPE> {
-    abstract String format(TYPE type);
+  public abstract static class Converter<T> {
+    abstract String format(T type);
 
-    abstract TYPE parse(String s);
+    abstract T parse(String s);
   }
 
   public static final class StringConverter extends Converter<String> {

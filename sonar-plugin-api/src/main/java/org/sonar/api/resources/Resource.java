@@ -24,7 +24,7 @@ package org.sonar.api.resources;
  * 
  * @since 1.10
  */
-public abstract class Resource<PARENT extends Resource> {
+public abstract class Resource<P extends Resource> {
 
   /**
    * @deprecated since 2.6. Use Scopes.PROJECT.
@@ -176,7 +176,7 @@ public abstract class Resource<PARENT extends Resource> {
    * Return null if the parent is the project.
    * </p>
    */
-  public abstract PARENT getParent();
+  public abstract P getParent();
 
   /**
    * Check resource against an Ant pattern, like mypackag?/*Foo.java. It's used for example to match resource exclusions.
