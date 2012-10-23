@@ -21,6 +21,7 @@ package org.sonar.plugins.cpd;
 
 import com.google.common.collect.Iterables;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.SensorContext;
@@ -210,7 +211,7 @@ public class SonarEngine extends CpdEngine {
       for (ClonePart part : duplication.getCloneParts()) {
         xml.append("<b s=\"").append(part.getStartLine())
             .append("\" l=\"").append(part.getLines())
-            .append("\" r=\"").append(part.getResourceId())
+            .append("\" r=\"").append(StringEscapeUtils.escapeXml(part.getResourceId()))
             .append("\"/>");
       }
       xml.append("</g>");
