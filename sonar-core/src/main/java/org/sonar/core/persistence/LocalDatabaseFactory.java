@@ -47,8 +47,7 @@ public class LocalDatabaseFactory implements ServerComponent {
   }
 
   public byte[] createDatabaseForLocalMode() {
-    // serverFileSystem.getTempDir()
-    String name = System.getenv("java.io") + System.nanoTime(); // TODO
+    String name = serverFileSystem.getTempDir().getAbsolutePath() + "db-" + System.nanoTime();
 
     try {
       BasicDataSource destination = create(DIALECT, DRIVER, USER, PASSWORD, URL + name);
