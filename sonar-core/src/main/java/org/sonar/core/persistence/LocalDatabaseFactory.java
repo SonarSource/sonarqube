@@ -22,6 +22,7 @@ package org.sonar.core.persistence;
 import com.google.common.io.Files;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.utils.SonarException;
 
 import javax.sql.DataSource;
@@ -38,12 +39,15 @@ public class LocalDatabaseFactory implements ServerComponent {
   private static final String PASSWORD = "sonar";
 
   private final Database database;
+  private final ServerFileSystem serverFileSystem;
 
-  public LocalDatabaseFactory(Database database) {
+  public LocalDatabaseFactory(Database database, ServerFileSystem serverFileSystem) {
     this.database = database;
+    this.serverFileSystem = serverFileSystem;
   }
 
   public byte[] createDatabaseForLocalMode() {
+    // serverFileSystem.getTempDir()
     String name = System.getenv("java.io") + System.nanoTime(); // TODO
 
     try {
@@ -64,7 +68,11 @@ public class LocalDatabaseFactory implements ServerComponent {
         .copyTable(source, dest, "RULES_PARAMETERS", "SELECT * FROM RULES_PARAMETERS")
         .copyTable(source, dest, "ACTIVE_RULES", "SELECT * FROM ACTIVE_RULES")
         .copyTable(source, dest, "ACTIVE_RULE_PARAMETERS", "SELECT * FROM ACTIVE_RULE_PARAMETERS")
-        .copyTable(source, dest, "METRICS", "SELECT * FROM METRICS");
+        .copyTable(source, dest, "METRICS", "SELECT * FROM METRICS")
+        .copyTable(source, dest, "CHARACTERISTICS", "SELECT * FROM CHARACTERISTICS")
+        .copyTable(source, dest, "CHARACTERISTIC_PROPERTIES", "SELECT * FROM CHARACTERISTIC_PROPERTIES")
+        .copyTable(source, dest, "CHARACTERISTIC_EDGES", "SELECT * FROM CHARACTERISTIC_EDGES")
+        .copyTable(source, dest, "QUALITY_MODELS", "SELECT * FROM QUALITY_MODELS");
   }
 
   private BasicDataSource create(String dialect, String driver, String user, String password, String url) {

@@ -42,7 +42,7 @@ public class LocalDatabaseFactoryTest extends AbstractDaoTestCase {
 
   @Before
   public void setUp() {
-    localDatabaseFactory = new LocalDatabaseFactory(getDatabase());
+    localDatabaseFactory = new LocalDatabaseFactory(getDatabase(), null);
   }
 
   @After
