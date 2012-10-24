@@ -19,9 +19,11 @@
  */
 package org.sonar.batch.local;
 
+import com.google.common.base.Strings;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.platform.Server;
@@ -49,14 +51,12 @@ public class LocalDatabase implements BatchComponent {
   private final LocalMode localMode;
   private final Settings settings;
   private final Server server;
-  private final HttpDownloader httpDownloader;
   private final TempDirectories tempDirectories;
 
-  public LocalDatabase(LocalMode localMode, Settings settings, Server server, HttpDownloader httpDownloader, TempDirectories tempDirectories) {
+  public LocalDatabase(LocalMode localMode, Settings settings, Server server, TempDirectories tempDirectories) {
     this.localMode = localMode;
     this.settings = settings;
     this.server = server;
-    this.httpDownloader = httpDownloader;
     this.tempDirectories = tempDirectories;
   }
 
@@ -73,14 +73,27 @@ public class LocalDatabase implements BatchComponent {
   }
 
   private void downloadDatabase(File toFile) {
+    String login = settings.getString(CoreProperties.LOGIN);
+    String password = settings.getString(CoreProperties.PASSWORD);
+    String resourceKey = settings.getString("sonar.resource");
+    if (null == resourceKey) {
+      throw new SonarException("No resource key was provided using sonar.resource property");
+    }
+
+    URI uri = URI.create(server.getURL() + API_SYNCHRO + "?resource=" + resourceKey);
+
+    HttpDownloader.BaseHttpDownloader downloader = new HttpDownloader.BaseHttpDownloader(settings, null);
+    InputSupplier<InputStream> inputSupplier;
+    if (Strings.isNullOrEmpty(login)) {
+      inputSupplier = downloader.newInputSupplier(uri);
+    } else {
+      inputSupplier = downloader.newInputSupplier(uri, login, password);
+    }
+
     try {
-      Files.copy(new InputSupplier<InputStream>() {
-        public InputStream getInput() {
-          return httpDownloader.openStream(URI.create(server.getURL() + API_SYNCHRO));
-        }
-      }, toFile);
+      Files.copy(inputSupplier, toFile);
     } catch (IOException e) {
-      throw new SonarException("Unable to download database", e);
+      throw new SonarException("Unable to save local database to file: " + toFile, e);
     }
   }
 

@@ -46,12 +46,12 @@ public class LocalDatabaseFactory implements ServerComponent {
     this.serverFileSystem = serverFileSystem;
   }
 
-  public byte[] createDatabaseForLocalMode() {
+  public byte[] createDatabaseForLocalMode(int resourceId) {
     String name = serverFileSystem.getTempDir().getAbsolutePath() + "db-" + System.nanoTime();
 
     try {
       BasicDataSource destination = create(DIALECT, DRIVER, USER, PASSWORD, URL + name);
-      copy(database.getDataSource(), destination);
+      copy(database.getDataSource(), destination, resourceId);
       close(destination);
 
       return dbFileContent(name);
@@ -60,8 +60,10 @@ public class LocalDatabaseFactory implements ServerComponent {
     }
   }
 
-  private void copy(DataSource source, DataSource dest) {
-    new DbTemplate().copyTable(source, dest, "PROPERTIES", "SELECT * FROM PROPERTIES WHERE (USER_ID IS NULL) AND (RESOURCE_ID IS NULL) AND NOT (PROP_KEY LIKE '%.secured')")
+  private void copy(DataSource source, DataSource dest, int resourceId) {
+    new DbTemplate()
+        .copyTable(source, dest, "PROPERTIES",
+            "SELECT * FROM PROPERTIES WHERE (((USER_ID IS NULL) AND (RESOURCE_ID IS NULL)) OR (RESOURCE_ID='" + resourceId + "')) AND NOT (PROP_KEY LIKE '%.secured')")
         .copyTable(source, dest, "RULES_PROFILES", "SELECT * FROM RULES_PROFILES")
         .copyTable(source, dest, "RULES", "SELECT * FROM RULES")
         .copyTable(source, dest, "RULES_PARAMETERS", "SELECT * FROM RULES_PARAMETERS")

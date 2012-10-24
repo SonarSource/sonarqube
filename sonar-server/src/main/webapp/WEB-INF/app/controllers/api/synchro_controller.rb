@@ -22,12 +22,24 @@ require "json"
 
 class Api::SynchroController < Api::ApiController
 
-  # curl http://localhost:9000/api/synchro -v
+  # curl http://localhost:9000/api/synchro?resource=<resource> -v [-u user:password]
   def index
-    database_factory = java_facade.getCoreComponentByClassname('org.sonar.core.persistence.LocalDatabaseFactory')
+    require_parameters :resource
+    load_resource()
 
-    dbFileContent = database_factory.createDatabaseForLocalMode()
+    database_factory = java_facade.getCoreComponentByClassname('org.sonar.core.persistence.LocalDatabaseFactory')
+    dbFileContent = database_factory.createDatabaseForLocalMode(@resource.id)
 
     send_data String.from_java_bytes(dbFileContent)
   end
+
+  private
+
+  def load_resource
+    resource_id = params[:resource]
+    @resource = Project.by_key(resource_id)
+    return not_found("Resource [#{resource_id}] not found") if @resource.nil?
+    return access_denied unless is_user?(@resource)
+  end
 end
+

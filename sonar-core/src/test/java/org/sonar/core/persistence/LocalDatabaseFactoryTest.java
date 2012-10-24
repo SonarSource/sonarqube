@@ -63,10 +63,10 @@ public class LocalDatabaseFactoryTest extends AbstractDaoTestCase {
 
     when(serverFileSystem.getTempDir()).thenReturn(temporaryFolder.getRoot());
 
-    byte[] database = localDatabaseFactory.createDatabaseForLocalMode();
+    byte[] database = localDatabaseFactory.createDatabaseForLocalMode(1);
     dataSource = createDatabase(database);
 
-    assertThat(rowCount("PROPERTIES")).isEqualTo(1);
+    assertThat(rowCount("PROPERTIES")).isEqualTo(2);
     assertThat(rowCount("PROJECTS")).isZero();
   }
 

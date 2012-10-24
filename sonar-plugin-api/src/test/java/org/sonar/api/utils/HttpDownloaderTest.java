@@ -153,14 +153,14 @@ public class HttpDownloaderTest {
   public void shouldGetDirectProxySynthesis() throws URISyntaxException {
     ProxySelector proxySelector = mock(ProxySelector.class);
     when(proxySelector.select(any(URI.class))).thenReturn(Arrays.asList(Proxy.NO_PROXY));
-    assertThat(HttpDownloader.getProxySynthesis(new URI("http://an_url"), proxySelector)).isEqualTo("no proxy");
+    assertThat(HttpDownloader.BaseHttpDownloader.getProxySynthesis(new URI("http://an_url"), proxySelector)).isEqualTo("no proxy");
   }
 
   @Test
   public void shouldGetProxySynthesis() throws URISyntaxException {
     ProxySelector proxySelector = mock(ProxySelector.class);
     when(proxySelector.select(any(URI.class))).thenReturn(Arrays.<Proxy> asList(new FakeProxy()));
-    assertThat(HttpDownloader.getProxySynthesis(new URI("http://an_url"), proxySelector)).isEqualTo("proxy: http://proxy_url:4040");
+    assertThat(HttpDownloader.BaseHttpDownloader.getProxySynthesis(new URI("http://an_url"), proxySelector)).isEqualTo("proxy: http://proxy_url:4040");
   }
 
   @Test

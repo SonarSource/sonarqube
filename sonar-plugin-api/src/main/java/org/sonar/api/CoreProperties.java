@@ -334,4 +334,14 @@ public interface CoreProperties {
    * @since 3.3
    */
   String LINKS_SOURCES_DEV = "sonar.links.scm_dev";
+
+  /**
+   * @since 3.4
+   */
+  String LOGIN = "sonar.login";
+
+  /**
+   * @since 3.4
+   */
+  String PASSWORD = "sonar.password";
 }
