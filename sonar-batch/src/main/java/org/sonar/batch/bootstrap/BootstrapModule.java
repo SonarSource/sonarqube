@@ -89,6 +89,7 @@ public class BootstrapModule extends Module {
     container.addSingleton(BatchDatabase.class);
     container.addSingleton(MyBatis.class);
     container.addSingleton(DatabaseVersion.class);
+    container.addSingleton(DatabaseBatchCompatibility.class);
     for (Class daoClass : DaoUtils.getDaoClasses()) {
       container.addSingleton(daoClass);
     }
@@ -98,7 +99,6 @@ public class BootstrapModule extends Module {
     container.addSingleton(ThreadLocalDatabaseSessionFactory.class);
     container.addPicoAdapter(new DatabaseSessionProvider());
 
-    container.addSingleton(DatabaseBatchCompatibility.class);
     container.addSingleton(BatchDatabaseSettingsLoader.class);
   }
 
