@@ -48,7 +48,7 @@ public class ProjectExclusions implements BatchComponent {
   }
 
   public void start() {
-    LOG.debug("Apply project exclusions");
+    LOG.info("Apply project exclusions");
     for (ProjectDefinition project : reactor.getProjects()) {
       if (isExcluded(key(project), project == reactor.getRoot())) {
         exclude(project);

@@ -36,7 +36,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 
-public final class TempDirectories {
+public class TempDirectories {
 
   public static final String DIR_PREFIX = "sonar-batch";
 

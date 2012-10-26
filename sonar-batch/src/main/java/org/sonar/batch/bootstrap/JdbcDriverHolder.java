@@ -43,17 +43,27 @@ public class JdbcDriverHolder {
   private ServerClient serverClient;
 
   // initialized in start()
-  private JdbcDriverClassLoader classLoader;
+  private JdbcDriverClassLoader classLoader = null;
+  private DryRun dryRun;
 
-  public JdbcDriverHolder(TempDirectories tempDirectories, ServerClient serverClient) {
+  public JdbcDriverHolder(DryRun dryRun, TempDirectories tempDirectories, ServerClient serverClient) {
     this.tempDirectories = tempDirectories;
     this.serverClient = serverClient;
+    this.dryRun = dryRun;
   }
 
   public void start() {
-    File jdbcDriver = new File(tempDirectories.getRoot(), "jdbc-driver.jar");
-    serverClient.download("/deploy/jdbc-driver.jar", jdbcDriver);
-    classLoader = initClassloader(jdbcDriver);
+    if (!dryRun.isEnabled()) {
+      LOG.info("Install JDBC driver");
+      File jdbcDriver = new File(tempDirectories.getRoot(), "jdbc-driver.jar");
+      serverClient.download("/deploy/jdbc-driver.jar", jdbcDriver);
+      classLoader = initClassloader(jdbcDriver);
+    }
+  }
+
+  @VisibleForTesting
+  JdbcDriverClassLoader getClassLoader() {
+    return classLoader;
   }
 
   @VisibleForTesting
@@ -94,8 +104,10 @@ public class JdbcDriverHolder {
    * </p>
    */
   public void stop() {
-    classLoader.clearReferencesJdbc();
-    classLoader = null;
+    if (classLoader != null) {
+      classLoader.clearReferencesJdbc();
+      classLoader = null;
+    }
   }
 
   static class JdbcDriverClassLoader extends URLClassLoader {

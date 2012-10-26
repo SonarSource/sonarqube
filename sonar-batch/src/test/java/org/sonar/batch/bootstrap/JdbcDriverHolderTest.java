@@ -28,6 +28,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class JdbcDriverHolderTest {
 
@@ -55,4 +59,19 @@ public class JdbcDriverHolderTest {
     assertThat(Thread.currentThread().getContextClassLoader()).isSameAs(classloader);
   }
 
+  @Test
+  public void should_be_disabled_if_dry_run() {
+    DryRun dryRun = mock(DryRun.class);
+    when(dryRun.isEnabled()).thenReturn(true);
+    ServerClient server = mock(ServerClient.class);
+    JdbcDriverHolder holder = new JdbcDriverHolder(dryRun, mock(TempDirectories.class), server);
+
+    holder.start();
+
+    assertThat(holder.getClassLoader()).isNull();
+    verifyZeroInteractions(server);
+
+    // no error during stop
+    holder.stop();
+  }
 }

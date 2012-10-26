@@ -70,6 +70,7 @@ public class BatchPluginRepository implements PluginRepository {
   }
 
   public void start() {
+    LOG.info("Install plugins");
     doStart(pluginDownloader.downloadPluginIndex());
   }
 
