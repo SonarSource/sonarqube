@@ -72,11 +72,11 @@ public class DbTemplate implements ServerComponent {
     } catch (SQLException e) {
       throw new SonarException("Fail to copy table " + table, e);
     } finally {
-      closeQuietly(destResultSet);
-      closeQuietly(destConnection);
-      closeQuietly(sourceResultSet);
-      closeQuietly(sourceStatement);
-      closeQuietly(sourceConnection);
+      DatabaseUtils.closeQuietly(destResultSet);
+      DatabaseUtils.closeQuietly(destConnection);
+      DatabaseUtils.closeQuietly(sourceResultSet);
+      DatabaseUtils.closeQuietly(sourceStatement);
+      DatabaseUtils.closeQuietly(sourceConnection);
     }
 
     return this;
@@ -98,8 +98,8 @@ public class DbTemplate implements ServerComponent {
     } catch (SQLException e) {
       throw new SonarException("Fail to get column count for table " + table, e);
     } finally {
-      closeQuietly(metaData);
-      closeQuietly(connection);
+      DatabaseUtils.closeQuietly(metaData);
+      DatabaseUtils.closeQuietly(connection);
     }
   }
 
@@ -116,9 +116,9 @@ public class DbTemplate implements ServerComponent {
     } catch (SQLException e) {
       throw new SonarException("Fail to get row count for table " + table, e);
     } finally {
-      closeQuietly(resultSet);
-      closeQuietly(statement);
-      closeQuietly(connection);
+      DatabaseUtils.closeQuietly(resultSet);
+      DatabaseUtils.closeQuietly(statement);
+      DatabaseUtils.closeQuietly(connection);
     }
   }
 
@@ -132,8 +132,8 @@ public class DbTemplate implements ServerComponent {
     } catch (SQLException e) {
       throw new SonarException("Fail to truncate table " + table, e);
     } finally {
-      closeQuietly(statement);
-      closeQuietly(connection);
+      DatabaseUtils.closeQuietly(statement);
+      DatabaseUtils.closeQuietly(connection);
     }
 
     return this;
@@ -156,39 +156,9 @@ public class DbTemplate implements ServerComponent {
     } catch (SQLException e) {
       throw new SonarException("Fail to createSchema local database schema", e);
     } finally {
-      closeQuietly(connection);
+      DatabaseUtils.closeQuietly(connection);
     }
 
     return this;
-  }
-
-  private void closeQuietly(Connection connection) {
-    if (connection != null) {
-      try {
-        connection.close();
-      } catch (SQLException e) {
-        // ignore
-      }
-    }
-  }
-
-  private void closeQuietly(Statement statement) {
-    if (statement != null) {
-      try {
-        statement.close();
-      } catch (SQLException e) {
-        // ignore
-      }
-    }
-  }
-
-  private void closeQuietly(ResultSet resultSet) {
-    if (resultSet != null) {
-      try {
-        resultSet.close();
-      } catch (SQLException e) {
-        // ignore
-      }
-    }
   }
 }
