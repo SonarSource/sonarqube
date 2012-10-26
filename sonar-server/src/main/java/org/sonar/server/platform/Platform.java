@@ -51,6 +51,7 @@ import org.sonar.core.persistence.DaoUtils;
 import org.sonar.core.persistence.DatabaseMigrator;
 import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.core.persistence.DefaultDatabase;
+import org.sonar.core.persistence.DryRunDatabaseFactory;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualitymodel.DefaultModelFinder;
 import org.sonar.core.rule.DefaultRuleFinder;
@@ -68,7 +69,6 @@ import org.sonar.server.charts.ChartFactory;
 import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.database.EmbeddedDatabaseFactory;
-import org.sonar.core.persistence.LocalDatabaseFactory;
 import org.sonar.server.notifications.NotificationService;
 import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
 import org.sonar.server.plugins.ApplicationDeployer;
@@ -180,7 +180,7 @@ public final class Platform {
     rootContainer.addSingleton(I18nManager.class);
     rootContainer.addSingleton(RuleI18nManager.class);
     rootContainer.addSingleton(GwtI18n.class);
-    rootContainer.addSingleton(LocalDatabaseFactory.class);
+    rootContainer.addSingleton(DryRunDatabaseFactory.class);
     rootContainer.startComponents();
   }
 
@@ -249,7 +249,7 @@ public final class Platform {
     servicesContainer.addSingleton(MeasureFilterDecoder.class);
     servicesContainer.addSingleton(MeasureFilterExecutor.class);
     servicesContainer.addSingleton(MeasureFilterEngine.class);
-    servicesContainer.addSingleton(LocalDatabaseFactory.class);
+    servicesContainer.addSingleton(DryRunDatabaseFactory.class);
 
     // Notifications
     servicesContainer.addSingleton(EmailSettings.class);

@@ -31,7 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 
-public class LocalDatabaseFactory implements ServerComponent {
+public class DryRunDatabaseFactory implements ServerComponent {
   private static final String DIALECT = "h2";
   private static final String DRIVER = "org.h2.Driver";
   private static final String URL = "jdbc:h2:";
@@ -41,12 +41,12 @@ public class LocalDatabaseFactory implements ServerComponent {
   private final Database database;
   private final ServerFileSystem serverFileSystem;
 
-  public LocalDatabaseFactory(Database database, ServerFileSystem serverFileSystem) {
+  public DryRunDatabaseFactory(Database database, ServerFileSystem serverFileSystem) {
     this.database = database;
     this.serverFileSystem = serverFileSystem;
   }
 
-  public byte[] createDatabaseForLocalMode(int resourceId) {
+  public byte[] createDatabaseForDryRun(int resourceId) {
     String name = serverFileSystem.getTempDir().getAbsolutePath() + "db-" + System.nanoTime();
 
     try {
@@ -56,14 +56,15 @@ public class LocalDatabaseFactory implements ServerComponent {
 
       return dbFileContent(name);
     } catch (SQLException e) {
-      throw new SonarException("Unable to create database for local mode", e);
+      throw new SonarException("Unable to create database for dry run", e);
     }
   }
 
   private void copy(DataSource source, DataSource dest, int resourceId) {
     new DbTemplate()
         .copyTable(source, dest, "PROPERTIES",
-            "SELECT * FROM PROPERTIES WHERE (((USER_ID IS NULL) AND (RESOURCE_ID IS NULL)) OR (RESOURCE_ID='" + resourceId + "')) AND NOT (PROP_KEY LIKE '%.secured')")
+            "SELECT * FROM PROPERTIES WHERE (((USER_ID IS NULL) AND (RESOURCE_ID IS NULL)) OR (RESOURCE_ID='" + resourceId +
+              "')) AND NOT (PROP_KEY LIKE '%.secured')")
         .copyTable(source, dest, "RULES_PROFILES", "SELECT * FROM RULES_PROFILES")
         .copyTable(source, dest, "RULES", "SELECT * FROM RULES")
         .copyTable(source, dest, "RULES_PARAMETERS", "SELECT * FROM RULES_PARAMETERS")

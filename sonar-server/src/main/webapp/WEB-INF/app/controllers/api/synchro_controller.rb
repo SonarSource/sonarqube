@@ -27,8 +27,7 @@ class Api::SynchroController < Api::ApiController
     require_parameters :resource
     load_resource()
 
-    database_factory = java_facade.getCoreComponentByClassname('org.sonar.core.persistence.LocalDatabaseFactory')
-    dbFileContent = database_factory.createDatabaseForLocalMode(@resource.id)
+    dbFileContent = java_facade.createDatabaseForDryRun(@resource.id)
 
     send_data String.from_java_bytes(dbFileContent)
   end

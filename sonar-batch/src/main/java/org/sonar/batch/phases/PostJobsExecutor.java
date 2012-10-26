@@ -31,30 +31,35 @@ import org.sonar.api.batch.maven.DependsUponMavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.MavenPluginExecutor;
+import org.sonar.batch.local.DryRunExporter;
 
 import java.util.Collection;
 
 public class PostJobsExecutor implements BatchComponent {
   private static final Logger LOG = LoggerFactory.getLogger(PostJobsExecutor.class);
 
-  private MavenPluginExecutor mavenExecutor;
-  private ProjectDefinition projectDefinition;
-  private Project project;
-  private BatchExtensionDictionnary selector;
+  private final BatchExtensionDictionnary selector;
+  private final Project project;
+  private final ProjectDefinition projectDefinition;
+  private final MavenPluginExecutor mavenExecutor;
+  private final DryRunExporter localModeExporter;
 
-  public PostJobsExecutor(BatchExtensionDictionnary selector, Project project, ProjectDefinition projectDefinition, MavenPluginExecutor mavenExecutor) {
+  public PostJobsExecutor(BatchExtensionDictionnary selector, Project project, ProjectDefinition projectDefinition, MavenPluginExecutor mavenExecutor,
+      DryRunExporter localModeExporter) {
     this.selector = selector;
-    this.mavenExecutor = mavenExecutor;
     this.project = project;
     this.projectDefinition = projectDefinition;
+    this.mavenExecutor = mavenExecutor;
+    this.localModeExporter = localModeExporter;
   }
 
   public void execute(SensorContext context) {
     Collection<PostJob> postJobs = selector.select(PostJob.class, project, true);
     execute(context, postJobs);
+    exportLocalModeResults(context);
   }
 
-  void execute(SensorContext context, Collection<PostJob> postJobs) {
+  private void execute(SensorContext context, Collection<PostJob> postJobs) {
     logPostJobs(postJobs);
 
     for (PostJob postJob : postJobs) {
@@ -77,5 +82,9 @@ public class PostJobsExecutor implements BatchComponent {
         mavenExecutor.execute(project, projectDefinition, handler);
       }
     }
+  }
+
+  private void exportLocalModeResults(SensorContext context) {
+    localModeExporter.execute(context);
   }
 }

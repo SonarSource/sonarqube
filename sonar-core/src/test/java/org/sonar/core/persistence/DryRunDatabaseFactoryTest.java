@@ -36,8 +36,8 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class LocalDatabaseFactoryTest extends AbstractDaoTestCase {
-  private LocalDatabaseFactory localDatabaseFactory;
+public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
+  private DryRunDatabaseFactory localDatabaseFactory;
 
   private ServerFileSystem serverFileSystem = mock(ServerFileSystem.class);
   private BasicDataSource dataSource;
@@ -47,7 +47,7 @@ public class LocalDatabaseFactoryTest extends AbstractDaoTestCase {
 
   @Before
   public void setUp() {
-    localDatabaseFactory = new LocalDatabaseFactory(getDatabase(), serverFileSystem);
+    localDatabaseFactory = new DryRunDatabaseFactory(getDatabase(), serverFileSystem);
   }
 
   @After
@@ -58,12 +58,12 @@ public class LocalDatabaseFactoryTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_create_database() throws IOException {
+  public void should_create_database() throws IOException, SQLException {
     setupData("should_create_database");
 
     when(serverFileSystem.getTempDir()).thenReturn(temporaryFolder.getRoot());
 
-    byte[] database = localDatabaseFactory.createDatabaseForLocalMode(1);
+    byte[] database = localDatabaseFactory.createDatabaseForDryRun(1);
     dataSource = createDatabase(database);
 
     assertThat(rowCount("PROPERTIES")).isEqualTo(2);

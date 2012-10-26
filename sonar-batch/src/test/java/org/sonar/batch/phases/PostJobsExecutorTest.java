@@ -19,35 +19,53 @@
  */
 package org.sonar.batch.phases;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.PostJob;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.MavenPluginExecutor;
+import org.sonar.batch.local.DryRunExporter;
 
 import java.util.Arrays;
-import java.util.List;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class PostJobsExecutorTest {
+  PostJobsExecutor executor;
+
+  Project project = new Project("project");
+  BatchExtensionDictionnary selector = mock(BatchExtensionDictionnary.class);
+  MavenPluginExecutor mavenPluginExecutor = mock(MavenPluginExecutor.class);
+  DryRunExporter localModeExporter = mock(DryRunExporter.class);
+  PostJob job1 = mock(PostJob.class);
+  PostJob job2 = mock(PostJob.class);
+  SensorContext context = mock(SensorContext.class);
+
+  @Before
+  public void setUp() {
+    executor = new PostJobsExecutor(selector, project, ProjectDefinition.create(), mavenPluginExecutor, localModeExporter);
+  }
 
   @Test
-  public void executeAllPostJobs() {
-    PostJob job1 = mock(PostJob.class);
-    PostJob job2 = mock(PostJob.class);
-    List<PostJob> jobs = Arrays.asList(job1, job2);
+  public void should_execute_post_jobs() {
+    when(selector.select(PostJob.class, project, true)).thenReturn(Arrays.asList(job1, job2));
 
-    Project project = new Project("project");
-    ProjectDefinition projectDefinition = ProjectDefinition.create();
-    PostJobsExecutor executor = new PostJobsExecutor(null, project, projectDefinition, mock(MavenPluginExecutor.class));
-    SensorContext context = mock(SensorContext.class);
-    executor.execute(context, jobs);
+    executor.execute(context);
 
     verify(job1).executeOn(project, context);
     verify(job2).executeOn(project, context);
 
+  }
+
+  @Test
+  public void should_export_local_mode_results() {
+    executor.execute(context);
+
+    verify(localModeExporter).execute(context);
   }
 }

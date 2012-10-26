@@ -40,8 +40,6 @@ public class DbTemplate implements ServerComponent {
   public DbTemplate copyTable(DataSource source, DataSource dest, String table, String query) {
     LOG.info("Copy table " + table);
 
-    int colCount = getColumnCount(source, table);
-
     truncate(dest, table);
 
     Connection sourceConnection = null;
@@ -49,29 +47,35 @@ public class DbTemplate implements ServerComponent {
     ResultSet sourceResultSet = null;
     Connection destConnection = null;
     ResultSet destResultSet = null;
+    PreparedStatement destStatement = null;
     try {
       sourceConnection = source.getConnection();
       sourceStatement = sourceConnection.createStatement();
       sourceResultSet = sourceStatement.executeQuery(query);
 
-      destConnection = dest.getConnection();
-      destConnection.setAutoCommit(false);
+      if (sourceResultSet.next()) {
+        int colCount = sourceResultSet.getMetaData().getColumnCount();
 
-      PreparedStatement destStatement = destConnection.prepareStatement("INSERT INTO " + table + " VALUES(" + StringUtils.repeat("?", ",", colCount) + ")");
-      while (sourceResultSet.next()) {
-        for (int col = 1; col <= colCount; col++) {
-          Object value = sourceResultSet.getObject(col);
-          destStatement.setObject(col, value);
-        }
-        destStatement.addBatch();
+        destConnection = dest.getConnection();
+        destConnection.setAutoCommit(false);
+
+        destStatement = destConnection.prepareStatement("INSERT INTO " + table + " VALUES(" + StringUtils.repeat("?", ",", colCount) + ")");
+        do {
+          for (int col = 1; col <= colCount; col++) {
+            Object value = sourceResultSet.getObject(col);
+            destStatement.setObject(col, value);
+          }
+          destStatement.addBatch();
+        } while (sourceResultSet.next());
+
+        destStatement.executeBatch();
+        destConnection.commit();
       }
-
-      destStatement.executeBatch();
-      destConnection.commit();
-      destStatement.close();
     } catch (SQLException e) {
+      LOG.error("Fail to copy table " + table, e);
       throw new SonarException("Fail to copy table " + table, e);
     } finally {
+      DatabaseUtils.closeQuietly(destStatement);
       DatabaseUtils.closeQuietly(destResultSet);
       DatabaseUtils.closeQuietly(destConnection);
       DatabaseUtils.closeQuietly(sourceResultSet);
@@ -82,28 +86,7 @@ public class DbTemplate implements ServerComponent {
     return this;
   }
 
-  public int getColumnCount(DataSource dataSource, String table) {
-    Connection connection = null;
-    ResultSet metaData = null;
-    try {
-      connection = dataSource.getConnection();
-      metaData = connection.getMetaData().getColumns(null, null, table, null);
-
-      int nbColumns = 0;
-      while (metaData.next()) {
-        nbColumns++;
-      }
-
-      return nbColumns;
-    } catch (SQLException e) {
-      throw new SonarException("Fail to get column count for table " + table, e);
-    } finally {
-      DatabaseUtils.closeQuietly(metaData);
-      DatabaseUtils.closeQuietly(connection);
-    }
-  }
-
-  public int getRowCount(BasicDataSource dataSource, String table) {
+  public int getRowCount(DataSource dataSource, String table) {
     Connection connection = null;
     Statement statement = null;
     ResultSet resultSet = null;
@@ -114,6 +97,7 @@ public class DbTemplate implements ServerComponent {
 
       return resultSet.next() ? resultSet.getInt(1) : 0;
     } catch (SQLException e) {
+      LOG.error("Fail to get row count for table " + table, e);
       throw new SonarException("Fail to get row count for table " + table, e);
     } finally {
       DatabaseUtils.closeQuietly(resultSet);
@@ -130,6 +114,7 @@ public class DbTemplate implements ServerComponent {
       statement = connection.createStatement();
       statement.executeUpdate("TRUNCATE TABLE " + table);
     } catch (SQLException e) {
+      LOG.error("Fail to truncate table " + table, e);
       throw new SonarException("Fail to truncate table " + table, e);
     } finally {
       DatabaseUtils.closeQuietly(statement);
@@ -154,6 +139,7 @@ public class DbTemplate implements ServerComponent {
       connection = dataSource.getConnection();
       DdlUtils.createSchema(connection, dialect);
     } catch (SQLException e) {
+      LOG.error("Fail to createSchema local database schema", e);
       throw new SonarException("Fail to createSchema local database schema", e);
     } finally {
       DatabaseUtils.closeQuietly(connection);

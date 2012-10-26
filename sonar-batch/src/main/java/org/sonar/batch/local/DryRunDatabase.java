@@ -32,7 +32,7 @@ import java.io.File;
 /**
  * @since 3.4
  */
-public class LocalDatabase implements BatchComponent {
+public class DryRunDatabase implements BatchComponent {
   private static final String API_SYNCHRO = "/api/synchro";
   private static final String DIALECT = "h2";
   private static final String DRIVER = "org.h2.Driver";
@@ -43,15 +43,15 @@ public class LocalDatabase implements BatchComponent {
   private final DryRun dryRun;
   private final Settings settings;
   private final ServerClient server;
-  private ProjectReactor reactor;
   private final TempDirectories tempDirectories;
+  private final ProjectReactor reactor;
 
-  public LocalDatabase(DryRun dryRun, Settings settings, ServerClient server, TempDirectories tempDirectories, ProjectReactor reactor) {
+  public DryRunDatabase(DryRun dryRun, Settings settings, ServerClient server, TempDirectories tempDirectories, ProjectReactor reactor) {
     this.dryRun = dryRun;
     this.settings = settings;
     this.server = server;
-    this.reactor = reactor;
     this.tempDirectories = tempDirectories;
+    this.reactor = reactor;
   }
 
   public void start() {
@@ -59,7 +59,7 @@ public class LocalDatabase implements BatchComponent {
       return;
     }
 
-    File file = tempDirectories.getFile("local", "db.h2.db");
+    File file = tempDirectories.getFile("dry_run", "db.h2.db");
     String h2DatabasePath = file.getAbsolutePath().replaceAll(".h2.db", "");
 
     downloadDatabase(reactor.getRoot().getKey(), file);
@@ -72,10 +72,10 @@ public class LocalDatabase implements BatchComponent {
 
   private void replaceSettings(String h2DatabasePath) {
     settings
-      .setProperty(DatabaseProperties.PROP_DIALECT, DIALECT)
-      .setProperty(DatabaseProperties.PROP_DRIVER, DRIVER)
-      .setProperty(DatabaseProperties.PROP_USER, USER)
-      .setProperty(DatabaseProperties.PROP_PASSWORD, PASSWORD)
-      .setProperty(DatabaseProperties.PROP_URL, URL + h2DatabasePath);
+        .setProperty(DatabaseProperties.PROP_DIALECT, DIALECT)
+        .setProperty(DatabaseProperties.PROP_DRIVER, DRIVER)
+        .setProperty(DatabaseProperties.PROP_USER, USER)
+        .setProperty(DatabaseProperties.PROP_PASSWORD, PASSWORD)
+        .setProperty(DatabaseProperties.PROP_URL, URL + h2DatabasePath);
   }
 }

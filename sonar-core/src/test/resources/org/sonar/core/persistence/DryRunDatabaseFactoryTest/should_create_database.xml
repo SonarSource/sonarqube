@@ -4,4 +4,8 @@
   <properties id="3" prop_key="globalProperty" text_value="value3" resource_id="[null]" user_id="[null]"/>
   <properties id="4" prop_key="userProperty" text_value="value4" resource_id="[null]" user_id="1"/>
   <properties id="5" prop_key="property.secured" text_value="value5" resource_id="[null]" user_id="[null]"/>
+
+  <rules_profiles id="1" name="Sonar way with Findbugs" language="java" parent_name="" version="1"
+                  used_profile="false"/>
+
 </dataset>

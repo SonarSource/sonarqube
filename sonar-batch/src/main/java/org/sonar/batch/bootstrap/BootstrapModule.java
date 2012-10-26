@@ -28,7 +28,8 @@ import org.sonar.batch.FakeMavenPluginExecutor;
 import org.sonar.batch.MavenPluginExecutor;
 import org.sonar.batch.config.BatchDatabaseSettingsLoader;
 import org.sonar.batch.config.BootstrapSettings;
-import org.sonar.batch.local.LocalDatabase;
+import org.sonar.batch.local.DryRunDatabase;
+import org.sonar.batch.local.DryRunExporter;
 import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.I18nManager;
 import org.sonar.core.i18n.RuleI18nManager;
@@ -60,6 +61,7 @@ public class BootstrapModule extends Module {
     container.addSingleton(BatchPluginRepository.class);
     container.addSingleton(ExtensionInstaller.class);
     container.addSingleton(DryRun.class);
+    container.addSingleton(DryRunExporter.class);
     container.addSingleton(Logback.class);
     container.addSingleton(ServerClient.class);
     container.addSingleton(TempDirectories.class);
@@ -81,7 +83,7 @@ public class BootstrapModule extends Module {
 
   private void addDatabaseComponents() {
     container.addSingleton(JdbcDriverHolder.class);
-    container.addSingleton(LocalDatabase.class);
+    container.addSingleton(DryRunDatabase.class);
 
     // mybatis
     container.addSingleton(BatchDatabase.class);
