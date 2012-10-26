@@ -97,6 +97,7 @@ public abstract class Module {
     try {
       doStop();
       container.stopComponents();
+      container.removeChild();
     } catch (Exception e) {
       // ignore
     }
@@ -108,8 +109,8 @@ public abstract class Module {
   }
 
   /**
-   * Implementation of this method must not contain conditional logic and just should contain several invocations of
-   * {@link #addCoreSingleton(Object)}, {@link #addExtension(org.sonar.api.platform.PluginMetadata, Object)} or {@link #addAdapter(ComponentAdapter)}.
+   * Implementation of this method must not contain conditional logic and just should contain several invocations on
+   * {@link #container}.
    */
   protected abstract void configure();
 

@@ -27,66 +27,65 @@ import org.sonar.api.batch.SupportedEnvironment;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.core.NotDryRun;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class ExtensionUtilsTest {
 
   @Test
   public void shouldBeBatchInstantiationStrategy() {
-    assertThat(ExtensionUtils.isInstantiationStrategy(BatchService.class, InstantiationStrategy.BATCH), is(true));
-    assertThat(ExtensionUtils.isInstantiationStrategy(new BatchService(), InstantiationStrategy.BATCH), is(true));
-    assertThat(ExtensionUtils.isInstantiationStrategy(ProjectService.class, InstantiationStrategy.BATCH), is(false));
-    assertThat(ExtensionUtils.isInstantiationStrategy(new ProjectService(), InstantiationStrategy.BATCH), is(false));
-    assertThat(ExtensionUtils.isInstantiationStrategy(DefaultService.class, InstantiationStrategy.BATCH), is(false));
-    assertThat(ExtensionUtils.isInstantiationStrategy(new DefaultService(), InstantiationStrategy.BATCH), is(false));
+    assertThat(ExtensionUtils.isInstantiationStrategy(BatchService.class, InstantiationStrategy.BATCH)).isTrue();
+    assertThat(ExtensionUtils.isInstantiationStrategy(new BatchService(), InstantiationStrategy.BATCH)).isTrue();
+    assertThat(ExtensionUtils.isInstantiationStrategy(ProjectService.class, InstantiationStrategy.BATCH)).isFalse();
+    assertThat(ExtensionUtils.isInstantiationStrategy(new ProjectService(), InstantiationStrategy.BATCH)).isFalse();
+    assertThat(ExtensionUtils.isInstantiationStrategy(DefaultService.class, InstantiationStrategy.BATCH)).isFalse();
+    assertThat(ExtensionUtils.isInstantiationStrategy(new DefaultService(), InstantiationStrategy.BATCH)).isFalse();
   }
 
   @Test
   public void shouldBeProjectInstantiationStrategy() {
-    assertThat(ExtensionUtils.isInstantiationStrategy(BatchService.class, InstantiationStrategy.PROJECT), is(false));
-    assertThat(ExtensionUtils.isInstantiationStrategy(new BatchService(), InstantiationStrategy.PROJECT), is(false));
-    assertThat(ExtensionUtils.isInstantiationStrategy(ProjectService.class, InstantiationStrategy.PROJECT), is(true));
-    assertThat(ExtensionUtils.isInstantiationStrategy(new ProjectService(), InstantiationStrategy.PROJECT), is(true));
-    assertThat(ExtensionUtils.isInstantiationStrategy(DefaultService.class, InstantiationStrategy.PROJECT), is(true));
-    assertThat(ExtensionUtils.isInstantiationStrategy(new DefaultService(), InstantiationStrategy.PROJECT), is(true));
+    assertThat(ExtensionUtils.isInstantiationStrategy(BatchService.class, InstantiationStrategy.PROJECT)).isFalse();
+    assertThat(ExtensionUtils.isInstantiationStrategy(new BatchService(), InstantiationStrategy.PROJECT)).isFalse();
+    assertThat(ExtensionUtils.isInstantiationStrategy(ProjectService.class, InstantiationStrategy.PROJECT)).isTrue();
+    assertThat(ExtensionUtils.isInstantiationStrategy(new ProjectService(), InstantiationStrategy.PROJECT)).isTrue();
+    assertThat(ExtensionUtils.isInstantiationStrategy(DefaultService.class, InstantiationStrategy.PROJECT)).isTrue();
+    assertThat(ExtensionUtils.isInstantiationStrategy(new DefaultService(), InstantiationStrategy.PROJECT)).isTrue();
   }
 
   @Test
   public void testIsBatchExtension() {
-    assertThat(ExtensionUtils.isBatchExtension(BatchService.class), is(true));
-    assertThat(ExtensionUtils.isBatchExtension(new BatchService()), is(true));
+    assertThat(ExtensionUtils.isBatchExtension(BatchService.class)).isTrue();
+    assertThat(ExtensionUtils.isBatchExtension(new BatchService())).isTrue();
 
-    assertThat(ExtensionUtils.isBatchExtension(ServerService.class), is(false));
-    assertThat(ExtensionUtils.isBatchExtension(new ServerService()), is(false));
+    assertThat(ExtensionUtils.isBatchExtension(ServerService.class)).isFalse();
+    assertThat(ExtensionUtils.isBatchExtension(new ServerService())).isFalse();
   }
 
   @Test
   public void shouldCheckEnvironment() {
-    assertThat(ExtensionUtils.supportsEnvironment(new MavenService(), new EnvironmentInformation("maven", "2.2.1")), is(true));
-    assertThat(ExtensionUtils.supportsEnvironment(new BuildToolService(), new EnvironmentInformation("maven", "2.2.1")), is(true));
-    assertThat(ExtensionUtils.supportsEnvironment(new DefaultService(), new EnvironmentInformation("maven", "2.2.1")), is(true));
+    assertThat(ExtensionUtils.supportsEnvironment(new MavenService(), new EnvironmentInformation("maven", "2.2.1"))).isTrue();
+    assertThat(ExtensionUtils.supportsEnvironment(new BuildToolService(), new EnvironmentInformation("maven", "2.2.1"))).isTrue();
+    assertThat(ExtensionUtils.supportsEnvironment(new DefaultService(), new EnvironmentInformation("maven", "2.2.1"))).isTrue();
 
-    assertThat(ExtensionUtils.supportsEnvironment(new BuildToolService(), new EnvironmentInformation("eclipse", "0.1")), is(false));
+    assertThat(ExtensionUtils.supportsEnvironment(new BuildToolService(), new EnvironmentInformation("eclipse", "0.1"))).isFalse();
   }
 
   @Test
   public void shouldBeMavenExtensionOnly() {
-    assertThat(ExtensionUtils.isMavenExtensionOnly(MavenService.class), is(true));
-    assertThat(ExtensionUtils.isMavenExtensionOnly(BuildToolService.class), is(false));
+    assertThat(ExtensionUtils.isMavenExtensionOnly(DefaultService.class)).isFalse();
+    assertThat(ExtensionUtils.isMavenExtensionOnly(new DefaultService())).isFalse();
+    assertThat(ExtensionUtils.isMavenExtensionOnly(MavenService.class)).isTrue();
+    assertThat(ExtensionUtils.isMavenExtensionOnly(new MavenService())).isTrue();
+    assertThat(ExtensionUtils.isMavenExtensionOnly(BuildToolService.class)).isFalse();
+    assertThat(ExtensionUtils.isMavenExtensionOnly(new BuildToolService())).isFalse();
   }
 
-//  @Test
-//  public void shouldCheckDryRun() {
-//    assertThat(ExtensionUtils.supportsDryRun(BatchService.class, true), is(true));
-//    assertThat(ExtensionUtils.supportsDryRun(PersistentService.class, true), is(false));
-//  }
-//
-//  @Test
-//  public void shouldNotCheckDryRun() {
-//    assertThat(ExtensionUtils.supportsDryRun(BatchService.class, false), is(true));
-//    assertThat(ExtensionUtils.supportsDryRun(PersistentService.class, false), is(true));
-//  }
+  @Test
+  public void shouldSupportDryRun() {
+    assertThat(ExtensionUtils.supportsDryRun(BatchService.class)).isTrue();
+    assertThat(ExtensionUtils.supportsDryRun(new BatchService())).isTrue();
+    assertThat(ExtensionUtils.supportsDryRun(PersistentService.class)).isFalse();
+    assertThat(ExtensionUtils.supportsDryRun(new PersistentService())).isFalse();
+  }
 
   @InstantiationStrategy(InstantiationStrategy.BATCH)
   public static class BatchService implements BatchExtension {

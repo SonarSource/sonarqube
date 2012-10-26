@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
-import java.net.URISyntaxException;
 import java.net.URL;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -48,15 +47,26 @@ public class JdbcDriverHolderTest {
   }
 
   @Test
-  public void should_extend_classloader_with_jdbc_driver() throws URISyntaxException {
-    /* foo.jar has just one file /foo/foo.txt */
-    assertThat(getClass().getClassLoader().getResource("foo/foo.txt")).isNull();
+  public void should_extend_classloader_with_jdbc_driver() throws Exception {
+    /* jdbc-driver.jar has just one file /foo/foo.txt */
+    assertThat(Thread.currentThread().getContextClassLoader().getResource("foo/foo.txt")).isNull();
 
-    URL url = getClass().getResource("/org/sonar/batch/bootstrap/JdbcDriverHolderTest/foo.jar");
-    JdbcDriverHolder.JdbcDriverClassLoader classloader = JdbcDriverHolder.initClassloader(new File(url.toURI()));
-    assertThat(classloader).isNotNull();
-    assertThat(classloader.getResource("foo/foo.txt")).isNotNull();
-    assertThat(Thread.currentThread().getContextClassLoader()).isSameAs(classloader);
+    File fakeDriver = new File(getClass().getResource("/org/sonar/batch/bootstrap/JdbcDriverHolderTest/jdbc-driver.jar").toURI());
+    TempDirectories tempDirectories = mock(TempDirectories.class);
+    when(tempDirectories.getRoot()).thenReturn(fakeDriver.getParentFile());
+    ServerClient server = mock(ServerClient.class);
+
+    JdbcDriverHolder holder = new JdbcDriverHolder(mock(DryRun.class), tempDirectories, server);
+    holder.start();
+
+    verify(server).download("/deploy/jdbc-driver.jar", fakeDriver);
+    assertThat(holder.getClassLoader().getResource("foo/foo.txt")).isNotNull();
+    assertThat(Thread.currentThread().getContextClassLoader()).isSameAs(holder.getClassLoader());
+    assertThat(holder.getClassLoader().getParent()).isSameAs(getClass().getClassLoader());
+
+    holder.stop();
+    assertThat(Thread.currentThread().getContextClassLoader()).isSameAs(getClass().getClassLoader());
+    assertThat(holder.getClassLoader()).isNull();
   }
 
   @Test

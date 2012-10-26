@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * @since 2.9
  */
-public final class ProjectReactor {
+public class ProjectReactor {
 
   private ProjectDefinition root;
 

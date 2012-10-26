@@ -72,7 +72,9 @@ public class BootstrapModule extends Module {
     container.addSingleton(I18nManager.class);
     container.addSingleton(RuleI18nManager.class);
     for (Object component : boostrapperComponents) {
-      container.addSingleton(component);
+      if (component != null) {
+        container.addSingleton(component);
+      }
     }
     container.addSingleton(BootstrapExtensionExecutor.class);
     if (!isMavenPluginExecutorRegistered()) {

@@ -49,6 +49,7 @@ public class TempDirectoriesTest {
     assertThat(tempDirectories.getRoot()).isNotNull();
     assertThat(tempDirectories.getRoot()).exists();
     assertThat(tempDirectories.getRoot()).isDirectory();
+    assertThat(tempDirectories.getDir("")).isEqualTo(tempDirectories.getRoot());
   }
 
   @Test

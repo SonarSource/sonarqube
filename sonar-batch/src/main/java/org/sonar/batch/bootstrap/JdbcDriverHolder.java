@@ -106,6 +106,9 @@ public class JdbcDriverHolder {
   public void stop() {
     if (classLoader != null) {
       classLoader.clearReferencesJdbc();
+      if (Thread.currentThread().getContextClassLoader()==classLoader) {
+        Thread.currentThread().setContextClassLoader(classLoader.getParent());
+      }
       classLoader = null;
     }
   }

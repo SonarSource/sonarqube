@@ -19,34 +19,67 @@
  */
 package org.sonar.batch.bootstrap;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Test;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.FakeMavenPluginExecutor;
 import org.sonar.batch.MavenPluginExecutor;
+
+import static org.fest.assertions.Assertions.assertThat;
+
 
 public class BootstrapModuleTest {
 
-  class MyMavenPluginExecutor implements MavenPluginExecutor {
+  private ProjectReactor reactor = new ProjectReactor(ProjectDefinition.create());
+
+  @Test
+  public void should_register_fake_maven_executor_if_not_maven_env() {
+    BootstrapModule module = new BootstrapModule(reactor, null, MyMavenPluginExecutor.class);
+    module.init();
+
+    assertThat(module.isMavenPluginExecutorRegistered()).isTrue();
+    assertThat(module.container.getComponentByType(MavenPluginExecutor.class)).isInstanceOf(MyMavenPluginExecutor.class);
+  }
+
+  @Test
+  public void should_use_plugin_executor_provided_by_maven() {
+    BootstrapModule module = new BootstrapModule(reactor);
+    module.init();
+    assertThat(module.isMavenPluginExecutorRegistered()).isFalse();
+    assertThat(module.container.getComponentByType(MavenPluginExecutor.class)).isInstanceOf(FakeMavenPluginExecutor.class);
+  }
+
+  @Test
+  public void should_register_bootstrap_components() {
+    BootstrapModule module = new BootstrapModule(reactor, new FakeComponent());
+    module.init();
+
+    assertThat(module.container).isNotNull();
+    assertThat(module.container.getComponentByType(FakeComponent.class)).isNotNull();
+    assertThat(module.container.getComponentByType(ProjectReactor.class)).isSameAs(reactor);
+  }
+
+  @Test
+  public void should_not_fail_if_no_bootstrap_components() {
+    BootstrapModule module = new BootstrapModule(reactor);
+    module.init();
+
+    assertThat(module.container).isNotNull();
+    assertThat(module.container.getComponentByType(ProjectReactor.class)).isSameAs(reactor);
+  }
+
+  public static class FakeComponent {
+
+  }
+
+  public static class MyMavenPluginExecutor implements MavenPluginExecutor {
     public void execute(Project project, ProjectDefinition projectDef, String goal) {
     }
 
     public MavenPluginHandler execute(Project project, ProjectDefinition projectDef, MavenPluginHandler handler) {
       return handler;
     }
-  }
-
-  @Test
-  public void shouldSearchMavenPluginExecutor() {
-    ProjectReactor projectReactor = new ProjectReactor(ProjectDefinition.create());
-    BootstrapModule module = new BootstrapModule(projectReactor, null, MyMavenPluginExecutor.class);
-    assertThat(module.isMavenPluginExecutorRegistered(), is(true));
-
-    module = new BootstrapModule(projectReactor);
-    assertThat(module.isMavenPluginExecutorRegistered(), is(false));
   }
 }
