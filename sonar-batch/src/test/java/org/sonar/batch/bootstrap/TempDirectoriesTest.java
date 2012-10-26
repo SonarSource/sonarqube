@@ -26,9 +26,7 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class TempDirectoriesTest {
 
@@ -48,36 +46,36 @@ public class TempDirectoriesTest {
 
   @Test
   public void shouldCreateRoot() {
-    assertNotNull(tempDirectories.getRoot());
-    assertThat(tempDirectories.getRoot().exists(), is(true));
-    assertThat(tempDirectories.getRoot().isDirectory(), is(true));
+    assertThat(tempDirectories.getRoot()).isNotNull();
+    assertThat(tempDirectories.getRoot()).exists();
+    assertThat(tempDirectories.getRoot()).isDirectory();
   }
 
   @Test
   public void shouldCreateDirectory() {
     File findbugsDir = tempDirectories.getDir("findbugs");
-    assertNotNull(findbugsDir);
-    assertThat(findbugsDir.exists(), is(true));
-    assertThat(findbugsDir.getParentFile(), is(tempDirectories.getRoot()));
-    assertThat(findbugsDir.getName(), is("findbugs"));
+    assertThat(findbugsDir).isNotNull();
+    assertThat(findbugsDir).exists();
+    assertThat(findbugsDir.getParentFile()).isEqualTo(tempDirectories.getRoot());
+    assertThat(findbugsDir.getName()).isEqualTo("findbugs");
   }
 
   @Test
   public void shouldStopAndDeleteDirectory() {
     File root = tempDirectories.getRoot();
     File findbugsDir = tempDirectories.getDir("findbugs");
-    assertThat(findbugsDir.exists(), is(true));
+    assertThat(findbugsDir).exists();
 
     tempDirectories.stop();
 
-    assertThat(root.exists(), is(false));
-    assertThat(findbugsDir.exists(), is(false));
+    assertThat(root).doesNotExist();
+    assertThat(findbugsDir).doesNotExist();
   }
 
   @Test
   public void shouldCreateDirectoryWhenGettingFile() {
     File file = tempDirectories.getFile("findbugs", "bcel.jar");
-    assertNotNull(file);
-    assertThat(file.getParentFile().getName(), is("findbugs"));
+    assertThat(file).isNotNull();
+    assertThat(file.getParentFile().getName()).isEqualTo("findbugs");
   }
 }

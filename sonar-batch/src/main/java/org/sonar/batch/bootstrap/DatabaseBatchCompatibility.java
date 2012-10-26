@@ -22,9 +22,7 @@ package org.sonar.batch.bootstrap;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
-import org.sonar.api.platform.Server;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.RemoteServerMetadata;
 import org.sonar.core.persistence.BadDatabaseVersion;
 import org.sonar.core.persistence.DatabaseVersion;
 
@@ -36,15 +34,13 @@ import java.io.IOException;
 public class DatabaseBatchCompatibility implements BatchComponent {
 
   private DatabaseVersion version;
-  private Server server;
   private Settings settings;
-  private RemoteServerMetadata remoteServer;
+  private ServerClient server;
 
-  public DatabaseBatchCompatibility(DatabaseVersion version, Server server, RemoteServerMetadata remoteServer, Settings settings) {
+  public DatabaseBatchCompatibility(DatabaseVersion version, ServerClient server, Settings settings) {
     this.version = version;
     this.server = server;
     this.settings = settings;
-    this.remoteServer = remoteServer;
   }
 
   public void start() {
@@ -55,7 +51,7 @@ public class DatabaseBatchCompatibility implements BatchComponent {
   private void checkCorrectServerId() {
     String remoteServerId;
     try {
-      remoteServerId = remoteServer.getServerId();
+      remoteServerId = server.getServerId();
     } catch (IOException e) {
       throw new SonarException("Impossible to get the ID of the remote server: " + server.getURL(), e);
     }

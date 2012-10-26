@@ -55,7 +55,7 @@ public class BatchPluginRepositoryTest {
   public void shouldLoadPlugin() throws IOException {
     RemotePlugin checkstyle = new RemotePlugin("checkstyle", true);
 
-    ArtifactDownloader downloader = mock(ArtifactDownloader.class);
+    PluginDownloader downloader = mock(PluginDownloader.class);
     when(downloader.downloadPlugin(checkstyle)).thenReturn(copyFiles("sonar-checkstyle-plugin-2.8.jar"));
 
     repository = new BatchPluginRepository(downloader, new Settings());
@@ -74,7 +74,7 @@ public class BatchPluginRepositoryTest {
     RemotePlugin checkstyle = new RemotePlugin("checkstyle", true);
     RemotePlugin checkstyleExt = new RemotePlugin("checkstyleextensions", false);
 
-    ArtifactDownloader downloader = mock(ArtifactDownloader.class);
+    PluginDownloader downloader = mock(PluginDownloader.class);
     when(downloader.downloadPlugin(checkstyle)).thenReturn(copyFiles("sonar-checkstyle-plugin-2.8.jar"));
     when(downloader.downloadPlugin(checkstyleExt)).thenReturn(copyFiles("sonar-checkstyle-extensions-plugin-0.1-SNAPSHOT.jar"));
 
@@ -95,7 +95,7 @@ public class BatchPluginRepositoryTest {
     RemotePlugin checkstyle = new RemotePlugin("checkstyle", true)
         .addFilename("checkstyle-ext.xml");
 
-    ArtifactDownloader downloader = mock(ArtifactDownloader.class);
+    PluginDownloader downloader = mock(PluginDownloader.class);
     when(downloader.downloadPlugin(checkstyle)).thenReturn(copyFiles("sonar-checkstyle-plugin-2.8.jar", "checkstyle-ext.xml"));
 
     repository = new BatchPluginRepository(downloader, new Settings());
@@ -115,7 +115,7 @@ public class BatchPluginRepositoryTest {
     RemotePlugin checkstyle = new RemotePlugin("checkstyle", true);
     RemotePlugin checkstyleExt = new RemotePlugin("checkstyleextensions", false);
 
-    ArtifactDownloader downloader = mock(ArtifactDownloader.class);
+    PluginDownloader downloader = mock(PluginDownloader.class);
     when(downloader.downloadPlugin(checkstyle)).thenReturn(copyFiles("sonar-checkstyle-plugin-2.8.jar"));
     when(downloader.downloadPlugin(checkstyleExt)).thenReturn(copyFiles("sonar-checkstyle-extensions-plugin-0.1-SNAPSHOT.jar"));
 
@@ -143,7 +143,7 @@ public class BatchPluginRepositoryTest {
 
   @Test
   public void shouldAlwaysAcceptIfNoWhiteListAndBlackList() {
-    repository = new BatchPluginRepository(mock(ArtifactDownloader.class), new Settings());
+    repository = new BatchPluginRepository(mock(PluginDownloader.class), new Settings());
     assertThat(repository.isAccepted("pmd"), Matchers.is(true));
   }
 
@@ -152,7 +152,7 @@ public class BatchPluginRepositoryTest {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.BATCH_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
     settings.setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "cobertura,pmd");
-    repository = new BatchPluginRepository(mock(ArtifactDownloader.class), settings);
+    repository = new BatchPluginRepository(mock(PluginDownloader.class), settings);
 
     assertThat(repository.isAccepted("pmd"), Matchers.is(true));
   }
@@ -161,7 +161,7 @@ public class BatchPluginRepositoryTest {
   public void corePluginShouldAlwaysBeInWhiteList() {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.BATCH_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
-    repository = new BatchPluginRepository(mock(ArtifactDownloader.class), settings);
+    repository = new BatchPluginRepository(mock(PluginDownloader.class), settings);
     assertThat(repository.isAccepted("core"), Matchers.is(true));
   }
 
@@ -169,7 +169,7 @@ public class BatchPluginRepositoryTest {
   public void corePluginShouldNeverBeInBlackList() {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "core,findbugs");
-    repository = new BatchPluginRepository(mock(ArtifactDownloader.class), settings);
+    repository = new BatchPluginRepository(mock(PluginDownloader.class), settings);
     assertThat(repository.isAccepted("core"), Matchers.is(true));
   }
 
@@ -178,7 +178,7 @@ public class BatchPluginRepositoryTest {
   public void englishPackPluginShouldNeverBeInBlackList() {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "l10nen,findbugs");
-    repository = new BatchPluginRepository(mock(ArtifactDownloader.class), settings);
+    repository = new BatchPluginRepository(mock(PluginDownloader.class), settings);
     assertThat(repository.isAccepted("l10nen"), Matchers.is(true));
   }
 
@@ -186,7 +186,7 @@ public class BatchPluginRepositoryTest {
   public void shouldCheckWhitelist() {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.BATCH_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
-    repository = new BatchPluginRepository(mock(ArtifactDownloader.class), settings);
+    repository = new BatchPluginRepository(mock(PluginDownloader.class), settings);
 
     assertThat(repository.isAccepted("checkstyle"), Matchers.is(true));
     assertThat(repository.isAccepted("pmd"), Matchers.is(true));
@@ -197,7 +197,7 @@ public class BatchPluginRepositoryTest {
   public void shouldCheckBlackListIfNoWhiteList() {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
-    repository = new BatchPluginRepository(mock(ArtifactDownloader.class), settings);
+    repository = new BatchPluginRepository(mock(PluginDownloader.class), settings);
 
     assertThat(repository.isAccepted("checkstyle"), Matchers.is(false));
     assertThat(repository.isAccepted("pmd"), Matchers.is(false));

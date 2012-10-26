@@ -19,23 +19,15 @@
  */
 package org.sonar.batch.local;
 
-import com.google.common.base.Strings;
-import com.google.common.io.Files;
-import com.google.common.io.InputSupplier;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
-import org.sonar.api.platform.Server;
-import org.sonar.api.utils.HttpDownloader;
-import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrap.DryRun;
+import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.bootstrap.TempDirectories;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
 
 /**
  * @since 3.4
@@ -48,61 +40,42 @@ public class LocalDatabase implements BatchComponent {
   private static final String USER = "sonar";
   private static final String PASSWORD = "sonar";
 
-  private final DryRun localMode;
+  private final DryRun dryRun;
   private final Settings settings;
-  private final Server server;
+  private final ServerClient server;
+  private ProjectReactor reactor;
   private final TempDirectories tempDirectories;
 
-  public LocalDatabase(DryRun localMode, Settings settings, Server server, TempDirectories tempDirectories) {
-    this.localMode = localMode;
+  public LocalDatabase(DryRun dryRun, Settings settings, ServerClient server, TempDirectories tempDirectories, ProjectReactor reactor) {
+    this.dryRun = dryRun;
     this.settings = settings;
     this.server = server;
+    this.reactor = reactor;
     this.tempDirectories = tempDirectories;
   }
 
   public void start() {
-    if (!localMode.isEnabled()) {
+    if (!dryRun.isEnabled()) {
       return;
     }
 
     File file = tempDirectories.getFile("local", "db.h2.db");
     String h2DatabasePath = file.getAbsolutePath().replaceAll(".h2.db", "");
 
-    downloadDatabase(file);
+    downloadDatabase(reactor.getRoot().getKey(), file);
     replaceSettings(h2DatabasePath);
   }
 
-  private void downloadDatabase(File toFile) {
-    String login = settings.getString(CoreProperties.LOGIN);
-    String password = settings.getString(CoreProperties.PASSWORD);
-    String resourceKey = settings.getString("sonar.resource");
-    if (null == resourceKey) {
-      throw new SonarException("No resource key was provided using sonar.resource property");
-    }
-
-    URI uri = URI.create(server.getURL() + API_SYNCHRO + "?resource=" + resourceKey);
-
-    HttpDownloader.BaseHttpDownloader downloader = new HttpDownloader.BaseHttpDownloader(settings, null);
-    InputSupplier<InputStream> inputSupplier;
-    if (Strings.isNullOrEmpty(login)) {
-      inputSupplier = downloader.newInputSupplier(uri);
-    } else {
-      inputSupplier = downloader.newInputSupplier(uri, login, password);
-    }
-
-    try {
-      Files.copy(inputSupplier, toFile);
-    } catch (IOException e) {
-      throw new SonarException("Unable to save local database to file: " + toFile, e);
-    }
+  private void downloadDatabase(String projectKey, File toFile) {
+    server.download(API_SYNCHRO + "?resource=" + projectKey, toFile);
   }
 
   private void replaceSettings(String h2DatabasePath) {
     settings
-        .setProperty(DatabaseProperties.PROP_DIALECT, DIALECT)
-        .setProperty(DatabaseProperties.PROP_DRIVER, DRIVER)
-        .setProperty(DatabaseProperties.PROP_USER, USER)
-        .setProperty(DatabaseProperties.PROP_PASSWORD, PASSWORD)
-        .setProperty(DatabaseProperties.PROP_URL, URL + h2DatabasePath);
+      .setProperty(DatabaseProperties.PROP_DIALECT, DIALECT)
+      .setProperty(DatabaseProperties.PROP_DRIVER, DRIVER)
+      .setProperty(DatabaseProperties.PROP_USER, USER)
+      .setProperty(DatabaseProperties.PROP_PASSWORD, PASSWORD)
+      .setProperty(DatabaseProperties.PROP_URL, URL + h2DatabasePath);
   }
 }

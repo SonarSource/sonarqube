@@ -71,6 +71,7 @@ public class JaCoCoSensorTest {
   @Before
   public void setUp() {
     configuration = mock(JacocoConfiguration.class);
+    when(configuration.isEnabled()).thenReturn(true);
     sensor = new JaCoCoSensor(configuration);
   }
 

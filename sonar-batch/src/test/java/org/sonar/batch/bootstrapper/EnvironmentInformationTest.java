@@ -17,25 +17,25 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.utils.command;
+package org.sonar.batch.bootstrapper;
 
-import javax.annotation.Nullable;
+import org.junit.Test;
 
-public final class CommandException extends RuntimeException {
+import static org.fest.assertions.Assertions.assertThat;
 
-  private transient Command command = null;
+public class EnvironmentInformationTest {
+  @Test
+  public void test_bean() {
+    EnvironmentInformation env = new EnvironmentInformation("Maven Plugin", "2.0");
 
-  public CommandException(Command command, String message, @Nullable Throwable throwable) {
-    super(message + " [command: " + command + "]", throwable);
-    this.command = command;
+    assertThat(env.getKey()).isEqualTo("Maven Plugin");
+    assertThat(env.getVersion()).isEqualTo("2.0");
   }
 
-  public CommandException(Command command, Throwable throwable) {
-    super(throwable);
-    this.command = command;
-  }
+  @Test
+  public void test_toString() {
+    EnvironmentInformation env = new EnvironmentInformation("Maven Plugin", "2.0");
 
-  public Command getCommand() {
-    return command;
+    assertThat(env.toString()).isEqualTo("Maven Plugin/2.0");
   }
 }

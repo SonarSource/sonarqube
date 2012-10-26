@@ -19,29 +19,40 @@
  */
 package org.sonar.batch.bootstrap;
 
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import org.junit.Test;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class JdbcDriverHolderTest {
 
+  private ClassLoader initialThreadClassloader;
+
+  @Before
+  public void before() {
+    initialThreadClassloader = Thread.currentThread().getContextClassLoader();
+  }
+
+  @After
+  public void after() {
+    Thread.currentThread().setContextClassLoader(initialThreadClassloader);
+  }
+
   @Test
-  public void testClassLoader() throws URISyntaxException {
+  public void should_extend_classloader_with_jdbc_driver() throws URISyntaxException {
     /* foo.jar has just one file /foo/foo.txt */
-    assertNull(getClass().getClassLoader().getResource("foo/foo.txt"));
+    assertThat(getClass().getClassLoader().getResource("foo/foo.txt")).isNull();
 
     URL url = getClass().getResource("/org/sonar/batch/bootstrap/JdbcDriverHolderTest/foo.jar");
-    JdbcDriverHolder classloader = new JdbcDriverHolder(new File(url.toURI()));
-    assertNotNull(classloader.getClassLoader());
-    assertNotNull(classloader.getClassLoader().getResource("foo/foo.txt"));
-
-    classloader.stop();
-    assertNull(classloader.getClassLoader());
+    JdbcDriverHolder.JdbcDriverClassLoader classloader = JdbcDriverHolder.initClassloader(new File(url.toURI()));
+    assertThat(classloader).isNotNull();
+    assertThat(classloader.getResource("foo/foo.txt")).isNotNull();
+    assertThat(Thread.currentThread().getContextClassLoader()).isSameAs(classloader);
   }
 
 }

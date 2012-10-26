@@ -50,15 +50,15 @@ public class BatchPluginRepository implements PluginRepository {
   private static final String CORE_PLUGIN = "core";
   private static final String ENGLISH_PACK_PLUGIN = "l10nen";
 
-  private ArtifactDownloader artifactDownloader;
+  private PluginDownloader pluginDownloader;
   private Map<String, Plugin> pluginsByKey;
   private Map<String, PluginMetadata> metadataByKey;
   private Set<String> whiteList = null;
   private Set<String> blackList = null;
   private PluginClassloaders classLoaders;
 
-  public BatchPluginRepository(ArtifactDownloader artifactDownloader, Settings settings) {
-    this.artifactDownloader = artifactDownloader;
+  public BatchPluginRepository(PluginDownloader pluginDownloader, Settings settings) {
+    this.pluginDownloader = pluginDownloader;
     if (settings.hasKey(CoreProperties.BATCH_INCLUDE_PLUGINS)) {
       whiteList = Sets.newTreeSet(Arrays.asList(settings.getStringArray(CoreProperties.BATCH_INCLUDE_PLUGINS)));
       LOG.info("Include plugins: " + Joiner.on(", ").join(whiteList));
@@ -70,7 +70,7 @@ public class BatchPluginRepository implements PluginRepository {
   }
 
   public void start() {
-    doStart(artifactDownloader.downloadPluginIndex());
+    doStart(pluginDownloader.downloadPluginIndex());
   }
 
   void doStart(List<RemotePlugin> remotePlugins) {
@@ -78,7 +78,7 @@ public class BatchPluginRepository implements PluginRepository {
     metadataByKey = Maps.newHashMap();
     for (RemotePlugin remote : remotePlugins) {
       if (isAccepted(remote.getKey())) {
-        List<File> pluginFiles = artifactDownloader.downloadPlugin(remote);
+        List<File> pluginFiles = pluginDownloader.downloadPlugin(remote);
         List<File> extensionFiles = pluginFiles.subList(1, pluginFiles.size());
         PluginMetadata metadata = extractor.installInSameLocation(pluginFiles.get(0), remote.isCore(), extensionFiles);
         if (StringUtils.isBlank(metadata.getBasePlugin()) || isAccepted(metadata.getBasePlugin())) {

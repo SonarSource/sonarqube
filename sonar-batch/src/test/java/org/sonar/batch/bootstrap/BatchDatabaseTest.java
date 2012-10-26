@@ -17,25 +17,26 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.utils.command;
+package org.sonar.batch.bootstrap;
 
-import javax.annotation.Nullable;
+import org.junit.Test;
+import org.sonar.api.config.Settings;
 
-public final class CommandException extends RuntimeException {
+import java.util.Properties;
 
-  private transient Command command = null;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
-  public CommandException(Command command, String message, @Nullable Throwable throwable) {
-    super(message + " [command: " + command + "]", throwable);
-    this.command = command;
+public class BatchDatabaseTest {
+  @Test
+  public void should_init_at_least_two_connections() {
+    BatchDatabase db = new BatchDatabase(new Settings(), mock(JdbcDriverHolder.class));
+    Properties props = new Properties();
+
+    db.doCompleteProperties(props);
+
+    assertThat(Integer.parseInt(props.getProperty("sonar.jdbc.initialSize"))).isGreaterThanOrEqualTo(2);
+    assertThat(Integer.parseInt(props.getProperty("sonar.jdbc.maxActive"))).isGreaterThanOrEqualTo(2);
   }
 
-  public CommandException(Command command, Throwable throwable) {
-    super(throwable);
-    this.command = command;
-  }
-
-  public Command getCommand() {
-    return command;
-  }
 }

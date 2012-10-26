@@ -25,9 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
-import org.sonar.api.platform.Server;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.RemoteServerMetadata;
 import org.sonar.core.persistence.BadDatabaseVersion;
 import org.sonar.core.persistence.DatabaseVersion;
 
@@ -42,24 +40,21 @@ public class DatabaseBatchCompatibilityTest {
   public ExpectedException thrown = ExpectedException.none();
 
   private DatabaseVersion databaseVersion;
-  private Server server;
+  private ServerClient server;
   private Settings settings;
-  private RemoteServerMetadata remoteServerMetadata;
 
   @Before
   public void init() throws Exception {
     databaseVersion = mock(DatabaseVersion.class);
     when(databaseVersion.getSonarCoreId()).thenReturn("123456");
 
-    server = mock(Server.class);
+    server = mock(ServerClient.class);
     when(server.getURL()).thenReturn("http://localhost:9000");
+    when(server.getServerId()).thenReturn("123456");
 
     settings = new Settings();
     settings.setProperty(DatabaseProperties.PROP_URL, "jdbc:postgresql://localhost/foo");
     settings.setProperty(DatabaseProperties.PROP_USER, "bar");
-
-    remoteServerMetadata = mock(RemoteServerMetadata.class);
-    when(remoteServerMetadata.getServerId()).thenReturn("123456");
   }
 
   @Test
@@ -69,7 +64,7 @@ public class DatabaseBatchCompatibilityTest {
     thrown.expect(BadDatabaseVersion.class);
     thrown.expectMessage("Database relates to a more recent version of Sonar. Please check your settings (JDBC settings, version of Maven plugin)");
 
-    new DatabaseBatchCompatibility(databaseVersion, server, remoteServerMetadata, settings).start();
+    new DatabaseBatchCompatibility(databaseVersion, server, settings).start();
   }
 
   @Test
@@ -79,7 +74,7 @@ public class DatabaseBatchCompatibilityTest {
     thrown.expect(BadDatabaseVersion.class);
     thrown.expectMessage("Database must be upgraded.");
 
-    new DatabaseBatchCompatibility(databaseVersion, server, remoteServerMetadata, settings).start();
+    new DatabaseBatchCompatibility(databaseVersion, server, settings).start();
   }
 
   @Test
@@ -92,7 +87,7 @@ public class DatabaseBatchCompatibilityTest {
     thrown.expectMessage("- Batch side: jdbc:postgresql://localhost/foo (bar / *****)");
     thrown.expectMessage("- Server side: check the configuration at http://localhost:9000/system");
 
-    new DatabaseBatchCompatibility(version, server, remoteServerMetadata, settings).start();
+    new DatabaseBatchCompatibility(version, server, settings).start();
   }
 
   @Test
@@ -105,23 +100,23 @@ public class DatabaseBatchCompatibilityTest {
     thrown.expect(BadDatabaseVersion.class);
     thrown.expectMessage("- Batch side: jdbc:postgresql://localhost/foo (sonar / *****)");
 
-    new DatabaseBatchCompatibility(version, server, remoteServerMetadata, settings).start();
+    new DatabaseBatchCompatibility(version, server, settings).start();
   }
 
   @Test
   public void shouldFailIfCantGetServerId() throws Exception {
-    when(remoteServerMetadata.getServerId()).thenThrow(new IOException());
+    when(server.getServerId()).thenThrow(new IOException());
 
     thrown.expect(SonarException.class);
     thrown.expectMessage("Impossible to get the ID of the remote server: http://localhost:9000");
 
-    new DatabaseBatchCompatibility(mock(DatabaseVersion.class), server, remoteServerMetadata, settings).start();
+    new DatabaseBatchCompatibility(mock(DatabaseVersion.class), server, settings).start();
   }
 
   @Test
   public void shouldDoNothingIfUpToDate() {
     when(databaseVersion.getStatus()).thenReturn(DatabaseVersion.Status.UP_TO_DATE);
-    new DatabaseBatchCompatibility(databaseVersion, server, remoteServerMetadata, settings).start();
+    new DatabaseBatchCompatibility(databaseVersion, server, settings).start();
     // no error
   }
 }

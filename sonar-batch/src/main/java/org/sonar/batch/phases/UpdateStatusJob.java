@@ -24,22 +24,23 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Scopes;
-import org.sonar.batch.ServerMetadata;
+import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.index.ResourcePersister;
 import org.sonar.core.NotDryRun;
 
 import javax.persistence.Query;
+
 import java.util.List;
 
 @NotDryRun
 public class UpdateStatusJob implements BatchComponent {
 
   private DatabaseSession session;
-  private ServerMetadata server;
+  private ServerClient server;
   private Snapshot snapshot; // TODO remove this component
   private ResourcePersister resourcePersister;
 
-  public UpdateStatusJob(ServerMetadata server, DatabaseSession session, ResourcePersister resourcePersister, Snapshot snapshot) {
+  public UpdateStatusJob(ServerClient server, DatabaseSession session, ResourcePersister resourcePersister, Snapshot snapshot) {
     this.session = session;
     this.server = server;
     this.resourcePersister = resourcePersister;

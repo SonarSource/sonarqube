@@ -77,7 +77,6 @@ public class ProjectExclusions implements BatchComponent {
     project.remove();
   }
 
-  // TODO see http://jira.codehaus.org/browse/SONAR-2324
   static String key(ProjectDefinition project) {
     String key = project.getKey();
     if (key.contains(":")) {

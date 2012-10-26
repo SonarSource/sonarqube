@@ -105,6 +105,21 @@ public class ProjectExclusionsTest {
     ProjectReactor reactor = newReactor("root", "sub1", "sub2");
     ProjectExclusions exclusions = new ProjectExclusions(settings, reactor);
     exclusions.start();
+  }
 
+  @Test
+  public void shouldIgnoreMavenGroupId() {
+    ProjectReactor reactor = newReactor("org.apache.struts:struts", "org.apache.struts:struts-core", "org.apache.struts:struts-taglib");
+
+    Settings settings = new Settings();
+    settings.setProperty("sonar.skippedModules", "struts-taglib");
+
+    ProjectExclusions exclusions = new ProjectExclusions(settings, reactor);
+    exclusions.start();
+
+
+    assertThat(reactor.getProject("org.apache.struts:struts")).isNotNull();
+    assertThat(reactor.getProject("org.apache.struts:struts-core")).isNotNull();
+    assertThat(reactor.getProject("org.apache.struts:struts-taglib")).isNull();
   }
 }

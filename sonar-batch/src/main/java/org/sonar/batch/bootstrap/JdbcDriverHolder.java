@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.bootstrap;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.SonarException;
@@ -37,13 +38,27 @@ import java.util.List;
 public class JdbcDriverHolder {
 
   private static final Logger LOG = LoggerFactory.getLogger(JdbcDriverHolder.class);
+
+  private TempDirectories tempDirectories;
+  private ServerClient serverClient;
+
+  // initialized in start()
   private JdbcDriverClassLoader classLoader;
 
-  public JdbcDriverHolder(ArtifactDownloader extensionDownloader) {
-    this(extensionDownloader.downloadJdbcDriver());
+  public JdbcDriverHolder(TempDirectories tempDirectories, ServerClient serverClient) {
+    this.tempDirectories = tempDirectories;
+    this.serverClient = serverClient;
   }
 
-  JdbcDriverHolder(File jdbcDriver) {
+  public void start() {
+    File jdbcDriver = new File(tempDirectories.getRoot(), "jdbc-driver.jar");
+    serverClient.download("/deploy/jdbc-driver.jar", jdbcDriver);
+    classLoader = initClassloader(jdbcDriver);
+  }
+
+  @VisibleForTesting
+  static JdbcDriverClassLoader initClassloader(File jdbcDriver) {
+    JdbcDriverClassLoader classLoader;
     try {
       ClassLoader parentClassLoader = JdbcDriverHolder.class.getClassLoader();
       classLoader = new JdbcDriverClassLoader(jdbcDriver.toURI().toURL(), parentClassLoader);
@@ -51,15 +66,10 @@ public class JdbcDriverHolder {
     } catch (MalformedURLException e) {
       throw new SonarException("Fail to get URL of : " + jdbcDriver.getAbsolutePath(), e);
     }
-  }
 
-  public URLClassLoader getClassLoader() {
-    return classLoader;
-  }
-
-  public void start() {
     // set as the current context classloader for hibernate, else it does not find the JDBC driver.
     Thread.currentThread().setContextClassLoader(classLoader);
+    return classLoader;
   }
 
   /**
@@ -88,7 +98,7 @@ public class JdbcDriverHolder {
     classLoader = null;
   }
 
-  private static class JdbcDriverClassLoader extends URLClassLoader {
+  static class JdbcDriverClassLoader extends URLClassLoader {
 
     public JdbcDriverClassLoader(URL jdbcDriver, ClassLoader parent) {
       super(new URL[]{jdbcDriver}, parent);

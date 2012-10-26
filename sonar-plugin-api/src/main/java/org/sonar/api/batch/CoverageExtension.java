@@ -22,14 +22,10 @@ package org.sonar.api.batch;
 import org.sonar.api.BatchExtension;
 
 /**
- * Marker for extension. Extension which implements this interface would be active, when:
- * <ul>
- * <li>corresponding coverage engine activated (see {@link AbstractCoverageExtension#PARAM_PLUGIN}) and language is Java</li>
- * <li>type of analysis is dynamic or reuse reports</li>
- * </ul>
- * 
+ * Marker for the extensions that execute coverage tools. It's useful for the plugins that
+ * need to be executed after coverage analysis, for example import of test results by the Surefire plugin
+ *
  * @since 2.6
- * @TODO Ability to configure coverage engine per language - http://jira.codehaus.org/browse/SONAR-1803
  */
 public interface CoverageExtension extends BatchExtension {
 

@@ -51,4 +51,8 @@ public class EnvironmentInformation implements BatchComponent {
     return version;
   }
 
+  @Override
+  public String toString() {
+    return String.format("%s/%s", key, version);
+  }
 }

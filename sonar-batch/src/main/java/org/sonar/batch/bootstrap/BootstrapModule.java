@@ -26,8 +26,6 @@ import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.UriReader;
 import org.sonar.batch.FakeMavenPluginExecutor;
 import org.sonar.batch.MavenPluginExecutor;
-import org.sonar.batch.RemoteServerMetadata;
-import org.sonar.batch.ServerMetadata;
 import org.sonar.batch.config.BatchDatabaseSettingsLoader;
 import org.sonar.batch.config.BootstrapSettings;
 import org.sonar.batch.local.LocalDatabase;
@@ -63,13 +61,12 @@ public class BootstrapModule extends Module {
     container.addSingleton(ExtensionInstaller.class);
     container.addSingleton(DryRun.class);
     container.addSingleton(Logback.class);
-    container.addSingleton(ServerMetadata.class);// registered here because used by BootstrapClassLoader
-    container.addSingleton(TempDirectories.class);// registered here because used by BootstrapClassLoader
-    container.addSingleton(HttpDownloader.class);// registered here because used by BootstrapClassLoader
-    container.addSingleton(UriReader.class);// registered here because used by BootstrapClassLoader
-    container.addSingleton(ArtifactDownloader.class);// registered here because used by BootstrapClassLoader
+    container.addSingleton(ServerClient.class);
+    container.addSingleton(TempDirectories.class);
+    container.addSingleton(HttpDownloader.class);
+    container.addSingleton(UriReader.class);
+    container.addSingleton(PluginDownloader.class);
     container.addSingleton(EmailSettings.class);
-    container.addSingleton(RemoteServerMetadata.class);
     container.addSingleton(I18nManager.class);
     container.addSingleton(RuleI18nManager.class);
     for (Object component : boostrapperComponents) {
