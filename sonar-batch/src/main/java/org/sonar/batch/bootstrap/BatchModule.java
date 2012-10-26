@@ -20,16 +20,29 @@
 package org.sonar.batch.bootstrap;
 
 import org.sonar.api.Plugins;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Metric;
+import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectConfigurator;
 import org.sonar.batch.ProjectTree;
-import org.sonar.batch.components.*;
-import org.sonar.batch.index.*;
+import org.sonar.batch.components.PastMeasuresLoader;
+import org.sonar.batch.components.PastSnapshotFinder;
+import org.sonar.batch.components.PastSnapshotFinderByDate;
+import org.sonar.batch.components.PastSnapshotFinderByDays;
+import org.sonar.batch.components.PastSnapshotFinderByPreviousAnalysis;
+import org.sonar.batch.components.PastSnapshotFinderByPreviousVersion;
+import org.sonar.batch.components.PastSnapshotFinderByVersion;
+import org.sonar.batch.index.DefaultIndex;
+import org.sonar.batch.index.DefaultPersistenceManager;
+import org.sonar.batch.index.DefaultResourcePersister;
+import org.sonar.batch.index.DependencyPersister;
+import org.sonar.batch.index.EventPersister;
+import org.sonar.batch.index.LinkPersister;
+import org.sonar.batch.index.MeasurePersister;
+import org.sonar.batch.index.MemoryOptimizer;
+import org.sonar.batch.index.SourcePersister;
 import org.sonar.core.metric.CacheMetricFinder;
 import org.sonar.core.notification.DefaultNotificationManager;
 import org.sonar.core.rule.CacheRuleFinder;
@@ -41,66 +54,47 @@ import org.sonar.jpa.dao.MeasuresDao;
  */
 public class BatchModule extends Module {
 
-  private final boolean dryRun;
-
-  public BatchModule(boolean dryRun) {
-    this.dryRun = dryRun;
-  }
-
   @Override
   protected void configure() {
-    addCoreSingleton(ProjectTree.class);
-    addCoreSingleton(ProjectFilter.class);
-    addCoreSingleton(ProjectConfigurator.class);
-    addCoreSingleton(DefaultResourceCreationLock.class);
-    addCoreSingleton(DefaultIndex.class);
-    addCoreSingleton(DefaultFileLinesContextFactory.class);
-
-    if (dryRun) {
-      addCoreSingleton(ReadOnlyPersistenceManager.class);
-    } else {
-      addCoreSingleton(DefaultPersistenceManager.class);
-      addCoreSingleton(DependencyPersister.class);
-      addCoreSingleton(EventPersister.class);
-      addCoreSingleton(LinkPersister.class);
-      addCoreSingleton(MeasurePersister.class);
-      addCoreSingleton(MemoryOptimizer.class);
-      addCoreSingleton(DefaultResourcePersister.class);
-      addCoreSingleton(SourcePersister.class);
-    }
-
-    addCoreSingleton(Plugins.class);
-    addCoreSingleton(MeasuresDao.class);
-    addCoreSingleton(CacheRuleFinder.class);
-    addCoreSingleton(CacheMetricFinder.class);
-    addCoreSingleton(PastSnapshotFinderByDate.class);
-    addCoreSingleton(PastSnapshotFinderByDays.class);
-    addCoreSingleton(PastSnapshotFinderByPreviousAnalysis.class);
-    addCoreSingleton(PastSnapshotFinderByVersion.class);
-    addCoreSingleton(PastSnapshotFinderByPreviousVersion.class);
-    addCoreSingleton(PastMeasuresLoader.class);
-    addCoreSingleton(PastSnapshotFinder.class);
-    addCoreSingleton(DefaultNotificationManager.class);
-    addCoreSingleton(DefaultUserFinder.class);
-    addCoreSingleton(ResourceTypes.class);
-    addCoreMetrics();
+    container.addSingleton(ProjectTree.class);
+    container.addSingleton(ProjectConfigurator.class);
+    container.addSingleton(DefaultResourceCreationLock.class);
+    container.addSingleton(DefaultIndex.class);
+    container.addSingleton(DefaultFileLinesContextFactory.class);
+    container.addSingleton(DefaultPersistenceManager.class);
+    container.addSingleton(DependencyPersister.class);
+    container.addSingleton(EventPersister.class);
+    container.addSingleton(LinkPersister.class);
+    container.addSingleton(MeasurePersister.class);
+    container.addSingleton(MemoryOptimizer.class);
+    container.addSingleton(DefaultResourcePersister.class);
+    container.addSingleton(SourcePersister.class);
+    container.addSingleton(Plugins.class);
+    container.addSingleton(MeasuresDao.class);
+    container.addSingleton(CacheRuleFinder.class);
+    container.addSingleton(CacheMetricFinder.class);
+    container.addSingleton(PastSnapshotFinderByDate.class);
+    container.addSingleton(PastSnapshotFinderByDays.class);
+    container.addSingleton(PastSnapshotFinderByPreviousAnalysis.class);
+    container.addSingleton(PastSnapshotFinderByVersion.class);
+    container.addSingleton(PastSnapshotFinderByPreviousVersion.class);
+    container.addSingleton(PastMeasuresLoader.class);
+    container.addSingleton(PastSnapshotFinder.class);
+    container.addSingleton(DefaultNotificationManager.class);
+    container.addSingleton(DefaultUserFinder.class);
+    container.addSingleton(ResourceTypes.class);
+    container.addSingleton(MetricProvider.class);
     addBatchExtensions();
   }
 
   private void addBatchExtensions() {
-    BatchExtensionInstaller installer = getComponentByType(BatchExtensionInstaller.class);
-    installer.install(this);
-  }
-
-  void addCoreMetrics() {
-    for (Metric metric : CoreMetrics.getMetrics()) {
-      addCoreSingleton(metric);
-    }
+    ExtensionInstaller installer = container.getComponentByType(ExtensionInstaller.class);
+    installer.install(container, InstantiationStrategy.BATCH);
   }
 
   @Override
   protected void doStart() {
-    ProjectTree projectTree = getComponentByType(ProjectTree.class);
+    ProjectTree projectTree = container.getComponentByType(ProjectTree.class);
     analyze(projectTree.getRootProject());
   }
 
@@ -109,7 +103,7 @@ public class BatchModule extends Module {
       analyze(subProject);
     }
 
-    Module projectComponents = installChild(new ProjectModule(project, dryRun));
+    Module projectComponents = installChild(new ProjectModule(project));
     try {
       projectComponents.start();
     } finally {

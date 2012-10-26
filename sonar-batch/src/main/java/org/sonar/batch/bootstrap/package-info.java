@@ -17,31 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+@ParametersAreNonnullByDefault
 package org.sonar.batch.bootstrap;
 
-import org.junit.Test;
-import org.sonar.api.config.Settings;
-
-import static org.fest.assertions.Assertions.assertThat;
-
-public class LocalModeTest {
-  Settings settings = new Settings();
-
-  @Test
-  public void should_be_disabled() {
-    LocalMode localMode = new LocalMode(settings);
-    localMode.start();
-
-    assertThat(localMode.isEnabled()).isFalse();
-  }
-
-  @Test
-  public void should_enable() {
-    settings.setProperty("sonar.local", "true");
-
-    LocalMode localMode = new LocalMode(settings);
-    localMode.start();
-
-    assertThat(localMode.isEnabled()).isTrue();
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

@@ -29,7 +29,7 @@ import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.bootstrap.LocalMode;
+import org.sonar.batch.bootstrap.DryRun;
 import org.sonar.batch.bootstrap.TempDirectories;
 
 import java.io.File;
@@ -48,12 +48,12 @@ public class LocalDatabase implements BatchComponent {
   private static final String USER = "sonar";
   private static final String PASSWORD = "sonar";
 
-  private final LocalMode localMode;
+  private final DryRun localMode;
   private final Settings settings;
   private final Server server;
   private final TempDirectories tempDirectories;
 
-  public LocalDatabase(LocalMode localMode, Settings settings, Server server, TempDirectories tempDirectories) {
+  public LocalDatabase(DryRun localMode, Settings settings, Server server, TempDirectories tempDirectories) {
     this.localMode = localMode;
     this.settings = settings;
     this.server = server;

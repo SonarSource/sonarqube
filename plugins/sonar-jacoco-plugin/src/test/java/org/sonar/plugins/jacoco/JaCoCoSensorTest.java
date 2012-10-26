@@ -91,6 +91,7 @@ public class JaCoCoSensorTest {
   public void shouldExecuteOnProject() {
     Project project = mock(Project.class);
     when(project.getLanguageKey()).thenReturn(Java.KEY);
+    when(project.getAnalysisType()).thenReturn(Project.AnalysisType.DYNAMIC);
 
     assertThat(sensor.shouldExecuteOnProject(project), is(true));
   }

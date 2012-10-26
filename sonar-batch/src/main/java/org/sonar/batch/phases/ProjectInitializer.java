@@ -24,7 +24,6 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.bootstrap.DryRun;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 
@@ -34,12 +33,10 @@ import org.sonar.core.resource.ResourceDto;
 public class ProjectInitializer implements BatchComponent {
 
   private ResourceDao resourceDao;
-  private DryRun dryRun;
   private Languages languages;
 
-  public ProjectInitializer(ResourceDao resourceDao, DryRun dryRun, Languages languages) {
+  public ProjectInitializer(ResourceDao resourceDao, Languages languages) {
     this.resourceDao = resourceDao;
-    this.dryRun = dryRun;
     this.languages = languages;
   }
 
@@ -53,7 +50,7 @@ public class ProjectInitializer implements BatchComponent {
       throw new SonarException("Language with key '" + project.getLanguageKey() + "' not found");
     }
     project.setLanguage(language);
-    if (!dryRun.isEnabled() && project.getId() != null) {
+    if (project.getId() != null) {
       ResourceDto dto = resourceDao.getResource(project.getId());
       dto.setLanguage(project.getLanguageKey());
       resourceDao.insertOrUpdate(dto);

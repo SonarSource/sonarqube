@@ -27,7 +27,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypeTree;
 
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
+@InstantiationStrategy(InstantiationStrategy.BATCH)
 public final class DefaultResourceTypes extends ExtensionProvider implements BatchExtension, ServerExtension {
   @Override
   public ResourceTypeTree provide() {

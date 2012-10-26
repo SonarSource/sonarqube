@@ -19,32 +19,27 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.Property;
-import org.sonar.api.config.Settings;
+import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.platform.ComponentContainer;
 
-/**
- * @since 3.4
- */
-@Property(key = "sonar.local", defaultValue = "false", name = "Local Mode")
-public class LocalMode implements BatchComponent {
-  private static final Logger LOG = LoggerFactory.getLogger(LocalMode.class);
+public class BootstrapExtensionExecutor {
 
-  private final boolean enabled;
+  private ComponentContainer container;
+  private ExtensionInstaller installer;
 
-  public LocalMode(Settings settings) {
-    enabled = settings.getBoolean("sonar.local");
-  }
-
-  public boolean isEnabled() {
-    return enabled;
+  public BootstrapExtensionExecutor(ComponentContainer container, ExtensionInstaller installer) {
+    this.container = container;
+    this.installer = installer;
   }
 
   public void start() {
-    if (enabled) {
-      LOG.info("Local Mode");
-    }
+    LoggerFactory.getLogger(BootstrapExtensionExecutor.class).debug("Execute bootstrap extensions");
+    ComponentContainer childContainer = container.createChild();
+    installer.install(childContainer, InstantiationStrategy.BOOTSTRAP);
+    childContainer.addSingleton(ProjectExclusions.class);
+    childContainer.startComponents();
+    childContainer.stopComponents();
+    container.removeChild();
   }
 }

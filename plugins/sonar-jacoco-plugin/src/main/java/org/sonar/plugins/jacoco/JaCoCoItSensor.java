@@ -30,9 +30,6 @@ import org.sonar.api.resources.Project;
 import java.util.Collection;
 
 /**
- * Note that this class can't extend {@link org.sonar.api.batch.AbstractCoverageExtension}, because in this case this extension will be
- * disabled under Sonar 2.3, if JaCoCo is not defined as the default code coverage plugin.
- *
  * @author Evgeny Mandrikov
  */
 public class JaCoCoItSensor implements Sensor {
@@ -43,8 +40,7 @@ public class JaCoCoItSensor implements Sensor {
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return StringUtils.isNotBlank(configuration.getItReportPath())
-        && project.getAnalysisType().isDynamic(true);
+    return StringUtils.isNotBlank(configuration.getItReportPath()) && project.getAnalysisType().isDynamic(true);
   }
 
   public void analyse(Project project, SensorContext context) {

@@ -30,6 +30,8 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.config.PropertyDefinitions;
 
+import javax.annotation.Nullable;
+
 /**
  * @since 2.12
  */
@@ -90,18 +92,18 @@ public class ComponentContainer implements BatchComponent, ServerComponent {
    */
   public final ComponentContainer addComponent(Object component, boolean singleton) {
     pico.as(singleton ? Characteristics.CACHE : Characteristics.NO_CACHE).addComponent(getComponentKey(component), component);
-    propertyDefinitions.addComponent(component);
+    declareExtension(null, component);
     return this;
   }
 
-  public final ComponentContainer addExtension(PluginMetadata plugin, Object extension) {
+  public final ComponentContainer addExtension(@Nullable PluginMetadata plugin, Object extension) {
     pico.as(Characteristics.CACHE).addComponent(getComponentKey(extension), extension);
     declareExtension(plugin, extension);
     return this;
   }
 
-  public final void declareExtension(PluginMetadata plugin, Object extension) {
-    propertyDefinitions.addComponent(extension, plugin.getName());
+  public final void declareExtension(@Nullable PluginMetadata plugin, Object extension) {
+    propertyDefinitions.addComponent(extension, plugin!=null ? plugin.getName() : "");
   }
 
   public final ComponentContainer addPicoAdapter(ComponentAdapter adapter) {

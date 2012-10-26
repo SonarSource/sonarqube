@@ -25,11 +25,13 @@ import org.apache.maven.project.MavenProject;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.InputFileUtils;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.test.MavenTestUtils;
+import org.sonar.plugins.java.api.JavaSettings;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -54,7 +56,9 @@ public class CoberturaMavenInitializerTest {
   @Before
   public void setUp() {
     project = mock(Project.class);
-    initializer = new CoberturaMavenInitializer(new CoberturaMavenPluginHandler(null));
+    JavaSettings javaSettings = mock(JavaSettings.class);
+    when(javaSettings.getEnabledCoveragePlugin()).thenReturn("cobertura");
+    initializer = new CoberturaMavenInitializer(new CoberturaMavenPluginHandler(new Settings()), javaSettings);
   }
 
   @Test

@@ -25,6 +25,7 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.config.Settings;
+import org.sonar.plugins.java.api.JavaSettings;
 
 @Properties({
     @Property(
@@ -108,11 +109,17 @@ public class JacocoConfiguration implements BatchExtension {
   public static final String ANT_TARGETS_DEFAULT_VALUE = "";
 
   private Settings settings;
+  private JavaSettings javaSettings;
   private JaCoCoAgentDownloader downloader;
 
-  public JacocoConfiguration(Settings settings, JaCoCoAgentDownloader downloader) {
+  public JacocoConfiguration(Settings settings, JaCoCoAgentDownloader downloader, JavaSettings javaSettings) {
     this.settings = settings;
     this.downloader = downloader;
+    this.javaSettings = javaSettings;
+  }
+
+  public boolean isEnabled() {
+    return JaCoCoUtils.PLUGIN_KEY.equals(javaSettings.getEnabledCoveragePlugin());
   }
 
   public String getReportPath() {

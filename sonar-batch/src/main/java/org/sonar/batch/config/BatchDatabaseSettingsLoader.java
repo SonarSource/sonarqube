@@ -33,10 +33,10 @@ import java.util.List;
 public final class BatchDatabaseSettingsLoader {
 
   private PropertiesDao propertiesDao;
-  private BatchSettings settings;
+  private BootstrapSettings settings;
   private ProjectReactor reactor;
 
-  public BatchDatabaseSettingsLoader(PropertiesDao propertiesDao, BatchSettings settings, ProjectReactor reactor) {
+  public BatchDatabaseSettingsLoader(PropertiesDao propertiesDao, BootstrapSettings settings, ProjectReactor reactor) {
     this.propertiesDao = propertiesDao;
     this.settings = settings;
     this.reactor = reactor;

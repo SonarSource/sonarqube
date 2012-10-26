@@ -28,7 +28,7 @@ import org.sonar.api.config.PropertyDefinitions;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class BatchSettingsTest {
+public class BootstrapSettingsTest {
 
   @Test
   public void shouldLoadBuildModel() {
@@ -37,7 +37,7 @@ public class BatchSettingsTest {
     project.setProperty("foo", "bar");
 
     ProjectReactor reactor = new ProjectReactor(project);
-    BatchSettings settings = new BatchSettings(new PropertyDefinitions(), reactor, new BaseConfiguration());
+    BootstrapSettings settings = new BootstrapSettings(new PropertyDefinitions(), reactor, new BaseConfiguration());
 
     assertThat(settings.getString("foo"), is("bar"));
   }
@@ -45,13 +45,13 @@ public class BatchSettingsTest {
   @Test
   public void environmentShouldOverrideBuildModel() {
     ProjectDefinition project = ProjectDefinition.create();
-    project.setProperty("BatchSettingsTest.testEnv", "build");
-    System.setProperty("BatchSettingsTest.testEnv", "env");
+    project.setProperty("BootstrapSettingsTest.testEnv", "build");
+    System.setProperty("BootstrapSettingsTest.testEnv", "env");
 
     ProjectReactor reactor = new ProjectReactor(project);
-    BatchSettings settings = new BatchSettings(new PropertyDefinitions(), reactor, new BaseConfiguration());
+    BootstrapSettings settings = new BootstrapSettings(new PropertyDefinitions(), reactor, new BaseConfiguration());
 
-    assertThat(settings.getString("BatchSettingsTest.testEnv"), is("env"));
+    assertThat(settings.getString("BootstrapSettingsTest.testEnv"), is("env"));
   }
 
   @Test
@@ -61,7 +61,7 @@ public class BatchSettingsTest {
 
     ProjectReactor reactor = new ProjectReactor(project);
     BaseConfiguration deprecatedConfiguration = new BaseConfiguration();
-    new BatchSettings(new PropertyDefinitions(), reactor, deprecatedConfiguration);
+    new BootstrapSettings(new PropertyDefinitions(), reactor, deprecatedConfiguration);
 
     assertThat(deprecatedConfiguration.getString("foo"), is("bar"));
   }

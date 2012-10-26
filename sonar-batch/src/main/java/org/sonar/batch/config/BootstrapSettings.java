@@ -28,18 +28,18 @@ import org.sonar.core.config.ConfigurationUtils;
 /**
  * @since 2.12
  */
-public final class BatchSettings extends Settings {
+public final class BootstrapSettings extends Settings {
   private Configuration deprecatedConfiguration;
   private ProjectReactor reactor;
 
-  public BatchSettings(PropertyDefinitions propertyDefinitions, ProjectReactor reactor, Configuration deprecatedConfiguration) {
+  public BootstrapSettings(PropertyDefinitions propertyDefinitions, ProjectReactor reactor, Configuration deprecatedConfiguration) {
     super(propertyDefinitions);
     this.reactor = reactor;
     this.deprecatedConfiguration = deprecatedConfiguration;
     load();
   }
 
-  public BatchSettings load() {
+  public BootstrapSettings load() {
     clear();
 
     // order is important -> bottom-up. The last one overrides all the others.

@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.jacoco;
 
+import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.InputFile;
@@ -28,20 +29,21 @@ import org.sonar.api.resources.ProjectFileSystem;
 
 import java.util.Collections;
 
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
 
 public class JacocoMavenInitializerTest {
   private JaCoCoMavenPluginHandler mavenPluginHandler;
   private JacocoMavenInitializer initializer;
+  private JacocoConfiguration jacocoSettings;
 
   @Before
   public void setUp() {
     mavenPluginHandler = mock(JaCoCoMavenPluginHandler.class);
-    initializer = new JacocoMavenInitializer(mavenPluginHandler);
+    jacocoSettings = mock(JacocoConfiguration.class);
+    when(jacocoSettings.isEnabled()).thenReturn(true);
+    initializer = new JacocoMavenInitializer(mavenPluginHandler, jacocoSettings);
   }
 
   @Test
@@ -59,8 +61,8 @@ public class JacocoMavenInitializerTest {
     when(project.getFileSystem().testFiles(Java.KEY)).thenReturn(Collections.singletonList(inputFile));
     when(project.getAnalysisType()).thenReturn(Project.AnalysisType.DYNAMIC);
 
-    assertThat(initializer.shouldExecuteOnProject(project), is(true));
-    assertThat(initializer.getMavenPluginHandler(project), instanceOf(JaCoCoMavenPluginHandler.class));
+    assertThat(initializer.shouldExecuteOnProject(project)).isTrue();
+    assertThat(initializer.getMavenPluginHandler(project)).isInstanceOf(JaCoCoMavenPluginHandler.class);
   }
 
   @Test
@@ -70,16 +72,16 @@ public class JacocoMavenInitializerTest {
     when(project.getFileSystem().testFiles(Java.KEY)).thenReturn(Collections.singletonList(inputFile));
     when(project.getAnalysisType()).thenReturn(Project.AnalysisType.REUSE_REPORTS);
 
-    assertThat(initializer.shouldExecuteOnProject(project), is(false));
+    assertThat(initializer.shouldExecuteOnProject(project)).isFalse();
   }
 
   @Test
   public void shouldNotExecuteMavenWhenNoTests() {
     Project project = mockProject();
-    when(project.getFileSystem().hasTestFiles(argThat(is(Java.INSTANCE)))).thenReturn(false);
+    when(project.getFileSystem().hasTestFiles(argThat(Is.is(Java.INSTANCE)))).thenReturn(false);
     when(project.getAnalysisType()).thenReturn(Project.AnalysisType.DYNAMIC);
 
-    assertThat(initializer.shouldExecuteOnProject(project), is(false));
+    assertThat(initializer.shouldExecuteOnProject(project)).isFalse();
   }
 
   private Project mockProject() {

@@ -22,12 +22,21 @@ package org.sonar.batch.bootstrap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.BatchExtensionDictionnary;
+import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.IocContainer;
-import org.sonar.batch.*;
+import org.sonar.batch.DefaultProfileLoader;
+import org.sonar.batch.DefaultProjectClasspath;
+import org.sonar.batch.DefaultProjectFileSystem2;
+import org.sonar.batch.DefaultSensorContext;
+import org.sonar.batch.DefaultTimeMachine;
+import org.sonar.batch.ProfileProvider;
+import org.sonar.batch.ProjectTree;
+import org.sonar.batch.ResourceFilters;
+import org.sonar.batch.ViolationFilters;
 import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.batch.config.ProjectSettings;
 import org.sonar.batch.config.UnsupportedProperties;
@@ -43,11 +52,9 @@ import org.sonar.jpa.dao.RulesDao;
 public class ProjectModule extends Module {
   private static final Logger LOG = LoggerFactory.getLogger(ProjectModule.class);
   private Project project;
-  private boolean dryRun;
 
-  public ProjectModule(Project project, boolean dryRun) {
+  public ProjectModule(Project project) {
     this.project = project;
-    this.dryRun = dryRun;
   }
 
   @Override
@@ -60,52 +67,50 @@ public class ProjectModule extends Module {
 
 
   private void addProjectComponents() {
-    ProjectDefinition projectDefinition = getComponentByType(ProjectTree.class).getProjectDefinition(project);
-    addCoreSingleton(projectDefinition);
-    addCoreSingleton(project);
-    addCoreSingleton(project.getConfiguration());
-    addCoreSingleton(ProjectSettings.class);
-    addCoreSingleton(UnsupportedProperties.class);
-    addCoreSingleton(IocContainer.class);
+    ProjectDefinition projectDefinition = container.getComponentByType(ProjectTree.class).getProjectDefinition(project);
+    container.addSingleton(projectDefinition);
+    container.addSingleton(project);
+    container.addSingleton(project.getConfiguration());
+    container.addSingleton(ProjectSettings.class);
+    container.addSingleton(UnsupportedProperties.class);
+    container.addSingleton(IocContainer.class);
 
     for (Object component : projectDefinition.getContainerExtensions()) {
-      addCoreSingleton(component);
+      container.addSingleton(component);
     }
-    addCoreSingleton(Languages.class);
-    addCoreSingleton(DefaultProjectClasspath.class);
-    addCoreSingleton(DefaultProjectFileSystem2.class);
-    addCoreSingleton(RulesDao.class);
+    container.addSingleton(Languages.class);
+    container.addSingleton(DefaultProjectClasspath.class);
+    container.addSingleton(DefaultProjectFileSystem2.class);
+    container.addSingleton(RulesDao.class);
 
-    if (!dryRun) {
-      // the Snapshot component will be removed when asynchronous measures are improved (required for AsynchronousMeasureSensor)
-      addCoreSingleton(getComponentByType(DefaultResourcePersister.class).getSnapshot(project));
-    }
-    addCoreSingleton(TimeMachineConfiguration.class);
-    addCoreSingleton(org.sonar.api.database.daos.MeasuresDao.class);
-    addCoreSingleton(ProfilesDao.class);
-    addCoreSingleton(DefaultSensorContext.class);
-    addCoreSingleton(BatchExtensionDictionnary.class);
-    addCoreSingleton(DefaultTimeMachine.class);
-    addCoreSingleton(ViolationFilters.class);
-    addCoreSingleton(ResourceFilters.class);
-    addCoreSingleton(DefaultModelFinder.class);
-    addCoreSingleton(DefaultProfileLoader.class);
-    addAdapter(new ProfileProvider());
+    // the Snapshot component will be removed when asynchronous measures are improved (required for AsynchronousMeasureSensor)
+    container.addSingleton(container.getComponentByType(DefaultResourcePersister.class).getSnapshot(project));
+
+    container.addSingleton(TimeMachineConfiguration.class);
+    container.addSingleton(org.sonar.api.database.daos.MeasuresDao.class);
+    container.addSingleton(ProfilesDao.class);
+    container.addSingleton(DefaultSensorContext.class);
+    container.addSingleton(BatchExtensionDictionnary.class);
+    container.addSingleton(DefaultTimeMachine.class);
+    container.addSingleton(ViolationFilters.class);
+    container.addSingleton(ResourceFilters.class);
+    container.addSingleton(DefaultModelFinder.class);
+    container.addSingleton(DefaultProfileLoader.class);
+    container.addPicoAdapter(new ProfileProvider());
   }
 
   private void addCoreComponents() {
-    addCoreSingleton(EventBus.class);
-    addCoreSingleton(Phases.class);
-    addCoreSingleton(PhasesTimeProfiler.class);
-    for (Class clazz : Phases.getPhaseClasses(dryRun)) {
-      addCoreSingleton(clazz);
+    container.addSingleton(EventBus.class);
+    container.addSingleton(Phases.class);
+    container.addSingleton(PhasesTimeProfiler.class);
+    for (Class clazz : Phases.getPhaseClasses()) {
+      container.addSingleton(clazz);
     }
   }
 
   private void addProjectPluginExtensions() {
-    addCoreSingleton(ProjectExtensionInstaller.class);
-    ProjectExtensionInstaller installer = getComponentByType(ProjectExtensionInstaller.class);
-    installer.install(this);
+    ExtensionInstaller installer = container.getComponentByType(ExtensionInstaller.class);
+    installer.install(container, InstantiationStrategy.PROJECT);
   }
 
 
@@ -119,12 +124,12 @@ public class ProjectModule extends Module {
    */
   @Override
   protected void doStart() {
-    DefaultIndex index = getComponentByType(DefaultIndex.class);
+    DefaultIndex index = container.getComponentByType(DefaultIndex.class);
     index.setCurrentProject(project,
-      getComponentByType(ResourceFilters.class),
-      getComponentByType(ViolationFilters.class),
-      getComponentByType(RulesProfile.class));
+      container.getComponentByType(ResourceFilters.class),
+      container.getComponentByType(ViolationFilters.class),
+      container.getComponentByType(RulesProfile.class));
 
-    getComponentByType(Phases.class).execute(project);
+    container.getComponentByType(Phases.class).execute(project);
   }
 }

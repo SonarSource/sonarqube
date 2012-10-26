@@ -17,35 +17,38 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.batch.bootstrap;
+package org.sonar.batch.bootstrap;
 
+import com.google.common.collect.Lists;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
+import org.sonar.api.ExtensionProvider;
 import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.Metrics;
 
-/**
- * This extension point allows to change project structure at runtime. It is executed once during batch startup.
- * Some use-cases :
- * <ul>
- *   <li>Add sub-projects which are not defined in batch bootstrapper. For example the C# plugin gets the hierarchy
- *   of sub-projects from the Visual Studio metadata file. The single root pom.xml does not contain any declarations of
- *   modules</li>
- *   <li>Change project metadata like description or source directories.</li>
- * </ul>
- *
- * @since 2.9
- */
-@InstantiationStrategy(InstantiationStrategy.BOOTSTRAP)
-public abstract class ProjectBuilder implements BatchExtension {
+import java.util.List;
 
-  private ProjectReactor reactor;
+@InstantiationStrategy(InstantiationStrategy.BATCH)
+public class MetricProvider extends ExtensionProvider implements BatchExtension {
 
-  protected ProjectBuilder(final ProjectReactor reactor) {
-    this.reactor = reactor;
+  private Metrics[] factories;
+
+  public MetricProvider(Metrics[] factories) {
+    this.factories = factories;
   }
 
-  public final void start() {
-    build(reactor);
+  public MetricProvider() {
+    this.factories = new Metrics[0];
   }
 
-  protected abstract void build(ProjectReactor reactor);
+  public List<Metric> provide() {
+    LoggerFactory.getLogger(MetricProvider.class).debug("Load metrics");
+    List<Metric> metrics = Lists.newArrayList(CoreMetrics.getMetrics());
+    for (Metrics factory : factories) {
+      metrics.addAll(factory.getMetrics());
+    }
+    return metrics;
+  }
 }

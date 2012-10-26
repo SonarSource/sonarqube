@@ -23,6 +23,8 @@ import org.picocontainer.ComponentAdapter;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.PluginMetadata;
 
+import javax.annotation.Nullable;
+
 import java.util.List;
 
 /**
@@ -111,31 +113,4 @@ public abstract class Module {
    */
   protected abstract void configure();
 
-  protected final void addCoreSingleton(Object component) {
-    container.addSingleton(component);
-  }
-
-  protected final void declareExtension(PluginMetadata plugin, Object extension) {
-    container.declareExtension(plugin, extension);
-  }
-
-  protected final void addExtension(PluginMetadata plugin, Object extension) {
-    container.addExtension(plugin, extension);
-  }
-
-  protected final void addAdapter(ComponentAdapter<?> componentAdapter) {
-    container.addPicoAdapter(componentAdapter);
-  }
-
-  public final <T> T getComponentByType(Class<T> componentType) {
-    return container.getComponentByType(componentType);
-  }
-
-  public final Object getComponentByKey(Object key) {
-    return container.getComponentByKey(key);
-  }
-
-  public final <T> List<T> getComponents(Class<T> componentType) {
-    return container.getComponentsByType(componentType);
-  }
 }

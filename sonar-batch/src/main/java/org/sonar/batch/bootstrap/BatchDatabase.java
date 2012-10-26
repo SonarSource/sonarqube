@@ -29,14 +29,16 @@ import java.util.Properties;
  */
 public class BatchDatabase extends DefaultDatabase {
 
-  public BatchDatabase(Settings settings) {
+  // the dependency on JdbcDriverHolder is required to be sure that the JDBC driver
+  // has been downloaded and injected into classloader
+  public BatchDatabase(Settings settings, JdbcDriverHolder jdbcDriverHolder) {
     super(settings);
   }
 
   @Override
   protected void doCompleteProperties(Properties properties) {
     // two connections are required : one for Hibernate and one for MyBatis
-    // Note that Hibernate will be remove soon
+    // Note that Hibernate will be removed soon
     properties.setProperty("sonar.jdbc.initialSize", "2");
     properties.setProperty("sonar.jdbc.maxActive", "2");
   }

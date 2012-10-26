@@ -28,11 +28,7 @@ public class PhasesTest {
 
   @Test
   public void shouldDefinePhaseClasses() {
-    assertThat(Phases.getPhaseClasses(false).size(), greaterThan(4));
+    assertThat(Phases.getPhaseClasses().size(), greaterThan(4));
   }
 
-  @Test
-  public void someComponentsShouldBeDisabledOnDryRun() {
-    assertThat(Phases.getPhaseClasses(false).size(), greaterThan(Phases.getPhaseClasses(true).size()));
-  }
 }

@@ -27,7 +27,7 @@ import java.util.List;
 
 public class JaCoCoPlugin extends SonarPlugin {
 
-  public List<Class<? extends BatchExtension>> getExtensions() {
+  public List<?> getExtensions() {
     return ImmutableList.of(
         JacocoConfiguration.class,
         JaCoCoAgentDownloader.class,

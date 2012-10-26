@@ -203,14 +203,6 @@ import java.util.List;
     multiValues = true,
     category = CoreProperties.CATEGORY_EXCLUSIONS),
   @Property(
-    key = CoreProperties.CORE_COVERAGE_PLUGIN_PROPERTY,
-    defaultValue = "jacoco",
-    name = "Code coverage plugin",
-    description = "Key of the code coverage plugin to use.",
-    project = true,
-    global = true,
-    category = CoreProperties.CATEGORY_CODE_COVERAGE),
-  @Property(
     key = CoreProperties.CORE_IMPORT_SOURCES_PROPERTY,
     defaultValue = "" + CoreProperties.CORE_IMPORT_SOURCES_DEFAULT_VALUE,
     name = "Import sources",

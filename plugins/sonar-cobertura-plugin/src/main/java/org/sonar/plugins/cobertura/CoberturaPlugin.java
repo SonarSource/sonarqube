@@ -20,7 +20,6 @@
 package org.sonar.plugins.cobertura;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
@@ -42,9 +41,11 @@ import java.util.List;
     description = "Maximum memory to pass to JVM of Cobertura processes",
     project = true,
     global = true)})
-public class CoberturaPlugin extends SonarPlugin {
+public final class CoberturaPlugin extends SonarPlugin {
 
-  public List<Class<? extends BatchExtension>> getExtensions() {
+  static final String PLUGIN_KEY = "cobertura";
+
+  public List<?> getExtensions() {
     return ImmutableList.of(
         CoberturaSensor.class,
         CoberturaMavenPluginHandler.class,

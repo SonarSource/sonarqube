@@ -36,7 +36,7 @@ import java.util.List;
  */
 @Beta
 @Immutable
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
+@InstantiationStrategy(InstantiationStrategy.BATCH)
 public final class ResourceTypeTree implements BatchExtension, ServerExtension {
 
   private List<ResourceType> types;

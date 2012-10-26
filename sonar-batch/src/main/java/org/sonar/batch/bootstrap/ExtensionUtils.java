@@ -28,28 +28,26 @@ import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.core.NotDryRun;
 
-public final class ExtensionUtils {
+final class ExtensionUtils {
 
   private ExtensionUtils() {
     // only static methods
   }
 
   static boolean isInstantiationStrategy(Object extension, String strategy) {
-    Class clazz = (extension instanceof Class ? (Class) extension : extension.getClass());
-    InstantiationStrategy extStrategy = AnnotationUtils.getAnnotation(clazz, InstantiationStrategy.class);
-    if (extStrategy != null) {
-      return strategy.equals(extStrategy.value());
+    InstantiationStrategy annotation = AnnotationUtils.getAnnotation(extension, InstantiationStrategy.class);
+    if (annotation != null) {
+      return strategy.equals(annotation.value());
     }
-    return InstantiationStrategy.PER_PROJECT.equals(strategy);
+    return InstantiationStrategy.PROJECT.equals(strategy);
   }
 
   static boolean isBatchExtension(Object extension) {
     return isType(extension, BatchExtension.class);
   }
 
-  static boolean isSupportedEnvironment(Object extension, EnvironmentInformation environment) {
-    Class clazz = (extension instanceof Class ? (Class) extension : extension.getClass());
-    SupportedEnvironment env = AnnotationUtils.getAnnotation(clazz, SupportedEnvironment.class);
+  static boolean supportsEnvironment(Object extension, EnvironmentInformation environment) {
+    SupportedEnvironment env = AnnotationUtils.getAnnotation(extension, SupportedEnvironment.class);
     if (env == null) {
       return true;
     }
@@ -61,13 +59,12 @@ public final class ExtensionUtils {
     return false;
   }
 
-  static boolean checkDryRun(Object extension, boolean dryRun) {
-    return !dryRun || AnnotationUtils.getAnnotation(extension, NotDryRun.class) == null;
+  static boolean supportsDryRun(Object extension) {
+    return AnnotationUtils.getAnnotation(extension, NotDryRun.class) == null;
   }
 
   static boolean isMavenExtensionOnly(Object extension) {
-    Class clazz = (extension instanceof Class ? (Class) extension : extension.getClass());
-    SupportedEnvironment env = AnnotationUtils.getAnnotation(clazz, SupportedEnvironment.class);
+    SupportedEnvironment env = AnnotationUtils.getAnnotation(extension, SupportedEnvironment.class);
     return env!=null && env.value().length==1 && StringUtils.equalsIgnoreCase("maven", env.value()[0]);
   }
 

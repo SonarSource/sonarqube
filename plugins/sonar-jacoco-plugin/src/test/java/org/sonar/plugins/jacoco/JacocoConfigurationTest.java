@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
+import org.sonar.plugins.java.api.JavaSettings;
 
 import java.io.File;
 
@@ -34,17 +35,18 @@ import static org.mockito.Mockito.when;
 
 public class JacocoConfigurationTest {
 
-  private Settings configuration;
+  private Settings settings;
   private JacocoConfiguration jacocoConfiguration;
+  private JavaSettings javaSettings;
 
   @Before
   public void setUp() {
     JaCoCoAgentDownloader downloader = mock(JaCoCoAgentDownloader.class);
     when(downloader.getAgentJarFile()).thenReturn(new File("jacocoagent.jar"));
+    javaSettings = mock(JavaSettings.class);
+    settings = new Settings(new PropertyDefinitions(JacocoConfiguration.class));
 
-    configuration = new Settings(new PropertyDefinitions(JacocoConfiguration.class));
-
-    jacocoConfiguration = new JacocoConfiguration(configuration, downloader);
+    jacocoConfiguration = new JacocoConfiguration(settings, downloader, javaSettings);
   }
 
   @Test
@@ -59,23 +61,23 @@ public class JacocoConfigurationTest {
 
   @Test
   public void shouldReturnAntTargets() {
-    configuration.setProperty(JacocoConfiguration.ANT_TARGETS_PROPERTY, "test");
+    settings.setProperty(JacocoConfiguration.ANT_TARGETS_PROPERTY, "test");
     assertThat(jacocoConfiguration.getAntTargets(), is(new String[]{"test"}));
 
-    configuration.setProperty(JacocoConfiguration.ANT_TARGETS_PROPERTY, "test1,test2");
+    settings.setProperty(JacocoConfiguration.ANT_TARGETS_PROPERTY, "test1,test2");
     assertThat(jacocoConfiguration.getAntTargets(), is(new String[]{"test1", "test2"}));
   }
 
   @Test
   public void shouldReturnItReportPath() {
-    configuration.setProperty(JacocoConfiguration.IT_REPORT_PATH_PROPERTY, "target/it-jacoco.exec");
+    settings.setProperty(JacocoConfiguration.IT_REPORT_PATH_PROPERTY, "target/it-jacoco.exec");
 
     assertThat(jacocoConfiguration.getItReportPath(), is("target/it-jacoco.exec"));
   }
 
   @Test
   public void shouldSetDestfile() {
-    configuration.setProperty(JacocoConfiguration.REPORT_PATH_PROPERTY, "jacoco.exec");
+    settings.setProperty(JacocoConfiguration.REPORT_PATH_PROPERTY, "jacoco.exec");
 
     assertThat(jacocoConfiguration.getReportPath(), is("jacoco.exec"));
     assertThat(jacocoConfiguration.getJvmArgument(), is("-javaagent:jacocoagent.jar=destfile=jacoco.exec,excludes=*_javassist_*"));
@@ -83,9 +85,9 @@ public class JacocoConfigurationTest {
 
   @Test
   public void shouldSetIncludesAndExcludes() {
-    configuration.setProperty(JacocoConfiguration.INCLUDES_PROPERTY, "org.sonar.*");
-    configuration.setProperty(JacocoConfiguration.EXCLUDES_PROPERTY, "org.sonar.api.*");
-    configuration.setProperty(JacocoConfiguration.EXCLCLASSLOADER_PROPERTY, "sun.reflect.DelegatingClassLoader");
+    settings.setProperty(JacocoConfiguration.INCLUDES_PROPERTY, "org.sonar.*");
+    settings.setProperty(JacocoConfiguration.EXCLUDES_PROPERTY, "org.sonar.api.*");
+    settings.setProperty(JacocoConfiguration.EXCLCLASSLOADER_PROPERTY, "sun.reflect.DelegatingClassLoader");
 
     assertThat(jacocoConfiguration.getJvmArgument(),
         is("-javaagent:jacocoagent.jar=destfile=target/jacoco.exec,includes=org.sonar.*,excludes=org.sonar.api.*,exclclassloader=sun.reflect.DelegatingClassLoader"));

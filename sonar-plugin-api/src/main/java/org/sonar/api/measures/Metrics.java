@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * @since 1.10
  */
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
+@InstantiationStrategy(InstantiationStrategy.BATCH)
 public interface Metrics extends BatchExtension, ServerExtension {
   List<Metric> getMetrics();
 }

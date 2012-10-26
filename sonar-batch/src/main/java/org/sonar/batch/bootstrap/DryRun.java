@@ -19,27 +19,27 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.Property;
+import org.sonar.api.PropertyType;
 import org.sonar.api.config.Settings;
-import org.sonar.api.utils.Logs;
 
-@Property(key="sonar.dryRun", defaultValue = "false", name="Dry Run")
+@Property(key = "sonar.dryRun", defaultValue = "false", name = "Dry Run", type = PropertyType.BOOLEAN)
 public class DryRun implements BatchComponent {
   private boolean enabled;
 
   public DryRun(Settings settings) {
     enabled = settings.getBoolean("sonar.dryRun");
-    if (enabled) {
-      Logs.INFO.info("Dry run");
-    }
-  }
-
-  DryRun(boolean enabled) {
-    this.enabled = enabled;
   }
 
   public boolean isEnabled() {
     return enabled;
+  }
+
+  public void start() {
+    if (enabled) {
+      LoggerFactory.getLogger(DryRun.class).info("Dry run");
+    }
   }
 }

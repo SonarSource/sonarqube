@@ -32,14 +32,10 @@ import java.util.List;
 
 public final class Phases {
 
-  public static Collection<Class> getPhaseClasses(boolean dryRun) {
-    List<Class> classes = Lists.<Class>newArrayList(DecoratorsExecutor.class, MavenPhaseExecutor.class, MavenPluginsConfigurator.class,
+  public static Collection<Class> getPhaseClasses() {
+    return Lists.<Class>newArrayList(DecoratorsExecutor.class, MavenPhaseExecutor.class, MavenPluginsConfigurator.class,
         PostJobsExecutor.class, SensorsExecutor.class,
-        InitializersExecutor.class, ProjectInitializer.class);
-    if (!dryRun) {
-      classes.add(UpdateStatusJob.class);
-    }
-    return classes;
+        InitializersExecutor.class, ProjectInitializer.class, UpdateStatusJob.class);
   }
 
   private EventBus eventBus;

@@ -34,22 +34,22 @@ public class ExtensionUtilsTest {
 
   @Test
   public void shouldBeBatchInstantiationStrategy() {
-    assertThat(ExtensionUtils.isInstantiationStrategy(BatchService.class, InstantiationStrategy.PER_BATCH), is(true));
-    assertThat(ExtensionUtils.isInstantiationStrategy(new BatchService(), InstantiationStrategy.PER_BATCH), is(true));
-    assertThat(ExtensionUtils.isInstantiationStrategy(ProjectService.class, InstantiationStrategy.PER_BATCH), is(false));
-    assertThat(ExtensionUtils.isInstantiationStrategy(new ProjectService(), InstantiationStrategy.PER_BATCH), is(false));
-    assertThat(ExtensionUtils.isInstantiationStrategy(DefaultService.class, InstantiationStrategy.PER_BATCH), is(false));
-    assertThat(ExtensionUtils.isInstantiationStrategy(new DefaultService(), InstantiationStrategy.PER_BATCH), is(false));
+    assertThat(ExtensionUtils.isInstantiationStrategy(BatchService.class, InstantiationStrategy.BATCH), is(true));
+    assertThat(ExtensionUtils.isInstantiationStrategy(new BatchService(), InstantiationStrategy.BATCH), is(true));
+    assertThat(ExtensionUtils.isInstantiationStrategy(ProjectService.class, InstantiationStrategy.BATCH), is(false));
+    assertThat(ExtensionUtils.isInstantiationStrategy(new ProjectService(), InstantiationStrategy.BATCH), is(false));
+    assertThat(ExtensionUtils.isInstantiationStrategy(DefaultService.class, InstantiationStrategy.BATCH), is(false));
+    assertThat(ExtensionUtils.isInstantiationStrategy(new DefaultService(), InstantiationStrategy.BATCH), is(false));
   }
 
   @Test
   public void shouldBeProjectInstantiationStrategy() {
-    assertThat(ExtensionUtils.isInstantiationStrategy(BatchService.class, InstantiationStrategy.PER_PROJECT), is(false));
-    assertThat(ExtensionUtils.isInstantiationStrategy(new BatchService(), InstantiationStrategy.PER_PROJECT), is(false));
-    assertThat(ExtensionUtils.isInstantiationStrategy(ProjectService.class, InstantiationStrategy.PER_PROJECT), is(true));
-    assertThat(ExtensionUtils.isInstantiationStrategy(new ProjectService(), InstantiationStrategy.PER_PROJECT), is(true));
-    assertThat(ExtensionUtils.isInstantiationStrategy(DefaultService.class, InstantiationStrategy.PER_PROJECT), is(true));
-    assertThat(ExtensionUtils.isInstantiationStrategy(new DefaultService(), InstantiationStrategy.PER_PROJECT), is(true));
+    assertThat(ExtensionUtils.isInstantiationStrategy(BatchService.class, InstantiationStrategy.PROJECT), is(false));
+    assertThat(ExtensionUtils.isInstantiationStrategy(new BatchService(), InstantiationStrategy.PROJECT), is(false));
+    assertThat(ExtensionUtils.isInstantiationStrategy(ProjectService.class, InstantiationStrategy.PROJECT), is(true));
+    assertThat(ExtensionUtils.isInstantiationStrategy(new ProjectService(), InstantiationStrategy.PROJECT), is(true));
+    assertThat(ExtensionUtils.isInstantiationStrategy(DefaultService.class, InstantiationStrategy.PROJECT), is(true));
+    assertThat(ExtensionUtils.isInstantiationStrategy(new DefaultService(), InstantiationStrategy.PROJECT), is(true));
   }
 
   @Test
@@ -63,11 +63,11 @@ public class ExtensionUtilsTest {
 
   @Test
   public void shouldCheckEnvironment() {
-    assertThat(ExtensionUtils.isSupportedEnvironment(new MavenService(), new EnvironmentInformation("maven", "2.2.1")), is(true));
-    assertThat(ExtensionUtils.isSupportedEnvironment(new BuildToolService(), new EnvironmentInformation("maven", "2.2.1")), is(true));
-    assertThat(ExtensionUtils.isSupportedEnvironment(new DefaultService(), new EnvironmentInformation("maven", "2.2.1")), is(true));
+    assertThat(ExtensionUtils.supportsEnvironment(new MavenService(), new EnvironmentInformation("maven", "2.2.1")), is(true));
+    assertThat(ExtensionUtils.supportsEnvironment(new BuildToolService(), new EnvironmentInformation("maven", "2.2.1")), is(true));
+    assertThat(ExtensionUtils.supportsEnvironment(new DefaultService(), new EnvironmentInformation("maven", "2.2.1")), is(true));
 
-    assertThat(ExtensionUtils.isSupportedEnvironment(new BuildToolService(), new EnvironmentInformation("eclipse", "0.1")), is(false));
+    assertThat(ExtensionUtils.supportsEnvironment(new BuildToolService(), new EnvironmentInformation("eclipse", "0.1")), is(false));
   }
 
   @Test
@@ -76,24 +76,24 @@ public class ExtensionUtilsTest {
     assertThat(ExtensionUtils.isMavenExtensionOnly(BuildToolService.class), is(false));
   }
 
-  @Test
-  public void shouldCheckDryRun() {
-    assertThat(ExtensionUtils.checkDryRun(BatchService.class, true), is(true));
-    assertThat(ExtensionUtils.checkDryRun(PersistentService.class, true), is(false));
-  }
+//  @Test
+//  public void shouldCheckDryRun() {
+//    assertThat(ExtensionUtils.supportsDryRun(BatchService.class, true), is(true));
+//    assertThat(ExtensionUtils.supportsDryRun(PersistentService.class, true), is(false));
+//  }
+//
+//  @Test
+//  public void shouldNotCheckDryRun() {
+//    assertThat(ExtensionUtils.supportsDryRun(BatchService.class, false), is(true));
+//    assertThat(ExtensionUtils.supportsDryRun(PersistentService.class, false), is(true));
+//  }
 
-  @Test
-  public void shouldNotCheckDryRun() {
-    assertThat(ExtensionUtils.checkDryRun(BatchService.class, false), is(true));
-    assertThat(ExtensionUtils.checkDryRun(PersistentService.class, false), is(true));
-  }
-
-  @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
+  @InstantiationStrategy(InstantiationStrategy.BATCH)
   public static class BatchService implements BatchExtension {
 
   }
 
-  @InstantiationStrategy(InstantiationStrategy.PER_PROJECT)
+  @InstantiationStrategy(InstantiationStrategy.PROJECT)
   public static class ProjectService implements BatchExtension {
 
   }

@@ -24,6 +24,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
+import org.sonar.api.batch.InstantiationStrategy;
 
 import javax.persistence.*;
 
@@ -34,6 +35,7 @@ import javax.persistence.*;
  */
 @Table(name = "metrics")
 @Entity(name = "Metric")
+@InstantiationStrategy(InstantiationStrategy.BATCH)
 public class Metric implements ServerExtension, BatchExtension {
 
   /**

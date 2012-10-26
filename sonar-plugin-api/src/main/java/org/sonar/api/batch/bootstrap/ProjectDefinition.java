@@ -21,7 +21,6 @@ package org.sonar.api.batch.bootstrap;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 
 import java.io.File;
@@ -35,7 +34,7 @@ import java.util.Properties;
  *
  * @since 2.9
  */
-public final class ProjectDefinition implements BatchComponent {
+public final class ProjectDefinition {
 
   public static final String SOURCE_DIRS_PROPERTY = "sonar.sources";
   public static final String SOURCE_FILES_PROPERTY = "sonar.sourceFiles";
@@ -59,9 +58,9 @@ public final class ProjectDefinition implements BatchComponent {
 
   /**
    * @deprecated in 2.12, because it uses external object to represent internal state.
-   * To ensure backward-compatibility with Ant task this method cannot clone properties,
-   * so other callers must explicitly make clone of properties before passing into this method.
-   * Thus better to use {@link #create()} with combination of other methods like {@link #setProperties(Properties)} and {@link #setProperty(String, String)}.
+   *             To ensure backward-compatibility with Ant task this method cannot clone properties,
+   *             so other callers must explicitly make clone of properties before passing into this method.
+   *             Thus better to use {@link #create()} with combination of other methods like {@link #setProperties(Properties)} and {@link #setProperty(String, String)}.
    */
   @Deprecated
   public static ProjectDefinition create(Properties properties) {
@@ -96,7 +95,7 @@ public final class ProjectDefinition implements BatchComponent {
 
   /**
    * Copies specified properties into this object.
-   * 
+   *
    * @since 2.12
    */
   public ProjectDefinition setProperties(Properties properties) {
@@ -350,6 +349,14 @@ public final class ProjectDefinition implements BatchComponent {
     return parent;
   }
 
+  public void remove() {
+    if (parent != null) {
+      parent.subProjects.remove(this);
+      parent = null;
+      subProjects.clear();
+    }
+  }
+
   private void setParent(ProjectDefinition parent) {
     this.parent = parent;
   }
@@ -367,5 +374,28 @@ public final class ProjectDefinition implements BatchComponent {
       result.add(StringUtils.trim(s));
     }
     return result;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    ProjectDefinition that = (ProjectDefinition) o;
+    String key = getKey();
+    if (key != null ? !key.equals(that.getKey()) : that.getKey() != null) {
+      return false;
+    }
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    String key = getKey();
+    return key != null ? key.hashCode() : 0;
   }
 }

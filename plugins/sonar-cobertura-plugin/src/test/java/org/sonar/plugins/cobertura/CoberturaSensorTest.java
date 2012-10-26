@@ -37,6 +37,7 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.test.IsMeasure;
 import org.sonar.api.test.IsResource;
+import org.sonar.plugins.java.api.JavaSettings;
 
 import java.io.File;
 import java.net.URISyntaxException;
@@ -62,7 +63,9 @@ public class CoberturaSensorTest {
   @Before
   public void setUp() {
     context = mock(SensorContext.class);
-    sensor = new CoberturaSensor();
+    JavaSettings javaSettings = mock(JavaSettings.class);
+    when(javaSettings.getEnabledCoveragePlugin()).thenReturn("cobertura");
+    sensor = new CoberturaSensor(javaSettings);
   }
 
   @Test

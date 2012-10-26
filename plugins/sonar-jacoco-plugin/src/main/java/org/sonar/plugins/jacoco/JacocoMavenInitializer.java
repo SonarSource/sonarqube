@@ -31,14 +31,17 @@ import org.sonar.api.resources.Project;
 public class JacocoMavenInitializer extends Initializer implements CoverageExtension, DependsUponMavenPlugin {
 
   private JaCoCoMavenPluginHandler handler;
+  private JacocoConfiguration configuration;
 
-  public JacocoMavenInitializer(JaCoCoMavenPluginHandler handler) {
+  public JacocoMavenInitializer(JaCoCoMavenPluginHandler handler, JacocoConfiguration configuration) {
     this.handler = handler;
+    this.configuration = configuration;
   }
 
   @Override
   public boolean shouldExecuteOnProject(Project project) {
-    return project.getAnalysisType().equals(Project.AnalysisType.DYNAMIC)
+    return configuration.isEnabled()
+      && project.getAnalysisType().equals(Project.AnalysisType.DYNAMIC)
       && !project.getFileSystem().testFiles(Java.KEY).isEmpty();
   }
 

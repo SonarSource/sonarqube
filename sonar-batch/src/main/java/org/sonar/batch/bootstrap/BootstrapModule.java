@@ -29,7 +29,7 @@ import org.sonar.batch.MavenPluginExecutor;
 import org.sonar.batch.RemoteServerMetadata;
 import org.sonar.batch.ServerMetadata;
 import org.sonar.batch.config.BatchDatabaseSettingsLoader;
-import org.sonar.batch.config.BatchSettings;
+import org.sonar.batch.config.BootstrapSettings;
 import org.sonar.batch.local.LocalDatabase;
 import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.I18nManager;
@@ -40,8 +40,6 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.jpa.session.DatabaseSessionProvider;
 import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
-
-import java.net.URLClassLoader;
 
 /**
  * Level 1 components
@@ -58,55 +56,51 @@ public class BootstrapModule extends Module {
 
   @Override
   protected void configure() {
-    addCoreSingleton(reactor);
-    addCoreSingleton(new PropertiesConfiguration());
-    addCoreSingleton(BatchSettings.class);
-    addCoreSingleton(DryRun.class);
-    addCoreSingleton(Logback.class);
-    addCoreSingleton(ServerMetadata.class);// registered here because used by BootstrapClassLoader
-    addCoreSingleton(TempDirectories.class);// registered here because used by BootstrapClassLoader
-    addCoreSingleton(HttpDownloader.class);// registered here because used by BootstrapClassLoader
-    addCoreSingleton(UriReader.class);// registered here because used by BootstrapClassLoader
-    addCoreSingleton(ArtifactDownloader.class);// registered here because used by BootstrapClassLoader
-    addCoreSingleton(JdbcDriverHolder.class);
-    addCoreSingleton(EmailSettings.class);
-    addCoreSingleton(I18nManager.class);
-    addCoreSingleton(RuleI18nManager.class);
+    container.addSingleton(reactor);
+    container.addSingleton(new PropertiesConfiguration());
+    container.addSingleton(BootstrapSettings.class);
+    container.addSingleton(BatchPluginRepository.class);
+    container.addSingleton(ExtensionInstaller.class);
+    container.addSingleton(DryRun.class);
+    container.addSingleton(Logback.class);
+    container.addSingleton(ServerMetadata.class);// registered here because used by BootstrapClassLoader
+    container.addSingleton(TempDirectories.class);// registered here because used by BootstrapClassLoader
+    container.addSingleton(HttpDownloader.class);// registered here because used by BootstrapClassLoader
+    container.addSingleton(UriReader.class);// registered here because used by BootstrapClassLoader
+    container.addSingleton(ArtifactDownloader.class);// registered here because used by BootstrapClassLoader
+    container.addSingleton(EmailSettings.class);
+    container.addSingleton(RemoteServerMetadata.class);
+    container.addSingleton(I18nManager.class);
+    container.addSingleton(RuleI18nManager.class);
+    for (Object component : boostrapperComponents) {
+      container.addSingleton(component);
+    }
+    container.addSingleton(BootstrapExtensionExecutor.class);
+    if (!isMavenPluginExecutorRegistered()) {
+      container.addSingleton(FakeMavenPluginExecutor.class);
+    }
+    addDatabaseComponents();
+  }
 
-    URLClassLoader bootstrapClassLoader = getComponentByType(JdbcDriverHolder.class).getClassLoader();
-    // set as the current context classloader for hibernate, else it does not find the JDBC driver.
-    Thread.currentThread().setContextClassLoader(bootstrapClassLoader);
-
-    addCoreSingleton(RemoteServerMetadata.class);
-
-    // local mode
-    addCoreSingleton(LocalMode.class);
-    addCoreSingleton(LocalDatabase.class);
+  private void addDatabaseComponents() {
+    container.addSingleton(JdbcDriverHolder.class);
+    container.addSingleton(LocalDatabase.class);
 
     // mybatis
-    addCoreSingleton(BatchDatabase.class);
-    addCoreSingleton(MyBatis.class);
-    addCoreSingleton(DatabaseVersion.class);
+    container.addSingleton(BatchDatabase.class);
+    container.addSingleton(MyBatis.class);
+    container.addSingleton(DatabaseVersion.class);
     for (Class daoClass : DaoUtils.getDaoClasses()) {
-      addCoreSingleton(daoClass);
+      container.addSingleton(daoClass);
     }
 
     // hibernate
-    addCoreSingleton(DefaultDatabaseConnector.class);
-    addCoreSingleton(ThreadLocalDatabaseSessionFactory.class);
-    addAdapter(new DatabaseSessionProvider());
+    container.addSingleton(DefaultDatabaseConnector.class);
+    container.addSingleton(ThreadLocalDatabaseSessionFactory.class);
+    container.addPicoAdapter(new DatabaseSessionProvider());
 
-    addCoreSingleton(DatabaseBatchCompatibility.class);
-    for (Object component : boostrapperComponents) {
-      addCoreSingleton(component);
-    }
-    if (!isMavenPluginExecutorRegistered()) {
-      addCoreSingleton(FakeMavenPluginExecutor.class);
-    }
-
-    addCoreSingleton(BatchPluginRepository.class);
-    addCoreSingleton(BatchExtensionInstaller.class);
-    addCoreSingleton(BatchDatabaseSettingsLoader.class);
+    container.addSingleton(DatabaseBatchCompatibility.class);
+    container.addSingleton(BatchDatabaseSettingsLoader.class);
   }
 
   boolean isMavenPluginExecutorRegistered() {
@@ -122,8 +116,7 @@ public class BootstrapModule extends Module {
 
   @Override
   protected void doStart() {
-    boolean dryRun = getComponentByType(DryRun.class).isEnabled();
-    Module batchComponents = installChild(new BatchModule(dryRun));
+    Module batchComponents = installChild(new BatchModule());
     batchComponents.start();
   }
 }

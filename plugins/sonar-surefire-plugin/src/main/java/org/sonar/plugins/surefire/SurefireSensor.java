@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.AbstractCoverageExtension;
+import org.sonar.api.batch.CoverageExtension;
 import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
@@ -41,7 +42,7 @@ public class SurefireSensor implements Sensor {
 
   @DependsUpon
   public Class dependsUponCoverageSensors() {
-    return AbstractCoverageExtension.class;
+    return CoverageExtension.class;
   }
 
   public boolean shouldExecuteOnProject(Project project) {

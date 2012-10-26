@@ -27,6 +27,7 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.test.MavenTestUtils;
+import org.sonar.plugins.java.api.JavaSettings;
 
 import java.io.File;
 
@@ -46,7 +47,8 @@ public class JaCoCoMavenPluginHandlerTest {
   public void setUp() throws Exception {
     JaCoCoAgentDownloader downloader = mock(JaCoCoAgentDownloader.class);
     when(downloader.getAgentJarFile()).thenReturn(new File("jacocoagent.jar"));
-    configuration = spy(new JacocoConfiguration(new Settings(new PropertyDefinitions(JacocoConfiguration.class)), downloader));
+    Settings settings = new Settings(new PropertyDefinitions(JacocoConfiguration.class));
+    configuration = spy(new JacocoConfiguration(settings, downloader, new JavaSettings(settings)));
 
     handler = new JaCoCoMavenPluginHandler(configuration);
   }

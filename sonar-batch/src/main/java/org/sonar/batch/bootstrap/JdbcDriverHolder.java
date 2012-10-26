@@ -57,6 +57,11 @@ public class JdbcDriverHolder {
     return classLoader;
   }
 
+  public void start() {
+    // set as the current context classloader for hibernate, else it does not find the JDBC driver.
+    Thread.currentThread().setContextClassLoader(classLoader);
+  }
+
   /**
    * This method automatically invoked by PicoContainer and deregisters JDBC drivers, which were forgotten.
    * <p>
@@ -86,7 +91,7 @@ public class JdbcDriverHolder {
   private static class JdbcDriverClassLoader extends URLClassLoader {
 
     public JdbcDriverClassLoader(URL jdbcDriver, ClassLoader parent) {
-      super(new URL[] { jdbcDriver }, parent);
+      super(new URL[]{jdbcDriver}, parent);
     }
 
     public void clearReferencesJdbc() {

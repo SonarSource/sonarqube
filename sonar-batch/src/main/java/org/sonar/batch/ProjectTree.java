@@ -22,14 +22,10 @@ package org.sonar.batch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.ObjectUtils;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.bootstrap.ProjectFilter;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -40,21 +36,11 @@ public class ProjectTree {
 
   private List<Project> projects;
   private Map<ProjectDefinition, Project> projectsByDef;
-  private ProjectFilter projectFilter;
 
-  public ProjectTree(ProjectReactor projectReactor, // NOSONAR the unused parameter 'builders' is used for the startup order of components
-      ProjectConfigurator projectConfigurator,
-      ProjectFilter projectFilter,
-      /* Must be executed after ProjectBuilders */ProjectBuilder[] builders) {
-    this(projectReactor, projectConfigurator, projectFilter);
-  }
-
-  public ProjectTree(ProjectReactor projectReactor, // NOSONAR the unused parameter 'builders' is used for the startup order of components
-      ProjectConfigurator projectConfigurator,
-      ProjectFilter projectFilter) {
+  public ProjectTree(ProjectReactor projectReactor,
+                     ProjectConfigurator projectConfigurator) {
     this.projectReactor = projectReactor;
     this.configurator = projectConfigurator;
-    this.projectFilter = projectFilter;
   }
 
   ProjectTree(ProjectConfigurator configurator) {
@@ -87,21 +73,8 @@ public class ProjectTree {
     for (Project project : projects) {
       configurator.configure(project);
     }
-
-    applyExclusions();
   }
 
-  void applyExclusions() {
-    for (Iterator<Project> it = projects.iterator(); it.hasNext();) {
-      Project project = it.next();
-      if (projectFilter.isExcluded(project)) {
-        project.setExcluded(true);
-        LoggerFactory.getLogger(getClass()).info("Project {} excluded", project.getName());
-        project.removeFromParent();
-        it.remove();
-      }
-    }
-  }
 
   public List<Project> getProjects() {
     return projects;

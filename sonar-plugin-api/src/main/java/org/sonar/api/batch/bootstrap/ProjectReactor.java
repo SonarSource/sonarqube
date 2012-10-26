@@ -19,20 +19,18 @@
  */
 package org.sonar.api.batch.bootstrap;
 
-import org.sonar.api.BatchComponent;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @since 2.9
  */
-public final class ProjectReactor implements BatchComponent {
+public final class ProjectReactor {
 
   private ProjectDefinition root;
 
   public ProjectReactor(ProjectDefinition root) {
-    if (root.getParent()!=null) {
+    if (root.getParent() != null) {
       throw new IllegalArgumentException("Not a root project: " + root);
     }
     this.root = root;
@@ -55,5 +53,14 @@ public final class ProjectReactor implements BatchComponent {
 
   public ProjectDefinition getRoot() {
     return root;
+  }
+
+  public ProjectDefinition getProject(String key) {
+    for (ProjectDefinition p : getProjects()) {
+      if (key.equals(p.getKey())) {
+        return p;
+      }
+    }
+    return null;
   }
 }

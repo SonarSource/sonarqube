@@ -29,6 +29,7 @@ import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.plugins.cobertura.api.CoberturaUtils;
+import org.sonar.plugins.java.api.JavaSettings;
 
 /**
  * Provides {@link CoberturaMavenPluginHandler} and configures correct path to report.
@@ -37,9 +38,11 @@ import org.sonar.plugins.cobertura.api.CoberturaUtils;
 public class CoberturaMavenInitializer extends Initializer implements CoverageExtension, DependsUponMavenPlugin {
 
   private CoberturaMavenPluginHandler handler;
+  private JavaSettings javaSettings;
 
-  public CoberturaMavenInitializer(CoberturaMavenPluginHandler handler) {
+  public CoberturaMavenInitializer(CoberturaMavenPluginHandler handler, JavaSettings javaSettings) {
     this.handler = handler;
+    this.javaSettings = javaSettings;
   }
 
   public MavenPluginHandler getMavenPluginHandler(Project project) {
@@ -52,6 +55,7 @@ public class CoberturaMavenInitializer extends Initializer implements CoverageEx
   @Override
   public boolean shouldExecuteOnProject(Project project) {
     return Java.KEY.equals(project.getLanguageKey())
+      && CoberturaPlugin.PLUGIN_KEY.equals(javaSettings.getEnabledCoveragePlugin())
       && !project.getFileSystem().mainFiles(Java.KEY).isEmpty()
       && project.getAnalysisType().isDynamic(true);
   }
