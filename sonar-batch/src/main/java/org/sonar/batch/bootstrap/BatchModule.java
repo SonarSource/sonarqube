@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.api.Plugins;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ResourceTypes;
@@ -69,7 +68,6 @@ public class BatchModule extends Module {
     container.addSingleton(MemoryOptimizer.class);
     container.addSingleton(DefaultResourcePersister.class);
     container.addSingleton(SourcePersister.class);
-    container.addSingleton(Plugins.class);
     container.addSingleton(MeasuresDao.class);
     container.addSingleton(CacheRuleFinder.class);
     container.addSingleton(CacheMetricFinder.class);

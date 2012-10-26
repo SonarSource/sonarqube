@@ -154,13 +154,4 @@ public class ComponentContainer implements BatchComponent, ServerComponent {
   public ComponentContainer getChild() {
     return child;
   }
-
-  /**
-   * Warning - do not use. This method exists only for the backward-compatibility due to the suppression
-   * of {@link org.sonar.api.utils.IocContainer}
-   * @return
-   */
-  public MutablePicoContainer getPicoContainer() {
-    return pico;
-  }
 }

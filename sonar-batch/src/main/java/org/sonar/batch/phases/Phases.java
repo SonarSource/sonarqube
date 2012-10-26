@@ -22,20 +22,18 @@ package org.sonar.batch.phases;
 import com.google.common.collect.Lists;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.phases.ProjectInitializer;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.PersistenceManager;
 
 import java.util.Collection;
-import java.util.List;
 
 public final class Phases {
 
   public static Collection<Class> getPhaseClasses() {
     return Lists.<Class>newArrayList(DecoratorsExecutor.class, MavenPhaseExecutor.class, MavenPluginsConfigurator.class,
-        PostJobsExecutor.class, SensorsExecutor.class,
-        InitializersExecutor.class, ProjectInitializer.class, UpdateStatusJob.class);
+      PostJobsExecutor.class, SensorsExecutor.class,
+      InitializersExecutor.class, ProjectInitializer.class, UpdateStatusJob.class);
   }
 
   private EventBus eventBus;
@@ -76,7 +74,7 @@ public final class Phases {
                 PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
                 EventBus eventBus, ProjectInitializer pi) {
     this(decoratorsExecutor, mavenPhaseExecutor, mavenPluginsConfigurator, initializersExecutor, postJobsExecutor,
-        sensorsExecutor, persistenceManager, sensorContext, index, eventBus, null, pi);
+      sensorsExecutor, persistenceManager, sensorContext, index, eventBus, null, pi);
   }
 
   /**

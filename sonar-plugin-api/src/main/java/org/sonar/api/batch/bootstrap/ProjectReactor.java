@@ -19,13 +19,15 @@
  */
 package org.sonar.api.batch.bootstrap;
 
+import org.sonar.api.BatchComponent;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @since 2.9
  */
-public class ProjectReactor {
+public class ProjectReactor implements BatchComponent {
 
   private ProjectDefinition root;
 

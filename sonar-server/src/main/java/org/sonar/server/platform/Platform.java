@@ -21,7 +21,6 @@ package org.sonar.server.platform;
 
 import org.apache.commons.configuration.BaseConfiguration;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.Plugins;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.Server;
@@ -33,7 +32,6 @@ import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.api.utils.HttpDownloader;
-import org.sonar.api.utils.IocContainer;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.workflow.internal.DefaultWorkflow;
@@ -157,7 +155,6 @@ public final class Platform {
   private void startDatabaseConnectors(ServletContext servletContext) {
     rootContainer = new ComponentContainer();
     rootContainer.addSingleton(servletContext);
-    rootContainer.addSingleton(IocContainer.class); // for backward compatibility
     rootContainer.addSingleton(new BaseConfiguration());
     rootContainer.addSingleton(ServerSettings.class);
     rootContainer.addSingleton(ServerImpl.class);
@@ -219,7 +216,6 @@ public final class Platform {
     servicesContainer.addSingleton(ServerIdGenerator.class);
     servicesContainer.addSingleton(DefaultModelFinder.class); // depends on plugins
     servicesContainer.addSingleton(DefaultModelManager.class);
-    servicesContainer.addSingleton(Plugins.class);
     servicesContainer.addSingleton(ChartFactory.class);
     servicesContainer.addSingleton(Languages.class);
     servicesContainer.addSingleton(Views.class);

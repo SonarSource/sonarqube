@@ -72,10 +72,6 @@ public class DefaultServerPluginRepository implements ServerPluginRepository {
     return disabledPlugins.contains(pluginKey);
   }
 
-  public Collection<Plugin> getPlugins() {
-    return pluginsByKey.values();
-  }
-
   public Plugin getPlugin(String key) {
     return pluginsByKey.get(key);
   }
@@ -98,18 +94,7 @@ public class DefaultServerPluginRepository implements ServerPluginRepository {
     return clazz;
   }
 
-
-  public Property[] getProperties(Plugin plugin) {
-    if (plugin != null) {
-      Class<? extends Plugin> classInstance = plugin.getClass();
-      if (classInstance.isAnnotationPresent(Properties.class)) {
-        return classInstance.getAnnotation(Properties.class).value();
-      }
-    }
-    return new Property[0];
-  }
-
-  public Collection<PluginMetadata> getMetadata() {
+public Collection<PluginMetadata> getMetadata() {
     return deployer.getMetadata();
   }
 

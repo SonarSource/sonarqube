@@ -139,7 +139,7 @@ public class JdbcDriverHolder {
         Class<?> lpClass = defineClass("org.sonar.batch.bootstrap.JdbcLeakPrevention", classBytes, 0, offset, this.getClass().getProtectionDomain());
         Object obj = lpClass.newInstance();
 
-        List<String> driverNames = (List<String>) obj.getClass().getMethod("clearJdbcDriverRegistrations").invoke(obj);
+        List<String> driverNames = (List<String>) obj.getClass().getMethod("unregisterDrivers").invoke(obj);
 
         for (String name : driverNames) {
           LOG.debug("To prevent a memory leak, the JDBC Driver [{}] has been forcibly deregistered", name);

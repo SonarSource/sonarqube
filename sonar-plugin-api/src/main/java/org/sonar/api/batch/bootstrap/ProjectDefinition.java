@@ -34,7 +34,7 @@ import java.util.Properties;
  *
  * @since 2.9
  */
-public final class ProjectDefinition {
+public class ProjectDefinition {
 
   public static final String SOURCE_DIRS_PROPERTY = "sonar.sources";
   public static final String SOURCE_FILES_PROPERTY = "sonar.sourceFiles";

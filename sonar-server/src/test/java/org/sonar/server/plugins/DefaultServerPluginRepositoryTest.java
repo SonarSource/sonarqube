@@ -66,7 +66,6 @@ public class DefaultServerPluginRepositoryTest {
     repository = new DefaultServerPluginRepository(deployer);
     repository.start();
 
-    assertThat(repository.getPlugins().size(), Is.is(1));
     assertThat(repository.getPlugin("artifactsize"), not(nullValue()));
     assertThat(repository.getClassLoader("artifactsize"), not(nullValue()));
     assertThat(repository.getClass("artifactsize", "org.sonar.plugins.artifactsize.ArtifactSizeMetrics"), not(nullValue()));

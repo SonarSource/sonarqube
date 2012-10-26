@@ -99,27 +99,8 @@ public class BatchPluginRepository implements PluginRepository {
     }
   }
 
-  public Collection<Plugin> getPlugins() {
-    return pluginsByKey.values();
-  }
-
   public Plugin getPlugin(String key) {
     return pluginsByKey.get(key);
-  }
-
-  public Map<String, Plugin> getPluginsByKey() {
-    return Collections.unmodifiableMap(pluginsByKey);
-  }
-
-  // TODO remove this method. Not used in batch.
-  public Property[] getProperties(Plugin plugin) {
-    if (plugin != null) {
-      Class<? extends Plugin> classInstance = plugin.getClass();
-      if (classInstance.isAnnotationPresent(Properties.class)) {
-        return classInstance.getAnnotation(Properties.class).value();
-      }
-    }
-    return new Property[0];
   }
 
   public Collection<PluginMetadata> getMetadata() {

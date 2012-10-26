@@ -27,7 +27,6 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
-import org.sonar.api.utils.IocContainer;
 import org.sonar.batch.DefaultProfileLoader;
 import org.sonar.batch.DefaultProjectClasspath;
 import org.sonar.batch.DefaultProjectFileSystem2;
@@ -73,7 +72,6 @@ public class ProjectModule extends Module {
     container.addSingleton(project.getConfiguration());
     container.addSingleton(ProjectSettings.class);
     container.addSingleton(UnsupportedProperties.class);
-    container.addSingleton(IocContainer.class);
 
     for (Object component : projectDefinition.getContainerExtensions()) {
       container.addSingleton(component);

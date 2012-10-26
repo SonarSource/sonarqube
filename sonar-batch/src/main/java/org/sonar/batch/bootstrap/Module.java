@@ -19,17 +19,11 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.picocontainer.ComponentAdapter;
 import org.sonar.api.platform.ComponentContainer;
-import org.sonar.api.platform.PluginMetadata;
-
-import javax.annotation.Nullable;
-
-import java.util.List;
 
 /**
  * Module describes group of components - {@link #configure()}.
- * Several modules can be grouped together - {@link #install(Module)}, {@link #installChild(Module)}.
+ * Several modules can be grouped together - {@link #installChild(Module)}.
  * <p/>
  */
 public abstract class Module {
@@ -49,16 +43,6 @@ public abstract class Module {
   private Module init(ComponentContainer container) {
     this.container = container;
     configure();
-    return this;
-  }
-
-  /**
-   * Installs module into this module.
-   *
-   * @return this
-   */
-  public final Module install(Module module) {
-    module.init(container);
     return this;
   }
 

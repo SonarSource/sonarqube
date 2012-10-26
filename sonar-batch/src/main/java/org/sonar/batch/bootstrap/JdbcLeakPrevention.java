@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Companion of {@link JdbcDriverHolder} and allows it to deregister JDBC drivers.
@@ -38,27 +39,33 @@ import java.util.List;
 public class JdbcLeakPrevention {
 
   /**
-   * @return list of names of deregistered drivers
+   * @return names of the drivers that have been unregistered
    */
-  public List<String> clearJdbcDriverRegistrations() throws SQLException {
-    List<String> driverNames = new ArrayList<String>();
-    HashSet<Driver> originalDrivers = new HashSet<Driver>();
+  public List<String> unregisterDrivers() throws SQLException {
+    Set<Driver> registeredDrivers = registeredDrivers();
+
+    List<String> unregisteredNames = new ArrayList<String>();
     Enumeration<Driver> drivers = DriverManager.getDrivers();
-    while (drivers.hasMoreElements()) {
-      originalDrivers.add(drivers.nextElement());
-    }
-    drivers = DriverManager.getDrivers();
     while (drivers.hasMoreElements()) {
       Driver driver = drivers.nextElement();
       if (driver.getClass().getClassLoader() != this.getClass().getClassLoader()) {
         continue;
       }
-      if (originalDrivers.contains(driver)) {
-        driverNames.add(driver.getClass().getCanonicalName());
+      if (registeredDrivers.contains(driver)) {
+        unregisteredNames.add(driver.getClass().getCanonicalName());
       }
       DriverManager.deregisterDriver(driver);
     }
-    return driverNames;
+    return unregisteredNames;
+  }
+
+  private Set<Driver> registeredDrivers() {
+    Set<Driver> registeredDrivers = new HashSet<Driver>();
+    Enumeration<Driver> drivers = DriverManager.getDrivers();
+    while (drivers.hasMoreElements()) {
+      registeredDrivers.add(drivers.nextElement());
+    }
+    return registeredDrivers;
   }
 
 }

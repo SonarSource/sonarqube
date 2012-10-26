@@ -27,11 +27,7 @@ import org.sonar.api.ServerComponent;
 import java.util.Collection;
 
 public interface PluginRepository extends BatchComponent, ServerComponent {
-  Collection<Plugin> getPlugins();
-
   Plugin getPlugin(String key);
-
-  Property[] getProperties(Plugin plugin);
 
   /**
    * Metadata of installed plugins. Metadata includes all the fields available in update center

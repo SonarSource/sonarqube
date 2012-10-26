@@ -62,7 +62,6 @@ public class BatchPluginRepositoryTest {
 
     repository.doStart(Arrays.asList(checkstyle));
 
-    assertThat(repository.getPlugins().size(), Matchers.is(1));
     assertThat(repository.getPlugin("checkstyle"), not(nullValue()));
     assertThat(repository.getMetadata().size(), Matchers.is(1));
     assertThat(repository.getMetadata("checkstyle").getName(), Matchers.is("Checkstyle"));
@@ -82,7 +81,6 @@ public class BatchPluginRepositoryTest {
 
     repository.doStart(Arrays.asList(checkstyle, checkstyleExt));
 
-    assertThat(repository.getPlugins().size(), Matchers.is(2));
     assertThat(repository.getPlugin("checkstyle"), not(nullValue()));
     assertThat(repository.getPlugin("checkstyleextensions"), not(nullValue()));
     assertThat(repository.getMetadata().size(), Matchers.is(2));
@@ -93,7 +91,7 @@ public class BatchPluginRepositoryTest {
   @Test
   public void shouldLoadPluginDeprecatedExtensions() throws IOException {
     RemotePlugin checkstyle = new RemotePlugin("checkstyle", true)
-        .addFilename("checkstyle-ext.xml");
+      .addFilename("checkstyle-ext.xml");
 
     PluginDownloader downloader = mock(PluginDownloader.class);
     when(downloader.downloadPlugin(checkstyle)).thenReturn(copyFiles("sonar-checkstyle-plugin-2.8.jar", "checkstyle-ext.xml"));
@@ -102,12 +100,11 @@ public class BatchPluginRepositoryTest {
 
     repository.doStart(Arrays.asList(checkstyle));
 
-    assertThat(repository.getPlugins().size(), Matchers.is(1));
     assertThat(repository.getPlugin("checkstyle"), not(nullValue()));
     assertThat(repository.getMetadata().size(), Matchers.is(1));
     assertThat(repository.getMetadata("checkstyle").getName(), Matchers.is("Checkstyle"));
     assertThat(repository.getMetadata("checkstyle").getDeployedFiles().size(), Matchers.is(5)); // plugin + 3 dependencies + 1 deprecated
-                                                                                                // extension
+    // extension
   }
 
   @Test
@@ -125,7 +122,6 @@ public class BatchPluginRepositoryTest {
 
     repository.doStart(Arrays.asList(checkstyle, checkstyleExt));
 
-    assertThat(repository.getPlugins().size(), Matchers.is(0));
     assertThat(repository.getMetadata().size(), Matchers.is(0));
   }
 
