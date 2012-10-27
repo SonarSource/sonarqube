@@ -39,7 +39,7 @@ public final class BootstrapSettings extends Settings {
     load();
   }
 
-  public BootstrapSettings load() {
+  private BootstrapSettings load() {
     clear();
 
     // order is important -> bottom-up. The last one overrides all the others.

@@ -48,11 +48,11 @@ import java.util.Date;
  */
 public class ServerClient extends Server implements BatchComponent {
   private Settings settings;
-  private EnvironmentInformation env;
+  private HttpDownloader.BaseHttpDownloader downloader;
 
   public ServerClient(Settings settings, EnvironmentInformation env) {
     this.settings = settings;
-    this.env = env;
+    this.downloader = new HttpDownloader.BaseHttpDownloader(settings, env.toString());
   }
 
   @Override
@@ -89,7 +89,7 @@ public class ServerClient extends Server implements BatchComponent {
     return settings.getString(CoreProperties.PERMANENT_SERVER_ID);
   }
 
-  public String getServerId() throws IOException {
+  public String getServerId() {
     String remoteServerInfo = request("/api/server");
     // don't use JSON utilities to extract ID from such a small string
     return extractServerId(remoteServerInfo);
@@ -126,7 +126,6 @@ public class ServerClient extends Server implements BatchComponent {
     String login = settings.getString(CoreProperties.LOGIN);
 
     try {
-      HttpDownloader.BaseHttpDownloader downloader = new HttpDownloader.BaseHttpDownloader(settings, env.toString());
       InputSupplier<InputStream> inputSupplier;
       if (Strings.isNullOrEmpty(login)) {
         inputSupplier = downloader.newInputSupplier(uri);

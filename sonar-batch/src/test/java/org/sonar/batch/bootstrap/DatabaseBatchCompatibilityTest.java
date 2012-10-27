@@ -105,10 +105,9 @@ public class DatabaseBatchCompatibilityTest {
 
   @Test
   public void shouldFailIfCantGetServerId() throws Exception {
-    when(server.getServerId()).thenThrow(new IOException());
+    when(server.getServerId()).thenThrow(new IllegalStateException());
 
-    thrown.expect(SonarException.class);
-    thrown.expectMessage("Impossible to get the ID of the remote server: http://localhost:9000");
+    thrown.expect(IllegalStateException.class);
 
     new DatabaseBatchCompatibility(mock(DatabaseVersion.class), server, settings).start();
   }

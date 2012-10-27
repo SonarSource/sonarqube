@@ -26,6 +26,7 @@ import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.UriReader;
 import org.sonar.batch.FakeMavenPluginExecutor;
 import org.sonar.batch.MavenPluginExecutor;
+import org.sonar.batch.ServerMetadata;
 import org.sonar.batch.config.BatchDatabaseSettingsLoader;
 import org.sonar.batch.config.BootstrapSettings;
 import org.sonar.batch.local.DryRunDatabase;
@@ -39,6 +40,7 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.jpa.session.DatabaseSessionProvider;
 import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
+import org.sonar.wsclient.Sonar;
 
 /**
  * Level 1 components
@@ -64,6 +66,9 @@ public class BootstrapModule extends Module {
     container.addSingleton(DryRunExporter.class);
     container.addSingleton(Logback.class);
     container.addSingleton(ServerClient.class);
+    container.addSingleton(ServerMetadata.class);
+    container.addSingleton(WsConnector.class);
+    container.addSingleton(Sonar.class);
     container.addSingleton(TempDirectories.class);
     container.addSingleton(HttpDownloader.class);
     container.addSingleton(UriReader.class);

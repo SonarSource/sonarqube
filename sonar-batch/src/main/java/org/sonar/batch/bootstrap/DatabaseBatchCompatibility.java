@@ -49,14 +49,7 @@ public class DatabaseBatchCompatibility implements BatchComponent {
   }
 
   private void checkCorrectServerId() {
-    String remoteServerId;
-    try {
-      remoteServerId = server.getServerId();
-    } catch (IOException e) {
-      throw new SonarException("Impossible to get the ID of the remote server: " + server.getURL(), e);
-    }
-
-    if (!version.getSonarCoreId().equals(remoteServerId)) {
+    if (!version.getSonarCoreId().equals(server.getServerId())) {
       StringBuilder message = new StringBuilder("The current batch process and the configured remote server do not share the same DB configuration.\n");
       message.append("\t- Batch side: ");
       message.append(settings.getString(DatabaseProperties.PROP_URL));
