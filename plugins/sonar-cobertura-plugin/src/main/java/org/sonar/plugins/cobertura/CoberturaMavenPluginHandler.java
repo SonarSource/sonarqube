@@ -20,19 +20,17 @@
 package org.sonar.plugins.cobertura;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.maven.MavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.batch.maven.MavenSurefireUtils;
-import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.plugins.cobertura.api.CoberturaUtils;
 
 public class CoberturaMavenPluginHandler implements MavenPluginHandler {
 
-  private Settings settings;
+  private CoberturaSettings settings;
 
-  public CoberturaMavenPluginHandler(Settings settings) {
+  public CoberturaMavenPluginHandler(CoberturaSettings settings) {
     this.settings = settings;
   }
 
@@ -72,14 +70,6 @@ public class CoberturaMavenPluginHandler implements MavenPluginHandler {
       }
       coberturaPlugin.addParameter("instrumentation/excludes/exclude", pattern);
     }
-    String maxmem = "";
-    // http://jira.codehaus.org/browse/SONAR-2897: there used to be a typo in the parameter name (was "sonar.cobertura.maxmen")
-    if (settings.hasKey("sonar.cobertura.maxmen")) {
-      maxmem = settings.getString("sonar.cobertura.maxmen");
-    } else {
-      // use the "normal" key
-      maxmem = settings.getString(CoreProperties.COBERTURA_MAXMEM_PROPERTY);
-    }
-    coberturaPlugin.setParameter("maxmem", maxmem);
+    coberturaPlugin.setParameter("maxmem", settings.getMaxMemory());
   }
 }

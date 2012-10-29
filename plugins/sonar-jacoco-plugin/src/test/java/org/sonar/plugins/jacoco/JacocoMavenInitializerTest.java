@@ -42,7 +42,7 @@ public class JacocoMavenInitializerTest {
   public void setUp() {
     mavenPluginHandler = mock(JaCoCoMavenPluginHandler.class);
     jacocoSettings = mock(JacocoConfiguration.class);
-    when(jacocoSettings.isEnabled()).thenReturn(true);
+    when(jacocoSettings.isEnabled(any(Project.class))).thenReturn(true);
     initializer = new JacocoMavenInitializer(mavenPluginHandler, jacocoSettings);
   }
 

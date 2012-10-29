@@ -22,11 +22,8 @@ package org.sonar.batch.bootstrap;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
-import org.sonar.api.utils.SonarException;
 import org.sonar.core.persistence.BadDatabaseVersion;
 import org.sonar.core.persistence.DatabaseVersion;
-
-import java.io.IOException;
 
 /**
  * Detects if database is not up-to-date with the version required by the batch.

@@ -47,6 +47,7 @@ public final class CoberturaPlugin extends SonarPlugin {
 
   public List<?> getExtensions() {
     return ImmutableList.of(
+        CoberturaSettings.class,
         CoberturaSensor.class,
         CoberturaMavenPluginHandler.class,
         CoberturaMavenInitializer.class);

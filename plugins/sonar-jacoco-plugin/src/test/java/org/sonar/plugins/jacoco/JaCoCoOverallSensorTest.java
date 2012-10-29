@@ -51,10 +51,10 @@ public class JaCoCoOverallSensorTest {
   private final JaCoCoOverallSensor sensor = new JaCoCoOverallSensor(configuration);
 
   @Test
-  public void should_execute_on_project() {
+  public void should_execute_if_report_path_is_set() {
     Project project = mock(Project.class);
     when(configuration.getItReportPath()).thenReturn("target/it-jacoco.exec");
-    when(project.getAnalysisType()).thenReturn(Project.AnalysisType.DYNAMIC).thenReturn(Project.AnalysisType.REUSE_REPORTS);
+    when(configuration.isEnabled(project)).thenReturn(true);
 
     assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
   }

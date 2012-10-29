@@ -37,8 +37,7 @@ import org.sonar.test.TestUtils;
 import java.io.File;
 import java.io.IOException;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
@@ -72,7 +71,7 @@ public class JaCoCoItSensorTest {
 
   @Test
   public void testSensorDefinition() {
-    assertThat(sensor.toString(), is("JaCoCoItSensor"));
+    assertThat(sensor.toString()).isEqualTo("JaCoCoItSensor");
   }
 
   @Test
@@ -80,17 +79,27 @@ public class JaCoCoItSensorTest {
     Project project = mock(Project.class);
     when(configuration.getItReportPath()).thenReturn("");
 
-    assertThat(sensor.shouldExecuteOnProject(project), is(false));
+    assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
   }
 
   @Test
-  public void shouldExecuteOnProject() {
+  public void shouldExecuteIfReportPathIsDefined() {
     Project project = mock(Project.class);
-    when(configuration.getItReportPath()).thenReturn("target/it-jacoco.exec");
     when(project.getAnalysisType()).thenReturn(AnalysisType.DYNAMIC).thenReturn(AnalysisType.REUSE_REPORTS);
+    when(configuration.getItReportPath()).thenReturn("target/it-jacoco.exec");
+    when(configuration.isEnabled(project)).thenReturn(true);
 
-    assertThat(sensor.shouldExecuteOnProject(project), is(true));
-    assertThat(sensor.shouldExecuteOnProject(project), is(true));
+    assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
+  }
+
+  @Test
+  public void shouldNotExecuteIfReportPathIsNotDefined() {
+    Project project = mock(Project.class);
+    when(project.getAnalysisType()).thenReturn(AnalysisType.DYNAMIC).thenReturn(AnalysisType.REUSE_REPORTS);
+    when(configuration.getItReportPath()).thenReturn(null);
+    when(configuration.isEnabled(project)).thenReturn(true);
+
+    assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
   }
 
   @Test
@@ -110,7 +119,7 @@ public class JaCoCoItSensorTest {
     verify(context).saveMeasure(eq(resource), argThat(new IsMeasure(CoreMetrics.IT_LINES_TO_COVER, 7.0)));
     verify(context).saveMeasure(eq(resource), argThat(new IsMeasure(CoreMetrics.IT_UNCOVERED_LINES, 3.0)));
     verify(context).saveMeasure(eq(resource),
-        argThat(new IsMeasure(CoreMetrics.IT_COVERAGE_LINE_HITS_DATA, "6=1;7=1;8=1;11=1;15=0;16=0;18=0")));
+      argThat(new IsMeasure(CoreMetrics.IT_COVERAGE_LINE_HITS_DATA, "6=1;7=1;8=1;11=1;15=0;16=0;18=0")));
     verify(context).saveMeasure(eq(resource), argThat(new IsMeasure(CoreMetrics.IT_CONDITIONS_TO_COVER, 2.0)));
     verify(context).saveMeasure(eq(resource), argThat(new IsMeasure(CoreMetrics.IT_UNCOVERED_CONDITIONS, 2.0)));
     verify(context).saveMeasure(eq(resource), argThat(new IsMeasure(CoreMetrics.IT_CONDITIONS_BY_LINE, "15=2")));

@@ -25,6 +25,8 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.config.Settings;
+import org.sonar.api.resources.Java;
+import org.sonar.api.resources.Project;
 import org.sonar.plugins.java.api.JavaSettings;
 
 @Properties({
@@ -118,8 +120,10 @@ public class JacocoConfiguration implements BatchExtension {
     this.javaSettings = javaSettings;
   }
 
-  public boolean isEnabled() {
-    return JaCoCoUtils.PLUGIN_KEY.equals(javaSettings.getEnabledCoveragePlugin());
+  public boolean isEnabled(Project project) {
+    return Java.KEY.equals(project.getLanguageKey()) &&
+      project.getAnalysisType().isDynamic(true) &&
+      JaCoCoUtils.PLUGIN_KEY.equals(javaSettings.getEnabledCoveragePlugin());
   }
 
   public String getReportPath() {

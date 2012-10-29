@@ -23,20 +23,20 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
+import org.sonar.api.resources.Java;
+import org.sonar.api.resources.Project;
 import org.sonar.plugins.java.api.JavaSettings;
 
 import java.io.File;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class JacocoConfigurationTest {
 
   private Settings settings;
-  private JacocoConfiguration jacocoConfiguration;
+  private JacocoConfiguration jacocoSettings;
   private JavaSettings javaSettings;
 
   @Before
@@ -45,42 +45,91 @@ public class JacocoConfigurationTest {
     when(downloader.getAgentJarFile()).thenReturn(new File("jacocoagent.jar"));
     javaSettings = mock(JavaSettings.class);
     settings = new Settings(new PropertyDefinitions(JacocoConfiguration.class));
+    jacocoSettings = new JacocoConfiguration(settings, downloader, javaSettings);
+  }
 
-    jacocoConfiguration = new JacocoConfiguration(settings, downloader, javaSettings);
+  @Test
+  public void should_be_enabled() {
+    Project project = mock(Project.class);
+    when(project.getLanguageKey()).thenReturn(Java.KEY);
+    when(project.getAnalysisType()).thenReturn(Project.AnalysisType.DYNAMIC);
+    when(javaSettings.getEnabledCoveragePlugin()).thenReturn(JaCoCoUtils.PLUGIN_KEY);
+
+    assertThat(jacocoSettings.isEnabled(project)).isTrue();
+  }
+
+  @Test
+  public void should_be_enabled_if_reuse_report() {
+    Project project = mock(Project.class);
+    when(project.getLanguageKey()).thenReturn(Java.KEY);
+    when(project.getAnalysisType()).thenReturn(Project.AnalysisType.REUSE_REPORTS);
+    when(javaSettings.getEnabledCoveragePlugin()).thenReturn(JaCoCoUtils.PLUGIN_KEY);
+
+    assertThat(jacocoSettings.isEnabled(project)).isTrue();
+  }
+
+  @Test
+  public void should_be_enabled_if_static_analysis_only() {
+    Project project = mock(Project.class);
+    when(project.getLanguageKey()).thenReturn(Java.KEY);
+    when(project.getAnalysisType()).thenReturn(Project.AnalysisType.STATIC);
+    when(javaSettings.getEnabledCoveragePlugin()).thenReturn(JaCoCoUtils.PLUGIN_KEY);
+
+    assertThat(jacocoSettings.isEnabled(project)).isFalse();
+  }
+
+  @Test
+  public void plugin_should_be_disabled() {
+    Project project = mock(Project.class);
+    when(project.getLanguageKey()).thenReturn(Java.KEY);
+    when(project.getAnalysisType()).thenReturn(Project.AnalysisType.DYNAMIC);
+    when(javaSettings.getEnabledCoveragePlugin()).thenReturn("cobertura");
+
+    assertThat(jacocoSettings.isEnabled(project)).isFalse();
+  }
+
+  @Test
+  public void should_be_disabled_if_not_java() {
+    Project project = mock(Project.class);
+    when(project.getLanguageKey()).thenReturn("flex");
+    when(project.getAnalysisType()).thenReturn(Project.AnalysisType.DYNAMIC);
+    when(javaSettings.getEnabledCoveragePlugin()).thenReturn(JaCoCoUtils.PLUGIN_KEY);
+
+    assertThat(jacocoSettings.isEnabled(project)).isFalse();
   }
 
   @Test
   public void defaults() {
-    assertThat(jacocoConfiguration.getReportPath(), is("target/jacoco.exec"));
-    assertThat(jacocoConfiguration.getJvmArgument(), is("-javaagent:jacocoagent.jar=destfile=target/jacoco.exec,excludes=*_javassist_*"));
+    assertThat(jacocoSettings.getReportPath()).isEqualTo("target/jacoco.exec");
+    assertThat(jacocoSettings.getJvmArgument()).isEqualTo("-javaagent:jacocoagent.jar=destfile=target/jacoco.exec,excludes=*_javassist_*");
 
-    assertThat(jacocoConfiguration.getItReportPath(), nullValue());
+    assertThat(jacocoSettings.getItReportPath()).isNull();
 
-    assertThat(jacocoConfiguration.getAntTargets(), is(new String[]{}));
+    assertThat(jacocoSettings.getAntTargets()).isEqualTo(new String[]{});
   }
 
   @Test
   public void shouldReturnAntTargets() {
     settings.setProperty(JacocoConfiguration.ANT_TARGETS_PROPERTY, "test");
-    assertThat(jacocoConfiguration.getAntTargets(), is(new String[]{"test"}));
+    assertThat(jacocoSettings.getAntTargets()).isEqualTo(new String[]{"test"});
 
     settings.setProperty(JacocoConfiguration.ANT_TARGETS_PROPERTY, "test1,test2");
-    assertThat(jacocoConfiguration.getAntTargets(), is(new String[]{"test1", "test2"}));
+    assertThat(jacocoSettings.getAntTargets()).isEqualTo(new String[]{"test1", "test2"});
   }
 
   @Test
   public void shouldReturnItReportPath() {
     settings.setProperty(JacocoConfiguration.IT_REPORT_PATH_PROPERTY, "target/it-jacoco.exec");
 
-    assertThat(jacocoConfiguration.getItReportPath(), is("target/it-jacoco.exec"));
+    assertThat(jacocoSettings.getItReportPath()).isEqualTo("target/it-jacoco.exec");
   }
 
   @Test
   public void shouldSetDestfile() {
     settings.setProperty(JacocoConfiguration.REPORT_PATH_PROPERTY, "jacoco.exec");
 
-    assertThat(jacocoConfiguration.getReportPath(), is("jacoco.exec"));
-    assertThat(jacocoConfiguration.getJvmArgument(), is("-javaagent:jacocoagent.jar=destfile=jacoco.exec,excludes=*_javassist_*"));
+    assertThat(jacocoSettings.getReportPath()).isEqualTo("jacoco.exec");
+    assertThat(jacocoSettings.getJvmArgument()).isEqualTo("-javaagent:jacocoagent.jar=destfile=jacoco.exec,excludes=*_javassist_*");
   }
 
   @Test
@@ -89,8 +138,9 @@ public class JacocoConfigurationTest {
     settings.setProperty(JacocoConfiguration.EXCLUDES_PROPERTY, "org.sonar.api.*");
     settings.setProperty(JacocoConfiguration.EXCLCLASSLOADER_PROPERTY, "sun.reflect.DelegatingClassLoader");
 
-    assertThat(jacocoConfiguration.getJvmArgument(),
-        is("-javaagent:jacocoagent.jar=destfile=target/jacoco.exec,includes=org.sonar.*,excludes=org.sonar.api.*,exclclassloader=sun.reflect.DelegatingClassLoader"));
+    assertThat(jacocoSettings.getJvmArgument()).isEqualTo(
+      "-javaagent:jacocoagent.jar=destfile=target/jacoco.exec,includes=org.sonar.*,excludes=org.sonar.api.*,exclclassloader=sun.reflect.DelegatingClassLoader"
+    );
   }
 
 }

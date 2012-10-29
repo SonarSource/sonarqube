@@ -24,28 +24,23 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.CoverageExtension;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.resources.Java;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.plugins.cobertura.api.AbstractCoberturaParser;
-import org.sonar.plugins.java.api.JavaSettings;
 
 import java.io.File;
 
 public class CoberturaSensor implements Sensor, CoverageExtension {
 
-  private JavaSettings javaSettings;
+  private CoberturaSettings settings;
 
-  public CoberturaSensor(JavaSettings javaSettings) {
-    this.javaSettings = javaSettings;
+  public CoberturaSensor(CoberturaSettings settings) {
+    this.settings = settings;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return Java.KEY.equals(project.getLanguageKey())
-      && CoberturaPlugin.PLUGIN_KEY.equals(javaSettings.getEnabledCoveragePlugin())
-      && !project.getFileSystem().mainFiles(Java.KEY).isEmpty()
-      && project.getAnalysisType().isDynamic(true);
+    return settings.isEnabled(project);
   }
 
   public void analyse(Project project, SensorContext context) {

@@ -22,8 +22,6 @@ package org.sonar.server.plugins;
 import com.google.common.collect.Sets;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.Plugin;
-import org.sonar.api.Properties;
-import org.sonar.api.Property;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.ServerPluginRepository;
 import org.sonar.core.plugins.PluginClassloaders;
@@ -94,7 +92,7 @@ public class DefaultServerPluginRepository implements ServerPluginRepository {
     return clazz;
   }
 
-public Collection<PluginMetadata> getMetadata() {
+  public Collection<PluginMetadata> getMetadata() {
     return deployer.getMetadata();
   }
 

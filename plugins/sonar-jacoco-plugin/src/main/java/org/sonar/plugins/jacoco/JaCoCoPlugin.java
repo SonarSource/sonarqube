@@ -20,7 +20,6 @@
 package org.sonar.plugins.jacoco;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.api.BatchExtension;
 import org.sonar.api.SonarPlugin;
 
 import java.util.List;

@@ -19,14 +19,14 @@
  */
 package org.sonar.plugins.cobertura;
 
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.junit.Assert.assertThat;
 import org.junit.Test;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class CoberturaPluginTest {
 
   @Test
-  public void coberturaExtensions() {
-    assertThat(new CoberturaPlugin().getExtensions().size(), greaterThan(1));
+  public void test_getExtensions() {
+    assertThat(new CoberturaPlugin().getExtensions().size()).isGreaterThan(1);
   }
 }

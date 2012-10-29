@@ -19,28 +19,18 @@
  */
 package org.sonar.plugins.cobertura;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.configuration.Configuration;
 import org.apache.maven.project.MavenProject;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
-import org.sonar.api.resources.InputFile;
-import org.sonar.api.resources.InputFileUtils;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.test.MavenTestUtils;
-import org.sonar.plugins.java.api.JavaSettings;
 
 import java.io.File;
-import java.util.ArrayList;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -52,82 +42,34 @@ public class CoberturaMavenInitializerTest {
 
   private Project project;
   private CoberturaMavenInitializer initializer;
+  private CoberturaMavenPluginHandler handler;
+  private CoberturaSettings settings;
 
   @Before
   public void setUp() {
     project = mock(Project.class);
-    JavaSettings javaSettings = mock(JavaSettings.class);
-    when(javaSettings.getEnabledCoveragePlugin()).thenReturn("cobertura");
-    initializer = new CoberturaMavenInitializer(new CoberturaMavenPluginHandler(new Settings()), javaSettings);
+    handler = mock(CoberturaMavenPluginHandler.class);
+    settings = mock(CoberturaSettings.class);
+    initializer = new CoberturaMavenInitializer(handler, settings);
   }
 
-  @Test
-  public void shouldNotAnalyseIfNoJavaProject() {
-    Project project = mock(Project.class);
-    when(project.getLanguageKey()).thenReturn("php");
-    assertThat(initializer.shouldExecuteOnProject(project)).isFalse();
-  }
-
-  @Test
-  public void shouldNotAnalyseIfJavaProjectButNoSource() {
-    Project project = mock(Project.class);
-    ProjectFileSystem fs = mock(ProjectFileSystem.class);
-    when(fs.mainFiles("java")).thenReturn(new ArrayList<InputFile>());
-    when(project.getFileSystem()).thenReturn(fs);
-    when(project.getLanguageKey()).thenReturn("java");
-    assertThat(initializer.shouldExecuteOnProject(project)).isFalse();
-  }
-
-  @Test
-  public void shouldNotAnalyseIfJavaProjectWithSourceButStatic() {
-    Project project = mock(Project.class);
-    ProjectFileSystem fs = mock(ProjectFileSystem.class);
-    when(fs.mainFiles("java")).thenReturn(Lists.newArrayList(InputFileUtils.create(null, "")));
-    when(project.getFileSystem()).thenReturn(fs);
-    when(project.getLanguageKey()).thenReturn("java");
-    when(project.getAnalysisType()).thenReturn(Project.AnalysisType.STATIC);
-    assertThat(initializer.shouldExecuteOnProject(project)).isFalse();
-  }
-
-  @Test
-  public void shouldAnalyse() {
-    Project project = mock(Project.class);
-    ProjectFileSystem fs = mock(ProjectFileSystem.class);
-    when(fs.mainFiles("java")).thenReturn(Lists.newArrayList(InputFileUtils.create(null, "")));
-    when(project.getFileSystem()).thenReturn(fs);
-    when(project.getLanguageKey()).thenReturn("java");
-    when(project.getAnalysisType()).thenReturn(Project.AnalysisType.DYNAMIC);
-    assertThat(initializer.shouldExecuteOnProject(project)).isTrue();
-  }
-
-  @Test
-  public void shouldAnalyseIfReuseDynamicReports() {
-    Project project = mock(Project.class);
-    ProjectFileSystem fs = mock(ProjectFileSystem.class);
-    when(fs.mainFiles("java")).thenReturn(Lists.newArrayList(InputFileUtils.create(null, "")));
-    when(project.getFileSystem()).thenReturn(fs);
-    when(project.getLanguageKey()).thenReturn("java");
-    when(project.getAnalysisType()).thenReturn(Project.AnalysisType.REUSE_REPORTS);
-    assertThat(initializer.shouldExecuteOnProject(project)).isTrue();
-  }
 
   @Test
   public void doNotExecuteMavenPluginIfReuseReports() {
     when(project.getAnalysisType()).thenReturn(Project.AnalysisType.REUSE_REPORTS);
-    assertThat(initializer.getMavenPluginHandler(project), nullValue());
+    assertThat(initializer.getMavenPluginHandler(project)).isNull();
   }
 
   @Test
   public void doNotExecuteMavenPluginIfStaticAnalysis() {
     when(project.getAnalysisType()).thenReturn(Project.AnalysisType.STATIC);
-    assertThat(initializer.getMavenPluginHandler(project), nullValue());
+    assertThat(initializer.getMavenPluginHandler(project)).isNull();
   }
 
   @Test
   public void executeMavenPluginIfDynamicAnalysis() {
     when(project.getAnalysisType()).thenReturn(Project.AnalysisType.DYNAMIC);
-    assertThat(initializer.getMavenPluginHandler(project), not(nullValue()));
-    assertThat(initializer.getMavenPluginHandler(project).getArtifactId(), is("cobertura-maven-plugin"));
+    assertThat(initializer.getMavenPluginHandler(project)).isSameAs(handler);
   }
 
   @Test

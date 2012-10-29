@@ -26,10 +26,8 @@ import org.sonar.api.batch.Initializer;
 import org.sonar.api.batch.maven.DependsUponMavenPlugin;
 import org.sonar.api.batch.maven.MavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
-import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.plugins.cobertura.api.CoberturaUtils;
-import org.sonar.plugins.java.api.JavaSettings;
 
 /**
  * Provides {@link CoberturaMavenPluginHandler} and configures correct path to report.
@@ -38,26 +36,20 @@ import org.sonar.plugins.java.api.JavaSettings;
 public class CoberturaMavenInitializer extends Initializer implements CoverageExtension, DependsUponMavenPlugin {
 
   private CoberturaMavenPluginHandler handler;
-  private JavaSettings javaSettings;
+  private CoberturaSettings coberturaSettings;
 
-  public CoberturaMavenInitializer(CoberturaMavenPluginHandler handler, JavaSettings javaSettings) {
+  public CoberturaMavenInitializer(CoberturaMavenPluginHandler handler, CoberturaSettings coberturaSettings) {
     this.handler = handler;
-    this.javaSettings = javaSettings;
+    this.coberturaSettings = coberturaSettings;
   }
 
   public MavenPluginHandler getMavenPluginHandler(Project project) {
-    if (project.getAnalysisType().equals(Project.AnalysisType.DYNAMIC)) {
-      return handler;
-    }
-    return null;
+    return project.getAnalysisType().equals(Project.AnalysisType.DYNAMIC) ? handler : null;
   }
 
   @Override
   public boolean shouldExecuteOnProject(Project project) {
-    return Java.KEY.equals(project.getLanguageKey())
-      && CoberturaPlugin.PLUGIN_KEY.equals(javaSettings.getEnabledCoveragePlugin())
-      && !project.getFileSystem().mainFiles(Java.KEY).isEmpty()
-      && project.getAnalysisType().isDynamic(true);
+    return coberturaSettings.isEnabled(project);
   }
 
   @Override
@@ -78,9 +70,9 @@ public class CoberturaMavenInitializer extends Initializer implements CoverageEx
 
   private static String getReportPathFromPluginConfiguration(Project project) {
     MavenPlugin mavenPlugin = MavenPlugin.getPlugin(
-        project.getPom(),
-        CoberturaUtils.COBERTURA_GROUP_ID,
-        CoberturaUtils.COBERTURA_ARTIFACT_ID);
+      project.getPom(),
+      CoberturaUtils.COBERTURA_GROUP_ID,
+      CoberturaUtils.COBERTURA_ARTIFACT_ID);
     if (mavenPlugin != null) {
       String path = mavenPlugin.getParameter("outputDirectory");
       if (path != null) {

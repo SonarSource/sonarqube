@@ -21,7 +21,6 @@ package org.sonar.api.platform;
 
 import org.sonar.api.BatchComponent;
 import org.sonar.api.Plugin;
-import org.sonar.api.Property;
 import org.sonar.api.ServerComponent;
 
 import java.util.Collection;

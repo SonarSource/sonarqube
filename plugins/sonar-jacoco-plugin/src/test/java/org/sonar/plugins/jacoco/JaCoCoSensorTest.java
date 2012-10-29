@@ -26,7 +26,6 @@ import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
-import org.sonar.api.resources.Java;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
@@ -71,7 +70,6 @@ public class JaCoCoSensorTest {
   @Before
   public void setUp() {
     configuration = mock(JacocoConfiguration.class);
-    when(configuration.isEnabled()).thenReturn(true);
     sensor = new JaCoCoSensor(configuration);
   }
 
@@ -81,20 +79,14 @@ public class JaCoCoSensorTest {
   }
 
   @Test
-  public void shouldNotExecuteOnProject() {
+  public void shouldExecuteIfEnabled() {
     Project project = mock(Project.class);
-    when(project.getLanguageKey()).thenReturn("flex");
 
-    assertThat(sensor.shouldExecuteOnProject(project), is(false));
-  }
-
-  @Test
-  public void shouldExecuteOnProject() {
-    Project project = mock(Project.class);
-    when(project.getLanguageKey()).thenReturn(Java.KEY);
-    when(project.getAnalysisType()).thenReturn(Project.AnalysisType.DYNAMIC);
-
+    when(configuration.isEnabled(project)).thenReturn(true);
     assertThat(sensor.shouldExecuteOnProject(project), is(true));
+
+    when(configuration.isEnabled(project)).thenReturn(false);
+    assertThat(sensor.shouldExecuteOnProject(project), is(false));
   }
 
   @Test
@@ -114,7 +106,7 @@ public class JaCoCoSensorTest {
     verify(context).saveMeasure(eq(resource), argThat(new IsMeasure(CoreMetrics.LINES_TO_COVER, 7.0)));
     verify(context).saveMeasure(eq(resource), argThat(new IsMeasure(CoreMetrics.UNCOVERED_LINES, 3.0)));
     verify(context).saveMeasure(eq(resource),
-        argThat(new IsMeasure(CoreMetrics.COVERAGE_LINE_HITS_DATA, "6=1;7=1;8=1;11=1;15=0;16=0;18=0")));
+      argThat(new IsMeasure(CoreMetrics.COVERAGE_LINE_HITS_DATA, "6=1;7=1;8=1;11=1;15=0;16=0;18=0")));
     verify(context).saveMeasure(eq(resource), argThat(new IsMeasure(CoreMetrics.CONDITIONS_TO_COVER, 2.0)));
     verify(context).saveMeasure(eq(resource), argThat(new IsMeasure(CoreMetrics.UNCOVERED_CONDITIONS, 2.0)));
     verify(context).saveMeasure(eq(resource), argThat(new IsMeasure(CoreMetrics.CONDITIONS_BY_LINE, "15=2" +
