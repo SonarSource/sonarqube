@@ -76,4 +76,10 @@
     template.clone().insertBefore(template).show();
     return false;
   });
+  $j('form').live('keypress', function (e) {
+    if (e.which == 13) {
+      submit_settings.click();
+      return false;
+    }
+  });
 </script>
