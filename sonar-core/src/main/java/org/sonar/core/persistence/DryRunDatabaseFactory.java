@@ -50,8 +50,10 @@ public class DryRunDatabaseFactory implements ServerComponent {
     String name = serverFileSystem.getTempDir().getAbsolutePath() + "db-" + System.nanoTime();
 
     try {
+      DataSource source = database.getDataSource();
       BasicDataSource destination = create(DIALECT, DRIVER, USER, PASSWORD, URL + name);
-      copy(database.getDataSource(), destination, resourceId);
+
+      copy(source, destination, resourceId);
       close(destination);
 
       return dbFileContent(name);
@@ -83,8 +85,8 @@ public class DryRunDatabaseFactory implements ServerComponent {
     return dataSource;
   }
 
-  private void close(BasicDataSource dest) throws SQLException {
-    dest.close();
+  private void close(BasicDataSource destination) throws SQLException {
+    destination.close();
   }
 
   private byte[] dbFileContent(String name) {

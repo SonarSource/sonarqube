@@ -19,15 +19,20 @@
  */
 package org.sonar.batch.local;
 
+import com.google.common.base.Throwables;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
+import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrap.DryRun;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.bootstrap.TempDirectories;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * @since 3.4
@@ -59,15 +64,25 @@ public class DryRunDatabase implements BatchComponent {
       return;
     }
 
-    File file = tempDirectories.getFile("dry_run", "db.h2.db");
-    String h2DatabasePath = file.getAbsolutePath().replaceAll(".h2.db", "");
+    File databaseFile = tempDirectories.getFile("dry_run", "db.h2.db");
+    downloadDatabase(reactor.getRoot().getKey(), databaseFile);
 
-    downloadDatabase(reactor.getRoot().getKey(), file);
-    replaceSettings(h2DatabasePath);
+    String databasePath = StringUtils.removeEnd(databaseFile.getAbsolutePath(), ".h2.db");
+    replaceSettings(databasePath);
   }
 
   private void downloadDatabase(String projectKey, File toFile) {
-    server.download(API_SYNCHRO + "?resource=" + projectKey, toFile);
+    try {
+      server.download(API_SYNCHRO + "?resource=" + projectKey, toFile);
+    } catch (SonarException e) {
+      Throwable rootCause = Throwables.getRootCause(e);
+      if (rootCause instanceof FileNotFoundException) {
+        throw new SonarException(String.format("Project [%s] doesn't exist on server", projectKey));
+      } else if ((rootCause instanceof IOException) && (StringUtils.contains(rootCause.getMessage(), "401"))) {
+        throw new SonarException(String.format("You don't have access rights to project [%s]", projectKey));
+      }
+      throw e;
+    }
   }
 
   private void replaceSettings(String h2DatabasePath) {
