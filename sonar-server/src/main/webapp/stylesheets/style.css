@@ -436,8 +436,8 @@ table.data th img, table.data td img {
   vertical-align: baseline;
 }
 
-.hoverable:hover {
-  background-color: #CAE3F2;
+.hoverable:hover, table.data tbody tr:hover {
+  background-color: #CAE3F2 !important;
 }
 
 .hoverable:hover a {
