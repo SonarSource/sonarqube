@@ -21,6 +21,7 @@ package org.sonar.core.i18n;
 
 import com.google.common.collect.Lists;
 import org.sonar.api.Plugin;
+import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
 
 import java.net.URL;
@@ -34,12 +35,15 @@ class I18nClassloader extends URLClassLoader {
   public I18nClassloader(PluginRepository pluginRepository) {
     super(new URL[0]);
     List<ClassLoader> list = Lists.newArrayList();
-    for (Plugin plugin : pluginRepository.getPlugins()) {
+
+    for (PluginMetadata metadata : pluginRepository.getMetadata()) {
+      Plugin plugin = pluginRepository.getPlugin(metadata.getKey());
       ClassLoader classloader = plugin.getClass().getClassLoader();
       if (classloader.getResource("org/sonar/l10n/") != null) {
         list.add(classloader);
       }
     }
+
     this.pluginClassloaders = list.toArray(new ClassLoader[list.size()]);
   }
 
