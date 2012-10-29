@@ -66,20 +66,20 @@
 <% end -%>
 
 <script>
-  $j('.delete').live('click', function () {
-    $j(this).parents('.multi_value').remove();
-    return false;
-  });
-
-  $j('.add_value').live('click', function () {
-    var template = $j(this).parents('.property').find('.template').last();
-    template.clone().insertBefore(template).show();
-    return false;
-  });
-  $j('form').live('keypress', function (e) {
-    if (e.which == 13) {
-      submit_settings.click();
+  $j(document)
+    .on('click', '.delete', function () {
+      $j(this).parents('.multi_value').remove();
       return false;
-    }
-  });
+    })
+    .on('click', '.add_value', function () {
+      var template = $j(this).parents('.property').find('.template').last();
+      template.clone().insertBefore(template).show();
+      return false;
+    })
+    .on('keypress', 'form', function (e) {
+      if (e.which == 13) {
+        submit_settings.click();
+        return false;
+      }
+    });
 </script>
