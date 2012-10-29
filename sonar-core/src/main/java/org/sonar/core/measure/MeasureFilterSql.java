@@ -76,7 +76,7 @@ class MeasureFilterSql {
   }
 
   private void init() {
-    sql.append("SELECT block.id, max(block.rid) rid, max(block.rootid) rootid, max(sortval) sortval");
+    sql.append("SELECT block.id, max(block.rid) as rid, max(block.rootid) as rootid, max(sortval) as sortval");
     for (int index = 0; index < filter.getMeasureConditions().size(); index++) {
       sql.append(", max(crit_").append(index).append(")");
     }
