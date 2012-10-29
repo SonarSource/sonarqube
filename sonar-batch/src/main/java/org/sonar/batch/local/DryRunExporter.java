@@ -19,22 +19,29 @@
  */
 package org.sonar.batch.local;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.io.Closeables;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.stream.JsonWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
-import org.sonar.api.violations.ViolationQuery;
+import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrap.DryRun;
 import org.sonar.batch.index.DefaultIndex;
 
-import java.io.Serializable;
+import javax.annotation.Nullable;
+
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @since 3.4
@@ -55,22 +62,53 @@ public class DryRunExporter implements BatchComponent {
       return;
     }
 
-    LOG.info("Exporting dry run results");
+    LOG.info("Exporting DryRun results");
 
-    List<Map<String, ? extends Serializable>> results = Lists.newArrayList();
+    String json = getResultsAsJson(sonarIndex.getResources());
+    System.out.println(json);
+  }
 
-    for (Resource resource : sonarIndex.getResources()) {
-      List<Violation> violations = sonarIndex.getViolations(ViolationQuery.create().forResource(resource));
-      for (Violation violation : violations) {
-        results.add(ImmutableMap.of(
-            "resource", violation.getResource().getKey(),
-            "line", violation.getLineId(),
-            "message", violation.getMessage()));
+  @VisibleForTesting
+  String getResultsAsJson(Collection<Resource> resources) {
+    Gson gson = new Gson();
 
+    StringWriter output = new StringWriter();
+
+    JsonWriter writer = null;
+    try {
+      writer = new JsonWriter(output);
+      writer.beginArray();
+
+      for (Resource resource : resources) {
+        for (Violation violation : getViolations(resource)) {
+          gson.toJson(new ViolationToMap().apply(violation), writer);
+        }
       }
+
+      writer.endArray();
+    } catch (IOException e) {
+      throw new SonarException("Unable to export results", e);
+    } finally {
+      Closeables.closeQuietly(writer);
     }
 
-    String json = new Gson().toJson(results);
-    System.out.println(json);
+    return output.toString();
+  }
+
+  @VisibleForTesting
+  List<Violation> getViolations(Resource resource) {
+    return sonarIndex.getViolations(resource);
+  }
+
+  static class ViolationToMap implements Function<Violation, JsonElement> {
+    public JsonElement apply(@Nullable Violation violation) {
+      JsonObject json = new JsonObject();
+      if (violation != null) {
+        json.addProperty("resource", violation.getResource().getKey());
+        json.addProperty("line", violation.getLineId());
+        json.addProperty("message", violation.getMessage());
+      }
+      return json;
+    }
   }
 }

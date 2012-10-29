@@ -58,7 +58,7 @@ public class DryRunDatabaseFactory implements ServerComponent {
 
       return dbFileContent(name);
     } catch (SQLException e) {
-      throw new SonarException("Unable to create database for dry run", e);
+      throw new SonarException("Unable to create database for DryRun", e);
     }
   }
 

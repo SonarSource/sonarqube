@@ -19,14 +19,24 @@
  */
 package org.sonar.batch.local;
 
+import com.google.common.collect.ImmutableSet;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.rules.Violation;
 import org.sonar.batch.bootstrap.DryRun;
 import org.sonar.batch.index.DefaultIndex;
+import org.sonar.java.api.JavaClass;
 
+import java.util.Arrays;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class DryRunExporterTest {
   DryRunExporter dryRunExporter;
@@ -34,10 +44,12 @@ public class DryRunExporterTest {
   DryRun dryRun = mock(DryRun.class);
   DefaultIndex sonarIndex = mock(DefaultIndex.class);
   SensorContext sensorContext = mock(SensorContext.class);
+  Resource resource =  JavaClass.create("KEY");
+  Violation violation = mock(Violation.class);
 
   @Before
   public void setUp() {
-    dryRunExporter = new DryRunExporter(dryRun, sonarIndex);
+    dryRunExporter = spy(new DryRunExporter(dryRun, sonarIndex));
   }
 
   @Test
@@ -45,5 +57,18 @@ public class DryRunExporterTest {
     dryRunExporter.execute(sensorContext);
 
     verifyZeroInteractions(sensorContext, sonarIndex);
+  }
+
+  @Test
+  public void should_export_violations() {
+    when(dryRun.isEnabled()).thenReturn(true);
+    when(violation.getResource()).thenReturn(resource);
+    when(violation.getLineId()).thenReturn(1);
+    when(violation.getMessage()).thenReturn("VIOLATION");
+    doReturn(Arrays.asList(violation)).when(dryRunExporter).getViolations(resource);
+
+    String json = dryRunExporter.getResultsAsJson(ImmutableSet.of(resource));
+
+    assertThat(json).isEqualTo("[{\"resource\":\"KEY\",\"line\":1,\"message\":\"VIOLATION\"}]");
   }
 }
