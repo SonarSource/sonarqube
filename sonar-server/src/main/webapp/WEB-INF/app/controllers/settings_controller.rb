@@ -61,7 +61,15 @@ class SettingsController < ApplicationController
   end
 
   def update_property_set(key, set_keys, fields_hash, resource_id, auto_generate)
-    set_keys = Array.new(set_keys.size) { |i| i.to_s } if auto_generate
+    if auto_generate
+      max = set_keys.max_by(&:to_i).to_i
+      set_keys.each_with_index do |v, index|
+        if v.blank?
+          max += 1;
+          set_keys[index] = max.to_s
+        end
+      end
+    end
 
     set_key_values = {}
     fields_hash.each do |field_key, field_values|

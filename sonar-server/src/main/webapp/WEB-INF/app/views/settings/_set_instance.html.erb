@@ -3,7 +3,7 @@
 
 <tr class="top multi_value <%= 'template' unless set_key -%> odd" style="<%= 'display:none' unless set_key -%>">
   <% unless key_field -%>
-    <%= hidden_field_tag "property_sets[#{property.key}][]", 'auto-generated' -%>
+    <%= hidden_field_tag "property_sets[#{property.key}][]", set_key -%>
   <% end -%>
 
   <% property.fields.each do |field| -%>
