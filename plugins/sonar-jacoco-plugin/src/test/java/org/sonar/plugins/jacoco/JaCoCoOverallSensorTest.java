@@ -40,6 +40,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class JaCoCoOverallSensorTest {
@@ -94,6 +95,36 @@ public class JaCoCoOverallSensorTest {
     verify(context).saveMeasure(eq(resource), argThat(new IsMeasure(CoreMetrics.OVERALL_CONDITIONS_BY_LINE, "14=2")));
     verify(context).saveMeasure(eq(resource), argThat(new IsMeasure(CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE, (String) null)));
     verifyNoMoreInteractions(context);
+  }
+
+  @Test
+  public void should_no_save_measures_when_it_report_is_not_found() throws IOException {
+    File outputDir = TestUtils.getResource(JaCoCoOverallSensorTest.class, ".");
+
+    when(project.getFileSystem()).thenReturn(pfs);
+    when(configuration.getReportPath()).thenReturn("ut.exec");
+    when(configuration.getItReportPath()).thenReturn("it.not.found.exec");
+    when(pfs.resolvePath("ut.exec")).thenReturn(new File(outputDir, "ut.exec"));
+    when(pfs.resolvePath("it.not.found.exec")).thenReturn(new File("it.not.found.exec"));
+
+    sensor.analyse(project, context);
+
+    verifyZeroInteractions(context);
+  }
+
+  @Test
+  public void should_no_save_measures_when_ut_report_is_not_found() throws IOException {
+    File outputDir = TestUtils.getResource(JaCoCoOverallSensorTest.class, ".");
+
+    when(project.getFileSystem()).thenReturn(pfs);
+    when(configuration.getReportPath()).thenReturn("ut.not.found.exec");
+    when(configuration.getItReportPath()).thenReturn("it.exec");
+    when(pfs.resolvePath("ut.not.found.exec")).thenReturn(new File("ut.not.found.exec"));
+    when(pfs.resolvePath("it.exec")).thenReturn(new File(outputDir, "it.exec"));
+
+    sensor.analyse(project, context);
+
+    verifyZeroInteractions(context);
   }
 
   @Test

@@ -53,7 +53,8 @@ public class JaCoCoOverallSensor implements Sensor {
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return StringUtils.isNotBlank(configuration.getItReportPath()) && project.getAnalysisType().isDynamic(true);
+    return StringUtils.isNotBlank(configuration.getItReportPath())
+      && project.getAnalysisType().isDynamic(true);
   }
 
   public void analyse(Project project, SensorContext context) {
@@ -61,6 +62,10 @@ public class JaCoCoOverallSensor implements Sensor {
 
     File reportUTs = fs.resolvePath(configuration.getReportPath());
     File reportITs = fs.resolvePath(configuration.getItReportPath());
+    if ((!reportUTs.exists()) || (!reportITs.exists())) {
+      return;
+    }
+
     File reportOverall = new File(fs.getSonarWorkingDirectory(), JACOCO_OVERALL);
     reportOverall.getParentFile().mkdirs();
 
@@ -91,19 +96,17 @@ public class JaCoCoOverallSensor implements Sensor {
 
   private void loadSourceFiles(SessionInfoStore infoStore, ExecutionDataStore dataStore, File... reports) {
     for (File report : reports) {
-      if (report.exists()) {
-        InputStream resourceStream = null;
-        try {
-          resourceStream = new BufferedInputStream(new FileInputStream(report));
-          ExecutionDataReader reader = new ExecutionDataReader(resourceStream);
-          reader.setSessionInfoVisitor(infoStore);
-          reader.setExecutionDataVisitor(dataStore);
-          reader.read();
-        } catch (IOException e) {
-          throw new SonarException(String.format("Unable to read %s", report.getAbsolutePath()), e);
-        } finally {
-          Closeables.closeQuietly(resourceStream);
-        }
+      InputStream resourceStream = null;
+      try {
+        resourceStream = new BufferedInputStream(new FileInputStream(report));
+        ExecutionDataReader reader = new ExecutionDataReader(resourceStream);
+        reader.setSessionInfoVisitor(infoStore);
+        reader.setExecutionDataVisitor(dataStore);
+        reader.read();
+      } catch (IOException e) {
+        throw new SonarException(String.format("Unable to read %s", report.getAbsolutePath()), e);
+      } finally {
+        Closeables.closeQuietly(resourceStream);
       }
     }
   }
