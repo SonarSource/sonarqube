@@ -19,31 +19,27 @@
  */
 package org.sonar.core.i18n;
 
-import com.google.common.collect.Maps;
-import org.hamcrest.core.Is;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.sonar.api.platform.PluginMetadata;
+import org.sonar.api.platform.PluginRepository;
 
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.sonar.core.i18n.I18nManager.BUNDLE_PACKAGE;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class I18nManagerTest {
 
   private static Locale defaultLocale;
   private I18nManager manager;
-  private ClassLoader coreClassLoader;
-  private ClassLoader sqaleClassLoader;
-  private ClassLoader forgeClassLoader;
 
   /**
    * See http://jira.codehaus.org/browse/SONAR-2927
@@ -61,186 +57,165 @@ public class I18nManagerTest {
 
   @Before
   public void init() {
-    Map<String, ClassLoader> bundleToClassLoaders = Maps.newHashMap();
-    // following represents the English language pack + a core plugin : they use the same classloader
-    coreClassLoader = newCoreClassLoader();
-    bundleToClassLoaders.put(BUNDLE_PACKAGE + "core", coreClassLoader);
-    bundleToClassLoaders.put(BUNDLE_PACKAGE + "checkstyle", coreClassLoader);
-    // following represents a commercial plugin that must embed all its bundles, whatever the language
-    sqaleClassLoader = newSqaleClassLoader();
-    bundleToClassLoaders.put(BUNDLE_PACKAGE + "sqale", sqaleClassLoader);
-    // following represents a forge plugin that embeds only the english bundle, and lets the language
-    // packs embed all the bundles for the other languages
-    forgeClassLoader = newForgeClassLoader();
-    bundleToClassLoaders.put(BUNDLE_PACKAGE + "forge", forgeClassLoader);
+    PluginRepository pluginRepository = mock(PluginRepository.class);
+    List<PluginMetadata> plugins = Arrays.asList(newPlugin("sqale"), newPlugin("frpack"), newPlugin("core"), newPlugin("checkstyle"), newPlugin("other"));
+    when(pluginRepository.getMetadata()).thenReturn(plugins);
 
-    manager = new I18nManager(bundleToClassLoaders, coreClassLoader);
-    manager.start();
+    I18nClassloader i18nClassloader = new I18nClassloader(new ClassLoader[]{
+      newCoreClassloader(), newFrenchPackClassloader(), newSqaleClassloader(), newCheckstyleClassloader()
+    });
+    manager = new I18nManager(pluginRepository);
+    manager.doStart(i18nClassloader);
   }
 
   @Test
-  public void shouldExtractPluginFromKey() {
-    Map<String, ClassLoader> bundleToClassLoaders = Maps.newHashMap();
-    bundleToClassLoaders.put(BUNDLE_PACKAGE + "core", getClass().getClassLoader());
-    bundleToClassLoaders.put(BUNDLE_PACKAGE + "checkstyle", getClass().getClassLoader());
-    bundleToClassLoaders.put(BUNDLE_PACKAGE + "sqale", getClass().getClassLoader());
-    I18nManager i18n = new I18nManager(bundleToClassLoaders, coreClassLoader);
-    i18n.start();
-
-    assertThat(i18n.extractBundleFromKey("by"), Is.is(BUNDLE_PACKAGE + "core"));
-    assertThat(i18n.extractBundleFromKey("violations_drilldown.page"), Is.is(BUNDLE_PACKAGE + "core"));
-    assertThat(i18n.extractBundleFromKey("checkstyle.rule1.name"), Is.is(BUNDLE_PACKAGE + "checkstyle"));
-    assertThat(i18n.extractBundleFromKey("sqale.console.page"), Is.is(BUNDLE_PACKAGE + "sqale"));
+  public void should_introspect_all_available_properties() {
+    assertThat(manager.getPropertyKeys().contains("by")).isTrue();
+    assertThat(manager.getPropertyKeys().contains("only.in.english")).isTrue();
+    assertThat(manager.getPropertyKeys().contains("sqale.page")).isTrue();
+    assertThat(manager.getPropertyKeys().contains("unknown")).isFalse();
   }
 
   @Test
-  public void shouldFindKeysInEnglishLanguagePack() {
-    assertThat(manager.message(Locale.ENGLISH, "checkstyle.rule1.name", null), Is.is("Rule one"));
-    assertThat(manager.message(Locale.ENGLISH, "by", null), Is.is("By"));
-    assertThat(manager.message(Locale.ENGLISH, "sqale.page", null), Is.is("Sqale page title"));
-
-    assertThat(manager.message(Locale.FRENCH, "checkstyle.rule1.name", null), Is.is("Rule un"));
-    assertThat(manager.message(Locale.FRENCH, "by", null), Is.is("Par"));
-    assertThat(manager.message(Locale.FRENCH, "sqale.page", null), Is.is("Titre de la page Sqale"));
+  public void should_get_english_labels() {
+    assertThat(manager.message(Locale.ENGLISH, "by", null)).isEqualTo("By");
+    assertThat(manager.message(Locale.ENGLISH, "sqale.page", null)).isEqualTo("Sqale page title");
+    assertThat(manager.message(Locale.ENGLISH, "checkstyle.rule1.name", null)).isEqualTo("Rule one");
   }
 
   @Test
-  public void shouldUseDefaultLocale() {
-    assertThat(manager.message(Locale.CHINA, "checkstyle.rule1.name", null), Is.is("Rule one"));
-    assertThat(manager.message(Locale.CHINA, "by", null), Is.is("By"));
-    assertThat(manager.message(Locale.CHINA, "sqale.page", null), Is.is("Sqale page title"));
+  public void should_get_labels_from_french_pack() {
+    assertThat(manager.message(Locale.FRENCH, "checkstyle.rule1.name", null)).isEqualTo("Rule un");
+    assertThat(manager.message(Locale.FRENCH, "by", null)).isEqualTo("Par");
+
+    // language pack
+    assertThat(manager.message(Locale.FRENCH, "sqale.page", null)).isEqualTo("Titre de la page Sqale");
   }
 
   @Test
-  public void shouldUseLanguagePack() {
-    assertThat(manager.message(Locale.FRENCH, "checkstyle.rule1.name", null), Is.is("Rule un"));
-    assertThat(manager.message(Locale.FRENCH, "by", null), Is.is("Par"));
-    assertThat(manager.message(Locale.FRENCH, "sqale.page", null), Is.is("Titre de la page Sqale"));
+  public void should_get_french_label_if_swiss_country() {
+    Locale swiss = new Locale("fr", "CH");
+    assertThat(manager.message(swiss, "checkstyle.rule1.name", null)).isEqualTo("Rule un");
+    assertThat(manager.message(swiss, "by", null)).isEqualTo("Par");
+
+    // language pack
+    assertThat(manager.message(swiss, "sqale.page", null)).isEqualTo("Titre de la page Sqale");
   }
 
   @Test
-  public void shouldReturnDefaultValueIfMissingKey() {
-    assertThat(manager.message(Locale.ENGLISH, "foo.unknown", "default"), Is.is("default"));
-    assertThat(manager.message(Locale.FRENCH, "foo.unknown", "default"), Is.is("default"));
+  public void should_fallback_to_default_locale() {
+    assertThat(manager.message(Locale.CHINA, "checkstyle.rule1.name", null)).isEqualTo("Rule one");
+    assertThat(manager.message(Locale.CHINA, "by", null)).isEqualTo("By");
+    assertThat(manager.message(Locale.CHINA, "sqale.page", null)).isEqualTo("Sqale page title");
+  }
+
+
+  @Test
+  public void should_return_default_value_if_missing_key() {
+    assertThat(manager.message(Locale.ENGLISH, "unknown", "default")).isEqualTo("default");
+    assertThat(manager.message(Locale.FRENCH, "unknown", "default")).isEqualTo("default");
   }
 
   @Test
-  public void shouldAcceptEmptyLabels() {
-    assertThat(manager.message(Locale.ENGLISH, "empty", "default"), Is.is(""));
-    assertThat(manager.message(Locale.FRENCH, "empty", "default"), Is.is(""));
+  public void should_accept_empty_labels() {
+    assertThat(manager.message(Locale.ENGLISH, "empty", "default")).isEqualTo("");
+    assertThat(manager.message(Locale.FRENCH, "empty", "default")).isEqualTo("");
   }
 
   @Test
   public void shouldFormatMessageWithParameters() {
-    assertThat(manager.message(Locale.ENGLISH, "with.parameters", null, "one", "two"), Is.is("First is one and second is two"));
+    assertThat(manager.message(Locale.ENGLISH, "with.parameters", null, "one", "two")).isEqualTo("First is one and second is two");
   }
 
   @Test
   public void shouldUseDefaultLocaleIfMissingValueInLocalizedBundle() {
-    assertThat(manager.message(Locale.FRENCH, "only.in.english", null), Is.is("Missing in French bundle"));
-    assertThat(manager.message(Locale.CHINA, "only.in.english", null), Is.is("Missing in French bundle"));
+    assertThat(manager.message(Locale.FRENCH, "only.in.english", null)).isEqualTo("Missing in French bundle");
+    assertThat(manager.message(Locale.CHINA, "only.in.english", null)).isEqualTo("Missing in French bundle");
   }
 
   @Test
-  public void shouldGetClassLoaderByProperty() {
-    assertThat(manager.getClassLoaderForProperty("foo.unknown", Locale.ENGLISH), nullValue());
-    assertThat(manager.getClassLoaderForProperty("by", Locale.ENGLISH), Is.is(coreClassLoader));
-    // The following plugin defines its own bundles, whatever the language
-    assertThat(manager.getClassLoaderForProperty("sqale.page", Locale.ENGLISH), Is.is(sqaleClassLoader));
-    assertThat(manager.getClassLoaderForProperty("sqale.page", Locale.FRENCH), Is.is(sqaleClassLoader));
-    // The following plugin defines only the English bundle, and lets the language packs handle the translations
-    assertThat(manager.getClassLoaderForProperty("forge_plugin.page", Locale.ENGLISH), Is.is(forgeClassLoader));
-    assertThat(manager.getClassLoaderForProperty("forge_plugin.page", Locale.FRENCH), Is.is(coreClassLoader));
+  public void should_locate_english_file() {
+    String html = manager.messageFromFile(Locale.ENGLISH, "ArchitectureRule.html", "checkstyle.rule1.name", false);
+    assertThat(html).isEqualTo("This is the architecture rule");
   }
 
   @Test
-  public void shouldFindEnglishFile() {
-    String html = manager.messageFromFile(Locale.ENGLISH, "ArchitectureRule.html", "checkstyle.rule1.name" /*
-                                                                                                            * any property in the same
-                                                                                                            * bundle
-                                                                                                            */, false);
-    assertThat(html, Is.is("This is the architecture rule"));
+  public void should_return_null_if_file_not_found() {
+    String html = manager.messageFromFile(Locale.ENGLISH, "UnknownRule.html", "checkstyle.rule1.name", false);
+    assertThat(html).isNull();
   }
 
   @Test
-  public void shouldNotFindFile() {
-    String html = manager.messageFromFile(Locale.ENGLISH, "UnknownRule.html", "checkstyle.rule1.name" /* any property in the same bundle */, false);
-    assertThat(html, nullValue());
+  public void should_locate_french_file() {
+    String html = manager.messageFromFile(Locale.FRENCH, "ArchitectureRule.html", "checkstyle.rule1.name", false);
+    assertThat(html).isEqualTo("Règle d'architecture");
   }
 
   @Test
-  public void shouldFindFrenchFile() {
-    String html = manager.messageFromFile(Locale.FRENCH, "ArchitectureRule.html", "checkstyle.rule1.name" /* any property in the same bundle */, false);
-    assertThat(html, Is.is("Règle d'architecture"));
+  public void should_locate_file_with_missing_locale() {
+    String html = manager.messageFromFile(Locale.CHINA, "ArchitectureRule.html", "checkstyle.rule1.name", false);
+    assertThat(html).isNull();
   }
 
   @Test
-  public void shouldNotFindMissingLocale() {
-    String html = manager.messageFromFile(Locale.CHINA, "ArchitectureRule.html", "checkstyle.rule1.name" /* any property in the same bundle */, false);
-    assertThat(html, nullValue());
-  }
-
-  @Test
-  public void shouldNotKeepInCache() {
-    assertThat(manager.getFileContentCache().size(), Is.is(0));
+  public void should_not_keep_in_cache() {
+    assertThat(manager.getFileContentCache()).isEmpty();
     boolean keepInCache = false;
-    String html = manager.messageFromFile(Locale.ENGLISH, "ArchitectureRule.html", "checkstyle.rule1.name" /*
-                                                                                                            * any property in the same
-                                                                                                            * bundle
-                                                                                                            */, keepInCache);
+    String html = manager.messageFromFile(Locale.ENGLISH, "ArchitectureRule.html", "checkstyle.rule1.name", keepInCache);
 
-    assertThat(html, not(nullValue()));
-    assertThat(manager.getFileContentCache().size(), Is.is(0));
+    assertThat(html).isNotNull();
+    assertThat(manager.getFileContentCache()).isEmpty();
   }
 
   @Test
-  public void shouldKeepInCache() {
-    assertThat(manager.getFileContentCache().size(), Is.is(0));
+  public void should_keep_in_cache() {
+    assertThat(manager.getFileContentCache()).isEmpty();
     boolean keepInCache = true;
-    String html = manager.messageFromFile(Locale.ENGLISH, "ArchitectureRule.html", "checkstyle.rule1.name" /*
-                                                                                                            * any property in the same
-                                                                                                            * bundle
-                                                                                                            */, keepInCache);
+    String html = manager.messageFromFile(Locale.ENGLISH, "ArchitectureRule.html", "checkstyle.rule1.name", keepInCache);
+    assertThat(html).isEqualTo("This is the architecture rule");
 
-    assertThat(html, not(nullValue()));
-    Map<String, Map<Locale, String>> cache = manager.getFileContentCache();
-    assertThat(cache.size(), Is.is(1));
-    assertThat(cache.get("ArchitectureRule.html").get(Locale.ENGLISH), Is.is("This is the architecture rule"));
+    html = manager.messageFromFile(Locale.ENGLISH, "ArchitectureRule.html", "checkstyle.rule1.name", keepInCache);
+    assertThat(html).isEqualTo("This is the architecture rule");
+    assertThat(manager.getFileContentCache()).hasSize(1);
+
+    html = manager.messageFromFile(Locale.FRENCH, "ArchitectureRule.html", "checkstyle.rule1.name", keepInCache);
+    assertThat(html).isEqualTo("Règle d'architecture");
+    assertThat(manager.getFileContentCache()).hasSize(1);
   }
 
-  // see SONAR-3596
-  @Test
-  public void shouldLookInCoreClassloaderForPluginsThatDontEmbedAllLanguages() {
-    assertThat(manager.message(Locale.ENGLISH, "forge_plugin.page", null)).isEqualTo("This is my plugin");
-    assertThat(manager.message(Locale.FRENCH, "forge_plugin.page", null)).isEqualTo("C'est mon plugin");
+  static URLClassLoader newCoreClassloader() {
+    return newClassLoader("/org/sonar/core/i18n/corePlugin/");
   }
 
-  // see SONAR-3783 => test that there will be no future regression on fallback for keys spread accross several classloaders
-  @Test
-  public void shouldFallbackOnOriginalPluginIfTranslationNotPresentInLanguagePack() {
-    // the "forge_plugin.page" has been translated in French
-    assertThat(manager.message(Locale.FRENCH, "forge_plugin.page", null)).isEqualTo("C'est mon plugin");
-    // but not the "forge_plugin.key_not_translated" key
-    assertThat(manager.message(Locale.FRENCH, "forge_plugin.key_not_translated", null)).isEqualTo("Key Not Translated");
+  static URLClassLoader newCheckstyleClassloader() {
+    return newClassLoader("/org/sonar/core/i18n/checkstylePlugin/");
   }
 
-  private URLClassLoader newForgeClassLoader() {
-    return newClassLoader("/org/sonar/core/i18n/forgePlugin/");
-  }
-
-  private URLClassLoader newSqaleClassLoader() {
+  /**
+   * Example of plugin that embeds its own translations (English + French).
+   */
+  static URLClassLoader newSqaleClassloader() {
     return newClassLoader("/org/sonar/core/i18n/sqalePlugin/");
   }
 
-  private URLClassLoader newCoreClassLoader() {
-    return newClassLoader("/org/sonar/core/i18n/englishPack/", "/org/sonar/core/i18n/frenchPack/");
+  /**
+   * "Language Pack" contains various translations for different plugins.
+   */
+  static URLClassLoader newFrenchPackClassloader() {
+    return newClassLoader("/org/sonar/core/i18n/frenchPack/");
   }
 
-  private URLClassLoader newClassLoader(String... resourcePaths) {
+  private static URLClassLoader newClassLoader(String... resourcePaths) {
     URL[] urls = new URL[resourcePaths.length];
     for (int index = 0; index < resourcePaths.length; index++) {
-      urls[index] = getClass().getResource(resourcePaths[index]);
+      urls[index] = I18nManagerTest.class.getResource(resourcePaths[index]);
     }
     return new URLClassLoader(urls);
+  }
+
+  private PluginMetadata newPlugin(String key) {
+    PluginMetadata plugin = mock(PluginMetadata.class);
+    when(plugin.getKey()).thenReturn(key);
+    return plugin;
   }
 }

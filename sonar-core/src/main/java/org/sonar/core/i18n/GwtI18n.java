@@ -77,7 +77,7 @@ public class GwtI18n implements ServerComponent {
 
   ResourceBundle getBundle(Locale locale) {
     try {
-      return ResourceBundle.getBundle(GWT_BUNDLE, locale, manager.getLanguagePackClassLoader());
+      return ResourceBundle.getBundle(GWT_BUNDLE, locale, manager.getBundleClassLoader());
     } catch (MissingResourceException e) {
       throw new IllegalStateException("The English bundle for GWT extensions is not deployed", e);
     }
