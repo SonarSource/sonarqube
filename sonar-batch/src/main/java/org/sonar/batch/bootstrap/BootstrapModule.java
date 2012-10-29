@@ -63,7 +63,6 @@ public class BootstrapModule extends Module {
     container.addSingleton(BatchPluginRepository.class);
     container.addSingleton(ExtensionInstaller.class);
     container.addSingleton(DryRun.class);
-    container.addSingleton(DryRunExporter.class);
     container.addSingleton(Logback.class);
     container.addSingleton(ServerClient.class);
     container.addSingleton(ServerMetadata.class);

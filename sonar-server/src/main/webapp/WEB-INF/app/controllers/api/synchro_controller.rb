@@ -27,7 +27,8 @@ class Api::SynchroController < Api::ApiController
     require_parameters :resource
     load_resource()
 
-    dbFileContent = java_facade.createDatabaseForDryRun(@resource.id)
+    resource_id = @resource.id if @resource
+    dbFileContent = java_facade.createDatabaseForDryRun(resource_id)
 
     send_data String.from_java_bytes(dbFileContent)
   end
@@ -35,10 +36,13 @@ class Api::SynchroController < Api::ApiController
   private
 
   def load_resource
-    resource_id = params[:resource]
-    @resource = Project.by_key(resource_id)
-    return not_found("Resource [#{resource_id}] not found") if @resource.nil?
-    return access_denied unless is_user?(@resource)
+    resource_key = params[:resource]
+    @resource = Project.by_key(resource_key)
+    if @resource
+      access_denied unless is_user?(@resource)
+    else
+      #access_denied unless is_user?(nil)
+    end
   end
 end
 

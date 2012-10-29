@@ -42,6 +42,7 @@ import org.sonar.batch.config.UnsupportedProperties;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.DefaultResourcePersister;
+import org.sonar.batch.local.DryRunExporter;
 import org.sonar.batch.phases.Phases;
 import org.sonar.batch.phases.PhasesTimeProfiler;
 import org.sonar.core.qualitymodel.DefaultModelFinder;
@@ -63,7 +64,6 @@ public class ProjectModule extends Module {
     addProjectComponents();
     addProjectPluginExtensions();
   }
-
 
   private void addProjectComponents() {
     ProjectDefinition projectDefinition = container.getComponentByType(ProjectTree.class).getProjectDefinition(project);
@@ -94,6 +94,7 @@ public class ProjectModule extends Module {
     container.addSingleton(ResourceFilters.class);
     container.addSingleton(DefaultModelFinder.class);
     container.addSingleton(DefaultProfileLoader.class);
+    container.addSingleton(DryRunExporter.class);
     container.addPicoAdapter(new ProfileProvider());
   }
 
@@ -111,7 +112,6 @@ public class ProjectModule extends Module {
     installer.install(container, InstantiationStrategy.PROJECT);
   }
 
-
   private void logSettings() {
     // TODO move these logs in a dedicated component
     LOG.info("-------------  Analyzing {}", project.getName());
@@ -124,9 +124,9 @@ public class ProjectModule extends Module {
   protected void doStart() {
     DefaultIndex index = container.getComponentByType(DefaultIndex.class);
     index.setCurrentProject(project,
-      container.getComponentByType(ResourceFilters.class),
-      container.getComponentByType(ViolationFilters.class),
-      container.getComponentByType(RulesProfile.class));
+        container.getComponentByType(ResourceFilters.class),
+        container.getComponentByType(ViolationFilters.class),
+        container.getComponentByType(RulesProfile.class));
 
     container.getComponentByType(Phases.class).execute(project);
   }

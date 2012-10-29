@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.batch.bootstrap.DryRun;
+import org.sonar.batch.index.DefaultIndex;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -31,17 +32,18 @@ public class DryRunExporterTest {
   DryRunExporter dryRunExporter;
 
   DryRun dryRun = mock(DryRun.class);
+  DefaultIndex sonarIndex = mock(DefaultIndex.class);
   SensorContext sensorContext = mock(SensorContext.class);
 
   @Before
   public void setUp() {
-    dryRunExporter = new DryRunExporter(dryRun);
+    dryRunExporter = new DryRunExporter(dryRun, sonarIndex);
   }
 
   @Test
   public void should_disable_if_no_dry_run() {
     dryRunExporter.execute(sensorContext);
 
-    verifyZeroInteractions(sensorContext);
+    verifyZeroInteractions(sensorContext, sonarIndex);
   }
 }
