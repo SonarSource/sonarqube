@@ -20,7 +20,7 @@
 package org.sonar.server.configuration;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.codehaus.plexus.util.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.*;
