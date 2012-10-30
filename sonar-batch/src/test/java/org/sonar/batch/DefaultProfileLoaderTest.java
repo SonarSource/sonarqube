@@ -59,6 +59,21 @@ public class DefaultProfileLoaderTest {
     assertThat(profile.getName()).isEqualTo("legacy profile");
   }
 
+  /**
+   * SONAR-3922
+   */
+  @Test
+  public void should_check_language_property_before_global_property() {
+    Settings settings = new Settings();
+    settings.setProperty("sonar.profile.java", "one");
+    settings.setProperty("sonar.profile", "two");
+    when(dao.getProfile(Java.KEY, "one")).thenReturn(RulesProfile.create("one", "java"));
+
+    RulesProfile profile = new DefaultProfileLoader(dao, settings).load(javaProject);
+
+    assertThat(profile.getName()).isEqualTo("one");
+  }
+
   @Test
   public void should_fail_if_not_found() {
     Settings settings = new Settings();
