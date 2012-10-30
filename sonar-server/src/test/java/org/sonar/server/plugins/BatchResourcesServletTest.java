@@ -80,7 +80,6 @@ public class BatchResourcesServletTest {
   @Test
   public void shouldIgnore() {
     assertThat(BatchResourcesServlet.isIgnored("sonar-batch-2.6-SNAPSHOT.jar")).isFalse();
-    assertThat(BatchResourcesServlet.isIgnored("h2-1.3.166.jar")).isTrue();
     assertThat(BatchResourcesServlet.isIgnored("mysql-connector-java-5.1.13.jar")).isTrue();
     assertThat(BatchResourcesServlet.isIgnored("postgresql-9.0-801.jdbc3.jar")).isTrue();
     assertThat(BatchResourcesServlet.isIgnored("jtds-1.2.4.jar")).isTrue();
