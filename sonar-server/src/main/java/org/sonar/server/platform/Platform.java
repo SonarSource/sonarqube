@@ -201,13 +201,9 @@ public final class Platform {
    */
   private void startServiceComponents() {
     servicesContainer = coreContainer.createChild();
-    ServerExtensionInstaller extensionRegistrar = servicesContainer.getComponentByType(ServerExtensionInstaller.class);
-    extensionRegistrar.registerExtensions(servicesContainer);
-
     servicesContainer.addSingleton(DefaultWorkflow.class);
     servicesContainer.addSingleton(ReviewDatabaseStore.class);
     servicesContainer.addSingleton(WorkflowEngine.class);
-
     servicesContainer.addSingleton(HttpDownloader.class);
     servicesContainer.addSingleton(UriReader.class);
     servicesContainer.addSingleton(UpdateCenterClient.class);
@@ -252,6 +248,10 @@ public final class Platform {
     servicesContainer.addSingleton(NotificationService.class);
     servicesContainer.addSingleton(DefaultNotificationManager.class);
     servicesContainer.addSingleton(ReviewsNotificationManager.class);
+
+    ServerExtensionInstaller extensionRegistrar = servicesContainer.getComponentByType(ServerExtensionInstaller.class);
+    extensionRegistrar.registerExtensions(servicesContainer);
+
 
     servicesContainer.startComponents();
   }
