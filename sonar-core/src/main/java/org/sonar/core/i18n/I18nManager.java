@@ -110,6 +110,11 @@ public class I18nManager implements I18n, ServerExtension, BatchExtension {
 
     String result = null;
     String bundleBase = propertyToBundles.get(relatedProperty);
+    if (bundleBase == null) {
+      // this property has no translation
+      return null;
+    }
+
     String filePath = bundleBase.replace('.', '/');
     if (!"en".equals(locale.getLanguage())) {
       filePath += "_" + locale.getLanguage();
@@ -154,7 +159,6 @@ public class I18nManager implements I18n, ServerExtension, BatchExtension {
     }
     return MessageFormat.format(message.replaceAll("'", "''"), parameters);
   }
-
 
   ClassLoader getBundleClassLoader() {
     return i18nClassloader;
