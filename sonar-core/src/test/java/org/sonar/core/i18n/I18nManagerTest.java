@@ -61,7 +61,7 @@ public class I18nManagerTest {
     List<PluginMetadata> plugins = Arrays.asList(newPlugin("sqale"), newPlugin("frpack"), newPlugin("core"), newPlugin("checkstyle"), newPlugin("other"));
     when(pluginRepository.getMetadata()).thenReturn(plugins);
 
-    I18nClassloader i18nClassloader = new I18nClassloader(new ClassLoader[]{
+    I18nClassloader i18nClassloader = new I18nClassloader(new ClassLoader[] {
       newCoreClassloader(), newFrenchPackClassloader(), newSqaleClassloader(), newCheckstyleClassloader()
     });
     manager = new I18nManager(pluginRepository);
@@ -109,7 +109,6 @@ public class I18nManagerTest {
     assertThat(manager.message(Locale.CHINA, "sqale.page", null)).isEqualTo("Sqale page title");
   }
 
-
   @Test
   public void should_return_default_value_if_missing_key() {
     assertThat(manager.message(Locale.ENGLISH, "unknown", "default")).isEqualTo("default");
@@ -142,6 +141,12 @@ public class I18nManagerTest {
   @Test
   public void should_return_null_if_file_not_found() {
     String html = manager.messageFromFile(Locale.ENGLISH, "UnknownRule.html", "checkstyle.rule1.name", false);
+    assertThat(html).isNull();
+  }
+
+  @Test
+  public void should_return_null_if_rule_not_internationalized() {
+    String html = manager.messageFromFile(Locale.ENGLISH, "UnknownRule.html", "foo.rule1.name", false);
     assertThat(html).isNull();
   }
 
