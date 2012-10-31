@@ -21,24 +21,32 @@ package org.sonar.batch.bootstrap;
 
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.Settings;
 
-@Property(key = "sonar.dryRun", defaultValue = "false", name = "Dry Run", type = PropertyType.BOOLEAN)
+@Properties({
+  @Property(key = "sonar.dryRun", defaultValue = "false", name = "Dry Run", type = PropertyType.BOOLEAN),
+  @Property(key = "sonar.dryRun.export.path", defaultValue = "dryRun.json", name = "Dry Run Results Export File", type = PropertyType.STRING)
+})
 public class DryRun implements BatchComponent {
-  private boolean enabled;
+  private final Settings settings;
 
   public DryRun(Settings settings) {
-    enabled = settings.getBoolean("sonar.dryRun");
+    this.settings = settings;
   }
 
   public boolean isEnabled() {
-    return enabled;
+    return settings.getBoolean("sonar.dryRun");
+  }
+
+  public String getExportPath() {
+    return settings.getString("sonar.dryRun.export.path");
   }
 
   public void start() {
-    if (enabled) {
+    if (isEnabled()) {
       LoggerFactory.getLogger(DryRun.class).info("Dry run");
     }
   }

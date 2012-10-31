@@ -20,28 +20,30 @@
 package org.sonar.batch.local;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
+import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
+import com.google.common.io.Files;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrap.DryRun;
 import org.sonar.batch.index.DefaultIndex;
 
-import javax.annotation.Nullable;
-
+import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @since 3.4
@@ -51,10 +53,12 @@ public class DryRunExporter implements BatchComponent {
 
   private final DryRun dryRun;
   private final DefaultIndex sonarIndex;
+  private final ProjectFileSystem projectFileSystem;
 
-  public DryRunExporter(DryRun dryRun, DefaultIndex sonarIndex) {
+  public DryRunExporter(DryRun dryRun, DefaultIndex sonarIndex, ProjectFileSystem projectFileSystem) {
     this.dryRun = dryRun;
     this.sonarIndex = sonarIndex;
+    this.projectFileSystem = projectFileSystem;
   }
 
   public void execute(SensorContext context) {
@@ -62,10 +66,19 @@ public class DryRunExporter implements BatchComponent {
       return;
     }
 
-    LOG.info("Exporting DryRun results");
-
     String json = getResultsAsJson(sonarIndex.getResources());
-    System.out.println(json);
+    exportResults(json);
+  }
+
+  private void exportResults(String json) {
+    File exportFile = new File(projectFileSystem.getSonarWorkingDirectory(), dryRun.getExportPath());
+
+    LOG.info("Exporting DryRun results to " + exportFile.getAbsolutePath());
+    try {
+      Files.write(json, exportFile, Charsets.UTF_8);
+    } catch (IOException e) {
+      throw new SonarException("Unable to write DryRun results in file " + exportFile.getAbsolutePath());
+    }
   }
 
   @VisibleForTesting
@@ -80,9 +93,21 @@ public class DryRunExporter implements BatchComponent {
       writer.beginArray();
 
       for (Resource resource : resources) {
+        List<Map<String, Object>> resourceViolations = Lists.newArrayList();
         for (Violation violation : getViolations(resource)) {
-          gson.toJson(new ViolationToMap().apply(violation), writer);
+          resourceViolations.add(ImmutableMap.<String, Object> of(
+              "line", violation.getLineId(),
+              "message", violation.getMessage(),
+              "severity", violation.getSeverity().name(),
+              "rule_key", violation.getRule().getKey(),
+              "rule_name", violation.getRule().getName()));
         }
+
+        Map<String, Object> obj = ImmutableMap.of(
+            "resource", resource.getKey(),
+            "violations", resourceViolations);
+
+        gson.toJson(obj, Map.class, writer);
       }
 
       writer.endArray();
@@ -98,17 +123,5 @@ public class DryRunExporter implements BatchComponent {
   @VisibleForTesting
   List<Violation> getViolations(Resource resource) {
     return sonarIndex.getViolations(resource);
-  }
-
-  static class ViolationToMap implements Function<Violation, JsonElement> {
-    public JsonElement apply(@Nullable Violation violation) {
-      JsonObject json = new JsonObject();
-      if (violation != null) {
-        json.addProperty("resource", violation.getResource().getKey());
-        json.addProperty("line", violation.getLineId());
-        json.addProperty("message", violation.getMessage());
-      }
-      return json;
-    }
   }
 }

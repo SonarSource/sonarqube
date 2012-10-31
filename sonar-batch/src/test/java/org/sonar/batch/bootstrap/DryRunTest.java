@@ -19,17 +19,26 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class DryRunTest {
-  Settings settings = new Settings();
+  DryRun dryRun;
+  Settings settings;
+
+  @Before
+  public void setUp() {
+    settings = new Settings(new PropertyDefinitions(DryRun.class));
+
+    dryRun = new DryRun(settings);
+  }
 
   @Test
   public void should_be_disabled() {
-    DryRun dryRun = new DryRun(settings);
     dryRun.start();
 
     assertThat(dryRun.isEnabled()).isFalse();
@@ -39,9 +48,24 @@ public class DryRunTest {
   public void should_enable() {
     settings.setProperty("sonar.dryRun", "true");
 
-    DryRun dryRun = new DryRun(settings);
     dryRun.start();
 
     assertThat(dryRun.isEnabled()).isTrue();
+  }
+
+  @Test
+  public void should_get_default_export_path() {
+    String exportPath = dryRun.getExportPath();
+
+    assertThat(exportPath).isEqualTo("dryRun.json");
+  }
+
+  @Test
+  public void should_get_custom_export_path() {
+    settings.setProperty("sonar.dryRun.export.path", "export.json");
+
+    String exportPath = dryRun.getExportPath();
+
+    assertThat(exportPath).isEqualTo("export.json");
   }
 }

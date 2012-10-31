@@ -23,7 +23,10 @@ import com.google.common.collect.ImmutableSet;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
 import org.sonar.batch.bootstrap.DryRun;
 import org.sonar.batch.index.DefaultIndex;
@@ -44,12 +47,13 @@ public class DryRunExporterTest {
   DryRun dryRun = mock(DryRun.class);
   DefaultIndex sonarIndex = mock(DefaultIndex.class);
   SensorContext sensorContext = mock(SensorContext.class);
-  Resource resource =  JavaClass.create("KEY");
+  Resource resource = JavaClass.create("KEY");
   Violation violation = mock(Violation.class);
+  ProjectFileSystem projectFileSystem = mock(ProjectFileSystem.class);
 
   @Before
   public void setUp() {
-    dryRunExporter = spy(new DryRunExporter(dryRun, sonarIndex));
+    dryRunExporter = spy(new DryRunExporter(dryRun, sonarIndex, projectFileSystem));
   }
 
   @Test
@@ -65,10 +69,13 @@ public class DryRunExporterTest {
     when(violation.getResource()).thenReturn(resource);
     when(violation.getLineId()).thenReturn(1);
     when(violation.getMessage()).thenReturn("VIOLATION");
+    when(violation.getRule()).thenReturn(Rule.create("pmd", "RULE_KEY").setName("RULE_NAME"));
+    when(violation.getSeverity()).thenReturn(RulePriority.INFO);
     doReturn(Arrays.asList(violation)).when(dryRunExporter).getViolations(resource);
 
     String json = dryRunExporter.getResultsAsJson(ImmutableSet.of(resource));
 
-    assertThat(json).isEqualTo("[{\"resource\":\"KEY\",\"line\":1,\"message\":\"VIOLATION\"}]");
+    assertThat(json).isEqualTo(
+        "[{\"resource\":\"KEY\",\"violations\":[{\"line\":1,\"message\":\"VIOLATION\",\"severity\":\"INFO\",\"rule_key\":\"RULE_KEY\",\"rule_name\":\"RULE_NAME\"}]}]");
   }
 }
