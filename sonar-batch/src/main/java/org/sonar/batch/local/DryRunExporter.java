@@ -76,9 +76,8 @@ public class DryRunExporter implements BatchComponent {
     try {
       output = new BufferedWriter(new FileWriter(exportFile));
       writeJson(resources, output);
-      output.flush();
     } catch (IOException e) {
-      throw new SonarException("Unable to write DryRun results in file " + exportFile.getAbsolutePath());
+      throw new SonarException("Unable to write DryRun results in file " + exportFile.getAbsolutePath(), e);
     } finally {
       Closeables.closeQuietly(output);
     }
@@ -119,7 +118,8 @@ public class DryRunExporter implements BatchComponent {
       }
 
       json.endObject()
-          .endObject();
+          .endObject()
+          .flush();
     } catch (IOException e) {
       throw new SonarException("Unable to export results", e);
     } finally {

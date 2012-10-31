@@ -22,6 +22,7 @@ package org.sonar.batch.local;
 import com.google.common.collect.ImmutableSet;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.platform.Server;
 import org.sonar.api.resources.ProjectFileSystem;
@@ -33,6 +34,8 @@ import org.sonar.batch.bootstrap.DryRun;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.java.api.JavaClass;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
 
@@ -53,6 +56,9 @@ public class DryRunExporterTest {
   Violation violation = mock(Violation.class);
   ProjectFileSystem projectFileSystem = mock(ProjectFileSystem.class);
   Server server = mock(Server.class);
+
+  @org.junit.Rule
+  public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   @Before
   public void setUp() {
@@ -81,7 +87,8 @@ public class DryRunExporterTest {
     dryRunExporter.writeJson(ImmutableSet.of(resource), output);
     String json = output.toString();
 
-    assertThat(json).isEqualTo(
+    assertThat(json)
+        .isEqualTo(
             "{\"version\":\"3.4\",\"violations_per_resource\":{\"KEY\":[{\"line\":1,\"message\":\"VIOLATION\",\"severity\":\"INFO\",\"rule_key\":\"RULE_KEY\",\"rule_name\":\"RULE_NAME\"}]}}");
   }
 
@@ -101,7 +108,7 @@ public class DryRunExporterTest {
     String json = output.toString();
 
     assertThat(json).isEqualTo(
-            "{\"version\":\"3.4\",\"violations_per_resource\":{\"KEY\":[{\"message\":\"VIOLATION\",\"severity\":\"INFO\",\"rule_key\":\"RULE_KEY\",\"rule_name\":\"RULE_NAME\"}]}}");
+        "{\"version\":\"3.4\",\"violations_per_resource\":{\"KEY\":[{\"message\":\"VIOLATION\",\"severity\":\"INFO\",\"rule_key\":\"RULE_KEY\",\"rule_name\":\"RULE_NAME\"}]}}");
   }
 
   @Test
@@ -115,5 +122,20 @@ public class DryRunExporterTest {
     String json = output.toString();
 
     assertThat(json).isEqualTo("{\"version\":\"3.4\",\"violations_per_resource\":{}}");
+  }
+
+  @Test
+  public void should_export_violations_to_file() throws IOException {
+    File sonarDirectory = temporaryFolder.newFolder("sonar");
+    when(dryRun.isEnabled()).thenReturn(true);
+    when(dryRun.isEnabled()).thenReturn(true);
+    when(server.getVersion()).thenReturn("3.4");
+    doReturn(Arrays.<Violation> asList()).when(dryRunExporter).getViolations(resource);
+    when(dryRun.getExportPath()).thenReturn("output.json");
+    when(projectFileSystem.getSonarWorkingDirectory()).thenReturn(sonarDirectory);
+
+    dryRunExporter.execute(sensorContext);
+
+    assertThat(new File(sonarDirectory, "output.json")).exists();
   }
 }
