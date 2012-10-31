@@ -23,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 import com.google.gson.Gson;
@@ -95,12 +96,15 @@ public class DryRunExporter implements BatchComponent {
       for (Resource resource : resources) {
         List<Map<String, Object>> resourceViolations = Lists.newArrayList();
         for (Violation violation : getViolations(resource)) {
-          resourceViolations.add(ImmutableMap.<String, Object> of(
-              "line", violation.getLineId(),
-              "message", violation.getMessage(),
-              "severity", violation.getSeverity().name(),
-              "rule_key", violation.getRule().getKey(),
-              "rule_name", violation.getRule().getName()));
+          Map<String, Object> json = Maps.newLinkedHashMap();
+          if (null != violation.getLineId()) {
+            json.put("line", violation.getLineId());
+          }
+          json.put("message", violation.getMessage());
+          json.put("severity", violation.getSeverity().name());
+          json.put("rule_key", violation.getRule().getKey());
+          json.put("rule_name", violation.getRule().getName());
+          resourceViolations.add(json);
         }
 
         Map<String, Object> obj = ImmutableMap.of(

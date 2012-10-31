@@ -76,6 +76,22 @@ public class DryRunExporterTest {
     String json = dryRunExporter.getResultsAsJson(ImmutableSet.of(resource));
 
     assertThat(json).isEqualTo(
-        "[{\"resource\":\"KEY\",\"violations\":[{\"line\":1,\"message\":\"VIOLATION\",\"severity\":\"INFO\",\"rule_key\":\"RULE_KEY\",\"rule_name\":\"RULE_NAME\"}]}]");
+      "[{\"resource\":\"KEY\",\"violations\":[{\"line\":1,\"message\":\"VIOLATION\",\"severity\":\"INFO\",\"rule_key\":\"RULE_KEY\",\"rule_name\":\"RULE_NAME\"}]}]");
+  }
+
+  @Test
+  public void should_export_violation_with_no_line() {
+    when(dryRun.isEnabled()).thenReturn(true);
+    when(violation.getResource()).thenReturn(resource);
+    when(violation.getLineId()).thenReturn(null);
+    when(violation.getMessage()).thenReturn("VIOLATION");
+    when(violation.getRule()).thenReturn(Rule.create("pmd", "RULE_KEY").setName("RULE_NAME"));
+    when(violation.getSeverity()).thenReturn(RulePriority.INFO);
+    doReturn(Arrays.asList(violation)).when(dryRunExporter).getViolations(resource);
+
+    String json = dryRunExporter.getResultsAsJson(ImmutableSet.of(resource));
+
+    assertThat(json).isEqualTo(
+      "[{\"resource\":\"KEY\",\"violations\":[{\"message\":\"VIOLATION\",\"severity\":\"INFO\",\"rule_key\":\"RULE_KEY\",\"rule_name\":\"RULE_NAME\"}]}]");
   }
 }
