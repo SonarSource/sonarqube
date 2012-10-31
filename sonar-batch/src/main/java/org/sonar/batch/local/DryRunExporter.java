@@ -20,18 +20,13 @@
 package org.sonar.batch.local;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Charsets;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
-import com.google.common.io.Files;
-import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.platform.Server;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
@@ -39,12 +34,13 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrap.DryRun;
 import org.sonar.batch.index.DefaultIndex;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @since 3.4
@@ -55,11 +51,13 @@ public class DryRunExporter implements BatchComponent {
   private final DryRun dryRun;
   private final DefaultIndex sonarIndex;
   private final ProjectFileSystem projectFileSystem;
+  private final Server server;
 
-  public DryRunExporter(DryRun dryRun, DefaultIndex sonarIndex, ProjectFileSystem projectFileSystem) {
+  public DryRunExporter(DryRun dryRun, DefaultIndex sonarIndex, ProjectFileSystem projectFileSystem, Server server) {
     this.dryRun = dryRun;
     this.sonarIndex = sonarIndex;
     this.projectFileSystem = projectFileSystem;
+    this.server = server;
   }
 
   public void execute(SensorContext context) {
@@ -67,61 +65,66 @@ public class DryRunExporter implements BatchComponent {
       return;
     }
 
-    String json = getResultsAsJson(sonarIndex.getResources());
-    exportResults(json);
+    exportResults(sonarIndex.getResources());
   }
 
-  private void exportResults(String json) {
+  private void exportResults(Collection<Resource> resources) {
     File exportFile = new File(projectFileSystem.getSonarWorkingDirectory(), dryRun.getExportPath());
 
     LOG.info("Exporting DryRun results to " + exportFile.getAbsolutePath());
+    Writer output = null;
     try {
-      Files.write(json, exportFile, Charsets.UTF_8);
+      output = new BufferedWriter(new FileWriter(exportFile));
+      writeJson(resources, output);
+      output.flush();
     } catch (IOException e) {
       throw new SonarException("Unable to write DryRun results in file " + exportFile.getAbsolutePath());
+    } finally {
+      Closeables.closeQuietly(output);
     }
   }
 
   @VisibleForTesting
-  String getResultsAsJson(Collection<Resource> resources) {
-    Gson gson = new Gson();
-
-    StringWriter output = new StringWriter();
-
-    JsonWriter writer = null;
+  void writeJson(Collection<Resource> resources, Writer output) {
+    JsonWriter json = null;
     try {
-      writer = new JsonWriter(output);
-      writer.beginArray();
+      json = new JsonWriter(output);
+      json.setSerializeNulls(false);
+
+      json.beginObject()
+          .name("version").value(server.getVersion())
+          .name("violations_per_resource")
+          .beginObject();
 
       for (Resource resource : resources) {
-        List<Map<String, Object>> resourceViolations = Lists.newArrayList();
-        for (Violation violation : getViolations(resource)) {
-          Map<String, Object> json = Maps.newLinkedHashMap();
-          if (null != violation.getLineId()) {
-            json.put("line", violation.getLineId());
-          }
-          json.put("message", violation.getMessage());
-          json.put("severity", violation.getSeverity().name());
-          json.put("rule_key", violation.getRule().getKey());
-          json.put("rule_name", violation.getRule().getName());
-          resourceViolations.add(json);
+        List<Violation> violations = getViolations(resource);
+        if (violations.isEmpty()) {
+          continue;
         }
 
-        Map<String, Object> obj = ImmutableMap.of(
-            "resource", resource.getKey(),
-            "violations", resourceViolations);
+        json.name(resource.getKey())
+            .beginArray();
 
-        gson.toJson(obj, Map.class, writer);
+        for (Violation violation : violations) {
+          json.beginObject()
+              .name("line").value(violation.getLineId())
+              .name("message").value(violation.getMessage())
+              .name("severity").value(violation.getSeverity().name())
+              .name("rule_key").value(violation.getRule().getKey())
+              .name("rule_name").value(violation.getRule().getName())
+              .endObject();
+        }
+
+        json.endArray();
       }
 
-      writer.endArray();
+      json.endObject()
+          .endObject();
     } catch (IOException e) {
       throw new SonarException("Unable to export results", e);
     } finally {
-      Closeables.closeQuietly(writer);
+      Closeables.closeQuietly(json);
     }
-
-    return output.toString();
   }
 
   @VisibleForTesting

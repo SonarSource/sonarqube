@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.platform.Server;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
@@ -32,6 +33,7 @@ import org.sonar.batch.bootstrap.DryRun;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.java.api.JavaClass;
 
+import java.io.StringWriter;
 import java.util.Arrays;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -50,10 +52,11 @@ public class DryRunExporterTest {
   Resource resource = JavaClass.create("KEY");
   Violation violation = mock(Violation.class);
   ProjectFileSystem projectFileSystem = mock(ProjectFileSystem.class);
+  Server server = mock(Server.class);
 
   @Before
   public void setUp() {
-    dryRunExporter = spy(new DryRunExporter(dryRun, sonarIndex, projectFileSystem));
+    dryRunExporter = spy(new DryRunExporter(dryRun, sonarIndex, projectFileSystem, server));
   }
 
   @Test
@@ -66,6 +69,7 @@ public class DryRunExporterTest {
   @Test
   public void should_export_violations() {
     when(dryRun.isEnabled()).thenReturn(true);
+    when(server.getVersion()).thenReturn("3.4");
     when(violation.getResource()).thenReturn(resource);
     when(violation.getLineId()).thenReturn(1);
     when(violation.getMessage()).thenReturn("VIOLATION");
@@ -73,15 +77,18 @@ public class DryRunExporterTest {
     when(violation.getSeverity()).thenReturn(RulePriority.INFO);
     doReturn(Arrays.asList(violation)).when(dryRunExporter).getViolations(resource);
 
-    String json = dryRunExporter.getResultsAsJson(ImmutableSet.of(resource));
+    StringWriter output = new StringWriter();
+    dryRunExporter.writeJson(ImmutableSet.of(resource), output);
+    String json = output.toString();
 
     assertThat(json).isEqualTo(
-      "[{\"resource\":\"KEY\",\"violations\":[{\"line\":1,\"message\":\"VIOLATION\",\"severity\":\"INFO\",\"rule_key\":\"RULE_KEY\",\"rule_name\":\"RULE_NAME\"}]}]");
+            "{\"version\":\"3.4\",\"violations_per_resource\":{\"KEY\":[{\"line\":1,\"message\":\"VIOLATION\",\"severity\":\"INFO\",\"rule_key\":\"RULE_KEY\",\"rule_name\":\"RULE_NAME\"}]}}");
   }
 
   @Test
   public void should_export_violation_with_no_line() {
     when(dryRun.isEnabled()).thenReturn(true);
+    when(server.getVersion()).thenReturn("3.4");
     when(violation.getResource()).thenReturn(resource);
     when(violation.getLineId()).thenReturn(null);
     when(violation.getMessage()).thenReturn("VIOLATION");
@@ -89,9 +96,24 @@ public class DryRunExporterTest {
     when(violation.getSeverity()).thenReturn(RulePriority.INFO);
     doReturn(Arrays.asList(violation)).when(dryRunExporter).getViolations(resource);
 
-    String json = dryRunExporter.getResultsAsJson(ImmutableSet.of(resource));
+    StringWriter output = new StringWriter();
+    dryRunExporter.writeJson(ImmutableSet.of(resource), output);
+    String json = output.toString();
 
     assertThat(json).isEqualTo(
-      "[{\"resource\":\"KEY\",\"violations\":[{\"message\":\"VIOLATION\",\"severity\":\"INFO\",\"rule_key\":\"RULE_KEY\",\"rule_name\":\"RULE_NAME\"}]}]");
+            "{\"version\":\"3.4\",\"violations_per_resource\":{\"KEY\":[{\"message\":\"VIOLATION\",\"severity\":\"INFO\",\"rule_key\":\"RULE_KEY\",\"rule_name\":\"RULE_NAME\"}]}}");
+  }
+
+  @Test
+  public void should_ignore_resources_without_violations() {
+    when(dryRun.isEnabled()).thenReturn(true);
+    when(server.getVersion()).thenReturn("3.4");
+    doReturn(Arrays.<Violation> asList()).when(dryRunExporter).getViolations(resource);
+
+    StringWriter output = new StringWriter();
+    dryRunExporter.writeJson(ImmutableSet.of(resource), output);
+    String json = output.toString();
+
+    assertThat(json).isEqualTo("{\"version\":\"3.4\",\"violations_per_resource\":{}}");
   }
 }
