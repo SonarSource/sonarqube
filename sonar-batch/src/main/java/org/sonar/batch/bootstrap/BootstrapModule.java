@@ -21,25 +21,13 @@ package org.sonar.batch.bootstrap;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.api.config.EmailSettings;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.UriReader;
 import org.sonar.batch.FakeMavenPluginExecutor;
 import org.sonar.batch.MavenPluginExecutor;
 import org.sonar.batch.ServerMetadata;
-import org.sonar.batch.config.BatchDatabaseSettingsLoader;
 import org.sonar.batch.config.BootstrapSettings;
-import org.sonar.batch.local.DryRunDatabase;
-import org.sonar.batch.local.DryRunExporter;
 import org.sonar.core.config.Logback;
-import org.sonar.core.i18n.I18nManager;
-import org.sonar.core.i18n.RuleI18nManager;
-import org.sonar.core.persistence.DaoUtils;
-import org.sonar.core.persistence.DatabaseVersion;
-import org.sonar.core.persistence.MyBatis;
-import org.sonar.jpa.session.DatabaseSessionProvider;
-import org.sonar.jpa.session.DefaultDatabaseConnector;
-import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
 import org.sonar.wsclient.Sonar;
 
 /**
@@ -72,40 +60,14 @@ public class BootstrapModule extends Module {
     container.addSingleton(HttpDownloader.class);
     container.addSingleton(UriReader.class);
     container.addSingleton(PluginDownloader.class);
-    container.addSingleton(EmailSettings.class);
-    container.addSingleton(I18nManager.class);
-    container.addSingleton(RuleI18nManager.class);
     for (Object component : boostrapperComponents) {
       if (component != null) {
         container.addSingleton(component);
       }
     }
-    container.addSingleton(BootstrapExtensionExecutor.class);
     if (!isMavenPluginExecutorRegistered()) {
       container.addSingleton(FakeMavenPluginExecutor.class);
     }
-    addDatabaseComponents();
-  }
-
-  private void addDatabaseComponents() {
-    container.addSingleton(JdbcDriverHolder.class);
-    container.addSingleton(DryRunDatabase.class);
-
-    // mybatis
-    container.addSingleton(BatchDatabase.class);
-    container.addSingleton(MyBatis.class);
-    container.addSingleton(DatabaseVersion.class);
-    container.addSingleton(DatabaseBatchCompatibility.class);
-    for (Class daoClass : DaoUtils.getDaoClasses()) {
-      container.addSingleton(daoClass);
-    }
-
-    // hibernate
-    container.addSingleton(DefaultDatabaseConnector.class);
-    container.addSingleton(ThreadLocalDatabaseSessionFactory.class);
-    container.addPicoAdapter(new DatabaseSessionProvider());
-
-    container.addSingleton(BatchDatabaseSettingsLoader.class);
   }
 
   boolean isMavenPluginExecutorRegistered() {

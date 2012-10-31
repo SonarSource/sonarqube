@@ -31,6 +31,7 @@ import org.sonar.api.batch.SupportedEnvironment;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.PluginMetadata;
+import org.sonar.api.resources.Project;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 
 import java.util.Arrays;
@@ -64,7 +65,7 @@ public class ExtensionInstallerTest {
     ComponentContainer container = new ComponentContainer();
     ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new Settings());
 
-    installer.install(container, InstantiationStrategy.BATCH);
+    installer.install(container, InstantiationStrategy.PER_BATCH);
 
     assertThat(container.getComponentByType(BatchService.class)).isNotNull();
     assertThat(container.getComponentByType(ProjectService.class)).isNull();
@@ -78,7 +79,7 @@ public class ExtensionInstallerTest {
     ComponentContainer container = new ComponentContainer();
     ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new Settings());
 
-    installer.install(container, InstantiationStrategy.BATCH);
+    installer.install(container, InstantiationStrategy.PER_BATCH);
 
     assertThat(container.getComponentByType(BatchService.class)).isNotNull();
     assertThat(container.getComponentByType(ProjectService.class)).isNull();
@@ -94,13 +95,29 @@ public class ExtensionInstallerTest {
     ComponentContainer container = new ComponentContainer();
     ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new Settings());
 
-    installer.install(container, InstantiationStrategy.PROJECT);
+    installer.install(container, InstantiationStrategy.PER_PROJECT);
 
     assertThat(container.getComponentByType(MavenService.class)).isNull();
     assertThat(container.getComponentByType(BuildToolService.class)).isNotNull();
   }
 
-  @InstantiationStrategy(InstantiationStrategy.BATCH)
+  @Test
+  public void should_disable_maven_extensions_if_virtual_module_in_maven_project() {
+    Project project = mock(Project.class);
+    when(project.getPom()).thenReturn(null);
+    BatchPluginRepository pluginRepository = mock(BatchPluginRepository.class);
+    when(pluginRepository.getPluginsByMetadata()).thenReturn(newPlugin(MavenService.class));
+
+    ComponentContainer container = new ComponentContainer();
+    container.addSingleton(project);
+    ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("maven", "2.2.1"), new Settings());
+
+    installer.install(container, InstantiationStrategy.PER_PROJECT);
+
+    assertThat(container.getComponentByType(MavenService.class)).isNull();
+  }
+
+  @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
   public static class BatchService implements BatchExtension {
 
   }
@@ -113,7 +130,7 @@ public class ExtensionInstallerTest {
 
   }
 
-  @InstantiationStrategy(InstantiationStrategy.BATCH)
+  @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
   public static class BatchServiceProvider extends ExtensionProvider implements BatchExtension {
 
     @Override

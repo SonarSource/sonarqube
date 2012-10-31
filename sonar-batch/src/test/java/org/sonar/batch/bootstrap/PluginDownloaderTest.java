@@ -21,13 +21,16 @@ package org.sonar.batch.bootstrap;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.utils.SonarException;
 import org.sonar.core.plugins.RemotePlugin;
 
 import java.io.File;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,6 +39,9 @@ public class PluginDownloaderTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void should_request_list_of_plugins() {
@@ -71,5 +77,15 @@ public class PluginDownloaderTest {
     assertThat(files).containsOnly(pluginFile, extFile);
     verify(server).download("/deploy/plugins/checkstyle/checkstyle-plugin.jar", pluginFile);
     verify(server).download("/deploy/plugins/checkstyle/checkstyle-extensions.jar", extFile);
+  }
+
+  @Test
+  public void should_fail_to_get_plugin_index() throws Exception {
+    thrown.expect(SonarException.class);
+
+    ServerClient server = mock(ServerClient.class);
+    doThrow(new SonarException()).when(server).request("/deploy/plugins/index.txt");
+
+    new PluginDownloader(mock(TempDirectories.class), server).downloadPluginIndex();
   }
 }

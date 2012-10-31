@@ -21,18 +21,18 @@ package org.sonar.batch.phases;
 
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.DryRunIncompatible;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Scopes;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.index.ResourcePersister;
-import org.sonar.core.NotDryRun;
 
 import javax.persistence.Query;
 
 import java.util.List;
 
-@NotDryRun
+@DryRunIncompatible
 public class UpdateStatusJob implements BatchComponent {
 
   private DatabaseSession session;

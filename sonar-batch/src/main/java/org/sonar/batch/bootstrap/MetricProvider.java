@@ -30,7 +30,7 @@ import org.sonar.api.measures.Metrics;
 
 import java.util.List;
 
-@InstantiationStrategy(InstantiationStrategy.BATCH)
+@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 public class MetricProvider extends ExtensionProvider implements BatchExtension {
 
   private Metrics[] factories;

@@ -41,7 +41,7 @@ import org.sonar.batch.config.ProjectSettings;
 import org.sonar.batch.config.UnsupportedProperties;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
-import org.sonar.batch.index.DefaultResourcePersister;
+import org.sonar.batch.index.ResourcePersister;
 import org.sonar.batch.local.DryRunExporter;
 import org.sonar.batch.phases.Phases;
 import org.sonar.batch.phases.PhasesTimeProfiler;
@@ -61,11 +61,16 @@ public class ProjectModule extends Module {
   protected void configure() {
     logSettings();
     addCoreComponents();
-    addProjectComponents();
-    addProjectPluginExtensions();
+    addPluginExtensions();
   }
 
-  private void addProjectComponents() {
+  private void addCoreComponents() {
+    container.addSingleton(EventBus.class);
+    container.addSingleton(Phases.class);
+    container.addSingleton(PhasesTimeProfiler.class);
+    for (Class clazz : Phases.getPhaseClasses()) {
+      container.addSingleton(clazz);
+    }
     ProjectDefinition projectDefinition = container.getComponentByType(ProjectTree.class).getProjectDefinition(project);
     container.addSingleton(projectDefinition);
     container.addSingleton(project);
@@ -82,7 +87,7 @@ public class ProjectModule extends Module {
     container.addSingleton(RulesDao.class);
 
     // the Snapshot component will be removed when asynchronous measures are improved (required for AsynchronousMeasureSensor)
-    container.addSingleton(container.getComponentByType(DefaultResourcePersister.class).getSnapshot(project));
+    container.addSingleton(container.getComponentByType(ResourcePersister.class).getSnapshot(project));
 
     container.addSingleton(TimeMachineConfiguration.class);
     container.addSingleton(org.sonar.api.database.daos.MeasuresDao.class);
@@ -98,18 +103,9 @@ public class ProjectModule extends Module {
     container.addPicoAdapter(new ProfileProvider());
   }
 
-  private void addCoreComponents() {
-    container.addSingleton(EventBus.class);
-    container.addSingleton(Phases.class);
-    container.addSingleton(PhasesTimeProfiler.class);
-    for (Class clazz : Phases.getPhaseClasses()) {
-      container.addSingleton(clazz);
-    }
-  }
-
-  private void addProjectPluginExtensions() {
+  private void addPluginExtensions() {
     ExtensionInstaller installer = container.getComponentByType(ExtensionInstaller.class);
-    installer.install(container, InstantiationStrategy.PROJECT);
+    installer.install(container, InstantiationStrategy.PER_PROJECT);
   }
 
   private void logSettings() {
@@ -124,9 +120,9 @@ public class ProjectModule extends Module {
   protected void doStart() {
     DefaultIndex index = container.getComponentByType(DefaultIndex.class);
     index.setCurrentProject(project,
-        container.getComponentByType(ResourceFilters.class),
-        container.getComponentByType(ViolationFilters.class),
-        container.getComponentByType(RulesProfile.class));
+      container.getComponentByType(ResourceFilters.class),
+      container.getComponentByType(ViolationFilters.class),
+      container.getComponentByType(RulesProfile.class));
 
     container.getComponentByType(Phases.class).execute(project);
   }

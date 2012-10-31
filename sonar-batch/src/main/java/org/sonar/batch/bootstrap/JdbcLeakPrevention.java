@@ -63,7 +63,8 @@ public class JdbcLeakPrevention {
     Set<Driver> registeredDrivers = new HashSet<Driver>();
     Enumeration<Driver> drivers = DriverManager.getDrivers();
     while (drivers.hasMoreElements()) {
-      registeredDrivers.add(drivers.nextElement());
+      Driver driver = drivers.nextElement();
+      registeredDrivers.add(driver);
     }
     return registeredDrivers;
   }

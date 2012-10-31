@@ -83,11 +83,11 @@ public class JdbcDriverHolder {
   }
 
   /**
-   * This method automatically invoked by PicoContainer and deregisters JDBC drivers, which were forgotten.
+   * This method automatically invoked by PicoContainer and unregisters JDBC drivers, which were forgotten.
    * <p>
    * Dynamically loaded JDBC drivers can not be simply used and this is a well known problem of {@link java.sql.DriverManager},
    * so <a href="http://stackoverflow.com/questions/288828/how-to-use-a-jdbc-driver-from-an-arbitrary-location">workaround is to use proxy</a>.
-   * However DriverManager also contains memory leak, thus not only proxy, but also original driver must be deregistered,
+   * However DriverManager also contains memory leak, thus not only proxy, but also original driver must be unregistered,
    * otherwise our class loader would be kept in memory.
    * </p>
    * <p>

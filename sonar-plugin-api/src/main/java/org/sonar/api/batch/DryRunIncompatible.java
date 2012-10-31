@@ -17,27 +17,26 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.api.batch;
 
-import org.junit.Test;
-import org.sonar.api.config.Settings;
-import org.sonar.batch.local.DryRunDatabase;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import java.util.Properties;
-
-import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-
-public class BatchDatabaseTest {
-  @Test
-  public void should_init_at_least_two_connections() {
-    BatchDatabase db = new BatchDatabase(new Settings(), mock(JdbcDriverHolder.class), mock(DryRunDatabase.class));
-    Properties props = new Properties();
-
-    db.doCompleteProperties(props);
-
-    assertThat(Integer.parseInt(props.getProperty("sonar.jdbc.initialSize"))).isGreaterThanOrEqualTo(2);
-    assertThat(Integer.parseInt(props.getProperty("sonar.jdbc.maxActive"))).isGreaterThanOrEqualTo(2);
-  }
-
+/**
+ * The presence of this annotation on an extension class indicates that the extension
+ * may be disabled when the dry-run mode is enabled (-Dsonar.dryRun=true).
+ * It's generally used by the extensions that push data to external systems, for example :
+ * <ul>
+ *   <li>Send emails</li>
+ *   <li>Create a JIRA issue</li>
+ * </ul>
+ *
+ *
+ * @since 3.4
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface DryRunIncompatible {
 }

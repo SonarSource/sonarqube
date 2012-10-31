@@ -20,15 +20,15 @@
 package org.sonar.plugins.core.sensors;
 
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.batch.DryRunIncompatible;
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
-import org.sonar.core.NotDryRun;
 
 import java.util.Iterator;
 
-@NotDryRun
+@DryRunIncompatible
 public class VersionEventsSensor implements Sensor {
 
   public boolean shouldExecuteOnProject(Project project) {

@@ -27,6 +27,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrap.DryRun;
+import org.sonar.batch.bootstrap.ProjectReactorReady;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.bootstrap.TempDirectories;
 
@@ -51,7 +52,9 @@ public class DryRunDatabase implements BatchComponent {
   private final TempDirectories tempDirectories;
   private final ProjectReactor reactor;
 
-  public DryRunDatabase(DryRun dryRun, Settings settings, ServerClient server, TempDirectories tempDirectories, ProjectReactor reactor) {
+  public DryRunDatabase(DryRun dryRun, Settings settings, ServerClient server, TempDirectories tempDirectories, ProjectReactor reactor,
+                        // project reactor must be completely built
+                        ProjectReactorReady reactorReady) {
     this.dryRun = dryRun;
     this.settings = settings;
     this.server = server;

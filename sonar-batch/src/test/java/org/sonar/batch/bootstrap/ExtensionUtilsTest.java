@@ -22,10 +22,10 @@ package org.sonar.batch.bootstrap;
 import org.junit.Test;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
+import org.sonar.api.batch.DryRunIncompatible;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.SupportedEnvironment;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
-import org.sonar.core.NotDryRun;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -33,22 +33,22 @@ public class ExtensionUtilsTest {
 
   @Test
   public void shouldBeBatchInstantiationStrategy() {
-    assertThat(ExtensionUtils.isInstantiationStrategy(BatchService.class, InstantiationStrategy.BATCH)).isTrue();
-    assertThat(ExtensionUtils.isInstantiationStrategy(new BatchService(), InstantiationStrategy.BATCH)).isTrue();
-    assertThat(ExtensionUtils.isInstantiationStrategy(ProjectService.class, InstantiationStrategy.BATCH)).isFalse();
-    assertThat(ExtensionUtils.isInstantiationStrategy(new ProjectService(), InstantiationStrategy.BATCH)).isFalse();
-    assertThat(ExtensionUtils.isInstantiationStrategy(DefaultService.class, InstantiationStrategy.BATCH)).isFalse();
-    assertThat(ExtensionUtils.isInstantiationStrategy(new DefaultService(), InstantiationStrategy.BATCH)).isFalse();
+    assertThat(ExtensionUtils.isInstantiationStrategy(BatchService.class, InstantiationStrategy.PER_BATCH)).isTrue();
+    assertThat(ExtensionUtils.isInstantiationStrategy(new BatchService(), InstantiationStrategy.PER_BATCH)).isTrue();
+    assertThat(ExtensionUtils.isInstantiationStrategy(ProjectService.class, InstantiationStrategy.PER_BATCH)).isFalse();
+    assertThat(ExtensionUtils.isInstantiationStrategy(new ProjectService(), InstantiationStrategy.PER_BATCH)).isFalse();
+    assertThat(ExtensionUtils.isInstantiationStrategy(DefaultService.class, InstantiationStrategy.PER_BATCH)).isFalse();
+    assertThat(ExtensionUtils.isInstantiationStrategy(new DefaultService(), InstantiationStrategy.PER_BATCH)).isFalse();
   }
 
   @Test
   public void shouldBeProjectInstantiationStrategy() {
-    assertThat(ExtensionUtils.isInstantiationStrategy(BatchService.class, InstantiationStrategy.PROJECT)).isFalse();
-    assertThat(ExtensionUtils.isInstantiationStrategy(new BatchService(), InstantiationStrategy.PROJECT)).isFalse();
-    assertThat(ExtensionUtils.isInstantiationStrategy(ProjectService.class, InstantiationStrategy.PROJECT)).isTrue();
-    assertThat(ExtensionUtils.isInstantiationStrategy(new ProjectService(), InstantiationStrategy.PROJECT)).isTrue();
-    assertThat(ExtensionUtils.isInstantiationStrategy(DefaultService.class, InstantiationStrategy.PROJECT)).isTrue();
-    assertThat(ExtensionUtils.isInstantiationStrategy(new DefaultService(), InstantiationStrategy.PROJECT)).isTrue();
+    assertThat(ExtensionUtils.isInstantiationStrategy(BatchService.class, InstantiationStrategy.PER_PROJECT)).isFalse();
+    assertThat(ExtensionUtils.isInstantiationStrategy(new BatchService(), InstantiationStrategy.PER_PROJECT)).isFalse();
+    assertThat(ExtensionUtils.isInstantiationStrategy(ProjectService.class, InstantiationStrategy.PER_PROJECT)).isTrue();
+    assertThat(ExtensionUtils.isInstantiationStrategy(new ProjectService(), InstantiationStrategy.PER_PROJECT)).isTrue();
+    assertThat(ExtensionUtils.isInstantiationStrategy(DefaultService.class, InstantiationStrategy.PER_PROJECT)).isTrue();
+    assertThat(ExtensionUtils.isInstantiationStrategy(new DefaultService(), InstantiationStrategy.PER_PROJECT)).isTrue();
   }
 
   @Test
@@ -87,12 +87,12 @@ public class ExtensionUtilsTest {
     assertThat(ExtensionUtils.supportsDryRun(new PersistentService())).isFalse();
   }
 
-  @InstantiationStrategy(InstantiationStrategy.BATCH)
+  @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
   public static class BatchService implements BatchExtension {
 
   }
 
-  @InstantiationStrategy(InstantiationStrategy.PROJECT)
+  @InstantiationStrategy(InstantiationStrategy.PER_PROJECT)
   public static class ProjectService implements BatchExtension {
 
   }
@@ -115,7 +115,7 @@ public class ExtensionUtilsTest {
 
   }
 
-  @NotDryRun
+  @DryRunIncompatible
   public static class PersistentService implements BatchExtension {
 
   }

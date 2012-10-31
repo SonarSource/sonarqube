@@ -19,25 +19,41 @@
  */
 package org.sonar.batch;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.config.Settings;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class DefaultResourceCreationLockTest {
 
-  @Test
-  public void shouldNotBeLockedAtStartup() {
-    assertThat(new DefaultResourceCreationLock().isLocked(), is(false));
+  Settings settings;
+
+  @Before
+  public void init() {
+    settings = new Settings();
   }
 
   @Test
-  public void shouldLock() {
-    DefaultResourceCreationLock lock = new DefaultResourceCreationLock();
+  public void shouldNotBeLockedAtStartup() {
+    assertThat(new DefaultResourceCreationLock(settings).isLocked()).isFalse();
+  }
+
+  @Test
+  public void should_fail_if_locked() {
+    DefaultResourceCreationLock lock = new DefaultResourceCreationLock(settings);
+    assertThat(lock.isFailWhenLocked()).isFalse();
+    lock.setFailWhenLocked(true);
+    assertThat(lock.isFailWhenLocked()).isTrue();
+  }
+
+  @Test
+  public void should_lock() {
+    DefaultResourceCreationLock lock = new DefaultResourceCreationLock(settings);
     lock.lock();
-    assertThat(lock.isLocked(), is(true));
+    assertThat(lock.isLocked()).isTrue();
 
     lock.unlock();
-    assertThat(lock.isLocked(), is(false));
+    assertThat(lock.isLocked()).isFalse();
   }
 }

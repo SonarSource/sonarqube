@@ -25,6 +25,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.bootstrap.ProjectReactorReady;
 
 import java.util.List;
 import java.util.Map;
@@ -38,13 +39,10 @@ public class ProjectTree {
   private Map<ProjectDefinition, Project> projectsByDef;
 
   public ProjectTree(ProjectReactor projectReactor,
-                     ProjectConfigurator projectConfigurator) {
+                     ProjectConfigurator projectConfigurator,
+                     ProjectReactorReady reactorReady) {
     this.projectReactor = projectReactor;
     this.configurator = projectConfigurator;
-  }
-
-  ProjectTree(ProjectConfigurator configurator) {
-    this.configurator = configurator;
   }
 
   public void start() {

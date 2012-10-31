@@ -29,6 +29,7 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.ResourceFilter;
+import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilters;
@@ -60,7 +61,7 @@ public class DefaultIndexTest {
 
   @Before
   public void createIndex() {
-    lock = new DefaultResourceCreationLock();
+    lock = new DefaultResourceCreationLock(new Settings());
     MetricFinder metricFinder = mock(MetricFinder.class);
     when(metricFinder.findByKey("ncloc")).thenReturn(CoreMetrics.NCLOC);
 

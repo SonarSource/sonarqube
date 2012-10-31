@@ -29,6 +29,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrap.DryRun;
+import org.sonar.batch.bootstrap.ProjectReactorReady;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.bootstrap.TempDirectories;
 
@@ -57,7 +58,7 @@ public class DryRunDatabaseTest {
 
   @Before
   public void setUp() {
-    dryRunDatabase = new DryRunDatabase(dryRun, settings, server, tempDirectories, projectReactor);
+    dryRunDatabase = new DryRunDatabase(dryRun, settings, server, tempDirectories, projectReactor, mock(ProjectReactorReady.class));
   }
 
   @Test

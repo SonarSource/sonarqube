@@ -30,11 +30,10 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.violations.ViolationQuery;
 import org.sonar.batch.index.ResourcePersister;
-import org.sonar.core.NotDryRun;
 
 import java.util.List;
 
-@NotDryRun
+@DryRunIncompatible
 @DependsUpon({ DecoratorBarriers.END_OF_VIOLATION_TRACKING, DecoratorBarriers.START_VIOLATION_PERSISTENCE })
 @DependedUpon(DecoratorBarriers.END_OF_VIOLATION_PERSISTENCE)
 public class ViolationPersisterDecorator implements Decorator {

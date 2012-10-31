@@ -20,24 +20,17 @@
 package org.sonar.batch.bootstrap;
 
 import org.junit.Test;
-import org.sonar.api.config.Settings;
-import org.sonar.batch.local.DryRunDatabase;
-
-import java.util.Properties;
+import org.sonar.api.database.DatabaseSession;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class BatchDatabaseTest {
+public class BatchDatabaseSessionFactoryTest {
   @Test
-  public void should_init_at_least_two_connections() {
-    BatchDatabase db = new BatchDatabase(new Settings(), mock(JdbcDriverHolder.class), mock(DryRunDatabase.class));
-    Properties props = new Properties();
+  public void getSession() {
+    DatabaseSession session = mock(DatabaseSession.class);
+    BatchDatabaseSessionFactory factory = new BatchDatabaseSessionFactory(session);
 
-    db.doCompleteProperties(props);
-
-    assertThat(Integer.parseInt(props.getProperty("sonar.jdbc.initialSize"))).isGreaterThanOrEqualTo(2);
-    assertThat(Integer.parseInt(props.getProperty("sonar.jdbc.maxActive"))).isGreaterThanOrEqualTo(2);
+    assertThat(factory.getSession()).isSameAs(session);
   }
-
 }

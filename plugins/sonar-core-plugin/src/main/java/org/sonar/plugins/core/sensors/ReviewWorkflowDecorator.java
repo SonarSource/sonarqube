@@ -34,14 +34,13 @@ import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.violations.ViolationQuery;
 import org.sonar.batch.index.ResourcePersister;
-import org.sonar.core.NotDryRun;
 import org.sonar.core.review.ReviewDao;
 import org.sonar.core.review.ReviewDto;
 
 import javax.annotation.Nullable;
 import java.util.*;
 
-@NotDryRun
+@DryRunIncompatible
 @DependsUpon(DecoratorBarriers.END_OF_VIOLATION_TRACKING)
 @DependedUpon(ReviewWorkflowDecorator.END_OF_REVIEWS_UPDATES)
 public class ReviewWorkflowDecorator implements Decorator {

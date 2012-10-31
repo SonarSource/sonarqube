@@ -27,11 +27,11 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.config.Settings;
 
 @Properties({
-  @Property(key = "sonar.dryRun", defaultValue = "false", name = "Dry Run", type = PropertyType.BOOLEAN),
-  @Property(key = "sonar.dryRun.export.path", defaultValue = "dryRun.json", name = "Dry Run Results Export File", type = PropertyType.STRING)
+  @Property(key = "sonar.dryRun", defaultValue = "false", name = "Dry Run", type = PropertyType.BOOLEAN, global = false, project = false),
+  @Property(key = "sonar.dryRun.export.path", defaultValue = "dryRun.json", name = "Dry Run Results Export File", type = PropertyType.STRING, global = false, project = false)
 })
 public class DryRun implements BatchComponent {
-  private final Settings settings;
+  private Settings settings;
 
   public DryRun(Settings settings) {
     this.settings = settings;

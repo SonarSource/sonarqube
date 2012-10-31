@@ -34,32 +34,13 @@ public @interface InstantiationStrategy {
 
   /**
    * Shared extension. Lifecycle is the full analysis.
-   * @deprecated replaced by the constant {@link org.sonar.api.batch.InstantiationStrategy.BATCH} since version 3.4
    */
-  @Deprecated
   String PER_BATCH = "PER_BATCH";
 
   /**
    * Created and initialized for each project and sub-project (a project is a module in Maven terminology).
-   * @deprecated replaced by the constant {@link org.sonar.api.batch.InstantiationStrategy.PROJECT} since version 3.4
    */
-  @Deprecated
   String PER_PROJECT = "PER_PROJECT";
-
-  /**
-   * @since 3.4
-   */
-  String BOOTSTRAP = "BOOTSTRAP";
-
-  /**
-   * @since 3.4
-   */
-  String BATCH = "PER_BATCH";
-
-  /**
-   * @since 3.4
-   */
-  String PROJECT = "PER_PROJECT";
 
   String value();
 }

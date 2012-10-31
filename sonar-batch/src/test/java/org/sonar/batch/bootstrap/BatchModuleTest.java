@@ -44,7 +44,7 @@ public class BatchModuleTest {
     BatchModule module = new BatchModule();
     bootstrapModule.installChild(module);
 
-    verify(extensionInstaller).install(any(ComponentContainer.class), eq(InstantiationStrategy.BATCH));
+    verify(extensionInstaller).install(any(ComponentContainer.class), eq(InstantiationStrategy.PER_BATCH));
     assertThat(module.container.getComponentByType(MetricProvider.class)).isNotNull();
   }
 }

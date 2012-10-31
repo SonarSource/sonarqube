@@ -22,11 +22,11 @@ package org.sonar.batch.bootstrap;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.Extension;
+import org.sonar.api.batch.DryRunIncompatible;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.SupportedEnvironment;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
-import org.sonar.core.NotDryRun;
 
 final class ExtensionUtils {
 
@@ -39,7 +39,7 @@ final class ExtensionUtils {
     if (annotation != null) {
       return strategy.equals(annotation.value());
     }
-    return InstantiationStrategy.PROJECT.equals(strategy);
+    return InstantiationStrategy.PER_PROJECT.equals(strategy);
   }
 
   static boolean isBatchExtension(Object extension) {
@@ -60,7 +60,7 @@ final class ExtensionUtils {
   }
 
   static boolean supportsDryRun(Object extension) {
-    return AnnotationUtils.getAnnotation(extension, NotDryRun.class) == null;
+    return AnnotationUtils.getAnnotation(extension, DryRunIncompatible.class) == null;
   }
 
   static boolean isMavenExtensionOnly(Object extension) {

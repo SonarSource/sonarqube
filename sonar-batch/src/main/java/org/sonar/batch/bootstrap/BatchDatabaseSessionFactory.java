@@ -19,27 +19,21 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.platform.ComponentContainer;
+import org.sonar.api.database.DatabaseSession;
+import org.sonar.jpa.session.DatabaseSessionFactory;
 
-public class BootstrapExtensionExecutor {
+public class BatchDatabaseSessionFactory implements DatabaseSessionFactory {
 
-  private ComponentContainer container;
-  private ExtensionInstaller installer;
+  private DatabaseSession session;
 
-  public BootstrapExtensionExecutor(ComponentContainer container, ExtensionInstaller installer) {
-    this.container = container;
-    this.installer = installer;
+  public BatchDatabaseSessionFactory(DatabaseSession session) {
+    this.session = session;
   }
 
-  public void start() {
-    LoggerFactory.getLogger(BootstrapExtensionExecutor.class).debug("Execute bootstrap extensions");
-    ComponentContainer childContainer = container.createChild();
-    installer.install(childContainer, InstantiationStrategy.BOOTSTRAP);
-    childContainer.addSingleton(ProjectExclusions.class);
-    childContainer.startComponents();
-    childContainer.stopComponents();
-    container.removeChild();
+  public DatabaseSession getSession() {
+    return session;
+  }
+
+  public void clear() {
   }
 }

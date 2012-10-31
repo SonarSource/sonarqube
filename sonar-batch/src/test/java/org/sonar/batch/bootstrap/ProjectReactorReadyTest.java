@@ -20,24 +20,21 @@
 package org.sonar.batch.bootstrap;
 
 import org.junit.Test;
-import org.sonar.api.config.Settings;
-import org.sonar.batch.local.DryRunDatabase;
+import org.sonar.api.batch.bootstrap.ProjectBuilder;
 
-import java.util.Properties;
-
-import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class BatchDatabaseTest {
+public class ProjectReactorReadyTest {
   @Test
-  public void should_init_at_least_two_connections() {
-    BatchDatabase db = new BatchDatabase(new Settings(), mock(JdbcDriverHolder.class), mock(DryRunDatabase.class));
-    Properties props = new Properties();
-
-    db.doCompleteProperties(props);
-
-    assertThat(Integer.parseInt(props.getProperty("sonar.jdbc.initialSize"))).isGreaterThanOrEqualTo(2);
-    assertThat(Integer.parseInt(props.getProperty("sonar.jdbc.maxActive"))).isGreaterThanOrEqualTo(2);
+  public void should_do_nothing() {
+    // it's only a barrier
+    ProjectReactorReady barrier = new ProjectReactorReady(mock(ProjectExclusions.class), new ProjectBuilder[]{mock(ProjectBuilder.class)});
+    barrier.start();
   }
 
+  @Test
+  public void project_builders_should_be_optional() {
+    ProjectReactorReady barrier = new ProjectReactorReady(mock(ProjectExclusions.class));
+    barrier.start();
+  }
 }

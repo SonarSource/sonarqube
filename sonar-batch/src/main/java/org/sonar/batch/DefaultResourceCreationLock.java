@@ -19,8 +19,8 @@
  */
 package org.sonar.batch;
 
-import org.apache.commons.configuration.Configuration;
 import org.sonar.api.batch.ResourceCreationLock;
+import org.sonar.api.config.Settings;
 
 /**
  * This lock is used to ensure that Sonar resources (files, packages, directories) are not created by buggy plugins
@@ -31,13 +31,10 @@ import org.sonar.api.batch.ResourceCreationLock;
 public final class DefaultResourceCreationLock implements ResourceCreationLock {
 
   private boolean locked = false;
-  private boolean failWhenLocked=false;
+  private boolean failWhenLocked = false;
 
-  public DefaultResourceCreationLock() {
-  }
-
-  public DefaultResourceCreationLock(Configuration configuration) {
-    this.failWhenLocked = configuration.getBoolean("sonar.hardIndexLock", false);
+  public DefaultResourceCreationLock(Settings settings) {
+    this.failWhenLocked = settings.getBoolean("sonar.hardIndexLock");
   }
 
   public boolean isLocked() {

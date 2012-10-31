@@ -98,7 +98,7 @@ public class ExtensionInstaller implements BatchComponent {
    * Example : C# plugin adds sub-projects at runtime, even if they are not defined in root pom.
    */
   static boolean isMavenExtensionOnEmulatedMavenProject(Object extension, String instantiationStrategy, ComponentContainer container) {
-    if (InstantiationStrategy.PROJECT.equals(instantiationStrategy) && ExtensionUtils.isMavenExtensionOnly(extension)) {
+    if (InstantiationStrategy.PER_PROJECT.equals(instantiationStrategy) && ExtensionUtils.isMavenExtensionOnly(extension)) {
       Project project = container.getComponentByType(Project.class);
       return project!=null && project.getPom()==null;
     }

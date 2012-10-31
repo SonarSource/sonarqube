@@ -20,6 +20,7 @@
 package org.sonar.batch.bootstrap;
 
 import org.sonar.api.config.Settings;
+import org.sonar.batch.local.DryRunDatabase;
 import org.sonar.core.persistence.DefaultDatabase;
 
 import java.util.Properties;
@@ -29,9 +30,14 @@ import java.util.Properties;
  */
 public class BatchDatabase extends DefaultDatabase {
 
-  // the dependency on JdbcDriverHolder is required to be sure that the JDBC driver
-  // has been downloaded and injected into classloader
-  public BatchDatabase(Settings settings, JdbcDriverHolder jdbcDriverHolder) {
+  public BatchDatabase(Settings settings,
+                       // The dependency on JdbcDriverHolder is required to be sure that the JDBC driver
+                       // has been downloaded and injected into classloader
+                       JdbcDriverHolder jdbcDriverHolder,
+
+                       // The dependency on DryRunDatabase is required to be sure that the dryRun mode
+                       // changed settings
+                       DryRunDatabase dryRun) {
     super(settings);
   }
 

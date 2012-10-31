@@ -34,7 +34,7 @@ import org.sonar.api.batch.InstantiationStrategy;
  *
  * @since 2.9
  */
-@InstantiationStrategy(InstantiationStrategy.BOOTSTRAP)
+@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 public abstract class ProjectBuilder implements BatchExtension {
 
   private ProjectReactor reactor;

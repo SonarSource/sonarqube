@@ -19,16 +19,16 @@
  */
 package org.sonar.plugins.core.batch;
 
+import org.sonar.api.batch.DryRunIncompatible;
 import org.sonar.api.batch.PostJob;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
-import org.sonar.core.NotDryRun;
 import org.sonar.core.resource.ResourceIndexerDao;
 
 /**
  * @since 2.13
  */
-@NotDryRun
+@DryRunIncompatible
 public class IndexProjectPostJob implements PostJob {
   private ResourceIndexerDao indexer;
 

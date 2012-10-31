@@ -19,13 +19,13 @@
  */
 package org.sonar.plugins.dbcleaner;
 
+import org.sonar.api.batch.DryRunIncompatible;
 import org.sonar.api.batch.PostJob;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
-import org.sonar.core.NotDryRun;
 import org.sonar.plugins.dbcleaner.api.PurgeTask;
 
-@NotDryRun
+@DryRunIncompatible
 public class ProjectPurgePostJob implements PostJob {
 
   private PurgeTask purgeTask;

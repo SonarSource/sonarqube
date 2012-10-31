@@ -35,7 +35,7 @@ import javax.persistence.*;
  */
 @Table(name = "metrics")
 @Entity(name = "Metric")
-@InstantiationStrategy(InstantiationStrategy.BATCH)
+@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 public class Metric implements ServerExtension, BatchExtension {
 
   /**

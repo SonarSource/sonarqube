@@ -17,19 +17,31 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core;
+package org.sonar.batch.bootstrap;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.sonar.api.batch.bootstrap.ProjectBuilder;
 
 /**
- * Disables component on dry runs.
- * This annotation must be used by core modules only. It MUST not be used by external plugins.
- * @since 2.9
+ * Barrier to control the project lifecycle :
+ * <p/>
+ * <ul>
+ * <li>initialize the project configuration by executing ProjectBuilder extensions</li>
+ * <li>apply sub-project exclusions (sonar.skippedModules, ...)</li>
+ * <li>---- this barrier ----</li>
+ * <li>run optional dry run database</li>
+ * <li>connect to dry-run or remote database</li>
+ * </ul>
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface NotDryRun {
+public class ProjectReactorReady {
+
+  public ProjectReactorReady(ProjectExclusions exclusions, ProjectBuilder[] projectBuilders) {
+  }
+
+  public ProjectReactorReady(ProjectExclusions exclusions) {
+    this(exclusions, new ProjectBuilder[0]);
+  }
+
+  public void start() {
+
+  }
 }

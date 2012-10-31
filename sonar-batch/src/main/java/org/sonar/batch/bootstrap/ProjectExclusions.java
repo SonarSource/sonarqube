@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
@@ -34,7 +35,6 @@ import org.sonar.api.config.Settings;
  *
  * @since 2.12
  */
-@InstantiationStrategy(InstantiationStrategy.BOOTSTRAP)
 public class ProjectExclusions implements BatchComponent {
 
   private static final Logger LOG = LoggerFactory.getLogger(ProjectExclusions.class);
@@ -42,10 +42,14 @@ public class ProjectExclusions implements BatchComponent {
   private Settings settings;
   private ProjectReactor reactor;
 
-  public ProjectExclusions(Settings settings, ProjectReactor reactor) {
+  public ProjectExclusions(Settings settings, ProjectReactor reactor, ProjectBuilder[] projectBuilders) {
     this.settings = settings;
     this.reactor = reactor;
   }
+
+  public ProjectExclusions(Settings settings, ProjectReactor reactor) {
+      this(settings, reactor, new ProjectBuilder[0]);
+    }
 
   public void start() {
     LOG.info("Apply project exclusions");
