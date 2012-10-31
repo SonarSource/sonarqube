@@ -62,7 +62,7 @@ class SettingsController < ApplicationController
 
   def update_property_set(key, set_keys, fields_hash, resource_id, auto_generate)
     if auto_generate
-      max = set_keys.max_by(&:to_i).to_i
+      max = (Time.now.to_f * 100000).to_i
       set_keys.each_with_index do |v, index|
         if v.blank?
           max += 1;
