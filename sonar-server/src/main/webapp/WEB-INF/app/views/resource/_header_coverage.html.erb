@@ -6,26 +6,60 @@
   <% end -%>
 
   <table class="coverage">
-    <% [('overall_' if @display_overall_coverage), '', ('it_' if @display_it_coverage)].compact.each_with_index do |prefix, index| -%>
+    <% if @display_overall_coverage -%>
       <tr>
-        <% if index == 0 -%>
-          <td class="right big" style="width: 60px;"><%= format(new, prefix, 'coverage', :span => true) -%></td>
-          <td></td>
+        <td class="right big" style="width: 60px;"><%= format(new, 'overall_', 'coverage', :span => true) -%></td>
+        <td></td>
+        <td class="name"><%= h Metric.name_for('line_coverage') -%>:</td>
+        <td class="value">
+          <%= format(new, 'overall_', 'line_coverage') -%>&nbsp;<%= format_ratio(new, 'overall_', 'lines_to_cover', 'uncovered_lines') -%>
+        </td>
+        <td class="sep"></td>
+        <td class="name"><%= h Metric.name_for('branch_coverage') -%>:</td>
+        <td class="value">
+          <%= format(new, 'overall_', 'branch_coverage') -%>&nbsp;<%= format_ratio(new, 'overall_', 'conditions_to_cover', 'uncovered_conditions') -%>
+        </td>
+      </tr>
+    <% end -%>
+
+    <tr>
+      <td class="right value"><%= format(new, '', 'coverage', :span => true) -%></td>
+      <td><%= message('coverage_viewer.by') -%></td>
+      <% if @display_overall_coverage -%>
+        <td colspan="2"></td>
+        <td class="sep"></td>
+        <td colspan="2"></td>
+      <% else -%>
+        <td class="name"><%= h Metric.name_for('line_coverage') -%>:</td>
+        <td class="value">
+          <%= format(new, '', 'line_coverage') -%>&nbsp;<%= format_ratio(new, '', 'lines_to_cover', 'uncovered_lines') -%>
+        </td>
+        <td class="sep"></td>
+        <td class="name"><%= h Metric.name_for('branch_coverage') -%>:</td>
+        <td class="value">
+          <%= format(new, '', 'branch_coverage') -%>&nbsp;<%= format_ratio(new, '', 'conditions_to_cover', 'uncovered_conditions') -%>
+        </td>
+      <% end -%>
+    </tr>
+
+    <% if @display_it_coverage -%>
+      <tr>
+        <td class="right value"><%= format(new, 'it_', 'coverage', :span => true) -%></td>
+        <td><%= message('it_' + 'coverage_viewer.by') -%></td>
+        <% if @display_overall_coverage -%>
+          <td colspan="2"></td>
+          <td class="sep"></td>
+          <td colspan="2"></td>
+        <% else -%>
           <td class="name"><%= h Metric.name_for('line_coverage') -%>:</td>
           <td class="value">
-            <%= format(new, prefix, 'line_coverage') -%>&nbsp;<%= format_ratio(new, prefix, 'lines_to_cover', 'uncovered_lines') -%>
+            <%= format(new, 'it_', 'line_coverage') -%>&nbsp;<%= format_ratio(new, 'it_', 'lines_to_cover', 'uncovered_lines') -%>
           </td>
           <td class="sep"></td>
           <td class="name"><%= h Metric.name_for('branch_coverage') -%>:</td>
           <td class="value">
-            <%= format(new, prefix, 'branch_coverage') -%>&nbsp;<%= format_ratio(new, prefix, 'conditions_to_cover', 'uncovered_conditions') -%>
+            <%= format(new, 'it_', 'branch_coverage') -%>&nbsp;<%= format_ratio(new, 'it_', 'conditions_to_cover', 'uncovered_conditions') -%>
           </td>
-        <% else -%>
-          <td class="right value"><%= format(new, prefix, 'coverage', :span => true) -%></td>
-          <td><%= message(prefix + 'coverage_viewer.by') -%></td>
-          <td colspan="2"></td>
-          <td class="sep"></td>
-          <td colspan="2"></td>
         <% end -%>
       </tr>
     <% end -%>
