@@ -38,8 +38,8 @@ public class DefaultProfileLoader implements ProfileLoader {
 
   public RulesProfile load(Project project) {
     String profileName = StringUtils.defaultIfBlank(
-      settings.getString("sonar.profile." + project.getLanguageKey()),
-      settings.getString("sonar.profile")
+      settings.getString("sonar.profile"),
+      settings.getString("sonar.profile." + project.getLanguageKey())
     );
 
     if (StringUtils.isBlank(profileName)) {
