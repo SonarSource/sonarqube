@@ -44,9 +44,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
+ * TODO extends Server when removing the deprecated org.sonar.batch.ServerMetadata
  * @since 3.4
  */
-public class ServerClient extends Server implements BatchComponent {
+public class ServerClient implements BatchComponent {
   private Settings settings;
   private HttpDownloader.BaseHttpDownloader downloader;
 
@@ -55,17 +56,14 @@ public class ServerClient extends Server implements BatchComponent {
     this.downloader = new HttpDownloader.BaseHttpDownloader(settings, env.toString());
   }
 
-  @Override
   public String getId() {
     return settings.getString(CoreProperties.SERVER_ID);
   }
 
-  @Override
   public String getVersion() {
     return settings.getString(CoreProperties.SERVER_VERSION);
   }
 
-  @Override
   public Date getStartedAt() {
     String dateString = settings.getString(CoreProperties.SERVER_STARTTIME);
     if (dateString != null) {
@@ -79,12 +77,10 @@ public class ServerClient extends Server implements BatchComponent {
     return null;
   }
 
-  @Override
   public String getURL() {
     return StringUtils.removeEnd(StringUtils.defaultIfBlank(settings.getString("sonar.host.url"), "http://localhost:9000"), "/");
   }
 
-  @Override
   public String getPermanentServerId() {
     return settings.getString(CoreProperties.PERMANENT_SERVER_ID);
   }
