@@ -81,6 +81,12 @@ public class I18nManager implements I18n, ServerExtension, BatchExtension {
     LOG.debug(String.format("Loaded %d properties from l10n bundles", propertyToBundles.size()));
   }
 
+  public void stop() {
+    i18nClassloader=null;
+    propertyToBundles=null;
+    fileContentCache=null;
+  }
+
   public String message(Locale locale, String key, String defaultValue, Object... parameters) {
     String bundleKey = propertyToBundles.get(key);
     String value = null;

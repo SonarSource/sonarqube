@@ -240,7 +240,8 @@ public class PluginClassloaders {
       } catch (Exception e) {
         // Ignore
       }
-      world = null;
     }
+    world = null;
+    baseClassloader=null;
   }
 }
