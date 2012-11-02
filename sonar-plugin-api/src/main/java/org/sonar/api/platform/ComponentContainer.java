@@ -154,4 +154,8 @@ public class ComponentContainer implements BatchComponent, ServerComponent {
   public ComponentContainer getChild() {
     return child;
   }
+
+  public MutablePicoContainer getPicoContainer() {
+    return pico;
+  }
 }
