@@ -32,12 +32,14 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
 import org.sonar.batch.bootstrap.DryRun;
 import org.sonar.batch.index.DefaultIndex;
+import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.java.api.JavaClass;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
+import java.util.Locale;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
@@ -56,13 +58,14 @@ public class DryRunExporterTest {
   Violation violation = mock(Violation.class);
   ProjectFileSystem projectFileSystem = mock(ProjectFileSystem.class);
   Server server = mock(Server.class);
+  RuleI18nManager ruleI18nManager = mock(RuleI18nManager.class);
 
   @org.junit.Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   @Before
   public void setUp() {
-    dryRunExporter = spy(new DryRunExporter(dryRun, sonarIndex, projectFileSystem, server));
+    dryRunExporter = spy(new DryRunExporter(dryRun, sonarIndex, projectFileSystem, server, ruleI18nManager));
   }
 
   @Test
@@ -79,8 +82,9 @@ public class DryRunExporterTest {
     when(violation.getResource()).thenReturn(resource);
     when(violation.getLineId()).thenReturn(1);
     when(violation.getMessage()).thenReturn("VIOLATION");
-    when(violation.getRule()).thenReturn(Rule.create("pmd", "RULE_KEY").setName("RULE_NAME"));
+    when(violation.getRule()).thenReturn(Rule.create("pmd", "RULE_KEY"));
     when(violation.getSeverity()).thenReturn(RulePriority.INFO);
+    when(ruleI18nManager.getName("pmd", "RULE_KEY", Locale.getDefault())).thenReturn("RULE_NAME");
     doReturn(Arrays.asList(violation)).when(dryRunExporter).getViolations(resource);
 
     StringWriter output = new StringWriter();
@@ -89,7 +93,7 @@ public class DryRunExporterTest {
 
     assertThat(json)
         .isEqualTo(
-            "{\"version\":\"3.4\",\"violations_per_resource\":{\"KEY\":[{\"line\":1,\"message\":\"VIOLATION\",\"severity\":\"INFO\",\"rule_key\":\"RULE_KEY\",\"rule_name\":\"RULE_NAME\"}]}}");
+            "{\"version\":\"3.4\",\"violations_per_resource\":{\"KEY\":[{\"line\":1,\"message\":\"VIOLATION\",\"severity\":\"INFO\",\"rule_key\":\"RULE_KEY\",\"rule_repository\":\"pmd\",\"rule_name\":\"RULE_NAME\"}]}}");
   }
 
   @Test
@@ -99,8 +103,9 @@ public class DryRunExporterTest {
     when(violation.getResource()).thenReturn(resource);
     when(violation.getLineId()).thenReturn(null);
     when(violation.getMessage()).thenReturn("VIOLATION");
-    when(violation.getRule()).thenReturn(Rule.create("pmd", "RULE_KEY").setName("RULE_NAME"));
+    when(violation.getRule()).thenReturn(Rule.create("pmd", "RULE_KEY"));
     when(violation.getSeverity()).thenReturn(RulePriority.INFO);
+    when(ruleI18nManager.getName("pmd", "RULE_KEY", Locale.getDefault())).thenReturn("RULE_NAME");
     doReturn(Arrays.asList(violation)).when(dryRunExporter).getViolations(resource);
 
     StringWriter output = new StringWriter();
@@ -108,7 +113,7 @@ public class DryRunExporterTest {
     String json = output.toString();
 
     assertThat(json).isEqualTo(
-        "{\"version\":\"3.4\",\"violations_per_resource\":{\"KEY\":[{\"message\":\"VIOLATION\",\"severity\":\"INFO\",\"rule_key\":\"RULE_KEY\",\"rule_name\":\"RULE_NAME\"}]}}");
+        "{\"version\":\"3.4\",\"violations_per_resource\":{\"KEY\":[{\"message\":\"VIOLATION\",\"severity\":\"INFO\",\"rule_key\":\"RULE_KEY\",\"rule_repository\":\"pmd\",\"rule_name\":\"RULE_NAME\"}]}}");
   }
 
   @Test

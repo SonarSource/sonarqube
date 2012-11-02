@@ -29,10 +29,12 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.platform.Server;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrap.DryRun;
 import org.sonar.batch.index.DefaultIndex;
+import org.sonar.core.i18n.RuleI18nManager;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -41,6 +43,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * @since 3.4
@@ -52,12 +55,14 @@ public class DryRunExporter implements BatchComponent {
   private final DefaultIndex sonarIndex;
   private final ProjectFileSystem projectFileSystem;
   private final Server server;
+  private final RuleI18nManager ruleI18nManager;
 
-  public DryRunExporter(DryRun dryRun, DefaultIndex sonarIndex, ProjectFileSystem projectFileSystem, Server server) {
+  public DryRunExporter(DryRun dryRun, DefaultIndex sonarIndex, ProjectFileSystem projectFileSystem, Server server, RuleI18nManager ruleI18nManager) {
     this.dryRun = dryRun;
     this.sonarIndex = sonarIndex;
     this.projectFileSystem = projectFileSystem;
     this.server = server;
+    this.ruleI18nManager = ruleI18nManager;
   }
 
   public void execute(SensorContext context) {
@@ -110,7 +115,8 @@ public class DryRunExporter implements BatchComponent {
               .name("message").value(violation.getMessage())
               .name("severity").value(violation.getSeverity().name())
               .name("rule_key").value(violation.getRule().getKey())
-              .name("rule_name").value(violation.getRule().getName())
+              .name("rule_repository").value(violation.getRule().getRepositoryKey())
+              .name("rule_name").value(name(violation.getRule()))
               .endObject();
         }
 
@@ -125,6 +131,10 @@ public class DryRunExporter implements BatchComponent {
     } finally {
       Closeables.closeQuietly(json);
     }
+  }
+
+  private String name(Rule rule) {
+    return ruleI18nManager.getName(rule.getRepositoryKey(), rule.getKey(), Locale.getDefault());
   }
 
   @VisibleForTesting
