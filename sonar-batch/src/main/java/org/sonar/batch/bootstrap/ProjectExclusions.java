@@ -24,7 +24,6 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
@@ -50,8 +49,8 @@ public class ProjectExclusions implements BatchComponent {
   }
 
   public ProjectExclusions(Settings settings, ProjectReactor reactor) {
-      this(settings, reactor, new ProjectBuilder[0]);
-    }
+    this(settings, reactor, new ProjectBuilder[0]);
+  }
 
   public void start() {
     LOG.info("Apply project exclusions");

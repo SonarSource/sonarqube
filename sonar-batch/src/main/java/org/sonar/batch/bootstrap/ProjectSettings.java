@@ -61,7 +61,6 @@ public class ProjectSettings extends Settings {
     addBuildProperties(project);
     addEnvironmentVariables();
     addSystemProperties();
-    //addProgrammaticProperties();
     return this;
   }
 

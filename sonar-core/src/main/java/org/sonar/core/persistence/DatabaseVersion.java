@@ -22,10 +22,7 @@ package org.sonar.core.persistence;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.ServerComponent;
-import org.sonar.core.properties.PropertiesMapper;
-import org.sonar.core.properties.PropertyDto;
 
 import java.util.Collections;
 import java.util.List;

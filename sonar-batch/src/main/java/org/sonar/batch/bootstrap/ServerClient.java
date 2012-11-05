@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
-import org.sonar.api.platform.Server;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
@@ -45,6 +44,7 @@ import java.util.Date;
 
 /**
  * TODO extends Server when removing the deprecated org.sonar.batch.ServerMetadata
+ *
  * @since 3.4
  */
 public class ServerClient implements BatchComponent {
