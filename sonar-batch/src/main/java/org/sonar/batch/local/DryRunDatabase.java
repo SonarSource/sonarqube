@@ -86,9 +86,9 @@ public class DryRunDatabase implements BatchComponent {
     } catch (SonarException e) {
       Throwable rootCause = Throwables.getRootCause(e);
       if (rootCause instanceof FileNotFoundException) {
-        throw new SonarException(String.format("Project [%s] doesn't exist on server", projectKey));
+        throw new SonarException(String.format("Project [%s] doesn't exist on server", projectKey), e);
       } else if ((rootCause instanceof IOException) && (StringUtils.contains(rootCause.getMessage(), "401"))) {
-        throw new SonarException(String.format("You don't have access rights to project [%s]", projectKey));
+        throw new SonarException(String.format("You don't have access rights to project [%s]", projectKey), e);
       }
       throw e;
     }
