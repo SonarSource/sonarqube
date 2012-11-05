@@ -28,16 +28,21 @@ class RemoveProjectsProfileId < ActiveRecord::Migration
   end
 
   class Project < ActiveRecord::Base
-    belongs_to :profile
+
   end
 
   class Property < ActiveRecord::Base
   end
 
   def self.up
-    projects=Project.find(:all, :conditions => ['profile_id is not null and copy_resource_id is null'], :include => :profile)
-    projects.each do |project|
-      Property.create(:prop_key => "sonar.profile.#{project.profile.language}", :text_value => project.profile.name, :resource_id => project.id)
+    projects=Project.find(:all, :conditions => ['profile_id is not null and copy_resource_id is null'])
+    say_with_time "Processing #{projects.size} projects..." do
+      projects.each do |project|
+        profile = Profile.find(:first, :conditions => ['id=?', project.profile_id])
+        if profile
+          Property.create(:prop_key => "sonar.profile.#{profile.language}", :text_value => profile.name, :resource_id => project.id)
+        end
+      end
     end
     remove_column('projects', 'profile_id')
   end
