@@ -63,22 +63,22 @@ public class DryRunDatabaseFactory implements ServerComponent {
   }
 
   private void copy(DataSource source, DataSource dest, Integer resourceId) {
-    String notSecured = "NOT (PROP_KEY LIKE '%.secured')";
-    String defaultProperty = "((USER_ID IS NULL) AND (RESOURCE_ID IS NULL))";
-    String projectProperty = (null == resourceId) ? "" : " OR (RESOURCE_ID='" + resourceId + "')";
+    String notSecured = "NOT (prop_key LIKE '%.secured')";
+    String defaultProperty = "((user_id IS NULL) AND (resource_id IS NULL))";
+    String projectProperty = (null == resourceId) ? "" : " OR (resource_id='" + resourceId + "')";
 
     new DbTemplate()
-        .copyTable(source, dest, "ACTIVE_RULES", "SELECT * FROM ACTIVE_RULES")
-        .copyTable(source, dest, "ACTIVE_RULE_PARAMETERS", "SELECT * FROM ACTIVE_RULE_PARAMETERS")
-        .copyTable(source, dest, "CHARACTERISTICS", "SELECT * FROM CHARACTERISTICS")
-        .copyTable(source, dest, "CHARACTERISTIC_EDGES", "SELECT * FROM CHARACTERISTIC_EDGES")
-        .copyTable(source, dest, "CHARACTERISTIC_PROPERTIES", "SELECT * FROM CHARACTERISTIC_PROPERTIES")
-        .copyTable(source, dest, "METRICS", "SELECT * FROM METRICS")
-        .copyTable(source, dest, "PROPERTIES", "SELECT * FROM PROPERTIES WHERE " + notSecured + " AND (" + defaultProperty + projectProperty + ")")
-        .copyTable(source, dest, "QUALITY_MODELS", "SELECT * FROM QUALITY_MODELS")
-        .copyTable(source, dest, "RULES", "SELECT * FROM RULES")
-        .copyTable(source, dest, "RULES_PARAMETERS", "SELECT * FROM RULES_PARAMETERS")
-        .copyTable(source, dest, "RULES_PROFILES", "SELECT * FROM RULES_PROFILES");
+        .copyTable(source, dest, "active_rules")
+        .copyTable(source, dest, "active_rule_parameters")
+        .copyTable(source, dest, "characteristics")
+        .copyTable(source, dest, "characteristic_edges")
+        .copyTable(source, dest, "characteristic_properties")
+        .copyTable(source, dest, "metrics")
+        .copyTable(source, dest, "properties", notSecured, defaultProperty + projectProperty)
+        .copyTable(source, dest, "quality_models")
+        .copyTable(source, dest, "rules")
+        .copyTable(source, dest, "rules_parameters")
+        .copyTable(source, dest, "rules_profiles");
   }
 
   private BasicDataSource create(String dialect, String driver, String user, String password, String url) {

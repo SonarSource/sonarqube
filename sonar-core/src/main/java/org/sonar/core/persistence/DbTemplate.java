@@ -19,6 +19,8 @@
  */
 package org.sonar.core.persistence;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -33,12 +35,23 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 
 public class DbTemplate implements ServerComponent {
   private static final Logger LOG = LoggerFactory.getLogger(DbTemplate.class);
 
-  public DbTemplate copyTable(DataSource source, DataSource dest, String table, String query) {
+  public DbTemplate copyTable(DataSource source, DataSource dest, String table, String... whereClauses) {
     LOG.info("Copy table " + table);
+
+    String selectQuery = "select * from " + table;
+    if (whereClauses.length > 0) {
+      List<String> clauses = Lists.newArrayList();
+      for (String whereClause : whereClauses) {
+        clauses.add('(' + whereClause + ')');
+      }
+
+      selectQuery += " WHERE " + Joiner.on(" AND ").join(clauses);
+    }
 
     truncate(dest, table);
 
@@ -51,7 +64,7 @@ public class DbTemplate implements ServerComponent {
     try {
       sourceConnection = source.getConnection();
       sourceStatement = sourceConnection.createStatement();
-      sourceResultSet = sourceStatement.executeQuery(query);
+      sourceResultSet = sourceStatement.executeQuery(selectQuery);
 
       if (sourceResultSet.next()) {
         int colCount = sourceResultSet.getMetaData().getColumnCount();

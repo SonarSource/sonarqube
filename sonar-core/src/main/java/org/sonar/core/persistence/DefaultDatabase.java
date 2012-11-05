@@ -136,7 +136,6 @@ public class DefaultDatabase implements Database {
     }
   }
 
-
   public final DefaultDatabase stop() {
     if (datasource != null) {
       try {
