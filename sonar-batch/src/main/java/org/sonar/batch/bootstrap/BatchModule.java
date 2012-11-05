@@ -70,6 +70,7 @@ public class BatchModule extends Module {
   }
 
   private void registerCoreComponents() {
+    container.addSingleton(BatchSettings.class);
     container.addSingleton(EmailSettings.class);
     container.addSingleton(I18nManager.class);
     container.addSingleton(RuleI18nManager.class);

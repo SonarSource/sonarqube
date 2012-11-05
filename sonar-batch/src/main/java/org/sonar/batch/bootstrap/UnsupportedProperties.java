@@ -17,30 +17,25 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.config;
+package org.sonar.batch.bootstrap;
 
-import org.hamcrest.core.Is;
-import org.junit.Test;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.BatchComponent;
+import org.sonar.api.config.Settings;
 
-import java.util.List;
+public class UnsupportedProperties implements BatchComponent {
+  private final Settings settings;
 
-import static org.junit.Assert.assertThat;
+  public UnsupportedProperties(Settings settings) {
+    this.settings = settings;
+  }
 
-public class ProjectSettingsTest {
+  public void start() {
+    verify("sonar.light", "The property 'sonar.light' is no longer supported. Please use 'sonar.dynamicAnalysis'");
+  }
 
-  @Test
-  public void testOrderedProjects() {
-    ProjectDefinition grandParent = ProjectDefinition.create();
-    ProjectDefinition parent = ProjectDefinition.create();
-    ProjectDefinition child = ProjectDefinition.create();
-    grandParent.addSubProject(parent);
-    parent.addSubProject(child);
-
-    List<ProjectDefinition> hierarchy = ProjectSettings.getTopDownParentProjects(child);
-    assertThat(hierarchy.get(0), Is.is(grandParent));
-    assertThat(hierarchy.get(1), Is.is(parent));
-    assertThat(hierarchy.get(2), Is.is(child));
-
+  private void verify(String key, String message) {
+    if (settings.hasKey(key)) {
+      throw new IllegalArgumentException(message);
+    }
   }
 }

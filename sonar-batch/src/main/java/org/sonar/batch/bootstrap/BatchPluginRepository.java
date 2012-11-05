@@ -30,7 +30,6 @@ import org.sonar.api.Plugin;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
-import org.sonar.batch.config.BootstrapSettings;
 import org.sonar.core.plugins.PluginClassloaders;
 import org.sonar.core.plugins.PluginInstaller;
 import org.sonar.core.plugins.RemotePlugin;

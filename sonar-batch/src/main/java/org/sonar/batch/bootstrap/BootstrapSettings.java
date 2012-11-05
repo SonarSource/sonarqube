@@ -17,13 +17,14 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.config;
+package org.sonar.batch.bootstrap;
 
 import org.apache.commons.configuration.Configuration;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
-import org.sonar.core.config.ConfigurationUtils;
+
+import javax.annotation.Nullable;
 
 /**
  * @since 2.12
@@ -36,23 +37,28 @@ public class BootstrapSettings extends Settings {
     super(propertyDefinitions);
     this.reactor = reactor;
     this.deprecatedConfiguration = deprecatedConfiguration;
-    load();
+    init();
   }
 
-  private BootstrapSettings load() {
-    clear();
-
+  private void init() {
     // order is important -> bottom-up. The last one overrides all the others.
     addProperties(reactor.getRoot().getProperties());
     addEnvironmentVariables();
     addSystemProperties();
-
-    updateDeprecatedCommonsConfiguration();
-
-    return this;
   }
 
-  public void updateDeprecatedCommonsConfiguration() {
-    ConfigurationUtils.copyToCommonsConfiguration(properties, deprecatedConfiguration);
+  @Override
+  protected void doOnSetProperty(String key, @Nullable String value) {
+    deprecatedConfiguration.setProperty(key, value);
+  }
+
+  @Override
+  protected void doOnRemoveProperty(String key) {
+    deprecatedConfiguration.clearProperty(key);
+  }
+
+  @Override
+  protected void doOnClearProperties() {
+    deprecatedConfiguration.clear();
   }
 }

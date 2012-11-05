@@ -37,8 +37,6 @@ import org.sonar.batch.ProjectTree;
 import org.sonar.batch.ResourceFilters;
 import org.sonar.batch.ViolationFilters;
 import org.sonar.batch.components.TimeMachineConfiguration;
-import org.sonar.batch.config.ProjectSettings;
-import org.sonar.batch.config.UnsupportedProperties;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.ResourcePersister;

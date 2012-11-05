@@ -76,7 +76,7 @@ public class DryRunDatabaseTest {
 
     dryRunDatabase.start();
 
-    verify(server).download("/api/synchro?resource=group:project", databaseFile);
+    verify(server).download("/batch_bootstrap/db?project=group:project", databaseFile);
   }
 
   @Test
@@ -97,7 +97,7 @@ public class DryRunDatabaseTest {
   public void should_fail_on_unknown_project() {
     when(dryRun.isEnabled()).thenReturn(true);
     when(tempDirectories.getFile("dry_run", "db.h2.db")).thenReturn(new File("/tmp/dry_run/db.h2.db"));
-    doThrow(new SonarException(new FileNotFoundException())).when(server).download("/api/synchro?resource=group:project", new File("/tmp/dry_run/db.h2.db"));
+    doThrow(new SonarException(new FileNotFoundException())).when(server).download("/batch_bootstrap/db?project=group:project", new File("/tmp/dry_run/db.h2.db"));
 
     thrown.expect(SonarException.class);
     thrown.expectMessage("Project [group:project] doesn't exist on server");
@@ -109,7 +109,7 @@ public class DryRunDatabaseTest {
   public void should_fail_on_invalid_role() {
     when(dryRun.isEnabled()).thenReturn(true);
     when(tempDirectories.getFile("dry_run", "db.h2.db")).thenReturn(new File("/tmp/dry_run/db.h2.db"));
-    doThrow(new SonarException(new IOException("HTTP 401"))).when(server).download("/api/synchro?resource=group:project", new File("/tmp/dry_run/db.h2.db"));
+    doThrow(new SonarException(new IOException("HTTP 401"))).when(server).download("/batch_bootstrap/db?project=group:project", new File("/tmp/dry_run/db.h2.db"));
 
     thrown.expect(SonarException.class);
     thrown.expectMessage("You don't have access rights to project [group:project]");
@@ -121,7 +121,7 @@ public class DryRunDatabaseTest {
   public void should_fail() {
     when(dryRun.isEnabled()).thenReturn(true);
     when(tempDirectories.getFile("dry_run", "db.h2.db")).thenReturn(new File("/tmp/dry_run/db.h2.db"));
-    doThrow(new SonarException("BUG")).when(server).download("/api/synchro?resource=group:project", new File("/tmp/dry_run/db.h2.db"));
+    doThrow(new SonarException("BUG")).when(server).download("/batch_bootstrap/db?project=group:project", new File("/tmp/dry_run/db.h2.db"));
 
     thrown.expect(SonarException.class);
     thrown.expectMessage("BUG");

@@ -43,7 +43,6 @@ import java.io.IOException;
 public class DryRunDatabase implements BatchComponent {
   private static final Logger LOG = LoggerFactory.getLogger(DryRunDatabase.class);
 
-  private static final String API_SYNCHRO = "/api/synchro";
   private static final String DIALECT = "h2";
   private static final String DRIVER = "org.h2.Driver";
   private static final String URL = "jdbc:h2:";
@@ -57,8 +56,8 @@ public class DryRunDatabase implements BatchComponent {
   private final ProjectReactor reactor;
 
   public DryRunDatabase(DryRun dryRun, Settings settings, ServerClient server, TempDirectories tempDirectories, ProjectReactor reactor,
-      // project reactor must be completely built
-      ProjectReactorReady reactorReady) {
+                        // project reactor must be completely built
+                        ProjectReactorReady reactorReady) {
     this.dryRun = dryRun;
     this.settings = settings;
     this.server = server;
@@ -81,7 +80,7 @@ public class DryRunDatabase implements BatchComponent {
 
   private void downloadDatabase(String projectKey, File toFile) {
     try {
-      server.download(API_SYNCHRO + "?resource=" + projectKey, toFile);
+      server.download("/batch_bootstrap/db?project=" + projectKey, toFile);
     } catch (SonarException e) {
       Throwable rootCause = Throwables.getRootCause(e);
       if (rootCause instanceof FileNotFoundException) {
@@ -95,11 +94,11 @@ public class DryRunDatabase implements BatchComponent {
 
   private void replaceSettings(String databasePath) {
     settings
-        .setProperty("sonar.jdbc.schema", "")
-        .setProperty(DatabaseProperties.PROP_DIALECT, DIALECT)
-        .setProperty(DatabaseProperties.PROP_DRIVER, DRIVER)
-        .setProperty(DatabaseProperties.PROP_USER, USER)
-        .setProperty(DatabaseProperties.PROP_PASSWORD, PASSWORD)
-        .setProperty(DatabaseProperties.PROP_URL, URL + databasePath);
+      .setProperty("sonar.jdbc.schema", "")
+      .setProperty(DatabaseProperties.PROP_DIALECT, DIALECT)
+      .setProperty(DatabaseProperties.PROP_DRIVER, DRIVER)
+      .setProperty(DatabaseProperties.PROP_USER, USER)
+      .setProperty(DatabaseProperties.PROP_PASSWORD, PASSWORD)
+      .setProperty(DatabaseProperties.PROP_URL, URL + databasePath);
   }
 }

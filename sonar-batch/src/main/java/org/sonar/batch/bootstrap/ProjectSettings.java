@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.config;
+package org.sonar.batch.bootstrap;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.configuration.Configuration;
@@ -26,14 +26,11 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
-import org.sonar.core.config.ConfigurationUtils;
-import org.sonar.wsclient.Sonar;
-import org.sonar.wsclient.services.Property;
-import org.sonar.wsclient.services.PropertyQuery;
 
 import javax.annotation.Nullable;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @since 2.12
@@ -42,41 +39,44 @@ public class ProjectSettings extends Settings {
 
   private Configuration deprecatedCommonsConf;
 
-  public ProjectSettings(BootstrapSettings bootstrapSettings, ProjectDefinition project,
-                         Sonar wsClient, Configuration deprecatedCommonsConf) {
-    super(bootstrapSettings.getDefinitions());
+  public ProjectSettings(BatchSettings batchSettings, ProjectDefinition project, Configuration deprecatedCommonsConf) {
+    super(batchSettings.getDefinitions());
 
     LoggerFactory.getLogger(ProjectSettings.class).info("Load module settings");
     this.deprecatedCommonsConf = deprecatedCommonsConf;
     if (project.getParent() == null) {
       // root project -> no need to reload settings
-      copy(bootstrapSettings);
+      copy(batchSettings);
     } else {
-      init(project, bootstrapSettings, wsClient);
+      init(project, batchSettings);
     }
   }
 
-  private void copy(BootstrapSettings bootstrapSettings) {
-    setProperties(bootstrapSettings);
+  private void copy(BatchSettings batchSettings) {
+    setProperties(batchSettings);
   }
 
-  private ProjectSettings init(ProjectDefinition project, BootstrapSettings bootstrapSettings, Sonar wsClient) {
-    addPersistedProperties(project, bootstrapSettings, wsClient);
+  private ProjectSettings init(ProjectDefinition project, BatchSettings batchSettings) {
+    addProjectProperties(project, batchSettings);
     addBuildProperties(project);
     addEnvironmentVariables();
     addSystemProperties();
+    //addProgrammaticProperties();
     return this;
   }
 
-  private void addPersistedProperties(ProjectDefinition project, BootstrapSettings bootstrapSettings, Sonar wsClient) {
-    String branch = bootstrapSettings.getString(CoreProperties.PROJECT_BRANCH_PROPERTY);
+  private void addProjectProperties(ProjectDefinition project, BatchSettings batchSettings) {
+    String branch = batchSettings.getString(CoreProperties.PROJECT_BRANCH_PROPERTY);
     String projectKey = project.getKey();
     if (StringUtils.isNotBlank(branch)) {
       projectKey = String.format("%s:%s", projectKey, branch);
     }
-    List<Property> wsProperties = wsClient.findAll(PropertyQuery.createForAll().setResourceKeyOrId(projectKey));
-    for (Property wsProperty : wsProperties) {
-      setProperty(wsProperty.getKey(), wsProperty.getValue());
+    addProperties(batchSettings.getProperties());
+    Map<String, String> moduleProps = batchSettings.getModuleProperties(projectKey);
+    if (moduleProps != null) {
+      for (Map.Entry<String, String> entry : moduleProps.entrySet()) {
+        setProperty(entry.getKey(), entry.getValue());
+      }
     }
   }
 
