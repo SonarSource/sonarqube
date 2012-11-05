@@ -35,6 +35,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Properties;
 
 public class JettyEmbedder {
 
@@ -42,22 +43,23 @@ public class JettyEmbedder {
   private final String host;
   private final int port;
   private final String contextPath;
+  private final Properties configuration;
 
-  public JettyEmbedder(String host, int port, String contextPath, URL configurationURL) throws Exception {
+  public JettyEmbedder(String host, int port, String contextPath, URL configurationURL, Properties configuration) throws Exception {
     this.host = host.trim();
     this.port = port;
     this.contextPath = contextPath;
+    this.configuration = configuration;
     server = new Server();
 
     if (configurationURL == null) {
       configureProgrammatically();
-
     } else {
       System.setProperty("jetty.host", this.host);
       System.setProperty("jetty.port", String.valueOf(port));
       System.setProperty("jetty.context", contextPath);
-      XmlConfiguration configuration = new XmlConfiguration(configurationURL);
-      configuration.configure(server);
+      XmlConfiguration xmlConfiguration = new XmlConfiguration(configurationURL);
+      xmlConfiguration.configure(server);
     }
   }
 
@@ -65,7 +67,7 @@ public class JettyEmbedder {
    * for tests
    */
   JettyEmbedder(String host, int port) throws Exception {
-    this(host, port, null, null);
+    this(host, port, null, null, new Properties());
   }
 
   public void start() throws Exception {
@@ -104,9 +106,9 @@ public class JettyEmbedder {
 
   private void configureServer() {
     QueuedThreadPool threadPool = new QueuedThreadPool();
-    threadPool.setMinThreads(5);
-    threadPool.setMaxThreads(50);
-    threadPool.setLowThreads(10);
+    threadPool.setMinThreads(getIntProperty("sonar.web.jetty.threads.min", 5));
+    threadPool.setMaxThreads(getIntProperty("sonar.web.jetty.threads.max", 50));
+    threadPool.setLowThreads(getIntProperty("sonar.web.jetty.threads.low", 10));
     server.setThreadPool(threadPool);
     SelectChannelConnector connector = new SelectChannelConnector();
     connector.setHost(host);
@@ -121,33 +123,41 @@ public class JettyEmbedder {
     server.setGracefulShutdown(1000);
   }
 
-  final String getPluginsClasspath(String pluginsPathFromClassloader) throws URISyntaxException, IOException {
-    final URL resource = getClass().getResource(pluginsPathFromClassloader);
-    if (resource != null) {
-      File pluginsDir = new File(resource.toURI());
-      List<String> paths = new ArrayList<String>();
-      paths.add(pluginsDir.getCanonicalPath() + System.getProperty("file.separator"));
-
-      Collection<File> files = FileUtils.listFiles(pluginsDir, new String[] {"jar"}, false);
-      if (files != null) {
-        for (File file : files) {
-          paths.add(file.getCanonicalPath());
-        }
-      }
-      return join(paths, ",");
+  private int getIntProperty(String name, int defaultValue) {
+    String value = configuration.getProperty(name);
+    if (null == value) {
+      return defaultValue;
     }
-    return null;
+
+    return Integer.parseInt(value);
+  }
+
+  final String getPluginsClasspath(String pluginsPathFromClassloader) throws URISyntaxException, IOException {
+    URL resource = getClass().getResource(pluginsPathFromClassloader);
+    if (resource == null) {
+      return null;
+    }
+
+    List<String> paths = new ArrayList<String>();
+
+    File pluginsDir = new File(resource.toURI());
+    paths.add(pluginsDir.getCanonicalPath() + System.getProperty("file.separator"));
+
+    Collection<File> files = FileUtils.listFiles(pluginsDir, new String[] {"jar"}, false);
+    for (File file : files) {
+      paths.add(file.getCanonicalPath());
+    }
+
+    return join(paths, ",");
   }
 
   private String join(List<String> paths, String separator) {
     StringBuilder sb = new StringBuilder();
-    boolean first = true;
     for (String path : paths) {
-      if (!first) {
+      if (sb.length() > 0) {
         sb.append(separator);
       }
       sb.append(path);
-      first = false;
     }
     return sb.toString();
   }

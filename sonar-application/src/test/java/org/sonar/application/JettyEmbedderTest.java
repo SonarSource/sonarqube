@@ -22,38 +22,42 @@ package org.sonar.application;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import java.util.Properties;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class JettyEmbedderTest {
-
   @Test
   public void xmlConfigurationShouldAccessToSomeSystemProperties() throws Exception {
     // useful to set the port into the XML file
-    new JettyEmbedder("127.0.0.1", 9999, "/", JettyEmbedderTest.class.getResource("/org/sonar/application/jetty-test.xml"));
-    assertEquals("127.0.0.1", System.getProperty("jetty.host"));
-    assertEquals("9999", System.getProperty("jetty.port"));
-    assertEquals("/", System.getProperty("jetty.context"));
+    new JettyEmbedder("127.0.0.1", 9999, "/", JettyEmbedderTest.class.getResource("/org/sonar/application/jetty-test.xml"), new Properties());
+
+    assertThat(System.getProperty("jetty.host")).isEqualTo("127.0.0.1");
+    assertThat(System.getProperty("jetty.port")).isEqualTo("9999");
+    assertThat(System.getProperty("jetty.context")).isEqualTo("/");
   }
 
   @Test
   public void shouldUseDefaultConfigurationIfNoXml() throws Exception {
     JettyEmbedder jetty = new JettyEmbedder("1.2.3.4", 9999);
-    assertEquals(1, jetty.getServer().getConnectors().length);
-    assertEquals(9999, jetty.getServer().getConnectors()[0].getPort());
-    assertEquals("1.2.3.4", jetty.getServer().getConnectors()[0].getHost());
+
+    assertThat(jetty.getServer().getConnectors()).hasSize(1);
+    assertThat(jetty.getServer().getConnectors()[0].getPort()).isEqualTo(9999);
+    assertThat(jetty.getServer().getConnectors()[0].getHost()).isEqualTo("1.2.3.4");
   }
 
   @Test
   public void shouldLoadPluginsClasspath() throws Exception {
     JettyEmbedder jetty = new JettyEmbedder("127.0.0.1", 9999);
+
     String classpath = jetty.getPluginsClasspath("/org/sonar/application/JettyEmbedderTest/shouldLoadPluginsClasspath");
     classpath = StringUtils.replaceChars(classpath, "\\", "/");
 
-    assertTrue(classpath, classpath.contains("org/sonar/application/JettyEmbedderTest/shouldLoadPluginsClasspath/plugin1.jar"));
-    assertTrue(classpath, classpath.contains("org/sonar/application/JettyEmbedderTest/shouldLoadPluginsClasspath/plugin2.jar"));
+    assertThat(classpath).contains("org/sonar/application/JettyEmbedderTest/shouldLoadPluginsClasspath/plugin1.jar");
+    assertThat(classpath).contains("org/sonar/application/JettyEmbedderTest/shouldLoadPluginsClasspath/plugin1.jar");
+    assertThat(classpath).contains("org/sonar/application/JettyEmbedderTest/shouldLoadPluginsClasspath/plugin2.jar");
 
     // important : directories end with /
-    assertTrue(classpath, classpath.contains("org/sonar/application/JettyEmbedderTest/shouldLoadPluginsClasspath/,"));
+    assertThat(classpath).contains("org/sonar/application/JettyEmbedderTest/shouldLoadPluginsClasspath/,");
   }
 }

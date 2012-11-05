@@ -42,7 +42,7 @@ public final class StartServer {
     String host = configuration.getProperty("sonar.web.host", DEFAULT_WEB_HOST);
     int port = Integer.parseInt(configuration.getProperty("sonar.web.port", "" + DEFAULT_WEB_PORT));
     String context = configuration.getProperty("sonar.web.context", DEFAULT_WEB_CONTEXT);
-    JettyEmbedder jetty = new JettyEmbedder(host, port, context, StartServer.class.getResource("/jetty.xml"));
+    JettyEmbedder jetty = new JettyEmbedder(host, port, context, StartServer.class.getResource("/jetty.xml"), configuration);
     configureRequestLogs(jetty, configuration);
 
     jetty.start();
