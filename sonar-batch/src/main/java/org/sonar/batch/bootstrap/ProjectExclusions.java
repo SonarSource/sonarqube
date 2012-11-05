@@ -42,7 +42,9 @@ public class ProjectExclusions implements BatchComponent {
   private Settings settings;
   private ProjectReactor reactor;
 
-  public ProjectExclusions(Settings settings, ProjectReactor reactor, ProjectBuilder[] projectBuilders) {
+  public ProjectExclusions(Settings settings, ProjectReactor reactor,
+                           // exclusions are applied when the project is completely defined by extensions
+                           ProjectBuilder[] projectBuilders) {
     this.settings = settings;
     this.reactor = reactor;
   }

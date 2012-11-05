@@ -20,44 +20,50 @@
 package org.sonar.batch.config;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.core.properties.PropertiesDao;
-import org.sonar.core.properties.PropertyDto;
+import org.sonar.wsclient.Sonar;
+import org.sonar.wsclient.services.Property;
+import org.sonar.wsclient.services.PropertyQuery;
 
 import java.util.List;
 
 /**
- * @since 2.12
+ * Load global settings and project settings. Note that the definition of modules is
+ * incomplete before the execution of ProjectBuilder extensions, so module settings
+ * are not loaded yet.
+ * @since 3.4
  */
-public final class BatchDatabaseSettingsLoader {
+public final class BootstrapSettingsLoader {
 
-  private PropertiesDao propertiesDao;
   private BootstrapSettings settings;
   private ProjectReactor reactor;
+  private Sonar wsClient;
 
-  public BatchDatabaseSettingsLoader(PropertiesDao propertiesDao, BootstrapSettings settings, ProjectReactor reactor) {
-    this.propertiesDao = propertiesDao;
+  public BootstrapSettingsLoader(BootstrapSettings settings, ProjectReactor reactor, Sonar wsClient) {
     this.settings = settings;
     this.reactor = reactor;
+    this.wsClient = wsClient;
   }
 
   public void start() {
+    LoggerFactory.getLogger(BootstrapSettingsLoader.class).info("Load project settings");
     String branch = settings.getString(CoreProperties.PROJECT_BRANCH_PROPERTY);
     String projectKey = reactor.getRoot().getKey();
     if (StringUtils.isNotBlank(branch)) {
       projectKey = String.format("%s:%s", projectKey, branch);
     }
-    setIfNotDefined(propertiesDao.selectProjectProperties(projectKey));
-    setIfNotDefined(propertiesDao.selectGlobalProperties());
+    List<Property> wsProperties = wsClient.findAll(PropertyQuery.createForAll().setResourceKeyOrId(projectKey));
+    for (Property wsProperty : wsProperties) {
+      setIfNotDefined(wsProperty);
+    }
     settings.updateDeprecatedCommonsConfiguration();
   }
 
-  private void setIfNotDefined(List<PropertyDto> dbProperties) {
-    for (PropertyDto dbProperty : dbProperties) {
-      if (!settings.hasKey(dbProperty.getKey())) {
-        settings.setProperty(dbProperty.getKey(), dbProperty.getValue());
-      }
+  private void setIfNotDefined(Property wsProperty) {
+    if (!settings.hasKey(wsProperty.getKey())) {
+      settings.setProperty(wsProperty.getKey(), wsProperty.getValue());
     }
   }
 }

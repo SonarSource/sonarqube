@@ -38,15 +38,6 @@ public class IndexFactory implements BatchExtension {
   private final ResourcePersister resourcePersister;
   private final DuplicationDao dao;
 
-  /**
-   * For dry run, where is no access to database.
-   */
-  public IndexFactory(Settings settings) {
-    this.settings = settings;
-    this.resourcePersister = null;
-    this.dao = null;
-  }
-
   public IndexFactory(Settings settings, ResourcePersister resourcePersister, DuplicationDao dao) {
     this.settings = settings;
     this.resourcePersister = resourcePersister;
@@ -54,23 +45,28 @@ public class IndexFactory implements BatchExtension {
   }
 
   public SonarDuplicationsIndex create(Project project) {
-    if (isCrossProject(project)) {
-      LOG.info("Cross-project analysis enabled");
+    if (verifyCrossProject(project, LOG)) {
       return new SonarDuplicationsIndex(new DbDuplicationsIndex(resourcePersister, project, dao));
-    } else {
-      LOG.info("Cross-project analysis disabled");
-      return new SonarDuplicationsIndex();
     }
+    return new SonarDuplicationsIndex();
   }
 
-  /**
-   * @return true, if was enabled by user and database is available
-   */
   @VisibleForTesting
-  boolean isCrossProject(Project project) {
-    return settings.getBoolean(CoreProperties.CPD_CROSS_RPOJECT)
-      && resourcePersister != null && dao != null
-      && StringUtils.isBlank(project.getBranch());
-  }
+  boolean verifyCrossProject(Project project, Logger logger) {
+    boolean crossProject = false;
 
+    if (settings.getBoolean(CoreProperties.CPD_CROSS_RPOJECT)) {
+      if (settings.getBoolean("sonar.dryRun")) {
+        logger.info("Cross-project analysis disabled. Not supported on dry runs.");
+      } else if (StringUtils.isNotBlank(project.getBranch())) {
+        logger.info("Cross-project analysis disabled. Not supported on project branches.");
+      } else {
+        logger.info("Cross-project analysis enabled");
+        crossProject = true;
+      }
+    } else {
+      logger.info("Cross-project analysis disabled");
+    }
+    return crossProject;
+  }
 }

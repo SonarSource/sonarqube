@@ -20,7 +20,11 @@
 package org.sonar.plugins.cpd;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.api.*;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.Properties;
+import org.sonar.api.Property;
+import org.sonar.api.PropertyType;
+import org.sonar.api.SonarPlugin;
 import org.sonar.plugins.cpd.decorators.DuplicationDensityDecorator;
 import org.sonar.plugins.cpd.decorators.SumDuplicationsDecorator;
 import org.sonar.plugins.cpd.index.IndexFactory;
@@ -36,6 +40,15 @@ import java.util.List;
     project = true,
     module = true,
     global = true,
+    category = CoreProperties.CATEGORY_DUPLICATIONS,
+    type = PropertyType.BOOLEAN),
+  @Property(
+    key = CoreProperties.CPD_SKIP_PROPERTY,
+    defaultValue = "false",
+    name = "Skip",
+    description = "Disable detection of duplications",
+    // not displayed in UI
+    project = false, module = false, global = false,
     category = CoreProperties.CATEGORY_DUPLICATIONS,
     type = PropertyType.BOOLEAN)
 })

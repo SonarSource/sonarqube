@@ -63,10 +63,6 @@ public class DryRunDatabaseFactory implements ServerComponent {
   }
 
   private void copy(DataSource source, DataSource dest, Integer resourceId) {
-    String notSecured = "NOT (prop_key LIKE '%.secured')";
-    String defaultProperty = "((user_id IS NULL) AND (resource_id IS NULL))";
-    String projectProperty = (null == resourceId) ? "" : " OR (resource_id='" + resourceId + "')";
-
     new DbTemplate()
         .copyTable(source, dest, "active_rules")
         .copyTable(source, dest, "active_rule_parameters")
@@ -74,7 +70,6 @@ public class DryRunDatabaseFactory implements ServerComponent {
         .copyTable(source, dest, "characteristic_edges")
         .copyTable(source, dest, "characteristic_properties")
         .copyTable(source, dest, "metrics")
-        .copyTable(source, dest, "properties", notSecured, defaultProperty + projectProperty)
         .copyTable(source, dest, "quality_models")
         .copyTable(source, dest, "rules")
         .copyTable(source, dest, "rules_parameters")

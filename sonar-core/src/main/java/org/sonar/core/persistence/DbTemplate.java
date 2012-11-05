@@ -41,7 +41,7 @@ public class DbTemplate implements ServerComponent {
   private static final Logger LOG = LoggerFactory.getLogger(DbTemplate.class);
 
   public DbTemplate copyTable(DataSource source, DataSource dest, String table, String... whereClauses) {
-    LOG.info("Copy table " + table);
+    LOG.debug("Copy table %s", table);
 
     String selectQuery = "select * from " + table;
     if (whereClauses.length > 0) {

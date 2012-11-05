@@ -71,6 +71,7 @@ public class DryRunDatabase implements BatchComponent {
       return;
     }
 
+    LOG.info("Install dry run database");
     File databaseFile = tempDirectories.getFile("dry_run", "db.h2.db");
     downloadDatabase(reactor.getRoot().getKey(), databaseFile);
 
@@ -79,8 +80,6 @@ public class DryRunDatabase implements BatchComponent {
   }
 
   private void downloadDatabase(String projectKey, File toFile) {
-    LOG.info("Downloading DryRun database for project [{}]", projectKey);
-
     try {
       server.download(API_SYNCHRO + "?resource=" + projectKey, toFile);
     } catch (SonarException e) {
@@ -95,8 +94,6 @@ public class DryRunDatabase implements BatchComponent {
   }
 
   private void replaceSettings(String databasePath) {
-    LOG.info("Overriding database settings");
-
     settings
         .setProperty("sonar.jdbc.schema", "")
         .setProperty(DatabaseProperties.PROP_DIALECT, DIALECT)

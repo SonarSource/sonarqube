@@ -66,17 +66,6 @@ public class DatabaseVersion implements BatchComponent, ServerComponent {
     }
   }
 
-  public String getSonarCoreId() {
-    SqlSession session = mybatis.openSession();
-    try {
-      PropertyDto serverIdProperty = session.getMapper(PropertiesMapper.class).selectByKey(new PropertyDto().setKey(CoreProperties.SERVER_ID));
-      // this property can't be NULL
-      return serverIdProperty.getValue();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
   public Status getStatus() {
     return getStatus(getVersion(), LAST_VERSION);
   }

@@ -73,8 +73,8 @@ public class ProjectModule extends Module {
     }
     ProjectDefinition projectDefinition = container.getComponentByType(ProjectTree.class).getProjectDefinition(project);
     container.addSingleton(projectDefinition);
-    container.addSingleton(project);
     container.addSingleton(project.getConfiguration());
+    container.addSingleton(project);
     container.addSingleton(ProjectSettings.class);
     container.addSingleton(UnsupportedProperties.class);
 

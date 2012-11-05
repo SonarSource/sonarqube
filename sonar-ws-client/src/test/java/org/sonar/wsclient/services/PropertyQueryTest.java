@@ -19,28 +19,38 @@
  */
 package org.sonar.wsclient.services;
 
+import org.junit.Test;
+
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-
-import org.junit.Test;
 
 public class PropertyQueryTest extends QueryTestCase {
 
   @Test
-  public void all() {
-    assertThat(PropertyQuery.createForAll().getUrl(), is("/api/properties?"));
-    assertThat(PropertyQuery.createForAll().getModelClass().getName(), is(Property.class.getName()));
+  public void test_global_properties() {
+    PropertyQuery query = PropertyQuery.createForAll();
+    assertThat(query.getUrl(), is("/api/properties?"));
+    assertThat(query.getModelClass().getName(), is(Property.class.getName()));
   }
 
   @Test
-  public void byKey() {
-    assertThat(PropertyQuery.createForKey("myprop").getUrl(), is("/api/properties/myprop?"));
-    assertThat(PropertyQuery.createForKey("myprop").getModelClass().getName(), is(Property.class.getName()));
+  public void test_project_properties() {
+    PropertyQuery query = PropertyQuery.createForAll().setResourceKeyOrId("org.apache:struts");
+    assertThat(query.getUrl(), is("/api/properties?resource=org.apache%3Astruts&"));
+    assertThat(query.getModelClass().getName(), is(Property.class.getName()));
   }
 
   @Test
-  public void byKeyAndResource() {
-    assertThat(PropertyQuery.createForResource("myprop", "my:resource").getUrl(), is("/api/properties/myprop?resource=my%3Aresource&"));
-    assertThat(PropertyQuery.createForResource("myprop", "my:resource").getModelClass().getName(), is(Property.class.getName()));
+  public void test_global_property() {
+    PropertyQuery query = PropertyQuery.createForKey("myprop");
+    assertThat(query.getUrl(), is("/api/properties/myprop?"));
+    assertThat(query.getModelClass().getName(), is(Property.class.getName()));
+  }
+
+  @Test
+  public void test_project_property() {
+    PropertyQuery query = PropertyQuery.createForResource("myprop", "my:resource");
+    assertThat(query.getUrl(), is("/api/properties/myprop?resource=my%3Aresource&"));
+    assertThat(query.getModelClass().getName(), is(Property.class.getName()));
   }
 }

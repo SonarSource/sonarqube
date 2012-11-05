@@ -22,14 +22,16 @@ package org.sonar.batch.config;
 import com.google.common.collect.Lists;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.Project;
 import org.sonar.core.config.ConfigurationUtils;
-import org.sonar.core.properties.PropertiesDao;
-import org.sonar.core.properties.PropertyDto;
+import org.sonar.wsclient.Sonar;
+import org.sonar.wsclient.services.Property;
+import org.sonar.wsclient.services.PropertyQuery;
+
+import javax.annotation.Nullable;
 
 import java.util.List;
 
@@ -39,81 +41,77 @@ import java.util.List;
 public class ProjectSettings extends Settings {
 
   private Configuration deprecatedCommonsConf;
-  private ProjectDefinition projectDefinition;
-  private PropertiesDao propertiesDao;
 
-  public ProjectSettings(PropertyDefinitions definitions, ProjectDefinition projectDefinition, PropertiesDao propertiesDao, Project project) {
-    super(definitions);
-    this.deprecatedCommonsConf = project.getConfiguration(); // Configuration is not a parameter to be sure that the project conf is used, not the global one
-    this.projectDefinition = projectDefinition;
-    this.propertiesDao = propertiesDao;
-    load();
+  public ProjectSettings(BootstrapSettings bootstrapSettings, ProjectDefinition project,
+                         Sonar wsClient, Configuration deprecatedCommonsConf) {
+    super(bootstrapSettings.getDefinitions());
+
+    LoggerFactory.getLogger(ProjectSettings.class).info("Load module settings");
+    this.deprecatedCommonsConf = deprecatedCommonsConf;
+    if (project.getParent() == null) {
+      // root project -> no need to reload settings
+      copy(bootstrapSettings);
+    } else {
+      init(project, bootstrapSettings, wsClient);
+    }
   }
 
-  public ProjectSettings load() {
-    clear();
+  private void copy(BootstrapSettings bootstrapSettings) {
+    setProperties(bootstrapSettings);
+  }
 
-    // hack to obtain "sonar.branch" before loading settings from database
-    loadBuildProperties();
+  private ProjectSettings init(ProjectDefinition project, BootstrapSettings bootstrapSettings, Sonar wsClient) {
+    addPersistedProperties(project, bootstrapSettings, wsClient);
+    addBuildProperties(project);
     addEnvironmentVariables();
     addSystemProperties();
-    String branch = getString(CoreProperties.PROJECT_BRANCH_PROPERTY);
-    clear();
-
-    // order is important -> bottom-up. The last one overrides all the others.
-    loadDatabaseGlobalSettings();
-    loadDatabaseProjectSettings(projectDefinition, branch);
-    loadBuildProperties();
-    addEnvironmentVariables();
-    addSystemProperties();
-
-    updateDeprecatedCommonsConfiguration();
-
     return this;
   }
 
-  private void loadBuildProperties() {
-    List<ProjectDefinition> orderedProjects = getOrderedProjects(projectDefinition);
+  private void addPersistedProperties(ProjectDefinition project, BootstrapSettings bootstrapSettings, Sonar wsClient) {
+    String branch = bootstrapSettings.getString(CoreProperties.PROJECT_BRANCH_PROPERTY);
+    String projectKey = project.getKey();
+    if (StringUtils.isNotBlank(branch)) {
+      projectKey = String.format("%s:%s", projectKey, branch);
+    }
+    List<Property> wsProperties = wsClient.findAll(PropertyQuery.createForAll().setResourceKeyOrId(projectKey));
+    for (Property wsProperty : wsProperties) {
+      setProperty(wsProperty.getKey(), wsProperty.getValue());
+    }
+  }
+
+  private void addBuildProperties(ProjectDefinition project) {
+    List<ProjectDefinition> orderedProjects = getTopDownParentProjects(project);
     for (ProjectDefinition p : orderedProjects) {
       addProperties(p.getProperties());
     }
   }
 
-  private void loadDatabaseProjectSettings(ProjectDefinition projectDef, String branch) {
-    if (projectDef.getParent() != null) {
-      loadDatabaseProjectSettings(projectDef.getParent(), branch);
-    }
-    String projectKey = projectDef.getKey();
-    if (StringUtils.isNotBlank(branch)) {
-      projectKey = String.format("%s:%s", projectKey, branch);
-    }
-    List<PropertyDto> props = propertiesDao.selectProjectProperties(projectKey);
-    for (PropertyDto dbProperty : props) {
-      setProperty(dbProperty.getKey(), dbProperty.getValue());
-    }
-  }
-
-  private void loadDatabaseGlobalSettings() {
-    List<PropertyDto> props = propertiesDao.selectGlobalProperties();
-    for (PropertyDto dbProperty : props) {
-      setProperty(dbProperty.getKey(), dbProperty.getValue());
-    }
-  }
-
-  private void updateDeprecatedCommonsConfiguration() {
-    ConfigurationUtils.copyToCommonsConfiguration(properties, deprecatedCommonsConf);
-  }
-
   /**
-   * From root to module
+   * From root to given project
    */
-  static List<ProjectDefinition> getOrderedProjects(ProjectDefinition project) {
+  static List<ProjectDefinition> getTopDownParentProjects(ProjectDefinition project) {
     List<ProjectDefinition> result = Lists.newArrayList();
-    ProjectDefinition pd = project;
-    while (pd != null) {
-      result.add(0, pd);
-      pd = pd.getParent();
+    ProjectDefinition p = project;
+    while (p != null) {
+      result.add(0, p);
+      p = p.getParent();
     }
     return result;
+  }
+
+  @Override
+  protected void doOnSetProperty(String key, @Nullable String value) {
+    deprecatedCommonsConf.setProperty(key, value);
+  }
+
+  @Override
+  protected void doOnRemoveProperty(String key) {
+    deprecatedCommonsConf.clearProperty(key);
+  }
+
+  @Override
+  protected void doOnClearProperties() {
+    deprecatedCommonsConf.clear();
   }
 }

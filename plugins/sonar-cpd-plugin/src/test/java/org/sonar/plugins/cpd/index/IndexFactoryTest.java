@@ -21,54 +21,57 @@ package org.sonar.plugins.cpd.index;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.index.ResourcePersister;
 import org.sonar.core.duplication.DuplicationDao;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class IndexFactoryTest {
 
-  private Project project;
-  private Settings settings;
+  Project project;
+  Settings settings;
+  IndexFactory factory;
+  Logger logger;
 
   @Before
   public void setUp() {
     project = new Project("foo");
     settings = new Settings();
+    factory = new IndexFactory(settings, mock(ResourcePersister.class), mock(DuplicationDao.class));
+    logger = mock(Logger.class);
   }
 
   @Test
   public void crossProjectEnabled() {
     settings.setProperty(CoreProperties.CPD_CROSS_RPOJECT, "true");
-    IndexFactory factory = new IndexFactory(settings, mock(ResourcePersister.class), mock(DuplicationDao.class));
-    assertThat(factory.isCrossProject(project), is(true));
+    assertThat(factory.verifyCrossProject(project, logger)).isTrue();
   }
 
   @Test
   public void noCrossProjectWithBranch() {
     settings.setProperty(CoreProperties.CPD_CROSS_RPOJECT, "true");
-    IndexFactory factory = new IndexFactory(settings, mock(ResourcePersister.class), mock(DuplicationDao.class));
     project.setBranch("branch");
-    assertThat(factory.isCrossProject(project), is(false));
+    assertThat(factory.verifyCrossProject(project, logger)).isFalse();
   }
 
   @Test
-  public void noCrossProjectWithoutDatabase() {
+  public void cross_project_should_be_disabled_on_dry_run() {
     settings.setProperty(CoreProperties.CPD_CROSS_RPOJECT, "true");
-    IndexFactory factory = new IndexFactory(settings);
-    assertThat(factory.isCrossProject(project), is(false));
+    settings.setProperty("sonar.dryRun", "true");
+    assertThat(factory.verifyCrossProject(project, logger)).isFalse();
+    verify(logger).info("Cross-project analysis disabled. Not supported on dry runs.");
   }
 
   @Test
   public void crossProjectDisabled() {
     settings.setProperty(CoreProperties.CPD_CROSS_RPOJECT, "false");
-    IndexFactory factory = new IndexFactory(settings, mock(ResourcePersister.class), mock(DuplicationDao.class));
-    assertThat(factory.isCrossProject(project), is(false));
+    assertThat(factory.verifyCrossProject(project, logger)).isFalse();
   }
 
 }

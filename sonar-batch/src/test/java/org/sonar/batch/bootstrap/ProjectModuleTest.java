@@ -22,6 +22,8 @@ package org.sonar.batch.bootstrap;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
 import org.mockito.Matchers;
+import org.mockito.MockSettings;
+import org.mockito.Mockito;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.database.model.Snapshot;
@@ -29,9 +31,11 @@ import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.ProjectTree;
+import org.sonar.batch.config.BootstrapSettings;
 import org.sonar.batch.config.ProjectSettings;
 import org.sonar.batch.index.ResourcePersister;
 import org.sonar.core.properties.PropertiesDao;
+import org.sonar.wsclient.Sonar;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -58,7 +62,8 @@ public class ProjectModuleTest {
         container.addSingleton(extensionInstaller);
         container.addSingleton(projectTree);
         container.addSingleton(resourcePersister);
-        container.addSingleton(mock(PropertiesDao.class));
+        container.addSingleton(mock(Sonar.class));
+        container.addSingleton(mock(BootstrapSettings.class));
       }
     };
 

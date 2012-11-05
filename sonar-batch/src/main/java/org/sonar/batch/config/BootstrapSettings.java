@@ -28,7 +28,7 @@ import org.sonar.core.config.ConfigurationUtils;
 /**
  * @since 2.12
  */
-public final class BootstrapSettings extends Settings {
+public class BootstrapSettings extends Settings {
   private Configuration deprecatedConfiguration;
   private ProjectReactor reactor;
 

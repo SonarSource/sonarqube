@@ -131,7 +131,7 @@ class Project < ActiveRecord::Base
                                          ' from project_measures m, snapshots s ' +
                                          ' where s.id=m.snapshot_id and ' +
                                          " s.status='%s' and " +
-                                         ' s.project_id=%s and m.metric_id=%s ', Snapshot::STATUS_PROCESSED, self.id, metric_id]) +
+                                         ' s.project_id=%s and m.metric_id=%s ', 'P', self.id, metric_id]) +
       ' and m.rule_id IS NULL and m.rule_priority IS NULL' +
       ' and m.person_id IS NULL' +
       ' order by s.created_at'

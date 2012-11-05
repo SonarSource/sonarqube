@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 
 public class CpdSensor implements Sensor {
@@ -34,10 +35,12 @@ public class CpdSensor implements Sensor {
 
   private CpdEngine sonarEngine;
   private CpdEngine sonarBridgeEngine;
+  private Settings settings;
 
-  public CpdSensor(SonarEngine sonarEngine, SonarBridgeEngine sonarBridgeEngine) {
+  public CpdSensor(SonarEngine sonarEngine, SonarBridgeEngine sonarBridgeEngine, Settings settings) {
     this.sonarEngine = sonarEngine;
     this.sonarBridgeEngine = sonarBridgeEngine;
+    this.settings = settings;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -65,9 +68,11 @@ public class CpdSensor implements Sensor {
 
   @VisibleForTesting
   boolean isSkipped(Project project) {
-    Configuration conf = project.getConfiguration();
-    return conf.getBoolean("sonar.cpd." + project.getLanguageKey() + ".skip",
-        conf.getBoolean(CoreProperties.CPD_SKIP_PROPERTY, false));
+    String key = "sonar.cpd." + project.getLanguageKey() + ".skip";
+    if (settings.hasKey(key)) {
+      return settings.getBoolean(key);
+    }
+    return settings.getBoolean(CoreProperties.CPD_SKIP_PROPERTY);
   }
 
   public void analyse(Project project, SensorContext context) {

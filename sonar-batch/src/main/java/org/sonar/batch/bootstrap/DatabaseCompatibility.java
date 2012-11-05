@@ -20,6 +20,7 @@
 package org.sonar.batch.bootstrap;
 
 import org.sonar.api.BatchComponent;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.core.persistence.BadDatabaseVersion;
@@ -28,25 +29,27 @@ import org.sonar.core.persistence.DatabaseVersion;
 /**
  * Detects if database is not up-to-date with the version required by the batch.
  */
-public class DatabaseBatchCompatibility implements BatchComponent {
+public class DatabaseCompatibility implements BatchComponent {
 
   private DatabaseVersion version;
   private Settings settings;
   private ServerClient server;
 
-  public DatabaseBatchCompatibility(DatabaseVersion version, ServerClient server, Settings settings) {
+  public DatabaseCompatibility(DatabaseVersion version, ServerClient server, Settings settings) {
     this.version = version;
     this.server = server;
     this.settings = settings;
   }
 
   public void start() {
-    checkCorrectServerId();
-    checkDatabaseStatus();
+    if (!settings.getBoolean("sonar.dryRun")) {
+      checkCorrectServerId();
+      checkDatabaseStatus();
+    }
   }
 
   private void checkCorrectServerId() {
-    if (!version.getSonarCoreId().equals(server.getServerId())) {
+    if (!settings.getString(CoreProperties.SERVER_ID).equals(server.getServerId())) {
       StringBuilder message = new StringBuilder("The current batch process and the configured remote server do not share the same DB configuration.\n");
       message.append("\t- Batch side: ");
       message.append(settings.getString(DatabaseProperties.PROP_URL));

@@ -19,14 +19,14 @@
  */
 package org.sonar.plugins.cpd;
 
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.junit.Assert.assertThat;
 import org.junit.Test;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class CpdPluginTest {
 
   @Test
   public void getExtensions() {
-    assertThat(new CpdPlugin().getExtensions().size(), greaterThan(1));
+    assertThat(new CpdPlugin().getExtensions()).hasSize(6);
   }
 }

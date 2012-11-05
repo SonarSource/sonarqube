@@ -37,7 +37,7 @@ public class ProjectSettingsTest {
     grandParent.addSubProject(parent);
     parent.addSubProject(child);
 
-    List<ProjectDefinition> hierarchy = ProjectSettings.getOrderedProjects(child);
+    List<ProjectDefinition> hierarchy = ProjectSettings.getTopDownParentProjects(child);
     assertThat(hierarchy.get(0), Is.is(grandParent));
     assertThat(hierarchy.get(1), Is.is(parent));
     assertThat(hierarchy.get(2), Is.is(child));

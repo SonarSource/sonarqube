@@ -27,6 +27,7 @@ import org.sonar.batch.FakeMavenPluginExecutor;
 import org.sonar.batch.MavenPluginExecutor;
 import org.sonar.batch.ServerMetadata;
 import org.sonar.batch.config.BootstrapSettings;
+import org.sonar.batch.config.BootstrapSettingsLoader;
 import org.sonar.core.config.Logback;
 import org.sonar.wsclient.Sonar;
 
@@ -60,6 +61,7 @@ public class BootstrapModule extends Module {
     container.addSingleton(HttpDownloader.class);
     container.addSingleton(UriReader.class);
     container.addSingleton(PluginDownloader.class);
+    container.addSingleton(BootstrapSettingsLoader.class);
     for (Object component : boostrapperComponents) {
       if (component != null) {
         container.addSingleton(component);

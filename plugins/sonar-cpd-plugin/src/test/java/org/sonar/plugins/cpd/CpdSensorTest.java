@@ -22,70 +22,55 @@ package org.sonar.plugins.cpd;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
 import org.sonar.plugins.cpd.index.IndexFactory;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class CpdSensorTest {
 
-  private SonarEngine sonarEngine;
-  private SonarBridgeEngine sonarBridgeEngine;
-  private CpdSensor sensor;
+  SonarEngine sonarEngine;
+  SonarBridgeEngine sonarBridgeEngine;
+  CpdSensor sensor;
+  Settings settings;
 
   @Before
   public void setUp() {
-    IndexFactory indexFactory = new IndexFactory(null);
+    IndexFactory indexFactory = mock(IndexFactory.class);
     sonarEngine = new SonarEngine(indexFactory);
     sonarBridgeEngine = new SonarBridgeEngine(indexFactory);
-    sensor = new CpdSensor(sonarEngine, sonarBridgeEngine);
+    settings = new Settings(new PropertyDefinitions(CpdPlugin.class));
+    sensor = new CpdSensor(sonarEngine, sonarBridgeEngine, settings);
   }
 
   @Test
-  public void generalSkip() {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty("sonar.cpd.skip", "true");
-
-    Project project = createJavaProject().setConfiguration(conf);
-
-    assertTrue(sensor.isSkipped(project));
+  public void test_global_skip() {
+    settings.setProperty("sonar.cpd.skip", true);
+    assertThat(sensor.isSkipped(createJavaProject())).isTrue();
   }
 
   @Test
-  public void doNotSkipByDefault() {
-    Project project = createJavaProject().setConfiguration(new PropertiesConfiguration());
-
-    assertFalse(sensor.isSkipped(project));
+  public void should_not_skip_by_default() {
+    assertThat(sensor.isSkipped(createJavaProject())).isFalse();
   }
 
   @Test
-  public void shouldSkipByLanguage() {
-
-    Project phpProject = createPhpProject();
-    phpProject.getConfiguration().setProperty("sonar.cpd.skip", "false");
-    phpProject.getConfiguration().setProperty("sonar.cpd.php.skip", "true");
-    assertTrue(sensor.isSkipped(phpProject));
-
-    Project javaProject = createJavaProject();
-    javaProject.getConfiguration().setProperty("sonar.cpd.skip", "false");
-    javaProject.getConfiguration().setProperty("sonar.cpd.php.skip", "true");
-    assertFalse(sensor.isSkipped(javaProject));
-
+  public void should_skip_by_language() {
+    settings.setProperty("sonar.cpd.skip", false);
+    settings.setProperty("sonar.cpd.php.skip", true);
+    assertThat(sensor.isSkipped(createPhpProject())).isTrue();
+    assertThat(sensor.isSkipped(createJavaProject())).isFalse();
   }
 
   @Test
-  public void engine() {
-    Project phpProject = createPhpProject();
-    Project javaProject = createJavaProject();
-
-    assertThat(sensor.getEngine(javaProject), is((CpdEngine) sonarEngine));
-    assertThat(sensor.getEngine(phpProject), is((CpdEngine) sonarBridgeEngine));
+  public void test_engine() {
+    assertThat(sensor.getEngine(createJavaProject())).isSameAs(sonarEngine);
+    assertThat(sensor.getEngine(createPhpProject())).isSameAs(sonarBridgeEngine);
   }
 
   private Project createJavaProject() {

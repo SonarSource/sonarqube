@@ -66,11 +66,19 @@ public class DefaultDatabase implements Database {
       initSettings();
       initDatasource();
       checkConnection();
+      doAfterStart();
       return this;
 
     } catch (Exception e) {
       throw new IllegalStateException("Fail to connect to database", e);
     }
+  }
+
+  /**
+   * Override to execute post-startup code.
+   */
+  protected void doAfterStart() {
+
   }
 
   @VisibleForTesting
@@ -93,7 +101,7 @@ public class DefaultDatabase implements Database {
     if (dialect == null) {
       throw new IllegalStateException("Can not guess the JDBC dialect. Please check the property sonar.jdbc.url.");
     }
-    if (H2.ID.equals(dialect.getId())) {
+    if (H2.ID.equals(dialect.getId()) && !settings.getBoolean("sonar.dryRun")) {
       LoggerFactory.getLogger(DefaultDatabase.class).warn("H2 database should be used for evaluation purpose only");
     }
     if (!properties.containsKey("sonar.jdbc.driverClassName")) {

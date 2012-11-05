@@ -296,23 +296,23 @@ public class Settings implements BatchComponent, ServerComponent {
   }
 
   public final Settings setProperty(String key, @Nullable Boolean value) {
-    return setProperty(key, value==null ? null : String.valueOf(value));
+    return setProperty(key, value == null ? null : String.valueOf(value));
   }
 
   public final Settings setProperty(String key, @Nullable Integer value) {
-    return setProperty(key, value==null ? null : String.valueOf(value));
+    return setProperty(key, value == null ? null : String.valueOf(value));
   }
 
   public final Settings setProperty(String key, @Nullable Long value) {
-    return setProperty(key, value==null ? null : String.valueOf(value));
+    return setProperty(key, value == null ? null : String.valueOf(value));
   }
 
   public final Settings setProperty(String key, @Nullable Double value) {
-    return setProperty(key, value==null ? null : String.valueOf(value));
+    return setProperty(key, value == null ? null : String.valueOf(value));
   }
 
   public final Settings setProperty(String key, @Nullable Float value) {
-    return setProperty(key, value==null ? null : String.valueOf(value));
+    return setProperty(key, value == null ? null : String.valueOf(value));
   }
 
   public final Settings setProperty(String key, @Nullable Date date) {
@@ -344,6 +344,13 @@ public class Settings implements BatchComponent, ServerComponent {
   public final Settings setProperties(Map<String, String> props) {
     clear();
     return addProperties(props);
+  }
+
+  public final Settings setProperties(Settings s) {
+    if (s.properties==null) {
+      return clear();
+    }
+    return setProperties(Maps.newHashMap(s.properties));
   }
 
   public final Settings setProperty(String key, @Nullable Date date, boolean includeTime) {

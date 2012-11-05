@@ -34,7 +34,6 @@ import org.sonar.batch.components.PastSnapshotFinderByDays;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousAnalysis;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousVersion;
 import org.sonar.batch.components.PastSnapshotFinderByVersion;
-import org.sonar.batch.config.BatchDatabaseSettingsLoader;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.DefaultPersistenceManager;
 import org.sonar.batch.index.DefaultResourcePersister;
@@ -111,7 +110,7 @@ public class BatchModule extends Module {
     container.addSingleton(BatchDatabase.class);
     container.addSingleton(MyBatis.class);
     container.addSingleton(DatabaseVersion.class);
-    container.addSingleton(DatabaseBatchCompatibility.class);
+    container.addSingleton(DatabaseCompatibility.class);
     for (Class daoClass : DaoUtils.getDaoClasses()) {
       container.addSingleton(daoClass);
     }
@@ -120,7 +119,6 @@ public class BatchModule extends Module {
     container.addSingleton(DefaultDatabaseConnector.class);
     container.addSingleton(JpaDatabaseSession.class);
     container.addSingleton(BatchDatabaseSessionFactory.class);
-    container.addSingleton(BatchDatabaseSettingsLoader.class);
   }
 
   private void registerBatchExtensions() {

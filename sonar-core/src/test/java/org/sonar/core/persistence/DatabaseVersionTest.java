@@ -19,12 +19,10 @@
  */
 package org.sonar.core.persistence;
 
-import org.hamcrest.core.Is;
+
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class DatabaseVersionTest extends AbstractDaoTestCase {
   @Test
@@ -33,7 +31,7 @@ public class DatabaseVersionTest extends AbstractDaoTestCase {
 
     Integer version = new DatabaseVersion(getMyBatis()).getVersion();
 
-    assertThat(version, Is.is(123));
+    assertThat(version).isEqualTo(123);
   }
 
   @Test
@@ -42,23 +40,14 @@ public class DatabaseVersionTest extends AbstractDaoTestCase {
 
     Integer version = new DatabaseVersion(getMyBatis()).getVersion();
 
-    assertThat(version, nullValue());
-  }
-
-  @Test
-  public void getSonarCoreId() {
-    setupData("getSonarCoreId");
-
-    String sonarCoreId = new DatabaseVersion(getMyBatis()).getSonarCoreId();
-
-    assertThat(sonarCoreId, is("123456"));
+    assertThat(version).isNull();
   }
 
   @Test
   public void getStatus() {
-    assertThat(DatabaseVersion.getStatus(null, 150), is(DatabaseVersion.Status.FRESH_INSTALL));
-    assertThat(DatabaseVersion.getStatus(123, 150), is(DatabaseVersion.Status.REQUIRES_UPGRADE));
-    assertThat(DatabaseVersion.getStatus(150, 150), is(DatabaseVersion.Status.UP_TO_DATE));
-    assertThat(DatabaseVersion.getStatus(200, 150), is(DatabaseVersion.Status.REQUIRES_DOWNGRADE));
+    assertThat(DatabaseVersion.getStatus(null, 150)).isEqualTo(DatabaseVersion.Status.FRESH_INSTALL);
+    assertThat(DatabaseVersion.getStatus(123, 150)).isEqualTo(DatabaseVersion.Status.REQUIRES_UPGRADE);
+    assertThat(DatabaseVersion.getStatus(150, 150)).isEqualTo(DatabaseVersion.Status.UP_TO_DATE);
+    assertThat(DatabaseVersion.getStatus(200, 150)).isEqualTo(DatabaseVersion.Status.REQUIRES_DOWNGRADE);
   }
 }

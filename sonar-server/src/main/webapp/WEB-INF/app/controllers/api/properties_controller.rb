@@ -17,25 +17,45 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-
-require "json"
-
 class Api::PropertiesController < Api::ApiController
 
   before_filter :admin_required, :only => [:create, :update, :destroy]
 
-  # curl http://localhost:9000/api/properties -v
+  # GET /api/properties/index?[resource=<resource id or key>]
+  # Does NOT manage default values.
   def index
-    properties = Property.find(:all, :conditions => ['resource_id is null and user_id is null']).select do |property|
-      viewable?(property.key)
+    keys=Set.new
+    properties=[]
+
+    # project properties
+    if params[:resource]
+      resource=Project.by_key(params[:resource])
+      if resource
+        # bottom-up projects
+        projects=[resource].concat(resource.ancestor_projects)
+        projects.each do |project|
+          Property.find(:all, :conditions => ['resource_id=? and user_id is null', project.id]).each do |prop|
+            properties<<prop if keys.add? prop.key
+          end
+        end
+      end
     end
+
+    # global properties
+    Property.find(:all, :conditions => 'resource_id is null and user_id is null').each do |prop|
+      properties<<prop if keys.add? prop.key
+    end
+
+    # apply security
+    properties = properties.select{|prop| allowed?(prop.key)}
+
     respond_to do |format|
       format.json { render :json => jsonp(to_json(properties)) }
       format.xml { render :xml => to_xml(properties) }
     end
   end
 
-  # curl http://localhost:9000/api/properties/<key>[?resource=<resource>] -v
+  # GET /api/properties/<key>[?resource=<resource>]
   def show
     key = params[:id]
     resource_id_or_key = params[:resource]
@@ -55,7 +75,7 @@ class Api::PropertiesController < Api::ApiController
         format.text { render :text => message, :status => 200 }
       end
     end
-    access_denied unless viewable?(key)
+    access_denied unless allowed?(key)
     respond_to do |format|
       format.json { render :json => jsonp(to_json([prop])) }
       format.xml { render :xml => to_xml([prop]) }
@@ -122,8 +142,8 @@ class Api::PropertiesController < Api::ApiController
     end
   end
 
-  def viewable?(property_key)
-    !property_key.to_s.index('.secured') || is_admin?
+  def allowed?(property_key)
+    !property_key.end_with?('.secured') || is_admin?
   end
 
 end
