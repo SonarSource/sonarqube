@@ -1,3 +1,0 @@
-# These tests fail in Eclipse. Until they are fixed, let's ignore them
-
-.*PmdExecutorTest

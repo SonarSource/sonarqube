@@ -1,7 +1,0 @@
-In JDK 1.5, calling new Byte() causes memory allocation. Byte.valueOf() is more memory friendly. Example :
-<pre>
-public class Foo {
-private Byte i = new Byte(0); // change to Byte i =
-Byte.valueOf(0);
-}
-</pre>

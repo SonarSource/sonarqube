@@ -1,8 +1,0 @@
-The null check here is misplaced. if the variable is null you'll get a NullPointerException. 
-      Either the check is useless (the variable will never be null) or it's incorrect.
-      <br>Example : 
-      <pre>
-if (object1!=null && object2.equals(object1)) { 
-  ...
-}      
-      </pre>

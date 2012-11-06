@@ -1,6 +1,0 @@
-<rules>
-  <rule key="Extension">
-    <priority>MAJOR</priority>
-    <configKey>rulesets.xml/extension</configKey>
-  </rule>
-</rules>
