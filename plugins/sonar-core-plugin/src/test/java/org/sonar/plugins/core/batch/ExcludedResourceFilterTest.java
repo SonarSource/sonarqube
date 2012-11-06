@@ -26,55 +26,50 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ExcludedResourceFilterTest {
+  Resource resource = mock(Resource.class);
 
   @Test
   public void doNotFailIfNoPatterns() {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    Project project = new Project("foo").setConfiguration(conf);
+    Project project = new Project("foo").setConfiguration(configWithExclusions());
+
     ExcludedResourceFilter filter = new ExcludedResourceFilter(project);
-    assertThat(filter.isIgnored(mock(Resource.class)), is(false));
+
+    assertThat(filter.isIgnored(resource)).isFalse();
   }
 
   @Test
   public void noPatternsMatch() {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, new String[]{"**/foo/*.java", "**/bar/*"});
-    Project project = new Project("foo").setConfiguration(conf);
+    Project project = new Project("foo").setConfiguration(configWithExclusions("**/foo/*.java", "**/bar/*"));
+
     ExcludedResourceFilter filter = new ExcludedResourceFilter(project);
-    assertThat(filter.isIgnored(mock(Resource.class)), is(false));
+
+    assertThat(filter.isIgnored(resource)).isFalse();
   }
 
   @Test
   public void ignoreResourceIfMatchesPattern() {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, new String[]{"**/foo/*.java", "**/bar/*"});
-    Project project = new Project("foo").setConfiguration(conf);
-    ExcludedResourceFilter filter = new ExcludedResourceFilter(project);
-
-    Resource resource = mock(Resource.class);
     when(resource.matchFilePattern("**/bar/*")).thenReturn(true);
 
-    assertThat(filter.isIgnored(resource), is(true));
+    Project project = new Project("foo").setConfiguration(configWithExclusions("**/foo/*.java", "**/bar/*"));
+    ExcludedResourceFilter filter = new ExcludedResourceFilter(project);
+
+    assertThat(filter.isIgnored(resource)).isTrue();
   }
 
   @Test
   public void ignoreTestIfMatchesPattern() {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty(CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY, new String[]{"**/foo/*.java", "**/bar/*"});
-    Project project = new Project("foo").setConfiguration(conf);
-    ExcludedResourceFilter filter = new ExcludedResourceFilter(project);
-
-    Resource resource = mock(Resource.class);
     when(resource.getQualifier()).thenReturn(Qualifiers.UNIT_TEST_FILE);
     when(resource.matchFilePattern("**/bar/*")).thenReturn(true);
 
-    assertThat(filter.isIgnored(resource), is(true));
+    Project project = new Project("foo").setConfiguration(configWithTestExclusions("**/foo/*.java", "**/bar/*"));
+    ExcludedResourceFilter filter = new ExcludedResourceFilter(project);
+
+    assertThat(filter.isIgnored(resource)).isTrue();
   }
 
   /**
@@ -82,17 +77,26 @@ public class ExcludedResourceFilterTest {
    */
   @Test
   public void doNotExcludeUnitTestFiles() {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, new String[]{"**/foo/*.java", "**/bar/*"});
-    Project project = new Project("foo").setConfiguration(conf);
+    when(resource.getQualifier()).thenReturn(Qualifiers.UNIT_TEST_FILE);
+    when(resource.matchFilePattern("**/bar/*")).thenReturn(true);
+
+    Project project = new Project("foo").setConfiguration(configWithExclusions("**/foo/*.java", "**/bar/*"));
     ExcludedResourceFilter filter = new ExcludedResourceFilter(project);
 
-    Resource unitTest = mock(Resource.class);
-    when(unitTest.getQualifier()).thenReturn(Qualifiers.UNIT_TEST_FILE);
+    assertThat(filter.isIgnored(resource)).isFalse();
+  }
 
-    // match exclusion pattern
-    when(unitTest.matchFilePattern("**/bar/*")).thenReturn(true);
+  static PropertiesConfiguration configWithExclusions(String... exclusions) {
+    return config(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, exclusions);
+  }
 
-    assertThat(filter.isIgnored(unitTest), is(false));
+  static PropertiesConfiguration configWithTestExclusions(String... exclusions) {
+    return config(CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY, exclusions);
+  }
+
+  static PropertiesConfiguration config(String property, String... exclusions) {
+    PropertiesConfiguration config = new PropertiesConfiguration();
+    config.setProperty(property, exclusions);
+    return config;
   }
 }
