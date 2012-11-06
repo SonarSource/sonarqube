@@ -36,17 +36,17 @@ public class PluginDownloader implements BatchComponent {
 
   private static final Logger LOG = LoggerFactory.getLogger(PluginDownloader.class);
 
-  private TempDirectories workingDirectories;
+  private TempDirectories tempDirs;
   private ServerClient server;
 
-  public PluginDownloader(TempDirectories workingDirectories, ServerClient server) {
-    this.workingDirectories = workingDirectories;
+  public PluginDownloader(TempDirectories tempDirs, ServerClient server) {
+    this.tempDirs = tempDirs;
     this.server = server;
   }
 
   public List<File> downloadPlugin(RemotePlugin remote) {
     try {
-      File targetDir = workingDirectories.getDir("plugins/" + remote.getKey());
+      File targetDir = tempDirs.getDir("plugins/" + remote.getKey());
       FileUtils.forceMkdir(targetDir);
       LOG.debug("Downloading plugin " + remote.getKey() + " into " + targetDir);
 

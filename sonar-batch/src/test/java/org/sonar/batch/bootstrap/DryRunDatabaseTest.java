@@ -47,12 +47,15 @@ public class DryRunDatabaseTest {
   ServerClient server = mock(ServerClient.class);
   TempDirectories tempDirectories = mock(TempDirectories.class);
   ProjectReactor projectReactor = new ProjectReactor(ProjectDefinition.create().setKey("group:project"));
+  File databaseFile;
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   @Before
   public void setUp() {
+    databaseFile = new File("/tmp/dryrun.h2.db");
+    when(tempDirectories.getFile("", "dryrun.h2.db")).thenReturn(databaseFile);
     settings.setProperty("sonar.dryRun", true);
     dryRunDatabase = new DryRunDatabase(settings, server, tempDirectories, projectReactor, mock(ProjectReactorReady.class));
   }
@@ -67,9 +70,6 @@ public class DryRunDatabaseTest {
 
   @Test
   public void should_download_database() {
-    File databaseFile = new File("/tmp/dry_run/db.h2.db");
-    when(tempDirectories.getFile("dry_run", "db.h2.db")).thenReturn(databaseFile);
-
     dryRunDatabase.start();
 
     verify(server).download("/batch_bootstrap/db?project=group:project", databaseFile);
@@ -77,21 +77,18 @@ public class DryRunDatabaseTest {
 
   @Test
   public void should_replace_database_settings() {
-    when(tempDirectories.getFile("dry_run", "db.h2.db")).thenReturn(new File("/tmp/dry_run/db.h2.db"));
-
     dryRunDatabase.start();
 
     assertThat(settings.getString(DatabaseProperties.PROP_DIALECT)).isEqualTo("h2");
     assertThat(settings.getString(DatabaseProperties.PROP_DRIVER)).isEqualTo("org.h2.Driver");
     assertThat(settings.getString(DatabaseProperties.PROP_USER)).isEqualTo("sonar");
     assertThat(settings.getString(DatabaseProperties.PROP_PASSWORD)).isEqualTo("sonar");
-    assertThat(settings.getString(DatabaseProperties.PROP_URL)).isEqualTo("jdbc:h2:/tmp/dry_run/db");
+    assertThat(settings.getString(DatabaseProperties.PROP_URL)).isEqualTo("jdbc:h2:/tmp/dryrun");
   }
 
   @Test
   public void should_fail_on_unknown_project() {
-    when(tempDirectories.getFile("dry_run", "db.h2.db")).thenReturn(new File("/tmp/dry_run/db.h2.db"));
-    doThrow(new SonarException(new FileNotFoundException())).when(server).download("/batch_bootstrap/db?project=group:project", new File("/tmp/dry_run/db.h2.db"));
+    doThrow(new SonarException(new FileNotFoundException())).when(server).download("/batch_bootstrap/db?project=group:project", databaseFile);
 
     thrown.expect(SonarException.class);
     thrown.expectMessage("Project [group:project] doesn't exist on server");
@@ -101,8 +98,7 @@ public class DryRunDatabaseTest {
 
   @Test
   public void should_fail_on_invalid_role() {
-    when(tempDirectories.getFile("dry_run", "db.h2.db")).thenReturn(new File("/tmp/dry_run/db.h2.db"));
-    doThrow(new SonarException(new IOException("HTTP 401"))).when(server).download("/batch_bootstrap/db?project=group:project", new File("/tmp/dry_run/db.h2.db"));
+    doThrow(new SonarException(new IOException("HTTP 401"))).when(server).download("/batch_bootstrap/db?project=group:project", databaseFile);
 
     thrown.expect(SonarException.class);
     thrown.expectMessage("You don't have access rights to project [group:project]");
@@ -112,8 +108,7 @@ public class DryRunDatabaseTest {
 
   @Test
   public void should_fail() {
-    when(tempDirectories.getFile("dry_run", "db.h2.db")).thenReturn(new File("/tmp/dry_run/db.h2.db"));
-    doThrow(new SonarException("BUG")).when(server).download("/batch_bootstrap/db?project=group:project", new File("/tmp/dry_run/db.h2.db"));
+    doThrow(new SonarException("BUG")).when(server).download("/batch_bootstrap/db?project=group:project", databaseFile);
 
     thrown.expect(SonarException.class);
     thrown.expectMessage("BUG");

@@ -19,9 +19,12 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,28 +35,31 @@ public class TempDirectoriesTest {
 
   private TempDirectories tempDirectories;
 
+  @Rule
+  public TemporaryFolder folder = new TemporaryFolder();
+
   @Before
   public void before() throws IOException {
-    tempDirectories = new TempDirectories();
-  }
-
-  @After
-  public void after() {
-    if (tempDirectories != null) {
-      tempDirectories.stop();
-    }
+    ProjectDefinition project = ProjectDefinition.create().setKey("foo").setWorkDir(folder.newFolder());
+    ProjectReactor reactor = new ProjectReactor(project);
+    tempDirectories = new TempDirectories(reactor);
   }
 
   @Test
-  public void shouldCreateRoot() {
+  public void should_create_root_temp_dir() {
     assertThat(tempDirectories.getRoot()).isNotNull();
     assertThat(tempDirectories.getRoot()).exists();
     assertThat(tempDirectories.getRoot()).isDirectory();
+    assertThat(tempDirectories.getRoot().getName()).isEqualTo("_tmp");
+  }
+
+  @Test
+  public void should_accept_empty_dirname() {
     assertThat(tempDirectories.getDir("")).isEqualTo(tempDirectories.getRoot());
   }
 
   @Test
-  public void shouldCreateDirectory() {
+  public void should_create_sub_directory() {
     File findbugsDir = tempDirectories.getDir("findbugs");
     assertThat(findbugsDir).isNotNull();
     assertThat(findbugsDir).exists();
@@ -62,7 +68,7 @@ public class TempDirectoriesTest {
   }
 
   @Test
-  public void shouldStopAndDeleteDirectory() {
+  public void should_delete_temp_dir_on_shutdown() {
     File root = tempDirectories.getRoot();
     File findbugsDir = tempDirectories.getDir("findbugs");
     assertThat(findbugsDir).exists();
@@ -74,7 +80,7 @@ public class TempDirectoriesTest {
   }
 
   @Test
-  public void shouldCreateDirectoryWhenGettingFile() {
+  public void should_create_parent_directory() {
     File file = tempDirectories.getFile("findbugs", "bcel.jar");
     assertThat(file).isNotNull();
     assertThat(file.getParentFile().getName()).isEqualTo("findbugs");

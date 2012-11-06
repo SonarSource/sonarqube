@@ -62,7 +62,7 @@ public class DryRunDatabase implements BatchComponent {
   public void start() {
     if (settings.getBoolean("sonar.dryRun")) {
       LOG.info("Dry run");
-      File databaseFile = tempDirectories.getFile("dry_run", "db.h2.db");
+      File databaseFile = tempDirectories.getFile("", "dryrun.h2.db");
       downloadDatabase(reactor.getRoot().getKey(), databaseFile);
 
       String databasePath = StringUtils.removeEnd(databaseFile.getAbsolutePath(), ".h2.db");
