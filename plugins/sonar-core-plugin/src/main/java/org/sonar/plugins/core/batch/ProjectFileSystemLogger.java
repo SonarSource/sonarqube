@@ -33,7 +33,9 @@ public class ProjectFileSystemLogger extends Initializer {
 
   @Override
   public void execute(Project project) {
+    logExclusionPatterns("Included sources: {}", project.getInclusionPatterns());
     logExclusionPatterns("Excluded sources: {}", project.getExclusionPatterns());
+    logExclusionPatterns("Included tests: {}", project.getTestExclusionPatterns());
     logExclusionPatterns("Excluded tests: {}", project.getTestExclusionPatterns());
 
     ProjectFileSystem projectFileSystem = project.getFileSystem();
