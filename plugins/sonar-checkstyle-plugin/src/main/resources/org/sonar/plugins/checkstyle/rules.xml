@@ -349,12 +349,6 @@
     <configKey><![CDATA[Checker/TreeWalker/DesignForExtension]]></configKey>
   </rule>
 
-  <rule key="com.puppycrawl.tools.checkstyle.checks.coding.DoubleCheckedLockingCheck">
-    <priority>MAJOR</priority>
-    <name><![CDATA[Double Checked Locking]]></name>
-    <configKey><![CDATA[Checker/TreeWalker/DoubleCheckedLocking]]></configKey>
-  </rule>
-
   <rule key="com.puppycrawl.tools.checkstyle.checks.blocks.EmptyBlockCheck">
     <priority>MAJOR</priority>
     <name><![CDATA[Empty Block]]></name>

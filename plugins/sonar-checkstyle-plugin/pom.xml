@@ -15,7 +15,7 @@
   </description>
 
   <properties>
-    <checkstyle.version>5.5</checkstyle.version>
+    <checkstyle.version>5.6</checkstyle.version>
   </properties>
 
   <dependencies>

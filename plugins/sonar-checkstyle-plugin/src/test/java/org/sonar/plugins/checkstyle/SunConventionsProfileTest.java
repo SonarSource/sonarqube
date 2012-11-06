@@ -42,7 +42,7 @@ public class SunConventionsProfileTest {
     ProfileDefinition definition = new SunConventionsProfile(new XMLProfileParser(newRuleFinder(), mock(MetricFinder.class)));
     ValidationMessages validation = ValidationMessages.create();
     RulesProfile sunProfile = definition.createProfile(validation);
-    assertThat(sunProfile.getActiveRulesByRepository(CheckstyleConstants.REPOSITORY_KEY).size()).isEqualTo(59);
+    assertThat(sunProfile.getActiveRulesByRepository(CheckstyleConstants.REPOSITORY_KEY).size()).isEqualTo(58);
     assertThat(validation.hasErrors()).isFalse();
   }
 
