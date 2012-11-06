@@ -26,7 +26,13 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.filefilter.*;
+import org.apache.commons.io.filefilter.AndFileFilter;
+import org.apache.commons.io.filefilter.DelegateFileFilter;
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.HiddenFileFilter;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.io.filefilter.SuffixFileFilter;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
@@ -36,10 +42,15 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.WildcardPattern;
 
 import javax.annotation.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 /**
  * An implementation of {@link ProjectFileSystem}.
@@ -211,14 +222,15 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
     return !testFiles(lang.getKey()).isEmpty();
   }
 
-  List<InputFile> getFiles(List<File> directories, List<File> initialFiles, String[] patterns, String... langs) {
+  List<InputFile> getFiles(List<File> directories, List<File> initialFiles, String[] exclusions, String[] inclusions, boolean toto, String... langs) {
     List<InputFile> result = Lists.newArrayList();
     if (directories == null) {
       return result;
     }
 
     IOFileFilter suffixFilter = getFileSuffixFilter(langs);
-    WildcardPattern[] exclusionPatterns = WildcardPattern.create(patterns);
+    WildcardPattern[] exclusionPatterns = WildcardPattern.create(exclusions);
+    WildcardPattern[] inclusionPatterns = WildcardPattern.create(inclusions);
 
     IOFileFilter initialFilesFilter = TrueFileFilter.INSTANCE;
     if (initialFiles != null && !initialFiles.isEmpty()) {
@@ -227,7 +239,7 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
 
     for (File dir : directories) {
       if (dir.exists()) {
-        IOFileFilter exclusionFilter = new ExclusionFilter(dir, exclusionPatterns);
+        IOFileFilter exclusionFilter = new ExclusionFilter(dir, exclusionPatterns, inclusionPatterns);
         IOFileFilter visibleFileFilter = HiddenFileFilter.VISIBLE;
         List<IOFileFilter> fileFilters = Lists.newArrayList(visibleFileFilter, suffixFilter, exclusionFilter, initialFilesFilter);
         fileFilters.addAll(this.filters);
@@ -255,12 +267,14 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
   }
 
   private static class ExclusionFilter implements IOFileFilter {
-    File sourceDir;
-    WildcardPattern[] patterns;
+    final File sourceDir;
+    final WildcardPattern[] exclusions;
+    final WildcardPattern[] inclusions;
 
-    ExclusionFilter(File sourceDir, WildcardPattern[] patterns) {
+    ExclusionFilter(File sourceDir, WildcardPattern[] exclusions, WildcardPattern[] inclusions) {
       this.sourceDir = sourceDir;
-      this.patterns = patterns;
+      this.exclusions = exclusions;
+      this.inclusions = inclusions;
     }
 
     public boolean accept(File file) {
@@ -268,8 +282,13 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
       if (relativePath == null) {
         return false;
       }
-      for (WildcardPattern pattern : patterns) {
-        if (pattern.match(relativePath)) {
+      for (WildcardPattern exclusion : exclusions) {
+        if (exclusion.match(relativePath)) {
+          return false;
+        }
+      }
+      for (WildcardPattern inclusion : inclusions) {
+        if (!inclusion.match(relativePath)) {
           return false;
         }
       }
@@ -391,14 +410,14 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
    * @since 2.6
    */
   public List<InputFile> mainFiles(String... langs) {
-    return getFiles(getSourceDirs(), getInitialSourceFiles(), project.getExclusionPatterns(), langs);
+    return getFiles(getSourceDirs(), getInitialSourceFiles(), project.getExclusionPatterns(), project.getInclusionPatterns(), true, langs);
   }
 
   /**
    * @since 2.6
    */
   public List<InputFile> testFiles(String... langs) {
-    return getFiles(getTestDirs(), getInitialTestFiles(), project.getTestExclusionPatterns(), langs);
+    return getFiles(getTestDirs(), getInitialTestFiles(), project.getTestExclusionPatterns(), project.getTestInclusionPatterns(), true, langs);
   }
 
   protected List<File> getInitialSourceFiles() {
