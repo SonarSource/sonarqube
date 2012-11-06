@@ -62,6 +62,32 @@ public class ExcludedResourceFilterTest {
   }
 
   @Test
+  public void should_support_inclusions() {
+    Project project = new Project("foo").setConfiguration(configWithExclusions("!**/bar/*"));
+    ExcludedResourceFilter filter = new ExcludedResourceFilter(project);
+
+    when(resource.matchFilePattern("**/bar/*")).thenReturn(true);
+    assertThat(filter.isIgnored(resource)).isFalse();
+
+    when(resource.matchFilePattern("**/bar/*")).thenReturn(false);
+    assertThat(filter.isIgnored(resource)).isTrue();
+  }
+
+  @Test
+  public void should_support_test_inclusions() {
+    when(resource.getQualifier()).thenReturn(Qualifiers.UNIT_TEST_FILE);
+
+    Project project = new Project("foo").setConfiguration(configWithTestExclusions("!**/bar/*"));
+    ExcludedResourceFilter filter = new ExcludedResourceFilter(project);
+
+    when(resource.matchFilePattern("**/bar/*")).thenReturn(true);
+    assertThat(filter.isIgnored(resource)).isFalse();
+
+    when(resource.matchFilePattern("**/bar/*")).thenReturn(false);
+    assertThat(filter.isIgnored(resource)).isTrue();
+  }
+
+  @Test
   public void ignoreTestIfMatchesPattern() {
     when(resource.getQualifier()).thenReturn(Qualifiers.UNIT_TEST_FILE);
     when(resource.matchFilePattern("**/bar/*")).thenReturn(true);
