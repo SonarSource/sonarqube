@@ -69,6 +69,13 @@ public class HttpClient3Connector extends Connector {
     }
   }
 
+  /**
+   * @since 3.4
+   */
+  public HttpClient getHttpClient() {
+    return httpClient;
+  }
+
   @Override
   public String execute(Query<?> query) {
     return executeRequest(newGetRequest(query));

@@ -19,9 +19,6 @@
  */
 package org.sonar.wsclient.connectors;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
@@ -35,6 +32,7 @@ import org.apache.http.auth.AuthState;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
@@ -44,6 +42,7 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpConnectionParams;
@@ -59,15 +58,24 @@ import org.sonar.wsclient.services.DeleteQuery;
 import org.sonar.wsclient.services.Query;
 import org.sonar.wsclient.services.UpdateQuery;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+
 /**
  * @since 2.1
  */
 public class HttpClient4Connector extends Connector {
 
   private Host server;
+  private AbstractHttpClient client;
 
   public HttpClient4Connector(Host server) {
     this.server = server;
+    initClient();
+  }
+
+  public HttpClient getHttpClient() {
+    return client;
   }
 
   @Override
@@ -92,7 +100,6 @@ public class HttpClient4Connector extends Connector {
 
   private String executeRequest(HttpRequestBase request) {
     String json = null;
-    DefaultHttpClient client = createClient();
     try {
       BasicHttpContext context = createLocalContext(client);
       HttpResponse response = client.execute(request, context);
@@ -103,8 +110,8 @@ public class HttpClient4Connector extends Connector {
 
         } else if (response.getStatusLine().getStatusCode() != HttpStatus.SC_NOT_FOUND) {
           throw new ConnectionException("HTTP error: " + response.getStatusLine().getStatusCode()
-              + ", msg: " + response.getStatusLine().getReasonPhrase()
-              + ", query: " + request.toString());
+            + ", msg: " + response.getStatusLine().getReasonPhrase()
+            + ", query: " + request.toString());
         }
       }
 
@@ -112,24 +119,29 @@ public class HttpClient4Connector extends Connector {
       throw new ConnectionException("Query: " + request.getURI(), e);
 
     } finally {
-      client.getConnectionManager().shutdown();
+      request.releaseConnection();
     }
     return json;
   }
 
-  private DefaultHttpClient createClient() {
-    DefaultHttpClient client = new DefaultHttpClient();
+  public void close() {
+    if (client != null) {
+      client.getConnectionManager().shutdown();
+    }
+  }
+
+  private void initClient() {
+    client = new DefaultHttpClient();
     HttpParams params = client.getParams();
     HttpConnectionParams.setConnectionTimeout(params, AbstractQuery.DEFAULT_TIMEOUT_MILLISECONDS);
     HttpConnectionParams.setSoTimeout(params, AbstractQuery.DEFAULT_TIMEOUT_MILLISECONDS);
     if (server.getUsername() != null) {
       client.getCredentialsProvider()
-          .setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(server.getUsername(), server.getPassword()));
+        .setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(server.getUsername(), server.getPassword()));
     }
-    return client;
   }
 
-  private BasicHttpContext createLocalContext(DefaultHttpClient client) {
+  private BasicHttpContext createLocalContext(AbstractHttpClient client) {
     BasicHttpContext localcontext = new BasicHttpContext();
 
     if (server.getUsername() != null) {
@@ -191,8 +203,8 @@ public class HttpClient4Connector extends Connector {
 
   static final class PreemptiveAuth implements HttpRequestInterceptor {
     public void process(
-        final HttpRequest request,
-        final HttpContext context) throws HttpException {
+      final HttpRequest request,
+      final HttpContext context) throws HttpException {
 
       AuthState authState = (AuthState) context.getAttribute(ClientContext.TARGET_AUTH_STATE);
 
@@ -203,9 +215,9 @@ public class HttpClient4Connector extends Connector {
         HttpHost targetHost = (HttpHost) context.getAttribute(ExecutionContext.HTTP_TARGET_HOST);
         if (authScheme != null) {
           Credentials creds = credsProvider.getCredentials(
-              new AuthScope(
-                  targetHost.getHostName(),
-                  targetHost.getPort()));
+            new AuthScope(
+              targetHost.getHostName(),
+              targetHost.getPort()));
           if (creds == null) {
             throw new HttpException("No credentials for preemptive authentication");
           }

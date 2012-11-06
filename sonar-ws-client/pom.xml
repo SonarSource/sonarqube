@@ -27,21 +27,9 @@
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
-      <version>4.0</version>
+      <version>4.2.1</version>
       <scope>provided</scope>
       <optional>true</optional>
-    </dependency>
-    <dependency>
-      <!-- for httpclient 4.0 -->
-      <groupId>net.jcip</groupId>
-      <artifactId>jcip-annotations</artifactId>
-      <version>1.0</version>
-      <!--
-         Annotations are only _required_ during a build
-         They are not needed at run-time
-         Provided means that the dependency is not transitive.
-       -->
-      <scope>provided</scope>
     </dependency>
 
     <!-- unit tests -->
