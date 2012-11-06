@@ -20,45 +20,23 @@
 package org.sonar.batch.bootstrap;
 
 import org.junit.Test;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ServerClientTest {
 
   @Test
-  public void shouldExtractId() throws Exception {
-    ServerClient server = new ServerClient(new Settings(), mock(EnvironmentInformation.class));
-    assertThat(server.extractServerId("{\"id\":\"123456\",\"version\":\"3.1\",\"status\":\"UP\"}")).isEqualTo("123456");
-  }
-
-  @Test
   public void shouldRemoveUrlEndingSlash() throws Exception {
-    Settings settings = new Settings();
-    settings.setProperty("sonar.host.url", "http://localhost:8080/sonar/");
+    BootstrapSettings settings = mock(BootstrapSettings.class);
+    when(settings.getProperty(eq("sonar.host.url"), anyString())).thenReturn("http://localhost:8080/sonar/");
+
     ServerClient server = new ServerClient(settings, new EnvironmentInformation("Junit", "4"));
 
     assertThat(server.getURL()).isEqualTo("http://localhost:8080/sonar");
-  }
-
-  @Test
-  public void shouldLoadServerProperties() {
-    Settings settings = new Settings();
-    settings.setProperty(CoreProperties.SERVER_ID, "123");
-    settings.setProperty(CoreProperties.SERVER_VERSION, "2.2");
-    settings.setProperty(CoreProperties.SERVER_STARTTIME, "2010-05-18T17:59:00+0000");
-    settings.setProperty(CoreProperties.PERMANENT_SERVER_ID, "abcde");
-    settings.setProperty("sonar.host.url", "http://foo.com");
-
-    ServerClient server = new ServerClient(settings, mock(EnvironmentInformation.class));
-
-    assertThat(server.getId()).isEqualTo("123");
-    assertThat(server.getVersion()).isEqualTo("2.2");
-    assertThat(server.getStartedAt().getDate()).isEqualTo(18);
-    assertThat(server.getURL()).isEqualTo("http://foo.com");
-    assertThat(server.getPermanentServerId()).isEqualTo("abcde");
   }
 }

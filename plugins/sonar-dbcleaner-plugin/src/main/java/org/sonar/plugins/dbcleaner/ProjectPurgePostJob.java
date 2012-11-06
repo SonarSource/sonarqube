@@ -19,7 +19,7 @@
  */
 package org.sonar.plugins.dbcleaner;
 
-import org.sonar.api.batch.DryRunIncompatible;
+import org.sonar.core.DryRunIncompatible;
 import org.sonar.api.batch.PostJob;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;

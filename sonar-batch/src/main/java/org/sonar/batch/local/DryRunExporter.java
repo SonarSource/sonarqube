@@ -25,14 +25,15 @@ import com.google.gson.stream.JsonWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.bootstrap.DryRun;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.core.i18n.RuleI18nManager;
 
@@ -51,14 +52,14 @@ import java.util.Locale;
 public class DryRunExporter implements BatchComponent {
   private static final Logger LOG = LoggerFactory.getLogger(DryRunExporter.class);
 
-  private final DryRun dryRun;
+  private final Settings settings;
   private final DefaultIndex sonarIndex;
   private final ProjectFileSystem projectFileSystem;
   private final Server server;
   private final RuleI18nManager ruleI18nManager;
 
-  public DryRunExporter(DryRun dryRun, DefaultIndex sonarIndex, ProjectFileSystem projectFileSystem, Server server, RuleI18nManager ruleI18nManager) {
-    this.dryRun = dryRun;
+  public DryRunExporter(Settings settings, DefaultIndex sonarIndex, ProjectFileSystem projectFileSystem, Server server, RuleI18nManager ruleI18nManager) {
+    this.settings = settings;
     this.sonarIndex = sonarIndex;
     this.projectFileSystem = projectFileSystem;
     this.server = server;
@@ -66,15 +67,13 @@ public class DryRunExporter implements BatchComponent {
   }
 
   public void execute(SensorContext context) {
-    if (!dryRun.isEnabled()) {
-      return;
+    if (settings.getBoolean(CoreProperties.DRY_RUN)) {
+      exportResults(sonarIndex.getResources());
     }
-
-    exportResults(sonarIndex.getResources());
   }
 
   private void exportResults(Collection<Resource> resources) {
-    File exportFile = new File(projectFileSystem.getSonarWorkingDirectory(), dryRun.getExportPath());
+    File exportFile = new File(projectFileSystem.getSonarWorkingDirectory(), settings.getString("sonar.dryRun.export.path"));
 
     LOG.info("Exporting DryRun results to " + exportFile.getAbsolutePath());
     Writer output = null;
@@ -96,9 +95,9 @@ public class DryRunExporter implements BatchComponent {
       json.setSerializeNulls(false);
 
       json.beginObject()
-          .name("version").value(server.getVersion())
-          .name("violations_per_resource")
-          .beginObject();
+        .name("version").value(server.getVersion())
+        .name("violations_per_resource")
+        .beginObject();
 
       for (Resource resource : resources) {
         List<Violation> violations = getViolations(resource);
@@ -107,25 +106,25 @@ public class DryRunExporter implements BatchComponent {
         }
 
         json.name(resource.getKey())
-            .beginArray();
+          .beginArray();
 
         for (Violation violation : violations) {
           json.beginObject()
-              .name("line").value(violation.getLineId())
-              .name("message").value(violation.getMessage())
-              .name("severity").value(violation.getSeverity().name())
-              .name("rule_key").value(violation.getRule().getKey())
-              .name("rule_repository").value(violation.getRule().getRepositoryKey())
-              .name("rule_name").value(name(violation.getRule()))
-              .endObject();
+            .name("line").value(violation.getLineId())
+            .name("message").value(violation.getMessage())
+            .name("severity").value(violation.getSeverity().name())
+            .name("rule_key").value(violation.getRule().getKey())
+            .name("rule_repository").value(violation.getRule().getRepositoryKey())
+            .name("rule_name").value(name(violation.getRule()))
+            .endObject();
         }
 
         json.endArray();
       }
 
       json.endObject()
-          .endObject()
-          .flush();
+        .endObject()
+        .flush();
     } catch (IOException e) {
       throw new SonarException("Unable to export results", e);
     } finally {

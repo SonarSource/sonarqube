@@ -34,6 +34,7 @@ import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.violations.ViolationQuery;
 import org.sonar.batch.index.ResourcePersister;
+import org.sonar.core.DryRunIncompatible;
 import org.sonar.core.review.ReviewDao;
 import org.sonar.core.review.ReviewDto;
 

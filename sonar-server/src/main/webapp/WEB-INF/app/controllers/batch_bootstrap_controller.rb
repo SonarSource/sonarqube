@@ -34,17 +34,18 @@ class BatchBootstrapController < ApplicationController
   def properties
     require_parameters :project
 
-    json_properties=Property.find(:all, :conditions => ['user_id is null and resource_id is null']).map{|property| to_json_property(property)}
+    json_properties=Property.find(:all, :conditions => ['user_id is null and resource_id is null']).map { |property| to_json_property(property) }
 
     root_project = load_project()
     if root_project
       Project.find(:all, :select => 'id,kee', :conditions => ['enabled=? and (root_id=? or id=?)', true, root_project.id, root_project.id]).each do |project|
-        json_properties.concat(Property.find(:all, :conditions => ['user_id is null and resource_id=?', project.id]).map{|property| to_json_property(property, project.kee)})
+        json_properties.concat(Property.find(:all, :conditions => ['user_id is null and resource_id=?', project.id]).map { |property| to_json_property(property, project.kee) })
       end
     end
 
+    has_user_role=has_role?(:user, root_project)
     has_admin_role=has_role?(:admin, root_project)
-    json_properties=json_properties.select{|prop| allowed?(prop[:k], has_admin_role)}
+    json_properties=json_properties.select { |prop| allowed?(prop[:k], has_user_role, has_admin_role) }
 
     render :json => JSON(json_properties)
   end
@@ -63,7 +64,11 @@ class BatchBootstrapController < ApplicationController
     hash
   end
 
-  def allowed?(property_key, has_admin_role)
-    !property_key.end_with?('.secured') || has_admin_role
+  def allowed?(property_key, has_user_role, has_admin_role)
+    if property_key.end_with?('.secured')
+      property_key.include?('.license') ? has_user_role : has_admin_role
+    else
+      true
+    end
   end
 end

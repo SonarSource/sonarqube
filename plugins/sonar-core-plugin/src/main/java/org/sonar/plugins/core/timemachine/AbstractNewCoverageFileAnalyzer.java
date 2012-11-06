@@ -33,6 +33,7 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.TimeMachineConfiguration;
+import org.sonar.core.DryRunIncompatible;
 
 import java.util.Arrays;
 import java.util.Date;

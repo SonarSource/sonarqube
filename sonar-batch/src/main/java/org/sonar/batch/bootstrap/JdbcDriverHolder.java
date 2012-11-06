@@ -22,6 +22,7 @@ package org.sonar.batch.bootstrap;
 import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.config.Settings;
 import org.sonar.api.utils.SonarException;
 
 import java.io.File;
@@ -41,19 +42,19 @@ public class JdbcDriverHolder {
 
   private TempDirectories tempDirectories;
   private ServerClient serverClient;
+  private Settings settings;
 
   // initialized in start()
   private JdbcDriverClassLoader classLoader = null;
-  private DryRun dryRun;
 
-  public JdbcDriverHolder(DryRun dryRun, TempDirectories tempDirectories, ServerClient serverClient) {
+  public JdbcDriverHolder(Settings settings, TempDirectories tempDirectories, ServerClient serverClient) {
     this.tempDirectories = tempDirectories;
     this.serverClient = serverClient;
-    this.dryRun = dryRun;
+    this.settings = settings;
   }
 
   public void start() {
-    if (!dryRun.isEnabled()) {
+    if (!settings.getBoolean("sonar.dryRun")) {
       LOG.info("Install JDBC driver");
       File jdbcDriver = new File(tempDirectories.getRoot(), "jdbc-driver.jar");
       serverClient.download("/deploy/jdbc-driver.jar", jdbcDriver);
@@ -106,7 +107,7 @@ public class JdbcDriverHolder {
   public void stop() {
     if (classLoader != null) {
       classLoader.clearReferencesJdbc();
-      if (Thread.currentThread().getContextClassLoader()==classLoader) {
+      if (Thread.currentThread().getContextClassLoader() == classLoader) {
         Thread.currentThread().setContextClassLoader(classLoader.getParent());
       }
       classLoader = null;

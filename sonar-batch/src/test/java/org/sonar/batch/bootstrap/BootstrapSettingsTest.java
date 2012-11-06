@@ -19,11 +19,9 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.apache.commons.configuration.BaseConfiguration;
 import org.junit.Test;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.api.config.PropertyDefinitions;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -36,9 +34,9 @@ public class BootstrapSettingsTest {
     project.setProperty("foo", "bar");
 
     ProjectReactor reactor = new ProjectReactor(project);
-    BootstrapSettings settings = new BootstrapSettings(new PropertyDefinitions(), reactor, new BaseConfiguration());
+    BootstrapSettings settings = new BootstrapSettings(reactor);
 
-    assertThat(settings.getString("foo")).isEqualTo("bar");
+    assertThat(settings.getProperty("foo")).isEqualTo("bar");
   }
 
   @Test
@@ -48,29 +46,8 @@ public class BootstrapSettingsTest {
     System.setProperty("BootstrapSettingsTest.testEnv", "env");
 
     ProjectReactor reactor = new ProjectReactor(project);
-    BootstrapSettings settings = new BootstrapSettings(new PropertyDefinitions(), reactor, new BaseConfiguration());
+    BootstrapSettings settings = new BootstrapSettings(reactor);
 
-    assertThat(settings.getString("BootstrapSettingsTest.testEnv")).isEqualTo("env");
-  }
-
-  @Test
-  public void shouldForwardToCommonsConfiguration() {
-    ProjectDefinition project = ProjectDefinition.create();
-    project.setProperty("hello", "world");
-    project.setProperty("foo", "bar");
-    ProjectReactor reactor = new ProjectReactor(project);
-    BaseConfiguration deprecatedConfiguration = new BaseConfiguration();
-    BootstrapSettings settings = new BootstrapSettings(new PropertyDefinitions(), reactor, deprecatedConfiguration);
-
-    assertThat(deprecatedConfiguration.getString("hello")).isEqualTo("world");
-    assertThat(deprecatedConfiguration.getString("foo")).isEqualTo("bar");
-
-    settings.removeProperty("foo");
-    assertThat(deprecatedConfiguration.getString("foo")).isNull();
-    assertThat(deprecatedConfiguration.getString("hello")).isEqualTo("world");
-
-    settings.clear();
-    assertThat(deprecatedConfiguration.getString("foo")).isNull();
-    assertThat(deprecatedConfiguration.getString("hello")).isNull();
+    assertThat(settings.getProperty("BootstrapSettingsTest.testEnv")).isEqualTo("env");
   }
 }

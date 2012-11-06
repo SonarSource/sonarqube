@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.local;
+package org.sonar.batch.bootstrap;
 
 import com.google.common.base.Throwables;
 import org.apache.commons.lang.StringUtils;
@@ -28,10 +28,6 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.bootstrap.DryRun;
-import org.sonar.batch.bootstrap.ProjectReactorReady;
-import org.sonar.batch.bootstrap.ServerClient;
-import org.sonar.batch.bootstrap.TempDirectories;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -49,16 +45,14 @@ public class DryRunDatabase implements BatchComponent {
   private static final String USER = "sonar";
   private static final String PASSWORD = "sonar";
 
-  private final DryRun dryRun;
   private final Settings settings;
   private final ServerClient server;
   private final TempDirectories tempDirectories;
   private final ProjectReactor reactor;
 
-  public DryRunDatabase(DryRun dryRun, Settings settings, ServerClient server, TempDirectories tempDirectories, ProjectReactor reactor,
+  public DryRunDatabase(Settings settings, ServerClient server, TempDirectories tempDirectories, ProjectReactor reactor,
                         // project reactor must be completely built
                         ProjectReactorReady reactorReady) {
-    this.dryRun = dryRun;
     this.settings = settings;
     this.server = server;
     this.tempDirectories = tempDirectories;
@@ -66,16 +60,14 @@ public class DryRunDatabase implements BatchComponent {
   }
 
   public void start() {
-    if (!dryRun.isEnabled()) {
-      return;
+    if (settings.getBoolean("sonar.dryRun")) {
+      LOG.info("Dry run");
+      File databaseFile = tempDirectories.getFile("dry_run", "db.h2.db");
+      downloadDatabase(reactor.getRoot().getKey(), databaseFile);
+
+      String databasePath = StringUtils.removeEnd(databaseFile.getAbsolutePath(), ".h2.db");
+      replaceSettings(databasePath);
     }
-
-    LOG.info("Install dry run database");
-    File databaseFile = tempDirectories.getFile("dry_run", "db.h2.db");
-    downloadDatabase(reactor.getRoot().getKey(), databaseFile);
-
-    String databasePath = StringUtils.removeEnd(databaseFile.getAbsolutePath(), ".h2.db");
-    replaceSettings(databasePath);
   }
 
   private void downloadDatabase(String projectKey, File toFile) {
@@ -94,7 +86,7 @@ public class DryRunDatabase implements BatchComponent {
 
   private void replaceSettings(String databasePath) {
     settings
-      .setProperty("sonar.jdbc.schema", "")
+      .removeProperty("sonar.jdbc.schema")
       .setProperty(DatabaseProperties.PROP_DIALECT, DIALECT)
       .setProperty(DatabaseProperties.PROP_DRIVER, DRIVER)
       .setProperty(DatabaseProperties.PROP_USER, USER)

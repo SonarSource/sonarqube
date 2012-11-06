@@ -21,7 +21,7 @@ package org.sonar.plugins.core.timemachine;
 
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.DryRunIncompatible;
+import org.sonar.core.DryRunIncompatible;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;

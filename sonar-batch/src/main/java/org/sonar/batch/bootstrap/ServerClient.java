@@ -19,17 +19,14 @@
  */
 package org.sonar.batch.bootstrap;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
@@ -38,9 +35,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * TODO extends Server when removing the deprecated org.sonar.batch.ServerMetadata
@@ -48,53 +42,16 @@ import java.util.Date;
  * @since 3.4
  */
 public class ServerClient implements BatchComponent {
-  private Settings settings;
+  private BootstrapSettings settings;
   private HttpDownloader.BaseHttpDownloader downloader;
 
-  public ServerClient(Settings settings, EnvironmentInformation env) {
+  public ServerClient(BootstrapSettings settings, EnvironmentInformation env) {
     this.settings = settings;
-    this.downloader = new HttpDownloader.BaseHttpDownloader(settings, env.toString());
-  }
-
-  public String getId() {
-    return settings.getString(CoreProperties.SERVER_ID);
-  }
-
-  public String getVersion() {
-    return settings.getString(CoreProperties.SERVER_VERSION);
-  }
-
-  public Date getStartedAt() {
-    String dateString = settings.getString(CoreProperties.SERVER_STARTTIME);
-    if (dateString != null) {
-      try {
-        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(dateString);
-
-      } catch (ParseException e) {
-        LoggerFactory.getLogger(getClass()).error("The property " + CoreProperties.SERVER_STARTTIME + " is badly formatted.", e);
-      }
-    }
-    return null;
+    this.downloader = new HttpDownloader.BaseHttpDownloader(settings.getProperties(), env.toString());
   }
 
   public String getURL() {
-    return StringUtils.removeEnd(StringUtils.defaultIfBlank(settings.getString("sonar.host.url"), "http://localhost:9000"), "/");
-  }
-
-  public String getPermanentServerId() {
-    return settings.getString(CoreProperties.PERMANENT_SERVER_ID);
-  }
-
-  public String getServerId() {
-    String remoteServerInfo = request("/api/server");
-    // don't use JSON utilities to extract ID from such a small string
-    return extractServerId(remoteServerInfo);
-  }
-
-  @VisibleForTesting
-  String extractServerId(String remoteServerInfo) {
-    String partialId = StringUtils.substringAfter(remoteServerInfo, "\"id\":\"");
-    return StringUtils.substringBefore(partialId, "\"");
+    return StringUtils.removeEnd(settings.getProperty("sonar.host.url", "http://localhost:9000"), "/");
   }
 
   public void download(String pathStartingWithSlash, File toFile) {
@@ -119,14 +76,14 @@ public class ServerClient implements BatchComponent {
     Preconditions.checkArgument(pathStartingWithSlash.startsWith("/"), "Path must start with slash /");
 
     URI uri = URI.create(getURL() + pathStartingWithSlash);
-    String login = settings.getString(CoreProperties.LOGIN);
+    String login = settings.getProperty(CoreProperties.LOGIN);
 
     try {
       InputSupplier<InputStream> inputSupplier;
       if (Strings.isNullOrEmpty(login)) {
         inputSupplier = downloader.newInputSupplier(uri);
       } else {
-        inputSupplier = downloader.newInputSupplier(uri, login, settings.getString(CoreProperties.PASSWORD));
+        inputSupplier = downloader.newInputSupplier(uri, login, settings.getProperty(CoreProperties.PASSWORD));
       }
       return inputSupplier;
     } catch (Exception e) {

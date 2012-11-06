@@ -67,14 +67,14 @@ import java.io.UnsupportedEncodingException;
 public class HttpClient4Connector extends Connector {
 
   private Host server;
-  private AbstractHttpClient client;
+  private DefaultHttpClient client;
 
   public HttpClient4Connector(Host server) {
     this.server = server;
     initClient();
   }
 
-  public HttpClient getHttpClient() {
+  public DefaultHttpClient getHttpClient() {
     return client;
   }
 
@@ -141,7 +141,7 @@ public class HttpClient4Connector extends Connector {
     }
   }
 
-  private BasicHttpContext createLocalContext(AbstractHttpClient client) {
+  private BasicHttpContext createLocalContext(DefaultHttpClient client) {
     BasicHttpContext localcontext = new BasicHttpContext();
 
     if (server.getUsername() != null) {

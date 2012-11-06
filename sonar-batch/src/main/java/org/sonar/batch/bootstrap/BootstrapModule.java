@@ -25,7 +25,6 @@ import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.UriReader;
 import org.sonar.batch.FakeMavenPluginExecutor;
 import org.sonar.batch.MavenPluginExecutor;
-import org.sonar.batch.ServerMetadata;
 import org.sonar.core.config.Logback;
 
 /**
@@ -46,12 +45,13 @@ public class BootstrapModule extends Module {
     container.addSingleton(reactor);
     container.addSingleton(new PropertiesConfiguration());
     container.addSingleton(BootstrapSettings.class);
+    container.addSingleton(ServerClient.class);
+    container.addSingleton(BatchSettings.class);
     container.addSingleton(BatchPluginRepository.class);
     container.addSingleton(ExtensionInstaller.class);
-    container.addSingleton(DryRun.class);
     container.addSingleton(Logback.class);
-    container.addSingleton(ServerClient.class);
     container.addSingleton(ServerMetadata.class);
+    container.addSingleton(org.sonar.batch.ServerMetadata.class);
     container.addSingleton(TempDirectories.class);
     container.addSingleton(HttpDownloader.class);
     container.addSingleton(UriReader.class);

@@ -33,9 +33,9 @@ public class DatabaseCompatibility implements BatchComponent {
 
   private DatabaseVersion version;
   private Settings settings;
-  private ServerClient server;
+  private ServerMetadata server;
 
-  public DatabaseCompatibility(DatabaseVersion version, ServerClient server, Settings settings) {
+  public DatabaseCompatibility(DatabaseVersion version, ServerMetadata server, Settings settings) {
     this.version = version;
     this.server = server;
     this.settings = settings;

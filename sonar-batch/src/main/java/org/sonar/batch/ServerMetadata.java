@@ -20,51 +20,37 @@
 package org.sonar.batch;
 
 import org.sonar.api.BatchComponent;
-import org.sonar.api.platform.Server;
-import org.sonar.batch.bootstrap.ServerClient;
 
 import java.util.Date;
 
 /**
- * @deprecated replaced by ServerClient since version 3.4. Plugins should use org.sonar.api.platform.Server
+ * @deprecated replaced by org.sonar.batch.bootstrap.ServerMetadata since version 3.4. Plugins should use org.sonar.api.platform.Server.
  */
 @Deprecated
-public class ServerMetadata extends Server implements BatchComponent {
-  private ServerClient server;
+public class ServerMetadata implements BatchComponent {
+  private org.sonar.batch.bootstrap.ServerMetadata metadata;
 
-  public ServerMetadata(ServerClient server) {
-    this.server = server;
+  public ServerMetadata(org.sonar.batch.bootstrap.ServerMetadata metadata) {
+    this.metadata = metadata;
   }
 
-  @Override
   public String getId() {
-    return server.getId();
+    return metadata.getId();
   }
 
-  @Override
   public String getVersion() {
-    return server.getVersion();
+    return metadata.getVersion();
   }
 
-  @Override
   public Date getStartedAt() {
-    return server.getStartedAt();
+    return metadata.getStartedAt();
   }
 
-  /**
-   * @return the server URL when executed from batch, else null.
-   * @since 2.4
-   */
-  @Override
   public String getURL() {
-    return server.getURL();
+    return metadata.getURL();
   }
 
-  /**
-   * @since 2.10
-   */
-  @Override
   public String getPermanentServerId() {
-    return server.getPermanentServerId();
+    return metadata.getPermanentServerId();
   }
 }

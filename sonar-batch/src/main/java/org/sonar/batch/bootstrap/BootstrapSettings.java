@@ -19,46 +19,49 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.apache.commons.configuration.Configuration;
+import com.google.common.collect.Maps;
+import org.codehaus.plexus.util.StringUtils;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.config.Settings;
 
-import javax.annotation.Nullable;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * @since 2.12
  */
-public class BootstrapSettings extends Settings {
-  private Configuration deprecatedConfiguration;
-  private ProjectReactor reactor;
+public class BootstrapSettings {
+  private Map<String, String> properties;
 
-  public BootstrapSettings(PropertyDefinitions propertyDefinitions, ProjectReactor reactor, Configuration deprecatedConfiguration) {
-    super(propertyDefinitions);
-    this.reactor = reactor;
-    this.deprecatedConfiguration = deprecatedConfiguration;
-    init();
+  public BootstrapSettings(ProjectReactor reactor) {
+    init(reactor);
   }
 
-  private void init() {
+  private void init(ProjectReactor reactor) {
+    properties = Maps.newHashMap();
+
     // order is important -> bottom-up. The last one overrides all the others.
     addProperties(reactor.getRoot().getProperties());
-    addEnvironmentVariables();
-    addSystemProperties();
+    properties.putAll(System.getenv());
+    addProperties(System.getProperties());
   }
 
-  @Override
-  protected void doOnSetProperty(String key, @Nullable String value) {
-    deprecatedConfiguration.setProperty(key, value);
+  private void addProperties(Properties p) {
+    for (Map.Entry<Object, Object> entry : p.entrySet()) {
+      if (entry.getValue() != null) {
+        properties.put(entry.getKey().toString(), entry.getValue().toString());
+      }
+    }
   }
 
-  @Override
-  protected void doOnRemoveProperty(String key) {
-    deprecatedConfiguration.clearProperty(key);
+  public Map<String, String> getProperties() {
+    return properties;
   }
 
-  @Override
-  protected void doOnClearProperties() {
-    deprecatedConfiguration.clear();
+  public String getProperty(String key) {
+    return properties.get(key);
+  }
+
+  public String getProperty(String key, String defaultValue) {
+    return StringUtils.defaultString(properties.get(key), defaultValue);
   }
 }

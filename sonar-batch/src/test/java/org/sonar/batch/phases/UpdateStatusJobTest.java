@@ -20,6 +20,7 @@
 package org.sonar.batch.phases;
 
 import org.junit.Test;
+import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.batch.bootstrap.ServerClient;
@@ -51,7 +52,7 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
     setupData("sharedFixture", fixture);
 
     DatabaseSession session = getSession();
-    UpdateStatusJob sensor = new UpdateStatusJob(mock(ServerClient.class), session, new DefaultResourcePersister(session), loadSnapshot(snapshotId));
+    UpdateStatusJob sensor = new UpdateStatusJob(new Settings(), mock(ServerClient.class), session, new DefaultResourcePersister(session), loadSnapshot(snapshotId));
     sensor.execute();
 
     checkTables(fixture, "snapshots");

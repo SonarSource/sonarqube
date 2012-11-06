@@ -26,6 +26,7 @@ import org.json.simple.JSONValue;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 
 import javax.annotation.Nullable;
@@ -40,9 +41,9 @@ public class BatchSettings extends Settings {
   // module key -> <key,val>
   private Map<String, Map<String, String>> moduleProperties = Maps.newHashMap();
 
-  public BatchSettings(BootstrapSettings bootstrapSettings, ProjectReactor reactor, ServerClient client,
-                       Configuration deprecatedConfiguration) {
-    super(bootstrapSettings.getDefinitions());
+  public BatchSettings(BootstrapSettings bootstrapSettings, PropertyDefinitions propertyDefinitions, ProjectReactor reactor,
+                       ServerClient client, Configuration deprecatedConfiguration) {
+    super(propertyDefinitions);
     this.deprecatedConfiguration = deprecatedConfiguration;
     init(bootstrapSettings, reactor, client);
   }
@@ -50,7 +51,7 @@ public class BatchSettings extends Settings {
   private void init(BootstrapSettings bootstrapSettings, ProjectReactor reactor, ServerClient client) {
     LoggerFactory.getLogger(BatchSettings.class).info("Load project settings");
 
-    String branch = bootstrapSettings.getString(CoreProperties.PROJECT_BRANCH_PROPERTY);
+    String branch = bootstrapSettings.getProperty(CoreProperties.PROJECT_BRANCH_PROPERTY);
     String projectKey = reactor.getRoot().getKey();
     if (StringUtils.isNotBlank(branch)) {
       projectKey = String.format("%s:%s", projectKey, branch);

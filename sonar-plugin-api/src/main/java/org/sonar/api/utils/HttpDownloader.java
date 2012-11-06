@@ -47,6 +47,7 @@ import java.net.ProxySelector;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This component downloads HTTP files
@@ -59,11 +60,11 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
   private final BaseHttpDownloader downloader;
 
   public HttpDownloader(Server server, Settings settings) {
-    downloader = new BaseHttpDownloader(settings, server.getVersion());
+    downloader = new BaseHttpDownloader(settings.getProperties(), server.getVersion());
   }
 
   public HttpDownloader(Settings settings) {
-    downloader = new BaseHttpDownloader(settings, null);
+    downloader = new BaseHttpDownloader(settings.getProperties(), null);
   }
 
   @Override
@@ -73,7 +74,7 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
 
   @Override
   String[] getSupportedSchemes() {
-    return new String[] {"http", "https"};
+    return new String[]{"http", "https"};
   }
 
   @Override
@@ -129,17 +130,17 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
 
   public static class BaseHttpDownloader {
     private static final List<String> PROXY_SETTINGS = ImmutableList.of(
-        "http.proxyHost", "http.proxyPort", "http.nonProxyHosts",
-        "http.auth.ntlm.domain", "socksProxyHost", "socksProxyPort");
+      "http.proxyHost", "http.proxyPort", "http.nonProxyHosts",
+      "http.auth.ntlm.domain", "socksProxyHost", "socksProxyPort");
 
     private String userAgent;
 
-    public BaseHttpDownloader(Settings settings, String userAgent) {
+    public BaseHttpDownloader(Map<String, String> settings, String userAgent) {
       initProxy(settings);
       initUserAgent(userAgent);
     }
 
-    private void initProxy(Settings settings) {
+    private void initProxy(Map<String, String> settings) {
       propagateProxySystemProperties(settings);
       if (requiresProxyAuthentication(settings)) {
         registerProxyCredentials(settings);
@@ -172,20 +173,20 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
       return Joiner.on(", ").join(descriptions);
     }
 
-    private void registerProxyCredentials(Settings settings) {
+    private void registerProxyCredentials(Map<String, String> settings) {
       Authenticator.setDefault(new ProxyAuthenticator(
-          settings.getString("http.proxyUser"),
-          settings.getString("http.proxyPassword")));
+        settings.get("http.proxyUser"),
+        settings.get("http.proxyPassword")));
     }
 
-    private boolean requiresProxyAuthentication(Settings settings) {
-      return settings.getString("http.proxyUser") != null;
+    private boolean requiresProxyAuthentication(Map<String, String> settings) {
+      return settings.containsKey("http.proxyUser");
     }
 
-    private void propagateProxySystemProperties(Settings settings) {
+    private void propagateProxySystemProperties(Map<String, String> settings) {
       for (String key : PROXY_SETTINGS) {
-        if (settings.getString(key) != null) {
-          System.setProperty(key, settings.getString(key));
+        if (settings.containsKey(key)) {
+          System.setProperty(key, settings.get(key));
         }
       }
     }

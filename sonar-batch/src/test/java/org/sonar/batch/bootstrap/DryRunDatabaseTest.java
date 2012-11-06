@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.local;
+package org.sonar.batch.bootstrap;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -28,10 +28,6 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.bootstrap.DryRun;
-import org.sonar.batch.bootstrap.ProjectReactorReady;
-import org.sonar.batch.bootstrap.ServerClient;
-import org.sonar.batch.bootstrap.TempDirectories;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -47,7 +43,6 @@ import static org.mockito.Mockito.when;
 public class DryRunDatabaseTest {
   DryRunDatabase dryRunDatabase;
 
-  DryRun dryRun = mock(DryRun.class);
   Settings settings = new Settings();
   ServerClient server = mock(ServerClient.class);
   TempDirectories tempDirectories = mock(TempDirectories.class);
@@ -58,11 +53,13 @@ public class DryRunDatabaseTest {
 
   @Before
   public void setUp() {
-    dryRunDatabase = new DryRunDatabase(dryRun, settings, server, tempDirectories, projectReactor, mock(ProjectReactorReady.class));
+    settings.setProperty("sonar.dryRun", true);
+    dryRunDatabase = new DryRunDatabase(settings, server, tempDirectories, projectReactor, mock(ProjectReactorReady.class));
   }
 
   @Test
-  public void should_disable_if_no_dry_run() {
+  public void should_be_disabled_if_not_dry_run() {
+    settings.setProperty("sonar.dryRun", false);
     dryRunDatabase.start();
 
     verifyZeroInteractions(tempDirectories, server);
@@ -71,7 +68,6 @@ public class DryRunDatabaseTest {
   @Test
   public void should_download_database() {
     File databaseFile = new File("/tmp/dry_run/db.h2.db");
-    when(dryRun.isEnabled()).thenReturn(true);
     when(tempDirectories.getFile("dry_run", "db.h2.db")).thenReturn(databaseFile);
 
     dryRunDatabase.start();
@@ -81,7 +77,6 @@ public class DryRunDatabaseTest {
 
   @Test
   public void should_replace_database_settings() {
-    when(dryRun.isEnabled()).thenReturn(true);
     when(tempDirectories.getFile("dry_run", "db.h2.db")).thenReturn(new File("/tmp/dry_run/db.h2.db"));
 
     dryRunDatabase.start();
@@ -95,7 +90,6 @@ public class DryRunDatabaseTest {
 
   @Test
   public void should_fail_on_unknown_project() {
-    when(dryRun.isEnabled()).thenReturn(true);
     when(tempDirectories.getFile("dry_run", "db.h2.db")).thenReturn(new File("/tmp/dry_run/db.h2.db"));
     doThrow(new SonarException(new FileNotFoundException())).when(server).download("/batch_bootstrap/db?project=group:project", new File("/tmp/dry_run/db.h2.db"));
 
@@ -107,7 +101,6 @@ public class DryRunDatabaseTest {
 
   @Test
   public void should_fail_on_invalid_role() {
-    when(dryRun.isEnabled()).thenReturn(true);
     when(tempDirectories.getFile("dry_run", "db.h2.db")).thenReturn(new File("/tmp/dry_run/db.h2.db"));
     doThrow(new SonarException(new IOException("HTTP 401"))).when(server).download("/batch_bootstrap/db?project=group:project", new File("/tmp/dry_run/db.h2.db"));
 
@@ -119,7 +112,6 @@ public class DryRunDatabaseTest {
 
   @Test
   public void should_fail() {
-    when(dryRun.isEnabled()).thenReturn(true);
     when(tempDirectories.getFile("dry_run", "db.h2.db")).thenReturn(new File("/tmp/dry_run/db.h2.db"));
     doThrow(new SonarException("BUG")).when(server).download("/batch_bootstrap/db?project=group:project", new File("/tmp/dry_run/db.h2.db"));
 

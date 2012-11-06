@@ -20,6 +20,7 @@
 package org.sonar.batch.bootstrap;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.codehaus.plexus.util.FileUtils;
 import org.hamcrest.Matchers;
 import org.junit.After;
@@ -33,6 +34,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -140,64 +142,57 @@ public class BatchPluginRepositoryTest {
   @Test
   public void shouldAlwaysAcceptIfNoWhiteListAndBlackList() {
     repository = new BatchPluginRepository(mock(PluginDownloader.class), new Settings());
-    assertThat(repository.isAccepted("pmd"), Matchers.is(true));
+    assertThat(repository.isAccepted("pmd", null, null), Matchers.is(true));
   }
 
   @Test
   public void whiteListShouldTakePrecedenceOverBlackList() {
-    Settings settings = new Settings();
-    settings.setProperty(CoreProperties.BATCH_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
-    settings.setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "cobertura,pmd");
-    repository = new BatchPluginRepository(mock(PluginDownloader.class), settings);
-
-    assertThat(repository.isAccepted("pmd"), Matchers.is(true));
+    Set<String> whiteList = Sets.newHashSet("checkstyle", "pmd", "findbugs");
+    Set<String> blackList = Sets.newHashSet("cobertura", "pmd");
+    assertThat(BatchPluginRepository.isAccepted("pmd", whiteList, blackList), Matchers.is(true));
   }
 
   @Test
   public void corePluginShouldAlwaysBeInWhiteList() {
-    Settings settings = new Settings();
-    settings.setProperty(CoreProperties.BATCH_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
-    repository = new BatchPluginRepository(mock(PluginDownloader.class), settings);
-    assertThat(repository.isAccepted("core"), Matchers.is(true));
+    Set<String> whiteList = Sets.newHashSet("checkstyle", "pmd", "findbugs");
+    Set<String> blackList = null;
+
+    assertThat(BatchPluginRepository.isAccepted("core", whiteList, blackList), Matchers.is(true));
   }
 
   @Test
   public void corePluginShouldNeverBeInBlackList() {
-    Settings settings = new Settings();
-    settings.setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "core,findbugs");
-    repository = new BatchPluginRepository(mock(PluginDownloader.class), settings);
-    assertThat(repository.isAccepted("core"), Matchers.is(true));
+    Set<String> whiteList = null;
+    Set<String> blackList = Sets.newHashSet("core", "findbugs");
+
+    assertThat(BatchPluginRepository.isAccepted("core", whiteList, blackList), Matchers.is(true));
   }
 
   // English Pack plugin should never be blacklisted as it is mandatory for the I18nManager on batch side
   @Test
   public void englishPackPluginShouldNeverBeInBlackList() {
-    Settings settings = new Settings();
-    settings.setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "l10nen,findbugs");
-    repository = new BatchPluginRepository(mock(PluginDownloader.class), settings);
-    assertThat(repository.isAccepted("l10nen"), Matchers.is(true));
+    Set<String> whiteList = null;
+    Set<String> blackList = Sets.newHashSet("l10nen", "findbugs");
+    assertThat(BatchPluginRepository.isAccepted("l10nen", whiteList, blackList), Matchers.is(true));
   }
 
   @Test
   public void shouldCheckWhitelist() {
-    Settings settings = new Settings();
-    settings.setProperty(CoreProperties.BATCH_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
-    repository = new BatchPluginRepository(mock(PluginDownloader.class), settings);
+    Set<String> whiteList = Sets.newHashSet("checkstyle", "pmd", "findbugs");
+    Set<String> blackList = null;
 
-    assertThat(repository.isAccepted("checkstyle"), Matchers.is(true));
-    assertThat(repository.isAccepted("pmd"), Matchers.is(true));
-    assertThat(repository.isAccepted("cobertura"), Matchers.is(false));
+    assertThat(BatchPluginRepository.isAccepted("checkstyle", whiteList, blackList), Matchers.is(true));
+    assertThat(BatchPluginRepository.isAccepted("pmd", whiteList, blackList), Matchers.is(true));
+    assertThat(BatchPluginRepository.isAccepted("cobertura", whiteList, blackList), Matchers.is(false));
   }
 
   @Test
   public void shouldCheckBlackListIfNoWhiteList() {
-    Settings settings = new Settings();
-    settings.setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
-    repository = new BatchPluginRepository(mock(PluginDownloader.class), settings);
-
-    assertThat(repository.isAccepted("checkstyle"), Matchers.is(false));
-    assertThat(repository.isAccepted("pmd"), Matchers.is(false));
-    assertThat(repository.isAccepted("cobertura"), Matchers.is(true));
+    Set<String> whiteList = null;
+    Set<String> blackList = Sets.newHashSet("checkstyle", "pmd", "findbugs");
+    assertThat(BatchPluginRepository.isAccepted("checkstyle", whiteList, blackList), Matchers.is(false));
+    assertThat(BatchPluginRepository.isAccepted("pmd", whiteList, blackList), Matchers.is(false));
+    assertThat(BatchPluginRepository.isAccepted("cobertura", whiteList, blackList), Matchers.is(true));
   }
 
 }

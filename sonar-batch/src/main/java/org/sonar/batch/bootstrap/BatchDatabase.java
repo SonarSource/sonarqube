@@ -20,7 +20,6 @@
 package org.sonar.batch.bootstrap;
 
 import org.sonar.api.config.Settings;
-import org.sonar.batch.local.DryRunDatabase;
 import org.sonar.core.persistence.DefaultDatabase;
 
 import java.util.Properties;

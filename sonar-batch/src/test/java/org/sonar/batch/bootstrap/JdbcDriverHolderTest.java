@@ -22,9 +22,10 @@ package org.sonar.batch.bootstrap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 
 import java.io.File;
-import java.net.URL;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -34,7 +35,7 @@ import static org.mockito.Mockito.when;
 
 public class JdbcDriverHolderTest {
 
-  private ClassLoader initialThreadClassloader;
+  ClassLoader initialThreadClassloader;
 
   @Before
   public void before() {
@@ -56,7 +57,7 @@ public class JdbcDriverHolderTest {
     when(tempDirectories.getRoot()).thenReturn(fakeDriver.getParentFile());
     ServerClient server = mock(ServerClient.class);
 
-    JdbcDriverHolder holder = new JdbcDriverHolder(mock(DryRun.class), tempDirectories, server);
+    JdbcDriverHolder holder = new JdbcDriverHolder(new Settings(), tempDirectories, server);
     holder.start();
 
     verify(server).download("/deploy/jdbc-driver.jar", fakeDriver);
@@ -71,10 +72,9 @@ public class JdbcDriverHolderTest {
 
   @Test
   public void should_be_disabled_if_dry_run() {
-    DryRun dryRun = mock(DryRun.class);
-    when(dryRun.isEnabled()).thenReturn(true);
+    Settings settings = new Settings().setProperty(CoreProperties.DRY_RUN, true);
     ServerClient server = mock(ServerClient.class);
-    JdbcDriverHolder holder = new JdbcDriverHolder(dryRun, mock(TempDirectories.class), server);
+    JdbcDriverHolder holder = new JdbcDriverHolder(settings, mock(TempDirectories.class), server);
 
     holder.start();
 

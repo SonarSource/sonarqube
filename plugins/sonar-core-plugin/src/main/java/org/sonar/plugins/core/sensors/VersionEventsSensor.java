@@ -20,7 +20,7 @@
 package org.sonar.plugins.core.sensors;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.DryRunIncompatible;
+import org.sonar.core.DryRunIncompatible;
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;

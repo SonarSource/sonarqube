@@ -30,6 +30,7 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.violations.ViolationQuery;
 import org.sonar.batch.index.ResourcePersister;
+import org.sonar.core.DryRunIncompatible;
 
 import java.util.List;
 

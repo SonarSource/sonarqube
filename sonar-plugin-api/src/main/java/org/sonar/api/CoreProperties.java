@@ -343,4 +343,9 @@ public interface CoreProperties {
    * @since 3.4
    */
   String PASSWORD = "sonar.password";
+
+  /**
+   * @since 3.4
+   */
+  String DRY_RUN = "sonar.dryRun";
 }

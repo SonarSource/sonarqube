@@ -38,12 +38,12 @@ public class DatabaseCompatibilityTest {
   public ExpectedException thrown = ExpectedException.none();
 
   DatabaseVersion databaseVersion;
-  ServerClient server;
+  ServerMetadata server;
   Settings settings;
 
   @Before
   public void init() {
-    server = mock(ServerClient.class);
+    server = mock(ServerMetadata.class);
     when(server.getURL()).thenReturn("http://localhost:9000");
     when(server.getServerId()).thenReturn("123456");
 

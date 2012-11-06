@@ -23,7 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.DryRunIncompatible;
+import org.sonar.core.DryRunIncompatible;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;

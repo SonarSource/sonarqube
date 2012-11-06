@@ -21,7 +21,6 @@ package org.sonar.batch.bootstrap;
 
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.batch.local.DryRunDatabase;
 
 import java.util.Properties;
 

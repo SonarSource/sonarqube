@@ -21,7 +21,8 @@ package org.sonar.batch.phases;
 
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.batch.DryRunIncompatible;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Scopes;
@@ -32,19 +33,20 @@ import javax.persistence.Query;
 
 import java.util.List;
 
-@DryRunIncompatible
 public class UpdateStatusJob implements BatchComponent {
 
   private DatabaseSession session;
   private ServerClient server;
   private Snapshot snapshot; // TODO remove this component
   private ResourcePersister resourcePersister;
+  private Settings settings;
 
-  public UpdateStatusJob(ServerClient server, DatabaseSession session, ResourcePersister resourcePersister, Snapshot snapshot) {
+  public UpdateStatusJob(Settings settings, ServerClient server, DatabaseSession session, ResourcePersister resourcePersister, Snapshot snapshot) {
     this.session = session;
     this.server = server;
     this.resourcePersister = resourcePersister;
     this.snapshot = snapshot;
+    this.settings = settings;
   }
 
   public void execute() {
@@ -70,7 +72,9 @@ public class UpdateStatusJob implements BatchComponent {
     Snapshot previousLastSnapshot = resourcePersister.getLastSnapshot(snapshot, false);
     boolean isLast = (previousLastSnapshot == null || previousLastSnapshot.getCreatedAt().before(snapshot.getCreatedAt()));
     setFlags(snapshot, isLast, Snapshot.STATUS_PROCESSED);
-    LoggerFactory.getLogger(getClass()).info("ANALYSIS SUCCESSFUL, you can browse {}", server.getURL());
+    if (!settings.getBoolean(CoreProperties.DRY_RUN)) {
+      LoggerFactory.getLogger(getClass()).info("ANALYSIS SUCCESSFUL, you can browse {}", server.getURL());
+    }
   }
 
   private void setFlags(Snapshot snapshot, boolean last, String status) {

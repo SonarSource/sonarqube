@@ -21,7 +21,6 @@ package org.sonar.batch;
 
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.batch.bootstrap.ServerClient;
 
 import java.util.Date;
 
@@ -31,8 +30,8 @@ import static org.mockito.Mockito.when;
 
 public class ServerMetadataTest {
   @Test
-  public void should_proxy_server_client() {
-    ServerClient client = mock(ServerClient.class);
+  public void should_proxy_target() {
+    org.sonar.batch.bootstrap.ServerMetadata client = mock(org.sonar.batch.bootstrap.ServerMetadata.class);
     when(client.getId()).thenReturn("id1");
     when(client.getPermanentServerId()).thenReturn("pid1");
     Date startedAt = DateUtils.parseDate("2012-05-18");

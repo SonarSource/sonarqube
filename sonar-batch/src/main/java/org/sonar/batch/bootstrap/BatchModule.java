@@ -43,7 +43,6 @@ import org.sonar.batch.index.LinkPersister;
 import org.sonar.batch.index.MeasurePersister;
 import org.sonar.batch.index.MemoryOptimizer;
 import org.sonar.batch.index.SourcePersister;
-import org.sonar.batch.local.DryRunDatabase;
 import org.sonar.core.i18n.I18nManager;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.metric.CacheMetricFinder;
@@ -70,7 +69,6 @@ public class BatchModule extends Module {
   }
 
   private void registerCoreComponents() {
-    container.addSingleton(BatchSettings.class);
     container.addSingleton(EmailSettings.class);
     container.addSingleton(I18nManager.class);
     container.addSingleton(RuleI18nManager.class);
