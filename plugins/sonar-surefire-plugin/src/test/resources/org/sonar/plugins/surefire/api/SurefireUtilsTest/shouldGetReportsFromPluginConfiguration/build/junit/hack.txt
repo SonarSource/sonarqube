@@ -1,1 +1,0 @@
-hack for maven in order the directory target/surefire to be included in unit tests classpath

@@ -1,5 +1,0 @@
-<tests-details>
-  <testcase status="ok" time="1" name="shouldFindCheckstyleExtensions"/>
-  <testcase status="ok" time="1"
-            name="shouldNotFailIfNoCheckstyleExtensions"/>
-</tests-details>
