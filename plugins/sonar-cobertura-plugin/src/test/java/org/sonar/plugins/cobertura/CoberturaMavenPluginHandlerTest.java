@@ -61,26 +61,11 @@ public class CoberturaMavenPluginHandlerTest {
   public void should_enable_xml_format() {
     Project project = mock(Project.class);
     when(project.getPom()).thenReturn(new MavenProject());
-    when(project.getExclusionPatterns()).thenReturn(new String[0]);
 
     MavenPlugin coberturaPlugin = new MavenPlugin(CoberturaUtils.COBERTURA_GROUP_ID, CoberturaUtils.COBERTURA_ARTIFACT_ID, null);
     handler.configure(project, coberturaPlugin);
 
     assertThat(coberturaPlugin.getParameter("formats/format")).isEqualTo("xml");
-  }
-
-  @Test
-  public void should_set_cobertura_exclusions() {
-    Project project = mock(Project.class);
-    when(project.getPom()).thenReturn(new MavenProject());
-    when(project.getExclusionPatterns()).thenReturn(new String[]{"**/Foo.java", "com/*Test.*", "com/*"});
-
-    MavenPlugin coberturaPlugin = new MavenPlugin(CoberturaUtils.COBERTURA_GROUP_ID, CoberturaUtils.COBERTURA_ARTIFACT_ID, null);
-    handler.configure(project, coberturaPlugin);
-
-    assertThat(coberturaPlugin.getParameters("instrumentation/excludes/exclude")).isEqualTo(new String[]{
-      "**/Foo.class", "com/*Test.*", "com/*.class"
-    });
   }
 
   @Test
