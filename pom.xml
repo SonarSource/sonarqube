@@ -40,7 +40,6 @@
     <module>plugins/sonar-design-plugin</module>
     <module>plugins/sonar-l10n-en-plugin</module>
     <module>plugins/sonar-email-notifications-plugin</module>
-    <module>plugins/sonar-jacoco-plugin</module>
   </modules>
 
   <organization>
@@ -632,6 +631,11 @@
       <dependency>
         <groupId>org.codehaus.sonar-plugins.java</groupId>
         <artifactId>sonar-cobertura-plugin</artifactId>
+        <version>${sonarJava.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.sonar-plugins.java</groupId>
+        <artifactId>sonar-jacoco-plugin</artifactId>
         <version>${sonarJava.version}</version>
       </dependency>
       <dependency>
