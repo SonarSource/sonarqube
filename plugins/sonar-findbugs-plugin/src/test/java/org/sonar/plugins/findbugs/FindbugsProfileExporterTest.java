@@ -64,15 +64,19 @@ public class FindbugsProfileExporterTest extends FindbugsTests {
 
   @Test
   public void shouldBuildOnlyOneModuleWhenNoActiveRules() {
-    FindBugsFilter filter = FindbugsProfileExporter.buildFindbugsFilter(Collections.<ActiveRule> emptyList());
-    assertThat(filter.getMatchs()).hasSize(0);
+    FindBugsFilter filter = new FindBugsFilter();
+    FindbugsProfileExporter.addRules(filter, Collections.<ActiveRule> emptyList());
+
+    assertThat(filter.getMatchs()).isEmpty();
   }
 
   @Test
   public void shouldBuildTwoModulesEvenIfSameTwoRulesActivated() {
     ActiveRule activeRule1 = anActiveRule(DLS_DEAD_LOCAL_STORE);
     ActiveRule activeRule2 = anActiveRule(SS_SHOULD_BE_STATIC);
-    FindBugsFilter filter = FindbugsProfileExporter.buildFindbugsFilter(Arrays.asList(activeRule1, activeRule2));
+
+    FindBugsFilter filter = new FindBugsFilter();
+    FindbugsProfileExporter.addRules(filter, Arrays.asList(activeRule1, activeRule2));
 
     List<Match> matches = filter.getMatchs();
     assertThat(matches).hasSize(2);
@@ -86,14 +90,17 @@ public class FindbugsProfileExporterTest extends FindbugsTests {
     ActiveRule activeRule1 = anActiveRuleFromAnotherPlugin();
     ActiveRule activeRule2 = anActiveRuleFromAnotherPlugin();
 
-    FindBugsFilter filter = FindbugsProfileExporter.buildFindbugsFilter(Arrays.asList(activeRule1, activeRule2));
+    FindBugsFilter filter = new FindBugsFilter();
+    FindbugsProfileExporter.addRules(filter, Arrays.asList(activeRule1, activeRule2));
     assertThat(filter.getMatchs()).hasSize(0);
   }
 
   @Test
   public void shouldBuildModuleWithProperties() {
     ActiveRule activeRule = anActiveRule(DLS_DEAD_LOCAL_STORE);
-    FindBugsFilter filter = FindbugsProfileExporter.buildFindbugsFilter(Arrays.asList(activeRule));
+
+    FindBugsFilter filter = new FindBugsFilter();
+    FindbugsProfileExporter.addRules(filter, Arrays.asList(activeRule));
 
     assertThat(filter.getMatchs()).hasSize(1);
     assertThat(filter.getMatchs().get(0).getBug().getPattern()).isEqualTo("DLS_DEAD_LOCAL_STORE");

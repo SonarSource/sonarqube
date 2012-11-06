@@ -35,7 +35,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -88,20 +87,16 @@ public class FindbugsConfiguration implements BatchExtension {
 
   @VisibleForTesting
   File saveIncludeConfigXml() throws IOException {
-    StringWriter xml = new StringWriter();
+    String xml = exporter.exportProfileAndInclusions(profile, project.getInclusionPatterns());
 
-    exporter.exportProfile(profile, xml);
-
-    return project.getFileSystem().writeToWorkingDirectory(xml.toString(), "findbugs-include.xml");
+    return project.getFileSystem().writeToWorkingDirectory(xml, "findbugs-include.xml");
   }
 
   @VisibleForTesting
   File saveExcludeConfigXml() throws IOException {
-    StringWriter xml = new StringWriter();
+    String xml = exporter.exportExclusions(project.getExclusionPatterns());
 
-    exporter.exportExclusions(project.getExclusionPatterns(), xml);
-
-    return project.getFileSystem().writeToWorkingDirectory(xml.toString(), "findbugs-exclude.xml");
+    return project.getFileSystem().writeToWorkingDirectory(xml, "findbugs-exclude.xml");
   }
 
   @VisibleForTesting
