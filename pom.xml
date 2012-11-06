@@ -35,7 +35,6 @@
     <module>plugins/sonar-core-gwt</module>
     <module>plugins/sonar-core-plugin</module>
     <module>plugins/sonar-dbcleaner-plugin</module>
-    <module>plugins/sonar-cobertura-plugin</module>
     <module>plugins/sonar-findbugs-plugin</module>
     <module>plugins/sonar-cpd-plugin</module>
     <module>plugins/sonar-design-plugin</module>
@@ -628,6 +627,11 @@
       <dependency>
         <groupId>org.codehaus.sonar-plugins.java</groupId>
         <artifactId>sonar-surefire-plugin</artifactId>
+        <version>${sonarJava.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.sonar-plugins.java</groupId>
+        <artifactId>sonar-cobertura-plugin</artifactId>
         <version>${sonarJava.version}</version>
       </dependency>
       <dependency>
