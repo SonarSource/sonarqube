@@ -26,6 +26,12 @@
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <includes>
         <include>org.codehaus.sonar.plugins:*</include>
+      </includes>
+    </dependencySet>
+    <dependencySet>
+      <outputDirectory>extensions/downloads</outputDirectory>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <includes>
         <include>org.codehaus.sonar-plugins.*:sonar-*-plugin</include>
       </includes>
     </dependencySet>
