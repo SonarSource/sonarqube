@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
@@ -60,7 +61,7 @@ public class DryRunDatabase implements BatchComponent {
   }
 
   public void start() {
-    if (settings.getBoolean("sonar.dryRun")) {
+    if (settings.getBoolean(CoreProperties.DRY_RUN)) {
       LOG.info("Dry run");
       File databaseFile = tempDirectories.getFile("", "dryrun.h2.db");
       downloadDatabase(reactor.getRoot().getKey(), databaseFile);

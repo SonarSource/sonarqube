@@ -63,7 +63,7 @@ public class IndexFactoryTest {
   @Test
   public void cross_project_should_be_disabled_on_dry_run() {
     settings.setProperty(CoreProperties.CPD_CROSS_RPOJECT, "true");
-    settings.setProperty("sonar.dryRun", "true");
+    settings.setProperty(CoreProperties.DRY_RUN, "true");
     assertThat(factory.verifyCrossProject(project, logger)).isFalse();
     verify(logger).info("Cross-project analysis disabled. Not supported on dry runs.");
   }

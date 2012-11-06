@@ -162,6 +162,16 @@ public interface CoreProperties {
   String BATCH_EXCLUDE_PLUGINS = "sonar.excludePlugins";
 
   /**
+   * @since 3.4
+   */
+  String DRY_RUN_INCLUDE_PLUGINS = "sonar.dryRun.includePlugins";
+
+  /**
+   * @since 3.4
+   */
+  String DRY_RUN_EXCLUDE_PLUGINS = "sonar.dryRun.excludePlugins";
+
+  /**
    * @since 2.10
    */
   String SERVER_BASE_URL = "sonar.core.serverBaseURL";

@@ -20,6 +20,7 @@
 package org.sonar.batch.bootstrap;
 
 import org.sonar.api.BatchComponent;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
 import org.sonar.api.batch.InstantiationStrategy;
@@ -47,7 +48,7 @@ public class ExtensionInstaller implements BatchComponent {
   }
 
   public void install(ComponentContainer container, String instantiationStrategy) {
-    boolean dryRun = settings.getBoolean("sonar.dryRun");
+    boolean dryRun = settings.getBoolean(CoreProperties.DRY_RUN);
     for (Map.Entry<PluginMetadata, Plugin> entry : pluginRepository.getPluginsByMetadata().entrySet()) {
       PluginMetadata metadata = entry.getKey();
       Plugin plugin = entry.getValue();

@@ -26,6 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.cfg.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.core.persistence.dialect.Dialect;
@@ -101,7 +102,7 @@ public class DefaultDatabase implements Database {
     if (dialect == null) {
       throw new IllegalStateException("Can not guess the JDBC dialect. Please check the property sonar.jdbc.url.");
     }
-    if (H2.ID.equals(dialect.getId()) && !settings.getBoolean("sonar.dryRun")) {
+    if (H2.ID.equals(dialect.getId()) && !settings.getBoolean(CoreProperties.DRY_RUN)) {
       LoggerFactory.getLogger(DefaultDatabase.class).warn("H2 database should be used for evaluation purpose only");
     }
     if (!properties.containsKey("sonar.jdbc.driverClassName")) {

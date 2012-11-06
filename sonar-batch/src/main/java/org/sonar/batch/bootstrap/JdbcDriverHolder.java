@@ -22,6 +22,7 @@ package org.sonar.batch.bootstrap;
 import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.SonarException;
 
@@ -54,7 +55,7 @@ public class JdbcDriverHolder {
   }
 
   public void start() {
-    if (!settings.getBoolean("sonar.dryRun")) {
+    if (!settings.getBoolean(CoreProperties.DRY_RUN)) {
       LOG.info("Install JDBC driver");
       File jdbcDriver = new File(tempDirectories.getRoot(), "jdbc-driver.jar");
       serverClient.download("/deploy/jdbc-driver.jar", jdbcDriver);

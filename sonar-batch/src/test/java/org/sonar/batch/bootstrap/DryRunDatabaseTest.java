@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
@@ -56,13 +57,13 @@ public class DryRunDatabaseTest {
   public void setUp() {
     databaseFile = new File("/tmp/dryrun.h2.db");
     when(tempDirectories.getFile("", "dryrun.h2.db")).thenReturn(databaseFile);
-    settings.setProperty("sonar.dryRun", true);
+    settings.setProperty(CoreProperties.DRY_RUN, true);
     dryRunDatabase = new DryRunDatabase(settings, server, tempDirectories, projectReactor, mock(ProjectReactorReady.class));
   }
 
   @Test
   public void should_be_disabled_if_not_dry_run() {
-    settings.setProperty("sonar.dryRun", false);
+    settings.setProperty(CoreProperties.DRY_RUN, false);
     dryRunDatabase.start();
 
     verifyZeroInteractions(tempDirectories, server);

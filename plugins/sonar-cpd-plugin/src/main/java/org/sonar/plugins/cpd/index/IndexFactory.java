@@ -56,7 +56,7 @@ public class IndexFactory implements BatchExtension {
     boolean crossProject = false;
 
     if (settings.getBoolean(CoreProperties.CPD_CROSS_RPOJECT)) {
-      if (settings.getBoolean("sonar.dryRun")) {
+      if (settings.getBoolean(CoreProperties.DRY_RUN)) {
         logger.info("Cross-project analysis disabled. Not supported on dry runs.");
       } else if (StringUtils.isNotBlank(project.getBranch())) {
         logger.info("Cross-project analysis disabled. Not supported on project branches.");

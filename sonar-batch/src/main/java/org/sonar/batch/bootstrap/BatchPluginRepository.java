@@ -64,17 +64,15 @@ public class BatchPluginRepository implements PluginRepository {
   }
 
   void doStart(List<RemotePlugin> remotePlugins) {
-    Set<String> whiteList = initWhiteList();
-    Set<String> blackList = initBlackList();
-
+    PluginFilter filter = new PluginFilter(settings);
     PluginInstaller extractor = new PluginInstaller();
     metadataByKey = Maps.newHashMap();
     for (RemotePlugin remote : remotePlugins) {
-      if (isAccepted(remote.getKey(), whiteList, blackList)) {
+      if (filter.accepts(remote.getKey())) {
         List<File> pluginFiles = pluginDownloader.downloadPlugin(remote);
         List<File> extensionFiles = pluginFiles.subList(1, pluginFiles.size());
         PluginMetadata metadata = extractor.installInSameLocation(pluginFiles.get(0), remote.isCore(), extensionFiles);
-        if (StringUtils.isBlank(metadata.getBasePlugin()) || isAccepted(metadata.getBasePlugin(), whiteList, blackList)) {
+        if (StringUtils.isBlank(metadata.getBasePlugin()) || filter.accepts(metadata.getBasePlugin())) {
           LOG.debug("Excluded plugin: " + metadata.getKey());
           metadataByKey.put(metadata.getKey(), metadata);
         }
@@ -82,24 +80,6 @@ public class BatchPluginRepository implements PluginRepository {
     }
     classLoaders = new PluginClassloaders(Thread.currentThread().getContextClassLoader());
     pluginsByKey = classLoaders.init(metadataByKey.values());
-  }
-
-  private Set<String> initBlackList() {
-    Set<String> blackList = null;
-    if (settings.hasKey(CoreProperties.BATCH_EXCLUDE_PLUGINS)) {
-      blackList = Sets.newTreeSet(Arrays.asList(settings.getStringArray(CoreProperties.BATCH_EXCLUDE_PLUGINS)));
-      LOG.info("Exclude plugins: " + Joiner.on(", ").join(blackList));
-    }
-    return blackList;
-  }
-
-  private Set<String> initWhiteList() {
-    Set<String> whiteList = null;
-    if (settings.hasKey(CoreProperties.BATCH_INCLUDE_PLUGINS)) {
-      whiteList = Sets.newTreeSet(Arrays.asList(settings.getStringArray(CoreProperties.BATCH_INCLUDE_PLUGINS)));
-      LOG.info("Include plugins: " + Joiner.on(", ").join(whiteList));
-    }
-    return whiteList;
   }
 
   public void stop() {
@@ -121,16 +101,6 @@ public class BatchPluginRepository implements PluginRepository {
     return metadataByKey.get(pluginKey);
   }
 
-  static boolean isAccepted(String pluginKey, Set<String> whiteList, Set<String> blackList) {
-    if (CORE_PLUGIN.equals(pluginKey) || ENGLISH_PACK_PLUGIN.equals(pluginKey)) {
-      return true;
-    }
-    if (whiteList != null) {
-      return whiteList.contains(pluginKey);
-    }
-    return blackList == null || !blackList.contains(pluginKey);
-  }
-
   public Map<PluginMetadata, Plugin> getPluginsByMetadata() {
     Map<PluginMetadata, Plugin> result = Maps.newHashMap();
     for (Map.Entry<String, PluginMetadata> entry : metadataByKey.entrySet()) {
@@ -139,5 +109,38 @@ public class BatchPluginRepository implements PluginRepository {
       result.put(metadata, pluginsByKey.get(pluginKey));
     }
     return result;
+  }
+
+  static class PluginFilter {
+    Set<String> whites = Sets.newHashSet(), blacks = Sets.newHashSet();
+
+    PluginFilter(Settings settings) {
+      if (settings.hasKey(CoreProperties.BATCH_INCLUDE_PLUGINS)) {
+        whites.addAll(Arrays.asList(settings.getStringArray(CoreProperties.BATCH_INCLUDE_PLUGINS)));
+      }
+      if (settings.hasKey(CoreProperties.BATCH_EXCLUDE_PLUGINS)) {
+        blacks.addAll(Arrays.asList(settings.getStringArray(CoreProperties.BATCH_EXCLUDE_PLUGINS)));
+      }
+      if (settings.getBoolean(CoreProperties.DRY_RUN)) {
+        whites.addAll(Arrays.asList(settings.getStringArray(CoreProperties.DRY_RUN_INCLUDE_PLUGINS)));
+        blacks.addAll(Arrays.asList(settings.getStringArray(CoreProperties.DRY_RUN_EXCLUDE_PLUGINS)));
+      }
+      if (!whites.isEmpty()) {
+        LOG.info("Include plugins: " + Joiner.on(", ").join(whites));
+      }
+      if (!blacks.isEmpty()) {
+        LOG.info("Exclude plugins: " + Joiner.on(", ").join(blacks));
+      }
+    }
+
+    boolean accepts(String pluginKey) {
+      if (CORE_PLUGIN.equals(pluginKey) || ENGLISH_PACK_PLUGIN.equals(pluginKey)) {
+        return true;
+      }
+      if (!whites.isEmpty()) {
+        return whites.contains(pluginKey);
+      }
+      return blacks.isEmpty() || !blacks.contains(pluginKey);
+    }
   }
 }

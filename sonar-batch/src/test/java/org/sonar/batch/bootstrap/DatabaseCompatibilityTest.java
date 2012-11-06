@@ -51,7 +51,7 @@ public class DatabaseCompatibilityTest {
     settings.setProperty(DatabaseProperties.PROP_URL, "jdbc:postgresql://localhost/foo");
     settings.setProperty(DatabaseProperties.PROP_USER, "bar");
     settings.setProperty(CoreProperties.SERVER_ID, "123456");
-    settings.setProperty("sonar.dryRun", false);
+    settings.setProperty(CoreProperties.DRY_RUN, false);
 
     databaseVersion = mock(DatabaseVersion.class);
   }
@@ -119,7 +119,7 @@ public class DatabaseCompatibilityTest {
   @Test
   public void should_not_verify_compatibility_if_dry_run() {
     settings.setProperty(CoreProperties.SERVER_ID, "11111111");
-    settings.setProperty("sonar.dryRun", true);
+    settings.setProperty(CoreProperties.DRY_RUN, true);
 
     new DatabaseCompatibility(databaseVersion, server, settings).start();
 

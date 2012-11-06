@@ -42,7 +42,7 @@ public class DatabaseCompatibility implements BatchComponent {
   }
 
   public void start() {
-    if (!settings.getBoolean("sonar.dryRun")) {
+    if (!settings.getBoolean(CoreProperties.DRY_RUN)) {
       checkCorrectServerId();
       checkDatabaseStatus();
     }

@@ -323,8 +323,27 @@ import java.util.List;
     global = false,
     defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_5,
     category = CoreProperties.CATEGORY_DIFFERENTIAL_VIEWS),
-  @Property(key = CoreProperties.DRY_RUN, defaultValue = "false", name = "Dry Run", type = PropertyType.BOOLEAN, global = false, project = false),
-  @Property(key = "sonar.dryRun.export.path", defaultValue = "dryRun.json", name = "Dry Run Results Export File", type = PropertyType.STRING, global = false, project = false),
+  @Property(
+    key = CoreProperties.DRY_RUN,
+    defaultValue = "false",
+    name = "Dry Run",
+    type = PropertyType.BOOLEAN,
+    global = false, project = false),
+  @Property(
+    key = CoreProperties.DRY_RUN_INCLUDE_PLUGINS,
+    name = "Plugins accepted for dry run",
+    global = true, project = false),
+  @Property(
+    key = CoreProperties.DRY_RUN_EXCLUDE_PLUGINS,
+    name = "Plugins excluded for dry run",
+    global = true, project = false,
+    defaultValue = "devcockpit,pdfreport,report,scmactivity,views"),
+  @Property(
+    key = "sonar.dryRun.export.path",
+    defaultValue = "dryRun.json",
+    name = "Dry Run Results Export File",
+    type = PropertyType.STRING,
+    global = false, project = false),
 
   // SERVER-SIDE TECHNICAL PROPERTIES
 
