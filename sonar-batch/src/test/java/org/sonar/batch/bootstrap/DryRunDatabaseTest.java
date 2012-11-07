@@ -28,11 +28,10 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
+import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.SonarException;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
@@ -88,18 +87,8 @@ public class DryRunDatabaseTest {
   }
 
   @Test
-  public void should_fail_on_unknown_project() {
-    doThrow(new SonarException(new FileNotFoundException())).when(server).download("/batch_bootstrap/db?project=group:project", databaseFile);
-
-    thrown.expect(SonarException.class);
-    thrown.expectMessage("Project [group:project] doesn't exist on server");
-
-    dryRunDatabase.start();
-  }
-
-  @Test
   public void should_fail_on_invalid_role() {
-    doThrow(new SonarException(new IOException("HTTP 401"))).when(server).download("/batch_bootstrap/db?project=group:project", databaseFile);
+    doThrow(new SonarException(new HttpDownloader.HttpException(null, 401))).when(server).download("/batch_bootstrap/db?project=group:project", databaseFile);
 
     thrown.expect(SonarException.class);
     thrown.expectMessage("You don't have access rights to project [group:project]");

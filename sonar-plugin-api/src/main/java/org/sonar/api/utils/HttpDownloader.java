@@ -225,6 +225,12 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
         connection.setUseCaches(true);
         connection.setInstanceFollowRedirects(true);
         connection.setRequestProperty("User-Agent", userAgent);
+
+        int responseCode = connection.getResponseCode();
+        if (responseCode >= 400) {
+          throw new HttpException(uri, responseCode);
+        }
+
         return connection.getInputStream();
       }
     }
@@ -240,6 +246,25 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
       protected PasswordAuthentication getPasswordAuthentication() {
         return auth;
       }
+    }
+  }
+
+  public static class HttpException extends IOException {
+    private final URI uri;
+    private final int responseCode;
+
+    public HttpException(URI uri, int responseCode) {
+      super("Fail to download [" + uri + "]. Response code: " + responseCode);
+      this.uri = uri;
+      this.responseCode = responseCode;
+    }
+
+    public int getResponseCode() {
+      return responseCode;
+    }
+
+    public URI getUri() {
+      return uri;
     }
   }
 }
