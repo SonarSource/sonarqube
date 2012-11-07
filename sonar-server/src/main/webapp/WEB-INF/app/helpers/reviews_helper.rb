@@ -18,9 +18,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 module ReviewsHelper
-  
+
   def projects_for_select
-    Project.find(:all, :select => 'id,name,long_name', :conditions => ['enabled=? AND scope=? AND qualifier IN (?)', true, 'PRJ', ['TRK', 'VW','SVW']], :order => 'name ASC')
+    projects=Project.find(:all, :select => 'id,name,long_name,scope,qualifier,root_id', :conditions => ['enabled=? AND scope=? AND qualifier IN (?)', true, 'PRJ', ['TRK', 'VW', 'SVW']], :order => 'name ASC')
+    select_authorized(:user, projects)
   end
-  
+
 end
