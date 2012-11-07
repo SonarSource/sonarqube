@@ -23,6 +23,7 @@
   color: #EEE;
   background: #FF5252;
   padding: 0 5px;
+  padding: 0 5px;
 }
 
 #ftlinks a {
@@ -438,6 +439,14 @@ table.data th img, table.data td img {
 
 .hoverable:hover, table.data tbody tr:hover {
   background-color: #CAE3F2 !important;
+}
+
+table.nohighlight .odd:hover {
+  background-color: #fff !important;
+}
+
+table.nohighlight .even:hover {
+  background-color: #EFEFEF !important;
 }
 
 .hoverable:hover a {
