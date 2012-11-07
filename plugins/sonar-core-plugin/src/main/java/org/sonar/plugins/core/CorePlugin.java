@@ -328,16 +328,19 @@ import java.util.List;
     defaultValue = "false",
     name = "Dry Run",
     type = PropertyType.BOOLEAN,
-    global = false, project = false),
+    global = false, project = false,
+    category = CoreProperties.CATEGORY_GENERAL),
   @Property(
     key = CoreProperties.DRY_RUN_INCLUDE_PLUGINS,
     name = "Plugins accepted for dry run",
-    global = true, project = false),
+    global = true, project = false,
+    category = CoreProperties.CATEGORY_GENERAL),
   @Property(
     key = CoreProperties.DRY_RUN_EXCLUDE_PLUGINS,
     name = "Plugins excluded for dry run",
     global = true, project = false,
-    defaultValue = "devcockpit,pdfreport,report,scmactivity,views"),
+    defaultValue = "devcockpit,pdfreport,report,scmactivity,views",
+    category = CoreProperties.CATEGORY_GENERAL),
   @Property(
     key = "sonar.dryRun.export.path",
     defaultValue = "dryRun.json",
