@@ -335,6 +335,9 @@ class ProfilesController < ApplicationController
       arules2 = ActiveRule.find(:all, :order => 'rules.plugin_name, rules.plugin_rule_key', :include => [{:active_rule_parameters => :rules_parameter}, :rule],
                                 :conditions => ['active_rules.profile_id=?', @profile2.id])
 
+      arules1.reject! { |arule| !arule.rule.enabled }
+      arules2.reject! { |arule| !arule.rule.enabled }
+
       diffs_by_rule={}
       arules1.each do |arule1|
         diffs_by_rule[arule1.rule]||=RuleDiff.new(arule1.rule)
