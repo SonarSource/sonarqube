@@ -72,4 +72,8 @@
     delete from properties where resource_id is null and user_id is null
   </delete>
 
+  <update id="renamePropertyKey" parameterType="map">
+    update properties set prop_key = #{newKey} where prop_key=#{oldKey}
+  </update>
+
 </mapper>

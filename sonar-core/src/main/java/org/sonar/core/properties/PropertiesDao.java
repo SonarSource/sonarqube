@@ -19,6 +19,8 @@
  */
 package org.sonar.core.properties;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
@@ -129,6 +131,23 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
 
     } finally {
       MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void renamePropertyKey(String oldKey, String newKey) {
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(oldKey), "Old property key must not be empty");
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(newKey), "New property key must not be empty");
+
+    if (!newKey.equals(oldKey)) {
+      SqlSession session = mybatis.openSession();
+      PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
+      try {
+        mapper.renamePropertyKey(oldKey, newKey);
+        session.commit();
+
+      } finally {
+        MyBatis.closeQuietly(session);
+      }
     }
   }
 }

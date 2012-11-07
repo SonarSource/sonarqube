@@ -21,7 +21,9 @@ package org.sonar.core.properties;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.List;
@@ -33,6 +35,9 @@ import static org.junit.Assert.assertThat;
 public class PropertiesDaoTest extends AbstractDaoTestCase {
 
   private PropertiesDao dao;
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Before
   public void createDao() {
@@ -130,6 +135,36 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
     dao.saveGlobalProperties(ImmutableMap.of("to_be_updated", "updated"));
 
     checkTable("updateGlobalProperties", "properties", "prop_key", "text_value", "resource_id", "user_id");
+  }
+
+  @Test
+  public void renamePropertyKey() {
+    setupData("renamePropertyKey");
+
+    dao.renamePropertyKey("sonar.license.secured", "sonar.license");
+
+    checkTable("renamePropertyKey", "properties", "prop_key", "text_value", "resource_id", "user_id");
+  }
+
+  @Test
+  public void should_not_rename_if_same_key() {
+    setupData("should_not_rename_if_same_key");
+
+    dao.renamePropertyKey("foo", "foo");
+
+    checkTable("should_not_rename_if_same_key", "properties", "prop_key", "text_value", "resource_id", "user_id");
+  }
+
+  @Test
+  public void should_not_rename_with_empty_key() {
+    thrown.expect(IllegalArgumentException.class);
+    dao.renamePropertyKey("foo", "");
+  }
+
+  @Test
+  public void should_not_rename_an_empty_key() {
+    thrown.expect(IllegalArgumentException.class);
+    dao.renamePropertyKey(null, "foo");
   }
 
   private PropertyDto findById(List<PropertyDto> properties, int id) {
