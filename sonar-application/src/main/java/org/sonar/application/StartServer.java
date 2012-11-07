@@ -37,6 +37,7 @@ public final class StartServer {
   public static void main(String[] args) throws Exception {
     canCreateTemporaryFiles();
     configureHome();
+    configureJettyLogger();
 
     Properties configuration = getConfiguration();
     String host = configuration.getProperty("sonar.web.host", DEFAULT_WEB_HOST);
@@ -80,5 +81,9 @@ public final class StartServer {
     File confFile = new File(StartServer.class.getResource("/conf/sonar.properties").toURI());
     System.setProperty("SONAR_HOME" /* see constant org.sonar.server.platform.SonarHome.PROPERTY */,
       confFile.getParentFile().getParentFile().getAbsolutePath());
+  }
+
+  private static void configureJettyLogger() {
+    System.setProperty("org.mortbay.log.class", FilteredLogger.class.getName());
   }
 }
