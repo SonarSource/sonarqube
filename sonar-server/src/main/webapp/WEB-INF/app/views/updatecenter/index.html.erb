@@ -22,7 +22,7 @@
        @user_plugins.each do |plugin|
      %>
        <tr class="select <%= cycle('even', 'odd', :name => 'user') -%>" id="select_<%= plugin.getKey() -%>">
-         <td width="1%" nowrap><b><a href="#plugin" onclick="showPlugin('<%= plugin.getKey() -%>')"><%= h(plugin.getName()) -%></a></b></td>
+         <td width="1%" nowrap><b><a href="#plugin" onclick="showPlugin('<%= plugin.getKey() -%>')"><%= h(plugin.getName()) -%></a></b> <span class="note">[<%= h plugin.getKey() -%>]</span></td>
          <td><%= plugin.getVersion() || '-' -%></td>
          <td>
          <%= plugin.getDescription() -%>
@@ -70,7 +70,7 @@
      @core_plugins.each do |plugin|
    %>
   <tr class="<%= cycle('even','odd', :name => 'core') -%>" id="<%= u plugin.getKey() -%>">
-    <td width="1%" nowrap><b><%= plugin.getName() -%></b></td>
+    <td width="1%" nowrap><b><%= plugin.getName() -%></b> <span class="note">[<%= h plugin.getKey() -%>]</span></td>
        <td><%= plugin.getDescription() -%></td>
      </tr>
    <% end %>
