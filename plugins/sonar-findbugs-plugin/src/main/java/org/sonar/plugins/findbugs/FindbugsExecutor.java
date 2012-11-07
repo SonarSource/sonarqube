@@ -113,6 +113,7 @@ public class FindbugsExecutor implements BatchExtension {
 
       for (File filterFile : configuration.getExcludesFilters()) {
         if (filterFile.isFile()) {
+          LOG.info("Use filter-file: {}", filterFile);
           engine.addFilter(filterFile.getAbsolutePath(), false);
         } else {
           LOG.warn("FindBugs filter-file not found: {}", filterFile);
