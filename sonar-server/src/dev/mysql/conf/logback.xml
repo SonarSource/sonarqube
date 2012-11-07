@@ -14,16 +14,7 @@
     <level value="ERROR"/>
   </logger>
 
-  <logger name="org.hibernate.cache.EhCacheProvider">
-    <!-- removing "org.hibernate.cache.EhCacheProvider - Could not find configuratio)" message -->
-    <level value="ERROR"/>
-  </logger>
-
   <logger name="org.sonar.INFO">
-    <level value="INFO"/>
-  </logger>
-
-  <logger name="net.sf.ehcache">
     <level value="INFO"/>
   </logger>
 

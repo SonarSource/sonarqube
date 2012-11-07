@@ -14,15 +14,8 @@
     </encoder>
   </appender>
 
-  <logger name="net.sf.ehcache">
-    <level value="WARN"/>
-  </logger>
   <logger name="org.hibernate.cache.ReadWriteCache">
     <!-- removing "An item was expired by the cache while it was locked (increase your cache timeout)" msg -->
-    <level value="ERROR"/>
-  </logger>
-  <logger name="org.hibernate.cache.EhCacheProvider">
-    <!-- removing "org.hibernate.cache.EhCacheProvider - Could not find configuratio)" message -->
     <level value="ERROR"/>
   </logger>
   <logger name="org.hibernate">

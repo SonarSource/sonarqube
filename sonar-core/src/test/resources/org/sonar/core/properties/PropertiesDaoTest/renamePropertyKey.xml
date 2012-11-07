@@ -1,0 +1,6 @@
+<dataset>
+
+  <properties id="1" prop_key="foo" text_value="bar" resource_id="[null]" user_id="[null]"/>
+  <properties id="2" prop_key="sonar.license.secured" text_value="the license" resource_id="[null]" user_id="[null]"/>
+
+</dataset>
