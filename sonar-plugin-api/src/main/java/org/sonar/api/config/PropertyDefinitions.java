@@ -19,6 +19,7 @@
  */
 package org.sonar.api.config;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
@@ -42,6 +43,9 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
 
   private final Map<String, PropertyDefinition> definitions = Maps.newHashMap();
   private final Map<String, String> categories = Maps.newHashMap();
+
+  // deprecated key -> new key
+  private final Map<String, String> deprecatedKeys = Maps.newHashMap();
 
   public PropertyDefinitions(Object... components) {
     if (components != null) {
@@ -87,6 +91,10 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
     if (!definitions.containsKey(definition.getKey())) {
       definitions.put(definition.getKey(), definition);
       categories.put(definition.getKey(), StringUtils.defaultIfBlank(definition.getCategory(), defaultCategory));
+      if (!Strings.isNullOrEmpty(definition.getDeprecatedKey()) && !definition.getDeprecatedKey().equals(definition.getKey())) {
+        deprecatedKeys.put(definition.getDeprecatedKey(), definition.getKey());
+        definitions.put(definition.getDeprecatedKey(), definition);
+      }
     }
     return this;
   }
@@ -169,5 +177,17 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
 
   public String getCategory(Property prop) {
     return getCategory(prop.key());
+  }
+
+  public String getNewKey(String deprecatedKey) {
+    return deprecatedKeys.get(deprecatedKey);
+  }
+
+  public String getDeprecatedKey(String key) {
+    PropertyDefinition def = get(key);
+    if (def == null) {
+      return null;
+    }
+    return StringUtils.defaultIfEmpty(def.getDeprecatedKey(), null);
   }
 }

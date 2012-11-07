@@ -71,6 +71,7 @@ public final class PropertyDefinition {
   private final boolean isGlobal;
   private final boolean multiValues;
   private final String propertySetKey;
+  private final String deprecatedKey;
   private final List<PropertyFieldDefinition> fields;
 
   private PropertyDefinition(Property annotation) {
@@ -87,6 +88,7 @@ public final class PropertyDefinition {
     this.multiValues = annotation.multiValues();
     this.propertySetKey = annotation.propertySetKey();
     this.fields = ImmutableList.copyOf(PropertyFieldDefinition.create(annotation.fields()));
+    this.deprecatedKey = annotation.deprecatedKey();
   }
 
   private PropertyDefinition(String key, PropertyType type, String[] options) {
@@ -103,6 +105,7 @@ public final class PropertyDefinition {
     this.multiValues = false;
     this.propertySetKey = null;
     this.fields = null;
+    this.deprecatedKey = null;
   }
 
   private static PropertyType fixType(String key, PropertyType type) {
@@ -214,5 +217,12 @@ public final class PropertyDefinition {
    */
   public List<PropertyFieldDefinition> getFields() {
     return fields;
+  }
+
+  /**
+   * @since 3.4
+   */
+  public String getDeprecatedKey() {
+    return deprecatedKey;
   }
 }

@@ -92,10 +92,8 @@ public class Settings implements BatchComponent, ServerComponent {
   }
 
   public final String getString(String key) {
-    String value = properties.get(key);
-    if (value == null) {
-      value = getDefaultValue(key);
-    } else if (encryption.isEncrypted(value)) {
+    String value = getClearString(key);
+    if (value != null && encryption.isEncrypted(value)) {
       try {
         value = encryption.decrypt(value);
       } catch (Exception e) {
@@ -264,10 +262,8 @@ public class Settings implements BatchComponent, ServerComponent {
       throw new IllegalStateException("Fail to set multiple values on a single value property " + key);
     }
 
-    if (values == null) {
-      properties.remove(key);
-      doOnRemoveProperty(key);
-    } else {
+    String text = null;
+    if (values != null) {
       List<String> escaped = Lists.newArrayList();
       for (String value : values) {
         if (null != value) {
@@ -278,19 +274,33 @@ public class Settings implements BatchComponent, ServerComponent {
       }
 
       String escapedValue = Joiner.on(',').join(escaped);
-      properties.put(key, StringUtils.trim(escapedValue));
-      doOnSetProperty(key, escapedValue);
+      text = StringUtils.trim(escapedValue);
     }
-    return this;
+    return setProperty(key, text);
   }
 
   public final Settings setProperty(String key, @Nullable String value) {
+    return setProperty(key, value, true);
+  }
+
+  private Settings setProperty(String key, @Nullable String value, boolean recursive) {
     if (value == null) {
       properties.remove(key);
       doOnRemoveProperty(key);
     } else {
       properties.put(key, StringUtils.trim(value));
       doOnSetProperty(key, value);
+    }
+    if (recursive) {
+      String newKey = definitions.getNewKey(key);
+      if (newKey != null) {
+        setProperty(newKey, value, false);
+      } else {
+        String deprecatedKey = definitions.getDeprecatedKey(key);
+        if (deprecatedKey != null) {
+          setProperty(deprecatedKey, value, false);
+        }
+      }
     }
     return this;
   }
@@ -347,7 +357,7 @@ public class Settings implements BatchComponent, ServerComponent {
   }
 
   public final Settings setProperties(Settings s) {
-    if (s.properties==null) {
+    if (s.properties == null) {
       return clear();
     }
     return setProperties(Maps.newHashMap(s.properties));

@@ -121,4 +121,10 @@ public @interface Property {
    * @since 3.3
    */
   PropertyField[] fields() default {};
+
+  /**
+   * Relocation of key.
+   * @since 3.4
+   */
+  String deprecatedKey() default "";
 }

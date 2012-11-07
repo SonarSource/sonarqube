@@ -44,7 +44,10 @@ public class SettingsTest {
     @Property(key = "integer", name = "Integer", defaultValue = "12345"),
     @Property(key = "array", name = "Array", defaultValue = "one,two,three"),
     @Property(key = "multi_values", name = "Array", defaultValue = "1,2,3", multiValues = true),
-    @Property(key = "sonar.jira", name = "Jira Server", type = PropertyType.PROPERTY_SET, propertySetKey = "jira")
+    @Property(key = "sonar.jira", name = "Jira Server", type = PropertyType.PROPERTY_SET, propertySetKey = "jira"),
+    @Property(key = "newKey", name = "New key", deprecatedKey = "oldKey"),
+    @Property(key = "newKeyWithDefaultValue", name = "New key with default value", deprecatedKey = "oldKeyWithDefaultValue", defaultValue = "default_value"),
+    @Property(key = "new_multi_values", name = "New multi values", defaultValue = "1,2,3", multiValues = true, deprecatedKey = "old_multi_values")
   })
   static class Init {
   }
@@ -375,5 +378,40 @@ public class SettingsTest {
     assertThat(settings.getKeysStartingWith("sonar")).containsOnly("sonar.jdbc.url", "sonar.jdbc.username", "sonar.security");
     assertThat(settings.getKeysStartingWith("sonar.jdbc")).containsOnly("sonar.jdbc.url", "sonar.jdbc.username");
     assertThat(settings.getKeysStartingWith("other")).hasSize(0);
+  }
+
+  @Test
+  public void should_fallback_deprecated_key_to_default_value_of_new_key() {
+    Settings settings = new Settings(definitions);
+
+    assertThat(settings.getString("newKeyWithDefaultValue")).isEqualTo("default_value");
+    assertThat(settings.getString("oldKeyWithDefaultValue")).isEqualTo("default_value");
+  }
+
+  @Test
+  public void should_fallback_deprecated_key_to_new_key() {
+    Settings settings = new Settings(definitions);
+    settings.setProperty("newKey", "value of newKey");
+
+    assertThat(settings.getString("newKey")).isEqualTo("value of newKey");
+    assertThat(settings.getString("oldKey")).isEqualTo("value of newKey");
+  }
+
+  @Test
+  public void should_load_value_set_on_deprecated_key() {
+    // it's used for example when deprecated settings are set through command-line
+    Settings settings = new Settings(definitions);
+    settings.setProperty("oldKey", "value of oldKey");
+
+    assertThat(settings.getString("newKey")).isEqualTo("value of oldKey");
+    assertThat(settings.getString("oldKey")).isEqualTo("value of oldKey");
+  }
+
+  @Test
+  public void should_support_deprecated_props_with_multi_values() {
+    Settings settings = new Settings(definitions);
+    settings.setProperty("new_multi_values", new String[]{" A ", " B "});
+    assertThat(settings.getStringArray("new_multi_values")).isEqualTo(new String[]{"A", "B"});
+    assertThat(settings.getStringArray("old_multi_values")).isEqualTo(new String[]{"A", "B"});
   }
 }

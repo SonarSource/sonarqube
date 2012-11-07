@@ -89,6 +89,7 @@ import org.sonar.server.startup.RegisterNewFilters;
 import org.sonar.server.startup.RegisterNewProfiles;
 import org.sonar.server.startup.RegisterQualityModels;
 import org.sonar.server.startup.RegisterRules;
+import org.sonar.server.startup.RenameDeprecatedPropertyKeys;
 import org.sonar.server.startup.ServerMetadataPersister;
 import org.sonar.server.ui.CodeColorizers;
 import org.sonar.server.ui.JRubyI18n;
@@ -269,6 +270,7 @@ public final class Platform {
     startupContainer.addSingleton(GeneratePluginIndex.class);
     startupContainer.addSingleton(RegisterNewFilters.class);
     startupContainer.addSingleton(RegisterNewDashboards.class);
+    startupContainer.addSingleton(RenameDeprecatedPropertyKeys.class);
     startupContainer.startComponents();
 
     startupContainer.getComponentByType(ServerLifecycleNotifier.class).notifyStart();
