@@ -20,14 +20,7 @@
 package org.sonar.plugins.findbugs;
 
 import com.google.common.collect.Lists;
-import edu.umd.cs.findbugs.DetectorFactoryCollection;
-import edu.umd.cs.findbugs.FindBugs;
-import edu.umd.cs.findbugs.FindBugs2;
-import edu.umd.cs.findbugs.Plugin;
-import edu.umd.cs.findbugs.PluginException;
-import edu.umd.cs.findbugs.Priorities;
-import edu.umd.cs.findbugs.Project;
-import edu.umd.cs.findbugs.XMLBugReporter;
+import edu.umd.cs.findbugs.*;
 import edu.umd.cs.findbugs.config.UserPreferences;
 import edu.umd.cs.findbugs.plugins.DuplicatePluginIdException;
 import org.apache.commons.io.FileUtils;
@@ -44,12 +37,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.URL;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -80,7 +68,7 @@ public class FindbugsExecutor implements BatchExtension {
     this.configuration = configuration;
   }
 
-  public File execute() {
+  public BugCollection execute() {
     TimeProfiler profiler = new TimeProfiler().start("Execute Findbugs " + FindbugsVersion.getVersion());
     // We keep a handle on the current security manager because FB plays with it and we need to restore it before shutting down the executor
     // service
@@ -140,7 +128,7 @@ public class FindbugsExecutor implements BatchExtension {
 
       profiler.stop();
 
-      return xmlReport;
+      return xmlBugReporter.getBugCollection();
     } catch (Exception e) {
       throw new SonarException("Can not execute Findbugs", e);
     } finally {

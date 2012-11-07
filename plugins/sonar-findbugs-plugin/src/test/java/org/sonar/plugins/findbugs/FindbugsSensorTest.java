@@ -20,22 +20,16 @@
 package org.sonar.plugins.findbugs;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.configuration.Configuration;
+import edu.umd.cs.findbugs.*;
 import org.junit.Test;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.InputFile;
-import org.sonar.api.resources.InputFileUtils;
-import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.*;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectFileSystem;
-import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.test.IsViolation;
 
-import java.io.File;
 import java.util.ArrayList;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -99,51 +93,30 @@ public class FindbugsSensorTest extends FindbugsTests {
     Project project = createProject();
     FindbugsExecutor executor = mock(FindbugsExecutor.class);
     SensorContext context = mock(SensorContext.class);
-    Configuration conf = mock(Configuration.class);
-    // We assume that this report was generated during findbugs execution
-    File xmlFile = new File(getClass().getResource("/org/sonar/plugins/findbugs/findbugsReport.xml").toURI());
-    when(project.getConfiguration()).thenReturn(conf);
-    when(executor.execute()).thenReturn(xmlFile);
+
+    BugCollection collection = new SortedBugCollection();
+    BugInstance bugInstance = new BugInstance("AM_CREATES_EMPTY_ZIP_FILE_ENTRY", 2);
+    String className = "org.sonar.commons.ZipUtils";
+    String sourceFile = "org/sonar/commons/ZipUtils.java";
+    int startLine = 107;
+    ClassAnnotation classAnnotation = new ClassAnnotation(className, sourceFile);
+    bugInstance.add(classAnnotation);
+    MethodAnnotation methodAnnotation = new MethodAnnotation(className, "_zip", "(Ljava/lang/String;Ljava/io/File;Ljava/util/zip/ZipOutputStream;)V", true);
+    methodAnnotation.setSourceLines(new SourceLineAnnotation(className, sourceFile, startLine, 0, 0, 0));
+    bugInstance.add(methodAnnotation);
+    collection.add(bugInstance);
+    when(executor.execute()).thenReturn(collection);
+
     when(context.getResource(any(Resource.class))).thenReturn(new JavaFile("org.sonar.MyClass"));
 
     FindbugsSensor analyser = new FindbugsSensor(createRulesProfileWithActiveRules(), new FakeRuleFinder(), executor);
     analyser.analyse(project, context);
 
     verify(executor).execute();
-    verify(context, times(2)).saveViolation(any(Violation.class));
+    verify(context, times(1)).saveViolation(any(Violation.class));
 
     Violation wanted = Violation.create((Rule) null, new JavaFile("org.sonar.commons.ZipUtils")).setMessage(
         "Empty zip file entry created in org.sonar.commons.ZipUtils._zip(String, File, ZipOutputStream)").setLineId(107);
-    verify(context).saveViolation(argThat(new IsViolation(wanted)));
-
-    wanted = Violation.create((Rule) null, new JavaFile("org.sonar.commons.resources.MeasuresDao")).setMessage(
-        "The class org.sonar.commons.resources.MeasuresDao$1 could be refactored into a named _static_ inner class").setLineId(56);
-    verify(context).saveViolation(argThat(new IsViolation(wanted)));
-  }
-
-  @Test
-  public void shouldReuseReport() throws Exception {
-    Project project = createProject();
-    FindbugsExecutor executor = mock(FindbugsExecutor.class);
-    SensorContext context = mock(SensorContext.class);
-    Configuration conf = mock(Configuration.class);
-    File xmlFile = new File(getClass().getResource("/org/sonar/plugins/findbugs/findbugsReport.xml").toURI());
-    when(conf.getString(CoreProperties.FINDBUGS_REPORT_PATH)).thenReturn(xmlFile.getAbsolutePath());
-    when(project.getConfiguration()).thenReturn(conf);
-    when(context.getResource(any(Resource.class))).thenReturn(new JavaFile("org.sonar.MyClass"));
-
-    FindbugsSensor analyser = new FindbugsSensor(createRulesProfileWithActiveRules(), new FakeRuleFinder(), executor);
-    analyser.analyse(project, context);
-
-    verify(executor, never()).execute();
-    verify(context, times(2)).saveViolation(any(Violation.class));
-
-    Violation wanted = Violation.create((Rule) null, new JavaFile("org.sonar.commons.ZipUtils")).setMessage(
-        "Empty zip file entry created in org.sonar.commons.ZipUtils._zip(String, File, ZipOutputStream)").setLineId(107);
-    verify(context).saveViolation(argThat(new IsViolation(wanted)));
-
-    wanted = Violation.create((Rule) null, new JavaFile("org.sonar.commons.resources.MeasuresDao")).setMessage(
-        "The class org.sonar.commons.resources.MeasuresDao$1 could be refactored into a named _static_ inner class").setLineId(56);
     verify(context).saveViolation(argThat(new IsViolation(wanted)));
   }
 
@@ -152,11 +125,16 @@ public class FindbugsSensorTest extends FindbugsTests {
     Project project = createProject();
     FindbugsExecutor executor = mock(FindbugsExecutor.class);
     SensorContext context = mock(SensorContext.class);
-    Configuration conf = mock(Configuration.class);
-    File xmlFile = new File(getClass().getResource("/org/sonar/plugins/findbugs/findbugsReportWithUnknownRule.xml").toURI());
-    when(conf.getString(CoreProperties.FINDBUGS_REPORT_PATH)).thenReturn(xmlFile.getAbsolutePath());
-    when(project.getConfiguration()).thenReturn(conf);
     when(context.getResource(any(Resource.class))).thenReturn(new JavaFile("org.sonar.MyClass"));
+
+    BugCollection collection = new SortedBugCollection();
+    BugInstance bugInstance = new BugInstance("UNKNOWN", 2);
+    String className = "org.sonar.commons.ZipUtils";
+    String sourceFile = "org/sonar/commons/ZipUtils.java";
+    ClassAnnotation classAnnotation = new ClassAnnotation(className, sourceFile);
+    bugInstance.add(classAnnotation);
+    collection.add(bugInstance);
+    when(executor.execute()).thenReturn(collection);
 
     FindbugsSensor analyser = new FindbugsSensor(createRulesProfileWithActiveRules(), new FakeRuleFinder(), executor);
     analyser.analyse(project, context);

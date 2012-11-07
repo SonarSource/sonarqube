@@ -19,9 +19,11 @@
  */
 package org.sonar.plugins.findbugs;
 
+import edu.umd.cs.findbugs.BugCollection;
+import edu.umd.cs.findbugs.BugInstance;
+import edu.umd.cs.findbugs.SourceLineAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.profiles.RulesProfile;
@@ -31,9 +33,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
-
-import java.io.File;
-import java.util.List;
 
 public class FindbugsSensor implements Sensor {
 
@@ -51,23 +50,19 @@ public class FindbugsSensor implements Sensor {
 
   public boolean shouldExecuteOnProject(Project project) {
     return Java.KEY.equals(project.getLanguageKey())
-      && !project.getFileSystem().mainFiles(Java.KEY).isEmpty()
-      && !profile.getActiveRulesByRepository(FindbugsConstants.REPOSITORY_KEY).isEmpty();
+        && !project.getFileSystem().mainFiles(Java.KEY).isEmpty()
+        && !profile.getActiveRulesByRepository(FindbugsConstants.REPOSITORY_KEY).isEmpty();
   }
 
   public void analyse(Project project, SensorContext context) {
     if (project.getReuseExistingRulesConfig()) {
       LOG.warn("Reusing existing Findbugs configuration not supported any more.");
     }
-    File report = getFindbugsReportFile(project);
-    if (report == null) {
-      report = executor.execute();
-    }
-    FindbugsXmlReportParser reportParser = new FindbugsXmlReportParser(report);
-    List<FindbugsXmlReportParser.XmlBugInstance> bugInstances = reportParser.getBugInstances();
 
-    for (FindbugsXmlReportParser.XmlBugInstance bugInstance : bugInstances) {
-      FindbugsXmlReportParser.XmlSourceLineAnnotation sourceLine = bugInstance.getPrimarySourceLine();
+    BugCollection collection = executor.execute();
+
+    for (BugInstance bugInstance : collection) {
+      SourceLineAnnotation sourceLine = bugInstance.getPrimarySourceLineAnnotation();
       if (sourceLine == null) {
         LOG.warn("No source line for " + bugInstance.getType());
         continue;
@@ -80,25 +75,30 @@ public class FindbugsSensor implements Sensor {
         continue;
       }
 
-      JavaFile resource = new JavaFile(sourceLine.getSonarJavaFileKey());
+      String longMessage = bugInstance.getMessageWithoutPrefix();
+      String className = bugInstance.getPrimarySourceLineAnnotation().getClassName();
+      int start = bugInstance.getPrimarySourceLineAnnotation().getStartLine();
+
+      JavaFile resource = new JavaFile(getSonarJavaFileKey(className));
       if (context.getResource(resource) != null) {
         Violation violation = Violation.create(rule, resource)
-            .setLineId(sourceLine.getStart())
-            .setMessage(bugInstance.getLongMessage());
+            .setLineId(start)
+            .setMessage(longMessage);
         context.saveViolation(violation);
       }
     }
   }
 
-  protected final File getFindbugsReportFile(Project project) {
-    if (project.getConfiguration().getString(CoreProperties.FINDBUGS_REPORT_PATH) != null) {
-      return new File(project.getConfiguration().getString(CoreProperties.FINDBUGS_REPORT_PATH));
+  private static String getSonarJavaFileKey(String className) {
+    if (className.indexOf('$') > -1) {
+      return className.substring(0, className.indexOf('$'));
     }
-    return null;
+    return className;
   }
 
   @Override
   public String toString() {
     return getClass().getSimpleName();
   }
+
 }
