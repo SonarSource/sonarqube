@@ -21,7 +21,6 @@ package org.sonar.batch;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -64,7 +63,6 @@ public class DefaultProfileLoaderTest {
    * SONAR-3922
    */
   @Test
-  @Ignore
   public void should_check_language_property_before_global_property() {
     Settings settings = new Settings();
     settings.setProperty("sonar.profile.java", "one");
