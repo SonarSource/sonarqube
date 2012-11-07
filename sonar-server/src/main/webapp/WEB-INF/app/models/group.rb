@@ -23,7 +23,7 @@ class Group < ActiveRecord::Base
   has_many :group_roles, :dependent => :delete_all
   
   validates_presence_of     :name
-  validates_length_of       :name,    :within => 1..40
+  validates_length_of       :name,    :within => 1..255
   validates_length_of       :description,    :within => 0..200
   validates_uniqueness_of   :name
 
