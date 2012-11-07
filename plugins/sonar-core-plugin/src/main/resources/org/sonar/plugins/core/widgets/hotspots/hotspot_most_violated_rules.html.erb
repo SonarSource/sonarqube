@@ -32,7 +32,7 @@
 
 <div class="line-block">
   <div style="float:right">
-    <a href="#" onclick="window.location.href='<%= url_for(:controller => 'drilldown', :action => 'violations') -%>?id=<%= @resource.key -%>&period=<%= dashboard_configuration.period_index -%>&severity=' + $F('select-severity_<%= widget.id -%>') ">
+    <a href="#" onclick="window.location.href='<%= url_for(:controller => 'drilldown', :action => 'violations') -%>/<%= @resource.id -%>?period=<%= dashboard_configuration.period_index -%>&severity=' + $F('select-severity_<%= widget.id -%>') ">
       <%= message('widget.hotspot_metric.more') -%>
     </a>
   </div>

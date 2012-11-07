@@ -94,7 +94,7 @@
                 <a id="<%= "rule#{rule_index}" -%>" title="<%= message('violations_drilldown.click_for_more_on_x', :params => [rule.plugin_name, rule.plugin_rule_key]) -%>" onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;" href="<%= url_for :controller => 'rules', :action => 'show', :id => rule.key, :layout => 'false' -%>"><img src="<%= ApplicationController.root_context -%>/images/priority/<%= rule_measure.rule_priority -%>.png"/></a>
               </td>
               <td>
-                <%= link_to(rule.name, {:rule => (selected ? nil : rule.key), :rule_sev => (selected ? nil : rule_measure.severity), :sid => nil, :severity => @severity, :period => @period, :rids => (selected ? nil : @selected_rids)}, :title => "#{rule.plugin_name}: #{rule.plugin_rule_key}") -%>
+                <%= link_to(rule.name, {:controller => :drilldown, :action => :violations, :id => @resource.id, :rule => (selected ? nil : rule.key), :rule_sev => (selected ? nil : rule_measure.severity), :sid => nil, :severity => @severity, :period => @period, :rids => (selected ? nil : @selected_rids)}, :title => "#{rule.plugin_name}: #{rule.plugin_rule_key}") -%>
               </td>
               <td class="right" nowrap="nowrap">
                 <span><%= @period ? format_variation(rule_measure, :period => @period, :style => 'light') : rule_measure.formatted_value -%></span>
