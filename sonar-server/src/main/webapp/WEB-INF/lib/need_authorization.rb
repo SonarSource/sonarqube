@@ -58,7 +58,17 @@ module NeedAuthorization
     #
     def has_role?(role, objects=nil)
       if objects.nil?
-        AuthorizerFactory.authorizer.has_role?(self, role.to_sym)
+        role_symbol=role.to_sym
+        if role_symbol==:admin
+          AuthorizerFactory.authorizer.has_role?(self, role_symbol)
+        else
+          # There's no concept of global users or global codeviewers.
+          # Someone is considered as user if
+          # - authentication is not forced
+          # - authentication is forced and user is authenticated
+          force_authentication = Api::Utils.java_facade.getConfigurationValue('sonar.forceAuthentication')=='true'
+          !force_authentication || self.id
+        end
       elsif objects.is_a?(Array)
         has_role_for_resources?(role, objects)
       else
@@ -72,7 +82,7 @@ module NeedAuthorization
 
     def has_role_for_resources?(role, objects)
       return [] if objects.nil? || objects.size==0
-      
+
       resource_ids=[]
       objects.each do |obj|
         resource_ids<<to_resource_id(obj)
@@ -91,7 +101,7 @@ module NeedAuthorization
 
         # security is sometimes ignored (for example on libraries), so default value is true if no id to check
         authorized=true if authorized.nil?
-        
+
         result[index]=authorized
       end
       result
@@ -188,7 +198,7 @@ module NeedAuthorization
       end
       result
     end
-    
+
     #
     # Filter method to enforce a login admin requirement.
     #
