@@ -63,17 +63,21 @@ public class ProjectModule extends Module {
   }
 
   private void addCoreComponents() {
+    ProjectDefinition projectDefinition = container.getComponentByType(ProjectTree.class).getProjectDefinition(project);
+    container.addSingleton(projectDefinition);
+    container.addSingleton(project.getConfiguration());
+    container.addSingleton(project);
+    container.addSingleton(ProjectSettings.class);
+
+    // hack to initialize commons-configuration before ExtensionProviders
+    container.getComponentByType(ProjectSettings.class);
+
     container.addSingleton(EventBus.class);
     container.addSingleton(Phases.class);
     container.addSingleton(PhasesTimeProfiler.class);
     for (Class clazz : Phases.getPhaseClasses()) {
       container.addSingleton(clazz);
     }
-    ProjectDefinition projectDefinition = container.getComponentByType(ProjectTree.class).getProjectDefinition(project);
-    container.addSingleton(projectDefinition);
-    container.addSingleton(project.getConfiguration());
-    container.addSingleton(project);
-    container.addSingleton(ProjectSettings.class);
     container.addSingleton(UnsupportedProperties.class);
 
     for (Object component : projectDefinition.getContainerExtensions()) {
