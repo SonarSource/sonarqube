@@ -74,7 +74,8 @@ public class BatchSettings extends Settings {
       String moduleKey = jsonProperty.get("p");
       if (moduleKey == null || projectKey.equals(moduleKey)) {
         setProperty(key, value);
-      } else {
+      }
+      if (moduleKey != null) {
         Map<String, String> map = moduleProperties.get(moduleKey);
         if (map == null) {
           map = Maps.newHashMap();

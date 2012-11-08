@@ -356,13 +356,6 @@ public class Settings implements BatchComponent, ServerComponent {
     return addProperties(props);
   }
 
-  public final Settings setProperties(Settings s) {
-    if (s.properties == null) {
-      return clear();
-    }
-    return setProperties(Maps.newHashMap(s.properties));
-  }
-
   public final Settings setProperty(String key, @Nullable Date date, boolean includeTime) {
     return setProperty(key, includeTime ? DateUtils.formatDateTime(date) : DateUtils.formatDate(date));
   }

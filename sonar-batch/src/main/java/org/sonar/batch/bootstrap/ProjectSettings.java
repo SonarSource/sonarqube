@@ -44,16 +44,7 @@ public class ProjectSettings extends Settings {
 
     LoggerFactory.getLogger(ProjectSettings.class).info("Load module settings");
     this.deprecatedCommonsConf = deprecatedCommonsConf;
-    if (project.getParent() == null) {
-      // root project -> no need to reload settings
-      copy(batchSettings);
-    } else {
-      init(project, batchSettings);
-    }
-  }
-
-  private void copy(BatchSettings batchSettings) {
-    setProperties(batchSettings);
+    init(project, batchSettings);
   }
 
   private ProjectSettings init(ProjectDefinition project, BatchSettings batchSettings) {
