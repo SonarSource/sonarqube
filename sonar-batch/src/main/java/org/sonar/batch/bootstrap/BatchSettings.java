@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.bootstrap;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
@@ -46,6 +47,10 @@ public class BatchSettings extends Settings {
     super(propertyDefinitions);
     this.deprecatedConfiguration = deprecatedConfiguration;
     init(bootstrapSettings, reactor, client);
+  }
+
+  @VisibleForTesting
+  BatchSettings() {
   }
 
   private void init(BootstrapSettings bootstrapSettings, ProjectReactor reactor, ServerClient client) {

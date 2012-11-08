@@ -56,7 +56,7 @@ public class ProjectModuleTest {
         container.addSingleton(extensionInstaller);
         container.addSingleton(projectTree);
         container.addSingleton(resourcePersister);
-        container.addSingleton(mock(BatchSettings.class));
+        container.addSingleton(new BatchSettings());
       }
     };
 
