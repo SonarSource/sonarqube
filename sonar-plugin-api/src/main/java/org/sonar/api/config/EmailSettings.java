@@ -26,8 +26,8 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
 
 /**
- * Ruby uses constants from this class.
- * 
+ * If batch extensions use this component, then batch must be executed with administrator rights (see properties sonar.login and sonar.password)
+ *
  * @since 3.2
  */
 public class EmailSettings implements BatchComponent, ServerComponent {
