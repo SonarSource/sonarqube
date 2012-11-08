@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.security;
+package org.sonar.core.resource;
 
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchExtension;
@@ -28,7 +28,12 @@ import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.security.ResourcePermissions;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.user.*;
+import org.sonar.core.user.GroupDto;
+import org.sonar.core.user.GroupRoleDto;
+import org.sonar.core.user.RoleMapper;
+import org.sonar.core.user.UserDto;
+import org.sonar.core.user.UserMapper;
+import org.sonar.core.user.UserRoleDto;
 
 /**
  * @since 3.2

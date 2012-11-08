@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.security;
+package org.sonar.core.resource;
 
 import org.junit.Test;
 import org.sonar.api.config.Settings;
@@ -25,6 +25,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.resource.DefaultResourcePermissions;
 
 import static org.fest.assertions.Assertions.assertThat;
 

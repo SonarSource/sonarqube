@@ -52,6 +52,7 @@ import org.sonar.core.persistence.DefaultDatabase;
 import org.sonar.core.persistence.DryRunDatabaseFactory;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualitymodel.DefaultModelFinder;
+import org.sonar.core.resource.DefaultResourcePermissions;
 import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.core.user.DefaultUserFinder;
 import org.sonar.core.workflow.ReviewDatabaseStore;
@@ -243,6 +244,7 @@ public final class Platform {
     servicesContainer.addSingleton(MeasureFilterExecutor.class);
     servicesContainer.addSingleton(MeasureFilterEngine.class);
     servicesContainer.addSingleton(DryRunDatabaseFactory.class);
+    servicesContainer.addSingleton(DefaultResourcePermissions.class);
 
     // Notifications
     servicesContainer.addSingleton(EmailSettings.class);

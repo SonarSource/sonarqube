@@ -50,6 +50,7 @@ import org.sonar.core.notification.DefaultNotificationManager;
 import org.sonar.core.persistence.DaoUtils;
 import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.resource.DefaultResourcePermissions;
 import org.sonar.core.rule.CacheRuleFinder;
 import org.sonar.core.user.DefaultUserFinder;
 import org.sonar.jpa.dao.MeasuresDao;
@@ -85,6 +86,7 @@ public class BatchModule extends Module {
     container.addSingleton(LinkPersister.class);
     container.addSingleton(MeasurePersister.class);
     container.addSingleton(MemoryOptimizer.class);
+    container.addSingleton(DefaultResourcePermissions.class);
     container.addSingleton(DefaultResourcePersister.class);
     container.addSingleton(SourcePersister.class);
     container.addSingleton(MeasuresDao.class);

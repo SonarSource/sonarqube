@@ -26,6 +26,7 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.*;
+import org.sonar.api.security.ResourcePermissions;
 import org.sonar.api.utils.SonarException;
 
 import javax.persistence.NonUniqueResultException;
@@ -40,9 +41,11 @@ public final class DefaultResourcePersister implements ResourcePersister {
   private DatabaseSession session;
 
   private Map<Resource, Snapshot> snapshotsByResource = Maps.newHashMap();
+  private ResourcePermissions permissions;
 
-  public DefaultResourcePersister(DatabaseSession session) {
+  public DefaultResourcePersister(DatabaseSession session, ResourcePermissions permissions) {
     this.session = session;
+    this.permissions = permissions;
   }
 
   public Snapshot saveProject(Project project, Project parent) {
@@ -84,6 +87,9 @@ public final class DefaultResourcePersister implements ResourcePersister {
     snapshot.setBuildDate(new Date());
     snapshot = session.save(snapshot);
     session.commit();
+
+    permissions.grantDefaultRoles(project);
+
     return snapshot;
   }
 

@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.security.ResourcePermissions;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.index.DefaultResourcePersister;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
@@ -52,7 +53,7 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
     setupData("sharedFixture", fixture);
 
     DatabaseSession session = getSession();
-    UpdateStatusJob sensor = new UpdateStatusJob(new Settings(), mock(ServerClient.class), session, new DefaultResourcePersister(session), loadSnapshot(snapshotId));
+    UpdateStatusJob sensor = new UpdateStatusJob(new Settings(), mock(ServerClient.class), session, new DefaultResourcePersister(session, mock(ResourcePermissions.class)), loadSnapshot(snapshotId));
     sensor.execute();
 
     checkTables(fixture, "snapshots");

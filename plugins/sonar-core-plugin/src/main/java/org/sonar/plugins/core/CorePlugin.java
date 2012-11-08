@@ -46,7 +46,6 @@ import org.sonar.plugins.core.filters.MyFavouritesFilter;
 import org.sonar.plugins.core.filters.ProjectFilter;
 import org.sonar.plugins.core.filters.TreeMapFilter;
 import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
-import org.sonar.plugins.core.security.DefaultResourcePermissions;
 import org.sonar.plugins.core.sensors.BranchCoverageDecorator;
 import org.sonar.plugins.core.sensors.CheckAlertThresholds;
 import org.sonar.plugins.core.sensors.CommentDensityDecorator;
@@ -475,7 +474,6 @@ public final class CorePlugin extends SonarPlugin {
       OverallLineCoverageDecorator.class,
       OverallCoverageDecorator.class,
       OverallBranchCoverageDecorator.class,
-      DefaultResourcePermissions.class,
       ApplyProjectRolesDecorator.class,
       ExcludedResourceFilter.class,
       CommentDensityDecorator.class,
