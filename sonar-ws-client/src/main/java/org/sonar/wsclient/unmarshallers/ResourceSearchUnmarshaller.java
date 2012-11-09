@@ -34,7 +34,6 @@ public class ResourceSearchUnmarshaller extends AbstractUnmarshaller<ResourceSea
 
   @Override
   protected ResourceSearchResult parse(Object json) {
-    System.out.println("JSON: " + json);
     WSUtils utils = WSUtils.getINSTANCE();
     ResourceSearchResult result = new ResourceSearchResult();
     result.setPage(utils.getInteger(json, "page"));
