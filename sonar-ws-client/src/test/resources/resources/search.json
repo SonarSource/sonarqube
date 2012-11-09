@@ -1,0 +1,26 @@
+{"total":4, "page":1, "page_size":10, "data":[
+  {
+    "id":8,
+    "key":"org.apache.commons:commons-i18n:org.apache.commons.i18n.JdbcMessageProvider",
+    "nm":"org.apache.commons.i18n.JdbcMessageProvider",
+    "q":"CLA"
+  },
+  {
+    "id":15,
+    "key":"org.apache.commons:commons-i18n:org.apache.commons.i18n.MessageProvider",
+    "nm":"org.apache.commons.i18n.MessageProvider",
+    "q":"CLA"
+  },
+  {
+    "id":16,
+    "key":"org.apache.commons:commons-i18n:org.apache.commons.i18n.ResourceBundleMessageProvider",
+    "nm":"org.apache.commons.i18n.ResourceBundleMessageProvider",
+    "q":"CLA"
+  },
+  {
+    "id":17,
+    "key":"org.apache.commons:commons-i18n:org.apache.commons.i18n.XMLMessageProvider",
+    "nm":"org.apache.commons.i18n.XMLMessageProvider",
+    "q":"CLA"
+  }
+]}

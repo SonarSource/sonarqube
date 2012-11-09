@@ -31,11 +31,15 @@ public abstract class AbstractUnmarshaller<M extends Model> implements Unmarshal
     WSUtils utils = WSUtils.getINSTANCE();
     M result = null;
     Object array = utils.parse(json);
-    if (utils.getArraySize(array) >= 1) {
-      Object elt = utils.getArrayElement(array, 0);
-      if (elt != null) {
-        result = parse(elt);
+    if (array instanceof List) {
+      if (utils.getArraySize(array) >= 1) {
+        Object elt = utils.getArrayElement(array, 0);
+        if (elt != null) {
+          result = parse(elt);
+        }
       }
+    } else {
+      result = parse(array);
     }
     return result;
 

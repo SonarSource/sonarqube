@@ -65,7 +65,7 @@ class Api::ResourcesController < Api::ApiController
 
     resources=[]
     unless resource_ids.empty?
-      resources=Project.find(:all, :select => 'id,qualifier,name,long_name', :conditions => ['id in (?) and enabled=?', resource_ids, true])
+      resources=Project.find(:all, :select => 'id,qualifier,name,long_name,kee', :conditions => ['id in (?) and enabled=?', resource_ids, true])
     end
 
     if select2_format
@@ -83,7 +83,7 @@ class Api::ResourcesController < Api::ApiController
         }
       end
     else
-      json = {:total => total, :page => page, :page_size => page_size, :data => resources.map { |r| {:id => r.id, :nm => r.name(true), :q => r.qualifier} }}
+      json = {:total => total, :page => page, :page_size => page_size, :data => resources.map { |r| {:id => r.id, :key => r.key, :nm => r.name(true), :q => r.qualifier} }}
     end
 
     respond_to do |format|

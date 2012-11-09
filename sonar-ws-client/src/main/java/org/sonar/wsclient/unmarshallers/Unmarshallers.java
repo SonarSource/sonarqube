@@ -31,6 +31,7 @@ import org.sonar.wsclient.services.Plugin;
 import org.sonar.wsclient.services.Profile;
 import org.sonar.wsclient.services.Property;
 import org.sonar.wsclient.services.Resource;
+import org.sonar.wsclient.services.ResourceSearchResult;
 import org.sonar.wsclient.services.Review;
 import org.sonar.wsclient.services.Rule;
 import org.sonar.wsclient.services.Server;
@@ -68,6 +69,7 @@ public final class Unmarshallers {
     unmarshallers.put(Review.class, new ReviewUnmarshaller());
     unmarshallers.put(ManualMeasure.class, new ManualMeasureUnmarshaller());
     unmarshallers.put(Authentication.class, new AuthenticationUnmarshaller());
+    unmarshallers.put(ResourceSearchResult.class, new ResourceSearchUnmarshaller());
   }
 
   public static <M extends Model> Unmarshaller<M> forModel(Class<M> modelClass) {

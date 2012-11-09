@@ -103,12 +103,19 @@ public abstract class AbstractQuery<M extends Model> {
     return WSUtils.getINSTANCE().encodeUrl(value);
   }
 
+  protected static void appendUrlParameter(StringBuilder url, String paramKey, int paramValue) {
+    url.append(paramKey)
+      .append('=')
+      .append(paramValue)
+      .append("&");
+  }
+
   protected static void appendUrlParameter(StringBuilder url, String paramKey, Object paramValue) {
     if (paramValue != null) {
       url.append(paramKey)
-          .append('=')
-          .append(encode(paramValue.toString()))
-          .append('&');
+        .append('=')
+        .append(encode(paramValue.toString()))
+        .append('&');
     }
   }
 
@@ -131,9 +138,9 @@ public abstract class AbstractQuery<M extends Model> {
     if (paramValue != null) {
       String format = (includeTime ? "yyyy-MM-dd'T'HH:mm:ssZ" : "yyyy-MM-dd");
       url.append(paramKey)
-          .append('=')
-          .append(encode(WSUtils.getINSTANCE().format(paramValue, format)))
-          .append('&');
+        .append('=')
+        .append(encode(WSUtils.getINSTANCE().format(paramValue, format)))
+        .append('&');
     }
   }
 }
