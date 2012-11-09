@@ -51,6 +51,7 @@ public class IndexFactoryTest {
   public void crossProjectEnabled() {
     settings.setProperty(CoreProperties.CPD_CROSS_RPOJECT, "true");
     assertThat(factory.verifyCrossProject(project, logger)).isTrue();
+    verify(logger).info("Cross-project analysis enabled");
   }
 
   @Test
@@ -58,6 +59,7 @@ public class IndexFactoryTest {
     settings.setProperty(CoreProperties.CPD_CROSS_RPOJECT, "true");
     project.setBranch("branch");
     assertThat(factory.verifyCrossProject(project, logger)).isFalse();
+    verify(logger).info("Cross-project analysis disabled. Not supported on project branches.");
   }
 
   @Test
@@ -72,6 +74,7 @@ public class IndexFactoryTest {
   public void crossProjectDisabled() {
     settings.setProperty(CoreProperties.CPD_CROSS_RPOJECT, "false");
     assertThat(factory.verifyCrossProject(project, logger)).isFalse();
+    verify(logger).info("Cross-project analysis disabled");
   }
 
 }
