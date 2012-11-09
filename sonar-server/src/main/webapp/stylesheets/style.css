@@ -441,11 +441,15 @@ table.data th img, table.data td img {
   background-color: #CAE3F2 !important;
 }
 
-table.nohighlight .odd:hover {
+.hoverable:hover, table.data tbody tr.selected:hover {
+  background-color: #4B9FD5 !important;
+}
+
+table.nohighlight tbody tr:hover {
   background-color: #fff !important;
 }
 
-table.nohighlight .even:hover {
+table.nohighlight tbody .even:hover {
   background-color: #EFEFEF !important;
 }
 
