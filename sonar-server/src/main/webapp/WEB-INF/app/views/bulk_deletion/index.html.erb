@@ -51,6 +51,7 @@
               <input type="hidden" id="all_resources" name="all_resources" value=""/>
             <% end %>
           </th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -61,7 +62,9 @@
           </td>
           <td>
             <%= resource.name -%>
-            <br/><span class="small gray"><%= resource.key -%></span></td>
+          </td>
+          <td>
+            <span class="small gray"><%= resource.key -%></span></td>
           </td>
         </tr>
       <% end %>
