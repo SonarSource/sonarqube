@@ -1,5 +1,0 @@
-<module>
-  <!-- optimization of dev environments -->
-  <set-property name="user.agent" value="gecko1_8" />
-  <set-property name="locale" value="default"/>
-</module>
