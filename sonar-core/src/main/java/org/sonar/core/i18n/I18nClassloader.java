@@ -38,10 +38,7 @@ class I18nClassloader extends URLClassLoader {
 
     for (PluginMetadata metadata : pluginRepository.getMetadata()) {
       Plugin plugin = pluginRepository.getPlugin(metadata.getKey());
-      ClassLoader classloader = plugin.getClass().getClassLoader();
-      if (classloader.getResource("org/sonar/l10n/") != null) {
-        list.add(classloader);
-      }
+      list.add(plugin.getClass().getClassLoader());
     }
 
     this.pluginClassloaders = list.toArray(new ClassLoader[list.size()]);
