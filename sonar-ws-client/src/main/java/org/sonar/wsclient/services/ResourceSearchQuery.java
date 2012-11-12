@@ -75,9 +75,8 @@ public class ResourceSearchQuery extends Query<ResourceSearchResult> {
   @Override
   public String getUrl() {
     StringBuilder url = new StringBuilder();
-    url.append("/api/resources/search?s=");
-    url.append(text);
-    url.append("&");
+    url.append("/api/resources/search?");
+    appendUrlParameter(url, "s", text);
     if (page > 0) {
       appendUrlParameter(url, "p", page);
     }

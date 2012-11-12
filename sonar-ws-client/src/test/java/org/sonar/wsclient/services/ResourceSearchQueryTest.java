@@ -34,6 +34,13 @@ public class ResourceSearchQueryTest extends QueryTestCase {
   }
 
   @Test
+  public void test_encode_url_search_param() {
+    ResourceSearchQuery query = ResourceSearchQuery.create("commons logging");
+    assertThat(query.getUrl(), is("/api/resources/search?s=commons+logging&"));
+    assertThat(query.getModelClass().getName(), is(ResourceSearchResult.class.getName()));
+  }
+
+  @Test
   public void test_optional_parameters() {
     ResourceSearchQuery query = ResourceSearchQuery.create("commons");
     query.setPage(5);
