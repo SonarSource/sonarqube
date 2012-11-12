@@ -106,10 +106,10 @@ class MeasureFilterSql {
   }
 
   private void appendSortBlock() {
-    sql.append(" SELECT s.id, s.project_id rid, s.root_project_id rootid, ").append(filter.sort().column()).append(" sortval");
+    sql.append(" SELECT s.id, s.project_id AS rid, s.root_project_id AS rootid, ").append(filter.sort().column()).append(" AS sortval");
     for (int index = 0; index < filter.getMeasureConditions().size(); index++) {
       MeasureFilterCondition condition = filter.getMeasureConditions().get(index);
-      sql.append(", ").append(nullSelect(condition.metric())).append(" crit_").append(index);
+      sql.append(", ").append(nullSelect(condition.metric())).append(" AS crit_").append(index);
     }
     sql.append(" FROM snapshots s INNER JOIN projects p ON s.project_id=p.id ");
     if (filter.isOnFavourites()) {
@@ -125,7 +125,7 @@ class MeasureFilterSql {
   }
 
   private void appendConditionBlock(int conditionIndex, MeasureFilterCondition condition) {
-    sql.append(" SELECT s.id, s.project_id rid, s.root_project_id rootid, null sortval");
+    sql.append(" SELECT s.id, s.project_id AS rid, s.root_project_id AS rootid, null AS sortval");
     for (int j = 0; j < filter.getMeasureConditions().size(); j++) {
       sql.append(", ");
       if (j == conditionIndex) {
@@ -133,7 +133,7 @@ class MeasureFilterSql {
       } else {
         sql.append(nullSelect(filter.getMeasureConditions().get(j).metric()));
       }
-      sql.append(" crit_").append(j);
+      sql.append(" AS crit_").append(j);
     }
     sql.append(" FROM snapshots s INNER JOIN projects p ON s.project_id=p.id INNER JOIN project_measures pm ON s.id=pm.snapshot_id ");
     if (filter.isOnFavourites()) {
