@@ -102,6 +102,7 @@
             <Export-Package>!.,org.sonar.wsclient,
               org.sonar.wsclient.connectors,
               org.sonar.wsclient.services</Export-Package>
+            <Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
           </instructions>
         </configuration>
         <executions>
