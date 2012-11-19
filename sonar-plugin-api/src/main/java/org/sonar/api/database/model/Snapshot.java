@@ -58,7 +58,7 @@ public class Snapshot extends BaseIdentifiable {
   @Column(name = "created_at", updatable = true, nullable = true)
   private Date createdAt;
 
-  @Column(name = "version", updatable = true, nullable = true, length = 60)
+  @Column(name = "version", updatable = true, nullable = true, length = 500)
   private String version;
 
   @Column(name = "islast")
@@ -73,7 +73,7 @@ public class Snapshot extends BaseIdentifiable {
   @Column(name = "scope", updatable = true, nullable = true, length = 3)
   private String scope;
 
-  @Column(name = "path", updatable = true, nullable = true, length = 96)
+  @Column(name = "path", updatable = true, nullable = true, length = 500)
   private String path;
 
   @Column(name = "depth", updatable = true, nullable = true)

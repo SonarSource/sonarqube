@@ -21,9 +21,9 @@
 #
 # Sonar 3.4
 #
-class IncreaseGroupNameSize < ActiveRecord::Migration
+class IncreaseSnapshotsVersionSize < ActiveRecord::Migration
 
   def self.up
-    change_column :groups, :name, :string, :limit => 500, :null => true
+    change_column :snapshots, :version, :string, :limit => 500, :null => true
   end
 end
