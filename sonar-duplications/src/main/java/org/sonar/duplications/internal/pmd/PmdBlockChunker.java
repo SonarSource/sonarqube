@@ -57,11 +57,9 @@ public class PmdBlockChunker {
       while (j < fragments.size() && fragments.get(j).getValue().equals(first.getValue())) {
         j++;
       }
+      filtered.add(fragments.get(i));
       if (i < j - 1) {
-        TokensLine last = fragments.get(j - 1);
-        filtered.add(new TokensLine(first.getStartUnit(), last.getEndUnit(), first.getStartLine(), last.getEndLine(), first.getValue()));
-      } else {
-        filtered.add(fragments.get(i));
+        filtered.add(fragments.get(j - 1));
       }
       i = j;
     }

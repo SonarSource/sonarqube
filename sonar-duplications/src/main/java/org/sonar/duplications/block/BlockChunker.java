@@ -63,11 +63,9 @@ public class BlockChunker {
       while (j < statements.size() && statements.get(j).getValue().equals(first.getValue())) {
         j++;
       }
+      filtered.add(statements.get(i));
       if (i < j - 1) {
-        Statement last = statements.get(j - 1);
-        filtered.add(new Statement(first.getStartLine(), last.getEndLine(), first.getValue()));
-      } else {
-        filtered.add(statements.get(i));
+        filtered.add(statements.get(j - 1));
       }
       i = j;
     }
