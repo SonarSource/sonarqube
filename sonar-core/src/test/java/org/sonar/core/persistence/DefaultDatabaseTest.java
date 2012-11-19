@@ -20,7 +20,6 @@
 package org.sonar.core.persistence;
 
 import org.apache.commons.dbcp.BasicDataSource;
-import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.core.persistence.dialect.Oracle;
@@ -28,8 +27,8 @@ import org.sonar.core.persistence.dialect.PostgreSql;
 
 import java.util.Properties;
 
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
+
 
 public class DefaultDatabaseTest {
 
@@ -39,10 +38,11 @@ public class DefaultDatabaseTest {
     db.initSettings();
 
     Properties props = db.getProperties();
-    assertThat(props.getProperty("sonar.jdbc.username"), Is.is("sonar"));
-    assertThat(props.getProperty("sonar.jdbc.password"), Is.is("sonar"));
-    assertThat(props.getProperty("sonar.jdbc.url"), Is.is("jdbc:h2:tcp://localhost/sonar"));
-    assertThat(props.getProperty("sonar.jdbc.driverClassName"), Is.is("org.h2.Driver"));
+    assertThat(props.getProperty("sonar.jdbc.username")).isEqualTo("sonar");
+    assertThat(props.getProperty("sonar.jdbc.password")).isEqualTo("sonar");
+    assertThat(props.getProperty("sonar.jdbc.url")).isEqualTo("jdbc:h2:tcp://localhost/sonar");
+    assertThat(props.getProperty("sonar.jdbc.driverClassName")).isEqualTo("org.h2.Driver");
+    assertThat(db.toString()).isEqualTo("Database[jdbc:h2:tcp://localhost/sonar]");
   }
 
   @Test
@@ -55,8 +55,8 @@ public class DefaultDatabaseTest {
     db.initSettings();
     Properties props = db.getProperties();
 
-    assertThat(props.getProperty("sonar.jdbc.username"), Is.is("me"));
-    assertThat(props.getProperty("sonar.jdbc.driverClassName"), Is.is("my.Driver"));
+    assertThat(props.getProperty("sonar.jdbc.username")).isEqualTo("me");
+    assertThat(props.getProperty("sonar.jdbc.driverClassName")).isEqualTo("my.Driver");
   }
 
   @Test
@@ -68,9 +68,9 @@ public class DefaultDatabaseTest {
 
     Properties commonsDbcpProps = DefaultDatabase.extractCommonsDbcpProperties(props);
 
-    assertThat(commonsDbcpProps.getProperty("username"), Is.is("me"));
-    assertThat(commonsDbcpProps.getProperty("driverClassName"), Is.is("my.Driver"));
-    assertThat(commonsDbcpProps.getProperty("maxActive"), Is.is("5"));
+    assertThat(commonsDbcpProps.getProperty("username")).isEqualTo("me");
+    assertThat(commonsDbcpProps.getProperty("driverClassName")).isEqualTo("my.Driver");
+    assertThat(commonsDbcpProps.getProperty("maxActive")).isEqualTo("5");
   }
 
   @Test
@@ -87,7 +87,7 @@ public class DefaultDatabaseTest {
 
     Properties props = db.getProperties();
 
-    assertThat(props.getProperty("sonar.jdbc.maxActive"), Is.is("2"));
+    assertThat(props.getProperty("sonar.jdbc.maxActive")).isEqualTo("2");
   }
 
   @Test
@@ -103,8 +103,8 @@ public class DefaultDatabaseTest {
     db.start();
     db.stop();
 
-    assertThat(db.getDialect().getId(), Is.is("h2"));
-    assertThat(((BasicDataSource) db.getDataSource()).getMaxActive(), Is.is(1));
+    assertThat(db.getDialect().getId()).isEqualTo("h2");
+    assertThat(((BasicDataSource) db.getDataSource()).getMaxActive()).isEqualTo(1);
   }
 
   @Test
@@ -115,7 +115,7 @@ public class DefaultDatabaseTest {
     DefaultDatabase database = new DefaultDatabase(settings);
     database.initSettings();
 
-    assertThat(database.getSchema(), Is.is("my_schema"));
+    assertThat(database.getSchema()).isEqualTo("my_schema");
   }
 
   @Test
@@ -127,7 +127,7 @@ public class DefaultDatabaseTest {
     DefaultDatabase database = new DefaultDatabase(settings);
     database.initSettings();
 
-    assertThat(database.getSchema(), Is.is("my_schema"));
+    assertThat(database.getSchema()).isEqualTo("my_schema");
   }
 
   @Test
@@ -138,7 +138,7 @@ public class DefaultDatabaseTest {
     DefaultDatabase database = new DefaultDatabase(settings);
     database.initSettings();
 
-    assertThat(database.getSchema(), nullValue());
+    assertThat(database.getSchema()).isNull();
   }
 
   @Test
@@ -150,7 +150,7 @@ public class DefaultDatabaseTest {
     DefaultDatabase database = new DefaultDatabase(settings);
     database.initSettings();
 
-    assertThat(database.getSchema(), Is.is("my_schema"));
+    assertThat(database.getSchema()).isEqualTo("my_schema");
   }
 
   @Test
@@ -161,7 +161,7 @@ public class DefaultDatabaseTest {
     DefaultDatabase database = new DefaultDatabase(settings);
     database.initSettings();
 
-    assertThat(database.getSchema(), nullValue());
+    assertThat(database.getSchema()).isNull();
   }
 
   @Test
@@ -172,7 +172,7 @@ public class DefaultDatabaseTest {
     DefaultDatabase database = new DefaultDatabase(settings);
     database.initSettings();
 
-    assertThat(database.getDialect().getId(), Is.is(PostgreSql.ID));
+    assertThat(database.getDialect().getId()).isEqualTo(PostgreSql.ID);
   }
 
   @Test
@@ -183,6 +183,20 @@ public class DefaultDatabaseTest {
     DefaultDatabase database = new DefaultDatabase(settings);
     database.initSettings();
 
-    assertThat(database.getProperties().getProperty("sonar.jdbc.driverClassName"), Is.is("org.postgresql.Driver"));
+    assertThat(database.getProperties().getProperty("sonar.jdbc.driverClassName")).isEqualTo("org.postgresql.Driver");
+  }
+
+  @Test
+  public void shouldSetHibernateProperties() {
+    Settings settings = new Settings();
+    settings.setProperty("sonar.jdbc.url", "jdbc:postgresql://localhost/sonar");
+    settings.setProperty("sonar.hibernate.default_schema", "foo");
+    DefaultDatabase database = new DefaultDatabase(settings);
+    database.initSettings();
+
+    Properties hibernateProps = database.getHibernateProperties();
+
+    assertThat(hibernateProps.getProperty("hibernate.hbm2ddl.auto")).isEqualTo("validate");
+    assertThat(hibernateProps.getProperty("hibernate.default_schema")).isEqualTo("foo");
   }
 }
