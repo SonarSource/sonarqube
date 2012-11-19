@@ -249,7 +249,7 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
     }
   }
 
-  public static class HttpException extends IOException {
+  public static class HttpException extends RuntimeException {
     private final URI uri;
     private final int responseCode;
 

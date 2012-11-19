@@ -19,7 +19,7 @@
 #
 
 # Since 3.4
-class BatchBootstrapController < ApplicationController
+class BatchBootstrapController < Api::ApiController
 
   # GET /batch_bootstrap/db?project=<key or id>
   def db

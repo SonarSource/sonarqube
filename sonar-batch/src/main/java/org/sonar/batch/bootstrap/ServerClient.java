@@ -32,7 +32,6 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 
@@ -58,6 +57,8 @@ public class ServerClient implements BatchComponent {
     try {
       InputSupplier<InputStream> inputSupplier = doRequest(pathStartingWithSlash);
       Files.copy(inputSupplier, toFile);
+    } catch (HttpDownloader.HttpException he) {
+      throw handleHttpException(he);
     } catch (Exception e) {
       throw new SonarException(String.format("Unable to download '%s' to: %s", pathStartingWithSlash, toFile), e);
     }
@@ -67,7 +68,9 @@ public class ServerClient implements BatchComponent {
     InputSupplier<InputStream> inputSupplier = doRequest(pathStartingWithSlash);
     try {
       return IOUtils.toString(inputSupplier.getInput(), "UTF-8");
-    } catch (IOException e) {
+    } catch (HttpDownloader.HttpException he) {
+      throw handleHttpException(he);
+    } catch (Exception e) {
       throw new SonarException(String.format("Unable to request: %s", pathStartingWithSlash), e);
     }
   }
@@ -89,6 +92,13 @@ public class ServerClient implements BatchComponent {
     } catch (Exception e) {
       throw new SonarException(String.format("Unable to request: %s", uri), e);
     }
+  }
+
+  private SonarException handleHttpException(HttpDownloader.HttpException he) {
+    if (he.getResponseCode() == 401) {
+      throw new SonarException(String.format("Not authorized. Please check the properties %s and %s.", CoreProperties.LOGIN, CoreProperties.PASSWORD));
+    }
+    throw new SonarException(String.format("Fail to execute request [code=%s, url=%s]", he.getResponseCode(), he.getUri()), he);
   }
 
 }
