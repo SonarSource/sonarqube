@@ -22,6 +22,7 @@ package org.sonar.core.persistence;
 import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.text.StrSubstitutor;
 import org.dbunit.Assertion;
 import org.dbunit.DataSourceDatabaseTester;
 import org.dbunit.DatabaseUnitException;
@@ -51,6 +52,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Map;
 import java.util.Properties;
 
 import static org.junit.Assert.fail;
@@ -101,6 +103,11 @@ public abstract class AbstractDaoTestCase {
       Properties props = new Properties();
       props.load(input);
       settings.addProperties(props);
+      for (Map.Entry<String, String> entry : settings.getProperties().entrySet()) {
+        String interpolatedValue = StrSubstitutor.replace(entry.getValue(), System.getenv(), "${", "}");
+        settings.setProperty(entry.getKey(), interpolatedValue);
+      }
+
     } finally {
       IOUtils.closeQuietly(input);
     }
