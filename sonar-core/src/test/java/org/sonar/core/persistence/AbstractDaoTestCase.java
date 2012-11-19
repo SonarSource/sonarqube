@@ -71,6 +71,9 @@ public abstract class AbstractDaoTestCase {
       if (settings.hasKey("orchestrator.configUrl")) {
         loadOrchestratorSettings(settings);
       }
+      for (String key : settings.getKeysStartingWith("sonar.jdbc")) {
+        LOG.info(key + ": " + settings.getString(key));
+      }
       boolean hasDialect = settings.hasKey("sonar.jdbc.dialect");
       if (hasDialect) {
         database = new DefaultDatabase(settings);
