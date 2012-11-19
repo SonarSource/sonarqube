@@ -240,4 +240,9 @@ public class DefaultDatabase implements Database {
       props.setProperty(key, defaultValue);
     }
   }
+
+  @Override
+  public String toString() {
+    return "Database[" + properties.getProperty("sonar.jdbc.url") + "]";
+  }
 }

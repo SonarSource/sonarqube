@@ -104,4 +104,9 @@ public class H2Database implements Database {
     properties.put(Environment.CONNECTION_PROVIDER, CustomHibernateConnectionProvider.class.getName());
     return properties;
   }
+
+  @Override
+  public String toString() {
+    return "H2 Database[" + name + "]";
+  }
 }
