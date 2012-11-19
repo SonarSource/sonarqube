@@ -63,6 +63,7 @@ public class AuthorDao implements BatchComponent, ServerComponent {
       session.commit();
     } catch (RuntimeException e) {
       // break the unique index on LOGIN ?
+      session.rollback();
       AuthorDto persistedAuthor = mapper.selectByLogin(authorDto.getLogin());
       if (persistedAuthor != null) {
         authorDto.setId(persistedAuthor.getId());
