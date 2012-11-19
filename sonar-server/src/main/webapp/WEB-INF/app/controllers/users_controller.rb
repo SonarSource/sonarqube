@@ -35,7 +35,7 @@ class UsersController < ApplicationController
        if user.update_attributes(params[:user])
         # 2- if info correctly saved, then we display a message to ask wether the user should be reactivated or not
         @user = user
-        @users = User.find(:all, :conditions => ["active=?", true], :include => 'groups')
+        init_users_list
         render :index
       else
         to_index(user.errors, nil)
@@ -66,7 +66,7 @@ class UsersController < ApplicationController
   end
 
   def index
-    @users = User.find(:all, :conditions => ["active=?", true], :include => 'groups')
+    init_users_list
     if params[:id]
       @user = User.find(params[:id])
     else
@@ -83,7 +83,7 @@ class UsersController < ApplicationController
   end
 
   def change_password
-    @users = User.find(:all, :include => 'groups')
+    init_users_list
     @user = User.find(params[:id])
     render :action => 'index', :id => params[:id]
   end
@@ -178,6 +178,12 @@ class UsersController < ApplicationController
     @users = User.find(:all, :conditions => ["active=?", true]).to_a.select { |user| user.name.parameterize.upcase =~ starts_with }
     @char_count = params[:user_name_start].size
     render :partial => 'autocomplete'
+  end
+
+  private
+
+  def init_users_list
+    @users = User.find(:all, :conditions => ["active=?", true], :include => 'groups')
   end
 
 end
