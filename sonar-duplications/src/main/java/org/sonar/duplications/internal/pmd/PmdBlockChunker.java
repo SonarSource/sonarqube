@@ -49,6 +49,24 @@ public class PmdBlockChunker {
   }
 
   public List<Block> chunk(String resourceId, List<TokensLine> fragments) {
+    List<TokensLine> filtered = Lists.newArrayList();
+    int i = 0;
+    while (i < fragments.size()) {
+      TokensLine first = fragments.get(i);
+      int j = i + 1;
+      while (j < fragments.size() && fragments.get(j).getValue().equals(first.getValue())) {
+        j++;
+      }
+      if (i < j - 1) {
+        TokensLine last = fragments.get(j - 1);
+        filtered.add(new TokensLine(first.getStartUnit(), last.getEndUnit(), first.getStartLine(), last.getEndLine(), first.getValue()));
+      } else {
+        filtered.add(fragments.get(i));
+      }
+      i = j;
+    }
+    fragments = filtered;
+
     if (fragments.size() < blockSize) {
       return Collections.emptyList();
     }

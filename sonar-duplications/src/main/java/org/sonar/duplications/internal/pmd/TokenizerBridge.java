@@ -94,7 +94,7 @@ public class TokenizerBridge {
 
   private static void addNewTokensLine(ImmutableList.Builder<TokensLine> result, int startUnit, int endUnit, int startLine, StringBuilder sb) {
     if (sb.length() != 0) {
-      result.add(new TokensLine(startUnit, endUnit, startLine, sb.toString().hashCode()));
+      result.add(new TokensLine(startUnit, endUnit, startLine, sb.toString()));
       sb.setLength(0);
     }
   }

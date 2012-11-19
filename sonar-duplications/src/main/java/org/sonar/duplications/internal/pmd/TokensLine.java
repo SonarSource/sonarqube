@@ -27,31 +27,42 @@ import org.sonar.duplications.CodeFragment;
  */
 class TokensLine implements CodeFragment {
 
+  private final String value;
+
   private final int startLine;
+  private final int endLine;
   private final int hashCode;
 
   private final int startUnit;
   private final int endUnit;
 
-  public TokensLine(int startUnit, int endUnit, int startLine, int hashCode) {
+
+  public TokensLine(int startUnit, int endUnit, int startLine, String value) {
+    this(startUnit, endUnit, startLine, startLine, value);
+  }
+
+  public TokensLine(int startUnit, int endUnit, int startLine, int endLine, String value) {
     Preconditions.checkArgument(startLine > 0);
     // TODO do we have requirements for length and hashcode ?
     this.startLine = startLine;
-    this.hashCode = hashCode;
+    this.endLine = endLine;
+    this.value = value;
+    this.hashCode = value.hashCode();
 
     this.startUnit = startUnit;
     this.endUnit = endUnit;
+  }
+
+  public String getValue() {
+    return value;
   }
 
   public int getStartLine() {
     return startLine;
   }
 
-  /**
-   * Same as {@link #getStartLine()}
-   */
   public int getEndLine() {
-    return startLine;
+    return endLine;
   }
 
   public int getHashCode() {

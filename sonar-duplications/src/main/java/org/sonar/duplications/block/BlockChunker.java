@@ -55,6 +55,24 @@ public class BlockChunker {
   }
 
   public List<Block> chunk(String resourceId, List<Statement> statements) {
+    List<Statement> filtered = Lists.newArrayList();
+    int i = 0;
+    while (i < statements.size()) {
+      Statement first = statements.get(i);
+      int j = i + 1;
+      while (j < statements.size() && statements.get(j).getValue().equals(first.getValue())) {
+        j++;
+      }
+      if (i < j - 1) {
+        Statement last = statements.get(j - 1);
+        filtered.add(new Statement(first.getStartLine(), last.getEndLine(), first.getValue()));
+      } else {
+        filtered.add(statements.get(i));
+      }
+      i = j;
+    }
+    statements = filtered;
+
     if (statements.size() < blockSize) {
       return Collections.emptyList();
     }

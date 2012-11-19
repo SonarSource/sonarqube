@@ -33,9 +33,9 @@ public class PmdBlockChunkerTest {
 
   @Test
   public void shouldBuildBlocks() {
-    TokensLine line1 = new TokensLine(0, 9, 1, 1);
-    TokensLine line2 = new TokensLine(10, 19, 2, 2);
-    TokensLine line3 = new TokensLine(20, 29, 3, 3);
+    TokensLine line1 = new TokensLine(0, 9, 1, Character.toString((char) 1));
+    TokensLine line2 = new TokensLine(10, 19, 2, Character.toString((char) 2));
+    TokensLine line3 = new TokensLine(20, 29, 3, Character.toString((char) 3));
 
     List<Block> blocks = new PmdBlockChunker(2).chunk("resourceId", Arrays.asList(line1, line2, line3));
     assertThat(blocks.size(), is(2));
