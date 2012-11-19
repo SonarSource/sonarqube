@@ -4,7 +4,7 @@
 <mapper namespace="org.sonar.core.duplication.DuplicationMapper">
 
   <select id="selectCandidates" parameterType="map" resultType="DuplicationUnit">
-    SELECT DISTINCT to_blocks.hash hash, res.kee resourceKey, to_blocks.index_in_file indexInFile, to_blocks.start_line startLine, to_blocks.end_line endLine
+    SELECT DISTINCT to_blocks.hash as hash, res.kee as resourceKey, to_blocks.index_in_file as indexInFile, to_blocks.start_line as startLine, to_blocks.end_line as endLine
     FROM duplications_index to_blocks, duplications_index from_blocks, snapshots snapshot, projects res
     WHERE from_blocks.snapshot_id = #{resource_snapshot_id}
     AND to_blocks.hash = from_blocks.hash
