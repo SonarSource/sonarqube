@@ -17,25 +17,28 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.testdetailsviewer;
+package org.sonar.plugins.core.web;
 
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.web.*;
-import org.sonar.plugins.core.testdetailsviewer.client.TestsViewer;
 
 @ResourceQualifier(Qualifiers.UNIT_TEST_FILE)
 @NavigationSection(NavigationSection.RESOURCE_TAB)
 @DefaultTab(metrics = {CoreMetrics.TESTS_KEY, CoreMetrics.TEST_EXECUTION_TIME_KEY, CoreMetrics.TEST_SUCCESS_DENSITY_KEY, CoreMetrics.TEST_FAILURES_KEY, CoreMetrics.TEST_ERRORS_KEY, CoreMetrics.SKIPPED_TESTS_KEY})
 @UserRole(UserRole.CODEVIEWER)
-public class TestsViewerDefinition extends GwtPage {
+public class TestsViewer extends AbstractRubyTemplate implements RubyRailsPage {
+
+  public String getId() {
+      return "tests_viewer";
+  }
 
   public String getTitle() {
     return "Tests";
   }
 
-  public String getGwtId() {
-    return TestsViewer.GWT_ID;
+  @Override
+  protected String getTemplatePath() {
+    return "/org/sonar/plugins/core/web/tests_viewer.html.erb";
   }
-
 }

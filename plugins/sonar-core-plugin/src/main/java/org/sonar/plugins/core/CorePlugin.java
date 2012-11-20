@@ -87,6 +87,7 @@ import org.sonar.plugins.core.timemachine.VariationDecorator;
 import org.sonar.plugins.core.timemachine.ViolationPersisterDecorator;
 import org.sonar.plugins.core.timemachine.ViolationTrackingDecorator;
 import org.sonar.plugins.core.web.Lcom4Viewer;
+import org.sonar.plugins.core.web.TestsViewer;
 import org.sonar.plugins.core.widgets.AlertsWidget;
 import org.sonar.plugins.core.widgets.CommentsDuplicationsWidget;
 import org.sonar.plugins.core.widgets.ComplexityWidget;
@@ -402,8 +403,8 @@ public final class CorePlugin extends SonarPlugin {
       Java.class,
 
       // pages
-      TestsViewerDefinition.class,
       Lcom4Viewer.class,
+      TestsViewer.class,
 
       // filters
       ProjectFilter.class,

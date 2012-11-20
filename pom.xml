@@ -32,7 +32,6 @@
     <module>sonar-squid</module>
     <module>sonar-testing-harness</module>
     <module>sonar-ws-client</module>
-    <module>plugins/sonar-core-gwt</module>
     <module>plugins/sonar-core-plugin</module>
     <module>plugins/sonar-dbcleaner-plugin</module>
     <module>plugins/sonar-findbugs-plugin</module>

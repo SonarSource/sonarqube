@@ -1,0 +1,106 @@
+<div class="tab_header tests_viewer" id="tests_header">
+  <table>
+    <tr>
+      <% test_success_density = measure('test_success_density') %>
+      <td id= "test_success_density" class="big"><%= test_success_density ? number_with_precision(test_success_density.value(), :precision => 1) : "100.0" -%>%</td>
+      <td class="sep"> </td>
+      <td class="name"><%= message('test_viewer.tests') -%>:</td>
+      <%
+         tests = measure('tests')
+         tests_display = tests ? format_measure(tests) : "-"
+         skipped_tests = measure('skipped_tests')
+         if !skipped_tests.nil?
+           tests_display = tests_display + " (+" + format_measure(skipped_tests) + " " + message('test_viewer.skipped') + ")"
+         end
+      %>
+      <td id="tests" class="value"><%= tests_display -%></td>
+      <td class="sep"> </td>
+      <td class="name"><%= message('test_viewer.failures') -%>/<%= message('test_viewer.errors') -%>:</td>
+      <%
+         test_failures = measure('test_failures') ? format_measure(measure('test_failures')) : "0"
+         test_errors = measure('test_errors') ? format_measure(measure('test_errors')) : "0"
+      %>
+      <td id="test_failures_errors" class="value"><%= test_failures -%>/<%= test_errors -%></td>
+      <td class="sep"> </td>
+      <td class="name"><%= message('test_viewer.duration') -%>:</td>
+      <% test_execution_time = measure('test_execution_time') %>
+      <td id="test_execution_time" class="value"><%= test_execution_time ? format_measure(test_execution_time) : "-" -%></td>
+    </tr>
+  </table>
+</div>
+
+<% test_data = measure('test_data') %>
+<% if test_data %>
+<table class="data width100 tests_viewer"  id="test_data">
+  <thead>
+    <tr>
+      <th class="thin">&nbsp;</th>
+      <th class="thin">&nbsp;</th>
+      <th class="thin"><%= message('test_viewer.duration') -%></th>
+      <th><%= message('test_viewer.unit_test_name') -%></th>
+    </tr>
+  </thead>
+  <tbody>
+
+  <%
+     index = 0
+     blocks = REXML::Document.new test_data.data
+     blocks.elements.each("tests-details/testcase") do |block|
+  %>
+    <% index = index+1 %>
+    <tr class="<%= cycle("even","odd") -%>" id="testdata_<%= index -%>" display="table-row">
+      <%
+         status = block.attributes['status']
+         case status
+           when 'failure'
+             icon_url = ApplicationController.root_context + "/images/warning.png"
+           when 'skipped'
+             icon_url = ApplicationController.root_context + "/images/levels/none.png"
+           else
+             icon_url = ApplicationController.root_context + "/images/levels/" + status + ".png"
+         end
+
+         error = block.elements['error']
+         block_message = !error.nil? ? error : nil
+         failure = block.elements['failure']
+         block_message = !failure.nil? ? failure : block_message
+      %>
+      <td class="thin" nowrap>
+        <% if !block_message.nil? %>
+          <a id="expandLink_<%= index -%>" href="#" onclick="expandTests(<%= index -%>);"><%= message('test_viewer.expand') -%></a>
+          <a id="collapseLink_<%= index -%>" class="collapse" href="#" onclick="collapseTests(<%= index -%>);" style="display: none;"><%= message('test_viewer.collapse') -%></a>
+        <% else %>
+          &nbsp;
+        <% end %>
+      </td>
+      <td class="thin" nowrap>
+        <img id="test_status_<%= index -%>_<%= status -%>" src="<%= icon_url -%>" />
+      </td>
+      <td id="test_time_<%= index -%>" class="thin" nowrap><%= block.attributes['time'] -%> ms</td>
+      <td>
+        <span><%= block.attributes['name'] -%></span>
+        <% if !block_message.nil? %>
+          <div id="message_<%= index -%>" class="message" style="display: none;">
+            <% message = block_message.attributes['message'] %>
+            <% if !message.nil? %>
+              <span><%= h message -%></span>
+            <% end %>
+            <pre style="border: 1px solid #ddd; padding: 5px; margin: 5px 0"><%= block_message.first.to_s-%></pre>
+          </div>
+        <% end %>
+      </td>
+    </tr>
+
+  <%
+     end
+  %>
+  </tbody>
+</table>
+
+<%
+   else
+%>
+  <p><%= message('no_data') -%></p>
+<%
+   end
+%>
