@@ -79,6 +79,7 @@ public class SemaphoreDao {
 
     } catch (Exception e) {
       // probably because of the semaphore already exists
+      session.rollback();
     }
   }
 }
