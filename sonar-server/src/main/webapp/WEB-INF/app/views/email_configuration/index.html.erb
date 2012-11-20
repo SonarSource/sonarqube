@@ -5,7 +5,7 @@
 </style>
 
 <% form_tag({:action => 'save'}) do -%>
-  <table class="data nohighlight form marginbottom10">
+  <table class="data form marginbottom10">
     <thead>
     <tr>
       <th colspan="3"><span><%= message('email_configuration.page') -%></span></th>
@@ -23,8 +23,7 @@
       <td class="comments"><%= message('email_configuration.smtp_port.description') -%></td>
     </tr>
     <tr class="even">
-      <td class="keyCell">
-        <label for="smtp_secure_connection"><%= message('email_configuration.smtp_secure_connection') -%>:</label></td>
+      <td class="keyCell"><label for="smtp_secure_connection"><%= message('email_configuration.smtp_secure_connection') -%>:</label></td>
       <td><%= select_tag 'smtp_secure_connection', options_for_select({'No' => '', 'SSL' => 'ssl'}, @smtp_secure_connection) %></td>
       <td class="comments"><%= message('email_configuration.smtp_secure_connection.description') -%></td>
     </tr>
@@ -62,7 +61,7 @@
 <br/>
 
 <% form_tag({:action => 'send_test_email'}) do -%>
-  <table class="data nohighlight form marginbottom10">
+  <table class="data form marginbottom10">
     <thead>
     <tr>
       <th colspan="2"><span><%= message('email_configuration.test.title') -%></span></th>
