@@ -31,12 +31,12 @@
 
 <% test_data = measure('test_data') %>
 <% if test_data %>
-<table class="data width100 tests_viewer"  id="test_data">
+  <table class="data width100 tests_viewer"  id="test_data">
   <thead>
     <tr>
       <th class="thin">&nbsp;</th>
       <th class="thin">&nbsp;</th>
-      <th class="thin"><%= message('test_viewer.duration') -%></th>
+      <th class="thin right"><%= message('test_viewer.duration') -%></th>
       <th><%= message('test_viewer.unit_test_name') -%></th>
     </tr>
   </thead>
@@ -76,7 +76,7 @@
       <td class="thin" nowrap>
         <img id="test_status_<%= index -%>_<%= status -%>" src="<%= icon_url -%>" />
       </td>
-      <td id="test_time_<%= index -%>" class="thin" nowrap><%= block.attributes['time'] -%> ms</td>
+      <td id="test_time_<%= index -%>" class="thin right" nowrap><%= block.attributes['time'] -%> ms</td>
       <td>
         <span><%= block.attributes['name'] -%></span>
         <% if !block_message.nil? %>
