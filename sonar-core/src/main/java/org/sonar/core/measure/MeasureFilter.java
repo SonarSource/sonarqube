@@ -20,20 +20,26 @@
 package org.sonar.core.measure;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.utils.DateUtils;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
+
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class MeasureFilter {
+  private static final String[] EMPTY = {};
+
   // conditions on resources
   private String baseResourceKey;
   private boolean onBaseResourceChildren = false; // only if getBaseResourceKey is set
-  private List<String> resourceScopes = Lists.newArrayList();
-  private List<String> resourceQualifiers = Lists.newArrayList();
-  private List<String> resourceLanguages = Lists.newArrayList();
+  private String[] resourceScopes = EMPTY;
+  private String[] resourceQualifiers = EMPTY;
+  private String[] resourceLanguages = EMPTY;
   private String resourceKeyRegexp;
   private String resourceName;
   private Date fromDate = null, toDate = null;
@@ -63,28 +69,33 @@ public class MeasureFilter {
     return onBaseResourceChildren;
   }
 
-  public MeasureFilter setResourceScopes(@Nullable List<String> l) {
-    this.resourceScopes = (l != null ? l : Collections.<String>emptyList());
-    return this;
-  }
-
-  public MeasureFilter setResourceQualifiers(List<String> l) {
-    this.resourceQualifiers = (l != null ? l : Collections.<String>emptyList());
+  public MeasureFilter setResourceScopes(String... l) {
+    this.resourceScopes = (l != null ? l : EMPTY);
     return this;
   }
 
   public MeasureFilter setResourceQualifiers(String... l) {
-    this.resourceQualifiers = Lists.newArrayList(l);
-    return this;
-  }
-
-  public MeasureFilter setResourceLanguages(List<String> l) {
-    this.resourceLanguages = (l != null ? l : Collections.<String>emptyList());
+    this.resourceQualifiers = l;
     return this;
   }
 
   public MeasureFilter setResourceLanguages(String... l) {
-    this.resourceLanguages = Lists.newArrayList(l);
+    this.resourceLanguages = (l != null ? l : EMPTY);
+    return this;
+  }
+
+  public MeasureFilter setResourceScopes(@Nullable List<String> l) {
+    this.resourceScopes = (l != null ? l.toArray(new String[l.size()]) : EMPTY);
+    return this;
+  }
+
+  public MeasureFilter setResourceQualifiers(@Nullable List<String> l) {
+    this.resourceQualifiers = (l != null ? l.toArray(new String[l.size()]) : EMPTY);
+    return this;
+  }
+
+  public MeasureFilter setResourceLanguages(@Nullable List<String> l) {
+    this.resourceLanguages = (l != null ? l.toArray(new String[l.size()]) : EMPTY);
     return this;
   }
 
@@ -159,15 +170,15 @@ public class MeasureFilter {
     return toDate;
   }
 
-  public List<String> getResourceScopes() {
+  public String[] getResourceScopes() {
     return resourceScopes;
   }
 
-  public List<String> getResourceQualifiers() {
+  public String[] getResourceQualifiers() {
     return resourceQualifiers;
   }
 
-  public List<String> getResourceLanguages() {
+  public String[] getResourceLanguages() {
     return resourceLanguages;
   }
 
@@ -177,6 +188,58 @@ public class MeasureFilter {
 
   MeasureFilterSort sort() {
     return sort;
+  }
+
+  public static MeasureFilter create(Map<String, String> properties) {
+    MeasureFilter filter = new MeasureFilter();
+    filter.setBaseResourceKey(properties.get("base"));
+    filter.setResourceScopes(toArray(properties.get("scopes")));
+    filter.setResourceQualifiers(toArray(properties.get("qualifiers")));
+    filter.setResourceLanguages(toArray(properties.get("languages")));
+    if (properties.containsKey("onBaseChildren")) {
+      filter.setOnBaseResourceChildren(Boolean.valueOf(properties.get("onBaseChildren")));
+    }
+    filter.setResourceName(properties.get("nameRegexp"));
+    filter.setResourceKeyRegexp(properties.get("keyRegexp"));
+    if (properties.containsKey("fromDate")) {
+      filter.setFromDate(toDate(properties.get("fromDate")));
+    } else if (properties.containsKey("afterDays")) {
+      filter.setFromDate(toDays(properties.get("afterDays")));
+    }
+    if (properties.containsKey("toDate")) {
+      filter.setToDate(toDate(properties.get("toDate")));
+    } else if (properties.containsKey("beforeDays")) {
+      filter.setToDate(toDays(properties.get("beforeDays")));
+    }
+
+    if (properties.containsKey("favourites")) {
+      filter.setUserFavourites(Boolean.valueOf(properties.get("favourites")));
+    }
+    return filter;
+  }
+
+  private static String[] toArray(@Nullable String s) {
+    if (s == null) {
+      return EMPTY;
+    }
+    return StringUtils.split(s, ",");
+  }
+
+  private static Date toDate(@Nullable String date) {
+    if (date != null) {
+      return DateUtils.parseDate(date);
+    }
+    return null;
+  }
+
+  private static Date toDays(@Nullable String s) {
+    if (s != null) {
+      int days = Integer.valueOf(s);
+      Date date = org.apache.commons.lang.time.DateUtils.truncate(new Date(), Calendar.DATE);
+      date = org.apache.commons.lang.time.DateUtils.addDays(date, -days);
+      return date;
+    }
+    return null;
   }
 
 }

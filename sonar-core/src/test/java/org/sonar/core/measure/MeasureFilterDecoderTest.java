@@ -62,9 +62,9 @@ public class MeasureFilterDecoderTest {
 
     assertThat(filter.getBaseResourceKey()).isEqualTo("org.struts");
     assertThat(filter.isOnBaseResourceChildren()).isTrue();
-    assertThat(filter.getResourceScopes()).containsExactly("PRJ");
-    assertThat(filter.getResourceQualifiers()).containsExactly("TRK", "CLA");
-    assertThat(filter.getResourceLanguages()).containsExactly("java", "php");
+    assertThat(filter.getResourceScopes()).containsOnly("PRJ");
+    assertThat(filter.getResourceQualifiers()).containsOnly("TRK", "CLA");
+    assertThat(filter.getResourceLanguages()).containsOnly("java", "php");
     assertThat(filter.getResourceName()).isEqualTo("Struts");
     assertThat(filter.getResourceKeyRegexp()).isEqualTo("*foo*");
     assertThat(filter.getFromDate().getYear()).isEqualTo(2012 - 1900);

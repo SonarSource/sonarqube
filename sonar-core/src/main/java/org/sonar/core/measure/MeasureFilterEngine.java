@@ -27,7 +27,9 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 
 import javax.annotation.Nullable;
+
 import java.util.List;
+import java.util.Map;
 
 public class MeasureFilterEngine implements ServerComponent {
   private static final Logger FILTER_LOG = LoggerFactory.getLogger("org.sonar.MEASURE_FILTER");
@@ -42,6 +44,22 @@ public class MeasureFilterEngine implements ServerComponent {
 
   public List<MeasureFilterRow> execute(String filterJson, @Nullable Long userId) throws ParseException {
     return execute(filterJson, userId, FILTER_LOG);
+  }
+
+  public List<MeasureFilterRow> execute2(Map<String, String> filterMap, @Nullable Long userId) throws ParseException {
+    Logger logger = FILTER_LOG;
+    MeasureFilterContext context = new MeasureFilterContext();
+    context.setJson(filterMap.toString());
+    context.setUserId(userId);
+    try {
+      long start = System.currentTimeMillis();
+      MeasureFilter filter = MeasureFilter.create(filterMap);
+      List<MeasureFilterRow> rows = executor.execute(filter, context);
+      log(context, rows, (System.currentTimeMillis() - start), logger);
+      return rows;
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to execute filter: " + context, e);
+    }
   }
 
   @VisibleForTesting

@@ -19,9 +19,19 @@
 #
 class MeasuresController < ApplicationController
 
+  SECTION=Navigation::SECTION_HOME
+
   def index
-    
+    render :action => 'search'
   end
 
+  def search
+    options = {
+      :user => current_user,
+      :page => (params[:page] || 1)
+    }
+    @filter = MeasureFilter.new(params)
+    @filter.execute(self, options)
+  end
 
 end

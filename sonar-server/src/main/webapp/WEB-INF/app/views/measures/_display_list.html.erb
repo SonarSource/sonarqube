@@ -1,0 +1,41 @@
+<table class="data">
+  <thead>
+  <tr>
+    <% @filter.columns.each do |column| %>
+      <% if column.metric %>
+        <th class="right"><%= Api::Utils.message("metric.#{column.metric.key}.name", :default => column.metric.short_name) -%></th>
+      <% elsif column.key=='name' %>
+        <th class="left"><%= Api::Utils.message("filters.col.name") -%></th>
+      <% else %>
+        <th class="right"><%= Api::Utils.message("filters.col.#{column.key}", :default => column.key) -%></th>
+      <% end %>
+    <% end %>
+  </tr>
+  </thead>
+  <tbody>
+  <% @filter.data.each do |data| %>
+    <tr class="<%= cycle 'even', 'odd' -%>">
+      <% @filter.columns.each do |column| %>
+        <% if column.metric %>
+          <td class="right">
+            <%= format_measure(data.measure(column.metric)) -%>
+          </td>
+        <% elsif column.key=='name' %>
+          <td class="left">
+            <%= qualifier_icon(data.snapshot) %> <%= link_to_resource(data.snapshot.resource, h(data.snapshot.resource.name(true)), {:title => data.snapshot.resource.key}) -%>
+          </td>
+        <% elsif column.key=='date' %>
+          <td class="right">
+            <%= human_short_date(data.snapshot.created_at) -%>
+          </td>
+        <% elsif column.key=='key' %>
+          <td class="left"><span class="small"><%= data.snapshot.resource.kee -%></span></td>
+        <% else %>
+          <td></td>
+        <% end %>
+      <% end %>
+    </tr>
+  <% end %>
+  </tbody>
+  <%= render :partial => 'utils/tfoot_pagination', :locals => {:pagination => @filter.pagination, :colspan => @filter.columns.size} %>
+</table>

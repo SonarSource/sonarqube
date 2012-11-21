@@ -37,7 +37,6 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.List;
 
 class MeasureFilterSql {
@@ -150,15 +149,15 @@ class MeasureFilterSql {
     if (context.getBaseSnapshot() == null) {
       sql.append(" AND p.copy_resource_id IS NULL ");
     }
-    if (!filter.getResourceQualifiers().isEmpty()) {
+    if (filter.getResourceQualifiers().length > 0) {
       sql.append(" AND s.qualifier IN ");
       appendInStatement(filter.getResourceQualifiers(), sql);
     }
-    if (!filter.getResourceScopes().isEmpty()) {
+    if (filter.getResourceScopes().length > 0) {
       sql.append(" AND s.scope IN ");
       appendInStatement(filter.getResourceScopes(), sql);
     }
-    if (!filter.getResourceLanguages().isEmpty()) {
+    if (filter.getResourceLanguages().length > 0) {
       sql.append(" AND p.language IN ");
       appendInStatement(filter.getResourceLanguages(), sql);
     }
@@ -217,7 +216,7 @@ class MeasureFilterSql {
       sql.append(" AND s.project_id IN (SELECT rindex.resource_id FROM resource_index rindex WHERE rindex.kee like '");
       sql.append(StringEscapeUtils.escapeSql(StringUtils.lowerCase(filter.getResourceName())));
       sql.append("%'");
-      if (!filter.getResourceQualifiers().isEmpty()) {
+      if (filter.getResourceQualifiers().length > 0) {
         sql.append(" AND rindex.qualifier IN ");
         appendInStatement(filter.getResourceQualifiers(), sql);
       }
@@ -259,7 +258,7 @@ class MeasureFilterSql {
   }
 
 
-  private static void appendInStatement(Collection<String> values, StringBuilder to) {
+  private static void appendInStatement(String[] values, StringBuilder to) {
     to.append(" ('");
     to.append(StringUtils.join(values, "','"));
     to.append("') ");

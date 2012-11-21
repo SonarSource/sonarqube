@@ -1,0 +1,72 @@
+<% content_for :style do %>
+  <style type="text/css">
+    #filter-form {
+      float: left;
+      width: 240px;
+    }
+
+    #filter-result {
+      padding-left: 250px;
+    }
+  </style>
+<% end %>
+
+<% url_options = params.reject { |k, v| v.empty? || k=='search' }.merge({:controller => 'measures', :action => 'search'}) %>
+
+<div id="measure-filter">
+  <div id="filter-form">
+    <form method="POST" action="<%= ApplicationController.root_context -%>/measures/search">
+      <table>
+        <tbody>
+        <tr>
+          <td>Base:</td>
+          <td><input type="text" name="base"></td>
+        </tr>
+        <tr>
+          <td>Qualifiers:</td>
+          <td>
+            <select name="qualifiers">
+              <option value="">Any</option>
+              <option value="TRK">Project</option>
+              <option value="TRK,BRC">Project</option>
+              <option value="DIR,PAC">Directory/Package</option>
+              <option value="FIL,CLA">File</option>
+              <option value="UTS">Unit Test File</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Language:</td>
+          <td><input type="text" name="language"></td>
+        </tr>
+        <tr>
+          <td>Name:</td>
+          <td><input type="text" name="nameRegexp"></td>
+        </tr>
+        <tr>
+          <td>Key:</td>
+          <td><input type="text" name="keyRegexp"></td>
+        </tr>
+        <tr>
+          <td><input type="submit" name="search" value="Search"></td>
+          <td></td>
+        </tr>
+        </tbody>
+      </table>
+    </form>
+  </div>
+  <% if @filter %>
+    <div id="filter-result">
+      <% MeasureFilter::DISPLAYS.each do |display| %>
+        <%= link_to display.key, url_options.merge(:display => display.key) -%>
+      <% end %>
+
+      <%= render :partial => "measures/display_#{@filter.display.key}.html.erb" -%>
+      <p>
+        <% permalink = url_for(url_options) %>
+        <a href="<%= permalink -%>">Permalink</a>: <input type="text" value="<%= permalink -%>" size="100">
+      </p>
+    </div>
+  <% end %>
+
+</div>
