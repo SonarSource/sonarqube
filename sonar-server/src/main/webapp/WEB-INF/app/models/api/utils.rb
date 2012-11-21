@@ -60,10 +60,9 @@ class Api::Utils
   # For history reference:
   #   - http://jira.codehaus.org/browse/SONAR-2282 first modified the behaviour to keep the trailing lines
   #   - then http://jira.codehaus.org/browse/SONAR-3003 reverted this modification to remove potential last empty line
+  #   - then http://jira.codehaus.org/browse/SONAR-3896 reactivate this modification to display last empty line
   def self.split_newlines(input)
-    result = input.split(/\r?\n|\r/, -1)
-    result.pop if result.last==''
-    result
+    input.split(/\r?\n|\r/, -1)
   end
 
   def self.convert_string_to_unix_newlines(input)
