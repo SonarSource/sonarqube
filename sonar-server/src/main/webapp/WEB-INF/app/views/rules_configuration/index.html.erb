@@ -90,9 +90,9 @@
       </li>
     <% end %>
   </ul>
-  <h2><%= @rules.size %> <%= message('results').downcase -%>
-     <% if @hidden_actives && @hidden_actives>0 %><span class="small">[<a href="<%= url_for params.merge({:rule_status => ''}) -%>" id="active-rules-link">+<%= message('rules_configuration.x_found_in_active_rules', :params => @hidden_actives) -%></a>]</span><% end %>
-     <% if @hidden_inactives && @hidden_inactives>0 %><span class="small">[<a href="<%= url_for params.merge({:rule_status => ''}) -%>" id="inactive-rules-link">+<%= message('rules_configuration.x_found_in_inactive_rules', :params => @hidden_inactives) -%></a>]</span><% end %>
+  <h2>
+     <% if @hidden_actives && @hidden_actives>0 %><span class="small"><a href="<%= url_for params.merge({:rule_status => ''}) -%>" id="active-rules-link">+<%= message('rules_configuration.x_found_in_active_rules', :params => @hidden_actives) -%></a></span><% end %>
+     <% if @hidden_inactives && @hidden_inactives>0 %><span class="small"><a href="<%= url_for params.merge({:rule_status => ''}) -%>" id="inactive-rules-link">+<%= message('rules_configuration.x_found_in_inactive_rules', :params => @hidden_inactives) -%></a></span><% end %>
   </h2>
 </div>
 <table class="table table-bordered width100 spacer-bottom" id="result_table">
@@ -103,13 +103,13 @@
     </tr>
 </thead>
 <tbody>
-<% if @rules.empty? %>
+<% if @current_rules.empty? %>
 <tr><td colspan="3" class="even"><%= message('no_results') -%>.</td></tr>
 <% end %>
 <%
   # avoid executing several times the method is_admin?()
   is_admin=is_admin?()
-  @rules.each do |rule|
+  @current_rules.each do |rule|
     active_rule = @profile.active_by_rule_id(rule.id)
 %>
   <tr id="rule_<%= rule.id -%>">
@@ -118,6 +118,8 @@
 <% end %>
 </tbody>
 </table>
+<%= render :partial => 'utils/tfoot_pagination', :locals => {:pagination => @pagination, :colspan => 2} %>
+
 <script type="text/javascript">
     function replaceTextField(span_id, key) {
       var text_field_value = $F(key);

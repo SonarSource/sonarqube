@@ -71,6 +71,9 @@ class RulesConfigurationController < ApplicationController
       end
     end
 
+    @pagination = Api::Pagination.new(params)
+    @pagination.count = @rules.size
+    @current_rules = @rules[@pagination.offset, @pagination.limit]
   end
 
 
