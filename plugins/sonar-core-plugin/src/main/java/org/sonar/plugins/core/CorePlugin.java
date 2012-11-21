@@ -74,7 +74,6 @@ import org.sonar.plugins.core.sensors.ViolationSeverityUpdater;
 import org.sonar.plugins.core.sensors.ViolationsDecorator;
 import org.sonar.plugins.core.sensors.ViolationsDensityDecorator;
 import org.sonar.plugins.core.sensors.WeightedViolationsDecorator;
-import org.sonar.plugins.core.testdetailsviewer.TestsViewerDefinition;
 import org.sonar.plugins.core.timemachine.NewCoverageAggregator;
 import org.sonar.plugins.core.timemachine.NewCoverageFileAnalyzer;
 import org.sonar.plugins.core.timemachine.NewItCoverageFileAnalyzer;

@@ -75,7 +75,6 @@
     <sonarGwt.version>3.3.1</sonarGwt.version>
     <h2.version>1.3.167</h2.version>
     <jetty.version>6.1.25</jetty.version>
-    <sonar.skippedModules>sonar-core-gwt</sonar.skippedModules>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.min.version>2.2.1</maven.min.version>
     <jdk.min.version>1.5</jdk.min.version>
@@ -1126,7 +1125,7 @@
       <properties>
         <skipSanityChecks>true</skipSanityChecks>
 
-        <!-- used in sonar-core-gwt and sonar-design-plugin -->
+        <!-- used in sonar-design-plugin -->
         <gwt.permutationSuffix>Dev</gwt.permutationSuffix>
         <gwt.extraJvmArgs>-Xmx512m -Xss1024k -Dgwt.draftCompile=true</gwt.extraJvmArgs>
       </properties>
