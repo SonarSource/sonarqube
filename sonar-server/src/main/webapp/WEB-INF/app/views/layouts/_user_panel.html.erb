@@ -1,0 +1,47 @@
+<script>
+  if (supports_html5_storage()) {
+    var sonarRecentHistory = new Sonar.RecentHistory('<%= ApplicationController.root_context -%>')
+                                      .addTranslation('clear', '<%= message('layout.user_panel.recent_history.clear') -%>');
+  }
+</script>
+
+<li>
+  <a href="#" class="link-more" onclick="if (sonarRecentHistory) { sonarRecentHistory.populateRecentHistoryPanel(); }; $j('#user-panel').toggle(); return false;"><%= current_user ? current_user.name(true) : message('layout.user_panel.me') -%></a>
+  
+  <div id="user-panel" style="display: none" onmouseout="$j(this).hide();" onmouseover="$j(this).show();">
+    <div id="user-details">
+      <% if current_user %>
+        <b><%= current_user.name(true) -%></b>
+        <% if current_user.email %>
+          <br/>
+          <span class="note"><%= current_user.email -%></span>
+        <% end %>
+        <br/>
+        <a href="<%= ApplicationController.root_context -%>/account/index" class="link-action"><%= message('layout.user_panel.my_profile') -%></a>
+        &nbsp;–&nbsp;
+        <a href="<%= ApplicationController.root_context -%>/sessions/logout" class="link-action" onclick="if (sonarRecentHistory) { sonarRecentHistory.clear(); };"><%= message('layout.logout') -%></a>
+      <% else %>
+        <b><%= message('layout.user_panel.anonymous_user') -%></b>
+        <br/>
+        <span class="note"><%= message('layout.user_panel.non_authenticated_user') -%></span>
+      <% end %>
+    </div>
+    
+    <div id="sonar-recent-history" style="display: none">
+      <b><%= message('layout.user_panel.recent_history.title') -%></b>
+      <ul id="sonar-recent-history-list">
+      </ul>    	
+    </div>
+  </div>
+  
+</li>
+
+<script>
+  if (sonarRecentHistory == null) {
+    $j('#sonar-recent-history').detach();
+  } else {
+    sonarRecentHistory.add('<%= @resource ? @resource.key : "" -%>', 
+                           '<%= @resource ? @resource.name(true) : "" -%>', 
+                           '<%= @resource ? @resource.qualifier : "" -%>');
+  }
+</script>

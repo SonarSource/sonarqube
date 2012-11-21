@@ -21,8 +21,6 @@ Sonar.RecentHistory.prototype.getRecentHistory = function() {
   
 Sonar.RecentHistory.prototype.clear = function () {
   localStorage.clear();
-  $("sonar_recent_history_dropdown").hide();
-  this.populateRecentHistoryDropDown();
 };
   
 Sonar.RecentHistory.prototype.add = function (resourceKey, resourceName, resourceQualifier) {
@@ -47,29 +45,28 @@ Sonar.RecentHistory.prototype.add = function (resourceKey, resourceName, resourc
   }
 };
 
-Sonar.RecentHistory.prototype.populateRecentHistoryDropDown = function () {
-  var dropdown = $j('#sonar_recent_history_dropdown');
-  dropdown.empty();
+Sonar.RecentHistory.prototype.populateRecentHistoryPanel = function () {
+  var historyLinksList = $j('#sonar-recent-history-list');
+  historyLinksList.empty();
   
-  var recentHistory = this.getRecentHistory();
-  
-  recentHistory.forEach(function (resource) {
-    dropdown.append('<li><img width="16" height="16" src="'
-                          + sonarRecentHistory.appContext
-                          + '/images/q/'
-                          + resource['qualifier']
-                          + '.png"><a href="'
-                          + sonarRecentHistory.appContext
-                          + '/dashboard/index/'
-                          + resource['key']
-                          + '">' 
-                          + resource['name'] 
-                          + '</a></li>');
-  });
-  
+  var recentHistory = this.getRecentHistory();  
   if (recentHistory.length == 0) {
-    dropdown.append('<li style="color: #000 !important">' + this.translations['no_history_yet'] + '</li>');
-  } else {
-    dropdown.append('<li class="clear_list"><a href="#" onclick="sonarRecentHistory.clear(); return false;">' + this.translations['clear'] + '</a></li>');
+    $j("#sonar-recent-history").hide();
+  } else {    
+    recentHistory.forEach(function (resource) {
+      historyLinksList.append('<li><img width="16" height="16" src="'
+                            + sonarRecentHistory.appContext
+                            + '/images/q/'
+                            + resource['qualifier']
+                            + '.png"><a href="'
+                            + sonarRecentHistory.appContext
+                            + '/dashboard/index/'
+                            + resource['key']
+                            + '"> ' 
+                            + resource['name'] 
+                            + '</a></li>');
+    });
+    historyLinksList.append('<li><a href="#" onclick="sonarRecentHistory.clear(); sonarRecentHistory.populateRecentHistoryPanel(); return false;" style="color: #777777 !important;">' + this.translations['clear'] + '</a></li>');
+    $j("#sonar-recent-history").show();
   }
 };

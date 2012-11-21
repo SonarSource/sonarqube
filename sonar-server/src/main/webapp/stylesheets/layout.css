@@ -148,28 +148,34 @@ body, a {
   padding: 0 5px 0 0;
 }
 
-#sonar_recent_history_dropdown {
-  max-width: none !important;
+#user-panel {
+  position: absolute;
+  float: right;
+  min-width: 200px;
+  top: 30px;
+  right: 180px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5);
+  z-index: 999999;
+  line-height: 18px;
+  color: #000;
 }
 
-#sonar_recent_history_dropdown a {
-  color: #000 !important;
-  display: inline !important;
-  padding-left: 5px !important;
+#user-panel > div {
+  padding: 10px;
 }
 
-#sonar_recent_history_dropdown li:hover a {
-  color: #fff !important;
+#user-panel a {
+  color: #000;
 }
 
-#sonar_recent_history_dropdown li.clear_list {
-  background-color: #EFEFEF !important;
-  border-top: 1px solid #CCCCCC !important;
-  color: #EFEFEF !important;
+#sonar-recent-history {
+  border-top: 1px solid #ccc;
 }
 
-#sonar_recent_history_dropdown li.clear_list:hover a {
-  color: #000 !important;
+#sonar-recent-history li {
+  padding-left: 10px;
 }
 
 #nonav {
