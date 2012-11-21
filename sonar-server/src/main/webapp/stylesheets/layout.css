@@ -138,12 +138,34 @@ body, a {
 #bc li a {
   text-decoration: none;
 }
+
 #bc li a:hover, #bc li a:focus {
   text-decoration: underline;
 }
+
 #crumbs-ops {
   float: right;
   padding: 0 5px 0 0;
+}
+
+#sonar_recent_history_dropdown a {
+  color: #000 !important;
+  display: inline !important;
+  padding-left: 5px !important;
+}
+
+#sonar_recent_history_dropdown li:hover a {
+  color: #fff !important;
+}
+
+#sonar_recent_history_dropdown li.clear_list {
+  background-color: #EFEFEF !important;
+  border-top: 1px solid #CCCCCC !important;
+  color: #EFEFEF !important;
+}
+
+#sonar_recent_history_dropdown li.clear_list:hover a {
+  color: #000 !important;
 }
 
 #nonav {

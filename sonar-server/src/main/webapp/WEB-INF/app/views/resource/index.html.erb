@@ -1,3 +1,9 @@
+<script>
+  sonarRecentHistory.add('<%= @resource.key -%>', 
+                         '<%= @resource.name -%>', 
+                         '<%= @resource.qualifier -%>');  
+</script>
+
 <%= render :partial => 'tabs' -%>
 <%= render :partial => "resource/header_#{@extension.getId()}" -%>
 

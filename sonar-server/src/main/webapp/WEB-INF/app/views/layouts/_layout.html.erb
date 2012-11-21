@@ -34,6 +34,7 @@
         <li><a href="<%= ApplicationController.root_context -%>/sessions/new?return_to=<%= u (request.request_uri) -%>"><%= message('layout.login') -%></a></li>
       <% end %>
       <li><a href="<%= ApplicationController.root_context -%>/profiles"><%= message('layout.configuration') -%></a></li>
+      <%= render 'layouts/resource_history' -%>
     </ul>
   </div>
   <div id="searchResourcesResults" class="autocomplete" style="display:none"></div>
