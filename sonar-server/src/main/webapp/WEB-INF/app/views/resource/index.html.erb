@@ -1,7 +1,9 @@
 <script>
-  sonarRecentHistory.add('<%= @resource.key -%>', 
-                         '<%= @resource.name -%>', 
-                         '<%= @resource.qualifier -%>');  
+  if (sonarRecentHistory != null) {
+    sonarRecentHistory.add('<%= @resource.key -%>', 
+                           '<%= @resource.name(true) -%>', 
+                           '<%= @resource.qualifier -%>');
+  }  
 </script>
 
 <%= render :partial => 'tabs' -%>

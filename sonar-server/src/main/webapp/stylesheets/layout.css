@@ -148,6 +148,10 @@ body, a {
   padding: 0 5px 0 0;
 }
 
+#sonar_recent_history_dropdown {
+  max-width: none !important;
+}
+
 #sonar_recent_history_dropdown a {
   color: #000 !important;
   display: inline !important;

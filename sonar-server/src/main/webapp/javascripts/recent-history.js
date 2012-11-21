@@ -6,7 +6,7 @@ Sonar.RecentHistory = function (applicationContext) {
   this.addTranslation = function (key, value) {
     this.translations[key] = value;
     return this;
-  }
+  };
 };
 
 Sonar.RecentHistory.prototype.getRecentHistory = function() {
