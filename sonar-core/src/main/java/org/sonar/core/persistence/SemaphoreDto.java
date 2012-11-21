@@ -27,6 +27,7 @@ import java.util.Date;
  * @since 3.4
  */
 public class SemaphoreDto {
+  private Long id;
   private String name;
   private String checksum;
   private Date lockedAt;
@@ -47,6 +48,15 @@ public class SemaphoreDto {
 
   public SemaphoreDto setLockedAt(Date d) {
     this.lockedAt = d;
+    return this;
+  }
+
+  public Long getId() {
+    return id;
+  }
+
+  public SemaphoreDto setId(Long id) {
+    this.id = id;
     return this;
   }
 }
