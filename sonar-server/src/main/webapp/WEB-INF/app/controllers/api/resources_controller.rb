@@ -20,6 +20,7 @@
 class Api::ResourcesController < Api::ApiController
 
   # since version 3.3
+  # Exemple : /api/resources/search?s=sonar
   def search
     search_text = params[:s]||''
     page=(params[:p] ? params[:p].to_i : 1)
@@ -45,7 +46,7 @@ class Api::ResourcesController < Api::ApiController
       condition_values<<qualifiers
     end
     indexes = ResourceIndex.find(:all,
-                                 :select => 'distinct(resource_id),root_project_id,qualifier', # optimization to not load unused columns like 'kee'
+                                 :select => 'distinct(resource_id),root_project_id,qualifier,name_size', # optimization to not load unused columns like 'kee'
                                  :conditions => [conditions.join(' and ')].concat(condition_values),
                                  :order => 'name_size')
 

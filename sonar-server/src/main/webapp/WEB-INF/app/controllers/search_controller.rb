@@ -33,7 +33,7 @@ class SearchController < ApplicationController
 
     key = search.downcase
     results = ResourceIndex.find(:all,
-                                 :select => 'distinct(resource_id),root_project_id,qualifier', # optimization to not load unused columns like 'kee'
+                                 :select => 'distinct(resource_id),root_project_id,qualifier,name_size', # optimization to not load unused columns like 'kee'
                                  :conditions => ["kee like ?", key + '%'],
                                  :order => 'name_size')
 

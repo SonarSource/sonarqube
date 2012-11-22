@@ -47,7 +47,7 @@ class BulkDeletionController < ApplicationController
       end
       
       resource_ids = ResourceIndex.find(:all,
-                                        :select => 'distinct(resource_id)',
+                                        :select => 'distinct(resource_id),name_size',
                                         :conditions => [conditions, values],
                                         :order => 'name_size').map {|rid| rid.resource_id}.uniq
       
