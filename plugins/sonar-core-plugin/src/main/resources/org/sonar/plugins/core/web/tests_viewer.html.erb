@@ -35,7 +35,6 @@
   <thead>
     <tr>
       <th class="thin">&nbsp;</th>
-      <th class="thin">&nbsp;</th>
       <th class="thin right"><%= message('test_viewer.duration') -%></th>
       <th><%= message('test_viewer.unit_test_name') -%></th>
     </tr>
@@ -66,21 +65,22 @@
          block_message = !failure.nil? ? failure : block_message
       %>
       <td class="thin" nowrap>
-        <% if !block_message.nil? %>
-          <a id="expandLink_<%= index -%>" href="#" onclick="expandTests(<%= index -%>);"><%= message('test_viewer.expand') -%></a>
-          <a id="collapseLink_<%= index -%>" class="collapse" href="#" onclick="collapseTests(<%= index -%>);" style="display: none;"><%= message('test_viewer.collapse') -%></a>
-        <% else %>
-          &nbsp;
-        <% end %>
-      </td>
-      <td class="thin" nowrap>
         <img id="test_status_<%= index -%>_<%= status -%>" src="<%= icon_url -%>" />
       </td>
       <td id="test_time_<%= index -%>" class="thin right" nowrap><%= block.attributes['time'] -%> ms</td>
       <td>
-        <span><%= block.attributes['name'] -%></span>
+        <span id="test_name_<%= index -%>">
+          <% name = block.attributes['name'] %>
+          <% if !block_message.nil? %>
+            <a id="test_expandLink_<%= index -%>" href="#" onclick="expandTests(<%= index -%>);"><%= name -%></a>
+            <a id="test_collapseLink_<%= index -%>" class="collapse" href="#" onclick="collapseTests(<%= index -%>);" style="display: none;"><%= name -%></a>
+          <% else %>
+            <%= name -%>
+          <% end %>
+        </span>
+
         <% if !block_message.nil? %>
-          <div id="message_<%= index -%>" class="message" style="display: none;">
+          <div id="test_message_<%= index -%>" class="message" style="display:none; margin-top:5px;">
             <% message = block_message.attributes['message'] %>
             <% if !message.nil? %>
               <span><%= h message -%></span>

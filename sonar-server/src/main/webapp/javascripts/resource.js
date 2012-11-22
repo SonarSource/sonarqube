@@ -187,13 +187,13 @@ function hVF(line) {
  Functions used in tests viewer
  */
 function expandTests(index){
-  $j(".tests_viewer #collapseLink_"+ index).show();
-  $j(".tests_viewer #expandLink_"+ index).hide();
-  $j(".tests_viewer #message_"+ index).show();
+  $j(".tests_viewer #test_collapseLink_"+ index).show();
+  $j(".tests_viewer #test_expandLink_"+ index).hide();
+  $j(".tests_viewer #test_message_"+ index).show();
 }
 
 function collapseTests(index){
-  $j(".tests_viewer #collapseLink_"+ index).hide();
-  $j(".tests_viewer #expandLink_"+ index).show();
-  $j(".tests_viewer #message_"+ index).hide();
+  $j(".tests_viewer #test_collapseLink_"+ index).hide();
+  $j(".tests_viewer #test_expandLink_"+ index).show();
+  $j(".tests_viewer #test_message_"+ index).hide();
 }
