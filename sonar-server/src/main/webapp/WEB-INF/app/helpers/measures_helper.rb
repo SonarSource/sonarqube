@@ -17,30 +17,22 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-class FavouritesController < ApplicationController
+module MeasuresHelper
 
-  before_filter :login_required
-
-  def toggle
-    favourite_id=params[:id]
-    if current_user.favourite?(favourite_id)
-      current_user.delete_favourite(favourite_id)
-      @style='notfav'
-      @tooltip='Click to add to favourites'
+  def list_column_title(filter, column, url_params)
+    if column.sort?
+      html = link_to(h(column.display_name), url_params.merge({:controller => 'measures', :action => 'search', :asc => (!filter.sort_asc?).to_s, :sort => column.key}))
     else
-      current_user.add_favourite(favourite_id)
-      @style='fav'
-      @tooltip='Click to remove from favourites'
+      html=h(column.display_name)
     end
+    #if column.variation
+    #  html="<img src='#{ApplicationController.root_context}/images/trend-up.png'></img> #{html}"
+    #end
 
-    star_id=params[:elt]
-    render :update do |page|
-      page.element.removeClassName(star_id, 'notfav')
-      page.element.removeClassName(star_id, 'fav')
-      page.element.addClassName(star_id, @style)
-      page.element.writeAttribute(star_id, 'alt', @tooltip)
-      page.element.writeAttribute(star_id, 'title', @tooltip)
+    if filter.sort_key==column.key
+      html << (filter.sort_asc? ? image_tag("asc12.png") : image_tag("desc12.png"))
     end
+    "<th class='#{column.align}'>#{html}</th>"
   end
 
 end

@@ -102,7 +102,7 @@ public final class JRubyFacade {
     return get(MeasureFilterEngine.class).execute(json, userId);
   }
 
-  public List<MeasureFilterRow> executeMeasureFilter2(Map<String,String> map, @Nullable Long userId) throws ParseException {
+  public List<MeasureFilterRow> executeMeasureFilter2(Map<String,Object> map, @Nullable Long userId) throws ParseException {
     return get(MeasureFilterEngine.class).execute2(map, userId);
   }
 

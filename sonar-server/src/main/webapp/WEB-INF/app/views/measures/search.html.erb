@@ -5,13 +5,22 @@
       width: 240px;
     }
 
+    #filter-form select {
+      width: 200px;
+      padding: 1px;
+    }
+
+    #filter-form select option {
+      padding: 1px 10px 1px 4px;
+    }
+
     #filter-result {
       padding-left: 250px;
     }
   </style>
 <% end %>
 
-<% url_options = params.reject { |k, v| v.empty? || k=='search' }.merge({:controller => 'measures', :action => 'search'}) %>
+<% url_params = params.reject { |k, v| v.nil? || v=='' || k.starts_with?('_') }.merge({:controller => 'measures', :action => 'search'}) %>
 
 <div id="measure-filter">
   <div id="filter-form">
@@ -19,37 +28,78 @@
       <table>
         <tbody>
         <tr>
-          <td>Base:</td>
-          <td><input type="text" name="base"></td>
+          <td>
+            Base:<br>
+            <input type="text" name="base">
+          </td>
         </tr>
         <tr>
-          <td>Qualifiers:</td>
           <td>
-            <select name="qualifiers">
-              <option value="">Any</option>
-              <option value="TRK">Project</option>
-              <option value="TRK,BRC">Project</option>
-              <option value="DIR,PAC">Directory/Package</option>
-              <option value="FIL,CLA">File</option>
-              <option value="UTS">Unit Test File</option>
+            Direct children:<br>
+            <%= check_box_tag 'onBaseChildren', 'true', params['onBaseChildren']=='true' -%>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            Qualifiers:<br>
+            <%= select_tag 'qualifiers[]', options_for_select([['Any', ''], ['Project', 'TRK'], ['Sub-project', 'BRC'], ['Directory/Package', 'DIR']], params['qualifiers']||''), :size => 5, :multiple => true -%>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            Language:<br>
+            <select name="languages[]" multiple size="5">
+              <option value="" <%= 'selected' if params['languages[]'].blank? -%>>Any</option>
+              <% Api::Utils.languages.each do |language| %>
+                <option value="<%= language.key.parameterize -%>"><%= h language.name -%></option>
+              <% end %>
             </select>
           </td>
         </tr>
         <tr>
-          <td>Language:</td>
-          <td><input type="text" name="language"></td>
+          <td>
+            Name:<br>
+            <input type="text" name="nameRegexp"></td>
         </tr>
         <tr>
-          <td>Name:</td>
-          <td><input type="text" name="nameRegexp"></td>
+          <td>
+            Key:<br>
+            <input type="text" name="keyRegexp"></td>
         </tr>
         <tr>
-          <td>Key:</td>
-          <td><input type="text" name="keyRegexp"></td>
+          <td>
+            Favourites only:<br>
+            <%= check_box_tag 'favourites', 'true', params['favourites']=='true' %>
+          </td>
         </tr>
         <tr>
-          <td><input type="submit" name="search" value="Search"></td>
-          <td></td>
+          <td>
+            From date:<br>
+            <input type="text" name="fromDate" value="<%= params['fromDate'] -%>">
+          </td>
+        </tr>
+        <tr>
+          <td>
+            To date:<br>
+            <input type="text" name="toDate" value="<%= params['toDate'] -%>">
+          </td>
+        </tr>
+        <tr>
+          <td>
+            Before:<br>
+            <input type="text" name="beforeDays" value="<%= params['beforeDays'] -%>" size="4"> days
+          </td>
+        </tr>
+        <tr>
+          <td>After:<br>
+            <input type="text" name="afterDays" value="<%= params['afterDays'] -%>" size="4"> days
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <input type="submit" name="_search" value="Search">
+            <a href="<%= ApplicationController.root_context -%>/measures">Reset</a>
+          </td>
         </tr>
         </tbody>
       </table>
@@ -57,15 +107,20 @@
   </div>
   <% if @filter %>
     <div id="filter-result">
+      Display as:
       <% MeasureFilter::DISPLAYS.each do |display| %>
-        <%= link_to display.key, url_options.merge(:display => display.key) -%>
+        <%= link_to_if display.key!=@filter.display.key, display.key, url_params.merge(:display => display.key) -%>
       <% end %>
 
-      <%= render :partial => "measures/display_#{@filter.display.key}.html.erb" -%>
+      <%= render :partial => "measures/display_#{@filter.display.key}", :locals => {:url_params => url_params} -%>
       <p>
-        <% permalink = url_for(url_options) %>
+        <% permalink = url_for(url_params) %>
         <a href="<%= permalink -%>">Permalink</a>: <input type="text" value="<%= permalink -%>" size="100">
       </p>
+      <% if @filter.security_exclusions %>
+        <p class="notes"><%= message('results_not_display_due_to_security') -%></p>
+      <% end %>
+
     </div>
   <% end %>
 

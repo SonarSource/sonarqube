@@ -149,15 +149,15 @@ class MeasureFilterSql {
     if (context.getBaseSnapshot() == null) {
       sql.append(" AND p.copy_resource_id IS NULL ");
     }
-    if (filter.getResourceQualifiers().length > 0) {
+    if (!filter.getResourceQualifiers().isEmpty()) {
       sql.append(" AND s.qualifier IN ");
       appendInStatement(filter.getResourceQualifiers(), sql);
     }
-    if (filter.getResourceScopes().length > 0) {
+    if (!filter.getResourceScopes().isEmpty()) {
       sql.append(" AND s.scope IN ");
       appendInStatement(filter.getResourceScopes(), sql);
     }
-    if (filter.getResourceLanguages().length > 0) {
+    if (!filter.getResourceLanguages().isEmpty()) {
       sql.append(" AND p.language IN ");
       appendInStatement(filter.getResourceLanguages(), sql);
     }
@@ -216,7 +216,7 @@ class MeasureFilterSql {
       sql.append(" AND s.project_id IN (SELECT rindex.resource_id FROM resource_index rindex WHERE rindex.kee like '");
       sql.append(StringEscapeUtils.escapeSql(StringUtils.lowerCase(filter.getResourceName())));
       sql.append("%'");
-      if (filter.getResourceQualifiers().length > 0) {
+      if (!filter.getResourceQualifiers().isEmpty()) {
         sql.append(" AND rindex.qualifier IN ");
         appendInStatement(filter.getResourceQualifiers(), sql);
       }
@@ -258,7 +258,7 @@ class MeasureFilterSql {
   }
 
 
-  private static void appendInStatement(String[] values, StringBuilder to) {
+  private static void appendInStatement(List<String> values, StringBuilder to) {
     to.append(" ('");
     to.append(StringUtils.join(values, "','"));
     to.append("') ");

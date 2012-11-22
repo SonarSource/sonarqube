@@ -43,6 +43,7 @@ import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.measure.MeasureFilterDecoder;
 import org.sonar.core.measure.MeasureFilterEngine;
 import org.sonar.core.measure.MeasureFilterExecutor;
+import org.sonar.core.measure.MeasureFilterFactory;
 import org.sonar.core.metric.DefaultMetricFinder;
 import org.sonar.core.notification.DefaultNotificationManager;
 import org.sonar.core.persistence.DaoUtils;
@@ -241,6 +242,7 @@ public final class Platform {
     servicesContainer.addSingleton(SettingsChangeNotifier.class);
     servicesContainer.addSingleton(PageDecorations.class);
     servicesContainer.addSingleton(MeasureFilterDecoder.class);
+    servicesContainer.addSingleton(MeasureFilterFactory.class);
     servicesContainer.addSingleton(MeasureFilterExecutor.class);
     servicesContainer.addSingleton(MeasureFilterEngine.class);
     servicesContainer.addSingleton(DryRunDatabaseFactory.class);

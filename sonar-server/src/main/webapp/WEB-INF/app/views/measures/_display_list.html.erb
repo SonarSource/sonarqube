@@ -1,20 +1,21 @@
+<%
+   display_favourites = logged_in?
+   colspan = @filter.columns.size
+   colspan += 1 if display_favourites
+%>
 <table class="data">
   <thead>
   <tr>
+    <% if display_favourites %><th class="thin"></th><% end %>
     <% @filter.columns.each do |column| %>
-      <% if column.metric %>
-        <th class="right"><%= Api::Utils.message("metric.#{column.metric.key}.name", :default => column.metric.short_name) -%></th>
-      <% elsif column.key=='name' %>
-        <th class="left"><%= Api::Utils.message("filters.col.name") -%></th>
-      <% else %>
-        <th class="right"><%= Api::Utils.message("filters.col.#{column.key}", :default => column.key) -%></th>
-      <% end %>
+      <%= list_column_title(@filter, column, url_params) -%>
     <% end %>
   </tr>
   </thead>
   <tbody>
   <% @filter.data.each do |data| %>
     <tr class="<%= cycle 'even', 'odd' -%>">
+      <% if display_favourites %><td class="thin"><%= link_to_favourite(data.snapshot.resource) -%></td><% end %>
       <% @filter.columns.each do |column| %>
         <% if column.metric %>
           <td class="right">
@@ -36,6 +37,11 @@
       <% end %>
     </tr>
   <% end %>
+  <% if @filter.data.empty? %>
+    <tr class="even">
+      <td colspan="<%= colspan -%>"><%= message 'no_data' -%></td>
+    </tr>
+  <% end %>
   </tbody>
-  <%= render :partial => 'utils/tfoot_pagination', :locals => {:pagination => @filter.pagination, :colspan => @filter.columns.size} %>
+  <%= render :partial => 'utils/tfoot_pagination', :locals => {:pagination => @filter.pagination, :colspan => colspan} %>
 </table>

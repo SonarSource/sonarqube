@@ -44,23 +44,17 @@ class MeasureFilter
 
   # Column to be displayed
   class Column
-    attr_reader :key
+    attr_reader :key, :metric
 
     def initialize(key)
       @key = key
-    end
-
-    def metric
-      @metric ||=
-        begin
-          metric_key = @key.split(':')[1]
-          Metric.by_key(metric_key) if metric_key
-        end
+      metric_key = @key.split(':')[1]
+      @metric = Metric.by_key(metric_key) if metric_key
     end
 
     def display_name
-      if metric
-        Api::Utils.message("metric.#{metric.key}.name", :default => metric.short_name)
+      if @metric
+        Api::Utils.message("metric.#{@metric.key}.name", :default => @metric.short_name)
       else
         Api::Utils.message("filters.col.#{@key}", :default => @key)
       end
@@ -146,7 +140,6 @@ class MeasureFilter
     user = options[:user]
     rows=Api::Utils.java_facade.executeMeasureFilter2(@criteria, (user ? user.id : nil))
     snapshot_ids = filter_authorized_snapshot_ids(rows, controller)
-    snapshot_ids = paginate_snapshot_ids(snapshot_ids)
     init_data(snapshot_ids)
 
     self
@@ -161,9 +154,7 @@ class MeasureFilter
   end
 
   def set_criteria_default_value(key, value)
-    if !@criteria.has_key?(key.to_sym)
-      set_criteria_value(key, value)
-    end
+    set_criteria_value(key, value) unless @criteria.has_key?(key.to_sym)
   end
 
   private
@@ -193,12 +184,8 @@ class MeasureFilter
     authorized_project_ids = controller.select_authorized(:user, project_ids)
     snapshot_ids = rows.map { |row| row.getSnapshotId() if authorized_project_ids.include?(row.getResourceRootId()) }.compact
     @security_exclusions = (snapshot_ids.size<rows.size)
-    snapshot_ids
-  end
-
-  def paginate_snapshot_ids(snapshot_ids)
     @pagination.count = snapshot_ids.size
-    snapshot_ids[@pagination.offset .. (@pagination.offset+@pagination.limit)]
+        snapshot_ids[@pagination.offset .. (@pagination.offset+@pagination.limit)]
   end
 
   def init_data(snapshot_ids)
@@ -209,7 +196,11 @@ class MeasureFilter
       snapshots.each do |snapshot|
         data = Data.new(snapshot)
         data_by_snapshot_id[snapshot.id] = data
-        @data << data
+      end
+
+      # @data must be in the same order than the snapshot ids
+      snapshot_ids.each do |sid|
+        @data << data_by_snapshot_id[sid]
       end
 
       metric_ids = @columns.map { |column| column.metric }.compact.uniq.map { |metric| metric.id }

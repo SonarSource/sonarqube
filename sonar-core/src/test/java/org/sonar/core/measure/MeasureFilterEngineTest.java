@@ -44,7 +44,7 @@ public class MeasureFilterEngineTest {
     Logger logger = mock(Logger.class);
     when(logger.isDebugEnabled()).thenReturn(true);
 
-    MeasureFilterEngine engine = new MeasureFilterEngine(decoder, executor);
+    MeasureFilterEngine engine = new MeasureFilterEngine(decoder, null, executor);
 
     final long userId = 50L;
     engine.execute("{}", userId, logger);
@@ -69,7 +69,7 @@ public class MeasureFilterEngineTest {
     when(decoder.decode("<xml>")).thenThrow(new ParseException(0));
     MeasureFilterExecutor executor = mock(MeasureFilterExecutor.class);
 
-    MeasureFilterEngine engine = new MeasureFilterEngine(decoder, executor);
+    MeasureFilterEngine engine = new MeasureFilterEngine(decoder, null, executor);
     engine.execute("<xml>", 50L);
   }
 }

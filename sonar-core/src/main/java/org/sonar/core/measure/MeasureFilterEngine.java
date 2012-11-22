@@ -20,6 +20,9 @@
 package org.sonar.core.measure;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Maps;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
@@ -35,25 +38,27 @@ public class MeasureFilterEngine implements ServerComponent {
   private static final Logger FILTER_LOG = LoggerFactory.getLogger("org.sonar.MEASURE_FILTER");
 
   private final MeasureFilterDecoder decoder;
+  private final MeasureFilterFactory factory;
   private final MeasureFilterExecutor executor;
 
-  public MeasureFilterEngine(MeasureFilterDecoder decoder, MeasureFilterExecutor executor) {
+  public MeasureFilterEngine(MeasureFilterDecoder decoder, MeasureFilterFactory factory, MeasureFilterExecutor executor) {
     this.decoder = decoder;
     this.executor = executor;
+    this.factory = factory;
   }
 
   public List<MeasureFilterRow> execute(String filterJson, @Nullable Long userId) throws ParseException {
     return execute(filterJson, userId, FILTER_LOG);
   }
 
-  public List<MeasureFilterRow> execute2(Map<String, String> filterMap, @Nullable Long userId) throws ParseException {
+  public List<MeasureFilterRow> execute2(Map<String, Object> filterMap, @Nullable Long userId) throws ParseException {
     Logger logger = FILTER_LOG;
     MeasureFilterContext context = new MeasureFilterContext();
-    context.setJson(filterMap.toString());
+    context.setJson(Joiner.on("|").withKeyValueSeparator("=").join(filterMap));
     context.setUserId(userId);
     try {
       long start = System.currentTimeMillis();
-      MeasureFilter filter = MeasureFilter.create(filterMap);
+      MeasureFilter filter = factory.create(filterMap);
       List<MeasureFilterRow> rows = executor.execute(filter, context);
       log(context, rows, (System.currentTimeMillis() - start), logger);
       return rows;

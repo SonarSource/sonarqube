@@ -28,6 +28,7 @@ import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.SnapshotDto;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -64,7 +65,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
   @Test
   public void filter_is_not_valid_if_missing_base_snapshot() {
     MeasureFilterContext context = new MeasureFilterContext();
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("TRK").setOnBaseResourceChildren(true);
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).setOnBaseResourceChildren(true);
     assertThat(MeasureFilterExecutor.isValid(filter, context)).isFalse();
 
     context.setBaseSnapshot(new SnapshotDto().setId(123L));
@@ -88,7 +89,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
   @Test
   public void filter_is_not_valid_if_anonymous_favourites() {
     MeasureFilterContext context = new MeasureFilterContext();
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("TRK").setUserFavourites(true);
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).setUserFavourites(true);
     assertThat(MeasureFilterExecutor.isValid(filter, context)).isFalse();
 
     context.setUserId(123L);
@@ -97,7 +98,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
 
   @Test
   public void projects_without_measure_conditions() throws SQLException {
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("TRK").setSortOn(MeasureFilterSort.Field.LANGUAGE);
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).setSortOn(MeasureFilterSort.Field.LANGUAGE);
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
     assertThat(rows).hasSize(2);
@@ -107,7 +108,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
 
   @Test
   public void test_default_sort() {
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("CLA");
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("CLA"));
 
     assertThat(filter.sort().isAsc()).isTrue();
     assertThat(filter.sort().field()).isEqualTo(MeasureFilterSort.Field.NAME);
@@ -116,7 +117,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
 
   @Test
   public void sort_by_ascending_resource_name() throws SQLException {
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("CLA").setSortAsc(true);
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("CLA")).setSortAsc(true);
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
     // Big -> Tiny
@@ -127,7 +128,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
 
   @Test
   public void sort_by_ascending_resource_key() throws SQLException {
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("CLA").setSortAsc(true).setSortOn(MeasureFilterSort.Field.KEY);
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("CLA")).setSortAsc(true).setSortOn(MeasureFilterSort.Field.KEY);
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
     // Big -> Tiny
@@ -138,7 +139,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
 
   @Test
   public void sort_by_ascending_resource_version() throws SQLException {
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("TRK").setSortAsc(true).setSortOn(MeasureFilterSort.Field.VERSION);
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).setSortAsc(true).setSortOn(MeasureFilterSort.Field.VERSION);
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
     // Java Project 1.0 then Php Project 3.0
@@ -149,7 +150,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
 
   @Test
   public void sort_by_descending_resource_name() throws SQLException {
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("CLA").setSortAsc(false);
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("CLA")).setSortAsc(false);
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
     // Tiny -> Big
@@ -160,7 +161,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
 
   @Test
   public void sort_by_ascending_text_measure() throws SQLException {
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("TRK").setSortOnMetric(METRIC_PROFILE);
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).setSortOnMetric(METRIC_PROFILE);
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
     assertThat(rows).hasSize(2);
@@ -170,7 +171,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
 
   @Test
   public void sort_by_descending_text_measure() throws SQLException {
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("TRK").setSortOnMetric(METRIC_PROFILE).setSortAsc(false);
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).setSortOnMetric(METRIC_PROFILE).setSortAsc(false);
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
     assertThat(rows).hasSize(2);
@@ -181,7 +182,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
   @Test
   public void sort_by_missing_text_measure() throws SQLException {
     // the metric 'profile' is not set on files
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("CLA").setSortOnMetric(METRIC_PROFILE);
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("CLA")).setSortOnMetric(METRIC_PROFILE);
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
     assertThat(rows).hasSize(2);//2 files randomly sorted
@@ -189,7 +190,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
 
   @Test
   public void sort_by_ascending_numeric_measure() throws SQLException {
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("CLA").setSortOnMetric(METRIC_LINES);
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("CLA")).setSortOnMetric(METRIC_LINES);
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
     // Tiny -> Big
@@ -200,7 +201,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
 
   @Test
   public void sort_by_descending_numeric_measure() throws SQLException {
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("CLA").setSortOnMetric(METRIC_LINES).setSortAsc(false);
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("CLA")).setSortOnMetric(METRIC_LINES).setSortAsc(false);
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
     // Big -> Tiny
@@ -212,7 +213,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
   @Test
   public void sort_by_missing_numeric_measure() throws SQLException {
     // coverage measures are not computed
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("CLA").setSortOnMetric(METRIC_COVERAGE);
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("CLA")).setSortOnMetric(METRIC_COVERAGE);
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
     // 2 files, random order
@@ -221,7 +222,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
 
   @Test
   public void sort_by_ascending_variation() throws SQLException {
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("TRK").setSortOnMetric(METRIC_LINES).setSortOnPeriod(5);
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).setSortOnMetric(METRIC_LINES).setSortOnPeriod(5);
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
     assertThat(rows).hasSize(2);
@@ -231,7 +232,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
 
   @Test
   public void sort_by_descending_variation() throws SQLException {
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("TRK")
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK"))
       .setSortOnMetric(METRIC_LINES).setSortOnPeriod(5).setSortAsc(false);
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
@@ -242,7 +243,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
 
   @Test
   public void sort_by_ascending_date() throws SQLException {
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("TRK").setSortOn(MeasureFilterSort.Field.DATE);
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).setSortOn(MeasureFilterSort.Field.DATE);
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
     verifyJavaProject(rows.get(0));// 2008
@@ -251,7 +252,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
 
   @Test
   public void sort_by_descending_date() throws SQLException {
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("TRK").setSortOn(MeasureFilterSort.Field.DATE).setSortAsc(false);
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).setSortOn(MeasureFilterSort.Field.DATE).setSortAsc(false);
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
     verifyPhpProject(rows.get(0));// 2012
@@ -260,7 +261,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
 
   @Test
   public void condition_on_numeric_measure() throws SQLException {
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("CLA")
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("CLA"))
       .setSortOnMetric(METRIC_LINES)
       .addCondition(new MeasureFilterCondition(METRIC_LINES, ">", 200));
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
@@ -271,7 +272,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
 
   @Test
   public void condition_on_measure_variation() throws SQLException {
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("TRK")
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK"))
       .setSortOnMetric(METRIC_LINES)
       .addCondition(new MeasureFilterCondition(METRIC_LINES, ">", 1000).setPeriod(5));
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
@@ -282,7 +283,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
 
   @Test
   public void multiple_conditions_on_numeric_measures() throws SQLException {
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("CLA")
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("CLA"))
       .setSortOnMetric(METRIC_LINES)
       .addCondition(new MeasureFilterCondition(METRIC_LINES, ">", 2))
       .addCondition(new MeasureFilterCondition(METRIC_LINES, "<=", 50));
@@ -294,7 +295,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
 
   @Test
   public void filter_by_language() throws SQLException {
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("TRK").setResourceLanguages("java", "cobol");
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).setResourceLanguages(Arrays.asList("java", "cobol"));
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
     assertThat(rows).hasSize(1);
@@ -303,7 +304,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
 
   @Test
   public void filter_by_min_date() throws SQLException {
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("TRK").setFromDate(DateUtils.parseDate("2012-12-13"));
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).setFromDate(DateUtils.parseDate("2012-12-13"));
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
     // php has been analyzed in 2012-12-13, whereas java project has been analyzed in 2008
@@ -313,7 +314,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
 
   @Test
   public void filter_by_range_of_dates() throws SQLException {
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("TRK")
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK"))
       .setFromDate(DateUtils.parseDate("2007-01-01"))
       .setToDate(DateUtils.parseDate("2010-01-01"));
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
@@ -325,7 +326,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
 
   @Test
   public void filter_by_resource_name() throws SQLException {
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("TRK").setResourceName("PHP Proj");
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).setResourceName("PHP Proj");
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
     assertThat(rows).hasSize(1);
@@ -334,7 +335,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
 
   @Test
   public void filter_by_resource_key_star_regexp() throws SQLException {
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("TRK").setResourceKeyRegexp("java*");
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).setResourceKeyRegexp("java*");
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
     assertThat(rows).hasSize(1);
@@ -343,7 +344,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
 
   @Test
   public void filter_by_resource_key_exclamation_mark() throws SQLException {
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("TRK").setResourceKeyRegexp("JaV?_proje*");
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).setResourceKeyRegexp("JaV?_proje*");
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
     assertThat(rows).hasSize(1);
     verifyJavaProject(rows.get(0));
@@ -351,7 +352,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
 
   @Test
   public void filter_by_base_resource() throws SQLException {
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("CLA").setBaseResourceKey("java_project");
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("CLA")).setBaseResourceKey("java_project");
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
     assertThat(rows).hasSize(2);
@@ -371,7 +372,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
 
   @Test
   public void filter_by_parent_without_children() throws SQLException {
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers("TRK", "PAC", "CLA").setBaseResourceKey("java_project:org.sonar.foo.Big").setOnBaseResourceChildren(true);
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK", "PAC", "CLA")).setBaseResourceKey("java_project:org.sonar.foo.Big").setOnBaseResourceChildren(true);
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
     assertThat(rows).isEmpty();

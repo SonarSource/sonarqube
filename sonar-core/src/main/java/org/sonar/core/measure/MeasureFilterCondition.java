@@ -19,6 +19,8 @@
  */
 package org.sonar.core.measure;
 
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.measures.Metric;
 
 public class MeasureFilterCondition {
@@ -66,5 +68,10 @@ public class MeasureFilterCondition {
     sql.append(" pm.metric_id=");
     sql.append(metric.getId());
     sql.append(" AND ").append(valueColumn()).append(operator).append(value);
+  }
+
+  @Override
+  public String toString() {
+    return ReflectionToStringBuilder.toString(this, ToStringStyle.SIMPLE_STYLE);
   }
 }
