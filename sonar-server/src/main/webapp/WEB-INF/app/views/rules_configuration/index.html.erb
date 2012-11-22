@@ -107,6 +107,9 @@
         <th class="left"><%= message('name') -%> <span style="font-weight: normal">[<%= link_to_function(message('rules_configuration.expand'), "expand_rules()") %> / <%= link_to_function(message('rules_configuration.collapse'), "collapse_rules()") %>]</span></th>
     </tr>
 </thead>
+
+<%= render :partial => 'utils/tfoot_pagination', :locals => {:pagination => @pagination, :colspan => 2} %>
+
 <tbody>
 <% if @current_rules.empty? %>
 <tr><td colspan="3" class="even"><%= message('no_results') -%>.</td></tr>
@@ -123,7 +126,6 @@
 <% end %>
 </tbody>
 </table>
-<%= render :partial => 'utils/tfoot_pagination', :locals => {:pagination => @pagination, :colspan => 2} %>
 
 <script type="text/javascript">
     function replaceTextField(span_id, key) {
