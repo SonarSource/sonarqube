@@ -66,6 +66,7 @@ public final class DatabaseUtils {
     "loaded_templates",
     "manual_measures",
     "measure_data",
+    "measure_filters",
     "metrics",
     "notifications",
     "projects",
