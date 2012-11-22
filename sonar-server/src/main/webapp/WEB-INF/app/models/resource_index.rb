@@ -29,4 +29,13 @@ class ResourceIndex < ActiveRecord::Base
   def resource_id_for_authorization
     root_project_id
   end
+
+  def eql?(another_resource_index)
+    resource_id == another_resource_index.resource_id && root_project_id == another_resource_index.root_project_id
+  end
+
+  def hash
+    [resource_id, root_project_id].hash
+  end
+
 end

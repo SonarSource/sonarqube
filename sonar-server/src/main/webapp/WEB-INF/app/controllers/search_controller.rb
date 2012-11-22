@@ -17,6 +17,8 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
+require "set"
+
 class SearchController < ApplicationController
 
   SECTION=Navigation::SECTION_HOME
@@ -36,17 +38,18 @@ class SearchController < ApplicationController
                                  :order => 'name_size')
 
     results = select_authorized(:user, results)
+    results = Set.new(results) # do not want the same resource_index to appear many times in the result
     @total = results.size
 
     resource_ids=[]
     @resource_indexes_by_qualifier={}
     results.each do |resource_index|
       qualifier = fix_qualifier(resource_index.qualifier)
-      @resource_indexes_by_qualifier[qualifier]||=[]
-      array=@resource_indexes_by_qualifier[qualifier]
-      if array.size<MAX_RESULTS
-        resource_ids<<resource_index.resource_id
-        array<<resource_index
+      @resource_indexes_by_qualifier[qualifier] ||= []
+      array = @resource_indexes_by_qualifier[qualifier]
+      if array.size < MAX_RESULTS
+        resource_ids << resource_index.resource_id
+        array << resource_index
       end
     end
 
