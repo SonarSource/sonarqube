@@ -45,7 +45,7 @@ class Api::ResourcesController < Api::ApiController
       condition_values<<qualifiers
     end
     indexes = ResourceIndex.find(:all,
-                                 :select => 'resource_id,root_project_id,qualifier', # optimization to not load unused columns like 'kee'
+                                 :select => 'distinct(resource_id),root_project_id,qualifier', # optimization to not load unused columns like 'kee'
                                  :conditions => [conditions.join(' and ')].concat(condition_values),
                                  :order => 'name_size')
 

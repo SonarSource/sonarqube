@@ -33,12 +33,11 @@ class SearchController < ApplicationController
 
     key = search.downcase
     results = ResourceIndex.find(:all,
-                                 :select => 'resource_id,root_project_id,qualifier', # optimization to not load unused columns like 'kee'
+                                 :select => 'distinct(resource_id),root_project_id,qualifier', # optimization to not load unused columns like 'kee'
                                  :conditions => ["kee like ?", key + '%'],
                                  :order => 'name_size')
 
     results = select_authorized(:user, results)
-    results = Set.new(results) # do not want the same resource_index to appear many times in the result
     @total = results.size
 
     resource_ids=[]
