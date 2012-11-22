@@ -11,7 +11,14 @@
 %>
         <li id="<%= resource.id -%>">
           <div class="q"><%= message("qualifiers.#{resource.qualifier}") if first -%></div>
-          <%= qualifier_icon resource -%> <%= highlight(truncate(resource.name(true), :length => 70), params[:s]) -%>
+          <%
+            displayed_resource_name=resource.name(true)
+            name_length=displayed_resource_name.mb_chars.length
+            if name_length>70
+              displayed_resource_name=truncate(displayed_resource_name.reverse, :length => 70).reverse
+            end
+          %>
+          <span title="<%= resource.name(true) -%>"><%= qualifier_icon resource -%> <%= highlight(displayed_resource_name, params[:s]) -%></span>
         </li>
 <%             first=false
              end
