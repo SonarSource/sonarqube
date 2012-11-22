@@ -74,7 +74,7 @@
       <form action="<%= url_for :action => 'projects', :qualifier => @qualifier -%>" method="GET">
         <input type="hidden" name="qualifier" value="<%= @qualifier -%>"/>
         <input type="text" name="q" value="<%= params[:q] -%>" id="search_text"/>
-        <input type="submit" value="Search" id="search_submit"/>
+        <input type="submit" value="<%= message('search_verb') -%>" id="search_submit"/>
       </form>
     </th>
     <th>Role: Administrators</th>

@@ -51,13 +51,17 @@ class RolesController < ApplicationController
 
     @pagination = Api::Pagination.new(params)
     @projects=Project.find(:all,
+                           :select => 'distinct(projects.id),projects.kee,projects.name',
                            :include => ['user_roles','group_roles'],
                            :joins => joins,
                            :conditions => [conditions_sql, conditions_values],
                            :order => 'projects.name',
                            :offset => @pagination.offset,
                            :limit => @pagination.limit)
-    @pagination.count=Project.count(:joins => joins, :conditions => [conditions_sql, conditions_values])
+    @pagination.count=Project.count(
+        :select => 'distinct(projects.id)',
+        :joins => joins,
+        :conditions => [conditions_sql, conditions_values])
   end
 
   def edit_users
