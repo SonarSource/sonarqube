@@ -59,7 +59,7 @@
         %>
           |
           <% if max_pages > 20 && start_page > 1 %>
-            <%= goto_page message('paging_previous'), filter, update_id, :page_id => 1 %>
+            <%= goto_page message('paging_first'), filter, update_id, :page_id => 1 %>
           <% end %>
 
           <% if current_page>start_page %>
