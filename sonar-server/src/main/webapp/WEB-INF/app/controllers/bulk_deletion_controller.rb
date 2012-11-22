@@ -41,9 +41,9 @@ class BulkDeletionController < ApplicationController
       # Search for resources
       conditions = "qualifier=:qualifier"
       values = {:qualifier => @selected_tab}
-      if params[:name_filter]
+      if params[:name_filter] && !params[:name_filter].blank?
         conditions += " AND kee LIKE :kee"
-        values[:kee] = '%' + params[:name_filter].strip.downcase + '%'
+        values[:kee] = params[:name_filter].strip.downcase + '%'
       end
       
       resource_ids = ResourceIndex.find(:all,
