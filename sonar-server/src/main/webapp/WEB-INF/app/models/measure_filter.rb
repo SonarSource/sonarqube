@@ -14,7 +14,7 @@
 # Lesser General Public License for more details.
 #
 # You should have received a copy of the GNU Lesser General Public
-# License along with {library}; if not, write to the Free Software
+# License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 class MeasureFilter
@@ -44,16 +44,34 @@ class MeasureFilter
 
   # Column to be displayed
   class Column
-    attr_reader :key, :metric
+    attr_reader :key
 
     def initialize(key)
       @key = key
-      metric_key = @key.split(':')[1]
-      @metric = Metric.by_key(metric_key) if metric_key
     end
 
-    def name?
-      @key == 'name'
+    def metric
+      @metric ||=
+        begin
+          metric_key = @key.split(':')[1]
+          Metric.by_key(metric_key) if metric_key
+        end
+    end
+
+    def display_name
+      if metric
+        Api::Utils.message("metric.#{metric.key}.name", :default => metric.short_name)
+      else
+        Api::Utils.message("filters.col.#{@key}", :default => @key)
+      end
+    end
+
+    def align
+      (@key=='name') ? 'left' : 'right'
+    end
+
+    def sort?
+      !links?
     end
 
     def links?
@@ -62,8 +80,7 @@ class MeasureFilter
   end
 
   class Display
-    def init_filter(filter)
-
+    def prepare_filter(filter, options)
     end
   end
 
@@ -72,8 +89,13 @@ class MeasureFilter
       'list'
     end
 
-    def init_filter(filter)
-
+    def prepare_filter(filter, options)
+      filter.set_criteria_default_value(:columns, 'name,date,metric:ncloc,metric:violations')
+      filter.set_criteria_default_value(:sort, 'name')
+      filter.set_criteria_default_value(:asc, true)
+      filter.set_criteria_default_value(:listPageSize, 30)
+      filter.pagination.per_page = [filter.criteria[:listPageSize].to_i, 200].min
+      filter.pagination.page = (options[:page] || 1).to_i
     end
   end
 
@@ -83,9 +105,11 @@ class MeasureFilter
     end
   end
 
-  DEFAULT_OPTIONS = {:page => 1, :page_size => 50}
-  DEFAULT_COLUMNS = [Column.new('name'), Column.new('date'), Column.new('metric:ncloc'), Column.new('metric:violations')]
   DISPLAYS = [ListDisplay.new, TreemapDisplay.new]
+
+  def self.register_display(display)
+    DISPLAYS << display
+  end
 
   # Simple hash {string key => fixnum or boolean or string}
   attr_accessor :criteria
@@ -98,51 +122,67 @@ class MeasureFilter
 
   def initialize(criteria={})
     @criteria = criteria
+    @pagination = Api::Pagination.new
+  end
+
+  def sort_key
+    @criteria[:sort]
+  end
+
+  def sort_asc?
+    @criteria[:asc]=='true'
   end
 
   # ==== Options
-  # 'page' : page id starting with 1. Used on table display.
-  # 'page_size' : number of results per page.
+  # 'page' : page id starting with 1. Used in display 'list'.
   # 'user' : the authenticated user
   # 'period' : index of the period between 1 and 5
   #
   def execute(controller, options={})
     return reset_results if @criteria.empty?
-    init_columns
-    init_display(options)
+    init_display
+    init_filter(options)
 
-    opts = DEFAULT_OPTIONS.merge(options)
-    user = opts[:user]
-
+    user = options[:user]
     rows=Api::Utils.java_facade.executeMeasureFilter2(@criteria, (user ? user.id : nil))
     snapshot_ids = filter_authorized_snapshot_ids(rows, controller)
-    snapshot_ids = paginate_snapshot_ids(snapshot_ids, opts)
+    snapshot_ids = paginate_snapshot_ids(snapshot_ids)
     init_data(snapshot_ids)
 
     self
   end
 
-  private
-
-  def init_columns
-    fields = @criteria['columns']
-    if fields.present?
-      @columns = fields.split(',').map { |field| Column.new(field) }
+  def set_criteria_value(key, value)
+    if value
+      @criteria[key.to_sym]=value.to_s
     else
-      @columns = DEFAULT_COLUMNS.clone
+      @criteria.delete(key.to_sym)
     end
   end
 
-  def init_display(options)
-    key = @criteria['display']
+  def set_criteria_default_value(key, value)
+    if !@criteria.has_key?(key.to_sym)
+      set_criteria_value(key, value)
+    end
+  end
+
+  private
+
+  def init_display
+    key = @criteria[:display]
     if key.present?
       @display = DISPLAYS.find { |display| display.key==key }
     end
     @display ||= DISPLAYS.first
   end
 
+  def init_filter(options)
+    @display.prepare_filter(self, options)
+    @columns = @criteria[:columns].split(',').map { |col_key| Column.new(col_key) }
+  end
+
   def reset_results
-    @pagination = nil
+    @pagination = Api::Pagination.new
     @security_exclusions = nil
     @data = nil
     self
@@ -156,15 +196,9 @@ class MeasureFilter
     snapshot_ids
   end
 
-  def paginate_snapshot_ids(snapshot_ids, options)
-    @pagination = Api::Pagination.new({
-                                        :per_page => options[:page_size],
-                                        :page => options[:page],
-                                        :count => snapshot_ids.size})
-    from = (@pagination.page - 1) * @pagination.per_page
-    to = (@pagination.page * @pagination.per_page) - 1
-    to = snapshot_ids.size - 1 if to >= snapshot_ids.size
-    snapshot_ids[from..to]
+  def paginate_snapshot_ids(snapshot_ids)
+    @pagination.count = snapshot_ids.size
+    snapshot_ids[@pagination.offset .. (@pagination.offset+@pagination.limit)]
   end
 
   def init_data(snapshot_ids)
