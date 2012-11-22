@@ -12,7 +12,7 @@
     <div id="user-details">
       <% if current_user %>
         <b><%= current_user.name(true) -%></b>
-        <% if current_user.email %>
+        <% if current_user.email && !current_user.email.blank? %>
           <br/>
           <span class="note"><%= current_user.email -%></span>
         <% end %>
