@@ -174,10 +174,6 @@ body, a {
   border-top: 1px solid #ccc;
 }
 
-#sonar-recent-history li {
-  padding-left: 10px;
-}
-
 #nonav {
   text-align: left;
   margin: 50px 180px 0;
