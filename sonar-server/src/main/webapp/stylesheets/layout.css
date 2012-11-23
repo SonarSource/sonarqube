@@ -148,6 +148,10 @@ body, a {
   padding: 0 5px 0 0;
 }
 
+#hd .dropdown-menu a {
+  color: #000;
+}
+
 #user-panel {
   position: absolute;
   float: right;
