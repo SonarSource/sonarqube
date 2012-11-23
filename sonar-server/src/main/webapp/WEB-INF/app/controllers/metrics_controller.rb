@@ -72,7 +72,7 @@ class MetricsController < ApplicationController
   def delete_from_web
     metric = Metric.by_id(params[:id].to_i) if params[:id] && params[:id].size > 0
     if metric
-      del_count = Metric.delete(params[:id].to_i)
+      del_count = Metric.delete_with_manual_measures(params[:id].to_i)
       flash[:notice] = 'Successfully deleted.' if del_count == 1
       flash[:error] = 'Unable to delete this metric.' if del_count != 1
       Metric.clear_cache
