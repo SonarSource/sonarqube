@@ -20,11 +20,13 @@
 package org.sonar.server.configuration;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import org.hamcrest.collection.IsMapContaining;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.database.configuration.Property;
+import org.sonar.core.properties.PropertyDto;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 import org.sonar.server.platform.PersistentSettings;
 
@@ -49,8 +51,8 @@ public class PropertiesBackupTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void export_properties() {
-    when(persistentSettings.getProperties()).thenReturn(ImmutableMap.of("key1", "value1", "key2", "value2"));
+  public void shouldExportProperties() {
+    when(persistentSettings.getGlobalProperties()).thenReturn(Lists.newArrayList(new PropertyDto().setKey("key1").setValue("value1"), new PropertyDto().setKey("key2").setValue("value2")));
 
     SonarConfig config = new SonarConfig();
     backup.exportXml(config);
@@ -59,17 +61,17 @@ public class PropertiesBackupTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void do_not_export_server_id() {
-    when(persistentSettings.getProperties()).thenReturn(ImmutableMap.of(CoreProperties.SERVER_ID, "111"));
+  public void shouldNotExportServerId() {
+    when(persistentSettings.getGlobalProperties()).thenReturn(Lists.newArrayList(new PropertyDto().setKey(CoreProperties.SERVER_ID).setValue("111"), new PropertyDto().setKey("key").setValue("value")));
 
     SonarConfig config = new SonarConfig();
     backup.exportXml(config);
 
-    assertThat(config.getProperties()).isEmpty();
+    assertThat(config.getProperties()).containsOnly(new Property("key", "value"));
   }
 
   @Test
-  public void import_backup_of_properties() {
+  public void shouldImportBackupOfProperties() {
     SonarConfig config = new SonarConfig();
     config.setProperties(Arrays.asList(new Property("key1", "value1")));
 
@@ -79,7 +81,7 @@ public class PropertiesBackupTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void do_not_import_server_id() {
+  public void shouldNotImportServerId() {
     // initial server id
     when(persistentSettings.getString(CoreProperties.SERVER_ID)).thenReturn("111");
 

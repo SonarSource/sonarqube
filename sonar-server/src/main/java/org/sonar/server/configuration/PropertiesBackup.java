@@ -26,6 +26,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.database.configuration.Property;
+import org.sonar.core.properties.PropertyDto;
 import org.sonar.server.platform.PersistentSettings;
 
 import java.util.List;
@@ -42,10 +43,10 @@ public class PropertiesBackup implements Backupable {
   public void exportXml(SonarConfig sonarConfig) {
     List<Property> xmlProperties = Lists.newArrayList();
 
-    for (Map.Entry<String, String> entry : persistentSettings.getProperties().entrySet()) {
+    for (PropertyDto property : persistentSettings.getGlobalProperties()){
       // "sonar.core.id" must never be restored, it is unique for a server and it created once at the 1rst server startup
-      if (!CoreProperties.SERVER_ID.equals(entry.getKey())) {
-        xmlProperties.add(new Property(entry.getKey(), entry.getValue()));
+      if (!CoreProperties.SERVER_ID.equals(property.getKey())) {
+        xmlProperties.add(new Property(property.getKey(), property.getValue()));
       }
     }
     sonarConfig.setProperties(xmlProperties);

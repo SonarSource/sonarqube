@@ -26,6 +26,8 @@ import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 
 import javax.annotation.Nullable;
+
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -42,7 +44,7 @@ public class PersistentSettings implements ServerComponent {
 
   public void start() {
     Map<String, String> databaseProperties = Maps.newHashMap();
-    for (PropertyDto property : propertiesDao.selectGlobalProperties()) {
+    for (PropertyDto property : getGlobalProperties()) {
       databaseProperties.put(property.getKey(), property.getValue());
     }
     settings.activateDatabaseSettings(databaseProperties);
@@ -82,5 +84,9 @@ public class PersistentSettings implements ServerComponent {
 
   public Settings getSettings() {
     return settings;
+  }
+
+  public List<PropertyDto> getGlobalProperties(){
+    return propertiesDao.selectGlobalProperties();
   }
 }
