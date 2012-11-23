@@ -30,7 +30,7 @@ import org.sonar.api.web.*;
 public class TestsViewer extends AbstractRubyTemplate implements RubyRailsPage {
 
   public String getId() {
-      return "tests_viewer";
+    return "tests_viewer";
   }
 
   public String getTitle() {
