@@ -16,11 +16,11 @@
         <tbody>
       <% @metrics.each do |metric| %>
         <tr>
-          <td class="left" nowrap><span class="note"><%= metric.key -%></span></td>
-          <td class="left" nowrap><%= h metric.short_name -%></td>
-          <td class="left"><%= h metric.description -%></td>
-          <td class="left" ><%= metric.domain -%></td>
-          <td class="left" ><%= metric.value_type_name -%></td>
+          <td class="left" nowrap id="metric_key_<%= metric.key -%>"><span class="note"><%= metric.key -%></span></td>
+          <td class="left" nowrap id="metric_name_<%= metric.key -%>"><%= h metric.short_name -%></td>
+          <td class="left" id="metric_desc_<%= metric.key -%>"><%= h metric.description -%></td>
+          <td class="left" id="metric_domain_<%= metric.key -%>"><%= metric.domain -%></td>
+          <td class="left" id="metric_type_name<%= metric.key -%>"><%= metric.value_type_name -%></td>
           <td class="right thin nowrap">
             <% if is_admin? && metric.updatable_online? %>
               <%= link_to 'Edit', {:action => 'index', :id => metric.id}, {:class => 'link-action', :id => "edit_#{h(metric.short_name)}", :method => 'get'} %>

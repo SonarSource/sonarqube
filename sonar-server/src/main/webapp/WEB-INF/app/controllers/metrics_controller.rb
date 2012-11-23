@@ -44,7 +44,7 @@ class MetricsController < ApplicationController
 
     metric.attributes=params[:metric]
     if metric.short_name(false)
-      metric.name = metric.short_name(false).downcase.gsub(/\s/, '_')[0..59]
+      metric.name = metric.short_name(false).downcase.gsub(/\s/, '_')[0..59] unless params[:id]
     end
     unless params[:newdomain].blank?
       metric.domain = params[:newdomain]
