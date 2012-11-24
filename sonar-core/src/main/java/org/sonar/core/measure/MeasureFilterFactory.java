@@ -19,8 +19,10 @@
  */
 package org.sonar.core.measure;
 
+import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.utils.DateUtils;
 
@@ -76,19 +78,41 @@ public class MeasureFilterFactory implements ServerComponent {
         filter.setSortOn(MeasureFilterSort.Field.valueOf(s.toUpperCase()));
       }
     }
+    for (int index = 1; index <= 3; index++) {
+      MeasureFilterCondition condition = toCondition(properties, index);
+      if (condition != null) {
+        filter.addCondition(condition);
+      }
+    }
 //    if (map.containsKey("sortPeriod")) {
 //      filter.setSortOnPeriod(((Long) map.get("sortPeriod")).intValue());
 //    }
     return filter;
   }
 
+  private MeasureFilterCondition toCondition(Map<String, Object> props, int index) {
+    MeasureFilterCondition condition = null;
+    String metricKey = (String) props.get("c" + index + "metric");
+    String op = (String) props.get("c" + index + "op");
+    String val = (String) props.get("c" + index + "val");
+    if (!Strings.isNullOrEmpty(metricKey) && !Strings.isNullOrEmpty(op) && !Strings.isNullOrEmpty(val)) {
+      Metric metric = metricFinder.findByKey(metricKey);
+      condition = new MeasureFilterCondition(metric, op, Double.parseDouble(val));
+      String period = (String) props.get("c" + index + "period");
+      if (period != null) {
+        condition.setPeriod(Integer.parseInt(period));
+      }
+    }
+    return condition;
+  }
+
   private List<String> toList(@Nullable Object obj) {
     List<String> result = null;
     if (obj != null) {
       if (obj instanceof String) {
-        result = Arrays.asList((String)obj);
+        result = Arrays.asList((String) obj);
       } else {
-        result = (List<String>)obj;
+        result = (List<String>) obj;
       }
     }
     return result;

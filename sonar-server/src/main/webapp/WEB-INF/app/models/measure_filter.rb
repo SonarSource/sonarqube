@@ -114,6 +114,11 @@ class MeasureFilter < ActiveRecord::Base
 
   class TreemapDisplay < Display
     KEY = :treemap
+
+    def initialize(filter)
+      filter.set_criteria_default_value('columns', ['metric:ncloc', 'metric:violations'])
+      @metric_ids = @columns.map { |column| column.metric.id if column.metric }.compact.uniq
+    end
   end
 
   DISPLAYS = [ListDisplay, TreemapDisplay]
@@ -205,8 +210,8 @@ class MeasureFilter < ActiveRecord::Base
   end
 
 
-# ==== Options
-# :user : the authenticated user
+  # ==== Options
+  # :user : the authenticated user
   def execute(controller, options={})
     init_results
 
