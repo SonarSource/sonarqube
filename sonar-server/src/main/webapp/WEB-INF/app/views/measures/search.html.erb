@@ -43,53 +43,58 @@
         <tr>
           <td>
             Qualifiers:<br>
-            <%= select_tag 'qualifiers[]', options_for_select([['Any', ''], ['Project', 'TRK'], ['Sub-project', 'BRC'], ['Directory/Package', 'PAC'], ['File', 'CLA']], @filter.criteria['qualifiers']||''), :size => 5, :multiple => true -%>
+            <%
+              qualifiers = Api::Utils.java_facade.getResourceTypesForFilter().map do |resource_type|
+                [message("qualifiers.#{resource_type.getQualifier()}"), resource_type.getQualifier()]
+              end
+            %>
+            <%= select_tag 'qualifiers[]', options_for_select([[message('any'), '']].concat(qualifiers), @filter.criteria['qualifiers']||''), :size => 5, :multiple => true -%>
           </td>
         </tr>
         <tr>
           <td>
             Language:<br>
-            <% languages = [['Any', '']].concat(Api::Utils.languages.map { |lang| [lang.name, lang.key] }) %>
+            <% languages = [[message('any'), '']].concat(Api::Utils.languages.map { |lang| [lang.name, lang.key] }) %>
             <%= select_tag 'languages[]', options_for_select(languages, @filter.criteria['languages']||''), :size => 5, :multiple => true -%>
           </td>
         </tr>
         <tr>
           <td>
             Name:<br>
-            <input type="text" name="nameRegexp"></td>
+            <input type="text" name="nameRegexp" value="<%= h @filter.criteria['nameRegexp'] -%>"></td>
         </tr>
         <tr>
           <td>
             Key:<br>
-            <input type="text" name="keyRegexp"></td>
+            <input type="text" name="keyRegexp" value="<%= h @filter.criteria['keyRegexp'] -%>"></td>
         </tr>
         <tr>
           <td>
             Favourites only:<br>
-            <%= check_box_tag 'onFavourites', 'true', params['onFavourites']=='true' %>
+            <%= check_box_tag 'onFavourites', 'true', @filter.criteria['onFavourites']=='true' %>
           </td>
         </tr>
         <tr>
           <td>
             From date:<br>
-            <input type="text" name="fromDate" value="<%= params['fromDate'] -%>">
+            <input type="text" name="fromDate" value="<%= @filter.criteria['fromDate'] -%>">
           </td>
         </tr>
         <tr>
           <td>
             To date:<br>
-            <input type="text" name="toDate" value="<%= params['toDate'] -%>">
+            <input type="text" name="toDate" value="<%= @filter.criteria['toDate'] -%>">
           </td>
         </tr>
         <tr>
           <td>
-            Before:<br>
-            <input type="text" name="beforeDays" value="<%= params['beforeDays'] -%>" size="4"> days
+            More than:<br>
+            <input type="text" name="beforeDays" value="<%= @filter.criteria['beforeDays'] -%>" size="4"> days ago
           </td>
         </tr>
         <tr>
-          <td>After:<br>
-            <input type="text" name="afterDays" value="<%= params['afterDays'] -%>" size="4"> days
+          <td>Within the last:<br>
+            <input type="text" name="afterDays" value="<%= @filter.criteria['afterDays'] -%>" size="4"> days
           </td>
         </tr>
         <tr>

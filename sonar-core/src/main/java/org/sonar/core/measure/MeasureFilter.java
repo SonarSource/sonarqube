@@ -23,8 +23,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.resources.Qualifiers;
 
 import javax.annotation.Nullable;
 
@@ -76,6 +76,12 @@ public class MeasureFilter {
 
   public MeasureFilter setResourceQualifiers(@Nullable List<String> list) {
     this.resourceQualifiers = sanitize(list);
+    if (resourceQualifiers.contains(Qualifiers.FILE)) {
+      resourceQualifiers.add(Qualifiers.CLASS);
+    }
+    if (resourceQualifiers.contains(Qualifiers.DIRECTORY)) {
+      resourceQualifiers.add(Qualifiers.PACKAGE);
+    }
     return this;
   }
 

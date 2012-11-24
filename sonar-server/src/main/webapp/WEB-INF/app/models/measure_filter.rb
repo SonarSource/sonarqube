@@ -58,7 +58,7 @@ class MeasureFilter < ActiveRecord::Base
       if @metric
         Api::Utils.message("metric.#{@metric.key}.name", :default => @metric.short_name)
       else
-        Api::Utils.message("filters.col.#{@key}", :default => @key)
+        Api::Utils.message("measure_filter.col.#{@key}", :default => @key)
       end
     end
 
@@ -96,7 +96,7 @@ class MeasureFilter < ActiveRecord::Base
     KEY = :list
 
     def initialize(filter)
-      filter.set_criteria_default_value('columns', ['name', 'short_name', 'description', 'links', 'date', 'language', 'version', 'alert', 'metric:ncloc', 'metric:violations'])
+      filter.set_criteria_default_value('columns', ['metric:alert_status', 'name', 'date', 'metric:ncloc', 'metric:violations', 'links'])
       filter.set_criteria_default_value('sort', 'name')
       filter.set_criteria_default_value('asc', 'true')
       filter.set_criteria_default_value('pageSize', '30')
@@ -117,6 +117,7 @@ class MeasureFilter < ActiveRecord::Base
 
     def initialize(filter)
       filter.set_criteria_default_value('columns', ['metric:ncloc', 'metric:violations'])
+      @columns = filter.criteria['columns'].map { |column_key| Column.new(column_key) }
       @metric_ids = @columns.map { |column| column.metric.id if column.metric }.compact.uniq
     end
   end
@@ -129,11 +130,11 @@ class MeasureFilter < ActiveRecord::Base
   CRITERIA_SEPARATOR = '|'
   CRITERIA_KEY_VALUE_SEPARATOR = ','
 
-# Configuration available after call to execute()
+  # Configuration available after call to execute()
   attr_reader :pagination, :security_exclusions, :columns
 
-# Results : sorted array of Result
-  attr_reader :results
+  # Results : sorted array of Result
+  attr_reader :base_result, :results
 
   belongs_to :user
   validates_presence_of :name, :message => Api::Utils.message('measure_filter.missing_name')
@@ -223,7 +224,7 @@ class MeasureFilter < ActiveRecord::Base
     self
   end
 
-# API used by Displays
+  # API used by Displays
   def set_criteria_value(key, value)
     if value
       @criteria[key.to_s]=value
@@ -232,7 +233,7 @@ class MeasureFilter < ActiveRecord::Base
     end
   end
 
-# API used by Displays
+  # API used by Displays
   def set_criteria_default_value(key, value)
     set_criteria_value(key, value) unless criteria.has_key?(key)
   end
@@ -294,6 +295,20 @@ class MeasureFilter < ActiveRecord::Base
         links = ProjectLink.find(:all, :conditions => {:project_id => project_ids}, :order => 'link_type')
         links.each do |link|
           results_by_project_id[link.project_id].add_link(link)
+        end
+      end
+    end
+    if criteria['base'].present?
+      base_snapshot = Snapshot.find(:first, :include => 'project', :conditions => ['projects.kee=? and islast=?', criteria['base'], true])
+      if base_snapshot
+        @base_result = Result.new(base_snapshot)
+        if display.metric_ids && !display.metric_ids.empty?
+          base_measures = ProjectMeasure.find(:all, :conditions =>
+              ['rule_priority is null and rule_id is null and characteristic_id is null and person_id is null and snapshot_id=? and metric_id in (?)', base_snapshot.id, display.metric_ids]
+          )
+          base_measures.each do |base_measure|
+            @base_result.add_measure(base_measure)
+          end
         end
       end
     end

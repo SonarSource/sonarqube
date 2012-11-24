@@ -40,13 +40,13 @@ public class ResourceTypeTest {
     ResourceType def = ResourceType.builder("qualifier")
       .setIconPath("/custom-icon.png")
       .hasSourceCode()
-      .setProperty("availableForFilters", "true")
+      .setProperty("supports_measure_filters", "true")
       .setProperty("anotherProperty", "foo")
       .build();
     assertThat(def.getQualifier()).isEqualTo("qualifier");
     assertThat(def.getIconPath()).isEqualTo("/custom-icon.png");
     assertThat(def.hasSourceCode()).isTrue();
-    assertThat(def.getBooleanProperty("availableForFilters")).isTrue();
+    assertThat(def.getBooleanProperty("supports_measure_filters")).isTrue();
     assertThat(def.getStringProperty("anotherProperty")).isEqualTo("foo");
   }
 
@@ -71,32 +71,32 @@ public class ResourceTypeTest {
   @Test
   public void testDeprecatedIsAvailableForFiltesCompatibility() {
     ResourceType def = ResourceType.builder("qualifier").build();
-    assertThat(def.getBooleanProperty("availableForFilters")).isFalse();
+    assertThat(def.getBooleanProperty("supports_measure_filters")).isFalse();
 
     def = ResourceType.builder("qualifier").availableForFilters().build();
-    assertThat(def.getBooleanProperty("availableForFilters")).isTrue();
+    assertThat(def.getBooleanProperty("supports_measure_filters")).isTrue();
   }
 
   @Test
   public void getBooleanProperty_is_set() {
     // set with boolean parameter
-    ResourceType def = ResourceType.builder("qualifier").setProperty("availableForFilters", true).build();
-    assertThat(def.getBooleanProperty("availableForFilters")).isTrue();
+    ResourceType def = ResourceType.builder("qualifier").setProperty("supports_measure_filters", true).build();
+    assertThat(def.getBooleanProperty("supports_measure_filters")).isTrue();
 
-    def = ResourceType.builder("qualifier").setProperty("availableForFilters", false).build();
-    assertThat(def.getBooleanProperty("availableForFilters")).isFalse();
+    def = ResourceType.builder("qualifier").setProperty("supports_measure_filters", false).build();
+    assertThat(def.getBooleanProperty("supports_measure_filters")).isFalse();
 
-    def = ResourceType.builder("qualifier").setProperty("availableForFilters", "true").build();
-    assertThat(def.getBooleanProperty("availableForFilters")).isTrue();
+    def = ResourceType.builder("qualifier").setProperty("supports_measure_filters", "true").build();
+    assertThat(def.getBooleanProperty("supports_measure_filters")).isTrue();
 
-    def = ResourceType.builder("qualifier").setProperty("availableForFilters", "false").build();
-    assertThat(def.getBooleanProperty("availableForFilters")).isFalse();
+    def = ResourceType.builder("qualifier").setProperty("supports_measure_filters", "false").build();
+    assertThat(def.getBooleanProperty("supports_measure_filters")).isFalse();
   }
 
   @Test
   public void getBooleanProperty_is_not_set() {
     ResourceType def = ResourceType.builder("qualifier").build();
-    assertThat(def.getBooleanProperty("availableForFilters")).isFalse();
+    assertThat(def.getBooleanProperty("supports_measure_filters")).isFalse();
   }
 
   @Test

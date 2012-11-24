@@ -19,6 +19,7 @@
  */
 package org.sonar.core.measure;
 
+import com.google.common.base.Strings;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.Database;
@@ -75,7 +76,8 @@ public class MeasureFilterExecutor implements ServerComponent {
   }
 
   static boolean isValid(MeasureFilter filter, MeasureFilterContext context) {
-    boolean valid = !(filter.isOnBaseResourceChildren() && context.getBaseSnapshot() == null);
+    boolean valid = (Strings.isNullOrEmpty(filter.getBaseResourceKey()) || context.getBaseSnapshot()!=null);
+    valid &= !(filter.isOnBaseResourceChildren() && context.getBaseSnapshot() == null);
     valid &= !(filter.isOnFavourites() && context.getUserId() == null);
     valid &= validateMeasureConditions(filter);
     valid &= validateSort(filter);
