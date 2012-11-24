@@ -1,0 +1,47 @@
+<div class="admin_page">
+  <table class="data" id="actives">
+    <thead>
+    <tr>
+      <th><%= message('name') -%></th>
+      <th><%= message('sharing') -%></th>
+      <th class="right"><%= message('operations') -%></th>
+    </tr>
+    </thead>
+    <tbody>
+    <% if current_user.measure_filters.empty? %>
+      <tr class="even">
+        <td colspan="3"><%= message('filters.no_filters') -%></td>
+      </tr>
+    <% else %>
+      <% current_user.measure_filters.each do |filter| %>
+        <tr id="active-<%= u filter.name -%>" class="<%= cycle('even', 'odd', :name => 'actives') -%>">
+          <td>
+            <%= link_to h(filter.name), :action => 'filter', :id => filter.id -%>
+            <% if filter.description %>
+              <div><%= h filter.description -%></div>
+            <% end %>
+          </td>
+          <td>
+            <% if filter.shared %>
+              Shared with all users
+            <% else %>
+              Private
+            <% end %>
+          </td>
+          <td class="thin nowrap right">
+            <a id="edit_<%= filter.name.parameterize -%>" href="<%= ApplicationController.root_context -%>/measures/edit_form/<%= filter.id -%>" class="link-action open-modal"><%= message('edit') -%></a>
+            &nbsp;
+            <%= link_to_action message('delete'), "#{ApplicationController.root_context}/measures/delete/#{filter.id}",
+                                             :class => 'link-action link-red',
+                                             :id => "delete_#{filter.name.parameterize}",
+                                             :confirm_button => message('delete'),
+                                             :confirm_title => 'measure_filters.delete_confirm_title',
+                                             :confirm_msg => 'measure_filters.are_you_sure_want_delete_filter_x',
+                                             :confirm_msg_params => [filter.name] -%>
+          </td>
+        </tr>
+      <% end %>
+    <% end %>
+    </tbody>
+  </table>
+</div>

@@ -72,7 +72,7 @@ class WidgetProperty < ActiveRecord::Base
   protected
   def validate
     errors.add_to_base("Unknown property: #{key}") unless java_definition
-    PropertyType::validate(key, type, java_definition.optional(), text_value, errors);
+    PropertyType::validate(key, type, java_definition.optional(), text_value, errors)
   end
 
 end

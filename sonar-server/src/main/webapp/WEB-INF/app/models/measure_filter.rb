@@ -17,9 +17,11 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-class MeasureFilter
+require 'set'
+class MeasureFilter < ActiveRecord::Base
+
   # Row in the table of results
-  class Data
+  class Result
     attr_reader :snapshot, :measures_by_metric, :links
 
     def initialize(snapshot)
@@ -52,7 +54,7 @@ class MeasureFilter
       @metric = Metric.by_key(metric_key) if metric_key
     end
 
-    def display_name
+    def name
       if @metric
         Api::Utils.message("metric.#{@metric.key}.name", :default => @metric.short_name)
       else
@@ -61,7 +63,11 @@ class MeasureFilter
     end
 
     def align
-      (@key=='name') ? 'left' : 'right'
+      @align ||=
+          begin
+            # by default is table cells are left-aligned
+            (@key=='name' || @key=='short_name' || @key=='description') ? '' : 'right'
+          end
     end
 
     def sort?
@@ -74,108 +80,168 @@ class MeasureFilter
   end
 
   class Display
-    def prepare_filter(filter, options)
+    attr_reader :metric_ids
+
+    def initialize(filter)
+    end
+
+    def load_links?
+      false
     end
   end
 
   class ListDisplay < Display
-    def key
-      'list'
+    attr_reader :columns
+
+    KEY = :list
+
+    def initialize(filter)
+      filter.set_criteria_default_value('columns', ['name', 'short_name', 'description', 'links', 'date', 'language', 'version', 'alert', 'metric:ncloc', 'metric:violations'])
+      filter.set_criteria_default_value('sort', 'name')
+      filter.set_criteria_default_value('asc', 'true')
+      filter.set_criteria_default_value('pageSize', '30')
+      filter.pagination.per_page = [filter.criteria['pageSize'].to_i, 200].min
+      filter.pagination.page = (filter.criteria['page'] || 1).to_i
+
+      @columns = filter.criteria['columns'].map { |column_key| Column.new(column_key) }
+      @metric_ids = @columns.map { |column| column.metric.id if column.metric }.compact.uniq
     end
 
-    def prepare_filter(filter, options)
-      filter.set_criteria_default_value(:columns, 'name,date,metric:ncloc,metric:violations')
-      filter.set_criteria_default_value(:sort, 'name')
-      filter.set_criteria_default_value(:asc, true)
-      filter.set_criteria_default_value(:listPageSize, 30)
-      filter.pagination.per_page = [filter.criteria[:listPageSize].to_i, 200].min
-      filter.pagination.page = (options[:page] || 1).to_i
+    def load_links?
+      @columns.index { |column| column.links? }
     end
   end
 
   class TreemapDisplay < Display
-    def key
-      'treemap'
-    end
+    KEY = :treemap
   end
 
-  DISPLAYS = [ListDisplay.new, TreemapDisplay.new]
+  DISPLAYS = [ListDisplay, TreemapDisplay]
 
-  def self.register_display(display)
-    DISPLAYS << display
-  end
+  SUPPORTED_CRITERIA_KEYS=Set.new([:qualifiers, :scopes, :onFavourites, :base, :onBaseComponents, :languages, :fromDate, :toDate, :beforeDays, :afterDays,
+                                   :keyRegexp, :nameRegexp,
+                                   :sort, :asc, :columns, :display, :pageSize, :page])
+  CRITERIA_SEPARATOR = '|'
+  CRITERIA_KEY_VALUE_SEPARATOR = ','
 
-  # Simple hash {string key => fixnum or boolean or string}
-  attr_accessor :criteria
+# Configuration available after call to execute()
+  attr_reader :pagination, :security_exclusions, :columns
 
-  # Configuration available after call to execute()
-  attr_reader :pagination, :security_exclusions, :columns, :display
+# Results : sorted array of Result
+  attr_reader :results
 
-  # Results : sorted array of Data
-  attr_reader :data
+  belongs_to :user
+  validates_presence_of :name, :message => Api::Utils.message('measure_filter.missing_name')
+  validates_length_of :name, :maximum => 100, :message => Api::Utils.message('measure_filter.name_too_long')
+  validates_length_of :description, :allow_nil => true, :maximum => 4000
 
-  def initialize(criteria={})
-    @criteria = criteria
-    @pagination = Api::Pagination.new
+  def criteria
+    @criteria ||= {}
   end
 
   def sort_key
-    @criteria[:sort]
+    criteria['sort']
   end
 
   def sort_asc?
-    @criteria[:asc]=='true'
+    criteria['asc']=='true'
   end
 
-  # ==== Options
-  # 'page' : page id starting with 1. Used in display 'list'.
-  # 'user' : the authenticated user
-  # 'period' : index of the period between 1 and 5
-  #
+# API for plugins
+  def self.register_display(display_class)
+    DISPLAYS<<display_class
+  end
+
+  def self.supported_criteria?(key)
+    SUPPORTED_CRITERIA_KEYS.include?(key.to_sym)
+  end
+
+  def set_criteria_from_url_params(params)
+    @criteria = {}
+    params.each_pair do |k, v|
+      if MeasureFilter.supported_criteria?(k) && !v.empty? && v!=['']
+        @criteria[k.to_s]=v
+      end
+    end
+  end
+
+  def load_criteria_from_data
+    if self.data
+      @criteria = self.data.split(CRITERIA_SEPARATOR).inject({}) do |h, s|
+        k, v=s.split('=')
+        if k && v
+          v=v.split(CRITERIA_KEY_VALUE_SEPARATOR) if v.include?(CRITERIA_KEY_VALUE_SEPARATOR)
+          h[k]=v
+        end
+        h
+      end
+    else
+      @criteria = {}
+    end
+  end
+
+  def convert_criteria_to_data
+    string_data = []
+    if @criteria
+      @criteria.each_pair do |k, v|
+        string_value = (v.is_a?(String) ? v : v.join(CRITERIA_KEY_VALUE_SEPARATOR))
+        string_data << "#{k}=#{string_value}"
+      end
+    end
+    self.data = string_data.join(CRITERIA_SEPARATOR)
+  end
+
+  def display
+    @display ||=
+        begin
+          display_class = nil
+          key = criteria['display']
+          if key.present?
+            display_class = DISPLAYS.find { |d| d::KEY==key.to_sym }
+          end
+          display_class ||= DISPLAYS.first
+          display_class.new(self)
+        end
+  end
+
+
+# ==== Options
+# :user : the authenticated user
   def execute(controller, options={})
-    return reset_results if @criteria.empty?
-    init_display
-    init_filter(options)
+    init_results
 
     user = options[:user]
-    rows=Api::Utils.java_facade.executeMeasureFilter2(@criteria, (user ? user.id : nil))
+    rows=Api::Utils.java_facade.executeMeasureFilter2(criteria, (user ? user.id : nil))
     snapshot_ids = filter_authorized_snapshot_ids(rows, controller)
-    init_data(snapshot_ids)
+    load_results(snapshot_ids)
 
     self
   end
 
+# API used by Displays
   def set_criteria_value(key, value)
     if value
-      @criteria[key.to_sym]=value.to_s
+      @criteria[key.to_s]=value
     else
-      @criteria.delete(key.to_sym)
+      @criteria.delete(key)
     end
   end
 
+# API used by Displays
   def set_criteria_default_value(key, value)
-    set_criteria_value(key, value) unless @criteria.has_key?(key.to_sym)
+    set_criteria_value(key, value) unless criteria.has_key?(key)
+  end
+
+  def url_params
+    criteria.merge({'id' => self.id})
   end
 
   private
 
-  def init_display
-    key = @criteria[:display]
-    if key.present?
-      @display = DISPLAYS.find { |display| display.key==key }
-    end
-    @display ||= DISPLAYS.first
-  end
-
-  def init_filter(options)
-    @display.prepare_filter(self, options)
-    @columns = @criteria[:columns].split(',').map { |col_key| Column.new(col_key) }
-  end
-
-  def reset_results
+  def init_results
     @pagination = Api::Pagination.new
     @security_exclusions = nil
-    @data = nil
+    @results = nil
     self
   end
 
@@ -185,48 +251,63 @@ class MeasureFilter
     snapshot_ids = rows.map { |row| row.getSnapshotId() if authorized_project_ids.include?(row.getResourceRootId()) }.compact
     @security_exclusions = (snapshot_ids.size<rows.size)
     @pagination.count = snapshot_ids.size
-        snapshot_ids[@pagination.offset .. (@pagination.offset+@pagination.limit)]
+    snapshot_ids[@pagination.offset .. (@pagination.offset+@pagination.limit)]
   end
 
-  def init_data(snapshot_ids)
-    @data = []
+  def load_results(snapshot_ids)
+    @results = []
     if !snapshot_ids.empty?
-      data_by_snapshot_id = {}
+      results_by_snapshot_id = {}
       snapshots = Snapshot.find(:all, :include => ['project'], :conditions => ['id in (?)', snapshot_ids])
       snapshots.each do |snapshot|
-        data = Data.new(snapshot)
-        data_by_snapshot_id[snapshot.id] = data
+        result = Result.new(snapshot)
+        results_by_snapshot_id[snapshot.id] = result
       end
 
-      # @data must be in the same order than the snapshot ids
+      # @results must be in the same order than the snapshot ids
       snapshot_ids.each do |sid|
-        @data << data_by_snapshot_id[sid]
+        @results << results_by_snapshot_id[sid]
       end
 
-      metric_ids = @columns.map { |column| column.metric }.compact.uniq.map { |metric| metric.id }
-      unless metric_ids.empty?
+      if display.metric_ids && !display.metric_ids.empty?
         measures = ProjectMeasure.find(:all, :conditions =>
-          ['rule_priority is null and rule_id is null and characteristic_id is null and person_id is null and snapshot_id in (?) and metric_id in (?)', snapshot_ids, metric_ids]
+            ['rule_priority is null and rule_id is null and characteristic_id is null and person_id is null and snapshot_id in (?) and metric_id in (?)', snapshot_ids, display.metric_ids]
         )
         measures.each do |measure|
-          data = data_by_snapshot_id[measure.snapshot_id]
-          data.add_measure measure
+          result = results_by_snapshot_id[measure.snapshot_id]
+          result.add_measure measure
         end
       end
 
-      if @columns.index { |column| column.links? }
+      if display.load_links?
         project_ids = []
-        data_by_project_id = {}
+        results_by_project_id = {}
         snapshots.each do |snapshot|
           project_ids << snapshot.project_id
-          data_by_project_id[snapshot.project_id] = data_by_snapshot_id[snapshot.id]
+          results_by_project_id[snapshot.project_id] = results_by_snapshot_id[snapshot.id]
         end
         links = ProjectLink.find(:all, :conditions => {:project_id => project_ids}, :order => 'link_type')
         links.each do |link|
-          data_by_project_id[link.project_id].add_link(link)
+          results_by_project_id[link.project_id].add_link(link)
         end
       end
     end
   end
 
+  def validate
+    # validate uniqueness of name
+    if id
+      # update existing filter
+      count = MeasureFilter.count('id', :conditions => ['name=? and user_id=? and id<>?', name, user_id, id])
+    else
+      # new filter
+      count = MeasureFilter.count('id', :conditions => ['name=? and user_id=?', name, user_id])
+    end
+    errors.add_to_base('Name already exists') if count>0
+
+    if shared
+      count = MeasureFilter.count('id', :conditions => ['name=? and shared=? and user_id!=?', name, true, user_id])
+      errors.add_to_base('Other users already shared filters with the same name') if count>0
+    end
+  end
 end

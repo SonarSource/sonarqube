@@ -1,43 +1,33 @@
 <%
    display_favourites = logged_in?
-   colspan = @filter.columns.size
+   colspan = @filter.display.columns.size
    colspan += 1 if display_favourites
 %>
 <table class="data">
   <thead>
   <tr>
-    <% if display_favourites %><th class="thin"></th><% end %>
-    <% @filter.columns.each do |column| %>
-      <%= list_column_title(@filter, column, url_params) -%>
+    <% if display_favourites %>
+      <th class="thin"></th>
+    <% end %>
+    <% @filter.display.columns.each do |column| %>
+      <%= list_column_html(@filter, column) -%>
     <% end %>
   </tr>
   </thead>
   <tbody>
-  <% @filter.data.each do |data| %>
+  <% @filter.results.each do |result| %>
     <tr class="<%= cycle 'even', 'odd' -%>">
-      <% if display_favourites %><td class="thin"><%= link_to_favourite(data.snapshot.resource) -%></td><% end %>
-      <% @filter.columns.each do |column| %>
-        <% if column.metric %>
-          <td class="right">
-            <%= format_measure(data.measure(column.metric)) -%>
-          </td>
-        <% elsif column.key=='name' %>
-          <td class="left">
-            <%= qualifier_icon(data.snapshot) %> <%= link_to_resource(data.snapshot.resource, h(data.snapshot.resource.name(true)), {:title => data.snapshot.resource.key}) -%>
-          </td>
-        <% elsif column.key=='date' %>
-          <td class="right">
-            <%= human_short_date(data.snapshot.created_at) -%>
-          </td>
-        <% elsif column.key=='key' %>
-          <td class="left"><span class="small"><%= data.snapshot.resource.kee -%></span></td>
-        <% else %>
-          <td></td>
-        <% end %>
+      <% if display_favourites %>
+        <td class="thin"><%= link_to_favourite(result.snapshot.resource) -%></td>
+      <% end %>
+      <% @filter.display.columns.each do |column| %>
+        <td class="<%= column.align -%>" >
+          <%= list_cell_html(column, result) -%>
+        </td>
       <% end %>
     </tr>
   <% end %>
-  <% if @filter.data.empty? %>
+  <% if @filter.results.empty? %>
     <tr class="even">
       <td colspan="<%= colspan -%>"><%= message 'no_data' -%></td>
     </tr>

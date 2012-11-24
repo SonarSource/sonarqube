@@ -22,16 +22,108 @@ class MeasuresController < ApplicationController
   SECTION=Navigation::SECTION_HOME
 
   def index
+    @filter = MeasureFilter.new
     render :action => 'search'
   end
 
   def search
-    options = {
-      :user => current_user,
-      :page => (params[:page] || 1)
-    }
-    @filter = MeasureFilter.new(params)
-    @filter.execute(self, options)
+    if params[:id]
+      @filter = MeasureFilter.find(params[:id])
+    else
+      @filter = MeasureFilter.new
+    end
+    @filter.set_criteria_from_url_params(params)
+    @filter.execute(self, :user => current_user)
   end
 
+  # Load existing filter
+  def filter
+    require_parameters :id
+
+    @filter = find_filter(params[:id])
+    @filter.load_criteria_from_data
+    @filter.execute(self, :user => current_user)
+    render :action => 'search'
+  end
+
+  def save_form
+    if params[:id].present?
+      @filter = find_filter(params[:id])
+    else
+      @filter = MeasureFilter.new
+    end
+    @filter.set_criteria_from_url_params(params)
+    @filter.convert_criteria_to_data
+    render :partial => 'measures/save_form'
+  end
+
+  def save
+    verify_post_request
+    access_denied unless logged_in?
+
+    if params[:id].present?
+      @filter = find_filter(params[:id])
+    else
+      @filter = MeasureFilter.new
+      @filter.user_id=current_user.id
+    end
+    @filter.name=params[:name]
+    @filter.description=params[:description]
+    @filter.shared=(params[:shared]=='true')
+    @filter.data=URI.unescape(params[:data])
+    if @filter.save
+      render :text => @filter.id.to_s, :status => 200
+    else
+      render :partial => 'measures/save_form', :status => 400
+    end
+  end
+
+  # GET /measures/manage
+  def manage
+    access_denied unless logged_in?
+  end
+
+  def edit_form
+    require_parameters :id
+    @filter = find_filter(params[:id])
+    render :partial => 'measures/edit_form'
+  end
+
+  def edit
+    verify_post_request
+    access_denied unless logged_in?
+    require_parameters :id
+
+    @filter = MeasureFilter.find(params[:id])
+    access_denied unless owner?(@filter)
+    @filter.name=params[:name]
+    @filter.description=params[:description]
+    @filter.shared=(params[:shared]=='true')
+    if @filter.save
+      render :text => @filter.id.to_s, :status => 200
+    else
+      render :partial => 'measures/edit_form', :status => 400
+    end
+  end
+
+  def delete
+    verify_post_request
+    access_denied unless logged_in?
+    require_parameters :id
+
+    @filter = find_filter(params[:id])
+    @filter.destroy
+    redirect_to :action => 'manage'
+  end
+
+  private
+  def find_filter(id)
+    filter = MeasureFilter.find(id)
+    access_denied unless filter.shared || owner?(filter)
+    filter
+  end
+
+  def owner?(filter)
+    current_user && filter.user_id==current_user.id
+  end
 end

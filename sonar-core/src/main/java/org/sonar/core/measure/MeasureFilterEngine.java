@@ -54,11 +54,11 @@ public class MeasureFilterEngine implements ServerComponent {
   public List<MeasureFilterRow> execute2(Map<String, Object> filterMap, @Nullable Long userId) throws ParseException {
     Logger logger = FILTER_LOG;
     MeasureFilterContext context = new MeasureFilterContext();
-    context.setJson(Joiner.on("|").withKeyValueSeparator("=").join(filterMap));
     context.setUserId(userId);
     try {
       long start = System.currentTimeMillis();
       MeasureFilter filter = factory.create(filterMap);
+      context.setJson(filter.toString());
       List<MeasureFilterRow> rows = executor.execute(filter, context);
       log(context, rows, (System.currentTimeMillis() - start), logger);
       return rows;

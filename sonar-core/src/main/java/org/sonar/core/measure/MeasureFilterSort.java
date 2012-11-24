@@ -23,7 +23,7 @@ import org.sonar.api.measures.Metric;
 
 class MeasureFilterSort {
   public static enum Field {
-    KEY, NAME, VERSION, LANGUAGE, DATE, METRIC
+    KEY, NAME, VERSION, LANGUAGE, DATE, METRIC, SHORT_NAME, DESCRIPTION
   }
 
   private Field field = Field.NAME;
@@ -84,6 +84,12 @@ class MeasureFilterSort {
         break;
       case NAME:
         column = "p.long_name";
+        break;
+      case SHORT_NAME:
+        column = "p.name";
+        break;
+      case DESCRIPTION:
+        column = "p.description";
         break;
       case VERSION:
         column = "s.version";

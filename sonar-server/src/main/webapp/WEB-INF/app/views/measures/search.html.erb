@@ -20,40 +20,37 @@
   </style>
 <% end %>
 
-<% url_params = params.reject { |k, v| v.nil? || v=='' || k.starts_with?('_') }.merge({:controller => 'measures', :action => 'search'}) %>
-
 <div id="measure-filter">
   <div id="filter-form">
-    <form method="POST" action="<%= ApplicationController.root_context -%>/measures/search">
+    <form method="GET" action="<%= ApplicationController.root_context -%>/measures/search">
+      <% if @filter.id %>
+        <input type="hidden" name="id" value="<%= @filter.id -%>">
+      <% end %>
       <table>
         <tbody>
         <tr>
           <td>
             Base:<br>
-            <input type="text" name="base">
+            <input type="text" name="base" value="<%= @filter.criteria['base'] -%>">
           </td>
         </tr>
         <tr>
           <td>
-            Direct children:<br>
-            <%= check_box_tag 'onBaseChildren', 'true', params['onBaseChildren']=='true' -%>
+            On components:<br>
+            <%= check_box_tag 'onBaseComponents', 'true', @filter.criteria['onBaseComponents'] -%>
           </td>
         </tr>
         <tr>
           <td>
             Qualifiers:<br>
-            <%= select_tag 'qualifiers[]', options_for_select([['Any', ''], ['Project', 'TRK'], ['Sub-project', 'BRC'], ['Directory/Package', 'DIR']], params['qualifiers']||''), :size => 5, :multiple => true -%>
+            <%= select_tag 'qualifiers[]', options_for_select([['Any', ''], ['Project', 'TRK'], ['Sub-project', 'BRC'], ['Directory/Package', 'PAC'], ['File', 'CLA']], @filter.criteria['qualifiers']||''), :size => 5, :multiple => true -%>
           </td>
         </tr>
         <tr>
           <td>
             Language:<br>
-            <select name="languages[]" multiple size="5">
-              <option value="" <%= 'selected' if params['languages[]'].blank? -%>>Any</option>
-              <% Api::Utils.languages.each do |language| %>
-                <option value="<%= language.key.parameterize -%>"><%= h language.name -%></option>
-              <% end %>
-            </select>
+            <% languages = [['Any', '']].concat(Api::Utils.languages.map { |lang| [lang.name, lang.key] }) %>
+            <%= select_tag 'languages[]', options_for_select(languages, @filter.criteria['languages']||''), :size => 5, :multiple => true -%>
           </td>
         </tr>
         <tr>
@@ -69,7 +66,7 @@
         <tr>
           <td>
             Favourites only:<br>
-            <%= check_box_tag 'favourites', 'true', params['favourites']=='true' %>
+            <%= check_box_tag 'onFavourites', 'true', params['onFavourites']=='true' %>
           </td>
         </tr>
         <tr>
@@ -97,31 +94,54 @@
         </tr>
         <tr>
           <td>
-            <input type="submit" name="_search" value="Search">
+            <input type="submit" name="search" value="Search">
             <a href="<%= ApplicationController.root_context -%>/measures">Reset</a>
           </td>
         </tr>
         </tbody>
       </table>
     </form>
+
+    <br/>
+
+    <% if logged_in? %>
+      <ul id="my-filters">
+        <% current_user.measure_filters.each do |my_filter| %>
+          <li>
+            <a href="<%= ApplicationController.root_context -%>/measures/filter/<%= my_filter.id -%>"><%= h my_filter.name -%></a>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
   </div>
-  <% if @filter %>
+
+  <% if @filter.results %>
     <div id="filter-result">
-      Display as:
-      <% MeasureFilter::DISPLAYS.each do |display| %>
-        <%= link_to_if display.key!=@filter.display.key, display.key, url_params.merge(:display => display.key) -%>
+      <% if @filter.name %>
+        <h2><%= h @filter.name -%></h2>
+        <% if @filter.description %>
+          <p><%= h @filter.description -%></p>
+        <% end %>
       <% end %>
 
-      <%= render :partial => "measures/display_#{@filter.display.key}", :locals => {:url_params => url_params} -%>
-      <p>
-        <% permalink = url_for(url_params) %>
-        <a href="<%= permalink -%>">Permalink</a>: <input type="text" value="<%= permalink -%>" size="100">
-      </p>
+      Display as:
+      <% MeasureFilter::DISPLAYS.each do |display_class| %>
+        <%= link_to_if display_class::KEY!=@filter.display.class::KEY, display_class::KEY, params.merge(:action => 'search', :display => display_class::KEY, :id => nil) -%>
+      <% end %>
+
+      <% if logged_in? && (@filter.user_id==nil || @filter.user_id==current_user.id) %>
+        <a id="save_as" href="<%= url_for params.merge({:action => 'save_form', :id => @filter.id}) -%>" class="link-action open-modal"><%= message('save') -%></a>
+      <% end %>
+
+      <%= render :partial => "measures/display_#{@filter.display.class::KEY}" -%>
+      <br>
+
       <% if @filter.security_exclusions %>
         <p class="notes"><%= message('results_not_display_due_to_security') -%></p>
       <% end %>
 
     </div>
   <% end %>
+  </p>
 
 </div>

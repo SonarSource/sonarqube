@@ -26,6 +26,7 @@ import org.sonar.api.utils.DateUtils;
 
 import javax.annotation.Nullable;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -41,33 +42,33 @@ public class MeasureFilterFactory implements ServerComponent {
 
   public MeasureFilter create(Map<String, Object> properties) {
     MeasureFilter filter = new MeasureFilter();
-    filter.setBaseResourceKey((String)properties.get("base"));
-    filter.setResourceScopes((List<String>)properties.get("scopes"));
-    filter.setResourceQualifiers((List<String>)(properties.get("qualifiers")));
-    filter.setResourceLanguages((List<String>)(properties.get("languages")));
-    if (properties.containsKey("onBaseChildren")) {
-      filter.setOnBaseResourceChildren(Boolean.valueOf((String)properties.get("onBaseChildren")));
+    filter.setBaseResourceKey((String) properties.get("base"));
+    filter.setResourceScopes(toList(properties.get("scopes")));
+    filter.setResourceQualifiers(toList(properties.get("qualifiers")));
+    filter.setResourceLanguages(toList(properties.get("languages")));
+    if (properties.containsKey("onBaseComponents")) {
+      filter.setOnBaseResourceChildren(Boolean.valueOf((String) properties.get("onBaseComponents")));
     }
-    filter.setResourceName((String)properties.get("nameRegexp"));
-    filter.setResourceKeyRegexp((String)properties.get("keyRegexp"));
+    filter.setResourceName((String) properties.get("nameRegexp"));
+    filter.setResourceKeyRegexp((String) properties.get("keyRegexp"));
     if (properties.containsKey("fromDate")) {
-      filter.setFromDate(toDate((String)properties.get("fromDate")));
+      filter.setFromDate(toDate((String) properties.get("fromDate")));
     } else if (properties.containsKey("afterDays")) {
-      filter.setFromDate(toDays((String)properties.get("afterDays")));
+      filter.setFromDate(toDays((String) properties.get("afterDays")));
     }
     if (properties.containsKey("toDate")) {
-      filter.setToDate(toDate((String)properties.get("toDate")));
+      filter.setToDate(toDate((String) properties.get("toDate")));
     } else if (properties.containsKey("beforeDays")) {
-      filter.setToDate(toDays((String)properties.get("beforeDays")));
+      filter.setToDate(toDays((String) properties.get("beforeDays")));
     }
 
-    if (properties.containsKey("favourites")) {
-      filter.setUserFavourites(Boolean.valueOf((String)properties.get("favourites")));
+    if (properties.containsKey("onFavourites")) {
+      filter.setUserFavourites(Boolean.valueOf((String) properties.get("onFavourites")));
     }
     if (properties.containsKey("asc")) {
-      filter.setSortAsc(Boolean.valueOf((String)properties.get("asc")));
+      filter.setSortAsc(Boolean.valueOf((String) properties.get("asc")));
     }
-    String s = (String)properties.get("sort");
+    String s = (String) properties.get("sort");
     if (s != null) {
       if (StringUtils.startsWith(s, "metric:")) {
         filter.setSortOnMetric(metricFinder.findByKey(StringUtils.substringAfter(s, "metric:")));
@@ -79,6 +80,18 @@ public class MeasureFilterFactory implements ServerComponent {
 //      filter.setSortOnPeriod(((Long) map.get("sortPeriod")).intValue());
 //    }
     return filter;
+  }
+
+  private List<String> toList(@Nullable Object obj) {
+    List<String> result = null;
+    if (obj != null) {
+      if (obj instanceof String) {
+        result = Arrays.asList((String)obj);
+      } else {
+        result = (List<String>)obj;
+      }
+    }
+    return result;
   }
 
   private static Date toDate(@Nullable String date) {

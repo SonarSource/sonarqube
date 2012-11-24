@@ -19,11 +19,12 @@
 #
 module MeasuresHelper
 
-  def list_column_title(filter, column, url_params)
+  def list_column_html(filter, column)
+
     if column.sort?
-      html = link_to(h(column.display_name), url_params.merge({:controller => 'measures', :action => 'search', :asc => (!filter.sort_asc?).to_s, :sort => column.key}))
+      html = link_to(h(column.name), filter.url_params.merge({:controller => 'measures', :action => 'search', :asc => (!filter.sort_asc?).to_s, :sort => column.key}))
     else
-      html=h(column.display_name)
+      html=h(column.name)
     end
     #if column.variation
     #  html="<img src='#{ApplicationController.root_context}/images/trend-up.png'></img> #{html}"
@@ -35,4 +36,29 @@ module MeasuresHelper
     "<th class='#{column.align}'>#{html}</th>"
   end
 
+  def list_cell_html(column, result)
+    if column.metric
+      format_measure(result.measure(column.metric))
+    elsif column.key=='name'
+      "#{qualifier_icon(result.snapshot)} #{link_to(result.snapshot.resource.name(true), {:controller => 'dashboard', :id => result.snapshot.resource_id}, :title => result.snapshot.resource.key)}"
+    elsif column.key=='short_name'
+      "#{qualifier_icon(result.snapshot)} #{link_to(result.snapshot.resource.name(false), {:controller => 'dashboard', :id => result.snapshot.resource_id}, :title => result.snapshot.resource.key)}"
+    elsif column.key=='date'
+      human_short_date(result.snapshot.created_at)
+    elsif column.key=='key'
+      "<span class='small'>#{result.snapshot.resource.kee}</span>"
+    elsif column.key=='description'
+      h result.snapshot.resource.description
+    elsif column.key=='version'
+      h result.snapshot.version
+    elsif column.key=='language'
+      h result.snapshot.resource.language
+    elsif column.key=='links' && result.links
+      html = ''
+      result.links.select { |link| link.href.start_with?('http') }.each do |link|
+        html += link_to(image_tag(link.icon, :alt => link.name), link.href, :class => 'nolink', :popup => true) unless link.custom?
+      end
+      html
+    end
+  end
 end

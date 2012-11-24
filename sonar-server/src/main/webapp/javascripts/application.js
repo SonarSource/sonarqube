@@ -287,10 +287,10 @@ Treemap.prototype.onLoaded = function (componentsSize) {
                 });
             $dialog.dialog("open");
           }).error(function () {
-            alert("Server error. Please contact your administrator.");
-          }).complete(function() {
-            $dialog.removeClass('ui-widget-overlay');
-          });
+                alert("Server error. Please contact your administrator.");
+              }).complete(function () {
+                $dialog.removeClass('ui-widget-overlay');
+              });
 
           $link.click(function () {
             $dialog.dialog('open');
@@ -301,22 +301,22 @@ Treemap.prototype.onLoaded = function (componentsSize) {
         });
       });
     },
-    modalForm:function () {
+    modalForm:function (ajax_options) {
       return this.each(function () {
         var obj = $j(this);
         obj.submit(function (event) {
           $j('input[type=submit]', this).attr('disabled', 'disabled');
-          $j.ajax({
+          $j.ajax($j.extend({
             type:'POST',
             url:obj.attr('action'),
             data:obj.serialize(),
             success:function (data) {
-              location.reload();
+              window.location.reload();
             },
             error:function (xhr, textStatus, errorThrown) {
               $j("#modal").html(xhr.responseText);
             }
-          });
+          }, ajax_options));
           return false;
         });
       });

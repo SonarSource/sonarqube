@@ -30,6 +30,7 @@ class User < ActiveRecord::Base
   has_many :filters, :dependent => :destroy
   has_many :active_dashboards, :dependent => :destroy, :order => 'order_index'
   has_many :dashboards, :dependent => :destroy
+  has_many :measure_filters, :class_name => 'MeasureFilter', :dependent => :destroy
 
   include Authentication
   include Authentication::ByPassword

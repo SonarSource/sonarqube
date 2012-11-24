@@ -190,6 +190,6 @@ public class MeasureFilter {
 
   @Override
   public String toString() {
-    return ReflectionToStringBuilder.toString(this, ToStringStyle.SIMPLE_STYLE);
+    return ReflectionToStringBuilder.toString(this);
   }
 }
