@@ -20,8 +20,6 @@
 
 class ReviewsController < ApplicationController
 
-  SECTION=Navigation::SECTION_HOME
-
   verify :method => :post,
          :only => [:violation_assign, :violation_flag_as_false_positive, :violation_change_severity,
                    :violation_save_comment, :violation_delete_comment, :violation_change_status,

@@ -19,8 +19,6 @@
 #
 class MeasuresController < ApplicationController
 
-  SECTION=Navigation::SECTION_HOME
-
   # GET /measures/index
   def index
     @filter = MeasureFilter.new

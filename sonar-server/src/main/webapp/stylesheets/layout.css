@@ -53,11 +53,11 @@ body, a {
 #hd {
   color: #FFF;
   background: #262626;
-  padding: 0 5px;
+  padding: 0 8px 0 18px;
   height: 30px;
   line-height: 30px;
   font-size: 93%;
-  margin: 0 10px;
+  margin: 0;
   position: relative;
 }
 
@@ -87,7 +87,7 @@ body, a {
 
 #nav-left > ul> li {
   float: left;
-  padding: 0 10px 0 5px;
+  padding: 0 10px 0 0;
 }
 
 #nav > ul> li {
@@ -106,13 +106,14 @@ body, a {
 #crumbs {
   color: #444;
   background: #EFEFEF;
-  height: 22px;
-  line-height: 22px;
+  height: 26px;
+  line-height: 26px;
   font-size: 93%;
-  margin: 0 10px;
+  margin: 0;
+  padding: 0 8px 0 18px;
   border-bottom: 1px solid #CCC;
-  border-right: 1px solid #CCC;
 }
+
 #crumbs img {
   vertical-align: text-bottom;
 }
@@ -127,8 +128,7 @@ body, a {
 
 #bc li.first {
   background: #EFEFEF;
-  border-left: 2px solid #CCC;
-  padding: 0 10px 0 5px;
+  padding: 0 10px 0 0;
 }
 
 #bc li img {
@@ -193,22 +193,22 @@ body, a {
 }
 
 .with_sidebar {
-  margin: 0 10px 0 170px;
+  margin: 0 8px 0 168px;
 }
 
 .wo_sidebar {
-  margin: 0 10px 0 10px;
+  margin: 0 8px;
 }
 
 #content {
-  padding-top: 10px;
+  padding-top: 8px;
   width: auto;
 }
 
 #sb {
   width: 150px;
   position: absolute;
-  margin: 0 10px;
+  margin: 0 8px;
   top: 0;
   left: 0;
 }
@@ -278,4 +278,27 @@ body, a {
 
 .nolayout {
   padding: 10px;
+}
+
+.page-split-left {
+  min-width: 180px;
+  width: 180px;
+  margin: 0;
+  -moz-box-sizing: border-box;
+  display: table-cell;
+  vertical-align: top;
+  background-color: #EFEFEF;
+  border: 1px solid #CCC;
+  color: #666;
+  line-height: 1.1em;
+  padding: 10px;
+}
+
+.page-split-right {
+  position: relative;
+  padding: 10px 0 0 10px;
+  -moz-box-sizing: border-box;
+  display: table-cell;
+  margin: 0;
+  vertical-align: top;
 }

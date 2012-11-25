@@ -18,7 +18,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 class AlertsController < ApplicationController
-  SECTION=Navigation::SECTION_CONFIGURATION
 
   verify :method => :post, :only => ['create', 'update', 'delete'], :redirect_to => { :action => 'index' }
   before_filter :admin_required, :except => [ 'index' ]

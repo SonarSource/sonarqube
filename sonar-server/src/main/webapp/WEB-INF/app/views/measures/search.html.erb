@@ -1,77 +1,75 @@
 <% content_for :style do %>
   <style type="text/css">
-    #filter-form {
-      float: left;
-      width: 240px;
+    #filter-form [type="text"].large-input {
+      width: 180px;
+
     }
 
-    #filter-form select {
-      width: 200px;
-      padding: 1px;
+    #filter-form select.large-input {
+      width: 100%;
+      box-sizing: border-box;
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
     }
 
     #filter-form select option {
       padding: 1px 10px 1px 4px;
     }
-
-    #filter-result {
-      padding-left: 250px;
-    }
   </style>
 <% end %>
 
-<div id="measure-filter">
-  <div id="filter-form">
+<div id="measure-filters">
+  <div id="filter-form" class="page-split-left">
     <form method="GET" action="<%= ApplicationController.root_context -%>/measures/search">
       <% if @filter.id %>
         <input type="hidden" name="id" value="<%= @filter.id -%>">
       <% end %>
-      <table>
+      <table class="width100">
         <tbody>
         <tr>
-          <td>
+          <td class="width100">
             Base:<br>
-            <input type="text" name="base" value="<%= @filter.criteria['base'] -%>">
+            <input type="text" name="base" value="<%= @filter.criteria['base'] -%>" class="large-input">
           </td>
         </tr>
         <tr>
-          <td>
+          <td class="width100">
             On components:<br>
             <%= check_box_tag 'onBaseComponents', 'true', @filter.criteria['onBaseComponents'] -%>
           </td>
         </tr>
         <tr>
-          <td>
+          <td class="width100">
             Qualifiers:<br>
             <%
-              qualifiers = Api::Utils.java_facade.getResourceTypesForFilter().map do |resource_type|
-                [message("qualifiers.#{resource_type.getQualifier()}"), resource_type.getQualifier()]
-              end
+               qualifiers = Api::Utils.java_facade.getResourceTypesForFilter().map do |resource_type|
+                 [message("qualifiers.#{resource_type.getQualifier()}"), resource_type.getQualifier()]
+               end
             %>
-            <%= select_tag 'qualifiers[]', options_for_select([[message('any'), '']].concat(qualifiers), @filter.criteria['qualifiers']||''), :size => 5, :multiple => true -%>
+            <%= select_tag 'qualifiers[]', options_for_select([[message('any'), '']].concat(qualifiers), @filter.criteria['qualifiers']||''), :size => 5, :multiple => true, :class => 'large-input' -%>
           </td>
         </tr>
         <tr>
           <td>
             Language:<br>
             <% languages = [[message('any'), '']].concat(Api::Utils.languages.map { |lang| [lang.name, lang.key] }) %>
-            <%= select_tag 'languages[]', options_for_select(languages, @filter.criteria['languages']||''), :size => 5, :multiple => true -%>
+            <%= select_tag 'languages[]', options_for_select(languages, @filter.criteria['languages']||''), :size => 5, :multiple => true, :class => 'large-input' -%>
           </td>
         </tr>
         <tr>
-          <td>
+          <td class="width100">
             Name:<br>
-            <input type="text" name="nameRegexp" value="<%= h @filter.criteria['nameRegexp'] -%>"></td>
+            <input type="text" name="nameRegexp" value="<%= h @filter.criteria['nameRegexp'] -%>" class="large-input"></td>
         </tr>
         <tr>
-          <td>
+          <td class="width100">
             Key:<br>
-            <input type="text" name="keyRegexp" value="<%= h @filter.criteria['keyRegexp'] -%>"></td>
+            <input type="text" name="keyRegexp" value="<%= h @filter.criteria['keyRegexp'] -%>" class="large-input"></td>
         </tr>
         <tr>
           <td>
             Favourites only:<br>
-            <%= check_box_tag 'onFavourites', 'true', @filter.criteria['onFavourites']=='true' %>
+            <%= check_box_tag 'onFavourites', 'true', @filter.criteria['onFavourites']=='true' -%>
           </td>
         </tr>
         <tr>
@@ -99,6 +97,7 @@
         </tr>
         <tr>
           <td>
+            <br/>
             <input type="submit" name="search" value="Search">
             <a href="<%= ApplicationController.root_context -%>/measures">New search</a>
           </td>
@@ -107,9 +106,8 @@
       </table>
     </form>
 
-    <br/>
-
     <% if logged_in? %>
+      <br/>
       <ul id="my-filters">
         <% current_user.favourited_measure_filters.each do |my_filter| %>
           <li>
@@ -122,12 +120,15 @@
   </div>
 
   <% if @filter.results %>
-    <div id="filter-result">
+    <div id="filter-result" class="page-split-right width100">
       <% if @filter.name %>
-        <h2><%= h @filter.name -%></h2>
-        <% if @filter.description %>
-          <p><%= h @filter.description -%></p>
-        <% end %>
+        <p>
+          <span class="h3"><%= h @filter.name -%></span>
+          <% if @filter.description.present? %>
+            - <span><%= h @filter.description -%></span>
+          <% end %>
+        </p>
+
       <% end %>
 
       Display as:
