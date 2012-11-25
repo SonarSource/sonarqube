@@ -113,6 +113,8 @@ class MeasureFilter < ActiveRecord::Base
   end
 
   class TreemapDisplay < Display
+    attr_reader :columns
+
     KEY = :treemap
 
     def initialize(filter)
@@ -122,7 +124,27 @@ class MeasureFilter < ActiveRecord::Base
     end
   end
 
-  DISPLAYS = [ListDisplay, TreemapDisplay]
+  class CloudDisplay < Display
+    attr_reader :columns
+
+    KEY = :cloud
+
+    def initialize(filter)
+      filter.set_criteria_default_value('sort', 'name')
+      filter.set_criteria_default_value('asc', 'true')
+      @metric_ids = [size_metric.id, color_metric.id]
+    end
+
+    def size_metric
+      @size_metric ||= Metric.by_key('function_complexity')
+    end
+
+    def color_metric
+      @color_metric ||= Metric.by_key('violations_density')
+    end
+  end
+
+  DISPLAYS = [ListDisplay, TreemapDisplay, CloudDisplay]
 
   SUPPORTED_CRITERIA_KEYS=Set.new([:qualifiers, :scopes, :onFavourites, :base, :onBaseComponents, :languages, :fromDate, :toDate, :beforeDays, :afterDays,
                                    :keyRegexp, :nameRegexp,

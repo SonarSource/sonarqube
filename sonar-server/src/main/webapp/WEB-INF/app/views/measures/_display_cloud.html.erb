@@ -1,0 +1,35 @@
+<div>
+  <%
+     color_options={
+       :check_alert_status => false,
+       :min_color => Color::RGB.from_html("EE0000"), # red
+       :mean_color => Color::RGB.from_html("4D05B1"), # purple
+       :max_color => Color::RGB.from_html("2360BF") # blue
+     }
+     size_measure_values = @filter.results.map do |result|
+       size_measure = result.measure(@filter.display.size_metric)
+       size_measure.value if size_measure
+     end.compact
+
+     min_size_value=(size_measure_values.empty? ? 0.0 : size_measure_values.min)
+     max_size_value=(size_measure_values.empty? ? 0.0 : size_measure_values.max)
+
+     @filter.results.each do |result|
+       size_measure=result.measure(@filter.display.size_metric)
+       if size_measure && size_measure.value
+         color_measure=result.measure(@filter.display.color_metric)
+         if result.snapshot.source_code?
+          link="of(#{result.snapshot.project_id})"
+         else
+           link="ov(#{result.snapshot.project_id})"
+         end
+
+         title="#{result.snapshot.resource.long_name} | #{@filter.display.size_metric.short_name}: #{size_measure.formatted_value}"
+         if color_measure && color_measure.value
+           title += " | #{@filter.display.color_metric.short_name}: #{color_measure.formatted_value}"
+         end
+  %>
+      <a href="#" onclick="<%= link -%>" title="<%= title -%>"><span style="font-size: <%= cloud_font_size(size_measure.value, min_size_value, max_size_value) -%>%;color: <%= MeasureColor.color(color_measure, color_options).html -%>"><%= result.snapshot.resource.name %></span></a>
+    <% end
+       end %>
+</div>
