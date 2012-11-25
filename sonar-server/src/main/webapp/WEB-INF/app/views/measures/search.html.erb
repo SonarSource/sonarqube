@@ -100,7 +100,7 @@
         <tr>
           <td>
             <input type="submit" name="search" value="Search">
-            <a href="<%= ApplicationController.root_context -%>/measures">Reset</a>
+            <a href="<%= ApplicationController.root_context -%>/measures">New search</a>
           </td>
         </tr>
         </tbody>
@@ -111,12 +111,13 @@
 
     <% if logged_in? %>
       <ul id="my-filters">
-        <% current_user.measure_filters.each do |my_filter| %>
+        <% current_user.favourited_measure_filters.each do |my_filter| %>
           <li>
             <a href="<%= ApplicationController.root_context -%>/measures/filter/<%= my_filter.id -%>"><%= h my_filter.name -%></a>
           </li>
         <% end %>
       </ul>
+      <a href="<%= ApplicationController.root_context -%>/measures/manage" class="link-action">Manage</a>
     <% end %>
   </div>
 
@@ -147,6 +148,5 @@
 
     </div>
   <% end %>
-  </p>
 
 </div>

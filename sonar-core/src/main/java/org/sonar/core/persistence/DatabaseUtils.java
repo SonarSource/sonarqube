@@ -67,6 +67,7 @@ public final class DatabaseUtils {
     "manual_measures",
     "measure_data",
     "measure_filters",
+    "measure_filter_favourites",
     "metrics",
     "notifications",
     "projects",

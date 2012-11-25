@@ -17,30 +17,7 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-class FavouritesController < ApplicationController
-
-  before_filter :login_required
-
-  def toggle
-    favourite_id=params[:id]
-    if current_user.favourite?(favourite_id)
-      current_user.delete_favourite(favourite_id)
-      style='notfav'
-      tooltip='Click to add to favourites'
-    else
-      current_user.add_favourite(favourite_id)
-      style='fav'
-      tooltip='Click to remove from favourites'
-    end
-
-    star_id=params[:elt]
-    render :update do |page|
-      page.element.removeClassName(star_id, 'notfav')
-      page.element.removeClassName(star_id, 'fav')
-      page.element.addClassName(star_id, style)
-      page.element.writeAttribute(star_id, 'alt', tooltip)
-      page.element.writeAttribute(star_id, 'title', tooltip)
-    end
-  end
-
+class MeasureFilterFavourite < ActiveRecord::Base
+  belongs_to :user
+  belongs_to :measure_filter
 end

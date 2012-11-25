@@ -30,7 +30,13 @@ class User < ActiveRecord::Base
   has_many :filters, :dependent => :destroy
   has_many :active_dashboards, :dependent => :destroy, :order => 'order_index'
   has_many :dashboards, :dependent => :destroy
-  has_many :measure_filters, :class_name => 'MeasureFilter', :dependent => :destroy
+  has_many :measure_filters, :class_name => 'MeasureFilter', :dependent => :delete_all
+
+  # measure filters that are marked as favourites
+  has_many :favourited_measure_filters, :class_name => 'MeasureFilter', :through => :measure_filter_favourites, :source => :measure_filter
+
+  # the join table MEASURE_FILTER_FAVOURITES
+  has_many :measure_filter_favourites, :class_name => 'MeasureFilterFavourite', :dependent => :delete_all
 
   include Authentication
   include Authentication::ByPassword
@@ -91,11 +97,13 @@ class User < ActiveRecord::Base
 
     # do not validate user, for example when user created via SSO has no password
     self.save(false)
-    self.user_roles.each { |role| role.delete }
-    self.properties.each { |prop| prop.delete }
-    self.filters.each { |f| f.destroy }
-    self.dashboards.each { |d| d.destroy }
-    self.active_dashboards.each { |ad| ad.destroy }
+    self.user_roles.clear
+    self.properties.clear
+    self.filters.clear
+    self.dashboards.clear
+    self.active_dashboards.clear
+    self.measure_filter_favourites.clear
+    self.measure_filters.clear
   end
 
   # SONAR-3258

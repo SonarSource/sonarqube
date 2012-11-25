@@ -21,6 +21,7 @@ class MeasuresController < ApplicationController
 
   SECTION=Navigation::SECTION_HOME
 
+  # GET /measures/index
   def index
     @filter = MeasureFilter.new
     render :action => 'search'
@@ -37,6 +38,7 @@ class MeasuresController < ApplicationController
   end
 
   # Load existing filter
+  # GET /measures/filter/<filter id>
   def filter
     require_parameters :id
 
@@ -61,17 +63,20 @@ class MeasuresController < ApplicationController
     verify_post_request
     access_denied unless logged_in?
 
+    add_to_favourites=false
     if params[:id].present?
       @filter = find_filter(params[:id])
     else
       @filter = MeasureFilter.new
       @filter.user_id=current_user.id
+      add_to_favourites=true
     end
     @filter.name=params[:name]
     @filter.description=params[:description]
     @filter.shared=(params[:shared]=='true')
     @filter.data=URI.unescape(params[:data])
     if @filter.save
+      current_user.favourited_measure_filters<<@filter
       render :text => @filter.id.to_s, :status => 200
     else
       render :partial => 'measures/save_form', :status => 400
@@ -81,14 +86,21 @@ class MeasuresController < ApplicationController
   # GET /measures/manage
   def manage
     access_denied unless logged_in?
+    @shared_filters = MeasureFilter.find(:all,
+                                         :include => :user,
+                                         :conditions => ['shared=? and user_id<>?', true, current_user.id])
+    @fav_filter_ids = current_user.measure_filter_favourites.map { |fav| fav.measure_filter_id }
+    Api::Utils.insensitive_sort!(@shared_filters) { |elt| elt.name }
   end
 
+  # GET /measures/edit_form/<filter id>
   def edit_form
     require_parameters :id
     @filter = find_filter(params[:id])
     render :partial => 'measures/edit_form'
   end
 
+  # POST /measures/edit/<filter id>?name=<name>&description=<description>&shared=<true|false>
   def edit
     verify_post_request
     access_denied unless logged_in?
@@ -106,6 +118,7 @@ class MeasuresController < ApplicationController
     end
   end
 
+  # POST /measures/delete/<filter id>
   def delete
     verify_post_request
     access_denied unless logged_in?
@@ -114,6 +127,26 @@ class MeasuresController < ApplicationController
     @filter = find_filter(params[:id])
     @filter.destroy
     redirect_to :action => 'manage'
+  end
+
+  # POST /measures/toggle_fav/<filter id>
+  def toggle_fav
+    access_denied unless logged_in?
+    verify_ajax_request
+    require_parameters :id
+
+    favourites = MeasureFilterFavourite.find(:all,
+                                             :conditions => ['user_id=? and measure_filter_id=?', current_user.id, params[:id]])
+    if favourites.empty?
+      filter = find_filter(params[:id])
+      current_user.favourited_measure_filters<<filter if filter.shared || owner?(filter)
+      is_favourite = true
+    else
+      favourites.each { |fav| fav.delete }
+      is_favourite = false
+    end
+
+    render :text => is_favourite.to_s, :status => 200
   end
 
   private
@@ -126,4 +159,5 @@ class MeasuresController < ApplicationController
   def owner?(filter)
     current_user && filter.user_id==current_user.id
   end
+
 end
