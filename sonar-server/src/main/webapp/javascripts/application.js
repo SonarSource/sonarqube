@@ -195,7 +195,7 @@ Treemap.prototype.currentContext = function () {
   return null;
 };
 Treemap.prototype.width = function () {
-  return $('tm-' + this.id).getWidth() - 10;
+  return $('tm-' + this.id).getWidth();
 };
 Treemap.prototype.load = function () {
   var context = this.currentContext();
@@ -215,7 +215,7 @@ Treemap.prototype.load = function () {
   }
 
   new Ajax.Request(
-      baseUrl + '/treemap/index?id=' + this.id + '&width=' + width + '&height=' + height + '&size_metric=' + this.sizeMetric + '&color_metric=' + this.colorMetric + '&' + context.type + '=' + context.id,
+      baseUrl + '/treemap/index?id=' + this.id + '&height=' + height + '&size_metric=' + this.sizeMetric + '&color_metric=' + this.colorMetric + '&' + context.type + '=' + context.id,
       {
         asynchronous:true,
         evalScripts:true

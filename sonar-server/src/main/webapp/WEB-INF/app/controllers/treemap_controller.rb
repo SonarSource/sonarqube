@@ -26,10 +26,6 @@ class TreemapController < ApplicationController
     html_id = params[:id]
     bad_request('Missing required property: id') if html_id.blank?
 
-    width = params[:width]
-    bad_request('Missing required property: width') if width.blank?
-    bad_request('Bad width') if width.to_i<=0
-
     height = params[:height]
     bad_request('Missing required property: height') if height.blank?
     bad_request('Bad height') if height.to_i<=0
@@ -57,7 +53,7 @@ class TreemapController < ApplicationController
       bad_request('Missing parameter: resource or filter')
     end
 
-    treemap = Sonar::Treemap.new(html_id, size_metric, width.to_i, height.to_i, {
+    treemap = Sonar::Treemap.new(html_id, size_metric, height.to_i, {
       :color_metric => color_metric,
       :root_snapshot => (resource ? resource.last_snapshot : nil),
       :measures_by_snapshot => (filter_context ? filter_context.measures_by_snapshot : nil),

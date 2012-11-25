@@ -20,14 +20,13 @@
 class Sonar::Treemap
   include ActionView::Helpers::UrlHelper
 
-  attr_accessor :size_metric, :color_metric, :width, :height, :root_snapshot, :period_index,
+  attr_accessor :size_metric, :color_metric, :height, :root_snapshot, :period_index,
                 :id, :components_size, :measures
 
-  def initialize(id, size_metric, width, height, options={})
+  def initialize(id, size_metric, height, options={})
     @components_size = 0
     @id = id
     @size_metric = size_metric
-    @width = width
     @height = height
 
     @color_metric = options[:color_metric]
@@ -55,7 +54,7 @@ class Sonar::Treemap
     build_tree(root)
 
     output = Sonar::HtmlOutput.new do |o|
-      o.width = @width
+      o.width = 100
       o.height = @height
       o.full_html = false
       o.details_at_depth = 1
@@ -148,8 +147,8 @@ class Sonar::HtmlOutput < Treemap::HtmlOutput
     html = ''
     html += "<div style=\""
     html += "overflow:hidden;position:absolute;"
-    html += "left:#{node.bounds.x1}px; top:#{node.bounds.y1}px;"
-    html += "width:#{node.bounds.width}px;height: #{node.bounds.height}px;"
+    html += "left:#{node.bounds.x1}%; top:#{node.bounds.y1}px;"
+    html += "width:#{node.bounds.width}%;height: #{node.bounds.height}px;"
     html += "background-color:#FFF;\">"
     html += "<div rid='#{node.rid}' id=\"tm-node-#{node.id}\" style='margin: 1px;background-color: #{node.color}; height: #{node.bounds.height-4}px;
 border: 1px solid #{node.color};' alt=\"#{node.tooltip}\" title=\"#{node.tooltip}\""

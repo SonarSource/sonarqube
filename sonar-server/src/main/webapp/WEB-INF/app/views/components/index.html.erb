@@ -71,7 +71,7 @@
       </td>
       <% if @treemap %>
         <td width="10px">&nbsp;</td>
-        <td width="<%= @treemap.width -%>" valign="top">
+        <td width="280px" valign="top">
           <script>
             new Treemap(1, '<%= @treemap.size_metric ? @treemap.size_metric.key : '' -%>', '<%= @treemap.color_metric ? @treemap.color_metric.key : '' -%>', 100.0).init('resource',
               <%= @resource.id -%>);

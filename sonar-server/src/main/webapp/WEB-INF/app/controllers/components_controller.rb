@@ -44,7 +44,7 @@ class ComponentsController < ApplicationController
     measures = component_measures(@snapshots, metrics)
     @measures_by_snapshot = measures_by_snapshot(@snapshots, measures)
     if @components_configuration.treemap_enabled? && @snapshots.size>1
-      @treemap = Sonar::Treemap.new(1, default_treemap_size_metric, TREEMAP_SIZE, TREEMAP_SIZE, {
+      @treemap = Sonar::Treemap.new(1, default_treemap_size_metric, TREEMAP_SIZE, {
         :color_metric => default_treemap_color_metric,
         :root_snapshot => @snapshot
       })
