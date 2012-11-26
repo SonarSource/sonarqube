@@ -30,6 +30,10 @@ class MeasureFilter < ActiveRecord::Base
       @links = nil
     end
 
+    def resource
+      snapshot.resource
+    end
+
     def add_measure(measure)
       @measures_by_metric[measure.metric] = measure
     end
@@ -41,6 +45,10 @@ class MeasureFilter < ActiveRecord::Base
 
     def measure(metric)
       @measures_by_metric[metric]
+    end
+
+    def measures
+      @measures_by_metric.values
     end
   end
 

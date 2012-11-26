@@ -16,7 +16,7 @@
     <% @system_filters.each do |filter| %>
       <tr id="system-<%= filter.name.parameterize -%>" class="<%= cycle('even', 'odd', :name => 'system-filters') -%>">
         <td>
-          <%= link_to h(filter.name), :action => 'filter', :id => filter.id -%>
+          <%= link_to h(filter.name), :controller => 'measures', :action => 'filter', :id => filter.id -%>
           <% if filter.description %>
             <div><%= h filter.description -%></div>
           <% end %>
@@ -53,7 +53,7 @@
     <% @shared_filters.each do |filter| %>
       <tr id="shared-<%= filter.name.parameterize -%>" class="<%= cycle('even', 'odd', :name => 'shared-filters') -%>">
         <td>
-          <%= link_to h(filter.name), :action => 'filter', :id => filter.id -%>
+          <%= link_to h(filter.name), :controller => 'measures', :action => 'filter', :id => filter.id -%>
           <% if filter.description %>
             <div><%= h filter.description -%></div>
           <% end %>
