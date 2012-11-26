@@ -22,7 +22,7 @@ class BackupController < ApplicationController
   SECTION=Navigation::SECTION_CONFIGURATION
 
   before_filter :admin_required
-  verify :method => :post, :only => [:export, :import], :redirect_to => { :action => :index }
+  verify :method => :post, :only => [:import], :redirect_to => { :action => :index }
 
   def index
 
