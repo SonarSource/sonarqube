@@ -3,12 +3,7 @@
   
   <div id="tools-menu" class="dropdown-menu" style="display: none" onmouseout="$j(this).hide();" onmouseover="$j(this).show();">
     <ul>
-      <li><a href="<%= ApplicationController.root_context -%>/profiles"><%= message('layout.tools.quality_profiles') -%></a></li>
       <li><a href="<%= ApplicationController.root_context -%>/dependencies/index"><%= message('dependencies.page') -%></a></li>
-      
-      <% if current_user && is_admin? %>
-        <li><a href="<%= ApplicationController.root_context -%>/settings/index"><%= message('layout.configuration') -%></a></li>
-      <% end %>
     </ul>
   </div>
   

@@ -14,6 +14,9 @@
       <li>
         <a href="<%= ApplicationController.root_context -%>/"><%= message('layout.dashboards') -%></a>
       </li>
+      <li>
+        <a href="<%= ApplicationController.root_context -%>/profiles"><%= message('layout.tools.quality_profiles') -%></a>
+      </li>
       <%= render 'layouts/tools' -%>
     </ul>
   </div>
@@ -25,6 +28,9 @@
       </li>
       <li>
         <a href="javascript:window.print()"><img src="<%= ApplicationController.root_context -%>/images/print.gif" alt="<%= message('layout.print') -%>" title="<%= message('layout.print') -%>"/></a>
+      </li>
+      <li>
+        <a href="<%= ApplicationController.root_context -%>/settings/index"><img src="<%= ApplicationController.root_context -%>/images/actions.png" alt="<%= message('layout.configuration') -%>" title="<%= message('layout.configuration') -%>"/></a>
       </li>
       <% unless logged_in? %>
         <li><a href="<%= ApplicationController.root_context -%>/sessions/new?return_to=<%= u (request.request_uri) -%>"><%= message('layout.login') -%></a></li>
@@ -64,11 +70,12 @@
               <a href="<%= ApplicationController.root_context -%>/dashboard/index/<%= @project.id -%>?did=<%= active_dashboard.dashboard_id -%><%= "&"+period_param if period_param -%>"><%= active_dashboard.dashboard.name(true) -%></a>
             </li>
           <% end %>
+          
+          <li class="h2"><%= message('sidebar.tools') -%></li>
           <li class="<%= 'selected' if request.request_uri.include?('/components/index') -%>">
             <a href="<%= ApplicationController.root_context -%>/components/index/<%= @project.id -%>"><%= message('components.page') -%></a></li>
           <li class="<%= 'selected' if request.request_uri.include?('/drilldown/violations') -%>">
             <a href="<%= ApplicationController.root_context -%>/drilldown/violations/<%= @project.id -%><%= "?"+period_param if period_param -%>"><%= message('violations_drilldown.page') -%></a>
-          </li>
           <li class="<%= 'selected' if request.request_uri.include?('/cloud/index') -%>">
             <a href="<%= ApplicationController.root_context -%>/cloud/index/<%= @project.id -%>"><%= message('clouds.page') -%></a></li>
           <% controller.java_facade.getPages(Navigation::SECTION_RESOURCE, @project.scope, @project.qualifier, @project.language, @project.last_snapshot.metric_keys.to_java(:string)).each do |page|
@@ -78,6 +85,7 @@
               <a href="<%= ApplicationController.root_context -%><%= page_url -%>"><%= message(page.getId() + '.page', :default => page.getTitle()) %></a>
             </li>
           <% end %>
+          
           <% if has_role?(:admin, @project) %>
             <li class="h2"><%= message('sidebar.project_settings') -%></li>
             <% if (@project.project?) %>
