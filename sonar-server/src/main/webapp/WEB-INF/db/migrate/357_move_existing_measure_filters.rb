@@ -57,7 +57,8 @@ class MoveExistingMeasureFilters < ActiveRecord::Migration
     new_filter = MeasureFilter.new
     new_filter.name = old_filter.name
     new_filter.user_id = old_filter.user_id
-    new_filter.shared = old_filter.shared
+    new_filter.system = old_filter.user_id.nil?
+    new_filter.shared = (old_filter.shared || old_filter.user_id.nil?)
     data = []
     data << 'onFavourites=true' if old_filter.favourites
     if old_filter.resource_id

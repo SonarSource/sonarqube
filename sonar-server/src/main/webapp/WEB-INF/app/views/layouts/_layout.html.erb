@@ -147,6 +147,8 @@
               <a href="<%= ApplicationController.root_context -%>/manual_rules/index"><%= message('manual_rules.page') -%></a></li>
             <li class="<%= 'selected' if controller.controller_path=='admin_dashboards' -%>">
               <a href="<%= ApplicationController.root_context -%>/admin_dashboards/index"><%= message('default_dashboards.page') -%></a></li>
+            <li class="<%= 'selected' if controller.controller_path=='system_measure_filters' -%>">
+              <a href="<%= ApplicationController.root_context -%>/system_measure_filters"><%= message('system_measure_filters.page') -%></a></li>
             <% controller.java_facade.getPages(Navigation::SECTION_CONFIGURATION, nil, nil, nil, nil).each do |page|
               page_url = (page.isController() ? page.getId() : "/plugins/configuration/#{page.getId()}")
             %>

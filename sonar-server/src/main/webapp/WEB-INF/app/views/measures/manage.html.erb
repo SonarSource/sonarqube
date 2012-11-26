@@ -29,7 +29,7 @@
   <tr>
     <th class="thin"></th>
     <th><%= message('name') -%></th>
-    <th><%= message('sharing') -%></th>
+    <th><%= message('measure_filter.sharing') -%></th>
     <th class="right"><%= message('operations') -%></th>
   </tr>
   </thead>
@@ -66,8 +66,8 @@
                              :class => 'link-action link-red',
                              :id => "delete_#{filter.name.parameterize}",
                              :confirm_button => message('delete'),
-                             :confirm_title => 'measure_filters.delete_confirm_title',
-                             :confirm_msg => 'measure_filters.are_you_sure_want_delete_filter_x',
+                             :confirm_title => 'measure_filter.delete_confirm_title',
+                             :confirm_msg => 'measure_filter.are_you_sure_want_delete_filter_x',
                              :confirm_msg_params => [filter.name] -%>
         </td>
       </tr>
@@ -106,7 +106,7 @@
           <% end %>
         </td>
         <td>
-          <%= h filter.user.name -%>
+          <%= filter.user ? h(filter.user.name) : '-' -%>
         </td>
         <td class="thin nowrap right">
           <a id="copy-<%= filter.name.parameterize -%>" href="<%= ApplicationController.root_context -%>/measures/copy_form/<%= filter.id -%>" class="link-action open-modal"><%= message('copy') -%></a>

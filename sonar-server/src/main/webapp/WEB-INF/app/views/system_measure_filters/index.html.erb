@@ -1,0 +1,71 @@
+<h2><%= h message('measure_filter.title_system_filters') %></h2>
+<table class="data marginbottom10" id="system-filters">
+  <thead>
+  <tr>
+    <th><%= message('name') -%></th>
+    <th><%= message('shared_by') -%></th>
+    <th class="right"><%= message('operations') -%></th>
+  </tr>
+  </thead>
+  <tbody>
+  <% if @system_filters.empty? %>
+    <tr class="even">
+      <td colspan="3"><%= message('filters.no_filters') -%></td>
+    </tr>
+  <% else %>
+    <% @system_filters.each do |filter| %>
+      <tr id="system-<%= filter.name.parameterize -%>" class="<%= cycle('even', 'odd', :name => 'system-filters') -%>">
+        <td>
+          <%= link_to h(filter.name), :action => 'filter', :id => filter.id -%>
+          <% if filter.description %>
+            <div><%= h filter.description -%></div>
+          <% end %>
+        </td>
+        <td>
+          <%= filter.user ? h(filter.user.name) : '-' -%>
+        </td>
+        <td class="thin nowrap right">
+          <%=  link_to message('measure_filter.remove_from_system'), {:action => :remove, :id => filter.id}, {:class => 'button', :method => :post} -%>
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+  </tbody>
+</table>
+
+<br/>
+
+<h2><%= h message('measure_filter.title_shared_filters') %></h2>
+<table class="data" id="shared-filters">
+  <thead>
+  <tr>
+    <th><%= message('name') -%></th>
+    <th><%= message('shared_by') -%></th>
+    <th class="right"><%= message('operations') -%></th>
+  </tr>
+  </thead>
+  <tbody>
+  <% if @shared_filters.empty? %>
+    <tr class="even">
+      <td colspan="4"><%= message('filters.no_filters') -%></td>
+    </tr>
+  <% else %>
+    <% @shared_filters.each do |filter| %>
+      <tr id="shared-<%= filter.name.parameterize -%>" class="<%= cycle('even', 'odd', :name => 'shared-filters') -%>">
+        <td>
+          <%= link_to h(filter.name), :action => 'filter', :id => filter.id -%>
+          <% if filter.description %>
+            <div><%= h filter.description -%></div>
+          <% end %>
+        </td>
+        <td>
+          <%= filter.user ? h(filter.user.name) : '-' -%>
+        </td>
+        <td class="thin nowrap right">
+          <%=  link_to message('measure_filter.add_to_system'), {:action => :add, :id => filter.id}, {:class => 'button', :method => :post} -%>
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+  </tbody>
+</table>

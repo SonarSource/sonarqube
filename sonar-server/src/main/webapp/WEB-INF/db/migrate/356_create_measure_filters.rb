@@ -27,6 +27,7 @@ class CreateMeasureFilters < ActiveRecord::Migration
       t.column 'name', :string, :null => false, :limit => 100
       t.column 'user_id', :integer, :null => true
       t.column 'shared', :boolean, :default => false, :null => false
+      t.column 'system', :boolean
       t.column 'description', :string, :null => true, :limit => 4000
       t.column 'data', :text, :null => true
       t.timestamps

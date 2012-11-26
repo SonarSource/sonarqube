@@ -362,5 +362,7 @@ class MeasureFilter < ActiveRecord::Base
       count = MeasureFilter.count('id', :conditions => ['name=? and shared=? and user_id!=?', name, true, user_id])
       errors.add_to_base('Other users already shared filters with the same name') if count>0
     end
+
+    errors.add_to_base('Only shared filters can be flagged as system filter') if system && !shared
   end
 end

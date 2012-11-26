@@ -87,8 +87,8 @@ class MeasuresController < ApplicationController
     @shared_filters = MeasureFilter.find(:all,
                                          :include => :user,
                                          :conditions => ['shared=? and user_id<>?', true, current_user.id])
-    @fav_filter_ids = current_user.measure_filter_favourites.map { |fav| fav.measure_filter_id }
     Api::Utils.insensitive_sort!(@shared_filters) { |elt| elt.name }
+    @fav_filter_ids = current_user.measure_filter_favourites.map { |fav| fav.measure_filter_id }
   end
 
   # GET /measures/edit_form/<filter id>
@@ -183,7 +183,7 @@ class MeasuresController < ApplicationController
   end
 
   def owner?(filter)
-    current_user && filter.user_id==current_user.id
+    current_user && (filter.user_id==current_user.id || (filter.user_id==nil && has_role?(:admin)))
   end
 
 end

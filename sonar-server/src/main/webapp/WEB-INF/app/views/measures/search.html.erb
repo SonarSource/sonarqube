@@ -106,9 +106,18 @@
       </table>
     </form>
 
+    <br/>
+    <ul id="system-filters">
+      <% MeasureFilter.find(:all, :select => ['id,name'], :conditions => ['system=?', true]).each do |system_filter| %>
+        <li>
+          <a href="<%= ApplicationController.root_context -%>/measures/filter/<%= system_filter.id -%>"><%= h system_filter.name -%></a>
+        </li>
+      <% end %>
+    </ul>
+
     <% if logged_in? %>
       <br/>
-      <ul id="my-filters">
+      <ul id="fav-filters">
         <% current_user.favourited_measure_filters.each do |my_filter| %>
           <li>
             <a href="<%= ApplicationController.root_context -%>/measures/filter/<%= my_filter.id -%>"><%= h my_filter.name -%></a>
