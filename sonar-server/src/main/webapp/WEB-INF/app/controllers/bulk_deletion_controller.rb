@@ -39,19 +39,20 @@ class BulkDeletionController < ApplicationController
       @selected_tab = 'TRK' unless @tabs.include?(@selected_tab)
       
       # Search for resources
-      conditions = "qualifier=:qualifier"
+      conditions = "resource_index.qualifier=:qualifier"
       values = {:qualifier => @selected_tab}
       if params[:name_filter] && !params[:name_filter].blank?
-        conditions += " AND kee LIKE :kee"
+        conditions += " AND resource_index.kee LIKE :kee"
         values[:kee] = params[:name_filter].strip.downcase + '%'
       end
-      
-      resource_ids = ResourceIndex.find(:all,
-                                        :select => 'distinct(resource_id),name_size',
-                                        :conditions => [conditions, values],
-                                        :order => 'name_size').map {|rid| rid.resource_id}.uniq
-      
-      @resources = Project.find(:all, :conditions => ['id in (?) and enabled=?', resource_ids, true], :order => 'name ASC')
+
+      conditions += " AND projects.enabled=:enabled"
+      values[:enabled] = true
+      @resources = Project.find(:all,
+                                :select => 'distinct(resource_index.resource_id),projects.id,projects.name,projects.kee',
+                                :conditions => [conditions, values],
+                                :joins => :resource_index,
+                                :order => 'projects.name ASC')
     end
   end
   
