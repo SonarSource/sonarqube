@@ -3,12 +3,15 @@
     var sonarRecentHistory = new Sonar.RecentHistory('<%= ApplicationController.root_context -%>')
                                       .addTranslation('clear', '<%= message('layout.user_panel.recent_history.clear') -%>');
   }
+  
+  var shouldUpdateRecentHistory = true;
 </script>
 
-<li>
-  <a href="#" class="link-more" onclick="if (sonarRecentHistory) { sonarRecentHistory.populateRecentHistoryPanel(); }; $j('#user-panel').toggle(); return false;"><%= current_user ? current_user.name(true) : message('layout.user_panel.me') -%></a>
+<li onmouseover="if (sonarRecentHistory && shouldUpdateRecentHistory) { sonarRecentHistory.populateRecentHistoryPanel(); shouldUpdateRecentHistory = false;}; $j('#user-panel').show();" 
+    onmouseout="$j('#user-panel').hide(); shouldUpdateRecentHistory = true;">
+  <span class="link-more"><%= current_user ? current_user.name(true) : message('layout.user_panel.me') -%></span>
   
-  <div id="user-panel" style="display: none" onmouseout="$j(this).hide();" onmouseover="$j(this).show();">
+  <div id="user-panel" style="display: none">
     <div id="user-details">
       <% if current_user %>
         <b><%= current_user.name(true) -%></b>

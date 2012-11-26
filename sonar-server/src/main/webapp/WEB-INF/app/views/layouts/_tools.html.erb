@@ -1,7 +1,7 @@
-<li>
-  <a href="#" class="link-more dropdown" onclick="$j('#tools-menu').toggle(); return false;"><%= message('layout.tools') -%></a>
+<li onmouseover="$j('#tools-menu').show();" onmouseout="$j('#tools-menu').hide();">
+  <span class="link-more dropdown"><%= message('layout.tools') -%></span>
   
-  <div id="tools-menu" class="dropdown-menu" style="display: none" onmouseout="$j(this).hide();" onmouseover="$j(this).show();">
+  <div id="tools-menu" class="dropdown-menu" style="display: none">
     <ul>
       <li><a href="<%= ApplicationController.root_context -%>/dependencies/index"><%= message('dependencies.page') -%></a></li>
     </ul>
