@@ -64,10 +64,10 @@ class MeasureFilter < ActiveRecord::Base
 
     def align
       @align ||=
-          begin
-            # by default is table cells are left-aligned
-            (@key=='name' || @key=='short_name' || @key=='description') ? '' : 'right'
-          end
+        begin
+          # by default is table cells are left-aligned
+          (@key=='name' || @key=='short_name' || @key=='description') ? '' : 'right'
+        end
     end
 
     def sort?
@@ -110,6 +110,7 @@ class MeasureFilter < ActiveRecord::Base
     def load_links?
       @columns.index { |column| column.links? }
     end
+
   end
 
   class TreemapDisplay < Display
@@ -118,9 +119,17 @@ class MeasureFilter < ActiveRecord::Base
     KEY = :treemap
 
     def initialize(filter)
-      filter.set_criteria_default_value('columns', ['metric:ncloc', 'metric:violations'])
+      filter.set_criteria_default_value('columns', ['metric:ncloc', 'metric:violations_density'])
       @columns = filter.criteria['columns'].map { |column_key| Column.new(column_key) }
       @metric_ids = @columns.map { |column| column.metric.id if column.metric }.compact.uniq
+    end
+
+    def size_metric
+      @size_metric ||= Metric.by_key('ncloc')
+    end
+
+    def color_metric
+      @color_metric ||= Metric.by_key('violations_density')
     end
   end
 
@@ -223,15 +232,15 @@ class MeasureFilter < ActiveRecord::Base
 
   def display
     @display ||=
-        begin
-          display_class = nil
-          key = criteria['display']
-          if key.present?
-            display_class = DISPLAYS.find { |d| d::KEY==key.to_sym }
-          end
-          display_class ||= DISPLAYS.first
-          display_class.new(self)
+      begin
+        display_class = nil
+        key = criteria['display']
+        if key.present?
+          display_class = DISPLAYS.find { |d| d::KEY==key.to_sym }
         end
+        display_class ||= DISPLAYS.first
+        display_class.new(self)
+      end
   end
 
 
@@ -301,7 +310,7 @@ class MeasureFilter < ActiveRecord::Base
 
       if display.metric_ids && !display.metric_ids.empty?
         measures = ProjectMeasure.find(:all, :conditions =>
-            ['rule_priority is null and rule_id is null and characteristic_id is null and person_id is null and snapshot_id in (?) and metric_id in (?)', snapshot_ids, display.metric_ids]
+          ['rule_priority is null and rule_id is null and characteristic_id is null and person_id is null and snapshot_id in (?) and metric_id in (?)', snapshot_ids, display.metric_ids]
         )
         measures.each do |measure|
           result = results_by_snapshot_id[measure.snapshot_id]
@@ -328,7 +337,7 @@ class MeasureFilter < ActiveRecord::Base
         @base_result = Result.new(base_snapshot)
         if display.metric_ids && !display.metric_ids.empty?
           base_measures = ProjectMeasure.find(:all, :conditions =>
-              ['rule_priority is null and rule_id is null and characteristic_id is null and person_id is null and snapshot_id=? and metric_id in (?)', base_snapshot.id, display.metric_ids]
+            ['rule_priority is null and rule_id is null and characteristic_id is null and person_id is null and snapshot_id=? and metric_id in (?)', base_snapshot.id, display.metric_ids]
           )
           base_measures.each do |base_measure|
             @base_result.add_measure(base_measure)

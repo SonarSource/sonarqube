@@ -274,9 +274,6 @@ h4, .h4 {
   text-decoration: none;
   font-size: 12px;
   padding: 1px;
-}
-
-.treemap a:hover {
   text-decoration: underline;
 }
 
