@@ -122,8 +122,12 @@ public class BatchPluginRepository implements PluginRepository {
         blacks.addAll(Arrays.asList(settings.getStringArray(CoreProperties.BATCH_EXCLUDE_PLUGINS)));
       }
       if (settings.getBoolean(CoreProperties.DRY_RUN)) {
-        whites.addAll(Arrays.asList(settings.getStringArray(CoreProperties.DRY_RUN_INCLUDE_PLUGINS)));
-        blacks.addAll(Arrays.asList(settings.getStringArray(CoreProperties.DRY_RUN_EXCLUDE_PLUGINS)));
+        // These default values are not supported by Settings because the class CorePlugin
+        // is not loaded yet.
+        whites.addAll(propertyValues(settings,
+          CoreProperties.DRY_RUN_INCLUDE_PLUGINS, CoreProperties.DRY_RUN_INCLUDE_PLUGINS_DEFAULT_VALUE));
+        blacks.addAll(propertyValues(settings,
+                  CoreProperties.DRY_RUN_EXCLUDE_PLUGINS, CoreProperties.DRY_RUN_EXCLUDE_PLUGINS_DEFAULT_VALUE));
       }
       if (!whites.isEmpty()) {
         LOG.info("Include plugins: " + Joiner.on(", ").join(whites));
@@ -131,6 +135,11 @@ public class BatchPluginRepository implements PluginRepository {
       if (!blacks.isEmpty()) {
         LOG.info("Exclude plugins: " + Joiner.on(", ").join(blacks));
       }
+    }
+
+    static List<String> propertyValues(Settings settings, String key, String defaultValue) {
+      String s = StringUtils.defaultIfEmpty(settings.getString(key), defaultValue);
+      return Arrays.asList(StringUtils.split(s, ","));
     }
 
     boolean accepts(String pluginKey) {

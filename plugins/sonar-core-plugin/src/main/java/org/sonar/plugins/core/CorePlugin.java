@@ -332,13 +332,14 @@ import java.util.List;
   @Property(
     key = CoreProperties.DRY_RUN_INCLUDE_PLUGINS,
     name = "Plugins accepted for dry run",
+    defaultValue = CoreProperties.DRY_RUN_INCLUDE_PLUGINS_DEFAULT_VALUE,
     global = true, project = false,
     category = CoreProperties.CATEGORY_GENERAL),
   @Property(
     key = CoreProperties.DRY_RUN_EXCLUDE_PLUGINS,
     name = "Plugins excluded for dry run",
     global = true, project = false,
-    defaultValue = "devcockpit,pdfreport,report,scmactivity,views",
+    defaultValue = CoreProperties.DRY_RUN_EXCLUDE_PLUGINS_DEFAULT_VALUE,
     category = CoreProperties.CATEGORY_GENERAL),
   @Property(
     key = "sonar.dryRun.export.path",

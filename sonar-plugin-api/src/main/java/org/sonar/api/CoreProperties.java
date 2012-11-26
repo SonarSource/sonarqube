@@ -161,15 +161,18 @@ public interface CoreProperties {
   String BATCH_INCLUDE_PLUGINS = "sonar.includePlugins";
   String BATCH_EXCLUDE_PLUGINS = "sonar.excludePlugins";
 
+
   /**
    * @since 3.4
    */
   String DRY_RUN_INCLUDE_PLUGINS = "sonar.dryRun.includePlugins";
+  String DRY_RUN_INCLUDE_PLUGINS_DEFAULT_VALUE = "";
 
   /**
    * @since 3.4
    */
   String DRY_RUN_EXCLUDE_PLUGINS = "sonar.dryRun.excludePlugins";
+  String DRY_RUN_EXCLUDE_PLUGINS_DEFAULT_VALUE = "devcockpit,pdfreport,report,scmactivity,views";
 
   /**
    * @since 2.10
