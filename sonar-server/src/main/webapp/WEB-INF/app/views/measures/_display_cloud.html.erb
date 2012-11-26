@@ -18,18 +18,13 @@
        size_measure=result.measure(@filter.display.size_metric)
        if size_measure && size_measure.value
          color_measure=result.measure(@filter.display.color_metric)
-         if result.snapshot.source_code?
-          link="of(#{result.snapshot.project_id})"
-         else
-           link="ov(#{result.snapshot.project_id})"
-         end
 
          title="#{result.snapshot.resource.long_name} | #{@filter.display.size_metric.short_name}: #{size_measure.formatted_value}"
          if color_measure && color_measure.value
            title += " | #{@filter.display.color_metric.short_name}: #{color_measure.formatted_value}"
          end
   %>
-      <a href="#" onclick="<%= link -%>" title="<%= title -%>"><span style="font-size: <%= cloud_font_size(size_measure.value, min_size_value, max_size_value) -%>%;color: <%= MeasureColor.color(color_measure, color_options).html -%>"><%= result.snapshot.resource.name %></span></a>
+      <a href="<%= ApplicationController.root_context -%>/dashboard/index/<%= result.snapshot.resource_id -%>" title="<%= title -%>"><span style="font-size: <%= cloud_font_size(size_measure.value, min_size_value, max_size_value) -%>%;color: <%= MeasureColor.color(color_measure, color_options).html -%>"><%= result.snapshot.resource.name %></span></a>
     <% end
        end %>
 </div>

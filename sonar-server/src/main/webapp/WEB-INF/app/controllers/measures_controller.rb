@@ -74,7 +74,7 @@ class MeasuresController < ApplicationController
     @filter.shared=(params[:shared]=='true')
     @filter.data=URI.unescape(params[:data])
     if @filter.save
-      current_user.favourited_measure_filters<<@filter
+      current_user.favourited_measure_filters<<@filter if add_to_favourites
       render :text => @filter.id.to_s, :status => 200
     else
       render :partial => 'measures/save_form', :status => 400
@@ -113,6 +113,34 @@ class MeasuresController < ApplicationController
       render :text => @filter.id.to_s, :status => 200
     else
       render :partial => 'measures/edit_form', :status => 400
+    end
+  end
+
+  # GET /measures/copy_form/<filter id>
+  def copy_form
+    require_parameters :id
+    @filter = find_filter(params[:id])
+    render :partial => 'measures/copy_form'
+  end
+
+  # POST /measures/copy/<filter id>?name=<copy name>&description=<copy description>
+  def copy
+    verify_post_request
+    access_denied unless logged_in?
+    require_parameters :id
+
+    to_clone = find_filter(params[:id])
+    @filter = MeasureFilter.new
+    @filter.name = params[:name]
+    @filter.description = params[:description]
+    @filter.user_id = current_user.id
+    @filter.shared = to_clone.shared
+    @filter.data = to_clone.data
+    @filter.shared = false
+    if @filter.save
+      render :text => @filter.id.to_s, :status => 200
+    else
+      render :partial => 'measures/copy_form', :status => 400
     end
   end
 

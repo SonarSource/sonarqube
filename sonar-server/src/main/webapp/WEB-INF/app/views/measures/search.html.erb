@@ -133,7 +133,7 @@
 
       Display as:
       <% MeasureFilter::DISPLAYS.each do |display_class| %>
-        <%= link_to_if display_class::KEY!=@filter.display.class::KEY, display_class::KEY, params.merge(:action => 'search', :display => display_class::KEY, :id => nil) -%>
+        <%= link_to_if display_class::KEY!=@filter.display.class::KEY, display_class::KEY, params.merge(:action => 'search', :display => display_class::KEY, :id => @filter.id) -%>
       <% end %>
 
       <% if logged_in? && (@filter.user_id==nil || @filter.user_id==current_user.id) %>
