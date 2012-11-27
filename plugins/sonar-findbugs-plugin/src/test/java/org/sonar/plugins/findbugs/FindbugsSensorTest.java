@@ -20,17 +20,29 @@
 package org.sonar.plugins.findbugs;
 
 import com.google.common.collect.Lists;
-import edu.umd.cs.findbugs.*;
+import edu.umd.cs.findbugs.BugCollection;
+import edu.umd.cs.findbugs.BugInstance;
+import edu.umd.cs.findbugs.ClassAnnotation;
+import edu.umd.cs.findbugs.MethodAnnotation;
+import edu.umd.cs.findbugs.SortedBugCollection;
+import edu.umd.cs.findbugs.SourceLineAnnotation;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.InputFile;
+import org.sonar.api.resources.InputFileUtils;
+import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.test.IsViolation;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -42,6 +54,18 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class FindbugsSensorTest extends FindbugsTests {
+
+  private static final Locale DEFAULT_LOCALE = Locale.getDefault();
+
+  @BeforeClass
+  public static void beforeAll() {
+    Locale.setDefault(Locale.ENGLISH);
+  }
+
+  @AfterClass
+  public static void afterAll() {
+    Locale.setDefault(DEFAULT_LOCALE);
+  }
 
   @Test
   public void shouldNotAnalyseIfNoJavaProject() {
