@@ -12,7 +12,7 @@
     <% if @project.language %>
     <tr>
       <td><%= message('widget.description.language') -%>: </td>
-      <td id="resource_language"><%= @project.language -%></td>
+      <td id="resource_language"><%= Api::Utils.language_name(@project.language) -%></td>
     </tr>
     <% end %>
     <%

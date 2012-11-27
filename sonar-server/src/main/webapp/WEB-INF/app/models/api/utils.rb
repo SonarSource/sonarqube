@@ -170,4 +170,13 @@ class Api::Utils
   def self.languages
     java_facade.getLanguages()
   end
+
+  def self.language(key)
+    languages.find {|language| language.key == key}
+  end
+
+  def self.language_name(key)
+    language(key) ? language(key).name : key
+  end
+
 end
