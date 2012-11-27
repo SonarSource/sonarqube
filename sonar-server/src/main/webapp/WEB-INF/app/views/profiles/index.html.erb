@@ -1,16 +1,16 @@
 <div class="line-block marginbottom10">
-  <% if administrator? %>
-    <ul style="float: right" class="operations">
-      <li>
-        <%= image_tag 'compare.png' -%>
-        <a href="profiles/compare" id="compare-link"><%= message('quality_profiles.compare_profiles') -%></a>
-      </li>
+  <ul style="float: right" class="operations">
+    <li>
+      <%= image_tag 'compare.png' -%>
+      <a href="profiles/compare" id="compare-link"><%= message('quality_profiles.compare_profiles') -%></a>
+    </li>
+    <% if administrator? %>
       <li class="last">
         <%= image_tag 'restore.gif' -%>
         <a href="profiles/restore_form" class="open-modal" id="restore-link"><%= message('quality_profiles.restore_profile') -%></a>
       </li>
-    </ul>
-  <% end %>
+    <% end %>
+  </ul>
   <h1 class="marginbottom10"><%= message('quality_profiles.page') -%></h1>
 </div>
 
