@@ -43,9 +43,7 @@ class MeasuresController < ApplicationController
 
     @filter = find_filter(params[:id])
     @filter.load_criteria_from_data
-    @filter.enable_default_display
-    @filter.execute(self, :user => current_user)
-    render :action => 'search'
+    redirect_to @filter.criteria.merge({:action => 'search', :id => params[:id]})
   end
 
   def save_form
