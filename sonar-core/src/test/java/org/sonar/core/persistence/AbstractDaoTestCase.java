@@ -21,6 +21,7 @@ package org.sonar.core.persistence;
 
 import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.text.StrSubstitutor;
 import org.dbunit.Assertion;
@@ -45,6 +46,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.core.config.Logback;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -94,15 +96,23 @@ public abstract class AbstractDaoTestCase {
   }
 
   private void loadOrchestratorSettings(Settings settings) throws URISyntaxException, IOException {
-    URI uri = new URI(settings.getString("orchestrator.configUrl"));
-    HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
-    int responseCode = connection.getResponseCode();
-    if (responseCode >= 400) {
-      throw new IllegalStateException("Fail to request: " + uri + ". Status code=" + responseCode);
-    }
-
-    InputStream input = connection.getInputStream();
+    String url = settings.getString("orchestrator.configUrl");
+    URI uri = new URI(url);
+    InputStream input = null;
     try {
+      if (url.startsWith("file:")) {
+        File file = new File(uri);
+        input = FileUtils.openInputStream(file);
+      } else {
+        HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
+        int responseCode = connection.getResponseCode();
+        if (responseCode >= 400) {
+          throw new IllegalStateException("Fail to request: " + uri + ". Status code=" + responseCode);
+        }
+
+        input = connection.getInputStream();
+
+      }
       Properties props = new Properties();
       props.load(input);
       settings.addProperties(props);
@@ -110,7 +120,6 @@ public abstract class AbstractDaoTestCase {
         String interpolatedValue = StrSubstitutor.replace(entry.getValue(), System.getenv(), "${", "}");
         settings.setProperty(entry.getKey(), interpolatedValue);
       }
-
     } finally {
       IOUtils.closeQuietly(input);
     }
