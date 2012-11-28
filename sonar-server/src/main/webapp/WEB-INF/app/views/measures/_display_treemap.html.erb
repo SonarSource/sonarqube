@@ -1,4 +1,3 @@
-<% treemap = MeasureFilterTreemap.new(@filter, 600, @filter.id.to_s) %>
-<div class="treemap" style="width: 100%; height:<%= treemap.height %>px;">
-  <%= treemap.html() -%>
+<div class="treemap" style="width: 100%; height:<%= @filter.display.height %>px;">
+  <%= @filter.display.html -%>
 </div>

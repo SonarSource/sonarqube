@@ -2,7 +2,55 @@
    display_favourites = logged_in?
    colspan = @filter.display.columns.size
    colspan += 1 if display_favourites
+   if edit_mode
+     content_for :script do
 %>
+    <script>
+      var cols = [<%= @filter.display.columns.map{|c| "'#{c.key}'"}.join(',')-%>];
+      function leftCol(id) {
+
+      }
+      function rightCol(id) {
+
+      }
+      function deleteCol(id) {
+
+      }
+    </script>
+  <%
+     end
+     end
+  %>
+
+<% if edit_mode %>
+  <table class="data width100 admin">
+    <tr>
+      <td>
+        <%= metric_select_tag 'metric', Metric.all.reject { |m| m.data? }, :html_id => 'select-metric', :allow_empty => true -%>
+        <button id="add-metric" disabled>Add</button>
+      </td>
+      <td class="right">
+        <a href="#" class="button" id="exit-edit">Done</a>
+      </td>
+    </tr>
+  </table>
+  <script>
+    $j("#select-metric").on("change", function (e) {
+      $j("#add-metric").removeAttr('disabled');
+    });
+    $j("#add-metric").on("click", function (e) {
+      var metric = $j("#select-metric option:selected").val();
+      cols.push('metric:' + metric);
+      window.location = window.location.href.replace(/&?cols\[\]=([^&]$|[^&]*)/g, '') + '&' + $j.map(cols, function (a) {
+        return 'cols[]=' + a;
+      }).join('&');
+    });
+    $j("#exit-edit").on("click", function (e) {
+      window.location = window.location.href.replace(/&?edit=([^&]$|[^&]*)/g, '');
+    });
+  </script>
+<% end %>
+
 <table class="data">
   <thead>
   <tr>
@@ -15,6 +63,20 @@
   </tr>
   </thead>
   <tbody>
+
+  <% if edit_mode %>
+    <tr class="admin">
+      <% if display_favourites %>
+        <th></th>
+      <% end %>
+      <% @filter.display.columns.each_with_index do |column, index| %>
+        <td class="<%= column.align -%>">
+          <a href="#" onclick="leftCol(<%= index -%>)" title="<%= message('move_left') -%>"><%= image_tag("controls/resultset_previous.png") -%></a>
+          <a href="#" onclick="deleteCol(<%= index -%>)" title="<%= message('delete_column') -%>"><%= image_tag("bin_closed.png") -%></a>
+          <a href="#" onclick="rightCol(<%= index -%>)" title="<%= message('move_right') -%>"><%= image_tag("controls/resultset_next.png") -%></a>
+        </td>
+      <% end %>
+  <% end %>
 
   <% if @filter.base_result %>
     <tr class="highlight">

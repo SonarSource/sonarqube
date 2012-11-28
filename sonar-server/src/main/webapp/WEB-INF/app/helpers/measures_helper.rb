@@ -26,10 +26,6 @@ module MeasuresHelper
     else
       html=h(column.name)
     end
-    #if column.variation
-    #  html="<img src='#{ApplicationController.root_context}/images/trend-up.png'></img> #{html}"
-    #end
-
     if filter.sort_key==column.key
       html << (filter.sort_asc? ? image_tag("asc12.png") : image_tag("desc12.png"))
     end

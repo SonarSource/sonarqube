@@ -17,37 +17,43 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-class MeasureFilterTreemap
+class MeasureFilterDisplayTreemap < MeasureFilterDisplay
   include ActionView::Helpers::UrlHelper
 
-  attr_reader :filter, :height, :id, :size, :size_metric, :color_metric
+  KEY = :treemap
 
-  def initialize(filter, height, id)
-    @filter = filter
-    @height = height
-    @id = id
-    @size = 0
-    @size_metric = filter.display.size_metric
-    @color_metric = filter.display.color_metric
+  attr_reader :height, :id, :size, :size_metric, :color_metric
+
+  def initialize(filter, options)
+    super(filter, options)
+
+    @size_metric = Metric.by_key(@filter.criteria('tmSize')||'ncloc')
+    @color_metric = Metric.by_key(@filter.criteria('tmColor')||'violations_density')
+    @html_id = options[:html_id]
+    @filter.metrics=([@size_metric, @color_metric].compact)
+    @height = (@filter.criteria('tmHeight')||'600').to_i
+    @id_count = 0
   end
 
   def html
-    root = Treemap::Node.new(:id => -1, :label => '')
-    build_tree(root)
+    if filter.results
+      root = Treemap::Node.new(:id => -1, :label => '')
+      build_tree(root)
 
-    output = Sonar::HtmlOutput.new do |o|
-      # width in percents
-      o.width = 100
-      o.height = @height
-      o.full_html = false
-      o.details_at_depth = 1
+      output = Sonar::HtmlOutput.new do |o|
+        # width in percents
+        o.width = 100
+        o.height = @height
+        o.full_html = false
+        o.details_at_depth = 1
+      end
+      html = output.to_html(root)
+      html + "<script>treemapById(#{@html_id}).onLoaded(#{@filter.results.size});</script>"
     end
-    html = output.to_html(root)
-    html + "<script>treemapById(#{@id}).onLoaded(#{@size});</script>"
   end
 
   def empty?
-    @size==0
+    @filter.results.nil? || @filter.results.empty?
   end
 
   private
@@ -59,7 +65,7 @@ class MeasureFilterTreemap
         if size_measure
           color_measure=(@color_metric ? result.measure(@color_metric) : nil)
           resource = result.snapshot.resource
-          child = Treemap::Node.new(:id => "#{@id}-#{@size += 1}",
+          child = Treemap::Node.new(:id => "#{@html_id}-#{@id_count += 1}",
                                     :size => size_value(size_measure),
                                     :label => resource.name(false),
                                     :title => escape_javascript(resource.name(true)),

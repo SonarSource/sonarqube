@@ -31,7 +31,8 @@ class MeasuresController < ApplicationController
     else
       @filter = MeasureFilter.new
     end
-    @filter.set_criteria_from_url_params(params)
+    @filter.criteria=(params)
+    @filter.enable_default_display
     @filter.execute(self, :user => current_user)
   end
 
@@ -42,6 +43,7 @@ class MeasuresController < ApplicationController
 
     @filter = find_filter(params[:id])
     @filter.load_criteria_from_data
+    @filter.enable_default_display
     @filter.execute(self, :user => current_user)
     render :action => 'search'
   end
@@ -52,7 +54,7 @@ class MeasuresController < ApplicationController
     else
       @filter = MeasureFilter.new
     end
-    @filter.set_criteria_from_url_params(params)
+    @filter.criteria=(params)
     @filter.convert_criteria_to_data
     render :partial => 'measures/save_form'
   end

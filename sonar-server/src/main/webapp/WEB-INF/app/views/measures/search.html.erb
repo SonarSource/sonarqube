@@ -17,13 +17,38 @@
     }
   </style>
 <% end %>
-
+<% content_for :script do %>
+  <script>
+    function submitSearch() {
+      // remove empty parameters from URL
+      var form = $j("#filter-form");
+      form.find(':input[value=""]').attr('name', '');
+      form.submit();
+      return false;
+    }
+  </script>
+<% end %>
 <div id="measure-filters">
-  <div id="filter-form" class="page-split-left">
-    <form method="GET" action="<%= ApplicationController.root_context -%>/measures/search">
+  <div class="page-split-left">
+    <form id="filter-form" method="GET" action="<%= ApplicationController.root_context -%>/measures/search">
       <% if @filter.id %>
         <input type="hidden" name="id" value="<%= @filter.id -%>">
       <% end %>
+      <%
+         if @filter.display
+           @filter.display.url_params.each_pair do |k, v|
+             if v.is_a?(String)
+      %>
+            <%= hidden_field_tag k, v -%>
+          <% else
+            v.each do |string_val|
+          %>
+              <%= hidden_field_tag "#{k}[]", string_val -%>
+          <% end
+             end
+             end
+             end
+          %>
       <table class="width100">
         <tbody>
         <tr>
@@ -98,7 +123,7 @@
         <tr>
           <td>
             <br/>
-            <input type="submit" name="search" value="Search">
+            <input type="button" name="search" value="Search" onclick="submitSearch()">
             <a href="<%= ApplicationController.root_context -%>/measures">New search</a>
           </td>
         </tr>
@@ -128,7 +153,7 @@
     <% end %>
   </div>
 
-  <% if @filter.results %>
+  <% if @filter.results && @filter.display %>
     <div id="filter-result" class="page-split-right width100">
       <% if @filter.name %>
         <p>
@@ -140,16 +165,19 @@
 
       <% end %>
 
-      Display as:
-      <% MeasureFilter::DISPLAYS.each do |display_class| %>
-        <%= link_to_if display_class::KEY!=@filter.display.class::KEY, display_class::KEY, params.merge(:action => 'search', :display => display_class::KEY, :id => @filter.id) -%>
+      <%
+         edit_mode = (params[:edit]=='true')
+         unless edit_mode %>
+        Display as:
+        <% MeasureFilterDisplay.keys.each do |display_key| %>
+          <%= link_to_if display_key!=@filter.display.key, display_key, params.merge(:action => 'search', :display => display_key, :id => @filter.id) -%>
+        <% end %>
+        <a id="edit" href="<%= url_for params.merge({:edit => true, :id => @filter.id}) -%>" class="button"><%= message('configure') -%></a>
+        <% if logged_in? && (@filter.user_id==nil || @filter.user_id==current_user.id) %>
+          <a id="save_as" href="<%= url_for params.merge({:action => 'save_form', :id => @filter.id}) -%>" class="button open-modal"><%= message('save') -%></a>
+        <% end %>
       <% end %>
-
-      <% if logged_in? && (@filter.user_id==nil || @filter.user_id==current_user.id) %>
-        <a id="save_as" href="<%= url_for params.merge({:action => 'save_form', :id => @filter.id}) -%>" class="link-action open-modal"><%= message('save') -%></a>
-      <% end %>
-
-      <%= render :partial => "measures/display_#{@filter.display.class::KEY}" -%>
+      <%= render :partial => "measures/display_#{@filter.display.class::KEY}", :locals => {:edit_mode => edit_mode} -%>
       <br>
 
       <% if @filter.security_exclusions %>

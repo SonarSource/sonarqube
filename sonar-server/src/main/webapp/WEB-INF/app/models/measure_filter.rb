@@ -34,10 +34,12 @@ class MeasureFilter < ActiveRecord::Base
       snapshot.resource
     end
 
+    # For internal use
     def add_measure(measure)
       @measures_by_metric[measure.metric] = measure
     end
 
+    # For internal use
     def add_link(link)
       @links ||= []
       @links << link
@@ -52,128 +54,8 @@ class MeasureFilter < ActiveRecord::Base
     end
   end
 
-  # Column to be displayed
-  class Column
-    attr_reader :key, :metric
-
-    def initialize(key)
-      @key = key
-      metric_key = @key.split(':')[1]
-      @metric = Metric.by_key(metric_key) if metric_key
-    end
-
-    def name
-      if @metric
-        Api::Utils.message("metric.#{@metric.key}.name", :default => @metric.short_name)
-      else
-        Api::Utils.message("measure_filter.col.#{@key}", :default => @key)
-      end
-    end
-
-    def align
-      @align ||=
-        begin
-          # by default is table cells are left-aligned
-          (@key=='name' || @key=='short_name' || @key=='description') ? '' : 'right'
-        end
-    end
-
-    def sort?
-      !links?
-    end
-
-    def links?
-      @key == 'links'
-    end
-  end
-
-  class Display
-    attr_reader :metric_ids
-
-    def initialize(filter)
-    end
-
-    def load_links?
-      false
-    end
-  end
-
-  class ListDisplay < Display
-    attr_reader :columns
-
-    KEY = :list
-
-    def initialize(filter)
-      filter.set_criteria_default_value('columns', ['metric:alert_status', 'name', 'date', 'metric:ncloc', 'metric:violations', 'links'])
-      filter.set_criteria_default_value('sort', 'name')
-      filter.set_criteria_default_value('asc', 'true')
-      filter.set_criteria_default_value('pageSize', '30')
-      filter.pagination.per_page = [filter.criteria['pageSize'].to_i, 200].min
-      filter.pagination.page = (filter.criteria['page'] || 1).to_i
-
-      @columns = filter.criteria['columns'].map { |column_key| Column.new(column_key) }
-      @metric_ids = @columns.map { |column| column.metric.id if column.metric }.compact.uniq
-    end
-
-    def load_links?
-      @columns.index { |column| column.links? }
-    end
-
-  end
-
-  class TreemapDisplay < Display
-    attr_reader :columns
-
-    KEY = :treemap
-
-    def initialize(filter)
-      filter.set_criteria_default_value('columns', ['metric:ncloc', 'metric:violations_density'])
-      @columns = filter.criteria['columns'].map { |column_key| Column.new(column_key) }
-      @metric_ids = @columns.map { |column| column.metric.id if column.metric }.compact.uniq
-    end
-
-    def size_metric
-      @size_metric ||= Metric.by_key('ncloc')
-    end
-
-    def color_metric
-      @color_metric ||= Metric.by_key('violations_density')
-    end
-  end
-
-  class CloudDisplay < Display
-    attr_reader :columns
-
-    KEY = :cloud
-
-    def initialize(filter)
-      filter.set_criteria_default_value('sort', 'name')
-      filter.set_criteria_default_value('asc', 'true')
-      @metric_ids = [size_metric.id, color_metric.id]
-    end
-
-    def size_metric
-      @size_metric ||= Metric.by_key('function_complexity')
-    end
-
-    def color_metric
-      @color_metric ||= Metric.by_key('violations_density')
-    end
-  end
-
-  DISPLAYS = [ListDisplay, TreemapDisplay, CloudDisplay]
-
-  SUPPORTED_CRITERIA_KEYS=Set.new([:qualifiers, :scopes, :onFavourites, :base, :onBaseComponents, :languages, :fromDate, :toDate, :beforeDays, :afterDays,
-                                   :keyRegexp, :nameRegexp,
-                                   :sort, :asc, :columns, :display, :pageSize, :page])
   CRITERIA_SEPARATOR = '|'
   CRITERIA_KEY_VALUE_SEPARATOR = ','
-
-  # Configuration available after call to execute()
-  attr_reader :pagination, :security_exclusions, :columns
-
-  # Results : sorted array of Result
-  attr_reader :base_result, :results
 
   belongs_to :user
   has_many :measure_filter_favourites, :dependent => :delete_all
@@ -182,9 +64,7 @@ class MeasureFilter < ActiveRecord::Base
   validates_length_of :name, :maximum => 100, :message => Api::Utils.message('measure_filter.name_too_long')
   validates_length_of :description, :allow_nil => true, :maximum => 4000
 
-  def criteria
-    @criteria ||= {}
-  end
+  attr_reader :pagination, :security_exclusions, :base_result, :results, :display
 
   def sort_key
     criteria['sort']
@@ -194,19 +74,38 @@ class MeasureFilter < ActiveRecord::Base
     criteria['asc']=='true'
   end
 
-# API for plugins
-  def self.register_display(display_class)
-    DISPLAYS<<display_class
+  # array of the metrics to use when loading measures
+  def metrics
+    @metrics ||= []
   end
 
-  def self.supported_criteria?(key)
-    SUPPORTED_CRITERIA_KEYS.include?(key.to_sym)
+  def metrics=(array)
+    @metrics = array
   end
 
-  def set_criteria_from_url_params(params)
+  def require_links=(flag)
+    @require_links=flag
+  end
+
+  # boolean flag that indicates if project links should be loaded
+  def require_links?
+    @require_links
+  end
+
+  def criteria(key=nil)
+    @criteria ||= {}
+    if key
+      @criteria[key.to_s]
+    else
+      @criteria
+    end
+  end
+
+  def criteria=(hash)
+    @display = nil
     @criteria = {}
-    params.each_pair do |k, v|
-      if MeasureFilter.supported_criteria?(k) && !v.empty? && v!=['']
+    hash.each_pair do |k, v|
+      if k && v && !v.empty? && v!=['']
         @criteria[k.to_s]=v
       end
     end
@@ -238,30 +137,19 @@ class MeasureFilter < ActiveRecord::Base
     self.data = string_data.join(CRITERIA_SEPARATOR)
   end
 
-  def display
-    @display ||=
-      begin
-        display_class = nil
-        key = criteria['display']
-        if key.present?
-          display_class = DISPLAYS.find { |d| d::KEY==key.to_sym }
-        end
-        display_class ||= DISPLAYS.first
-        display_class.new(self)
-      end
+  def enable_default_display
+    set_criteria_default_value('display', 'list')
   end
-
 
   # ==== Options
   # :user : the authenticated user
   def execute(controller, options={})
     init_results
-
+    init_display(options)
     user = options[:user]
     rows=Api::Utils.java_facade.executeMeasureFilter2(criteria, (user ? user.id : nil))
     snapshot_ids = filter_authorized_snapshot_ids(rows, controller)
     load_results(snapshot_ids)
-
     self
   end
 
@@ -289,7 +177,12 @@ class MeasureFilter < ActiveRecord::Base
     @pagination = Api::Pagination.new
     @security_exclusions = nil
     @results = nil
+    @base_result = nil
     self
+  end
+
+  def init_display(options)
+    @display = MeasureFilterDisplay.create(self, options)
   end
 
   def filter_authorized_snapshot_ids(rows, controller)
@@ -303,6 +196,8 @@ class MeasureFilter < ActiveRecord::Base
 
   def load_results(snapshot_ids)
     @results = []
+    metric_ids = metrics.map(&:id)
+
     if !snapshot_ids.empty?
       results_by_snapshot_id = {}
       snapshots = Snapshot.find(:all, :include => ['project'], :conditions => ['id in (?)', snapshot_ids])
@@ -316,17 +211,17 @@ class MeasureFilter < ActiveRecord::Base
         @results << results_by_snapshot_id[sid]
       end
 
-      if display.metric_ids && !display.metric_ids.empty?
+      unless metric_ids.empty?
         measures = ProjectMeasure.find(:all, :conditions =>
-          ['rule_priority is null and rule_id is null and characteristic_id is null and person_id is null and snapshot_id in (?) and metric_id in (?)', snapshot_ids, display.metric_ids]
+          ['rule_priority is null and rule_id is null and characteristic_id is null and person_id is null and snapshot_id in (?) and metric_id in (?)', snapshot_ids, metric_ids]
         )
         measures.each do |measure|
           result = results_by_snapshot_id[measure.snapshot_id]
-          result.add_measure measure
+          result.add_measure(measure)
         end
       end
 
-      if display.load_links?
+      if require_links?
         project_ids = []
         results_by_project_id = {}
         snapshots.each do |snapshot|
@@ -343,9 +238,9 @@ class MeasureFilter < ActiveRecord::Base
       base_snapshot = Snapshot.find(:first, :include => 'project', :conditions => ['projects.kee=? and islast=?', criteria['base'], true])
       if base_snapshot
         @base_result = Result.new(base_snapshot)
-        if display.metric_ids && !display.metric_ids.empty?
+        unless metric_ids.empty?
           base_measures = ProjectMeasure.find(:all, :conditions =>
-            ['rule_priority is null and rule_id is null and characteristic_id is null and person_id is null and snapshot_id=? and metric_id in (?)', base_snapshot.id, display.metric_ids]
+            ['rule_priority is null and rule_id is null and characteristic_id is null and person_id is null and snapshot_id=? and metric_id in (?)', base_snapshot.id, metric_ids]
           )
           base_measures.each do |base_measure|
             @base_result.add_measure(base_measure)
