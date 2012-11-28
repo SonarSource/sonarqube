@@ -3,25 +3,36 @@
 <table class="spaced">
 <tr>
   <td valign="top">
-  <script type="text/javascript">
-    //<![CDATA[
-    function selectMetric() {
-      <%= remote_function(:url => {:controller => 'alerts', :action => 'new', :profile_id => @profile.id}, :with => "'alert[metric_id]=' + $('alert_metric_id').value", :method => 'get') %>;
-    }
-    //]]>
-  </script>
+    <script type="text/javascript">
+      //<![CDATA[
+      function selectMetric() {
+        <%= remote_function(:url => {:controller => 'alerts', :action => 'new', :profile_id => @profile.id}, :with => "'alert[metric_id]=' + $('alert_metric_id').value", :method => 'get') %>;
+      }
+      //]]>
+    </script>
 
-  <select id="alert_metric_id" name="alert[metric_id]" onChange="javascript:selectMetric()">
-    <option value="" <%= 'selected' if @alert.metric.nil? %>><%= message('alerts.select_metric') -%></option>
-  <% Metric.domains.each do |domain| %>
-  <optgroup label="<%= h domain -%>">
-    <%# 'new_' metrics excluded due to SONAR-2396 %>
-    <% Metric.by_domain(domain).select{ |m| m.alertable? && !m.name.start_with?("new_") }.each do |metric| %>
-      <option value="<%= metric.id -%>" <%= 'selected' if @alert.metric_id==metric.id -%>><%= metric.short_name %></option>
-    <% end %>
-  </optgroup>
-  <% end %>
-  </select>
+    <select id="alert_metric_id" name="alert[metric_id]" onChange="javascript:selectMetric()">
+      <option value="" <%= 'selected' if @alert.metric.nil? %>><%= message('alerts.select_metric') -%></option>
+      <% Metric.domains.each do |domain| %>
+      <optgroup label="<%= h domain -%>">
+        <%# 'new_' metrics excluded due to SONAR-2396 %>
+        <% Metric.by_domain(domain).select{ |m| m.alertable? && !m.name.start_with?("new_") }.each do |metric| %>
+          <option value="<%= metric.id -%>" <%= 'selected' if @alert.metric_id==metric.id -%>><%= metric.short_name %></option>
+        <% end %>
+      </optgroup>
+      <% end %>
+    </select>
+  </td>
+
+  <td width="10%" valign="top">
+    <select id="alert_period" name="alert[period]">
+      <% if !@alert.metric.nil? %>
+        <%= period_select_options(@alert, nil) -%>
+        <%= period_select_options(@alert, 1) -%>
+        <%= period_select_options(@alert, 2) -%>
+        <%= period_select_options(@alert, 3) -%>
+      <% end %>
+    </select>
   </td>
 
   <td width="10%"  valign="top">

@@ -5,6 +5,14 @@
     <%= h alert.name %>
   </td>
   <td width="10%" nowrap>
+    <select id="alert_period" name="alert[period]">
+      <%= period_select_options(alert, nil) -%>
+      <%= period_select_options(alert, 1) -%>
+      <%= period_select_options(alert, 2) -%>
+      <%= period_select_options(alert, 3) -%>
+    </select>
+  </td>
+  <td width="10%" nowrap>
     <select id="alert_operator" name="alert[operator]">
       <% operators_for_select(alert).each do |key| %>
         <option value="<%= key -%>" <%= 'selected' if alert.operator==key -%>><%= message("alerts.operator.#{key}") -%></option>

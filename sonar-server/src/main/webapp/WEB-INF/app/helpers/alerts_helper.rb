@@ -88,4 +88,14 @@ module AlertsHelper
     end
   end
 
+  def period_select_options(alert, index)
+    if index
+      selected = (alert.period == index ? 'selected' : '')
+      "<option value='#{index}' #{selected}>&Delta; Period #{index}</option>"
+    else
+      selected = (alert.period ? 'selected' : '')
+      "<option value='' #{selected}>#{message('absolute_value')}</option>"
+    end
+  end
+
 end
