@@ -31,18 +31,30 @@ import org.sonar.api.database.configuration.Property;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.Alert;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.*;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.ActiveRuleParam;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleParam;
+import org.sonar.api.rules.RulePriority;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -133,13 +145,22 @@ public class BackupTest {
     assertNotNull(testActiveRuleParam.getRuleParam());
     assertEquals("test param key", testActiveRuleParam.getRuleParam().getKey());
 
-    assertEquals(1, testProfile.getAlerts().size());
+    assertEquals(2, testProfile.getAlerts().size());
     Alert testAlert = testProfile.getAlerts().get(0);
     assertEquals(Alert.OPERATOR_GREATER, testAlert.getOperator());
     assertEquals("testError", testAlert.getValueError());
     assertEquals("testWarn", testAlert.getValueWarning());
+    assertThat(testAlert.getPeriod(), nullValue());
     assertNotNull(testAlert.getMetric());
     assertEquals("test key", testAlert.getMetric().getKey());
+
+    Alert testAlert2 = testProfile.getAlerts().get(1);
+    assertEquals(Alert.OPERATOR_SMALLER, testAlert2.getOperator());
+    assertEquals("testError2", testAlert2.getValueError());
+    assertEquals("testWarn2", testAlert2.getValueWarning());
+    assertThat(testAlert2.getPeriod(), is(1));
+    assertNotNull(testAlert2.getMetric());
+    assertEquals("test key2", testAlert2.getMetric().getKey());
 
     // Child profile
     testProfile = profilesIter.next();
@@ -150,6 +171,7 @@ public class BackupTest {
 
     Collection<Rule> rules = sonarConfig.getRules();
     assertThat(rules.size(), is(1));
+
     Rule rule = rules.iterator().next();
     assertThat(rule.getParent().getRepositoryKey(), is("test plugin"));
     assertThat(rule.getParent().getKey(), is("test key"));
@@ -160,6 +182,7 @@ public class BackupTest {
     assertThat(rule.getDescription(), is("test description"));
     assertThat(rule.getSeverity(), is(RulePriority.INFO));
     assertThat(rule.getParams().size(), is(1));
+
     RuleParam param = rule.getParams().get(0);
     assertThat(param.getKey(), is("test param key"));
     assertThat(param.getDefaultValue(), is("test param value"));
@@ -282,7 +305,12 @@ public class BackupTest {
     activeRule2.setParameter("test param key", "test value");
     activeRule2.setInheritance(ActiveRule.OVERRIDES);
 
-    profiles.get(0).getAlerts().add(new Alert(null, new Metric("test key"), Alert.OPERATOR_GREATER, "testError", "testWarn"));
+    Alert alert1 = new Alert(null, new Metric("test key"), Alert.OPERATOR_GREATER, "testError", "testWarn");
+    Alert alert2 = new Alert(null, new Metric("test key2"), Alert.OPERATOR_SMALLER, "testError2", "testWarn2", 1);
+
+    List<Alert> alerts = profiles.get(0).getAlerts();
+    alerts.add(alert1);
+    alerts.add(alert2);
 
     return profiles;
   }

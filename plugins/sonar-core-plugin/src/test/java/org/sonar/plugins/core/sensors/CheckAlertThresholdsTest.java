@@ -66,6 +66,7 @@ public class CheckAlertThresholdsTest {
     context = mock(DecoratorContext.class);
     periods = mock(Periods.class);
     i18n = mock(I18n.class);
+    when(i18n.message(Mockito.any(Locale.class), Mockito.eq("variation"), Mockito.isNull(String.class))).thenReturn("variation");
 
     measureClasses = new Measure(CoreMetrics.CLASSES, 20d);
     measureCoverage = new Measure(CoreMetrics.COVERAGE, 35d);
@@ -242,7 +243,6 @@ public class CheckAlertThresholdsTest {
     measureClasses.setVariation1(40d);
 
     when(i18n.message(Mockito.any(Locale.class), Mockito.eq("metric.classes.name"), Mockito.isNull(String.class))).thenReturn("Classes");
-    when(i18n.message(Mockito.any(Locale.class), Mockito.eq("variation"), Mockito.isNull(String.class))).thenReturn("variation");
     when(periods.getLabel(1)).thenReturn("since someday");
 
     when(profile.getAlerts()).thenReturn(Arrays.asList(

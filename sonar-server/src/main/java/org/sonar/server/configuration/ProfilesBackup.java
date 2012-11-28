@@ -26,15 +26,25 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import org.apache.commons.collections.CollectionUtils;
+import org.codehaus.plexus.util.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.Alert;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.*;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.ActiveRuleParam;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleParam;
+import org.sonar.api.rules.RulePriority;
 import org.sonar.jpa.dao.RulesDao;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class ProfilesBackup implements Backupable {
 
@@ -161,13 +171,19 @@ public class ProfilesBackup implements Backupable {
         writeNode(writer, "operator", alert.getOperator());
         writeNode(writer, "value-error", alert.getValueError());
         writeNode(writer, "value-warning", alert.getValueWarning());
+        writeNode(writer, "period", alert.getPeriod() != null ? Integer.toString(alert.getPeriod()) : "");
         writeNode(writer, "metric-key", alert.getMetric().getKey());
       }
 
       public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
         Map<String, String> values = readNode(reader);
-        return new Alert(null, new Metric(values.get("metric-key")), values.get("operator"), values.get("value-error"),
+        Alert alert = new Alert(null, new Metric(values.get("metric-key")), values.get("operator"), values.get("value-error"),
             values.get("value-warning"));
+        String periodText = values.get("period");
+        if (StringUtils.isNotEmpty(periodText)) {
+          alert.setPeriod(Integer.parseInt(periodText));
+        }
+        return alert;
       }
 
       public boolean canConvert(Class type) {

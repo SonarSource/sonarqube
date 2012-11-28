@@ -57,7 +57,15 @@
           <operator><![CDATA[>]]></operator>
           <value-error><![CDATA[testError]]></value-error>
           <value-warning><![CDATA[testWarn]]></value-warning>
+          <period><![CDATA[]]></period>
           <metric-key><![CDATA[test key]]></metric-key>
+        </alert>
+        <alert>
+          <operator><![CDATA[<]]></operator>
+          <value-error><![CDATA[testError2]]></value-error>
+          <value-warning><![CDATA[testWarn2]]></value-warning>
+          <period><![CDATA[1]]></period>
+          <metric-key><![CDATA[test key2]]></metric-key>
         </alert>
       </alerts>
     </profile>
