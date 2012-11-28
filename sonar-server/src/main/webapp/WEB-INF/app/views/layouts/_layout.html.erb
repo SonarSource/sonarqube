@@ -223,11 +223,11 @@
       <% end %>
     <% end %>
     <div id="ftlinks">
-      <%= message('layout.powered_by') -%> <a href="http://www.sonarsource.com" target="SonarSource" class="external">SonarSource</a> - Open Source
-      <a href="http://www.sonarsource.org/documentation/license/" target="license" class="external">LGPL</a> - v.<%= sonar_version -%> -
-      <a href="http://sonar-plugins.codehaus.org" class="external" target="plugins"><%= message('layout.plugins') -%></a> -
-      <a href="http://sonar.codehaus.org/documentation" class="external" target="sonar_doc" class="external"><%= message('layout.documentation') -%></a> -
-      <a href="http://sonar.codehaus.org/support/" target="support" class="external"><%= message('layout.ask_a_questions') -%></a>
+      <%= message('layout.powered_by') -%> <a href="http://www.sonarsource.com" target="SonarSource">SonarSource</a> - Open Source
+      <a href="http://www.sonarsource.org/documentation/license/" target="license">LGPL</a> - v.<%= sonar_version -%> -
+      <a href="http://sonar-plugins.codehaus.org" target="plugins"><%= message('layout.plugins') -%></a> -
+      <a href="http://sonar.codehaus.org/documentation" target="sonar_doc"><%= message('layout.documentation') -%></a> -
+      <a href="http://sonar.codehaus.org/support/" target="support"><%= message('layout.ask_a_questions') -%></a>
       <% unless DatabaseVersion.production? %>
         <br/><span class="yellowHighlight" id="evaluation_warning"><%= message('layout.evaluation') -%></span>
       <% end %>

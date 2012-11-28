@@ -1,17 +1,17 @@
 <% content_for :style do %>
   <style type="text/css">
-    #filter-form [type="text"].large-input {
+    #search-form [type="text"].large-input {
       width: 180px;
     }
 
-    #filter-form select.large-input {
+    #search-form select.large-input {
       width: 100%;
       box-sizing: border-box;
       -webkit-box-sizing: border-box;
       -moz-box-sizing: border-box;
     }
 
-    #filter-form select option {
+    #search-form select option {
       padding: 1px 10px 1px 4px;
     }
   </style>
@@ -20,7 +20,7 @@
   <script>
     function submitSearch() {
       // remove empty parameters from URL
-      var form = $j("#filter-form");
+      var form = $j("#search-form");
       form.find(':input[value=""]').attr('name', '');
       form.submit();
       return false;
@@ -37,11 +37,36 @@
       });
       window.location = url;
     }
+    var filtersLoaded = false;
+    $j(document).ready(function () {
+        $j('#search-pill').on('click', function (e) {
+          $j('#search-pill').parent().addClass('active');
+          $j('#filters-pill').parent().removeClass('active');
+          $j('#search-form').show();
+          $j('#filters').hide();
+        });
+        $j('#filters-pill').on('click', function (e) {
+          $j('#search-pill').parent().removeClass('active');
+          $j('#filters-pill').parent().addClass('active');
+          $j('#search-form').hide();
+          $j('#filters').show();
+          if (!filtersLoaded) {
+            $j('#filters').load(baseUrl + '/measures/filters');
+            filtersLoaded=true;
+          }
+        });
+      }
+    );
   </script>
 <% end %>
 <div id="measure-filters">
   <div class="page-split-left">
-    <form id="filter-form" method="GET" action="<%= ApplicationController.root_context -%>/measures/search">
+    <ul class="nav-pills" id="nav-pills">
+      <li class="active"><a href="#" id="search-pill">Search</a></li>
+      <li><a href="#" id="filters-pill">Filters</a></li>
+    </ul>
+    <div id="filters" style="display:none"><%= image_tag 'loading.gif' -%></div>
+    <form id="search-form" method="GET" action="<%= ApplicationController.root_context -%>/measures/search">
       <% if @filter.id %>
         <input type="hidden" name="id" value="<%= @filter.id -%>">
       <% end %>
@@ -141,27 +166,6 @@
         </tbody>
       </table>
     </form>
-
-    <br/>
-    <ul id="system-filters">
-      <% MeasureFilter.find(:all, :select => ['id,name'], :conditions => ['system=?', true]).each do |system_filter| %>
-        <li>
-          <a href="<%= ApplicationController.root_context -%>/measures/filter/<%= system_filter.id -%>"><%= h system_filter.name -%></a>
-        </li>
-      <% end %>
-    </ul>
-
-    <% if logged_in? %>
-      <br/>
-      <ul id="fav-filters">
-        <% current_user.favourited_measure_filters.each do |my_filter| %>
-          <li>
-            <a href="<%= ApplicationController.root_context -%>/measures/filter/<%= my_filter.id -%>"><%= h my_filter.name -%></a>
-          </li>
-        <% end %>
-      </ul>
-      <a href="<%= ApplicationController.root_context -%>/measures/manage" class="link-action">Manage</a>
-    <% end %>
   </div>
 
   <% if @filter.results && @filter.display %>

@@ -1721,33 +1721,6 @@ ul.bullet li {
   border-top: 0;
   padding: 5px;
 }
-
-#time_machine {
-  margin: 10px 0;
-}
-
-#time_machine #selected {
-  background-image: url("../images/timemachine.png");
-  background-repeat: repeat-x;
-  background-position: left;
-  background-color: #9D9D9D;
-  border: 2px solid #ccc;
-  color: #fff;
-}
-
-#time_machine #selected a {
-  border-bottom: 1px dotted #fff;
-}
-
-#time_machine #selected a.nolink {
-  border-bottom: 0;
-}
-
-#time_machine #selector {
-  background-color: #EFEFEF;
-  border: 1px solid #DDD;
-}
-
 .comments {
   color: #777;
   font-size: 12px;
@@ -2007,11 +1980,11 @@ table.without-header {
   border-top: 1px solid #ddd;
 }
 
-.hoverable.selected a, #time_machine #selected h3, #time_machine #selected a {
+.hoverable.selected a {
   color: #fff;
 }
 
-#time_machine td, .gwt-SourcePanel .sources td {
+.gwt-SourcePanel .sources td {
   vertical-align: top;
 }
 
@@ -2293,6 +2266,10 @@ td.spacer-top {
   border-top: 1px solid #DDD;
 }
 
+select:not([multiple]) {
+  padding: 2px 5px;
+}
+
 select.small-width {
   max-width: 120px;
 }
@@ -2301,23 +2278,6 @@ select.medium-width {
   max-width: 175px;
   width: 175px;
 }
-
-.pipe-left {
-  background-image: url('../images/sep12.png');
-  background-position: left center;
-  background-repeat: no-repeat;
-  padding-left: 8px;
-  margin-left: 8px;
-}
-
-.pipe-right {
-  background-image: url('../images/sep12.png');
-  background-position: right center;
-  background-repeat: no-repeat;
-  margin-right: 8px;
-  padding-right: 8px;
-}
-
 /* Dependencies */
 #dependencies {
   padding: 10px;
@@ -2425,4 +2385,39 @@ textarea.width100 {
 
 .property table.data > thead > tr > th {
   vertical-align: top;
+}
+
+.nav-pills:before, .nav-pills:after {
+  content: "";
+  display: table;
+  line-height: 0;
+}
+
+.nav-pills:after {
+  clear: both;
+}
+
+.nav-pills > li {
+  float: left;
+}
+
+.nav-pills > li > a {
+  line-height: 14px;
+  margin-right: 2px;
+  padding-left: 10px;
+  padding-right: 10px;
+  display: block;
+}
+
+.nav-pills > li > a {
+  border-radius: 5px 5px 5px 5px;
+  margin-bottom: 2px;
+  margin-top: 2px;
+  padding-bottom: 6px;
+  padding-top: 6px;
+}
+
+.nav-pills > .active > a, .nav-pills > .active > a:hover {
+  background-color: #4b9fd5;
+  color: #FFFFFF;
 }

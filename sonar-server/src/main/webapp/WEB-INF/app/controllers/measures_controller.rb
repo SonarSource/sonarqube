@@ -175,6 +175,12 @@ class MeasuresController < ApplicationController
     render :text => is_favourite.to_s, :status => 200
   end
 
+  # GET /measures/filters
+  def filters
+    verify_ajax_request
+    render :partial => 'measures/filters'
+  end
+
   private
   def find_filter(id)
     filter = MeasureFilter.find(id)
