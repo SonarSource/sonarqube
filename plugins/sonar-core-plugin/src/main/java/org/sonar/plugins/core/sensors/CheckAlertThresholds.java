@@ -21,7 +21,11 @@ package org.sonar.plugins.core.sensors;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.*;
+import org.sonar.api.batch.Decorator;
+import org.sonar.api.batch.DecoratorBarriers;
+import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.batch.DependedUpon;
+import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
@@ -30,20 +34,29 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
+import org.sonar.plugins.core.timemachine.Periods;
 
 import java.util.List;
 
 public class CheckAlertThresholds implements Decorator {
 
   private final RulesProfile profile;
+  private final Periods periods;
 
-  public CheckAlertThresholds(RulesProfile profile) {
+
+  public CheckAlertThresholds(RulesProfile profile, Periods periods) {
     this.profile = profile;
+    this.periods = periods;
   }
 
   @DependedUpon
   public Metric generatesAlertStatus() {
     return CoreMetrics.ALERT_STATUS;
+  }
+
+  @DependsUpon
+  public String dependsOnVariations() {
+    return DecoratorBarriers.END_OF_TIME_MACHINE;
   }
 
   @DependsUpon
@@ -110,7 +123,12 @@ public class CheckAlertThresholds implements Decorator {
     if (level == Metric.Level.OK) {
       return null;
     }
-    return alert.getAlertLabel(level);
+    String alertLabel = alert.getAlertLabel(level);
+    Integer alertPeriod = alert.getPeriod();
+    if (alertPeriod != null){
+      alertLabel += " " + periods.getLabel(alertPeriod);
+    }
+    return alertLabel;
   }
 
 

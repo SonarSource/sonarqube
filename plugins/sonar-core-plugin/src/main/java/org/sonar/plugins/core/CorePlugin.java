@@ -79,6 +79,7 @@ import org.sonar.plugins.core.timemachine.NewCoverageFileAnalyzer;
 import org.sonar.plugins.core.timemachine.NewItCoverageFileAnalyzer;
 import org.sonar.plugins.core.timemachine.NewOverallCoverageFileAnalyzer;
 import org.sonar.plugins.core.timemachine.NewViolationsDecorator;
+import org.sonar.plugins.core.timemachine.Periods;
 import org.sonar.plugins.core.timemachine.ReferenceAnalysis;
 import org.sonar.plugins.core.timemachine.TendencyDecorator;
 import org.sonar.plugins.core.timemachine.TimeMachineConfigurationPersister;
@@ -395,6 +396,7 @@ public final class CorePlugin extends SonarPlugin {
       UserManagedMetrics.class,
       ProjectFileSystemLogger.class,
       DatabaseSemaphoreImpl.class,
+      Periods.class,
 
       // maven
       MavenInitializer.class,

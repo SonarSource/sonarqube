@@ -20,8 +20,9 @@
 package org.sonar.plugins.core.timemachine;
 
 import org.sonar.api.batch.Decorator;
+import org.sonar.api.batch.DecoratorBarriers;
 import org.sonar.api.batch.DecoratorContext;
-import org.sonar.core.DryRunIncompatible;
+import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
@@ -29,10 +30,12 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.TimeMachineConfiguration;
+import org.sonar.core.DryRunIncompatible;
 
 import java.util.List;
 
 @DryRunIncompatible
+@DependedUpon(DecoratorBarriers.END_OF_TIME_MACHINE)
 public final class TimeMachineConfigurationPersister implements Decorator {
 
   private TimeMachineConfiguration configuration;
@@ -54,16 +57,22 @@ public final class TimeMachineConfigurationPersister implements Decorator {
   void persistConfiguration() {
     List<PastSnapshot> pastSnapshots = configuration.getProjectPastSnapshots();
     for (PastSnapshot pastSnapshot : pastSnapshots) {
-      projectSnapshot = session.reattach(Snapshot.class, projectSnapshot.getId());
-      projectSnapshot.setPeriodMode(pastSnapshot.getIndex(), pastSnapshot.getMode());
-      projectSnapshot.setPeriodModeParameter(pastSnapshot.getIndex(), pastSnapshot.getModeParameter());
-      projectSnapshot.setPeriodDate(pastSnapshot.getIndex(), pastSnapshot.getTargetDate());
-      session.save(projectSnapshot);
+      Snapshot snapshot = session.reattach(Snapshot.class, projectSnapshot.getId());
+      updatePeriodParams(snapshot, pastSnapshot);
+      updatePeriodParams(projectSnapshot, pastSnapshot);
+      session.save(snapshot);
     }
     session.commit();
   }
 
   public boolean shouldExecuteOnProject(Project project) {
     return true;
+  }
+
+  private void updatePeriodParams(Snapshot snapshot, PastSnapshot pastSnapshot) {
+    int periodIndex = pastSnapshot.getIndex();
+    snapshot.setPeriodMode(periodIndex, pastSnapshot.getMode());
+    snapshot.setPeriodModeParameter(periodIndex, pastSnapshot.getModeParameter());
+    snapshot.setPeriodDate(periodIndex, pastSnapshot.getTargetDate());
   }
 }

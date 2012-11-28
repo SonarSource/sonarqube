@@ -25,7 +25,12 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.sonar.api.database.BaseIdentifiable;
 import org.sonar.api.measures.Metric;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 /**
  * Class to map alerts with hibernate model
@@ -72,6 +77,9 @@ public class Alert extends BaseIdentifiable implements Cloneable {
   @Column(name = "value_warning", updatable = false, nullable = true, length = 64)
   private String valueWarning;
 
+  @Column(name = "period", updatable = false, nullable = true)
+  private Integer period;
+
   /**
    * Default constructor
    */
@@ -94,6 +102,20 @@ public class Alert extends BaseIdentifiable implements Cloneable {
     this.operator = operator;
     this.valueError = valueError;
     this.valueWarning = valueWarning;
+  }
+
+  /**
+   * Creates an alert
+   *
+   * @param rulesProfile the profile used to trigger the alert
+   * @param metric the metric tested for the alert
+   * @param operator the operator defined
+   * @param valueError the error value
+   * @param valueWarning the warning value
+   */
+  public Alert(RulesProfile rulesProfile, Metric metric, String operator, String valueError, String valueWarning, Integer period) {
+    this(rulesProfile, metric, operator, valueError, valueWarning);
+    this.period = period;
   }
 
   /**
@@ -167,6 +189,20 @@ public class Alert extends BaseIdentifiable implements Cloneable {
   }
 
   /**
+   * @return the period
+   */
+  public Integer getPeriod() {
+    return period;
+  }
+
+  /**
+   * Sets the period if any
+   */
+  public void setPeriod(Integer period) {
+    this.period = period;
+  }
+
+  /**
    * @return whether the operator is greater than
    */
   public boolean isGreaterOperator() {
@@ -205,7 +241,7 @@ public class Alert extends BaseIdentifiable implements Cloneable {
 
   @Override
   public Object clone() {
-    return new Alert(getRulesProfile(), getMetric(), getOperator(), getValueError(), getValueWarning());
+    return new Alert(getRulesProfile(), getMetric(), getOperator(), getValueError(), getValueWarning(), getPeriod());
   }
 
 }

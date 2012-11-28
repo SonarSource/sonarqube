@@ -26,6 +26,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.Alert;
 
 public final class AlertUtils {
+
   private AlertUtils() {
   }
 
@@ -43,73 +44,87 @@ public final class AlertUtils {
   }
 
   private static boolean evaluateAlert(Alert alert, Measure measure, Metric.Level alertLevel) {
-    String valueToEval;
-    if (alertLevel.equals(Metric.Level.ERROR)) {
-      valueToEval = alert.getValueError();
-
-    } else if (alertLevel.equals(Metric.Level.WARN)) {
-      valueToEval = alert.getValueWarning();
-
-    } else {
-      throw new IllegalStateException(alertLevel.toString());
-    }
-
+    String valueToEval = getValueToEval(alert, alertLevel);
     if (StringUtils.isEmpty(valueToEval)) {
       return false;
     }
 
     Comparable criteriaValue = getValueForComparison(alert.getMetric(), valueToEval);
-    Comparable metricValue = getMeasureValue(alert.getMetric(), measure);
+    Comparable metricValue = getMeasureValue(alert, measure);
 
     int comparison = metricValue.compareTo(criteriaValue);
     return !(// NOSONAR complexity of this boolean expression is under control
-    (alert.isNotEqualsOperator() && comparison == 0)
-      || (alert.isGreaterOperator() && comparison != 1)
-      || (alert.isSmallerOperator() && comparison != -1)
-      || (alert.isEqualsOperator() && comparison != 0));
+        (alert.isNotEqualsOperator() && comparison == 0)
+            || (alert.isGreaterOperator() && comparison != 1)
+            || (alert.isSmallerOperator() && comparison != -1)
+            || (alert.isEqualsOperator() && comparison != 0));
+  }
+
+  private static String getValueToEval(Alert alert, Metric.Level alertLevel) {
+    if (alertLevel.equals(Metric.Level.ERROR)) {
+      return alert.getValueError();
+    } else if (alertLevel.equals(Metric.Level.WARN)) {
+      return alert.getValueWarning();
+    } else {
+      throw new IllegalStateException(alertLevel.toString());
+    }
   }
 
   private static Comparable<?> getValueForComparison(Metric metric, String value) {
     if (metric.getType() == Metric.ValueType.FLOAT ||
-      metric.getType() == Metric.ValueType.PERCENT) {
+        metric.getType() == Metric.ValueType.PERCENT ||
+        metric.getType() == Metric.ValueType.RATING
+        ) {
       return Double.parseDouble(value);
     }
     if (metric.getType() == Metric.ValueType.INT ||
-      metric.getType() == Metric.ValueType.MILLISEC) {
+        metric.getType() == Metric.ValueType.MILLISEC) {
       return value.contains(".") ? Integer.parseInt(value.substring(0, value.indexOf('.'))) : Integer.parseInt(value);
     }
     if (metric.getType() == Metric.ValueType.STRING ||
-      metric.getType() == Metric.ValueType.LEVEL) {
+        metric.getType() == Metric.ValueType.LEVEL) {
       return value;
     }
     if (metric.getType() == Metric.ValueType.BOOL) {
       return Integer.parseInt(value);
     }
-    if (metric.getType() == Metric.ValueType.RATING) {
-      return Double.parseDouble(value);
+    throw new NotImplementedException(metric.getType().toString());
+  }
+
+  private static Comparable<?> getMeasureValue(Alert alert, Measure measure) {
+    Metric metric = alert.getMetric();
+    if (metric.getType() == Metric.ValueType.FLOAT ||
+        metric.getType() == Metric.ValueType.PERCENT ||
+        metric.getType() == Metric.ValueType.RATING) {
+      return getValue(alert, measure);
+    }
+    if (metric.getType() == Metric.ValueType.INT ||
+        metric.getType() == Metric.ValueType.MILLISEC) {
+      return getValue(alert, measure).intValue();
+    }
+    if (alert.getPeriod() == null) {
+      if (metric.getType() == Metric.ValueType.STRING ||
+          metric.getType() == Metric.ValueType.LEVEL) {
+        return measure.getData();
+      }
+      if (metric.getType() == Metric.ValueType.BOOL) {
+        return measure.getValue().intValue();
+      }
     }
     throw new NotImplementedException(metric.getType().toString());
   }
 
-  private static Comparable<?> getMeasureValue(Metric metric, Measure measure) {
-    if (metric.getType() == Metric.ValueType.FLOAT ||
-      metric.getType() == Metric.ValueType.PERCENT) {
+  private static Double getValue(Alert alert, Measure measure) {
+    if (alert.getPeriod() == null) {
       return measure.getValue();
+    } else if (alert.getPeriod() == 1) {
+      return measure.getVariation1();
+    } else if (alert.getPeriod() == 2) {
+      return measure.getVariation2();
+    } else if (alert.getPeriod() == 3) {
+      return measure.getVariation3();
+    } else {
+      throw new IllegalStateException("Following index period is not allowed : " + Double.toString(alert.getPeriod()));
     }
-    if (metric.getType() == Metric.ValueType.INT ||
-      metric.getType() == Metric.ValueType.MILLISEC) {
-      return measure.getValue().intValue();
-    }
-    if (metric.getType() == Metric.ValueType.STRING ||
-      metric.getType() == Metric.ValueType.LEVEL) {
-      return measure.getData();
-    }
-    if (metric.getType() == Metric.ValueType.BOOL) {
-      return measure.getValue().intValue();
-    }
-    if (metric.getType() == Metric.ValueType.RATING) {
-      return measure.getValue();
-    }
-    throw new NotImplementedException(metric.getType().toString());
   }
 }

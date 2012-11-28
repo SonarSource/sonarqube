@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.core.sensors;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
@@ -29,39 +30,50 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.Alert;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.test.IsMeasure;
+import org.sonar.plugins.core.timemachine.Periods;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class CheckAlertThresholdsTest {
+
   private CheckAlertThresholds decorator;
   private DecoratorContext context;
   private RulesProfile profile;
   private Measure measureClasses;
   private Measure measureCoverage;
+  private Measure measureComplexity;
   private Resource project;
-
+  private Periods periods;
 
   @Before
   public void setup() {
     context = mock(DecoratorContext.class);
+    periods = mock(Periods.class);
 
     measureClasses = new Measure(CoreMetrics.CLASSES, 20d);
     measureCoverage = new Measure(CoreMetrics.COVERAGE, 35d);
+    measureComplexity = new Measure(CoreMetrics.COMPLEXITY, 50d);
 
     when(context.getMeasure(CoreMetrics.CLASSES)).thenReturn(measureClasses);
     when(context.getMeasure(CoreMetrics.COVERAGE)).thenReturn(measureCoverage);
+    when(context.getMeasure(CoreMetrics.COMPLEXITY)).thenReturn(measureComplexity);
 
     profile = mock(RulesProfile.class);
-    decorator = new CheckAlertThresholds(profile);
+    decorator = new CheckAlertThresholds(profile, periods);
     project = mock(Resource.class);
-    when(project.getQualifier()).thenReturn(Resource.QUALIFIER_PROJECT);
+    when(project.getQualifier()).thenReturn(Qualifiers.PROJECT);
   }
 
   @Test
@@ -71,7 +83,7 @@ public class CheckAlertThresholdsTest {
   }
 
   @Test
-  public void shouldBeOkWhenNoAlerts() {
+  public void shouldBeOkWhenNoAlert() {
     when(profile.getAlerts()).thenReturn(Arrays.asList(
         new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_GREATER, null, "20"),
         new Alert(null, CoreMetrics.COVERAGE, Alert.OPERATOR_GREATER, null, "35.0")));
@@ -130,16 +142,117 @@ public class CheckAlertThresholdsTest {
     when(alert1.getMetric()).thenReturn(CoreMetrics.CLASSES);
     when(alert1.getValueError()).thenReturn("10000"); // there are 20 classes, error threshold is higher => alert
     when(alert1.getAlertLabel(Metric.Level.ERROR)).thenReturn("error classes");
+    when(alert1.getPeriod()).thenReturn(null);
 
     Alert alert2 = mock(Alert.class);
     when(alert2.getMetric()).thenReturn(CoreMetrics.COVERAGE);
     when(alert2.getValueWarning()).thenReturn("80"); // coverage is 35%, warning threshold is higher => alert
     when(alert2.getAlertLabel(Metric.Level.WARN)).thenReturn("warning coverage");
+    when(alert2.getPeriod()).thenReturn(null);
 
     when(profile.getAlerts()).thenReturn(Arrays.asList(alert1, alert2));
     decorator.decorate(project, context);
 
     verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.ERROR, "error classes, warning coverage")));
+  }
+
+  @Test
+  public void shouldBeOkIfPeriodVariationIsEnough() {
+    measureClasses.setVariation1(0d);
+    measureCoverage.setVariation2(50d);
+    measureComplexity.setVariation3(2d);
+
+    when(profile.getAlerts()).thenReturn(Arrays.asList(
+        new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_GREATER, null, "10", 1), // ok because no variation
+        new Alert(null, CoreMetrics.COVERAGE, Alert.OPERATOR_SMALLER, null, "40.0", 2), // ok because coverage increases of 50%, which is more than 40%
+        new Alert(null, CoreMetrics.COMPLEXITY, Alert.OPERATOR_GREATER, null, "5", 3) // ok because complexity increases of 2, which is less than 5
+    ));
+
+    decorator.decorate(project, context);
+
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.OK, null)));
+
+    verify(context).saveMeasure(argThat(hasLevel(measureClasses, Metric.Level.OK)));
+    verify(context).saveMeasure(argThat(hasLevel(measureCoverage, Metric.Level.OK)));
+    verify(context).saveMeasure(argThat(hasLevel(measureComplexity, Metric.Level.OK)));
+  }
+
+  @Test
+  public void shouldGenerateWarningIfPeriodVariationIsNotEnough() {
+    measureClasses.setVariation1(40d);
+    measureCoverage.setVariation2(5d);
+    measureComplexity.setVariation3(70d);
+
+    when(profile.getAlerts()).thenReturn(Arrays.asList(
+        new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_GREATER, null, "30", 1),  // generates warning because classes increases of 40, which is greater than 30
+        new Alert(null, CoreMetrics.COVERAGE, Alert.OPERATOR_SMALLER, null, "10.0", 2), // generates warning because coverage increases of 5%, which is smaller than 10%
+        new Alert(null, CoreMetrics.COMPLEXITY, Alert.OPERATOR_GREATER, null, "60", 3) // generates warning because complexity increases of 70, which is smaller than 60
+    ));
+
+    decorator.decorate(project, context);
+
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.WARN, null)));
+
+    verify(context).saveMeasure(argThat(hasLevel(measureClasses, Metric.Level.WARN)));
+    verify(context).saveMeasure(argThat(hasLevel(measureCoverage, Metric.Level.WARN)));
+    verify(context).saveMeasure(argThat(hasLevel(measureComplexity, Metric.Level.WARN)));
+  }
+
+  @Test
+  public void shouldVariationPeriodValueCouldBeUsedForRatingMetric() {
+    Metric ratingMetric = new Metric.Builder("key.rating", "name.rating", Metric.ValueType.RATING).create();
+    Measure measureRatingMetric = new Measure(ratingMetric, 150d);
+    measureRatingMetric.setVariation1(50d);
+    when(context.getMeasure(ratingMetric)).thenReturn(measureRatingMetric);
+
+    when(profile.getAlerts()).thenReturn(Arrays.asList(
+        new Alert(null, ratingMetric, Alert.OPERATOR_GREATER, null, "100", 1)
+    ));
+
+    decorator.decorate(project, context);
+
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.OK, null)));
+    verify(context).saveMeasure(argThat(hasLevel(measureRatingMetric, Metric.Level.OK)));
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void shouldAllowOnlyVariationPeriodOneGlobalPeriods() {
+    measureClasses.setVariation4(40d);
+
+    when(profile.getAlerts()).thenReturn(Arrays.asList(
+        new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_GREATER, null, "30", 4)
+    ));
+
+    decorator.decorate(project, context);
+  }
+
+  @Test(expected = NotImplementedException.class)
+  public void shouldNotAllowPeriodVariationAlertOnStringMetric() {
+    Measure measure = new Measure(CoreMetrics.SCM_AUTHORS_BY_LINE, 100d);
+    measure.setVariation1(50d);
+    when(context.getMeasure(CoreMetrics.SCM_AUTHORS_BY_LINE)).thenReturn(measure);
+
+    when(profile.getAlerts()).thenReturn(Arrays.asList(
+        new Alert(null, CoreMetrics.SCM_AUTHORS_BY_LINE, Alert.OPERATOR_GREATER, null, "30", 1)
+    ));
+
+    decorator.decorate(project, context);
+  }
+
+  @Test
+  public void shouldLabelAlertContainsPeriod() {
+    measureClasses.setVariation1(40d);
+
+    Alert alert = mock(Alert.class);
+    when(alert.getMetric()).thenReturn(CoreMetrics.CLASSES);
+    when(alert.getValueError()).thenReturn("30");
+    when(alert.getAlertLabel(Metric.Level.ERROR)).thenReturn("error classes");
+    when(alert.getPeriod()).thenReturn(1);
+
+    when(profile.getAlerts()).thenReturn(Arrays.asList(alert));
+    decorator.decorate(project, context);
+
+    verify(periods).getLabel(1);
   }
 
   private ArgumentMatcher<Measure> matchesMetric(final Metric metric, final Metric.Level alertStatus, final String alertText) {
