@@ -22,7 +22,7 @@ module MeasuresHelper
   def list_column_html(filter, column)
 
     if column.sort?
-      html = link_to(h(column.name), filter.url_params.merge({:controller => 'measures', :action => 'search', :asc => (!filter.sort_asc?).to_s, :sort => column.key}))
+      html = link_to_function(h(column.name), "reloadParameters({asc:'#{(!filter.sort_asc?).to_s}', sort:'#{column.key}'})")
     else
       html=h(column.name)
     end

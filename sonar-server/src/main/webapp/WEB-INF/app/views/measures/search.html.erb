@@ -26,6 +26,18 @@
       form.submit();
       return false;
     }
+    function removeUrlAttr(url, attribute_key) {
+      var regexp = new RegExp("&?" + attribute_key + "=([^&]$|[^&]*)", "g");
+      return url.replace(regexp, '');
+    }
+    function reloadParameters(params) {
+      var url = decodeURI(window.location.href);
+      $j.each(params, function (key, value) {
+        url = removeUrlAttr(url, key);
+        url += '&'+ key + '=' + value;
+      });
+      window.location = url;
+    }
   </script>
 <% end %>
 <div id="measure-filters">
@@ -36,19 +48,19 @@
       <% end %>
       <%
          if @filter.display
-           @filter.display.url_params.each_pair do |k, v|
-             if v.is_a?(String)
+           @filter.display.url_params.each do |k_v_array|
+             if k_v_array[1].is_a?(String)
       %>
-            <%= hidden_field_tag k, v -%>
+            <%= hidden_field_tag k_v_array[0], k_v_array[1] -%>
           <% else
-            v.each do |string_val|
+               k_v_array[1].each do |string_val|
           %>
-              <%= hidden_field_tag "#{k}[]", string_val -%>
-          <% end
-             end
-             end
-             end
-          %>
+              <%= hidden_field_tag "#{k_v_array[0]}[]", string_val -%>
+            <% end
+               end
+               end
+               end
+            %>
       <table class="width100">
         <tbody>
         <tr>

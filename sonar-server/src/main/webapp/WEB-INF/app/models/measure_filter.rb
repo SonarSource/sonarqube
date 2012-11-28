@@ -102,7 +102,6 @@ class MeasureFilter < ActiveRecord::Base
   end
 
   def criteria=(hash)
-    @display = nil
     @criteria = {}
     hash.each_pair do |k, v|
       if k && v && !v.empty? && v!=['']

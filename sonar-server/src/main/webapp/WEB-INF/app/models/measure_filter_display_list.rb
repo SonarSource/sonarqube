@@ -81,6 +81,6 @@ class MeasureFilterDisplayList < MeasureFilterDisplay
 
   PROPERTY_KEYS = Set.new(['cols', 'sort', 'asc', 'pageSize'])
   def url_params
-    @filter.criteria.delete_if { |k,v| !PROPERTY_KEYS.include?(k)}
+    @filter.criteria.select{ |k,v| PROPERTY_KEYS.include?(k)}
   end
 end
