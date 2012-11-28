@@ -26,6 +26,7 @@ import org.sonar.api.batch.DecoratorBarriers;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.i18n.I18n;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
@@ -37,16 +38,19 @@ import org.sonar.api.resources.ResourceUtils;
 import org.sonar.plugins.core.timemachine.Periods;
 
 import java.util.List;
+import java.util.Locale;
 
 public class CheckAlertThresholds implements Decorator {
 
   private final RulesProfile profile;
   private final Periods periods;
+  private final I18n i18n;
 
 
-  public CheckAlertThresholds(RulesProfile profile, Periods periods) {
+  public CheckAlertThresholds(RulesProfile profile, Periods periods, I18n i18n) {
     this.profile = profile;
     this.periods = periods;
+    this.i18n = i18n;
   }
 
   @DependedUpon
@@ -123,12 +127,30 @@ public class CheckAlertThresholds implements Decorator {
     if (level == Metric.Level.OK) {
       return null;
     }
-    String alertLabel = alert.getAlertLabel(level);
+    return getAlertLabel(alert, level);
+  }
+
+  private String getAlertLabel(Alert alert, Metric.Level level) {
     Integer alertPeriod = alert.getPeriod();
-    if (alertPeriod != null){
-      alertLabel += " " + periods.getLabel(alertPeriod);
+    String metric = i18n.message(getLocale(), "metric." + alert.getMetric().getKey() + ".name", null);
+
+    StringBuilder stringBuilder = new StringBuilder();
+    stringBuilder.append(metric);
+
+    if (alertPeriod != null) {
+      String variation = i18n.message(getLocale(), "variation", null).toLowerCase();
+      stringBuilder.append(" ").append(variation);
     }
-    return alertLabel;
+
+    stringBuilder
+        .append(" ").append(alert.getOperator()).append(" ")
+        .append(level.equals(Metric.Level.ERROR) ? alert.getValueError() : alert.getValueWarning());
+
+    if (alertPeriod != null){
+      stringBuilder.append(" ").append(periods.getLabel(alertPeriod));
+    }
+
+    return stringBuilder.toString();
   }
 
 
@@ -136,4 +158,9 @@ public class CheckAlertThresholds implements Decorator {
   public String toString() {
     return getClass().getSimpleName();
   }
+
+  private Locale getLocale() {
+    return Locale.ENGLISH;
+  }
+
 }

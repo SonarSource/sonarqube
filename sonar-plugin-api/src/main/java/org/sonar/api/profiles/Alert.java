@@ -230,15 +230,6 @@ public class Alert extends BaseIdentifiable implements Cloneable {
     return operator.equals(OPERATOR_NOT_EQUALS);
   }
 
-
-  public String getAlertLabel(Metric.Level level) {
-    return new StringBuilder()
-        .append(getMetric().getName())
-        .append(" ").append(getOperator())
-        .append(" ")
-        .append(level.equals(Metric.Level.ERROR) ? getValueError() : getValueWarning()).toString();
-  }
-
   @Override
   public Object clone() {
     return new Alert(getRulesProfile(), getMetric(), getOperator(), getValueError(), getValueWarning(), getPeriod());

@@ -23,7 +23,9 @@ import org.apache.commons.lang.NotImplementedException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
+import org.mockito.Mockito;
 import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.i18n.I18n;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
@@ -37,6 +39,7 @@ import org.sonar.plugins.core.timemachine.Periods;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Locale;
 
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Matchers.argThat;
@@ -56,11 +59,13 @@ public class CheckAlertThresholdsTest {
   private Measure measureComplexity;
   private Resource project;
   private Periods periods;
+  private I18n i18n;
 
   @Before
   public void setup() {
     context = mock(DecoratorContext.class);
     periods = mock(Periods.class);
+    i18n = mock(I18n.class);
 
     measureClasses = new Measure(CoreMetrics.CLASSES, 20d);
     measureCoverage = new Measure(CoreMetrics.COVERAGE, 35d);
@@ -71,7 +76,7 @@ public class CheckAlertThresholdsTest {
     when(context.getMeasure(CoreMetrics.COMPLEXITY)).thenReturn(measureComplexity);
 
     profile = mock(RulesProfile.class);
-    decorator = new CheckAlertThresholds(profile, periods);
+    decorator = new CheckAlertThresholds(profile, periods, i18n);
     project = mock(Resource.class);
     when(project.getQualifier()).thenReturn(Qualifiers.PROJECT);
   }
@@ -138,22 +143,15 @@ public class CheckAlertThresholdsTest {
 
   @Test
   public void globalLabelShouldAggregateAllLabels() {
-    Alert alert1 = mock(Alert.class);
-    when(alert1.getMetric()).thenReturn(CoreMetrics.CLASSES);
-    when(alert1.getValueError()).thenReturn("10000"); // there are 20 classes, error threshold is higher => alert
-    when(alert1.getAlertLabel(Metric.Level.ERROR)).thenReturn("error classes");
-    when(alert1.getPeriod()).thenReturn(null);
+    when(i18n.message(Mockito.any(Locale.class), Mockito.eq("metric.classes.name"), Mockito.isNull(String.class))).thenReturn("Classes");
+    when(i18n.message(Mockito.any(Locale.class), Mockito.eq("metric.coverage.name"), Mockito.isNull(String.class))).thenReturn("Coverages");
+    when(profile.getAlerts()).thenReturn(Arrays.asList(
+        new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_SMALLER, null, "10000"), // there are 20 classes, error threshold is higher => alert
+        new Alert(null, CoreMetrics.COVERAGE, Alert.OPERATOR_SMALLER, "50.0", "80.0"))); // coverage is 35%, warning threshold is higher => alert
 
-    Alert alert2 = mock(Alert.class);
-    when(alert2.getMetric()).thenReturn(CoreMetrics.COVERAGE);
-    when(alert2.getValueWarning()).thenReturn("80"); // coverage is 35%, warning threshold is higher => alert
-    when(alert2.getAlertLabel(Metric.Level.WARN)).thenReturn("warning coverage");
-    when(alert2.getPeriod()).thenReturn(null);
-
-    when(profile.getAlerts()).thenReturn(Arrays.asList(alert1, alert2));
     decorator.decorate(project, context);
 
-    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.ERROR, "error classes, warning coverage")));
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.ERROR, "Classes < 10000, Coverages < 50.0")));
   }
 
   @Test
@@ -243,16 +241,17 @@ public class CheckAlertThresholdsTest {
   public void shouldLabelAlertContainsPeriod() {
     measureClasses.setVariation1(40d);
 
-    Alert alert = mock(Alert.class);
-    when(alert.getMetric()).thenReturn(CoreMetrics.CLASSES);
-    when(alert.getValueError()).thenReturn("30");
-    when(alert.getAlertLabel(Metric.Level.ERROR)).thenReturn("error classes");
-    when(alert.getPeriod()).thenReturn(1);
+    when(i18n.message(Mockito.any(Locale.class), Mockito.eq("metric.classes.name"), Mockito.isNull(String.class))).thenReturn("Classes");
+    when(i18n.message(Mockito.any(Locale.class), Mockito.eq("variation"), Mockito.isNull(String.class))).thenReturn("variation");
+    when(periods.getLabel(1)).thenReturn("since someday");
 
-    when(profile.getAlerts()).thenReturn(Arrays.asList(alert));
+    when(profile.getAlerts()).thenReturn(Arrays.asList(
+        new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_GREATER, null, "30", 1) // generates warning because classes increases of 40, which is greater than 30
+    ));
+
     decorator.decorate(project, context);
 
-    verify(periods).getLabel(1);
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.WARN, "Classes variation > 30 since someday")));
   }
 
   private ArgumentMatcher<Measure> matchesMetric(final Metric metric, final Metric.Level alertStatus, final String alertText) {
