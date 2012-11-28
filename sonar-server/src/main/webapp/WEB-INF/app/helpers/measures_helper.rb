@@ -20,11 +20,13 @@
 module MeasuresHelper
 
   def list_column_html(filter, column)
-
     if column.sort?
       html = link_to_function(h(column.name), "reloadParameters({asc:'#{(!filter.sort_asc?).to_s}', sort:'#{column.key}'})")
     else
       html=h(column.name)
+    end
+    if column.period
+      html += "<br><span class='note'>Period #{column.period}</small>"
     end
     if filter.sort_key==column.key
       html << (filter.sort_asc? ? image_tag("asc12.png") : image_tag("desc12.png"))
@@ -34,7 +36,13 @@ module MeasuresHelper
 
   def list_cell_html(column, result)
     if column.metric
-      format_measure(result.measure(column.metric))
+      measure = result.measure(column.metric)
+      if column.period
+        format_variation(measure, :index => column.period, :style => 'light')
+      else
+        format_measure(measure)
+      end
+
     elsif column.key=='name'
       "#{qualifier_icon(result.snapshot)} #{link_to(result.snapshot.resource.name(true), {:controller => 'dashboard', :id => result.snapshot.resource_id}, :title => result.snapshot.resource.key)}"
     elsif column.key=='short_name'
@@ -81,5 +89,29 @@ module MeasuresHelper
       size=CLOUD_MIN_SIZE_PERCENT + ((max_size_value - (max_size_value-(value - min_size_value)))*multiplier)
     end
     size.to_i
+  end
+
+  def period_names
+    p1=Property.value('sonar.timemachine.period1', nil, 'previous_analysis')
+    p2=Property.value('sonar.timemachine.period2', nil, '5')
+    p3=Property.value('sonar.timemachine.period3', nil, '30')
+    [period_name(p1), period_name(p2), period_name(p3)]
+  end
+
+  def period_name(property)
+    if property=='previous_analysis'
+      message('delta_since_previous_analysis')
+    elsif property=='previous_version'
+      message('delta_since_previous_version')
+    elsif property =~ /^[\d]+(\.[\d]+){0,1}$/
+      # is integer
+      message('delta_over_x_days', :params => property)
+    elsif property =~ /\d{4}-\d{2}-\d{2}/
+      message('delta_since', :params => property)
+    elsif !property.blank?
+      message('delta_since_version', :params => property)
+    else
+      nil
+    end
   end
 end

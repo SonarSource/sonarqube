@@ -63,8 +63,19 @@
   <table class="data width100 admin">
     <tr>
       <td>
-        <%= metric_select_tag 'metric', Metric.all.reject { |m| m.data? }, :html_id => 'select-metric', :allow_empty => true -%>
-        <button id="add-metric" disabled>Add</button>
+        <%= metric_select_tag 'metric', Metric.all.reject { |m| m.data? },
+                              :html_id => 'select-metric',
+                              :allow_empty => true,
+                              :key_prefix => 'metric:',
+                              :extra_values => [['Name', 'name'], ['Short Name', 'short_name'], ['Description', 'description'], ['Version', 'version']] -%>
+        <select id="select-period" style="display: none;">
+          <option value="">Value</option>
+          <% period_names.each_with_index do |period_name, index| %>
+            <option value="<%= index + 1 -%>"><%= period_name -%></option>
+          <% end %>
+        </select>
+
+        <button id="add-metric">Add</button>
       </td>
       <td class="right">
         <a href="#" class="button" id="exit-edit">Done</a>
@@ -73,11 +84,29 @@
   </table>
   <script>
     $j("#select-metric").on("change", function (e) {
+      var selectedKey = $j("#select-metric option:selected").val();
+      if (selectedKey.indexOf('metric:') == 0) {
+        if (selectedKey.indexOf('metric:new_') == 0) {
+          $j('#select-period option :eq(0)').attr('disabled', 'disabled');
+          $j('#select-period ').val('1');
+        } else {
+          $j('#select-period option :eq(0)').removeAttr('disabled');
+          $j('#select-period').val('');
+        }
+        $j('#select-period').show();
+      } else {
+        $j('#select-period').hide();
+      }
       $j("#add-metric").removeAttr('disabled');
+
     });
     $j("#add-metric").on("click", function (e) {
-      var metric = $j("#select-metric option:selected").val();
-      cols.push('metric:' + metric);
+      var columnKey = $j("#select-metric option:selected").val();
+      var period = $j("#select-period option:selected").val();
+      if (period.length > 0) {
+        columnKey += ':' + period;
+      }
+      cols.push(columnKey);
       window.location = removeUrlAttr(decodeURI(window.location.href), 'cols\\[\\]') + '&' + $j.map(cols,function (a) {
         return 'cols[]=' + a;
       }).join('&');

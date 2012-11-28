@@ -22,12 +22,15 @@ class MeasureFilterDisplayList < MeasureFilterDisplay
   KEY = :list
 
   class Column
-    attr_reader :key, :metric
+    attr_reader :key, :metric, :period
 
     def initialize(key)
       @key = key
-      metric_key = @key.split(':')[1]
-      @metric = Metric.by_key(metric_key) if metric_key
+      fields = @key.split(':')
+      if fields.size>=2 && fields[0]=='metric'
+        @metric = Metric.by_key(fields[1])
+        @period = fields[2].to_i if fields.size>=3
+      end
     end
 
     def name
@@ -40,10 +43,10 @@ class MeasureFilterDisplayList < MeasureFilterDisplay
 
     def align
       @align ||=
-          begin
-            # by default is table cells are left-aligned
-            (@key=='name' || @key=='short_name' || @key=='description') ? '' : 'right'
-          end
+        begin
+          # by default is table cells are left-aligned
+          (@key=='name' || @key=='short_name' || @key=='description') ? '' : 'right'
+        end
     end
 
     def sort?
@@ -80,7 +83,8 @@ class MeasureFilterDisplayList < MeasureFilterDisplay
   end
 
   PROPERTY_KEYS = Set.new(['cols', 'sort', 'asc', 'pageSize'])
+
   def url_params
-    @filter.criteria.select{ |k,v| PROPERTY_KEYS.include?(k)}
+    @filter.criteria.select { |k, v| PROPERTY_KEYS.include?(k) }
   end
 end

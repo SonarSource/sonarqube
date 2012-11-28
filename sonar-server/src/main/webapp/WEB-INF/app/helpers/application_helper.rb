@@ -286,10 +286,10 @@ module ApplicationHelper
     if resource.display_dashboard?
       if options[:dashboard]
         link_to(name || resource.name, params.merge({:controller => 'dashboard', :action => 'index', :id => resource.id, :period => period_index,
-                                                              :tab => options[:tab], :rule => options[:rule]}), :title => options[:title])
+                                                     :tab => options[:tab], :rule => options[:rule]}), :title => options[:title])
       elsif options[:filter]
         link_to(name || resource.name, params.merge({:controller => 'dashboard', :action => 'index', :did => nil, :id => resource.id, :period => period_index,
-                                                                :tab => options[:tab], :rule => options[:rule]}), :title => options[:title])
+                                                     :tab => options[:tab], :rule => options[:rule]}), :title => options[:title])
       else
         # stay on the same page (for example components)
         link_to(name || resource.name, params.merge({:id => resource.id, :period => period_index, :tab => options[:tab], :rule => options[:rule]}), :title => options[:title])
@@ -571,7 +571,7 @@ module ApplicationHelper
     html += "\">"
     html += message('reviews.filtered_by.' + param_name)
     html += "<a href=\""
-    html += url_for params.reject{|key, value| key==param_name}
+    html += url_for params.reject { |key, value| key==param_name }
     html += "\" title=\""
     html += message('reviews.remove_this_filter')
     html += "\">X</a></span>"
@@ -611,20 +611,24 @@ module ApplicationHelper
 
       # Compare the non-digits
       case (chars1 <=> chars2)
-      when 0
-        # Non-digits are the same, compare the digits...
-        # If either number begins with a zero, then compare
-        # alphabetically, otherwise compare numerically
-        if (num1[0] != 48) and (num2[0] != 48)
-          num1, num2 = num1.to_i, num2.to_i
-        end
+        when 0
+          # Non-digits are the same, compare the digits...
+          # If either number begins with a zero, then compare
+          # alphabetically, otherwise compare numerically
+          if (num1[0] != 48) and (num2[0] != 48)
+            num1, num2 = num1.to_i, num2.to_i
+          end
 
-        case (num1 <=> num2)
-        when -1 then return -1
-        when 1 then return 1
-        end
-      when -1 then return -1
-      when 1 then return 1
+          case (num1 <=> num2)
+            when -1 then
+              return -1
+            when 1 then
+              return 1
+          end
+        when -1 then
+          return -1
+        when 1 then
+          return 1
       end # case
 
     end # while
@@ -664,17 +668,17 @@ module ApplicationHelper
 
     min_length = 3 # see limitation in /api/resources/search
     js_options={
-        'minimumInputLength' => min_length,
-        'formatNoMatches' => "function(term){return '#{escape_javascript message('select2.noMatches')}'}",
-        'formatSearching' => "function(){return '#{escape_javascript message('select2.searching')}'}",
-        'formatInputTooShort' => "function(term, minLength){return '#{escape_javascript message('select2.tooShort', :params => [min_length])}'}"
+      'minimumInputLength' => min_length,
+      'formatNoMatches' => "function(term){return '#{escape_javascript message('select2.noMatches')}'}",
+      'formatSearching' => "function(){return '#{escape_javascript message('select2.searching')}'}",
+      'formatInputTooShort' => "function(term, minLength){return '#{escape_javascript message('select2.tooShort', :params => [min_length])}'}"
     }
     js_options['width']= "'#{width}'" if width
-    js_options['ajax']='{' + ajax_options.map{|k,v| "#{k}:#{v}"}.join(',') + '}'
+    js_options['ajax']='{' + ajax_options.map { |k, v| "#{k}:#{v}" }.join(',') + '}'
     js_options.merge!(options[:select2_options]) if options[:select2_options]
 
     html = "<input type='hidden' id='#{html_id}' name='#{name}'/>"
-    js = "$j('##{html_id}').select2({#{js_options.map{|k,v| "#{k}:#{v}"}.join(',')}});"
+    js = "$j('##{html_id}').select2({#{js_options.map { |k, v| "#{k}:#{v}" }.join(',')}});"
 
     resource = options[:selected_resource]
     if resource
@@ -694,6 +698,8 @@ module ApplicationHelper
   # * <tt>:allow_empty</tt> - If set to true, selecting a value is not mandatory
   # * <tt>:width</tt> - The width suffixed with unit, for example '300px' or '100%'. Default is '250px'
   # * <tt>:html_id</tt> - The id of the HTML element. Default is the name.
+  # * <tt>:key_prefix</tt> - Prefix added to metric keys. Default is ''
+  # * <tt>:extra_values</tt> -
   #
   def metric_select_tag(name, metrics, options={})
     width=options[:width]||'250px'
@@ -713,10 +719,21 @@ module ApplicationHelper
       select_tag_prompt=''
     end
 
-    metrics_by_domain=metrics.sort_by(&:short_name).inject({}) do |h, metric|
+    extra_values = options[:extra_values]
+    metrics_by_domain={}
+    if extra_values
+      extra_values.inject(metrics_by_domain) do |h, extra_value|
+        h['']||=[]
+        h['']<<extra_value
+        h
+      end
+    end
+
+    key_prefix = options[:key_prefix]||''
+    metrics.sort_by(&:short_name).inject(metrics_by_domain) do |h, metric|
       domain=metric.domain||''
       h[domain]||=[]
-      h[domain]<<[metric.short_name, metric.key]
+      h[domain]<<[metric.short_name, key_prefix + metric.key]
       h
     end
 
@@ -724,7 +741,7 @@ module ApplicationHelper
                       :multiple => options[:multiple],
                       :disabled => options[:disabled],
                       :id => html_id)
-    js = "$j('##{html_id}').select2({#{js_options.map{|k,v| "#{k}:#{v}"}.join(',')}});"
+    js = "$j('##{html_id}').select2({#{js_options.map { |k, v| "#{k}:#{v}" }.join(',')}});"
     "#{html}<script>#{js}</script>"
   end
 
@@ -752,7 +769,7 @@ module ApplicationHelper
     url += "&tk=#{u title_key}" if title_key
     if message_key
       url += "&mk=#{u message_key}&"
-      url += message_params.map{|p| "mp[]=#{u p}"}.join('&') if message_params
+      url += message_params.map { |p| "mp[]=#{u p}" }.join('&') if message_params
     end
     if button_key
       url += "&bk=#{u button_key}"
