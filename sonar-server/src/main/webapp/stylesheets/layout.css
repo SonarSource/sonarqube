@@ -123,7 +123,7 @@ body, a {
   margin: 0;
   background: #EFEFEF url("../images/bc-gray.png") no-repeat left;
   border-bottom: 1px solid #CCC;
-  padding: 0 10px 0 20px;
+  padding: 0 10px 0 25px;
 }
 
 #bc li.first {

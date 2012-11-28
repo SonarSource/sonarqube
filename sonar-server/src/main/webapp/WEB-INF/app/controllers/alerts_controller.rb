@@ -29,9 +29,11 @@ class AlertsController < ApplicationController
   #
   #
   def index
+    require_parameters :id
     @profile = Profile.find(params[:id])
     @alerts = @profile.alerts.sort
     @alert=Alert.new
+    add_breadcrumbs ProfilesController::ROOT_BREADCRUMB, Api::Utils.language_name(@profile.language), @profile.name
   end
 
   #

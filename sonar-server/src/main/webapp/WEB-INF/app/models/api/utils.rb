@@ -176,7 +176,8 @@ class Api::Utils
   end
 
   def self.language_name(key)
-    language(key) ? language(key).name : key
+    l = language(key)
+    l ? l.name : key
   end
 
 end

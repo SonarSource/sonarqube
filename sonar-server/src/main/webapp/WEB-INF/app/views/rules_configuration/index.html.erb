@@ -31,8 +31,6 @@
   }
 </script>
 
-<h1 class="marginbottom10"><%= link_to message('quality_profiles.quality_profiles'), :controller => 'profiles', :action => 'index' -%> / <%= h @profile.language -%> / <%= h @profile.name %></h1>
-
 <%= render :partial => 'profiles/tabs', :locals => {:selected_tab=>'Coding rules'} %>
 
 <% enable_modification = is_admin? %>

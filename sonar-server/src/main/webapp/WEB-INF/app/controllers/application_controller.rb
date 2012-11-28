@@ -174,7 +174,7 @@ class ApplicationController < ActionController::Base
 
 
   #
-  # FILTERS
+  # RAILS FILTERS
   #
   def init_resource_for_user_role
     init_resource_for_role :user
@@ -193,5 +193,12 @@ class ApplicationController < ActionController::Base
     not_found("Snapshot not found") unless @snapshot
 
     access_denied unless has_role?(role, @resource)
+  end
+
+
+  # BREADCRUMBS
+  def add_breadcrumbs(*breadcrumbs)
+    @breadcrumbs ||= []
+    @breadcrumbs.concat(breadcrumbs)
   end
 end

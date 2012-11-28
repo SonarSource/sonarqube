@@ -34,16 +34,10 @@ class RulesConfigurationController < ApplicationController
   before_filter :admin_required, :except => ['index', 'export']
 
   def index
-    if params[:id].to_i<=0
-      redirect_to :controller => 'profiles'
-      return
-    end
-    begin
-      @profile = Profile.find(params[:id].to_i)
-    rescue
-      redirect_to :controller => 'profiles'
-      return
-    end
+    require_parameters :id
+
+    @profile = Profile.find(params[:id])
+    add_breadcrumbs ProfilesController::ROOT_BREADCRUMB, Api::Utils.language_name(@profile.language), @profile.name
 
     init_params()
 

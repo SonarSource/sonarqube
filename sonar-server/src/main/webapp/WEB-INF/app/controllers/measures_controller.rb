@@ -19,6 +19,7 @@
 #
 class MeasuresController < ApplicationController
 
+
   # GET /measures/index
   def index
     @filter = MeasureFilter.new
@@ -191,5 +192,4 @@ class MeasuresController < ApplicationController
   def owner?(filter)
     current_user && (filter.user_id==current_user.id || (filter.user_id==nil && has_role?(:admin)))
   end
-
 end

@@ -22,17 +22,13 @@ class ProfilesController < ApplicationController
   # the backup action is allow to non-admin users : see http://jira.codehaus.org/browse/SONAR-2039
   before_filter :admin_required, :only => ['create', 'delete', 'set_as_default', 'copy', 'restore', 'change_parent', 'set_projects', 'rename_form', 'rename']
 
+  ROOT_BREADCRUMB = {:name => Api::Utils.message('quality_profiles.page'), :url => {:controller => 'profiles', :action => 'index'}}
+
   # GET /profiles/index
   def index
+    add_breadcrumbs ROOT_BREADCRUMB
     @profiles = Profile.find(:all)
     Api::Utils.insensitive_sort!(@profiles){|profile| profile.name}
-  end
-
-
-  # GET /profiles/show/<id>
-  def show
-    require_parameters 'id'
-    @profile = Profile.find(params[:id])
   end
 
 
@@ -124,7 +120,6 @@ class ProfilesController < ApplicationController
     end
   end
 
-
   # POST /profiles/backup?id=<profile id>
   def backup
     verify_post_request
@@ -185,6 +180,8 @@ class ProfilesController < ApplicationController
 
     profiles=Profile.find(:all, :conditions => ['language=? and id<>? and (parent_name is null or parent_name<>?)', @profile.language, @profile.id, @profile.name], :order => 'name')
     @select_parent = [[message('none'), nil]] + profiles.collect { |profile| [profile.name, profile.name] }
+
+    set_profile_breadcrumbs
   end
 
   # GET /profiles/changelog?id=<profile id>
@@ -214,6 +211,8 @@ class ProfilesController < ApplicationController
 
       @select_versions = versions.map { |u| [message(u.profile_version == last_version ? 'quality_profiles.last_version_x_with_date' : 'quality_profiles.version_x_with_date', :params => [u.profile_version.to_s, l(u.change_date)]), u.profile_version] } | [[message('quality_profiles.no_version'), 0]];
     end
+
+    set_profile_breadcrumbs
   end
 
 
@@ -242,6 +241,7 @@ class ProfilesController < ApplicationController
   def permalinks
     require_parameters 'id'
     @profile = Profile.find(params[:id])
+    set_profile_breadcrumbs
   end
 
 
@@ -253,6 +253,7 @@ class ProfilesController < ApplicationController
   def projects
     require_parameters 'id'
     @profile = Profile.find(params[:id])
+    set_profile_breadcrumbs
   end
 
 
@@ -321,7 +322,6 @@ class ProfilesController < ApplicationController
     end
   end
 
-
   # GET /profiles/compare?id1=<profile1 id>&id2=<profile2 id>
   def compare
     @profiles = Profile.find(:all, :order => 'language asc, name')
@@ -363,6 +363,7 @@ class ProfilesController < ApplicationController
         end
       end
     end
+    add_breadcrumbs ROOT_BREADCRUMB, Api::Utils.message('compare')
   end
 
   DIFF_IN1=1
@@ -505,5 +506,9 @@ class ProfilesController < ApplicationController
     if messages.hasInfos()
       flash[:notice]=messages.getInfos().to_a[0...4].join('<br/>')
     end
+  end
+
+  def set_profile_breadcrumbs
+    add_breadcrumbs ROOT_BREADCRUMB, Api::Utils.language_name(@profile.language), @profile.name
   end
 end

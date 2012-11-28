@@ -3,9 +3,11 @@
 %>
   <div id="crumbs">
     <% if !@review %>
-    <ul id="crumbs-ops">
-      <li><a href="<%= url_for(:overwrite_params => {:id => displayed_resource.key})-%>"><img src="<%= ApplicationController.root_context -%>/images/permalink.png" width="16" height="16" title="<%= message('permalink') -%>"/></a></li>
-    </ul>
+      <ul id="crumbs-ops">
+        <li>
+          <a href="<%= url_for(:overwrite_params => {:id => displayed_resource.key}) -%>"><img src="<%= ApplicationController.root_context -%>/images/permalink.png" width="16" height="16" title="<%= message('permalink') -%>"/></a>
+        </li>
+      </ul>
     <% end %>
     <ul id="bc">
       <%
@@ -48,6 +50,30 @@
       <%
          end
       %>
+    </ul>
+  </div>
+<% elsif @breadcrumbs %>
+  <div id="crumbs">
+    <ul id="bc">
+      <%
+         @breadcrumbs.each_with_index do |breadcrumb, index|
+      %>
+        <li<%= ' class=first' if index==0 -%>>
+          <% if breadcrumb.is_a?(String) %>
+            <span><%= h breadcrumb -%></span>
+          <%
+             elsif breadcrumb.is_a?(Hash)
+               name = breadcrumb[:name]
+               url = breadcrumb[:url]
+               icon = breadcrumb[:icon]
+          %>
+            <%= image_tag icon if icon %>
+            <%= link_to_if url, name, url -%>
+          <% elsif breadcrumb.respond_to?(:html) %>
+            <%= breadcrumb.html -%>
+          <% end %>
+        </li>
+      <% end %>
     </ul>
   </div>
 <% end %>
