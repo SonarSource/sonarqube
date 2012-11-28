@@ -42,7 +42,9 @@ class MeasureFilterDisplay
     @options = options
   end
 
+  # sorted array of parameters :
+  # [[key1,value1], [key2,value2]]
   def url_params
-    {}
+    []
   end
 end

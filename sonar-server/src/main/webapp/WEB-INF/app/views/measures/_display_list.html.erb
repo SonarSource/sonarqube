@@ -39,9 +39,20 @@
         });
       }
       function deleteCol(id) {
-
+        var cell = $j('#measures-table tr.admin td[index=' + id + ']');
+        var columnIndex = cell.parent().children().index(cell);
+        cols.splice(columnIndex, 1);
+        $j('#measures-table thead tr').each(function () {
+          var tr = $j(this);
+          var td1 = tr.find('th:eq(' + columnIndex + ')');
+          td1.detach();
+        });
+        $j('#measures-table tbody tr').each(function () {
+          var tr = $j(this);
+          var td1 = tr.find('td:eq(' + columnIndex + ')');
+          td1.detach();
+        });
       }
-
     </script>
   <%
      end
@@ -103,7 +114,7 @@
       <% @filter.display.columns.each_with_index do |column, index| %>
         <td class="<%= column.align -%>" index="<%= index -%>">
           <a href="javascript:leftCol(<%= index -%>)" title="<%= message('move_left') -%>"><%= image_tag("controls/resultset_previous.png") -%></a>
-          <a href="#" onclick="deleteCol(<%= index -%>)" title="<%= message('delete_column') -%>"><%= image_tag("bin_closed.png") -%></a>
+          <a href="javascript:deleteCol(<%= index -%>)" title="<%= message('delete_column') -%>"><%= image_tag("bin_closed.png") -%></a>
           <a href="javascript:rightCol(<%= index -%>)" title="<%= message('move_right') -%>"><%= image_tag("controls/resultset_next.png") -%></a>
         </td>
       <% end %>

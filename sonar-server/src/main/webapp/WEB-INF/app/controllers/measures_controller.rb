@@ -31,9 +31,7 @@ class MeasuresController < ApplicationController
     else
       @filter = MeasureFilter.new
     end
-    puts "params:---------- #{params}"
     @filter.criteria=(params)
-    puts "criteria: ------------#{@filter.criteria}"
     @filter.enable_default_display
     @filter.execute(self, :user => current_user)
   end
