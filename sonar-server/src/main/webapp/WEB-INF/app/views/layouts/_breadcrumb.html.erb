@@ -1,4 +1,28 @@
-<% if @resource || @project
+<% if @breadcrumbs %>
+  <div id="crumbs">
+    <ul id="bc">
+      <%
+         @breadcrumbs.each_with_index do |breadcrumb, index|
+      %>
+        <li<%= ' class=first' if index==0 -%>>
+          <% if breadcrumb.is_a?(String) %>
+            <span><%= h breadcrumb -%></span>
+          <%
+             elsif breadcrumb.is_a?(Hash)
+               name = breadcrumb[:name]
+               url = breadcrumb[:url]
+               icon = breadcrumb[:icon]
+          %>
+            <% if icon %><img src="<%= ApplicationController.root_context -%>/images/<%= icon -%>" width="16" height="16"><% end %>
+            <%= link_to_if url, name, url -%>
+          <% elsif breadcrumb.respond_to?(:html) %>
+            <%= breadcrumb.html -%>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+<% elsif @resource || @project
      displayed_resource = @resource || @project
 %>
   <div id="crumbs">
@@ -50,30 +74,6 @@
       <%
          end
       %>
-    </ul>
-  </div>
-<% elsif @breadcrumbs %>
-  <div id="crumbs">
-    <ul id="bc">
-      <%
-         @breadcrumbs.each_with_index do |breadcrumb, index|
-      %>
-        <li<%= ' class=first' if index==0 -%>>
-          <% if breadcrumb.is_a?(String) %>
-            <span><%= h breadcrumb -%></span>
-          <%
-             elsif breadcrumb.is_a?(Hash)
-               name = breadcrumb[:name]
-               url = breadcrumb[:url]
-               icon = breadcrumb[:icon]
-          %>
-            <%= image_tag icon if icon %>
-            <%= link_to_if url, name, url -%>
-          <% elsif breadcrumb.respond_to?(:html) %>
-            <%= breadcrumb.html -%>
-          <% end %>
-        </li>
-      <% end %>
     </ul>
   </div>
 <% end %>
