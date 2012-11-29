@@ -198,6 +198,20 @@ public class CheckAlertThresholdsTest {
   }
 
   @Test
+  public void shouldBeOkIfVariationIsNull() {
+    measureClasses.setVariation1(null);
+
+    when(profile.getAlerts()).thenReturn(Arrays.asList(
+        new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_GREATER, null, "10", 1)
+    ));
+
+    decorator.decorate(project, context);
+
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.OK, null)));
+    verify(context).saveMeasure(argThat(hasLevel(measureClasses, Metric.Level.OK)));
+  }
+
+  @Test
   public void shouldVariationPeriodValueCouldBeUsedForRatingMetric() {
     Metric ratingMetric = new Metric.Builder("key.rating", "name.rating", Metric.ValueType.RATING).create();
     Measure measureRatingMetric = new Measure(ratingMetric, 150d);

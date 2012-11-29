@@ -50,14 +50,16 @@ public final class AlertUtils {
     }
 
     Comparable criteriaValue = getValueForComparison(alert.getMetric(), valueToEval);
-    Comparable metricValue = getMeasureValue(alert, measure);
-
-    int comparison = metricValue.compareTo(criteriaValue);
-    return !(// NOSONAR complexity of this boolean expression is under control
-        (alert.isNotEqualsOperator() && comparison == 0)
-            || (alert.isGreaterOperator() && comparison != 1)
-            || (alert.isSmallerOperator() && comparison != -1)
-            || (alert.isEqualsOperator() && comparison != 0));
+    Comparable measureValue = getMeasureValue(alert, measure);
+    if (measureValue != null) {
+      int comparison = measureValue.compareTo(criteriaValue);
+      return !(// NOSONAR complexity of this boolean expression is under control
+          (alert.isNotEqualsOperator() && comparison == 0)
+              || (alert.isGreaterOperator() && comparison != 1)
+              || (alert.isSmallerOperator() && comparison != -1)
+              || (alert.isEqualsOperator() && comparison != 0));
+    }
+    return false;
   }
 
   private static String getValueToEval(Alert alert, Metric.Level alertLevel) {
@@ -100,7 +102,8 @@ public final class AlertUtils {
     }
     if (metric.getType() == Metric.ValueType.INT ||
         metric.getType() == Metric.ValueType.MILLISEC) {
-      return getValue(alert, measure).intValue();
+      Double value = getValue(alert, measure);
+      return value != null ? value.intValue() : null;
     }
     if (alert.getPeriod() == null) {
       if (metric.getType() == Metric.ValueType.STRING ||
