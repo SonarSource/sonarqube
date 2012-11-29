@@ -1,5 +1,13 @@
 <% if @breadcrumbs %>
+
   <div id="crumbs">
+    <% if @permalink %>
+      <ul id="crumbs-ops">
+        <li>
+          <a href="<%= @permalink -%>"><img src="<%= ApplicationController.root_context -%>/images/permalink.png" width="16" height="16" title="<%= message('permalink') -%>"/></a>
+        </li>
+      </ul>
+    <% end %>
     <ul id="bc">
       <%
          @breadcrumbs.each_with_index do |breadcrumb, index|
@@ -22,9 +30,11 @@
       <% end %>
     </ul>
   </div>
+  
 <% elsif @resource || @project
      displayed_resource = @resource || @project
 %>
+
   <div id="crumbs">
     <% if !@review %>
       <ul id="crumbs-ops">
@@ -76,4 +86,5 @@
       %>
     </ul>
   </div>
+
 <% end %>

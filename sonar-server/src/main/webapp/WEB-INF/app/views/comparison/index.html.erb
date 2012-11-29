@@ -49,7 +49,7 @@
           <th class="thin move-actions" style="padding: 5px !important;">
             <table>
               <tr>
-                <td style="vertical-align: top;">
+                <td style="vertical-align: bottom;">
                   <% if index > 0 %>
                     <a href="#" onclick="moveLeft(<%= index -%>)"><img src="<%= ApplicationController.root_context -%>/images/controls/move_left.png" title="<%= message('comparison.move_left') -%>"/></a>
                   <% else %>
@@ -57,14 +57,14 @@
                   <% end %>
                 </td>
                 <td class="nowrap" style="text-align: center;">
-                  <div style="width: 100%; text-align: center;"><a href="#" onclick="removeFromList(<%= index -%>, $j('#sids'))"><img src="<%= ApplicationController.root_context -%>/images/controls/cross.png" title="<%= message('comparison.remove_resource') -%>"/></a></div>
                   <a href="<%= ApplicationController.root_context -%>/dashboard/index/<%= s.resource.key -%>"><%= s.resource.name(true) -%></a>
                   <br/>
                   <span class="note"><b><%= s.event(EventCategory::KEY_VERSION).name -%></b></span>
                   <br/>
                   <span class="note"><%= human_short_date s.created_at -%></span>
+                  <div style="width: 100%; text-align: center;"><a href="#" onclick="removeFromList(<%= index -%>, $j('#sids'))"><img src="<%= ApplicationController.root_context -%>/images/controls/cross.png" title="<%= message('comparison.remove_resource') -%>"/></a></div>
                 </td>
-                <td class="thin" style="vertical-align: top;">
+                <td class="thin" style="vertical-align: bottom;">
                   <% if index < last_index %>
                     <a href="#" onclick="moveRight(<%= index -%>)"><img src="<%= ApplicationController.root_context -%>/images/controls/move_right.png" title="<%= message('comparison.move_right') -%>"/></a>
                   <% else %>
@@ -122,12 +122,6 @@
             </script>
           </span>  
         </th>
-        
-        <th class="thin" style="vertical-align: top">
-          <a href="<%= url_for :controller => 'comparison', :action => 'index', :sids => @snapshots.map {|s| s.id.to_s}.join(','), :metrics => @metrics.map {|m| m.key}.join(',') -%>">
-            <img src="<%= ApplicationController.root_context -%>/images/permalink.png" title="<%= message('permalink') -%>"/>
-          </a>
-        </th>
       </thead>
         
       <tbody>
@@ -155,7 +149,6 @@
               </td>
             <% end %>
             
-            <td></td>
             <td></td>
           </tr>
         <% end %> 
