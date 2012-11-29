@@ -30,9 +30,6 @@
         <img src="<%= ApplicationController.root_context -%>/images/loading-small.gif" id="searchingResources" style="display:none">
       </li>
       <li>
-        <a href="javascript:window.print()"><img src="<%= ApplicationController.root_context -%>/images/print.gif" alt="<%= message('layout.print') -%>" title="<%= message('layout.print') -%>"/></a>
-      </li>
-      <li>
         <a href="<%= ApplicationController.root_context -%>/settings/index"><img src="<%= ApplicationController.root_context -%>/images/actions.png" alt="<%= message('layout.configuration') -%>" title="<%= message('layout.configuration') -%>"/></a>
       </li>
       <% unless logged_in? %>
