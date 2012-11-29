@@ -1,85 +1,118 @@
+<% content_for :style do %>
+  <style type="text/css">
+    #search-form [type="text"].large-input {
+      width: 180px;
+    }
+
+    #search-form select.large-input {
+      width: 100%;
+      box-sizing: border-box;
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+    }
+
+    #search-form select option {
+      padding: 1px 10px 1px 22px;
+    }
+  </style>
+<% end %>
+
 <div id="reviews-search">
-  <% form_tag({:action => 'index'}, {:method => 'get'}) do %>
-    <table id="reviews-form" class="header1">
-      <thead>
-      <tr>
-        <th colspan="6"></th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr>
-        <td width="1%" nowrap>
-          <span class="note"><%= message('status') -%></span><br/>
-          <select size="6" name="statuses[]" multiple="multiple" id="statuses" class="withIcons">
-            <option <%= 'selected' if @statuses.include?('') -%> value=""><%= message('any') -%></option>
-            <option value="<%= Review::STATUS_OPEN -%>" class="status_open" <%= 'selected' if @statuses.include?(Review::STATUS_OPEN) -%>><%= message('reviews.status.OPEN') -%></option>
-            <option value="<%= Review::STATUS_REOPENED -%>" class="status_reopened" <%= 'selected' if @statuses.include?(Review::STATUS_REOPENED) -%>><%= message('reviews.status.REOPENED') -%></option>
-            <option value="<%= Review::STATUS_RESOLVED -%>" class="status_resolved" <%= 'selected' if @statuses.include?(Review::STATUS_RESOLVED) -%>><%= message('reviews.status.RESOLVED') -%></option>
-            <option value="<%= Review::STATUS_CLOSED -%>" class="status_closed" <%= 'selected' if @statuses.include?(Review::STATUS_CLOSED) -%>><%= message('reviews.status.CLOSED') -%></option>
-          </select>
-        </td>
-        <td width="1%" nowrap>
-          <span class="note"><%= message('severity') -%></span><br/>
-          <select size="6" name="severities[]" multiple="multiple" id="severities" class="withIcons">
-            <option <%= 'selected' if @severities.include?('') -%> value=""><%= message('any') -%></option>
-            <option value="<%= Severity::BLOCKER -%>" class="sev_BLOCKER" <%= 'selected' if @severities.include?(Severity::BLOCKER) -%>><%= message('blocker') -%></option>
-            <option value="<%= Severity::CRITICAL -%>" class="sev_CRITICAL" <%= 'selected' if @severities.include?(Severity::CRITICAL) -%>><%= message('critical') -%></option>
-            <option value="<%= Severity::MAJOR -%>" class="sev_MAJOR" <%= 'selected' if @severities.include?(Severity::MAJOR) -%>><%= message('major') -%></option>
-            <option value="<%= Severity::MINOR -%>" class="sev_MINOR" <%= 'selected' if @severities.include?(Severity::MINOR) -%>><%= message('minor') -%></option>
-            <option value="<%= Severity::INFO -%>" class="sev_INFO" <%= 'selected' if @severities.include?(Severity::INFO) -%>><%= message('info') -%></option>
-          </select>
-        </td>
-        <td width="1%" nowrap>
-          <span class="note"><%= message('project') -%></span><br/>
-          <select size="6" name="projects[]" multiple="multiple" id="projects">
-            <option <%= 'selected' if @projects.include?('') -%> value=""><%= message('any') -%></option>
-            <% projects_for_select.each do |project|
-              name=project.name(true)
-            %>
-              <option value="<%= project.id -%>" title="<%= h(name) -%>" <%= 'selected' if @projects.include?(project.id.to_s) -%>><%= h(truncate(name, :length => 20)) -%></option>
-            <% end %>
-          </select>
-        </td>
-        <td width="1%" nowrap>
-          <span class="note"><%= message('created_by') -%></span><br/>
-          <%= user_autocomplete_field "author_login", @author_login, {:class => "max-width"} -%>
-          <br/>
-          <span class="note"><%= message('assigned_to') -%></span><br/>
-          <%= user_autocomplete_field "assignee_login", @assignee_login, {:class => "max-width"} -%>
-          <br/>
-          <br/>
-          <select name="false_positives" id="false_positives" onchange="if(this.value=='only' || this.value=='with') {$('assignee_login').value = ''; $('autocompleteText-assignee_login').value = ''; $('statuses').value = '';};">
-            <option <%= 'selected' if @false_positives=='without' -%> value="without"><%= message('reviews.without_false_positives') -%></option>
-            <option <%= 'selected' if @false_positives=='only' -%> value="only"><%= message('reviews.only_false_positives') -%></option>
-          </select>
-        </td>
-        <td width="1%" style="padding-left: 20px" nowrap>
-          <span class="note"><%= message('identifier_abbreviated') -%></span><br/>
-          <%= text_field_tag "review_id", @id, :size => 10, :onkeyup => "reviewIdFieldModified(this)" -%>
-          <br/>
-          <br/>
-          <br/>
-          <br/>
-          <br/>
 
-          <div style="width:100%; text-align: right">
-            <input type="hidden" name="sort" id="sort" value="<%= @sort -%>"/>
-            <input type="hidden" name="asc" id="asc" value="<%= @asc -%>"/>
-            <%= submit_tag message('search_verb'), :id => 'submit_search' %>
-          </div>
-        </td>
-        <td>
-        </td>
-      </tr>
-      </tbody>
-    </table>
-  <% end %>
+  <div class="page-split-left">
+    <form id="search-form" method="GET" action="<%= ApplicationController.root_context -%>/reviews/index">
+      <table class="width100">
+        <tbody>
+          <tr>
+            <td class="width100">
+              <%= message('identifier_abbreviated') -%>:
+              <br/>
+              <%= text_field_tag "review_id", @id, :size => 10, :onkeyup => "reviewIdFieldModified(this)" -%>
+            </td>
+          </tr>
+          <tr>
+            <td class="width100">
+              <%= message('status') -%>:
+              <br/>
+              <select size="6" name="statuses[]" multiple="multiple" id="statuses" class="withIcons large-input">
+                <option <%= 'selected' if @statuses.include?('') -%> value=""><%= message('any') -%></option>
+                <option value="<%= Review::STATUS_OPEN -%>" class="status_open" <%= 'selected' if @statuses.include?(Review::STATUS_OPEN) -%>><%= message('reviews.status.OPEN') -%></option>
+                <option value="<%= Review::STATUS_REOPENED -%>" class="status_reopened" <%= 'selected' if @statuses.include?(Review::STATUS_REOPENED) -%>><%= message('reviews.status.REOPENED') -%></option>
+                <option value="<%= Review::STATUS_RESOLVED -%>" class="status_resolved" <%= 'selected' if @statuses.include?(Review::STATUS_RESOLVED) -%>><%= message('reviews.status.RESOLVED') -%></option>
+                <option value="<%= Review::STATUS_CLOSED -%>" class="status_closed" <%= 'selected' if @statuses.include?(Review::STATUS_CLOSED) -%>><%= message('reviews.status.CLOSED') -%></option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td class="width100">
+              <%= message('severity') -%>:
+              <br/>
+              <select size="6" name="severities[]" multiple="multiple" id="severities" class="withIcons large-input">
+                <option <%= 'selected' if @severities.include?('') -%> value=""><%= message('any') -%></option>
+                <option value="<%= Severity::BLOCKER -%>" class="sev_BLOCKER" <%= 'selected' if @severities.include?(Severity::BLOCKER) -%>><%= message('blocker') -%></option>
+                <option value="<%= Severity::CRITICAL -%>" class="sev_CRITICAL" <%= 'selected' if @severities.include?(Severity::CRITICAL) -%>><%= message('critical') -%></option>
+                <option value="<%= Severity::MAJOR -%>" class="sev_MAJOR" <%= 'selected' if @severities.include?(Severity::MAJOR) -%>><%= message('major') -%></option>
+                <option value="<%= Severity::MINOR -%>" class="sev_MINOR" <%= 'selected' if @severities.include?(Severity::MINOR) -%>><%= message('minor') -%></option>
+                <option value="<%= Severity::INFO -%>" class="sev_INFO" <%= 'selected' if @severities.include?(Severity::INFO) -%>><%= message('info') -%></option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td class="width100">
+              <%= message('project') -%>:
+              <br/>
+              <select size="6" name="projects[]" multiple="multiple" id="projects" class="large-input">
+                <option <%= 'selected' if @projects.include?('') -%> value=""><%= message('any') -%></option>
+                <% projects_for_select.each do |project|
+                  name=project.name(true)
+                %>
+                  <option value="<%= project.id -%>" title="<%= h(name) -%>" <%= 'selected' if @projects.include?(project.id.to_s) -%>><%= h(truncate(name, :length => 20)) -%></option>
+                <% end %>
+              </select>  
+            </td>
+          </tr>
+          <tr>
+            <td class="width100">
+              <%= message('created_by') -%>:
+              <br/>
+              <%= user_autocomplete_field "author_login", @author_login, {:class => "large-input"} -%>
+            </td>
+          </tr>
+          <tr>
+            <td class="width100">
+              <%= message('assigned_to') -%>:
+              <br/>
+              <%= user_autocomplete_field "assignee_login", @assignee_login, {:class => "large-input"} -%>
+            </td>
+          </tr>
+          <tr>
+            <td class="width100" style="padding-top: 5px;">
+              <select name="false_positives" id="false_positives" onchange="if(this.value=='only' || this.value=='with') {$('assignee_login').value = ''; $('autocompleteText-assignee_login').value = ''; $('statuses').value = '';};">
+                <option <%= 'selected' if @false_positives=='without' -%> value="without"><%= message('reviews.without_false_positives') -%></option>
+                <option <%= 'selected' if @false_positives=='only' -%> value="only"><%= message('reviews.only_false_positives') -%></option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td class="width100">
+              <input type="hidden" name="sort" id="sort" value="<%= @sort -%>"/>
+              <input type="hidden" name="asc" id="asc" value="<%= @asc -%>"/>
+              <br/>
+              <%= submit_tag message('search_verb'), :id => 'submit_search' %>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </form>
+  </div>
 
-  <% if @false_positives=='only' %>
-    <span class="falsePositive"><%= message('reviews.showing_false_positives_only') -%></span>
-  <% end %>
+  <div class="page-split-right width100">
+    <% if @false_positives=='only' %>
+      <span class="falsePositive"><%= message('reviews.showing_false_positives_only') -%></span>
+    <% end %>
 
-  <%= render :partial => "list" -%>
+    <%= render :partial => "list" -%>
+  </div>
 
 </div>
 
