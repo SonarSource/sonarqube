@@ -2,7 +2,7 @@
   if (sonarRecentHistory != null) {
     sonarRecentHistory.add('<%= @resource.key -%>', 
                            '<%= @resource.name(true) -%>', 
-                           '<%= @resource.qualifier -%>');
+                           '<%= @resource ? Java::OrgSonarServerUi::JRubyFacade.getInstance().getResourceType(@resource.qualifier).getIconPath() : "" -%>');
   }  
 </script>
 
