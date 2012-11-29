@@ -33,6 +33,11 @@ class MeasureFilterDisplayTreemap < MeasureFilterDisplay
     @filter.metrics=([@size_metric, @color_metric].compact)
     @height = (@filter.criteria('tmHeight')||'600').to_i
     @id_count = 0
+
+    filter.set_criteria_value('sort', "metric:#{@size_metric.key}")
+    filter.set_criteria_value('asc', 'true')
+    filter.pagination.per_page = 500
+    filter.pagination.page = 1
   end
 
   def html
@@ -132,7 +137,7 @@ border: 1px solid #{node.color};' alt=\"#{node.tooltip}\" title=\"#{node.tooltip
   def draw_label(node)
     if node.leaf
       "<a onclick=\"window.open(this.href,'resource','height=800,width=900,scrollbars=1,resizable=1');return false;\" " +
-        "href=\"#{ApplicationController.root_context}/resource/index/#{node.rid}\">#{node_label(node)}</a>"
+          "href=\"#{ApplicationController.root_context}/resource/index/#{node.rid}\">#{node_label(node)}</a>"
     else
       "<a href='#{ApplicationController.root_context}/dashboard/index/#{node.rid}'>#{node_label(node)}</a>"
     end
