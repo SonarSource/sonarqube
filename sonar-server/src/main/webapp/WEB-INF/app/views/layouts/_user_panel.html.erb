@@ -27,8 +27,6 @@
         <a href="<%= ApplicationController.root_context -%>/sessions/logout" class="link-action" onclick="if (sonarRecentHistory) { sonarRecentHistory.clear(); };"><%= message('layout.logout') -%></a>
       <% else %>
         <b><%= message('layout.user_panel.anonymous_user') -%></b>
-        <br/>
-        <span class="note"><%= message('layout.user_panel.non_authenticated_user') -%></span>
       <% end %>
     </div>
     
