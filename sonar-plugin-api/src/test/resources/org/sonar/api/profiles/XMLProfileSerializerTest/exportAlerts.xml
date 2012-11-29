@@ -6,6 +6,7 @@
   <alerts>
     <alert>
       <metric>coverage</metric>
+      <period>1</period>
       <operator>&lt;</operator>
       <error>60</error>
       <warning>80</warning>
