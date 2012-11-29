@@ -1,0 +1,8 @@
+<% if @versions %>
+
+  <option value=""></option>
+  <% @versions.each do |version| %>
+    <option value="<%= version.snapshot_id -%>"><%= version.name -%></option>
+  <% end %>
+  
+<% end %>

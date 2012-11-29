@@ -45,8 +45,10 @@ import java.util.Map;
  * <li>"updatable_key" (since 3.2): if set to "true", then it is possible to update the key of this resource</li>
  * <li>"supportsGlobalDashboards" (since 3.2): if true, this resource can be displayed in global dashboards</li>
  * <li>"hasRolePolicy" : if true, roles configuration is available in sidebar</li>
+ * <li>"comparable" (since 3.4) : if true, the resource can be compared to other resources</li>
  * </ul>
  *
+ * @see DefaultResourceTypes in Sonar Core Plugin to see the default resource types
  * @since 2.14
  */
 @Beta

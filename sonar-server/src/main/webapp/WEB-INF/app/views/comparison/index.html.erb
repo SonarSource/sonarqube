@@ -1,0 +1,216 @@
+<style type="text/css">
+  #comparison-page td {
+    vertical-align: middle;
+  }
+  
+  .move-actions img {
+    visibility: hidden;
+  }
+  
+  .move-actions:hover img {
+    visibility: visible;
+  }
+</style>
+
+<div id="comparison-page">
+  <form method="GET" id="compare-form" action="<%= ApplicationController.root_context -%>/comparison/index">
+    <input type="hidden" name="sids" id="sids" value="<%= @snapshots.map {|s| s.id.to_s}.join(',') -%>">
+    <input type="hidden" name="metrics" id="metrics" value="<%= @metrics.map {|m| m.key}.join(',') -%>">
+    
+    <table class="data">
+        
+      <thead>
+        <th class="thin" style="vertical-align: bottom">
+          <%= metric_select_tag 'new_metric', @metric_to_choose, {
+              :allow_empty => true, 
+              :select2_options => {'placeholder' => "'" + message('comparison.add_a_new_metric') + "'"}
+              } -%>
+          <script>
+            // we don't want this parameter to be submitted, so we set its name to ''
+            $j('#new_metric').attr('name', '');
+            $j('#new_metric').on("change", function(e) { 
+              if (e.val!=null) {
+                var currentMetrics = $j('#metrics').val();
+                if (currentMetrics.length > 0) {
+                  currentMetrics += ',';
+                }
+                currentMetrics += e.val;
+                $j('#metrics').val(currentMetrics);
+                $j('#compare-form').submit();
+              }
+            });
+          </script>
+        </th>
+        
+        <%
+          last_index = @snapshots.size-1 
+          @snapshots.each_with_index do |s, index| 
+        %>
+          <th class="thin move-actions" style="padding: 5px !important;">
+            <table>
+              <tr>
+                <td style="vertical-align: top;">
+                  <% if index > 0 %>
+                    <a href="#" onclick="moveLeft(<%= index -%>)"><img src="<%= ApplicationController.root_context -%>/images/controls/move_left.png" title="<%= message('comparison.move_left') -%>"/></a>
+                  <% else %>
+                    <img src="<%= ApplicationController.root_context -%>/images/transparent_16.gif"/>
+                  <% end %>
+                </td>
+                <td class="nowrap" style="text-align: center;">
+                  <div style="width: 100%; text-align: center;"><a href="#" onclick="removeFromList(<%= index -%>, $j('#sids'))"><img src="<%= ApplicationController.root_context -%>/images/controls/cross.png" title="<%= message('comparison.remove_resource') -%>"/></a></div>
+                  <a href="<%= ApplicationController.root_context -%>/dashboard/index/<%= s.resource.key -%>"><%= s.resource.name(true) -%></a>
+                  <br/>
+                  <span class="note"><b><%= s.event(EventCategory::KEY_VERSION).name -%></b></span>
+                  <br/>
+                  <span class="note"><%= human_short_date s.created_at -%></span>
+                </td>
+                <td class="thin" style="vertical-align: top;">
+                  <% if index < last_index %>
+                    <a href="#" onclick="moveRight(<%= index -%>)"><img src="<%= ApplicationController.root_context -%>/images/controls/move_right.png" title="<%= message('comparison.move_right') -%>"/></a>
+                  <% else %>
+                    <img src="<%= ApplicationController.root_context -%>/images/transparent_16.gif"/>
+                  <% end %>
+                </td>
+              </tr>
+            </table>
+          </th>
+        <% end %>
+        
+        <th style="padding-left: 20px; vertical-align: bottom">
+          <%= resource_select_tag 'new_resource', {
+              :resource_type_property => 'comparable',
+              :width => '250px', 
+              :select2_options => {'placeholder' => "'" + message('comparison.select_resource_to_compare') + "'"}
+              } -%>
+          <script>
+            // we don't want this parameter to be submitted, so we set its name to ''
+            $j('#new_resource').attr('name', '');
+            $j('#new_resource').on("change", function(e) { 
+              if (e.val!=null) {
+                $j.ajax({
+                     type: 'GET',
+                     url: '<%= ApplicationController.root_context -%>/comparison/versions?resource=' 
+                          + e.val + '&sids='
+                          + $j('#sids').val(),
+                     success: function(data){
+                                 $j('#new_version').html(data);
+                                 $j('#new_version').select2({placeholder: '<%= message('comparison.select_version') -%>'});
+                                 $j('#version_div').show();
+                                 $j('#new_version').select2("focus");
+                              }
+               });
+              }
+            });
+            $j('#new_resource').select2("focus");
+          </script>
+          
+          <span id="version_div" style="display: none">
+            <select id="new_version">
+            </select>
+            <script>
+              $j('#new_version').on("change", function(e) {
+                if (e.val!=null) {
+                  var currentSnapshotIds = $j('#sids').val();
+                  if (currentSnapshotIds.length > 0) {
+                    currentSnapshotIds += ',';
+                  }
+                  currentSnapshotIds += e.val;
+                  $j('#sids').val(currentSnapshotIds);
+                  $j('#compare-form').submit();
+                }
+              });
+            </script>
+          </span>  
+        </th>
+        
+        <th class="thin" style="vertical-align: top">
+          <a href="<%= url_for :controller => 'comparison', :action => 'index', :sids => @snapshots.map {|s| s.id.to_s}.join(','), :metrics => @metrics.map {|m| m.key}.join(',') -%>">
+            <img src="<%= ApplicationController.root_context -%>/images/permalink.png" title="<%= message('permalink') -%>"/>
+          </a>
+        </th>
+      </thead>
+        
+      <tbody>
+        <% 
+          last_index = @metrics.size-1 
+          @metrics.each_with_index do |m, index|
+        %>
+          <tr class="<%= cycle 'even', 'odd' -%> move-actions">
+            <td>
+              <div style="float: left; vertical-align: bottom;"><%= m.short_name -%></div>
+              <div style="float: right">
+                <% if index > 0 %>
+                  <a href="#" onclick="moveUp(<%= index -%>)"><img src="<%= ApplicationController.root_context -%>/images/controls/move_up.png" title="<%= message('comparison.move_up') -%>"/></a>
+                <% end %>
+                <% if index < last_index %>
+                  <a href="#" onclick="moveDown(<%= index -%>)"><img src="<%= ApplicationController.root_context -%>/images/controls/move_down.png" title="<%= message('comparison.move_down') -%>"/></a>
+                <% end %>
+                <a href="#" onclick="removeFromList(<%= index -%>, $j('#metrics'))"><img src="<%= ApplicationController.root_context -%>/images/controls/cross.png" title="<%= message('comparison.remove_metric') -%>"/></a>
+              </div>
+            </td>
+            
+            <% @snapshots.each do |s| %>
+              <td style="text-align: center">
+                <%= format_measure s.measure(m) -%>
+              </td>
+            <% end %>
+            
+            <td></td>
+            <td></td>
+          </tr>
+        <% end %> 
+      </tbody>
+        
+    </table>
+    
+  <form>
+</div>
+
+<script>
+  function submitForm() {
+    $j('#compare-form').submit();
+  }
+  
+  function moveLeft(index) {
+    sids = $j('#sids').val().split(',');
+    idToLeft = sids[index];
+    idToRight = sids[index-1];
+    sids.splice(index-1, 2, [idToLeft, idToRight]);
+    $j('#sids').val(sids.join(','));
+    submitForm();
+  }
+  
+  function moveRight(index) {
+    sids = $j('#sids').val().split(',');
+    idToRight = sids[index];
+    idToLeft = sids[index+1];
+    sids.splice(index, 2, [idToLeft, idToRight]);
+    $j('#sids').val(sids.join(','));
+    submitForm();
+  }
+  
+  function moveUp(index) {
+    metrics = $j('#metrics').val().split(',');
+    idToUp = metrics[index];
+    idToBottom = metrics[index-1];
+    metrics.splice(index-1, 2, [idToUp, idToBottom]);
+    $j('#metrics').val(metrics.join(','));
+    submitForm();
+  }
+  
+  function moveDown(index) {
+    metrics = $j('#metrics').val().split(',');
+    idToBottom = metrics[index];
+    idToUp = metrics[index+1];
+    metrics.splice(index, 2, [idToUp, idToBottom]);
+    $j('#metrics').val(metrics.join(','));
+    submitForm();
+  }
+  
+  function removeFromList(index, inputField) {
+    value = inputField.val().split(',');
+    value.splice(index, 1);
+    inputField.val(value.join(','));
+    submitForm();
+  }
+</script>

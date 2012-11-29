@@ -80,6 +80,10 @@
               <a href="<%= ApplicationController.root_context -%>/components/index/<%= @project.id -%>"><%= message('components.page') -%></a></li>
             <li class="<%= 'selected' if request.request_uri.include?('/drilldown/violations') -%>">
               <a href="<%= ApplicationController.root_context -%>/drilldown/violations/<%= @project.id -%><%= "?"+period_param if period_param -%>"><%= message('violations_drilldown.page') -%></a>
+            <% if controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'comparable') %>
+            <li class="<%= 'selected' if request.request_uri.include?('/comparison/index') -%>">
+              <a href="<%= ApplicationController.root_context -%>/comparison/index?resource=<%= @project.key -%>"><%= message('comparison.page') -%></a></li>
+            <% end %>
             <li class="<%= 'selected' if request.request_uri.include?('/cloud/index') -%>">
               <a href="<%= ApplicationController.root_context -%>/cloud/index/<%= @project.id -%>"><%= message('clouds.page') -%></a></li>
             <% controller.java_facade.getPages(Navigation::SECTION_RESOURCE, @project.scope, @project.qualifier, @project.language, @project.last_snapshot.metric_keys.to_java(:string)).each do |page|

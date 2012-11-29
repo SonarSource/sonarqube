@@ -718,6 +718,7 @@ module ApplicationHelper
       # add a select <option> with empty value
       select_tag_prompt=''
     end
+    js_options.merge!(options[:select2_options]) if options[:select2_options]
 
     extra_values = options[:extra_values]
     metrics_by_domain={}
