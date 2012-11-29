@@ -221,6 +221,11 @@ class Api::ResourcesController < Api::ApiController
         snapshots_conditions << 'projects.qualifier in (:qualifiers)'
       end
 
+      if params['language']
+        snapshots_conditions << 'projects.language in (:language)'
+        snapshots_values[:language]=params['language'].split(',')
+      end
+
       snapshots_including_resource=Snapshot.find(:all, :conditions => [snapshots_conditions.join(' AND '), snapshots_values], :include => 'project')
 
       # ---------- APPLY SECURITY - remove unauthorized resources - only if no selected resource

@@ -19,11 +19,11 @@
  */
 package org.sonar.wsclient.services;
 
+import org.junit.Test;
+
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
-
-import org.junit.Test;
 
 public class ResourceQueryTest extends QueryTestCase {
 
@@ -33,6 +33,13 @@ public class ResourceQueryTest extends QueryTestCase {
     assertThat(query.getUrl(), is("/api/resources?resource=org.foo%3Abar&verbose=false&"));
     assertThat(query.getResourceKeyOrId(), is("org.foo:bar"));
     assertThat(query.isVerbose(), is(false));
+  }
+
+  @Test
+  public void resourceByLanguages() {
+    ResourceQuery query = new ResourceQuery("org.foo:bar").setLanguages("java,php");
+    assertThat(query.getUrl(), is("/api/resources?resource=org.foo%3Abar&languages=java%2Cphp&verbose=false&"));
+    assertThat(query.getResourceKeyOrId(), is("org.foo:bar"));
   }
 
   @Test

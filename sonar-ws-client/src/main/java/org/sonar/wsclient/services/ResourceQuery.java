@@ -33,6 +33,7 @@ public class ResourceQuery extends Query<Resource> {
   private String[] rules;
   private String[] ruleSeverities;
   private String[] characteristicKeys;
+  private String[] languages;
   private String model;
   private boolean excludeRules = true;
   private boolean excludeRuleSeverities = true;
@@ -126,6 +127,15 @@ public class ResourceQuery extends Query<Resource> {
   public ResourceQuery setRules(String... rules) {
     this.rules = rules;
     this.excludeRules = false;
+    return this;
+  }
+
+  public String[] getLanguages() {
+    return languages;
+  }
+
+  public ResourceQuery setLanguages(String... languages) {
+    this.languages = languages;
     return this;
   }
 
@@ -266,6 +276,7 @@ public class ResourceQuery extends Query<Resource> {
     appendUrlParameter(url, "includetrends", includeTrends);
     appendUrlParameter(url, "model", model);
     appendUrlParameter(url, "characteristics", characteristicKeys);
+    appendUrlParameter(url, "languages", languages);
     appendUrlParameter(url, "verbose", verbose);
     return url.toString();
   }
