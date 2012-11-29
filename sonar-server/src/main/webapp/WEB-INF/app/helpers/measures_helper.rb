@@ -56,7 +56,7 @@ module MeasuresHelper
     elsif column.key=='version'
       h result.snapshot.version
     elsif column.key=='language'
-      h result.snapshot.resource.language
+      Api::Utils.language_name(result.snapshot.resource.language)
     elsif column.key=='links' && result.links
       html = ''
       result.links.select { |link| link.href.start_with?('http') }.each do |link|

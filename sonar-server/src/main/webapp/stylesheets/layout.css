@@ -319,4 +319,5 @@ body, a {
   display: table-cell;
   margin: 0;
   vertical-align: top;
+  width: 100%;
 }

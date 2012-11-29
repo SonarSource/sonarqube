@@ -10,6 +10,7 @@
 
 <% if logged_in? %>
   <br/>
+  <div class="h2">My Favourites</div>
   <ul id="fav-filters">
     <% current_user.favourited_measure_filters.each do |filter| %>
       <li>
@@ -17,5 +18,6 @@
       </li>
     <% end %>
   </ul>
+  <br>
   <a href="<%= ApplicationController.root_context -%>/measures/manage" class="link-action">Manage</a>
 <% end %>

@@ -2,11 +2,14 @@
    display_favourites = logged_in?
    colspan = @filter.display.columns.size
    colspan += 1 if display_favourites
+   table_columns = []
+   table_columns << '' if display_favourites
+   table_columns.concat(@filter.display.columns.map{|c| c.key})
    if edit_mode
      content_for :script do
 %>
     <script>
-      var cols = [<%= @filter.display.columns.map{|c| "'#{c.key}'"}.join(',')-%>];
+      var cols = [<%= table_columns.map{|col| "'#{col}'"}.join(',')-%>];
       function leftCol(id) {
         var cell = $j('#measures-table tr.admin td[index=' + id + ']');
         var columnIndex = cell.parent().children().index(cell);
@@ -29,13 +32,13 @@
           var tr = $j(this);
           var td1 = tr.find('th:eq(' + from + ')');
           var td2 = tr.find('th:eq(' + to + ')');
-          td1.detach().insertAfter(td2);
+          td1.remove().insertAfter(td2);
         });
         $j('#measures-table tbody tr').each(function () {
           var tr = $j(this);
           var td1 = tr.find('td:eq(' + from + ')');
           var td2 = tr.find('td:eq(' + to + ')');
-          td1.detach().insertAfter(td2);
+          td1.remove().insertAfter(td2);
         });
       }
       function deleteCol(id) {
@@ -45,12 +48,12 @@
         $j('#measures-table thead tr').each(function () {
           var tr = $j(this);
           var td1 = tr.find('th:eq(' + columnIndex + ')');
-          td1.detach();
+          td1.remove();
         });
         $j('#measures-table tbody tr').each(function () {
           var tr = $j(this);
           var td1 = tr.find('td:eq(' + columnIndex + ')');
-          td1.detach();
+          td1.remove();
         });
       }
     </script>
@@ -67,7 +70,7 @@
                               :html_id => 'select-metric',
                               :allow_empty => true,
                               :key_prefix => 'metric:',
-                              :extra_values => [['Name', 'name'], ['Short Name', 'short_name'], ['Description', 'description'], ['Version', 'version']] -%>
+                              :extra_values => [[message('measure_filter.col.name'), 'name'], [message('measure_filter.col.short_name'), 'short_name'], [message('measure_filter.col.description'), 'description'], [message('measure_filter.col.language'), 'language'], [message('measure_filter.col.version'), 'version']] -%>
         <select id="select-period" style="display: none;">
           <option value="">Value</option>
           <% period_names.each_with_index do |period_name, index| %>
@@ -108,14 +111,14 @@
       }
       cols.push(columnKey);
       window.location = removeUrlAttr(decodeURI(window.location.href), 'cols\\[\\]') + '&' + $j.map(cols,function (a) {
-        return 'cols[]=' + a;
+        return a ? 'cols[]=' + a : null;
       }).join('&');
     });
     $j("#exit-edit").on("click", function (e) {
       var url = removeUrlAttr(decodeURI(window.location.href), 'cols\\[\\]');
       url = removeUrlAttr(url, 'edit');
       url += '&' + $j.map(cols,function (a) {
-        return 'cols[]=' + a;
+        return a ? 'cols[]=' + a : null;
       }).join('&');
       window.location = url;
     });
@@ -138,7 +141,7 @@
   <% if edit_mode %>
     <tr class="admin">
       <% if display_favourites %>
-        <th></th>
+        <td></td>
       <% end %>
       <% @filter.display.columns.each_with_index do |column, index| %>
         <td class="<%= column.align -%>" index="<%= index -%>">

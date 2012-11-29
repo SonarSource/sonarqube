@@ -26,7 +26,9 @@ import java.util.List;
 public interface ResourceMapper {
   SnapshotDto selectSnapshot(Long snapshotId);
 
-  SnapshotDto selectLastSnapshotByKey(String resourceKey);
+  SnapshotDto selectLastSnapshotByResourceKey(String resourceKey);
+
+  SnapshotDto selectLastSnapshotByResourceId(long resourceId);
 
   ResourceDto selectResource(long id);
 

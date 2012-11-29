@@ -45,6 +45,9 @@ public class MeasureFilterFactory implements ServerComponent {
   public MeasureFilter create(Map<String, Object> properties) {
     MeasureFilter filter = new MeasureFilter();
     filter.setBaseResourceKey((String) properties.get("base"));
+    if (properties.containsKey("baseId")) {
+      filter.setBaseResourceId(Long.valueOf((String) properties.get("baseId")));
+    }
     filter.setResourceScopes(toList(properties.get("scopes")));
     filter.setResourceQualifiers(toList(properties.get("qualifiers")));
     filter.setResourceLanguages(toList(properties.get("languages")));
@@ -92,13 +95,14 @@ public class MeasureFilterFactory implements ServerComponent {
 
   private MeasureFilterCondition toCondition(Map<String, Object> props, int index) {
     MeasureFilterCondition condition = null;
-    String metricKey = (String) props.get("c" + index + "metric");
-    String op = (String) props.get("c" + index + "op");
-    String val = (String) props.get("c" + index + "val");
+    String metricKey = (String) props.get("c" + index + "_metric");
+    String op = (String) props.get("c" + index + "_op");
+    String val = (String) props.get("c" + index + "_val");
     if (!Strings.isNullOrEmpty(metricKey) && !Strings.isNullOrEmpty(op) && !Strings.isNullOrEmpty(val)) {
       Metric metric = metricFinder.findByKey(metricKey);
-      condition = new MeasureFilterCondition(metric, op, Double.parseDouble(val));
-      String period = (String) props.get("c" + index + "period");
+      MeasureFilterCondition.Operator operator = MeasureFilterCondition.Operator.fromCode(op);
+      condition = new MeasureFilterCondition(metric, operator, Double.parseDouble(val));
+      String period = (String) props.get("c" + index + "_period");
       if (period != null) {
         condition.setPeriod(Integer.parseInt(period));
       }

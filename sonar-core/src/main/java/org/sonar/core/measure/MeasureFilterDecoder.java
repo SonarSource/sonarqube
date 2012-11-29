@@ -106,7 +106,7 @@ public class MeasureFilterDecoder implements ServerComponent {
         Metric metric = metricFinder.findByKey((String) c.get("metric"));
         String operator = (String) c.get("op");
         Double value = (Double) c.get("val");
-        MeasureFilterCondition condition = new MeasureFilterCondition(metric, operator, value);
+        MeasureFilterCondition condition = new MeasureFilterCondition(metric, MeasureFilterCondition.Operator.fromSql(operator), value);
         if (c.containsKey("period")) {
           condition.setPeriod(((Long) c.get("period")).intValue());
         }

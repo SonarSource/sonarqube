@@ -24,13 +24,50 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.measures.Metric;
 
 public class MeasureFilterCondition {
+  public enum Operator {
+    EQUALS("eq", "="), GREATER("gt", ">"), GREATER_OR_EQUALS("gte", ">="), LESS("lt", "<"), LESS_OR_EQUALS("lte", "<=");
+
+    private String code;
+    private String sql;
+
+    private Operator(String code, String sql) {
+      this.code = code;
+      this.sql = sql;
+    }
+
+    public String getCode() {
+      return code;
+    }
+
+    public String getSql() {
+      return sql;
+    }
+
+    public static Operator fromCode(String code) {
+      for (Operator operator : values()) {
+        if (operator.code.equals(code)) {
+          return operator;
+        }
+      }
+      throw new IllegalArgumentException("Unknown operator code: " + code);
+    }
+
+    public static Operator fromSql(String sql) {
+      for (Operator operator : values()) {
+        if (operator.sql.equals(sql)) {
+          return operator;
+        }
+      }
+      throw new IllegalArgumentException("Unknown operator sql: " + sql);
+    }
+  }
 
   private final Metric metric;
-  private final String operator;
+  private final Operator operator;
   private final double value;
   private Integer period = null;
 
-  public MeasureFilterCondition(Metric metric, String operator, double value) {
+  public MeasureFilterCondition(Metric metric, Operator operator, double value) {
     this.metric = metric;
     this.operator = operator;
     this.value = value;
@@ -45,7 +82,7 @@ public class MeasureFilterCondition {
     return metric;
   }
 
-  public String operator() {
+  public Operator operator() {
     return operator;
   }
 
@@ -67,7 +104,7 @@ public class MeasureFilterCondition {
   void appendSqlCondition(StringBuilder sql) {
     sql.append(" pm.metric_id=");
     sql.append(metric.getId());
-    sql.append(" AND ").append(valueColumn()).append(operator).append(value);
+    sql.append(" AND ").append(valueColumn()).append(operator.getSql()).append(value);
   }
 
   @Override

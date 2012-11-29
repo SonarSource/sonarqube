@@ -52,7 +52,7 @@
           $j('#filters').show();
           if (!filtersLoaded) {
             $j('#filters').load(baseUrl + '/measures/filters');
-            filtersLoaded=true;
+            filtersLoaded = true;
           }
         });
       }
@@ -90,7 +90,7 @@
         <tr>
           <td class="width100">
             Base:<br>
-            <input type="text" name="base" value="<%= @filter.criteria['base'] -%>" class="large-input">
+            <%= resource_select_tag 'baseId', :resource_type_property => 'supportsGlobalDashboards', :width => '100%', :selected_resource => @filter.base_resource -%>
           </td>
         </tr>
         <tr>
@@ -119,20 +119,44 @@
         </tr>
         <tr>
           <td class="width100">
-            Name:<br>
+            <%= message('measure_filter.name_contains') -%>:<br>
             <input type="text" name="nameRegexp" value="<%= h @filter.criteria['nameRegexp'] -%>" class="large-input"></td>
         </tr>
         <tr>
           <td class="width100">
-            Key:<br>
+            <%= message('measure_filter.key_like') -%>:<br>
             <input type="text" name="keyRegexp" value="<%= h @filter.criteria['keyRegexp'] -%>" class="large-input"></td>
         </tr>
         <tr>
           <td>
-            Favourites only:<br>
+            <%= message 'measure_filter.only_favourites' %>:<br>
             <%= check_box_tag 'onFavourites', 'true', @filter.criteria['onFavourites']=='true' -%>
           </td>
         </tr>
+
+        <% condition_metrics = Metric.all.select { |m| m.numeric? } %>
+        <tr>
+          <td>
+            <br>
+            <%= metric_select_tag 'c1_metric', condition_metrics, :allow_empty => true, :selected_key => @filter.criteria('c1_metric'), :width => '180px' -%>
+            <%= select_tag 'c1_period', options_for_select([['Value', ''], ['Period 1', '1'], ['Period 2', '2'], ['Period 3', '3']], @filter.criteria('c1_period')) -%>
+            <%= select_tag 'c1_op', options_for_select([['Equals', 'eq'], ['Less than', 'lt'], ['Less or equals', 'lte'], ['Greater than', 'gt'], ['Greater or equals', 'gte']], @filter.criteria('c1_op')) -%>
+            <input type="text" size="5" name="c1_val" value="<%= h @filter.criteria('c1_val') -%>">
+            <br><br>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <br>
+            <%= metric_select_tag 'c2_metric', condition_metrics, :allow_empty => true, :selected_key => @filter.criteria('c2_metric'), :width => '180px' -%>
+            <%= select_tag 'c2_period', options_for_select([['Value', ''], ['Period 1', '1'], ['Period 2', '2'], ['Period 3', '3']], @filter.criteria('c2_period')) -%>
+            <%= select_tag 'c2_op', options_for_select([['Equals', 'eq'], ['Less than', 'lt'], ['Less or equals', 'lte'], ['Greater than', 'gt'], ['Greater or equals', 'gte']], @filter.criteria('c2_op')) -%>
+            <input type="text" size="5" name="c2_val" value="<%= h @filter.criteria('c2_val') -%>">
+            <br><br>
+          </td>
+        </tr>
+
         <tr>
           <td>
             From date:<br>
@@ -169,7 +193,8 @@
   </div>
 
   <% if @filter.results && @filter.display %>
-    <div id="filter-result" class="page-split-right width100">
+    <div id="filter-result" class="page-split-right">
+
       <% if @filter.name %>
         <p>
           <span class="h3"><%= h @filter.name -%></span>
@@ -177,32 +202,36 @@
             - <span><%= h @filter.description -%></span>
           <% end %>
         </p>
-
       <% end %>
 
       <%
          edit_mode = (params[:edit]=='true')
          unless edit_mode
       %>
-        Display as:
-        <% MeasureFilterDisplay.keys.each do |display_key| %>
-          <%= link_to_if display_key!=@filter.display.key, display_key, params.merge(:action => 'search', :display => display_key, :id => @filter.id) -%>
-        <% end %>
-        <a id="edit" href="<%= url_for params.merge({:edit => true, :id => @filter.id}) -%>" class="button"><%= message('configure') -%></a>
-        <% if logged_in? %>
-          <% if @filter.id==nil || @filter.user_id==current_user.id %>
-            <a id="save" href="<%= url_for params.merge({:action => 'save_form', :id => @filter.id}) -%>" class="button open-modal"><%= message('save') -%></a>
-          <% end %>
-          <a id="copy" href="<%= url_for params.merge({:action => 'copy_form', :id => @filter.id}) -%>" class="button open-modal"><%= message('copy') -%></a>
-        <% end %>
+        <table class="width100">
+          <tr>
+            <td class="left">
+              Display as:
+              <% MeasureFilterDisplay.keys.each do |display_key| %>
+                <%= link_to_if display_key!=@filter.display.key, display_key, params.merge(:action => 'search', :display => display_key, :id => @filter.id) -%>
+              <% end %>
+            <td class="right">
+              <a id="edit" href="<%= url_for params.merge({:edit => true, :id => @filter.id}) -%>" class="button"><%= message('configure') -%></a>
+              <% if logged_in? %>
+                <% if @filter.id==nil || @filter.user_id==current_user.id %>
+                  <a id="save" href="<%= url_for params.merge({:action => 'save_form', :id => @filter.id}) -%>" class="button open-modal"><%= message('save') -%></a>
+                <% end %>
+                <% if @filter.id %>
+                  <a id="copy" href="<%= url_for params.merge({:action => 'copy_form', :id => @filter.id}) -%>" class="button open-modal"><%= message('copy') -%></a>
+                <% end %>
+              <% end %>
+              </tr>
+        </table>
       <% end %>
-      <%= render :partial => "measures/display_#{@filter.display.class::KEY}", :locals => {:edit_mode => edit_mode} -%>
-      <br>
-
       <% if @filter.security_exclusions %>
         <p class="notes"><%= message('results_not_display_due_to_security') -%></p>
       <% end %>
-
+      <%= render :partial => "measures/display_#{@filter.display.class::KEY}", :locals => {:edit_mode => edit_mode} -%>
     </div>
   <% end %>
 

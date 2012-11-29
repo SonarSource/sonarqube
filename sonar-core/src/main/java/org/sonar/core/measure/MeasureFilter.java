@@ -36,7 +36,11 @@ public class MeasureFilter {
 
   // conditions on resources
   private String baseResourceKey;
-  private boolean onBaseResourceChildren = false; // only if getBaseResourceKey is set
+  private Long baseResourceId;
+
+  // only if baseResourceKey or baseResourceId are set
+  private boolean onBaseResourceChildren = false;
+
   private List<String> resourceScopes = Collections.emptyList();
   private List<String> resourceQualifiers = Collections.emptyList();
   private List<String> resourceLanguages = Collections.emptyList();
@@ -57,6 +61,15 @@ public class MeasureFilter {
 
   public MeasureFilter setBaseResourceKey(String s) {
     this.baseResourceKey = s;
+    return this;
+  }
+
+  public Long getBaseResourceId() {
+    return baseResourceId;
+  }
+
+  public MeasureFilter setBaseResourceId(Long i) {
+    this.baseResourceId = i;
     return this;
   }
 

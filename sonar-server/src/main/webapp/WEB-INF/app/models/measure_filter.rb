@@ -170,6 +170,14 @@ class MeasureFilter < ActiveRecord::Base
     criteria.merge({'id' => self.id})
   end
 
+  def base_resource
+    if criteria('base')
+      Project.find(:first, :conditions => ['kee=? and copy_resource_id is null and person_id is null', criteria('base')])
+    elsif criteria('baseId')
+      Project.find(criteria('baseId'))
+    end
+  end
+
   private
 
   def init_results
@@ -233,8 +241,8 @@ class MeasureFilter < ActiveRecord::Base
         end
       end
     end
-    if criteria['base'].present?
-      base_snapshot = Snapshot.find(:first, :include => 'project', :conditions => ['projects.kee=? and islast=?', criteria['base'], true])
+    if base_resource
+      base_snapshot = base_resource.last_snapshot
       if base_snapshot
         @base_result = Result.new(base_snapshot)
         unless metric_ids.empty?

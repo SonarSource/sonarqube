@@ -75,7 +75,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
   @Test
   public void filter_is_not_valid_if_condition_on_unknown_metric() {
     MeasureFilterContext context = new MeasureFilterContext();
-    MeasureFilter filter = new MeasureFilter().addCondition(new MeasureFilterCondition(null, "<", 3.0));
+    MeasureFilter filter = new MeasureFilter().addCondition(new MeasureFilterCondition(null, MeasureFilterCondition.Operator.LESS, 3.0));
     assertThat(MeasureFilterExecutor.isValid(filter, context)).isFalse();
   }
 
@@ -263,7 +263,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
   public void condition_on_numeric_measure() throws SQLException {
     MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("CLA"))
       .setSortOnMetric(METRIC_LINES)
-      .addCondition(new MeasureFilterCondition(METRIC_LINES, ">", 200));
+      .addCondition(new MeasureFilterCondition(METRIC_LINES, MeasureFilterCondition.Operator.GREATER, 200));
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
     assertThat(rows).hasSize(1);
@@ -274,7 +274,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
   public void condition_on_measure_variation() throws SQLException {
     MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK"))
       .setSortOnMetric(METRIC_LINES)
-      .addCondition(new MeasureFilterCondition(METRIC_LINES, ">", 1000).setPeriod(5));
+      .addCondition(new MeasureFilterCondition(METRIC_LINES, MeasureFilterCondition.Operator.GREATER, 1000).setPeriod(5));
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
     assertThat(rows).hasSize(1);
@@ -285,8 +285,8 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
   public void multiple_conditions_on_numeric_measures() throws SQLException {
     MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("CLA"))
       .setSortOnMetric(METRIC_LINES)
-      .addCondition(new MeasureFilterCondition(METRIC_LINES, ">", 2))
-      .addCondition(new MeasureFilterCondition(METRIC_LINES, "<=", 50));
+      .addCondition(new MeasureFilterCondition(METRIC_LINES, MeasureFilterCondition.Operator.GREATER, 2))
+      .addCondition(new MeasureFilterCondition(METRIC_LINES, MeasureFilterCondition.Operator.LESS_OR_EQUALS, 50));
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
     assertThat(rows).hasSize(1);
