@@ -26,7 +26,6 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.ObjectUtils;
 import org.codehaus.plexus.util.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
@@ -172,7 +171,9 @@ public class ProfilesBackup implements Backupable {
         writeNode(writer, "operator", alert.getOperator());
         writeNode(writer, "value-error", alert.getValueError());
         writeNode(writer, "value-warning", alert.getValueWarning());
-        writeNode(writer, "period", ObjectUtils.toString(alert.getPeriod()));
+        if (alert.getPeriod() != null) {
+          writeNode(writer, "period", Integer.toString(alert.getPeriod()));
+        }
         writeNode(writer, "metric-key", alert.getMetric().getKey());
       }
 

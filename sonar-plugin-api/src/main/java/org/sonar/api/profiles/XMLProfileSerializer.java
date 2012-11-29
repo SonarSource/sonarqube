@@ -19,7 +19,6 @@
  */
 package org.sonar.api.profiles;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
@@ -116,13 +115,19 @@ public final class XMLProfileSerializer implements ServerComponent {
   private void appendAlert(Alert alert, Writer writer) throws IOException {
     writer.append("<alert><metric>");
     StringEscapeUtils.escapeXml(writer, alert.getMetric().getKey());
-    writer.append("</metric><period>");
-    StringEscapeUtils.escapeXml(writer, ObjectUtils.toString(alert.getPeriod()));
-    writer.append("</period><operator>");
+    writer.append("</metric>");
+    if (alert.getPeriod() !=null) {
+      writer.append("<period>");
+      StringEscapeUtils.escapeXml(writer, Integer.toString(alert.getPeriod()));
+      writer.append("</period>");
+    }
+    writer.append("<operator>");
     StringEscapeUtils.escapeXml(writer, alert.getOperator());
-    writer.append("</operator><warning>");
+    writer.append("</operator>");
+    writer.append("<warning>");
     StringEscapeUtils.escapeXml(writer, alert.getValueWarning());
-    writer.append("</warning><error>");
+    writer.append("</warning>");
+    writer.append("<error>");
     StringEscapeUtils.escapeXml(writer, alert.getValueError());
     writer.append("</error></alert>");
   }

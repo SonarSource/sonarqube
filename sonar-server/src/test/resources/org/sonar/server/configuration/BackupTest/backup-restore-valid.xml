@@ -55,7 +55,6 @@
           <operator><![CDATA[>]]></operator>
           <value-error><![CDATA[testError]]></value-error>
           <value-warning><![CDATA[testWarn]]></value-warning>
-          <period><![CDATA[]]></period>
           <metric-key><![CDATA[test key]]></metric-key>
         </alert>
         <alert>

@@ -13,6 +13,7 @@
   <alerts>
     <alert>
       <metric>complexity</metric>
+      <period>1</period>
       <operator>&gt;</operator>
       <error>12</error>
       <warning>10</warning>

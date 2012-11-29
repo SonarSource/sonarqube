@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 
@@ -80,8 +81,11 @@ public class XMLProfileSerializerTest {
   public void exportAlerts() throws Exception {
     Writer writer = new StringWriter();
     RulesProfile profile = RulesProfile.create("sonar way", "java");
-    Alert alert = new Alert(profile, new Metric("coverage"), Alert.OPERATOR_SMALLER, "60", "80", 1);
-    profile.getAlerts().add(alert);
+    List<Alert> alerts = profile.getAlerts();
+    Alert alert1 = new Alert(profile, new Metric("coverage"), Alert.OPERATOR_SMALLER, "60", "80");
+    alerts.add(alert1);
+    Alert alert2 = new Alert(profile, new Metric("complexity"), Alert.OPERATOR_GREATER, "12", "10", 1);
+    alerts.add(alert2);
     new XMLProfileSerializer().write(profile, writer);
 
     assertSimilarXml("exportAlerts.xml", writer.toString());

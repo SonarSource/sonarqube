@@ -6,10 +6,16 @@
   <alerts>
     <alert>
       <metric>coverage</metric>
-      <period>1</period>
       <operator>&lt;</operator>
       <error>60</error>
       <warning>80</warning>
+    </alert>
+    <alert>
+      <metric>complexity</metric>
+      <period>1</period>
+      <operator>&gt;</operator>
+      <error>12</error>
+      <warning>10</warning>
     </alert>
   </alerts>
 </profile>
