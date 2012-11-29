@@ -2101,6 +2101,7 @@ table.nowrap td, td.nowrap, th.nowrap {
   background-repeat: no-repeat;
   padding-right: 20px;
   background-position: right center;
+  cursor: pointer;
 }
 
 .dropdown {

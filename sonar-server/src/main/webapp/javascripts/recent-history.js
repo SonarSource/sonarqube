@@ -66,7 +66,6 @@ Sonar.RecentHistory.prototype.populateRecentHistoryPanel = function () {
                             + resource['name'] 
                             + '</a></li>');
     });
-    historyLinksList.append('<li><a href="#" onclick="sonarRecentHistory.clear(); sonarRecentHistory.populateRecentHistoryPanel(); return false;" style="color: #777777 !important;">' + this.translations['clear'] + '</a></li>');
     $j("#sonar-recent-history").show();
   }
 };

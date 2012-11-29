@@ -178,6 +178,24 @@ body, a {
   border-top: 1px solid #ccc;
 }
 
+#sonar-recent-history li {
+  list-style-type: none !important;
+  padding: 2px 8px 2px 0px !important;
+  cursor: pointer !important;
+}
+
+#sonar-recent-history li:hover {
+  background-color: #4b9fd5 !important;
+}
+
+#sonar-recent-history li:hover a {
+  color: #fff !important;
+}
+
+#sonar-recent-history a {
+  text-decoration: none !important;
+}
+
 #nonav {
   text-align: left;
   margin: 50px 180px 0;
