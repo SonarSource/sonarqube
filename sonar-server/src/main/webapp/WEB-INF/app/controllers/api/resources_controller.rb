@@ -221,6 +221,7 @@ class Api::ResourcesController < Api::ApiController
         snapshots_conditions << 'projects.qualifier in (:qualifiers)'
       end
 
+      # since version 3.4
       if params['language']
         snapshots_conditions << 'projects.language in (:language)'
         snapshots_values[:language]=params['language'].split(',')
