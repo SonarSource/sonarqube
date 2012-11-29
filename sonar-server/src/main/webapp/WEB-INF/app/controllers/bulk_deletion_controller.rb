@@ -49,10 +49,10 @@ class BulkDeletionController < ApplicationController
       conditions += " AND projects.enabled=:enabled"
       values[:enabled] = true
       @resources = Project.find(:all,
-                                :select => 'distinct(resource_index.resource_id),projects.id,projects.name,projects.kee',
+                                :select => 'distinct(resource_index.resource_id),projects.id,projects.name,projects.kee,projects.long_name',
                                 :conditions => [conditions, values],
-                                :joins => :resource_index,
-                                :order => 'projects.name ASC')
+                                :joins => :resource_index)
+      @resources = Api::Utils.insensitive_sort!(@resources){|r| r.name}
     end
   end
   
