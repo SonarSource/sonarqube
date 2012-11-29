@@ -23,11 +23,11 @@ Sonar.RecentHistory.prototype.clear = function () {
   localStorage.clear();
 };
   
-Sonar.RecentHistory.prototype.add = function (resourceKey, resourceName, resourceQualifier) {
+Sonar.RecentHistory.prototype.add = function (resourceKey, resourceName, iconPath) {
   var sonarHistory = this.getRecentHistory();
   
   if (resourceKey != '') {
-    var newEntry = {'key': resourceKey, 'name': resourceName, 'qualifier': resourceQualifier};
+    var newEntry = {'key': resourceKey, 'name': resourceName, 'iconPath': iconPath};
     // removes the element of the array if it exists
     for (i = 0; i < sonarHistory.length; i++) {
       var item = sonarHistory[i];
@@ -56,9 +56,8 @@ Sonar.RecentHistory.prototype.populateRecentHistoryPanel = function () {
     recentHistory.forEach(function (resource) {
       historyLinksList.append('<li><img width="16" height="16" src="'
                             + sonarRecentHistory.appContext
-                            + '/images/q/'
-                            + resource['qualifier']
-                            + '.png"><a href="'
+                            + resource['iconPath']
+                            + '"><a href="'
                             + sonarRecentHistory.appContext
                             + '/dashboard/index/'
                             + resource['key']

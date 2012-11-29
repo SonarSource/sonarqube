@@ -45,6 +45,6 @@
   } else {
     sonarRecentHistory.add('<%= @resource ? @resource.key : "" -%>', 
                            '<%= @resource ? @resource.name(true) : "" -%>', 
-                           '<%= @resource ? @resource.qualifier : "" -%>');
+                           '<%= @resource ? Java::OrgSonarServerUi::JRubyFacade.getInstance().getResourceType(@resource.qualifier).getIconPath() : "" -%>');
   }
 </script>
