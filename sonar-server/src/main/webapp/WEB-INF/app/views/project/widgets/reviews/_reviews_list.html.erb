@@ -28,7 +28,7 @@
    end
 %>
 
-<% if reviews.size ==0 %>
+<% if reviews.nil? || reviews.size ==0 %>
 
   <span class="empty_widget"><%= message('widget.my_reviews.no_review') -%></span>
 
