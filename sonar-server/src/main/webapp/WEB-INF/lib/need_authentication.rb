@@ -49,28 +49,26 @@ class PluginRealm
   end
 
   def authenticate?(username, password, servlet_request)
-    unless password.blank?
-      details=nil
-      if @java_users_provider
-        begin
-          provider_context = org.sonar.api.security.ExternalUsersProvider::Context.new(username, servlet_request)
-          details = @java_users_provider.doGetUserDetails(provider_context)
-        rescue Exception => e
-          Rails.logger.error("Error from external users provider: #{e.message}")
-          @save_password ? fallback(username, password) : false
-        else
-          if details
-            # User exist in external system
-            auth(username, password, servlet_request, details)
-          else
-            # No such user in external system
-            fallback(username, password)
-          end
-        end
+    details=nil
+    if @java_users_provider
+      begin
+        provider_context = org.sonar.api.security.ExternalUsersProvider::Context.new(username, servlet_request)
+        details = @java_users_provider.doGetUserDetails(provider_context)
+      rescue Exception => e
+        Rails.logger.error("Error from external users provider: #{e.message}")
+        @save_password ? fallback(username, password) : false
       else
-        # Legacy authenticator
-        auth(username, password, servlet_request, nil)
+        if details
+          # User exist in external system
+          auth(username, password, servlet_request, details)
+        else
+          # No such user in external system
+          fallback(username, password)
+        end
       end
+    else
+      # Legacy authenticator
+      auth(username, password, servlet_request, nil)
     end
   end
 

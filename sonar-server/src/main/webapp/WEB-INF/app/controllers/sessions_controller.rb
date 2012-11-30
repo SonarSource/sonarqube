@@ -26,19 +26,16 @@ class SessionsController < ApplicationController
   
   def login
     return unless request.post?
-    if params[:password].blank?
-      flash.now[:loginerror] = message('session.flash_notice.empty_password')
-    else
-      self.current_user = User.authenticate(params[:login], params[:password], servlet_request)
-      if logged_in?
-        if params[:remember_me] == '1'
-          self.current_user.remember_me
-          cookies[:auth_token] = { :value => self.current_user.remember_token , :expires => self.current_user.remember_token_expires_at }
-        end
-        redirect_back_or_default(home_url)
-      else
-        flash.now[:loginerror] = message('session.flash_notice.authentication_failed')
+
+    self.current_user = User.authenticate(params[:login], params[:password], servlet_request)
+    if logged_in?
+      if params[:remember_me] == '1'
+        self.current_user.remember_me
+        cookies[:auth_token] = { :value => self.current_user.remember_token , :expires => self.current_user.remember_token_expires_at }
       end
+      redirect_back_or_default(home_url)
+    else
+      flash.now[:loginerror] = message('session.flash_notice.authentication_failed')
     end
   end
 
