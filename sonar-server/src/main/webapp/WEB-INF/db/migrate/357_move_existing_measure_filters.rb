@@ -57,13 +57,12 @@ class MoveExistingMeasureFilters < ActiveRecord::Migration
     new_filter = MeasureFilter.new
     new_filter.name = old_filter.name
     new_filter.user_id = old_filter.user_id
-    new_filter.system = old_filter.user_id.nil?
     new_filter.shared = (old_filter.shared || old_filter.user_id.nil?)
     data = []
     data << 'onFavourites=true' if old_filter.favourites
     data << "baseId=#{old_filter.resource_id}" if old_filter.resource_id
     data << "pageSize=#{old_filter.page_size}" if old_filter.page_size
-    data << "display=#{old_filter.default_value || 'list'}"
+    data << "display=#{old_filter.default_view || 'list'}"
 
     columns = []
     asc = nil

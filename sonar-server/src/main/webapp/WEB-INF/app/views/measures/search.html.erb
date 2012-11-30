@@ -16,6 +16,14 @@
     }
   </style>
 <% end %>
+<%
+   hidden_condition_indexes = []
+   for i in 1..3 do
+     unless @filter.criteria("c#{i}_metric") && @filter.criteria("c#{i}_val")
+       hidden_condition_indexes << i
+     end
+   end
+%>
 <% content_for :script do %>
   <script>
     function submitSearch() {
@@ -37,35 +45,49 @@
       });
       window.location = url;
     }
-    var filtersLoaded = false;
+    var hiddenConditionIndexes = [<%= hidden_condition_indexes.join(',') -%>];
     $j(document).ready(function () {
-        $j('#search-pill').on('click', function (e) {
-          $j('#search-pill').parent().addClass('active');
-          $j('#filters-pill').parent().removeClass('active');
-          $j('#search-form').show();
-          $j('#filters').hide();
-        });
-        $j('#filters-pill').on('click', function (e) {
-          $j('#search-pill').parent().removeClass('active');
-          $j('#filters-pill').parent().addClass('active');
-          $j('#search-form').hide();
-          $j('#filters').show();
-          if (!filtersLoaded) {
-            $j('#filters').load(baseUrl + '/measures/filters');
-            filtersLoaded = true;
+      $j('#select-lang').select2({allowClear:true, width:'100%', placeholder:'Languages'});
+      $j('#select-qualifiers').select2({allowClear:true, width:'100%', placeholder:'Resources'});
+      $j('#more-criteria')
+        .select2({allowClear:true, width:'100%', placeholder:'+ More Criteria'})
+        .on("change", function (e) {
+          $j("#criteria-" + e.val).insertBefore($j("#more-td")).show();
+          if (e.val == 'lang') {
+            $j("#select-" + e.val).select2("enable");
+            $j("#select-" + e.val).select2("focus");
+          }
+          $j("#more-criteria").select2("val", "");
+          if (e.val == 'metric') {
+            if (hiddenConditionIndexes.length > 0) {
+              var index = hiddenConditionIndexes.pop();
+              $j("#criteria-metric-" + index).insertBefore($j("#more-td")).show();
+              $j("#c" + index + "_metric").select2("focus");
+              if (hiddenConditionIndexes.length == 0) {
+                $j("#more-criteria option[value='metric']").remove();
+              }
+            }
+          } else {
+            $j("#more-criteria option[value='" + e.val + "']").remove();
           }
         });
-      }
-    );
+    });
   </script>
 <% end %>
-<div id="measure-filters">
+<div>
   <div class="page-split-left">
-    <ul class="nav-pills" id="nav-pills">
-      <li class="active"><a href="#" id="search-pill">Search</a></li>
-      <li><a href="#" id="filters-pill">Filters</a></li>
-    </ul>
-    <div id="filters" style="display:none"><%= image_tag 'loading.gif' -%></div>
+    <% if logged_in? %>
+      <ul id="filters">
+        <% current_user.favourited_measure_filters.each do |filter| %>
+          <li>
+            <a href="<%= ApplicationController.root_context -%>/measures/filter/<%= filter.id -%>"><%= h filter.name -%></a>
+          </li>
+        <% end %>
+      </ul>
+      <a href="<%= ApplicationController.root_context -%>/measures/manage" class="link-action"><%= message('manage') %></a>
+      <hr>
+    <% end %>
+
     <form id="search-form" method="GET" action="<%= ApplicationController.root_context -%>/measures/search">
       <% if @filter.id %>
         <input type="hidden" name="id" value="<%= @filter.id -%>">
@@ -85,49 +107,40 @@
                end
                end
             %>
-      <table class="width100">
+      <table class="spaced width100">
         <tbody>
         <tr>
-          <td class="width100">
-            Base:<br>
-            <%= resource_select_tag 'baseId', :resource_type_property => 'supportsGlobalDashboards', :width => '100%', :selected_resource => @filter.base_resource -%>
-          </td>
-        </tr>
-        <tr>
-          <td class="width100">
-            On components:<br>
-            <%= check_box_tag 'onBaseComponents', 'true', @filter.criteria['onBaseComponents'] -%>
-          </td>
-        </tr>
-        <tr>
-          <td class="width100">
-            Qualifiers:<br>
-            <%
-               qualifiers = Api::Utils.java_facade.getResourceTypesForFilter().map do |resource_type|
-                 [message("qualifiers.#{resource_type.getQualifier()}"), resource_type.getQualifier()]
-               end
-            %>
-            <%= select_tag 'qualifiers[]', options_for_select([[message('any'), '']].concat(qualifiers), @filter.criteria['qualifiers']||''), :size => 5, :multiple => true, :class => 'large-input' -%>
+          <td>
+            <%= resource_select_tag 'baseId', :resource_type_property => 'supportsGlobalDashboards', :width => '100%', :selected_resource => @filter.base_resource, :placeholder => 'Path' -%>
           </td>
         </tr>
         <tr>
           <td>
-            Language:<br>
-            <% languages = [[message('any'), '']].concat(Api::Utils.languages.map { |lang| [lang.name, lang.key] }) %>
-            <%= select_tag 'languages[]', options_for_select(languages, @filter.criteria['languages']||''), :size => 5, :multiple => true, :class => 'large-input' -%>
+            <%
+               qualifiers = [['Components', 'components']].concat(Api::Utils.java_facade.getResourceTypesForFilter().map do |resource_type|
+                 [message("qualifiers.#{resource_type.getQualifier()}"), resource_type.getQualifier()]
+               end)
+            %>
+            <%= select_tag 'qualifiers[]', options_for_select(qualifiers, @filter.criteria['qualifiers']||''), :multiple => true, :id => 'select-qualifiers' -%>
           </td>
         </tr>
-        <tr>
-          <td class="width100">
-            <%= message('measure_filter.name_contains') -%>:<br>
-            <input type="text" name="nameRegexp" value="<%= h @filter.criteria['nameRegexp'] -%>" class="large-input"></td>
+        <tr id="criteria-lang" <%= "style='display:none'" unless @filter.criteria('languages') -%>>
+          <td>
+            <% languages = [['', '']].concat(Api::Utils.languages.map { |lang| [lang.name, lang.key] }) %>
+            <%= select_tag 'languages[]', options_for_select(languages, @filter.criteria['languages']), :multiple => true, :id => 'select-lang', 'data-placeholder' => 'Languages' -%>
+          </td>
         </tr>
-        <tr>
-          <td class="width100">
+        <tr id="criteria-name" <%= "style='display:none'" unless @filter.criteria('nameSearch') -%>>
+          <td>
+            <%= message('measure_filter.name_contains') -%>:<br>
+            <input type="text" name="nameSearch" value="<%= h @filter.criteria['nameSearch'] -%>"></td>
+        </tr>
+        <tr id="criteria-key" <%= "style='display:none'" unless @filter.criteria('keyRegexp') -%>>
+          <td>
             <%= message('measure_filter.key_like') -%>:<br>
             <input type="text" name="keyRegexp" value="<%= h @filter.criteria['keyRegexp'] -%>" class="large-input"></td>
         </tr>
-        <tr>
+        <tr id="criteria-fav" <%= "style='display:none'" unless @filter.criteria('onFavourites') -%>>
           <td>
             <%= message 'measure_filter.only_favourites' %>:<br>
             <%= check_box_tag 'onFavourites', 'true', @filter.criteria['onFavourites']=='true' -%>
@@ -135,55 +148,53 @@
         </tr>
 
         <% condition_metrics = Metric.all.select { |m| m.numeric? } %>
-        <tr>
+        <% for i in 1..3 %>
+          <tr id="criteria-metric-<%= i -%>" <%= "style='display: none'" if hidden_condition_indexes.include?(i) -%>>
+            <td style="padding:10px 5px">
+              <%= metric_select_tag "c#{i}_metric", condition_metrics, :allow_empty => true, :selected_key => @filter.criteria("c#{i}_metric"), :width => '100%', :placeholder => 'Metric' -%>
+              <%= select_tag "c#{i}_period", options_for_select([['Value', ''], ['Period 1', '1'], ['Period 2', '2'], ['Period 3', '3']], @filter.criteria("c#{i}_period")) -%>
+              <br>
+              <%= select_tag "c#{i}_op", options_for_select([['=', 'eq'], ['<', 'lt'], ['<=', 'lte'], ['>', 'gt'], ['>=', 'gte']], @filter.criteria("c#{i}_op")) -%>
+              <input type="text" size="5" name="c<%= i -%>_val" value="<%= h @filter.criteria("c#{i}_val") -%>">
+            </td>
+          </tr>
+        <% end %>
+        <tr id="criteria-date" <%= "style='display:none'" unless @filter.criteria('fromDate') || @filter.criteria('toDate') -%>>
           <td>
+            From date:
+            <input type="text" name="fromDate" value="<%= @filter.criteria['fromDate'] -%>" size="10" maxlength="10">
             <br>
-            <%= metric_select_tag 'c1_metric', condition_metrics, :allow_empty => true, :selected_key => @filter.criteria('c1_metric'), :width => '180px' -%>
-            <%= select_tag 'c1_period', options_for_select([['Value', ''], ['Period 1', '1'], ['Period 2', '2'], ['Period 3', '3']], @filter.criteria('c1_period')) -%>
-            <%= select_tag 'c1_op', options_for_select([['Equals', 'eq'], ['Less than', 'lt'], ['Less or equals', 'lte'], ['Greater than', 'gt'], ['Greater or equals', 'gte']], @filter.criteria('c1_op')) -%>
-            <input type="text" size="5" name="c1_val" value="<%= h @filter.criteria('c1_val') -%>">
-            <br><br>
+            To date:
+            <input type="text" name="toDate" value="<%= @filter.criteria['toDate'] -%>" size="10" maxlength="10"><br>
+            <span class="note">year-month-day (2012-01-31)</span>
+          </td>
+        </tr>
+        <tr id="criteria-age" <%= "style='display:none'" unless @filter.criteria('beforeDays') || @filter.criteria('afterDays') -%>>
+          <td>
+            More than
+            <input type="text" name="beforeDays" value="<%= @filter.criteria['beforeDays'] -%>" size="3"> days ago
+            <br>Within the last
+            <input type="text" name="afterDays" value="<%= @filter.criteria['afterDays'] -%>" size="3"> days
+          </td>
+        </tr>
+        <tr id="more-td">
+          <td style="padding-top: 10px">
+            <select id="more-criteria">
+              <option value=""></option>
+              <option value="age">Age</option>
+              <option value="date">Date</option>
+              <option value="fav">Favourites Only</option>
+              <option value="key">Key</option>
+              <option value="lang">Language</option>
+              <option value="metric">Metric</option>
+              <option value="name">Name</option>
+            </select>
           </td>
         </tr>
 
         <tr>
           <td>
-            <br>
-            <%= metric_select_tag 'c2_metric', condition_metrics, :allow_empty => true, :selected_key => @filter.criteria('c2_metric'), :width => '180px' -%>
-            <%= select_tag 'c2_period', options_for_select([['Value', ''], ['Period 1', '1'], ['Period 2', '2'], ['Period 3', '3']], @filter.criteria('c2_period')) -%>
-            <%= select_tag 'c2_op', options_for_select([['Equals', 'eq'], ['Less than', 'lt'], ['Less or equals', 'lte'], ['Greater than', 'gt'], ['Greater or equals', 'gte']], @filter.criteria('c2_op')) -%>
-            <input type="text" size="5" name="c2_val" value="<%= h @filter.criteria('c2_val') -%>">
-            <br><br>
-          </td>
-        </tr>
-
-        <tr>
-          <td>
-            From date:<br>
-            <input type="text" name="fromDate" value="<%= @filter.criteria['fromDate'] -%>">
-          </td>
-        </tr>
-        <tr>
-          <td>
-            To date:<br>
-            <input type="text" name="toDate" value="<%= @filter.criteria['toDate'] -%>">
-          </td>
-        </tr>
-        <tr>
-          <td>
-            More than:<br>
-            <input type="text" name="beforeDays" value="<%= @filter.criteria['beforeDays'] -%>" size="4"> days ago
-          </td>
-        </tr>
-        <tr>
-          <td>Within the last:<br>
-            <input type="text" name="afterDays" value="<%= @filter.criteria['afterDays'] -%>" size="4"> days
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <br/>
-            <input type="button" name="search" value="Search" onclick="submitSearch()">
+            <input type="button" name="search" value="<%= message('search_verb') -%>" onclick="submitSearch()">
             <a href="<%= ApplicationController.root_context -%>/measures">New search</a>
           </td>
         </tr>
@@ -193,46 +204,47 @@
   </div>
 
   <% if @filter.results && @filter.display %>
-    <div id="filter-result" class="page-split-right">
+    <div class="page-split-right">
+      <div id="content">
 
-      <% if @filter.name %>
-        <p>
-          <span class="h3"><%= h @filter.name -%></span>
-          <% if @filter.description.present? %>
-            - <span><%= h @filter.description -%></span>
-          <% end %>
-        </p>
-      <% end %>
+        <% if @filter.name %>
+          <p>
+            <span class="h3"><%= h @filter.name -%></span>
+            <% if @filter.description.present? %>
+              - <span><%= h @filter.description -%></span>
+            <% end %>
+          </p>
+        <% end %>
 
-      <%
-         edit_mode = (params[:edit]=='true')
-         unless edit_mode
-      %>
-        <table class="width100">
-          <tr>
-            <td class="left">
-              Display as:
-              <% MeasureFilterDisplay.keys.each do |display_key| %>
-                <%= link_to_if display_key!=@filter.display.key, display_key, params.merge(:action => 'search', :display => display_key, :id => @filter.id) -%>
-              <% end %>
-            <td class="right">
-              <a id="edit" href="<%= url_for params.merge({:edit => true, :id => @filter.id}) -%>" class="button"><%= message('configure') -%></a>
-              <% if logged_in? %>
-                <% if @filter.id==nil || @filter.user_id==current_user.id %>
-                  <a id="save" href="<%= url_for params.merge({:action => 'save_form', :id => @filter.id}) -%>" class="button open-modal"><%= message('save') -%></a>
+        <%
+           edit_mode = (params[:edit]=='true')
+           unless edit_mode
+        %>
+          <table class="width100">
+            <tr>
+              <td class="left">
+                Display as:
+                <% MeasureFilterDisplay.keys.each do |display_key| %>
+                  <%= link_to_if display_key!=@filter.display.key, display_key, params.merge(:action => 'search', :display => display_key, :id => @filter.id) -%>
                 <% end %>
-                <% if @filter.id %>
-                  <a id="copy" href="<%= url_for params.merge({:action => 'copy_form', :id => @filter.id}) -%>" class="button open-modal"><%= message('copy') -%></a>
+              <td class="right">
+                <a id="edit" href="<%= url_for params.merge({:edit => true, :id => @filter.id}) -%>" class="button"><%= message('configure') -%></a>
+                <% if logged_in? %>
+                  <% if @filter.id==nil || @filter.user_id==current_user.id %>
+                    <a id="save" href="<%= url_for params.merge({:action => 'save_form', :id => @filter.id}) -%>" class="button open-modal"><%= message('save') -%></a>
+                  <% end %>
+                  <% if @filter.id %>
+                    <a id="copy" href="<%= url_for params.merge({:action => 'copy_form', :id => @filter.id}) -%>" class="button open-modal"><%= message('copy') -%></a>
+                  <% end %>
                 <% end %>
-              <% end %>
-              </tr>
-        </table>
-      <% end %>
-      <% if @filter.security_exclusions %>
-        <p class="notes"><%= message('results_not_display_due_to_security') -%></p>
-      <% end %>
-      <%= render :partial => "measures/display_#{@filter.display.class::KEY}", :locals => {:edit_mode => edit_mode} -%>
+                </tr>
+          </table>
+        <% end %>
+        <% if @filter.security_exclusions %>
+          <p class="notes"><%= message('results_not_display_due_to_security') -%></p>
+        <% end %>
+        <%= render :partial => "measures/display_#{@filter.display.class::KEY}", :locals => {:edit_mode => edit_mode} -%>
+      </div>
     </div>
   <% end %>
-
 </div>

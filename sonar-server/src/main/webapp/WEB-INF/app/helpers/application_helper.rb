@@ -646,6 +646,8 @@ module ApplicationHelper
   # * <tt>:qualifiers</tt> - Array of resource qualifiers to filter.
   # * <tt>:resource_type_property</tt> -Filter on resource types on which the property is enabled, for example 'supportsGlobalDashboards'.
   # * <tt>:selected_resource</tt> - the resource that is selected by default.
+  # * <tt>:placeholder</tt> - the label to display when nothing is selected
+  # * <tt>:select2_options</tt> - hash of select2 options
   #
   def resource_select_tag(name, options={})
     width=options[:width]
@@ -673,6 +675,7 @@ module ApplicationHelper
       'formatSearching' => "function(){return '#{escape_javascript message('select2.searching')}'}",
       'formatInputTooShort' => "function(term, minLength){return '#{escape_javascript message('select2.tooShort', :params => [min_length])}'}"
     }
+    js_options['placeholder']= "'#{options[:placeholder]}'" if options.has_key?(:placeholder)
     js_options['width']= "'#{width}'" if width
     js_options['ajax']='{' + ajax_options.map { |k, v| "#{k}:#{v}" }.join(',') + '}'
     js_options.merge!(options[:select2_options]) if options[:select2_options]
@@ -700,6 +703,7 @@ module ApplicationHelper
   # * <tt>:html_id</tt> - The id of the HTML element. Default is the name.
   # * <tt>:key_prefix</tt> - Prefix added to metric keys. Default is ''
   # * <tt>:extra_values</tt> -
+  # * <tt>:placeholder</tt> - the label to display when nothing is selected
   #
   def metric_select_tag(name, metrics, options={})
     width=options[:width]||'250px'
@@ -729,6 +733,7 @@ module ApplicationHelper
         h
       end
     end
+    js_options['placeholder']= "'#{options[:placeholder]}'" if options.has_key?(:placeholder)
 
     key_prefix = options[:key_prefix]||''
     metrics.sort_by(&:short_name).inject(metrics_by_domain) do |h, metric|

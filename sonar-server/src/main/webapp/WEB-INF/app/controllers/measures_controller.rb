@@ -19,18 +19,23 @@
 #
 class MeasuresController < ApplicationController
 
+  ROOT_BREADCRUMB = {:name => Api::Utils.message('layout.measures'), :url => {:action => 'index'}}
 
   # GET /measures/index
   def index
     @filter = MeasureFilter.new
+    add_breadcrumbs(ROOT_BREADCRUMB)
     render :action => 'search'
   end
 
   def search
+    add_breadcrumbs(ROOT_BREADCRUMB)
     if params[:id]
       @filter = MeasureFilter.find(params[:id])
+      add_breadcrumbs({:name => @filter.name, :url => {:action => 'filter', :id => @filter.id}})
     else
       @filter = MeasureFilter.new
+      add_breadcrumbs(message('search_verb'))
     end
     @filter.criteria=(params)
     @filter.enable_default_display
@@ -85,6 +90,7 @@ class MeasuresController < ApplicationController
   # GET /measures/manage
   def manage
     access_denied unless logged_in?
+    add_breadcrumbs(ROOT_BREADCRUMB, message('measure_filter.manage'))
     @shared_filters = MeasureFilter.find(:all,
                                          :include => :user,
                                          :conditions => ['shared=? and user_id<>?', true, current_user.id])
@@ -174,12 +180,6 @@ class MeasuresController < ApplicationController
     end
 
     render :text => is_favourite.to_s, :status => 200
-  end
-
-  # GET /measures/filters
-  def filters
-    verify_ajax_request
-    render :partial => 'measures/filters'
   end
 
   private

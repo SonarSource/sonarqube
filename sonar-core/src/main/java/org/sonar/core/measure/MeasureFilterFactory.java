@@ -54,7 +54,7 @@ public class MeasureFilterFactory implements ServerComponent {
     if (properties.containsKey("onBaseComponents")) {
       filter.setOnBaseResourceChildren(Boolean.valueOf((String) properties.get("onBaseComponents")));
     }
-    filter.setResourceName((String) properties.get("nameRegexp"));
+    filter.setResourceName((String) properties.get("nameSearch"));
     filter.setResourceKeyRegexp((String) properties.get("keyRegexp"));
     if (properties.containsKey("fromDate")) {
       filter.setFromDate(toDate((String) properties.get("fromDate")));

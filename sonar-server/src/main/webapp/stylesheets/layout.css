@@ -218,11 +218,6 @@ body, a {
   margin: 0 8px;
 }
 
-#content {
-  padding-top: 8px;
-  width: auto;
-}
-
 #sb {
   width: 150px;
   position: absolute;
@@ -302,22 +297,23 @@ body, a {
   min-width: 180px;
   width: 180px;
   margin: 0;
-  -moz-box-sizing: border-box;
   display: table-cell;
   vertical-align: top;
   background-color: #EFEFEF;
   border: 1px solid #CCC;
   color: #666;
   line-height: 1.1em;
-  padding: 10px;
+  border-top: none;
+  border-left: none;
+  padding: 10px 5px;
 }
 
 .page-split-right {
   position: relative;
-  padding: 10px 0 0 10px;
   -moz-box-sizing: border-box;
   display: table-cell;
   margin: 0;
   vertical-align: top;
   width: 100%;
+  padding: 0 0 0 10px;
 }

@@ -74,7 +74,7 @@ public class MeasureFilterDecoderTest {
     assertThat(filter.sort().isAsc()).isTrue();
     MeasureFilterCondition condition = filter.getMeasureConditions().get(0);
     assertThat(condition.metric().getKey()).isEqualTo("lines");
-    assertThat(condition.operator()).isEqualTo(">");
+    assertThat(condition.operator()).isEqualTo(MeasureFilterCondition.Operator.GREATER);
     assertThat(condition.value()).isEqualTo(123.0);
   }
 

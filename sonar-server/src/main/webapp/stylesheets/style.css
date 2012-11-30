@@ -2268,7 +2268,7 @@ td.spacer-top {
 }
 
 select:not([multiple]) {
-  padding: 2px 5px;
+  padding: 1px 3px;
 }
 
 select.small-width {
@@ -2386,39 +2386,4 @@ textarea.width100 {
 
 .property table.data > thead > tr > th {
   vertical-align: top;
-}
-
-.nav-pills:before, .nav-pills:after {
-  content: "";
-  display: table;
-  line-height: 0;
-}
-
-.nav-pills:after {
-  clear: both;
-}
-
-.nav-pills > li {
-  float: left;
-}
-
-.nav-pills > li > a {
-  line-height: 14px;
-  margin-right: 2px;
-  padding-left: 10px;
-  padding-right: 10px;
-  display: block;
-}
-
-.nav-pills > li > a {
-  border-radius: 5px 5px 5px 5px;
-  margin-bottom: 2px;
-  margin-top: 2px;
-  padding-bottom: 6px;
-  padding-top: 6px;
-}
-
-.nav-pills > .active > a, .nav-pills > .active > a:hover {
-  background-color: #4b9fd5;
-  color: #FFFFFF;
 }

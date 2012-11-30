@@ -22,7 +22,7 @@
                icon = breadcrumb[:icon]
           %>
             <% if icon %><img src="<%= ApplicationController.root_context -%>/images/<%= icon -%>" width="16" height="16"><% end %>
-            <%= link_to_if url, name, url -%>
+            <%= link_to_if url, h(name), url -%>
           <% elsif breadcrumb.respond_to?(:html) %>
             <%= breadcrumb.html -%>
           <% end %>
