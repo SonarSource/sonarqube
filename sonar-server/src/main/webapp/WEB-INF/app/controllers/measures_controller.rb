@@ -91,6 +91,7 @@ class MeasuresController < ApplicationController
   def manage
     access_denied unless logged_in?
     add_breadcrumbs(ROOT_BREADCRUMB, message('measure_filter.manage'))
+    @filter = MeasureFilter.new
     @shared_filters = MeasureFilter.find(:all,
                                          :include => :user,
                                          :conditions => ['shared=? and (user_id is null or user_id<>?)', true, current_user.id])

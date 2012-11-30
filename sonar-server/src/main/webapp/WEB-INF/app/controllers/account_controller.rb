@@ -19,8 +19,6 @@
 #
 class AccountController < ApplicationController
 
-  SECTION=Navigation::SECTION_CONFIGURATION
-
   before_filter :login_required
 
   def index

@@ -1,4 +1,5 @@
-<%= render :partial => 'profiles/tabs', :locals => {:selected_tab=>'Alerts'} %>
+<div id="content">
+  <%= render :partial => 'profiles/tabs', :locals => {:selected_tab=>'Alerts'} %>
 
 <% if is_admin? %>
   <div class="tabs-panel marginbottom10 admin" id="new_alert_form">
@@ -43,4 +44,5 @@
 <tr class="even"><td><%= image_tag 'levels/error.png' %></td><td> <%= message('alerts.notes.error') -%></td></tr>
 </tbody>
 </table>
+</div>
 </div>

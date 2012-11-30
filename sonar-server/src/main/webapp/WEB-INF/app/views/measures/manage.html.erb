@@ -22,100 +22,105 @@
     });
   </script>
 <% end %>
-
-<h2>My Filters</h2>
-<table class="data marginbottom10" id="my-filters">
-  <thead>
-  <tr>
-    <th class="thin"></th>
-    <th><%= message('name') -%></th>
-    <th><%= message('measure_filter.sharing') -%></th>
-    <th class="right"><%= message('operations') -%></th>
-  </tr>
-  </thead>
-  <tbody>
-  <% if current_user.measure_filters.empty? %>
-    <tr class="even">
-      <td colspan="4"><%= message('filters.no_filters') -%></td>
-    </tr>
-  <% else %>
-    <% current_user.measure_filters.each do |filter| %>
-      <tr id="my-<%= filter.name.parameterize -%>" class="<%= cycle('even', 'odd', :name => 'my-filters') -%>">
-        <td>
-          <%= measure_filter_star(filter, @fav_filter_ids.include?(filter.id)) -%>
-        </td>
-        <td>
-          <%= link_to h(filter.name), :action => 'filter', :id => filter.id -%>
-          <% if filter.description %>
-            <div><%= h filter.description -%></div>
+<div>
+  <div class="page-split-left">
+    <%= render :partial => 'measures/sidebar' -%>
+  </div>
+  <div class="page-split-right">
+    <div id="content">
+      <h2>My Filters</h2>
+      <table class="data marginbottom10" id="my-filters">
+        <thead>
+        <tr>
+          <th class="thin"></th>
+          <th><%= message('name') -%></th>
+          <th><%= message('measure_filter.sharing') -%></th>
+          <th class="right"><%= message('operations') -%></th>
+        </tr>
+        </thead>
+        <tbody>
+        <% if current_user.measure_filters.empty? %>
+          <tr class="even">
+            <td colspan="4"><%= message('filters.no_filters') -%></td>
+          </tr>
+        <% else %>
+          <% current_user.measure_filters.each do |filter| %>
+            <tr id="my-<%= filter.name.parameterize -%>" class="<%= cycle('even', 'odd', :name => 'my-filters') -%>">
+              <td>
+                <%= measure_filter_star(filter, @fav_filter_ids.include?(filter.id)) -%>
+              </td>
+              <td>
+                <%= link_to h(filter.name), :action => 'filter', :id => filter.id -%>
+                <% if filter.description %>
+                  <div><%= h filter.description -%></div>
+                <% end %>
+              </td>
+              <td>
+                <% if filter.shared %>
+                  Shared with all users
+                <% else %>
+                  Private
+                <% end %>
+              </td>
+              <td class="thin nowrap right">
+                <a id="edit_<%= filter.name.parameterize -%>" href="<%= ApplicationController.root_context -%>/measures/edit_form/<%= filter.id -%>" class="link-action open-modal"><%= message('edit') -%></a>
+                &nbsp;
+                <a id="copy-<%= filter.name.parameterize -%>" href="<%= ApplicationController.root_context -%>/measures/copy_form/<%= filter.id -%>" class="link-action open-modal"><%= message('copy') -%></a>
+                &nbsp;
+                <%= link_to_action message('delete'), "#{ApplicationController.root_context}/measures/delete/#{filter.id}",
+                                   :class => 'link-action link-red',
+                                   :id => "delete_#{filter.name.parameterize}",
+                                   :confirm_button => message('delete'),
+                                   :confirm_title => 'measure_filter.delete_confirm_title',
+                                   :confirm_msg => 'measure_filter.are_you_sure_want_delete_filter_x',
+                                   :confirm_msg_params => [filter.name] -%>
+              </td>
+            </tr>
           <% end %>
-        </td>
-        <td>
-          <% if filter.shared %>
-            Shared with all users
-          <% else %>
-            Private
+        <% end %>
+        </tbody>
+      </table>
+
+      <br/>
+
+      <h2>Shared Filters</h2>
+      <table class="data" id="shared-filters">
+        <thead>
+        <tr>
+          <th class="thin"></th>
+          <th><%= message('name') -%></th>
+          <th><%= message('shared_by') -%></th>
+          <th class="right"><%= message('operations') -%></th>
+        </tr>
+        </thead>
+        <tbody>
+        <% if @shared_filters.empty? %>
+          <tr class="even">
+            <td colspan="4"><%= message('filters.no_filters') -%></td>
+          </tr>
+        <% else %>
+          <% @shared_filters.each do |filter| %>
+            <tr id="shared-<%= filter.name.parameterize -%>" class="<%= cycle('even', 'odd', :name => 'shared-filters') -%>">
+              <td>
+                <%= measure_filter_star(filter, @fav_filter_ids.include?(filter.id)) -%>
+              </td>
+              <td>
+                <%= link_to h(filter.name), :action => 'filter', :id => filter.id -%>
+                <% if filter.description %>
+                  <div><%= h filter.description -%></div>
+                <% end %>
+              </td>
+              <td>
+                <%= filter.user ? h(filter.user.name) : '-' -%>
+              </td>
+              <td class="thin nowrap right">
+                <a id="copy-<%= filter.name.parameterize -%>" href="<%= ApplicationController.root_context -%>/measures/copy_form/<%= filter.id -%>" class="link-action open-modal"><%= message('copy') -%></a>
+              </td>
+            </tr>
           <% end %>
-        </td>
-        <td class="thin nowrap right">
-          <a id="edit_<%= filter.name.parameterize -%>" href="<%= ApplicationController.root_context -%>/measures/edit_form/<%= filter.id -%>" class="link-action open-modal"><%= message('edit') -%></a>
-          &nbsp;
-          <a id="copy-<%= filter.name.parameterize -%>" href="<%= ApplicationController.root_context -%>/measures/copy_form/<%= filter.id -%>" class="link-action open-modal"><%= message('copy') -%></a>
-          &nbsp;
-          <%= link_to_action message('delete'), "#{ApplicationController.root_context}/measures/delete/#{filter.id}",
-                             :class => 'link-action link-red',
-                             :id => "delete_#{filter.name.parameterize}",
-                             :confirm_button => message('delete'),
-                             :confirm_title => 'measure_filter.delete_confirm_title',
-                             :confirm_msg => 'measure_filter.are_you_sure_want_delete_filter_x',
-                             :confirm_msg_params => [filter.name] -%>
-        </td>
-      </tr>
-    <% end %>
-  <% end %>
-  </tbody>
-</table>
-
-<br/>
-
-<h2>Shared Filters</h2>
-<table class="data" id="shared-filters">
-  <thead>
-  <tr>
-    <th class="thin"></th>
-    <th><%= message('name') -%></th>
-    <th><%= message('shared_by') -%></th>
-    <th class="right"><%= message('operations') -%></th>
-  </tr>
-  </thead>
-  <tbody>
-  <% if @shared_filters.empty? %>
-    <tr class="even">
-      <td colspan="4"><%= message('filters.no_filters') -%></td>
-    </tr>
-  <% else %>
-    <% @shared_filters.each do |filter| %>
-      <tr id="shared-<%= filter.name.parameterize -%>" class="<%= cycle('even', 'odd', :name => 'shared-filters') -%>">
-        <td>
-          <%= measure_filter_star(filter, @fav_filter_ids.include?(filter.id)) -%>
-        </td>
-        <td>
-          <%= link_to h(filter.name), :action => 'filter', :id => filter.id -%>
-          <% if filter.description %>
-            <div><%= h filter.description -%></div>
-          <% end %>
-        </td>
-        <td>
-          <%= filter.user ? h(filter.user.name) : '-' -%>
-        </td>
-        <td class="thin nowrap right">
-          <a id="copy-<%= filter.name.parameterize -%>" href="<%= ApplicationController.root_context -%>/measures/copy_form/<%= filter.id -%>" class="link-action open-modal"><%= message('copy') -%></a>
-        </td>
-      </tr>
-
-    <% end %>
-  <% end %>
-  </tbody>
-</table>
-
-
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

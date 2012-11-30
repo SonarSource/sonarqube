@@ -148,6 +148,10 @@ body, a {
   padding: 0 5px 0 0;
 }
 
+#content {
+  padding: 10px;
+}
+
 #hd .dropdown-menu a {
   color: #000;
 }
@@ -163,7 +167,7 @@ body, a {
   box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5);
   z-index: 999999;
   line-height: 18px;
-  color: #000;
+  color: #111;
 }
 
 #user-panel > div {
@@ -174,25 +178,25 @@ body, a {
   color: #000;
 }
 
-#sonar-recent-history {
+#recent-history {
   border-top: 1px solid #ccc;
 }
 
-#sonar-recent-history li {
+#recent-history li {
   list-style-type: none !important;
-  padding: 2px 8px 2px 0px !important;
+  padding: 2px 8px 2px 0 !important;
   cursor: pointer !important;
 }
 
-#sonar-recent-history li:hover {
+#recent-history li:hover {
   background-color: #4b9fd5 !important;
 }
 
-#sonar-recent-history li:hover a {
+#recent-history li:hover a {
   color: #fff !important;
 }
 
-#sonar-recent-history a {
+#recent-history a {
   text-decoration: none !important;
 }
 
@@ -266,6 +270,47 @@ body, a {
   color: #FEFEFE;
 }
 
+ul.sidebar {
+  text-align: left;
+  line-height: 1.1em;
+  border-top: none;
+  padding: 10px 0;
+}
+
+ul.sidebar li {
+  list-style-type: none;
+  padding: 3px 10px 3px 10px;
+}
+
+ul.sidebar li a {
+  text-decoration: none;
+}
+
+ul.sidebar li a:hover {
+  text-decoration: underline;
+}
+
+ul.sidebar li.active {
+  background-color: #4b9fd5;
+}
+
+ul.sidebar li.active a, ul.sidebar li.active a:hover {
+  color: #FFF;
+}
+
+.sidebar-title {
+  text-transform: uppercase;
+  font-size: 93%;
+  font-weight: bold;
+}
+
+ul.sidebar li.spacer {
+  border: 0 none;
+  height: 10px;
+  margin: 0;
+  padding: 0;
+}
+
 #logo {
   text-align: center;
   padding: 8px 0 0 0;
@@ -294,26 +339,28 @@ body, a {
 }
 
 .page-split-left {
-  min-width: 180px;
-  width: 180px;
+  min-width: 200px;
+  width: 200px;
   margin: 0;
   display: table-cell;
   vertical-align: top;
-  background-color: #EFEFEF;
-  border: 1px solid #CCC;
-  color: #666;
-  line-height: 1.1em;
   border-top: none;
   border-left: none;
-  padding: 10px 5px;
 }
 
 .page-split-right {
   position: relative;
-  -moz-box-sizing: border-box;
   display: table-cell;
   margin: 0;
   vertical-align: top;
   width: 100%;
-  padding: 0 0 0 10px;
+  padding: 0;
+}
+
+.gray-sidebar {
+  background-color: #EFEFEF;
+  border: 1px solid #CCC;
+  color: #666;
+  border-top: none;
+  border-left: none;
 }

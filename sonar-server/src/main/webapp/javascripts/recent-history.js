@@ -2,11 +2,6 @@ window.Sonar = {};
 
 Sonar.RecentHistory = function (applicationContext) {
   this.appContext = applicationContext;
-  this.translations = {};
-  this.addTranslation = function (key, value) {
-    this.translations[key] = value;
-    return this;
-  };
 };
 
 Sonar.RecentHistory.prototype.getRecentHistory = function() {
@@ -46,12 +41,12 @@ Sonar.RecentHistory.prototype.add = function (resourceKey, resourceName, iconPat
 };
 
 Sonar.RecentHistory.prototype.populateRecentHistoryPanel = function () {
-  var historyLinksList = $j('#sonar-recent-history-list');
+  var historyLinksList = $j('#recent-history-list');
   historyLinksList.empty();
   
   var recentHistory = this.getRecentHistory();  
   if (recentHistory.length == 0) {
-    $j("#sonar-recent-history").hide();
+    $j("#recent-history").hide();
   } else {    
     recentHistory.forEach(function (resource) {
       historyLinksList.append('<li><img width="16" height="16" src="'
@@ -65,6 +60,6 @@ Sonar.RecentHistory.prototype.populateRecentHistoryPanel = function () {
                             + resource['name'] 
                             + '</a></li>');
     });
-    $j("#sonar-recent-history").show();
+    $j("#recent-history").show();
   }
 };

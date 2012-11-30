@@ -1,9 +1,7 @@
 <script>
   if (supports_html5_storage()) {
-    var sonarRecentHistory = new Sonar.RecentHistory('<%= ApplicationController.root_context -%>')
-                                      .addTranslation('clear', '<%= message('layout.user_panel.recent_history.clear') -%>');
+    var sonarRecentHistory = new Sonar.RecentHistory(baseUrl);
   }
-  
   var shouldUpdateRecentHistory = true;
 </script>
 
@@ -24,15 +22,15 @@
         &nbsp;–&nbsp;
         <a href="<%= ApplicationController.root_context -%>/filters/manage" class="link-action"><%= message('default_filters.page') -%></a>
         &nbsp;–&nbsp;
-        <a href="<%= ApplicationController.root_context -%>/sessions/logout" class="link-action" onclick="if (sonarRecentHistory) { sonarRecentHistory.clear(); };"><%= message('layout.logout') -%></a>
+        <a href="<%= ApplicationController.root_context -%>/sessions/logout" class="link-action" onclick="if (sonarRecentHistory) { sonarRecentHistory.clear(); }"><%= message('layout.logout') -%></a>
       <% else %>
         <b><%= message('layout.user_panel.anonymous_user') -%></b>
       <% end %>
     </div>
     
-    <div id="sonar-recent-history" style="display: none">
+    <div id="recent-history" style="display: none">
       <b><%= message('layout.user_panel.recent_history.title') -%></b>
-      <ul id="sonar-recent-history-list">
+      <ul id="recent-history-list">
       </ul>    	
     </div>
   </div>
@@ -41,10 +39,10 @@
 
 <script>
   if (sonarRecentHistory == null) {
-    $j('#sonar-recent-history').detach();
+    $j('#recent-history').detach();
   } else {
     sonarRecentHistory.add('<%= @resource ? @resource.key : "" -%>', 
                            '<%= @resource ? @resource.name(true) : "" -%>', 
-                           '<%= @resource ? Java::OrgSonarServerUi::JRubyFacade.getInstance().getResourceType(@resource.qualifier).getIconPath() : "" -%>');
+                           '<%= @resource ? Api::Utils.java_facade.getResourceType(@resource.qualifier).getIconPath() : "" -%>');
   }
 </script>

@@ -2088,7 +2088,7 @@ table.nowrap td, td.nowrap, th.nowrap {
 /* Used on links which are located inside a dense text place or in tables */
 /* in order to rapidly identify them                                      */
 .link-action {
-  text-decoration: underline;
+  text-decoration: underline !important;
   color: #4183C4 !important;
 }
 

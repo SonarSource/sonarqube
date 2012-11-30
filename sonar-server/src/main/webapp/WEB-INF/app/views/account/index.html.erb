@@ -1,86 +1,91 @@
-<h1 class="marginbottom10"><%= message('my_profile.page') -%></h1>
-<div class="admin marginbottom10">
-<table class="form">
-  <tr>
-    <td><b><%= message('my_profile.login') -%>:</b></td>
-    <td id="login"><%= current_user.login %></td>
-  </tr>
-  <tr>
-    <td><b><%= message('my_profile.name') -%>:</b></td>
-    <td id="name"><%= current_user.name %></td>
-  </tr>
-  <tr>
-    <td><b><%= message('my_profile.email') -%>:</b></td>
-    <td id="email"><%= current_user.email %></td>
-  </tr>
-  <tr>
-    <td><b><%= message('my_profile.groups') -%>:</b></td>
-    <td id="groups"><%= current_user.groups.sort.map(&:name).join(', ') %></td>
-  </tr>
-</table>
-</div>
+<div id="content">
+  <h1 class="marginbottom10"><%= message('my_profile.page') -%></h1>
 
-<% if User.editable_password? %>
-<h2><%= message('my_profile.password.title') -%></h2>
-<div class="admin marginbottom10">
-  <% form_tag( {:action => 'change_password' }, :id => 'pass_form_tag', :name => 'pass_form_tag') do -%>
-  <table class="form">
-    <tr>
-      <td class="keyCell"><label for="old_password"><b><%= message('my_profile.password.old') -%>:</b></label></td>
-      <td><%= password_field_tag 'old_password' %></td>
-    </tr>
-    <tr>
-      <td class="keyCell"><label for="password"><b><%= message('my_profile.password.new') -%>:</b></label></td>
-      <td><%= password_field_tag 'password' %></td>
-    </tr>
-    <tr>
-      <td class="keyCell"><label for="password_confirmation"><b><%= message('my_profile.password.confirm') -%>:</b></label></td>
-      <td><%= password_field_tag 'password_confirmation' %></td>
-    </tr>
-    <tr>
-      <td></td>
-      <td><%= submit_tag message('my_profile.password.submit') %></td>
-    </tr>
-  </table>
-  <% end %>
+  <div class="admin marginbottom10">
+    <table class="form">
+      <tr>
+        <td><b><%= message('my_profile.login') -%>:</b></td>
+        <td id="login"><%= current_user.login %></td>
+      </tr>
+      <tr>
+        <td><b><%= message('my_profile.name') -%>:</b></td>
+        <td id="name"><%= current_user.name %></td>
+      </tr>
+      <tr>
+        <td><b><%= message('my_profile.email') -%>:</b></td>
+        <td id="email"><%= current_user.email %></td>
+      </tr>
+      <tr>
+        <td><b><%= message('my_profile.groups') -%>:</b></td>
+        <td id="groups"><%= current_user.groups.sort.map(&:name).join(', ') %></td>
+      </tr>
+    </table>
+  </div>
 
-  <script type="text/javascript">
-  //<![CDATA[
-    $('pass_form_tag').focusFirstElement();
-  //]]>
-  </script>
-</div>
-<% end -%>
+  <% if User.editable_password? %>
+    <h2><%= message('my_profile.password.title') -%></h2>
 
-<h2><%= message('my_profile.notifications.title') -%></h2>
-<div class="admin marginbottom10">
-<% form_tag({:action => 'update_notifications'}, {:method => 'post'}) do %>
-  <table class="form">
-    <tr>
-      <td></td>
-      <% for channel in @channels %>
-      <td><b><%= message('notification.channel.' + channel.getKey()) -%></b></td>
+    <div class="admin marginbottom10">
+      <% form_tag({:action => 'change_password'}, :id => 'pass_form_tag', :name => 'pass_form_tag') do -%>
+        <table class="form">
+          <tr>
+            <td class="keyCell"><label for="old_password"><b><%= message('my_profile.password.old') -%>:</b></label></td>
+            <td><%= password_field_tag 'old_password' %></td>
+          </tr>
+          <tr>
+            <td class="keyCell"><label for="password"><b><%= message('my_profile.password.new') -%>:</b></label></td>
+            <td><%= password_field_tag 'password' %></td>
+          </tr>
+          <tr>
+            <td class="keyCell"><label for="password_confirmation"><b><%= message('my_profile.password.confirm') -%>:</b></label></td>
+            <td><%= password_field_tag 'password_confirmation' %></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><%= submit_tag message('my_profile.password.submit') %></td>
+          </tr>
+        </table>
       <% end %>
-    </tr>
-    <% for dispatcher in @dispatchers %>
-    <tr>
-      <td><%= message('notification.dispatcher.' + dispatcher.getKey()) -%></td>
-      <td>
-        <%
-        for channel in @channels
-          notification_id = dispatcher.getKey() + '.' + channel.getKey()
-          check_box_id = 'notifications[' + notification_id + ']'
-          check_box_checked = @notifications[notification_id]
-        %>
-          <%= check_box_tag check_box_id, 'true', check_box_checked %>
+
+      <script type="text/javascript">
+        //<![CDATA[
+        $('pass_form_tag').focusFirstElement();
+        //]]>
+      </script>
+    </div>
+  <% end -%>
+
+  <h2><%= message('my_profile.notifications.title') -%></h2>
+
+  <div class="admin marginbottom10">
+    <% form_tag({:action => 'update_notifications'}, {:method => 'post'}) do %>
+      <table class="form">
+        <tr>
+          <td></td>
+          <% for channel in @channels %>
+            <td><b><%= message('notification.channel.' + channel.getKey()) -%></b></td>
+          <% end %>
+        </tr>
+        <% for dispatcher in @dispatchers %>
+          <tr>
+            <td><%= message('notification.dispatcher.' + dispatcher.getKey()) -%></td>
+            <td>
+              <%
+                 for channel in @channels
+                   notification_id = dispatcher.getKey() + '.' + channel.getKey()
+                   check_box_id = 'notifications[' + notification_id + ']'
+                   check_box_checked = @notifications[notification_id]
+              %>
+                <%= check_box_tag check_box_id, 'true', check_box_checked %>
+              <% end %>
+            </td>
+          </tr>
         <% end %>
-      </td>
-    </tr>
+        <tr>
+          <td></td>
+          <td><%= submit_tag message('my_profile.notifications.submit') %></td>
+        </tr>
+      </table>
     <% end %>
-    <tr>
-      <td></td>
-      <td><%= submit_tag message('my_profile.notifications.submit') %></td>
-    </tr>
-  </table>
-<% end %>
+  </div>
 </div>

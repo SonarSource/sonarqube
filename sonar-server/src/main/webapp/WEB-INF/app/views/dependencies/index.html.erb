@@ -1,3 +1,4 @@
+<% content_for :style do %>
 <style>
 .drilldown_col {
   float: left;
@@ -15,14 +16,16 @@ margin-right: 17px; // scrollbar width
 padding: 5px;
 }
 .drilldown_col div.col table {
-  
+
 }
 .drilldown_col div.col td {
   padding: 3px 7px;
   min-width: 15em;
-  white-space: nowrap; 
+  white-space: nowrap;
 }
 </style>
+<% end %>
+<div id="content">
 <form action="<%= ApplicationController.root_context -%>/dependencies/index" id="search_form">
   <input type="text" name="search" value="<%= params[:search] -%>" id="search_input"> </input>
   <input type="submit" value="<%= message('dependencies.search_library') -%>" id="search_submit"/><br/>
@@ -99,3 +102,4 @@ $$('#artifacts_col tr.selected').each(function(item) {item.scrollIntoView(true);
 $$('#versions_col tr.selected').each(function(item) {item.scrollIntoView(true);});
 $$('#results_col tr.selected').each(function(item) {item.scrollIntoView(true);});
 </script>
+</div>
