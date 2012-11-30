@@ -24,6 +24,8 @@
   </fieldset>
 </form>
 <script>
-  $j("#copy-filter-form").modalForm();
+  $j("#copy-filter-form").modalForm({success:function (data) {
+      window.location = baseUrl + '/measures/filter/' + data;
+    }});
   $j('#name').select();
 </script>

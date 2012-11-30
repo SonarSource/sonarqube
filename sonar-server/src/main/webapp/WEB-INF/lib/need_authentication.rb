@@ -45,7 +45,7 @@ class PluginRealm
     @java_authenticator = java_realm.doGetAuthenticator()
     @java_users_provider = java_realm.getUsersProvider()
     @java_groups_provider = java_realm.getGroupsProvider()
-    @save_password = Java::OrgSonarServerUi::JRubyFacade.new.getSettings().getBoolean('sonar.security.savePassword')
+    @save_password = Api::Utils.java_facade.new.getSettings().getBoolean('sonar.security.savePassword')
   end
 
   def authenticate?(username, password, servlet_request)
@@ -113,11 +113,10 @@ class PluginRealm
     user = User.find_by_login(username)
     if !user
       # No such user in Sonar database
-      java_facade = Java::OrgSonarServerUi::JRubyFacade.new
-      return nil if !java_facade.getSettings().getBoolean('sonar.authenticator.createUsers')
+      return nil if !Api::Utils.java_facade.getSettings().getBoolean('sonar.authenticator.createUsers')
       # Automatically create a user in the sonar db if authentication has been successfully done
       user = User.new(:login => username, :name => username, :email => '')
-      default_group_name = java_facade.getSettings().getString('sonar.defaultGroup')
+      default_group_name = Api::Utils.java_facade.getSettings().getString('sonar.defaultGroup')
       default_group = Group.find_by_name(default_group_name)
       if default_group
         user.groups << default_group
@@ -174,7 +173,7 @@ class RealmFactory
 
   def self.realm
     if @@realm.nil?
-      realm_factory = Java::OrgSonarServerUi::JRubyFacade.new.getCoreComponentByClassname('org.sonar.server.ui.SecurityRealmFactory')
+      realm_factory = Api::Utils.java_facade.getCoreComponentByClassname('org.sonar.server.ui.SecurityRealmFactory')
       component = realm_factory.getRealm()
       @@realm = component ? PluginRealm.new(component) : DefaultRealm.new
     end
@@ -203,7 +202,7 @@ module NeedAuthentication
       def authenticate(login, password, servlet_request)
         # Downcase login (typically for Active Directory)
         # Note that login in Sonar DB is case-sensitive, however in this case authentication and automatic user creation will always happen with downcase login
-        downcase = Java::OrgSonarServerUi::JRubyFacade.new.getSettings().getBoolean('sonar.authenticator.downcase')
+        downcase = Api::Utils.java_facade.getSettings().getBoolean('sonar.authenticator.downcase')
         if login && downcase
           login = login.downcase
         end

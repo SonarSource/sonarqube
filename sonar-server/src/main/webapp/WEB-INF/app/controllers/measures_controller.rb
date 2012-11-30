@@ -93,7 +93,7 @@ class MeasuresController < ApplicationController
     add_breadcrumbs(ROOT_BREADCRUMB, message('measure_filter.manage'))
     @shared_filters = MeasureFilter.find(:all,
                                          :include => :user,
-                                         :conditions => ['shared=? and user_id<>?', true, current_user.id])
+                                         :conditions => ['shared=? and (user_id is null or user_id<>?)', true, current_user.id])
     Api::Utils.insensitive_sort!(@shared_filters) { |elt| elt.name }
     @fav_filter_ids = current_user.measure_filter_favourites.map { |fav| fav.measure_filter_id }
   end
@@ -145,6 +145,7 @@ class MeasuresController < ApplicationController
     @filter.data = to_clone.data
     @filter.shared = false
     if @filter.save
+      current_user.favourited_measure_filters << @filter
       render :text => @filter.id.to_s, :status => 200
     else
       render :partial => 'measures/copy_form', :status => 400

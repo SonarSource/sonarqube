@@ -64,15 +64,26 @@ class MoveExistingMeasureFilters < ActiveRecord::Migration
     data << "pageSize=#{old_filter.page_size}" if old_filter.page_size
     data << "display=#{old_filter.default_view || 'list'}"
 
+    move_columns(old_filter, data)
+    move_criteria(old_filter, data)
+
+    new_filter.data = data.join('|') unless data.empty?
+    new_filter.save
+    # TODO Filter.delete(old_filter.id)
+  end
+
+  def self.move_columns(old_filter, data)
     columns = []
     asc = nil
     sort = nil
     old_columns = FilterColumn.find(:all, :conditions => ['filter_id=?', old_filter.id], :order => 'order_index')
     old_columns.each do |old_column|
       column_key = old_column.family
-      column_key += ":#{old_column.kee}" if old_column.kee
-      columns << column_key
-      # TODO old_column.variation
+      if old_column.kee
+        column_key += ":#{old_column.kee}"
+        column_key += ":#{old_filter.period_index}" if old_column.variation && old_filter.period_index
+        columns << column_key
+      end
       if old_column.sort_direction=='ASC'
         asc = true
         sort = column_key
@@ -86,11 +97,50 @@ class MoveExistingMeasureFilters < ActiveRecord::Migration
       data << "sort=#{sort}"
       data << "asc=#{asc}"
     end
+  end
 
-    # TODO move criteria
+  def self.move_criteria(old_filter, data)
+    old_criteria = Criteria.find(:all, :conditions => ['filter_id=?', old_filter.id])
+    metric_criteria_id=1
 
-    new_filter.data = data.join('|') unless data.empty?
-    new_filter.save
-    # TODO Filter.delete(old_filter.id)
+    old_criteria.each do |old|
+      if old.family=='qualifier' && old.text_value
+        data << "qualifiers=#{old.text_value}"
+      elsif old.family=='name' && old.text_value
+        data << "nameSearch=#{old.text_value}"
+      elsif old.family=='key' && old.text_value
+        data << "keyRegexp=#{old.text_value}"
+      elsif old.family=='language' && old.text_value
+        data << "languages=#{old.text_value}"
+      elsif old.family=='date' && old.value && old.operator
+        data << "ageMaxDays=#{old.value}" if old.operator=='<'
+        data << "ageMinDays=#{old.value}" if old.operator=='>'
+      elsif old.family=='metric' && old.kee && old.operator && old.value
+        data << "c#{metric_criteria_id}_metric=#{old.kee}"
+        data << "c#{metric_criteria_id}_op=#{operator_code(old.operator)}"
+        data << "c#{metric_criteria_id}_val=#{old.value}"
+        data << "c#{metric_criteria_id}_period=#{old.period}" if old.period
+        metric_criteria_id += 1
+      elsif old.family=='direct-children' && op.text_value=='true'
+        data << "onBaseComponents=true"
+      end
+    end
+  end
+
+  def self.operator_code(old_operator)
+    case old_operator
+      when '='
+        'eq'
+      when '<'
+        'lt'
+      when '<='
+        'lte'
+      when '>'
+        'gt'
+      when '>='
+        'gte'
+      else
+        'eq'
+    end
   end
 end

@@ -104,10 +104,24 @@ class MeasureFilter < ActiveRecord::Base
   def criteria=(hash)
     @criteria = {}
     hash.each_pair do |k, v|
-      if k && v && !v.empty? && v!=['']
-        @criteria[k.to_s]=v
+      set_criteria_value(k, v)
+    end
+  end
+
+  # API used by Displays
+  def set_criteria_value(key, value)
+    if key
+      if value && !value.empty? && value!=['']
+        @criteria[key.to_s]=value
+      else
+        @criteria.delete(key)
       end
     end
+  end
+
+  # API used by Displays
+  def set_criteria_default_value(key, value)
+    set_criteria_value(key, value) unless criteria.has_key?(key)
   end
 
   def load_criteria_from_data
@@ -140,6 +154,14 @@ class MeasureFilter < ActiveRecord::Base
     set_criteria_default_value('display', 'list')
   end
 
+  def base_resource
+    if criteria('base')
+      Project.find(:first, :conditions => ['kee=? and copy_resource_id is null and person_id is null', criteria('base')])
+    elsif criteria('baseId')
+      Project.find(criteria('baseId'))
+    end
+  end
+
   # ==== Options
   # :user : the authenticated user
   def execute(controller, options={})
@@ -152,31 +174,6 @@ class MeasureFilter < ActiveRecord::Base
     self
   end
 
-  # API used by Displays
-  def set_criteria_value(key, value)
-    if value
-      @criteria[key.to_s]=value
-    else
-      @criteria.delete(key)
-    end
-  end
-
-  # API used by Displays
-  def set_criteria_default_value(key, value)
-    set_criteria_value(key, value) unless criteria.has_key?(key)
-  end
-
-  def url_params
-    criteria.merge({'id' => self.id})
-  end
-
-  def base_resource
-    if criteria('base')
-      Project.find(:first, :conditions => ['kee=? and copy_resource_id is null and person_id is null', criteria('base')])
-    elsif criteria('baseId')
-      Project.find(criteria('baseId'))
-    end
-  end
 
   private
 
@@ -272,7 +269,5 @@ class MeasureFilter < ActiveRecord::Base
       count = MeasureFilter.count('id', :conditions => ['name=? and shared=? and user_id!=?', name, true, user_id])
       errors.add_to_base('Other users already shared filters with the same name') if count>0
     end
-
-    errors.add_to_base('Only shared filters can be flagged as system filter') if system && !shared
   end
 end

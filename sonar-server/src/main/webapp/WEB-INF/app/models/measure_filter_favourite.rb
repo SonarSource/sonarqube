@@ -20,4 +20,6 @@
 class MeasureFilterFavourite < ActiveRecord::Base
   belongs_to :user
   belongs_to :measure_filter
+
+  validates_uniqueness_of :measure_filter_id, :scope => :user_id
 end

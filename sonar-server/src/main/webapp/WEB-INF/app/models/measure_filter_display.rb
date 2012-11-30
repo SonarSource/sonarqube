@@ -40,6 +40,11 @@ class MeasureFilterDisplay
   def initialize(filter, options)
     @filter = filter
     @options = options
+
+    if filter.base_resource
+      qualifiers = filter.criteria('qualifiers')
+      filter.set_criteria_value('onBaseComponents', 'true') unless qualifiers && !qualifiers.empty?
+    end
   end
 
   # sorted array of parameters :

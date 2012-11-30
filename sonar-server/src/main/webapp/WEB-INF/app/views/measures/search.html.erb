@@ -56,9 +56,7 @@
           if (e.val == 'lang') {
             $j("#select-" + e.val).select2("enable");
             $j("#select-" + e.val).select2("focus");
-          }
-          $j("#more-criteria").select2("val", "");
-          if (e.val == 'metric') {
+          } else if (e.val == 'metric') {
             if (hiddenConditionIndexes.length > 0) {
               var index = hiddenConditionIndexes.pop();
               $j("#criteria-metric-" + index).insertBefore($j("#more-td")).show();
@@ -70,6 +68,7 @@
           } else {
             $j("#more-criteria option[value='" + e.val + "']").remove();
           }
+          $j("#more-criteria").select2("val", "");
         });
     });
   </script>
@@ -117,9 +116,9 @@
         <tr>
           <td>
             <%
-               qualifiers = [['Components', 'components']].concat(Api::Utils.java_facade.getResourceTypesForFilter().map do |resource_type|
+               qualifiers = Api::Utils.java_facade.getResourceTypesForFilter().map do |resource_type|
                  [message("qualifiers.#{resource_type.getQualifier()}"), resource_type.getQualifier()]
-               end)
+               end
             %>
             <%= select_tag 'qualifiers[]', options_for_select(qualifiers, @filter.criteria['qualifiers']||''), :multiple => true, :id => 'select-qualifiers' -%>
           </td>
@@ -169,12 +168,12 @@
             <span class="note">year-month-day (2012-01-31)</span>
           </td>
         </tr>
-        <tr id="criteria-age" <%= "style='display:none'" unless @filter.criteria('beforeDays') || @filter.criteria('afterDays') -%>>
+        <tr id="criteria-age" <%= "style='display:none'" unless @filter.criteria('ageMinDays') || @filter.criteria('ageMaxDays') -%>>
           <td>
             More than
-            <input type="text" name="beforeDays" value="<%= @filter.criteria['beforeDays'] -%>" size="3"> days ago
+            <input type="text" name="ageMinDays" value="<%= @filter.criteria['ageMinDays'] -%>" size="3"> days ago
             <br>Within the last
-            <input type="text" name="afterDays" value="<%= @filter.criteria['afterDays'] -%>" size="3"> days
+            <input type="text" name="ageMaxDays" value="<%= @filter.criteria['ageMaxDays'] -%>" size="3"> days
           </td>
         </tr>
         <tr id="more-td">
@@ -195,7 +194,19 @@
         <tr>
           <td>
             <input type="button" name="search" value="<%= message('search_verb') -%>" onclick="submitSearch()">
-            <a href="<%= ApplicationController.root_context -%>/measures">New search</a>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="<%= ApplicationController.root_context -%>/measures" class="link-action">New search</a>
+            <% if logged_in? %>
+              <% if @filter.id==nil || @filter.user_id==current_user.id %>
+                - <a id="save" href="<%= url_for params.merge({:action => 'save_form', :id => @filter.id}) -%>" class="link-action open-modal"><%= message('save') -%></a>
+              <% end %>
+              <% if @filter.id %>
+                - <a id="copy" href="<%= url_for params.merge({:action => 'copy_form', :id => @filter.id}) -%>" class="link-action open-modal"><%= message('copy') -%></a>
+              <% end %>
+            <% end %>
           </td>
         </tr>
         </tbody>
@@ -229,15 +240,8 @@
                 <% end %>
               <td class="right">
                 <a id="edit" href="<%= url_for params.merge({:edit => true, :id => @filter.id}) -%>" class="button"><%= message('configure') -%></a>
-                <% if logged_in? %>
-                  <% if @filter.id==nil || @filter.user_id==current_user.id %>
-                    <a id="save" href="<%= url_for params.merge({:action => 'save_form', :id => @filter.id}) -%>" class="button open-modal"><%= message('save') -%></a>
-                  <% end %>
-                  <% if @filter.id %>
-                    <a id="copy" href="<%= url_for params.merge({:action => 'copy_form', :id => @filter.id}) -%>" class="button open-modal"><%= message('copy') -%></a>
-                  <% end %>
-                <% end %>
-                </tr>
+              </td>
+            </tr>
           </table>
         <% end %>
         <% if @filter.security_exclusions %>

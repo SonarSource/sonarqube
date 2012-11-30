@@ -58,13 +58,13 @@ public class MeasureFilterFactory implements ServerComponent {
     filter.setResourceKeyRegexp((String) properties.get("keyRegexp"));
     if (properties.containsKey("fromDate")) {
       filter.setFromDate(toDate((String) properties.get("fromDate")));
-    } else if (properties.containsKey("afterDays")) {
-      filter.setFromDate(toDays((String) properties.get("afterDays")));
+    } else if (properties.containsKey("ageMaxDays")) {
+      filter.setFromDate(toDays((String) properties.get("ageMaxDays")));
     }
     if (properties.containsKey("toDate")) {
       filter.setToDate(toDate((String) properties.get("toDate")));
-    } else if (properties.containsKey("beforeDays")) {
-      filter.setToDate(toDays((String) properties.get("beforeDays")));
+    } else if (properties.containsKey("ageMinDays")) {
+      filter.setToDate(toDays((String) properties.get("ageMinDays")));
     }
 
     if (properties.containsKey("onFavourites")) {
