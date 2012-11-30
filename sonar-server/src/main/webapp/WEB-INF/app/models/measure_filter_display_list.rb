@@ -49,6 +49,10 @@ class MeasureFilterDisplayList < MeasureFilterDisplay
         end
     end
 
+    def css_title
+      'thin' if @metric && @metric.val_type==Metric::VALUE_TYPE_LEVEL
+    end
+
     def sort?
       !links?
     end

@@ -78,7 +78,7 @@ class Widget < ActiveRecord::Base
   end
 
   def java_definition
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().getWidget(key)
+    Api::Utils.java_facade.getWidget(key)
   end
 
   def layout

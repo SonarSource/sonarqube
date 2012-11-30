@@ -31,7 +31,7 @@ module MeasuresHelper
     if filter.sort_key==column.key
       html << (filter.sort_asc? ? image_tag("asc12.png") : image_tag("desc12.png"))
     end
-    "<th class='#{column.align}'>#{html}</th>"
+    "<th class='#{column.align} #{column.css_title}'>#{html}</th>"
   end
 
   def list_cell_html(column, result)
