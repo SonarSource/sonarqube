@@ -45,7 +45,7 @@ class PluginRealm
     @java_authenticator = java_realm.doGetAuthenticator()
     @java_users_provider = java_realm.getUsersProvider()
     @java_groups_provider = java_realm.getGroupsProvider()
-    @save_password = Api::Utils.java_facade.new.getSettings().getBoolean('sonar.security.savePassword')
+    @save_password = Api::Utils.java_facade.getSettings().getBoolean('sonar.security.savePassword')
   end
 
   def authenticate?(username, password, servlet_request)
