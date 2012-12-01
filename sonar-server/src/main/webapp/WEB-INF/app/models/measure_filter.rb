@@ -110,6 +110,7 @@ class MeasureFilter < ActiveRecord::Base
 
   # API used by Displays
   def set_criteria_value(key, value)
+    @criteria ||= {}
     if key
       if value && !value.empty? && value!=['']
         @criteria[key.to_s]=value

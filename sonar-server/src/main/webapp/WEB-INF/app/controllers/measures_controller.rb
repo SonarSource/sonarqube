@@ -35,7 +35,7 @@ class MeasuresController < ApplicationController
       add_breadcrumbs({:name => @filter.name, :url => {:action => 'filter', :id => @filter.id}})
     else
       @filter = MeasureFilter.new
-      add_breadcrumbs(message('search_verb'))
+      add_breadcrumbs(:name => message('search_verb'), :url => {:action => 'index'})
     end
     @filter.criteria=(params)
     @filter.enable_default_display

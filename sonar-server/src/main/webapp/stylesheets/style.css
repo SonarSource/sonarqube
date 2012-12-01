@@ -2122,13 +2122,14 @@ table.nowrap td, td.nowrap, th.nowrap {
   min-width: 160px;
   padding: 0;
   position: absolute;
-  line-height: 20px;
   z-index: 1000;
 }
 
 .dropdown-menu li {
   list-style-type: none !important;
-  padding: 2px 8px !important;
+  line-height: 24px;
+  height: 24px;
+  padding: 0 8px;
   cursor: pointer !important;
   color: red !important;
 }

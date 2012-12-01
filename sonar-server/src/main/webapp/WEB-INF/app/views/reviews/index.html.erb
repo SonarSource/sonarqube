@@ -29,7 +29,7 @@
         <li>
           <%= message('status') -%>:
           <br/>
-          <select size="6" name="statuses[]" multiple="multiple" id="statuses" class="withIcons large-input">
+          <select size="5" name="statuses[]" multiple="multiple" id="statuses" class="withIcons large-input">
             <option <%= 'selected' if @statuses.include?('') -%> value=""><%= message('any') -%></option>
             <option value="<%= Review::STATUS_OPEN -%>" class="status_open" <%= 'selected' if @statuses.include?(Review::STATUS_OPEN) -%>><%= message('reviews.status.OPEN') -%></option>
             <option value="<%= Review::STATUS_REOPENED -%>" class="status_reopened" <%= 'selected' if @statuses.include?(Review::STATUS_REOPENED) -%>><%= message('reviews.status.REOPENED') -%></option>

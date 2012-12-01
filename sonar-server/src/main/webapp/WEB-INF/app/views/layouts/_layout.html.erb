@@ -7,48 +7,47 @@
    period_param = "period=#{params[:period]}" if params[:period]
 %>
 <div id="container">
-<%= yield :header -%>
-<div id="hd">
-  <div id="nav-left">
-    <ul>
-      <li>
-        <a href="<%= ApplicationController.root_context -%>/"><%= message('layout.dashboards') -%></a>
-      </li>
-      <li>
-        <a href="<%= ApplicationController.root_context -%>/measures"><%= message('layout.measures') -%></a>
-      </li>
-      <li>
-        <a href="<%= ApplicationController.root_context -%>/profiles"><%= message('quality_profiles.page') -%></a>
-      </li>
-      <%= render 'layouts/tools' -%>
-    </ul>
+  <%= yield :header -%>
+  <div id="hd">
+    <div id="nav-left">
+      <ul>
+        <li>
+          <a href="<%= ApplicationController.root_context -%>/"><%= message('layout.dashboards') -%></a>
+        </li>
+        <li>
+          <a href="<%= ApplicationController.root_context -%>/measures"><%= message('layout.measures') -%></a>
+        </li>
+        <li>
+          <a href="<%= ApplicationController.root_context -%>/profiles"><%= message('quality_profiles.page') -%></a>
+        </li>
+        <%= render 'layouts/tools' -%>
+      </ul>
+    </div>
+    <div id="nav">
+      <ul>
+        <li>
+          <input type="text" size="15" name="search" id="searchInput" onFocus="autocompleteResources()" value="<%= message('search_verb') -%>"/>
+          <img src="<%= ApplicationController.root_context -%>/images/loading-small.gif" id="searchingResources" style="display:none">
+        </li>
+        <li>
+          <a href="<%= ApplicationController.root_context -%>/settings/index"><img src="<%= ApplicationController.root_context -%>/images/actions.png" alt="<%= message('layout.configuration') -%>" title="<%= message('layout.configuration') -%>"/></a>
+        </li>
+        <% unless logged_in? %>
+          <li><a href="<%= ApplicationController.root_context -%>/sessions/new?return_to=<%= u (request.request_uri) -%>"><%= message('layout.login') -%></a></li>
+        <% end %>
+        <%= render 'layouts/user_panel' -%>
+      </ul>
+    </div>
+    <div id="searchResourcesResults" class="autocomplete" style="display:none"></div>
   </div>
-  <div id="nav">
-    <ul>
-      <li>
-        <input type="text" size="15" name="search" id="searchInput" onFocus="autocompleteResources()" value="<%= message('search_verb') -%>"/>
-        <img src="<%= ApplicationController.root_context -%>/images/loading-small.gif" id="searchingResources" style="display:none">
-      </li>
-      <li>
-        <a href="<%= ApplicationController.root_context -%>/settings/index"><img src="<%= ApplicationController.root_context -%>/images/actions.png" alt="<%= message('layout.configuration') -%>" title="<%= message('layout.configuration') -%>"/></a>
-      </li>
-      <% unless logged_in? %>
-        <li><a href="<%= ApplicationController.root_context -%>/sessions/new?return_to=<%= u (request.request_uri) -%>"><%= message('layout.login') -%></a></li>
-      <% end %>
-      <%= render 'layouts/user_panel' -%>
-    </ul>
-  </div>
-  <div id="searchResourcesResults" class="autocomplete" style="display:none"></div>
-</div>
-<%= render 'layouts/breadcrumb' if @breadcrumbs || selected_section==Navigation::SECTION_RESOURCE -%>
-<div id="body">
-  <% if selected_section || @sidebar %>
-    <div id="sb">
+  <%= render 'layouts/breadcrumb' if @breadcrumbs || selected_section==Navigation::SECTION_RESOURCE -%>
+  <div id="body">
+    <% if selected_section %>
       <div id="sidebar">
-        <ul>
+        <ul class="sidebar blue-sidebar">
           <% if selected_section==Navigation::SECTION_HOME %>
             <% ActiveDashboard.user_dashboards(current_user, true).each do |active_dashboard| %>
-              <li class="<%= 'selected' if @dashboard && controller.controller_path=='dashboard' && active_dashboard.dashboard_id==@dashboard.id -%>">
+              <li class="<%= 'active' if @dashboard && controller.controller_path=='dashboard' && active_dashboard.dashboard_id==@dashboard.id -%>">
                 <a href="<%= ApplicationController.root_context -%>/dashboard/?did=<%= active_dashboard.dashboard_id -%>"><%= active_dashboard.dashboard.name(true) -%></a>
               </li>
             <% end %>
@@ -57,77 +56,78 @@
               page_url = (page.isController() ? page.getId() : "/plugins/home/#{page.getId()}")
               selected=request.request_uri.include?("/plugins/home/#{page_url}")
             %>
-              <li class="<%= 'selected' if selected -%>">
+              <li class="<%= 'active' if selected -%>">
                 <a href="<%= ApplicationController.root_context -%><%= page_url -%>"><%= message(page.getId() + '.page', :default => page.getTitle()) -%></a></li>
             <% end %>
 
           <% elsif selected_section==Navigation::SECTION_RESOURCE %>
             <% ActiveDashboard.user_dashboards(current_user, false).each do |active_dashboard| %>
-              <li class="<%= 'selected' if @dashboard && controller.controller_path=='dashboard' && active_dashboard.dashboard_id==@dashboard.id -%>">
+              <li class="<%= 'active' if @dashboard && controller.controller_path=='dashboard' && active_dashboard.dashboard_id==@dashboard.id -%>">
                 <a href="<%= ApplicationController.root_context -%>/dashboard/index/<%= @project.id -%>?did=<%= active_dashboard.dashboard_id -%><%= "&"+period_param if period_param -%>"><%= active_dashboard.dashboard.name(true) -%></a>
               </li>
             <% end %>
-
-            <li class="h2"><%= message('sidebar.tools') -%></li>
-            <li class="<%= 'selected' if request.request_uri.include?('/components/index') -%>">
+            <li class="spacer"></li>
+            <li class="sidebar-title"><%= message('sidebar.tools') -%></li>
+            <li class="<%= 'active' if request.request_uri.include?('/components/index') -%>">
               <a href="<%= ApplicationController.root_context -%>/components/index/<%= @project.id -%>"><%= message('components.page') -%></a></li>
-            <li class="<%= 'selected' if request.request_uri.include?('/drilldown/violations') -%>">
+            <li class="<%= 'active' if request.request_uri.include?('/drilldown/violations') -%>">
               <a href="<%= ApplicationController.root_context -%>/drilldown/violations/<%= @project.id -%><%= "?"+period_param if period_param -%>"><%= message('violations_drilldown.page') -%></a>
-            <% if controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'comparable') %>
-            <li class="<%= 'selected' if request.request_uri.include?('/comparison/index') -%>">
-              <a href="<%= ApplicationController.root_context -%>/comparison/index?resource=<%= @project.key -%>"><%= message('comparison.page') -%></a></li>
+              <% if controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'comparable') %>
+              <li class="<%= 'active' if request.request_uri.include?('/comparison/index') -%>">
+                <a href="<%= ApplicationController.root_context -%>/comparison/index?resource=<%= @project.key -%>"><%= message('comparison.page') -%></a></li>
             <% end %>
-            <li class="<%= 'selected' if request.request_uri.include?('/cloud/index') -%>">
+            <li class="<%= 'active' if request.request_uri.include?('/cloud/index') -%>">
               <a href="<%= ApplicationController.root_context -%>/cloud/index/<%= @project.id -%>"><%= message('clouds.page') -%></a></li>
             <% controller.java_facade.getPages(Navigation::SECTION_RESOURCE, @project.scope, @project.qualifier, @project.language, @project.last_snapshot.metric_keys.to_java(:string)).each do |page|
               page_url = (page.isController() ? "#{page.getId()}?id=#{@project.id}" : "/plugins/resource/#{@project.id}?page=#{page.getId()}")
             %>
-              <li class="<%= 'selected' if request.request_uri.include?(page_url) -%>">
+              <li class="<%= 'active' if request.request_uri.include?(page_url) -%>">
                 <a href="<%= ApplicationController.root_context -%><%= page_url -%>"><%= message(page.getId() + '.page', :default => page.getTitle()) %></a>
               </li>
             <% end %>
 
             <% if has_role?(:admin, @project) %>
-              <li class="h2"><%= message('sidebar.project_settings') -%></li>
+              <li class="spacer"></li>
+              <li class="sidebar-title"><%= message('sidebar.project_settings') -%></li>
               <% if (@project.project?) %>
-                <li class="<%= 'selected' if request.request_uri.include?('/project/profile') -%>">
+                <li class="<%= 'active' if request.request_uri.include?('/project/profile') -%>">
                   <a href="<%= ApplicationController.root_context -%>/project/profile/<%= @project.id -%>"><%= message('project_quality_profiles.page') -%></a></li>
               <% end %>
-              <li class="<%= 'selected' if request.request_uri.include?('/manual_measures') -%>">
+              <li class="<%= 'active' if request.request_uri.include?('/manual_measures') -%>">
                 <a href="<%= ApplicationController.root_context -%>/manual_measures/index/<%= @project.id -%>"><%= message('manual_measures.page') -%></a></li>
               <% if (@project.project?) %>
-                <li class="<%= 'selected' if request.request_uri.include?('/action_plans') -%>">
+                <li class="<%= 'active' if request.request_uri.include?('/action_plans') -%>">
                   <a href="<%= ApplicationController.root_context -%>/action_plans/index/<%= @project.id -%>"><%= message('action_plans.page') -%></a></li>
               <% end %>
               <% if (@project.project? || @project.module?) %>
-                <li class="<%= 'selected' if request.request_uri.include?('/project/settings') -%>">
+                <li class="<%= 'active' if request.request_uri.include?('/project/settings') -%>">
                   <a href="<%= ApplicationController.root_context -%>/project/settings/<%= @project.id -%>"><%= message('project_settings.page') -%></a>
                 </li>
               <% end %>
               <% if (@project.project?) %>
-                <li class="<%= 'selected' if request.request_uri.include?('/project/links') -%>">
+                <li class="<%= 'active' if request.request_uri.include?('/project/links') -%>">
                   <a href="<%= ApplicationController.root_context -%>/project/links/<%= @project.id -%>"><%= message('project_links.page') -%></a></li>
               <% end %>
               <%
                  # NOTE: we keep "@project.view? || @project.subview?" in the test for backward compatibility with the Views plugin
                  if (controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'hasRolePolicy') || @project.view? || @project.subview?)
               %>
-                <li class="<%= 'selected' if request.request_uri.include?('/project_roles') -%>">
+                <li class="<%= 'active' if request.request_uri.include?('/project_roles') -%>">
                   <a href="<%= ApplicationController.root_context -%>/project_roles/index?resource=<%= @project.id -%>"><%= message('roles.page') -%></a></li>
               <% end %>
               <%
                  # NOTE: we keep "@project.view? || @project.subview?" in the test for backward compatibility with the Views plugin
                  if (controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'modifiable_history') || @project.view? || @project.subview?)
               %>
-                <li class="<%= 'selected' if request.request_uri.include?('/project/history') -%>">
+                <li class="<%= 'active' if request.request_uri.include?('/project/history') -%>">
                   <a href="<%= ApplicationController.root_context -%>/project/history/<%= @project.id -%>"><%= message('project_history.page') -%></a></li>
               <% end %>
               <% if controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'updatable_key') %>
-                <li class="<%= 'selected' if request.request_uri.include?('/project/key') -%>">
+                <li class="<%= 'active' if request.request_uri.include?('/project/key') -%>">
                   <a href="<%= ApplicationController.root_context -%>/project/key/<%= @project.id -%>"><%= message('update_key.page') -%></a></li>
               <% end %>
               <% if controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'deletable') %>
-                <li class="<%= 'selected' if request.request_uri.include?('/project/deletion') -%>">
+                <li class="<%= 'active' if request.request_uri.include?('/project/deletion') -%>">
                   <a href="<%= ApplicationController.root_context -%>/project/deletion/<%= @project.id -%>"><%= message('resource_deletion.page', :params => message('qualifier.' + @project.qualifier)) -%></a>
                 </li>
               <% end %>
@@ -135,78 +135,73 @@
 
           <% elsif selected_section==Navigation::SECTION_CONFIGURATION && is_admin? %>
 
-            <li class="h2" style="padding-top: 0px;"><%= message('sidebar.project_settings') -%></li>
-            <li class="<%= 'selected' if request.request_uri.include?('/settings') -%>">
+            <li class="sidebar-title"><%= message('sidebar.project_settings') -%></li>
+            <li class="<%= 'active' if request.request_uri.include?('/settings') -%>">
               <a href="<%= ApplicationController.root_context -%>/settings/index"><%= message('settings.page') -%></a></li>
-            <li class="<%= 'selected' if controller.controller_path=='metrics' -%>">
+            <li class="<%= 'active' if controller.controller_path=='metrics' -%>">
               <a href="<%= ApplicationController.root_context -%>/metrics/index"><%= message('manual_metrics.page') -%></a></li>
-            <li class="<%= 'selected' if controller.controller_path=='manual_rules' -%>">
+            <li class="<%= 'active' if controller.controller_path=='manual_rules' -%>">
               <a href="<%= ApplicationController.root_context -%>/manual_rules/index"><%= message('manual_rules.page') -%></a></li>
-            <li class="<%= 'selected' if controller.controller_path=='admin_dashboards' -%>">
+            <li class="<%= 'active' if controller.controller_path=='admin_dashboards' -%>">
               <a href="<%= ApplicationController.root_context -%>/admin_dashboards/index"><%= message('default_dashboards.page') -%></a></li>
             <% controller.java_facade.getPages(Navigation::SECTION_CONFIGURATION, nil, nil, nil, nil).each do |page|
               page_url = (page.isController() ? page.getId() : "/plugins/configuration/#{page.getId()}")
             %>
-              <li class="<%= 'selected' if request.request_uri.include?(page_url) -%>">
+              <li class="<%= 'active' if request.request_uri.include?(page_url) -%>">
                 <a href="<%= ApplicationController.root_context -%><%= page_url -%>"><%= message(page.getId() + '.page', :default => page.getTitle()) %></a>
               </li>
             <% end %>
-
-            <li class="h2"><%= message('sidebar.security') -%></li>
-            <li class="<%= 'selected' if request.request_uri.include?('/users') -%>"><a href="<%= ApplicationController.root_context -%>/users"><%= message('users.page') -%></a>
+            <li class="spacer"></li>
+            <li class="sidebar-title"><%= message('sidebar.security') -%></li>
+            <li class="<%= 'active' if request.request_uri.include?('/users') -%>"><a href="<%= ApplicationController.root_context -%>/users"><%= message('users.page') -%></a>
             </li>
-            <li class="<%= 'selected' if request.request_uri.include?('/groups') -%>">
+            <li class="<%= 'active' if request.request_uri.include?('/groups') -%>">
               <a href="<%= ApplicationController.root_context -%>/groups/index"><%= message('user_groups.page') -%></a></li>
-            <li class="<%= 'selected' if request.request_uri.include?('/roles/global') -%>">
+            <li class="<%= 'active' if request.request_uri.include?('/roles/global') -%>">
               <a href="<%= ApplicationController.root_context -%>/roles/global"><%= message('system_administrators.page') -%></a></li>
-            <li class="<%= 'selected' if request.request_uri.include?('/roles/projects') -%>">
+            <li class="<%= 'active' if request.request_uri.include?('/roles/projects') -%>">
               <a href="<%= ApplicationController.root_context -%>/roles/projects"><%= message('roles.page') -%></a></li>
 
-            <li class="h2"><%= message('sidebar.system') -%></li>
-            <li class="<%= 'selected' if controller.controller_path=='backup' -%>"><a href="<%= ApplicationController.root_context -%>/backup"><%= message('backup.page') -%></a>
+            <li class="spacer"></li>
+            <li class="sidebar-title"><%= message('sidebar.system') -%></li>
+            <li class="<%= 'active' if controller.controller_path=='backup' -%>"><a href="<%= ApplicationController.root_context -%>/backup"><%= message('backup.page') -%></a>
             </li>
-            <li class="<%= 'selected' if controller.controller_path=='bulk_deletion' -%>">
+            <li class="<%= 'active' if controller.controller_path=='bulk_deletion' -%>">
               <a href="<%= ApplicationController.root_context -%>/bulk_deletion"><%= message('bulk_deletion.page') -%></a>
             </li>
             <% update_center_activated = controller.java_facade.getSettings().getBoolean('sonar.updatecenter.activate')
                if update_center_activated %>
-              <li class="<%= 'selected' if controller.controller_path=='updatecenter' -%>">
+              <li class="<%= 'active' if controller.controller_path=='updatecenter' -%>">
                 <a href="<%= ApplicationController.root_context -%>/updatecenter"><%= message('update_center.page') -%></a></li>
-              <li class="<%= 'selected' if controller.controller_path=='system' -%>">
+              <li class="<%= 'active' if controller.controller_path=='system' -%>">
                 <a href="<%= ApplicationController.root_context -%>/system"><%= message('system_info.page') -%></a></li>
             <% end %>
 
           <% end %>
-        </ul>
+
         <%= yield :sidebar %>
         <div id="logo">
           <center><a href="http://www.sonarsource.org/" target="SonarSource"><%= image_tag('sonar.png', :alt => message('layout.sonar.slogan'), :class => 'png') -%></a></center>
         </div>
+        </ul>
       </div>
-
-      <% if @sidebar %>
-        <div id="sidebarconf"><%= render :partial => @sidebar %></div>
-      <% else %>
-        <div id="sidebarconf" class="hidden"></div>
-      <% end %>
-    </div>
-  <% end %>
-  <div <%= "id='content' class='with_sidebar'" if selected_section -%>>
-    <% if @project %>
-      <div class="print"><h2><%= @project.name(true) %></h2></div>
     <% end %>
-    <div class="error" id="error" style="display:none">
-      <span id="errormsg"></span> &nbsp;&nbsp;[<a href="#" onclick="javascript:$('error').hide();return false;"><%= message('hide').downcase -%></a>]
+    <div <%= "id='content' class='with_sidebar'" if selected_section -%>>
+      <% if @project %>
+        <div class="print"><h2><%= @project.name(true) %></h2></div>
+      <% end %>
+      <div class="error" id="error" style="display:none">
+        <span id="errormsg"></span> &nbsp;&nbsp;[<a href="#" onclick="javascript:$('error').hide();return false;"><%= message('hide').downcase -%></a>]
+      </div>
+      <div class="notice" id="info" style="display:none">
+        <span id="infomsg"></span> &nbsp;&nbsp;[<a href="#" onclick="javascript:$('info').hide();return false;"><%= message('hide').downcase -%></a>]
+      </div>
+      <div class="warning" id="warning" style="display:none">
+        <span id="warningmsg"></span> &nbsp;&nbsp;[<a href="#" onclick="javascript:$('warning').hide();return false;"><%= message('hide').downcase -%></a>]
+      </div>
+      <%= yield %>
     </div>
-    <div class="notice" id="info" style="display:none">
-      <span id="infomsg"></span> &nbsp;&nbsp;[<a href="#" onclick="javascript:$('info').hide();return false;"><%= message('hide').downcase -%></a>]
-    </div>
-    <div class="warning" id="warning" style="display:none">
-      <span id="warningmsg"></span> &nbsp;&nbsp;[<a href="#" onclick="javascript:$('warning').hide();return false;"><%= message('hide').downcase -%></a>]
-    </div>
-    <%= yield %>
   </div>
-</div>
 </div>
 
 <% unless params[:hd]=='false' %>
