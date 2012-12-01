@@ -1,26 +1,18 @@
 <% content_for :style do %>
-  <style type="text/css">
-    #search-form [type="text"].large-input {
-      width: 180px;
-    }
-
-    #search-form select.large-input {
+  <style>
+    #search-form select {
       width: 100%;
       box-sizing: border-box;
       -webkit-box-sizing: border-box;
       -moz-box-sizing: border-box;
-    }
-
-    #search-form select option {
-      padding: 1px 10px 1px 22px;
     }
   </style>
 <% end %>
 
 <div id="reviews-search">
   <div class="page-split-left">
-    <ul class="sidebar gray-sidebar">
-      <form id="search-form" method="GET" action="<%= ApplicationController.root_context -%>/reviews/index">
+    <form id="search-form" method="GET" action="<%= ApplicationController.root_context -%>/reviews/index">
+      <ul class="sidebar gray-sidebar">
         <li>
           <%= message('identifier_abbreviated') -%>:
           <br/>
@@ -29,7 +21,7 @@
         <li>
           <%= message('status') -%>:
           <br/>
-          <select size="5" name="statuses[]" multiple="multiple" id="statuses" class="withIcons large-input">
+          <select size="5" name="statuses[]" multiple="multiple" id="statuses" class="withIcons">
             <option <%= 'selected' if @statuses.include?('') -%> value=""><%= message('any') -%></option>
             <option value="<%= Review::STATUS_OPEN -%>" class="status_open" <%= 'selected' if @statuses.include?(Review::STATUS_OPEN) -%>><%= message('reviews.status.OPEN') -%></option>
             <option value="<%= Review::STATUS_REOPENED -%>" class="status_reopened" <%= 'selected' if @statuses.include?(Review::STATUS_REOPENED) -%>><%= message('reviews.status.REOPENED') -%></option>
@@ -40,7 +32,7 @@
         <li>
           <%= message('severity') -%>:
           <br/>
-          <select size="6" name="severities[]" multiple="multiple" id="severities" class="withIcons large-input">
+          <select size="6" name="severities[]" multiple="multiple" id="severities" class="withIcons">
             <option <%= 'selected' if @severities.include?('') -%> value=""><%= message('any') -%></option>
             <option value="<%= Severity::BLOCKER -%>" class="sev_BLOCKER" <%= 'selected' if @severities.include?(Severity::BLOCKER) -%>><%= message('blocker') -%></option>
             <option value="<%= Severity::CRITICAL -%>" class="sev_CRITICAL" <%= 'selected' if @severities.include?(Severity::CRITICAL) -%>><%= message('critical') -%></option>
@@ -52,7 +44,7 @@
         <li>
           <%= message('project') -%>:
           <br/>
-          <select size="6" name="projects[]" multiple="multiple" id="projects" class="large-input">
+          <select size="6" name="projects[]" multiple="multiple" id="projects">
             <option <%= 'selected' if @projects.include?('') -%> value=""><%= message('any') -%></option>
             <% projects_for_select.each do |project|
               name=project.name(true)
@@ -64,12 +56,12 @@
         <li>
           <%= message('created_by') -%>:
           <br/>
-          <%= user_autocomplete_field "author_login", @author_login, {:class => "large-input"} -%>
+          <%= user_autocomplete_field "author_login", @author_login -%>
         </li>
         <li>
           <%= message('assigned_to') -%>:
           <br/>
-          <%= user_autocomplete_field "assignee_login", @assignee_login, {:class => "large-input"} -%>
+          <%= user_autocomplete_field "assignee_login", @assignee_login -%>
         </li>
         <li>
           <select name="false_positives" id="false_positives" onchange="if(this.value=='only' || this.value=='with') {$('assignee_login').value = ''; $('autocompleteText-assignee_login').value = ''; $('statuses').value = '';};">
@@ -83,8 +75,8 @@
           <br/>
           <%= submit_tag message('search_verb'), :id => 'submit_search' %>
         </li>
-      </form>
-    </ul>
+      </ul>
+    </form>
   </div>
   <div class="page-split-right">
     <div id="content">
@@ -99,14 +91,14 @@
 <script>
   function reviewIdFieldModified(field) {
     if (field.value != '') {
-      $('statuses').value = ''
-      $('severities').value = ''
-      $('projects').value = ''
-      $('author_login').value = ''
-      $('autocompleteText-author_login').value = ''
-      $('assignee_login').value = ''
-      $('autocompleteText-assignee_login').value = ''
-      $('false_positives').value = 'with'
+      $('statuses').value = '';
+      $('severities').value = '';
+      $('projects').value = '';
+      $('author_login').value = '';
+      $('autocompleteText-author_login').value = '';
+      $('assignee_login').value = '';
+      $('autocompleteText-assignee_login').value = '';
+      $('false_positives').value = 'with';
     }
   }
   function launchSearch(columnName, link) {
@@ -119,5 +111,5 @@
     document.forms[0].submit()
   }
 
-  $('review_id').focus();
+  $j('#review_id').focus();
 </script>
