@@ -118,7 +118,7 @@
       <%= check_box_tag 'onFavourites', 'true', @filter.criteria['onFavourites']=='true' -%>
     </li>
 
-    <% condition_metrics = Metric.all.select { |m| m.numeric? } %>
+    <% condition_metrics = Metric.all.select { |m| m.numeric? && !m.hidden } %>
     <% for i in 1..3 %>
       <li id="criteria-metric-<%= i -%>" style="<%= "display: none" if hidden_condition_indexes.include?(i) -%>">
         <%= metric_select_tag "c#{i}_metric", condition_metrics, :allow_empty => true, :selected_key => @filter.criteria("c#{i}_metric"), :width => '100%', :placeholder => 'Metric' -%>

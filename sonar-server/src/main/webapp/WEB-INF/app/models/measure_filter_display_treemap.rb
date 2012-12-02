@@ -28,13 +28,13 @@ class MeasureFilterDisplayTreemap < MeasureFilterDisplay
     super(filter, options)
 
     @size_metric = Metric.by_key(@filter.criteria('tmSize')||'ncloc')
-    @color_metric = Metric.by_key(@filter.criteria('tmColor')||'violations_density')
+    @color_metric = Metric.by_key(@filter.criteria('tmColor'))
     @html_id = options[:html_id]
     @filter.metrics=([@size_metric, @color_metric].compact)
     @height = (@filter.criteria('tmHeight')||'600').to_i
     @id_count = 0
 
-    filter.set_criteria_value('sort', "metric:#{@size_metric.key}")
+    filter.set_criteria_value('sort', "metric:#{@size_metric.key}") if @size_metric
     filter.set_criteria_value('asc', 'true')
     filter.pagination.per_page = 500
     filter.pagination.page = 1
@@ -64,7 +64,7 @@ class MeasureFilterDisplayTreemap < MeasureFilterDisplay
   private
 
   def build_tree(node)
-    if @filter.results
+    if @filter.results && @size_metric
       @filter.results.each do |result|
         size_measure=result.measure(@size_metric)
         if size_measure

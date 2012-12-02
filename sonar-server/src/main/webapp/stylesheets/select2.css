@@ -48,9 +48,10 @@ Version: 3.2 Timestamp: Mon Sep 10 10:38:04 PDT 2012
   white-space: nowrap;
   position: relative;
 
-  /* sonar: reduce height */
+  /* sonar: reduce height and font-size */
   height: 20px;
   line-height: 20px;
+  font-size: 93%;
   padding: 0 0 0 8px;
   color: #444;
   text-decoration: none;

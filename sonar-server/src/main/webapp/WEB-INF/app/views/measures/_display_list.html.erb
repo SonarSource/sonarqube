@@ -63,10 +63,10 @@
   %>
 
 <% if edit_mode %>
-  <table class="data width100 admin">
+  <table class="spaced width100 admin">
     <tr>
       <td>
-        <%= metric_select_tag 'metric', Metric.all.reject { |m| m.data? },
+        <%= metric_select_tag 'metric', Metric.all.reject { |m| m.hidden || m.data? },
                               :html_id => 'select-metric',
                               :allow_empty => true,
                               :key_prefix => 'metric:',

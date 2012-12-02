@@ -116,7 +116,7 @@
                   <span class="note"><%= human_short_date s.created_at -%></span>
 
                   <div style="width: 100%; text-align: center;">
-                    <a href="#" onclick="removeFromList(<%= index -%>, $j('#sids'))"><img src="<%= ApplicationController.root_context -%>/images/controls/cross.png" title="<%= message('comparison.remove_resource') -%>"/></a>
+                    <a href="#" onclick="removeFromList(<%= index -%>, $j('#sids'))"><img src="<%= ApplicationController.root_context -%>/images/cross-gray.png" title="<%= message('comparison.remove_resource') -%>"/></a>
                   </div>
                 </td>
                 <td class="thin" style="vertical-align: bottom;">
@@ -194,7 +194,7 @@
                 <% if index < last_index %>
                   <a href="#" onclick="moveDown(<%= index -%>)"><img src="<%= ApplicationController.root_context -%>/images/controls/move_down.png" title="<%= message('comparison.move_down') -%>"/></a>
                 <% end %>
-                <a href="#" onclick="removeFromList(<%= index -%>, $j('#metrics'))"><img src="<%= ApplicationController.root_context -%>/images/controls/cross.png" title="<%= message('comparison.remove_metric') -%>"/></a>
+                <a href="#" onclick="removeFromList(<%= index -%>, $j('#metrics'))"><img src="<%= ApplicationController.root_context -%>/images/cross-gray.png" title="<%= message('comparison.remove_metric') -%>"/></a>
               </div>
             </td>
 
