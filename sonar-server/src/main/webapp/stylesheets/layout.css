@@ -290,13 +290,13 @@ ul.sidebar select, ul.sidebar input {
 
 .page-split-left {
   min-width: 200px;
+  max-width: 200px;
   width: 200px;
   margin: 0;
   display: table-cell;
   vertical-align: top;
   border-top: none;
   border-left: none;
-  padding-left: 10px;
 }
 
 .page-split-right {

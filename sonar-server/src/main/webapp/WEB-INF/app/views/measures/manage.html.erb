@@ -16,6 +16,7 @@
               star.removeClass('fav').addClass('notfav');
               star.attr('title', '<%= escape_javascript message('click_to_add_to_favourites') -%>');
             }
+            $j('#sidebar-favourites').load(baseUrl + '/measures/favourites');
           }
         });
       });
@@ -52,7 +53,7 @@
               <td>
                 <%= link_to h(filter.name), :action => 'filter', :id => filter.id -%>
                 <% if filter.description %>
-                  <div><%= h filter.description -%></div>
+                  <div class="note"><%= h filter.description -%></div>
                 <% end %>
               </td>
               <td>

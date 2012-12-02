@@ -1,0 +1,12 @@
+<div id="sidebar-favourites">
+<% if logged_in? %>
+  <li class="sidebar-title">Favourite Filters</li>
+  <% current_user.favourited_measure_filters.each do |filter| %>
+    <li <%= "class='active'" if @filter && filter.id==@filter.id -%>>
+      <a href="<%= ApplicationController.root_context -%>/measures/filter/<%= filter.id -%>"><%= h filter.name -%></a>
+    </li>
+  <% end %>
+  <li><a href="<%= ApplicationController.root_context -%>/measures/manage" class="link-action"><%= message('manage') %></a></li>
+  <li class="spacer"></li>
+<% end %>
+</div>

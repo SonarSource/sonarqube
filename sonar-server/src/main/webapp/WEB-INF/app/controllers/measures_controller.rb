@@ -90,7 +90,7 @@ class MeasuresController < ApplicationController
   # GET /measures/manage
   def manage
     access_denied unless logged_in?
-    add_breadcrumbs(ROOT_BREADCRUMB, message('measure_filter.manage'))
+    add_breadcrumbs(ROOT_BREADCRUMB, message('measure_filter.manage_filters'))
     @filter = MeasureFilter.new
     @shared_filters = MeasureFilter.find(:all,
                                          :include => :user,
@@ -162,6 +162,11 @@ class MeasuresController < ApplicationController
     @filter = find_filter(params[:id])
     @filter.destroy
     redirect_to :action => 'manage'
+  end
+
+  def favourites
+    verify_ajax_request
+    render :partial => 'measures/favourites'
   end
 
   # POST /measures/toggle_fav/<filter id>
