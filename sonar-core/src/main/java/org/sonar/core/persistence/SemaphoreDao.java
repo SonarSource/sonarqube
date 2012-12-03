@@ -48,7 +48,7 @@ public class SemaphoreDao {
       createSemaphore(name, lockedAt, session, mapper);
       boolean isAcquired = doAcquire(name, maxDurationInSeconds, session, mapper);
       SemaphoreDto semaphore = selectSemaphore(name, session);
-      return createLock(semaphore, session, isAcquired);
+      return createLock(semaphore, mapper, isAcquired);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -63,10 +63,10 @@ public class SemaphoreDao {
       SemaphoreDto semaphore = selectSemaphore(name, session);
       Date now = mapper.now();
       if (semaphore != null) {
-        return createLock(semaphore, session, false);
+        return createLock(semaphore, mapper, false);
       } else {
         semaphore = createSemaphore(name, now, session, mapper);
-        return createLock(semaphore, session, true);
+        return createLock(semaphore, mapper, true);
       }
     } finally {
       MyBatis.closeQuietly(session);
@@ -106,16 +106,16 @@ public class SemaphoreDao {
     }
   }
 
-  private Lock createLock(SemaphoreDto semaphore, SqlSession session, boolean acquired) {
+  private Lock createLock(SemaphoreDto semaphore, SemaphoreMapper mapper, boolean acquired) {
     Lock lock = new Lock(semaphore.getName(), acquired, semaphore.getLockedAt(), semaphore.getCreatedAt(), semaphore.getUpdatedAt());
     if (!acquired) {
-      lock.setDurationSinceLocked(getDurationSinceLocked(semaphore, session));
+      lock.setDurationSinceLocked(getDurationSinceLocked(semaphore, mapper));
     }
     return lock;
   }
 
-  private long getDurationSinceLocked(SemaphoreDto semaphore, SqlSession session) {
-    long now = now(session).getTime();
+  private long getDurationSinceLocked(SemaphoreDto semaphore, SemaphoreMapper mapper) {
+    long now = mapper.now().getTime();
     semaphore.getLockedAt();
     long locketAt = semaphore.getLockedAt().getTime();
     return now - locketAt;
@@ -124,11 +124,6 @@ public class SemaphoreDao {
   protected SemaphoreDto selectSemaphore(String name, SqlSession session){
     SemaphoreMapper mapper = session.getMapper(SemaphoreMapper.class);
     return mapper.selectSemaphore(name);
-  }
-
-  protected Date now(SqlSession session){
-    SemaphoreMapper mapper = session.getMapper(SemaphoreMapper.class);
-    return mapper.now();
   }
 
 }
