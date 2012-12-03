@@ -1,7 +1,6 @@
 window.Sonar = {};
 
-Sonar.RecentHistory = function (applicationContext) {
-  this.appContext = applicationContext;
+Sonar.RecentHistory = function () {
 };
 
 Sonar.RecentHistory.prototype.getRecentHistory = function() {
@@ -50,10 +49,10 @@ Sonar.RecentHistory.prototype.populateRecentHistoryPanel = function () {
   } else {    
     recentHistory.forEach(function (resource) {
       historyLinksList.append('<li><img width="16" height="16" src="'
-                            + sonarRecentHistory.appContext
+                            + baseUrl
                             + resource['iconPath']
                             + '"><a href="'
-                            + sonarRecentHistory.appContext
+                            + baseUrl
                             + '/dashboard/index/'
                             + resource['key']
                             + '"> ' 
