@@ -30,8 +30,14 @@ class ReviewsController < ApplicationController
   def index
     init_params()
     search_reviews()
-    
+
     add_breadcrumbs message('sidebar.tools'), {:name => message('sidebar.tools.reviews'), :url => {:controller => 'reviews', :action => 'index'}}
+  end
+
+  # Used for the "OLD" permalink "http://localhost:9000/reviews/view/1"
+  # => Since Sonar 2.13, permalinks are "http://localhost:9000/project_reviews/view/1" and are displayed in the context of the project
+  def view
+    redirect_to :controller => 'project_reviews', :action => 'view', :id => params[:id]
   end
 
   # GET
