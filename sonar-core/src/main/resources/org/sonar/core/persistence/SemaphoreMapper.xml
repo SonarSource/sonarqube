@@ -28,12 +28,18 @@
     update semaphores
     set updated_at = current_timestamp, locked_at = current_timestamp
     where name=#{name}
-    AND locked_at &lt; #{lockedBefore}
+    <if test="lockedBefore != null">
+      AND locked_at &lt; #{lockedBefore}
+    </if>
   </update>
 
   <delete id="release" parameterType="String">
     delete from semaphores where name=#{id}
   </delete>
+
+  <select id="selectSemaphore" parameterType="String" resultType="Semaphore">
+    select s.id, s.name as name, s.locked_at as lockedAt, s.created_at as createdAt, s.updated_at as updatedAt from semaphores s where s.name=#{name}
+  </select>
 
 </mapper>
 

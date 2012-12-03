@@ -34,7 +34,7 @@ public class DatabaseSemaphoreImpl implements DatabaseSemaphore {
   }
 
   public boolean acquire(String name, int maxDurationInSeconds) {
-    return dao.acquire(name, maxDurationInSeconds);
+    return dao.acquire(name, maxDurationInSeconds).isAcquired();
   }
 
   public void release(String name) {

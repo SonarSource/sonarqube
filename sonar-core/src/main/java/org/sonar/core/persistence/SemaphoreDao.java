@@ -37,15 +37,37 @@ public class SemaphoreDao {
     this.mybatis = mybatis;
   }
 
-  public boolean acquire(String name, int maxDurationInSeconds) {
+  public Lock acquire(String name, int maxDurationInSeconds) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "Semaphore name must not be empty");
-    Preconditions.checkArgument(maxDurationInSeconds > 0, "Semaphore max duration must be positive: " + maxDurationInSeconds);
+    Preconditions.checkArgument(maxDurationInSeconds >= 0, "Semaphore max duration must be positive: " + maxDurationInSeconds);
 
     SqlSession session = mybatis.openSession();
     try {
       SemaphoreMapper mapper = session.getMapper(SemaphoreMapper.class);
-      initialize(name, session, mapper);
-      return doAcquire(name, maxDurationInSeconds, session, mapper);
+      Date lockedAt = org.sonar.api.utils.DateUtils.parseDate("2001-01-01");
+      createSemaphore(name, lockedAt, session, mapper);
+      boolean isAcquired = doAcquire(name, maxDurationInSeconds, session, mapper);
+      SemaphoreDto semaphore = mapper.selectSemaphore(name);
+      return createLock(semaphore, mapper, isAcquired);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public Lock acquire(String name) {
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "Semaphore name must not be empty");
+
+    SqlSession session = mybatis.openSession();
+    try {
+      SemaphoreMapper mapper = session.getMapper(SemaphoreMapper.class);
+      SemaphoreDto semaphore = mapper.selectSemaphore(name);
+      Date now = mapper.now();
+      if (semaphore != null) {
+        return createLock(semaphore, mapper, false);
+      } else {
+        semaphore = createSemaphore(name, now, session, mapper);
+        return createLock(semaphore, mapper, true);
+      }
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -69,17 +91,33 @@ public class SemaphoreDao {
     return ok;
   }
 
-  private void initialize(String name, SqlSession session, SemaphoreMapper mapper) {
+  private SemaphoreDto createSemaphore(String name, Date lockedAt, SqlSession session, SemaphoreMapper mapper) {
     try {
       SemaphoreDto semaphore = new SemaphoreDto()
-        .setName(name)
-        .setLockedAt(org.sonar.api.utils.DateUtils.parseDate("2001-01-01"));
+          .setName(name)
+          .setLockedAt(lockedAt);
       mapper.initialize(semaphore);
       session.commit();
-
+      return semaphore;
     } catch (Exception e) {
       // probably because of the semaphore already exists
       session.rollback();
+      return null;
     }
+  }
+
+  private Lock createLock(SemaphoreDto semaphore, SemaphoreMapper mapper, boolean acquired) {
+    Lock lock = new Lock(semaphore.getName(), acquired, semaphore.getLockedAt(), semaphore.getCreatedAt(), semaphore.getUpdatedAt());
+    if (!acquired) {
+      lock.setDurationSinceLocked(getDurationSinceLocked(semaphore, mapper));
+    }
+    return lock;
+  }
+
+  private long getDurationSinceLocked(SemaphoreDto semaphore, SemaphoreMapper mapper) {
+    long now = mapper.now().getTime();
+    semaphore.getLockedAt();
+    long locketAt = semaphore.getLockedAt().getTime();
+    return now - locketAt;
   }
 }

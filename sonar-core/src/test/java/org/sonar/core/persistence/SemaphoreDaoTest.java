@@ -70,7 +70,45 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   @Test
   public void create_and_acquire_semaphore() throws Exception {
     SemaphoreDao dao = new SemaphoreDao(getMyBatis());
-    assertThat(dao.acquire("foo", 60)).isTrue();
+    Lock lock = dao.acquire("foo", 60);
+    assertThat(lock.isAcquired()).isTrue();
+    assertThat(lock.getDurationSinceLocked()).isNull();
+
+    Semaphore semaphore = selectSemaphore("foo");
+    assertThat(semaphore).isNotNull();
+    assertThat(semaphore.name).isEqualTo("foo");
+    assertThat(isRecent(semaphore.createdAt, 60)).isTrue();
+    assertThat(isRecent(semaphore.updatedAt, 60)).isTrue();
+    assertThat(isRecent(semaphore.lockedAt, 60)).isTrue();
+
+    dao.release("foo");
+    assertThat(selectSemaphore("foo")).isNull();
+  }
+
+  @Test
+  public void create_and_acquire_semaphore_when_timeout_is_zeo() throws Exception {
+    SemaphoreDao dao = new SemaphoreDao(getMyBatis());
+    Lock lock = dao.acquire("foo", 0);
+    assertThat(lock.isAcquired()).isTrue();
+    assertThat(lock.getDurationSinceLocked()).isNull();
+
+    Semaphore semaphore = selectSemaphore("foo");
+    assertThat(semaphore).isNotNull();
+    assertThat(semaphore.name).isEqualTo("foo");
+    assertThat(isRecent(semaphore.createdAt, 60)).isTrue();
+    assertThat(isRecent(semaphore.updatedAt, 60)).isTrue();
+    assertThat(isRecent(semaphore.lockedAt, 60)).isTrue();
+
+    dao.release("foo");
+    assertThat(selectSemaphore("foo")).isNull();
+  }
+
+  @Test
+  public void create_and_acquire_semaphore_when_no_timeout() throws Exception {
+    SemaphoreDao dao = new SemaphoreDao(getMyBatis());
+    Lock lock = dao.acquire("foo");
+    assertThat(lock.isAcquired()).isTrue();
+    assertThat(lock.getDurationSinceLocked()).isNull();
 
     Semaphore semaphore = selectSemaphore("foo");
     assertThat(semaphore).isNotNull();
@@ -87,7 +125,9 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   public void fail_to_acquire_locked_semaphore() throws Exception {
     setupData("old_semaphore");
     SemaphoreDao dao = new SemaphoreDao(getMyBatis());
-    assertThat(dao.acquire("foo", Integer.MAX_VALUE)).isFalse();
+    Lock lock = dao.acquire("foo", Integer.MAX_VALUE);
+    assertThat(lock.isAcquired()).isFalse();
+    assertThat(lock.getDurationSinceLocked()).isNotNull();
 
     Semaphore semaphore = selectSemaphore("foo");
     assertThat(semaphore).isNotNull();
@@ -101,7 +141,9 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   public void acquire_long_locked_semaphore() throws Exception {
     setupData("old_semaphore");
     SemaphoreDao dao = new SemaphoreDao(getMyBatis());
-    assertThat(dao.acquire("foo", 60)).isTrue();
+    Lock lock = dao.acquire("foo", 60);
+    assertThat(lock.isAcquired()).isTrue();
+    assertThat(lock.getDurationSinceLocked()).isNull();
 
     Semaphore semaphore = selectSemaphore("foo");
     assertThat(semaphore).isNotNull();
@@ -109,6 +151,41 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
     assertThat(isRecent(semaphore.createdAt, 60)).isFalse();
     assertThat(isRecent(semaphore.updatedAt, 60)).isTrue();
     assertThat(isRecent(semaphore.lockedAt, 60)).isTrue();
+  }
+
+  @Test
+  public void acquire_locked_semaphore_when_timeout_is_zeo() throws Exception {
+    setupData("old_semaphore");
+    SemaphoreDao dao = new SemaphoreDao(getMyBatis());
+    Lock lock = dao.acquire("foo", 0);
+    assertThat(lock.isAcquired()).isTrue();
+    assertThat(lock.getDurationSinceLocked()).isNull();
+
+    Semaphore semaphore = selectSemaphore("foo");
+    assertThat(semaphore).isNotNull();
+    assertThat(semaphore.name).isEqualTo("foo");
+    assertThat(isRecent(semaphore.createdAt, 60)).isFalse();
+    assertThat(isRecent(semaphore.updatedAt, 60)).isTrue();
+    assertThat(isRecent(semaphore.lockedAt, 60)).isTrue();
+
+    dao.release("foo");
+    assertThat(selectSemaphore("foo")).isNull();
+  }
+
+  @Test
+  public void fail_to_acquire_locked_semaphore_when_no_timeout() throws Exception {
+    setupData("old_semaphore");
+    SemaphoreDao dao = new SemaphoreDao(getMyBatis());
+    Lock lock = dao.acquire("foo");
+    assertThat(lock.isAcquired()).isFalse();
+    assertThat(lock.getDurationSinceLocked()).isNotNull();
+
+    Semaphore semaphore = selectSemaphore("foo");
+    assertThat(semaphore).isNotNull();
+    assertThat(semaphore.name).isEqualTo("foo");
+    assertThat(isRecent(semaphore.createdAt, 60)).isFalse();
+    assertThat(isRecent(semaphore.updatedAt, 60)).isFalse();
+    assertThat(isRecent(semaphore.lockedAt, 60)).isFalse();
   }
 
   @Test
@@ -184,7 +261,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
       try {
         barrier.await();
         for (int i = 0; i < 100; i++) {
-          if (dao.acquire("my-lock", 60 * 5)) {
+          if (dao.acquire("my-lock", 60 * 5).isAcquired()) {
             locks.incrementAndGet();
           }
         }

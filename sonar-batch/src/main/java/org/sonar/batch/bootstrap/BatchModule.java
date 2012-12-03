@@ -103,6 +103,7 @@ public class BatchModule extends Module {
     container.addSingleton(DefaultUserFinder.class);
     container.addSingleton(ResourceTypes.class);
     container.addSingleton(MetricProvider.class);
+    container.addSingleton(CheckSemaphore.class);
   }
 
   private void registerDatabaseComponents() {

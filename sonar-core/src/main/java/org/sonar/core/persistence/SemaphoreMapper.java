@@ -32,4 +32,7 @@ public interface SemaphoreMapper {
   Date now();
 
   void release(String name);
+
+  SemaphoreDto selectSemaphore(@Param("name") String name);
+
 }

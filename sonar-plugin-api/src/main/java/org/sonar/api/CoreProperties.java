@@ -366,4 +366,9 @@ public interface CoreProperties {
    * @since 3.4
    */
   String DRY_RUN = "sonar.dryRun";
+
+  /**
+   * @since 3.4
+   */
+  String FORCE_ANALYSIS = "sonar.forceAnalysis";
 }
