@@ -20,6 +20,7 @@
 package org.sonar.core.persistence;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
 import java.util.Date;
 
@@ -78,5 +79,10 @@ public class SemaphoreDto {
   public SemaphoreDto setUpdatedAt(Date updatedAt) {
     this.updatedAt = updatedAt;
     return this;
+  }
+
+  @Override
+  public String toString() {
+    return ReflectionToStringBuilder.toString(this);
   }
 }
