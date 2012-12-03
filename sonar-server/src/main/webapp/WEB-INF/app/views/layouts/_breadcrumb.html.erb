@@ -1,10 +1,17 @@
+<% 
+   displayed_resource = @resource || @project
+%>
+
 <% if @breadcrumbs %>
 
   <div id="crumbs">
     <ul id="crumbs-ops">
-      <% if @resource %>
+      <% if displayed_resource %>
+        <% if has_role?(:admin, displayed_resource) %>
+          <%= render 'layouts/menu_resource_settings' -%>
+        <% end %>
         <li>
-          <%= link_to_favourite(@resource) -%>
+          <%= link_to_favourite(displayed_resource) -%>
         </li>
       <% end %>
       <% if @permalink %>
@@ -36,15 +43,16 @@
     </ul>
   </div>
   
-<% elsif @resource || @project
-     displayed_resource = @resource || @project
-%>
+<% elsif displayed_resource %>
 
   <div id="crumbs">
     <ul id="crumbs-ops">
-      <% if @resource %>
+      <% if displayed_resource %>
+        <% if has_role?(:admin, displayed_resource) %>
+          <%= render 'layouts/menu_resource_settings' -%>
+        <% end %>
         <li>
-          <%= link_to_favourite(@resource) -%>
+          <%= link_to_favourite(displayed_resource) -%>
         </li>
       <% end %>
       <% if !@review %>

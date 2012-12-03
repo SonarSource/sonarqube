@@ -156,6 +156,11 @@ body, a {
   color: #000;
 }
 
+#project-settings-menu {
+  float: right;
+  right: 70px;
+}
+
 #user-panel {
   position: absolute;
   float: right;

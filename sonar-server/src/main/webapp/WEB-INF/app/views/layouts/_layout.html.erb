@@ -79,7 +79,7 @@
               </li>
             <% end %>
             <li class="<%= 'active' if request.request_uri.include?('/dashboards/index') -%>">
-              <a href="<%= ApplicationController.root_context -%>/dashboards/index?resource=<%= @resource.id -%>"><%= message('dashboard.manage_dashboards') -%></a></li>            
+              <a href="<%= ApplicationController.root_context -%>/dashboards/index?resource=<%= @project.id -%>"><%= message('dashboard.manage_dashboards') -%></a></li>            
             
             <li class="spacer"></li>
             <li class="sidebar-title"><%= message('sidebar.tools') -%></li>
@@ -100,53 +100,6 @@
               <li class="<%= 'active' if request.request_uri.include?(page_url) -%>">
                 <a href="<%= ApplicationController.root_context -%><%= page_url -%>"><%= message(page.getId() + '.page', :default => page.getTitle()) %></a>
               </li>
-            <% end %>
-
-            <% if has_role?(:admin, @project) %>
-              <li class="spacer"></li>
-              <li class="sidebar-title"><%= message('sidebar.project_settings') -%></li>
-              <% if (@project.project?) %>
-                <li class="<%= 'active' if request.request_uri.include?('/project/profile') -%>">
-                  <a href="<%= ApplicationController.root_context -%>/project/profile/<%= @project.id -%>"><%= message('project_quality_profiles.page') -%></a></li>
-              <% end %>
-              <li class="<%= 'active' if request.request_uri.include?('/manual_measures') -%>">
-                <a href="<%= ApplicationController.root_context -%>/manual_measures/index/<%= @project.id -%>"><%= message('manual_measures.page') -%></a></li>
-              <% if (@project.project?) %>
-                <li class="<%= 'active' if request.request_uri.include?('/action_plans') -%>">
-                  <a href="<%= ApplicationController.root_context -%>/action_plans/index/<%= @project.id -%>"><%= message('action_plans.page') -%></a></li>
-              <% end %>
-              <% if (@project.project? || @project.module?) %>
-                <li class="<%= 'active' if request.request_uri.include?('/project/settings') -%>">
-                  <a href="<%= ApplicationController.root_context -%>/project/settings/<%= @project.id -%>"><%= message('project_settings.page') -%></a>
-                </li>
-              <% end %>
-              <% if (@project.project?) %>
-                <li class="<%= 'active' if request.request_uri.include?('/project/links') -%>">
-                  <a href="<%= ApplicationController.root_context -%>/project/links/<%= @project.id -%>"><%= message('project_links.page') -%></a></li>
-              <% end %>
-              <%
-                 # NOTE: we keep "@project.view? || @project.subview?" in the test for backward compatibility with the Views plugin
-                 if (controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'hasRolePolicy') || @project.view? || @project.subview?)
-              %>
-                <li class="<%= 'active' if request.request_uri.include?('/project_roles') -%>">
-                  <a href="<%= ApplicationController.root_context -%>/project_roles/index?resource=<%= @project.id -%>"><%= message('roles.page') -%></a></li>
-              <% end %>
-              <%
-                 # NOTE: we keep "@project.view? || @project.subview?" in the test for backward compatibility with the Views plugin
-                 if (controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'modifiable_history') || @project.view? || @project.subview?)
-              %>
-                <li class="<%= 'active' if request.request_uri.include?('/project/history') -%>">
-                  <a href="<%= ApplicationController.root_context -%>/project/history/<%= @project.id -%>"><%= message('project_history.page') -%></a></li>
-              <% end %>
-              <% if controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'updatable_key') %>
-                <li class="<%= 'active' if request.request_uri.include?('/project/key') -%>">
-                  <a href="<%= ApplicationController.root_context -%>/project/key/<%= @project.id -%>"><%= message('update_key.page') -%></a></li>
-              <% end %>
-              <% if controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'deletable') %>
-                <li class="<%= 'active' if request.request_uri.include?('/project/deletion') -%>">
-                  <a href="<%= ApplicationController.root_context -%>/project/deletion/<%= @project.id -%>"><%= message('resource_deletion.page', :params => message('qualifier.' + @project.qualifier)) -%></a>
-                </li>
-              <% end %>
             <% end %>
 
           <% elsif selected_section==Navigation::SECTION_CONFIGURATION && is_admin? %>

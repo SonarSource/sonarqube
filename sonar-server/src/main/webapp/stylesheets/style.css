@@ -2106,6 +2106,7 @@ table.nowrap td, td.nowrap, th.nowrap {
 .dropdown {
   cursor: pointer;
   display: inline-block;
+  text-decoration: none !important;
 }
 
 .dropdown-menu {
@@ -2131,6 +2132,7 @@ table.nowrap td, td.nowrap, th.nowrap {
   padding: 0 8px;
   cursor: pointer !important;
   color: red !important;
+  float: none !important;
 }
 
 .dropdown-menu li:hover {
