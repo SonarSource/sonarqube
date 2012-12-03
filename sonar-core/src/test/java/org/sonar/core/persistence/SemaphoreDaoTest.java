@@ -20,14 +20,11 @@
 package org.sonar.core.persistence;
 
 import org.apache.commons.lang.time.DateUtils;
+import org.apache.ibatis.session.SqlSession;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
@@ -74,12 +71,12 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
     assertThat(lock.isAcquired()).isTrue();
     assertThat(lock.getDurationSinceLocked()).isNull();
 
-    Semaphore semaphore = selectSemaphore("foo");
+    SemaphoreDto semaphore = selectSemaphore("foo");
     assertThat(semaphore).isNotNull();
-    assertThat(semaphore.name).isEqualTo("foo");
-    assertThat(isRecent(semaphore.createdAt, 60)).isTrue();
-    assertThat(isRecent(semaphore.updatedAt, 60)).isTrue();
-    assertThat(isRecent(semaphore.lockedAt, 60)).isTrue();
+    assertThat(semaphore.getName()).isEqualTo("foo");
+    assertThat(isRecent(semaphore.getCreatedAt(), 60)).isTrue();
+    assertThat(isRecent(semaphore.getUpdatedAt(), 60)).isTrue();
+    assertThat(isRecent(semaphore.getLockedAt(), 60)).isTrue();
 
     dao.release("foo");
     assertThat(selectSemaphore("foo")).isNull();
@@ -92,12 +89,12 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
     assertThat(lock.isAcquired()).isTrue();
     assertThat(lock.getDurationSinceLocked()).isNull();
 
-    Semaphore semaphore = selectSemaphore("foo");
+    SemaphoreDto semaphore = selectSemaphore("foo");
     assertThat(semaphore).isNotNull();
-    assertThat(semaphore.name).isEqualTo("foo");
-    assertThat(isRecent(semaphore.createdAt, 60)).isTrue();
-    assertThat(isRecent(semaphore.updatedAt, 60)).isTrue();
-    assertThat(isRecent(semaphore.lockedAt, 60)).isTrue();
+    assertThat(semaphore.getName()).isEqualTo("foo");
+    assertThat(isRecent(semaphore.getCreatedAt(), 60)).isTrue();
+    assertThat(isRecent(semaphore.getUpdatedAt(), 60)).isTrue();
+    assertThat(isRecent(semaphore.getLockedAt(), 60)).isTrue();
 
     dao.release("foo");
     assertThat(selectSemaphore("foo")).isNull();
@@ -110,12 +107,12 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
     assertThat(lock.isAcquired()).isTrue();
     assertThat(lock.getDurationSinceLocked()).isNull();
 
-    Semaphore semaphore = selectSemaphore("foo");
+    SemaphoreDto semaphore = selectSemaphore("foo");
     assertThat(semaphore).isNotNull();
-    assertThat(semaphore.name).isEqualTo("foo");
-    assertThat(isRecent(semaphore.createdAt, 60)).isTrue();
-    assertThat(isRecent(semaphore.updatedAt, 60)).isTrue();
-    assertThat(isRecent(semaphore.lockedAt, 60)).isTrue();
+    assertThat(semaphore.getName()).isEqualTo("foo");
+    assertThat(isRecent(semaphore.getCreatedAt(), 60)).isTrue();
+    assertThat(isRecent(semaphore.getUpdatedAt(), 60)).isTrue();
+    assertThat(isRecent(semaphore.getLockedAt(), 60)).isTrue();
 
     dao.release("foo");
     assertThat(selectSemaphore("foo")).isNull();
@@ -129,12 +126,12 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
     assertThat(lock.isAcquired()).isFalse();
     assertThat(lock.getDurationSinceLocked()).isNotNull();
 
-    Semaphore semaphore = selectSemaphore("foo");
+    SemaphoreDto semaphore = selectSemaphore("foo");
     assertThat(semaphore).isNotNull();
-    assertThat(semaphore.name).isEqualTo("foo");
-    assertThat(isRecent(semaphore.createdAt, 60)).isFalse();
-    assertThat(isRecent(semaphore.updatedAt, 60)).isFalse();
-    assertThat(isRecent(semaphore.lockedAt, 60)).isFalse();
+    assertThat(semaphore.getName()).isEqualTo("foo");
+    assertThat(isRecent(semaphore.getCreatedAt(), 60)).isFalse();
+    assertThat(isRecent(semaphore.getUpdatedAt(), 60)).isFalse();
+    assertThat(isRecent(semaphore.getLockedAt(), 60)).isFalse();
   }
 
   @Test
@@ -145,12 +142,12 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
     assertThat(lock.isAcquired()).isTrue();
     assertThat(lock.getDurationSinceLocked()).isNull();
 
-    Semaphore semaphore = selectSemaphore("foo");
+    SemaphoreDto semaphore = selectSemaphore("foo");
     assertThat(semaphore).isNotNull();
-    assertThat(semaphore.name).isEqualTo("foo");
-    assertThat(isRecent(semaphore.createdAt, 60)).isFalse();
-    assertThat(isRecent(semaphore.updatedAt, 60)).isTrue();
-    assertThat(isRecent(semaphore.lockedAt, 60)).isTrue();
+    assertThat(semaphore.getName()).isEqualTo("foo");
+    assertThat(isRecent(semaphore.getCreatedAt(), 60)).isFalse();
+    assertThat(isRecent(semaphore.getUpdatedAt(), 60)).isTrue();
+    assertThat(isRecent(semaphore.getLockedAt(), 60)).isTrue();
   }
 
   @Test
@@ -161,12 +158,12 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
     assertThat(lock.isAcquired()).isTrue();
     assertThat(lock.getDurationSinceLocked()).isNull();
 
-    Semaphore semaphore = selectSemaphore("foo");
+    SemaphoreDto semaphore = selectSemaphore("foo");
     assertThat(semaphore).isNotNull();
-    assertThat(semaphore.name).isEqualTo("foo");
-    assertThat(isRecent(semaphore.createdAt, 60)).isFalse();
-    assertThat(isRecent(semaphore.updatedAt, 60)).isTrue();
-    assertThat(isRecent(semaphore.lockedAt, 60)).isTrue();
+    assertThat(semaphore.getName()).isEqualTo("foo");
+    assertThat(isRecent(semaphore.getCreatedAt(), 60)).isFalse();
+    assertThat(isRecent(semaphore.getUpdatedAt(), 60)).isTrue();
+    assertThat(isRecent(semaphore.getLockedAt(), 60)).isTrue();
 
     dao.release("foo");
     assertThat(selectSemaphore("foo")).isNull();
@@ -180,12 +177,25 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
     assertThat(lock.isAcquired()).isFalse();
     assertThat(lock.getDurationSinceLocked()).isNotNull();
 
-    Semaphore semaphore = selectSemaphore("foo");
+    SemaphoreDto semaphore = selectSemaphore("foo");
     assertThat(semaphore).isNotNull();
-    assertThat(semaphore.name).isEqualTo("foo");
-    assertThat(isRecent(semaphore.createdAt, 60)).isFalse();
-    assertThat(isRecent(semaphore.updatedAt, 60)).isFalse();
-    assertThat(isRecent(semaphore.lockedAt, 60)).isFalse();
+    assertThat(semaphore.getName()).isEqualTo("foo");
+    assertThat(isRecent(semaphore.getCreatedAt(), 60)).isFalse();
+    assertThat(isRecent(semaphore.getUpdatedAt(), 60)).isFalse();
+    assertThat(isRecent(semaphore.getLockedAt(), 60)).isFalse();
+  }
+
+  @Test
+  public void should_select_semaphore_return_current_semaphore_when_acquiring() throws Exception {
+    SemaphoreDao dao = new SemaphoreDao(getMyBatis());
+    dao.acquire("foo");
+
+    SemaphoreDto semaphore = dao.selectSemaphore("foo", getMyBatis().openSession());
+    assertThat(semaphore).isNotNull();
+    assertThat(semaphore.getName()).isEqualTo("foo");
+    assertThat(semaphore.getCreatedAt()).isNotNull();
+    assertThat(semaphore.getUpdatedAt()).isNotNull();
+    assertThat(semaphore.getLockedAt()).isNotNull();
   }
 
   @Test
@@ -209,39 +219,25 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
     }
   }
 
-  private Semaphore selectSemaphore(String name) throws Exception {
-    Connection connection = getConnection();
-    PreparedStatement statement = null;
-    ResultSet rs = null;
+  private SemaphoreDto selectSemaphore(String name) throws Exception {
+    SqlSession session = getMyBatis().openSession();
     try {
-      statement = connection.prepareStatement("SELECT * FROM semaphores WHERE name='" + name + "'");
-      rs = statement.executeQuery();
-      if (rs.next()) {
-        return new Semaphore(rs.getString("name"), rs.getTimestamp("created_at"), rs.getTimestamp("updated_at"), rs.getTimestamp("locked_at"));
-      }
-      return null;
+      SemaphoreDao dao = new SemaphoreDao(getMyBatis());
+      return dao.selectSemaphore(name, session);
     } finally {
-      DatabaseUtils.closeQuietly(rs);
-      DatabaseUtils.closeQuietly(statement);
-      DatabaseUtils.closeQuietly(connection);
+      MyBatis.closeQuietly(session);
     }
   }
 
-  private static class Semaphore {
-    String name;
-    Date createdAt, updatedAt, lockedAt;
-
-    private Semaphore(String name, Timestamp createdAt, Timestamp updatedAt, Timestamp lockedAt) {
-      this.name = name;
-      this.createdAt = createdAt;
-      this.updatedAt = updatedAt;
-      this.lockedAt = lockedAt;
+  private boolean isRecent(Date date, int durationInSeconds) {
+    SqlSession session = getMyBatis().openSession();
+    try {
+      SemaphoreDao dao = new SemaphoreDao(getMyBatis());
+      Date now = dao.now(session);
+      return date.before(now) && DateUtils.addSeconds(date, durationInSeconds).after(now);
+    } finally {
+      MyBatis.closeQuietly(session);
     }
-  }
-
-  private static boolean isRecent(Date date, int durationInSeconds) {
-    Date now = new Date();
-    return date.before(now) && DateUtils.addSeconds(date, durationInSeconds).after(now);
   }
 
   private static class Runner extends Thread {
