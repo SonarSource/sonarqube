@@ -10,9 +10,9 @@
     <% end %>
     <ul id="bc">
       <%
-         @breadcrumbs.each_with_index do |breadcrumb, index|
+         @breadcrumbs.each do |breadcrumb|
       %>
-        <li<%= ' class=first' if index==0 -%>>
+        <li>
           <% if breadcrumb.is_a?(String) %>
             <span><%= h breadcrumb -%></span>
           <%
@@ -60,9 +60,8 @@
              s=s.parent
            end
       %>
-        <li class="first"><%= message("qualifiers.#{resources[0].qualifier}") -%></li>
         <%
-           resources.each_with_index do |resource, index|
+           resources.each do |resource|
         %>
           <li>
             <%= qualifier_icon(resource) -%>
