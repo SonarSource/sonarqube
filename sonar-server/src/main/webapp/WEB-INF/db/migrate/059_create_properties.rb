@@ -24,6 +24,7 @@ class CreateProperties < ActiveRecord::Migration
       t.column :prop_key,   :string, :limit => 512
       t.column :resource_id, :integer, :null => true
 	    t.column :text_value, :text, :null => true
+      t.column :user_id, :integer, :null => true
     end
     add_index :properties, :prop_key, :name => 'properties_key'
   end

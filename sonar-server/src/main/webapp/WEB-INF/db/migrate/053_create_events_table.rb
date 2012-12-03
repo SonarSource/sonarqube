@@ -28,6 +28,7 @@ class CreateEventsTable < ActiveRecord::Migration
       t.column :event_date, :datetime,  :null => true
       t.column :created_at, :datetime,  :null => true
       t.column :description, :string,  :limit => 3072, :null => true
+      t.column :data, :string, :null => true, :limit => 4000
     end
     add_index :events, :resource_id, :name => 'events_resource_id'
     add_index :events, :snapshot_id, :name => 'events_snapshot_id'
