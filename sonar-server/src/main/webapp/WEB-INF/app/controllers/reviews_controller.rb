@@ -30,8 +30,6 @@ class ReviewsController < ApplicationController
   def index
     init_params()
     search_reviews()
-
-    add_breadcrumbs message('sidebar.tools'), {:name => message('sidebar.tools.reviews'), :url => {:controller => 'reviews', :action => 'index'}}
   end
 
   # Used for the "OLD" permalink "http://localhost:9000/reviews/view/1"

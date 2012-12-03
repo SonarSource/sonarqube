@@ -93,7 +93,7 @@ class DependenciesController < ApplicationController
 
     end
     
-    add_breadcrumbs message('sidebar.tools'), {:name => message('sidebar.tools.dependency'), :url => {:controller => 'dependencies', :action => 'index'}}
+    add_breadcrumbs message('sidebar.tools'), {:name => message('dependencies.page'), :url => {:controller => 'dependencies', :action => 'index'}}
   end
 
   private

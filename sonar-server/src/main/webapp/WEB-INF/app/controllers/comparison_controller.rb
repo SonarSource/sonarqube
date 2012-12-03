@@ -61,7 +61,7 @@ class ComparisonController < ApplicationController
     unless @snapshots.empty?
       @permalink = url_for :controller => 'comparison', :action => 'index', :sids => @snapshots.map {|s| s.id.to_s}.join(','), :metrics => @metrics.map {|m| m.key}.join(',')
     end
-    add_breadcrumbs message('sidebar.tools'), {:name => message('sidebar.tools.comparison'), :url => {:controller => 'comparison', :action => 'index'}}
+    add_breadcrumbs message('sidebar.tools'), {:name => message('comparison.page'), :url => {:controller => 'comparison', :action => 'index'}}
   end
   
   def versions

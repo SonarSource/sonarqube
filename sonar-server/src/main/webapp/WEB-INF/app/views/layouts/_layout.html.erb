@@ -18,9 +18,8 @@
           <a href="<%= ApplicationController.root_context -%>/measures"><%= message('layout.measures') -%></a>
         </li>
         <li>
-          <a href="<%= ApplicationController.root_context -%>/profiles"><%= message('quality_profiles.page') -%></a>
+          <a href="<%= ApplicationController.root_context -%>/reviews/index"><%= message('reviews.page') -%></a>
         </li>
-        <%= render 'layouts/tools' -%>
       </ul>
     </div>
     <div id="nav">
@@ -30,12 +29,13 @@
           <img src="<%= ApplicationController.root_context -%>/images/loading-small.gif" id="searchingResources" style="display:none">
         </li>
         <li>
-          <a href="<%= ApplicationController.root_context -%>/settings/index"><img src="<%= ApplicationController.root_context -%>/images/actions.png" alt="<%= message('layout.configuration') -%>" title="<%= message('layout.configuration') -%>"/></a>
+          <a href="<%= ApplicationController.root_context -%>/settings/index"><img src="<%= ApplicationController.root_context -%>/images/actions.png" alt="<%= message('layout.administration') -%>" title="<%= message('layout.administration') -%>"/></a>
         </li>
-        <% unless logged_in? %>
+        <% if logged_in? %>
+          <%= render 'layouts/user_panel' -%>
+        <% else %>
           <li><a href="<%= ApplicationController.root_context -%>/sessions/new?return_to=<%= u (request.request_uri) -%>"><%= message('layout.login') -%></a></li>
         <% end %>
-        <%= render 'layouts/user_panel' -%>
       </ul>
     </div>
     <div id="searchResourcesResults" class="autocomplete" style="display:none"></div>
@@ -59,6 +59,16 @@
               <li class="<%= 'active' if selected -%>">
                 <a href="<%= ApplicationController.root_context -%><%= page_url -%>"><%= message(page.getId() + '.page', :default => page.getTitle()) -%></a></li>
             <% end %>
+            
+            <li class="spacer"></li>
+            <li class="sidebar-title"><%= message('sidebar.tools') -%></li>
+            
+            <li class="<%= 'active' if request.request_uri.include?('/profiles') -%>">
+              <a href="<%= ApplicationController.root_context -%>/profiles"><%= message('quality_profiles.page') -%></a></li>
+            <li class="<%= 'active' if request.request_uri.include?('/dependencies/index') -%>">
+              <a href="<%= ApplicationController.root_context -%>/dependencies/index"><%= message('dependencies.page') -%></a></li>
+            <li class="<%= 'active' if request.request_uri.include?('/comparison/index') -%>">
+              <a href="<%= ApplicationController.root_context -%>/comparison/index"><%= message('comparison.page') -%></a></li>
 
           <% elsif selected_section==Navigation::SECTION_RESOURCE %>
             <% ActiveDashboard.user_dashboards(current_user, false).each do |active_dashboard| %>
