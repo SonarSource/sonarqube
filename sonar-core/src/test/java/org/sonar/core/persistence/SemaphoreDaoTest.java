@@ -27,6 +27,9 @@ import org.junit.rules.ExpectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
@@ -234,10 +237,32 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   }
 
   private boolean isRecent(Date date) {
-    Date now = new Date();
-    Date futur = DateUtils.addDays(now, 1);
-    Date past = DateUtils.addDays(now, -1);
+    Date futur = DateUtils.addMinutes(now(), 1);
+    Date past = DateUtils.addDays(now(), -1);
     return date.after(past) && date.before(futur);
+  }
+
+  private Date now() {
+    Connection connection = null;
+    PreparedStatement statement = null;
+    ResultSet rs = null;
+    try {
+      connection = getConnection();
+      rs = null;
+      statement = connection.prepareStatement("select current_timestamp");
+      rs = statement.executeQuery();
+      if (rs.next()) {
+        return new Date();
+      }
+      return null;
+
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    } finally {
+      DatabaseUtils.closeQuietly(rs);
+      DatabaseUtils.closeQuietly(statement);
+      DatabaseUtils.closeQuietly(connection);
+    }
   }
 
   private static class Runner extends Thread {
