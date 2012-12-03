@@ -27,6 +27,9 @@ import org.junit.rules.ExpectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
@@ -77,7 +80,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
     assertThat(lock.getDurationSinceLocked()).isNull();
 
     SemaphoreDto semaphore = selectSemaphore("foo");
-    LOG.info("semaphore : "+ semaphore);
+    LOG.info("semaphore : " + semaphore);
     assertThat(semaphore).isNotNull();
     assertThat(semaphore.getName()).isEqualTo("foo");
     assertThat(isRecent(semaphore.getCreatedAt())).isTrue();
@@ -235,14 +238,37 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
     }
   }
 
-  private static boolean isRecent(Date date) {
-    LOG.info("**** Date : "+ date);
-    Date now = new Date();
-    LOG.info("**** Now : "+ now);
+  private boolean isRecent(Date date) {
+    LOG.info("**** Date : " + date);
+    Date now = now();
+    LOG.info("**** Now : " + now);
     Date dateInTheFuture = DateUtils.addDays(date, 1);
-    LOG.info("**** DateInTheFuture : "+ dateInTheFuture);
-    LOG.info("date.before(now) -> " + date.before(now) + " && dateInTheFuture.after(now) -> "+ dateInTheFuture.after(now));
+    LOG.info("**** DateInTheFuture : " + dateInTheFuture);
+    LOG.info("date.before(now) -> " + date.before(now) + " && dateInTheFuture.after(date) -> " + dateInTheFuture.after(date));
     return date.before(now) && dateInTheFuture.after(now);
+  }
+
+  private Date now() {
+    Connection connection = null;
+    PreparedStatement statement = null;
+    ResultSet rs = null;
+    try {
+      connection = getConnection();
+      rs = null;
+      statement = connection.prepareStatement("select current_timestamp");
+      rs = statement.executeQuery();
+      if (rs.next()) {
+        return new Date();
+      }
+      return null;
+
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    } finally {
+      DatabaseUtils.closeQuietly(rs);
+      DatabaseUtils.closeQuietly(statement);
+      DatabaseUtils.closeQuietly(connection);
+    }
   }
 
   private static class Runner extends Thread {
