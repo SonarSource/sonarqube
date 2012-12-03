@@ -248,7 +248,6 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
     ResultSet rs = null;
     try {
       connection = getConnection();
-      rs = null;
       statement = connection.prepareStatement("select current_timestamp");
       rs = statement.executeQuery();
       if (rs.next()) {

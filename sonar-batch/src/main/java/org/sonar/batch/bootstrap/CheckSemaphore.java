@@ -70,7 +70,7 @@ public class CheckSemaphore {
   }
 
   private Lock acquire() {
-    LOG.debug("Acquire semaphore on project : {}", getProject());
+    LOG.debug("Acquire semaphore on project : {}, with key {}", getProject(), getSemaphoreKey());
     if (!isForceAnalyseActivated()) {
       return semaphoreDao.acquire(getSemaphoreKey());
     } else {
@@ -79,7 +79,7 @@ public class CheckSemaphore {
   }
 
   private void release() {
-    LOG.debug("Release semaphore on project : {}", getProject());
+    LOG.debug("Release semaphore on project : {}, with key {}", getProject(), getSemaphoreKey());
     semaphoreDao.release(getSemaphoreKey());
   }
 
