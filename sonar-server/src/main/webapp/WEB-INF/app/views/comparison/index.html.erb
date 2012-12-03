@@ -73,26 +73,28 @@
       <table class="data">
         <thead>
         <th class="thin" style="vertical-align: bottom">
-          <%= metric_select_tag 'new_metric', @metric_to_choose, {
-            :allow_empty => true,
-            :select2_options => {'placeholder' => "'" + message('comparison.add_metric') + "'"}
-          } -%>
-          <script>
-            // we don't want this parameter to be submitted, so we set its name to ''
-            $j('#new_metric').attr('name', '');
-            $j('#new_metric').on("change", function (e) {
-              if (e.val != null) {
-                var currentMetrics = $j('#metrics').val();
-                if (currentMetrics.length > 0) {
-                  currentMetrics += ',';
+          <div id="metric_div">
+            <%= metric_select_tag 'new_metric', @metric_to_choose, {
+              :allow_empty => true,
+              :select2_options => {'placeholder' => "'" + message('comparison.add_metric') + "'"}
+            } -%>
+            <script>
+              // we don't want this parameter to be submitted, so we set its name to ''
+              $j('#new_metric').attr('name', '');
+              $j('#new_metric').on("change", function (e) {
+                if (e.val != null) {
+                  var currentMetrics = $j('#metrics').val();
+                  if (currentMetrics.length > 0) {
+                    currentMetrics += ',';
+                  }
+                  currentMetrics += e.val;
+                  $j('#metrics').val(currentMetrics);
+                  $j('#compare-form').submit();
                 }
-                currentMetrics += e.val;
-                $j('#metrics').val(currentMetrics);
-                $j('#compare-form').submit();
-              }
-            });
-          </script>
-        </th>
+              });
+            </script>
+          </th>
+        </div>
 
         <%
            last_index = @snapshots.size-1
@@ -132,34 +134,40 @@
         <% end %>
 
         <th style="padding-left: 20px; vertical-align: bottom">
-          <%= resource_select_tag 'new_resource', {
-            :resource_type_property => 'comparable',
-            :width => '250px',
-            :select2_options => {'placeholder' => "'" + message('comparison.select_resource_to_compare') + "'"}
-          } -%>
-          <script>
-            // we don't want this parameter to be submitted, so we set its name to ''
-            $j('#new_resource').attr('name', '');
-            $j('#new_resource').on("change", function (e) {
-              if (e.val != null) {
-                $j.ajax({
-                  type:'GET',
-                  url:'<%= ApplicationController.root_context -%>/comparison/versions?resource='
-                    + e.val + '&sids='
-                    + $j('#sids').val(),
-                  success:function (data) {
-                    $j('#new_version').html(data);
-                    $j('#new_version').select2({placeholder:'<%= message('comparison.select_version') -%>'});
-                    $j('#version_div').show();
-                    $j('#new_version').select2("focus");
-                  }
-                });
-              }
-            });
-            $j('#new_resource').select2("focus");
-          </script>
+          <div id="resource_div">
+            <%= resource_select_tag 'new_resource', {
+              :resource_type_property => 'comparable',
+              :width => '250px',
+              :select2_options => {'placeholder' => "'" + message('comparison.select_resource_to_compare') + "'"}
+            } -%>
+            <script>
+              // we don't want this parameter to be submitted, so we set its name to ''
+              $j('#new_resource').attr('name', '');
+              $j('#new_resource').on("change", function (e) {
+                if (e.val != null) {
+                  $j('#version_loading').show();
+                  $j.ajax({
+                    type:'GET',
+                    url:'<%= ApplicationController.root_context -%>/comparison/versions?resource='
+                      + e.val + '&sids='
+                      + $j('#sids').val(),
+                    success:function (data) {
+                      $j('#new_version').html(data);
+                      $j('#new_version').select2({placeholder:'<%= message('comparison.select_version') -%>'});
+                      $j('#version_loading').hide();
+                      $j('#version_div').show();
+                      $j('#new_version').select2("focus");
+                    }
+                  });
+                }
+              });
+              $j('#new_resource').select2("focus");
+            </script>
+          </div>
           
-          <span id="version_div" style="display: none">
+          <div id="version_loading" class="loading" style="height: 16px; margin-top: 5px; display: none"></div>
+          
+          <div id="version_div" style="margin-top: 5px; display: none">
             <select id="new_version">
             </select>
             <script>
@@ -175,7 +183,7 @@
                 }
               });
             </script>
-          </span>
+          </div>
         </th>
         </thead>
 
