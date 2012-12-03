@@ -143,6 +143,11 @@ body, a {
   padding: 0 5px 0 0;
 }
 
+#crumbs-ops li {
+  float: left;
+  padding: 0 0 0 10px;
+}
+
 #content {
   padding: 10px;
 }

@@ -1,13 +1,18 @@
 <% if @breadcrumbs %>
 
   <div id="crumbs">
-    <% if @permalink %>
-      <ul id="crumbs-ops">
+    <ul id="crumbs-ops">
+      <% if @resource %>
+        <li>
+          <%= link_to_favourite(@resource) -%>
+        </li>
+      <% end %>
+      <% if @permalink %>
         <li>
           <a href="<%= @permalink -%>"><img src="<%= ApplicationController.root_context -%>/images/permalink.png" width="16" height="16" title="<%= message('permalink') -%>"/></a>
         </li>
-      </ul>
-    <% end %>
+      <% end %>
+    </ul>
     <ul id="bc">
       <%
          @breadcrumbs.each do |breadcrumb|
@@ -36,13 +41,18 @@
 %>
 
   <div id="crumbs">
-    <% if !@review %>
-      <ul id="crumbs-ops">
+    <ul id="crumbs-ops">
+      <% if @resource %>
+        <li>
+          <%= link_to_favourite(@resource) -%>
+        </li>
+      <% end %>
+      <% if !@review %>
         <li>
           <a href="<%= url_for(:overwrite_params => {:id => displayed_resource.key}) -%>"><img src="<%= ApplicationController.root_context -%>/images/permalink.png" width="16" height="16" title="<%= message('permalink') -%>"/></a>
         </li>
-      </ul>
-    <% end %>
+      <% end %>
+    </ul>
     <ul id="bc">
       <%
          resource_link = {}
