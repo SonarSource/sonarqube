@@ -73,14 +73,12 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void create_and_acquire_semaphore() throws Exception {
-    LOG.info("create_and_acquire_semaphore");
     SemaphoreDao dao = new SemaphoreDao(getMyBatis());
     Lock lock = dao.acquire("foo", 60);
     assertThat(lock.isAcquired()).isTrue();
     assertThat(lock.getDurationSinceLocked()).isNull();
 
     SemaphoreDto semaphore = selectSemaphore("foo");
-    LOG.info("semaphore : " + semaphore);
     assertThat(semaphore).isNotNull();
     assertThat(semaphore.getName()).isEqualTo("foo");
     assertThat(isRecent(semaphore.getCreatedAt())).isTrue();
@@ -239,13 +237,9 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   }
 
   private boolean isRecent(Date date) {
-    LOG.info("**** Date : " + date);
-    Date now = now();
-    LOG.info("**** Now : " + now);
-    Date dateInTheFuture = DateUtils.addDays(date, 1);
-    LOG.info("**** DateInTheFuture : " + dateInTheFuture);
-    LOG.info("date.before(now) -> " + date.before(now) + " && dateInTheFuture.after(date) -> " + dateInTheFuture.after(date));
-    return date.before(now) && dateInTheFuture.after(now);
+    Date futur = DateUtils.addDays(now(), 1);
+    Date past = DateUtils.addDays(now(), -1);
+    return date.after(past) && date.before(futur);
   }
 
   private Date now() {
