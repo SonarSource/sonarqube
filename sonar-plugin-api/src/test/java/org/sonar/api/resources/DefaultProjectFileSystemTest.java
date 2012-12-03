@@ -23,6 +23,10 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.maven.project.MavenProject;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
@@ -34,12 +38,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class DefaultProjectFileSystemTest {
-  Project project;
+
+  private Project project = null;
 
   @Before
   public void before() {
@@ -51,39 +58,39 @@ public class DefaultProjectFileSystemTest {
    */
   @Test
   public void shouldReturnOnlyExistingSourceAndTestDirectories() {
-    // in this example : "src/main/java" is a file, "src/test/java" doesn't exist
+    // in this example : "src/main/java" is a file, "src/test/java" doesn't exists
     project = MavenTestUtils.loadProjectFromPom(DefaultProjectFileSystemTest.class, "nonexistent-dirs/pom.xml");
-
-    ProjectFileSystem fs = project.getFileSystem();
-
-    assertThat(fs.getSourceDirs()).isEmpty();
-    assertThat(fs.getTestDirs()).isEmpty();
+    DefaultProjectFileSystem fs = newDefaultProjectFileSystem(project);
+    assertThat(fs.getSourceDirs().size(), is(0));
+    assertThat(fs.getTestDirs().size(), is(0));
   }
 
   @Test
   public void getJavaSourceFiles() {
-    ProjectFileSystem fs = project.getFileSystem();
+    final DefaultProjectFileSystem fs = newDefaultProjectFileSystem(project);
 
-    assertThat(fs.getJavaSourceFiles()).onProperty("name").containsOnly("Whizz.java", "Bar.java");
+    assertThat(fs.getJavaSourceFiles().size(), is(2));
+    assertThat(fs.getJavaSourceFiles(), hasItem(named("Bar.java")));
+    assertThat(fs.getJavaSourceFiles(), hasItem(named("Whizz.java")));
   }
 
   @Test
   public void hasJavaSourceFiles() {
-    ProjectFileSystem fs = project.getFileSystem();
-    assertThat(fs.hasJavaSourceFiles()).isTrue();
+    final DefaultProjectFileSystem fs = newDefaultProjectFileSystem(project);
+    assertThat(fs.hasJavaSourceFiles(), is(true));
 
     PropertiesConfiguration conf = new PropertiesConfiguration();
     conf.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "**/*.java");
     project.setConfiguration(conf);
-
-    assertThat(fs.hasJavaSourceFiles()).isFalse();
+    assertThat(fs.hasJavaSourceFiles(), is(false));
   }
 
   @Test
   public void getTestFiles() {
-    ProjectFileSystem fs = project.getFileSystem();
+    final DefaultProjectFileSystem fs = newDefaultProjectFileSystem(project);
 
-    assertThat(fs.getTestFiles(Java.INSTANCE)).onProperty("name").containsOnly("BarTest.java");
+    assertThat(fs.getTestFiles(Java.INSTANCE).size(), is(1));
+    assertThat(fs.getTestFiles(Java.INSTANCE), hasItem(named("BarTest.java")));
   }
 
   @Test
@@ -92,9 +99,10 @@ public class DefaultProjectFileSystemTest {
     conf.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "**/B*.java");
     project.setConfiguration(conf);
 
-    ProjectFileSystem fs = project.getFileSystem();
+    final DefaultProjectFileSystem fs = newDefaultProjectFileSystem(project);
 
-    assertThat(fs.getJavaSourceFiles()).onProperty("name").containsOnly("Whizz.java");
+    assertThat(fs.getJavaSourceFiles().size(), is(1));
+    assertThat(fs.getJavaSourceFiles(), hasItem(named("Whizz.java")));
   }
 
   /**
@@ -106,20 +114,11 @@ public class DefaultProjectFileSystemTest {
     conf.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "**/*.aj");
     project.setConfiguration(conf);
 
-    ProjectFileSystem fs = project.getFileSystem();
+    final DefaultProjectFileSystem fs = newDefaultProjectFileSystem(project);
 
-    assertThat(fs.getSourceFiles(Java.INSTANCE)).onProperty("name").containsOnly("Whizz.java", "Bar.java");
-  }
-
-  @Test
-  public void should_apply_inclusions() {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "!**/W*.*");
-    project.setConfiguration(conf);
-
-    ProjectFileSystem fs = project.getFileSystem();
-
-    assertThat(fs.getSourceFiles(Java.INSTANCE)).onProperty("name").containsOnly("Whizz.java");
+    assertThat(fs.getSourceFiles(Java.INSTANCE).size(), is(2));
+    assertThat(fs.getSourceFiles(Java.INSTANCE), hasItem(named("Whizz.java")));
+    assertThat(fs.getSourceFiles(Java.INSTANCE), hasItem(named("Bar.java")));
   }
 
   @Test
@@ -128,26 +127,25 @@ public class DefaultProjectFileSystemTest {
     conf.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "**/B*.java");
     project.setConfiguration(conf);
 
-    ProjectFileSystem fs = project.getFileSystem();
+    final DefaultProjectFileSystem fs = newDefaultProjectFileSystem(project);
 
-    assertThat(fs.getTestFiles(Java.INSTANCE)).onProperty("name").containsOnly("BarTest.java");
+    assertThat(fs.getTestFiles(Java.INSTANCE).size(), is(1));
+    assertThat(fs.getTestFiles(Java.INSTANCE), hasItem(named("BarTest.java")));
   }
 
   @Test
   public void createSonarWorkingDirectory() {
-    ProjectFileSystem fs = project.getFileSystem();
+    DefaultProjectFileSystem fs = newDefaultProjectFileSystem(project);
     java.io.File dir = fs.getSonarWorkingDirectory();
-
-    assertThat(dir).exists();
-    assertThat(dir.listFiles()).isEmpty();
+    assertThat(dir.exists(), is(true));
+    assertThat(dir.listFiles().length, is(0));
   }
 
   @Test
   public void getJapaneseCharSet() {
     project = MavenTestUtils.loadProjectFromPom(DefaultProjectFileSystemTest.class, "japanese-project/pom.xml");
-    ProjectFileSystem fs = project.getFileSystem();
-
-    assertThat(fs.getSourceCharset().name()).isEqualTo("Shift_JIS");
+    DefaultProjectFileSystem fs = newDefaultProjectFileSystem(project);
+    assertThat(fs.getSourceCharset().name(), is("Shift_JIS"));
   }
 
   @Test
@@ -167,10 +165,9 @@ public class DefaultProjectFileSystemTest {
     }
 
     project = MavenTestUtils.loadProjectFromPom(DefaultProjectFileSystemTest.class, "sample-with-different-suffixes/pom.xml");
-    ProjectFileSystem fs = project.getFileSystem();
+    ProjectFileSystem fs = newDefaultProjectFileSystem(project);
     List<File> files = fs.getSourceFiles(new NoSuffixLanguage());
-
-    assertThat(files).hasSize(2);
+    assertThat(files.size(), is(2));
   }
 
   /**
@@ -181,10 +178,10 @@ public class DefaultProjectFileSystemTest {
     MavenProject pom = mock(MavenProject.class);
     when(pom.getBasedir()).thenReturn(new File("/project"));
     Project project = new Project("foo").setPom(pom);
-    ProjectFileSystem fs = new DefaultProjectFileSystem(project, null);
+    DefaultProjectFileSystem fs = new DefaultProjectFileSystem(project, null);
 
-    assertThat(fs.resolvePath(".").getAbsolutePath()).endsWith("project");
-    assertThat(fs.resolvePath("../project").getAbsolutePath()).endsWith("project");
+    assertThat(fs.resolvePath(".").getAbsolutePath(), endsWith("project"));
+    assertThat(fs.resolvePath("../project").getAbsolutePath(), endsWith("project"));
   }
 
   /**
@@ -196,18 +193,18 @@ public class DefaultProjectFileSystemTest {
       // hidden files/directories can not be stored in svn windows
       // On Mac/Linux it's easy, just prefix the filename by '.'
       project = MavenTestUtils.loadProjectFromPom(DefaultProjectFileSystemTest.class, "hidden-files/pom.xml");
-      ProjectFileSystem fs = project.getFileSystem();
+      ProjectFileSystem fs = newDefaultProjectFileSystem(project);
       List<File> files = fs.getSourceFiles();
-      assertThat(files).hasSize(1);
-      assertThat(files.get(0).getName()).isEqualTo("foo.sql");
+      assertThat(files.size(), is(1));
+      assertThat(files.get(0).getName(), is("foo.sql"));
     }
   }
 
   @Test
   public void shouldUseExtendedFilters() {
-    ProjectFileSystem fsWithoutFilter = project.getFileSystem();
-    assertThat(fsWithoutFilter.getSourceFiles()).hasSize(2);
-    assertThat(fsWithoutFilter.getSourceFiles()).onProperty("name").contains("Bar.java");
+    DefaultProjectFileSystem fsWithoutFilter = newDefaultProjectFileSystem(project);
+    assertThat(fsWithoutFilter.getSourceFiles().size(), is(2));
+    assertThat(fsWithoutFilter.getSourceFiles(), hasItem(named("Bar.java")));
 
     FileFilter filter = new FileFilter() {
       public boolean accept(File file) {
@@ -215,21 +212,21 @@ public class DefaultProjectFileSystemTest {
       }
     };
     DefaultProjectFileSystem fsWithFilter = new DefaultProjectFileSystem(project, new Languages(Java.INSTANCE), filter);
-    assertThat(fsWithFilter.getSourceFiles()).hasSize(1);
-    assertThat(fsWithFilter.getSourceFiles()).onProperty("name").excludes("Bar.java");
+    assertThat(fsWithFilter.getSourceFiles().size(), is(1));
+    assertThat(fsWithFilter.getSourceFiles(), not(hasItem(named("Bar.java"))));
   }
 
   @Test
   public void testSelectiveFileFilter() {
     DefaultProjectFileSystem.FileSelectionFilter filter = new DefaultProjectFileSystem.FileSelectionFilter(
-        Arrays.asList(new File("foo/Bar.java"), new File("hello/Bar.java"), new File("hello/World.java")));
-    assertThat(filter.accept(new File("foo/Bar.java"))).isTrue();
-    assertThat(filter.accept(new File("hello/Bar.java"))).isTrue();
-    assertThat(filter.accept(new File("hello/World.java"))).isTrue();
+      Arrays.asList(new File("foo/Bar.java"), new File("hello/Bar.java"), new File("hello/World.java")));
+    assertThat(filter.accept(new File("foo/Bar.java")), Matchers.is(true));
+    assertThat(filter.accept(new File("hello/Bar.java")), Matchers.is(true));
+    assertThat(filter.accept(new File("hello/World.java")), Matchers.is(true));
 
-    assertThat(filter.accept(new File("foo/Unknown.java"))).isFalse();
-    assertThat(filter.accept(new File("foo/bar/Bar.java"))).isFalse();
-    assertThat(filter.accept(new File("foo/World.java"))).isFalse();
+    assertThat(filter.accept(new File("foo/Unknown.java")), Matchers.is(false));
+    assertThat(filter.accept(new File("foo/bar/Bar.java")), Matchers.is(false));
+    assertThat(filter.accept(new File("foo/World.java")), Matchers.is(false));
   }
 
   /**
@@ -239,8 +236,33 @@ public class DefaultProjectFileSystemTest {
   public void shouldExcludeDirectoriesStartingWithDot() {
     List<File> dirs = Arrays.asList(new File("test-resources/org/sonar/api/resources/DefaultProjectFileSystemTest/shouldExcludeDirectoriesStartingWithDot/src"));
 
-    List<InputFile> files = new DefaultProjectFileSystem(new Project("foo"), null).getFiles(dirs, Collections.<File> emptyList(), new String[0], new String[0], true);
-    assertThat(files).hasSize(1);
-    assertThat(files.get(0).getRelativePath()).isEqualTo("org/sonar/Included.java");
+    List<InputFile> files = new DefaultProjectFileSystem(new Project("foo"), null).getFiles(dirs, Collections.<File>emptyList(), new String[0]);
+    assertThat(files.size(), is(1));
+    assertThat(files.get(0).getRelativePath(), is("org/sonar/Included.java"));
+  }
+
+  private DefaultProjectFileSystem newDefaultProjectFileSystem(Project project) {
+    return (DefaultProjectFileSystem) project.getFileSystem();
+  }
+
+  private static Matcher<java.io.File> named(final String name) {
+    return new TypeSafeMatcher<java.io.File>() {
+      java.io.File fileTested;
+
+      @Override
+      public boolean matchesSafely(java.io.File item) {
+        fileTested = item;
+        return name.equals(item.getName());
+      }
+
+      public void describeTo(Description description) {
+        description.appendText(" that file ");
+        description.appendValue(fileTested);
+        description.appendText(" is named");
+        description.appendText(name);
+        description.appendText(" not ");
+        description.appendValue(fileTested.getName());
+      }
+    };
   }
 }

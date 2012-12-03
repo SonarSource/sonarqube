@@ -35,18 +35,13 @@ public class ExcludedResourceFilter implements ResourceFilter {
   }
 
   public boolean isIgnored(Resource resource) {
-    boolean isTest = ResourceUtils.isUnitTestClass(resource);
-
-    String[] exclusions = isTest ? project.getTestExclusionPatterns() : project.getExclusionPatterns();
-    for (String exclusion : exclusions) {
-      if (resource.matchFilePattern(exclusion)) {
-        return true;
-      }
+    String[] patterns = ResourceUtils.isUnitTestClass(resource) ? project.getTestExclusionPatterns() : project.getExclusionPatterns();
+    if (patterns == null) {
+      return false;
     }
 
-    String[] inclusions = isTest ? project.getTestInclusionPatterns() : project.getInclusionPatterns();
-    for (String inclusion : inclusions) {
-      if (!resource.matchFilePattern(inclusion)) {
+    for (String pattern : patterns) {
+      if (resource.matchFilePattern(pattern)) {
         return true;
       }
     }

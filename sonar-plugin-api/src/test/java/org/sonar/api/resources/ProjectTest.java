@@ -103,26 +103,4 @@ public class ProjectTest {
 
     assertThat(project.getExclusionPatterns()).containsOnly("**/*Foo.java", "**/*Bar.java");
   }
-
-  @Test
-  public void should_support_inclusion_patterns() {
-    conf.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "!**/*foo.java, **/*bar.java");
-    conf.setProperty(CoreProperties.GLOBAL_EXCLUSIONS_PROPERTY, "!**/*quix.java");
-
-    Project project = new Project("key").setConfiguration(conf);
-
-    assertThat(project.getExclusionPatterns()).containsOnly("**/*bar.java");
-    assertThat(project.getInclusionPatterns()).containsOnly("**/*foo.java", "**/*quix.java");
-  }
-
-  @Test
-  public void should_support_test_inclusion_patterns() {
-    conf.setProperty(CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY, "!**/*Test.java, **/*FunctionalTest.java");
-    conf.setProperty(CoreProperties.GLOBAL_TEST_EXCLUSIONS_PROPERTY, "!**/*IntegrationTest.java");
-
-    Project project = new Project("key").setConfiguration(conf);
-
-    assertThat(project.getTestExclusionPatterns()).containsOnly("**/*FunctionalTest.java");
-    assertThat(project.getTestInclusionPatterns()).containsOnly("**/*Test.java", "**/*IntegrationTest.java");
-  }
 }

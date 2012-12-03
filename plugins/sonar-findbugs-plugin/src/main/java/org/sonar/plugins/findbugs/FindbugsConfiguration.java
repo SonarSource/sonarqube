@@ -30,11 +30,15 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
+import org.sonar.plugins.findbugs.xml.ClassFilter;
+import org.sonar.plugins.findbugs.xml.FindBugsFilter;
+import org.sonar.plugins.findbugs.xml.Match;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -87,16 +91,21 @@ public class FindbugsConfiguration implements BatchExtension {
 
   @VisibleForTesting
   File saveIncludeConfigXml() throws IOException {
-    String xml = exporter.exportProfileAndInclusions(profile, project.getInclusionPatterns());
-
-    return project.getFileSystem().writeToWorkingDirectory(xml, "findbugs-include.xml");
+    StringWriter conf = new StringWriter();
+    exporter.exportProfile(profile, conf);
+    return project.getFileSystem().writeToWorkingDirectory(conf.toString(), "findbugs-include.xml");
   }
 
   @VisibleForTesting
   File saveExcludeConfigXml() throws IOException {
-    String xml = exporter.exportExclusions(project.getExclusionPatterns());
-
-    return project.getFileSystem().writeToWorkingDirectory(xml, "findbugs-exclude.xml");
+    FindBugsFilter findBugsFilter = new FindBugsFilter();
+    if (project.getExclusionPatterns() != null) {
+      for (String exclusion : project.getExclusionPatterns()) {
+        ClassFilter classFilter = new ClassFilter(FindbugsAntConverter.antToJavaRegexpConvertor(exclusion));
+        findBugsFilter.addMatch(new Match(classFilter));
+      }
+    }
+    return project.getFileSystem().writeToWorkingDirectory(findBugsFilter.toXml(), "findbugs-exclude.xml");
   }
 
   @VisibleForTesting

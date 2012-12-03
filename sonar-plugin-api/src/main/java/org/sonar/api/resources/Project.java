@@ -362,7 +362,9 @@ public class Project extends Resource {
    * @since 3.3 also applies exclusions in general settings page and global exclusions.
    */
   public String[] getExclusionPatterns() {
-    return removeNegativePatterns(exclusionPatterns());
+    return trimExclusions(ImmutableList.<String> builder()
+      .add(configuration.getStringArray(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY))
+      .add(configuration.getStringArray(CoreProperties.GLOBAL_EXCLUSIONS_PROPERTY)).build());
   }
 
   /**
@@ -372,34 +374,6 @@ public class Project extends Resource {
    * @since 3.3
    */
   public String[] getTestExclusionPatterns() {
-    return removeNegativePatterns(testExclusionPatterns());
-  }
-
-  /**
-   * Patterns of resource inclusion as defined in project settings page.
-   *
-   * @since 3.4
-   */
-  public String[] getInclusionPatterns() {
-    return onlyNegativePatterns(exclusionPatterns());
-  }
-
-  /**
-   * Patterns of test inclusion as defined in project settings page.
-   *
-   * @since 3.4
-   */
-  public String[] getTestInclusionPatterns() {
-    return onlyNegativePatterns(testExclusionPatterns());
-  }
-
-  private List<String> exclusionPatterns() {
-    return trimExclusions(ImmutableList.<String> builder()
-        .add(configuration.getStringArray(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY))
-        .add(configuration.getStringArray(CoreProperties.GLOBAL_EXCLUSIONS_PROPERTY)).build());
-  }
-
-  private List<String> testExclusionPatterns() {
     String[] globalTestExclusions = configuration.getStringArray(CoreProperties.GLOBAL_TEST_EXCLUSIONS_PROPERTY);
     if (globalTestExclusions.length == 0) {
       globalTestExclusions = new String[] {CoreProperties.GLOBAL_TEST_EXCLUSIONS_DEFAULT};
@@ -410,33 +384,13 @@ public class Project extends Resource {
         .add(globalTestExclusions).build());
   }
 
-  private static String[] removeNegativePatterns(List<String> patterns) {
-    List<String> filtered = Lists.newArrayList();
-    for (String pattern : patterns) {
-      if (!pattern.startsWith("!")) {
-        filtered.add(pattern);
-      }
-    }
-    return filtered.toArray(new String[filtered.size()]);
-  }
-
-  private static String[] onlyNegativePatterns(List<String> patterns) {
-    List<String> filtered = Lists.newArrayList();
-    for (String pattern : patterns) {
-      if (pattern.startsWith("!")) {
-        filtered.add(pattern.substring(1));
-      }
-    }
-    return filtered.toArray(new String[filtered.size()]);
-  }
-
   // http://jira.codehaus.org/browse/SONAR-2261 - exclusion must be trimmed
-  private static List<String> trimExclusions(List<String> patterns) {
+  private static String[] trimExclusions(List<String> exclusions) {
     List<String> trimmed = Lists.newArrayList();
-    for (String pattern : patterns) {
-      trimmed.add(StringUtils.trim(pattern));
+    for (String exclusion : exclusions) {
+      trimmed.add(StringUtils.trim(exclusion));
     }
-    return trimmed;
+    return trimmed.toArray(new String[trimmed.size()]);
   }
 
   /**
