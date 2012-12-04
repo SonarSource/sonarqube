@@ -1,30 +1,38 @@
-<table class="spaced width100">
-  <tr>
-    <td valign="top" class="thin nowrap">
-      <span class="comments"><%= message('size') -%></span>
-      <br/>
-      <%= metric_select_tag 'tmSize', Metric.all.select { |m| m.treemap_size? },
-                            :html_id => 'select-tm-size',
-                            :selected_key => filter.display.size_metric.key -%>
-    </td>
-    <td valign="top" class="thin nowrap">
-      <span class="comments"><%= message('color') -%></span>
-      <% if filter.display.color_metric %>
-      <span id="tm-gradient" class="note">
-        <%= render :partial => 'treemap/gradient', :locals => {:metric => filter.display.color_metric} %>
-      </span>
+<% if defined? widget %>
+  <span class="note"><%= message('size') -%>: <b><%= filter.display.size_metric.short_name -%></b></span>
+  <% if filter.display.color_metric %>
+    <span class="note"><%= message('color') -%>: <b><%= filter.display.color_metric.short_name -%></b> <%= render :partial => 'treemap/gradient', :locals => {:metric => filter.display.color_metric} %></span>
+  <% end %>
+<% else %>
+  <table class="spaced width100">
+    <tr>
+      <td valign="top" class="thin nowrap">
+          <span class="comments"><%= message('size') -%></span>
+          <br/>
+          <%= metric_select_tag 'tmSize', Metric.all.select { |m| m.treemap_size? },
+                                :html_id => 'select-tm-size',
+                                :selected_key => filter.display.size_metric.key -%>
+      </td>
+      <td valign="top" class="thin nowrap">
+        <span class="comments"><%= message('color') -%></span>
+        <% if filter.display.color_metric %>
+        <span id="tm-gradient" class="note">
+          <%= render :partial => 'treemap/gradient', :locals => {:metric => filter.display.color_metric} %>
+        </span>
         <% end %>
-      <br/>
-      <%= metric_select_tag 'tmColor', Metric.all.select { |m| m.treemap_color? },
-                            :html_id => 'select-tm-color',
-                            :allow_empty => true,
-                            :selected_key => (filter.display.color_metric ? filter.display.color_metric.key : nil) -%>
+        <br/>
+        <%= metric_select_tag 'tmColor', Metric.all.select { |m| m.treemap_color? },
+                              :html_id => 'select-tm-color',
+                              :allow_empty => true,
+                              :selected_key => (filter.display.color_metric ? filter.display.color_metric.key : nil) -%>
 
-      <button id="update-treemap">Update</button>
-    </td>
-    <td></td>
-  </tr>
-</table>
+        <button id="update-treemap">Update</button>
+      </td>
+      <td></td>
+    </tr>
+  </table>
+<% end %>
+
 <% content_for :script do %>
   <script>
     $j(document).ready(function () {
@@ -45,6 +53,10 @@
   </script>
 <% end %>
 
-<div class="treemap" style="width: 100%; height: 500px;">
-  <%= filter.display.html -%>
-</div>
+<% if filter.results.empty? %>
+  <p><%= message('no_data') -%></p>
+<% else %>
+  <div class="treemap" style="width: 100%; height: 500px;">
+    <%= filter.display.html -%>
+  </div>
+<% end %>
