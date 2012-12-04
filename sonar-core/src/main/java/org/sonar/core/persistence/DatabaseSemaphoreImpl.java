@@ -17,56 +17,30 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-
 package org.sonar.core.persistence;
 
-import java.util.Date;
+import org.sonar.api.utils.DatabaseSemaphore;
 
 /**
  * @since 3.4
  */
-public class Lock {
+public class DatabaseSemaphoreImpl implements DatabaseSemaphore {
 
-  private String name;
-  private boolean acquired;
-  private Date locketAt;
-  private Date createdAt;
-  private Date updatedAt;
-  private Long durationSinceLocked;
+  private SemaphoreDao dao;
 
-  public Lock(String name, boolean acquired, Date locketAt, Date createdAt, Date updatedAt) {
-    this.name = name;
-    this.acquired = acquired;
-    this.locketAt = locketAt;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
+  public DatabaseSemaphoreImpl(SemaphoreDao dao) {
+    this.dao = dao;
   }
 
-  public String getName() {
-    return name;
+  public Lock acquire(String name, int maxDurationInSeconds) {
+    return dao.acquire(name, maxDurationInSeconds);
   }
 
-  public Date getLocketAt() {
-    return locketAt;
+  public Lock acquire(String name) {
+    return dao.acquire(name);
   }
 
-  public Date getCreatedAt() {
-    return createdAt;
-  }
-
-  public Date getUpdatedAt() {
-    return updatedAt;
-  }
-
-  public boolean isAcquired() {
-    return acquired;
-  }
-
-  public Long getDurationSinceLocked() {
-    return durationSinceLocked;
-  }
-
-  public void setDurationSinceLocked(Long durationSinceLocked) {
-    this.durationSinceLocked = durationSinceLocked;
+  public void release(String name) {
+    dao.release(name);
   }
 }

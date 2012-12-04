@@ -24,21 +24,22 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
+import org.sonar.api.utils.DatabaseSemaphore;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.ProjectTree;
-import org.sonar.core.persistence.Lock;
-import org.sonar.core.persistence.SemaphoreDao;
+
+import static org.sonar.api.utils.DatabaseSemaphore.Lock;
 
 public class CheckSemaphore {
 
   private static final Logger LOG = LoggerFactory.getLogger(CheckSemaphore.class);
 
-  private final SemaphoreDao semaphoreDao;
+  private final DatabaseSemaphore databaseSemaphore;
   private final ProjectTree projectTree;
   private final Settings settings;
 
-  public CheckSemaphore(SemaphoreDao semaphoreDao, ProjectTree projectTree, Settings settings) {
-    this.semaphoreDao = semaphoreDao;
+  public CheckSemaphore(DatabaseSemaphore databaseSemaphore, ProjectTree projectTree, Settings settings) {
+    this.databaseSemaphore = databaseSemaphore;
     this.projectTree = projectTree;
     this.settings = settings;
   }
@@ -72,15 +73,16 @@ public class CheckSemaphore {
   private Lock acquire() {
     LOG.debug("Acquire semaphore on project : {}, with key {}", getProject(), getSemaphoreKey());
     if (!isForceAnalyseActivated()) {
-      return semaphoreDao.acquire(getSemaphoreKey());
+      return databaseSemaphore.acquire(getSemaphoreKey());
     } else {
-      return semaphoreDao.acquire(getSemaphoreKey(), 0);
+      // In force mode, we acquire the lock regardless there's a existing lock or not
+      return databaseSemaphore.acquire(getSemaphoreKey(), 0);
     }
   }
 
   private void release() {
     LOG.debug("Release semaphore on project : {}, with key {}", getProject(), getSemaphoreKey());
-    semaphoreDao.release(getSemaphoreKey());
+    databaseSemaphore.release(getSemaphoreKey());
   }
 
   private String getSemaphoreKey() {

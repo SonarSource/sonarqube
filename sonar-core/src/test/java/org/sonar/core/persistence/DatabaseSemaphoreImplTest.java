@@ -17,27 +17,34 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core;
+package org.sonar.core.persistence;
 
-import org.sonar.api.utils.DatabaseSemaphore;
-import org.sonar.core.persistence.SemaphoreDao;
+import org.junit.Test;
 
-/**
- * @since 3.4
- */
-public class DatabaseSemaphoreImpl implements DatabaseSemaphore {
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.sonar.api.utils.DatabaseSemaphore.Lock;
 
-  private SemaphoreDao dao;
+public class DatabaseSemaphoreImplTest {
 
-  public DatabaseSemaphoreImpl(SemaphoreDao dao) {
-    this.dao = dao;
-  }
+  @Test
+  public void should_be_a_bridge_over_dao() {
+    Lock lock = mock(Lock.class);
+    SemaphoreDao dao = mock(SemaphoreDao.class);
+    when(dao.acquire(anyString(), anyInt())).thenReturn(lock);
 
-  public boolean acquire(String name, int maxDurationInSeconds) {
-    return dao.acquire(name, maxDurationInSeconds).isAcquired();
-  }
+    DatabaseSemaphoreImpl impl = new DatabaseSemaphoreImpl(dao);
 
-  public void release(String name) {
-    dao.release(name);
+    impl.acquire("do-xxx", 50000);
+    verify(dao).acquire("do-xxx", 50000);
+
+    impl.acquire("do-xxx");
+    verify(dao).acquire("do-xxx");
+
+    impl.release("do-xxx");
+    verify(dao).release("do-xxx");
   }
 }

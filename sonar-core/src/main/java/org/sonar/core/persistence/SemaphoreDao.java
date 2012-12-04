@@ -26,6 +26,8 @@ import org.apache.ibatis.session.SqlSession;
 
 import java.util.Date;
 
+import static org.sonar.api.utils.DatabaseSemaphore.Lock;
+
 /**
  * @since 3.4
  */

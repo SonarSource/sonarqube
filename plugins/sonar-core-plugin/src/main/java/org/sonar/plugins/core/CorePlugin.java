@@ -394,7 +394,6 @@ public final class CorePlugin extends SonarPlugin {
       DefaultResourceTypes.class,
       UserManagedMetrics.class,
       ProjectFileSystemLogger.class,
-      DatabaseSemaphoreImpl.class,
       Periods.class,
 
       // maven

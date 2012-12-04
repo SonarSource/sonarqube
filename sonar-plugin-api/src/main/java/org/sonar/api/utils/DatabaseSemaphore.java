@@ -22,6 +22,8 @@ package org.sonar.api.utils;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 
+import java.util.Date;
+
 /**
  * A semaphore shared among all the processes that can connect to the central database.
  *
@@ -29,8 +31,77 @@ import org.sonar.api.ServerComponent;
  */
 public interface DatabaseSemaphore extends BatchComponent, ServerComponent {
 
-  boolean acquire(String name, int maxDurationInSeconds);
+  /**
+   * Try to acquire a lock on a name, for a given duration.
+   * The lock will be acquired if there's no existing lock on this name or if a lock exists but the max duration is reached.
+   *
+   * @param name the key of the semaphore
+   * @param maxDurationInSeconds the max duration in seconds the semaphore will be acquired (a value of zero can be used to always acquire a lock)
+   * @return a lock containing information if the lock could be acquired or not, the duration since locked, etc.
+   */
+  Lock acquire(String name, int maxDurationInSeconds);
 
+  /**
+   * Try to acquire the lock on a name.
+   * The lock will be acquired only if there's no existing lock.
+   *
+   * @param name the key of the semaphore
+   * @return a lock containing information if the lock could be acquired or not, the duration since locked, etc.
+   */
+  Lock acquire(String name);
+
+  /**
+   * Release the lock on a semaphore by its name.
+   *
+   * @param name the key of the semaphore
+   */
   void release(String name);
+
+  static class Lock {
+
+    private String name;
+    private boolean acquired;
+    private Date locketAt;
+    private Date createdAt;
+    private Date updatedAt;
+    private Long durationSinceLocked;
+
+    public Lock(String name, boolean acquired, Date locketAt, Date createdAt, Date updatedAt) {
+      this.name = name;
+      this.acquired = acquired;
+      this.locketAt = locketAt;
+      this.createdAt = createdAt;
+      this.updatedAt = updatedAt;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public Date getLocketAt() {
+      return locketAt;
+    }
+
+    public Date getCreatedAt() {
+      return createdAt;
+    }
+
+    public Date getUpdatedAt() {
+      return updatedAt;
+    }
+
+    public boolean isAcquired() {
+      return acquired;
+    }
+
+    public Long getDurationSinceLocked() {
+      return durationSinceLocked;
+    }
+
+    public void setDurationSinceLocked(Long durationSinceLocked) {
+      this.durationSinceLocked = durationSinceLocked;
+    }
+
+  }
 
 }

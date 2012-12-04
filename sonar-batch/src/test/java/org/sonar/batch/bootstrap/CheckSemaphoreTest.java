@@ -24,10 +24,9 @@ import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
+import org.sonar.api.utils.DatabaseSemaphore;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.ProjectTree;
-import org.sonar.core.persistence.Lock;
-import org.sonar.core.persistence.SemaphoreDao;
 
 import java.util.Date;
 
@@ -37,12 +36,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.utils.DatabaseSemaphore.Lock;
 
 public class CheckSemaphoreTest {
 
   private CheckSemaphore checkSemaphore;
 
-  private SemaphoreDao semaphoreDao;
+  private DatabaseSemaphore databaseSemaphore;
   private ProjectTree projectTree;
   private Settings settings;
 
@@ -53,9 +53,9 @@ public class CheckSemaphoreTest {
   public void setUp() {
     lock = mock(Lock.class);
 
-    semaphoreDao = mock(SemaphoreDao.class);
-    when(semaphoreDao.acquire(anyString())).thenReturn(lock);
-    when(semaphoreDao.acquire(anyString(), anyInt())).thenReturn(lock);
+    databaseSemaphore = mock(DatabaseSemaphore.class);
+    when(databaseSemaphore.acquire(anyString())).thenReturn(lock);
+    when(databaseSemaphore.acquire(anyString(), anyInt())).thenReturn(lock);
 
     projectTree = mock(ProjectTree.class);
     settings = new Settings();
@@ -65,7 +65,7 @@ public class CheckSemaphoreTest {
     project = new Project("key", "branch", "name");
     when(projectTree.getRootProject()).thenReturn(project);
 
-    checkSemaphore = new CheckSemaphore(semaphoreDao, projectTree, settings);
+    checkSemaphore = new CheckSemaphore(databaseSemaphore, projectTree, settings);
   }
 
   @Test
@@ -73,7 +73,7 @@ public class CheckSemaphoreTest {
     when(lock.isAcquired()).thenReturn(true);
     checkSemaphore.start();
 
-    verify(semaphoreDao).acquire(anyString());
+    verify(databaseSemaphore).acquire(anyString());
   }
 
   @Test
@@ -84,7 +84,7 @@ public class CheckSemaphoreTest {
     when(lock.isAcquired()).thenReturn(true);
     checkSemaphore.start();
 
-    verify(semaphoreDao).acquire("batch-key");
+    verify(databaseSemaphore).acquire("batch-key");
   }
 
   @Test
@@ -92,7 +92,7 @@ public class CheckSemaphoreTest {
     when(lock.isAcquired()).thenReturn(true);
     checkSemaphore.start();
 
-    verify(semaphoreDao).acquire("batch-key:branch");
+    verify(databaseSemaphore).acquire("batch-key:branch");
   }
 
   @Test
@@ -100,7 +100,7 @@ public class CheckSemaphoreTest {
     setForceMode(true);
     when(lock.isAcquired()).thenReturn(true);
     checkSemaphore.start();
-    verify(semaphoreDao).acquire(anyString(), anyInt());
+    verify(databaseSemaphore).acquire(anyString(), anyInt());
   }
 
   @Test(expected = SonarException.class)
@@ -108,7 +108,7 @@ public class CheckSemaphoreTest {
     when(lock.getLocketAt()).thenReturn(new Date());
     when(lock.isAcquired()).thenReturn(false);
     checkSemaphore.start();
-    verify(semaphoreDao, never()).acquire(anyString());
+    verify(databaseSemaphore, never()).acquire(anyString());
   }
 
   @Test
@@ -116,21 +116,21 @@ public class CheckSemaphoreTest {
     setDryRunMode(true);
     settings = new Settings().setProperty(CoreProperties.DRY_RUN, true);
     checkSemaphore.start();
-    verify(semaphoreDao, never()).acquire(anyString());
-    verify(semaphoreDao, never()).acquire(anyString(), anyInt());
+    verify(databaseSemaphore, never()).acquire(anyString());
+    verify(databaseSemaphore, never()).acquire(anyString(), anyInt());
   }
 
   @Test
   public void shouldReleaseSemaphore() {
     checkSemaphore.stop();
-    verify(semaphoreDao).release(anyString());
+    verify(databaseSemaphore).release(anyString());
   }
 
   @Test
   public void shouldNotReleaseSemaphoreInDryRunMode() {
     setDryRunMode(true);
     checkSemaphore.stop();
-    verify(semaphoreDao, never()).release(anyString());
+    verify(databaseSemaphore, never()).release(anyString());
   }
 
   private void setDryRunMode(boolean isInDryRunMode) {

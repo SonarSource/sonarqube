@@ -32,6 +32,7 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.sonar.api.utils.DatabaseSemaphore.Lock;
 
 public class SemaphoreDaoTest extends AbstractDaoTestCase {
 
