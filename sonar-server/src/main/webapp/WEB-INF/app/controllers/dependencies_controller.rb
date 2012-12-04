@@ -19,6 +19,8 @@
 #
 class DependenciesController < ApplicationController
 
+  SECTION=Navigation::SECTION_RESOURCE
+
   SEARCH_MINIMUM_SIZE=3
   QUALIFIERS=['TRK', 'BRC', 'LIB']
 
@@ -93,7 +95,6 @@ class DependenciesController < ApplicationController
 
     end
     
-    add_breadcrumbs message('sidebar.tools'), {:name => message('dependencies.page'), :url => {:controller => 'dependencies', :action => 'index'}}
   end
 
   private

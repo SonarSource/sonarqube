@@ -21,6 +21,8 @@ require 'cgi'
 
 class RulesConfigurationController < ApplicationController
 
+  SECTION=Navigation::SECTION_RESOURCE
+  
   STATUS_ACTIVE = "ACTIVE"
   STATUS_INACTIVE = "INACTIVE"
   ANY_SELECTION = [["Any", '']]

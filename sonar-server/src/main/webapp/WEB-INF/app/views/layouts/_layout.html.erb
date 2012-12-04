@@ -64,7 +64,7 @@
             <li class="spacer"></li>
             <li class="sidebar-title"><%= message('sidebar.tools') -%></li>
             
-            <li class="<%= 'active' if request.request_uri.include?('/profiles') -%>">
+            <li class="<%= 'active' if request.request_uri.include?('/profiles') || request.request_uri.include?('/alerts') || request.request_uri.include?('/rules_configuration') -%>">
               <a href="<%= ApplicationController.root_context -%>/profiles"><%= message('quality_profiles.page') -%></a></li>
             <li class="<%= 'active' if request.request_uri.include?('/dependencies/index') -%>">
               <a href="<%= ApplicationController.root_context -%>/dependencies/index"><%= message('dependencies.page') -%></a></li>

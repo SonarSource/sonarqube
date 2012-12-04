@@ -22,6 +22,7 @@ class AlertsController < ApplicationController
   verify :method => :post, :only => ['create', 'update', 'delete'], :redirect_to => { :action => 'index' }
   before_filter :admin_required, :except => [ 'index' ]
 
+  SECTION=Navigation::SECTION_RESOURCE
 
   #
   #
