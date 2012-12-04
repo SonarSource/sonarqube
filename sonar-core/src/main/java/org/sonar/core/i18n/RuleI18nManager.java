@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.i18n.RuleI18n;
+import org.sonar.api.rules.Rule;
 
 import java.util.List;
 import java.util.Locale;
@@ -52,6 +53,11 @@ public class RuleI18nManager implements RuleI18n, ServerExtension, BatchExtensio
 
   public String getName(String repositoryKey, String ruleKey, Locale locale) {
     return message(repositoryKey, ruleKey, locale, NAME_SUFFIX);
+  }
+
+  public String getName(Rule rule, Locale locale) {
+    String name = message(rule.getRepositoryKey(), rule.getKey(), locale, NAME_SUFFIX);
+    return name != null ? name : rule.getName();
   }
 
   public String getDescription(String repositoryKey, String ruleKey, Locale locale) {

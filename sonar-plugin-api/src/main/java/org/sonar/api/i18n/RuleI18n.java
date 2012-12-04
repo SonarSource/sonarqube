@@ -21,6 +21,7 @@ package org.sonar.api.i18n;
 
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.rules.Rule;
 
 import java.util.Locale;
 
@@ -35,14 +36,26 @@ public interface RuleI18n extends ServerComponent, BatchComponent {
    * Returns the localized name of the rule identified by its repository key and rule key.
    * <br>
    * If the name is not found in the given locale, then the default name is returned (the English one).
-   * As a rule must have a name (this is a constraint in Sonar), this method never returns null.
+   * This method could return null if no default name found. This is the cause for instance the copies rules.
    *
    * @param repositoryKey the repository key
    * @param ruleKey the rule key
    * @param locale the locale to translate into
-   * @return the translated name of the rule, or the default English one if the given locale is not supported
+   * @return the translated name of the rule, or the default English one if the given locale is not supported, or null
    */
   String getName(String repositoryKey, String ruleKey, Locale locale);
+
+  /**
+   * Returns the localized name or the name of the rule.
+   * <br>
+   * If the name is not found in the given locale, then the default name is returned (the English one).
+   * It the default name is not found, then the rule name is returned.
+   *
+   * @param rule the rule
+   * @param locale the locale to translate into
+   * @return the translated name of the rule, or the default English one if the given locale is not supported, or the rule name.
+   */
+  String getName(Rule rule, Locale locale);
 
   /**
    * Returns the localized description of the rule identified by its repository key and rule key.

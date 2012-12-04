@@ -133,7 +133,7 @@ public class DryRunExporter implements BatchComponent {
   }
 
   private String name(Rule rule) {
-    return ruleI18nManager.getName(rule.getRepositoryKey(), rule.getKey(), Locale.getDefault());
+    return ruleI18nManager.getName(rule, Locale.getDefault());
   }
 
   @VisibleForTesting

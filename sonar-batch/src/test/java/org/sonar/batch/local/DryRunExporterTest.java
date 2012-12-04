@@ -80,13 +80,15 @@ public class DryRunExporterTest {
 
   @Test
   public void should_export_violations() {
+    Rule rule = Rule.create("pmd", "RULE_KEY");
+
     when(server.getVersion()).thenReturn("3.4");
     when(violation.getResource()).thenReturn(resource);
     when(violation.getLineId()).thenReturn(1);
     when(violation.getMessage()).thenReturn("VIOLATION");
-    when(violation.getRule()).thenReturn(Rule.create("pmd", "RULE_KEY"));
+    when(violation.getRule()).thenReturn(rule);
     when(violation.getSeverity()).thenReturn(RulePriority.INFO);
-    when(ruleI18nManager.getName("pmd", "RULE_KEY", Locale.getDefault())).thenReturn("RULE_NAME");
+    when(ruleI18nManager.getName(rule, Locale.getDefault())).thenReturn("RULE_NAME");
     doReturn(Arrays.asList(violation)).when(dryRunExporter).getViolations(resource);
 
     StringWriter output = new StringWriter();
@@ -100,13 +102,15 @@ public class DryRunExporterTest {
 
   @Test
   public void should_export_violation_with_no_line() {
+    Rule rule = Rule.create("pmd", "RULE_KEY");
+
     when(server.getVersion()).thenReturn("3.4");
     when(violation.getResource()).thenReturn(resource);
     when(violation.getLineId()).thenReturn(null);
     when(violation.getMessage()).thenReturn("VIOLATION");
-    when(violation.getRule()).thenReturn(Rule.create("pmd", "RULE_KEY"));
+    when(violation.getRule()).thenReturn(rule);
     when(violation.getSeverity()).thenReturn(RulePriority.INFO);
-    when(ruleI18nManager.getName("pmd", "RULE_KEY", Locale.getDefault())).thenReturn("RULE_NAME");
+    when(ruleI18nManager.getName(rule, Locale.getDefault())).thenReturn("RULE_NAME");
     doReturn(Arrays.asList(violation)).when(dryRunExporter).getViolations(resource);
 
     StringWriter output = new StringWriter();
