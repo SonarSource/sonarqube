@@ -38,20 +38,20 @@ class MoveFilterWidgets < ActiveRecord::Migration
   def self.up
     widgets = Widget.find(:all, :conditions => ["widget_key='filter'"])
     say_with_time "Updading #{widgets.size} widgets" do
-    widgets.each do |widget|
-      dashboard = Dashboard.find_by_id(widget.dashboard_id)
-      widget_property = WidgetProperty.find(:first, :conditions => {:widget_id => widget.id, :kee => 'filter'})
-      if dashboard && widget_property
-        filter = MeasureFilter.find(:first,:conditions => ['name=? and user_id=?', widget_property.text_value, dashboard.user_id]) if dashboard.user_id
-        filter = MeasureFilter.find(:first,:conditions => ['name=? and shared=?', widget_property.text_value, true]) unless filter
-        if filter
-          widget_property.text_value = filter.id.to_s
-          widget_property.save
-          widget.widget_key = (filter.data.include?('display=treemap') ? 'measure_filter_treemap' : 'measure_filter_list')
-          widget.save
+      widgets.each do |widget|
+        dashboard = Dashboard.find_by_id(widget.dashboard_id)
+        widget_property = WidgetProperty.find(:first, :conditions => {:widget_id => widget.id, :kee => 'filter'})
+        if dashboard && widget_property
+          filter = MeasureFilter.find(:first, :conditions => ['name=? and user_id=?', widget_property.text_value, dashboard.user_id]) if dashboard.user_id
+          filter = MeasureFilter.find(:first, :conditions => ['name=? and shared=?', widget_property.text_value, true]) unless filter
+          if filter
+            widget_property.text_value = filter.id.to_s
+            widget_property.save
+            widget.widget_key = (filter.data.include?('display=treemap') ? 'measure_filter_treemap' : 'measure_filter_list')
+            widget.save
+          end
         end
       end
     end
   end
-
 end
