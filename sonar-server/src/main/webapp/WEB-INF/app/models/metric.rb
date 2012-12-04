@@ -123,6 +123,12 @@ class Metric < ActiveRecord::Base
   def short_name=(value)
     write_attribute(:short_name, value)
   end
+
+  def abbreviation
+    label = Api::Utils.message("metric.#{key}.abbreviation", :default => '')
+    label = Api::Utils.message("metric.#{key}.name", :default => short_name) if label==''
+    label
+  end
  
   def description(translate=true)
     default_string = read_attribute(:description)

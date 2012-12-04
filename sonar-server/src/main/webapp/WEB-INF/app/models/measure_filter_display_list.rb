@@ -35,8 +35,7 @@ class MeasureFilterDisplayList < MeasureFilterDisplay
 
     def title_label
       if @metric
-        label = Api::Utils.message("measure_filter.short_col.metric.#{@metric.key}", :default => '')
-        label = Api::Utils.message("metric.#{@metric.key}.name", :default => @metric.short_name) if label==''
+        label = @metric.abbreviation
       else
         label = Api::Utils.message("measure_filter.short_col.#{@key}", :default => '')
         label = Api::Utils.message("measure_filter.col.#{@key}", :default => @key) if label==''
