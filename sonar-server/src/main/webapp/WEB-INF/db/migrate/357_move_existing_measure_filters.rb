@@ -91,7 +91,7 @@ class MoveExistingMeasureFilters < ActiveRecord::Migration
         sort = column_key
       end
     end
-    data << "columns=#{columns.join(',')}" unless columns.empty?
+    data << "cols=#{columns.join(',')}" unless columns.empty?
     if sort
       data << "sort=#{sort}"
       data << "asc=#{asc}"
