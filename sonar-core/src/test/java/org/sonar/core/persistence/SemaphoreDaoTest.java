@@ -21,15 +21,11 @@ package org.sonar.core.persistence;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.ibatis.session.SqlSession;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
@@ -39,7 +35,12 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class SemaphoreDaoTest extends AbstractDaoTestCase {
 
-  private static final Logger LOG = LoggerFactory.getLogger(SemaphoreDaoTest.class);
+  private SemaphoreDao dao;
+
+  @Before
+  public void before() {
+    dao = new SemaphoreDao(getMyBatis());
+  }
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -73,7 +74,6 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void create_and_acquire_semaphore() throws Exception {
-    SemaphoreDao dao = new SemaphoreDao(getMyBatis());
     Lock lock = dao.acquire("foo", 60);
     assertThat(lock.isAcquired()).isTrue();
     assertThat(lock.getDurationSinceLocked()).isNull();
@@ -91,7 +91,6 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void create_and_acquire_semaphore_when_timeout_is_zeo() throws Exception {
-    SemaphoreDao dao = new SemaphoreDao(getMyBatis());
     Lock lock = dao.acquire("foo", 0);
     assertThat(lock.isAcquired()).isTrue();
     assertThat(lock.getDurationSinceLocked()).isNull();
@@ -109,7 +108,6 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void create_and_acquire_semaphore_when_no_timeout() throws Exception {
-    SemaphoreDao dao = new SemaphoreDao(getMyBatis());
     Lock lock = dao.acquire("foo");
     assertThat(lock.isAcquired()).isTrue();
     assertThat(lock.getDurationSinceLocked()).isNull();
@@ -128,7 +126,6 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   @Test
   public void fail_to_acquire_locked_semaphore() throws Exception {
     setupData("old_semaphore");
-    SemaphoreDao dao = new SemaphoreDao(getMyBatis());
     Lock lock = dao.acquire("foo", Integer.MAX_VALUE);
     assertThat(lock.isAcquired()).isFalse();
     assertThat(lock.getDurationSinceLocked()).isNotNull();
@@ -144,7 +141,6 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   @Test
   public void acquire_long_locked_semaphore() throws Exception {
     setupData("old_semaphore");
-    SemaphoreDao dao = new SemaphoreDao(getMyBatis());
     Lock lock = dao.acquire("foo", 60);
     assertThat(lock.isAcquired()).isTrue();
     assertThat(lock.getDurationSinceLocked()).isNull();
@@ -160,7 +156,6 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   @Test
   public void acquire_locked_semaphore_when_timeout_is_zeo() throws Exception {
     setupData("old_semaphore");
-    SemaphoreDao dao = new SemaphoreDao(getMyBatis());
     Lock lock = dao.acquire("foo", 0);
     assertThat(lock.isAcquired()).isTrue();
     assertThat(lock.getDurationSinceLocked()).isNull();
@@ -179,7 +174,6 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   @Test
   public void fail_to_acquire_locked_semaphore_when_no_timeout() throws Exception {
     setupData("old_semaphore");
-    SemaphoreDao dao = new SemaphoreDao(getMyBatis());
     Lock lock = dao.acquire("foo");
     assertThat(lock.isAcquired()).isFalse();
     assertThat(lock.getDurationSinceLocked()).isNotNull();
@@ -194,7 +188,6 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void should_select_semaphore_return_current_semaphore_when_acquiring() throws Exception {
-    SemaphoreDao dao = new SemaphoreDao(getMyBatis());
     dao.acquire("foo");
 
     SemaphoreDto semaphore = dao.selectSemaphore("foo", getMyBatis().openSession());
@@ -207,8 +200,6 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void test_concurrent_locks() throws Exception {
-    SemaphoreDao dao = new SemaphoreDao(getMyBatis());
-
     for (int tests = 0; tests < 5; tests++) {
       dao.release("my-lock");
       int size = 5;
@@ -229,7 +220,6 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   private SemaphoreDto selectSemaphore(String name) throws Exception {
     SqlSession session = getMyBatis().openSession();
     try {
-      SemaphoreDao dao = new SemaphoreDao(getMyBatis());
       return dao.selectSemaphore(name, session);
     } finally {
       MyBatis.closeQuietly(session);
@@ -237,30 +227,17 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   }
 
   private boolean isRecent(Date date) {
-    Date futur = DateUtils.addMinutes(now(), 1);
+    Date future = DateUtils.addMinutes(now(), 1);
     Date past = DateUtils.addDays(now(), -1);
-    return date.after(past) && date.before(futur);
+    return date.after(past) && date.before(future);
   }
 
   private Date now() {
-    Connection connection = null;
-    PreparedStatement statement = null;
-    ResultSet rs = null;
+    SqlSession session = getMyBatis().openSession();
     try {
-      connection = getConnection();
-      statement = connection.prepareStatement("select current_timestamp");
-      rs = statement.executeQuery();
-      if (rs.next()) {
-        return new Date();
-      }
-      return null;
-
-    } catch (Exception e) {
-      throw new RuntimeException(e);
+      return dao.now(session);
     } finally {
-      DatabaseUtils.closeQuietly(rs);
-      DatabaseUtils.closeQuietly(statement);
-      DatabaseUtils.closeQuietly(connection);
+      MyBatis.closeQuietly(session);
     }
   }
 
