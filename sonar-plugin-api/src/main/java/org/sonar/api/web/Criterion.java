@@ -32,11 +32,11 @@ import java.util.Set;
  * @since 3.1
  */
 public final class Criterion {
-  public static final String EQ = "=";
-  public static final String GT = ">";
-  public static final String GTE = ">=";
-  public static final String LT = "<";
-  public static final String LTE = "<=";
+  public static final String EQ = "eq";
+  public static final String GT = "gt";
+  public static final String GTE = "gte";
+  public static final String LT = "lt";
+  public static final String LTE = "lte";
   public static final Set<String> OPERATORS = ImmutableSortedSet.of(EQ, GT, GTE, LT, LTE);
 
   private final String family;

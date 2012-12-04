@@ -98,12 +98,8 @@ public final class JRubyFacade {
     return getContainer().getComponentByType(componentType);
   }
 
-  public List<MeasureFilterRow> executeMeasureFilter(String json, @Nullable Long userId) throws ParseException {
-    return get(MeasureFilterEngine.class).execute(json, userId);
-  }
-
-  public List<MeasureFilterRow> executeMeasureFilter2(Map<String,Object> map, @Nullable Long userId) throws ParseException {
-    return get(MeasureFilterEngine.class).execute2(map, userId);
+  public List<MeasureFilterRow> executeMeasureFilter(Map<String,Object> map, @Nullable Long userId) throws ParseException {
+    return get(MeasureFilterEngine.class).execute(map, userId);
   }
 
   public Collection<ResourceType> getResourceTypesForFilter() {

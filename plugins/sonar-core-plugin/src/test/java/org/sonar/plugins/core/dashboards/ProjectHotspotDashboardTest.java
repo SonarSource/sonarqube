@@ -17,24 +17,33 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.filters;
+package org.sonar.plugins.core.dashboards;
 
 import org.junit.Test;
-import org.sonar.api.web.Filter;
+import org.sonar.api.web.Dashboard;
+import org.sonar.api.web.DashboardLayout;
+import org.sonar.plugins.core.CorePlugin;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class MyFavouritesFilterTest {
+public class ProjectHotspotDashboardTest {
+  ProjectHotspotDashboard template = new ProjectHotspotDashboard();
+
   @Test
-  public void should_create_filter() {
-    MyFavouritesFilter template = new MyFavouritesFilter();
+  public void should_have_a_name() {
+    assertThat(template.getName()).isEqualTo("Hotspots");
+  }
 
-    Filter filter = template.createFilter();
+  @Test
+  public void should_be_registered_as_an_extension() {
+    assertThat(new CorePlugin().getExtensions()).contains(template.getClass());
+  }
 
-    assertThat(template.getName()).isEqualTo("My favourites");
-    assertThat(filter).isNotNull();
-    assertThat(filter.isFavouritesOnly()).isTrue();
-    assertThat(filter.getCriteria()).isEmpty();
-    assertThat(filter.getColumns()).hasSize(3);
+  @Test
+  public void should_create_dashboard() {
+    Dashboard dashboard = template.createDashboard();
+
+    assertThat(dashboard.getLayout()).isEqualTo(DashboardLayout.TWO_COLUMNS);
+    assertThat(dashboard.getWidgets()).hasSize(8);
   }
 }

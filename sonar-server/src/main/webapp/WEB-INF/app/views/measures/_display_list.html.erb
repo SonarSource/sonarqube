@@ -1,10 +1,10 @@
 <%
    display_favourites = logged_in?
-   colspan = @filter.display.columns.size
+   colspan = filter.display.columns.size
    colspan += 1 if display_favourites
    table_columns = []
    table_columns << '' if display_favourites
-   table_columns.concat(@filter.display.columns.map{|c| c.key})
+   table_columns.concat(filter.display.columns.map{|c| c.key})
    if edit_mode
      content_for :script do
 %>
@@ -131,8 +131,8 @@
     <% if display_favourites %>
       <th class="thin"></th>
     <% end %>
-    <% @filter.display.columns.each do |column| %>
-      <%= list_column_html(@filter, column) -%>
+    <% filter.display.columns.each do |column| %>
+      <%= list_column_html(filter, column) -%>
     <% end %>
   </tr>
   </thead>
@@ -143,7 +143,7 @@
       <% if display_favourites %>
         <td></td>
       <% end %>
-      <% @filter.display.columns.each_with_index do |column, index| %>
+      <% filter.display.columns.each_with_index do |column, index| %>
         <td class="nowrap <%= column.align -%>" index="<%= index -%>">
           <a href="javascript:leftCol(<%= index -%>)" title="<%= message('move_left') -%>"><%= image_tag("controls/resultset_previous.png") -%></a>
           <a href="javascript:deleteCol(<%= index -%>)" title="<%= message('delete_column') -%>"><%= image_tag("cross-gray.png") -%></a>
@@ -152,25 +152,25 @@
       <% end %>
   <% end %>
 
-  <% if @filter.base_result %>
+  <% if filter.base_result %>
     <tr class="highlight">
       <% if display_favourites %>
-        <td class="thin"><%= link_to_favourite(@filter.base_result.snapshot.resource) -%></td>
+        <td class="thin"><%= link_to_favourite(filter.base_result.snapshot.resource) -%></td>
       <% end %>
-      <% @filter.display.columns.each do |column| %>
+      <% filter.display.columns.each do |column| %>
         <td class="<%= column.align -%>">
-          <%= list_cell_html(column, @filter.base_result) -%>
+          <%= list_cell_html(column, filter.base_result) -%>
         </td>
       <% end %>
     </tr>
   <% end %>
 
-  <% @filter.results.each do |result| %>
+  <% filter.results.each do |result| %>
     <tr class="<%= cycle 'even', 'odd' -%>">
       <% if display_favourites %>
         <td class="thin"><%= link_to_favourite(result.snapshot.resource) -%></td>
       <% end %>
-      <% @filter.display.columns.each do |column| %>
+      <% filter.display.columns.each do |column| %>
         <td class="<%= column.align -%>">
           <%= list_cell_html(column, result) -%>
         </td>
@@ -178,12 +178,12 @@
     </tr>
   <% end %>
 
-  <% if @filter.results.empty? %>
+  <% if filter.results.empty? %>
     <tr class="even">
       <td colspan="<%= colspan -%>"><%= message 'no_data' -%></td>
     </tr>
   <% end %>
 
   </tbody>
-  <%= render :partial => 'utils/tfoot_pagination', :locals => {:pagination => @filter.pagination, :colspan => colspan} %>
+  <%= render :partial => 'utils/tfoot_pagination', :locals => {:pagination => filter.pagination, :colspan => colspan} %>
 </table>

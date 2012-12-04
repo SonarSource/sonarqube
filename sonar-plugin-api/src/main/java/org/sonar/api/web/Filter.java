@@ -130,7 +130,7 @@ public final class Filter {
    * @throws IllegalArgumentException if {@code displayAs) is not {@value #LIST} or {@value #TREEMAP}
    */
   public Filter setDisplayAs(String displayAs) {
-    Preconditions.checkArgument(LIST.equals(displayAs) || TREEMAP.equals(displayAs), "Default period should be either %s or %s, not %s", LIST, TREEMAP, displayAs);
+    Preconditions.checkArgument(LIST.equals(displayAs) || TREEMAP.equals(displayAs), "Default display should be either %s or %s, not %s", LIST, TREEMAP, displayAs);
     this.displayAs = displayAs;
     return this;
   }

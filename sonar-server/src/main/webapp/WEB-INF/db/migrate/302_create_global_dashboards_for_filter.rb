@@ -41,14 +41,14 @@ class CreateGlobalDashboardsForFilter < ActiveRecord::Migration
   end
 
   def self.up
-    dashboard_per_filter = create_global_dahboards()
+    dashboard_per_filter = create_global_dashboards()
 
     activate_dashboards(dashboard_per_filter)
 
     drop_table('active_filters')
   end
 
-  def self.create_global_dahboards
+  def self.create_global_dashboards
     dashboards = {}
 
     Filter.find(:all).each do |filter|

@@ -22,7 +22,7 @@ class MeasureFilterDisplayTreemap < MeasureFilterDisplay
 
   KEY = :treemap
 
-  attr_reader :height, :id, :size, :size_metric, :color_metric
+  attr_reader :id, :size, :size_metric, :color_metric
 
   def initialize(filter, options)
     super(filter, options)
@@ -31,7 +31,6 @@ class MeasureFilterDisplayTreemap < MeasureFilterDisplay
     @color_metric = Metric.by_key(@filter.criteria('tmColor'))
     @html_id = options[:html_id]
     @filter.metrics=([@size_metric, @color_metric].compact)
-    @height = (@filter.criteria('tmHeight')||'600').to_i
     @id_count = 0
 
     filter.set_criteria_value('sort', "metric:#{@size_metric.key}") if @size_metric
@@ -48,7 +47,7 @@ class MeasureFilterDisplayTreemap < MeasureFilterDisplay
       output = Sonar::HtmlOutput.new do |o|
         # width in percents
         o.width = 100
-        o.height = @height
+        o.height = 100
         o.full_html = false
         o.details_at_depth = 1
       end
@@ -115,10 +114,10 @@ class Sonar::HtmlOutput < Treemap::HtmlOutput
     html = ''
     html += "<div style=\""
     html += "overflow:hidden;position:absolute;"
-    html += "left:#{node.bounds.x1}%; top:#{node.bounds.y1}px;"
-    html += "width:#{node.bounds.width}%;height: #{node.bounds.height}px;"
+    html += "left:#{node.bounds.x1}%; top:#{node.bounds.y1}%;"
+    html += "width:#{node.bounds.width}%;height: #{node.bounds.height}%;"
     html += "background-color:#FFF;\">"
-    html += "<div rid='#{node.rid}' id=\"tm-node-#{node.id}\" style='margin: 1px;background-color: #{node.color}; height: #{node.bounds.height-4}px;
+    html += "<div rid='#{node.rid}' id=\"tm-node-#{node.id}\" style='margin: 1px;background-color: #{node.color}; height: 100%;
 border: 1px solid #{node.color};' alt=\"#{node.tooltip}\" title=\"#{node.tooltip}\""
     if node.leaf
       html += "l=1 "

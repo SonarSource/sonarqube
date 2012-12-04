@@ -27,7 +27,7 @@ class MeasureFilterContext {
   private Long userId;
   private SnapshotDto baseSnapshot;
   private String sql;
-  private String json;
+  private String data;
 
   Long getUserId() {
     return userId;
@@ -56,19 +56,19 @@ class MeasureFilterContext {
     return this;
   }
 
-  String getJson() {
-    return json;
+  String getData() {
+    return data;
   }
 
-  MeasureFilterContext setJson(String json) {
-    this.json = json;
+  MeasureFilterContext setData(String data) {
+    this.data = data;
     return this;
   }
 
   @Override
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-      .append("filter", json)
+      .append("filter", data)
       .append("sql", sql)
       .append("user", userId)
       .toString();

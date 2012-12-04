@@ -35,16 +35,13 @@ import org.sonar.plugins.core.charts.DistributionAreaChart;
 import org.sonar.plugins.core.charts.DistributionBarChart;
 import org.sonar.plugins.core.charts.XradarChart;
 import org.sonar.plugins.core.colorizers.JavaColorizerFormat;
-import org.sonar.plugins.core.dashboards.DefaultDashboard;
-import org.sonar.plugins.core.dashboards.HotspotsDashboard;
-import org.sonar.plugins.core.dashboards.MyFavouritesDashboard;
-import org.sonar.plugins.core.dashboards.ProjectsDashboard;
-import org.sonar.plugins.core.dashboards.ReviewsDashboard;
-import org.sonar.plugins.core.dashboards.TimeMachineDashboard;
-import org.sonar.plugins.core.dashboards.TreemapDashboard;
+import org.sonar.plugins.core.dashboards.GlobalDefaultDashboard;
+import org.sonar.plugins.core.dashboards.ProjectDefaultDashboard;
+import org.sonar.plugins.core.dashboards.ProjectHotspotDashboard;
+import org.sonar.plugins.core.dashboards.ProjectReviewsDashboard;
+import org.sonar.plugins.core.dashboards.ProjectTimeMachineDashboard;
 import org.sonar.plugins.core.filters.MyFavouritesFilter;
 import org.sonar.plugins.core.filters.ProjectFilter;
-import org.sonar.plugins.core.filters.TreeMapFilter;
 import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
 import org.sonar.plugins.core.sensors.BranchCoverageDecorator;
 import org.sonar.plugins.core.sensors.CheckAlertThresholds;
@@ -95,16 +92,18 @@ import org.sonar.plugins.core.widgets.CoverageWidget;
 import org.sonar.plugins.core.widgets.CustomMeasuresWidget;
 import org.sonar.plugins.core.widgets.DescriptionWidget;
 import org.sonar.plugins.core.widgets.EventsWidget;
-import org.sonar.plugins.core.widgets.FilterWidget;
+import org.sonar.plugins.core.widgets.MeasureFilterListWidget;
 import org.sonar.plugins.core.widgets.HotspotMetricWidget;
 import org.sonar.plugins.core.widgets.HotspotMostViolatedResourcesWidget;
 import org.sonar.plugins.core.widgets.HotspotMostViolatedRulesWidget;
 import org.sonar.plugins.core.widgets.ItCoverageWidget;
+import org.sonar.plugins.core.widgets.MeasureFilterTreemapWidget;
 import org.sonar.plugins.core.widgets.RulesWidget;
 import org.sonar.plugins.core.widgets.SizeWidget;
 import org.sonar.plugins.core.widgets.TimeMachineWidget;
 import org.sonar.plugins.core.widgets.TimelineWidget;
 import org.sonar.plugins.core.widgets.TreemapWidget;
+import org.sonar.plugins.core.widgets.WelcomeWidget;
 import org.sonar.plugins.core.widgets.actionPlans.ActionPlansWidget;
 import org.sonar.plugins.core.widgets.reviews.FalsePositiveReviewsWidget;
 import org.sonar.plugins.core.widgets.reviews.MyReviewsWidget;
@@ -408,9 +407,8 @@ public final class CorePlugin extends SonarPlugin {
       Lcom4Viewer.class,
       TestsViewer.class,
 
-      // filters
+      // measure filters
       ProjectFilter.class,
-      TreeMapFilter.class,
       MyFavouritesFilter.class,
 
       // widgets
@@ -438,16 +436,16 @@ public final class CorePlugin extends SonarPlugin {
       ActionPlansWidget.class,
       ReviewsMetricsWidget.class,
       TreemapWidget.class,
-      FilterWidget.class,
+      MeasureFilterListWidget.class,
+      MeasureFilterTreemapWidget.class,
+      WelcomeWidget.class,
 
       // dashboards
-      DefaultDashboard.class,
-      HotspotsDashboard.class,
-      ReviewsDashboard.class,
-      TimeMachineDashboard.class,
-      ProjectsDashboard.class,
-      TreemapDashboard.class,
-      MyFavouritesDashboard.class,
+      ProjectDefaultDashboard.class,
+      ProjectHotspotDashboard.class,
+      ProjectReviewsDashboard.class,
+      ProjectTimeMachineDashboard.class,
+      GlobalDefaultDashboard.class,
 
       // chart
       XradarChart.class,

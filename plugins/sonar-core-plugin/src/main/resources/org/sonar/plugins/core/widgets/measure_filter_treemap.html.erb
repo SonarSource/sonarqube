@@ -1,0 +1,15 @@
+<%
+   filter_id = widget_properties['filter']
+   size_metric = widget_properties['sizeMetric']
+   color_metric = widget_properties['colorMetric']
+   filter = MeasureFilter.find_by_id(filter_id.to_i) if filter_id
+   if filter
+     filter.load_criteria_from_data
+     filter.set_criteria_value('display', 'treemap')
+     filter.set_criteria_value('tmSize', size_metric.key) if size_metric
+     filter.set_criteria_value('tmColor', color_metric.key) if color_metric
+     filter.execute(self, :user => current_user)
+     @widget_title = link_to h(filter.name), {:controller => 'measures', :action => 'filter', :id => filter.id, :display => 'treemap'}
+%>
+  <%= render :partial => "measures/display_#{filter.display.key}", :locals => {:edit_mode => false, :widget => widget, :filter => filter} %>
+<% end %>

@@ -29,18 +29,18 @@ public class CriterionTest {
 
   @Test
   public void should_accept_valid_operators() {
-    Criterion.createForMetric("", "<=", "", false);
-    Criterion.createForMetric("", "<", "", false);
-    Criterion.createForMetric("", "=", "", false);
-    Criterion.createForMetric("", ">", "", false);
-    Criterion.createForMetric("", ">=", "", false);
+    Criterion.createForMetric("", "lte", "", false);
+    Criterion.createForMetric("", "lt", "", false);
+    Criterion.createForMetric("", "eq", "", false);
+    Criterion.createForMetric("", "gt", "", false);
+    Criterion.createForMetric("", "gte", "", false);
   }
 
   @Test
   public void should_fail_on_invalid_operators() {
     exception.expect(IllegalArgumentException.class);
-    exception.expectMessage("Valid operators are [<, <=, =, >, >=], not '<>'");
+    exception.expectMessage("Valid operators are [eq, gt, gte, lt, lte], not 'xxx'");
 
-    Criterion.createForMetric("", "<>", "", false);
+    Criterion.createForMetric("", "xxx", "", false);
   }
 }

@@ -17,24 +17,31 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.filters;
+package org.sonar.plugins.core.widgets;
 
-import org.junit.Test;
-import org.sonar.api.web.Filter;
+import org.sonar.api.web.AbstractRubyTemplate;
+import org.sonar.api.web.RubyRailsWidget;
+import org.sonar.api.web.WidgetCategory;
+import org.sonar.api.web.WidgetScope;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.sonar.api.web.WidgetScope.GLOBAL;
 
-public class MyFavouritesFilterTest {
-  @Test
-  public void should_create_filter() {
-    MyFavouritesFilter template = new MyFavouritesFilter();
+@WidgetCategory({"Global"})
+@WidgetScope(GLOBAL)
+public class WelcomeWidget extends AbstractRubyTemplate implements RubyRailsWidget {
 
-    Filter filter = template.createFilter();
+  public static final String ID = "welcome";
 
-    assertThat(template.getName()).isEqualTo("My favourites");
-    assertThat(filter).isNotNull();
-    assertThat(filter.isFavouritesOnly()).isTrue();
-    assertThat(filter.getCriteria()).isEmpty();
-    assertThat(filter.getColumns()).hasSize(3);
+  public String getId() {
+    return ID;
+  }
+
+  public String getTitle() {
+    return "Welcome";
+  }
+
+  @Override
+  protected String getTemplatePath() {
+    return "/org/sonar/plugins/core/widgets/welcome.html.erb";
   }
 }

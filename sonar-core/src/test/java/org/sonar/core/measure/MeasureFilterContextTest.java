@@ -19,7 +19,10 @@
  */
 package org.sonar.core.measure;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
+
+import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -33,9 +36,9 @@ public class MeasureFilterContextTest {
   @Test
   public void test_toString() {
     MeasureFilterContext context = new MeasureFilterContext();
-    context.setJson("{}");
+    context.setData("{qualifiers=TRK}");
     context.setSql("SELECT *");
     context.setUserId(50L);
-    assertThat(context.toString()).isEqualTo("MeasureFilterContext[filter={},sql=SELECT *,user=50]");
+    assertThat(context.toString()).isEqualTo("MeasureFilterContext[filter={qualifiers=TRK},sql=SELECT *,user=50]");
   }
 }

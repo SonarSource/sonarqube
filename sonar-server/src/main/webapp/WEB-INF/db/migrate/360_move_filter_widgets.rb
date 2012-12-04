@@ -1,5 +1,5 @@
 #
-# Sonar, entreprise quality control tool.
+# Sonar, open source software quality management tool.
 # Copyright (C) 2008-2012 SonarSource
 # mailto:contact AT sonarsource DOT com
 #
@@ -19,14 +19,15 @@
 #
 
 #
-# Sonar 2.5
+# Sonar 3.4
 #
-class AddPeriodsToFilters < ActiveRecord::Migration
+class MoveFilterWidgets < ActiveRecord::Migration
+
+  class MeasureFilter < ActiveRecord::Base
+  end
 
   def self.up
-    add_column :filters, :period_index, :integer, :null => true
-    add_column :filter_columns, :variation, :boolean, :null => true
-    add_column :criteria, :variation, :boolean, :null => true
+
   end
 
 end

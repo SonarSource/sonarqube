@@ -20,8 +20,6 @@
         <br/>
         <a href="<%= ApplicationController.root_context -%>/account/index" class="link-action"><%= message('layout.user_panel.my_profile') -%></a>
         &nbsp;–&nbsp;
-        <a href="<%= ApplicationController.root_context -%>/filters/manage" class="link-action"><%= message('default_filters.page') -%></a>
-        &nbsp;–&nbsp;
         <a href="<%= ApplicationController.root_context -%>/sessions/logout" class="link-action" onclick="if (sonarRecentHistory) { sonarRecentHistory.clear(); }"><%= message('layout.logout') -%></a>
       <% else %>
         <b><%= message('layout.user_panel.anonymous_user') -%></b>

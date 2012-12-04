@@ -70,9 +70,9 @@ public class FilterTest {
   }
 
   @Test
-  public void should_fail_on_invalid_period() {
+  public void should_fail_on_invalid_display() {
     exception.expect(IllegalArgumentException.class);
-    exception.expectMessage("Default period should be either list or treemap, not <invalid>");
+    exception.expectMessage("Default display should be either list or treemap, not <invalid>");
 
     Filter.create().setDisplayAs("<invalid>");
   }

@@ -112,7 +112,8 @@ class MeasureFilter < ActiveRecord::Base
   def set_criteria_value(key, value)
     @criteria ||= {}
     if key
-      if value && !value.empty? && value!=['']
+      if value && value!='' && value!=['']
+        value = value.to_s if value.is_a?(Fixnum)
         @criteria[key.to_s]=value
       else
         @criteria.delete(key)
@@ -169,12 +170,11 @@ class MeasureFilter < ActiveRecord::Base
     init_results
     init_display(options)
     user = options[:user]
-    rows=Api::Utils.java_facade.executeMeasureFilter2(criteria, (user ? user.id : nil))
+    rows=Api::Utils.java_facade.executeMeasureFilter(criteria, (user ? user.id : nil))
     snapshot_ids = filter_authorized_snapshot_ids(rows, controller)
     load_results(snapshot_ids)
     self
   end
-
 
   private
 

@@ -87,9 +87,6 @@ public class MeasureFilterFactory implements ServerComponent {
         filter.addCondition(condition);
       }
     }
-//    if (map.containsKey("sortPeriod")) {
-//      filter.setSortOnPeriod(((Long) map.get("sortPeriod")).intValue());
-//    }
     return filter;
   }
 

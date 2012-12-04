@@ -23,7 +23,7 @@ import com.google.common.collect.ImmutableList;
 import org.sonar.core.dashboard.ActiveDashboardDao;
 import org.sonar.core.dashboard.DashboardDao;
 import org.sonar.core.duplication.DuplicationDao;
-import org.sonar.core.filter.FilterDao;
+import org.sonar.core.measure.MeasureFilterDao;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.resource.ResourceDao;
@@ -48,10 +48,10 @@ public final class DaoUtils {
     return ImmutableList.of(
       ActiveDashboardDao.class,
       AuthorDao.class,
-      FilterDao.class,
       DashboardDao.class,
       DuplicationDao.class,
       LoadedTemplateDao.class,
+      MeasureFilterDao.class,
       PropertiesDao.class,
       PurgeDao.class,
       ResourceIndexerDao.class,

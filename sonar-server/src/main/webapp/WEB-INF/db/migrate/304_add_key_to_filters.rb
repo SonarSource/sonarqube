@@ -25,6 +25,9 @@ class AddKeyToFilters < ActiveRecord::Migration
   class WidgetProperty < ActiveRecord::Base
   end
 
+  class Filter < ActiveRecord::Base
+  end
+
   def self.up
     keys = add_key_column_to_filters()
     use_key_in_widget_properties(keys)

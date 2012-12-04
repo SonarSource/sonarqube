@@ -271,10 +271,9 @@ h4, .h4 {
 
 .treemap a {
   color: #FFF;
-  text-decoration: none;
+  text-decoration: underline;
   font-size: 12px;
   padding: 1px;
-  text-decoration: underline;
 }
 
 /* ------------------- MESSAGES ------------------- */
@@ -2249,7 +2248,7 @@ td.spacer-top {
 .table > tbody > tr > td {
   line-height: 16px;
   padding: 4px 5px;
-  vertical-align: top;
+  vertical-align: middle;
 }
 
 .table > tfoot > tr > td {

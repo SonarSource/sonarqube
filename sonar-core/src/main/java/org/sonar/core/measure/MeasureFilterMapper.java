@@ -17,24 +17,13 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.filters;
+package org.sonar.core.measure;
 
-import org.junit.Test;
-import org.sonar.api.web.Filter;
+/**
+ * @since 3.4
+ */
+public interface MeasureFilterMapper {
+  MeasureFilterDto findSystemFilterByName(String name);
 
-import static org.fest.assertions.Assertions.assertThat;
-
-public class MyFavouritesFilterTest {
-  @Test
-  public void should_create_filter() {
-    MyFavouritesFilter template = new MyFavouritesFilter();
-
-    Filter filter = template.createFilter();
-
-    assertThat(template.getName()).isEqualTo("My favourites");
-    assertThat(filter).isNotNull();
-    assertThat(filter.isFavouritesOnly()).isTrue();
-    assertThat(filter.getCriteria()).isEmpty();
-    assertThat(filter.getColumns()).hasSize(3);
-  }
+  void insert(MeasureFilterDto filter);
 }

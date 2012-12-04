@@ -53,12 +53,8 @@ import org.sonar.core.dependency.ResourceSnapshotDto;
 import org.sonar.core.dependency.ResourceSnapshotMapper;
 import org.sonar.core.duplication.DuplicationMapper;
 import org.sonar.core.duplication.DuplicationUnitDto;
-import org.sonar.core.filter.CriterionDto;
-import org.sonar.core.filter.CriterionMapper;
-import org.sonar.core.filter.FilterColumnDto;
-import org.sonar.core.filter.FilterColumnMapper;
-import org.sonar.core.filter.FilterDto;
-import org.sonar.core.filter.FilterMapper;
+import org.sonar.core.measure.MeasureFilterDto;
+import org.sonar.core.measure.MeasureFilterMapper;
 import org.sonar.core.properties.PropertiesMapper;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.purge.PurgeMapper;
@@ -115,15 +111,13 @@ public class MyBatis implements BatchComponent, ServerComponent {
 
     loadAlias(conf, "ActiveDashboard", ActiveDashboardDto.class);
     loadAlias(conf, "Author", AuthorDto.class);
-    loadAlias(conf, "Filter", FilterDto.class);
-    loadAlias(conf, "Criterion", CriterionDto.class);
-    loadAlias(conf, "FilterColumn", FilterColumnDto.class);
     loadAlias(conf, "Dashboard", DashboardDto.class);
     loadAlias(conf, "Dependency", DependencyDto.class);
     loadAlias(conf, "DuplicationUnit", DuplicationUnitDto.class);
     loadAlias(conf, "Group", GroupDto.class);
     loadAlias(conf, "GroupRole", GroupRoleDto.class);
     loadAlias(conf, "LoadedTemplate", LoadedTemplateDto.class);
+    loadAlias(conf, "MeasureFilter", MeasureFilterDto.class);
     loadAlias(conf, "Property", PropertyDto.class);
     loadAlias(conf, "PurgeableSnapshot", PurgeableSnapshotDto.class);
     loadAlias(conf, "Resource", ResourceDto.class);
@@ -142,8 +136,8 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "MeasureModel", MeasureModel.class);
     loadAlias(conf, "MeasureData", MeasureData.class);
 
-    Class<?>[] mappers = {ActiveDashboardMapper.class, AuthorMapper.class, FilterMapper.class, CriterionMapper.class, FilterColumnMapper.class, DashboardMapper.class,
-      DependencyMapper.class, DuplicationMapper.class, LoadedTemplateMapper.class, PropertiesMapper.class, PurgeMapper.class,
+    Class<?>[] mappers = {ActiveDashboardMapper.class, AuthorMapper.class, DashboardMapper.class,
+      DependencyMapper.class, DuplicationMapper.class, LoadedTemplateMapper.class, MeasureFilterMapper.class, PropertiesMapper.class, PurgeMapper.class,
       ResourceKeyUpdaterMapper.class, ResourceIndexerMapper.class, ResourceMapper.class, ResourceSnapshotMapper.class, ReviewCommentMapper.class,
       ReviewMapper.class, RoleMapper.class, RuleMapper.class, SchemaMigrationMapper.class, SemaphoreMapper.class, UserMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
       MeasureMapper.class};

@@ -41,7 +41,6 @@ class MoveExistingMeasureFilters < ActiveRecord::Migration
     set_table_name 'filters'
   end
 
-
   def self.up
     old_filters = Filter.find(:all)
     say_with_time "Moving #{old_filters.size} measure filters" do
@@ -82,8 +81,8 @@ class MoveExistingMeasureFilters < ActiveRecord::Migration
       if old_column.kee
         column_key += ":#{old_column.kee}"
         column_key += ":#{old_filter.period_index}" if old_column.variation && old_filter.period_index
-        columns << column_key
       end
+      columns << column_key
       if old_column.sort_direction=='ASC'
         asc = true
         sort = column_key

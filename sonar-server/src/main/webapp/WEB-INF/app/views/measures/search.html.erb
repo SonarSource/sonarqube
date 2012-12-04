@@ -6,32 +6,35 @@
   <% if @filter.results && @filter.display %>
     <div class="page-split-right">
       <div id="content">
+        <div class="line-block marginbottom10">
+          <ul class="operations">
+            <%
+               edit_mode = (params[:edit]=='true')
+               if @filter.display.key==:list && !edit_mode
+            %>
+              <li>
+                <a id="edit" href="<%= url_for params.merge({:edit => true, :id => @filter.id}) -%>"><%= message('measure_filter.configure_columns') -%></a>
+              </li>
+            <% end %>
+            <li class="last">
+              Display as:
+              <% MeasureFilterDisplay.keys.each do |display_key| %>
+                <%= link_to_if display_key!=@filter.display.key, message("measure_filter.display.#{display_key}"), params.merge(:action => 'search', :display => display_key, :id => @filter.id) -%>
+              <% end %>
+            </li>
+          </ul>
+          <div class="page_title" style="padding-left: 10px">
+            <% if @filter.description.present? %>
+              <%= h @filter.description -%>
+            <% end %>
+          </div>
+        </div>
 
-        <% if @filter.description.present? %>
-          <p><%= h @filter.description -%></p>
-        <% end %>
-
-        <%
-           edit_mode = (params[:edit]=='true')
-           unless edit_mode
-        %>
-          <table class="width100">
-            <tr>
-              <td class="left">
-                Display as:
-                <% MeasureFilterDisplay.keys.each do |display_key| %>
-                  <%= link_to_if display_key!=@filter.display.key, display_key, params.merge(:action => 'search', :display => display_key, :id => @filter.id) -%>
-                <% end %>
-              <td class="right">
-                <a id="edit" href="<%= url_for params.merge({:edit => true, :id => @filter.id}) -%>" class="button"><%= message('configure') -%></a>
-              </td>
-            </tr>
-          </table>
-        <% end %>
         <% if @filter.security_exclusions %>
           <p class="notes"><%= message('results_not_display_due_to_security') -%></p>
         <% end %>
-        <%= render :partial => "measures/display_#{@filter.display.class::KEY}", :locals => {:edit_mode => edit_mode} -%>
+
+        <%= render :partial => "measures/display_#{@filter.display.class::KEY}", :locals => {:filter => @filter, :edit_mode => edit_mode} -%>
       </div>
     </div>
   <% end %>
