@@ -169,11 +169,6 @@ body, a {
   right: 20px;
 }
 
-#recent-history {
-  border-bottom: 1px solid #ccc;
-  padding-bottom: 10px;
-}
-
 #nonav {
   text-align: left;
   margin: 50px 180px 0;

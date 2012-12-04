@@ -1,7 +1,7 @@
 <script>
   if (sonarRecentHistory != null) {
     sonarRecentHistory.add('<%= @resource.key -%>', 
-                           '<%= @resource.name(true) -%>', 
+                           '<%= @resource.name -%>', 
                            '<%= @resource ? Java::OrgSonarServerUi::JRubyFacade.getInstance().getResourceType(@resource.qualifier).getIconPath() : "" -%>');
   }  
 </script>

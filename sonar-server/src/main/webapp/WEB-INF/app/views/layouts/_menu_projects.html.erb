@@ -4,12 +4,6 @@
   }
 </script>
 
-  <style>
-    #recent-history-list imgs {
-      float: left;
-    }
-  </style>
-
 <li>
   <a href="#" onclick="if (sonarRecentHistory) { sonarRecentHistory.populateRecentHistoryPanel(); }; $j('#projects-menu').toggle(); return false;" class="link-more"><%= message('layout.projects') -%></a>
   
@@ -20,7 +14,7 @@
       </ul>
     </div>
     
-    <div>
+    <div style="border-top: 1px solid #ccc; margin-top: 10px;">
       <ul>
         <li><a href="<%= ApplicationController.root_context -%>/">Projects</a></li>
         <li><a href="<%= ApplicationController.root_context -%>/">Views</a></li>
@@ -36,7 +30,7 @@
     $j('#recent-history').detach();
   } else {
     sonarRecentHistory.add('<%= @resource ? @resource.key : "" -%>', 
-                           '<%= @resource ? @resource.name(true) : "" -%>', 
+                           '<%= @resource ? @resource.name : "" -%>', 
                            '<%= @resource ? Api::Utils.java_facade.getResourceType(@resource.qualifier).getIconPath() : "" -%>');
   }
 </script>
