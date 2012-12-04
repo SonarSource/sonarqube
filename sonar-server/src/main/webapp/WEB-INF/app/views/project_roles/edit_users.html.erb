@@ -1,13 +1,13 @@
 <%
-  granted_users=users(@role, params[:resource])
+  granted_users=users(@role, params[:id])
   ungranted_users=all_users - granted_users
 %>
-<div class="subtitle">&raquo; <a href="<%= url_for :action => 'index', :resource => @project.id -%>">Back</a></div>
+<div class="subtitle">&raquo; <a href="<%= url_for :action => 'index', :id => @project.id -%>">Back</a></div>
 <h1>Role Membership Of <%= h(@project.name) %></h1>
 <br/>
 <div id="main_content">
   <form action="<%= url_for :action => 'grant_users' -%>" method="post">
-    <input name="resource" value="<%= params[:resource] -%>" type="hidden"/>
+    <input name="id" value="<%= params[:id] -%>" type="hidden"/>
     <input name="role" value="<%= @role -%>" type="hidden"/>
     <input name="redirect" value="<%= params[:redirect] -%>" type="hidden"/>
     <table>
@@ -36,7 +36,7 @@
 
             <div style="padding: 5px 0;">
               <input id="save" value="Save" onclick="SelectBox.select_all('to');submit();return false;" type="submit">
-              <a href="<%= url_for :action => 'index', :resource => @project.id -%>"><%= message 'cancel' -%></a>
+              <a href="<%= url_for :action => 'index', :id => @project.id -%>"><%= message 'cancel' -%></a>
             </div>
           </td>
         </tr>

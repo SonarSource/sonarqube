@@ -2,12 +2,12 @@
   granted_groups=groups(@role, @project.id)
   ungranted_groups=all_groups - granted_groups
 %>
-<div class="subtitle">&raquo; <a href="<%= url_for :action => 'index', :resource => @project.id -%>">Back</a></div>
+<div class="subtitle">&raquo; <a href="<%= url_for :action => 'index', :id => @project.id -%>">Back</a></div>
 <h1>Role Membership Of <%= h(@project.name) %></h1>
 <br/>
 <div>
   <form action="<%= url_for :action => 'grant_groups' -%>" method="post">
-    <input name="resource" value="<%= @project.id -%>" type="hidden"/>
+    <input name="id" value="<%= @project.id -%>" type="hidden"/>
     <input name="role" value="<%= @role -%>" type="hidden"/>
     <table>
       <tbody>
@@ -37,7 +37,7 @@
 
             <div style="padding: 5px 0">
               <input id="save" value="Save" onclick="SelectBox.select_all('to');submit();return false;" type="submit">
-              <a href="<%= url_for :action => 'index', :resource => @project.id -%>"><%=  message 'cancel' -%></a>
+              <a href="<%= url_for :action => 'index', :id => @project.id -%>"><%=  message 'cancel' -%></a>
             </div>
           </td>
         </tr>

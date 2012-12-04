@@ -11,34 +11,34 @@
   <tr class="even" >
     <td valign="top"><b>Administrators</b><br/><span class="small gray">Ability to perform administration functions for a project by accessing its settings.</span></td>
     <td valign="top" style="word-break:break-all;width:35%;">
-      <span><%= users('admin', params[:resource]).map(&:name).join(', ') %></span>
-      (<%= link_to "select", {:action => 'edit_users', :resource => @project.id, :role => 'admin'}, :class => 'link-action' %>)
+      <span><%= users('admin', params[:id]).map(&:name).join(', ') %></span>
+      (<%= link_to "select", {:action => 'edit_users', :id => @project.id, :role => 'admin'}, :class => 'link-action' %>)
     </td>
     <td valign="top" style="word-break:break-all;width:35%;">
-      <span><%= groups('admin', params[:resource]).map{|g| group_name(g)}.join(', ') %></span>
-      (<%= link_to "select", {:action => 'edit_groups', :resource => @project.id, :role => 'admin'}, :class => 'link-action' %>)
+      <span><%= groups('admin', params[:id]).map{|g| group_name(g)}.join(', ') %></span>
+      (<%= link_to "select", {:action => 'edit_groups', :id => @project.id, :role => 'admin'}, :class => 'link-action' %>)
     </td>
   </tr>
   <tr class="odd">
     <td valign="top"><b>Users</b><br/><span class="small gray">Ability to navigate through every service of a project, except viewing source code and settings.</span></td>
     <td valign="top" style="word-break:break-all;width:35%;">
-      <span><%= users('user', params[:resource]).map(&:name).join(', ') %></span>
-      (<%= link_to "select", {:action => 'edit_users', :resource => @project.id, :role => 'user'}, :class => 'link-action' %>)
+      <span><%= users('user', params[:id]).map(&:name).join(', ') %></span>
+      (<%= link_to "select", {:action => 'edit_users', :id => @project.id, :role => 'user'}, :class => 'link-action' %>)
     </td>
     <td valign="top" style="word-break:break-all;width:35%;">
-      <span><%= groups('user', params[:resource]).map{|g| group_name(g)}.join(', ') %></span>
-      (<%= link_to "select", {:action => 'edit_groups', :resource => @project.id, :role => 'user'}, :class => 'link-action' %>)
+      <span><%= groups('user', params[:id]).map{|g| group_name(g)}.join(', ') %></span>
+      (<%= link_to "select", {:action => 'edit_groups', :id => @project.id, :role => 'user'}, :class => 'link-action' %>)
     </td>
   </tr>
   <tr class="even" >
     <td valign="top"><b>Code viewers</b><br/><span class="small gray">Ability to view source code of a project.</span></td>
     <td valign="top" style="word-break:break-all;width:35%;">
-      <span><%= users('codeviewer', params[:resource]).map(&:name).join(', ') %></span>
-      (<%= link_to "select", {:action => 'edit_users', :resource => @project.id, :role => 'codeviewer'}, :class => 'link-action' %>)
+      <span><%= users('codeviewer', params[:id]).map(&:name).join(', ') %></span>
+      (<%= link_to "select", {:action => 'edit_users', :id => @project.id, :role => 'codeviewer'}, :class => 'link-action' %>)
     </td>
     <td valign="top" style="word-break:break-all;width:35%;">
-      <span><%= groups('codeviewer', params[:resource]).map{|g| group_name(g)}.join(', ') %></span>
-      (<%= link_to "select", {:action => 'edit_groups', :resource => @project.id, :role => 'codeviewer'}, :class => 'link-action' %>)
+      <span><%= groups('codeviewer', params[:id]).map{|g| group_name(g)}.join(', ') %></span>
+      (<%= link_to "select", {:action => 'edit_groups', :id => @project.id, :role => 'codeviewer'}, :class => 'link-action' %>)
     </td>
   </tr>
   </tbody>

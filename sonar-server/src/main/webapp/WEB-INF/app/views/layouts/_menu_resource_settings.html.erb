@@ -20,7 +20,7 @@
          # NOTE: we keep "@project.view? || @project.subview?" in the test for backward compatibility with the Views plugin
          if (controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'hasRolePolicy') || @project.view? || @project.subview?)
       %>
-      <li><a href="<%= ApplicationController.root_context -%>/project_roles/index?resource=<%= @project.id -%>"><%= message('roles.page') -%></a></li>
+      <li><a href="<%= ApplicationController.root_context -%>/project_roles/index/<%= @project.id -%>"><%= message('roles.page') -%></a></li>
       <% end %>
       <%
          # NOTE: we keep "@project.view? || @project.subview?" in the test for backward compatibility with the Views plugin
