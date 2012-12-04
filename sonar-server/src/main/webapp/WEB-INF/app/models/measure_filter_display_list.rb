@@ -33,12 +33,19 @@ class MeasureFilterDisplayList < MeasureFilterDisplay
       end
     end
 
-    def name
+    def title_label
       if @metric
-        Api::Utils.message("metric.#{@metric.key}.name", :default => @metric.short_name)
+        label = Api::Utils.message("measure_filter.short_col.metric.#{@metric.key}", :default => '')
+        label = Api::Utils.message("metric.#{@metric.key}.name", :default => @metric.short_name) if label==''
       else
-        Api::Utils.message("measure_filter.col.#{@key}", :default => @key)
+        label = Api::Utils.message("measure_filter.short_col.#{@key}", :default => '')
+        label = Api::Utils.message("measure_filter.col.#{@key}", :default => @key) if label==''
       end
+      label
+    end
+
+    def tooltip
+      @metric.description if @metric
     end
 
     def align
@@ -49,8 +56,12 @@ class MeasureFilterDisplayList < MeasureFilterDisplay
         end
     end
 
-    def css_title
+    def title_css
       'thin' if @metric && @metric.val_type==Metric::VALUE_TYPE_LEVEL
+    end
+
+    def row_css
+      'nowrap' unless @metric && !@metric.numeric?
     end
 
     def sort?
@@ -60,6 +71,7 @@ class MeasureFilterDisplayList < MeasureFilterDisplay
     def links?
       @key == 'links'
     end
+
   end
 
   attr_reader :columns

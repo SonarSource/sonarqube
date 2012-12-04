@@ -196,7 +196,7 @@ class MeasureFilter < ActiveRecord::Base
     snapshot_ids = rows.map { |row| row.getSnapshotId() if authorized_project_ids.include?(row.getResourceRootId()) }.compact
     @security_exclusions = (snapshot_ids.size<rows.size)
     @pagination.count = snapshot_ids.size
-    snapshot_ids[@pagination.offset .. (@pagination.offset+@pagination.limit)]
+    snapshot_ids[@pagination.offset ... (@pagination.offset+@pagination.limit)]
   end
 
   def load_results(snapshot_ids)

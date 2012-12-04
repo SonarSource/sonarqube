@@ -2243,6 +2243,7 @@ td.spacer-top {
   vertical-align: bottom;
   line-height: 16px;
   padding: 4px 5px;
+  vertical-align: bottom;
 }
 
 .table > tbody > tr > td {

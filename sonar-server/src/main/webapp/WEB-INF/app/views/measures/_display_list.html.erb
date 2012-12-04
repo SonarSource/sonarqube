@@ -158,7 +158,7 @@
         <td class="thin"><%= link_to_favourite(filter.base_result.snapshot.resource) -%></td>
       <% end %>
       <% filter.display.columns.each do |column| %>
-        <td class="<%= column.align -%>">
+        <td class="<%= column.align -%> <%= column.row_css -%>">
           <%= list_cell_html(column, filter.base_result) -%>
         </td>
       <% end %>
@@ -171,7 +171,7 @@
         <td class="thin"><%= link_to_favourite(result.snapshot.resource) -%></td>
       <% end %>
       <% filter.display.columns.each do |column| %>
-        <td class="<%= column.align -%>">
+        <td class="<%= column.align -%> <%= column.row_css -%>">
           <%= list_cell_html(column, result) -%>
         </td>
       <% end %>

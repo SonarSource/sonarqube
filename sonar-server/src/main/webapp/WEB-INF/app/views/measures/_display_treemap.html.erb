@@ -1,6 +1,7 @@
 <% if defined? widget %>
   <span class="note"><%= message('size') -%>: <b><%= filter.display.size_metric.short_name -%></b></span>
   <% if filter.display.color_metric %>
+    &nbsp;&nbsp;
     <span class="note"><%= message('color') -%>: <b><%= filter.display.color_metric.short_name -%></b> <%= render :partial => 'treemap/gradient', :locals => {:metric => filter.display.color_metric} %></span>
   <% end %>
 <% else %>

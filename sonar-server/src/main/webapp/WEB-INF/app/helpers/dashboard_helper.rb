@@ -20,8 +20,8 @@
 module DashboardHelper
   include WidgetPropertiesHelper
   include MetricsHelper
-  include FiltersHelper
   include MeasuresHelper
+
   def dashboard_action(action_name, opts={})
     if @resource
       { :action => action_name, :did => @dashboard.id, :id => @resource.id }.merge!(opts)

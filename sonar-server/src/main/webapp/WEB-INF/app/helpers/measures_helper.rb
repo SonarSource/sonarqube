@@ -21,9 +21,9 @@ module MeasuresHelper
 
   def list_column_html(filter, column)
     if column.sort?
-      html = link_to_function(h(column.name), "reloadParameters({asc:'#{(!filter.sort_asc?).to_s}', sort:'#{column.key}'})")
+      html = link_to_function(h(column.title_label), "reloadParameters({asc:'#{(!filter.sort_asc?).to_s}', sort:'#{column.key}'})", :title => h(column.tooltip))
     else
-      html=h(column.name)
+      html=h(column.title_label)
     end
     if column.period
       html += "<br><span class='note'>Period #{column.period}</small>"
@@ -31,7 +31,7 @@ module MeasuresHelper
     if filter.sort_key==column.key
       html << (filter.sort_asc? ? image_tag("asc12.png") : image_tag("desc12.png"))
     end
-    "<th class='#{column.align} #{column.css_title}'>#{html}</th>"
+    "<th class='#{column.align} #{column.title_css}'>#{html}</th>"
   end
 
   def list_cell_html(column, result)
