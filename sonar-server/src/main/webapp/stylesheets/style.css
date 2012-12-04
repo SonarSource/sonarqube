@@ -271,9 +271,12 @@ h4, .h4 {
 
 .treemap a {
   color: #FFF;
-  text-decoration: underline;
+  text-decoration: none;
   font-size: 12px;
   padding: 1px;
+}
+.treemap a:hover {
+  text-decoration: underline;
 }
 
 /* ------------------- MESSAGES ------------------- */

@@ -1,4 +1,8 @@
-<% if defined? widget %>
+<%
+  treemap_id = 1
+  if defined? widget
+    treemap_id = widget.id
+%>
   <span class="note"><%= message('size') -%>: <b><%= filter.display.size_metric.short_name -%></b></span>
   <% if filter.display.color_metric %>
     &nbsp;&nbsp;
@@ -17,7 +21,7 @@
       <td valign="top" class="thin nowrap">
         <span class="comments"><%= message('color') -%></span>
         <% if filter.display.color_metric %>
-        <span id="tm-gradient" class="note">
+        <span id="tm-gradient-<%= treemap_id -%>" class="note">
           <%= render :partial => 'treemap/gradient', :locals => {:metric => filter.display.color_metric} %>
         </span>
         <% end %>
@@ -29,7 +33,7 @@
 
         <button id="update-treemap">Update</button>
       </td>
-      <td></td>
+      <td valign="bottom"><%= image_tag 'loading.gif', :id => "tm-loading-#{treemap_id}", :style => 'display:none' -%></td>
     </tr>
   </table>
 <% end %>
@@ -57,7 +61,17 @@
 <% if filter.results.empty? %>
   <p><%= message('no_data') -%></p>
 <% else %>
-  <div class="treemap" style="width: 100%; height: 500px;">
+  <div id="tm-<%= treemap_id -%>" class="treemap width100">
     <%= filter.display.html -%>
   </div>
+
+  <div style="margin: 5px 0 0 0" class="notes">
+    <div style="float: right;cursor: help"><%= image_tag 'help.png', :title => h(message('treemap.click_help')) -%></div>
+    <div id="tm-bc-<%= treemap_id -%>">/</div>
+  </div>
+
+  <script>
+    new Treemap(<%= treemap_id -%>, '<%= filter.display.size_metric.key  -%>', '<%= filter.display.color_metric ? filter.display.color_metric.key : '' -%>');
+  </script>
+
 <% end %>

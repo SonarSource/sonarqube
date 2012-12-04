@@ -29,7 +29,6 @@ class MeasureFilterDisplayTreemap < MeasureFilterDisplay
 
     @size_metric = Metric.by_key(@filter.criteria('tmSize')||'ncloc')
     @color_metric = Metric.by_key(@filter.criteria('tmColor'))
-    @html_id = options[:html_id]
     @filter.metrics=([@size_metric, @color_metric].compact)
     @id_count = 0
 
@@ -51,8 +50,7 @@ class MeasureFilterDisplayTreemap < MeasureFilterDisplay
         o.full_html = false
         o.details_at_depth = 1
       end
-      html = output.to_html(root)
-      html + "<script>treemapById(#{@html_id}).onLoaded(#{@filter.results.size});</script>"
+      output.to_html(root)
     end
   end
 
@@ -69,8 +67,7 @@ class MeasureFilterDisplayTreemap < MeasureFilterDisplay
         if size_measure
           color_measure=(@color_metric ? result.measure(@color_metric) : nil)
           resource = result.snapshot.resource
-          child = Treemap::Node.new(:id => "#{@html_id}-#{@id_count += 1}",
-                                    :size => size_value(size_measure),
+          child = Treemap::Node.new(:size => size_value(size_measure),
                                     :label => resource.name(false),
                                     :title => escape_javascript(resource.name(true)),
                                     :tooltip => tooltip(resource, size_measure, color_measure),
@@ -117,12 +114,16 @@ class Sonar::HtmlOutput < Treemap::HtmlOutput
     html += "left:#{node.bounds.x1}%; top:#{node.bounds.y1}%;"
     html += "width:#{node.bounds.width}%;height: #{node.bounds.height}%;"
     html += "background-color:#FFF;\">"
-    html += "<div rid='#{node.rid}' id=\"tm-node-#{node.id}\" style='margin: 1px;background-color: #{node.color}; height: 100%;
-border: 1px solid #{node.color};' alt=\"#{node.tooltip}\" title=\"#{node.tooltip}\""
-    if node.leaf
-      html += "l=1 "
+    if node.rid
+      html += "<div rid='#{node.rid}' id=\"tm-node-#{node.id}\" style='margin: 1px;background-color: #{node.color}; height: 100%;
+  border: 1px solid #{node.color};' alt=\"#{node.tooltip}\" title=\"#{node.tooltip}\""
+      if node.leaf
+        html += "l=1 "
+      end
+      html += ' >'
+    else
+      html += '<div>'
     end
-    html += ' >'
     html += draw_node_body(node)
 
     if (!node.children.nil? && node.children.size > 0)

@@ -45,7 +45,7 @@ public final class ResourceTypes implements BatchComponent, ServerComponent {
 
   public static final Predicate<ResourceType> AVAILABLE_FOR_FILTERS = new Predicate<ResourceType>() {
     public boolean apply(@Nullable ResourceType input) {
-      return input != null && input.getBooleanProperty("supports_measure_filters");
+      return input != null && input.getBooleanProperty("supportsMeasureFilters");
     }
   };
 

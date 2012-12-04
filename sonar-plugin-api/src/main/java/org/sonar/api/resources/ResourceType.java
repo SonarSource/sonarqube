@@ -40,7 +40,7 @@ import java.util.Map;
  * </p>
  * <ul>
  * <li>"deletable": if set to "true", then this resource can be deleted/purged.</li>
- * <li>"supports_measure_filters": if set to "true", then this resource can be displayed in measure filters</li>
+ * <li>"supportsMeasureFilters": if set to "true", then this resource can be displayed in measure filters</li>
  * <li>"modifiable_history": if set to "true", then the history of this resource may be modified (deletion of snapshots, modification of events, ...)</li>
  * <li>"updatable_key" (since 3.2): if set to "true", then it is possible to update the key of this resource</li>
  * <li>"supportsGlobalDashboards" (since 3.2): if true, this resource can be displayed in global dashboards</li>
@@ -84,11 +84,11 @@ public final class ResourceType {
     }
 
     /**
-     * @deprecated since 3.0. Use {@link #setProperty(String, String)} with "supports_measure_filters" set to "true".
+     * @deprecated since 3.0. Use {@link #setProperty(String, String)} with "supportsMeasureFilters" set to "true".
      */
     @Deprecated
     public Builder availableForFilters() {
-      setProperty("supports_measure_filters", "true");
+      setProperty("supportsMeasureFilters", "true");
       return this;
     }
 
@@ -112,7 +112,7 @@ public final class ResourceType {
 
       // for backward-compatibility since version 3.4
       if (key.equals("availableForFilters")) {
-        properties.put("supports_measure_filters", value);
+        properties.put("supportsMeasureFilters", value);
       }
       return this;
     }

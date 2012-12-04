@@ -20,51 +20,35 @@
 class TreemapController < ApplicationController
   helper :metrics
 
-  SECTION=Navigation::SECTION_HOME
-
   def index
-    html_id = params[:id]
-    bad_request('Missing required property: id') if html_id.blank?
+    verify_ajax_request
+    require_parameters :html_id, :resource
 
-    height = params[:height]
-    bad_request('Missing required property: height') if height.blank?
-    bad_request('Bad height') if height.to_i<=0
-
-    size_metric=Metric.by_key(params[:size_metric]||'lines')
-    bad_request('Unknown metric: ' + params[:size_metric]) unless size_metric
-
-    color_metric=Metric.by_key(params[:color_metric])
-    bad_request('Unknown metric: ' + params[:color_metric]) unless color_metric
-
-    if params[:resource]
-      resource = Project.by_key(params[:resource])
-      bad_request('Unknown resource: ' + params[:resource]) unless resource
-      bad_request('Data not available') unless resource.last_snapshot
-      access_denied unless has_role?(:user, resource)
-      resource = resource.permanent_resource
-
-    elsif params[:filter]
-      filter=::Filter.find(params[:filter])
-      bad_request('Unknown filter: ' + params[:filter]) unless filter
-      access_denied unless filter.authorized_to_execute?(self)
-      params[:metric_ids]=[size_metric.id, color_metric.id]
-      filter_context=Filters.execute(filter, self, params)
-    else
-      bad_request('Missing parameter: resource or filter')
+    if params[:size_metric].present?
+      size_metric=Metric.by_key(params[:size_metric])
+      bad_request('Unknown metric: ' + params[:size_metric]) unless size_metric
     end
 
-    treemap = Sonar::Treemap.new(html_id, size_metric, height.to_i, {
-      :color_metric => color_metric,
-      :root_snapshot => (resource ? resource.last_snapshot : nil),
-      :measures_by_snapshot => (filter_context ? filter_context.measures_by_snapshot : nil),
-      :period_index => params[:period_index].to_i
-    })
-
-    render :update do |page|
-      page.replace_html "tm-#{html_id}", :partial => 'treemap', :object => treemap
-      page.replace_html "tm-gradient-#{html_id}", :partial => 'gradient', :locals => {:metric => color_metric}
-      page.hide "tm-loading-#{html_id}"
+    if params[:color_metric].present?
+      color_metric=Metric.by_key(params[:color_metric])
+      bad_request('Unknown metric: ' + params[:color_metric]) unless color_metric
     end
+
+    resource = Project.by_key(params[:resource])
+    bad_request('Unknown resource: ' + params[:resource]) unless resource
+    bad_request('Data not available') unless resource.last_snapshot
+    access_denied unless has_role?(:user, resource)
+    resource = resource.permanent_resource
+
+    filter = MeasureFilter.new
+    filter.set_criteria_value('baseId', resource.id)
+    filter.set_criteria_value('onBaseComponents', 'true')
+    filter.set_criteria_value('display', 'treemap')
+    filter.set_criteria_value('tmSize', size_metric.key) if size_metric
+    filter.set_criteria_value('tmColor', color_metric.key) if color_metric
+    filter.execute(self, :user => current_user)
+
+    render :text => filter.display.html
   end
 
 end

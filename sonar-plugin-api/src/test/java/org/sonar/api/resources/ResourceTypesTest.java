@@ -30,14 +30,14 @@ import static org.fest.assertions.Assertions.assertThat;
 public class ResourceTypesTest {
 
   private ResourceTypeTree viewsTree = ResourceTypeTree.builder()
-    .addType(ResourceType.builder(Qualifiers.VIEW).setProperty("supports_measure_filters", "true").build())
+    .addType(ResourceType.builder(Qualifiers.VIEW).setProperty("supportsMeasureFilters", "true").build())
     .addType(ResourceType.builder(Qualifiers.SUBVIEW).build())
     .addRelations(Qualifiers.VIEW, Qualifiers.SUBVIEW)
     .addRelations(Qualifiers.SUBVIEW, Qualifiers.PROJECT)
     .build();
 
   private ResourceTypeTree defaultTree = ResourceTypeTree.builder()
-    .addType(ResourceType.builder(Qualifiers.PROJECT).setProperty("supports_measure_filters", "true").build())
+    .addType(ResourceType.builder(Qualifiers.PROJECT).setProperty("supportsMeasureFilters", "true").build())
     .addType(ResourceType.builder(Qualifiers.DIRECTORY).build())
     .addType(ResourceType.builder(Qualifiers.FILE).build())
     .addRelations(Qualifiers.PROJECT, Qualifiers.DIRECTORY)
@@ -67,14 +67,14 @@ public class ResourceTypesTest {
 
   @Test
   public void getAllWithPropertyKey() {
-    assertThat(qualifiers(types.getAllWithPropertyKey("supports_measure_filters"))).containsOnly(Qualifiers.VIEW, Qualifiers.PROJECT);
+    assertThat(qualifiers(types.getAllWithPropertyKey("supportsMeasureFilters"))).containsOnly(Qualifiers.VIEW, Qualifiers.PROJECT);
   }
 
   @Test
   public void getAllWithPropertyValue() {
-    assertThat(qualifiers(types.getAllWithPropertyValue("supports_measure_filters", "true"))).containsOnly(Qualifiers.VIEW, Qualifiers.PROJECT);
-    assertThat(qualifiers(types.getAllWithPropertyValue("supports_measure_filters", true))).containsOnly(Qualifiers.VIEW, Qualifiers.PROJECT);
-    assertThat(qualifiers(types.getAllWithPropertyValue("supports_measure_filters", false))).containsOnly(Qualifiers.SUBVIEW, Qualifiers.DIRECTORY, Qualifiers.FILE);
+    assertThat(qualifiers(types.getAllWithPropertyValue("supportsMeasureFilters", "true"))).containsOnly(Qualifiers.VIEW, Qualifiers.PROJECT);
+    assertThat(qualifiers(types.getAllWithPropertyValue("supportsMeasureFilters", true))).containsOnly(Qualifiers.VIEW, Qualifiers.PROJECT);
+    assertThat(qualifiers(types.getAllWithPropertyValue("supportsMeasureFilters", false))).containsOnly(Qualifiers.SUBVIEW, Qualifiers.DIRECTORY, Qualifiers.FILE);
   }
 
   @Test
