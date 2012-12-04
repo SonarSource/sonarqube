@@ -1,0 +1,11 @@
+<li>
+  <a href="#" onclick="$j('#user-panel').toggle(); return false;" class="link-more"><%= current_user.name(true) -%></a>
+  
+  <div id="user-panel" class="dropdown-menu" style="display: none" onmouseout="$j(this).hide();" onmouseover="$j(this).show();">
+    <ul>
+      <li><a href="<%= ApplicationController.root_context -%>/account/index"><%= message('layout.user_panel.my_profile') -%></a></li>
+      <li><a href="<%= ApplicationController.root_context -%>/sessions/logout" onclick="if (sonarRecentHistory) { sonarRecentHistory.clear(); }"><%= message('layout.logout') -%></a></li>
+    </ul>
+  </div>
+  
+</li>

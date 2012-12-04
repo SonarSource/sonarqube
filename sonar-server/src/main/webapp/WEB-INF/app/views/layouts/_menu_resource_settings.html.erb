@@ -34,7 +34,6 @@
       <% if controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'deletable') %>
         <li><a href="<%= ApplicationController.root_context -%>/project/deletion/<%= @project.id -%>"><%= message('resource_deletion.page', :params => message('qualifier.' + @project.qualifier)) -%></a></li>
       <% end %>
-
     </ul>
   </div>
   

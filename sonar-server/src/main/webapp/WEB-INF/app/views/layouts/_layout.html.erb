@@ -29,11 +29,13 @@
           <input type="text" size="15" name="search" id="searchInput" onFocus="autocompleteResources()" value="<%= message('search_verb') -%>"/>
           <img src="<%= ApplicationController.root_context -%>/images/loading-small.gif" id="searchingResources" style="display:none">
         </li>
-        <li>
-          <a href="<%= ApplicationController.root_context -%>/settings/index"><img src="<%= ApplicationController.root_context -%>/images/actions.png" alt="<%= message('layout.administration') -%>" title="<%= message('layout.administration') -%>"/></a>
-        </li>
+        <% if is_admin? %>
+          <li>
+            <a href="<%= ApplicationController.root_context -%>/settings/index"><%= message('layout.administration') -%></a>
+          </li>
+        <% end %>
         <% if logged_in? %>
-          <%= render 'layouts/user_panel' -%>
+          <%= render 'layouts/menu_user' -%>
         <% else %>
           <li><a href="<%= ApplicationController.root_context -%>/sessions/new?return_to=<%= u (request.request_uri) -%>"><%= message('layout.login') -%></a></li>
         <% end %>
@@ -77,6 +79,8 @@
                 <a href="<%= ApplicationController.root_context -%>/dashboard/index/<%= @project.id -%>?did=<%= active_dashboard.dashboard_id -%><%= "&"+period_param if period_param -%>"><%= active_dashboard.dashboard.name(true) -%></a>
               </li>
             <% end %>
+            <li class="<%= 'active' if request.request_uri.include?('/cloud/index') -%>">
+              <a href="<%= ApplicationController.root_context -%>/cloud/index/<%= @project.id -%>"><%= message('clouds.page') -%></a></li>
             <li class="spacer"></li>
             <li class="sidebar-title"><%= message('sidebar.tools') -%></li>
             <li class="<%= 'active' if request.request_uri.include?('/components/index') -%>">
@@ -84,11 +88,9 @@
             <li class="<%= 'active' if request.request_uri.include?('/drilldown/violations') -%>">
               <a href="<%= ApplicationController.root_context -%>/drilldown/violations/<%= @project.id -%><%= "?"+period_param if period_param -%>"><%= message('violations_drilldown.page') -%></a>
               <% if controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'comparable') %>
-              <li class="<%= 'active' if request.request_uri.include?('/comparison/index') -%>">
+            <li class="<%= 'active' if request.request_uri.include?('/comparison/index') -%>">
                 <a href="<%= ApplicationController.root_context -%>/comparison/index?resource=<%= @project.key -%>"><%= message('comparison.page') -%></a></li>
             <% end %>
-            <li class="<%= 'active' if request.request_uri.include?('/cloud/index') -%>">
-              <a href="<%= ApplicationController.root_context -%>/cloud/index/<%= @project.id -%>"><%= message('clouds.page') -%></a></li>
             <% controller.java_facade.getPages(Navigation::SECTION_RESOURCE, @project.scope, @project.qualifier, @project.language, @project.last_snapshot.metric_keys.to_java(:string)).each do |page|
               page_url = (page.isController() ? "#{page.getId()}?id=#{@project.id}" : "/plugins/resource/#{@project.id}?page=#{page.getId()}")
             %>

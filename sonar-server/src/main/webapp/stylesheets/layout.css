@@ -169,28 +169,6 @@ body, a {
   right: 20px;
 }
 
-#user-panel {
-  position: absolute;
-  float: right;
-  min-width: 200px;
-  top: 30px;
-  right: 180px;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5);
-  z-index: 999999;
-  line-height: 18px;
-  color: #111;
-}
-
-#user-panel > div {
-  padding: 10px;
-}
-
-#user-panel a {
-  color: #000;
-}
-
 #recent-history {
   border-bottom: 1px solid #ccc;
   padding-bottom: 10px;
