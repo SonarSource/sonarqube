@@ -166,7 +166,7 @@ body, a {
 
 #project-settings-menu {
   float: right;
-  right: 70px;
+  right: 20px;
 }
 
 #user-panel {
@@ -193,6 +193,7 @@ body, a {
 
 #recent-history {
   border-bottom: 1px solid #ccc;
+  padding-bottom: 10px;
 }
 
 #nonav {

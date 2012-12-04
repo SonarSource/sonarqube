@@ -7,9 +7,6 @@
   <div id="crumbs">
     <ul id="crumbs-ops">
       <% if displayed_resource %>
-        <% if has_role?(:admin, displayed_resource) %>
-          <%= render 'layouts/menu_resource_settings' -%>
-        <% end %>
         <li>
           <%= link_to_favourite(displayed_resource) -%>
         </li>
@@ -18,6 +15,9 @@
         <li>
           <a href="<%= @permalink -%>"><img src="<%= ApplicationController.root_context -%>/images/permalink.png" width="16" height="16" title="<%= message('permalink') -%>"/></a>
         </li>
+      <% end %>
+      <% if displayed_resource && has_role?(:admin, displayed_resource) && !displayed_resource.entity? %>
+        <%= render 'layouts/menu_resource_settings' -%>
       <% end %>
     </ul>
     <ul id="bc">
@@ -48,9 +48,6 @@
   <div id="crumbs">
     <ul id="crumbs-ops">
       <% if displayed_resource %>
-        <% if has_role?(:admin, displayed_resource) %>
-          <%= render 'layouts/menu_resource_settings' -%>
-        <% end %>
         <li>
           <%= link_to_favourite(displayed_resource) -%>
         </li>
@@ -59,6 +56,9 @@
         <li>
           <a href="<%= url_for(:overwrite_params => {:id => displayed_resource.key}) -%>"><img src="<%= ApplicationController.root_context -%>/images/permalink.png" width="16" height="16" title="<%= message('permalink') -%>"/></a>
         </li>
+      <% end %>
+      <% if displayed_resource && has_role?(:admin, displayed_resource) && !displayed_resource.entity? %>
+        <%= render 'layouts/menu_resource_settings' -%>
       <% end %>
     </ul>
     <ul id="bc">

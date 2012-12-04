@@ -2128,6 +2128,7 @@ table.nowrap td, td.nowrap, th.nowrap {
 .dropdown-menu h2 {
   padding: 0 8px;
   font-size: 100%;
+  font-weight: bold;
 }
 
 .dropdown-menu li {
