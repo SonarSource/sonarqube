@@ -34,7 +34,7 @@ public class TreemapWidget extends AbstractRubyTemplate implements RubyRailsWidg
   }
 
   public String getTitle() {
-    return "Treemap of components";
+    return "Treemap of Components";
   }
 
   @Override

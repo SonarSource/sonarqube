@@ -17,29 +17,30 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.filters;
+package org.sonar.plugins.core.widgets;
 
 import org.junit.Test;
-import org.sonar.api.web.Filter;
 import org.sonar.plugins.core.CorePlugin;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class ProjectFilterTest {
+public class WelcomeWidgetTest {
   @Test
-  public void should_create_filter() {
-    ProjectFilter template = new ProjectFilter();
+  public void should_define_widget() {
+    WelcomeWidget widget = new WelcomeWidget();
 
-    Filter filter = template.createFilter();
+    assertThat(widget.getId()).isEqualTo("welcome");
+    assertThat(widget.getTitle()).isEqualTo("Welcome");
+  }
 
-    assertThat(template.getName()).isEqualTo("Projects");
-    assertThat(filter).isNotNull();
-    assertThat(filter.getCriteria()).hasSize(1);
-    assertThat(filter.getColumns()).hasSize(7);
+  @Test
+  public void should_find_template() {
+    WelcomeWidget widget = new WelcomeWidget();
+    assertThat(WelcomeWidget.class.getResource(widget.getTemplatePath())).isNotNull();
   }
 
   @Test
   public void should_be_registered_as_an_extension() {
-    assertThat(new CorePlugin().getExtensions()).contains(ProjectFilter.class);
+    assertThat(new CorePlugin().getExtensions()).contains(WelcomeWidget.class);
   }
 }

@@ -33,7 +33,7 @@ import static org.sonar.api.web.WidgetScope.GLOBAL;
 @WidgetScope(GLOBAL)
 @WidgetProperties({
   @WidgetProperty(key = MeasureFilterListWidget.FILTER_PROPERTY, type = WidgetPropertyType.FILTER, optional = false),
-  @WidgetProperty(key = MeasureFilterListWidget.PAGE_SIZE_PROPERTY, type = WidgetPropertyType.INTEGER, optional = true)
+  @WidgetProperty(key = MeasureFilterListWidget.PAGE_SIZE_PROPERTY, type = WidgetPropertyType.INTEGER, defaultValue = "30")
 }
 )
 public class MeasureFilterListWidget extends AbstractRubyTemplate implements RubyRailsWidget {

@@ -19,7 +19,9 @@
  */
 package org.sonar.plugins.core.widgets;
 
+import com.google.common.io.Resources;
 import org.junit.Test;
+import org.sonar.plugins.core.CorePlugin;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -33,9 +35,13 @@ public class ItCoverageWidgetTest {
   }
 
   @Test
-  public void should_use_relative_path_for_template() {
+  public void should_find_template() {
     ItCoverageWidget widget = new ItCoverageWidget();
+    assertThat(ItCoverageWidget.class.getResource(widget.getTemplatePath())).isNotNull();
+  }
 
-    assertThat(widget.getTemplatePath()).startsWith("/");
+  @Test
+  public void should_be_registered_as_an_extension() {
+    assertThat(new CorePlugin().getExtensions()).contains(ItCoverageWidget.class);
   }
 }

@@ -21,6 +21,7 @@ package org.sonar.plugins.core.filters;
 
 import org.junit.Test;
 import org.sonar.api.web.Filter;
+import org.sonar.plugins.core.CorePlugin;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -36,5 +37,10 @@ public class MyFavouritesFilterTest {
     assertThat(filter.isFavouritesOnly()).isTrue();
     assertThat(filter.getCriteria()).isEmpty();
     assertThat(filter.getColumns()).hasSize(3);
+  }
+
+  @Test
+  public void should_be_registered_as_an_extension() {
+    assertThat(new CorePlugin().getExtensions()).contains(MyFavouritesFilter.class);
   }
 }
