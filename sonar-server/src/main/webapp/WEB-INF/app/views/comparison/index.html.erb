@@ -64,7 +64,7 @@
   </script>
 <% end %>
 
-<div id="content">
+
   <div id="comparison-page">
     <form method="GET" id="compare-form" action="<%= ApplicationController.root_context -%>/comparison/index">
       <input type="hidden" name="sids" id="sids" value="<%= @snapshots.map { |s| s.id.to_s }.join(',') -%>">
@@ -93,8 +93,8 @@
                 }
               });
             </script>
+            </div>
           </th>
-        </div>
 
         <%
            last_index = @snapshots.size-1
@@ -164,9 +164,9 @@
               $j('#new_resource').select2("focus");
             </script>
           </div>
-          
+
           <div id="version_loading" class="loading" style="height: 16px; margin-top: 5px; display: none"></div>
-          
+
           <div id="version_div" style="margin-top: 5px; display: none">
             <select id="new_version">
             </select>
@@ -218,4 +218,3 @@
       </table>
     </form>
   </div>
-</div>

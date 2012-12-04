@@ -25,7 +25,6 @@ padding: 5px;
 }
 </style>
 <% end %>
-<div id="content">
 <form action="<%= ApplicationController.root_context -%>/dependencies/index" id="search_form">
   <input type="text" name="search" value="<%= params[:search] -%>" id="search_input"> </input>
   <input type="submit" value="<%= message('dependencies.search_library') -%>" id="search_submit"/><br/>
@@ -102,4 +101,3 @@ $$('#artifacts_col tr.selected').each(function(item) {item.scrollIntoView(true);
 $$('#versions_col tr.selected').each(function(item) {item.scrollIntoView(true);});
 $$('#results_col tr.selected').each(function(item) {item.scrollIntoView(true);});
 </script>
-</div>

@@ -30,7 +30,6 @@
     });
   }
 </script>
-<div id="content">
 <%= render :partial => 'profiles/tabs', :locals => {:selected_tab=>'Coding rules'} %>
 
 <% enable_modification = is_admin? %>
@@ -132,4 +131,3 @@
       $(span_id).replace(text_area);
     }
 </script>
-</div>
