@@ -1,6 +1,0 @@
-<FindBugsFilter>
-  <Match>
-    <Bug code="BC,EC"/>
-    <Priority value="2"/>
-  </Match>
-</FindBugsFilter>
