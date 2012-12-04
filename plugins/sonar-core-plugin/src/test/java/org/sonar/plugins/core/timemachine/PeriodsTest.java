@@ -78,7 +78,7 @@ public class PeriodsTest {
   }
 
   @Test
-     public void shouldReturnLabelInModePreviousAnalysis() {
+     public void shouldReturnLabelInModePreviousAnalysisWithDateNotNull() {
     when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_VERSION);
     when(snapshot.getPeriodDate(periodIndex)).thenReturn(new Date());
     when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
@@ -86,7 +86,10 @@ public class PeriodsTest {
     periods.getLabel(periodIndex);
 
     verify(i18n).message(Mockito.any(Locale.class), Mockito.eq("since_version_detailed"), Mockito.isNull(String.class), Mockito.eq(param), Mockito.anyString());
+  }
 
+  @Test
+  public void shouldReturnLabelInModePreviousAnalysisWithNullDate() {
     when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_VERSION);
     when(snapshot.getPeriodDate(periodIndex)).thenReturn(null);
     when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
@@ -97,14 +100,17 @@ public class PeriodsTest {
   }
 
   @Test
-  public void shouldReturnLabelInModePreviousVersion() {
+  public void shouldReturnLabelInModePreviousVersionWithParamNotNull() {
     when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
     when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
 
     periods.getLabel(periodIndex);
 
     verify(i18n).message(Mockito.any(Locale.class), Mockito.eq("since_previous_version_detailed"), Mockito.isNull(String.class), Mockito.eq(param));
+  }
 
+  @Test
+  public void shouldReturnLabelInModePreviousVersionWithParamNull() {
     when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
     when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(null);
 

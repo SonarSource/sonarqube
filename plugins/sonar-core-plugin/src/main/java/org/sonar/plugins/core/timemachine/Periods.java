@@ -43,31 +43,30 @@ public class Periods implements BatchExtension {
     String param = snapshot.getPeriodModeParameter(periodIndex);
     Date date = snapshot.getPeriodDate(periodIndex);
 
+    String label = "";
     if (mode.equals(CoreProperties.TIMEMACHINE_MODE_DAYS)) {
-      return message("over_x_days", param);
+      label = message("over_x_days", param);
     } else if (mode.equals(CoreProperties.TIMEMACHINE_MODE_VERSION)) {
+      label =  message("since_version", param);
       if (date != null) {
-        return message("since_version_detailed", param, convertDate(date));
-      } else {
-        return message("since_version", param);
+        label =  message("since_version_detailed", param, convertDate(date));
       }
     } else if (mode.equals(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS)) {
+      label =  message("since_previous_analysis");
       if (date != null) {
-        return message("since_previous_analysis_detailed", convertDate(date));
-      } else {
-        return message("since_previous_analysis");
+        label =  message("since_previous_analysis_detailed", convertDate(date));
       }
     } else if (mode.equals(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION)) {
+      label =  message("since_previous_version");
       if (param != null) {
-        return message("since_previous_version_detailed", param);
-      } else {
-        return message("since_previous_version");
+        label =  message("since_previous_version_detailed", param);
       }
     } else if (mode.equals(CoreProperties.TIMEMACHINE_MODE_DATE)) {
-      return message("since_x", convertDate(date));
+      label =  message("since_x", convertDate(date));
     } else {
       throw new IllegalStateException("This mode is not supported : " + mode);
     }
+    return label;
   }
 
   private String message(String key, Object... parameters) {

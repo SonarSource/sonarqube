@@ -44,7 +44,7 @@ public class DurationLabel {
     double days = hours / 24;
     double years = days / 365;
 
-    final String time;
+    String time = MessageFormat.format(this.years, Math.floor(years));
     if (seconds < 45) {
       time = this.seconds;
     } else if (seconds < 90) {
@@ -65,8 +65,6 @@ public class DurationLabel {
       time = MessageFormat.format(this.months, Math.floor(days / 30));
     } else if (years < 2) {
       time = this.year;
-    } else {
-      time = MessageFormat.format(this.years, Math.floor(years));
     }
 
     return join(prefixAgo, time, suffixAgo);
