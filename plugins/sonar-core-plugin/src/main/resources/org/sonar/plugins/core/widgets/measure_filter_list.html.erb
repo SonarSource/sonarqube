@@ -5,7 +5,7 @@
    if filter
      filter.load_criteria_from_data
      filter.set_criteria_value('display', 'list')
-     filter.set_criteria_value('pageSize', page_size) if page_size
+     filter.set_criteria_value('pageSize', page_size)
      filter.execute(self, :user => current_user)
      @widget_title = link_to h(filter.name), {:controller => 'measures', :action => 'filter', :id => filter.id, :display => 'list'}
 %>
