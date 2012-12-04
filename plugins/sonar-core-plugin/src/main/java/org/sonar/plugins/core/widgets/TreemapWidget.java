@@ -23,7 +23,6 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.web.*;
 
 @WidgetProperties({
-  @WidgetProperty(key = "heightInPercents", type= WidgetPropertyType.INTEGER, defaultValue = "50", description = "Height in percents of width"),
   @WidgetProperty(key = "sizeMetric", type= WidgetPropertyType.METRIC, defaultValue = CoreMetrics.NCLOC_KEY, description = "Default metric for size"),
   @WidgetProperty(key = "colorMetric", type= WidgetPropertyType.METRIC, defaultValue = CoreMetrics.VIOLATIONS_DENSITY_KEY, description = "Default metric for color")
 })
