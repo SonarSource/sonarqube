@@ -1,15 +1,8 @@
-<script>
-  if (supports_html5_storage()) {
-    var sonarRecentHistory = new Sonar.RecentHistory();
-  }
-</script>
-
 <li>
-  <a href="#" onclick="if (sonarRecentHistory) { sonarRecentHistory.populateRecentHistoryPanel(); }; $j('#user-panel').toggle(); return false;" class="link-more"><%= current_user ? current_user.name(true) : message('layout.user_panel.me') -%></a>
+  <a href="#" onclick="$j('#user-panel').toggle(); return false;" class="link-more"><%= current_user.name(true) -%></a>
   
   <div id="user-panel" style="display: none" onmouseout="$j(this).hide();" onmouseover="$j(this).show();">
     <div id="user-details">
-      <% if current_user %>
         <b><%= current_user.name(true) -%></b>
         <% if current_user.email && !current_user.email.blank? %>
           <br/>
@@ -19,26 +12,6 @@
         <a href="<%= ApplicationController.root_context -%>/account/index" class="link-action"><%= message('layout.user_panel.my_profile') -%></a>
         &nbsp;–&nbsp;
         <a href="<%= ApplicationController.root_context -%>/sessions/logout" class="link-action" onclick="if (sonarRecentHistory) { sonarRecentHistory.clear(); }"><%= message('layout.logout') -%></a>
-      <% else %>
-        <b><%= message('layout.user_panel.anonymous_user') -%></b>
-      <% end %>
     </div>
-    
-    <div id="recent-history" style="display: none">
-      <b><%= message('layout.user_panel.recent_history.title') -%></b>
-      <ul id="recent-history-list">
-      </ul>    	
-    </div>
-  </div>
   
 </li>
-
-<script>
-  if (sonarRecentHistory == null) {
-    $j('#recent-history').detach();
-  } else {
-    sonarRecentHistory.add('<%= @resource ? @resource.key : "" -%>', 
-                           '<%= @resource ? @resource.name(true) : "" -%>', 
-                           '<%= @resource ? Api::Utils.java_facade.getResourceType(@resource.qualifier).getIconPath() : "" -%>');
-  }
-</script>

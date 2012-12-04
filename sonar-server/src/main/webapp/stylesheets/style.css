@@ -2125,6 +2125,11 @@ table.nowrap td, td.nowrap, th.nowrap {
   z-index: 1000;
 }
 
+.dropdown-menu h2 {
+  padding: 0 8px;
+  font-size: 100%;
+}
+
 .dropdown-menu li {
   list-style-type: none !important;
   line-height: 24px;
@@ -2146,7 +2151,6 @@ table.nowrap td, td.nowrap, th.nowrap {
 
 .dropdown-menu a {
   text-decoration: none !important;
-  display: block !important;
 }
 
 .form-key-cell {

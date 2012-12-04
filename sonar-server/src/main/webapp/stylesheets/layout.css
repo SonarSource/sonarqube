@@ -148,6 +148,14 @@ body, a {
   padding: 0 0 0 10px;
 }
 
+#crumbs-ops li a {
+  text-decoration: none;
+}
+
+#crumbs-ops li a:hover, #crumbs-ops li a:focus {
+  text-decoration: underline;
+}
+
 #content {
   padding: 10px;
 }
@@ -184,25 +192,7 @@ body, a {
 }
 
 #recent-history {
-  border-top: 1px solid #ccc;
-}
-
-#recent-history li {
-  list-style-type: none !important;
-  padding: 2px 8px 2px 0 !important;
-  cursor: pointer !important;
-}
-
-#recent-history li:hover {
-  background-color: #4b9fd5 !important;
-}
-
-#recent-history li:hover a {
-  color: #fff !important;
-}
-
-#recent-history a {
-  text-decoration: none !important;
+  border-bottom: 1px solid #ccc;
 }
 
 #nonav {
