@@ -52,8 +52,6 @@
                 <a href="<%= ApplicationController.root_context -%>/dashboard/?did=<%= active_dashboard.dashboard_id -%>"><%= active_dashboard.dashboard.name(true) -%></a>
               </li>
             <% end %>
-            <li class="<%= 'active' if request.request_uri.include?('/dashboards/index') -%>">
-              <a href="<%= ApplicationController.root_context -%>/dashboards/index"><%= message('dashboard.manage_dashboards') -%></a></li>
 
             <% controller.java_facade.getPages(Navigation::SECTION_HOME, nil, nil, nil, nil).each do |page|
               page_url = (page.isController() ? page.getId() : "/plugins/home/#{page.getId()}")
@@ -79,12 +77,8 @@
                 <a href="<%= ApplicationController.root_context -%>/dashboard/index/<%= @project.id -%>?did=<%= active_dashboard.dashboard_id -%><%= "&"+period_param if period_param -%>"><%= active_dashboard.dashboard.name(true) -%></a>
               </li>
             <% end %>
-            <li class="<%= 'active' if request.request_uri.include?('/dashboards/index') -%>">
-              <a href="<%= ApplicationController.root_context -%>/dashboards/index?resource=<%= @project.id -%>"><%= message('dashboard.manage_dashboards') -%></a></li>            
-            
             <li class="spacer"></li>
             <li class="sidebar-title"><%= message('sidebar.tools') -%></li>
-            
             <li class="<%= 'active' if request.request_uri.include?('/components/index') -%>">
               <a href="<%= ApplicationController.root_context -%>/components/index/<%= @project.id -%>"><%= message('components.page') -%></a></li>
             <li class="<%= 'active' if request.request_uri.include?('/drilldown/violations') -%>">
