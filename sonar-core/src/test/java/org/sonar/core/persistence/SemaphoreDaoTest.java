@@ -190,7 +190,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   public void should_select_semaphore_return_current_semaphore_when_acquiring() throws Exception {
     dao.acquire("foo");
 
-    SemaphoreDto semaphore = dao.selectSemaphore("foo", getMyBatis().openSession());
+    SemaphoreDto semaphore = selectSemaphore("foo");
     assertThat(semaphore).isNotNull();
     assertThat(semaphore.getName()).isEqualTo("foo");
     assertThat(semaphore.getCreatedAt()).isNotNull();
