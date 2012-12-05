@@ -57,7 +57,7 @@ public interface DatabaseSemaphore extends BatchComponent, ServerComponent {
    */
   void release(String name);
 
-  static class Lock {
+  class Lock {
 
     private String name;
     private boolean acquired;
