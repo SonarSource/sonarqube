@@ -50,7 +50,7 @@ public class GlobalDefaultDashboardTest {
 
   @Test
   public void should_have_a_name() {
-    assertThat(template.getName()).isEqualTo("Projects");
+    assertThat(template.getName()).isEqualTo("Home");
   }
 
   @Test
@@ -61,11 +61,11 @@ public class GlobalDefaultDashboardTest {
   @Test
   public void should_create_global_dashboard_with_four_widgets() {
     when(dao.findSystemFilterByName(MyFavouritesFilter.NAME)).thenReturn(
-      new MeasureFilterDto().setId(100L)
-    );
+        new MeasureFilterDto().setId(100L)
+        );
     when(dao.findSystemFilterByName(ProjectFilter.NAME)).thenReturn(
-      new MeasureFilterDto().setId(101L)
-    );
+        new MeasureFilterDto().setId(101L)
+        );
     Dashboard dashboard = template.createDashboard();
     List<Widget> firstColumn = dashboard.getWidgetsOfColumn(1);
     assertThat(firstColumn).hasSize(2);
