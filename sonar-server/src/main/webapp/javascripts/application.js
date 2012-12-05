@@ -215,31 +215,30 @@ Treemap.prototype.initNodes = function () {
     });
   });
   $j('#tm-' + this.id).find('[rid]').each(function (index) {
-        this.on("mouseup", function (event) {
-              if (event.which == 1) {
-                var source = $j(this);
-                var rid = source.attr('rid');
-                var has_leaves = !!(source.attr('l'));
-                if (!has_leaves) {
-                  var context = new TreemapContext(rid, source.text());
-                  self.breadcrumb.push(context);
-                  self.load();
-                }
-              }
-            }
-        );
-        this.on("contextmenu", function (event) {
-          event.preventDefault();
-          // right click
-          if (self.breadcrumb.length > 1) {
-            self.breadcrumb.pop();
+      this.on("contextmenu", function (event) {
+        event.preventDefault();
+        // right click
+        if (self.breadcrumb.length > 1) {
+          self.breadcrumb.pop();
+          self.load();
+        } else {
+          location.reload();
+        }
+        return false;
+      });
+      this.on("click", function (event) {
+          var source = $j(this);
+          var rid = source.attr('rid');
+          var has_leaves = !!(source.attr('l'));
+          if (!has_leaves) {
+            var context = new TreemapContext(rid, source.text());
+            self.breadcrumb.push(context);
             self.load();
-          } else {
-            location.reload();
           }
-          return false;
-        });
-      }
+        }
+      );
+
+    }
   );
 };
 
@@ -258,23 +257,23 @@ Treemap.prototype.initNodes = function () {
             $dialog.removeClass('ui-widget-overlay');
             $dialog.html(html);
             $dialog
-                .dialog({
-                  width: ($link.attr('modal-width') || 540),
-                  draggable: false,
-                  autoOpen: false,
-                  modal: true,
-                  minHeight: 50,
-                  resizable: false,
-                  close: function () {
-                    $j('#modal').remove();
-                  }
-                });
+              .dialog({
+                width: ($link.attr('modal-width') || 540),
+                draggable: false,
+                autoOpen: false,
+                modal: true,
+                minHeight: 50,
+                resizable: false,
+                close: function () {
+                  $j('#modal').remove();
+                }
+              });
             $dialog.dialog("open");
           }).error(function () {
-                alert("Server error. Please contact your administrator.");
-              }).complete(function () {
-                $dialog.removeClass('ui-widget-overlay');
-              });
+              alert("Server error. Please contact your administrator.");
+            }).complete(function () {
+              $dialog.removeClass('ui-widget-overlay');
+            });
 
           $link.click(function () {
             $dialog.dialog('open');
