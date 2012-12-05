@@ -29,13 +29,13 @@
     }
     var hiddenConditionIndexes = [<%= hidden_condition_indexes.join(',') -%>];
     $j(document).ready(function () {
-      $j('#select-lang').select2({allowClear:true, width:'100%', placeholder:'<%= message 'measure_filter.languages' -%>'});
-      $j('#select-qualifiers').select2({allowClear:true, width:'100%', placeholder:'Resources'});
+      $j('#select-lang').select2({allowClear: true, width: '100%', placeholder: '<%= message 'measure_filter.languages' -%>'});
+      $j('#select-qualifiers').select2({allowClear: true, width: '100%', placeholder: 'Resources'});
       $j('#more-criteria')
-        .select2({allowClear:true, width:'100%', placeholder:'<%= message 'measure_filter.more_criteria' -%>'})
+        .select2({allowClear: true, width: '100%', placeholder: '<%= message 'measure_filter.more_criteria' -%>'})
         .on("change", function (e) {
           $j("#criteria-" + e.val).insertBefore($j("#more-td")).show();
-          if (e.val == 'lang') {
+          if (e.val == 'lang' || e.val == 'project') {
             $j("#select-" + e.val).select2("enable");
             $j("#select-" + e.val).select2("focus");
           }
@@ -67,10 +67,10 @@
        if @filter.display
     %>
       <input type="hidden" name="display" value="<%= @filter.display.key -%>"/>
-    <%
+      <%
          @filter.display.url_params.each do |k_v_array|
            if k_v_array[1].is_a?(String)
-    %>
+      %>
           <%= hidden_field_tag k_v_array[0], k_v_array[1] -%>
         <% else
              k_v_array[1].each do |string_val|
@@ -85,15 +85,15 @@
       <%= @filter.name.present? ? h(@filter.name) : 'New Search' -%>
     </li>
     <li>
-      <%= resource_select_tag 'baseId', :resource_type_property => 'supportsGlobalDashboards', :width => '100%', :selected_resource => @filter.base_resource, :placeholder => 'Path' -%>
-    </li>
-    <li>
       <%
          qualifiers = Api::Utils.java_facade.getResourceTypesForFilter().map do |resource_type|
            [message("qualifiers.#{resource_type.getQualifier()}"), resource_type.getQualifier()]
          end
       %>
       <%= select_tag 'qualifiers[]', options_for_select(qualifiers, @filter.criteria['qualifiers']||''), :multiple => true, :id => 'select-qualifiers' -%>
+    </li>
+    <li id="criteria-project" <%= "style='display:none'" unless @filter.base_resource -%>>
+      <%= resource_select_tag 'baseId', :resource_type_property => 'supportsGlobalDashboards', :width => '100%', :selected_resource => @filter.base_resource, :placeholder => message('project'), :html_id => 'select-project' -%>
     </li>
     <li id="criteria-lang" <%= "style='display:none'" unless @filter.criteria('languages') -%>>
       <% languages = [['', '']].concat(Api::Utils.languages.map { |lang| [lang.name, lang.key] }) %>
@@ -146,6 +146,7 @@
         <option value="lang"><%= message 'measure_filter.criteria.language' -%></option>
         <option value="metric"><%= message 'measure_filter.criteria.metric' -%></option>
         <option value="name"><%= message 'measure_filter.criteria.name' -%></option>
+        <option value="project"><%= message 'measure_filter.criteria.project' -%></option>
       </select>
     </li>
     <li>

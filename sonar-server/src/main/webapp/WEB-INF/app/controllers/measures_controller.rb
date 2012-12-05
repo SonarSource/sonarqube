@@ -22,6 +22,7 @@ class MeasuresController < ApplicationController
   # GET /measures/index
   def index
     @filter = MeasureFilter.new
+    @filter.set_criteria_value('qualifiers', 'TRK')
     render :action => 'search'
   end
 
