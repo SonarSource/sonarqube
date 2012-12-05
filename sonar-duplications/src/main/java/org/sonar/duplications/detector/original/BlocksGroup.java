@@ -151,13 +151,16 @@ final class BlocksGroup {
       if (c == 0) {
         c = block1.getIndexInFile() - indexCorrection - block2.getIndexInFile();
       }
-      if (c < 0) { // list1[i] < list2[j]
+      if (c < 0) {
+        // list1[i] < list2[j]
         break;
       }
-      if (c != 0) { // list1[i] != list2[j]
+      if (c != 0) {
+        // list1[i] != list2[j]
         j++;
       }
-      if (c == 0) { // list1[i] == list2[j]
+      if (c == 0) {
+        // list1[i] == list2[j]
         i++;
         j++;
       }
