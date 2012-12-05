@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
@@ -35,7 +36,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.test.IsMeasure;
-import org.sonar.plugins.core.timemachine.Periods;
+import org.sonar.core.timemachine.Periods;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,10 +55,13 @@ public class CheckAlertThresholdsTest {
   private CheckAlertThresholds decorator;
   private DecoratorContext context;
   private RulesProfile profile;
+
   private Measure measureClasses;
   private Measure measureCoverage;
   private Measure measureComplexity;
+
   private Resource project;
+  private Snapshot snapshot;
   private Periods periods;
   private I18n i18n;
 
@@ -76,8 +80,9 @@ public class CheckAlertThresholdsTest {
     when(context.getMeasure(CoreMetrics.COVERAGE)).thenReturn(measureCoverage);
     when(context.getMeasure(CoreMetrics.COMPLEXITY)).thenReturn(measureComplexity);
 
+    snapshot = mock(Snapshot.class);
     profile = mock(RulesProfile.class);
-    decorator = new CheckAlertThresholds(profile, periods, i18n);
+    decorator = new CheckAlertThresholds(snapshot, profile, periods, i18n);
     project = mock(Resource.class);
     when(project.getQualifier()).thenReturn(Qualifiers.PROJECT);
   }
@@ -257,7 +262,7 @@ public class CheckAlertThresholdsTest {
     measureClasses.setVariation1(40d);
 
     when(i18n.message(Mockito.any(Locale.class), Mockito.eq("metric.classes.name"), Mockito.isNull(String.class))).thenReturn("Classes");
-    when(periods.getLabel(1)).thenReturn("since someday");
+    when(periods.label(snapshot, 1)).thenReturn("since someday");
 
     when(profile.getAlerts()).thenReturn(Arrays.asList(
         new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_GREATER, null, "30", 1) // generates warning because classes increases of 40, which is greater than 30

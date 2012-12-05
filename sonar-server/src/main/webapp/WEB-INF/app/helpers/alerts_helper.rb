@@ -91,7 +91,8 @@ module AlertsHelper
   def period_select_options(alert, index)
     if index
       selected = (alert.period == index ? 'selected' : '')
-      "<option value='#{index}' #{selected}>&Delta; Period #{index}</option>"
+      period_label = Api::Utils.java_facade.getPeriodLabel(index)
+      "<option value='#{index}' #{selected}>&Delta; #{period_label}</option>"
     else
       selected = (alert.period ? 'selected' : '')
       "<option value='' #{selected}>#{message('absolute_value')}</option>"

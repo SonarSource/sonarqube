@@ -26,6 +26,7 @@ import org.sonar.api.batch.DecoratorBarriers;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
@@ -35,19 +36,21 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
-import org.sonar.plugins.core.timemachine.Periods;
+import org.sonar.core.timemachine.Periods;
 
 import java.util.List;
 import java.util.Locale;
 
 public class CheckAlertThresholds implements Decorator {
 
+  private final Snapshot snapshot;
   private final RulesProfile profile;
   private final Periods periods;
   private final I18n i18n;
 
 
-  public CheckAlertThresholds(RulesProfile profile, Periods periods, I18n i18n) {
+  public CheckAlertThresholds(Snapshot snapshot, RulesProfile profile, Periods periods, I18n i18n) {
+    this.snapshot = snapshot;
     this.profile = profile;
     this.periods = periods;
     this.i18n = i18n;
@@ -147,7 +150,7 @@ public class CheckAlertThresholds implements Decorator {
         .append(level.equals(Metric.Level.ERROR) ? alert.getValueError() : alert.getValueWarning());
 
     if (alertPeriod != null){
-      stringBuilder.append(" ").append(periods.getLabel(alertPeriod));
+      stringBuilder.append(" ").append(periods.label(snapshot, alertPeriod));
     }
 
     return stringBuilder.toString();

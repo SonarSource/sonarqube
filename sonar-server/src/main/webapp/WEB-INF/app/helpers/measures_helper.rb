@@ -92,26 +92,10 @@ module MeasuresHelper
   end
 
   def period_names
-    p1=Property.value('sonar.timemachine.period1', nil, 'previous_analysis')
-    p2=Property.value('sonar.timemachine.period2', nil, '5')
-    p3=Property.value('sonar.timemachine.period3', nil, '30')
-    [period_name(p1), period_name(p2), period_name(p3)]
+    period_name1 = Api::Utils.java_facade.getPeriodLabel(1)
+    period_name2 = Api::Utils.java_facade.getPeriodLabel(2)
+    period_name3 = Api::Utils.java_facade.getPeriodLabel(3)
+    [period_name1, period_name2, period_name3]
   end
 
-  def period_name(property)
-    if property=='previous_analysis'
-      message('delta_since_previous_analysis')
-    elsif property=='previous_version'
-      message('delta_since_previous_version')
-    elsif property =~ /^[\d]+(\.[\d]+){0,1}$/
-      # is integer
-      message('delta_over_x_days', :params => property)
-    elsif property =~ /\d{4}-\d{2}-\d{2}/
-      message('delta_since', :params => property)
-    elsif !property.blank?
-      message('delta_since_version', :params => property)
-    else
-      nil
-    end
-  end
 end

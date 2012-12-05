@@ -57,6 +57,7 @@ import org.sonar.core.persistence.DryRunDatabaseFactory;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.core.resource.ResourceKeyUpdaterDao;
+import org.sonar.core.timemachine.Periods;
 import org.sonar.core.workflow.WorkflowEngine;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.configuration.Backup;
@@ -81,6 +82,7 @@ import javax.annotation.Nullable;
 import java.net.InetAddress;
 import java.sql.Connection;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -523,5 +525,13 @@ public final class JRubyFacade {
 
   public byte[] createDatabaseForDryRun() {
     return get(DryRunDatabaseFactory.class).createDatabaseForDryRun();
+  }
+
+  public String getPeriodLabel(int periodIndex) {
+    return get(Periods.class).label(periodIndex);
+  }
+
+  public String getPeriodLabel(String mode, String param, Date date) {
+    return get(Periods.class).label(mode, param, date);
   }
 }

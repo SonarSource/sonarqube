@@ -82,37 +82,10 @@ module ApplicationHelper
 
   def period_label(snapshot, period_index)
     return nil if snapshot.nil? || snapshot.project_snapshot.nil?
-    mode=snapshot.period_mode(period_index)
-    mode_param=snapshot.period_param(period_index)
-    date=snapshot.period_datetime(period_index)
-
-    label=nil
-    if mode
-      if mode=='days'
-        label = message('over_x_days', :params => mode_param.to_s)
-      elsif mode=='version'
-        if date
-          label = message('since_version_detailed', :params => [mode_param.to_s, date.strftime("%Y %b %d").to_s])
-        else
-          label = message('since_version', :params => mode_param.to_s)
-        end
-      elsif mode=='previous_analysis'
-        if !date.nil?
-          label = message('since_previous_analysis_detailed', :params => date.strftime("%Y %b %d").to_s)
-        else
-          label = message('since_previous_analysis')
-        end
-      elsif mode=='previous_version'
-        unless mode_param.nil?
-          label = message('since_previous_version_detailed', :params => mode_param.to_s)
-        else
-          label = message('since_previous_version')
-        end
-      elsif mode=='date'
-        label = message('since_x', :params => date.strftime("%Y %b %d").to_s)
-      end
-    end
-    label
+    mode = snapshot.period_mode(period_index)
+    mode_param = snapshot.period_param(period_index)
+    date = snapshot.period_datetime(period_index)
+    Api::Utils.java_facade.getPeriodLabel(mode, mode_param, date) if mode
   end
 
   def configuration(key, default = nil)

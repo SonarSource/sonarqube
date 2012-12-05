@@ -1,0 +1,156 @@
+/*
+ * Sonar, open source software quality management tool.
+ * Copyright (C) 2008-2012 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * Sonar is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * Sonar is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Sonar; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ */
+package org.sonar.core.timemachine;
+
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.BatchExtension;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
+import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.i18n.I18n;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
+public class Periods implements BatchExtension {
+
+  private final Settings settings;
+  private final I18n i18n;
+
+  public Periods(Settings settings, I18n i18n) {
+    this.settings = settings;
+    this.i18n = i18n;
+  }
+
+  public String label(Snapshot snapshot, int periodIndex) {
+    String mode = snapshot.getPeriodMode(periodIndex);
+    String param = snapshot.getPeriodModeParameter(periodIndex);
+    Date date = snapshot.getPeriodDate(periodIndex);
+
+    return label(mode, param, date);
+  }
+
+  public String label(int periodIndex) {
+    String periodProperty = settings.getString(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + periodIndex);
+    PeriodParameters periodParameters = new PeriodParameters(periodProperty);
+
+    String mode = periodParameters.getMode();
+    String param = periodParameters.getParam();
+    Date date = periodParameters.getDate();
+
+    return label(mode, param, date);
+  }
+
+  public String label(String mode, String param, Date date) {
+    String label = "";
+    if (CoreProperties.TIMEMACHINE_MODE_DAYS.equals(mode)) {
+      label = message("over_x_days", param);
+    } else if (CoreProperties.TIMEMACHINE_MODE_VERSION.equals(mode)) {
+      label = message("since_version", param);
+      if (date != null) {
+        label = message("since_version_detailed", param, convertDate(date));
+      }
+    } else if (CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS.equals(mode)) {
+      label = message("since_previous_analysis");
+      if (date != null) {
+        label = message("since_previous_analysis_detailed", convertDate(date));
+      }
+    } else if (CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION.equals(mode)) {
+      label = message("since_previous_version");
+      if (param != null) {
+        label = message("since_previous_version_detailed", param);
+      }
+    } else if (CoreProperties.TIMEMACHINE_MODE_DATE.equals(mode)) {
+      label = message("since_x", convertDate(date));
+    } else {
+      throw new IllegalArgumentException("This mode is not supported : " + mode);
+    }
+    return label;
+  }
+
+  private String message(String key, Object... parameters) {
+    return i18n.message(getLocale(), key, null, parameters);
+  }
+
+  private String convertDate(Date date) {
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy MMM dd");
+    return dateFormat.format(date);
+  }
+
+  private Locale getLocale() {
+    return Locale.ENGLISH;
+  }
+
+  private class PeriodParameters {
+
+    private String mode;
+    private String param;
+    private Date date;
+
+    public PeriodParameters(String periodProperty) {
+      if (CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS.equals(periodProperty) || CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION.equals(periodProperty)) {
+        mode = periodProperty;
+      } else if (findByDays(periodProperty) != null) {
+        mode = CoreProperties.TIMEMACHINE_MODE_DAYS;
+        param = Integer.toString(findByDays(periodProperty));
+      } else if (findByDate(periodProperty) != null) {
+        mode = CoreProperties.TIMEMACHINE_MODE_DATE;
+        date = findByDate(periodProperty);
+      } else if (StringUtils.isNotBlank(periodProperty)) {
+        mode = CoreProperties.TIMEMACHINE_MODE_VERSION;
+        param = periodProperty;
+      } else {
+        throw new IllegalArgumentException("Unknown period property : " + periodProperty);
+      }
+    }
+
+    private Integer findByDays(String property) {
+      try {
+        return Integer.parseInt(property);
+      } catch (NumberFormatException e) {
+        return null;
+      }
+    }
+
+    private Date findByDate(String property) {
+      SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+      try {
+        return format.parse(property);
+      } catch (ParseException e) {
+        return null;
+      }
+    }
+
+    public String getMode() {
+      return mode;
+    }
+
+    public String getParam() {
+      return param;
+    }
+
+    public Date getDate() {
+      return date;
+    }
+  }
+
+}
