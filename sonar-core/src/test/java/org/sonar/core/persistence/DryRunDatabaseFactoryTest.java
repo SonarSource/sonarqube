@@ -63,7 +63,7 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
 
     when(serverFileSystem.getTempDir()).thenReturn(temporaryFolder.getRoot());
 
-    byte[] database = localDatabaseFactory.createDatabaseForDryRun(1);
+    byte[] database = localDatabaseFactory.createDatabaseForDryRun();
     dataSource = createDatabase(database);
 
     assertThat(rowCount("metrics")).isEqualTo(2);

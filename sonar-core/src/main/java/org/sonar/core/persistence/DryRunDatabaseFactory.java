@@ -46,14 +46,14 @@ public class DryRunDatabaseFactory implements ServerComponent {
     this.serverFileSystem = serverFileSystem;
   }
 
-  public byte[] createDatabaseForDryRun(Integer resourceId) {
+  public byte[] createDatabaseForDryRun() {
     String name = serverFileSystem.getTempDir().getAbsolutePath() + "db-" + System.nanoTime();
 
     try {
       DataSource source = database.getDataSource();
       BasicDataSource destination = create(DIALECT, DRIVER, USER, PASSWORD, URL + name);
 
-      copy(source, destination, resourceId);
+      copy(source, destination);
       close(destination);
 
       return dbFileContent(name);
@@ -62,7 +62,7 @@ public class DryRunDatabaseFactory implements ServerComponent {
     }
   }
 
-  private void copy(DataSource source, DataSource dest, Integer resourceId) {
+  private void copy(DataSource source, DataSource dest) {
     new DbTemplate()
         .copyTable(source, dest, "active_rules")
         .copyTable(source, dest, "active_rule_parameters")
