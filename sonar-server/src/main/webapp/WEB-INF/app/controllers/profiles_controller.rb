@@ -511,6 +511,6 @@ class ProfilesController < ApplicationController
   end
 
   def set_profile_breadcrumbs
-    add_breadcrumbs ROOT_BREADCRUMB, Api::Utils.language_name(@profile.language), @profile.name
+    add_breadcrumbs ROOT_BREADCRUMB, Api::Utils.language_name(@profile.language), {:name => @profile.name, :url => {:controller => 'rules_configuration', :action => 'index', :id => @profile.id}}
   end
 end

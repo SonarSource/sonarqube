@@ -39,7 +39,7 @@ class RulesConfigurationController < ApplicationController
     require_parameters :id
 
     @profile = Profile.find(params[:id])
-    add_breadcrumbs ProfilesController::ROOT_BREADCRUMB, Api::Utils.language_name(@profile.language), @profile.name
+    add_breadcrumbs ProfilesController::ROOT_BREADCRUMB, Api::Utils.language_name(@profile.language), {:name => @profile.name, :url => {:controller => 'rules_configuration', :action => 'index', :id => @profile.id}}
 
     init_params()
 
