@@ -209,6 +209,7 @@ public final class XMLProfileParser implements ServerComponent {
       SMInputCursor alertCursor = alertsCursor.childElementCursor();
 
       String metricKey = null, operator = "", valueError = "", valueWarning = "";
+      Integer period = null;
 
       while (alertCursor.getNext() != null) {
         String nodeName = alertCursor.getLocalName();
@@ -216,7 +217,12 @@ public final class XMLProfileParser implements ServerComponent {
         if (StringUtils.equals("metric", nodeName)) {
           metricKey = StringUtils.trim(alertCursor.collectDescendantText(false));
 
-        } else if (StringUtils.equals("operator", nodeName)) {
+        } else if (StringUtils.equals("period", nodeName)) {
+          String periodParameter = StringUtils.trim(alertCursor.collectDescendantText(false));
+          if (StringUtils.isNotBlank(periodParameter)) {
+            period = Integer.parseInt(periodParameter);
+          }
+        }else if (StringUtils.equals("operator", nodeName)) {
           operator = StringUtils.trim(alertCursor.collectDescendantText(false));
 
         } else if (StringUtils.equals("warning", nodeName)) {
@@ -231,7 +237,7 @@ public final class XMLProfileParser implements ServerComponent {
       if (metric == null) {
         messages.addWarningText("Metric '" + metricKey + "' does not exist");
       } else {
-        Alert alert = new Alert(profile, metric, operator, valueError, valueWarning);
+        Alert alert = new Alert(profile, metric, operator, valueError, valueWarning, period);
         profile.getAlerts().add(alert);
       }
     }

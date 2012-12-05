@@ -30,11 +30,7 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
 
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.internal.matchers.StringContains.containsString;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -46,11 +42,12 @@ public class XMLProfileParserTest {
     ValidationMessages validation = ValidationMessages.create();
     RulesProfile profile = parse("importProfile.xml", validation);
 
-    assertThat(profile.getLanguage(), is("java"));
-    assertThat(profile.getName(), is("sonar way"));
-    assertThat(validation.hasErrors(), is(false));
-    assertNotNull(profile);
-    assertThat(profile.getActiveRule("checkstyle", "IllegalRegexp").getSeverity(), is(RulePriority.CRITICAL));
+    assertThat(profile.getLanguage()).isEqualTo("java");
+    assertThat(profile.getName()).isEqualTo("sonar way");
+    assertThat(validation.hasErrors()).isFalse();
+    assertThat(profile).isNotNull();
+
+    assertThat(profile.getActiveRule("checkstyle", "IllegalRegexp").getSeverity()).isEqualTo(RulePriority.CRITICAL);
   }
 
   @Test
@@ -58,8 +55,8 @@ public class XMLProfileParserTest {
     ValidationMessages validation = ValidationMessages.create();
     parse("nameAndLanguageShouldBeMandatory.xml", validation);
 
-    assertThat(validation.getErrors().size(), is(2));
-    assertThat(validation.getErrors().get(0), containsString(""));
+    assertThat(validation.getErrors()).hasSize(2);
+    assertThat(validation.getErrors().get(0)).contains("");
   }
 
   @Test
@@ -67,11 +64,12 @@ public class XMLProfileParserTest {
     ValidationMessages validation = ValidationMessages.create();
     RulesProfile profile = parse("importProfileWithRuleParameters.xml", validation);
 
-    assertThat(validation.hasErrors(), is(false));
-    assertThat(validation.hasWarnings(), is(false));
+    assertThat(validation.hasErrors()).isFalse();
+    assertThat(validation.hasWarnings()).isFalse();
+
     ActiveRule rule = profile.getActiveRule("checkstyle", "IllegalRegexp");
-    assertThat(rule.getParameter("format"), is("foo"));
-    assertThat(rule.getParameter("message"), is("with special characters < > &"));
+    assertThat(rule.getParameter("format")).isEqualTo("foo");
+    assertThat(rule.getParameter("message")).isEqualTo("with special characters < > &");
   }
 
   @Test
@@ -79,9 +77,9 @@ public class XMLProfileParserTest {
     ValidationMessages validation = ValidationMessages.create();
     RulesProfile profile = parse("importProfileWithUnknownRuleParameter.xml", validation);
 
-    assertThat(validation.getWarnings().size(), is(1));
+    assertThat(validation.getWarnings()).hasSize(1);
     ActiveRule rule = profile.getActiveRule("checkstyle", "IllegalRegexp");
-    assertThat(rule.getParameter("unknown"), nullValue());
+    assertThat(rule.getParameter("unknown")).isNull();
   }
 
   @Test
@@ -89,12 +87,21 @@ public class XMLProfileParserTest {
     ValidationMessages validation = ValidationMessages.create();
     RulesProfile profile = parse("importProfileWithAlerts.xml", validation);
 
-    assertThat(profile.getAlerts().size(), is(1));
+    assertThat(profile.getAlerts()).hasSize(2);
+
     Alert alert = profile.getAlerts().get(0);
-    assertThat(alert.getMetric().getKey(), is("complexity"));
-    assertThat(alert.getOperator(), is(Alert.OPERATOR_GREATER));
-    assertThat(alert.getValueWarning(), is("10"));
-    assertThat(alert.getValueError(), is("12"));
+    assertThat(alert.getMetric().getKey()).isEqualTo("lines");
+    assertThat(alert.getOperator()).isEqualTo(Alert.OPERATOR_SMALLER);
+    assertThat(alert.getValueWarning()).isEqualTo("0");
+    assertThat(alert.getValueError()).isEqualTo("10");
+    assertThat(alert.getPeriod()).isNull();
+
+    alert = profile.getAlerts().get(1);
+    assertThat(alert.getMetric().getKey()).isEqualTo("complexity");
+    assertThat(alert.getOperator()).isEqualTo(Alert.OPERATOR_GREATER);
+    assertThat(alert.getValueWarning()).isEqualTo("10");
+    assertThat(alert.getValueError()).isEqualTo("12");
+    assertThat(alert.getPeriod()).isEqualTo(1);
   }
 
   @Test
@@ -103,7 +110,7 @@ public class XMLProfileParserTest {
     RulesProfile profile = new XMLProfileParser(newRuleFinder(), null)
         .parseResource(getClass().getClassLoader(), getResourcePath("importProfileWithAlerts.xml"), validation);
 
-    assertThat(profile.getAlerts().size(), is(0));
+    assertThat(profile.getAlerts()).isEmpty();
   }
 
   private RulesProfile parse(String resource, ValidationMessages validation) {

@@ -12,6 +12,12 @@
   </rules>
   <alerts>
     <alert>
+      <metric>lines</metric>
+      <operator>&lt;</operator>
+      <warning>0</warning>
+      <error>10</error>
+    </alert>
+    <alert>
       <metric>complexity</metric>
       <period>1</period>
       <operator>&gt;</operator>
