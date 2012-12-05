@@ -1,7 +1,7 @@
 <% if logged_in? || @snapshot %>
 <div class="line-block">
   <% if logged_in? %>
-    <ul class="operations">
+    <ul class="operations noprint">
       <% if back %>
         <li><%= link_to message('dashboard.back_to_dashboard'), dashboard_action(:index) -%></li>
       <% else %>

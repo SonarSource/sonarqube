@@ -19,7 +19,7 @@
     left: 0;
   }
 
-  #hd {
+  #hd, #sidebar, #crumbs {
     display: none;
   }
 
