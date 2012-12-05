@@ -174,6 +174,10 @@ class MeasureFilter < ActiveRecord::Base
     end
   end
 
+  def system?
+    user_id == nil
+  end
+
   # ==== Options
   # :user : the authenticated user
   def execute(controller, options={})
@@ -279,6 +283,8 @@ class MeasureFilter < ActiveRecord::Base
     if shared
       count = MeasureFilter.count('id', :conditions => ['name=? and shared=? and user_id!=?', name, true, user_id])
       errors.add_to_base('Other users already shared filters with the same name') if count>0
+    elsif system?
+      errors.add_to_base("System filters can't be unshared.")
     end
   end
 end

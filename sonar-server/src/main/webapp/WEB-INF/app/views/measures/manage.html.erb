@@ -5,10 +5,10 @@
         var filterId = $j(this).attr('filter-id');
         var star = $j(this);
         $j.ajax({
-          type:'POST',
-          url:baseUrl + "/measures/toggle_fav",
-          data:{id:filterId},
-          success:function (data) {
+          type: 'POST',
+          url: baseUrl + "/measures/toggle_fav",
+          data: {id: filterId},
+          success: function (data) {
             if (data == 'true') {
               star.removeClass('notfav').addClass('fav');
               star.attr('title', '<%= escape_javascript message('click_to_remove_from_favourites') -%>');
@@ -42,7 +42,7 @@
         <tbody>
         <% if current_user.measure_filters.empty? %>
           <tr class="even">
-            <td colspan="4"><%= message('filters.no_filters') -%></td>
+            <td colspan="4"><%= message('measure_filter.no_filters') -%></td>
           </tr>
         <% else %>
           <% current_user.measure_filters.each do |filter| %>
@@ -116,6 +116,18 @@
               </td>
               <td class="thin nowrap right">
                 <a id="copy-<%= filter.name.parameterize -%>" href="<%= ApplicationController.root_context -%>/measures/copy_form/<%= filter.id -%>" class="link-action open-modal"><%= message('copy') -%></a>
+                <% if filter.system? && has_role?(:admin) %>
+                  &nbsp;
+                  <a id="edit_system_<%= filter.name.parameterize -%>" href="<%= ApplicationController.root_context -%>/measures/edit_form/<%= filter.id -%>" class="link-action open-modal"><%= message('edit') -%></a>
+                  &nbsp;
+                  <%= link_to_action message('delete'), "#{ApplicationController.root_context}/measures/delete/#{filter.id}",
+                                     :class => 'link-action link-red',
+                                     :id => "delete_system_#{filter.name.parameterize}",
+                                     :confirm_button => message('delete'),
+                                     :confirm_title => 'measure_filter.delete_confirm_title',
+                                     :confirm_msg => 'measure_filter.are_you_sure_want_delete_filter_x',
+                                     :confirm_msg_params => [filter.name] -%>
+                <% end %>
               </td>
             </tr>
           <% end %>
