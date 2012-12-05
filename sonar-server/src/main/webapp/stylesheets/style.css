@@ -560,6 +560,7 @@ div.operations {
 ul.operations {
   float: right;
   height: 20px;
+  line-height: 20px;
   list-style-type: none;
   margin: 0;
   background-color: #EFEFEF;
@@ -572,7 +573,7 @@ ul.operations {
 ul.operations li {
   float: left;
   margin: 0;
-  padding: 2px 7px;
+  padding: 0 8px;
   font-size: 85%;
   border-right: 1px solid #cdcdcd;
 }
@@ -1992,8 +1993,11 @@ table.without-header {
 
 /* GENERIC STYLES */
 .line-block {
-  display: inline-block;
+  display: block;
   width: 100%;
+  height: 24px;
+  line-height: 24px;
+  margin-bottom: 5px;
 }
 
 .line-info {
