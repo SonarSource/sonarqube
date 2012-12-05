@@ -23,6 +23,7 @@ class MeasureFilterDisplayTreemap < MeasureFilterDisplay
 
   KEY = :treemap
   PROPERTY_KEYS = Set.new(['tmSize', 'tmColor'])
+  MAX_RESULTS = 1000
   attr_reader :id, :size, :size_metric, :color_metric
 
   def initialize(filter, options)
@@ -35,7 +36,7 @@ class MeasureFilterDisplayTreemap < MeasureFilterDisplay
 
     filter.set_criteria_value('sort', "metric:#{@size_metric.key}") if @size_metric
     filter.set_criteria_value('asc', 'true')
-    filter.pagination.per_page = 500
+    filter.pagination.per_page = MAX_RESULTS
     filter.pagination.page = 1
   end
 

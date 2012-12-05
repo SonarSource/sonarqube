@@ -29,7 +29,7 @@
   </div>
   <div class="page-split-right">
     <div id="content">
-      <h2>My Filters</h2>
+      <h2><%= message 'measure_filter.manage.my_filters' -%></h2>
       <table class="data marginbottom10" id="my-filters">
         <thead>
         <tr>
@@ -58,9 +58,9 @@
               </td>
               <td>
                 <% if filter.shared %>
-                  Shared with all users
+                  <%= message 'measure_filter.shared_with_all_users' -%>
                 <% else %>
-                  Private
+                  <%= message 'measure_filter.private' -%>
                 <% end %>
               </td>
               <td class="thin nowrap right">
@@ -84,7 +84,7 @@
 
       <br/>
 
-      <h2>Shared Filters</h2>
+      <h2><%= message 'measure_filter.manage.shared_filters' -%></h2>
       <table class="data" id="shared-filters">
         <thead>
         <tr>

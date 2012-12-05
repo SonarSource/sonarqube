@@ -29,10 +29,10 @@
     }
     var hiddenConditionIndexes = [<%= hidden_condition_indexes.join(',') -%>];
     $j(document).ready(function () {
-      $j('#select-lang').select2({allowClear:true, width:'100%', placeholder:'Languages'});
+      $j('#select-lang').select2({allowClear:true, width:'100%', placeholder:'<%= message 'measure_filter.languages' -%>'});
       $j('#select-qualifiers').select2({allowClear:true, width:'100%', placeholder:'Resources'});
       $j('#more-criteria')
-        .select2({allowClear:true, width:'100%', placeholder:'+ More Criteria'})
+        .select2({allowClear:true, width:'100%', placeholder:'<%= message 'measure_filter.more_criteria' -%>'})
         .on("change", function (e) {
           $j("#criteria-" + e.val).insertBefore($j("#more-td")).show();
           if (e.val == 'lang') {
@@ -108,7 +108,7 @@
       <input type="text" name="keyRegexp" value="<%= h @filter.criteria['keyRegexp'] -%>">
     </li>
     <li id="criteria-fav" <%= "style='display:none'" unless @filter.criteria('onFavourites') -%>>
-      <%= message 'measure_filter.only_favourites' %>:<br>
+      <%= message 'measure_filter.criteria.only_favourites' %>:<br>
       <%= check_box_tag 'onFavourites', 'true', @filter.criteria['onFavourites']=='true' -%>
     </li>
 
@@ -123,36 +123,36 @@
       </li>
     <% end %>
     <li id="criteria-date" <%= "style='display:none'" unless @filter.criteria('fromDate') || @filter.criteria('toDate') -%>>
-      From date:
+      <%= message 'measure_filter.criteria.age.from_date' -%>:
       <input type="text" name="fromDate" value="<%= @filter.criteria['fromDate'] -%>" size="10" maxlength="10">
       <br>
-      To date:
+      <%= message 'measure_filter.criteria.age.to_date' -%>:
       <input type="text" name="toDate" value="<%= @filter.criteria['toDate'] -%>" size="10" maxlength="10"><br>
-      <span class="note">year-month-day (2012-01-31)</span>
+      <span class="note"><%= message 'measure_filter.criteria.age.note' -%>:</span>
     </li>
     <li id="criteria-age" <%= "style='display:none'" unless @filter.criteria('ageMinDays') || @filter.criteria('ageMaxDays') -%>>
-      More than
-      <input type="text" name="ageMinDays" value="<%= @filter.criteria['ageMinDays'] -%>" size="3"> days ago
-      <br>Within the last
-      <input type="text" name="ageMaxDays" value="<%= @filter.criteria['ageMaxDays'] -%>" size="3"> days
+      <%= message 'measure_filter.criteria.age.more_than' -%>:
+      <input type="text" name="ageMinDays" value="<%= @filter.criteria['ageMinDays'] -%>" size="3"> <%= message 'measure_filter.criteria.age.days_ago' -%>
+      <br><%= message 'measure_filter.criteria.age.within_last' -%>:
+      <input type="text" name="ageMaxDays" value="<%= @filter.criteria['ageMaxDays'] -%>" size="3"> <%= message 'measure_filter.criteria.age.days' -%>
     </li>
     <li id="more-td">
       <select id="more-criteria">
         <option value=""></option>
-        <option value="age">Age</option>
-        <option value="date">Date</option>
-        <option value="fav">Favourites Only</option>
-        <option value="key">Key</option>
-        <option value="lang">Language</option>
-        <option value="metric">Metric</option>
-        <option value="name">Name</option>
+        <option value="age"><%= message 'measure_filter.criteria.age' -%></option>
+        <option value="date"><%= message 'measure_filter.criteria.date' -%></option>
+        <option value="fav"><%= message 'measure_filter.criteria.only_favourites' -%></option>
+        <option value="key"><%= message 'measure_filter.criteria.key' -%></option>
+        <option value="lang"><%= message 'measure_filter.criteria.language' -%></option>
+        <option value="metric"><%= message 'measure_filter.criteria.metric' -%></option>
+        <option value="name"><%= message 'measure_filter.criteria.name' -%></option>
       </select>
     </li>
     <li>
       <input type="button" name="search" value="<%= message('search_verb') -%>" onclick="submitSearch()">
     </li>
     <li>
-      <a href="<%= ApplicationController.root_context -%>/measures" class="link-action">New search</a>
+      <a href="<%= ApplicationController.root_context -%>/measures" class="link-action"><%= message 'measure_filter.new_search' -%></a>
       <% if logged_in? %>
         <% if @filter.id==nil || @filter.user_id==current_user.id %>
           - <a id="save" href="<%= url_for params.merge({:action => 'save_form', :id => @filter.id}) -%>" class="link-action open-modal"><%= message('save') -%></a>

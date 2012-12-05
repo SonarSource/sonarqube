@@ -80,10 +80,12 @@ class MeasureFilter < ActiveRecord::Base
     @metrics ||= []
   end
 
-  def metrics=(array)
-    @metrics = array
+  # Set the metrics of the result measures to load. Array of Metric or String.
+  def metrics=(array=[])
+    @metrics = array.map{|m| m.is_a?(Metric) ? m : Metric.by_key(m)}.compact
   end
 
+  # Enable the loading of result links. False by default
   def require_links=(flag)
     @require_links=flag
   end

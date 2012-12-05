@@ -17,7 +17,7 @@
               </li>
             <% end %>
             <li class="last">
-              Display as:
+              <%= message 'measure_filter.display_as' -%>:
               <% MeasureFilterDisplay.keys.each do |display_key| %>
                 <%= link_to_if display_key!=@filter.display.key, message("measure_filter.display.#{display_key}"), params.merge(:action => 'search', :display => display_key, :id => @filter.id) -%>
               <% end %>
