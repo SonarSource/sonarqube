@@ -58,11 +58,6 @@ class ComparisonController < ApplicationController
     @metrics = Metric.by_keys(metrics)
     
     @metric_to_choose = Metric.all.select {|m| m.display? && !@metrics.include?(m)}.sort_by(&:short_name)
-    
-    # UI breadcrumb and permalink
-    unless @snapshots.empty?
-      @permalink = url_for :controller => 'comparison', :action => 'index', :sids => @snapshots.map {|s| s.id.to_s}.join(','), :metrics => @metrics.map {|m| m.key}.join(',')
-    end
   end
   
   def versions
