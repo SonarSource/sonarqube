@@ -95,7 +95,7 @@ module AlertsHelper
       "<option value='#{index}' #{selected}>&Delta; #{period_label}</option>"
     else
       selected = (alert.period ? 'selected' : '')
-      "<option value='' #{selected}>#{message('absolute_value')}</option>"
+      "<option value='' #{selected}>#{message('value')}</option>"
     end
   end
 
