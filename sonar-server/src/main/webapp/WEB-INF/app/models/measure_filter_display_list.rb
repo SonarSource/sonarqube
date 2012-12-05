@@ -37,14 +37,18 @@ class MeasureFilterDisplayList < MeasureFilterDisplay
       if @metric
         label = @metric.abbreviation
       else
-        label = Api::Utils.message("measure_filter.short_col.#{@key}", :default => '')
-        label = Api::Utils.message("measure_filter.col.#{@key}", :default => @key) if label==''
+        label = Api::Utils.message("measure_filter.abbr.#{@key}", :default => @key)
       end
       label
     end
 
     def tooltip
-      @metric.description if @metric
+      if @metric
+        tooltip = @metric.description
+      else
+        tooltip = Api::Utils.message("measure_filter.col.#{@key}", :default => @key)
+      end
+      tooltip
     end
 
     def align
@@ -60,7 +64,7 @@ class MeasureFilterDisplayList < MeasureFilterDisplay
     end
 
     def row_css
-      'nowrap' unless @metric && !@metric.numeric?
+      'nowrap' unless (@metric && !@metric.numeric?) || @key=='description'
     end
 
     def sort?
