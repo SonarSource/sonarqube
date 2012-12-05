@@ -106,7 +106,7 @@ public final class ResourceTypeTree implements BatchExtension, ServerExtension {
     public ResourceTypeTree build() {
       Collection<String> children = relations.values();
       for (ResourceType type : types) {
-        if (!children.contains(type)) {
+        if (!children.contains(type.getQualifier())) {
           root = type;
           break;
         }
