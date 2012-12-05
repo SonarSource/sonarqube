@@ -55,7 +55,8 @@ public final class SuffixTreeCloneDetectionAlgorithm {
     String originResourceId = fileBlocks.iterator().next().getResourceId();
     Map<String, List<Block>> fromIndex = retrieveFromIndex(index, originResourceId, hashes);
 
-    if (fromIndex.isEmpty() && hashes.size() == fileBlocks.size()) { // optimization for the case when there is no duplications
+    if (fromIndex.isEmpty() && hashes.size() == fileBlocks.size()) {
+      // optimization for the case when there is no duplications
       return null;
     }
 

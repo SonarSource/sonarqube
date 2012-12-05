@@ -76,12 +76,15 @@ public final class ContainsInComparator implements Comparator<ClonePart> {
     if (c == 0) {
       if (part1.getUnitStart() <= part2.getUnitStart()) {
         if (part2.getUnitStart() + l2 <= part1.getUnitStart() + l1) {
-          return 0; // part1 contains part2
+          // part1 contains part2
+          return 0;
         } else {
-          return -1; // SortedListsUtils#contains should continue search
+          // SortedListsUtils#contains should continue search
+          return -1;
         }
       } else {
-        return 1; // unitStart of part1 is less than unitStart of part2 - SortedListsUtils#contains should stop search
+        // unitStart of part1 is less than unitStart of part2 - SortedListsUtils#contains should stop search
+        return 1;
       }
     } else {
       return c;

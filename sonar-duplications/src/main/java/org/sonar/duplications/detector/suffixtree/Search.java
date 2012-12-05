@@ -68,11 +68,13 @@ public final class Search {
     while (!stack.isEmpty()) {
       Node node = stack.removeLast();
       node.startSize = list.size();
-      if (node.getEdges().isEmpty()) { // leaf
+      if (node.getEdges().isEmpty()) {
+        // leaf
         list.add(node.depth);
         node.endSize = list.size();
       } else {
-        if (!node.equals(tree.getRootNode())) { // inner node = not leaf and not root
+        if (!node.equals(tree.getRootNode())) {
+          // inner node = not leaf and not root
           innerNodes.add(node);
         }
         for (Edge edge : node.getEdges()) {

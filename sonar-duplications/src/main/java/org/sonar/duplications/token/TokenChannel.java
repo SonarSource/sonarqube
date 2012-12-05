@@ -44,13 +44,15 @@ class TokenChannel extends Channel<TokenQueue> {
   @Override
   public boolean consume(CodeReader code, TokenQueue output) {
     if (code.popTo(matcher, tmpBuilder) > 0) {
-      Cursor previousCursor = code.getPreviousCursor(); // see SONAR-2499
+      // see SONAR-2499
+      Cursor previousCursor = code.getPreviousCursor();
       if (normalizationValue != null) {
         output.add(new Token(normalizationValue, previousCursor.getLine(), previousCursor.getColumn()));
       } else {
         output.add(new Token(tmpBuilder.toString(), previousCursor.getLine(), previousCursor.getColumn()));
       }
-      tmpBuilder.setLength(0); // Godin: note that other channels use method delete in order to do the same thing
+      // Godin: note that other channels use method delete in order to do the same thing
+      tmpBuilder.setLength(0);
       return true;
     }
     return false;

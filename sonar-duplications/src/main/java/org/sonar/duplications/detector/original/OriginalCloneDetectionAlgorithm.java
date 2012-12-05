@@ -68,7 +68,8 @@ public final class OriginalCloneDetectionAlgorithm {
     int size = fileBlocks.size();
 
     // Godin: create one group per unique hash
-    Map<ByteArray, BlocksGroup> groupsByHash = Maps.newHashMap(); // TODO Godin: can we create map with expected size?
+    // TODO Godin: can we create map with expected size?
+    Map<ByteArray, BlocksGroup> groupsByHash = Maps.newHashMap();
     for (Block fileBlock : fileBlocks) {
       ByteArray hash = fileBlock.getBlockHash();
       BlocksGroup sameHash = groupsByHash.get(hash);

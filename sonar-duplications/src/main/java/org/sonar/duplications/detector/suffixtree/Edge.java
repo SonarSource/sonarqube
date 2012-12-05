@@ -21,10 +21,14 @@ package org.sonar.duplications.detector.suffixtree;
 
 public final class Edge {
 
-  private int beginIndex; // can't be changed
+  // can't be changed
+  private int beginIndex; 
+
   private int endIndex;
   private Node startNode;
-  private Node endNode; // can't be changed, could be used as edge id
+
+  // can't be changed, could be used as edge id
+  private Node endNode;
 
   // each time edge is created, a new end node is created
   public Edge(int beginIndex, int endIndex, Node startNode) {

@@ -80,7 +80,8 @@ public final class ByteArray {
   }
 
   public int[] toIntArray() {
-    int size = (bytes.length / 4) + (bytes.length % 4 == 0 ? 0 : 1); // Pad the size to multiple of 4
+    // Pad the size to multiple of 4
+    int size = (bytes.length / 4) + (bytes.length % 4 == 0 ? 0 : 1);
     ByteBuffer bb = ByteBuffer.allocate(size * 4);
     bb.put(bytes);
     bb.rewind();

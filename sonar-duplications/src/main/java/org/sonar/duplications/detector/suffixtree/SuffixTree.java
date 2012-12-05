@@ -103,7 +103,8 @@ public final class SuffixTree {
       active.canonize();
     }
     updateSuffixNode(lastParentNode, parentNode);
-    active.incEndIndex(); // Now the endpoint is the next active point
+    active.incEndIndex();
+    // Now the endpoint is the next active point
     active.canonize();
   }
 

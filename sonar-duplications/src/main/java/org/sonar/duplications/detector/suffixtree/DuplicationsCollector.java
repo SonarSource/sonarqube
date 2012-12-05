@@ -95,7 +95,8 @@ public class DuplicationsCollector extends Search.Collector {
           lastBlock.getEndLine());
 
       // TODO Godin: maybe use FastStringComparator here ?
-      if (originResourceId.equals(part.getResourceId())) { // part from origin
+      if (originResourceId.equals(part.getResourceId())) {
+        // part from origin
         if (origin == null) {
           origin = part;
           // To calculate length important to use the origin, because otherwise block may come from DB without required data

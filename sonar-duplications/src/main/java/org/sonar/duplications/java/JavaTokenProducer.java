@@ -59,15 +59,23 @@ public final class JavaTokenProducer {
         // Identifiers, Keywords, Boolean Literals, The Null Literal
         .token("\\p{javaJavaIdentifierStart}++\\p{javaJavaIdentifierPart}*+")
         // Floating-Point Literals
-        .token("[0-9_]++\\.([0-9_]++)?+" + EXP + "?+" + FLOAT_SUFFIX + "?+", NORMALIZED_NUMERIC_LITERAL) // Decimal
-        .token("\\.[0-9_]++" + EXP + "?+" + FLOAT_SUFFIX + "?+", NORMALIZED_NUMERIC_LITERAL) // Decimal
-        .token("[0-9_]++" + EXP + FLOAT_SUFFIX + "?+", NORMALIZED_NUMERIC_LITERAL) // Decimal
-        .token("0[xX][0-9a-fA-F_]++\\.[0-9a-fA-F_]*+" + BINARY_EXP + "?+" + FLOAT_SUFFIX + "?+", NORMALIZED_NUMERIC_LITERAL) // Hexadecimal
-        .token("0[xX][0-9a-fA-F_]++" + BINARY_EXP + FLOAT_SUFFIX + "?+", NORMALIZED_NUMERIC_LITERAL) // Hexadecimal
+        // Decimal
+        .token("[0-9_]++\\.([0-9_]++)?+" + EXP + "?+" + FLOAT_SUFFIX + "?+", NORMALIZED_NUMERIC_LITERAL)
+        // Decimal
+        .token("\\.[0-9_]++" + EXP + "?+" + FLOAT_SUFFIX + "?+", NORMALIZED_NUMERIC_LITERAL)
+        // Decimal
+        .token("[0-9_]++" + EXP + FLOAT_SUFFIX + "?+", NORMALIZED_NUMERIC_LITERAL)
+        // Hexadecimal
+        .token("0[xX][0-9a-fA-F_]++\\.[0-9a-fA-F_]*+" + BINARY_EXP + "?+" + FLOAT_SUFFIX + "?+", NORMALIZED_NUMERIC_LITERAL)
+        // Hexadecimal
+        .token("0[xX][0-9a-fA-F_]++" + BINARY_EXP + FLOAT_SUFFIX + "?+", NORMALIZED_NUMERIC_LITERAL)
         // Integer Literals
-        .token("0[xX][0-9a-fA-F_]++" + INT_SUFFIX + "?+", NORMALIZED_NUMERIC_LITERAL) // Hexadecimal
-        .token("0[bB][01_]++" + INT_SUFFIX + "?+", NORMALIZED_NUMERIC_LITERAL) // Binary (Java 7)
-        .token("[0-9_]++" + INT_SUFFIX + "?+", NORMALIZED_NUMERIC_LITERAL) // Decimal and Octal
+        // Hexadecimal
+        .token("0[xX][0-9a-fA-F_]++" + INT_SUFFIX + "?+", NORMALIZED_NUMERIC_LITERAL)
+        // Binary (Java 7)
+        .token("0[bB][01_]++" + INT_SUFFIX + "?+", NORMALIZED_NUMERIC_LITERAL)
+        // Decimal and Octal
+        .token("[0-9_]++" + INT_SUFFIX + "?+", NORMALIZED_NUMERIC_LITERAL)
         // Any other character
         .token(".")
         .build();
