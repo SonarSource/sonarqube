@@ -45,31 +45,34 @@ public class DurationLabel {
     double nbHours = nbMinutes / 60;
     double nbDays = nbHours / 24;
     double nbYears = nbDays / 365;
+    String message = getMessage(nbSeconds, nbMinutes, nbHours, nbDays, nbYears);
+    return join(message, suffixAgo);
+  }
 
-    String time = MessageFormat.format(this.years, Math.floor(nbYears));
+  private String getMessage(double nbSeconds, double nbMinutes, double nbHours, double nbDays, double nbYears) {
+    String message = MessageFormat.format(this.years, Math.floor(nbYears));
     if (nbSeconds < 45) {
-      time = this.seconds;
+      message = this.seconds;
     } else if (nbSeconds < 90) {
-      time = this.minute;
+      message = this.minute;
     } else if (nbMinutes < 45) {
-      time = MessageFormat.format(this.minutes, Math.round(nbMinutes));
+      message = MessageFormat.format(this.minutes, Math.round(nbMinutes));
     } else if (nbMinutes < 90) {
-      time = this.hour;
+      message = this.hour;
     } else if (nbHours < 24) {
-      time = MessageFormat.format(this.hours, Math.round(nbHours));
+      message = MessageFormat.format(this.hours, Math.round(nbHours));
     } else if (nbHours < 48) {
-      time = this.day;
+      message = this.day;
     } else if (nbDays < 30) {
-      time = MessageFormat.format(this.days, Math.floor(nbDays));
+      message = MessageFormat.format(this.days, Math.floor(nbDays));
     } else if (nbDays < 60) {
-      time = this.month;
+      message = this.month;
     } else if (nbDays < 365) {
-      time = MessageFormat.format(this.months, Math.floor(nbDays / 30));
+      message = MessageFormat.format(this.months, Math.floor(nbDays / 30));
     } else if (nbYears < 2) {
-      time = this.year;
+      message = this.year;
     }
-
-    return join(time, suffixAgo);
+    return message;
   }
 
   @VisibleForTesting
