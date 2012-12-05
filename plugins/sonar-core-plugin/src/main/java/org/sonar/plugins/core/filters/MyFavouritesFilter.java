@@ -20,7 +20,6 @@
 package org.sonar.plugins.core.filters;
 
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.web.Criterion;
 import org.sonar.api.web.Filter;
 import org.sonar.api.web.FilterColumn;
 import org.sonar.api.web.FilterTemplate;
@@ -41,10 +40,10 @@ public class MyFavouritesFilter extends FilterTemplate {
   @Override
   public Filter createFilter() {
     return Filter.create()
-        .setDisplayAs(Filter.LIST)
-        .setFavouritesOnly(true)
-        .add(FilterColumn.create("metric", CoreMetrics.ALERT_STATUS_KEY, FilterColumn.DESC, false))
-        .add(FilterColumn.create("name", null, FilterColumn.ASC, false))
-        .add(FilterColumn.create("date", null, FilterColumn.DESC, false));
+      .setDisplayAs(Filter.LIST)
+      .setFavouritesOnly(true)
+      .add(FilterColumn.create("metric", CoreMetrics.ALERT_STATUS_KEY, FilterColumn.DESC, false))
+      .add(FilterColumn.create("name", null, FilterColumn.ASC, false))
+      .add(FilterColumn.create("date", null, FilterColumn.DESC, false));
   }
 }
