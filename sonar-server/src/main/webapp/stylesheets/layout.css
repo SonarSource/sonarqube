@@ -267,19 +267,19 @@ ul.sidebar select, ul.sidebar input {
   max-width: 200px;
   width: 200px;
   margin: 0;
-  display: table-cell;
+  display: block;
   vertical-align: top;
   border-top: none;
   border-left: none;
+  float: left;
 }
 
 .page-split-right {
   position: relative;
-  display: table-cell;
+  display: block;
   margin: 0;
   vertical-align: top;
-  width: 100%;
-  padding: 0;
+  padding: 0 0 0 200px;
 }
 
 .gray-sidebar {
