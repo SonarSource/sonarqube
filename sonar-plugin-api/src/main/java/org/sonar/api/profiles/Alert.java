@@ -231,10 +231,10 @@ public class Alert extends BaseIdentifiable implements Cloneable {
   }
 
   /**
-   * This method should not be used because it does not manage alerts with variation
    * @see org.sonar.plugins.core.sensors.CheckAlertThresholds#getAlertLabel(Alert alert, Metric.Level level)
-   * @deprecated
+   * @deprecated since 3.4 because it does not manage alerts with variation
    */
+  @Deprecated
   public String getAlertLabel(Metric.Level level) {
     return new StringBuilder()
         .append(getMetric().getName())
