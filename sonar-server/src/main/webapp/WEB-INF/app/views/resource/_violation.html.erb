@@ -125,8 +125,8 @@
 
         <% unless violation.switched_off? && violation.review && violation.review.resolved? %>
         <div class="dropdown">
-          <a href="#" class="link-action link-more" onclick="$('more<%= violation.id -%>').toggle();return false;"><%= message('more_actions') -%></a>
-          <ul style="display: none" class="dropdown-menu" id="more<%= violation.id -%>" onmouseout="this.hide();" onmouseover="this.show();">
+          <a href="#" class="link-action link-more" onclick="showDropdownMenu('more<%= violation.id -%>');return false;"><%= message('more_actions') -%></a>
+          <ul style="display: none" class="dropdown-menu" id="more<%= violation.id -%>">
             <% if !violation.switched_off? %>
               <li><%= link_to_function (violation.review && violation.review.resolved? ? message('reviews.reopen') : message('reviews.resolved')),
                                        "sCStF(#{violation.id})", :name => (violation.review && violation.review.resolved? ? 'bReopen' : 'bResolved') -%></li>

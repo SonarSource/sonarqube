@@ -311,3 +311,13 @@ function supports_html5_storage() {
     return false;
   }
 }
+
+var hideDropdownMenus = function() {
+  $j('.dropdown-menu').hide();
+  $j(document).unbind('mouseup', hideDropdownMenus);
+}
+
+function showDropdownMenu(menuId) {
+  $j(document).bind('mouseup', hideDropdownMenus);
+  $j('#' + menuId).show();
+}

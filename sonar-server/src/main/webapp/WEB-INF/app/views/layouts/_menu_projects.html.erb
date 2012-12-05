@@ -5,9 +5,9 @@
 </script>
 
 <li>
-  <a href="#" onclick="if (sonarRecentHistory) { sonarRecentHistory.populateRecentHistoryPanel(); }; $j('#projects-menu').toggle(); return false;" class="link-more"><%= message('layout.projects') -%></a>
+  <a href="#" onclick="if (sonarRecentHistory) { sonarRecentHistory.populateRecentHistoryPanel(); }; showDropdownMenu('projects-menu'); return false;" class="link-more"><%= message('layout.projects') -%></a>
   
-  <div id="projects-menu" class="dropdown-menu" style="max-width: none; display: none;" onmouseout="$j(this).hide();" onmouseover="$j(this).show();">
+  <div id="projects-menu" class="dropdown-menu" style="max-width: none; display: none;">
     <div id="recent-history" style="border-bottom: 1px solid #ccc; padding-bottom: 10px;">
       <h2><%= message('layout.recent_activity') -%></h2>
       <ul id="recent-history-list">

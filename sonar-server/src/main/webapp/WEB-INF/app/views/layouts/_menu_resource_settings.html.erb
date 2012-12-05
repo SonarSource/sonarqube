@@ -1,7 +1,7 @@
 <li>
-  <a href="#" onclick="$j('#project-settings-menu').toggle(); return false;" class="link-more"><%= message('layout.configuration') -%></a>
+  <a href="#" onclick="showDropdownMenu('project-settings-menu'); return false;" class="link-more"><%= message('layout.configuration') -%></a>
   
-  <div id="project-settings-menu" class="dropdown-menu" style="display: none" onmouseout="$j(this).hide();" onmouseover="$j(this).show();">
+  <div id="project-settings-menu" class="dropdown-menu" style="display: none">
     <ul>
       <% if (@project.project?) %>
         <li><a href="<%= ApplicationController.root_context -%>/project/profile/<%= @project.id -%>"><%= message('project_quality_profiles.page') -%></a></li>
