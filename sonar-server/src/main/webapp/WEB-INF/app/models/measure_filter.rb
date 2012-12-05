@@ -281,10 +281,10 @@ class MeasureFilter < ActiveRecord::Base
     errors.add_to_base('Name already exists') if count>0
 
     if shared
-      count = MeasureFilter.count('id', :conditions => ['name=? and shared=? and user_id!=?', name, true, user_id])
-      errors.add_to_base('Other users already shared filters with the same name') if count>0
+      count = MeasureFilter.count('id', :conditions => ['name=? and shared=? and (user_id is null or user_id<>?)', name, true, user_id])
+      errors.add_to_base('Other users already share filters with the same name') if count>0
     elsif system?
-      errors.add_to_base("System filters can't be unshared.")
+      errors.add_to_base("System filters can't be unshared")
     end
   end
 end
