@@ -24,11 +24,9 @@ class Sonar::ComponentsConfiguration
 
   COLUMNS_SELECTED_KEY = 'sonar.core.projectsdashboard.columns'
   COLUMNS_DEFAULT_SORT_KEY = 'sonar.core.projectsdashboard.defaultSortedColumn'
-  TREEMAP_ENABLED_KEY = 'sonar.core.projectsdashboard.showTreemap'
 
   def initialize
     @sorted_column_id=Property.value(COLUMNS_DEFAULT_SORT_KEY) || Sonar::ColumnsView::TYPE_PROJECT
-    @enabled_treemap=(Property.value(TREEMAP_ENABLED_KEY) || 'true')=='true'
     @text_columns=Property.value(COLUMNS_SELECTED_KEY) || default_text_columns
   end
 
@@ -100,14 +98,6 @@ class Sonar::ComponentsConfiguration
 
   def set_column_sort_default(column_id)
     Property.set(COLUMNS_DEFAULT_SORT_KEY, column_id)
-  end
-
-  def treemap_enabled?
-    @enabled_treemap
-  end
-
-  def toggle_treemap_enabled
-    Property.set(TREEMAP_ENABLED_KEY, !treemap_enabled?)
   end
 
 

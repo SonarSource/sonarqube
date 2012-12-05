@@ -43,15 +43,6 @@
         </form>
       </td>
     </tr>
-    <tr>
-      <td colspan="2">
-       <%= link_to( message('enable_treemap'), 
-                                {:controller => "columns", :action => "toggle_treemap", :rid => @resource.id}, {:class => 'action'} ) if (!components_configuration.treemap_enabled?) %>
-       <%= link_to( message('disable_treemap'), 
-                                {:controller => "columns", :action => "toggle_treemap", :rid => @resource.id}, {:class => 'action'} ) if components_configuration.treemap_enabled? %>
-        &nbsp; <%= image_tag("treemap_icon.png") %>
-      </td>
-    </tr>
   </table>
 </div>
 <% end %>

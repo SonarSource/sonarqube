@@ -69,20 +69,6 @@
         <script>TableKit.Sortable.init('components');</script>
         <p>&nbsp;</p>
       </td>
-      <% if @treemap %>
-        <td width="10px">&nbsp;</td>
-        <td width="280px" valign="top">
-          <script>
-            new Treemap(1, '<%= @treemap.size_metric ? @treemap.size_metric.key : '' -%>', '<%= @treemap.color_metric ? @treemap.color_metric.key : '' -%>', 100.0).init('resource',
-              <%= @resource.id -%>);
-          </script>
-
-          <div id="tm-1" class="treemap" style="height:<%= @treemap.height %>px">
-            <%= @treemap.generate_html() %>
-          </div>
-          <%= render :partial => 'components/treemap_settings', :locals => {:action => 'treemap'} %>
-        </td>
-      <% end %>
     </tr>
   </table>
 <% end %>
