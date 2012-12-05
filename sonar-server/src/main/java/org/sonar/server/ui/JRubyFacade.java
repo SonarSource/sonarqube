@@ -98,7 +98,7 @@ public final class JRubyFacade {
     return getContainer().getComponentByType(componentType);
   }
 
-  public List<MeasureFilterRow> executeMeasureFilter(Map<String,Object> map, @Nullable Long userId) throws ParseException {
+  public List<MeasureFilterRow> executeMeasureFilter(Map<String, Object> map, @Nullable Long userId) throws ParseException {
     return get(MeasureFilterEngine.class).execute(map, userId);
   }
 
@@ -108,6 +108,10 @@ public final class JRubyFacade {
 
   public Collection<ResourceType> getResourceTypes() {
     return get(ResourceTypes.class).getAll();
+  }
+
+  public Collection<ResourceType> getResourceRootTypes() {
+    return get(ResourceTypes.class).getRoots();
   }
 
   public ResourceType getResourceType(String qualifier) {
@@ -314,7 +318,7 @@ public final class JRubyFacade {
 
   public void ruleSeverityChanged(int parentProfileId, int activeRuleId, int oldSeverityId, int newSeverityId, String userName) {
     getProfilesManager().ruleSeverityChanged(parentProfileId, activeRuleId, RulePriority.values()[oldSeverityId],
-      RulePriority.values()[newSeverityId], userName);
+        RulePriority.values()[newSeverityId], userName);
   }
 
   public void ruleDeactivated(int parentProfileId, int deactivatedRuleId, String userName) {
@@ -510,10 +514,10 @@ public final class JRubyFacade {
     // notifier is null when creating the administrator in the migration script 011.
     if (notifier != null) {
       notifier.onNewUser(NewUserHandler.Context.builder()
-        .setLogin(fields.get("login"))
-        .setName(fields.get("name"))
-        .setEmail(fields.get("email"))
-        .build());
+          .setLogin(fields.get("login"))
+          .setName(fields.get("name"))
+          .setEmail(fields.get("email"))
+          .build());
     }
   }
 

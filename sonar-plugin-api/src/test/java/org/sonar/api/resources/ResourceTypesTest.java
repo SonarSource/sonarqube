@@ -30,21 +30,21 @@ import static org.fest.assertions.Assertions.assertThat;
 public class ResourceTypesTest {
 
   private ResourceTypeTree viewsTree = ResourceTypeTree.builder()
-    .addType(ResourceType.builder(Qualifiers.VIEW).setProperty("supportsMeasureFilters", "true").build())
-    .addType(ResourceType.builder(Qualifiers.SUBVIEW).build())
-    .addRelations(Qualifiers.VIEW, Qualifiers.SUBVIEW)
-    .addRelations(Qualifiers.SUBVIEW, Qualifiers.PROJECT)
-    .build();
+      .addType(ResourceType.builder(Qualifiers.VIEW).setProperty("supportsMeasureFilters", "true").build())
+      .addType(ResourceType.builder(Qualifiers.SUBVIEW).build())
+      .addRelations(Qualifiers.VIEW, Qualifiers.SUBVIEW)
+      .addRelations(Qualifiers.SUBVIEW, Qualifiers.PROJECT)
+      .build();
 
   private ResourceTypeTree defaultTree = ResourceTypeTree.builder()
-    .addType(ResourceType.builder(Qualifiers.PROJECT).setProperty("supportsMeasureFilters", "true").build())
-    .addType(ResourceType.builder(Qualifiers.DIRECTORY).build())
-    .addType(ResourceType.builder(Qualifiers.FILE).build())
-    .addRelations(Qualifiers.PROJECT, Qualifiers.DIRECTORY)
-    .addRelations(Qualifiers.DIRECTORY, Qualifiers.FILE)
-    .build();
+      .addType(ResourceType.builder(Qualifiers.PROJECT).setProperty("supportsMeasureFilters", "true").build())
+      .addType(ResourceType.builder(Qualifiers.DIRECTORY).build())
+      .addType(ResourceType.builder(Qualifiers.FILE).build())
+      .addRelations(Qualifiers.PROJECT, Qualifiers.DIRECTORY)
+      .addRelations(Qualifiers.DIRECTORY, Qualifiers.FILE)
+      .build();
 
-  private ResourceTypes types = new ResourceTypes(new ResourceTypeTree[]{viewsTree, defaultTree});
+  private ResourceTypes types = new ResourceTypes(new ResourceTypeTree[] {viewsTree, defaultTree});
 
   @Test
   public void get() {
@@ -57,6 +57,11 @@ public class ResourceTypesTest {
   @Test
   public void getAll() {
     assertThat(qualifiers(types.getAll())).containsOnly(Qualifiers.PROJECT, Qualifiers.DIRECTORY, Qualifiers.FILE, Qualifiers.VIEW, Qualifiers.SUBVIEW);
+  }
+
+  @Test
+  public void getRoots() {
+    assertThat(qualifiers(types.getRoots())).containsOnly(Qualifiers.PROJECT, Qualifiers.VIEW);
   }
 
   @Test
@@ -111,13 +116,13 @@ public class ResourceTypesTest {
   @Test(expected = IllegalStateException.class)
   public void failOnDuplicatedQualifier() {
     ResourceTypeTree tree1 = ResourceTypeTree.builder()
-      .addType(ResourceType.builder("foo").build())
-      .build();
+        .addType(ResourceType.builder("foo").build())
+        .build();
     ResourceTypeTree tree2 = ResourceTypeTree.builder()
-      .addType(ResourceType.builder("foo").build())
-      .build();
+        .addType(ResourceType.builder("foo").build())
+        .build();
 
-    new ResourceTypes(new ResourceTypeTree[]{tree1, tree2});
+    new ResourceTypes(new ResourceTypeTree[] {tree1, tree2});
   }
 
   static Collection<String> qualifiers(Collection<ResourceType> types) {

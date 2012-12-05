@@ -50,6 +50,13 @@ class Project < ActiveRecord::Base
       java_facade.deleteResourceTree(project.id)
     end
   end
+  
+  def self.root_qualifiers()
+    @root_types ||= 
+      begin
+        Java::OrgSonarServerUi::JRubyFacade.getInstance().getResourceRootTypes().map {|type| type.getQualifier()}
+      end
+  end
 
   def project
     root||self

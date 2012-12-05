@@ -22,13 +22,20 @@ package org.sonar.api.resources;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
-import com.google.common.collect.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Lists;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.batch.InstantiationStrategy;
 
 import javax.annotation.concurrent.Immutable;
+
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -41,10 +48,12 @@ public final class ResourceTypeTree implements BatchExtension, ServerExtension {
 
   private List<ResourceType> types;
   private ListMultimap<String, String> relations;
+  private ResourceType root;
 
   private ResourceTypeTree(Builder builder) {
     this.types = ImmutableList.copyOf(builder.types);
     this.relations = ImmutableListMultimap.copyOf(builder.relations);
+    this.root = builder.root;
   }
 
   public List<ResourceType> getTypes() {
@@ -53,6 +62,10 @@ public final class ResourceTypeTree implements BatchExtension, ServerExtension {
 
   public List<String> getChildren(String qualifier) {
     return relations.get(qualifier);
+  }
+
+  public ResourceType getRootType() {
+    return root;
   }
 
   public List<String> getLeaves() {
@@ -70,6 +83,7 @@ public final class ResourceTypeTree implements BatchExtension, ServerExtension {
   public static final class Builder {
     private List<ResourceType> types = Lists.newArrayList();
     private ListMultimap<String, String> relations = ArrayListMultimap.create();
+    private ResourceType root;
 
     private Builder() {
     }
@@ -90,6 +104,13 @@ public final class ResourceTypeTree implements BatchExtension, ServerExtension {
     }
 
     public ResourceTypeTree build() {
+      Collection<String> children = relations.values();
+      for (ResourceType type : types) {
+        if (!children.contains(type)) {
+          root = type;
+          break;
+        }
+      }
       return new ResourceTypeTree(this);
     }
   }

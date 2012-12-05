@@ -1,0 +1,107 @@
+<% content_for :script do %>
+  <script>
+    function removeUrlAttr(url, attribute_key) {
+      var regexp = new RegExp("&?" + attribute_key + "=([^&]$|[^&]*)", "g");
+      return url.replace(regexp, '');
+    }
+    function reloadParameters(params) {
+      var url = decodeURI(window.location.href);
+      $j.each(params, function (key, value) {
+        url = removeUrlAttr(url, key);
+        url += '&' + key + '=' + value;
+      });
+      window.location = url;
+    }
+  </script>
+<% end %>
+
+<% if @filter.results %>
+
+  <h1><%= message('qualifiers.all.' + @qualifier) -%></h1>
+  <br/>
+
+  <div id="entities">
+
+    <% if @filter.security_exclusions %>
+      <p class="notes"><%= message('results_not_display_due_to_security') -%></p>
+    <% end %>
+
+    <%
+      display_favourites = logged_in?
+      colspan = 4
+      colspan += 1 if display_favourites
+    %>
+
+    <table class="data" id="entities-table">
+      <thead>
+        <tr>
+          <% if display_favourites %>
+            <th class="thin"></th>
+          <% end %>
+          <th>
+            <%= link_to_function( message('entities.cols.name'), "reloadParameters({asc:'#{(!@filter.sort_asc?).to_s}', sort:'name'})") -%>
+            <% if @filter.sort_key=='name' %>
+              <%= @filter.sort_asc? ? image_tag("asc12.png") : image_tag("desc12.png") -%>
+            <% end %>
+          </th>
+          <th>
+            <%= link_to_function( message('entities.cols.description'), "reloadParameters({asc:'#{(!@filter.sort_asc?).to_s}', sort:'description'})") -%>
+            <% if @filter.sort_key=='description' %>
+              <%= @filter.sort_asc? ? image_tag("asc12.png") : image_tag("desc12.png") -%>
+            <% end %>
+          </th>
+          <th class="right">
+            <%= link_to_function( message('entities.cols.key'), "reloadParameters({asc:'#{(!@filter.sort_asc?).to_s}', sort:'key'})") -%>
+            <% if @filter.sort_key=='key' %>
+              <%= @filter.sort_asc? ? image_tag("asc12.png") : image_tag("desc12.png") -%>
+            <% end %>
+          </th>
+          <th class="right">
+            <%= message('entities.cols.links') -%>
+          </th>
+        </tr>
+      </thead>
+  
+      <tbody>
+        <% @filter.results.each do |result| %>
+          <tr class="<%= cycle 'even', 'odd' -%>">
+            <% if display_favourites %>
+              <td class="thin"><%= link_to_favourite(result.snapshot.resource) -%></td>
+            <% end %>
+            <td class="nowrap">
+              <%= qualifier_icon(result.snapshot)-%> <%= link_to(result.snapshot.resource.name(true), {:controller => 'dashboard', :id => result.snapshot.resource_id}, :title => result.snapshot.resource.key) -%>
+            </td>
+            <td>
+              <%= h result.snapshot.resource.description -%>
+            </td>
+            <td class="nowrap right">
+              <span class='small'><%= result.snapshot.resource.kee -%></span>
+            </td>
+            <td class="nowrap right">
+              <% 
+                 if result.links
+                   result.links.select { |link| link.href.start_with?('http') }.each do |link|
+              %>
+                <%= link_to(image_tag(link.icon, :alt => link.name), link.href, :class => 'nolink', :popup => true) unless link.custom? -%>
+              <%
+                   end
+                 end
+              %>
+            </td>
+          </tr>
+        <% end %>
+        
+        <% if @filter.results.empty? %>
+          <tr class="even">
+            <td colspan="<%= colspan -%>"><%= message 'no_data' -%></td>
+          </tr>
+        <% end %>
+    </tbody>
+    
+    <%= render :partial => 'utils/tfoot_pagination', :locals => {:pagination => @filter.pagination, :colspan => colspan} %>
+    
+  </table>
+
+  </div>
+  
+<% end %>

@@ -25,13 +25,16 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -51,14 +54,17 @@ public final class ResourceTypes implements BatchComponent, ServerComponent {
 
   private final Map<String, ResourceTypeTree> treeByQualifier;
   private final Map<String, ResourceType> typeByQualifier;
+  private final Collection<ResourceType> rootTypes;
 
   public ResourceTypes(ResourceTypeTree[] trees) {
     Preconditions.checkNotNull(trees);
 
     Map<String, ResourceTypeTree> treeMap = Maps.newHashMap();
     Map<String, ResourceType> typeMap = Maps.newLinkedHashMap();
+    Collection<ResourceType> rootsSet = Sets.newHashSet();
 
     for (ResourceTypeTree tree : trees) {
+      rootsSet.add(tree.getRootType());
       for (ResourceType type : tree.getTypes()) {
         if (treeMap.containsKey(type.getQualifier())) {
           throw new IllegalStateException("Qualifier " + type.getQualifier() + " is defined in several trees");
@@ -69,6 +75,7 @@ public final class ResourceTypes implements BatchComponent, ServerComponent {
     }
     treeByQualifier = ImmutableMap.copyOf(treeMap);
     typeByQualifier = ImmutableMap.copyOf(typeMap);
+    rootTypes = ImmutableList.copyOf(rootsSet);
   }
 
   public ResourceType get(String qualifier) {
@@ -78,6 +85,10 @@ public final class ResourceTypes implements BatchComponent, ServerComponent {
 
   public Collection<ResourceType> getAll() {
     return typeByQualifier.values();
+  }
+
+  public Collection<ResourceType> getRoots() {
+    return rootTypes;
   }
 
   public Collection<ResourceType> getAll(Predicate<ResourceType> predicate) {

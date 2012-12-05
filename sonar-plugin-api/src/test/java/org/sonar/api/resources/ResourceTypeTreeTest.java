@@ -37,7 +37,6 @@ public class ResourceTypeTreeTest {
       .addRelations("DIR", "UTS")
       .build();
 
-
   @Test
   public void getTypes() {
     assertThat(tree.getTypes().size(), is(4));
@@ -53,6 +52,11 @@ public class ResourceTypeTreeTest {
     assertThat(tree.getChildren("DIR"), hasItems("FIL", "UTS"));
 
     assertThat(tree.getChildren("FIL").size(), is(0));
+  }
+
+  @Test
+  public void getRoot() {
+    assertThat(tree.getRootType(), is(ResourceType.builder("TRK").build()));
   }
 
   @Test
