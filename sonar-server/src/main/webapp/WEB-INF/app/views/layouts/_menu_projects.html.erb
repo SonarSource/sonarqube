@@ -17,7 +17,7 @@
     <div>
       <ul>
         <% Project.root_qualifiers.sort.each do |qualifier| %>      
-          <li><a href="<%= ApplicationController.root_context -%>/entities?qualifier=<%= qualifier -%>"><%= message('qualifiers.all.' + qualifier) -%></a></li>
+          <li><a href="<%= ApplicationController.root_context -%>/all_projects?qualifier=<%= qualifier -%>"><%= message('qualifiers.all.' + qualifier) -%></a></li>
         <% end %>
       </ul>
     </div>

@@ -20,7 +20,7 @@
   <h1><%= message('qualifiers.all.' + @qualifier) -%></h1>
   <br/>
 
-  <div id="entities">
+  <div id="all-projects">
 
     <% if @filter.security_exclusions %>
       <p class="notes"><%= message('results_not_display_due_to_security') -%></p>
@@ -32,21 +32,21 @@
       colspan += 1 if display_favourites
     %>
 
-    <table class="data" id="entities-table">
+    <table class="data" id="all-projects-table">
       <thead>
         <tr>
           <% if display_favourites %>
             <th class="thin" style></th>
           <% end %>
           <th class="thin">
-            <%= link_to_function( message('entities.cols.name'), "reloadParameters({asc:'#{(!@filter.sort_asc?).to_s}', sort:'name'})") -%>
+            <%= link_to_function( message('all-projects.cols.name'), "reloadParameters({asc:'#{(!@filter.sort_asc?).to_s}', sort:'name'})") -%>
             <% if @filter.sort_key=='name' %>
               <%= @filter.sort_asc? ? image_tag("asc12.png") : image_tag("desc12.png") -%>
             <% end %>
           </th>
           <th></th>
           <th>
-            <%= link_to_function( message('entities.cols.key'), "reloadParameters({asc:'#{(!@filter.sort_asc?).to_s}', sort:'key'})") -%>
+            <%= link_to_function( message('all-projects.cols.key'), "reloadParameters({asc:'#{(!@filter.sort_asc?).to_s}', sort:'key'})") -%>
             <% if @filter.sort_key=='key' %>
               <%= @filter.sort_asc? ? image_tag("asc12.png") : image_tag("desc12.png") -%>
             <% end %>
