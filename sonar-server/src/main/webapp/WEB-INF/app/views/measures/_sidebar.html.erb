@@ -65,6 +65,9 @@
     <% end %>
     <%
        if @filter.display
+    %>
+      <input type="hidden" name="display" value="<%= @filter.display.key -%>"/>
+    <%
          @filter.display.url_params.each do |k_v_array|
            if k_v_array[1].is_a?(String)
     %>

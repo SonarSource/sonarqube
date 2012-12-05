@@ -66,6 +66,7 @@ class MeasureFilter < ActiveRecord::Base
 
   attr_reader :pagination, :security_exclusions, :base_result, :results, :display
 
+
   def sort_key
     criteria['sort']
   end
@@ -103,6 +104,13 @@ class MeasureFilter < ActiveRecord::Base
 
   def criteria=(hash)
     @criteria = {}
+    hash.each_pair do |k, v|
+      set_criteria_value(k, v)
+    end
+  end
+
+  def override_criteria(hash)
+    @criteria ||= {}
     hash.each_pair do |k, v|
       set_criteria_value(k, v)
     end

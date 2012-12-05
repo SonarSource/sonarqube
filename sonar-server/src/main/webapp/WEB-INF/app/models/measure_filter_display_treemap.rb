@@ -17,18 +17,19 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
+require 'set'
 class MeasureFilterDisplayTreemap < MeasureFilterDisplay
   include ActionView::Helpers::UrlHelper
 
   KEY = :treemap
-
+  PROPERTY_KEYS = Set.new(['tmSize', 'tmColor'])
   attr_reader :id, :size, :size_metric, :color_metric
 
   def initialize(filter, options)
     super(filter, options)
 
     @size_metric = Metric.by_key(@filter.criteria('tmSize')||'ncloc')
-    @color_metric = Metric.by_key(@filter.criteria('tmColor'))
+    @color_metric = Metric.by_key(@filter.criteria('tmColor')||'violations_density')
     @filter.metrics=([@size_metric, @color_metric].compact)
     @id_count = 0
 
@@ -56,6 +57,10 @@ class MeasureFilterDisplayTreemap < MeasureFilterDisplay
 
   def empty?
     @filter.results.nil? || @filter.results.empty?
+  end
+
+  def url_params
+    @filter.criteria.select { |k, v| PROPERTY_KEYS.include?(k) }
   end
 
   private
@@ -137,7 +142,7 @@ class Sonar::HtmlOutput < Treemap::HtmlOutput
   def draw_label(node)
     if node.leaf
       "<a onclick=\"window.open(this.href,'resource','height=800,width=900,scrollbars=1,resizable=1');return false;\" " +
-          "href=\"#{ApplicationController.root_context}/resource/index/#{node.rid}\">#{node_label(node)}</a>"
+        "href=\"#{ApplicationController.root_context}/resource/index/#{node.rid}\">#{node_label(node)}</a>"
     else
       "<a href='#{ApplicationController.root_context}/dashboard/index/#{node.rid}'>#{node_label(node)}</a>"
     end

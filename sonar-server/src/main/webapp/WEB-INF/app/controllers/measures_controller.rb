@@ -43,7 +43,11 @@ class MeasuresController < ApplicationController
 
     @filter = find_filter(params[:id])
     @filter.load_criteria_from_data
-    redirect_to @filter.criteria.merge({:action => 'search', :id => params[:id]})
+
+    # criteria can be overridden
+    @filter.override_criteria(params.reject{|k,v| k=='controller' || k=='action' || k=='id'})
+
+    redirect_to @filter.criteria.merge({:controller => 'measures', :action => 'search', :id => params[:id]})
   end
 
   def save_form
