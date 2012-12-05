@@ -42,7 +42,7 @@ public final class ZipUtils {
    * must be explicitely deleted. 
    * @return the temporary directory
    * @since 2.2
-   * @deprecated replaced in v3.4. by {@link org.sonar.api.resources.ProjectFileSystem#getSonarWorkingDirectory} or {@link org.sonar.api.platform.ServerFileSystem#getTempDir}
+   * @deprecated since 3.4 use by {@link org.sonar.api.resources.ProjectFileSystem#getSonarWorkingDirectory} or {@link org.sonar.api.platform.ServerFileSystem#getTempDir}
    */
   @Deprecated
   public static File unzipToTempDir(File zip) throws IOException {
