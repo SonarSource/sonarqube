@@ -163,19 +163,9 @@ var Treemap = function (id, sizeMetric, colorMetric) {
   this.colorMetric = colorMetric;
   this.breadcrumb = [];
   treemaps[id] = this;
-  this.rootNode().height(this.rootNode().width() * 0.6);
+  this.rootNode().height(this.rootNode().width() * 0.55);
   this.initNodes();
 
-};
-Treemap.prototype.changeSizeMetric = function (metric) {
-  this.sizeMetric = metric;
-  this.load();
-  return false;
-};
-Treemap.prototype.changeColorMetric = function (metric) {
-  this.colorMetric = metric;
-  this.load();
-  return false;
 };
 Treemap.prototype.currentContext = function () {
   if (this.breadcrumb.length > 0) {
@@ -215,31 +205,33 @@ Treemap.prototype.initNodes = function () {
     });
   });
   $j('#tm-' + this.id).find('[rid]').each(function (index) {
-      this.on("contextmenu", function (event) {
-        event.preventDefault();
-        // right click
-        if (self.breadcrumb.length > 1) {
-          self.breadcrumb.pop();
-          self.load();
-        } else {
-          location.reload();
-        }
-        return false;
-      });
-      this.on("click", function (event) {
-          var source = $j(this);
-          var rid = source.attr('rid');
-          var has_leaves = !!(source.attr('l'));
-          if (!has_leaves) {
-            var context = new TreemapContext(rid, source.text());
-            self.breadcrumb.push(context);
-            self.load();
-          }
-        }
-      );
+    this.on("contextmenu", function (event) {
+      event.stopPropagation();
+      event.preventDefault();
+      // right click
+      if (self.breadcrumb.length > 1) {
+        self.breadcrumb.pop();
+        self.load();
+      } else {
+        $j("#tm-loading-" + self.id).show();
+        location.reload();
+      }
+      return false;
+    });
 
-    }
-  );
+    this.on("click", function (event) {
+        var source = $j(this);
+        var rid = source.attr('rid');
+        var has_leaves = !!(source.attr('l'));
+        if (!has_leaves) {
+          var context = new TreemapContext(rid, source.text());
+          self.breadcrumb.push(context);
+          self.load();
+        }
+
+      }
+    )
+  });
 };
 
 (function ($j) {

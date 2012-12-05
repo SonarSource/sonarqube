@@ -34,7 +34,7 @@ import static org.sonar.api.web.WidgetScope.GLOBAL;
 @WidgetProperties({
   @WidgetProperty(key = MeasureFilterTreemapWidget.FILTER_PROPERTY, type = WidgetPropertyType.FILTER, optional = false),
   @WidgetProperty(key = MeasureFilterTreemapWidget.SIZE_METRIC_PROPERTY, type = WidgetPropertyType.METRIC, optional = true),
-  @WidgetProperty(key = MeasureFilterTreemapWidget.COLOR_METRIC_PROPERTY, type = WidgetPropertyType.METRIC, optional = true)
+  @WidgetProperty(key = MeasureFilterTreemapWidget.COLOR_METRIC_PROPERTY, type = WidgetPropertyType.METRIC, optional = true, options = "type:PERCENT")
 }
 )
 public class MeasureFilterTreemapWidget extends AbstractRubyTemplate implements RubyRailsWidget {

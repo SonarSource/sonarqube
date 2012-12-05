@@ -275,7 +275,6 @@ ul.sidebar select, ul.sidebar input {
 }
 
 .page-split-right {
-  position: relative;
   display: block;
   margin: 0;
   vertical-align: top;
