@@ -108,7 +108,7 @@
       <input type="text" name="keyRegexp" value="<%= h @filter.criteria['keyRegexp'] -%>">
     </li>
     <li id="criteria-fav" <%= "style='display:none'" unless @filter.criteria('onFavourites') -%>>
-      <%= message 'measure_filter.criteria.only_favourites' %>:<br>
+      <img src="<%= ApplicationController.root_context -%>/images/star.png"> <%= message 'measure_filter.criteria.only_favourites' %>:
       <%= check_box_tag 'onFavourites', 'true', @filter.criteria['onFavourites']=='true' -%>
     </li>
 
@@ -151,16 +151,8 @@
     </li>
     <li>
       <input type="button" name="search" value="<%= message('search_verb') -%>" onclick="submitSearch()">
-    </li>
-    <li>
-      <a href="<%= ApplicationController.root_context -%>/measures" class="link-action"><%= message 'measure_filter.new_search' -%></a>
-      <% if logged_in? %>
-        <% if @filter.id==nil || @filter.user_id==current_user.id %>
-          - <a id="save" href="<%= url_for params.merge({:action => 'save_form', :id => @filter.id}) -%>" class="link-action open-modal"><%= message('save') -%></a>
-        <% end %>
-        <% if @filter.id %>
-          - <a id="copy" href="<%= url_for params.merge({:action => 'copy_form', :id => @filter.id}) -%>" class="link-action open-modal"><%= message('copy') -%></a>
-        <% end %>
+      <% if @filter.results %>
+        <a href="<%= ApplicationController.root_context -%>/measures" class="link-action"><%= message 'measure_filter.new_search' -%></a>
       <% end %>
     </li>
   </form>
