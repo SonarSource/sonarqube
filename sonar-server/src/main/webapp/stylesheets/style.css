@@ -2261,7 +2261,7 @@ td.spacer-top {
 .table > tbody > tr > td {
   line-height: 16px;
   padding: 4px 5px;
-  vertical-align: middle;
+  vertical-align: top;
 }
 
 .table > tfoot > tr > td {
