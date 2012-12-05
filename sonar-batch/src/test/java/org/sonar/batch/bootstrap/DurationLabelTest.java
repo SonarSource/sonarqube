@@ -38,7 +38,7 @@ public class DurationLabelTest {
   public void testAgoSeconds() {
     DurationLabel durationLabel = new DurationLabel();
     String label = durationLabel.label(now() - System.currentTimeMillis());
-    String expected = durationLabel.join(durationLabel.getPrefixAgo(), durationLabel.getSeconds(), durationLabel.getSuffixAgo());
+    String expected = durationLabel.join(durationLabel.getSeconds(), durationLabel.getSuffixAgo());
     assertThat(label).isEqualTo(expected);
   }
 
@@ -46,7 +46,7 @@ public class DurationLabelTest {
   public void testAgoMinute() {
     DurationLabel durationLabel = new DurationLabel();
     String label = durationLabel.label(now() - ago(MINUTE));
-    String expected = durationLabel.join(durationLabel.getPrefixAgo(), durationLabel.getMinute(), durationLabel.getSuffixAgo());
+    String expected = durationLabel.join(durationLabel.getMinute(), durationLabel.getSuffixAgo());
     assertThat(label).isEqualTo(expected);
   }
 
@@ -55,7 +55,7 @@ public class DurationLabelTest {
     DurationLabel durationlabel = new DurationLabel();
     int minutes = 2;
     String label = durationlabel.label(now() - ago(minutes * MINUTE));
-    String expected = durationlabel.join(durationlabel.getPrefixAgo(),
+    String expected = durationlabel.join(
         MessageFormat.format(durationlabel.getMinutes(), minutes), durationlabel.getSuffixAgo());
     assertThat(label).isEqualTo(expected);
   }
@@ -64,7 +64,7 @@ public class DurationLabelTest {
   public void testAgoHour() {
     DurationLabel durationLabel = new DurationLabel();
     String label = durationLabel.label(now() - ago(HOUR));
-    String expected = durationLabel.join(durationLabel.getPrefixAgo(), durationLabel.getHour(), durationLabel.getSuffixAgo());
+    String expected = durationLabel.join(durationLabel.getHour(), durationLabel.getSuffixAgo());
     assertThat(label).isEqualTo(expected);
   }
 
@@ -73,7 +73,7 @@ public class DurationLabelTest {
     DurationLabel durationLabel = new DurationLabel();
     long hours = 3;
     String label = durationLabel.label(now() - ago(hours * HOUR));
-    String expected = durationLabel.join(durationLabel.getPrefixAgo(), MessageFormat.format(durationLabel.getHours(), hours), durationLabel.getSuffixAgo());
+    String expected = durationLabel.join(MessageFormat.format(durationLabel.getHours(), hours), durationLabel.getSuffixAgo());
     assertThat(label).isEqualTo(expected);
   }
 
@@ -81,7 +81,7 @@ public class DurationLabelTest {
   public void testAgoDay() {
     DurationLabel durationLabel = new DurationLabel();
     String label = durationLabel.label(now() - ago(30 * HOUR));
-    String expected = durationLabel.join(durationLabel.getPrefixAgo(), durationLabel.getDay(), durationLabel.getSuffixAgo());
+    String expected = durationLabel.join(durationLabel.getDay(), durationLabel.getSuffixAgo());
     assertThat(label).isEqualTo(expected);
   }
 
@@ -90,7 +90,7 @@ public class DurationLabelTest {
     DurationLabel durationLabel = new DurationLabel();
     long days = 4;
     String label = durationLabel.label(now() - ago(days * DAY));
-    String expected = durationLabel.join(durationLabel.getPrefixAgo(), MessageFormat.format(durationLabel.getDays(), days), durationLabel.getSuffixAgo());
+    String expected = durationLabel.join(MessageFormat.format(durationLabel.getDays(), days), durationLabel.getSuffixAgo());
     assertThat(label).isEqualTo(expected);
   }
 
@@ -98,7 +98,7 @@ public class DurationLabelTest {
   public void testAgoMonth() {
     DurationLabel durationLabel = new DurationLabel();
     String label = durationLabel.label(now() - ago(35 * DAY));
-    String expected = durationLabel.join(durationLabel.getPrefixAgo(), durationLabel.getMonth(), durationLabel.getSuffixAgo());
+    String expected = durationLabel.join(durationLabel.getMonth(), durationLabel.getSuffixAgo());
     assertThat(label).isEqualTo(expected);
   }
 
@@ -107,7 +107,7 @@ public class DurationLabelTest {
     DurationLabel durationLabel = new DurationLabel();
     long months = 2;
     String label = durationLabel.label(now() - ago(months * MONTH));
-    String expected = durationLabel.join(durationLabel.getPrefixAgo(), MessageFormat.format(durationLabel.getMonths(), months), durationLabel.getSuffixAgo());
+    String expected = durationLabel.join(MessageFormat.format(durationLabel.getMonths(), months), durationLabel.getSuffixAgo());
     assertThat(label).isEqualTo(expected);
   }
 
@@ -115,7 +115,7 @@ public class DurationLabelTest {
   public void testYearAgo() {
     DurationLabel durationLabel = new DurationLabel();
     String label = durationLabel.label(now() - ago(14 * MONTH));
-    String expected = durationLabel.join(durationLabel.getPrefixAgo(), durationLabel.getYear(), durationLabel.getSuffixAgo());
+    String expected = durationLabel.join(durationLabel.getYear(), durationLabel.getSuffixAgo());
     assertThat(label).isEqualTo(expected);
   }
 
@@ -124,7 +124,7 @@ public class DurationLabelTest {
     DurationLabel durationLabel = new DurationLabel();
     long years = 7;
     String label = durationLabel.label(now() - ago(years * YEAR));
-    String expected = durationLabel.join(durationLabel.getPrefixAgo(), MessageFormat.format(durationLabel.getYears(), years), durationLabel.getSuffixAgo());
+    String expected = durationLabel.join(MessageFormat.format(durationLabel.getYears(), years), durationLabel.getSuffixAgo());
     assertThat(label).isEqualTo(expected);
   }
 

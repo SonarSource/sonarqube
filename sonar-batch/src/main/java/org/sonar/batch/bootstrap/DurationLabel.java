@@ -19,11 +19,13 @@
  */
 package org.sonar.batch.bootstrap;
 
+import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.lang.StringUtils;
+
 import java.text.MessageFormat;
 
 public class DurationLabel {
 
-  private String prefixAgo = null;
   private String suffixAgo = "ago";
   private String seconds = "less than a minute";
   private String minute = "about a minute";
@@ -38,7 +40,7 @@ public class DurationLabel {
   private String years = "{0} years";
 
   public String label(long durationInMillis) {
-    double seconds = durationInMillis / 1000;
+    double seconds = durationInMillis / 1000.0;
     double minutes = seconds / 60;
     double hours = minutes / 60;
     double days = hours / 24;
@@ -67,23 +69,17 @@ public class DurationLabel {
       time = this.year;
     }
 
-    return join(prefixAgo, time, suffixAgo);
+    return join(time, suffixAgo);
   }
 
-  public String join(String prefix, String time, String suffix) {
+  @VisibleForTesting
+  String join(String time, String suffix) {
     StringBuilder joined = new StringBuilder();
-    if (prefix != null && prefix.length() > 0) {
-      joined.append(prefix).append(' ');
-    }
     joined.append(time);
-    if (suffix != null && suffix.length() > 0) {
+    if (StringUtils.isNotBlank(suffix)) {
       joined.append(' ').append(suffix);
     }
     return joined.toString();
-  }
-
-  public String getPrefixAgo() {
-    return prefixAgo;
   }
 
   public String getSuffixAgo() {
