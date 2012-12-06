@@ -111,7 +111,7 @@ public final class ResourceType {
       properties.put(key, value);
 
       // for backward-compatibility since version 3.4
-      if (key.equals("availableForFilters")) {
+      if ("availableForFilters".equals(key)) {
         properties.put("supportsMeasureFilters", value);
       }
       return this;
