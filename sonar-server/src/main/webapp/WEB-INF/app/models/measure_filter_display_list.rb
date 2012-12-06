@@ -83,16 +83,16 @@ class MeasureFilterDisplayList < MeasureFilterDisplay
     super(filter, options)
 
     # default values
-    filter.set_criteria_default_value('cols', ['metric:alert_status', 'name', 'date', 'metric:ncloc', 'metric:violations', 'links'])
-    filter.set_criteria_default_value('sort', 'name')
-    filter.set_criteria_default_value('asc', 'true')
-    filter.set_criteria_default_value('pageSize', '30')
-    filter.pagination.per_page = [filter.criteria['pageSize'].to_i, 200].min
-    filter.pagination.page = (filter.criteria['page'] || 1).to_i
+    filter.set_criteria_default_value(:cols, ['metric:alert_status', 'name', 'date', 'metric:ncloc', 'metric:violations', 'links'])
+    filter.set_criteria_default_value(:sort, 'name')
+    filter.set_criteria_default_value(:asc, 'true')
+    filter.set_criteria_default_value(:pageSize, '30')
+    filter.pagination.per_page = [filter.criteria[:pageSize].to_i, 200].min
+    filter.pagination.page = (filter.criteria[:page] || 1).to_i
 
     @columns = []
     metrics = []
-    filter.criteria('cols').each do |column_key|
+    filter.criteria(:cols).each do |column_key|
       column = Column.new(column_key)
       @columns << column
       metrics << column.metric if column.metric
@@ -101,9 +101,9 @@ class MeasureFilterDisplayList < MeasureFilterDisplay
     filter.metrics=(metrics)
   end
 
-  PROPERTY_KEYS = Set.new(['cols', 'sort', 'asc', 'pageSize'])
+  PROPERTY_KEYS = Set.new([:cols, :sort, :asc, :pageSize])
 
   def url_params
-    @filter.criteria.select { |k, v| PROPERTY_KEYS.include?(k) }
+    @filter.criteria.select { |k, v| PROPERTY_KEYS.include?(k.to_sym) }
   end
 end

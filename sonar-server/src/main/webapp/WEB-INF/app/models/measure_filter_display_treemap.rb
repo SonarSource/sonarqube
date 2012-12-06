@@ -22,20 +22,20 @@ class MeasureFilterDisplayTreemap < MeasureFilterDisplay
   include ActionView::Helpers::UrlHelper
 
   KEY = :treemap
-  PROPERTY_KEYS = Set.new(['tmSize', 'tmColor'])
+  PROPERTY_KEYS = Set.new([:tmSize, :tmColor])
   MAX_RESULTS = 1000
   attr_reader :id, :size, :size_metric, :color_metric
 
   def initialize(filter, options)
     super(filter, options)
 
-    @size_metric = Metric.by_key(@filter.criteria('tmSize')||'ncloc')
-    @color_metric = Metric.by_key(@filter.criteria('tmColor')||'violations_density')
+    @size_metric = Metric.by_key(@filter.criteria(:tmSize)||'ncloc')
+    @color_metric = Metric.by_key(@filter.criteria(:tmColor)||'violations_density')
     @filter.metrics=([@size_metric, @color_metric].compact)
     @id_count = 0
 
-    filter.set_criteria_value('sort', "metric:#{@size_metric.key}") if @size_metric
-    filter.set_criteria_value('asc', 'true')
+    filter.set_criteria_value(:sort, "metric:#{@size_metric.key}") if @size_metric
+    filter.set_criteria_value(:asc, 'true')
     filter.pagination.per_page = MAX_RESULTS
     filter.pagination.page = 1
   end
@@ -61,7 +61,7 @@ class MeasureFilterDisplayTreemap < MeasureFilterDisplay
   end
 
   def url_params
-    @filter.criteria.select { |k, v| PROPERTY_KEYS.include?(k) }
+    @filter.criteria.select { |k, v| PROPERTY_KEYS.include?(k.to_sym) }
   end
 
   private

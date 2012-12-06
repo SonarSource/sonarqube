@@ -96,23 +96,23 @@ class MeasureFilter < ActiveRecord::Base
   end
 
   def criteria(key=nil)
-    @criteria ||= {}
+    @criteria ||= HashWithIndifferentAccess.new
     if key
-      @criteria[key.to_s]
+      @criteria[key]
     else
       @criteria
     end
   end
 
   def criteria=(hash)
-    @criteria = {}
+    @criteria = HashWithIndifferentAccess.new
     hash.each_pair do |k, v|
       set_criteria_value(k, v)
     end
   end
 
   def override_criteria(hash)
-    @criteria ||= {}
+    @criteria ||= HashWithIndifferentAccess.new
     hash.each_pair do |k, v|
       set_criteria_value(k, v)
     end
@@ -120,11 +120,11 @@ class MeasureFilter < ActiveRecord::Base
 
   # API used by Displays
   def set_criteria_value(key, value)
-    @criteria ||= {}
+    @criteria ||= HashWithIndifferentAccess.new
     if key
       if value && value!='' && value!=['']
         value = value.to_s if value.is_a?(Fixnum)
-        @criteria[key.to_s]=value
+        @criteria[key]=value
       else
         @criteria.delete(key)
       end
@@ -138,7 +138,7 @@ class MeasureFilter < ActiveRecord::Base
 
   def load_criteria_from_data
     if self.data
-      @criteria = self.data.split(CRITERIA_SEPARATOR).inject({}) do |h, s|
+      @criteria = self.data.split(CRITERIA_SEPARATOR).inject(HashWithIndifferentAccess.new) do |h, s|
         k, v=s.split('=')
         if k && v
           v=v.split(CRITERIA_KEY_VALUE_SEPARATOR) if v.include?(CRITERIA_KEY_VALUE_SEPARATOR)
@@ -147,7 +147,7 @@ class MeasureFilter < ActiveRecord::Base
         h
       end
     else
-      @criteria = {}
+      @criteria = HashWithIndifferentAccess.new
     end
   end
 
