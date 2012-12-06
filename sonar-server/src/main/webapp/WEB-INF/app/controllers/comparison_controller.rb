@@ -57,7 +57,7 @@ class ComparisonController < ApplicationController
     end
     @metrics = Metric.by_keys(metrics)
     
-    @metric_to_choose = Metric.all.select {|m| m.display? && !@metrics.include?(m)}.sort_by(&:short_name)
+    @metric_to_choose = Metric.all.select {|m| m.display? && !m.on_new_code? && !@metrics.include?(m)}.sort_by(&:short_name)
   end
   
   def versions
