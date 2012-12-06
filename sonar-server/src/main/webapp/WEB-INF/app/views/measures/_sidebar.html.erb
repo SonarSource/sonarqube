@@ -150,7 +150,7 @@
       </select>
     </li>
     <li>
-      <input type="button" name="search" value="<%= message('search_verb') -%>" onclick="submitSearch()">
+      <input type="button" name="search" value="<%= message('search_verb') -%>" onclick="submitSearch()" id="search-button">
       <% if @filter.results %>
         <a href="<%= ApplicationController.root_context -%>/measures" class="link-action"><%= message 'measure_filter.new_search' -%></a>
       <% end %>
