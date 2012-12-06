@@ -18,7 +18,7 @@
     <selectKey order="BEFORE" resultType="Long" keyProperty="id">
       select measure_filters_seq.NEXTVAL from DUAL
     </selectKey>
-    INSERT INTO id, measure_filters (name, user_id, shared, description, data, created_at, updated_at)
+    INSERT INTO measure_filters (id, name, user_id, shared, description, data, created_at, updated_at)
     VALUES (#{id}, #{name}, #{userId}, #{shared}, #{description}, #{data}, #{createdAt}, #{updatedAt})
   </insert>
 
