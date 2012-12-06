@@ -398,13 +398,22 @@ public class SettingsTest {
   }
 
   @Test
-  public void should_load_value_set_on_deprecated_key() {
+  public void should_load_value_of_deprecated_key() {
     // it's used for example when deprecated settings are set through command-line
     Settings settings = new Settings(definitions);
     settings.setProperty("oldKey", "value of oldKey");
 
     assertThat(settings.getString("newKey")).isEqualTo("value of oldKey");
     assertThat(settings.getString("oldKey")).isEqualTo("value of oldKey");
+  }
+
+  @Test
+  public void should_load_values_of_deprecated_key() {
+    Settings settings = new Settings(definitions);
+    settings.setProperty("oldKey", "a,b");
+
+    assertThat(settings.getStringArray("newKey")).containsOnly("a", "b");
+    assertThat(settings.getStringArray("oldKey")).containsOnly("a", "b");
   }
 
   @Test

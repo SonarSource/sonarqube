@@ -93,18 +93,21 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
       categories.put(definition.getKey(), StringUtils.defaultIfBlank(definition.getCategory(), defaultCategory));
       if (!Strings.isNullOrEmpty(definition.getDeprecatedKey()) && !definition.getDeprecatedKey().equals(definition.getKey())) {
         deprecatedKeys.put(definition.getDeprecatedKey(), definition.getKey());
-        definitions.put(definition.getDeprecatedKey(), definition);
       }
     }
     return this;
   }
 
   public PropertyDefinition get(String key) {
-    return definitions.get(key);
+    return definitions.get(validKey(key));
   }
 
   public Collection<PropertyDefinition> getAll() {
     return definitions.values();
+  }
+
+  public String validKey(String key) {
+    return StringUtils.defaultString(deprecatedKeys.get(key), key);
   }
 
   static enum PropertyDefinitionFilter {
@@ -172,7 +175,7 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
   }
 
   public String getCategory(String key) {
-    return categories.get(key);
+    return categories.get(validKey(key));
   }
 
   public String getCategory(Property prop) {

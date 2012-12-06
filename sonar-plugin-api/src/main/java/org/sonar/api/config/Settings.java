@@ -107,9 +107,10 @@ public class Settings implements BatchComponent, ServerComponent {
    * Does not decrypt value.
    */
   protected String getClearString(String key) {
-    String value = properties.get(key);
+    String validKey = definitions.validKey(key);
+    String value = properties.get(validKey);
     if (value == null) {
-      value = getDefaultValue(key);
+      value = getDefaultValue(validKey);
     }
     return value;
   }
@@ -247,7 +248,7 @@ public class Settings implements BatchComponent, ServerComponent {
   }
 
   public final Settings appendProperty(String key, String value) {
-    String newValue = properties.get(key);
+    String newValue = properties.get(definitions.validKey(key));
     if (StringUtils.isEmpty(newValue)) {
       newValue = StringUtils.trim(value);
     } else {
@@ -280,27 +281,13 @@ public class Settings implements BatchComponent, ServerComponent {
   }
 
   public final Settings setProperty(String key, @Nullable String value) {
-    return setProperty(key, value, true);
-  }
-
-  private Settings setProperty(String key, @Nullable String value, boolean recursive) {
+    String validKey = definitions.validKey(key);
     if (value == null) {
-      properties.remove(key);
-      doOnRemoveProperty(key);
+      properties.remove(validKey);
+      doOnRemoveProperty(validKey);
     } else {
-      properties.put(key, StringUtils.trim(value));
-      doOnSetProperty(key, value);
-    }
-    if (recursive) {
-      String newKey = definitions.getNewKey(key);
-      if (newKey != null) {
-        setProperty(newKey, value, false);
-      } else {
-        String deprecatedKey = definitions.getDeprecatedKey(key);
-        if (deprecatedKey != null) {
-          setProperty(deprecatedKey, value, false);
-        }
-      }
+      properties.put(validKey, StringUtils.trim(value));
+      doOnSetProperty(validKey, value);
     }
     return this;
   }
