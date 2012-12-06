@@ -312,12 +312,42 @@ function supports_html5_storage() {
   }
 }
 
-var hideDropdownMenus = function() {
-  $j('.dropdown-menu').hide();
-  $j(document).unbind('mouseup', hideDropdownMenus);
+//******************* HANDLING OF DROPDOWN MENUS [BEGIN] ******************* //
+
+var currentlyDisplayedDropdownMenu;
+
+var hideCurrentDropdownMenu = function() {
+  menu = $j('#' + currentlyDisplayedDropdownMenu);
+  if (menu) {
+    menu.hide();
+  }
+  $j(document).unbind('mouseup', hideCurrentDropdownMenu);
+}
+
+var clickOnDropdownMenuLink = function(event) {
+  var link = $j(event.target).children('a');
+  if (link) {
+    var href = link.attr('href');
+    if (href && href.length > 1) {
+      // there's a real link, not a href="#"
+      window.location = href;
+    } else {
+      // otherwise, this means that the link is handled with an onclick event (for Ajax calls)
+      link.click();
+    }
+  }
 }
 
 function showDropdownMenu(menuId) {
-  $j(document).bind('mouseup', hideDropdownMenus);
-  $j('#' + menuId).show();
+  if (menuId == currentlyDisplayedDropdownMenu) {
+    currentlyDisplayedDropdownMenu = "";
+  } else {
+    currentlyDisplayedDropdownMenu = menuId;
+    $j(document).mouseup(hideCurrentDropdownMenu);
+    $j('#' + currentlyDisplayedDropdownMenu + ' li').unbind('click');
+    $j('#' + currentlyDisplayedDropdownMenu + ' li').click(clickOnDropdownMenuLink);
+    $j('#' + currentlyDisplayedDropdownMenu).show();
+  }
 }
+
+//******************* HANDLING OF DROPDOWN MENUS [END] ******************* //
