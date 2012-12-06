@@ -61,11 +61,11 @@ public class GlobalDefaultDashboardTest {
   @Test
   public void should_create_global_dashboard_with_four_widgets() {
     when(dao.findSystemFilterByName(MyFavouritesFilter.NAME)).thenReturn(
-        new MeasureFilterDto().setId(100L)
-        );
+      new MeasureFilterDto().setId(100L)
+    );
     when(dao.findSystemFilterByName(ProjectFilter.NAME)).thenReturn(
-        new MeasureFilterDto().setId(101L)
-        );
+      new MeasureFilterDto().setId(101L)
+    );
     Dashboard dashboard = template.createDashboard();
     List<Widget> firstColumn = dashboard.getWidgetsOfColumn(1);
     assertThat(firstColumn).hasSize(2);
@@ -79,5 +79,19 @@ public class GlobalDefaultDashboardTest {
     assertThat(secondColumn.get(0).getProperty("filter")).isEqualTo("101");
     assertThat(secondColumn.get(1).getId()).isEqualTo(MeasureFilterTreemapWidget.ID);
     assertThat(secondColumn.get(1).getProperty("filter")).isEqualTo("101");
+  }
+
+  @Test
+  public void should_not_fail_if_filter_widgets_not_found() {
+    when(dao.findSystemFilterByName(MyFavouritesFilter.NAME)).thenReturn(null);
+    when(dao.findSystemFilterByName(ProjectFilter.NAME)).thenReturn(null);
+
+    Dashboard dashboard = template.createDashboard();
+    List<Widget> firstColumn = dashboard.getWidgetsOfColumn(1);
+    assertThat(firstColumn).hasSize(1);
+    assertThat(firstColumn.get(0).getId()).isEqualTo(WelcomeWidget.ID);
+
+    List<Widget> secondColumn = dashboard.getWidgetsOfColumn(2);
+    assertThat(secondColumn).isEmpty();
   }
 }

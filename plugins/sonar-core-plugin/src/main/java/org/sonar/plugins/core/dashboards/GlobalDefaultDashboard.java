@@ -46,34 +46,40 @@ public final class GlobalDefaultDashboard extends DashboardTemplate {
   @Override
   public Dashboard createDashboard() {
     Dashboard dashboard = Dashboard.create()
-        .setGlobal(true)
-        .setLayout(DashboardLayout.TWO_COLUMNS);
+      .setGlobal(true)
+      .setLayout(DashboardLayout.TWO_COLUMNS);
 
     dashboard.addWidget(WelcomeWidget.ID, 1);
+    addMyFavouritesWidget(dashboard);
+    addProjectsWidgets(dashboard);
 
+    return dashboard;
+  }
+
+  private void addMyFavouritesWidget(Dashboard dashboard) {
     MeasureFilterDto filter = findSystemFilter(MyFavouritesFilter.NAME);
     if (filter != null) {
       dashboard
-          .addWidget(MeasureFilterListWidget.ID, 1)
-          .setProperty(MeasureFilterListWidget.FILTER_PROPERTY, filter.getId().toString())
-          .setProperty(MeasureFilterListWidget.PAGE_SIZE_PROPERTY, "50");
+        .addWidget(MeasureFilterListWidget.ID, 1)
+        .setProperty(MeasureFilterListWidget.FILTER_PROPERTY, filter.getId().toString())
+        .setProperty(MeasureFilterListWidget.PAGE_SIZE_PROPERTY, "50");
     }
+  }
 
-    filter = findSystemFilter(ProjectFilter.NAME);
+  private void addProjectsWidgets(Dashboard dashboard) {
+    MeasureFilterDto filter = findSystemFilter(ProjectFilter.NAME);
     if (filter != null) {
       dashboard
-          .addWidget(MeasureFilterListWidget.ID, 2)
-          .setProperty(MeasureFilterListWidget.FILTER_PROPERTY, filter.getId().toString())
-          .setProperty(MeasureFilterListWidget.PAGE_SIZE_PROPERTY, "20");
+        .addWidget(MeasureFilterListWidget.ID, 2)
+        .setProperty(MeasureFilterListWidget.FILTER_PROPERTY, filter.getId().toString())
+        .setProperty(MeasureFilterListWidget.PAGE_SIZE_PROPERTY, "20");
 
       dashboard
-          .addWidget(MeasureFilterTreemapWidget.ID, 2)
-          .setProperty(MeasureFilterListWidget.FILTER_PROPERTY, filter.getId().toString())
-          .setProperty(MeasureFilterTreemapWidget.SIZE_METRIC_PROPERTY, "ncloc")
-          .setProperty(MeasureFilterTreemapWidget.COLOR_METRIC_PROPERTY, "violations_density");
+        .addWidget(MeasureFilterTreemapWidget.ID, 2)
+        .setProperty(MeasureFilterListWidget.FILTER_PROPERTY, filter.getId().toString())
+        .setProperty(MeasureFilterTreemapWidget.SIZE_METRIC_PROPERTY, "ncloc")
+        .setProperty(MeasureFilterTreemapWidget.COLOR_METRIC_PROPERTY, "violations_density");
     }
-
-    return dashboard;
   }
 
   @Override

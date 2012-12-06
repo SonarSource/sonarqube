@@ -24,8 +24,7 @@ import org.junit.Test;
 
 import java.util.Properties;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class OracleSequenceGeneratorTest {
 
@@ -37,7 +36,14 @@ public class OracleSequenceGeneratorTest {
 
     OracleSequenceGenerator generator = new OracleSequenceGenerator();
     generator.configure(null, props, new Oracle.Oracle10gWithDecimalDialect());
-    assertThat(generator.getSequenceName(), is("MY_TABLE_SEQ"));
+    assertThat(generator.getSequenceName()).isEqualTo("MY_TABLE_SEQ");
   }
 
+  @Test
+  public void should_not_fail_if_table_name_can_not_be_loaded() {
+    Properties props = new Properties();
+    OracleSequenceGenerator generator = new OracleSequenceGenerator();
+    generator.configure(null, props, new Oracle.Oracle10gWithDecimalDialect());
+    assertThat(generator.getSequenceName()).isNotEmpty();
+  }
 }

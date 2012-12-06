@@ -24,6 +24,6 @@ import org.sonar.api.web.WidgetCategory;
 @WidgetCategory({"Action plans", "Reviews"})
 public class ActionPlansWidget extends CoreWidget {
   public ActionPlansWidget() {
-    super("action_plans", "Action plans", "/org/sonar/plugins/core/widgets/actionPlans/action_plans.html.erb");
+    super("action_plans", "Action plans", "/org/sonar/plugins/core/widgets/action_plans.html.erb");
   }
 }

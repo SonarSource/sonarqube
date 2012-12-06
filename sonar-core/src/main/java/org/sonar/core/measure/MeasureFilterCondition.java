@@ -35,10 +35,6 @@ public class MeasureFilterCondition {
       this.sql = sql;
     }
 
-    public String getCode() {
-      return code;
-    }
-
     public String getSql() {
       return sql;
     }
@@ -50,15 +46,6 @@ public class MeasureFilterCondition {
         }
       }
       throw new IllegalArgumentException("Unknown operator code: " + code);
-    }
-
-    public static Operator fromSql(String sql) {
-      for (Operator operator : values()) {
-        if (operator.sql.equals(sql)) {
-          return operator;
-        }
-      }
-      throw new IllegalArgumentException("Unknown operator sql: " + sql);
     }
   }
 
@@ -101,10 +88,11 @@ public class MeasureFilterCondition {
     return "pm.value";
   }
 
-  void appendSqlCondition(StringBuilder sql) {
+  StringBuilder appendSqlCondition(StringBuilder sql) {
     sql.append(" pm.metric_id=");
     sql.append(metric.getId());
     sql.append(" AND ").append(valueColumn()).append(operator.getSql()).append(value);
+    return sql;
   }
 
   @Override

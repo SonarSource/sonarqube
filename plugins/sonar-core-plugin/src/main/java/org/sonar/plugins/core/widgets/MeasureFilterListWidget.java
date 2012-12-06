@@ -39,7 +39,6 @@ public class MeasureFilterListWidget extends CoreWidget {
   public static final String ID = "measure_filter_list";
 
   public MeasureFilterListWidget() {
-    super(ID, "Measure Filter as List",
-      "/org/sonar/plugins/core/widgets/measure_filter_list.html.erb");
+    super(ID, "Measure Filter as List", "/org/sonar/plugins/core/widgets/measure_filter_list.html.erb");
   }
 }

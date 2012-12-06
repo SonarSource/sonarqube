@@ -72,14 +72,16 @@ public class CoreWidgetsTest {
   @Test
   public void should_find_templates() {
     for (CoreWidget widget : widgets()) {
-      assertThat(widget.getClass().getResource(widget.getTemplatePath())).isNotNull();
+      assertThat(widget.getClass().getResource(widget.getTemplatePath()))
+        .as("Template not found: " + widget.getTemplatePath())
+        .isNotNull();
     }
   }
 
   @Test
   public void should_be_registered_as_an_extension() {
     for (CoreWidget widget : widgets()) {
-      assertThat(new CorePlugin().getExtensions()).contains(widget.getClass());
+      assertThat(new CorePlugin().getExtensions()).as("Widget not registered: " + widget.getClass()).contains(widget.getClass());
     }
   }
 

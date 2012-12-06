@@ -40,7 +40,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class RegisterNewMeasureFiltersTest {
-  private RegisterNewMeasureFilters registerMeasure;
+  private RegisterNewMeasureFilters registration;
   private MeasureFilterDao filterDao;
   private LoadedTemplateDao loadedTemplateDao;
   private FilterTemplate filterTemplate;
@@ -51,7 +51,7 @@ public class RegisterNewMeasureFiltersTest {
     loadedTemplateDao = mock(LoadedTemplateDao.class);
     filterTemplate = mock(FilterTemplate.class);
 
-    registerMeasure = new RegisterNewMeasureFilters(new FilterTemplate[]{filterTemplate}, filterDao, loadedTemplateDao);
+    registration = new RegisterNewMeasureFilters(new FilterTemplate[]{filterTemplate}, filterDao, loadedTemplateDao);
   }
 
   @Test
@@ -59,7 +59,7 @@ public class RegisterNewMeasureFiltersTest {
     when(loadedTemplateDao.countByTypeAndKey(eq(LoadedTemplateDto.FILTER_TYPE), anyString())).thenReturn(0);
     when(filterTemplate.createFilter()).thenReturn(Filter.create());
 
-    registerMeasure.start();
+    registration.start();
 
     verify(filterDao).insert(any(MeasureFilterDto.class));
     verify(loadedTemplateDao).insert(any(LoadedTemplateDto.class));
@@ -69,7 +69,7 @@ public class RegisterNewMeasureFiltersTest {
   public void should_insert_nothing_if_templates_are_alreday_loaded() {
     when(loadedTemplateDao.countByTypeAndKey(eq(LoadedTemplateDto.FILTER_TYPE), anyString())).thenReturn(1);
 
-    registerMeasure.start();
+    registration.start();
 
     verify(filterDao, never()).insert(any(MeasureFilterDto.class));
     verify(loadedTemplateDao, never()).insert(any(LoadedTemplateDto.class));
@@ -79,7 +79,7 @@ public class RegisterNewMeasureFiltersTest {
   public void should_register_filter() {
     when(filterTemplate.createFilter()).thenReturn(Filter.create());
 
-    MeasureFilterDto filterDto = registerMeasure.register("Fake", filterTemplate.createFilter());
+    MeasureFilterDto filterDto = registration.register("Fake", filterTemplate.createFilter());
 
     assertThat(filterDto).isNotNull();
     verify(filterDao).insert(filterDto);
@@ -90,7 +90,7 @@ public class RegisterNewMeasureFiltersTest {
   public void should_not_recreate_filter() {
     when(filterDao.findSystemFilterByName("Fake")).thenReturn(new MeasureFilterDto());
 
-    MeasureFilterDto filterDto = registerMeasure.register("Fake", null);
+    MeasureFilterDto filterDto = registration.register("Fake", null);
 
     assertThat(filterDto).isNull();
     verify(filterDao, never()).insert(filterDto);
@@ -107,7 +107,7 @@ public class RegisterNewMeasureFiltersTest {
       .add(FilterColumn.create("metric", "distance", "ASC", false))
     );
 
-    MeasureFilterDto dto = registerMeasure.createDtoFromExtension("Fake", filterTemplate.createFilter());
+    MeasureFilterDto dto = registration.createDtoFromExtension("Fake", filterTemplate.createFilter());
 
     assertThat(dto.getName()).isEqualTo("Fake");
     assertThat(dto.isShared()).isTrue();
