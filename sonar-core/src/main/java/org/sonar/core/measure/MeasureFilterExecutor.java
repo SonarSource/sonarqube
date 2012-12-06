@@ -45,6 +45,10 @@ public class MeasureFilterExecutor implements ServerComponent {
   }
 
   public List<MeasureFilterRow> execute(MeasureFilter filter, MeasureFilterContext context) throws SQLException {
+    if (filter.isEmpty()) {
+      return Collections.emptyList();
+    }
+
     List<MeasureFilterRow> rows;
     SqlSession session = null;
     Connection connection = null;

@@ -56,6 +56,14 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void should_return_empty_results_if_empty_filter() throws SQLException {
+    MeasureFilter filter = new MeasureFilter();
+    assertThat(filter.isEmpty()).isTrue();
+
+    assertThat(executor.execute(filter, new MeasureFilterContext())).isEmpty();
+  }
+
+  @Test
   public void invalid_filter_should_not_return_results() throws SQLException {
     MeasureFilter filter = new MeasureFilter().setUserFavourites(true);
     // anonymous user does not have favourites
@@ -371,7 +379,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void filter_by_parent_without_children() throws SQLException {
+  public void filter_by_parent_without_children() throws Exception {
     MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK", "PAC", "CLA")).setBaseResourceKey("java_project:org.sonar.foo.Big").setOnBaseResourceChildren(true);
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
@@ -379,8 +387,8 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void filter_by_user_favourites() throws SQLException {
-    MeasureFilter filter = new MeasureFilter().setUserFavourites(true);
+  public void filter_by_user_favourites() throws Exception {
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK", "FIL")).setUserFavourites(true);
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext().setUserId(50L));
 
     assertThat(rows).hasSize(2);

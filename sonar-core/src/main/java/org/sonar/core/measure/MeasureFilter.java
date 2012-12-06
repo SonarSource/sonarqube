@@ -22,6 +22,7 @@ package org.sonar.core.measure;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Qualifiers;
@@ -44,8 +45,8 @@ public class MeasureFilter {
   private List<String> resourceScopes = Collections.emptyList();
   private List<String> resourceQualifiers = Collections.emptyList();
   private List<String> resourceLanguages = Collections.emptyList();
-  private String resourceKeyRegexp;
-  private String resourceName;
+  private String resourceKeyRegexp = null;
+  private String resourceName = null;
   private Date fromDate = null, toDate = null;
   private boolean userFavourites = false;
 
@@ -192,6 +193,10 @@ public class MeasureFilter {
 
   MeasureFilterSort sort() {
     return sort;
+  }
+
+  public boolean isEmpty() {
+    return resourceQualifiers.isEmpty() && resourceScopes.isEmpty() && StringUtils.isEmpty(baseResourceKey) && baseResourceId==null;
   }
 
   @VisibleForTesting

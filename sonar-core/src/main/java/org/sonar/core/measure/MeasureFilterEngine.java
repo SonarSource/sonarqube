@@ -20,6 +20,7 @@
 package org.sonar.core.measure;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Joiner;
 import org.apache.commons.lang.SystemUtils;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
@@ -47,10 +48,9 @@ public class MeasureFilterEngine implements ServerComponent {
 
   @VisibleForTesting
   List<MeasureFilterRow> execute(Map<String, Object> filterMap, @Nullable Long userId, Logger logger) throws ParseException {
-
     MeasureFilterContext context = new MeasureFilterContext();
     context.setUserId(userId);
-    context.setData(filterMap.toString());
+    context.setData(String.format("{%s}", Joiner.on('|').withKeyValueSeparator("=").join(filterMap)));
     try {
       long start = System.currentTimeMillis();
       MeasureFilter filter = factory.create(filterMap);
