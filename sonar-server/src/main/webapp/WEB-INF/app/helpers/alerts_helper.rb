@@ -88,7 +88,18 @@ module AlertsHelper
     end
   end
 
-  def period_select_options(alert, index)
+  def period_select_options(alert)
+    if alert.metric
+      select = ''
+      select << period_select_option(alert, nil) if !alert.metric.name.start_with?("new_")
+      for index in 1..3 do
+        select << period_select_option(alert, index)
+      end
+      select
+    end
+  end
+
+  def period_select_option(alert, index)
     if index
       selected = (alert.period == index ? 'selected' : '')
       "<option value='#{index}' #{selected}>&Delta; #{Api::Utils.period_label(index)}</option>"
