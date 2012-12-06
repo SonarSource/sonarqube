@@ -52,14 +52,17 @@ public final class AlertUtils {
     Comparable criteriaValue = getValueForComparison(alert.getMetric(), valueToEval);
     Comparable measureValue = getMeasureValue(alert, measure);
     if (measureValue != null) {
-      int comparison = measureValue.compareTo(criteriaValue);
-      return !(// NOSONAR complexity of this boolean expression is under control
-          (alert.isNotEqualsOperator() && comparison == 0)
-              || (alert.isGreaterOperator() && comparison != 1)
-              || (alert.isSmallerOperator() && comparison != -1)
-              || (alert.isEqualsOperator() && comparison != 0));
+      return doesReachThresholds(measureValue, criteriaValue, alert);
     }
     return false;
+  }
+
+  private static boolean doesReachThresholds(Comparable measureValue, Comparable criteriaValue, Alert alert){
+    int comparison = measureValue.compareTo(criteriaValue);
+    return !((alert.isNotEqualsOperator() && comparison == 0)
+        || (alert.isGreaterOperator() && comparison != 1)
+        || (alert.isSmallerOperator() && comparison != -1)
+        || (alert.isEqualsOperator() && comparison != 0));
   }
 
   private static String getValueToEval(Alert alert, Metric.Level alertLevel) {

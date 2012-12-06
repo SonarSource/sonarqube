@@ -100,7 +100,7 @@ public class Periods implements BatchExtension {
     return Locale.ENGLISH;
   }
 
-  private class PeriodParameters {
+  private static class PeriodParameters {
 
     private String mode;
     private String param;
