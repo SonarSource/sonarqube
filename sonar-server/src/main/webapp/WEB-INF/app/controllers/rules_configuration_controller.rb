@@ -21,7 +21,7 @@ require 'cgi'
 
 class RulesConfigurationController < ApplicationController
 
-  SECTION=Navigation::SECTION_RESOURCE
+  SECTION=Navigation::SECTION_HOME
   
   STATUS_ACTIVE = "ACTIVE"
   STATUS_INACTIVE = "INACTIVE"

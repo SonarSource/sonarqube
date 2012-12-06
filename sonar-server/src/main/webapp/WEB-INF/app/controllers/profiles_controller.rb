@@ -22,7 +22,7 @@ class ProfilesController < ApplicationController
   # the backup action is allow to non-admin users : see http://jira.codehaus.org/browse/SONAR-2039
   before_filter :admin_required, :only => ['create', 'delete', 'set_as_default', 'copy', 'restore', 'change_parent', 'set_projects', 'rename_form', 'rename']
 
-  SECTION=Navigation::SECTION_RESOURCE
+  SECTION=Navigation::SECTION_HOME
     
   ROOT_BREADCRUMB = {:name => Api::Utils.message('quality_profiles.page'), :url => {:controller => 'profiles', :action => 'index'}}
 

@@ -19,7 +19,7 @@
 #
 class DependenciesController < ApplicationController
 
-  SECTION=Navigation::SECTION_RESOURCE
+  SECTION=Navigation::SECTION_HOME
 
   SEARCH_MINIMUM_SIZE=3
   QUALIFIERS=['TRK', 'BRC', 'LIB']
