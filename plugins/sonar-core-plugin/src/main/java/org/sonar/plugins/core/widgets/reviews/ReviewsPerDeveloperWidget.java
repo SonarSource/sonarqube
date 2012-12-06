@@ -19,22 +19,12 @@
  */
 package org.sonar.plugins.core.widgets.reviews;
 
-import org.sonar.api.web.AbstractRubyTemplate;
-import org.sonar.api.web.RubyRailsWidget;
 import org.sonar.api.web.WidgetCategory;
+import org.sonar.plugins.core.widgets.CoreWidget;
 
-@WidgetCategory({ "Reviews" })
-public class ReviewsPerDeveloperWidget extends AbstractRubyTemplate implements RubyRailsWidget {
-  public String getId() {
-    return "reviews_per_developer";
-  }
-
-  public String getTitle() {
-    return "Active reviews per developer";
-  }
-
-  @Override
-  protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/reviews/reviews_per_developer.html.erb";
+@WidgetCategory({"Reviews"})
+public class ReviewsPerDeveloperWidget extends CoreWidget {
+  public ReviewsPerDeveloperWidget() {
+    super("reviews_per_developer", "Active reviews per developer", "/org/sonar/plugins/core/widgets/reviews/reviews_per_developer.html.erb");
   }
 }

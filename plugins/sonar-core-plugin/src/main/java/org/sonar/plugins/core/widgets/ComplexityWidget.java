@@ -19,21 +19,9 @@
  */
 package org.sonar.plugins.core.widgets;
 
-import org.sonar.api.web.AbstractRubyTemplate;
-import org.sonar.api.web.RubyRailsWidget;
+public class ComplexityWidget extends CoreWidget {
 
-public class ComplexityWidget extends AbstractRubyTemplate implements RubyRailsWidget {
-
-  public String getId() {
-    return "complexity";
-  }
-
-  public String getTitle() {
-    return "Complexity";
-  }
-
-  @Override
-  protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/complexity.html.erb";
+  public ComplexityWidget() {
+    super("complexity", "Complexity", "/org/sonar/plugins/core/widgets/complexity.html.erb");
   }
 }

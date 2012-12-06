@@ -19,8 +19,6 @@
  */
 package org.sonar.plugins.core.widgets;
 
-import org.sonar.api.web.AbstractRubyTemplate;
-import org.sonar.api.web.RubyRailsWidget;
 import org.sonar.api.web.WidgetCategory;
 import org.sonar.api.web.WidgetScope;
 
@@ -28,20 +26,11 @@ import static org.sonar.api.web.WidgetScope.GLOBAL;
 
 @WidgetCategory({"Global"})
 @WidgetScope(GLOBAL)
-public class WelcomeWidget extends AbstractRubyTemplate implements RubyRailsWidget {
+public class WelcomeWidget extends CoreWidget {
 
   public static final String ID = "welcome";
 
-  public String getId() {
-    return ID;
-  }
-
-  public String getTitle() {
-    return "Welcome";
-  }
-
-  @Override
-  protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/welcome.html.erb";
+  public WelcomeWidget() {
+    super(ID, "Welcome", "/org/sonar/plugins/core/widgets/welcome.html.erb");
   }
 }

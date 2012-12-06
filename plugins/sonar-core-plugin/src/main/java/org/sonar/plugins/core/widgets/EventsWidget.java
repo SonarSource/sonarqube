@@ -19,21 +19,9 @@
  */
 package org.sonar.plugins.core.widgets;
 
-import org.sonar.api.web.AbstractRubyTemplate;
-import org.sonar.api.web.RubyRailsWidget;
+public class EventsWidget extends CoreWidget {
 
-public class EventsWidget extends AbstractRubyTemplate implements RubyRailsWidget {
-
-  public String getId() {
-    return "events";
-  }
-
-  public String getTitle() {
-    return "Events";
-  }
-
-  @Override
-  protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/events.html.erb";
+  public EventsWidget() {
+    super("events", "Events", "/org/sonar/plugins/core/widgets/events.html.erb");
   }
 }

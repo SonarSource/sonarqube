@@ -19,24 +19,14 @@
  */
 package org.sonar.plugins.core.widgets;
 
-import org.sonar.api.web.AbstractRubyTemplate;
-import org.sonar.api.web.RubyRailsWidget;
 import org.sonar.api.web.WidgetLayout;
 import org.sonar.api.web.WidgetLayoutType;
 
 @WidgetLayout(WidgetLayoutType.NONE)
-public class AlertsWidget extends AbstractRubyTemplate implements RubyRailsWidget {
+public class AlertsWidget extends CoreWidget {
 
-  public String getId() {
-    return "alerts";
+  public AlertsWidget() {
+    super("alerts", "Alerts", "/org/sonar/plugins/core/widgets/alerts.html.erb");
   }
 
-  public String getTitle() {
-    return "Alerts";
-  }
-
-  @Override
-  protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/alerts.html.erb";
-  }
 }

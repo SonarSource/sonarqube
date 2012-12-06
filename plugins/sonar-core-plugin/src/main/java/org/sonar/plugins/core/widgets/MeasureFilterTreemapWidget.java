@@ -19,8 +19,6 @@
  */
 package org.sonar.plugins.core.widgets;
 
-import org.sonar.api.web.AbstractRubyTemplate;
-import org.sonar.api.web.RubyRailsWidget;
 import org.sonar.api.web.WidgetCategory;
 import org.sonar.api.web.WidgetProperties;
 import org.sonar.api.web.WidgetProperty;
@@ -35,24 +33,14 @@ import static org.sonar.api.web.WidgetScope.GLOBAL;
   @WidgetProperty(key = MeasureFilterTreemapWidget.FILTER_PROPERTY, type = WidgetPropertyType.FILTER, optional = false),
   @WidgetProperty(key = MeasureFilterTreemapWidget.SIZE_METRIC_PROPERTY, type = WidgetPropertyType.METRIC, optional = true),
   @WidgetProperty(key = MeasureFilterTreemapWidget.COLOR_METRIC_PROPERTY, type = WidgetPropertyType.METRIC, optional = true, options = "type:PERCENT")
-}
-)
-public class MeasureFilterTreemapWidget extends AbstractRubyTemplate implements RubyRailsWidget {
+})
+public class MeasureFilterTreemapWidget extends CoreWidget {
   public static final String FILTER_PROPERTY = "filter";
   public static final String SIZE_METRIC_PROPERTY = "sizeMetric";
   public static final String COLOR_METRIC_PROPERTY = "colorMetric";
   public static final String ID = "measure_filter_treemap";
 
-  public String getId() {
-    return ID;
-  }
-
-  public String getTitle() {
-    return "Measure Filter as Treemap";
-  }
-
-  @Override
-  protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/measure_filter_treemap.html.erb";
+  public MeasureFilterTreemapWidget() {
+    super(ID, "Measure Filter as Treemap", "/org/sonar/plugins/core/widgets/measure_filter_treemap.html.erb");
   }
 }

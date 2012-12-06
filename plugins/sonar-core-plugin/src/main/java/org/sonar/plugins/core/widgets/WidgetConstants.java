@@ -19,28 +19,15 @@
  */
 package org.sonar.plugins.core.widgets;
 
-import org.junit.Test;
-import org.sonar.plugins.core.CorePlugin;
+/**
+ * Constants shared accross multiple widgets
+ */
+interface WidgetConstants {
 
-import static org.fest.assertions.Assertions.assertThat;
-
-public class CoverageWidgetTest {
-  @Test
-  public void should_define_widget() {
-    CoverageWidget widget = new CoverageWidget();
-
-    assertThat(widget.getId()).isEqualTo("code_coverage");
-    assertThat(widget.getTitle()).isEqualTo("Code coverage");
-  }
-
-  @Test
-  public void should_find_template() {
-    CoverageWidget widget = new CoverageWidget();
-    assertThat(WelcomeWidget.class.getResource(widget.getTemplatePath())).isNotNull();
-  }
-
-  @Test
-  public void should_be_registered_as_an_extension() {
-    assertThat(new CorePlugin().getExtensions()).contains(CoverageWidget.class);
-  }
+  /**
+   * Widget property option used to filter out all the metrics which keys start with "new_".
+   *
+   * @see org.sonar.api.web.WidgetProperty#options()
+   */
+  String FILTER_OUT_NEW_METRICS = "key:^(?!new_).*";
 }

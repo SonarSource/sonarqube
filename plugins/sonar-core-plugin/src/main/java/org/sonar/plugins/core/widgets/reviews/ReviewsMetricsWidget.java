@@ -19,22 +19,12 @@
  */
 package org.sonar.plugins.core.widgets.reviews;
 
-import org.sonar.api.web.AbstractRubyTemplate;
-import org.sonar.api.web.RubyRailsWidget;
 import org.sonar.api.web.WidgetCategory;
+import org.sonar.plugins.core.widgets.CoreWidget;
 
-@WidgetCategory({ "Reviews" })
-public class ReviewsMetricsWidget extends AbstractRubyTemplate implements RubyRailsWidget {
-  public String getId() {
-    return "reviews_metrics";
-  }
-
-  public String getTitle() {
-    return "Review Activity";
-  }
-
-  @Override
-  protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/reviews/reviews_metrics.html.erb";
+@WidgetCategory({"Reviews"})
+public class ReviewsMetricsWidget extends CoreWidget {
+  public ReviewsMetricsWidget() {
+    super("reviews_metrics", "Review Activity", "/org/sonar/plugins/core/widgets/reviews/reviews_metrics.html.erb");
   }
 }

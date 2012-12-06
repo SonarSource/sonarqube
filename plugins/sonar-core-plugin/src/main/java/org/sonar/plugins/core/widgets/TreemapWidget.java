@@ -20,24 +20,17 @@
 package org.sonar.plugins.core.widgets;
 
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.web.*;
+import org.sonar.api.web.WidgetProperties;
+import org.sonar.api.web.WidgetProperty;
+import org.sonar.api.web.WidgetPropertyType;
 
 @WidgetProperties({
-  @WidgetProperty(key = "sizeMetric", type= WidgetPropertyType.METRIC, defaultValue = CoreMetrics.NCLOC_KEY, description = "Default metric for size"),
-  @WidgetProperty(key = "colorMetric", type= WidgetPropertyType.METRIC, defaultValue = CoreMetrics.VIOLATIONS_DENSITY_KEY, description = "Default metric for color")
+  @WidgetProperty(key = "sizeMetric", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.NCLOC_KEY, description = "Default metric for size"),
+  @WidgetProperty(key = "colorMetric", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.VIOLATIONS_DENSITY_KEY, description = "Default metric for color")
 })
-public class TreemapWidget extends AbstractRubyTemplate implements RubyRailsWidget {
-  public String getId() {
+public class TreemapWidget extends CoreWidget {
+  public TreemapWidget() {
     // do not use the id "treemap" to avoid conflict with the same CSS class
-    return "treemap-widget";
-  }
-
-  public String getTitle() {
-    return "Treemap of Components";
-  }
-
-  @Override
-  protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/treemap.html.erb";
+    super("treemap-widget", "Treemap of Components", "/org/sonar/plugins/core/widgets/treemap.html.erb");
   }
 }

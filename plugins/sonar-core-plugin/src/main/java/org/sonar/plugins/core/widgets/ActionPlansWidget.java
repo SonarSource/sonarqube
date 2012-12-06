@@ -17,24 +17,13 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.widgets.actionPlans;
+package org.sonar.plugins.core.widgets;
 
-import org.sonar.api.web.AbstractRubyTemplate;
-import org.sonar.api.web.RubyRailsWidget;
 import org.sonar.api.web.WidgetCategory;
 
-@WidgetCategory({ "Action plans", "Reviews" })
-public class ActionPlansWidget extends AbstractRubyTemplate implements RubyRailsWidget {
-  public String getId() {
-    return "action_plans";
-  }
-
-  public String getTitle() {
-    return "Action plans";
-  }
-
-  @Override
-  protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/actionPlans/action_plans.html.erb";
+@WidgetCategory({"Action plans", "Reviews"})
+public class ActionPlansWidget extends CoreWidget {
+  public ActionPlansWidget() {
+    super("action_plans", "Action plans", "/org/sonar/plugins/core/widgets/actionPlans/action_plans.html.erb");
   }
 }

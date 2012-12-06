@@ -19,31 +19,18 @@
  */
 package org.sonar.plugins.core.widgets;
 
-import org.sonar.api.web.AbstractRubyTemplate;
-import org.sonar.api.web.RubyRailsWidget;
 import org.sonar.api.web.WidgetCategory;
 import org.sonar.api.web.WidgetProperties;
 import org.sonar.api.web.WidgetProperty;
 import org.sonar.api.web.WidgetPropertyType;
 
-@WidgetCategory({ "Hotspots" })
-@WidgetProperties(
-    {
-        @WidgetProperty(key = "numberOfLines", type = WidgetPropertyType.INTEGER, defaultValue = "5")
-    }
-)
-public class HotspotMostViolatedResourcesWidget extends AbstractRubyTemplate implements RubyRailsWidget {
+@WidgetCategory({"Hotspots"})
+@WidgetProperties({
+  @WidgetProperty(key = "numberOfLines", type = WidgetPropertyType.INTEGER, defaultValue = "5")
+})
+public class HotspotMostViolatedResourcesWidget extends CoreWidget {
 
-  public String getId() {
-    return "hotspot_most_violated_resources";
-  }
-
-  public String getTitle() {
-    return "Most violated resources";
-  }
-
-  @Override
-  protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/hotspots/hotspot_most_violated_resources.html.erb";
+  public HotspotMostViolatedResourcesWidget() {
+    super("hotspot_most_violated_resources", "Most violated resources", "/org/sonar/plugins/core/widgets/hotspots/hotspot_most_violated_resources.html.erb");
   }
 }

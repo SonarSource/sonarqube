@@ -19,28 +19,28 @@
  */
 package org.sonar.plugins.core.widgets;
 
-import org.junit.Test;
-import org.sonar.plugins.core.CorePlugin;
+import org.sonar.api.web.AbstractRubyTemplate;
+import org.sonar.api.web.RubyRailsWidget;
 
-import static org.fest.assertions.Assertions.assertThat;
+public abstract class CoreWidget extends AbstractRubyTemplate implements RubyRailsWidget {
+  private String id, title, templatePath;
 
-public class TreemapWidgetTest {
-  @Test
-  public void should_define_widget() {
-    TreemapWidget widget = new TreemapWidget();
-
-    assertThat(widget.getId()).isEqualTo("treemap-widget");
-    assertThat(widget.getTitle()).isEqualTo("Treemap of Components");
+  protected CoreWidget(String id, String title, String templatePath) {
+    this.id = id;
+    this.title = title;
+    this.templatePath = templatePath;
   }
 
-  @Test
-  public void should_find_template() {
-    TreemapWidget widget = new TreemapWidget();
-    assertThat(WelcomeWidget.class.getResource(widget.getTemplatePath())).isNotNull();
+  public String getId() {
+    return id;
   }
 
-  @Test
-  public void should_be_registered_as_an_extension() {
-    assertThat(new CorePlugin().getExtensions()).contains(TreemapWidget.class);
+  public String getTitle() {
+    return title;
+  }
+
+  @Override
+  protected String getTemplatePath() {
+    return templatePath;
   }
 }

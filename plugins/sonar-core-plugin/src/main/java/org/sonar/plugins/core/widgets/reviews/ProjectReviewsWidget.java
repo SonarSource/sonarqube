@@ -19,31 +19,19 @@
  */
 package org.sonar.plugins.core.widgets.reviews;
 
-import org.sonar.api.web.AbstractRubyTemplate;
-import org.sonar.api.web.RubyRailsWidget;
 import org.sonar.api.web.WidgetCategory;
 import org.sonar.api.web.WidgetProperties;
 import org.sonar.api.web.WidgetProperty;
 import org.sonar.api.web.WidgetPropertyType;
+import org.sonar.plugins.core.widgets.CoreWidget;
 
-@WidgetCategory({ "Reviews" })
-@WidgetProperties(
-    {
-        @WidgetProperty(key = "numberOfLines", type = WidgetPropertyType.INTEGER, defaultValue = "5", 
-                        description="Maximum number of reviews displayed at the same time.")
-    }
-)
-public class ProjectReviewsWidget extends AbstractRubyTemplate implements RubyRailsWidget {
-  public String getId() {
-    return "project_reviews";
-  }
-
-  public String getTitle() {
-    return "Project active reviews";
-  }
-
-  @Override
-  protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/reviews/project_reviews.html.erb";
+@WidgetCategory({"Reviews"})
+@WidgetProperties({
+  @WidgetProperty(key = "numberOfLines", type = WidgetPropertyType.INTEGER, defaultValue = "5",
+    description = "Maximum number of reviews displayed at the same time.")
+})
+public class ProjectReviewsWidget extends CoreWidget {
+  public ProjectReviewsWidget() {
+    super("project_reviews", "Project active reviews", "/org/sonar/plugins/core/widgets/reviews/project_reviews.html.erb");
   }
 }

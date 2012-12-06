@@ -20,24 +20,12 @@
 package org.sonar.plugins.core;
 
 import org.junit.Test;
-import org.reflections.Reflections;
-import org.sonar.api.web.AbstractRubyTemplate;
-
-import java.util.Set;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class CorePluginTest {
   @Test
-  public void should_define_many_extensions() {
+  public void should_define_extensions() {
     assertThat(new CorePlugin().getExtensions().size()).isGreaterThan(10);
-  }
-
-  @Test
-  public void should_contain_all_core_widgets() {
-    Set<Class<? extends AbstractRubyTemplate>> widgets = new Reflections("org.sonar.plugins.core.widgets").getSubTypesOf(AbstractRubyTemplate.class);
-
-    assertThat(widgets).isNotEmpty();
-    assertThat(new CorePlugin().getExtensions()).contains(widgets.toArray());
   }
 }

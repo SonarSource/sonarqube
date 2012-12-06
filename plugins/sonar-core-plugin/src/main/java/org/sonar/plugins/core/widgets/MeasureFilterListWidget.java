@@ -19,8 +19,6 @@
  */
 package org.sonar.plugins.core.widgets;
 
-import org.sonar.api.web.AbstractRubyTemplate;
-import org.sonar.api.web.RubyRailsWidget;
 import org.sonar.api.web.WidgetCategory;
 import org.sonar.api.web.WidgetProperties;
 import org.sonar.api.web.WidgetProperty;
@@ -34,23 +32,14 @@ import static org.sonar.api.web.WidgetScope.GLOBAL;
 @WidgetProperties({
   @WidgetProperty(key = MeasureFilterListWidget.FILTER_PROPERTY, type = WidgetPropertyType.FILTER, optional = false),
   @WidgetProperty(key = MeasureFilterListWidget.PAGE_SIZE_PROPERTY, type = WidgetPropertyType.INTEGER, defaultValue = "30")
-}
-)
-public class MeasureFilterListWidget extends AbstractRubyTemplate implements RubyRailsWidget {
+})
+public class MeasureFilterListWidget extends CoreWidget {
   public static final String FILTER_PROPERTY = "filter";
   public static final String PAGE_SIZE_PROPERTY = "pageSize";
   public static final String ID = "measure_filter_list";
 
-  public String getId() {
-    return ID;
-  }
-
-  public String getTitle() {
-    return "Measure Filter as List";
-  }
-
-  @Override
-  protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/measure_filter_list.html.erb";
+  public MeasureFilterListWidget() {
+    super(ID, "Measure Filter as List",
+      "/org/sonar/plugins/core/widgets/measure_filter_list.html.erb");
   }
 }

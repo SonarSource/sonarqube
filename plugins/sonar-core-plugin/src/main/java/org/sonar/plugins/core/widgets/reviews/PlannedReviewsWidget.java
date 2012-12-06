@@ -19,31 +19,19 @@
  */
 package org.sonar.plugins.core.widgets.reviews;
 
-import org.sonar.api.web.AbstractRubyTemplate;
-import org.sonar.api.web.RubyRailsWidget;
 import org.sonar.api.web.WidgetCategory;
 import org.sonar.api.web.WidgetProperties;
 import org.sonar.api.web.WidgetProperty;
 import org.sonar.api.web.WidgetPropertyType;
+import org.sonar.plugins.core.widgets.CoreWidget;
 
-@WidgetCategory({ "Action plans", "Reviews" })
-@WidgetProperties(
-    {
-        @WidgetProperty(key = "numberOfLines", type = WidgetPropertyType.INTEGER, defaultValue = "5", 
-                        description="Maximum number of reviews displayed at the same time.")
-    }
-)
-public class PlannedReviewsWidget extends AbstractRubyTemplate implements RubyRailsWidget {
-  public String getId() {
-    return "planned_reviews";
-  }
-
-  public String getTitle() {
-    return "Planned reviews";
-  }
-
-  @Override
-  protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/reviews/planned_reviews.html.erb";
+@WidgetCategory({"Action plans", "Reviews"})
+@WidgetProperties({
+  @WidgetProperty(key = "numberOfLines", type = WidgetPropertyType.INTEGER, defaultValue = "5",
+    description = "Maximum number of reviews displayed at the same time.")
+})
+public class PlannedReviewsWidget extends CoreWidget {
+  public PlannedReviewsWidget() {
+    super("planned_reviews", "Planned reviews", "/org/sonar/plugins/core/widgets/reviews/planned_reviews.html.erb");
   }
 }

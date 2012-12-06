@@ -19,21 +19,9 @@
  */
 package org.sonar.plugins.core.widgets;
 
-import org.sonar.api.web.AbstractRubyTemplate;
-import org.sonar.api.web.RubyRailsWidget;
+public class SizeWidget extends CoreWidget {
 
-public class SizeWidget extends AbstractRubyTemplate implements RubyRailsWidget {
-
-  public String getId() {
-    return "size";
-  }
-
-  public String getTitle() {
-    return "Size metrics";
-  }
-
-  @Override
-  protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/size.html.erb";
+  public SizeWidget() {
+    super("size", "Size metrics", "/org/sonar/plugins/core/widgets/size.html.erb");
   }
 }

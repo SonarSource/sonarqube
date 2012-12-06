@@ -19,24 +19,13 @@
  */
 package org.sonar.plugins.core.widgets;
 
-import org.sonar.api.web.AbstractRubyTemplate;
-import org.sonar.api.web.RubyRailsWidget;
 import org.sonar.api.web.WidgetLayout;
 import org.sonar.api.web.WidgetLayoutType;
 
 @WidgetLayout(WidgetLayoutType.NONE)
-public class DescriptionWidget extends AbstractRubyTemplate implements RubyRailsWidget {
+public class DescriptionWidget extends CoreWidget {
 
-  public String getId() {
-    return "description";
-  }
-
-  public String getTitle() {
-    return "Description";
-  }
-
-  @Override
-  protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/description.html.erb";
+  public DescriptionWidget() {
+    super("description", "Description", "/org/sonar/plugins/core/widgets/description.html.erb");
   }
 }

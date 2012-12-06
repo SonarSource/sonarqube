@@ -19,21 +19,9 @@
  */
 package org.sonar.plugins.core.widgets;
 
-import org.sonar.api.web.AbstractRubyTemplate;
-import org.sonar.api.web.RubyRailsWidget;
+public class CommentsDuplicationsWidget extends CoreWidget {
 
-public class CommentsDuplicationsWidget extends AbstractRubyTemplate implements RubyRailsWidget {
-
-  public String getId() {
-    return "comments_duplications";
-  }
-
-  public String getTitle() {
-    return "Comments & Duplications";
-  }
-
-  @Override
-  protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/comments_duplications.html.erb";
+  public CommentsDuplicationsWidget() {
+    super("comments_duplications", "Comments & Duplications", "/org/sonar/plugins/core/widgets/comments_duplications.html.erb");
   }
 }

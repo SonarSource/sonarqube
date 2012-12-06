@@ -19,24 +19,14 @@
  */
 package org.sonar.plugins.core.widgets;
 
-import org.sonar.api.web.AbstractRubyTemplate;
-import org.sonar.api.web.RubyRailsWidget;
 import org.sonar.api.web.UserRole;
 import org.sonar.api.web.WidgetCategory;
 
 @WidgetCategory("Tests")
 @UserRole(UserRole.USER)
-public class CoverageWidget extends AbstractRubyTemplate implements RubyRailsWidget {
-  public String getId() {
-    return "code_coverage";
-  }
+public class CoverageWidget extends CoreWidget {
 
-  public String getTitle() {
-    return "Code coverage";
-  }
-
-  @Override
-  protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/widgets/coverage.html.erb";
+  public CoverageWidget() {
+    super("code_coverage", "Code coverage", "/org/sonar/plugins/core/widgets/coverage.html.erb");
   }
 }

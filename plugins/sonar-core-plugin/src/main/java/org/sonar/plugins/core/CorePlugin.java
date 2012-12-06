@@ -104,7 +104,7 @@ import org.sonar.plugins.core.widgets.TimeMachineWidget;
 import org.sonar.plugins.core.widgets.TimelineWidget;
 import org.sonar.plugins.core.widgets.TreemapWidget;
 import org.sonar.plugins.core.widgets.WelcomeWidget;
-import org.sonar.plugins.core.widgets.actionPlans.ActionPlansWidget;
+import org.sonar.plugins.core.widgets.ActionPlansWidget;
 import org.sonar.plugins.core.widgets.reviews.FalsePositiveReviewsWidget;
 import org.sonar.plugins.core.widgets.reviews.MyReviewsWidget;
 import org.sonar.plugins.core.widgets.reviews.PlannedReviewsWidget;
