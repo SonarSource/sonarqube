@@ -111,7 +111,7 @@ class MeasuresController < ApplicationController
     require_parameters :id
 
     @filter = MeasureFilter.find(params[:id])
-    access_denied unless owner?(@filter)
+    access_denied unless @filter.owner?(current_user)
     @filter.name=params[:name]
     @filter.description=params[:description]
     @filter.shared=(params[:shared]=='true')
@@ -177,7 +177,7 @@ class MeasuresController < ApplicationController
                                              :conditions => ['user_id=? and measure_filter_id=?', current_user.id, params[:id]])
     if favourites.empty?
       filter = find_filter(params[:id])
-      current_user.favourited_measure_filters<<filter if filter.shared || owner?(filter)
+      current_user.favourited_measure_filters<<filter if filter.shared || filter.owner?(current_user)
       is_favourite = true
     else
       favourites.each { |fav| fav.delete }
@@ -190,11 +190,7 @@ class MeasuresController < ApplicationController
   private
   def find_filter(id)
     filter = MeasureFilter.find(id)
-    access_denied unless filter.shared || owner?(filter)
+    access_denied unless filter.shared || filter.owner?(current_user)
     filter
-  end
-
-  def owner?(filter)
-    current_user && (filter.user_id==current_user.id || (filter.user_id==nil && has_role?(:admin)))
   end
 end

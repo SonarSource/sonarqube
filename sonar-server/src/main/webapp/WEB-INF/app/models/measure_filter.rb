@@ -190,6 +190,11 @@ class MeasureFilter < ActiveRecord::Base
     self
   end
 
+  def owner?(user)
+    return false if user==nil || user.id==nil
+    (self.id==nil) || (self.user_id==user.id) || (self.user_id==nil && user.has_role?(:admin))
+  end
+
   private
 
   def init_results
