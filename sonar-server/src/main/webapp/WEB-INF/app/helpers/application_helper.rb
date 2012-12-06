@@ -80,14 +80,6 @@ module ApplicationHelper
     params['configuring']=='true'
   end
 
-  def period_label(snapshot, period_index)
-    return nil if snapshot.nil? || snapshot.project_snapshot.nil?
-    mode = snapshot.period_mode(period_index)
-    mode_param = snapshot.period_param(period_index)
-    date = snapshot.period_datetime(period_index)
-    Api::Utils.java_facade.getPeriodLabel(mode, mode_param, date) if mode
-  end
-
   def configuration(key, default = nil)
     prop_value = Java::OrgSonarServerUi::JRubyFacade.getInstance().getContainer().getComponentByType(Java::OrgApacheCommonsConfiguration::Configuration.java_class).getProperty(key)
     prop_value.nil? ? default : prop_value
@@ -754,4 +746,5 @@ module ApplicationHelper
 
     "<a href='#{url}' modal-width='#{width}' class='open-modal #{clazz}' #{id}>#{h label}</a>"
   end
+
 end

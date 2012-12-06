@@ -13,7 +13,7 @@
                if @filter.display.key==:list && !edit_mode
             %>
               <li>
-                <a id="edit" href="<%= url_for params.merge({:edit => true, :id => @filter.id}) -%>"><%= message('measure_filter.configure_columns') -%></a>
+                <a id="configure-columns" href="<%= url_for params.merge({:edit => true, :id => @filter.id}) -%>"><%= message('measure_filter.configure_columns') -%></a>
               </li>
             <% end %>
             <li>

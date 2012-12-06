@@ -172,7 +172,7 @@ class Api::Utils
   end
 
   def self.language(key)
-    languages.find {|language| language.key == key}
+    languages.find { |language| language.key == key }
   end
 
   def self.language_name(key)
@@ -180,4 +180,9 @@ class Api::Utils
     l ? l.name : key
   end
 
+  # Label of global periods
+  # index is in [1..3]
+  def self.period_label(index)
+    java_facade.getPeriodLabel(index)
+  end
 end

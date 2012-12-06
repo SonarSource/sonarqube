@@ -26,7 +26,7 @@ module MeasuresHelper
       html=h(column.title_label)
     end
     if column.period
-      html += "<br><span class='note'>Period #{column.period}</small>"
+      html += "<br><span class='note'>#{Api::Utils.period_label(column.period)}</small>"
     end
     if filter.sort_key==column.key
       html << (filter.sort_asc? ? image_tag("asc12.png") : image_tag("desc12.png"))
@@ -93,11 +93,8 @@ module MeasuresHelper
     size.to_i
   end
 
-  def period_names
-    period_name1 = Api::Utils.java_facade.getPeriodLabel(1)
-    period_name2 = Api::Utils.java_facade.getPeriodLabel(2)
-    period_name3 = Api::Utils.java_facade.getPeriodLabel(3)
-    [period_name1, period_name2, period_name3]
+  def period_labels
+    [Api::Utils.period_label(1), Api::Utils.period_label(2), Api::Utils.period_label(3)]
   end
 
 end

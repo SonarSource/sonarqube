@@ -73,8 +73,8 @@
                               :extra_values => [[message('measure_filter.col.name'), 'name'], [message('measure_filter.col.short_name'), 'short_name'], [message('measure_filter.col.description'), 'description'], [message('measure_filter.col.language'), 'language'], [message('measure_filter.col.version'), 'version']] -%>
         <select id="select-period" style="display: none;">
           <option value="">Value</option>
-          <% period_names.each_with_index do |period_name, index| %>
-            <option value="<%= index + 1 -%>"><%= period_name -%></option>
+          <% period_labels.each_with_index do |period_label, index| %>
+            <option value="<%= index + 1 -%>"><%= period_label -%></option>
           <% end %>
         </select>
 
