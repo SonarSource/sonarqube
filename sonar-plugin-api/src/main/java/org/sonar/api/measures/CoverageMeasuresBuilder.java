@@ -23,7 +23,11 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.sonar.api.utils.KeyValueFormat;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.SortedMap;
 
 /**
  * @since 2.7
@@ -34,9 +38,9 @@ public final class CoverageMeasuresBuilder {
    * Metrics of generated measures
    */
   public static final List<Metric> METRICS = Arrays.asList(
-      CoreMetrics.LINES_TO_COVER, CoreMetrics.UNCOVERED_LINES, CoreMetrics.COVERAGE_LINE_HITS_DATA,
-      CoreMetrics.CONDITIONS_TO_COVER, CoreMetrics.UNCOVERED_CONDITIONS, CoreMetrics.CONDITIONS_BY_LINE,
-      CoreMetrics.COVERED_CONDITIONS_BY_LINE);
+    CoreMetrics.LINES_TO_COVER, CoreMetrics.UNCOVERED_LINES, CoreMetrics.COVERAGE_LINE_HITS_DATA,
+    CoreMetrics.CONDITIONS_TO_COVER, CoreMetrics.UNCOVERED_CONDITIONS, CoreMetrics.CONDITIONS_BY_LINE,
+    CoreMetrics.COVERED_CONDITIONS_BY_LINE);
 
 
   private int totalCoveredLines = 0, totalConditions = 0, totalCoveredConditions = 0;
@@ -69,13 +73,11 @@ public final class CoverageMeasuresBuilder {
   }
 
   public CoverageMeasuresBuilder setConditions(int lineId, int conditions, int coveredConditions) {
-    if (!conditionsByLine.containsKey(lineId)) {
-      if (conditions > 0) {
-        totalConditions += conditions;
-        totalCoveredConditions += coveredConditions;
-        conditionsByLine.put(lineId, conditions);
-        coveredConditionsByLine.put(lineId, coveredConditions);
-      }
+    if (conditions > 0 && !conditionsByLine.containsKey(lineId)) {
+      totalConditions += conditions;
+      totalCoveredConditions += coveredConditions;
+      conditionsByLine.put(lineId, conditions);
+      coveredConditionsByLine.put(lineId, coveredConditions);
     }
     return this;
   }
@@ -126,14 +128,14 @@ public final class CoverageMeasuresBuilder {
 
   private Measure createCoveredConditionsByLine() {
     return new Measure(CoreMetrics.COVERED_CONDITIONS_BY_LINE)
-        .setData(KeyValueFormat.format(coveredConditionsByLine))
-        .setPersistenceMode(PersistenceMode.DATABASE);
+      .setData(KeyValueFormat.format(coveredConditionsByLine))
+      .setPersistenceMode(PersistenceMode.DATABASE);
   }
 
   private Measure createConditionsByLine() {
     return new Measure(CoreMetrics.CONDITIONS_BY_LINE)
-        .setData(KeyValueFormat.format(conditionsByLine))
-        .setPersistenceMode(PersistenceMode.DATABASE);
+      .setData(KeyValueFormat.format(conditionsByLine))
+      .setPersistenceMode(PersistenceMode.DATABASE);
   }
 
   public static CoverageMeasuresBuilder create() {

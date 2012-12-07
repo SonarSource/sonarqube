@@ -30,9 +30,17 @@ import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.design.Dependency;
-import org.sonar.api.measures.*;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.MeasuresFilter;
+import org.sonar.api.measures.MeasuresFilters;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectLink;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
@@ -42,7 +50,14 @@ import org.sonar.batch.ProjectTree;
 import org.sonar.batch.ResourceFilters;
 import org.sonar.batch.ViolationFilters;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class DefaultIndex extends SonarIndex {
 
@@ -448,10 +463,10 @@ public class DefaultIndex extends SonarIndex {
     if (!StringUtils.equals(Scopes.PROJECT, resource.getScope())) {
       // not a project nor a library
       uid = new StringBuilder(ResourceModel.KEY_SIZE)
-          .append(project.getKey())
-          .append(':')
-          .append(resource.getKey())
-          .toString();
+        .append(project.getKey())
+        .append(':')
+        .append(resource.getKey())
+        .toString();
     }
     return uid;
   }
@@ -540,10 +555,8 @@ public class DefaultIndex extends SonarIndex {
   }
 
   private void checkLock(Resource resource) {
-    if (lock.isLocked() && !ResourceUtils.isLibrary(resource)) {
-      if (lock.isFailWhenLocked()) {
-        throw new SonarException("Index is locked, resource can not be indexed: " + resource);
-      }
+    if (lock.isLocked() && !ResourceUtils.isLibrary(resource) && lock.isFailWhenLocked()) {
+      throw new SonarException("Index is locked, resource can not be indexed: " + resource);
     }
   }
 

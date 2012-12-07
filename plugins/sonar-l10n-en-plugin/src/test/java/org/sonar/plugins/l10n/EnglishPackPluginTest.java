@@ -19,14 +19,13 @@
  */
 package org.sonar.plugins.l10n;
 
-import org.sonar.api.SonarPlugin;
+import org.junit.Test;
 
-import java.util.Collections;
-import java.util.List;
+import static org.fest.assertions.Assertions.assertThat;
 
-public final class EnglishPackPlugin extends SonarPlugin {
-
-  public List<?> getExtensions() {
-    return Collections.emptyList();
+public class EnglishPackPluginTest {
+  @Test
+  public void no_extensions() {
+    assertThat(new EnglishPackPlugin().getExtensions()).isEmpty();
   }
 }
