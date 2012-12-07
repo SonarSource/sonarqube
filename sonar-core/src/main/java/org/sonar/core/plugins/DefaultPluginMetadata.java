@@ -188,7 +188,8 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
    */
   public boolean isCompatibleWith(String sonarVersion) {
     if (null == this.sonarVersion) {
-      return true; // Plugins without sonar version are so old, they are compatible with a version containing this code
+      // Plugins without sonar version are so old, they are compatible with a version containing this code
+      return true;
     }
 
     Version minimumVersion = Version.createRelease(this.sonarVersion);

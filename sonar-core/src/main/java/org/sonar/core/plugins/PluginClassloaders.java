@@ -149,7 +149,8 @@ public class PluginClassloaders {
         LOG.warn("Plugin " + plugin.getKey() + " is ignored because base plugin is not installed: " + plugin.getBasePlugin());
         return false;
       }
-      base.createChildRealm(plugin.getKey()); // we create new realm to be able to return it by key without conversion to baseKey
+      // we create new realm to be able to return it by key without conversion to baseKey
+      base.createChildRealm(plugin.getKey());
       for (File file : plugin.getDeployedFiles()) {
         base.addURL(file.toURI().toURL());
       }

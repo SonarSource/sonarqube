@@ -24,8 +24,7 @@ import org.junit.Test;
 
 import java.util.Properties;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class PostgreSQLSequenceGeneratorTest {
 
@@ -37,7 +36,14 @@ public class PostgreSQLSequenceGeneratorTest {
 
     PostgreSQLSequenceGenerator generator = new PostgreSQLSequenceGenerator();
     generator.configure(null, props, new PostgreSql.PostgreSQLWithDecimalDialect());
-    assertThat(generator.getSequenceName(), is("my_table_id_seq"));
+    assertThat(generator.getSequenceName()).isEqualTo("my_table_id_seq");
   }
 
+  @Test
+  public void should_not_fail_if_table_name_can_not_be_loaded() {
+    Properties props = new Properties();
+    PostgreSQLSequenceGenerator generator = new PostgreSQLSequenceGenerator();
+    generator.configure(null, props, new PostgreSql.PostgreSQLWithDecimalDialect());
+    assertThat(generator.getSequenceName()).isNotEmpty();
+  }
 }

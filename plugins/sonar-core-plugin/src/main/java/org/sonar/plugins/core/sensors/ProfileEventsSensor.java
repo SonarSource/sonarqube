@@ -49,12 +49,14 @@ public class ProfileEventsSensor implements Sensor {
 
     Measure pastProfileMeasure = getPreviousMeasure(project, CoreMetrics.PROFILE);
     if (pastProfileMeasure == null) {
-      return; // first analysis
+      // first analysis
+      return;
     }
     int pastProfileId = pastProfileMeasure.getIntValue();
     Measure pastProfileVersionMeasure = getPreviousMeasure(project, CoreMetrics.PROFILE_VERSION);
     final int pastProfileVersion;
-    if (pastProfileVersionMeasure == null) { // first analysis with versions
+    // first analysis with versions
+    if (pastProfileVersionMeasure == null) {
       pastProfileVersion = 1;
     } else {
       pastProfileVersion = pastProfileVersionMeasure.getIntValue();

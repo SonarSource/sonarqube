@@ -127,7 +127,8 @@ public class PurgeDao {
       List<PurgeableSnapshotDto> result = Lists.newArrayList();
       result.addAll(mapper.selectPurgeableSnapshotsWithEvents(resourceId));
       result.addAll(mapper.selectPurgeableSnapshotsWithoutEvents(resourceId));
-      Collections.sort(result);// sort by date
+      // sort by date
+      Collections.sort(result);
       return result;
     } finally {
       MyBatis.closeQuietly(session);
