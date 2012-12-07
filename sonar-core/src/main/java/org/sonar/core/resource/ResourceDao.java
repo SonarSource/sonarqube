@@ -81,8 +81,8 @@ public class ResourceDao {
   }
 
   public SnapshotDto getLastSnapshotByResourceId(long resourceId, SqlSession session) {
-      return session.getMapper(ResourceMapper.class).selectLastSnapshotByResourceId(resourceId);
-    }
+    return session.getMapper(ResourceMapper.class).selectLastSnapshotByResourceId(resourceId);
+  }
 
   public List<ResourceDto> getDescendantProjects(long projectId) {
     SqlSession session = mybatis.openSession();

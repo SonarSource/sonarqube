@@ -150,10 +150,8 @@ public final class AnnotationCheckFactory extends CheckFactory {
     List<Field> fields = FieldUtils2.getFields(check.getClass(), true);
     for (Field field : fields) {
       RuleProperty propertyAnnotation = field.getAnnotation(RuleProperty.class);
-      if (propertyAnnotation != null) {
-        if (StringUtils.equals(key, field.getName()) || StringUtils.equals(key, propertyAnnotation.key())) {
-          return field;
-        }
+      if (propertyAnnotation != null && (StringUtils.equals(key, field.getName()) || StringUtils.equals(key, propertyAnnotation.key()))) {
+        return field;
       }
     }
     return null;

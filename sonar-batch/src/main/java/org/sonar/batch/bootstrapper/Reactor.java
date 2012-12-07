@@ -25,9 +25,10 @@ import java.util.List;
 
 /**
  * Describes order of projects.
- * Used by sonar-runner 1.x. Gradle 1.0 already uses {#link org.sonar.api.batch.bootstrap.ProjectReactor}.
+ * Used by sonar-runner 1.x. Gradle 1.0 already uses {@link org.sonar.api.batch.bootstrap.ProjectReactor}.
  * 
  * @since 2.6
+ * @deprecated replaced by {@link org.sonar.api.batch.bootstrap.ProjectReactor} in version 2.9
  */
 @Deprecated
 public class Reactor {
