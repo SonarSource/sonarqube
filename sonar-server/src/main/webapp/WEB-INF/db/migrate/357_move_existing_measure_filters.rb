@@ -37,12 +37,12 @@ class MoveExistingMeasureFilters < ActiveRecord::Migration
   class Resource < ActiveRecord::Base
     set_table_name 'projects'
   end
-  class Filter < ActiveRecord::Base
+  class OldFilter < ActiveRecord::Base
     set_table_name 'filters'
   end
 
   def self.up
-    old_filters = Filter.find(:all)
+    old_filters = OldFilter.find(:all)
     say_with_time "Moving #{old_filters.size} measure filters" do
       old_filters.each do |old_filter|
         move(old_filter)
@@ -103,15 +103,15 @@ class MoveExistingMeasureFilters < ActiveRecord::Migration
     metric_criteria_id=1
 
     old_criteria.each do |old|
-      if old.family=='qualifier' && old.text_value
+      if old.family=='qualifier' && old.text_value.present?
         data << "qualifiers=#{old.text_value}"
-      elsif old.family=='name' && old.text_value
+      elsif old.family=='name' && old.text_value.present?
         data << "nameSearch=#{old.text_value}"
-      elsif old.family=='key' && old.text_value
+      elsif old.family=='key' && old.text_value.present?
         data << "keyRegexp=#{old.text_value}"
-      elsif old.family=='language' && old.text_value
+      elsif old.family=='language' && old.text_value.present?
         data << "languages=#{old.text_value}"
-      elsif old.family=='date' && old.value && old.operator
+      elsif old.family=='date' && old.value && old.operator.present?
         data << "ageMaxDays=#{old.value}" if old.operator=='<'
         data << "ageMinDays=#{old.value}" if old.operator=='>'
       elsif old.family=='metric' && old.kee && old.operator && old.value

@@ -26,6 +26,10 @@ class MoveFilterWidgets < ActiveRecord::Migration
   class MeasureFilter < ActiveRecord::Base
   end
 
+  class OldFilter < ActiveRecord::Base
+    set_table_name :filters
+  end
+
   class Widget < ActiveRecord::Base
   end
 
@@ -41,14 +45,17 @@ class MoveFilterWidgets < ActiveRecord::Migration
       widgets.each do |widget|
         dashboard = Dashboard.find_by_id(widget.dashboard_id)
         widget_property = WidgetProperty.find(:first, :conditions => {:widget_id => widget.id, :kee => 'filter'})
-        if dashboard && widget_property
-          filter = MeasureFilter.find(:first, :conditions => ['name=? and user_id=?', widget_property.text_value, dashboard.user_id]) if dashboard.user_id
-          filter = MeasureFilter.find(:first, :conditions => ['name=? and shared=?', widget_property.text_value, true]) unless filter
-          if filter
-            widget_property.text_value = filter.id.to_s
-            widget_property.save
-            widget.widget_key = (filter.data.include?('display=treemap') ? 'measure_filter_treemap' : 'measure_filter_list')
-            widget.save
+        if dashboard && widget_property && widget_property.text_value
+          old_filter = OldFilter.find_by_kee(widget_property.text_value)
+          if old_filter
+            filter = MeasureFilter.find(:first, :conditions => ['name=? and user_id=?', old_filter.name, old_filter.user_id]) if old_filter.user_id
+            filter = MeasureFilter.find(:first, :conditions => ['name=? and user_id is null', old_filter.name]) unless filter
+            if filter
+              widget_property.text_value = filter.id.to_s
+              widget_property.save
+              widget.widget_key = (filter.data.include?('display=treemap') ? 'measure_filter_treemap' : 'measure_filter_list')
+              widget.save
+            end
           end
         end
       end
