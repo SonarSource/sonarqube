@@ -218,7 +218,7 @@ public class CheckAlertThresholdsTest {
 
   @Test
   public void shouldVariationPeriodValueCouldBeUsedForRatingMetric() {
-    Metric ratingMetric = new Metric.Builder("key.rating", "name.rating", Metric.ValueType.RATING).create();
+    Metric ratingMetric = new Metric.Builder("key_rating_metric", "Rating metric", Metric.ValueType.RATING).create();
     Measure measureRatingMetric = new Measure(ratingMetric, 150d);
     measureRatingMetric.setVariation1(50d);
     when(context.getMeasure(ratingMetric)).thenReturn(measureRatingMetric);
@@ -271,6 +271,26 @@ public class CheckAlertThresholdsTest {
     decorator.decorate(project, context);
 
     verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.WARN, "Classes variation > 30 since someday")));
+  }
+
+  @Test
+  public void shouldLabelAlertForNewMetricDoNotContainsVariationWord() {
+    Metric newMetric = new Metric.Builder("new_metric_key", "New Metric", Metric.ValueType.INT).create();
+    Measure measure = new Measure(newMetric, 15d);
+    measure.setVariation1(50d);
+    when(context.getMeasure(newMetric)).thenReturn(measure);
+    measureClasses.setVariation1(40d);
+
+    when(i18n.message(Mockito.any(Locale.class), Mockito.eq("metric.new_metric_key.name"), Mockito.isNull(String.class))).thenReturn("New Measure");
+    when(periods.label(snapshot, 1)).thenReturn("since someday");
+
+    when(profile.getAlerts()).thenReturn(Arrays.asList(
+        new Alert(null, newMetric, Alert.OPERATOR_GREATER, null, "30", 1) // generates warning because classes increases of 40, which is greater than 30
+    ));
+
+    decorator.decorate(project, context);
+
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.WARN, "New Measure > 30 since someday")));
   }
 
   private ArgumentMatcher<Measure> matchesMetric(final Metric metric, final Metric.Level alertStatus, final String alertText) {
