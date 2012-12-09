@@ -21,6 +21,11 @@
         <li>
           <a href="<%= ApplicationController.root_context -%>/reviews/index"><%= message('reviews.page') -%></a>
         </li>
+        <% if is_admin? %>
+          <li>
+            <a href="<%= ApplicationController.root_context -%>/settings/index"><%= message('layout.administration') -%></a>
+          </li>
+        <% end %>
       </ul>
     </div>
     <div id="nav">
@@ -29,11 +34,6 @@
           <input type="text" size="15" name="search" id="searchInput" onFocus="autocompleteResources()" value="<%= message('search_verb') -%>"/>
           <img src="<%= ApplicationController.root_context -%>/images/loading-small.gif" id="searchingResources" style="display:none">
         </li>
-        <% if is_admin? %>
-          <li>
-            <a href="<%= ApplicationController.root_context -%>/settings/index"><%= message('layout.administration') -%></a>
-          </li>
-        <% end %>
         <% if logged_in? %>
           <%= render 'layouts/menu_user' -%>
         <% else %>
@@ -62,10 +62,10 @@
               <li class="<%= 'active' if selected -%>">
                 <a href="<%= ApplicationController.root_context -%><%= page_url -%>"><%= message(page.getId() + '.page', :default => page.getTitle()) -%></a></li>
             <% end %>
-            
+
             <li class="spacer"></li>
             <li class="sidebar-title"><%= message('sidebar.tools') -%></li>
-            
+
             <li class="<%= 'active' if request.request_uri.include?('/profiles') || request.request_uri.include?('/alerts') || request.request_uri.include?('/rules_configuration') -%>">
               <a href="<%= ApplicationController.root_context -%>/profiles"><%= message('quality_profiles.page') -%></a></li>
             <li class="<%= 'active' if request.request_uri.include?('/dependencies/index') -%>">
@@ -88,7 +88,7 @@
             <li class="<%= 'active' if request.request_uri.include?('/drilldown/violations') -%>">
               <a href="<%= ApplicationController.root_context -%>/drilldown/violations/<%= @project.id -%><%= "?"+period_param if period_param -%>"><%= message('violations_drilldown.page') -%></a>
               <% if controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'comparable') %>
-            <li class="<%= 'active' if request.request_uri.include?('/comparison/index') -%>">
+              <li class="<%= 'active' if request.request_uri.include?('/comparison/index') -%>">
                 <a href="<%= ApplicationController.root_context -%>/comparison/index?resource=<%= @project.key -%>"><%= message('comparison.page') -%></a></li>
             <% end %>
             <% controller.java_facade.getPages(Navigation::SECTION_RESOURCE, @project.scope, @project.qualifier, @project.language, @project.last_snapshot.metric_keys.to_java(:string)).each do |page|
@@ -145,10 +145,10 @@
 
           <% end %>
 
-        <%= yield :sidebar %>
-        <div id="logo">
-          <center><a href="http://www.sonarsource.org/" target="SonarSource"><%= image_tag('sonar.png', :alt => message('layout.sonar.slogan'), :class => 'png') -%></a></center>
-        </div>
+          <%= yield :sidebar %>
+          <div id="logo">
+            <center><a href="http://www.sonarsource.org/" target="SonarSource"><%= image_tag('sonar.png', :alt => message('layout.sonar.slogan'), :class => 'png') -%></a></center>
+          </div>
         </ul>
       </div>
     <% end %>
