@@ -28,7 +28,7 @@ class AllProjectsController < ApplicationController
     
     
     @filter = MeasureFilter.new
-    @filter.criteria = params.merge({'qualifiers' => [@qualifier], 'cols' => ['name', 'description', 'key', 'links']})
+    @filter.criteria = params.merge({'qualifiers' => [@qualifier], :cols => ['name', 'description', 'links'], :sort => 'name'})
     @filter.enable_default_display
     @filter.execute(self, :user => current_user)
   end

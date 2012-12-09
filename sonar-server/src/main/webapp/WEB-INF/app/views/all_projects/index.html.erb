@@ -28,7 +28,7 @@
 
     <%
       display_favourites = logged_in?
-      colspan = 7
+      colspan = 5
       colspan += 1 if display_favourites
     %>
 
@@ -38,16 +38,9 @@
           <% if display_favourites %>
             <th class="thin" style></th>
           <% end %>
-          <th class="thin">
+          <th class="thin nowrap">
             <%= link_to_function( message('all-projects.cols.name'), "reloadParameters({asc:'#{(!@filter.sort_asc?).to_s}', sort:'name'})") -%>
             <% if @filter.sort_key=='name' %>
-              <%= @filter.sort_asc? ? image_tag("asc12.png") : image_tag("desc12.png") -%>
-            <% end %>
-          </th>
-          <th></th>
-          <th>
-            <%= link_to_function( message('all-projects.cols.key'), "reloadParameters({asc:'#{(!@filter.sort_asc?).to_s}', sort:'key'})") -%>
-            <% if @filter.sort_key=='key' %>
               <%= @filter.sort_asc? ? image_tag("asc12.png") : image_tag("desc12.png") -%>
             <% end %>
           </th>
@@ -66,10 +59,6 @@
             <% end %>
             <td class="nowrap">
               <%= qualifier_icon(result.snapshot)-%> <%= link_to(result.snapshot.resource.name(true), {:controller => 'dashboard', :id => result.snapshot.resource_id}, :title => result.snapshot.resource.key) -%>
-            </td>
-            <td class="sep"></td>
-            <td class="nowrap">
-              <span class='small'><%= result.snapshot.resource.kee -%></span>
             </td>
             <td class="sep"></td>
             <td>
