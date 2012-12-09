@@ -17,30 +17,33 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.filters;
+package org.sonar.plugins.core.measurefilters;
 
-import org.junit.Test;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.web.Filter;
-import org.sonar.plugins.core.CorePlugin;
+import org.sonar.api.web.FilterColumn;
+import org.sonar.api.web.FilterTemplate;
 
-import static org.fest.assertions.Assertions.assertThat;
+/**
+ * Default filter for looking for user favourite resources.
+ *
+ * @since 3.1
+ */
+public class MyFavouritesFilter extends FilterTemplate {
+  public static final String NAME = "My favourites";
 
-public class MyFavouritesFilterTest {
-  @Test
-  public void should_create_filter() {
-    MyFavouritesFilter template = new MyFavouritesFilter();
-
-    Filter filter = template.createFilter();
-
-    assertThat(template.getName()).isEqualTo("My favourites");
-    assertThat(filter).isNotNull();
-    assertThat(filter.isFavouritesOnly()).isTrue();
-    assertThat(filter.getCriteria()).isEmpty();
-    assertThat(filter.getColumns()).hasSize(3);
+  @Override
+  public String getName() {
+    return NAME;
   }
 
-  @Test
-  public void should_be_registered_as_an_extension() {
-    assertThat(new CorePlugin().getExtensions()).contains(MyFavouritesFilter.class);
+  @Override
+  public Filter createFilter() {
+    return Filter.create()
+      .setDisplayAs(Filter.LIST)
+      .setFavouritesOnly(true)
+      .add(FilterColumn.create("metric", CoreMetrics.ALERT_STATUS_KEY, FilterColumn.DESC, false))
+      .add(FilterColumn.create("name", null, FilterColumn.ASC, false))
+      .add(FilterColumn.create("date", null, FilterColumn.DESC, false));
   }
 }

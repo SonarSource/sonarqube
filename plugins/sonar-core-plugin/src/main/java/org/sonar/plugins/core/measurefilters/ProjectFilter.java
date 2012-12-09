@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.filters;
+package org.sonar.plugins.core.measurefilters;
 
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Qualifiers;
@@ -49,7 +49,6 @@ public class ProjectFilter extends FilterTemplate {
         .add(FilterColumn.create("version", null, FilterColumn.DESC, false))
         .add(FilterColumn.create("metric", CoreMetrics.NCLOC_KEY, FilterColumn.DESC, false))
         .add(FilterColumn.create("metric", CoreMetrics.VIOLATIONS_DENSITY_KEY, FilterColumn.DESC, false))
-        .add(FilterColumn.create("date", null, FilterColumn.DESC, false))
-        .add(FilterColumn.create("links", null, FilterColumn.DESC, false));
+        .add(FilterColumn.create("date", null, FilterColumn.DESC, false));
   }
 }
