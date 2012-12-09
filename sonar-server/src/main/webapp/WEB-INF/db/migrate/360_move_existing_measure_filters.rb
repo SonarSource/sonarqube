@@ -68,7 +68,6 @@ class MoveExistingMeasureFilters < ActiveRecord::Migration
 
     new_filter.data = data.join('|') unless data.empty?
     new_filter.save
-    Filter.delete(old_filter.id)
   end
 
   def self.move_columns(old_filter, data)

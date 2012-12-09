@@ -95,6 +95,10 @@ class MeasureFilter < ActiveRecord::Base
     @require_links
   end
 
+  def require_authentication?
+    criteria[:onFavourites]=='true'
+  end
+
   def criteria(key=nil)
     @criteria ||= HashWithIndifferentAccess.new
     if key

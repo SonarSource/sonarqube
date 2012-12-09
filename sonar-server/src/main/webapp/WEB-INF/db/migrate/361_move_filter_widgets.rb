@@ -51,9 +51,9 @@ class MoveFilterWidgets < ActiveRecord::Migration
             filter = MeasureFilter.find(:first, :conditions => ['name=? and user_id=?', old_filter.name, old_filter.user_id]) if old_filter.user_id
             filter = MeasureFilter.find(:first, :conditions => ['name=? and user_id is null', old_filter.name]) unless filter
             if filter
-              widget_property.text_value = filter.id.to_s
+              widget_property.text_value=filter.id.to_s
               widget_property.save
-              widget.widget_key = (filter.data.include?('display=treemap') ? 'measure_filter_treemap' : 'measure_filter_list')
+              widget.widget_key=(filter.data.include?('display=treemap') ? 'measure_filter_treemap' : 'measure_filter_list')
               widget.save
             end
           end
