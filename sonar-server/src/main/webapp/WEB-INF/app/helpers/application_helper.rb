@@ -610,6 +610,7 @@ module ApplicationHelper
   # * <tt>:resource_type_property</tt> -Filter on resource types on which the property is enabled, for example 'supportsGlobalDashboards'.
   # * <tt>:selected_resource</tt> - the resource that is selected by default.
   # * <tt>:placeholder</tt> - the label to display when nothing is selected
+  # * <tt>:allow_clear</tt> - true if resource can be de-selected. Default is false.
   # * <tt>:select2_options</tt> - hash of select2 options
   #
   def resource_select_tag(name, options={})
@@ -634,6 +635,7 @@ module ApplicationHelper
     min_length = 3 # see limitation in /api/resources/search
     js_options={
       'minimumInputLength' => min_length,
+      'allowClear' => options[:allow_clear]||false,
       'formatNoMatches' => "function(term){return '#{escape_javascript message('select2.noMatches')}'}",
       'formatSearching' => "function(){return '#{escape_javascript message('select2.searching')}'}",
       'formatInputTooShort' => "function(term, minLength){return '#{escape_javascript message('select2.tooShort', :params => [min_length])}'}"
