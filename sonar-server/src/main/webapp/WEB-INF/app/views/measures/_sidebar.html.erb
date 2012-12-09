@@ -11,9 +11,8 @@
     function submitSearch() {
       // remove empty parameters from URL
       var form = $j("#search-form");
-      form.find(':input[value=""]').attr('name', '');
-      form.submit();
-      return false;
+      form.find(':input[value=""]').remove();
+      return true;
     }
     function removeUrlAttr(url, attribute_key) {
       var regexp = new RegExp("&?" + attribute_key + "=([^&]$|[^&]*)", "g");
@@ -29,8 +28,8 @@
     }
     var hiddenConditionIndexes = [<%= hidden_condition_indexes.join(',') -%>];
     $j(document).ready(function () {
-      $j('#select-lang').select2({allowClear: true, width: '100%', placeholder: '<%= message 'measure_filter.languages' -%>'});
-      $j('#select-qualifiers').select2({allowClear: true, width: '100%', placeholder: 'Resources'});
+      $j('#select-lang').select2({allowClear: true, width: '100%', placeholder: '<%= escape_javascript message 'measure_filter.languages' -%>'});
+      $j('#select-qualifiers').select2({allowClear: true, width: '100%', placeholder: '<%= escape_javascript message('measure_filter.criteria.what') -%>'});
       $j('#more-criteria')
         .select2({allowClear: true, width: '100%', placeholder: '<%= message 'measure_filter.more_criteria' -%>'})
         .on("change", function (e) {
@@ -59,7 +58,7 @@
 <ul class="sidebar gray-sidebar">
   <%= render :partial => 'measures/favourites' -%>
 
-  <form id="search-form" method="GET" action="<%= ApplicationController.root_context -%>/measures/search">
+  <form id="search-form" method="GET" action="<%= ApplicationController.root_context -%>/measures/search" onsubmit="submitSearch()">
     <% if @filter.id %>
       <input type="hidden" name="id" value="<%= @filter.id -%>">
     <% end %>
@@ -155,7 +154,7 @@
       </select>
     </li>
     <li>
-      <input type="button" name="search" value="<%= message('search_verb') -%>" onclick="submitSearch()" id="search-button">
+      <input type="submit" name="search" value="<%= message('search_verb') -%>" id="search-button">
       <% if @filter.results %>
         <a href="<%= ApplicationController.root_context -%>/measures" class="link-action"><%= message 'measure_filter.new_search' -%></a>
       <% end %>
