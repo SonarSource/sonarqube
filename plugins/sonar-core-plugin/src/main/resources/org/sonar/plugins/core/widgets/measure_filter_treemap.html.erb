@@ -3,7 +3,7 @@
    size_metric = widget_properties['sizeMetric']
    color_metric = widget_properties['colorMetric']
    filter = MeasureFilter.find_by_id(filter_id.to_i) if filter_id
-   if filter
+   if filter && (!filter.require_authentication? || logged_in?)
      url_options = {:controller => 'measures', :action => 'filter', :id => filter.id, :display => 'treemap'}
      filter.load_criteria_from_data
      filter.set_criteria_value('display', 'treemap')

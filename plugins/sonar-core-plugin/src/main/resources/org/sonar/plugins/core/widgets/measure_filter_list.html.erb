@@ -2,7 +2,7 @@
    filter_id = widget_properties['filter']
    page_size = widget_properties['pageSize']
    filter = MeasureFilter.find_by_id(filter_id.to_i) if filter_id
-   if filter
+   if filter && (!filter.require_authentication? || logged_in?)
      filter.load_criteria_from_data
      filter.set_criteria_value('display', 'list')
      filter.set_criteria_value('pageSize', page_size)
