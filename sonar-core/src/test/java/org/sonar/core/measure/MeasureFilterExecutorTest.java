@@ -219,6 +219,30 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void null_measures_are_ordered_after_descending_numeric_measures() throws SQLException {
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK"))
+      .setSortOnMetric(METRIC_COVERAGE).setSortAsc(false);
+    List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
+
+    // Java has coverage but not PHP
+    assertThat(rows).hasSize(2);
+    verifyJavaProject(rows.get(0));
+    verifyPhpProject(rows.get(1));
+  }
+
+  @Test
+    public void null_measures_are_ordered_after_ascending_numeric_measures() throws SQLException {
+      MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK"))
+        .setSortOnMetric(METRIC_COVERAGE).setSortAsc(true);
+      List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
+
+      // Java has coverage but not PHP
+      assertThat(rows).hasSize(2);
+      verifyJavaProject(rows.get(0));
+      verifyPhpProject(rows.get(1));
+    }
+
+  @Test
   public void sort_by_missing_numeric_measure() throws SQLException {
     // coverage measures are not computed
     MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("CLA")).setSortOnMetric(METRIC_COVERAGE);
