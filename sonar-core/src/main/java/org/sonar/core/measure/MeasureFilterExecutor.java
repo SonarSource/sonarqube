@@ -106,7 +106,7 @@ public class MeasureFilterExecutor implements ServerComponent {
 
   private static boolean validateSort(MeasureFilter filter) {
     boolean valid = true;
-    if (filter.sort().getPeriod() != null && filter.sort().getPeriod() < 1) {
+    if (filter.sort().period() != null && filter.sort().period() < 1) {
       valid = false;
     }
     if (filter.sort().onMeasures() && filter.sort().metric() == null) {

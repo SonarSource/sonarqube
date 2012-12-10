@@ -56,6 +56,16 @@ public class MeasureFilterFactory implements ServerComponent {
     }
     filter.setResourceName((String) properties.get("nameSearch"));
     filter.setResourceKeyRegexp((String) properties.get("keyRegexp"));
+    if (properties.containsKey("onFavourites")) {
+      filter.setUserFavourites(Boolean.valueOf((String) properties.get("onFavourites")));
+    }
+    fillDateConditions(filter, properties);
+    fillSorting(filter, properties);
+    fillMeasureConditions(properties, filter);
+    return filter;
+  }
+
+  private void fillDateConditions(MeasureFilter filter, Map<String, Object> properties) {
     if (properties.containsKey("fromDate")) {
       filter.setFromDate(toDate((String) properties.get("fromDate")));
     } else if (properties.containsKey("ageMaxDays")) {
@@ -66,28 +76,37 @@ public class MeasureFilterFactory implements ServerComponent {
     } else if (properties.containsKey("ageMinDays")) {
       filter.setToDate(toDays((String) properties.get("ageMinDays")));
     }
+  }
 
-    if (properties.containsKey("onFavourites")) {
-      filter.setUserFavourites(Boolean.valueOf((String) properties.get("onFavourites")));
-    }
-    if (properties.containsKey("asc")) {
-      filter.setSortAsc(Boolean.valueOf((String) properties.get("asc")));
-    }
-    String s = (String) properties.get("sort");
-    if (s != null) {
-      if (StringUtils.startsWith(s, "metric:")) {
-        filter.setSortOnMetric(metricFinder.findByKey(StringUtils.substringAfter(s, "metric:")));
-      } else {
-        filter.setSortOn(MeasureFilterSort.Field.valueOf(s.toUpperCase()));
-      }
-    }
+  private void fillMeasureConditions(Map<String, Object> properties, MeasureFilter filter) {
     for (int index = 1; index <= 3; index++) {
       MeasureFilterCondition condition = toCondition(properties, index);
       if (condition != null) {
         filter.addCondition(condition);
       }
     }
-    return filter;
+  }
+
+  private void fillSorting(MeasureFilter filter, Map<String, Object> properties) {
+    String s = (String) properties.get("sort");
+    if (s != null) {
+      if (StringUtils.startsWith(s, "metric:")) {
+        String[] fields = StringUtils.split(s, ':');
+        Metric metric = metricFinder.findByKey(fields[1]);
+        if (metric != null) {
+          filter.setSortOnMetric(metric);
+          if (fields.length == 3) {
+            filter.setSortOnPeriod(Integer.parseInt(fields[2]));
+          }
+        }
+      } else {
+        filter.setSortOn(MeasureFilterSort.Field.valueOf(s.toUpperCase()));
+      }
+    }
+
+    if (properties.containsKey("asc")) {
+      filter.setSortAsc(Boolean.valueOf((String) properties.get("asc")));
+    }
   }
 
   private MeasureFilterCondition toCondition(Map<String, Object> props, int index) {

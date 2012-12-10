@@ -43,7 +43,7 @@ class MeasureFilterSort {
     this.metric = metric;
   }
 
-  Integer getPeriod() {
+  Integer period() {
     return period;
   }
 
@@ -77,7 +77,7 @@ class MeasureFilterSort {
 
   String column() {
     // only numeric metrics can be sorted by database, else results are sorted programmatically.
-    String column = null;
+    String column;
     switch (field) {
       case KEY:
         column = "p.kee";
