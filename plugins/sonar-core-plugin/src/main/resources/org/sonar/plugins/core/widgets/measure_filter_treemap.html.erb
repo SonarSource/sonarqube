@@ -3,21 +3,26 @@
    size_metric = widget_properties['sizeMetric']
    color_metric = widget_properties['colorMetric']
    filter = MeasureFilter.find_by_id(filter_id.to_i) if filter_id
-   if filter && (!filter.require_authentication? || logged_in?)
+   if filter
      url_options = {:controller => 'measures', :action => 'filter', :id => filter.id, :display => 'treemap'}
      filter.load_criteria_from_data
      filter.set_criteria_value('display', 'treemap')
      if size_metric
-      filter.set_criteria_value('tmSize', size_metric.key)
-      url_options['tmSize']=size_metric.key
+       filter.set_criteria_value('tmSize', size_metric.key)
+       url_options['tmSize']=size_metric.key
      end
      if color_metric
-      filter.set_criteria_value('tmColor', color_metric.key)
-      url_options['tmColor']=color_metric.key
+       filter.set_criteria_value('tmColor', color_metric.key)
+       url_options['tmColor']=color_metric.key
      end
-     filter.execute(self, :user => current_user)
 
-     @widget_title = link_to h(filter.name), url_options
+     if !filter.require_authentication? || logged_in?
+       filter.execute(self, :user => current_user)
+
+       @widget_title = link_to h(filter.name), url_options
 %>
-  <%= render :partial => "measures/display_#{filter.display.key}", :locals => {:edit_mode => false, :widget => widget, :filter => filter} %>
-<% end %>
+    <%= render :partial => "measures/display_#{filter.display.key}", :locals => {:edit_mode => false, :widget => widget, :filter => filter} %>
+  <%
+     end
+     end
+  %>

@@ -2,12 +2,16 @@
    filter_id = widget_properties['filter']
    page_size = widget_properties['pageSize']
    filter = MeasureFilter.find_by_id(filter_id.to_i) if filter_id
-   if filter && (!filter.require_authentication? || logged_in?)
+   if filter
      filter.load_criteria_from_data
-     filter.set_criteria_value('display', 'list')
-     filter.set_criteria_value('pageSize', page_size)
-     filter.execute(self, :user => current_user)
-     @widget_title = link_to h(filter.name), {:controller => 'measures', :action => 'filter', :id => filter.id, :display => 'list'}
+     if !filter.require_authentication? || logged_in?
+       filter.set_criteria_value('display', 'list')
+       filter.set_criteria_value('pageSize', page_size)
+       filter.execute(self, :user => current_user)
+       @widget_title = link_to h(filter.name), {:controller => 'measures', :action => 'filter', :id => filter.id, :display => 'list'}
 %>
-  <%= render :partial => "measures/display_#{filter.display.key}", :locals => {:edit_mode => false, :widget => widget, :filter => filter} %>
-<% end %>
+    <%= render :partial => "measures/display_#{filter.display.key}", :locals => {:edit_mode => false, :widget => widget, :filter => filter} %>
+  <%
+     end
+     end
+  %>
