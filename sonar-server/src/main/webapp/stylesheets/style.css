@@ -86,6 +86,10 @@ code {
   font-size: 85%;
 }
 
+input[type].small {
+
+}
+
 small {
   color: #AAA;
   font-size: 85%;
@@ -213,7 +217,7 @@ button[disabled], .button[disabled], input[type="submit"][disabled], input[type=
 }
 
 /* ------------------- PAGE ------------------- */
-h1 {
+h1, .h1 {
   color: #444;
   font-size: 16px;
 }

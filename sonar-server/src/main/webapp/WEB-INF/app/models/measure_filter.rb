@@ -82,7 +82,7 @@ class MeasureFilter < ActiveRecord::Base
 
   # Set the metrics of the result measures to load. Array of Metric or String.
   def metrics=(array=[])
-    @metrics = array.map{|m| m.is_a?(Metric) ? m : Metric.by_key(m)}.compact
+    @metrics = array.map { |m| m.is_a?(Metric) ? m : Metric.by_key(m) }.compact
   end
 
   # Enable the loading of result links. False by default
@@ -282,7 +282,11 @@ class MeasureFilter < ActiveRecord::Base
     # validate uniqueness of name
     if id
       # update existing filter
-      count = MeasureFilter.count('id', :conditions => ['name=? and user_id=? and id<>?', name, user_id, id])
+      if user_id
+        count = MeasureFilter.count('id', :conditions => ['name=? and user_id=? and id<>?', name, user_id, id])
+      else
+        count = MeasureFilter.count('id', :conditions => ['name=? and user_id is null and id<>?', name, id])
+      end
     else
       # new filter
       count = MeasureFilter.count('id', :conditions => ['name=? and user_id=?', name, user_id])
@@ -290,7 +294,11 @@ class MeasureFilter < ActiveRecord::Base
     errors.add_to_base('Name already exists') if count>0
 
     if shared
-      count = MeasureFilter.count('id', :conditions => ['name=? and shared=? and (user_id is null or user_id<>?)', name, true, user_id])
+      if id
+        count = MeasureFilter.count('id', :conditions => ['name=? and shared=? and (user_id is null or user_id<>?) and id<>?', name, true, user_id, id])
+      else
+        count = MeasureFilter.count('id', :conditions => ['name=? and shared=? and (user_id is null or user_id<>?)', name, true, user_id])
+      end
       errors.add_to_base('Other users already share filters with the same name') if count>0
     elsif system?
       errors.add_to_base("System filters can't be unshared")
