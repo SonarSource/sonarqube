@@ -1,0 +1,16 @@
+<li>
+  <a href="#" onclick="showDropdownMenu('admin-panel'); return false;" class="link-more"><%= message('layout.settings') -%></a>
+  
+  <div id="admin-panel" class="dropdown-menu" style="display: none">
+    <ul>
+      <li><a href="<%= ApplicationController.root_context -%>/profiles"><%= message('quality_profiles.page') -%></a></li>
+      
+      <% if is_admin? %>
+      <li><a href="<%= ApplicationController.root_context -%>/settings/index"><%= message('sidebar.project_settings') -%></a></li>
+      <li><a href="<%= ApplicationController.root_context -%>/users"><%= message('sidebar.security') -%></a></li>
+      <li><a href="<%= ApplicationController.root_context -%>/backup"><%= message('sidebar.system') -%></a></li>
+      <% end %>
+    </ul>
+  </div>
+  
+</li>
