@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -34,5 +35,32 @@ public class MeasureFilterTest {
     assertThat(MeasureFilter.sanitize(Arrays.asList(""))).isEmpty();
     assertThat(MeasureFilter.sanitize(Lists.newArrayList("TRK"))).containsExactly("TRK");
     assertThat(MeasureFilter.sanitize(Lists.newArrayList("TRK", "BRC"))).containsExactly("TRK", "BRC");
+  }
+
+  @Test
+  public void filter_is_not_empty_if_at_least_condition_on_favourites() {
+    assertThat(new MeasureFilter().isEmpty()).isTrue();
+    assertThat(new MeasureFilter().setUserFavourites(true).isEmpty()).isFalse();
+  }
+
+  @Test
+  public void filter_is_not_empty_if_at_least_condition_on_qualifiers() {
+    assertThat(new MeasureFilter().isEmpty()).isTrue();
+    assertThat(new MeasureFilter().setResourceQualifiers(Collections.<String>emptyList()).isEmpty()).isTrue();
+    assertThat(new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).isEmpty()).isFalse();
+  }
+
+  @Test
+  public void filter_is_not_empty_if_at_least_condition_on_scopes() {
+    assertThat(new MeasureFilter().isEmpty()).isTrue();
+    assertThat(new MeasureFilter().setResourceScopes(Collections.<String>emptyList()).isEmpty()).isTrue();
+    assertThat(new MeasureFilter().setResourceScopes(Arrays.asList("PRJ")).isEmpty()).isFalse();
+  }
+
+  @Test
+  public void filter_is_not_empty_if_at_least_condition_on_root_resource() {
+    assertThat(new MeasureFilter().isEmpty()).isTrue();
+    assertThat(new MeasureFilter().setBaseResourceKey("foo").isEmpty()).isFalse();
+    assertThat(new MeasureFilter().setBaseResourceId(123L).isEmpty()).isFalse();
   }
 }
