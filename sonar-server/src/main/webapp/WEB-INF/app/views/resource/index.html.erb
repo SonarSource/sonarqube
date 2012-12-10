@@ -1,11 +1,3 @@
-<script>
-  if (sonarRecentHistory != null) {
-    sonarRecentHistory.add('<%= @resource.key -%>', 
-                           '<%= @resource.name -%>', 
-                           '<%= @resource ? Java::OrgSonarServerUi::JRubyFacade.getInstance().getResourceType(@resource.qualifier).getIconPath() : "" -%>');
-  }  
-</script>
-
 <%= render :partial => 'tabs' -%>
 <%= render :partial => "resource/header_#{@extension.getId()}" -%>
 

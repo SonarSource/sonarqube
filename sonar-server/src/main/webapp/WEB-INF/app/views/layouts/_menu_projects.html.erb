@@ -28,9 +28,18 @@
 <script>
   if (sonarRecentHistory == null) {
     $j('#recent-history').detach();
-  } else {
-    sonarRecentHistory.add('<%= @resource ? @resource.key : "" -%>', 
-                           '<%= @resource ? @resource.name : "" -%>', 
-                           '<%= @resource ? Api::Utils.java_facade.getResourceType(@resource.qualifier).getIconPath() : "" -%>');
   }
+  
+  <% 
+     if @resource
+       # we keep only root resources in the "Recent activity"
+       root_resource = @resource.root_project
+  %>
+  else {
+    sonarRecentHistory.add('<%= root_resource.key -%>', 
+                           '<%= root_resource.name -%>', 
+                           '<%= Api::Utils.java_facade.getResourceType(root_resource.qualifier).getIconPath() -%>');
+  }
+  <% end %>
+  
 </script>
