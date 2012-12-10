@@ -34,9 +34,20 @@
           <div class="page_title">
             <% if @filter.name.present? %>
               <span class="h3"><%= h @filter.name -%></span>
-                <% if @filter.description.present? %>
-                  &nbsp;<span class="note"><%= h @filter.description -%></span>
+              <span class="note">
+                <% if !@filter.shared %>
+                  [<%= message 'measure_filter.private' -%>]
+                <% elsif logged_in? && @filter.user_id==current_user.id %>
+                  [<%= message 'measure_filter.shared_with_all_users' -%>]
+                <% elsif @filter.user_id %>
+                  [<%= message 'shared_by' -%> <%= @filter.user.name -%>]
+                <% else %>
+                  [<%= message 'shared_by' -%> Sonar]
                 <% end %>
+              </span>
+              <% if @filter.description.present? %>
+                - <span class="note"><%= h @filter.description -%></span>
+              <% end %>
             <% end %>
           </div>
         </div>

@@ -110,7 +110,8 @@
     </li>
     <li id="criteria-key" <%= "style='display:none'" unless @filter.criteria('keyRegexp') -%> class="marginbottom5">
       <%= message('measure_filter.key_like') -%>:<br>
-      <input type="text" name="keyRegexp" value="<%= h @filter.criteria['keyRegexp'] -%>">
+      <input type="text" name="keyRegexp" value="<%= h @filter.criteria['keyRegexp'] -%>"><br>
+      <span class="note"><%= message 'measure.filter.criteria.key_note' -%></span>
     </li>
     <li id="criteria-fav" <%= "style='display:none'" unless @filter.criteria('onFavourites') -%> class="marginbottom5">
       <img src="<%= ApplicationController.root_context -%>/images/star.png"> <%= message 'measure_filter.criteria.only_favourites' %>:

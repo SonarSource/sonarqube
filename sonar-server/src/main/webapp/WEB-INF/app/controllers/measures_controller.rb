@@ -27,7 +27,7 @@ class MeasuresController < ApplicationController
 
   def search
     if params[:id]
-      @filter = MeasureFilter.find(params[:id])
+      @filter = find_filter(params[:id])
     else
       @filter = MeasureFilter.new
     end
