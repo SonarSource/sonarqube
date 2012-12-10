@@ -59,10 +59,26 @@ public final class AlertUtils {
 
   private static boolean doesReachThresholds(Comparable measureValue, Comparable criteriaValue, Alert alert){
     int comparison = measureValue.compareTo(criteriaValue);
-    return !((alert.isNotEqualsOperator() && comparison == 0)
-        || (alert.isGreaterOperator() && comparison != 1)
-        || (alert.isSmallerOperator() && comparison != -1)
-        || (alert.isEqualsOperator() && comparison != 0));
+    return !(isNotEquals(comparison, alert)
+        || isGreater(comparison, alert)
+        || isSmaller(comparison, alert)
+        || isEquals(comparison, alert));
+  }
+
+  private static boolean isNotEquals(int comparison, Alert alert){
+    return alert.isNotEqualsOperator() && comparison == 0;
+  }
+
+  private static boolean isGreater(int comparison, Alert alert){
+    return alert.isGreaterOperator() && comparison != 1;
+  }
+
+  private static boolean isSmaller(int comparison, Alert alert){
+    return alert.isSmallerOperator() && comparison != -1;
+  }
+
+  private static boolean isEquals(int comparison, Alert alert){
+    return alert.isEqualsOperator() && comparison != 0;
   }
 
   private static String getValueToEval(Alert alert, Metric.Level alertLevel) {
@@ -76,21 +92,16 @@ public final class AlertUtils {
   }
 
   private static Comparable<?> getValueForComparison(Metric metric, String value) {
-    if (metric.getType() == Metric.ValueType.FLOAT ||
-        metric.getType() == Metric.ValueType.PERCENT ||
-        metric.getType() == Metric.ValueType.RATING
-        ) {
+    if (isADouble(metric)) {
       return Double.parseDouble(value);
     }
-    if (metric.getType() == Metric.ValueType.INT ||
-        metric.getType() == Metric.ValueType.MILLISEC) {
+    if (isAInteger(metric)) {
       return value.contains(".") ? Integer.parseInt(value.substring(0, value.indexOf('.'))) : Integer.parseInt(value);
     }
-    if (metric.getType() == Metric.ValueType.STRING ||
-        metric.getType() == Metric.ValueType.LEVEL) {
+    if (isAString(metric)) {
       return value;
     }
-    if (metric.getType() == Metric.ValueType.BOOL) {
+    if (isABoolean(metric)) {
       return Integer.parseInt(value);
     }
     throw new NotImplementedException(metric.getType().toString());
@@ -98,26 +109,42 @@ public final class AlertUtils {
 
   private static Comparable<?> getMeasureValue(Alert alert, Measure measure) {
     Metric metric = alert.getMetric();
-    if (metric.getType() == Metric.ValueType.FLOAT ||
-        metric.getType() == Metric.ValueType.PERCENT ||
-        metric.getType() == Metric.ValueType.RATING) {
+    if (isADouble(metric)) {
       return getValue(alert, measure);
     }
-    if (metric.getType() == Metric.ValueType.INT ||
-        metric.getType() == Metric.ValueType.MILLISEC) {
+    if (isAInteger(metric)) {
       Double value = getValue(alert, measure);
       return value != null ? value.intValue() : null;
     }
     if (alert.getPeriod() == null) {
-      if (metric.getType() == Metric.ValueType.STRING ||
-          metric.getType() == Metric.ValueType.LEVEL) {
+      if (isAString(metric)) {
         return measure.getData();
       }
-      if (metric.getType() == Metric.ValueType.BOOL) {
+      if (isABoolean(metric)) {
         return measure.getValue().intValue();
       }
     }
     throw new NotImplementedException(metric.getType().toString());
+  }
+
+  private static boolean isADouble(Metric metric){
+    return metric.getType() == Metric.ValueType.FLOAT ||
+        metric.getType() == Metric.ValueType.PERCENT ||
+        metric.getType() == Metric.ValueType.RATING;
+  }
+
+  private static boolean isAInteger(Metric metric){
+    return metric.getType() == Metric.ValueType.INT ||
+        metric.getType() == Metric.ValueType.MILLISEC;
+  }
+
+  private static boolean isAString(Metric metric){
+    return metric.getType() == Metric.ValueType.STRING ||
+        metric.getType() == Metric.ValueType.LEVEL;
+  }
+
+  private static boolean isABoolean(Metric metric){
+    return metric.getType() == Metric.ValueType.BOOL;
   }
 
   private static Double getValue(Alert alert, Measure measure) {

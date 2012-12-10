@@ -35,11 +35,11 @@ public class AlertUtilsTest {
 
   @Before
   public void setup() {
-    metric = new Metric("test-metric");
+    metric = new Metric.Builder("test-metric", "name", Metric.ValueType.FLOAT).create();
     measure = new Measure();
     measure.setMetric(metric);
 
-    metric2 = new Metric("test-metric2");
+    metric2 = new Metric.Builder("test-metric2", "name2", Metric.ValueType.FLOAT).create();
     measure2 = new Measure();
     measure2.setMetric(metric2);
 
