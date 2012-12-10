@@ -29,7 +29,7 @@
   </div>
   <div class="page-split-right">
     <div id="content">
-      <h2><%= message 'measure_filter.manage.my_filters' -%></h2>
+      <h1><%= message 'measure_filter.manage.my_filters' -%></h1>
       <table class="data marginbottom10" id="my-filters">
         <thead>
         <tr>
@@ -84,7 +84,7 @@
 
       <br/>
 
-      <h2><%= message 'measure_filter.manage.shared_filters' -%></h2>
+      <h1><%= message 'measure_filter.manage.shared_filters' -%></h1>
       <table class="data" id="shared-filters">
         <thead>
         <tr>
@@ -108,7 +108,7 @@
               <td>
                 <%= link_to h(filter.name), :action => 'filter', :id => filter.id -%>
                 <% if filter.description %>
-                  <div><%= h filter.description -%></div>
+                  <div class="note"><%= h filter.description -%></div>
                 <% end %>
               </td>
               <td>

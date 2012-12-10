@@ -4,7 +4,7 @@
    colspan += 1 if display_favourites
    table_columns = []
    table_columns << '' if display_favourites
-   table_columns.concat(filter.display.columns.map{|c| c.key})
+   table_columns.concat(filter.display.columns.map { |c| c.key })
    if edit_mode
      content_for :script do
 %>
@@ -63,7 +63,7 @@
   %>
 
 <% if edit_mode %>
-  <table class="spaced width100 admin">
+  <table class="spaced width100 box">
     <tr>
       <td>
         <%= metric_select_tag 'metric', Metric.all.reject { |m| m.hidden || m.data? },
@@ -78,10 +78,13 @@
           <% end %>
         </select>
 
-        <button id="add-metric">Add Column</button>
+        <button id="add-metric"><%= message 'measure_filter.add_column_button' %></button>
       </td>
       <td class="right">
-        <a href="#" class="button" id="exit-edit">Done</a>
+        <a href="#" class="button" id="exit-edit"><%= message 'close' -%></a>
+        <% if filter.owner?(current_user) %>
+          <a id="save-columns" href="<%= url_for params.merge({:action => 'save_form', :id => filter.id}) -%>" class="button open-modal"><%= message('save_and_close') -%></a>
+        <% end %>
       </td>
     </tr>
   </table>
@@ -139,7 +142,7 @@
   <tbody>
 
   <% if edit_mode %>
-    <tr class="admin">
+    <tr class="bordered-bottom">
       <% if display_favourites %>
         <td></td>
       <% end %>

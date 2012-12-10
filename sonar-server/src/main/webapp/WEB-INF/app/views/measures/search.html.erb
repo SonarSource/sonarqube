@@ -10,10 +10,10 @@
           <ul class="operations">
             <%
                edit_mode = (params[:edit]=='true')
-               if @filter.display.key==:list && !edit_mode
+               unless edit_mode
             %>
               <li>
-                <a id="configure-columns" href="<%= url_for params.merge({:edit => true, :id => @filter.id}) -%>"><%= message('measure_filter.configure_columns') -%></a>
+                <a id="change-display" href="<%= url_for params.merge({:edit => true, :id => @filter.id}) -%>"><%= message("measure_filter.#{@filter.display.key}.change") -%></a>
               </li>
             <% end %>
             <li>
@@ -31,9 +31,12 @@
               <% end %>
             <% end %>
           </ul>
-          <div class="page_title" style="padding-left: 10px">
-            <% if @filter.description.present? %>
-              <%= h @filter.description -%>
+          <div class="page_title">
+            <% if @filter.name.present? %>
+              <span class="h3"><%= h @filter.name -%></span>
+                <% if @filter.description.present? %>
+                  &nbsp;<span class="note"><%= h @filter.description -%></span>
+                <% end %>
             <% end %>
           </div>
         </div>

@@ -1,7 +1,6 @@
 <%
-   treemap_id = 1
-   if defined? widget
-     treemap_id = widget.id
+   treemap_id = (defined? widget) ? widget.id : 1
+   unless edit_mode
 %>
   <table class="spaced">
     <tr>
@@ -11,7 +10,7 @@
       <% if filter.display.color_metric %>
         <td class="thin nowrap">
           <span class="note"><%= message('color') -%>
-          : <b><%= filter.display.color_metric.short_name -%></b> <%= render :partial => 'treemap/gradient', :locals => {:metric => filter.display.color_metric} %></span>
+            : <b><%= filter.display.color_metric.short_name -%></b> <%= render :partial => 'treemap/gradient', :locals => {:metric => filter.display.color_metric} %></span>
         </td>
       <% end %>
       <td>
@@ -20,7 +19,7 @@
     </tr>
   </table>
 <% else %>
-  <table class="spaced width100">
+  <table class="spaced width100 box">
     <tr>
       <td valign="top" class="thin nowrap">
         <span class="comments"><%= message('size') -%></span>
@@ -42,34 +41,40 @@
                               :allow_empty => true,
                               :selected_key => (filter.display.color_metric ? filter.display.color_metric.key : nil) -%>
 
-        <button id="update-treemap">Update</button>
+        <button id="update-treemap"><%= message 'refresh' -%></button>
       </td>
       <td valign="bottom"><%= image_tag 'loading.gif', :id => "tm-loading-#{treemap_id}", :style => 'display:none' -%></td>
+      <td class="right" valign="bottom">
+        <a href="#" class="button" id="exit-edit"><%= message 'close' -%></a>
+        <% if filter.owner?(current_user) %>
+          <a id="save-columns" href="<%= url_for params.merge({:action => 'save_form', :id => filter.id}) -%>" class="button open-modal"><%= message('save_and_close') -%></a>
+        <% end %>
+      </td>
     </tr>
   </table>
 <% end %>
 
 <% unless defined? widget
-   content_for :script do %>
-  <script>
-    $j(document).ready(function () {
-      $j("#update-treemap").on("click", function (e) {
-        var url = removeUrlAttr(decodeURI(window.location.href), 'tmSize');
-        url = removeUrlAttr(url, 'tmColor');
-        url += '&tmSize=' + $j('#select-tm-size').val();
-        var color = $j('#select-tm-color').val();
-        if (color != null && color != '') {
-          url += '&tmColor=' + color;
-        }
-        window.location = url;
+     content_for :script do %>
+    <script>
+      $j(document).ready(function () {
+        $j("#update-treemap").on("click", function (e) {
+          var url = removeUrlAttr(decodeURI(window.location.href), 'tmSize');
+          url = removeUrlAttr(url, 'tmColor');
+          url += '&tmSize=' + $j('#select-tm-size').val();
+          var color = $j('#select-tm-color').val();
+          if (color != null && color != '') {
+            url += '&tmColor=' + color;
+          }
+          window.location = url;
+        });
+        $j("#exit-edit").on("click", function (e) {
+          window.location = removeUrlAttr(decodeURI(window.location.href), 'edit');
+        });
       });
-      $j("#exit-edit").on("click", function (e) {
-        window.location = removeUrlAttr(decodeURI(window.location.href), 'edit');
-      });
-    });
-  </script>
-<% end
-end %>
+    </script>
+  <% end
+     end %>
 
 <% if filter.results.empty? %>
   <p><%= message('no_data') -%></p>

@@ -21,8 +21,13 @@
 
        @widget_title = link_to h(filter.name), url_options
 %>
+    <% if filter.description.present? %><p><%= h filter.description -%></p><% end %>
     <%= render :partial => "measures/display_#{filter.display.key}", :locals => {:edit_mode => false, :widget => widget, :filter => filter} %>
-  <%
+<%
      end
+  else
+%>
+  <p><%= image_tag 'warning.png' %> <%= message 'measure_filter.widget.unknown_filter_warning' -%></p>
+<%
      end
-  %>
+%>

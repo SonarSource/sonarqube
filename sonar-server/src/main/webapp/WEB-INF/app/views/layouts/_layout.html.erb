@@ -73,8 +73,6 @@
                 <a href="<%= ApplicationController.root_context -%>/dashboard/index/<%= @project.id -%>?did=<%= active_dashboard.dashboard_id -%><%= "&"+period_param if period_param -%>"><%= active_dashboard.dashboard.name(true) -%></a>
               </li>
             <% end %>
-            <li class="<%= 'active' if request.request_uri.include?('/cloud/index') -%>">
-              <a href="<%= ApplicationController.root_context -%>/cloud/index/<%= @project.id -%>"><%= message('clouds.page') -%></a></li>
             <li class="spacer"></li>
             <li class="sidebar-title"><%= message('sidebar.tools') -%></li>
             <li class="<%= 'active' if request.request_uri.include?('/components/index') -%>">
@@ -83,11 +81,6 @@
             <li class="<%= 'active' if request.request_uri.include?('/drilldown/violations') -%>">
               <a href="<%= ApplicationController.root_context -%>/drilldown/violations/<%= @project.id -%><%= "?"+period_param if period_param -%>"><%= message('violations_drilldown.page') -%></a>
             </li>
-              <% if controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'comparable') %>
-              <li class="<%= 'active' if request.request_uri.include?('/comparison/index') -%>">
-                <a href="<%= ApplicationController.root_context -%>/comparison/index?resource=<%= @project.key -%>"><%= message('comparison.page') -%></a>
-              </li>
-            <% end %>
             <% controller.java_facade.getPages(Navigation::SECTION_RESOURCE, @project.scope, @project.qualifier, @project.language, @project.last_snapshot.metric_keys.to_java(:string)).each do |page|
               page_url = (page.isController() ? "#{page.getId()}?id=#{@project.id}" : "/plugins/resource/#{@project.id}?page=#{page.getId()}")
             %>
@@ -95,6 +88,15 @@
                 <a href="<%= ApplicationController.root_context -%><%= page_url -%>"><%= message(page.getId() + '.page', :default => page.getTitle()) %></a>
               </li>
             <% end %>
+            <li class="<%= 'active' if controller.controller_path=='cloud' -%>">
+              <a href="<%= ApplicationController.root_context -%>/cloud/index/<%= @project.id -%>"><%= message('clouds.page') -%></a>
+            </li>
+            <% if controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'comparable') %>
+              <li class="<%= 'active' if request.request_uri.include?('/comparison/index') -%>">
+                <a href="<%= ApplicationController.root_context -%>/comparison/index?resource=<%= @project.key -%>"><%= message('comparison.page') -%></a>
+              </li>
+            <% end %>
+
 
           <% elsif selected_section==Navigation::SECTION_CONFIGURATION %>
 
