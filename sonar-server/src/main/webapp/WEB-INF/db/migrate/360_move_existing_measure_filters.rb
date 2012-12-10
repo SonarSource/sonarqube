@@ -72,6 +72,7 @@ class MoveExistingMeasureFilters < ActiveRecord::Migration
 
   def self.move_columns(old_filter, data)
     columns = []
+    metric_columns = []
     asc = nil
     sort = nil
     old_columns = FilterColumn.find(:all, :conditions => ['filter_id=?', old_filter.id], :order => 'order_index')
@@ -80,6 +81,9 @@ class MoveExistingMeasureFilters < ActiveRecord::Migration
       if old_column.kee
         column_key += ":#{old_column.kee}"
         column_key += ":#{old_filter.period_index}" if old_column.variation && old_filter.period_index
+      end
+      if old_column.family=='metric'
+        metric_columns << old_column.kee
       end
       columns << column_key
       if old_column.sort_direction=='ASC'
@@ -90,10 +94,15 @@ class MoveExistingMeasureFilters < ActiveRecord::Migration
         sort = column_key
       end
     end
-    data << "cols=#{columns.join(',')}" unless columns.empty?
-    if sort
-      data << "sort=#{sort}"
-      data << "asc=#{asc}"
+    if old_filter.default_view=='treemap'
+      data << "tmSize=#{metric_columns[0]}" if metric_columns.size>0
+      data << "tmColor=#{metric_columns[1]}" if metric_columns.size>1
+    else
+      data << "cols=#{columns.join(',')}" unless columns.empty?
+      if sort
+        data << "sort=#{sort}"
+        data << "asc=#{asc}"
+      end
     end
   end
 
