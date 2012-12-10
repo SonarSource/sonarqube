@@ -59,7 +59,7 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
   private String[] resourceLanguages = {};
   private String[] defaultForMetrics = {};
   private String description = "";
-  private Map<String, WidgetProperty> widgetPropertiesByKey = Maps.newHashMap();
+  private Map<String, WidgetProperty> widgetPropertiesByKey = Maps.newLinkedHashMap();
   private String[] widgetCategories = {};
   private WidgetLayoutType widgetLayout = WidgetLayoutType.DEFAULT;
   private boolean isDefaultTab = false;
@@ -200,7 +200,7 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
 
   public boolean isController() {
     String id = view.getId();
-    return id !=null && id.length()>0 && id.charAt(0)=='/';
+    return id != null && id.length() > 0 && id.charAt(0) == '/';
   }
 
   public String getTitle() {
@@ -254,7 +254,7 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
   public boolean supportsMetric(String metricKey) {
     return ArrayUtils.contains(defaultForMetrics, metricKey);
   }
-  
+
   public boolean acceptsAvailableMeasures(String[] availableMeasures) {
     for (String mandatoryMeasure : mandatoryMeasures) {
       if (!ArrayUtils.contains(availableMeasures, mandatoryMeasure)) {
@@ -321,29 +321,29 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
     }
     ViewProxy rhs = (ViewProxy) obj;
     return new EqualsBuilder()
-        .append(getId(), rhs.getId())
-        .isEquals();
+      .append(getId(), rhs.getId())
+      .isEquals();
   }
 
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-        .append("id", view.getId())
-        .append("sections", sections)
-        .append("userRoles", userRoles)
-        .append("scopes", resourceScopes)
-        .append("qualifiers", resourceQualifiers)
-        .append("languages", resourceLanguages)
-        .append("metrics", defaultForMetrics)
-        .toString();
+      .append("id", view.getId())
+      .append("sections", sections)
+      .append("userRoles", userRoles)
+      .append("scopes", resourceScopes)
+      .append("qualifiers", resourceQualifiers)
+      .append("languages", resourceLanguages)
+      .append("metrics", defaultForMetrics)
+      .toString();
 
   }
 
   public int compareTo(ViewProxy other) {
     return new CompareToBuilder()
-        .append(getTitle(), other.getTitle())
-        .append(getId(), other.getId())
-        .toComparison();
+      .append(getTitle(), other.getTitle())
+      .append(getId(), other.getId())
+      .toComparison();
 
   }
 }

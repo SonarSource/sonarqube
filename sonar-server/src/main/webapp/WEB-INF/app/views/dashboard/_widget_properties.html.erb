@@ -20,7 +20,7 @@
       </tr>
     <% end %>
 
-    <% widget.java_definition.getWidgetProperties().sort { |w1, w2| natural_comparison(w1.key, w2.key) }.each do |property_def| %>
+    <% widget.java_definition.getWidgetProperties().each do |property_def| %>
       <tr>
         <td class="form-key-cell"><%= property_def.key() -%><%= " *" unless property_def.optional() -%></td>
         <td class="form-val-cell" id="row_<%= property_def.key() -%>">

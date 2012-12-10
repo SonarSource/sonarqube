@@ -19,6 +19,7 @@
  */
 package org.sonar.server.ui;
 
+import com.google.common.collect.Lists;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -32,6 +33,8 @@ import org.sonar.api.web.WidgetProperties;
 import org.sonar.api.web.WidgetProperty;
 import org.sonar.api.web.WidgetPropertyType;
 import org.sonar.api.web.WidgetScope;
+
+import java.util.List;
 
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static org.fest.assertions.Assertions.assertThat;
@@ -68,8 +71,8 @@ public class ViewProxyTest {
     ViewProxy proxy = new ViewProxy<View>(view);
 
     assertThat(proxy.getTarget(), is(view));
-    assertArrayEquals(proxy.getSections(), new String[] {NavigationSection.RESOURCE});
-    assertArrayEquals(proxy.getUserRoles(), new String[] {UserRole.ADMIN});
+    assertArrayEquals(proxy.getSections(), new String[]{NavigationSection.RESOURCE});
+    assertArrayEquals(proxy.getUserRoles(), new String[]{UserRole.ADMIN});
   }
 
   @Test
@@ -84,7 +87,7 @@ public class ViewProxyTest {
     ViewProxy proxy = new ViewProxy<View>(view);
 
     assertThat(proxy.getTarget(), is(view));
-    assertArrayEquals(proxy.getSections(), new String[] {NavigationSection.HOME});
+    assertArrayEquals(proxy.getSections(), new String[]{NavigationSection.HOME});
     assertThat(proxy.getUserRoles().length, org.hamcrest.Matchers.is(0));
   }
 
@@ -127,7 +130,7 @@ public class ViewProxyTest {
     ViewProxy proxy = new ViewProxy<MyView>(new MyView());
 
     assertThat(proxy.isDefaultTab(), is(false));
-    assertThat(proxy.getDefaultTabForMetrics(), is(new String[] {"ncloc", "coverage"}));
+    assertThat(proxy.getDefaultTabForMetrics(), is(new String[]{"ncloc", "coverage"}));
   }
 
   @Test
@@ -135,7 +138,18 @@ public class ViewProxyTest {
     ViewProxy<Widget> proxy = new ViewProxy<Widget>(new EditableWidget());
 
     assertThat(proxy.isEditable()).isTrue();
-    assertThat(proxy.getWidgetProperties()).hasSize(2);
+    assertThat(proxy.getWidgetProperties()).hasSize(3);
+  }
+
+  @Test
+  public void load_widget_properties_in_the_same_order_than_annotations() {
+    ViewProxy<Widget> proxy = new ViewProxy<Widget>(new EditableWidget());
+
+    List<WidgetProperty> widgetProperties = Lists.newArrayList(proxy.getWidgetProperties());
+    assertThat(widgetProperties).hasSize(3);
+    assertThat(widgetProperties.get(0).key()).isEqualTo("first_prop");
+    assertThat(widgetProperties.get(1).key()).isEqualTo("second_prop");
+    assertThat(widgetProperties.get(2).key()).isEqualTo("third_prop");
   }
 
   @Test
@@ -164,7 +178,7 @@ public class ViewProxyTest {
     exception.expect(IllegalArgumentException.class);
     exception.expectMessage("INVALID");
     exception.expectMessage("WidgetWithInvalidScope");
-    
+
     new ViewProxy<Widget>(new WidgetWithInvalidScope());
   }
 
@@ -189,7 +203,7 @@ public class ViewProxyTest {
     }
     ViewProxy proxy = new ViewProxy<MyView>(new MyView());
 
-    assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "ncloc", "coverage"}), is(true));
+    assertThat(proxy.acceptsAvailableMeasures(new String[]{"lines", "ncloc", "coverage"}), is(true));
   }
 
   @Test
@@ -202,8 +216,8 @@ public class ViewProxyTest {
     }
     ViewProxy proxy = new ViewProxy<MyView>(new MyView());
 
-    assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "ncloc", "coverage"}), is(true));
-    assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "coverage"}), is(false));
+    assertThat(proxy.acceptsAvailableMeasures(new String[]{"lines", "ncloc", "coverage"}), is(true));
+    assertThat(proxy.acceptsAvailableMeasures(new String[]{"lines", "coverage"}), is(false));
   }
 
   @Test
@@ -216,8 +230,8 @@ public class ViewProxyTest {
     }
     ViewProxy proxy = new ViewProxy<MyView>(new MyView());
 
-    assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "coverage"}), is(true));
-    assertThat(proxy.acceptsAvailableMeasures(new String[] {"complexity", "coverage"}), is(false));
+    assertThat(proxy.acceptsAvailableMeasures(new String[]{"lines", "coverage"}), is(true));
+    assertThat(proxy.acceptsAvailableMeasures(new String[]{"complexity", "coverage"}), is(false));
   }
 
   @Test
@@ -231,11 +245,11 @@ public class ViewProxyTest {
     ViewProxy proxy = new ViewProxy<MyView>(new MyView());
 
     // ok, mandatory measures and 1 needed measure
-    assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "ncloc", "coverage", "duplications"}), is(true));
+    assertThat(proxy.acceptsAvailableMeasures(new String[]{"lines", "ncloc", "coverage", "duplications"}), is(true));
     // ko, one of the needed measures but not all of the mandatory ones
-    assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "coverage", "duplications"}), is(false));
+    assertThat(proxy.acceptsAvailableMeasures(new String[]{"lines", "coverage", "duplications"}), is(false));
     // ko, mandatory measures but no one of the needed measures
-    assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "nloc", "coverage", "dsm"}), is(false));
+    assertThat(proxy.acceptsAvailableMeasures(new String[]{"lines", "nloc", "coverage", "dsm"}), is(false));
   }
 
 }
@@ -258,8 +272,9 @@ class FakeView implements View {
 }
 
 @WidgetProperties({
-  @WidgetProperty(key = "foo", optional = false),
-  @WidgetProperty(key = "bar", defaultValue = "30", type = WidgetPropertyType.INTEGER)
+  @WidgetProperty(key = "first_prop", optional = false),
+  @WidgetProperty(key = "second_prop", defaultValue = "30", type = WidgetPropertyType.INTEGER),
+  @WidgetProperty(key = "third_prop", type = WidgetPropertyType.INTEGER)
 })
 class EditableWidget implements Widget {
   public String getId() {
