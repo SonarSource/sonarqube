@@ -107,7 +107,7 @@ public final class AlertUtils {
     throw new NotImplementedException(metric.getType().toString());
   }
 
-  private static Comparable<?> parseInteger(String value){
+  private static Comparable<Integer> parseInteger(String value){
     return value.contains(".") ? Integer.parseInt(value.substring(0, value.indexOf('.'))) : Integer.parseInt(value);
   }
 
@@ -117,7 +117,7 @@ public final class AlertUtils {
       return getValue(alert, measure);
     }
     if (isAInteger(metric)) {
-      parseInteger(alert, measure);
+      return parseInteger(alert, measure);
     }
     if (alert.getPeriod() == null) {
       if (isAString(metric)) {
@@ -130,7 +130,7 @@ public final class AlertUtils {
     throw new NotImplementedException(metric.getType().toString());
   }
 
-  private static Comparable<?> parseInteger(Alert alert, Measure measure){
+  private static Comparable<Integer> parseInteger(Alert alert, Measure measure){
     Double value = getValue(alert, measure);
     return value != null ? value.intValue() : null;
   }
