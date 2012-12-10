@@ -117,7 +117,7 @@ class MoveExistingMeasureFilters < ActiveRecord::Migration
         data << "c#{metric_criteria_id}_metric=#{old.kee}"
         data << "c#{metric_criteria_id}_op=#{operator_code(old.operator)}"
         data << "c#{metric_criteria_id}_val=#{old.value}"
-        data << "c#{metric_criteria_id}_period=#{old_filter.period_index}" if old_filter.period_index
+        data << "c#{metric_criteria_id}_period=#{old_filter.period_index}" if old.variation && old_filter.period_index
         metric_criteria_id += 1
       elsif old.family=='direct-children' && old.text_value=='true'
         data << "onBaseComponents=true"
