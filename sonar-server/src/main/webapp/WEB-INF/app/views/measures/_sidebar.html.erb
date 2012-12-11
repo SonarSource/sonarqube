@@ -11,7 +11,7 @@
     function submitSearch() {
       // remove empty parameters from URL
       var form = $j("#search-form");
-      form.find(':input[value=""]').remove();
+      form.find(':input[value=""]').attr('disabled', 'disabled');
       return true;
     }
     function removeUrlAttr(url, attribute_key) {
