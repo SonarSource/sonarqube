@@ -68,14 +68,17 @@ public final class Batch {
   }
 
   private void startBatch() {
-    Module bootstrapModule = new BootstrapModule(projectReactor, components.toArray(new Object[components.size()])).init();
+    Module bootstrapModule = null;
     try {
+      bootstrapModule = new BootstrapModule(projectReactor, components.toArray(new Object[components.size()])).init();
       bootstrapModule.start();
     } catch (RuntimeException e) {
       PicoUtils.propagateStartupException(e);
     } finally {
       try {
-        bootstrapModule.stop();
+        if (bootstrapModule != null) {
+          bootstrapModule.stop();
+        }
       } catch (Exception e) {
         // never throw exceptions in a finally block
         LoggerFactory.getLogger(Batch.class).error("Error while stopping batch", e);
