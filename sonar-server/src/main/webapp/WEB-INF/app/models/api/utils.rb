@@ -185,4 +185,10 @@ class Api::Utils
   def self.period_label(index)
     java_facade.getPeriodLabel(index)
   end
+
+  # Abbreviated label of global periods
+  # index is in [1..3]
+  def self.period_abbreviation(index)
+    java_facade.getPeriodAbbreviation(index)
+  end
 end

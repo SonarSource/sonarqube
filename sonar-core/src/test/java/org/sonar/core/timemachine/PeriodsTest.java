@@ -60,7 +60,7 @@ public class PeriodsTest {
   }
 
   @Test
-  public void shouldReturnSnapshotLabelInModeDays() {
+  public void label_of_duration_in_days() {
     when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_DAYS);
     when(snapshot.getPeriodDate(periodIndex)).thenReturn(new Date());
     when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
@@ -70,7 +70,17 @@ public class PeriodsTest {
   }
 
   @Test
-  public void shouldReturnSnapshotLabelInModeVersion() {
+  public void abbreviation_of_duration_in_days() {
+    when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_DAYS);
+    when(snapshot.getPeriodDate(periodIndex)).thenReturn(new Date());
+    when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
+
+    periods.abbreviation(snapshot, periodIndex);
+    verify(i18n).message(Mockito.any(Locale.class), Mockito.eq("over_x_days.short"), Mockito.isNull(String.class), Mockito.eq(param));
+  }
+
+  @Test
+  public void label_of_snapshot_version() {
     when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_VERSION);
     when(snapshot.getPeriodDate(periodIndex)).thenReturn(new Date());
     when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
@@ -80,7 +90,17 @@ public class PeriodsTest {
   }
 
   @Test
-  public void shouldReturnSnapshotLabelInModePreviousAnalysisWithDateNotNull() {
+  public void abbreviation_of_snapshot_version() {
+    when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_VERSION);
+    when(snapshot.getPeriodDate(periodIndex)).thenReturn(new Date());
+    when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
+
+    periods.abbreviation(snapshot, periodIndex);
+    verify(i18n).message(Mockito.any(Locale.class), Mockito.eq("since_version_detailed.short"), Mockito.isNull(String.class), Mockito.eq(param), Mockito.anyString());
+  }
+
+  @Test
+  public void label_of_previous_analysis_with_date() {
     when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
     when(snapshot.getPeriodDate(periodIndex)).thenReturn(new Date());
 
@@ -89,13 +109,32 @@ public class PeriodsTest {
   }
 
   @Test
-  public void shouldReturnSnapshotLabelInModePreviousAnalysisWithNullDate() {
+  public void label_of_previous_analysis_without_date() {
     when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
     when(snapshot.getPeriodDate(periodIndex)).thenReturn(null);
     when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
 
     periods.label(snapshot, periodIndex);
     verify(i18n).message(Mockito.any(Locale.class), Mockito.eq("since_previous_analysis"), Mockito.isNull(String.class));
+  }
+
+  @Test
+  public void abbreviation_of_previous_analysis_with_date() {
+    when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
+    when(snapshot.getPeriodDate(periodIndex)).thenReturn(new Date());
+
+    periods.abbreviation(snapshot, periodIndex);
+    verify(i18n).message(Mockito.any(Locale.class), Mockito.eq("since_previous_analysis_detailed.short"), Mockito.isNull(String.class), Mockito.anyString());
+  }
+
+  @Test
+  public void abbreviation_of_previous_analysis_without_date() {
+    when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
+    when(snapshot.getPeriodDate(periodIndex)).thenReturn(null);
+    when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
+
+    periods.abbreviation(snapshot, periodIndex);
+    verify(i18n).message(Mockito.any(Locale.class), Mockito.eq("since_previous_analysis.short"), Mockito.isNull(String.class));
   }
 
   @Test
@@ -163,7 +202,7 @@ public class PeriodsTest {
   }
 
   @Test
-  public void shouldReturnLabelInModePreviousVersion() {
+  public void label_of_previous_version() {
     int periodIndex = 1;
     settings.setProperty(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + periodIndex, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
 
@@ -172,13 +211,32 @@ public class PeriodsTest {
   }
 
   @Test
-  public void shouldReturnLabelInModeDate() {
+  public void abbreviation_of_previous_version() {
+    int periodIndex = 1;
+    settings.setProperty(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + periodIndex, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
+
+    periods.abbreviation(periodIndex);
+    verify(i18n).message(Mockito.any(Locale.class), Mockito.eq("since_previous_version.short"), Mockito.isNull(String.class));
+  }
+
+  @Test
+  public void label_of_date() {
     int periodIndex = 1;
     settings.setProperty(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + periodIndex, "2012-12-12");
 
     periods.label(periodIndex);
 
     verify(i18n).message(Mockito.any(Locale.class), Mockito.eq("since_x"), Mockito.isNull(String.class), Mockito.anyString());
+  }
+
+  @Test
+  public void abbreviation_of_date() {
+    int periodIndex = 1;
+    settings.setProperty(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + periodIndex, "2012-12-12");
+
+    periods.abbreviation(periodIndex);
+
+    verify(i18n).message(Mockito.any(Locale.class), Mockito.eq("since_x.short"), Mockito.isNull(String.class), Mockito.anyString());
   }
 
   @Test(expected = IllegalArgumentException.class)

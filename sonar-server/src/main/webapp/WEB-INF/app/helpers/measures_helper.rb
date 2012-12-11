@@ -26,7 +26,7 @@ module MeasuresHelper
       html=h(column.title_label)
     end
     if column.period
-      html += "<br><span class='note'>#{Api::Utils.period_label(column.period)}</small>"
+      html += "<br><span class='note'>#{Api::Utils.period_abbreviation(column.period)}</small>"
     end
     if filter.sort_key==column.key
       html << (filter.sort_asc? ? image_tag("asc12.png") : image_tag("desc12.png"))

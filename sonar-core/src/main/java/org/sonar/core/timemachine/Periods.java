@@ -42,53 +42,66 @@ public class Periods implements BatchExtension {
   }
 
   public String label(Snapshot snapshot, int periodIndex) {
-    String mode = snapshot.getPeriodMode(periodIndex);
-    String param = snapshot.getPeriodModeParameter(periodIndex);
-    Date date = snapshot.getPeriodDate(periodIndex);
+    return label(snapshot.getPeriodMode(periodIndex), snapshot.getPeriodModeParameter(periodIndex), snapshot.getPeriodDate(periodIndex));
+  }
 
-    return label(mode, param, date);
+  public String abbreviation(Snapshot snapshot, int periodIndex) {
+    return abbreviation(snapshot.getPeriodMode(periodIndex), snapshot.getPeriodModeParameter(periodIndex), snapshot.getPeriodDate(periodIndex));
   }
 
   public String label(int periodIndex) {
     String periodProperty = settings.getString(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + periodIndex);
     PeriodParameters periodParameters = new PeriodParameters(periodProperty);
+    return label(periodParameters.getMode(), periodParameters.getParam(), periodParameters.getDate());
+  }
 
-    String mode = periodParameters.getMode();
-    String param = periodParameters.getParam();
-    Date date = periodParameters.getDate();
-
-    return label(mode, param, date);
+  public String abbreviation(int periodIndex) {
+    String periodProperty = settings.getString(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + periodIndex);
+    PeriodParameters periodParameters = new PeriodParameters(periodProperty);
+    return abbreviation(periodParameters.getMode(), periodParameters.getParam(), periodParameters.getDate());
   }
 
   public String label(String mode, String param, Date date) {
-    String label = "";
+    return label(mode, param, date, false);
+  }
+
+  public String abbreviation(String mode, String param, Date date) {
+    return label(mode, param, date, true);
+  }
+
+  private String label(String mode, String param, Date date, boolean shortLabel) {
+    String label;
     if (CoreProperties.TIMEMACHINE_MODE_DAYS.equals(mode)) {
-      label = message("over_x_days", param);
+      label = label("over_x_days", shortLabel, param);
     } else if (CoreProperties.TIMEMACHINE_MODE_VERSION.equals(mode)) {
-      label = message("since_version", param);
+      label = label("since_version", shortLabel, param);
       if (date != null) {
-        label = message("since_version_detailed", param, convertDate(date));
+        label = label("since_version_detailed", shortLabel, param, convertDate(date));
       }
     } else if (CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS.equals(mode)) {
-      label = message("since_previous_analysis");
+      label = label("since_previous_analysis", shortLabel);
       if (date != null) {
-        label = message("since_previous_analysis_detailed", convertDate(date));
+        label = label("since_previous_analysis_detailed", shortLabel, convertDate(date));
       }
     } else if (CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION.equals(mode)) {
-      label = message("since_previous_version");
+      label = label("since_previous_version", shortLabel);
       if (param != null) {
-        label = message("since_previous_version_detailed", param);
+        label = label("since_previous_version_detailed", shortLabel, param);
       }
     } else if (CoreProperties.TIMEMACHINE_MODE_DATE.equals(mode)) {
-      label = message("since_x", convertDate(date));
+      label = label("since_x", shortLabel, convertDate(date));
     } else {
       throw new IllegalArgumentException("This mode is not supported : " + mode);
     }
     return label;
   }
 
-  private String message(String key, Object... parameters) {
-    return i18n.message(getLocale(), key, null, parameters);
+  private String label(String key, boolean shortLabel, Object... parameters) {
+    String msgKey = key;
+    if (shortLabel) {
+      msgKey += ".short";
+    }
+    return i18n.message(getLocale(), msgKey, null, parameters);
   }
 
   private String convertDate(Date date) {
@@ -102,9 +115,9 @@ public class Periods implements BatchExtension {
 
   private static class PeriodParameters {
 
-    private String mode;
-    private String param;
-    private Date date;
+    private String mode = null;
+    private String param = null;
+    private Date date = null;
 
     public PeriodParameters(String periodProperty) {
       if (CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS.equals(periodProperty) || CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION.equals(periodProperty)) {
