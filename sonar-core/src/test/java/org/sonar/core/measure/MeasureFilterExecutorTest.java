@@ -46,6 +46,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
   private static final Metric METRIC_LINES = new Metric.Builder("lines", "Lines", Metric.ValueType.INT).create().setId(1);
   private static final Metric METRIC_PROFILE = new Metric.Builder("profile", "Profile", Metric.ValueType.STRING).create().setId(2);
   private static final Metric METRIC_COVERAGE = new Metric.Builder("coverage", "Coverage", Metric.ValueType.FLOAT).create().setId(3);
+  private static final Metric METRIC_UNKNOWN = new Metric.Builder("unknown", "Unknown", Metric.ValueType.FLOAT).create().setId(4);
 
   private MeasureFilterExecutor executor;
 
@@ -224,7 +225,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
       .setSortOnMetric(METRIC_COVERAGE).setSortAsc(false);
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
-    // Java has coverage but not PHP
+    // Java project has coverage but not PHP
     assertThat(rows).hasSize(2);
     verifyJavaProject(rows.get(0));
     verifyPhpProject(rows.get(1));
@@ -236,7 +237,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
         .setSortOnMetric(METRIC_COVERAGE).setSortAsc(true);
       List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
-      // Java has coverage but not PHP
+      // Java project has coverage but not PHP
       assertThat(rows).hasSize(2);
       verifyJavaProject(rows.get(0));
       verifyPhpProject(rows.get(1));
@@ -245,7 +246,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
   @Test
   public void sort_by_missing_numeric_measure() throws SQLException {
     // coverage measures are not computed
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("CLA")).setSortOnMetric(METRIC_COVERAGE);
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("CLA")).setSortOnMetric(METRIC_UNKNOWN);
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
     // 2 files, random order

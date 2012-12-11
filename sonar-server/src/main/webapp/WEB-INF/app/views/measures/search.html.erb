@@ -3,14 +3,16 @@
     <%= render :partial => 'measures/sidebar' -%>
   </div>
 
-  <% if @filter.results && @filter.display %>
+  <% if @filter %>
     <div class="page-split-right">
       <div id="content">
         <div class="line-block marginbottom10">
           <ul class="operations">
+
             <%
-               edit_mode = (params[:edit]=='true')
-               unless edit_mode
+               if @filter.display
+                edit_mode = (params[:edit]=='true')
+                unless edit_mode
             %>
               <li>
                 <a id="change-display" href="<%= url_for params.merge({:edit => true, :id => @filter.id}) -%>"><%= message("measure_filter.#{@filter.display.key}.change") -%></a>
@@ -22,6 +24,8 @@
                 <%= link_to_if display_key!=@filter.display.key, message("measure_filter.display.#{display_key}"), params.merge(:action => 'search', :display => display_key, :id => @filter.id), :id => "display_as_#{display_key}" -%>
               <% end %>
             </li>
+            <% end %>
+
             <% if logged_in? %>
               <% if @filter.id %>
                 <li><a id="copy" href="<%= url_for params.merge({:action => 'copy_form', :id => @filter.id}) -%>" class="link-action open-modal"><%= message('copy') -%></a></li>
@@ -56,7 +60,13 @@
           <p class="notes"><%= message('results_not_display_due_to_security') -%></p>
         <% end %>
 
-        <%= render :partial => "measures/display_#{@filter.display.class::KEY}", :locals => {:filter => @filter, :edit_mode => edit_mode} -%>
+        <% if !@filter.errors.empty? %>
+          <% @filter.errors.full_messages.each do |message| %>
+            <div class="warning"><%= h message %></div>
+          <% end %>
+        <% elsif @filter.rows && @filter.display %>
+          <%= render :partial => "measures/display_#{@filter.display.class::KEY}", :locals => {:filter => @filter, :edit_mode => edit_mode} -%>
+        <% end %>
       </div>
     </div>
   <% end %>

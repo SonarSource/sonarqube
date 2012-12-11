@@ -22,14 +22,11 @@ class AllProjectsController < ApplicationController
   SECTION=Navigation::SECTION_HOME
   
   def index
-    require_parameters :qualifier
-    @qualifier = params[:qualifier]
+    @qualifier = params[:qualifier]||'TRK'
     bad_request("The 'qualifier' parameter is not valid. It must reference a root type.") unless Project.root_qualifiers.include?(@qualifier)
-    
-    
+
     @filter = MeasureFilter.new
-    @filter.criteria = params.merge({'qualifiers' => [@qualifier], :cols => ['name', 'description', 'links'], :sort => 'name'})
-    @filter.enable_default_display
+    @filter.criteria={:qualifiers => @qualifier, :sort => 'name', :asc => (params[:asc]!='false')}
     @filter.execute(self, :user => current_user)
   end
 

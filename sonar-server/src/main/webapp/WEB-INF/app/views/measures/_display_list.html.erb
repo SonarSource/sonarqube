@@ -155,33 +155,33 @@
       <% end %>
   <% end %>
 
-  <% if filter.base_result %>
+  <% if filter.base_row %>
     <tr class="highlight">
       <% if display_favourites %>
-        <td class="thin"><%= link_to_favourite(filter.base_result.snapshot.resource) -%></td>
+        <td class="thin"><%= link_to_favourite(filter.base_row.snapshot.resource) -%></td>
       <% end %>
       <% filter.display.columns.each do |column| %>
         <td class="<%= column.align -%> <%= column.row_css -%>">
-          <%= list_cell_html(column, filter.base_result) -%>
+          <%= list_cell_html(column, filter.base_row) -%>
         </td>
       <% end %>
     </tr>
   <% end %>
 
-  <% filter.results.each do |result| %>
+  <% filter.rows.each do |row| %>
     <tr class="<%= cycle 'even', 'odd' -%>">
       <% if display_favourites %>
-        <td class="thin"><%= link_to_favourite(result.snapshot.resource) -%></td>
+        <td class="thin"><%= link_to_favourite(row.snapshot.resource) -%></td>
       <% end %>
       <% filter.display.columns.each do |column| %>
         <td class="<%= column.align -%> <%= column.row_css -%>">
-          <%= list_cell_html(column, result) -%>
+          <%= list_cell_html(column, row) -%>
         </td>
       <% end %>
     </tr>
   <% end %>
 
-  <% if filter.results.empty? %>
+  <% if filter.rows.empty? %>
     <tr class="even">
       <td colspan="<%= colspan -%>"><%= message 'no_data' -%></td>
     </tr>

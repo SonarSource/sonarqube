@@ -1,29 +1,11 @@
-<% content_for :script do %>
-  <script>
-    function removeUrlAttr(url, attribute_key) {
-      var regexp = new RegExp("&?" + attribute_key + "=([^&]$|[^&]*)", "g");
-      return url.replace(regexp, '');
-    }
-    function reloadParameters(params) {
-      var url = decodeURI(window.location.href);
-      $j.each(params, function (key, value) {
-        url = removeUrlAttr(url, key);
-        url += '&' + key + '=' + value;
-      });
-      window.location = url;
-    }
-  </script>
-<% end %>
+<% if @filter.rows %>
 
-<% if @filter.results %>
-
-  <h1><%= message('qualifiers.all.' + @qualifier) -%></h1>
-  <br/>
+  <h1 class="marginbottom10"><%= message('qualifiers.all.' + @qualifier) -%></h1>
 
   <div id="all-projects">
 
     <% if @filter.security_exclusions %>
-      <p class="notes"><%= message('results_not_display_due_to_security') -%></p>
+      <p class="notes"><%= message('rows_not_display_due_to_security') -%></p>
     <% end %>
 
     <%
@@ -39,10 +21,8 @@
             <th class="thin" style></th>
           <% end %>
           <th class="thin nowrap">
-            <%= link_to_function( message('all-projects.cols.name'), "reloadParameters({asc:'#{(!@filter.sort_asc?).to_s}', sort:'name'})") -%>
-            <% if @filter.sort_key=='name' %>
-              <%= @filter.sort_asc? ? image_tag("asc12.png") : image_tag("desc12.png") -%>
-            <% end %>
+            <%= link_to message('all-projects.cols.name'), {:action => 'index', :qualifier => params[:qualifier], :asc => (!@filter.sort_asc?).to_s} -%>
+            <%= @filter.sort_asc? ? image_tag("asc12.png") : image_tag("desc12.png") -%>
           </th>
           <th></th>
           <th></th>
@@ -52,23 +32,23 @@
       </thead>
   
       <tbody>
-        <% @filter.results.each do |result| %>
+        <% @filter.rows.each do |row| %>
           <tr class="<%= cycle 'even', 'odd' -%>">
             <% if display_favourites %>
-              <td class="thin"><%= link_to_favourite(result.snapshot.resource) -%></td>
+              <td class="thin"><%= link_to_favourite(row.snapshot.resource) -%></td>
             <% end %>
             <td class="nowrap">
-              <%= qualifier_icon(result.snapshot)-%> <%= link_to(result.snapshot.resource.name(true), {:controller => 'dashboard', :id => result.snapshot.resource_id}, :title => result.snapshot.resource.key) -%>
+              <%= qualifier_icon(row.snapshot)-%> <%= link_to(row.snapshot.resource.name(true), {:controller => 'dashboard', :id => row.snapshot.resource_id}, :title => row.snapshot.resource.key) -%>
             </td>
             <td class="sep"></td>
             <td>
-              <%= h result.snapshot.resource.description -%>
+              <%= h row.snapshot.resource.description -%>
             </td>
             <td class="sep"></td>
             <td class="nowrap right">
               <% 
-                 if result.links
-                   result.links.select { |link| link.href.start_with?('http') }.each do |link|
+                 if row.links
+                   row.links.select { |link| link.href.start_with?('http') }.each do |link|
               %>
                 <%= link_to(image_tag(link.icon, :alt => link.name), link.href, :class => 'nolink', :popup => true) unless link.custom? -%>
               <%
@@ -79,7 +59,7 @@
           </tr>
         <% end %>
         
-        <% if @filter.results.empty? %>
+        <% if @filter.rows.empty? %>
           <tr class="even">
             <td colspan="<%= colspan -%>"><%= message 'no_data' -%></td>
           </tr>
@@ -89,7 +69,6 @@
     <%= render :partial => 'utils/tfoot_pagination', :locals => {:pagination => @filter.pagination, :colspan => colspan} %>
     
   </table>
-
   </div>
   
 <% end %>

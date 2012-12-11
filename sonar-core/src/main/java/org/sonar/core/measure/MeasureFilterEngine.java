@@ -22,7 +22,6 @@ package org.sonar.core.measure;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import org.apache.commons.lang.SystemUtils;
-import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
@@ -37,38 +36,49 @@ public class MeasureFilterEngine implements ServerComponent {
   private final MeasureFilterFactory factory;
   private final MeasureFilterExecutor executor;
 
+  private static final int MAX_ROWS = 5000;
+
   public MeasureFilterEngine(MeasureFilterFactory factory, MeasureFilterExecutor executor) {
     this.executor = executor;
     this.factory = factory;
   }
 
-  public List<MeasureFilterRow> execute(Map<String, Object> filterMap, @Nullable Long userId) throws ParseException {
+  public MeasureFilterResult execute(Map<String, Object> filterMap, @Nullable Long userId) {
     return execute(filterMap, userId, LoggerFactory.getLogger("org.sonar.MEASURE_FILTER"));
   }
 
   @VisibleForTesting
-  List<MeasureFilterRow> execute(Map<String, Object> filterMap, @Nullable Long userId, Logger logger) throws ParseException {
+  MeasureFilterResult execute(Map<String, Object> filterMap, @Nullable Long userId, Logger logger) {
+    long start = System.currentTimeMillis();
+    MeasureFilterResult result = new MeasureFilterResult();
     MeasureFilterContext context = new MeasureFilterContext();
     context.setUserId(userId);
     context.setData(String.format("{%s}", Joiner.on('|').withKeyValueSeparator("=").join(filterMap)));
     try {
-      long start = System.currentTimeMillis();
       MeasureFilter filter = factory.create(filterMap);
       List<MeasureFilterRow> rows = executor.execute(filter, context);
-      log(context, rows, (System.currentTimeMillis() - start), logger);
-      return rows;
+      if (rows.size() <= MAX_ROWS) {
+        result.setRows(rows);
+      } else {
+        result.setError(MeasureFilterResult.Error.TOO_MANY_RESULTS);
+      }
+      result.setDurationInMs(System.currentTimeMillis() - start);
+      log(context, result, logger);
+
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to execute filter: " + context, e);
+      result.setError(MeasureFilterResult.Error.UNKNOWN);
+      logger.error("Fail to execute measure filter: " + context, e);
     }
+    return result;
   }
 
-  private void log(MeasureFilterContext context, List<MeasureFilterRow> rows, long durationMs, Logger logger) {
+  private void log(MeasureFilterContext context, MeasureFilterResult result, Logger logger) {
     if (logger.isDebugEnabled()) {
       StringBuilder log = new StringBuilder();
       log.append(SystemUtils.LINE_SEPARATOR);
-      log.append(" filter: ").append(context.getData()).append(SystemUtils.LINE_SEPARATOR);
+      log.append("request: ").append(context.getData()).append(SystemUtils.LINE_SEPARATOR);
+      log.append(" result: ").append(result.toString()).append(SystemUtils.LINE_SEPARATOR);
       log.append("    sql: ").append(context.getSql()).append(SystemUtils.LINE_SEPARATOR);
-      log.append("results: ").append(rows.size()).append(" rows in ").append(durationMs).append("ms").append(SystemUtils.LINE_SEPARATOR);
       logger.debug(log.toString());
     }
   }

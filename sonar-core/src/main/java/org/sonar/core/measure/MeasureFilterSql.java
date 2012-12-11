@@ -75,7 +75,7 @@ class MeasureFilterSql {
   }
 
   private void init() {
-    sql.append("SELECT block.id, max(block.rid) as rid, max(block.rootid) as rootid, max(sortval) as sortval");
+    sql.append("SELECT block.id, max(block.rid) AS rid, max(block.rootid) AS rootid, max(sortval) AS sortval1, CASE WHEN sortval IS NULL THEN 1 ELSE 0 END AS sortval2 ");
     for (int index = 0; index < filter.getMeasureConditions().size(); index++) {
       sql.append(", max(crit_").append(index).append(")");
     }
@@ -88,7 +88,7 @@ class MeasureFilterSql {
       appendConditionBlock(index, condition);
     }
 
-    sql.append(") block GROUP BY block.id");
+    sql.append(") block GROUP BY block.id, sortval2");
     if (!filter.getMeasureConditions().isEmpty()) {
       sql.append(" HAVING ");
       for (int index = 0; index < filter.getMeasureConditions().size(); index++) {
@@ -99,14 +99,13 @@ class MeasureFilterSql {
       }
     }
     if (filter.sort().isSortedByDatabase()) {
-      sql.append(" ORDER BY sortval ");
-      sql.append(filter.sort().isAsc() ? "ASC" : "DESC");
-      sql.append(" NULLS LAST");
+      sql.append(" ORDER BY sortval2 ASC, sortval1 ");
+      sql.append(filter.sort().isAsc() ? "ASC " : "DESC ");
     }
   }
 
   private void appendSortBlock() {
-    sql.append(" SELECT s.id, s.project_id AS rid, s.root_project_id AS rootid, ").append(filter.sort().column()).append(" AS sortval");
+    sql.append(" SELECT s.id, s.project_id AS rid, s.root_project_id AS rootid, ").append(filter.sort().column()).append(" AS sortval ");
     for (int index = 0; index < filter.getMeasureConditions().size(); index++) {
       MeasureFilterCondition condition = filter.getMeasureConditions().get(index);
       sql.append(", ").append(nullSelect(condition.metric())).append(" AS crit_").append(index);
@@ -125,7 +124,7 @@ class MeasureFilterSql {
   }
 
   private void appendConditionBlock(int conditionIndex, MeasureFilterCondition condition) {
-    sql.append(" SELECT s.id, s.project_id AS rid, s.root_project_id AS rootid, null AS sortval");
+    sql.append(" SELECT s.id, s.project_id AS rid, s.root_project_id AS rootid, null AS sortval ");
     for (int j = 0; j < filter.getMeasureConditions().size(); j++) {
       sql.append(", ");
       if (j == conditionIndex) {

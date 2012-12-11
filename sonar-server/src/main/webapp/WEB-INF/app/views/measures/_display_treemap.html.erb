@@ -76,10 +76,10 @@
   <% end
      end %>
 
-<% if filter.results.empty? %>
+<% if filter.rows.empty? %>
   <p><%= message('no_data') -%></p>
 <% elsif filter.pagination.pages>1 %>
-  <p><%= message('measure_filter.too_many_results') -%></p>
+  <p><%= message('measure_filter.errors.TOO_MANY_RESULTS') -%></p>
 <% else %>
   <div id="tm-<%= treemap_id -%>" class="treemap width100">
     <%= filter.display.html -%>

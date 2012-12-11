@@ -21,7 +21,6 @@ package org.sonar.server.ui;
 
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
-import org.json.simple.parser.ParseException;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.License;
@@ -50,7 +49,7 @@ import org.sonar.api.workflow.internal.DefaultWorkflowContext;
 import org.sonar.api.workflow.screen.Screen;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.measure.MeasureFilterEngine;
-import org.sonar.core.measure.MeasureFilterRow;
+import org.sonar.core.measure.MeasureFilterResult;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.DatabaseMigrator;
 import org.sonar.core.persistence.DryRunDatabaseFactory;
@@ -100,7 +99,7 @@ public final class JRubyFacade {
     return getContainer().getComponentByType(componentType);
   }
 
-  public List<MeasureFilterRow> executeMeasureFilter(Map<String, Object> map, @Nullable Long userId) throws ParseException {
+  public MeasureFilterResult executeMeasureFilter(Map<String, Object> map, @Nullable Long userId) {
     return get(MeasureFilterEngine.class).execute(map, userId);
   }
 

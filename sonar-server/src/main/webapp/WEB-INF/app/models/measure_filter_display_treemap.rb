@@ -41,7 +41,7 @@ class MeasureFilterDisplayTreemap < MeasureFilterDisplay
   end
 
   def html
-    if filter.results
+    if filter.rows
       root = Treemap::Node.new(:id => -1, :label => '')
       build_tree(root)
 
@@ -57,7 +57,7 @@ class MeasureFilterDisplayTreemap < MeasureFilterDisplay
   end
 
   def empty?
-    @filter.results.nil? || @filter.results.empty?
+    @filter.rows.nil? || @filter.rows.empty?
   end
 
   def url_params
@@ -67,12 +67,12 @@ class MeasureFilterDisplayTreemap < MeasureFilterDisplay
   private
 
   def build_tree(node)
-    if @filter.results && @size_metric
-      @filter.results.each do |result|
-        size_measure=result.measure(@size_metric)
+    if @filter.rows && @size_metric
+      @filter.rows.each do |row|
+        size_measure=row.measure(@size_metric)
         if size_measure
-          color_measure=(@color_metric ? result.measure(@color_metric) : nil)
-          resource = result.snapshot.resource
+          color_measure=(@color_metric ? row.measure(@color_metric) : nil)
+          resource = row.snapshot.resource
           child = Treemap::Node.new(:size => size_value(size_measure),
                                     :label => resource.name(false),
                                     :title => escape_javascript(resource.name(true)),

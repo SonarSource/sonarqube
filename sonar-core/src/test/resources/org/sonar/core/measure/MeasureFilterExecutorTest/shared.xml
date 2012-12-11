@@ -16,6 +16,12 @@
            optimized_best_value="[true]" best_value="100" direction="1" hidden="[false]"
            delete_historical_data="[null]"/>
 
+  <metrics id="4" name="unknown" val_type="FLOAT" description="Coverage" domain="Test"
+             short_name="Unknown" qualitative="[true]" user_managed="[false]" enabled="[true]" origin="JAV"
+             worst_value="[null]"
+             optimized_best_value="[true]" best_value="100" direction="1" hidden="[false]"
+             delete_historical_data="[null]"/>
+
   <!-- java project -->
   <projects kee="java_project" long_name="Java project" scope="PRJ" qualifier="TRK" name="Java project"
             id="1" root_id="[null]"
@@ -107,6 +113,14 @@
                     rule_priority="[null]" alert_text="[null]" RULES_CATEGORY_ID="[null]"
                     RULE_ID="[null]" text_value="Sonar way" tendency="[null]" measure_date="[null]" project_id="[null]"
                     alert_status="[null]" description="[null]" characteristic_id="[null]"/>
+
+  <!-- coverage of java project -->
+  <project_measures id="1006" metric_id="3" value="12.3" snapshot_id="101"
+                      url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
+                      variation_value_4="[null]" variation_value_5="[null]"
+                      rule_priority="[null]" alert_text="[null]" RULES_CATEGORY_ID="[null]"
+                      RULE_ID="[null]" text_value="Sonar way" tendency="[null]" measure_date="[null]" project_id="[null]"
+                      alert_status="[null]" description="[null]" characteristic_id="[null]"/>
 
   <!-- php project -->
   <projects kee="php_project" long_name="PHP project" scope="PRJ" qualifier="TRK" name="PHP project"

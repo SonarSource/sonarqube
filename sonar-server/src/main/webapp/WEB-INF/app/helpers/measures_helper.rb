@@ -34,9 +34,9 @@ module MeasuresHelper
     "<th class='#{column.align} #{column.title_css}'>#{html}</th>"
   end
 
-  def list_cell_html(column, result)
+  def list_cell_html(column, row)
     if column.metric
-      measure = result.measure(column.metric)
+      measure = row.measure(column.metric)
       if column.period
         format_variation(measure, :index => column.period, :style => 'light')
       elsif column.metric.numeric?
@@ -46,22 +46,22 @@ module MeasuresHelper
       end
 
     elsif column.key=='name'
-      "#{qualifier_icon(result.snapshot)} #{link_to(result.snapshot.resource.name(true), {:controller => 'dashboard', :id => result.snapshot.resource_id}, :title => result.snapshot.resource.key)}"
+      "#{qualifier_icon(row.snapshot)} #{link_to(row.snapshot.resource.name(true), {:controller => 'dashboard', :id => row.snapshot.resource_id}, :title => row.snapshot.resource.key)}"
     elsif column.key=='short_name'
-      "#{qualifier_icon(result.snapshot)} #{link_to(result.snapshot.resource.name(false), {:controller => 'dashboard', :id => result.snapshot.resource_id}, :title => result.snapshot.resource.key)}"
+      "#{qualifier_icon(row.snapshot)} #{link_to(row.snapshot.resource.name(false), {:controller => 'dashboard', :id => row.snapshot.resource_id}, :title => row.snapshot.resource.key)}"
     elsif column.key=='date'
-      human_short_date(result.snapshot.created_at)
+      human_short_date(row.snapshot.created_at)
     elsif column.key=='key'
-      "<span class='small'>#{result.snapshot.resource.kee}</span>"
+      "<span class='small'>#{row.snapshot.resource.kee}</span>"
     elsif column.key=='description'
-      h result.snapshot.resource.description
+      h row.snapshot.resource.description
     elsif column.key=='version'
-      h result.snapshot.version
+      h row.snapshot.version
     elsif column.key=='language'
-      Api::Utils.language_name(result.snapshot.resource.language)
-    elsif column.key=='links' && result.links
+      Api::Utils.language_name(row.snapshot.resource.language)
+    elsif column.key=='links' && row.links
       html = ''
-      result.links.select { |link| link.href.start_with?('http') }.each do |link|
+      row.links.select { |link| link.href.start_with?('http') }.each do |link|
         html += link_to(image_tag(link.icon, :alt => link.name), link.href, :class => 'nolink', :popup => true) unless link.custom?
       end
       html
