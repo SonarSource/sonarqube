@@ -99,11 +99,9 @@ class MeasureFilterSql {
       }
     }
     if (filter.sort().isSortedByDatabase()) {
-      if (filter.sort().isAsc()) {
-        sql.append(" ORDER BY sortval");
-      } else {
-        sql.append(" ORDER BY CASE WHEN max(sortval) IS NULL THEN 1 ELSE 0 END, sortval DESC");
-      }
+      sql.append(" ORDER BY sortval ");
+      sql.append(filter.sort().isAsc() ? "ASC" : "DESC");
+      sql.append(" NULLS LAST");
     }
   }
 
