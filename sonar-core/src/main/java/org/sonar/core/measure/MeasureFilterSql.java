@@ -75,7 +75,7 @@ class MeasureFilterSql {
   }
 
   private void init() {
-    sql.append("SELECT block.id, max(block.rid) AS rid, max(block.rootid) AS rootid, max(sortval) AS sortvalmax, CASE WHEN sortval IS NULL THEN 1 ELSE 0 END AS sortflag ");
+    sql.append("SELECT block.id, max(block.rid) AS rid, max(block.rootid) AS rootid, max(sortval) AS sortmax, CASE WHEN max(sortval) IS NULL THEN 1 ELSE 0 END AS sortflag ");
     for (int index = 0; index < filter.getMeasureConditions().size(); index++) {
       sql.append(", max(crit_").append(index).append(")");
     }
@@ -88,7 +88,7 @@ class MeasureFilterSql {
       appendConditionBlock(index, condition);
     }
 
-    sql.append(") block GROUP BY block.id, sortflag");
+    sql.append(") block GROUP BY block.id ");
     if (!filter.getMeasureConditions().isEmpty()) {
       sql.append(" HAVING ");
       for (int index = 0; index < filter.getMeasureConditions().size(); index++) {
@@ -99,7 +99,7 @@ class MeasureFilterSql {
       }
     }
     if (filter.sort().isSortedByDatabase()) {
-      sql.append(" ORDER BY sortflag ASC, sortvalmax ");
+      sql.append(" ORDER BY sortflag ASC, sortmax ");
       sql.append(filter.sort().isAsc() ? "ASC " : "DESC ");
     }
   }
