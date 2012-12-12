@@ -27,6 +27,7 @@ class AllProjectsController < ApplicationController
 
     @filter = MeasureFilter.new
     @filter.criteria={:qualifiers => @qualifier, :sort => 'name', :asc => (params[:asc]!='false')}
+    @filter.require_links=true
     @filter.execute(self, :user => current_user)
   end
 
