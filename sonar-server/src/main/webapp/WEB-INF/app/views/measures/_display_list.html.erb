@@ -1,25 +1,19 @@
 <div id="measure_filter_list<%= widget_id -%>">
 <% content_for :script do %>
   <script>
-    function refreshUrl<%= widget_id -%>(url) {
+    function refreshList<%= widget_id -%>(sort, asc, page) {
       $j('#measure_filter_foot<%= widget_id -%>_pages').hide();
       $j('#measure_filter_foot<%= widget_id -%>_loading').show();
+
+      var url = decodeURI('<%= url_for filter.criteria.merge(:controller => 'measures', :action => 'search', :page => nil, :sort => nil, :asc => nil, :search => nil, :widget_id => widget_id, :trailing_slash => true) -%>');
+      url += '&sort=' + sort + '&asc=' + asc + '&page=' + page;
+
       <% if widget_id %>
       $j('#measure_filter_list<%= widget_id -%>').load(url);
       <% else %>
       window.location = url;
       <% end %>
       return false;
-    }
-    function sortList<%= widget_id -%>(sort, asc) {
-      var url = decodeURI('<%= url_for filter.criteria.merge(:controller => 'measures', :action => 'search', :sort => nil, :asc => nil, :search => nil, :widget_id => widget_id, :trailing_slash => true) -%>');
-      url += '&sort=' + sort + '&asc=' + asc;
-      return refreshUrl<%= widget_id -%>(url);
-    }
-    function pageList<%= widget_id -%>(page) {
-      var url = decodeURI('<%= url_for filter.criteria.merge(:controller => 'measures', :action => 'search', :page => nil, :search => nil, :widget_id => widget_id, :trailing_slash => true) -%>');
-      url += '&page=' + page;
-      return refreshUrl<%= widget_id -%>(url);
     }
   </script>
 <%
@@ -213,13 +207,14 @@
   <% end %>
 
   </tbody>
-  <% pagination_partial = widget_id ? 'utils/tfoot_ajax_pagination' : 'utils/tfoot_pagination' %>
-  <%= render :partial => pagination_partial, :locals => {
-    :pagination => filter.pagination,
-    :colspan => colspan,
-    :id => "measure_filter_foot#{widget_id}",
-    :include_loading => true,
-    :js_function => "pageList#{widget_id}"
-  } -%>
+  <% if widget_id %>
+    <%= table_pagination(filter.pagination, :colspan => colspan, :id => "measure_filter_foot#{widget_id}", :include_loading_icon => true) { |label, page_id|
+      link_to_function label, "refreshList#{widget_id}('#{filter.criteria[:sort]}', #{filter.criteria[:asc]}, #{page_id})"
+    } -%>
+  <% else %>
+    <%= table_pagination(filter.pagination, :colspan => colspan, :id => "measure_filter_foot#{widget_id}", :include_loading_icon => true) { |label, page_id|
+      link_to(label, filter.criteria.merge({:page => page_id}))
+    } -%>
+  <% end %>
 </table>
 </div>

@@ -26,7 +26,7 @@ class AllProjectsController < ApplicationController
     bad_request("The 'qualifier' parameter is not valid. It must reference a root type.") unless Project.root_qualifiers.include?(@qualifier)
 
     @filter = MeasureFilter.new
-    @filter.criteria={:qualifiers => @qualifier, :sort => 'name', :asc => (params[:asc]!='false')}
+    @filter.criteria={:qualifiers => @qualifier, :sort => 'name', :asc => (params[:asc]!='false'), :pageSize=>200, :page => params[:page]}
     @filter.require_links=true
     @filter.execute(self, :user => current_user)
   end

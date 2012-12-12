@@ -206,7 +206,7 @@ class MeasureFilter < ActiveRecord::Base
   private
 
   def init_results
-    @pagination = Api::Pagination.new
+    @pagination = nil
     @security_exclusions = nil
     @rows = nil
     @base_row = nil
@@ -222,8 +222,11 @@ class MeasureFilter < ActiveRecord::Base
     authorized_project_ids = controller.select_authorized(:user, project_ids)
     snapshot_ids = rows.map { |row| row.getSnapshotId() if authorized_project_ids.include?(row.getResourceRootId()) }.compact
     @security_exclusions = (snapshot_ids.size<rows.size)
+    @pagination = Api::Pagination.new
+    @pagination.per_page=(criteria(:pageSize)||999999).to_i
+    @pagination.page=(criteria(:page)||1).to_i
     @pagination.count = snapshot_ids.size
-    snapshot_ids[@pagination.offset ... (@pagination.offset+@pagination.limit)]
+    snapshot_ids[@pagination.offset ... (@pagination.offset+@pagination.limit)] || []
   end
 
   def load_results(snapshot_ids)

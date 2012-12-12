@@ -87,8 +87,7 @@ class MeasureFilterDisplayList < MeasureFilterDisplay
     filter.set_criteria_default_value(:sort, 'name')
     filter.set_criteria_default_value(:asc, 'true')
     filter.set_criteria_default_value(:pageSize, '30')
-    filter.pagination.per_page = [filter.criteria[:pageSize].to_i, 200].min
-    filter.pagination.page = (filter.criteria[:page] || 1).to_i
+    filter.set_criteria_value(:pageSize, [filter.criteria[:pageSize].to_i, 200].min)
 
     @columns = []
     metrics = []

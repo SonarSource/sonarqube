@@ -65,8 +65,11 @@
           </tr>
         <% end %>
     </tbody>
-    
-    <%= render :partial => 'utils/tfoot_pagination', :locals => {:pagination => @filter.pagination, :colspan => colspan} %>
+
+      <%= table_pagination(@filter.pagination, :colspan => colspan) { |label, page_id|
+            link_to(label, :action => 'index', :qualifier => @qualifier, :asc => @filter.criteria[:asc], :page => page_id)
+          }
+      -%>
     
   </table>
   </div>

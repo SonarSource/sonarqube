@@ -36,8 +36,8 @@ class MeasureFilterDisplayTreemap < MeasureFilterDisplay
 
     filter.set_criteria_value(:sort, "metric:#{@size_metric.key}") if @size_metric
     filter.set_criteria_value(:asc, 'true')
-    filter.pagination.per_page = MAX_RESULTS
-    filter.pagination.page = 1
+    filter.set_criteria_value(:pageSize, MAX_RESULTS)
+    filter.set_criteria_value(:page, 1)
   end
 
   def html

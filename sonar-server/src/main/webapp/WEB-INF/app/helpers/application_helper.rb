@@ -260,7 +260,7 @@ module ApplicationHelper
       if options[:line]
         anchor= 'L' + options[:line].to_s
       end
-      link_to(name || resource.name, {:controller => 'resource', :action => 'index', :anchor => anchor, :id => resource.id, :period => period_index, :tab => options[:tab], :rule => options[:rule], 
+      link_to(name || resource.name, {:controller => 'resource', :action => 'index', :anchor => anchor, :id => resource.id, :period => period_index, :tab => options[:tab], :rule => options[:rule],
                                       :metric => options[:metric], :display_title => true}, :popup => ['resource', 'height=800,width=900,scrollbars=1,resizable=1'], :title => options[:title])
     end
   end
@@ -688,7 +688,60 @@ module ApplicationHelper
     "<a href='#{url}' modal-width='#{width}' class='open-modal #{clazz}' #{id}>#{h label}</a>"
   end
 
-  def link_to_function_if(condition, name, *args)
-    condition ? link_to_function(name, args) : name
+  # Options :
+  # :id
+  # :colspan
+  # :include_loading_icon - only if :id is set as well
+  def table_pagination(pagination, options={}, &block)
+    html = '<tfoot'
+    html += " id='#{options[:id]}'" if options[:id]
+    html += "><tr><td"
+    html += " colspan='#{options[:colspan]}'" if options[:colspan]
+    html += '>'
+    if options[:include_loading_icon] && options[:id]
+      html += "<img src='#{ApplicationController.root_context}/images/loading-small.gif' style='display: none' id='#{options[:id]}_loading'>"
+    end
+    html += '<div'
+    html += " id='#{options[:id]}_pages'" if options[:id]
+    html += '>'
+    html += message('x_results', :params => [pagination.count]) if pagination.count>0
+
+    if pagination.pages > 1
+      max_pages = pagination.pages
+      current_page = pagination.page
+      start_page = 1
+      end_page = max_pages
+      if max_pages > 20
+        if current_page < 12
+          start_page = 1
+          end_page = 20
+        elsif current_page > max_pages-10
+          start_page = max_pages-20
+          end_page = max_pages
+        else
+          start_page = current_page-10
+          end_page = current_page+9
+        end
+      end
+
+      html += ' | '
+      if max_pages > 20 && start_page > 1
+        html += (current_page!=1 ? yield(message('paging_first'), 1) : message('paging_first'))
+      end
+      html += (pagination.previous? ? yield(message('paging_previous'), current_page-1) : message('paging_previous'))
+      html += ' '
+      for index in start_page..end_page
+        html += (index != current_page ? yield(index.to_s, index) : index.to_s)
+        html += ' '
+      end
+      html += (pagination.next? ? yield(message('paging_next'), current_page+1) : message('paging_next'))
+      html += ' '
+      if max_pages > 20 && end_page < max_pages
+        html += (current_page != max_pages ? yield(message('paging_last'), max_pages) : message('paging_last'))
+        html += ' '
+      end
+    end
+    html+= '</div></td></tr></tfoot>'
+    html
   end
 end
