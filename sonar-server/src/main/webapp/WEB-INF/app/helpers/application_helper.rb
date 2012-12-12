@@ -688,10 +688,12 @@ module ApplicationHelper
     "<a href='#{url}' modal-width='#{width}' class='open-modal #{clazz}' #{id}>#{h label}</a>"
   end
 
+  # Add a <tfoot> section to a table with pagination details and links.
   # Options :
-  # :id
-  # :colspan
-  # :include_loading_icon - only if :id is set as well
+  # :id HTML id of the <tfoot> node
+  # :colspan number of columns in the table
+  # :include_loading_icon adds a hidden loading icon, only if value is true and if the option :id is set as well. The HTML id of the icon
+  #    is '<id>_loading'
   def table_pagination(pagination, options={}, &block)
     html = '<tfoot'
     html += " id='#{options[:id]}'" if options[:id]
@@ -741,7 +743,7 @@ module ApplicationHelper
         html += ' '
       end
     end
-    html+= '</div></td></tr></tfoot>'
+    html += '</div></td></tr></tfoot>'
     html
   end
 end

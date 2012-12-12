@@ -1,43 +1,4 @@
-<tfoot>
-<tr>
-  <td colspan="<%= colspan || 1 -%>">
-    <% if pagination.count > 0 %>
-      <%= message('x_results', :params => [pagination.count]) -%>
-    <% end %>
-    <%
-       if pagination.pages > 1
-         max_pages = pagination.pages
-         current_page = pagination.page
-         start_page = 1
-         end_page = max_pages
-         if max_pages > 20
-           if current_page < 12
-             start_page = 1
-             end_page = 20
-           elsif current_page > max_pages-10
-             start_page = max_pages-20
-             end_page = max_pages
-           else
-             start_page = current_page-10
-             end_page = current_page+9
-           end
-         end
-    %>
-      |
-      <% if max_pages > 20 && start_page > 1 %>
-      <%= link_to_if current_page != 1, message('paging_first'), params.merge(:page => 1) %>
-      <% end %>
-      <%= link_to_if pagination.previous?, message('paging_previous'), params.merge(:page => current_page-1) %>
-      <% for index in start_page..end_page %>
-        <%= link_to_if index != current_page, index.to_s, params.merge(:page => index) %>
-      <% end %>
-      <%= link_to_if pagination.next?, message('paging_next'), params.merge(:page => current_page+1) %>
-      <% if max_pages > 20 && end_page < max_pages %>
-      <%= link_to_if current_page != max_pages, message('paging_last'), params.merge(:page => max_pages) %>
-      <% end %>
-  <%
-       end
-    %>
-  </td>
-</tr>
-</tfoot>
+<%
+  # this template is deprecated. Please use the method table_pagination.
+%>
+<%= table_pagination(pagination, :colspan => (colspan||1)) { |label, page_id| link_to(label, params.merge({:page => page_id}))} -%>

@@ -105,7 +105,7 @@
     </tr>
 </thead>
 
-<%= render :partial => 'utils/tfoot_pagination', :locals => {:pagination => @pagination, :colspan => 2} %>
+  <%= table_pagination(@pagination, :colspan => 2) { |label, page_id| link_to(label, params.merge({:page => page_id}))} -%>
 
 <tbody>
 <% if @current_rules.empty? %>

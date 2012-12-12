@@ -83,7 +83,7 @@
   </tr>
   </thead>
 
-  <%= render :partial => 'utils/tfoot_pagination', :locals => {:pagination => @pagination, :colspan => 4} %>
+  <%= table_pagination(@pagination, :colspan => 4) { |label, page_id| link_to(label, params.merge({:page => page_id}))} -%>
 
   <tbody>
   <% if @projects.empty? %>
