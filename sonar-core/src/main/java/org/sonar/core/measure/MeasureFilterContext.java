@@ -23,9 +23,11 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.core.resource.SnapshotDto;
 
+import javax.annotation.Nullable;
+
 class MeasureFilterContext {
-  private Long userId;
-  private SnapshotDto baseSnapshot;
+  private Long userId = null;
+  private SnapshotDto baseSnapshot = null;
   private String sql;
   private String data;
 
@@ -33,7 +35,7 @@ class MeasureFilterContext {
     return userId;
   }
 
-  MeasureFilterContext setUserId(Long userId) {
+  MeasureFilterContext setUserId(@Nullable Long userId) {
     this.userId = userId;
     return this;
   }
@@ -42,7 +44,7 @@ class MeasureFilterContext {
     return baseSnapshot;
   }
 
-  MeasureFilterContext setBaseSnapshot(SnapshotDto baseSnapshot) {
+  MeasureFilterContext setBaseSnapshot(@Nullable SnapshotDto baseSnapshot) {
     this.baseSnapshot = baseSnapshot;
     return this;
   }

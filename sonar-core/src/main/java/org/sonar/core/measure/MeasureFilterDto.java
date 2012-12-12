@@ -19,6 +19,8 @@
  */
 package org.sonar.core.measure;
 
+import javax.annotation.Nullable;
+
 import java.util.Date;
 
 /**
@@ -56,7 +58,7 @@ public class MeasureFilterDto {
     return userId;
   }
 
-  public MeasureFilterDto setUserId(Long userId) {
+  public MeasureFilterDto setUserId(@Nullable Long userId) {
     this.userId = userId;
     return this;
   }
@@ -65,7 +67,7 @@ public class MeasureFilterDto {
     return shared;
   }
 
-  public MeasureFilterDto setShared(Boolean shared) {
+  public MeasureFilterDto setShared(@Nullable Boolean shared) {
     this.shared = shared;
     return this;
   }
@@ -74,7 +76,7 @@ public class MeasureFilterDto {
     return description;
   }
 
-  public MeasureFilterDto setDescription(String description) {
+  public MeasureFilterDto setDescription(@Nullable String description) {
     this.description = description;
     return this;
   }

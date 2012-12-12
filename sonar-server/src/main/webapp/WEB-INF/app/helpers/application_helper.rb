@@ -692,7 +692,7 @@ module ApplicationHelper
   # Options :
   # :id HTML id of the <tfoot> node
   # :colspan number of columns in the table
-  # :include_loading_icon adds a hidden loading icon, only if value is true and if the option :id is set as well. The HTML id of the icon
+  # :include_loading_icon add a hidden loading icon, only if value is true and if the option :id is set as well. The HTML id of the generated icon
   #    is '<id>_loading'
   def table_pagination(pagination, options={}, &block)
     html = '<tfoot'
