@@ -70,7 +70,8 @@ public final class Batch {
   private void startBatch() {
     Module bootstrapModule = null;
     try {
-      bootstrapModule = new BootstrapModule(projectReactor, components.toArray(new Object[components.size()])).init();
+      bootstrapModule = new BootstrapModule(projectReactor, components.toArray(new Object[components.size()]));
+      bootstrapModule.init();
       bootstrapModule.start();
     } catch (RuntimeException e) {
       PicoUtils.propagateStartupException(e);

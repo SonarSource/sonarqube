@@ -141,11 +141,12 @@ public class BatchModule extends Module {
       analyze(subProject);
     }
 
-    Module projectComponents = installChild(new ProjectModule(project));
+    ProjectModule projectModule = new ProjectModule(project);
     try {
-      projectComponents.start();
+      installChild(projectModule);
+      projectModule.start();
     } finally {
-      projectComponents.stop();
+      projectModule.stop();
       uninstallChild();
     }
   }

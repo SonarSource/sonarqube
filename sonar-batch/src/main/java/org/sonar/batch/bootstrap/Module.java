@@ -33,17 +33,16 @@ public abstract class Module {
   /**
    * @return this
    */
-  public final Module init() {
-    return init(new ComponentContainer());
+  public final void init() {
+    init(new ComponentContainer());
   }
 
   /**
    * @return this
    */
-  private Module init(ComponentContainer container) {
+  private void init(ComponentContainer container) {
     this.container = container;
     configure();
-    return this;
   }
 
   /**

@@ -38,7 +38,8 @@ public final class Batch {
   private Module bootstrapModule;
 
   public Batch(ProjectReactor reactor, Object... bootstrapperComponents) {
-    this.bootstrapModule = new BootstrapModule(reactor, bootstrapperComponents).init();
+    this.bootstrapModule = new BootstrapModule(reactor, bootstrapperComponents);
+    this.bootstrapModule.init();
   }
 
   /**
@@ -47,7 +48,8 @@ public final class Batch {
   @Deprecated
   public Batch(Configuration configuration, Object... bootstrapperComponents) {//NOSONAR configuration is not needed
     // because it's already included in ProjectDefinition.
-    this.bootstrapModule = new BootstrapModule(extractProjectReactor(bootstrapperComponents), bootstrapperComponents).init();
+    this.bootstrapModule = new BootstrapModule(extractProjectReactor(bootstrapperComponents), bootstrapperComponents);
+    this.bootstrapModule.init();
   }
 
   static ProjectReactor extractProjectReactor(Object[] components) {

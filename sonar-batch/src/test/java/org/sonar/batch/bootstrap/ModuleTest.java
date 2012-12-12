@@ -32,7 +32,8 @@ public class ModuleTest {
 
   @Test
   public void shouldInitModule() {
-    Module module = new FakeModule(FakeService.class).init();
+    Module module = new FakeModule(FakeService.class);
+    module.init();
 
     FakeService service = module.container.getComponentByType(FakeService.class);
     assertThat(service, not(nullValue()));
@@ -42,7 +43,8 @@ public class ModuleTest {
 
   @Test
   public void shouldStartAndStopModule() {
-    Module module = new FakeModule(FakeService.class).init();
+    Module module = new FakeModule(FakeService.class);
+    module.init();
     module.start();
 
     FakeService service = module.container.getComponentByType(FakeService.class);
@@ -54,27 +56,31 @@ public class ModuleTest {
 
   @Test(expected = RuntimeException.class)
   public void shouldNotIgnoreStartFailures() {
-    Module module = new FakeModule(NonStartableService.class).init();
+    Module module = new FakeModule(NonStartableService.class);
+    module.init();
     module.start();
   }
 
   @Test
   public void shouldIgnoreStopFailures() {
-    Module module = new FakeModule(NonStoppableService.class).init();
+    Module module = new FakeModule(NonStoppableService.class);
+    module.init();
     module.start();
     module.stop(); // no exception is raised
   }
 
   @Test
   public void componentsShouldBeSingletons() {
-    Module module = new FakeModule(FakeService.class).init();
+    Module module = new FakeModule(FakeService.class);
+    module.init();
 
     assertThat(module.container.getComponentByType(FakeService.class) == module.container.getComponentByType(FakeService.class), is(true));
   }
 
   @Test
   public void shouldInstallChildModule() {
-    Module parent = new FakeModule(FakeService.class).init();
+    Module parent = new FakeModule(FakeService.class);
+    parent.init();
     parent.start();
 
     Module child = parent.installChild(new FakeModule(ChildService.class));
