@@ -688,4 +688,7 @@ module ApplicationHelper
     "<a href='#{url}' modal-width='#{width}' class='open-modal #{clazz}' #{id}>#{h label}</a>"
   end
 
+  def link_to_function_if(condition, name, *args)
+    condition ? link_to_function(name, args) : name
+  end
 end

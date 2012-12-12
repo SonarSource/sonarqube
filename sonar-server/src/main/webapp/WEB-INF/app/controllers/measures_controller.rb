@@ -31,9 +31,13 @@ class MeasuresController < ApplicationController
     else
       @filter = MeasureFilter.new
     end
-    @filter.criteria=(params)
+    @filter.criteria=(params.merge({:controller => nil, :action => nil, :search => nil, :widget_id => nil}))
     @filter.enable_default_display
     @filter.execute(self, :user => current_user)
+
+    if request.xhr?
+      render :partial => 'measures/display', :locals => {:filter => @filter, :edit_mode => false, :widget_id => params[:widget_id]}
+    end
   end
 
   # Load existing filter

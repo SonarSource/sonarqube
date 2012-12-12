@@ -1,6 +1,7 @@
-<tfoot>
+<tfoot <%= "id=#{id}" if id -%>>
 <tr>
   <td colspan="<%= colspan || 1 -%>">
+    <div <%= "id=#{id}_pages" if id -%>>
     <% if pagination.count > 0 %>
       <%= message('x_results', :params => [pagination.count]) -%>
     <% end %>
@@ -25,7 +26,7 @@
     %>
       |
       <% if max_pages > 20 && start_page > 1 %>
-      <%= link_to_if current_page != 1, message('paging_first'), params.merge(:page => 1) %>
+        <%= link_to_if current_page != 1, message('paging_first'), params.merge(:page => 1) %>
       <% end %>
       <%= link_to_if pagination.previous?, message('paging_previous'), params.merge(:page => current_page-1) %>
       <% for index in start_page..end_page %>
@@ -33,11 +34,15 @@
       <% end %>
       <%= link_to_if pagination.next?, message('paging_next'), params.merge(:page => current_page+1) %>
       <% if max_pages > 20 && end_page < max_pages %>
-      <%= link_to_if current_page != max_pages, message('paging_last'), params.merge(:page => max_pages) %>
+        <%= link_to_if current_page != max_pages, message('paging_last'), params.merge(:page => max_pages) %>
       <% end %>
-  <%
+    <%
        end
     %>
+    </div>
+    <% if id && local_assigns[:include_loading] %>
+      <img src="<%= ApplicationController.root_context -%>/images/loading-small.gif" style="display: none" id="<%= id -%>_loading">
+    <% end %>
   </td>
 </tr>
 </tfoot>

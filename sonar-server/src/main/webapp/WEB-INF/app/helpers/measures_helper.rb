@@ -19,9 +19,9 @@
 #
 module MeasuresHelper
 
-  def list_column_html(filter, column)
+  def list_column_html(filter, column, widget_id)
     if column.sort?
-      html = link_to_function(h(column.title_label), "reloadParameters({asc:'#{(!filter.sort_asc?).to_s}', sort:'#{column.key}'})", :title => h(column.tooltip))
+      html = link_to_function(h(column.title_label), "sortList#{widget_id}('#{escape_javascript column.key}',#{!filter.sort_asc?})", :title => h(column.tooltip))
     else
       html=h(column.title_label)
     end

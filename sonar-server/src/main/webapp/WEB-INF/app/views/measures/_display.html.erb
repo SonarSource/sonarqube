@@ -1,0 +1,11 @@
+<% if filter.security_exclusions %>
+  <p class="notes"><%= message('results_not_display_due_to_security') -%></p>
+<% end %>
+
+<% if !filter.errors.empty? %>
+  <% filter.errors.full_messages.each do |message| %>
+    <div class="warning"><%= h message %></div>
+  <% end %>
+<% elsif filter.rows && filter.display %>
+  <%= render :partial => "measures/display_#{filter.display.class::KEY}", :locals => {:filter => filter, :edit_mode => edit_mode, :widget_id => widget_id} -%>
+<% end %>

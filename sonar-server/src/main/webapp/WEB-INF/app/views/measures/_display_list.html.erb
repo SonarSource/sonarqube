@@ -1,4 +1,30 @@
+<div id="measure_filter_list<%= widget_id -%>">
+<% content_for :script do %>
+  <script>
+    function refreshUrl<%= widget_id -%>(url) {
+      $j('#measure_filter_foot<%= widget_id -%>_pages').hide();
+      $j('#measure_filter_foot<%= widget_id -%>_loading').show();
+      <% if widget_id %>
+      $j('#measure_filter_list<%= widget_id -%>').load(url);
+      <% else %>
+      window.location = url;
+      <% end %>
+      return false;
+    }
+    function sortList<%= widget_id -%>(sort, asc) {
+      var url = decodeURI('<%= url_for filter.criteria.merge(:controller => 'measures', :action => 'search', :sort => nil, :asc => nil, :search => nil, :widget_id => widget_id, :trailing_slash => true) -%>');
+      url += '&sort=' + sort + '&asc=' + asc;
+      return refreshUrl<%= widget_id -%>(url);
+    }
+    function pageList<%= widget_id -%>(page) {
+      var url = decodeURI('<%= url_for filter.criteria.merge(:controller => 'measures', :action => 'search', :page => nil, :search => nil, :widget_id => widget_id, :trailing_slash => true) -%>');
+      url += '&page=' + page;
+      return refreshUrl<%= widget_id -%>(url);
+    }
+  </script>
 <%
+   end
+
    display_favourites = logged_in?
    colspan = filter.display.columns.size
    colspan += 1 if display_favourites
@@ -56,13 +82,48 @@
           td1.remove();
         });
       }
+      $j(document).ready(function () {
+        $j("#select-metric").on("change", function (e) {
+          var selectedKey = $j("#select-metric option:selected").val();
+          if (selectedKey.indexOf('metric:') == 0) {
+            if (selectedKey.indexOf('metric:new_') == 0) {
+              $j('#select-period option :eq(0)').attr('disabled', 'disabled');
+              $j('#select-period ').val('1');
+            } else {
+              $j('#select-period option :eq(0)').removeAttr('disabled');
+              $j('#select-period').val('');
+            }
+            $j('#select-period').show();
+          } else {
+            $j('#select-period').hide();
+          }
+          $j("#add-metric").removeAttr('disabled');
+
+        });
+        $j("#add-metric").on("click", function (e) {
+          var columnKey = $j("#select-metric option:selected").val();
+          var period = $j("#select-period option:selected").val();
+          if (period.length > 0) {
+            columnKey += ':' + period;
+          }
+          cols.push(columnKey);
+          window.location = removeUrlAttr(decodeURI(window.location.href), 'cols\\[\\]') + '&' + $j.map(cols,function (a) {
+            return a ? 'cols[]=' + a : null;
+          }).join('&');
+        });
+        $j("#exit-edit").on("click", function (e) {
+          var url = removeUrlAttr(decodeURI(window.location.href), 'cols\\[\\]');
+          url = removeUrlAttr(url, 'edit');
+          url += '&' + $j.map(cols,function (a) {
+            return a ? 'cols[]=' + a : null;
+          }).join('&');
+          window.location = url;
+        });
+      });
     </script>
   <%
      end
-     end
   %>
-
-<% if edit_mode %>
   <table class="spaced width100 box">
     <tr>
       <td>
@@ -88,45 +149,9 @@
       </td>
     </tr>
   </table>
-  <script>
-    $j("#select-metric").on("change", function (e) {
-      var selectedKey = $j("#select-metric option:selected").val();
-      if (selectedKey.indexOf('metric:') == 0) {
-        if (selectedKey.indexOf('metric:new_') == 0) {
-          $j('#select-period option :eq(0)').attr('disabled', 'disabled');
-          $j('#select-period ').val('1');
-        } else {
-          $j('#select-period option :eq(0)').removeAttr('disabled');
-          $j('#select-period').val('');
-        }
-        $j('#select-period').show();
-      } else {
-        $j('#select-period').hide();
-      }
-      $j("#add-metric").removeAttr('disabled');
-
-    });
-    $j("#add-metric").on("click", function (e) {
-      var columnKey = $j("#select-metric option:selected").val();
-      var period = $j("#select-period option:selected").val();
-      if (period.length > 0) {
-        columnKey += ':' + period;
-      }
-      cols.push(columnKey);
-      window.location = removeUrlAttr(decodeURI(window.location.href), 'cols\\[\\]') + '&' + $j.map(cols,function (a) {
-        return a ? 'cols[]=' + a : null;
-      }).join('&');
-    });
-    $j("#exit-edit").on("click", function (e) {
-      var url = removeUrlAttr(decodeURI(window.location.href), 'cols\\[\\]');
-      url = removeUrlAttr(url, 'edit');
-      url += '&' + $j.map(cols,function (a) {
-        return a ? 'cols[]=' + a : null;
-      }).join('&');
-      window.location = url;
-    });
-  </script>
-<% end %>
+<%
+   end
+%>
 
 <table class="data" id="measures-table">
   <thead>
@@ -135,7 +160,7 @@
       <th class="thin"></th>
     <% end %>
     <% filter.display.columns.each do |column| %>
-      <%= list_column_html(filter, column) -%>
+      <%= list_column_html(filter, column, widget_id) -%>
     <% end %>
   </tr>
   </thead>
@@ -188,5 +213,13 @@
   <% end %>
 
   </tbody>
-  <%= render :partial => 'utils/tfoot_pagination', :locals => {:pagination => filter.pagination, :colspan => colspan} %>
+  <% pagination_partial = widget_id ? 'utils/tfoot_ajax_pagination' : 'utils/tfoot_pagination' %>
+  <%= render :partial => pagination_partial, :locals => {
+    :pagination => filter.pagination,
+    :colspan => colspan,
+    :id => "measure_filter_foot#{widget_id}",
+    :include_loading => true,
+    :js_function => "pageList#{widget_id}"
+  } -%>
 </table>
+</div>

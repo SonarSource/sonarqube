@@ -1,0 +1,48 @@
+<tfoot <%= "id=#{id}" if id -%>>
+<tr>
+  <td colspan="<%= colspan || 1 -%>">
+    <div <%= "id=#{id}_pages" if id -%>>
+      <% if pagination.count > 0 %>
+        <%= message('x_results', :params => [pagination.count]) -%>
+      <% end %>
+      <%
+         if pagination.pages > 1
+           max_pages = pagination.pages
+           current_page = pagination.page
+           start_page = 1
+           end_page = max_pages
+           if max_pages > 20
+             if current_page < 12
+               start_page = 1
+               end_page = 20
+             elsif current_page > max_pages-10
+               start_page = max_pages-20
+               end_page = max_pages
+             else
+               start_page = current_page-10
+               end_page = current_page+9
+             end
+           end
+      %>
+        |
+        <% if max_pages > 20 && start_page > 1 %>
+          <%= link_to_function_if current_page != 1, message('paging_first'), "#{js_function}(1)" -%>
+        <% end %>
+        <%= link_to_function_if pagination.previous?, message('paging_previous'), "#{js_function}(#{current_page-1})" -%>
+        <% for index in start_page..end_page %>
+          <%= link_to_function_if index != current_page, index.to_s, "#{js_function}(#{index})" -%>
+        <% end %>
+        <%= link_to_function_if pagination.next?, message('paging_next'), "#{js_function}(#{current_page+1})" -%>
+        <% if max_pages > 20 && end_page < max_pages %>
+          <%= link_to_function_if current_page != max_pages, message('paging_last'), "#{js_function}(#{max_pages})" -%>
+        <%
+           end
+         end
+      %>
+    </div>
+    <% if id && local_assigns[:include_loading] %>
+      <img src="<%= ApplicationController.root_context -%>/images/loading-small.gif" style="display: none" id="<%= id -%>_loading">
+    <% end %>
+  </td>
+</tr>
+</tfoot>

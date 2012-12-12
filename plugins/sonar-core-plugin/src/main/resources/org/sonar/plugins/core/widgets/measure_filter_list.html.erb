@@ -10,7 +10,7 @@
        filter.execute(self, :user => current_user)
        @widget_title = link_to h(filter.name), {:controller => 'measures', :action => 'filter', :id => filter.id, :display => 'list'}
 %>
-    <%= render :partial => "measures/display_#{filter.display.key}", :locals => {:edit_mode => false, :widget => widget, :filter => filter} %>
+    <%= render :partial => "measures/display_#{filter.display.key}", :locals => {:edit_mode => false, :filter => filter, :widget_id => widget.id} -%>
 <%
      end
    else

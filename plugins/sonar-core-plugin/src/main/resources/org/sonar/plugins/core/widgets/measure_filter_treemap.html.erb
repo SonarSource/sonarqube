@@ -6,14 +6,14 @@
    if filter
      url_options = {:controller => 'measures', :action => 'filter', :id => filter.id, :display => 'treemap'}
      filter.load_criteria_from_data
-     filter.set_criteria_value('display', 'treemap')
+     filter.set_criteria_value(:display, 'treemap')
      if size_metric
-       filter.set_criteria_value('tmSize', size_metric.key)
-       url_options['tmSize']=size_metric.key
+       filter.set_criteria_value(:tmSize, size_metric.key)
+       url_options[:tmSize]=size_metric.key
      end
      if color_metric
-       filter.set_criteria_value('tmColor', color_metric.key)
-       url_options['tmColor']=color_metric.key
+       filter.set_criteria_value(:tmColor, color_metric.key)
+       url_options[:tmColor]=color_metric.key
      end
 
      if !filter.require_authentication? || logged_in?
@@ -21,7 +21,7 @@
 
        @widget_title = link_to h(filter.name), url_options
 %>
-    <%= render :partial => "measures/display_#{filter.display.key}", :locals => {:edit_mode => false, :widget => widget, :filter => filter} %>
+    <%= render :partial => "measures/display_#{filter.display.key}", :locals => {:edit_mode => false, :widget_id => widget.id, :filter => filter} %>
 <%
      end
   else
