@@ -2008,6 +2008,7 @@ public final class CoreMetrics {
       .setDescription("Selected quality profile version")
       .setQualitative(false)
       .setDomain(DOMAIN_GENERAL)
+      .setHidden(true)
       .create();
 
   private static final List<Metric> METRICS;
