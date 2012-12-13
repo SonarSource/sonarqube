@@ -30,15 +30,16 @@
 %>
     <script>
       var cols = [<%= table_columns.map{|col| "'#{col}'"}.join(',')-%>];
+
       function leftCol(id) {
-        var cell = $j('#measures-table tr.admin td[index=' + id + ']');
+        var cell = $j('#measures-table tr td[index=' + id + ']');
         var columnIndex = cell.parent().children().index(cell);
         if (columnIndex > 0) {
           moveCol(columnIndex - 1, columnIndex);
         }
       }
       function rightCol(id) {
-        var cell = $j('#measures-table tr.admin td[index=' + id + ']');
+        var cell = $j('#measures-table tr td[index=' + id + ']');
         var columnIndex = cell.parent().children().index(cell);
         if (columnIndex < cols.length - 1) {
           moveCol(columnIndex, columnIndex + 1);
@@ -62,7 +63,7 @@
         });
       }
       function deleteCol(id) {
-        var cell = $j('#measures-table tr.admin td[index=' + id + ']');
+        var cell = $j('#measures-table tr td[index=' + id + ']');
         var columnIndex = cell.parent().children().index(cell);
         cols.splice(columnIndex, 1);
         $j('#measures-table thead tr').each(function () {
@@ -167,9 +168,9 @@
       <% end %>
       <% filter.display.columns.each_with_index do |column, index| %>
         <td class="nowrap <%= column.align -%>" index="<%= index -%>">
-          <a href="javascript:leftCol(<%= index -%>)" title="<%= message('move_left') -%>"><%= image_tag("controls/resultset_previous.png") -%></a>
-          <a href="javascript:deleteCol(<%= index -%>)" title="<%= message('delete_column') -%>"><%= image_tag("cross-gray.png") -%></a>
-          <a href="javascript:rightCol(<%= index -%>)" title="<%= message('move_right') -%>"><%= image_tag("controls/resultset_next.png") -%></a>
+          <a href="javascript:leftCol(<%= index -%>)" title="<%= message('move_left') -%>" id="left-<%= column.key.parameterize -%>"><%= image_tag("controls/resultset_previous.png") -%></a>
+          <a href="javascript:deleteCol(<%= index -%>)" title="<%= message('delete_column') -%>" id="delete-<%= column.key.parameterize -%>"><%= image_tag("cross-gray.png") -%></a>
+          <a href="javascript:rightCol(<%= index -%>)" title="<%= message('move_right') -%>" id="right-<%= column.key.parameterize -%>"><%= image_tag("controls/resultset_next.png") -%></a>
         </td>
       <% end %>
   <% end %>
