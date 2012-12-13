@@ -26,6 +26,7 @@
         <br/>
         <%= metric_select_tag 'tmSize', Metric.all.select { |m| m.treemap_size? },
                               :html_id => 'select-tm-size',
+                              :allow_empty => false,
                               :selected_key => filter.display.size_metric.key -%>
       </td>
       <td valign="top" class="thin nowrap">
@@ -38,7 +39,7 @@
         <br/>
         <%= metric_select_tag 'tmColor', Metric.all.select { |m| m.treemap_color? },
                               :html_id => 'select-tm-color',
-                              :allow_empty => true,
+                              :allow_empty => false,
                               :selected_key => (filter.display.color_metric ? filter.display.color_metric.key : nil) -%>
 
         <button id="update-treemap"><%= message 'refresh' -%></button>
