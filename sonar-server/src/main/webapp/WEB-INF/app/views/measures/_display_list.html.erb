@@ -168,9 +168,9 @@
       <% end %>
       <% filter.display.columns.each_with_index do |column, index| %>
         <td class="nowrap <%= column.align -%>" index="<%= index -%>">
-          <a href="javascript:leftCol(<%= index -%>)" title="<%= message('move_left') -%>" id="left-<%= column.key.parameterize -%>"><%= image_tag("controls/resultset_previous.png") -%></a>
-          <a href="javascript:deleteCol(<%= index -%>)" title="<%= message('delete_column') -%>" id="delete-<%= column.key.parameterize -%>"><%= image_tag("cross-gray.png") -%></a>
-          <a href="javascript:rightCol(<%= index -%>)" title="<%= message('move_right') -%>" id="right-<%= column.key.parameterize -%>"><%= image_tag("controls/resultset_next.png") -%></a>
+          <a href="javascript:leftCol(<%= index -%>)" title="<%= h message('move_left') -%>" id="left-<%= column.key.parameterize -%>"><%= image_tag("controls/resultset_previous.png") -%></a>
+          <a href="javascript:deleteCol(<%= index -%>)" title="<%= h message('measure_filter.delete_column') -%>" id="delete-<%= column.key.parameterize -%>"><%= image_tag("cross-gray.png") -%></a>
+          <a href="javascript:rightCol(<%= index -%>)" title="<%= h message('move_right') -%>" id="right-<%= column.key.parameterize -%>"><%= image_tag("controls/resultset_next.png") -%></a>
         </td>
       <% end %>
   <% end %>
