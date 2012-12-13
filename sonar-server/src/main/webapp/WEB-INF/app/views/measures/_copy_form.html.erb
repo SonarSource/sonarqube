@@ -2,15 +2,19 @@
   <input type="hidden" name="id" value="<%= @filter.id -%>">
   <fieldset>
     <div class="form-head">
-      <h2>Copy Filter: <%= h @filter.name -%></h2>
+      <h2>Copy Filter</h2>
     </div>
     <div class="form-body">
       <% @filter.errors.each do |attr, msg| %>
         <p class="error"><%= h msg -%></p>
       <% end %>
       <div class="form-field">
+        <label>Copy</label>
+        <input type="text" size="50" maxlength="100" value="<%= h @filter.name -%>" disabled="disabled"/>
+      </div>
+      <div class="form-field">
         <label for="name">Name <em class="mandatory">*</em></label>
-        <input id="name" name="name" type="text" size="50" maxlength="100" value="<%= h @filter.name -%>"/>
+        <input id="name" name="name" type="text" size="50" maxlength="100" value=""/>
       </div>
       <div class="form-field">
         <label for="description">Description</label>
@@ -24,8 +28,8 @@
   </fieldset>
 </form>
 <script>
-  $j("#copy-filter-form").modalForm({success:function (data) {
-      window.location = baseUrl + '/measures/filter/' + data;
-    }});
+  $j("#copy-filter-form").modalForm({success: function (data) {
+    window.location = baseUrl + '/measures/filter/' + data;
+  }});
   $j('#name').select();
 </script>
