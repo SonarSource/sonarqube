@@ -57,7 +57,7 @@ public final class AlertUtils {
     return false;
   }
 
-  private static boolean doesReachThresholds(Comparable measureValue, Comparable criteriaValue, Alert alert) {
+  private static boolean doesReachThresholds(Comparable measureValue, Comparable criteriaValue, Alert alert){
     int comparison = measureValue.compareTo(criteriaValue);
     return !(isNotEquals(comparison, alert)
         || isGreater(comparison, alert)
@@ -65,19 +65,19 @@ public final class AlertUtils {
         || isEquals(comparison, alert));
   }
 
-  private static boolean isNotEquals(int comparison, Alert alert) {
+  private static boolean isNotEquals(int comparison, Alert alert){
     return alert.isNotEqualsOperator() && comparison == 0;
   }
 
-  private static boolean isGreater(int comparison, Alert alert) {
+  private static boolean isGreater(int comparison, Alert alert){
     return alert.isGreaterOperator() && comparison != 1;
   }
 
-  private static boolean isSmaller(int comparison, Alert alert) {
+  private static boolean isSmaller(int comparison, Alert alert){
     return alert.isSmallerOperator() && comparison != -1;
   }
 
-  private static boolean isEquals(int comparison, Alert alert) {
+  private static boolean isEquals(int comparison, Alert alert){
     return alert.isEqualsOperator() && comparison != 0;
   }
 
@@ -107,25 +107,11 @@ public final class AlertUtils {
     throw new NotImplementedException(metric.getType().toString());
   }
 
-  private static Comparable<Integer> parseInteger(String value) {
+  private static Comparable<Integer> parseInteger(String value){
     return value.contains(".") ? Integer.parseInt(value.substring(0, value.indexOf('.'))) : Integer.parseInt(value);
   }
 
   private static Comparable<?> getMeasureValue(Alert alert, Measure measure) {
-    Metric metric = alert.getMetric();
-    Comparable<?> numberValue = getNumberValue(alert, measure);
-    if (numberValue != null) {
-      return numberValue;
-    } else if (alert.getPeriod() == null) {
-      Comparable<?> value = getStringOrBooleanValue(alert, measure);
-      if (value != null) {
-        return value;
-      }
-    }
-    throw new NotImplementedException(metric.getType().toString());
-  }
-
-  private static Comparable<?> getNumberValue(Alert alert, Measure measure) {
     Metric metric = alert.getMetric();
     if (isADouble(metric)) {
       return getValue(alert, measure);
@@ -133,42 +119,39 @@ public final class AlertUtils {
     if (isAInteger(metric)) {
       return parseInteger(alert, measure);
     }
-    return null;
+    if (alert.getPeriod() == null) {
+      if (isAString(metric)) {
+        return measure.getData();
+      }
+      if (isABoolean(metric)) {
+        return measure.getValue().intValue();
+      }
+    }
+    throw new NotImplementedException(metric.getType().toString());
   }
 
-  private static Comparable<?> getStringOrBooleanValue(Alert alert, Measure measure) {
-    Metric metric = alert.getMetric();
-    if (isAString(metric)) {
-      return measure.getData();
-    }
-    if (isABoolean(metric)) {
-      return measure.getValue().intValue();
-    }
-    return null;
-  }
-
-  private static Comparable<Integer> parseInteger(Alert alert, Measure measure) {
+  private static Comparable<Integer> parseInteger(Alert alert, Measure measure){
     Double value = getValue(alert, measure);
     return value != null ? value.intValue() : null;
   }
 
-  private static boolean isADouble(Metric metric) {
+  private static boolean isADouble(Metric metric){
     return metric.getType() == Metric.ValueType.FLOAT ||
         metric.getType() == Metric.ValueType.PERCENT ||
         metric.getType() == Metric.ValueType.RATING;
   }
 
-  private static boolean isAInteger(Metric metric) {
+  private static boolean isAInteger(Metric metric){
     return metric.getType() == Metric.ValueType.INT ||
         metric.getType() == Metric.ValueType.MILLISEC;
   }
 
-  private static boolean isAString(Metric metric) {
+  private static boolean isAString(Metric metric){
     return metric.getType() == Metric.ValueType.STRING ||
         metric.getType() == Metric.ValueType.LEVEL;
   }
 
-  private static boolean isABoolean(Metric metric) {
+  private static boolean isABoolean(Metric metric){
     return metric.getType() == Metric.ValueType.BOOL;
   }
 
