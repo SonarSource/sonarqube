@@ -9,7 +9,7 @@
   </thead>
   <tbody>
   <%
-     Api::Utils.languages.sort_by { |l| l.getKey() }.each do |language|
+     Api::Utils.languages.each do |language|
        selected_profile=@project.profile(language.getKey(), false)
   %>
     <tr class="<%= cycle 'even', 'odd' -%>">

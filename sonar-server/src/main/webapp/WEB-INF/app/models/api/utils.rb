@@ -168,7 +168,7 @@ class Api::Utils
   end
 
   def self.languages
-    java_facade.getLanguages()
+    java_facade.getLanguages().sort_by(&:getName)
   end
 
   def self.language(key)
