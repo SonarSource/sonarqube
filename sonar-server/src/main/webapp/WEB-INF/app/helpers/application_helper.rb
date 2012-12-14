@@ -729,6 +729,7 @@ module ApplicationHelper
       html += ' | '
       if max_pages > 20 && start_page > 1
         html += (current_page!=1 ? yield(message('paging_first'), 1) : message('paging_first'))
+        html += ' '
       end
       html += (pagination.previous? ? yield(message('paging_previous'), current_page-1) : message('paging_previous'))
       html += ' '
