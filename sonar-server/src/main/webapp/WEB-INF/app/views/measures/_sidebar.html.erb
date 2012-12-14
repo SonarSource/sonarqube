@@ -37,7 +37,10 @@
           if (e.val == 'lang' || e.val == 'project') {
             $j("#select-" + e.val).select2("enable");
             $j("#select-" + e.val).select2("focus");
+          } else if (e.val=='fav') {
+            $j('#check-fav').attr('checked', 'checked');
           }
+
           if (e.val == 'metric') {
             if (hiddenConditionIndexes.length > 0) {
               var index = hiddenConditionIndexes.pop();
@@ -115,7 +118,7 @@
     </li>
     <li id="criteria-fav" <%= "style='display:none'" unless @filter.criteria('onFavourites') -%> class="marginbottom5">
       <img src="<%= ApplicationController.root_context -%>/images/star.png"> <%= message 'measure_filter.criteria.only_favourites' %>:
-      <%= check_box_tag 'onFavourites', 'true', @filter.criteria['onFavourites']=='true' -%>
+      <%= check_box_tag 'onFavourites', 'true', @filter.criteria['onFavourites']=='true', :id => 'check-fav' -%>
     </li>
 
     <% condition_metrics = Metric.all.select { |m| m.numeric? && !m.hidden } %>
@@ -146,14 +149,28 @@
     <li id="more-td" class="marginbottom5">
       <select id="more-criteria">
         <option value=""></option>
-        <option value="age"><%= message 'measure_filter.criteria.age' -%></option>
-        <option value="date"><%= message 'measure_filter.criteria.date' -%></option>
-        <option value="fav"><%= message 'measure_filter.criteria.only_favourites' -%></option>
-        <option value="key"><%= message 'measure_filter.criteria.key' -%></option>
-        <option value="lang"><%= message 'measure_filter.criteria.language' -%></option>
+        <% unless @filter.criteria('ageMinDays') || @filter.criteria('ageMaxDays') %>
+          <option value="age"><%= message 'measure_filter.criteria.age' -%></option>
+        <% end %>
+        <% unless @filter.criteria('fromDate') || @filter.criteria('toDate') %>
+          <option value="date"><%= message 'measure_filter.criteria.date' -%></option>
+        <% end %>
+        <% unless @filter.criteria('onFavourites') %>
+          <option value="fav"><%= message 'measure_filter.criteria.only_favourites' -%></option>
+        <% end %>
+        <% unless @filter.criteria('keyRegexp') %>
+          <option value="key"><%= message 'measure_filter.criteria.key' -%></option>
+        <% end %>
+        <% unless @filter.criteria('languages') %>
+          <option value="lang"><%= message 'measure_filter.criteria.language' -%></option>
+        <% end %>
         <option value="metric"><%= message 'measure_filter.criteria.metric' -%></option>
-        <option value="name"><%= message 'measure_filter.criteria.name' -%></option>
-        <option value="project"><%= message 'measure_filter.criteria.components_of_project' -%></option>
+        <% unless @filter.criteria('nameSearch') %>
+          <option value="name"><%= message 'measure_filter.criteria.name' -%></option>
+        <% end %>
+        <% unless @filter.base_resource %>
+          <option value="project"><%= message 'measure_filter.criteria.components_of_project' -%></option>
+        <% end %>
       </select>
     </li>
     <li>
