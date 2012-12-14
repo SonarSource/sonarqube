@@ -4,6 +4,9 @@
     <%= h alert.name %>
   </td>
   <td width="10%">
+    <%= period_label(alert) -%>
+  </td>
+  <td width="10%">
     <%= message("alerts.operator.#{alert.operator}") -%>
   </td>
   <td width="20%">
