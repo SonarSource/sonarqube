@@ -20,7 +20,9 @@
           <tr class="<%= cycle('even','odd') -%>">
             <td id="row_alert_<%= alert.id -%>">
               <% if is_admin?  %>
-              <%= render :partial => 'edit', :locals => {:alert => alert} %>
+                <%= render :partial => 'edit', :locals => {:alert => alert} %>
+              <% else %>
+                <%= render :partial => 'show', :locals => {:alert => alert} %>
               <% end %>
             </td>
           </tr>

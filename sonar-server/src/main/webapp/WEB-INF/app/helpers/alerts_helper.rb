@@ -109,4 +109,13 @@ module AlertsHelper
     end
   end
 
+  def period_label(alert)
+    index = alert.period
+    if index
+      "&Delta; #{Api::Utils.period_label(index)}"
+    else
+      "#{message('value')}"
+    end
+  end
+
 end
