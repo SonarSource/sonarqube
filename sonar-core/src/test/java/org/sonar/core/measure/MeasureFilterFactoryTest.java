@@ -43,7 +43,7 @@ public class MeasureFilterFactoryTest {
     Map<String, Object> props = ImmutableMap.<String, Object>of("sort", "metric:ncloc");
     MeasureFilter filter = factory.create(props);
 
-    assertThat(filter.sort().column()).isEqualTo("pm.value");
+    assertThat(filter.sort().column()).isEqualTo("pmsort.value");
     assertThat(filter.sort().metric().getKey()).isEqualTo("ncloc");
     assertThat(filter.sort().period()).isNull();
   }
@@ -54,7 +54,7 @@ public class MeasureFilterFactoryTest {
     Map<String, Object> props = ImmutableMap.<String, Object>of("sort", "metric:ncloc:3");
     MeasureFilter filter = factory.create(props);
 
-    assertThat(filter.sort().column()).isEqualTo("pm.variation_value_3");
+    assertThat(filter.sort().column()).isEqualTo("pmsort.variation_value_3");
     assertThat(filter.sort().metric().getKey()).isEqualTo("ncloc");
     assertThat(filter.sort().period()).isEqualTo(3);
   }

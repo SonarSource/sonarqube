@@ -81,17 +81,22 @@ public class MeasureFilterCondition {
     return period;
   }
 
-  String valueColumn() {
+  StringBuilder appendSqlColumn(StringBuilder sb, int conditionIndex) {
+    sb.append("pmcond").append(conditionIndex);
     if (period != null) {
-      return "pm.variation_value_" + period;
+      sb.append(".variation_value_").append(period).toString();
+    } else {
+      sb.append(".value");
     }
-    return "pm.value";
+    return sb;
   }
 
-  StringBuilder appendSqlCondition(StringBuilder sql) {
-    sql.append(" pm.metric_id=");
+  StringBuilder appendSqlCondition(StringBuilder sql, int conditionIndex) {
+    sql.append(" pmcond").append(conditionIndex).append(".metric_id=");
     sql.append(metric.getId());
-    sql.append(" AND ").append(valueColumn()).append(operator.getSql()).append(value);
+    sql.append(" AND ");
+    appendSqlColumn(sql, conditionIndex);
+    sql.append(operator.getSql()).append(value);
     return sql;
   }
 

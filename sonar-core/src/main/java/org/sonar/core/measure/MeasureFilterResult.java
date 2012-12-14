@@ -26,7 +26,7 @@ import java.util.List;
 public class MeasureFilterResult {
 
   public static enum Error {
-    TOO_MANY_RESULTS, UNKNOWN
+    UNKNOWN
   }
 
   private List<MeasureFilterRow> rows = null;

@@ -36,7 +36,6 @@ public class MeasureFilterEngine implements ServerComponent {
   private final MeasureFilterFactory factory;
   private final MeasureFilterExecutor executor;
 
-  private static final int MAX_ROWS = 5000;
 
   public MeasureFilterEngine(MeasureFilterFactory factory, MeasureFilterExecutor executor) {
     this.executor = executor;
@@ -57,11 +56,7 @@ public class MeasureFilterEngine implements ServerComponent {
     try {
       MeasureFilter filter = factory.create(filterMap);
       List<MeasureFilterRow> rows = executor.execute(filter, context);
-      if (rows.size() <= MAX_ROWS) {
-        result.setRows(rows);
-      } else {
-        result.setError(MeasureFilterResult.Error.TOO_MANY_RESULTS);
-      }
+      result.setRows(rows);
       result.setDurationInMs(System.currentTimeMillis() - start);
       log(context, result, logger);
 

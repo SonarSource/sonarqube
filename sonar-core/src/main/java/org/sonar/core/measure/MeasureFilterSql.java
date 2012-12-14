@@ -22,12 +22,11 @@ package org.sonar.core.measure;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
+import com.google.common.primitives.Doubles;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.measures.Metric;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.DatabaseUtils;
-import org.sonar.core.persistence.dialect.PostgreSql;
 import org.sonar.core.resource.SnapshotDto;
 
 import javax.annotation.Nullable;
@@ -37,25 +36,28 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Comparator;
 import java.util.List;
 
 class MeasureFilterSql {
 
+  private static final int FETCH_SIZE = 1000;
   private final Database database;
   private final MeasureFilter filter;
   private final MeasureFilterContext context;
-  private final StringBuilder sql = new StringBuilder(1000);
+  private final String sql;
   private final List<Date> dateParameters = Lists.newArrayList();
 
   MeasureFilterSql(Database database, MeasureFilter filter, MeasureFilterContext context) {
     this.database = database;
     this.filter = filter;
     this.context = context;
-    init();
+    this.sql = generateSql();
   }
 
   List<MeasureFilterRow> execute(Connection connection) throws SQLException {
-    PreparedStatement statement = connection.prepareStatement(sql.toString());
+    PreparedStatement statement = connection.prepareStatement(sql);
+    statement.setFetchSize(FETCH_SIZE);
     ResultSet rs = null;
     try {
       for (int index = 0; index < dateParameters.size(); index++) {
@@ -71,196 +73,288 @@ class MeasureFilterSql {
   }
 
   String sql() {
-    return sql.toString();
+    return sql;
   }
 
-  private void init() {
-    sql.append("SELECT block.id, max(block.rid) AS rid, max(block.rootid) AS rootid, max(sortval) AS sortmax, CASE WHEN max(sortval) IS NULL THEN 1 ELSE 0 END AS sortflag ");
-    for (int index = 0; index < filter.getMeasureConditions().size(); index++) {
-      sql.append(", max(crit_").append(index).append(")");
-    }
-    sql.append(" FROM (");
+  private String generateSql() {
+    StringBuilder sb = new StringBuilder(1000);
+    sb.append("SELECT s.id, s.project_id, s.root_project_id, ");
+    sb.append(filter.sort().column());
+    sb.append(" FROM snapshots s INNER JOIN projects p ON s.project_id=p.id ");
 
-    appendSortBlock();
     for (int index = 0; index < filter.getMeasureConditions().size(); index++) {
       MeasureFilterCondition condition = filter.getMeasureConditions().get(index);
-      sql.append(" UNION ");
-      appendConditionBlock(index, condition);
+      sb.append(" INNER JOIN project_measures pmcond").append(index);
+      sb.append(" ON s.id=pmcond").append(index).append(".snapshot_id AND ");
+      condition.appendSqlCondition(sb, index);
     }
 
-    sql.append(") block GROUP BY block.id ");
-    if (!filter.getMeasureConditions().isEmpty()) {
-      sql.append(" HAVING ");
-      for (int index = 0; index < filter.getMeasureConditions().size(); index++) {
-        if (index > 0) {
-          sql.append(" AND ");
-        }
-        sql.append(" max(crit_").append(index).append(") IS NOT NULL ");
-      }
+    if (filter.isOnFavourites()) {
+      sb.append(" INNER JOIN properties props ON props.resource_id=s.project_id ");
     }
-    if (filter.sort().isSortedByDatabase()) {
-      sql.append(" ORDER BY sortflag ASC, sortmax ");
-      sql.append(filter.sort().isAsc() ? "ASC " : "DESC ");
-    }
-  }
 
-  private void appendSortBlock() {
-    sql.append(" SELECT s.id, s.project_id AS rid, s.root_project_id AS rootid, ").append(filter.sort().column()).append(" AS sortval ");
+    if (filter.sort().isOnMeasure()) {
+      sb.append(" LEFT OUTER JOIN project_measures pmsort ON s.id=pmsort.snapshot_id AND pmsort.metric_id=");
+      sb.append(filter.sort().metric().getId());
+      sb.append(" AND pmsort.rule_id IS NULL AND pmsort.rule_priority IS NULL AND pmsort.characteristic_id IS NULL AND pmsort.person_id IS NULL ");
+    }
+
+    sb.append(" WHERE ");
+    appendResourceConditions(sb);
+
     for (int index = 0; index < filter.getMeasureConditions().size(); index++) {
       MeasureFilterCondition condition = filter.getMeasureConditions().get(index);
-      sql.append(", ").append(nullSelect(condition.metric())).append(" AS crit_").append(index);
+      sb.append(" AND ");
+      condition.appendSqlCondition(sb, index);
     }
-    sql.append(" FROM snapshots s INNER JOIN projects p ON s.project_id=p.id ");
-    if (filter.isOnFavourites()) {
-      sql.append(" INNER JOIN properties props ON props.resource_id=s.project_id ");
-    }
-    if (filter.sort().onMeasures()) {
-      sql.append(" LEFT OUTER JOIN project_measures pm ON s.id=pm.snapshot_id AND pm.metric_id=");
-      sql.append(filter.sort().metric().getId());
-      sql.append(" AND pm.rule_id IS NULL AND pm.rule_priority IS NULL AND pm.characteristic_id IS NULL AND pm.person_id IS NULL ");
-    }
-    sql.append(" WHERE ");
-    appendResourceConditions();
+
+    return sb.toString();
   }
 
-  private void appendConditionBlock(int conditionIndex, MeasureFilterCondition condition) {
-    sql.append(" SELECT s.id, s.project_id AS rid, s.root_project_id AS rootid, null AS sortval ");
-    for (int j = 0; j < filter.getMeasureConditions().size(); j++) {
-      sql.append(", ");
-      if (j == conditionIndex) {
-        sql.append(condition.valueColumn());
-      } else {
-        sql.append(nullSelect(filter.getMeasureConditions().get(j).metric()));
-      }
-      sql.append(" AS crit_").append(j);
-    }
-    sql.append(" FROM snapshots s INNER JOIN projects p ON s.project_id=p.id INNER JOIN project_measures pm ON s.id=pm.snapshot_id ");
-    if (filter.isOnFavourites()) {
-      sql.append(" INNER JOIN properties props ON props.resource_id=s.project_id ");
-    }
-    sql.append(" WHERE ");
-    appendResourceConditions();
-    sql.append(" AND pm.rule_id IS NULL AND pm.rule_priority IS NULL AND pm.characteristic_id IS NULL AND pm.person_id IS NULL AND ");
-    condition.appendSqlCondition(sql);
-  }
-
-  private void appendResourceConditions() {
-    sql.append(" s.status='P' AND s.islast=").append(database.getDialect().getTrueSqlValue());
+  private void appendResourceConditions(StringBuilder sb) {
+    sb.append(" s.status='P' AND s.islast=").append(database.getDialect().getTrueSqlValue());
     if (context.getBaseSnapshot() == null) {
-      sql.append(" AND p.copy_resource_id IS NULL ");
+      sb.append(" AND p.copy_resource_id IS NULL ");
     }
     if (!filter.getResourceQualifiers().isEmpty()) {
-      sql.append(" AND s.qualifier IN ");
-      appendInStatement(filter.getResourceQualifiers(), sql);
+      sb.append(" AND s.qualifier IN ");
+      appendInStatement(filter.getResourceQualifiers(), sb);
     }
     if (!filter.getResourceScopes().isEmpty()) {
-      sql.append(" AND s.scope IN ");
-      appendInStatement(filter.getResourceScopes(), sql);
+      sb.append(" AND s.scope IN ");
+      appendInStatement(filter.getResourceScopes(), sb);
     }
     if (!filter.getResourceLanguages().isEmpty()) {
-      sql.append(" AND p.language IN ");
-      appendInStatement(filter.getResourceLanguages(), sql);
+      sb.append(" AND p.language IN ");
+      appendInStatement(filter.getResourceLanguages(), sb);
     }
-    appendDateConditions();
-    appendFavouritesCondition();
-    appendResourceNameCondition();
-    appendResourceKeyCondition();
-    appendResourceBaseCondition();
+    appendDateConditions(sb);
+    appendFavouritesCondition(sb);
+    appendResourceNameCondition(sb);
+    appendResourceKeyCondition(sb);
+    appendResourceBaseCondition(sb);
   }
 
-  private void appendDateConditions() {
+  private void appendDateConditions(StringBuilder sb) {
     if (filter.getFromDate() != null) {
-      sql.append(" AND s.created_at >= ? ");
+      sb.append(" AND s.created_at >= ? ");
       dateParameters.add(new Date(filter.getFromDate().getTime()));
     }
     if (filter.getToDate() != null) {
-      sql.append(" AND s.created_at <= ? ");
+      sb.append(" AND s.created_at <= ? ");
       dateParameters.add(new Date(filter.getToDate().getTime()));
     }
   }
 
-  private void appendFavouritesCondition() {
+  private void appendFavouritesCondition(StringBuilder sb) {
     if (filter.isOnFavourites()) {
-      sql.append(" AND props.prop_key='favourite' AND props.resource_id IS NOT NULL AND props.user_id=");
-      sql.append(context.getUserId());
-      sql.append(" ");
+      sb.append(" AND props.prop_key='favourite' AND props.resource_id IS NOT NULL AND props.user_id=");
+      sb.append(context.getUserId());
+      sb.append(" ");
     }
   }
 
-  private void appendResourceBaseCondition() {
+  private void appendResourceBaseCondition(StringBuilder sb) {
     SnapshotDto baseSnapshot = context.getBaseSnapshot();
     if (baseSnapshot != null) {
       if (filter.isOnBaseResourceChildren()) {
-        sql.append(" AND s.parent_snapshot_id=").append(baseSnapshot.getId());
+        sb.append(" AND s.parent_snapshot_id=").append(baseSnapshot.getId());
       } else {
         Long rootSnapshotId = (baseSnapshot.getRootId() != null ? baseSnapshot.getRootId() : baseSnapshot.getId());
-        sql.append(" AND s.root_snapshot_id=").append(rootSnapshotId);
-        sql.append(" AND s.path LIKE '").append(StringUtils.defaultString(baseSnapshot.getPath())).append(baseSnapshot.getId()).append(".%'");
+        sb.append(" AND s.root_snapshot_id=").append(rootSnapshotId);
+        sb.append(" AND s.path LIKE '").append(StringUtils.defaultString(baseSnapshot.getPath())).append(baseSnapshot.getId()).append(".%'");
       }
     }
   }
 
-  private void appendResourceKeyCondition() {
+  private void appendResourceKeyCondition(StringBuilder sb) {
     if (StringUtils.isNotBlank(filter.getResourceKeyRegexp())) {
-      sql.append(" AND UPPER(p.kee) LIKE '");
+      sb.append(" AND UPPER(p.kee) LIKE '");
       // limitation : special characters _ and % are not escaped
       String regexp = StringEscapeUtils.escapeSql(filter.getResourceKeyRegexp());
       regexp = StringUtils.replaceChars(regexp, '*', '%');
       regexp = StringUtils.replaceChars(regexp, '?', '_');
-      sql.append(StringUtils.upperCase(regexp)).append("'");
+      sb.append(StringUtils.upperCase(regexp)).append("'");
     }
   }
 
-  private void appendResourceNameCondition() {
+  private void appendResourceNameCondition(StringBuilder sb) {
     if (StringUtils.isNotBlank(filter.getResourceName())) {
-      sql.append(" AND s.project_id IN (SELECT rindex.resource_id FROM resource_index rindex WHERE rindex.kee like '");
-      sql.append(StringEscapeUtils.escapeSql(StringUtils.lowerCase(filter.getResourceName())));
-      sql.append("%'");
+      sb.append(" AND s.project_id IN (SELECT rindex.resource_id FROM resource_index rindex WHERE rindex.kee like '");
+      sb.append(StringEscapeUtils.escapeSql(StringUtils.lowerCase(filter.getResourceName())));
+      sb.append("%'");
       if (!filter.getResourceQualifiers().isEmpty()) {
-        sql.append(" AND rindex.qualifier IN ");
-        appendInStatement(filter.getResourceQualifiers(), sql);
+        sb.append(" AND rindex.qualifier IN ");
+        appendInStatement(filter.getResourceQualifiers(), sb);
       }
-      sql.append(") ");
+      sb.append(") ");
     }
   }
 
   List<MeasureFilterRow> process(ResultSet rs) throws SQLException {
     List<MeasureFilterRow> rows = Lists.newArrayList();
-    boolean sortTextValues = !filter.sort().isSortedByDatabase();
+    RowProcessor rowProcessor;
+    if (filter.sort().isOnNumericMeasure()) {
+      rowProcessor = new NumericSortRowProcessor();
+    } else if (filter.sort().isOnDate()) {
+      rowProcessor = new DateSortRowProcessor();
+    } else {
+      rowProcessor = new TextSortRowProcessor();
+    }
+
     while (rs.next()) {
-      MeasureFilterRow row = new MeasureFilterRow(rs.getLong(1), rs.getLong(2), rs.getLong(3));
-      if (sortTextValues) {
-        row.setSortText(rs.getString(4));
-      }
-      rows.add(row);
+      rows.add(rowProcessor.fetch(rs));
     }
-    if (sortTextValues) {
-      // database does not manage case-insensitive text sorting. It must be done programmatically
-      Function<MeasureFilterRow, String> function = new Function<MeasureFilterRow, String>() {
-        public String apply(@Nullable MeasureFilterRow row) {
-          return (row != null ? StringUtils.defaultString(row.getSortText()) : "");
-        }
-      };
-      Ordering<MeasureFilterRow> ordering = Ordering.from(String.CASE_INSENSITIVE_ORDER).onResultOf(function).nullsFirst();
-      if (!filter.sort().isAsc()) {
-        ordering = ordering.reverse();
-      }
-      rows = ordering.sortedCopy(rows);
-    }
-    return rows;
-  }
 
-  private String nullSelect(Metric metric) {
-    if (metric.isNumericType() && PostgreSql.ID.equals(database.getDialect().getId())) {
-      return "null::integer";
-    }
-    return "null";
+    return rowProcessor.sort(rows, filter.sort().isAsc());
   }
-
 
   private static void appendInStatement(List<String> values, StringBuilder to) {
     to.append(" ('");
     to.append(StringUtils.join(values, "','"));
     to.append("') ");
+  }
+
+  static abstract class RowProcessor {
+    abstract Function sortFieldFunction();
+
+    abstract Ordering sortFieldOrdering(boolean ascending);
+
+    abstract MeasureFilterRow fetch(ResultSet rs) throws SQLException;
+
+    final List<MeasureFilterRow> sort(List<MeasureFilterRow> rows, boolean ascending) {
+      Ordering<MeasureFilterRow> ordering = sortFieldOrdering(ascending).onResultOf(sortFieldFunction());
+      return ordering.immutableSortedCopy(rows);
+    }
+  }
+
+  static class TextSortRowProcessor extends RowProcessor {
+    MeasureFilterRow fetch(ResultSet rs) throws SQLException {
+      MeasureFilterRow row = new MeasureFilterRow(rs.getLong(1), rs.getLong(2), rs.getLong(3));
+      row.setSortText(rs.getString(4));
+      return row;
+    }
+
+    Function sortFieldFunction() {
+      return new Function<MeasureFilterRow, String>() {
+        public String apply(MeasureFilterRow row) {
+          return row.getSortText();
+        }
+      };
+    }
+
+    Ordering sortFieldOrdering(boolean ascending) {
+      Ordering<String> ordering = Ordering.from(String.CASE_INSENSITIVE_ORDER);
+      if (!ascending) {
+        ordering = ordering.reverse();
+      }
+      return ordering;
+    }
+
+  }
+
+  static class NumericSortRowProcessor extends RowProcessor {
+    MeasureFilterRow fetch(ResultSet rs) throws SQLException {
+      MeasureFilterRow row = new MeasureFilterRow(rs.getLong(1), rs.getLong(2), rs.getLong(3));
+      double value = rs.getDouble(4);
+      if (!rs.wasNull()) {
+        row.setSortDouble(value);
+      }
+      return row;
+    }
+
+    Function sortFieldFunction() {
+      return new Function<MeasureFilterRow, Double>() {
+        public Double apply(MeasureFilterRow row) {
+          return row.getSortDouble();
+        }
+      };
+    }
+
+    Ordering sortFieldOrdering(boolean ascending) {
+      if (ascending) {
+        return Ordering.from(new Comparator<Double>() {
+          public int compare(@Nullable Double left, @Nullable Double right) {
+            if (left == right) {
+              return 0;
+            }
+            if (left == null) {
+              return 1;
+            }
+            if (right == null) {
+              return -1;
+            }
+
+            return Doubles.compare(left, right);
+          }
+        });
+      }
+      return Ordering.from(new Comparator<Double>() {
+        public int compare(@Nullable Double left, @Nullable Double right) {
+          if (left == right) {
+            return 0;
+          }
+          if (left == null) {
+            return 1;
+          }
+          if (right == null) {
+            return -1;
+          }
+
+          return -Doubles.compare(left, right);
+        }
+      });
+    }
+  }
+
+  static class DateSortRowProcessor extends RowProcessor {
+    MeasureFilterRow fetch(ResultSet rs) throws SQLException {
+      MeasureFilterRow row = new MeasureFilterRow(rs.getLong(1), rs.getLong(2), rs.getLong(3));
+      row.setSortDate(rs.getDate(4));
+      return row;
+    }
+
+    Function sortFieldFunction() {
+      return new Function<MeasureFilterRow, Date>() {
+        public Date apply(MeasureFilterRow row) {
+          return row.getSortDate();
+        }
+      };
+    }
+
+    Ordering sortFieldOrdering(boolean ascending) {
+      if (ascending) {
+        return Ordering.from(new Comparator<Date>() {
+          public int compare(@Nullable Date left, @Nullable Date right) {
+            if (left == right) {
+              return 0;
+            }
+            if (left == null) {
+              return 1;
+            }
+            if (right == null) {
+              return -1;
+            }
+
+            return left.compareTo(right);
+          }
+        });
+      }
+      return Ordering.from(new Comparator<Date>() {
+        public int compare(@Nullable Date left, @Nullable Date right) {
+          if (left == right) {
+            return 0;
+          }
+          if (left == null) {
+            return 1;
+          }
+          if (right == null) {
+            return -1;
+          }
+
+          return -left.compareTo(right);
+        }
+      });
+    }
   }
 }

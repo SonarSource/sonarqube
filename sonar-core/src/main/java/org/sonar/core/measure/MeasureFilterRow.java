@@ -19,11 +19,17 @@
  */
 package org.sonar.core.measure;
 
+import org.apache.commons.lang.StringUtils;
+
+import java.sql.Date;
+
 public class MeasureFilterRow {
   private final long snapshotId;
   private final long resourceId;
   private final long resourceRootId;
-  private String sortText;
+  private String sortText = null;
+  private Date sortDate = null;
+  private Double sortDouble = null;
 
   MeasureFilterRow(long snapshotId, long resourceId, long resourceRootId) {
     this.snapshotId = snapshotId;
@@ -47,8 +53,23 @@ public class MeasureFilterRow {
     return sortText;
   }
 
-  MeasureFilterRow setSortText(String s) {
-    this.sortText = s;
-    return this;
+  void setSortText(String s) {
+    this.sortText = StringUtils.defaultString(s);
+  }
+
+  Date getSortDate() {
+    return sortDate;
+  }
+
+  void setSortDate(Date sortDate) {
+    this.sortDate = sortDate;
+  }
+
+  Double getSortDouble() {
+    return sortDouble;
+  }
+
+  void setSortDouble(Double sortDouble) {
+    this.sortDouble = sortDouble;
   }
 }

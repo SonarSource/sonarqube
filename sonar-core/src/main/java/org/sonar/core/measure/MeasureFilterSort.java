@@ -67,8 +67,16 @@ class MeasureFilterSort {
     return metric;
   }
 
-  boolean isSortedByDatabase() {
+  boolean isOnMeasure() {
+    return metric != null;
+  }
+
+  boolean isOnNumericMeasure() {
     return metric != null && metric.isNumericType();
+  }
+
+  boolean isOnDate() {
+    return Field.DATE.equals(field);
   }
 
   boolean isAsc() {
@@ -102,9 +110,9 @@ class MeasureFilterSort {
         break;
       case METRIC:
         if (metric.isNumericType()) {
-          column = (period != null ? "pm.variation_value_" + period : "pm.value");
+          column = (period != null ? "pmsort.variation_value_" + period : "pmsort.value");
         } else {
-          column = "pm.text_value";
+          column = "pmsort.text_value";
         }
         break;
       default:
@@ -112,5 +120,4 @@ class MeasureFilterSort {
     }
     return column;
   }
-
 }
