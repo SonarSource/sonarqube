@@ -336,20 +336,19 @@ module ApplicationHelper
     image_tag("#{ApplicationController.root_context}/chart?#{parameters}", options)
   end
 
-  def link_to_favourite(resource, options={})
+  def link_to_favourite(resource, deprecated_options=nil)
     return '' unless (logged_in?)
     return '' if resource.nil?
     resource_id=(resource.is_a?(Fixnum) ? resource : resource.permanent_id)
-    html_id=options['html_id'] || "fav#{resource_id}"
-    initial_class='notfav'
-    initial_tooltip=message('click_to_add_to_favourites')
-    if current_user.favourite?(resource_id)
-      initial_class='fav'
-      initial_tooltip=message('click_to_remove_from_favourites')
-    end
 
-    link_to_remote('', :url => {:controller => 'favourites', :action => 'toggle', :id => resource_id, :elt => html_id},
-                   :method => :post, :html => {:class => initial_class, :id => html_id, :alt => initial_tooltip, :title => initial_tooltip})
+    if current_user.favourite?(resource_id)
+      css='fav'
+      title=message('click_to_remove_from_favourites')
+    else
+      css='notfav'
+      title=message('click_to_add_to_favourites')
+    end
+    link_to_function '', "toggleFav(#{resource_id}, this)", :class => css, :title => title
   end
 
   #

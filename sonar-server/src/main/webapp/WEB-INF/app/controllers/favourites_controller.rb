@@ -23,24 +23,18 @@ class FavouritesController < ApplicationController
 
   def toggle
     favourite_id=params[:id]
+
     if current_user.favourite?(favourite_id)
       current_user.delete_favourite(favourite_id)
-      style='notfav'
-      tooltip='Click to add to favourites'
+      css='notfav'
+      title=message('click_to_add_to_favourites')
     else
       current_user.add_favourite(favourite_id)
-      style='fav'
-      tooltip='Click to remove from favourites'
+      css='fav'
+      title=message('click_to_remove_from_favourites')
     end
 
-    star_id=params[:elt]
-    render :update do |page|
-      page.element.removeClassName(star_id, 'notfav')
-      page.element.removeClassName(star_id, 'fav')
-      page.element.addClassName(star_id, style)
-      page.element.writeAttribute(star_id, 'alt', tooltip)
-      page.element.writeAttribute(star_id, 'title', tooltip)
-    end
+    render :json => {:css => css, :title => title}, :status => 200
   end
 
 end

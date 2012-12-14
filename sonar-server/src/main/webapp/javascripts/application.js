@@ -11,6 +11,15 @@ function warning(message) {
 function info(message) {
   showMessage('info', message);
 }
+function toggleFav(resourceId, elt) {
+  $j.ajax({type: 'POST', dataType: 'json', url: baseUrl + '/favourites/toggle/' + resourceId,
+    success: function (data) {
+      var star = $j(elt);
+      star.removeClass('fav notfav');
+      star.addClass(data['css']);
+      star.attr('title', data['title']);
+    }});
+}
 
 function autocompleteResources() {
   $('searchInput').value = '';
@@ -316,7 +325,7 @@ function supports_html5_storage() {
 
 var currentlyDisplayedDropdownMenu;
 
-var hideCurrentDropdownMenu = function() {
+var hideCurrentDropdownMenu = function () {
   menu = $j('#' + currentlyDisplayedDropdownMenu);
   if (menu) {
     menu.hide();
@@ -324,7 +333,7 @@ var hideCurrentDropdownMenu = function() {
   $j(document).unbind('mouseup', hideCurrentDropdownMenu);
 }
 
-var clickOnDropdownMenuLink = function(event) {
+var clickOnDropdownMenuLink = function (event) {
   var link = $j(event.target).children('a');
   if (link) {
     var href = link.attr('href');
