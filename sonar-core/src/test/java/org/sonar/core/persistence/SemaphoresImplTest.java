@@ -20,23 +20,23 @@
 package org.sonar.core.persistence;
 
 import org.junit.Test;
+import org.sonar.api.utils.Semaphores;
 
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.api.utils.DatabaseSemaphore.Lock;
 
-public class DatabaseSemaphoreImplTest {
+public class SemaphoresImplTest {
 
   @Test
   public void should_be_a_bridge_over_dao() {
-    Lock lock = mock(Lock.class);
     SemaphoreDao dao = mock(SemaphoreDao.class);
-    when(dao.acquire(anyString(), anyInt())).thenReturn(lock);
+    Semaphores.Semaphore semaphore = new Semaphores.Semaphore();
+    when(dao.acquire(anyString(), anyInt())).thenReturn(semaphore);
 
-    DatabaseSemaphoreImpl impl = new DatabaseSemaphoreImpl(dao);
+    SemaphoresImpl impl = new SemaphoresImpl(dao);
 
     impl.acquire("do-xxx", 50000);
     verify(dao).acquire("do-xxx", 50000);

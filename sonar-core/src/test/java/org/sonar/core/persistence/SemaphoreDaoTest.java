@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.utils.Semaphores;
 
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
@@ -32,7 +33,6 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.sonar.api.utils.DatabaseSemaphore.Lock;
 
 public class SemaphoreDaoTest extends AbstractDaoTestCase {
 
@@ -75,8 +75,8 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void create_and_acquire_semaphore() throws Exception {
-    Lock lock = dao.acquire("foo", 60);
-    assertThat(lock.isAcquired()).isTrue();
+    Semaphores.Semaphore lock = dao.acquire("foo", 60);
+    assertThat(lock.isLocked()).isTrue();
     assertThat(lock.getDurationSinceLocked()).isNull();
 
     SemaphoreDto semaphore = selectSemaphore("foo");
@@ -92,8 +92,8 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void create_and_acquire_semaphore_when_timeout_is_zeo() throws Exception {
-    Lock lock = dao.acquire("foo", 0);
-    assertThat(lock.isAcquired()).isTrue();
+    Semaphores.Semaphore lock = dao.acquire("foo", 0);
+    assertThat(lock.isLocked()).isTrue();
     assertThat(lock.getDurationSinceLocked()).isNull();
 
     SemaphoreDto semaphore = selectSemaphore("foo");
@@ -109,8 +109,8 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void create_and_acquire_semaphore_when_no_timeout() throws Exception {
-    Lock lock = dao.acquire("foo");
-    assertThat(lock.isAcquired()).isTrue();
+    Semaphores.Semaphore lock = dao.acquire("foo");
+    assertThat(lock.isLocked()).isTrue();
     assertThat(lock.getDurationSinceLocked()).isNull();
 
     SemaphoreDto semaphore = selectSemaphore("foo");
@@ -127,8 +127,8 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   @Test
   public void fail_to_acquire_locked_semaphore() throws Exception {
     setupData("old_semaphore");
-    Lock lock = dao.acquire("foo", Integer.MAX_VALUE);
-    assertThat(lock.isAcquired()).isFalse();
+    Semaphores.Semaphore lock = dao.acquire("foo", Integer.MAX_VALUE);
+    assertThat(lock.isLocked()).isFalse();
     assertThat(lock.getDurationSinceLocked()).isNotNull();
 
     SemaphoreDto semaphore = selectSemaphore("foo");
@@ -142,8 +142,8 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   @Test
   public void acquire_long_locked_semaphore() throws Exception {
     setupData("old_semaphore");
-    Lock lock = dao.acquire("foo", 60);
-    assertThat(lock.isAcquired()).isTrue();
+    Semaphores.Semaphore lock = dao.acquire("foo", 60);
+    assertThat(lock.isLocked()).isTrue();
     assertThat(lock.getDurationSinceLocked()).isNull();
 
     SemaphoreDto semaphore = selectSemaphore("foo");
@@ -157,8 +157,8 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   @Test
   public void acquire_locked_semaphore_when_timeout_is_zeo() throws Exception {
     setupData("old_semaphore");
-    Lock lock = dao.acquire("foo", 0);
-    assertThat(lock.isAcquired()).isTrue();
+    Semaphores.Semaphore lock = dao.acquire("foo", 0);
+    assertThat(lock.isLocked()).isTrue();
     assertThat(lock.getDurationSinceLocked()).isNull();
 
     SemaphoreDto semaphore = selectSemaphore("foo");
@@ -175,8 +175,8 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   @Test
   public void fail_to_acquire_locked_semaphore_when_no_timeout() throws Exception {
     setupData("old_semaphore");
-    Lock lock = dao.acquire("foo");
-    assertThat(lock.isAcquired()).isFalse();
+    Semaphores.Semaphore lock = dao.acquire("foo");
+    assertThat(lock.isLocked()).isFalse();
     assertThat(lock.getDurationSinceLocked()).isNotNull();
 
     SemaphoreDto semaphore = selectSemaphore("foo");
@@ -259,7 +259,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
       try {
         barrier.await();
         for (int i = 0; i < 100; i++) {
-          if (dao.acquire("my-lock", 60 * 5).isAcquired()) {
+          if (dao.acquire("my-lock", 60 * 5).isLocked()) {
             locks.incrementAndGet();
           }
         }

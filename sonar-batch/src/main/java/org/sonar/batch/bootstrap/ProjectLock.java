@@ -24,44 +24,42 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
-import org.sonar.api.utils.DatabaseSemaphore;
+import org.sonar.api.utils.Semaphores;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.ProjectTree;
 
-import static org.sonar.api.utils.DatabaseSemaphore.Lock;
+public class ProjectLock {
 
-public class CheckSemaphore {
+  private static final Logger LOG = LoggerFactory.getLogger(ProjectLock.class);
 
-  private static final Logger LOG = LoggerFactory.getLogger(CheckSemaphore.class);
-
-  private final DatabaseSemaphore databaseSemaphore;
+  private final Semaphores semaphores;
   private final ProjectTree projectTree;
   private final Settings settings;
 
-  public CheckSemaphore(DatabaseSemaphore databaseSemaphore, ProjectTree projectTree, Settings settings) {
-    this.databaseSemaphore = databaseSemaphore;
+  public ProjectLock(Semaphores semaphores, ProjectTree projectTree, Settings settings) {
+    this.semaphores = semaphores;
     this.projectTree = projectTree;
     this.settings = settings;
   }
 
   public void start() {
     if (!isInDryRunMode()) {
-      Lock lock = acquire();
-      if (!lock.isAcquired()) {
-        LOG.error(getErrorMessage(lock));
+      Semaphores.Semaphore semaphore = acquire();
+      if (!semaphore.isLocked()) {
+        LOG.error(getErrorMessage(semaphore));
         throw new SonarException("The project is already been analysing.");
       }
     }
   }
 
-  private String getErrorMessage(Lock lock) {
-    long duration = lock.getDurationSinceLocked();
+  private String getErrorMessage(Semaphores.Semaphore semaphore) {
+    long duration = semaphore.getDurationSinceLocked();
     DurationLabel durationLabel = new DurationLabel();
     String durationDisplay = durationLabel.label(duration);
 
-    return "It looks like an analysis of '"+ getProject().getName() +"' is already running (started "+ durationDisplay +"). " +
-        "If this is not the case, it probably means that previous analysis was interrupted " +
-        "and you should then force a re-run by using the option '"+ CoreProperties.FORCE_ANALYSIS +"=true'.";
+    return "It looks like an analysis of '" + getProject().getName() + "' is already running (started " + durationDisplay + "). " +
+      "If this is not the case, it probably means that previous analysis was interrupted " +
+      "and you should then force a re-run by using the option '" + CoreProperties.FORCE_ANALYSIS + "=true'.";
   }
 
   public void stop() {
@@ -70,19 +68,18 @@ public class CheckSemaphore {
     }
   }
 
-  private Lock acquire() {
+  private Semaphores.Semaphore acquire() {
     LOG.debug("Acquire semaphore on project : {}, with key {}", getProject(), getSemaphoreKey());
-    if (!isForceAnalyseActivated()) {
-      return databaseSemaphore.acquire(getSemaphoreKey());
-    } else {
+    if (shouldForce()) {
       // In force mode, we acquire the lock regardless there's a existing lock or not
-      return databaseSemaphore.acquire(getSemaphoreKey(), 0);
+      return semaphores.acquire(getSemaphoreKey(), 0);
     }
+    return semaphores.acquire(getSemaphoreKey());
   }
 
   private void release() {
     LOG.debug("Release semaphore on project : {}, with key {}", getProject(), getSemaphoreKey());
-    databaseSemaphore.release(getSemaphoreKey());
+    semaphores.release(getSemaphoreKey());
   }
 
   private String getSemaphoreKey() {
@@ -97,7 +94,7 @@ public class CheckSemaphore {
     return settings.getBoolean(CoreProperties.DRY_RUN);
   }
 
-  private boolean isForceAnalyseActivated() {
+  private boolean shouldForce() {
     return settings.getBoolean(CoreProperties.FORCE_ANALYSIS);
   }
 }

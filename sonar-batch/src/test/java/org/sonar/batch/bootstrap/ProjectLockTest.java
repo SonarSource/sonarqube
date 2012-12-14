@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
-import org.sonar.api.utils.DatabaseSemaphore;
+import org.sonar.api.utils.Semaphores;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.ProjectTree;
 
@@ -32,105 +32,78 @@ import java.util.Date;
 
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.api.utils.DatabaseSemaphore.Lock;
 
-public class CheckSemaphoreTest {
+public class ProjectLockTest {
 
-  private CheckSemaphore checkSemaphore;
+  private ProjectLock projectLock;
 
-  private DatabaseSemaphore databaseSemaphore;
+  private Semaphores semaphores;
   private ProjectTree projectTree;
   private Settings settings;
 
   private Project project;
-  private Lock lock;
 
   @Before
   public void setUp() {
-    lock = mock(Lock.class);
-
-    databaseSemaphore = mock(DatabaseSemaphore.class);
-    when(databaseSemaphore.acquire(anyString())).thenReturn(lock);
-    when(databaseSemaphore.acquire(anyString(), anyInt())).thenReturn(lock);
+    semaphores = mock(Semaphores.class);
 
     projectTree = mock(ProjectTree.class);
     settings = new Settings();
     setDryRunMode(false);
     setForceMode(false);
-
-    project = new Project("key", "branch", "name");
+    project = new Project("my-project-key");
     when(projectTree.getRootProject()).thenReturn(project);
 
-    checkSemaphore = new CheckSemaphore(databaseSemaphore, projectTree, settings);
+    projectLock = new ProjectLock(semaphores, projectTree, settings);
   }
 
   @Test
   public void shouldAcquireSemaphore() {
-    when(lock.isAcquired()).thenReturn(true);
-    checkSemaphore.start();
+    when(semaphores.acquire(anyString())).thenReturn(new Semaphores.Semaphore().setLocked(true));
+    projectLock.start();
 
-    verify(databaseSemaphore).acquire(anyString());
-  }
-
-  @Test
-  public void shouldUseProjectKeyInTheKeyOfTheSemaphore() {
-    project = new Project("key");
-    when(projectTree.getRootProject()).thenReturn(project);
-
-    when(lock.isAcquired()).thenReturn(true);
-    checkSemaphore.start();
-
-    verify(databaseSemaphore).acquire("batch-key");
-  }
-
-  @Test
-  public void shouldUseProjectKeyAndBranchIfExistingInTheKeyOfTheSemaphore() {
-    when(lock.isAcquired()).thenReturn(true);
-    checkSemaphore.start();
-
-    verify(databaseSemaphore).acquire("batch-key:branch");
+    verify(semaphores).acquire("batch-my-project-key");
   }
 
   @Test
   public void shouldAcquireSemaphoreIfForceAnalyseActivated() {
     setForceMode(true);
-    when(lock.isAcquired()).thenReturn(true);
-    checkSemaphore.start();
-    verify(databaseSemaphore).acquire(anyString(), anyInt());
+    when(semaphores.acquire("batch-my-project-key", 0)).thenReturn(new Semaphores.Semaphore().setLocked(true));
+
+    projectLock.start();
   }
 
   @Test(expected = SonarException.class)
   public void shouldNotAcquireSemaphoreIfTheProjectIsAlreadyBeenAnalysing() {
-    when(lock.getLocketAt()).thenReturn(new Date());
-    when(lock.isAcquired()).thenReturn(false);
-    checkSemaphore.start();
-    verify(databaseSemaphore, never()).acquire(anyString());
+    when(semaphores.acquire(anyString())).thenReturn(new Semaphores.Semaphore().setLocked(false).setDurationSinceLocked(1234L));
+    projectLock.start();
   }
 
   @Test
   public void shouldNotAcquireSemaphoreInDryRunMode() {
     setDryRunMode(true);
     settings = new Settings().setProperty(CoreProperties.DRY_RUN, true);
-    checkSemaphore.start();
-    verify(databaseSemaphore, never()).acquire(anyString());
-    verify(databaseSemaphore, never()).acquire(anyString(), anyInt());
+    projectLock.start();
+    verifyZeroInteractions(semaphores);
   }
 
   @Test
   public void shouldReleaseSemaphore() {
-    checkSemaphore.stop();
-    verify(databaseSemaphore).release(anyString());
+    projectLock.stop();
+    verify(semaphores).release("batch-my-project-key");
   }
 
   @Test
   public void shouldNotReleaseSemaphoreInDryRunMode() {
     setDryRunMode(true);
-    checkSemaphore.stop();
-    verify(databaseSemaphore, never()).release(anyString());
+    projectLock.stop();
+    verifyZeroInteractions(semaphores);
   }
 
   private void setDryRunMode(boolean isInDryRunMode) {

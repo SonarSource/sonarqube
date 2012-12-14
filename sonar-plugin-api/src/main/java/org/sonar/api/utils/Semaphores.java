@@ -26,82 +26,100 @@ import java.util.Date;
 
 /**
  * A semaphore shared among all the processes that can connect to the central database.
+ * It's ignored when enabling the dry run mode.
  *
  * @since 3.4
  */
-public interface DatabaseSemaphore extends BatchComponent, ServerComponent {
+public interface Semaphores extends BatchComponent, ServerComponent {
 
   /**
-   * Try to acquire a lock on a name, for a given duration.
-   * The lock will be acquired if there's no existing lock on this name or if a lock exists but the max duration is reached.
+   * Try to acquire a semaphore for a given duration.
+   * The semaphore is acquired if it's unlocked or if the max locking duration is reached.
    *
-   * @param name the key of the semaphore
-   * @param maxDurationInSeconds the max duration in seconds the semaphore will be acquired (a value of zero can be used to always acquire a lock)
-   * @return a lock containing information if the lock could be acquired or not, the duration since locked, etc.
+   * @param name                 the key of the semaphore
+   * @param maxDurationInSeconds the max duration in seconds the semaphore will be acquired. The value zero forces the semaphore to be acquired, whatever its status.
+   * @return the semaphore, whatever its status (locked or unlocked). Can't be null.
    */
-  Lock acquire(String name, int maxDurationInSeconds);
+  Semaphore acquire(String name, int maxDurationInSeconds);
 
   /**
-   * Try to acquire the lock on a name.
+   * Try to acquire a semaphore.
    * The lock will be acquired only if there's no existing lock.
    *
    * @param name the key of the semaphore
    * @return a lock containing information if the lock could be acquired or not, the duration since locked, etc.
    */
-  Lock acquire(String name);
+  Semaphore acquire(String name);
 
   /**
-   * Release the lock on a semaphore by its name.
+   * Release the lock on a semaphore by its name. Does nothing if the lock is already released.
    *
    * @param name the key of the semaphore
    */
   void release(String name);
 
-  class Lock {
+  class Semaphore {
 
     private String name;
-    private boolean acquired;
+    private boolean locked;
     private Date locketAt;
     private Date createdAt;
     private Date updatedAt;
     private Long durationSinceLocked;
 
-    public Lock(String name, boolean acquired, Date locketAt, Date createdAt, Date updatedAt) {
-      this.name = name;
-      this.acquired = acquired;
-      this.locketAt = locketAt;
-      this.createdAt = createdAt;
-      this.updatedAt = updatedAt;
-    }
-
     public String getName() {
       return name;
+    }
+
+    public Semaphore setName(String name) {
+      this.name = name;
+      return this;
+    }
+
+    public boolean isLocked() {
+      return locked;
+    }
+
+    public Semaphore setLocked(boolean locked) {
+      this.locked = locked;
+      return this;
     }
 
     public Date getLocketAt() {
       return locketAt;
     }
 
+    public Semaphore setLocketAt(Date locketAt) {
+      this.locketAt = locketAt;
+      return this;
+    }
+
     public Date getCreatedAt() {
       return createdAt;
+    }
+
+    public Semaphore setCreatedAt(Date createdAt) {
+      this.createdAt = createdAt;
+      return this;
     }
 
     public Date getUpdatedAt() {
       return updatedAt;
     }
 
-    public boolean isAcquired() {
-      return acquired;
+    public Semaphore setUpdatedAt(Date updatedAt) {
+      this.updatedAt = updatedAt;
+      return this;
     }
 
     public Long getDurationSinceLocked() {
       return durationSinceLocked;
     }
 
-    public void setDurationSinceLocked(Long durationSinceLocked) {
+    public Semaphore setDurationSinceLocked(Long durationSinceLocked) {
       this.durationSinceLocked = durationSinceLocked;
+      return this;
     }
-
   }
 
 }

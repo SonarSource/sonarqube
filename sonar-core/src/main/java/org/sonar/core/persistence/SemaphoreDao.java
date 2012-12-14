@@ -23,10 +23,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.api.utils.Semaphores;
 
 import java.util.Date;
-
-import static org.sonar.api.utils.DatabaseSemaphore.Lock;
 
 /**
  * @since 3.4
@@ -39,7 +38,7 @@ public class SemaphoreDao {
     this.mybatis = mybatis;
   }
 
-  public Lock acquire(String name, int maxDurationInSeconds) {
+  public Semaphores.Semaphore acquire(String name, int maxDurationInSeconds) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "Semaphore name must not be empty");
     Preconditions.checkArgument(maxDurationInSeconds >= 0, "Semaphore max duration must be positive: " + maxDurationInSeconds);
 
@@ -47,7 +46,7 @@ public class SemaphoreDao {
     try {
       SemaphoreMapper mapper = session.getMapper(SemaphoreMapper.class);
       Date lockedAt = org.sonar.api.utils.DateUtils.parseDate("2001-01-01");
-      createSemaphore(name, lockedAt, session);
+      createDto(name, lockedAt, session);
       boolean isAcquired = doAcquire(name, maxDurationInSeconds, session, mapper);
       SemaphoreDto semaphore = selectSemaphore(name, session);
       return createLock(semaphore, session, isAcquired);
@@ -56,7 +55,7 @@ public class SemaphoreDao {
     }
   }
 
-  public Lock acquire(String name) {
+  public Semaphores.Semaphore acquire(String name) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "Semaphore name must not be empty");
 
     SqlSession session = mybatis.openSession();
@@ -67,7 +66,7 @@ public class SemaphoreDao {
       if (semaphore != null) {
         return createLock(semaphore, session, false);
       } else {
-        semaphore = createSemaphore(name, now, session);
+        semaphore = createDto(name, now, session);
         return createLock(semaphore, session, true);
       }
     } finally {
@@ -93,12 +92,12 @@ public class SemaphoreDao {
     return ok;
   }
 
-  private SemaphoreDto createSemaphore(String name, Date lockedAt, SqlSession session) {
+  private SemaphoreDto createDto(String name, Date lockedAt, SqlSession session) {
     try {
       SemaphoreMapper mapper = session.getMapper(SemaphoreMapper.class);
       SemaphoreDto semaphore = new SemaphoreDto()
-          .setName(name)
-          .setLockedAt(lockedAt);
+        .setName(name)
+        .setLockedAt(lockedAt);
       mapper.initialize(semaphore);
       session.commit();
       return semaphore;
@@ -109,12 +108,17 @@ public class SemaphoreDao {
     }
   }
 
-  private Lock createLock(SemaphoreDto semaphore, SqlSession session, boolean acquired) {
-    Lock lock = new Lock(semaphore.getName(), acquired, semaphore.getLockedAt(), semaphore.getCreatedAt(), semaphore.getUpdatedAt());
+  private Semaphores.Semaphore createLock(SemaphoreDto dto, SqlSession session, boolean acquired) {
+    Semaphores.Semaphore semaphore = new Semaphores.Semaphore()
+      .setName(dto.getName())
+      .setLocked(acquired)
+      .setLocketAt(dto.getLockedAt())
+      .setCreatedAt(dto.getCreatedAt())
+      .setUpdatedAt(dto.getUpdatedAt());
     if (!acquired) {
-      lock.setDurationSinceLocked(getDurationSinceLocked(semaphore, session));
+      semaphore.setDurationSinceLocked(getDurationSinceLocked(dto, session));
     }
-    return lock;
+    return semaphore;
   }
 
   private long getDurationSinceLocked(SemaphoreDto semaphore, SqlSession session) {
@@ -124,12 +128,12 @@ public class SemaphoreDao {
     return now - locketAt;
   }
 
-  protected SemaphoreDto selectSemaphore(String name, SqlSession session){
+  protected SemaphoreDto selectSemaphore(String name, SqlSession session) {
     SemaphoreMapper mapper = session.getMapper(SemaphoreMapper.class);
     return mapper.selectSemaphore(name);
   }
 
-  protected Date now(SqlSession session){
+  protected Date now(SqlSession session) {
     SemaphoreMapper mapper = session.getMapper(SemaphoreMapper.class);
     return mapper.now();
   }

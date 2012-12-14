@@ -19,24 +19,24 @@
  */
 package org.sonar.core.persistence;
 
-import org.sonar.api.utils.DatabaseSemaphore;
+import org.sonar.api.utils.Semaphores;
 
 /**
  * @since 3.4
  */
-public class DatabaseSemaphoreImpl implements DatabaseSemaphore {
+public class SemaphoresImpl implements Semaphores {
 
   private SemaphoreDao dao;
 
-  public DatabaseSemaphoreImpl(SemaphoreDao dao) {
+  public SemaphoresImpl(SemaphoreDao dao) {
     this.dao = dao;
   }
 
-  public Lock acquire(String name, int maxDurationInSeconds) {
+  public Semaphore acquire(String name, int maxDurationInSeconds) {
     return dao.acquire(name, maxDurationInSeconds);
   }
 
-  public Lock acquire(String name) {
+  public Semaphore acquire(String name) {
     return dao.acquire(name);
   }
 

@@ -48,7 +48,7 @@ import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.metric.CacheMetricFinder;
 import org.sonar.core.notification.DefaultNotificationManager;
 import org.sonar.core.persistence.DaoUtils;
-import org.sonar.core.persistence.DatabaseSemaphoreImpl;
+import org.sonar.core.persistence.SemaphoresImpl;
 import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.DefaultResourcePermissions;
@@ -104,8 +104,8 @@ public class BatchModule extends Module {
     container.addSingleton(DefaultUserFinder.class);
     container.addSingleton(ResourceTypes.class);
     container.addSingleton(MetricProvider.class);
-    container.addSingleton(DatabaseSemaphoreImpl.class);
-    container.addSingleton(CheckSemaphore.class);
+    container.addSingleton(SemaphoresImpl.class);
+    container.addSingleton(ProjectLock.class);
   }
 
   private void registerDatabaseComponents() {

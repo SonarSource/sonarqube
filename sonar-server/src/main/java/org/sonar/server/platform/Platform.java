@@ -51,6 +51,7 @@ import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.core.persistence.DefaultDatabase;
 import org.sonar.core.persistence.DryRunDatabaseFactory;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.persistence.SemaphoresImpl;
 import org.sonar.core.qualitymodel.DefaultModelFinder;
 import org.sonar.core.resource.DefaultResourcePermissions;
 import org.sonar.core.rule.DefaultRuleFinder;
@@ -181,6 +182,7 @@ public final class Platform {
     rootContainer.addSingleton(RuleI18nManager.class);
     rootContainer.addSingleton(GwtI18n.class);
     rootContainer.addSingleton(DryRunDatabaseFactory.class);
+    rootContainer.addSingleton(SemaphoresImpl.class);
     rootContainer.startComponents();
   }
 
