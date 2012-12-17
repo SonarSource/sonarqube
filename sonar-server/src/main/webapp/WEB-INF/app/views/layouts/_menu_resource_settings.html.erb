@@ -3,15 +3,15 @@
   
   <div id="project-settings-menu" class="dropdown-menu" style="display: none">
     <ul>
+      <% if (@project.project? || @project.module?) %>
+         <li><a href="<%= ApplicationController.root_context -%>/project/settings/<%= @project.id -%>"><%= message('project_settings.page') -%></a></li>
+      <% end %>
       <% if (@project.project?) %>
         <li><a href="<%= ApplicationController.root_context -%>/project/profile/<%= @project.id -%>"><%= message('project_quality_profiles.page') -%></a></li>
       <% end %>
       <li><a href="<%= ApplicationController.root_context -%>/manual_measures/index/<%= @project.id -%>"><%= message('manual_measures.page') -%></a></li>
       <% if (@project.project?) %>
         <li><a href="<%= ApplicationController.root_context -%>/action_plans/index/<%= @project.id -%>"><%= message('action_plans.page') -%></a></li>
-      <% end %>
-      <% if (@project.project? || @project.module?) %>
-         <li><a href="<%= ApplicationController.root_context -%>/project/settings/<%= @project.id -%>"><%= message('project_settings.page') -%></a></li>
       <% end %>
       <% if (@project.project?) %>
          <li><a href="<%= ApplicationController.root_context -%>/project/links/<%= @project.id -%>"><%= message('project_links.page') -%></a></li>
