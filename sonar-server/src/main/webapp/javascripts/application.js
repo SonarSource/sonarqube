@@ -209,12 +209,12 @@ Treemap.prototype.rootNode = function () {
 Treemap.prototype.initNodes = function () {
   var self = this;
   $j('#tm-' + this.id).find('a').each(function (index) {
-    this.on("mouseup", function (event) {
-      event.stopPropagation()
+    $j(this).on("click", function (event) {
+      event.stopPropagation();
     });
   });
   $j('#tm-' + this.id).find('[rid]').each(function (index) {
-    this.on("contextmenu", function (event) {
+    $j(this).on("contextmenu", function (event) {
       event.stopPropagation();
       event.preventDefault();
       // right click
@@ -227,8 +227,7 @@ Treemap.prototype.initNodes = function () {
       }
       return false;
     });
-
-    this.on("click", function (event) {
+    $j(this).on("click", function (event) {
         var source = $j(this);
         var rid = source.attr('rid');
         var has_leaves = !!(source.attr('l'));
