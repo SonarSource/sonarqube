@@ -39,7 +39,7 @@
               <% end %>
               <% unless @filter.id %>
                 <li>
-                  <a id="save_as" href="<%= url_for params.merge({:action => 'save_as_form', :id => @filter.id}) -%>" class="link-action open-modal"><%= message('save_as') -%></a>
+                  <a id="save-as" href="<%= url_for params.merge({:action => 'save_as_form', :id => @filter.id}) -%>" class="link-action open-modal"><%= message('save_as') -%></a>
                 </li>
               <% end %>
             <% end %>

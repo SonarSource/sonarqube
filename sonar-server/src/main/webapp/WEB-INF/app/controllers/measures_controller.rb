@@ -161,12 +161,11 @@ class MeasuresController < ApplicationController
 
     source = find_filter(params[:id])
     target = MeasureFilter.new
-    target.name = params[:name]
-    target.description = params[:description]
-    target.user_id = current_user.id
-    target.shared = source.shared
-    target.data = source.data
-    target.shared = false
+    target.name=params[:name]
+    target.description=params[:description]
+    target.user_id=current_user.id
+    target.shared=(params[:shared]=='true')
+    target.data=source.data
     if target.save
       current_user.favourited_measure_filters << target
       render :text => target.id.to_s, :status => 200
