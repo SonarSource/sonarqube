@@ -166,13 +166,13 @@ var TreemapContext = function (rid, label) {
  * tm-bc-#{id} : required breadcrumb
  * tm-loading-#{id} : optional loading icon
  */
-var Treemap = function (id, sizeMetric, colorMetric) {
+var Treemap = function (id, sizeMetric, colorMetric, heightPercents) {
   this.id = id;
   this.sizeMetric = sizeMetric;
   this.colorMetric = colorMetric;
   this.breadcrumb = [];
   treemaps[id] = this;
-  this.rootNode().height(this.rootNode().width() * 0.55);
+  this.rootNode().height(this.rootNode().width() * heightPercents / 100);
   this.initNodes();
 
 };

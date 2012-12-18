@@ -48,7 +48,7 @@
       <td class="right" valign="bottom">
         <a href="#" class="button" id="exit-edit"><%= message 'close' -%></a>
         <% if filter.owner?(current_user) %>
-          <a id="save-columns" href="<%= url_for params.merge({:action => 'save_form', :id => filter.id}) -%>" class="button open-modal"><%= message('save_and_close') -%></a>
+          <a id="save-columns" href="<%= url_for params.merge({:action => 'save_form', :id => filter.id}) -%>" class="button open-modal"><%= message('measure_filter.close_and_save') -%></a>
         <% end %>
       </td>
     </tr>
@@ -92,7 +92,7 @@
   </div>
 
   <script>
-    new Treemap(<%= treemap_id -%>, '<%= filter.display.size_metric.key  -%>', '<%= filter.display.color_metric ? filter.display.color_metric.key : '' -%>');
+    new Treemap(<%= treemap_id -%>, '<%= filter.display.size_metric.key  -%>', '<%= filter.display.color_metric ? filter.display.color_metric.key : '' -%>', <%= filter.display.height_percents -%>);
   </script>
 
 <% end %>
