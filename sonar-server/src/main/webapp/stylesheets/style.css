@@ -1379,7 +1379,6 @@ span.empty_widget {
   float: left;
   vertical-align: top;
   text-align: left;
-
   padding: 0 10px 7px 0;
 }
 
@@ -2285,10 +2284,6 @@ td.spacer-top {
 
 .table-bordered > tbody > tr > td {
   border-top: 1px solid #DDD;
-}
-
-select:not([multiple]) {
-  padding: 1px 3px;
 }
 
 select.small-width {

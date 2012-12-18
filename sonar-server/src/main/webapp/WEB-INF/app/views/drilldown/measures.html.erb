@@ -19,7 +19,7 @@
   </div>
 <% end %>
 
-<div class="dashbox">
+<div class="marginbottom10">
   <% if @characteristic %>
     <h3><%= @highlighted_metric.short_name -%> / <%= h(@characteristic.name(true)) -%></h3>
 
@@ -38,8 +38,6 @@
     </p>
   <% end %>
 </div>
-&nbsp;<!-- keep &nbsp; for IE6 ! -->
-
 
 <div id="drilldown" class="width100">
   <%
@@ -48,7 +46,7 @@
      @drilldown.columns.each_with_index do |column, index|
   %>
     <% if first_column %>
-      <table class="width100 spacer-bottom" style="clear:left">
+      <table class="width100 spacer-bottom">
         <tr>
     <% end %>
 
