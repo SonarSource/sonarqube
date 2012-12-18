@@ -4,11 +4,11 @@
       vertical-align: middle;
     }
 
-    .move-actions img {
+    #comparison-page .move-actions img {
       visibility: hidden;
     }
 
-    .move-actions:hover img {
+    #comparison-page .move-actions:hover img {
       visibility: visible;
     }
   </style>
@@ -70,10 +70,8 @@
       <input type="hidden" name="sids" id="sids" value="<%= @snapshots.map { |s| s.id.to_s }.join(',') -%>">
       <input type="hidden" name="metrics" id="metrics" value="<%= @metrics.map { |m| m.key }.join(',') -%>">
 
-      <table class="data">
-        <thead>
-        <th class="thin" style="vertical-align: bottom">
-          <div id="metric_div">
+	  <div style="margin-bottom: 4px">
+          <div id="metric_div" style="display: inline-block">
             <%= metric_select_tag 'new_metric', @metric_to_choose, {
               :allow_empty => true,
               :select2_options => {'placeholder' => "'" + message('comparison.add_metric') + "'"}
@@ -94,48 +92,9 @@
                 }
               });
             </script>
-            </div>
-          </th>
-
-        <%
-           last_index = @snapshots.size-1
-           @snapshots.each_with_index do |s, index|
-        %>
-          <th class="thin move-actions" style="padding: 5px !important;">
-            <table>
-              <tr>
-                <td style="vertical-align: bottom;">
-                  <% if index > 0 %>
-                    <a href="#" onclick="moveLeft(<%= index -%>)" id="left-<%= index -%>"><img src="<%= ApplicationController.root_context -%>/images/controls/move_left.png" title="<%= message('comparison.move_left') -%>"/></a>
-                  <% else %>
-                    <img src="<%= ApplicationController.root_context -%>/images/transparent_16.gif"/>
-                  <% end %>
-                </td>
-                <td class="nowrap" style="text-align: center;">
-                  <a href="<%= ApplicationController.root_context -%>/dashboard/index/<%= s.resource.key -%>"><%= s.resource.name(true) -%></a>
-                  <br/>
-                  <span class="note"><b><%= s.event(EventCategory::KEY_VERSION).name -%></b></span>
-                  <br/>
-                  <span class="note"><%= human_short_date s.created_at -%></span>
-
-                  <div style="width: 100%; text-align: center;">
-                    <a href="#" onclick="removeFromList(<%= index -%>, $j('#sids'))" id="del-r-<%= index -%>"><img src="<%= ApplicationController.root_context -%>/images/cross-gray.png" title="<%= message('comparison.suppress_column') -%>"/></a>
-                  </div>
-                </td>
-                <td class="thin" style="vertical-align: bottom;">
-                  <% if index < last_index %>
-                    <a href="#" onclick="moveRight(<%= index -%>)" id="right-<%= index -%>"><img src="<%= ApplicationController.root_context -%>/images/controls/move_right.png" title="<%= message('comparison.move_right') -%>"/></a>
-                  <% else %>
-                    <img src="<%= ApplicationController.root_context -%>/images/transparent_16.gif"/>
-                  <% end %>
-                </td>
-              </tr>
-            </table>
-          </th>
-        <% end %>
-
-        <th style="padding-left: 20px; vertical-align: bottom">
-          <div id="resource_div">
+          </div>
+          
+          <div id="resource_div" style="display: inline-block; margin-left: 30px">
             <%= resource_select_tag 'new_resource', {
               :resource_type_property => 'comparable',
               :width => '250px',
@@ -158,6 +117,7 @@
                       $j('#new_version').select2({placeholder:'<%= message('comparison.select_version') -%>'});
                       $j('#version_loading').hide();
                       $j('#version_div').show();
+                      $j('#version_div').css("display", "inline-block");
                       $j('#new_version').select2("focus");
                     }
                   });
@@ -167,9 +127,9 @@
             </script>
           </div>
 
-          <div id="version_loading" class="loading" style="height: 16px; margin-top: 5px; display: none"></div>
+          <span id="version_loading" class="loading" style="display: none"></span>
 
-          <div id="version_div" style="margin-top: 5px; display: none">
+          <div id="version_div" style="display: none">
             <select id="new_version">
             </select>
             <script>
@@ -187,7 +147,62 @@
               });
             </script>
           </div>
-        </th>
+	    
+	  </div>
+
+      <table class="data">
+        <thead>
+          
+          <tr id="edit-columns-header">
+            <th></th>            
+            <%
+               last_index = @snapshots.size-1
+               @snapshots.each_with_index do |s, index|
+            %>
+            <th class="thin move-actions" style="padding: 5px !important;">
+              <table>
+                <tr>
+                  <td style="vertical-align: bottom;">
+                    <% if index > 0 %>
+                      <a href="#" onclick="moveLeft(<%= index -%>)" id="left-<%= index -%>"><img src="<%= ApplicationController.root_context -%>/images/controls/move_left.png" title="<%= message('comparison.move_left') -%>"/></a>
+                    <% else %>
+                      <img src="<%= ApplicationController.root_context -%>/images/transparent_16.gif"/>
+                    <% end %>
+                  </td>
+                  <td style="text-align: center; min-width: 100px">
+                    <div style="width: 100%; text-align: center;">
+                      <a href="#" onclick="removeFromList(<%= index -%>, $j('#sids'))" id="del-r-<%= index -%>"><img src="<%= ApplicationController.root_context -%>/images/cross-gray.png" title="<%= message('comparison.suppress_column') -%>"/></a>
+                    </div>
+                  </td>
+                  <td style="vertical-align: bottom;">
+                    <% if index < last_index %>
+                      <a href="#" onclick="moveRight(<%= index -%>)" id="right-<%= index -%>"><img src="<%= ApplicationController.root_context -%>/images/controls/move_right.png" title="<%= message('comparison.move_right') -%>"/></a>
+                    <% else %>
+                      <img src="<%= ApplicationController.root_context -%>/images/transparent_16.gif"/>
+                    <% end %>
+                  </td>
+                </tr>
+              </table>
+            </th>
+            <% end %>            
+            <th></th>
+          </tr>    
+          <tr id="resource-info-header">
+            <th></th>
+            <%
+               last_index = @snapshots.size-1
+               @snapshots.each_with_index do |s, index|
+            %>
+              <th style="text-align: center; vertical-align: top;">
+                <a href="<%= ApplicationController.root_context -%>/dashboard/index/<%= s.resource.key -%>"><%= s.resource.name(true) -%></a>
+                <br/>
+                <span class="note"><b><%= s.event(EventCategory::KEY_VERSION).name -%></b></span>
+                <br/>
+                <span class="note"><%= human_short_date s.created_at -%></span>
+              </th>
+            <% end %>
+            <th></th>
+          </tr>      
         </thead>
 
         <tbody>
@@ -196,17 +211,21 @@
            @metrics.each_with_index do |m, index|
         %>
           <tr class="<%= cycle 'even', 'odd' -%> move-actions">
-            <td>
-              <div style="float: left; vertical-align: bottom;"><%= m.short_name -%></div>
-              <div style="float: right">
-                <% if index > 0 %>
-                  <a href="#" onclick="moveUp(<%= index -%>)" id="up-<%= index -%>"><img src="<%= ApplicationController.root_context -%>/images/controls/move_up.png" title="<%= message('comparison.move_up') -%>"/></a>
-                <% end %>
-                <% if index < last_index %>
-                  <a href="#" onclick="moveDown(<%= index -%>)" id="down-<%= index -%>"><img src="<%= ApplicationController.root_context -%>/images/controls/move_down.png" title="<%= message('comparison.move_down') -%>"/></a>
-                <% end %>
-                <a href="#" onclick="removeFromList(<%= index -%>, $j('#metrics'))" id="del-m-<%= index -%>"><img src="<%= ApplicationController.root_context -%>/images/cross-gray.png" title="<%= message('comparison.suppress_line') -%>"/></a>
-              </div>
+            <td class="thin">
+              <table>
+                <tr>
+                  <td class="nowrap" style="vertical-align: bottom; width: 100%;"><%= m.short_name -%></td>
+                  <td class="nowrap" style="padding-left: 10px">
+                    <% if index > 0 %>
+                      <a href="#" onclick="moveUp(<%= index -%>)" id="up-<%= index -%>"><img src="<%= ApplicationController.root_context -%>/images/controls/move_up.png" title="<%= message('comparison.move_up') -%>"/></a>
+                    <% end %>
+                    <% if index < last_index %>
+                      <a href="#" onclick="moveDown(<%= index -%>)" id="down-<%= index -%>"><img src="<%= ApplicationController.root_context -%>/images/controls/move_down.png" title="<%= message('comparison.move_down') -%>"/></a>
+                    <% end %>
+                    <a href="#" onclick="removeFromList(<%= index -%>, $j('#metrics'))" id="del-m-<%= index -%>"><img src="<%= ApplicationController.root_context -%>/images/cross-gray.png" title="<%= message('comparison.suppress_line') -%>"/></a>
+                  </td>
+                </tr>
+              </table>
             </td>
 
             <% @snapshots.each do |s| %>
@@ -214,6 +233,7 @@
                 <%= format_measure s.measure(m) -%>
               </td>
             <% end %>
+            
             <td></td>
           </tr>
         <% end %>
