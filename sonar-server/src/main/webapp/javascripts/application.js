@@ -221,7 +221,7 @@ Treemap.prototype.initNodes = function () {
       if (self.breadcrumb.length > 1) {
         self.breadcrumb.pop();
         self.load();
-      } else {
+      } else if (self.breadcrumb.length == 1) {
         $j("#tm-loading-" + self.id).show();
         location.reload();
       }
