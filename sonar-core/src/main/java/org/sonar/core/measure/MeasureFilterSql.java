@@ -275,9 +275,6 @@ class MeasureFilterSql {
       if (ascending) {
         return Ordering.from(new Comparator<Double>() {
           public int compare(@Nullable Double left, @Nullable Double right) {
-            if (left == right) {
-              return 0;
-            }
             if (left == null) {
               return 1;
             }
@@ -291,9 +288,6 @@ class MeasureFilterSql {
       }
       return Ordering.from(new Comparator<Double>() {
         public int compare(@Nullable Double left, @Nullable Double right) {
-          if (left == right) {
-            return 0;
-          }
           if (left == null) {
             return 1;
           }
@@ -326,9 +320,6 @@ class MeasureFilterSql {
       if (ascending) {
         return Ordering.from(new Comparator<Date>() {
           public int compare(@Nullable Date left, @Nullable Date right) {
-            if (left == right) {
-              return 0;
-            }
             if (left == null) {
               return 1;
             }
@@ -342,9 +333,6 @@ class MeasureFilterSql {
       }
       return Ordering.from(new Comparator<Date>() {
         public int compare(@Nullable Date left, @Nullable Date right) {
-          if (left == right) {
-            return 0;
-          }
           if (left == null) {
             return 1;
           }
