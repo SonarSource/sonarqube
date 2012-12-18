@@ -20,6 +20,7 @@
 require 'set'
 class MeasureFilterDisplayList < MeasureFilterDisplay
   KEY = :list
+  MAX_PAGE_SIZE = 200
 
   class Column
     attr_reader :key, :metric, :period
@@ -85,9 +86,9 @@ class MeasureFilterDisplayList < MeasureFilterDisplay
     # default values
     filter.set_criteria_default_value(:cols, ['metric:alert_status', 'name', 'date', 'metric:ncloc', 'metric:violations', 'links'])
     filter.set_criteria_default_value(:sort, 'name')
-    filter.set_criteria_default_value(:asc, 'true')
-    filter.set_criteria_default_value(:pageSize, '30')
-    filter.set_criteria_value(:pageSize, [filter.criteria[:pageSize].to_i, 200].min)
+    filter.set_criteria_default_value(:asc, true)
+    filter.set_criteria_default_value(:pageSize, 30)
+    filter.set_criteria_value(:pageSize, MAX_PAGE_SIZE) if filter.criteria(:pageSize).to_i>MAX_PAGE_SIZE
 
     @columns = []
     metrics = []

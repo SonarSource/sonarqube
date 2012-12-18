@@ -47,9 +47,6 @@
       <td valign="bottom"><%= image_tag 'loading.gif', :id => "tm-loading-#{treemap_id}", :style => 'display:none' -%></td>
       <td class="right" valign="bottom">
         <a href="#" class="button" id="exit-edit"><%= message 'close' -%></a>
-        <% if filter.owner?(current_user) %>
-          <a id="save-columns" href="<%= url_for params.merge({:action => 'save_form', :id => filter.id}) -%>" class="button open-modal"><%= message('measure_filter.close_and_save') -%></a>
-        <% end %>
       </td>
     </tr>
   </table>
@@ -60,17 +57,17 @@
     <script>
       $j(document).ready(function () {
         $j("#update-treemap").on("click", function (e) {
-          var url = removeUrlAttr(decodeURI(window.location.href), 'tmSize');
-          url = removeUrlAttr(url, 'tmColor');
-          url += '&tmSize=' + $j('#select-tm-size').val();
+          filterCriteria['tmSize']=$j('#select-tm-size').val();
           var color = $j('#select-tm-color').val();
           if (color != null && color != '') {
-            url += '&tmColor=' + color;
+            filterCriteria['tmColor']=color;
           }
-          window.location = url;
+          filterCriteria['edit']=true;
+          window.location = baseUrl + '/measures/search/<%= filter.id -%>?' + $j.param(filterCriteria);
         });
         $j("#exit-edit").on("click", function (e) {
-          window.location = removeUrlAttr(decodeURI(window.location.href), 'edit');
+          delete filterCriteria['edit'];
+          window.location = baseUrl + '/measures/search/<%= filter.id -%>?' + $j.param(filterCriteria);
         });
       });
     </script>
@@ -80,7 +77,7 @@
 <% if filter.rows.empty? %>
   <p><%= message('no_data') -%></p>
 <% elsif filter.pagination.pages>1 %>
-  <p><%= message('measure_filter.errors.TOO_MANY_RESULTS') -%></p>
+  <p><%= message('measure_filter.error.TOO_MANY_RESULTS') -%></p>
 <% else %>
   <div id="tm-<%= treemap_id -%>" class="treemap width100">
     <%= filter.display.html -%>

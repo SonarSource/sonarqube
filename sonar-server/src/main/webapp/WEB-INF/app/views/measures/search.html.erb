@@ -3,7 +3,9 @@
     <%= render :partial => 'measures/sidebar' -%>
   </div>
 
-  <% if @filter %>
+  <% if @filter && @filter.display %>
+    <script>var filterCriteria = <%= @filter.criteria.to_json -%>;</script>
+
     <div class="page-split-right">
       <div id="content">
         <div class="line-block marginbottom10">
@@ -11,32 +13,39 @@
 
             <%
                if @filter.display
-                edit_mode = (params[:edit]=='true')
-                unless edit_mode
+                 edit_mode = (params[:edit]=='true')
+                 unless edit_mode
             %>
-              <li>
-                <a id="change-display" href="<%= url_for params.merge({:edit => true, :id => @filter.id}) -%>"><%= message("measure_filter.#{@filter.display.key}.change") -%></a>
-              </li>
-            <% end %>
-            <li>
-              <%= message 'measure_filter.display_as' -%>:
-              <% MeasureFilterDisplay.keys.each do |display_key| %>
-                <%= link_to_if display_key!=@filter.display.key, message("measure_filter.display.#{display_key}"), params.merge(:action => 'search', :display => display_key, :id => @filter.id), :id => "display_as_#{display_key}" -%>
+                <li>
+                  <a id="change-display" href="<%= url_for @filter.criteria.merge({:action => 'search', :edit => true, :id => @filter.id}) -%>"><%= message("measure_filter.#{@filter.display.key}.change") -%></a>
+                </li>
               <% end %>
-            </li>
+              <li>
+                <%= message 'measure_filter.display_as' -%>:
+                <% MeasureFilterDisplay.keys.each do |display_key| %>
+                  <%= link_to_if display_key!=@filter.display.key, message("measure_filter.display.#{display_key}"), @filter.criteria.merge(:action => 'search', :display => display_key, :id => @filter.id), :id => "display_as_#{display_key}" -%>
+                <% end %>
+              </li>
             <% end %>
 
             <% if logged_in? %>
               <% if @filter.id %>
-                <li><a id="copy" href="<%= url_for params.merge({:action => 'copy_form', :id => @filter.id}) -%>" class="link-action open-modal"><%= message('copy') -%></a></li>
+                <li><a id="copy" href="<%= url_for :action => 'copy_form', :id => @filter.id -%>" class="link-action open-modal"><%= message('copy') -%></a></li>
               <% end %>
-              <% if @filter.owner?(current_user) %>
-                <li><a id="save" href="<%= url_for params.merge({:action => 'save_form', :id => @filter.id}) -%>" class="link-action open-modal"><%= message('save') -%></a></li>
+              <% if !defined?(@unchanged) && @filter.id && @filter.owner?(current_user)%>
+                <li>
+                  <%= link_to message('save'), params.merge({:action => 'save', :id => @filter.id}), :class => 'link-action', :id => 'save', :method => :post -%>
+                </li>
+              <% end %>
+              <% unless @filter.id %>
+                <li>
+                  <a id="save_as" href="<%= url_for params.merge({:action => 'save_as_form', :id => @filter.id}) -%>" class="link-action open-modal"><%= message('save_as') -%></a>
+                </li>
               <% end %>
             <% end %>
           </ul>
           <div class="page_title" id="filter-title">
-            <% if @filter.name.present? %>
+            <% if @filter.id && @filter.name.present? %>
               <span class="h3"><%= h @filter.name -%></span>
               <span class="note">
                 <% if !@filter.shared %>
@@ -51,6 +60,9 @@
               </span>
               <% if @filter.description.present? %>
                 - <span class="note"><%= h @filter.description -%></span>
+              <% end %>
+              <% if @filter.owner?(current_user) %>
+                &nbsp;<a href="<%= url_for :action => 'edit_form', :id => @filter.id -%>" class="open-modal" id="edit-filter"><%= image_tag 'pencil-small.png', :alt => message('edit') -%></a>
               <% end %>
             <% end %>
           </div>

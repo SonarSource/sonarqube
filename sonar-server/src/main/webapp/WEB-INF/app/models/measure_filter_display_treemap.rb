@@ -22,7 +22,7 @@ class MeasureFilterDisplayTreemap < MeasureFilterDisplay
   include ActionView::Helpers::UrlHelper
 
   KEY = :treemap
-  PROPERTY_KEYS = Set.new([:tmSize, :tmColor])
+  PROPERTY_KEYS = Set.new([:tmSize, :tmColor, :tmHeight])
   MAX_RESULTS = 1000
   DEFAULT_HEIGHT_PERCENTS = 55
   attr_reader :id, :size, :size_metric, :color_metric, :height_percents
@@ -37,8 +37,6 @@ class MeasureFilterDisplayTreemap < MeasureFilterDisplay
     @filter.metrics=([@size_metric, @color_metric].compact)
     @id_count = 0
 
-    filter.set_criteria_value(:sort, "metric:#{@size_metric.key}") if @size_metric
-    filter.set_criteria_value(:asc, 'true')
     filter.set_criteria_value(:pageSize, MAX_RESULTS)
     filter.set_criteria_value(:page, 1)
   end

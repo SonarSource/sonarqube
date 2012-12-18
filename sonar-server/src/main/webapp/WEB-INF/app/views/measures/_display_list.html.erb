@@ -5,8 +5,10 @@
       $j('#measure_filter_foot<%= widget_id -%>_pages').hide();
       $j('#measure_filter_foot<%= widget_id -%>_loading').show();
 
-      var url = decodeURI('<%= url_for filter.criteria.merge(:controller => 'measures', :action => 'search', :page => nil, :sort => nil, :asc => nil, :search => nil, :widget_id => widget_id, :trailing_slash => true) -%>');
-      url += '&sort=' + sort + '&asc=' + asc + '&page=' + page;
+      filterCriteria['sort']=sort;
+      filterCriteria['asc']=asc;
+      filterCriteria['page']=page;
+      var url=baseUrl + '/measures/search/?' + $j.param(filterCriteria);
 
       <% if widget_id %>
       $j('#measure_filter_list<%= widget_id -%>').load(url);
@@ -22,33 +24,32 @@
    display_favourites = logged_in?
    colspan = filter.display.columns.size
    colspan += 1 if display_favourites
-   table_columns = []
-   table_columns << '' if display_favourites
-   table_columns.concat(filter.display.columns.map { |c| c.key })
    if edit_mode
      content_for :script do
 %>
     <script>
-      var cols = [<%= table_columns.map{|col| "'#{col}'"}.join(',')-%>];
-
+      var colOffset = <%= display_favourites ? 1 : 0 -%>;
       function leftCol(id) {
         var cell = $j('#measures-table tr td[index=' + id + ']');
         var columnIndex = cell.parent().children().index(cell);
-        if (columnIndex > 0) {
+        if (columnIndex-colOffset > 0) {
           moveCol(columnIndex - 1, columnIndex);
         }
       }
       function rightCol(id) {
+        var cols = filterCriteria['cols']||[];
         var cell = $j('#measures-table tr td[index=' + id + ']');
         var columnIndex = cell.parent().children().index(cell);
-        if (columnIndex < cols.length - 1) {
+
+        if (columnIndex-colOffset < cols.length - 1) {
           moveCol(columnIndex, columnIndex + 1);
         }
       }
       function moveCol(from, to) {
-        var temp = cols[from];
-        cols[from] = cols[to];
-        cols[to] = temp;
+        var cols = filterCriteria['cols']||[];
+        var temp = cols[from-colOffset];
+        cols[from-colOffset] = cols[to-colOffset];
+        cols[to-colOffset] = temp;
         $j('#measures-table thead tr').each(function () {
           var tr = $j(this);
           var td1 = tr.find('th:eq(' + from + ')');
@@ -63,9 +64,10 @@
         });
       }
       function deleteCol(id) {
+        var cols = filterCriteria['cols']||[];
         var cell = $j('#measures-table tr td[index=' + id + ']');
         var columnIndex = cell.parent().children().index(cell);
-        cols.splice(columnIndex, 1);
+        cols.splice(columnIndex-colOffset, 1);
         $j('#measures-table thead tr').each(function () {
           var tr = $j(this);
           var td1 = tr.find('th:eq(' + columnIndex + ')');
@@ -96,23 +98,19 @@
 
         });
         $j("#add-metric").on("click", function (e) {
+          var cols = filterCriteria['cols']||[];
           var columnKey = $j("#select-metric option:selected").val();
           var period = $j("#select-period option:selected").val();
           if (period.length > 0) {
             columnKey += ':' + period;
           }
           cols.push(columnKey);
-          window.location = removeUrlAttr(decodeURI(window.location.href), 'cols\\[\\]') + '&' + $j.map(cols,function (a) {
-            return a ? 'cols[]=' + a : null;
-          }).join('&');
+          filterCriteria['edit']='true';
+          window.location = baseUrl + '/measures/search/<%= filter.id -%>?' + $j.param(filterCriteria);
         });
         $j("#exit-edit").on("click", function (e) {
-          var url = removeUrlAttr(decodeURI(window.location.href), 'cols\\[\\]');
-          url = removeUrlAttr(url, 'edit');
-          url += '&' + $j.map(cols,function (a) {
-            return a ? 'cols[]=' + a : null;
-          }).join('&');
-          window.location = url;
+          delete filterCriteria['edit'];
+          window.location = baseUrl + '/measures/search/<%= filter.id -%>?' + $j.param(filterCriteria);
         });
       });
     </script>
@@ -138,9 +136,6 @@
       </td>
       <td class="right">
         <a href="#" class="button" id="exit-edit"><%= message 'close' -%></a>
-        <% if filter.owner?(current_user) %>
-          <a id="save-columns" href="<%= url_for filter.criteria.merge({:edit => nil, :action => 'save_form', :id => filter.id}) -%>" class="button open-modal"><%= message('measure_filter.close_and_save') -%></a>
-        <% end %>
       </td>
     </tr>
   </table>

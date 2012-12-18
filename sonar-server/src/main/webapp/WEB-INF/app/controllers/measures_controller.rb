@@ -31,7 +31,7 @@ class MeasuresController < ApplicationController
     else
       @filter = MeasureFilter.new
     end
-    @filter.criteria=(params.merge({:controller => nil, :action => nil, :search => nil, :widget_id => nil}))
+    @filter.criteria=criteria_params
     @filter.enable_default_display
     @filter.execute(self, :user => current_user)
 
@@ -47,25 +47,31 @@ class MeasuresController < ApplicationController
 
     @filter = find_filter(params[:id])
     @filter.load_criteria_from_data
+    @filter.enable_default_display
 
     # criteria can be overridden
-    @filter.override_criteria(params.reject{|k,v| k=='controller' || k=='action' || k=='id'})
+    @filter.override_criteria(criteria_params)
 
-    redirect_to @filter.criteria.merge({:controller => 'measures', :action => 'search', :id => params[:id]})
+    @filter.execute(self, :user => current_user)
+    @unchanged = true
+
+    render :action => 'search'
   end
 
-  def save_form
+  # GET /measures/save_as_form?[id=<id>][&criteria]
+  def save_as_form
     if params[:id].present?
       @filter = find_filter(params[:id])
     else
       @filter = MeasureFilter.new
     end
-    @filter.criteria=(params)
+    @filter.criteria=(criteria_params)
     @filter.convert_criteria_to_data
-    render :partial => 'measures/save_form'
+    render :partial => 'measures/save_as_form'
   end
 
-  def save
+  # POST /measures/save_as?[id=<id>]&name=<name>[&parameters]
+  def save_as
     verify_post_request
     access_denied unless logged_in?
 
@@ -85,8 +91,23 @@ class MeasuresController < ApplicationController
       current_user.favourited_measure_filters<<@filter if add_to_favourites
       render :text => @filter.id.to_s, :status => 200
     else
-      render :partial => 'measures/save_form', :status => 400
+      render :partial => 'measures/save_as_form', :status => 400
     end
+  end
+
+  # POST /measures/save?id=<id>&[criteria]
+  def save
+    verify_post_request
+    require_parameters :id
+    access_denied unless logged_in?
+
+    @filter = find_filter(params[:id])
+    @filter.criteria=criteria_params
+    @filter.convert_criteria_to_data
+    unless @filter.save
+      flash[:error]='Error'
+    end
+    redirect_to :action => 'filter', :id => @filter.id
   end
 
   # GET /measures/manage
@@ -198,5 +219,9 @@ class MeasuresController < ApplicationController
     filter = MeasureFilter.find(id)
     access_denied unless filter.shared || filter.owner?(current_user)
     filter
+  end
+
+  def criteria_params
+    params.merge({:controller => nil, :action => nil, :search => nil, :widget_id => nil, :edit => nil})
   end
 end

@@ -41,11 +41,11 @@ class TreemapController < ApplicationController
     resource = resource.permanent_resource
 
     filter = MeasureFilter.new
-    filter.set_criteria_value('baseId', resource.id)
-    filter.set_criteria_value('onBaseComponents', 'true')
-    filter.set_criteria_value('display', 'treemap')
-    filter.set_criteria_value('tmSize', size_metric.key) if size_metric
-    filter.set_criteria_value('tmColor', color_metric.key) if color_metric
+    filter.set_criteria_value(:baseId, resource.id)
+    filter.set_criteria_value(:onBaseComponents, 'true')
+    filter.set_criteria_value(:display, 'treemap')
+    filter.set_criteria_value(:tmSize, size_metric.key) if size_metric
+    filter.set_criteria_value(:tmColor, color_metric.key) if color_metric
     filter.execute(self, :user => current_user)
 
     render :text => filter.display.html

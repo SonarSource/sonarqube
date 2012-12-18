@@ -28,6 +28,8 @@
   </fieldset>
 </form>
 <script>
-  $j("#edit-filter-form").modalForm();
+  $j("#edit-filter-form").modalForm({success: function (data) {
+    window.location = baseUrl + '/measures/filter/' + data;
+  }});
   $j('#name').select();
 </script>

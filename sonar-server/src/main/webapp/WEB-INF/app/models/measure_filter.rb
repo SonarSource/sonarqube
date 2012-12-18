@@ -66,7 +66,6 @@ class MeasureFilter < ActiveRecord::Base
 
   attr_reader :pagination, :security_exclusions, :base_row, :rows, :display
 
-
   def sort_key
     criteria['sort']
   end
@@ -127,7 +126,8 @@ class MeasureFilter < ActiveRecord::Base
     @criteria ||= HashWithIndifferentAccess.new
     if key
       if value!=nil && value!='' && value!=['']
-        @criteria[key]=(value.kind_of?(Array) ? value : value.to_s)
+        value = (value.kind_of?(Array) ? value : value.to_s)
+        @criteria[key]=value
       else
         @criteria.delete(key)
       end
@@ -136,7 +136,17 @@ class MeasureFilter < ActiveRecord::Base
 
   # API used by Displays
   def set_criteria_default_value(key, value)
-    set_criteria_value(key, value) unless criteria.has_key?(key)
+    @criteria ||= HashWithIndifferentAccess.new
+    unless @criteria.has_key?(key)
+      if key
+        if value!=nil && value!='' && value!=['']
+          value = (value.kind_of?(Array) ? value : value.to_s)
+          @criteria[key]=value
+        else
+          @criteria.delete(key)
+        end
+      end
+    end
   end
 
   def load_criteria_from_data
