@@ -175,7 +175,7 @@ body, a {
 }
 
 #body {
-  position: relative;
+/*  position: relative;*/
 }
 
 #footer {
@@ -193,7 +193,7 @@ body, a {
 
 #sidebar {
   width: 150px;
-  position: absolute;
+  float:left;
   margin: 0 0 0 10px;
   top: 0;
   left: 0;
@@ -245,7 +245,7 @@ ul.sidebar select, ul.sidebar input {
 
 #logo {
   text-align: center;
-  padding: 8px 0 0 0;
+  padding: 10px 0 0 0;
 }
 
 #logo a {

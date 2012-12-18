@@ -65,7 +65,8 @@
             <li class="<%= 'active' if request.request_uri.include?('/dependencies/index') -%>">
               <a href="<%= ApplicationController.root_context -%>/dependencies/index"><%= message('dependencies.page') -%></a></li>
             <li class="<%= 'active' if request.request_uri.include?('/comparison/index') -%>">
-              <a href="<%= ApplicationController.root_context -%>/comparison/index"><%= message('comparison.page') -%></a></li>
+              <a href="<%= ApplicationController.root_context -%>/comparison/index"><%= message('comparison.page') -%></a>
+            </li>
 
           <% elsif selected_section==Navigation::SECTION_RESOURCE %>
             <% ActiveDashboard.user_dashboards(current_user, false).each do |active_dashboard| %>
@@ -153,9 +154,9 @@
           <% end %>
 
           <%= yield :sidebar %>
-          <div id="logo">
+          <li id="logo">
             <center><a href="http://www.sonarsource.org/" target="SonarSource"><%= image_tag('sonar.png', :alt => message('layout.sonar.slogan'), :class => 'png') -%></a></center>
-          </div>
+          </li>
         </ul>
       </div>
     <% end %>

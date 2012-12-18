@@ -33,7 +33,7 @@
   
       <tbody>
         <% @filter.rows.each do |row| %>
-          <tr class="<%= cycle 'even', 'odd' -%>">
+          <tr class="thin <%= cycle 'even', 'odd' -%>">
             <% if display_favourites %>
               <td class="thin"><%= link_to_favourite(row.snapshot.resource) -%></td>
             <% end %>

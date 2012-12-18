@@ -2118,6 +2118,9 @@ table.nowrap td, td.nowrap, th.nowrap {
   cursor: pointer;
   display: inline-block;
   text-decoration: none !important;
+  /* zoom and *display = ie7 hack for display:inline-block */
+  zoom: 1;
+  *display: inline;
 }
 
 .dropdown-menu {
