@@ -65,7 +65,7 @@
           </div>
         </div>
         <% if @filter.description.present? %>
-          <p class="note"><%= h @filter.description -%></p>
+          <p class="note" id="filter-description"><%= h @filter.description -%></p>
       <% end %>
 
         <%= render :partial => 'measures/display', :locals => {:filter => @filter, :edit_mode => edit_mode, :widget_id => nil} -%>
