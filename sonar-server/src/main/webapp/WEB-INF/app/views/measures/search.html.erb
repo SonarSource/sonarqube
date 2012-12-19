@@ -1,11 +1,9 @@
-<div>
+<div xmlns="http://www.w3.org/1999/html">
   <div class="page-split-left">
     <%= render :partial => 'measures/sidebar' -%>
   </div>
 
   <% if @filter && @filter.display %>
-    <script>var filterCriteria = <%= @filter.criteria.to_json -%>;</script>
-
     <div class="page-split-right">
       <div id="content">
         <div class="line-block marginbottom10">
@@ -46,6 +44,7 @@
           </ul>
           <div class="page_title" id="filter-title">
             <% if @filter.id && @filter.name.present? %>
+              <p>
               <span class="h3"><%= h @filter.name -%></span>
               <span class="note">
                 <% if !@filter.shared %>
@@ -58,12 +57,14 @@
                   [<%= message 'shared_by' -%> Sonar]
                 <% end %>
               </span>
-              <% if @filter.description.present? %>
-                - <span class="note"><%= h @filter.description -%></span>
-              <% end %>
               <% if @filter.owner?(current_user) %>
-                &nbsp;<a href="<%= url_for :action => 'edit_form', :id => @filter.id -%>" class="open-modal" id="edit-filter"><%= image_tag 'pencil-small.png', :alt => message('edit') -%></a>
+                              &nbsp;<a href="<%= url_for :action => 'edit_form', :id => @filter.id -%>" class="open-modal" id="edit-filter"><%= image_tag 'pencil-small.png', :alt => message('edit') -%></a>
+                            <% end %>
+              </p>
+              <% if @filter.description.present? %>
+                <p class="note"><%= h @filter.description -%></p>
               <% end %>
+
             <% end %>
           </div>
         </div>

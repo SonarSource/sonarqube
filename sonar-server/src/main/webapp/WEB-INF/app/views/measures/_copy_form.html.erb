@@ -9,10 +9,6 @@
         <p class="error"><%= h msg -%></p>
       <% end %>
       <div class="form-field">
-        <label>Copy</label>
-        <input type="text" size="50" maxlength="100" value="<%= h @filter.name -%>" disabled="disabled"/>
-      </div>
-      <div class="form-field">
         <label for="name"><%= h message('name') -%> <em class="mandatory">*</em></label>
         <input id="name" name="name" type="text" size="50" maxlength="100" value=""/>
       </div>

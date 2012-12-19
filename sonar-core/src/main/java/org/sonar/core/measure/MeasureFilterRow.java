@@ -21,14 +21,14 @@ package org.sonar.core.measure;
 
 import org.apache.commons.lang.StringUtils;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 
 public class MeasureFilterRow {
   private final long snapshotId;
   private final long resourceId;
   private final long resourceRootId;
   private String sortText = null;
-  private Date sortDate = null;
+  private Timestamp sortDate = null;
   private Double sortDouble = null;
 
   MeasureFilterRow(long snapshotId, long resourceId, long resourceRootId) {
@@ -57,11 +57,11 @@ public class MeasureFilterRow {
     this.sortText = StringUtils.defaultString(s);
   }
 
-  Date getSortDate() {
+  Timestamp getSortDate() {
     return sortDate;
   }
 
-  void setSortDate(Date sortDate) {
+  void setSortDate(Timestamp sortDate) {
     this.sortDate = sortDate;
   }
 

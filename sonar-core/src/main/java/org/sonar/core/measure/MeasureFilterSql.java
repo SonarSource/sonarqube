@@ -22,7 +22,6 @@ package org.sonar.core.measure;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
-import com.google.common.primitives.Doubles;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.core.persistence.Database;
@@ -36,6 +35,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Comparator;
 import java.util.List;
 
@@ -272,67 +272,34 @@ class MeasureFilterSql {
     }
 
     Ordering sortFieldOrdering(boolean ascending) {
-      if (ascending) {
-        return Ordering.from(new Comparator<Double>() {
-          public int compare(@Nullable Double left, @Nullable Double right) {
-            if (left == null) {
-              return 1;
-            }
-            if (right == null) {
-              return -1;
-            }
-
-            return Doubles.compare(left, right);
-          }
-        });
-      }
-      return Ordering.from(new Comparator<Double>() {
-        public int compare(@Nullable Double left, @Nullable Double right) {
-          if (left == null) {
-            return 1;
-          }
-          if (right == null) {
-            return -1;
-          }
-
-          return -Doubles.compare(left, right);
-        }
-      });
+      return newObjectOrdering(ascending);
     }
   }
 
   static class DateSortRowProcessor extends RowProcessor {
     MeasureFilterRow fetch(ResultSet rs) throws SQLException {
       MeasureFilterRow row = new MeasureFilterRow(rs.getLong(1), rs.getLong(2), rs.getLong(3));
-      row.setSortDate(rs.getDate(4));
+      row.setSortDate(rs.getTimestamp(4));
       return row;
     }
 
     Function sortFieldFunction() {
-      return new Function<MeasureFilterRow, Date>() {
-        public Date apply(MeasureFilterRow row) {
+      return new Function<MeasureFilterRow, Timestamp>() {
+        public Timestamp apply(MeasureFilterRow row) {
           return row.getSortDate();
         }
       };
     }
 
     Ordering sortFieldOrdering(boolean ascending) {
-      if (ascending) {
-        return Ordering.from(new Comparator<Date>() {
-          public int compare(@Nullable Date left, @Nullable Date right) {
-            if (left == null) {
-              return 1;
-            }
-            if (right == null) {
-              return -1;
-            }
+      return newObjectOrdering(ascending);
+    }
+  }
 
-            return left.compareTo(right);
-          }
-        });
-      }
-      return Ordering.from(new Comparator<Date>() {
-        public int compare(@Nullable Date left, @Nullable Date right) {
+  private static Ordering newObjectOrdering(boolean ascending) {
+    if (ascending) {
+      return Ordering.from(new Comparator<Comparable>() {
+        public int compare(@Nullable Comparable left, @Nullable Comparable right) {
           if (left == null) {
             return 1;
           }
@@ -340,9 +307,21 @@ class MeasureFilterSql {
             return -1;
           }
 
-          return -left.compareTo(right);
+          return left.compareTo(right);
         }
       });
     }
+    return Ordering.from(new Comparator<Comparable>() {
+      public int compare(@Nullable Comparable left, @Nullable Comparable right) {
+        if (left == null) {
+          return 1;
+        }
+        if (right == null) {
+          return -1;
+        }
+
+        return -left.compareTo(right);
+      }
+    });
   }
 }

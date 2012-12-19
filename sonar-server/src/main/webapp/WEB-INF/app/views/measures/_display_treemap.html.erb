@@ -1,3 +1,6 @@
+<script>
+  var filterCriteria<%= widget_id -%> = <%= filter.criteria.to_json -%>;
+</script>
 <%
    treemap_id = (defined? widget) ? widget.id : 1
    unless edit_mode
@@ -57,17 +60,17 @@
     <script>
       $j(document).ready(function () {
         $j("#update-treemap").on("click", function (e) {
-          filterCriteria['tmSize']=$j('#select-tm-size').val();
+          filterCriteria<%= widget_id -%>['tmSize']=$j('#select-tm-size').val();
           var color = $j('#select-tm-color').val();
           if (color != null && color != '') {
-            filterCriteria['tmColor']=color;
+            filterCriteria<%= widget_id -%>['tmColor']=color;
           }
-          filterCriteria['edit']=true;
-          window.location = baseUrl + '/measures/search/<%= filter.id -%>?' + $j.param(filterCriteria);
+          filterCriteria<%= widget_id -%>['edit']=true;
+          window.location = baseUrl + '/measures/search/<%= filter.id -%>?' + $j.param(filterCriteria<%= widget_id -%>);
         });
         $j("#exit-edit").on("click", function (e) {
-          delete filterCriteria['edit'];
-          window.location = baseUrl + '/measures/search/<%= filter.id -%>?' + $j.param(filterCriteria);
+          delete filterCriteria<%= widget_id -%>['edit'];
+          window.location = baseUrl + '/measures/search/<%= filter.id -%>?' + $j.param(filterCriteria<%= widget_id -%>);
         });
       });
     </script>

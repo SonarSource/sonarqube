@@ -175,7 +175,7 @@ body, a {
 }
 
 #body {
-/*  position: relative;*/
+  /*  position: relative;*/
 }
 
 #footer {
@@ -193,7 +193,7 @@ body, a {
 
 #sidebar {
   width: 150px;
-  float:left;
+  float: left;
   margin: 0 0 0 10px;
   top: 0;
   left: 0;
@@ -238,10 +238,10 @@ ul.sidebar li.spacer {
   margin: 0;
   padding: 0;
 }
+
 ul.sidebar select, ul.sidebar input {
   font-size: 93%;
 }
-
 
 #logo {
   text-align: center;
@@ -266,18 +266,19 @@ ul.sidebar select, ul.sidebar input {
   max-width: 200px;
   width: 200px;
   margin: 0;
-  display: block;
+  display: table-cell;
   vertical-align: top;
   border-top: none;
   border-left: none;
-  float: left;
 }
 
 .page-split-right {
-  display: block;
+  position: relative;
+  display: table-cell;
   margin: 0;
   vertical-align: top;
-  padding: 0 0 0 200px;
+  padding: 0;
+  width: 100%;
 }
 
 .gray-sidebar {
