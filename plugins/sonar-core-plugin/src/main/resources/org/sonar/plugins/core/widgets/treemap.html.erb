@@ -10,4 +10,4 @@
    filter.set_criteria_value(:tmHeight, widget_properties['heightInPercents'])
    filter.execute(self, :user => current_user)
 %>
-<%= render :partial => "measures/display_treemap", :locals => {:edit_mode => false, :widget => widget, :filter => filter} %>
+<%= render :partial => "measures/display_treemap", :locals => {:edit_mode => false, :widget_id => widget.id, :filter => filter} %>

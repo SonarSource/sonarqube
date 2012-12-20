@@ -180,7 +180,7 @@ public class Settings implements BatchComponent, ServerComponent {
   }
 
   /**
-   * Value is split by comma and trimmed.
+   * Value is split by comma and trimmed. Never returns null.
    * <p/>
    * Examples :
    * <ul>
