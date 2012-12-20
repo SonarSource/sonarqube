@@ -458,7 +458,7 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void ignore_person_measures() throws Exception {
+  public void ignore_person_measures_in_condition() throws Exception {
     setupData("ignore_person_measures");
     MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).addCondition(
       new MeasureFilterCondition(new Metric("ncloc").setId(1), MeasureFilterCondition.Operator.GREATER, 0.0)
@@ -470,7 +470,17 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void ignore_quality_model_measures() throws Exception {
+  public void ignore_person_measures_in_sort() throws Exception {
+    setupData("ignore_person_measures");
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).setSortOnMetric(new Metric("ncloc").setId(1));
+    List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext().setUserId(50L));
+
+    assertThat(rows).hasSize(1);
+    assertThat(rows.get(0).getSnapshotId()).isEqualTo(101L);
+  }
+
+  @Test
+  public void ignore_quality_model_measures_in_condition() throws Exception {
     setupData("ignore_quality_model_measures");
     MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).addCondition(
       new MeasureFilterCondition(new Metric("ncloc").setId(1), MeasureFilterCondition.Operator.GREATER, 0.0)
@@ -480,6 +490,17 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0).getSnapshotId()).isEqualTo(101L);
   }
+
+  @Test
+  public void ignore_quality_model_measures_in_sort() throws Exception {
+    setupData("ignore_quality_model_measures");
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).setSortOnMetric(new Metric("ncloc").setId(1));
+    List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext().setUserId(50L));
+
+    assertThat(rows).hasSize(1);
+    assertThat(rows.get(0).getSnapshotId()).isEqualTo(101L);
+  }
+
 
   private void verifyJavaProject(MeasureFilterRow row) {
     assertThat(row.getSnapshotId()).isEqualTo(JAVA_PROJECT_SNAPSHOT_ID);
