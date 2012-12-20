@@ -92,11 +92,17 @@ public class MeasureFilterCondition {
   }
 
   StringBuilder appendSqlCondition(StringBuilder sql, int conditionIndex) {
-    sql.append(" pmcond").append(conditionIndex).append(".metric_id=");
+    String table = "pmcond" + conditionIndex;
+    sql.append(" ").append(table).append(".metric_id=");
     sql.append(metric.getId());
     sql.append(" AND ");
     appendSqlColumn(sql, conditionIndex);
     sql.append(operator.getSql()).append(value);
+    sql.append(" AND ");
+    sql.append(table).append(".rule_id IS NULL AND ");
+    sql.append(table).append(".rule_priority IS NULL AND ");
+    sql.append(table).append(".characteristic_id IS NULL AND ");
+    sql.append(table).append(".person_id IS NULL ");
     return sql;
   }
 

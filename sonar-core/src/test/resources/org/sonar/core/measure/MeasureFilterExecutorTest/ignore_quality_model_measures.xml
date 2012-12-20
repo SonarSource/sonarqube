@@ -1,0 +1,44 @@
+<dataset>
+  <metrics id="1" name="lines" val_type="FLOAT" description="Lines" domain="Size"
+           short_name="Lines" qualitative="[false]" user_managed="[false]" enabled="[true]" origin="JAV" worst_value="[null]"
+           optimized_best_value="[null]" best_value="[null]" direction="1" hidden="[false]"
+           delete_historical_data="[null]"/>
+
+  <projects kee="java_project" long_name="Java project" scope="PRJ" qualifier="TRK" name="Java project"
+            id="1" root_id="[null]"
+            description="[null]" enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"/>
+
+  <snapshots id="101" project_id="1" root_project_id="1" root_snapshot_id="[null]" parent_snapshot_id="[null]"
+             scope="PRJ" qualifier="TRK" path="" depth="0"
+             purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]"
+             period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]"
+             period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]"
+             period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]"
+             created_at="2008-12-20 00:00:00.00" build_date="2008-12-20 00:00:00.00"
+             version="1.0" status="P" islast="[true]"/>
+
+
+  <!-- standard measure -->
+  <project_measures id="1001" metric_id="1" value="500" snapshot_id="101" characteristic_id="[null]"
+                    url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
+                    variation_value_4="[null]" variation_value_5="400"
+                    rule_priority="[null]" alert_text="[null]" RULES_CATEGORY_ID="[null]"
+                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]" person_id="[null]"/>
+
+  <!-- details of the measure by model characteristic -->
+  <project_measures id="1002" metric_id="1" value="300" snapshot_id="101" characteristic_id="30000"
+                    url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
+                    variation_value_4="[null]" variation_value_5="400"
+                    rule_priority="[null]" alert_text="[null]" RULES_CATEGORY_ID="[null]"
+                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]" person_id="[null]"/>
+
+  <project_measures id="1003" metric_id="1" value="200" snapshot_id="101" characteristic_id="40000"
+                    url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
+                    variation_value_4="[null]" variation_value_5="400"
+                    rule_priority="[null]" alert_text="[null]" RULES_CATEGORY_ID="[null]"
+                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    alert_status="[null]" description="[null]" person_id="[null]"/>
+
+</dataset>
