@@ -31,14 +31,12 @@
   }
   
   <% 
-     if @resource
-       # we keep only root resources in the "Recent Projects"
-       root_resource = @resource.root_project
+     if @resource && Project.root_qualifiers.include?(@resource.qualifier)
   %>
   else {
-    sonarRecentHistory.add('<%= root_resource.key -%>', 
-                           '<%= root_resource.name -%>', 
-                           '<%= Api::Utils.java_facade.getResourceType(root_resource.qualifier).getIconPath() -%>');
+    sonarRecentHistory.add('<%= @resource.key -%>', 
+                           '<%= @resource.name -%>', 
+                           '<%= Api::Utils.java_facade.getResourceType(@resource.qualifier).getIconPath() -%>');
   }
   <% end %>
   
