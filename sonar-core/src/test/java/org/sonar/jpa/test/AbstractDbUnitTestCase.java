@@ -89,6 +89,10 @@ public abstract class AbstractDbUnitTestCase {
     return session;
   }
 
+  protected Database getDatabase() {
+    return database;
+  }
+
   protected DatabaseSessionFactory getSessionFactory() {
     return new DatabaseSessionFactory() {
       public DatabaseSession getSession() {
