@@ -38,6 +38,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
 
@@ -72,7 +75,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class));
     persister.saveProject(singleProject, null);
 
-    checkTables("shouldSaveNewProject", new String[] {"build_date", "created_at"}, "projects", "snapshots");
+    checkTables("shouldSaveNewProject", new String[]{"build_date", "created_at"}, "projects", "snapshots");
 
     // SONAR-3636 : created_at must be fed when inserting a new entry in the 'projects' table
     ResourceModel model = getSession().getSingleResult(ResourceModel.class, "key", singleProject.getKey());
@@ -89,7 +92,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     persister.saveProject(moduleB, multiModuleProject);
     persister.saveProject(moduleB1, moduleB);
 
-    checkTables("shouldSaveNewMultiModulesProject", new String[] {"build_date", "created_at"}, "projects", "snapshots");
+    checkTables("shouldSaveNewMultiModulesProject", new String[]{"build_date", "created_at"}, "projects", "snapshots");
   }
 
   @Test
@@ -101,8 +104,9 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     persister.saveResource(singleProject, new JavaPackage("org.foo").setEffectiveKey("foo:org.foo"));
 
     // check that the directory is attached to the project
-    checkTables("shouldSaveNewDirectory", new String[] {"build_date", "created_at"}, "projects", "snapshots");
+    checkTables("shouldSaveNewDirectory", new String[]{"build_date", "created_at"}, "projects", "snapshots");
   }
+
   @Test
   public void shouldSaveNewLibrary() {
     setupData("shared");
@@ -113,7 +117,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     persister.saveResource(singleProject, new Library("junit:junit", "4.8.2").setEffectiveKey("junit:junit"));// do nothing, already saved
     persister.saveResource(singleProject, new Library("junit:junit", "3.2").setEffectiveKey("junit:junit"));
 
-    checkTables("shouldSaveNewLibrary", new String[] {"build_date", "created_at"}, "projects", "snapshots");
+    checkTables("shouldSaveNewLibrary", new String[]{"build_date", "created_at"}, "projects", "snapshots");
   }
 
   @Test
@@ -141,7 +145,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     singleProject.setDescription("new description");
     persister.saveProject(singleProject, null);
 
-    checkTables("shouldUpdateExistingResource", new String[] {"build_date", "created_at"}, "projects", "snapshots");
+    checkTables("shouldUpdateExistingResource", new String[]{"build_date", "created_at"}, "projects", "snapshots");
   }
 
   // SONAR-1700
@@ -152,7 +156,33 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class));
     persister.saveProject(singleProject, null);
 
-    checkTables("shouldRemoveRootIndexIfResourceIsProject", new String[] {"build_date", "created_at"}, "projects", "snapshots");
+    checkTables("shouldRemoveRootIndexIfResourceIsProject", new String[]{"build_date", "created_at"}, "projects", "snapshots");
+  }
+
+  @Test
+  public void shouldGrantDefaultPermissionsIfNewProject() {
+    setupData("shared");
+
+    ResourcePermissions permissions = mock(ResourcePermissions.class);
+    when(permissions.hasRoles(singleProject)).thenReturn(false);
+
+    ResourcePersister persister = new DefaultResourcePersister(getSession(), permissions);
+    persister.saveProject(singleProject, null);
+
+    verify(permissions).grantDefaultRoles(singleProject);
+  }
+
+  @Test
+  public void shouldNotGrantDefaultPermissionsIfExistingProject() {
+    setupData("shared");
+
+    ResourcePermissions permissions = mock(ResourcePermissions.class);
+    when(permissions.hasRoles(singleProject)).thenReturn(true);
+
+    ResourcePersister persister = new DefaultResourcePersister(getSession(), permissions);
+    persister.saveProject(singleProject, null);
+
+    verify(permissions, never()).grantDefaultRoles(singleProject);
   }
 
   private static Project newProject(String key, String language) {

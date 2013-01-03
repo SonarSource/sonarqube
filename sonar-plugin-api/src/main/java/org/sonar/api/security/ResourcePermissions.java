@@ -39,6 +39,9 @@ public interface ResourcePermissions extends BatchComponent, ServerComponent {
 
   /**
    * Limitation - the resource id is used instead of logical key.
+   * Important note : the existing roles are overridden by default ones, so it's recommended
+   * to check that {@link ResourcePermissions#hasRoles(org.sonar.api.resources.Resource)} is
+   * false before executing this method.
    */
   void grantDefaultRoles(Resource resource);
 
