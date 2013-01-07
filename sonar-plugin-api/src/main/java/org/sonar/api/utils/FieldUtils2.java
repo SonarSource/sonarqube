@@ -24,6 +24,7 @@ import org.apache.commons.lang.ClassUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -60,9 +61,7 @@ public final class FieldUtils2 {
     }
 
     for (Object anInterface : ClassUtils.getAllInterfaces(clazz)) {
-      for (Field declaredField : ((Class) anInterface).getDeclaredFields()) {
-        result.add(declaredField);
-      }
+      Collections.addAll(result, ((Class) anInterface).getDeclaredFields());
     }
 
     return result;
