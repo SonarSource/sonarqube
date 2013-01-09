@@ -14,7 +14,7 @@
 
       <div class="form-field">
         <label for="name"><%= message('name') -%> <em class="mandatory">*</em></label>
-        <input id="create-profile-name" name="name" type="text" size="50" maxlength="100"/>
+        <input id="create-profile-name" name="name" type="text" size="50" maxlength="100" autofocus="autofocus"/>
       </div>
 
       <% importers.to_a.sort { |x, y| x.getName() <=> y.getName() }.each do |importer| %>
@@ -32,6 +32,4 @@
     </div>
   </fieldset>
 </form>
-<script>
-  $j('#create-profile-name').focus();
-</script>
+

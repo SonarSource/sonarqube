@@ -10,7 +10,7 @@
       <% end %>
       <div class="form-field">
         <label for="name"><%= h message('name') -%> <em class="mandatory">*</em></label>
-        <input id="name" name="name" type="text" size="50" maxlength="100" value="<%= h @filter.name -%>"/>
+        <input id="name" name="name" type="text" size="50" maxlength="100" value="<%= h @filter.name -%>" autofocus="autofocus"/>
       </div>
       <div class="form-field">
         <label for="description"><%= h message('description') -%></label>
@@ -31,5 +31,4 @@
   $j("#edit-filter-form").modalForm({success: function (data) {
     window.location = baseUrl + '/measures/filter/' + data;
   }});
-  $j('#name').select();
 </script>

@@ -14,7 +14,7 @@
       %>
       <div class="form-field">
         <label for="name"><%= message 'quality_profiles.copy_new_name' -%> <em class="mandatory">*</em></label>
-        <input id="copy-name" name="name" type="text" size="50" maxlength="100"/>
+        <input id="copy-name" name="name" type="text" size="50" maxlength="100" autofocus="autofocus"/>
       </div>
     </div>
     <div class="form-foot">
@@ -25,5 +25,4 @@
 </form>
 <script>
   $j("#copy-profile-form").modalForm();
-  $j('#copy-name').select();
 </script>
