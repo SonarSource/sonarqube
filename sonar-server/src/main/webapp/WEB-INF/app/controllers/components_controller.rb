@@ -27,7 +27,7 @@ class ComponentsController < ApplicationController
     init_resource_for_user_role
     @components_configuration = Sonar::ComponentsConfiguration.new
 
-    @snapshots = Snapshot.find(:all, :include => 'project', :conditions => ['snapshots.parent_snapshot_id=? and snapshots.qualifier<>? and projects.qualifier<>?', @snapshot.id, Snapshot::QUALIFIER_UNIT_TEST_CLASS, Snapshot::QUALIFIER_UNIT_TEST_CLASS])
+    @snapshots = Snapshot.all(:include => 'project', :conditions => ['snapshots.parent_snapshot_id=?', @snapshot.id])
 
     @columns = @components_configuration.selected_columns
     metrics = @components_configuration.homepage_metrics
