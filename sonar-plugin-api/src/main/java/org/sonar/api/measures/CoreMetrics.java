@@ -580,7 +580,6 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_TESTS)
       .setFormula(new SumChildValuesFormula(false))
       .setHidden(true)
-      .setDeleteHistoricalData(true)
       .create();
 
   public static final String NEW_CONDITIONS_TO_COVER_KEY = "new_conditions_to_cover";
@@ -847,7 +846,6 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_INTEGRATION_TESTS)
       .setFormula(new SumChildValuesFormula(false))
       .setHidden(true)
-      .setDeleteHistoricalData(true)
       .create();
 
   /**
@@ -1131,7 +1129,6 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_OVERALL_TESTS)
       .setFormula(new SumChildValuesFormula(false))
       .setHidden(true)
-      .setDeleteHistoricalData(true)
       .create();
 
   /**
