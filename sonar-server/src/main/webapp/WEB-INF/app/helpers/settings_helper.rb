@@ -77,10 +77,6 @@ module SettingsHelper
     property.getType()
   end
 
-  def by_category_name(categories)
-    Api::Utils.insensitive_sort(categories) { |category| category_name(category) }
-  end
-
   def by_property_name(properties)
     Api::Utils.insensitive_sort(properties) { |property| property_name(property) }
   end

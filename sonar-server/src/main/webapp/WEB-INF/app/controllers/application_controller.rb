@@ -201,4 +201,15 @@ class ApplicationController < ActionController::Base
     @breadcrumbs ||= []
     @breadcrumbs.concat(breadcrumbs)
   end
+
+  #
+  # SETTINGS
+  #
+  def by_category_name(categories)
+    Api::Utils.insensitive_sort(categories) { |category| category_name(category) }
+  end
+
+  def category_name(category)
+    message("property.category.#{category}", :default => category)
+  end
 end

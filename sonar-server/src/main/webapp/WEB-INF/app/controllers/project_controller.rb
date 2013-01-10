@@ -245,9 +245,10 @@ class ProjectController < ApplicationController
     end
 
     @categories = definitions_per_category.keys
+    @categories = by_category_name(@categories)
+
     default_category = nil
-    default_category = 'general' if @categories.include? 'general'
-    default_category ||= @categories[0]
+    default_category = @categories[0] if !@categories.empty?
     @category = params[:category] || default_category
     @definitions = definitions_per_category[@category] || []
 
