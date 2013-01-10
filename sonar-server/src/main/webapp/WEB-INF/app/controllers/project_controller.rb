@@ -244,8 +244,9 @@ class ProjectController < ApplicationController
       definitions_per_category = java_facade.propertyDefinitions.modulePropertiesByCategory
     end
 
-    @category = params[:category] || 'general'
     @categories = definitions_per_category.keys
+    first_category ||= @categories[0]
+    @category = params[:category] || first_category
     @definitions = definitions_per_category[@category] || []
 
     not_found('category') unless @categories.include? @category

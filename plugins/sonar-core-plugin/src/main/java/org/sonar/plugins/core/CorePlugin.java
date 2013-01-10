@@ -194,14 +194,6 @@ import java.util.List;
     multiValues = true,
     category = CoreProperties.CATEGORY_EXCLUSIONS),
   @Property(
-    key = CoreProperties.PROJECT_SKIPPED_MODULES_PROPERTY,
-    name = "Skipped Modules",
-    description = "Exclude project modules from code analysis. Changes will be applied during next code analysis.",
-    project = true,
-    global = true,
-    multiValues = true,
-    category = CoreProperties.CATEGORY_EXCLUSIONS),
-  @Property(
     key = CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY,
     name = "Test Exclusions",
     description = "Exclude tests from code analysis. Changes will be applied during next code analysis.",
@@ -243,9 +235,9 @@ import java.util.List;
     name = "Exclude modules",
     description = "Maven artifact ids of modules to exclude.",
     project = true,
-    global = false,
+    global = true,
     multiValues = true,
-    category = CoreProperties.CATEGORY_GENERAL),
+    category = CoreProperties.CATEGORY_EXCLUSIONS),
   @Property(
     key = CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY,
     defaultValue = "" + CoreProperties.CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE,

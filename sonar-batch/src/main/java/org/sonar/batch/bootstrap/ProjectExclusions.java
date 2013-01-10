@@ -68,7 +68,7 @@ public class ProjectExclusions implements BatchComponent {
     if (!isRoot && includedKeys.length > 0) {
       excluded = !ArrayUtils.contains(includedKeys, projectKey);
     }
-    String skippedModulesProperty = CoreProperties.PROJECT_SKIPPED_MODULES_PROPERTY;
+    String skippedModulesProperty = CoreProperties.CORE_SKIPPED_MODULES_PROPERTY;
     if (!excluded) {
       String[] excludedKeys = settings.getStringArray(skippedModulesProperty);
       excluded = ArrayUtils.contains(excludedKeys, projectKey);

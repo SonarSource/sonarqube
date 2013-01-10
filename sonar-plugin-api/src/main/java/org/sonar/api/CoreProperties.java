@@ -109,7 +109,6 @@ public interface CoreProperties {
 
   /* Exclusions */
   String PROJECT_EXCLUSIONS_PROPERTY = "sonar.exclusions";
-  String PROJECT_SKIPPED_MODULES_PROPERTY = "sonar.skippedModules";
 
   /**
    * @since 3.3
