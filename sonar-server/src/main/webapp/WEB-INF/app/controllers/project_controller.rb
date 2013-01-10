@@ -245,8 +245,10 @@ class ProjectController < ApplicationController
     end
 
     @categories = definitions_per_category.keys
-    first_category ||= @categories[0]
-    @category = params[:category] || first_category
+    default_category = nil
+    default_category = 'general' if @categories.include? 'general'
+    default_category ||= @categories[0]
+    @category = params[:category] || default_category
     @definitions = definitions_per_category[@category] || []
 
     not_found('category') unless @categories.include? @category
