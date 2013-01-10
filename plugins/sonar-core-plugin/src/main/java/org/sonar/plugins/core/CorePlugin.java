@@ -85,6 +85,7 @@ import org.sonar.plugins.core.timemachine.ViolationPersisterDecorator;
 import org.sonar.plugins.core.timemachine.ViolationTrackingDecorator;
 import org.sonar.plugins.core.web.Lcom4Viewer;
 import org.sonar.plugins.core.web.TestsViewer;
+import org.sonar.plugins.core.widgets.ActionPlansWidget;
 import org.sonar.plugins.core.widgets.AlertsWidget;
 import org.sonar.plugins.core.widgets.CommentsDuplicationsWidget;
 import org.sonar.plugins.core.widgets.ComplexityWidget;
@@ -104,7 +105,6 @@ import org.sonar.plugins.core.widgets.TimeMachineWidget;
 import org.sonar.plugins.core.widgets.TimelineWidget;
 import org.sonar.plugins.core.widgets.TreemapWidget;
 import org.sonar.plugins.core.widgets.WelcomeWidget;
-import org.sonar.plugins.core.widgets.ActionPlansWidget;
 import org.sonar.plugins.core.widgets.reviews.FalsePositiveReviewsWidget;
 import org.sonar.plugins.core.widgets.reviews.MyReviewsWidget;
 import org.sonar.plugins.core.widgets.reviews.PlannedReviewsWidget;
@@ -189,6 +189,14 @@ import java.util.List;
     key = CoreProperties.PROJECT_EXCLUSIONS_PROPERTY,
     name = "Exclusions",
     description = "Exclude sources from code analysis. Changes will be applied during next code analysis.",
+    project = true,
+    global = true,
+    multiValues = true,
+    category = CoreProperties.CATEGORY_EXCLUSIONS),
+  @Property(
+    key = CoreProperties.PROJECT_SKIPPED_MODULES_PROPERTY,
+    name = "Skipped Modules",
+    description = "Exclude project modules from code analysis. Changes will be applied during next code analysis.",
     project = true,
     global = true,
     multiValues = true,

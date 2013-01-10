@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
@@ -67,12 +68,13 @@ public class ProjectExclusions implements BatchComponent {
     if (!isRoot && includedKeys.length > 0) {
       excluded = !ArrayUtils.contains(includedKeys, projectKey);
     }
+    String skippedModulesProperty = CoreProperties.PROJECT_SKIPPED_MODULES_PROPERTY;
     if (!excluded) {
-      String[] excludedKeys = settings.getStringArray("sonar.skippedModules");
+      String[] excludedKeys = settings.getStringArray(skippedModulesProperty);
       excluded = ArrayUtils.contains(excludedKeys, projectKey);
     }
     if (excluded && isRoot) {
-      throw new IllegalArgumentException("The root project can't be excluded. Please check the parameters sonar.skippedModules and sonar.includedModules.");
+      throw new IllegalArgumentException("The root project can't be excluded. Please check the parameters " + skippedModulesProperty + " and sonar.includedModules.");
     }
     return excluded;
   }
