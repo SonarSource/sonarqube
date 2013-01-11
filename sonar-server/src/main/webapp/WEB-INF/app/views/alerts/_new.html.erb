@@ -1,5 +1,5 @@
 <h3><%= message('alerts.create_alert') -%></h3>
-<%= form_remote_tag :url => {:action => 'create', :profile_id => @profile.id}, :html => {:id => 'new_alert_form'} %>
+<%= form_tag({:action => 'create', :profile_id => @profile.id}, :id => 'new_alert_form') %>
 <table class="spaced">
 <tr>
   <td valign="top">
@@ -47,19 +47,16 @@
   </td>
 </tr>
 </table>
-<% unless @alert.errors.empty? %>
-<div class="error" style="margin: 5px;">
-  <ul>
-     <% @alert.errors.full_messages.each do |message| %>
-     <li><%= h message %></li>
-     <% end %>
-  </ul>
-</div>
-<% end %>
+<div id="alert_error" class="error" style="margin: 5px;"/>
 </form>
 
 <script type="text/javascript">
-  //<![CDATA[
+
+  $j("#alert_error").hide();
+  $j(document).ready(function () {
+    ajaxForm("new_alert_form", "alert_error");
+  });
+
   $j('#alert_metric_id').select2({
     allowClear: false,
     width: '250px',
@@ -68,7 +65,7 @@
 
   function htmlDecode(value) {
     if (value) {
-      return $j('<div />').html(value).text();
+      return $j('<div/>').html(value).text();
     } else {
       return '';
     }
@@ -117,8 +114,6 @@
     });
   });
 
-
-  //]]>
 </script>
 
 

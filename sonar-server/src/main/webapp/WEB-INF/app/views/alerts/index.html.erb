@@ -1,7 +1,7 @@
 <%= render :partial => 'profiles/tabs', :locals => {:selected_tab=>'Alerts'} %>
 
 <% if is_admin? %>
-  <div class="tabs-panel marginbottom10 admin" id="new_alert_form">
+  <div class="tabs-panel marginbottom10 admin" id="new_alert_content">
     <%= render :partial => 'new' %>
   </div>
 <% else %>
@@ -46,3 +46,24 @@
 </tbody>
 </table>
 </div>
+
+<script type="text/javascript">
+  function ajaxForm(formId, errorId){
+    var obj = $j("#"+ formId);
+    obj.submit(function (event) {
+      $j.ajax({
+        type: 'POST',
+        url: obj.attr('action'),
+        data: obj.serialize(),
+        success: function (data) {
+          window.location.reload();
+        },
+        error: function (xhr, textStatus, errorThrown) {
+          $j("#"+ errorId).show();
+          $j("#"+ errorId).html(xhr.responseText);
+        }
+      });
+      return false;
+    });
+  }
+</script>

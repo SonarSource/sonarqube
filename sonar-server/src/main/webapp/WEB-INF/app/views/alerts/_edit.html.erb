@@ -1,4 +1,4 @@
-<%= form_remote_tag :url => {:action => 'update', :id => alert.id, :profile_id => @profile.id}, :html => {:id => "edit_alert_#{alert.id}"} %>
+<%= form_tag({:action => 'update', :id => alert.id, :profile_id => @profile.id}, :id => "edit_alert_#{alert.id}") %>
 <table>
 <tr>
   <td nowrap>
@@ -30,18 +30,15 @@
   </td>
 </tr>
 </table>
-<% unless alert.errors.empty? %>
-<div class="error" style="margin: 5px;">
-   <ul>
-     <% alert.errors.full_messages.each do |message| %>
-     <li><%= h message %></li>
-     <% end %>
-   </ul>
-</div>
-<% end %>
+<div id="alert_error_<%= alert.id -%>" class="error" style="margin: 5px;" />
 </form>
 
 <script type="text/javascript">
+  $j("#alert_error_<%= alert.id -%>").hide();
+  $j(document).ready(function () {
+    ajaxForm("edit_alert_<%= alert.id -%>", "alert_error_<%= alert.id -%>");
+  });
+
   $j('#alert_period_<%= alert.id %>').select2({
     allowClear: false,
     minimumResultsForSearch: 10,
