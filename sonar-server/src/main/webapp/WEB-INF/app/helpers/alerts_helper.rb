@@ -108,7 +108,7 @@ module AlertsHelper
       selected = (alert.period == index ? 'selected' : '')
       "<option value='#{index}' #{selected}>#{period_label_index(index)}</option>"
     else
-      selected = (alert.period ? 'selected' : '')
+      selected = (alert.period.nil? || alert.period == 0 ? 'selected' : '')
       "<option value='0' #{selected}>#{message('value')}</option>"
     end
   end
