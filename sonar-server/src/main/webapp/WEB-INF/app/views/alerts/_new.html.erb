@@ -16,7 +16,7 @@
   </td>
 
   <td width="10%" valign="top">
-    <input type="hidden" id="alert_period" name="alert[period]" value="0"/>
+    <input type="hidden" id="alert_period" name="alert[period]"/>
   </td>
 
   <td width="10%"  valign="top" class="alert_fields">
@@ -84,6 +84,9 @@
     var data = [];
     if (isNewMetric == false) {
       var data = data.concat([{id:'0', text: '<%= message('value') %>' }]);
+      $j('#alert_period').attr('value', '0');
+    } else {
+      $j('#alert_period').attr('value', '1');
     }
     var data = data.concat([
       <% for index in 1..3 do -%>
