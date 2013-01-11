@@ -33,13 +33,16 @@ import static org.sonar.api.web.WidgetScope.GLOBAL;
   @WidgetProperty(key = MeasureFilterTreemapWidget.FILTER_PROPERTY, type = WidgetPropertyType.FILTER, optional = false),
   @WidgetProperty(key = MeasureFilterTreemapWidget.SIZE_METRIC_PROPERTY, type = WidgetPropertyType.METRIC, optional = true),
   @WidgetProperty(key = MeasureFilterTreemapWidget.COLOR_METRIC_PROPERTY, type = WidgetPropertyType.METRIC, optional = true, options = "type:PERCENT"),
-  @WidgetProperty(key = MeasureFilterTreemapWidget.HEIGHT_PERCENTS_PROPERTY, type = WidgetPropertyType.INTEGER, optional = true, defaultValue = "55", description = "Height in percents of width")
+  @WidgetProperty(key = MeasureFilterTreemapWidget.HEIGHT_PERCENTS_PROPERTY, type = WidgetPropertyType.INTEGER, optional = true, defaultValue = "55",
+    description = "Height in percents of width"),
+  @WidgetProperty(key = MeasureFilterListWidget.DISPLAY_FILTER_DESCRIPTION, type = WidgetPropertyType.BOOLEAN, defaultValue = "false")
 })
 public class MeasureFilterTreemapWidget extends CoreWidget {
   public static final String FILTER_PROPERTY = "filter";
   public static final String SIZE_METRIC_PROPERTY = "sizeMetric";
   public static final String COLOR_METRIC_PROPERTY = "colorMetric";
   public static final String HEIGHT_PERCENTS_PROPERTY = "heightInPercents";
+  public static final String DISPLAY_FILTER_DESCRIPTION = "displayFilterDescription";
   public static final String ID = "measure_filter_treemap";
 
   public MeasureFilterTreemapWidget() {

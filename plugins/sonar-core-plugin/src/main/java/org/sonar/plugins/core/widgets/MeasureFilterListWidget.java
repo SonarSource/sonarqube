@@ -31,11 +31,13 @@ import static org.sonar.api.web.WidgetScope.GLOBAL;
 @WidgetScope(GLOBAL)
 @WidgetProperties({
   @WidgetProperty(key = MeasureFilterListWidget.FILTER_PROPERTY, type = WidgetPropertyType.FILTER, optional = false),
-  @WidgetProperty(key = MeasureFilterListWidget.PAGE_SIZE_PROPERTY, type = WidgetPropertyType.INTEGER, defaultValue = "30")
+  @WidgetProperty(key = MeasureFilterListWidget.PAGE_SIZE_PROPERTY, type = WidgetPropertyType.INTEGER, defaultValue = "30"),
+  @WidgetProperty(key = MeasureFilterListWidget.DISPLAY_FILTER_DESCRIPTION, type = WidgetPropertyType.BOOLEAN, defaultValue = "false")
 })
 public class MeasureFilterListWidget extends CoreWidget {
   public static final String FILTER_PROPERTY = "filter";
   public static final String PAGE_SIZE_PROPERTY = "pageSize";
+  public static final String DISPLAY_FILTER_DESCRIPTION = "displayFilterDescription";
   public static final String ID = "measure_filter_list";
 
   public MeasureFilterListWidget() {

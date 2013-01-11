@@ -23,6 +23,13 @@
 
        @widget_title = link_to h(filter.name), url_options
 %>
+
+  <% if widget_properties['displayFilterDescription'] && !filter.description.blank? %>
+    <div style="padding-bottom: 5px">
+      <span class="note"><%= h filter.description -%></span>
+    </div>
+  <% end %>
+
     <%= render :partial => "measures/display_#{filter.display.key}", :locals => {:edit_mode => false, :widget_id => widget.id, :filter => filter} %>
 <%
      end
