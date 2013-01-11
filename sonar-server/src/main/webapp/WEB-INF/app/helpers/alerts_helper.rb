@@ -116,7 +116,7 @@ module AlertsHelper
   def period_label(alert)
     index = alert.period
     if index
-      "&Delta; #{period_label_index(index)}"
+      "#{period_label_index(index)}"
     else
       "#{message('value')}"
     end
