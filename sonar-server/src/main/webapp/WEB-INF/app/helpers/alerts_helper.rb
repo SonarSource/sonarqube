@@ -23,6 +23,10 @@ module AlertsHelper
   STRING_THRESOLD_OPERATORS = ['=', '!=', '>', '<']
   LEVEL_THRESOLD_OPERATORS = ['=', '!=']
 
+  def operators_for_alert
+    NUMERIC_THRESOLD_OPERATORS
+  end
+
   def operators_for_select(alert)
     if alert.metric.nil?
       {}
@@ -102,20 +106,25 @@ module AlertsHelper
   def period_select_option(alert, index)
     if index
       selected = (alert.period == index ? 'selected' : '')
-      "<option value='#{index}' #{selected}>&Delta; #{Api::Utils.period_label(index)}</option>"
+      "<option value='#{index}' #{selected}>#{period_label_index(index)}</option>"
     else
       selected = (alert.period ? 'selected' : '')
-      "<option value='' #{selected}>#{message('value')}</option>"
+      "<option value='0' #{selected}>#{message('value')}</option>"
     end
   end
 
   def period_label(alert)
     index = alert.period
     if index
-      "&Delta; #{Api::Utils.period_label(index)}"
+      "&Delta; #{period_label_index(index)}"
     else
       "#{message('value')}"
     end
   end
+
+  def period_label_index(index)
+    "&Delta; "+ Api::Utils.period_label(index)
+  end
+
 
 end

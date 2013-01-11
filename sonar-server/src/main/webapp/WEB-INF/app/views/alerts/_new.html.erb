@@ -3,19 +3,10 @@
 <table class="spaced">
 <tr>
   <td valign="top">
-    <script type="text/javascript">
-      //<![CDATA[
-      function selectMetric() {
-        <%= remote_function(:url => {:controller => 'alerts', :action => 'new', :profile_id => @profile.id}, :with => "'alert[metric_id]=' + $('alert_metric_id').value", :method => 'get') %>;
-      }
-      //]]>
-    </script>
-
-    <select id="alert_metric_id" name="alert[metric_id]" onChange="javascript:selectMetric()">
-      <option value="" <%= 'selected' if @alert.metric.nil? %>><%= message('alerts.select_metric') -%></option>
+    <select id="alert_metric_id" name="alert[metric_id]">
+      <option value="" <%= 'selected' if @alert.metric.nil? %>></option>
       <% Metric.domains.each do |domain| %>
       <optgroup label="<%= h domain -%>">
-        <%# 'new_' metrics excluded due to SONAR-2396 %>
         <% Metric.by_domain(domain).select{ |m| m.alertable? }.each do |metric| %>
           <option value="<%= metric.id -%>" <%= 'selected' if @alert.metric_id==metric.id -%>><%= metric.short_name %></option>
         <% end %>
@@ -25,36 +16,33 @@
   </td>
 
   <td width="10%" valign="top">
-    <select id="alert_period" name="alert[period]">
-      <%= period_select_options(@alert) -%>
-    </select>
+    <input type="hidden" id="alert_period" name="alert[period]" value="0"/>
   </td>
 
-  <td width="10%"  valign="top">
+  <td width="10%"  valign="top" class="alert_fields">
     <select id="alert_operator" name="alert[operator]">
       <%
-        default_op=default_operator(@alert)
-        operators_for_select(@alert).each do |key| %>
-        <option value="<%= key -%>" <%= 'selected' if default_op==key -%>><%= message("alerts.operator.#{key}") -%></option>
+        operators_for_alert.each do |key| %>
+        <option value="<%= key -%>" <%= 'selected' if key=='>' -%>><%= message("alerts.operator.#{key}") -%></option>
       <% end %>
     </select>
   </td>
 
-  <td width="20%" valign="top">
+  <td width="20%" valign="top" class="alert_fields">
     <%= image_tag 'levels/warn.png', :alt => message('alerts.warning_tooltip') %>
     <%= value_field(@alert, '', 'alert[value_warning]') %>
     <%= @alert.metric.suffix if @alert.metric %><br/>
     <span class="note"><%= message('alerts.warning_threshold') -%></span>
   </td>
 
-  <td width="20%" valign="top">
+  <td width="20%" valign="top" class="alert_fields">
     <%= image_tag 'levels/error.png', :alt => message('alerts.error_tooltip') %>
     <%= value_field(@alert, '', 'alert[value_error]') %>
     <%= @alert.metric.suffix if @alert.metric %><br/>
     <span class="note"><%= message('alerts.error_threshold') -%></span>
   </td>
 
-  <td width="120px" nowrap valign="top">
+  <td width="120px" nowrap valign="top" class="alert_fields">
     <input type="submit" value="<%= message('create') -%>" id="submit_create"/>
   </td>
 </tr>
@@ -69,3 +57,68 @@
 </div>
 <% end %>
 </form>
+
+<script type="text/javascript">
+  //<![CDATA[
+  $j('#alert_metric_id').select2({
+    allowClear: false,
+    width: '250px',
+    placeholder: '<%= message('alerts.select_metric') -%>'
+  });
+
+  function htmlDecode(value) {
+    if (value) {
+      return $j('<div />').html(value).text();
+    } else {
+      return '';
+    }
+  }
+
+  function format(item) {
+    var value = item.text;
+    return htmlDecode(value);
+  }
+
+  $j('.alert_fields').hide();
+  $j('#alert_metric_id').change(function (event) {
+    var id = parseInt($j('#alert_metric_id').select2('val'));
+    var newMetricsId = [<%= @newMetricsId.join(',') %>];
+    var isNewMetric = $j.inArray(id, newMetricsId) > -1;
+    var data = [];
+    if (isNewMetric == false) {
+      var data = data.concat([{id:'0', text: '<%= message('value') %>' }]);
+    }
+    var data = data.concat([
+      <% for index in 1..3 do -%>
+        {id:<%= index -%>, text: '<%= period_label_index(index) -%>' },
+      <% end -%>
+    ]);
+    $j('#alert_period').select2({
+      allowClear: false,
+      minimumResultsForSearch: 10,
+      width: '200px',
+      formatResult: format,
+      formatSelection: format,
+      data: data,
+      initSelection: function (element, callback) {
+        if (!isNewMetric) {
+          callback({id: '0', text: '<%= message('value') %>' });
+        } else {
+          callback({id: '1', text: '<%= period_label_index(1) %>' });
+        }
+      }
+    });
+
+    $j('.alert_fields').show();
+    $j('#alert_operator').select2({
+      allowClear: false,
+      minimumResultsForSearch: 10,
+      width: '150px'
+    });
+  });
+
+
+  //]]>
+</script>
+
+

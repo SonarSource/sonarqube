@@ -5,12 +5,12 @@
     <%= h alert.name %>
   </td>
   <td width="10%" nowrap>
-    <select id="alert_period" name="alert[period]">
+    <select id="alert_period_<%= alert.id %>" name="alert[period]">
       <%= period_select_options(alert) -%>
     </select>
   </td>
   <td width="10%" nowrap>
-    <select id="alert_operator" name="alert[operator]">
+    <select id="alert_operator_<%= alert.id %>" name="alert[operator]">
       <% operators_for_select(alert).each do |key| %>
         <option value="<%= key -%>" <%= 'selected' if alert.operator==key -%>><%= message("alerts.operator.#{key}") -%></option>
       <% end %>
@@ -40,3 +40,17 @@
 </div>
 <% end %>
 </form>
+
+<script type="text/javascript">
+  $j('#alert_period_<%= alert.id %>').select2({
+    allowClear: false,
+    minimumResultsForSearch: 10,
+    width: '200px'
+  });
+
+  $j('#alert_operator_<%= alert.id %>').select2({
+    allowClear: false,
+    minimumResultsForSearch: 10,
+    width: '150px'
+  });
+</script>

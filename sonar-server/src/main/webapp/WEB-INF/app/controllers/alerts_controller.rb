@@ -34,6 +34,14 @@ class AlertsController < ApplicationController
     @profile = Profile.find(params[:id])
     @alerts = @profile.alerts.sort
     @alert=Alert.new
+
+    @newMetricsId = []
+    Metric.domains.collect do |domain|
+      Metric.by_domain(domain).select{ |m| m.alertable? }.each do |metric|
+        @newMetricsId << metric.id if metric.name.index("new_") == 0
+      end
+    end
+
     add_breadcrumbs ProfilesController::ROOT_BREADCRUMB, Api::Utils.language_name(@profile.language), {:name => @profile.name, :url => {:controller => 'rules_configuration', :action => 'index', :id => @profile.id}}
   end
 
@@ -44,26 +52,6 @@ class AlertsController < ApplicationController
   #
   def show
     @alert = @profile.alerts.find(params[:id])
-  end
-
-
-  #
-  #
-  # GET /alerts/new?profile_id=<profile id>
-  #
-  #
-  def new
-    @profile = Profile.find(params[:profile_id])
-    @alert = @profile.alerts.build(params[:alert])
-    respond_to do |format|
-      format.js {
-        render :update do |page|
-         page.replace_html :new_alert_form, :partial => 'new'
-        end
-      }
-      format.html # new.html.erb
-      format.xml  { render :xml => @alert }
-    end
   end
 
 
@@ -84,6 +72,7 @@ class AlertsController < ApplicationController
   #
   def create
     @profile = Profile.find(params[:profile_id])
+    params[:alert][:period] = nil if params[:alert][:period] == '0'
     @alert = @profile.alerts.build(params[:alert])
     
     respond_to do |format|
@@ -113,6 +102,7 @@ class AlertsController < ApplicationController
   #
   def update
     @profile = Profile.find(params[:profile_id])
+    params[:alert][:period] = nil if params[:alert][:period] == '0'
     @alerts=@profile.alerts
     alert = @alerts.find(params[:id])
 
