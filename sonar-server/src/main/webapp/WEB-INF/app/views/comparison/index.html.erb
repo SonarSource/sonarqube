@@ -192,11 +192,12 @@
             <%
                last_index = @snapshots.size-1
                @snapshots.each_with_index do |s, index|
+                 event = s.event(EventCategory::KEY_VERSION)
             %>
               <th style="text-align: center; vertical-align: top;">
                 <a href="<%= ApplicationController.root_context -%>/dashboard/index/<%= s.resource.key -%>"><%= s.resource.name(true) -%></a>
                 <br/>
-                <span class="note"><b><%= s.event(EventCategory::KEY_VERSION).name -%></b></span>
+                <span class="note"><b><%= event ? event.name : message('comparison.version.latest') -%></b></span>
                 <br/>
                 <span class="note"><%= human_short_date s.created_at -%></span>
               </th>
