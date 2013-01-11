@@ -33,7 +33,7 @@ import org.sonar.api.web.UserRole;
 @ResourceQualifier({Qualifiers.FILE, Qualifiers.CLASS, Qualifiers.PACKAGE, Qualifiers.PROJECT, Qualifiers.MODULE})
 @DefaultTab(metrics = {CoreMetrics.AFFERENT_COUPLINGS_KEY, CoreMetrics.EFFERENT_COUPLINGS_KEY})
 @NavigationSection({NavigationSection.RESOURCE_TAB})
-@UserRole(UserRole.USER)
+@UserRole(UserRole.CODEVIEWER)
 public class DependenciesViewer extends AbstractRubyTemplate implements RubyRailsPage {
 
   public String getId() {

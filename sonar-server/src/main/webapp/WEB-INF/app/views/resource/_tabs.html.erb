@@ -1,7 +1,13 @@
 <%
-   display_title=(params[:display_title]=='true')
-   if display_title
+   if @extensions.empty?
 %>
+  <span class="note"><%= message('code_viewer.no_info_displayed_due_to_security') -%></span>
+<%
+   else
+     display_title=(params[:display_title]=='true')
+%>
+     
+<% if display_title %>
   <div id="source_title">
     <%
        selected_project_id = params[:project].to_i
@@ -19,7 +25,7 @@
   <ul class="tablinks">
     <%
        first=true
-       if @snapshot.source
+       if @snapshot.source && has_role?(:codeviewer, @snapshot)
     %>
       <li class="<%= 'first' if first -%>">
         <a href="<%= ApplicationController.root_context -%>/api/sources?resource=<%= @resource.key -%>&amp;format=txt"><%= message('raw') -%></a>
@@ -56,3 +62,5 @@
     </li>
   </ul>
 </div>
+
+<%  end %>
