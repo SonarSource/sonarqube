@@ -1,5 +1,5 @@
 <h3><%= message('alerts.create_alert') -%></h3>
-<%= form_tag({:action => 'create', :profile_id => @profile.id}, :id => 'new_alert_form') %>
+<%= form_tag({:action => 'create', :profile_id => @profile.id}, :id => 'new_alert_form') -%>
 <table class="spaced">
 <tr>
   <td valign="top">
@@ -15,15 +15,18 @@
     </select>
   </td>
 
-  <td width="10%" valign="top">
-    <input type="hidden" id="alert_period" name="alert[period]"/>
+  <td width="10%" valign="top" class="alert_fields">
+    <select id="alert_period" name="alert[period]">
+      <%= period_select_options(@alert) -%>
+    </select>
   </td>
 
   <td width="10%"  valign="top" class="alert_fields">
     <select id="alert_operator" name="alert[operator]">
       <%
-        operators_for_alert.each do |key| %>
-        <option value="<%= key -%>" <%= 'selected' if key=='>' -%>><%= message("alerts.operator.#{key}") -%></option>
+         default_op=default_operator(@alert)
+         operators_for_select(@alert).each do |key| %>
+        <option value="<%= key -%>" <%= 'selected' if default_op==key -%>><%= message("alerts.operator.#{key}") -%></option>
       <% end %>
     </select>
   </td>
@@ -57,64 +60,40 @@
     ajaxForm("new_alert_form", "alert_error");
   });
 
+  <% if @alert.metric.nil? -%>
+  $j('.alert_fields').hide();
+  <% else -%>
+  $j('.alert_fields').show();
+  <% end %>
+
   $j('#alert_metric_id').select2({
     allowClear: false,
     width: '250px',
     placeholder: '<%= message('alerts.select_metric') -%>'
   });
 
-  function htmlDecode(value) {
-    if (value) {
-      return $j('<div/>').html(value).text();
-    } else {
-      return '';
-    }
-  }
-
-  function format(item) {
-    var value = item.text;
-    return htmlDecode(value);
-  }
-
-  $j('.alert_fields').hide();
   $j('#alert_metric_id').change(function (event) {
-    var id = parseInt($j('#alert_metric_id').select2('val'));
-    var newMetricsId = [<%= @newMetricsId.join(',') %>];
-    var isNewMetric = $j.inArray(id, newMetricsId) > -1;
-    var data = [];
-    if (isNewMetric == false) {
-      var data = data.concat([{id:'0', text: '<%= message('value') %>' }]);
-      $j('#alert_period').attr('value', '0');
-    } else {
-      $j('#alert_period').attr('value', '1');
-    }
-    var data = data.concat([
-      <% for index in 1..3 do -%>
-        {id:<%= index -%>, text: '<%= period_label_index(index) -%>' },
-      <% end -%>
-    ]);
-    $j('#alert_period').select2({
-      allowClear: false,
-      minimumResultsForSearch: 10,
-      width: '200px',
-      formatResult: format,
-      formatSelection: format,
-      data: data,
-      initSelection: function (element, callback) {
-        if (!isNewMetric) {
-          callback({id: '0', text: '<%= message('value') %>' });
-        } else {
-          callback({id: '1', text: '<%= period_label_index(1) %>' });
-        }
+    metricId = $('alert_metric_id').value;
+    $j.ajax({
+      type: 'POST',
+      url: "<%= ApplicationController.root_context -%>/alerts/new?profile_id=<%= @profile.id -%>&alert[metric_id]="+ metricId,
+      success: function (data) {
+        $j("#new_alert_content").html(data);
       }
     });
+    return false;
+  });
 
-    $j('.alert_fields').show();
-    $j('#alert_operator').select2({
-      allowClear: false,
-      minimumResultsForSearch: 10,
-      width: '150px'
-    });
+  $j('#alert_period').select2({
+    allowClear: false,
+    minimumResultsForSearch: 10,
+    width: '200px'
+  });
+
+  $j('#alert_operator').select2({
+    allowClear: false,
+    minimumResultsForSearch: 10,
+    width: '150px'
   });
 
 </script>

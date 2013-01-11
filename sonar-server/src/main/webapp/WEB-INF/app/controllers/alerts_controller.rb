@@ -21,7 +21,6 @@ class AlertsController < ApplicationController
 
   verify :method => :post, :only => ['create', 'update', 'delete'], :redirect_to => { :action => 'index' }
   before_filter :admin_required, :except => [ 'index' ]
-  before_filter :load_new_metrics_id, :only => [:index, :create, :update]
 
   SECTION=Navigation::SECTION_CONFIGURATION
 
@@ -35,7 +34,6 @@ class AlertsController < ApplicationController
     @profile = Profile.find(params[:id])
     @alerts = @profile.alerts.sort
     @alert=Alert.new
-
     add_breadcrumbs ProfilesController::ROOT_BREADCRUMB, Api::Utils.language_name(@profile.language), {:name => @profile.name, :url => {:controller => 'rules_configuration', :action => 'index', :id => @profile.id}}
   end
 
@@ -46,6 +44,17 @@ class AlertsController < ApplicationController
   #
   def show
     @alert = @profile.alerts.find(params[:id])
+  end
+
+  #
+  #
+  # GET /alerts/new?profile_id=<profile id>
+  #
+  #
+  def new
+    @profile = Profile.find(params[:profile_id])
+    @alert = @profile.alerts.build(params[:alert])
+    render :partial => 'new', :status => 200
   end
 
 
@@ -112,17 +121,6 @@ class AlertsController < ApplicationController
     @alert.destroy
     flash[:notice] = message('alerts.alert_deleted')
     redirect_to(:action => 'index', :id=>@profile.id)
-  end
-
-  private
-
-  def load_new_metrics_id
-    @newMetricsId = []
-    Metric.domains.collect do |domain|
-      Metric.by_domain(domain).select{ |m| m.alertable? }.each do |metric|
-        @newMetricsId << metric.id if metric.name.index("new_") == 0
-      end
-    end
   end
 
 end

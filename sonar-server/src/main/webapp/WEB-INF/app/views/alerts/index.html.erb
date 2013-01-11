@@ -1,13 +1,14 @@
 <%= render :partial => 'profiles/tabs', :locals => {:selected_tab=>'Alerts'} %>
 
 <% if is_admin? %>
-  <div class="tabs-panel marginbottom10 admin" id="new_alert_content">
-    <%= render :partial => 'new' %>
+  <div class="tabs-panel marginbottom10 admin">
+    <div id="new_alert_content">
+      <%= render :partial => 'new' -%>
+    </div>
   </div>
 <% else %>
   <div class="break10"> </div>
 <% end %>
-
 
 <% if @alerts.empty? %>
 <p id="alerts"><%= message('alerts.no_alerts') -%></p>
@@ -66,4 +67,5 @@
       return false;
     });
   }
+
 </script>
