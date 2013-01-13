@@ -58,15 +58,6 @@ public class PluginInstallerTest {
   }
 
   @Test
-  public void shouldExtractDeprecatedMetadata() {
-    DefaultPluginMetadata metadata = extractor.extractMetadata(getFile("sonar-emma-plugin-0.3.jar"), false);
-
-    assertThat(metadata.getKey()).isEqualTo("emma");
-    assertThat(metadata.getBasePlugin()).isNull();
-    assertThat(metadata.getName()).isEqualTo("Emma");
-  }
-
-  @Test
   public void shouldExtractExtensionMetadata() {
     DefaultPluginMetadata metadata = extractor.extractMetadata(getFile("sonar-checkstyle-extensions-plugin-0.1-SNAPSHOT.jar"), true);
 

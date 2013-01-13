@@ -123,32 +123,10 @@ public class PluginInstaller {
       metadata.setBasePlugin(manifest.getBasePlugin());
       metadata.setImplementationBuild(manifest.getImplementationBuild());
       metadata.setCore(isCore);
-      if (metadata.isOldManifest()) {
-        completeDeprecatedMetadata(metadata);
-      }
       return metadata;
 
     } catch (IOException e) {
       throw new IllegalStateException("Fail to extract plugin metadata from file: " + file, e);
-    }
-  }
-
-  private void completeDeprecatedMetadata(DefaultPluginMetadata metadata) {
-    String mainClass = metadata.getMainClass();
-    File pluginFile = metadata.getFile();
-    try {
-      // copy file in a temp directory because Windows+Oracle JVM Classloader lock the JAR file
-      File tempFile = File.createTempFile(pluginFile.getName(), null);
-      FileUtils.copyFile(pluginFile, tempFile);
-
-      URLClassLoader pluginClassLoader = URLClassLoader.newInstance(new URL[]{tempFile.toURI().toURL()}, getClass().getClassLoader());
-      Plugin pluginInstance = (Plugin) pluginClassLoader.loadClass(mainClass).newInstance();
-      metadata.setKey(PluginKeyUtils.sanitize(pluginInstance.getKey()));
-      metadata.setDescription(pluginInstance.getDescription());
-      metadata.setName(pluginInstance.getName());
-
-    } catch (Exception e) {
-      throw new IllegalStateException("The metadata main class can not be created. Plugin file=" + pluginFile.getName() + ", class=" + mainClass, e);
     }
   }
 }
