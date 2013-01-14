@@ -235,7 +235,7 @@ import java.util.List;
     name = "Exclude modules",
     description = "Maven artifact ids of modules to exclude.",
     project = true,
-    global = true,
+    global = false,
     multiValues = true,
     category = CoreProperties.CATEGORY_EXCLUSIONS),
   @Property(
