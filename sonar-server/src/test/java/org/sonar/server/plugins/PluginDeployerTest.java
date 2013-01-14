@@ -81,22 +81,6 @@ public class PluginDeployerTest {
     assertThat(deployedJar.isFile()).isTrue();
   }
 
-  @Test
-  public void deployDeprecatedPlugin() {
-    deployer.start();
-
-    // check that the plugin is registered
-    assertThat(deployer.getMetadata()).hasSize(1); // no more checkstyle
-
-    PluginMetadata plugin = deployer.getMetadata("buildbreaker");
-    assertThat(plugin.isCore()).isFalse();
-    assertThat(plugin.isUseChildFirstClassLoader()).isFalse();
-
-    // check that the file is deployed
-    File deployedJar = new File(deployDir, "plugins/buildbreaker/sonar-build-breaker-plugin-0.1.jar");
-    assertThat(deployedJar.exists()).isTrue();
-    assertThat(deployedJar.isFile()).isTrue();
-  }
 
   @Test
   public void deployPluginExtensions() {
@@ -135,11 +119,6 @@ public class PluginDeployerTest {
 
   @Test(expected = ServerStartException.class)
   public void failIfTwoPluginsWithSameKey() {
-    deployer.start();
-  }
-
-  @Test(expected = ServerStartException.class)
-  public void failIfTwoDeprecatedPluginsWithSameKey() {
     deployer.start();
   }
 }
