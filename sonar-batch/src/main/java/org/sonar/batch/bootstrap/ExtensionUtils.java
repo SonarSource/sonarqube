@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.api.batch.RequiresProject;
+
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.Extension;
@@ -71,6 +73,10 @@ final class ExtensionUtils {
 
   static boolean supportsDryRun(Object extension) {
     return AnnotationUtils.getAnnotation(extension, DryRunIncompatible.class) == null;
+  }
+
+  static boolean requireProject(Object extension) {
+    return AnnotationUtils.getAnnotation(extension, RequiresProject.class) == null;
   }
 
   static boolean isMavenExtensionOnly(Object extension) {

@@ -23,8 +23,8 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.TaskComponent;
 import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
@@ -35,7 +35,7 @@ import org.sonar.api.config.Settings;
  *
  * @since 2.12
  */
-public class ProjectExclusions implements BatchComponent {
+public class ProjectExclusions implements TaskComponent {
 
   private static final Logger LOG = LoggerFactory.getLogger(ProjectExclusions.class);
 

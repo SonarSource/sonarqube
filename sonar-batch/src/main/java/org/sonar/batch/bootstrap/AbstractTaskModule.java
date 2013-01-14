@@ -64,9 +64,11 @@ public abstract class AbstractTaskModule extends Module {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractTaskModule.class);
 
   private TaskDefinition task;
+  private boolean projectPresent;
 
-  public AbstractTaskModule(TaskDefinition task) {
+  public AbstractTaskModule(TaskDefinition task, boolean projectPresent) {
     this.task = task;
+    this.projectPresent = projectPresent;
   }
 
   @Override
@@ -130,7 +132,7 @@ public abstract class AbstractTaskModule extends Module {
 
   private void registerTaskExtensions() {
     ExtensionInstaller installer = container.getComponentByType(ExtensionInstaller.class);
-    installer.installTaskExtensions(container);
+    installer.installTaskExtensions(container, projectPresent);
   }
 
   private void logSettings() {

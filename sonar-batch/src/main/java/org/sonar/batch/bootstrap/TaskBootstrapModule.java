@@ -61,11 +61,12 @@ public class TaskBootstrapModule extends Module {
   }
 
   private void executeTask(TaskDefinition task) {
-    if (task.getTaskDescriptor().isRequiresProject() && container.getComponentByType(ProjectReactor.class) == null) {
+    boolean projectPresent = container.getComponentByType(ProjectReactor.class) != null;
+    if (task.getTaskDescriptor().isRequiresProject() && !projectPresent) {
       throw new SonarException("Task " + task.getTaskDescriptor().getName() + " requires to be run on a project");
     }
     Module childModule;
-    if (task.getTaskDescriptor().isRequiresProject()) {
+    if (projectPresent) {
       childModule = new ProjectTaskModule(task);
     }
     else {

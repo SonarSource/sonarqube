@@ -24,7 +24,7 @@ import org.sonar.api.batch.TaskDefinition;
 public class ProjectLessTaskModule extends AbstractTaskModule {
 
   public ProjectLessTaskModule(TaskDefinition task) {
-    super(task);
+    super(task, false);
   }
 
   @Override

@@ -28,7 +28,7 @@ import org.sonar.batch.index.DefaultIndex;
 public class ProjectTaskModule extends AbstractTaskModule {
 
   public ProjectTaskModule(TaskDefinition task) {
-    super(task);
+    super(task, true);
   }
 
   @Override

@@ -17,12 +17,20 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api;
+package org.sonar.api.batch;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Task extension point.
+ * The presence of this annotation on a task extension class indicates that the extension
+ * will be disabled when there is no project available.
  *
  * @since 3.5
  */
-public interface TaskExtension extends Extension, TaskComponent {
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface RequiresProject {
 }

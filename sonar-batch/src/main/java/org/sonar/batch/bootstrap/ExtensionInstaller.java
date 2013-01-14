@@ -98,37 +98,38 @@ public class ExtensionInstaller implements BatchComponent {
     return installed;
   }
 
-  public void installTaskExtensions(ComponentContainer container) {
+  public void installTaskExtensions(ComponentContainer container, boolean projectPresent) {
     for (Map.Entry<PluginMetadata, Plugin> entry : pluginRepository.getPluginsByMetadata().entrySet()) {
       PluginMetadata metadata = entry.getKey();
       Plugin plugin = entry.getValue();
 
       container.addExtension(metadata, plugin);
       for (Object extension : plugin.getExtensions()) {
-        installTaskExtension(container, metadata, extension);
+        installTaskExtension(container, metadata, extension, projectPresent);
       }
     }
 
     List<ExtensionProvider> providers = container.getComponentsByType(ExtensionProvider.class);
     for (ExtensionProvider provider : providers) {
-      executeTaskExtensionProvider(container, provider);
+      executeTaskExtensionProvider(container, provider, projectPresent);
     }
   }
 
-  private void executeTaskExtensionProvider(ComponentContainer container, ExtensionProvider provider) {
+  private void executeTaskExtensionProvider(ComponentContainer container, ExtensionProvider provider, boolean projectPresent) {
     Object obj = provider.provide();
     if (obj instanceof Iterable) {
       for (Object extension : (Iterable) obj) {
-        installTaskExtension(container, null, extension);
+        installTaskExtension(container, null, extension, projectPresent);
       }
     } else {
-      installTaskExtension(container, null, obj);
+      installTaskExtension(container, null, obj, projectPresent);
     }
   }
 
-  boolean installTaskExtension(ComponentContainer container, @Nullable PluginMetadata plugin, Object extension) {
+  boolean installTaskExtension(ComponentContainer container, @Nullable PluginMetadata plugin, Object extension, boolean projectPresent) {
     boolean installed;
     if (ExtensionUtils.isTaskExtension(extension) &&
+      (projectPresent || !ExtensionUtils.requireProject(extension)) &&
       ExtensionUtils.supportsEnvironment(extension, environment)) {
       if (plugin != null) {
         LOG.debug("Installing task extension {} from plugin {}", extension.toString(), plugin.getKey());

@@ -19,11 +19,11 @@
  */
 package org.sonar.api.batch.bootstrap;
 
-import org.sonar.api.BatchExtension;
-import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.TaskExtension;
+import org.sonar.api.batch.RequiresProject;
 
 /**
- * This extension point allows to change project structure at runtime. It is executed once during batch startup.
+ * This extension point allows to change project structure at runtime. It is executed once during task startup.
  * Some use-cases :
  * <ul>
  *   <li>Add sub-projects which are not defined in batch bootstrapper. For example the C# plugin gets the hierarchy
@@ -34,8 +34,8 @@ import org.sonar.api.batch.InstantiationStrategy;
  *
  * @since 2.9
  */
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public abstract class ProjectBuilder implements BatchExtension {
+@RequiresProject
+public abstract class ProjectBuilder implements TaskExtension {
 
   private ProjectReactor reactor;
 
