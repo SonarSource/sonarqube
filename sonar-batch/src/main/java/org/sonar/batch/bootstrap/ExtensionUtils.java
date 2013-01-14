@@ -22,11 +22,13 @@ package org.sonar.batch.bootstrap;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.Extension;
-import org.sonar.core.DryRunIncompatible;
+import org.sonar.api.TaskDefinitionExtension;
+import org.sonar.api.TaskExtension;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.SupportedEnvironment;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
+import org.sonar.core.DryRunIncompatible;
 
 final class ExtensionUtils {
 
@@ -40,6 +42,14 @@ final class ExtensionUtils {
       return strategy.equals(annotation.value());
     }
     return InstantiationStrategy.PER_PROJECT.equals(strategy);
+  }
+
+  static boolean isTaskDefinitionExtension(Object extension) {
+    return isType(extension, TaskDefinitionExtension.class);
+  }
+
+  static boolean isTaskExtension(Object extension) {
+    return isType(extension, TaskExtension.class);
   }
 
   static boolean isBatchExtension(Object extension) {
@@ -65,7 +75,7 @@ final class ExtensionUtils {
 
   static boolean isMavenExtensionOnly(Object extension) {
     SupportedEnvironment env = AnnotationUtils.getAnnotation(extension, SupportedEnvironment.class);
-    return env!=null && env.value().length==1 && StringUtils.equalsIgnoreCase("maven", env.value()[0]);
+    return env != null && env.value().length == 1 && StringUtils.equalsIgnoreCase("maven", env.value()[0]);
   }
 
   static boolean isType(Object extension, Class<? extends Extension> extensionClass) {

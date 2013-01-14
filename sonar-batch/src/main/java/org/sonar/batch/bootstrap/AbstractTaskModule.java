@@ -19,14 +19,12 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.api.batch.InstantiationStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.TaskDefinition;
 import org.sonar.api.config.EmailSettings;
-import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ResourceTypes;
-import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.DefaultResourceCreationLock;
-import org.sonar.batch.ProjectConfigurator;
-import org.sonar.batch.ProjectTree;
 import org.sonar.batch.components.PastMeasuresLoader;
 import org.sonar.batch.components.PastSnapshotFinder;
 import org.sonar.batch.components.PastSnapshotFinderByDate;
@@ -34,7 +32,6 @@ import org.sonar.batch.components.PastSnapshotFinderByDays;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousAnalysis;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousVersion;
 import org.sonar.batch.components.PastSnapshotFinderByVersion;
-import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.DefaultPersistenceManager;
 import org.sonar.batch.index.DefaultResourcePersister;
 import org.sonar.batch.index.DependencyPersister;
@@ -48,9 +45,9 @@ import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.metric.CacheMetricFinder;
 import org.sonar.core.notification.DefaultNotificationManager;
 import org.sonar.core.persistence.DaoUtils;
-import org.sonar.core.persistence.SemaphoresImpl;
 import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.persistence.SemaphoresImpl;
 import org.sonar.core.resource.DefaultResourcePermissions;
 import org.sonar.core.rule.CacheRuleFinder;
 import org.sonar.core.user.DefaultUserFinder;
@@ -59,33 +56,39 @@ import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.JpaDatabaseSession;
 
 /**
- * Level-2 components. Connected to database.
+ * Level-3 components. Task-level components that don't depends on project.
  */
-public class BatchModule extends Module {
+public abstract class AbstractTaskModule extends Module {
+
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractTaskModule.class);
+
+  private TaskDefinition task;
+
+  public AbstractTaskModule(TaskDefinition task) {
+    this.task = task;
+  }
 
   @Override
   protected void configure() {
+    logSettings();
+    container.addSingleton(task.getExecutor());
     registerCoreComponents();
     registerDatabaseComponents();
-    registerBatchExtensions();
+    registerTaskExtensions();
   }
 
   private void registerCoreComponents() {
     container.addSingleton(EmailSettings.class);
     container.addSingleton(I18nManager.class);
     container.addSingleton(RuleI18nManager.class);
-    container.addSingleton(ProjectExclusions.class);
-    container.addSingleton(ProjectReactorReady.class);
-    container.addSingleton(ProjectTree.class);
-    container.addSingleton(ProjectConfigurator.class);
     container.addSingleton(DefaultResourceCreationLock.class);
-    container.addSingleton(DefaultIndex.class);
-    container.addSingleton(DefaultFileLinesContextFactory.class);
+
     container.addSingleton(DefaultPersistenceManager.class);
     container.addSingleton(DependencyPersister.class);
     container.addSingleton(EventPersister.class);
     container.addSingleton(LinkPersister.class);
     container.addSingleton(MeasurePersister.class);
+
     container.addSingleton(MemoryOptimizer.class);
     container.addSingleton(DefaultResourcePermissions.class);
     container.addSingleton(DefaultResourcePersister.class);
@@ -105,12 +108,10 @@ public class BatchModule extends Module {
     container.addSingleton(ResourceTypes.class);
     container.addSingleton(MetricProvider.class);
     container.addSingleton(SemaphoresImpl.class);
-    container.addSingleton(ProjectLock.class);
   }
 
   private void registerDatabaseComponents() {
     container.addSingleton(JdbcDriverHolder.class);
-    container.addSingleton(DryRunDatabase.class);
     container.addSingleton(BatchDatabase.class);
     container.addSingleton(MyBatis.class);
     container.addSingleton(DatabaseVersion.class);
@@ -125,29 +126,21 @@ public class BatchModule extends Module {
     container.addSingleton(BatchDatabaseSessionFactory.class);
   }
 
-  private void registerBatchExtensions() {
+  private void registerTaskExtensions() {
     ExtensionInstaller installer = container.getComponentByType(ExtensionInstaller.class);
-    installer.install(container, InstantiationStrategy.PER_BATCH);
+    installer.installTaskExtensions(container);
   }
 
+  private void logSettings() {
+    LOG.info("-------------  Executing {}", task.getTaskDescriptor().getName());
+  }
+
+  /**
+   * Execute task
+   */
   @Override
   protected void doStart() {
-    ProjectTree projectTree = container.getComponentByType(ProjectTree.class);
-    analyze(projectTree.getRootProject());
+    container.getComponentByType(task.getExecutor()).execute();
   }
 
-  private void analyze(Project project) {
-    for (Project subProject : project.getModules()) {
-      analyze(subProject);
-    }
-
-    ProjectModule projectModule = new ProjectModule(project);
-    try {
-      installChild(projectModule);
-      projectModule.start();
-    } finally {
-      projectModule.stop();
-      uninstallChild();
-    }
-  }
 }

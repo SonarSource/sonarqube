@@ -89,7 +89,9 @@ public class DefaultIndex extends SonarIndex {
 
   public void start() {
     Project rootProject = projectTree.getRootProject();
-    doStart(rootProject);
+    if (StringUtils.isNotBlank(rootProject.getKey())) {
+      doStart(rootProject);
+    }
   }
 
   void doStart(Project rootProject) {
@@ -463,10 +465,10 @@ public class DefaultIndex extends SonarIndex {
     if (!StringUtils.equals(Scopes.PROJECT, resource.getScope())) {
       // not a project nor a library
       uid = new StringBuilder(ResourceModel.KEY_SIZE)
-        .append(project.getKey())
-        .append(':')
-        .append(resource.getKey())
-        .toString();
+          .append(project.getKey())
+          .append(':')
+          .append(resource.getKey())
+          .toString();
     }
     return uid;
   }

@@ -34,15 +34,27 @@ public class BootstrapModule extends Module {
 
   private Object[] boostrapperComponents;
   private ProjectReactor reactor;
+  private GlobalBatchProperties globalProperties;
+  private String taskCommand;
 
   public BootstrapModule(ProjectReactor reactor, Object... boostrapperComponents) {
+    this(new GlobalBatchProperties(), null, reactor, boostrapperComponents);
+  }
+
+  public BootstrapModule(GlobalBatchProperties globalProperties, String taskCommand, ProjectReactor reactor,
+      Object... boostrapperComponents) {
+    this.globalProperties = globalProperties;
+    this.taskCommand = taskCommand;
     this.reactor = reactor;
     this.boostrapperComponents = boostrapperComponents;
   }
 
   @Override
   protected void configure() {
-    container.addSingleton(reactor);
+    container.addSingleton(globalProperties);
+    if (reactor != null) {
+      container.addSingleton(reactor);
+    }
     container.addSingleton(new PropertiesConfiguration());
     container.addSingleton(BootstrapSettings.class);
     container.addSingleton(ServerClient.class);
@@ -79,7 +91,7 @@ public class BootstrapModule extends Module {
 
   @Override
   protected void doStart() {
-    Module batchComponents = installChild(new BatchModule());
-    batchComponents.start();
+    Module taskBootstrap = installChild(new TaskBootstrapModule(taskCommand));
+    taskBootstrap.start();
   }
 }

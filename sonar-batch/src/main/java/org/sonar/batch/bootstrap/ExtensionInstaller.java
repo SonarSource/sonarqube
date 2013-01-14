@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.ExtensionProvider;
@@ -37,6 +39,8 @@ import java.util.Map;
 
 public class ExtensionInstaller implements BatchComponent {
 
+  private static final Logger LOG = LoggerFactory.getLogger(ExtensionInstaller.class);
+
   private BatchPluginRepository pluginRepository;
   private EnvironmentInformation environment;
   private Settings settings;
@@ -47,7 +51,101 @@ public class ExtensionInstaller implements BatchComponent {
     this.settings = settings;
   }
 
-  public void install(ComponentContainer container, String instantiationStrategy) {
+  public void installTaskDefinitionExtensions(ComponentContainer container) {
+    for (Map.Entry<PluginMetadata, Plugin> entry : pluginRepository.getPluginsByMetadata().entrySet()) {
+      PluginMetadata metadata = entry.getKey();
+      Plugin plugin = entry.getValue();
+
+      container.addExtension(metadata, plugin);
+      for (Object extension : plugin.getExtensions()) {
+        installTaskDefinition(container, metadata, extension);
+      }
+    }
+
+    List<ExtensionProvider> providers = container.getComponentsByType(ExtensionProvider.class);
+    for (ExtensionProvider provider : providers) {
+      executeTaskDefinitionExtensionProvider(container, provider);
+    }
+  }
+
+  private void executeTaskDefinitionExtensionProvider(ComponentContainer container, ExtensionProvider provider) {
+    Object obj = provider.provide();
+    if (obj instanceof Iterable) {
+      for (Object extension : (Iterable) obj) {
+        installTaskDefinition(container, null, extension);
+      }
+    } else {
+      installTaskDefinition(container, null, obj);
+    }
+  }
+
+  boolean installTaskDefinition(ComponentContainer container, @Nullable PluginMetadata plugin, Object extension) {
+    boolean installed;
+    if (ExtensionUtils.isTaskDefinitionExtension(extension) &&
+      ExtensionUtils.supportsEnvironment(extension, environment)) {
+      if (plugin != null) {
+        LOG.debug("Installing task definition extension {} from plugin {}", extension.toString(), plugin.getKey());
+      }
+      else {
+        LOG.debug("Installing task definition extension {}", extension.toString());
+      }
+      container.addExtension(plugin, extension);
+      installed = true;
+    } else {
+      container.declareExtension(plugin, extension);
+      installed = false;
+    }
+    return installed;
+  }
+
+  public void installTaskExtensions(ComponentContainer container) {
+    for (Map.Entry<PluginMetadata, Plugin> entry : pluginRepository.getPluginsByMetadata().entrySet()) {
+      PluginMetadata metadata = entry.getKey();
+      Plugin plugin = entry.getValue();
+
+      container.addExtension(metadata, plugin);
+      for (Object extension : plugin.getExtensions()) {
+        installTaskExtension(container, metadata, extension);
+      }
+    }
+
+    List<ExtensionProvider> providers = container.getComponentsByType(ExtensionProvider.class);
+    for (ExtensionProvider provider : providers) {
+      executeTaskExtensionProvider(container, provider);
+    }
+  }
+
+  private void executeTaskExtensionProvider(ComponentContainer container, ExtensionProvider provider) {
+    Object obj = provider.provide();
+    if (obj instanceof Iterable) {
+      for (Object extension : (Iterable) obj) {
+        installTaskExtension(container, null, extension);
+      }
+    } else {
+      installTaskExtension(container, null, obj);
+    }
+  }
+
+  boolean installTaskExtension(ComponentContainer container, @Nullable PluginMetadata plugin, Object extension) {
+    boolean installed;
+    if (ExtensionUtils.isTaskExtension(extension) &&
+      ExtensionUtils.supportsEnvironment(extension, environment)) {
+      if (plugin != null) {
+        LOG.debug("Installing task extension {} from plugin {}", extension.toString(), plugin.getKey());
+      }
+      else {
+        LOG.debug("Installing task extension {}", extension.toString());
+      }
+      container.addExtension(plugin, extension);
+      installed = true;
+    } else {
+      container.declareExtension(plugin, extension);
+      installed = false;
+    }
+    return installed;
+  }
+
+  public void installBatchExtensions(ComponentContainer container, String instantiationStrategy) {
     boolean dryRun = settings.getBoolean(CoreProperties.DRY_RUN);
     for (Map.Entry<PluginMetadata, Plugin> entry : pluginRepository.getPluginsByMetadata().entrySet()) {
       PluginMetadata metadata = entry.getKey();
@@ -55,35 +153,40 @@ public class ExtensionInstaller implements BatchComponent {
 
       container.addExtension(metadata, plugin);
       for (Object extension : plugin.getExtensions()) {
-        installExtension(container, metadata, extension, dryRun, instantiationStrategy);
+        installBatchExtension(container, metadata, extension, dryRun, instantiationStrategy);
       }
     }
 
     List<ExtensionProvider> providers = container.getComponentsByType(ExtensionProvider.class);
     for (ExtensionProvider provider : providers) {
-      executeProvider(container, instantiationStrategy, dryRun, provider);
+      executeBatchExtensionProvider(container, instantiationStrategy, dryRun, provider);
     }
   }
 
-  private void executeProvider(ComponentContainer container, String instantiationStrategy, boolean dryRun, ExtensionProvider provider) {
+  private void executeBatchExtensionProvider(ComponentContainer container, String instantiationStrategy, boolean dryRun, ExtensionProvider provider) {
     Object obj = provider.provide();
     if (obj instanceof Iterable) {
       for (Object extension : (Iterable) obj) {
-        installExtension(container, null, extension, dryRun, instantiationStrategy);
+        installBatchExtension(container, null, extension, dryRun, instantiationStrategy);
       }
     } else {
-      installExtension(container, null, obj, dryRun, instantiationStrategy);
+      installBatchExtension(container, null, obj, dryRun, instantiationStrategy);
     }
   }
 
-  boolean installExtension(ComponentContainer container, @Nullable PluginMetadata plugin, Object extension, boolean dryRun, String instantiationStrategy) {
+  boolean installBatchExtension(ComponentContainer container, @Nullable PluginMetadata plugin, Object extension, boolean dryRun, String instantiationStrategy) {
     boolean installed;
     if (ExtensionUtils.isBatchExtension(extension) &&
       ExtensionUtils.supportsEnvironment(extension, environment) &&
       (!dryRun || ExtensionUtils.supportsDryRun(extension)) &&
       ExtensionUtils.isInstantiationStrategy(extension, instantiationStrategy) &&
       !isMavenExtensionOnEmulatedMavenProject(extension, instantiationStrategy, container)) {
-
+      if (plugin != null) {
+        LOG.debug("Installing batch extension {} from plugin {}", extension.toString(), plugin.getKey());
+      }
+      else {
+        LOG.debug("Installing batch extension {}", extension.toString());
+      }
       container.addExtension(plugin, extension);
       installed = true;
     } else {
@@ -101,7 +204,7 @@ public class ExtensionInstaller implements BatchComponent {
   static boolean isMavenExtensionOnEmulatedMavenProject(Object extension, String instantiationStrategy, ComponentContainer container) {
     if (InstantiationStrategy.PER_PROJECT.equals(instantiationStrategy) && ExtensionUtils.isMavenExtensionOnly(extension)) {
       Project project = container.getComponentByType(Project.class);
-      return project!=null && project.getPom()==null;
+      return project != null && project.getPom() == null;
     }
     return false;
   }

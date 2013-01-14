@@ -43,8 +43,8 @@ public class ProjectExclusions implements BatchComponent {
   private ProjectReactor reactor;
 
   public ProjectExclusions(Settings settings, ProjectReactor reactor,
-                           // exclusions are applied when the project is completely defined by extensions
-                           ProjectBuilder[] projectBuilders) {
+      // exclusions are applied when the project is completely defined by extensions
+      ProjectBuilder[] projectBuilders) {
     this.settings = settings;
     this.reactor = reactor;
   }
@@ -54,10 +54,12 @@ public class ProjectExclusions implements BatchComponent {
   }
 
   public void start() {
-    LOG.info("Apply project exclusions");
-    for (ProjectDefinition project : reactor.getProjects()) {
-      if (isExcluded(key(project), project == reactor.getRoot())) {
-        exclude(project);
+    if (reactor.getProjects().size() > 0 && StringUtils.isNotBlank(reactor.getProjects().get(0).getKey())) {
+      LOG.info("Apply project exclusions");
+      for (ProjectDefinition project : reactor.getProjects()) {
+        if (isExcluded(key(project), project == reactor.getRoot())) {
+          exclude(project);
+        }
       }
     }
   }

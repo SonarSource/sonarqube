@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -43,7 +44,7 @@ public class ProjectLock {
   }
 
   public void start() {
-    if (!isInDryRunMode()) {
+    if (!isInDryRunMode() && StringUtils.isNotBlank(getProject().getKey())) {
       Semaphores.Semaphore semaphore = acquire();
       if (!semaphore.isLocked()) {
         LOG.error(getErrorMessage(semaphore));

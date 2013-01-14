@@ -32,15 +32,22 @@ import java.util.Properties;
 public class BootstrapSettings {
   private Map<String, String> properties;
 
-  public BootstrapSettings(ProjectReactor reactor) {
-    init(reactor);
+  public BootstrapSettings(GlobalBatchProperties globalProperties) {
+    init(null, globalProperties);
   }
 
-  private void init(ProjectReactor reactor) {
+  public BootstrapSettings(ProjectReactor reactor, GlobalBatchProperties globalProperties) {
+    init(reactor, globalProperties);
+  }
+
+  private void init(ProjectReactor reactor, GlobalBatchProperties globalProperties) {
     properties = Maps.newHashMap();
 
     // order is important -> bottom-up. The last one overrides all the others.
-    addProperties(reactor.getRoot().getProperties());
+    properties.putAll(globalProperties.getProperties());
+    if (reactor != null) {
+      addProperties(reactor.getRoot().getProperties());
+    }
     properties.putAll(System.getenv());
     addProperties(System.getProperties());
   }

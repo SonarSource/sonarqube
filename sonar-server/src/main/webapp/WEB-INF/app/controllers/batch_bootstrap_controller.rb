@@ -32,8 +32,6 @@ class BatchBootstrapController < Api::ApiController
 
   # GET /batch_bootstrap/properties?project=<key or id>
   def properties
-    require_parameters :project
-
     json_properties=Property.find(:all, :conditions => ['user_id is null and resource_id is null']).map { |property| to_json_property(property) }
 
     root_project = load_project()

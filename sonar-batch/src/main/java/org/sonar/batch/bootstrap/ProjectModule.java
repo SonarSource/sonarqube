@@ -107,7 +107,7 @@ public class ProjectModule extends Module {
 
   private void addPluginExtensions() {
     ExtensionInstaller installer = container.getComponentByType(ExtensionInstaller.class);
-    installer.install(container, InstantiationStrategy.PER_PROJECT);
+    installer.installBatchExtensions(container, InstantiationStrategy.PER_PROJECT);
   }
 
   private void logSettings() {
@@ -122,9 +122,9 @@ public class ProjectModule extends Module {
   protected void doStart() {
     DefaultIndex index = container.getComponentByType(DefaultIndex.class);
     index.setCurrentProject(project,
-      container.getComponentByType(ResourceFilters.class),
-      container.getComponentByType(ViolationFilters.class),
-      container.getComponentByType(RulesProfile.class));
+        container.getComponentByType(ResourceFilters.class),
+        container.getComponentByType(ViolationFilters.class),
+        container.getComponentByType(RulesProfile.class));
 
     container.getComponentByType(Phases.class).execute(project);
   }

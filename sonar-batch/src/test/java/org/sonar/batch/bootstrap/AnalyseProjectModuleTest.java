@@ -23,13 +23,12 @@ import org.junit.Test;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.platform.ComponentContainer;
 
-import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class BatchModuleTest {
+public class AnalyseProjectModuleTest {
   @Test
   public void should_register_batch_extensions() {
     final ExtensionInstaller extensionInstaller = mock(ExtensionInstaller.class);
@@ -41,10 +40,9 @@ public class BatchModuleTest {
       }
     };
     bootstrapModule.init();
-    BatchModule module = new BatchModule();
+    AnalyseProjectModule module = new AnalyseProjectModule(null);
     bootstrapModule.installChild(module);
 
-    verify(extensionInstaller).install(any(ComponentContainer.class), eq(InstantiationStrategy.PER_BATCH));
-    assertThat(module.container.getComponentByType(MetricProvider.class)).isNotNull();
+    verify(extensionInstaller).installBatchExtensions(any(ComponentContainer.class), eq(InstantiationStrategy.PER_BATCH));
   }
 }

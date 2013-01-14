@@ -24,11 +24,13 @@ import com.google.common.collect.Maps;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.bootstrap.BootstrapModule;
+import org.sonar.batch.bootstrap.GlobalBatchProperties;
 import org.sonar.batch.bootstrap.Module;
 import org.sonar.core.PicoUtils;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Entry point for batch bootstrappers.
@@ -39,12 +41,18 @@ public final class Batch {
 
   private LoggingConfiguration logging;
   private List<Object> components;
+  private Map<String, String> globalProperties = Maps.newHashMap();
+  private String taskCommand;
   private ProjectReactor projectReactor;
 
   private Batch(Builder builder) {
     components = Lists.newArrayList();
     components.addAll(builder.components);
     components.add(builder.environment);
+    if (builder.globalProperties != null) {
+      globalProperties.putAll(builder.globalProperties);
+    }
+    this.taskCommand = builder.taskCommand;
     projectReactor = builder.projectReactor;
     if (builder.isEnableLoggingConfiguration()) {
       logging = LoggingConfiguration.create().setProperties(Maps.fromProperties(projectReactor.getRoot().getProperties()));
@@ -70,7 +78,8 @@ public final class Batch {
   private void startBatch() {
     Module bootstrapModule = null;
     try {
-      bootstrapModule = new BootstrapModule(projectReactor, components.toArray(new Object[components.size()]));
+      bootstrapModule = new BootstrapModule(new GlobalBatchProperties(globalProperties), taskCommand,
+          projectReactor, components.toArray(new Object[components.size()]));
       bootstrapModule.init();
       bootstrapModule.start();
     } catch (RuntimeException e) {
@@ -87,12 +96,13 @@ public final class Batch {
     }
   }
 
-
   public static Builder builder() {
     return new Builder();
   }
 
   public static final class Builder {
+    private Map<String, String> globalProperties;
+    private String taskCommand;
     private ProjectReactor projectReactor;
     private EnvironmentInformation environment;
     private List<Object> components = Lists.newArrayList();
@@ -113,6 +123,16 @@ public final class Batch {
 
     public Builder setComponents(List<Object> l) {
       this.components = l;
+      return this;
+    }
+
+    public Builder setGlobalProperties(Map<String, String> globalProperties) {
+      this.globalProperties = globalProperties;
+      return this;
+    }
+
+    public Builder setTaskCommand(String taskCommand) {
+      this.taskCommand = taskCommand;
       return this;
     }
 
@@ -140,9 +160,6 @@ public final class Batch {
     }
 
     public Batch build() {
-      if (projectReactor == null) {
-        throw new IllegalStateException("ProjectReactor is not set");
-      }
       if (environment == null) {
         throw new IllegalStateException("EnvironmentInfo is not set");
       }

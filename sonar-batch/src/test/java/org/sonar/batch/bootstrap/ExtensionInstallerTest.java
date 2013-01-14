@@ -49,12 +49,12 @@ public class ExtensionInstallerTest {
   private static Map<PluginMetadata, Plugin> newPlugin(final Class... classes) {
     Map<PluginMetadata, Plugin> result = Maps.newHashMap();
     result.put(METADATA,
-      new SonarPlugin() {
-        public List<Class> getExtensions() {
-          return Arrays.asList(classes);
+        new SonarPlugin() {
+          public List<Class> getExtensions() {
+            return Arrays.asList(classes);
+          }
         }
-      }
-    );
+        );
     return result;
   }
 
@@ -65,7 +65,7 @@ public class ExtensionInstallerTest {
     ComponentContainer container = new ComponentContainer();
     ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new Settings());
 
-    installer.install(container, InstantiationStrategy.PER_BATCH);
+    installer.installBatchExtensions(container, InstantiationStrategy.PER_BATCH);
 
     assertThat(container.getComponentByType(BatchService.class)).isNotNull();
     assertThat(container.getComponentByType(ProjectService.class)).isNull();
@@ -79,13 +79,12 @@ public class ExtensionInstallerTest {
     ComponentContainer container = new ComponentContainer();
     ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new Settings());
 
-    installer.install(container, InstantiationStrategy.PER_BATCH);
+    installer.installBatchExtensions(container, InstantiationStrategy.PER_BATCH);
 
     assertThat(container.getComponentByType(BatchService.class)).isNotNull();
     assertThat(container.getComponentByType(ProjectService.class)).isNull();
     assertThat(container.getComponentByType(ServerService.class)).isNull();
   }
-
 
   @Test
   public void shouldNotInstallPluginsOnNonSupportedEnvironment() {
@@ -95,7 +94,7 @@ public class ExtensionInstallerTest {
     ComponentContainer container = new ComponentContainer();
     ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new Settings());
 
-    installer.install(container, InstantiationStrategy.PER_PROJECT);
+    installer.installBatchExtensions(container, InstantiationStrategy.PER_PROJECT);
 
     assertThat(container.getComponentByType(MavenService.class)).isNull();
     assertThat(container.getComponentByType(BuildToolService.class)).isNotNull();
@@ -112,7 +111,7 @@ public class ExtensionInstallerTest {
     container.addSingleton(project);
     ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("maven", "2.2.1"), new Settings());
 
-    installer.install(container, InstantiationStrategy.PER_PROJECT);
+    installer.installBatchExtensions(container, InstantiationStrategy.PER_PROJECT);
 
     assertThat(container.getComponentByType(MavenService.class)).isNull();
   }
@@ -135,7 +134,7 @@ public class ExtensionInstallerTest {
 
     @Override
     public Object provide() {
-      return Arrays.<Object>asList(BatchService.class, ServerService.class);
+      return Arrays.<Object> asList(BatchService.class, ServerService.class);
     }
   }
 

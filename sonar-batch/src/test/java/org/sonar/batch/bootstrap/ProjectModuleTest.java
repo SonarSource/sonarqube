@@ -64,7 +64,7 @@ public class ProjectModuleTest {
     ProjectModule projectModule = new ProjectModule(project);
     batchModule.installChild(projectModule);
 
-    verify(extensionInstaller).install(any(ComponentContainer.class), eq(InstantiationStrategy.PER_PROJECT));
+    verify(extensionInstaller).installBatchExtensions(any(ComponentContainer.class), eq(InstantiationStrategy.PER_PROJECT));
     assertThat(projectModule.container.getComponentByType(ProjectSettings.class)).isNotNull();
   }
 }

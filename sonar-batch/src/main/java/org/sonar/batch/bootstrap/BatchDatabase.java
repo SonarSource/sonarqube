@@ -30,13 +30,20 @@ import java.util.Properties;
 public class BatchDatabase extends DefaultDatabase {
 
   public BatchDatabase(Settings settings,
-                       // The dependency on JdbcDriverHolder is required to be sure that the JDBC driver
-                       // has been downloaded and injected into classloader
-                       JdbcDriverHolder jdbcDriverHolder,
+      // The dependency on JdbcDriverHolder is required to be sure that the JDBC driver
+      // has been downloaded and injected into classloader
+      JdbcDriverHolder jdbcDriverHolder,
 
-                       // The dependency on DryRunDatabase is required to be sure that the dryRun mode
-                       // changed settings
-                       DryRunDatabase dryRun) {
+      // The dependency on DryRunDatabase is required to be sure that the dryRun mode
+      // changed settings
+      DryRunDatabase dryRun) {
+    super(settings);
+  }
+
+  public BatchDatabase(Settings settings,
+      // The dependency on JdbcDriverHolder is required to be sure that the JDBC driver
+      // has been downloaded and injected into classloader
+      JdbcDriverHolder jdbcDriverHolder) {
     super(settings);
   }
 

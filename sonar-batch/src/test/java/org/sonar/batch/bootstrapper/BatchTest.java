@@ -20,11 +20,10 @@
 package org.sonar.batch.bootstrapper;
 
 import org.junit.Test;
-import org.sonar.api.batch.bootstrap.*;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-
 
 public class BatchTest {
   @Test
@@ -36,45 +35,44 @@ public class BatchTest {
 
   private Batch newBatch() {
     return Batch.builder()
-      .setEnvironment(new EnvironmentInformation("Gradle", "1.0"))
-      .setProjectReactor(new ProjectReactor(org.sonar.api.batch.bootstrap.ProjectDefinition.create()))
-      .addComponent("fake")
-      .build();
+        .setEnvironment(new EnvironmentInformation("Gradle", "1.0"))
+        .setProjectReactor(new ProjectReactor(org.sonar.api.batch.bootstrap.ProjectDefinition.create()))
+        .addComponent("fake")
+        .build();
   }
 
   @Test(expected = IllegalStateException.class)
   public void shouldFailIfNoEnvironment() {
     Batch.builder()
-      .setProjectReactor(new ProjectReactor(org.sonar.api.batch.bootstrap.ProjectDefinition.create()))
-      .addComponent("fake")
-      .build();
+        .setProjectReactor(new ProjectReactor(org.sonar.api.batch.bootstrap.ProjectDefinition.create()))
+        .addComponent("fake")
+        .build();
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void shouldFailIfNoProjectReactor() {
+  public void shouldNotFailIfNoProjectReactor() {
     Batch.builder()
-      .setEnvironment(new EnvironmentInformation("Gradle", "1.0"))
-      .addComponent("fake")
-      .build();
+        .setEnvironment(new EnvironmentInformation("Gradle", "1.0"))
+        .addComponent("fake")
+        .build();
   }
 
   @Test(expected = IllegalStateException.class)
   public void shouldFailIfNullComponents() {
     Batch.builder()
-      .setProjectReactor(new ProjectReactor(org.sonar.api.batch.bootstrap.ProjectDefinition.create()))
-      .setEnvironment(new EnvironmentInformation("Gradle", "1.0"))
-      .setComponents(null)
-      .build();
+        .setProjectReactor(new ProjectReactor(org.sonar.api.batch.bootstrap.ProjectDefinition.create()))
+        .setEnvironment(new EnvironmentInformation("Gradle", "1.0"))
+        .setComponents(null)
+        .build();
   }
 
   @Test
   public void shouldDisableLoggingConfiguration() {
     Batch batch = Batch.builder()
-      .setEnvironment(new EnvironmentInformation("Gradle", "1.0"))
-      .setProjectReactor(new ProjectReactor(org.sonar.api.batch.bootstrap.ProjectDefinition.create()))
-      .addComponent("fake")
-      .setEnableLoggingConfiguration(false)
-      .build();
+        .setEnvironment(new EnvironmentInformation("Gradle", "1.0"))
+        .setProjectReactor(new ProjectReactor(org.sonar.api.batch.bootstrap.ProjectDefinition.create()))
+        .addComponent("fake")
+        .setEnableLoggingConfiguration(false)
+        .build();
     assertNull(batch.getLoggingConfiguration());
   }
 

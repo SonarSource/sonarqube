@@ -34,7 +34,7 @@ public class BootstrapSettingsTest {
     project.setProperty("foo", "bar");
 
     ProjectReactor reactor = new ProjectReactor(project);
-    BootstrapSettings settings = new BootstrapSettings(reactor);
+    BootstrapSettings settings = new BootstrapSettings(reactor, new GlobalBatchProperties());
 
     assertThat(settings.getProperty("foo")).isEqualTo("bar");
   }
@@ -46,7 +46,7 @@ public class BootstrapSettingsTest {
     System.setProperty("BootstrapSettingsTest.testEnv", "env");
 
     ProjectReactor reactor = new ProjectReactor(project);
-    BootstrapSettings settings = new BootstrapSettings(reactor);
+    BootstrapSettings settings = new BootstrapSettings(reactor, new GlobalBatchProperties());
 
     assertThat(settings.getProperty("BootstrapSettingsTest.testEnv")).isEqualTo("env");
   }

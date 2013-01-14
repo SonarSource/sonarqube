@@ -40,7 +40,7 @@ public abstract class Module {
   /**
    * @return this
    */
-  private void init(ComponentContainer container) {
+  public final void init(ComponentContainer container) {
     this.container = container;
     configure();
   }

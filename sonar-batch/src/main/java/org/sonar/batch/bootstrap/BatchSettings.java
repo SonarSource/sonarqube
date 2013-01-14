@@ -42,36 +42,56 @@ public class BatchSettings extends Settings {
   // module key -> <key,val>
   private Map<String, Map<String, String>> moduleProperties = Maps.newHashMap();
 
+  public BatchSettings(BootstrapSettings bootstrapSettings, PropertyDefinitions propertyDefinitions,
+      ServerClient client, Configuration deprecatedConfiguration, GlobalBatchProperties globalProperties) {
+    this(bootstrapSettings, propertyDefinitions, null, client, deprecatedConfiguration, globalProperties);
+  }
+
   public BatchSettings(BootstrapSettings bootstrapSettings, PropertyDefinitions propertyDefinitions, ProjectReactor reactor,
-                       ServerClient client, Configuration deprecatedConfiguration) {
+      ServerClient client, Configuration deprecatedConfiguration, GlobalBatchProperties globalProperties) {
     super(propertyDefinitions);
     this.deprecatedConfiguration = deprecatedConfiguration;
-    init(bootstrapSettings, reactor, client);
+    init(bootstrapSettings, reactor, client, globalProperties);
   }
 
   @VisibleForTesting
   BatchSettings() {
   }
 
-  private void init(BootstrapSettings bootstrapSettings, ProjectReactor reactor, ServerClient client) {
-    LoggerFactory.getLogger(BatchSettings.class).info("Load project settings");
+  private void init(BootstrapSettings bootstrapSettings, ProjectReactor reactor, ServerClient client,
+      GlobalBatchProperties globalProperties) {
+    LoggerFactory.getLogger(BatchSettings.class).info("Load batch settings");
 
-    String branch = bootstrapSettings.getProperty(CoreProperties.PROJECT_BRANCH_PROPERTY);
-    String projectKey = reactor.getRoot().getKey();
-    if (StringUtils.isNotBlank(branch)) {
-      projectKey = String.format("%s:%s", projectKey, branch);
+    if (reactor != null) {
+      String branch = bootstrapSettings.getProperty(CoreProperties.PROJECT_BRANCH_PROPERTY);
+      String projectKey = reactor.getRoot().getKey();
+      if (StringUtils.isNotBlank(branch)) {
+        projectKey = String.format("%s:%s", projectKey, branch);
+      }
+      downloadSettings(client, projectKey);
     }
-    downloadSettings(client, projectKey);
-
+    else {
+      downloadSettings(client, null);
+    }
 
     // order is important -> bottom-up. The last one overrides all the others.
-    addProperties(reactor.getRoot().getProperties());
+    addProperties(globalProperties.getProperties());
+    if (reactor != null) {
+      addProperties(reactor.getRoot().getProperties());
+    }
     addEnvironmentVariables();
     addSystemProperties();
   }
 
   private void downloadSettings(ServerClient client, String projectKey) {
-    String jsonText = client.request("/batch_bootstrap/properties?project=" + projectKey);
+    String url;
+    if (StringUtils.isNotBlank(projectKey)) {
+      url = "/batch_bootstrap/properties?project=" + projectKey;
+    }
+    else {
+      url = "/batch_bootstrap/properties";
+    }
+    String jsonText = client.request(url);
     List<Map<String, String>> json = (List<Map<String, String>>) JSONValue.parse(jsonText);
     for (Map<String, String> jsonProperty : json) {
       String key = jsonProperty.get("k");
