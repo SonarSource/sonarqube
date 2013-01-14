@@ -24,6 +24,7 @@ import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.SonarIndex;
+import org.sonar.api.batch.TaskExtensionDictionnary;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
@@ -37,7 +38,6 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.junit.matchers.JUnitMatchers.containsString;
 import static org.mockito.Matchers.any;
-
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 
@@ -66,7 +66,8 @@ public class DecoratorsExecutorTest {
     Decorator decorator = mock(Decorator.class);
     doThrow(new SonarException()).when(decorator).decorate(any(Resource.class), any(DecoratorContext.class));
 
-    DecoratorsExecutor executor = new DecoratorsExecutor(mock(BatchExtensionDictionnary.class), new Project("key"), mock(SonarIndex.class), mock(EventBus.class));
+    DecoratorsExecutor executor = new DecoratorsExecutor(mock(TaskExtensionDictionnary.class), mock(BatchExtensionDictionnary.class), new Project("key"), mock(SonarIndex.class),
+        mock(EventBus.class));
     try {
       executor.executeDecorator(decorator, mock(DefaultDecoratorContext.class), new File("org/foo/Bar.java"));
       fail("Exception has not been thrown");

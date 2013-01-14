@@ -22,6 +22,7 @@ package org.sonar.batch.bootstrap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.TaskDefinition;
+import org.sonar.api.batch.TaskExtensionDictionnary;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.batch.DefaultResourceCreationLock;
@@ -108,6 +109,7 @@ public abstract class AbstractTaskModule extends Module {
     container.addSingleton(ResourceTypes.class);
     container.addSingleton(MetricProvider.class);
     container.addSingleton(SemaphoresImpl.class);
+    container.addSingleton(TaskExtensionDictionnary.class);
   }
 
   private void registerDatabaseComponents() {

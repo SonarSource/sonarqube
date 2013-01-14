@@ -75,7 +75,6 @@ public final class MeasurePersister {
       unsavedMeasuresByResource.put(resource, measure);
       return;
     }
-
     MeasureModel model = insertOrUpdate(resource, measure);
     if (model != null) {
       memoryOptimizer.evictDataMeasure(measure, model);

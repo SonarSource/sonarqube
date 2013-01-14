@@ -23,35 +23,40 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.Decorator;
+import org.sonar.api.batch.TaskExtensionDictionnary;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public final class DecoratorsSelector {
 
-  private BatchExtensionDictionnary dictionnary;
+  private BatchExtensionDictionnary batchExtDictionnary;
+  private TaskExtensionDictionnary taskExtDictionnary;
 
-  public DecoratorsSelector(BatchExtensionDictionnary dictionnary) {
-    this.dictionnary = dictionnary;
+  public DecoratorsSelector(TaskExtensionDictionnary taskExtDictionnary, BatchExtensionDictionnary dictionnary) {
+    this.taskExtDictionnary = taskExtDictionnary;
+    this.batchExtDictionnary = dictionnary;
   }
 
   public Collection<Decorator> select(Project project) {
-    List<Decorator> decorators = new ArrayList<Decorator>(dictionnary.select(Decorator.class, project, false));
+    List<Decorator> decorators = new ArrayList<Decorator>(batchExtDictionnary.select(Decorator.class, project, false));
     SetMultimap<Metric, Decorator> decoratorsByGeneratedMetric = getDecoratorsByMetric(decorators);
-    for (Metric metric : dictionnary.select(Metric.class)) {
+    for (Metric metric : taskExtDictionnary.select(Metric.class)) {
       if (metric.getFormula() != null) {
         decorators.add(new FormulaDecorator(metric, decoratorsByGeneratedMetric.get(metric)));
       }
     }
 
-    return dictionnary.sort(decorators);
+    return batchExtDictionnary.sort(decorators);
   }
 
   private SetMultimap<Metric, Decorator> getDecoratorsByMetric(Collection<Decorator> pluginDecorators) {
     SetMultimap<Metric, Decorator> decoratorsByGeneratedMetric = HashMultimap.create();
     for (Decorator decorator : pluginDecorators) {
-      List dependents = dictionnary.getDependents(decorator);
+      List dependents = batchExtDictionnary.getDependents(decorator);
       for (Object dependent : dependents) {
         if (dependent instanceof Metric) {
           decoratorsByGeneratedMetric.put((Metric) dependent, decorator);

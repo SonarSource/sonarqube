@@ -25,6 +25,7 @@ import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.SonarIndex;
+import org.sonar.api.batch.TaskExtensionDictionnary;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.SonarException;
@@ -42,8 +43,9 @@ public class DecoratorsExecutor implements BatchComponent {
   private EventBus eventBus;
   private Project project;
 
-  public DecoratorsExecutor(BatchExtensionDictionnary extensionDictionnary, Project project, SonarIndex index, EventBus eventBus) {
-    this.decoratorsSelector = new DecoratorsSelector(extensionDictionnary);
+  public DecoratorsExecutor(TaskExtensionDictionnary taskExtDictionnary, BatchExtensionDictionnary batchExtDictionnary,
+      Project project, SonarIndex index, EventBus eventBus) {
+    this.decoratorsSelector = new DecoratorsSelector(taskExtDictionnary, batchExtDictionnary);
     this.index = index;
     this.eventBus = eventBus;
     this.project = project;
@@ -78,7 +80,7 @@ public class DecoratorsExecutor implements BatchComponent {
       eventBus.fireEvent(new DecoratorExecutionEvent(decorator, true));
       decorator.decorate(resource, context);
       eventBus.fireEvent(new DecoratorExecutionEvent(decorator, false));
-      
+
     } catch (Exception e) {
       // SONAR-2278 the resource should not be lost in exception stacktrace.
       throw new SonarException("Fail to decorate '" + resource + "'", e);

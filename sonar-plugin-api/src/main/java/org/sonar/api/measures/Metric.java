@@ -22,11 +22,17 @@ package org.sonar.api.measures;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
-import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.TaskExtension;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 
 /**
  * This class represents the definition of a metric in Sonar.
@@ -35,8 +41,7 @@ import javax.persistence.*;
  */
 @Table(name = "metrics")
 @Entity(name = "Metric")
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public class Metric implements ServerExtension, BatchExtension {
+public class Metric implements ServerExtension, TaskExtension {
 
   /**
    * A metric bigger value means a degradation

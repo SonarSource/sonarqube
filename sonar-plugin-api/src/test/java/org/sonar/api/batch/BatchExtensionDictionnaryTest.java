@@ -22,8 +22,6 @@ package org.sonar.api.batch;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.sonar.api.BatchExtension;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Metric;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 
@@ -62,18 +60,22 @@ public class BatchExtensionDictionnaryTest {
 
   @Test
   public void shouldSearchInParentContainers() {
+    BatchExtension a = new FakeSensor();
+    BatchExtension b = new FakeSensor();
+    BatchExtension c = new FakeSensor();
+
     ComponentContainer grandParent = new ComponentContainer();
-    grandParent.addSingleton(CoreMetrics.NCLOC);
+    grandParent.addSingleton(a);
 
     ComponentContainer parent = grandParent.createChild();
-    parent.addSingleton(CoreMetrics.COVERAGE);
+    parent.addSingleton(b);
 
     ComponentContainer child = parent.createChild();
-    child.addSingleton(CoreMetrics.COMPLEXITY);
+    child.addSingleton(c);
 
     BatchExtensionDictionnary dictionnary = new BatchExtensionDictionnary(child);
-    assertThat(dictionnary.select(Metric.class).size(), is(3));
-    assertThat(dictionnary.select(Metric.class), hasItems(CoreMetrics.NCLOC, CoreMetrics.COVERAGE, CoreMetrics.COMPLEXITY));
+    assertThat(dictionnary.select(BatchExtension.class).size(), is(3));
+    assertThat(dictionnary.select(BatchExtension.class), hasItems(a, b, c));
   }
 
   @Test
@@ -133,7 +135,6 @@ public class BatchExtensionDictionnaryTest {
     assertEquals(b, extensions.get(1));
   }
 
-
   @Test
   public void useClassAnnotationsOnInterfaces() {
     BatchExtension a = new InterfaceDependedUpon() {
@@ -156,7 +157,6 @@ public class BatchExtensionDictionnaryTest {
     assertEquals(a, extensions.get(0));
     assertEquals(b, extensions.get(1));
   }
-
 
   @Test
   public void checkProject() {

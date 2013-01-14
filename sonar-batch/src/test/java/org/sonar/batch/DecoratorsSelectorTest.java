@@ -25,7 +25,12 @@ import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
-import org.sonar.api.measures.*;
+import org.sonar.api.batch.TaskExtensionDictionnary;
+import org.sonar.api.measures.Formula;
+import org.sonar.api.measures.FormulaContext;
+import org.sonar.api.measures.FormulaData;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
@@ -47,9 +52,10 @@ public class DecoratorsSelectorTest {
   @Test
   public void selectAndSortFormulas() {
     Project project = new Project("key");
-    BatchExtensionDictionnary dictionnary = newDictionnary(withFormula1, withoutFormula3, withFormula2);
+    TaskExtensionDictionnary taskExtDictionnary = newTaskDictionnary(withFormula1, withoutFormula3, withFormula2);
+    BatchExtensionDictionnary batchExtDictionnary = newBatchDictionnary();
 
-    Collection<Decorator> decorators = new DecoratorsSelector(dictionnary).select(project);
+    Collection<Decorator> decorators = new DecoratorsSelector(taskExtDictionnary, batchExtDictionnary).select(project);
     assertThat(decorators.size(), is(2));
     assertThat(decorators, hasItem((Decorator) new FormulaDecorator(withFormula1)));
     assertThat(decorators, hasItem((Decorator) new FormulaDecorator(withFormula2)));
@@ -59,29 +65,37 @@ public class DecoratorsSelectorTest {
   public void decoratorsShouldBeExecutedBeforeFormulas() {
     Project project = new Project("key");
     Decorator metric1Decorator = new Metric1Decorator();
-    BatchExtensionDictionnary dictionnary = newDictionnary(metric1Decorator, withFormula1);
+    TaskExtensionDictionnary taskExtDictionnary = newTaskDictionnary(withFormula1);
+    BatchExtensionDictionnary batchExtDictionnary = newBatchDictionnary(metric1Decorator);
 
-    Collection<Decorator> decorators = new DecoratorsSelector(dictionnary).select(project);
+    Collection<Decorator> decorators = new DecoratorsSelector(taskExtDictionnary, batchExtDictionnary).select(project);
 
-    Decorator firstDecorator = (Decorator)CollectionUtils.get(decorators, 0);
-    Decorator secondDecorator = (Decorator)CollectionUtils.get(decorators, 1);
+    Decorator firstDecorator = (Decorator) CollectionUtils.get(decorators, 0);
+    Decorator secondDecorator = (Decorator) CollectionUtils.get(decorators, 1);
 
     assertThat(firstDecorator, is(Metric1Decorator.class));
     assertThat(secondDecorator, is(FormulaDecorator.class));
 
     FormulaDecorator formulaDecorator = (FormulaDecorator) secondDecorator;
     assertThat(formulaDecorator.dependsUponDecorators().size(), is(1));
-    assertThat(CollectionUtils.get(formulaDecorator.dependsUponDecorators(), 0), is((Object)firstDecorator));
+    assertThat(CollectionUtils.get(formulaDecorator.dependsUponDecorators(), 0), is((Object) firstDecorator));
   }
 
-  private BatchExtensionDictionnary newDictionnary(Object... extensions) {
+  private TaskExtensionDictionnary newTaskDictionnary(Object... extensions) {
+    ComponentContainer ioc = new ComponentContainer();
+    for (Object extension : extensions) {
+      ioc.addSingleton(extension);
+    }
+    return new TaskExtensionDictionnary(ioc);
+  }
+
+  private BatchExtensionDictionnary newBatchDictionnary(Object... extensions) {
     ComponentContainer ioc = new ComponentContainer();
     for (Object extension : extensions) {
       ioc.addSingleton(extension);
     }
     return new BatchExtensionDictionnary(ioc);
   }
-
 
   class FakeFormula implements Formula {
     public List<Metric> dependsUponMetrics() {
