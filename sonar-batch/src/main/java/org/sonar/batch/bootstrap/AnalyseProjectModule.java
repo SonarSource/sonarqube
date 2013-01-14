@@ -53,7 +53,7 @@ public class AnalyseProjectModule extends Module {
       analyze(subProject);
     }
 
-    ProjectModule projectModule = new ProjectModule(rootProject);
+    ProjectModule projectModule = new ProjectModule(project);
     try {
       installChild(projectModule);
       projectModule.start();
