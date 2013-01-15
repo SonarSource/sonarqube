@@ -19,13 +19,13 @@
  */
 package org.sonar.plugins.dbcleaner.api;
 
-import org.sonar.api.BatchExtension;
+import org.sonar.api.TaskExtension;
 import org.sonar.api.resources.Project;
 
 /**
  * @deprecated in 2.14
  */
 @Deprecated
-public interface PeriodCleaner extends BatchExtension {
+public interface PeriodCleaner extends TaskExtension {
   void purge(Project project, int projectSnapshotId);
 }

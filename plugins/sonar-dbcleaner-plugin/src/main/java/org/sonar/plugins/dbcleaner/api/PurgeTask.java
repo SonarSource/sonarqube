@@ -20,13 +20,13 @@
 package org.sonar.plugins.dbcleaner.api;
 
 import com.google.common.annotations.Beta;
-import org.sonar.api.BatchExtension;
+import org.sonar.api.TaskExtension;
 
 /**
  * @since 2.14
  */
 @Beta
-public interface PurgeTask extends BatchExtension {
+public interface PurgeTask extends TaskExtension {
   /**
    * Purges the data related to a tree of resources.
    *
