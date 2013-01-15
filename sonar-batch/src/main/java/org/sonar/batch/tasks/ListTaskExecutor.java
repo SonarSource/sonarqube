@@ -20,27 +20,22 @@
 package org.sonar.batch.tasks;
 
 import org.sonar.api.batch.TaskDefinition;
-import org.sonar.api.utils.SonarException;
+import org.sonar.api.batch.TaskDescriptor;
+import org.sonar.api.batch.TaskExecutor;
 
-public class TaskManager {
+public class ListTaskExecutor implements TaskExecutor {
 
-  private final TaskDefinition[] tasks;
+  private final TaskManager taskManager;
 
-  public TaskManager(TaskDefinition[] tasks) {
-    this.tasks = tasks;
+  public ListTaskExecutor(TaskManager taskManager) {
+    this.taskManager = taskManager;
   }
 
-  public TaskDefinition getTask(String command) {
-    for (TaskDefinition task : tasks) {
-      if (command.equals(task.getTaskDescriptor().getCommand())) {
-        return task;
-      }
+  public void execute() {
+    for (TaskDefinition task : taskManager.getTasks()) {
+      TaskDescriptor desc = task.getTaskDescriptor();
+      System.out.println("  " + desc.getCommand() + ": " + desc.getDecription());
     }
-    throw new SonarException("No task found for command: " + command);
-  }
-
-  public TaskDefinition[] getTasks() {
-    return tasks;
   }
 
 }

@@ -19,11 +19,13 @@
  */
 package org.sonar.batch.tasks;
 
+import org.sonar.api.batch.RequiresProject;
 import org.sonar.api.batch.TaskExecutor;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.bootstrap.AnalyseProjectModule;
 
+@RequiresProject
 public class AnalyseProjectTaskExecutor implements TaskExecutor {
 
   private final ComponentContainer container;

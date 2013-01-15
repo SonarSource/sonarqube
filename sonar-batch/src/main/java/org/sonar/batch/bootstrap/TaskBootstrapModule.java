@@ -24,6 +24,7 @@ import org.sonar.api.batch.TaskDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.tasks.AnalyseProjectTaskDefinition;
+import org.sonar.batch.tasks.ListTaskDefinition;
 import org.sonar.batch.tasks.TaskManager;
 
 /**
@@ -46,6 +47,7 @@ public class TaskBootstrapModule extends Module {
 
   private void registerCoreTaskDefinitions() {
     container.addSingleton(AnalyseProjectTaskDefinition.class);
+    container.addSingleton(ListTaskDefinition.class);
   }
 
   private void registerTaskDefinitionExtensions() {

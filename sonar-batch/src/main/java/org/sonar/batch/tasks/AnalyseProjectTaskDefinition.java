@@ -29,8 +29,8 @@ public class AnalyseProjectTaskDefinition implements TaskDefinition {
 
   public TaskDescriptor getTaskDescriptor() {
     return TaskDescriptor.create()
-        .setDescription("Analysis")
-        .setName("Analysis")
+        .setDescription("Start a Sonar analysis of a project")
+        .setName("Sonar project analysis")
         .setCommand(COMMAND)
         .setRequiresProject(true);
   }
