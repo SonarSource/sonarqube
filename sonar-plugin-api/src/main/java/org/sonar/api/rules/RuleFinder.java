@@ -19,22 +19,25 @@
  */
 package org.sonar.api.rules;
 
-import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.TaskComponent;
 
 import java.util.Collection;
 
 /**
  * @since 2.3
  */
-public interface RuleFinder extends BatchComponent, ServerComponent {
+public interface RuleFinder extends TaskComponent, ServerComponent {
 
   /**
    * @since 2.5
    */
   Rule findById(int ruleId);
+
   Rule findByKey(String repositoryKey, String key);
+
   Rule find(RuleQuery query);
+
   Collection<Rule> findAll(RuleQuery query);
 
 }

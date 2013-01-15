@@ -19,8 +19,8 @@
  */
 package org.sonar.api.measures;
 
-import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.TaskComponent;
 
 import java.util.Collection;
 import java.util.List;
@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * @since 2.5
  */
-public interface MetricFinder extends BatchComponent, ServerComponent {
+public interface MetricFinder extends TaskComponent, ServerComponent {
 
   Metric findById(int id);
 
