@@ -25,9 +25,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.test.MavenTestUtils;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
+
 
 public class MavenPluginTest {
 
@@ -39,32 +38,38 @@ public class MavenPluginTest {
   }
 
   @Test
+  public void getConfigurationXmlNode() {
+    assertThat(fakePlugin.getConfigurationXmlNode()).isNotNull();
+    assertThat(fakePlugin.getConfigurationXmlNode().getName()).isEqualTo("configuration");
+  }
+
+  @Test
   public void removeParameters() {
     fakePlugin
-        .setParameter("foo", "bar")
-        .setParameter("hello", "world")
-        .removeParameters();
+      .setParameter("foo", "bar")
+      .setParameter("hello", "world")
+      .removeParameters();
 
-    assertThat(fakePlugin.getParameter("foo"), nullValue());
-    assertThat(fakePlugin.getParameter("hello"), nullValue());
-    assertThat(fakePlugin.hasConfiguration(), is(false));
+    assertThat(fakePlugin.getParameter("foo")).isNull();
+    assertThat(fakePlugin.getParameter("hello")).isNull();
+    assertThat(fakePlugin.hasConfiguration()).isFalse();
   }
 
   @Test
   public void shouldWriteAndReadSimpleConfiguration() {
     fakePlugin.setParameter("abc", "test");
-    assertThat(fakePlugin.getParameter("abc"), is("test"));
+    assertThat(fakePlugin.getParameter("abc")).isEqualTo("test");
   }
 
   @Test
   public void shouldWriteAndReadComplexConfiguration() {
     fakePlugin.setParameter("abc/def/ghi", "test");
-    assertThat(fakePlugin.getParameter("abc/def/ghi"), is("test"));
+    assertThat(fakePlugin.getParameter("abc/def/ghi")).isEqualTo("test");
   }
 
   @Test
   public void shouldReturnNullWhenChildNotFound() {
-    assertThat(fakePlugin.getParameter("abc/def/ghi"), is(nullValue()));
+    assertThat(fakePlugin.getParameter("abc/def/ghi")).isNull();
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -80,20 +85,20 @@ public class MavenPluginTest {
   @Test
   public void shouldRemoveParameter() {
     fakePlugin.setParameter("abc", "1");
-    assertThat(fakePlugin.getParameter("abc"), is(not(nullValue())));
+    assertThat(fakePlugin.getParameter("abc")).isNotNull();
 
     fakePlugin.removeParameter("abc");
-    assertThat(fakePlugin.getParameter("abc"), is(nullValue()));
+    assertThat(fakePlugin.getParameter("abc")).isNull();
   }
 
   @Test
   public void shouldRemoveNestedParameter() {
     fakePlugin.setParameter("abc/def", "1");
-    assertThat(fakePlugin.getParameter("abc/def"), is(not(nullValue())));
+    assertThat(fakePlugin.getParameter("abc/def")).isNotNull();
 
     fakePlugin.removeParameter("abc/def");
 
-    assertThat(fakePlugin.getParameter("abc/def"), is(nullValue()));
+    assertThat(fakePlugin.getParameter("abc/def")).isNull();
   }
 
   @Test
@@ -103,7 +108,7 @@ public class MavenPluginTest {
 
     fakePlugin.removeParameter("abc/x");
 
-    assertThat(fakePlugin.getParameter("abc/y"), is(not(nullValue())));
+    assertThat(fakePlugin.getParameter("abc/y")).isNotNull();
   }
 
   @Test
@@ -115,38 +120,38 @@ public class MavenPluginTest {
   @Test
   public void shouldSetParameter() {
     fakePlugin.addParameter("exclude", "abc");
-    assertThat(fakePlugin.toString(), fakePlugin.getParameter("exclude"), is("abc"));
-    assertThat(fakePlugin.toString(), fakePlugin.getParameters("exclude"), is(new String[]{"abc"}));
+    assertThat(fakePlugin.getParameter("exclude")).isEqualTo("abc");
+    assertThat(fakePlugin.getParameters("exclude")).containsOnly("abc");
   }
 
   @Test
   public void shouldOverrideNestedParameter() {
     fakePlugin.setParameter("excludes/exclude", "abc");
     fakePlugin.setParameter("excludes/exclude", "overridden");
-    assertThat(fakePlugin.toString(), fakePlugin.getParameter("excludes/exclude"), is("overridden"));
-    assertThat(fakePlugin.toString(), fakePlugin.getParameters("excludes/exclude"), is(new String[]{"overridden"}));
+    assertThat(fakePlugin.getParameter("excludes/exclude")).isEqualTo("overridden");
+    assertThat(fakePlugin.getParameters("excludes/exclude")).containsOnly("overridden");
   }
 
   @Test
   public void shouldOverriddeParameter() {
     fakePlugin.setParameter("exclude", "abc");
     fakePlugin.setParameter("exclude", "overridden");
-    assertThat(fakePlugin.toString(), fakePlugin.getParameter("exclude"), is("overridden"));
-    assertThat(fakePlugin.toString(), fakePlugin.getParameters("exclude"), is(new String[]{"overridden"}));
+    assertThat(fakePlugin.getParameter("exclude")).isEqualTo("overridden");
+    assertThat(fakePlugin.getParameters("exclude")).containsOnly("overridden");
   }
 
   @Test
   public void shouldAddNestedParameter() {
     fakePlugin.addParameter("excludes/exclude", "abc");
-    assertThat(fakePlugin.toString(), fakePlugin.getParameter("excludes/exclude"), is("abc"));
-    assertThat(fakePlugin.toString(), fakePlugin.getParameters("excludes/exclude"), is(new String[]{"abc"}));
+    assertThat(fakePlugin.getParameter("excludes/exclude")).isEqualTo("abc");
+    assertThat(fakePlugin.getParameters("excludes/exclude")).containsOnly("abc");
   }
 
   @Test
   public void shouldAddManyValuesToTheSameParameter() {
     fakePlugin.addParameter("excludes/exclude", "abc");
     fakePlugin.addParameter("excludes/exclude", "def");
-    assertThat(fakePlugin.toString(), fakePlugin.getParameters("excludes/exclude"), is(new String[]{"abc", "def"}));
+    assertThat(fakePlugin.getParameters("excludes/exclude")).containsOnly("abc", "def");
   }
 
   @Test
@@ -154,38 +159,38 @@ public class MavenPluginTest {
     fakePlugin.addParameter("items/item/entry", "value1");
     fakePlugin.addParameter("items/item/entry", "value2");
 
-    assertThat(fakePlugin.toString(), fakePlugin.getParameters("items/item/entry"), is(new String[]{"value1", "value2"}));
-    assertThat(fakePlugin.toString(), fakePlugin.getParameters("items/item[0]/entry"), is(new String[]{"value1", "value2"}));
+    assertThat(fakePlugin.getParameters("items/item/entry")).containsOnly("value1", "value2");
+    assertThat(fakePlugin.getParameters("items/item[0]/entry")).containsOnly("value1", "value2");
   }
-  
+
 
   @Test
   public void addIndexedParameters() {
     fakePlugin.addParameter("items/item[0]/entry", "value1");
     fakePlugin.addParameter("items/item[1]/entry", "value2");
 
-    assertThat(fakePlugin.getParameter("items/item[0]/entry"), is("value1"));
-    assertThat(fakePlugin.getParameters("items/item[0]/entry"), is(new String[]{"value1"}));
+    assertThat(fakePlugin.getParameter("items/item[0]/entry")).isEqualTo("value1");
+    assertThat(fakePlugin.getParameters("items/item[0]/entry")).containsOnly("value1");
 
-    assertThat(fakePlugin.getParameter("items/item[1]/entry"), is("value2"));
-    assertThat(fakePlugin.getParameters("items/item[1]/entry"), is(new String[]{"value2"}));
+    assertThat(fakePlugin.getParameter("items/item[1]/entry")).isEqualTo("value2");
+    assertThat(fakePlugin.getParameters("items/item[1]/entry")).containsOnly("value2");
 
     //ensure that indexes aren't serialized to real configuration
-    assertThat(fakePlugin.getPlugin().getConfiguration().toString(), not(containsString("item[0]")));
-    assertThat(fakePlugin.getPlugin().getConfiguration().toString(), not(containsString("item[1]")));
+    assertThat(fakePlugin.getPlugin().getConfiguration().toString()).doesNotContain("item[0]");
+    assertThat(fakePlugin.getPlugin().getConfiguration().toString()).doesNotContain("item[1]");
   }
 
   @Test
-  public void removeIndexedParameter(){
+  public void removeIndexedParameter() {
     fakePlugin.addParameter("items/item[0]/entry", "value1");
     fakePlugin.addParameter("items/item[1]/entry", "value2");
 
     fakePlugin.removeParameter("items/item[1]");
     fakePlugin.removeParameter("items/notExists");
 
-    assertThat(fakePlugin.getParameter("items/item[0]/entry"), notNullValue());
-    assertThat(fakePlugin.getParameter("items/item[1]/entry"), nullValue());
-    assertThat(fakePlugin.getParameter("items/notExists"), nullValue());
+    assertThat(fakePlugin.getParameter("items/item[0]/entry")).isNotNull();
+    assertThat(fakePlugin.getParameter("items/item[1]/entry")).isNull();
+    assertThat(fakePlugin.getParameter("items/notExists")).isNull();
   }
 
   @Test
@@ -193,62 +198,62 @@ public class MavenPluginTest {
     MavenProject pom = MavenTestUtils.loadPom(getClass(), "registerNewPlugin.xml");
     MavenPlugin mavenPlugin = MavenPlugin.registerPlugin(pom, "mygroup", "my.artifact", "1.0", true);
 
-    assertThat(mavenPlugin, not(nullValue()));
+    assertThat(mavenPlugin).isNotNull();
     Plugin plugin = MavenUtils.getPlugin(pom.getBuildPlugins(), "mygroup", "my.artifact");
-    assertThat(plugin, not(nullValue()));
-    assertThat(plugin.getVersion(), is("1.0"));
+    assertThat(plugin).isNotNull();
+    assertThat(plugin.getVersion()).isEqualTo("1.0");
   }
 
   @Test
   public void overridePluginManagementSection() {
     MavenProject pom = MavenTestUtils.loadPom(getClass(), "overridePluginManagementSection.xml");
     MavenPlugin mavenPlugin = MavenPlugin.registerPlugin(pom, "mygroup", "my.artifact", "1.0", true);
-    assertThat(mavenPlugin, not(nullValue()));
+    assertThat(mavenPlugin).isNotNull();
 
     Plugin plugin = MavenUtils.getPlugin(pom.getBuildPlugins(), "mygroup", "my.artifact");
-    assertThat(plugin, not(nullValue()));
-    assertThat(plugin.getVersion(), is("1.0"));
+    assertThat(plugin).isNotNull();
+    assertThat(plugin.getVersion()).isEqualTo("1.0");
 
     Plugin pluginManagement = MavenUtils.getPlugin(pom.getPluginManagement().getPlugins(), "mygroup", "my.artifact");
-    assertThat(pluginManagement, nullValue());
+    assertThat(pluginManagement).isNull();
   }
 
   @Test
   public void doNotOverrideVersionFromPluginManagementSection() {
     MavenProject pom = MavenTestUtils.loadPom(getClass(), "overridePluginManagementSection.xml");
     MavenPlugin mavenPlugin = MavenPlugin.registerPlugin(pom, "mygroup", "my.artifact", "1.0", false);
-    assertThat(mavenPlugin, not(nullValue()));
+    assertThat(mavenPlugin).isNotNull();
 
     Plugin plugin = MavenUtils.getPlugin(pom.getBuildPlugins(), "mygroup", "my.artifact");
-    assertThat(plugin, not(nullValue()));
-    assertThat(plugin.getVersion(), is("0.9"));
+    assertThat(plugin).isNotNull();
+    assertThat(plugin.getVersion()).isEqualTo("0.9");
 
     Plugin pluginManagement = MavenUtils.getPlugin(pom.getPluginManagement().getPlugins(), "mygroup", "my.artifact");
-    assertThat(pluginManagement, nullValue());
+    assertThat(pluginManagement).isNull();
   }
 
   @Test
   public void keepPluginManagementDependencies() {
     MavenProject pom = MavenTestUtils.loadPom(getClass(), "keepPluginManagementDependencies.xml");
     MavenPlugin mavenPlugin = MavenPlugin.registerPlugin(pom, "mygroup", "my.artifact", "1.0", false);
-    assertThat(mavenPlugin, not(nullValue()));
+    assertThat(mavenPlugin).isNotNull();
 
     Plugin plugin = MavenUtils.getPlugin(pom.getBuildPlugins(), "mygroup", "my.artifact");
-    assertThat(plugin, not(nullValue()));
-    assertThat(plugin.getVersion(), is("0.9"));
-    assertThat(plugin.getDependencies().size(), is(1));
+    assertThat(plugin).isNotNull();
+    assertThat(plugin.getVersion()).isEqualTo("0.9");
+    assertThat(plugin.getDependencies().size()).isEqualTo(1);
   }
 
   @Test
   public void keepPluginDependencies() {
     MavenProject pom = MavenTestUtils.loadPom(getClass(), "keepPluginDependencies.xml");
     MavenPlugin mavenPlugin = MavenPlugin.registerPlugin(pom, "mygroup", "my.artifact", "1.0", false);
-    assertThat(mavenPlugin, not(nullValue()));
+    assertThat(mavenPlugin).isNotNull();
 
     Plugin plugin = MavenUtils.getPlugin(pom.getBuildPlugins(), "mygroup", "my.artifact");
-    assertThat(plugin, not(nullValue()));
-    assertThat(plugin.getVersion(), is("0.9"));
-    assertThat(plugin.getDependencies().size(), is(1));
+    assertThat(plugin).isNotNull();
+    assertThat(plugin.getVersion()).isEqualTo("0.9");
+    assertThat(plugin.getDependencies().size()).isEqualTo(1);
   }
 
   @Test
@@ -257,9 +262,9 @@ public class MavenPluginTest {
     MavenPlugin.registerPlugin(pom, "mygroup", "my.artifact", "1.0", false);
 
     MavenPlugin plugin = MavenPlugin.getPlugin(pom, "mygroup", "my.artifact");
-    assertThat(plugin, not(nullValue()));
-    assertThat(plugin.getPlugin().getVersion(), is("0.9"));
-    assertThat(plugin.getParameter("foo"), is("bar"));
+    assertThat(plugin).isNotNull();
+    assertThat(plugin.getPlugin().getVersion()).isEqualTo("0.9");
+    assertThat(plugin.getParameter("foo")).isEqualTo("bar");
   }
 
   @Test
@@ -268,9 +273,9 @@ public class MavenPluginTest {
     MavenPlugin.registerPlugin(pom, "mygroup", "my.artifact", "1.0", true);
 
     MavenPlugin plugin = MavenPlugin.getPlugin(pom, "mygroup", "my.artifact");
-    assertThat(plugin, not(nullValue()));
-    assertThat(plugin.getPlugin().getVersion(), is("1.0"));
-    assertThat(plugin.getParameter("foo"), is("bar"));
+    assertThat(plugin).isNotNull();
+    assertThat(plugin.getPlugin().getVersion()).isEqualTo("1.0");
+    assertThat(plugin.getParameter("foo")).isEqualTo("bar");
   }
 
   @Test
@@ -279,9 +284,9 @@ public class MavenPluginTest {
     MavenPlugin.registerPlugin(pom, "mygroup", "my.artifact", "1.0", true);
 
     MavenPlugin plugin = MavenPlugin.getPlugin(pom, "mygroup", "my.artifact");
-    assertThat(plugin, not(nullValue()));
-    assertThat(plugin.getPlugin().getVersion(), is("1.0"));
-    assertThat(plugin.getParameter("foo"), is("bar"));
+    assertThat(plugin).isNotNull();
+    assertThat(plugin.getPlugin().getVersion()).isEqualTo("1.0");
+    assertThat(plugin.getParameter("foo")).isEqualTo("bar");
   }
 
   @Test
@@ -289,12 +294,12 @@ public class MavenPluginTest {
     MavenProject pom = MavenTestUtils.loadPom(getClass(), "getConfigurationFromReport.xml");
     MavenPlugin.registerPlugin(pom, "mygroup", "my.artifact", "1.0", true);
 
-    assertThat(pom.getBuildPlugins().size(), is(1));
-    assertThat(pom.getReportPlugins().size(), is(0));
+    assertThat(pom.getBuildPlugins().size()).isEqualTo(1);
+    assertThat(pom.getReportPlugins().size()).isEqualTo(0);
 
     MavenPlugin plugin = MavenPlugin.getPlugin(pom, "mygroup", "my.artifact");
-    assertThat(plugin, not(nullValue()));
-    assertThat(plugin.getPlugin().getVersion(), is("1.0"));
-    assertThat(plugin.getParameter("foo"), is("bar"));
+    assertThat(plugin).isNotNull();
+    assertThat(plugin.getPlugin().getVersion()).isEqualTo("1.0");
+    assertThat(plugin.getParameter("foo")).isEqualTo("bar");
   }
 }

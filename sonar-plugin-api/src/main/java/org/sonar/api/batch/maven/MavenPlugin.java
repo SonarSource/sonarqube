@@ -71,6 +71,14 @@ public class MavenPlugin {
   }
 
   /**
+   * @since 3.5 - see SONAR-4070
+   * @return the XML node <configuration> of pom
+   */
+  public Xpp3Dom getConfigurationXmlNode() {
+    return configuration;
+  }
+
+  /**
    * Sets the maven plugin version
    *
    * @param version the version
