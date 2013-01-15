@@ -46,7 +46,7 @@ public class ProjectTestsImpl implements ProjectTests, BatchExtension {
     FileTest fileTest = getFileTest(fileTestKey);
     fileTest.addTest(test);
 
-    LOG.info("Added a new test : " + toString());
+    LOG.debug("Added a new test : " + toString());
   }
 
   public List<FileTest> getFileTests() {
@@ -55,7 +55,7 @@ public class ProjectTestsImpl implements ProjectTests, BatchExtension {
 
   public void cover(String fileTestKey, String test, String mainFile, Collection<Integer> lines){
     FileTest fileTest = find(fileTestKey);
-    LOG.info("Covering - File test :" + toString() + ", test:" + test + ", file:" + mainFile+ ", lines:"+ Iterables.toString(lines));
+    LOG.debug("Covering - File test :" + toString() + ", test:" + test + ", file:" + mainFile+ ", lines:"+ Iterables.toString(lines));
   }
 
   private FileTest getFileTest(final String key) {
