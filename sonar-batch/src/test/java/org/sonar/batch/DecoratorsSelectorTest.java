@@ -25,7 +25,6 @@ import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
-import org.sonar.api.batch.TaskExtensionDictionnary;
 import org.sonar.api.measures.Formula;
 import org.sonar.api.measures.FormulaContext;
 import org.sonar.api.measures.FormulaData;
@@ -52,10 +51,9 @@ public class DecoratorsSelectorTest {
   @Test
   public void selectAndSortFormulas() {
     Project project = new Project("key");
-    TaskExtensionDictionnary taskExtDictionnary = newTaskDictionnary(withFormula1, withoutFormula3, withFormula2);
-    BatchExtensionDictionnary batchExtDictionnary = newBatchDictionnary();
+    BatchExtensionDictionnary batchExtDictionnary = newBatchDictionnary(withFormula1, withoutFormula3, withFormula2);
 
-    Collection<Decorator> decorators = new DecoratorsSelector(taskExtDictionnary, batchExtDictionnary).select(project);
+    Collection<Decorator> decorators = new DecoratorsSelector(batchExtDictionnary).select(project);
     assertThat(decorators.size(), is(2));
     assertThat(decorators, hasItem((Decorator) new FormulaDecorator(withFormula1)));
     assertThat(decorators, hasItem((Decorator) new FormulaDecorator(withFormula2)));
@@ -65,10 +63,9 @@ public class DecoratorsSelectorTest {
   public void decoratorsShouldBeExecutedBeforeFormulas() {
     Project project = new Project("key");
     Decorator metric1Decorator = new Metric1Decorator();
-    TaskExtensionDictionnary taskExtDictionnary = newTaskDictionnary(withFormula1);
-    BatchExtensionDictionnary batchExtDictionnary = newBatchDictionnary(metric1Decorator);
+    BatchExtensionDictionnary batchExtDictionnary = newBatchDictionnary(withFormula1, metric1Decorator);
 
-    Collection<Decorator> decorators = new DecoratorsSelector(taskExtDictionnary, batchExtDictionnary).select(project);
+    Collection<Decorator> decorators = new DecoratorsSelector(batchExtDictionnary).select(project);
 
     Decorator firstDecorator = (Decorator) CollectionUtils.get(decorators, 0);
     Decorator secondDecorator = (Decorator) CollectionUtils.get(decorators, 1);
@@ -79,14 +76,6 @@ public class DecoratorsSelectorTest {
     FormulaDecorator formulaDecorator = (FormulaDecorator) secondDecorator;
     assertThat(formulaDecorator.dependsUponDecorators().size(), is(1));
     assertThat(CollectionUtils.get(formulaDecorator.dependsUponDecorators(), 0), is((Object) firstDecorator));
-  }
-
-  private TaskExtensionDictionnary newTaskDictionnary(Object... extensions) {
-    ComponentContainer ioc = new ComponentContainer();
-    for (Object extension : extensions) {
-      ioc.addSingleton(extension);
-    }
-    return new TaskExtensionDictionnary(ioc);
   }
 
   private BatchExtensionDictionnary newBatchDictionnary(Object... extensions) {

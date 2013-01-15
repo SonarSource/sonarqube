@@ -23,7 +23,6 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.TaskExtensionDictionnary;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 
@@ -34,17 +33,15 @@ import java.util.List;
 public final class DecoratorsSelector {
 
   private BatchExtensionDictionnary batchExtDictionnary;
-  private TaskExtensionDictionnary taskExtDictionnary;
 
-  public DecoratorsSelector(TaskExtensionDictionnary taskExtDictionnary, BatchExtensionDictionnary dictionnary) {
-    this.taskExtDictionnary = taskExtDictionnary;
+  public DecoratorsSelector(BatchExtensionDictionnary dictionnary) {
     this.batchExtDictionnary = dictionnary;
   }
 
   public Collection<Decorator> select(Project project) {
     List<Decorator> decorators = new ArrayList<Decorator>(batchExtDictionnary.select(Decorator.class, project, false));
     SetMultimap<Metric, Decorator> decoratorsByGeneratedMetric = getDecoratorsByMetric(decorators);
-    for (Metric metric : taskExtDictionnary.select(Metric.class)) {
+    for (Metric metric : batchExtDictionnary.select(Metric.class)) {
       if (metric.getFormula() != null) {
         decorators.add(new FormulaDecorator(metric, decoratorsByGeneratedMetric.get(metric)));
       }

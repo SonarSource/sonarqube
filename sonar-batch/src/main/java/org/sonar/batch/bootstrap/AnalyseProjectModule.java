@@ -32,10 +32,12 @@ public class AnalyseProjectModule extends Module {
 
   @Override
   protected void configure() {
-    registerBatchExtensions();
+    container.addSingleton(MetricProvider.class);
+
+    registerPerBatchExtensions();
   }
 
-  private void registerBatchExtensions() {
+  private void registerPerBatchExtensions() {
     ExtensionInstaller installer = container.getComponentByType(ExtensionInstaller.class);
     installer.installBatchExtensions(container, InstantiationStrategy.PER_BATCH);
   }
