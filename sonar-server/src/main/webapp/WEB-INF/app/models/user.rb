@@ -212,4 +212,9 @@ class User < ActiveRecord::Base
   def notify_creation_handlers
     Java::OrgSonarServerUi::JRubyFacade.getInstance().onNewUser({'login' => self.login, 'name' => self.name, 'email' => self.email})
   end
+
+  # Need to overwrite Authentication::ByPassword#password_required? for SONAR-4064  
+  def password_required?
+    (crypted_password.blank? && self.new_record?) || !password.blank?
+  end
 end
