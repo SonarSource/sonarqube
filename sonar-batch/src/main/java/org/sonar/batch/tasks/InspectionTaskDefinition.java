@@ -23,7 +23,7 @@ import org.sonar.api.batch.TaskDefinition;
 import org.sonar.api.batch.TaskDescriptor;
 import org.sonar.api.batch.TaskExecutor;
 
-public class AnalyseProjectTaskDefinition implements TaskDefinition {
+public class InspectionTaskDefinition implements TaskDefinition {
 
   public static final String COMMAND = "analyse-project";
 
@@ -36,7 +36,7 @@ public class AnalyseProjectTaskDefinition implements TaskDefinition {
   }
 
   public Class<? extends TaskExecutor> getExecutor() {
-    return AnalyseProjectTaskExecutor.class;
+    return InspectionTaskExecutor.class;
   }
 
 }

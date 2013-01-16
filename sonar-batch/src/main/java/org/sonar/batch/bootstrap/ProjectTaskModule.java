@@ -48,4 +48,5 @@ public class ProjectTaskModule extends AbstractTaskModule {
 
     container.addSingleton(DryRunDatabase.class);
   }
+
 }

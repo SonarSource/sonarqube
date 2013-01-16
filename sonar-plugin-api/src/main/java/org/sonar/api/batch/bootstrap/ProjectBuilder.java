@@ -19,8 +19,8 @@
  */
 package org.sonar.api.batch.bootstrap;
 
-import org.sonar.api.TaskExtension;
-import org.sonar.api.batch.RequiresProject;
+import org.sonar.api.BatchExtension;
+import org.sonar.api.batch.InstantiationStrategy;
 
 /**
  * This extension point allows to change project structure at runtime. It is executed once during task startup.
@@ -34,8 +34,8 @@ import org.sonar.api.batch.RequiresProject;
  *
  * @since 2.9
  */
-@RequiresProject
-public abstract class ProjectBuilder implements TaskExtension {
+@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
+public abstract class ProjectBuilder implements BatchExtension {
 
   private ProjectReactor reactor;
 

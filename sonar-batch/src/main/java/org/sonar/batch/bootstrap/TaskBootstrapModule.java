@@ -23,7 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.TaskDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.tasks.AnalyseProjectTaskDefinition;
+import org.sonar.batch.tasks.InspectionTaskDefinition;
 import org.sonar.batch.tasks.ListTaskDefinition;
 import org.sonar.batch.tasks.TaskManager;
 
@@ -46,7 +46,7 @@ public class TaskBootstrapModule extends Module {
   }
 
   private void registerCoreTaskDefinitions() {
-    container.addSingleton(AnalyseProjectTaskDefinition.class);
+    container.addSingleton(InspectionTaskDefinition.class);
     container.addSingleton(ListTaskDefinition.class);
   }
 
@@ -57,7 +57,7 @@ public class TaskBootstrapModule extends Module {
 
   @Override
   protected void doStart() {
-    String command = StringUtils.isNotBlank(taskCommand) ? taskCommand : AnalyseProjectTaskDefinition.COMMAND;
+    String command = StringUtils.isNotBlank(taskCommand) ? taskCommand : InspectionTaskDefinition.COMMAND;
     TaskManager manager = container.getComponentByType(TaskManager.class);
     executeTask(manager.getTask(command));
   }

@@ -28,7 +28,7 @@ import org.sonar.api.platform.ComponentContainer;
  */
 public abstract class Module {
 
-  ComponentContainer container;
+  protected ComponentContainer container;
 
   /**
    * @return this

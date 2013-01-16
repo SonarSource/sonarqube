@@ -94,7 +94,7 @@ public class ExtensionInstallerTest {
     ComponentContainer container = new ComponentContainer();
     ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new Settings());
 
-    installer.installBatchExtensions(container, InstantiationStrategy.PER_PROJECT);
+    installer.installInspectionExtensions(container);
 
     assertThat(container.getComponentByType(MavenService.class)).isNull();
     assertThat(container.getComponentByType(BuildToolService.class)).isNotNull();
@@ -111,7 +111,7 @@ public class ExtensionInstallerTest {
     container.addSingleton(project);
     ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("maven", "2.2.1"), new Settings());
 
-    installer.installBatchExtensions(container, InstantiationStrategy.PER_PROJECT);
+    installer.installInspectionExtensions(container);
 
     assertThat(container.getComponentByType(MavenService.class)).isNull();
   }

@@ -22,7 +22,6 @@ package org.sonar.batch.bootstrap;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
 import org.mockito.Matchers;
-import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.platform.ComponentContainer;
@@ -30,15 +29,15 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.index.ResourcePersister;
+import org.sonar.batch.tasks.InspectionModule;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class ProjectModuleTest {
+public class InspectionModuleTest {
   @Test
   public void should_register_project_extensions() {
     // components injected in the parent container
@@ -47,7 +46,7 @@ public class ProjectModuleTest {
     final ProjectTree projectTree = mock(ProjectTree.class);
     when(projectTree.getProjectDefinition(project)).thenReturn(ProjectDefinition.create());
     final ResourcePersister resourcePersister = mock(ResourcePersister.class);
-    when(resourcePersister.getSnapshot(Matchers.<Resource>any())).thenReturn(new Snapshot());
+    when(resourcePersister.getSnapshot(Matchers.<Resource> any())).thenReturn(new Snapshot());
 
     final ExtensionInstaller extensionInstaller = mock(ExtensionInstaller.class);
     Module batchModule = new Module() {
@@ -61,10 +60,10 @@ public class ProjectModuleTest {
     };
 
     batchModule.init();
-    ProjectModule projectModule = new ProjectModule(project);
+    InspectionModule projectModule = new InspectionModule(project);
     batchModule.installChild(projectModule);
 
-    verify(extensionInstaller).installBatchExtensions(any(ComponentContainer.class), eq(InstantiationStrategy.PER_PROJECT));
+    verify(extensionInstaller).installInspectionExtensions(any(ComponentContainer.class));
     assertThat(projectModule.container.getComponentByType(ProjectSettings.class)).isNotNull();
   }
 }

@@ -109,6 +109,7 @@ public abstract class AbstractTaskModule extends Module {
     container.addSingleton(DefaultUserFinder.class);
     container.addSingleton(ResourceTypes.class);
     container.addSingleton(SemaphoresImpl.class);
+    container.addSingleton(MetricProvider.class);
   }
 
   private void registerDatabaseComponents() {

@@ -17,12 +17,11 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.batch.tasks;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.BatchExtensionDictionnary;
-import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Languages;
@@ -37,6 +36,10 @@ import org.sonar.batch.ProfileProvider;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.ResourceFilters;
 import org.sonar.batch.ViolationFilters;
+import org.sonar.batch.bootstrap.ExtensionInstaller;
+import org.sonar.batch.bootstrap.Module;
+import org.sonar.batch.bootstrap.ProjectSettings;
+import org.sonar.batch.bootstrap.UnsupportedProperties;
 import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
@@ -48,11 +51,11 @@ import org.sonar.core.qualitymodel.DefaultModelFinder;
 import org.sonar.jpa.dao.ProfilesDao;
 import org.sonar.jpa.dao.RulesDao;
 
-public class ProjectModule extends Module {
-  private static final Logger LOG = LoggerFactory.getLogger(ProjectModule.class);
+public class InspectionModule extends Module {
+  private static final Logger LOG = LoggerFactory.getLogger(InspectionModule.class);
   private Project project;
 
-  public ProjectModule(Project project) {
+  public InspectionModule(Project project) {
     this.project = project;
   }
 
@@ -109,12 +112,11 @@ public class ProjectModule extends Module {
 
   private void addPluginExtensions() {
     ExtensionInstaller installer = container.getComponentByType(ExtensionInstaller.class);
-    installer.installBatchExtensions(container, InstantiationStrategy.PER_PROJECT);
+    installer.installInspectionExtensions(container);
   }
 
   private void logSettings() {
-    // TODO move these logs in a dedicated component
-    LOG.info("-------------  Analyzing {}", project.getName());
+    LOG.info("-------------  Inspecting {}", project.getName());
   }
 
   /**

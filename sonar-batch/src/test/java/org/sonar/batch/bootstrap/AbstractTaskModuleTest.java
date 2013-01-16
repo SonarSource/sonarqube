@@ -20,17 +20,17 @@
 package org.sonar.batch.bootstrap;
 
 import org.junit.Test;
-import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.platform.ComponentContainer;
+import org.sonar.batch.tasks.ListTaskDefinition;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class AnalyseProjectModuleTest {
+public class AbstractTaskModuleTest {
   @Test
-  public void should_register_batch_extensions() {
+  public void should_register_task_extensions_when_project_present() {
     final ExtensionInstaller extensionInstaller = mock(ExtensionInstaller.class);
     Module bootstrapModule = new Module() {
       @Override
@@ -40,9 +40,26 @@ public class AnalyseProjectModuleTest {
       }
     };
     bootstrapModule.init();
-    AnalyseProjectModule module = new AnalyseProjectModule(null);
+    ProjectTaskModule module = new ProjectTaskModule(new ListTaskDefinition());
     bootstrapModule.installChild(module);
 
-    verify(extensionInstaller).installBatchExtensions(any(ComponentContainer.class), eq(InstantiationStrategy.PER_BATCH));
+    verify(extensionInstaller).installTaskExtensions(any(ComponentContainer.class), eq(true));
+  }
+
+  @Test
+  public void should_register_task_extensions_when_no_project() {
+    final ExtensionInstaller extensionInstaller = mock(ExtensionInstaller.class);
+    Module bootstrapModule = new Module() {
+      @Override
+      protected void configure() {
+        // used to install project extensions
+        container.addSingleton(extensionInstaller);
+      }
+    };
+    bootstrapModule.init();
+    ProjectLessTaskModule module = new ProjectLessTaskModule(new ListTaskDefinition());
+    bootstrapModule.installChild(module);
+
+    verify(extensionInstaller).installTaskExtensions(any(ComponentContainer.class), eq(false));
   }
 }

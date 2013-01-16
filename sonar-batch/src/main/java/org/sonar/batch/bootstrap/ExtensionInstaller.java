@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.bootstrap;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
@@ -99,6 +100,7 @@ public class ExtensionInstaller implements BatchComponent {
   }
 
   public void installTaskExtensions(ComponentContainer container, boolean projectPresent) {
+    boolean dryRun = settings.getBoolean(CoreProperties.DRY_RUN);
     for (Map.Entry<PluginMetadata, Plugin> entry : pluginRepository.getPluginsByMetadata().entrySet()) {
       PluginMetadata metadata = entry.getKey();
       Plugin plugin = entry.getValue();
@@ -106,12 +108,18 @@ public class ExtensionInstaller implements BatchComponent {
       container.addExtension(metadata, plugin);
       for (Object extension : plugin.getExtensions()) {
         installTaskExtension(container, metadata, extension, projectPresent);
+        if (projectPresent) {
+          installBatchExtension(container, metadata, extension, dryRun, InstantiationStrategy.PER_BATCH);
+        }
       }
     }
 
     List<ExtensionProvider> providers = container.getComponentsByType(ExtensionProvider.class);
     for (ExtensionProvider provider : providers) {
       executeTaskExtensionProvider(container, provider, projectPresent);
+      if (projectPresent) {
+        executeBatchExtensionProvider(container, InstantiationStrategy.PER_BATCH, dryRun, provider);
+      }
     }
   }
 
@@ -146,7 +154,12 @@ public class ExtensionInstaller implements BatchComponent {
     return installed;
   }
 
-  public void installBatchExtensions(ComponentContainer container, String instantiationStrategy) {
+  public void installInspectionExtensions(ComponentContainer container) {
+    installBatchExtensions(container, InstantiationStrategy.PER_PROJECT);
+  }
+
+  @VisibleForTesting
+  void installBatchExtensions(ComponentContainer container, String instantiationStrategy) {
     boolean dryRun = settings.getBoolean(CoreProperties.DRY_RUN);
     for (Map.Entry<PluginMetadata, Plugin> entry : pluginRepository.getPluginsByMetadata().entrySet()) {
       PluginMetadata metadata = entry.getKey();

@@ -17,37 +17,27 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.batch.tasks;
 
-import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.batch.RequiresProject;
+import org.sonar.api.batch.TaskExecutor;
+import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.ProjectTree;
 
-public class AnalyseProjectModule extends Module {
+@RequiresProject
+public class InspectionTaskExecutor implements TaskExecutor {
 
-  private Project rootProject;
+  private final ComponentContainer container;
+  private final ProjectTree projectTree;
 
-  public AnalyseProjectModule(Project rootProject) {
-    this.rootProject = rootProject;
+  public InspectionTaskExecutor(ProjectTree projectTree, ComponentContainer container) {
+    this.container = container;
+    this.projectTree = projectTree;
   }
 
-  @Override
-  protected void configure() {
-    container.addSingleton(MetricProvider.class);
-
-    registerPerBatchExtensions();
-  }
-
-  private void registerPerBatchExtensions() {
-    ExtensionInstaller installer = container.getComponentByType(ExtensionInstaller.class);
-    installer.installBatchExtensions(container, InstantiationStrategy.PER_BATCH);
-  }
-
-  /**
-   * Analyze project
-   */
-  @Override
-  protected void doStart() {
-    analyze(rootProject);
+  public void execute() {
+    analyze(projectTree.getRootProject());
   }
 
   private void analyze(Project project) {
@@ -55,13 +45,15 @@ public class AnalyseProjectModule extends Module {
       analyze(subProject);
     }
 
-    ProjectModule projectModule = new ProjectModule(project);
+    InspectionModule projectModule = new InspectionModule(project);
     try {
-      installChild(projectModule);
+      ComponentContainer childContainer = container.createChild();
+      projectModule.init(childContainer);
       projectModule.start();
     } finally {
       projectModule.stop();
-      uninstallChild();
+      container.removeChild();
     }
   }
+
 }
