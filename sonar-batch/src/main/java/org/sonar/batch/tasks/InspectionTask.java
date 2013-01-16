@@ -19,19 +19,27 @@
  */
 package org.sonar.batch.tasks;
 
-import org.sonar.api.batch.RequiresProject;
-import org.sonar.api.batch.TaskExecutor;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
+import org.sonar.api.task.RequiresProject;
+import org.sonar.api.task.Task;
+import org.sonar.api.task.TaskDefinition;
 import org.sonar.batch.ProjectTree;
 
 @RequiresProject
-public class InspectionTaskExecutor implements TaskExecutor {
+public class InspectionTask implements Task {
+
+  public static final String COMMAND = "inspect";
+  public static final TaskDefinition DEFINITION = TaskDefinition.create()
+      .setDescription("Start a Sonar inspection of a project")
+      .setName("Sonar project inspection")
+      .setCommand(COMMAND)
+      .setTask(InspectionTask.class);
 
   private final ComponentContainer container;
   private final ProjectTree projectTree;
 
-  public InspectionTaskExecutor(ProjectTree projectTree, ComponentContainer container) {
+  public InspectionTask(ProjectTree projectTree, ComponentContainer container) {
     this.container = container;
     this.projectTree = projectTree;
   }

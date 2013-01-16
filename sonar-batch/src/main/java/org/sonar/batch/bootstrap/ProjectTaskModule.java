@@ -19,12 +19,13 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.api.batch.TaskDefinition;
+import org.sonar.api.task.TaskDefinition;
+
 import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.ProjectConfigurator;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.index.DefaultIndex;
-import org.sonar.batch.tasks.InspectionTaskExecutor;
+import org.sonar.batch.tasks.InspectionTask;
 
 public class ProjectTaskModule extends AbstractTaskModule {
 
@@ -52,7 +53,7 @@ public class ProjectTaskModule extends AbstractTaskModule {
   }
 
   private void registerCoreTasksRequiringProject() {
-    container.addSingleton(InspectionTaskExecutor.class);
+    container.addSingleton(InspectionTask.class);
   }
 
 }

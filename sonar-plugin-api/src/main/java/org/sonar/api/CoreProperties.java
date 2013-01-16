@@ -161,7 +161,6 @@ public interface CoreProperties {
   String BATCH_INCLUDE_PLUGINS = "sonar.includePlugins";
   String BATCH_EXCLUDE_PLUGINS = "sonar.excludePlugins";
 
-
   /**
    * @since 3.4
    */
@@ -371,6 +370,11 @@ public interface CoreProperties {
    * @since 3.4
    */
   String FORCE_ANALYSIS = "sonar.forceAnalysis";
+
+  /**
+   * @since 3.5
+   */
+  String TASK = "sonar.task";
 
   /**
    * @deprecated replaced in v3.4 by properties specific to languages, for example sonar.java.coveragePlugin

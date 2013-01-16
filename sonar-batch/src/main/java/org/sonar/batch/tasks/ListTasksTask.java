@@ -19,24 +19,29 @@
  */
 package org.sonar.batch.tasks;
 
-import org.sonar.api.batch.TaskDefinition;
-import org.sonar.api.batch.TaskDescriptor;
-import org.sonar.api.batch.TaskExecutor;
+import org.sonar.api.task.Task;
+import org.sonar.api.task.TaskDefinition;
 
-public class InspectionTaskDefinition implements TaskDefinition {
+public class ListTasksTask implements Task {
 
-  public static final String COMMAND = "inspect";
+  public static final String COMMAND = "list-tasks";
 
-  public TaskDescriptor getTaskDescriptor() {
-    return TaskDescriptor.create()
-        .setDescription("Start a Sonar inspection of a project")
-        .setName("Sonar project inspection")
-        .setCommand(COMMAND)
-        .setRequiresProject(true);
+  public static final TaskDefinition DEFINITION = TaskDefinition.create()
+      .setDescription("List all available tasks on the Sonar server")
+      .setName("List tasks")
+      .setCommand(COMMAND)
+      .setTask(ListTasksTask.class);
+
+  private final Tasks taskManager;
+
+  public ListTasksTask(Tasks taskManager) {
+    this.taskManager = taskManager;
   }
 
-  public Class<? extends TaskExecutor> getExecutor() {
-    return InspectionTaskExecutor.class;
+  public void execute() {
+    for (TaskDefinition taskDef : taskManager.getTaskDefinitions()) {
+      System.out.println("  " + taskDef.getCommand() + ": " + taskDef.getDescription());
+    }
   }
 
 }

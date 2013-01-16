@@ -17,32 +17,34 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.batch;
+package org.sonar.api.task;
+
+import org.sonar.api.TaskDefinitionExtension;
 
 /**
- * Provide description of a task.
+ * Implement this interface to provide a new task.
  * @since 3.5
  */
-public class TaskDescriptor {
+public class TaskDefinition implements TaskDefinitionExtension {
 
   private String name;
   private String description;
   private String command;
-  private boolean requiresProject = false;
+  private Class<? extends Task> task;
 
-  private TaskDescriptor() {
+  private TaskDefinition() {
 
   }
 
-  public static TaskDescriptor create() {
-    return new TaskDescriptor();
+  public static TaskDefinition create() {
+    return new TaskDefinition();
   }
 
   public String getName() {
     return name;
   }
 
-  public TaskDescriptor setName(String name) {
+  public TaskDefinition setName(String name) {
     this.name = name;
     return this;
   }
@@ -51,7 +53,7 @@ public class TaskDescriptor {
     return description;
   }
 
-  public TaskDescriptor setDescription(String description) {
+  public TaskDefinition setDescription(String description) {
     this.description = description;
     return this;
   }
@@ -60,18 +62,23 @@ public class TaskDescriptor {
     return command;
   }
 
-  public TaskDescriptor setCommand(String command) {
+  public TaskDefinition setCommand(String command) {
     this.command = command;
     return this;
   }
 
-  public boolean isRequiresProject() {
-    return requiresProject;
+  public Class<? extends Task> getTask() {
+    return task;
   }
 
-  public TaskDescriptor setRequiresProject(boolean requiresProject) {
-    this.requiresProject = requiresProject;
+  public TaskDefinition setTask(Class<? extends Task> task) {
+    this.task = task;
     return this;
+  }
+
+  @Override
+  public String toString() {
+    return "Definition of task " + task + " with command " + command;
   }
 
 }

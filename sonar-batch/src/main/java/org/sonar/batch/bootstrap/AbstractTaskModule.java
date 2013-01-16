@@ -21,10 +21,10 @@ package org.sonar.batch.bootstrap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.TaskDefinition;
-import org.sonar.api.batch.TaskExecutor;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.resources.ResourceTypes;
+import org.sonar.api.task.Task;
+import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.components.PastMeasuresLoader;
@@ -42,7 +42,7 @@ import org.sonar.batch.index.LinkPersister;
 import org.sonar.batch.index.MeasurePersister;
 import org.sonar.batch.index.MemoryOptimizer;
 import org.sonar.batch.index.SourcePersister;
-import org.sonar.batch.tasks.ListTaskExecutor;
+import org.sonar.batch.tasks.ListTasksTask;
 import org.sonar.core.i18n.I18nManager;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.metric.CacheMetricFinder;
@@ -65,11 +65,11 @@ public abstract class AbstractTaskModule extends Module {
 
   private static final Logger LOG = LoggerFactory.getLogger(AbstractTaskModule.class);
 
-  private TaskDefinition task;
+  private TaskDefinition taskDefinition;
   private boolean projectPresent;
 
   public AbstractTaskModule(TaskDefinition task, boolean projectPresent) {
-    this.task = task;
+    this.taskDefinition = task;
     this.projectPresent = projectPresent;
   }
 
@@ -132,7 +132,7 @@ public abstract class AbstractTaskModule extends Module {
   }
 
   private void registerCoreTasks() {
-    container.addSingleton(ListTaskExecutor.class);
+    container.addSingleton(ListTasksTask.class);
   }
 
   private void registerTaskExtensions() {
@@ -141,7 +141,7 @@ public abstract class AbstractTaskModule extends Module {
   }
 
   private void logSettings() {
-    LOG.info("-------------  Executing {}", task.getTaskDescriptor().getName());
+    LOG.info("-------------  Executing {}", taskDefinition.getName());
   }
 
   /**
@@ -149,12 +149,12 @@ public abstract class AbstractTaskModule extends Module {
    */
   @Override
   protected void doStart() {
-    TaskExecutor taskExecutor = container.getComponentByType(task.getExecutor());
-    if (taskExecutor != null) {
-      taskExecutor.execute();
+    Task task = container.getComponentByType(taskDefinition.getTask());
+    if (task != null) {
+      task.execute();
     }
     else {
-      throw new SonarException("Extension " + task.getExecutor() + " was not found in declared extensions.");
+      throw new SonarException("Extension " + taskDefinition.getTask() + " was not found in declared extensions.");
     }
   }
 

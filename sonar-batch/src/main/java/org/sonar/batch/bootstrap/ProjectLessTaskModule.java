@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.api.batch.TaskDefinition;
+import org.sonar.api.task.TaskDefinition;
 
 public class ProjectLessTaskModule extends AbstractTaskModule {
 

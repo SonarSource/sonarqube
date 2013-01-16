@@ -137,7 +137,7 @@ public class ExtensionInstaller implements BatchComponent {
   boolean installTaskExtension(ComponentContainer container, @Nullable PluginMetadata plugin, Object extension, boolean projectPresent) {
     boolean installed;
     if (ExtensionUtils.isTaskExtension(extension) &&
-      (projectPresent || !ExtensionUtils.requireProject(extension)) &&
+      (projectPresent || !ExtensionUtils.requiresProject(extension)) &&
       ExtensionUtils.supportsEnvironment(extension, environment)) {
       if (plugin != null) {
         LOG.debug("Installing task extension {} from plugin {}", extension.toString(), plugin.getKey());

@@ -19,47 +19,38 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.platform.ComponentContainer;
-import org.sonar.api.task.TaskDefinition;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.config.Settings;
+import org.sonar.api.utils.SonarException;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
-public class AbstractTaskModuleTest {
+public class TaskBootstrapModuleTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
   @Test
-  public void should_register_task_extensions_when_project_present() {
+  public void should_throw_when_no_project_and_task_require_project() {
     final ExtensionInstaller extensionInstaller = mock(ExtensionInstaller.class);
     Module bootstrapModule = new Module() {
       @Override
       protected void configure() {
         // used to install project extensions
         container.addSingleton(extensionInstaller);
+        container.addSingleton(Settings.class);
       }
     };
     bootstrapModule.init();
-    ProjectTaskModule module = new ProjectTaskModule(TaskDefinition.create());
+    TaskBootstrapModule module = new TaskBootstrapModule("inspect");
     bootstrapModule.installChild(module);
 
-    verify(extensionInstaller).installTaskExtensions(any(ComponentContainer.class), eq(true));
+    thrown.expect(SonarException.class);
+    thrown.expectMessage("Task Sonar project inspection requires to be run on a project");
+
+    module.doStart();
   }
 
-  @Test
-  public void should_register_task_extensions_when_no_project() {
-    final ExtensionInstaller extensionInstaller = mock(ExtensionInstaller.class);
-    Module bootstrapModule = new Module() {
-      @Override
-      protected void configure() {
-        // used to install project extensions
-        container.addSingleton(extensionInstaller);
-      }
-    };
-    bootstrapModule.init();
-    ProjectLessTaskModule module = new ProjectLessTaskModule(TaskDefinition.create());
-    bootstrapModule.installChild(module);
-
-    verify(extensionInstaller).installTaskExtensions(any(ComponentContainer.class), eq(false));
-  }
 }

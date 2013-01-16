@@ -19,13 +19,12 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.TaskDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.tasks.InspectionTaskDefinition;
-import org.sonar.batch.tasks.ListTaskDefinition;
-import org.sonar.batch.tasks.TaskManager;
+import org.sonar.batch.tasks.InspectionTask;
+import org.sonar.batch.tasks.ListTasksTask;
+import org.sonar.batch.tasks.Tasks;
 
 /**
  * Level-2 components. Collect tasks definitions.
@@ -42,12 +41,12 @@ public class TaskBootstrapModule extends Module {
   protected void configure() {
     registerCoreTaskDefinitions();
     registerTaskDefinitionExtensions();
-    container.addSingleton(TaskManager.class);
+    container.addSingleton(Tasks.class);
   }
 
   private void registerCoreTaskDefinitions() {
-    container.addSingleton(InspectionTaskDefinition.class);
-    container.addSingleton(ListTaskDefinition.class);
+    container.addSingleton(InspectionTask.DEFINITION);
+    container.addSingleton(ListTasksTask.DEFINITION);
   }
 
   private void registerTaskDefinitionExtensions() {
@@ -57,22 +56,21 @@ public class TaskBootstrapModule extends Module {
 
   @Override
   protected void doStart() {
-    String command = StringUtils.isNotBlank(taskCommand) ? taskCommand : InspectionTaskDefinition.COMMAND;
-    TaskManager manager = container.getComponentByType(TaskManager.class);
-    executeTask(manager.getTask(command));
+    Tasks tasks = container.getComponentByType(Tasks.class);
+    executeTask(tasks.getTaskDefinition(taskCommand));
   }
 
-  private void executeTask(TaskDefinition task) {
+  private void executeTask(TaskDefinition taskDefinition) {
     boolean projectPresent = container.getComponentByType(ProjectReactor.class) != null;
-    if (task.getTaskDescriptor().isRequiresProject() && !projectPresent) {
-      throw new SonarException("Task " + task.getTaskDescriptor().getName() + " requires to be run on a project");
+    if (ExtensionUtils.requiresProject(taskDefinition.getTask()) && !projectPresent) {
+      throw new SonarException("Task " + taskDefinition.getName() + " requires to be run on a project");
     }
     Module childModule;
     if (projectPresent) {
-      childModule = new ProjectTaskModule(task);
+      childModule = new ProjectTaskModule(taskDefinition);
     }
     else {
-      childModule = new ProjectLessTaskModule(task);
+      childModule = new ProjectLessTaskModule(taskDefinition);
     }
     try {
       installChild(childModule);

@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.api.batch.RequiresProject;
-
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.Extension;
@@ -28,6 +26,7 @@ import org.sonar.api.TaskDefinitionExtension;
 import org.sonar.api.TaskExtension;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.SupportedEnvironment;
+import org.sonar.api.task.RequiresProject;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.core.DryRunIncompatible;
@@ -75,8 +74,8 @@ final class ExtensionUtils {
     return AnnotationUtils.getAnnotation(extension, DryRunIncompatible.class) == null;
   }
 
-  static boolean requireProject(Object extension) {
-    return AnnotationUtils.getAnnotation(extension, RequiresProject.class) == null;
+  static boolean requiresProject(Object extension) {
+    return AnnotationUtils.getAnnotation(extension, RequiresProject.class) != null;
   }
 
   static boolean isMavenExtensionOnly(Object extension) {

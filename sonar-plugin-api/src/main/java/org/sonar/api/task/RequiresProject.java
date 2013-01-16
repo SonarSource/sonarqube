@@ -17,25 +17,20 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.tasks;
+package org.sonar.api.task;
 
-import org.sonar.api.batch.TaskDefinition;
-import org.sonar.api.batch.TaskDescriptor;
-import org.sonar.api.batch.TaskExecutor;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public class ListTaskExecutor implements TaskExecutor {
-
-  private final TaskManager taskManager;
-
-  public ListTaskExecutor(TaskManager taskManager) {
-    this.taskManager = taskManager;
-  }
-
-  public void execute() {
-    for (TaskDefinition task : taskManager.getTasks()) {
-      TaskDescriptor desc = task.getTaskDescriptor();
-      System.out.println("  " + desc.getCommand() + ": " + desc.getDescription());
-    }
-  }
-
+/**
+ * The presence of this annotation on a task extension class indicates that the extension
+ * will be disabled when there is no project available.
+ *
+ * @since 3.5
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface RequiresProject {
 }
