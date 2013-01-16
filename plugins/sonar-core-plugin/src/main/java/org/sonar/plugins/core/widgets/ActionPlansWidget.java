@@ -20,8 +20,14 @@
 package org.sonar.plugins.core.widgets;
 
 import org.sonar.api.web.WidgetCategory;
+import org.sonar.api.web.WidgetProperties;
+import org.sonar.api.web.WidgetProperty;
+import org.sonar.api.web.WidgetPropertyType;
 
 @WidgetCategory({"Action plans", "Reviews"})
+@WidgetProperties({
+  @WidgetProperty(key = "showClosedReviews", type = WidgetPropertyType.BOOLEAN, defaultValue = "true")
+})
 public class ActionPlansWidget extends CoreWidget {
   public ActionPlansWidget() {
     super("action_plans", "Action plans", "/org/sonar/plugins/core/widgets/action_plans.html.erb");

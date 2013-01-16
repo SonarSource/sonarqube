@@ -50,6 +50,18 @@
   text-align: center;
 }
 
+.top {
+  vertical-align: top;
+}
+
+.bottom {
+  vertical-align: bottom;
+}
+
+.middle {
+  vertical-align: middle;
+}
+
 .nowrap {
   white-space: nowrap;
 }
@@ -1029,10 +1041,6 @@ span.review-filter a {
 /* ACTION PLANS */
 table.actionPlans {
   margin-top: 10px;
-}
-
-table.actionPlans td {
-  vertical-align: top;
 }
 
 table.actionPlans td.progress {

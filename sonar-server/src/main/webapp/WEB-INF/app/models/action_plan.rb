@@ -58,7 +58,11 @@ class ActionPlan < ActiveRecord::Base
   end
   
   def has_open_reviews?
-    reviews.select {|r| r.open? || r.reopened?}.size > 0
+    open_reviews.size > 0
+  end
+  
+  def open_reviews
+    reviews.select {|r| r.open? || r.reopened?}
   end
   
   def over_due?
