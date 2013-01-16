@@ -60,7 +60,7 @@
           window.location.reload();
         },
         error: function (xhr, textStatus, errorThrown) {
-          $j("#"+ errorId).show();
+          $j("#"+ errorId).removeClass("hidden");
           $j("#"+ errorId).html(xhr.responseText);
         }
       });

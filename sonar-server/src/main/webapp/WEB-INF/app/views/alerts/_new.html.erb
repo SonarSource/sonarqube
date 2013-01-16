@@ -50,12 +50,11 @@
   </td>
 </tr>
 </table>
-<div id="alert_error" class="error" style="margin: 5px;"/>
+<div id="alert_error" class="error hidden" style="margin: 5px;"/>
 </form>
 
 <script type="text/javascript">
 
-  $j("#alert_error").hide();
   $j(document).ready(function () {
     ajaxForm("new_alert_form", "alert_error");
   });

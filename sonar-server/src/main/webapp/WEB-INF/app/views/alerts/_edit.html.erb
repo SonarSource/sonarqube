@@ -30,11 +30,10 @@
   </td>
 </tr>
 </table>
-<div id="alert_error_<%= alert.id -%>" class="error" style="margin: 5px;" />
+<div id="alert_error_<%= alert.id -%>" class="error hidden" style="margin: 5px;"/>
 </form>
 
 <script type="text/javascript">
-  $j("#alert_error_<%= alert.id -%>").hide();
   $j(document).ready(function () {
     ajaxForm("edit_alert_<%= alert.id -%>", "alert_error_<%= alert.id -%>");
   });
