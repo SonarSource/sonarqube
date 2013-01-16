@@ -24,6 +24,7 @@ import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.ProjectConfigurator;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.index.DefaultIndex;
+import org.sonar.batch.tasks.InspectionTaskExecutor;
 
 public class ProjectTaskModule extends AbstractTaskModule {
 
@@ -35,6 +36,7 @@ public class ProjectTaskModule extends AbstractTaskModule {
   protected void configure() {
     super.configure();
     registerCoreComponentsRequiringProject();
+    registerCoreTasksRequiringProject();
   }
 
   private void registerCoreComponentsRequiringProject() {
@@ -47,6 +49,10 @@ public class ProjectTaskModule extends AbstractTaskModule {
     container.addSingleton(ProjectLock.class);
 
     container.addSingleton(DryRunDatabase.class);
+  }
+
+  private void registerCoreTasksRequiringProject() {
+    container.addSingleton(InspectionTaskExecutor.class);
   }
 
 }

@@ -22,8 +22,10 @@ package org.sonar.batch.bootstrap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.TaskDefinition;
+import org.sonar.api.batch.TaskExecutor;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.resources.ResourceTypes;
+import org.sonar.api.utils.SonarException;
 import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.components.PastMeasuresLoader;
 import org.sonar.batch.components.PastSnapshotFinder;
@@ -40,6 +42,7 @@ import org.sonar.batch.index.LinkPersister;
 import org.sonar.batch.index.MeasurePersister;
 import org.sonar.batch.index.MemoryOptimizer;
 import org.sonar.batch.index.SourcePersister;
+import org.sonar.batch.tasks.ListTaskExecutor;
 import org.sonar.core.i18n.I18nManager;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.metric.CacheMetricFinder;
@@ -73,10 +76,10 @@ public abstract class AbstractTaskModule extends Module {
   @Override
   protected void configure() {
     logSettings();
-    container.addSingleton(task.getExecutor());
     registerCoreComponents();
     registerDatabaseComponents();
     registerTaskExtensions();
+    registerCoreTasks();
   }
 
   private void registerCoreComponents() {
@@ -128,6 +131,10 @@ public abstract class AbstractTaskModule extends Module {
     container.addSingleton(BatchDatabaseSessionFactory.class);
   }
 
+  private void registerCoreTasks() {
+    container.addSingleton(ListTaskExecutor.class);
+  }
+
   private void registerTaskExtensions() {
     ExtensionInstaller installer = container.getComponentByType(ExtensionInstaller.class);
     installer.installTaskExtensions(container, projectPresent);
@@ -142,7 +149,13 @@ public abstract class AbstractTaskModule extends Module {
    */
   @Override
   protected void doStart() {
-    container.getComponentByType(task.getExecutor()).execute();
+    TaskExecutor taskExecutor = container.getComponentByType(task.getExecutor());
+    if (taskExecutor != null) {
+      taskExecutor.execute();
+    }
+    else {
+      throw new SonarException("Extension " + task.getExecutor() + " was not found in declared extensions.");
+    }
   }
 
 }

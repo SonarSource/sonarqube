@@ -34,7 +34,7 @@ public class ListTaskExecutor implements TaskExecutor {
   public void execute() {
     for (TaskDefinition task : taskManager.getTasks()) {
       TaskDescriptor desc = task.getTaskDescriptor();
-      System.out.println("  " + desc.getCommand() + ": " + desc.getDecription());
+      System.out.println("  " + desc.getCommand() + ": " + desc.getDescription());
     }
   }
 

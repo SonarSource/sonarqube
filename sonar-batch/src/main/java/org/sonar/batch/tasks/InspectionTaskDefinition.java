@@ -25,12 +25,12 @@ import org.sonar.api.batch.TaskExecutor;
 
 public class InspectionTaskDefinition implements TaskDefinition {
 
-  public static final String COMMAND = "analyse-project";
+  public static final String COMMAND = "inspect";
 
   public TaskDescriptor getTaskDescriptor() {
     return TaskDescriptor.create()
-        .setDescription("Start a Sonar analysis of a project")
-        .setName("Sonar project analysis")
+        .setDescription("Start a Sonar inspection of a project")
+        .setName("Sonar project inspection")
         .setCommand(COMMAND)
         .setRequiresProject(true);
   }

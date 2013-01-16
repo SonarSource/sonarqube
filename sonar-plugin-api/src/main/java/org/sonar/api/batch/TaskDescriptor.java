@@ -26,7 +26,7 @@ package org.sonar.api.batch;
 public class TaskDescriptor {
 
   private String name;
-  private String decription;
+  private String description;
   private String command;
   private boolean requiresProject = false;
 
@@ -47,12 +47,12 @@ public class TaskDescriptor {
     return this;
   }
 
-  public String getDecription() {
-    return decription;
+  public String getDescription() {
+    return description;
   }
 
-  public TaskDescriptor setDescription(String decription) {
-    this.decription = decription;
+  public TaskDescriptor setDescription(String description) {
+    this.description = description;
     return this;
   }
 
