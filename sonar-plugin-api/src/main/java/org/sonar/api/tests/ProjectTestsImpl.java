@@ -46,16 +46,18 @@ public class ProjectTestsImpl implements ProjectTests, BatchExtension {
     FileTest fileTest = getFileTest(fileTestKey);
     fileTest.addTest(test);
 
-    LOG.debug("Added a new test : " + toString());
+    LOG.info("Added a new test : " + toString());
+  }
+
+  public void cover(String fileTestKey, String test, String mainFile, Collection<Integer> lines) {
+    FileTest fileTest = find(fileTestKey);
+    if (fileTest != null) {
+      LOG.info("Covering - File test : " + fileTestKey + ", test : " + test + ", file : " + mainFile + ", lines : " + Iterables.toString(lines));
+    }
   }
 
   public List<FileTest> getFileTests() {
     return fileTests;
-  }
-
-  public void cover(String fileTestKey, String test, String mainFile, Collection<Integer> lines){
-    FileTest fileTest = find(fileTestKey);
-    LOG.debug("Covering - File test :" + toString() + ", test:" + test + ", file:" + mainFile+ ", lines:"+ Iterables.toString(lines));
   }
 
   private FileTest getFileTest(final String key) {
@@ -67,7 +69,7 @@ public class ProjectTestsImpl implements ProjectTests, BatchExtension {
     return fileTest;
   }
 
-  private FileTest find(final String key){
+  private FileTest find(final String key) {
     return Iterables.find(fileTests, new Predicate<FileTest>() {
       public boolean apply(FileTest fileTest) {
         return fileTest.getKey().equals(key);
