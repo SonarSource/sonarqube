@@ -45,7 +45,9 @@ public class ProjectTestsImplTest {
     ;
     projectTests.addTest("key", test);
     assertThat(projectTests.getFileTests()).hasSize(1);
+    assertThat(projectTests.getFileTests().get(0)).isEqualTo(new FileTest("key"));
     assertThat(projectTests.getFileTests().get(0).getTests()).hasSize(1);
+    assertThat(projectTests.getFileTests().get(0).getTests().get(0)).isEqualTo(test);
   }
 
   @Test

@@ -72,11 +72,36 @@ public class Test {
   }
 
   @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    Test test = (Test) o;
+
+    if (!name.equals(test.name)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return name.hashCode();
+  }
+
+  @Override
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
         .append("name", name)
         .append("durationMilliseconds", durationMilliseconds)
         .append("status", status)
+        .append("message", message)
+        .append("stackTrace", stackTrace)
         .toString();
   }
 }
