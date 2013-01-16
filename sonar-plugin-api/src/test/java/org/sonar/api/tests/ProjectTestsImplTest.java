@@ -23,6 +23,7 @@ package org.sonar.api.tests;
 import org.junit.Before;
 import org.junit.Test;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class ProjectTestsImplTest {
@@ -36,7 +37,12 @@ public class ProjectTestsImplTest {
 
   @Test
   public void should_add_new_test() throws Exception {
-    org.sonar.api.tests.Test test = new org.sonar.api.tests.Test("test").setStatus("ok");
+    org.sonar.api.tests.Test test = new org.sonar.api.tests.Test("test")
+        .setStatus("ok")
+        .setMessage("message")
+        .setStackTrace("stacktrace")
+        .setDurationMilliseconds(10)
+    ;
     projectTests.addTest("key", test);
     assertThat(projectTests.getFileTests()).hasSize(1);
     assertThat(projectTests.getFileTests().get(0).getTests()).hasSize(1);
@@ -52,5 +58,13 @@ public class ProjectTestsImplTest {
 
     assertThat(projectTests.getFileTests()).hasSize(1);
     assertThat(projectTests.getFileTests().get(0).getTests()).hasSize(2);
+  }
+
+  @Test
+  public void should_add_coverage_info() throws Exception {
+    org.sonar.api.tests.Test test = new org.sonar.api.tests.Test("test").setStatus("ok");
+    projectTests.addTest("key", test);
+
+    projectTests.cover("key", "test", "mainFile", newArrayList(1, 2));
   }
 }
