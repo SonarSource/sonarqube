@@ -23,6 +23,7 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -52,6 +53,7 @@ import static org.mockito.Mockito.when;
 public class ServerClientTest {
 
   MockHttpServer server = null;
+  BootstrapSettings settings;
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -64,6 +66,11 @@ public class ServerClientTest {
     if (server != null) {
       server.stop();
     }
+  }
+
+  @Before
+  public void before(){
+    settings = mock(BootstrapSettings.class);
   }
 
   @Test
@@ -97,10 +104,23 @@ public class ServerClientTest {
   }
 
   @Test
-  public void should_fail_if_unauthorized() throws Exception {
+  public void should_fail_if_unauthorized_with_login_password_not_provided() throws Exception {
     server = new MockHttpServer();
     server.start();
     server.setMockResponseStatus(401);
+
+    thrown.expectMessage("Not authorized. Analyzing this project requires to be authenticated. Please provide the values of the properties sonar.login and sonar.password.");
+    newServerClient().request("/foo");
+  }
+
+  @Test
+  public void should_fail_if_unauthorized_with_login_password_provided() throws Exception {
+    server = new MockHttpServer();
+    server.start();
+    server.setMockResponseStatus(401);
+
+    when(settings.getProperty(eq("sonar.login"))).thenReturn("login");
+    when(settings.getProperty(eq("sonar.password"))).thenReturn("password");
 
     thrown.expectMessage("Not authorized. Please check the properties sonar.login and sonar.password");
     newServerClient().request("/foo");
@@ -117,11 +137,9 @@ public class ServerClientTest {
   }
 
   private ServerClient newServerClient() {
-    BootstrapSettings settings = mock(BootstrapSettings.class);
     when(settings.getProperty(eq("sonar.host.url"), anyString())).thenReturn("http://localhost:" + server.getPort());
     return new ServerClient(settings, new EnvironmentInformation("Junit", "4"));
   }
-
 
   static class MockHttpServer {
     private Server server;

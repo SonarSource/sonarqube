@@ -96,9 +96,18 @@ public class ServerClient implements BatchComponent {
 
   private SonarException handleHttpException(HttpDownloader.HttpException he) {
     if (he.getResponseCode() == 401) {
-      throw new SonarException(String.format("Not authorized. Please check the properties %s and %s.", CoreProperties.LOGIN, CoreProperties.PASSWORD));
+      throw new SonarException(String.format(getMessageWhenNotAuthorized(), CoreProperties.LOGIN, CoreProperties.PASSWORD));
     }
     throw new SonarException(String.format("Fail to execute request [code=%s, url=%s]", he.getResponseCode(), he.getUri()), he);
+  }
+
+  private String getMessageWhenNotAuthorized(){
+    String login = settings.getProperty(CoreProperties.LOGIN);
+    String password = settings.getProperty(CoreProperties.PASSWORD);
+    if (StringUtils.isEmpty(login) && StringUtils.isEmpty(password)) {
+      return "Not authorized. Analyzing this project requires to be authenticated. Please provide the values of the properties %s and %s.";
+    }
+    return "Not authorized. Please check the properties %s and %s.";
   }
 
 }
