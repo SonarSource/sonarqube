@@ -43,19 +43,29 @@ class RolesController < ApplicationController
 
     conditions_sql = 'projects.enabled=:enabled and projects.qualifier=:qualifier and projects.copy_resource_id is null'
     conditions_values = {:enabled => true, :qualifier => @qualifier}
-    joins = nil
+    joins = "INNER JOIN resource_index on resource_index.resource_id=projects.id "
+    joins += "and resource_index.qualifier=#{ActiveRecord::Base::sanitize(@qualifier)} "
     if params[:q].present?
       query = params[:q].downcase + '%'
-      joins = "INNER JOIN resource_index on resource_index.resource_id=projects.id and resource_index.qualifier=#{ActiveRecord::Base::sanitize(@qualifier)} and resource_index.kee like #{ActiveRecord::Base::sanitize(query)}"
+      joins +="and resource_index.kee like #{ActiveRecord::Base::sanitize(query)}"
+    else
+      joins += "and resource_index.position=0"
     end
 
+    # Search for resources
+    #conditions = "resource_index.qualifier=:qualifier"
+    #values = {:qualifier => @selected_tab}
+    #if params[:name_filter] && !params[:name_filter].blank?
+    #  conditions += " AND resource_index.kee LIKE :kee"
+    #  values[:kee] = params[:name_filter].strip.downcase + '%'
+    #end
+
     @pagination = Api::Pagination.new(params)
-    @projects=Project.find(:all,
-                           :select => 'distinct(projects.id),projects.kee,projects.name',
+    @projects=Project.all(:select => 'distinct(resource_index.resource_id),projects.kee,projects.name,resource_index.kee',
                            :include => ['user_roles','group_roles'],
                            :joins => joins,
                            :conditions => [conditions_sql, conditions_values],
-                           :order => 'projects.name',
+                           :order => 'resource_index.kee',
                            :offset => @pagination.offset,
                            :limit => @pagination.limit)
     @pagination.count=Project.count(
