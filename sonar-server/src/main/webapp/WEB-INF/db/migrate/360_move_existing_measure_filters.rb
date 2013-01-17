@@ -120,8 +120,8 @@ class MoveExistingMeasureFilters < ActiveRecord::Migration
       elsif old.family=='language' && old.text_value.present?
         data << "languages=#{old.text_value}"
       elsif old.family=='date' && old.value && old.operator.present?
-        data << "ageMaxDays=#{old.value.to_i}" if old.operator=='<'
-        data << "ageMinDays=#{old.value.to_i}" if old.operator=='>='
+        data << "ageMaxDays=#{old.value.to_i}" if old.operator=='>='
+        data << "ageMinDays=#{old.value.to_i}" if old.operator=='<'
       elsif old.family=='metric' && old.kee && old.operator && old.value
         data << "c#{metric_criteria_id}_metric=#{old.kee}"
         data << "c#{metric_criteria_id}_op=#{operator_code(old.operator)}"
