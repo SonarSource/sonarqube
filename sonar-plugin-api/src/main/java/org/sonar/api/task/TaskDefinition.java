@@ -19,7 +19,6 @@
  */
 package org.sonar.api.task;
 
-import org.sonar.api.TaskDefinitionExtension;
 
 /**
  * Implement this interface to provide a new task.

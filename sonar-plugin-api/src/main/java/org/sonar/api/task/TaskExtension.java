@@ -17,12 +17,14 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api;
+package org.sonar.api.task;
+
+import org.sonar.api.Extension;
 
 /**
- * Task definition extension point.
+ * Task extension point.
  *
  * @since 3.5
  */
-public interface TaskDefinitionExtension extends Extension {
+public interface TaskExtension extends Extension, TaskComponent {
 }

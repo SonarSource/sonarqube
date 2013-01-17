@@ -19,7 +19,8 @@
  */
 package org.sonar.plugins.dbcleaner.api;
 
-import org.sonar.api.TaskExtension;
+import org.sonar.api.task.TaskExtension;
+
 import org.sonar.api.resources.Project;
 
 /**

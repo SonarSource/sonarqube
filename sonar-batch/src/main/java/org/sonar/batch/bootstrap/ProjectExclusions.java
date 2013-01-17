@@ -19,12 +19,13 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.api.task.TaskComponent;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.TaskComponent;
 import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;

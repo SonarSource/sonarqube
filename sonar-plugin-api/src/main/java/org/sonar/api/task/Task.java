@@ -19,7 +19,6 @@
  */
 package org.sonar.api.task;
 
-import org.sonar.api.TaskExtension;
 
 /**
  * Implement this interface to provide the behavior of a task.

@@ -19,8 +19,9 @@
  */
 package org.sonar.api.measures;
 
+import org.sonar.api.task.TaskComponent;
+
 import org.sonar.api.ServerComponent;
-import org.sonar.api.TaskComponent;
 
 import java.util.Collection;
 import java.util.List;

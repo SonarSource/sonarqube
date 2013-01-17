@@ -19,11 +19,12 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.api.task.TaskDefinitionExtension;
+import org.sonar.api.task.TaskExtension;
+
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.Extension;
-import org.sonar.api.TaskDefinitionExtension;
-import org.sonar.api.TaskExtension;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.SupportedEnvironment;
 import org.sonar.api.task.RequiresProject;

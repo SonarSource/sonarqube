@@ -19,10 +19,11 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.api.task.TaskExtension;
+
 import com.google.common.collect.Lists;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ExtensionProvider;
-import org.sonar.api.TaskExtension;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;

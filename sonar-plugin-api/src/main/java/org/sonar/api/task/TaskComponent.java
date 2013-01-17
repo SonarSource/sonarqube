@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api;
+package org.sonar.api.task;
 
 /**
  * Dependency Injection : all the classes implementing this interface are available in the task IoC container.

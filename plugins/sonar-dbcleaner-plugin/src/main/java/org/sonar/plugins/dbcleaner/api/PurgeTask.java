@@ -19,8 +19,9 @@
  */
 package org.sonar.plugins.dbcleaner.api;
 
+import org.sonar.api.task.TaskExtension;
+
 import com.google.common.annotations.Beta;
-import org.sonar.api.TaskExtension;
 
 /**
  * @since 2.14
