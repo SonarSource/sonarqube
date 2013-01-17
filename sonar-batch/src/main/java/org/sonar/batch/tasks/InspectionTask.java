@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.tasks;
 
+import org.sonar.batch.bootstrap.InspectionModule;
+
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.api.task.RequiresProject;

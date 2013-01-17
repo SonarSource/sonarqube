@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.tasks;
+package org.sonar.batch.bootstrap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,10 +36,6 @@ import org.sonar.batch.ProfileProvider;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.ResourceFilters;
 import org.sonar.batch.ViolationFilters;
-import org.sonar.batch.bootstrap.ExtensionInstaller;
-import org.sonar.batch.bootstrap.Module;
-import org.sonar.batch.bootstrap.ProjectSettings;
-import org.sonar.batch.bootstrap.UnsupportedProperties;
 import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;

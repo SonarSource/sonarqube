@@ -29,7 +29,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.index.ResourcePersister;
-import org.sonar.batch.tasks.InspectionModule;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;

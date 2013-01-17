@@ -50,7 +50,7 @@ public class TaskBootstrapModuleTest {
     thrown.expect(SonarException.class);
     thrown.expectMessage("Task Sonar project inspection requires to be run on a project");
 
-    module.doStart();
+    module.start();
   }
 
 }

@@ -55,7 +55,7 @@ public final class Batch {
     this.taskCommand = builder.taskCommand;
     projectReactor = builder.projectReactor;
     if (builder.isEnableLoggingConfiguration()) {
-      logging = LoggingConfiguration.create().setProperties(Maps.fromProperties(projectReactor.getRoot().getProperties()));
+      logging = LoggingConfiguration.create().setProperties(globalProperties);
     }
   }
 

@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
+import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.utils.SonarException;
 
@@ -51,18 +52,21 @@ public class TasksTest {
   @Test
   public void shouldReturnInspectionTask() {
     Tasks tasks = new Tasks(settings, new TaskDefinition[] {InspectionTask.DEFINITION, ListTasksTask.DEFINITION});
+    tasks.start();
     assertThat(tasks.getTaskDefinition(InspectionTask.COMMAND)).isEqualTo(InspectionTask.DEFINITION);
   }
 
   @Test
   public void shouldReturnInspectionTaskByDefault() {
     Tasks tasks = new Tasks(settings, new TaskDefinition[] {InspectionTask.DEFINITION, ListTasksTask.DEFINITION});
+    tasks.start();
     assertThat(tasks.getTaskDefinition(null)).isEqualTo(InspectionTask.DEFINITION);
   }
 
   @Test
   public void shouldReturnUsePropertyWhenNoCommand() {
     Tasks tasks = new Tasks(settings, new TaskDefinition[] {InspectionTask.DEFINITION, ListTasksTask.DEFINITION});
+    tasks.start();
     assertThat(tasks.getTaskDefinition(ListTasksTask.COMMAND)).isEqualTo(ListTasksTask.DEFINITION);
     assertThat(tasks.getTaskDefinition(null)).isEqualTo(InspectionTask.DEFINITION);
 
@@ -80,4 +84,94 @@ public class TasksTest {
 
     tasks.getTaskDefinition("not-exists");
   }
+
+  @Test
+  public void shouldThrowWhenCommandMissing() {
+    Tasks tasks = new Tasks(settings, new TaskDefinition[] {TaskDefinition.create().setName("foo").setTask(FakeTask1.class)});
+
+    thrown.expect(SonarException.class);
+    thrown.expectMessage("Task definition 'foo' doesn't define task command");
+
+    tasks.start();
+  }
+
+  @Test
+  public void shouldThrowWhenCommandInvalid() {
+    Tasks tasks = new Tasks(settings, new TaskDefinition[] {TaskDefinition.create().setName("foo").setTask(FakeTask1.class).setCommand("Azc-12_bbC")});
+    tasks.start();
+
+    tasks = new Tasks(settings, new TaskDefinition[] {TaskDefinition.create().setName("foo").setTask(FakeTask1.class).setCommand("with space")});
+
+    thrown.expect(SonarException.class);
+    thrown.expectMessage("Command 'with space' for task definition 'foo' is not valid and should match [a-zA-Z0-9\\-\\_]+");
+
+    tasks.start();
+  }
+
+  @Test
+  public void shouldThrowWhenDuplicateCommand() {
+    Tasks tasks = new Tasks(settings, new TaskDefinition[] {
+      TaskDefinition.create().setName("foo1").setTask(FakeTask1.class).setCommand("cmd"),
+      TaskDefinition.create().setName("foo2").setTask(FakeTask2.class).setCommand("cmd")});
+
+    thrown.expect(SonarException.class);
+    thrown.expectMessage("Task 'foo2' uses the same command than task 'foo1'");
+
+    tasks.start();
+  }
+
+  @Test
+  public void shouldThrowWhenNameMissing() {
+    Tasks tasks = new Tasks(settings, new TaskDefinition[] {TaskDefinition.create().setCommand("foo").setTask(FakeTask1.class)});
+
+    thrown.expect(SonarException.class);
+    thrown.expectMessage("Task definition for task 'org.sonar.batch.tasks.TasksTest$FakeTask1' doesn't define task name");
+
+    tasks.start();
+  }
+
+  @Test
+  public void shouldThrowWhenTaskMissing() {
+    Tasks tasks = new Tasks(settings, new TaskDefinition[] {TaskDefinition.create().setCommand("foo").setName("bar")});
+
+    thrown.expect(SonarException.class);
+    thrown.expectMessage("Task definition 'bar' doesn't define the associated task class");
+
+    tasks.start();
+  }
+
+  @Test
+  public void shouldThrowWhenDuplicateTask() {
+    Tasks tasks = new Tasks(settings, new TaskDefinition[] {
+      TaskDefinition.create().setName("foo1").setTask(FakeTask1.class).setCommand("cmd1"),
+      TaskDefinition.create().setName("foo2").setTask(FakeTask1.class).setCommand("cmd2")});
+
+    thrown.expect(SonarException.class);
+    thrown.expectMessage("Task 'org.sonar.batch.tasks.TasksTest$FakeTask1' is defined twice: first by 'foo1' and then by 'foo2'");
+
+    tasks.start();
+  }
+
+  @Test
+  public void shouldUseNameWhenDescriptionIsMissing() {
+    Tasks tasks = new Tasks(settings, new TaskDefinition[] {TaskDefinition.create().setName("foo").setCommand("cmd").setTask(FakeTask1.class)});
+    tasks.start();
+
+    assertThat(tasks.getTaskDefinition("cmd").getDescription()).isEqualTo("foo");
+  }
+
+  private static class FakeTask1 implements Task {
+
+    public void execute() {
+    }
+
+  }
+
+  private static class FakeTask2 implements Task {
+
+    public void execute() {
+    }
+
+  }
+
 }
