@@ -544,6 +544,7 @@ module ApplicationHelper
   # ==== Options
   # * <tt>:width</tt> - The width suffixed with unit, for example '300px' or '100%'. Default is '250px'
   # * <tt>:html_id</tt> - The id of the HTML element. Default is the name.
+  # * <tt>:html_class</tt> - The class of the HTML element. Default is empty.
   # * <tt>:qualifiers</tt> - Array of resource qualifiers to filter.
   # * <tt>:resource_type_property</tt> -Filter on resource types on which the property is enabled, for example 'supportsGlobalDashboards'.
   # * <tt>:selected_resource</tt> - the resource that is selected by default.
@@ -554,6 +555,7 @@ module ApplicationHelper
   def resource_select_tag(name, options={})
     width=options[:width]
     html_id=options[:html_id]||name
+    html_class=options[:html_class]||''
 
     ws_url="#{ApplicationController::root_context}/api/resources/search?f=s2&"
     if options[:qualifiers]
@@ -583,7 +585,7 @@ module ApplicationHelper
     js_options['ajax']='{' + ajax_options.map { |k, v| "#{k}:#{v}" }.join(',') + '}'
     js_options.merge!(options[:select2_options]) if options[:select2_options]
 
-    html = "<input type='hidden' id='#{html_id}' name='#{name}'/>"
+    html = "<input type='hidden' id='#{html_id}' class='#{html_class}' name='#{name}'/>"
     js = "$j('##{html_id}').select2({#{js_options.map { |k, v| "#{k}:#{v}" }.join(',')}});"
 
     resource = options[:selected_resource]

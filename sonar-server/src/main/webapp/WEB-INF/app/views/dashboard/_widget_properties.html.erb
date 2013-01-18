@@ -15,7 +15,9 @@
               :resource_type_property => 'supportsGlobalDashboards',
               :selected_resource => widget.resource,
               :width => '250px',
-              :html_id => "widget-#{widget.id}-select-prj-#{widget.key.parameterize}"} -%>
+              :html_id => "widget-#{widget.id}-select-prj-#{widget.key.parameterize}",
+              :html_class => "widget-select-prj-#{widget.key.parameterize}"
+          } -%>
         </td>
       </tr>
     <% end %>
@@ -34,7 +36,7 @@
 
     <tr>
       <td colspan="2">
-        <%= submit_tag message('save'), :id => "widget-save-#{widget.key.parameterize}" -%>
+        <%= submit_tag message('save'), :id => "widget-#{widget.id}-save-#{widget.key.parameterize}", :class => "widget-save-#{widget.key.parameterize}" -%>
         <% if widget.configured %>
           <a href="#" onClick="portal.cancelEditWidget(<%= widget.id -%>);return false;"><%= message('cancel') -%></a>
         <% end %>
