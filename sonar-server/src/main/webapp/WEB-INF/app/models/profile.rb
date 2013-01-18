@@ -207,6 +207,10 @@ class Profile < ActiveRecord::Base
     @projects = nil
   end
 
+  def valid_alerts
+    alerts.reject {|alert| alert.metric.nil? || !alert.metric.enabled }
+  end
+
   def to_hash_json
     {
       :name => name,

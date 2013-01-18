@@ -193,7 +193,7 @@ class Api::ProfilesController < Api::ApiController
     result[:rules]=rules unless rules.empty?
 
     alerts=[]
-    @profile.alerts.each do |alert|
+    @profile.valid_alerts.each do |alert|
       alert_hash={:metric => alert.metric.key, :operator => alert.operator}
       alert_hash[:error]=alert.value_error if alert.value_error.present?
       alert_hash[:warning]=alert.value_warning if alert.value_warning.present?
@@ -228,7 +228,7 @@ class Api::ProfilesController < Api::ApiController
         end
       end
 
-      @profile.alerts.each do |alert|
+      @profile.valid_alerts.each do |alert|
         xml.alert do
           xml.metric(alert.metric.key)
           xml.operator(alert.operator)
