@@ -52,20 +52,12 @@ class RolesController < ApplicationController
       joins += "and resource_index.position=0"
     end
 
-    # Search for resources
-    #conditions = "resource_index.qualifier=:qualifier"
-    #values = {:qualifier => @selected_tab}
-    #if params[:name_filter] && !params[:name_filter].blank?
-    #  conditions += " AND resource_index.kee LIKE :kee"
-    #  values[:kee] = params[:name_filter].strip.downcase + '%'
-    #end
-
     @pagination = Api::Pagination.new(params)
-    @projects=Project.all(:select => 'distinct(resource_index.resource_id),projects.kee,projects.name,resource_index.kee',
+    @projects=Project.all(:select => 'distinct(resource_index.resource_id),projects.id,projects.kee,projects.name,resource_index.kee as resource_index_key',
                            :include => ['user_roles','group_roles'],
                            :joins => joins,
                            :conditions => [conditions_sql, conditions_values],
-                           :order => 'resource_index.kee',
+                           :order => 'resource_index_key',
                            :offset => @pagination.offset,
                            :limit => @pagination.limit)
     @pagination.count=Project.count(
