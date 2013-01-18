@@ -19,18 +19,14 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.batch.tasks.RequiresProject;
-
-import org.sonar.api.task.TaskDefinitionExtension;
-import org.sonar.api.task.TaskExtension;
-
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchExtension;
-import org.sonar.api.Extension;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.SupportedEnvironment;
+import org.sonar.api.task.TaskExtension;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
+import org.sonar.batch.tasks.RequiresProject;
 import org.sonar.core.DryRunIncompatible;
 
 final class ExtensionUtils {
@@ -45,10 +41,6 @@ final class ExtensionUtils {
       return strategy.equals(annotation.value());
     }
     return InstantiationStrategy.PER_PROJECT.equals(strategy);
-  }
-
-  static boolean isTaskDefinitionExtension(Object extension) {
-    return isType(extension, TaskDefinitionExtension.class);
   }
 
   static boolean isTaskExtension(Object extension) {
@@ -85,7 +77,7 @@ final class ExtensionUtils {
     return env != null && env.value().length == 1 && StringUtils.equalsIgnoreCase("maven", env.value()[0]);
   }
 
-  static boolean isType(Object extension, Class<? extends Extension> extensionClass) {
+  static boolean isType(Object extension, Class<?> extensionClass) {
     Class clazz = (extension instanceof Class ? (Class) extension : extension.getClass());
     return extensionClass.isAssignableFrom(clazz);
   }

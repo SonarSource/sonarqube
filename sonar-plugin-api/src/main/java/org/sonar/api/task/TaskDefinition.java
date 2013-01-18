@@ -19,12 +19,11 @@
  */
 package org.sonar.api.task;
 
-
 /**
  * Implement this interface to provide a new task.
  * @since 3.5
  */
-public class TaskDefinition implements TaskDefinitionExtension {
+public class TaskDefinition implements TaskComponent {
 
   private String name;
   private String description;

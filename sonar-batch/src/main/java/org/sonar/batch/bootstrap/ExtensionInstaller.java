@@ -31,6 +31,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.resources.Project;
+import org.sonar.api.task.TaskDefinition;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 
 import javax.annotation.Nullable;
@@ -62,34 +63,13 @@ public class ExtensionInstaller implements BatchComponent {
         installTaskDefinition(container, metadata, extension);
       }
     }
-
-    List<ExtensionProvider> providers = container.getComponentsByType(ExtensionProvider.class);
-    for (ExtensionProvider provider : providers) {
-      executeTaskDefinitionExtensionProvider(container, provider);
-    }
-  }
-
-  private void executeTaskDefinitionExtensionProvider(ComponentContainer container, ExtensionProvider provider) {
-    Object obj = provider.provide();
-    if (obj instanceof Iterable) {
-      for (Object extension : (Iterable) obj) {
-        installTaskDefinition(container, null, extension);
-      }
-    } else {
-      installTaskDefinition(container, null, obj);
-    }
   }
 
   boolean installTaskDefinition(ComponentContainer container, @Nullable PluginMetadata plugin, Object extension) {
     boolean installed;
-    if (ExtensionUtils.isTaskDefinitionExtension(extension) &&
-      ExtensionUtils.supportsEnvironment(extension, environment)) {
-      if (plugin != null) {
-        LOG.debug("Installing task definition extension {} from plugin {}", extension.toString(), plugin.getKey());
-      }
-      else {
-        LOG.debug("Installing task definition extension {}", extension.toString());
-      }
+    if (ExtensionUtils.isType(extension, TaskDefinition.class)
+      && ExtensionUtils.supportsEnvironment(extension, environment)) {
+      LOG.debug("Installing task definition extension {} from plugin {}", extension.toString(), plugin.getKey());
       container.addExtension(plugin, extension);
       installed = true;
     } else {
