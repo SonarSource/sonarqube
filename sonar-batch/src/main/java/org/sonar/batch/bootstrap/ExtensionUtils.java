@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.batch.tasks.RequiresProject;
+
 import org.sonar.api.task.TaskDefinitionExtension;
 import org.sonar.api.task.TaskExtension;
 
@@ -27,7 +29,6 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.Extension;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.SupportedEnvironment;
-import org.sonar.api.task.RequiresProject;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.core.DryRunIncompatible;

@@ -26,7 +26,10 @@ import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.utils.SonarException;
+import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.DefaultResourceCreationLock;
+import org.sonar.batch.ProjectConfigurator;
+import org.sonar.batch.ProjectTree;
 import org.sonar.batch.components.PastMeasuresLoader;
 import org.sonar.batch.components.PastSnapshotFinder;
 import org.sonar.batch.components.PastSnapshotFinderByDate;
@@ -34,6 +37,7 @@ import org.sonar.batch.components.PastSnapshotFinderByDays;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousAnalysis;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousVersion;
 import org.sonar.batch.components.PastSnapshotFinderByVersion;
+import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.DefaultPersistenceManager;
 import org.sonar.batch.index.DefaultResourcePersister;
 import org.sonar.batch.index.DependencyPersister;
@@ -42,6 +46,7 @@ import org.sonar.batch.index.LinkPersister;
 import org.sonar.batch.index.MeasurePersister;
 import org.sonar.batch.index.MemoryOptimizer;
 import org.sonar.batch.index.SourcePersister;
+import org.sonar.batch.tasks.InspectionTask;
 import org.sonar.batch.tasks.ListTasksTask;
 import org.sonar.core.i18n.I18nManager;
 import org.sonar.core.i18n.RuleI18nManager;
@@ -61,14 +66,14 @@ import org.sonar.jpa.session.JpaDatabaseSession;
 /**
  * Level-3 components. Task-level components that don't depends on project.
  */
-public abstract class AbstractTaskModule extends Module {
+public class TaskModule extends Module {
 
-  private static final Logger LOG = LoggerFactory.getLogger(AbstractTaskModule.class);
+  private static final Logger LOG = LoggerFactory.getLogger(TaskModule.class);
 
   private TaskDefinition taskDefinition;
   private boolean projectPresent;
 
-  public AbstractTaskModule(TaskDefinition task, boolean projectPresent) {
+  public TaskModule(TaskDefinition task, boolean projectPresent) {
     this.taskDefinition = task;
     this.projectPresent = projectPresent;
   }
@@ -80,6 +85,9 @@ public abstract class AbstractTaskModule extends Module {
     registerDatabaseComponents();
     registerTaskExtensions();
     registerCoreTasks();
+    if (projectPresent) {
+      registerCoreComponentsRequiringProject();
+    }
   }
 
   private void registerCoreComponents() {
@@ -133,11 +141,26 @@ public abstract class AbstractTaskModule extends Module {
 
   private void registerCoreTasks() {
     container.addSingleton(ListTasksTask.class);
+    if (projectPresent) {
+      container.addSingleton(InspectionTask.class);
+    }
   }
 
   private void registerTaskExtensions() {
     ExtensionInstaller installer = container.getComponentByType(ExtensionInstaller.class);
     installer.installTaskExtensions(container, projectPresent);
+  }
+
+  private void registerCoreComponentsRequiringProject() {
+    container.addSingleton(ProjectExclusions.class);
+    container.addSingleton(ProjectReactorReady.class);
+    container.addSingleton(ProjectTree.class);
+    container.addSingleton(ProjectConfigurator.class);
+    container.addSingleton(DefaultIndex.class);
+    container.addSingleton(DefaultFileLinesContextFactory.class);
+    container.addSingleton(ProjectLock.class);
+
+    container.addSingleton(DryRunDatabase.class);
   }
 
   private void logSettings() {

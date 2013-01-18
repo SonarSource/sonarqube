@@ -23,7 +23,6 @@ import org.sonar.batch.bootstrap.InspectionModule;
 
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
-import org.sonar.api.task.RequiresProject;
 import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.batch.ProjectTree;

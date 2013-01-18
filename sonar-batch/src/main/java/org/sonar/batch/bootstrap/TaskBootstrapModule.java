@@ -65,13 +65,7 @@ public class TaskBootstrapModule extends Module {
     if (ExtensionUtils.requiresProject(taskDefinition.getTask()) && !projectPresent) {
       throw new SonarException("Task " + taskDefinition.getName() + " requires to be run on a project");
     }
-    Module childModule;
-    if (projectPresent) {
-      childModule = new ProjectTaskModule(taskDefinition);
-    }
-    else {
-      childModule = new ProjectLessTaskModule(taskDefinition);
-    }
+    Module childModule = new TaskModule(taskDefinition, projectPresent);
     try {
       installChild(childModule);
       childModule.start();

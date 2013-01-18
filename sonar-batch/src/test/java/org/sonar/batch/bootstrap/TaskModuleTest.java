@@ -28,7 +28,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class AbstractTaskModuleTest {
+public class TaskModuleTest {
   @Test
   public void should_register_task_extensions_when_project_present() {
     final ExtensionInstaller extensionInstaller = mock(ExtensionInstaller.class);
@@ -40,7 +40,7 @@ public class AbstractTaskModuleTest {
       }
     };
     bootstrapModule.init();
-    ProjectTaskModule module = new ProjectTaskModule(TaskDefinition.create());
+    TaskModule module = new TaskModule(TaskDefinition.create(), true);
     bootstrapModule.installChild(module);
 
     verify(extensionInstaller).installTaskExtensions(any(ComponentContainer.class), eq(true));
@@ -57,7 +57,7 @@ public class AbstractTaskModuleTest {
       }
     };
     bootstrapModule.init();
-    ProjectLessTaskModule module = new ProjectLessTaskModule(TaskDefinition.create());
+    TaskModule module = new TaskModule(TaskDefinition.create(), false);
     bootstrapModule.installChild(module);
 
     verify(extensionInstaller).installTaskExtensions(any(ComponentContainer.class), eq(false));

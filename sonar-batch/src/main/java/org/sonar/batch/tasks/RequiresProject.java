@@ -17,7 +17,9 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.task;
+package org.sonar.batch.tasks;
+
+import com.google.common.annotations.Beta;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -30,6 +32,7 @@ import java.lang.annotation.Target;
  *
  * @since 3.5
  */
+@Beta
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface RequiresProject {
