@@ -94,33 +94,12 @@ public class TaskModule extends Module {
     container.addSingleton(EmailSettings.class);
     container.addSingleton(I18nManager.class);
     container.addSingleton(RuleI18nManager.class);
-    container.addSingleton(DefaultResourceCreationLock.class);
-
-    container.addSingleton(DefaultPersistenceManager.class);
-    container.addSingleton(DependencyPersister.class);
-    container.addSingleton(EventPersister.class);
-    container.addSingleton(LinkPersister.class);
-    container.addSingleton(MeasurePersister.class);
-
-    container.addSingleton(MemoryOptimizer.class);
-    container.addSingleton(DefaultResourcePermissions.class);
-    container.addSingleton(DefaultResourcePersister.class);
-    container.addSingleton(SourcePersister.class);
     container.addSingleton(MeasuresDao.class);
     container.addSingleton(CacheRuleFinder.class);
     container.addSingleton(CacheMetricFinder.class);
-    container.addSingleton(PastSnapshotFinderByDate.class);
-    container.addSingleton(PastSnapshotFinderByDays.class);
-    container.addSingleton(PastSnapshotFinderByPreviousAnalysis.class);
-    container.addSingleton(PastSnapshotFinderByVersion.class);
-    container.addSingleton(PastSnapshotFinderByPreviousVersion.class);
-    container.addSingleton(PastMeasuresLoader.class);
-    container.addSingleton(PastSnapshotFinder.class);
-    container.addSingleton(DefaultNotificationManager.class);
     container.addSingleton(DefaultUserFinder.class);
     container.addSingleton(ResourceTypes.class);
     container.addSingleton(SemaphoresImpl.class);
-    container.addSingleton(MetricProvider.class);
   }
 
   private void registerDatabaseComponents() {
@@ -152,6 +131,25 @@ public class TaskModule extends Module {
   }
 
   private void registerCoreComponentsRequiringProject() {
+    container.addSingleton(DefaultResourceCreationLock.class);
+    container.addSingleton(DefaultPersistenceManager.class);
+    container.addSingleton(DependencyPersister.class);
+    container.addSingleton(EventPersister.class);
+    container.addSingleton(LinkPersister.class);
+    container.addSingleton(MeasurePersister.class);
+    container.addSingleton(MemoryOptimizer.class);
+    container.addSingleton(DefaultResourcePermissions.class);
+    container.addSingleton(DefaultResourcePersister.class);
+    container.addSingleton(SourcePersister.class);
+    container.addSingleton(PastSnapshotFinderByDate.class);
+    container.addSingleton(PastSnapshotFinderByDays.class);
+    container.addSingleton(PastSnapshotFinderByPreviousAnalysis.class);
+    container.addSingleton(PastSnapshotFinderByVersion.class);
+    container.addSingleton(PastSnapshotFinderByPreviousVersion.class);
+    container.addSingleton(PastMeasuresLoader.class);
+    container.addSingleton(PastSnapshotFinder.class);
+    container.addSingleton(DefaultNotificationManager.class);
+    container.addSingleton(MetricProvider.class);
     container.addSingleton(ProjectExclusions.class);
     container.addSingleton(ProjectReactorReady.class);
     container.addSingleton(ProjectTree.class);
@@ -159,7 +157,6 @@ public class TaskModule extends Module {
     container.addSingleton(DefaultIndex.class);
     container.addSingleton(DefaultFileLinesContextFactory.class);
     container.addSingleton(ProjectLock.class);
-
     container.addSingleton(DryRunDatabase.class);
   }
 
