@@ -83,11 +83,11 @@ public class TaskModule extends Module {
     logSettings();
     registerCoreComponents();
     registerDatabaseComponents();
-    registerTaskExtensions();
     registerCoreTasks();
     if (projectPresent) {
       registerCoreComponentsRequiringProject();
     }
+    registerTaskExtensions();
   }
 
   private void registerCoreComponents() {
