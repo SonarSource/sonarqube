@@ -39,9 +39,13 @@ public class ListTasksTask implements Task {
   }
 
   public void execute() {
+    System.out.println();
+    System.out.println("List of available tasks:");
+    System.out.println();
     for (TaskDefinition taskDef : taskManager.getTaskDefinitions()) {
-      System.out.println("  " + taskDef.getCommand() + ": " + taskDef.getDescription());
+      System.out.println("  - " + taskDef.getCommand() + ": " + taskDef.getDescription());
     }
+    System.out.println();
   }
 
 }
