@@ -57,7 +57,7 @@ class RolesController < ApplicationController
                            :include => ['user_roles','group_roles'],
                            :joins => joins,
                            :conditions => [conditions_sql, conditions_values],
-                           :order => 'resource_index_key',
+                           :order => 'resource_index.kee',
                            :offset => @pagination.offset,
                            :limit => @pagination.limit)
     @pagination.count=Project.count(
