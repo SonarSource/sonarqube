@@ -8,6 +8,33 @@
     }
   </style>
 <% end %>
+<% content_for :script do %>
+  <script>
+  
+  function reviewIdFieldModified(field) {
+    if (field.value != '') {
+      $('statuses').value = '';
+      $('severities').value = '';
+      $('projects').value = '';
+      $('author_login').value = '';
+      $('autocompleteText-author_login').value = '';
+      $('assignee_login').value = '';
+      $('autocompleteText-assignee_login').value = '';
+      $('false_positives').value = 'with';
+    }
+  }
+  function launchSearch(columnName) {
+    $('sort').value = columnName;
+    if ($('asc').value == "true") {
+      $('asc').value = "false";
+    } else {
+      $('asc').value = "true";
+    }
+    document.forms[0].submit();
+  }
+  
+  </script>
+<% end %>
 
 <div id="reviews-search">
   <div class="page-split-left">
@@ -89,27 +116,5 @@
 </div>
 
 <script>
-  function reviewIdFieldModified(field) {
-    if (field.value != '') {
-      $('statuses').value = '';
-      $('severities').value = '';
-      $('projects').value = '';
-      $('author_login').value = '';
-      $('autocompleteText-author_login').value = '';
-      $('assignee_login').value = '';
-      $('autocompleteText-assignee_login').value = '';
-      $('false_positives').value = 'with';
-    }
-  }
-  function launchSearch(columnName, link) {
-    $('sort').value = columnName
-    if ($('asc').value == "true") {
-      $('asc').value = "false";
-    } else {
-      $('asc').value = "true";
-    }
-    document.forms[0].submit()
-  }
-
   $j('#review_id').focus();
 </script>

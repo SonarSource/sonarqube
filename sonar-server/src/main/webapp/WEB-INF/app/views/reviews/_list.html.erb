@@ -5,25 +5,25 @@
       <thead>
       <tr>
         <th width="1%" nowrap>
-          <a href="#" onClick="launchSearch('status', this)"><%= message('status_abbreviated') -%></a>
+          <a href="#" onClick="launchSearch('status')"><%= message('status_abbreviated') -%></a>
           <%= image_tag(@asc ? "asc12.png" : "desc12.png") if @sort == 'status' -%>
         </th>
         <th width="1%" nowrap>
-          <a href="#" onClick="launchSearch('id', this)"><%= message('identifier_abbreviated') -%></a>
+          <a href="#" onClick="launchSearch('id')"><%= message('identifier_abbreviated') -%></a>
           <%= image_tag(@asc ? "asc12.png" : "desc12.png") if @sort == 'id' -%>
         </th>
         <th width="1%" nowrap>
-          <a href="#" onClick="launchSearch('severity', this)"><%= message('severity_abbreviated') -%></a>
+          <a href="#" onClick="launchSearch('severity')"><%= message('severity_abbreviated') -%></a>
           <%= image_tag(@asc ? "asc12.png" : "desc12.png") if @sort == 'severity' -%>
         </th>
         <th>
-          <a href="#" onClick="launchSearch('title', this)"><%= message('title') -%></a>
+          <a href="#" onClick="launchSearch('title')"><%= message('title') -%></a>
           <%= image_tag(@asc ? "asc12.png" : "desc12.png") if @sort == 'title' -%>
         </th>
         <th width="1%"><%= message('project') -%></th>
         <th><%= message('assignee') -%></th>
         <th>
-          <a href="#" onClick="launchSearch('updated_at', this)"><%= message('age') -%></a>
+          <a href="#" onClick="launchSearch('updated_at')"><%= message('age') -%></a>
           <%= image_tag(@asc ? "asc12.png" : "desc12.png") if @sort == 'updated_at' -%>
         </th>
       </tr>
