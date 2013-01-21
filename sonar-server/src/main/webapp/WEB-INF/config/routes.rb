@@ -30,7 +30,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resources 'properties', :path_prefix => 'api', :controller => 'api/properties', :requirements => { :id => /.*/ }
 
   # home page
-  map.home '', :controller => :dashboard, :action => :index
+  map.home '', :controller => :dashboard, :action => :index, :only_path => true
   map.root :controller => :dashboard, :action => :index
 
   # page plugins
