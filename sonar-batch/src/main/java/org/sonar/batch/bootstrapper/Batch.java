@@ -52,6 +52,10 @@ public final class Batch {
     if (builder.globalProperties != null) {
       globalProperties.putAll(builder.globalProperties);
     }
+    else {
+      // For backward compatibility, previously all properties were set in root project
+      globalProperties.putAll(Maps.fromProperties(builder.projectReactor.getRoot().getProperties()));
+    }
     this.taskCommand = builder.taskCommand;
     projectReactor = builder.projectReactor;
     if (builder.isEnableLoggingConfiguration()) {
