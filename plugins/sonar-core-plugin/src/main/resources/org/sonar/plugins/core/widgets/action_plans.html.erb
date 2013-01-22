@@ -36,7 +36,7 @@
      end 
 %>
 
-  <table class="width100 actionPlans">
+  <table class="width100 <%= show_closed_reviews ? 'actionPlans' : 'data' -%>">
     <thead>
     <tr>
       <th colspan="<%= show_closed_reviews ? '3' : '4' %>"></th>
@@ -46,7 +46,7 @@
       <%
          open_action_plans.each do |plan|
       %>
-      <tr>
+      <tr class="<%= show_closed_reviews ? '' : cycle("even", "odd", :name => "action_plan_" + widget.id.to_s) -%>">
         <td class="nowrap <%= line_class -%>"><%= h(plan.name) -%></td>
         <td class="nowrap small <%= line_class -%> <%= 'over-due' if plan.over_due? -%>" style="text-align: right; padding-left:10px"><%= plan.deadline ? plan.deadline.strftime("%d %b %Y") : ' '  -%></td>
         
@@ -62,7 +62,7 @@
            else
              open_reviews_size = plan.open_reviews.size
         %>
-          <td class="right note <%= line_class -%>" style="padding-left:20px">
+          <td class="right <%= line_class -%>" style="padding-left:20px">
             <% if open_reviews_size == 0 %>
               <%= open_reviews_size -%>
             <% else %>
