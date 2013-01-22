@@ -19,45 +19,88 @@
 #
 module PropertiesHelper
 
-  # html_options support :
-  # :html_id - the id of the generated HTML element
+  SCREEN_SETTINGS = 'SETTINGS'
+  SCREEN_WIDGET = 'WIDGET'
+  SCREEN_RULES = 'RULES'
+
   #
-  def property_input_field(key, type, value, options, html_options = {})
-    if type==PropertyType::TYPE_STRING
-      text_field_tag key, value, {:size => 25}.update(html_options)
+  # screen is SETTINGS, WIDGET or RULES
+  # ==== Options
+  # * <tt>:id</tt> - html id to use if the name should not be used
+  # * <tt>:size</tt>
+  # * <tt>:values</tt> - list of values for metric and single select list
+  # * <tt>:default</tt> - default value
+  # * <tt>:disabled</tt>
+  # * <tt>:extra_values</tt>
+  #
+  def property_input_field(name, type, value, screen, options = {})
 
-    elsif type==PropertyType::TYPE_TEXT
-      text_area_tag key, value, {:rows => '6', :style => 'width: 100%'}.update(html_options)
+    html_options = {:id => options[:id] || name}
+    html_options[:disabled] = 'disabled' if options[:disabled]
 
-    elsif type==PropertyType::TYPE_PASSWORD
-      password_field_tag key, value, {:size => 25}.update(html_options)
+    case type
 
-    elsif type==PropertyType::TYPE_BOOLEAN
-      (hidden_field_tag key, 'false', html_options) + (check_box_tag key, 'true', value=='true', html_options)
+      when PropertyType::TYPE_STRING
+        text_field_tag name, value, {:size => options[:size] || 25}.update(html_options)
 
-    elsif type==PropertyType::TYPE_INTEGER
-      text_field_tag key, value, {:size => 10}.update(html_options)
+      when PropertyType::TYPE_TEXT
+        cols = options[:size] || nil
+        html_class = options[:size].nil? ? ' width100' : ''
+        text_area_tag name, value, {:class => html_class, :rows => '5', :cols => cols}.update(html_options)
 
-    elsif type==PropertyType::TYPE_FLOAT
-      text_field_tag key, value, {:size => 10}.update(html_options)
+      when PropertyType::TYPE_PASSWORD
+        password_field_tag name, value, {:size => options[:size] || 25}.update(html_options)
 
-    elsif type==PropertyType::TYPE_METRIC
-      metric_select_tag key, metrics_filtered_by(options), {:selected_key => value, :allow_empty => true}.update(html_options)
+      when PropertyType::TYPE_BOOLEAN
+        if options[:default]
+          select_options = "<option value='' #{ 'selected' if value.blank? }>#{ options[:default] }</option>"
+          select_options += "<option value='true' #{ 'selected' if value=='true' }>#{ message('true') }</option>"
+          select_options += "<option value='false' #{ 'selected' if value=='false' }>#{ message('false') }</option>"
+          select_tag name, select_options, html_options
+        else
+          (hidden_field_tag name, 'false', html_options) + (check_box_tag name, 'true', value=='true', html_options)
+        end
 
-    elsif type==PropertyType::TYPE_REGULAR_EXPRESSION
-      text_field_tag key, value, {:size => 25}.update(html_options)
+      when PropertyType::TYPE_INTEGER
+        size = options[:size] || 10
+        text_field_tag name, value, {:size => size}.update(html_options)
 
-    elsif type==PropertyType::TYPE_FILTER
-      user_filters = options_id(value, current_user.measure_filters)
-      shared_filters = options_id(value, MeasureFilter.find(:all, :conditions => ['(user_id<>? or user_id is null) and shared=?', current_user.id, true]).sort_by(&:name))
+      when PropertyType::TYPE_FLOAT
+        size = options[:size] || 10
+        text_field_tag name, value, {:size => size}.update(html_options)
 
-      filters_combo = select_tag key, option_group('My Filters', user_filters) + option_group('Shared Filters', shared_filters), html_options
-      filter_link = link_to message('widget.filter.edit'), {:controller => 'measures', :action => 'manage'}, :class => 'link-action'
+      when PropertyType::TYPE_METRIC
+        metric_select_tag name, metrics_filtered_by(options[:values]), {:html_id => options[:id], :selected_key => value, :allow_empty => true,
+                                                                        :placeholder => !options[:default].blank? ?  message('default') : nil}
 
-      "#{filters_combo} #{filter_link}"
+      when PropertyType::TYPE_REGULAR_EXPRESSION
+        size = options[:size] || 25
+        text_field_tag name, value, {:size => size}.update(html_options)
 
-    else
-      hidden_field_tag key, html_options
+      when PropertyType::TYPE_FILTER
+        user_filters = options_id(value, current_user.measure_filters)
+        shared_filters = options_id(value, MeasureFilter.find(:all, :conditions => ['(user_id<>? or user_id is null) and shared=?', current_user.id, true]).sort_by(&:name))
+
+        filters_combo = select_tag name, option_group('My Filters', user_filters) + option_group('Shared Filters', shared_filters), html_options
+        filter_link = link_to message('widget.filter.edit'), {:controller => 'measures', :action => 'manage'}, :class => 'link-action'
+
+        "#{filters_combo} #{filter_link}"
+
+      when PropertyType::TYPE_SINGLE_SELECT_LIST
+        default_value = options[:default].blank? ? '' : message('default')
+        select_options = "<option value=''>#{ default_value }</option>"
+        options[:values].each do |option|
+          if screen == SCREEN_WIDGET
+            message = message("widget.#{options[:extra_values][:key]}.option.#{name}.#{option}.name", :default => option)
+          else
+            message = option_name(options[:extra_values][:property], options[:extra_values][:field], option)
+          end
+          select_options += "<option value='#{ html_escape option }' #{ 'selected' if value && value==option }>#{ message }</option>"
+        end
+        select_tag name, select_options, html_options
+
+      else
+        hidden_field_tag id, html_options
     end
   end
 

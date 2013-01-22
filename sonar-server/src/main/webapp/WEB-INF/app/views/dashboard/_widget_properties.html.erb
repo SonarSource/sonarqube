@@ -32,7 +32,13 @@
                property_description = message("widget." + widget.key + ".param." + property_def.key(), :default => '')
                property_description = message("widget." + widget.key + ".property." + property_def.key() + ".desc", :default => property_def.description()) unless property_description != ''
             -%>
-            <%= property_description -%>
+
+            <% unless property_description.blank? -%>
+              <div><%= property_description -%></div>
+            <% end %>
+            <% unless property_def.defaultValue.blank? -%>
+              <div><%= message('default') %>:: <%= property_def.type.name == PropertyType::TYPE_PASSWORD ? '********' : h(property_def.defaultValue) -%></div>
+            <% end -%>
           </div>
         </td>
       </tr>

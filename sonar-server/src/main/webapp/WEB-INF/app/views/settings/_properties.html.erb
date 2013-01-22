@@ -44,7 +44,7 @@
 
             <% default_prop_value = (@resource ? Property.value(property.key, nil, property.defaultValue) : property.defaultValue) -%>
             <% unless default_prop_value.blank? -%>
-              <div class="note">Default: <%= property.type.to_s=='PASSWORD' ? '********' : h(default_prop_value) -%></div>
+              <div class="note"><%= message('default') %>: <%= property.type.to_s=='PASSWORD' ? '********' : h(default_prop_value) -%></div>
             <% end -%>
           </td>
         </tr>

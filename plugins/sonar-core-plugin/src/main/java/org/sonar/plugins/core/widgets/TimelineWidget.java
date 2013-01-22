@@ -26,12 +26,31 @@ import org.sonar.api.web.WidgetPropertyType;
 
 @WidgetCategory("History")
 @WidgetProperties({
-  @WidgetProperty(key = "chartTitle", type = WidgetPropertyType.STRING),
-  @WidgetProperty(key = "metric1", type = WidgetPropertyType.METRIC, defaultValue = "ncloc", options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
-  @WidgetProperty(key = "metric2", type = WidgetPropertyType.METRIC, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
-  @WidgetProperty(key = "metric3", type = WidgetPropertyType.METRIC, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
-  @WidgetProperty(key = "hideEvents", type = WidgetPropertyType.BOOLEAN),
-  @WidgetProperty(key = "chartHeight", type = WidgetPropertyType.INTEGER, defaultValue = "80")
+  @WidgetProperty(key = "chartTitle", type = WidgetPropertyType.STRING, description = "chartTitle description"),
+  @WidgetProperty(key = "metric1", type = WidgetPropertyType.METRIC, defaultValue = "ncloc", options = {WidgetConstants.FILTER_OUT_NEW_METRICS}, description = "metric1 description"),
+  @WidgetProperty(key = "metric2", type = WidgetPropertyType.METRIC, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}, description = "metric2 description"),
+  @WidgetProperty(key = "metric3", type = WidgetPropertyType.METRIC, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}, description = "metric3 description"),
+  @WidgetProperty(key = "hideEvents", type = WidgetPropertyType.BOOLEAN, description = "hideEvents description"),
+  @WidgetProperty(key = "hideEvents2", type = WidgetPropertyType.BOOLEAN, description = "hideEvents description", defaultValue = "true"),
+  @WidgetProperty(key = "chartHeight", type = WidgetPropertyType.INTEGER, defaultValue = "80", description = "chartHeight description"),
+
+  @WidgetProperty(key = "text", type = WidgetPropertyType.TEXT, description = "text description"),
+  @WidgetProperty(key = "password", type = WidgetPropertyType.PASSWORD, description = "password description", defaultValue = "123"),
+  @WidgetProperty(key = "password2", type = WidgetPropertyType.PASSWORD, description = "password2 description"),
+  @WidgetProperty(key = "float", type = WidgetPropertyType.FLOAT, description = "float description"),
+  @WidgetProperty(key = "regex", type = WidgetPropertyType.REGULAR_EXPRESSION, description = "regex description"),
+  @WidgetProperty(key = "filter", type = WidgetPropertyType.FILTER, description = "filter description"),
+  @WidgetProperty(
+    key = "list",
+    defaultValue = "2",
+    type = WidgetPropertyType.SINGLE_SELECT_LIST,
+    options = {"1", "2", "3"},
+    description = "list description"),
+    @WidgetProperty(
+        key = "list2",
+        type = WidgetPropertyType.SINGLE_SELECT_LIST,
+        options = {"1", "2", "3"},
+        description = "list2 description")
 })
 public class TimelineWidget extends CoreWidget {
   public TimelineWidget() {

@@ -1,6 +1,2 @@
-<select name="<%= name -%>" id="<%= id -%>">
-  <option value=""><%= message('default') -%></option>
-  <% property.options.each do |option| %>
-    <option value="<%= h option -%>" <%= 'selected' if value && value==option -%>><%= option_name(property, field, option) -%></option>
-  <% end %>
-</select>
+<%= property_input_field(name, PropertyType::TYPE_SINGLE_SELECT_LIST, value, PropertiesHelper::SCREEN_SETTINGS,
+                          {:id => id, :default => property.defaultValue, :values => property.options, :extra_values => {:property => property, :field => field}}) %>

@@ -1,5 +1,1 @@
-<select name="<%= name -%>" id="<%= id -%>">
-  <option value="" <%= 'selected' if value.blank? -%>><%= message('default') -%></option>
-  <option value="true" <%= 'selected' if value=='true' -%>><%= message('true') -%></option>
-  <option value="false" <%= 'selected' if value=='false' -%>><%= message('false') -%></option>
-</select>
+<%= property_input_field(id, PropertyType::TYPE_BOOLEAN, value, PropertiesHelper::SCREEN_SETTINGS, {:id => id, :default => message('default')}) %>

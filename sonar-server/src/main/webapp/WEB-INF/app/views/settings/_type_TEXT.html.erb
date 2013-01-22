@@ -1,1 +1,5 @@
-<textarea rows="5" cols="<%= (defined? size) ? size : 80 -%>" class="<%= (defined? size) ? '' : 'width100' -%>" name="<%= name -%>" id="<%= id -%>"><%= h value if value -%></textarea>
+<%
+   options = {:id => id}
+   options[:cols] = (defined? size) ? size : 50
+%>
+<%= property_input_field(id, PropertyType::TYPE_TEXT, value, PropertiesHelper::SCREEN_SETTINGS, {:id => id,  :cols => (defined? size) ? size : nil}) %>

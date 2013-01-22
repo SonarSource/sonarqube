@@ -89,6 +89,7 @@ public @interface Property {
    * Options for *_LIST types
    *
    * @since 3.0  Options for property of type PropertyType.SINGLE_SELECT_LIST</code>
+   * For example {"property_1", "property_3", "property_3"}).
    *
    * @since 3.3  Options for property of type PropertyType.METRIC</code>.
    * If no option is specified, any metric will match.
