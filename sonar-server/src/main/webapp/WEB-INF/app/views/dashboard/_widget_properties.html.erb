@@ -24,7 +24,7 @@
 
     <% widget.java_definition.getWidgetProperties().each do |property_def| %>
       <tr>
-        <td class="form-key-cell"><%= message("widget." + widget.key + ".prop." + property_def.key() + ".key", :default => property_def.key()) -%><%= " *" unless property_def.optional() -%></td>
+        <td class="form-key-cell"><%= message("widget." + widget.key + ".prop." + property_def.key() + ".name", :default => property_def.key()) -%><%= " *" unless property_def.optional() -%></td>
         <td class="form-val-cell" id="row_<%= property_def.key() -%>">
           <%= property_value_field(property_def, widget.property_text_value(property_def.key()), widget) -%>
           <div class="form-val-note">
