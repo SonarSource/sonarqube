@@ -37,6 +37,10 @@ public class BootstrapModule extends Module {
   private GlobalBatchProperties globalProperties;
   private String taskCommand;
 
+  /**
+   * @deprecated Use {@link #BootstrapModule(GlobalBatchProperties, String, ProjectReactor, Object...)}
+   */
+  @Deprecated
   public BootstrapModule(ProjectReactor reactor, Object... boostrapperComponents) {
     this(new GlobalBatchProperties(), null, reactor, boostrapperComponents);
   }
