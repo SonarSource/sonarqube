@@ -19,7 +19,7 @@
         url += '?sort=' + columnName;
       }
       
-      if (!document.URL.contains('&asc=true')) {
+      if (document.URL.indexOf('&asc=true') == -1) {
         url += '&asc=true';
       }      
     }
