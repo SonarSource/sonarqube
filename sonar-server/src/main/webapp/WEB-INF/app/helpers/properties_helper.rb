@@ -90,7 +90,7 @@ module PropertiesHelper
         default_value = options[:default].blank? ? '' : message('default')
         select_options = "<option value=''>#{ default_value }</option>"
         options[:values].each do |option|
-          message = screen == SCREEN_WIDGET ? option_name_with_key(options[:extra_values][:key], nil, option, 'widget') :
+          message = screen == SCREEN_WIDGET ? option_name_with_key(name, nil, option, 'widget.'+ options[:extra_values][:widget_key]) :
               option_name(options[:extra_values][:property], options[:extra_values][:field], option)
           select_options += "<option value='#{ html_escape option }' #{ 'selected' if value && value==option }>#{ message }</option>"
         end
@@ -142,6 +142,8 @@ module PropertiesHelper
       message
     else
       # Old key used for retro-compatibility
+      puts "#### "+ prefix.to_s
+
       message = message(prefix +"option.#{property_key}.#{option}.name", :default => '')
       message = message(prefix +"property.#{property_key}.option.#{option}.name", :default => option) unless message != ''
       message

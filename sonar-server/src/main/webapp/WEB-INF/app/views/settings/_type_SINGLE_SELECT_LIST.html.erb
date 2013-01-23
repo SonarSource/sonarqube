@@ -1,2 +1,2 @@
 <%= property_input_field(name, PropertyType::TYPE_SINGLE_SELECT_LIST, value, PropertiesHelper::SCREEN_SETTINGS,
-                          {:id => id, :default => property.defaultValue, :values => property.options, :extra_values => {:property => property, :field => field}}) %>
+                          {:id => id, :default => (defined? property.defaultValue) ? property.defaultValue : nil, :values => property.options, :extra_values => {:property => property, :field => field}}) %>
