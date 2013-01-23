@@ -27,4 +27,12 @@ module WidgetPropertiesHelper
     property_input_field definition.key, definition.type.name, value, 'WIDGET', options
   end
 
+  def default_value(property_def)
+    defaultValue = property_def.defaultValue
+    # Boolean type should always have a default value, if no one is provided it's force to false
+    defaultValue = property_def.type.name == PropertyType::TYPE_BOOLEAN ? 'false' : property_def.defaultValue if defaultValue.blank?
+    defaultValue = '********' if property_def.type.name == PropertyType::TYPE_PASSWORD
+    defaultValue
+  end
+
 end

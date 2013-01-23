@@ -41,7 +41,7 @@ module PropertiesHelper
     case type
 
       when PropertyType::TYPE_STRING
-        text_field_tag name, value, {:size => options[:size] || 25}.update(html_options)
+        text_field_tag name, value, {:size => options[:size] || 50}.update(html_options)
 
       when PropertyType::TYPE_TEXT
         cols = options[:size] || nil
@@ -49,18 +49,13 @@ module PropertiesHelper
         text_area_tag name, value, {:class => html_class, :rows => '5', :cols => cols}.update(html_options)
 
       when PropertyType::TYPE_PASSWORD
-        password_field_tag name, value, {:size => options[:size] || 25}.update(html_options)
+        password_field_tag name, value, {:size => options[:size] || 50}.update(html_options)
 
       when PropertyType::TYPE_BOOLEAN
-        if !options[:default].blank? || screen == SCREEN_SETTINGS
-          default_value = options[:default].blank? ? '' : message('default')
-          select_options = "<option value='' #{ 'selected' if value.blank? }>#{ default_value }</option>"
-          select_options += "<option value='true' #{ 'selected' if value=='true' }>#{ message('true') }</option>"
-          select_options += "<option value='false' #{ 'selected' if value=='false' }>#{ message('false') }</option>"
-          select_tag name, select_options, html_options
-        else
-          (hidden_field_tag name, 'false', html_options) + (check_box_tag name, 'true', value=='true', html_options)
-        end
+        select_options = "<option value='' #{ 'selected' if value.blank? }>#{ message('default') }</option>"
+        select_options += "<option value='true' #{ 'selected' if value=='true' }>#{ message('true') }</option>"
+        select_options += "<option value='false' #{ 'selected' if value=='false' }>#{ message('false') }</option>"
+        select_tag name, select_options, html_options
 
       when PropertyType::TYPE_INTEGER
         size = options[:size] || 10
@@ -75,7 +70,7 @@ module PropertiesHelper
                                                                         :placeholder => !options[:default].blank? ?  message('default') : nil}
 
       when PropertyType::TYPE_REGULAR_EXPRESSION
-        size = options[:size] || 25
+        size = options[:size] || 50
         text_field_tag name, value, {:size => size}.update(html_options)
 
       when PropertyType::TYPE_FILTER

@@ -37,8 +37,8 @@
             <% unless property_description.blank? -%>
               <div><%= property_description -%></div>
             <% end %>
-            <% unless property_def.defaultValue.blank? -%>
-              <div><%= message('default') %>:: <%= property_def.type.name == PropertyType::TYPE_PASSWORD ? '********' : h(property_def.defaultValue) -%></div>
+            <% if !property_def.defaultValue.blank? || property_def.type.name == PropertyType::TYPE_BOOLEAN -%>
+              <div><%= message('default') %>: <%= h(default_value property_def) -%></div>
             <% end -%>
           </div>
         </td>
