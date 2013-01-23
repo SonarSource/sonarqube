@@ -29,6 +29,8 @@ import org.sonar.api.task.TaskComponent;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.utils.SonarException;
 
+import javax.annotation.Nullable;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -49,7 +51,7 @@ public class Tasks implements TaskComponent {
     this.taskDefinitions = taskDefinitions;
   }
 
-  public TaskDefinition getTaskDefinition(String command) {
+  public TaskDefinition getTaskDefinition(@Nullable String command) {
     String finalCommand = command;
     if (StringUtils.isBlank(finalCommand)) {
       // Try with a property
