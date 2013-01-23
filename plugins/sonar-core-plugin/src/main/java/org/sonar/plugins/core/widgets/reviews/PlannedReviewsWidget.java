@@ -27,8 +27,7 @@ import org.sonar.plugins.core.widgets.CoreWidget;
 
 @WidgetCategory({"Action plans", "Reviews"})
 @WidgetProperties({
-  @WidgetProperty(key = "numberOfLines", type = WidgetPropertyType.INTEGER, defaultValue = "5",
-    description = "Maximum number of reviews displayed at the same time.")
+  @WidgetProperty(key = "numberOfLines", type = WidgetPropertyType.INTEGER, defaultValue = "5")
 })
 public class PlannedReviewsWidget extends CoreWidget {
   public PlannedReviewsWidget() {

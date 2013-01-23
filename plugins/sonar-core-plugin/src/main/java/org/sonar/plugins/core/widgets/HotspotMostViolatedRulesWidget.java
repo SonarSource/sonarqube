@@ -26,11 +26,10 @@ import org.sonar.api.web.WidgetPropertyType;
 
 @WidgetCategory("Hotspots")
 @WidgetProperties(
-  {
-    @WidgetProperty(key = "numberOfLines", type = WidgetPropertyType.INTEGER, defaultValue = "5"),
-    @WidgetProperty(key = "defaultSeverity", type = WidgetPropertyType.STRING, description = "Values: BLOCKER, CRITICAL, MAJOR, MINOR, INFO")
-  }
-)
+{
+  @WidgetProperty(key = "numberOfLines", type = WidgetPropertyType.INTEGER, defaultValue = "5"),
+  @WidgetProperty(key = "defaultSeverity", type = WidgetPropertyType.STRING)
+})
 public class HotspotMostViolatedRulesWidget extends CoreWidget {
   public HotspotMostViolatedRulesWidget() {
     super("hotspot_most_violated_rules", "Most violated rules", "/org/sonar/plugins/core/widgets/hotspots/hotspot_most_violated_rules.html.erb");
