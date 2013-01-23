@@ -45,15 +45,16 @@ module PropertiesHelper
 
       when PropertyType::TYPE_TEXT
         cols = options[:size] || nil
-        html_class = options[:size].nil? ? ' width100' : ''
+        html_class = cols.nil? ? ' width100' : ''
         text_area_tag name, value, {:class => html_class, :rows => '5', :cols => cols}.update(html_options)
 
       when PropertyType::TYPE_PASSWORD
         password_field_tag name, value, {:size => options[:size] || 25}.update(html_options)
 
       when PropertyType::TYPE_BOOLEAN
-        if !options[:default].blank?
-          select_options = "<option value='' #{ 'selected' if value.blank? }>#{ message('default') }</option>"
+        if !options[:default].blank? || screen == SCREEN_SETTINGS
+          default_value = options[:default].blank? ? '' : message('default')
+          select_options = "<option value='' #{ 'selected' if value.blank? }>#{ default_value }</option>"
           select_options += "<option value='true' #{ 'selected' if value=='true' }>#{ message('true') }</option>"
           select_options += "<option value='false' #{ 'selected' if value=='false' }>#{ message('false') }</option>"
           select_tag name, select_options, html_options
