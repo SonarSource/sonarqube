@@ -29,6 +29,7 @@
           <%= property_value_field(property_def, widget.property_text_value(property_def.key()), widget) -%>
           <div class="form-val-note">
             <%
+               # Old key used for retro-compatibility
                property_description = message("widget." + widget.key + ".param." + property_def.key(), :default => '')
                property_description = message("widget." + widget.key + ".property." + property_def.key() + ".desc", :default => property_def.description()) unless property_description != ''
             -%>

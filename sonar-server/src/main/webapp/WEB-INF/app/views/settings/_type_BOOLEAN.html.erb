@@ -1,1 +1,1 @@
-<%= property_input_field(id, PropertyType::TYPE_BOOLEAN, value, PropertiesHelper::SCREEN_SETTINGS, {:id => id, :default => message('default')}) %>
+<%= property_input_field(name, PropertyType::TYPE_BOOLEAN, value, PropertiesHelper::SCREEN_SETTINGS, {:id => id, :default => (defined? defaultValue) ? property.defaultValue : nil }) %>

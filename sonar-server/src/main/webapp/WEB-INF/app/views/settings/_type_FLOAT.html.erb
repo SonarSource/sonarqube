@@ -2,4 +2,4 @@
    options = {:id => id}
    options[:size] = (defined? size) ? size : 50
 %>
-<%= property_input_field(id, PropertyType::TYPE_FLOAT, value, PropertiesHelper::SCREEN_SETTINGS, options) %>
+<%= property_input_field(name, PropertyType::TYPE_FLOAT, value, PropertiesHelper::SCREEN_SETTINGS, options) %>
