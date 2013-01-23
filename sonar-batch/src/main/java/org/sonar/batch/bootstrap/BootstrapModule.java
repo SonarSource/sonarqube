@@ -27,6 +27,8 @@ import org.sonar.batch.FakeMavenPluginExecutor;
 import org.sonar.batch.MavenPluginExecutor;
 import org.sonar.core.config.Logback;
 
+import javax.annotation.Nullable;
+
 /**
  * Level 1 components
  */
@@ -45,7 +47,7 @@ public class BootstrapModule extends Module {
     this(new GlobalBatchProperties(), null, reactor, boostrapperComponents);
   }
 
-  public BootstrapModule(GlobalBatchProperties globalProperties, String taskCommand, ProjectReactor reactor,
+  public BootstrapModule(GlobalBatchProperties globalProperties, @Nullable String taskCommand, @Nullable ProjectReactor reactor,
       Object... boostrapperComponents) {
     this.globalProperties = globalProperties;
     this.taskCommand = taskCommand;
