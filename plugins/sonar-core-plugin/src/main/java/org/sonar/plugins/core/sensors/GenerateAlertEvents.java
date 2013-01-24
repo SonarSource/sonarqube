@@ -19,10 +19,18 @@
  */
 package org.sonar.plugins.core.sensors;
 
-import org.sonar.api.batch.*;
+import org.sonar.api.batch.Decorator;
+import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.batch.Event;
+import org.sonar.api.batch.TimeMachine;
+import org.sonar.api.batch.TimeMachineQuery;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.Metric.Level;
+import org.sonar.api.notifications.Notification;
+import org.sonar.api.notifications.NotificationManager;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
@@ -34,16 +42,17 @@ public class GenerateAlertEvents implements Decorator {
 
   private final RulesProfile profile;
   private final TimeMachine timeMachine;
+  private NotificationManager notificationManager;
 
-  public GenerateAlertEvents(RulesProfile profile, TimeMachine timeMachine) {
+  public GenerateAlertEvents(RulesProfile profile, TimeMachine timeMachine, NotificationManager notificationManager) {
     this.profile = profile;
     this.timeMachine = timeMachine;
+    this.notificationManager = notificationManager;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
     return profile != null && profile.getAlerts() != null && profile.getAlerts().size() > 0;
   }
-
 
   @DependsUpon
   public Metric dependsUponAlertStatus() {
@@ -63,13 +72,39 @@ public class GenerateAlertEvents implements Decorator {
     List<Measure> measures = timeMachine.getMeasures(query);
 
     Measure pastStatus = (measures != null && measures.size() == 1 ? measures.get(0) : null);
-    if (pastStatus != null && pastStatus.getDataAsLevel() != currentStatus.getDataAsLevel()) {
-      createEvent(context, getName(pastStatus, currentStatus), currentStatus.getAlertText());
+    String alertText = currentStatus.getAlertText();
+    Level alertLevel = currentStatus.getDataAsLevel();
+    String alertName = null;
+    boolean isNewAlert = true;
+    if (pastStatus != null && pastStatus.getDataAsLevel() != alertLevel) {
+      // The alert status has changed
+      alertName = getName(pastStatus, currentStatus);
+      if (pastStatus.getDataAsLevel() != Metric.Level.OK) {
+        // There was already a Orange/Red alert, so this is no new alert: it has just changed
+        isNewAlert = false;
+      }
+      createEvent(context, alertName, alertText);
+      notifyUsers(resource, alertName, alertText, alertLevel, isNewAlert);
 
-    } else if (pastStatus == null && currentStatus.getDataAsLevel() != Metric.Level.OK) {
-      createEvent(context, getName(currentStatus), currentStatus.getAlertText());
+    } else if (pastStatus == null && alertLevel != Metric.Level.OK) {
+      // There were no defined alerts before, so this one is a new one
+      alertName = getName(currentStatus);
+      createEvent(context, alertName, alertText);
+      notifyUsers(resource, alertName, alertText, alertLevel, isNewAlert);
     }
 
+  }
+
+  protected void notifyUsers(Resource<?> resource, String alertName, String alertText, Level alertLevel, boolean isNewAlert) {
+    Notification notification = new Notification("alerts")
+        .setFieldValue("projectName", resource.getLongName())
+        .setFieldValue("projectKey", resource.getKey())
+        .setFieldValue("projectId", String.valueOf(resource.getId()))
+        .setFieldValue("alertName", alertName)
+        .setFieldValue("alertText", alertText)
+        .setFieldValue("alertLevel", alertLevel.toString())
+        .setFieldValue("isNewAlert", Boolean.toString(isNewAlert));
+    notificationManager.scheduleForSending(notification);
   }
 
   private boolean shouldDecorateResource(Resource resource) {
