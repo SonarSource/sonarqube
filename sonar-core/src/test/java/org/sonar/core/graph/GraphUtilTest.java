@@ -19,15 +19,51 @@
  */
 package org.sonar.core.graph;
 
+import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.core.graph.GraphUtil;
+import org.junit.rules.ExpectedException;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class GraphUtilTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
+  @Test
+  public void uniqueAdjacent() {
+    TinkerGraph graph = new TinkerGraph();
+    Vertex a = graph.addVertex(null);
+    Vertex b = graph.addVertex(null);
+    Vertex c = graph.addVertex(null);
+    graph.addEdge(null, a, b, "likes");
+    graph.addEdge(null, a, c, "hates");
+
+    assertThat(GraphUtil.singleAdjacent(a, Direction.OUT, "likes")).isEqualTo(b);
+    assertThat(GraphUtil.singleAdjacent(a, Direction.OUT, "likes", "other")).isEqualTo(b);
+    assertThat(GraphUtil.singleAdjacent(a, Direction.OUT, "other")).isNull();
+    assertThat(GraphUtil.singleAdjacent(a, Direction.IN, "likes")).isNull();
+  }
+
+  @Test
+  public void uniqueAdjacent_fail_if_multiple_adjacents() {
+    thrown.expect(MultipleElementsException.class);
+    thrown.expectMessage("More than one vertex is adjacent to: v[0], direction: OUT, labels: likes,hates");
+
+    TinkerGraph graph = new TinkerGraph();
+    Vertex a = graph.addVertex(null);
+    Vertex b = graph.addVertex(null);
+    Vertex c = graph.addVertex(null);
+    graph.addEdge(null, a, b, "likes");
+    graph.addEdge(null, a, c, "likes");
+
+    GraphUtil.singleAdjacent(a, Direction.OUT, "likes", "hates");
+  }
+
   @Test
   public void subGraph() {
     TinkerGraph graph = new TinkerGraph();

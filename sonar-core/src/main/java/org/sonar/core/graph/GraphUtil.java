@@ -19,6 +19,7 @@
  */
 package org.sonar.core.graph;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
@@ -27,6 +28,7 @@ import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
 import com.tinkerpop.blueprints.util.ElementHelper;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
+import org.hibernate.engine.JoinSequence;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -42,16 +44,16 @@ public class GraphUtil {
   /**
    * Get adjacent vertex. It assumes that there are only 0 or 1 results.
    *
-   * @throws MultipleVerticesException if there are more than 1 adjacent vertices with the given criteria.
+   * @throws MultipleElementsException if there are more than 1 adjacent vertices with the given criteria.
    */
   @CheckForNull
-  public static Vertex adjacent(Vertex from, Direction direction, String... labels) {
+  public static Vertex singleAdjacent(Vertex from, Direction direction, String... labels) {
     Iterator<Vertex> vertices = from.getVertices(direction, labels).iterator();
     Vertex result = null;
     if (vertices.hasNext()) {
       result = vertices.next();
       if (vertices.hasNext()) {
-        throw new MultipleVerticesException(String.format("More than one vertex adjacent to: %s, direction: %s, labels: ", from, direction, labels));
+        throw new MultipleElementsException(String.format("More than one vertex is adjacent to: %s, direction: %s, labels: %s", from, direction, Joiner.on(",").join(labels)));
       }
     }
     return result;
@@ -63,7 +65,7 @@ public class GraphUtil {
     if (iterator.hasNext()) {
       result = iterator.next();
       if (iterator.hasNext()) {
-        throw new MultipleVerticesException("More than one elements");
+        throw new MultipleElementsException("More than one elements");
       }
     }
     return result;

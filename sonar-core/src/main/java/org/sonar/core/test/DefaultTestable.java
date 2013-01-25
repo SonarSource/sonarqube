@@ -34,7 +34,7 @@ import java.util.SortedSet;
 public class DefaultTestable extends ElementWrapper<Vertex> implements MutableTestable {
 
   public Component component() {
-    Vertex component = GraphUtil.adjacent(element(), Direction.IN, "testable");
+    Vertex component = GraphUtil.singleAdjacent(element(), Direction.IN, "testable");
     return graph().wrap(component, ComponentWrapper.class);
   }
 

@@ -33,7 +33,7 @@ import java.util.List;
 
 public class DefaultTestPlan extends ElementWrapper<Vertex> implements MutableTestPlan {
   public Component component() {
-    Vertex component = GraphUtil.adjacent(element(), Direction.IN, "testplan");
+    Vertex component = GraphUtil.singleAdjacent(element(), Direction.IN, "testplan");
     return graph().wrap(component, ComponentWrapper.class);
   }
 

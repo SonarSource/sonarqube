@@ -19,8 +19,8 @@
  */
 package org.sonar.core.graph;
 
-public class MultipleVerticesException extends RuntimeException {
-  public MultipleVerticesException(String message) {
+public class MultipleElementsException extends RuntimeException {
+  public MultipleElementsException(String message) {
     super(message);
   }
 }

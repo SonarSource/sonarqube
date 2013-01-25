@@ -84,7 +84,7 @@ public class DefaultTestCase extends ElementWrapper<Vertex> implements MutableTe
   }
 
   public TestPlan testPlan() {
-    Vertex plan = GraphUtil.adjacent(element(), Direction.IN, "testcase");
+    Vertex plan = GraphUtil.singleAdjacent(element(), Direction.IN, "testcase");
     return graph().wrap(plan, DefaultTestPlan.class);
   }
 
