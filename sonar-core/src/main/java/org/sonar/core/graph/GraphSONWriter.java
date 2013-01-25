@@ -21,7 +21,6 @@
 package org.sonar.core.graph;
 
 
-import com.google.common.base.Charsets;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
@@ -124,7 +123,7 @@ public class GraphSONWriter {
     }
     root.put(GraphSONTokens.EDGES, edgesArray);
 
-    jsonOutputStream.write(root.toString().getBytes(Charsets.UTF_8));
+    jsonOutputStream.write(root.toString().getBytes());
   }
 
 }
