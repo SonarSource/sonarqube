@@ -44,6 +44,6 @@ public class EmailNotificationsPlugin extends SonarPlugin {
         // Notify alerts on my favourite projects
         AlertsOnMyFavouriteProject.class,
         AlertsEmailTemplate.class
-        );
+    );
   }
 }
