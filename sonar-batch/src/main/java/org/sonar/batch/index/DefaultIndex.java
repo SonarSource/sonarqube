@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.database.model.ResourceModel;
+import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
@@ -38,6 +39,7 @@ import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectLink;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.resources.Scopes;
@@ -49,6 +51,7 @@ import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.ResourceFilters;
 import org.sonar.batch.ViolationFilters;
+import org.sonar.core.component.ComponentGraph;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -67,6 +70,7 @@ public class DefaultIndex extends SonarIndex {
   private PersistenceManager persistence;
   private DefaultResourceCreationLock lock;
   private MetricFinder metricFinder;
+  private ComponentGraph graph;
 
   // filters
   private ViolationFilters violationFilters;
@@ -80,11 +84,12 @@ public class DefaultIndex extends SonarIndex {
   private Map<Resource, Map<Resource, Dependency>> incomingDependenciesByResource = Maps.newHashMap();
   private ProjectTree projectTree;
 
-  public DefaultIndex(PersistenceManager persistence, DefaultResourceCreationLock lock, ProjectTree projectTree, MetricFinder metricFinder) {
+  public DefaultIndex(PersistenceManager persistence, DefaultResourceCreationLock lock, ProjectTree projectTree, MetricFinder metricFinder, ComponentGraph graph) {
     this.persistence = persistence;
     this.lock = lock;
     this.projectTree = projectTree;
     this.metricFinder = metricFinder;
+    this.graph = graph;
   }
 
   public void start() {
@@ -465,10 +470,10 @@ public class DefaultIndex extends SonarIndex {
     if (!StringUtils.equals(Scopes.PROJECT, resource.getScope())) {
       // not a project nor a library
       uid = new StringBuilder(ResourceModel.KEY_SIZE)
-          .append(project.getKey())
-          .append(':')
-          .append(resource.getKey())
-          .toString();
+        .append(project.getKey())
+        .append(':')
+        .append(resource.getKey())
+        .toString();
     }
     return uid;
   }
@@ -551,8 +556,12 @@ public class DefaultIndex extends SonarIndex {
 
     boolean excluded = checkExclusion(resource, parentBucket);
     if (!excluded) {
-      persistence.saveResource(currentProject, resource, (parentBucket != null ? parentBucket.getResource() : null));
+      Snapshot snapshot = persistence.saveResource(currentProject, resource, (parentBucket != null ? parentBucket.getResource() : null));
+      if (ResourceUtils.isPersistable(resource) && !Qualifiers.LIBRARY.equals(resource.getQualifier())) {
+        graph.createComponent(resource, snapshot);
+      }
     }
+
     return bucket;
   }
 

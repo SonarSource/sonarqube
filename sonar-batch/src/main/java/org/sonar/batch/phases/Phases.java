@@ -25,6 +25,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.PersistenceManager;
+import org.sonar.core.component.GraphStorage;
 
 import java.util.Collection;
 
@@ -48,12 +49,14 @@ public final class Phases {
   private SensorContext sensorContext;
   private DefaultIndex index;
   private ProjectInitializer pi;
+  private GraphStorage graphStorage;
 
   public Phases(DecoratorsExecutor decoratorsExecutor, MavenPhaseExecutor mavenPhaseExecutor,
                 MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
                 PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
                 PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
-                EventBus eventBus, UpdateStatusJob updateStatusJob, ProjectInitializer pi) {
+                EventBus eventBus, UpdateStatusJob updateStatusJob, ProjectInitializer pi,
+                GraphStorage graphStorage) {
     this.decoratorsExecutor = decoratorsExecutor;
     this.mavenPhaseExecutor = mavenPhaseExecutor;
     this.mavenPluginsConfigurator = mavenPluginsConfigurator;
@@ -66,15 +69,16 @@ public final class Phases {
     this.eventBus = eventBus;
     this.updateStatusJob = updateStatusJob;
     this.pi = pi;
+    this.graphStorage = graphStorage;
   }
 
   public Phases(DecoratorsExecutor decoratorsExecutor, MavenPhaseExecutor mavenPhaseExecutor,
                 MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
                 PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
                 PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
-                EventBus eventBus, ProjectInitializer pi) {
+                EventBus eventBus, ProjectInitializer pi, GraphStorage graphStorage) {
     this(decoratorsExecutor, mavenPhaseExecutor, mavenPluginsConfigurator, initializersExecutor, postJobsExecutor,
-      sensorsExecutor, persistenceManager, sensorContext, index, eventBus, null, pi);
+      sensorsExecutor, persistenceManager, sensorContext, index, eventBus, null, pi, graphStorage);
   }
 
   /**
@@ -94,6 +98,7 @@ public final class Phases {
     persistenceManager.setDelayedMode(false);
 
     if (project.isRoot()) {
+      graphStorage.save();
       if (updateStatusJob != null) {
         updateStatusJob.execute();
       }

@@ -641,6 +641,16 @@
         <version>3.2</version>
       </dependency>
       <dependency>
+        <groupId>com.tinkerpop.blueprints</groupId>
+        <artifactId>blueprints-core</artifactId>
+        <version>2.2.0</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tinkerpop.gremlin</groupId>
+        <artifactId>gremlin-java</artifactId>
+        <version>2.2.0</version>
+      </dependency>
+      <dependency>
         <groupId>org.codehaus.plexus</groupId>
         <artifactId>plexus-classworlds</artifactId>
         <version>2.2.3</version>

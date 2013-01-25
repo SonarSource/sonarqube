@@ -57,6 +57,7 @@ public final class DatabaseUtils {
     "dependencies",
     "duplications_index",
     "events",
+    "graphs",
     "groups",
     "groups_users",
     "group_roles",

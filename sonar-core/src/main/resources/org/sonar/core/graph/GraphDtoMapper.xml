@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.core.graph.GraphDtoMapper">
+
+  <select id="selectBySnapshot" parameterType="map" resultType="Graph">
+    SELECT snapshot_id as snapshotId, format, version, perspective, data
+    FROM graphs
+    WHERE snapshot_id = #{sid} AND perspective = #{perspective}
+  </select>
+
+  <select id="selectByComponent" parameterType="map" resultType="Graph">
+    SELECT g.snapshot_id as snapshotId, g.format, g.version, g.perspective, g.data
+    FROM graphs g, snapshots s
+    WHERE g.perspective = #{perspective} AND g.snapshot_id=s.id AND s.islast=${_true} and s.project_id=(
+    select id from projects where enabled=${_true} and kee=#{key} and person_id is null and copy_resource_id is null
+    )
+  </select>
+
+  <insert id="insert" parameterType="Graph" useGeneratedKeys="false">
+    insert into graphs
+    (snapshot_id, format, version, perspective, root_vertex_id, data, created_at, updated_at)
+    values (
+    #{snapshotId}, #{format}, #{version}, #{perspective}, #{rootVertexId},
+    #{data}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+  </insert>
+
+  <!-- Oracle -->
+  <insert id="insert" databaseId="oracle" parameterType="Graph" useGeneratedKeys="false" keyProperty="id">
+    <selectKey order="BEFORE" resultType="Long" keyProperty="id">
+      select graphs_seq.NEXTVAL from DUAL
+    </selectKey>
+    insert into graphs
+    (id, snapshot_id, format, version, perspective, root_vertex_id, data, created_at, updated_at)
+    values (
+    #{id}, #{snapshotId}, #{format}, #{version}, #{perspective}, #{rootVertexId},
+    #{data}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+  </insert>
+</mapper>
+

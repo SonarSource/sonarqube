@@ -48,6 +48,9 @@ import org.sonar.batch.index.MemoryOptimizer;
 import org.sonar.batch.index.SourcePersister;
 import org.sonar.batch.tasks.InspectionTask;
 import org.sonar.batch.tasks.ListTasksTask;
+import org.sonar.core.component.ComponentGraph;
+import org.sonar.core.component.GraphStorage;
+import org.sonar.core.component.PerspectiveBuilders;
 import org.sonar.core.i18n.I18nManager;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.metric.CacheMetricFinder;
@@ -58,6 +61,8 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.persistence.SemaphoresImpl;
 import org.sonar.core.resource.DefaultResourcePermissions;
 import org.sonar.core.rule.CacheRuleFinder;
+import org.sonar.core.test.TestPlanBuilder;
+import org.sonar.core.test.TestableBuilder;
 import org.sonar.core.user.DefaultUserFinder;
 import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.jpa.session.DefaultDatabaseConnector;
@@ -158,6 +163,13 @@ public class TaskModule extends Module {
     container.addSingleton(DefaultFileLinesContextFactory.class);
     container.addSingleton(ProjectLock.class);
     container.addSingleton(DryRunDatabase.class);
+
+    // graphs
+    container.addSingleton(ComponentGraph.class);
+    container.addSingleton(TestPlanBuilder.class);
+    container.addSingleton(TestableBuilder.class);
+    container.addSingleton(PerspectiveBuilders.class);
+    container.addSingleton(GraphStorage.class);
   }
 
   private void logSettings() {
@@ -172,8 +184,7 @@ public class TaskModule extends Module {
     Task task = container.getComponentByType(taskDefinition.getTask());
     if (task != null) {
       task.execute();
-    }
-    else {
+    } else {
       throw new SonarException("Extension " + taskDefinition.getTask() + " was not found in declared extensions.");
     }
   }

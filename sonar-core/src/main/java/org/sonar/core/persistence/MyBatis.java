@@ -38,6 +38,8 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.MeasureData;
 import org.sonar.api.database.model.MeasureMapper;
 import org.sonar.api.database.model.MeasureModel;
+import org.sonar.core.graph.GraphDto;
+import org.sonar.core.graph.GraphDtoMapper;
 import org.sonar.core.config.Logback;
 import org.sonar.core.dashboard.ActiveDashboardDto;
 import org.sonar.core.dashboard.ActiveDashboardMapper;
@@ -114,6 +116,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "Dashboard", DashboardDto.class);
     loadAlias(conf, "Dependency", DependencyDto.class);
     loadAlias(conf, "DuplicationUnit", DuplicationUnitDto.class);
+    loadAlias(conf, "Graph", GraphDto.class);
     loadAlias(conf, "Group", GroupDto.class);
     loadAlias(conf, "GroupRole", GroupRoleDto.class);
     loadAlias(conf, "LoadedTemplate", LoadedTemplateDto.class);
@@ -137,7 +140,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "MeasureData", MeasureData.class);
 
     Class<?>[] mappers = {ActiveDashboardMapper.class, AuthorMapper.class, DashboardMapper.class,
-      DependencyMapper.class, DuplicationMapper.class, LoadedTemplateMapper.class, MeasureFilterMapper.class, PropertiesMapper.class, PurgeMapper.class,
+      DependencyMapper.class, DuplicationMapper.class, GraphDtoMapper.class, LoadedTemplateMapper.class, MeasureFilterMapper.class, PropertiesMapper.class, PurgeMapper.class,
       ResourceKeyUpdaterMapper.class, ResourceIndexerMapper.class, ResourceMapper.class, ResourceSnapshotMapper.class, ReviewCommentMapper.class,
       ReviewMapper.class, RoleMapper.class, RuleMapper.class, SchemaMigrationMapper.class, SemaphoreMapper.class, UserMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
       MeasureMapper.class};

@@ -52,6 +52,7 @@ import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.ResourceFilters;
 import org.sonar.batch.ViolationFilters;
+import org.sonar.core.component.ComponentGraph;
 
 public class DefaultIndexTest {
 
@@ -65,7 +66,7 @@ public class DefaultIndexTest {
     MetricFinder metricFinder = mock(MetricFinder.class);
     when(metricFinder.findByKey("ncloc")).thenReturn(CoreMetrics.NCLOC);
 
-    index = new DefaultIndex(mock(PersistenceManager.class), lock, mock(ProjectTree.class), metricFinder);
+    index = new DefaultIndex(mock(PersistenceManager.class), lock, mock(ProjectTree.class), metricFinder, mock(ComponentGraph.class));
     Project project = new Project("project");
 
     ResourceFilter filter = new ResourceFilter() {
