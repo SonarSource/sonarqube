@@ -4,13 +4,13 @@
 <mapper namespace="org.sonar.core.graph.GraphDtoMapper">
 
   <select id="selectBySnapshot" parameterType="map" resultType="Graph">
-    SELECT snapshot_id as snapshotId, format, version, perspective, data
+    SELECT id, snapshot_id as snapshotId, format, version, perspective, root_vertex_id as rootVertexId, data
     FROM graphs
     WHERE snapshot_id = #{sid} AND perspective = #{perspective}
   </select>
 
   <select id="selectByComponent" parameterType="map" resultType="Graph">
-    SELECT g.snapshot_id as snapshotId, g.format, g.version, g.perspective, g.data
+    SELECT g.id, g.snapshot_id as snapshotId, g.format, g.version, g.perspective, g.root_vertex_id as rootVertexId, g.data
     FROM graphs g, snapshots s
     WHERE g.perspective = #{perspective} AND g.snapshot_id=s.id AND s.islast=${_true} and s.project_id=(
     select id from projects where enabled=${_true} and kee=#{key} and person_id is null and copy_resource_id is null

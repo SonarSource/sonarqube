@@ -20,12 +20,22 @@
 package org.sonar.core.graph;
 
 public class GraphDto {
+  private long id;
   private long snapshotId;
   private String format;
   private String perspective;
   private int version;
   private String rootVertexId;
   private String data;
+
+  public long getId() {
+    return id;
+  }
+
+  public GraphDto setId(long id) {
+    this.id = id;
+    return this;
+  }
 
   public long getSnapshotId() {
     return snapshotId;
