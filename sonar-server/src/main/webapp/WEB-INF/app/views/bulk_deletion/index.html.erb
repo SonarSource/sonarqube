@@ -6,6 +6,9 @@
     <a href="<%= url_for :action => 'index', :resource_type => tab %>" <%= "class='selected'" if @selected_tab==tab -%> id="tab-<%= u tab -%>"><%= message('qualifiers.' + tab) -%></a>
   </li>
 <% end %>
+  <li>
+    <a href="<%= url_for :action => 'ghosts' %>" id="tab-ghosts"><%= message('bulk_deletion.ghosts') -%></a>
+  </li>
 </ul>
 
 <div class="tabs-panel marginbottom10">

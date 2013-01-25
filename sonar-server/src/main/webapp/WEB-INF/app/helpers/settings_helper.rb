@@ -45,11 +45,7 @@ module SettingsHelper
   end
 
   def option_name(property, field, option)
-    if field
-      message("option.#{property.key}.#{field.key}.#{option}.name", :default => option)
-    else
-      message("option.#{property.key}.#{option}.name", :default => option)
-    end
+    option_name_with_key(property.key, field ? field.key : nil, option, nil)
   end
 
   def category_help(category)

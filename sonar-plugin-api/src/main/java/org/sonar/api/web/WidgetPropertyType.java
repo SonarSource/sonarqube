@@ -73,5 +73,12 @@ public enum WidgetPropertyType {
    *
    * @since 3.2
    */
-  REGULAR_EXPRESSION
+  REGULAR_EXPRESSION,
+
+  /**
+   * Single select list with a list of options
+   *
+   * @since 3.5
+   */
+  SINGLE_SELECT_LIST
 }

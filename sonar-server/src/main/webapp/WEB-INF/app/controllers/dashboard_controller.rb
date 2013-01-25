@@ -189,11 +189,15 @@ class DashboardController < ApplicationController
   end
 
   def load_widget_definitions(filter_on_category)
-    @widget_definitions=java_facade.getWidgets()
-
+    @widget_definitions=java_facade.getWidgets().sort {|w1,w2| widgetL10nName(w1) <=> widgetL10nName(w2)}
+    
     @widget_categories=@widget_definitions.map(&:getWidgetCategories).flatten.uniq.sort
     unless filter_on_category.blank?
       @widget_definitions=@widget_definitions.select { |definition| definition.getWidgetCategories().to_a.include?(filter_on_category) }
     end
+  end
+  
+  def widgetL10nName(widget)
+    Api::Utils.message('widget.' + widget.id + '.name')
   end
 end

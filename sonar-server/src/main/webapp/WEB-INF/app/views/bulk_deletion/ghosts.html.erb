@@ -1,0 +1,65 @@
+<h1 class="marginbottom10"><%= message('bulk_deletion.page') -%></h1>
+
+<ul class="tabs">
+<% @tabs.each do |tab| %>
+  <li>
+    <a href="<%= url_for :action => 'index', :resource_type => tab %>" id="tab-<%= u tab -%>"><%= message('qualifiers.' + tab) -%></a>
+  </li>
+<% end %>
+  <li>
+    <a href="<%= url_for :action => 'ghosts' %>" id="tab-ghosts" class="selected"><%= message('bulk_deletion.ghosts') -%></a>
+  </li>
+</ul>
+
+<div class="tabs-panel marginbottom10">
+
+  <p style="margin: 0  0 15px 0">
+    <%= message('bulk_deletion.ghosts.description') -%>
+  </p>
+  
+  <% unless @ghosts.size > 0 %>
+  
+    <b><%= message('bulk_deletion.no_ghosts') -%></b>
+  
+  <% else %>
+  
+    <p style="margin: 0  0 10px 0">
+      <%= message('bulk_deletion.following_ghosts_can_be_deleted') -%>
+    </p>
+
+    <table>
+      <% 
+         @tabs.each do |qualifier|
+           ghosts = @ghosts_by_qualifier[qualifier]
+           if ghosts
+      %>
+      <tr>
+        <td class="thin nowrap top" style="padding-right: 20px">
+          <b><%= message('qualifiers.' + qualifier) -%> :</b>
+        </td>
+        <td>
+          <ul>
+      <%
+             ghosts.sort {|x,y| x.name <=> y.name}.each_with_index do |resource, index| 
+      %>
+          <li><%= h resource.name -%> <span class="small gray">( <%= resource.key -%> )</span></li>
+      <% 
+             end
+      %>
+          </ul>
+      <%
+           end
+         end 
+      %>
+    </table>
+    
+    <p style="margin: 15px 0">
+      <% form_remote_tag( :url => {:action => 'delete_resources'}, :loading => "window.location='#{url_for :action => 'pending_deletions'}';") do %>
+        <input type="hidden" id="all_resources" name="all_resources" value="<%= @ghosts.map {|r| r.id.to_s}.join(',') -%>"/>
+        <input id="delete_resources" class="action red-button" type="submit" value="<%= message('bulk_deletion.delete_all_ghosts') -%>" name="commit">
+      <% end %>
+    </p>
+
+  <% end %>
+
+</div>

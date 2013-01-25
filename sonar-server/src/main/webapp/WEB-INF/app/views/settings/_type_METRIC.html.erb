@@ -1,5 +1,8 @@
+<%
+   defaultValue = (defined? property.defaultValue) ? property.defaultValue : nil
+%>
 <select name="<%= name -%>" id="<%= id -%>">
-  <option value=""><%= message('default') -%></option>
+  <option value=""><%= !defaultValue.blank? ? message('default') : nil -%></option>
   <%
      metrics_per_domain={}
      metrics_filtered_by(property.options).each do |metric|

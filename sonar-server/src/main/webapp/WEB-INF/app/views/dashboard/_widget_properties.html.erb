@@ -24,15 +24,22 @@
 
     <% widget.java_definition.getWidgetProperties().each do |property_def| %>
       <tr>
-        <td class="form-key-cell"><%= message("widget." + widget.key + ".prop." + property_def.key() + ".key", :default => property_def.key()) -%><%= " *" unless property_def.optional() -%></td>
+        <td class="form-key-cell"><%= message("widget." + widget.key + ".property." + property_def.key() + ".name", :default => property_def.key()) -%><%= " *" unless property_def.optional() -%></td>
         <td class="form-val-cell" id="row_<%= property_def.key() -%>">
           <%= property_value_field(property_def, widget.property_text_value(property_def.key()), widget) -%>
           <div class="form-val-note">
             <%
+               # Old key used for retro-compatibility
                property_description = message("widget." + widget.key + ".param." + property_def.key(), :default => '')
-               property_description = message("widget." + widget.key + ".prop." + property_def.key() + ".desc", :default => property_def.description()) unless property_description != ''
+               property_description = message("widget." + widget.key + ".property." + property_def.key() + ".desc", :default => property_def.description()) unless property_description != ''
             -%>
-            <%= property_description -%>
+
+            <% unless property_description.blank? -%>
+              <div><%= property_description -%></div>
+            <% end %>
+            <% if !property_def.defaultValue.blank? || property_def.type.name == PropertyType::TYPE_BOOLEAN -%>
+              <div><%= message('default') %>: <%= h(default_value property_def) -%></div>
+            <% end -%>
           </div>
         </td>
       </tr>

@@ -26,6 +26,8 @@ import org.sonar.batch.tasks.InspectionTask;
 import org.sonar.batch.tasks.ListTasksTask;
 import org.sonar.batch.tasks.Tasks;
 
+import javax.annotation.Nullable;
+
 /**
  * Level-2 components. Collect tasks definitions.
  */
@@ -33,7 +35,7 @@ public class TaskBootstrapModule extends Module {
 
   private String taskCommand;
 
-  public TaskBootstrapModule(String taskCommand) {
+  public TaskBootstrapModule(@Nullable String taskCommand) {
     this.taskCommand = taskCommand;
   }
 

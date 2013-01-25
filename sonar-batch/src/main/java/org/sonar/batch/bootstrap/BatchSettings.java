@@ -47,7 +47,7 @@ public class BatchSettings extends Settings {
     this(bootstrapSettings, propertyDefinitions, null, client, deprecatedConfiguration, globalProperties);
   }
 
-  public BatchSettings(BootstrapSettings bootstrapSettings, PropertyDefinitions propertyDefinitions, ProjectReactor reactor,
+  public BatchSettings(BootstrapSettings bootstrapSettings, PropertyDefinitions propertyDefinitions, @Nullable ProjectReactor reactor,
       ServerClient client, Configuration deprecatedConfiguration, GlobalBatchProperties globalProperties) {
     super(propertyDefinitions);
     this.deprecatedConfiguration = deprecatedConfiguration;
@@ -58,7 +58,7 @@ public class BatchSettings extends Settings {
   BatchSettings() {
   }
 
-  private void init(BootstrapSettings bootstrapSettings, ProjectReactor reactor, ServerClient client,
+  private void init(BootstrapSettings bootstrapSettings, @Nullable ProjectReactor reactor, ServerClient client,
       GlobalBatchProperties globalProperties) {
     LoggerFactory.getLogger(BatchSettings.class).info("Load batch settings");
 

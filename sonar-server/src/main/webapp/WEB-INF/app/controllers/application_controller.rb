@@ -213,9 +213,4 @@ class ApplicationController < ActionController::Base
     message("property.category.#{category}", :default => category)
   end
 
-  # Force url_to to use relative path
-  def default_url_options(options)
-    {:only_path => true}
-  end
-
 end

@@ -21,8 +21,18 @@ module WidgetPropertiesHelper
   include PropertiesHelper
 
   def property_value_field(definition, value, widget)
-    property_input_field definition.key, definition.type.name, value.nil? ? definition.defaultValue : value, definition.options,
-                         {:html_id => "prop-#{widget.id}-#{widget.key.parameterize}-#{definition.key.parameterize}"}
+    id = definition.type.name != PropertyType::TYPE_METRIC ? definition.key : "prop-#{widget.id}-#{widget.key.parameterize}-#{definition.key.parameterize}"
+    options = {:values => definition.options, :id => id, :default => definition.defaultValue}
+    options[:extra_values] = {:widget_key => widget.key} if definition.type.name == PropertyType::TYPE_SINGLE_SELECT_LIST
+    property_input_field definition.key, definition.type.name, value, 'WIDGET', options
+  end
+
+  def default_value(property_def)
+    defaultValue = property_def.defaultValue
+    # Boolean type should always have a default value, if no one is provided it's force to false
+    defaultValue = property_def.type.name == PropertyType::TYPE_BOOLEAN ? 'false' : property_def.defaultValue if defaultValue.blank?
+    defaultValue = '********' if property_def.type.name == PropertyType::TYPE_PASSWORD
+    defaultValue
   end
 
 end

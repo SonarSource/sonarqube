@@ -22,6 +22,8 @@ package org.sonar.plugins.emailnotifications;
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.SonarPlugin;
+import org.sonar.plugins.emailnotifications.alerts.AlertsEmailTemplate;
+import org.sonar.plugins.emailnotifications.alerts.AlertsOnMyFavouriteProject;
 import org.sonar.plugins.emailnotifications.newviolations.NewViolationsEmailTemplate;
 import org.sonar.plugins.emailnotifications.newviolations.NewViolationsOnMyFavouriteProject;
 import org.sonar.plugins.emailnotifications.reviews.ChangesInReviewAssignedToMeOrCreatedByMe;
@@ -32,10 +34,16 @@ import java.util.List;
 public class EmailNotificationsPlugin extends SonarPlugin {
   public List<Class<? extends ServerExtension>> getExtensions() {
     return ImmutableList.of(
-        ChangesInReviewAssignedToMeOrCreatedByMe.class,
         EmailNotificationChannel.class,
-        NewViolationsEmailTemplate.class,
+        // Notify incoming violations on my favourite projects
         NewViolationsOnMyFavouriteProject.class,
-        ReviewEmailTemplate.class);
+        NewViolationsEmailTemplate.class,
+        // Notify reviews changes
+        ChangesInReviewAssignedToMeOrCreatedByMe.class,
+        ReviewEmailTemplate.class,
+        // Notify alerts on my favourite projects
+        AlertsOnMyFavouriteProject.class,
+        AlertsEmailTemplate.class
+        );
   }
 }

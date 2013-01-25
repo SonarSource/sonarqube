@@ -1,1 +1,5 @@
-<input type="text" name="<%= name -%>" value="<%= h value if value -%>" size="<%= (defined? size) ? size : 50 -%>" id="<%= id-%>"/>
+<%
+   options = {:id => id}
+   options[:size] = (defined? size) ? size : nil
+%>
+<%= property_input_field(name, PropertyType::TYPE_INTEGER, value, PropertiesHelper::SCREEN_SETTINGS, options) %>
