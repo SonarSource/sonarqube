@@ -21,8 +21,8 @@ package org.sonar.core.component;
 
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
-import com.tinkerpop.blueprints.util.io.graphson.GraphSONReader;
-import org.sonar.core.component.ComponentGraph;
+import org.json.simple.parser.ParseException;
+import org.sonar.core.graph.GraphSONReader;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -37,7 +37,9 @@ public class GraphReader {
       Vertex root = graph.getVertex(rootVertexId);
       return new ComponentGraph(graph, root);
     } catch (IOException e) {
-      throw new IllegalStateException();
+      throw new IllegalStateException(e);
+    } catch (ParseException e) {
+      throw new IllegalStateException(e);
     }
   }
 }
