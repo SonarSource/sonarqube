@@ -28,7 +28,7 @@ import org.sonar.api.web.WidgetPropertyType;
 @WidgetProperties(
 {
   @WidgetProperty(key = "numberOfLines", type = WidgetPropertyType.INTEGER, defaultValue = "5"),
-  @WidgetProperty(key = "defaultSeverity", type = WidgetPropertyType.STRING)
+  @WidgetProperty(key = "defaultSeverity", type = WidgetPropertyType.SINGLE_SELECT_LIST, defaultValue = "", options = {"INFO", "MINOR", "MAJOR", "CRITICAL", "BLOCKER"})
 })
 public class HotspotMostViolatedRulesWidget extends CoreWidget {
   public HotspotMostViolatedRulesWidget() {
