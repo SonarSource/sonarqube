@@ -17,25 +17,14 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.component;
+package org.sonar.core.graph.graphson;
 
-import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
-import com.tinkerpop.blueprints.util.io.graphson.GraphSONReader;
+public class GraphSonException extends RuntimeException {
+  public GraphSonException(String message) {
+    super(message);
+  }
 
-import java.io.ByteArrayInputStream;
-
-public class GraphReader {
-
-  public ComponentGraph read(String data, String rootVertexId) {
-    ByteArrayInputStream input = new ByteArrayInputStream(data.getBytes());
-    try {
-      TinkerGraph graph = new TinkerGraph();
-      GraphSONReader.inputGraph(graph, input);
-      Vertex root = graph.getVertex(rootVertexId);
-      return new ComponentGraph(graph, root);
-    } catch (Exception e) {
-      throw new IllegalStateException(e);
-    }
+  public GraphSonException(String message, Throwable cause) {
+    super(message, cause);
   }
 }

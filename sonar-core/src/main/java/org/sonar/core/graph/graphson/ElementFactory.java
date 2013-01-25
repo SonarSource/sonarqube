@@ -17,25 +17,31 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.component;
+package org.sonar.core.graph.graphson;
 
+import com.tinkerpop.blueprints.Edge;
+import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
-import com.tinkerpop.blueprints.util.io.graphson.GraphSONReader;
 
-import java.io.ByteArrayInputStream;
+/**
+ * The standard factory used for most graph element creation.  It uses an actual
+ * Graph implementation to construct vertices and edges
+ *
+ * @author Stephen Mallette (http://stephen.genoprime.com)
+ */
+class ElementFactory {
 
-public class GraphReader {
+  private final Graph graph;
 
-  public ComponentGraph read(String data, String rootVertexId) {
-    ByteArrayInputStream input = new ByteArrayInputStream(data.getBytes());
-    try {
-      TinkerGraph graph = new TinkerGraph();
-      GraphSONReader.inputGraph(graph, input);
-      Vertex root = graph.getVertex(rootVertexId);
-      return new ComponentGraph(graph, root);
-    } catch (Exception e) {
-      throw new IllegalStateException(e);
-    }
+  ElementFactory(Graph g) {
+    this.graph = g;
+  }
+
+  Edge createEdge(Object id, Vertex out, Vertex in, String label) {
+    return this.graph.addEdge(id, out, in, label);
+  }
+
+  Vertex createVertex(Object id) {
+    return this.graph.addVertex(id);
   }
 }

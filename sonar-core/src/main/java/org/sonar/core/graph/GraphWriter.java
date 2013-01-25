@@ -20,8 +20,9 @@
 package org.sonar.core.graph;
 
 import com.tinkerpop.blueprints.Graph;
-import com.tinkerpop.blueprints.util.io.graphson.GraphSONMode;
 import org.apache.commons.io.IOUtils;
+import org.sonar.core.graph.graphson.GraphSONMode;
+import org.sonar.core.graph.graphson.GraphSONWriter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -31,7 +32,7 @@ public class GraphWriter {
   public String write(Graph graph) {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     try {
-      GraphSONWriter.outputGraph(graph, output, GraphSONMode.COMPACT);
+      new GraphSONWriter().write(graph, output, GraphSONMode.COMPACT);
       output.flush();
       output.close();
       return new String(output.toByteArray());

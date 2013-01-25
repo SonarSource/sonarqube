@@ -17,25 +17,29 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.component;
+package org.sonar.core.graph.graphson;
 
-import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
-import com.tinkerpop.blueprints.util.io.graphson.GraphSONReader;
+/**
+ * Modes of operation of the GraphSONUtility.
+ *
+ * @author Stephen Mallette
+ */
+public enum GraphSONMode {
+  /**
+   * COMPACT constructs GraphSON on the assumption that all property keys
+   * are fair game for exclusion including _type, _inV, _outV, _label and _id.
+   * It is possible to write GraphSON that cannot be read back into Graph,
+   * if some or all of these keys are excluded.
+   */
+  COMPACT,
 
-import java.io.ByteArrayInputStream;
+  /**
+   * NORMAL includes the _type field and JSON data typing.
+   */
+  NORMAL,
 
-public class GraphReader {
-
-  public ComponentGraph read(String data, String rootVertexId) {
-    ByteArrayInputStream input = new ByteArrayInputStream(data.getBytes());
-    try {
-      TinkerGraph graph = new TinkerGraph();
-      GraphSONReader.inputGraph(graph, input);
-      Vertex root = graph.getVertex(rootVertexId);
-      return new ComponentGraph(graph, root);
-    } catch (Exception e) {
-      throw new IllegalStateException(e);
-    }
-  }
+  /**
+   * EXTENDED includes the _type field and explicit data typing.
+   */
+  EXTENDED
 }

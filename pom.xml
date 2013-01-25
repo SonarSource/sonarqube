@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.codehaus.sonar</groupId>
@@ -88,7 +89,7 @@
     <skipSanityChecks>false</skipSanityChecks>
 
     <!-- default GWT configuration. It's overridden by the profile 'dev' to speed up compilation in dev environments-->
-    <gwt.permutationSuffix />
+    <gwt.permutationSuffix/>
     <gwt.extraJvmArgs>-Xmx512m -Xss1024k</gwt.extraJvmArgs>
     <sonar.snapshotRepository.url>dav:https://dav.codehaus.org/snapshots.repository/sonar</sonar.snapshotRepository.url>
   </properties>
@@ -643,12 +644,31 @@
       <dependency>
         <groupId>com.tinkerpop.blueprints</groupId>
         <artifactId>blueprints-core</artifactId>
-        <version>2.2.0</version>
+        <!--
+        Do not upgrade because of compatibility with Java 5.
+        See https://github.com/tinkerpop/blueprints/pull/352
+         -->
+        <version>2.0.0</version>
+        <exclusions>
+          <!-- we use our own GraphSON implementation based on json-simple -->
+          <exclusion>
+            <groupId>org.codehaus.jettison</groupId>
+            <artifactId>jettison</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-jaxrs</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
+        <!--
+        Do not upgrade because of compatibility with Java 5.
+        See https://github.com/tinkerpop/pipes/pull/74
+         -->
         <groupId>com.tinkerpop.gremlin</groupId>
         <artifactId>gremlin-java</artifactId>
-        <version>2.2.0</version>
+        <version>2.0.0</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.plexus</groupId>
@@ -1122,13 +1142,6 @@
       <organization>SonarSource</organization>
       <timezone>+1</timezone>
     </developer>
-    <developer>
-      <id>david.gageot</id>
-      <name>David Gageot</name>
-      <email>david.gageot@sonarsource.com</email>
-      <organization>SonarSource</organization>
-      <timezone>+1</timezone>
-    </developer>
   </developers>
 
   <profiles>
@@ -1226,7 +1239,7 @@
                         </goals>
                       </pluginExecutionFilter>
                       <action>
-                        <ignore />
+                        <ignore/>
                       </action>
                     </pluginExecution>
                     <pluginExecution>
@@ -1239,7 +1252,7 @@
                         </goals>
                       </pluginExecutionFilter>
                       <action>
-                        <ignore />
+                        <ignore/>
                       </action>
                     </pluginExecution>
                     <pluginExecution>
@@ -1252,7 +1265,7 @@
                         </goals>
                       </pluginExecutionFilter>
                       <action>
-                        <ignore />
+                        <ignore/>
                       </action>
                     </pluginExecution>
                     <pluginExecution>
@@ -1266,7 +1279,7 @@
                         </goals>
                       </pluginExecutionFilter>
                       <action>
-                        <ignore />
+                        <ignore/>
                       </action>
                     </pluginExecution>
                     <pluginExecution>
@@ -1279,7 +1292,7 @@
                         </goals>
                       </pluginExecutionFilter>
                       <action>
-                        <ignore />
+                        <ignore/>
                       </action>
                     </pluginExecution>
                   </pluginExecutions>

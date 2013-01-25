@@ -17,13 +17,10 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-
-package org.sonar.core.graph;
+package org.sonar.core.graph.graphson;
 
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.impls.tg.TinkerGraphFactory;
-import com.tinkerpop.blueprints.util.io.graphson.GraphSONMode;
-import com.tinkerpop.blueprints.util.io.graphson.GraphSONTokens;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -33,7 +30,7 @@ import java.io.ByteArrayOutputStream;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class GraphSONWriterTest {
+public class GraphsonWriterTest {
 
   @Test
   public void outputGraphNoEmbeddedTypes() throws Exception {
@@ -41,8 +38,8 @@ public class GraphSONWriterTest {
 
     ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
-    GraphSONWriter writer = new GraphSONWriter(g);
-    writer.outputGraph(stream, null, null, GraphSONMode.NORMAL);
+    GraphSONWriter writer = new GraphSONWriter();
+    writer.write(g, stream, GraphSONMode.NORMAL);
 
     stream.flush();
     stream.close();
@@ -74,8 +71,8 @@ public class GraphSONWriterTest {
 
     ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
-    GraphSONWriter writer = new GraphSONWriter(g);
-    writer.outputGraph(stream, null, null, GraphSONMode.EXTENDED);
+    GraphSONWriter writer = new GraphSONWriter();
+    writer.write(g, stream, GraphSONMode.EXTENDED);
 
     stream.flush();
     stream.close();
@@ -107,8 +104,8 @@ public class GraphSONWriterTest {
 
     ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
-    GraphSONWriter writer = new GraphSONWriter(g);
-    writer.outputGraph(stream, null, null, GraphSONMode.COMPACT);
+    GraphSONWriter writer = new GraphSONWriter();
+    writer.write(g, stream, GraphSONMode.COMPACT);
 
     stream.flush();
     stream.close();
