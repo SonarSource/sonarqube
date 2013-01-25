@@ -47,7 +47,7 @@ public class GraphsonReaderTest {
     byte[] bytes = json.getBytes();
     InputStream inputStream = new ByteArrayInputStream(bytes);
 
-    new GraphonReader().read(inputStream, graph);
+    new GraphsonReader().read(inputStream, graph);
 
     Assert.assertEquals(2, getIterableCount(graph.getVertices()));
     Assert.assertEquals(1, getIterableCount(graph.getEdges()));
@@ -98,7 +98,7 @@ public class GraphsonReaderTest {
     byte[] bytes = json.getBytes();
     InputStream inputStream = new ByteArrayInputStream(bytes);
 
-    new GraphonReader().read(inputStream, graph);
+    new GraphsonReader().read(inputStream, graph);
 
     Assert.assertEquals(2, getIterableCount(graph.getVertices()));
     Assert.assertEquals(1, getIterableCount(graph.getEdges()));
@@ -149,7 +149,7 @@ public class GraphsonReaderTest {
     byte[] bytes = json.getBytes();
     InputStream inputStream = new ByteArrayInputStream(bytes);
 
-    new GraphonReader().read(inputStream, graph);
+    new GraphsonReader().read(inputStream, graph);
 
     Assert.assertEquals(2, getIterableCount(graph.getVertices()));
     Assert.assertEquals(1, getIterableCount(graph.getEdges()));
@@ -197,8 +197,8 @@ public class GraphsonReaderTest {
 
     ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
-    GraphonWriter writer = new GraphonWriter();
-    writer.write(graph, stream, GraphonMode.EXTENDED);
+    GraphsonWriter writer = new GraphsonWriter();
+    writer.write(graph, stream, GraphsonMode.EXTENDED);
 
     stream.flush();
     stream.close();
@@ -209,7 +209,7 @@ public class GraphsonReaderTest {
     InputStream inputStream = new ByteArrayInputStream(bytes);
 
     TinkerGraph emptyGraph = new TinkerGraph();
-    new GraphonReader().read(inputStream, emptyGraph);
+    new GraphsonReader().read(inputStream, emptyGraph);
 
     Assert.assertEquals(6, getIterableCount(emptyGraph.getVertices()));
     Assert.assertEquals(6, getIterableCount(emptyGraph.getEdges()));
@@ -243,16 +243,16 @@ public class GraphsonReaderTest {
     ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
     Set<String> edgeKeys = new HashSet<String>();
-    edgeKeys.add(GraphonTokens._ID);
-    edgeKeys.add(GraphonTokens._IN_V);
-    edgeKeys.add(GraphonTokens._OUT_V);
-    edgeKeys.add(GraphonTokens._LABEL);
+    edgeKeys.add(GraphsonTokens._ID);
+    edgeKeys.add(GraphsonTokens._IN_V);
+    edgeKeys.add(GraphsonTokens._OUT_V);
+    edgeKeys.add(GraphsonTokens._LABEL);
 
     Set<String> vertexKeys = new HashSet<String>();
-    vertexKeys.add(GraphonTokens._ID);
+    vertexKeys.add(GraphsonTokens._ID);
 
-    GraphonWriter writer = new GraphonWriter();
-    writer.write(graph, stream, GraphonMode.EXTENDED, vertexKeys, edgeKeys);
+    GraphsonWriter writer = new GraphsonWriter();
+    writer.write(graph, stream, GraphsonMode.EXTENDED, vertexKeys, edgeKeys);
 
     stream.flush();
     stream.close();
@@ -263,7 +263,7 @@ public class GraphsonReaderTest {
     InputStream inputStream = new ByteArrayInputStream(bytes);
 
     TinkerGraph emptyGraph = new TinkerGraph();
-    new GraphonReader().read(inputStream, emptyGraph);
+    new GraphsonReader().read(inputStream, emptyGraph);
 
     Assert.assertEquals(6, getIterableCount(emptyGraph.getVertices()));
     Assert.assertEquals(6, getIterableCount(emptyGraph.getEdges()));
@@ -296,21 +296,21 @@ public class GraphsonReaderTest {
 
   }
 
-  @Test(expected = GraphonException.class)
+  @Test(expected = GraphsonException.class)
   public void inputGraphCompactFullCycleBroken() throws Exception {
     TinkerGraph graph = TinkerGraphFactory.createTinkerGraph();
 
     ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
     Set<String> edgeKeys = new HashSet<String>();
-    edgeKeys.add(GraphonTokens._IN_V);
-    edgeKeys.add(GraphonTokens._OUT_V);
-    edgeKeys.add(GraphonTokens._LABEL);
+    edgeKeys.add(GraphsonTokens._IN_V);
+    edgeKeys.add(GraphsonTokens._OUT_V);
+    edgeKeys.add(GraphsonTokens._LABEL);
 
     Set<String> vertexKeys = new HashSet<String>();
 
-    GraphonWriter writer = new GraphonWriter();
-    writer.write(graph, stream, GraphonMode.COMPACT, vertexKeys, edgeKeys);
+    GraphsonWriter writer = new GraphsonWriter();
+    writer.write(graph, stream, GraphsonMode.COMPACT, vertexKeys, edgeKeys);
 
     stream.flush();
     stream.close();
@@ -321,7 +321,7 @@ public class GraphsonReaderTest {
     InputStream inputStream = new ByteArrayInputStream(bytes);
 
     TinkerGraph emptyGraph = new TinkerGraph();
-    new GraphonReader().read(inputStream, emptyGraph);
+    new GraphsonReader().read(inputStream, emptyGraph);
 
   }
 

@@ -31,13 +31,13 @@ import java.io.OutputStream;
 import java.util.Set;
 
 /**
- * GraphonWriter writes a Graph to a TinkerPop JSON OutputStream.
+ * GraphsonWriter writes a Graph to a TinkerPop JSON OutputStream.
  *
  * @author Stephen Mallette
  */
-public class GraphonWriter {
+public class GraphsonWriter {
 
-  public void write(Graph graph, OutputStream jsonOutputStream, GraphonMode mode) {
+  public void write(Graph graph, OutputStream jsonOutputStream, GraphsonMode mode) {
     write(graph, jsonOutputStream, mode, null, null);
   }
 
@@ -50,28 +50,28 @@ public class GraphonWriter {
    * @param mode               determines the format of the GraphSON
    * @throws java.io.IOException thrown if there is an error generating the JSON data
    */
-  public void write(Graph graph, OutputStream jsonOutputStream, GraphonMode mode, @Nullable Set<String> vertexPropertyKeys, @Nullable Set<String> edgePropertyKeys) {
+  public void write(Graph graph, OutputStream jsonOutputStream, GraphsonMode mode, @Nullable Set<String> vertexPropertyKeys, @Nullable Set<String> edgePropertyKeys) {
     try {
       JSONObject root = new JSONObject();
       GraphsonUtil graphson = new GraphsonUtil(mode, null, vertexPropertyKeys, edgePropertyKeys);
 
-      root.put(GraphonTokens.MODE, mode.toString());
+      root.put(GraphsonTokens.MODE, mode.toString());
 
       JSONArray verticesArray = new JSONArray();
       for (Vertex v : graph.getVertices()) {
         verticesArray.add(graphson.objectNodeFromElement(v));
       }
-      root.put(GraphonTokens.VERTICES, verticesArray);
+      root.put(GraphsonTokens.VERTICES, verticesArray);
 
       JSONArray edgesArray = new JSONArray();
       for (Edge e : graph.getEdges()) {
         edgesArray.add(graphson.objectNodeFromElement(e));
       }
-      root.put(GraphonTokens.EDGES, edgesArray);
+      root.put(GraphsonTokens.EDGES, edgesArray);
 
       jsonOutputStream.write(root.toString().getBytes("UTF-8"));
     } catch (Exception e) {
-      throw new GraphonException("Fail to generate GraphSON", e);
+      throw new GraphsonException("Fail to generate GraphSON", e);
     }
   }
 

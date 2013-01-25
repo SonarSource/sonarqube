@@ -23,7 +23,7 @@ package org.sonar.core.graph.graphson;
  * @author Marko A. Rodriguez (http://markorodriguez.com)
  * @author Stephen Mallette
  */
-class GraphonTokens {
+class GraphsonTokens {
   public static final String VERTEX = "vertex";
   public static final String EDGE = "edge";
   public static final String _ID = "_id";

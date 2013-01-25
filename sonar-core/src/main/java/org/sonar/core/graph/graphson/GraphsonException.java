@@ -19,12 +19,12 @@
  */
 package org.sonar.core.graph.graphson;
 
-public class GraphonException extends RuntimeException {
-  public GraphonException(String message) {
+public class GraphsonException extends RuntimeException {
+  public GraphsonException(String message) {
     super(message);
   }
 
-  public GraphonException(String message, Throwable cause) {
+  public GraphsonException(String message, Throwable cause) {
     super(message, cause);
   }
 }

@@ -24,7 +24,7 @@ package org.sonar.core.graph.graphson;
  *
  * @author Stephen Mallette
  */
-public enum GraphonMode {
+public enum GraphsonMode {
   /**
    * COMPACT constructs GraphSON on the assumption that all property keys
    * are fair game for exclusion including _type, _inV, _outV, _label and _id.
