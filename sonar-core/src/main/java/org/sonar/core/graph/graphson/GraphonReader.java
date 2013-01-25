@@ -33,7 +33,7 @@ import java.util.Set;
 /**
  * Greatly inspired by the Blueprints implementation based on Jettison/Jackson
  */
-public class GraphSONReader {
+public class GraphonReader {
 
   public Graph read(InputStream jsonInput, Graph toGraph) {
     return read(jsonInput, toGraph, 1000, null, null);
@@ -57,25 +57,25 @@ public class GraphSONReader {
 
       ElementFactory elementFactory = new ElementFactory(batchGraph);
 
-      final GraphSONMode mode = GraphSONMode.valueOf(json.get(GraphSONTokens.MODE).toString());
+      final GraphonMode mode = GraphonMode.valueOf(json.get(GraphonTokens.MODE).toString());
       GraphsonUtil graphson = new GraphsonUtil(mode, elementFactory, vertexPropertyKeys, edgePropertyKeys);
 
-      JSONArray vertices = (JSONArray) json.get(GraphSONTokens.VERTICES);
+      JSONArray vertices = (JSONArray) json.get(GraphonTokens.VERTICES);
       for (Object vertice : vertices) {
         graphson.vertexFromJson((JSONObject) vertice);
       }
 
-      JSONArray edges = (JSONArray) json.get(GraphSONTokens.EDGES);
+      JSONArray edges = (JSONArray) json.get(GraphonTokens.EDGES);
       for (Object edgeObject : edges) {
         JSONObject edge = (JSONObject) edgeObject;
-        final Vertex inV = batchGraph.getVertex(edge.get(GraphSONTokens._IN_V));
-        final Vertex outV = batchGraph.getVertex(edge.get(GraphSONTokens._OUT_V));
+        final Vertex inV = batchGraph.getVertex(edge.get(GraphonTokens._IN_V));
+        final Vertex outV = batchGraph.getVertex(edge.get(GraphonTokens._OUT_V));
         graphson.edgeFromJson(edge, outV, inV);
       }
       batchGraph.shutdown();
       return toGraph;
     } catch (Exception e) {
-      throw new GraphSonException("Unable to parse GraphSON", e);
+      throw new GraphonException("Unable to parse GraphSON", e);
     }
   }
 }

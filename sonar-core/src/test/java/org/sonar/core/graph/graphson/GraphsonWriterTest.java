@@ -38,8 +38,8 @@ public class GraphsonWriterTest {
 
     ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
-    GraphSONWriter writer = new GraphSONWriter();
-    writer.write(g, stream, GraphSONMode.NORMAL);
+    GraphonWriter writer = new GraphonWriter();
+    writer.write(g, stream, GraphonMode.NORMAL);
 
     stream.flush();
     stream.close();
@@ -51,17 +51,17 @@ public class GraphsonWriterTest {
     // ensure that the JSON conforms to basic structure and that the right
     // number of graph elements are present.  other tests already cover element formatting
     assertThat(rootNode).isNotNull();
-    assertThat(rootNode.containsKey(GraphSONTokens.MODE)).isTrue();
-    assertThat(rootNode.get(GraphSONTokens.MODE)).isEqualTo("NORMAL");
+    assertThat(rootNode.containsKey(GraphonTokens.MODE)).isTrue();
+    assertThat(rootNode.get(GraphonTokens.MODE)).isEqualTo("NORMAL");
 
-    assertThat(rootNode.containsKey(GraphSONTokens.VERTICES)).isTrue();
+    assertThat(rootNode.containsKey(GraphonTokens.VERTICES)).isTrue();
 
-    JSONArray vertices = (JSONArray) rootNode.get(GraphSONTokens.VERTICES);
+    JSONArray vertices = (JSONArray) rootNode.get(GraphonTokens.VERTICES);
     assertThat(vertices).hasSize(6);
 
-    assertThat(rootNode.containsKey(GraphSONTokens.EDGES)).isTrue();
+    assertThat(rootNode.containsKey(GraphonTokens.EDGES)).isTrue();
 
-    JSONArray edges = (JSONArray) rootNode.get(GraphSONTokens.EDGES);
+    JSONArray edges = (JSONArray) rootNode.get(GraphonTokens.EDGES);
     assertThat(edges).hasSize(6);
   }
 
@@ -71,8 +71,8 @@ public class GraphsonWriterTest {
 
     ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
-    GraphSONWriter writer = new GraphSONWriter();
-    writer.write(g, stream, GraphSONMode.EXTENDED);
+    GraphonWriter writer = new GraphonWriter();
+    writer.write(g, stream, GraphonMode.EXTENDED);
 
     stream.flush();
     stream.close();
@@ -84,17 +84,17 @@ public class GraphsonWriterTest {
     // ensure that the JSON conforms to basic structure and that the right
     // number of graph elements are present.  other tests already cover element formatting
     assertThat(rootNode).isNotNull();
-    assertThat(rootNode.containsKey(GraphSONTokens.MODE)).isTrue();
-    assertThat(rootNode.get(GraphSONTokens.MODE)).isEqualTo("EXTENDED");
+    assertThat(rootNode.containsKey(GraphonTokens.MODE)).isTrue();
+    assertThat(rootNode.get(GraphonTokens.MODE)).isEqualTo("EXTENDED");
 
-    assertThat(rootNode.containsKey(GraphSONTokens.VERTICES)).isTrue();
+    assertThat(rootNode.containsKey(GraphonTokens.VERTICES)).isTrue();
 
-    JSONArray vertices = (JSONArray) rootNode.get(GraphSONTokens.VERTICES);
+    JSONArray vertices = (JSONArray) rootNode.get(GraphonTokens.VERTICES);
     assertThat(vertices).hasSize(6);
 
-    assertThat(rootNode.containsKey(GraphSONTokens.EDGES)).isTrue();
+    assertThat(rootNode.containsKey(GraphonTokens.EDGES)).isTrue();
 
-    JSONArray edges = (JSONArray) rootNode.get(GraphSONTokens.EDGES);
+    JSONArray edges = (JSONArray) rootNode.get(GraphonTokens.EDGES);
     assertThat(edges).hasSize(6);
   }
 
@@ -104,8 +104,8 @@ public class GraphsonWriterTest {
 
     ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
-    GraphSONWriter writer = new GraphSONWriter();
-    writer.write(g, stream, GraphSONMode.COMPACT);
+    GraphonWriter writer = new GraphonWriter();
+    writer.write(g, stream, GraphonMode.COMPACT);
 
     stream.flush();
     stream.close();
@@ -117,17 +117,17 @@ public class GraphsonWriterTest {
     // ensure that the JSON conforms to basic structure and that the right
     // number of graph elements are present.  other tests already cover element formatting
     assertThat(rootNode).isNotNull();
-    assertThat(rootNode.containsKey(GraphSONTokens.MODE)).isTrue();
-    assertThat(rootNode.get(GraphSONTokens.MODE)).isEqualTo("COMPACT");
+    assertThat(rootNode.containsKey(GraphonTokens.MODE)).isTrue();
+    assertThat(rootNode.get(GraphonTokens.MODE)).isEqualTo("COMPACT");
 
-    assertThat(rootNode.containsKey(GraphSONTokens.VERTICES)).isTrue();
+    assertThat(rootNode.containsKey(GraphonTokens.VERTICES)).isTrue();
 
-    JSONArray vertices = (JSONArray) rootNode.get(GraphSONTokens.VERTICES);
+    JSONArray vertices = (JSONArray) rootNode.get(GraphonTokens.VERTICES);
     assertThat(vertices).hasSize(6);
 
-    assertThat(rootNode.containsKey(GraphSONTokens.EDGES)).isTrue();
+    assertThat(rootNode.containsKey(GraphonTokens.EDGES)).isTrue();
 
-    JSONArray edges = (JSONArray) rootNode.get(GraphSONTokens.EDGES);
+    JSONArray edges = (JSONArray) rootNode.get(GraphonTokens.EDGES);
     assertThat(edges).hasSize(6);
   }
 }

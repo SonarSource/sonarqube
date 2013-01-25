@@ -19,12 +19,27 @@
  */
 package org.sonar.core.graph.graphson;
 
-public class GraphSonException extends RuntimeException {
-  public GraphSonException(String message) {
-    super(message);
-  }
+/**
+ * Modes of operation of the GraphSONUtility.
+ *
+ * @author Stephen Mallette
+ */
+public enum GraphonMode {
+  /**
+   * COMPACT constructs GraphSON on the assumption that all property keys
+   * are fair game for exclusion including _type, _inV, _outV, _label and _id.
+   * It is possible to write GraphSON that cannot be read back into Graph,
+   * if some or all of these keys are excluded.
+   */
+  COMPACT,
 
-  public GraphSonException(String message, Throwable cause) {
-    super(message, cause);
-  }
+  /**
+   * NORMAL includes the _type field and JSON data typing.
+   */
+  NORMAL,
+
+  /**
+   * EXTENDED includes the _type field and explicit data typing.
+   */
+  EXTENDED
 }

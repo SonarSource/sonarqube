@@ -19,7 +19,6 @@
  */
 package org.sonar.core.graph.graphson;
 
-import com.google.common.base.Charsets;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
@@ -32,13 +31,13 @@ import java.io.OutputStream;
 import java.util.Set;
 
 /**
- * GraphSONWriter writes a Graph to a TinkerPop JSON OutputStream.
+ * GraphonWriter writes a Graph to a TinkerPop JSON OutputStream.
  *
  * @author Stephen Mallette
  */
-public class GraphSONWriter {
+public class GraphonWriter {
 
-  public void write(Graph graph, OutputStream jsonOutputStream, GraphSONMode mode) {
+  public void write(Graph graph, OutputStream jsonOutputStream, GraphonMode mode) {
     write(graph, jsonOutputStream, mode, null, null);
   }
 
@@ -51,28 +50,28 @@ public class GraphSONWriter {
    * @param mode               determines the format of the GraphSON
    * @throws java.io.IOException thrown if there is an error generating the JSON data
    */
-  public void write(Graph graph, OutputStream jsonOutputStream, GraphSONMode mode, @Nullable Set<String> vertexPropertyKeys, @Nullable Set<String> edgePropertyKeys) {
+  public void write(Graph graph, OutputStream jsonOutputStream, GraphonMode mode, @Nullable Set<String> vertexPropertyKeys, @Nullable Set<String> edgePropertyKeys) {
     try {
       JSONObject root = new JSONObject();
       GraphsonUtil graphson = new GraphsonUtil(mode, null, vertexPropertyKeys, edgePropertyKeys);
 
-      root.put(GraphSONTokens.MODE, mode.toString());
+      root.put(GraphonTokens.MODE, mode.toString());
 
       JSONArray verticesArray = new JSONArray();
       for (Vertex v : graph.getVertices()) {
         verticesArray.add(graphson.objectNodeFromElement(v));
       }
-      root.put(GraphSONTokens.VERTICES, verticesArray);
+      root.put(GraphonTokens.VERTICES, verticesArray);
 
       JSONArray edgesArray = new JSONArray();
       for (Edge e : graph.getEdges()) {
         edgesArray.add(graphson.objectNodeFromElement(e));
       }
-      root.put(GraphSONTokens.EDGES, edgesArray);
+      root.put(GraphonTokens.EDGES, edgesArray);
 
       jsonOutputStream.write(root.toString().getBytes("UTF-8"));
     } catch (Exception e) {
-      throw new GraphSonException("Fail to generate GraphSON", e);
+      throw new GraphonException("Fail to generate GraphSON", e);
     }
   }
 

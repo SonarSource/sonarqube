@@ -50,7 +50,7 @@ import static org.sonar.core.graph.graphson.ElementPropertyConfig.ElementPropert
  */
 class GraphsonUtil {
 
-  private final GraphSONMode mode;
+  private final GraphonMode mode;
   private final Set<String> vertexPropertyKeys;
   private final Set<String> edgePropertyKeys;
   private final ElementFactory factory;
@@ -69,19 +69,19 @@ class GraphsonUtil {
   /**
    * A GraphSONUtiltiy that includes all properties of vertices and edges.
    */
-  GraphsonUtil(GraphSONMode mode, ElementFactory factory) {
+  GraphsonUtil(GraphonMode mode, ElementFactory factory) {
     this(mode, factory, ElementPropertyConfig.AllProperties);
   }
 
   /**
    * A GraphSONUtility that includes the specified properties.
    */
-  GraphsonUtil(GraphSONMode mode, ElementFactory factory,
+  GraphsonUtil(GraphonMode mode, ElementFactory factory,
                Set<String> vertexPropertyKeys, Set<String> edgePropertyKeys) {
     this(mode, factory, ElementPropertyConfig.includeProperties(vertexPropertyKeys, edgePropertyKeys));
   }
 
-  GraphsonUtil(GraphSONMode mode, ElementFactory factory,
+  GraphsonUtil(GraphonMode mode, ElementFactory factory,
                ElementPropertyConfig config) {
     this.vertexPropertyKeys = config.getVertexPropertyKeys();
     this.edgePropertyKeys = config.getEdgePropertyKeys();
@@ -90,15 +90,15 @@ class GraphsonUtil {
 
     this.mode = mode;
     this.factory = factory;
-    this.hasEmbeddedTypes = mode == GraphSONMode.EXTENDED;
+    this.hasEmbeddedTypes = mode == GraphonMode.EXTENDED;
 
-    this.includeReservedVertexId = includeReservedKey(mode, GraphSONTokens._ID, vertexPropertyKeys, this.vertexPropertiesRule);
-    this.includeReservedEdgeId = includeReservedKey(mode, GraphSONTokens._ID, edgePropertyKeys, this.edgePropertiesRule);
-    this.includeReservedVertexType = includeReservedKey(mode, GraphSONTokens._TYPE, vertexPropertyKeys, this.vertexPropertiesRule);
-    this.includeReservedEdgeType = includeReservedKey(mode, GraphSONTokens._TYPE, edgePropertyKeys, this.edgePropertiesRule);
-    this.includeReservedEdgeLabel = includeReservedKey(mode, GraphSONTokens._LABEL, edgePropertyKeys, this.edgePropertiesRule);
-    this.includeReservedEdgeOutV = includeReservedKey(mode, GraphSONTokens._OUT_V, edgePropertyKeys, this.edgePropertiesRule);
-    this.includeReservedEdgeInV = includeReservedKey(mode, GraphSONTokens._IN_V, edgePropertyKeys, this.edgePropertiesRule);
+    this.includeReservedVertexId = includeReservedKey(mode, GraphonTokens._ID, vertexPropertyKeys, this.vertexPropertiesRule);
+    this.includeReservedEdgeId = includeReservedKey(mode, GraphonTokens._ID, edgePropertyKeys, this.edgePropertiesRule);
+    this.includeReservedVertexType = includeReservedKey(mode, GraphonTokens._TYPE, vertexPropertyKeys, this.vertexPropertiesRule);
+    this.includeReservedEdgeType = includeReservedKey(mode, GraphonTokens._TYPE, edgePropertyKeys, this.edgePropertiesRule);
+    this.includeReservedEdgeLabel = includeReservedKey(mode, GraphonTokens._LABEL, edgePropertyKeys, this.edgePropertiesRule);
+    this.includeReservedEdgeOutV = includeReservedKey(mode, GraphonTokens._OUT_V, edgePropertyKeys, this.edgePropertiesRule);
+    this.includeReservedEdgeInV = includeReservedKey(mode, GraphonTokens._IN_V, edgePropertyKeys, this.edgePropertiesRule);
   }
 
   /**
@@ -108,7 +108,7 @@ class GraphsonUtil {
    * @param propertyKeys The property keys at the root of the element to serialize.  If null, then all keys are serialized.
    * @param mode         the type of GraphSON to be generated.
    */
-  static JSONObject jsonFromElement(Element element, @Nullable Set<String> propertyKeys, GraphSONMode mode) {
+  static JSONObject jsonFromElement(Element element, @Nullable Set<String> propertyKeys, GraphonMode mode) {
     GraphsonUtil graphson = element instanceof Edge ? new GraphsonUtil(mode, null, null, propertyKeys)
       : new GraphsonUtil(mode, null, propertyKeys, null);
     return graphson.jsonFromElement(element);
@@ -121,7 +121,7 @@ class GraphsonUtil {
    * @param propertyKeys The property keys at the root of the element to serialize.  If null, then all keys are serialized.
    * @param mode         The type of GraphSON to generate.
    */
-  static JSONObject objectNodeFromElement(Element element, Set<String> propertyKeys, GraphSONMode mode) {
+  static JSONObject objectNodeFromElement(Element element, Set<String> propertyKeys, GraphonMode mode) {
     GraphsonUtil graphson = element instanceof Edge ? new GraphsonUtil(mode, null, null, propertyKeys)
       : new GraphsonUtil(mode, null, propertyKeys, null);
     return graphson.objectNodeFromElement(element);
@@ -135,7 +135,7 @@ class GraphsonUtil {
    * @param mode         the mode of the GraphSON
    * @param propertyKeys a list of keys to include on reading of element properties
    */
-  static Vertex vertexFromJson(JSONObject json, ElementFactory factory, GraphSONMode mode,
+  static Vertex vertexFromJson(JSONObject json, ElementFactory factory, GraphonMode mode,
                                Set<String> propertyKeys) throws IOException {
     GraphsonUtil graphson = new GraphsonUtil(mode, factory, propertyKeys, null);
     return graphson.vertexFromJson(json);
@@ -149,7 +149,7 @@ class GraphsonUtil {
    * @param mode         the mode of the GraphSON
    * @param propertyKeys a list of keys to include on reading of element properties
    */
-  static Vertex vertexFromJson(String json, ElementFactory factory, GraphSONMode mode,
+  static Vertex vertexFromJson(String json, ElementFactory factory, GraphonMode mode,
                                Set<String> propertyKeys) throws ParseException {
     GraphsonUtil graphson = new GraphsonUtil(mode, factory, propertyKeys, null);
     return graphson.vertexFromJson(json);
@@ -163,18 +163,18 @@ class GraphsonUtil {
    * @param mode         the mode of the GraphSON
    * @param propertyKeys a list of keys to include on reading of element properties
    */
-  static Vertex vertexFromJson(InputStream json, ElementFactory factory, GraphSONMode mode,
+  static Vertex vertexFromJson(InputStream json, ElementFactory factory, GraphonMode mode,
                                Set<String> propertyKeys) throws IOException, ParseException {
     GraphsonUtil graphson = new GraphsonUtil(mode, factory, propertyKeys, null);
     return graphson.vertexFromJson(json);
   }
 
-  private static boolean includeReservedKey(GraphSONMode mode, String key,
+  private static boolean includeReservedKey(GraphonMode mode, String key,
                                             Set<String> propertyKeys,
                                             ElementPropertiesRule rule) {
     // the key is always included in modes other than compact.  if it is compact, then validate that the
     // key is in the property key list
-    return mode != GraphSONMode.COMPACT || includeKey(key, propertyKeys, rule);
+    return mode != GraphonMode.COMPACT || includeKey(key, propertyKeys, rule);
   }
 
   private static boolean includeKey(String key, Set<String> propertyKeys,
@@ -209,7 +209,7 @@ class GraphsonUtil {
    * @param propertyKeys a list of keys to include when reading of element properties
    */
   static Edge edgeFromJson(String json, Vertex out, Vertex in,
-                           ElementFactory factory, GraphSONMode mode,
+                           ElementFactory factory, GraphonMode mode,
                            Set<String> propertyKeys) throws IOException, ParseException {
     GraphsonUtil graphson = new GraphsonUtil(mode, factory, null, propertyKeys);
     return graphson.edgeFromJson(json, out, in);
@@ -224,7 +224,7 @@ class GraphsonUtil {
    * @param propertyKeys a list of keys to include when reading of element properties
    */
   static Edge edgeFromJson(InputStream json, Vertex out, Vertex in,
-                           ElementFactory factory, GraphSONMode mode,
+                           ElementFactory factory, GraphonMode mode,
                            Set<String> propertyKeys) throws IOException, ParseException {
     GraphsonUtil graphson = new GraphsonUtil(mode, factory, null, propertyKeys);
     return graphson.edgeFromJson(json, out, in);
@@ -239,7 +239,7 @@ class GraphsonUtil {
    * @param propertyKeys a list of keys to include when reading of element properties
    */
   static Edge edgeFromJson(JSONObject json, Vertex out, Vertex in,
-                           ElementFactory factory, GraphSONMode mode,
+                           ElementFactory factory, GraphonMode mode,
                            Set<String> propertyKeys) throws IOException {
     GraphsonUtil graphson = new GraphsonUtil(mode, factory, null, propertyKeys);
     return graphson.edgeFromJson(json, out, in);
@@ -261,8 +261,8 @@ class GraphsonUtil {
   }
 
   private static boolean isReservedKey(String key) {
-    return key.equals(GraphSONTokens._ID) || key.equals(GraphSONTokens._TYPE) || key.equals(GraphSONTokens._LABEL)
-      || key.equals(GraphSONTokens._OUT_V) || key.equals(GraphSONTokens._IN_V);
+    return key.equals(GraphonTokens._ID) || key.equals(GraphonTokens._TYPE) || key.equals(GraphonTokens._LABEL)
+      || key.equals(GraphonTokens._OUT_V) || key.equals(GraphonTokens._IN_V);
   }
 
   private static JSONArray createJSONList(List list, Set<String> propertyKeys, boolean showTypes) {
@@ -270,7 +270,7 @@ class GraphsonUtil {
     for (Object item : list) {
       if (item instanceof Element) {
         jsonList.add(objectNodeFromElement((Element) item, propertyKeys,
-          showTypes ? GraphSONMode.EXTENDED : GraphSONMode.NORMAL));
+          showTypes ? GraphonMode.EXTENDED : GraphonMode.NORMAL));
       } else if (item instanceof List) {
         jsonList.add(createJSONList((List) item, propertyKeys, showTypes));
       } else if (item instanceof Map) {
@@ -296,7 +296,7 @@ class GraphsonUtil {
           value = createJSONMap((Map) value, propertyKeys, showTypes);
         } else if (value instanceof Element) {
           value = objectNodeFromElement((Element) value, propertyKeys,
-            showTypes ? GraphSONMode.EXTENDED : GraphSONMode.NORMAL);
+            showTypes ? GraphonMode.EXTENDED : GraphonMode.NORMAL);
         } else if (value.getClass().isArray()) {
           value = createJSONList(convertArrayToList(value), propertyKeys, showTypes);
         }
@@ -313,24 +313,24 @@ class GraphsonUtil {
 
     if (hasEmbeddedTypes) {
       JSONObject json = (JSONObject) node;
-      if (json.get(GraphSONTokens.TYPE).equals(GraphSONTokens.TYPE_UNKNOWN)) {
+      if (json.get(GraphonTokens.TYPE).equals(GraphonTokens.TYPE_UNKNOWN)) {
         propertyValue = null;
-      } else if (json.get(GraphSONTokens.TYPE).equals(GraphSONTokens.TYPE_BOOLEAN)) {
-        propertyValue = json.get(GraphSONTokens.VALUE);
-      } else if (json.get(GraphSONTokens.TYPE).equals(GraphSONTokens.TYPE_FLOAT)) {
-        propertyValue = ((Double) json.get(GraphSONTokens.VALUE)).floatValue();
-      } else if (json.get(GraphSONTokens.TYPE).equals(GraphSONTokens.TYPE_DOUBLE)) {
-        propertyValue = json.get(GraphSONTokens.VALUE);
-      } else if (json.get(GraphSONTokens.TYPE).equals(GraphSONTokens.TYPE_INTEGER)) {
-        propertyValue = ((Long) json.get(GraphSONTokens.VALUE)).intValue();
-      } else if (json.get(GraphSONTokens.TYPE).equals(GraphSONTokens.TYPE_LONG)) {
-        propertyValue = json.get(GraphSONTokens.VALUE);
-      } else if (json.get(GraphSONTokens.TYPE).equals(GraphSONTokens.TYPE_STRING)) {
-        propertyValue = json.get(GraphSONTokens.VALUE);
-      } else if (json.get(GraphSONTokens.TYPE).equals(GraphSONTokens.TYPE_LIST)) {
-        propertyValue = readProperties(((JSONArray) json.get(GraphSONTokens.VALUE)).iterator(), hasEmbeddedTypes);
-      } else if (json.get(GraphSONTokens.TYPE).equals(GraphSONTokens.TYPE_MAP)) {
-        propertyValue = readProperties((JSONObject) json.get(GraphSONTokens.VALUE), false, hasEmbeddedTypes);
+      } else if (json.get(GraphonTokens.TYPE).equals(GraphonTokens.TYPE_BOOLEAN)) {
+        propertyValue = json.get(GraphonTokens.VALUE);
+      } else if (json.get(GraphonTokens.TYPE).equals(GraphonTokens.TYPE_FLOAT)) {
+        propertyValue = ((Double) json.get(GraphonTokens.VALUE)).floatValue();
+      } else if (json.get(GraphonTokens.TYPE).equals(GraphonTokens.TYPE_DOUBLE)) {
+        propertyValue = json.get(GraphonTokens.VALUE);
+      } else if (json.get(GraphonTokens.TYPE).equals(GraphonTokens.TYPE_INTEGER)) {
+        propertyValue = ((Long) json.get(GraphonTokens.VALUE)).intValue();
+      } else if (json.get(GraphonTokens.TYPE).equals(GraphonTokens.TYPE_LONG)) {
+        propertyValue = json.get(GraphonTokens.VALUE);
+      } else if (json.get(GraphonTokens.TYPE).equals(GraphonTokens.TYPE_STRING)) {
+        propertyValue = json.get(GraphonTokens.VALUE);
+      } else if (json.get(GraphonTokens.TYPE).equals(GraphonTokens.TYPE_LIST)) {
+        propertyValue = readProperties(((JSONArray) json.get(GraphonTokens.VALUE)).iterator(), hasEmbeddedTypes);
+      } else if (json.get(GraphonTokens.TYPE).equals(GraphonTokens.TYPE_MAP)) {
+        propertyValue = readProperties((JSONObject) json.get(GraphonTokens.VALUE), false, hasEmbeddedTypes);
       } else {
         propertyValue = node.toString();
       }
@@ -457,9 +457,9 @@ class GraphsonUtil {
       String type = determineType(value);
 
       JSONObject valueAndType = new JSONObject();
-      valueAndType.put(GraphSONTokens.TYPE, type);
+      valueAndType.put(GraphonTokens.TYPE, type);
 
-      if (type.equals(GraphSONTokens.TYPE_LIST)) {
+      if (type.equals(GraphonTokens.TYPE_LIST)) {
 
         // values of lists must be accumulated as ObjectNode objects under the value key.
         // will return as a ArrayNode. called recursively to traverse the entire
@@ -468,14 +468,14 @@ class GraphsonUtil {
 
         // there is a set of values that must be accumulated as an array under a key
         JSONArray valueArray = new JSONArray();
-        valueAndType.put(GraphSONTokens.VALUE, valueArray);
+        valueAndType.put(GraphonTokens.VALUE, valueArray);
         for (int ix = 0; ix < list.size(); ix++) {
           // the value of each item in the array is a node object from an ArrayNode...must
           // get the value of it.
           addObject(valueArray, getValue(list.get(ix), includeType));
         }
 
-      } else if (type.equals(GraphSONTokens.TYPE_MAP)) {
+      } else if (type.equals(GraphonTokens.TYPE_MAP)) {
 
         // maps are converted to a ObjectNode.  called recursively to traverse
         // the entire object graph within the map.
@@ -488,14 +488,14 @@ class GraphsonUtil {
           convertedMap.put(key, jsonObject.get(key));
         }
 
-        valueAndType.put(GraphSONTokens.VALUE, convertedMap);
+        valueAndType.put(GraphonTokens.VALUE, convertedMap);
 
       } else {
 
         // this must be a primitive value or a complex object.  if a complex
         // object it will be handled by a call to toString and stored as a
         // string value
-        putObject(valueAndType, GraphSONTokens.VALUE, value);
+        putObject(valueAndType, GraphonTokens.VALUE, value);
       }
 
       // this goes back as a JSONObject with data type and value
@@ -542,23 +542,23 @@ class GraphsonUtil {
   }
 
   private static String determineType(Object value) {
-    String type = GraphSONTokens.TYPE_STRING;
+    String type = GraphonTokens.TYPE_STRING;
     if (value == null) {
       type = "unknown";
     } else if (value instanceof Double) {
-      type = GraphSONTokens.TYPE_DOUBLE;
+      type = GraphonTokens.TYPE_DOUBLE;
     } else if (value instanceof Float) {
-      type = GraphSONTokens.TYPE_FLOAT;
+      type = GraphonTokens.TYPE_FLOAT;
     } else if (value instanceof Integer) {
-      type = GraphSONTokens.TYPE_INTEGER;
+      type = GraphonTokens.TYPE_INTEGER;
     } else if (value instanceof Long) {
-      type = GraphSONTokens.TYPE_LONG;
+      type = GraphonTokens.TYPE_LONG;
     } else if (value instanceof Boolean) {
-      type = GraphSONTokens.TYPE_BOOLEAN;
+      type = GraphonTokens.TYPE_BOOLEAN;
     } else if (value instanceof JSONArray) {
-      type = GraphSONTokens.TYPE_LIST;
+      type = GraphonTokens.TYPE_LIST;
     } else if (value instanceof JSONObject) {
-      type = GraphSONTokens.TYPE_MAP;
+      type = GraphonTokens.TYPE_MAP;
     }
 
     return type;
@@ -591,10 +591,10 @@ class GraphsonUtil {
   Edge edgeFromJson(JSONObject json, Vertex out, Vertex in) throws IOException {
     Map<String, Object> props = GraphsonUtil.readProperties(json, true, this.hasEmbeddedTypes);
 
-//    Object edgeId = getTypedValueFromJsonNode(json.get(GraphSONTokens._ID));
-    Object edgeId = json.get(GraphSONTokens._ID);
+//    Object edgeId = getTypedValueFromJsonNode(json.get(GraphonTokens._ID));
+    Object edgeId = json.get(GraphonTokens._ID);
 
-    Object nodeLabel = json.get(GraphSONTokens._LABEL);
+    Object nodeLabel = json.get(GraphonTokens._LABEL);
     String label = nodeLabel == null ? null : nodeLabel.toString();
 
     Edge e = factory.createEdge(edgeId, out, in, label);
@@ -622,8 +622,8 @@ class GraphsonUtil {
   Vertex vertexFromJson(JSONObject json) {
     Map<String, Object> props = readProperties(json, true, this.hasEmbeddedTypes);
 
-    //Object vertexId = getTypedValueFromJsonNode((JSONObject)json.get(GraphSONTokens._ID));
-    Object vertexId = json.get(GraphSONTokens._ID);
+    //Object vertexId = getTypedValueFromJsonNode((JSONObject)json.get(GraphonTokens._ID));
+    Object vertexId = json.get(GraphonTokens._ID);
     Vertex v = factory.createVertex(vertexId);
 
     for (Map.Entry<String, Object> entry : props.entrySet()) {
@@ -649,14 +649,14 @@ class GraphsonUtil {
    */
   org.json.simple.JSONObject objectNodeFromElement(Element element) {
     boolean isEdge = element instanceof Edge;
-    boolean showTypes = mode == GraphSONMode.EXTENDED;
+    boolean showTypes = mode == GraphonMode.EXTENDED;
     Set<String> propertyKeys = isEdge ? this.edgePropertyKeys : this.vertexPropertyKeys;
     ElementPropertiesRule elementPropertyConfig = isEdge ? this.edgePropertiesRule : this.vertexPropertiesRule;
 
     org.json.simple.JSONObject jsonElement = createJSONMap(createPropertyMap(element, propertyKeys, elementPropertyConfig), propertyKeys, showTypes);
 
     if ((isEdge && this.includeReservedEdgeId) || (!isEdge && this.includeReservedVertexId)) {
-      putObject(jsonElement, GraphSONTokens._ID, element.getId());
+      putObject(jsonElement, GraphonTokens._ID, element.getId());
     }
 
     // it's important to keep the order of these straight.  check Edge first and then Vertex because there
@@ -665,31 +665,31 @@ class GraphsonUtil {
       Edge edge = (Edge) element;
 
       if (this.includeReservedEdgeId) {
-        putObject(jsonElement, GraphSONTokens._ID, element.getId());
+        putObject(jsonElement, GraphonTokens._ID, element.getId());
       }
 
       if (this.includeReservedEdgeType) {
-        jsonElement.put(GraphSONTokens._TYPE, GraphSONTokens.EDGE);
+        jsonElement.put(GraphonTokens._TYPE, GraphonTokens.EDGE);
       }
 
       if (this.includeReservedEdgeOutV) {
-        putObject(jsonElement, GraphSONTokens._OUT_V, edge.getVertex(Direction.OUT).getId());
+        putObject(jsonElement, GraphonTokens._OUT_V, edge.getVertex(Direction.OUT).getId());
       }
 
       if (this.includeReservedEdgeInV) {
-        putObject(jsonElement, GraphSONTokens._IN_V, edge.getVertex(Direction.IN).getId());
+        putObject(jsonElement, GraphonTokens._IN_V, edge.getVertex(Direction.IN).getId());
       }
 
       if (this.includeReservedEdgeLabel) {
-        jsonElement.put(GraphSONTokens._LABEL, edge.getLabel());
+        jsonElement.put(GraphonTokens._LABEL, edge.getLabel());
       }
     } else if (element instanceof Vertex) {
       if (this.includeReservedVertexId) {
-        putObject(jsonElement, GraphSONTokens._ID, element.getId());
+        putObject(jsonElement, GraphonTokens._ID, element.getId());
       }
 
       if (this.includeReservedVertexType) {
-        jsonElement.put(GraphSONTokens._TYPE, GraphSONTokens.VERTEX);
+        jsonElement.put(GraphonTokens._TYPE, GraphonTokens.VERTEX);
       }
     }
 
