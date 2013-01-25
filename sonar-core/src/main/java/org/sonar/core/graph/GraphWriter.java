@@ -21,7 +21,6 @@ package org.sonar.core.graph;
 
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.util.io.graphson.GraphSONMode;
-import com.tinkerpop.blueprints.util.io.graphson.GraphSONWriter;
 import org.apache.commons.io.IOUtils;
 
 import java.io.ByteArrayOutputStream;
