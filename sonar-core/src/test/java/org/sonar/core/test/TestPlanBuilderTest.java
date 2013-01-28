@@ -19,6 +19,8 @@
  */
 package org.sonar.core.test;
 
+import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
 import org.junit.Test;
 import org.sonar.api.component.SourceFile;
 import org.sonar.api.component.mock.MockSourceFile;
@@ -26,6 +28,7 @@ import org.sonar.api.test.MutableTestCase;
 import org.sonar.api.test.MutableTestPlan;
 import org.sonar.core.component.ComponentGraph;
 import org.sonar.core.component.ComponentWrapper;
+import org.sonar.core.graph.graphson.GraphsonReader;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -57,4 +60,17 @@ public class TestPlanBuilderTest {
     assertThat(plan.testCases()).hasSize(1);
     assertThat(plan.testCases()).containsExactly(testCase);
   }
+
+  @Test
+  public void should_load_test_plan() {
+    TinkerGraph graph = new TinkerGraph();
+    new GraphsonReader().read(getClass().getResourceAsStream("/org/sonar/core/test/TestPlanBuilderTest/plan_with_test_cases.json"), graph);
+
+    Vertex componentVertex = graph.getVertex("33");
+    ComponentGraph componentGraph = new ComponentGraph(graph, componentVertex);
+
+    MutableTestPlan testPlan = new TestPlanBuilder().build(componentGraph.wrap(componentVertex, ComponentWrapper.class));
+    assertThat(testPlan.testCases()).hasSize(4);
+  }
+
 }

@@ -21,7 +21,7 @@ package org.sonar.core.component;
 
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
-import com.tinkerpop.blueprints.util.io.graphson.GraphSONReader;
+import org.sonar.core.graph.graphson.GraphsonReader;
 
 import java.io.ByteArrayInputStream;
 
@@ -31,7 +31,7 @@ public class GraphReader {
     ByteArrayInputStream input = new ByteArrayInputStream(data.getBytes());
     try {
       TinkerGraph graph = new TinkerGraph();
-      GraphSONReader.inputGraph(graph, input);
+      new GraphsonReader().read(input, graph);
       Vertex root = graph.getVertex(rootVertexId);
       return new ComponentGraph(graph, root);
     } catch (Exception e) {
