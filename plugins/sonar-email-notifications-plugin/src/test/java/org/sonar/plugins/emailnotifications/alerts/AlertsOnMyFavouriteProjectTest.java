@@ -39,7 +39,7 @@ public class AlertsOnMyFavouriteProjectTest {
     NotificationDispatcher.Context context = mock(NotificationDispatcher.Context.class);
     AlertsOnMyFavouriteProject dispatcher = new AlertsOnMyFavouriteProject(null);
     Notification notification = new Notification("other-notif");
-    dispatcher.dispatch(notification, context);
+    dispatcher.performDispatch(notification, context);
 
     verify(context, never()).addUser(any(String.class));
   }
@@ -52,7 +52,7 @@ public class AlertsOnMyFavouriteProjectTest {
     AlertsOnMyFavouriteProject dispatcher = new AlertsOnMyFavouriteProject(propertiesDao);
 
     Notification notification = new Notification("alerts").setFieldValue("projectId", "34");
-    dispatcher.dispatch(notification, context);
+    dispatcher.performDispatch(notification, context);
 
     verify(context).addUser("user1");
     verify(context).addUser("user2");

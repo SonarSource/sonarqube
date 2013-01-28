@@ -19,12 +19,11 @@
  */
 package org.sonar.plugins.emailnotifications.newviolations;
 
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationDispatcher;
 import org.sonar.core.properties.PropertiesDao;
+
+import java.util.List;
 
 /**
  * This dispatcher means: "notify me when new violations are introduced on projects that I flagged as favourite".
@@ -36,17 +35,16 @@ public class NewViolationsOnMyFavouriteProject extends NotificationDispatcher {
   private PropertiesDao propertiesDao;
 
   public NewViolationsOnMyFavouriteProject(PropertiesDao propertiesDao) {
+    super("new-violations");
     this.propertiesDao = propertiesDao;
   }
 
   @Override
   public void dispatch(Notification notification, Context context) {
-    if (StringUtils.equals(notification.getType(), "new-violations")) {
-      Long projectId = Long.parseLong(notification.getFieldValue("projectId"));
-      List<String> userLogins = propertiesDao.findUserIdsForFavouriteResource(projectId);
-      for (String userLogin : userLogins) {
-        context.addUser(userLogin);
-      }
+    Long projectId = Long.parseLong(notification.getFieldValue("projectId"));
+    List<String> userLogins = propertiesDao.findUserIdsForFavouriteResource(projectId);
+    for (String userLogin : userLogins) {
+      context.addUser(userLogin);
     }
   }
 

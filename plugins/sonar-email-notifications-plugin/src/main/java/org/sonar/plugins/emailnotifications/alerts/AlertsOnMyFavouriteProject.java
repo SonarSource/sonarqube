@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.emailnotifications.alerts;
 
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationDispatcher;
 import org.sonar.core.properties.PropertiesDao;
@@ -36,17 +35,16 @@ public class AlertsOnMyFavouriteProject extends NotificationDispatcher {
   private PropertiesDao propertiesDao;
 
   public AlertsOnMyFavouriteProject(PropertiesDao propertiesDao) {
+    super("alerts");
     this.propertiesDao = propertiesDao;
   }
 
   @Override
   public void dispatch(Notification notification, Context context) {
-    if (StringUtils.equals(notification.getType(), "alerts")) {
-      Long projectId = Long.parseLong(notification.getFieldValue("projectId"));
-      List<String> userLogins = propertiesDao.findUserIdsForFavouriteResource(projectId);
-      for (String userLogin : userLogins) {
-        context.addUser(userLogin);
-      }
+    Long projectId = Long.parseLong(notification.getFieldValue("projectId"));
+    List<String> userLogins = propertiesDao.findUserIdsForFavouriteResource(projectId);
+    for (String userLogin : userLogins) {
+      context.addUser(userLogin);
     }
   }
 

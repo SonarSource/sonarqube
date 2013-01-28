@@ -19,14 +19,14 @@
  */
 package org.sonar.plugins.emailnotifications.reviews;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationDispatcher;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 public class ChangesInReviewAssignedToMeOrCreatedByMeTest {
 
@@ -46,7 +46,7 @@ public class ChangesInReviewAssignedToMeOrCreatedByMeTest {
         .setFieldValue("creator", "simon")
         .setFieldValue("old.assignee", "godin")
         .setFieldValue("assignee", "freddy");
-    dispatcher.dispatch(notification, context);
+    dispatcher.performDispatch(notification, context);
 
     verify(context).addUser("simon");
     verify(context).addUser("godin");
@@ -56,9 +56,9 @@ public class ChangesInReviewAssignedToMeOrCreatedByMeTest {
 
   @Test
   public void doNotDispatchToAuthorOfChanges() {
-    dispatcher.dispatch(new Notification("review-changed").setFieldValue("author", "simon").setFieldValue("creator", "simon"), context);
-    dispatcher.dispatch(new Notification("review-changed").setFieldValue("author", "simon").setFieldValue("assignee", "simon"), context);
-    dispatcher.dispatch(new Notification("review-changed").setFieldValue("author", "simon").setFieldValue("old.assignee", "simon"), context);
+    dispatcher.performDispatch(new Notification("review-changed").setFieldValue("author", "simon").setFieldValue("creator", "simon"), context);
+    dispatcher.performDispatch(new Notification("review-changed").setFieldValue("author", "simon").setFieldValue("assignee", "simon"), context);
+    dispatcher.performDispatch(new Notification("review-changed").setFieldValue("author", "simon").setFieldValue("old.assignee", "simon"), context);
 
     verifyNoMoreInteractions(context);
   }
@@ -66,7 +66,7 @@ public class ChangesInReviewAssignedToMeOrCreatedByMeTest {
   @Test
   public void shouldNotDispatch() {
     Notification notification = new Notification("other");
-    dispatcher.dispatch(notification, context);
+    dispatcher.performDispatch(notification, context);
 
     verifyNoMoreInteractions(context);
   }

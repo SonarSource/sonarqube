@@ -134,7 +134,7 @@ public class NotificationService implements ServerComponent {
           }
         };
         try {
-          dispatcher.dispatch(notification, context);
+          dispatcher.performDispatch(notification, context);
         } catch (Exception e) { // catch all exceptions in order to dispatch using other dispatchers
           Logs.INFO.warn("Unable to dispatch notification " + notification + " using " + dispatcher, e);
         }

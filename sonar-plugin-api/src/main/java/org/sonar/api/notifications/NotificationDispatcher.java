@@ -19,6 +19,7 @@
  */
 package org.sonar.api.notifications;
 
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerExtension;
 
 /**
@@ -38,6 +39,8 @@ import org.sonar.api.ServerExtension;
  */
 public abstract class NotificationDispatcher implements ServerExtension {
 
+  private String notificationType;
+
   /**
    * Additional information related to the notification, which will be used
    * to know who should receive the notification.
@@ -52,12 +55,45 @@ public abstract class NotificationDispatcher implements ServerExtension {
   }
 
   /**
+   * Creates a new dispatcher for notifications of the given type.
+   * 
+   * @param notificationType the type of notifications handled by this dispatcher
+   */
+  public NotificationDispatcher(String notificationType) {
+    this.notificationType = notificationType;
+  }
+
+  /**
+   * Creates a new generic dispatcher, used for any kind of notification. 
+   * <br/>
+   * Should be avoided and replaced by the other constructor - as it is easier to understand that a
+   * dispatcher listens for a specific type of notification.
+   */
+  public NotificationDispatcher() {
+    this("");
+  }
+
+  /**
    * Returns the unique key of this dispatcher. 
    * 
    * @return the key
    */
   public String getKey() {
     return getClass().getSimpleName();
+  }
+
+  /**
+   * <p>
+   * Performs the dispatch.
+   * </p>
+   * 
+   * @param notification the notification that will be sent
+   * @param the context linked to this notification
+   */
+  public final void performDispatch(Notification notification, Context context) {
+    if (StringUtils.equals(notification.getType(), notificationType) || StringUtils.equals("", notificationType)) {
+      dispatch(notification, context);
+    }
   }
 
   /**

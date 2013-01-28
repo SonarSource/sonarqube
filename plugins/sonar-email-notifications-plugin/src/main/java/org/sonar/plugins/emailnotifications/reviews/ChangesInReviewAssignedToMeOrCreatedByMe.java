@@ -30,22 +30,24 @@ import org.sonar.api.notifications.NotificationDispatcher;
  */
 public class ChangesInReviewAssignedToMeOrCreatedByMe extends NotificationDispatcher {
 
+  public ChangesInReviewAssignedToMeOrCreatedByMe() {
+    super("review-changed");
+  }
+
   @Override
   public void dispatch(Notification notification, Context context) {
-    if (StringUtils.startsWith(notification.getType(), "review")) {
-      String author = notification.getFieldValue("author"); // author of change
-      String creator = notification.getFieldValue("creator"); // creator of review
-      String oldAssignee = notification.getFieldValue("old.assignee"); // previous assignee
-      String assignee = notification.getFieldValue("assignee"); // current assignee
-      if (creator != null && !StringUtils.equals(author, creator)) {
-        context.addUser(creator);
-      }
-      if (oldAssignee != null && !StringUtils.equals(author, oldAssignee)) {
-        context.addUser(oldAssignee);
-      }
-      if (assignee != null && !StringUtils.equals(author, assignee)) {
-        context.addUser(assignee);
-      }
+    String author = notification.getFieldValue("author");
+    String creator = notification.getFieldValue("creator");
+    String oldAssignee = notification.getFieldValue("old.assignee");
+    String assignee = notification.getFieldValue("assignee");
+    if (creator != null && !StringUtils.equals(author, creator)) {
+      context.addUser(creator);
+    }
+    if (oldAssignee != null && !StringUtils.equals(author, oldAssignee)) {
+      context.addUser(oldAssignee);
+    }
+    if (assignee != null && !StringUtils.equals(author, assignee)) {
+      context.addUser(assignee);
     }
   }
 

@@ -19,19 +19,18 @@
  */
 package org.sonar.plugins.emailnotifications.newviolations;
 
+import com.google.common.collect.Lists;
+import org.junit.Test;
+import org.sonar.api.notifications.Notification;
+import org.sonar.api.notifications.NotificationDispatcher;
+import org.sonar.core.properties.PropertiesDao;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-
-import org.junit.Test;
-import org.sonar.api.notifications.Notification;
-import org.sonar.api.notifications.NotificationDispatcher;
-import org.sonar.core.properties.PropertiesDao;
-
-import com.google.common.collect.Lists;
 
 public class NewViolationsOnMyFavouriteProjectTest {
 
@@ -40,7 +39,7 @@ public class NewViolationsOnMyFavouriteProjectTest {
     NotificationDispatcher.Context context = mock(NotificationDispatcher.Context.class);
     NewViolationsOnMyFavouriteProject dispatcher = new NewViolationsOnMyFavouriteProject(null);
     Notification notification = new Notification("other-notif");
-    dispatcher.dispatch(notification, context);
+    dispatcher.performDispatch(notification, context);
 
     verify(context, never()).addUser(any(String.class));
   }
@@ -53,7 +52,7 @@ public class NewViolationsOnMyFavouriteProjectTest {
     NewViolationsOnMyFavouriteProject dispatcher = new NewViolationsOnMyFavouriteProject(propertiesDao);
 
     Notification notification = new Notification("new-violations").setFieldValue("projectId", "34");
-    dispatcher.dispatch(notification, context);
+    dispatcher.performDispatch(notification, context);
 
     verify(context).addUser("user1");
     verify(context).addUser("user2");
