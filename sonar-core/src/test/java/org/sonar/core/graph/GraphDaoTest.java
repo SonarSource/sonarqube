@@ -25,7 +25,7 @@ import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class GraphDbTest extends AbstractDaoTestCase {
+public class GraphDaoTest extends AbstractDaoTestCase {
   private GraphDao dao;
 
   @Before
