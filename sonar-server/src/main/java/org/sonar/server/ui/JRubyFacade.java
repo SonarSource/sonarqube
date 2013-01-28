@@ -20,7 +20,6 @@
 package org.sonar.server.ui;
 
 import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Lists;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.License;
@@ -37,6 +36,7 @@ import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleRepository;
+import org.sonar.api.test.TestPlan;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.api.web.Footer;
 import org.sonar.api.web.NavigationSection;
@@ -47,6 +47,7 @@ import org.sonar.api.workflow.Review;
 import org.sonar.api.workflow.internal.DefaultReview;
 import org.sonar.api.workflow.internal.DefaultWorkflowContext;
 import org.sonar.api.workflow.screen.Screen;
+import org.sonar.core.component.PerspectiveLoaders;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.measure.MeasureFilterEngine;
 import org.sonar.core.measure.MeasureFilterResult;
@@ -86,6 +87,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 public final class JRubyFacade {
 
   private static final JRubyFacade SINGLETON = new JRubyFacade();
@@ -93,6 +96,10 @@ public final class JRubyFacade {
 
   public static JRubyFacade getInstance() {
     return SINGLETON;
+  }
+
+  public static String markdownToHtml(String input) {
+    return Markdown.convertToHtml(input);
   }
 
   private <T> T get(Class<T> componentType) {
@@ -128,7 +135,7 @@ public final class JRubyFacade {
   }
 
   public List<String> getQualifiersWithProperty(final String propertyKey) {
-    List<String> qualifiers = Lists.newArrayList();
+    List<String> qualifiers = newArrayList();
     for (ResourceType type : getResourceTypes()) {
       if (type.getBooleanProperty(propertyKey) == Boolean.TRUE) {
         qualifiers.add(type.getQualifier());
@@ -203,10 +210,6 @@ public final class JRubyFacade {
       LoggerFactory.getLogger(getClass()).error("Can not highlight the code, language= " + language, e);
       return code;
     }
-  }
-
-  public static String markdownToHtml(String input) {
-    return Markdown.convertToHtml(input);
   }
 
   public List<ViewProxy<Widget>> getWidgets(String resourceScope, String resourceQualifier, String resourceLanguage, Object[] availableMeasures) {
@@ -319,7 +322,7 @@ public final class JRubyFacade {
 
   public void ruleSeverityChanged(int parentProfileId, int activeRuleId, int oldSeverityId, int newSeverityId, String userName) {
     getProfilesManager().ruleSeverityChanged(parentProfileId, activeRuleId, RulePriority.values()[oldSeverityId],
-      RulePriority.values()[newSeverityId], userName);
+        RulePriority.values()[newSeverityId], userName);
   }
 
   public void ruleDeactivated(int parentProfileId, int deactivatedRuleId, String userName) {
@@ -515,10 +518,10 @@ public final class JRubyFacade {
     // notifier is null when creating the administrator in the migration script 011.
     if (notifier != null) {
       notifier.onNewUser(NewUserHandler.Context.builder()
-        .setLogin(fields.get("login"))
-        .setName(fields.get("name"))
-        .setEmail(fields.get("email"))
-        .build());
+          .setLogin(fields.get("login"))
+          .setName(fields.get("name"))
+          .setEmail(fields.get("email"))
+          .build());
     }
   }
 
@@ -537,4 +540,9 @@ public final class JRubyFacade {
   public String getPeriodAbbreviation(int periodIndex) {
     return get(Periods.class).abbreviation(periodIndex);
   }
+
+  public TestPlan getTestPlan(long snapshotId) {
+    return (TestPlan) get(PerspectiveLoaders.class).as(snapshotId, "testplan");
+  }
+
 }
