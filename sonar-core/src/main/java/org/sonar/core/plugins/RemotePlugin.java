@@ -20,14 +20,16 @@
 package org.sonar.core.plugins;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.List;
 
 public class RemotePlugin {
   private String pluginKey;
-  private List<String> filenames = Lists.newArrayList();
+  private List<RemotePluginFile> files = Lists.newArrayList();
   private boolean core;
 
   public RemotePlugin(String pluginKey, boolean core) {
@@ -37,9 +39,9 @@ public class RemotePlugin {
 
   public static RemotePlugin create(DefaultPluginMetadata metadata) {
     RemotePlugin result = new RemotePlugin(metadata.getKey(), metadata.isCore());
-    result.addFilename(metadata.getFile().getName());
+    result.addFile(metadata.getFile());
     for (File file : metadata.getDeprecatedExtensions()) {
-      result.addFilename(file.getName());
+      result.addFile(file);
     }
     return result;
   }
@@ -49,7 +51,8 @@ public class RemotePlugin {
     RemotePlugin result = new RemotePlugin(fields[0], Boolean.parseBoolean(fields[1]));
     if (fields.length > 2) {
       for (int index = 2; index < fields.length; index++) {
-        result.addFilename(fields[index]);
+        String[] nameAndMd5 = StringUtils.split(fields[index], "|");
+        result.addFile(nameAndMd5[0], nameAndMd5.length > 1 ? nameAndMd5[1] : null);
       }
     }
     return result;
@@ -59,8 +62,11 @@ public class RemotePlugin {
     StringBuilder sb = new StringBuilder();
     sb.append(pluginKey).append(",");
     sb.append(String.valueOf(core));
-    for (String filename : filenames) {
-      sb.append(",").append(filename);
+    for (RemotePluginFile file : files) {
+      sb.append(",").append(file.getFilename());
+      if (StringUtils.isNotBlank(file.getMd5())) {
+        sb.append("|").append(file.getMd5());
+      }
     }
     return sb.toString();
   }
@@ -69,22 +75,32 @@ public class RemotePlugin {
     return pluginKey;
   }
 
-
   public boolean isCore() {
     return core;
   }
 
-  public RemotePlugin addFilename(String s) {
-    filenames.add(s);
+  public RemotePlugin addFile(String filename, String md5) {
+    files.add(new RemotePluginFile(filename, md5));
     return this;
   }
 
-  public List<String> getFilenames() {
-    return filenames;
+  public RemotePlugin addFile(File f) {
+    String md5;
+    try {
+      FileInputStream fis = new FileInputStream(f);
+      md5 = DigestUtils.md5Hex(fis);
+    } catch (Exception e) {
+      md5 = null;
+    }
+    return this.addFile(f.getName(), md5);
+  }
+
+  public List<RemotePluginFile> getFiles() {
+    return files;
   }
 
   public String getPluginFilename() {
-    return (!filenames.isEmpty() ? filenames.get(0) : null);
+    return (!files.isEmpty() ? files.get(0).getFilename() : null);
   }
 
   @Override

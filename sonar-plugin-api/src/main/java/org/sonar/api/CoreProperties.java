@@ -377,6 +377,11 @@ public interface CoreProperties {
   String TASK = "sonar.task";
 
   /**
+   * @since 3.5
+   */
+  String CACHE_LOCATION = "sonar.cacheLocation";
+
+  /**
    * @deprecated replaced in v3.4 by properties specific to languages, for example sonar.java.coveragePlugin
    * See http://jira.codehaus.org/browse/SONARJAVA-39 for more details.
    */

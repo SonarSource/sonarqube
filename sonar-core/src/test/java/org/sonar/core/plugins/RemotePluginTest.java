@@ -23,7 +23,6 @@ import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.hasItems;
 
 public class RemotePluginTest {
   @Test
@@ -38,29 +37,30 @@ public class RemotePluginTest {
 
   @Test
   public void shouldMarshal() {
-    RemotePlugin clirr = new RemotePlugin("clirr", false).addFilename("clirr-1.1.jar");
+    RemotePlugin clirr = new RemotePlugin("clirr", false).addFile("clirr-1.1.jar", "fakemd5");
     String text = clirr.marshal();
-    assertThat(text, is("clirr,false,clirr-1.1.jar"));
+    assertThat(text, is("clirr,false,clirr-1.1.jar|fakemd5"));
   }
 
   @Test
   public void shouldMarshalDeprecatedExtensions() {
-    RemotePlugin checkstyle = new RemotePlugin("checkstyle", true);
-    checkstyle.addFilename("checkstyle-2.8.jar");
-    checkstyle.addFilename("ext.xml");
-    checkstyle.addFilename("ext.jar");
+    RemotePlugin checkstyle = new RemotePlugin("checkstyle", true)
+        .addFile("checkstyle-2.8.jar", "fakemd51")
+        .addFile("ext.xml", "fakemd52")
+        .addFile("ext.jar", "fakemd53");
 
     String text = checkstyle.marshal();
-    assertThat(text, is("checkstyle,true,checkstyle-2.8.jar,ext.xml,ext.jar"));
+    assertThat(text, is("checkstyle,true,checkstyle-2.8.jar|fakemd51,ext.xml|fakemd52,ext.jar|fakemd53"));
   }
 
   @Test
   public void shouldUnmarshal() {
-    RemotePlugin clirr = RemotePlugin.unmarshal("clirr,false,clirr-1.1.jar");
+    RemotePlugin clirr = RemotePlugin.unmarshal("clirr,false,clirr-1.1.jar|fakemd5");
     assertThat(clirr.getKey(), is("clirr"));
     assertThat(clirr.isCore(), is(false));
-    assertThat(clirr.getFilenames().size(), is(1));
-    assertThat(clirr.getFilenames().get(0), is("clirr-1.1.jar"));
+    assertThat(clirr.getFiles().size(), is(1));
+    assertThat(clirr.getFiles().get(0).getFilename(), is("clirr-1.1.jar"));
+    assertThat(clirr.getFiles().get(0).getMd5(), is("fakemd5"));
 
   }
 
@@ -69,7 +69,9 @@ public class RemotePluginTest {
     RemotePlugin checkstyle = RemotePlugin.unmarshal("checkstyle,true,checkstyle-2.8.jar,ext.xml,ext.jar");
     assertThat(checkstyle.getKey(), is("checkstyle"));
     assertThat(checkstyle.isCore(), is(true));
-    assertThat(checkstyle.getFilenames().size(), is(3));
-    assertThat(checkstyle.getFilenames(), hasItems("checkstyle-2.8.jar", "ext.xml", "ext.jar"));
+    assertThat(checkstyle.getFiles().size(), is(3));
+    assertThat(checkstyle.getFiles().get(0).getFilename(), is("checkstyle-2.8.jar"));
+    assertThat(checkstyle.getFiles().get(1).getFilename(), is("ext.xml"));
+    assertThat(checkstyle.getFiles().get(2).getFilename(), is("ext.jar"));
   }
 }

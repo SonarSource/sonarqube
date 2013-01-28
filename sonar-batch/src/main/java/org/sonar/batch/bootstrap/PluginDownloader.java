@@ -20,14 +20,15 @@
 package org.sonar.batch.bootstrap;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.utils.SonarException;
+import org.sonar.batch.cache.SonarCache;
 import org.sonar.core.plugins.RemotePlugin;
+import org.sonar.core.plugins.RemotePluginFile;
 
 import java.io.File;
 import java.util.List;
@@ -36,26 +37,48 @@ public class PluginDownloader implements BatchComponent {
 
   private static final Logger LOG = LoggerFactory.getLogger(PluginDownloader.class);
 
-  private TempDirectories workingDirectories;
   private ServerClient server;
+  private BatchSonarCache batchCache;
 
-  public PluginDownloader(TempDirectories workingDirectories, ServerClient server) {
-    this.workingDirectories = workingDirectories;
+  public PluginDownloader(BatchSonarCache batchCache, ServerClient server) {
     this.server = server;
+    this.batchCache = batchCache;
+  }
+
+  private SonarCache getSonarCache() {
+    return batchCache.getCache();
   }
 
   public List<File> downloadPlugin(RemotePlugin remote) {
     try {
-      File targetDir = workingDirectories.getDir("plugins/" + remote.getKey());
-      FileUtils.forceMkdir(targetDir);
-      LOG.debug("Downloading plugin " + remote.getKey() + " into " + targetDir);
-
       List<File> files = Lists.newArrayList();
-      for (String filename : remote.getFilenames()) {
-        String url = "/deploy/plugins/" + remote.getKey() + "/" + filename;
-        File toFile = new File(targetDir, filename);
-        server.download(url, toFile);
-        files.add(toFile);
+      for (RemotePluginFile file : remote.getFiles()) {
+        LOG.debug("Looking if plugin file {} with md5 {} is already in cache", file.getFilename(), file.getMd5());
+        File fileInCache = getSonarCache().getFileFromCache(file.getFilename(), file.getMd5());
+        if (fileInCache != null) {
+          LOG.debug("File is already cached at location {}", fileInCache.getAbsolutePath());
+        }
+        else {
+          LOG.debug("File is not cached");
+          File tmpDownloadFile = getSonarCache().getTemporaryFile();
+          String url = "/deploy/plugins/" + remote.getKey() + "/" + file.getFilename();
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Downloading {} to {}", url, tmpDownloadFile.getAbsolutePath());
+          }
+          else {
+            LOG.info("Downloading {}", file.getFilename());
+          }
+          server.download(url, tmpDownloadFile);
+          LOG.debug("Trying to cache file");
+          String md5 = getSonarCache().cacheFile(tmpDownloadFile, file.getFilename());
+          fileInCache = getSonarCache().getFileFromCache(file.getFilename(), md5);
+          if (!md5.equals(file.getMd5())) {
+            LOG.warn("INVALID CHECKSUM: File {} was expected to have checksum {} but was cached with checksum {}",
+                new String[] {fileInCache.getAbsolutePath(), file.getMd5(), md5});
+          }
+          LOG.debug("File cached at location {}", fileInCache.getAbsolutePath());
+        }
+        files.add(fileInCache);
       }
       return files;
 
