@@ -35,6 +35,8 @@ public abstract class PerspectiveBuilder<T extends Perspective> implements Batch
     return perspectiveClass;
   }
 
-  public abstract T build(ComponentWrapper<?> componentWrapper);
+  public abstract T load(ComponentWrapper<?> componentWrapper);
+
+  public abstract T create(ComponentWrapper<?> componentWrapper);
 
 }

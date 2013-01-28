@@ -62,7 +62,11 @@ public class PerspectiveBuilders implements ResourcePerspectives, BatchComponent
     P perspective = (P) perspectives.get(toClass);
     if (perspective == null) {
       ComponentWrapper componentWrapper = graph.wrap(component, ComponentWrapper.class);
-      perspective = builderFor(toClass).build(componentWrapper);
+      PerspectiveBuilder<P> perspectiveBuilder = builderFor(toClass);
+      perspective = perspectiveBuilder.load(componentWrapper);
+      if (perspective == null) {
+        perspective = perspectiveBuilder.create(componentWrapper);
+      }
       perspectives.put((Class) toClass, perspective);
     }
     return perspective;

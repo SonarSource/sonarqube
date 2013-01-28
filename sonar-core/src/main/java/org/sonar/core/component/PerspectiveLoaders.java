@@ -37,13 +37,13 @@ public class PerspectiveLoaders implements ServerComponent {
   }
 
   @CheckForNull
-  Perspective as(String componentKey, String perspectiveKey) {
+  public Perspective as(String componentKey, String perspectiveKey) {
     GraphDto graphDto = dao.selectByComponent(perspectiveKey, componentKey);
     return doAs(perspectiveKey, graphDto);
   }
 
   @CheckForNull
-  Perspective as(long snapshotId, String perspectiveKey) {
+  public Perspective as(long snapshotId, String perspectiveKey) {
     GraphDto graphDto = dao.selectBySnapshot(perspectiveKey, snapshotId);
     return doAs(perspectiveKey, graphDto);
   }

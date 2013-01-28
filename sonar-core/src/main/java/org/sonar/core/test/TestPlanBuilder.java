@@ -22,11 +22,9 @@ package org.sonar.core.test;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
 import org.sonar.api.test.MutableTestPlan;
-import org.sonar.api.test.TestPlan;
-import org.sonar.core.component.PerspectiveBuilder;
 import org.sonar.core.component.ComponentWrapper;
-
-import java.util.Iterator;
+import org.sonar.core.component.PerspectiveBuilder;
+import org.sonar.core.graph.GraphUtil;
 
 public class TestPlanBuilder extends PerspectiveBuilder<MutableTestPlan> {
 
@@ -35,11 +33,16 @@ public class TestPlanBuilder extends PerspectiveBuilder<MutableTestPlan> {
   }
 
   @Override
-  public MutableTestPlan build(ComponentWrapper<?> componentWrapper) {
-    Iterator<Vertex> plan = componentWrapper.element().getVertices(Direction.OUT, "testplan").iterator();
-    if (plan.hasNext()) {
-      return componentWrapper.graph().wrap(plan.next(), DefaultTestPlan.class);
+  public MutableTestPlan load(ComponentWrapper<?> componentWrapper) {
+    Vertex planVertex = GraphUtil.singleAdjacent(componentWrapper.element(), Direction.OUT, "testplan");
+    if (planVertex != null) {
+      return componentWrapper.graph().wrap(planVertex, DefaultTestPlan.class);
     }
+    return null;
+  }
+
+  @Override
+  public MutableTestPlan create(ComponentWrapper<?> componentWrapper) {
     return componentWrapper.graph().createVertex(componentWrapper, DefaultTestPlan.class, "testplan");
   }
 }

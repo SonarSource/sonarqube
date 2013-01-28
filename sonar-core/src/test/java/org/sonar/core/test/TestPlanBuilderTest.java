@@ -39,7 +39,7 @@ public class TestPlanBuilderTest {
     SourceFile file = MockSourceFile.createMain("org/codehaus/sonar/Main.java");
     ComponentWrapper fileWrapper = graph.createComponent(file);
 
-    MutableTestPlan plan = new TestPlanBuilder().build(fileWrapper);
+    MutableTestPlan plan = new TestPlanBuilder().create(fileWrapper);
     assertThat(plan).isNotNull();
     assertThat(plan.component().getKey()).isEqualTo(file.getKey());
     assertThat(plan.component().getQualifier()).isEqualTo(file.getQualifier());
@@ -53,7 +53,7 @@ public class TestPlanBuilderTest {
     SourceFile file = MockSourceFile.createMain("org/codehaus/sonar/Main.java");
     ComponentWrapper fileWrapper = graph.createComponent(file);
 
-    MutableTestPlan plan = new TestPlanBuilder().build(fileWrapper);
+    MutableTestPlan plan = new TestPlanBuilder().create(fileWrapper);
     MutableTestCase testCase = plan.addTestCase("should_pass");
     assertThat(testCase.key()).isEqualTo("should_pass");
     assertThat(testCase.name()).isNull();
@@ -69,7 +69,7 @@ public class TestPlanBuilderTest {
     Vertex componentVertex = graph.getVertex("33");
     ComponentGraph componentGraph = new ComponentGraph(graph, componentVertex);
 
-    MutableTestPlan testPlan = new TestPlanBuilder().build(componentGraph.wrap(componentVertex, ComponentWrapper.class));
+    MutableTestPlan testPlan = new TestPlanBuilder().load(componentGraph.wrap(componentVertex, ComponentWrapper.class));
     assertThat(testPlan.testCases()).hasSize(4);
   }
 
