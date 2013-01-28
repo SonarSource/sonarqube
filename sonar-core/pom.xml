@@ -66,17 +66,10 @@
       <artifactId>json-simple</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.tinkerpop.blueprints</groupId>
-      <artifactId>blueprints-core</artifactId>
+      <!-- version compiled for java 5 -->
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-blueprints-core</artifactId>
       <version>2.2.0-java5</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/lib/blueprints-core-2.2.0-java5.jar</systemPath>
-    </dependency>
-    <dependency>
-      <!-- Temporary dependency as long as blueprints-core is system scope -->
-      <groupId>colt</groupId>
-      <artifactId>colt</artifactId>
-      <version>1.2.0</version>
     </dependency>
 
     <!-- logging -->
@@ -157,29 +150,6 @@
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.sonatype.plugins</groupId>
-        <artifactId>jarjar-maven-plugin</artifactId>
-        <version>1.7</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>jarjar</goal>
-            </goals>
-            <configuration>
-              <includes>
-                <include>com.tinkerpop.blueprints:blueprints-core</include>
-              </includes>
-              <rules>
-                <keep>
-                  <pattern>*.**</pattern>
-                </keep>
-              </rules>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
