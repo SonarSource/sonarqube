@@ -22,7 +22,6 @@ package org.sonar.core.graph;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
-import com.tinkerpop.gremlin.java.GremlinPipeline;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -62,22 +61,5 @@ public class GraphUtilTest {
     graph.addEdge(null, a, c, "likes");
 
     GraphUtil.singleAdjacent(a, Direction.OUT, "likes", "hates");
-  }
-
-  @Test
-  public void subGraph() {
-    TinkerGraph graph = new TinkerGraph();
-    Vertex a = graph.addVertex("1");
-    Vertex b = graph.addVertex("2");
-    Vertex c = graph.addVertex("3");
-    graph.addEdge("4", a, b, "likes");
-    graph.addEdge("5", b, c, "has");
-
-    TinkerGraph subGraph = new TinkerGraph();
-    GremlinPipeline pipeline = new GremlinPipeline(a).outE("likes").inV().path();
-    GraphUtil.subGraph(pipeline, subGraph);
-
-    assertThat(subGraph.getVertices()).hasSize(2);
-    assertThat(subGraph.getEdges()).hasSize(1);
   }
 }

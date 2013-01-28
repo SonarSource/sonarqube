@@ -642,35 +642,6 @@
         <version>3.2</version>
       </dependency>
       <dependency>
-        <groupId>com.tinkerpop.blueprints</groupId>
-        <artifactId>blueprints-core</artifactId>
-        <!--
-        Do not upgrade because of compatibility with Java 5.
-        See https://github.com/tinkerpop/blueprints/pull/352
-         -->
-        <version>2.0.0</version>
-        <exclusions>
-          <!-- we use our own GraphSON implementation based on json-simple -->
-          <exclusion>
-            <groupId>org.codehaus.jettison</groupId>
-            <artifactId>jettison</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-jaxrs</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <!--
-        Do not upgrade because of compatibility with Java 5.
-        See https://github.com/tinkerpop/pipes/pull/74
-         -->
-        <groupId>com.tinkerpop.gremlin</groupId>
-        <artifactId>gremlin-java</artifactId>
-        <version>2.0.0</version>
-      </dependency>
-      <dependency>
         <groupId>org.codehaus.plexus</groupId>
         <artifactId>plexus-classworlds</artifactId>
         <version>2.2.3</version>

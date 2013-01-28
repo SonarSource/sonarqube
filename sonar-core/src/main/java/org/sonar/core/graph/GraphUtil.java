@@ -20,21 +20,14 @@
 package org.sonar.core.graph;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 import com.tinkerpop.blueprints.Direction;
-import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Element;
 import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
-import com.tinkerpop.blueprints.util.ElementHelper;
-import com.tinkerpop.gremlin.java.GremlinPipeline;
-import org.hibernate.engine.JoinSequence;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.Iterator;
-import java.util.List;
 
 public class GraphUtil {
 
@@ -79,24 +72,4 @@ public class GraphUtil {
     }
   }
 
-  public static void subGraph(GremlinPipeline path, TinkerGraph toGraph) {
-    List<Edge> edges = Lists.newArrayList();
-    if (path.hasNext()) {
-      for (Object element : (Iterable) path.next()) {
-        if (element instanceof Vertex) {
-          Vertex v = (Vertex) element;
-          Vertex toVertex = toGraph.addVertex(v.getId());
-          ElementHelper.copyProperties(v, toVertex);
-        } else if (element instanceof Edge) {
-          edges.add((Edge) element);
-        }
-      }
-      for (Edge edge : edges) {
-        Vertex from = edge.getVertex(Direction.IN);
-        Vertex to = edge.getVertex(Direction.OUT);
-        Edge copyEdge = toGraph.addEdge(edge.getId(), toGraph.getVertex(from.getId()), toGraph.getVertex(to.getId()), edge.getLabel());
-        ElementHelper.copyProperties(edge, copyEdge);
-      }
-    }
-  }
 }
