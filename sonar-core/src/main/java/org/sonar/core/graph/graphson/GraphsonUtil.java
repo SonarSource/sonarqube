@@ -102,7 +102,7 @@ class GraphsonUtil {
   }
 
   /**
-   * Creates a Jettison JSONObject from a graph element.
+   * Creates a JSONObject from a graph element.
    *
    * @param element      the graph element to convert to JSON.
    * @param propertyKeys The property keys at the root of the element to serialize.  If null, then all keys are serialized.
@@ -115,22 +115,9 @@ class GraphsonUtil {
   }
 
   /**
-   * Creates a Jackson ObjectNode from a graph element.
-   *
-   * @param element      the graph element to convert to JSON.
-   * @param propertyKeys The property keys at the root of the element to serialize.  If null, then all keys are serialized.
-   * @param mode         The type of GraphSON to generate.
-   */
-  static JSONObject objectNodeFromElement(Element element, Set<String> propertyKeys, GraphsonMode mode) {
-    GraphsonUtil graphson = element instanceof Edge ? new GraphsonUtil(mode, null, null, propertyKeys)
-      : new GraphsonUtil(mode, null, propertyKeys, null);
-    return graphson.objectNodeFromElement(element);
-  }
-
-  /**
    * Reads an individual Vertex from JSON.  The vertex must match the accepted GraphSON format.
    *
-   * @param json         a single vertex in GraphSON format as Jettison JSONObject
+   * @param json         a single vertex in GraphSON format as JSONObject
    * @param factory      the factory responsible for constructing graph elements
    * @param mode         the mode of the GraphSON
    * @param propertyKeys a list of keys to include on reading of element properties
@@ -233,7 +220,7 @@ class GraphsonUtil {
   /**
    * Reads an individual Edge from JSON.  The edge must match the accepted GraphSON format.
    *
-   * @param json         a single edge in GraphSON format as a Jackson JsonNode
+   * @param json         a single edge in GraphSON format as a JSONObject
    * @param factory      the factory responsible for constructing graph elements
    * @param mode         the mode of the GraphSON
    * @param propertyKeys a list of keys to include when reading of element properties
@@ -269,7 +256,7 @@ class GraphsonUtil {
     JSONArray jsonList = new JSONArray();
     for (Object item : list) {
       if (item instanceof Element) {
-        jsonList.add(objectNodeFromElement((Element) item, propertyKeys,
+        jsonList.add(jsonFromElement((Element) item, propertyKeys,
           showTypes ? GraphsonMode.EXTENDED : GraphsonMode.NORMAL));
       } else if (item instanceof List) {
         jsonList.add(createJSONList((List) item, propertyKeys, showTypes));
@@ -295,7 +282,7 @@ class GraphsonUtil {
         } else if (value instanceof Map) {
           value = createJSONMap((Map) value, propertyKeys, showTypes);
         } else if (value instanceof Element) {
-          value = objectNodeFromElement((Element) value, propertyKeys,
+          value = jsonFromElement((Element) value, propertyKeys,
             showTypes ? GraphsonMode.EXTENDED : GraphsonMode.NORMAL);
         } else if (value.getClass().isArray()) {
           value = createJSONList(convertArrayToList(value), propertyKeys, showTypes);
@@ -591,7 +578,6 @@ class GraphsonUtil {
   Edge edgeFromJson(JSONObject json, Vertex out, Vertex in) throws IOException {
     Map<String, Object> props = GraphsonUtil.readProperties(json, true, this.hasEmbeddedTypes);
 
-//    Object edgeId = getTypedValueFromJsonNode(json.get(GraphsonTokens._ID));
     Object edgeId = json.get(GraphsonTokens._ID);
 
     Object nodeLabel = json.get(GraphsonTokens._LABEL);
@@ -600,7 +586,6 @@ class GraphsonUtil {
     Edge e = factory.createEdge(edgeId, out, in, label);
 
     for (Map.Entry<String, Object> entry : props.entrySet()) {
-      // if (this.edgePropertyKeys == null || this.edgePropertyKeys.contains(entry.getKey())) {
       if (includeKey(entry.getKey(), edgePropertyKeys, this.edgePropertiesRule)) {
         e.setProperty(entry.getKey(), entry.getValue());
       }
@@ -622,12 +607,10 @@ class GraphsonUtil {
   Vertex vertexFromJson(JSONObject json) {
     Map<String, Object> props = readProperties(json, true, this.hasEmbeddedTypes);
 
-    //Object vertexId = getTypedValueFromJsonNode((JSONObject)json.get(GraphsonTokens._ID));
     Object vertexId = json.get(GraphsonTokens._ID);
     Vertex v = factory.createVertex(vertexId);
 
     for (Map.Entry<String, Object> entry : props.entrySet()) {
-      //if (this.vertexPropertyKeys == null || vertexPropertyKeys.contains(entry.getKey())) {
       if (includeKey(entry.getKey(), vertexPropertyKeys, this.vertexPropertiesRule)) {
         v.setProperty(entry.getKey(), entry.getValue());
       }
@@ -640,14 +623,6 @@ class GraphsonUtil {
    * Creates GraphSON for a single graph element.
    */
   JSONObject jsonFromElement(Element element) {
-    JSONObject objectNode = this.objectNodeFromElement(element);
-    return objectNode;
-  }
-
-  /**
-   * Creates GraphSON for a single graph element.
-   */
-  org.json.simple.JSONObject objectNodeFromElement(Element element) {
     boolean isEdge = element instanceof Edge;
     boolean showTypes = mode == GraphsonMode.EXTENDED;
     Set<String> propertyKeys = isEdge ? this.edgePropertyKeys : this.vertexPropertyKeys;

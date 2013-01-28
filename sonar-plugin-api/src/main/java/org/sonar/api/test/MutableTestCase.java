@@ -27,4 +27,8 @@ public interface MutableTestCase extends TestCase {
   MutableTestCase setDurationInMs(@Nullable Long l);
 
   MutableTestCase setName(String s);
+
+  MutableTestCase setMessage(String s);
+
+  MutableTestCase setStackTrace(String s);
 }

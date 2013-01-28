@@ -45,7 +45,7 @@ public class DefaultTestCase extends ElementWrapper<Vertex> implements MutableTe
 
   public MutableTestCase setDurationInMs(@Nullable Long l) {
     Preconditions.checkArgument(l==null || l >=0, String.format("Duration must be positive (got %d)", l));
-    element().removeProperty("duration");
+    element().setProperty("duration", l);
     return this;
   }
 
@@ -76,6 +76,24 @@ public class DefaultTestCase extends ElementWrapper<Vertex> implements MutableTe
 
   public MutableTestCase setName(String s) {
     element().setProperty("name", s);
+    return this;
+  }
+
+  public String message() {
+    return (String) element().getProperty("message");
+  }
+
+  public MutableTestCase setMessage(String s) {
+    element().setProperty("message", s);
+    return this;
+  }
+
+  public String stackTrace() {
+    return (String) element().getProperty("stackTrace");
+  }
+
+  public MutableTestCase setStackTrace(String s) {
+    element().setProperty("stackTrace", s);
     return this;
   }
 

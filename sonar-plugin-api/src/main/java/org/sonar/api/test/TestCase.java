@@ -46,6 +46,10 @@ public interface TestCase {
 
   String name();
 
+  String message();
+
+  String stackTrace();
+
   TestPlan testPlan();
 
   Collection<CoveredTestable> coveredBlocks();

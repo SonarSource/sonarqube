@@ -19,21 +19,29 @@
  */
 package org.sonar.core.component;
 
+import com.google.common.collect.Maps;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.component.Perspective;
+import org.sonar.api.test.MutableTestPlan;
+import org.sonar.api.test.MutableTestable;
 import org.sonar.core.graph.GraphDao;
 import org.sonar.core.graph.GraphDto;
-import org.sonar.core.test.DefaultTestPlan;
-import org.sonar.core.test.DefaultTestable;
 
 import javax.annotation.CheckForNull;
+
+import java.util.Map;
 
 public class PerspectiveLoaders implements ServerComponent {
 
   private final GraphDao dao;
+  private Map<Class<?>, PerspectiveBuilder<?>> builders = Maps.newHashMap();
 
-  public PerspectiveLoaders(GraphDao dao) {
+  public PerspectiveLoaders(GraphDao dao, PerspectiveBuilder[] builders) {
     this.dao = dao;
+    for (PerspectiveBuilder builder : builders) {
+      // TODO check duplications
+      this.builders.put(builder.getPerspectiveClass(), builder);
+    }
   }
 
   @CheckForNull
@@ -52,10 +60,11 @@ public class PerspectiveLoaders implements ServerComponent {
     Perspective result = null;
     if (graphDto != null) {
       ComponentGraph graph = new GraphReader().read(graphDto.getData(), graphDto.getRootVertexId());
+      ComponentWrapper componentWrapper = graph.wrap(graph.getRootVertex(), ComponentWrapper.class);
       if (perspectiveKey.equals("testplan")) {
-        result = graph.wrap(graph.getRootVertex(), DefaultTestPlan.class);
+        result = builders.get(MutableTestPlan.class).load(componentWrapper);
       } else if (perspectiveKey.equals("testable")) {
-        result = graph.wrap(graph.getRootVertex(), DefaultTestable.class);
+        result = builders.get(MutableTestable.class).load(componentWrapper);
       }
     }
     return result;

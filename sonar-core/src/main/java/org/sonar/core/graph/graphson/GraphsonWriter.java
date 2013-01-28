@@ -59,13 +59,13 @@ public class GraphsonWriter {
 
       JSONArray verticesArray = new JSONArray();
       for (Vertex v : graph.getVertices()) {
-        verticesArray.add(graphson.objectNodeFromElement(v));
+        verticesArray.add(graphson.jsonFromElement(v));
       }
       root.put(GraphsonTokens.VERTICES, verticesArray);
 
       JSONArray edgesArray = new JSONArray();
       for (Edge e : graph.getEdges()) {
-        edgesArray.add(graphson.objectNodeFromElement(e));
+        edgesArray.add(graphson.jsonFromElement(e));
       }
       root.put(GraphsonTokens.EDGES, edgesArray);
 
