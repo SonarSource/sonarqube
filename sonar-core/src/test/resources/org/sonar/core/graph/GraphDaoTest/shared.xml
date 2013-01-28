@@ -1,8 +1,8 @@
 <dataset>
-  <projects id="1" kee="org.apache.struts:struts" enabled="true"/>
+  <projects id="1" kee="org.apache.struts:struts" enabled="[true]"/>
 
-  <snapshots id="10" project_id="1" islast="false" />
-  <snapshots id="11" project_id="1" islast="true" />
+  <snapshots id="10" project_id="1" islast="[false]" />
+  <snapshots id="11" project_id="1" islast="[true]" />
 
   <graphs id="100" snapshot_id="11" format="graphson" version="1" perspective="testable" root_vertex_id="7890" data="{testable of snapshot 123}"/>
   <graphs id="101" snapshot_id="11" format="graphson" version="1" perspective="testplan" root_vertex_id="3456" data="{testplan of snapshot 123}"/>
