@@ -37,25 +37,25 @@ public class PerspectiveLoaders implements ServerComponent {
   }
 
   @CheckForNull
-  <T extends Perspective> T as(String componentKey, String perspectiveKey) {
+  Perspective as(String componentKey, String perspectiveKey) {
     GraphDto graphDto = dao.selectByComponent(perspectiveKey, componentKey);
     return doAs(perspectiveKey, graphDto);
   }
 
   @CheckForNull
-  <T extends Perspective> T as(long snapshotId, String perspectiveKey) {
+  Perspective as(long snapshotId, String perspectiveKey) {
     GraphDto graphDto = dao.selectBySnapshot(perspectiveKey, snapshotId);
     return doAs(perspectiveKey, graphDto);
   }
 
-  private <T extends Perspective> T doAs(String perspectiveKey, GraphDto graphDto) {
-    T result = null;
+  private Perspective doAs(String perspectiveKey, GraphDto graphDto) {
+    Perspective result = null;
     if (graphDto != null) {
       ComponentGraph graph = new GraphReader().read(graphDto.getData(), graphDto.getRootVertexId());
       if (perspectiveKey.equals("testplan")) {
-        result = (T) graph.wrap(graph.getRootVertex(), DefaultTestPlan.class);
+        result = graph.wrap(graph.getRootVertex(), DefaultTestPlan.class);
       } else if (perspectiveKey.equals("testable")) {
-        result = (T) graph.wrap(graph.getRootVertex(), DefaultTestable.class);
+        result = graph.wrap(graph.getRootVertex(), DefaultTestable.class);
       }
     }
     return result;
