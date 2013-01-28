@@ -20,6 +20,7 @@
 package org.sonar.core.plugins;
 
 import com.google.common.collect.Lists;
+import com.google.common.io.Closeables;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -86,11 +87,14 @@ public class RemotePlugin {
 
   public RemotePlugin addFile(File f) {
     String md5;
+    FileInputStream fis = null;
     try {
-      FileInputStream fis = new FileInputStream(f);
+      fis = new FileInputStream(f);
       md5 = DigestUtils.md5Hex(fis);
     } catch (Exception e) {
       md5 = null;
+    } finally {
+      Closeables.closeQuietly(fis);
     }
     return this.addFile(f.getName(), md5);
   }

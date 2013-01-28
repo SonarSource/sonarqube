@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.cache;
 
+import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
@@ -107,8 +108,14 @@ public class SonarCache {
         tmpFileName = sourceFile;
       }
       // Now compute the md5 to find the final destination
-      FileInputStream fis = new FileInputStream(tmpFileName);
-      String md5 = DigestUtils.md5Hex(fis);
+      String md5;
+      FileInputStream fis = null;
+      try {
+        fis = new FileInputStream(tmpFileName);
+        md5 = DigestUtils.md5Hex(fis);
+      } finally {
+        Closeables.closeQuietly(fis);
+      }
       File finalDir = new File(cacheLocation, md5);
       File finalFileName = new File(finalDir, filename);
       // Try to create final destination folder
