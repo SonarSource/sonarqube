@@ -20,6 +20,7 @@
 package org.sonar.core.test;
 
 import com.tinkerpop.blueprints.Direction;
+import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import org.sonar.api.component.Component;
 import org.sonar.api.test.MutableTestable;
@@ -30,6 +31,8 @@ import org.sonar.core.graph.GraphUtil;
 
 import java.util.List;
 import java.util.SortedSet;
+
+import static com.google.common.collect.Sets.newTreeSet;
 
 public class DefaultTestable extends BeanVertex implements MutableTestable {
 
@@ -47,8 +50,12 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
   }
 
   public SortedSet<Integer> coveredLines() {
-    return null;
+    SortedSet<Integer> coveredLines = newTreeSet();
+    for (Edge edge : element().getEdges(Direction.IN, "covers")){
+      List<Integer> lines = (List<Integer>) edge.getProperty("lines");
+      coveredLines.addAll(lines);
+    }
+    return coveredLines;
   }
-
 
 }

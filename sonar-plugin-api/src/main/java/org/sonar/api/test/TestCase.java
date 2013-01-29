@@ -52,9 +52,9 @@ public interface TestCase {
 
   TestPlan testPlan();
 
-  boolean hasCoveredBlocks();
+  boolean hasCoveredLines();
 
-  int countCoveredBlocks();
+  int countCoveredLines();
 
-  Collection<CoveredTestable> coveredBlocks();
+  Collection<CoveredTestable> coveredTestable();
 }

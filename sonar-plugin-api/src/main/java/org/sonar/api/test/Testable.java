@@ -25,8 +25,11 @@ import java.util.List;
 import java.util.SortedSet;
 
 public interface Testable extends Perspective {
+
   List<TestCase> coveringTestCases();
 
   List<TestCase> testCasesCoveringLine(int line);
+
+  SortedSet<Integer> coveredLines();
 
 }

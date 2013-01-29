@@ -116,20 +116,20 @@ public class DefaultTestCase extends BeanVertex implements MutableTestCase {
     return beanGraph().wrap(plan, DefaultTestPlan.class);
   }
 
-  public boolean hasCoveredBlocks(){
+  public boolean hasCoveredLines(){
     return Iterables.size(element().getEdges(Direction.OUT, "covers")) > 0;
   }
 
-  public int countCoveredBlocks() {
+  public int countCoveredLines() {
     int coveredBlocks = 0;
     for (Edge edge : element().getEdges(Direction.OUT, "covers")){
-      List<String> lines = (List<String>) edge.getProperty("lines");
+      List<Integer> lines = (List<Integer>) edge.getProperty("lines");
       coveredBlocks = coveredBlocks + lines.size();
     }
     return coveredBlocks;
   }
 
-  public Collection<CoveredTestable> coveredBlocks() {
+  public Collection<CoveredTestable> coveredTestable() {
     return null;
   }
 }

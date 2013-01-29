@@ -59,8 +59,8 @@
          test_case[:name] = test.name()
          test_case[:status] = test.status()
          test_case[:time] = test.durationInMs()
-         has_covered_lines = test.hasCoveredBlocks()
-         test_case[:covered_lines] = test.countCoveredBlocks() if test.hasCoveredBlocks()
+         has_covered_lines = test.hasCoveredLines()
+         test_case[:covered_lines] = test.countCoveredLines() if has_covered_lines
          if test.status() != 'ok'
            test_case[:message] = ''
            test_case[:message] = test.message() if test.message()
@@ -70,6 +70,7 @@
        end
      end
    end
+   test_cases = test_cases.sort_by {|test_case| test_case[:name]}
 %>
 <% if !test_cases.empty? %>
   <table class="data width100 tests_viewer" id="test_data">
