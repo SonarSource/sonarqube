@@ -27,6 +27,8 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 
+import javax.annotation.Nullable;
+
 import java.util.List;
 import java.util.Map;
 
@@ -49,6 +51,25 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
     PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
     try {
       return mapper.findUserIdsForFavouriteResource(resourceId);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  /**
+   * Returns the logins of users who have subscribed to the given notification dispatcher with the given notification channel.
+   * If a resource ID is passed, the search is made on users who have specifically subscribed for the given resource.
+   *
+   * @param notificationDispatcherKey the key of the notification dispatcher
+   * @param notificationChannelKey the key of the notification channel
+   * @param resourceId the resource id
+   * @return the list of logins (maybe be empty - obviously)
+   */
+  public List<String> findUsersForNotification(String notificationDispatcherKey, String notificationChannelKey, @Nullable Long resourceId) {
+    SqlSession session = mybatis.openSession();
+    PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
+    try {
+      return mapper.findUsersForNotification("notification." + notificationDispatcherKey + "." + notificationChannelKey, resourceId);
     } finally {
       MyBatis.closeQuietly(session);
     }

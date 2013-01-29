@@ -1,0 +1,43 @@
+<dataset>
+
+  <properties
+    id="1"
+    prop_key="notification.NewViolations.Email"
+    text_value="true"
+    resource_id="45"
+    user_id="2"/>
+
+  <properties
+    id="2"
+    prop_key="notification.NewViolations.Twitter"
+    text_value="true"
+    resource_id="[null]"
+    user_id="3"/>
+
+  <properties
+    id="3"
+    prop_key="notification.NewViolations.Twitter"
+    text_value="true"
+    resource_id="56"
+    user_id="1"/>
+
+  <properties
+    id="4"
+    prop_key="notification.NewViolations.Twitter"
+    text_value="true"
+    resource_id="56"
+    user_id="3"/>
+    
+  <users
+    id="1"
+    login="user1"/>
+    
+  <users
+    id="2"
+    login="user2"/>
+    
+  <users
+    id="3"
+    login="user3"/>
+
+</dataset>

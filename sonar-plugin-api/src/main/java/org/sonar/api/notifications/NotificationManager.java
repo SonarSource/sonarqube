@@ -19,8 +19,11 @@
  */
 package org.sonar.api.notifications;
 
+import com.google.common.collect.SetMultimap;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
+
+import javax.annotation.Nullable;
 
 /**
  * <p>
@@ -41,5 +44,20 @@ public interface NotificationManager extends ServerComponent, BatchComponent {
    * @param notification the notification.
    */
   void scheduleForSending(Notification notification);
+
+  /**
+   * <p>
+   * Returns the list of users who subscribed to the given dispatcher, along with the notification channels (email, twitter, ...) that they choose 
+   * for this dispatcher.
+   * </p>
+   * <p>
+   * The resource ID can be null in case of notifications that have nothing to do with a specific project (like system notifications).
+   * </p>
+   * 
+   * @param dispatcher the dispatcher for which this list of users is requested
+   * @param resourceId the optional resource which is concerned by this request
+   * @return the list of user login along with the subscribed channels
+   */
+  SetMultimap<String, NotificationChannel> findSubscribedRecipientsForDispatcher(NotificationDispatcher dispatcher, @Nullable Integer resourceId);
 
 }

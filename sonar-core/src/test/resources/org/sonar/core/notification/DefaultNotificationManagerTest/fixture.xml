@@ -1,8 +1,0 @@
-<dataset>
-
-  <users id="1" login="simon" />
-  <users id="2" login="godin" />
-
-  <properties id="1" user_id="1" prop_key="notification.CommentOnReviewAssignedToMe.email" text_value="true" resource_id="[null]"/>
-
-</dataset>

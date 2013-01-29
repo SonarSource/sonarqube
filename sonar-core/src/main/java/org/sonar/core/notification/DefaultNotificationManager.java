@@ -19,13 +19,17 @@
  */
 package org.sonar.core.notification;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.database.configuration.Property;
-import org.sonar.api.database.model.User;
 import org.sonar.api.notifications.Notification;
+import org.sonar.api.notifications.NotificationChannel;
+import org.sonar.api.notifications.NotificationDispatcher;
 import org.sonar.api.notifications.NotificationManager;
+import org.sonar.core.properties.PropertiesDao;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -34,12 +38,36 @@ import java.util.List;
  */
 public class DefaultNotificationManager implements NotificationManager {
 
+  private NotificationChannel[] notificationChannels;
   private DatabaseSessionFactory sessionFactory;
+  private PropertiesDao propertiesDao;
 
-  public DefaultNotificationManager(DatabaseSessionFactory sessionFactory) {
+  /**
+   * Default constructor used by Pico
+   */
+  public DefaultNotificationManager(NotificationChannel[] channels, DatabaseSessionFactory sessionFactory, PropertiesDao propertiesDao) {
+    this.notificationChannels = channels;
     this.sessionFactory = sessionFactory;
+    this.propertiesDao = propertiesDao;
   }
 
+  /**
+   * Constructor if no notification channel
+   */
+  public DefaultNotificationManager(DatabaseSessionFactory sessionFactory, PropertiesDao propertiesDao) {
+    this(new NotificationChannel[0], sessionFactory, propertiesDao);
+  }
+
+  /**
+   * Returns all the available notification channels
+   */
+  public List<NotificationChannel> getChannels() {
+    return Arrays.asList(notificationChannels);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   public void scheduleForSending(Notification notification) {
     NotificationQueueElement notificationQueueElement = new NotificationQueueElement();
     notificationQueueElement.setCreatedAt(new Date());
@@ -49,6 +77,9 @@ public class DefaultNotificationManager implements NotificationManager {
     session.commit();
   }
 
+  /**
+   * Give the notification queue so that it can be processed
+   */
   public NotificationQueueElement getFromQueue() {
     DatabaseSession session = sessionFactory.getSession();
     String hql = "FROM " + NotificationQueueElement.class.getSimpleName() + " ORDER BY createdAt ASC";
@@ -68,12 +99,32 @@ public class DefaultNotificationManager implements NotificationManager {
 
   }
 
-  public boolean isEnabled(String username, String channelKey, String dispatcherKey) {
-    DatabaseSession session = sessionFactory.getSession();
-    User user = session.getSingleResult(User.class, "login", username);
-    String notificationKey = "notification." + dispatcherKey + "." + channelKey;
-    Property property = session.getSingleResult(Property.class, "userId", user.getId(), "key", notificationKey);
-    return property != null && "true".equals(property.getValue());
+  /**
+   * {@inheritDoc}
+   */
+  public SetMultimap<String, NotificationChannel> findSubscribedRecipientsForDispatcher(NotificationDispatcher dispatcher, Integer resourceId) {
+    String dispatcherKey = dispatcher.getKey();
+
+    SetMultimap<String, NotificationChannel> recipients = HashMultimap.create();
+    for (NotificationChannel channel : notificationChannels) {
+      String channelKey = channel.getKey();
+
+      // Find users subscribed globally to the dispatcher (i.e. not on a specific project)
+      addUsersToRecipientListForChannel(propertiesDao.findUsersForNotification(dispatcherKey, channelKey, null), recipients, channel);
+
+      if (resourceId != null) {
+        // Find users subscribed to the dispatcher specifically for the resource
+        addUsersToRecipientListForChannel(propertiesDao.findUsersForNotification(dispatcherKey, channelKey, resourceId.longValue()), recipients, channel);
+      }
+    }
+
+    return recipients;
+  }
+
+  private void addUsersToRecipientListForChannel(List<String> users, SetMultimap<String, NotificationChannel> recipients, NotificationChannel channel) {
+    for (String username : users) {
+      recipients.put(username, channel);
+    }
   }
 
 }

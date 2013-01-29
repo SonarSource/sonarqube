@@ -28,6 +28,7 @@ import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.List;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -50,6 +51,32 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
     List<String> userIds = dao.findUserIdsForFavouriteResource(2L);
     assertThat(userIds.size(), is(2));
     assertThat(userIds, hasItems("user3", "user4"));
+  }
+
+  @Test
+  public void shouldFindUsersForNotification() {
+    setupData("shouldFindUsersForNotification");
+
+    List<String> users = dao.findUsersForNotification("NewViolations", "Email", null);
+    assertThat(users).hasSize(0);
+
+    users = dao.findUsersForNotification("NewViolations", "Email", 78L);
+    assertThat(users).hasSize(0);
+
+    users = dao.findUsersForNotification("NewViolations", "Email", 45L);
+    assertThat(users).hasSize(1);
+    assertThat(users).containsOnly("user2");
+
+    users = dao.findUsersForNotification("NewViolations", "Twitter", null);
+    assertThat(users).hasSize(1);
+    assertThat(users).containsOnly("user3");
+
+    users = dao.findUsersForNotification("NewViolations", "Twitter", 78L);
+    assertThat(users).hasSize(0);
+
+    users = dao.findUsersForNotification("NewViolations", "Twitter", 56L);
+    assertThat(users).hasSize(2);
+    assertThat(users).containsOnly("user1", "user3");
   }
 
   @Test

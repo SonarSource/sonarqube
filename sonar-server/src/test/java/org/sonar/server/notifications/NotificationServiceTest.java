@@ -19,6 +19,7 @@
  */
 package org.sonar.server.notifications;
 
+import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -62,6 +63,7 @@ public class NotificationServiceTest {
     when(commentOnReviewCreatedByMe.getKey()).thenReturn("comment on review created by me");
     when(queueElement.getNotification()).thenReturn(notification);
     when(manager.getFromQueue()).thenReturn(queueElement).thenReturn(null);
+    when(manager.getChannels()).thenReturn(Lists.newArrayList(emailChannel, gtalkChannel));
 
     Settings settings = new Settings().setProperty("sonar.notifications.delay", 1L);
 
@@ -178,13 +180,18 @@ public class NotificationServiceTest {
 
   @Test
   public void shouldReturnDispatcherAndChannelListsUsedInWebapp() {
-    Settings settings = new Settings().setProperty("sonar.notifications.delay", 1L);
-    NotificationService service = new NotificationService(settings, manager,
-        new NotificationDispatcher[] {commentOnReviewAssignedToMe, commentOnReviewCreatedByMe},
-        new NotificationChannel[] {emailChannel, gtalkChannel});
+    setUpMocks(CREATOR_SIMON, ASSIGNEE_SIMON);
 
     assertThat(service.getChannels()).containsOnly(emailChannel, gtalkChannel);
     assertThat(service.getDispatchers()).containsOnly(commentOnReviewAssignedToMe, commentOnReviewCreatedByMe);
+  }
+
+  @Test
+  public void shouldReturnNoDispatcher() {
+    Settings settings = new Settings().setProperty("sonar.notifications.delay", 1L);
+
+    service = new NotificationService(settings, manager);
+    assertThat(service.getDispatchers()).hasSize(0);
   }
 
   private static Answer<Object> addUser(final String user, final NotificationChannel channel) {

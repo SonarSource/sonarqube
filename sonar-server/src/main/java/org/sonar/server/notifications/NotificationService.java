@@ -65,7 +65,6 @@ public class NotificationService implements ServerComponent {
   private final long delayInSeconds;
   private final DefaultNotificationManager manager;
   private final NotificationDispatcher[] dispatchers;
-  private final NotificationChannel[] channels;
 
   private ScheduledExecutorService executorService;
   private boolean stopping = false;
@@ -73,19 +72,18 @@ public class NotificationService implements ServerComponent {
   /**
    * Constructor for {@link NotificationService} 
    */
-  public NotificationService(Settings settings, DefaultNotificationManager manager, NotificationDispatcher[] dispatchers, NotificationChannel[] channels) {
+  public NotificationService(Settings settings, DefaultNotificationManager manager, NotificationDispatcher[] dispatchers) {
     delayInSeconds = settings.getLong(PROPERTY_DELAY);
     this.manager = manager;
-    this.channels = channels;
     this.dispatchers = dispatchers;
   }
 
   /**
    * Default constructor when no channels.
    */
-  public NotificationService(Settings settings, DefaultNotificationManager manager, NotificationDispatcher[] dispatchers) {
-    this(settings, manager, dispatchers, new NotificationChannel[0]);
-    LOG.warn("There is no channels - all notifications will be ignored!");
+  public NotificationService(Settings settings, DefaultNotificationManager manager) {
+    this(settings, manager, new NotificationDispatcher[0]);
+    LOG.warn("There is no dispatcher - all notifications will be ignored!");
   }
 
   public void start() {
@@ -171,7 +169,7 @@ public class NotificationService implements ServerComponent {
   }
 
   public List<NotificationChannel> getChannels() {
-    return Arrays.asList(channels);
+    return manager.getChannels();
   }
 
 }

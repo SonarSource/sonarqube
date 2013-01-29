@@ -9,6 +9,18 @@
     WHERE P.prop_key = 'favourite' AND P.resource_id = #{id} AND P.user_id = U.id
   </select>
 
+  <select id="findUsersForNotification" parameterType="map" resultType="String">
+    SELECT U.login
+    FROM properties P, users U
+    WHERE P.user_id = U.id AND P.prop_key = #{notifKey} AND P.text_value = 'true'
+    <if test="rId == null">
+      AND p.resource_id is null
+    </if>
+    <if test="rId != null">
+      AND p.resource_id = #{rId}
+    </if>
+  </select>
+
   <select id="selectGlobalProperties" resultType="Property">
     select p.id as id, p.prop_key as "key", p.text_value as value, p.resource_id as resourceId, p.user_id as userId
     from properties p

@@ -21,18 +21,31 @@ package org.sonar.core.properties;
 
 import org.apache.ibatis.annotations.Param;
 
+import javax.annotation.Nullable;
+
 import java.util.List;
 
 public interface PropertiesMapper {
 
   List<String> findUserIdsForFavouriteResource(Long resourceId);
+
+  List<String> findUsersForNotification(@Param("notifKey") String notificationKey, @Nullable @Param("rId") Long resourceId);
+
   List<PropertyDto> selectGlobalProperties();
+
   List<PropertyDto> selectProjectProperties(String resourceKey);
+
   List<PropertyDto> selectSetOfResourceProperties(@Param("rId") Long projectId, @Param("propKeys") List<String> propertyKeys);
+
   PropertyDto selectByKey(PropertyDto key);
+
   void update(PropertyDto property);
+
   void insert(PropertyDto property);
+
   void deleteGlobalProperty(String key);
+
   void deleteGlobalProperties();
+
   void renamePropertyKey(@Param("oldKey") String oldKey, @Param("newKey") String newKey);
 }
