@@ -19,7 +19,7 @@
  */
 package org.sonar.api.notifications;
 
-import com.google.common.collect.SetMultimap;
+import com.google.common.collect.Multimap;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 
@@ -58,6 +58,6 @@ public interface NotificationManager extends ServerComponent, BatchComponent {
    * @param resourceId the optional resource which is concerned by this request
    * @return the list of user login along with the subscribed channels
    */
-  SetMultimap<String, NotificationChannel> findSubscribedRecipientsForDispatcher(NotificationDispatcher dispatcher, @Nullable Integer resourceId);
+  Multimap<String, NotificationChannel> findSubscribedRecipientsForDispatcher(NotificationDispatcher dispatcher, @Nullable Integer resourceId);
 
 }

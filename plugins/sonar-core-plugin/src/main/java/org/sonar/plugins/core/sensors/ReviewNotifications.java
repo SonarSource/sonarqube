@@ -59,6 +59,7 @@ public class ReviewNotifications implements BatchExtension {
     return new Notification("review-changed")
         .setFieldValue("reviewId", String.valueOf(review.getId()))
         .setFieldValue("project", project.getRoot().getLongName())
+        .setFieldValue("projectId", String.valueOf(project.getId()))
         .setFieldValue("resource", resource != null ? resource.getLongName() : null)
         .setFieldValue("title", review.getTitle())
         .setFieldValue("creator", getCreator(review))

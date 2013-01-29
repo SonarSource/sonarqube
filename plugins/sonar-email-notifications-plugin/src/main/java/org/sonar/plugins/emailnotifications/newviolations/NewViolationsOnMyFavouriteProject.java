@@ -19,10 +19,14 @@
  */
 package org.sonar.plugins.emailnotifications.newviolations;
 
+import com.google.common.collect.Multimap;
 import org.sonar.api.notifications.Notification;
+import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.notifications.NotificationDispatcher;
+import org.sonar.api.notifications.NotificationManager;
 import org.sonar.core.properties.PropertiesDao;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -32,19 +36,26 @@ import java.util.List;
  */
 public class NewViolationsOnMyFavouriteProject extends NotificationDispatcher {
 
+  private NotificationManager notificationManager;
   private PropertiesDao propertiesDao;
 
-  public NewViolationsOnMyFavouriteProject(PropertiesDao propertiesDao) {
+  public NewViolationsOnMyFavouriteProject(NotificationManager notificationManager, PropertiesDao propertiesDao) {
     super("new-violations");
+    this.notificationManager = notificationManager;
     this.propertiesDao = propertiesDao;
   }
 
   @Override
   public void dispatch(Notification notification, Context context) {
-    Long projectId = Long.parseLong(notification.getFieldValue("projectId"));
-    List<String> userLogins = propertiesDao.findUserIdsForFavouriteResource(projectId);
+    // "null" is passed as a 2nd argument because this dispatcher is not a per-project dispatcher
+    Multimap<String, NotificationChannel> subscribedRecipients = notificationManager.findSubscribedRecipientsForDispatcher(this, null);
+
+    List<String> userLogins = propertiesDao.findUserIdsForFavouriteResource(Long.parseLong(notification.getFieldValue("projectId")));
     for (String userLogin : userLogins) {
-      context.addUser(userLogin);
+      Collection<NotificationChannel> channels = subscribedRecipients.get(userLogin);
+      for (NotificationChannel channel : channels) {
+        context.addUser(userLogin, channel);
+      }
     }
   }
 

@@ -19,15 +19,7 @@
  */
 package org.sonar.server.notifications.reviews;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-
-import java.util.Map;
-
+import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -35,7 +27,14 @@ import org.mockito.stubbing.Answer;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationManager;
 
-import com.google.common.collect.Maps;
+import java.util.Map;
+
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
 
 public class ReviewsNotificationManagerTest {
 
@@ -59,6 +58,7 @@ public class ReviewsNotificationManagerTest {
     Map<String, String> oldValues = Maps.newHashMap();
     Map<String, String> newValues = Maps.newHashMap();
     newValues.put("project", "Sonar");
+    newValues.put("projectId", "42");
     newValues.put("resource", "org.sonar.server.ui.DefaultPages");
     newValues.put("title", "Utility classes should not have a public or default constructor.");
     newValues.put("creator", "olivier");
@@ -70,6 +70,7 @@ public class ReviewsNotificationManagerTest {
     assertThat(notification.getFieldValue("reviewId"), is("1"));
     assertThat(notification.getFieldValue("author"), is("freddy"));
     assertThat(notification.getFieldValue("project"), is("Sonar"));
+    assertThat(notification.getFieldValue("projectId"), is("42"));
     assertThat(notification.getFieldValue("resource"), is("org.sonar.server.ui.DefaultPages"));
     assertThat(notification.getFieldValue("title"), is("Utility classes should not have a public or default constructor."));
     assertThat(notification.getFieldValue("creator"), is("olivier"));

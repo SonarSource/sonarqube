@@ -19,14 +19,20 @@
  */
 package org.sonar.plugins.emailnotifications.alerts;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.sonar.api.notifications.Notification;
+import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.notifications.NotificationDispatcher;
+import org.sonar.api.notifications.NotificationManager;
 import org.sonar.core.properties.PropertiesDao;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -34,28 +40,49 @@ import static org.mockito.Mockito.when;
 
 public class AlertsOnMyFavouriteProjectTest {
 
-  @Test
-  public void shouldNotDispatchIfNotNewViolationsNotification() throws Exception {
-    NotificationDispatcher.Context context = mock(NotificationDispatcher.Context.class);
-    AlertsOnMyFavouriteProject dispatcher = new AlertsOnMyFavouriteProject(null);
-    Notification notification = new Notification("other-notif");
-    dispatcher.performDispatch(notification, context);
+  @Mock
+  private NotificationManager notificationManager;
 
-    verify(context, never()).addUser(any(String.class));
+  @Mock
+  private PropertiesDao propertiesDao;
+
+  @Mock
+  private NotificationDispatcher.Context context;
+
+  @Mock
+  private NotificationChannel emailChannel;
+
+  @Mock
+  private NotificationChannel twitterChannel;
+
+  private AlertsOnMyFavouriteProject dispatcher;
+
+  @Before
+  public void init() {
+    MockitoAnnotations.initMocks(this);
+    dispatcher = new AlertsOnMyFavouriteProject(notificationManager, propertiesDao);
   }
 
   @Test
-  public void shouldDispatchToUsersWhoHaveFlaggedProjectAsFavourite() {
-    NotificationDispatcher.Context context = mock(NotificationDispatcher.Context.class);
-    PropertiesDao propertiesDao = mock(PropertiesDao.class);
-    when(propertiesDao.findUserIdsForFavouriteResource(34L)).thenReturn(Lists.newArrayList("user1", "user2"));
-    AlertsOnMyFavouriteProject dispatcher = new AlertsOnMyFavouriteProject(propertiesDao);
+  public void shouldNotDispatchIfNotAlertsNotification() throws Exception {
+    Notification notification = new Notification("other-notif");
+    dispatcher.performDispatch(notification, context);
+
+    verify(context, never()).addUser(any(String.class), any(NotificationChannel.class));
+  }
+
+  @Test
+  public void shouldDispatchToUsersWhoHaveSubscribedAndFlaggedProjectAsFavourite() {
+    Multimap<String, NotificationChannel> recipients = HashMultimap.create();
+    recipients.put("user1", emailChannel);
+    recipients.put("user2", twitterChannel);
+    when(notificationManager.findSubscribedRecipientsForDispatcher(dispatcher, null)).thenReturn(recipients);
+    when(propertiesDao.findUserIdsForFavouriteResource(34L)).thenReturn(Lists.newArrayList("user2", "user3"));
 
     Notification notification = new Notification("alerts").setFieldValue("projectId", "34");
     dispatcher.performDispatch(notification, context);
 
-    verify(context).addUser("user1");
-    verify(context).addUser("user2");
+    verify(context).addUser("user2", twitterChannel);
     verifyNoMoreInteractions(context);
   }
 

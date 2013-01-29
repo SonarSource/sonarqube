@@ -127,6 +127,7 @@ class Review < ActiveRecord::Base
     java.util.HashMap.new(
       {
         "project" => project.long_name.to_java,
+        "projectId" => project.id.to_s.to_java,
         "resource" => resource.long_name.to_java,
         "title" => title.to_java,
         "creator" => user == nil ? nil : user.login.to_java,

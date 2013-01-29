@@ -19,15 +19,14 @@
  */
 package org.sonar.server.notifications.reviews;
 
-import java.util.Map;
-import java.util.Set;
-
+import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationManager;
 
-import com.google.common.collect.Sets;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @since 2.10
@@ -50,6 +49,7 @@ public class ReviewsNotificationManager implements ServerComponent {
     Notification notification = new Notification("review-changed")
         .setFieldValue("reviewId", String.valueOf(reviewId))
         .setFieldValue("project", newValues.get("project"))
+        .setFieldValue("projectId", newValues.get("projectId"))
         .setFieldValue("resource", newValues.get("resource"))
         .setFieldValue("title", newValues.get("title"))
         .setFieldValue("author", author)
@@ -62,7 +62,7 @@ public class ReviewsNotificationManager implements ServerComponent {
     for (String field : fields) {
       String oldValue = oldValues.get(field);
       String newValue = newValues.get(field);
-      if ( !StringUtils.equals(oldValue, newValue)) {
+      if (!StringUtils.equals(oldValue, newValue)) {
         notification.setFieldValue("new." + field, newValue);
         notification.setFieldValue("old." + field, oldValue);
       }

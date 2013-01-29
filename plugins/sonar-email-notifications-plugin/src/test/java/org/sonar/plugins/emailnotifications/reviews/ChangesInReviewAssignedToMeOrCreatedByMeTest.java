@@ -19,46 +19,90 @@
  */
 package org.sonar.plugins.emailnotifications.reviews;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.sonar.api.notifications.Notification;
+import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.notifications.NotificationDispatcher;
+import org.sonar.api.notifications.NotificationManager;
 
-import static org.mockito.Mockito.mock;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class ChangesInReviewAssignedToMeOrCreatedByMeTest {
 
+  @Mock
+  private NotificationManager notificationManager;
+
+  @Mock
   private NotificationDispatcher.Context context;
+
+  @Mock
+  private NotificationChannel emailChannel;
+
+  @Mock
+  private NotificationChannel twitterChannel;
+
   private ChangesInReviewAssignedToMeOrCreatedByMe dispatcher;
 
   @Before
   public void setUp() {
-    context = mock(NotificationDispatcher.Context.class);
-    dispatcher = new ChangesInReviewAssignedToMeOrCreatedByMe();
+    MockitoAnnotations.initMocks(this);
+
+    dispatcher = new ChangesInReviewAssignedToMeOrCreatedByMe(notificationManager);
+  }
+
+  @Test
+  public void shouldNotDispatchIfNotNewViolationsNotification() throws Exception {
+    Notification notification = new Notification("other-notif");
+    dispatcher.performDispatch(notification, context);
+
+    verify(context, never()).addUser(any(String.class), any(NotificationChannel.class));
   }
 
   @Test
   public void dispatchToCreatorAndAssignee() {
+    Multimap<String, NotificationChannel> recipients = HashMultimap.create();
+    recipients.put("simon", emailChannel);
+    recipients.put("freddy", twitterChannel);
+    recipients.put("godin", twitterChannel);
+    when(notificationManager.findSubscribedRecipientsForDispatcher(dispatcher, 42)).thenReturn(recipients);
+
     Notification notification = new Notification("review-changed")
+        .setFieldValue("projectId", "42")
         .setFieldValue("author", "olivier")
         .setFieldValue("creator", "simon")
         .setFieldValue("old.assignee", "godin")
         .setFieldValue("assignee", "freddy");
     dispatcher.performDispatch(notification, context);
 
-    verify(context).addUser("simon");
-    verify(context).addUser("godin");
-    verify(context).addUser("freddy");
+    verify(context).addUser("simon", emailChannel);
+    verify(context).addUser("freddy", twitterChannel);
+    verify(context).addUser("godin", twitterChannel);
     verifyNoMoreInteractions(context);
   }
 
   @Test
   public void doNotDispatchToAuthorOfChanges() {
-    dispatcher.performDispatch(new Notification("review-changed").setFieldValue("author", "simon").setFieldValue("creator", "simon"), context);
-    dispatcher.performDispatch(new Notification("review-changed").setFieldValue("author", "simon").setFieldValue("assignee", "simon"), context);
-    dispatcher.performDispatch(new Notification("review-changed").setFieldValue("author", "simon").setFieldValue("old.assignee", "simon"), context);
+    Multimap<String, NotificationChannel> recipients = HashMultimap.create();
+    recipients.put("simon", emailChannel);
+    recipients.put("freddy", twitterChannel);
+    recipients.put("godin", twitterChannel);
+    when(notificationManager.findSubscribedRecipientsForDispatcher(dispatcher, 42)).thenReturn(recipients);
+
+    dispatcher.performDispatch(new Notification("review-changed").setFieldValue("projectId", "42")
+        .setFieldValue("author", "simon").setFieldValue("creator", "simon"), context);
+    dispatcher.performDispatch(new Notification("review-changed").setFieldValue("projectId", "42")
+        .setFieldValue("author", "simon").setFieldValue("assignee", "simon"), context);
+    dispatcher.performDispatch(new Notification("review-changed").setFieldValue("projectId", "42")
+        .setFieldValue("author", "simon").setFieldValue("old.assignee", "simon"), context);
 
     verifyNoMoreInteractions(context);
   }

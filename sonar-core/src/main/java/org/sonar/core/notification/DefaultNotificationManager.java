@@ -20,6 +20,7 @@
 package org.sonar.core.notification;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.SetMultimap;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.notifications.Notification;
@@ -102,7 +103,7 @@ public class DefaultNotificationManager implements NotificationManager {
   /**
    * {@inheritDoc}
    */
-  public SetMultimap<String, NotificationChannel> findSubscribedRecipientsForDispatcher(NotificationDispatcher dispatcher, Integer resourceId) {
+  public Multimap<String, NotificationChannel> findSubscribedRecipientsForDispatcher(NotificationDispatcher dispatcher, Integer resourceId) {
     String dispatcherKey = dispatcher.getKey();
 
     SetMultimap<String, NotificationChannel> recipients = HashMultimap.create();

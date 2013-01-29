@@ -19,9 +19,14 @@
  */
 package org.sonar.plugins.emailnotifications.reviews;
 
+import com.google.common.collect.Multimap;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.notifications.Notification;
+import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.notifications.NotificationDispatcher;
+import org.sonar.api.notifications.NotificationManager;
+
+import java.util.Collection;
 
 /**
  * This dispatcher means: "notify me when someone changes review assigned to me or created by me".
@@ -30,24 +35,37 @@ import org.sonar.api.notifications.NotificationDispatcher;
  */
 public class ChangesInReviewAssignedToMeOrCreatedByMe extends NotificationDispatcher {
 
-  public ChangesInReviewAssignedToMeOrCreatedByMe() {
+  private NotificationManager notificationManager;
+
+  public ChangesInReviewAssignedToMeOrCreatedByMe(NotificationManager notificationManager) {
     super("review-changed");
+    this.notificationManager = notificationManager;
   }
 
   @Override
   public void dispatch(Notification notification, Context context) {
+    int projectId = Integer.parseInt(notification.getFieldValue("projectId"));
+    Multimap<String, NotificationChannel> subscribedRecipients = notificationManager.findSubscribedRecipientsForDispatcher(this, projectId);
+
     String author = notification.getFieldValue("author");
     String creator = notification.getFieldValue("creator");
     String oldAssignee = notification.getFieldValue("old.assignee");
     String assignee = notification.getFieldValue("assignee");
     if (creator != null && !StringUtils.equals(author, creator)) {
-      context.addUser(creator);
+      addUserToContextIfSubscribed(context, creator, subscribedRecipients);
     }
     if (oldAssignee != null && !StringUtils.equals(author, oldAssignee)) {
-      context.addUser(oldAssignee);
+      addUserToContextIfSubscribed(context, oldAssignee, subscribedRecipients);
     }
     if (assignee != null && !StringUtils.equals(author, assignee)) {
-      context.addUser(assignee);
+      addUserToContextIfSubscribed(context, assignee, subscribedRecipients);
+    }
+  }
+
+  private void addUserToContextIfSubscribed(Context context, String user, Multimap<String, NotificationChannel> subscribedRecipients) {
+    Collection<NotificationChannel> channels = subscribedRecipients.get(user);
+    for (NotificationChannel channel : channels) {
+      context.addUser(user, channel);
     }
   }
 
