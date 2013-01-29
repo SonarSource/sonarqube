@@ -52,9 +52,11 @@ public class BatchPluginRepository implements PluginRepository {
   private Map<String, PluginMetadata> metadataByKey;
   private Settings settings;
   private PluginClassloaders classLoaders;
+  private TempDirectories workingDirectories;
 
-  public BatchPluginRepository(PluginDownloader pluginDownloader, Settings settings) {
+  public BatchPluginRepository(PluginDownloader pluginDownloader, TempDirectories workingDirectories, Settings settings) {
     this.pluginDownloader = pluginDownloader;
+    this.workingDirectories = workingDirectories;
     this.settings = settings;
   }
 
@@ -71,7 +73,9 @@ public class BatchPluginRepository implements PluginRepository {
       if (filter.accepts(remote.getKey())) {
         List<File> pluginFiles = pluginDownloader.downloadPlugin(remote);
         List<File> extensionFiles = pluginFiles.subList(1, pluginFiles.size());
-        PluginMetadata metadata = extractor.installInSameLocation(pluginFiles.get(0), remote.isCore(), extensionFiles);
+        File targetDir = workingDirectories.getDir("plugins/" + remote.getKey());
+        LOG.debug("Installing plugin " + remote.getKey() + " into " + targetDir);
+        PluginMetadata metadata = extractor.install(pluginFiles.get(0), remote.isCore(), extensionFiles, targetDir);
         if (StringUtils.isBlank(metadata.getBasePlugin()) || filter.accepts(metadata.getBasePlugin())) {
           LOG.debug("Excluded plugin: " + metadata.getKey());
           metadataByKey.put(metadata.getKey(), metadata);
@@ -125,9 +129,9 @@ public class BatchPluginRepository implements PluginRepository {
         // These default values are not supported by Settings because the class CorePlugin
         // is not loaded yet.
         whites.addAll(propertyValues(settings,
-          CoreProperties.DRY_RUN_INCLUDE_PLUGINS, CoreProperties.DRY_RUN_INCLUDE_PLUGINS_DEFAULT_VALUE));
+            CoreProperties.DRY_RUN_INCLUDE_PLUGINS, CoreProperties.DRY_RUN_INCLUDE_PLUGINS_DEFAULT_VALUE));
         blacks.addAll(propertyValues(settings,
-                  CoreProperties.DRY_RUN_EXCLUDE_PLUGINS, CoreProperties.DRY_RUN_EXCLUDE_PLUGINS_DEFAULT_VALUE));
+            CoreProperties.DRY_RUN_EXCLUDE_PLUGINS, CoreProperties.DRY_RUN_EXCLUDE_PLUGINS_DEFAULT_VALUE));
       }
       if (!whites.isEmpty()) {
         LOG.info("Include plugins: " + Joiner.on(", ").join(whites));

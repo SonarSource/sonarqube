@@ -20,24 +20,16 @@
 package org.sonar.core.plugins;
 
 import org.apache.commons.io.FileUtils;
-import org.sonar.api.Plugin;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.ZipUtils;
-import org.sonar.updatecenter.common.PluginKeyUtils;
 import org.sonar.updatecenter.common.PluginManifest;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.List;
 import java.util.zip.ZipEntry;
 
 public class PluginInstaller {
-
-  public DefaultPluginMetadata installInSameLocation(File pluginFile, boolean isCore, List<File> deprecatedExtensions) {
-    return install(pluginFile, isCore, deprecatedExtensions, null);
-  }
 
   public DefaultPluginMetadata install(File pluginFile, boolean isCore, List<File> deprecatedExtensions, File toDir) {
     DefaultPluginMetadata metadata = extractMetadata(pluginFile, isCore);
@@ -60,17 +52,11 @@ public class PluginInstaller {
   }
 
   private File copyPlugin(DefaultPluginMetadata metadata, File toDir, File pluginFile) throws IOException {
-    File pluginBasedir;
-    if (toDir != null) {
-      pluginBasedir = toDir;
-      FileUtils.forceMkdir(pluginBasedir);
-      File targetFile = new File(pluginBasedir, pluginFile.getName());
-      FileUtils.copyFile(pluginFile, targetFile);
-      metadata.addDeployedFile(targetFile);
-    } else {
-      pluginBasedir = pluginFile.getParentFile();
-      metadata.addDeployedFile(pluginFile);
-    }
+    File pluginBasedir = toDir;
+    FileUtils.forceMkdir(pluginBasedir);
+    File targetFile = new File(pluginBasedir, pluginFile.getName());
+    FileUtils.copyFile(pluginFile, targetFile);
+    metadata.addDeployedFile(targetFile);
     return pluginBasedir;
   }
 

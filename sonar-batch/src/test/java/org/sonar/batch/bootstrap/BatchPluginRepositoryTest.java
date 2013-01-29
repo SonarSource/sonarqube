@@ -22,7 +22,9 @@ package org.sonar.batch.bootstrap;
 import com.google.common.collect.Lists;
 import org.codehaus.plexus.util.FileUtils;
 import org.junit.After;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.core.plugins.RemotePlugin;
@@ -40,6 +42,9 @@ import static org.mockito.Mockito.when;
 
 public class BatchPluginRepositoryTest {
 
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
   private BatchPluginRepository repository;
 
   @After
@@ -51,12 +56,15 @@ public class BatchPluginRepositoryTest {
 
   @Test
   public void shouldLoadPlugin() throws IOException {
+    TempDirectories tempDirs = mock(TempDirectories.class);
+    File toDir = temp.newFolder();
+    when(tempDirs.getDir("plugins/checkstyle")).thenReturn(toDir);
     RemotePlugin checkstyle = new RemotePlugin("checkstyle", true);
 
     PluginDownloader downloader = mock(PluginDownloader.class);
     when(downloader.downloadPlugin(checkstyle)).thenReturn(copyFiles("sonar-checkstyle-plugin-2.8.jar"));
 
-    repository = new BatchPluginRepository(downloader, new Settings());
+    repository = new BatchPluginRepository(downloader, tempDirs, new Settings());
 
     repository.doStart(Arrays.asList(checkstyle));
 
@@ -68,6 +76,11 @@ public class BatchPluginRepositoryTest {
 
   @Test
   public void shouldLoadPluginExtension() throws IOException {
+    TempDirectories tempDirs = mock(TempDirectories.class);
+    File toDir1 = temp.newFolder();
+    File toDir2 = temp.newFolder();
+    when(tempDirs.getDir("plugins/checkstyle")).thenReturn(toDir1);
+    when(tempDirs.getDir("plugins/checkstyleextensions")).thenReturn(toDir2);
     RemotePlugin checkstyle = new RemotePlugin("checkstyle", true);
     RemotePlugin checkstyleExt = new RemotePlugin("checkstyleextensions", false);
 
@@ -75,7 +88,7 @@ public class BatchPluginRepositoryTest {
     when(downloader.downloadPlugin(checkstyle)).thenReturn(copyFiles("sonar-checkstyle-plugin-2.8.jar"));
     when(downloader.downloadPlugin(checkstyleExt)).thenReturn(copyFiles("sonar-checkstyle-extensions-plugin-0.1-SNAPSHOT.jar"));
 
-    repository = new BatchPluginRepository(downloader, new Settings());
+    repository = new BatchPluginRepository(downloader, tempDirs, new Settings());
 
     repository.doStart(Arrays.asList(checkstyle, checkstyleExt));
 
@@ -88,13 +101,16 @@ public class BatchPluginRepositoryTest {
 
   @Test
   public void shouldLoadPluginDeprecatedExtensions() throws IOException {
+    TempDirectories tempDirs = mock(TempDirectories.class);
+    File toDir = temp.newFolder();
+    when(tempDirs.getDir("plugins/checkstyle")).thenReturn(toDir);
     RemotePlugin checkstyle = new RemotePlugin("checkstyle", true);
     checkstyle.getFiles().add(new RemotePluginFile("checkstyle-ext.xml", "fakemd5"));
 
     PluginDownloader downloader = mock(PluginDownloader.class);
     when(downloader.downloadPlugin(checkstyle)).thenReturn(copyFiles("sonar-checkstyle-plugin-2.8.jar", "checkstyle-ext.xml"));
 
-    repository = new BatchPluginRepository(downloader, new Settings());
+    repository = new BatchPluginRepository(downloader, tempDirs, new Settings());
 
     repository.doStart(Arrays.asList(checkstyle));
 
@@ -107,6 +123,11 @@ public class BatchPluginRepositoryTest {
 
   @Test
   public void shouldExcludePluginAndItsExtensions() throws IOException {
+    TempDirectories tempDirs = mock(TempDirectories.class);
+    File toDir1 = temp.newFolder();
+    File toDir2 = temp.newFolder();
+    when(tempDirs.getDir("plugins/checkstyle")).thenReturn(toDir1);
+    when(tempDirs.getDir("plugins/checkstyleextensions")).thenReturn(toDir2);
     RemotePlugin checkstyle = new RemotePlugin("checkstyle", true);
     RemotePlugin checkstyleExt = new RemotePlugin("checkstyleextensions", false);
 
@@ -116,7 +137,7 @@ public class BatchPluginRepositoryTest {
 
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "checkstyle");
-    repository = new BatchPluginRepository(downloader, settings);
+    repository = new BatchPluginRepository(downloader, tempDirs, settings);
 
     repository.doStart(Arrays.asList(checkstyle, checkstyleExt));
 
