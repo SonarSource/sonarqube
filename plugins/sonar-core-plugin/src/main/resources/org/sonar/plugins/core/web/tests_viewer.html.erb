@@ -64,7 +64,7 @@
          if test.status() != 'ok'
            test_case[:message] = ''
            test_case[:message] = test.message() if test.message()
-           test_case[:stack_trace] = test.stackTrace()
+           test_case[:stack_trace] = html_escape(test.stackTrace())
          end
          test_cases << test_case
        end
