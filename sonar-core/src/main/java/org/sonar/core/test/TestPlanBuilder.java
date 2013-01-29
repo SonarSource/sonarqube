@@ -22,7 +22,6 @@ package org.sonar.core.test;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
 import org.sonar.api.test.MutableTestPlan;
-import org.sonar.api.test.TestPlan;
 import org.sonar.core.component.ComponentVertex;
 import org.sonar.core.component.PerspectiveBuilder;
 import org.sonar.core.graph.GraphUtil;
@@ -30,6 +29,13 @@ import org.sonar.core.graph.GraphUtil;
 public class TestPlanBuilder extends PerspectiveBuilder<MutableTestPlan> {
 
   static final String PERSPECTIVE_KEY = "testplan";
+
+  private static final Object[] PATH = new Object[]{
+    "testplan", Direction.OUT,
+    "testcase", Direction.OUT,
+    "covers", Direction.OUT,
+    "testable", Direction.IN
+  };
 
   public TestPlanBuilder() {
     super(PERSPECTIVE_KEY, MutableTestPlan.class);
@@ -47,5 +53,10 @@ public class TestPlanBuilder extends PerspectiveBuilder<MutableTestPlan> {
   @Override
   public MutableTestPlan create(ComponentVertex component) {
     return component.beanGraph().createAdjacentVertex(component, DefaultTestPlan.class, PERSPECTIVE_KEY);
+  }
+
+  @Override
+  public Object[] path() {
+    return PATH;
   }
 }

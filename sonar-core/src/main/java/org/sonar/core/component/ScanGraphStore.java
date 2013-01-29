@@ -19,10 +19,11 @@
  */
 package org.sonar.core.component;
 
-import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
+import com.tinkerpop.blueprints.Graph;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.component.Perspective;
 import org.sonar.core.graph.GraphWriter;
+import org.sonar.core.graph.SubGraph;
 import org.sonar.core.graph.jdbc.GraphDto;
 import org.sonar.core.graph.jdbc.GraphDtoMapper;
 import org.sonar.core.persistence.BatchSession;
@@ -44,7 +45,6 @@ public class ScanGraphStore {
     BatchSession session = myBatis.openBatchSession();
     GraphDtoMapper mapper = session.getMapper(GraphDtoMapper.class);
     try {
-      TinkerGraph subGraph = new TinkerGraph();
       GraphWriter writer = new GraphWriter();
       for (ComponentVertex component : projectGraph.getComponents()) {
         Long snapshotId = (Long) component.element().getProperty("sid");
@@ -52,7 +52,8 @@ public class ScanGraphStore {
           for (PerspectiveBuilder builder : builders) {
             Perspective perspective = builder.load(component);
             if (perspective != null) {
-              String data = writer.write(projectGraph.getUnderlyingGraph());
+              Graph subGraph = SubGraph.extract(component.element(), builder.path());
+              String data = writer.write(subGraph);
               mapper.insert(new GraphDto()
                 .setData(data)
                 .setFormat("graphson")
@@ -62,7 +63,6 @@ public class ScanGraphStore {
                 .setSnapshotId(snapshotId)
                 .setRootVertexId(component.element().getId().toString())
               );
-              subGraph.clear();
             }
           }
         }

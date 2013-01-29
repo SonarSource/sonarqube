@@ -30,6 +30,13 @@ public class TestableBuilder extends PerspectiveBuilder<MutableTestable> {
 
   static final String PERSPECTIVE_KEY = "testable";
 
+  private static final Object[] PATH = new Object[]{
+    "testable", Direction.OUT,
+    "covers", Direction.IN,
+    "testcase", Direction.IN,
+    "testplan", Direction.IN
+  };
+
   public TestableBuilder() {
     super(PERSPECTIVE_KEY, MutableTestable.class);
   }
@@ -46,5 +53,10 @@ public class TestableBuilder extends PerspectiveBuilder<MutableTestable> {
   @Override
   public MutableTestable create(ComponentVertex component) {
     return component.beanGraph().createAdjacentVertex(component, DefaultTestable.class, PERSPECTIVE_KEY);
+  }
+
+  @Override
+  public Object[] path() {
+    return PATH;
   }
 }

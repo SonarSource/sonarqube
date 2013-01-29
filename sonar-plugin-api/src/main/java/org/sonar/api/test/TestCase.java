@@ -23,7 +23,7 @@ import java.util.Collection;
 
 public interface TestCase {
   String TYPE_UNIT = "unit";
-  String TYPE_INTEGRATION = "integ";
+  String TYPE_INTEGRATION = "integration";
 
   String STATUS_PASS = "pass";
   String STATUS_FAIL = "fail";
