@@ -17,13 +17,15 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.component;
+package org.sonar.core.graph;
 
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import com.tinkerpop.blueprints.Direction;
+import com.tinkerpop.blueprints.Edge;
 
-public interface Perspectives extends BatchComponent, ServerComponent {
+public abstract class BeanEdge extends BeanElement<Edge, BeanEdge> {
 
-  <P extends Perspective> P as(Class<P> perspectiveClass, Component component);
+  protected final <T extends BeanVertex> T getVertex(Class<T> vertexClass, Direction direction) throws IllegalArgumentException {
+    return beanGraph().wrap(element().getVertex(direction), vertexClass);
+  }
 
 }

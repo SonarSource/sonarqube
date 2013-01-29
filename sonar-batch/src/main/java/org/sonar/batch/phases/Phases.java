@@ -25,7 +25,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.PersistenceManager;
-import org.sonar.core.component.GraphStorage;
+import org.sonar.core.component.ScanGraphStore;
 
 import java.util.Collection;
 
@@ -49,14 +49,14 @@ public final class Phases {
   private SensorContext sensorContext;
   private DefaultIndex index;
   private ProjectInitializer pi;
-  private GraphStorage graphStorage;
+  private ScanGraphStore graphStorage;
 
   public Phases(DecoratorsExecutor decoratorsExecutor, MavenPhaseExecutor mavenPhaseExecutor,
                 MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
                 PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
                 PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
                 EventBus eventBus, UpdateStatusJob updateStatusJob, ProjectInitializer pi,
-                GraphStorage graphStorage) {
+                ScanGraphStore graphStorage) {
     this.decoratorsExecutor = decoratorsExecutor;
     this.mavenPhaseExecutor = mavenPhaseExecutor;
     this.mavenPluginsConfigurator = mavenPluginsConfigurator;
@@ -76,7 +76,7 @@ public final class Phases {
                 MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
                 PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
                 PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
-                EventBus eventBus, ProjectInitializer pi, GraphStorage graphStorage) {
+                EventBus eventBus, ProjectInitializer pi, ScanGraphStore graphStorage) {
     this(decoratorsExecutor, mavenPhaseExecutor, mavenPluginsConfigurator, initializersExecutor, postJobsExecutor,
       sensorsExecutor, persistenceManager, sensorContext, index, eventBus, null, pi, graphStorage);
   }

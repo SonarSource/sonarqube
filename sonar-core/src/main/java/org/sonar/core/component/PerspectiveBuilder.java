@@ -23,20 +23,29 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.component.Perspective;
 
+import javax.annotation.CheckForNull;
+
 public abstract class PerspectiveBuilder<T extends Perspective> implements BatchComponent, ServerComponent {
 
+  private final String perspectiveKey;
   private final Class<T> perspectiveClass;
 
-  protected PerspectiveBuilder(Class<T> perspectiveClass) {
+  protected PerspectiveBuilder(String perspectiveKey, Class<T> perspectiveClass) {
+    this.perspectiveKey = perspectiveKey;
     this.perspectiveClass = perspectiveClass;
+  }
+
+  protected String getPerspectiveKey() {
+    return perspectiveKey;
   }
 
   protected Class<T> getPerspectiveClass() {
     return perspectiveClass;
   }
 
-  public abstract T load(ComponentWrapper<?> componentWrapper);
+  @CheckForNull
+  public abstract T load(ComponentVertex component);
 
-  public abstract T create(ComponentWrapper<?> componentWrapper);
+  public abstract T create(ComponentVertex component);
 
 }

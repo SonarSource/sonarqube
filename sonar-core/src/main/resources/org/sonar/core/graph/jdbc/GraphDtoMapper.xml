@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.sonar.core.graph.GraphDtoMapper">
+<mapper namespace="org.sonar.core.graph.jdbc.GraphDtoMapper">
 
   <select id="selectBySnapshot" parameterType="map" resultType="Graph">
     SELECT id, snapshot_id as snapshotId, format, version, perspective, root_vertex_id as rootVertexId, data

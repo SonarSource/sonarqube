@@ -26,35 +26,36 @@ import org.sonar.api.test.CoveredTestable;
 import org.sonar.api.test.MutableTestCase;
 import org.sonar.api.test.TestPlan;
 import org.sonar.api.test.Testable;
-import org.sonar.core.component.ElementWrapper;
+import org.sonar.core.graph.BeanVertex;
 import org.sonar.core.graph.GraphUtil;
 
 import javax.annotation.Nullable;
 
 import java.util.Collection;
+import java.util.Set;
 
-public class DefaultTestCase extends ElementWrapper<Vertex> implements MutableTestCase {
+public class DefaultTestCase extends BeanVertex implements MutableTestCase {
 
   public String type() {
-    return (String) element().getProperty("type");
+    return (String) getProperty("type");
   }
 
   public Long durationInMs() {
-    return (Long) element().getProperty("duration");
+    return (Long) getProperty("duration");
   }
 
   public MutableTestCase setDurationInMs(@Nullable Long l) {
-    Preconditions.checkArgument(l==null || l >=0, String.format("Duration must be positive (got %d)", l));
-    element().setProperty("duration", l);
+    Preconditions.checkArgument(l == null || l >= 0, String.format("Duration must be positive (got %d)", l));
+    setProperty("duration", l);
     return this;
   }
 
   public String status() {
-    return (String) element().getProperty("status");
+    return (String) getProperty("status");
   }
 
   public MutableTestCase setStatus(@Nullable String s) {
-    element().setProperty("status", s);
+    setProperty("status", s);
     return this;
   }
 
@@ -62,48 +63,48 @@ public class DefaultTestCase extends ElementWrapper<Vertex> implements MutableTe
    * The key is not blank and unique among the test plan.
    */
   public String key() {
-    return (String) element().getProperty("key");
+    return (String) getProperty("key");
   }
 
   public MutableTestCase setKey(String s) {
-    element().setProperty("key", s);
+    setProperty("key", s);
     return this;
   }
 
   public String name() {
-    return (String) element().getProperty("name");
+    return (String) getProperty("name");
   }
 
   public MutableTestCase setName(String s) {
-    element().setProperty("name", s);
+    setProperty("name", s);
     return this;
   }
 
   public String message() {
-    return (String) element().getProperty("message");
+    return (String) getProperty("message");
   }
 
   public MutableTestCase setMessage(String s) {
-    element().setProperty("message", s);
+    setProperty("message", s);
     return this;
   }
 
   public String stackTrace() {
-    return (String) element().getProperty("stackTrace");
+    return (String) getProperty("stackTrace");
   }
 
   public MutableTestCase setStackTrace(String s) {
-    element().setProperty("stackTrace", s);
+    setProperty("stackTrace", s);
     return this;
   }
 
-  public void covers(Testable component, Collection<Integer> lines) {
+  public void covers(Testable testable, Set<Integer> lines) {
 
   }
 
   public TestPlan testPlan() {
     Vertex plan = GraphUtil.singleAdjacent(element(), Direction.IN, "testcase");
-    return graph().wrap(plan, DefaultTestPlan.class);
+    return beanGraph().wrap(plan, DefaultTestPlan.class);
   }
 
   public Collection<CoveredTestable> coveredBlocks() {

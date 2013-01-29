@@ -24,18 +24,18 @@ import com.tinkerpop.blueprints.Vertex;
 import org.sonar.api.component.Component;
 import org.sonar.api.test.MutableTestable;
 import org.sonar.api.test.TestCase;
-import org.sonar.core.component.ComponentWrapper;
-import org.sonar.core.component.ElementWrapper;
+import org.sonar.core.component.ComponentVertex;
+import org.sonar.core.graph.BeanVertex;
 import org.sonar.core.graph.GraphUtil;
 
 import java.util.List;
 import java.util.SortedSet;
 
-public class DefaultTestable extends ElementWrapper<Vertex> implements MutableTestable {
+public class DefaultTestable extends BeanVertex implements MutableTestable {
 
   public Component component() {
     Vertex component = GraphUtil.singleAdjacent(element(), Direction.IN, "testable");
-    return graph().wrap(component, ComponentWrapper.class);
+    return beanGraph().wrap(component, ComponentVertex.class);
   }
 
   public List<TestCase> coveringTestCases() {

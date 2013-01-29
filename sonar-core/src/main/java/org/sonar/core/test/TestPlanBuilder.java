@@ -22,27 +22,30 @@ package org.sonar.core.test;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
 import org.sonar.api.test.MutableTestPlan;
-import org.sonar.core.component.ComponentWrapper;
+import org.sonar.api.test.TestPlan;
+import org.sonar.core.component.ComponentVertex;
 import org.sonar.core.component.PerspectiveBuilder;
 import org.sonar.core.graph.GraphUtil;
 
 public class TestPlanBuilder extends PerspectiveBuilder<MutableTestPlan> {
 
+  static final String PERSPECTIVE_KEY = "testplan";
+
   public TestPlanBuilder() {
-    super(MutableTestPlan.class);
+    super(PERSPECTIVE_KEY, MutableTestPlan.class);
   }
 
   @Override
-  public MutableTestPlan load(ComponentWrapper<?> componentWrapper) {
-    Vertex planVertex = GraphUtil.singleAdjacent(componentWrapper.element(), Direction.OUT, "testplan");
+  public MutableTestPlan load(ComponentVertex component) {
+    Vertex planVertex = GraphUtil.singleAdjacent(component.element(), Direction.OUT, PERSPECTIVE_KEY);
     if (planVertex != null) {
-      return componentWrapper.graph().wrap(planVertex, DefaultTestPlan.class);
+      return component.beanGraph().wrap(planVertex, DefaultTestPlan.class);
     }
     return null;
   }
 
   @Override
-  public MutableTestPlan create(ComponentWrapper<?> componentWrapper) {
-    return componentWrapper.graph().createVertex(componentWrapper, DefaultTestPlan.class, "testplan");
+  public MutableTestPlan create(ComponentVertex component) {
+    return component.beanGraph().createAdjacentVertex(component, DefaultTestPlan.class, PERSPECTIVE_KEY);
   }
 }

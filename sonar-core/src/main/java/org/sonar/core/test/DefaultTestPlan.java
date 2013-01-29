@@ -25,26 +25,28 @@ import com.tinkerpop.blueprints.Vertex;
 import org.sonar.api.component.Component;
 import org.sonar.api.test.MutableTestCase;
 import org.sonar.api.test.MutableTestPlan;
-import org.sonar.core.component.ComponentWrapper;
-import org.sonar.core.component.ElementWrapper;
+import org.sonar.core.component.ComponentVertex;
+import org.sonar.core.graph.BeanVertex;
 import org.sonar.core.graph.GraphUtil;
 
 import java.util.List;
 
-public class DefaultTestPlan extends ElementWrapper<Vertex> implements MutableTestPlan {
+public class DefaultTestPlan extends BeanVertex implements MutableTestPlan {
   public Component component() {
     Vertex component = GraphUtil.singleAdjacent(element(), Direction.IN, "testplan");
-    return graph().wrap(component, ComponentWrapper.class);
+    return beanGraph().wrap(component, ComponentVertex.class);
   }
 
   public MutableTestCase addTestCase(String key) {
-    return graph().createVertex(this, DefaultTestCase.class, "testcase").setKey(key);
+    DefaultTestCase testCase = beanGraph().createAdjacentVertex(this, DefaultTestCase.class, "testcase");
+    testCase.setKey(key);
+    return testCase;
   }
 
   public List<MutableTestCase> testCases() {
     List<MutableTestCase> testCases = Lists.newArrayList();
     for (Vertex testCaseVertex : element().getVertices(Direction.OUT, "testcase")) {
-      testCases.add(graph().wrap(testCaseVertex, DefaultTestCase.class));
+      testCases.add(beanGraph().wrap(testCaseVertex, DefaultTestCase.class));
     }
     return testCases;
   }

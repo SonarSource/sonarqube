@@ -17,56 +17,50 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.component;
+package org.sonar.core.graph;
 
 import com.google.common.collect.MapMaker;
 import com.tinkerpop.blueprints.Element;
 
 import java.util.Map;
 
-public class ElementWrappers {
+class BeanElements {
 
+  private final Map<ElementKey, BeanElement> cache;
 
-  private final Map<ElementKey, ElementWrapper> cache;
-
-  public ElementWrappers() {
+  BeanElements() {
     cache = new MapMaker().weakValues().makeMap();
   }
 
-  public void clear() {
-    cache.clear();
-  }
-
-  public <T extends ElementWrapper> T wrap(Element element, Class<T> wrapperClass, ComponentGraph graph) {
-    ElementKey key = new ElementKey(element, wrapperClass);
-    T wrapper = (T) cache.get(key);
-    if (wrapper == null) {
+  <T extends BeanElement> T wrap(Element element, Class<T> beanClass, BeanGraph graph) {
+    ElementKey key = new ElementKey(element, beanClass);
+    T bean = (T) cache.get(key);
+    if (bean == null) {
       try {
-      wrapper = (T)key.wrapperClass.newInstance();
-      wrapper.setElement(key.element);
-      wrapper.setGraph(graph);
-      cache.put(key, wrapper);
+        bean = (T) key.beanClass.newInstance();
+        bean.setElement(key.element);
+        bean.setBeanGraph(graph);
+        cache.put(key, bean);
       } catch (InstantiationException e) {
-        throw new IllegalStateException("Class has no default constructor: " + wrapperClass, e);
+        throw new IllegalStateException("Class has no default constructor: " + beanClass.getName(), e);
       } catch (IllegalAccessException e) {
-        throw new IllegalStateException("Can not access to default constructor: " + wrapperClass, e);
+        throw new IllegalStateException("Can not access to default constructor: " + beanClass.getName(), e);
       }
     }
-    return wrapper;
+    return bean;
   }
 
-  public ElementWrappers remove(Element elt, Class wrapperClass) {
-    cache.remove(new ElementKey(elt, wrapperClass));
-    return this;
+  void clear() {
+    cache.clear();
   }
 
   private static class ElementKey {
     Element element;
-    Class<? extends ElementWrapper> wrapperClass;
+    Class<? extends BeanElement> beanClass;
 
-    ElementKey(Element element, Class<? extends ElementWrapper> wrapperClass) {
+    ElementKey(Element element, Class<? extends BeanElement> beanClass) {
       this.element = element;
-      this.wrapperClass = wrapperClass;
+      this.beanClass = beanClass;
     }
 
     @Override
@@ -74,21 +68,20 @@ public class ElementWrappers {
       if (this == o) {
         return true;
       }
-      if (o == null || getClass() != o.getClass()) {
+      if (o == null) {
         return false;
       }
-
       ElementKey that = (ElementKey) o;
       if (!element.equals(that.element)) {
         return false;
       }
-      return wrapperClass.equals(that.wrapperClass);
+      return beanClass.equals(that.beanClass);
     }
 
     @Override
     public int hashCode() {
       int result = element.hashCode();
-      result = 31 * result + wrapperClass.hashCode();
+      result = 31 * result + beanClass.hashCode();
       return result;
     }
   }

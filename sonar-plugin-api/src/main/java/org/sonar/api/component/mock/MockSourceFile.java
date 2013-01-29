@@ -31,7 +31,7 @@ public class MockSourceFile implements SourceFile {
   private MockSourceFile() {
   }
 
-  public String getKey() {
+  public String key() {
     return key;
   }
 
@@ -40,7 +40,7 @@ public class MockSourceFile implements SourceFile {
     return this;
   }
 
-  public String getQualifier() {
+  public String qualifier() {
     return qualifier;
   }
 
@@ -49,7 +49,7 @@ public class MockSourceFile implements SourceFile {
     return this;
   }
 
-  public String getLanguage() {
+  public String language() {
     return language;
   }
 
@@ -58,7 +58,7 @@ public class MockSourceFile implements SourceFile {
     return this;
   }
 
-  public String getName() {
+  public String name() {
     return name;
   }
 
@@ -67,7 +67,7 @@ public class MockSourceFile implements SourceFile {
     return this;
   }
 
-  public String getLongName() {
+  public String longName() {
     return longName;
   }
 

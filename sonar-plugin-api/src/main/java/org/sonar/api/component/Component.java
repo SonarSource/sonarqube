@@ -20,7 +20,7 @@
 package org.sonar.api.component;
 
 public interface Component<CHILD extends Component> {
-  String getKey();
-  String getName();
-  String getQualifier();
+  String key();
+  String name();
+  String qualifier();
 }

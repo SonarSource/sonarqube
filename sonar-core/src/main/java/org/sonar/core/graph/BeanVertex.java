@@ -17,31 +17,18 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.component;
+package org.sonar.core.graph;
 
-import com.tinkerpop.blueprints.Element;
+import com.tinkerpop.blueprints.Direction;
+import com.tinkerpop.blueprints.Vertex;
 
-/**
- * Wrap a Blueprints vertex or edge.
- */
-public abstract class ElementWrapper<T extends Element> {
+public abstract class BeanVertex extends BeanElement<Vertex, BeanVertex> {
 
-  private T element;
-  private ComponentGraph graph;
-
-  public T element() {
-    return element;
+  protected final <T extends BeanEdge> Iterable<T> getEdges(Class<T> edgeClass, Direction direction, String... labels) {
+    return new BeanIterable<T>(beanGraph(), edgeClass, element().getEdges(direction, labels));
   }
 
-  void setElement(T element) {
-    this.element = element;
-  }
-
-  public ComponentGraph graph() {
-    return graph;
-  }
-
-  void setGraph(ComponentGraph graph) {
-    this.graph = graph;
+  protected final <T extends BeanVertex> Iterable<T> getVertices(Class<T> vertexClass, Direction direction, String... labels) {
+    return new BeanIterable<T>(beanGraph(), vertexClass, element().getVertices(direction, labels));
   }
 }

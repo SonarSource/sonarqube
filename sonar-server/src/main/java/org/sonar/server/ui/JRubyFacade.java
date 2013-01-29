@@ -36,6 +36,7 @@ import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleRepository;
+import org.sonar.api.test.MutableTestPlan;
 import org.sonar.api.test.TestPlan;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.api.web.Footer;
@@ -47,7 +48,7 @@ import org.sonar.api.workflow.Review;
 import org.sonar.api.workflow.internal.DefaultReview;
 import org.sonar.api.workflow.internal.DefaultWorkflowContext;
 import org.sonar.api.workflow.screen.Screen;
-import org.sonar.core.component.PerspectiveLoaders;
+import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.measure.MeasureFilterEngine;
 import org.sonar.core.measure.MeasureFilterResult;
@@ -542,7 +543,7 @@ public final class JRubyFacade {
   }
 
   public TestPlan getTestPlan(long snapshotId) {
-    return (TestPlan) get(PerspectiveLoaders.class).as(snapshotId, "testplan");
+    return get(SnapshotPerspectives.class).as(MutableTestPlan.class, snapshotId);
   }
 
 }

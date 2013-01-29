@@ -36,9 +36,7 @@ import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.workflow.internal.DefaultWorkflow;
 import org.sonar.core.PicoUtils;
-import org.sonar.core.component.ComponentGraph;
-import org.sonar.core.component.PerspectiveBuilders;
-import org.sonar.core.component.PerspectiveLoaders;
+import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.GwtI18n;
 import org.sonar.core.i18n.I18nManager;
@@ -261,11 +259,10 @@ public final class Platform {
     servicesContainer.addSingleton(DefaultNotificationManager.class);
     servicesContainer.addSingleton(ReviewsNotificationManager.class);
 
-    servicesContainer.addSingleton(ComponentGraph.class);
+    // graphs
     servicesContainer.addSingleton(TestPlanBuilder.class);
     servicesContainer.addSingleton(TestableBuilder.class);
-    servicesContainer.addSingleton(PerspectiveBuilders.class);
-    servicesContainer.addSingleton(PerspectiveLoaders.class);
+    servicesContainer.addSingleton(SnapshotPerspectives.class);
 
     ServerExtensionInstaller extensionRegistrar = servicesContainer.getComponentByType(ServerExtensionInstaller.class);
     extensionRegistrar.registerExtensions(servicesContainer);

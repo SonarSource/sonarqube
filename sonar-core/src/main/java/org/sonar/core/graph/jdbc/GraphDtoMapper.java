@@ -17,25 +17,14 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.component;
+package org.sonar.core.graph.jdbc;
 
-import com.tinkerpop.blueprints.Graph;
-import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
+import org.apache.ibatis.annotations.Param;
 
-public class TransientGraph {
-  private Graph graph;
-  private Vertex root;
+public interface GraphDtoMapper {
+  void insert(GraphDto graph);
 
-  public TransientGraph() {
-    this.graph = new TinkerGraph();
-  }
+  GraphDto selectBySnapshot(@Param("perspective") String perspectiveKey, @Param("sid") long snapshotId);
 
-  public Vertex getRootVertex() {
-    return root;
-  }
-
-  public Graph getUnderlyingGraph() {
-    return graph;
-  }
+  GraphDto selectByComponent(@Param("perspective") String perspectiveKey, @Param("key") String componentKey);
 }

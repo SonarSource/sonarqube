@@ -19,44 +19,35 @@
  */
 package org.sonar.core.component;
 
-import org.sonar.api.component.Component;
+import org.junit.Test;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.File;
 
-import javax.annotation.Nullable;
+import static org.fest.assertions.Assertions.assertThat;
 
-class ResourceComponent implements Component {
-  private String key;
-  private String name;
-  private String qualifier;
-  private Long snapshotId;
+public class ResourceComponentTest {
+  @Test
+  public void snapshot_id_should_be_optional() {
+    ResourceComponent component = new ResourceComponent(new File("foo.c"), new Snapshot());
 
-  ResourceComponent(Resource resource, @Nullable Snapshot snapshot) {
-    this.key = resource.getEffectiveKey();
-    this.name = resource.getName();
-    this.qualifier = resource.getQualifier();
-    if (snapshot != null && snapshot.getId() != null) {
-      this.snapshotId = snapshot.getId().longValue();
-    }
+    assertThat(component.snapshotId()).isNull();
   }
 
-  ResourceComponent(Resource resource) {
-    this(resource, null);
+  @Test
+  public void snapshot_id_should_be_set() {
+    Snapshot snapshot = new Snapshot();
+    snapshot.setId(123);
+    ResourceComponent component = new ResourceComponent(new File("foo.c"), snapshot);
+
+    assertThat(component.snapshotId()).isEqualTo(123);
   }
 
-  public String key() {
-    return key;
-  }
+  @Test
+  public void should_use_effective_key() {
+    File file = new File("foo.c");
+    file.setEffectiveKey("myproject:path/to/foo.c");
+    ResourceComponent component = new ResourceComponent(file);
 
-  public String name() {
-    return name;
-  }
-
-  public String qualifier() {
-    return qualifier;
-  }
-
-  public Long snapshotId() {
-    return snapshotId;
+    assertThat(component.key()).isEqualTo("myproject:path/to/foo.c");
   }
 }

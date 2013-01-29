@@ -19,28 +19,24 @@
  */
 package org.sonar.core.component;
 
-import com.google.common.collect.MapMaker;
 import com.google.common.collect.Maps;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.component.Component;
 import org.sonar.api.component.Perspective;
 import org.sonar.api.component.ResourcePerspectives;
-import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Resource;
 
 import javax.annotation.CheckForNull;
 
 import java.util.Map;
 
-public class PerspectiveBuilders implements ResourcePerspectives, BatchComponent, ServerComponent {
-  private final ComponentGraph graph;
-  private Map<Class<?>, PerspectiveBuilder<?>> builders = Maps.newHashMap();
-  private final Map<Component, Map<Class<Perspective>, Perspective>> components = new MapMaker().weakValues().makeMap();
+public class ScanPerspectives implements ResourcePerspectives, BatchComponent {
+  private final ScanGraph graph;
+  private final Map<Class<?>, PerspectiveBuilder<?>> builders = Maps.newHashMap();
   private final SonarIndex resourceIndex;
 
-  public PerspectiveBuilders(ComponentGraph graph, PerspectiveBuilder[] builders, SonarIndex resourceIndex) {
+  public ScanPerspectives(ScanGraph graph, PerspectiveBuilder[] builders, SonarIndex resourceIndex) {
     this.graph = graph;
     this.resourceIndex = resourceIndex;
     for (PerspectiveBuilder builder : builders) {
@@ -50,37 +46,38 @@ public class PerspectiveBuilders implements ResourcePerspectives, BatchComponent
   }
 
   @CheckForNull
-  public <P extends Perspective> P as(Component component, Class<P> toClass) {
-    if (component.getKey() == null) {
+  public <P extends Perspective> P as(Class<P> perspectiveClass, Component component) {
+    if (component.key() == null) {
       return null;
     }
-    Map<Class<Perspective>, Perspective> perspectives = components.get(component);
-    if (perspectives == null) {
-      perspectives = Maps.newHashMap();
-      components.put(component, perspectives);
-    }
-    P perspective = (P) perspectives.get(toClass);
-    if (perspective == null) {
-      ComponentWrapper componentWrapper = graph.wrap(component, ComponentWrapper.class);
-      PerspectiveBuilder<P> perspectiveBuilder = builderFor(toClass);
-      perspective = perspectiveBuilder.load(componentWrapper);
-      if (perspective == null) {
-        perspective = perspectiveBuilder.create(componentWrapper);
-      }
-      perspectives.put((Class) toClass, perspective);
-    }
-    return perspective;
-  }
 
-  public <P extends Perspective> P as(Resource resource, Class<P> toClass) {
-    Resource indexedResource = resourceIndex.getResource(resource);
-    if (indexedResource != null) {
-      return as(new ResourceComponent(indexedResource), toClass);
+    ComponentVertex vertex;
+    if (component instanceof ComponentVertex) {
+      vertex = (ComponentVertex) component;
+    } else {
+      vertex = graph.getComponent(component.key());
+    }
+
+    if (vertex != null) {
+      PerspectiveBuilder<P> builder = builderFor(perspectiveClass);
+      P perspective = builder.load(vertex);
+      if (perspective == null) {
+        perspective = builder.create(vertex);
+      }
+      return perspective;
     }
     return null;
   }
 
-  <T extends Perspective> PerspectiveBuilder<T> builderFor(Class<T> clazz) {
+  public <P extends Perspective> P as(Class<P> perspectiveClass, Resource resource) {
+    Resource indexedResource = resourceIndex.getResource(resource);
+    if (indexedResource != null) {
+      return as(perspectiveClass, new ResourceComponent(indexedResource));
+    }
+    return null;
+  }
+
+  private <T extends Perspective> PerspectiveBuilder<T> builderFor(Class<T> clazz) {
     PerspectiveBuilder<T> builder = (PerspectiveBuilder<T>) builders.get(clazz);
     if (builder == null) {
       throw new PerspectiveNotFoundException("Perspective class is not registered: " + clazz);

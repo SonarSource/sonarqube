@@ -20,7 +20,7 @@
 package org.sonar.core.persistence;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.core.graph.GraphDao;
+import org.sonar.core.graph.jdbc.GraphDao;
 import org.sonar.core.dashboard.ActiveDashboardDao;
 import org.sonar.core.dashboard.DashboardDao;
 import org.sonar.core.duplication.DuplicationDao;

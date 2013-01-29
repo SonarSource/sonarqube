@@ -17,14 +17,21 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.graph;
+package org.sonar.core.component;
 
-import org.apache.ibatis.annotations.Param;
+import com.tinkerpop.blueprints.Graph;
+import com.tinkerpop.blueprints.Vertex;
+import org.sonar.core.graph.BeanGraph;
 
-public interface GraphDtoMapper {
-  void insert(GraphDto graph);
+class SnapshotGraph extends BeanGraph {
+  private final Vertex componentRoot;
 
-  GraphDto selectBySnapshot(@Param("perspective") String perspectiveKey, @Param("sid") long snapshotId);
+  SnapshotGraph(Graph graph, String rootVertexId) {
+    super(graph);
+    componentRoot = graph.getVertex(rootVertexId);
+  }
 
-  GraphDto selectByComponent(@Param("perspective") String perspectiveKey, @Param("key") String componentKey);
+  Vertex getComponentRoot() {
+    return componentRoot;
+  }
 }

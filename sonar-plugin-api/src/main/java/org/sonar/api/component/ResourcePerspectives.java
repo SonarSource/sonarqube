@@ -23,13 +23,10 @@ import org.sonar.api.resources.Resource;
 
 /**
  * Only on batch-side.
+ *
  * @since 3.5
  */
 public interface ResourcePerspectives extends Perspectives {
 
-  /**
-   * @deprecated backward-compatibility with deprecated API org.sonar.api.resources
-   */
-  @Deprecated
-  <P extends Perspective> P as(Resource resource, Class<P> toClass);
+  <P extends Perspective> P as(Class<P> perspectiveClass, Resource resource);
 }

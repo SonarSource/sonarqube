@@ -51,7 +51,7 @@ import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.ResourceFilters;
 import org.sonar.batch.ViolationFilters;
-import org.sonar.core.component.ComponentGraph;
+import org.sonar.core.component.ScanGraph;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -70,7 +70,7 @@ public class DefaultIndex extends SonarIndex {
   private PersistenceManager persistence;
   private DefaultResourceCreationLock lock;
   private MetricFinder metricFinder;
-  private ComponentGraph graph;
+  private ScanGraph graph;
 
   // filters
   private ViolationFilters violationFilters;
@@ -84,7 +84,7 @@ public class DefaultIndex extends SonarIndex {
   private Map<Resource, Map<Resource, Dependency>> incomingDependenciesByResource = Maps.newHashMap();
   private ProjectTree projectTree;
 
-  public DefaultIndex(PersistenceManager persistence, DefaultResourceCreationLock lock, ProjectTree projectTree, MetricFinder metricFinder, ComponentGraph graph) {
+  public DefaultIndex(PersistenceManager persistence, DefaultResourceCreationLock lock, ProjectTree projectTree, MetricFinder metricFinder, ScanGraph graph) {
     this.persistence = persistence;
     this.lock = lock;
     this.projectTree = projectTree;
@@ -558,7 +558,7 @@ public class DefaultIndex extends SonarIndex {
     if (!excluded) {
       Snapshot snapshot = persistence.saveResource(currentProject, resource, (parentBucket != null ? parentBucket.getResource() : null));
       if (ResourceUtils.isPersistable(resource) && !Qualifiers.LIBRARY.equals(resource.getQualifier())) {
-        graph.createComponent(resource, snapshot);
+        graph.addComponent(resource, snapshot);
       }
     }
 

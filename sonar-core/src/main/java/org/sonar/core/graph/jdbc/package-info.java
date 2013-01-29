@@ -17,25 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.component;
+@ParametersAreNonnullByDefault
+package org.sonar.core.graph.jdbc;
 
-import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
-import org.sonar.core.graph.graphson.GraphsonReader;
-
-import java.io.ByteArrayInputStream;
-
-public class GraphReader {
-
-  public ComponentGraph read(String data, String rootVertexId) {
-    ByteArrayInputStream input = new ByteArrayInputStream(data.getBytes());
-    try {
-      TinkerGraph graph = new TinkerGraph();
-      new GraphsonReader().read(input, graph);
-      Vertex root = graph.getVertex(rootVertexId);
-      return new ComponentGraph(graph, root);
-    } catch (Exception e) {
-      throw new IllegalStateException(e);
-    }
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

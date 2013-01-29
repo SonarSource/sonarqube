@@ -19,40 +19,51 @@
  */
 package org.sonar.core.component;
 
-import com.tinkerpop.blueprints.Direction;
-import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
 import org.slf4j.LoggerFactory;
-import org.sonar.core.graph.GraphDto;
-import org.sonar.core.graph.GraphDtoMapper;
+import org.sonar.api.component.Perspective;
 import org.sonar.core.graph.GraphWriter;
+import org.sonar.core.graph.jdbc.GraphDto;
+import org.sonar.core.graph.jdbc.GraphDtoMapper;
 import org.sonar.core.persistence.BatchSession;
 import org.sonar.core.persistence.MyBatis;
 
-public class GraphStorage {
+public class ScanGraphStore {
   private final MyBatis myBatis;
-  private final ComponentGraph componentGraph;
+  private final ScanGraph projectGraph;
+  private final PerspectiveBuilder[] builders;
 
-  public GraphStorage(MyBatis myBatis, ComponentGraph componentGraph) {
+  public ScanGraphStore(MyBatis myBatis, ScanGraph projectGraph, PerspectiveBuilder[] builders) {
     this.myBatis = myBatis;
-    this.componentGraph = componentGraph;
+    this.projectGraph = projectGraph;
+    this.builders = builders;
   }
 
   public void save() {
-    LoggerFactory.getLogger(GraphStorage.class).info("Persisting graphs of components");
+    LoggerFactory.getLogger(ScanGraphStore.class).info("Persisting graphs of components");
     BatchSession session = myBatis.openBatchSession();
     GraphDtoMapper mapper = session.getMapper(GraphDtoMapper.class);
     try {
       TinkerGraph subGraph = new TinkerGraph();
       GraphWriter writer = new GraphWriter();
-      for (Vertex component : componentGraph.getRootVertex().getVertices(Direction.OUT, "component")) {
-        Long snapshotId = (Long) component.getProperty("sid");
+      for (ComponentVertex component : projectGraph.getComponents()) {
+        Long snapshotId = (Long) component.element().getProperty("sid");
         if (snapshotId != null) {
-          String data = writer.write(componentGraph.getUnderlyingGraph());
-          mapper.insert(new GraphDto()
-            .setData(data).setFormat("graphson").setPerspective("testplan").setVersion(1)
-            .setSnapshotId(snapshotId).setRootVertexId(component.getId().toString()));
-          subGraph.clear();
+          for (PerspectiveBuilder builder : builders) {
+            Perspective perspective = builder.load(component);
+            if (perspective != null) {
+              String data = writer.write(projectGraph.getUnderlyingGraph());
+              mapper.insert(new GraphDto()
+                .setData(data)
+                .setFormat("graphson")
+                .setPerspective(builder.getPerspectiveKey())
+                .setVersion(1)
+                .setSnapshotId(snapshotId)
+                .setRootVertexId(component.element().getId().toString())
+              );
+              subGraph.clear();
+            }
+          }
         }
       }
       session.commit();
