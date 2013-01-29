@@ -191,9 +191,11 @@ class ResourceController < ApplicationController
       @conditions_by_line = load_distribution("#{it_prefix}conditions_by_line")
       @covered_conditions_by_line = load_distribution("#{it_prefix}covered_conditions_by_line")
 
+      testable = java_facade.getTestable(@snapshot.id)
       @hits_by_line.each_pair do |line_id, hits|
         line = @lines[line_id-1]
         if line
+          line.covered_lines = testable.testCasesCoveringLine(line_id).size if testable && testable.testCasesCoveringLine(line_id).size > 0
           line.hits = hits.to_i
           line.conditions = @conditions_by_line[line_id].to_i
           line.covered_conditions = @covered_conditions_by_line[line_id].to_i
@@ -431,7 +433,7 @@ class ResourceController < ApplicationController
   end
 
   class Line
-    attr_accessor :source, :revision, :author, :datetime, :violations, :hits, :conditions, :covered_conditions, :hidden, :highlighted, :deprecated_conditions_label
+    attr_accessor :source, :revision, :author, :datetime, :violations, :hits, :conditions, :covered_conditions, :hidden, :highlighted, :deprecated_conditions_label, :covered_lines
 
     def initialize(source)
       @source=source

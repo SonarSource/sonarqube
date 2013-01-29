@@ -24,8 +24,6 @@ import com.google.common.collect.Iterables;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.test.CoveredTestable;
 import org.sonar.api.test.MutableTestCase;
 import org.sonar.api.test.TestPlan;
@@ -39,8 +37,6 @@ import java.util.Collection;
 import java.util.List;
 
 public class DefaultTestCase extends BeanVertex implements MutableTestCase {
-
-  private static final Logger LOG = LoggerFactory.getLogger(DefaultTestCase.class);
 
   public String type() {
     return (String) getProperty("type");
@@ -105,8 +101,6 @@ public class DefaultTestCase extends BeanVertex implements MutableTestCase {
   }
 
   public void covers(Testable testable, List<Integer> lines) {
-    LOG.info("Covers : " + testable.component().key(), " on "+ lines);
-
     Vertex componentVertex = GraphUtil.single(beanGraph().getUnderlyingGraph().getVertices("key", testable.component().key()));
     beanGraph().getUnderlyingGraph().addEdge(null, element(), componentVertex, "covers").setProperty("lines", lines);
   }
@@ -131,5 +125,28 @@ public class DefaultTestCase extends BeanVertex implements MutableTestCase {
 
   public Collection<CoveredTestable> coveredTestable() {
     return null;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    DefaultTestCase that = (DefaultTestCase) o;
+
+    if (key() != null ? !key().equals(that.key()) : that.key() != null) {
+      return false;
+    }
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return key() != null ? key().hashCode() : 0;
   }
 }

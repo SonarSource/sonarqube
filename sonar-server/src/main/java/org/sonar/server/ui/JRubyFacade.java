@@ -37,7 +37,9 @@ import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.test.MutableTestPlan;
+import org.sonar.api.test.MutableTestable;
 import org.sonar.api.test.TestPlan;
+import org.sonar.api.test.Testable;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.api.web.Footer;
 import org.sonar.api.web.NavigationSection;
@@ -544,6 +546,10 @@ public final class JRubyFacade {
 
   public TestPlan getTestPlan(long snapshotId) {
     return get(SnapshotPerspectives.class).as(MutableTestPlan.class, snapshotId);
+  }
+
+  public Testable getTestable(long snapshotId) {
+    return get(SnapshotPerspectives.class).as(MutableTestable.class, snapshotId);
   }
 
 }

@@ -99,7 +99,7 @@
 
         <% if @display_coverage %>
           <% if line.highlighted? %>
-            <td class="ind <%= hits_status -%>"><%= line.hits -%></td>
+            <td class="ind <%= hits_status -%>"><%= line.covered_lines if line.covered_lines -%></td>
             <td class="ind <%= conditions_status -%>">
               <% if line.deprecated_conditions_label -%>
                 <%= line.deprecated_conditions_label -%>
