@@ -25,28 +25,37 @@ import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
 import com.tinkerpop.blueprints.util.GraphHelper;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class SubGraphTest {
-  @Test
-  public void extract_acyclic_graph() {
-    TinkerGraph graph = new TinkerGraph();
-    Vertex a = GraphHelper.addVertex(graph, null, "key", "a");
-    Vertex b = GraphHelper.addVertex(graph, null, "key", "b");
-    Vertex c = GraphHelper.addVertex(graph, null, "key", "c");
-    Vertex d = GraphHelper.addVertex(graph, null, "key", "d");
-    Vertex e = GraphHelper.addVertex(graph, null, "key", "e");
 
-    Edge ab = GraphHelper.addEdge(graph, null, a, b, "uses");
-    Edge bc = GraphHelper.addEdge(graph, null, b, c, "inherits");
-    Edge ad = GraphHelper.addEdge(graph, null, a, d, "uses");
-    Edge de = GraphHelper.addEdge(graph, null, d, e, "implements");
+  TinkerGraph graph;
+  Vertex a, b, c, d, e;
+  Edge ab, bc, ad, de;
+
+  @Before
+  public void before() {
+    graph = new TinkerGraph();
+    a = GraphHelper.addVertex(graph, null, "key", "a");
+    b = GraphHelper.addVertex(graph, null, "key", "b");
+    c = GraphHelper.addVertex(graph, null, "key", "c");
+    d = GraphHelper.addVertex(graph, null, "key", "d");
+    e = GraphHelper.addVertex(graph, null, "key", "e");
+
+    ab = GraphHelper.addEdge(graph, null, a, b, "uses");
+    bc = GraphHelper.addEdge(graph, null, b, c, "inherits");
+    ad = GraphHelper.addEdge(graph, null, a, d, "uses");
+    de = GraphHelper.addEdge(graph, null, d, e, "implements");
 
     // a -uses-> b -inherits -> c
     // a -uses-> d -implements-> e
+  }
 
+  @Test
+  public void should_extract_graph() {
     Graph sub = SubGraph.extract(a, "uses", Direction.OUT, "implements", Direction.OUT);
 
     // a -uses-> b
@@ -60,9 +69,18 @@ public class SubGraphTest {
 
     assertThat(sub.getEdges()).hasSize(3);
     assertThat(sub.getEdge(ab.getId()).getLabel()).isEqualTo("uses");
-    assertThat(sub.getEdge(ab.getId()).getId()).isEqualTo(ab.getId());
+    assertThat(sub.getEdge(ab.getId()).toString()).isEqualTo(ab.toString());
     assertThat(sub.getEdge(bc.getId())).isNull();
-    assertThat(sub.getEdge(ad.getId()).getId()).isEqualTo(ad.getId());
-    assertThat(sub.getEdge(de.getId()).getId()).isEqualTo(de.getId());
+    assertThat(sub.getEdge(ad.getId()).toString()).isEqualTo(ad.toString());
+    assertThat(sub.getEdge(de.getId()).toString()).isEqualTo(de.toString());
+  }
+
+  @Test
+  public void should_check_edge_direction() {
+    Graph sub = SubGraph.extract(a, "uses", Direction.IN /* instead of out */, "implements", Direction.OUT);
+
+    assertThat(sub.getVertices()).hasSize(1);
+    assertThat(sub.getVertex(a.getId())).isNotNull();
+    assertThat(sub.getEdges()).isEmpty();
   }
 }

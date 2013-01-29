@@ -40,31 +40,33 @@ public class SubGraph {
   private SubGraph() {
   }
 
+  public static Graph extract(Vertex start, Object... edgePath) {
+    return new SubGraph().process(start, edgePath);
+  }
+
   private Graph process(Vertex start, Object... edgePath) {
+    copy(start);
     browse(start, 0, edgePath);
     for (Edge edge : edgesToCopy) {
-      Vertex from = edge.getVertex(Direction.IN);
-      Vertex to = edge.getVertex(Direction.OUT);
+      Vertex from = edge.getVertex(Direction.OUT);
+      Vertex to = edge.getVertex(Direction.IN);
       Edge copyEdge = sub.addEdge(edge.getId(), sub.getVertex(from.getId()), sub.getVertex(to.getId()), edge.getLabel());
       ElementHelper.copyProperties(edge, copyEdge);
     }
     return sub;
   }
 
-  public static Graph extract(Vertex start, Object... edgePath) {
-    return new SubGraph().process(start, edgePath);
-  }
-
-  private void browse(Vertex vertex, int cursor, Object... edgePath) {
-    if (vertex != null) {
-      copy(vertex);
+  private void browse(Vertex from, int cursor, Object... edgePath) {
+    if (from != null) {
       if (cursor < edgePath.length) {
         String edgeLabel = (String) edgePath[cursor];
         Direction edgeDirection = (Direction) edgePath[cursor + 1];
-        Iterable<Edge> edges = vertex.getEdges(edgeDirection, edgeLabel);
+        Iterable<Edge> edges = from.getEdges(edgeDirection, edgeLabel);
         for (Edge edge : edges) {
           edgesToCopy.add(edge);
-          browse(edge.getVertex(edgeDirection.opposite()), cursor + 2, edgePath);
+          Vertex tail = edge.getVertex(edgeDirection.opposite());
+          copy(tail);
+          browse(tail, cursor + 2, edgePath);
         }
       }
     }
