@@ -39,6 +39,7 @@ public class GraphDaoTest extends AbstractDaoTestCase {
     GraphDto testPlan = dao.selectBySnapshot("testplan", 11L);
 
     assertThat(testPlan.getId()).isEqualTo(101L);
+    assertThat(testPlan.getResourceId()).isEqualTo(1L);
     assertThat(testPlan.getSnapshotId()).isEqualTo(11L);
     assertThat(testPlan.getFormat()).isEqualTo("graphson");
     assertThat(testPlan.getVersion()).isEqualTo(1);
@@ -62,6 +63,7 @@ public class GraphDaoTest extends AbstractDaoTestCase {
     GraphDto testPlan = dao.selectByComponent("testplan", "org.apache.struts:struts");
 
     assertThat(testPlan.getId()).isEqualTo(101L);
+    assertThat(testPlan.getResourceId()).isEqualTo(1L);
     assertThat(testPlan.getSnapshotId()).isEqualTo(11L);
     assertThat(testPlan.getFormat()).isEqualTo("graphson");
     assertThat(testPlan.getVersion()).isEqualTo(1);

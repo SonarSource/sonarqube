@@ -25,6 +25,7 @@ class CreateGraphs < ActiveRecord::Migration
   def self.up
     create_table 'graphs' do |t|
       t.column 'snapshot_id', :integer, :null => false
+      t.column 'resource_id', :integer, :null => false
       t.column 'format', :string, :null => true, :limit => 20
       t.column 'perspective', :string, :null => true, :limit => 30
       t.column 'version', :string, :null => true, :limit => 20

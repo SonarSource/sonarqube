@@ -30,6 +30,7 @@ class ResourceComponent implements Component {
   private String name;
   private String qualifier;
   private Long snapshotId;
+  private Long resourceId;
 
   ResourceComponent(Resource resource, @Nullable Snapshot snapshot) {
     this.key = resource.getEffectiveKey();
@@ -37,6 +38,7 @@ class ResourceComponent implements Component {
     this.qualifier = resource.getQualifier();
     if (snapshot != null && snapshot.getId() != null) {
       this.snapshotId = snapshot.getId().longValue();
+      this.resourceId = snapshot.getResourceId().longValue();
     }
   }
 
@@ -58,5 +60,9 @@ class ResourceComponent implements Component {
 
   public Long snapshotId() {
     return snapshotId;
+  }
+
+  public Long resourceId() {
+    return resourceId;
   }
 }

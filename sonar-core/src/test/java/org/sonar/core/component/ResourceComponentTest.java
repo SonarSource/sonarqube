@@ -27,19 +27,22 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class ResourceComponentTest {
   @Test
-  public void snapshot_id_should_be_optional() {
+  public void db_ids_should_be_optional() {
     ResourceComponent component = new ResourceComponent(new File("foo.c"), new Snapshot());
 
     assertThat(component.snapshotId()).isNull();
+    assertThat(component.resourceId()).isNull();
   }
 
   @Test
-  public void snapshot_id_should_be_set() {
+  public void db_ids_should_be_set() {
     Snapshot snapshot = new Snapshot();
     snapshot.setId(123);
+    snapshot.setResourceId(456);
     ResourceComponent component = new ResourceComponent(new File("foo.c"), snapshot);
 
     assertThat(component.snapshotId()).isEqualTo(123);
+    assertThat(component.resourceId()).isEqualTo(456);
   }
 
   @Test

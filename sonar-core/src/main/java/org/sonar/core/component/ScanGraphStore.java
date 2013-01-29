@@ -58,6 +58,7 @@ public class ScanGraphStore {
                 .setFormat("graphson")
                 .setPerspective(builder.getPerspectiveKey())
                 .setVersion(1)
+                .setResourceId((Long) component.element().getProperty("rid"))
                 .setSnapshotId(snapshotId)
                 .setRootVertexId(component.element().getId().toString())
               );

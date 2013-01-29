@@ -45,6 +45,8 @@ public interface PurgeMapper {
 
   void deleteSnapshotViolations(long snapshotId);
 
+  void deleteSnapshotGraphs(long snapshotId);
+
   List<Long> selectMetricIdsWithoutHistoricalData();
 
   List<Long> selectCharacteristicIdsToPurge();
@@ -80,6 +82,8 @@ public interface PurgeMapper {
   void deleteResourceEvents(long resourceId);
 
   void deleteResourceActionPlans(long resourceId);
+
+  void deleteResourceGraphs(long resourceId);
 
   void deleteAuthors(long developerId);
 

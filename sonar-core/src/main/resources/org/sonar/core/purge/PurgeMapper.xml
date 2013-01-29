@@ -100,6 +100,10 @@
     delete from rule_failures where snapshot_id=#{id}
   </delete>
 
+  <delete id="deleteSnapshotGraphs" parameterType="long">
+    delete from graphs where snapshot_id=#{id}
+  </delete>
+
   <delete id="deleteSnapshotDependencies" parameterType="long">
     delete from dependencies where from_snapshot_id=#{id} or to_snapshot_id=#{id} or project_snapshot_id=#{id}
   </delete>
@@ -119,14 +123,14 @@
   <delete id="deleteSnapshotWastedMeasures" parameterType="map">
     delete from project_measures where snapshot_id=#{sid} and
     (rule_id is not null or person_id is not null or metric_id in
-      <foreach item="mid" index="index" collection="mids" open="(" separator="," close=")">#{mid}</foreach>
+    <foreach item="mid" index="index" collection="mids" open="(" separator="," close=")">#{mid}</foreach>
     )
   </delete>
 
   <delete id="deleteSnapshotMeasuresOnCharacteristics" parameterType="map">
     delete from project_measures where snapshot_id=#{sid}
     and (
-      <foreach item="cid" index="index" collection="cids" open="" separator=" OR " close="">characteristic_id=#{cid}</foreach>
+    <foreach item="cid" index="index" collection="cids" open="" separator=" OR " close="">characteristic_id=#{cid}</foreach>
     )
   </delete>
 
@@ -185,6 +189,10 @@
 
   <delete id="deleteResourceActionPlans" parameterType="long">
     delete from action_plans where project_id=#{id}
+  </delete>
+
+  <delete id="deleteResourceGraphs" parameterType="long">
+    delete from graphs where resource_id=#{id}
   </delete>
 
   <delete id="deleteAuthors" parameterType="long">

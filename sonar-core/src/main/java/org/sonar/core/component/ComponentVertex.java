@@ -42,6 +42,7 @@ public class ComponentVertex extends BeanVertex implements Component {
     setProperty("qualifier", component.qualifier());
     if (component instanceof ResourceComponent) {
       setProperty("sid", ((ResourceComponent) component).snapshotId());
+      setProperty("rid", ((ResourceComponent) component).resourceId());
     }
   }
 }

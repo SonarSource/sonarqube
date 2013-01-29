@@ -21,6 +21,7 @@ package org.sonar.core.graph.jdbc;
 
 public class GraphDto {
   private long id;
+  private long resourceId;
   private long snapshotId;
   private String format;
   private String perspective;
@@ -34,6 +35,15 @@ public class GraphDto {
 
   public GraphDto setId(long id) {
     this.id = id;
+    return this;
+  }
+
+  public long getResourceId() {
+    return resourceId;
+  }
+
+  public GraphDto setResourceId(long resourceId) {
+    this.resourceId = resourceId;
     return this;
   }
 
