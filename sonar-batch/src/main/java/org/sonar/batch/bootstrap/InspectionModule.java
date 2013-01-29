@@ -26,7 +26,6 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
-import org.sonar.api.tests.ProjectTestsImpl;
 import org.sonar.batch.DefaultProfileLoader;
 import org.sonar.batch.DefaultProjectClasspath;
 import org.sonar.batch.DefaultProjectFileSystem2;
@@ -102,7 +101,6 @@ public class InspectionModule extends Module {
     container.addSingleton(DefaultModelFinder.class);
     container.addSingleton(DefaultProfileLoader.class);
     container.addSingleton(DryRunExporter.class);
-    container.addSingleton(ProjectTestsImpl.class);
     container.addPicoAdapter(new ProfileProvider());
   }
 
