@@ -110,7 +110,7 @@ class GraphsonUtil {
    */
   static JSONObject jsonFromElement(Element element, @Nullable Set<String> propertyKeys, GraphsonMode mode) {
     GraphsonUtil graphson = element instanceof Edge ? new GraphsonUtil(mode, null, null, propertyKeys)
-      : new GraphsonUtil(mode, null, propertyKeys, null);
+        : new GraphsonUtil(mode, null, propertyKeys, null);
     return graphson.jsonFromElement(element);
   }
 
@@ -249,7 +249,7 @@ class GraphsonUtil {
 
   private static boolean isReservedKey(String key) {
     return key.equals(GraphsonTokens._ID) || key.equals(GraphsonTokens._TYPE) || key.equals(GraphsonTokens._LABEL)
-      || key.equals(GraphsonTokens._OUT_V) || key.equals(GraphsonTokens._IN_V);
+        || key.equals(GraphsonTokens._OUT_V) || key.equals(GraphsonTokens._IN_V);
   }
 
   private static JSONArray createJSONList(List list, Set<String> propertyKeys, boolean showTypes) {
@@ -264,6 +264,8 @@ class GraphsonUtil {
         jsonList.add(createJSONMap((Map) item, propertyKeys, showTypes));
       } else if (item != null && item.getClass().isArray()) {
         jsonList.add(createJSONList(convertArrayToList(item), propertyKeys, showTypes));
+      } else if (item instanceof Set) {
+        throw new UnsupportedOperationException("Set property is not supported");
       } else {
         addObject(jsonList, item);
       }
@@ -283,7 +285,7 @@ class GraphsonUtil {
           value = createJSONMap((Map) value, propertyKeys, showTypes);
         } else if (value instanceof Element) {
           value = jsonFromElement((Element) value, propertyKeys,
-            showTypes ? GraphsonMode.EXTENDED : GraphsonMode.NORMAL);
+              showTypes ? GraphsonMode.EXTENDED : GraphsonMode.NORMAL);
         } else if (value.getClass().isArray()) {
           value = createJSONList(convertArrayToList(value), propertyKeys, showTypes);
         }

@@ -21,7 +21,7 @@ package org.sonar.api.test;
 
 import javax.annotation.Nullable;
 
-import java.util.Set;
+import java.util.List;
 
 public interface MutableTestCase extends TestCase {
   MutableTestCase setStatus(String s);
@@ -34,5 +34,5 @@ public interface MutableTestCase extends TestCase {
 
   MutableTestCase setStackTrace(String s);
 
-  void covers(Testable testable, Set<Integer> lines);
+  void covers(Testable testable, List<Integer> lines);
 }

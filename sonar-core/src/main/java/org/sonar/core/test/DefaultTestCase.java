@@ -37,7 +37,6 @@ import javax.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 public class DefaultTestCase extends BeanVertex implements MutableTestCase {
 
@@ -105,7 +104,7 @@ public class DefaultTestCase extends BeanVertex implements MutableTestCase {
     return this;
   }
 
-  public void covers(Testable testable, Set<Integer> lines) {
+  public void covers(Testable testable, List<Integer> lines) {
     LOG.info("Covers : " + testable.component().key(), " on "+ lines);
 
     Vertex componentVertex = GraphUtil.single(beanGraph().getUnderlyingGraph().getVertices("key", testable.component().key()));
