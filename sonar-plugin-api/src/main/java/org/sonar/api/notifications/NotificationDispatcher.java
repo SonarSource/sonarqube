@@ -24,15 +24,15 @@ import org.sonar.api.ServerExtension;
 
 /**
  * <p>
- * Plugins should extend this class to provide logic to determine which users are interested in receiving notifications.
- * It has no knowledge about the way of delivery.
+ * Plugins should extend this class to provide logic to determine which users are interested in receiving notifications,
+ * along with which delivery channels they selected.
  * </p>
  * For example:
  * <ul>
- * <li>notify me when someone comments on review created by me</li>
- * <li>notify me when someone comments on review assigned to me</li>
- * <li>notify me when someone mentions me in comment for review</li>
- * <li>send me system notifications (like password reset, account creation, ...)</li>
+ * <li>notify me by email when someone comments on review created by me</li>
+ * <li>notify me by twitter when someone comments on review assigned to me</li>
+ * <li>notify me by Jabber when someone mentions me in comment for review</li>
+ * <li>send me by SMS when there are system notifications (like password reset, account creation, ...)</li>
  * </ul> 
  * 
  * @since 2.10
@@ -47,11 +47,19 @@ public abstract class NotificationDispatcher implements ServerExtension {
    */
   public interface Context {
     /**
-     * Adds a user that will be notified.
+     * This method is not used any longer. {Context#addUser(String, NotificationChannel) should be used instead.
      * 
-     * @param userLogin the user login
+     * @deprecated
      */
     void addUser(String userLogin);
+
+    /**
+     * Adds a user that will be notified through the given notification channel.
+     * 
+     * @param userLogin the user login
+     * @param notificationChannel the notification channel to use for this user
+     */
+    void addUser(String userLogin, NotificationChannel notificationChannel);
   }
 
   /**

@@ -19,23 +19,80 @@
  */
 package org.sonar.api.notifications;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-
-import org.junit.Test;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class NotificationDispatcherTest {
 
-  @Test
-  public void defaultMethods() {
-    NotificationDispatcher channel = new FakeNotificationDispatcher();
-    assertThat(channel.getKey(), is("FakeNotificationDispatcher"));
-    assertThat(channel.toString(), is("FakeNotificationDispatcher"));
+  @Mock
+  private NotificationChannel channel;
+
+  @Mock
+  private Notification notification;
+
+  @Mock
+  private NotificationDispatcher.Context context;
+
+  @Before
+  public void init() {
+    MockitoAnnotations.initMocks(this);
+    when(notification.getType()).thenReturn("event1");
   }
 
-  class FakeNotificationDispatcher extends NotificationDispatcher {
+  @Test
+  public void defaultMethods() {
+    NotificationDispatcher dispatcher = new FakeGenericNotificationDispatcher();
+    assertThat(dispatcher.getKey(), is("FakeGenericNotificationDispatcher"));
+    assertThat(dispatcher.toString(), is("FakeGenericNotificationDispatcher"));
+  }
+
+  @Test
+  public void shouldAlwaysRunDispatchForGenericDispatcher() {
+    NotificationDispatcher dispatcher = new FakeGenericNotificationDispatcher();
+    dispatcher.performDispatch(notification, context);
+
+    verify(context, times(1)).addUser("user1", channel);
+  }
+
+  @Test
+  public void shouldNotAlwaysRunDispatchForSpecificDispatcher() {
+    NotificationDispatcher dispatcher = new FakeSpecificNotificationDispatcher();
+
+    // a "event1" notif is sent
+    dispatcher.performDispatch(notification, context);
+    verify(context, never()).addUser("user1", channel);
+
+    // now, a "specific-event" notif is sent
+    when(notification.getType()).thenReturn("specific-event");
+    dispatcher.performDispatch(notification, context);
+    verify(context, times(1)).addUser("user1", channel);
+  }
+
+  class FakeGenericNotificationDispatcher extends NotificationDispatcher {
     @Override
     public void dispatch(Notification notification, Context context) {
+      context.addUser("user1", channel);
+    }
+  }
+
+  class FakeSpecificNotificationDispatcher extends NotificationDispatcher {
+
+    public FakeSpecificNotificationDispatcher() {
+      super("specific-event");
+    }
+
+    @Override
+    public void dispatch(Notification notification, Context context) {
+      context.addUser("user1", channel);
     }
   }
 

@@ -29,6 +29,7 @@ import org.sonar.api.notifications.NotificationDispatcher;
 import org.sonar.core.notification.DefaultNotificationManager;
 import org.sonar.core.notification.NotificationQueueElement;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.same;
@@ -61,14 +62,11 @@ public class NotificationServiceTest {
     when(commentOnReviewCreatedByMe.getKey()).thenReturn("comment on review created by me");
     when(queueElement.getNotification()).thenReturn(notification);
     when(manager.getFromQueue()).thenReturn(queueElement).thenReturn(null);
-    doAnswer(addUser(assignee)).when(commentOnReviewAssignedToMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
-    doAnswer(addUser(creator)).when(commentOnReviewCreatedByMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
 
-    Settings settings = new Settings().setProperty("sonar.notifications.delay", 1L); // delay 1 second
+    Settings settings = new Settings().setProperty("sonar.notifications.delay", 1L);
 
     service = new NotificationService(settings, manager,
-        new NotificationDispatcher[] {commentOnReviewAssignedToMe, commentOnReviewCreatedByMe},
-        new NotificationChannel[] {emailChannel, gtalkChannel});
+        new NotificationDispatcher[] {commentOnReviewAssignedToMe, commentOnReviewCreatedByMe});
   }
 
   /**
@@ -84,8 +82,8 @@ public class NotificationServiceTest {
   @Test
   public void scenario1() {
     setUpMocks(CREATOR_SIMON, ASSIGNEE_SIMON);
-    when(manager.isEnabled(CREATOR_SIMON, "email", "comment on review created by me")).thenReturn(true);
-    when(manager.isEnabled(ASSIGNEE_SIMON, "email", "comment on review assigned to me")).thenReturn(true);
+    doAnswer(addUser(ASSIGNEE_SIMON, emailChannel)).when(commentOnReviewAssignedToMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
+    doAnswer(addUser(CREATOR_SIMON, emailChannel)).when(commentOnReviewCreatedByMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
 
     service.start();
     verify(emailChannel, timeout(2000)).deliver(notification, ASSIGNEE_SIMON);
@@ -108,8 +106,8 @@ public class NotificationServiceTest {
   @Test
   public void scenario2() {
     setUpMocks(CREATOR_EVGENY, ASSIGNEE_SIMON);
-    when(manager.isEnabled(CREATOR_EVGENY, "gtalk", "comment on review created by me")).thenReturn(true);
-    when(manager.isEnabled(ASSIGNEE_SIMON, "email", "comment on review assigned to me")).thenReturn(true);
+    doAnswer(addUser(ASSIGNEE_SIMON, emailChannel)).when(commentOnReviewAssignedToMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
+    doAnswer(addUser(CREATOR_EVGENY, gtalkChannel)).when(commentOnReviewCreatedByMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
 
     service.start();
     verify(emailChannel, timeout(2000)).deliver(notification, ASSIGNEE_SIMON);
@@ -133,8 +131,8 @@ public class NotificationServiceTest {
   @Test
   public void scenario3() {
     setUpMocks(CREATOR_EVGENY, ASSIGNEE_SIMON);
-    when(manager.isEnabled(ASSIGNEE_SIMON, "email", "comment on review assigned to me")).thenReturn(true);
-    when(manager.isEnabled(ASSIGNEE_SIMON, "gtalk", "comment on review assigned to me")).thenReturn(true);
+    doAnswer(addUser(ASSIGNEE_SIMON, new NotificationChannel[] {emailChannel, gtalkChannel}))
+        .when(commentOnReviewAssignedToMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
 
     service.start();
     verify(emailChannel, timeout(2000)).deliver(notification, ASSIGNEE_SIMON);
@@ -166,10 +164,39 @@ public class NotificationServiceTest {
     verify(gtalkChannel, never()).deliver(any(Notification.class), anyString());
   }
 
-  private static Answer<Object> addUser(final String user) {
+  @Test
+  public void shouldNotAddNullAsUser() {
+    setUpMocks(CREATOR_EVGENY, ASSIGNEE_SIMON);
+    doAnswer(addUser(null, gtalkChannel)).when(commentOnReviewCreatedByMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
+
+    service.start();
+    service.stop();
+
+    verify(emailChannel, never()).deliver(any(Notification.class), anyString());
+    verify(gtalkChannel, never()).deliver(any(Notification.class), anyString());
+  }
+
+  @Test
+  public void shouldReturnDispatcherAndChannelListsUsedInWebapp() {
+    Settings settings = new Settings().setProperty("sonar.notifications.delay", 1L);
+    NotificationService service = new NotificationService(settings, manager,
+        new NotificationDispatcher[] {commentOnReviewAssignedToMe, commentOnReviewCreatedByMe},
+        new NotificationChannel[] {emailChannel, gtalkChannel});
+
+    assertThat(service.getChannels()).containsOnly(emailChannel, gtalkChannel);
+    assertThat(service.getDispatchers()).containsOnly(commentOnReviewAssignedToMe, commentOnReviewCreatedByMe);
+  }
+
+  private static Answer<Object> addUser(final String user, final NotificationChannel channel) {
+    return addUser(user, new NotificationChannel[] {channel});
+  }
+
+  private static Answer<Object> addUser(final String user, final NotificationChannel[] channels) {
     return new Answer<Object>() {
       public Object answer(InvocationOnMock invocation) {
-        ((NotificationDispatcher.Context) invocation.getArguments()[1]).addUser(user);
+        for (NotificationChannel channel : channels) {
+          ((NotificationDispatcher.Context) invocation.getArguments()[1]).addUser(user, channel);
+        }
         return null;
       }
     };
