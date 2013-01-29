@@ -24,20 +24,16 @@ import org.apache.commons.io.IOUtils;
 import org.sonar.core.graph.graphson.GraphsonMode;
 import org.sonar.core.graph.graphson.GraphsonWriter;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.StringWriter;
 
 public class GraphWriter {
 
   public String write(Graph graph) {
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    StringWriter output = new StringWriter();
     try {
       new GraphsonWriter().write(graph, output, GraphsonMode.COMPACT);
-      output.flush();
-      output.close();
-      return new String(output.toByteArray());
-    } catch (IOException e) {
-      throw new IllegalStateException("Fail to export graph to JSON", e);
+      return output.toString();
     } finally {
       IOUtils.closeQuietly(output);
     }

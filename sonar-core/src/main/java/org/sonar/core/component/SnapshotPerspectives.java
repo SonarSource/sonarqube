@@ -29,7 +29,7 @@ import org.sonar.core.graph.jdbc.GraphDto;
 
 import javax.annotation.CheckForNull;
 
-import java.io.ByteArrayInputStream;
+import java.io.StringReader;
 import java.util.Map;
 
 public class SnapshotPerspectives implements ServerComponent {
@@ -75,7 +75,7 @@ public class SnapshotPerspectives implements ServerComponent {
   }
 
   private SnapshotGraph read(String data, String rootVertexId) {
-    ByteArrayInputStream input = new ByteArrayInputStream(data.getBytes());
+    StringReader input = new StringReader(data);
     try {
       TinkerGraph graph = new TinkerGraph();
       new GraphsonReader().read(input, graph);

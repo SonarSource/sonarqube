@@ -27,6 +27,7 @@ import org.json.simple.JSONValue;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.io.StringWriter;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -36,7 +37,7 @@ public class GraphsonWriterTest {
   public void outputGraphNoEmbeddedTypes() throws Exception {
     Graph g = TinkerGraphFactory.createTinkerGraph();
 
-    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+    StringWriter stream = new StringWriter();
 
     GraphsonWriter writer = new GraphsonWriter();
     writer.write(g, stream, GraphsonMode.NORMAL);
@@ -44,7 +45,7 @@ public class GraphsonWriterTest {
     stream.flush();
     stream.close();
 
-    String jsonString = new String(stream.toByteArray());
+    String jsonString = stream.toString();
 
     JSONObject rootNode = (JSONObject) JSONValue.parse(jsonString);
 
@@ -69,7 +70,7 @@ public class GraphsonWriterTest {
   public void outputGraphWithEmbeddedTypes() throws Exception {
     Graph g = TinkerGraphFactory.createTinkerGraph();
 
-    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+    StringWriter stream = new StringWriter();
 
     GraphsonWriter writer = new GraphsonWriter();
     writer.write(g, stream, GraphsonMode.EXTENDED);
@@ -77,7 +78,7 @@ public class GraphsonWriterTest {
     stream.flush();
     stream.close();
 
-    String jsonString = new String(stream.toByteArray());
+    String jsonString = stream.toString();
 
     JSONObject rootNode = (JSONObject) JSONValue.parse(jsonString);
 
@@ -102,7 +103,7 @@ public class GraphsonWriterTest {
   public void outputGraphWithCompact() throws Exception {
     Graph g = TinkerGraphFactory.createTinkerGraph();
 
-    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+    StringWriter stream = new StringWriter();
 
     GraphsonWriter writer = new GraphsonWriter();
     writer.write(g, stream, GraphsonMode.COMPACT);
@@ -110,7 +111,7 @@ public class GraphsonWriterTest {
     stream.flush();
     stream.close();
 
-    String jsonString = new String(stream.toByteArray());
+    String jsonString = stream.toString();
 
     JSONObject rootNode = (JSONObject) JSONValue.parse(jsonString);
 

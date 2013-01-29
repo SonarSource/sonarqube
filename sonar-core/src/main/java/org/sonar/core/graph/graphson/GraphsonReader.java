@@ -28,6 +28,7 @@ import org.json.simple.parser.JSONParser;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Set;
 
 /**
@@ -35,7 +36,7 @@ import java.util.Set;
  */
 public class GraphsonReader {
 
-  public Graph read(InputStream jsonInput, Graph toGraph) {
+  public Graph read(Reader jsonInput, Graph toGraph) {
     return read(jsonInput, toGraph, 1000, null, null);
   }
 
@@ -44,13 +45,13 @@ public class GraphsonReader {
    * More control over how data is streamed is provided by this method.
    *
    * @param toGraph    the graph to populate with the JSON data
-   * @param jsonInput  an InputStream of JSON data
+   * @param input  an InputStream of JSON data
    * @param bufferSize the amount of elements to hold in memory before committing a transactions (only valid for TransactionalGraphs)
    */
-  public Graph read(InputStream jsonInput, Graph toGraph, int bufferSize, Set<String> edgePropertyKeys, Set<String> vertexPropertyKeys) {
+  public Graph read(Reader input, Graph toGraph, int bufferSize, Set<String> edgePropertyKeys, Set<String> vertexPropertyKeys) {
     try {
       JSONParser parser = new JSONParser();
-      JSONObject json = (JSONObject) parser.parse(new InputStreamReader(jsonInput));
+      JSONObject json = (JSONObject) parser.parse(input);
 
       // if this is a transactional graph then we're buffering
       final BatchGraph batchGraph = BatchGraph.wrap(toGraph, bufferSize);

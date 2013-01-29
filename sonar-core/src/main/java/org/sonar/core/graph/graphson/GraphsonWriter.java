@@ -27,30 +27,25 @@ import org.json.simple.JSONObject;
 
 import javax.annotation.Nullable;
 
-import java.io.OutputStream;
+import java.io.Writer;
 import java.util.Set;
 
-/**
- * GraphsonWriter writes a Graph to a TinkerPop JSON OutputStream.
- *
- * @author Stephen Mallette
- */
 public class GraphsonWriter {
 
-  public void write(Graph graph, OutputStream jsonOutputStream, GraphsonMode mode) {
-    write(graph, jsonOutputStream, mode, null, null);
+  public void write(Graph graph, Writer output, GraphsonMode mode) {
+    write(graph, output, mode, null, null);
   }
 
   /**
    * Write the data in a Graph to a JSON OutputStream.
    *
-   * @param jsonOutputStream   the JSON OutputStream to write the Graph data to
+   * @param output             the JSON Writer to write the Graph data to
    * @param vertexPropertyKeys the keys of the vertex elements to write to JSON
    * @param edgePropertyKeys   the keys of the edge elements to write to JSON
    * @param mode               determines the format of the GraphSON
    * @throws java.io.IOException thrown if there is an error generating the JSON data
    */
-  public void write(Graph graph, OutputStream jsonOutputStream, GraphsonMode mode, @Nullable Set<String> vertexPropertyKeys, @Nullable Set<String> edgePropertyKeys) {
+  public void write(Graph graph, Writer output, GraphsonMode mode, @Nullable Set<String> vertexPropertyKeys, @Nullable Set<String> edgePropertyKeys) {
     try {
       JSONObject root = new JSONObject();
       GraphsonUtil graphson = new GraphsonUtil(mode, null, vertexPropertyKeys, edgePropertyKeys);
@@ -69,7 +64,7 @@ public class GraphsonWriter {
       }
       root.put(GraphsonTokens.EDGES, edgesArray);
 
-      jsonOutputStream.write(root.toString().getBytes("UTF-8"));
+      output.write(root.toString());
     } catch (Exception e) {
       throw new GraphsonException("Fail to generate GraphSON", e);
     }
