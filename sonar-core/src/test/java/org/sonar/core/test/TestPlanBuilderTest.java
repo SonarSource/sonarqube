@@ -17,7 +17,10 @@
 * License along with Sonar; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 */
-//package org.sonar.core.test;
+package org.sonar.core.test;
+
+import org.junit.Ignore;
+
 //
 //import com.tinkerpop.blueprints.Vertex;
 //import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
@@ -32,7 +35,8 @@
 //
 //import static org.fest.assertions.Assertions.assertThat;
 //
-//public class TestPlanBuilderTest {
+@Ignore
+public class TestPlanBuilderTest {
 //  @Test
 //  public void should_create_empty_plan() {
 //    ComponentGraph graph = new ComponentGraph();
@@ -73,4 +77,4 @@
 //    assertThat(testPlan.testCases()).hasSize(4);
 //  }
 //
-//}
+}
