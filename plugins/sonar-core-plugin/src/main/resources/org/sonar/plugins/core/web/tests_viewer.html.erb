@@ -59,13 +59,8 @@
          test_case[:name] = test.name()
          test_case[:status] = test.status()
          test_case[:time] = test.durationInMs()
-         test_case[:covered_lines] = 0
-         if test.coveredBlocks()
-           has_covered_lines = true
-           test.coveredBlocks().each do |covered_block|
-             test_case[:covered_lines] += covered_block.lines().size
-           end
-         end
+         has_covered_lines = test.hasCoveredBlocks()
+         test_case[:covered_lines] = test.countCoveredBlocks() if test.hasCoveredBlocks()
          if test.status() != 'ok'
            test_case[:message] = ''
            test_case[:message] = test.message() if test.message()

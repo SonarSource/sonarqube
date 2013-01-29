@@ -20,8 +20,12 @@
 package org.sonar.core.test;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
 import com.tinkerpop.blueprints.Direction;
+import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.test.CoveredTestable;
 import org.sonar.api.test.MutableTestCase;
 import org.sonar.api.test.TestPlan;
@@ -32,9 +36,12 @@ import org.sonar.core.graph.GraphUtil;
 import javax.annotation.Nullable;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 public class DefaultTestCase extends BeanVertex implements MutableTestCase {
+
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultTestCase.class);
 
   public String type() {
     return (String) getProperty("type");
@@ -99,12 +106,28 @@ public class DefaultTestCase extends BeanVertex implements MutableTestCase {
   }
 
   public void covers(Testable testable, Set<Integer> lines) {
+    LOG.info("Covers : " + testable.component().key(), " on "+ lines);
 
+    Vertex componentVertex = GraphUtil.single(beanGraph().getUnderlyingGraph().getVertices("key", testable.component().key()));
+    beanGraph().getUnderlyingGraph().addEdge(null, element(), componentVertex, "covers").setProperty("lines", lines);
   }
 
   public TestPlan testPlan() {
     Vertex plan = GraphUtil.singleAdjacent(element(), Direction.IN, "testcase");
     return beanGraph().wrap(plan, DefaultTestPlan.class);
+  }
+
+  public boolean hasCoveredBlocks(){
+    return Iterables.size(element().getEdges(Direction.OUT, "covers")) > 0;
+  }
+
+  public int countCoveredBlocks() {
+    int coveredBlocks = 0;
+    for (Edge edge : element().getEdges(Direction.OUT, "covers")){
+      List<String> lines = (List<String>) edge.getProperty("lines");
+      coveredBlocks = coveredBlocks + lines.size();
+    }
+    return coveredBlocks;
   }
 
   public Collection<CoveredTestable> coveredBlocks() {
