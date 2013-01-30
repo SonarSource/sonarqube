@@ -25,37 +25,29 @@ import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
 import com.tinkerpop.blueprints.util.GraphHelper;
-import org.junit.Before;
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class SubGraphTest {
 
-  TinkerGraph graph;
-  Vertex a, b, c, d, e;
-  Edge ab, bc, ad, de;
+  @Test
+  public void should_extract_graph() {
+    TinkerGraph graph = new TinkerGraph();
+    Vertex a = GraphHelper.addVertex(graph, null, "key", "a");
+    Vertex b = GraphHelper.addVertex(graph, null, "key", "b");
+    Vertex c = GraphHelper.addVertex(graph, null, "key", "c");
+    Vertex d = GraphHelper.addVertex(graph, null, "key", "d");
+    Vertex e = GraphHelper.addVertex(graph, null, "key", "e");
 
-  @Before
-  public void before() {
-    graph = new TinkerGraph();
-    a = GraphHelper.addVertex(graph, null, "key", "a");
-    b = GraphHelper.addVertex(graph, null, "key", "b");
-    c = GraphHelper.addVertex(graph, null, "key", "c");
-    d = GraphHelper.addVertex(graph, null, "key", "d");
-    e = GraphHelper.addVertex(graph, null, "key", "e");
-
-    ab = GraphHelper.addEdge(graph, null, a, b, "uses");
-    bc = GraphHelper.addEdge(graph, null, b, c, "inherits");
-    ad = GraphHelper.addEdge(graph, null, a, d, "uses");
-    de = GraphHelper.addEdge(graph, null, d, e, "implements");
+    Edge ab = GraphHelper.addEdge(graph, null, a, b, "uses");
+    Edge bc = GraphHelper.addEdge(graph, null, b, c, "inherits");
+    Edge ad = GraphHelper.addEdge(graph, null, a, d, "uses");
+    Edge de = GraphHelper.addEdge(graph, null, d, e, "implements");
 
     // a -uses-> b -inherits -> c
     // a -uses-> d -implements-> e
-  }
 
-  @Test
-  public void should_extract_graph() {
     Graph sub = SubGraph.extract(a, "uses", Direction.OUT, "implements", Direction.OUT);
 
     // a -uses-> b
@@ -76,7 +68,47 @@ public class SubGraphTest {
   }
 
   @Test
+  public void should_extract_cyclic_graph() {
+    TinkerGraph graph = new TinkerGraph();
+    Vertex a = GraphHelper.addVertex(graph, null, "key", "a");
+    Vertex b = GraphHelper.addVertex(graph, null, "key", "b");
+    Vertex c = GraphHelper.addVertex(graph, null, "key", "c");
+    Vertex d = GraphHelper.addVertex(graph, null, "key", "d");
+    Vertex e = GraphHelper.addVertex(graph, null, "key", "e");
+
+    Edge ab = GraphHelper.addEdge(graph, null, a, b, "uses");
+    Edge bc = GraphHelper.addEdge(graph, null, b, c, "implements");
+    Edge ce = GraphHelper.addEdge(graph, null, c, e, "package");
+    Edge ad = GraphHelper.addEdge(graph, null, a, d, "uses");
+    Edge dc = GraphHelper.addEdge(graph, null, d, c, "implements");
+
+    // a -uses-> b -implements-> c -package-> e
+    // a -uses-> d -implements-> c -package-> e
+
+    Graph sub = SubGraph.extract(a, "uses", Direction.OUT, "implements", Direction.OUT, "package", Direction.OUT);
+
+    // same graph
+    assertThat(sub.getVertices()).hasSize(5);
+    assertThat(sub.getEdges()).hasSize(5);
+  }
+
+  @Test
   public void should_check_edge_direction() {
+    TinkerGraph graph = new TinkerGraph();
+    Vertex a = GraphHelper.addVertex(graph, null, "key", "a");
+    Vertex b = GraphHelper.addVertex(graph, null, "key", "b");
+    Vertex c = GraphHelper.addVertex(graph, null, "key", "c");
+    Vertex d = GraphHelper.addVertex(graph, null, "key", "d");
+    Vertex e = GraphHelper.addVertex(graph, null, "key", "e");
+
+    Edge ab = GraphHelper.addEdge(graph, null, a, b, "uses");
+    Edge bc = GraphHelper.addEdge(graph, null, b, c, "inherits");
+    Edge ad = GraphHelper.addEdge(graph, null, a, d, "uses");
+    Edge de = GraphHelper.addEdge(graph, null, d, e, "implements");
+
+    // a -uses-> b -inherits -> c
+    // a -uses-> d -implements-> e
+
     Graph sub = SubGraph.extract(a, "uses", Direction.IN /* instead of out */, "implements", Direction.OUT);
 
     assertThat(sub.getVertices()).hasSize(1);

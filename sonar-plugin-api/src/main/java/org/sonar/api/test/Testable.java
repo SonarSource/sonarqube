@@ -26,10 +26,10 @@ import java.util.SortedSet;
 
 public interface Testable extends Perspective {
 
-  Collection<TestCase> coveringTestCases();
+  Collection<TestCase> testCases();
 
-  Collection<TestCase> testCasesCoveringLine(int line);
+  Collection<TestCase> testCasesOfLine(int line);
 
-  SortedSet<Long> coveredLines();
+  SortedSet<Long> testedLines();
 
 }

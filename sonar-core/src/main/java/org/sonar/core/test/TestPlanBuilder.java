@@ -56,7 +56,7 @@ public class TestPlanBuilder extends PerspectiveBuilder<MutableTestPlan> {
   }
 
   @Override
-  public Object[] path() {
+  public Object[] storagePath() {
     return PATH;
   }
 }

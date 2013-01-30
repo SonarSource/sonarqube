@@ -195,7 +195,7 @@ class ResourceController < ApplicationController
       @hits_by_line.each_pair do |line_id, hits|
         line = @lines[line_id-1]
         if line
-          line.covered_lines = testable.testCasesCoveringLine(line_id).size if testable && testable.testCasesCoveringLine(line_id).size > 0
+          line.covered_lines = testable.testCasesOfLine(line_id).size if testable && testable.testCasesOfLine(line_id).size > 0
           line.hits = hits.to_i
           line.conditions = @conditions_by_line[line_id].to_i
           line.covered_conditions = @covered_conditions_by_line[line_id].to_i

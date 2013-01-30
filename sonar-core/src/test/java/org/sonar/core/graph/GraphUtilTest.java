@@ -62,4 +62,33 @@ public class GraphUtilTest {
 
     GraphUtil.singleAdjacent(a, Direction.OUT, "likes", "hates");
   }
+
+  @Test
+  public void should_extract_single_element() {
+    TinkerGraph graph = new TinkerGraph();
+    Vertex a = graph.addVertex(null);
+
+    Vertex single = GraphUtil.single(graph.getVertices());
+    assertThat(single).isSameAs(a);
+  }
+
+  @Test
+  public void should_extract_null() {
+    TinkerGraph graph = new TinkerGraph();
+    Vertex single = GraphUtil.single(graph.getVertices());
+    assertThat(single).isNull();
+  }
+
+  @Test
+    public void should_fail_to_extract_single_element() {
+      thrown.expect(MultipleElementsException.class);
+      thrown.expectMessage("More than one element");
+
+      TinkerGraph graph = new TinkerGraph();
+      graph.addVertex(null);
+      graph.addVertex(null);
+      graph.addVertex(null);
+
+      GraphUtil.single(graph.getVertices());
+    }
 }

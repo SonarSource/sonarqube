@@ -25,7 +25,6 @@ import com.tinkerpop.blueprints.Element;
 import com.tinkerpop.blueprints.Vertex;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 
 import java.util.Iterator;
 
@@ -58,7 +57,7 @@ public class GraphUtil {
     if (iterator.hasNext()) {
       result = iterator.next();
       if (iterator.hasNext()) {
-        throw new MultipleElementsException("More than one elements");
+        throw new MultipleElementsException("More than one element");
       }
     }
     return result;

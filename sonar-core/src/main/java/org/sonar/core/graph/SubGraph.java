@@ -19,7 +19,7 @@
  */
 package org.sonar.core.graph;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;
@@ -27,7 +27,7 @@ import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
 import com.tinkerpop.blueprints.util.ElementHelper;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Not thread-safe
@@ -35,7 +35,7 @@ import java.util.List;
 public class SubGraph {
 
   private TinkerGraph sub = new TinkerGraph();
-  private List<Edge> edgesToCopy = Lists.newArrayList();
+  private Set<Edge> edgesToCopy = Sets.newHashSet();
 
   private SubGraph() {
   }
@@ -73,8 +73,11 @@ public class SubGraph {
   }
 
   private Vertex copy(Vertex v) {
-    Vertex to = sub.addVertex(v.getId());
-    ElementHelper.copyProperties(v, to);
+    Vertex to = sub.getVertex(v.getId());
+    if (to == null) {
+      to = sub.addVertex(v.getId());
+      ElementHelper.copyProperties(v, to);
+    }
     return to;
   }
 }

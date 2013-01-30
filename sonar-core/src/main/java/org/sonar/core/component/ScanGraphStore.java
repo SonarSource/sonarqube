@@ -52,7 +52,7 @@ public class ScanGraphStore {
           for (PerspectiveBuilder builder : builders) {
             Perspective perspective = builder.load(component);
             if (perspective != null) {
-              Graph subGraph = SubGraph.extract(component.element(), builder.path());
+              Graph subGraph = SubGraph.extract(component.element(), builder.storagePath());
               String data = writer.write(subGraph);
               mapper.insert(new GraphDto()
                 .setData(data)

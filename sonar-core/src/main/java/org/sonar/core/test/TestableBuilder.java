@@ -56,7 +56,7 @@ public class TestableBuilder extends PerspectiveBuilder<MutableTestable> {
   }
 
   @Override
-  public Object[] path() {
+  public Object[] storagePath() {
     return PATH;
   }
 }

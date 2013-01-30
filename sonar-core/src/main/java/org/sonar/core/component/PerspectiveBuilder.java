@@ -19,8 +19,6 @@
  */
 package org.sonar.core.component;
 
-import com.tinkerpop.blueprints.Graph;
-import com.tinkerpop.blueprints.Vertex;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.component.Perspective;
@@ -50,6 +48,6 @@ public abstract class PerspectiveBuilder<T extends Perspective> implements Batch
 
   public abstract T create(ComponentVertex component);
 
-  public abstract Object[] path();
+  public abstract Object[] storagePath();
 
 }

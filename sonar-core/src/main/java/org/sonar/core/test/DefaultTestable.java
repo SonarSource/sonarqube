@@ -19,6 +19,8 @@
  */
 package org.sonar.core.test;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
@@ -35,7 +37,6 @@ import java.util.List;
 import java.util.SortedSet;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Sets.newTreeSet;
 
 public class DefaultTestable extends BeanVertex implements MutableTestable {
 
@@ -44,40 +45,40 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
     return beanGraph().wrap(component, ComponentVertex.class);
   }
 
-  public Collection<TestCase> coveringTestCases() {
+  public Collection<TestCase> testCases() {
     List<TestCase> testCases = newArrayList();
-    for (Edge edge : getCovers()){
+    for (Edge edge : getCovers()) {
       Vertex testable = edge.getVertex(Direction.OUT);
       testCases.add(beanGraph().wrap(testable, DefaultTestCase.class));
     }
     return testCases;
   }
 
-  public Collection<TestCase> testCasesCoveringLine(int line) {
-    List<TestCase> testCases = newArrayList();
-    for (Edge edge : getCovers()){
-      if (Iterables.contains(getCoveredLines(edge), Long.valueOf(line))){
+  public Collection<TestCase> testCasesOfLine(int line) {
+    ImmutableList.Builder<TestCase> cases = ImmutableList.builder();
+    for (Edge edge : getCovers()) {
+      if (Iterables.contains(testedLines(edge), Long.valueOf(line))) {
         Vertex vertexTestable = edge.getVertex(Direction.OUT);
         DefaultTestCase testCase = beanGraph().wrap(vertexTestable, DefaultTestCase.class);
-        testCases.add(testCase);
+        cases.add(testCase);
       }
     }
-    return testCases;
+    return cases.build();
   }
 
-  public SortedSet<Long> coveredLines() {
-    SortedSet<Long> coveredLines = newTreeSet();
-    for (Edge edge : getCovers()){
-      coveredLines.addAll(getCoveredLines(edge));
+  public SortedSet<Long> testedLines() {
+    ImmutableSortedSet.Builder<Long> coveredLines = ImmutableSortedSet.naturalOrder();
+    for (Edge edge : getCovers()) {
+      coveredLines.addAll(testedLines(edge));
     }
-    return coveredLines;
+    return coveredLines.build();
   }
 
-  private Iterable<Edge> getCovers(){
+  private Iterable<Edge> getCovers() {
     return element().getEdges(Direction.IN, "covers");
   }
 
-  private List<Long> getCoveredLines(Edge edge){
+  private List<Long> testedLines(Edge edge) {
     return (List<Long>) edge.getProperty("lines");
   }
 
