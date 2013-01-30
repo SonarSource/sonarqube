@@ -101,8 +101,7 @@ public class DefaultTestCase extends BeanVertex implements MutableTestCase {
   }
 
   public void covers(Testable testable, List<Integer> lines) {
-    Vertex componentVertex = GraphUtil.single(beanGraph().getUnderlyingGraph().getVertices("key", testable.component().key()));
-    beanGraph().getUnderlyingGraph().addEdge(null, element(), componentVertex, "covers").setProperty("lines", lines);
+    beanGraph().getUnderlyingGraph().addEdge(null, element(), ((BeanVertex) testable).element(), "covers").setProperty("lines", lines);
   }
 
   public TestPlan testPlan() {

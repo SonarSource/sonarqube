@@ -30,6 +30,6 @@ public interface Testable extends Perspective {
 
   Collection<TestCase> testCasesCoveringLine(int line);
 
-  SortedSet<Integer> coveredLines();
+  SortedSet<Long> coveredLines();
 
 }

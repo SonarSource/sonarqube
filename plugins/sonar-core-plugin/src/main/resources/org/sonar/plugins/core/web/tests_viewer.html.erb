@@ -2,8 +2,8 @@
   <table>
     <tr>
       <% test_success_density = measure('test_success_density') %>
-      <td id= "test_success_density" class="big"><%= test_success_density ? number_with_precision(test_success_density.value(), :precision => 1) : "100.0" -%>%</td>
-      <td class="sep"> </td>
+      <td id="test_success_density" class="big"><%= test_success_density ? number_with_precision(test_success_density.value(), :precision => 1) : "100.0" -%>%</td>
+      <td class="sep"></td>
       <td class="name"><%= message('test_viewer.tests') -%>:</td>
       <%
          tests = measure('tests')
@@ -14,14 +14,14 @@
          end
       %>
       <td id="tests" class="value"><%= tests_display -%></td>
-      <td class="sep"> </td>
+      <td class="sep"></td>
       <td class="name"><%= message('test_viewer.failures') -%>/<%= message('test_viewer.errors') -%>:</td>
       <%
          test_failures = measure('test_failures') ? format_measure(measure('test_failures')) : "0"
          test_errors = measure('test_errors') ? format_measure(measure('test_errors')) : "0"
       %>
       <td id="test_failures_errors" class="value"><%= test_failures -%>/<%= test_errors -%></td>
-      <td class="sep"> </td>
+      <td class="sep"></td>
       <td class="name"><%= message('test_viewer.duration') -%>:</td>
       <% test_execution_time = measure('test_execution_time') %>
       <td id="test_execution_time" class="value"><%= test_execution_time ? format_measure(test_execution_time) : "-" -%></td>
@@ -38,16 +38,16 @@
      blocks = REXML::Document.new test_data.data
      blocks.elements.each("tests-details/testcase") do |block|
        test_case = {}
-       test_case[:name] =  block.attributes['name']
-       test_case[:status] =  block.attributes['status']
-       test_case[:time] =  block.attributes['time']
+       test_case[:name] = block.attributes['name']
+       test_case[:status] = block.attributes['status']
+       test_case[:time] = block.attributes['time']
 
        error = block.elements['error']
        block_message = !error.nil? ? error : nil
        failure = block.elements['failure']
        block_message = !failure.nil? ? failure : block_message
-       test_case[:message] =  block_message.attributes['message'] if block_message
-       test_case[:stack_trace] =  block_message.first.to_s if test_case[:message]
+       test_case[:message] = block_message.attributes['message'] if block_message
+       test_case[:stack_trace] = block_message.first.to_s if test_case[:message]
        test_cases << test_case
      end
    else
@@ -70,50 +70,50 @@
        end
      end
    end
-   test_cases = test_cases.sort_by {|test_case| test_case[:name]}
+   test_cases = test_cases.sort_by { |test_case| test_case[:name] }
 %>
 <% if !test_cases.empty? %>
   <table class="data width100 tests_viewer" id="test_data">
-  <thead>
+    <thead>
     <tr>
       <th class="thin">&nbsp;</th>
       <th class="thin right"><%= message('test_viewer.duration') -%></th>
       <% if has_covered_lines %>
-      <th class="thin" nowrap><%= message('test_viewer.covered_lines') -%></th>
+        <th class="thin" nowrap><%= message('test_viewer.covered_lines') -%></th>
       <% end %>
       <th><%= message('test_viewer.unit_test_name') -%></th>
     </tr>
-  </thead>
-  <tbody>
+    </thead>
+    <tbody>
 
-  <%
-     test_cases.each_with_index do |test_case, index|
-  %>
-    <tr class="<%= cycle("even","odd") -%>" id="testdata_<%= index -%>" display="table-row">
-      <%
-         status = test_case[:status]
-         case status
-           when 'ok'
-             icon_url = ApplicationController.root_context + "/images/levels/ok.png"
-           when 'failure'
-             icon_url = ApplicationController.root_context + "/images/warning.png"
-           when 'error'
-             icon_url = ApplicationController.root_context + "/images/levels/error.png"
-           when 'skipped'
-             icon_url = ApplicationController.root_context + "/images/levels/none.png"
-           else
-             icon_url = ApplicationController.root_context + "/images/levels/" + status + ".png"
-         end
+    <%
+       test_cases.each_with_index do |test_case, index|
+    %>
+      <tr class="<%= cycle("even", "odd") -%>" id="testdata_<%= index -%>" display="table-row">
+        <%
+           status = test_case[:status]
+           case status
+             when 'ok'
+               icon_url = ApplicationController.root_context + "/images/levels/ok.png"
+             when 'failure'
+               icon_url = ApplicationController.root_context + "/images/warning.png"
+             when 'error'
+               icon_url = ApplicationController.root_context + "/images/levels/error.png"
+             when 'skipped'
+               icon_url = ApplicationController.root_context + "/images/levels/none.png"
+             else
+               icon_url = ApplicationController.root_context + "/images/levels/" + status + ".png"
+           end
 
-      %>
-      <td class="thin" nowrap>
-        <img id="test_status_<%= index -%>_<%= status -%>" src="<%= icon_url -%>" />
-      </td>
-      <td id="test_time_<%= index -%>" class="thin right" nowrap><%= test_case[:time] -%> ms</td>
-      <% if has_covered_lines %>
-      <td id="test_covered_lines_<%= index -%>" class="thin right" nowrap><%= number_with_precision(test_case[:covered_lines], :precision => 0) -%></td>
-      <% end %>
-      <td>
+        %>
+        <td class="thin" nowrap>
+          <img id="test_status_<%= index -%>_<%= status -%>" src="<%= icon_url -%>"/>
+        </td>
+        <td id="test_time_<%= index -%>" class="thin right" nowrap><%= test_case[:time] -%> ms</td>
+        <% if has_covered_lines %>
+          <td id="test_covered_lines_<%= index -%>" class="thin right" nowrap><%= number_with_precision(test_case[:covered_lines], :precision => 0) -%></td>
+        <% end %>
+        <td>
         <span id="test_name_<%= index -%>">
           <% name = test_case[:name] %>
           <% if test_case[:message] %>
@@ -124,23 +124,23 @@
           <% end %>
         </span>
 
-        <% if test_case[:message] %>
-          <div id="test_message_<%= index -%>" class="message" style="display:none; margin-top:5px;">
-            <% message = test_case[:message] %>
-            <% if !message.nil? %>
-              <span><%= h message -%></span>
-            <% end %>
-            <pre style="border: 1px solid #ddd; padding: 5px; margin: 5px 0"><%= test_case[:stack_trace] -%></pre>
-          </div>
-        <% end %>
-      </td>
-    </tr>
+          <% if test_case[:message] %>
+            <div id="test_message_<%= index -%>" class="message" style="display:none; margin-top:5px;">
+              <% message = test_case[:message] %>
+              <% if !message.nil? %>
+                <span><%= h message -%></span>
+              <% end %>
+              <pre style="border: 1px solid #ddd; padding: 5px; margin: 5px 0"><%= test_case[:stack_trace] -%></pre>
+            </div>
+          <% end %>
+        </td>
+      </tr>
 
-  <%
-     end
-  %>
-  </tbody>
-</table>
+    <%
+       end
+    %>
+    </tbody>
+  </table>
 
 <%
    else

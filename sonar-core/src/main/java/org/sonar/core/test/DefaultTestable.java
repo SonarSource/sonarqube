@@ -32,11 +32,9 @@ import org.sonar.core.graph.GraphUtil;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.SortedSet;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.collect.Sets.newTreeSet;
 
 public class DefaultTestable extends BeanVertex implements MutableTestable {
@@ -48,7 +46,7 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
 
   public Collection<TestCase> coveringTestCases() {
     List<TestCase> testCases = newArrayList();
-    for (Edge edge : element().getEdges(Direction.IN, "covers")){
+    for (Edge edge : getCovers()){
       Vertex testable = edge.getVertex(Direction.OUT);
       testCases.add(beanGraph().wrap(testable, DefaultTestCase.class));
     }
@@ -56,23 +54,31 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
   }
 
   public Collection<TestCase> testCasesCoveringLine(int line) {
-    Set<TestCase> testCases = newHashSet();
-    for (Edge edge : element().getEdges(Direction.IN, "covers")){
-      if (Iterables.contains( (List<Integer>) edge.getProperty("lines"), line)){
-        Vertex testable = edge.getVertex(Direction.OUT);
-        testCases.add(beanGraph().wrap(testable, DefaultTestCase.class));
+    List<TestCase> testCases = newArrayList();
+    for (Edge edge : getCovers()){
+      if (Iterables.contains(getCoveredLines(edge), Long.valueOf(line))){
+        Vertex vertexTestable = edge.getVertex(Direction.OUT);
+        DefaultTestCase testCase = beanGraph().wrap(vertexTestable, DefaultTestCase.class);
+        testCases.add(testCase);
       }
     }
     return testCases;
   }
 
-  public SortedSet<Integer> coveredLines() {
-    SortedSet<Integer> coveredLines = newTreeSet();
-    for (Edge edge : element().getEdges(Direction.IN, "covers")){
-      List<Integer> lines = (List<Integer>) edge.getProperty("lines");
-      coveredLines.addAll(lines);
+  public SortedSet<Long> coveredLines() {
+    SortedSet<Long> coveredLines = newTreeSet();
+    for (Edge edge : getCovers()){
+      coveredLines.addAll(getCoveredLines(edge));
     }
     return coveredLines;
+  }
+
+  private Iterable<Edge> getCovers(){
+    return element().getEdges(Direction.IN, "covers");
+  }
+
+  private List<Long> getCoveredLines(Edge edge){
+    return (List<Long>) edge.getProperty("lines");
   }
 
 }
