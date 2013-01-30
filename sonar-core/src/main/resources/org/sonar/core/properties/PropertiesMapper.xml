@@ -12,7 +12,7 @@
   <select id="findUsersForNotification" parameterType="map" resultType="String">
     SELECT U.login
     FROM properties P, users U
-    WHERE P.user_id = U.id AND P.prop_key = #{notifKey} AND P.text_value = 'true'
+    WHERE P.user_id = U.id AND P.prop_key = #{notifKey} AND P.text_value LIKE 'true'
     <if test="rId == null">
       AND P.resource_id is null
     </if>

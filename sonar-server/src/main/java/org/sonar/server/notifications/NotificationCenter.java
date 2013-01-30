@@ -47,8 +47,6 @@ public class NotificationCenter implements ServerComponent {
   public NotificationCenter(NotificationDispatcherMetadata[] metadata, NotificationChannel[] channels) {
     this.dispatchersMetadata = metadata;
     this.channels = channels;
-    LOG.info("====================> " + metadata.length);
-    LOG.info("====================> " + channels.length);
   }
 
   /**
