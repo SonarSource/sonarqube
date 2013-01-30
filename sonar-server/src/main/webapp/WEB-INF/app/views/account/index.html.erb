@@ -68,11 +68,11 @@
         </tr>
         <% for dispatcher in @dispatchers %>
           <tr>
-            <td><%= message('notification.dispatcher.' + dispatcher.getKey()) -%></td>
+            <td><%= message('notification.dispatcher.' + dispatcher) -%></td>
             <td>
               <%
                  for channel in @channels
-                   notification_id = dispatcher.getKey() + '.' + channel.getKey()
+                   notification_id = dispatcher + '.' + channel.getKey()
                    check_box_id = 'notifications[' + notification_id + ']'
                    check_box_checked = @notifications[notification_id]
               %>

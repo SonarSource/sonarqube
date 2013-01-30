@@ -17,15 +17,30 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.emailnotifications;
+package org.sonar.api.notifications;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class EmailNotificationsPluginTest {
+public class NotificationDispatcherMetadataTest {
+
+  private NotificationDispatcherMetadata metadata;
+
+  @Before
+  public void init() {
+    metadata = NotificationDispatcherMetadata.create("NewViolations").setProperty("global", "true");
+  }
+
   @Test
-  public void should_get_extensions() {
-    assertThat(new EmailNotificationsPlugin().getExtensions()).hasSize(10);
+  public void shouldReturnDispatcherKey() {
+    assertThat(metadata.getDispatcherKey()).isEqualTo("NewViolations");
+  }
+
+  @Test
+  public void shouldReturnProperty() {
+    assertThat(metadata.getProperty("global")).isEqualTo("true");
+    assertThat(metadata.getProperty("per-project")).isNull();
   }
 }

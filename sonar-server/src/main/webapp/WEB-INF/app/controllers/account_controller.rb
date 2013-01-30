@@ -22,9 +22,9 @@ class AccountController < ApplicationController
   before_filter :login_required
 
   def index
-    notification_service = java_facade.getCoreComponentByClassname('org.sonar.server.notifications.NotificationService')
+    notification_service = java_facade.getCoreComponentByClassname('org.sonar.server.notifications.NotificationCenter')
     @channels = notification_service.getChannels()
-    @dispatchers = notification_service.getDispatchers()
+    @dispatchers = notification_service.getDispatcherKeysForProperty("globalNotification", "true")
     @notifications = {}
     for property in Property.find(:all, :conditions => ['prop_key like ? AND user_id = ?', 'notification.%', current_user.id])
       @notifications[property.key.sub('notification.', '')] = true

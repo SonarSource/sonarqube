@@ -73,6 +73,7 @@ import org.sonar.server.charts.ChartFactory;
 import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.database.EmbeddedDatabaseFactory;
+import org.sonar.server.notifications.NotificationCenter;
 import org.sonar.server.notifications.NotificationService;
 import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
 import org.sonar.server.plugins.ApplicationDeployer;
@@ -257,6 +258,7 @@ public final class Platform {
     // Notifications
     servicesContainer.addSingleton(EmailSettings.class);
     servicesContainer.addSingleton(NotificationService.class);
+    servicesContainer.addSingleton(NotificationCenter.class);
     servicesContainer.addSingleton(DefaultNotificationManager.class);
     servicesContainer.addSingleton(ReviewsNotificationManager.class);
 

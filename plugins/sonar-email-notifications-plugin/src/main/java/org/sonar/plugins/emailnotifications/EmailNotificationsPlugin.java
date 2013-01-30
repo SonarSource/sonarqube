@@ -20,8 +20,8 @@
 package org.sonar.plugins.emailnotifications;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.api.ServerExtension;
 import org.sonar.api.SonarPlugin;
+import org.sonar.api.notifications.NotificationDispatcherMetadata;
 import org.sonar.plugins.emailnotifications.alerts.AlertsEmailTemplate;
 import org.sonar.plugins.emailnotifications.alerts.AlertsOnMyFavouriteProject;
 import org.sonar.plugins.emailnotifications.newviolations.NewViolationsEmailTemplate;
@@ -32,18 +32,28 @@ import org.sonar.plugins.emailnotifications.reviews.ReviewEmailTemplate;
 import java.util.List;
 
 public class EmailNotificationsPlugin extends SonarPlugin {
-  public List<Class<? extends ServerExtension>> getExtensions() {
+  public List<?> getExtensions() {
     return ImmutableList.of(
         EmailNotificationChannel.class,
+
         // Notify incoming violations on my favourite projects
         NewViolationsOnMyFavouriteProject.class,
+        NotificationDispatcherMetadata.create("NewViolationsOnMyFavouriteProject")
+            .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, "true"),
         NewViolationsEmailTemplate.class,
+
         // Notify reviews changes
         ChangesInReviewAssignedToMeOrCreatedByMe.class,
+        NotificationDispatcherMetadata.create("ChangesInReviewAssignedToMeOrCreatedByMe")
+            .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, "true"),
         ReviewEmailTemplate.class,
+
         // Notify alerts on my favourite projects
         AlertsOnMyFavouriteProject.class,
+        NotificationDispatcherMetadata.create("AlertsOnMyFavouriteProject")
+            .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, "true"),
         AlertsEmailTemplate.class
-    );
+
+        );
   }
 }

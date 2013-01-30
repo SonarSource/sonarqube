@@ -164,12 +164,9 @@ public class NotificationService implements ServerComponent {
     }
   }
 
-  public List<NotificationDispatcher> getDispatchers() {
+  @VisibleForTesting
+  protected List<NotificationDispatcher> getDispatchers() {
     return Arrays.asList(dispatchers);
-  }
-
-  public List<NotificationChannel> getChannels() {
-    return manager.getChannels();
   }
 
 }

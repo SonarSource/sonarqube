@@ -19,6 +19,7 @@
  */
 package org.sonar.core.notification;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.SetMultimap;
@@ -57,13 +58,6 @@ public class DefaultNotificationManager implements NotificationManager {
    */
   public DefaultNotificationManager(DatabaseSessionFactory sessionFactory, PropertiesDao propertiesDao) {
     this(new NotificationChannel[0], sessionFactory, propertiesDao);
-  }
-
-  /**
-   * Returns all the available notification channels
-   */
-  public List<NotificationChannel> getChannels() {
-    return Arrays.asList(notificationChannels);
   }
 
   /**
@@ -120,6 +114,11 @@ public class DefaultNotificationManager implements NotificationManager {
     }
 
     return recipients;
+  }
+
+  @VisibleForTesting
+  protected List<NotificationChannel> getChannels() {
+    return Arrays.asList(notificationChannels);
   }
 
   private void addUsersToRecipientListForChannel(List<String> users, SetMultimap<String, NotificationChannel> recipients, NotificationChannel channel) {
