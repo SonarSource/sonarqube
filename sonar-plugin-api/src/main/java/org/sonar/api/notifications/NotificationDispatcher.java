@@ -47,10 +47,11 @@ public abstract class NotificationDispatcher implements ServerExtension {
    */
   public interface Context {
     /**
-     * This method is not used any longer. {Context#addUser(String, NotificationChannel) should be used instead.
+     * This method is not used any longer. Calling it will result in an {@link UnsupportedOperationException}.
      * 
-     * @deprecated
+     * @deprecated Use {@link #addUser(String, NotificationChannel)} instead.
      */
+    @Deprecated
     void addUser(String userLogin);
 
     /**
