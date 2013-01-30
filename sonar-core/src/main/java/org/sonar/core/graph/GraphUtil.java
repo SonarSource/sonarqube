@@ -63,13 +63,4 @@ public class GraphUtil {
     }
     return result;
   }
-
-  public static void setNullableProperty(Element elt, String key, @Nullable Object value) {
-    if (value == null) {
-      elt.removeProperty(key);
-    } else {
-      elt.setProperty(key, value);
-    }
-  }
-
 }
