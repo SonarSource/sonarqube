@@ -101,7 +101,8 @@ public class DefaultTestCase extends BeanVertex implements MutableTestCase {
   }
 
   public void covers(Testable testable, List<Integer> lines) {
-    beanGraph().getUnderlyingGraph().addEdge(null, element(), ((BeanVertex) testable).element(), "covers").setProperty("lines", lines);
+    BeanVertex testableVertex = ((BeanVertex) testable);
+    beanGraph().getUnderlyingGraph().addEdge(null, element(), testableVertex.element(), "covers").setProperty("lines", lines);
   }
 
   public TestPlan testPlan() {

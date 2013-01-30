@@ -54,6 +54,16 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
     return testCases;
   }
 
+  public int countTestCasesOfLine(int line) {
+    int number = 0;
+    for (Edge edge : getCovers()) {
+      if (Iterables.contains(testedLines(edge), Long.valueOf(line))) {
+        number++;
+      }
+    }
+    return number;
+  }
+
   public Collection<TestCase> testCasesOfLine(int line) {
     ImmutableList.Builder<TestCase> cases = ImmutableList.builder();
     for (Edge edge : getCovers()) {

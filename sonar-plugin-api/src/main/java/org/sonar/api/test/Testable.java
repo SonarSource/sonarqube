@@ -28,6 +28,8 @@ public interface Testable extends Perspective {
 
   Collection<TestCase> testCases();
 
+  int countTestCasesOfLine(int line);
+
   Collection<TestCase> testCasesOfLine(int line);
 
   SortedSet<Long> testedLines();
