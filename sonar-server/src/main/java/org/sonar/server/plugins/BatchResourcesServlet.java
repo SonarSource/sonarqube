@@ -19,23 +19,21 @@
  */
 package org.sonar.server.plugins;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.util.List;
-import java.util.Set;
+import org.sonar.server.startup.GenerateBootstrapIndex;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 
 /**
  * This servlet allows to load libraries from directory "WEB-INF/lib" in order to provide them for batch-bootstrapper.
@@ -54,7 +52,7 @@ public class BatchResourcesServlet extends HttpServlet {
       try {
         response.setContentType("text/plain");
         writer = response.getWriter();
-        writer.print(StringUtils.join(getLibs(), ','));
+        writer.print(StringUtils.join(GenerateBootstrapIndex.getLibs(getServletContext()), ','));
       } catch (IOException e) {
         LOG.error("Unable to provide list of batch resources", e);
         response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -81,35 +79,6 @@ public class BatchResourcesServlet extends HttpServlet {
         IOUtils.closeQuietly(out);
       }
     }
-  }
-
-  List<String> getLibs() {
-    List<String> libs = Lists.newArrayList();
-    Set paths = getServletContext().getResourcePaths("/WEB-INF/lib");
-    for (Object obj : paths) {
-      String path = (String) obj;
-      if (StringUtils.endsWith(path, ".jar")) {
-        String filename = StringUtils.removeStart(path, "/WEB-INF/lib/");
-        if (!isIgnored(filename)) {
-          libs.add(filename);
-        }
-      }
-    }
-    return libs;
-  }
-
-  private static final String[] IGNORE = { "jtds", "mysql", "postgresql", "jruby", "jfreechart", "eastwood", "jetty"};
-
-  /**
-   * Dirty hack to disable downloading for certain files.
-   */
-  static boolean isIgnored(String filename) {
-    for (String prefix : IGNORE) {
-      if (StringUtils.startsWith(filename, prefix)) {
-        return true;
-      }
-    }
-    return false;
   }
 
   /**

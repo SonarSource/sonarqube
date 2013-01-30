@@ -86,6 +86,7 @@ import org.sonar.server.qualitymodel.DefaultModelManager;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
 import org.sonar.server.startup.DeleteDeprecatedMeasures;
+import org.sonar.server.startup.GenerateBootstrapIndex;
 import org.sonar.server.startup.GeneratePluginIndex;
 import org.sonar.server.startup.GwtPublisher;
 import org.sonar.server.startup.JdbcDriverDeployer;
@@ -267,7 +268,6 @@ public final class Platform {
     ServerExtensionInstaller extensionRegistrar = servicesContainer.getComponentByType(ServerExtensionInstaller.class);
     extensionRegistrar.registerExtensions(servicesContainer);
 
-
     servicesContainer.startComponents();
   }
 
@@ -282,6 +282,7 @@ public final class Platform {
     startupContainer.addSingleton(RegisterQualityModels.class);
     startupContainer.addSingleton(DeleteDeprecatedMeasures.class);
     startupContainer.addSingleton(GeneratePluginIndex.class);
+    startupContainer.addSingleton(GenerateBootstrapIndex.class);
     startupContainer.addSingleton(RegisterNewMeasureFilters.class);
     startupContainer.addSingleton(RegisterNewDashboards.class);
     startupContainer.addSingleton(RenameDeprecatedPropertyKeys.class);

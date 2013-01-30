@@ -47,6 +47,11 @@ class BatchBootstrapController < Api::ApiController
 
     render :json => JSON(json_properties)
   end
+  
+  # GET /batch_bootstrap/index
+  def index
+    redirect_to "/deploy/bootstrap/index.txt"
+  end
 
   private
 

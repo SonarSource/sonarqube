@@ -158,9 +158,12 @@ public class DefaultServerFileSystem implements ServerFileSystem {
     return new File(getHomeDir(), "extensions/deprecated");
   }
 
-
   public File getPluginIndex() {
     return new File(getDeployDir(), "plugins/index.txt");
+  }
+
+  public File getBootstrapIndex() {
+    return new File(getDeployDir(), "bootstrap/index.txt");
   }
 
   public List<File> getExtensions(String dirName, String... suffixes) {

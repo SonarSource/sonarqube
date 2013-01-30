@@ -25,7 +25,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.utils.SonarException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -57,11 +56,11 @@ public class SonarCache {
     this.cacheLocation = cacheLocation;
     tmpDir = new File(cacheLocation, ".tmp");
     if (!cacheLocation.exists()) {
-      LOG.debug("Creating cache directory: " + cacheLocation.getAbsolutePath());
+      LOG.debug("Creating cache directory: {}", cacheLocation.getAbsolutePath());
       try {
         FileUtils.forceMkdir(cacheLocation);
       } catch (IOException e) {
-        throw new SonarException("Unable to create cache directory " + cacheLocation.getAbsolutePath(), e);
+        throw new RuntimeException("Unable to create cache directory " + cacheLocation.getAbsolutePath(), e);
       }
     }
   }
@@ -125,7 +124,7 @@ public class SonarCache {
       if (!rename) {
         // Check if the file was already in cache
         if (!finalFileName.exists()) {
-          LOG.warn("Unable to rename " + tmpFileName.getAbsolutePath() + " to " + finalFileName.getAbsolutePath());
+          LOG.warn("Unable to rename {} to {}", tmpFileName.getAbsolutePath(), finalFileName.getAbsolutePath());
           LOG.warn("A copy/delete will be tempted but with no garantee of atomicity");
           FileUtils.moveFile(tmpFileName, finalFileName);
         }
@@ -183,11 +182,11 @@ public class SonarCache {
 
   public File getTmpDir() {
     if (!tmpDir.exists()) {
-      LOG.debug("Creating temporary cache directory: " + tmpDir.getAbsolutePath());
+      LOG.debug("Creating temporary cache directory: {}", tmpDir.getAbsolutePath());
       try {
         FileUtils.forceMkdir(tmpDir);
       } catch (IOException e) {
-        throw new SonarException("Unable to create temporary cache directory " + tmpDir.getAbsolutePath(), e);
+        throw new RuntimeException("Unable to create temporary cache directory " + tmpDir.getAbsolutePath(), e);
       }
     }
     return tmpDir;
