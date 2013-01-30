@@ -14,10 +14,10 @@
     FROM properties P, users U
     WHERE P.user_id = U.id AND P.prop_key = #{notifKey} AND P.text_value = 'true'
     <if test="rId == null">
-      AND p.resource_id is null
+      AND P.resource_id is null
     </if>
     <if test="rId != null">
-      AND p.resource_id = #{rId}
+      AND P.resource_id = #{rId}
     </if>
   </select>
 
