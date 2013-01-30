@@ -32,7 +32,10 @@ public class GraphWriter {
   public String write(Graph graph) {
     StringWriter output = new StringWriter();
     try {
-      new GraphsonWriter().write(graph, output, GraphsonMode.COMPACT);
+      new GraphsonWriter().write(graph, output, GraphsonMode.EXTENDED);
+      System.out.println("------------------------------------------------");
+      System.out.println(output.toString());
+      System.out.println("------------------------------------------------");
       return output.toString();
     } finally {
       IOUtils.closeQuietly(output);

@@ -19,17 +19,17 @@
  */
 package org.sonar.core.test;
 
-import com.google.common.collect.Lists;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
 import org.sonar.api.component.Component;
+import org.sonar.api.test.exception.TestCaseAlreadyExistsException;
 import org.sonar.api.test.MutableTestCase;
 import org.sonar.api.test.MutableTestPlan;
 import org.sonar.core.component.ComponentVertex;
 import org.sonar.core.graph.BeanVertex;
 import org.sonar.core.graph.GraphUtil;
 
-import java.util.List;
+import javax.annotation.CheckForNull;
 
 public class DefaultTestPlan extends BeanVertex implements MutableTestPlan {
   public Component component() {
@@ -37,17 +37,36 @@ public class DefaultTestPlan extends BeanVertex implements MutableTestPlan {
     return beanGraph().wrap(component, ComponentVertex.class);
   }
 
+  public String type() {
+    return (String) getProperty("type");
+  }
+
+  public MutableTestPlan setType(String s) {
+    setProperty("type", s);
+    return this;
+  }
+
+  @CheckForNull
+  public MutableTestCase testCaseByKey(String key) {
+    for (MutableTestCase testCase : testCases()) {
+      if (key.equals(testCase.key())) {
+        return testCase;
+      }
+    }
+    return null;
+  }
+
   public MutableTestCase addTestCase(String key) {
+    if (testCaseByKey(key)!=null) {
+      throw new TestCaseAlreadyExistsException(component().key(), key);
+    }
     DefaultTestCase testCase = beanGraph().createAdjacentVertex(this, DefaultTestCase.class, "testcase");
     testCase.setKey(key);
     return testCase;
   }
 
-  public List<MutableTestCase> testCases() {
-    List<MutableTestCase> testCases = Lists.newArrayList();
-    for (Vertex testCaseVertex : element().getVertices(Direction.OUT, "testcase")) {
-      testCases.add(beanGraph().wrap(testCaseVertex, DefaultTestCase.class));
-    }
-    return testCases;
+  public Iterable<MutableTestCase> testCases() {
+    return (Iterable) getVertices(DefaultTestCase.class, Direction.OUT, "testcase");
   }
+
 }

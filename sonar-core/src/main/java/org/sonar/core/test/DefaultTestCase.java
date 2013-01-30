@@ -19,12 +19,10 @@
  */
 package org.sonar.core.test;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
-import org.sonar.api.test.CoveredTestable;
+import org.sonar.api.test.exception.IllegalDurationException;
 import org.sonar.api.test.MutableTestCase;
 import org.sonar.api.test.TestPlan;
 import org.sonar.api.test.Testable;
@@ -33,21 +31,18 @@ import org.sonar.core.graph.GraphUtil;
 
 import javax.annotation.Nullable;
 
-import java.util.Collection;
 import java.util.List;
 
 public class DefaultTestCase extends BeanVertex implements MutableTestCase {
-
-  public String type() {
-    return (String) getProperty("type");
-  }
 
   public Long durationInMs() {
     return (Long) getProperty("duration");
   }
 
   public MutableTestCase setDurationInMs(@Nullable Long l) {
-    Preconditions.checkArgument(l == null || l >= 0, String.format("Duration must be positive (got %d)", l));
+    if (l != null && l < 0) {
+      throw new IllegalDurationException("Test duration must be positive (got: " + l + ")");
+    }
     setProperty("duration", l);
     return this;
   }
@@ -100,9 +95,8 @@ public class DefaultTestCase extends BeanVertex implements MutableTestCase {
     return this;
   }
 
-  public void covers(Testable testable, List<Integer> lines) {
-    BeanVertex testableVertex = ((BeanVertex) testable);
-    beanGraph().getUnderlyingGraph().addEdge(null, element(), testableVertex.element(), "covers").setProperty("lines", lines);
+  public void setCover(Testable testable, List<Integer> lines) {
+    beanGraph().getUnderlyingGraph().addEdge(null, element(), ((BeanVertex) testable).element(), "covers").setProperty("lines", lines);
   }
 
   public TestPlan testPlan() {
@@ -110,43 +104,20 @@ public class DefaultTestCase extends BeanVertex implements MutableTestCase {
     return beanGraph().wrap(plan, DefaultTestPlan.class);
   }
 
-  public boolean hasCoveredLines(){
-    return Iterables.size(element().getEdges(Direction.OUT, "covers")) > 0;
+  public boolean doesCover() {
+    return element().getEdges(Direction.OUT, "covers").iterator().hasNext();
   }
 
   public int countCoveredLines() {
-    int coveredBlocks = 0;
-    for (Edge edge : element().getEdges(Direction.OUT, "covers")){
+    int result = 0;
+    for (Edge edge : element().getEdges(Direction.OUT, "covers")) {
       List<Integer> lines = (List<Integer>) edge.getProperty("lines");
-      coveredBlocks = coveredBlocks + lines.size();
+      result = result + lines.size();
     }
-    return coveredBlocks;
+    return result;
   }
 
-  public Collection<CoveredTestable> coveredTestable() {
-    return null;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-
-    DefaultTestCase that = (DefaultTestCase) o;
-
-    if (key() != null ? !key().equals(that.key()) : that.key() != null) {
-      return false;
-    }
-
-    return true;
-  }
-
-  @Override
-  public int hashCode() {
-    return key() != null ? key().hashCode() : 0;
+  public Iterable covers() {
+    return getEdges(DefaultCover.class, Direction.OUT, "covers");
   }
 }

@@ -21,13 +21,10 @@ package org.sonar.core.graph.graphson;
 
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.blueprints.util.wrappers.batch.BatchGraph;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Set;
 
@@ -37,7 +34,7 @@ import java.util.Set;
 public class GraphsonReader {
 
   public Graph read(Reader jsonInput, Graph toGraph) {
-    return read(jsonInput, toGraph, 1000, null, null);
+    return read(jsonInput, toGraph, null, null);
   }
 
   /**
@@ -45,20 +42,16 @@ public class GraphsonReader {
    * More control over how data is streamed is provided by this method.
    *
    * @param toGraph    the graph to populate with the JSON data
-   * @param input  an InputStream of JSON data
+   * @param input      an InputStream of JSON data
    * @param bufferSize the amount of elements to hold in memory before committing a transactions (only valid for TransactionalGraphs)
    */
-  public Graph read(Reader input, Graph toGraph, int bufferSize, Set<String> edgePropertyKeys, Set<String> vertexPropertyKeys) {
+  public Graph read(Reader input, Graph toGraph, Set<String> edgePropertyKeys, Set<String> vertexPropertyKeys) {
     try {
       JSONParser parser = new JSONParser();
       JSONObject json = (JSONObject) parser.parse(input);
 
-      // if this is a transactional graph then we're buffering
-      final BatchGraph batchGraph = BatchGraph.wrap(toGraph, bufferSize);
-
-      ElementFactory elementFactory = new ElementFactory(batchGraph);
-
-      final GraphsonMode mode = GraphsonMode.valueOf(json.get(GraphsonTokens.MODE).toString());
+      ElementFactory elementFactory = new ElementFactory(toGraph);
+      GraphsonMode mode = GraphsonMode.valueOf(json.get(GraphsonTokens.MODE).toString());
       GraphsonUtil graphson = new GraphsonUtil(mode, elementFactory, vertexPropertyKeys, edgePropertyKeys);
 
       JSONArray vertices = (JSONArray) json.get(GraphsonTokens.VERTICES);
@@ -69,11 +62,11 @@ public class GraphsonReader {
       JSONArray edges = (JSONArray) json.get(GraphsonTokens.EDGES);
       for (Object edgeObject : edges) {
         JSONObject edge = (JSONObject) edgeObject;
-        final Vertex inV = batchGraph.getVertex(edge.get(GraphsonTokens._IN_V));
-        final Vertex outV = batchGraph.getVertex(edge.get(GraphsonTokens._OUT_V));
+        Vertex inV = toGraph.getVertex(edge.get(GraphsonTokens._IN_V));
+        Vertex outV = toGraph.getVertex(edge.get(GraphsonTokens._OUT_V));
         graphson.edgeFromJson(edge, outV, inV);
       }
-      batchGraph.shutdown();
+      toGraph.shutdown();
       return toGraph;
     } catch (Exception e) {
       throw new GraphsonException("Unable to parse GraphSON", e);

@@ -24,5 +24,13 @@ import org.sonar.api.component.Perspective;
 import java.util.List;
 
 public interface TestPlan<T extends TestCase> extends Perspective {
-  List<T> testCases();
+  String TYPE_UNIT = "unit";
+  String TYPE_INTEGRATION = "integration";
+
+  // unit test/integration test/...
+  String type();
+
+  Iterable<T> testCases();
+
+  T testCaseByKey(String key);
 }

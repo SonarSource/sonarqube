@@ -19,7 +19,6 @@
  */
 package org.sonar.core.test;
 
-import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
 import org.junit.Test;
 import org.sonar.core.graph.BeanGraph;
 
@@ -29,23 +28,39 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class DefaultTestableTest {
   @Test
-  public void no_covered_lines() {
-    BeanGraph beanGraph = new BeanGraph(new TinkerGraph());
+  public void should_not_have_tested_lines() {
+    BeanGraph beanGraph = BeanGraph.createInMemory();
 
     DefaultTestable testable = beanGraph.createVertex(DefaultTestable.class);
     assertThat(testable.testedLines()).isEmpty();
   }
 
   @Test
-  public void covered_lines() {
-    BeanGraph beanGraph = new BeanGraph(new TinkerGraph());
+  public void should_have_tested_lines() {
+    BeanGraph beanGraph = BeanGraph.createInMemory();
 
     DefaultTestable testable = beanGraph.createVertex(DefaultTestable.class);
     DefaultTestCase testCase1 = beanGraph.createVertex(DefaultTestCase.class);
-    testCase1.covers(testable, Arrays.asList(10, 11, 12));
+    testCase1.setCover(testable, Arrays.asList(10, 11, 12));
     DefaultTestCase testCase2 = beanGraph.createVertex(DefaultTestCase.class);
-    testCase2.covers(testable, Arrays.asList(12, 48, 49));
+    testCase2.setCover(testable, Arrays.asList(12, 48, 49));
 
     assertThat(testable.testedLines()).containsOnly(10, 11, 12, 48, 49);
+  }
+
+  @Test
+  public void should_get_test_cases() {
+    BeanGraph beanGraph = BeanGraph.createInMemory();
+
+    DefaultTestable testable = beanGraph.createVertex(DefaultTestable.class);
+    DefaultTestCase testCase1 = beanGraph.createVertex(DefaultTestCase.class);
+    testCase1.setCover(testable, Arrays.asList(10, 11, 12));
+    DefaultTestCase testCase2 = beanGraph.createVertex(DefaultTestCase.class);
+    testCase2.setCover(testable, Arrays.asList(12, 48, 49));
+
+    assertThat(testable.testCases()).containsOnly(testCase1, testCase2);
+    assertThat(testable.testCasesOfLine(5)).isEmpty();
+    assertThat(testable.testCasesOfLine(10)).containsExactly(testCase1);
+    assertThat(testable.testCasesOfLine(12)).contains(testCase1, testCase2);
   }
 }

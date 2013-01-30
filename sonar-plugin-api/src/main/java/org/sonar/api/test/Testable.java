@@ -21,17 +21,17 @@ package org.sonar.api.test;
 
 import org.sonar.api.component.Perspective;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.SortedSet;
 
 public interface Testable extends Perspective {
 
-  Collection<TestCase> testCases();
+  List<TestCase> testCases();
 
   int countTestCasesOfLine(int line);
 
-  Collection<TestCase> testCasesOfLine(int line);
+  List<TestCase> testCasesOfLine(int line);
 
-  SortedSet<Long> testedLines();
+  SortedSet<Integer> testedLines();
 
 }

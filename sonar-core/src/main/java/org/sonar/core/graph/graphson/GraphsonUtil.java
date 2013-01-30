@@ -630,7 +630,7 @@ class GraphsonUtil {
     Set<String> propertyKeys = isEdge ? this.edgePropertyKeys : this.vertexPropertyKeys;
     ElementPropertiesRule elementPropertyConfig = isEdge ? this.edgePropertiesRule : this.vertexPropertiesRule;
 
-    org.json.simple.JSONObject jsonElement = createJSONMap(createPropertyMap(element, propertyKeys, elementPropertyConfig), propertyKeys, showTypes);
+    JSONObject jsonElement = createJSONMap(createPropertyMap(element, propertyKeys, elementPropertyConfig), propertyKeys, showTypes);
 
     if ((isEdge && this.includeReservedEdgeId) || (!isEdge && this.includeReservedVertexId)) {
       putObject(jsonElement, GraphsonTokens._ID, element.getId());

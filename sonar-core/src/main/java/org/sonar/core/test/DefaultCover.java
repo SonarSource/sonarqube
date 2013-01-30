@@ -17,37 +17,27 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.component;
+package org.sonar.core.test;
 
-import org.sonar.api.component.Component;
-import org.sonar.core.graph.BeanVertex;
+import com.tinkerpop.blueprints.Direction;
+import org.sonar.api.test.Cover;
+import org.sonar.api.test.TestCase;
+import org.sonar.api.test.Testable;
+import org.sonar.core.graph.BeanEdge;
 
-public class ComponentVertex extends BeanVertex implements Component {
+import java.util.List;
 
-  public String key() {
-    return (String) getProperty("key");
+public class DefaultCover extends BeanEdge implements Cover {
+
+  public TestCase testCase() {
+    return getVertex(DefaultTestCase.class, Direction.OUT);
   }
 
-  public String name() {
-    return (String) getProperty("name");
+  public Testable testable() {
+    return getVertex(DefaultTestable.class, Direction.IN);
   }
 
-  public String qualifier() {
-    return (String) getProperty("qualifier");
-  }
-
-  void copyFrom(Component component) {
-    setProperty("key", component.key());
-    setProperty("name", component.name());
-    setProperty("qualifier", component.qualifier());
-    if (component instanceof ResourceComponent) {
-      setProperty("sid", ((ResourceComponent) component).snapshotId());
-      setProperty("rid", ((ResourceComponent) component).resourceId());
-    }
-  }
-
-  @Override
-  public String toString() {
-    return key();
+  public List<Integer> lines() {
+    return (List<Integer>) getProperty("lines");
   }
 }

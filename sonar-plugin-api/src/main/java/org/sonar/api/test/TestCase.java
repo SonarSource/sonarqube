@@ -19,17 +19,9 @@
  */
 package org.sonar.api.test;
 
-import java.util.Collection;
-
 public interface TestCase {
-  String TYPE_UNIT = "unit";
-  String TYPE_INTEGRATION = "integration";
-
   String STATUS_PASS = "pass";
   String STATUS_FAIL = "fail";
-
-  // unit test/integration test/...
-  String type();
 
   /**
    * Duration in milliseconds
@@ -52,9 +44,9 @@ public interface TestCase {
 
   TestPlan testPlan();
 
-  boolean hasCoveredLines();
+  boolean doesCover();
 
   int countCoveredLines();
 
-  Collection<CoveredTestable> coveredTestable();
+  Iterable<Cover> covers();
 }

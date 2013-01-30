@@ -23,6 +23,7 @@ import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Element;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
 import com.tinkerpop.blueprints.util.ElementHelper;
 
 public class BeanGraph {
@@ -32,6 +33,10 @@ public class BeanGraph {
   public BeanGraph(Graph graph) {
     this.graph = graph;
     this.beans = new BeanElements();
+  }
+
+  public static BeanGraph createInMemory() {
+    return new BeanGraph(new TinkerGraph());
   }
 
   public final <T extends BeanElement> T wrap(Element element, Class<T> beanClass) {

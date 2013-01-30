@@ -34,5 +34,5 @@ public interface MutableTestCase extends TestCase {
 
   MutableTestCase setStackTrace(String s);
 
-  void covers(Testable testable, List<Integer> lines);
+  void setCover(Testable testable, List<Integer> lines);
 }

@@ -32,11 +32,8 @@ import org.sonar.core.component.ComponentVertex;
 import org.sonar.core.graph.BeanVertex;
 import org.sonar.core.graph.GraphUtil;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.SortedSet;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 public class DefaultTestable extends BeanVertex implements MutableTestable {
 
@@ -45,29 +42,30 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
     return beanGraph().wrap(component, ComponentVertex.class);
   }
 
-  public Collection<TestCase> testCases() {
-    List<TestCase> testCases = newArrayList();
-    for (Edge edge : getCovers()) {
-      Vertex testable = edge.getVertex(Direction.OUT);
-      testCases.add(beanGraph().wrap(testable, DefaultTestCase.class));
+  public List<TestCase> testCases() {
+    ImmutableList.Builder<TestCase> cases = ImmutableList.builder();
+    for (Edge coversEdge : getCovers()) {
+      Vertex testable = coversEdge.getVertex(Direction.OUT);
+      cases.add(beanGraph().wrap(testable, DefaultTestCase.class));
     }
-    return testCases;
+    return cases.build();
   }
 
   public int countTestCasesOfLine(int line) {
     int number = 0;
+    // TODO filter on edge
     for (Edge edge : getCovers()) {
-      if (Iterables.contains(testedLines(edge), Long.valueOf(line))) {
+      if (Iterables.contains(lines(edge), line)) {
         number++;
       }
     }
     return number;
   }
 
-  public Collection<TestCase> testCasesOfLine(int line) {
+  public List<TestCase> testCasesOfLine(int line) {
     ImmutableList.Builder<TestCase> cases = ImmutableList.builder();
     for (Edge edge : getCovers()) {
-      if (Iterables.contains(testedLines(edge), Long.valueOf(line))) {
+      if (lines(edge).contains(line)) {
         Vertex vertexTestable = edge.getVertex(Direction.OUT);
         DefaultTestCase testCase = beanGraph().wrap(vertexTestable, DefaultTestCase.class);
         cases.add(testCase);
@@ -76,10 +74,10 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
     return cases.build();
   }
 
-  public SortedSet<Long> testedLines() {
-    ImmutableSortedSet.Builder<Long> coveredLines = ImmutableSortedSet.naturalOrder();
+  public SortedSet<Integer> testedLines() {
+    ImmutableSortedSet.Builder<Integer> coveredLines = ImmutableSortedSet.naturalOrder();
     for (Edge edge : getCovers()) {
-      coveredLines.addAll(testedLines(edge));
+      coveredLines.addAll(lines(edge));
     }
     return coveredLines.build();
   }
@@ -88,8 +86,8 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
     return element().getEdges(Direction.IN, "covers");
   }
 
-  private List<Long> testedLines(Edge edge) {
-    return (List<Long>) edge.getProperty("lines");
+  private List<Integer> lines(Edge edge) {
+    return (List<Integer>) edge.getProperty("lines");
   }
 
 }

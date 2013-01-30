@@ -17,37 +17,10 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.component;
+package org.sonar.api.test.exception;
 
-import org.sonar.api.component.Component;
-import org.sonar.core.graph.BeanVertex;
-
-public class ComponentVertex extends BeanVertex implements Component {
-
-  public String key() {
-    return (String) getProperty("key");
-  }
-
-  public String name() {
-    return (String) getProperty("name");
-  }
-
-  public String qualifier() {
-    return (String) getProperty("qualifier");
-  }
-
-  void copyFrom(Component component) {
-    setProperty("key", component.key());
-    setProperty("name", component.name());
-    setProperty("qualifier", component.qualifier());
-    if (component instanceof ResourceComponent) {
-      setProperty("sid", ((ResourceComponent) component).snapshotId());
-      setProperty("rid", ((ResourceComponent) component).resourceId());
-    }
-  }
-
-  @Override
-  public String toString() {
-    return key();
+public class TestCaseAlreadyExistsException extends TestException {
+  public TestCaseAlreadyExistsException(String componentKey, String testCaseKey) {
+    super(String.format("Test case already exists for %s: %s", componentKey, testCaseKey));
   }
 }

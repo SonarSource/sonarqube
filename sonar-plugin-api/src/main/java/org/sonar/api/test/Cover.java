@@ -19,11 +19,13 @@
  */
 package org.sonar.api.test;
 
-import java.util.Collection;
+import java.util.List;
 
-public interface CoveredTestable {
+public interface Cover {
 
   TestCase testCase();
+
   Testable testable();
-  Collection<Integer> lines();
+
+  List<Integer> lines();
 }
