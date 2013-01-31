@@ -74,11 +74,13 @@ public class BatchPluginRepository implements PluginRepository {
         List<File> pluginFiles = pluginDownloader.downloadPlugin(remote);
         List<File> extensionFiles = pluginFiles.subList(1, pluginFiles.size());
         File targetDir = workingDirectories.getDir("plugins/" + remote.getKey());
-        LOG.debug("Installing plugin " + remote.getKey() + " into " + targetDir);
+        LOG.debug("Installing plugin {} into {}", remote.getKey(), targetDir.getAbsolutePath());
         PluginMetadata metadata = extractor.install(pluginFiles.get(0), remote.isCore(), extensionFiles, targetDir);
         if (StringUtils.isBlank(metadata.getBasePlugin()) || filter.accepts(metadata.getBasePlugin())) {
-          LOG.debug("Excluded plugin: " + metadata.getKey());
           metadataByKey.put(metadata.getKey(), metadata);
+        }
+        else {
+          LOG.debug("Excluded plugin: " + metadata.getKey());
         }
       }
     }

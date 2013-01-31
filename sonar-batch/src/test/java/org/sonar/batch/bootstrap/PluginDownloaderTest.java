@@ -119,4 +119,26 @@ public class PluginDownloaderTest {
 
     new PluginDownloader(new BatchSonarCache(new Settings()), server).downloadPluginIndex();
   }
+
+  @Test
+  public void should_fail_if_invalid_checksum() throws Exception {
+    thrown.expect(SonarException.class);
+    thrown.expectMessage("INVALID CHECKSUM");
+
+    SonarCache cache = mock(SonarCache.class);
+    BatchSonarCache batchCache = mock(BatchSonarCache.class);
+    when(batchCache.getCache()).thenReturn(cache);
+
+    File fileInCache = temp.newFile();
+    when(cache.cacheFile(Mockito.any(File.class), Mockito.anyString())).thenReturn("fakemd51diff");
+    when(cache.getFileFromCache(Mockito.anyString(), Mockito.anyString()))
+        .thenReturn(null)
+        .thenReturn(fileInCache);
+    ServerClient server = mock(ServerClient.class);
+    PluginDownloader downloader = new PluginDownloader(batchCache, server);
+
+    RemotePlugin plugin = new RemotePlugin("checkstyle", true)
+        .addFile("checkstyle-plugin.jar", "fakemd51");
+    downloader.downloadPlugin(plugin);
+  }
 }

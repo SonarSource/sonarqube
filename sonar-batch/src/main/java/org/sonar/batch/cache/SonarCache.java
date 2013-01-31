@@ -54,7 +54,7 @@ public class SonarCache {
 
   private SonarCache(File cacheLocation) {
     this.cacheLocation = cacheLocation;
-    tmpDir = new File(cacheLocation, ".tmp");
+    tmpDir = new File(cacheLocation, "tmp");
     if (!cacheLocation.exists()) {
       LOG.debug("Creating cache directory: {}", cacheLocation.getAbsolutePath());
       try {
@@ -77,7 +77,7 @@ public class SonarCache {
     public SonarCache build() {
       if (cacheLocation == null) {
         File sonarHome = new File(System.getProperty("user.home"), ".sonar");
-        return new SonarCache(new File(sonarHome, ".cache"));
+        return new SonarCache(new File(sonarHome, "cache"));
       }
       else {
         return new SonarCache(cacheLocation);
@@ -96,6 +96,7 @@ public class SonarCache {
    * @throws IOException 
    */
   public String cacheFile(File sourceFile, String filename) throws IOException {
+    LOG.debug("Trying to cache file {} with filename {}", sourceFile.getAbsolutePath(), filename);
     File tmpFileName = null;
     try {
       if (!sourceFile.getParentFile().equals(getTmpDir())) {
@@ -129,6 +130,7 @@ public class SonarCache {
           FileUtils.moveFile(tmpFileName, finalFileName);
         }
       }
+      LOG.debug("File cached at {}", finalFileName.getAbsolutePath());
       return md5;
     } finally {
       FileUtils.deleteQuietly(tmpFileName);
@@ -142,6 +144,7 @@ public class SonarCache {
    */
   public File getFileFromCache(String filename, String md5) {
     File location = new File(new File(cacheLocation, md5), filename);
+    LOG.debug("Looking for {}", location.getAbsolutePath());
     if (location.exists()) {
       return location;
     }

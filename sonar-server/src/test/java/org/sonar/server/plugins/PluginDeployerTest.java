@@ -77,10 +77,9 @@ public class PluginDeployerTest {
 
     // check that the file is deployed
     File deployedJar = new File(deployDir, "plugins/foo/foo-plugin.jar");
-    assertThat(deployedJar.exists()).isTrue();
-    assertThat(deployedJar.isFile()).isTrue();
+    assertThat(deployedJar).exists();
+    assertThat(deployedJar).isFile();
   }
-
 
   @Test
   public void deployPluginExtensions() {

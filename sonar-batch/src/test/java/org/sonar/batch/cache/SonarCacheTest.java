@@ -50,7 +50,7 @@ public class SonarCacheTest {
     // Put it in the cache
     String md5 = cache.cacheFile(fileToCache, "foo.txt");
     // Verify the temporary location was created to do the copy in the cache in 2 stages
-    File tmpCache = new File(cache.getCacheLocation(), ".tmp");
+    File tmpCache = new File(cache.getCacheLocation(), "tmp");
     assertThat(tmpCache).exists();
     // The tmp location should be empty as the file was moved inside the cache
     assertThat(tmpCache.list()).isEmpty();
@@ -69,7 +69,7 @@ public class SonarCacheTest {
     // Create a file in the cache temp location
     File fileToCache = cache.getTemporaryFile();
     // Verify the temporary location was created
-    File tmpCache = new File(cache.getCacheLocation(), ".tmp");
+    File tmpCache = new File(cache.getCacheLocation(), "tmp");
     assertThat(tmpCache).exists();
     assertThat(tmpCache.list().length).isEqualTo(1);
 

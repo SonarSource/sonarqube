@@ -53,13 +53,8 @@ public class PluginDownloader implements BatchComponent {
     try {
       List<File> files = Lists.newArrayList();
       for (RemotePluginFile file : remote.getFiles()) {
-        LOG.debug("Looking if plugin file {} with md5 {} is already in cache", file.getFilename(), file.getMd5());
         File fileInCache = getSonarCache().getFileFromCache(file.getFilename(), file.getMd5());
-        if (fileInCache != null) {
-          LOG.debug("File is already cached at location {}", fileInCache.getAbsolutePath());
-        }
-        else {
-          LOG.debug("File is not cached");
+        if (fileInCache == null) {
           File tmpDownloadFile = getSonarCache().getTemporaryFile();
           String url = "/deploy/plugins/" + remote.getKey() + "/" + file.getFilename();
           if (LOG.isDebugEnabled()) {
@@ -69,19 +64,19 @@ public class PluginDownloader implements BatchComponent {
             LOG.info("Downloading {}", file.getFilename());
           }
           server.download(url, tmpDownloadFile);
-          LOG.debug("Trying to cache file");
           String md5 = getSonarCache().cacheFile(tmpDownloadFile, file.getFilename());
           fileInCache = getSonarCache().getFileFromCache(file.getFilename(), md5);
           if (!md5.equals(file.getMd5())) {
-            LOG.warn("INVALID CHECKSUM: File {} was expected to have checksum {} but was cached with checksum {}",
-                new String[] {fileInCache.getAbsolutePath(), file.getMd5(), md5});
+            throw new SonarException("INVALID CHECKSUM: File " + fileInCache.getAbsolutePath() + " was expected to have checksum " + file.getMd5()
+              + " but was downloaded with checksum " + md5);
           }
-          LOG.debug("File cached at location {}", fileInCache.getAbsolutePath());
         }
         files.add(fileInCache);
       }
       return files;
 
+    } catch (SonarException e) {
+      throw e;
     } catch (Exception e) {
       throw new SonarException("Fail to download plugin: " + remote.getKey(), e);
     }
