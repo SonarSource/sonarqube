@@ -22,8 +22,6 @@ package org.sonar.api.config;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.EmailSettings;
-import org.sonar.api.config.Settings;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -45,5 +43,6 @@ public class EmailSettingsTest {
     assertThat(emailSettings.getFrom()).isEqualTo("noreply@nowhere");
     assertThat(emailSettings.getPrefix()).isEqualTo("[SONAR]");
     assertThat(emailSettings.getServerBaseURL()).isEqualTo(CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE);
+    assertThat(emailSettings.getDefaultAddressSuffix()).isEmpty();
   }
 }
