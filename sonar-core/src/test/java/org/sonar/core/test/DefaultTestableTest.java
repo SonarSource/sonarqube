@@ -19,7 +19,9 @@
  */
 package org.sonar.core.test;
 
+import com.google.common.collect.Iterables;
 import org.junit.Test;
+import org.sonar.api.test.MutableTestCase;
 import org.sonar.core.graph.BeanGraph;
 
 import java.util.Arrays;
@@ -65,5 +67,24 @@ public class DefaultTestableTest {
     assertThat(testable.testCasesOfLine(5)).isEmpty();
     assertThat(testable.testCasesOfLine(10)).containsExactly(testCase1);
     assertThat(testable.testCasesOfLine(12)).contains(testCase1, testCase2);
+  }
+
+  @Test
+  public void should_get_test_case_by_key() {
+    BeanGraph beanGraph = BeanGraph.createInMemory();
+
+    DefaultTestPlan plan = beanGraph.createVertex(DefaultTestPlan.class);
+    plan.addTestCase("T1");
+    plan.addTestCase("T2");
+
+    DefaultTestable testable = beanGraph.createVertex(DefaultTestable.class);
+    MutableTestCase testCase1 = Iterables.get(plan.testCases(), 0);
+    testCase1.setCover(testable, Arrays.asList(10, 11, 12));
+    MutableTestCase testCase2 = Iterables.get(plan.testCases(), 1);
+    testCase2.setCover(testable, Arrays.asList(12, 48, 49));
+
+    assertThat(testable.testCaseByKey("T1")).isEqualTo(testCase1);
+    assertThat(testable.testCaseByKey("T2")).isEqualTo(testCase2);
+    assertThat(testable.testCaseByKey("Unknown")).isNull();
   }
 }

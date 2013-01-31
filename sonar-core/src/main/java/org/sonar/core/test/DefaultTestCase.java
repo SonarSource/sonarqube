@@ -19,9 +19,12 @@
  */
 package org.sonar.core.test;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
+import org.sonar.api.test.Cover;
 import org.sonar.api.test.MutableTestCase;
 import org.sonar.api.test.TestPlan;
 import org.sonar.api.test.Testable;
@@ -120,4 +123,14 @@ public class DefaultTestCase extends BeanVertex implements MutableTestCase {
   public Iterable covers() {
     return getEdges(DefaultCover.class, Direction.OUT, "covers");
   }
+
+  public Cover coverOfTestable(final Testable testable) {
+    return Iterables.find(getEdges(DefaultCover.class, Direction.OUT, "covers"), new Predicate<Cover>() {
+      public boolean apply(Cover input) {
+        return input.testable().component().key().equals(testable.component().key());
+      }
+    }, null);
+  }
+
+
 }

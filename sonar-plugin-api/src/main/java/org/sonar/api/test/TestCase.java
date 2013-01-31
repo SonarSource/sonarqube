@@ -49,4 +49,6 @@ public interface TestCase {
   int countCoveredLines();
 
   Iterable<Cover> covers();
+
+  Cover coverOfTestable(Testable testable);
 }

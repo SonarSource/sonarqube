@@ -23,9 +23,12 @@ import com.google.common.collect.Iterables;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.component.mock.MockSourceFile;
 import org.sonar.api.test.Cover;
 import org.sonar.api.test.TestCase;
 import org.sonar.api.test.exception.IllegalDurationException;
+import org.sonar.core.component.ComponentVertex;
+import org.sonar.core.component.ScanGraph;
 import org.sonar.core.graph.BeanGraph;
 
 import java.util.Arrays;
@@ -77,6 +80,25 @@ public class DefaultTestCaseTest {
     assertThat(testCase.doesCover()).isTrue();
     assertThat(testCase.countCoveredLines()).isEqualTo(6);
     assertThat(testCase.covers()).hasSize(2);
+  }
+
+  @Test
+  public void should_return_cover_of_testable(){
+    BeanGraph beanGraph = BeanGraph.createInMemory();
+
+    ScanGraph graph = ScanGraph.create();
+    ComponentVertex file1 = graph.addComponent(MockSourceFile.createMain("org.foo.Bar"));
+    DefaultTestable testable1 = beanGraph.createAdjacentVertex(file1, DefaultTestable.class, "testable");
+
+    ComponentVertex file2 = graph.addComponent(MockSourceFile.createMain("org.foo.File"));
+    DefaultTestable testable2 = beanGraph.createAdjacentVertex(file2, DefaultTestable.class, "testable");
+
+    DefaultTestCase testCase = beanGraph.createVertex(DefaultTestCase.class);
+    testCase.setCover(testable1, Arrays.asList(10, 11, 12));
+
+    assertThat(testCase.coverOfTestable(testable1).testable()).isEqualTo(testable1);
+    assertThat(testCase.coverOfTestable(testable1).testCase()).isEqualTo(testCase);
+    assertThat(testCase.coverOfTestable(testable2)).isNull();
   }
 
   @Test

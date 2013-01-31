@@ -28,6 +28,8 @@ public interface Testable extends Perspective {
 
   List<TestCase> testCases();
 
+  TestCase testCaseByKey(String key);
+
   int countTestCasesOfLine(int line);
 
   List<TestCase> testCasesOfLine(int line);

@@ -191,12 +191,12 @@ class ResourceController < ApplicationController
       @conditions_by_line = load_distribution("#{it_prefix}conditions_by_line")
       @covered_conditions_by_line = load_distribution("#{it_prefix}covered_conditions_by_line")
 
-      testable = java_facade.getTestable(@snapshot.id)
+      @testable = java_facade.getTestable(@snapshot.id)
       @hits_by_line.each_pair do |line_id, hits|
         line = @lines[line_id-1]
         if line
           line.covered_lines = 0
-          line.covered_lines = testable.countTestCasesOfLine(line_id) if testable
+          line.covered_lines = @testable.countTestCasesOfLine(line_id) if @testable
           line.hits = hits.to_i
           line.conditions = @conditions_by_line[line_id].to_i
           line.covered_conditions = @covered_conditions_by_line[line_id].to_i
@@ -246,6 +246,12 @@ class ResourceController < ApplicationController
         @coverage_filter="#{it_prefix}uncovered_conditions"
         filter_lines { |line| line.conditions && line.covered_conditions && line.covered_conditions<line.conditions && line.after(to) }
       end
+    end
+
+    @test_case_filter = params[:test_case_filter]
+    if @test_case_filter && @testable
+      #lines = @testable.coverOfTestable(@testable.testCaseByKey(@test_case_filter)).lines
+      #filter_lines { |line| lines.include? line }
     end
 
     render :action => 'index', :layout => !request.xhr?

@@ -19,6 +19,7 @@
  */
 package org.sonar.core.test;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
@@ -49,6 +50,14 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
       cases.add(beanGraph().wrap(testable, DefaultTestCase.class));
     }
     return cases.build();
+  }
+
+  public TestCase testCaseByKey(final String key) {
+    return Iterables.find(testCases(), new Predicate<TestCase>() {
+      public boolean apply(TestCase input) {
+        return input.key().equals(key);
+      }
+    }, null);
   }
 
   public int countTestCasesOfLine(int line) {

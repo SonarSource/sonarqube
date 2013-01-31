@@ -91,6 +91,18 @@
                 <% end %>
               </select>
             </td>
+
+            <% if @testable && !@testable.testCases.empty? %>
+              <td class="<%= 'first' if first -%>">
+                <select id="test_case_filter" name="test_case_filter" onchange="applyOptions()">
+                  <option value=""><%= message('lines_covered_per_test') -%></option>
+                  <% @testable.testCases.each do |test_case| %>
+                    <option value="<%= test_case.key -%>" <%= 'selected' if @test_case_filter==test_case.key -%>><%= test_case.name -%></option>
+                  <% end %>
+                </select>
+              </td>
+            <% end %>
+
           <% first=false
              end %>
         </tr>

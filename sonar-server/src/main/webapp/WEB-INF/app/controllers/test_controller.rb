@@ -20,7 +20,7 @@
 class TestController < ApplicationController
 
   def working_view
-    #verify_ajax_request
+    verify_ajax_request
     require_parameters :sid, :value, :type
     type = params[:type].to_s
     snapshot_id = params[:sid].to_i
