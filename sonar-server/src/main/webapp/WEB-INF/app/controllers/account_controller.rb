@@ -22,10 +22,9 @@ class AccountController < ApplicationController
   before_filter :login_required
 
   def index
-    notification_service = java_facade.getCoreComponentByClassname('org.sonar.server.notifications.NotificationCenter')
     @channels = notification_service.getChannels()
-    @global_dispatchers = notification_service.getDispatcherKeysForProperty("globalNotification", "true")
-    @per_project_dispatchers = notification_service.getDispatcherKeysForProperty("perProjectNotification", "true")
+    @global_dispatchers = dispatchers_for_scope("globalNotification")
+    @per_project_dispatchers = dispatchers_for_scope("perProjectNotification")
     
     @global_notifications = {}
     @per_project_notifications = {}
@@ -89,7 +88,19 @@ class AccountController < ApplicationController
     redirect_to :action => 'index', :params => new_params
   end
   
-  private 
+  private
+
+  def notification_service
+    java_facade.getCoreComponentByClassname('org.sonar.server.notifications.NotificationCenter')
+  end
+  
+  def dispatchers_for_scope(scope)
+    notification_service.getDispatcherKeysForProperty(scope, "true").sort {|x,y| dispatcher_name(x) <=> dispatcher_name(y)}
+  end
+  
+  def dispatcher_name(dispatcher_key)
+    Api::Utils.message('notification.dispatcher.' + dispatcher_key)
+  end
   
   def load_notification_properties
     Property.find(:all, :conditions => ['prop_key like ? AND user_id = ?', 'notification.%', current_user.id]).each do |property|
