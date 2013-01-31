@@ -55,6 +55,11 @@
       <version>${project.version}</version>
       <exclusions>
         <exclusion>
+          <!-- not used at runtime -->
+          <groupId>com.google.code.findbugs</groupId>
+          <artifactId>jsr305</artifactId>
+        </exclusion>
+        <exclusion>
           <groupId>org.apache.maven.shared</groupId>
           <artifactId>maven-dependency-tree</artifactId>
         </exclusion>
