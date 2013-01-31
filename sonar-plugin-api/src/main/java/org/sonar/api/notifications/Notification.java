@@ -19,13 +19,12 @@
  */
 package org.sonar.api.notifications;
 
-import java.io.Serializable;
-import java.util.HashMap;
-
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import com.google.common.collect.Maps;
+import java.io.Serializable;
+import java.util.HashMap;
 
 /**
  * <p>
@@ -33,10 +32,17 @@ import com.google.common.collect.Maps;
  * knowledge of the possible ways to be delivered (see {@link NotificationChannel}) or of the users who should
  * receive it (see {@link NotificationDispatcher}).
  * </p> 
+ * <p>
+ * When creating a new notification, it is strongly advised to give a default message that can be  used by channels 
+ * that don't want to specifically format messages for different notification types. You can use 
+ * {@link Notification#setDefaultMessage(String)} for that purpose.
+ * </p>
  * 
  * @since 2.10
  */
 public class Notification implements Serializable {
+
+  private static final String DEFAULT_MESSAGE_KEY = "default_message";
 
   private String type;
 
@@ -62,6 +68,34 @@ public class Notification implements Serializable {
    */
   public String getType() {
     return type;
+  }
+
+  /**
+   * <p>
+   * When creating a new notification, it is strongly advised to give a default message that can be 
+   * used by channels that don't want to specifically format messages for different notification types.
+   * </p>
+   * <p>
+   * This method is equivalent to setting a value for the field {@link #DEFAULT_MESSAGE_KEY} with 
+   * {@link #setFieldValue(String, String)}.
+   * </p> 
+   * 
+   * @since 3.5
+   */
+  public Notification setDefaultMessage(String value) {
+    setFieldValue(DEFAULT_MESSAGE_KEY, value);
+    return this;
+  }
+
+  /**
+   * Returns the default message to display for this notification.
+   */
+  public String getDefaultMessage() {
+    String defaultMessage = getFieldValue(DEFAULT_MESSAGE_KEY);
+    if (defaultMessage == null) {
+      defaultMessage = this.toString();
+    }
+    return defaultMessage;
   }
 
   /**
