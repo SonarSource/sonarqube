@@ -147,6 +147,19 @@ class User < ActiveRecord::Base
       properties<<prop
     end
   end
+  
+  #
+  # This method is different from "set_property(options)" which can also add a new property:
+  # it "really" adds a property and does not try to update a existing one with the same key.
+  # This is used in the account controller to be able to add notification properties both on
+  # a resource (resource_id != nil) or globally (resource_id = nil) - which was not possible
+  # with "set_property(options)".
+  #
+  def add_property(options)
+    prop=Property.new(options)
+    prop.user_id=id
+    properties<<prop
+  end
 
   def delete_property(key)
     prop=property(key)

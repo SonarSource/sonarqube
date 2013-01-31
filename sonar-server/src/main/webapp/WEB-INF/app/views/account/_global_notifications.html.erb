@@ -1,0 +1,33 @@
+<h2><%= message('my_profile.notifications.title') -%></h2>
+
+<div class="admin marginbottom10">
+  <% form_tag({:action => 'update_notifications'}, {:method => 'post'}) do %>
+    <table class="form">
+      <tr>
+        <td></td>
+        <% for channel in @channels %>
+          <td><b><%= message('notification.channel.' + channel.getKey()) -%></b></td>
+        <% end %>
+      </tr>
+      <% for dispatcher in @global_dispatchers %>
+        <tr>
+          <td><%= message('notification.dispatcher.' + dispatcher) -%></td>
+          <%
+               for channel in @channels
+                 notification_id = dispatcher + '.' + channel.getKey()
+                 check_box_id = 'notifications[' + notification_id + ']'
+                 check_box_checked = @global_notifications[notification_id]
+          %>
+          <td>
+              <%= check_box_tag check_box_id, 'true', check_box_checked %>
+          </td>
+          <% end %>
+        </tr>
+      <% end %>
+      <tr>
+        <td></td>
+        <td><%= submit_tag message('my_profile.notifications.submit') %></td>
+      </tr>
+    </table>
+  <% end %>
+</div>

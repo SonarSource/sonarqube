@@ -55,37 +55,12 @@
     </div>
   <% end -%>
 
-  <h2><%= message('my_profile.notifications.title') -%></h2>
+  <% unless @global_dispatchers.empty? -%>
+    <%= render "account/global_notifications" -%>
+  <% end %>
 
-  <div class="admin marginbottom10">
-    <% form_tag({:action => 'update_notifications'}, {:method => 'post'}) do %>
-      <table class="form">
-        <tr>
-          <td></td>
-          <% for channel in @channels %>
-            <td><b><%= message('notification.channel.' + channel.getKey()) -%></b></td>
-          <% end %>
-        </tr>
-        <% for dispatcher in @dispatchers %>
-          <tr>
-            <td><%= message('notification.dispatcher.' + dispatcher) -%></td>
-            <td>
-              <%
-                 for channel in @channels
-                   notification_id = dispatcher + '.' + channel.getKey()
-                   check_box_id = 'notifications[' + notification_id + ']'
-                   check_box_checked = @notifications[notification_id]
-              %>
-                <%= check_box_tag check_box_id, 'true', check_box_checked %>
-              <% end %>
-            </td>
-          </tr>
-        <% end %>
-        <tr>
-          <td></td>
-          <td><%= submit_tag message('my_profile.notifications.submit') %></td>
-        </tr>
-      </table>
-    <% end %>
-  </div>
+  <% unless @per_project_dispatchers.empty? -%>
+    <%= render "account/per_project_notifications" -%>  
+  <% end %>
+  
 </div>

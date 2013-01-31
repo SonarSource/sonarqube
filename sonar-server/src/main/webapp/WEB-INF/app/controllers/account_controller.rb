@@ -24,10 +24,39 @@ class AccountController < ApplicationController
   def index
     notification_service = java_facade.getCoreComponentByClassname('org.sonar.server.notifications.NotificationCenter')
     @channels = notification_service.getChannels()
-    @dispatchers = notification_service.getDispatcherKeysForProperty("globalNotification", "true")
-    @notifications = {}
-    for property in Property.find(:all, :conditions => ['prop_key like ? AND user_id = ?', 'notification.%', current_user.id])
-      @notifications[property.key.sub('notification.', '')] = true
+    @global_dispatchers = notification_service.getDispatcherKeysForProperty("globalNotification", "true")
+    @per_project_dispatchers = notification_service.getDispatcherKeysForProperty("perProjectNotification", "true")
+    
+    @global_notifications = {}
+    @per_project_notifications = {}
+    Property.find(:all, :conditions => ['prop_key like ? AND user_id = ?', 'notification.%', current_user.id]).each do |property|
+      r_id = property.resource_id
+      if r_id
+        # This is a per-project notif
+        project_notifs = @per_project_notifications[r_id]
+        unless project_notifs
+          project_notifs = {}
+          @per_project_dispatchers.each do |dispatcher|
+            project_notifs[dispatcher] = []
+          end
+          @per_project_notifications[r_id] = project_notifs
+        end
+        parts = property.key.split('.')
+        dispatcher_key = parts[1]
+        channel_key = parts[2]
+        project_notifs[dispatcher_key] << channel_key
+      else
+        # This is a global notif
+        @global_notifications[property.key.sub('notification.', '')] = true
+      end
+    end
+    
+    if params[:new_project]
+      new_project = Project.by_key params[:new_project]
+      unless @per_project_notifications[new_project.id]
+        @per_project_notifications[new_project.id] = init_project_notifications
+      end
+      @selected_project_id = new_project.id
     end
   end
 
@@ -54,9 +83,41 @@ class AccountController < ApplicationController
 
   def update_notifications
     notifications = params[:notifications]
-    Property.delete_all(['prop_key like ? AND user_id = ?', 'notification.%', current_user.id])
-    notifications.each_key { |key| current_user.set_property(:prop_key => 'notification.' + key, :text_value => 'true') } unless notifications.nil?
+    Property.delete_all(['prop_key like ? AND user_id = ? AND resource_id IS NULL', 'notification.%', current_user.id])
+    notifications.each_key {|k| puts "===> " + k}
+    notifications.each_key { |key| current_user.add_property(:prop_key => 'notification.' + key, :text_value => 'true') } unless notifications.nil?
     redirect_to :action => 'index'
+  end
+
+  def update_per_project_notifications
+    notifications = params[:notifications]
+    Property.delete_all(['prop_key like ? AND user_id = ? AND resource_id IS NOT NULL', 'notification.%', current_user.id])
+    if notifications
+      notifications.each do |r_id, per_project_notif|
+        per_project_notif.each do |dispatch, channels|
+          channels.each do |channel|
+            current_user.add_property(:prop_key => 'notification.' + dispatch + '.' + channel, :text_value => 'true', :resource_id => r_id)
+          end
+        end
+      end
+    end
+    
+    new_params = {}
+    unless params[:new_project].blank?
+      new_params[:new_project] = params[:new_project]
+    end
+    
+    redirect_to :action => 'index', :params => new_params
+  end
+  
+  private 
+  
+  def init_project_notifications
+    project_notifs = {}
+    @per_project_dispatchers.each do |dispatcher|
+      project_notifs[dispatcher] = []
+    end
+    project_notifs
   end
 
 end
