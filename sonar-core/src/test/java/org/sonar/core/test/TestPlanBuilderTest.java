@@ -19,62 +19,40 @@
  */
 package org.sonar.core.test;
 
-import org.junit.Ignore;
+import org.junit.Test;
+import org.sonar.api.component.mock.MockSourceFile;
+import org.sonar.api.test.MutableTestPlan;
+import org.sonar.core.component.ComponentVertex;
+import org.sonar.core.component.ScanGraph;
 
-//
-//import com.tinkerpop.blueprints.Vertex;
-//import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
-//import org.junit.Test;
-//import org.sonar.api.component.SourceFile;
-//import org.sonar.api.component.mock.MockSourceFile;
-//import org.sonar.api.test.MutableTestCase;
-//import org.sonar.api.test.MutableTestPlan;
-//import org.sonar.core.component.ComponentGraph;
-//import org.sonar.core.component.ComponentWrapper;
-//import org.sonar.core.graph.graphson.GraphsonReader;
-//
-//import static org.fest.assertions.Assertions.assertThat;
-//
-@Ignore
+import static org.fest.assertions.Assertions.assertThat;
+
 public class TestPlanBuilderTest {
-//  @Test
-//  public void should_create_empty_plan() {
-//    ComponentGraph graph = new ComponentGraph();
-//    SourceFile file = MockSourceFile.createMain("org/codehaus/sonar/Main.java");
-//    ComponentWrapper fileWrapper = graph.createComponent(file);
-//
-//    MutableTestPlan plan = new TestPlanBuilder().create(fileWrapper);
-//    assertThat(plan).isNotNull();
-//    assertThat(plan.component().getKey()).isEqualTo(file.getKey());
-//    assertThat(plan.component().getQualifier()).isEqualTo(file.getQualifier());
-//    assertThat(plan.component().getName()).isEqualTo(file.getName());
-//    assertThat(plan.testCases()).isEmpty();
-//  }
-//
-//  @Test
-//  public void should_add_test_case() {
-//    ComponentGraph graph = new ComponentGraph();
-//    SourceFile file = MockSourceFile.createMain("org/codehaus/sonar/Main.java");
-//    ComponentWrapper fileWrapper = graph.createComponent(file);
-//
-//    MutableTestPlan plan = new TestPlanBuilder().create(fileWrapper);
-//    MutableTestCase testCase = plan.addTestCase("should_pass");
-//    assertThat(testCase.key()).isEqualTo("should_pass");
-//    assertThat(testCase.name()).isNull();
-//    assertThat(plan.testCases()).hasSize(1);
-//    assertThat(plan.testCases()).containsExactly(testCase);
-//  }
-//
-//  @Test
-//  public void should_load_test_plan() {
-//    TinkerGraph graph = new TinkerGraph();
-//    new GraphsonReader().read(getClass().getResourceAsStream("/org/sonar/core/test/TestPlanBuilderTest/plan_with_test_cases.json"), graph);
-//
-//    Vertex componentVertex = graph.getVertex("33");
-//    ComponentGraph componentGraph = new ComponentGraph(graph, componentVertex);
-//
-//    MutableTestPlan testPlan = new TestPlanBuilder().load(componentGraph.wrap(componentVertex, ComponentWrapper.class));
-//    assertThat(testPlan.testCases()).hasSize(4);
-//  }
-//
+  @Test
+  public void test_path() {
+    TestPlanBuilder builder = new TestPlanBuilder();
+
+    assertThat(builder.path().getElements()).isNotEmpty();
+  }
+
+  @Test
+  public void should_not_load_missing_perspective() {
+    TestPlanBuilder builder = new TestPlanBuilder();
+    ScanGraph graph = ScanGraph.create();
+    ComponentVertex file = graph.addComponent(MockSourceFile.createMain("org.foo.Bar"));
+
+    assertThat(builder.load(file)).isNull();
+  }
+
+  @Test
+  public void should_create_perspective() {
+    TestPlanBuilder builder = new TestPlanBuilder();
+    ScanGraph graph = ScanGraph.create();
+    ComponentVertex file = graph.addComponent(MockSourceFile.createMain("org.foo.Bar"));
+
+    MutableTestPlan plan = builder.create(file);
+    assertThat(plan).isNotNull();
+    assertThat(plan.component()).isSameAs(file);
+    assertThat(builder.load(file)).isSameAs(plan);
+  }
 }

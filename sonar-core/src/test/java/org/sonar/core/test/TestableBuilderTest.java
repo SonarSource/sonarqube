@@ -20,14 +20,39 @@
 package org.sonar.core.test;
 
 import org.junit.Test;
+import org.sonar.api.component.mock.MockSourceFile;
+import org.sonar.api.test.MutableTestable;
+import org.sonar.core.component.ComponentVertex;
+import org.sonar.core.component.ScanGraph;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class TestableBuilderTest {
   @Test
-  public void storagePath() {
+  public void test_path() {
     TestableBuilder builder = new TestableBuilder();
 
     assertThat(builder.path().getElements()).isNotEmpty();
+  }
+
+  @Test
+  public void should_not_load_missing_perspective() {
+    TestableBuilder builder = new TestableBuilder();
+    ScanGraph graph = ScanGraph.create();
+    ComponentVertex file = graph.addComponent(MockSourceFile.createMain("org.foo.Bar"));
+
+    assertThat(builder.load(file)).isNull();
+  }
+
+  @Test
+  public void should_create_perspective() {
+    TestableBuilder builder = new TestableBuilder();
+    ScanGraph graph = ScanGraph.create();
+    ComponentVertex file = graph.addComponent(MockSourceFile.createMain("org.foo.Bar"));
+
+    MutableTestable testable = builder.create(file);
+    assertThat(testable).isNotNull();
+    assertThat(testable.component()).isSameAs(file);
+    assertThat(builder.load(file)).isSameAs(testable);
   }
 }
