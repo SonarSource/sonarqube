@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.emailnotifications.reviews;
+package org.sonar.plugins.core.notifications.reviews;
 
 import com.google.common.collect.Multimap;
 import org.apache.commons.lang.StringUtils;

@@ -17,7 +17,9 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.emailnotifications.newviolations;
+package org.sonar.plugins.emailnotifications.templates.violations;
+
+import org.sonar.plugins.emailnotifications.templates.violations.NewViolationsEmailTemplate;
 
 import org.junit.Before;
 import org.junit.Test;

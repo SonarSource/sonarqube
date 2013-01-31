@@ -19,15 +19,14 @@
  */
 package org.sonar.plugins.emailnotifications;
 
+import org.sonar.plugins.emailnotifications.templates.reviews.ReviewEmailTemplate;
+
+import org.sonar.plugins.emailnotifications.templates.violations.NewViolationsEmailTemplate;
+
+import org.sonar.plugins.emailnotifications.templates.alerts.AlertsEmailTemplate;
+
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.SonarPlugin;
-import org.sonar.api.notifications.NotificationDispatcherMetadata;
-import org.sonar.plugins.emailnotifications.alerts.AlertsEmailTemplate;
-import org.sonar.plugins.emailnotifications.alerts.AlertsOnMyFavouriteProject;
-import org.sonar.plugins.emailnotifications.newviolations.NewViolationsEmailTemplate;
-import org.sonar.plugins.emailnotifications.newviolations.NewViolationsOnMyFavouriteProject;
-import org.sonar.plugins.emailnotifications.reviews.ChangesInReviewAssignedToMeOrCreatedByMe;
-import org.sonar.plugins.emailnotifications.reviews.ReviewEmailTemplate;
 
 import java.util.List;
 
@@ -36,24 +35,9 @@ public class EmailNotificationsPlugin extends SonarPlugin {
     return ImmutableList.of(
         EmailNotificationChannel.class,
 
-        // Notify incoming violations on my favourite projects
-        NewViolationsOnMyFavouriteProject.class,
-        NotificationDispatcherMetadata.create("NewViolationsOnMyFavouriteProject")
-            .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, "true"),
+        // Email templates
         NewViolationsEmailTemplate.class,
-
-        // Notify reviews changes
-        ChangesInReviewAssignedToMeOrCreatedByMe.class,
-        NotificationDispatcherMetadata.create("ChangesInReviewAssignedToMeOrCreatedByMe")
-            .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, "true"),
         ReviewEmailTemplate.class,
-
-        // Notify alerts on my favourite projects
-        AlertsOnMyFavouriteProject.class,
-        NotificationDispatcherMetadata.create("AlertsOnMyFavouriteProject")
-            .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, "true"),
-        AlertsEmailTemplate.class
-
-        );
+        AlertsEmailTemplate.class);
   }
 }

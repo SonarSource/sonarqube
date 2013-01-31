@@ -17,7 +17,9 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.emailnotifications.alerts;
+package org.sonar.plugins.core.notifications.alerts;
+
+import org.sonar.plugins.core.notifications.alerts.AlertsOnMyFavouriteProject;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
