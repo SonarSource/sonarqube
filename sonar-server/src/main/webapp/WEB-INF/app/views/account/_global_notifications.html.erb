@@ -6,7 +6,7 @@
       <tr>
         <td></td>
         <% for channel in @channels %>
-          <td><b><%= message('notification.channel.' + channel.getKey()) -%></b></td>
+          <td class="center"><b><%= message('notification.channel.' + channel.getKey()) -%></b></td>
         <% end %>
       </tr>
       <% for dispatcher in @global_dispatchers %>
@@ -18,15 +18,14 @@
                  check_box_id = 'notifications[' + notification_id + ']'
                  check_box_checked = @global_notifications[notification_id]
           %>
-          <td>
+          <td class="center">
               <%= check_box_tag check_box_id, 'true', check_box_checked %>
           </td>
           <% end %>
         </tr>
       <% end %>
       <tr>
-        <td></td>
-        <td><%= submit_tag message('my_profile.notifications.submit') %></td>
+        <td style="padding-top: 10px" colspan="<%= @global_dispatchers.size + 1 -%>"><%= submit_tag message('my_profile.notifications.submit') %></td>
       </tr>
     </table>
   <% end %>
