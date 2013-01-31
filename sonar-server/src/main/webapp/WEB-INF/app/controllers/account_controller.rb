@@ -29,27 +29,7 @@ class AccountController < ApplicationController
     
     @global_notifications = {}
     @per_project_notifications = {}
-    Property.find(:all, :conditions => ['prop_key like ? AND user_id = ?', 'notification.%', current_user.id]).each do |property|
-      r_id = property.resource_id
-      if r_id
-        # This is a per-project notif
-        project_notifs = @per_project_notifications[r_id]
-        unless project_notifs
-          project_notifs = {}
-          @per_project_dispatchers.each do |dispatcher|
-            project_notifs[dispatcher] = []
-          end
-          @per_project_notifications[r_id] = project_notifs
-        end
-        parts = property.key.split('.')
-        dispatcher_key = parts[1]
-        channel_key = parts[2]
-        project_notifs[dispatcher_key] << channel_key
-      else
-        # This is a global notif
-        @global_notifications[property.key.sub('notification.', '')] = true
-      end
-    end
+    load_notification_properties
     
     if params[:new_project]
       new_project = Project.by_key params[:new_project]
@@ -84,8 +64,7 @@ class AccountController < ApplicationController
   def update_notifications
     notifications = params[:notifications]
     Property.delete_all(['prop_key like ? AND user_id = ? AND resource_id IS NULL', 'notification.%', current_user.id])
-    notifications.each_key {|k| puts "===> " + k}
-    notifications.each_key { |key| current_user.add_property(:prop_key => 'notification.' + key, :text_value => 'true') } unless notifications.nil?
+    notifications.each_key { |key| current_user.add_property(:prop_key => 'notification.' + key, :text_value => 'true') } if notifications
     redirect_to :action => 'index'
   end
 
@@ -111,6 +90,30 @@ class AccountController < ApplicationController
   end
   
   private 
+  
+  def load_notification_properties
+    Property.find(:all, :conditions => ['prop_key like ? AND user_id = ?', 'notification.%', current_user.id]).each do |property|
+      r_id = property.resource_id
+      if r_id
+        # This is a per-project notif
+        project_notifs = @per_project_notifications[r_id]
+        unless project_notifs
+          project_notifs = {}
+          @per_project_dispatchers.each do |dispatcher|
+            project_notifs[dispatcher] = []
+          end
+          @per_project_notifications[r_id] = project_notifs
+        end
+        parts = property.key.split('.')
+        dispatcher_key = parts[1]
+        channel_key = parts[2]
+        project_notifs[dispatcher_key] << channel_key
+      else
+        # This is a global notif
+        @global_notifications[property.key.sub('notification.', '')] = true
+      end
+    end
+  end
   
   def init_project_notifications
     project_notifs = {}

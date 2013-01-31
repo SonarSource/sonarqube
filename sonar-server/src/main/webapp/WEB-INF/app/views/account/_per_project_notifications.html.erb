@@ -22,17 +22,23 @@
           </script>
         </td>
         
-        <% @per_project_dispatchers.each do |dispatcher| %>
+        <% 
+           unless @per_project_notifications.empty?
+             @per_project_dispatchers.each do |dispatcher| 
+        %>
           <td style="max-width: 200px;" class="center"><b><%= message('notification.dispatcher.' + dispatcher) -%></b></td>
-        <% end %>
+        <% 
+             end
+           end
+        %>
       </tr>
       
       <% 
-         index = 0
-         @per_project_notifications.each do |r_id, per_project_notif|
-           index += 1
+         unless @per_project_notifications.empty?
+           index = 0
+           @per_project_notifications.each do |r_id, per_project_notif|
+             index += 1
       %>
-      
       <tr id="row_<%= index -%>">
         <td class="middle">
           <table style="width: 100%">
@@ -68,11 +74,13 @@
         <% end %>
       </tr>
       
-      <% end %>
+           <% end %>
       
       <tr>
         <td colspan="<%= @per_project_dispatchers.size + 1 -%>"><%= submit_tag message('my_profile.notifications.submit') %></td>
       </tr>
+      <% end %>
+      
     </table>
   <% end %>
 </div>
