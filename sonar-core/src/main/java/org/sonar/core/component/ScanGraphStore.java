@@ -45,7 +45,7 @@ public class ScanGraphStore {
   }
 
   public void save() {
-    LoggerFactory.getLogger(ScanGraphStore.class).info("Persisting graphs of components");
+    LoggerFactory.getLogger(ScanGraphStore.class).info("Persist graphs of components");
     BatchSession session = myBatis.openBatchSession();
     GraphDtoMapper mapper = session.getMapper(GraphDtoMapper.class);
     try {
