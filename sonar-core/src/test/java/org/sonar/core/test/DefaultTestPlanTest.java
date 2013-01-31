@@ -52,8 +52,13 @@ public class DefaultTestPlanTest {
     plan.addTestCase("T2");
 
     assertThat(plan.testCases()).hasSize(2);
-    assertThat(Iterables.<MutableTestCase>get(plan.testCases(), 0).key()).isEqualTo("T1");
-    assertThat(Iterables.<MutableTestCase>get(plan.testCases(), 1).key()).isEqualTo("T2");
+    MutableTestCase firstTestCase = Iterables.get(plan.testCases(), 0);
+    assertThat(firstTestCase.key()).isEqualTo("T1");
+    assertThat(firstTestCase.testPlan()).isSameAs(plan);
+
+    MutableTestCase secondTestCase = Iterables.get(plan.testCases(), 1);
+    assertThat(secondTestCase.key()).isEqualTo("T2");
+    assertThat(secondTestCase.testPlan()).isSameAs(plan);
   }
 
   @Test

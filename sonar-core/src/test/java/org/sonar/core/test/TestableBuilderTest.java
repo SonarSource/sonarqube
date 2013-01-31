@@ -17,28 +17,17 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.graph;
+package org.sonar.core.test;
 
-import com.tinkerpop.blueprints.Graph;
-import org.apache.commons.io.IOUtils;
-import org.sonar.core.graph.graphson.GraphsonMode;
-import org.sonar.core.graph.graphson.GraphsonWriter;
+import org.junit.Test;
 
-import java.io.IOException;
-import java.io.StringWriter;
+import static org.fest.assertions.Assertions.assertThat;
 
-public class GraphWriter {
+public class TestableBuilderTest {
+  @Test
+  public void storagePath() {
+    TestableBuilder builder = new TestableBuilder();
 
-  public String write(Graph graph) {
-    StringWriter output = new StringWriter();
-    try {
-      new GraphsonWriter().write(graph, output, GraphsonMode.EXTENDED);
-      System.out.println("------------------------------------------------");
-      System.out.println(output.toString());
-      System.out.println("------------------------------------------------");
-      return output.toString();
-    } finally {
-      IOUtils.closeQuietly(output);
-    }
+    assertThat(builder.path().getElements()).isNotEmpty();
   }
 }

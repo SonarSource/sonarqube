@@ -19,11 +19,13 @@
  */
 package org.sonar.core.test;
 
+import com.google.common.collect.Iterables;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.test.exception.IllegalDurationException;
+import org.sonar.api.test.Cover;
 import org.sonar.api.test.TestCase;
+import org.sonar.api.test.exception.IllegalDurationException;
 import org.sonar.core.graph.BeanGraph;
 
 import java.util.Arrays;
@@ -46,7 +48,24 @@ public class DefaultTestCaseTest {
   }
 
   @Test
-  public void should_cover_testables() {
+  public void should_cover_testable() {
+    BeanGraph beanGraph = BeanGraph.createInMemory();
+    DefaultTestable testable = beanGraph.createVertex(DefaultTestable.class);
+    DefaultTestCase testCase = beanGraph.createVertex(DefaultTestCase.class);
+    testCase.setCover(testable, Arrays.asList(10, 11, 12));
+
+    assertThat(testCase.doesCover()).isTrue();
+    assertThat(testCase.countCoveredLines()).isEqualTo(3);
+    assertThat(testCase.covers()).hasSize(1);
+
+    Cover cover = Iterables.<Cover>getFirst(testCase.covers(), null);
+    assertThat(cover.testCase()).isEqualTo(testCase);
+    assertThat(cover.testable()).isSameAs(testable);
+    assertThat(cover.lines()).containsExactly(10, 11, 12);
+  }
+
+  @Test
+  public void should_cover_multiple_testables() {
     BeanGraph beanGraph = BeanGraph.createInMemory();
     DefaultTestable testable1 = beanGraph.createVertex(DefaultTestable.class);
     DefaultTestable testable2 = beanGraph.createVertex(DefaultTestable.class);

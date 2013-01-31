@@ -20,14 +20,18 @@
 package org.sonar.core.component;
 
 import com.tinkerpop.blueprints.Graph;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.component.Perspective;
-import org.sonar.core.graph.GraphWriter;
 import org.sonar.core.graph.SubGraph;
+import org.sonar.core.graph.graphson.GraphsonMode;
+import org.sonar.core.graph.graphson.GraphsonWriter;
 import org.sonar.core.graph.jdbc.GraphDto;
 import org.sonar.core.graph.jdbc.GraphDtoMapper;
 import org.sonar.core.persistence.BatchSession;
 import org.sonar.core.persistence.MyBatis;
+
+import java.io.StringWriter;
 
 public class ScanGraphStore {
   private final MyBatis myBatis;
@@ -45,15 +49,14 @@ public class ScanGraphStore {
     BatchSession session = myBatis.openBatchSession();
     GraphDtoMapper mapper = session.getMapper(GraphDtoMapper.class);
     try {
-      GraphWriter writer = new GraphWriter();
       for (ComponentVertex component : projectGraph.getComponents()) {
         Long snapshotId = (Long) component.element().getProperty("sid");
         if (snapshotId != null) {
           for (PerspectiveBuilder builder : builders) {
             Perspective perspective = builder.load(component);
             if (perspective != null) {
-              Graph subGraph = SubGraph.extract(component.element(), builder.storagePath());
-              String data = writer.write(subGraph);
+              Graph subGraph = SubGraph.extract(component.element(), builder.path());
+              String data = write(subGraph);
               mapper.insert(new GraphDto()
                 .setData(data)
                 .setFormat("graphson")
@@ -70,6 +73,16 @@ public class ScanGraphStore {
       session.commit();
     } finally {
       session.close();
+    }
+  }
+
+  private String write(Graph graph) {
+    StringWriter output = new StringWriter();
+    try {
+      new GraphsonWriter().write(graph, output, GraphsonMode.EXTENDED);
+      return output.toString();
+    } finally {
+      IOUtils.closeQuietly(output);
     }
   }
 }

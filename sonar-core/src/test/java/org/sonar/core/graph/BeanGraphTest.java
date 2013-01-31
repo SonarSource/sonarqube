@@ -38,8 +38,7 @@ public class BeanGraphTest {
 
   @Test
   public void should_create_bean_vertex() {
-    TinkerGraph graph = new TinkerGraph();
-    BeanGraph beanGraph = new BeanGraph(graph);
+    BeanGraph beanGraph = BeanGraph.createInMemory();
     Person person = beanGraph.createVertex(Person.class);
 
     assertThat(person).isNotNull();
@@ -64,8 +63,7 @@ public class BeanGraphTest {
 
   @Test
   public void should_create_adjacent_bean_vertex() {
-    TinkerGraph graph = new TinkerGraph();
-    BeanGraph beanGraph = new BeanGraph(graph);
+    BeanGraph beanGraph = BeanGraph.createInMemory();
     Person person = beanGraph.createVertex(Person.class);
 
     Person adjacent = beanGraph.createAdjacentVertex(person, Person.class, "knows", "type", "family");

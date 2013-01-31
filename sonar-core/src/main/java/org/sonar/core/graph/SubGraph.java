@@ -27,6 +27,7 @@ import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
 import com.tinkerpop.blueprints.util.ElementHelper;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -40,13 +41,13 @@ public class SubGraph {
   private SubGraph() {
   }
 
-  public static Graph extract(Vertex start, Object... edgePath) {
+  public static Graph extract(Vertex start, EdgePath edgePath) {
     return new SubGraph().process(start, edgePath);
   }
 
-  private Graph process(Vertex start, Object... edgePath) {
+  private Graph process(Vertex start, EdgePath edgePath) {
     copy(start);
-    browse(start, 0, edgePath);
+    browse(start, 0, edgePath.getElements());
     for (Edge edge : edgesToCopy) {
       Vertex from = edge.getVertex(Direction.OUT);
       Vertex to = edge.getVertex(Direction.IN);
@@ -56,11 +57,11 @@ public class SubGraph {
     return sub;
   }
 
-  private void browse(Vertex from, int cursor, Object... edgePath) {
+  private void browse(Vertex from, int cursor, List<Object> edgePath) {
     if (from != null) {
-      if (cursor < edgePath.length) {
-        String edgeLabel = (String) edgePath[cursor];
-        Direction edgeDirection = (Direction) edgePath[cursor + 1];
+      if (cursor < edgePath.size()) {
+        Direction edgeDirection = (Direction) edgePath.get(cursor);
+        String edgeLabel = (String) edgePath.get(cursor + 1);
         Iterable<Edge> edges = from.getEdges(edgeDirection, edgeLabel);
         for (Edge edge : edges) {
           edgesToCopy.add(edge);

@@ -22,6 +22,7 @@ package org.sonar.core.component;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.component.Perspective;
+import org.sonar.core.graph.EdgePath;
 
 import javax.annotation.CheckForNull;
 
@@ -48,6 +49,6 @@ public abstract class PerspectiveBuilder<T extends Perspective> implements Batch
 
   public abstract T create(ComponentVertex component);
 
-  public abstract Object[] storagePath();
+  public abstract EdgePath path();
 
 }

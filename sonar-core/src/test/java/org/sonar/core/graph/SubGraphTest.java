@@ -48,7 +48,7 @@ public class SubGraphTest {
     // a -uses-> b -inherits -> c
     // a -uses-> d -implements-> e
 
-    Graph sub = SubGraph.extract(a, "uses", Direction.OUT, "implements", Direction.OUT);
+    Graph sub = SubGraph.extract(a, EdgePath.create(Direction.OUT, "uses", Direction.OUT, "implements"));
 
     // a -uses-> b
     // a -uses-> d -implements-> e
@@ -85,7 +85,7 @@ public class SubGraphTest {
     // a -uses-> b -implements-> c -package-> e
     // a -uses-> d -implements-> c -package-> e
 
-    Graph sub = SubGraph.extract(a, "uses", Direction.OUT, "implements", Direction.OUT, "package", Direction.OUT);
+    Graph sub = SubGraph.extract(a, EdgePath.create(Direction.OUT, "uses", Direction.OUT, "implements", Direction.OUT, "package"));
 
     // same graph
     assertThat(sub.getVertices()).hasSize(5);
@@ -109,7 +109,7 @@ public class SubGraphTest {
     // a -uses-> b -inherits -> c
     // a -uses-> d -implements-> e
 
-    Graph sub = SubGraph.extract(a, "uses", Direction.IN /* instead of out */, "implements", Direction.OUT);
+    Graph sub = SubGraph.extract(a, EdgePath.create(Direction.IN /* instead of out */, "uses", Direction.OUT, "implements"));
 
     assertThat(sub.getVertices()).hasSize(1);
     assertThat(sub.getVertex(a.getId())).isNotNull();

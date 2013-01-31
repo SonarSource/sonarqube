@@ -46,6 +46,9 @@ public class DefaultTestableTest {
     testCase2.setCover(testable, Arrays.asList(12, 48, 49));
 
     assertThat(testable.testedLines()).containsOnly(10, 11, 12, 48, 49);
+    assertThat(testable.countTestCasesOfLine(2)).isEqualTo(0);
+    assertThat(testable.countTestCasesOfLine(10)).isEqualTo(1);
+    assertThat(testable.countTestCasesOfLine(12)).isEqualTo(2);
   }
 
   @Test

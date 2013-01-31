@@ -23,6 +23,7 @@ import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
 import org.sonar.api.test.MutableTestable;
 import org.sonar.core.component.ComponentVertex;
+import org.sonar.core.graph.EdgePath;
 import org.sonar.core.component.PerspectiveBuilder;
 import org.sonar.core.graph.GraphUtil;
 
@@ -30,12 +31,12 @@ public class TestableBuilder extends PerspectiveBuilder<MutableTestable> {
 
   static final String PERSPECTIVE_KEY = "testable";
 
-  private static final Object[] PATH = new Object[]{
-    "testable", Direction.OUT,
-    "covers", Direction.IN,
-    "testcase", Direction.IN,
-    "testplan", Direction.IN
-  };
+  private static final EdgePath PATH = EdgePath.create(
+    Direction.OUT, "testable",
+    Direction.IN,"covers",
+    Direction.IN,"testcase",
+    Direction.IN,"testplan"
+  );
 
   public TestableBuilder() {
     super(PERSPECTIVE_KEY, MutableTestable.class);
@@ -56,7 +57,7 @@ public class TestableBuilder extends PerspectiveBuilder<MutableTestable> {
   }
 
   @Override
-  public Object[] storagePath() {
+  public EdgePath path() {
     return PATH;
   }
 }
