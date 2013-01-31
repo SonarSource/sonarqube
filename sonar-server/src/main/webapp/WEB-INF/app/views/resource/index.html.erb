@@ -99,7 +99,11 @@
 
         <% if @display_coverage %>
           <% if line.highlighted? %>
-            <td class="ind <%= hits_status -%>" title="<%= message("number_of_tests_covering_line", {:params => line.covered_lines.to_s}) if line.covered_lines > 0 -%>"><%= line.covered_lines if line.covered_lines > 0 -%></td>
+            <td class="ind <%= hits_status -%>" title="<%= message("number_of_tests_covering_line", {:params => line.covered_lines.to_s}) if line.covered_lines > 0 -%>">
+              <% if line.covered_lines > 0 %>
+                <a href="#" onclick="openTestWorkingView('<%= @snapshot.id -%>', <%= index+1 -%>, 'testable');"><%= line.covered_lines -%></a>
+              <% end %>
+            </td>
             <td class="ind <%= conditions_status -%>">
               <% if line.deprecated_conditions_label -%>
                 <%= line.deprecated_conditions_label -%>

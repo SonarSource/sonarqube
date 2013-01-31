@@ -111,7 +111,11 @@
         </td>
         <td id="test_time_<%= index -%>" class="thin right" nowrap><%= test_case[:time] -%> ms</td>
         <% if has_covered_lines %>
-          <td id="test_covered_lines_<%= index -%>" class="thin right" nowrap><%= number_with_precision(test_case[:covered_lines], :precision => 0) -%></td>
+          <td id="test_covered_lines_<%= index -%>" class="thin right" nowrap>
+            <a id="test_covered_lines_link_<%= index -%>" href="#"
+               onclick="openTestWorkingView('<%= @snapshot.id -%>', '<%= test_case[:name] -%>', 'testcase');"><%= number_with_precision(test_case[:covered_lines], :precision => 0) -%>
+            </a>
+          </td>
         <% end %>
         <td>
         <span id="test_name_<%= index -%>">

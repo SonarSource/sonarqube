@@ -32,6 +32,10 @@ public class ComponentVertex extends BeanVertex implements Component {
     return (String) getProperty("name");
   }
 
+  public String longName() {
+    return (String) getProperty("longName");
+  }
+
   public String qualifier() {
     return (String) getProperty("qualifier");
   }
@@ -39,6 +43,7 @@ public class ComponentVertex extends BeanVertex implements Component {
   void copyFrom(Component component) {
     setProperty("key", component.key());
     setProperty("name", component.name());
+    setProperty("longName", component.longName());
     setProperty("qualifier", component.qualifier());
     if (component instanceof ResourceComponent) {
       setProperty("sid", ((ResourceComponent) component).snapshotId());

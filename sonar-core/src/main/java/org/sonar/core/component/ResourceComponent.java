@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
 class ResourceComponent implements Component {
   private String key;
   private String name;
+  private String longName;
   private String qualifier;
   private Long snapshotId;
   private Long resourceId;
@@ -35,6 +36,7 @@ class ResourceComponent implements Component {
   ResourceComponent(Resource resource, @Nullable Snapshot snapshot) {
     this.key = resource.getEffectiveKey();
     this.name = resource.getName();
+    this.longName = resource.getLongName();
     this.qualifier = resource.getQualifier();
     if (snapshot != null && snapshot.getId() != null) {
       this.snapshotId = snapshot.getId().longValue();
@@ -53,6 +55,11 @@ class ResourceComponent implements Component {
   public String name() {
     return name;
   }
+
+  public String longName() {
+    return longName;
+  }
+
 
   public String qualifier() {
     return qualifier;

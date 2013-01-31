@@ -307,6 +307,46 @@ Treemap.prototype.initNodes = function () {
   });
 })(jQuery);
 
+/**
+ *
+ * @param snapshot_id
+ * @param value whether the test name or the line index
+ * @param type whether testable or testcase
+ * @return {boolean}
+ */
+function openTestWorkingView(snapshot_id, value, type) {
+
+  if ($j('#working_view').length) {
+    $j('#working_view').remove();
+  }
+
+  var url = baseUrl + "/test/working_view?sid=" + snapshot_id + "&value=" + value + "&type="+ type;
+  var $dialog = $j('<div id="working_view" class="ui-widget-overlay"></div>').appendTo('body');
+  $j.get(url,function (html) {
+    $dialog.removeClass('ui-widget-overlay');
+    $dialog.html(html);
+    $dialog
+        .dialog({
+          width: 600,
+          position: { my: "right top", at: "right top", of: "#content" },
+          draggable: false,
+          autoOpen: false,
+          modal: false,
+          minHeight: 600,
+          resizable: false,
+          close: function () {
+            $j('#working_view').remove();
+          }
+        });
+    $dialog.dialog("open");
+  }).error(function () {
+        alert("Server error. Please contact your administrator.");
+      }).complete(function () {
+        $dialog.removeClass('ui-widget-overlay');
+      });
+  return false;
+}
+
 function closeModalWindow() {
   $j('#modal').dialog('close');
   return false;

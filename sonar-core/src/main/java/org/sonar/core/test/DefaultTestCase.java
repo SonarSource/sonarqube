@@ -22,10 +22,10 @@ package org.sonar.core.test;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
-import org.sonar.api.test.exception.IllegalDurationException;
 import org.sonar.api.test.MutableTestCase;
 import org.sonar.api.test.TestPlan;
 import org.sonar.api.test.Testable;
+import org.sonar.api.test.exception.IllegalDurationException;
 import org.sonar.core.graph.BeanVertex;
 import org.sonar.core.graph.GraphUtil;
 

@@ -44,7 +44,7 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
 
   public List<TestCase> testCases() {
     ImmutableList.Builder<TestCase> cases = ImmutableList.builder();
-    for (Edge coversEdge : getCovers()) {
+    for (Edge coversEdge : covers()) {
       Vertex testable = coversEdge.getVertex(Direction.OUT);
       cases.add(beanGraph().wrap(testable, DefaultTestCase.class));
     }
@@ -54,7 +54,7 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
   public int countTestCasesOfLine(int line) {
     int number = 0;
     // TODO filter on edge
-    for (Edge edge : getCovers()) {
+    for (Edge edge : covers()) {
       if (Iterables.contains(lines(edge), line)) {
         number++;
       }
@@ -64,7 +64,7 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
 
   public List<TestCase> testCasesOfLine(int line) {
     ImmutableList.Builder<TestCase> cases = ImmutableList.builder();
-    for (Edge edge : getCovers()) {
+    for (Edge edge : covers()) {
       if (lines(edge).contains(line)) {
         Vertex vertexTestable = edge.getVertex(Direction.OUT);
         DefaultTestCase testCase = beanGraph().wrap(vertexTestable, DefaultTestCase.class);
@@ -76,13 +76,13 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
 
   public SortedSet<Integer> testedLines() {
     ImmutableSortedSet.Builder<Integer> coveredLines = ImmutableSortedSet.naturalOrder();
-    for (Edge edge : getCovers()) {
+    for (Edge edge : covers()) {
       coveredLines.addAll(lines(edge));
     }
     return coveredLines.build();
   }
 
-  private Iterable<Edge> getCovers() {
+  private Iterable<Edge> covers() {
     return element().getEdges(Direction.IN, "covers");
   }
 

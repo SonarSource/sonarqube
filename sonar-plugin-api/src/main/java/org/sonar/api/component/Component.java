@@ -22,5 +22,6 @@ package org.sonar.api.component;
 public interface Component<CHILD extends Component> {
   String key();
   String name();
+  String longName();
   String qualifier();
 }

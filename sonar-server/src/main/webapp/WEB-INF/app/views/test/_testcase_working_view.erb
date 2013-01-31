@@ -1,0 +1,24 @@
+<div><h1>Working Views</h1></div>
+<br/>
+<div><h3>Files covered by <%= @test %> (<%= @test_plan.component.longName %>)</h3></div>
+<br/>
+<table class="data">
+  <thead>
+  <tr>
+    <th>File</th>
+    <th>Covered Lines</th>
+  </tr>
+  </thead>
+  <tbody>
+  <% @test_case.covers.sort_by{|cover| cover.testable.component.name}.each do |cover| %>
+  <tr class="<%= cycle("even", "odd") -%>">
+    <td>
+      <a href="<%= ApplicationController.root_context -%>/resource/index/<%= cover.testable.component.key -%>?display_title=true&tab=coverage"
+         onclick="window.open(this.href,'resource','height=800,width=900,scrollbars=1,resizable=1');return false;"><%= cover.testable.component.longName -%>
+      </a>
+    </td>
+    <td><%= cover.lines.size -%></td>
+  </tr>
+  <% end %>
+  </tbody>
+</table>
