@@ -57,6 +57,7 @@ public class ReviewNotifications implements BatchExtension {
 
   private Notification createReviewNotification(ReviewDto review, Project project, @Nullable Resource resource) {
     return new Notification("review-changed")
+        .setDefaultMessage("Review #" + review.getId() + " has changed.")
         .setFieldValue("reviewId", String.valueOf(review.getId()))
         .setFieldValue("project", project.getRoot().getLongName())
         .setFieldValue("projectId", String.valueOf(project.getId()))

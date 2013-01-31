@@ -195,6 +195,7 @@ public class GenerateAlertEventsTest {
 
   private void verifyNotificationSent(String alertName, String alertText, String alertLevel, String isNewAlert) {
     Notification notification = new Notification("alerts")
+        .setDefaultMessage("Alert on " + project.getLongName() + ": " + alertName)
         .setFieldValue("projectName", project.getLongName())
         .setFieldValue("projectKey", project.getKey())
         .setFieldValue("projectId", String.valueOf(project.getId()))

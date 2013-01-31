@@ -19,14 +19,9 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorBarriers;
@@ -51,9 +46,13 @@ import org.sonar.api.rules.Violation;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.TimeMachineConfiguration;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Sets;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 @DependsUpon(DecoratorBarriers.END_OF_VIOLATION_TRACKING)
 public class NewViolationsDecorator implements Decorator {
@@ -218,6 +217,7 @@ public class NewViolationsDecorator implements Decorator {
         // Maybe we should check if this is the first analysis or not?
         DateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd");
         Notification notification = new Notification("new-violations")
+            .setDefaultMessage(newViolationsCount.intValue() + " new violations on " + project.getLongName() + ".")
             .setFieldValue("count", String.valueOf(newViolationsCount.intValue()))
             .setFieldValue("projectName", project.getLongName())
             .setFieldValue("projectKey", project.getKey())

@@ -67,6 +67,7 @@ public class ReviewsNotificationManagerTest {
     manager.notifyChanged(1L, "freddy", oldValues, newValues);
     assertThat(notification, notNullValue());
     assertThat(notification.getType(), is("review-changed"));
+    assertThat(notification.getDefaultMessage(), is("Review #1 has changed."));
     assertThat(notification.getFieldValue("reviewId"), is("1"));
     assertThat(notification.getFieldValue("author"), is("freddy"));
     assertThat(notification.getFieldValue("project"), is("Sonar"));

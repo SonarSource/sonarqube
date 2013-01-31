@@ -47,6 +47,7 @@ public class ReviewsNotificationManager implements ServerComponent {
    */
   public void notifyChanged(Long reviewId, String author, Map<String, String> oldValues, Map<String, String> newValues) {
     Notification notification = new Notification("review-changed")
+        .setDefaultMessage("Review #" + reviewId + " has changed.")
         .setFieldValue("reviewId", String.valueOf(reviewId))
         .setFieldValue("project", newValues.get("project"))
         .setFieldValue("projectId", newValues.get("projectId"))

@@ -97,6 +97,7 @@ public class GenerateAlertEvents implements Decorator {
 
   protected void notifyUsers(Resource<?> resource, String alertName, String alertText, Level alertLevel, boolean isNewAlert) {
     Notification notification = new Notification("alerts")
+        .setDefaultMessage("Alert on " + resource.getLongName() + ": " + alertName)
         .setFieldValue("projectName", resource.getLongName())
         .setFieldValue("projectKey", resource.getKey())
         .setFieldValue("projectId", String.valueOf(resource.getId()))
