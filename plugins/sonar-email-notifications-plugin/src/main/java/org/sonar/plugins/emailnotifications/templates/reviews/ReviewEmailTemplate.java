@@ -91,12 +91,15 @@ public class ReviewEmailTemplate extends EmailTemplate {
     String newComment = notification.getFieldValue("new.comment");
     String oldComment = notification.getFieldValue("old.comment");
 
-    if (newComment != null) { // comment was added or modified
+    if (newComment != null) {
+      // comment was added or modified
       sb.append("Comment:\n  ").append(newComment).append('\n');
-      if (oldComment != null) { // comment was modified
+      if (oldComment != null) {
+        // comment was modified
         sb.append("Was:\n  ").append(oldComment).append('\n');
       }
-    } else if (oldComment != null) { // comment was deleted
+    } else if (oldComment != null) {
+      // comment was deleted
       sb.append("Comment deleted, was:\n  ").append(oldComment).append('\n');
     }
   }
@@ -115,7 +118,8 @@ public class ReviewEmailTemplate extends EmailTemplate {
       return null;
     }
     User user = userFinder.findByLogin(login);
-    if (user == null) { // most probably user was deleted
+    if (user == null) {
+      // most probably user was deleted
       return login;
     }
     return StringUtils.defaultIfBlank(user.getName(), login);
