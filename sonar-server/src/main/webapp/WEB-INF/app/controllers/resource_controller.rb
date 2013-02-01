@@ -250,6 +250,15 @@ class ResourceController < ApplicationController
         filter_lines { |line| line.conditions && line.covered_conditions && line.covered_conditions<line.conditions && line.after(to) }
 
       elsif @coverage_filter == 'lines_covered_per_test'
+        @test_case_by_test_plan = {}
+        @testable.testCases.each do |test_case|
+          test_plan = test_case.testPlan
+          test_cases = @test_case_by_test_plan[test_plan]
+          test_cases = [] unless test_cases
+          test_cases << test_case
+          @test_case_by_test_plan[test_plan] = test_cases
+        end
+
         if @test_case_filter
           test_case = @testable.testCaseByKey(@test_case_filter)
           lines = @testable.coverOfTestCase(test_case).lines

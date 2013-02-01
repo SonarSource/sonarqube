@@ -101,8 +101,12 @@
               <td class="<%= 'first' if first -%>">
                 <select id="test_case_filter" name="test_case_filter" onchange="applyOptions()">
                   <option value=""><%= message('coverage_viewer.select_test') -%></option>
-                  <% @testable.testCases.each do |test_case| %>
-                    <option value="<%= test_case.key -%>" <%= 'selected' if @test_case_filter==test_case.key -%>><%= test_case.name -%></option>
+                  <% @test_case_by_test_plan.sort_by{|test_plan, test_cases| test_plan.component.longName}.each do |test_plan, test_cases| %>
+                    <optgroup label="<%= test_plan.component.longName %>">
+                      <% test_cases.sort_by{|test_case| test_case.name}.each do |test_case| %>
+                        <option value="<%= test_case.key -%>" <%= 'selected' if @test_case_filter==test_case.key -%>><%= test_case.name -%></option>
+                      <% end %>
+                    </optgroup>
                   <% end %>
                 </select>
               </td>
