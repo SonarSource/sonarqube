@@ -103,27 +103,33 @@ class AccountController < ApplicationController
   end
   
   def load_notification_properties
+    channel_keys = @channels.map {|c| c.getKey()}
+    
     Property.find(:all, :conditions => ['prop_key like ? AND user_id = ?', 'notification.%', current_user.id]).each do |property|
       r_id = property.resource_id
       if r_id
         # This is a per-project notif
-        project_notifs = @per_project_notifications[r_id]
-        unless project_notifs
-          project_notifs = {}
-          @per_project_dispatchers.each do |dispatcher|
-            project_notifs[dispatcher] = []
-          end
-          @per_project_notifications[r_id] = project_notifs
-        end
         parts = property.key.split('.')
         dispatcher_key = parts[1]
         channel_key = parts[2]
-        project_notifs[dispatcher_key] << channel_key
+        if @per_project_dispatchers.include?(dispatcher_key) && channel_keys.include?(channel_key)
+          project_notifs = get_project_notifications(r_id)
+          project_notifs[dispatcher_key] << channel_key
+        end
       else
         # This is a global notif
         @global_notifications[property.key.sub('notification.', '')] = true
       end
     end
+  end
+
+  def get_project_notifications(resource_id)
+    project_notifs = @per_project_notifications[resource_id]
+    unless project_notifs
+      project_notifs = init_project_notifications
+      @per_project_notifications[resource_id] = project_notifs
+    end
+    project_notifs
   end
   
   def init_project_notifications
