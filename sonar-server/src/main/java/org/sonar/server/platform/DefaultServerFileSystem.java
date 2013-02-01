@@ -111,8 +111,8 @@ public class DefaultServerFileSystem implements ServerFileSystem {
     return deployDir;
   }
 
-  public File getDeployedJdbcDriver() {
-    return new File(deployDir, "jdbc-driver.jar");
+  public File getDeployedJdbcDriverIndex() {
+    return new File(deployDir, "jdbc-driver.txt");
   }
 
   public File getDeployedPluginsDir() {

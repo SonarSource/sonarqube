@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.SonarException;
+import org.sonar.batch.cache.SonarCache;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,26 +42,55 @@ public class JdbcDriverHolder {
 
   private static final Logger LOG = LoggerFactory.getLogger(JdbcDriverHolder.class);
 
-  private TempDirectories tempDirectories;
   private ServerClient serverClient;
   private Settings settings;
+  private BatchSonarCache batchCache;
 
   // initialized in start()
   private JdbcDriverClassLoader classLoader = null;
 
-  public JdbcDriverHolder(Settings settings, TempDirectories tempDirectories, ServerClient serverClient) {
-    this.tempDirectories = tempDirectories;
+  public JdbcDriverHolder(BatchSonarCache batchCache, Settings settings, ServerClient serverClient) {
     this.serverClient = serverClient;
     this.settings = settings;
+    this.batchCache = batchCache;
   }
 
   public void start() {
     if (!settings.getBoolean(CoreProperties.DRY_RUN)) {
-      LOG.info("Install JDBC driver");
-      File jdbcDriver = new File(tempDirectories.getRoot(), "jdbc-driver.jar");
-      serverClient.download("/deploy/jdbc-driver.jar", jdbcDriver);
-      classLoader = initClassloader(jdbcDriver);
+      try {
+        LOG.info("Install JDBC driver");
+        String[] nameAndMd5 = downloadJdbcDriverIndex();
+        String filename = nameAndMd5[0];
+        String remoteMd5 = nameAndMd5[1];
+        File driverInCache = getSonarCache().getFileFromCache(filename, remoteMd5);
+        if (driverInCache == null) {
+          File tmpDownloadFile = getSonarCache().getTemporaryFile();
+          String url = "/deploy/" + filename;
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Downloading {} to {}", url, tmpDownloadFile.getAbsolutePath());
+          }
+          else {
+            LOG.info("Downloading {}", filename);
+          }
+          serverClient.download(url, tmpDownloadFile);
+          String md5 = getSonarCache().cacheFile(tmpDownloadFile, filename);
+          driverInCache = getSonarCache().getFileFromCache(filename, md5);
+          if (!md5.equals(remoteMd5)) {
+            throw new SonarException("INVALID CHECKSUM: File " + driverInCache.getAbsolutePath() + " was expected to have checksum " + remoteMd5
+              + " but was downloaded with checksum " + md5);
+          }
+        }
+        classLoader = initClassloader(driverInCache);
+      } catch (SonarException e) {
+        throw e;
+      } catch (Exception e) {
+        throw new SonarException("Fail to install JDBC driver", e);
+      }
     }
+  }
+
+  private SonarCache getSonarCache() {
+    return batchCache.getCache();
   }
 
   @VisibleForTesting
@@ -115,10 +145,21 @@ public class JdbcDriverHolder {
     }
   }
 
+  private String[] downloadJdbcDriverIndex() {
+    String url = "/deploy/jdbc-driver.txt";
+    try {
+      LOG.debug("Downloading index of jdbc-driver");
+      String indexContent = serverClient.request(url);
+      return indexContent.split("\\|");
+    } catch (Exception e) {
+      throw new SonarException("Fail to download jdbc-driver index: " + url, e);
+    }
+  }
+
   static class JdbcDriverClassLoader extends URLClassLoader {
 
     public JdbcDriverClassLoader(URL jdbcDriver, ClassLoader parent) {
-      super(new URL[]{jdbcDriver}, parent);
+      super(new URL[] {jdbcDriver}, parent);
     }
 
     public void clearReferencesJdbc() {
