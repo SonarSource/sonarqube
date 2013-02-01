@@ -379,7 +379,8 @@ public interface CoreProperties {
   /**
    * @since 3.5
    */
-  String CACHE_LOCATION = "sonar.cachePath";
+  String SONAR_USER_HOME = "SONAR_USER_HOME";
+  String SONAR_USER_HOME_PROPERTY = "sonar.userHome";
 
   /**
    * @deprecated replaced in v3.4 by properties specific to languages, for example sonar.java.coveragePlugin

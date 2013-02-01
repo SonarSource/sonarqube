@@ -39,7 +39,7 @@ public class SonarCacheTest {
 
   @Before
   public void prepare() throws IOException {
-    cache = SonarCache.create().setCacheLocation(tempFolder.newFolder()).build();
+    cache = SonarCache.create(tempFolder.newFolder()).build();
   }
 
   @Test

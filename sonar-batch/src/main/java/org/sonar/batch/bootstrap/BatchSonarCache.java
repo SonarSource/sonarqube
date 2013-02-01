@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.task.TaskExtension;
@@ -36,12 +37,18 @@ public class BatchSonarCache implements TaskExtension {
   }
 
   public void start() {
-    String cacheLocation = settings.getString(CoreProperties.CACHE_LOCATION);
-    SonarCache.Builder builder = SonarCache.create();
-    if (cacheLocation != null) {
-      File cacheLocationFolder = new File(cacheLocation);
-      builder.setCacheLocation(cacheLocationFolder);
+    // Try to get Sonar user home from property
+    String sonarUserHome = settings.getString(CoreProperties.SONAR_USER_HOME_PROPERTY);
+    if (StringUtils.isBlank(sonarUserHome)) {
+      // Try to get Sonar user home from environment variable
+      sonarUserHome = settings.getString(CoreProperties.SONAR_USER_HOME);
     }
+    if (StringUtils.isBlank(sonarUserHome)) {
+      // Default
+      sonarUserHome = System.getProperty("user.home") + File.separator + ".sonar";
+    }
+
+    SonarCache.Builder builder = SonarCache.create(new File(sonarUserHome));
     this.cache = builder.build();
   }
 

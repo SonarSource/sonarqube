@@ -25,6 +25,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.SonarException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -67,7 +68,12 @@ public class SonarCache {
 
   public static class Builder {
 
+    private File sonarUserHomeLocation;
     private File cacheLocation;
+
+    public Builder(File sonarUserHomeLocation) {
+      this.sonarUserHomeLocation = sonarUserHomeLocation;
+    }
 
     public Builder setCacheLocation(File cacheLocation) {
       this.cacheLocation = cacheLocation;
@@ -76,8 +82,7 @@ public class SonarCache {
 
     public SonarCache build() {
       if (cacheLocation == null) {
-        File sonarHome = new File(System.getProperty("user.home"), ".sonar");
-        return new SonarCache(new File(sonarHome, "cache"));
+        return new SonarCache(new File(sonarUserHomeLocation, "cache"));
       }
       else {
         return new SonarCache(cacheLocation);
@@ -86,8 +91,11 @@ public class SonarCache {
 
   }
 
-  public static Builder create() {
-    return new Builder();
+  public static Builder create(File sonarUserHomeLocation) {
+    if (sonarUserHomeLocation == null) {
+      throw new SonarException("Sonar user home directory should not be null");
+    }
+    return new Builder(sonarUserHomeLocation);
   }
 
   /**
