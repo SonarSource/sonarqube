@@ -274,10 +274,10 @@ class GraphsonUtil {
   }
 
   //
-  private static JSONObject createJSONMap(Map map, Set<String> propertyKeys, boolean showTypes) {
+  private static JSONObject createJSONMap(Map<Object, Object> map, Set<String> propertyKeys, boolean showTypes) {
     JSONObject jsonMap = new JSONObject();
-    for (Object key : map.keySet()) {
-      Object value = map.get(key);
+    for (Map.Entry<Object, Object> entry : map.entrySet()) {
+      Object value = entry.getValue();
       if (value != null) {
         if (value instanceof List) {
           value = createJSONList((List) value, propertyKeys, showTypes);
@@ -291,7 +291,7 @@ class GraphsonUtil {
         }
       }
 
-      putObject(jsonMap, key.toString(), getValue(value, showTypes));
+      putObject(jsonMap, entry.getKey().toString(), getValue(value, showTypes));
     }
     return jsonMap;
 
@@ -471,10 +471,11 @@ class GraphsonUtil {
         JSONObject convertedMap = new JSONObject();
         JSONObject jsonObject = (JSONObject) value;
 
-        for (Object key : jsonObject.keySet()) {
+        Map<Object, Object> jsonObjectMap = (Map<Object, Object>) jsonObject;
+        for (Map.Entry<Object, Object> entry : jsonObjectMap.entrySet()) {
 
           // no need to getValue() here as this is already a ObjectNode and should have type info
-          convertedMap.put(key, jsonObject.get(key));
+          convertedMap.put(entry.getKey(), entry.getValue());
         }
 
         valueAndType.put(GraphsonTokens.VALUE, convertedMap);

@@ -108,12 +108,12 @@ public class DefaultTestCase extends BeanVertex implements MutableTestCase {
   }
 
   public boolean doesCover() {
-    return element().getEdges(Direction.OUT, "covers").iterator().hasNext();
+    return edgeCovers().iterator().hasNext();
   }
 
   public int countCoveredLines() {
     int result = 0;
-    for (Edge edge : element().getEdges(Direction.OUT, "covers")) {
+    for (Edge edge : edgeCovers()) {
       List<Integer> lines = (List<Integer>) edge.getProperty("lines");
       result = result + lines.size();
     }
@@ -130,6 +130,10 @@ public class DefaultTestCase extends BeanVertex implements MutableTestCase {
         return input.testable().component().key().equals(testable.component().key());
       }
     }, null);
+  }
+
+  private Iterable<Edge> edgeCovers() {
+    return element().query().labels("covers").direction(Direction.OUT).edges();
   }
 
 }
