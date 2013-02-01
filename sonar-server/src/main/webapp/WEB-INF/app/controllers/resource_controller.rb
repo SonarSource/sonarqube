@@ -181,7 +181,9 @@ class ResourceController < ApplicationController
     @expandable = (@lines!=nil)
     if @lines
       metric = Metric.by_key(params[:coverage_filter]||params[:metric])
-      @coverage_filter = (metric ? metric.key : 'coverage')
+      @coverage_filter = params[:coverage_filter] if params[:coverage_filter] == 'lines_covered_per_test'
+      @coverage_filter = (metric ? metric.key : 'coverage') unless @coverage_filter
+      @test_case_filter = params[:test_case_filter] if  !params[:test_case_filter].blank?
 
       it_prefix = ''
       it_prefix = 'it_' if (@coverage_filter.start_with?('it_') || @coverage_filter.start_with?('new_it_'))
@@ -195,8 +197,8 @@ class ResourceController < ApplicationController
       @hits_by_line.each_pair do |line_id, hits|
         line = @lines[line_id-1]
         if line
-          line.covered_lines = 0
-          line.covered_lines = @testable.countTestCasesOfLine(line_id) if @testable
+          line.index = line_id
+          line.covered_lines = @testable ? @testable.countTestCasesOfLine(line_id) : 0
           line.hits = hits.to_i
           line.conditions = @conditions_by_line[line_id].to_i
           line.covered_conditions = @covered_conditions_by_line[line_id].to_i
@@ -216,6 +218,7 @@ class ResourceController < ApplicationController
 
       to = (@period && @snapshot.period_datetime(@period) ? Java::JavaUtil::Date.new(@snapshot.period_datetime(@period).to_f * 1000) : nil)
       @filtered = true
+
       if ('lines_to_cover'==@coverage_filter || 'coverage'==@coverage_filter || 'line_coverage'==@coverage_filter ||
           'new_lines_to_cover'==@coverage_filter || 'new_coverage'==@coverage_filter || 'new_line_coverage'==@coverage_filter ||
           'it_lines_to_cover'==@coverage_filter || 'it_coverage'==@coverage_filter || 'it_line_coverage'==@coverage_filter ||
@@ -245,13 +248,16 @@ class ResourceController < ApplicationController
         'overall_uncovered_conditions'==@coverage_filter || 'new_overall_uncovered_conditions' == @coverage_filter)
         @coverage_filter="#{it_prefix}uncovered_conditions"
         filter_lines { |line| line.conditions && line.covered_conditions && line.covered_conditions<line.conditions && line.after(to) }
-      end
-    end
 
-    @test_case_filter = params[:test_case_filter]
-    if @test_case_filter && @testable
-      #lines = @testable.coverOfTestable(@testable.testCaseByKey(@test_case_filter)).lines
-      #filter_lines { |line| lines.include? line }
+      elsif @coverage_filter == 'lines_covered_per_test'
+        if @test_case_filter
+          test_case = @testable.testCaseByKey(@test_case_filter)
+          lines = @testable.coverOfTestCase(test_case).lines
+          filter_lines { |line| lines.include? line.index }
+        else
+          filter_lines { |line| line.covered_lines && line.after(to) }
+        end
+      end
     end
 
     render :action => 'index', :layout => !request.xhr?
@@ -440,7 +446,7 @@ class ResourceController < ApplicationController
   end
 
   class Line
-    attr_accessor :source, :revision, :author, :datetime, :violations, :hits, :conditions, :covered_conditions, :hidden, :highlighted, :deprecated_conditions_label, :covered_lines
+    attr_accessor :index, :source, :revision, :author, :datetime, :violations, :hits, :conditions, :covered_conditions, :hidden, :highlighted, :deprecated_conditions_label, :covered_lines
 
     def initialize(source)
       @source=source

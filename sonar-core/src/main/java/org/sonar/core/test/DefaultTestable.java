@@ -27,6 +27,7 @@ import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import org.sonar.api.component.Component;
+import org.sonar.api.test.Cover;
 import org.sonar.api.test.MutableTestable;
 import org.sonar.api.test.TestCase;
 import org.sonar.core.component.ComponentVertex;
@@ -62,6 +63,7 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
 
   public int countTestCasesOfLine(int line) {
     int number = 0;
+//    element().query()
     // TODO filter on edge
     for (Edge edge : covers()) {
       if (Iterables.contains(lines(edge), line)) {
@@ -89,6 +91,14 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
       coveredLines.addAll(lines(edge));
     }
     return coveredLines.build();
+  }
+
+  public Cover coverOfTestCase(final TestCase testCase) {
+    return Iterables.find(getEdges(DefaultCover.class, Direction.IN, "covers"), new Predicate<Cover>() {
+      public boolean apply(Cover input) {
+        return input.testCase().key().equals(testCase.key());
+      }
+    }, null);
   }
 
   private Iterable<Edge> covers() {

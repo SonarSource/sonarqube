@@ -132,5 +132,4 @@ public class DefaultTestCase extends BeanVertex implements MutableTestCase {
     }, null);
   }
 
-
 }

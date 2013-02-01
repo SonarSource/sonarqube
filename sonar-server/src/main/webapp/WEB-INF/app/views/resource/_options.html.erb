@@ -89,13 +89,18 @@
                     <option value="overall_uncovered_conditions" <%= 'selected' if @coverage_filter=='overall_uncovered_conditions' -%>><%= Metric.name_for('overall_uncovered_conditions') -%></option>
                   </optgroup>
                 <% end %>
+                <% if @testable && !@testable.testCases.empty? %>
+                  <optgroup label="<%= h message('coverage_viewer.per_test') -%>">
+                    <option value="lines_covered_per_test" <%= 'selected' if @coverage_filter=='lines_covered_per_test' -%>><%= message('coverage_viewer.lines_covered_per_test') -%></option>
+                  </optgroup>
+                <% end %>
               </select>
             </td>
 
-            <% if @testable && !@testable.testCases.empty? %>
+            <% if @coverage_filter=='lines_covered_per_test' %>
               <td class="<%= 'first' if first -%>">
                 <select id="test_case_filter" name="test_case_filter" onchange="applyOptions()">
-                  <option value=""><%= message('lines_covered_per_test') -%></option>
+                  <option value=""><%= message('coverage_viewer.select_test') -%></option>
                   <% @testable.testCases.each do |test_case| %>
                     <option value="<%= test_case.key -%>" <%= 'selected' if @test_case_filter==test_case.key -%>><%= test_case.name -%></option>
                   <% end %>
