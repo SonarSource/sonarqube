@@ -253,9 +253,9 @@ class ResourceController < ApplicationController
         if @test_case_filter
           test_case = @testable.testCaseByKey(@test_case_filter)
           lines = @testable.coverOfTestCase(test_case).lines
-          filter_lines { |line| lines.include? line.index }
+          filter_lines { |line| lines.include?(line.index) && line.after(to) }
         else
-          filter_lines { |line| line.covered_lines && line.after(to) }
+          filter_lines { |line| line.covered_lines && line.covered_lines > 0 && line.after(to) }
         end
       end
     end

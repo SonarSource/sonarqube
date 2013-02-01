@@ -46,6 +46,7 @@ public class TestsViewer extends AbstractRubyTemplate implements RubyRailsPage {
 
   @Override
   protected String getTemplatePath() {
-    return "/org/sonar/plugins/core/web/tests_viewer.html.erb";
+    return "/Users/julienlancelot/Dev/Sources/sonar/plugins/sonar-core-plugin/src/main/resources/org/sonar/plugins/core/web/tests_viewer.html.erb";
+    //return "/org/sonar/plugins/core/web/tests_viewer.html.erb";
   }
 }

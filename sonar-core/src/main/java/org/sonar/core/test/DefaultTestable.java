@@ -61,10 +61,8 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
     }, null);
   }
 
-  public int countTestCasesOfLine(int line) {
+  public int countTestCasesOfLine(Integer line) {
     int number = 0;
-//    element().query()
-    // TODO filter on edge
     for (Edge edge : covers()) {
       if (Iterables.contains(lines(edge), line)) {
         number++;
@@ -102,7 +100,7 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
   }
 
   private Iterable<Edge> covers() {
-    return element().getEdges(Direction.IN, "covers");
+    return element().query().labels("covers").direction(Direction.IN).edges();
   }
 
   private List<Integer> lines(Edge edge) {
