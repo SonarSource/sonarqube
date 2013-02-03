@@ -25,7 +25,6 @@ import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
@@ -89,7 +88,7 @@ public class ProfilesBackup implements Backupable {
   }
 
   public void importXml(SonarConfig sonarConfig) {
-    if (CollectionUtils.isNotEmpty(sonarConfig.getProfiles())) {
+    if (sonarConfig.getProfiles() != null && !sonarConfig.getProfiles().isEmpty()) {
       LoggerFactory.getLogger(getClass()).info("Delete profiles");
       ProfilesManager profilesManager = new ProfilesManager(session, null);
       profilesManager.deleteAllProfiles();
@@ -118,7 +117,7 @@ public class ProfilesBackup implements Backupable {
 
   private void importAlerts(RulesProfile profile) {
     if (profile.getAlerts() != null) {
-      for (Iterator<Alert> ia = profile.getAlerts().iterator(); ia.hasNext();) {
+      for (Iterator<Alert> ia = profile.getAlerts().iterator(); ia.hasNext(); ) {
         Alert alert = ia.next();
         Metric unMarshalledMetric = alert.getMetric();
         String validKey = unMarshalledMetric.getKey();
@@ -135,20 +134,20 @@ public class ProfilesBackup implements Backupable {
   }
 
   private void importActiveRules(RulesDao rulesDao, RulesProfile profile) {
-    for (Iterator<ActiveRule> iar = profile.getActiveRules(true).iterator(); iar.hasNext();) {
+    for (Iterator<ActiveRule> iar = profile.getActiveRules(true).iterator(); iar.hasNext(); ) {
       ActiveRule activeRule = iar.next();
       Rule unMarshalledRule = activeRule.getRule();
       Rule matchingRuleInDb = rulesDao.getRuleByKey(unMarshalledRule.getRepositoryKey(), unMarshalledRule.getKey());
       if (matchingRuleInDb == null) {
         LoggerFactory.getLogger(getClass()).error(
-            "Unable to find active rule " + unMarshalledRule.getRepositoryKey() + ":" + unMarshalledRule.getKey());
+          "Unable to find active rule " + unMarshalledRule.getRepositoryKey() + ":" + unMarshalledRule.getKey());
         iar.remove();
         continue;
       }
       activeRule.setRule(matchingRuleInDb);
       activeRule.setRulesProfile(profile);
       activeRule.getActiveRuleParams();
-      for (Iterator<ActiveRuleParam> irp = activeRule.getActiveRuleParams().iterator(); irp.hasNext();) {
+      for (Iterator<ActiveRuleParam> irp = activeRule.getActiveRuleParams().iterator(); irp.hasNext(); ) {
         ActiveRuleParam activeRuleParam = irp.next();
         RuleParam unMarshalledRP = activeRuleParam.getRuleParam();
         RuleParam matchingRPInDb = rulesDao.getRuleParam(matchingRuleInDb, unMarshalledRP.getKey());
@@ -180,7 +179,7 @@ public class ProfilesBackup implements Backupable {
       public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
         Map<String, String> values = readNode(reader);
         Alert alert = new Alert(null, new Metric(values.get("metric-key")), values.get("operator"), values.get("value-error"),
-            values.get("value-warning"));
+          values.get("value-warning"));
         String periodText = values.get("period");
         if (StringUtils.isNotEmpty(periodText)) {
           alert.setPeriod(Integer.parseInt(periodText));
@@ -227,7 +226,7 @@ public class ProfilesBackup implements Backupable {
               reader.moveDown();
               Map<String, String> valuesParam = readNode(reader);
               ActiveRuleParam activeRuleParam = new ActiveRuleParam(null, new RuleParam(null, valuesParam.get("key"), null, null),
-                  valuesParam.get("value"));
+                valuesParam.get("value"));
               params.add(activeRuleParam);
               reader.moveUp();
             }
@@ -236,7 +235,7 @@ public class ProfilesBackup implements Backupable {
         }
 
         ActiveRule activeRule = new ActiveRule(null, new Rule(valuesRule.get("plugin"), valuesRule.get("key")), RulePriority
-            .valueOf(valuesRule.get("level")));
+          .valueOf(valuesRule.get("level")));
         activeRule.setActiveRuleParams(params);
         if (valuesRule.containsKey("inheritance")) {
           activeRule.setInheritance(valuesRule.get("inheritance"));

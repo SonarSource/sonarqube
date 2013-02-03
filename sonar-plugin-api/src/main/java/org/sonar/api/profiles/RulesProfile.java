@@ -29,7 +29,16 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -397,7 +406,7 @@ public class RulesProfile implements Cloneable {
     RulesProfile clone = RulesProfile.create(getName(), getLanguage());
     clone.setDefaultProfile(getDefaultProfile());
     clone.setParentName(getParentName());
-    if (CollectionUtils.isNotEmpty(activeRules)) {
+    if (activeRules != null && !activeRules.isEmpty()) {
       clone.setActiveRules(new ArrayList<ActiveRule>(CollectionUtils.collect(activeRules, new Transformer() {
         public Object transform(Object input) {
           return ((ActiveRule) input).clone();

@@ -20,7 +20,6 @@
 package org.sonar.server.configuration;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.CharEncoding;
 import org.custommonkey.xmlunit.Diff;
@@ -49,12 +48,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -74,7 +68,7 @@ public class BackupTest {
   @Test
   public void shouldReturnAValidXml() throws Exception {
     Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null),
-        new RulesBackup((DatabaseSession) null), new ProfilesBackup((DatabaseSession) null)));
+      new RulesBackup((DatabaseSession) null), new ProfilesBackup((DatabaseSession) null)));
     SonarConfig sonarConfig = getSonarConfig();
     sonarConfig.setMetrics(getMetrics());
     sonarConfig.setProperties(getProperties());
@@ -108,100 +102,100 @@ public class BackupTest {
   @Test
   public void shouldImportXml() {
     Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null),
-        new RulesBackup((DatabaseSession) null), new ProfilesBackup((DatabaseSession) null)));
+      new RulesBackup((DatabaseSession) null), new ProfilesBackup((DatabaseSession) null)));
 
     String xml = getFileFromClasspath("backup-restore-valid.xml");
     SonarConfig sonarConfig = backup.getSonarConfigFromXml(xml);
 
-    assertTrue(CollectionUtils.isEqualCollection(sonarConfig.getMetrics(), getMetrics()));
-    assertTrue(CollectionUtils.isEqualCollection(sonarConfig.getProperties(), getProperties()));
+    assertThat(sonarConfig.getMetrics()).isEqualTo(getMetrics());
+    assertThat(sonarConfig.getProperties()).isEqualTo(getProperties());
     for (Metric metric : sonarConfig.getMetrics()) {
-      assertNotNull(metric.getEnabled());
-      assertTrue(metric.getEnabled());
-      assertNotNull(metric.getUserManaged());
-      assertTrue(metric.getUserManaged());
+      assertThat(metric.getEnabled()).isNotNull();
+      assertThat(metric.getEnabled()).isTrue();
+      assertThat(metric.getUserManaged()).isNotNull();
+      assertThat(metric.getUserManaged()).isTrue();
     }
 
     Collection<RulesProfile> profiles = sonarConfig.getProfiles();
-    assertEquals(2, profiles.size());
+    assertThat(profiles).hasSize(2);
 
     Iterator<RulesProfile> profilesIter = profiles.iterator();
     RulesProfile testProfile = profilesIter.next();
-    assertEquals("test name", testProfile.getName());
-    assertEquals(true, testProfile.getDefaultProfile());
-    assertEquals("test language", testProfile.getLanguage());
-    assertEquals(1, testProfile.getActiveRules().size());
+    assertThat("test name").isEqualTo(testProfile.getName());
+    assertThat(testProfile.getDefaultProfile()).isTrue();
+    assertThat("test language").isEqualTo(testProfile.getLanguage());
+    assertThat(testProfile.getActiveRules()).hasSize(1);
 
     ActiveRule testActiveRule = testProfile.getActiveRules().get(0);
-    assertEquals(RulePriority.MAJOR, testActiveRule.getSeverity());
-    assertNotNull(testActiveRule.getRule());
-    assertEquals("test key", testActiveRule.getRule().getKey());
-    assertEquals("test plugin", testActiveRule.getRule().getRepositoryKey());
-    assertThat(testActiveRule.getInheritance(), nullValue());
-    assertEquals(1, testActiveRule.getActiveRuleParams().size());
+    assertThat(RulePriority.MAJOR).isEqualTo(testActiveRule.getSeverity());
+    assertThat(testActiveRule.getRule()).isNotNull();
+    assertThat("test key").isEqualTo(testActiveRule.getRule().getKey());
+    assertThat("test plugin").isEqualTo(testActiveRule.getRule().getRepositoryKey());
+    assertThat(testActiveRule.getInheritance()).isNull();
+    assertThat(testActiveRule.getActiveRuleParams()).hasSize(1);
 
     ActiveRuleParam testActiveRuleParam = testActiveRule.getActiveRuleParams().get(0);
-    assertEquals("test value", testActiveRuleParam.getValue());
-    assertNotNull(testActiveRuleParam.getRuleParam());
-    assertEquals("test param key", testActiveRuleParam.getRuleParam().getKey());
+    assertThat("test value").isEqualTo(testActiveRuleParam.getValue());
+    assertThat(testActiveRuleParam.getRuleParam()).isNotNull();
+    assertThat("test param key").isEqualTo(testActiveRuleParam.getRuleParam().getKey());
 
-    assertEquals(2, testProfile.getAlerts().size());
+    assertThat(testProfile.getAlerts()).hasSize(2);
     Alert testAlert = testProfile.getAlerts().get(0);
-    assertEquals(Alert.OPERATOR_GREATER, testAlert.getOperator());
-    assertEquals("testError", testAlert.getValueError());
-    assertEquals("testWarn", testAlert.getValueWarning());
-    assertThat(testAlert.getPeriod(), nullValue());
-    assertNotNull(testAlert.getMetric());
-    assertEquals("test key", testAlert.getMetric().getKey());
+    assertThat(Alert.OPERATOR_GREATER).isEqualTo(testAlert.getOperator());
+    assertThat("testError").isEqualTo(testAlert.getValueError());
+    assertThat("testWarn").isEqualTo(testAlert.getValueWarning());
+    assertThat(testAlert.getPeriod()).isNull();
+    assertThat(testAlert.getMetric()).isNotNull();
+    assertThat("test key").isEqualTo(testAlert.getMetric().getKey());
 
     Alert testAlert2 = testProfile.getAlerts().get(1);
-    assertEquals(Alert.OPERATOR_SMALLER, testAlert2.getOperator());
-    assertEquals("testError2", testAlert2.getValueError());
-    assertEquals("testWarn2", testAlert2.getValueWarning());
-    assertThat(testAlert2.getPeriod(), is(1));
-    assertNotNull(testAlert2.getMetric());
-    assertEquals("test key2", testAlert2.getMetric().getKey());
+    assertThat(Alert.OPERATOR_SMALLER).isEqualTo(testAlert2.getOperator());
+    assertThat("testError2").isEqualTo(testAlert2.getValueError());
+    assertThat("testWarn2").isEqualTo(testAlert2.getValueWarning());
+    assertThat(testAlert2.getPeriod()).isEqualTo(1);
+    assertThat(testAlert2.getMetric()).isNotNull();
+    assertThat("test key2").isEqualTo(testAlert2.getMetric().getKey());
 
     // Child profile
     testProfile = profilesIter.next();
-    assertEquals("test2 name", testProfile.getName());
-    assertEquals("test name", testProfile.getParentName());
+    assertThat("test2 name").isEqualTo(testProfile.getName());
+    assertThat("test name").isEqualTo(testProfile.getParentName());
     testActiveRule = testProfile.getActiveRules().get(0);
-    assertThat(testActiveRule.getInheritance(), is(ActiveRule.OVERRIDES));
+    assertThat(testActiveRule.getInheritance()).isEqualTo(ActiveRule.OVERRIDES);
 
     Collection<Rule> rules = sonarConfig.getRules();
-    assertThat(rules.size(), is(1));
+    assertThat(rules).hasSize(1);
 
     Rule rule = rules.iterator().next();
-    assertThat(rule.getParent().getRepositoryKey(), is("test plugin"));
-    assertThat(rule.getParent().getKey(), is("test key"));
-    assertThat(rule.getRepositoryKey(), is("test plugin"));
-    assertThat(rule.getKey(), is("test key2"));
-    assertThat(rule.getConfigKey(), is("test config key"));
-    assertThat(rule.getName(), is("test name"));
-    assertThat(rule.getDescription(), is("test description"));
-    assertThat(rule.getSeverity(), is(RulePriority.INFO));
-    assertThat(rule.getParams().size(), is(1));
+    assertThat(rule.getParent().getRepositoryKey()).isEqualTo("test plugin");
+    assertThat(rule.getParent().getKey()).isEqualTo("test key");
+    assertThat(rule.getRepositoryKey()).isEqualTo("test plugin");
+    assertThat(rule.getKey()).isEqualTo("test key2");
+    assertThat(rule.getConfigKey()).isEqualTo("test config key");
+    assertThat(rule.getName()).isEqualTo("test name");
+    assertThat(rule.getDescription()).isEqualTo("test description");
+    assertThat(rule.getSeverity()).isEqualTo(RulePriority.INFO);
+    assertThat(rule.getParams()).hasSize(1);
 
     RuleParam param = rule.getParams().get(0);
-    assertThat(param.getKey(), is("test param key"));
-    assertThat(param.getDefaultValue(), is("test param value"));
+    assertThat(param.getKey()).isEqualTo("test param key");
+    assertThat(param.getDefaultValue()).isEqualTo("test param value");
   }
 
   @Test
   public void shouldImportXmlWithoutInheritanceInformation() {
     Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null),
-        new RulesBackup((DatabaseSession) null), new ProfilesBackup((DatabaseSession) null)));
+      new RulesBackup((DatabaseSession) null), new ProfilesBackup((DatabaseSession) null)));
 
     String xml = getFileFromClasspath("backup-restore-without-inheritance.xml");
     SonarConfig sonarConfig = backup.getSonarConfigFromXml(xml);
 
     Collection<RulesProfile> profiles = sonarConfig.getProfiles();
-    assertThat(profiles.size(), is(1));
+    assertThat(profiles).hasSize(1);
     RulesProfile testProfile = profiles.iterator().next();
-    assertThat(testProfile.getActiveRules().size(), is(1));
+    assertThat(testProfile.getActiveRules()).hasSize(1);
     ActiveRule activeRule = testProfile.getActiveRules().get(0);
-    assertThat(activeRule.getInheritance(), nullValue());
+    assertThat(activeRule.getInheritance()).isNull();
   }
 
   @Test
@@ -211,7 +205,7 @@ public class BackupTest {
     String xml = getFileFromClasspath("backup-with-cdata.xml");
     SonarConfig sonarConfig = backup.getSonarConfigFromXml(xml);
 
-    assertTrue(CollectionUtils.isEqualCollection(sonarConfig.getProperties(), getPropertiesWithXmlIlliciteCharacters()));
+    assertThat(sonarConfig.getProperties()).isEqualTo(getPropertiesWithXmlIlliciteCharacters());
   }
 
   @Test
@@ -221,9 +215,9 @@ public class BackupTest {
     String xml = getFileFromClasspath("shouldImportOneDotFiveFormat.xml");
     SonarConfig sonarConfig = backup.getSonarConfigFromXml(xml);
 
-    assertEquals(1, sonarConfig.getMetrics().size());
-    assertTrue(CollectionUtils.isEmpty(sonarConfig.getProfiles()));
-    assertEquals(2, sonarConfig.getProperties().size());
+    assertThat(sonarConfig.getMetrics()).hasSize(1);
+    assertThat(sonarConfig.getProfiles()).isNull();
+    assertThat(sonarConfig.getProperties()).hasSize(2);
   }
 
   @Test
@@ -233,7 +227,7 @@ public class BackupTest {
     String xml = getFileFromClasspath("backup-with-utf8-char.xml");
     SonarConfig sonarConfig = backup.getSonarConfigFromXml(xml);
 
-    assertTrue(CollectionUtils.isEqualCollection(sonarConfig.getProperties(), getPropertiesWithUtf8Characters()));
+    assertThat(sonarConfig.getProperties()).isEqualTo(getPropertiesWithUtf8Characters());
   }
 
   @Test
@@ -244,7 +238,7 @@ public class BackupTest {
     SonarConfig sonarConfig = backup.getSonarConfigFromXml(xml);
 
     Metric metric = sonarConfig.getMetrics().iterator().next();
-    assertThat(metric.getId(), nullValue());
+    assertThat(metric.getId()).isNull();
   }
 
   @Test
@@ -257,7 +251,7 @@ public class BackupTest {
     assertXmlAreSimilar(xml, "backup-with-splitted-cdata.xml");
 
     sonarConfig = backup.getSonarConfigFromXml(xml);
-    assertTrue(CollectionUtils.isEqualCollection(sonarConfig.getProperties(), getPropertiesWithCDATA()));
+    assertThat(sonarConfig.getProperties()).isEqualTo(getPropertiesWithCDATA());
   }
 
   private SonarConfig getSonarConfig() throws ParseException {
@@ -319,10 +313,10 @@ public class BackupTest {
     List<Rule> rules = Lists.newArrayList();
     Rule parentRule = Rule.create("test plugin", "test key", null);
     Rule rule = Rule.create("test plugin", "test key2", "test name")
-        .setDescription("test description")
-        .setConfigKey("test config key")
-        .setSeverity(RulePriority.INFO)
-        .setParent(parentRule);
+      .setDescription("test description")
+      .setConfigKey("test config key")
+      .setSeverity(RulePriority.INFO)
+      .setParent(parentRule);
     rule.createParameter().setKey("test param key").setDefaultValue("test param value");
     rules.add(rule);
     return rules;
@@ -360,7 +354,7 @@ public class BackupTest {
     try {
       XMLUnit.setIgnoreWhitespace(true);
       Diff diff = XMLUnit.compareXML(getFileFromClasspath(xmlExpected), xml);
-      assertTrue(diff.toString(), diff.similar());
+      assertThat(diff.similar()).as(diff.toString()).isTrue();
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

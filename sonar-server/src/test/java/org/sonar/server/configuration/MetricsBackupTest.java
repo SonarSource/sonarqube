@@ -19,7 +19,6 @@
  */
 package org.sonar.server.configuration;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.junit.Test;
 import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
@@ -28,10 +27,7 @@ import org.sonar.api.measures.Metric;
 import java.util.Arrays;
 import java.util.Collection;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
+import static org.fest.assertions.Assertions.assertThat;
 
 public class MetricsBackupTest extends AbstractDbUnitTestCase {
 
@@ -42,7 +38,7 @@ public class MetricsBackupTest extends AbstractDbUnitTestCase {
     Collection<Metric> metrics = createMetrics();
     metricsBackup.exportXml(sonarConfig, metrics);
 
-    assertTrue(CollectionUtils.isEqualCollection(sonarConfig.getMetrics(), metrics));
+    assertThat(sonarConfig.getMetrics()).isEqualTo(metrics);
   }
 
   @Test
@@ -59,10 +55,10 @@ public class MetricsBackupTest extends AbstractDbUnitTestCase {
     metricsBackup.importXml(sonarConfig);
 
     Collection<Metric> allMetrics = measuresDao.getMetrics();
-    assertThat(allMetrics.size(), is(4));
+    assertThat(allMetrics).hasSize(4);
 
     Collection<Metric> enabledMetrics = measuresDao.getEnabledMetrics();
-    assertThat(enabledMetrics.size(), is(3));
+    assertThat(enabledMetrics).hasSize(3);
 
   }
 

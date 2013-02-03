@@ -19,7 +19,7 @@
  */
 package org.sonar.batch;
 
-import org.apache.commons.collections.CollectionUtils;
+import com.google.common.collect.Iterables;
 import org.junit.Test;
 import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.Decorator;
@@ -38,9 +38,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class DecoratorsSelectorTest {
 
@@ -54,9 +52,9 @@ public class DecoratorsSelectorTest {
     BatchExtensionDictionnary batchExtDictionnary = newBatchDictionnary(withFormula1, withoutFormula3, withFormula2);
 
     Collection<Decorator> decorators = new DecoratorsSelector(batchExtDictionnary).select(project);
-    assertThat(decorators.size(), is(2));
-    assertThat(decorators, hasItem((Decorator) new FormulaDecorator(withFormula1)));
-    assertThat(decorators, hasItem((Decorator) new FormulaDecorator(withFormula2)));
+    assertThat(decorators).hasSize(2);
+    assertThat(decorators).contains(new FormulaDecorator(withFormula1));
+    assertThat(decorators).contains(new FormulaDecorator(withFormula2));
   }
 
   @Test
@@ -67,15 +65,15 @@ public class DecoratorsSelectorTest {
 
     Collection<Decorator> decorators = new DecoratorsSelector(batchExtDictionnary).select(project);
 
-    Decorator firstDecorator = (Decorator) CollectionUtils.get(decorators, 0);
-    Decorator secondDecorator = (Decorator) CollectionUtils.get(decorators, 1);
+    Decorator firstDecorator = Iterables.get(decorators, 0);
+    Decorator secondDecorator = Iterables.get(decorators, 1);
 
-    assertThat(firstDecorator, is(Metric1Decorator.class));
-    assertThat(secondDecorator, is(FormulaDecorator.class));
+    assertThat(firstDecorator).isInstanceOf(Metric1Decorator.class);
+    assertThat(secondDecorator).isInstanceOf(FormulaDecorator.class);
 
     FormulaDecorator formulaDecorator = (FormulaDecorator) secondDecorator;
-    assertThat(formulaDecorator.dependsUponDecorators().size(), is(1));
-    assertThat(CollectionUtils.get(formulaDecorator.dependsUponDecorators(), 0), is((Object) firstDecorator));
+    assertThat(formulaDecorator.dependsUponDecorators()).hasSize(1);
+    assertThat(Iterables.get(formulaDecorator.dependsUponDecorators(), 0)).isEqualTo(firstDecorator);
   }
 
   private BatchExtensionDictionnary newBatchDictionnary(Object... extensions) {

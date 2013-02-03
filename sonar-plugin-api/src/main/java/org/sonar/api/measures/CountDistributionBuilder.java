@@ -38,6 +38,7 @@ import java.util.Map;
 public class CountDistributionBuilder implements MeasureBuilder {
 
   private Metric metric;
+  // TODO to be replaced by com.google.common.collect.SortedMultiset while upgrading to Guava 11+
   private SortedBag countBag;
 
   /**

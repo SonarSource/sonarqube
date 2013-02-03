@@ -22,7 +22,6 @@ package org.sonar.server.configuration;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.thoughtworks.xstream.XStream;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.database.configuration.Property;
@@ -43,7 +42,7 @@ public class PropertiesBackup implements Backupable {
   public void exportXml(SonarConfig sonarConfig) {
     List<Property> xmlProperties = Lists.newArrayList();
 
-    for (PropertyDto property : persistentSettings.getGlobalProperties()){
+    for (PropertyDto property : persistentSettings.getGlobalProperties()) {
       // "sonar.core.id" must never be restored, it is unique for a server and it created once at the 1rst server startup
       if (!CoreProperties.SERVER_ID.equals(property.getKey())) {
         xmlProperties.add(new Property(property.getKey(), property.getValue()));
@@ -61,7 +60,7 @@ public class PropertiesBackup implements Backupable {
     String serverStartTime = persistentSettings.getString(CoreProperties.SERVER_STARTTIME);
 
     Map<String, String> properties = Maps.newHashMap();
-    if (CollectionUtils.isNotEmpty(sonarConfig.getProperties())) {
+    if (sonarConfig.getProperties() != null && !sonarConfig.getProperties().isEmpty()) {
       for (Property xmlProperty : sonarConfig.getProperties()) {
         properties.put(xmlProperty.getKey(), xmlProperty.getValue());
       }

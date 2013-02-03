@@ -26,7 +26,6 @@ import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.rules.Rule;
@@ -34,7 +33,11 @@ import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.jpa.dao.RulesDao;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class RulesBackup implements Backupable {
   private Collection<Rule> rules;
@@ -62,7 +65,7 @@ public class RulesBackup implements Backupable {
 
   public void importXml(SonarConfig sonarConfig) {
     disableUserRules();
-    if (CollectionUtils.isNotEmpty(sonarConfig.getRules())) {
+    if (sonarConfig.getRules() != null && !sonarConfig.getRules().isEmpty()) {
       registerUserRules(sonarConfig.getRules());
     }
   }
@@ -95,7 +98,7 @@ public class RulesBackup implements Backupable {
         continue;
       }
 
-      for (Iterator<RuleParam> irp = rule.getParams().iterator(); irp.hasNext();) {
+      for (Iterator<RuleParam> irp = rule.getParams().iterator(); irp.hasNext(); ) {
         RuleParam param = irp.next();
         RuleParam matchingRPInDb = rulesDao.getRuleParam(matchingParentRuleInDb, param.getKey());
         if (matchingRPInDb == null) {
@@ -106,8 +109,8 @@ public class RulesBackup implements Backupable {
 
       rule.setParent(matchingParentRuleInDb);
       Rule matchingRuleInDb = session.getSingleResult(Rule.class,
-          "pluginName", rule.getRepositoryKey(),
-          "key", rule.getKey());
+        "pluginName", rule.getRepositoryKey(),
+        "key", rule.getKey());
       if (matchingRuleInDb != null) {
         // merge
         matchingRuleInDb.setParent(matchingParentRuleInDb);
@@ -163,8 +166,8 @@ public class RulesBackup implements Backupable {
               reader.moveDown();
               Map<String, String> valuesParam = readNode(reader);
               rule.createParameter()
-                  .setKey(valuesParam.get("key"))
-                  .setDefaultValue(valuesParam.get("value"));
+                .setKey(valuesParam.get("key"))
+                .setDefaultValue(valuesParam.get("value"));
               reader.moveUp();
             }
           }
@@ -172,15 +175,15 @@ public class RulesBackup implements Backupable {
         }
 
         Rule parent = Rule.create()
-            .setRepositoryKey(valuesRule.get("parentRepositoryKey"))
-            .setKey(valuesRule.get("parentKey"));
+          .setRepositoryKey(valuesRule.get("parentRepositoryKey"))
+          .setKey(valuesRule.get("parentKey"));
         rule.setParent(parent)
-            .setRepositoryKey(valuesRule.get("repositoryKey"))
-            .setKey(valuesRule.get("key"))
-            .setConfigKey(valuesRule.get("configKey"))
-            .setName(valuesRule.get("name"))
-            .setDescription(valuesRule.get("description"))
-            .setSeverity(RulePriority.valueOf(valuesRule.get("level")));
+          .setRepositoryKey(valuesRule.get("repositoryKey"))
+          .setKey(valuesRule.get("key"))
+          .setConfigKey(valuesRule.get("configKey"))
+          .setName(valuesRule.get("name"))
+          .setDescription(valuesRule.get("description"))
+          .setSeverity(RulePriority.valueOf(valuesRule.get("level")));
         return rule;
       }
 

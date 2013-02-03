@@ -19,12 +19,18 @@
  */
 package org.sonar.jpa.dao;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.measures.Metric;
 
-import java.util.*;
+import javax.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MeasuresDao extends BaseDao {
 
@@ -55,18 +61,17 @@ public class MeasuresDao extends BaseDao {
   }
 
   public Collection<Metric> getEnabledMetrics() {
-    return CollectionUtils.select(getMetricsByName().values(), new Predicate() {
-      public boolean evaluate(Object o) {
-        return ((Metric) o).getEnabled();
+    return Collections2.filter(getMetricsByName().values(), new Predicate<Metric>() {
+      public boolean apply(@Nullable Metric o) {
+        return o != null && o.getEnabled();
       }
     });
   }
 
   public Collection<Metric> getUserDefinedMetrics() {
-    return CollectionUtils.select(getMetricsByName().values(), new Predicate() {
-      public boolean evaluate(Object o) {
-        Metric m = (Metric) o;
-        return (m.getEnabled() && m.getOrigin() != Metric.Origin.JAV);
+    return Collections2.filter(getMetricsByName().values(), new Predicate<Metric>() {
+      public boolean apply(@Nullable Metric metric) {
+        return metric != null && metric.getEnabled() && metric.getOrigin() != Metric.Origin.JAV;
       }
     });
   }

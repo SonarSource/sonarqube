@@ -19,16 +19,17 @@
  */
 package org.sonar.api.utils;
 
-import org.apache.commons.collections.CollectionUtils;
+import com.google.common.collect.Iterators;
 import org.apache.commons.io.FileUtils;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.Assert.assertThat;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class ZipUtilsTest {
 
@@ -40,9 +41,10 @@ public class ZipUtilsTest {
 
     ZipUtils.zipDir(dir, zip);
 
-    assertThat(zip.exists(), is(true));
-    assertThat(zip.length(), greaterThan(1l));
-    assertThat(CollectionUtils.size(new ZipFile(zip).entries()), is(4));
+    assertThat(zip).exists();
+    assertThat(zip.length()).isGreaterThan(1L);
+    Iterator<? extends ZipEntry> zipEntries = Iterators.forEnumeration(new ZipFile(zip).entries());
+    assertThat(zipEntries).hasSize(4);
   }
 
   @Test
@@ -50,7 +52,7 @@ public class ZipUtilsTest {
     File zip = FileUtils.toFile(getClass().getResource("/org/sonar/api/utils/ZipUtilsTest/shouldUnzipFile.zip"));
     File toDir = new File("target/tmp/shouldUnzipFile/");
     ZipUtils.unzip(zip, toDir);
-    assertThat(toDir.list().length, is(3));
+    assertThat(toDir.list()).hasSize(3);
   }
 
 }
