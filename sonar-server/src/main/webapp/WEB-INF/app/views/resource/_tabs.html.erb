@@ -9,11 +9,9 @@
      
 <% if display_title %>
   <div id="source_title">
-    <%
-       selected_project_id = params[:project].to_i
-       if @resource.project && selected_project_id != @resource.project.id %>
+    <% if @resource.project %>
       <div class="subtitle">
-        <%= @resource.ancestor_projects.select{|p| p.id != selected_project_id}.reverse.map{|p| p.name(true)}.join(' / ') -%>
+        <%= @resource.ancestor_projects.reverse.map{|p| p.name(true)}.join(' / ') -%>
       </div>
     <% end %>
     <% if logged_in? %><%= link_to_favourite(@resource) -%><% end %>
