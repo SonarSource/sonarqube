@@ -30,34 +30,42 @@ class ResourceController < ApplicationController
   verify :method => :post, :only => [:create_violation]
 
   def index
-    @resource = Project.by_key(params[:id])
-    not_found("Resource not found") unless @resource
-    @resource=@resource.permanent_resource
-    access_denied unless has_role?(:user, @resource)
+    if request.xhr?
+      @resource = Project.by_key(params[:id])
+      not_found("Resource not found") unless @resource
+      @resource=@resource.permanent_resource
+      access_denied unless has_role?(:user, @resource)
 
-    params[:layout]='false'
-    @snapshot=@resource.last_snapshot
+      @snapshot=@resource.last_snapshot
 
-    if @snapshot
-      load_extensions()
+      if @snapshot
+        load_extensions()
 
-      if @extension
-        if @extension.getId()=='violations'
-          render_violations()
-        elsif (@extension.getId()=='coverage')
-          render_coverage()
-        elsif (@extension.getId()=='source')
-          render_source()
-        elsif (@extension.getId()=='duplications')
-          render_duplications()
+        if @extension
+          if @extension.getId()=='violations'
+            render_violations()
+            render_partial_index()
+          elsif (@extension.getId()=='coverage')
+            render_coverage()
+            render_partial_index()
+          elsif (@extension.getId()=='source')
+            render_source()
+            render_partial_index()
+          elsif (@extension.getId()=='duplications')
+            render_duplications()
+            render_partial_index()
+          else
+            render_extension()
+          end
         else
-          render_extension()
+          render_nothing()
         end
       else
-        render_nothing()
+        render_resource_deleted()
       end
     else
-      render_resource_deleted()
+      params[:layout] = 'false'
+      render :action => 'index'
     end
   end
 
@@ -113,6 +121,10 @@ class ResourceController < ApplicationController
   end
 
   private
+
+  def render_partial_index
+    render :partial => 'index'
+  end
 
   def load_extensions
     @extensions=[]
@@ -268,8 +280,6 @@ class ResourceController < ApplicationController
         end
       end
     end
-
-    render :action => 'index', :layout => !request.xhr?
   end
 
   def render_duplications
@@ -313,8 +323,6 @@ class ResourceController < ApplicationController
       end
     end
     @duplication_groups.sort! { |group1, group2| group1[0][:from_line].to_i <=> group2[0][:from_line].to_i }
-
-    render :action => 'index', :layout => !request.xhr?
   end
 
   def parse_duplications(dups, duplication_groups)
@@ -415,14 +423,12 @@ class ResourceController < ApplicationController
     if current_user && has_role?(:user, @resource)
       @review_screens_by_vid = RuleFailure.available_java_screens_for_violations(violations, @resource, current_user)
     end
-    render :action => 'index', :layout => !request.xhr?
   end
 
 
   def render_source
     load_sources()
     filter_lines_by_date()
-    render :action => 'index', :layout => !request.xhr?
   end
 
 
@@ -533,15 +539,15 @@ class ResourceController < ApplicationController
   end
 
   def render_extension()
-    render :action => 'extension', :layout => !request.xhr?
+    render :partial => 'extension'
   end
 
   def render_nothing()
-    render :action => 'nothing', :layout => !request.xhr?
+    render :partial => 'nothing'
   end
 
   def render_resource_deleted()
-    render :action => 'resource_deleted', :layout => !request.xhr?
+    render :partial => 'resource_deleted'
   end
 
 end

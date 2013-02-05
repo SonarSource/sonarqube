@@ -6,59 +6,45 @@
    else
      display_title=(params[:display_title]=='true')
 %>
-     
-<% if display_title %>
-  <div id="source_title">
-    <% if @resource.project %>
-      <div class="subtitle">
-        <%= @resource.ancestor_projects.reverse.map{|p| p.name(true)}.join(' / ') -%>
-      </div>
-    <% end %>
-    <% if logged_in? %><%= link_to_favourite(@resource) -%><% end %>
-    <span class="h3"><%= qualifier_icon(@resource) -%> <%= @resource.name(true) -%></span>
-  </div>
-<% end %>
 
-<div id="source_tabs">
-  <ul class="tablinks">
-    <%
-       first=true
-       if @snapshot.source && has_role?(:codeviewer, @snapshot)
-    %>
-      <li class="<%= 'first' if first -%>">
-        <a href="<%= ApplicationController.root_context -%>/api/sources?resource=<%= @resource.key -%>&amp;format=txt"><%= message('raw') -%></a>
-      </li>
-    <% first=false
-       end
-       if request.xhr? %>
+  <% if display_title %>
+    <div class="source_title">
+      <% if @resource.project %>
+        <div class="subtitle">
+          <%= @resource.ancestor_projects.reverse.map{|p| p.name(true)}.join(' / ') -%>
+        </div>
+      <% end %>
+      <% if logged_in? %><%= link_to_favourite(@resource) -%><% end %>
+      <span class="h3"><%= qualifier_icon(@resource) -%> <%= @resource.name(true) -%></span>
+    </div>
+  <% end %>
+
+  <div class="source_tabs">
+    <ul class="tablinks">
+      <%
+         first=true
+         if @snapshot.source && has_role?(:codeviewer, @snapshot)
+      %>
+        <li class="<%= 'first' if first -%>">
+          <a href="<%= ApplicationController.root_context -%>/api/sources?resource=<%= @resource.key -%>&amp;format=txt"><%= message('raw') -%></a>
+        </li>
+      <% first=false
+         end %>
       <li class="<%= 'first' if first -%>">
         <a href="<%= ApplicationController.root_context -%>/resource/index/<%= @resource.key -%>?display_title=true" onclick="window.open(this.href,'resource','height=800,width=900,scrollbars=1,resizable=1');return false;"><%= message('new_window') -%></a>
       </li>
-    <% end %>
-  </ul>
-  <ul class="tabs">
-    <% if request.xhr? %>
+    </ul>
+    <ul class="tabs">
       <% @extensions.each do |extension| %>
         <li>
-          <a href="#" onclick="return loadResourceViewer('<%= @resource.id -%>','<%= extension.getId() -%>',<%= display_title -%>)" class="<%= 'selected' if @extension && @extension.getId()==extension.getId() -%>"><%= message(extension.getId() + '.page', :default => extension.getTitle()) %></a>
+          <a href="#" onclick="return loadResourceViewer('<%= @resource.id -%>','<%= extension.getId() -%>',<%= display_title -%>, this)" class="<%= 'selected' if @extension && @extension.getId()==extension.getId() -%>"><%= message(extension.getId() + '.page', :default => extension.getTitle()) %></a>
         </li>
       <% end %>
-    <% else %>
-      <script>function loadTab(url) {
-        $('resource_loading').show();
-        document.location.href = url;
-        return false;
-      }</script>
-      <% @extensions.each do |extension| %>
-        <li>
-          <a href="#" onClick="return loadTab('<%= url_for(:overwrite_params => {:tab => extension.getId(), :metric => nil}) -%>')" class="<%= 'selected' if @extension && @extension.getId()==extension.getId() -%>"><%= message(extension.getId() + '.page', :default => extension.getTitle()) %></a>
-        </li>
-      <% end %>
-    <% end %>
-    <li>
-      <img src="<%= ApplicationController.root_context -%>/images/loading.gif" id="resource_loading" style="display:none"/>
-    </li>
-  </ul>
-</div>
+      <li>
+        <img src="<%= ApplicationController.root_context -%>/images/loading.gif" id="resource_loading" style="display:none"/>
+      </li>
+    </ul>
+  </div>
+
 
 <%  end %>

@@ -70,7 +70,7 @@
                 <% end %>
                 <%= qualifier_icon(resource) -%>&nbsp;
                 <% if resource.source_code? %>
-                  <a href="#" onclick="$j('#col_<%= index -%> tr').removeClass('selected'); $j('#row_<%= index -%>_<%= row_index -%>').addClass('selected'); d(<%= resource.id -%>)" 
+                  <a href="#" onclick="$j('#col_<%= index -%> tr').removeClass('selected'); $j('#row_<%= index -%>_<%= row_index -%>').addClass('selected'); d(<%= resource.id -%>)"
                      alt="<%= resource.name(true) -%>" title="<%= resource.name(true) -%>"><%= resource.name(false) -%></a>
                 <% else %>
                   <%= link_to(resource.name, {:only_path => true, :overwrite_params => {:rids => (selected ? rids-[resource.id] : rids+[resource.id])}}) -%>
@@ -101,5 +101,7 @@
   });
   <% end %>
 </script>
+
+<div id="accordion-panel"/>
 
 <%= render :partial => 'footer' -%>

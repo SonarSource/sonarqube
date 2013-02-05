@@ -1,0 +1,15 @@
+<div class="accordion-item">
+  <div class="accordion-header">
+    <%= render :partial => 'tabs' -%>
+  </div>
+  <div class="accordion-body">
+    <% if @extension.isGwt() %>
+      <div id="gwtpage"> </div>
+      <script>
+        loadGWT('<%= @extension.getId() -%>', <%= @resource.id -%>,'<%= @resource.key -%>', '<%= @resource.name -%>', '<%= @resource.scope -%>', '<%= @resource.qualifier -%>', '<%= @resource.language -%>');
+      </script>
+    <% elsif @extension.getTarget() # ruby on rails page %>
+      <%= render :inline => @extension.getTarget().getTemplate() -%>
+    <% end %>
+  </div>
+</div>

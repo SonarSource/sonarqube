@@ -810,11 +810,11 @@ span.rulename a:hover {
   border-right: 1px solid #DDD;
 }
 
-#source_title {
+.source_title {
   padding: 10px 0;
 }
 
-#source_title span.h1 {
+.source_title span.h1 {
   font-size: 16px;
   margin-right: 10px;
 }
@@ -864,19 +864,19 @@ span.rulename a:hover {
   font-weight: bold;
 }
 
-#source_options {
+.source_options {
   margin-top: 5px;
   padding-top: 5px;
   border-top: 1px solid #ddd;
   font-size: 85%;
 }
 
-#source_options td {
+.source_options td {
   background: url("../images/sep12.png") no-repeat scroll 0 50% transparent;
   padding: 0 10px;
 }
 
-#source_options td.first {
+.source_options td.first {
   background: none;
   padding: 0 10px 0 0;
 }
@@ -2410,3 +2410,19 @@ textarea.width100 {
 .property table.data > thead > tr > th {
   vertical-align: top;
 }
+
+.accordion-item {
+  margin-top: 10px;
+  border: 1px solid #DDDDDD;
+}
+
+.accordion-item-small {
+  height: 50px;
+  overflow: hidden;
+}
+
+.accordion-item-medium {
+  height: 200px;
+  overflow: scroll;
+}
+

@@ -2,21 +2,17 @@
    if display_options
 %>
 
-  <div id="source_options">
+  <div class="source_options">
     <script>
-      applyOptions = function () {
-        $('resource_loading').show();
-        <% if request.xhr? %>
-        var params = Form.serialize($('options-form'));
-        new Ajax.Updater('resource_container', '<%= url_for :controller => 'resource', :action => 'index', :id => @resource.key -%>', {asynchronous:true, parameters:params});
+      applyOptions = function (elt) {
+        var currentForm = $j(elt).closest('.options-form');
+        var params = currentForm.serialize();
+        var url = '<%= ApplicationController.root_context -%>/resource/index/<%= @resource.key %>?display_title=<%= params[:display_title].to_s -%>&'+ params;
+        openAccordionItem(url, elt, true);
         return true;
-        <% else %>
-        $('options-form').submit();
-        return false;
-        <% end %>
       };
     </script>
-    <form method="GET" action="<%= url_for :controller => 'resource', :action => 'index', :id => @resource.key -%>" id="options-form">
+    <form method="GET" action="<%= url_for :controller => 'resource', :action => 'index', :id => @resource.key -%>" class="options-form">
       <input type="hidden" name="tab" value="<%= params[:tab] -%>"/>
       <input type="hidden" name="metric" value="<%= params[:metric] -%>"/>
       <input type="hidden" name="period" value="<%= params[:period] -%>"/>
@@ -27,7 +23,7 @@
              first=true
              if @expandable %>
             <td class="<%= 'first' if first -%>">
-              <input type="checkbox" value="true" name="expand" id="expand" <%= 'checked' if @expanded -%> onclick="applyOptions()"/>
+              <input type="checkbox" value="true" name="expand" <%= 'checked' if @expanded -%> onclick="applyOptions(this)"/>
               <label for="expand"><%= message('full_source') -%></label>
             </td>
           <% first=false
@@ -35,7 +31,7 @@
 
           <% if @scm_available && !@display_violations && @snapshot.project_snapshot.periods? %>
             <td class="<%= 'first' if first -%>">
-              <select id="period" name="period" onchange="applyOptions()">
+              <select name="period" onchange="applyOptions(this)">
                 <option value=""><%= message('time_changes') -%>...</option>
                 <%= period_select_options(@snapshot, 1) -%>
                 <%= period_select_options(@snapshot, 2) -%>
@@ -50,7 +46,7 @@
 
           <% if @display_violations %>
             <td class="<%= 'first' if first -%>">
-              <select id="period" name="period" onchange="applyOptions()">
+              <select name="period" onchange="applyOptions(this)">
                 <option value=""><%= message('time_changes') -%>...</option>
                 <%= violation_period_select_options(@snapshot, 1) -%>
                 <%= violation_period_select_options(@snapshot, 2) -%>
@@ -66,7 +62,7 @@
 
           <% if @display_coverage %>
             <td class="<%= 'first' if first -%>">
-              <select id="coverage_filter" name="coverage_filter" onchange="applyOptions()">
+              <select class="coverage_filter" name="coverage_filter" onchange="applyOptions(this)">
                 <optgroup label="<%= h message('coverage_viewer.unit_tests') -%>">
                   <option value="lines_to_cover" <%= 'selected' if @coverage_filter=='lines_to_cover' -%>><%= Metric.name_for('lines_to_cover') -%></option>
                   <option value="uncovered_lines" <%= 'selected' if @coverage_filter=='uncovered_lines' -%>><%= Metric.name_for('uncovered_lines') -%></option>
@@ -99,7 +95,7 @@
 
             <% if @coverage_filter=='lines_covered_per_test' %>
               <td class="<%= 'first' if first -%>">
-                <select id="test_case_filter" name="test_case_filter" onchange="applyOptions()">
+                <select class="test_case_filter" name="test_case_filter" onchange="applyOptions(this)">
                   <option value=""><%= message('coverage_viewer.select_test') -%></option>
                   <% @test_case_by_test_plan.sort_by{|test_plan, test_cases| test_plan.component.longName}.each do |test_plan, test_cases| %>
                     <optgroup label="<%= test_plan.component.longName %>">

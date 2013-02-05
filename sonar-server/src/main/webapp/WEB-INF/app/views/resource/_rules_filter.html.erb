@@ -42,11 +42,10 @@
    end
 %>
 
-<select id="rule" name="rule" onchange="applyOptions()">
+<select name="rule" onchange="applyOptions(this)">
 
   <option value="all"><%= message('all_violations') -%></option>
-  
-  
+
   <optgroup label="<%= message('reviews') -%>">
     <option value="false_positive_reviews" <%= 'selected' if params[:rule]=="false_positive_reviews" -%>>
       <%= message('violations_viewer.review_filter.false_positives') -%>

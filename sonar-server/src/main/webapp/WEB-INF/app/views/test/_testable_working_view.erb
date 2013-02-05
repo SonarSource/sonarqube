@@ -1,26 +1,32 @@
-<div><h1>Working Views</h1></div>
-<br/>
-<div><h3>Tests covering <%= @testable.component.longName %> on line <%= @line %></h3></div>
-<br/>
-<% @test_case_by_test_plan.sort_by{|test_plan, test_cases| test_plan.component.longName}.each do |test_plan, test_cases| %>
-<table class="data">
-  <thead>
-  <tr>
-    <th><%= test_plan.component.longName %></th>
-  </tr>
-  </thead>
-  <tbody>
-  <% test_cases.sort_by{|test_case| test_case.name}.each do |test_case| %>
-  <tr class="<%= cycle("even", "odd") -%>">
-    <td>
-      <% resource_key = test_case.testPlan.component.key %>
-      <a href="<%= ApplicationController.root_context -%>/resource/index/<%= resource_key -%>?display_title=true&tab=tests_viewer"
-         onclick="window.open(this.href,'resource','height=800,width=900,scrollbars=1,resizable=1');return false;"><%= test_case.name -%>
-      </a>
-    </td>
-  </tr>
-  <% end %>
-  </tbody>
-</table>
+<div class="accordion-item">
+  <div class="accordion-header">
+    <h3>Tests covering <%= @testable.component.longName %> on line <%= @line %></h3>
+  </div>
   <br/>
-<% end %>
+  <div class="accordion-body">
+    <% @test_case_by_test_plan.sort_by{|test_plan, test_cases| test_plan.component.longName}.each do |test_plan, test_cases| %>
+    <table class="data">
+      <thead>
+      <tr>
+        <th>
+        <% resource_key = test_plan.component.key %>
+        <a href="<%= ApplicationController.root_context -%>/resource/index/<%= resource_key -%>?display_title=true&tab=source"
+           onclick="openAccordionItem(this.href, this); return false;"><%= test_plan.component.longName %>
+        </a>
+        </th>
+      </tr>
+      </thead>
+      <tbody>
+      <% test_cases.sort_by{|test_case| test_case.name}.each do |test_case| %>
+      <tr class="<%= cycle("even", "odd") -%>">
+        <td>
+          <%= test_case.name -%>
+        </td>
+      </tr>
+      <% end %>
+      </tbody>
+    </table>
+      <br/>
+    <% end %>
+  </div>
+</div>

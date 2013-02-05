@@ -4,13 +4,11 @@
 <script type="text/javascript">
   /* display resource */
   function d(resourceId, display_title) {
-    var loading = new Image();
-    loading.src = baseUrl + "/images/loading.gif";
-    $('resource_container').update(loading);
     if (display_title == undefined) {
       display_title = true;
     }
-    new Ajax.Updater('resource_container', baseUrl + '/resource/index/' + resourceId + '?metric=<%= @metric.id if @metric -%>&rule=<%= @rule ? @rule.id : @severity -%>&period=<%= @period -%>&project=<%= @resource.id -%>&display_title=' + display_title, {asynchronous:true, evalScripts:true});
+    var url = '<%= ApplicationController.root_context -%>/resource/index/' + resourceId + '?metric=<%= @metric.id if @metric -%>&rule=<%= @rule ? @rule.id : @severity -%>&period=<%= @period -%>&project=<%= @resource.id -%>&display_title=' + display_title;
+    openAccordionItem(url, this);
     return false;
   }
 </script>

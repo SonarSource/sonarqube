@@ -29,7 +29,8 @@
               &nbsp;
               <%= image_tag 'sep12.png' -%>
               &nbsp;
-              <select id="select-rule-<%= @html_id -%>" name="rule" onkeyup="this.blur();this.focus();" onchange="if ($F(this)=='') {$('new_rule_<%= @html_id -%>').show()} else {$('new_rule_<%= @html_id -%>').hide()}">
+              <select class="select-rule-<%= @html_id -%>" name="rule" onkeyup="this.blur();this.focus();"
+                      onchange="if ($j(this).val()=='') {$j(this).next('input.new_rule_<%= @html_id -%>').show()} else {$j(this).next('input.new_rule_<%= @html_id -%>').hide()}">
                 <% is_admin = current_user && has_role?(:admin)
                    if is_admin
                 %>
@@ -45,7 +46,7 @@
               </select>
 
               <% if is_admin %>
-                <input type="text" name="new_rule" size="50" id="new_rule_<%= @html_id -%>">
+                <input type="text" name="new_rule" size="50" class="new_rule_<%= @html_id -%>">
               <% end %>
 
               &nbsp;
@@ -60,7 +61,7 @@
               <div class="error" id="errorViolationForm<%= @line -%>" style="display: none"></div>
               <input type="submit" value="<%= message('code_viewer.create_violation.submit') -%>">
 
-              <a href="#" onclick="return hVF(<%= @line -%>)"><%= message('cancel') -%></a>
+              <a href="#" onclick="return hVF(this, <%= @line -%>)"><%= message('cancel') -%></a>
             </div>
           </div>
         <% end %>
@@ -70,4 +71,26 @@
 </tr>
 <script type="text/javascript">
   Form.Element.activate('select-rule-<%= @html_id -%>');
+
+  function createViolation(elt){
+    elt.submit(function (event) {
+      $j.ajax({
+        type: 'POST',
+        url: elt.attr('action'),
+        data: elt.serialize(),
+        success: function (data) {
+          var test = $j(elt).closest('.createViolationCell<%= @line.to_s %>');
+          alert(test.attr('class'));
+//          window.location.reload();
+        },
+        error: function (xhr, textStatus, errorThrown) {
+//          $j("#"+ errorId).removeClass("hidden");
+//          $j("#"+ errorId).html(xhr.responseText);
+        }
+      });
+      return false;
+    });
+
+    return false;
+  }
 </script>

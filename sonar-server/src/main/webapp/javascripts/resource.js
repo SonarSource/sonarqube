@@ -2,12 +2,14 @@
  Functions used in resource viewers
  */
 
-function loadResourceViewer(resourceId, tab, display_title) {
-  $('resource_loading').show();
+function loadResourceViewer(resourceId, tab, display_title, elt) {
   if (display_title == undefined) {
     display_title = true;
   }
-  new Ajax.Updater('resource_container', baseUrl + '/resource/index/' + resourceId + '?tab=' + tab + '&display_title=' + display_title, {asynchronous:true, evalScripts:true});
+
+  var url = baseUrl + '/resource/index/' + resourceId + '?tab=' + tab + '&display_title=' + display_title;
+  openAccordionItem(url, elt, true);
+
   return false;
 }
 
@@ -158,26 +160,24 @@ function sAPF(violation_id) {
 }
 
 // show the form to create violation
-function sVF(resource, line, gray_colspan, white_colspan) {
-  row = $('createViolationForm' + line);
-  if (row == null) {
-    new Ajax.Updater(
-        'pos' + line,
-        baseUrl + '/resource/show_create_violation_form',
-        {
-          parameters:{resource:resource, line:line, gray_colspan:gray_colspan, white_colspan:white_colspan},
-          asynchronous:true,
-          evalScripts:true,
-          insertion:'after'
+function sVF(elt, resource, line, gray_colspan, white_colspan) {
+  row = $j('#createViolationForm' + line);
+  if (!row.length) {
+    expandAccordionItem(elt);
+    var element = $j(elt).closest('.pos' + line);
+    $j.get(baseUrl + '/resource/show_create_violation_form?resource='+ resource + '&line='+ line + '&gray_colspan='+ gray_colspan + '&white_colspan='+ white_colspan, function (html) {
+      element.after(html);
+    }).error(function () {
+          alert("Server error. Please contact your administrator.");
         });
   }
   return false;
 }
 
 // hide review form
-function hVF(line) {
-  row = $('createViolationRow' + line);
-  if (row != null) {
+function hVF(elt, line) {
+  var row = $j(elt).closest('.createViolationRow'+ line);
+  if (row.length) {
     row.remove();
   }
   return false;

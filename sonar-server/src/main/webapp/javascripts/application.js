@@ -307,46 +307,6 @@ Treemap.prototype.initNodes = function () {
   });
 })(jQuery);
 
-/**
- *
- * @param snapshot_id
- * @param value whether the test name or the line index
- * @param type whether testable or testcase
- * @return {boolean}
- */
-function openTestWorkingView(snapshot_id, value, type) {
-
-  if ($j('#working_view').length) {
-    $j('#working_view').remove();
-  }
-
-  var url = baseUrl + "/test/working_view?sid=" + snapshot_id + "&value=" + value + "&type="+ type;
-  var $dialog = $j('<div id="working_view" class="ui-widget-overlay"></div>').appendTo('body');
-  $j.get(url,function (html) {
-    $dialog.removeClass('ui-widget-overlay');
-    $dialog.html(html);
-    $dialog
-        .dialog({
-          width: 600,
-          position: { my: "right top", at: "right top", of: "#content" },
-          draggable: false,
-          autoOpen: false,
-          modal: false,
-          minHeight: 600,
-          resizable: false,
-          close: function () {
-            $j('#working_view').remove();
-          }
-        });
-    $dialog.dialog("open");
-  }).error(function () {
-        alert("Server error. Please contact your administrator.");
-      }).complete(function () {
-        $dialog.removeClass('ui-widget-overlay');
-      });
-  return false;
-}
-
 function closeModalWindow() {
   $j('#modal').dialog('close');
   return false;
@@ -359,6 +319,72 @@ function supports_html5_storage() {
     return false;
   }
 }
+
+//******************* HANDLING OF WORKING VIEWS [BEGIN] ******************* //
+
+function openAccordionItem(url, elt, updateCurrentElement) {
+
+  var htmlClass = 'accordion-item';
+  var currentElement = $j(elt).closest('.'+ htmlClass);
+  var previousHeight = 0;
+
+  // Display loading image
+  var loading = new Image();
+  loading.src = baseUrl + "/images/loading.gif";
+
+  if (currentElement.length) {
+    previousHeight = $j("#accordion-panel").height();
+    // Remove all accordion items after current element
+    currentElement.nextAll('.'+ htmlClass).remove();
+
+    var newHeight = $j("#accordion-panel").height() + currentElement.height();
+    $j("#accordion-panel").height(previousHeight > newHeight ? previousHeight : newHeight);
+  }
+
+  if (currentElement.length) {
+    $j(loading).insertAfter(currentElement);
+  } else {
+    $j(loading).insertAfter($j("#accordion-panel"));
+  }
+
+  // Get content from url
+  $j.get(url,function (html) {
+    if (currentElement.length) {
+
+      var body = currentElement.find('.accordion-body');
+      if (!updateCurrentElement && !body.hasClass('accordion-item-medium')) {
+        body.addClass("accordion-item-medium");
+        elt.scrollIntoView(false);
+      }
+    } else {
+      $j("#accordion-panel").height('auto');
+
+      // Current element is not in a working view, remove all working views
+      $j('.'+ htmlClass).remove();
+    }
+
+    if (updateCurrentElement) {
+      currentElement.replaceWith(html);
+    } else {
+      $j("#accordion-panel").append(html);
+    }
+
+  }).error(function () {
+        alert("Server error. Please contact your administrator.");
+      }).complete(function () {
+        $j(loading).remove();
+      });
+
+  return false;
+}
+
+function expandAccordionItem(elt) {
+  var currentElement = $j(elt).closest('.accordion-item');
+  currentElement.find('.accordion-body').removeClass("accordion-item-medium");
+}
+
+//******************* HANDLING OF WORKING VIEWS [END] ******************* //
+
 
 //******************* HANDLING OF DROPDOWN MENUS [BEGIN] ******************* //
 
