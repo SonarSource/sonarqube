@@ -55,7 +55,7 @@ class Property < ActiveRecord::Base
   def self.clear_for_resources(key, value=nil)
     scope = Property.with_resources().with_key(key)
     if value
-      scope.with_value(value)
+      scope = scope.with_value(value)
     end
     scope.delete_all
   end
