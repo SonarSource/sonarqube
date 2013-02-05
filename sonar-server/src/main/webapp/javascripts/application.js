@@ -368,6 +368,8 @@ function openAccordionItem(url, elt, updateCurrentElement) {
     } else {
       $j("#accordion-panel").append(html);
     }
+    var newHeight = $j("#accordion-panel").height() + currentElement.height();
+    $j("#accordion-panel").height(previousHeight > newHeight ? previousHeight : newHeight);
 
   }).error(function () {
         alert("Server error. Please contact your administrator.");
