@@ -205,7 +205,7 @@ class ResourceController < ApplicationController
       @conditions_by_line = load_distribution("#{it_prefix}conditions_by_line")
       @covered_conditions_by_line = load_distribution("#{it_prefix}covered_conditions_by_line")
 
-      @testable = java_facade.getTestable(@snapshot.id)
+      @testable = java_facade.testable(@snapshot.id)
       @hits_by_line.each_pair do |line_id, hits|
         line = @lines[line_id-1]
         if line

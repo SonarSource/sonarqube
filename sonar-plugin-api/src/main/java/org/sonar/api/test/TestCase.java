@@ -19,22 +19,23 @@
  */
 package org.sonar.api.test;
 
+import javax.annotation.Nullable;
+
 public interface TestCase {
-  String STATUS_PASS = "pass";
-  String STATUS_FAIL = "fail";
+  enum Status {
+    OK, FAILURE, ERROR, SKIPPED;
+
+    public static Status of(@Nullable String s) {
+      return s == null ? null : valueOf(s.toUpperCase());
+    }
+  }
 
   /**
    * Duration in milliseconds
    */
   Long durationInMs();
 
-  // pass/fail/...
-  String status();
-
-  /**
-   * The key is not null and unique among the test plan.
-   */
-  String key();
+  Status status();
 
   String name();
 

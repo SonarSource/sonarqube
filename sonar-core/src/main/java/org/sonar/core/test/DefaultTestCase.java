@@ -50,24 +50,12 @@ public class DefaultTestCase extends BeanVertex implements MutableTestCase {
     return this;
   }
 
-  public String status() {
-    return (String) getProperty("status");
+  public Status status() {
+    return Status.of((String)getProperty("status"));
   }
 
-  public MutableTestCase setStatus(@Nullable String s) {
-    setProperty("status", s);
-    return this;
-  }
-
-  /**
-   * The key is not blank and unique among the test plan.
-   */
-  public String key() {
-    return (String) getProperty("key");
-  }
-
-  public MutableTestCase setKey(String s) {
-    setProperty("key", s);
+  public MutableTestCase setStatus(@Nullable Status s) {
+    setProperty("status", s == null ? null : s.toString());
     return this;
   }
 

@@ -25,7 +25,7 @@ class TestController < ApplicationController
     snapshot_id = params[:sid].to_i
 
     @test = params[:test].to_s
-    @test_plan = java_facade.getTestPlan(snapshot_id)
+    @test_plan = java_facade.testPlan(snapshot_id)
     @test_case = @test_plan.testCaseByKey(@test)
     render :partial => 'test/testcase_working_view'
   end
@@ -36,7 +36,7 @@ class TestController < ApplicationController
     snapshot_id = params[:sid].to_i
 
     @line = params[:line].to_i
-    @testable = java_facade.getTestable(snapshot_id)
+    @testable = java_facade.testable(snapshot_id)
     @test_case_by_test_plan = {}
     @testable.testCasesOfLine(@line).each do |test_case|
       test_plan = test_case.testPlan

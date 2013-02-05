@@ -325,7 +325,7 @@ public final class JRubyFacade {
 
   public void ruleSeverityChanged(int parentProfileId, int activeRuleId, int oldSeverityId, int newSeverityId, String userName) {
     getProfilesManager().ruleSeverityChanged(parentProfileId, activeRuleId, RulePriority.values()[oldSeverityId],
-        RulePriority.values()[newSeverityId], userName);
+      RulePriority.values()[newSeverityId], userName);
   }
 
   public void ruleDeactivated(int parentProfileId, int deactivatedRuleId, String userName) {
@@ -521,10 +521,10 @@ public final class JRubyFacade {
     // notifier is null when creating the administrator in the migration script 011.
     if (notifier != null) {
       notifier.onNewUser(NewUserHandler.Context.builder()
-          .setLogin(fields.get("login"))
-          .setName(fields.get("name"))
-          .setEmail(fields.get("email"))
-          .build());
+        .setLogin(fields.get("login"))
+        .setName(fields.get("name"))
+        .setEmail(fields.get("email"))
+        .build());
     }
   }
 
@@ -544,11 +544,15 @@ public final class JRubyFacade {
     return get(Periods.class).abbreviation(periodIndex);
   }
 
-  public TestPlan getTestPlan(long snapshotId) {
+  public TestPlan testPlan(long snapshotId) {
     return get(SnapshotPerspectives.class).as(MutableTestPlan.class, snapshotId);
   }
 
-  public Testable getTestable(long snapshotId) {
+  public TestPlan testPlan(String componentKey) {
+    return get(SnapshotPerspectives.class).as(MutableTestPlan.class, componentKey);
+  }
+
+  public Testable testable(long snapshotId) {
     return get(SnapshotPerspectives.class).as(MutableTestable.class, snapshotId);
   }
 

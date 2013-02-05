@@ -52,16 +52,16 @@
      end
    else
      # New Test API
-     test_plan = controller.java_facade.getTestPlan(@snapshot.id)
+     test_plan = controller.java_facade.testPlan(@snapshot.id)
      if test_plan
        test_plan.testCases().each do |test|
          test_case = {}
          test_case[:name] = test.name()
-         test_case[:status] = test.status()
+         test_case[:status] = test.status().to_s
          test_case[:time] = test.durationInMs()
          has_covered_lines = test.doesCover()
          test_case[:covered_lines] = test.countCoveredLines() if has_covered_lines
-         if test.status() != 'ok'
+         if test.status().to_s != 'ok'
            test_case[:message] = ''
            test_case[:message] = test.message() if test.message()
            test_case[:stack_trace] = html_escape(test.stackTrace())

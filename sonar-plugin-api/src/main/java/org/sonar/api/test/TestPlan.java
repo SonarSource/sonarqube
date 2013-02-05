@@ -32,5 +32,5 @@ public interface TestPlan<T extends TestCase> extends Perspective {
 
   Iterable<T> testCases();
 
-  T testCaseByKey(String key);
+  Iterable<T> testCasesByName(String name);
 }

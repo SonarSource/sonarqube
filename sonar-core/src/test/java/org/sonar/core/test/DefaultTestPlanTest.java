@@ -23,10 +23,8 @@ import com.google.common.collect.Iterables;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.test.exception.TestCaseAlreadyExistsException;
 import org.sonar.api.test.MutableTestCase;
 import org.sonar.api.test.TestPlan;
-import org.sonar.core.component.ComponentVertex;
 import org.sonar.core.graph.BeanGraph;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -53,24 +51,36 @@ public class DefaultTestPlanTest {
 
     assertThat(plan.testCases()).hasSize(2);
     MutableTestCase firstTestCase = Iterables.get(plan.testCases(), 0);
-    assertThat(firstTestCase.key()).isEqualTo("T1");
+    assertThat(firstTestCase.name()).isEqualTo("T1");
     assertThat(firstTestCase.testPlan()).isSameAs(plan);
 
     MutableTestCase secondTestCase = Iterables.get(plan.testCases(), 1);
-    assertThat(secondTestCase.key()).isEqualTo("T2");
+    assertThat(secondTestCase.name()).isEqualTo("T2");
     assertThat(secondTestCase.testPlan()).isSameAs(plan);
   }
 
   @Test
-  public void should_find_test_case_by_key() {
+  public void should_find_test_case_by_name() {
     BeanGraph beanGraph = BeanGraph.createInMemory();
 
     DefaultTestPlan plan = beanGraph.createVertex(DefaultTestPlan.class);
     plan.addTestCase("T1");
     plan.addTestCase("T2");
 
-    assertThat(plan.testCaseByKey("T1").key()).isEqualTo("T1");
-    assertThat(plan.testCaseByKey("T3")).isNull();
+    assertThat(plan.testCasesByName("T1")).hasSize(1);
+    assertThat(Iterables.get(plan.testCasesByName("T1"), 0).name()).isEqualTo("T1");
+    assertThat(plan.testCasesByName("T3")).isEmpty();
+  }
+
+  @Test
+  public void should_find_multiple_test_cases_by_name() {
+    BeanGraph beanGraph = BeanGraph.createInMemory();
+
+    DefaultTestPlan plan = beanGraph.createVertex(DefaultTestPlan.class);
+    plan.addTestCase("T1");
+    plan.addTestCase("T1");
+
+    assertThat(plan.testCasesByName("T1")).hasSize(2);
   }
 
   @Test
@@ -82,17 +92,5 @@ public class DefaultTestPlanTest {
 
     plan.setType(TestPlan.TYPE_UNIT);
     assertThat(plan.type()).isEqualTo(TestPlan.TYPE_UNIT);
-  }
-
-  @Test
-  public void keys_of_test_cases_should_be_unique() {
-    thrown.expect(TestCaseAlreadyExistsException.class);
-
-    BeanGraph beanGraph = BeanGraph.createInMemory();
-    ComponentVertex component = beanGraph.createVertex(ComponentVertex.class);
-
-    DefaultTestPlan plan = beanGraph.createAdjacentVertex(component, DefaultTestPlan.class, "testplan");
-    plan.addTestCase("T1");
-    plan.addTestCase("T1");
   }
 }

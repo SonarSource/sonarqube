@@ -83,7 +83,7 @@ public class DefaultTestCaseTest {
   }
 
   @Test
-  public void should_return_cover_of_testable(){
+  public void should_return_cover_of_testable() {
     BeanGraph beanGraph = BeanGraph.createInMemory();
 
     ScanGraph graph = ScanGraph.create();
@@ -106,19 +106,17 @@ public class DefaultTestCaseTest {
     BeanGraph beanGraph = BeanGraph.createInMemory();
     DefaultTestCase testCase = beanGraph.createVertex(DefaultTestCase.class);
 
-    testCase.setKey("T1")
-      .setName("Test one")
+    testCase.setName("T1")
       .setDurationInMs(1234L)
       .setMessage("Error msg")
       .setStackTrace("xxx")
-      .setStatus(TestCase.STATUS_FAIL);
+      .setStatus(TestCase.Status.ERROR);
 
-    assertThat(testCase.key()).isEqualTo("T1");
-    assertThat(testCase.name()).isEqualTo("Test one");
+    assertThat(testCase.name()).isEqualTo("T1");
     assertThat(testCase.message()).isEqualTo("Error msg");
     assertThat(testCase.stackTrace()).isEqualTo("xxx");
     assertThat(testCase.durationInMs()).isEqualTo(1234L);
-    assertThat(testCase.status()).isEqualTo(TestCase.STATUS_FAIL);
+    assertThat(testCase.status()).isEqualTo(TestCase.Status.ERROR);
   }
 
   @Test

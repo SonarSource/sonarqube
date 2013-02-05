@@ -24,11 +24,9 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public interface MutableTestCase extends TestCase {
-  MutableTestCase setStatus(String s);
+  MutableTestCase setStatus(Status s);
 
   MutableTestCase setDurationInMs(@Nullable Long l);
-
-  MutableTestCase setName(String s);
 
   MutableTestCase setMessage(String s);
 

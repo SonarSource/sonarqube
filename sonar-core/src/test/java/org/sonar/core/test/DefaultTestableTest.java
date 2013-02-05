@@ -86,9 +86,9 @@ public class DefaultTestableTest {
     MutableTestCase testCase2 = Iterables.get(plan.testCases(), 1);
     testCase2.setCover(testable, Arrays.asList(12, 48, 49));
 
-    assertThat(testable.testCaseByKey("T1")).isEqualTo(testCase1);
-    assertThat(testable.testCaseByKey("T2")).isEqualTo(testCase2);
-    assertThat(testable.testCaseByKey("Unknown")).isNull();
+    assertThat(testable.testCaseByName("T1")).isEqualTo(testCase1);
+    assertThat(testable.testCaseByName("T2")).isEqualTo(testCase2);
+    assertThat(testable.testCaseByName("Unknown")).isNull();
   }
 
   @Test

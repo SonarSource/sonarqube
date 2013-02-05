@@ -53,10 +53,10 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
     return cases.build();
   }
 
-  public TestCase testCaseByKey(final String key) {
+  public TestCase testCaseByName(final String name) {
     return Iterables.find(testCases(), new Predicate<TestCase>() {
       public boolean apply(TestCase input) {
-        return input.key().equals(key);
+        return input.name().equals(name);
       }
     }, null);
   }
@@ -94,7 +94,7 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
   public Cover coverOfTestCase(final TestCase testCase) {
     return Iterables.find(getEdges(DefaultCover.class, Direction.IN, "covers"), new Predicate<Cover>() {
       public boolean apply(Cover input) {
-        return input.testCase().key().equals(testCase.key());
+        return input.testCase().name().equals(testCase.name());
       }
     }, null);
   }
