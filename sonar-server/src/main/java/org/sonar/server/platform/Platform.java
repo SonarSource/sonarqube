@@ -91,6 +91,7 @@ import org.sonar.server.startup.GenerateBootstrapIndex;
 import org.sonar.server.startup.GeneratePluginIndex;
 import org.sonar.server.startup.GwtPublisher;
 import org.sonar.server.startup.JdbcDriverDeployer;
+import org.sonar.server.startup.LogServerId;
 import org.sonar.server.startup.RegisterMetrics;
 import org.sonar.server.startup.RegisterNewDashboards;
 import org.sonar.server.startup.RegisterNewMeasureFilters;
@@ -288,6 +289,7 @@ public final class Platform {
     startupContainer.addSingleton(RegisterNewMeasureFilters.class);
     startupContainer.addSingleton(RegisterNewDashboards.class);
     startupContainer.addSingleton(RenameDeprecatedPropertyKeys.class);
+    startupContainer.addSingleton(LogServerId.class);
     startupContainer.startComponents();
 
     startupContainer.getComponentByType(ServerLifecycleNotifier.class).notifyStart();

@@ -95,6 +95,19 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void selectGlobalProperty() {
+    setupData("selectGlobalProperties");
+
+    PropertyDto prop = dao.selectGlobalProperty("global.one");
+    assertThat(prop).isNotNull();
+    assertThat(prop.getValue(), is("one"));
+
+    assertThat(dao.selectGlobalProperty("project.one")).isNull();
+    assertThat(dao.selectGlobalProperty("user.one")).isNull();
+    assertThat(dao.selectGlobalProperty("unexisting")).isNull();
+  }
+
+  @Test
   public void selectProjectProperties() {
     setupData("selectProjectProperties");
     List<PropertyDto> properties = dao.selectProjectProperties("org.struts:struts");
