@@ -326,23 +326,20 @@ function openAccordionItem(url, elt, updateCurrentElement) {
 
   var htmlClass = 'accordion-item';
   var currentElement = $j(elt).closest('.'+ htmlClass);
-  var previousHeight = 0;
 
   // Display loading image
   var loading = new Image();
   loading.src = baseUrl + "/images/loading.gif";
 
   if (currentElement.length) {
-    previousHeight = $j("#accordion-panel").height();
+    var elementToRemove = currentElement.nextAll('.'+ htmlClass);
+    if (elementToRemove.height()) {
+      $j("#accordion-panel").height($j("#accordion-panel").height() + elementToRemove.height());
+    }
     // Remove all accordion items after current element
-    currentElement.nextAll('.'+ htmlClass).remove();
-
-    var newHeight = $j("#accordion-panel").height() + currentElement.height();
-    $j("#accordion-panel").height(previousHeight > newHeight ? previousHeight : newHeight);
-  }
-
-  if (currentElement.length) {
+    elementToRemove.remove();
     $j(loading).insertAfter(currentElement);
+
   } else {
     $j(loading).insertAfter($j("#accordion-panel"));
   }
@@ -350,7 +347,6 @@ function openAccordionItem(url, elt, updateCurrentElement) {
   // Get content from url
   $j.get(url,function (html) {
     if (currentElement.length) {
-
       var body = currentElement.find('.accordion-body');
       if (!updateCurrentElement && !body.hasClass('accordion-item-medium')) {
         body.addClass("accordion-item-medium");
@@ -358,19 +354,20 @@ function openAccordionItem(url, elt, updateCurrentElement) {
       }
     } else {
       $j("#accordion-panel").height('auto');
-
       // Current element is not in a working view, remove all working views
       $j('.'+ htmlClass).remove();
     }
 
     if (updateCurrentElement) {
+      var prev = $j("#accordion-panel").height();
       currentElement.replaceWith(html);
+      if (prev > $j("#accordion-panel").height()) {
+        $j("#accordion-panel").height(prev);
+      }
     } else {
       $j("#accordion-panel").append(html);
+      $j("#accordion-panel").height('auto');
     }
-    var newHeight = $j("#accordion-panel").height() + currentElement.height();
-    $j("#accordion-panel").height(previousHeight > newHeight ? previousHeight : newHeight);
-
   }).error(function () {
         alert("Server error. Please contact your administrator.");
       }).complete(function () {
