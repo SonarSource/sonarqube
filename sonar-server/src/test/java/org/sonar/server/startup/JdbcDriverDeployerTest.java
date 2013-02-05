@@ -25,18 +25,15 @@ import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.test.TestUtils;
 
 import java.io.File;
-import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class JdbcDriverDeployerTest {
 
   @Test
-  public void testDeploy() throws IOException {
+  public void test_deploy() throws Exception {
     DefaultServerFileSystem fs = mock(DefaultServerFileSystem.class);
     File initialDriver = TestUtils.getResource(getClass(), "deploy/my-driver.jar");
     when(fs.getJdbcDriver()).thenReturn(initialDriver);
@@ -54,7 +51,7 @@ public class JdbcDriverDeployerTest {
 
     assertThat(deployedIndex).exists();
     assertThat(deployedFile).exists();
-    assertThat(deployedFile.length(), is(initialDriver.length()));
-    assertThat(FileUtils.readFileToString(deployedIndex)).isEqualTo("my-driver.jar|02b97f7bc37b2b68fc847fcc3fc1c156");
+    assertThat(deployedFile).hasSize(initialDriver.length());
+    assertThat(FileUtils.readFileToString(deployedIndex)).isEqualTo("my-driver.jar|02B97F7BC37B2B68FC847FCC3FC1C156");
   }
 }

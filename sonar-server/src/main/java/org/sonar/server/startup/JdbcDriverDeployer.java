@@ -19,20 +19,14 @@
  */
 package org.sonar.server.startup;
 
-import com.google.common.io.Closeables;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sonar.home.cache.FileHashes;
 import org.sonar.server.platform.DefaultServerFileSystem;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
 public class JdbcDriverDeployer {
-
-  private static final Logger LOG = LoggerFactory.getLogger(JdbcDriverDeployer.class);
 
   private final DefaultServerFileSystem fileSystem;
 
@@ -43,7 +37,7 @@ public class JdbcDriverDeployer {
   public void start() {
     File driver = fileSystem.getJdbcDriver();
     File deployedDriver = new File(fileSystem.getDeployDir(), driver.getName());
-    if (deployedDriver == null || !deployedDriver.exists() || deployedDriver.length() != driver.length()) {
+    if (!deployedDriver.exists() || deployedDriver.length() != driver.length()) {
       try {
         FileUtils.copyFile(driver, deployedDriver);
 
@@ -52,16 +46,11 @@ public class JdbcDriverDeployer {
       }
     }
     File deployedDriverIndex = fileSystem.getDeployedJdbcDriverIndex();
-    // Compute MD5
-    InputStream is = null;
     try {
-      is = FileUtils.openInputStream(deployedDriver);
-      String md5 = DigestUtils.md5Hex(is);
-      FileUtils.writeStringToFile(deployedDriverIndex, deployedDriver.getName() + "|" + md5);
+      String hash = new FileHashes().of(deployedDriver);
+      FileUtils.writeStringToFile(deployedDriverIndex, deployedDriver.getName() + "|" + hash);
     } catch (IOException e) {
-      throw new RuntimeException("Can not generate index of JDBC driver", e);
-    } finally {
-      Closeables.closeQuietly(is);
+      throw new IllegalStateException("Can not generate index of JDBC driver", e);
     }
   }
 }

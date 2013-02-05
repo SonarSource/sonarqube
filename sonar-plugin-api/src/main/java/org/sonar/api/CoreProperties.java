@@ -377,12 +377,6 @@ public interface CoreProperties {
   String TASK = "sonar.task";
 
   /**
-   * @since 3.5
-   */
-  String SONAR_USER_HOME = "SONAR_USER_HOME";
-  String SONAR_USER_HOME_PROPERTY = "sonar.userHome";
-
-  /**
    * @deprecated replaced in v3.4 by properties specific to languages, for example sonar.java.coveragePlugin
    * See http://jira.codehaus.org/browse/SONARJAVA-39 for more details.
    */

@@ -20,14 +20,11 @@
 package org.sonar.server.startup;
 
 import com.google.common.collect.Lists;
-import com.google.common.io.Closeables;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sonar.home.cache.FileHashes;
 import org.sonar.server.platform.DefaultServerFileSystem;
 
 import javax.servlet.ServletContext;
@@ -43,8 +40,6 @@ import java.util.Set;
  * @since 3.5
  */
 public final class GenerateBootstrapIndex {
-
-  private static final Logger LOG = LoggerFactory.getLogger(GenerateBootstrapIndex.class);
 
   private final ServletContext servletContext;
   private final DefaultServerFileSystem fileSystem;
@@ -64,16 +59,8 @@ public final class GenerateBootstrapIndex {
     try {
       for (String path : getLibs(servletContext)) {
         writer.append(path);
-        // Compute MD5
         InputStream is = servletContext.getResourceAsStream("/WEB-INF/lib/" + path);
-        try {
-          String md5 = DigestUtils.md5Hex(is);
-          writer.append("|").append(md5);
-        } catch (IOException e) {
-          LOG.warn("Unable to compute checksum of {}", path, e);
-        } finally {
-          Closeables.closeQuietly(is);
-        }
+        writer.append("|").append(new FileHashes().of(is));
         writer.append(CharUtils.LF);
       }
       writer.flush();

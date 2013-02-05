@@ -74,7 +74,7 @@ public class BootstrapModule extends Module {
     container.addSingleton(HttpDownloader.class);
     container.addSingleton(UriReader.class);
     container.addSingleton(PluginDownloader.class);
-    container.addSingleton(BatchSonarCache.class);
+    container.addPicoAdapter(new FileCacheProvider());
     for (Object component : boostrapperComponents) {
       if (component != null) {
         container.addSingleton(component);

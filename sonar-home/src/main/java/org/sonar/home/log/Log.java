@@ -17,24 +17,15 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.plugins;
+package org.sonar.home.log;
 
+public interface Log {
+  void debug(String s);
 
-public class RemotePluginFile {
+  void info(String s);
 
-  private String filename;
-  private String hash;
+  void warn(String s);
 
-  public RemotePluginFile(String filename, String hash) {
-    this.filename = filename;
-    this.hash = hash;
-  }
+  void error(String s, Throwable throwable);
 
-  public String getFilename() {
-    return filename;
-  }
-
-  public String getHash() {
-    return hash;
-  }
 }

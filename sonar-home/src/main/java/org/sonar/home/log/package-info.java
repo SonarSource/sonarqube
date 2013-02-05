@@ -17,24 +17,9 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.plugins;
 
+@ParametersAreNonnullByDefault
+package org.sonar.home.log;
 
-public class RemotePluginFile {
+import javax.annotation.ParametersAreNonnullByDefault;
 
-  private String filename;
-  private String hash;
-
-  public RemotePluginFile(String filename, String hash) {
-    this.filename = filename;
-    this.hash = hash;
-  }
-
-  public String getFilename() {
-    return filename;
-  }
-
-  public String getHash() {
-    return hash;
-  }
-}

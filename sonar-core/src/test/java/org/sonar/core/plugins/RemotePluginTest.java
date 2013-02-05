@@ -60,7 +60,7 @@ public class RemotePluginTest {
     assertThat(clirr.isCore(), is(false));
     assertThat(clirr.getFiles().size(), is(1));
     assertThat(clirr.getFiles().get(0).getFilename(), is("clirr-1.1.jar"));
-    assertThat(clirr.getFiles().get(0).getMd5(), is("fakemd5"));
+    assertThat(clirr.getFiles().get(0).getHash(), is("fakemd5"));
 
   }
 

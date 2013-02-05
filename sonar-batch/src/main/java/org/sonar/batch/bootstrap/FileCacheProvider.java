@@ -17,24 +17,22 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.plugins;
+package org.sonar.batch.bootstrap;
 
+import org.picocontainer.injectors.ProviderAdapter;
+import org.sonar.api.config.Settings;
+import org.sonar.home.cache.FileCache;
+import org.sonar.home.cache.FileCacheBuilder;
+import org.sonar.home.log.Slf4jLog;
 
-public class RemotePluginFile {
+public class FileCacheProvider extends ProviderAdapter {
+  private FileCache cache;
 
-  private String filename;
-  private String hash;
-
-  public RemotePluginFile(String filename, String hash) {
-    this.filename = filename;
-    this.hash = hash;
-  }
-
-  public String getFilename() {
-    return filename;
-  }
-
-  public String getHash() {
-    return hash;
+  public FileCache provide(Settings settings) {
+    if (cache == null) {
+      String home = settings.getString("sonar.userHome");
+      cache = new FileCacheBuilder().setLog(new Slf4jLog(FileCache.class)).setUserHome(home).build();
+    }
+    return cache;
   }
 }

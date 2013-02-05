@@ -23,6 +23,7 @@
     <module>sonar-deprecated</module>
     <module>sonar-duplications</module>
     <module>sonar-graph</module>
+    <module>sonar-home</module>
     <module>sonar-java-api</module>
     <module>sonar-markdown</module>
     <module>sonar-maven-plugin</module>
@@ -558,6 +559,11 @@
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar</groupId>
+        <artifactId>sonar-home</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-graph</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -655,6 +661,11 @@
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
         <version>10.0.1</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.code.findbugs</groupId>
+        <artifactId>jsr305</artifactId>
+        <version>1.3.9</version>
       </dependency>
       <dependency>
         <groupId>commons-io</groupId>

@@ -17,24 +17,42 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.plugins;
+package org.sonar.home.log;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class RemotePluginFile {
+public class Slf4jLog implements Log {
 
-  private String filename;
-  private String hash;
+  private final Logger logger;
 
-  public RemotePluginFile(String filename, String hash) {
-    this.filename = filename;
-    this.hash = hash;
+  public Slf4jLog(Logger logger) {
+    this.logger = logger;
   }
 
-  public String getFilename() {
-    return filename;
+  public Slf4jLog(Class loggerClass) {
+    this.logger = LoggerFactory.getLogger(loggerClass);
   }
 
-  public String getHash() {
-    return hash;
+  public boolean isDebugEnabled() {
+    return logger.isDebugEnabled();
   }
+
+  public void debug(String s) {
+    logger.debug(s);
+  }
+
+  public void info(String s) {
+    logger.info(s);
+  }
+
+  public void warn(String s) {
+    logger.warn(s);
+  }
+
+  public void error(String s, Throwable throwable) {
+    logger.error(s, throwable);
+  }
+
+
 }

@@ -1,0 +1,73 @@
+/*
+ * Sonar, open source software quality management tool.
+ * Copyright (C) 2008-2012 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * Sonar is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * Sonar is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Sonar; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ */
+package org.sonar.home.cache;
+
+import org.apache.commons.io.IOUtils;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.math.BigInteger;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+
+/**
+ * Hashes used to store files in the cache directory.
+ *
+ * @since 3.5
+ */
+public class FileHashes {
+
+  public String of(File file) {
+    try {
+      return of(new FileInputStream(file));
+    } catch (IOException e) {
+      throw new IllegalStateException("Fail to compute hash of: " + file.getAbsolutePath(), e);
+    }
+  }
+
+  /**
+   * Computes the hash of given stream. The stream is closed by this method.
+   */
+  public String of(InputStream input) {
+    DigestInputStream digestInputStream = null;
+    try {
+      MessageDigest digest = MessageDigest.getInstance("MD5");
+      digestInputStream = new DigestInputStream(input, digest);
+      while (digestInputStream.read() != -1) {
+      }
+      byte[] hash = digest.digest();
+      return toHex(hash);
+
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to compute hash", e);
+
+    } finally {
+      IOUtils.closeQuietly(digestInputStream);
+      IOUtils.closeQuietly(input);
+    }
+  }
+
+  static String toHex(byte[] bytes) {
+    BigInteger bi = new BigInteger(1, bytes);
+    return String.format("%0" + (bytes.length << 1) + "X", bi);
+  }
+}

@@ -23,20 +23,18 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.Mockito;
-import org.sonar.api.config.Settings;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.cache.SonarCache;
 import org.sonar.core.plugins.RemotePlugin;
+import org.sonar.home.cache.FileCache;
 
 import java.io.File;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class PluginDownloaderTest {
@@ -49,9 +47,10 @@ public class PluginDownloaderTest {
 
   @Test
   public void should_request_list_of_plugins() {
+    FileCache cache = mock(FileCache.class);
     ServerClient server = mock(ServerClient.class);
     when(server.request("/deploy/plugins/index.txt")).thenReturn("checkstyle,true\nsqale,false");
-    PluginDownloader downloader = new PluginDownloader(new BatchSonarCache(new Settings()), server);
+    PluginDownloader downloader = new PluginDownloader(cache, server);
 
     List<RemotePlugin> plugins = downloader.downloadPluginIndex();
     assertThat(plugins).hasSize(2);
@@ -62,52 +61,23 @@ public class PluginDownloaderTest {
   }
 
   @Test
-  public void should_download_plugin_if_not_cached() throws Exception {
-    SonarCache cache = mock(SonarCache.class);
-    BatchSonarCache batchCache = mock(BatchSonarCache.class);
-    when(batchCache.getCache()).thenReturn(cache);
+  public void should_download_plugin() throws Exception {
+    FileCache cache = mock(FileCache.class);
 
-    File fileInCache = temp.newFile();
-    when(cache.cacheFile(Mockito.any(File.class), Mockito.anyString())).thenReturn("fakemd51").thenReturn("fakemd52");
-    when(cache.getFileFromCache(Mockito.anyString(), Mockito.anyString()))
-        .thenReturn(null)
-        .thenReturn(fileInCache)
-        .thenReturn(null)
-        .thenReturn(fileInCache);
+    File pluginJar = temp.newFile();
+    File extensionJar = temp.newFile();
+    when(cache.get(eq("checkstyle-plugin.jar"), eq("fakemd5_1"), any(FileCache.Downloader.class))).thenReturn(pluginJar);
+    when(cache.get(eq("checkstyle-extensions.jar"), eq("fakemd5_2"), any(FileCache.Downloader.class))).thenReturn(extensionJar);
+
     ServerClient server = mock(ServerClient.class);
-    PluginDownloader downloader = new PluginDownloader(batchCache, server);
+    PluginDownloader downloader = new PluginDownloader(cache, server);
 
     RemotePlugin plugin = new RemotePlugin("checkstyle", true)
-        .addFile("checkstyle-plugin.jar", "fakemd51")
-        .addFile("checkstyle-extensions.jar", "fakemd52");
+      .addFile("checkstyle-plugin.jar", "fakemd5_1")
+      .addFile("checkstyle-extensions.jar", "fakemd5_2");
     List<File> files = downloader.downloadPlugin(plugin);
 
     assertThat(files).hasSize(2);
-    verify(server).download(Mockito.eq("/deploy/plugins/checkstyle/checkstyle-plugin.jar"), Mockito.any(File.class));
-    verify(server).download(Mockito.eq("/deploy/plugins/checkstyle/checkstyle-extensions.jar"), Mockito.any(File.class));
-  }
-
-  @Test
-  public void should_not_download_plugin_if_cached() throws Exception {
-    SonarCache cache = mock(SonarCache.class);
-    BatchSonarCache batchCache = mock(BatchSonarCache.class);
-    when(batchCache.getCache()).thenReturn(cache);
-
-    File fileInCache = temp.newFile();
-    when(cache.getFileFromCache(Mockito.anyString(), Mockito.anyString()))
-        .thenReturn(fileInCache)
-        .thenReturn(fileInCache);
-    ServerClient server = mock(ServerClient.class);
-    PluginDownloader downloader = new PluginDownloader(batchCache, server);
-
-    RemotePlugin plugin = new RemotePlugin("checkstyle", true)
-        .addFile("checkstyle-plugin.jar", "fakemd51")
-        .addFile("checkstyle-extensions.jar", "fakemd52");
-    List<File> files = downloader.downloadPlugin(plugin);
-
-    assertThat(files).hasSize(2);
-    verify(server, never()).download(Mockito.anyString(), Mockito.any(File.class));
-    verify(cache, never()).cacheFile(Mockito.any(File.class), Mockito.anyString());
   }
 
   @Test
@@ -117,28 +87,6 @@ public class PluginDownloaderTest {
     ServerClient server = mock(ServerClient.class);
     doThrow(new SonarException()).when(server).request("/deploy/plugins/index.txt");
 
-    new PluginDownloader(new BatchSonarCache(new Settings()), server).downloadPluginIndex();
-  }
-
-  @Test
-  public void should_fail_if_invalid_checksum() throws Exception {
-    thrown.expect(SonarException.class);
-    thrown.expectMessage("INVALID CHECKSUM");
-
-    SonarCache cache = mock(SonarCache.class);
-    BatchSonarCache batchCache = mock(BatchSonarCache.class);
-    when(batchCache.getCache()).thenReturn(cache);
-
-    File fileInCache = temp.newFile();
-    when(cache.cacheFile(Mockito.any(File.class), Mockito.anyString())).thenReturn("fakemd51diff");
-    when(cache.getFileFromCache(Mockito.anyString(), Mockito.anyString()))
-        .thenReturn(null)
-        .thenReturn(fileInCache);
-    ServerClient server = mock(ServerClient.class);
-    PluginDownloader downloader = new PluginDownloader(batchCache, server);
-
-    RemotePlugin plugin = new RemotePlugin("checkstyle", true)
-        .addFile("checkstyle-plugin.jar", "fakemd51");
-    downloader.downloadPlugin(plugin);
+    new PluginDownloader(mock(FileCache.class), server).downloadPluginIndex();
   }
 }

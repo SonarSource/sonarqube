@@ -17,24 +17,31 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.plugins;
+package org.sonar.batch.bootstrap;
 
+import org.junit.Test;
+import org.sonar.api.config.Settings;
+import org.sonar.home.cache.FileCache;
 
-public class RemotePluginFile {
+import static org.fest.assertions.Assertions.assertThat;
 
-  private String filename;
-  private String hash;
+public class FileCacheProviderTest {
+  @Test
+  public void provide() {
+    FileCacheProvider provider = new FileCacheProvider();
+    FileCache cache = provider.provide(new Settings());
 
-  public RemotePluginFile(String filename, String hash) {
-    this.filename = filename;
-    this.hash = hash;
+    assertThat(cache).isNotNull();
+    assertThat(cache.getDir()).isNotNull().exists();
   }
 
-  public String getFilename() {
-    return filename;
-  }
+  @Test
+  public void keep_singleton_instance() {
+    FileCacheProvider provider = new FileCacheProvider();
+    Settings settings = new Settings();
+    FileCache cache1 = provider.provide(settings);
+    FileCache cache2 = provider.provide(settings);
 
-  public String getHash() {
-    return hash;
+    assertThat(cache1).isSameAs(cache2);
   }
 }

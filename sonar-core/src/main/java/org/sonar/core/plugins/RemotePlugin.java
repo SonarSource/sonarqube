@@ -20,12 +20,10 @@
 package org.sonar.core.plugins;
 
 import com.google.common.collect.Lists;
-import com.google.common.io.Closeables;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.home.cache.FileHashes;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.util.List;
 
 public class RemotePlugin {
@@ -52,8 +50,8 @@ public class RemotePlugin {
     RemotePlugin result = new RemotePlugin(fields[0], Boolean.parseBoolean(fields[1]));
     if (fields.length > 2) {
       for (int index = 2; index < fields.length; index++) {
-        String[] nameAndMd5 = StringUtils.split(fields[index], "|");
-        result.addFile(nameAndMd5[0], nameAndMd5.length > 1 ? nameAndMd5[1] : null);
+        String[] nameAndHash = StringUtils.split(fields[index], "|");
+        result.addFile(nameAndHash[0], nameAndHash.length > 1 ? nameAndHash[1] : null);
       }
     }
     return result;
@@ -64,10 +62,7 @@ public class RemotePlugin {
     sb.append(pluginKey).append(",");
     sb.append(String.valueOf(core));
     for (RemotePluginFile file : files) {
-      sb.append(",").append(file.getFilename());
-      if (StringUtils.isNotBlank(file.getMd5())) {
-        sb.append("|").append(file.getMd5());
-      }
+      sb.append(",").append(file.getFilename()).append("|").append(file.getHash());
     }
     return sb.toString();
   }
@@ -80,23 +75,13 @@ public class RemotePlugin {
     return core;
   }
 
-  public RemotePlugin addFile(String filename, String md5) {
-    files.add(new RemotePluginFile(filename, md5));
+  public RemotePlugin addFile(String filename, String hash) {
+    files.add(new RemotePluginFile(filename, hash));
     return this;
   }
 
   public RemotePlugin addFile(File f) {
-    String md5;
-    FileInputStream fis = null;
-    try {
-      fis = new FileInputStream(f);
-      md5 = DigestUtils.md5Hex(fis);
-    } catch (Exception e) {
-      md5 = null;
-    } finally {
-      Closeables.closeQuietly(fis);
-    }
-    return this.addFile(f.getName(), md5);
+    return this.addFile(f.getName(), f.exists() ? new FileHashes().of(f) : null);
   }
 
   public List<RemotePluginFile> getFiles() {
