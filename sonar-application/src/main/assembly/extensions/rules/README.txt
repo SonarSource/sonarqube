@@ -1,0 +1,1 @@
+See http://docs.codehaus.org/display/SONAR/Quality+profiles#Qualityprofiles-Extendcodingrules
