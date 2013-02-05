@@ -40,14 +40,16 @@ public class Java extends AbstractLanguage {
    * Java name
    */
   public static final String NAME = "Java";
+
   /**
    * Default package name for classes without package def
    */
   public static final String DEFAULT_PACKAGE_NAME = "[default]";
+
   /**
    * Java files knows suffixes
    */
-  public static final String[] SUFFIXES = {"java", "jav"};
+  public static final String[] SUFFIXES = {".java", ".jav"};
 
   /**
    * Default constructor
@@ -66,7 +68,8 @@ public class Java extends AbstractLanguage {
   }
 
   public static boolean isJavaFile(java.io.File file) {
-    String suffix = StringUtils.substringAfterLast(file.getName(), ".");
+    String suffix = "." + StringUtils.substringAfterLast(file.getName(), ".");
     return ArrayUtils.contains(SUFFIXES, suffix);
   }
+
 }

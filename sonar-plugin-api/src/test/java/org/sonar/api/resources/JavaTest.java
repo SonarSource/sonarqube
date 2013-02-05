@@ -19,31 +19,20 @@
  */
 package org.sonar.api.resources;
 
-import org.sonar.api.BatchExtension;
-import org.sonar.api.ServerExtension;
+import org.junit.Test;
 
-/**
- * The extension point to define a new language
- *
- * @since 1.10
- */
-public interface Language extends BatchExtension, ServerExtension {
+import static org.fest.assertions.Assertions.assertThat;
 
-  /**
-   * For example "java". Should not be more than 20 chars.
-   */
-  String getKey();
+public class JavaTest {
 
-  /**
-   * For example "Java"
-   */
-  String getName();
+  @Test
+  public void test() {
+    Java language = new Java();
+    assertThat(language.getFileSuffixes()).isEqualTo(new String[] {".java", ".jav"});
 
-  /**
-   * Make sure that dot is a prefix for all values.
-   * For example [".jav", ".java"].
-   * If empty, then all files in source directories are considered as sources.
-   */
-  String[] getFileSuffixes();
+    assertThat(Java.isJavaFile(new java.io.File("Example.java"))).isTrue();
+    assertThat(Java.isJavaFile(new java.io.File("Example.jav"))).isTrue();
+    assertThat(Java.isJavaFile(new java.io.File("Example.notjava"))).isFalse();
+  }
 
 }
