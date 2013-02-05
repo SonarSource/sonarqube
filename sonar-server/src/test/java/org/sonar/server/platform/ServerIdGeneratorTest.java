@@ -27,6 +27,7 @@ import org.junit.Test;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.hamcrest.text.StringStartsWith.startsWith;
 import static org.junit.Assert.assertThat;
 
@@ -37,6 +38,32 @@ public class ServerIdGeneratorTest {
   @BeforeClass
   public static void init() throws UnknownHostException {
     localhost = InetAddress.getLocalHost();
+  }
+
+  @Test
+  public void shouldNotGenerateIdIfBlankParams() {
+    ServerIdGenerator generator = new ServerIdGenerator(true);
+    assertThat(generator.generate("  ", "127.0.0.1")).isNull();
+    assertThat(generator.generate("SonarSource", "   ")).isNull();
+  }
+
+  @Test
+  public void organizationShouldRespectPattern() {
+    ServerIdGenerator generator = new ServerIdGenerator(true);
+    assertThat(generator.generate("SonarSource", "127.0.0.1")).isNotNull();
+    assertThat(generator.generate("SonarSource$", "127.0.0.1")).isNull();
+  }
+
+  @Test
+  public void checkValidOrganizationName() {
+    ServerIdGenerator generator = new ServerIdGenerator();
+    assertThat(generator.isValidOrganizationName("Sonar Source")).isTrue();
+    assertThat(generator.isValidOrganizationName("Sonar Source 5")).isTrue();
+    assertThat(generator.isValidOrganizationName("Sonar Source $")).isFalse();
+    assertThat(generator.isValidOrganizationName("Sonar Source Héhé")).isFalse();
+    assertThat(generator.isValidOrganizationName("Sonar Source \n")).isFalse();
+    assertThat(generator.isValidOrganizationName("  ")).isFalse();
+    assertThat(generator.isValidOrganizationName("\tBar ")).isFalse();
   }
 
   @Test

@@ -19,7 +19,7 @@
         <% if @server_id %>
           <big><b><span class="<%= @bad_id ? 'error' : 'notice' -%>" id="server_id"><%= @server_id -%></span></b></big>
           <% if @bad_id %>
-            <span class="error"><%= message('server_id_configuration.bad_id') -%></span>
+            <span class="error"><%= message('server_id_configuration.bad_key') -%></span>
           <% end %>
           <br/>
         <% end %>
@@ -31,6 +31,8 @@
 
         <p class="marginbottom10"><%= message('server_id_configuration.organisation.desc') -%></p>
         <input type="text" name="organisation" value="<%= @organisation -%>" size="50"/>
+        <br/>
+        <span class="note"><%= message('server_id_configuration.organisation.pattern') -%></span>
       </td>
     </tr>
     <tr class="even">

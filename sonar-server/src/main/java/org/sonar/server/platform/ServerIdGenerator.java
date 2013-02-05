@@ -31,11 +31,14 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * @since 2.11
  */
 public class ServerIdGenerator {
+
+  private static final Pattern ORGANIZATION_PATTERN = Pattern.compile("[a-zA-Z0-9]+[a-zA-Z0-9 ]*");
 
   /**
    * Increment this version each time the algorithm is changed. Do not exceed 9.
@@ -54,15 +57,21 @@ public class ServerIdGenerator {
     this.acceptPrivateAddress = acceptPrivateAddress;
   }
 
-  public String generate(String organisation, String ipAddress) {
+  public String generate(String organisationName, String ipAddress) {
     String id = null;
-    if (StringUtils.isNotBlank(organisation) && StringUtils.isNotBlank(ipAddress)) {
-      InetAddress inetAddress = toValidAddress(ipAddress);
+    String organisation = organisationName.trim();
+    String ip = ipAddress.trim();
+    if (StringUtils.isNotBlank(organisation) && StringUtils.isNotBlank(ip) && isValidOrganizationName(organisation)) {
+      InetAddress inetAddress = toValidAddress(ip);
       if (inetAddress != null) {
         id = toId(organisation, inetAddress);
       }
     }
     return id;
+  }
+
+  boolean isValidOrganizationName(String organisation) {
+    return ORGANIZATION_PATTERN.matcher(organisation).matches();
   }
 
   boolean isFixed(InetAddress address) {

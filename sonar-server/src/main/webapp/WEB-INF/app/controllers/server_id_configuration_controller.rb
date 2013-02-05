@@ -29,10 +29,11 @@ class ServerIdConfigurationController < ApplicationController
 
   def index
     @server_id = Property.value(PROPERTY_SERVER_ID)
-    @organisation = Property.value(PROPERTY_ORGANISATION)
-    @address = Property.value(PROPERTY_IP_ADDRESS)
+    @organisation = Property.value(PROPERTY_ORGANISATION) || ''
+    @address = Property.value(PROPERTY_IP_ADDRESS) || ''
     @valid_addresses = java_facade.getValidInetAddressesForServerId()
     @bad_id = false
+    
     if @server_id.present?
       id = java_facade.generateServerId(@organisation, @address)
       @bad_id = (@server_id != id)
@@ -41,20 +42,27 @@ class ServerIdConfigurationController < ApplicationController
   end
 
   def generate
-    organisation = params[:organisation]
+    organisation = params[:organisation].strip
     Property.set(PROPERTY_ORGANISATION, organisation)
-
-    ip_address=params[:address]
+    ip_address=params[:address].strip
     Property.set(PROPERTY_IP_ADDRESS, ip_address)
 
-    id = java_facade.generateServerId(organisation, ip_address)
-    if id
-      Property.set(PROPERTY_SERVER_ID, id)
+    if organisation.blank? || ip_address.blank?
+      flash[:error] = Api::Utils.message('server_id_configuration.fields_cannot_be_blank')
+    elsif !(organisation =~ /^[a-zA-Z0-9]+[a-zA-Z0-9 ]*$/)
+      flash[:error] = Api::Utils.message('server_id_configuration.does_not_match_organisation_pattern')
     else
-      Property.clear(PROPERTY_SERVER_ID)
-      flash[:error] = Api::Utils.message('server_id_configuration.generation_error')
+      id = java_facade.generateServerId(organisation, ip_address)
+      if id
+        # Success!
+        Property.set(PROPERTY_SERVER_ID, id)
+      else
+        # Something unexpected happened during the generation
+        Property.clear(PROPERTY_SERVER_ID)
+        flash[:error] = Api::Utils.message('server_id_configuration.generation_error')
+      end
     end
-  
+    
     redirect_to :action => 'index'
   end
 end
