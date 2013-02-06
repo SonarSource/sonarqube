@@ -75,9 +75,6 @@
         %>
           <p><%= format_measure('accessors', :suffix => message('widget.size.accessors.suffix'), :url => url_for_drilldown('accessors')) -%> <%= dashboard_configuration.selected_period? ? format_variation('accessors') : trend_icon('accessors') -%></p>
         <% end %>
-        <% if measure('paragraphs') %>
-          <p><%= format_measure('paragraphs', :suffix => message('widget.size.paragraphs.suffix'), :url => url_for_drilldown('paragraphs')) -%> <%= dashboard_configuration.selected_period? ? format_variation('paragraphs') : trend_icon('paragraphs') -%></p>
-        <% end %>
       </div>
     </td>
   </tr>

@@ -149,23 +149,6 @@ public final class CoreMetrics {
       .setFormula(new SumChildValuesFormula(false))
       .create();
 
-  /**
-   * @deprecated since Sonar 2.14 - See SONAR-3239
-   */
-  @Deprecated
-  public static final String PARAGRAPHS_KEY = "paragraphs";
-  /**
-   * @deprecated since Sonar 2.14 - See SONAR-3239
-   */
-  @Deprecated
-  public static final Metric PARAGRAPHS = new Metric.Builder(PARAGRAPHS_KEY, "Paragraphs", Metric.ValueType.INT)
-      .setDescription("Number of paragraphs")
-      .setDirection(Metric.DIRECTION_WORST)
-      .setQualitative(false)
-      .setDomain(DOMAIN_SIZE)
-      .setFormula(new SumChildValuesFormula(false))
-      .create();
-
   public static final String STATEMENTS_KEY = "statements";
   public static final Metric STATEMENTS = new Metric.Builder(STATEMENTS_KEY, "Statements", Metric.ValueType.INT)
       .setDescription("Number of statements")
@@ -319,24 +302,6 @@ public final class CoreMetrics {
       .create();
 
   /**
-   * @deprecated since Sonar 2.14 - See SONAR-3239
-   */
-  @Deprecated
-  public static final String PARAGRAPH_COMPLEXITY_KEY = "paragraph_complexity";
-
-  /**
-   * @deprecated since Sonar 2.14 - See SONAR-3239
-   */
-  @Deprecated
-  public static final Metric PARAGRAPH_COMPLEXITY = new Metric.Builder(PARAGRAPH_COMPLEXITY_KEY, "Complexity /paragraph", Metric.ValueType.FLOAT)
-      .setDescription("Complexity average by paragraph")
-      .setDirection(Metric.DIRECTION_WORST)
-      .setQualitative(true)
-      .setDomain(DOMAIN_COMPLEXITY)
-      .setFormula(AverageFormula.create(CoreMetrics.COMPLEXITY, CoreMetrics.PARAGRAPHS))
-      .create();
-
-  /**
    * @deprecated in 3.0 - see SONAR-3289
    */
   @Deprecated
@@ -367,24 +332,6 @@ public final class CoreMetrics {
   public static final String FILE_COMPLEXITY_DISTRIBUTION_KEY = "file_complexity_distribution";
   public static final Metric FILE_COMPLEXITY_DISTRIBUTION = new Metric.Builder(FILE_COMPLEXITY_DISTRIBUTION_KEY, "Files distribution /complexity", Metric.ValueType.DISTRIB)
       .setDescription("Files distribution /complexity")
-      .setDirection(Metric.DIRECTION_NONE)
-      .setQualitative(true)
-      .setDomain(DOMAIN_COMPLEXITY)
-      .setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY))
-      .create();
-
-  /**
-   * @deprecated since Sonar 2.14 - See SONAR-3239
-   */
-  @Deprecated
-  public static final String PARAGRAPH_COMPLEXITY_DISTRIBUTION_KEY = "paragraph_complexity_distribution";
-  /**
-   * @deprecated since Sonar 2.14 - See SONAR-3239
-   */
-  @Deprecated
-  public static final Metric PARAGRAPH_COMPLEXITY_DISTRIBUTION = new Metric.Builder(PARAGRAPH_COMPLEXITY_DISTRIBUTION_KEY, "Paragraph distribution /complexity",
-      Metric.ValueType.DISTRIB)
-      .setDescription("Paragraph distribution /complexity")
       .setDirection(Metric.DIRECTION_NONE)
       .setQualitative(true)
       .setDomain(DOMAIN_COMPLEXITY)

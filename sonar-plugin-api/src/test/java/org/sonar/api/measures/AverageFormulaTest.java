@@ -19,20 +19,19 @@
  */
 package org.sonar.api.measures;
 
+import com.google.common.collect.Lists;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.api.resources.JavaFile;
+
+import java.util.List;
+
 import static junit.framework.Assert.assertNull;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasItems;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.sonar.api.resources.JavaFile;
-
-import com.google.common.collect.Lists;
 
 public class AverageFormulaTest {
 
@@ -123,7 +122,7 @@ public class AverageFormulaTest {
 
     FormulaData data2 = mock(FormulaData.class);
     childrenData.add(data2);
-    when(data2.getMeasure(CoreMetrics.PARAGRAPHS)).thenReturn(new Measure(CoreMetrics.PARAGRAPHS, 127.0));
+    when(data2.getMeasure(CoreMetrics.STATEMENTS)).thenReturn(new Measure(CoreMetrics.STATEMENTS, 127.0));
     when(data2.getMeasure(CoreMetrics.COMPLEXITY)).thenReturn(new Measure(CoreMetrics.FUNCTIONS, 233.0));
 
     when(data.getChildren()).thenReturn(childrenData);

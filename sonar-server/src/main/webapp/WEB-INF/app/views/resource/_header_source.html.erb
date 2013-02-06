@@ -27,12 +27,6 @@
             <td class="value"><%= format_measure(m) -%></td>
           </tr>
         <% end %>
-        <% if m=measure('paragraphs') %>
-          <tr>
-            <td class="name"><%= message('metric.paragraphs.name') -%>:</td>
-            <td class="value"><%= format_measure(m) -%></td>
-          </tr>
-        <% end %>
       </table>
       </td>
       <td class="col">
@@ -52,12 +46,6 @@
         <% if m=measure('function_complexity') %>
           <tr>
             <td class="name"><%= message('metric.function_complexity.name') -%>:</td>
-            <td class="value"><%= format_measure(m) -%></td>
-          </tr>
-        <% end %>
-        <% if m=measure('paragraph_complexity') %>
-          <tr>
-            <td class="name"><%= message('metric.paragraph_complexity.name') -%>:</td>
             <td class="value"><%= format_measure(m) -%></td>
           </tr>
         <% end %>
