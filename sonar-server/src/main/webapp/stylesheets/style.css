@@ -619,7 +619,6 @@ ul.operations li img {
 /* SOURCE */
 .sources2 {
   width: 100%;
-  border-top: 1px solid #DDD;
   border-bottom: 1px solid #DDD;
   margin: 0;
   background-color: #FFF;
@@ -798,9 +797,11 @@ span.rulename a:hover {
 }
 
 .sources2 td.new_section {
-  border-top: 1px solid #DDD;
-  border-bottom: 1px solid #DDD;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #EEE #DDD;
   height: 40px;
+  background: url('../images/gray-stripes.png');
 }
 
 .sources2 td.violations {
@@ -841,11 +842,12 @@ span.rulename a:hover {
 }
 
 .tab_header {
-  border: 1px solid #DDD;
-  border-top-width: 0;
+  border-color: #DDD;
+  border-style: solid;
+  border-width: 1px;
+  border-top: none;
   background-color: #EFEFEF;
   padding: 5px 10px;
-  margin-bottom: 10px;
   color: #444;
 }
 
@@ -2412,8 +2414,7 @@ textarea.width100 {
 }
 
 .accordion-item {
-  margin-top: 10px;
-  border: 1px solid #DDDDDD;
+  margin-bottom: 20px;
 }
 
 .accordion-item-small {
@@ -2423,6 +2424,7 @@ textarea.width100 {
 
 .accordion-item-medium {
   height: 200px;
-  overflow: scroll;
+  overflow: auto;
+  border-bottom: 1px solid #DDD;
 }
 
