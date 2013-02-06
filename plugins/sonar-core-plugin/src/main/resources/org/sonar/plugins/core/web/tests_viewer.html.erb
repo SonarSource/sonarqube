@@ -59,8 +59,8 @@
          test_case[:name] = test.name
          test_case[:status] = test.status.name
          test_case[:time] = test.durationInMs
-         has_covered_lines = test.doesCover
-         test_case[:covered_lines] = test.countCoveredLines if has_covered_lines
+         has_covered_lines ||= test.doesCover
+         test_case[:covered_lines] = test.countCoveredLines if test.doesCover
          if test.status().to_s != 'ok'
            test_case[:message] = ''
            test_case[:message] = test.message if test.message

@@ -26,7 +26,7 @@ class TestController < ApplicationController
 
     @test = params[:test].to_s
     @test_plan = java_facade.testPlan(snapshot_id)
-    @test_case = @test_plan.testCaseByKey(@test)
+    @test_case = @test_plan.testCasesByName(@test).first
     render :partial => 'test/testcase_working_view'
   end
 
