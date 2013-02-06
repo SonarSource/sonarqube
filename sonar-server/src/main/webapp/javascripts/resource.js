@@ -186,14 +186,16 @@ function hVF(elt, line) {
 /*
  Functions used in tests viewer
  */
-function expandTests(index){
-  $j(".tests_viewer #test_collapseLink_"+ index).show();
-  $j(".tests_viewer #test_expandLink_"+ index).hide();
-  $j(".tests_viewer #test_message_"+ index).show();
+function expandTests(index, elt){
+  var parent = $j(elt).closest('.test_name_'+index);
+  parent.find(".test_expandLink_"+ index).hide();
+  parent.find(".test_collapseLink_"+ index).show();
+  parent.next(".tests_viewer .test_message_"+ index).show();
 }
 
-function collapseTests(index){
-  $j(".tests_viewer #test_collapseLink_"+ index).hide();
-  $j(".tests_viewer #test_expandLink_"+ index).show();
-  $j(".tests_viewer #test_message_"+ index).hide();
+function collapseTests(index, elt){
+  var parent = $j(elt).closest('.test_name_'+index);
+  parent.find(".test_collapseLink_"+ index).hide();
+  parent.find(".test_expandLink_"+ index).show();
+  parent.next(".tests_viewer .test_message_"+ index).hide();
 }

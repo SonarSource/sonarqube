@@ -19,23 +19,8 @@
         <tbody>
         <% test_cases.sort_by{|test_case| test_case.name}.each do |test_case| %>
         <tr class="<%= cycle("even", "odd") -%>">
-          <%
-             status = test_case.status
-             case status
-               when 'ok'
-                 icon_url = ApplicationController.root_context + "/images/levels/ok.png"
-               when 'failure'
-                 icon_url = ApplicationController.root_context + "/images/warning.png"
-               when 'error'
-                 icon_url = ApplicationController.root_context + "/images/levels/error.png"
-               when 'skipped'
-                 icon_url = ApplicationController.root_context + "/images/levels/none.png"
-               else
-                 icon_url = ApplicationController.root_context + "/images/levels/" + status + ".png"
-             end
-          %>
           <td class="thin" nowrap>
-            <img src="<%= icon_url -%>"/>
+            <img src="<%= ApplicationController.root_context + "/images/tests/" + test_case.status.name + ".png" -%>"/>
           </td>
           <td class="thin right" nowrap><%= test_case.durationInMs -%> ms</td>
           <td>

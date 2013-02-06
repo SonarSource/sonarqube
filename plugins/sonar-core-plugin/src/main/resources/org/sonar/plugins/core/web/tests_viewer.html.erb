@@ -39,7 +39,7 @@
      blocks.elements.each("tests-details/testcase") do |block|
        test_case = {}
        test_case[:name] = block.attributes['name']
-       test_case[:status] = block.attributes['status']
+       test_case[:status] = block.attributes['status'].upcase
        test_case[:time] = block.attributes['time']
 
        error = block.elements['error']
@@ -56,15 +56,15 @@
      if test_plan
        test_plan.testCases().each do |test|
          test_case = {}
-         test_case[:name] = test.name()
-         test_case[:status] = test.status().to_s
-         test_case[:time] = test.durationInMs()
-         has_covered_lines = test.doesCover()
-         test_case[:covered_lines] = test.countCoveredLines() if has_covered_lines
+         test_case[:name] = test.name
+         test_case[:status] = test.status.name
+         test_case[:time] = test.durationInMs
+         has_covered_lines = test.doesCover
+         test_case[:covered_lines] = test.countCoveredLines if has_covered_lines
          if test.status().to_s != 'ok'
            test_case[:message] = ''
-           test_case[:message] = test.message() if test.message()
-           test_case[:stack_trace] = html_escape(test.stackTrace())
+           test_case[:message] = test.message if test.message
+           test_case[:stack_trace] = html_escape(test.stackTrace)
          end
          test_cases << test_case
        end
@@ -90,23 +90,8 @@
        test_cases.each_with_index do |test_case, index|
     %>
       <tr class="<%= cycle("even", "odd") -%> testdata_<%= index -%>" display="table-row">
-        <%
-           status = test_case[:status]
-           case status
-             when 'ok'
-               icon_url = ApplicationController.root_context + "/images/levels/ok.png"
-             when 'failure'
-               icon_url = ApplicationController.root_context + "/images/warning.png"
-             when 'error'
-               icon_url = ApplicationController.root_context + "/images/levels/error.png"
-             when 'skipped'
-               icon_url = ApplicationController.root_context + "/images/levels/none.png"
-             else
-               icon_url = ApplicationController.root_context + "/images/levels/" + status + ".png"
-           end
-        %>
         <td class="thin" nowrap>
-          <img class="test_status_<%= index -%>_<%= status -%>" src="<%= icon_url -%>"/>
+          <img class="test_status_<%= index -%>_<%= test_case[:status] -%>" src="<%= ApplicationController.root_context + "/images/tests/" + test_case[:status] + ".png" -%>"/>
         </td>
         <td class="test_time_<%= index -%> thin right" nowrap><%= test_case[:time] -%> ms</td>
         <% if has_covered_lines %>
@@ -119,17 +104,17 @@
         <td>
         <span class="test_name_<%= index -%>">
           <% name = test_case[:name] %>
-          <% if test_case[:message] %>
-            <a class="test_expandLink_<%= index -%>" href="#" onclick="expandTests(<%= index -%>);"><%= name -%></a>
-            <a class="test_collapseLink_<%= index -%>" class="collapse" href="#" onclick="collapseTests(<%= index -%>);" style="display: none;"><%= name -%></a>
+          <% if !test_case[:message].blank? || !test_case[:stack_trace].blank? %>
+            <a class="test_expandLink_<%= index -%>" href="#" onclick="expandTests(<%= index -%>, this);"><%= name -%></a>
+            <a class="test_collapseLink_<%= index -%>" class="collapse" href="#" onclick="collapseTests(<%= index -%>, this);" style="display: none;"><%= name -%></a>
           <% else %>
             <%= name -%>
           <% end %>
         </span>
 
-          <% if test_case[:message] %>
+          <% if !test_case[:message].blank? || !test_case[:stack_trace].blank? %>
             <div class="test_message_<%= index -%>" class="message" style="display:none; margin-top:5px;">
-              <% message = test_case[:message] %>
+              <% message = test_case[:message]  %>
               <% if !message.nil? %>
                 <span><%= h message -%></span>
               <% end %>
