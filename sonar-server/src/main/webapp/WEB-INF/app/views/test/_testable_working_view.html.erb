@@ -1,0 +1,33 @@
+<div class="accordion-item">
+  <div class="accordion-item-header">
+    <div class="source_title">
+      <div class="subtitle">Tests covering <%= @testable.component.longName %> on line <%= @line %></div>
+    </div>
+  </div>
+  <div class="accordion-item-body">
+    <% @test_case_by_test_plan.sort_by { |test_plan, test_cases| test_plan.component.longName }.each do |test_plan, test_cases| %>
+      <% resource_key = test_plan.component.key %>
+      <a href="<%= ApplicationController.root_context -%>/resource/index/<%= resource_key -%>?display_title=true&tab=source"
+         onclick="openAccordionItem(this.href, this); return false;"><%= test_plan.component.longName %>
+      </a>
+      <table class="data marginbottom10">
+        <tbody>
+        <% reset_cycle %>
+        <% test_cases.sort_by { |test_case| test_case.name }.each do |test_case|
+            reset_cycle
+        %>
+          <tr class="<%= cycle('even', 'odd') -%>">
+            <td class="thin" nowrap>
+              <img src="<%= ApplicationController.root_context + "/images/test/" + test_case.status.name + ".png" -%>"/>
+            </td>
+            <td class="thin right" nowrap><%= test_case.durationInMs -%> ms</td>
+            <td>
+              <%= test_case.name -%>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    <% end %>
+  </div>
+</div>

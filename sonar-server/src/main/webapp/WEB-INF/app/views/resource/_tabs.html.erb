@@ -15,7 +15,7 @@
         </div>
       <% end %>
       <% if logged_in? %><%= link_to_favourite(@resource) -%><% end %>
-      <span class="h3"><%= qualifier_icon(@resource) -%> <%= @resource.name(true) -%></span>
+      <span class="h1"><%= qualifier_icon(@resource) -%> <%= @resource.name(true) -%></span>
     </div>
   <% end %>
 
@@ -34,7 +34,7 @@
         <a href="<%= ApplicationController.root_context -%>/resource/index/<%= @resource.key -%>?display_title=true" onclick="window.open(this.href,'resource','height=800,width=900,scrollbars=1,resizable=1');return false;"><%= message('new_window') -%></a>
       </li>
     </ul>
-    <ul class="tabs">
+    <ul class="tabs2">
       <% @extensions.each do |extension| %>
         <li>
           <a href="#" onclick="return loadResourceViewer('<%= @resource.id -%>','<%= extension.getId() -%>',<%= display_title -%>, this)" class="<%= 'selected' if @extension && @extension.getId()==extension.getId() -%>"><%= message(extension.getId() + '.page', :default => extension.getTitle()) %></a>

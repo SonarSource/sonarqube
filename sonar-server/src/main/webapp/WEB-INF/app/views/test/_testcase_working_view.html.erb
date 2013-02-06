@@ -12,7 +12,7 @@
       </tr>
       </thead>
       <tbody>
-      <% @test_case.covers.sort_by{|cover| cover.testable.component.name}.each do |cover| %>
+      <% @test_case.coverageBlocks.sort_by{|cover| cover.testable.component.name}.each do |cover| %>
       <tr class="<%= cycle("even", "odd") -%>">
         <td>
           <a href="<%= ApplicationController.root_context -%>/resource/index/<%= cover.testable.component.key -%>?display_title=true&tab=coverage&coverage_filter=lines_covered_per_test&test_case_filter=<%= @test -%>"

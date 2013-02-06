@@ -262,6 +262,10 @@ h4, .h4 {
   color: #777;
 }
 
+h1 img, .h1 img, h2 img, .h2 img, h3 img, .h3 img, h4 img, .h4 img {
+  vertical-align: sub;
+}
+
 .subtitle {
   color: #777;
   font-size: 85%;
@@ -627,7 +631,6 @@ ul.operations li img {
 .sources2 td.lid {
   background-color: #EFEFEF;
   border-right: 1px solid #DDDDDD;
-  border-left: 1px solid #DDDDDD;
   text-align: right;
   padding: 2px 0.5em 0 0.5em;
   vertical-align: top;
@@ -641,7 +644,6 @@ ul.operations li img {
 
 .sources2 td.scm {
   border-right: 1px solid #DDD;
-  border-left: 1px solid #DDD;
   background-color: #EFEFEF;
 }
 
@@ -812,7 +814,7 @@ span.rulename a:hover {
 }
 
 .source_title {
-  padding: 10px 0;
+  padding: 10px 5px;
 }
 
 .source_title span.h1 {
@@ -842,13 +844,9 @@ span.rulename a:hover {
 }
 
 .tab_header {
-  border-color: #DDD;
-  border-style: solid;
-  border-width: 1px;
-  border-top: none;
+  border-bottom: 1px solid #DDD;
   background-color: #EFEFEF;
   padding: 5px 10px;
-  color: #444;
 }
 
 .tab_header td {
@@ -1687,49 +1685,40 @@ ul.bullet li {
   padding: 10px;
 }
 
-.smalltabs {
-  line-height: 1.5em;
-  border-bottom: 1px solid #ccc;
-  vertical-align: bottom;
-  font-size: 85%;
+.tabs2 {
+  height: 20px;
+  border-bottom: 1px solid #DDD;
+  margin: 0;
+  padding: 0;
+  font-size: 93%;
 }
 
-.smalltabs .tab {
+.tabs2 li {
+  display: inline;
+  list-style-type: none;
   font-weight: normal;
-  text-decoration: none;
   color: #777;
-  background-color: #FFF;
-  border: 1px solid #DDD;
-  border-bottom: 0;
-  vertical-align: middle;
+  vertical-align: baseline;
   white-space: nowrap;
-  margin-right: 5px;
-  padding: 0.1em 0.5em;
+  margin: 0;
+  border: 0;
+  padding: 0;
 }
 
-.smalltabs .tab.selected {
+.tabs2 li a:link, .tabs2 li a:visited {
+  float: left;
+  color: #777;
+  vertical-align: bottom;
+  height: 17px;
+  margin: 0 1px 0 0;
+  padding: 1px 5px;
+}
+
+.tabs2 li a.selected:link, .tabs2 li a.selected:visited {
+  text-decoration: none;
+  color: #555;
   font-weight: bold;
-  background-color: #EFEFEF;
-}
-
-.smalltabs .tab.selected a {
-  text-decoration: none;
-  background-color: #EFEFEF;
-  color: #777;
-}
-
-.smalltabs .tab a {
-  text-decoration: none;
-  background-color: #FFF;
-  color: #777;
-}
-
-.smalltabs .tab a:visited {
-  text-decoration: none;
-}
-
-.smalltabs .tab.selected a:visited {
-  text-decoration: none;
+  margin: 0 1px 0 0;
 }
 
 .tabbed {
@@ -2414,17 +2403,12 @@ textarea.width100 {
 }
 
 .accordion-item {
+  border: 1px solid #DDD;
   margin-bottom: 20px;
 }
 
-.accordion-item-small {
-  height: 50px;
-  overflow: hidden;
-}
-
-.accordion-item-body-medium {
-  height: 200px;
+.accordion-item-medium {
+  max-height: 200px;
   overflow: auto;
-  border-bottom: 1px solid #DDD;
 }
 
