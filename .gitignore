@@ -2,9 +2,10 @@ sonar-server/src/main/webapp/stylesheets/sonar-colorizer.css
 sonar-server/src/main/webapp/deploy/gwt
 sonar-server/src/main/webapp/deploy/plugins
 sonar-server/src/main/webapp/deploy/bootstrap
-sonar-server/src/main/webapp/deploy/jdbc-driver.jar
 sonar-server/src/main/webapp/deploy/maven/org
 sonar-server/src/main/webapp/WEB-INF/log/
+sonar-server/src/main/webapp/deploy/*.jar
+sonar-server/src/main/webapp/deploy/jdbc-driver.txt
 
 # javadoc
 docs.tar
