@@ -556,4 +556,7 @@ public final class JRubyFacade {
     return get(SnapshotPerspectives.class).as(MutableTestable.class, snapshotId);
   }
 
+  public Testable testable(String componentKey) {
+    return get(SnapshotPerspectives.class).as(MutableTestable.class, componentKey);
+  }
 }
