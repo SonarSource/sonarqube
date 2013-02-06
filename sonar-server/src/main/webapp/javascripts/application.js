@@ -346,8 +346,9 @@ function openAccordionItem(url, elt, updateCurrentElement) {
     // Remove all accordion items after current element
     elementToRemove.remove();
     loading.insertAfter(currentElement);
-
   } else {
+    // Current element is not in a working view, remove all working views
+    $j('.'+ htmlClass).remove();
     loading.insertAfter($j("#accordion-panel"));
   }
 
@@ -361,8 +362,6 @@ function openAccordionItem(url, elt, updateCurrentElement) {
       }
     } else {
       $j("#accordion-panel").height('auto');
-      // Current element is not in a working view, remove all working views
-      $j('.'+ htmlClass).remove();
     }
 
     if (updateCurrentElement) {
