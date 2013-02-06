@@ -89,7 +89,7 @@
     <%
        test_cases.each_with_index do |test_case, index|
     %>
-      <tr class="<%= cycle("even", "odd") -%>" id="testdata_<%= index -%>" display="table-row">
+      <tr class="<%= cycle("even", "odd") -%> testdata_<%= index -%>" display="table-row">
         <%
            status = test_case[:status]
            case status
@@ -104,14 +104,13 @@
              else
                icon_url = ApplicationController.root_context + "/images/levels/" + status + ".png"
            end
-
         %>
         <td class="thin" nowrap>
-          <img id="test_status_<%= index -%>_<%= status -%>" src="<%= icon_url -%>"/>
+          <img class="test_status_<%= index -%>_<%= status -%>" src="<%= icon_url -%>"/>
         </td>
-        <td id="test_time_<%= index -%>" class="thin right" nowrap><%= test_case[:time] -%> ms</td>
+        <td class="test_time_<%= index -%> thin right" nowrap><%= test_case[:time] -%> ms</td>
         <% if has_covered_lines %>
-          <td id="test_covered_lines_<%= index -%>" class="thin right" nowrap>
+          <td class="test_covered_lines_<%= index -%>" class="thin right" nowrap>
             <a class="test_covered_lines_link_<%= index -%>" href="<%= ApplicationController.root_context -%>/test/testcase/?sid=<%= @snapshot.id -%>&test=<%= test_case[:name] -%>"
                onclick="openAccordionItem(this.href, this); return false;"><%= number_with_precision(test_case[:covered_lines], :precision => 0) -%>
             </a>
