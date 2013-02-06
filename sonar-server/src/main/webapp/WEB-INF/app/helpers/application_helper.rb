@@ -372,7 +372,7 @@ module ApplicationHelper
     end
 
     if m.nil? || m.tendency.nil? || m.tendency==0
-      return options[:empty] ? image_tag("transparent.gif", :width => "16", :alt => "") : nil
+      return options[:empty] ? image_tag('trend/0.png', :width => '16', :alt => '') : nil
     end
     filename = m.tendency.to_s
 
@@ -384,7 +384,7 @@ module ApplicationHelper
       when 1
         filename+= '-green'
     end
-    image_tag("tendency/#{filename}-small.png")
+    image_tag("trend/#{filename}.png")
   end
 
   #
