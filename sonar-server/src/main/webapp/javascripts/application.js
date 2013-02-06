@@ -355,9 +355,9 @@ function openAccordionItem(url, elt, updateCurrentElement) {
   // Get content from url
   $j.get(url,function (html) {
     if (currentElement.length) {
-      var body = currentElement.find('.accordion-body');
-      if (!updateCurrentElement && !body.hasClass('accordion-item-medium')) {
-        body.addClass("accordion-item-medium");
+      var body = currentElement.find('.accordion-item-body');
+      if (!updateCurrentElement && !body.hasClass('accordion-item-body-medium')) {
+        body.addClass("accordion-item-body-medium");
         elt.scrollIntoView(false);
       }
     } else {
@@ -385,7 +385,7 @@ function openAccordionItem(url, elt, updateCurrentElement) {
 
 function expandAccordionItem(elt) {
   var currentElement = $j(elt).closest('.accordion-item');
-  currentElement.find('.accordion-body').removeClass("accordion-item-medium");
+  currentElement.find('.accordion-item-body').removeClass("accordion-item-body-medium");
 }
 
 //******************* HANDLING OF WORKING VIEWS [END] ******************* //

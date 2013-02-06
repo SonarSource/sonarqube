@@ -1,8 +1,8 @@
 <div class="accordion-item">
-  <div class="accordion-header">
+  <div class="accordion-item-header">
     <%= render :partial => 'tabs' -%>
   </div>
-  <div class="accordion-body">
+  <div class="accordion-item-body">
     <%= render :partial => "resource/header_#{@extension.getId()}" -%>
 
     <% if @display_violations && @global_violations && @global_violations.size>0 -%>

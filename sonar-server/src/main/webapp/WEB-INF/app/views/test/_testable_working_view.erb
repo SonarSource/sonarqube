@@ -1,9 +1,9 @@
 <div class="accordion-item">
-  <div class="accordion-header">
+  <div class="accordion-item-header">
     <h3>Tests covering <%= @testable.component.longName %> on line <%= @line %></h3>
   </div>
   <br/>
-  <div class="accordion-body">
+  <div class="accordion-item-body">
     <% @test_case_by_test_plan.sort_by{|test_plan, test_cases| test_plan.component.longName}.each do |test_plan, test_cases| %>
       <% resource_key = test_plan.component.key %>
       <table class="data">

@@ -2422,7 +2422,7 @@ textarea.width100 {
   overflow: hidden;
 }
 
-.accordion-item-medium {
+.accordion-item-body-medium {
   height: 200px;
   overflow: auto;
   border-bottom: 1px solid #DDD;
