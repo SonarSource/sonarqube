@@ -330,6 +330,7 @@ function openAccordionItem(url, elt, updateCurrentElement) {
   // Display loading image
   var loading = new Image();
   loading.src = baseUrl + "/images/loading.gif";
+  loading.className = 'accordion-loading';
 
   if (currentElement.length) {
     var elementToRemove = currentElement.nextAll('.'+ htmlClass);

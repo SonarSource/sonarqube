@@ -100,7 +100,7 @@
                   <% @test_case_by_test_plan.sort_by{|test_plan, test_cases| test_plan.component.longName}.each do |test_plan, test_cases| %>
                     <optgroup label="<%= test_plan.component.longName %>">
                       <% test_cases.sort_by{|test_case| test_case.name}.each do |test_case| %>
-                        <option value="<%= test_case.key -%>" <%= 'selected' if @test_case_filter==test_case.key -%>><%= test_case.name -%></option>
+                        <option value="<%= test_case.name -%>" <%= 'selected' if @test_case_filter==test_case.name -%>><%= test_case.name -%></option>
                       <% end %>
                     </optgroup>
                   <% end %>

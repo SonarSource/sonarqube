@@ -272,7 +272,7 @@ class ResourceController < ApplicationController
         end
 
         if @test_case_filter
-          test_case = @testable.testCaseByKey(@test_case_filter)
+          test_case = @testable.testCaseByName(@test_case_filter)
           lines = @testable.coverOfTestCase(test_case).lines
           filter_lines { |line| lines.include?(line.index) && line.after(to) }
         else

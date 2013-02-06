@@ -20,7 +20,7 @@
         <% test_cases.sort_by{|test_case| test_case.name}.each do |test_case| %>
         <tr class="<%= cycle("even", "odd") -%>">
           <td class="thin" nowrap>
-            <img src="<%= ApplicationController.root_context + "/images/tests/" + test_case.status.name + ".png" -%>"/>
+            <img src="<%= ApplicationController.root_context + "/images/test/" + test_case.status.name + ".png" -%>"/>
           </td>
           <td class="thin right" nowrap><%= test_case.durationInMs -%> ms</td>
           <td>

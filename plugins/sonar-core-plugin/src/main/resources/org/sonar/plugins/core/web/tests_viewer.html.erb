@@ -91,7 +91,7 @@
     %>
       <tr class="<%= cycle("even", "odd") -%> testdata_<%= index -%>" display="table-row">
         <td class="thin" nowrap>
-          <img class="test_status_<%= index -%>_<%= test_case[:status] -%>" src="<%= ApplicationController.root_context + "/images/tests/" + test_case[:status] + ".png" -%>"/>
+          <img class="test_status_<%= index -%>_<%= test_case[:status] -%>" src="<%= ApplicationController.root_context + "/images/test/" + test_case[:status] + ".png" -%>"/>
         </td>
         <td class="test_time_<%= index -%> thin right" nowrap><%= test_case[:time] -%> ms</td>
         <% if has_covered_lines %>
