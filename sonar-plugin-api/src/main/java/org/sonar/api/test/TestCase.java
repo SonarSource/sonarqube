@@ -30,8 +30,8 @@ public interface TestCase {
     }
   }
 
-  String TYPE_UNIT = "unit";
-  String TYPE_INTEGRATION = "integration";
+  String TYPE_UNIT = "UNIT";
+  String TYPE_INTEGRATION = "INTEGRATION";
 
   /**
    * Duration in milliseconds
