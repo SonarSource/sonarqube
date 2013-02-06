@@ -46,9 +46,9 @@ public class DefaultTestableTest {
 
     DefaultTestable testable = beanGraph.createVertex(DefaultTestable.class);
     DefaultTestCase testCase1 = beanGraph.createVertex(DefaultTestCase.class);
-    testCase1.setCover(testable, Arrays.asList(10, 11, 12));
+    testCase1.setCoverageBlock(testable, Arrays.asList(10, 11, 12));
     DefaultTestCase testCase2 = beanGraph.createVertex(DefaultTestCase.class);
-    testCase2.setCover(testable, Arrays.asList(12, 48, 49));
+    testCase2.setCoverageBlock(testable, Arrays.asList(12, 48, 49));
 
     assertThat(testable.testedLines()).containsOnly(10, 11, 12, 48, 49);
     assertThat(testable.countTestCasesOfLine(2)).isEqualTo(0);
@@ -62,9 +62,9 @@ public class DefaultTestableTest {
 
     DefaultTestable testable = beanGraph.createVertex(DefaultTestable.class);
     DefaultTestCase testCase1 = beanGraph.createVertex(DefaultTestCase.class);
-    testCase1.setCover(testable, Arrays.asList(10, 11, 12));
+    testCase1.setCoverageBlock(testable, Arrays.asList(10, 11, 12));
     DefaultTestCase testCase2 = beanGraph.createVertex(DefaultTestCase.class);
-    testCase2.setCover(testable, Arrays.asList(12, 48, 49));
+    testCase2.setCoverageBlock(testable, Arrays.asList(12, 48, 49));
 
     assertThat(testable.testCases()).containsOnly(testCase1, testCase2);
     assertThat(testable.testCasesOfLine(5)).isEmpty();
@@ -82,9 +82,9 @@ public class DefaultTestableTest {
 
     DefaultTestable testable = beanGraph.createVertex(DefaultTestable.class);
     MutableTestCase testCase1 = Iterables.get(plan.testCases(), 0);
-    testCase1.setCover(testable, Arrays.asList(10, 11, 12));
+    testCase1.setCoverageBlock(testable, Arrays.asList(10, 11, 12));
     MutableTestCase testCase2 = Iterables.get(plan.testCases(), 1);
-    testCase2.setCover(testable, Arrays.asList(12, 48, 49));
+    testCase2.setCoverageBlock(testable, Arrays.asList(12, 48, 49));
 
     assertThat(testable.testCaseByName("T1")).isEqualTo(testCase1);
     assertThat(testable.testCaseByName("T2")).isEqualTo(testCase2);
@@ -106,10 +106,10 @@ public class DefaultTestableTest {
     plan.addTestCase("T1");
 
     MutableTestCase testCase = Iterables.get(plan.testCases(), 0);
-    testCase.setCover(testable1, Arrays.asList(10, 11, 12));
+    testCase.setCoverageBlock(testable1, Arrays.asList(10, 11, 12));
 
-    assertThat(testable1.coverOfTestCase(testCase).testCase()).isEqualTo(testCase);
-    assertThat(testable1.coverOfTestCase(testCase).testable()).isEqualTo(testable1);
-    assertThat(testable2.coverOfTestCase(testCase)).isNull();
+    assertThat(testable1.coverageBlock(testCase).testCase()).isEqualTo(testCase);
+    assertThat(testable1.coverageBlock(testCase).testable()).isEqualTo(testable1);
+    assertThat(testable2.coverageBlock(testCase)).isNull();
   }
 }

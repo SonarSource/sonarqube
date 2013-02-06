@@ -39,15 +39,6 @@ public class DefaultTestPlan extends BeanVertex implements MutableTestPlan {
     return beanGraph().wrap(component, ComponentVertex.class);
   }
 
-  public String type() {
-    return (String) getProperty("type");
-  }
-
-  public MutableTestPlan setType(String s) {
-    setProperty("type", s);
-    return this;
-  }
-
   @CheckForNull
   public Iterable<MutableTestCase> testCasesByName(String name) {
     List<MutableTestCase> result = Lists.newArrayList();

@@ -23,7 +23,6 @@ import org.sonar.api.component.MutablePerspective;
 
 public interface MutableTestPlan extends TestPlan<MutableTestCase>, MutablePerspective {
 
-  MutableTestPlan setType(String s);
+  MutableTestCase addTestCase(String name);
 
-  MutableTestCase addTestCase(String key);
 }

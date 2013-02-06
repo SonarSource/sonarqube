@@ -24,8 +24,9 @@ import com.google.common.collect.Iterables;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
-import org.sonar.api.test.Cover;
+import org.sonar.api.test.CoverageBlock;
 import org.sonar.api.test.MutableTestCase;
+import org.sonar.api.test.MutableTestPlan;
 import org.sonar.api.test.TestPlan;
 import org.sonar.api.test.Testable;
 import org.sonar.api.test.exception.IllegalDurationException;
@@ -37,6 +38,15 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public class DefaultTestCase extends BeanVertex implements MutableTestCase {
+
+  public String type() {
+    return (String) getProperty("type");
+  }
+
+  public MutableTestCase setType(@Nullable String s) {
+    setProperty("type", s);
+    return this;
+  }
 
   public Long durationInMs() {
     return (Long) getProperty("duration");
@@ -51,11 +61,11 @@ public class DefaultTestCase extends BeanVertex implements MutableTestCase {
   }
 
   public Status status() {
-    return Status.of((String)getProperty("status"));
+    return Status.of((String) getProperty("status"));
   }
 
   public MutableTestCase setStatus(@Nullable Status s) {
-    setProperty("status", s == null ? null : s.toString());
+    setProperty("status", s == null ? null : s.name());
     return this;
   }
 
@@ -86,8 +96,9 @@ public class DefaultTestCase extends BeanVertex implements MutableTestCase {
     return this;
   }
 
-  public void setCover(Testable testable, List<Integer> lines) {
+  public MutableTestCase setCoverageBlock(Testable testable, List<Integer> lines) {
     beanGraph().getUnderlyingGraph().addEdge(null, element(), ((BeanVertex) testable).element(), "covers").setProperty("lines", lines);
+    return this;
   }
 
   public TestPlan testPlan() {
@@ -108,13 +119,13 @@ public class DefaultTestCase extends BeanVertex implements MutableTestCase {
     return result;
   }
 
-  public Iterable covers() {
-    return getEdges(DefaultCover.class, Direction.OUT, "covers");
+  public Iterable<CoverageBlock> coverageBlocks() {
+    return (Iterable) getEdges(DefaultCoverageBlock.class, Direction.OUT, "covers");
   }
 
-  public Cover coverOfTestable(final Testable testable) {
-    return Iterables.find(getEdges(DefaultCover.class, Direction.OUT, "covers"), new Predicate<Cover>() {
-      public boolean apply(Cover input) {
+  public CoverageBlock coverageBlock(final Testable testable) {
+    return Iterables.find(getEdges(DefaultCoverageBlock.class, Direction.OUT, "covers"), new Predicate<CoverageBlock>() {
+      public boolean apply(CoverageBlock input) {
         return input.testable().component().key().equals(testable.component().key());
       }
     }, null);

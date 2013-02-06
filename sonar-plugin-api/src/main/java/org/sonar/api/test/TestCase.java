@@ -30,10 +30,15 @@ public interface TestCase {
     }
   }
 
+  String TYPE_UNIT = "unit";
+  String TYPE_INTEGRATION = "integration";
+
   /**
    * Duration in milliseconds
    */
   Long durationInMs();
+
+  String type();
 
   Status status();
 
@@ -49,7 +54,7 @@ public interface TestCase {
 
   int countCoveredLines();
 
-  Iterable<Cover> covers();
+  Iterable<CoverageBlock> coverageBlocks();
 
-  Cover coverOfTestable(Testable testable);
+  CoverageBlock coverageBlock(Testable testable);
 }

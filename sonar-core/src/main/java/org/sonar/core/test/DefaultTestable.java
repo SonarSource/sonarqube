@@ -27,7 +27,7 @@ import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import org.sonar.api.component.Component;
-import org.sonar.api.test.Cover;
+import org.sonar.api.test.CoverageBlock;
 import org.sonar.api.test.MutableTestable;
 import org.sonar.api.test.TestCase;
 import org.sonar.core.component.ComponentVertex;
@@ -46,7 +46,7 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
 
   public List<TestCase> testCases() {
     ImmutableList.Builder<TestCase> cases = ImmutableList.builder();
-    for (Edge coversEdge : covers()) {
+    for (Edge coversEdge : coverEdges()) {
       Vertex testable = coversEdge.getVertex(Direction.OUT);
       cases.add(beanGraph().wrap(testable, DefaultTestCase.class));
     }
@@ -63,7 +63,7 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
 
   public int countTestCasesOfLine(Integer line) {
     int number = 0;
-    for (Edge edge : covers()) {
+    for (Edge edge : coverEdges()) {
       if (Iterables.contains(lines(edge), line)) {
         number++;
       }
@@ -73,7 +73,7 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
 
   public List<TestCase> testCasesOfLine(int line) {
     ImmutableList.Builder<TestCase> cases = ImmutableList.builder();
-    for (Edge edge : covers()) {
+    for (Edge edge : coverEdges()) {
       if (lines(edge).contains(line)) {
         Vertex vertexTestable = edge.getVertex(Direction.OUT);
         DefaultTestCase testCase = beanGraph().wrap(vertexTestable, DefaultTestCase.class);
@@ -85,21 +85,25 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
 
   public SortedSet<Integer> testedLines() {
     ImmutableSortedSet.Builder<Integer> coveredLines = ImmutableSortedSet.naturalOrder();
-    for (Edge edge : covers()) {
+    for (Edge edge : coverEdges()) {
       coveredLines.addAll(lines(edge));
     }
     return coveredLines.build();
   }
 
-  public Cover coverOfTestCase(final TestCase testCase) {
-    return Iterables.find(getEdges(DefaultCover.class, Direction.IN, "covers"), new Predicate<Cover>() {
-      public boolean apply(Cover input) {
+  public CoverageBlock coverageBlock(final TestCase testCase) {
+    return Iterables.find(getEdges(DefaultCoverageBlock.class, Direction.IN, "covers"), new Predicate<CoverageBlock>() {
+      public boolean apply(CoverageBlock input) {
         return input.testCase().name().equals(testCase.name());
       }
     }, null);
   }
 
-  private Iterable<Edge> covers() {
+  public Iterable<CoverageBlock> coverageBlocks() {
+    return (Iterable)getEdges(DefaultCoverageBlock.class, Direction.IN, "covers");
+  }
+
+  private Iterable<Edge> coverEdges() {
     return element().query().labels("covers").direction(Direction.IN).edges();
   }
 

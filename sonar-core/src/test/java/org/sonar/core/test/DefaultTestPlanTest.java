@@ -82,15 +82,4 @@ public class DefaultTestPlanTest {
 
     assertThat(plan.testCasesByName("T1")).hasSize(2);
   }
-
-  @Test
-  public void should_set_type() {
-    BeanGraph beanGraph = BeanGraph.createInMemory();
-
-    DefaultTestPlan plan = beanGraph.createVertex(DefaultTestPlan.class);
-    assertThat(plan.type()).isNull();
-
-    plan.setType(TestPlan.TYPE_UNIT);
-    assertThat(plan.type()).isEqualTo(TestPlan.TYPE_UNIT);
-  }
 }

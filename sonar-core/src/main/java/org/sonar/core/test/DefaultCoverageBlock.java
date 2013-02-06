@@ -20,14 +20,14 @@
 package org.sonar.core.test;
 
 import com.tinkerpop.blueprints.Direction;
-import org.sonar.api.test.Cover;
+import org.sonar.api.test.CoverageBlock;
 import org.sonar.api.test.TestCase;
 import org.sonar.api.test.Testable;
 import org.sonar.core.graph.BeanEdge;
 
 import java.util.List;
 
-public class DefaultCover extends BeanEdge implements Cover {
+public class DefaultCoverageBlock extends BeanEdge implements CoverageBlock {
 
   public TestCase testCase() {
     return getVertex(DefaultTestCase.class, Direction.OUT);

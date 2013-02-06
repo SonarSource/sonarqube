@@ -24,7 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.component.mock.MockSourceFile;
-import org.sonar.api.test.Cover;
+import org.sonar.api.test.CoverageBlock;
 import org.sonar.api.test.TestCase;
 import org.sonar.api.test.exception.IllegalDurationException;
 import org.sonar.core.component.ComponentVertex;
@@ -41,13 +41,13 @@ public class DefaultTestCaseTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void no_coverage_data() {
+  public void no_coverage_blocks() {
     BeanGraph beanGraph = BeanGraph.createInMemory();
     DefaultTestCase testCase = beanGraph.createVertex(DefaultTestCase.class);
 
     assertThat(testCase.doesCover()).isFalse();
     assertThat(testCase.countCoveredLines()).isEqualTo(0);
-    assertThat(testCase.covers()).isEmpty();
+    assertThat(testCase.coverageBlocks()).isEmpty();
   }
 
   @Test
@@ -55,13 +55,13 @@ public class DefaultTestCaseTest {
     BeanGraph beanGraph = BeanGraph.createInMemory();
     DefaultTestable testable = beanGraph.createVertex(DefaultTestable.class);
     DefaultTestCase testCase = beanGraph.createVertex(DefaultTestCase.class);
-    testCase.setCover(testable, Arrays.asList(10, 11, 12));
+    testCase.setCoverageBlock(testable, Arrays.asList(10, 11, 12));
 
     assertThat(testCase.doesCover()).isTrue();
     assertThat(testCase.countCoveredLines()).isEqualTo(3);
-    assertThat(testCase.covers()).hasSize(1);
+    assertThat(testCase.coverageBlocks()).hasSize(1);
 
-    Cover cover = Iterables.<Cover>getFirst(testCase.covers(), null);
+    CoverageBlock cover = Iterables.getFirst(testCase.coverageBlocks(), null);
     assertThat(cover.testCase()).isEqualTo(testCase);
     assertThat(cover.testable()).isSameAs(testable);
     assertThat(cover.lines()).containsExactly(10, 11, 12);
@@ -74,12 +74,12 @@ public class DefaultTestCaseTest {
     DefaultTestable testable2 = beanGraph.createVertex(DefaultTestable.class);
     DefaultTestCase testCase = beanGraph.createVertex(DefaultTestCase.class);
 
-    testCase.setCover(testable1, Arrays.asList(10, 11, 12));
-    testCase.setCover(testable2, Arrays.asList(12, 13, 14));
+    testCase.setCoverageBlock(testable1, Arrays.asList(10, 11, 12));
+    testCase.setCoverageBlock(testable2, Arrays.asList(12, 13, 14));
 
     assertThat(testCase.doesCover()).isTrue();
     assertThat(testCase.countCoveredLines()).isEqualTo(6);
-    assertThat(testCase.covers()).hasSize(2);
+    assertThat(testCase.coverageBlocks()).hasSize(2);
   }
 
   @Test
@@ -94,11 +94,11 @@ public class DefaultTestCaseTest {
     DefaultTestable testable2 = beanGraph.createAdjacentVertex(file2, DefaultTestable.class, "testable");
 
     DefaultTestCase testCase = beanGraph.createVertex(DefaultTestCase.class);
-    testCase.setCover(testable1, Arrays.asList(10, 11, 12));
+    testCase.setCoverageBlock(testable1, Arrays.asList(10, 11, 12));
 
-    assertThat(testCase.coverOfTestable(testable1).testable()).isEqualTo(testable1);
-    assertThat(testCase.coverOfTestable(testable1).testCase()).isEqualTo(testCase);
-    assertThat(testCase.coverOfTestable(testable2)).isNull();
+    assertThat(testCase.coverageBlock(testable1).testable()).isEqualTo(testable1);
+    assertThat(testCase.coverageBlock(testable1).testCase()).isEqualTo(testCase);
+    assertThat(testCase.coverageBlock(testable2)).isNull();
   }
 
   @Test
@@ -110,6 +110,7 @@ public class DefaultTestCaseTest {
       .setDurationInMs(1234L)
       .setMessage("Error msg")
       .setStackTrace("xxx")
+      .setType(TestCase.TYPE_UNIT)
       .setStatus(TestCase.Status.ERROR);
 
     assertThat(testCase.name()).isEqualTo("T1");
@@ -117,6 +118,7 @@ public class DefaultTestCaseTest {
     assertThat(testCase.stackTrace()).isEqualTo("xxx");
     assertThat(testCase.durationInMs()).isEqualTo(1234L);
     assertThat(testCase.status()).isEqualTo(TestCase.Status.ERROR);
+    assertThat(testCase.type()).isEqualTo(TestCase.TYPE_UNIT);
   }
 
   @Test

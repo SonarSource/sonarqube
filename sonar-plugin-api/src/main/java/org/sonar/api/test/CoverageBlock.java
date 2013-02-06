@@ -21,7 +21,7 @@ package org.sonar.api.test;
 
 import java.util.List;
 
-public interface Cover {
+public interface CoverageBlock {
 
   TestCase testCase();
 

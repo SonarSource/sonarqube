@@ -24,13 +24,15 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public interface MutableTestCase extends TestCase {
-  MutableTestCase setStatus(Status s);
+  MutableTestCase setStatus(@Nullable Status s);
 
   MutableTestCase setDurationInMs(@Nullable Long l);
 
-  MutableTestCase setMessage(String s);
+  MutableTestCase setMessage(@Nullable String s);
 
-  MutableTestCase setStackTrace(String s);
+  MutableTestCase setStackTrace(@Nullable String s);
 
-  void setCover(Testable testable, List<Integer> lines);
+  MutableTestCase setType(@Nullable String s);
+
+  MutableTestCase setCoverageBlock(Testable testable, List<Integer> lines);
 }
