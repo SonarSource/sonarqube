@@ -328,9 +328,15 @@ function openAccordionItem(url, elt, updateCurrentElement) {
   var currentElement = $j(elt).closest('.'+ htmlClass);
 
   // Display loading image
-  var loading = new Image();
-  loading.src = baseUrl + "/images/loading.gif";
-  loading.className = 'accordion-loading';
+  var loadingImg = new Image();
+  loadingImg.src = baseUrl + "/images/loading.gif";
+  loadingImg.className = 'accordion-loading';
+  var loading = $j(loadingImg);
+  var existingLoading = currentElement.find('.accordion-loading');
+  if (updateCurrentElement && existingLoading.length) {
+    existingLoading.show();
+    loading.hide();
+  }
 
   if (currentElement.length) {
     var elementToRemove = currentElement.nextAll('.'+ htmlClass);
@@ -339,10 +345,10 @@ function openAccordionItem(url, elt, updateCurrentElement) {
     }
     // Remove all accordion items after current element
     elementToRemove.remove();
-    $j(loading).insertAfter(currentElement);
+    loading.insertAfter(currentElement);
 
   } else {
-    $j(loading).insertAfter($j("#accordion-panel"));
+    loading.insertAfter($j("#accordion-panel"));
   }
 
   // Get content from url
@@ -372,7 +378,7 @@ function openAccordionItem(url, elt, updateCurrentElement) {
   }).error(function () {
         alert("Server error. Please contact your administrator.");
       }).complete(function () {
-        $j(loading).remove();
+        loading.remove();
       });
 
   return false;

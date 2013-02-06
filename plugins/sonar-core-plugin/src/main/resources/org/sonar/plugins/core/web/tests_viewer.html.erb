@@ -2,7 +2,7 @@
   <table>
     <tr>
       <% test_success_density = measure('test_success_density') %>
-      <td class="test_success_density big"><%= test_success_density ? number_with_precision(test_success_density.value(), :precision => 1) : "100.0" -%>%</td>
+      <td id="test_success_density"  class=" big"><%= test_success_density ? number_with_precision(test_success_density.value(), :precision => 1) : "100.0" -%>%</td>
       <td class="sep"></td>
       <td class="name"><%= message('test_viewer.tests') -%>:</td>
       <%
@@ -13,18 +13,18 @@
            tests_display = tests_display + " (+" + format_measure(skipped_tests) + " " + message('test_viewer.skipped') + ")"
          end
       %>
-      <td class="tests value"><%= tests_display -%></td>
+      <td id="tests" class="value"><%= tests_display -%></td>
       <td class="sep"></td>
       <td class="name"><%= message('test_viewer.failures') -%>/<%= message('test_viewer.errors') -%>:</td>
       <%
          test_failures = measure('test_failures') ? format_measure(measure('test_failures')) : "0"
          test_errors = measure('test_errors') ? format_measure(measure('test_errors')) : "0"
       %>
-      <td class="test_failures_errors value"><%= test_failures -%>/<%= test_errors -%></td>
+      <td id="test_failures_errors" class="value"><%= test_failures -%>/<%= test_errors -%></td>
       <td class="sep"></td>
       <td class="name"><%= message('test_viewer.duration') -%>:</td>
       <% test_execution_time = measure('test_execution_time') %>
-      <td class="test_execution_time value"><%= test_execution_time ? format_measure(test_execution_time) : "-" -%></td>
+      <td id="test_execution_time" class="value"><%= test_execution_time ? format_measure(test_execution_time) : "-" -%></td>
     </tr>
   </table>
 </div>
@@ -73,7 +73,7 @@
    test_cases = test_cases.sort_by { |test_case| test_case[:name] }
 %>
 <% if !test_cases.empty? %>
-  <table class="data width100 tests_viewer test_data">
+  <table class="data width100 tests_viewer" id="test_data">
     <thead>
     <tr>
       <th class="thin">&nbsp;</th>
@@ -91,12 +91,12 @@
     %>
       <tr class="<%= cycle("even", "odd") -%> testdata_<%= index -%>" display="table-row">
         <td class="thin" nowrap>
-          <img class="test_status_<%= index -%>_<%= test_case[:status] -%>" src="<%= ApplicationController.root_context + "/images/test/" + test_case[:status] + ".png" -%>"/>
+          <img id="test_status_<%= index -%>_<%= test_case[:status] -%>" src="<%= ApplicationController.root_context + "/images/test/" + test_case[:status] + ".png" -%>"/>
         </td>
-        <td class="test_time_<%= index -%> thin right" nowrap><%= test_case[:time] -%> ms</td>
+        <td id="test_time_<%= index -%> thin right" nowrap><%= test_case[:time] -%> ms</td>
         <% if has_covered_lines %>
-          <td class="test_covered_lines_<%= index -%> thin right" nowrap>
-            <a class="test_covered_lines_link_<%= index -%>" href="<%= ApplicationController.root_context -%>/test/testcase/?sid=<%= @snapshot.id -%>&test=<%= test_case[:name] -%>"
+          <td id="test_covered_lines_<%= index -%> thin right" nowrap>
+            <a id="test_covered_lines_link_<%= index -%>" href="<%= ApplicationController.root_context -%>/test/testcase/?sid=<%= @snapshot.id -%>&test=<%= test_case[:name] -%>"
                onclick="openAccordionItem(this.href, this); return false;"><%= number_with_precision(test_case[:covered_lines], :precision => 0) -%>
             </a>
           </td>
@@ -113,7 +113,7 @@
         </span>
 
           <% if !test_case[:message].blank? || !test_case[:stack_trace].blank? %>
-            <div class="test_message_<%= index -%>" class="message" style="display:none; margin-top:5px;">
+            <div class="test_message_<%= index -%> message" style="display:none; margin-top:5px;">
               <% message = test_case[:message]  %>
               <% if !message.nil? %>
                 <span><%= h message -%></span>
