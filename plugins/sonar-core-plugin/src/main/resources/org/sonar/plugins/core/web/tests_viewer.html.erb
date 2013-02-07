@@ -2,7 +2,7 @@
   <table>
     <tr>
       <% test_success_density = measure('test_success_density') %>
-      <td id="test_success_density"  class=" big"><%= test_success_density ? number_with_precision(test_success_density.value(), :precision => 1) : "100.0" -%>%</td>
+      <td id="test_success_density" class=" big"><%= test_success_density ? number_with_precision(test_success_density.value(), :precision => 1) : "100.0" -%>%</td>
       <td class="sep"></td>
       <td class="name"><%= message('test_viewer.tests') -%>:</td>
       <%
@@ -93,9 +93,9 @@
         <td class="thin" nowrap>
           <img id="test_status_<%= index -%>_<%= test_case[:status] -%>" src="<%= ApplicationController.root_context + "/images/test/" + test_case[:status] + ".png" -%>"/>
         </td>
-        <td id="test_time_<%= index -%> thin right" nowrap><%= test_case[:time] -%> ms</td>
+        <td id="test_time_<%= index -%>" class="thin right" nowrap><%= test_case[:time] -%> ms</td>
         <% if has_covered_lines %>
-          <td id="test_covered_lines_<%= index -%> thin right" nowrap>
+          <td id="test_covered_lines_<%= index -%>" class="thin right" nowrap>
             <a id="test_covered_lines_link_<%= index -%>" href="<%= ApplicationController.root_context -%>/test/testcase/?sid=<%= @snapshot.id -%>&test=<%= test_case[:name] -%>"
                onclick="openAccordionItem(this.href, this); return false;"><%= number_with_precision(test_case[:covered_lines], :precision => 0) -%>
             </a>
