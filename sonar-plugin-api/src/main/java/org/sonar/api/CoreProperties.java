@@ -124,17 +124,7 @@ public interface CoreProperties {
   @Deprecated
   String REUSE_RULES_CONFIGURATION_PROPERTY = "sonar.reuseExistingRulesConfiguration";
 
-  /* Checkstyle */
-  String CHECKSTYLE_PLUGIN = "checkstyle";
-
-  /* Cobertura */
-  String COBERTURA_PLUGIN = "cobertura";
-  String COBERTURA_REPORT_PATH_PROPERTY = "sonar.cobertura.reportPath";
-  String COBERTURA_MAXMEM_PROPERTY = "sonar.cobertura.maxmem";
-  String COBERTURA_MAXMEM_DEFAULT_VALUE = "64m";
-
   /* Sonar Core */
-  String CORE_PLUGIN = "core";
   String CORE_VIOLATION_LOCALE_PROPERTY = "sonar.violationLocale";
   String CORE_VIOLATION_LOCALE_DEFAULT_VALUE = "en";
   String CORE_IMPORT_SOURCES_PROPERTY = "sonar.importSources";
@@ -269,34 +259,9 @@ public interface CoreProperties {
   String DESIGN_SKIP_PACKAGE_DESIGN_PROPERTY = "sonar.skipPackageDesign";
   boolean DESIGN_SKIP_PACKAGE_DESIGN_DEFAULT_VALUE = false;
 
-  /* Findbugs */
-  String FINDBUGS_PLUGIN = "findbugs";
-  String FINDBUGS_EFFORT_PROPERTY = "sonar.findbugs.effort";
-  String FINDBUGS_EFFORT_DEFAULT_VALUE = "Default";
-  String FINDBUGS_CONFIDENCE_LEVEL_PROPERTY = "sonar.findbugs.confidenceLevel";
-  String FINDBUGS_CONFIDENCE_LEVEL_DEFAULT_VALUE = "medium";
-  String FINDBUGS_TIMEOUT_PROPERTY = "sonar.findbugs.timeout";
-  long FINDBUGS_TIMEOUT_DEFAULT_VALUE = 600000;
-
-  /**
-   * @deprecated in 3.4
-   */
-  @Deprecated
-  String FINDBUGS_REPORT_PATH = "sonar.findbugs.reportPath";
-
   /* Google Analytics */
   String GOOGLE_ANALYTICS_PLUGIN = "google-analytics";
   String GOOGLE_ANALYTICS_ACCOUNT_PROPERTY = "sonar.google-analytics.account";
-
-  /* PMD */
-  String PMD_PLUGIN = "pmd";
-
-  /* Squid */
-  String SQUID_PLUGIN = "squid";
-
-  /* Surefire */
-  String SUREFIRE_PLUGIN = "surefire";
-  String SUREFIRE_REPORTS_PATH_PROPERTY = "sonar.surefire.reportsPath";
 
   /* Time machine periods */
   String TIMEMACHINE_PERIOD_PREFIX = "sonar.timemachine.period";
