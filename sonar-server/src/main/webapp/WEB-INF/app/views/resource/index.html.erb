@@ -1,5 +1,5 @@
 <div id="accordion-panel"/>
 
 <script type="text/javascript">
-  openAccordionItem('<%= request.request_uri -%>', this);
+  openAccordionItem('<%= request.request_uri + @params_opts.to_s -%>', this);
 </script>

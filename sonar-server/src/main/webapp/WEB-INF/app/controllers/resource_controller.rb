@@ -37,6 +37,7 @@ class ResourceController < ApplicationController
       access_denied unless has_role?(:user, @resource)
 
       @snapshot=@resource.last_snapshot
+      @popup_mode = params[:popup] == 'true'
 
       if @snapshot
         load_extensions()
@@ -63,7 +64,10 @@ class ResourceController < ApplicationController
       else
         render_resource_deleted()
       end
+    # popup mode
     else
+      # Always display title in popup mode
+      @params_opts = '&popup=true&display_title=true'
       params[:layout] = 'false'
       render :action => 'index'
     end

@@ -187,6 +187,7 @@ function hVF(elt, line) {
  Functions used in tests viewer
  */
 function expandTests(index, elt){
+  expandAccordionItem(elt);
   var parent = $j(elt).closest('.test_name_'+index);
   parent.find(".test_expandLink_"+ index).hide();
   parent.find(".test_collapseLink_"+ index).show();
@@ -194,6 +195,7 @@ function expandTests(index, elt){
 }
 
 function collapseTests(index, elt){
+  expandAccordionItem(elt);
   var parent = $j(elt).closest('.test_name_'+index);
   parent.find(".test_collapseLink_"+ index).hide();
   parent.find(".test_expandLink_"+ index).show();

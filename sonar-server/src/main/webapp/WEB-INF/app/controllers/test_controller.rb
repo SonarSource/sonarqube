@@ -27,7 +27,7 @@ class TestController < ApplicationController
     @test = params[:test].to_s
     @test_plan = java_facade.testPlan(snapshot_id)
     @test_case = @test_plan.testCasesByName(@test).first
-    render :partial => 'test/testcase_working_view'
+    render :partial => 'test/testcase'
   end
 
   def testable
@@ -45,7 +45,7 @@ class TestController < ApplicationController
       test_cases << test_case
       @test_case_by_test_plan[test_plan] = test_cases
     end
-    render :partial => 'test/testable_working_view'
+    render :partial => 'test/testable'
   end
 
 end
