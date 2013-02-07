@@ -44,36 +44,6 @@ public class Project extends Resource {
    * @deprecated since version 1.11. Constant moved to CoreProperties
    */
   @Deprecated
-  public static final String PARAM_VERSION = CoreProperties.PROJECT_VERSION_PROPERTY;
-
-  /**
-   * @deprecated since version 1.11. Constant moved to CoreProperties
-   */
-  @Deprecated
-  public static final String PARAM_DATE = CoreProperties.PROJECT_DATE_PROPERTY;
-
-  /**
-   * @deprecated since version 1.11. Constant moved to CoreProperties
-   */
-  @Deprecated
-  public static final String PARAM_LANGUAGE = CoreProperties.PROJECT_LANGUAGE_PROPERTY;
-
-  /**
-   * @deprecated since version 1.11. Constant moved to CoreProperties
-   */
-  @Deprecated
-  public static final String PARAM_DYNAMIC_ANALYSIS = CoreProperties.DYNAMIC_ANALYSIS_PROPERTY;
-
-  /**
-   * @deprecated since version 1.11. Constant moved to CoreProperties
-   */
-  @Deprecated
-  public static final String PARAM_EXCLUSIONS = CoreProperties.PROJECT_EXCLUSIONS_PROPERTY;
-
-  /**
-   * @deprecated since version 1.11. Constant moved to CoreProperties
-   */
-  @Deprecated
   public static final String PARAM_REUSE_RULES_CONFIG = CoreProperties.REUSE_RULES_CONFIGURATION_PROPERTY;
 
   /**
