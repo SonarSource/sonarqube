@@ -24,6 +24,7 @@ import com.google.common.base.Strings;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
@@ -77,8 +78,9 @@ public class ServerClient implements BatchComponent {
 
   private InputSupplier<InputStream> doRequest(String pathStartingWithSlash) {
     Preconditions.checkArgument(pathStartingWithSlash.startsWith("/"), "Path must start with slash /");
+    String path = StringEscapeUtils.escapeHtml(pathStartingWithSlash);
 
-    URI uri = URI.create(getURL() + pathStartingWithSlash);
+    URI uri = URI.create(getURL() + path);
     String login = settings.getProperty(CoreProperties.LOGIN);
 
     try {

@@ -18,7 +18,7 @@
               displayed_resource_name=truncate(displayed_resource_name.reverse, :length => 70).reverse
             end
           %>
-          <span><%= qualifier_icon resource -%> <%= highlight(displayed_resource_name, params[:s]) -%></span>
+          <span><%= qualifier_icon resource -%> <%= highlight(h(displayed_resource_name), params[:s]) -%></span>
         </li>
 <%             first=false
              end

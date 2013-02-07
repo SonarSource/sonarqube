@@ -150,7 +150,7 @@
               <%= qualifier_icon(resource) -%>&nbsp;
               <% if resource.source_code? %>
                 <a href="#" onclick="$j('#col_<%= index -%> tr').removeClass('selected'); $j('#row_<%= index -%>_<%= row_index -%>').addClass('selected'); d(<%= resource.id -%>);" 
-                   alt="<%= resource.name(true) -%>" title="<%= resource.name(true) -%>"><%= resource.name(false) %></a>
+                   alt="<%= h resource.name(true) -%>" title="<%= h resource.name(true) -%>"><%= h resource.name(false) %></a>
               <% else %>
                 <%= link_to(h(resource.name), {:only_path => true, :overwrite_params => {:rids => (selected ? rids-[resource.id] : rids+[resource.id])}}) -%>
               <% end %>

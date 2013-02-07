@@ -122,7 +122,7 @@ module DashboardHelper
   end
 
   def widget_title(widget)
-    resource_name=link_to(@resource.name, {:controller => 'dashboard', :action => 'index', :id => @resource.id}) if @resource && @dashboard.global && !widget.java_definition.global
+    resource_name=link_to(h(@resource.name), {:controller => 'dashboard', :action => 'index', :id => @resource.id}) if @resource && @dashboard.global && !widget.java_definition.global
 
     [resource_name, @widget_title].compact.join(' - ')
   end

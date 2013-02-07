@@ -64,10 +64,10 @@
             <input id="r-<%= index -%>" type="checkbox" value="<%= resource.id -%>" name="resources[]">
           </td>
           <td>
-            <%= resource.name -%>
+            <%= h resource.name -%>
           </td>
           <td>
-            <span class="small gray"><%= resource.key -%></span></td>
+            <span class="small gray"><%= h resource.key -%></span></td>
           </td>
         </tr>
       <% end %>

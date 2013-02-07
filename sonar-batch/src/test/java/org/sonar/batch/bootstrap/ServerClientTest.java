@@ -74,7 +74,7 @@ public class ServerClientTest {
   }
 
   @Test
-  public void shouldRemoveUrlEndingSlash() throws Exception {
+  public void should_remove_url_ending_slash() throws Exception {
     BootstrapSettings settings = mock(BootstrapSettings.class);
     when(settings.getProperty(eq("sonar.host.url"), anyString())).thenReturn("http://localhost:8080/sonar/");
 
@@ -90,6 +90,15 @@ public class ServerClientTest {
     server.setMockResponseData("this is the content");
 
     assertThat(newServerClient().request("/foo")).isEqualTo("this is the content");
+  }
+
+  @Test
+  public void should_escape_html_from_url() throws Exception {
+    server = new MockHttpServer();
+    server.start();
+    server.setMockResponseData("this is the content");
+
+    assertThat(newServerClient().request("/<foo>")).isEqualTo("this is the content");
   }
 
   @Test

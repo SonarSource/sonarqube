@@ -11,11 +11,11 @@
     <div class="source_title">
       <% if @resource.project %>
         <div class="subtitle">
-          <%= @resource.ancestor_projects.reverse.map{|p| p.name(true)}.join(' / ') -%>
+          <%= h @resource.ancestor_projects.reverse.map{|p| p.name(true)}.join(' / ') -%>
         </div>
       <% end %>
       <% if logged_in? %><%= link_to_favourite(@resource) -%><% end %>
-      <span class="h1"><%= qualifier_icon(@resource) -%> <%= @resource.name(true) -%></span>
+      <span class="h1"><%= qualifier_icon(@resource) -%> <%= h @resource.name(true) -%></span>
     </div>
   <% end %>
 

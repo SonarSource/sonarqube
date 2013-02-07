@@ -43,7 +43,7 @@ padding: 5px;
       <% end %>
      <% @resources.each do |resource|%>
       <tr class="<%= cycle('even', 'odd', :name => 'lib') -%> <%= 'selected' if resource==@resource -%>">
-        <td ><%= qualifier_icon(resource) %> <a href="<%= url_for :action => 'index', :overwrite_params => {:version => nil, :resource => resource.kee} -%>"><%= h resource.name(true) -%></a><br/><span class="small gray"><%= resource.kee -%></span></td>
+        <td ><%= qualifier_icon(resource) %> <a href="<%= url_for :action => 'index', :overwrite_params => {:version => nil, :resource => resource.kee} -%>"><%= h resource.name(true) -%></a><br/><span class="small gray"><%= h resource.kee -%></span></td>
       </tr>
       <% end %>
       </tbody>
@@ -86,8 +86,8 @@ padding: 5px;
      <% @project_snapshots.each do |project_snapshot|%>
       <tr class="<%= cycle('even', 'odd', :name => 'dep') -%>">
         <td>
-        <%= qualifier_icon(project_snapshot.project) %> <%= link_to project_snapshot.project.name(true), "#{ApplicationController.root_context}/plugins/resource/#{project_snapshot.project_id}?page=org.sonar.plugins.design.ui.libraries.LibrariesPage&filter=#{@resource.kee}" -%><br/>
-        <span class="small gray"><%= project_snapshot.project.kee -%></span></td>
+        <%= qualifier_icon(project_snapshot.project) %> <%= link_to h(project_snapshot.project.name(true)), "#{ApplicationController.root_context}/plugins/resource/#{project_snapshot.project_id}?page=org.sonar.plugins.design.ui.libraries.LibrariesPage&filter=#{h @resource.kee}" -%><br/>
+        <span class="small gray"><%= h project_snapshot.project.kee -%></span></td>
       </tr>
       <% end %>
       </tbody>

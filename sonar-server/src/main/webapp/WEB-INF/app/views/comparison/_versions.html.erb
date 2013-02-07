@@ -2,7 +2,7 @@
 
   <option value=""></option>
   <% @versions.each do |version| %>
-    <option value="<%= version.snapshot_id -%>"><%= version.name -%></option>
+    <option value="<%= version.snapshot_id -%>"><%= h version.name -%></option>
   <% end %>
   
 <% end %>

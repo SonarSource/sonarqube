@@ -57,9 +57,9 @@
             </div>
           </td>
           <td>
-            <span class="nowrap"><%= review.project.name -%></span>
+            <span class="nowrap"><%= h review.project.name -%></span>
             <br/>
-            <span class="note"><%= review.resource.name if review.resource -%></span></td>
+            <span class="note"><%= h(review.resource.name) if review.resource -%></span></td>
           <td><%= review.assignee ? h(review.assignee.name) : '-' -%></td>
           <td><%= distance_of_time_in_words_to_now(review.updated_at) -%></td>
         </tr>

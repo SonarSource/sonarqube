@@ -64,7 +64,7 @@
       %>
         <tr class="<%= cycle 'even', 'odd', :name => ('hotspot_metric' + widget.id.to_s) -%>">
           <td>
-            <%= link_to_resource(resource, resource.name, {:metric => metric.name}) -%>
+            <%= link_to_resource(resource, h(resource.name), {:metric => metric.name}) -%>
           </td>
           <td class="right nowrap">
             <%= format_measure(measure) -%>

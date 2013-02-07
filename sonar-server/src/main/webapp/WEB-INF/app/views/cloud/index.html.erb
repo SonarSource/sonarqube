@@ -64,7 +64,7 @@
            title += " | #{@color_metric.short_name}: #{color_measure.formatted_value}"
          end
   %>
-      <a href="#" onclick="<%= link -%>" title="<%= title -%>"><span style="font-size: <%= font_size(size_measure.value) -%>%;color: <%= MeasureColor.color(color_measure, color_options).html -%>"><%= s.resource.name %></span></a>
+      <a href="#" onclick="<%= link -%>" title="<%= title -%>"><span style="font-size: <%= font_size(size_measure.value) -%>%;color: <%= MeasureColor.color(color_measure, color_options).html -%>"><%= h s.resource.name %></span></a>
     <% end
        end %>
 </div>

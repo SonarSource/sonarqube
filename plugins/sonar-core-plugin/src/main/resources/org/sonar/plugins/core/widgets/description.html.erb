@@ -7,7 +7,7 @@
     <tbody>
     <tr>
       <td width="25%"><%= message('widget.description.key') -%>: </td>
-      <td width="75%" id="resource_key"><%= @project.key -%></td>
+      <td width="75%" id="resource_key"><%= h @project.key -%></td>
     </tr>
     <% if @project.language %>
     <tr>

@@ -16,7 +16,7 @@
     <th><% if logged_in? %><%= link_to_favourite(@snapshot.project) -%><% end %></th>
     <th class="left text <%= 'sortfirstasc' if @components_configuration.sorted_by_project_name? -%>">
       <%= qualifier_icon(@snapshot) -%>
-      <a x="<%= u(@snapshot.project.name) -%>" href="<%= ApplicationController.root_context + "/project/index/#{@snapshot.project.id}" -%>"><%= @snapshot.project.name -%></a>
+      <a x="<%= u(@snapshot.project.name) -%>" href="<%= ApplicationController.root_context + "/project/index/#{@snapshot.project.id}" -%>"><%= h @snapshot.project.name -%></a>
     </th>
     <% @columns.each do |column| %>
       <%= get_header_content(column, @snapshot) -%>

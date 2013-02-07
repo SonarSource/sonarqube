@@ -53,9 +53,9 @@
                 <td class="left" x="<%= u(snapshot.project.name) -%>">
                   <%= qualifier_icon(snapshot) %>
                   <% if snapshot.display_dashboard? %>
-                    <%= link_to_resource(project, snapshot.project.name) %>
+                    <%= link_to_resource(project, h(snapshot.project.name)) %>
                   <% else %>
-                    <%= snapshot.project.name %>
+                    <%= h snapshot.project.name %>
                   <% end %>
                 </td>
                 <% @columns.each do |column| %>

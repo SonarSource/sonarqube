@@ -8,7 +8,7 @@
   <%
      if @project
   %>
-    <link rel="alternate" title="Sonar Alerts on <%= @project.name -%>" href="<%= ApplicationController.root_context -%>/feeds/project/<%= @project.key -%>?category=<%= EventCategory::KEY_ALERT -%>" type="application/atom+xml">
+    <link rel="alternate" title="Sonar Alerts on <%= h @project.name -%>" href="<%= ApplicationController.root_context -%>/feeds/project/<%= h @project.key -%>?category=<%= EventCategory::KEY_ALERT -%>" type="application/atom+xml">
   <%
      else
   %>

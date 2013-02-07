@@ -162,7 +162,7 @@
     <% end %>
     <div <%= "id='content' class='with_sidebar'" if selected_section -%>>
       <% if @project %>
-        <div class="print"><h2><%= @project.name(true) %></h2></div>
+        <div class="print"><h2><%= h @project.name(true) %></h2></div>
       <% end %>
       <div class="error" id="error" style="display:none">
         <span id="errormsg"></span> &nbsp;&nbsp;[<a href="#" onclick="javascript:$('error').hide();return false;"><%= message('hide').downcase -%></a>]

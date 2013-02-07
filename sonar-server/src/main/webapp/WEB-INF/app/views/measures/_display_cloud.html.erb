@@ -24,7 +24,7 @@
            title += " | #{filter.display.color_metric.short_name}: #{color_measure.formatted_value}"
          end
   %>
-      <a href="<%= ApplicationController.root_context -%>/dashboard/index/<%= row.snapshot.resource_id -%>" title="<%= title -%>"><span style="font-size: <%= cloud_font_size(size_measure.value, min_size_value, max_size_value) -%>%;color: <%= MeasureColor.color(color_measure, color_options).html -%>"><%= row.snapshot.resource.name %></span></a>
+      <a href="<%= ApplicationController.root_context -%>/dashboard/index/<%= row.snapshot.resource_id -%>" title="<%= title -%>"><span style="font-size: <%= cloud_font_size(size_measure.value, min_size_value, max_size_value) -%>%;color: <%= MeasureColor.color(color_measure, color_options).html -%>"><%= h row.snapshot.resource.name %></span></a>
     <% end
        end %>
 </div>

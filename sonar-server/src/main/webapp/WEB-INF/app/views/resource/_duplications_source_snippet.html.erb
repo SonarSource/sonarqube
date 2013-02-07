@@ -17,7 +17,7 @@
     <p>
       <%= qualifier_icon(resource) -%>
       <% if resource == original_resource %>
-        <%= resource.name(true) -%>
+        <%= h resource.name(true) -%>
       <% else %>
         <%= link_to_resource(resource, resource.name(true), {:line => from_line}) -%>
       <% end %>

@@ -58,7 +58,7 @@
             update_snippet_script = "updateDuplicationLines('#{url_for :action => :show_duplication_snippet, :params => {:id => resource.id, :original_resource_id => @resource.id}}',#{group_index}, #{index}, #{lines_count}, #{from_line}, #{included_to_line});"
           %>
             <p id="duplName-<%= group_index -%>-<%= index -%>" class="<%= 'selected' if index==0 -%>">
-              <a href="#" onclick="return <%= update_snippet_script -%>;"><%= resource.name -%></a>
+              <a href="#" onclick="return <%= update_snippet_script -%>;"><%= h resource.name -%></a>
               <%= image_tag "links/external.png" if external -%>
             </p>
           <% end %>
