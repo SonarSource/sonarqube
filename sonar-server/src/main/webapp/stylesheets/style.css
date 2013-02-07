@@ -2407,7 +2407,7 @@ textarea.width100 {
   margin-bottom: 20px;
 }
 
-.accordion-item-medium {
+.accordion-item-body-medium {
   max-height: 200px;
   overflow: auto;
 }
