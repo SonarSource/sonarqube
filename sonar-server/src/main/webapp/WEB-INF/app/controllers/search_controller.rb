@@ -23,7 +23,7 @@ class SearchController < ApplicationController
 
   SECTION=Navigation::SECTION_HOME
 
-  # Do not exceed 1000 because of the Oracle limition on IN statements
+  # Do not exceed 1000 because of the Oracle limitation on IN statements
   MAX_RESULTS = 6
 
   def index
@@ -31,7 +31,8 @@ class SearchController < ApplicationController
     search = params[:s]
     bad_request("Minimum search is #{ResourceIndex::MIN_SEARCH_SIZE} characters") if search.empty? || search.to_s.size<ResourceIndex::MIN_SEARCH_SIZE
 
-    key = search.downcase
+    key = escape_like(search).downcase
+    puts "#### "+ key.to_s
     results = ResourceIndex.find(:all,
                                  :select => 'distinct(resource_id),root_project_id,qualifier,name_size', # optimization to not load unused columns like 'kee'
                                  :conditions => ["kee like ?", key + '%'],
@@ -63,6 +64,7 @@ class SearchController < ApplicationController
   end
 
   private
+
   def fix_qualifier(q)
     case q
       when 'CLA' then
@@ -71,4 +73,9 @@ class SearchController < ApplicationController
         q
     end
   end
+
+  def escape_like(field)
+    field.gsub(/[_%]/) { |x| "\\#{x}" }
+  end
+
 end
