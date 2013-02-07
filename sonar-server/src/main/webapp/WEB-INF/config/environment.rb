@@ -1,4 +1,4 @@
-RAILS_GEM_VERSION = '2.3.14'
+RAILS_GEM_VERSION = '2.3.15'
 
 # Avoid conflict with local ruby installations
 # See http://jira.codehaus.org/browse/SONAR-3579
@@ -9,7 +9,7 @@ require File.join(File.dirname(__FILE__), 'boot')
 require 'color'
 
 # Disable all the warnings :
-# Gem::SourceIndex#initialize called from /xxx/sonar/sonar-application/target/sonar-3.3-SNAPSHOT/war/sonar-server/WEB-INF/gems/gems/rails-2.3.14/lib/rails/vendor_gem_source_index.rb:100.
+# Gem::SourceIndex#initialize called from /.../war/sonar-server/WEB-INF/gems/gems/rails-2.3.15/lib/rails/vendor_gem_source_index.rb:100.
 # The other solutions are to upgrade to rails 3 or to use gembundler.com
 require 'rubygems'
 Gem::Deprecate.skip = (RAILS_ENV == 'production')
