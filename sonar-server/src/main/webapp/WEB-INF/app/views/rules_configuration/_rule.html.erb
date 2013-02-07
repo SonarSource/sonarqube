@@ -100,7 +100,8 @@
 
     <div style="height: 17px;line-height: 17px;font-size: 11px;">
       <div style="float: left">
-        <span style="color: #888"><%= rule.key %></span>
+        <div style="color: #888" id="rule_repository_<%= rule.id -%>"><%= message('rules_configuration.repository')%> : <%= rule.repository_key %></div>
+        <div style="color: #888" id="rule_key_<%= rule.id -%>"><%= message('key')%> : <%= rule.plugin_rule_key %></div>
       </div>
     </div>
   </div>
