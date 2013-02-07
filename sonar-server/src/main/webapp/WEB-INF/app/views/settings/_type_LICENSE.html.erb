@@ -3,7 +3,6 @@
 <%
    else
      license = controller.java_facade.parseLicense(value)
-     date = license.getExpirationDateAsString()
 %>
   <div class="width100">
     <textarea rows="6" name="<%= name -%>" id="<%= id -%>" style="float: left;width: 390px"><%= h value -%></textarea>
@@ -21,7 +20,7 @@
         <tr>
           <td class="form-key-cell">Expiration:</td>
           <td>
-            <% if license.getExpirationDateAsString()
+            <% if license.getExpirationDate()
               formatted_date = l(Date.parse(license.getExpirationDateAsString()))
             %>
               <%= license.isExpired() ? "<span class='error'>#{formatted_date}</span>" : formatted_date -%>
