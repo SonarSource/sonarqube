@@ -1,5 +1,6 @@
 <div id="accordion-panel"/>
 
 <script type="text/javascript">
-  openAccordionItem('<%= request.request_uri + @params_opts.to_s -%>', this);
+  // Always display title in popup mode
+  openAccordionItem('<%= url_for(params.merge({:display_title => 'true', :popup => 'true'})) -%>', this);
 </script>

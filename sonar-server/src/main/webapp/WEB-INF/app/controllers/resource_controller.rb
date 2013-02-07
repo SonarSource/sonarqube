@@ -64,10 +64,8 @@ class ResourceController < ApplicationController
       else
         render_resource_deleted()
       end
-    # popup mode
     else
-      # Always display title in popup mode
-      @params_opts = '&popup=true&display_title=true'
+      # popup mode, title will always be displayed
       params[:layout] = 'false'
       render :action => 'index'
     end
