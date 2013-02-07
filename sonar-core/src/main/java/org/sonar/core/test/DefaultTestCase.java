@@ -29,6 +29,7 @@ import org.sonar.api.test.MutableTestCase;
 import org.sonar.api.test.MutableTestPlan;
 import org.sonar.api.test.TestPlan;
 import org.sonar.api.test.Testable;
+import org.sonar.api.test.exception.CoverageAlreadyExistsException;
 import org.sonar.api.test.exception.IllegalDurationException;
 import org.sonar.core.graph.BeanVertex;
 import org.sonar.core.graph.GraphUtil;
@@ -97,6 +98,9 @@ public class DefaultTestCase extends BeanVertex implements MutableTestCase {
   }
 
   public MutableTestCase setCoverageBlock(Testable testable, List<Integer> lines) {
+    if (coverageBlock(testable)!=null) {
+      throw new CoverageAlreadyExistsException("The link between " + name() + " and " + testable.component().key() + " already exists");
+    }
     beanGraph().getUnderlyingGraph().addEdge(null, element(), ((BeanVertex) testable).element(), "covers").setProperty("lines", lines);
     return this;
   }

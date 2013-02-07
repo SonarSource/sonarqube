@@ -110,5 +110,4 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
   private List<Integer> lines(Edge edge) {
     return (List<Integer>) edge.getProperty("lines");
   }
-
 }

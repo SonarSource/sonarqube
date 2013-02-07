@@ -26,6 +26,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.component.mock.MockSourceFile;
 import org.sonar.api.test.CoverageBlock;
 import org.sonar.api.test.TestCase;
+import org.sonar.api.test.exception.CoverageAlreadyExistsException;
 import org.sonar.api.test.exception.IllegalDurationException;
 import org.sonar.core.component.ComponentVertex;
 import org.sonar.core.component.ScanGraph;
@@ -69,10 +70,12 @@ public class DefaultTestCaseTest {
 
   @Test
   public void should_cover_multiple_testables() {
-    BeanGraph beanGraph = BeanGraph.createInMemory();
-    DefaultTestable testable1 = beanGraph.createVertex(DefaultTestable.class);
-    DefaultTestable testable2 = beanGraph.createVertex(DefaultTestable.class);
-    DefaultTestCase testCase = beanGraph.createVertex(DefaultTestCase.class);
+    ScanGraph graph = ScanGraph.create();
+    ComponentVertex file1 = graph.addComponent(MockSourceFile.createMain("org.foo.Bar"));
+    DefaultTestable testable1 = graph.createAdjacentVertex(file1, DefaultTestable.class, "testable");
+    ComponentVertex file2 = graph.addComponent(MockSourceFile.createMain("org.foo.File"));
+    DefaultTestable testable2 = graph.createAdjacentVertex(file2, DefaultTestable.class, "testable");
+    DefaultTestCase testCase = graph.createVertex(DefaultTestCase.class);
 
     testCase.setCoverageBlock(testable1, Arrays.asList(10, 11, 12));
     testCase.setCoverageBlock(testable2, Arrays.asList(12, 13, 14));
@@ -130,5 +133,21 @@ public class DefaultTestCaseTest {
     DefaultTestCase testCase = beanGraph.createVertex(DefaultTestCase.class);
 
     testCase.setDurationInMs(-1234L);
+  }
+
+  @Test
+  public void should_fail_if_coverage_block_already_exits() {
+    thrown.expect(CoverageAlreadyExistsException.class);
+
+    ScanGraph graph = ScanGraph.create();
+
+    ComponentVertex file = graph.addComponent(MockSourceFile.createMain("org.foo.Bar"));
+    DefaultTestable testable = graph.createAdjacentVertex(file, DefaultTestable.class, "testable");
+
+    DefaultTestCase testCase = graph.createVertex(DefaultTestCase.class);
+    testCase.setCoverageBlock(testable, Arrays.asList(10, 11, 12));
+
+    // error
+    testCase.setCoverageBlock(testable, Arrays.asList(20));
   }
 }
