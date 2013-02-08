@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch;
 
+import com.google.common.io.Files;
 import org.apache.commons.configuration.MapConfiguration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang.CharEncoding;
@@ -120,7 +121,7 @@ public class AbstractSourceImporterTest {
   }
 
   @Test
-  public void should_remove_bom_character() throws Exception {
+  public void should_remove_byte_order_mark_character() throws Exception {
     Project project = mock(Project.class);
     SensorContext context = mock(SensorContext.class);
 
@@ -128,7 +129,10 @@ public class AbstractSourceImporterTest {
     when(project.getFileSystem()).thenReturn(fileSystem);
     when(fileSystem.getSourceCharset()).thenReturn(Charset.forName(CharEncoding.UTF_8));
     when(project.getConfiguration()).thenReturn(new MapConfiguration(new HashMap<String, String>()));
-    when(fileSystem.getSourceFiles(any(Language.class))).thenReturn(newArrayList(getFile("FileWithBom.java")));
+
+    File file = new File(Files.createTempDir(), "Test.java");
+    Files.write("\uFEFFpublic class Test", file, Charset.defaultCharset());
+    when(fileSystem.getSourceFiles(any(Language.class))).thenReturn(newArrayList(file));
 
     importer.shouldExecuteOnProject(project);
     importer.analyse(project, context);

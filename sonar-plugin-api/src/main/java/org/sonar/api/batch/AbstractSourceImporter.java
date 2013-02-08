@@ -83,7 +83,7 @@ public abstract class AbstractSourceImporter implements Sensor {
           context.index(resource);
           if (enabled) {
             String source = Files.toString(file, Charset.forName(sourcesEncoding.name()));
-            // SONAR-3860 Remove Bom character from source
+            // SONAR-3860 Remove BOM character from source
             source = CharMatcher.anyOf("\uFEFF").removeFrom(source);
             context.saveSource(resource, source);
           }
