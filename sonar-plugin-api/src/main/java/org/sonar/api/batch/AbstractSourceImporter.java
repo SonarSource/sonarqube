@@ -19,9 +19,14 @@
  */
 package org.sonar.api.batch;
 
-import org.apache.commons.io.FileUtils;
+import com.google.common.base.CharMatcher;
+import com.google.common.io.Files;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.SonarException;
 
 import java.io.File;
@@ -77,7 +82,9 @@ public abstract class AbstractSourceImporter implements Sensor {
         try {
           context.index(resource);
           if (enabled) {
-            String source = FileUtils.readFileToString(file, sourcesEncoding.name());
+            String source = Files.toString(file, Charset.forName(sourcesEncoding.name()));
+            // SONAR-3860 Remove Bom character from source
+            source = CharMatcher.anyOf("\uFEFF").removeFrom(source);
             context.saveSource(resource, source);
           }
         } catch (Exception e) {

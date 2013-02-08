@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.configuration.MapConfiguration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang.CharEncoding;
@@ -37,10 +36,10 @@ import org.sonar.api.resources.Resource;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -74,9 +73,8 @@ public class AbstractSourceImporterTest {
   }
 
   @Test
-  public void doNotSaveSourceIfNullResource() {
+  public void do_not_save_source_if_null_resource() {
     AbstractSourceImporter nullImporter = new AbstractSourceImporter(Java.INSTANCE) {
-
       @Override
       protected Resource createResource(File file, List<File> sourceDirs, boolean unitTest) {
         return null;
@@ -85,14 +83,14 @@ public class AbstractSourceImporterTest {
 
     SensorContext context = mock(SensorContext.class);
     ProjectFileSystem fileSystem = mock(ProjectFileSystem.class);
-    when(fileSystem.getSourceFiles(Java.INSTANCE)).thenReturn(Arrays.<File> asList(new File("Foo.java"), new File("Bar.java")));
+    when(fileSystem.getSourceFiles(Java.INSTANCE)).thenReturn(newArrayList(new File("Foo.java"), new File("Bar.java")));
     nullImporter.analyse(fileSystem, context);
 
     verify(context, never()).saveSource(any(Resource.class), anyString());
   }
 
   @Test
-  public void shouldUseMacRomanCharsetForReadingSourceFiles() {
+  public void should_use_mac_roman_charset_forR_reading_source_files() throws Exception {
     Project project = mock(Project.class);
     SensorContext context = mock(SensorContext.class);
 
@@ -102,7 +100,7 @@ public class AbstractSourceImporterTest {
   }
 
   @Test
-  public void shouldUseCP1252CharsetForReadingSourceFiles() {
+  public void should_use_CP1252_charset_for_reading_source_files() throws Exception {
     Project project = mock(Project.class);
     SensorContext context = mock(SensorContext.class);
 
@@ -112,7 +110,7 @@ public class AbstractSourceImporterTest {
   }
 
   @Test(expected = ArgumentsAreDifferent.class)
-  public void shouldFailWithWrongCharsetForReadingSourceFiles() {
+  public void should_fail_with_wrong_charset_for_reading_source_files() throws Exception {
     Project project = mock(Project.class);
     SensorContext context = mock(SensorContext.class);
 
@@ -121,13 +119,35 @@ public class AbstractSourceImporterTest {
     fileEncodingTest(project, context, encoding, testFile);
   }
 
-  private void fileEncodingTest(Project project, SensorContext context, String encoding, String testFile) {
+  @Test
+  public void should_remove_bom_character() throws Exception {
+    Project project = mock(Project.class);
+    SensorContext context = mock(SensorContext.class);
+
+    ProjectFileSystem fileSystem = mock(ProjectFileSystem.class);
+    when(project.getFileSystem()).thenReturn(fileSystem);
+    when(fileSystem.getSourceCharset()).thenReturn(Charset.forName(CharEncoding.UTF_8));
+    when(project.getConfiguration()).thenReturn(new MapConfiguration(new HashMap<String, String>()));
+    when(fileSystem.getSourceFiles(any(Language.class))).thenReturn(newArrayList(getFile("FileWithBom.java")));
+
+    importer.shouldExecuteOnProject(project);
+    importer.analyse(project, context);
+
+    verify(context).saveSource(eq(FakeSourceImporter.TEST_RESOURCE), argThat(new ArgumentMatcher<String>() {
+      @Override
+      public boolean matches(Object arg0) {
+        String source = (String) arg0;
+        return !source.contains("\uFEFF");
+      }
+    }));
+  }
+
+  private void fileEncodingTest(Project project, SensorContext context, String encoding, String testFile) throws Exception {
     ProjectFileSystem fileSystem = mock(ProjectFileSystem.class);
     when(project.getFileSystem()).thenReturn(fileSystem);
     when(fileSystem.getSourceCharset()).thenReturn(Charset.forName(encoding));
     when(project.getConfiguration()).thenReturn(new MapConfiguration(new HashMap<String, String>()));
-    when(fileSystem.getSourceFiles(any(Language.class))).thenReturn(Arrays.asList(
-        new File("test-resources/org/sonar/api/batch/AbstractSourceImporterTest/encoding/" + testFile)));
+    when(fileSystem.getSourceFiles(any(Language.class))).thenReturn(newArrayList(getFile(testFile)));
 
     importer.shouldExecuteOnProject(project);
     importer.analyse(project, context);
@@ -142,13 +162,13 @@ public class AbstractSourceImporterTest {
   }
 
   @Test
-  public void testCreateUnitTestResource() {
+  public void test_create_unit_test_resource() {
     AbstractSourceImporter importer = new AbstractSourceImporter(Java.INSTANCE) {
     };
 
     File unitTestFile = new File("test/UnitTest.java");
     File unitTestDir = new File("test");
-    List<File> unitTestDirs = Lists.newArrayList();
+    List<File> unitTestDirs = newArrayList();
     unitTestDirs.add(unitTestDir);
 
     Resource unitTest = importer.createResource(unitTestFile, unitTestDirs, true);
@@ -170,6 +190,10 @@ public class AbstractSourceImporterTest {
     protected Resource createResource(File file, List<File> sourceDirs, boolean unitTest) {
       return TEST_RESOURCE;
     }
+  }
+
+  private File getFile(String testFile){
+    return new File("test-resources/org/sonar/api/batch/AbstractSourceImporterTest/encoding/" + testFile);
   }
 
 }
