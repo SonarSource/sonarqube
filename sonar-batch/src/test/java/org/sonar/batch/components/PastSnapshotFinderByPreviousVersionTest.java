@@ -33,15 +33,23 @@ public class PastSnapshotFinderByPreviousVersionTest extends AbstractDbUnitTestC
     setupData("with-previous-version");
     PastSnapshotFinderByPreviousVersion finder = new PastSnapshotFinderByPreviousVersion(getSession());
 
-    Snapshot currentProjectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1010);
+    Snapshot currentProjectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1003);
     PastSnapshot foundSnapshot = finder.findByPreviousVersion(currentProjectSnapshot);
-    assertThat(foundSnapshot.getProjectSnapshotId()).isEqualTo(1009);
+    assertThat(foundSnapshot.getProjectSnapshotId()).isEqualTo(1001);
     assertThat(foundSnapshot.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
     assertThat(foundSnapshot.getModeParameter()).isEqualTo("1.1");
+  }
 
-    // and test also another version to verify that unprocessed snapshots are ignored
-    currentProjectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1009);
-    assertThat(finder.findByPreviousVersion(currentProjectSnapshot).getProjectSnapshotId()).isEqualTo(1003);
+  @Test
+  public void shouldFindByPreviousVersionWhenPreviousVersionDeleted() {
+    setupData("with-previous-version-deleted");
+    PastSnapshotFinderByPreviousVersion finder = new PastSnapshotFinderByPreviousVersion(getSession());
+
+    Snapshot currentProjectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1003);
+    PastSnapshot foundSnapshot = finder.findByPreviousVersion(currentProjectSnapshot);
+    assertThat(foundSnapshot.getProjectSnapshotId()).isEqualTo(1000);
+    assertThat(foundSnapshot.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
+    assertThat(foundSnapshot.getModeParameter()).isEqualTo("1.0");
   }
 
   @Test

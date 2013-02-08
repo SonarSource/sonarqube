@@ -32,7 +32,8 @@
   
   <events id="1" name="1.0" resource_id="1" snapshot_id="1000" category="Version" event_date="2008-11-02 13:58:00.00" created_at="2008-11-02 13:58:00.00" description=""/>
   <events id="2" name="Foo" resource_id="1" snapshot_id="1000" category="Other" event_date="2008-11-03 13:58:00.00" created_at="2008-11-03 13:58:00.00" description=""/>
-  <events id="3" name="1.1" resource_id="1" snapshot_id="1001" category="Version" event_date="2008-11-04 13:58:00.00" created_at="2008-11-04 13:58:00.00" description=""/>
+  <!-- The "1.1" version was deleted from the history :  -->
+  <!-- events id="3" name="1.1" resource_id="1" snapshot_id="1001" category="Version" event_date="2008-11-04 13:58:00.00" created_at="2008-11-04 13:58:00.00" description=""/-->
   <events id="4" name="Bar" resource_id="1" snapshot_id="1001" category="Other" event_date="2008-11-05 13:58:00.00" created_at="2008-11-05 13:58:00.00" description=""/>
   <events id="5" name="Uhh" resource_id="1" snapshot_id="1002" category="Other" event_date="2008-11-07 13:58:00.00" created_at="2008-11-07 13:58:00.00" description=""/>
   <events id="6" name="1.2-SNAPSHOT" resource_id="1" snapshot_id="1003" category="Version" event_date="2008-11-09 13:58:00.00" created_at="2008-11-09 13:58:00.00" description=""/>

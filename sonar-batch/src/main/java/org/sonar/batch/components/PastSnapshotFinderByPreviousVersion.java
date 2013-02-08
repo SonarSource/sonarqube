@@ -21,11 +21,10 @@ package org.sonar.batch.components;
 
 import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.Event;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.Qualifiers;
 
-import java.util.Date;
 import java.util.List;
 
 public class PastSnapshotFinderByPreviousVersion implements BatchExtension {
@@ -37,25 +36,26 @@ public class PastSnapshotFinderByPreviousVersion implements BatchExtension {
   }
 
   PastSnapshot findByPreviousVersion(Snapshot projectSnapshot) {
-    String hql = "from " + Snapshot.class.getSimpleName() +
-      " where version<>:version AND version IS NOT NULL AND resourceId=:resourceId AND status=:status AND qualifier<>:lib order by createdAt desc";
-    List<Snapshot> snapshots = session.createQuery(hql)
-        .setParameter("version", projectSnapshot.getVersion())
-        .setParameter("resourceId", projectSnapshot.getResourceId())
-        .setParameter("status", Snapshot.STATUS_PROCESSED)
-        .setParameter("lib", Qualifiers.LIBRARY)
+    String currentVersion = projectSnapshot.getVersion();
+    Integer resourceId = projectSnapshot.getResourceId();
+
+    String hql = "from " + Event.class.getSimpleName() +
+      " where name<>:version AND category='Version' AND resourceId=:resourceId ORDER BY date DESC";
+
+    List<Event> events = session.createQuery(hql)
+        .setParameter("version", currentVersion)
+        .setParameter("resourceId", resourceId)
         .setMaxResults(1)
         .getResultList();
 
-    PastSnapshot result;
-    if (snapshots.isEmpty()) {
-      result = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
-    } else {
-      Snapshot snapshot = snapshots.get(0);
-      Date targetDate = snapshot.getCreatedAt();
-      result = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION, targetDate, snapshot).setModeParameter(snapshot.getVersion());
+    if (events.isEmpty()) {
+      return new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
     }
-    return result;
+
+    Event previousVersionEvent = events.get(0);
+    Snapshot snapshot = session.getSingleResult(Snapshot.class, "id", previousVersionEvent.getSnapshot().getId());
+
+    return new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION, snapshot.getCreatedAt(), snapshot).setModeParameter(snapshot.getVersion());
   }
 
 }
