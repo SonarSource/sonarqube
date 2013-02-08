@@ -26,7 +26,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
-import java.security.DigestInputStream;
 import java.security.MessageDigest;
 
 /**
@@ -50,7 +49,6 @@ public class FileHashes {
    * Computes the hash of given stream. The stream is closed by this method.
    */
   public String of(InputStream input) {
-    DigestInputStream digestInputStream = null;
     try {
       MessageDigest digest = MessageDigest.getInstance("MD5");
       byte[] hash = digest(input, digest);
@@ -60,7 +58,6 @@ public class FileHashes {
       throw new IllegalStateException("Fail to compute hash", e);
 
     } finally {
-      IOUtils.closeQuietly(digestInputStream);
       IOUtils.closeQuietly(input);
     }
   }
