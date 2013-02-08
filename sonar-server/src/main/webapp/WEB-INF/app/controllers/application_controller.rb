@@ -102,6 +102,11 @@ class ApplicationController < ActionController::Base
     Api::Utils.message(key, options)
   end
 
+  # escape '%' and '_' in order to use these characters in sql query using like
+  def escape_like(field)
+    field.gsub(/[_%]/) { |x| "\\#{x}" }
+  end
+
 
   #
   #

@@ -72,8 +72,4 @@ class SearchController < ApplicationController
     end
   end
 
-  def escape_like(field)
-    field.gsub(/[_%]/) { |x| "\\#{x}" }
-  end
-
 end

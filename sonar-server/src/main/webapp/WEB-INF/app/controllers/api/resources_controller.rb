@@ -37,7 +37,7 @@ class Api::ResourcesController < Api::ApiController
     bad_request("Page index must be greater than 0") if page<=0
     bad_request("Page size must be greater than 0") if page_size<=0
 
-    key = search_text.downcase
+    key = escape_like(search_text).downcase
     conditions=['kee like ?']
     condition_values=[key + '%']
 
@@ -45,8 +45,7 @@ class Api::ResourcesController < Api::ApiController
       conditions<<'qualifier in (?)'
       condition_values<<qualifiers
     end
-    indexes = ResourceIndex.find(:all,
-                                 :select => 'distinct(resource_id),root_project_id,qualifier,name_size', # optimization to not load unused columns like 'kee'
+    indexes = ResourceIndex.all(:select => 'distinct(resource_id),root_project_id,qualifier,name_size', # optimization to not load unused columns like 'kee'
                                  :conditions => [conditions.join(' and ')].concat(condition_values),
                                  :order => 'name_size')
 
@@ -66,7 +65,7 @@ class Api::ResourcesController < Api::ApiController
 
     resources=[]
     unless resource_ids.empty?
-      resources=Project.find(:all, :select => 'id,qualifier,name,long_name,kee', :conditions => ['id in (?) and enabled=?', resource_ids, true])
+      resources=Project.all(:select => 'id,qualifier,name,long_name,kee', :conditions => ['id in (?) and enabled=?', resource_ids, true])
     end
 
     if select2_format
@@ -182,8 +181,7 @@ class Api::ResourcesController < Api::ApiController
         add_rule_filters(measures_conditions, measures_values)
         add_characteristic_filters(measures_conditions, measures_values)
 
-        measures=ProjectMeasure.find(:all,
-                                     :joins => :snapshot,
+        measures=ProjectMeasure.all(:joins => :snapshot,
                                      :select => select_columns_for_measures,
                                      :conditions => [(snapshots_conditions + measures_conditions).join(' AND '), snapshots_values.merge(measures_values)],
                                      :order => measures_order,
@@ -227,7 +225,7 @@ class Api::ResourcesController < Api::ApiController
         snapshots_values[:languages]=params['languages'].split(',')
       end
 
-      snapshots_including_resource=Snapshot.find(:all, :conditions => [snapshots_conditions.join(' AND '), snapshots_values], :include => 'project')
+      snapshots_including_resource=Snapshot.all(:conditions => [snapshots_conditions.join(' AND '), snapshots_values], :include => 'project')
 
       # ---------- APPLY SECURITY - remove unauthorized resources - only if no selected resource
       if @resource.nil?
@@ -333,8 +331,7 @@ class Api::ResourcesController < Api::ApiController
     @characteristics=[]
     @characteristic_by_id={}
     if params[:model].present? && params[:characteristics].present?
-      @characteristics=Characteristic.find(:all,
-                                           :select => 'characteristics.id,characteristics.kee,characteristics.name',
+      @characteristics=Characteristic.all(:select => 'characteristics.id,characteristics.kee,characteristics.name',
                                            :joins => :quality_model,
                                            :conditions => ['quality_models.name=? AND characteristics.kee IN (?)', params[:model], params[:characteristics].split(',')])
       if @characteristics.empty?
