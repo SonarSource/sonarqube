@@ -32,8 +32,7 @@ class SearchController < ApplicationController
     bad_request("Minimum search is #{ResourceIndex::MIN_SEARCH_SIZE} characters") if search.empty? || search.to_s.size<ResourceIndex::MIN_SEARCH_SIZE
 
     key = escape_like(search).downcase
-    results = ResourceIndex.find(:all,
-                                 :select => 'distinct(resource_id),root_project_id,qualifier,name_size', # optimization to not load unused columns like 'kee'
+    results = ResourceIndex.all(:select => 'distinct(resource_id),root_project_id,qualifier,name_size', # optimization to not load unused columns like 'kee'
                                  :conditions => ["kee like ?", key + '%'],
                                  :order => 'name_size')
 
