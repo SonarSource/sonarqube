@@ -33,6 +33,8 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -84,7 +86,7 @@ public class FileHashesTest {
     thrown.expectMessage("Fail to compute hash");
 
     InputStream input = mock(InputStream.class);
-    when(input.read()).thenThrow(new IllegalThreadStateException());
+    when(input.read(any(byte[].class), anyInt(), anyInt())).thenThrow(new IllegalThreadStateException());
     new FileHashes().of(input);
   }
 

@@ -36,6 +36,8 @@ import java.security.MessageDigest;
  */
 public class FileHashes {
 
+  private static final int STREAM_BUFFER_LENGTH = 1024;
+
   public String of(File file) {
     try {
       return of(new FileInputStream(file));
@@ -51,10 +53,7 @@ public class FileHashes {
     DigestInputStream digestInputStream = null;
     try {
       MessageDigest digest = MessageDigest.getInstance("MD5");
-      digestInputStream = new DigestInputStream(input, digest);
-      while (digestInputStream.read() != -1) {
-      }
-      byte[] hash = digest.digest();
+      byte[] hash = digest(input, digest);
       return toHex(hash);
 
     } catch (Exception e) {
@@ -64,6 +63,16 @@ public class FileHashes {
       IOUtils.closeQuietly(digestInputStream);
       IOUtils.closeQuietly(input);
     }
+  }
+
+  private byte[] digest(InputStream input, MessageDigest digest) throws IOException {
+    final byte[] buffer = new byte[STREAM_BUFFER_LENGTH];
+    int read = input.read(buffer, 0, STREAM_BUFFER_LENGTH);
+    while (read > -1) {
+      digest.update(buffer, 0, read);
+      read = input.read(buffer, 0, STREAM_BUFFER_LENGTH);
+    }
+    return digest.digest();
   }
 
   static String toHex(byte[] bytes) {
