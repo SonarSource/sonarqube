@@ -374,9 +374,9 @@ function openAccordionItem(url, elt, updateCurrentElement) {
       $j("#accordion-panel").append(html);
       $j("#accordion-panel").height('auto');
     }
-  }).error(function (event, jqxhr, settings, exception) {
-        alert("Server error. Please contact your administrator. The message is : "+ event.responseText);
-      }).complete(function () {
+  }).fail(function (jqXHR, textStatus) {
+        alert("Server error. Please contact your administrator. The status of the error is : "+ jqXHR.status);
+      }).done(function () {
         loading.remove();
       });
 
