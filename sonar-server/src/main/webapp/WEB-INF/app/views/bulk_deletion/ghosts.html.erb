@@ -42,7 +42,7 @@
       <%
              ghosts.sort {|x,y| x.name <=> y.name}.each_with_index do |resource, index| 
       %>
-          <li><%= h resource.name -%> <span class="small gray">( <%= hresource.key -%> )</span></li>
+          <li><%= h resource.name -%> <span class="small gray">( <%= h resource.key -%> )</span></li>
       <% 
              end
       %>
