@@ -420,7 +420,7 @@ class Review < ActiveRecord::Base
       xml.id(id.to_i)
       xml.createdAt(Api::Utils.format_datetime(created_at))
       xml.updatedAt(Api::Utils.format_datetime(updated_at))
-      xml.author(user.login)
+      xml.author(user.login) if user
       xml.assignee(assignee.login) if assignee
       xml.title(title)
       xml.status(status)
@@ -433,7 +433,7 @@ class Review < ActiveRecord::Base
         review_comments.each do |comment|
           xml.comment do
             xml.id(comment.id.to_i)
-            xml.author(comment.user.login)
+            xml.author(comment.user.login) if comment.user
             xml.updatedAt(Api::Utils.format_datetime(comment.updated_at))
             if convert_markdown
               xml.text(comment.html_text)
@@ -455,7 +455,7 @@ class Review < ActiveRecord::Base
     json['id'] = id.to_i
     json['createdAt'] = Api::Utils.format_datetime(created_at)
     json['updatedAt'] = Api::Utils.format_datetime(updated_at)
-    json['author'] = user.login
+    json['author'] = user.login if user
     json['assignee'] = assignee.login if assignee
     json['title'] = title if title
     json['status'] = status
@@ -466,12 +466,13 @@ class Review < ActiveRecord::Base
     json['violationId'] = rule_failure_permanent_id if rule_failure_permanent_id
     comments = []
     review_comments.each do |comment|
-      comments << {
-        'id' => comment.id.to_i,
-        'author' => comment.user.login,
-        'updatedAt' => Api::Utils.format_datetime(comment.updated_at),
-        'text' => convert_markdown ? comment.html_text : comment.plain_text
+      comment_map = {
+          'id' => comment.id.to_i,
+          'updatedAt' => Api::Utils.format_datetime(comment.updated_at),
+          'text' => convert_markdown ? comment.html_text : comment.plain_text
       }
+      comment_map['author'] = comment.user.login if comment.user
+      comments << comment_map
     end
     json['comments'] = comments
     json

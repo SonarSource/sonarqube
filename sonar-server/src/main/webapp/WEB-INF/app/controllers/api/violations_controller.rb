@@ -83,7 +83,7 @@ class Api::ViolationsController < Api::ResourceRestController
     end
 
     limit = (params[:limit] ? [params[:limit].to_i,5000].min : 5000) 
-    violations = RuleFailure.find(:all,
+    violations = RuleFailure.all(
       :conditions => [ conditions.join(' AND '), values],
       :include => [:snapshot, {:snapshot => :project}, :rule, :review],
       :order => 'rule_failures.failure_level DESC',
