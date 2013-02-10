@@ -52,6 +52,6 @@ public class JdbcDriverDeployerTest {
     assertThat(deployedIndex).exists();
     assertThat(deployedFile).exists();
     assertThat(deployedFile).hasSize(initialDriver.length());
-    assertThat(FileUtils.readFileToString(deployedIndex)).isEqualTo("my-driver.jar|02B97F7BC37B2B68FC847FCC3FC1C156");
+    assertThat(FileUtils.readFileToString(deployedIndex)).isEqualTo("my-driver.jar|02b97f7bc37b2b68fc847fcc3fc1c156");
   }
 }
