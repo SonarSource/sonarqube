@@ -47,27 +47,27 @@ public class FileHashesTest {
 
   @Test
   public void test_md5_hash() {
-    assertThat(hash("sonar")).isEqualTo("D85E336D61F5344395C42126FAC239BC");
+    assertThat(hash("sonar")).isEqualTo("d85e336d61f5344395c42126fac239bc");
 
     // compare results with commons-codec
     for (int index = 0; index < 100; index++) {
       String random = randomString();
       assertThat(hash(random)).as(random).isEqualTo(
-        DigestUtils.md5Hex(random).toUpperCase()
+        DigestUtils.md5Hex(random).toLowerCase()
       );
     }
   }
 
   @Test
   public void test_toHex() {
-    // upper-case
-    assertThat(FileHashes.toHex("aloa_bi_bop_a_loula".getBytes())).isEqualTo("616C6F615F62695F626F705F615F6C6F756C61");
+    // lower-case
+    assertThat(FileHashes.toHex("aloa_bi_bop_a_loula".getBytes())).isEqualTo("616c6f615f62695f626f705f615f6c6f756c61");
 
     // compare results with commons-codec
     for (int index = 0; index < 100; index++) {
       String random = randomString();
       assertThat(FileHashes.toHex(random.getBytes())).as(random).isEqualTo(
-        Hex.encodeHexString(random.getBytes()).toUpperCase()
+        Hex.encodeHexString(random.getBytes()).toLowerCase()
       );
     }
   }
