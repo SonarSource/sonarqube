@@ -139,6 +139,26 @@ public class MavenProjectConverterTest {
   }
 
   @Test
+  public void should_find_module_with_maven_project_file_naming_different_from_pom_xml() throws Exception {
+    File rootDir = TestUtils.getResource("/org/sonar/batch/MavenProjectConverterTest/mavenProjectFileNameNotEqualsToPomXml/");
+    MavenProject parent = loadPom("/org/sonar/batch/MavenProjectConverterTest/mavenProjectFileNameNotEqualsToPomXml/pom.xml", true);
+    MavenProject module = loadPom("/org/sonar/batch/MavenProjectConverterTest/mavenProjectFileNameNotEqualsToPomXml/module/pom_having_different_name.xml", false);
+
+    ProjectDefinition rootDef = MavenProjectConverter.convert(Arrays.asList(parent, module), parent);
+
+    assertThat(rootDef.getSubProjects().size(), Is.is(1));
+    assertThat(rootDef.getKey(), Is.is("org.test:parent"));
+    assertNull(rootDef.getParent());
+    assertThat(rootDef.getBaseDir(), is(rootDir));
+
+    ProjectDefinition module1Def = rootDef.getSubProjects().get(0);
+    assertThat(module1Def.getKey(), Is.is("org.test:module"));
+    assertThat(module1Def.getParent(), Is.is(rootDef));
+    assertThat(module1Def.getBaseDir(), Is.is(new File(rootDir, "module")));
+    assertThat(module1Def.getSubProjects().size(), Is.is(0));
+  }
+
+  @Test
   public void testSingleProjectWithoutModules() throws Exception {
     File rootDir = TestUtils.getResource("/org/sonar/batch/MavenProjectConverterTest/singleProjectWithoutModules/");
     MavenProject pom = loadPom("/org/sonar/batch/MavenProjectConverterTest/singleProjectWithoutModules/pom.xml", true);
