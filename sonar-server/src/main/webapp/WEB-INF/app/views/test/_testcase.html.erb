@@ -1,27 +1,26 @@
 <div class="accordion-item">
   <div class="accordion-item-header">
-    <h3>Files covered by <%= @test %> (<%= @test_plan.component.longName %>)</h3>
+    <h3><%= message('test_viewer.files_covered_by', :params => {@test, @test_plan.component.longName}) %></h3>
   </div>
   <br/>
   <div class="accordion-item-body">
     <table class="data">
       <thead>
       <tr>
-        <th>File</th>
-        <th>Covered Lines</th>
+        <th class="thin" nowrap><%= message('test_viewer.covered_lines') %></th>
+        <th><%= message('file') %></th>
       </tr>
       </thead>
       <tbody>
       <% @test_case.coverageBlocks.sort_by{|cover| cover.testable.component.name}.each do |cover|
-          reset_cycle
       %>
       <tr class="<%= cycle("even", "odd") -%>">
+        <td><%= cover.lines.size -%></td>
         <td>
           <a href="<%= ApplicationController.root_context -%>/resource/index/<%= cover.testable.component.key -%>?display_title=true&tab=coverage&coverage_filter=lines_covered_per_test&test_case_filter=<%= @test -%>"
              onclick="openAccordionItem(this.href, this); return false;"><%= cover.testable.component.longName -%>
           </a>
         </td>
-        <td><%= cover.lines.size -%></td>
       </tr>
       <% end %>
       </tbody>

@@ -338,7 +338,9 @@ function openAccordionItem(url, elt, updateCurrentElement) {
     loading.hide();
   }
 
+  // Remove elements under current element
   if (currentElement.length) {
+    // Fix the height in order to not change the position on the screen when removing elements under current element
     var elementToRemove = currentElement.nextAll('.'+ htmlClass);
     if (elementToRemove.height()) {
       $j("#accordion-panel").height($j("#accordion-panel").height() + elementToRemove.height());
@@ -365,16 +367,18 @@ function openAccordionItem(url, elt, updateCurrentElement) {
     }
 
     if (updateCurrentElement) {
+      // Fix the height in order to not change the position on the screen
       var prev = $j("#accordion-panel").height();
       currentElement.replaceWith(html);
       if (prev > $j("#accordion-panel").height()) {
         $j("#accordion-panel").height(prev);
       }
     } else {
+      // Add new item add the end of the panel and restore the height param
       $j("#accordion-panel").append(html);
       $j("#accordion-panel").height('auto');
 
-      // Set the focus on the top of the current item
+      // Set the focus on the top of the current item with animation
       if (currentElement.length) {
         $j('html, body').animate({
           scrollTop: currentElement.offset().top},
