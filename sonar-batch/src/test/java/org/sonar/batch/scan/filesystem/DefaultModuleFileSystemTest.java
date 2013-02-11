@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import com.google.common.base.Charsets;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,7 +31,6 @@ import org.sonar.api.scan.filesystem.JavaIoFileFilter;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -56,7 +56,7 @@ public class DefaultModuleFileSystemTest {
       .addSourceDir(new File(basedir, "src/main/groovy"))
       .addTestDir(new File(basedir, "src/test/java"))
       .addFileFilter(fileFilter)
-      .sourceCharset(StandardCharsets.UTF_8)
+      .sourceCharset(Charsets.UTF_8)
       .pathResolver(pathResolver)
       .languageFileFilters(languageFileFilters)
       .build();
@@ -78,7 +78,7 @@ public class DefaultModuleFileSystemTest {
     File basedir = new File("test-resources/DefaultModuleFileSystemTest/exclude_dir_starting_with_dot");
     DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem.Builder()
       .baseDir(basedir)
-      .sourceCharset(StandardCharsets.UTF_8)
+      .sourceCharset(Charsets.UTF_8)
       .workingDir(temp.newFolder())
       .addSourceDir(new File(basedir, "src"))
       .build();
@@ -92,7 +92,7 @@ public class DefaultModuleFileSystemTest {
     File basedir = new File("test-resources/DefaultModuleFileSystemTest/main_and_test_files");
     DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem.Builder()
       .baseDir(basedir)
-      .sourceCharset(StandardCharsets.UTF_8)
+      .sourceCharset(Charsets.UTF_8)
       .workingDir(temp.newFolder())
       .addSourceDir(new File(basedir, "src/main/java"))
       .addTestDir(new File(basedir, "src/test/java"))
@@ -113,7 +113,7 @@ public class DefaultModuleFileSystemTest {
     File basedir = new File("test-resources/DefaultModuleFileSystemTest/main_and_test_files");
     DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem.Builder()
       .baseDir(basedir)
-      .sourceCharset(StandardCharsets.UTF_8)
+      .sourceCharset(Charsets.UTF_8)
       .workingDir(temp.newFolder())
       .addSourceDir(new File(basedir, "src/main/java"))
       .addTestDir(new File(basedir, "src/test/java"))
@@ -132,7 +132,7 @@ public class DefaultModuleFileSystemTest {
     File basedir = new File("test-resources/DefaultModuleFileSystemTest/main_and_test_files");
     DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem.Builder()
       .baseDir(basedir)
-      .sourceCharset(StandardCharsets.UTF_8)
+      .sourceCharset(Charsets.UTF_8)
       .workingDir(temp.newFolder())
       .addSourceDir(new File(basedir, "src/main/java"))
       .addTestDir(new File(basedir, "src/test/java"))
@@ -153,7 +153,7 @@ public class DefaultModuleFileSystemTest {
     File basedir = new File("test-resources/DefaultModuleFileSystemTest/main_and_test_files");
     DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem.Builder()
       .baseDir(basedir)
-      .sourceCharset(StandardCharsets.UTF_8)
+      .sourceCharset(Charsets.UTF_8)
       .workingDir(temp.newFolder())
       .addSourceDir(new File(basedir, "src/main/java"))
       .addFileFilter(JavaIoFileFilter.create(FileFilterUtils.nameFileFilter("Foo.java")))
