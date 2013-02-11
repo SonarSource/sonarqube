@@ -31,33 +31,44 @@ import java.util.zip.ZipEntry;
 
 public class PluginInstaller {
 
-  public DefaultPluginMetadata install(File pluginFile, boolean isCore, List<File> deprecatedExtensions, File toDir) {
-    DefaultPluginMetadata metadata = extractMetadata(pluginFile, isCore);
-    metadata.setDeprecatedExtensions(deprecatedExtensions);
-    return install(metadata, toDir);
+  public DefaultPluginMetadata install(File pluginFile, boolean isCore, List<File> deprecatedExtensions, File pluginBasedir) {
+    try {
+      // Copy the plugin before extracting metadata to avoid file lock on Widnows
+      File deployedPlugin = copyPlugin(pluginBasedir, pluginFile);
+      DefaultPluginMetadata metadata = extractMetadata(deployedPlugin, isCore);
+      metadata.setDeprecatedExtensions(deprecatedExtensions);
+      install(metadata, pluginBasedir, deployedPlugin);
+      return metadata;
+    } catch (IOException e) {
+      throw new SonarException("Fail to install plugin: " + pluginFile, e);
+    }
   }
 
-  public DefaultPluginMetadata install(DefaultPluginMetadata metadata, File toDir) {
+  public void install(DefaultPluginMetadata metadata, File pluginBasedir) {
     try {
       File pluginFile = metadata.getFile();
-      File pluginBasedir = copyPlugin(metadata, toDir, pluginFile);
-      copyDependencies(metadata, pluginFile, pluginBasedir);
-      copyDeprecatedExtensions(metadata, pluginBasedir);
-
-      return metadata;
-
+      File deployedPlugin = copyPlugin(pluginBasedir, pluginFile);
+      install(metadata, pluginBasedir, deployedPlugin);
     } catch (IOException e) {
       throw new SonarException("Fail to install plugin: " + metadata, e);
     }
   }
 
-  private File copyPlugin(DefaultPluginMetadata metadata, File toDir, File pluginFile) throws IOException {
-    File pluginBasedir = toDir;
+  private void install(DefaultPluginMetadata metadata, File pluginBasedir, File deployedPlugin) {
+    try {
+      metadata.addDeployedFile(deployedPlugin);
+      copyDependencies(metadata, deployedPlugin, pluginBasedir);
+      copyDeprecatedExtensions(metadata, pluginBasedir);
+    } catch (IOException e) {
+      throw new SonarException("Fail to install plugin: " + metadata, e);
+    }
+  }
+
+  private File copyPlugin(File pluginBasedir, File pluginFile) throws IOException {
     FileUtils.forceMkdir(pluginBasedir);
     File targetFile = new File(pluginBasedir, pluginFile.getName());
     FileUtils.copyFile(pluginFile, targetFile);
-    metadata.addDeployedFile(targetFile);
-    return pluginBasedir;
+    return targetFile;
   }
 
   private void copyDependencies(DefaultPluginMetadata metadata, File pluginFile, File pluginBasedir) throws IOException {
