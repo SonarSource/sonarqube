@@ -26,6 +26,7 @@ import javax.annotation.CheckForNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
 
 /**
  * This class is responsible for managing Sonar batch file cache. You can put file into cache and
@@ -34,23 +35,18 @@ import java.io.IOException;
  */
 public class FileCache {
 
-  private final File dir;
+  private static final int TEMP_FILE_ATTEMPTS = 1000;
+
+  private final File dir, tmpDir;
   private final FileHashes hashes;
   private final Log log;
 
   FileCache(File dir, Log log, FileHashes fileHashes) {
-    this.dir = dir;
     this.hashes = fileHashes;
     this.log = log;
-    if (!dir.exists()) {
-      log.debug(String.format("Create cache directory: %s", dir.getAbsolutePath()));
-      try {
-        FileUtils.forceMkdir(dir);
-      } catch (IOException e) {
-        throw new IllegalStateException("Unable to create cache directory " + dir.getAbsolutePath(), e);
-      }
-    }
+    this.dir = createDir(dir, log, "user cache");
     log.info(String.format("User cache: %s", dir.getAbsolutePath()));
+    this.tmpDir = createDir(new File(dir, "_tmp"), log, "temp dir");
   }
 
   public static FileCache create(File dir, Log log) {
@@ -84,7 +80,7 @@ public class FileCache {
     File hashDir = hashDir(hash);
     File targetFile = new File(hashDir, filename);
     if (!targetFile.exists()) {
-      File tempFile = newTempFile(filename);
+      File tempFile = newTempFile();
       download(downloader, filename, tempFile);
       String downloadedHash = hashes.of(tempFile);
       if (!hash.equals(downloadedHash)) {
@@ -102,14 +98,6 @@ public class FileCache {
       downloader.download(filename, tempFile);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to download " + filename + " to " + tempFile, e);
-    }
-  }
-
-  private File newTempFile(String filename) {
-    try {
-      return File.createTempFile(filename, ".tmp");
-    } catch (IOException e) {
-      throw new IllegalStateException("Fail to create temp file", e);
     }
   }
 
@@ -140,4 +128,37 @@ public class FileCache {
       throw new IllegalStateException("Fail to create cache directory: " + hashDir, e);
     }
   }
+
+  private File newTempFile() {
+    String baseName = System.currentTimeMillis() + "-";
+    Random random = new Random();
+    for (int counter = 0; counter < TEMP_FILE_ATTEMPTS; counter++) {
+      try {
+        String filename = baseName + random.nextInt(1000);
+        File tempFile = new File(tmpDir, filename);
+        if (tempFile.createNewFile()) {
+          return tempFile;
+        }
+      } catch (IOException e) {
+        // ignore except the last try
+        if (counter == TEMP_FILE_ATTEMPTS - 1) {
+          throw new IllegalStateException();
+        }
+      }
+    }
+    throw new IllegalStateException("Fail to create temporary file in " + tmpDir);
+  }
+
+  private File createDir(File dir, Log log, String debugTitle) {
+    if (!dir.isDirectory() || !dir.exists()) {
+      log.debug("Create : " + dir.getAbsolutePath());
+      try {
+        FileUtils.forceMkdir(dir);
+      } catch (IOException e) {
+        throw new IllegalStateException("Unable to create " + debugTitle + dir.getAbsolutePath(), e);
+      }
+    }
+    return dir;
+  }
+
 }
