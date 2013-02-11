@@ -190,6 +190,22 @@ import java.util.List;
     category = CoreProperties.CATEGORY_EXCLUSIONS,
     defaultValue = CoreProperties.GLOBAL_TEST_EXCLUSIONS_DEFAULT),
   @Property(
+    key = CoreProperties.PROJECT_INCLUSIONS_PROPERTY,
+    name = "Inclusions",
+    description = "Define the file sources to analyze. Changes will be applied during next code analysis.",
+    project = true,
+    global = true,
+    multiValues = true,
+    category = CoreProperties.CATEGORY_EXCLUSIONS),
+  @Property(
+    key = CoreProperties.PROJECT_TEST_INCLUSIONS_PROPERTY,
+    name = "Test Inclusions",
+    description = "Define the test files to analyze. Changes will be applied during next code analysis.",
+    project = true,
+    global = true,
+    multiValues = true,
+    category = CoreProperties.CATEGORY_EXCLUSIONS),
+  @Property(
     key = CoreProperties.PROJECT_EXCLUSIONS_PROPERTY,
     name = "Exclusions",
     description = "Exclude sources from code analysis. Changes will be applied during next code analysis.",
@@ -395,129 +411,129 @@ public final class CorePlugin extends SonarPlugin {
   @SuppressWarnings("unchecked")
   public List getExtensions() {
     return ImmutableList.of(
-        DefaultResourceTypes.class,
-        UserManagedMetrics.class,
-        ProjectFileSystemLogger.class,
-        Periods.class,
+      DefaultResourceTypes.class,
+      UserManagedMetrics.class,
+      ProjectFileSystemLogger.class,
+      Periods.class,
 
-        // maven
-        MavenInitializer.class,
+      // maven
+      MavenInitializer.class,
 
-        // languages
-        Java.class,
+      // languages
+      Java.class,
 
-        // pages
-        Lcom4Viewer.class,
-        TestsViewer.class,
+      // pages
+      Lcom4Viewer.class,
+      TestsViewer.class,
 
-        // measure filters
-        ProjectFilter.class,
-        MyFavouritesFilter.class,
+      // measure filters
+      ProjectFilter.class,
+      MyFavouritesFilter.class,
 
-        // widgets
-        AlertsWidget.class,
-        CoverageWidget.class,
-        ItCoverageWidget.class,
-        CommentsDuplicationsWidget.class,
-        DescriptionWidget.class,
-        ComplexityWidget.class,
-        RulesWidget.class,
-        SizeWidget.class,
-        EventsWidget.class,
-        CustomMeasuresWidget.class,
-        TimelineWidget.class,
-        TimeMachineWidget.class,
-        HotspotMetricWidget.class,
-        HotspotMostViolatedResourcesWidget.class,
-        HotspotMostViolatedRulesWidget.class,
-        MyReviewsWidget.class,
-        ProjectReviewsWidget.class,
-        FalsePositiveReviewsWidget.class,
-        ReviewsPerDeveloperWidget.class,
-        PlannedReviewsWidget.class,
-        UnplannedReviewsWidget.class,
-        ActionPlansWidget.class,
-        ReviewsMetricsWidget.class,
-        TreemapWidget.class,
-        MeasureFilterListWidget.class,
-        MeasureFilterTreemapWidget.class,
-        WelcomeWidget.class,
+      // widgets
+      AlertsWidget.class,
+      CoverageWidget.class,
+      ItCoverageWidget.class,
+      CommentsDuplicationsWidget.class,
+      DescriptionWidget.class,
+      ComplexityWidget.class,
+      RulesWidget.class,
+      SizeWidget.class,
+      EventsWidget.class,
+      CustomMeasuresWidget.class,
+      TimelineWidget.class,
+      TimeMachineWidget.class,
+      HotspotMetricWidget.class,
+      HotspotMostViolatedResourcesWidget.class,
+      HotspotMostViolatedRulesWidget.class,
+      MyReviewsWidget.class,
+      ProjectReviewsWidget.class,
+      FalsePositiveReviewsWidget.class,
+      ReviewsPerDeveloperWidget.class,
+      PlannedReviewsWidget.class,
+      UnplannedReviewsWidget.class,
+      ActionPlansWidget.class,
+      ReviewsMetricsWidget.class,
+      TreemapWidget.class,
+      MeasureFilterListWidget.class,
+      MeasureFilterTreemapWidget.class,
+      WelcomeWidget.class,
 
-        // dashboards
-        ProjectDefaultDashboard.class,
-        ProjectHotspotDashboard.class,
-        ProjectReviewsDashboard.class,
-        ProjectTimeMachineDashboard.class,
-        GlobalDefaultDashboard.class,
+      // dashboards
+      ProjectDefaultDashboard.class,
+      ProjectHotspotDashboard.class,
+      ProjectReviewsDashboard.class,
+      ProjectTimeMachineDashboard.class,
+      GlobalDefaultDashboard.class,
 
-        // chart
-        XradarChart.class,
-        DistributionBarChart.class,
-        DistributionAreaChart.class,
+      // chart
+      XradarChart.class,
+      DistributionBarChart.class,
+      DistributionAreaChart.class,
 
-        // colorizers
-        JavaColorizerFormat.class,
+      // colorizers
+      JavaColorizerFormat.class,
 
-        // batch
-        ProfileSensor.class,
-        ProfileEventsSensor.class,
-        ProjectLinksSensor.class,
-        UnitTestDecorator.class,
-        VersionEventsSensor.class,
-        CheckAlertThresholds.class,
-        GenerateAlertEvents.class,
-        ViolationsDecorator.class,
-        WeightedViolationsDecorator.class,
-        ViolationsDensityDecorator.class,
-        LineCoverageDecorator.class,
-        CoverageDecorator.class,
-        BranchCoverageDecorator.class,
-        ItLineCoverageDecorator.class,
-        ItCoverageDecorator.class,
-        ItBranchCoverageDecorator.class,
-        OverallLineCoverageDecorator.class,
-        OverallCoverageDecorator.class,
-        OverallBranchCoverageDecorator.class,
-        ApplyProjectRolesDecorator.class,
-        ExcludedResourceFilter.class,
-        CommentDensityDecorator.class,
-        NoSonarFilter.class,
-        DirectoriesDecorator.class,
-        FilesDecorator.class,
-        ReviewNotifications.class,
-        ReviewWorkflowDecorator.class,
-        ReferenceAnalysis.class,
-        ManualMeasureDecorator.class,
-        ManualViolationInjector.class,
-        ViolationSeverityUpdater.class,
-        IndexProjectPostJob.class,
-        ReviewsMeasuresDecorator.class,
+      // batch
+      ProfileSensor.class,
+      ProfileEventsSensor.class,
+      ProjectLinksSensor.class,
+      UnitTestDecorator.class,
+      VersionEventsSensor.class,
+      CheckAlertThresholds.class,
+      GenerateAlertEvents.class,
+      ViolationsDecorator.class,
+      WeightedViolationsDecorator.class,
+      ViolationsDensityDecorator.class,
+      LineCoverageDecorator.class,
+      CoverageDecorator.class,
+      BranchCoverageDecorator.class,
+      ItLineCoverageDecorator.class,
+      ItCoverageDecorator.class,
+      ItBranchCoverageDecorator.class,
+      OverallLineCoverageDecorator.class,
+      OverallCoverageDecorator.class,
+      OverallBranchCoverageDecorator.class,
+      ApplyProjectRolesDecorator.class,
+      ExcludedResourceFilter.class,
+      CommentDensityDecorator.class,
+      NoSonarFilter.class,
+      DirectoriesDecorator.class,
+      FilesDecorator.class,
+      ReviewNotifications.class,
+      ReviewWorkflowDecorator.class,
+      ReferenceAnalysis.class,
+      ManualMeasureDecorator.class,
+      ManualViolationInjector.class,
+      ViolationSeverityUpdater.class,
+      IndexProjectPostJob.class,
+      ReviewsMeasuresDecorator.class,
 
-        // time machine
-        TendencyDecorator.class,
-        VariationDecorator.class,
-        ViolationTrackingDecorator.class,
-        ViolationPersisterDecorator.class,
-        NewViolationsDecorator.class,
-        TimeMachineConfigurationPersister.class,
-        NewCoverageFileAnalyzer.class,
-        NewItCoverageFileAnalyzer.class,
-        NewOverallCoverageFileAnalyzer.class,
-        NewCoverageAggregator.class,
+      // time machine
+      TendencyDecorator.class,
+      VariationDecorator.class,
+      ViolationTrackingDecorator.class,
+      ViolationPersisterDecorator.class,
+      NewViolationsDecorator.class,
+      TimeMachineConfigurationPersister.class,
+      NewCoverageFileAnalyzer.class,
+      NewItCoverageFileAnalyzer.class,
+      NewOverallCoverageFileAnalyzer.class,
+      NewCoverageAggregator.class,
 
-        // notifications
-        // Notify incoming violations on my favourite projects
-        NewViolationsOnMyFavouriteProject.class,
-        NotificationDispatcherMetadata.create("NewViolationsOnMyFavouriteProject")
-            .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, "true"),
-        // Notify alerts on my favourite projects
-        AlertsOnMyFavouriteProject.class,
-        NotificationDispatcherMetadata.create("AlertsOnMyFavouriteProject")
-            .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, "true"),
-        // Notify reviews changes
-        ChangesInReviewAssignedToMeOrCreatedByMe.class,
-        NotificationDispatcherMetadata.create("ChangesInReviewAssignedToMeOrCreatedByMe")
-            .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, "true")
-            .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, "true"));
+      // notifications
+      // Notify incoming violations on my favourite projects
+      NewViolationsOnMyFavouriteProject.class,
+      NotificationDispatcherMetadata.create("NewViolationsOnMyFavouriteProject")
+        .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, "true"),
+      // Notify alerts on my favourite projects
+      AlertsOnMyFavouriteProject.class,
+      NotificationDispatcherMetadata.create("AlertsOnMyFavouriteProject")
+        .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, "true"),
+      // Notify reviews changes
+      ChangesInReviewAssignedToMeOrCreatedByMe.class,
+      NotificationDispatcherMetadata.create("ChangesInReviewAssignedToMeOrCreatedByMe")
+        .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, "true")
+        .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, "true"));
   }
 }

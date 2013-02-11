@@ -220,7 +220,7 @@ public class DefaultProjectFileSystem implements ProjectFileSystem {
     IOFileFilter suffixFilter = getFileSuffixFilter(langs);
     WildcardPattern[] exclusionPatterns = WildcardPattern.create(patterns);
 
-    IOFileFilter initialFilesFilter = TrueFileFilter.INSTANCE;
+    IOFileFilter initialFilesFilter = TrueFileFilter.TRUE;
     if (initialFiles != null && !initialFiles.isEmpty()) {
       initialFilesFilter = new FileSelectionFilter(initialFiles);
     }

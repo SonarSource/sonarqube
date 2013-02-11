@@ -17,12 +17,26 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.batch;
+package org.sonar.batch.scan.filesystem;
 
-import java.io.File;
+import org.apache.commons.io.IOCase;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.io.filefilter.SuffixFileFilter;
+import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.sonar.api.resources.Languages;
 
-public abstract class FileFilter implements java.io.FileFilter, org.sonar.api.scan.filesystem.FileFilter {
-  public final boolean accept(File file, org.sonar.api.scan.filesystem.FileFilter.Context context) {
-    return accept(file);
+public class LanguageFileFilters {
+  private final Languages languages;
+
+  public LanguageFileFilters(Languages languages) {
+    this.languages = languages;
+  }
+
+  public IOFileFilter forLang(String lang) {
+    String[] suffixes = languages.getSuffixes(lang);
+    if (suffixes != null && suffixes.length>0) {
+      return new SuffixFileFilter(suffixes, IOCase.SENSITIVE);
+    }
+    return TrueFileFilter.TRUE;
   }
 }

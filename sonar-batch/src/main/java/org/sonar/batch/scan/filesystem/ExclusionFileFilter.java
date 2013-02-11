@@ -17,12 +17,31 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.batch;
+package org.sonar.batch.scan.filesystem;
+
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.scan.filesystem.FileFilter;
+import org.sonar.api.utils.WildcardPattern;
 
 import java.io.File;
 
-public abstract class FileFilter implements java.io.FileFilter, org.sonar.api.scan.filesystem.FileFilter {
-  public final boolean accept(File file, org.sonar.api.scan.filesystem.FileFilter.Context context) {
-    return accept(file);
+/**
+ * @since 3.5
+ */
+class ExclusionFileFilter implements FileFilter {
+  private final FileType fileType;
+  private final WildcardPattern pattern;
+
+  ExclusionFileFilter(FileType fileType, String pattern) {
+    this.fileType = fileType;
+    this.pattern = WildcardPattern.create(StringUtils.trim(pattern));
+  }
+
+  public boolean accept(File file, Context context) {
+    return !fileType.equals(context.fileType()) || !pattern.match(context.fileRelativePath());
+  }
+
+  WildcardPattern pattern() {
+    return pattern;
   }
 }

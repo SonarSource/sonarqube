@@ -17,12 +17,11 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.batch;
 
-import java.io.File;
+/**
+ * This package is a part of bootstrap process, so we should take care about backward compatibility.
+ */
+@ParametersAreNonnullByDefault
+package org.sonar.batch.scan.filesystem;
 
-public abstract class FileFilter implements java.io.FileFilter, org.sonar.api.scan.filesystem.FileFilter {
-  public final boolean accept(File file, org.sonar.api.scan.filesystem.FileFilter.Context context) {
-    return accept(file);
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

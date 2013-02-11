@@ -108,11 +108,13 @@ public interface CoreProperties {
   String DYNAMIC_ANALYSIS_PROPERTY = "sonar.dynamicAnalysis";
 
   /* Exclusions */
+  String PROJECT_INCLUSIONS_PROPERTY = "sonar.inclusions";
   String PROJECT_EXCLUSIONS_PROPERTY = "sonar.exclusions";
 
   /**
    * @since 3.3
    */
+  String PROJECT_TEST_INCLUSIONS_PROPERTY = "sonar.test.inclusions";
   String PROJECT_TEST_EXCLUSIONS_PROPERTY = "sonar.test.exclusions";
   String GLOBAL_EXCLUSIONS_PROPERTY = "sonar.global.exclusions";
   String GLOBAL_TEST_EXCLUSIONS_PROPERTY = "sonar.global.test.exclusions";
