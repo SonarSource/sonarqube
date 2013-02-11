@@ -35,19 +35,23 @@ public interface Semaphores extends BatchComponent, ServerComponent {
   /**
    * Try to acquire a semaphore for a given duration.
    * The semaphore is acquired if it's unlocked or if the max locking duration is reached.
+   * When the lock is acquired there will be a periodic ping of the
+   * server to update the semaphore and avoid it to be considered as
+   * outdated.
    *
    * @param name                 the key of the semaphore
-   * @param maxDurationInSeconds the max duration in seconds the semaphore will be acquired. The value zero forces the semaphore to be acquired, whatever its status.
+   * @param maxAgeInSeconds the max duration in seconds the semaphore will be considered unlocked if it was not updated. The value zero forces the semaphore to be acquired, whatever its status.
+   * @param updatePeriodInSeconds the period in seconds the semaphore will be updated.
    * @return the semaphore, whatever its status (locked or unlocked). Can't be null.
    */
-  Semaphore acquire(String name, int maxDurationInSeconds);
+  Semaphore acquire(String name, int maxAgeInSeconds, int updatePeriodInSeconds);
 
   /**
    * Try to acquire a semaphore.
-   * The lock will be acquired only if there's no existing lock.
+   * The semaphore will be acquired only if there's no existing lock.
    *
    * @param name the key of the semaphore
-   * @return a lock containing information if the lock could be acquired or not, the duration since locked, etc.
+   * @return the semaphore, whatever its status (locked or unlocked). Can't be null.
    */
   Semaphore acquire(String name);
 

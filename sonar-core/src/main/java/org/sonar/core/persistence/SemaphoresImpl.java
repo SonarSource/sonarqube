@@ -27,13 +27,17 @@ import org.sonar.api.utils.Semaphores;
 public class SemaphoresImpl implements Semaphores {
 
   private SemaphoreDao dao;
+  private SemaphoreUpdater updater;
 
-  public SemaphoresImpl(SemaphoreDao dao) {
+  public SemaphoresImpl(SemaphoreDao dao, SemaphoreUpdater updater) {
     this.dao = dao;
+    this.updater = updater;
   }
 
-  public Semaphore acquire(String name, int maxDurationInSeconds) {
-    return dao.acquire(name, maxDurationInSeconds);
+  public Semaphore acquire(String name, int maxAgeInSeconds, int updatePeriodInSeconds) {
+    Semaphore semaphore = dao.acquire(name, maxAgeInSeconds);
+    updater.scheduleForUpdate(semaphore, updatePeriodInSeconds);
+    return semaphore;
   }
 
   public Semaphore acquire(String name) {
@@ -41,6 +45,7 @@ public class SemaphoresImpl implements Semaphores {
   }
 
   public void release(String name) {
+    updater.stopUpdate(name);
     dao.release(name);
   }
 }

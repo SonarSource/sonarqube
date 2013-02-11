@@ -38,24 +38,28 @@ public class SemaphoreDao {
     this.mybatis = mybatis;
   }
 
-  public Semaphores.Semaphore acquire(String name, int maxDurationInSeconds) {
+  public synchronized Semaphores.Semaphore acquire(String name, int maxAgeInSeconds) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "Semaphore name must not be empty");
-    Preconditions.checkArgument(maxDurationInSeconds >= 0, "Semaphore max duration must be positive: " + maxDurationInSeconds);
+    Preconditions.checkArgument(maxAgeInSeconds >= 0, "Semaphore max age must be positive: " + maxAgeInSeconds);
 
     SqlSession session = mybatis.openSession();
     try {
       SemaphoreMapper mapper = session.getMapper(SemaphoreMapper.class);
-      Date lockedAt = org.sonar.api.utils.DateUtils.parseDate("2001-01-01");
-      createDto(name, lockedAt, session);
-      boolean isAcquired = doAcquire(name, maxDurationInSeconds, session, mapper);
       SemaphoreDto semaphore = selectSemaphore(name, session);
-      return createLock(semaphore, session, isAcquired);
+      Date now = mapper.now();
+      if (semaphore != null) {
+        boolean isAcquired = acquireIfOutdated(name, maxAgeInSeconds, session, mapper);
+        return createLock(semaphore, session, isAcquired);
+      } else {
+        semaphore = createDto(name, now, session);
+        return createLock(semaphore, session, true);
+      }
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public Semaphores.Semaphore acquire(String name) {
+  public synchronized Semaphores.Semaphore acquire(String name) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "Semaphore name must not be empty");
 
     SqlSession session = mybatis.openSession();
@@ -74,6 +78,19 @@ public class SemaphoreDao {
     }
   }
 
+  public void update(Semaphores.Semaphore semaphore) {
+    Preconditions.checkArgument(semaphore != null, "Semaphore must not be null");
+
+    SqlSession session = mybatis.openSession();
+    try {
+      SemaphoreMapper mapper = session.getMapper(SemaphoreMapper.class);
+      mapper.update(semaphore.getName());
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   public void release(String name) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "Semaphore name must not be empty");
     SqlSession session = mybatis.openSession();
@@ -85,9 +102,9 @@ public class SemaphoreDao {
     }
   }
 
-  private boolean doAcquire(String name, int durationInSeconds, SqlSession session, SemaphoreMapper mapper) {
-    Date lockedBefore = DateUtils.addSeconds(mapper.now(), -durationInSeconds);
-    boolean ok = mapper.acquire(name, lockedBefore) == 1;
+  private boolean acquireIfOutdated(String name, int maxAgeInSeconds, SqlSession session, SemaphoreMapper mapper) {
+    Date updatedBefore = DateUtils.addSeconds(mapper.now(), -maxAgeInSeconds);
+    boolean ok = mapper.acquire(name, updatedBefore) == 1;
     session.commit();
     return ok;
   }
@@ -96,8 +113,8 @@ public class SemaphoreDao {
     try {
       SemaphoreMapper mapper = session.getMapper(SemaphoreMapper.class);
       SemaphoreDto semaphore = new SemaphoreDto()
-        .setName(name)
-        .setLockedAt(lockedAt);
+          .setName(name)
+          .setLockedAt(lockedAt);
       mapper.initialize(semaphore);
       session.commit();
       return semaphore;
@@ -110,11 +127,11 @@ public class SemaphoreDao {
 
   private Semaphores.Semaphore createLock(SemaphoreDto dto, SqlSession session, boolean acquired) {
     Semaphores.Semaphore semaphore = new Semaphores.Semaphore()
-      .setName(dto.getName())
-      .setLocked(acquired)
-      .setLocketAt(dto.getLockedAt())
-      .setCreatedAt(dto.getCreatedAt())
-      .setUpdatedAt(dto.getUpdatedAt());
+        .setName(dto.getName())
+        .setLocked(acquired)
+        .setLocketAt(dto.getLockedAt())
+        .setCreatedAt(dto.getCreatedAt())
+        .setUpdatedAt(dto.getUpdatedAt());
     if (!acquired) {
       semaphore.setDurationSinceLocked(getDurationSinceLocked(dto, session));
     }

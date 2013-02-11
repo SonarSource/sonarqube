@@ -58,6 +58,7 @@ import org.sonar.core.notification.DefaultNotificationManager;
 import org.sonar.core.persistence.DaoUtils;
 import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.persistence.SemaphoreUpdater;
 import org.sonar.core.persistence.SemaphoresImpl;
 import org.sonar.core.resource.DefaultResourcePermissions;
 import org.sonar.core.rule.CacheRuleFinder;
@@ -104,6 +105,7 @@ public class TaskContainer extends Container {
     container.addSingleton(CacheMetricFinder.class);
     container.addSingleton(DefaultUserFinder.class);
     container.addSingleton(ResourceTypes.class);
+    container.addSingleton(SemaphoreUpdater.class);
     container.addSingleton(SemaphoresImpl.class);
     container.addSingleton(PastSnapshotFinderByDate.class);
     container.addSingleton(PastSnapshotFinderByDays.class);

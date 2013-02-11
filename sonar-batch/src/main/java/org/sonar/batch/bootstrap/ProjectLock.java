@@ -58,9 +58,7 @@ public class ProjectLock {
     DurationLabel durationLabel = new DurationLabel();
     String durationDisplay = durationLabel.label(duration);
 
-    return "It looks like an analysis of '" + getProject().getName() + "' is already running (started " + durationDisplay + "). " +
-      "If this is not the case, it probably means that previous analysis was interrupted " +
-      "and you should then force a re-run by using the option '" + CoreProperties.FORCE_ANALYSIS + "=true'.";
+    return "It looks like an analysis of '" + getProject().getName() + "' is already running (started " + durationDisplay + ").";
   }
 
   public void stop() {
@@ -71,11 +69,7 @@ public class ProjectLock {
 
   private Semaphores.Semaphore acquire() {
     LOG.debug("Acquire semaphore on project : {}, with key {}", getProject(), getSemaphoreKey());
-    if (shouldForce()) {
-      // In force mode, we acquire the lock regardless there's a existing lock or not
-      return semaphores.acquire(getSemaphoreKey(), 0);
-    }
-    return semaphores.acquire(getSemaphoreKey());
+    return semaphores.acquire(getSemaphoreKey(), 15, 10);
   }
 
   private void release() {
@@ -93,9 +87,5 @@ public class ProjectLock {
 
   private boolean isInDryRunMode() {
     return settings.getBoolean(CoreProperties.DRY_RUN);
-  }
-
-  private boolean shouldForce() {
-    return settings.getBoolean(CoreProperties.FORCE_ANALYSIS);
   }
 }

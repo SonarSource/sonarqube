@@ -19,33 +19,49 @@
  */
 package org.sonar.core.persistence;
 
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.Semaphores;
 
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-public class SemaphoresImplTest {
+public class SemaphoreUpdaterTest extends AbstractDaoTestCase {
+
+  private SemaphoreUpdater updater;
+  private SemaphoreDao dao;
+
+  @Before
+  public void before() {
+    dao = mock(SemaphoreDao.class);
+    updater = new SemaphoreUpdater(dao);
+  }
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void should_be_a_bridge_over_dao() {
-    SemaphoreDao dao = mock(SemaphoreDao.class);
-    SemaphoreUpdater updater = mock(SemaphoreUpdater.class);
-    Semaphores.Semaphore semaphore = new Semaphores.Semaphore();
-    when(dao.acquire(anyString(), anyInt())).thenReturn(semaphore);
+  public void testScheduleUpdate() throws Exception {
+    Semaphores.Semaphore semaphore = new Semaphores.Semaphore().setName("foo");
+    updater.scheduleForUpdate(semaphore, 1);
 
-    SemaphoresImpl impl = new SemaphoresImpl(dao, updater);
+    Thread.sleep(1000);
 
-    impl.acquire("do-xxx", 50000, 10);
-    verify(dao).acquire("do-xxx", 50000);
-
-    impl.acquire("do-xxx");
-    verify(dao).acquire("do-xxx");
-
-    impl.release("do-xxx");
-    verify(dao).release("do-xxx");
+    verify(dao).update(semaphore);
   }
+
+  @Test
+  public void testCancelUpdate() throws Exception {
+    Semaphores.Semaphore semaphore = new Semaphores.Semaphore().setName("foo");
+    updater.scheduleForUpdate(semaphore, 1);
+    updater.stopUpdate("foo");
+
+    Thread.sleep(1000);
+
+    verify(dao, never()).update(semaphore);
+  }
+
 }

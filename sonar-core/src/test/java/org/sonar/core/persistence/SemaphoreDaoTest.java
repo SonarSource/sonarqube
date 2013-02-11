@@ -58,7 +58,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   @Test
   public void should_fail_to_acquire_if_negative_timeout() {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Semaphore max duration must be positive: -5000");
+    thrown.expectMessage("Semaphore max age must be positive: -5000");
 
     SemaphoreDao dao = new SemaphoreDao(getMyBatis());
     dao.acquire("foo", -5000);
@@ -91,7 +91,25 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void create_and_acquire_semaphore_when_timeout_is_zeo() throws Exception {
+  public void create_and_acquire_and_update_semaphore() throws Exception {
+    Semaphores.Semaphore lock = dao.acquire("foo", 60);
+    assertThat(lock.isLocked()).isTrue();
+    assertThat(lock.getDurationSinceLocked()).isNull();
+
+    SemaphoreDto semaphore = selectSemaphore("foo");
+    assertThat(semaphore.getCreatedAt().getTime()).isEqualTo(semaphore.getUpdatedAt().getTime());
+
+    dao.update(lock);
+
+    semaphore = selectSemaphore("foo");
+    assertThat(semaphore.getCreatedAt().getTime()).isLessThan(semaphore.getUpdatedAt().getTime());
+
+    dao.release("foo");
+    assertThat(selectSemaphore("foo")).isNull();
+  }
+
+  @Test
+  public void create_and_acquire_semaphore_when_maxage_is_zeo() throws Exception {
     Semaphores.Semaphore lock = dao.acquire("foo", 0);
     assertThat(lock.isLocked()).isTrue();
     assertThat(lock.getDurationSinceLocked()).isNull();
@@ -255,6 +273,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
       this.barrier = barrier;
     }
 
+    @Override
     public void run() {
       try {
         barrier.await();

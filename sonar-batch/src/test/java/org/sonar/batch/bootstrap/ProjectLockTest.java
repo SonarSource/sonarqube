@@ -28,13 +28,9 @@ import org.sonar.api.utils.Semaphores;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.ProjectTree;
 
-import java.util.Date;
-
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -56,7 +52,6 @@ public class ProjectLockTest {
     projectTree = mock(ProjectTree.class);
     settings = new Settings();
     setDryRunMode(false);
-    setForceMode(false);
     project = new Project("my-project-key");
     when(projectTree.getRootProject()).thenReturn(project);
 
@@ -65,23 +60,15 @@ public class ProjectLockTest {
 
   @Test
   public void shouldAcquireSemaphore() {
-    when(semaphores.acquire(anyString())).thenReturn(new Semaphores.Semaphore().setLocked(true));
+    when(semaphores.acquire(anyString(), anyInt(), anyInt())).thenReturn(new Semaphores.Semaphore().setLocked(true));
     projectLock.start();
 
-    verify(semaphores).acquire("batch-my-project-key");
-  }
-
-  @Test
-  public void shouldAcquireSemaphoreIfForceAnalyseActivated() {
-    setForceMode(true);
-    when(semaphores.acquire("batch-my-project-key", 0)).thenReturn(new Semaphores.Semaphore().setLocked(true));
-
-    projectLock.start();
+    verify(semaphores).acquire("batch-my-project-key", 15, 10);
   }
 
   @Test(expected = SonarException.class)
   public void shouldNotAcquireSemaphoreIfTheProjectIsAlreadyBeenAnalysing() {
-    when(semaphores.acquire(anyString())).thenReturn(new Semaphores.Semaphore().setLocked(false).setDurationSinceLocked(1234L));
+    when(semaphores.acquire(anyString(), anyInt(), anyInt())).thenReturn(new Semaphores.Semaphore().setLocked(false).setDurationSinceLocked(1234L));
     projectLock.start();
   }
 
@@ -108,10 +95,6 @@ public class ProjectLockTest {
 
   private void setDryRunMode(boolean isInDryRunMode) {
     settings.setProperty(CoreProperties.DRY_RUN, isInDryRunMode);
-  }
-
-  private void setForceMode(boolean isInForcedMode) {
-    settings.setProperty(CoreProperties.FORCE_ANALYSIS, isInForcedMode);
   }
 
 }

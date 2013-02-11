@@ -27,7 +27,7 @@ public interface SemaphoreMapper {
 
   int initialize(SemaphoreDto semaphore);
 
-  int acquire(@Param("name") String name, @Param("lockedBefore") Date lockedBefore);
+  int acquire(@Param("name") String name, @Param("updatedBefore") Date updatedBefore);
 
   Date now();
 
@@ -35,4 +35,5 @@ public interface SemaphoreMapper {
 
   SemaphoreDto selectSemaphore(@Param("name") String name);
 
+  void update(String name);
 }
