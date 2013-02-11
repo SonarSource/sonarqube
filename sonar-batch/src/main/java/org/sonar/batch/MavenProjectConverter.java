@@ -40,10 +40,6 @@ public final class MavenProjectConverter {
   private static final String UNABLE_TO_DETERMINE_PROJECT_STRUCTURE_EXCEPTION_MESSAGE = "Unable to determine structure of project." +
       " Probably you use Maven Advanced Reactor Options, which is not supported by Sonar and should not be used.";
 
-  private MavenProjectConverter() {
-    // only static methods
-  }
-
   public static ProjectDefinition convert(List<MavenProject> poms, MavenProject root) {
     Map<String, MavenProject> paths = Maps.newHashMap(); // projects by canonical path to pom.xml
     Map<MavenProject, ProjectDefinition> defs = Maps.newHashMap();
@@ -59,13 +55,16 @@ public final class MavenProjectConverter {
         for (Object m : pom.getModules()) {
           String moduleId = (String) m;
           File modulePath = new File(pom.getBasedir(), moduleId);
-          MavenProject module = findMavenProject(modulePath, paths);
+          if (modulePath.exists() && modulePath.isDirectory()) {
+            modulePath = new File(modulePath, "pom.xml");
+          }
+          MavenProject module = paths.get(modulePath.getCanonicalPath());
 
           ProjectDefinition parentProject = defs.get(pom);
+          ProjectDefinition subProject = defs.get(module);
           if (parentProject == null) {
             throw new IllegalStateException(UNABLE_TO_DETERMINE_PROJECT_STRUCTURE_EXCEPTION_MESSAGE);
           }
-          ProjectDefinition subProject = defs.get(module);
           if (subProject == null) {
             throw new IllegalStateException(UNABLE_TO_DETERMINE_PROJECT_STRUCTURE_EXCEPTION_MESSAGE);
           }
@@ -82,19 +81,6 @@ public final class MavenProjectConverter {
     }
 
     return rootProject;
-  }
-
-  private static MavenProject findMavenProject(final File modulePath, Map<String, MavenProject> paths) throws IOException {
-    if (modulePath.exists() && modulePath.isDirectory()) {
-      for (Map.Entry<String, MavenProject> entry : paths.entrySet()) {
-        if (entry.getKey().contains(modulePath.getCanonicalPath())) {
-          return entry.getValue();
-        }
-      }
-      return null;
-    } else {
-      return paths.get(modulePath.getCanonicalPath());
-    }
   }
 
   @VisibleForTesting
@@ -166,5 +152,9 @@ public final class MavenProjectConverter {
       }
     }
     return file;
+  }
+
+  private MavenProjectConverter() {
+    // only static methods
   }
 }
