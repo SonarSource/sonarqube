@@ -373,6 +373,14 @@ function openAccordionItem(url, elt, updateCurrentElement) {
     } else {
       $j("#accordion-panel").append(html);
       $j("#accordion-panel").height('auto');
+
+      // Set the focus on the top of the current item
+      if (currentElement.length) {
+        $j('html, body').animate({
+          scrollTop: currentElement.offset().top},
+            500
+        );
+      }
     }
   }).fail(function (jqXHR, textStatus) {
         alert("Server error. Please contact your administrator. The status of the error is : "+ jqXHR.status);
