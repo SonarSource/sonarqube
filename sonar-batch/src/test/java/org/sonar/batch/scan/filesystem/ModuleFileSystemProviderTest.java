@@ -19,16 +19,20 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import com.google.common.base.Charsets;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.FileFilter;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.batch.bootstrap.TempDirectories;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -40,12 +44,48 @@ public class ModuleFileSystemProviderTest {
   @Test
   public void test_provide() throws IOException {
     ModuleFileSystemProvider provider = new ModuleFileSystemProvider();
+    File baseDir = temp.newFolder("base");
+    File workDir = temp.newFolder("work");
     ProjectDefinition module = ProjectDefinition.create()
-      .setBaseDir(temp.newFolder())
-      .setWorkDir(temp.newFolder());
+      .setBaseDir(baseDir)
+      .setWorkDir(workDir);
     ModuleFileSystem fs = provider.provide(module, new PathResolver(), new TempDirectories(), mock(LanguageFileFilters.class),
       new Settings(), new FileFilter[0]);
 
     assertThat(fs).isNotNull();
+    assertThat(fs.baseDir().getCanonicalPath()).isEqualTo(baseDir.getCanonicalPath());
+    assertThat(fs.workingDir().getCanonicalPath()).isEqualTo(workDir.getCanonicalPath());
+    assertThat(fs.sourceDirs()).isEmpty();
+    assertThat(fs.sourceFiles()).isEmpty();
+    assertThat(fs.testDirs()).isEmpty();
+    assertThat(fs.testFiles()).isEmpty();
+  }
+
+  @Test
+  public void default_charset_is_platform_dependent() throws IOException {
+    ModuleFileSystemProvider provider = new ModuleFileSystemProvider();
+
+    ModuleFileSystem fs = provider.provide(newSimpleModule(), new PathResolver(), new TempDirectories(), mock(LanguageFileFilters.class),
+      new Settings(), new FileFilter[0]);
+
+    assertThat(fs.sourceCharset()).isEqualTo(Charset.defaultCharset());
+  }
+
+  @Test
+  public void set_charset() throws IOException {
+    ModuleFileSystemProvider provider = new ModuleFileSystemProvider();
+    ProjectDefinition module = newSimpleModule();
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.ENCODING_PROPERTY, Charsets.ISO_8859_1.name());
+
+    ModuleFileSystem fs = provider.provide(module, new PathResolver(), new TempDirectories(), mock(LanguageFileFilters.class),
+      settings, new FileFilter[0]);
+
+    assertThat(fs.sourceCharset()).isEqualTo(Charsets.ISO_8859_1);
+  }
+
+  private ProjectDefinition newSimpleModule() {
+    return ProjectDefinition.create()
+      .setBaseDir(temp.newFolder("base"));
   }
 }
