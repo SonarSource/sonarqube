@@ -19,6 +19,7 @@
  */
 package org.sonar.home.cache;
 
+import org.apache.commons.io.FileUtils;
 import org.sonar.home.log.Log;
 import org.sonar.home.log.StandardLog;
 
@@ -51,7 +52,7 @@ public class FileCacheBuilder {
       String path = System.getenv("SONAR_USER_HOME");
       if (path == null) {
         // Default
-        path = System.getProperty("user.home") + File.separator + ".sonar";
+        path = FileUtils.getUserDirectoryPath() + File.separator + ".sonar";
       }
       userHome = new File(path);
     }
