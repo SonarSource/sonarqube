@@ -22,6 +22,7 @@ package org.sonar.batch.scan.filesystem;
 import com.google.common.collect.ImmutableSet;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.jfree.util.Log;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,10 +66,7 @@ public class ModuleFileSystemProvider extends ProviderAdapter {
       initTests(module, pathResolver, builder);
 
       // file filters
-      initPluginFilters(builder, pluginFileFilters);
-      initSourceInclusions(builder, settings);
-      initTestInclusions(builder, settings);
-
+      initCustomFilters(builder, pluginFileFilters);
       singleton = builder.build();
     }
     return singleton;
@@ -104,63 +102,54 @@ public class ModuleFileSystemProvider extends ProviderAdapter {
   }
 
   private void initSources(ProjectDefinition module, PathResolver pathResolver, DefaultModuleFileSystem.Builder builder) {
-    for (String sourcePath : module.getSourceDirs()) {
-      builder.addSourceDir(pathResolver.relativeFile(module.getBaseDir(), sourcePath));
+    if (!module.getSourceDirs().isEmpty()) {
+      LOG.info("Source dirs: ");
+      for (String sourcePath : module.getSourceDirs()) {
+        File dir = pathResolver.relativeFile(module.getBaseDir(), sourcePath);
+        LOG.info("  " + dir.getAbsolutePath());
+        builder.addSourceDir(dir);
+      }
     }
     List<File> sourceFiles = pathResolver.relativeFiles(module.getBaseDir(), module.getSourceFiles());
     if (!sourceFiles.isEmpty()) {
+      LOG.info("Source files: ");
+      for (File sourceFile : sourceFiles) {
+        LOG.info("  " + sourceFile.getAbsolutePath());
+      }
       builder.addFileFilter(new WhiteListFileFilter(FileFilter.FileType.SOURCE, ImmutableSet.copyOf(sourceFiles)));
     }
   }
 
   private void initTests(ProjectDefinition module, PathResolver pathResolver, DefaultModuleFileSystem.Builder builder) {
-    for (String testPath : module.getTestDirs()) {
-      builder.addTestDir(pathResolver.relativeFile(module.getBaseDir(), testPath));
+    if (!module.getTestDirs().isEmpty()) {
+      Log.info("Test dirs:");
+      for (String testPath : module.getTestDirs()) {
+        File dir = pathResolver.relativeFile(module.getBaseDir(), testPath);
+        LOG.info("  " + dir.getAbsolutePath());
+        builder.addTestDir(dir);
+      }
     }
     List<File> testFiles = pathResolver.relativeFiles(module.getBaseDir(), module.getTestFiles());
     if (!testFiles.isEmpty()) {
+      Log.info("Test files:");
+      for (File testFile : testFiles) {
+        LOG.info("  " + testFile.getAbsolutePath());
+      }
       builder.addFileFilter(new WhiteListFileFilter(FileFilter.FileType.TEST, ImmutableSet.copyOf(testFiles)));
     }
   }
 
-  private void initPluginFilters(DefaultModuleFileSystem.Builder builder, FileFilter[] pluginFileFilters) {
+  private void initCustomFilters(DefaultModuleFileSystem.Builder builder, FileFilter[] pluginFileFilters) {
     for (FileFilter pluginFileFilter : pluginFileFilters) {
       builder.addFileFilter(pluginFileFilter);
     }
   }
 
-  private void initSourceInclusions(DefaultModuleFileSystem.Builder builder, Settings settings) {
-    initInclusions(builder, settings, FileFilter.FileType.SOURCE,
-      CoreProperties.PROJECT_INCLUSIONS_PROPERTY, CoreProperties.GLOBAL_EXCLUSIONS_PROPERTY, CoreProperties.PROJECT_EXCLUSIONS_PROPERTY);
-  }
-
-  private void initTestInclusions(DefaultModuleFileSystem.Builder builder, Settings settings) {
-    initInclusions(builder, settings, FileFilter.FileType.TEST,
-      CoreProperties.PROJECT_TEST_INCLUSIONS_PROPERTY, CoreProperties.GLOBAL_TEST_EXCLUSIONS_PROPERTY, CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY);
-  }
-
-  private static void initInclusions(DefaultModuleFileSystem.Builder builder, Settings settings, FileFilter.FileType fileType,
-                                     String inclusionsProperty, String globalExclusionsProperty, String exclusionsProperty) {
-    String[] inclusions = settings.getStringArray(inclusionsProperty);
-    for (String inclusion : inclusions) {
-      InclusionFileFilter filter = InclusionFileFilter.create(fileType, inclusion);
-      if (filter != null) {
-        builder.addFileFilter(filter);
-      }
-    }
-    String[] globalExclusions = settings.getStringArray(globalExclusionsProperty);
-    for (String globalExclusion : globalExclusions) {
-      builder.addFileFilter(new ExclusionFileFilter(fileType, globalExclusion));
-    }
-    String[] exclusions = settings.getStringArray(exclusionsProperty);
-    for (String exclusion : exclusions) {
-      builder.addFileFilter(new ExclusionFileFilter(fileType, exclusion));
-    }
-  }
-
   private void initBinaryDirs(ProjectDefinition module, PathResolver pathResolver, DefaultModuleFileSystem.Builder builder) {
     for (String path : module.getBinaries()) {
-      builder.addBinaryDir(pathResolver.relativeFile(module.getBaseDir(), path));
+      File dir = pathResolver.relativeFile(module.getBaseDir(), path);
+      LOG.info("Binary dir: " + dir.getAbsolutePath());
+      builder.addBinaryDir(dir);
     }
   }
 }

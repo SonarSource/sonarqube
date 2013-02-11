@@ -22,10 +22,13 @@ package org.sonar.batch.scan.filesystem;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
+import org.sonar.api.resources.File;
+import org.sonar.api.resources.JavaFile;
 import org.sonar.api.scan.filesystem.FileFilter;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 
-import java.io.File;
 import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -36,36 +39,112 @@ public class ExclusionFileFilterTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
-  public void should_accept() throws IOException {
-    ExclusionFileFilter filter = new ExclusionFileFilter(FileFilter.FileType.SOURCE, "**/*Dao.java");
-    File acceptedFile = temp.newFile("Foo.java");
+  public void source_inclusions() throws IOException {
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "**/*Dao.java");
+    ExclusionFileFilter filter = new ExclusionFileFilter(settings);
 
     FileFilterContext context = new FileFilterContext(mock(ModuleFileSystem.class), FileFilter.FileType.SOURCE);
     context.setFileRelativePath("com/mycompany/Foo.java");
-    assertThat(filter.accept(acceptedFile, context)).isTrue();
+    assertThat(filter.accept(temp.newFile(), context)).isFalse();
 
+    context.setFileRelativePath("com/mycompany/FooDao.java");
+    assertThat(filter.accept(temp.newFile(), context)).isTrue();
+
+    // source inclusions do not apply to tests
     context = new FileFilterContext(mock(ModuleFileSystem.class), FileFilter.FileType.TEST);
     context.setFileRelativePath("com/mycompany/Foo.java");
-    assertThat(filter.accept(acceptedFile, context)).isTrue();
+    assertThat(filter.accept(temp.newFile(), context)).isTrue();
   }
 
   @Test
-  public void should_exclude() throws IOException {
-    ExclusionFileFilter filter = new ExclusionFileFilter(FileFilter.FileType.SOURCE, "**/*Dao.java");
-    File excludedFile = temp.newFile("FooDao.java");
+  public void source_exclusions() throws IOException {
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "**/*Dao.java");
+    ExclusionFileFilter filter = new ExclusionFileFilter(settings);
 
     FileFilterContext context = new FileFilterContext(mock(ModuleFileSystem.class), FileFilter.FileType.SOURCE);
     context.setFileRelativePath("com/mycompany/FooDao.java");
-    assertThat(filter.accept(excludedFile, context)).isFalse();
+    assertThat(filter.accept(temp.newFile(), context)).isFalse();
 
+    context.setFileRelativePath("com/mycompany/Foo.java");
+    assertThat(filter.accept(temp.newFile(), context)).isTrue();
+
+    // source exclusions do not apply to tests
     context = new FileFilterContext(mock(ModuleFileSystem.class), FileFilter.FileType.TEST);
     context.setFileRelativePath("com/mycompany/FooDao.java");
-    assertThat(filter.accept(excludedFile, context)).isTrue();
+    assertThat(filter.accept(temp.newFile(), context)).isTrue();
+  }
+
+  @Test
+  public void resource_inclusions() throws IOException {
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "**/*Dao.c");
+    ExclusionFileFilter filter = new ExclusionFileFilter(settings);
+
+    assertThat(filter.isIgnored(new File("org/sonar", "FooDao.c"))).isFalse();
+    assertThat(filter.isIgnored(new File("org/sonar", "Foo.c"))).isTrue();
+  }
+
+  @Test
+  public void resource_exclusions() throws IOException {
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "**/*Dao.c");
+    ExclusionFileFilter filter = new ExclusionFileFilter(settings);
+
+    assertThat(filter.isIgnored(new File("org/sonar", "FooDao.c"))).isTrue();
+    assertThat(filter.isIgnored(new File("org/sonar", "Foo.c"))).isFalse();
+  }
+
+  /**
+   * JavaFile will be deprecated
+   */
+  @Test
+  public void java_resource_inclusions() throws IOException {
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "**/*Dao.java");
+    ExclusionFileFilter filter = new ExclusionFileFilter(settings);
+
+    assertThat(filter.isIgnored(new JavaFile("org.sonar", "FooDao"))).isFalse();
+    assertThat(filter.isIgnored(new JavaFile("org.sonar", "Foo"))).isTrue();
+  }
+
+  /**
+   * JavaFile will be deprecated
+   */
+  @Test
+  public void java_resource_exclusions() throws IOException {
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "**/*Dao.java");
+    ExclusionFileFilter filter = new ExclusionFileFilter(settings);
+
+    assertThat(filter.isIgnored(new JavaFile("org.sonar", "FooDao"))).isTrue();
+    assertThat(filter.isIgnored(new JavaFile("org.sonar", "Foo"))).isFalse();
+  }
+
+  @Test
+  public void test_settings() throws IOException {
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "source/inclusions");
+    settings.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "source/exclusions");
+    settings.setProperty(CoreProperties.PROJECT_TEST_INCLUSIONS_PROPERTY, "test/inclusions");
+    settings.setProperty(CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY, "test/exclusions");
+    ExclusionFileFilter filter = new ExclusionFileFilter(settings);
+
+    assertThat(filter.sourceInclusions()[0].toString()).isEqualTo("source/inclusions");
+    assertThat(filter.testInclusions()[0].toString()).isEqualTo("test/inclusions");
+    assertThat(filter.sourceExclusions()[0].toString()).isEqualTo("source/exclusions");
+    assertThat(filter.testExclusions()[0].toString()).isEqualTo("test/exclusions");
   }
 
   @Test
   public void should_trim_pattern() throws IOException {
-    ExclusionFileFilter filter = new ExclusionFileFilter(FileFilter.FileType.SOURCE, "   **/*Dao.java  ");
-    assertThat(filter.pattern().toString()).isEqualTo("**/*Dao.java");
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "   **/*Dao.java   ");
+    ExclusionFileFilter filter = new ExclusionFileFilter(settings);
+
+    assertThat(filter.sourceExclusions()[0].toString()).isEqualTo("**/*Dao.java");
   }
+
+
 }

@@ -19,29 +19,93 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.ResourceFilter;
+import org.sonar.api.config.Settings;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.scan.filesystem.FileFilter;
 import org.sonar.api.utils.WildcardPattern;
 
 import java.io.File;
 
-/**
- * @since 3.5
- */
-class ExclusionFileFilter implements FileFilter {
-  private final FileType fileType;
-  private final WildcardPattern pattern;
+public class ExclusionFileFilter implements FileFilter, ResourceFilter, BatchComponent {
+  private final WildcardPattern[] sourceInclusions;
+  private final WildcardPattern[] testInclusions;
+  private final WildcardPattern[] sourceExclusions;
+  private final WildcardPattern[] testExclusions;
 
-  ExclusionFileFilter(FileType fileType, String pattern) {
-    this.fileType = fileType;
-    this.pattern = WildcardPattern.create(StringUtils.trim(pattern));
+  public ExclusionFileFilter(Settings settings) {
+    sourceInclusions = ExclusionPatterns.sourceInclusions(settings);
+    log("Included sources: ", sourceInclusions);
+
+    testInclusions = ExclusionPatterns.testInclusions(settings);
+    log("Included tests: ", sourceInclusions);
+
+    sourceExclusions = ExclusionPatterns.sourceExclusions(settings);
+    log("Excluded sources: ", sourceExclusions);
+
+    testExclusions = ExclusionPatterns.testExclusions(settings);
+    log("Excluded tests: ", sourceExclusions);
+  }
+
+  private void log(String title, WildcardPattern[] patterns) {
+    if (patterns.length > 0) {
+      Logger log = LoggerFactory.getLogger(ExclusionFileFilter.class);
+      log.info(title);
+      for (WildcardPattern pattern : patterns) {
+        log.info("  " + pattern);
+      }
+    }
   }
 
   public boolean accept(File file, Context context) {
-    return !fileType.equals(context.fileType()) || !pattern.match(context.fileRelativePath());
+    WildcardPattern[] inclusionPatterns = (context.fileType() == FileType.TEST ? testInclusions : sourceInclusions);
+    for (WildcardPattern pattern : inclusionPatterns) {
+      if (!pattern.match(context.fileRelativePath())) {
+        return false;
+      }
+    }
+    WildcardPattern[] exclusionPatterns = (context.fileType() == FileType.TEST ? testExclusions : sourceExclusions);
+    for (WildcardPattern pattern : exclusionPatterns) {
+      if (pattern.match(context.fileRelativePath())) {
+        return false;
+      }
+    }
+    return true;
   }
 
-  WildcardPattern pattern() {
-    return pattern;
+  public boolean isIgnored(Resource resource) {
+    WildcardPattern[] inclusionPatterns = (ResourceUtils.isUnitTestClass(resource) ? testInclusions : sourceInclusions);
+    for (WildcardPattern pattern : inclusionPatterns) {
+      if (!resource.matchFilePattern(pattern.toString())) {
+        return true;
+      }
+    }
+    WildcardPattern[] exclusionPatterns = (ResourceUtils.isUnitTestClass(resource) ? testExclusions : sourceExclusions);
+    for (WildcardPattern pattern : exclusionPatterns) {
+      if (resource.matchFilePattern(pattern.toString())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  WildcardPattern[] sourceInclusions() {
+    return sourceInclusions;
+  }
+
+  WildcardPattern[] testInclusions() {
+    return testInclusions;
+  }
+
+  WildcardPattern[] sourceExclusions() {
+    return sourceExclusions;
+  }
+
+  WildcardPattern[] testExclusions() {
+    return testExclusions;
   }
 }
