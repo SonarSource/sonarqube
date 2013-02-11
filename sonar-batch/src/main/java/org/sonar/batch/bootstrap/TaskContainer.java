@@ -71,14 +71,14 @@ import org.sonar.jpa.session.JpaDatabaseSession;
 /**
  * Level-3 components. Task-level components that don't depends on project.
  */
-public class TaskModule extends Module {
+public class TaskContainer extends Container {
 
-  private static final Logger LOG = LoggerFactory.getLogger(TaskModule.class);
+  private static final Logger LOG = LoggerFactory.getLogger(TaskContainer.class);
 
   private TaskDefinition taskDefinition;
   private boolean projectPresent;
 
-  public TaskModule(TaskDefinition task, boolean projectPresent) {
+  public TaskContainer(TaskDefinition task, boolean projectPresent) {
     this.taskDefinition = task;
     this.projectPresent = projectPresent;
   }

@@ -31,11 +31,11 @@ import javax.annotation.Nullable;
 /**
  * Level-2 components. Collect tasks definitions.
  */
-public class TaskBootstrapModule extends Module {
+public class TaskBootstrapContainer extends Container {
 
   private String taskCommand;
 
-  public TaskBootstrapModule(@Nullable String taskCommand) {
+  public TaskBootstrapContainer(@Nullable String taskCommand) {
     this.taskCommand = taskCommand;
   }
 
@@ -67,7 +67,7 @@ public class TaskBootstrapModule extends Module {
     if (ExtensionUtils.requiresProject(taskDefinition.getTask()) && !projectPresent) {
       throw new SonarException("Task " + taskDefinition.getName() + " requires to be run on a project");
     }
-    Module childModule = new TaskModule(taskDefinition, projectPresent);
+    Container childModule = new TaskContainer(taskDefinition, projectPresent);
     try {
       installChild(childModule);
       childModule.start();

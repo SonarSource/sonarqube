@@ -22,8 +22,8 @@ package org.sonar.batch;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.batch.bootstrap.BootstrapModule;
-import org.sonar.batch.bootstrap.Module;
+import org.sonar.batch.bootstrap.BootstrapContainer;
+import org.sonar.batch.bootstrap.Container;
 import org.sonar.batch.bootstrapper.Reactor;
 
 import java.util.Iterator;
@@ -35,10 +35,10 @@ import java.util.Properties;
 @Deprecated
 public final class Batch {
 
-  private Module bootstrapModule;
+  private Container bootstrapModule;
 
   public Batch(ProjectReactor reactor, Object... bootstrapperComponents) {
-    this.bootstrapModule = new BootstrapModule(reactor, bootstrapperComponents);
+    this.bootstrapModule = new BootstrapContainer(reactor, bootstrapperComponents);
     this.bootstrapModule.init();
   }
 
@@ -48,7 +48,7 @@ public final class Batch {
   @Deprecated
   public Batch(Configuration configuration, Object... bootstrapperComponents) {//NOSONAR configuration is not needed
     // because it's already included in ProjectDefinition.
-    this.bootstrapModule = new BootstrapModule(extractProjectReactor(bootstrapperComponents), bootstrapperComponents);
+    this.bootstrapModule = new BootstrapContainer(extractProjectReactor(bootstrapperComponents), bootstrapperComponents);
     this.bootstrapModule.init();
   }
 
@@ -97,7 +97,7 @@ public final class Batch {
   /**
    * for unit tests
    */
-  Batch(Module bootstrapModule) {
+  Batch(Container bootstrapModule) {
     this.bootstrapModule = bootstrapModule;
   }
 

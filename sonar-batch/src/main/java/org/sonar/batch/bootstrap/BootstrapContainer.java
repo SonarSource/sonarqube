@@ -32,7 +32,7 @@ import javax.annotation.Nullable;
 /**
  * Level 1 components
  */
-public class BootstrapModule extends Module {
+public class BootstrapContainer extends Container {
 
   private Object[] boostrapperComponents;
   private ProjectReactor reactor;
@@ -43,11 +43,11 @@ public class BootstrapModule extends Module {
    * @deprecated Use {@link #BootstrapModule(GlobalBatchProperties, String, ProjectReactor, Object...)}
    */
   @Deprecated
-  public BootstrapModule(ProjectReactor reactor, Object... boostrapperComponents) {
+  public BootstrapContainer(ProjectReactor reactor, Object... boostrapperComponents) {
     this(new GlobalBatchProperties(), null, reactor, boostrapperComponents);
   }
 
-  public BootstrapModule(GlobalBatchProperties globalProperties, @Nullable String taskCommand, @Nullable ProjectReactor reactor,
+  public BootstrapContainer(GlobalBatchProperties globalProperties, @Nullable String taskCommand, @Nullable ProjectReactor reactor,
       Object... boostrapperComponents) {
     this.globalProperties = globalProperties;
     this.taskCommand = taskCommand;
@@ -98,7 +98,7 @@ public class BootstrapModule extends Module {
 
   @Override
   protected void doStart() {
-    Module taskBootstrap = installChild(new TaskBootstrapModule(taskCommand));
+    Container taskBootstrap = installChild(new TaskBootstrapContainer(taskCommand));
     taskBootstrap.start();
   }
 }

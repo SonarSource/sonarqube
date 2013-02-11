@@ -23,9 +23,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.batch.bootstrap.BootstrapModule;
+import org.sonar.batch.bootstrap.BootstrapContainer;
 import org.sonar.batch.bootstrap.GlobalBatchProperties;
-import org.sonar.batch.bootstrap.Module;
+import org.sonar.batch.bootstrap.Container;
 import org.sonar.core.PicoUtils;
 
 import java.util.Collections;
@@ -80,9 +80,9 @@ public final class Batch {
   }
 
   private void startBatch() {
-    Module bootstrapModule = null;
+    Container bootstrapModule = null;
     try {
-      bootstrapModule = new BootstrapModule(new GlobalBatchProperties(globalProperties), taskCommand,
+      bootstrapModule = new BootstrapContainer(new GlobalBatchProperties(globalProperties), taskCommand,
           projectReactor, components.toArray(new Object[components.size()]));
       bootstrapModule.init();
       bootstrapModule.start();

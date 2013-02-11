@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.tasks;
 
-import org.sonar.batch.bootstrap.InspectionModule;
+import org.sonar.batch.bootstrap.InspectionContainer;
 
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
@@ -54,7 +54,7 @@ public class InspectionTask implements Task {
       analyze(subProject);
     }
 
-    InspectionModule projectModule = new InspectionModule(project);
+    InspectionContainer projectModule = new InspectionContainer(project);
     try {
       ComponentContainer childContainer = container.createChild();
       projectModule.init(childContainer);

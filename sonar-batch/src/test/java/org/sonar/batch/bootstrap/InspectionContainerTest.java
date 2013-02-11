@@ -36,7 +36,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class InspectionModuleTest {
+public class InspectionContainerTest {
   @Test
   public void should_register_project_extensions() {
     // components injected in the parent container
@@ -48,7 +48,7 @@ public class InspectionModuleTest {
     when(resourcePersister.getSnapshot(Matchers.<Resource> any())).thenReturn(new Snapshot());
 
     final ExtensionInstaller extensionInstaller = mock(ExtensionInstaller.class);
-    Module batchModule = new Module() {
+    Container batchModule = new Container() {
       @Override
       protected void configure() {
         container.addSingleton(extensionInstaller);
@@ -59,7 +59,7 @@ public class InspectionModuleTest {
     };
 
     batchModule.init();
-    InspectionModule projectModule = new InspectionModule(project);
+    InspectionContainer projectModule = new InspectionContainer(project);
     batchModule.installChild(projectModule);
 
     verify(extensionInstaller).installInspectionExtensions(any(ComponentContainer.class));

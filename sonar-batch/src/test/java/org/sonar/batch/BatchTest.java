@@ -21,7 +21,7 @@ package org.sonar.batch;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
-import org.sonar.batch.bootstrap.Module;
+import org.sonar.batch.bootstrap.Container;
 
 import java.util.Properties;
 
@@ -40,7 +40,7 @@ public class BatchTest {
     assertThat(module.stopped, is(true));
   }
 
-  public static class FakeModule extends Module {
+  public static class FakeModule extends Container {
     private boolean started=false;
     private boolean stopped=false;
 

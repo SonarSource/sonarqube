@@ -19,38 +19,47 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.sonar.api.config.Settings;
-import org.sonar.api.utils.SonarException;
+import org.sonar.api.platform.ComponentContainer;
+import org.sonar.api.task.TaskDefinition;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
-public class TaskBootstrapModuleTest {
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
+public class TaskContainerTest {
   @Test
-  public void should_throw_when_no_project_and_task_require_project() {
+  public void should_register_task_extensions_when_project_present() {
     final ExtensionInstaller extensionInstaller = mock(ExtensionInstaller.class);
-    Module bootstrapModule = new Module() {
+    Container bootstrapModule = new Container() {
       @Override
       protected void configure() {
         // used to install project extensions
         container.addSingleton(extensionInstaller);
-        container.addSingleton(Settings.class);
       }
     };
     bootstrapModule.init();
-    TaskBootstrapModule module = new TaskBootstrapModule("inspect");
+    TaskContainer module = new TaskContainer(TaskDefinition.create(), true);
     bootstrapModule.installChild(module);
 
-    thrown.expect(SonarException.class);
-    thrown.expectMessage("Task Sonar project inspection requires to be run on a project");
-
-    module.start();
+    verify(extensionInstaller).installTaskExtensions(any(ComponentContainer.class), eq(true));
   }
 
+  @Test
+  public void should_register_task_extensions_when_no_project() {
+    final ExtensionInstaller extensionInstaller = mock(ExtensionInstaller.class);
+    Container bootstrapModule = new Container() {
+      @Override
+      protected void configure() {
+        // used to install project extensions
+        container.addSingleton(extensionInstaller);
+      }
+    };
+    bootstrapModule.init();
+    TaskContainer module = new TaskContainer(TaskDefinition.create(), false);
+    bootstrapModule.installChild(module);
+
+    verify(extensionInstaller).installTaskExtensions(any(ComponentContainer.class), eq(false));
+  }
 }

@@ -28,11 +28,11 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class ModuleTest {
+public class ContainerTest {
 
   @Test
   public void shouldInitModule() {
-    Module module = new FakeModule(FakeService.class);
+    Container module = new FakeModule(FakeService.class);
     module.init();
 
     FakeService service = module.container.getComponentByType(FakeService.class);
@@ -43,7 +43,7 @@ public class ModuleTest {
 
   @Test
   public void shouldStartAndStopModule() {
-    Module module = new FakeModule(FakeService.class);
+    Container module = new FakeModule(FakeService.class);
     module.init();
     module.start();
 
@@ -56,14 +56,14 @@ public class ModuleTest {
 
   @Test(expected = RuntimeException.class)
   public void shouldNotIgnoreStartFailures() {
-    Module module = new FakeModule(NonStartableService.class);
+    Container module = new FakeModule(NonStartableService.class);
     module.init();
     module.start();
   }
 
   @Test
   public void shouldIgnoreStopFailures() {
-    Module module = new FakeModule(NonStoppableService.class);
+    Container module = new FakeModule(NonStoppableService.class);
     module.init();
     module.start();
     module.stop(); // no exception is raised
@@ -71,7 +71,7 @@ public class ModuleTest {
 
   @Test
   public void componentsShouldBeSingletons() {
-    Module module = new FakeModule(FakeService.class);
+    Container module = new FakeModule(FakeService.class);
     module.init();
 
     assertThat(module.container.getComponentByType(FakeService.class) == module.container.getComponentByType(FakeService.class), is(true));
@@ -79,11 +79,11 @@ public class ModuleTest {
 
   @Test
   public void shouldInstallChildModule() {
-    Module parent = new FakeModule(FakeService.class);
+    Container parent = new FakeModule(FakeService.class);
     parent.init();
     parent.start();
 
-    Module child = parent.installChild(new FakeModule(ChildService.class));
+    Container child = parent.installChild(new FakeModule(ChildService.class));
 
     assertThat(parent.container.getComponentByType(ChildService.class), Matchers.nullValue());// child not accessible from parent
     assertThat(child.container.getComponentByType(FakeService.class), not(nullValue()));
@@ -97,7 +97,7 @@ public class ModuleTest {
     assertThat(child.container.getComponentByType(ChildService.class).started, is(false));
   }
 
-  public static class FakeModule extends Module {
+  public static class FakeModule extends Container {
     private Class[] components;
 
     public FakeModule(Class... components) {

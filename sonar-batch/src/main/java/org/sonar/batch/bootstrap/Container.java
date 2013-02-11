@@ -22,11 +22,11 @@ package org.sonar.batch.bootstrap;
 import org.sonar.api.platform.ComponentContainer;
 
 /**
- * Module describes group of components - {@link #configure()}.
- * Several modules can be grouped together - {@link #installChild(Module)}.
+ * Container describes group of components - {@link #configure()}.
+ * Several containers can be grouped together - {@link #installChild(Container)}.
  * <p/>
  */
-public abstract class Module {
+public abstract class Container {
 
   protected ComponentContainer container;
 
@@ -46,11 +46,11 @@ public abstract class Module {
   }
 
   /**
-   * Installs module into new scope - see http://picocontainer.org/scopes.html
+   * Installs container into new scope - see http://picocontainer.org/scopes.html
    *
    * @return installed module
    */
-  public final Module installChild(Module child) {
+  public final Container installChild(Container child) {
     ComponentContainer childContainer = container.createChild();
     child.init(childContainer);
     return child;
@@ -63,7 +63,7 @@ public abstract class Module {
   /**
    * @return this
    */
-  public final Module start() {
+  public final Container start() {
     container.startComponents();
     doStart();
     return this;
@@ -76,7 +76,7 @@ public abstract class Module {
   /**
    * @return this
    */
-  public final Module stop() {
+  public final Container stop() {
     try {
       doStop();
       container.stopComponents();

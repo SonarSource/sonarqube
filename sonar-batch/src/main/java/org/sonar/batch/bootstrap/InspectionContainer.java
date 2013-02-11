@@ -46,11 +46,11 @@ import org.sonar.core.qualitymodel.DefaultModelFinder;
 import org.sonar.jpa.dao.ProfilesDao;
 import org.sonar.jpa.dao.RulesDao;
 
-public class InspectionModule extends Module {
-  private static final Logger LOG = LoggerFactory.getLogger(InspectionModule.class);
+public class InspectionContainer extends Container {
+  private static final Logger LOG = LoggerFactory.getLogger(InspectionContainer.class);
   private Project project;
 
-  public InspectionModule(Project project) {
+  public InspectionContainer(Project project) {
     this.project = project;
   }
 

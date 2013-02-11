@@ -30,13 +30,13 @@ import org.sonar.batch.MavenPluginExecutor;
 import static org.fest.assertions.Assertions.assertThat;
 
 
-public class BootstrapModuleTest {
+public class BootstrapContainerTest {
 
   private ProjectReactor reactor = new ProjectReactor(ProjectDefinition.create());
 
   @Test
   public void should_register_fake_maven_executor_if_not_maven_env() {
-    BootstrapModule module = new BootstrapModule(reactor, null, MyMavenPluginExecutor.class);
+    BootstrapContainer module = new BootstrapContainer(reactor, null, MyMavenPluginExecutor.class);
     module.init();
 
     assertThat(module.isMavenPluginExecutorRegistered()).isTrue();
@@ -45,7 +45,7 @@ public class BootstrapModuleTest {
 
   @Test
   public void should_use_plugin_executor_provided_by_maven() {
-    BootstrapModule module = new BootstrapModule(reactor);
+    BootstrapContainer module = new BootstrapContainer(reactor);
     module.init();
     assertThat(module.isMavenPluginExecutorRegistered()).isFalse();
     assertThat(module.container.getComponentByType(MavenPluginExecutor.class)).isInstanceOf(FakeMavenPluginExecutor.class);
@@ -53,7 +53,7 @@ public class BootstrapModuleTest {
 
   @Test
   public void should_register_bootstrap_components() {
-    BootstrapModule module = new BootstrapModule(reactor, new FakeComponent());
+    BootstrapContainer module = new BootstrapContainer(reactor, new FakeComponent());
     module.init();
 
     assertThat(module.container).isNotNull();
@@ -63,7 +63,7 @@ public class BootstrapModuleTest {
 
   @Test
   public void should_not_fail_if_no_bootstrap_components() {
-    BootstrapModule module = new BootstrapModule(reactor);
+    BootstrapContainer module = new BootstrapContainer(reactor);
     module.init();
 
     assertThat(module.container).isNotNull();
