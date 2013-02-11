@@ -211,7 +211,7 @@
               <rules>
                 <requireFilesSize>
                   <maxsize>56000000</maxsize>
-                  <minsize>55000000</minsize>
+                  <minsize>53000000</minsize>
                   <files>
                     <file>${project.build.directory}/sonar-${project.version}.zip</file>
                   </files>
