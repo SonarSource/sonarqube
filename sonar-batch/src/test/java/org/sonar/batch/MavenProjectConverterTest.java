@@ -25,7 +25,6 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.hamcrest.core.Is;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
@@ -140,7 +139,6 @@ public class MavenProjectConverterTest {
   }
 
   @Test
-  @Ignore
   public void should_find_module_with_maven_project_file_naming_different_from_pom_xml() throws Exception {
     File rootDir = TestUtils.getResource("/org/sonar/batch/MavenProjectConverterTest/mavenProjectFileNameNotEqualsToPomXml/");
     MavenProject parent = loadPom("/org/sonar/batch/MavenProjectConverterTest/mavenProjectFileNameNotEqualsToPomXml/pom.xml", true);
