@@ -21,13 +21,16 @@ package org.sonar.home.cache;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.SecureRandom;
@@ -44,6 +47,9 @@ public class FileHashesTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
   public void test_md5_hash() {
@@ -73,11 +79,15 @@ public class FileHashesTest {
   }
 
   @Test
-  public void fail_if_file_does_not_exist() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Fail to compute hash of: /does/not/exist");
+  public void fail_if_file_does_not_exist() throws IOException {
+    File file = temp.newFile("does_not_exist");
+    FileUtils.forceDelete(file);
 
-    new FileHashes().of(new File("/does/not/exist"));
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Fail to compute hash of: " + file.getAbsolutePath());
+
+
+    new FileHashes().of(file);
   }
 
   @Test
