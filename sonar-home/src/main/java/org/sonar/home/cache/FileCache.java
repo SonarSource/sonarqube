@@ -107,8 +107,7 @@ public class FileCache {
       // Check if the file was cached by another process during download
       if (!targetFile.exists()) {
         log.warn(String.format("Unable to rename %s to %s", sourceFile.getAbsolutePath(), targetFile.getAbsolutePath()));
-        log.warn(String.format("A copy/delete will be tempted but with no garantee of atomicity. It's recommended that " +
-          "user cache and temp folders are located on the same hard drive partition. Please check $SONAR_USER_HOME or -Dsonar.userHome"));
+        log.warn(String.format("A copy/delete will be tempted but with no garantee of atomicity"));
         try {
           FileUtils.moveFile(sourceFile, targetFile);
         } catch (IOException e) {
