@@ -48,7 +48,7 @@ public class SemaphoreUpdaterTest extends AbstractDaoTestCase {
     Semaphores.Semaphore semaphore = new Semaphores.Semaphore().setName("foo");
     updater.scheduleForUpdate(semaphore, 1);
 
-    Thread.sleep(1000);
+    Thread.sleep(2000);
 
     verify(dao).update(semaphore);
   }
@@ -59,7 +59,7 @@ public class SemaphoreUpdaterTest extends AbstractDaoTestCase {
     updater.scheduleForUpdate(semaphore, 1);
     updater.stopUpdate("foo");
 
-    Thread.sleep(1000);
+    Thread.sleep(2000);
 
     verify(dao, never()).update(semaphore);
   }
