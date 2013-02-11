@@ -356,7 +356,8 @@ module ApplicationHelper
   # Display the trend icon :
   #
   # === Optional parameters
-  # * empty: true|false. Show an empty transparent image when no trend or no measure. Default is false.
+  # :empty: true|false. Show an empty transparent image when no trend or no measure. Default is false.
+  # :big : true|false (default is false). Default is 10x10px. Big is 16x16px.
   #
   # === Examples
   # trend_icon('ncloc')
@@ -371,8 +372,15 @@ module ApplicationHelper
       m = @snapshot.measure(metric_or_measure)
     end
 
+    if options[:big]
+      size = '-big'
+      pixels = 16
+    else
+      size = ''
+      pixels = 10
+    end
     if m.nil? || m.tendency.nil? || m.tendency==0
-      return options[:empty] ? image_tag('trend/0.png', :width => '16', :alt => '') : nil
+      return options[:empty] ? image_tag("trend/0#{size}.png", :width => pixels, :height => pixels, :alt => '') : nil
     end
     filename = m.tendency.to_s
 
@@ -384,7 +392,7 @@ module ApplicationHelper
       when 1
         filename+= '-green'
     end
-    image_tag("trend/#{filename}.png")
+    image_tag("trend/#{filename}#{size}.png", :width => pixels, :height => pixels, :alt => '')
   end
 
   #
