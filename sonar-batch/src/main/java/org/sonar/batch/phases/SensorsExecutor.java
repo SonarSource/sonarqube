@@ -33,6 +33,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.batch.MavenPluginExecutor;
 import org.sonar.batch.events.EventBus;
+import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 
 import java.util.Collection;
 
@@ -42,15 +43,15 @@ public class SensorsExecutor implements BatchComponent {
   private MavenPluginExecutor mavenExecutor;
   private EventBus eventBus;
   private Project project;
-  private ProjectDefinition projectDefinition;
+  private DefaultModuleFileSystem fs;
   private BatchExtensionDictionnary selector;
 
-  public SensorsExecutor(BatchExtensionDictionnary selector, Project project, ProjectDefinition projectDefinition, MavenPluginExecutor mavenExecutor, EventBus eventBus) {
+  public SensorsExecutor(BatchExtensionDictionnary selector, Project project, DefaultModuleFileSystem fs, MavenPluginExecutor mavenExecutor, EventBus eventBus) {
     this.selector = selector;
     this.mavenExecutor = mavenExecutor;
     this.eventBus = eventBus;
     this.project = project;
-    this.projectDefinition = projectDefinition;
+    this.fs = fs;
   }
 
   public void execute(SensorContext context) {
@@ -73,7 +74,7 @@ public class SensorsExecutor implements BatchComponent {
       MavenPluginHandler handler = ((DependsUponMavenPlugin) sensor).getMavenPluginHandler(project);
       if (handler != null) {
         TimeProfiler profiler = new TimeProfiler(LOG).start("Execute maven plugin " + handler.getArtifactId());
-        mavenExecutor.execute(project, projectDefinition, handler);
+        mavenExecutor.execute(project, fs, handler);
         profiler.stop();
       }
     }

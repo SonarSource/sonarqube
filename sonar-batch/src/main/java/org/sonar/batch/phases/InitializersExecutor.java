@@ -24,12 +24,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.Initializer;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.maven.DependsUponMavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.batch.MavenPluginExecutor;
+import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 
 import java.util.Collection;
 
@@ -39,15 +39,15 @@ public class InitializersExecutor {
 
   private MavenPluginExecutor mavenExecutor;
 
-  private ProjectDefinition projectDef;
+  private DefaultModuleFileSystem fs;
   private Project project;
   private BatchExtensionDictionnary selector;
 
-  public InitializersExecutor(BatchExtensionDictionnary selector, Project project, ProjectDefinition projectDef, MavenPluginExecutor mavenExecutor) {
+  public InitializersExecutor(BatchExtensionDictionnary selector, Project project, DefaultModuleFileSystem fs, MavenPluginExecutor mavenExecutor) {
     this.selector = selector;
     this.mavenExecutor = mavenExecutor;
     this.project = project;
-    this.projectDef = projectDef;
+    this.fs = fs;
   }
 
   public void execute() {
@@ -70,7 +70,7 @@ public class InitializersExecutor {
       MavenPluginHandler handler = ((DependsUponMavenPlugin) sensor).getMavenPluginHandler(project);
       if (handler != null) {
         TimeProfiler profiler = new TimeProfiler(LOG).start("Execute maven plugin " + handler.getArtifactId());
-        mavenExecutor.execute(project, projectDef, handler);
+        mavenExecutor.execute(project, fs, handler);
         profiler.stop();
       }
     }

@@ -20,6 +20,7 @@
 package org.sonar.api.resources;
 
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.WildcardPattern;
 
 import java.io.File;
@@ -210,8 +211,11 @@ public class JavaFile extends Resource<JavaPackage> {
     if (file == null || !StringUtils.endsWithIgnoreCase(file.getName(), ".java")) {
       return null;
     }
-    String relativePath = DefaultProjectFileSystem.getRelativePath(file, sourceDirs);
-    return fromRelativePath(relativePath, unitTest);
+    PathResolver.RelativePath relativePath = new PathResolver().relativePath(sourceDirs, file);
+    if (relativePath != null) {
+      return fromRelativePath(relativePath.path(), unitTest);
+    }
+    return null;
   }
 
   /**

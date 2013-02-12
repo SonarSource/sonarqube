@@ -19,16 +19,16 @@
  */
 package org.sonar.batch;
 
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 
 public final class FakeMavenPluginExecutor implements MavenPluginExecutor {
-  public void execute(Project project, ProjectDefinition projectDef, String goal) {
+  public void execute(Project project, DefaultModuleFileSystem fs, String goal) {
     // do nothing
   }
 
-  public MavenPluginHandler execute(Project project, ProjectDefinition projectDefinition, MavenPluginHandler handler) {
+  public MavenPluginHandler execute(Project project, DefaultModuleFileSystem fs, MavenPluginHandler handler) {
     // do nothing
     return handler;
   }

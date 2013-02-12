@@ -23,9 +23,10 @@ import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.sonar.api.BatchComponent;
 import org.sonar.api.resources.Languages;
 
-public class LanguageFileFilters {
+public class LanguageFileFilters implements BatchComponent {
   private final Languages languages;
 
   public LanguageFileFilters(Languages languages) {

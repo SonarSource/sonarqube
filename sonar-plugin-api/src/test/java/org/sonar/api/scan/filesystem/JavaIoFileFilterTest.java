@@ -17,35 +17,32 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.batch;
+package org.sonar.api.scan.filesystem;
 
-import org.sonar.api.batch.ResourceFilter;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
-/**
- * @since 1.12
- */
-public class ExcludedResourceFilter implements ResourceFilter {
-  private final Project project;
+import java.io.File;
+import java.io.IOException;
 
-  public ExcludedResourceFilter(Project project) {
-    this.project = project;
-  }
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
-  public boolean isIgnored(Resource resource) {
-    String[] patterns = ResourceUtils.isUnitTestClass(resource) ? project.getTestExclusionPatterns() : project.getExclusionPatterns();
-    if (patterns == null) {
-      return false;
-    }
+public class JavaIoFileFilterTest {
 
-    for (String pattern : patterns) {
-      if (resource.matchFilePattern(pattern)) {
-        return true;
-      }
-    }
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
-    return false;
+  @Test
+  public void should_wrap_java_io_filefilter() throws IOException {
+    IOFileFilter javaIoFilter = mock(IOFileFilter.class);
+    JavaIoFileFilter filter = JavaIoFileFilter.create(javaIoFilter);
+
+    File file = temp.newFile();
+    filter.accept(file, mock(FileFilter.Context.class));
+
+    verify(javaIoFilter).accept(file);
   }
 }

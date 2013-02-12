@@ -28,6 +28,7 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.MavenPluginExecutor;
 import org.sonar.batch.local.DryRunExporter;
+import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 
 import java.util.Arrays;
 
@@ -48,7 +49,7 @@ public class PostJobsExecutorTest {
 
   @Before
   public void setUp() {
-    executor = new PostJobsExecutor(selector, project, ProjectDefinition.create(), mavenPluginExecutor, localModeExporter);
+    executor = new PostJobsExecutor(selector, project, mock(DefaultModuleFileSystem.class), mavenPluginExecutor, localModeExporter);
   }
 
   @Test

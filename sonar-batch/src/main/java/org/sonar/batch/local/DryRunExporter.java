@@ -29,10 +29,10 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
-import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
+import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.core.i18n.RuleI18nManager;
@@ -54,14 +54,14 @@ public class DryRunExporter implements BatchComponent {
 
   private final Settings settings;
   private final DefaultIndex sonarIndex;
-  private final ProjectFileSystem projectFileSystem;
+  private final ModuleFileSystem fileSystem;
   private final Server server;
   private final RuleI18nManager ruleI18nManager;
 
-  public DryRunExporter(Settings settings, DefaultIndex sonarIndex, ProjectFileSystem projectFileSystem, Server server, RuleI18nManager ruleI18nManager) {
+  public DryRunExporter(Settings settings, DefaultIndex sonarIndex, ModuleFileSystem fileSystem, Server server, RuleI18nManager ruleI18nManager) {
     this.settings = settings;
     this.sonarIndex = sonarIndex;
-    this.projectFileSystem = projectFileSystem;
+    this.fileSystem = fileSystem;
     this.server = server;
     this.ruleI18nManager = ruleI18nManager;
   }
@@ -73,7 +73,7 @@ public class DryRunExporter implements BatchComponent {
   }
 
   private void exportResults(Collection<Resource> resources) {
-    File exportFile = new File(projectFileSystem.getSonarWorkingDirectory(), settings.getString("sonar.dryRun.export.path"));
+    File exportFile = new File(fileSystem.workingDir(), settings.getString("sonar.dryRun.export.path"));
 
     LOG.info("Exporting DryRun results to " + exportFile.getAbsolutePath());
     Writer output = null;

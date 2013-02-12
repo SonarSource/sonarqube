@@ -25,7 +25,9 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.hamcrest.core.Is;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.test.TestUtils;
@@ -46,9 +48,13 @@ import static org.junit.Assert.fail;
 
 public class MavenProjectConverterTest {
 
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
   /**
    * See SONAR-2681
    */
+  @Test
   public void shouldThrowExceptionWhenUnableToDetermineProjectStructure() {
     MavenProject root = new MavenProject();
     root.setFile(new File("/foo/pom.xml"));
@@ -64,14 +70,18 @@ public class MavenProjectConverterTest {
   }
 
   @Test
-  public void shouldConvertModules() {
+  public void shouldConvertModules() throws IOException {
+    File basedir = temp.newFolder();
+
     MavenProject root = new MavenProject();
-    root.setFile(new File("/foo/pom.xml"));
+    root.setFile(new File(basedir, "pom.xml"));
     root.getBuild().setDirectory("target");
+    root.getBuild().setOutputDirectory("target/classes");
     root.getModules().add("module/pom.xml");
     MavenProject module = new MavenProject();
-    module.setFile(new File("/foo/module/pom.xml"));
+    module.setFile(new File(basedir, "module/pom.xml"));
     module.getBuild().setDirectory("target");
+    module.getBuild().setOutputDirectory("target/classes");
     ProjectDefinition project = MavenProjectConverter.convert(Arrays.asList(root, module), root);
 
     assertThat(project.getSubProjects().size(), is(1));

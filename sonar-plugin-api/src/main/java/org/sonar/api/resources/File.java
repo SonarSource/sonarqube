@@ -21,13 +21,14 @@ package org.sonar.api.resources;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.WildcardPattern;
 
 import java.util.List;
 
 /**
  * This class is an implementation of a resource of type FILE
- * 
+ *
  * @since 1.10
  */
 public class File extends Resource<Directory> {
@@ -93,7 +94,7 @@ public class File extends Resource<Directory> {
 
   /**
    * {@inheritDoc}
-   * 
+   *
    * @see Resource#getParent()
    */
   @Override
@@ -116,7 +117,7 @@ public class File extends Resource<Directory> {
 
   /**
    * {@inheritDoc}
-   * 
+   *
    * @see Resource#matchFilePattern(String)
    */
   @Override
@@ -129,9 +130,9 @@ public class File extends Resource<Directory> {
    * Creates a File from an io.file and a list of sources directories
    */
   public static File fromIOFile(java.io.File file, List<java.io.File> sourceDirs) {
-    String relativePath = DefaultProjectFileSystem.getRelativePath(file, sourceDirs);
+    PathResolver.RelativePath relativePath = new PathResolver().relativePath(sourceDirs, file);
     if (relativePath != null) {
-      return new File(relativePath);
+      return new File(relativePath.path());
     }
     return null;
   }
@@ -145,7 +146,7 @@ public class File extends Resource<Directory> {
 
   /**
    * {@inheritDoc}
-   * 
+   *
    * @see Resource#getName()
    */
   @Override
@@ -155,7 +156,7 @@ public class File extends Resource<Directory> {
 
   /**
    * {@inheritDoc}
-   * 
+   *
    * @see Resource#getLongName()
    */
   @Override
@@ -165,7 +166,7 @@ public class File extends Resource<Directory> {
 
   /**
    * {@inheritDoc}
-   * 
+   *
    * @see Resource#getDescription()
    */
   @Override
@@ -175,7 +176,7 @@ public class File extends Resource<Directory> {
 
   /**
    * {@inheritDoc}
-   * 
+   *
    * @see Resource#getLanguage()
    */
   @Override
@@ -200,7 +201,7 @@ public class File extends Resource<Directory> {
 
   /**
    * Returns the qualifier associated to this File. Should be QUALIFIER_FILE or
-   * 
+   *
    * @return QUALIFIER_UNIT_TEST_CLASS
    */
   @Override
@@ -215,10 +216,10 @@ public class File extends Resource<Directory> {
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-        .append("key", getKey())
-        .append("dir", directoryKey)
-        .append("filename", filename)
-        .append("language", language)
-        .toString();
+      .append("key", getKey())
+      .append("dir", directoryKey)
+      .append("filename", filename)
+      .append("language", language)
+      .toString();
   }
 }

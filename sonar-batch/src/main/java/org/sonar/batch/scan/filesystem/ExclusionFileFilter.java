@@ -23,10 +23,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.ResourceFilter;
-import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.scan.filesystem.FileFilter;
+import org.sonar.api.scan.filesystem.ModuleExclusions;
 import org.sonar.api.utils.WildcardPattern;
 
 import java.io.File;
@@ -37,18 +37,18 @@ public class ExclusionFileFilter implements FileFilter, ResourceFilter, BatchCom
   private final WildcardPattern[] sourceExclusions;
   private final WildcardPattern[] testExclusions;
 
-  public ExclusionFileFilter(Settings settings) {
-    sourceInclusions = ExclusionPatterns.sourceInclusions(settings);
+  public ExclusionFileFilter(ModuleExclusions exclusions) {
+    sourceInclusions = WildcardPattern.create(exclusions.sourceInclusions());
     log("Included sources: ", sourceInclusions);
 
-    testInclusions = ExclusionPatterns.testInclusions(settings);
-    log("Included tests: ", sourceInclusions);
-
-    sourceExclusions = ExclusionPatterns.sourceExclusions(settings);
+    sourceExclusions = WildcardPattern.create(exclusions.sourceExclusions());
     log("Excluded sources: ", sourceExclusions);
 
-    testExclusions = ExclusionPatterns.testExclusions(settings);
-    log("Excluded tests: ", sourceExclusions);
+    testInclusions = WildcardPattern.create(exclusions.testInclusions());
+    log("Included tests: ", testInclusions);
+
+    testExclusions = WildcardPattern.create(exclusions.testExclusions());
+    log("Excluded tests: ", testExclusions);
   }
 
   private void log(String title, WildcardPattern[] patterns) {
@@ -63,8 +63,12 @@ public class ExclusionFileFilter implements FileFilter, ResourceFilter, BatchCom
 
   public boolean accept(File file, Context context) {
     WildcardPattern[] inclusionPatterns = (context.fileType() == FileType.TEST ? testInclusions : sourceInclusions);
-    for (WildcardPattern pattern : inclusionPatterns) {
-      if (!pattern.match(context.fileRelativePath())) {
+    if (inclusionPatterns.length > 0) {
+      boolean matchInclusion = false;
+      for (WildcardPattern pattern : inclusionPatterns) {
+        matchInclusion |= pattern.match(context.fileRelativePath());
+      }
+      if (!matchInclusion) {
         return false;
       }
     }
@@ -78,9 +82,16 @@ public class ExclusionFileFilter implements FileFilter, ResourceFilter, BatchCom
   }
 
   public boolean isIgnored(Resource resource) {
+    if (!ResourceUtils.isFile(resource)) {
+      return false;
+    }
     WildcardPattern[] inclusionPatterns = (ResourceUtils.isUnitTestClass(resource) ? testInclusions : sourceInclusions);
-    for (WildcardPattern pattern : inclusionPatterns) {
-      if (!resource.matchFilePattern(pattern.toString())) {
+    if (inclusionPatterns.length > 0) {
+      boolean matchInclusion = false;
+      for (WildcardPattern pattern : inclusionPatterns) {
+        matchInclusion |= resource.matchFilePattern(pattern.toString());
+      }
+      if (!matchInclusion) {
         return true;
       }
     }

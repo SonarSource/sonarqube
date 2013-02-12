@@ -330,7 +330,9 @@ public class Project extends Resource {
    * Patterns of resource exclusion as defined in project settings page.
    *
    * @since 3.3 also applies exclusions in general settings page and global exclusions.
+   * @deprecated replaced by {@link org.sonar.api.scan.filesystem.ModuleExclusions} in version 3.5
    */
+  @Deprecated
   public String[] getExclusionPatterns() {
     return trimExclusions(ImmutableList.<String> builder()
       .add(configuration.getStringArray(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY))
@@ -342,7 +344,9 @@ public class Project extends Resource {
    * Also applies exclusions in general settings page and global exclusions.
    *
    * @since 3.3
+   * @deprecated replaced by {@link org.sonar.api.scan.filesystem.ModuleExclusions} in version 3.5
    */
+  @Deprecated
   public String[] getTestExclusionPatterns() {
     String[] globalTestExclusions = configuration.getStringArray(CoreProperties.GLOBAL_TEST_EXCLUSIONS_PROPERTY);
     if (globalTestExclusions.length == 0) {
@@ -365,15 +369,18 @@ public class Project extends Resource {
 
   /**
    * Set exclusion patterns. Configuration is not saved, so this method must be used ONLY IN UNIT TESTS.
+   * @deprecated replaced by {@link org.sonar.api.scan.filesystem.ModuleExclusions} in version 3.5
    */
+  @Deprecated
   public Project setExclusionPatterns(String[] s) {
-    configuration.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, StringUtils.join(s, ","));
-    return this;
+    throw new UnsupportedOperationException("deprecated in 3.5");
   }
 
   /**
    * Note: it's better to get a reference on ProjectFileSystem as an IoC dependency (constructor parameter)
+   * @deprecated replaced by {@link org.sonar.api.scan.filesystem.ModuleFileSystem} in 3.5
    */
+  @Deprecated
   public ProjectFileSystem getFileSystem() {
     return fileSystem;
   }

@@ -30,27 +30,28 @@ import org.junit.Test;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.MavenPluginExecutor;
+import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 
 public class MavenPhaseExecutorTest {
 
   @Test
   public void doNothingIfNoPhase() {
-    ProjectDefinition projectDef = ProjectDefinition.create();
+    DefaultModuleFileSystem fs = mock(DefaultModuleFileSystem.class);
     MavenPluginExecutor mavenPluginExecutor = mock(MavenPluginExecutor.class);
-    MavenPhaseExecutor phaseExecutor = new MavenPhaseExecutor(projectDef, mavenPluginExecutor);
+    MavenPhaseExecutor phaseExecutor = new MavenPhaseExecutor(fs, mavenPluginExecutor);
 
 
     Project project = new Project("key");
     phaseExecutor.execute(project);
 
-    verify(mavenPluginExecutor, never()).execute(eq(project), eq(projectDef), anyString());
+    verify(mavenPluginExecutor, never()).execute(eq(project), eq(fs), anyString());
   }
 
   @Test
   public void executePhase() {
-    ProjectDefinition projectDef = ProjectDefinition.create();
+    DefaultModuleFileSystem fs = mock(DefaultModuleFileSystem.class);
     MavenPluginExecutor mavenPluginExecutor = mock(MavenPluginExecutor.class);
-    MavenPhaseExecutor phaseExecutor = new MavenPhaseExecutor(projectDef, mavenPluginExecutor);
+    MavenPhaseExecutor phaseExecutor = new MavenPhaseExecutor(fs, mavenPluginExecutor);
 
     Project project = new Project("key");
     PropertiesConfiguration conf = new PropertiesConfiguration();
@@ -59,6 +60,6 @@ public class MavenPhaseExecutorTest {
 
     phaseExecutor.execute(project);
 
-    verify(mavenPluginExecutor).execute(project, projectDef, "myphase");
+    verify(mavenPluginExecutor).execute(project, fs, "myphase");
   }
 }

@@ -17,55 +17,60 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.scan.filesystem;
+package org.sonar.api.scan.filesystem;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.ObjectArrays;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
-import org.sonar.api.utils.WildcardPattern;
 
 import java.util.List;
 
 /**
- * Get configuration of file inclusions and exclusions
+ * Configuration of file inclusions and exclusions
  *
  * @since 3.5
  */
-class ExclusionPatterns {
-  static WildcardPattern[] sourceInclusions(Settings settings) {
-    return inclusions(settings, CoreProperties.PROJECT_INCLUSIONS_PROPERTY);
+public class ModuleExclusions implements BatchComponent {
+  private final Settings settings;
+
+  public ModuleExclusions(Settings settings) {
+    this.settings = settings;
   }
 
-  static WildcardPattern[] testInclusions(Settings settings) {
-    return inclusions(settings, CoreProperties.PROJECT_TEST_INCLUSIONS_PROPERTY);
+  public String[] sourceInclusions() {
+    return inclusions(CoreProperties.PROJECT_INCLUSIONS_PROPERTY);
   }
 
-  private static WildcardPattern[] inclusions(Settings settings, String propertyKey) {
+  public String[] testInclusions() {
+    return inclusions(CoreProperties.PROJECT_TEST_INCLUSIONS_PROPERTY);
+  }
+
+  private String[] inclusions(String propertyKey) {
     String[] patterns = sanitize(settings.getStringArray(propertyKey));
-    List<WildcardPattern> list = Lists.newArrayList();
+    List<String> list = Lists.newArrayList();
     for (String pattern : patterns) {
       if (!"**/*".equals(pattern)) {
-        list.add(WildcardPattern.create(pattern));
+        list.add(pattern);
       }
     }
-    return list.toArray(new WildcardPattern[list.size()]);
+    return list.toArray(new String[list.size()]);
   }
 
-  static WildcardPattern[] sourceExclusions(Settings settings) {
-    return exclusions(settings, CoreProperties.GLOBAL_EXCLUSIONS_PROPERTY, CoreProperties.PROJECT_EXCLUSIONS_PROPERTY);
+  public String[] sourceExclusions() {
+    return exclusions(CoreProperties.GLOBAL_EXCLUSIONS_PROPERTY, CoreProperties.PROJECT_EXCLUSIONS_PROPERTY);
   }
 
-  static WildcardPattern[] testExclusions(Settings settings) {
-    return exclusions(settings, CoreProperties.GLOBAL_TEST_EXCLUSIONS_PROPERTY, CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY);
+  public String[] testExclusions() {
+    return exclusions(CoreProperties.GLOBAL_TEST_EXCLUSIONS_PROPERTY, CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY);
   }
 
-  private static WildcardPattern[] exclusions(Settings settings, String globalExclusionsProperty, String exclusionsProperty) {
+  private String[] exclusions(String globalExclusionsProperty, String exclusionsProperty) {
     String[] globalExclusions = settings.getStringArray(globalExclusionsProperty);
     String[] exclusions = settings.getStringArray(exclusionsProperty);
-    String[] patterns = sanitize(ObjectArrays.concat(globalExclusions, exclusions, String.class));
-    return WildcardPattern.create(patterns);
+    return sanitize(ObjectArrays.concat(globalExclusions, exclusions, String.class));
   }
 
   private static String[] sanitize(String[] patterns) {

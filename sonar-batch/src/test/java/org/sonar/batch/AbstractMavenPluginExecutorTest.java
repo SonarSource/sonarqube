@@ -21,16 +21,19 @@ package org.sonar.batch;
 
 import org.apache.maven.project.MavenProject;
 import org.junit.Test;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.maven.MavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 
 import java.io.File;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class AbstractMavenPluginExecutorTest {
 
@@ -56,10 +59,10 @@ public class AbstractMavenPluginExecutorTest {
     pom.getBuild().setDirectory("target");
     Project foo = new Project("foo");
     foo.setPom(pom);
-    ProjectDefinition definition = ProjectDefinition.create();
-    executor.execute(foo, definition, new AddSourceMavenPluginHandler());
+    DefaultModuleFileSystem fs = mock(DefaultModuleFileSystem.class);
+    executor.execute(foo, fs, new AddSourceMavenPluginHandler());
 
-    assertThat(definition.getSourceDirs(), hasItem("src/java"));
+    verify(fs).resetDirs(any(File.class), any(File.class), any(File.class), anyList(), anyList(), anyList());
   }
 
   static class AddSourceMavenPluginHandler implements MavenPluginHandler {
@@ -80,7 +83,7 @@ public class AbstractMavenPluginExecutorTest {
     }
 
     public String[] getGoals() {
-      return new String[] { "fake" };
+      return new String[]{"fake"};
     }
 
     public void configure(Project project, MavenPlugin plugin) {

@@ -27,11 +27,11 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
-import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
+import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.java.api.JavaClass;
@@ -55,7 +55,7 @@ public class DryRunExporterTest {
   SensorContext sensorContext = mock(SensorContext.class);
   Resource resource = JavaClass.create("KEY");
   Violation violation = mock(Violation.class);
-  ProjectFileSystem projectFileSystem = mock(ProjectFileSystem.class);
+  ModuleFileSystem fileSystem = mock(ModuleFileSystem.class);
   Server server = mock(Server.class);
   RuleI18nManager ruleI18nManager = mock(RuleI18nManager.class);
   Settings settings;
@@ -67,7 +67,7 @@ public class DryRunExporterTest {
   public void setUp() {
     settings = new Settings();
     settings.setProperty(CoreProperties.DRY_RUN, true);
-    dryRunExporter = spy(new DryRunExporter(settings, sonarIndex, projectFileSystem, server, ruleI18nManager));
+    dryRunExporter = spy(new DryRunExporter(settings, sonarIndex, fileSystem, server, ruleI18nManager));
   }
 
   @Test
@@ -139,7 +139,7 @@ public class DryRunExporterTest {
     when(server.getVersion()).thenReturn("3.4");
     doReturn(Arrays.<Violation>asList()).when(dryRunExporter).getViolations(resource);
     settings.setProperty("sonar.dryRun.export.path", "output.json");
-    when(projectFileSystem.getSonarWorkingDirectory()).thenReturn(sonarDirectory);
+    when(fileSystem.workingDir()).thenReturn(sonarDirectory);
 
     dryRunExporter.execute(sensorContext);
 

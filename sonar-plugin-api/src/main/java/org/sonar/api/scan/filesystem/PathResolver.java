@@ -17,23 +17,25 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.scan.filesystem;
+package org.sonar.api.scan.filesystem;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FilenameUtils;
+import org.sonar.api.BatchComponent;
 import org.sonar.api.scan.filesystem.IllegalPathException;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 
 /**
  * @since 3.5
  */
-public class PathResolver {
+public class PathResolver implements BatchComponent {
 
-  File relativeFile(File dir, String path) {
+  public File relativeFile(File dir, String path) {
     Preconditions.checkArgument(dir.isDirectory(), "Not a directory: " + dir.getAbsolutePath());
     File file = new File(path);
     if (!file.isAbsolute()) {
@@ -46,7 +48,7 @@ public class PathResolver {
     return file;
   }
 
-  List<File> relativeFiles(File dir, List<String> paths) {
+  public List<File> relativeFiles(File dir, List<String> paths) {
     List<File> result = Lists.newArrayList();
     for (String path : paths) {
       result.add(relativeFile(dir, path));
@@ -54,7 +56,22 @@ public class PathResolver {
     return result;
   }
 
-  String relativePath(File dir, File file) {
+  public RelativePath relativePath(Collection<File> dirs, File file) {
+    List<String> stack = Lists.newArrayList();
+    String path = FilenameUtils.normalize(file.getAbsolutePath());
+    File cursor = new File(path);
+    while (cursor != null) {
+      File parentDir = parentDir(dirs, cursor);
+      if (parentDir != null) {
+        return new RelativePath(parentDir, Joiner.on("/").join(stack));
+      }
+      stack.add(0, cursor.getName());
+      cursor = cursor.getParentFile();
+    }
+    return null;
+  }
+
+  public String relativePath(File dir, File file) {
     List<String> stack = Lists.newArrayList();
     String path = FilenameUtils.normalize(file.getAbsolutePath());
     File cursor = new File(path);
@@ -68,7 +85,34 @@ public class PathResolver {
     return null;
   }
 
+  private File parentDir(Collection<File> dirs, File cursor) {
+    for (File dir : dirs) {
+      if (FilenameUtils.equalsNormalizedOnSystem(dir.getAbsolutePath(), cursor.getAbsolutePath())) {
+        return dir;
+      }
+    }
+    return null;
+  }
+
   private boolean containsFile(File dir, File cursor) {
     return FilenameUtils.equalsNormalizedOnSystem(dir.getAbsolutePath(), cursor.getAbsolutePath());
+  }
+
+  public static class RelativePath {
+    private File dir;
+    private String path;
+
+    RelativePath(File dir, String path) {
+      this.dir = dir;
+      this.path = path;
+    }
+
+    public File dir() {
+      return dir;
+    }
+
+    public String path() {
+      return path;
+    }
   }
 }

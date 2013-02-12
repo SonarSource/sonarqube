@@ -23,26 +23,46 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.CharEncoding;
+import org.apache.maven.project.MavenProject;
 import org.sonar.api.resources.InputFile;
+import org.sonar.api.resources.InputFileUtils;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
+import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.api.utils.SonarException;
+
+import javax.annotation.Nullable;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 
+/**
+ * Adapter for keeping the backward-compatibility of the deprecated component {@link org.sonar.api.resources.ProjectFileSystem}
+ * @since 3.5
+ */
 public class DeprecatedFileSystemAdapter implements ProjectFileSystem {
 
-  private final ModuleFileSystem target;
-  private final PathResolver pathResolver;
+  private final DefaultModuleFileSystem target;
+  private final PathResolver pathResolver = new PathResolver();
+  private final MavenProject pom;
 
-  public DeprecatedFileSystemAdapter(ModuleFileSystem target, PathResolver pathResolver) {
+
+  public DeprecatedFileSystemAdapter(DefaultModuleFileSystem target, Project project, @Nullable MavenProject pom) {
     this.target = target;
-    this.pathResolver = pathResolver;
+    this.pom = pom;
+
+    // TODO See http://jira.codehaus.org/browse/SONAR-2126
+    // previously MavenProjectBuilder was responsible for creation of ProjectFileSystem
+    project.setFileSystem(this);
+  }
+
+  public DeprecatedFileSystemAdapter(DefaultModuleFileSystem target, Project project) {
+    this(target, project, null);
   }
 
   public Charset getSourceCharset() {
@@ -54,12 +74,22 @@ public class DeprecatedFileSystemAdapter implements ProjectFileSystem {
   }
 
   public File getBuildDir() {
-    // TODO
-    return null;
+    File dir = target.buildDir();
+    if (dir == null) {
+      // emulate build dir to keep backward-compatibility
+      dir = new File(getSonarWorkingDirectory(), "build");
+    }
+    return dir;
   }
 
   public File getBuildOutputDir() {
-    return Iterables.getFirst(target.binaryDirs(), null);
+    File dir = Iterables.getFirst(target.binaryDirs(), null);
+    if (dir == null) {
+      // emulate binary dir
+      dir = new File(getBuildDir(), "classes");
+    }
+
+    return dir;
   }
 
   public List<File> getSourceDirs() {
@@ -79,8 +109,11 @@ public class DeprecatedFileSystemAdapter implements ProjectFileSystem {
   }
 
   public File getReportOutputDir() {
-    // TODO
-    return null;
+    if (pom != null) {
+      return resolvePath(pom.getReporting().getOutputDirectory());
+    }
+    // emulate Maven report output dir
+    return new File(getBuildDir(), "site");
   }
 
   public File getSonarWorkingDirectory() {
@@ -88,8 +121,15 @@ public class DeprecatedFileSystemAdapter implements ProjectFileSystem {
   }
 
   public File resolvePath(String path) {
-    // TODO
-    return null;
+    File file = new File(path);
+    if (!file.isAbsolute()) {
+      try {
+        file = new File(getBasedir(), path).getCanonicalFile();
+      } catch (IOException e) {
+        throw new SonarException("Unable to resolve path '" + path + "'", e);
+      }
+    }
+    return file;
   }
 
   public List<File> getSourceFiles(Language... langs) {
@@ -132,17 +172,41 @@ public class DeprecatedFileSystemAdapter implements ProjectFileSystem {
   }
 
   public Resource toResource(File file) {
-    // TODO
-    return null;
+    if (file == null || !file.exists()) {
+      return null;
+    }
+    PathResolver.RelativePath relativePath = pathResolver.relativePath(getSourceDirs(), file);
+    if (relativePath == null) {
+      return null;
+    }
+    return (file.isFile() ? new org.sonar.api.resources.File(relativePath.path()) : new org.sonar.api.resources.Directory(relativePath.path()));
   }
 
   public List<InputFile> mainFiles(String... langs) {
-    // TODO
-    return null;
+    List<InputFile> result = Lists.newArrayList();
+    for (String lang : langs) {
+      List<File> files = target.sourceFilesOfLang(lang);
+      for (File file : files) {
+        PathResolver.RelativePath relativePath = pathResolver.relativePath(getSourceDirs(), file);
+        if (relativePath != null) {
+          result.add(InputFileUtils.create(relativePath.dir(), relativePath.path()));
+        }
+      }
+    }
+    return result;
   }
 
   public List<InputFile> testFiles(String... langs) {
-    // TODO
-    return null;
+    List<InputFile> result = Lists.newArrayList();
+    for (String lang : langs) {
+      List<File> files = target.testFilesOfLang(lang);
+      for (File file : files) {
+        PathResolver.RelativePath relativePath = pathResolver.relativePath(getTestDirs(), file);
+        if (relativePath != null) {
+          result.add(InputFileUtils.create(relativePath.dir(), relativePath.path()));
+        }
+      }
+    }
+    return result;
   }
 }

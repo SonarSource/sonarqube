@@ -19,8 +19,9 @@
  */
 package org.sonar.api.scan.filesystem;
 
-import com.google.common.annotations.Beta;
 import org.sonar.api.BatchComponent;
+
+import javax.annotation.CheckForNull;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -29,16 +30,71 @@ import java.util.List;
 /**
  * @since 3.5
  */
-@Beta
 public interface ModuleFileSystem extends BatchComponent {
+  /**
+   * Base directory.
+   */
   File baseDir();
+
+  /**
+   * Optional directory used by the build tool to generate various kinds of data (test reports, temp files, ...).
+   * In Maven, it's given by the property ${project.build.directory}, which value is generally ${project.basedir}/target.
+   */
+  @CheckForNull
+  File buildDir();
+
+  /**
+   * Source directories. Non-existing directories are excluded.
+   * Example in Maven : ${project.basedir}/src/main/java
+   */
   List<File> sourceDirs();
+
+  /**
+   * The files that are located in source directories and that match preconditions (inclusions/exclusions/{@link FileFilter})
+   */
   List<File> sourceFiles();
+
+  /**
+   * The subset of {@link #sourceFiles()} matching the given language. For example {@code sourceFilesOfLang("java")} return all the source
+   * files suffixed with .java or .jav.
+   */
   List<File> sourceFilesOfLang(String language);
+
+  /**
+   * Test directories. Non-existing directories are excluded.
+   * Example in Maven : ${project.basedir}/src/test/java
+   */
   List<File> testDirs();
+
+  /**
+   * The files that are located in test directories and that match preconditions (inclusions/exclusions/{@link FileFilter})
+   */
   List<File> testFiles();
+
+  /**
+   * The subset of {@link #testFiles()} matching the given language. For example {@code testFilesOfLang("java")} return all the test
+   * files suffixed with .java or .jav.
+   */
   List<File> testFilesOfLang(String language);
+
+  /**
+   * Optional directories that contain the compiled sources, for example java bytecode.
+   * Note that :
+   * <ul>
+   * <li>Maven projects have only a single binary directory, which is generally ${project.basedir}/target/classes</li>
+   * <li>Binary directories can be empty</li>
+   * <li>Test binary directories are not supported yet.</li>
+   * </ul>
+   */
   List<File> binaryDirs();
+
+  /**
+   * Charset of source and test files. If it's not defined, then return the platform default charset.
+   */
   Charset sourceCharset();
+
+  /**
+   * Working directory used by Sonar. This directory can be used for example to store intermediary reports.
+   */
   File workingDir();
 }

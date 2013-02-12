@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.scan.filesystem;
+package org.sonar.api.scan.filesystem;
 
 import org.apache.commons.io.FilenameUtils;
 import org.junit.Rule;
@@ -68,7 +68,7 @@ public class PathResolverTest {
   }
 
   @Test
-  public void get_relative_path() throws IOException {
+  public void relative_path_from_dir() throws IOException {
     PathResolver resolver = new PathResolver();
     File rootDir = temp.newFolder();
     File org = new File(rootDir, "org");
@@ -76,6 +76,35 @@ public class PathResolverTest {
     File world = new File(hello, "World.java");
 
     assertThat(resolver.relativePath(rootDir, world)).isEqualTo("org/hello/World.java");
+  }
+
+  @Test
+  public void relative_path_from_multiple_dirs() throws IOException {
+    PathResolver resolver = new PathResolver();
+    File dir1 = temp.newFolder("D1");
+    File dir2 = temp.newFolder("D2");
+
+    File org = new File(dir2, "org");
+    File hello = new File(org, "hello");
+    File world = new File(hello, "World.java");
+
+    PathResolver.RelativePath relativePath = resolver.relativePath(Arrays.asList(dir1, dir2), world);
+    assertThat(relativePath.dir().getCanonicalPath()).isEqualTo(dir2.getCanonicalPath());
+    assertThat(relativePath.path()).isEqualTo("org/hello/World.java");
+  }
+
+  @Test
+  public void cant_find_relative_path_from_multiple_dirs() throws IOException {
+    PathResolver resolver = new PathResolver();
+    File dir1 = temp.newFolder("D1");
+    File dir2 = temp.newFolder("D2");
+
+    File org = new File(dir2, "org");
+    File hello = new File(org, "hello");
+    File world = new File(hello, "World.java");
+
+    PathResolver.RelativePath relativePath = resolver.relativePath(Arrays.asList(dir1), world);
+    assertThat(relativePath).isNull();
   }
 
   @Test

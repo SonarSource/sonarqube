@@ -17,30 +17,45 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.scan.filesystem;
+package org.sonar.api.scan.filesystem;
 
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
-import org.sonar.api.utils.WildcardPattern;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class ExclusionPatternsTest {
+public class ModuleExclusionsTest {
   @Test
   public void ignore_inclusion_of_world() {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "**/*");
-    assertThat(ExclusionPatterns.sourceInclusions(settings)).isEmpty();
+    settings.setProperty(CoreProperties.PROJECT_TEST_INCLUSIONS_PROPERTY, "**/*");
+    assertThat(new ModuleExclusions(settings).sourceInclusions()).isEmpty();
+    assertThat(new ModuleExclusions(settings).testInclusions()).isEmpty();
   }
 
   @Test
-  public void load_inclusion() {
+  public void load_inclusions() {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "**/*Foo.java");
-    WildcardPattern[] inclusions = ExclusionPatterns.sourceInclusions(settings);
+    settings.setProperty(CoreProperties.PROJECT_TEST_INCLUSIONS_PROPERTY, "**/*FooTest.java");
+    ModuleExclusions moduleExclusions = new ModuleExclusions(settings);
 
-    assertThat(inclusions).hasSize(1);
-    assertThat(inclusions[0].toString()).isEqualTo("**/*Foo.java");
+    assertThat(moduleExclusions.sourceInclusions()).containsOnly("**/*Foo.java");
+    assertThat(moduleExclusions.testInclusions()).containsOnly("**/*FooTest.java");
+  }
+
+  @Test
+  public void load_exclusions() {
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "**/*Foo.java");
+    settings.setProperty(CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY, "**/*FooTest.java");
+    ModuleExclusions moduleExclusions = new ModuleExclusions(settings);
+
+    assertThat(moduleExclusions.sourceInclusions()).isEmpty();
+    assertThat(moduleExclusions.sourceExclusions()).containsOnly("**/*Foo.java");
+    assertThat(moduleExclusions.testInclusions()).isEmpty();
+    assertThat(moduleExclusions.testExclusions()).containsOnly("**/*FooTest.java");
   }
 }

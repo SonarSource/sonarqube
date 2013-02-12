@@ -29,6 +29,7 @@ import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.sonar.api.scan.filesystem.FileFilter;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
+import org.sonar.api.scan.filesystem.PathResolver;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -46,7 +47,7 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
   private static final IOFileFilter DIR_FILTER = FileFilterUtils.and(HiddenFileFilter.VISIBLE, FileFilterUtils.notFileFilter(FileFilterUtils.prefixFileFilter(".")));
 
   private final Charset sourceCharset;
-  private File baseDir, workingDir;
+  private File baseDir, workingDir, buildDir;
   private List<File> sourceDirs, testDirs, binaryDirs;
   private final PathResolver pathResolver;
   private final List<FileFilter> fileFilters;
@@ -55,6 +56,7 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
   private DefaultModuleFileSystem(Builder builder) {
     sourceCharset = builder.sourceCharset;
     baseDir = builder.baseDir;
+    buildDir = builder.buildDir;
     workingDir = builder.workingDir;
     sourceDirs = ImmutableList.copyOf(builder.sourceDirs);
     testDirs = ImmutableList.copyOf(builder.testDirs);
@@ -66,6 +68,10 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
 
   public File baseDir() {
     return baseDir;
+  }
+
+  public File buildDir() {
+    return buildDir;
   }
 
   public List<File> sourceDirs() {
@@ -119,12 +125,24 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
   /**
    * Breaks immutability but it's required to allow Maven Plugins to be executed and to change project structure.
    */
-  public void resetDirs(File basedir, File workDir, List<File> sourceDirs, List<File> testDirs, List<File> binaryDirs) {
+  public void resetDirs(File basedir, File workDir, File buildDir, List<File> sourceDirs, List<File> testDirs, List<File> binaryDirs) {
+    Preconditions.checkNotNull(basedir, "Basedir can't be null");
     this.baseDir = basedir;
     this.workingDir = workDir;
-    this.sourceDirs = ImmutableList.copyOf(sourceDirs);
-    this.testDirs = ImmutableList.copyOf(testDirs);
-    this.binaryDirs = ImmutableList.copyOf(binaryDirs);
+    this.buildDir = buildDir;
+    this.sourceDirs = existingDirs(sourceDirs);
+    this.testDirs = existingDirs(testDirs);
+    this.binaryDirs = existingDirs(binaryDirs);
+  }
+
+  private List<File> existingDirs(List<File> dirs) {
+    ImmutableList.Builder<File> builder = ImmutableList.builder();
+    for (File dir : dirs) {
+      if (dir.exists() && dir.isDirectory()) {
+        builder.add(dir);
+      }
+    }
+    return builder.build();
   }
 
   private List<File> files(List<File> dirs, FileFilter.FileType fileType, IOFileFilter languageFilter) {
@@ -167,7 +185,7 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
 
   static final class Builder {
     private Charset sourceCharset;
-    private File baseDir, workingDir;
+    private File baseDir, workingDir, buildDir;
     private List<File> sourceDirs = Lists.newArrayList(), testDirs = Lists.newArrayList(), binaryDirs = Lists.newArrayList();
     private List<FileFilter> fileFilters = Lists.newArrayList();
     private PathResolver pathResolver;
@@ -178,13 +196,18 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
       return this;
     }
 
-    Builder baseDir(File f) {
-      this.baseDir = f;
+    Builder baseDir(File d) {
+      this.baseDir = d;
       return this;
     }
 
-    Builder workingDir(File f) {
-      this.workingDir = f;
+    Builder buildDir(File d) {
+      this.buildDir = d;
+      return this;
+    }
+
+    Builder workingDir(File d) {
+      this.workingDir = d;
       return this;
     }
 

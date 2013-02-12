@@ -94,13 +94,4 @@ public class ProjectTest {
 
     assertThat(project.getTestExclusionPatterns()).containsOnly("**/*Test.java", "**/*IntegrationTest.java", "**/*FunctionalTest.java");
   }
-
-  @Test
-  public void testSetExclusionPatterns() {
-    Project project = new Project("key").setConfiguration(conf);
-
-    project.setExclusionPatterns(new String[] {"**/*Foo.java", "**/*Bar.java"});
-
-    assertThat(project.getExclusionPatterns()).containsOnly("**/*Foo.java", "**/*Bar.java");
-  }
 }

@@ -42,11 +42,11 @@ public class ProjectDefinition {
   public static final String TEST_FILES_PROPERTY = "sonar.testFiles";
   public static final String BINARIES_PROPERTY = "sonar.binaries";
   public static final String LIBRARIES_PROPERTY = "sonar.libraries";
+  public static final String BUILD_DIR_PROPERTY = "sonar.buildDir";
 
   private static final char SEPARATOR = ',';
 
-  private File baseDir;
-  private File workDir;
+  private File baseDir, workDir, buildDir;
   private Properties properties = new Properties();
   private ProjectDefinition parent = null;
   private List<ProjectDefinition> subProjects = Lists.newArrayList();
@@ -87,6 +87,15 @@ public class ProjectDefinition {
 
   public File getWorkDir() {
     return workDir;
+  }
+
+  public ProjectDefinition setBuildDir(File d) {
+    this.buildDir = d;
+    return this;
+  }
+
+  public File getBuildDir() {
+    return buildDir;
   }
 
   public Properties getProperties() {

@@ -29,10 +29,8 @@ import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.api.notifications.NotificationDispatcherMetadata;
 import org.sonar.api.resources.Java;
 import org.sonar.core.timemachine.Periods;
-import org.sonar.plugins.core.batch.ExcludedResourceFilter;
 import org.sonar.plugins.core.batch.IndexProjectPostJob;
 import org.sonar.plugins.core.batch.MavenInitializer;
-import org.sonar.plugins.core.batch.ProjectFileSystemLogger;
 import org.sonar.plugins.core.charts.DistributionAreaChart;
 import org.sonar.plugins.core.charts.DistributionBarChart;
 import org.sonar.plugins.core.charts.XradarChart;
@@ -413,7 +411,6 @@ public final class CorePlugin extends SonarPlugin {
     return ImmutableList.of(
       DefaultResourceTypes.class,
       UserManagedMetrics.class,
-      ProjectFileSystemLogger.class,
       Periods.class,
 
       // maven
@@ -495,7 +492,6 @@ public final class CorePlugin extends SonarPlugin {
       OverallCoverageDecorator.class,
       OverallBranchCoverageDecorator.class,
       ApplyProjectRolesDecorator.class,
-      ExcludedResourceFilter.class,
       CommentDensityDecorator.class,
       NoSonarFilter.class,
       DirectoriesDecorator.class,

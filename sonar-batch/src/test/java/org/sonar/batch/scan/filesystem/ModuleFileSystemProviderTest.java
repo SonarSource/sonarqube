@@ -20,6 +20,7 @@
 package org.sonar.batch.scan.filesystem;
 
 import com.google.common.base.Charsets;
+import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -28,6 +29,7 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.FileFilter;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.batch.bootstrap.TempDirectories;
 
 import java.io.File;
@@ -82,6 +84,39 @@ public class ModuleFileSystemProviderTest {
       settings, new FileFilter[0]);
 
     assertThat(fs.sourceCharset()).isEqualTo(Charsets.ISO_8859_1);
+  }
+
+  @Test
+  public void test_directories() throws IOException {
+    ModuleFileSystemProvider provider = new ModuleFileSystemProvider();
+
+    File baseDir = temp.newFolder("base");
+    File buildDir = temp.newFolder("build");
+    File sourceDir = new File(baseDir, "src/main/java");
+    FileUtils.forceMkdir(sourceDir);
+    File testDir = new File(baseDir, "src/test/java");
+    FileUtils.forceMkdir(testDir);
+    File binaryDir = new File(baseDir, "target/classes");
+    FileUtils.forceMkdir(binaryDir);
+
+    ProjectDefinition project = ProjectDefinition.create()
+      .setBaseDir(baseDir)
+      .setBuildDir(buildDir)
+      .addSourceDirs("src/main/java", "src/main/unknown")
+      .addTestDirs("src/test/java", "src/test/unknown")
+      .addBinaryDir("target/classes");
+
+    ModuleFileSystem fs = provider.provide(project, new PathResolver(), new TempDirectories(), mock(LanguageFileFilters.class),
+      new Settings(), new FileFilter[0]);
+
+    assertThat(fs.baseDir().getCanonicalPath()).isEqualTo(baseDir.getCanonicalPath());
+    assertThat(fs.buildDir().getCanonicalPath()).isEqualTo(buildDir.getCanonicalPath());
+    assertThat(fs.sourceDirs()).hasSize(1);
+    assertThat(fs.sourceDirs().get(0).getCanonicalPath()).endsWith("src/main/java");
+    assertThat(fs.testDirs()).hasSize(1);
+    assertThat(fs.testDirs().get(0).getCanonicalPath()).endsWith("src/test/java");
+    assertThat(fs.binaryDirs()).hasSize(1);
+    assertThat(fs.binaryDirs().get(0).getCanonicalPath()).endsWith("target/classes");
   }
 
   private ProjectDefinition newSimpleModule() {

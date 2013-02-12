@@ -23,11 +23,12 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 
 public interface MavenPluginExecutor extends BatchComponent {
 
-  void execute(Project project, ProjectDefinition def, String goal);
+  void execute(Project project, DefaultModuleFileSystem def, String goal);
 
-  MavenPluginHandler execute(Project project, ProjectDefinition def, MavenPluginHandler handler);
+  MavenPluginHandler execute(Project project, DefaultModuleFileSystem def, MavenPluginHandler handler);
 
 }

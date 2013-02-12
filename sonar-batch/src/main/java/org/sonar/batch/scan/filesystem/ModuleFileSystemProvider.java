@@ -19,19 +19,19 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.jfree.util.Log;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
-import org.sonar.api.scan.filesystem.FailToCreateFileException;
 import org.sonar.api.scan.filesystem.FileFilter;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.batch.bootstrap.TempDirectories;
 
 import java.io.File;
@@ -45,10 +45,10 @@ import java.util.Locale;
 public class ModuleFileSystemProvider extends ProviderAdapter {
   private static final Logger LOG = LoggerFactory.getLogger(ModuleFileSystemProvider.class);
 
-  private ModuleFileSystem singleton;
+  private DefaultModuleFileSystem singleton;
 
-  public ModuleFileSystem provide(ProjectDefinition module, PathResolver pathResolver, TempDirectories tempDirectories,
-                                  LanguageFileFilters languageFileFilters, Settings settings, FileFilter[] pluginFileFilters) {
+  public DefaultModuleFileSystem provide(ProjectDefinition module, PathResolver pathResolver, TempDirectories tempDirectories,
+                                         LanguageFileFilters languageFileFilters, Settings settings, FileFilter[] pluginFileFilters) {
     if (singleton == null) {
       DefaultModuleFileSystem.Builder builder = new DefaultModuleFileSystem.Builder();
 
@@ -59,6 +59,7 @@ public class ModuleFileSystemProvider extends ProviderAdapter {
       // files and directories
       // TODO should the basedir always exist ? If yes, then we check also check that it's a dir but not a file
       builder.baseDir(module.getBaseDir());
+      builder.buildDir(module.getBuildDir());
       builder.sourceCharset(guessCharset(settings));
       builder.workingDir(guessWorkingDir(module, tempDirectories));
       initBinaryDirs(module, pathResolver, builder);
@@ -82,7 +83,7 @@ public class ModuleFileSystemProvider extends ProviderAdapter {
       try {
         FileUtils.forceMkdir(workDir);
       } catch (Exception e) {
-        throw new FailToCreateFileException("Fail to create working dir: " + workDir.getAbsolutePath(), e);
+        throw new IllegalStateException("Fail to create working dir: " + workDir.getAbsolutePath(), e);
       }
     }
     return workDir;
@@ -102,13 +103,16 @@ public class ModuleFileSystemProvider extends ProviderAdapter {
   }
 
   private void initSources(ProjectDefinition module, PathResolver pathResolver, DefaultModuleFileSystem.Builder builder) {
-    if (!module.getSourceDirs().isEmpty()) {
-      LOG.info("Source dirs: ");
-      for (String sourcePath : module.getSourceDirs()) {
-        File dir = pathResolver.relativeFile(module.getBaseDir(), sourcePath);
-        LOG.info("  " + dir.getAbsolutePath());
+    List<String> paths = Lists.newArrayList();
+    for (String sourcePath : module.getSourceDirs()) {
+      File dir = pathResolver.relativeFile(module.getBaseDir(), sourcePath);
+      if (dir.isDirectory() && dir.exists()) {
+        paths.add(dir.getAbsolutePath());
         builder.addSourceDir(dir);
       }
+    }
+    if (!paths.isEmpty()) {
+      LOG.info("Source dirs: " + Joiner.on(", ").join(paths));
     }
     List<File> sourceFiles = pathResolver.relativeFiles(module.getBaseDir(), module.getSourceFiles());
     if (!sourceFiles.isEmpty()) {
@@ -121,17 +125,21 @@ public class ModuleFileSystemProvider extends ProviderAdapter {
   }
 
   private void initTests(ProjectDefinition module, PathResolver pathResolver, DefaultModuleFileSystem.Builder builder) {
-    if (!module.getTestDirs().isEmpty()) {
-      Log.info("Test dirs:");
-      for (String testPath : module.getTestDirs()) {
-        File dir = pathResolver.relativeFile(module.getBaseDir(), testPath);
-        LOG.info("  " + dir.getAbsolutePath());
+    List<String> paths = Lists.newArrayList();
+    for (String testPath : module.getTestDirs()) {
+      File dir = pathResolver.relativeFile(module.getBaseDir(), testPath);
+      if (dir.exists() && dir.isDirectory()) {
+        paths.add(dir.getAbsolutePath());
         builder.addTestDir(dir);
       }
     }
+    if (!paths.isEmpty()) {
+      LOG.info("Test dirs: " + Joiner.on(", ").join(paths));
+    }
+
     List<File> testFiles = pathResolver.relativeFiles(module.getBaseDir(), module.getTestFiles());
     if (!testFiles.isEmpty()) {
-      Log.info("Test files:");
+      LOG.info("Test files:");
       for (File testFile : testFiles) {
         LOG.info("  " + testFile.getAbsolutePath());
       }

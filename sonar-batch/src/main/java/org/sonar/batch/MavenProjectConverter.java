@@ -20,6 +20,7 @@
 package org.sonar.batch;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.model.CiManagement;
@@ -29,16 +30,18 @@ import org.apache.maven.project.MavenProject;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.utils.SonarException;
+import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 public final class MavenProjectConverter {
 
   private static final String UNABLE_TO_DETERMINE_PROJECT_STRUCTURE_EXCEPTION_MESSAGE = "Unable to determine structure of project." +
-      " Probably you use Maven Advanced Reactor Options, which is not supported by Sonar and should not be used.";
+    " Probably you use Maven Advanced Reactor Options, which is not supported by Sonar and should not be used.";
 
   private MavenProjectConverter() {
     // only static methods
@@ -104,12 +107,12 @@ public final class MavenProjectConverter {
     ProjectDefinition definition = ProjectDefinition.create();
     // IMPORTANT NOTE : reference on properties from POM model must not be saved, instead they should be copied explicitly - see SONAR-2896
     definition
-        .setProperties(pom.getModel().getProperties())
-        .setKey(key)
-        .setVersion(pom.getVersion())
-        .setName(pom.getName())
-        .setDescription(pom.getDescription())
-        .addContainerExtension(pom);
+      .setProperties(pom.getModel().getProperties())
+      .setKey(key)
+      .setVersion(pom.getVersion())
+      .setName(pom.getName())
+      .setDescription(pom.getDescription())
+      .addContainerExtension(pom);
 
     convertMavenLinksToProperties(definition, pom);
 
@@ -152,20 +155,53 @@ public final class MavenProjectConverter {
 
   public static void synchronizeFileSystem(MavenProject pom, ProjectDefinition into) {
     into.setBaseDir(pom.getBasedir());
-    into.setWorkDir(new File(resolvePath(pom.getBuild().getDirectory(), pom.getBasedir()), "sonar"));
+    File buildDir = resolvePath(pom.getBuild().getDirectory(), pom.getBasedir());
+    if (buildDir != null) {
+      into.setBuildDir(buildDir);
+      into.setWorkDir(new File(buildDir, "sonar"));
+    }
     into.setSourceDirs((String[]) pom.getCompileSourceRoots().toArray(new String[pom.getCompileSourceRoots().size()]));
     into.setTestDirs((String[]) pom.getTestCompileSourceRoots().toArray(new String[pom.getTestCompileSourceRoots().size()]));
+    File binaryDir = resolvePath(pom.getBuild().getOutputDirectory(), pom.getBasedir());
+    if (binaryDir != null) {
+      into.addBinaryDir(binaryDir);
+    }
+  }
+
+  public static void synchronizeFileSystem(MavenProject pom, DefaultModuleFileSystem into) {
+    into.resetDirs(
+      pom.getBasedir(),
+      new File(resolvePath(pom.getBuild().getDirectory(), pom.getBasedir()), "sonar"),
+      resolvePath(pom.getBuild().getDirectory(), pom.getBasedir()),
+      resolvePaths((List<String>) pom.getCompileSourceRoots(), pom.getBasedir()),
+      resolvePaths((List<String>) pom.getTestCompileSourceRoots(), pom.getBasedir()),
+      Arrays.asList(resolvePath(pom.getBuild().getOutputDirectory(), pom.getBasedir()))
+    );
   }
 
   static File resolvePath(String path, File basedir) {
-    File file = new File(path);
-    if (!file.isAbsolute()) {
-      try {
-        file = new File(basedir, path).getCanonicalFile();
-      } catch (IOException e) {
-        throw new SonarException("Unable to resolve path '" + path + "'", e);
+    if (path != null) {
+      File file = new File(path);
+      if (!file.isAbsolute()) {
+        try {
+          file = new File(basedir, path).getCanonicalFile();
+        } catch (IOException e) {
+          throw new SonarException("Unable to resolve path '" + path + "'", e);
+        }
+      }
+      return file;
+    }
+    return null;
+  }
+
+  static List<File> resolvePaths(List<String> paths, File basedir) {
+    List<File> result = Lists.newArrayList();
+    for (String path : paths) {
+      File dir = resolvePath(path, basedir);
+      if (dir != null) {
+        result.add(dir);
       }
     }
-    return file;
+    return result;
   }
 }

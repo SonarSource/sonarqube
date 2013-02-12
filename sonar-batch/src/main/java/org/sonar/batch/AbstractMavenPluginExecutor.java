@@ -26,23 +26,24 @@ import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 
 /**
  * Abstract implementation of {@link MavenPluginExecutor} to reduce duplications in concrete implementations for different Maven versions.
  */
 public abstract class AbstractMavenPluginExecutor implements MavenPluginExecutor {
 
-  public final MavenPluginHandler execute(Project project, ProjectDefinition projectDefinition, MavenPluginHandler handler) {
+  public final MavenPluginHandler execute(Project project, DefaultModuleFileSystem fs, MavenPluginHandler handler) {
     for (String goal : handler.getGoals()) {
       MavenPlugin plugin = MavenPlugin.getPlugin(project.getPom(), handler.getGroupId(), handler.getArtifactId());
       execute(project,
-          projectDefinition,
+          fs,
           getGoal(handler.getGroupId(), handler.getArtifactId(), (plugin != null && plugin.getPlugin() != null ? plugin.getPlugin().getVersion() : null), goal));
     }
     return handler;
   }
 
-  public final void execute(Project project, ProjectDefinition projectDefinition, String goal) {
+  public final void execute(Project project, DefaultModuleFileSystem fs, String goal) {
     TimeProfiler profiler = new TimeProfiler().start("Execute " + goal);
     ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
     try {
@@ -56,7 +57,7 @@ public abstract class AbstractMavenPluginExecutor implements MavenPluginExecutor
     }
 
     if (project.getPom() != null) {
-      MavenProjectConverter.synchronizeFileSystem(project.getPom(), projectDefinition);
+      MavenProjectConverter.synchronizeFileSystem(project.getPom(), fs);
     }
   }
 

@@ -21,20 +21,27 @@ package org.sonar.api.test;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.MapConfiguration;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.project.MavenProject;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.maven.MavenUtils;
-import org.sonar.api.resources.DefaultProjectFileSystem;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.Languages;
+import org.sonar.api.resources.InputFile;
+import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.SonarException;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -71,13 +78,13 @@ public final class MavenTestUtils {
     MavenProject pom = loadPom(clazz, path);
     Configuration configuration = new MapConfiguration(pom.getProperties());
     Project project = new Project(pom.getGroupId() + ":" + pom.getArtifactId())
-        .setPom(pom)
-        .setConfiguration(configuration);
+      .setPom(pom)
+      .setConfiguration(configuration);
     configuration.setProperty("sonar.java.source", MavenUtils.getJavaSourceVersion(pom));
     configuration.setProperty("sonar.java.target", MavenUtils.getJavaVersion(pom));
     configuration.setProperty(CoreProperties.ENCODING_PROPERTY, MavenUtils.getSourceEncoding(pom));
-    DefaultProjectFileSystem fs = new DefaultProjectFileSystem(project, new Languages(Java.INSTANCE));
-    project.setFileSystem(fs);
+
+    project.setFileSystem(new MavenModuleFileSystem(pom));
     return project;
   }
 
@@ -85,5 +92,103 @@ public final class MavenTestUtils {
     MavenProject mavenProject = mock(MavenProject.class);
     when(mavenProject.getPackaging()).thenReturn(packaging);
     return mavenProject;
+  }
+
+  static class MavenModuleFileSystem implements ProjectFileSystem {
+    private MavenProject pom;
+
+    MavenModuleFileSystem(MavenProject pom) {
+      this.pom = pom;
+    }
+
+    public Charset getSourceCharset() {
+      return Charset.forName(MavenUtils.getSourceEncoding(pom));
+    }
+
+    public File getBasedir() {
+      return pom.getBasedir();
+    }
+
+    public File getBuildDir() {
+      return new File(pom.getBuild().getDirectory());
+    }
+
+    public File getBuildOutputDir() {
+      return new File(pom.getBuild().getOutputDirectory());
+    }
+
+    public List<File> getSourceDirs() {
+      return Arrays.asList(new File(pom.getBuild().getSourceDirectory()));
+    }
+
+    public ProjectFileSystem addSourceDir(File dir) {
+      throw new UnsupportedOperationException();
+    }
+
+    public List<File> getTestDirs() {
+      return null;
+    }
+
+    public ProjectFileSystem addTestDir(File dir) {
+      throw new UnsupportedOperationException();
+    }
+
+    public File getReportOutputDir() {
+      return null;
+    }
+
+    public File getSonarWorkingDirectory() {
+      File dir = new File(getBuildDir(), "sonar");
+      try {
+        FileUtils.forceMkdir(dir);
+      } catch (IOException e) {
+        throw new IllegalStateException(e);
+      }
+      return dir;
+    }
+
+    public File resolvePath(String path) {
+      throw new UnsupportedOperationException();
+    }
+
+    public List<File> getSourceFiles(Language... langs) {
+      return new ArrayList(FileUtils.listFiles(getSourceDirs().get(0), new String[]{"java"}, true));
+    }
+
+    public List<File> getJavaSourceFiles() {
+      return getSourceFiles();
+    }
+
+    public boolean hasJavaSourceFiles() {
+      return !getJavaSourceFiles().isEmpty();
+    }
+
+    public List<File> getTestFiles(Language... langs) {
+      return new ArrayList(FileUtils.listFiles(getTestDirs().get(0), new String[]{"java"}, true));
+    }
+
+    public boolean hasTestFiles(Language lang) {
+      return !getTestFiles(lang).isEmpty();
+    }
+
+    public File writeToWorkingDirectory(String content, String fileName) throws IOException {
+      throw new UnsupportedOperationException();
+    }
+
+    public File getFileFromBuildDirectory(String filename) {
+      throw new UnsupportedOperationException();
+    }
+
+    public Resource toResource(File file) {
+      throw new UnsupportedOperationException();
+    }
+
+    public List<InputFile> mainFiles(String... langs) {
+      throw new UnsupportedOperationException();
+    }
+
+    public List<InputFile> testFiles(String... langs) {
+      throw new UnsupportedOperationException();
+    }
   }
 }

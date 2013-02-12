@@ -28,9 +28,11 @@ import org.sonar.api.resources.AbstractLanguage;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.scan.filesystem.FileFilter;
 import org.sonar.api.scan.filesystem.JavaIoFileFilter;
+import org.sonar.api.scan.filesystem.PathResolver;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -183,5 +185,34 @@ public class DefaultModuleFileSystemTest {
     public String[] getFileSuffixes() {
       return new String[]{"java", "jav"};
     }
+  }
+
+  @Test
+  public void test_reset_dirs() throws IOException {
+    File basedir = temp.newFolder();
+    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem.Builder()
+      .baseDir(basedir)
+      .sourceCharset(Charsets.UTF_8)
+      .workingDir(basedir)
+      .addSourceDir(new File(basedir, "src/main/java"))
+      .addFileFilter(JavaIoFileFilter.create(FileFilterUtils.nameFileFilter("Foo.java")))
+      .pathResolver(new PathResolver())
+      .build();
+
+    File existingDir = temp.newFolder("new_folder");
+    File notExistingDir = new File(existingDir, "not_exist");
+
+    fileSystem.resetDirs(existingDir, existingDir, existingDir,
+      Arrays.asList(existingDir, notExistingDir), Arrays.asList(existingDir, notExistingDir), Arrays.asList(existingDir, notExistingDir));
+
+    assertThat(fileSystem.baseDir().getCanonicalPath()).isEqualTo(existingDir.getCanonicalPath());
+    assertThat(fileSystem.workingDir().getCanonicalPath()).isEqualTo(existingDir.getCanonicalPath());
+    assertThat(fileSystem.buildDir().getCanonicalPath()).isEqualTo(existingDir.getCanonicalPath());
+    assertThat(fileSystem.sourceDirs()).hasSize(1);
+    assertThat(fileSystem.sourceDirs().get(0).getCanonicalPath()).isEqualTo(existingDir.getCanonicalPath());
+    assertThat(fileSystem.testDirs()).hasSize(1);
+    assertThat(fileSystem.testDirs().get(0).getCanonicalPath()).isEqualTo(existingDir.getCanonicalPath());
+    assertThat(fileSystem.binaryDirs()).hasSize(1);
+    assertThat(fileSystem.binaryDirs().get(0).getCanonicalPath()).isEqualTo(existingDir.getCanonicalPath());
   }
 }

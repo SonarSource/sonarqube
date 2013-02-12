@@ -26,6 +26,7 @@ import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.FakeMavenPluginExecutor;
 import org.sonar.batch.MavenPluginExecutor;
+import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -75,10 +76,10 @@ public class BootstrapContainerTest {
   }
 
   public static class MyMavenPluginExecutor implements MavenPluginExecutor {
-    public void execute(Project project, ProjectDefinition projectDef, String goal) {
+    public void execute(Project project, DefaultModuleFileSystem fs, String goal) {
     }
 
-    public MavenPluginHandler execute(Project project, ProjectDefinition projectDef, MavenPluginHandler handler) {
+    public MavenPluginHandler execute(Project project, DefaultModuleFileSystem  fs, MavenPluginHandler handler) {
       return handler;
     }
   }

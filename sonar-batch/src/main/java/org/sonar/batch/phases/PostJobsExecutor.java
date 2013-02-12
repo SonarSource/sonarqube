@@ -26,12 +26,12 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.PostJob;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.maven.DependsUponMavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.MavenPluginExecutor;
 import org.sonar.batch.local.DryRunExporter;
+import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 
 import java.util.Collection;
 
@@ -40,15 +40,15 @@ public class PostJobsExecutor implements BatchComponent {
 
   private final BatchExtensionDictionnary selector;
   private final Project project;
-  private final ProjectDefinition projectDefinition;
+  private final DefaultModuleFileSystem fs;
   private final MavenPluginExecutor mavenExecutor;
   private final DryRunExporter localModeExporter;
 
-  public PostJobsExecutor(BatchExtensionDictionnary selector, Project project, ProjectDefinition projectDefinition, MavenPluginExecutor mavenExecutor,
-      DryRunExporter localModeExporter) {
+  public PostJobsExecutor(BatchExtensionDictionnary selector, Project project, DefaultModuleFileSystem fs, MavenPluginExecutor mavenExecutor,
+                          DryRunExporter localModeExporter) {
     this.selector = selector;
     this.project = project;
-    this.projectDefinition = projectDefinition;
+    this.fs = fs;
     this.mavenExecutor = mavenExecutor;
     this.localModeExporter = localModeExporter;
   }
@@ -79,7 +79,7 @@ public class PostJobsExecutor implements BatchComponent {
     if (job instanceof DependsUponMavenPlugin) {
       MavenPluginHandler handler = ((DependsUponMavenPlugin) job).getMavenPluginHandler(project);
       if (handler != null) {
-        mavenExecutor.execute(project, projectDefinition, handler);
+        mavenExecutor.execute(project, fs, handler);
       }
     }
   }

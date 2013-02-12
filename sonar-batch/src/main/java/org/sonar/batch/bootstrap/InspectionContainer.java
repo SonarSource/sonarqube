@@ -26,9 +26,10 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
+import org.sonar.api.scan.filesystem.ModuleExclusions;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.batch.DefaultProfileLoader;
 import org.sonar.batch.DefaultProjectClasspath;
-import org.sonar.batch.DefaultProjectFileSystem2;
 import org.sonar.batch.DefaultSensorContext;
 import org.sonar.batch.DefaultTimeMachine;
 import org.sonar.batch.ProfileProvider;
@@ -42,6 +43,10 @@ import org.sonar.batch.index.ResourcePersister;
 import org.sonar.batch.local.DryRunExporter;
 import org.sonar.batch.phases.Phases;
 import org.sonar.batch.phases.PhasesTimeProfiler;
+import org.sonar.batch.scan.filesystem.DeprecatedFileSystemAdapter;
+import org.sonar.batch.scan.filesystem.ExclusionFileFilter;
+import org.sonar.batch.scan.filesystem.LanguageFileFilters;
+import org.sonar.batch.scan.filesystem.ModuleFileSystemProvider;
 import org.sonar.core.qualitymodel.DefaultModelFinder;
 import org.sonar.jpa.dao.ProfilesDao;
 import org.sonar.jpa.dao.RulesDao;
@@ -83,9 +88,17 @@ public class InspectionContainer extends Container {
       container.addSingleton(component);
     }
     container.addSingleton(Languages.class);
-    container.addSingleton(DefaultProjectClasspath.class);
-    container.addSingleton(DefaultProjectFileSystem2.class);
     container.addSingleton(RulesDao.class);
+
+    // file system
+    container.addSingleton(PathResolver.class);
+    container.addSingleton(ModuleExclusions.class);
+    container.addSingleton(LanguageFileFilters.class);
+    container.addSingleton(ExclusionFileFilter.class);
+    container.addSingleton(DefaultProjectClasspath.class);
+    container.addPicoAdapter(new ModuleFileSystemProvider());
+    container.addSingleton(DeprecatedFileSystemAdapter.class);
+
 
     // the Snapshot component will be removed when asynchronous measures are improved (required for AsynchronousMeasureSensor)
     container.addSingleton(container.getComponentByType(ResourcePersister.class).getSnapshot(project));
@@ -120,9 +133,9 @@ public class InspectionContainer extends Container {
   protected void doStart() {
     DefaultIndex index = container.getComponentByType(DefaultIndex.class);
     index.setCurrentProject(project,
-        container.getComponentByType(ResourceFilters.class),
-        container.getComponentByType(ViolationFilters.class),
-        container.getComponentByType(RulesProfile.class));
+      container.getComponentByType(ResourceFilters.class),
+      container.getComponentByType(ViolationFilters.class),
+      container.getComponentByType(RulesProfile.class));
 
     container.getComponentByType(Phases.class).execute(project);
   }
