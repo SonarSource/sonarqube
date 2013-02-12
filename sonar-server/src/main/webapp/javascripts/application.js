@@ -355,7 +355,7 @@ function openAccordionItem(url, elt, updateCurrentElement) {
   }
 
   // Get content from url
-  $j.get(url,function (html) {
+  var ajaxRequest = $j.get(url,function (html) {
     if (currentElement.length) {
       var body = currentElement.find('.accordion-item-body');
       if (!updateCurrentElement && !body.hasClass('accordion-item-body-medium')) {
@@ -392,7 +392,7 @@ function openAccordionItem(url, elt, updateCurrentElement) {
         loading.remove();
       });
 
-  return false;
+  return ajaxRequest;
 }
 
 function expandAccordionItem(elt) {

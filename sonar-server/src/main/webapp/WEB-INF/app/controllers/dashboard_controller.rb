@@ -31,7 +31,8 @@ class DashboardController < ApplicationController
       load_dashboard()
       load_authorized_widget_definitions()
     elsif @snapshot
-      # display the layout of the parent, usually the directory, but display the file viewers
+      # display the layout of the parent without the sidebar, usually the directory, but display the file viewers
+      @hide_sidebar = true
       @file = @resource
       @project = @snapshot.parent.project
       render :action => 'no_dashboard'

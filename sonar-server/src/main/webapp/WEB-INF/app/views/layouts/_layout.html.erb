@@ -41,7 +41,7 @@
   </div>
   <%= render 'layouts/breadcrumb' if @breadcrumbs || selected_section==Navigation::SECTION_RESOURCE -%>
   <div id="body">
-    <% if selected_section %>
+    <% if selected_section && (!@hide_sidebar) %>
       <div id="sidebar">
         <ul class="sidebar blue-sidebar">
           <% if selected_section==Navigation::SECTION_HOME %>
@@ -160,7 +160,12 @@
         </ul>
       </div>
     <% end %>
-    <div <%= "id='content' class='with_sidebar'" if selected_section -%>>
+    <%
+      html_id_class = ''
+      html_id_class = "id='content' class='with_sidebar'" if selected_section
+      html_id_class = "id='content'" if @hide_sidebar
+    %>
+    <div <%= html_id_class -%>>
       <% if @project %>
         <div class="print"><h2><%= h @project.name(true) %></h2></div>
       <% end %>
