@@ -49,9 +49,10 @@ public class BatchDatabase extends DefaultDatabase {
 
   @Override
   protected void doCompleteProperties(Properties properties) {
-    // two connections are required : one for Hibernate and one for MyBatis
+    // three connections are required : one for Hibernate, one for MyBatis for regular operations,
+    // and one for the SemaphoreUpdater
     // Note that Hibernate will be removed soon
-    properties.setProperty("sonar.jdbc.initialSize", "2");
-    properties.setProperty("sonar.jdbc.maxActive", "2");
+    properties.setProperty("sonar.jdbc.initialSize", "3");
+    properties.setProperty("sonar.jdbc.maxActive", "3");
   }
 }
