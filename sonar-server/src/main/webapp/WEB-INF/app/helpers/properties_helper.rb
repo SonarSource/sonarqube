@@ -138,8 +138,6 @@ module PropertiesHelper
       message
     else
       # Old key used for retro-compatibility
-      puts "#### "+ prefix.to_s
-
       message = message(prefix +"option.#{property_key}.#{option}.name", :default => '')
       message = message(prefix +"property.#{property_key}.option.#{option}.name", :default => option) unless message != ''
       message
