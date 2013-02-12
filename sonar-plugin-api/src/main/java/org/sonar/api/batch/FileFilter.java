@@ -21,6 +21,10 @@ package org.sonar.api.batch;
 
 import java.io.File;
 
+/**
+ * @deprecated replaced by {@link org.sonar.api.scan.filesystem.FileFilter} in 3.5
+ */
+@Deprecated
 public abstract class FileFilter implements java.io.FileFilter, org.sonar.api.scan.filesystem.FileFilter {
   public final boolean accept(File file, org.sonar.api.scan.filesystem.FileFilter.Context context) {
     return accept(file);

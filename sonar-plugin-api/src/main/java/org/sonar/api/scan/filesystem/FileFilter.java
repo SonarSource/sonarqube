@@ -33,7 +33,7 @@ public interface FileFilter extends BatchExtension {
     SOURCE, TEST
   }
 
-  static interface Context {
+  interface Context {
     ModuleFileSystem fileSystem();
     FileType fileType();
     File sourceDir();

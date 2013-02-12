@@ -82,9 +82,13 @@ public class ExclusionFileFilter implements FileFilter, ResourceFilter, BatchCom
   }
 
   public boolean isIgnored(Resource resource) {
-    if (!ResourceUtils.isFile(resource)) {
-      return false;
+    if (ResourceUtils.isFile(resource)) {
+      return isIgnoredFileResource(resource);
     }
+    return false;
+  }
+
+  private boolean isIgnoredFileResource(Resource resource) {
     WildcardPattern[] inclusionPatterns = (ResourceUtils.isUnitTestClass(resource) ? testInclusions : sourceInclusions);
     if (inclusionPatterns.length > 0) {
       boolean matchInclusion = false;

@@ -45,7 +45,7 @@ public class DatabaseConfiguration extends BaseConfiguration {
     load();
   }
 
-  public void load() {
+  public final void load() {
     clear();
 
     // Ugly workaround before the move to myBatis

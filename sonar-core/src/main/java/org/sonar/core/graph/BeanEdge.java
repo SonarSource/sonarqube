@@ -24,7 +24,7 @@ import com.tinkerpop.blueprints.Edge;
 
 public abstract class BeanEdge extends BeanElement<Edge, BeanEdge> {
 
-  protected final <T extends BeanVertex> T getVertex(Class<T> vertexClass, Direction direction) throws IllegalArgumentException {
+  protected final <T extends BeanVertex> T getVertex(Class<T> vertexClass, Direction direction) {
     return beanGraph().wrap(element().getVertex(direction), vertexClass);
   }
 

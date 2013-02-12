@@ -97,7 +97,7 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
    * @throws org.sonar.api.resources.DuplicatedSourceException
    *          if the source has already been set on this resource
    */
-  public abstract void setSource(Resource reference, String source) throws DuplicatedSourceException;
+  public abstract void setSource(Resource reference, String source);
 
   /**
    * @return source code associated with a specified resource, <code>null</code> if not available

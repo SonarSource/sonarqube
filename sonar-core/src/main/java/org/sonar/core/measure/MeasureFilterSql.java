@@ -215,7 +215,7 @@ class MeasureFilterSql {
     to.append("') ");
   }
 
-  static abstract class RowProcessor {
+  abstract static class RowProcessor {
     abstract Function sortFieldFunction();
 
     abstract Ordering sortFieldOrdering(boolean ascending);

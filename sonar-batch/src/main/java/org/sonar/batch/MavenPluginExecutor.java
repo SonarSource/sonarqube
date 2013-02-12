@@ -20,7 +20,6 @@
 package org.sonar.batch;
 
 import org.sonar.api.BatchComponent;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;

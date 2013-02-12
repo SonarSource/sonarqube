@@ -26,7 +26,6 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.maven.DependsUponMavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;

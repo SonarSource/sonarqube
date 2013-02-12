@@ -39,7 +39,7 @@ import java.util.List;
 
 public final class DependencyInfo extends Composite {
 
-  private static DependencyInfo INSTANCE = new DependencyInfo();
+  private static final DependencyInfo INSTANCE = new DependencyInfo();
 
   private VerticalPanel panel;
   private Loading loading = new Loading();

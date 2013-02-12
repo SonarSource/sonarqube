@@ -11,7 +11,7 @@
  * Sonar is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * Lesser General License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with Sonar; if not, write to the Free Software
@@ -24,26 +24,29 @@ package org.sonar.core.graph.graphson;
  * @author Stephen Mallette
  */
 class GraphsonTokens {
-  public static final String VERTEX = "vertex";
-  public static final String EDGE = "edge";
-  public static final String _ID = "_id";
-  public static final String _LABEL = "_label";
-  public static final String _TYPE = "_type";
-  public static final String _OUT_V = "_outV";
-  public static final String _IN_V = "_inV";
-  public static final String VALUE = "value";
-  public static final String TYPE = "type";
-  public static final String TYPE_LIST = "list";
-  public static final String TYPE_STRING = "string";
-  public static final String TYPE_DOUBLE = "double";
-  public static final String TYPE_INTEGER = "integer";
-  public static final String TYPE_FLOAT = "float";
-  public static final String TYPE_MAP = "map";
-  public static final String TYPE_BOOLEAN = "boolean";
-  public static final String TYPE_LONG = "long";
-  public static final String TYPE_UNKNOWN = "unknown";
+  private GraphsonTokens() {
+  }
 
-  public static final String VERTICES = "vertices";
-  public static final String EDGES = "edges";
-  public static final String MODE = "mode";
+  static final String VERTEX = "vertex";
+  static final String EDGE = "edge";
+  static final String _ID = "_id";
+  static final String _LABEL = "_label";
+  static final String _TYPE = "_type";
+  static final String _OUT_V = "_outV";
+  static final String _IN_V = "_inV";
+  static final String VALUE = "value";
+  static final String TYPE = "type";
+  static final String TYPE_LIST = "list";
+  static final String TYPE_STRING = "string";
+  static final String TYPE_DOUBLE = "double";
+  static final String TYPE_INTEGER = "integer";
+  static final String TYPE_FLOAT = "float";
+  static final String TYPE_MAP = "map";
+  static final String TYPE_BOOLEAN = "boolean";
+  static final String TYPE_LONG = "long";
+  static final String TYPE_UNKNOWN = "unknown";
+
+  static final String VERTICES = "vertices";
+  static final String EDGES = "edges";
+  static final String MODE = "mode";
 }

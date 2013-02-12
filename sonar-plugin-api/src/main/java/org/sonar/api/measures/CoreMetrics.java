@@ -37,15 +37,16 @@ public final class CoreMetrics {
     // only static stuff
   }
 
-  public static final String DOMAIN_SIZE = "Size";
-  public static final String DOMAIN_TESTS = "Tests";
-  public static final String DOMAIN_INTEGRATION_TESTS = "Tests (Integration)";
-  public static final String DOMAIN_OVERALL_TESTS = "Tests (Overall)";
-  public static final String DOMAIN_COMPLEXITY = "Complexity";
-  public static final String DOMAIN_DOCUMENTATION = "Documentation";
-  public static final String DOMAIN_RULES = "Rules";
-  public static final String DOMAIN_SCM = "SCM";
-  public static final String DOMAIN_REVIEWS = "Reviews";
+  // the following fields are not final to avoid compile-time constants used by plugins
+  public static String DOMAIN_SIZE = "Size";
+  public static String DOMAIN_TESTS = "Tests";
+  public static String DOMAIN_INTEGRATION_TESTS = "Tests (Integration)";
+  public static String DOMAIN_OVERALL_TESTS = "Tests (Overall)";
+  public static String DOMAIN_COMPLEXITY = "Complexity";
+  public static String DOMAIN_DOCUMENTATION = "Documentation";
+  public static String DOMAIN_RULES = "Rules";
+  public static String DOMAIN_SCM = "SCM";
+  public static String DOMAIN_REVIEWS = "Reviews";
 
   /**
    * @deprecated since 2.5 See SONAR-2007
@@ -53,9 +54,9 @@ public final class CoreMetrics {
   @Deprecated
   public static final String DOMAIN_RULE_CATEGORIES = "Rule categories";
 
-  public static final String DOMAIN_GENERAL = "General";
-  public static final String DOMAIN_DUPLICATION = "Duplication";
-  public static final String DOMAIN_DESIGN = "Design";
+  public static String DOMAIN_GENERAL = "General";
+  public static String DOMAIN_DUPLICATION = "Duplication";
+  public static String DOMAIN_DESIGN = "Design";
 
   public static final String LINES_KEY = "lines";
   public static final Metric LINES = new Metric.Builder(LINES_KEY, "Lines", Metric.ValueType.INT)

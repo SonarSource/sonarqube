@@ -30,6 +30,7 @@ import java.util.List;
  * @since 1.10
  * @deprecated replaced by {@link org.sonar.api.scan.filesystem.ModuleFileSystem} in 3.5
  */
+@Deprecated
 public interface ProjectFileSystem extends BatchComponent {
   /**
    * Source encoding.

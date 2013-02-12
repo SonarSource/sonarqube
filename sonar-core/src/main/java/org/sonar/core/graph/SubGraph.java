@@ -58,17 +58,15 @@ public class SubGraph {
   }
 
   private void browse(Vertex from, int cursor, List<Object> edgePath) {
-    if (from != null) {
-      if (cursor < edgePath.size()) {
-        Direction edgeDirection = (Direction) edgePath.get(cursor);
-        String edgeLabel = (String) edgePath.get(cursor + 1);
-        Iterable<Edge> edges = from.getEdges(edgeDirection, edgeLabel);
-        for (Edge edge : edges) {
-          edgesToCopy.add(edge);
-          Vertex tail = edge.getVertex(edgeDirection.opposite());
-          copy(tail);
-          browse(tail, cursor + 2, edgePath);
-        }
+    if (from != null && cursor < edgePath.size()) {
+      Direction edgeDirection = (Direction) edgePath.get(cursor);
+      String edgeLabel = (String) edgePath.get(cursor + 1);
+      Iterable<Edge> edges = from.getEdges(edgeDirection, edgeLabel);
+      for (Edge edge : edges) {
+        edgesToCopy.add(edge);
+        Vertex tail = edge.getVertex(edgeDirection.opposite());
+        copy(tail);
+        browse(tail, cursor + 2, edgePath);
       }
     }
   }

@@ -40,7 +40,8 @@ public interface Semaphores extends BatchComponent, ServerComponent {
    * outdated.
    *
    * @param name                 the key of the semaphore
-   * @param maxAgeInSeconds the max duration in seconds the semaphore will be considered unlocked if it was not updated. The value zero forces the semaphore to be acquired, whatever its status.
+   * @param maxAgeInSeconds the max duration in seconds the semaphore will be considered unlocked if
+   *                        it was not updated. The value zero forces the semaphore to be acquired, whatever its status.
    * @param updatePeriodInSeconds the period in seconds the semaphore will be updated.
    * @return the semaphore, whatever its status (locked or unlocked). Can't be null.
    */

@@ -71,7 +71,7 @@ public class FileCache {
     return null;
   }
 
-  public static interface Downloader {
+  public interface Downloader {
     void download(String filename, File toFile) throws IOException;
   }
 
