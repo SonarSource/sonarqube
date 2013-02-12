@@ -1,5 +1,5 @@
 <div id="coverage_header" class="tab_header">
-  <% new = @period && (measure('new_coverage') || measure('new_it_coverage') || measure('new_overall_coverage')) %>
+  <% new = @period && (measure('new_coverage') || measure('new_it_coverage') || measure('new_system_coverage') || measure('new_overall_coverage')) %>
 
   <% if new -%>
     <p><%= message('coverage_viewer.on_new_code') -%>:</p>
@@ -63,6 +63,24 @@
         <% end -%>
       </tr>
     <% end -%>
+
+
+    <% if @display_system_coverage -%>
+      <tr>
+        <td class="right value"><%= format(new, 'system_', 'coverage', :span => true) -%></td>
+        <td><%= message('system_' + 'coverage_viewer.by') -%></td>
+        <td class="name"><%= h Metric.name_for('line_coverage') -%>:</td>
+        <td class="value">
+          <%= format(new, 'system_', 'line_coverage') -%>&nbsp;<%= format_ratio(new, 'system_', 'lines_to_cover', 'uncovered_lines') -%>
+        </td>
+        <td class="sep"></td>
+        <td class="name"><%= h Metric.name_for('branch_coverage') -%>:</td>
+        <td class="value">
+          <%= format(new, 'system_', 'branch_coverage') -%>&nbsp;<%= format_ratio(new, 'system_', 'conditions_to_cover', 'uncovered_conditions') -%>
+        </td>
+      </tr>
+    <% end -%>
+
   </table>
 
   <%= render :partial => 'options' -%>

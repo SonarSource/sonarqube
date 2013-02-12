@@ -40,6 +40,7 @@ public final class CoreMetrics {
   public static final String DOMAIN_SIZE = "Size";
   public static final String DOMAIN_TESTS = "Tests";
   public static final String DOMAIN_INTEGRATION_TESTS = "Tests (Integration)";
+  public static final String DOMAIN_SYSTEM_TESTS = "Tests (System)";
   public static final String DOMAIN_OVERALL_TESTS = "Tests (Overall)";
   public static final String DOMAIN_COMPLEXITY = "Complexity";
   public static final String DOMAIN_DOCUMENTATION = "Documentation";
@@ -903,6 +904,289 @@ public final class CoreMetrics {
       .setDeleteHistoricalData(true)
       .create();
 
+  // --------------------------------------------------------------------------------------------------------------------
+  //
+  // SYSTEM TESTS
+  //
+  // --------------------------------------------------------------------------------------------------------------------
+
+  /**
+   * @since 3.6
+   */
+  public static final String SYSTEM_COVERAGE_KEY = "system_coverage";
+
+  /**
+   * @since 3.6
+   */
+  public static final Metric SYSTEM_COVERAGE = new Metric.Builder(SYSTEM_COVERAGE_KEY, "System coverage", Metric.ValueType.PERCENT)
+      .setDescription("Coverage by system tests")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(true)
+      .setDomain(DOMAIN_SYSTEM_TESTS)
+      .setWorstValue(0.0)
+      .setBestValue(100.0)
+      .create();
+
+  /**
+   * @since 3.6
+   */
+  public static final String NEW_SYSTEM_COVERAGE_KEY = "new_system_coverage";
+
+  /**
+   * @since 3.6
+   */
+  public static final Metric NEW_SYSTEM_COVERAGE = new Metric.Builder(NEW_SYSTEM_COVERAGE_KEY, "New coverage by System", Metric.ValueType.PERCENT)
+      .setDescription("System Tests Coverage of new/changed code")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(true)
+      .setDomain(DOMAIN_SYSTEM_TESTS)
+      .setWorstValue(0.0)
+      .setBestValue(100.0)
+      .setDeleteHistoricalData(true)
+      .create();
+
+  /**
+   * @since 3.6
+   */
+  public static final String SYSTEM_LINES_TO_COVER_KEY = "system_lines_to_cover";
+
+  /**
+   * @since 3.6
+   */
+  public static final Metric SYSTEM_LINES_TO_COVER = new Metric.Builder(SYSTEM_LINES_TO_COVER_KEY, "System lines to cover", Metric.ValueType.INT)
+      .setDescription("Lines to cover by System Tests")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setDomain(DOMAIN_SYSTEM_TESTS)
+      .setQualitative(false)
+      .setFormula(new SumChildValuesFormula(false))
+      .setHidden(true)
+      .setDeleteHistoricalData(true)
+      .create();
+
+  /**
+   * @since 3.6
+   */
+  public static final String NEW_SYSTEM_LINES_TO_COVER_KEY = "new_system_lines_to_cover";
+
+  /**
+   * @since 3.6
+   */
+  public static final Metric NEW_SYSTEM_LINES_TO_COVER = new Metric.Builder(NEW_SYSTEM_LINES_TO_COVER_KEY, "New lines to cover by System", Metric.ValueType.INT)
+      .setDescription("New lines to cover by System Tests")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_SYSTEM_TESTS)
+      .setFormula(new SumChildValuesFormula(false))
+      .setDeleteHistoricalData(true)
+      .create();
+
+  /**
+   * @since 3.6
+   */
+  public static final String SYSTEM_UNCOVERED_LINES_KEY = "system_uncovered_lines";
+
+  /**
+   * @since 3.6
+   */
+  public static final Metric SYSTEM_UNCOVERED_LINES = new Metric.Builder(SYSTEM_UNCOVERED_LINES_KEY, "System uncovered lines", Metric.ValueType.INT)
+      .setDescription("System uncovered lines")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_SYSTEM_TESTS)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
+
+  /**
+   * @since 3.6
+   */
+  public static final String NEW_SYSTEM_UNCOVERED_LINES_KEY = "new_system_uncovered_lines";
+
+  /**
+   * @since 3.6
+   */
+  public static final Metric NEW_SYSTEM_UNCOVERED_LINES = new Metric.Builder(NEW_SYSTEM_UNCOVERED_LINES_KEY, "New uncovered lines by System", Metric.ValueType.INT)
+      .setDescription("New uncovered lines by System Tests")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setDomain(DOMAIN_SYSTEM_TESTS)
+      .setFormula(new SumChildValuesFormula(false))
+      .setBestValue(0.0)
+      .setDeleteHistoricalData(true)
+      .create();
+
+  /**
+   * @since 3.6
+   */
+  public static final String SYSTEM_LINE_COVERAGE_KEY = "system_line_coverage";
+
+  /**
+   * @since 3.6
+   */
+  public static final Metric SYSTEM_LINE_COVERAGE = new Metric.Builder(SYSTEM_LINE_COVERAGE_KEY, "System line coverage", Metric.ValueType.PERCENT)
+      .setDescription("System line coverage")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(true)
+      .setDomain(DOMAIN_SYSTEM_TESTS)
+      .create();
+
+  /**
+   * @since 3.6
+   */
+  public static final String NEW_SYSTEM_LINE_COVERAGE_KEY = "new_system_line_coverage";
+
+  /**
+   * @since 3.6
+   */
+  public static final Metric NEW_SYSTEM_LINE_COVERAGE = new Metric.Builder(NEW_SYSTEM_LINE_COVERAGE_KEY, "New line coverage by System", Metric.ValueType.PERCENT)
+      .setDescription("Line Coverage by System Tests of added/changed code")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(true)
+      .setWorstValue(0.0)
+      .setBestValue(100.0)
+      .setDomain(DOMAIN_SYSTEM_TESTS)
+      .setDeleteHistoricalData(true)
+      .create();
+
+  /**
+   * @since 3.6
+   */
+  public static final String SYSTEM_COVERAGE_LINE_HITS_DATA_KEY = "system_coverage_line_hits_data";
+
+  /**
+   * @since 3.6
+   */
+  public static final Metric SYSTEM_COVERAGE_LINE_HITS_DATA = new Metric.Builder(SYSTEM_COVERAGE_LINE_HITS_DATA_KEY, "System coverage hits data", Metric.ValueType.DATA)
+      .setDescription("System Code coverage line hits data")
+      .setDirection(Metric.DIRECTION_NONE)
+      .setQualitative(false)
+      .setDomain(DOMAIN_SYSTEM_TESTS)
+      .setDeleteHistoricalData(true)
+      .create();
+
+  /**
+   * @since 3.6
+   */
+  public static final String SYSTEM_CONDITIONS_TO_COVER_KEY = "system_conditions_to_cover";
+
+  /**
+   * @since 3.6
+   */
+  public static final Metric SYSTEM_CONDITIONS_TO_COVER = new Metric.Builder(SYSTEM_CONDITIONS_TO_COVER_KEY, "System branches to cover", Metric.ValueType.INT)
+      .setDescription("System Conditions to cover")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(false)
+      .setDomain(DOMAIN_SYSTEM_TESTS)
+      .setFormula(new SumChildValuesFormula(false))
+      .setHidden(true)
+      .create();
+
+  /**
+   * @since 3.6
+   */
+  public static final String NEW_SYSTEM_CONDITIONS_TO_COVER_KEY = "new_system_conditions_to_cover";
+
+  /**
+   * @since 3.6
+   */
+  public static final Metric NEW_SYSTEM_CONDITIONS_TO_COVER = new Metric.Builder(NEW_SYSTEM_CONDITIONS_TO_COVER_KEY, "New conditions to cover by System", Metric.ValueType.INT)
+      .setDescription("New conditions to cover by System Tests")
+      .setDomain(DOMAIN_SYSTEM_TESTS)
+      .setFormula(new SumChildValuesFormula(false))
+      .setDeleteHistoricalData(true)
+      .create();
+
+  /**
+   * @since 3.6
+   */
+  public static final String SYSTEM_UNCOVERED_CONDITIONS_KEY = "system_uncovered_conditions";
+
+  /**
+   * @since 3.6
+   */
+  public static final Metric SYSTEM_UNCOVERED_CONDITIONS = new Metric.Builder(SYSTEM_UNCOVERED_CONDITIONS_KEY, "System uncovered branches", Metric.ValueType.INT)
+      .setDescription("System Uncovered conditions")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setDomain(DOMAIN_SYSTEM_TESTS)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
+
+  /**
+   * @since 3.6
+   */
+  public static final String NEW_SYSTEM_UNCOVERED_CONDITIONS_KEY = "new_system_uncovered_conditions";
+
+  /**
+   * @since 3.6
+   */
+  public static final Metric NEW_SYSTEM_UNCOVERED_CONDITIONS = new Metric.Builder(NEW_SYSTEM_UNCOVERED_CONDITIONS_KEY, "New uncovered conditions by System", Metric.ValueType.INT)
+      .setDescription("New uncovered conditions by System Tests")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setDomain(DOMAIN_SYSTEM_TESTS)
+      .setFormula(new SumChildValuesFormula(false))
+      .setBestValue(0.0)
+      .setDeleteHistoricalData(true)
+      .create();
+
+  /**
+   * @since 3.6
+   */
+  public static final String SYSTEM_BRANCH_COVERAGE_KEY = "system_branch_coverage";
+
+  /**
+   * @since 3.6
+   */
+  public static final Metric SYSTEM_BRANCH_COVERAGE = new Metric.Builder(SYSTEM_BRANCH_COVERAGE_KEY, "System branch coverage", Metric.ValueType.PERCENT)
+      .setDescription("System Branch coverage")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(true)
+      .setDomain(DOMAIN_SYSTEM_TESTS)
+      .setWorstValue(0.0)
+      .setBestValue(100.0)
+      .create();
+
+  /**
+   * @since 3.6
+   */
+  public static final String NEW_SYSTEM_BRANCH_COVERAGE_KEY = "new_system_branch_coverage";
+
+  /**
+   * @since 3.6
+   */
+  public static final Metric NEW_SYSTEM_BRANCH_COVERAGE = new Metric.Builder(NEW_SYSTEM_BRANCH_COVERAGE_KEY, "New branch coverage by System", Metric.ValueType.PERCENT)
+      .setDescription("Branch coverage by System Tests of new/changed code")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(true)
+      .setDomain(DOMAIN_SYSTEM_TESTS)
+      .setWorstValue(0.0)
+      .setBestValue(100.0)
+      .setDeleteHistoricalData(true)
+      .create();
+
+  /**
+   * @since 3.6
+   */
+  public static final String SYSTEM_CONDITIONS_BY_LINE_KEY = "system_conditions_by_line";
+
+  /**
+   * @since 3.6
+   */
+  public static final Metric SYSTEM_CONDITIONS_BY_LINE = new Metric.Builder(SYSTEM_CONDITIONS_BY_LINE_KEY, "System branches by line", Metric.ValueType.DATA)
+      .setDomain(DOMAIN_SYSTEM_TESTS)
+      .setDeleteHistoricalData(true)
+      .create();
+
+  /**
+   * @since 3.6
+   */
+  public static final String SYSTEM_COVERED_CONDITIONS_BY_LINE_KEY = "system_covered_conditions_by_line";
+
+  /**
+   * @since 3.6
+   */
+  public static final Metric SYSTEM_COVERED_CONDITIONS_BY_LINE = new Metric.Builder(SYSTEM_COVERED_CONDITIONS_BY_LINE_KEY, "System covered branches by line", Metric.ValueType.DATA)
+      .setDomain(DOMAIN_SYSTEM_TESTS)
+      .setDeleteHistoricalData(true)
+      .create();
+  
   // --------------------------------------------------------------------------------------------------------------------
   //
   // OVERALL TESTS

@@ -47,6 +47,7 @@ public final class NewCoverageAggregator implements Decorator {
     return Arrays.asList(
       CoreMetrics.NEW_LINES_TO_COVER, CoreMetrics.NEW_UNCOVERED_LINES, CoreMetrics.NEW_CONDITIONS_TO_COVER, CoreMetrics.NEW_UNCOVERED_CONDITIONS,
       CoreMetrics.NEW_IT_LINES_TO_COVER, CoreMetrics.NEW_IT_UNCOVERED_LINES, CoreMetrics.NEW_IT_CONDITIONS_TO_COVER, CoreMetrics.NEW_IT_UNCOVERED_CONDITIONS,
+      CoreMetrics.NEW_SYSTEM_LINES_TO_COVER, CoreMetrics.NEW_SYSTEM_UNCOVERED_LINES, CoreMetrics.NEW_SYSTEM_CONDITIONS_TO_COVER, CoreMetrics.NEW_SYSTEM_UNCOVERED_CONDITIONS,      
       CoreMetrics.NEW_OVERALL_LINES_TO_COVER, CoreMetrics.NEW_OVERALL_UNCOVERED_LINES, CoreMetrics.NEW_OVERALL_CONDITIONS_TO_COVER, CoreMetrics.NEW_OVERALL_UNCOVERED_CONDITIONS);
   }
 
@@ -61,6 +62,10 @@ public final class NewCoverageAggregator implements Decorator {
       aggregate(context, CoreMetrics.NEW_IT_UNCOVERED_LINES, maxPeriods);
       aggregate(context, CoreMetrics.NEW_IT_CONDITIONS_TO_COVER, maxPeriods);
       aggregate(context, CoreMetrics.NEW_IT_UNCOVERED_CONDITIONS, maxPeriods);
+      aggregate(context, CoreMetrics.NEW_SYSTEM_LINES_TO_COVER, maxPeriods);
+      aggregate(context, CoreMetrics.NEW_SYSTEM_UNCOVERED_LINES, maxPeriods);
+      aggregate(context, CoreMetrics.NEW_SYSTEM_CONDITIONS_TO_COVER, maxPeriods);
+      aggregate(context, CoreMetrics.NEW_SYSTEM_UNCOVERED_CONDITIONS, maxPeriods);      
       aggregate(context, CoreMetrics.NEW_OVERALL_LINES_TO_COVER, maxPeriods);
       aggregate(context, CoreMetrics.NEW_OVERALL_UNCOVERED_LINES, maxPeriods);
       aggregate(context, CoreMetrics.NEW_OVERALL_CONDITIONS_TO_COVER, maxPeriods);

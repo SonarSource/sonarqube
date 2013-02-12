@@ -77,6 +77,14 @@
                     <option value="it_uncovered_conditions" <%= 'selected' if @coverage_filter=='it_uncovered_conditions' -%>><%= Metric.name_for('it_uncovered_conditions') -%></option>
                   </optgroup>
                 <% end %>
+                <% if @display_system_coverage %>
+                  <optgroup label="<%= h message('coverage_viewer.system_tests') -%>">
+                    <option value="system_lines_to_cover" <%= 'selected' if @coverage_filter=='system_lines_to_cover' -%>><%= Metric.name_for('system_lines_to_cover') -%></option>
+                    <option value="system_uncovered_lines" <%= 'selected' if @coverage_filter=='system_uncovered_lines' -%>><%= Metric.name_for('system_uncovered_lines') -%></option>
+                    <option value="system_conditions_to_cover" <%= 'selected' if @coverage_filter=='system_conditions_to_cover' -%>><%= Metric.name_for('system_conditions_to_cover') -%></option>
+                    <option value="system_uncovered_conditions" <%= 'selected' if @coverage_filter=='system_uncovered_conditions' -%>><%= Metric.name_for('system_uncovered_conditions') -%></option>
+                  </optgroup>
+                <% end %>
                 <% if @display_overall_coverage %>
                   <optgroup label="<%= h message('coverage_viewer.overall_tests') -%>">
                     <option value="overall_lines_to_cover" <%= 'selected' if @coverage_filter=='overall_lines_to_cover' -%>><%= Metric.name_for('overall_lines_to_cover') -%></option>

@@ -1,0 +1,77 @@
+<%
+   system_coverage=measure('system_coverage')
+
+   if system_coverage
+-%>
+  <table width="100%">
+    <tr>
+      <% if system_coverage -%>
+        <td nowrap valign="top" width="50%">
+          <div class="dashbox">
+            <p class="title"><%= message('widget.system-coverage.name') -%></p>
+
+            <p>
+              <span class="big"><%= format_measure(system_coverage, :suffix => '', :url => url_for_drilldown('system_coverage'), :default => '-') %></span>
+              <%= dashboard_configuration.selected_period? ? format_variation(system_coverage) : trend_icon(system_coverage) -%>
+            </p>
+            <% system_line_coverage=measure('system_line_coverage')
+               if system_line_coverage %>
+              <p>
+                <%= format_measure(system_line_coverage, :suffix => message('widget.system-coverage.line_coverage.suffix'), :url => url_for_drilldown('system_uncovered_lines', :highlight => 'system_line_coverage')) %>
+                <%= dashboard_configuration.selected_period? ? format_variation(system_line_coverage) : trend_icon(system_line_coverage) -%>
+              </p>
+            <% end %>
+            <% system_branch_coverage=measure('system_branch_coverage')
+               if system_branch_coverage %>
+              <p>
+                <%= format_measure(system_branch_coverage, :suffix => message('widget.system-coverage.branch_coverage.suffix'), :url => url_for_drilldown('system_uncovered_conditions', :highlight => 'system_branch_coverage')) %>
+                <%= dashboard_configuration.selected_period? ? format_variation(system_branch_coverage) : trend_icon(system_branch_coverage) -%>
+              </p>
+            <% end %>
+          </div>
+        </td>
+      <% end -%>
+      <% if system_coverage -%>
+        <td nowrap valign="top" width="50%">
+          <div class="dashbox">
+            <%
+               if dashboard_configuration.selected_period?
+                 new_lines_to_cover_measure=measure('new_system_lines_to_cover')
+                 if new_lines_to_cover_measure
+                   new_lines=new_lines_to_cover_measure.variation(dashboard_configuration.period_index)
+                   if new_lines
+                     new_coverage=measure('new_system_coverage')
+                     new_line_coverage=measure('new_system_line_coverage')
+                     new_branch_coverage=measure('new_system_branch_coverage')
+            %>
+                  <h3><%= message('widget.system-coverage.on_new_code') -%>: </h3>
+                  <% if new_lines.to_i==0 %>
+                    <p><%= message('widget.system-coverage.no_new_lines_to_cover') -%></p>
+                  <% else %>
+                    <% if new_coverage %>
+                      <p>
+                  <span class="big">
+                    <a href="<%= url_for_drilldown('new_system_coverage', :period => dashboard_configuration.period_index) -%>"><%= format_variation(new_coverage, :style => 'none', :default => '-') -%></a>
+                  </span>
+                      </p>
+                    <% end %>
+                    <% if new_line_coverage %>
+                      <p>
+                        <a href="<%= url_for_drilldown('new_system_uncovered_lines', :highlight => 'new_system_line_coverage', :period => dashboard_configuration.period_index) -%>"><%= format_variation(new_line_coverage, :style => 'none', :default => '-') -%><%= message('widget.system-coverage.line_coverage.suffix') -%></a>
+                      </p>
+                    <% end %>
+                    <% if new_branch_coverage %>
+                      <p>
+                        <a href="<%= url_for_drilldown('new_system_uncovered_conditions', :highlight => 'new_system_branch_coverage', :period => dashboard_configuration.period_index) -%>"><%= format_variation(new_branch_coverage, :style => 'none', :default => '-') -%><%= message('widget.system-coverage.branch_coverage.suffix') -%></a>
+                      </p>
+                    <% end -%>
+                  <% end -%>
+                <% end -%>
+              <% end -%>
+            <% end -%>
+          </div>
+        </td>
+      <% end -%>
+    </tr>
+  </table>
+<% end %>
