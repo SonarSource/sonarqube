@@ -38,20 +38,20 @@ public class SemaphoreDao {
     this.mybatis = mybatis;
   }
 
-  public synchronized Semaphores.Semaphore acquire(String name, int maxAgeInSeconds) {
+  public Semaphores.Semaphore acquire(String name, int maxAgeInSeconds) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "Semaphore name must not be empty");
     Preconditions.checkArgument(maxAgeInSeconds >= 0, "Semaphore max age must be positive: " + maxAgeInSeconds);
 
     SqlSession session = mybatis.openSession();
     try {
       SemaphoreMapper mapper = session.getMapper(SemaphoreMapper.class);
-      SemaphoreDto semaphore = selectSemaphore(name, session);
       Date now = mapper.now();
-      if (semaphore != null) {
+      SemaphoreDto semaphore = createDto(name, now, session);
+      if (semaphore == null) {
+        semaphore = selectSemaphore(name, session);
         boolean isAcquired = acquireIfOutdated(name, maxAgeInSeconds, session, mapper);
         return createLock(semaphore, session, isAcquired);
       } else {
-        semaphore = createDto(name, now, session);
         return createLock(semaphore, session, true);
       }
     } finally {
@@ -59,18 +59,18 @@ public class SemaphoreDao {
     }
   }
 
-  public synchronized Semaphores.Semaphore acquire(String name) {
+  public Semaphores.Semaphore acquire(String name) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "Semaphore name must not be empty");
 
     SqlSession session = mybatis.openSession();
     try {
       SemaphoreMapper mapper = session.getMapper(SemaphoreMapper.class);
-      SemaphoreDto semaphore = selectSemaphore(name, session);
       Date now = mapper.now();
-      if (semaphore != null) {
+      SemaphoreDto semaphore = createDto(name, now, session);
+      if (semaphore == null) {
+        semaphore = selectSemaphore(name, session);
         return createLock(semaphore, session, false);
       } else {
-        semaphore = createDto(name, now, session);
         return createLock(semaphore, session, true);
       }
     } finally {

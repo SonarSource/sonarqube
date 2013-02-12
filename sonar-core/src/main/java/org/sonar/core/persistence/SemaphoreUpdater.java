@@ -27,7 +27,6 @@ import org.sonar.api.utils.Semaphores;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -37,30 +36,29 @@ public class SemaphoreUpdater {
 
   private static final Logger LOG = LoggerFactory.getLogger(SemaphoreUpdater.class);
 
-  private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-
   private SemaphoreDao dao;
 
-  private Map<String, ScheduledFuture<?>> handlers = Maps.newHashMap();
+  private Map<String, ScheduledExecutorService> handlers = Maps.newHashMap();
 
   public SemaphoreUpdater(SemaphoreDao dao) {
     this.dao = dao;
   }
 
   public void scheduleForUpdate(final Semaphores.Semaphore semaphore, int updatePeriodInSeconds) {
-    final Runnable updater = new Runnable() {
+    ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    Runnable updater = new Runnable() {
       public void run() {
         LOG.debug("Updating semaphore " + semaphore.getName());
         dao.update(semaphore);
       }
     };
-    final ScheduledFuture<?> updateHandle = scheduler.scheduleWithFixedDelay(updater, updatePeriodInSeconds, updatePeriodInSeconds, TimeUnit.SECONDS);
-    handlers.put(semaphore.getName(), updateHandle);
+    scheduler.scheduleWithFixedDelay(updater, updatePeriodInSeconds, updatePeriodInSeconds, TimeUnit.SECONDS);
+    handlers.put(semaphore.getName(), scheduler);
   }
 
   public void stopUpdate(final String name) {
     if (handlers.containsKey(name)) {
-      handlers.get(name).cancel(false);
+      handlers.get(name).shutdownNow();
     }
   }
 }
