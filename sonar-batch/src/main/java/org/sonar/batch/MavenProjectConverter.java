@@ -29,8 +29,10 @@ import org.apache.maven.model.Scm;
 import org.apache.maven.project.MavenProject;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.maven.MavenUtils;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
+import org.sonar.java.api.JavaUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -114,10 +116,24 @@ public final class MavenProjectConverter {
       .setDescription(pom.getDescription())
       .addContainerExtension(pom);
 
+    // See http://jira.codehaus.org/browse/SONAR-2148
+    // Get Java source and target versions from maven-compiler-plugin.
+    String version = MavenUtils.getJavaSourceVersion(pom);
+    if (version != null) {
+      definition.setProperty(JavaUtils.JAVA_SOURCE_PROPERTY, version);
+    }
+    version = MavenUtils.getJavaVersion(pom);
+    if (version != null) {
+      definition.setProperty(JavaUtils.JAVA_TARGET_PROPERTY, version);
+    }
+
+    //See http://jira.codehaus.org/browse/SONAR-2151
+    String encoding = MavenUtils.getSourceEncoding(pom);
+    if (encoding != null) {
+      definition.setProperty(CoreProperties.ENCODING_PROPERTY, encoding);
+    }
     convertMavenLinksToProperties(definition, pom);
-
     synchronizeFileSystem(pom, definition);
-
     return definition;
   }
 
@@ -171,7 +187,6 @@ public final class MavenProjectConverter {
   public static void synchronizeFileSystem(MavenProject pom, DefaultModuleFileSystem into) {
     into.resetDirs(
       pom.getBasedir(),
-      new File(resolvePath(pom.getBuild().getDirectory(), pom.getBasedir()), "sonar"),
       resolvePath(pom.getBuild().getDirectory(), pom.getBasedir()),
       resolvePaths((List<String>) pom.getCompileSourceRoots(), pom.getBasedir()),
       resolvePaths((List<String>) pom.getTestCompileSourceRoots(), pom.getBasedir()),

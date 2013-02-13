@@ -125,10 +125,9 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
   /**
    * Breaks immutability but it's required to allow Maven Plugins to be executed and to change project structure.
    */
-  public void resetDirs(File basedir, File workDir, File buildDir, List<File> sourceDirs, List<File> testDirs, List<File> binaryDirs) {
+  public void resetDirs(File basedir, File buildDir, List<File> sourceDirs, List<File> testDirs, List<File> binaryDirs) {
     Preconditions.checkNotNull(basedir, "Basedir can't be null");
     this.baseDir = basedir;
-    this.workingDir = workDir;
     this.buildDir = buildDir;
     this.sourceDirs = existingDirs(sourceDirs);
     this.testDirs = existingDirs(testDirs);

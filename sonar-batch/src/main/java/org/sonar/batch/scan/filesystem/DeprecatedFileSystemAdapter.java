@@ -65,6 +65,10 @@ public class DeprecatedFileSystemAdapter implements ProjectFileSystem {
     this(target, project, null);
   }
 
+  public void start() {
+    // used to avoid NPE in Project#getFileSystem()
+  }
+
   public Charset getSourceCharset() {
     return target.sourceCharset();
   }

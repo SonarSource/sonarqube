@@ -202,11 +202,10 @@ public class DefaultModuleFileSystemTest {
     File existingDir = temp.newFolder("new_folder");
     File notExistingDir = new File(existingDir, "not_exist");
 
-    fileSystem.resetDirs(existingDir, existingDir, existingDir,
+    fileSystem.resetDirs(existingDir, existingDir,
       Arrays.asList(existingDir, notExistingDir), Arrays.asList(existingDir, notExistingDir), Arrays.asList(existingDir, notExistingDir));
 
     assertThat(fileSystem.baseDir().getCanonicalPath()).isEqualTo(existingDir.getCanonicalPath());
-    assertThat(fileSystem.workingDir().getCanonicalPath()).isEqualTo(existingDir.getCanonicalPath());
     assertThat(fileSystem.buildDir().getCanonicalPath()).isEqualTo(existingDir.getCanonicalPath());
     assertThat(fileSystem.sourceDirs()).hasSize(1);
     assertThat(fileSystem.sourceDirs().get(0).getCanonicalPath()).isEqualTo(existingDir.getCanonicalPath());

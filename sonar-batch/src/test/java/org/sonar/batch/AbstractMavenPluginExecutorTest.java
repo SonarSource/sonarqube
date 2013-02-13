@@ -62,7 +62,7 @@ public class AbstractMavenPluginExecutorTest {
     DefaultModuleFileSystem fs = mock(DefaultModuleFileSystem.class);
     executor.execute(foo, fs, new AddSourceMavenPluginHandler());
 
-    verify(fs).resetDirs(any(File.class), any(File.class), any(File.class), anyList(), anyList(), anyList());
+    verify(fs).resetDirs(any(File.class), any(File.class), anyList(), anyList(), anyList());
   }
 
   static class AddSourceMavenPluginHandler implements MavenPluginHandler {
