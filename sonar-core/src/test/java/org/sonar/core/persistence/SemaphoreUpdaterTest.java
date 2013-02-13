@@ -20,12 +20,12 @@
 package org.sonar.core.persistence;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.Semaphores;
 
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -51,7 +51,7 @@ public class SemaphoreUpdaterTest extends AbstractDaoTestCase {
 
     Thread.sleep(2000);
 
-    verify(dao).update(semaphore);
+    verify(dao, atLeastOnce()).update(semaphore);
   }
 
   @Test
