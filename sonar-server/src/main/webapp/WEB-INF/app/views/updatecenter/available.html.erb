@@ -31,9 +31,8 @@ function installPlugin(key) {
         </tr>
       </thead>
       <tbody>
-    <% updates.sort_by{|c| c.pluginsGroup.key}.each do |update|
-      plugins_group = update.pluginsGroup
-      plugin = plugins_group.masterPlugin
+    <% updates.sort_by{|c| c.getPlugin().getName()}.each do |update|
+      plugin=update.getPlugin()
     %>
       <tr class="<%= cycle('even','odd', :name => category) -%>">
         <td width="150" nowrap>
@@ -42,15 +41,6 @@ function installPlugin(key) {
         <td>
           <%= plugin.getDescription() %>
           <div id="detail-<%= plugin.getKey() -%>" style="display:none">
-
-          <% plugins_group.plugins.each do |sub_plugin| %>
-            <% if sub_plugin.key != plugin.key %>
-            <div>
-              <span><%= sub_plugin.name -%></span> : <span><%= sub_plugin.description -%></span>
-            </div>
-            <% end %>
-          <% end %>
-
           <table class="spaced width100">
             <% if plugin.getLicense() %>
               <tr>

@@ -74,10 +74,10 @@ import org.sonar.server.platform.SettingsChangeNotifier;
 import org.sonar.server.plugins.DefaultServerPluginRepository;
 import org.sonar.server.plugins.PluginDeployer;
 import org.sonar.server.plugins.PluginDownloader;
+import org.sonar.server.plugins.UpdateCenterMatrix;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
-import org.sonar.updatecenter.common.UpdateCenterMatrix;
 import org.sonar.updatecenter.common.Version;
 
 import javax.annotation.Nullable;
@@ -325,7 +325,7 @@ public final class JRubyFacade {
 
   public void ruleSeverityChanged(int parentProfileId, int activeRuleId, int oldSeverityId, int newSeverityId, String userName) {
     getProfilesManager().ruleSeverityChanged(parentProfileId, activeRuleId, RulePriority.values()[oldSeverityId],
-        RulePriority.values()[newSeverityId], userName);
+      RulePriority.values()[newSeverityId], userName);
   }
 
   public void ruleDeactivated(int parentProfileId, int deactivatedRuleId, String userName) {
@@ -521,10 +521,10 @@ public final class JRubyFacade {
     // notifier is null when creating the administrator in the migration script 011.
     if (notifier != null) {
       notifier.onNewUser(NewUserHandler.Context.builder()
-          .setLogin(fields.get("login"))
-          .setName(fields.get("name"))
-          .setEmail(fields.get("email"))
-          .build());
+        .setLogin(fields.get("login"))
+        .setName(fields.get("name"))
+        .setEmail(fields.get("email"))
+        .build());
     }
   }
 

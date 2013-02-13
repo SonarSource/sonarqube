@@ -106,7 +106,6 @@ public class PluginInstaller {
       PluginManifest manifest = new PluginManifest(file);
       DefaultPluginMetadata metadata = DefaultPluginMetadata.create(file);
       metadata.setKey(manifest.getKey());
-      metadata.setGroup(manifest.getGroup());
       metadata.setName(manifest.getName());
       metadata.setDescription(manifest.getDescription());
       metadata.setLicense(manifest.getLicense());

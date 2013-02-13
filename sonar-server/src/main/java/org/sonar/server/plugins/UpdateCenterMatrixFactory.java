@@ -43,17 +43,15 @@ public final class UpdateCenterMatrixFactory implements ServerComponent {
     this.downloader = downloader;
   }
 
-  public org.sonar.updatecenter.common.UpdateCenterMatrix getMatrix(boolean refresh) {
+  public UpdateCenterMatrix getMatrix(boolean refresh) {
     UpdateCenter center = centerClient.getCenter(refresh);
-    org.sonar.updatecenter.common.UpdateCenterMatrix matrix = null;
+    UpdateCenterMatrix matrix = null;
     if (center != null) {
-      matrix = new org.sonar.updatecenter.common.UpdateCenterMatrix(center, sonarVersion);
+      matrix = new UpdateCenterMatrix(center, sonarVersion);
       matrix.setDate(centerClient.getLastRefreshDate());
 
       for (PluginMetadata metadata : pluginRepository.getMetadata()) {
-        if (!metadata.isCore()) {
-          matrix.registerInstalledPlugin(metadata.getKey(), Version.create(metadata.getVersion()));
-        }
+        matrix.registerInstalledPlugin(metadata.getKey(), Version.create(metadata.getVersion()));
       }
       for (String filename : downloader.getDownloads()) {
         matrix.registerPendingPluginsByFilename(filename);

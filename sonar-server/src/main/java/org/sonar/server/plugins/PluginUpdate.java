@@ -23,7 +23,6 @@ import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.Version;
 
-@Deprecated
 public final class PluginUpdate {
 
   public enum Status {

@@ -25,7 +25,6 @@ import org.sonar.updatecenter.common.Release;
 import java.util.ArrayList;
 import java.util.List;
 
-@Deprecated
 public final class SonarUpdate implements Comparable<SonarUpdate> {
 
   private Release release;

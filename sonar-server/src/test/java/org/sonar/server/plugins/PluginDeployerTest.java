@@ -63,7 +63,7 @@ public class PluginDeployerTest {
   }
 
   @Test
-  public void should_deploy_plugin() {
+  public void deployPlugin() {
     deployer.start();
 
     // check that the plugin is registered
@@ -82,7 +82,7 @@ public class PluginDeployerTest {
   }
 
   @Test
-  public void should_deploy_plugin_extensions() {
+  public void deployPluginExtensions() {
     deployer.start();
 
     // check that the plugin is registered
@@ -100,7 +100,7 @@ public class PluginDeployerTest {
   }
 
   @Test
-  public void should_ignore_jars_which_are_not_plugins() {
+  public void ignoreJarsWhichAreNotPlugins() {
     deployer.start();
 
     assertThat(deployer.getMetadata()).isEmpty();
@@ -117,7 +117,7 @@ public class PluginDeployerTest {
   }
 
   @Test(expected = ServerStartException.class)
-  public void should_fail_if_two_plugins_with_same_key() {
+  public void failIfTwoPluginsWithSameKey() {
     deployer.start();
   }
 }

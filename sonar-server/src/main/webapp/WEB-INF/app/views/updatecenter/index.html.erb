@@ -16,11 +16,10 @@
      </tr>
    </thead>
    <tbody>
-     <% if @plugins_groups.empty? %>
+     <% if @user_plugins.empty? %>
        <tr class="even"><td colspan="5">No plugins</td></tr>
      <% else
-          @plugins_groups.each do |group_key, plugins|
-          plugin = plugins.find {|plugin| plugin.key == group_key}
+       @user_plugins.each do |plugin|
      %>
        <tr class="select <%= cycle('even', 'odd', :name => 'user') -%>" id="select_<%= plugin.getKey() -%>">
          <td width="1%" nowrap><b><a href="#plugin" onclick="showPlugin('<%= plugin.getKey() -%>')"><%= h(plugin.getName()) -%></a></b> <span class="note">[<%= h plugin.getKey() -%>]</span></td>
@@ -29,16 +28,6 @@
          <%= plugin.getDescription() -%>
 
          <div id="detail-<%= plugin.getKey() -%>" style="display:none">
-
-
-         <% plugins.each do |sub_plugin| %>
-           <% if sub_plugin.key != plugin.key %>
-             <div>
-               <span><%= sub_plugin.name -%></span> : <span><%= sub_plugin.description -%></span>
-             </div>
-           <% end %>
-         <% end %>
-
          <table class="spaced width100">
            <% if plugin.getLicense() %><tr><td class="thin nowrap"><b>License:</b> </td><td><%= plugin.getLicense() -%></td></tr><% end %>
            <% if plugin.getOrganization() %>
@@ -67,6 +56,24 @@
        </tr>
        <% end %>
      <% end %>
+   </tbody>
+ </table>
+
+ <div class="break30"> </div>
+
+ <table class="data width100" id="system-plugins">
+   <thead>
+     <tr><th colspan="3"><h2>System plugins</h2></th></tr>
+   </thead>
+   <tbody>
+   <%
+     @core_plugins.each do |plugin|
+   %>
+  <tr class="<%= cycle('even','odd', :name => 'core') -%>" id="<%= u plugin.getKey() -%>">
+    <td width="1%" nowrap><b><%= plugin.getName() -%></b> <span class="note">[<%= h plugin.getKey() -%>]</span></td>
+       <td><%= plugin.getDescription() -%></td>
+     </tr>
+   <% end %>
    </tbody>
  </table>
 
