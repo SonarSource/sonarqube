@@ -35,6 +35,7 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
   private List<File> deprecatedExtensions = Lists.newArrayList();
   private String[] pathsToInternalDeps = new String[0];
   private String key;
+  private String group;
   private String version;
   private String sonarVersion;
   private String name;
@@ -103,6 +104,15 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
 
   public DefaultPluginMetadata setKey(String key) {
     this.key = key;
+    return this;
+  }
+
+  public String getGroup() {
+    return group != null ? group : key;
+  }
+
+  public DefaultPluginMetadata setGroup(String group) {
+    this.group = group;
     return this;
   }
 

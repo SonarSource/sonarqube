@@ -29,8 +29,13 @@ class UpdatecenterController < ApplicationController
     @uninstalls=java_facade.getPluginUninstalls()
     @downloads=java_facade.getPluginDownloads()
 
-    @user_plugins=user_plugins()
-    @core_plugins=core_plugins()
+    @plugins_groups = {}
+    installed_plugins.each do |plugin|
+      group_key = plugin.group
+      plugins = @plugins_groups[group_key] || []
+      plugins << plugin
+      @plugins_groups[group_key] = plugins
+    end
   end
 
   def updates
@@ -40,23 +45,27 @@ class UpdatecenterController < ApplicationController
     @center=nil
     @matrix=nil
     @updates_by_plugin={}
-    @user_plugins={}
+    @installed_plugins={}
     @last_compatible={}
 
-    user_plugins.each do |plugin|
-      @user_plugins[plugin.getKey()]=plugin.getVersion()
+    installed_plugins.each do |plugin|
+      @installed_plugins[plugin.getKey()]=plugin.getVersion()
     end
 
     load_matrix()
     if @matrix
       @center=@matrix.getCenter()
 
-      @matrix.findPluginUpdates().each do |update|
-        plugin=update.getPlugin()
+      #@matrix.getInstalledGroups().each do |group|
+      #  @installed_plugins[group.key()]=group.masterPlugin.getVersion()
+      #end
+
+      @matrix.findGroupUpdates().each do |update|
+        plugin = update.pluginsGroup.masterPlugin
         @updates_by_plugin[plugin]||=[]
         @updates_by_plugin[plugin]<<update
         if update.isCompatible
-          @last_compatible[plugin.getKey()]=update.getRelease().getVersion()
+          @last_compatible[plugin.key]=update.release.version
         end
       end
     end
@@ -72,11 +81,12 @@ class UpdatecenterController < ApplicationController
     load_matrix()
     if @matrix
       @center=@matrix.getCenter()
-      @matrix.findAvailablePlugins().each do |update|
-        category=update.getPlugin().getCategory()||''
+      @matrix.findAvailableGroups().each do |update|
+        category = update.pluginsGroup.masterPlugin.category||''
         @updates_by_category[category]||=[]
         @updates_by_category[category]<<update
       end
+
     end
   end
 
@@ -132,6 +142,7 @@ class UpdatecenterController < ApplicationController
   end
 
   private
+
   def load_matrix
     @matrix=java_facade.getUpdateCenterMatrix(params[:reload]=='true')
   end
@@ -143,11 +154,7 @@ class UpdatecenterController < ApplicationController
     end
   end
 
-  def user_plugins
+  def installed_plugins
     java_facade.getPluginsMetadata().select{|plugin| !plugin.isCore()}.sort
-  end
-
-  def core_plugins
-    java_facade.getPluginsMetadata().select{|plugin| plugin.isCore()}.sort
   end
 end

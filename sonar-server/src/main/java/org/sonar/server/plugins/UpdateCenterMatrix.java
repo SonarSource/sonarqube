@@ -21,13 +21,18 @@ package org.sonar.server.plugins;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.sonar.updatecenter.common.*;
+import org.sonar.updatecenter.common.Artifact;
+import org.sonar.updatecenter.common.Plugin;
+import org.sonar.updatecenter.common.Release;
+import org.sonar.updatecenter.common.UpdateCenter;
+import org.sonar.updatecenter.common.Version;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 
+@Deprecated
 public final class UpdateCenterMatrix {
 
   private UpdateCenter center;

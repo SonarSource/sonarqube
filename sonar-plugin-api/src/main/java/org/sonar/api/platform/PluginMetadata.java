@@ -32,6 +32,8 @@ public interface PluginMetadata {
 
   String getKey();
 
+  String getGroup();
+
   String getName();
 
   String getMainClass();

@@ -20,7 +20,6 @@
 package org.sonar.server.plugins;
 
 import com.google.common.base.Joiner;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -149,7 +148,15 @@ public class PluginDeployer implements ServerComponent {
     }
   }
 
-  public void uninstall(String pluginKey) {
+  public void uninstall(String groupKey) {
+    for (PluginMetadata plugin : pluginByKeys.values()) {
+     if (plugin.getGroup().equals(groupKey)) {
+       uninstallPlugin(plugin.getKey());
+     }
+    }
+  }
+
+  private void uninstallPlugin(String pluginKey) {
     PluginMetadata metadata = pluginByKeys.get(pluginKey);
     if ((metadata != null) && !metadata.isCore()) {
       try {

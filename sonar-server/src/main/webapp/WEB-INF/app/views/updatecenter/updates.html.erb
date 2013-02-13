@@ -32,7 +32,7 @@ function upgradePlugin(key) {
             release=update.getRelease()
        %>
         <tr class="<%= css -%>">
-        <td width="1%" nowrap><% if index==0 %><b><%= h(plugin.getName()) -%></b> <%= @user_plugins[plugin.getKey()] -%> -> <% end %></td>
+        <td width="1%" nowrap><% if index==0 %><b><%= h(plugin.getName()) -%></b> <%= @installed_plugins[plugin.getKey()] -%> -> <% end %></td>
            <td width="1%" nowrap><b><%= release.getVersion() -%></b></td>
            <td width="1%" nowrap><%= release_date(release.getDate()) if release.getDate() -%></td>
            <td><%= release.getDescription() -%></td>
