@@ -31,7 +31,4 @@ public class IllegalPathException extends FileSystemException {
     super(message);
   }
 
-  public IllegalPathException(String message, Throwable cause) {
-    super(message, cause);
-  }
 }
