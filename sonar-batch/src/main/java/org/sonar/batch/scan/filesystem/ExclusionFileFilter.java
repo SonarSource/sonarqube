@@ -125,7 +125,7 @@ public class ExclusionFileFilter implements FileFilter, ResourceFilter, BatchCom
     return testExclusions;
   }
 
-  static abstract class FilePattern {
+  abstract static class FilePattern {
     final WildcardPattern pattern;
 
     protected FilePattern(String pattern) {

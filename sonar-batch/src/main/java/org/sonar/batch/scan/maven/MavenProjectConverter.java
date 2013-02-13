@@ -50,7 +50,8 @@ public class MavenProjectConverter {
   }
 
   public static ProjectDefinition convert(List<MavenProject> poms, MavenProject root) {
-    Map<String, MavenProject> paths = Maps.newHashMap(); // projects by canonical path to pom.xml
+    // projects by canonical path to pom.xml
+    Map<String, MavenProject> paths = Maps.newHashMap();
     Map<MavenProject, ProjectDefinition> defs = Maps.newHashMap();
 
     try {
@@ -85,7 +86,6 @@ public class MavenProjectConverter {
     if (rootProject == null) {
       throw new IllegalStateException(UNABLE_TO_DETERMINE_PROJECT_STRUCTURE_EXCEPTION_MESSAGE);
     }
-
     return rootProject;
   }
 
@@ -107,7 +107,8 @@ public class MavenProjectConverter {
   static ProjectDefinition convert(MavenProject pom) {
     String key = new StringBuilder().append(pom.getGroupId()).append(":").append(pom.getArtifactId()).toString();
     ProjectDefinition definition = ProjectDefinition.create();
-    // IMPORTANT NOTE : reference on properties from POM model must not be saved, instead they should be copied explicitly - see SONAR-2896
+    // IMPORTANT NOTE : reference on properties from POM model must not be saved,
+    // instead they should be copied explicitly - see SONAR-2896
     definition
       .setProperties(pom.getModel().getProperties())
       .setKey(key)

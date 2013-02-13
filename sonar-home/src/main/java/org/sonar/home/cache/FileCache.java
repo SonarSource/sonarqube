@@ -103,16 +103,14 @@ public class FileCache {
 
   private void renameQuietly(File sourceFile, File targetFile) {
     boolean rename = sourceFile.renameTo(targetFile);
-    if (!rename) {
-      // Check if the file was cached by another process during download
-      if (!targetFile.exists()) {
-        log.warn(String.format("Unable to rename %s to %s", sourceFile.getAbsolutePath(), targetFile.getAbsolutePath()));
-        log.warn(String.format("A copy/delete will be tempted but with no garantee of atomicity"));
-        try {
-          FileUtils.moveFile(sourceFile, targetFile);
-        } catch (IOException e) {
-          throw new IllegalStateException("Fail to move " + sourceFile.getAbsolutePath() + " to " + targetFile, e);
-        }
+    // Check if the file was cached by another process during download
+    if (!rename && !targetFile.exists()) {
+      log.warn(String.format("Unable to rename %s to %s", sourceFile.getAbsolutePath(), targetFile.getAbsolutePath()));
+      log.warn(String.format("A copy/delete will be tempted but with no garantee of atomicity"));
+      try {
+        FileUtils.moveFile(sourceFile, targetFile);
+      } catch (IOException e) {
+        throw new IllegalStateException("Fail to move " + sourceFile.getAbsolutePath() + " to " + targetFile, e);
       }
     }
   }

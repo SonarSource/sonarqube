@@ -28,7 +28,6 @@ import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.maven.MavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
-import org.sonar.api.utils.SonarException;
 
 import java.io.File;
 import java.io.FileWriter;
