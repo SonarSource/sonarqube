@@ -23,7 +23,7 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.execution.ReactorManager;
 import org.apache.maven.lifecycle.LifecycleExecutor;
 import org.apache.maven.project.MavenProject;
-import org.sonar.batch.AbstractMavenPluginExecutor;
+import org.sonar.batch.scan.maven.AbstractMavenPluginExecutor;
 
 import java.util.Arrays;
 

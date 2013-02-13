@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.phases;
+package org.sonar.batch.scan.maven;
 
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
@@ -26,6 +26,7 @@ import org.sonar.api.batch.maven.MavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
 import org.sonar.api.test.MavenTestUtils;
+import org.sonar.batch.scan.maven.MavenPluginsConfigurator;
 
 import java.util.Arrays;
 

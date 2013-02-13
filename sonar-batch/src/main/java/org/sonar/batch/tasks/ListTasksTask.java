@@ -27,8 +27,8 @@ public class ListTasksTask implements Task {
   public static final String COMMAND = "list-tasks";
 
   public static final TaskDefinition DEFINITION = TaskDefinition.create()
-      .setDescription("List all available tasks on the Sonar server")
-      .setName("List tasks")
+      .setDescription("List available tasks")
+      .setName("List Tasks")
       .setCommand(COMMAND)
       .setTask(ListTasksTask.class);
 
@@ -40,7 +40,7 @@ public class ListTasksTask implements Task {
 
   public void execute() {
     System.out.println();
-    System.out.println("List of available tasks:");
+    System.out.println("Available tasks:");
     System.out.println();
     for (TaskDefinition taskDef : taskManager.getTaskDefinitions()) {
       System.out.println("  - " + taskDef.getCommand() + ": " + taskDef.getDescription());

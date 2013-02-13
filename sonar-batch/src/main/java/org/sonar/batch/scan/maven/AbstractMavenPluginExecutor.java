@@ -17,19 +17,20 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch;
+package org.sonar.batch.scan.maven;
 
 import org.apache.maven.project.MavenProject;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.maven.MavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.batch.scan.maven.MavenProjectConverter;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
+import org.sonar.batch.scan.maven.MavenPluginExecutor;
 
 /**
- * Abstract implementation of {@link MavenPluginExecutor} to reduce duplications in concrete implementations for different Maven versions.
+ * Abstract implementation of {@link org.sonar.batch.scan.maven.MavenPluginExecutor} to reduce duplications in concrete implementations for different Maven versions.
  */
 public abstract class AbstractMavenPluginExecutor implements MavenPluginExecutor {
 

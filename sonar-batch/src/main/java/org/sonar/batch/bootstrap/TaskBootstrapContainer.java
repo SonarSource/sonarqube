@@ -22,7 +22,7 @@ package org.sonar.batch.bootstrap;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.tasks.InspectionTask;
+import org.sonar.batch.scan.ScanTask;
 import org.sonar.batch.tasks.ListTasksTask;
 import org.sonar.batch.tasks.Tasks;
 
@@ -47,7 +47,7 @@ public class TaskBootstrapContainer extends Container {
   }
 
   private void registerCoreTaskDefinitions() {
-    container.addSingleton(InspectionTask.DEFINITION);
+    container.addSingleton(ScanTask.DEFINITION);
     container.addSingleton(ListTasksTask.DEFINITION);
   }
 
@@ -65,7 +65,7 @@ public class TaskBootstrapContainer extends Container {
   private void executeTask(TaskDefinition taskDefinition) {
     boolean projectPresent = container.getComponentByType(ProjectReactor.class) != null;
     if (ExtensionUtils.requiresProject(taskDefinition.getTask()) && !projectPresent) {
-      throw new SonarException("Task " + taskDefinition.getName() + " requires to be run on a project");
+      throw new SonarException("Task '" + taskDefinition.getName() + "' requires to be run on a project");
     }
     Container childModule = new TaskContainer(taskDefinition, projectPresent);
     try {

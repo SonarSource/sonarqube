@@ -55,7 +55,7 @@ public class BatchSettings extends Settings {
   }
 
   @VisibleForTesting
-  BatchSettings() {
+  public BatchSettings() {
   }
 
   private void init(BootstrapSettings bootstrapSettings, @Nullable ProjectReactor reactor, ServerClient client,

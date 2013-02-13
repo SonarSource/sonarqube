@@ -24,8 +24,8 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.FakeMavenPluginExecutor;
-import org.sonar.batch.MavenPluginExecutor;
+import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
+import org.sonar.batch.scan.maven.MavenPluginExecutor;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 
 import static org.fest.assertions.Assertions.assertThat;

@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.phases;
+package org.sonar.batch.scan.maven;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.project.MavenProject;
@@ -44,7 +44,7 @@ public class MavenPluginsConfigurator implements BatchComponent {
 
   public void execute(Project project) {
     Logger logger = LoggerFactory.getLogger(getClass());
-    logger.info("Configure maven plugins...");
+    logger.info("Configure Maven plugins");
 
     for (MavenPluginHandler handler : dictionnary.selectMavenPluginHandlers(project)) {
       logger.debug("Configure {}...", handler);
@@ -68,7 +68,7 @@ public class MavenPluginsConfigurator implements BatchComponent {
         pom.writeModel(fileWriter);
 
       } catch (IOException e) {
-        throw new SonarException("Can not save pom to " + targetPom, e);
+        throw new IllegalStateException("Can not save pom to " + targetPom, e);
       } finally {
         IOUtils.closeQuietly(fileWriter);
       }

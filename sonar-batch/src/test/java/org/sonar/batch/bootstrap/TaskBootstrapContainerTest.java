@@ -48,7 +48,7 @@ public class TaskBootstrapContainerTest {
     bootstrapModule.installChild(module);
 
     thrown.expect(SonarException.class);
-    thrown.expectMessage("Task Sonar project inspection requires to be run on a project");
+    thrown.expectMessage("Task 'Project Scan' requires to be run on a project");
 
     module.start();
   }

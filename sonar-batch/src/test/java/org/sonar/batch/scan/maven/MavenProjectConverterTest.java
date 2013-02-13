@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch;
+package org.sonar.batch.scan.maven;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.model.Model;
@@ -108,10 +108,10 @@ public class MavenProjectConverterTest {
 
   @Test
   public void moduleNameShouldEqualArtifactId() throws Exception {
-    File rootDir = TestUtils.getResource("/org/sonar/batch/MavenProjectConverterTest/moduleNameShouldEqualArtifactId/");
-    MavenProject parent = loadPom("/org/sonar/batch/MavenProjectConverterTest/moduleNameShouldEqualArtifactId/pom.xml", true);
-    MavenProject module1 = loadPom("/org/sonar/batch/MavenProjectConverterTest/moduleNameShouldEqualArtifactId/module1/pom.xml", false);
-    MavenProject module2 = loadPom("/org/sonar/batch/MavenProjectConverterTest/moduleNameShouldEqualArtifactId/module2/pom.xml", false);
+    File rootDir = TestUtils.getResource("/org/sonar/batch/scan/maven/MavenProjectConverterTest/moduleNameShouldEqualArtifactId/");
+    MavenProject parent = loadPom("/org/sonar/batch/scan/maven/MavenProjectConverterTest/moduleNameShouldEqualArtifactId/pom.xml", true);
+    MavenProject module1 = loadPom("/org/sonar/batch/scan/maven/MavenProjectConverterTest/moduleNameShouldEqualArtifactId/module1/pom.xml", false);
+    MavenProject module2 = loadPom("/org/sonar/batch/scan/maven/MavenProjectConverterTest/moduleNameShouldEqualArtifactId/module2/pom.xml", false);
 
     ProjectDefinition rootDef = MavenProjectConverter.convert(Arrays.asList(parent, module1, module2), parent);
 
@@ -129,10 +129,10 @@ public class MavenProjectConverterTest {
 
   @Test
   public void moduleNameDifferentThanArtifactId() throws Exception {
-    File rootDir = TestUtils.getResource("/org/sonar/batch/MavenProjectConverterTest/moduleNameDifferentThanArtifactId/");
-    MavenProject parent = loadPom("/org/sonar/batch/MavenProjectConverterTest/moduleNameDifferentThanArtifactId/pom.xml", true);
-    MavenProject module1 = loadPom("/org/sonar/batch/MavenProjectConverterTest/moduleNameDifferentThanArtifactId/path1/pom.xml", false);
-    MavenProject module2 = loadPom("/org/sonar/batch/MavenProjectConverterTest/moduleNameDifferentThanArtifactId/path2/pom.xml", false);
+    File rootDir = TestUtils.getResource("/org/sonar/batch/scan/maven/MavenProjectConverterTest/moduleNameDifferentThanArtifactId/");
+    MavenProject parent = loadPom("/org/sonar/batch/scan/maven/MavenProjectConverterTest/moduleNameDifferentThanArtifactId/pom.xml", true);
+    MavenProject module1 = loadPom("/org/sonar/batch/scan/maven/MavenProjectConverterTest/moduleNameDifferentThanArtifactId/path1/pom.xml", false);
+    MavenProject module2 = loadPom("/org/sonar/batch/scan/maven/MavenProjectConverterTest/moduleNameDifferentThanArtifactId/path2/pom.xml", false);
 
     ProjectDefinition rootDef = MavenProjectConverter.convert(Arrays.asList(parent, module1, module2), parent);
 
@@ -150,9 +150,9 @@ public class MavenProjectConverterTest {
 
   @Test
   public void should_find_module_with_maven_project_file_naming_different_from_pom_xml() throws Exception {
-    File rootDir = TestUtils.getResource("/org/sonar/batch/MavenProjectConverterTest/mavenProjectFileNameNotEqualsToPomXml/");
-    MavenProject parent = loadPom("/org/sonar/batch/MavenProjectConverterTest/mavenProjectFileNameNotEqualsToPomXml/pom.xml", true);
-    MavenProject module = loadPom("/org/sonar/batch/MavenProjectConverterTest/mavenProjectFileNameNotEqualsToPomXml/module/pom_having_different_name.xml", false);
+    File rootDir = TestUtils.getResource("/org/sonar/batch/scan/maven/MavenProjectConverterTest/mavenProjectFileNameNotEqualsToPomXml/");
+    MavenProject parent = loadPom("/org/sonar/batch/scan/maven/MavenProjectConverterTest/mavenProjectFileNameNotEqualsToPomXml/pom.xml", true);
+    MavenProject module = loadPom("/org/sonar/batch/scan/maven/MavenProjectConverterTest/mavenProjectFileNameNotEqualsToPomXml/module/pom_having_different_name.xml", false);
 
     ProjectDefinition rootDef = MavenProjectConverter.convert(Arrays.asList(parent, module), parent);
 
@@ -170,8 +170,8 @@ public class MavenProjectConverterTest {
 
   @Test
   public void testSingleProjectWithoutModules() throws Exception {
-    File rootDir = TestUtils.getResource("/org/sonar/batch/MavenProjectConverterTest/singleProjectWithoutModules/");
-    MavenProject pom = loadPom("/org/sonar/batch/MavenProjectConverterTest/singleProjectWithoutModules/pom.xml", true);
+    File rootDir = TestUtils.getResource("/org/sonar/batch/scan/maven/MavenProjectConverterTest/singleProjectWithoutModules/");
+    MavenProject pom = loadPom("/org/sonar/batch/scan/maven/MavenProjectConverterTest/singleProjectWithoutModules/pom.xml", true);
 
     ProjectDefinition rootDef = MavenProjectConverter.convert(Arrays.asList(pom), pom);
 
@@ -183,7 +183,7 @@ public class MavenProjectConverterTest {
 
   @Test
   public void shouldConvertLinksToProperties() throws Exception {
-    MavenProject pom = loadPom("/org/sonar/batch/MavenProjectConverterTest/projectWithLinks/pom.xml", true);
+    MavenProject pom = loadPom("/org/sonar/batch/scan/maven/MavenProjectConverterTest/projectWithLinks/pom.xml", true);
 
     ProjectDefinition rootDef = MavenProjectConverter.convert(Arrays.asList(pom), pom);
 
@@ -197,7 +197,7 @@ public class MavenProjectConverterTest {
 
   @Test
   public void shouldNotConvertLinksToPropertiesIfPropertyAlreadyDefined() throws Exception {
-    MavenProject pom = loadPom("/org/sonar/batch/MavenProjectConverterTest/projectWithLinksAndProperties/pom.xml", true);
+    MavenProject pom = loadPom("/org/sonar/batch/scan/maven/MavenProjectConverterTest/projectWithLinksAndProperties/pom.xml", true);
 
     ProjectDefinition rootDef = MavenProjectConverter.convert(Arrays.asList(pom), pom);
 
@@ -211,6 +211,15 @@ public class MavenProjectConverterTest {
     // ... but those ones have been overridden by <properties> in the POM
     assertThat(props.getProperty(CoreProperties.LINKS_SOURCES)).isEqualTo("http://sources.com-OVERRIDEN-BY-PROPS");
     assertThat(props.getProperty(CoreProperties.LINKS_HOME_PAGE)).isEqualTo("http://home.com-OVERRIDEN-BY-PROPS");
+  }
+
+  @Test
+  public void shouldLoadSourceEncoding() throws Exception {
+    MavenProject pom = loadPom("/org/sonar/batch/scan/maven/MavenProjectConverterTest/sourceEncoding/pom.xml", true);
+
+    ProjectDefinition rootDef = MavenProjectConverter.convert(Arrays.asList(pom), pom);
+
+    assertThat(rootDef.getProperties().getProperty(CoreProperties.ENCODING_PROPERTY)).isEqualTo("Shift_JIS");
   }
 
   private MavenProject loadPom(String pomPath, boolean isRoot) throws URISyntaxException, IOException, XmlPullParserException {

@@ -46,7 +46,7 @@ import org.sonar.batch.index.LinkPersister;
 import org.sonar.batch.index.MeasurePersister;
 import org.sonar.batch.index.MemoryOptimizer;
 import org.sonar.batch.index.SourcePersister;
-import org.sonar.batch.tasks.InspectionTask;
+import org.sonar.batch.scan.ScanTask;
 import org.sonar.batch.tasks.ListTasksTask;
 import org.sonar.core.component.ScanGraph;
 import org.sonar.core.component.ScanGraphStore;
@@ -135,7 +135,7 @@ public class TaskContainer extends Container {
   private void registerCoreTasks() {
     container.addSingleton(ListTasksTask.class);
     if (projectPresent) {
-      container.addSingleton(InspectionTask.class);
+      container.addSingleton(ScanTask.class);
     }
   }
 

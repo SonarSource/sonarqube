@@ -23,8 +23,8 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.UriReader;
-import org.sonar.batch.FakeMavenPluginExecutor;
-import org.sonar.batch.MavenPluginExecutor;
+import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
+import org.sonar.batch.scan.maven.MavenPluginExecutor;
 import org.sonar.core.config.Logback;
 
 import javax.annotation.Nullable;

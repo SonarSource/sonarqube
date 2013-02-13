@@ -29,7 +29,7 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.maven.DependsUponMavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.MavenPluginExecutor;
+import org.sonar.batch.scan.maven.MavenPluginExecutor;
 import org.sonar.batch.local.DryRunExporter;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 

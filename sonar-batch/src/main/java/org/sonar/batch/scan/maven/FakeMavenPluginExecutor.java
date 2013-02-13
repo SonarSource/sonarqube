@@ -17,31 +17,20 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.phases;
+package org.sonar.batch.scan.maven;
 
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.MavenPluginExecutor;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
+import org.sonar.batch.scan.maven.MavenPluginExecutor;
 
-public class MavenPhaseExecutor implements BatchComponent {
-
-  public static final String PROP_PHASE = "sonar.phase";
-
-  private MavenPluginExecutor executor;
-  private DefaultModuleFileSystem fs;
-
-  public MavenPhaseExecutor(DefaultModuleFileSystem fs, MavenPluginExecutor executor) {
-    this.fs = fs;
-    this.executor = executor;
+public final class FakeMavenPluginExecutor implements MavenPluginExecutor {
+  public void execute(Project project, DefaultModuleFileSystem fs, String goal) {
+    // do nothing
   }
 
-  public void execute(Project project) {
-    String mavenPhase = (String) project.getProperty(PROP_PHASE);
-    if (!StringUtils.isBlank(mavenPhase)) {
-      executor.execute(project, fs, mavenPhase);
-    }
+  public MavenPluginHandler execute(Project project, DefaultModuleFileSystem fs, MavenPluginHandler handler) {
+    // do nothing
+    return handler;
   }
 }

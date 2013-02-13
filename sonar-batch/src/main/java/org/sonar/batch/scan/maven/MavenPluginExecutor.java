@@ -17,12 +17,17 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.batch.maven;
+package org.sonar.batch.scan.maven;
 
-/**
- * Marker interface for MavenPluginHandlers. If set, classloader of maven plugin includes JARs of custom rule.
- *
- * @since 1.10
- */
-public interface DependsUponCustomRules {
+import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.maven.MavenPluginHandler;
+import org.sonar.api.resources.Project;
+import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
+
+public interface MavenPluginExecutor extends BatchComponent {
+
+  void execute(Project project, DefaultModuleFileSystem def, String goal);
+
+  MavenPluginHandler execute(Project project, DefaultModuleFileSystem def, MavenPluginHandler handler);
+
 }

@@ -28,6 +28,7 @@ import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskComponent;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.utils.SonarException;
+import org.sonar.batch.scan.ScanTask;
 
 import javax.annotation.Nullable;
 
@@ -58,7 +59,7 @@ public class Tasks implements TaskComponent {
       finalCommand = settings.getString(CoreProperties.TASK);
     }
     // Default to inspection task
-    finalCommand = StringUtils.isNotBlank(finalCommand) ? finalCommand : InspectionTask.COMMAND;
+    finalCommand = StringUtils.isNotBlank(finalCommand) ? finalCommand : ScanTask.COMMAND;
     if (taskDefByCommand.containsKey(finalCommand)) {
       return taskDefByCommand.get(finalCommand);
     }

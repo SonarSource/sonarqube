@@ -24,9 +24,8 @@ import org.junit.Test;
 import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.PostJob;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.MavenPluginExecutor;
+import org.sonar.batch.scan.maven.MavenPluginExecutor;
 import org.sonar.batch.local.DryRunExporter;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 

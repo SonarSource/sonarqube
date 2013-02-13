@@ -17,7 +17,12 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.phases;
+package org.sonar.batch.scan.maven;
+
+import org.junit.Test;
+import org.sonar.api.config.Settings;
+import org.sonar.api.resources.Project;
+import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -25,20 +30,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.junit.Test;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.resources.Project;
-import org.sonar.batch.MavenPluginExecutor;
-import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
-
 public class MavenPhaseExecutorTest {
 
   @Test
   public void doNothingIfNoPhase() {
     DefaultModuleFileSystem fs = mock(DefaultModuleFileSystem.class);
     MavenPluginExecutor mavenPluginExecutor = mock(MavenPluginExecutor.class);
-    MavenPhaseExecutor phaseExecutor = new MavenPhaseExecutor(fs, mavenPluginExecutor);
+    MavenPhaseExecutor phaseExecutor = new MavenPhaseExecutor(fs, mavenPluginExecutor, new Settings());
 
 
     Project project = new Project("key");
@@ -51,15 +49,12 @@ public class MavenPhaseExecutorTest {
   public void executePhase() {
     DefaultModuleFileSystem fs = mock(DefaultModuleFileSystem.class);
     MavenPluginExecutor mavenPluginExecutor = mock(MavenPluginExecutor.class);
-    MavenPhaseExecutor phaseExecutor = new MavenPhaseExecutor(fs, mavenPluginExecutor);
+    Settings settings = new Settings().setProperty(MavenPhaseExecutor.PROP_PHASE, "foo");
+    MavenPhaseExecutor phaseExecutor = new MavenPhaseExecutor(fs, mavenPluginExecutor, settings);
 
-    Project project = new Project("key");
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty(MavenPhaseExecutor.PROP_PHASE, "myphase");
-    project.setConfiguration(conf);
-
+    Project project = mock(Project.class);
     phaseExecutor.execute(project);
 
-    verify(mavenPluginExecutor).execute(project, fs, "myphase");
+    verify(mavenPluginExecutor).execute(project, fs, "foo");
   }
 }

@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.batch.scan;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +36,10 @@ import org.sonar.batch.ProfileProvider;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.ResourceFilters;
 import org.sonar.batch.ViolationFilters;
+import org.sonar.batch.bootstrap.Container;
+import org.sonar.batch.bootstrap.ExtensionInstaller;
+import org.sonar.batch.bootstrap.ProjectSettings;
+import org.sonar.batch.bootstrap.UnsupportedProperties;
 import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
@@ -51,11 +55,11 @@ import org.sonar.core.qualitymodel.DefaultModelFinder;
 import org.sonar.jpa.dao.ProfilesDao;
 import org.sonar.jpa.dao.RulesDao;
 
-public class InspectionContainer extends Container {
-  private static final Logger LOG = LoggerFactory.getLogger(InspectionContainer.class);
+public class ScanContainer extends Container {
+  private static final Logger LOG = LoggerFactory.getLogger(ScanContainer.class);
   private Project project;
 
-  public InspectionContainer(Project project) {
+  public ScanContainer(Project project) {
     this.project = project;
   }
 

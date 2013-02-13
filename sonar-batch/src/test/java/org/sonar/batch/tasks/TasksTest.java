@@ -28,6 +28,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.utils.SonarException;
+import org.sonar.batch.scan.ScanTask;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -45,39 +46,39 @@ public class TasksTest {
 
   @Test
   public void shouldReturnTaskDefinitions() {
-    Tasks tasks = new Tasks(settings, new TaskDefinition[] {InspectionTask.DEFINITION, ListTasksTask.DEFINITION});
+    Tasks tasks = new Tasks(settings, new TaskDefinition[] {ScanTask.DEFINITION, ListTasksTask.DEFINITION});
     assertThat(tasks.getTaskDefinitions().length).isEqualTo(2);
   }
 
   @Test
   public void shouldReturnInspectionTask() {
-    Tasks tasks = new Tasks(settings, new TaskDefinition[] {InspectionTask.DEFINITION, ListTasksTask.DEFINITION});
+    Tasks tasks = new Tasks(settings, new TaskDefinition[] {ScanTask.DEFINITION, ListTasksTask.DEFINITION});
     tasks.start();
-    assertThat(tasks.getTaskDefinition(InspectionTask.COMMAND)).isEqualTo(InspectionTask.DEFINITION);
+    assertThat(tasks.getTaskDefinition(ScanTask.COMMAND)).isEqualTo(ScanTask.DEFINITION);
   }
 
   @Test
   public void shouldReturnInspectionTaskByDefault() {
-    Tasks tasks = new Tasks(settings, new TaskDefinition[] {InspectionTask.DEFINITION, ListTasksTask.DEFINITION});
+    Tasks tasks = new Tasks(settings, new TaskDefinition[] {ScanTask.DEFINITION, ListTasksTask.DEFINITION});
     tasks.start();
-    assertThat(tasks.getTaskDefinition(null)).isEqualTo(InspectionTask.DEFINITION);
+    assertThat(tasks.getTaskDefinition(null)).isEqualTo(ScanTask.DEFINITION);
   }
 
   @Test
   public void shouldReturnUsePropertyWhenNoCommand() {
-    Tasks tasks = new Tasks(settings, new TaskDefinition[] {InspectionTask.DEFINITION, ListTasksTask.DEFINITION});
+    Tasks tasks = new Tasks(settings, new TaskDefinition[] {ScanTask.DEFINITION, ListTasksTask.DEFINITION});
     tasks.start();
     assertThat(tasks.getTaskDefinition(ListTasksTask.COMMAND)).isEqualTo(ListTasksTask.DEFINITION);
-    assertThat(tasks.getTaskDefinition(null)).isEqualTo(InspectionTask.DEFINITION);
+    assertThat(tasks.getTaskDefinition(null)).isEqualTo(ScanTask.DEFINITION);
 
     settings.setProperty(CoreProperties.TASK, ListTasksTask.COMMAND);
     assertThat(tasks.getTaskDefinition(null)).isEqualTo(ListTasksTask.DEFINITION);
-    assertThat(tasks.getTaskDefinition(InspectionTask.COMMAND)).isEqualTo(InspectionTask.DEFINITION);
+    assertThat(tasks.getTaskDefinition(ScanTask.COMMAND)).isEqualTo(ScanTask.DEFINITION);
   }
 
   @Test
   public void shouldThrowWhenCommandNotFound() {
-    Tasks tasks = new Tasks(settings, new TaskDefinition[] {InspectionTask.DEFINITION, ListTasksTask.DEFINITION});
+    Tasks tasks = new Tasks(settings, new TaskDefinition[] {ScanTask.DEFINITION, ListTasksTask.DEFINITION});
 
     thrown.expect(SonarException.class);
     thrown.expectMessage("No task found for command: not-exists");

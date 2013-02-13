@@ -17,44 +17,42 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.tasks;
-
-import org.sonar.batch.bootstrap.InspectionContainer;
+package org.sonar.batch.scan;
 
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.batch.ProjectTree;
+import org.sonar.batch.tasks.RequiresProject;
 
 @RequiresProject
-public class InspectionTask implements Task {
+public class ScanTask implements Task {
 
   public static final String COMMAND = "inspect";
   public static final TaskDefinition DEFINITION = TaskDefinition.create()
-      .setDescription("Start a Sonar inspection of a project")
-      .setName("Sonar project inspection")
-      .setCommand(COMMAND)
-      .setTask(InspectionTask.class);
+    .setDescription("Scan project and upload report to server")
+    .setName("Project Scan")
+    .setCommand(COMMAND)
+    .setTask(ScanTask.class);
 
   private final ComponentContainer container;
   private final ProjectTree projectTree;
 
-  public InspectionTask(ProjectTree projectTree, ComponentContainer container) {
+  public ScanTask(ProjectTree projectTree, ComponentContainer container) {
     this.container = container;
     this.projectTree = projectTree;
   }
 
   public void execute() {
-    analyze(projectTree.getRootProject());
+    scan(projectTree.getRootProject());
   }
 
-  private void analyze(Project project) {
+  private void scan(Project project) {
     for (Project subProject : project.getModules()) {
-      analyze(subProject);
+      scan(subProject);
     }
-
-    InspectionContainer projectModule = new InspectionContainer(project);
+    ScanContainer projectModule = new ScanContainer(project);
     try {
       ComponentContainer childContainer = container.createChild();
       projectModule.init(childContainer);

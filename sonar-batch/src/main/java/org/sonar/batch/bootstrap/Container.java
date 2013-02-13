@@ -30,6 +30,10 @@ public abstract class Container {
 
   protected ComponentContainer container;
 
+  public ComponentContainer container() {
+    return container;
+  }
+
   /**
    * @return this
    */

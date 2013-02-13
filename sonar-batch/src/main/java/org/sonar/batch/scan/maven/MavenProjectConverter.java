@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch;
+package org.sonar.batch.scan.maven;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
@@ -40,7 +40,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public final class MavenProjectConverter {
+public class MavenProjectConverter {
 
   private static final String UNABLE_TO_DETERMINE_PROJECT_STRUCTURE_EXCEPTION_MESSAGE = "Unable to determine structure of project." +
     " Probably you use Maven Advanced Reactor Options, which is not supported by Sonar and should not be used.";
@@ -115,7 +115,22 @@ public final class MavenProjectConverter {
       .setName(pom.getName())
       .setDescription(pom.getDescription())
       .addContainerExtension(pom);
+    guessJavaVersion(pom, definition);
+    guessEncoding(pom, definition);
+    convertMavenLinksToProperties(definition, pom);
+    synchronizeFileSystem(pom, definition);
+    return definition;
+  }
 
+  private static void guessEncoding(MavenProject pom, ProjectDefinition definition) {
+    //See http://jira.codehaus.org/browse/SONAR-2151
+    String encoding = MavenUtils.getSourceEncoding(pom);
+    if (encoding != null) {
+      definition.setProperty(CoreProperties.ENCODING_PROPERTY, encoding);
+    }
+  }
+
+  private static void guessJavaVersion(MavenProject pom, ProjectDefinition definition) {
     // See http://jira.codehaus.org/browse/SONAR-2148
     // Get Java source and target versions from maven-compiler-plugin.
     String version = MavenUtils.getJavaSourceVersion(pom);
@@ -126,15 +141,6 @@ public final class MavenProjectConverter {
     if (version != null) {
       definition.setProperty(JavaUtils.JAVA_TARGET_PROPERTY, version);
     }
-
-    //See http://jira.codehaus.org/browse/SONAR-2151
-    String encoding = MavenUtils.getSourceEncoding(pom);
-    if (encoding != null) {
-      definition.setProperty(CoreProperties.ENCODING_PROPERTY, encoding);
-    }
-    convertMavenLinksToProperties(definition, pom);
-    synchronizeFileSystem(pom, definition);
-    return definition;
   }
 
   /**

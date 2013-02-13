@@ -25,6 +25,8 @@ import org.sonar.api.resources.Project;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.PersistenceManager;
+import org.sonar.batch.scan.maven.MavenPhaseExecutor;
+import org.sonar.batch.scan.maven.MavenPluginsConfigurator;
 import org.sonar.core.component.ScanGraphStore;
 
 import java.util.Collection;
