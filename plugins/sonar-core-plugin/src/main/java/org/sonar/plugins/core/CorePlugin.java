@@ -176,7 +176,6 @@ import java.util.List;
   @Property(
     key = CoreProperties.PROJECT_INCLUSIONS_PROPERTY,
     name = "Source File Inclusions",
-    description = "Patterns used to include some source files and only those ones during analysis",
     project = true,
     global = true,
     multiValues = true,
@@ -184,7 +183,6 @@ import java.util.List;
   @Property(
     key = CoreProperties.PROJECT_TEST_INCLUSIONS_PROPERTY,
     name = "Test File Inclusions",
-    description = "Patterns used to include some test files and only those ones during analysis",
     project = true,
     global = true,
     multiValues = true,
@@ -192,20 +190,17 @@ import java.util.List;
   @Property(
     key = CoreProperties.GLOBAL_EXCLUSIONS_PROPERTY,
     name = "Global Source File Exclusions",
-    description = "Patterns used to exclude some source files from analysis. They apply to every project and cannot be overriden.",
     multiValues = true,
     category = CoreProperties.CATEGORY_EXCLUSIONS),
   @Property(
     key = CoreProperties.GLOBAL_TEST_EXCLUSIONS_PROPERTY,
     name = "Global Test File Exclusions",
-    description = "Patterns used to exclude some test files from analysis. They apply to every project and cannot be overriden.",
     multiValues = true,
     category = CoreProperties.CATEGORY_EXCLUSIONS,
     defaultValue = CoreProperties.GLOBAL_TEST_EXCLUSIONS_DEFAULT),
   @Property(
     key = CoreProperties.PROJECT_EXCLUSIONS_PROPERTY,
     name = "Source File Exclusions",
-    description = "Patterns used to exclude some source files from analysis",
     project = true,
     global = true,
     multiValues = true,
@@ -213,7 +208,6 @@ import java.util.List;
   @Property(
     key = CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY,
     name = "Test File Exclusions",
-    description = "Patterns used to exclude some test files from analysis",
     project = true,
     global = true,
     multiValues = true,
