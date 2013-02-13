@@ -66,7 +66,7 @@
 			      <tr>
 			        <td><%= image_tag 'priority/BLOCKER.png'%></td>
 			        <td> &nbsp;<%= link_to message('blocker'), {:controller => 'drilldown', :action => 'violations', :id => @project.key, :severity => 'BLOCKER'} %></td>
-			        <td style="padding: 0 10px;" align="right">
+			        <td style="padding: 0 5px;" align="right">
 			          <%= format_measure(blocker_violations) -%>
 			        </td>
 			        <td>
@@ -86,7 +86,7 @@
 			      <tr>
 			        <td><%= image_tag 'priority/CRITICAL.png'  %></td>
 			        <td> &nbsp;<%= link_to message('critical'), {:controller => 'drilldown', :action => 'violations', :id => @project.key, :severity => 'CRITICAL'} %></td>
-			        <td style="padding: 0 10px;" align="right">
+			        <td style="padding: 0 5px;" align="right">
 			          <%= format_measure(critical_violations) -%>
 			        </td>
 			        <td>
@@ -106,7 +106,7 @@
 			      <tr>
 			      <td><%= image_tag 'priority/MAJOR.png'  %></td>
 			        <td> &nbsp;<%= link_to message('major'), {:controller => 'drilldown', :action => 'violations', :id => @project.key, :severity => 'MAJOR'} %></td>
-			        <td style="padding: 0 10px;" align="right">
+			        <td style="padding: 0 5px;" align="right">
 			          <%= format_measure(major_violations) -%>
 			        </td>
 			        <td>
@@ -126,7 +126,7 @@
 			      <tr>
 			      <td><%= image_tag 'priority/MINOR.png'  %></td>
 			        <td> &nbsp;<%= link_to message('minor'), {:controller => 'drilldown', :action => 'violations', :id => @project.key, :severity => 'MINOR'} %></td>
-			        <td style="padding: 0 10px;" align="right">
+			        <td style="padding: 0 5px;" align="right">
 			          <%= format_measure(minor_violations) -%>
 			        </td>
 			        <td>
@@ -146,7 +146,7 @@
 			      <tr>
 			      <td><%= image_tag 'priority/INFO.png'  %></td>
 			        <td> &nbsp;<%= link_to message('info'), {:controller => 'drilldown', :action => 'violations', :id => @project.key, :severity => 'INFO'} %></td>
-			        <td style="padding: 0 10px;" align="right">
+			        <td style="padding: 0 5px;" align="right">
 			          <%= format_measure(info_violations) -%>
 			        </td>
 			        <td>
