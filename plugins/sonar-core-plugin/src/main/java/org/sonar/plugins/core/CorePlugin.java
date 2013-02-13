@@ -30,7 +30,6 @@ import org.sonar.api.notifications.NotificationDispatcherMetadata;
 import org.sonar.api.resources.Java;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.plugins.core.batch.IndexProjectPostJob;
-import org.sonar.plugins.core.batch.MavenInitializer;
 import org.sonar.plugins.core.charts.DistributionAreaChart;
 import org.sonar.plugins.core.charts.DistributionBarChart;
 import org.sonar.plugins.core.charts.XradarChart;
@@ -413,9 +412,6 @@ public final class CorePlugin extends SonarPlugin {
       UserManagedMetrics.class,
       Periods.class,
 
-      // maven
-      MavenInitializer.class,
-
       // languages
       Java.class,
 
@@ -521,15 +517,15 @@ public final class CorePlugin extends SonarPlugin {
       // Notify incoming violations on my favourite projects
       NewViolationsOnMyFavouriteProject.class,
       NotificationDispatcherMetadata.create("NewViolationsOnMyFavouriteProject")
-        .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, "true"),
+        .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(true)),
       // Notify alerts on my favourite projects
       AlertsOnMyFavouriteProject.class,
       NotificationDispatcherMetadata.create("AlertsOnMyFavouriteProject")
-        .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, "true"),
+        .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(true)),
       // Notify reviews changes
       ChangesInReviewAssignedToMeOrCreatedByMe.class,
       NotificationDispatcherMetadata.create("ChangesInReviewAssignedToMeOrCreatedByMe")
-        .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, "true")
-        .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, "true"));
+        .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(true))
+        .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, String.valueOf(true)));
   }
 }

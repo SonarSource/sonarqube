@@ -19,10 +19,15 @@
  */
 package org.sonar.api.test;
 
-import org.sonar.api.component.Perspective;
+import org.junit.Test;
 
-public interface TestPlan<T extends TestCase> extends Perspective {
-  Iterable<T> testCases();
+import static org.fest.assertions.Assertions.assertThat;
 
-  Iterable<T> testCasesByName(String name);
+public class TestCaseTest {
+  @Test
+  public void value_of_status() {
+    assertThat(TestCase.Status.of("OK")).isEqualTo(TestCase.Status.OK);
+    assertThat(TestCase.Status.of("OK")).isEqualTo(TestCase.Status.OK);
+    assertThat(TestCase.Status.of(null)).isNull();
+  }
 }
