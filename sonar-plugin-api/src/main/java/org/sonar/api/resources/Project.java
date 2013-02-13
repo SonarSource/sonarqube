@@ -330,7 +330,7 @@ public class Project extends Resource {
    * Patterns of resource exclusion as defined in project settings page.
    *
    * @since 3.3 also applies exclusions in general settings page and global exclusions.
-   * @deprecated replaced by {@link org.sonar.api.scan.filesystem.ModuleExclusions} in version 3.5
+   * @deprecated replaced by {@link org.sonar.api.scan.filesystem.FileExclusions} in version 3.5
    */
   @Deprecated
   public String[] getExclusionPatterns() {
@@ -344,7 +344,7 @@ public class Project extends Resource {
    * Also applies exclusions in general settings page and global exclusions.
    *
    * @since 3.3
-   * @deprecated replaced by {@link org.sonar.api.scan.filesystem.ModuleExclusions} in version 3.5
+   * @deprecated replaced by {@link org.sonar.api.scan.filesystem.FileExclusions} in version 3.5
    */
   @Deprecated
   public String[] getTestExclusionPatterns() {
@@ -369,7 +369,7 @@ public class Project extends Resource {
 
   /**
    * Set exclusion patterns. Configuration is not saved, so this method must be used ONLY IN UNIT TESTS.
-   * @deprecated replaced by {@link org.sonar.api.scan.filesystem.ModuleExclusions} in version 3.5
+   * @deprecated replaced by {@link org.sonar.api.scan.filesystem.FileExclusions} in version 3.5
    */
   @Deprecated
   public Project setExclusionPatterns(String[] s) {

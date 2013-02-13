@@ -25,14 +25,14 @@ import org.sonar.api.config.Settings;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class ModuleExclusionsTest {
+public class FileExclusionsTest {
   @Test
   public void ignore_inclusion_of_world() {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "**/*");
     settings.setProperty(CoreProperties.PROJECT_TEST_INCLUSIONS_PROPERTY, "**/*");
-    assertThat(new ModuleExclusions(settings).sourceInclusions()).isEmpty();
-    assertThat(new ModuleExclusions(settings).testInclusions()).isEmpty();
+    assertThat(new FileExclusions(settings).sourceInclusions()).isEmpty();
+    assertThat(new FileExclusions(settings).testInclusions()).isEmpty();
   }
 
   @Test
@@ -40,7 +40,7 @@ public class ModuleExclusionsTest {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "**/*Foo.java");
     settings.setProperty(CoreProperties.PROJECT_TEST_INCLUSIONS_PROPERTY, "**/*FooTest.java");
-    ModuleExclusions moduleExclusions = new ModuleExclusions(settings);
+    FileExclusions moduleExclusions = new FileExclusions(settings);
 
     assertThat(moduleExclusions.sourceInclusions()).containsOnly("**/*Foo.java");
     assertThat(moduleExclusions.testInclusions()).containsOnly("**/*FooTest.java");
@@ -51,7 +51,7 @@ public class ModuleExclusionsTest {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "**/*Foo.java");
     settings.setProperty(CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY, "**/*FooTest.java");
-    ModuleExclusions moduleExclusions = new ModuleExclusions(settings);
+    FileExclusions moduleExclusions = new FileExclusions(settings);
 
     assertThat(moduleExclusions.sourceInclusions()).isEmpty();
     assertThat(moduleExclusions.sourceExclusions()).containsOnly("**/*Foo.java");

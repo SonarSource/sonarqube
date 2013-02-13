@@ -37,7 +37,16 @@ public interface FileFilter extends BatchExtension {
     ModuleFileSystem fileSystem();
     FileType fileType();
     File sourceDir();
+
+    /**
+     * File path relative to source directory. Never return null.
+     */
     String fileRelativePath();
+
+    /**
+     * Absolute file path. Never return null.
+     */
+    String fileCanonicalPath();
   }
 
   boolean accept(File file, Context context);

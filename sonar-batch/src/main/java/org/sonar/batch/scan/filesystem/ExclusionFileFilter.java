@@ -19,62 +19,63 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.ResourceFilter;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.scan.filesystem.FileExclusions;
 import org.sonar.api.scan.filesystem.FileFilter;
-import org.sonar.api.scan.filesystem.ModuleExclusions;
 import org.sonar.api.utils.WildcardPattern;
 
 import java.io.File;
 
 public class ExclusionFileFilter implements FileFilter, ResourceFilter, BatchComponent {
-  private final WildcardPattern[] sourceInclusions;
-  private final WildcardPattern[] testInclusions;
-  private final WildcardPattern[] sourceExclusions;
-  private final WildcardPattern[] testExclusions;
+  private final FilePattern[] sourceInclusions;
+  private final FilePattern[] testInclusions;
+  private final FilePattern[] sourceExclusions;
+  private final FilePattern[] testExclusions;
 
-  public ExclusionFileFilter(ModuleExclusions exclusions) {
-    sourceInclusions = WildcardPattern.create(exclusions.sourceInclusions());
+  public ExclusionFileFilter(FileExclusions exclusions) {
+    sourceInclusions = FilePattern.create(exclusions.sourceInclusions());
     log("Included sources: ", sourceInclusions);
 
-    sourceExclusions = WildcardPattern.create(exclusions.sourceExclusions());
+    sourceExclusions = FilePattern.create(exclusions.sourceExclusions());
     log("Excluded sources: ", sourceExclusions);
 
-    testInclusions = WildcardPattern.create(exclusions.testInclusions());
+    testInclusions = FilePattern.create(exclusions.testInclusions());
     log("Included tests: ", testInclusions);
 
-    testExclusions = WildcardPattern.create(exclusions.testExclusions());
+    testExclusions = FilePattern.create(exclusions.testExclusions());
     log("Excluded tests: ", testExclusions);
   }
 
-  private void log(String title, WildcardPattern[] patterns) {
+  private void log(String title, FilePattern[] patterns) {
     if (patterns.length > 0) {
       Logger log = LoggerFactory.getLogger(ExclusionFileFilter.class);
       log.info(title);
-      for (WildcardPattern pattern : patterns) {
+      for (FilePattern pattern : patterns) {
         log.info("  " + pattern);
       }
     }
   }
 
   public boolean accept(File file, Context context) {
-    WildcardPattern[] inclusionPatterns = (context.fileType() == FileType.TEST ? testInclusions : sourceInclusions);
+    FilePattern[] inclusionPatterns = (context.fileType() == FileType.TEST ? testInclusions : sourceInclusions);
     if (inclusionPatterns.length > 0) {
       boolean matchInclusion = false;
-      for (WildcardPattern pattern : inclusionPatterns) {
-        matchInclusion |= pattern.match(context.fileRelativePath());
+      for (FilePattern pattern : inclusionPatterns) {
+        matchInclusion |= pattern.match(context);
       }
       if (!matchInclusion) {
         return false;
       }
     }
-    WildcardPattern[] exclusionPatterns = (context.fileType() == FileType.TEST ? testExclusions : sourceExclusions);
-    for (WildcardPattern pattern : exclusionPatterns) {
-      if (pattern.match(context.fileRelativePath())) {
+    FilePattern[] exclusionPatterns = (context.fileType() == FileType.TEST ? testExclusions : sourceExclusions);
+    for (FilePattern pattern : exclusionPatterns) {
+      if (pattern.match(context)) {
         return false;
       }
     }
@@ -89,38 +90,103 @@ public class ExclusionFileFilter implements FileFilter, ResourceFilter, BatchCom
   }
 
   private boolean isIgnoredFileResource(Resource resource) {
-    WildcardPattern[] inclusionPatterns = (ResourceUtils.isUnitTestClass(resource) ? testInclusions : sourceInclusions);
+    FilePattern[] inclusionPatterns = (ResourceUtils.isUnitTestClass(resource) ? testInclusions : sourceInclusions);
     if (inclusionPatterns.length > 0) {
       boolean matchInclusion = false;
-      for (WildcardPattern pattern : inclusionPatterns) {
-        matchInclusion |= resource.matchFilePattern(pattern.toString());
+      for (FilePattern pattern : inclusionPatterns) {
+        matchInclusion |= pattern.match(resource);
       }
       if (!matchInclusion) {
         return true;
       }
     }
-    WildcardPattern[] exclusionPatterns = (ResourceUtils.isUnitTestClass(resource) ? testExclusions : sourceExclusions);
-    for (WildcardPattern pattern : exclusionPatterns) {
-      if (resource.matchFilePattern(pattern.toString())) {
+    FilePattern[] exclusionPatterns = (ResourceUtils.isUnitTestClass(resource) ? testExclusions : sourceExclusions);
+    for (FilePattern pattern : exclusionPatterns) {
+      if (pattern.match(resource)) {
         return true;
       }
     }
     return false;
   }
 
-  WildcardPattern[] sourceInclusions() {
+  FilePattern[] sourceInclusions() {
     return sourceInclusions;
   }
 
-  WildcardPattern[] testInclusions() {
+  FilePattern[] testInclusions() {
     return testInclusions;
   }
 
-  WildcardPattern[] sourceExclusions() {
+  FilePattern[] sourceExclusions() {
     return sourceExclusions;
   }
 
-  WildcardPattern[] testExclusions() {
+  FilePattern[] testExclusions() {
     return testExclusions;
+  }
+
+  static abstract class FilePattern {
+    final WildcardPattern pattern;
+
+    protected FilePattern(String pattern) {
+      this.pattern = WildcardPattern.create(pattern);
+    }
+
+    abstract boolean match(Context context);
+
+    abstract boolean match(Resource resource);
+
+    static FilePattern create(String s) {
+      if (StringUtils.startsWithIgnoreCase(s, "file:")) {
+        return new AbsolutePathPattern(StringUtils.substring(s, "file:".length()));
+      }
+      return new RelativePathPattern(s);
+    }
+
+    static FilePattern[] create(String[] s) {
+      FilePattern[] result = new FilePattern[s.length];
+      for (int i = 0; i < s.length; i++) {
+        result[i] = FilePattern.create(s[i]);
+      }
+      return result;
+    }
+  }
+
+  private static class AbsolutePathPattern extends FilePattern {
+    private AbsolutePathPattern(String pattern) {
+      super(pattern);
+    }
+
+    boolean match(Context context) {
+      return pattern.match(context.fileCanonicalPath());
+    }
+
+    boolean match(Resource resource) {
+      return false;
+    }
+
+    @Override
+    public String toString() {
+      return "file:" + pattern.toString();
+    }
+  }
+
+  private static class RelativePathPattern extends FilePattern {
+    private RelativePathPattern(String pattern) {
+      super(pattern);
+    }
+
+    boolean match(Context context) {
+      return pattern.match(context.fileRelativePath());
+    }
+
+    boolean match(Resource resource) {
+      return resource.matchFilePattern(pattern.toString());
+    }
+
+    @Override
+    public String toString() {
+      return pattern.toString();
+    }
   }
 }

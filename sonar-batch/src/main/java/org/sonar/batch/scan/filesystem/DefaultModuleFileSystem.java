@@ -174,6 +174,11 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
 
   private boolean accept(File file, FileFilterContext context) {
     context.setFileRelativePath(pathResolver.relativePath(context.sourceDir(), file));
+    try {
+      context.setFileCanonicalPath(file.getCanonicalPath());
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to get the canonical path of: " + file);
+    }
     for (FileFilter fileFilter : fileFilters) {
       if (!fileFilter.accept(file, context)) {
         return false;

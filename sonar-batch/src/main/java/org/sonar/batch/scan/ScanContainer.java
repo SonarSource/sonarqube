@@ -26,7 +26,7 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
-import org.sonar.api.scan.filesystem.ModuleExclusions;
+import org.sonar.api.scan.filesystem.FileExclusions;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.batch.DefaultProfileLoader;
 import org.sonar.batch.DefaultProjectClasspath;
@@ -96,7 +96,7 @@ public class ScanContainer extends Container {
 
     // file system
     container.addSingleton(PathResolver.class);
-    container.addSingleton(ModuleExclusions.class);
+    container.addSingleton(FileExclusions.class);
     container.addSingleton(LanguageFileFilters.class);
     container.addSingleton(ExclusionFileFilter.class);
     container.addSingleton(DefaultProjectClasspath.class);

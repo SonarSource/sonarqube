@@ -29,6 +29,7 @@ class FileFilterContext implements FileFilter.Context {
   private final FileFilter.FileType fileType;
   private File sourceDir;
   private String fileRelativePath;
+  private String fileCanonicalPath;
 
   FileFilterContext(ModuleFileSystem fileSystem, FileFilter.FileType fileType) {
     this.fileSystem = fileSystem;
@@ -51,13 +52,22 @@ class FileFilterContext implements FileFilter.Context {
     return fileRelativePath;
   }
 
-  FileFilterContext setSourceDir(File sourceDir) {
-    this.sourceDir = sourceDir;
+  public String fileCanonicalPath() {
+    return fileCanonicalPath;
+  }
+
+  FileFilterContext setSourceDir(File d) {
+    this.sourceDir = d;
     return this;
   }
 
-  FileFilterContext setFileRelativePath(String fileRelativePath) {
-    this.fileRelativePath = fileRelativePath;
+  FileFilterContext setFileRelativePath(String s) {
+    this.fileRelativePath = s;
+    return this;
+  }
+
+  FileFilterContext setFileCanonicalPath(String s) {
+    this.fileCanonicalPath = s;
     return this;
   }
 }

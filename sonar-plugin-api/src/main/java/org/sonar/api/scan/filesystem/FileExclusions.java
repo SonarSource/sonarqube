@@ -33,10 +33,10 @@ import java.util.List;
  *
  * @since 3.5
  */
-public class ModuleExclusions implements BatchComponent {
+public class FileExclusions implements BatchComponent {
   private final Settings settings;
 
-  public ModuleExclusions(Settings settings) {
+  public FileExclusions(Settings settings) {
     this.settings = settings;
   }
 
@@ -52,7 +52,7 @@ public class ModuleExclusions implements BatchComponent {
     String[] patterns = sanitize(settings.getStringArray(propertyKey));
     List<String> list = Lists.newArrayList();
     for (String pattern : patterns) {
-      if (!"**/*".equals(pattern)) {
+      if (!"**/*".equals(pattern) && !"file:**/*".equals(pattern)) {
         list.add(pattern);
       }
     }
