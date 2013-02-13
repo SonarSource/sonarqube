@@ -19,40 +19,26 @@
  */
 package org.sonar.batch.tasks;
 
-import org.sonar.api.task.Task;
+import org.junit.Test;
 import org.sonar.api.task.TaskDefinition;
 
-public class ListTasksTask implements Task {
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-  public static final String COMMAND = "list-tasks";
+public class ListTasksTaskTest {
+  @Test
+  public void should_list_available_tasks() {
+    TaskDefinition def = TaskDefinition.create().setCommand("purge").setName("Purge").setDescription("Purge database");
+    Tasks tasks = mock(Tasks.class);
+    when(tasks.getTaskDefinitions()).thenReturn(new TaskDefinition[]{def});
+    ListTasksTask task = spy(new ListTasksTask(tasks));
 
-  public static final TaskDefinition DEFINITION = TaskDefinition.create()
-    .setDescription("List available tasks")
-    .setName("List Tasks")
-    .setCommand(COMMAND)
-    .setTask(ListTasksTask.class);
+    task.execute();
 
-  private final Tasks taskManager;
-
-  public ListTasksTask(Tasks taskManager) {
-    this.taskManager = taskManager;
-  }
-
-  public void execute() {
-    logBlankLine();
-    log("Available tasks:");
-    logBlankLine();
-    for (TaskDefinition taskDef : taskManager.getTaskDefinitions()) {
-      log("  - " + taskDef.getCommand() + ": " + taskDef.getDescription());
-    }
-    logBlankLine();
-  }
-
-  void log(String s) {
-    System.out.println(s);
-  }
-
-  void logBlankLine() {
-    System.out.println();
+    verify(task, times(1)).log("Available tasks:");
+    verify(task, times(1)).log("  - purge: Purge database");
   }
 }
