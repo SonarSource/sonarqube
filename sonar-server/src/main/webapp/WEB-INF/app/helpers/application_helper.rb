@@ -392,7 +392,7 @@ module ApplicationHelper
       when 1
         filename+= '-green'
     end
-    image_tag("trend/#{filename}#{size}.png", :width => pixels, :height => pixels, :alt => '')
+    image_tag("trend/#{filename}#{size}.png", :width => pixels, :height => pixels, :alt => '', :class => 'trendIcon')
   end
 
   #
