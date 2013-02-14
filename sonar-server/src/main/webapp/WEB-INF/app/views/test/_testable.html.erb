@@ -6,10 +6,12 @@
   </div>
   <div class="accordion-item-body">
     <% @test_case_by_test_plan.sort_by { |test_plan, test_cases| test_plan.component.longName }.each do |test_plan, test_cases| %>
-      <% resource_key = test_plan.component.key %>
-      <a href="<%= ApplicationController.root_context -%>/resource/index/<%= resource_key -%>?display_title=true&tab=source"
-         onclick="openAccordionItem(this.href, this); return false;"><%= test_plan.component.longName %>
-      </a>
+      <div class="source_title">
+        <% resource_key = test_plan.component.key %>
+        <a href="<%= ApplicationController.root_context -%>/resource/index/<%= resource_key -%>?display_title=true&tab=source"
+           onclick="openAccordionItem(this.href, this); return false;"><%= test_plan.component.longName %>
+        </a>
+      </div>
       <table class="data marginbottom10">
         <tbody>
         <% reset_cycle %>
