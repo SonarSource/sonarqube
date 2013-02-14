@@ -31,7 +31,7 @@
 
           <% if @scm_available && !@display_violations && @snapshot.project_snapshot.periods? %>
             <td class="<%= 'first' if first -%>">
-              <select name="period" onchange="applyOptions(this)">
+              <select name="period" class="period" onchange="applyOptions(this)">
                 <option value=""><%= message('time_changes') -%>...</option>
                 <%= period_select_options(@snapshot, 1) -%>
                 <%= period_select_options(@snapshot, 2) -%>
@@ -46,7 +46,7 @@
 
           <% if @display_violations %>
             <td class="<%= 'first' if first -%>">
-              <select name="period" onchange="applyOptions(this)">
+              <select name="period" class="period" onchange="applyOptions(this)">
                 <option value=""><%= message('time_changes') -%>...</option>
                 <%= violation_period_select_options(@snapshot, 1) -%>
                 <%= violation_period_select_options(@snapshot, 2) -%>
