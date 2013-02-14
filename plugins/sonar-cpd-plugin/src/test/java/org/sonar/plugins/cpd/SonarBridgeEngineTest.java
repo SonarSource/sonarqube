@@ -20,14 +20,26 @@
 package org.sonar.plugins.cpd;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class SonarBridgeEngineTest {
+
+  private SonarBridgeEngine engine;
+  private Settings settings;
+
+  @Before
+  public void init() {
+    settings = new Settings();
+    engine = new SonarBridgeEngine(null, null, null, settings);
+  }
 
   @Test
   public void shouldReturnDefaultBlockSize() {
@@ -38,31 +50,46 @@ public class SonarBridgeEngineTest {
   }
 
   @Test
+  public void defaultBlockSize() {
+    Project project = newProject("foo", "java");
+
+    assertThat(engine.getBlockSize(project)).isEqualTo(10);
+  }
+
+  @Test
+  public void blockSizeForCobol() {
+    Project project = newProject("foo", "cobol");
+    settings.setProperty("sonar.cpd.cobol.minimumLines", "42");
+
+    assertThat(engine.getBlockSize(project)).isEqualTo(42);
+  }
+
+  @Test
   public void defaultMinimumTokens() {
     Project project = newProject("foo", "java");
 
-    assertThat(SonarBridgeEngine.getMinimumTokens(project), is(CoreProperties.CPD_MINIMUM_TOKENS_DEFAULT_VALUE));
+    assertThat(engine.getMinimumTokens(project), is(CoreProperties.CPD_MINIMUM_TOKENS_DEFAULT_VALUE));
   }
 
   @Test
   public void generalMinimumTokens() {
     Project project = newProject("foo", "java");
-    project.getConfiguration().setProperty("sonar.cpd.minimumTokens", "33");
+    settings.setProperty("sonar.cpd.minimumTokens", 33);
 
-    assertThat(SonarBridgeEngine.getMinimumTokens(project), is(33));
+    assertThat(engine.getMinimumTokens(project), is(33));
   }
 
   @Test
   public void minimumTokensByLanguage() {
     Project javaProject = newProject("foo", "java");
-    javaProject.getConfiguration().setProperty("sonar.cpd.java.minimumTokens", "42");
-    javaProject.getConfiguration().setProperty("sonar.cpd.php.minimumTokens", "33");
-    assertThat(SonarBridgeEngine.getMinimumTokens(javaProject), is(42));
+    settings.setProperty("sonar.cpd.java.minimumTokens", "42");
+    settings.setProperty("sonar.cpd.php.minimumTokens", "33");
+    assertThat(engine.getMinimumTokens(javaProject), is(42));
 
     Project phpProject = newProject("foo", "php");
-    phpProject.getConfiguration().setProperty("sonar.cpd.java.minimumTokens", "42");
-    phpProject.getConfiguration().setProperty("sonar.cpd.php.minimumTokens", "33");
-    assertThat(SonarBridgeEngine.getMinimumTokens(phpProject), is(33));
+    settings.setProperty("sonar.cpd.java.minimumTokens", "42");
+    settings.setProperty("sonar.cpd.php.minimumTokens", "33");
+    assertThat(engine.getMinimumTokens(phpProject), is(33));
   }
 
   private static Project newProject(String key, String language) {

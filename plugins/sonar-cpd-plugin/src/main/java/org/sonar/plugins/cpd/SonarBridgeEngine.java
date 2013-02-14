@@ -22,13 +22,16 @@ package org.sonar.plugins.cpd;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.CpdMapping;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.resources.*;
+import org.sonar.api.config.Settings;
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.utils.SonarException;
 import org.sonar.duplications.DuplicationPredicates;
 import org.sonar.duplications.block.Block;
@@ -37,9 +40,14 @@ import org.sonar.duplications.internal.pmd.TokenizerBridge;
 import org.sonar.plugins.cpd.index.IndexFactory;
 import org.sonar.plugins.cpd.index.SonarDuplicationsIndex;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class SonarBridgeEngine extends CpdEngine {
 
@@ -52,15 +60,18 @@ public class SonarBridgeEngine extends CpdEngine {
 
   private final IndexFactory indexFactory;
   private final CpdMapping[] mappings;
+  private final ModuleFileSystem fileSystem;
+  private final Settings settings;
 
-  public SonarBridgeEngine(IndexFactory indexFactory) {
-    this.indexFactory = indexFactory;
-    this.mappings = null;
-  }
-
-  public SonarBridgeEngine(IndexFactory indexFactory, CpdMapping[] mappings) {
+  public SonarBridgeEngine(IndexFactory indexFactory, CpdMapping[] mappings, ModuleFileSystem moduleFileSystem, Settings settings) {
     this.indexFactory = indexFactory;
     this.mappings = mappings;
+    this.fileSystem = moduleFileSystem;
+    this.settings = settings;
+  }
+
+  public SonarBridgeEngine(IndexFactory indexFactory, ModuleFileSystem moduleFileSystem, Settings settings) {
+    this(indexFactory, new CpdMapping[0], moduleFileSystem, settings);
   }
 
   @Override
@@ -70,9 +81,8 @@ public class SonarBridgeEngine extends CpdEngine {
 
   @Override
   public void analyse(Project project, SensorContext context) {
-    ProjectFileSystem fileSystem = project.getFileSystem();
-    List<InputFile> inputFiles = fileSystem.mainFiles(project.getLanguageKey());
-    if (inputFiles.isEmpty()) {
+    List<File> sourceFiles = fileSystem.sourceFilesOfLang(project.getLanguageKey());
+    if (sourceFiles.isEmpty()) {
       return;
     }
 
@@ -81,12 +91,12 @@ public class SonarBridgeEngine extends CpdEngine {
     // Create index
     SonarDuplicationsIndex index = indexFactory.create(project);
 
-    TokenizerBridge bridge = new TokenizerBridge(mapping.getTokenizer(), fileSystem.getSourceCharset().name(), getBlockSize(project));
-    for (InputFile inputFile : inputFiles) {
-      LOG.debug("Populating index from {}", inputFile.getFile());
-      Resource resource = mapping.createResource(inputFile.getFile(), fileSystem.getSourceDirs());
+    TokenizerBridge bridge = new TokenizerBridge(mapping.getTokenizer(), fileSystem.sourceCharset().name(), getBlockSize(project));
+    for (File file : sourceFiles) {
+      LOG.debug("Populating index from {}", file);
+      Resource<?> resource = mapping.createResource(file, fileSystem.sourceDirs());
       String resourceId = SonarEngine.getFullKey(project, resource);
-      List<Block> blocks = bridge.chunk(resourceId, inputFile.getFile());
+      List<Block> blocks = bridge.chunk(resourceId, file);
       index.insert(resource, blocks);
     }
 
@@ -95,9 +105,9 @@ public class SonarBridgeEngine extends CpdEngine {
 
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     try {
-      for (InputFile inputFile : inputFiles) {
-        LOG.debug("Detection of duplications for {}", inputFile.getFile());
-        Resource resource = mapping.createResource(inputFile.getFile(), fileSystem.getSourceDirs());
+      for (File file : sourceFiles) {
+        LOG.debug("Detection of duplications for {}", file);
+        Resource<?> resource = mapping.createResource(file, fileSystem.sourceDirs());
         String resourceKey = SonarEngine.getFullKey(project, resource);
 
         Collection<Block> fileBlocks = index.getByResource(resource, resourceKey);
@@ -108,7 +118,7 @@ public class SonarBridgeEngine extends CpdEngine {
           filtered = Iterables.filter(duplications, minimumTokensPredicate);
         } catch (TimeoutException e) {
           filtered = null;
-          LOG.warn("Timeout during detection of duplications for " + inputFile.getFile(), e);
+          LOG.warn("Timeout during detection of duplications for " + file, e);
         } catch (InterruptedException e) {
           throw new SonarException(e);
         } catch (ExecutionException e) {
@@ -122,10 +132,14 @@ public class SonarBridgeEngine extends CpdEngine {
     }
   }
 
-  private static int getBlockSize(Project project) {
+  @VisibleForTesting
+  int getBlockSize(Project project) {
     String languageKey = project.getLanguageKey();
-    return project.getConfiguration()
-        .getInt("sonar.cpd." + languageKey + ".minimumLines", getDefaultBlockSize(languageKey));
+    int blockSize = settings.getInt("sonar.cpd." + languageKey + ".minimumLines");
+    if (blockSize == 0) {
+      blockSize = getDefaultBlockSize(languageKey);
+    }
+    return blockSize;
   }
 
   @VisibleForTesting
@@ -140,10 +154,16 @@ public class SonarBridgeEngine extends CpdEngine {
   }
 
   @VisibleForTesting
-  static int getMinimumTokens(Project project) {
-    Configuration conf = project.getConfiguration();
-    return conf.getInt("sonar.cpd." + project.getLanguageKey() + ".minimumTokens",
-        conf.getInt("sonar.cpd.minimumTokens", CoreProperties.CPD_MINIMUM_TOKENS_DEFAULT_VALUE));
+  int getMinimumTokens(Project project) {
+    int minimumTokens = settings.getInt("sonar.cpd." + project.getLanguageKey() + ".minimumTokens");
+    if (minimumTokens == 0) {
+      minimumTokens = settings.getInt(CoreProperties.CPD_MINIMUM_TOKENS_PROPERTY);
+    }
+    if (minimumTokens == 0) {
+      minimumTokens = CoreProperties.CPD_MINIMUM_TOKENS_DEFAULT_VALUE;
+    }
+
+    return minimumTokens;
   }
 
   private CpdMapping getMapping(Language language) {

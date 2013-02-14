@@ -43,7 +43,7 @@ public class CpdSensorTest {
   public void setUp() {
     IndexFactory indexFactory = mock(IndexFactory.class);
     sonarEngine = new SonarEngine(indexFactory, null, null);
-    sonarBridgeEngine = new SonarBridgeEngine(indexFactory);
+    sonarBridgeEngine = new SonarBridgeEngine(indexFactory, null, null);
     settings = new Settings(new PropertyDefinitions(CpdPlugin.class));
     sensor = new CpdSensor(sonarEngine, sonarBridgeEngine, settings);
   }
