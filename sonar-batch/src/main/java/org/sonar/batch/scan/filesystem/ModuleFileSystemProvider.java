@@ -79,7 +79,7 @@ public class ModuleFileSystemProvider extends ProviderAdapter {
       workDir = tempDirectories.getDir("work");
       LOG.warn("Working dir is not set. Using: " + workDir.getAbsolutePath());
     } else {
-      LOG.warn("Working dir: " + workDir.getAbsolutePath());
+      LOG.info("Working dir: " + workDir.getAbsolutePath());
       try {
         FileUtils.forceMkdir(workDir);
       } catch (Exception e) {
