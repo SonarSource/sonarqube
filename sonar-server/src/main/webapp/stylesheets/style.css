@@ -2413,5 +2413,6 @@ textarea.width100 {
 .accordion-item-body-medium {
   max-height: 200px;
   overflow: auto;
+  overflow-x:hidden;
 }
 
