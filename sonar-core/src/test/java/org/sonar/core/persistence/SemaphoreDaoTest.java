@@ -99,7 +99,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
     SemaphoreDto semaphore = selectSemaphore("foo");
     assertThat(semaphore.getCreatedAt().getTime()).isEqualTo(semaphore.getUpdatedAt().getTime());
 
-    Thread.sleep(100);
+    Thread.sleep(500);
 
     dao.update(lock);
 
