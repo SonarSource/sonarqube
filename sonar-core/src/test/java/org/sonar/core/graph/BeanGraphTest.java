@@ -73,6 +73,12 @@ public class BeanGraphTest {
     assertThat(adjacent.knows()).isEmpty();
   }
 
+  @Test
+  public void should_not_wrap_null_element() {
+    BeanGraph beanGraph = BeanGraph.createInMemory();
+    assertThat(beanGraph.wrap(null, Person.class)).isNull();
+  }
+
   static class Person extends BeanVertex {
     Integer age() {
       return (Integer) getProperty("age");
