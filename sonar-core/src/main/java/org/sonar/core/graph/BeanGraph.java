@@ -26,6 +26,8 @@ import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
 import com.tinkerpop.blueprints.util.ElementHelper;
 
+import javax.annotation.Nullable;
+
 public class BeanGraph {
   private final Graph graph;
   private final BeanElements beans;
@@ -39,8 +41,8 @@ public class BeanGraph {
     return new BeanGraph(new TinkerGraph());
   }
 
-  public final <T extends BeanElement> T wrap(Element element, Class<T> beanClass) {
-    return beans.wrap(element, beanClass, this);
+  public final <T extends BeanElement> T wrap(@Nullable Element element, Class<T> beanClass) {
+    return element != null ? beans.wrap(element, beanClass, this) : null;
   }
 
   public final <T extends BeanVertex> T createAdjacentVertex(BeanVertex from, Class<T> beanClass, String edgeLabel, String... edgeProperties) {
