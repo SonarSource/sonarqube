@@ -826,20 +826,20 @@ span.rulename a:hover {
   font-size: 11px;
 }
 
-#global_violations {
+.global_violations {
   width: 100%;
   margin-bottom: 10px;
 }
 
-#global_violations > tbody > tr > td {
+.global_violations > tbody > tr > td {
   padding-bottom: 10px;
 }
 
-#global_violations td {
+.global_violations td {
   padding: 3px 0;
 }
 
-#global_violations td img, #source_title img {
+.global_violations td img, #source_title img {
   vertical-align: text-bottom;
 }
 
