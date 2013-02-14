@@ -18,8 +18,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-@ParametersAreNonnullByDefault
+@javax.annotation.ParametersAreNonnullByDefault
 package org.sonar.plugins.core.timemachine.tracking;
-
-import javax.annotation.ParametersAreNonnullByDefault;
 

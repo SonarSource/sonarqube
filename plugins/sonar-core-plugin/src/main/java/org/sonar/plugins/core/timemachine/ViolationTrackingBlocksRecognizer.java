@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.core.timemachine;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.sonar.plugins.core.timemachine.tracking.HashedSequence;
 import org.sonar.plugins.core.timemachine.tracking.HashedSequenceComparator;
 import org.sonar.plugins.core.timemachine.tracking.StringText;
@@ -30,22 +31,25 @@ public class ViolationTrackingBlocksRecognizer {
   private final HashedSequence<StringText> b;
   private final HashedSequenceComparator<StringText> cmp;
 
+  @VisibleForTesting
   public ViolationTrackingBlocksRecognizer(String referenceSource, String source) {
-    this(new StringText(referenceSource), new StringText(source), StringTextComparator.IGNORE_WHITESPACE);
+    this.a = HashedSequence.wrap(new StringText(referenceSource), StringTextComparator.IGNORE_WHITESPACE);
+    this.b = HashedSequence.wrap(new StringText(source), StringTextComparator.IGNORE_WHITESPACE);
+    this.cmp = new HashedSequenceComparator<StringText>(StringTextComparator.IGNORE_WHITESPACE);
   }
 
-  private ViolationTrackingBlocksRecognizer(StringText a, StringText b, StringTextComparator cmp) {
-    this.a = HashedSequence.wrap(a, cmp);
-    this.b = HashedSequence.wrap(b, cmp);
-    this.cmp = new HashedSequenceComparator<StringText>(cmp);
+  public ViolationTrackingBlocksRecognizer(HashedSequence<StringText> a, HashedSequence<StringText> b, HashedSequenceComparator<StringText> cmp) {
+    this.a = a;
+    this.b = b;
+    this.cmp = cmp;
   }
 
-  public boolean isValidLineInReference(int line) {
-    return (0 <= line) && (line < a.length());
+  public boolean isValidLineInReference(Integer line) {
+    return (line != null) && (0 <= line - 1) && (line - 1 < a.length());
   }
 
-  public boolean isValidLineInSource(int line) {
-    return (0 <= line) && (line < b.length());
+  public boolean isValidLineInSource(Integer line) {
+    return (line != null) && (0 <= line - 1) && (line - 1 < b.length());
   }
 
   /**

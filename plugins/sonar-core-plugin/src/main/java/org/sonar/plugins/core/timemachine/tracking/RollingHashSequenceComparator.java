@@ -17,37 +17,28 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.timemachine;
+package org.sonar.plugins.core.timemachine.tracking;
 
-import org.sonar.api.database.model.RuleFailureModel;
-import org.sonar.api.rules.Violation;
+/**
+ * Wrap another {@link SequenceComparator} for use with {@link RollingHashSequence}.
+ */
+public class RollingHashSequenceComparator<S extends Sequence> implements SequenceComparator<RollingHashSequence<S>> {
 
-import java.util.Comparator;
+  private final SequenceComparator<? super S> cmp;
 
-public class ViolationPair {
-
-  private final RuleFailureModel pastViolation;
-  private final Violation newViolation;
-  private final int weight;
-
-  public ViolationPair(RuleFailureModel pastViolation, Violation newViolation, int weight) {
-    this.pastViolation = pastViolation;
-    this.newViolation = newViolation;
-    this.weight = weight;
+  public RollingHashSequenceComparator(SequenceComparator<? super S> cmp) {
+    this.cmp = cmp;
   }
 
-  public Violation getNewViolation() {
-    return newViolation;
-  }
-
-  public RuleFailureModel getPastViolation() {
-    return pastViolation;
-  }
-
-  public static final Comparator<ViolationPair> COMPARATOR = new Comparator<ViolationPair>() {
-    public int compare(ViolationPair o1, ViolationPair o2) {
-      return o2.weight - o1.weight;
+  public boolean equals(RollingHashSequence<S> a, int ai, RollingHashSequence<S> b, int bi) {
+    if (a.hashes[ai] == b.hashes[bi]) {
+      return cmp.equals(a.base, ai, b.base, bi);
     }
-  };
+    return false;
+  }
+
+  public int hash(RollingHashSequence<S> seq, int i) {
+    return seq.hashes[i];
+  }
 
 }

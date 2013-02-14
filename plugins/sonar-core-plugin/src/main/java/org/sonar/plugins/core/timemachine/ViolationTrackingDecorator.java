@@ -20,17 +20,38 @@
 package org.sonar.plugins.core.timemachine;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.*;
+import com.google.common.base.Objects;
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.*;
+import org.sonar.api.batch.Decorator;
+import org.sonar.api.batch.DecoratorBarriers;
+import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.batch.DependedUpon;
+import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.database.model.RuleFailureModel;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.violations.ViolationQuery;
+import org.sonar.plugins.core.timemachine.tracking.HashedSequence;
+import org.sonar.plugins.core.timemachine.tracking.HashedSequenceComparator;
+import org.sonar.plugins.core.timemachine.tracking.RollingHashSequence;
+import org.sonar.plugins.core.timemachine.tracking.RollingHashSequenceComparator;
+import org.sonar.plugins.core.timemachine.tracking.StringText;
+import org.sonar.plugins.core.timemachine.tracking.StringTextComparator;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @DependsUpon({DecoratorBarriers.END_OF_VIOLATIONS_GENERATION, DecoratorBarriers.START_VIOLATION_TRACKING})
 @DependedUpon(DecoratorBarriers.END_OF_VIOLATION_TRACKING)
@@ -114,34 +135,71 @@ public class ViolationTrackingDecorator implements Decorator {
 
     // If each new violation matches an old one we can stop the matching mechanism
     if (referenceViolationsMap.size() != newViolations.size()) {
-
-      // SONAR-3072
-      ViolationTrackingBlocksRecognizer rec = null;
       if (source != null && resource != null) {
         String referenceSource = referenceAnalysis.getSource(resource);
         if (referenceSource != null) {
-          rec = new ViolationTrackingBlocksRecognizer(referenceSource, source);
+          HashedSequence<StringText> hashedReference = HashedSequence.wrap(new StringText(referenceSource), StringTextComparator.IGNORE_WHITESPACE);
+          HashedSequence<StringText> hashedSource = HashedSequence.wrap(new StringText(source), StringTextComparator.IGNORE_WHITESPACE);
+          HashedSequenceComparator<StringText> hashedComparator = new HashedSequenceComparator<StringText>(StringTextComparator.IGNORE_WHITESPACE);
 
-          List<ViolationPair> possiblePairs = Lists.newArrayList();
-          for (Violation newViolation : newViolations) {
-            if (newViolation.getLineId() != null && rec.isValidLineInSource(newViolation.getLineId() - 1)) {
-              for (RuleFailureModel pastViolation : pastViolationsByRule.get(newViolation.getRule().getId())) {
-                if (pastViolation.getLine() != null && rec.isValidLineInReference(pastViolation.getLine() - 1)) {
-                  int weight = rec.computeLengthOfMaximalBlock(pastViolation.getLine() - 1, newViolation.getLineId() - 1);
-                  possiblePairs.add(new ViolationPair(pastViolation, newViolation, weight));
-                }
-              }
+          ViolationTrackingBlocksRecognizer rec = new ViolationTrackingBlocksRecognizer(hashedReference, hashedSource, hashedComparator);
+
+          Multimap<Integer, Violation> newViolationsByLines = newViolationsByLines(newViolations, rec);
+          Multimap<Integer, RuleFailureModel> pastViolationsByLines = pastViolationsByLines(pastViolations, rec);
+
+          RollingHashSequence<HashedSequence<StringText>> a = RollingHashSequence.wrap(hashedReference, hashedComparator, 5);
+          RollingHashSequence<HashedSequence<StringText>> b = RollingHashSequence.wrap(hashedSource, hashedComparator, 5);
+          RollingHashSequenceComparator<HashedSequence<StringText>> cmp = new RollingHashSequenceComparator<HashedSequence<StringText>>(hashedComparator);
+
+          Map<Integer, HashOccurrence> map = Maps.newHashMap();
+
+          for (Integer line : pastViolationsByLines.keySet()) {
+            int hash = cmp.hash(a, line - 1);
+            HashOccurrence hashOccurrence = map.get(hash);
+            if (hashOccurrence == null) {
+              // first occurrence in A
+              hashOccurrence = new HashOccurrence();
+              hashOccurrence.lineA = line;
+              hashOccurrence.countA = 1;
+              map.put(hash, hashOccurrence);
+            } else {
+              hashOccurrence.countA++;
             }
           }
-          Collections.sort(possiblePairs, ViolationPair.COMPARATOR);
 
-          Set<RuleFailureModel> pp = Sets.newHashSet(pastViolations);
-          for (ViolationPair pair : possiblePairs) {
-            Violation newViolation = pair.getNewViolation();
-            RuleFailureModel pastViolation = pair.getPastViolation();
-            if (isNotAlreadyMapped(newViolation, referenceViolationsMap) && pp.contains(pastViolation)) {
-              pp.remove(pastViolation);
-              mapViolation(newViolation, pastViolation, pastViolationsByRule, referenceViolationsMap);
+          for (Integer line : newViolationsByLines.keySet()) {
+            int hash = cmp.hash(b, line - 1);
+            HashOccurrence hashOccurrence = map.get(hash);
+            if (hashOccurrence != null) {
+              hashOccurrence.lineB = line;
+              hashOccurrence.countB++;
+            }
+          }
+
+          Set<RuleFailureModel> unmappedPastViolations = Sets.newHashSet(pastViolations);
+
+          for (HashOccurrence hashOccurrence : map.values()) {
+            if (hashOccurrence.countA == 1 && hashOccurrence.countB == 1) {
+              // Guaranteed that lineA has been moved to lineB, so we can map all violations on lineA to all violations on lineB
+              map(newViolationsByLines.get(hashOccurrence.lineB), pastViolationsByLines.get(hashOccurrence.lineA), unmappedPastViolations, pastViolationsByRule);
+              pastViolationsByLines.removeAll(hashOccurrence.lineA);
+              newViolationsByLines.removeAll(hashOccurrence.lineB);
+            }
+          }
+
+          // Check if remaining number of lines exceeds threshold
+          if (pastViolationsByLines.keySet().size() * newViolationsByLines.keySet().size() < 250000) {
+            List<LinePair> possibleLinePairs = Lists.newArrayList();
+            for (Integer oldLine : pastViolationsByLines.keySet()) {
+              for (Integer newLine : newViolationsByLines.keySet()) {
+                int weight = rec.computeLengthOfMaximalBlock(oldLine - 1, newLine - 1);
+                possibleLinePairs.add(new LinePair(oldLine, newLine, weight));
+              }
+            }
+            Collections.sort(possibleLinePairs, LINE_PAIR_COMPARATOR);
+            for (LinePair linePair : possibleLinePairs) {
+              // High probability that lineA has been moved to lineB, so we can map all violations on lineA to all violations on lineB
+              map(newViolationsByLines.get(linePair.lineB), pastViolationsByLines.get(linePair.lineA), unmappedPastViolations, pastViolationsByRule);
             }
           }
         }
@@ -176,6 +234,68 @@ public class ViolationTrackingDecorator implements Decorator {
       }
     }
     return referenceViolationsMap;
+  }
+
+  private void map(Collection<Violation> newViolations, Collection<RuleFailureModel> pastViolations, Set<RuleFailureModel> unmappedPastViolations,
+      Multimap<Integer, RuleFailureModel> pastViolationsByRule) {
+    for (Violation newViolation : newViolations) {
+      if (isNotAlreadyMapped(newViolation, referenceViolationsMap)) {
+        for (RuleFailureModel pastViolation : pastViolations) {
+          if (unmappedPastViolations.contains(pastViolation) && Objects.equal(newViolation.getRule().getId(), pastViolation.getRuleId())) {
+            unmappedPastViolations.remove(pastViolation);
+            mapViolation(newViolation, pastViolation, pastViolationsByRule, referenceViolationsMap);
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  private Multimap<Integer, Violation> newViolationsByLines(List<Violation> newViolations, ViolationTrackingBlocksRecognizer rec) {
+    Multimap<Integer, Violation> newViolationsByLines = LinkedHashMultimap.create();
+    for (Violation newViolation : newViolations) {
+      if (isNotAlreadyMapped(newViolation, referenceViolationsMap)) {
+        if (rec.isValidLineInSource(newViolation.getLineId())) {
+          newViolationsByLines.put(newViolation.getLineId(), newViolation);
+        }
+      }
+    }
+    return newViolationsByLines;
+  }
+
+  private Multimap<Integer, RuleFailureModel> pastViolationsByLines(List<RuleFailureModel> pastViolations, ViolationTrackingBlocksRecognizer rec) {
+    Multimap<Integer, RuleFailureModel> pastViolationsByLines = LinkedHashMultimap.create();
+    for (RuleFailureModel pastViolation : pastViolations) {
+      if (rec.isValidLineInSource(pastViolation.getLine())) {
+        pastViolationsByLines.put(pastViolation.getLine(), pastViolation);
+      }
+    }
+    return pastViolationsByLines;
+  }
+
+  private static final Comparator<LinePair> LINE_PAIR_COMPARATOR = new Comparator<LinePair>() {
+    public int compare(LinePair o1, LinePair o2) {
+      return o2.weight - o1.weight;
+    }
+  };
+
+  static class LinePair {
+    int lineA;
+    int lineB;
+    int weight;
+
+    public LinePair(int lineA, int lineB, int weight) {
+      this.lineA = lineA;
+      this.lineB = lineB;
+      this.weight = weight;
+    }
+  }
+
+  static class HashOccurrence {
+    int lineA;
+    int lineB;
+    int countA;
+    int countB;
   }
 
   private boolean isNotAlreadyMapped(Violation newViolation, Map<Violation, RuleFailureModel> violationMap) {
