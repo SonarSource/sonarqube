@@ -26,6 +26,9 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.scan.filesystem.ModuleFileSystem;
+import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.api.scan.filesystem.PathResolver.RelativePath;
 import org.sonar.api.test.IsMeasure;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
@@ -34,14 +37,20 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class SonarEngineTest {
 
   private SensorContext context;
-  private Resource resource;
+  private Resource<?> resource;
 
   @Before
   public void setUp() {
@@ -49,6 +58,23 @@ public class SonarEngineTest {
     resource = new JavaFile("key1");
   }
 
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testGetResource() {
+    PathResolver pathResolver = mock(PathResolver.class);
+    ModuleFileSystem fileSystem = mock(ModuleFileSystem.class);
+    RelativePath relativePath = mock(RelativePath.class);
+    when(pathResolver.relativePath(anyCollection(), any(java.io.File.class))).thenReturn(relativePath);
+    when(relativePath.path()).thenReturn("com/foo/Bar.java");
+
+    SonarEngine engine = new SonarEngine(null, fileSystem, pathResolver);
+    Resource<?> resource = engine.getResource(new java.io.File(""));
+
+    assertThat(resource.getKey()).isEqualTo("com.foo.Bar");
+    assertThat(resource).isInstanceOf(JavaFile.class);
+  }
+
+  @SuppressWarnings("unchecked")
   @Test
   public void testNothingToSave() {
     SonarEngine.save(context, resource, null);
@@ -68,9 +94,9 @@ public class SonarEngineTest {
     verify(context).saveMeasure(
         eq(resource),
         argThat(new IsMeasure(CoreMetrics.DUPLICATIONS_DATA, "<duplications><g>"
-            + "<b s=\"5\" l=\"200\" r=\"key1\"/>"
-            + "<b s=\"15\" l=\"200\" r=\"key2\"/>"
-            + "</g></duplications>")));
+          + "<b s=\"5\" l=\"200\" r=\"key1\"/>"
+          + "<b s=\"15\" l=\"200\" r=\"key2\"/>"
+          + "</g></duplications>")));
   }
 
   @Test
@@ -84,9 +110,9 @@ public class SonarEngineTest {
     verify(context).saveMeasure(
         eq(resource),
         argThat(new IsMeasure(CoreMetrics.DUPLICATIONS_DATA, "<duplications><g>"
-            + "<b s=\"5\" l=\"200\" r=\"key1\"/>"
-            + "<b s=\"215\" l=\"200\" r=\"key1\"/>"
-            + "</g></duplications>")));
+          + "<b s=\"5\" l=\"200\" r=\"key1\"/>"
+          + "<b s=\"215\" l=\"200\" r=\"key1\"/>"
+          + "</g></duplications>")));
   }
 
   @Test
@@ -100,10 +126,10 @@ public class SonarEngineTest {
     verify(context).saveMeasure(
         eq(resource),
         argThat(new IsMeasure(CoreMetrics.DUPLICATIONS_DATA, "<duplications><g>"
-            + "<b s=\"5\" l=\"200\" r=\"key1\"/>"
-            + "<b s=\"15\" l=\"200\" r=\"key2\"/>"
-            + "<b s=\"25\" l=\"200\" r=\"key3\"/>"
-            + "</g></duplications>")));
+          + "<b s=\"5\" l=\"200\" r=\"key1\"/>"
+          + "<b s=\"15\" l=\"200\" r=\"key2\"/>"
+          + "<b s=\"25\" l=\"200\" r=\"key3\"/>"
+          + "</g></duplications>")));
   }
 
   @Test
@@ -119,31 +145,31 @@ public class SonarEngineTest {
     verify(context).saveMeasure(
         eq(resource),
         argThat(new IsMeasure(CoreMetrics.DUPLICATIONS_DATA, "<duplications>"
-            + "<g>"
-            + "<b s=\"5\" l=\"200\" r=\"key1\"/>"
-            + "<b s=\"15\" l=\"200\" r=\"key2\"/>"
-            + "</g>"
-            + "<g>"
-            + "<b s=\"15\" l=\"200\" r=\"key1\"/>"
-            + "<b s=\"15\" l=\"200\" r=\"key3\"/>"
-            + "</g>"
-            + "</duplications>")));
+          + "<g>"
+          + "<b s=\"5\" l=\"200\" r=\"key1\"/>"
+          + "<b s=\"15\" l=\"200\" r=\"key2\"/>"
+          + "</g>"
+          + "<g>"
+          + "<b s=\"15\" l=\"200\" r=\"key1\"/>"
+          + "<b s=\"15\" l=\"200\" r=\"key3\"/>"
+          + "</g>"
+          + "</duplications>")));
   }
 
   @Test
   public void shouldEscapeXmlEntities() {
     File csharpFile = new File("Loads/File Loads/Subs & Reds/SubsRedsDelivery.cs");
     List<CloneGroup> groups = Arrays.asList(newCloneGroup(
-      new ClonePart("Loads/File Loads/Subs & Reds/SubsRedsDelivery.cs", 0, 5, 204),
-      new ClonePart("Loads/File Loads/Subs & Reds/SubsRedsDelivery2.cs", 0, 15, 214)));
+        new ClonePart("Loads/File Loads/Subs & Reds/SubsRedsDelivery.cs", 0, 5, 204),
+        new ClonePart("Loads/File Loads/Subs & Reds/SubsRedsDelivery2.cs", 0, 15, 214)));
     SonarEngine.save(context, csharpFile, groups);
 
     verify(context).saveMeasure(
         eq(csharpFile),
         argThat(new IsMeasure(CoreMetrics.DUPLICATIONS_DATA, "<duplications><g>"
-            + "<b s=\"5\" l=\"200\" r=\"Loads/File Loads/Subs &amp; Reds/SubsRedsDelivery.cs\"/>"
-            + "<b s=\"15\" l=\"200\" r=\"Loads/File Loads/Subs &amp; Reds/SubsRedsDelivery2.cs\"/>"
-            + "</g></duplications>")));
+          + "<b s=\"5\" l=\"200\" r=\"Loads/File Loads/Subs &amp; Reds/SubsRedsDelivery.cs\"/>"
+          + "<b s=\"15\" l=\"200\" r=\"Loads/File Loads/Subs &amp; Reds/SubsRedsDelivery2.cs\"/>"
+          + "</g></duplications>")));
   }
 
   private CloneGroup newCloneGroup(ClonePart... parts) {

@@ -29,7 +29,13 @@ import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.PersistenceMode;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.Java;
+import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.scan.filesystem.ModuleFileSystem;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.SonarException;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
@@ -47,6 +53,7 @@ import org.sonar.plugins.cpd.index.SonarDuplicationsIndex;
 
 import javax.annotation.Nullable;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
@@ -55,7 +62,12 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class SonarEngine extends CpdEngine {
 
@@ -70,8 +82,14 @@ public class SonarEngine extends CpdEngine {
 
   private final IndexFactory indexFactory;
 
-  public SonarEngine(IndexFactory indexFactory) {
+  private final ModuleFileSystem fileSystem;
+
+  private final PathResolver pathResolver;
+
+  public SonarEngine(IndexFactory indexFactory, ModuleFileSystem moduleFileSystem, PathResolver pathResolver) {
     this.indexFactory = indexFactory;
+    this.fileSystem = moduleFileSystem;
+    this.pathResolver = pathResolver;
   }
 
   @Override
@@ -79,7 +97,7 @@ public class SonarEngine extends CpdEngine {
     return Java.INSTANCE.equals(language);
   }
 
-  static String getFullKey(Project project, Resource resource) {
+  static String getFullKey(Project project, Resource<?> resource) {
     return new StringBuilder(ResourceModel.KEY_SIZE)
         .append(project.getKey())
         .append(':')
@@ -89,31 +107,31 @@ public class SonarEngine extends CpdEngine {
 
   @Override
   public void analyse(Project project, SensorContext context) {
-    List<InputFile> inputFiles = project.getFileSystem().mainFiles(project.getLanguageKey());
-    if (inputFiles.isEmpty()) {
+    List<File> sourceFiles = fileSystem.sourceFilesOfLang(project.getLanguageKey());
+    if (sourceFiles.isEmpty()) {
       return;
     }
-    SonarDuplicationsIndex index = createIndex(project, inputFiles);
-    detect(index, context, project, inputFiles);
+    SonarDuplicationsIndex index = createIndex(project, sourceFiles);
+    detect(index, context, project, sourceFiles);
   }
 
-  private SonarDuplicationsIndex createIndex(Project project, List<InputFile> inputFiles) {
+  private SonarDuplicationsIndex createIndex(Project project, List<File> sourceFiles) {
     final SonarDuplicationsIndex index = indexFactory.create(project);
 
     TokenChunker tokenChunker = JavaTokenProducer.build();
     StatementChunker statementChunker = JavaStatementBuilder.build();
     BlockChunker blockChunker = new BlockChunker(BLOCK_SIZE);
 
-    for (InputFile inputFile : inputFiles) {
-      LOG.debug("Populating index from {}", inputFile.getFile());
-      Resource resource = getResource(inputFile);
+    for (File file : sourceFiles) {
+      LOG.debug("Populating index from {}", file);
+      Resource<?> resource = getResource(file);
       String resourceKey = getFullKey(project, resource);
 
       List<Statement> statements;
 
       Reader reader = null;
       try {
-        reader = new InputStreamReader(new FileInputStream(inputFile.getFile()), project.getFileSystem().getSourceCharset());
+        reader = new InputStreamReader(new FileInputStream(file), fileSystem.sourceCharset());
         statements = statementChunker.chunk(tokenChunker.chunk(reader));
       } catch (FileNotFoundException e) {
         throw new SonarException(e);
@@ -128,12 +146,12 @@ public class SonarEngine extends CpdEngine {
     return index;
   }
 
-  private void detect(SonarDuplicationsIndex index, SensorContext context, Project project, List<InputFile> inputFiles) {
+  private void detect(SonarDuplicationsIndex index, SensorContext context, Project project, List<File> sourceFiles) {
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     try {
-      for (InputFile inputFile : inputFiles) {
-        LOG.debug("Detection of duplications for {}", inputFile.getFile());
-        Resource resource = getResource(inputFile);
+      for (File file : sourceFiles) {
+        LOG.debug("Detection of duplications for {}", file);
+        Resource<?> resource = getResource(file);
         String resourceKey = getFullKey(project, resource);
 
         Collection<Block> fileBlocks = index.getByResource(resource, resourceKey);
@@ -143,7 +161,7 @@ public class SonarEngine extends CpdEngine {
           clones = executorService.submit(new Task(index, fileBlocks)).get(TIMEOUT, TimeUnit.SECONDS);
         } catch (TimeoutException e) {
           clones = null;
-          LOG.warn("Timeout during detection of duplications for " + inputFile.getFile(), e);
+          LOG.warn("Timeout during detection of duplications for " + file, e);
         } catch (InterruptedException e) {
           throw new SonarException(e);
         } catch (ExecutionException e) {
@@ -171,11 +189,12 @@ public class SonarEngine extends CpdEngine {
     }
   }
 
-  private Resource getResource(InputFile inputFile) {
-    return JavaFile.fromRelativePath(inputFile.getRelativePath(), false);
+  protected Resource<?> getResource(File file) {
+    String relativePath = pathResolver.relativePath(fileSystem.sourceDirs(), file).path();
+    return JavaFile.fromRelativePath(relativePath, false);
   }
 
-  static void save(SensorContext context, Resource resource, @Nullable Iterable<CloneGroup> duplications) {
+  static void save(SensorContext context, Resource<?> resource, @Nullable Iterable<CloneGroup> duplications) {
     if (duplications == null || Iterables.isEmpty(duplications)) {
       return;
     }
