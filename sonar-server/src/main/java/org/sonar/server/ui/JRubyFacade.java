@@ -528,8 +528,8 @@ public final class JRubyFacade {
     }
   }
 
-  public byte[] createDatabaseForDryRun() {
-    return get(DryRunDatabaseFactory.class).createDatabaseForDryRun();
+  public byte[] createDatabaseForDryRun(long projectId) {
+    return get(DryRunDatabaseFactory.class).createDatabaseForDryRun(projectId);
   }
 
   public String getPeriodLabel(int periodIndex) {

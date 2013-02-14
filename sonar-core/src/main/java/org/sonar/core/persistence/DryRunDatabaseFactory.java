@@ -46,7 +46,7 @@ public class DryRunDatabaseFactory implements ServerComponent {
     this.serverFileSystem = serverFileSystem;
   }
 
-  public byte[] createDatabaseForDryRun() {
+  public byte[] createDatabaseForDryRun(long projectId) {
     String name = serverFileSystem.getTempDir().getAbsolutePath() + "db-" + System.nanoTime();
 
     try {

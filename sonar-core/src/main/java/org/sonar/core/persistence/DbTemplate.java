@@ -42,7 +42,7 @@ public class DbTemplate implements ServerComponent {
   private static final Logger LOG = LoggerFactory.getLogger(DbTemplate.class);
 
   public DbTemplate copyTable(DataSource source, DataSource dest, String table, String... whereClauses) {
-    LOG.debug("Copy table %s", table);
+    LOG.debug("Copy table {}", table);
 
     String selectQuery = selectQuery(table, whereClauses);
     truncate(dest, table);
@@ -68,12 +68,19 @@ public class DbTemplate implements ServerComponent {
         String insertSql = new StringBuilder().append("INSERT INTO ").append(table).append("(").append(Joiner.on(",").join(columnNames))
           .append(") VALUES(").append(StringUtils.repeat("?", ",", colCount)).append(")").toString();
         destStatement = destConnection.prepareStatement(insertSql);
+        int count = 0;
         do {
           for (int col = 1; col <= colCount; col++) {
             Object value = sourceResultSet.getObject(columnNames.get(col - 1));
             destStatement.setObject(col, value);
           }
+          count++;
           destStatement.addBatch();
+          if (count % BatchSession.MAX_BATCH_SIZE == 0) {
+            destStatement.executeBatch();
+            destConnection.commit();
+
+          }
         } while (sourceResultSet.next());
 
         destStatement.executeBatch();

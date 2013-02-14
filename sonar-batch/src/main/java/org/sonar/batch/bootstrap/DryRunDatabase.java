@@ -20,6 +20,7 @@
 package org.sonar.batch.bootstrap;
 
 import com.google.common.base.Throwables;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,6 +75,9 @@ public class DryRunDatabase implements BatchComponent {
   private void downloadDatabase(String projectKey, File toFile) {
     try {
       server.download("/batch_bootstrap/db?project=" + projectKey, toFile);
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Dry Run database size: {}", FileUtils.byteCountToDisplaySize(FileUtils.sizeOf(toFile)));
+      }
     } catch (SonarException e) {
       Throwable rootCause = Throwables.getRootCause(e);
       if ((rootCause instanceof HttpException) && (((HttpException) rootCause).getResponseCode() == 401)) {
