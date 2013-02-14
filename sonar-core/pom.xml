@@ -198,6 +198,7 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
               <includes>
+                <include>org/sonar/core/persistence/DryRunDatabaseFactoryTest.java</include>
                 <include>org/sonar/core/**/*DaoTest.java</include>
                 <include>org/sonar/core/measure/MeasureFilterExecutorTest.java</include>
               </includes>

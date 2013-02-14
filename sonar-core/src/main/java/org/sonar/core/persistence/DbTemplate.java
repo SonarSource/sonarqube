@@ -19,6 +19,7 @@
  */
 package org.sonar.core.persistence;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import org.apache.commons.dbcp.BasicDataSource;
@@ -43,16 +44,7 @@ public class DbTemplate implements ServerComponent {
   public DbTemplate copyTable(DataSource source, DataSource dest, String table, String... whereClauses) {
     LOG.debug("Copy table %s", table);
 
-    String selectQuery = "select * from " + table;
-    if (whereClauses.length > 0) {
-      List<String> clauses = Lists.newArrayList();
-      for (String whereClause : whereClauses) {
-        clauses.add('(' + whereClause + ')');
-      }
-
-      selectQuery += " WHERE " + Joiner.on(" AND ").join(clauses);
-    }
-
+    String selectQuery = selectQuery(table, whereClauses);
     truncate(dest, table);
 
     Connection sourceConnection = null;
@@ -67,15 +59,18 @@ public class DbTemplate implements ServerComponent {
       sourceResultSet = sourceStatement.executeQuery(selectQuery);
 
       if (sourceResultSet.next()) {
-        int colCount = sourceResultSet.getMetaData().getColumnCount();
+        List<String> columnNames = columnNames(sourceResultSet);
+        int colCount = columnNames.size();
 
         destConnection = dest.getConnection();
         destConnection.setAutoCommit(false);
 
-        destStatement = destConnection.prepareStatement("INSERT INTO " + table + " VALUES(" + StringUtils.repeat("?", ",", colCount) + ")");
+        String insertSql = new StringBuilder().append("INSERT INTO ").append(table).append("(").append(Joiner.on(",").join(columnNames))
+          .append(") VALUES(").append(StringUtils.repeat("?", ",", colCount)).append(")").toString();
+        destStatement = destConnection.prepareStatement(insertSql);
         do {
           for (int col = 1; col <= colCount; col++) {
-            Object value = sourceResultSet.getObject(col);
+            Object value = sourceResultSet.getObject(columnNames.get(col - 1));
             destStatement.setObject(col, value);
           }
           destStatement.addBatch();
@@ -86,7 +81,7 @@ public class DbTemplate implements ServerComponent {
       }
     } catch (SQLException e) {
       LOG.error("Fail to copy table " + table, e);
-      throw new SonarException("Fail to copy table " + table, e);
+      throw new IllegalStateException("Fail to copy table " + table, e);
     } finally {
       DatabaseUtils.closeQuietly(destStatement);
       DatabaseUtils.closeQuietly(destResultSet);
@@ -99,6 +94,29 @@ public class DbTemplate implements ServerComponent {
     return this;
   }
 
+  private List<String> columnNames(ResultSet resultSet) throws SQLException {
+    int colCount = resultSet.getMetaData().getColumnCount();
+    List<String> columnNames = Lists.newArrayList();
+    for (int i = 1; i <= colCount; i++) {
+      columnNames.add(resultSet.getMetaData().getColumnName(i));
+    }
+    return columnNames;
+  }
+
+  @VisibleForTesting
+  static String selectQuery(String table, String... whereClauses) {
+    String selectQuery = "SELECT * FROM " + table;
+    if (whereClauses.length > 0) {
+      List<String> clauses = Lists.newArrayList();
+      for (String whereClause : whereClauses) {
+        clauses.add('(' + whereClause + ')');
+      }
+
+      selectQuery += " WHERE " + Joiner.on(" AND ").join(clauses);
+    }
+    return selectQuery;
+  }
+
   public int getRowCount(DataSource dataSource, String table) {
     Connection connection = null;
     Statement statement = null;
@@ -106,7 +124,7 @@ public class DbTemplate implements ServerComponent {
     try {
       connection = dataSource.getConnection();
       statement = connection.createStatement();
-      resultSet = statement.executeQuery("SELECT count(*) from " + table);
+      resultSet = statement.executeQuery("SELECT count(*) FROM " + table);
 
       return resultSet.next() ? resultSet.getInt(1) : 0;
     } catch (SQLException e) {
