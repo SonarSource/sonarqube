@@ -105,7 +105,7 @@
               <% if line.highlighted? %>
                 <td class="ind <%= hits_status -%>" title="<%= message('coverage_viewer.line_covered_by_x_tests', {:params => line.covered_lines.to_s}) if line.covered_lines > 0 -%>">
                   <% if line.covered_lines > 0 %>
-                    <a href="<%= ApplicationController.root_context -%>/test/testable/?sid=<%= @snapshot.id -%>&line=<%= index+1 -%>"
+                    <a href="<%= ApplicationController.root_context -%>/test/testable/<%= h @snapshot.resource.key -%>?line=<%= index+1 -%>"
                        onclick="openAccordionItem(this.href, this); return false;"><%= line.covered_lines -%></a>
                   <% end %>
                 </td>

@@ -21,22 +21,23 @@ class TestController < ApplicationController
 
   def testcase
     verify_ajax_request
-    require_parameters :sid, :test
-    snapshot_id = params[:sid].to_i
+    require_parameters :id, :test
+    component_key = params[:id].to_s
 
     @test = params[:test].to_s
-    @test_plan = java_facade.testPlan(snapshot_id)
+    @test_plan = java_facade.testPlan(component_key)
+
     @test_case = @test_plan.testCasesByName(@test).first
     render :partial => 'test/testcase'
   end
 
   def testable
     verify_ajax_request
-    require_parameters :sid, :line
-    snapshot_id = params[:sid].to_i
+    require_parameters :id, :line
+    component_key = params[:id].to_s
 
     @line = params[:line].to_i
-    @testable = java_facade.testable(snapshot_id)
+    @testable = java_facade.testable(component_key)
     @test_case_by_test_plan = {}
     @testable.testCasesOfLine(@line).each do |test_case|
       test_plan = test_case.testPlan

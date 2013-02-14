@@ -96,7 +96,7 @@
         <td id="test_time_<%= index -%>" class="thin right" nowrap><%= test_case[:time] -%> ms</td>
         <% if has_covered_lines %>
           <td id="test_covered_lines_<%= index -%>" class="thin right" nowrap>
-            <a id="test_covered_lines_link_<%= index -%>" href="<%= ApplicationController.root_context -%>/test/testcase/?sid=<%= @snapshot.id -%>&test=<%= test_case[:name] -%>"
+            <a id="test_covered_lines_link_<%= index -%>" href="<%= ApplicationController.root_context -%>/test/testcase/<%= h @snapshot.resource.key -%>?test=<%= test_case[:name] -%>"
                onclick="openAccordionItem(this.href, this); return false;"><%= number_with_precision(test_case[:covered_lines], :precision => 0) -%>
             </a>
           </td>
