@@ -1,10 +1,10 @@
 <dataset>
   <metrics id="1" name="ncloc" VAL_TYPE="INT" DESCRIPTION="[null]" domain="[null]" short_name=""
-           enabled="true" worst_value="[null]" optimized_best_value="[null]" best_value="[null]" direction="0" hidden="false" delete_historical_data="[null]" />
+           enabled="[true]" worst_value="[null]" optimized_best_value="[null]" best_value="[null]" direction="0" hidden="[false]" delete_historical_data="[null]" />
   <metrics id="2" name="coverage" VAL_TYPE="INT" DESCRIPTION="[null]" domain="[null]" short_name=""
-           enabled="true" worst_value="0" optimized_best_value="true" best_value="100" direction="1" hidden="false" delete_historical_data="[null]" />
+           enabled="[true]" worst_value="0" optimized_best_value="[true]" best_value="100" direction="1" hidden="[false]" delete_historical_data="[null]" />
 
   <rules_profiles id="1" name="Sonar way with Findbugs" language="java" parent_name="" version="1"
-                  used_profile="false"/>
+                  used_profile="[false]"/>
 
 </dataset>
