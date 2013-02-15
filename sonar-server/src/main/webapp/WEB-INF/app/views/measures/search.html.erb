@@ -3,21 +3,20 @@
     <%= render :partial => 'measures/sidebar' -%>
   </div>
 
-  <% if @filter && @filter.display %>
+  <%
+     if @filter && @filter.display 
+       edit_mode = (params[:edit]=='true')
+  %>
     <div class="page-split-right">
       <div id="content">
         <div class="line-block marginbottom10">
+          <% unless edit_mode %>
           <ul class="operations">
 
-            <%
-               if @filter.display
-                 edit_mode = (params[:edit]=='true')
-                 unless edit_mode
-            %>
+            <% if @filter.display %>
                 <li>
                   <a id="change-display" href="<%= url_for @filter.criteria.merge({:action => 'search', :edit => true, :id => @filter.id}) -%>"><%= message("measure_filter.#{@filter.display.key}.change") -%></a>
                 </li>
-              <% end %>
               <li>
                 <%= message 'measure_filter.display_as' -%>:
                 <% MeasureFilterDisplay.keys.each do |display_key| %>
@@ -42,6 +41,8 @@
               <% end %>
             <% end %>
           </ul>
+          <% end %>
+          
           <div class="page_title" id="filter-title">
             <% if @filter.id && @filter.name.present? %>
               <p>
