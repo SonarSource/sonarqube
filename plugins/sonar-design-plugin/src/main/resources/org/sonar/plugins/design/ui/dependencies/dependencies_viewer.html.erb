@@ -1,46 +1,62 @@
-<div id="dependencies" class="drilldown_col">
+<style>
+  .dependenciesCol {
+    float: left;
+    margin: 10px;
+    border: 1px solid #ccc;
+  }
+  .dependenciesColTitle {
+    padding: 3px 10px;
+    text-align: center;
+    background-color: #efefef;
+  }
+  .dependenciesColBody {
+    padding: 3px;
+    border-top: 1px solid #ccc;
+  }
+  .dependenciesColBody > div {
+    padding: 3px;
+  }
+</style>
+<div>
+  <%
+     ca = @snapshot.measure('ca')
+     ce = @snapshot.measure('ce')
+     dependencies = Dependency.find(:all,
+                                    :include => ['from', 'to'],
+                                    :conditions => ['(dependencies.from_snapshot_id=? OR dependencies.to_snapshot_id=?)', @snapshot.id, @snapshot.id])
 
-<%
-  ca = @snapshot.measure('ca')
-  ce = @snapshot.measure('ce')
-  dependencies = Dependency.find(:all, 
-                                 :include => ['from','to'], 
-                                 :conditions => ['(dependencies.from_snapshot_id=? OR dependencies.to_snapshot_id=?)', @snapshot.id, @snapshot.id])
-  
-  resource_id = @resource.id
-  dependencies_by_measure = []
-  dependencies_by_measure << {:metric => 'ca', :measure => ca, 
-                              :dependencies => dependencies.select {|dep| dep.to_resource_id == resource_id}}
-  dependencies_by_measure << {:metric => 'ce', :measure => ce, 
-                              :dependencies => dependencies.select {|dep| dep.from_resource_id == resource_id}}
+     resource_id = @resource.id
+     dependencies_by_measure = []
+     dependencies_by_measure << {:metric => 'ca', :measure => ca,
+                                 :dependencies => dependencies.select { |dep| dep.to_resource_id == resource_id }}
+     dependencies_by_measure << {:metric => 'ce', :measure => ce,
+                                 :dependencies => dependencies.select { |dep| dep.from_resource_id == resource_id }}
 
-  dependencies_by_measure.each do |deps_by_m|
-    metric_name = deps_by_m[:metric]
-    measure = deps_by_m[:measure]
-    deps = deps_by_m[:dependencies]
-%>
+     dependencies_by_measure.each do |deps_by_m|
+       metric_name = deps_by_m[:metric]
+       measure = deps_by_m[:measure]
+       deps = deps_by_m[:dependencies]
+  %>
 
-  <div id="<%= metric_name -%>-deps" class="col">
-  
-    <div class="coltitle">
-      <%= message('dependencies.' + metric_name) -%>: <b><%= format_measure(measure) -%></b>
-    </div>
-    
-    <% unless deps.empty? %>
-    <div  class="colbody">
-      <% 
-         deps.each do |dep|
-           resource = metric_name=='ca' ? dep.from : dep.to
-      %>
-        <div>
-          <%= image_tag 'q/CLA.png'-%>
-          <%= link_to_resource resource, resource.long_name, {:tab => 'dependencies'} -%> (<%= dep.weight -%>)
+    <div id="<%= @resource.key.parameterize -%>-<%= metric_name -%>" class="dependenciesCol">
+      <div class="dependenciesColTitle">
+        <%= message('dependencies.' + metric_name) -%>: <b><%= format_measure(measure) -%></b>
+      </div>
+
+      <% unless deps.empty? %>
+        <div class="dependenciesColBody">
+          <%
+             deps.each do |dep|
+               resource = metric_name=='ca' ? dep.from : dep.to
+          %>
+            <div>
+              <%= image_tag 'q/CLA.png' -%>
+              <%= link_to_resource resource, resource.long_name, {:tab => 'dependencies'} -%> (<%= dep.weight -%>)
+            </div>
+          <% end %>
         </div>
       <% end %>
     </div>
-    <% end %>
-    
-  </div>
-<% end %>
-
+  <% end %>
+  <div class="clear"></div>
 </div>

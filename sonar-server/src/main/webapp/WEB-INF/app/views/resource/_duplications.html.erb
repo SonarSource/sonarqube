@@ -4,15 +4,15 @@
       warning_message = @duplication_group_warning if @duplication_group_warning
 %>
 
-  <div id="duplications-message"><%= warning_message -%></div>
+  <div class="duplicationsMessage"><%= warning_message -%></div>
 
 <%  else  %>
 
   <% if @duplication_group_warning %>
-  <div id="duplications-message"><%= @duplication_group_warning -%></div>
+  <div class="duplicationsMessage"><%= @duplication_group_warning -%></div>
   <% end %>
 
-  <table id="duplications" class="data">
+  <table class="data duplications">
     <thead>
       <tr>
         <th class="thin nowrap"><%= message('duplications.blocks') -%></th>
@@ -79,16 +79,10 @@
           </div>
         </td>
       </tr>
-
-
-      <tr>
-        <td colspan="5" style="border-bottom: 1px solid #DDD;height: 10px"></td>
-      </tr>
     <%
         end
     %>
     </tbody>
 
   </table>
-
 <% end %>
