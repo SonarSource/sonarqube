@@ -32,10 +32,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -58,11 +55,9 @@ public class ViolationTrackingDecoratorTest {
     Violation newViolation = newViolation("message", 10, 1, "checksum1"); // exactly the fields of referenceViolation1
     newViolation.setPermanentId(200);
 
-    Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation),
-        Lists.newArrayList(referenceViolation1, referenceViolation2));
-
-    assertThat(mapping.get(newViolation), equalTo(referenceViolation2));// same permanent id
-    assertThat(newViolation.isNew(), is(false));
+    decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(referenceViolation1, referenceViolation2));
+    assertThat(decorator.getReferenceViolation(newViolation)).isSameAs(referenceViolation2); // same permanent id
+    assertThat(newViolation.isNew()).isFalse();
   }
 
   @Test
@@ -73,25 +68,24 @@ public class ViolationTrackingDecoratorTest {
     Violation newViolation1 = newViolation("message", 3, 50, "checksum1");
     Violation newViolation2 = newViolation("message", 5, 50, "checksum2");
 
-    Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation1, newViolation2),
-        Lists.newArrayList(referenceViolation1, referenceViolation2));
-    assertThat(mapping.get(newViolation1), equalTo(referenceViolation1));
-    assertThat(newViolation1.isNew(), is(false));
-    assertThat(mapping.get(newViolation2), equalTo(referenceViolation2));
-    assertThat(newViolation2.isNew(), is(false));
+    decorator.mapViolations(Lists.newArrayList(newViolation1, newViolation2), Lists.newArrayList(referenceViolation1, referenceViolation2));
+    assertThat(decorator.getReferenceViolation(newViolation1)).isSameAs(referenceViolation1);
+    assertThat(newViolation1.isNew()).isFalse();
+    assertThat(decorator.getReferenceViolation(newViolation2)).isSameAs(referenceViolation2);
+    assertThat(newViolation2.isNew()).isFalse();
   }
 
   /**
-   * See SONAR-2928
+   * SONAR-2928
    */
   @Test
   public void sameRuleAndNullLineAndChecksumButDifferentMessages() {
     Violation newViolation = newViolation("new message", null, 50, "checksum1");
     RuleFailureModel referenceViolation = newReferenceViolation("old message", null, 50, "checksum1");
 
-    Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(referenceViolation));
-    assertThat(mapping.get(newViolation), equalTo(referenceViolation));
-    assertThat(newViolation.isNew(), is(false));
+    decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(referenceViolation));
+    assertThat(decorator.getReferenceViolation(newViolation)).isSameAs(referenceViolation);
+    assertThat(newViolation.isNew()).isFalse();
   }
 
   @Test
@@ -99,19 +93,19 @@ public class ViolationTrackingDecoratorTest {
     Violation newViolation = newViolation("new message", 1, 50, "checksum1");
     RuleFailureModel referenceViolation = newReferenceViolation("old message", 1, 50, "checksum1");
 
-    Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(referenceViolation));
-    assertThat(mapping.get(newViolation), equalTo(referenceViolation));
-    assertThat(newViolation.isNew(), is(false));
+    decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(referenceViolation));
+    assertThat(decorator.getReferenceViolation(newViolation)).isSameAs(referenceViolation);
+    assertThat(newViolation.isNew()).isFalse();
   }
 
   @Test
   public void sameRuleAndLineMessage() {
     Violation newViolation = newViolation("message", 1, 50, "checksum1");
-    RuleFailureModel refernceViolation = newReferenceViolation("message", 1, 50, "checksum2");
+    RuleFailureModel referenceViolation = newReferenceViolation("message", 1, 50, "checksum2");
 
-    Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(refernceViolation));
-    assertThat(mapping.get(newViolation), equalTo(refernceViolation));
-    assertThat(newViolation.isNew(), is(false));
+    decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(referenceViolation));
+    assertThat(decorator.getReferenceViolation(newViolation)).isSameAs(referenceViolation);
+    assertThat(newViolation.isNew()).isFalse();
   }
 
   @Test
@@ -119,9 +113,9 @@ public class ViolationTrackingDecoratorTest {
     Violation newViolation = newViolation("message", 1, 50, null);
     RuleFailureModel referenceViolation = newReferenceViolation("message", 1, 51, null);
 
-    Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(referenceViolation));
-    assertThat(mapping.get(newViolation), is(nullValue()));
-    assertThat(newViolation.isNew(), is(true));
+    decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(referenceViolation));
+    assertThat(decorator.getReferenceViolation(newViolation)).isNull();
+    assertThat(newViolation.isNew()).isTrue();
   }
 
   @Test
@@ -129,22 +123,22 @@ public class ViolationTrackingDecoratorTest {
     Violation newViolation = newViolation("message", 1, 50, "checksum1");
     RuleFailureModel referenceViolation = newReferenceViolation("message", 2, 50, "checksum1");
 
-    Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(referenceViolation));
-    assertThat(mapping.get(newViolation), equalTo(referenceViolation));
-    assertThat(newViolation.isNew(), is(false));
+    decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(referenceViolation));
+    assertThat(decorator.getReferenceViolation(newViolation)).isSameAs(referenceViolation);
+    assertThat(newViolation.isNew()).isFalse();
   }
 
   /**
-   * See https://jira.codehaus.org/browse/SONAR-2812
+   * SONAR-2812
    */
   @Test
   public void sameChecksumAndRuleButDifferentLineAndDifferentMessage() {
     Violation newViolation = newViolation("new message", 1, 50, "checksum1");
     RuleFailureModel referenceViolation = newReferenceViolation("old message", 2, 50, "checksum1");
 
-    Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(referenceViolation));
-    assertThat(mapping.get(newViolation), equalTo(referenceViolation));
-    assertThat(newViolation.isNew(), is(false));
+    decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(referenceViolation));
+    assertThat(decorator.getReferenceViolation(newViolation)).isSameAs(referenceViolation);
+    assertThat(newViolation.isNew()).isFalse();
   }
 
   @Test
@@ -152,9 +146,9 @@ public class ViolationTrackingDecoratorTest {
     Violation newViolation = newViolation("message", 1, 50, "checksum1");
     RuleFailureModel referenceViolation = newReferenceViolation("message", 2, 50, "checksum2");
 
-    Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(referenceViolation));
-    assertThat(mapping.get(newViolation), is(nullValue()));
-    assertThat(newViolation.isNew(), is(true));
+    decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(referenceViolation));
+    assertThat(decorator.getReferenceViolation(newViolation)).isNull();
+    assertThat(newViolation.isNew()).isTrue();
   }
 
   @Test
@@ -162,9 +156,9 @@ public class ViolationTrackingDecoratorTest {
     Violation newViolation = newViolation("message", 1, 50, "checksum1");
     RuleFailureModel referenceViolation = newReferenceViolation("message", 1, 51, "checksum1");
 
-    Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(referenceViolation));
-    assertThat(mapping.get(newViolation), is(nullValue()));
-    assertThat(newViolation.isNew(), is(true));
+    decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(referenceViolation));
+    assertThat(decorator.getReferenceViolation(newViolation)).isNull();
+    assertThat(newViolation.isNew()).isTrue();
   }
 
   @Test
@@ -174,20 +168,20 @@ public class ViolationTrackingDecoratorTest {
     Violation newViolation = newViolation(" message ", 1, 50, "checksum1");
     RuleFailureModel referenceViolation = newReferenceViolation("       message       ", 1, 50, "checksum2");
 
-    Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(referenceViolation));
-    assertThat(mapping.get(newViolation), equalTo(referenceViolation));
-    assertThat(newViolation.isNew(), is(false));
+    decorator.mapViolations(Lists.newArrayList(newViolation), Lists.newArrayList(referenceViolation));
+    assertThat(decorator.getReferenceViolation(newViolation)).isSameAs(referenceViolation);
+    assertThat(newViolation.isNew()).isFalse();
   }
 
   @Test
   public void shouldSetDateOfNewViolations() {
     Violation newViolation = newViolation("message", 1, 50, "checksum");
-    assertThat(newViolation.getCreatedAt(), nullValue());
+    assertThat(newViolation.getCreatedAt()).isNull();
 
     Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Collections.<RuleFailureModel> emptyList());
-    assertThat(mapping.size(), is(0));
-    assertThat(newViolation.getCreatedAt(), is(analysisDate));
-    assertThat(newViolation.isNew(), is(true));
+    assertThat(mapping.size()).isEqualTo(0);
+    assertThat(newViolation.getCreatedAt()).isEqualTo(analysisDate);
+    assertThat(newViolation.isNew()).isTrue();
   }
 
   @Test
@@ -196,12 +190,12 @@ public class ViolationTrackingDecoratorTest {
     RuleFailureModel referenceViolation = newReferenceViolation("", 1, 50, "checksum");
     Date referenceDate = DateUtils.parseDate("2009-05-18");
     referenceViolation.setCreatedAt(referenceDate);
-    assertThat(newViolation.getCreatedAt(), nullValue());
+    assertThat(newViolation.getCreatedAt()).isNull();
 
     Map<Violation, RuleFailureModel> mapping = decorator.mapViolations(Lists.newArrayList(newViolation), Lists.<RuleFailureModel> newArrayList(referenceViolation));
-    assertThat(mapping.size(), is(1));
-    assertThat(newViolation.getCreatedAt(), is(referenceDate));
-    assertThat(newViolation.isNew(), is(false));
+    assertThat(mapping.size()).isEqualTo(1);
+    assertThat(newViolation.getCreatedAt()).isEqualTo(referenceDate);
+    assertThat(newViolation.isNew()).isFalse();
   }
 
   private Violation newViolation(String message, Integer lineId, int ruleId) {

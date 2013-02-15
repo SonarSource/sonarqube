@@ -61,6 +61,11 @@ public class ViolationTrackingDecorator implements Decorator {
   private SonarIndex index;
   private Project project;
 
+  /**
+   * Live collection of unmapped past violations.
+   */
+  private Set<RuleFailureModel> unmappedPastViolations = Sets.newHashSet();
+
   public ViolationTrackingDecorator(Project project, ReferenceAnalysis referenceAnalysis, SonarIndex index) {
     this.referenceAnalysis = referenceAnalysis;
     this.index = index;
@@ -112,6 +117,8 @@ public class ViolationTrackingDecorator implements Decorator {
 
   @VisibleForTesting
   Map<Violation, RuleFailureModel> mapViolations(List<Violation> newViolations, List<RuleFailureModel> pastViolations, String source, Resource resource) {
+    unmappedPastViolations.addAll(pastViolations);
+
     Multimap<Integer, RuleFailureModel> pastViolationsByRule = LinkedHashMultimap.create();
     for (RuleFailureModel pastViolation : pastViolations) {
       pastViolationsByRule.put(pastViolation.getRuleId(), pastViolation);
@@ -126,7 +133,7 @@ public class ViolationTrackingDecorator implements Decorator {
 
     // Try first to match violations on same rule with same line and with same checksum (but not necessarily with same message)
     for (Violation newViolation : newViolations) {
-      if (isNotAlreadyMapped(newViolation, referenceViolationsMap)) {
+      if (isNotAlreadyMapped(newViolation)) {
         mapViolation(newViolation,
             findPastViolationWithSameLineAndChecksum(newViolation, pastViolationsByRule.get(newViolation.getRule().getId())),
             pastViolationsByRule, referenceViolationsMap);
@@ -145,7 +152,7 @@ public class ViolationTrackingDecorator implements Decorator {
           ViolationTrackingBlocksRecognizer rec = new ViolationTrackingBlocksRecognizer(hashedReference, hashedSource, hashedComparator);
 
           Multimap<Integer, Violation> newViolationsByLines = newViolationsByLines(newViolations, rec);
-          Multimap<Integer, RuleFailureModel> pastViolationsByLines = pastViolationsByLines(pastViolations, rec);
+          Multimap<Integer, RuleFailureModel> pastViolationsByLines = pastViolationsByLines(unmappedPastViolations, rec);
 
           RollingHashSequence<HashedSequence<StringText>> a = RollingHashSequence.wrap(hashedReference, hashedComparator, 5);
           RollingHashSequence<HashedSequence<StringText>> b = RollingHashSequence.wrap(hashedSource, hashedComparator, 5);
@@ -176,12 +183,10 @@ public class ViolationTrackingDecorator implements Decorator {
             }
           }
 
-          Set<RuleFailureModel> unmappedPastViolations = Sets.newHashSet(pastViolations);
-
           for (HashOccurrence hashOccurrence : map.values()) {
             if (hashOccurrence.countA == 1 && hashOccurrence.countB == 1) {
               // Guaranteed that lineA has been moved to lineB, so we can map all violations on lineA to all violations on lineB
-              map(newViolationsByLines.get(hashOccurrence.lineB), pastViolationsByLines.get(hashOccurrence.lineA), unmappedPastViolations, pastViolationsByRule);
+              map(newViolationsByLines.get(hashOccurrence.lineB), pastViolationsByLines.get(hashOccurrence.lineA), pastViolationsByRule);
               pastViolationsByLines.removeAll(hashOccurrence.lineA);
               newViolationsByLines.removeAll(hashOccurrence.lineB);
             }
@@ -199,7 +204,7 @@ public class ViolationTrackingDecorator implements Decorator {
             Collections.sort(possibleLinePairs, LINE_PAIR_COMPARATOR);
             for (LinePair linePair : possibleLinePairs) {
               // High probability that lineA has been moved to lineB, so we can map all violations on lineA to all violations on lineB
-              map(newViolationsByLines.get(linePair.lineB), pastViolationsByLines.get(linePair.lineA), unmappedPastViolations, pastViolationsByRule);
+              map(newViolationsByLines.get(linePair.lineB), pastViolationsByLines.get(linePair.lineA), pastViolationsByRule);
             }
           }
         }
@@ -207,7 +212,7 @@ public class ViolationTrackingDecorator implements Decorator {
 
       // Try then to match violations on same rule with same message and with same checksum
       for (Violation newViolation : newViolations) {
-        if (isNotAlreadyMapped(newViolation, referenceViolationsMap)) {
+        if (isNotAlreadyMapped(newViolation)) {
           mapViolation(newViolation,
               findPastViolationWithSameChecksumAndMessage(newViolation, pastViolationsByRule.get(newViolation.getRule().getId())),
               pastViolationsByRule, referenceViolationsMap);
@@ -216,7 +221,7 @@ public class ViolationTrackingDecorator implements Decorator {
 
       // Try then to match violations on same rule with same line and with same message
       for (Violation newViolation : newViolations) {
-        if (isNotAlreadyMapped(newViolation, referenceViolationsMap)) {
+        if (isNotAlreadyMapped(newViolation)) {
           mapViolation(newViolation,
               findPastViolationWithSameLineAndMessage(newViolation, pastViolationsByRule.get(newViolation.getRule().getId())),
               pastViolationsByRule, referenceViolationsMap);
@@ -226,23 +231,24 @@ public class ViolationTrackingDecorator implements Decorator {
       // Last check: match violation if same rule and same checksum but different line and different message
       // See SONAR-2812
       for (Violation newViolation : newViolations) {
-        if (isNotAlreadyMapped(newViolation, referenceViolationsMap)) {
+        if (isNotAlreadyMapped(newViolation)) {
           mapViolation(newViolation,
               findPastViolationWithSameChecksum(newViolation, pastViolationsByRule.get(newViolation.getRule().getId())),
               pastViolationsByRule, referenceViolationsMap);
         }
       }
     }
+
+    unmappedPastViolations.clear();
+
     return referenceViolationsMap;
   }
 
-  private void map(Collection<Violation> newViolations, Collection<RuleFailureModel> pastViolations, Set<RuleFailureModel> unmappedPastViolations,
-      Multimap<Integer, RuleFailureModel> pastViolationsByRule) {
+  private void map(Collection<Violation> newViolations, Collection<RuleFailureModel> pastViolations, Multimap<Integer, RuleFailureModel> pastViolationsByRule) {
     for (Violation newViolation : newViolations) {
-      if (isNotAlreadyMapped(newViolation, referenceViolationsMap)) {
+      if (isNotAlreadyMapped(newViolation)) {
         for (RuleFailureModel pastViolation : pastViolations) {
-          if (unmappedPastViolations.contains(pastViolation) && Objects.equal(newViolation.getRule().getId(), pastViolation.getRuleId())) {
-            unmappedPastViolations.remove(pastViolation);
+          if (isNotAlreadyMapped(pastViolation) && Objects.equal(newViolation.getRule().getId(), pastViolation.getRuleId())) {
             mapViolation(newViolation, pastViolation, pastViolationsByRule, referenceViolationsMap);
             break;
           }
@@ -251,10 +257,10 @@ public class ViolationTrackingDecorator implements Decorator {
     }
   }
 
-  private Multimap<Integer, Violation> newViolationsByLines(List<Violation> newViolations, ViolationTrackingBlocksRecognizer rec) {
+  private Multimap<Integer, Violation> newViolationsByLines(Collection<Violation> newViolations, ViolationTrackingBlocksRecognizer rec) {
     Multimap<Integer, Violation> newViolationsByLines = LinkedHashMultimap.create();
     for (Violation newViolation : newViolations) {
-      if (isNotAlreadyMapped(newViolation, referenceViolationsMap)) {
+      if (isNotAlreadyMapped(newViolation)) {
         if (rec.isValidLineInSource(newViolation.getLineId())) {
           newViolationsByLines.put(newViolation.getLineId(), newViolation);
         }
@@ -263,7 +269,7 @@ public class ViolationTrackingDecorator implements Decorator {
     return newViolationsByLines;
   }
 
-  private Multimap<Integer, RuleFailureModel> pastViolationsByLines(List<RuleFailureModel> pastViolations, ViolationTrackingBlocksRecognizer rec) {
+  private Multimap<Integer, RuleFailureModel> pastViolationsByLines(Collection<RuleFailureModel> pastViolations, ViolationTrackingBlocksRecognizer rec) {
     Multimap<Integer, RuleFailureModel> pastViolationsByLines = LinkedHashMultimap.create();
     for (RuleFailureModel pastViolation : pastViolations) {
       if (rec.isValidLineInSource(pastViolation.getLine())) {
@@ -298,8 +304,12 @@ public class ViolationTrackingDecorator implements Decorator {
     int countB;
   }
 
-  private boolean isNotAlreadyMapped(Violation newViolation, Map<Violation, RuleFailureModel> violationMap) {
-    return !violationMap.containsKey(newViolation);
+  private boolean isNotAlreadyMapped(RuleFailureModel pastViolation) {
+    return unmappedPastViolations.contains(pastViolation);
+  }
+
+  private boolean isNotAlreadyMapped(Violation newViolation) {
+    return !referenceViolationsMap.containsKey(newViolation);
   }
 
   private RuleFailureModel findPastViolationWithSameChecksum(Violation newViolation, Collection<RuleFailureModel> pastViolations) {
@@ -373,7 +383,7 @@ public class ViolationTrackingDecorator implements Decorator {
       newViolation.setNew(false);
       pastViolationsByRule.remove(newViolation.getRule().getId(), pastViolation);
       violationMap.put(newViolation, pastViolation);
-
+      unmappedPastViolations.remove(pastViolation);
     } else {
       newViolation.setNew(true);
       newViolation.setCreatedAt(project.getAnalysisDate());
