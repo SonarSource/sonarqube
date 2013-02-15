@@ -50,18 +50,28 @@ import java.util.List;
     // not displayed in UI
     project = false, module = false, global = false,
     category = CoreProperties.CATEGORY_DUPLICATIONS,
-    type = PropertyType.BOOLEAN)
+    type = PropertyType.BOOLEAN),
+  @Property(
+    key = CoreProperties.CPD_EXCLUSIONS,
+    defaultValue = "",
+    name = "Duplication exclusions",
+    description = "Patterns used to exclude some source files from the duplication detection mechanism.",
+    project = true,
+    module = true,
+    global = true,
+    category = CoreProperties.CATEGORY_DUPLICATIONS,
+    multiValues = true)
 })
 public final class CpdPlugin extends SonarPlugin {
 
   public List getExtensions() {
     return ImmutableList.of(
-      CpdSensor.class,
-      SumDuplicationsDecorator.class,
-      DuplicationDensityDecorator.class,
-      IndexFactory.class,
-      SonarEngine.class,
-      SonarBridgeEngine.class);
+        CpdSensor.class,
+        SumDuplicationsDecorator.class,
+        DuplicationDensityDecorator.class,
+        IndexFactory.class,
+        SonarEngine.class,
+        SonarBridgeEngine.class);
   }
 
 }

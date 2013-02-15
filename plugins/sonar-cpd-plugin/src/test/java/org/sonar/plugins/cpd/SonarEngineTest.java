@@ -67,7 +67,7 @@ public class SonarEngineTest {
     when(pathResolver.relativePath(anyCollection(), any(java.io.File.class))).thenReturn(relativePath);
     when(relativePath.path()).thenReturn("com/foo/Bar.java");
 
-    SonarEngine engine = new SonarEngine(null, fileSystem, pathResolver);
+    SonarEngine engine = new SonarEngine(null, fileSystem, pathResolver, null);
     Resource<?> resource = engine.getResource(new java.io.File(""));
 
     assertThat(resource.getKey()).isEqualTo("com.foo.Bar");

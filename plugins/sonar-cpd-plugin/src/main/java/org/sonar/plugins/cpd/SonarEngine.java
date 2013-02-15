@@ -19,6 +19,10 @@
  */
 package org.sonar.plugins.cpd;
 
+import org.sonar.api.CoreProperties;
+
+import org.sonar.api.config.Settings;
+
 import com.google.common.collect.Iterables;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -34,6 +38,7 @@ import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.SonarException;
@@ -81,15 +86,15 @@ public class SonarEngine extends CpdEngine {
   private static final int TIMEOUT = 5 * 60;
 
   private final IndexFactory indexFactory;
-
   private final ModuleFileSystem fileSystem;
-
   private final PathResolver pathResolver;
+  private final Settings settings;
 
-  public SonarEngine(IndexFactory indexFactory, ModuleFileSystem moduleFileSystem, PathResolver pathResolver) {
+  public SonarEngine(IndexFactory indexFactory, ModuleFileSystem moduleFileSystem, PathResolver pathResolver, Settings settings) {
     this.indexFactory = indexFactory;
     this.fileSystem = moduleFileSystem;
     this.pathResolver = pathResolver;
+    this.settings = settings;
   }
 
   @Override
@@ -107,7 +112,8 @@ public class SonarEngine extends CpdEngine {
 
   @Override
   public void analyse(Project project, SensorContext context) {
-    List<File> sourceFiles = fileSystem.sourceFilesOfLang(project.getLanguageKey());
+    String[] cpdExclusions = settings.getStringArray(CoreProperties.CPD_EXCLUSIONS);
+    List<File> sourceFiles = fileSystem.files(FileQuery.onSource().onLanguage(project.getLanguageKey()).withExclusions(cpdExclusions));
     if (sourceFiles.isEmpty()) {
       return;
     }

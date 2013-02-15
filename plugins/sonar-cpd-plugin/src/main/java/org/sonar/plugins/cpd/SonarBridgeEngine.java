@@ -31,6 +31,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.utils.SonarException;
 import org.sonar.duplications.DuplicationPredicates;
@@ -81,7 +82,8 @@ public class SonarBridgeEngine extends CpdEngine {
 
   @Override
   public void analyse(Project project, SensorContext context) {
-    List<File> sourceFiles = fileSystem.sourceFilesOfLang(project.getLanguageKey());
+    String[] cpdExclusions = settings.getStringArray(CoreProperties.CPD_EXCLUSIONS);
+    List<File> sourceFiles = fileSystem.files(FileQuery.onSource().onLanguage(project.getLanguageKey()).withExclusions(cpdExclusions));
     if (sourceFiles.isEmpty()) {
       return;
     }

@@ -243,6 +243,11 @@ public interface CoreProperties {
    */
   boolean CPD_CROSS_RPOJECT_DEFAULT_VALUE = false;
 
+  /**
+   * @since 3.5
+   */
+  String CPD_EXCLUSIONS = "sonar.cpd.exclusions";
+
   /* Design */
 
   /**
