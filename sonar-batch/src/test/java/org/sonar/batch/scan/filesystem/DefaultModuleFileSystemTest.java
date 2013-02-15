@@ -75,7 +75,7 @@ public class DefaultModuleFileSystemTest {
 
   @Test
   public void should_exclude_dirs_starting_with_dot() throws IOException {
-    File basedir = new File("test-resources/DefaultModuleFileSystemTest/exclude_dir_starting_with_dot");
+    File basedir = new File(resourcesDir(), "exclude_dir_starting_with_dot");
     DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem.Builder()
       .baseDir(basedir)
       .sourceCharset(Charsets.UTF_8)
@@ -90,7 +90,7 @@ public class DefaultModuleFileSystemTest {
 
   @Test
   public void should_load_source_files_by_language() throws IOException {
-    File basedir = new File("test-resources/DefaultModuleFileSystemTest/main_and_test_files");
+    File basedir = new File(resourcesDir(), "main_and_test_files");
     DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem.Builder()
       .baseDir(basedir)
       .sourceCharset(Charsets.UTF_8)
@@ -111,7 +111,7 @@ public class DefaultModuleFileSystemTest {
 
   @Test
   public void should_load_test_files() throws IOException {
-    File basedir = new File("test-resources/DefaultModuleFileSystemTest/main_and_test_files");
+    File basedir = new File(resourcesDir(), "main_and_test_files");
     DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem.Builder()
       .baseDir(basedir)
       .sourceCharset(Charsets.UTF_8)
@@ -131,7 +131,7 @@ public class DefaultModuleFileSystemTest {
 
   @Test
   public void should_load_test_files_by_language() throws IOException {
-    File basedir = new File("test-resources/DefaultModuleFileSystemTest/main_and_test_files");
+    File basedir = new File(resourcesDir(), "main_and_test_files");
     DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem.Builder()
       .baseDir(basedir)
       .sourceCharset(Charsets.UTF_8)
@@ -150,9 +150,17 @@ public class DefaultModuleFileSystemTest {
     assertThat(fileSystem.files(FileQuery.onTest().onLanguage("php"))).isEmpty();
   }
 
+  private File resourcesDir() {
+    File dir = new File("test-resources/DefaultModuleFileSystemTest");
+    if (!dir.exists()) {
+      dir = new File("sonar-batch/test-resources/DefaultModuleFileSystemTest");
+    }
+    return dir;
+  }
+
   @Test
   public void should_apply_file_filters() throws IOException {
-    File basedir = new File("test-resources/DefaultModuleFileSystemTest/main_and_test_files");
+    File basedir = new File(resourcesDir(), "main_and_test_files");
     DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem.Builder()
       .baseDir(basedir)
       .sourceCharset(Charsets.UTF_8)
