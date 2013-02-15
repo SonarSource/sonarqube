@@ -23,7 +23,7 @@ import com.google.common.collect.Sets;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.scan.filesystem.FileFilter;
+import org.sonar.api.scan.filesystem.FileType;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 
 import java.io.File;
@@ -38,16 +38,18 @@ public class WhiteListFileFilterTest {
 
   @Test
   public void should_accept() throws IOException {
-    WhiteListFileFilter filter = new WhiteListFileFilter(FileFilter.FileType.SOURCE, Sets.newHashSet(
+    WhiteListFileFilter filter = new WhiteListFileFilter(FileType.SOURCE, Sets.newHashSet(
       new File("Foo.java"),
       new File("Bar.java")
     ));
 
-    FileFilterContext context = new FileFilterContext(mock(ModuleFileSystem.class), FileFilter.FileType.SOURCE);
+    FileFilterContext context = new FileFilterContext(mock(ModuleFileSystem.class));
+    context.setType(FileType.SOURCE);
     assertThat(filter.accept(new File("Foo.java"), context)).isTrue();
     assertThat(filter.accept(new File("Other.java"), context)).isFalse();
 
-    context = new FileFilterContext(mock(ModuleFileSystem.class), FileFilter.FileType.TEST);
+    context = new FileFilterContext(mock(ModuleFileSystem.class));
+    context.setType(FileType.TEST);
     assertThat(filter.accept(new File("Foo.java"), context)).isTrue();
     assertThat(filter.accept(new File("Other.java"), context)).isTrue();
   }

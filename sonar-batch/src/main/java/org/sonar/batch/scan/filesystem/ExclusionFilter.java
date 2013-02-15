@@ -20,24 +20,17 @@
 package org.sonar.batch.scan.filesystem;
 
 import org.sonar.api.scan.filesystem.FileSystemFilter;
-import org.sonar.api.scan.filesystem.FileType;
 
 import java.io.File;
-import java.util.Set;
 
-/**
- * @since 3.5
- */
-class WhiteListFileFilter implements FileSystemFilter {
-  private final FileType fileType;
-  private final Set<File> files;
+class ExclusionFilter implements FileSystemFilter {
+  private final PathPattern pattern;
 
-  WhiteListFileFilter(FileType fileType, Set<File> files) {
-    this.fileType = fileType;
-    this.files = files;
+  ExclusionFilter(String s) {
+    this.pattern = PathPattern.create(s);
   }
 
-  public boolean accept(File file, Context context) {
-    return !context.type().equals(fileType) || files.contains(file);
+  public boolean accept(File file, FileSystemFilter.Context context) {
+    return !pattern.match(context);
   }
 }

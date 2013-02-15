@@ -19,12 +19,9 @@
  */
 package org.sonar.api.scan.filesystem;
 
-import com.google.common.annotations.Beta;
-
 /**
  * @since 3.5
  */
-@Beta
 public class FileSystemException extends RuntimeException {
   public FileSystemException(String message) {
     super(message);

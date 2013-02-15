@@ -19,12 +19,9 @@
  */
 package org.sonar.api.scan.filesystem;
 
-import com.google.common.annotations.Beta;
-
 /**
  * @since 3.5
  */
-@Beta
 public class IllegalPathException extends FileSystemException {
 
   public IllegalPathException(String message) {

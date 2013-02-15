@@ -17,37 +17,20 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.scan.filesystem;
+package org.sonar.batch.scan.filesystem;
 
-import com.google.common.annotations.Beta;
-import org.sonar.api.BatchExtension;
+import org.sonar.api.scan.filesystem.FileSystemFilter;
 
 import java.io.File;
 
-/**
- * @since 3.5
- */
-@Beta
-public interface FileFilter extends BatchExtension {
-  enum FileType {
-    SOURCE, TEST
+class InclusionFilter implements FileSystemFilter {
+  private final PathPattern pattern;
+
+  InclusionFilter(String s) {
+    this.pattern = PathPattern.create(s);
   }
 
-  interface Context {
-    ModuleFileSystem fileSystem();
-    FileType fileType();
-    File sourceDir();
-
-    /**
-     * File path relative to source directory. Never return null.
-     */
-    String fileRelativePath();
-
-    /**
-     * Absolute file path. Never return null.
-     */
-    String fileCanonicalPath();
+  public boolean accept(File file, FileSystemFilter.Context context) {
+    return pattern.match(context);
   }
-
-  boolean accept(File file, Context context);
 }

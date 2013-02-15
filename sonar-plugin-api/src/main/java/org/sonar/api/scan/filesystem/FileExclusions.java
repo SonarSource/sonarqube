@@ -29,7 +29,9 @@ import org.sonar.api.config.Settings;
 import java.util.List;
 
 /**
- * Configuration of file inclusions and exclusions
+ * Configuration of file inclusions and exclusions.
+ * <p>Plugins must not extend nor instantiate this class. An instance is injected at
+ * runtime.</p>
  *
  * @since 3.5
  */

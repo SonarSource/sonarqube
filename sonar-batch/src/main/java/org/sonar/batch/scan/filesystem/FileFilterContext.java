@@ -20,53 +20,58 @@
 package org.sonar.batch.scan.filesystem;
 
 import org.sonar.api.batch.FileFilter;
+import org.sonar.api.scan.filesystem.FileType;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 
 import java.io.File;
 
 class FileFilterContext implements FileFilter.Context {
   private final ModuleFileSystem fileSystem;
-  private final FileFilter.FileType fileType;
+  private FileType type;
   private File sourceDir;
   private String fileRelativePath;
   private String fileCanonicalPath;
 
-  FileFilterContext(ModuleFileSystem fileSystem, FileFilter.FileType fileType) {
+  FileFilterContext(ModuleFileSystem fileSystem) {
     this.fileSystem = fileSystem;
-    this.fileType = fileType;
   }
 
   public ModuleFileSystem fileSystem() {
     return fileSystem;
   }
 
-  public FileFilter.FileType fileType() {
-    return fileType;
+  public FileType type() {
+    return type;
   }
 
-  public File sourceDir() {
+  FileFilterContext setType(FileType t) {
+    this.type = t;
+    return this;
+  }
+
+  public File relativeDir() {
     return sourceDir;
   }
 
-  public String fileRelativePath() {
+  public String relativePath() {
     return fileRelativePath;
   }
 
-  public String fileCanonicalPath() {
+  public String canonicalPath() {
     return fileCanonicalPath;
   }
 
-  FileFilterContext setSourceDir(File d) {
+  FileFilterContext setRelativeDir(File d) {
     this.sourceDir = d;
     return this;
   }
 
-  FileFilterContext setFileRelativePath(String s) {
+  FileFilterContext setRelativePath(String s) {
     this.fileRelativePath = s;
     return this;
   }
 
-  FileFilterContext setFileCanonicalPath(String s) {
+  FileFilterContext setCanonicalPath(String s) {
     this.fileCanonicalPath = s;
     return this;
   }

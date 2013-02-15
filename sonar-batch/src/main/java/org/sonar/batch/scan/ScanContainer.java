@@ -48,8 +48,8 @@ import org.sonar.batch.local.DryRunExporter;
 import org.sonar.batch.phases.Phases;
 import org.sonar.batch.phases.PhasesTimeProfiler;
 import org.sonar.batch.scan.filesystem.DeprecatedFileSystemAdapter;
-import org.sonar.batch.scan.filesystem.ExclusionFileFilter;
-import org.sonar.batch.scan.filesystem.LanguageFileFilters;
+import org.sonar.batch.scan.filesystem.ExclusionFilters;
+import org.sonar.batch.scan.filesystem.LanguageFilters;
 import org.sonar.batch.scan.filesystem.ModuleFileSystemProvider;
 import org.sonar.core.qualitymodel.DefaultModelFinder;
 import org.sonar.jpa.dao.ProfilesDao;
@@ -97,8 +97,8 @@ public class ScanContainer extends Container {
     // file system
     container.addSingleton(PathResolver.class);
     container.addSingleton(FileExclusions.class);
-    container.addSingleton(LanguageFileFilters.class);
-    container.addSingleton(ExclusionFileFilter.class);
+    container.addSingleton(LanguageFilters.class);
+    container.addSingleton(ExclusionFilters.class);
     container.addSingleton(DefaultProjectClasspath.class);
     container.addPicoAdapter(new ModuleFileSystemProvider());
     container.addSingleton(DeprecatedFileSystemAdapter.class);

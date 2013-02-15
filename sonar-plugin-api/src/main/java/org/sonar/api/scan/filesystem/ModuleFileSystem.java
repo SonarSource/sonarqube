@@ -50,32 +50,10 @@ public interface ModuleFileSystem extends BatchComponent {
   List<File> sourceDirs();
 
   /**
-   * The files that are located in source directories and that match preconditions (inclusions/exclusions/{@link FileFilter})
-   */
-  List<File> sourceFiles();
-
-  /**
-   * The subset of {@link #sourceFiles()} matching the given language. For example {@code sourceFilesOfLang("java")} return all the source
-   * files suffixed with .java or .jav.
-   */
-  List<File> sourceFilesOfLang(String language);
-
-  /**
    * Test directories. Non-existing directories are excluded.
    * Example in Maven : ${project.basedir}/src/test/java
    */
   List<File> testDirs();
-
-  /**
-   * The files that are located in test directories and that match preconditions (inclusions/exclusions/{@link FileFilter})
-   */
-  List<File> testFiles();
-
-  /**
-   * The subset of {@link #testFiles()} matching the given language. For example {@code testFilesOfLang("java")} return all the test
-   * files suffixed with .java or .jav.
-   */
-  List<File> testFilesOfLang(String language);
 
   /**
    * Optional directories that contain the compiled sources, for example java bytecode.
@@ -87,6 +65,12 @@ public interface ModuleFileSystem extends BatchComponent {
    * </ul>
    */
   List<File> binaryDirs();
+
+  /**
+   * Search for files. Never return null.
+   */
+  List<File> files(FileQuery query);
+
 
   /**
    * Charset of source and test files. If it's not defined, then return the platform default charset.

@@ -30,7 +30,8 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
-import org.sonar.api.scan.filesystem.FileFilter;
+import org.sonar.api.scan.filesystem.FileSystemFilter;
+import org.sonar.api.scan.filesystem.FileType;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.batch.bootstrap.TempDirectories;
 
@@ -48,13 +49,12 @@ public class ModuleFileSystemProvider extends ProviderAdapter {
   private DefaultModuleFileSystem singleton;
 
   public DefaultModuleFileSystem provide(ProjectDefinition module, PathResolver pathResolver, TempDirectories tempDirectories,
-                                         LanguageFileFilters languageFileFilters, Settings settings, FileFilter[] pluginFileFilters) {
+                                         LanguageFilters languageFilters, Settings settings, FileSystemFilter[] pluginFileFilters) {
     if (singleton == null) {
       DefaultModuleFileSystem.Builder builder = new DefaultModuleFileSystem.Builder();
 
       // dependencies
-      builder.pathResolver(pathResolver);
-      builder.languageFileFilters(languageFileFilters);
+      builder.languageFilters(languageFilters);
 
       // files and directories
       // TODO should the basedir always exist ? If yes, then we check also check that it's a dir but not a file
@@ -120,7 +120,7 @@ public class ModuleFileSystemProvider extends ProviderAdapter {
       for (File sourceFile : sourceFiles) {
         LOG.info("  " + sourceFile.getAbsolutePath());
       }
-      builder.addFileFilter(new WhiteListFileFilter(FileFilter.FileType.SOURCE, ImmutableSet.copyOf(sourceFiles)));
+      builder.addFsFilter(new WhiteListFileFilter(FileType.SOURCE, ImmutableSet.copyOf(sourceFiles)));
     }
   }
 
@@ -143,13 +143,13 @@ public class ModuleFileSystemProvider extends ProviderAdapter {
       for (File testFile : testFiles) {
         LOG.info("  " + testFile.getAbsolutePath());
       }
-      builder.addFileFilter(new WhiteListFileFilter(FileFilter.FileType.TEST, ImmutableSet.copyOf(testFiles)));
+      builder.addFsFilter(new WhiteListFileFilter(FileType.TEST, ImmutableSet.copyOf(testFiles)));
     }
   }
 
-  private void initCustomFilters(DefaultModuleFileSystem.Builder builder, FileFilter[] pluginFileFilters) {
-    for (FileFilter pluginFileFilter : pluginFileFilters) {
-      builder.addFileFilter(pluginFileFilter);
+  private void initCustomFilters(DefaultModuleFileSystem.Builder builder, FileSystemFilter[] pluginFileFilters) {
+    for (FileSystemFilter pluginFileFilter : pluginFileFilters) {
+      builder.addFsFilter(pluginFileFilter);
     }
   }
 

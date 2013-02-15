@@ -17,28 +17,24 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.scan.filesystem;
+package org.sonar.batch.scan.filesystem;
 
-import com.google.common.annotations.Beta;
+import org.sonar.api.scan.filesystem.FileSystemFilter;
 
 import java.io.File;
+import java.io.FileFilter;
 
 /**
  * @since 3.5
  */
-@Beta
-public class JavaIoFileFilter implements FileFilter {
-  private java.io.FileFilter ioFilter;
+class FileFilterWrapper implements FileSystemFilter {
+  private final FileFilter filter;
 
-  private JavaIoFileFilter(java.io.FileFilter ioFilter) {
-    this.ioFilter = ioFilter;
-  }
-
-  public static JavaIoFileFilter create(java.io.FileFilter filter) {
-    return new JavaIoFileFilter(filter);
+  FileFilterWrapper(FileFilter filter) {
+    this.filter = filter;
   }
 
   public boolean accept(File file, Context context) {
-    return ioFilter.accept(file);
+    return filter.accept(file);
   }
 }

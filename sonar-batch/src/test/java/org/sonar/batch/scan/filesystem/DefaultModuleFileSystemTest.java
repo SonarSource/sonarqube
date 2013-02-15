@@ -26,8 +26,8 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.resources.AbstractLanguage;
 import org.sonar.api.resources.Languages;
-import org.sonar.api.scan.filesystem.FileFilter;
-import org.sonar.api.scan.filesystem.JavaIoFileFilter;
+import org.sonar.api.scan.filesystem.FileQuery;
+import org.sonar.api.scan.filesystem.FileSystemFilter;
 import org.sonar.api.scan.filesystem.PathResolver;
 
 import java.io.File;
@@ -47,8 +47,8 @@ public class DefaultModuleFileSystemTest {
     File basedir = temp.newFolder("base");
     File workingDir = temp.newFolder("work");
     PathResolver pathResolver = mock(PathResolver.class);
-    LanguageFileFilters languageFileFilters = mock(LanguageFileFilters.class);
-    FileFilter fileFilter = mock(FileFilter.class);
+    LanguageFilters languageFilters = mock(LanguageFilters.class);
+    FileSystemFilter fileFilter = mock(FileSystemFilter.class);
 
     DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem.Builder()
       .baseDir(basedir)
@@ -57,10 +57,9 @@ public class DefaultModuleFileSystemTest {
       .addSourceDir(new File(basedir, "src/main/java"))
       .addSourceDir(new File(basedir, "src/main/groovy"))
       .addTestDir(new File(basedir, "src/test/java"))
-      .addFileFilter(fileFilter)
+      .addFsFilter(fileFilter)
       .sourceCharset(Charsets.UTF_8)
-      .pathResolver(pathResolver)
-      .languageFileFilters(languageFileFilters)
+      .languageFilters(languageFilters)
       .build();
 
     assertThat(fileSystem).isNotNull();
@@ -70,9 +69,8 @@ public class DefaultModuleFileSystemTest {
     assertThat(fileSystem.testDirs()).hasSize(1);
     assertThat(fileSystem.binaryDirs()).hasSize(1);
     assertThat(fileSystem.sourceCharset().name()).isEqualTo("UTF-8");
-    assertThat(fileSystem.pathResolver()).isSameAs(pathResolver);
-    assertThat(fileSystem.fileFilters()).containsOnly(fileFilter);
-    assertThat(fileSystem.languageFileFilters()).isSameAs(languageFileFilters);
+    assertThat(fileSystem.fsFilters()).containsOnly(fileFilter);
+    assertThat(fileSystem.languageFilters()).isSameAs(languageFilters);
   }
 
   @Test
@@ -85,8 +83,9 @@ public class DefaultModuleFileSystemTest {
       .addSourceDir(new File(basedir, "src"))
       .build();
 
-    assertThat(fileSystem.sourceFiles()).hasSize(1);
-    assertThat(fileSystem.sourceFiles().get(0).getName()).isEqualTo("Included.java");
+    List<File> files = fileSystem.files(FileQuery.onSource());
+    assertThat(files).hasSize(1);
+    assertThat(files.get(0).getName()).isEqualTo("Included.java");
   }
 
   @Test
@@ -98,16 +97,16 @@ public class DefaultModuleFileSystemTest {
       .workingDir(temp.newFolder())
       .addSourceDir(new File(basedir, "src/main/java"))
       .addTestDir(new File(basedir, "src/test/java"))
-      .languageFileFilters(new LanguageFileFilters(new Languages(new Java(), new Php())))
+      .languageFilters(new LanguageFilters(new Languages(new Java(), new Php())))
       .build();
 
-    List<File> files = fileSystem.sourceFilesOfLang("java");
+    List<File> files = fileSystem.files(FileQuery.onSource().onLanguage("java"));
     assertThat(files).hasSize(2);
     for (File sourceFiles : files) {
       assertThat(sourceFiles).exists().isFile();
       assertThat(sourceFiles.getName()).isIn("Hello.java", "Foo.java");
     }
-    assertThat(fileSystem.sourceFilesOfLang("php")).isEmpty();
+    assertThat(fileSystem.files(FileQuery.onSource().onLanguage("php"))).isEmpty();
   }
 
   @Test
@@ -122,8 +121,9 @@ public class DefaultModuleFileSystemTest {
       .build();
 
     assertThat(fileSystem.testDirs()).hasSize(1);
-    assertThat(fileSystem.testFiles()).hasSize(2);
-    for (File testFile : fileSystem.testFiles()) {
+    List<File> testFiles = fileSystem.files(FileQuery.onTest());
+    assertThat(testFiles).hasSize(2);
+    for (File testFile : testFiles) {
       assertThat(testFile).exists().isFile();
       assertThat(testFile.getName()).endsWith("Test.java");
     }
@@ -138,16 +138,16 @@ public class DefaultModuleFileSystemTest {
       .workingDir(temp.newFolder())
       .addSourceDir(new File(basedir, "src/main/java"))
       .addTestDir(new File(basedir, "src/test/java"))
-      .languageFileFilters(new LanguageFileFilters(new Languages(new Java(), new Php())))
+      .languageFilters(new LanguageFilters(new Languages(new Java(), new Php())))
       .build();
 
-    List<File> testFiles = fileSystem.testFilesOfLang("java");
+    List<File> testFiles = fileSystem.files(FileQuery.onTest().onLanguage("java"));
     assertThat(testFiles).hasSize(2);
     for (File testFile : testFiles) {
       assertThat(testFile).exists().isFile();
       assertThat(testFile.getName()).endsWith("Test.java");
     }
-    assertThat(fileSystem.testFilesOfLang("php")).isEmpty();
+    assertThat(fileSystem.files(FileQuery.onTest().onLanguage("php"))).isEmpty();
   }
 
   @Test
@@ -158,11 +158,10 @@ public class DefaultModuleFileSystemTest {
       .sourceCharset(Charsets.UTF_8)
       .workingDir(temp.newFolder())
       .addSourceDir(new File(basedir, "src/main/java"))
-      .addFileFilter(JavaIoFileFilter.create(FileFilterUtils.nameFileFilter("Foo.java")))
-      .pathResolver(new PathResolver())
+      .addFsFilter(new FileFilterWrapper(FileFilterUtils.nameFileFilter("Foo.java")))
       .build();
 
-    List<File> files = fileSystem.sourceFiles();
+    List<File> files = fileSystem.files(FileQuery.onSource());
     assertThat(files).hasSize(1);
     assertThat(files.get(0).getName()).isEqualTo("Foo.java");
   }
@@ -195,8 +194,7 @@ public class DefaultModuleFileSystemTest {
       .sourceCharset(Charsets.UTF_8)
       .workingDir(basedir)
       .addSourceDir(new File(basedir, "src/main/java"))
-      .addFileFilter(JavaIoFileFilter.create(FileFilterUtils.nameFileFilter("Foo.java")))
-      .pathResolver(new PathResolver())
+      .addFsFilter(new FileFilterWrapper(FileFilterUtils.nameFileFilter("Foo.java")))
       .build();
 
     File existingDir = temp.newFolder("new_folder");

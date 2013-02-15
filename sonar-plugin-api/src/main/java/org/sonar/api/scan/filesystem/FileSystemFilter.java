@@ -17,27 +17,42 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.scan.filesystem;
+package org.sonar.api.scan.filesystem;
 
-import org.sonar.api.scan.filesystem.FileSystemFilter;
-import org.sonar.api.scan.filesystem.FileType;
+import org.sonar.api.BatchExtension;
 
 import java.io.File;
-import java.util.Set;
 
 /**
+ * Extension point to exclude some files from project scan. Some use-cases :
+ * <ul>
+ *   <li>exclude the files that are older than x days</li>
+ *   <li>exclude the files which names start with Generated</li>
+ * </ul>
  * @since 3.5
  */
-class WhiteListFileFilter implements FileSystemFilter {
-  private final FileType fileType;
-  private final Set<File> files;
+public interface FileSystemFilter extends BatchExtension {
 
-  WhiteListFileFilter(FileType fileType, Set<File> files) {
-    this.fileType = fileType;
-    this.files = files;
+  /**
+   * Plugins must not implement this interface. It is provided at runtime.
+   */
+  interface Context {
+    ModuleFileSystem fileSystem();
+
+    FileType type();
+
+    File relativeDir();
+
+    /**
+     * File path relative to source directory. Never return null.
+     */
+    String relativePath();
+
+    /**
+     * Absolute file path. Never return null.
+     */
+    String canonicalPath();
   }
 
-  public boolean accept(File file, Context context) {
-    return !context.type().equals(fileType) || files.contains(file);
-  }
+  boolean accept(File file, Context context);
 }

@@ -17,10 +17,6 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-
-/**
- * This package is a part of bootstrap process, so we should take care about backward compatibility.
- */
 @ParametersAreNonnullByDefault
 package org.sonar.api.scan.filesystem;
 

@@ -26,15 +26,16 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
-import org.apache.commons.io.filefilter.TrueFileFilter;
-import org.sonar.api.scan.filesystem.FileFilter;
+import org.sonar.api.scan.filesystem.FileQuery;
+import org.sonar.api.scan.filesystem.FileSystemFilter;
+import org.sonar.api.scan.filesystem.FileType;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.scan.filesystem.PathResolver;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.nio.charset.Charset;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -49,9 +50,9 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
   private final Charset sourceCharset;
   private File baseDir, workingDir, buildDir;
   private List<File> sourceDirs, testDirs, binaryDirs;
-  private final PathResolver pathResolver;
-  private final List<FileFilter> fileFilters;
-  private final LanguageFileFilters languageFileFilters;
+  private final PathResolver pathResolver =  new PathResolver();
+  private final List<FileSystemFilter> fsFilters;
+  private final LanguageFilters languageFilters;
 
   private DefaultModuleFileSystem(Builder builder) {
     sourceCharset = builder.sourceCharset;
@@ -61,9 +62,8 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
     sourceDirs = ImmutableList.copyOf(builder.sourceDirs);
     testDirs = ImmutableList.copyOf(builder.testDirs);
     binaryDirs = ImmutableList.copyOf(builder.binaryDirs);
-    fileFilters = ImmutableList.copyOf(builder.fileFilters);
-    pathResolver = builder.pathResolver;
-    languageFileFilters = builder.languageFileFilters;
+    fsFilters = ImmutableList.copyOf(builder.fsFilters);
+    languageFilters = builder.languageFilters;
   }
 
   public File baseDir() {
@@ -78,24 +78,8 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
     return sourceDirs;
   }
 
-  public List<File> sourceFiles() {
-    return files(sourceDirs, FileFilter.FileType.SOURCE, TrueFileFilter.TRUE);
-  }
-
-  public List<File> sourceFilesOfLang(String language) {
-    return files(sourceDirs, FileFilter.FileType.SOURCE, languageFileFilters.forLang(language));
-  }
-
   public List<File> testDirs() {
     return testDirs;
-  }
-
-  public List<File> testFiles() {
-    return files(testDirs, FileFilter.FileType.TEST, TrueFileFilter.TRUE);
-  }
-
-  public List<File> testFilesOfLang(String language) {
-    return files(testDirs, FileFilter.FileType.TEST, languageFileFilters.forLang(language));
   }
 
   public List<File> binaryDirs() {
@@ -110,16 +94,72 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
     return workingDir;
   }
 
-  PathResolver pathResolver() {
-    return pathResolver;
+  List<FileSystemFilter> fsFilters() {
+    return fsFilters;
   }
 
-  List<FileFilter> fileFilters() {
-    return fileFilters;
+  LanguageFilters languageFilters() {
+    return languageFilters;
   }
 
-  LanguageFileFilters languageFileFilters() {
-    return languageFileFilters;
+  public List<File> files(FileQuery query) {
+    List<FileSystemFilter> filters = Lists.newArrayList(fsFilters);
+    for (FileFilter fileFilter : query.filters()) {
+      filters.add(new FileFilterWrapper(fileFilter));
+    }
+    for (String language : query.languages()) {
+      filters.add(new FileFilterWrapper(languageFilters.forLang(language)));
+    }
+    for (String inclusion : query.inclusions()) {
+      filters.add(new InclusionFilter(inclusion));
+    }
+    for (String exclusion : query.exclusions()) {
+      filters.add(new ExclusionFilter(exclusion));
+    }
+    List<File> result = Lists.newLinkedList();
+    FileFilterContext context = new FileFilterContext(this);
+    for (FileType type : query.types()) {
+      context.setType(type);
+      switch (type) {
+        case SOURCE:
+          applyFilters(result, context, filters, sourceDirs);
+          break;
+        case TEST:
+          applyFilters(result, context, filters, testDirs);
+          break;
+      }
+    }
+    return result;
+  }
+
+  private void applyFilters(List<File> result, FileFilterContext context,
+                            Collection<FileSystemFilter> filters, Collection<File> dirs) {
+    for (File dir : dirs) {
+      if (dir.exists()) {
+        context.setRelativeDir(dir);
+        Collection<File> files = FileUtils.listFiles(dir, HiddenFileFilter.VISIBLE, DIR_FILTER);
+        for (File file : files) {
+          if (accept(file, context, filters)) {
+            result.add(file);
+          }
+        }
+      }
+    }
+  }
+
+  private boolean accept(File file, FileFilterContext context, Collection<FileSystemFilter> filters) {
+    context.setRelativePath(pathResolver.relativePath(context.relativeDir(), file));
+    try {
+      context.setCanonicalPath(file.getCanonicalPath());
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to get the canonical path of: " + file);
+    }
+    for (FileSystemFilter filter : filters) {
+      if (!filter.accept(file, context)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**
@@ -144,56 +184,12 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
     return builder.build();
   }
 
-  private List<File> files(List<File> dirs, FileFilter.FileType fileType, IOFileFilter languageFilter) {
-    List<File> result = Lists.newLinkedList();
-    if (dirs != null && !dirs.isEmpty()) {
-      FileFilterContext context = new FileFilterContext(this, fileType);
-      for (File dir : dirs) {
-        if (dir.exists()) {
-          context.setSourceDir(dir);
-          Collection<File> files = FileUtils.listFiles(dir, FileFilterUtils.and(HiddenFileFilter.VISIBLE, languageFilter), DIR_FILTER);
-          applyFilters(files, context);
-          result.addAll(files);
-        }
-      }
-    }
-    return result;
-  }
-
-  private void applyFilters(Collection<File> files, FileFilterContext context) {
-    if (!fileFilters.isEmpty()) {
-      Iterator<File> it = files.iterator();
-      while (it.hasNext()) {
-        File file = it.next();
-        if (!accept(file, context)) {
-          it.remove();
-        }
-      }
-    }
-  }
-
-  private boolean accept(File file, FileFilterContext context) {
-    context.setFileRelativePath(pathResolver.relativePath(context.sourceDir(), file));
-    try {
-      context.setFileCanonicalPath(file.getCanonicalPath());
-    } catch (Exception e) {
-      throw new IllegalStateException("Fail to get the canonical path of: " + file);
-    }
-    for (FileFilter fileFilter : fileFilters) {
-      if (!fileFilter.accept(file, context)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
   static final class Builder {
     private Charset sourceCharset;
     private File baseDir, workingDir, buildDir;
     private List<File> sourceDirs = Lists.newArrayList(), testDirs = Lists.newArrayList(), binaryDirs = Lists.newArrayList();
-    private List<FileFilter> fileFilters = Lists.newArrayList();
-    private PathResolver pathResolver;
-    LanguageFileFilters languageFileFilters;
+    private List<FileSystemFilter> fsFilters = Lists.newArrayList();
+    private LanguageFilters languageFilters;
 
     Builder sourceCharset(Charset c) {
       this.sourceCharset = c;
@@ -230,18 +226,13 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
       return this;
     }
 
-    Builder addFileFilter(FileFilter f) {
-      fileFilters.add(f);
+    Builder addFsFilter(FileSystemFilter f) {
+      fsFilters.add(f);
       return this;
     }
 
-    Builder pathResolver(PathResolver r) {
-      pathResolver = r;
-      return this;
-    }
-
-    Builder languageFileFilters(LanguageFileFilters l) {
-      languageFileFilters = l;
+    Builder languageFilters(LanguageFilters l) {
+      languageFilters = l;
       return this;
     }
 

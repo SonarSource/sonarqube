@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.apache.commons.io.filefilter.FalseFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
@@ -30,10 +31,10 @@ import java.lang.reflect.Field;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class LanguageFileFiltersTest {
+public class LanguageFiltersTest {
   @Test
   public void forLang() throws Exception {
-    LanguageFileFilters filters = new LanguageFileFilters(new Languages(new Java(), new Php()));
+    LanguageFilters filters = new LanguageFilters(new Languages(new Java(), new Php()));
 
     IOFileFilter filter = filters.forLang("php");
     assertThat(filter).isInstanceOf(SuffixFileFilter.class);
@@ -43,7 +44,7 @@ public class LanguageFileFiltersTest {
     assertThat(filter).isInstanceOf(SuffixFileFilter.class);
     assertThat(suffixes((SuffixFileFilter) filter)).containsOnly("java", "jav");
 
-    assertThat(filters.forLang("unknown")).isSameAs(TrueFileFilter.TRUE);
+    assertThat(filters.forLang("unknown")).isSameAs(FalseFileFilter.FALSE);
   }
 
   private String[] suffixes(SuffixFileFilter filter) throws Exception {

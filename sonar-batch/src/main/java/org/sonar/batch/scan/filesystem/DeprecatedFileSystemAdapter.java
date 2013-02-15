@@ -31,6 +31,7 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.SonarException;
 
@@ -43,6 +44,7 @@ import java.util.List;
 
 /**
  * Adapter for keeping the backward-compatibility of the deprecated component {@link org.sonar.api.resources.ProjectFileSystem}
+ *
  * @since 3.5
  */
 public class DeprecatedFileSystemAdapter implements ProjectFileSystem {
@@ -139,7 +141,7 @@ public class DeprecatedFileSystemAdapter implements ProjectFileSystem {
   public List<File> getSourceFiles(Language... langs) {
     List<File> result = Lists.newArrayList();
     for (Language lang : langs) {
-      result.addAll(target.sourceFilesOfLang(lang.getKey()));
+      result.addAll(target.files(FileQuery.onSource().onLanguage(lang.getKey())));
     }
     return result;
   }
@@ -155,7 +157,7 @@ public class DeprecatedFileSystemAdapter implements ProjectFileSystem {
   public List<File> getTestFiles(Language... langs) {
     List<File> result = Lists.newArrayList();
     for (Language lang : langs) {
-      result.addAll(target.testFilesOfLang(lang.getKey()));
+      result.addAll(target.files(FileQuery.onTest().onLanguage(lang.getKey())));
     }
     return result;
   }
@@ -188,13 +190,11 @@ public class DeprecatedFileSystemAdapter implements ProjectFileSystem {
 
   public List<InputFile> mainFiles(String... langs) {
     List<InputFile> result = Lists.newArrayList();
-    for (String lang : langs) {
-      List<File> files = target.sourceFilesOfLang(lang);
-      for (File file : files) {
-        PathResolver.RelativePath relativePath = pathResolver.relativePath(getSourceDirs(), file);
-        if (relativePath != null) {
-          result.add(InputFileUtils.create(relativePath.dir(), relativePath.path()));
-        }
+    List<File> files = target.files(FileQuery.onSource().onLanguage(langs));
+    for (File file : files) {
+      PathResolver.RelativePath relativePath = pathResolver.relativePath(getSourceDirs(), file);
+      if (relativePath != null) {
+        result.add(InputFileUtils.create(relativePath.dir(), relativePath.path()));
       }
     }
     return result;
@@ -202,15 +202,14 @@ public class DeprecatedFileSystemAdapter implements ProjectFileSystem {
 
   public List<InputFile> testFiles(String... langs) {
     List<InputFile> result = Lists.newArrayList();
-    for (String lang : langs) {
-      List<File> files = target.testFilesOfLang(lang);
-      for (File file : files) {
-        PathResolver.RelativePath relativePath = pathResolver.relativePath(getTestDirs(), file);
-        if (relativePath != null) {
-          result.add(InputFileUtils.create(relativePath.dir(), relativePath.path()));
-        }
+    List<File> files = target.files(FileQuery.onTest().onLanguage(langs));
+    for (File file : files) {
+      PathResolver.RelativePath relativePath = pathResolver.relativePath(getTestDirs(), file);
+      if (relativePath != null) {
+        result.add(InputFileUtils.create(relativePath.dir(), relativePath.path()));
       }
     }
+
     return result;
   }
 }
