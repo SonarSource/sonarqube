@@ -221,6 +221,6 @@ class MeasuresController < ApplicationController
   end
 
   def criteria_params
-    params.merge({:controller => nil, :action => nil, :search => nil, :widget_id => nil, :edit => nil})
+    params.merge({:controller => nil, :action => nil, :search => nil, :widget_id => nil, :edit => nil, :page => nil})
   end
 end
