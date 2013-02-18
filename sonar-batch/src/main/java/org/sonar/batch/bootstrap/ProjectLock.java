@@ -48,7 +48,7 @@ public class ProjectLock {
       Semaphores.Semaphore semaphore = acquire();
       if (!semaphore.isLocked()) {
         LOG.error(getErrorMessage(semaphore));
-        throw new SonarException("The project is already been analysing.");
+        throw new SonarException("The project is already being analysed.");
       }
     }
   }
