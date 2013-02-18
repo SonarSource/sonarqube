@@ -26,6 +26,9 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.FileSystemFilter;
 import org.sonar.api.scan.filesystem.FileType;
@@ -47,23 +50,16 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
 
   private static final IOFileFilter DIR_FILTER = FileFilterUtils.and(HiddenFileFilter.VISIBLE, FileFilterUtils.notFileFilter(FileFilterUtils.prefixFileFilter(".")));
 
-  private final Charset sourceCharset;
+  private Settings settings;
   private File baseDir, workingDir, buildDir;
-  private List<File> sourceDirs, testDirs, binaryDirs;
-  private final PathResolver pathResolver =  new PathResolver();
-  private final List<FileSystemFilter> fsFilters;
-  private final LanguageFilters languageFilters;
+  private List<File> sourceDirs = Lists.newArrayList();
+  private List<File> testDirs = Lists.newArrayList();
+  private List<File> binaryDirs = Lists.newArrayList();
+  private PathResolver pathResolver = new PathResolver();
+  private List<FileSystemFilter> fsFilters = Lists.newArrayList();
+  private LanguageFilters languageFilters;
 
-  private DefaultModuleFileSystem(Builder builder) {
-    sourceCharset = builder.sourceCharset;
-    baseDir = builder.baseDir;
-    buildDir = builder.buildDir;
-    workingDir = builder.workingDir;
-    sourceDirs = ImmutableList.copyOf(builder.sourceDirs);
-    testDirs = ImmutableList.copyOf(builder.testDirs);
-    binaryDirs = ImmutableList.copyOf(builder.binaryDirs);
-    fsFilters = ImmutableList.copyOf(builder.fsFilters);
-    languageFilters = builder.languageFilters;
+  DefaultModuleFileSystem() {
   }
 
   public File baseDir() {
@@ -87,14 +83,25 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
   }
 
   public Charset sourceCharset() {
-    return sourceCharset;
+    final Charset charset;
+    String encoding = settings.getString(CoreProperties.ENCODING_PROPERTY);
+    if (StringUtils.isNotEmpty(encoding)) {
+      charset = Charset.forName(StringUtils.trim(encoding));
+    } else {
+      charset = Charset.defaultCharset();
+    }
+    return charset;
+  }
+
+  boolean isDefaultSourceCharset() {
+    return settings.hasKey(CoreProperties.ENCODING_PROPERTY);
   }
 
   public File workingDir() {
     return workingDir;
   }
 
-  List<FileSystemFilter> fsFilters() {
+  List<FileSystemFilter> filters() {
     return fsFilters;
   }
 
@@ -162,9 +169,6 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
     return true;
   }
 
-  /**
-   * Breaks immutability but it's required to allow Maven Plugins to be executed and to change project structure.
-   */
   public void resetDirs(File basedir, File buildDir, List<File> sourceDirs, List<File> testDirs, List<File> binaryDirs) {
     Preconditions.checkNotNull(basedir, "Basedir can't be null");
     this.baseDir = basedir;
@@ -184,63 +188,50 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
     return builder.build();
   }
 
-  static final class Builder {
-    private Charset sourceCharset;
-    private File baseDir, workingDir, buildDir;
-    private List<File> sourceDirs = Lists.newArrayList(), testDirs = Lists.newArrayList(), binaryDirs = Lists.newArrayList();
-    private List<FileSystemFilter> fsFilters = Lists.newArrayList();
-    private LanguageFilters languageFilters;
+  DefaultModuleFileSystem setSettings(Settings settings) {
+    this.settings = settings;
+    return this;
+  }
 
-    Builder sourceCharset(Charset c) {
-      this.sourceCharset = c;
-      return this;
-    }
+  DefaultModuleFileSystem setBaseDir(File baseDir) {
+    this.baseDir = baseDir;
+    return this;
+  }
 
-    Builder baseDir(File d) {
-      this.baseDir = d;
-      return this;
-    }
+  DefaultModuleFileSystem setWorkingDir(File workingDir) {
+    this.workingDir = workingDir;
+    return this;
+  }
 
-    Builder buildDir(File d) {
-      this.buildDir = d;
-      return this;
-    }
+  DefaultModuleFileSystem setBuildDir(File buildDir) {
+    this.buildDir = buildDir;
+    return this;
+  }
 
-    Builder workingDir(File d) {
-      this.workingDir = d;
-      return this;
+  DefaultModuleFileSystem addFilters(FileSystemFilter... f) {
+    for (FileSystemFilter filter : f) {
+      this.fsFilters.add(filter);
     }
+    return this;
+  }
 
-    Builder addSourceDir(File d) {
-      sourceDirs.add(d);
-      return this;
-    }
+  DefaultModuleFileSystem setLanguageFilters(LanguageFilters languageFilters) {
+    this.languageFilters = languageFilters;
+    return this;
+  }
 
-    Builder addTestDir(File d) {
-      testDirs.add(d);
-      return this;
-    }
+  DefaultModuleFileSystem addSourceDir(File d) {
+    this.sourceDirs.add(d);
+    return this;
+  }
 
-    Builder addBinaryDir(File d) {
-      binaryDirs.add(d);
-      return this;
-    }
+  DefaultModuleFileSystem addTestDir(File d) {
+    this.testDirs.add(d);
+    return this;
+  }
 
-    Builder addFsFilter(FileSystemFilter f) {
-      fsFilters.add(f);
-      return this;
-    }
-
-    Builder languageFilters(LanguageFilters l) {
-      languageFilters = l;
-      return this;
-    }
-
-    DefaultModuleFileSystem build() {
-      Preconditions.checkNotNull(baseDir, "Module base directory is not set");
-      Preconditions.checkNotNull(workingDir, "Module working directory is not set");
-      Preconditions.checkNotNull(sourceCharset, "Module source charset is not set");
-      return new DefaultModuleFileSystem(this);
-    }
+  DefaultModuleFileSystem addBinaryDir(File d) {
+    this.binaryDirs.add(d);
+    return this;
   }
 }

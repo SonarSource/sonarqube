@@ -25,6 +25,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.PersistenceManager;
+import org.sonar.batch.scan.filesystem.FileSystemLogger;
 import org.sonar.batch.scan.maven.MavenPhaseExecutor;
 import org.sonar.batch.scan.maven.MavenPluginsConfigurator;
 import org.sonar.core.component.ScanGraphStore;
@@ -52,13 +53,14 @@ public final class Phases {
   private DefaultIndex index;
   private ProjectInitializer pi;
   private ScanGraphStore graphStorage;
+  private FileSystemLogger fsLogger;
 
   public Phases(DecoratorsExecutor decoratorsExecutor, MavenPhaseExecutor mavenPhaseExecutor,
                 MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
                 PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
                 PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
                 EventBus eventBus, UpdateStatusJob updateStatusJob, ProjectInitializer pi,
-                ScanGraphStore graphStorage) {
+                ScanGraphStore graphStorage, FileSystemLogger fsLogger) {
     this.decoratorsExecutor = decoratorsExecutor;
     this.mavenPhaseExecutor = mavenPhaseExecutor;
     this.mavenPluginsConfigurator = mavenPluginsConfigurator;
@@ -72,15 +74,16 @@ public final class Phases {
     this.updateStatusJob = updateStatusJob;
     this.pi = pi;
     this.graphStorage = graphStorage;
+    this.fsLogger = fsLogger;
   }
 
   public Phases(DecoratorsExecutor decoratorsExecutor, MavenPhaseExecutor mavenPhaseExecutor,
                 MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
                 PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
                 PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
-                EventBus eventBus, ProjectInitializer pi, ScanGraphStore graphStorage) {
+                EventBus eventBus, ProjectInitializer pi, ScanGraphStore graphStorage, FileSystemLogger fsLogger) {
     this(decoratorsExecutor, mavenPhaseExecutor, mavenPluginsConfigurator, initializersExecutor, postJobsExecutor,
-      sensorsExecutor, persistenceManager, sensorContext, index, eventBus, null, pi, graphStorage);
+      sensorsExecutor, persistenceManager, sensorContext, index, eventBus, null, pi, graphStorage, fsLogger);
   }
 
   /**
@@ -92,6 +95,7 @@ public final class Phases {
     mavenPluginsConfigurator.execute(project);
     mavenPhaseExecutor.execute(project);
     initializersExecutor.execute();
+    fsLogger.log();
 
     persistenceManager.setDelayedMode(true);
     sensorsExecutor.execute(sensorContext);

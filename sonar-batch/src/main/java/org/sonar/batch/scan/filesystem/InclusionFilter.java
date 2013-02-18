@@ -33,4 +33,9 @@ class InclusionFilter implements FileSystemFilter {
   public boolean accept(File file, FileSystemFilter.Context context) {
     return pattern.match(context);
   }
+
+  @Override
+  public String toString() {
+    return "Includes: " + pattern;
+  }
 }

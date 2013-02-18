@@ -19,15 +19,9 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.picocontainer.injectors.ProviderAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.FileSystemFilter;
@@ -36,39 +30,29 @@ import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.batch.bootstrap.TempDirectories;
 
 import java.io.File;
-import java.nio.charset.Charset;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * @since 3.5
  */
 public class ModuleFileSystemProvider extends ProviderAdapter {
-  private static final Logger LOG = LoggerFactory.getLogger(ModuleFileSystemProvider.class);
 
   private DefaultModuleFileSystem singleton;
 
   public DefaultModuleFileSystem provide(ProjectDefinition module, PathResolver pathResolver, TempDirectories tempDirectories,
                                          LanguageFilters languageFilters, Settings settings, FileSystemFilter[] pluginFileFilters) {
     if (singleton == null) {
-      DefaultModuleFileSystem.Builder builder = new DefaultModuleFileSystem.Builder();
-
-      // dependencies
-      builder.languageFilters(languageFilters);
-
-      // files and directories
-      // TODO should the basedir always exist ? If yes, then we check also check that it's a dir but not a file
-      builder.baseDir(module.getBaseDir());
-      builder.buildDir(module.getBuildDir());
-      builder.sourceCharset(guessCharset(settings));
-      builder.workingDir(guessWorkingDir(module, tempDirectories));
-      initBinaryDirs(module, pathResolver, builder);
-      initSources(module, pathResolver, builder);
-      initTests(module, pathResolver, builder);
-
-      // file filters
-      initCustomFilters(builder, pluginFileFilters);
-      singleton = builder.build();
+      DefaultModuleFileSystem fs = new DefaultModuleFileSystem();
+      fs.setLanguageFilters(languageFilters);
+      fs.setBaseDir(module.getBaseDir());
+      fs.setBuildDir(module.getBuildDir());
+      fs.setSettings(settings);
+      fs.setWorkingDir(guessWorkingDir(module, tempDirectories));
+      fs.addFilters(pluginFileFilters);
+      initBinaryDirs(module, pathResolver, fs);
+      initSources(module, pathResolver, fs);
+      initTests(module, pathResolver, fs);
+      singleton = fs;
     }
     return singleton;
   }
@@ -77,9 +61,7 @@ public class ModuleFileSystemProvider extends ProviderAdapter {
     File workDir = module.getWorkDir();
     if (workDir == null) {
       workDir = tempDirectories.getDir("work");
-      LOG.warn("Working dir is not set. Using: " + workDir.getAbsolutePath());
     } else {
-      LOG.info("Working dir: " + workDir.getAbsolutePath());
       try {
         FileUtils.forceMkdir(workDir);
       } catch (Exception e) {
@@ -89,75 +71,37 @@ public class ModuleFileSystemProvider extends ProviderAdapter {
     return workDir;
   }
 
-  private Charset guessCharset(Settings settings) {
-    final Charset charset;
-    String encoding = settings.getString(CoreProperties.ENCODING_PROPERTY);
-    if (StringUtils.isNotEmpty(encoding)) {
-      charset = Charset.forName(StringUtils.trim(encoding));
-      LOG.info("Source encoding: " + charset.displayName() + ", default locale: " + Locale.getDefault());
-    } else {
-      charset = Charset.defaultCharset();
-      LOG.warn("Source encoding is platform dependent (" + charset.displayName() + "), default locale: " + Locale.getDefault());
-    }
-    return charset;
-  }
-
-  private void initSources(ProjectDefinition module, PathResolver pathResolver, DefaultModuleFileSystem.Builder builder) {
-    List<String> paths = Lists.newArrayList();
+  private void initSources(ProjectDefinition module, PathResolver pathResolver, DefaultModuleFileSystem fs) {
     for (String sourcePath : module.getSourceDirs()) {
       File dir = pathResolver.relativeFile(module.getBaseDir(), sourcePath);
       if (dir.isDirectory() && dir.exists()) {
-        paths.add(dir.getAbsolutePath());
-        builder.addSourceDir(dir);
+        fs.addSourceDir(dir);
       }
-    }
-    if (!paths.isEmpty()) {
-      LOG.info("Source dirs: " + Joiner.on(", ").join(paths));
     }
     List<File> sourceFiles = pathResolver.relativeFiles(module.getBaseDir(), module.getSourceFiles());
     if (!sourceFiles.isEmpty()) {
-      LOG.info("Source files: ");
-      for (File sourceFile : sourceFiles) {
-        LOG.info("  " + sourceFile.getAbsolutePath());
-      }
-      builder.addFsFilter(new WhiteListFileFilter(FileType.SOURCE, ImmutableSet.copyOf(sourceFiles)));
+      fs.addFilters(new WhiteListFileFilter(FileType.SOURCE, ImmutableSet.copyOf(sourceFiles)));
     }
   }
 
-  private void initTests(ProjectDefinition module, PathResolver pathResolver, DefaultModuleFileSystem.Builder builder) {
-    List<String> paths = Lists.newArrayList();
+  private void initTests(ProjectDefinition module, PathResolver pathResolver, DefaultModuleFileSystem fs) {
     for (String testPath : module.getTestDirs()) {
       File dir = pathResolver.relativeFile(module.getBaseDir(), testPath);
       if (dir.exists() && dir.isDirectory()) {
-        paths.add(dir.getAbsolutePath());
-        builder.addTestDir(dir);
+        fs.addTestDir(dir);
       }
     }
-    if (!paths.isEmpty()) {
-      LOG.info("Test dirs: " + Joiner.on(", ").join(paths));
-    }
-
     List<File> testFiles = pathResolver.relativeFiles(module.getBaseDir(), module.getTestFiles());
     if (!testFiles.isEmpty()) {
-      LOG.info("Test files:");
-      for (File testFile : testFiles) {
-        LOG.info("  " + testFile.getAbsolutePath());
-      }
-      builder.addFsFilter(new WhiteListFileFilter(FileType.TEST, ImmutableSet.copyOf(testFiles)));
+      fs.addFilters(new WhiteListFileFilter(FileType.TEST, ImmutableSet.copyOf(testFiles)));
     }
   }
 
-  private void initCustomFilters(DefaultModuleFileSystem.Builder builder, FileSystemFilter[] pluginFileFilters) {
-    for (FileSystemFilter pluginFileFilter : pluginFileFilters) {
-      builder.addFsFilter(pluginFileFilter);
-    }
-  }
 
-  private void initBinaryDirs(ProjectDefinition module, PathResolver pathResolver, DefaultModuleFileSystem.Builder builder) {
+  private void initBinaryDirs(ProjectDefinition module, PathResolver pathResolver, DefaultModuleFileSystem fs) {
     for (String path : module.getBinaries()) {
       File dir = pathResolver.relativeFile(module.getBaseDir(), path);
-      LOG.info("Binary dir: " + dir.getAbsolutePath());
-      builder.addBinaryDir(dir);
+      fs.addBinaryDir(dir);
     }
   }
 }

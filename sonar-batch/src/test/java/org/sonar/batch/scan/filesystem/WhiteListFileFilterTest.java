@@ -53,4 +53,17 @@ public class WhiteListFileFilterTest {
     assertThat(filter.accept(new File("Foo.java"), context)).isTrue();
     assertThat(filter.accept(new File("Other.java"), context)).isTrue();
   }
+
+  @Test
+    public void test_toString() throws IOException {
+      WhiteListFileFilter filter = new WhiteListFileFilter(FileType.SOURCE, Sets.newHashSet(
+        new File("Foo.java"),
+        new File("Bar.java")
+      ));
+
+      assertThat(filter.toString())
+        .contains("Source files:")
+        .contains("Foo.java")
+        .contains("Bar.java");
+    }
 }

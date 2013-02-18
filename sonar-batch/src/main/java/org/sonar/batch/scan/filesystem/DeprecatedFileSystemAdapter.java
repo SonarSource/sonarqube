@@ -103,7 +103,8 @@ public class DeprecatedFileSystemAdapter implements ProjectFileSystem {
   }
 
   public ProjectFileSystem addSourceDir(File dir) {
-    throw new UnsupportedOperationException("File system is immutable");
+    target.addSourceDir(dir);
+    return this;
   }
 
   public List<File> getTestDirs() {
@@ -111,7 +112,8 @@ public class DeprecatedFileSystemAdapter implements ProjectFileSystem {
   }
 
   public ProjectFileSystem addTestDir(File dir) {
-    throw new UnsupportedOperationException("File system is immutable");
+    target.addTestDir(dir);
+    return this;
   }
 
   public File getReportOutputDir() {

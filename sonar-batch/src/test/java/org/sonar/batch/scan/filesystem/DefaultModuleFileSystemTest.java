@@ -19,19 +19,20 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import com.google.common.base.Charsets;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.AbstractLanguage;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.FileSystemFilter;
-import org.sonar.api.scan.filesystem.PathResolver;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 
@@ -43,24 +44,21 @@ public class DefaultModuleFileSystemTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
-  public void test_builder() throws IOException {
+  public void test_new_file_system() throws IOException {
     File basedir = temp.newFolder("base");
     File workingDir = temp.newFolder("work");
-    PathResolver pathResolver = mock(PathResolver.class);
     LanguageFilters languageFilters = mock(LanguageFilters.class);
     FileSystemFilter fileFilter = mock(FileSystemFilter.class);
 
-    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem.Builder()
-      .baseDir(basedir)
-      .workingDir(workingDir)
+    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem()
+      .setBaseDir(basedir)
+      .setWorkingDir(workingDir)
       .addBinaryDir(new File(basedir, "target/classes"))
       .addSourceDir(new File(basedir, "src/main/java"))
       .addSourceDir(new File(basedir, "src/main/groovy"))
       .addTestDir(new File(basedir, "src/test/java"))
-      .addFsFilter(fileFilter)
-      .sourceCharset(Charsets.UTF_8)
-      .languageFilters(languageFilters)
-      .build();
+      .addFilters(fileFilter)
+      .setLanguageFilters(languageFilters);
 
     assertThat(fileSystem).isNotNull();
     assertThat(fileSystem.baseDir().getCanonicalPath()).isEqualTo(basedir.getCanonicalPath());
@@ -68,20 +66,39 @@ public class DefaultModuleFileSystemTest {
     assertThat(fileSystem.sourceDirs()).hasSize(2);
     assertThat(fileSystem.testDirs()).hasSize(1);
     assertThat(fileSystem.binaryDirs()).hasSize(1);
-    assertThat(fileSystem.sourceCharset().name()).isEqualTo("UTF-8");
-    assertThat(fileSystem.fsFilters()).containsOnly(fileFilter);
+    assertThat(fileSystem.filters()).containsOnly(fileFilter);
     assertThat(fileSystem.languageFilters()).isSameAs(languageFilters);
   }
 
   @Test
+  public void default_source_encoding() {
+    File basedir = temp.newFolder("base");
+    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem()
+      .setBaseDir(basedir)
+      .setSettings(new Settings());
+
+    assertThat(fileSystem.sourceCharset()).isEqualTo(Charset.defaultCharset());
+  }
+
+  @Test
+    public void source_encoding_is_set() {
+      File basedir = temp.newFolder("base");
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.ENCODING_PROPERTY, "UTF-8");
+    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem()
+        .setBaseDir(basedir)
+        .setSettings(settings);
+
+      assertThat(fileSystem.sourceCharset()).isEqualTo(Charset.forName("UTF-8"));
+    }
+
+  @Test
   public void should_exclude_dirs_starting_with_dot() throws IOException {
     File basedir = new File(resourcesDir(), "exclude_dir_starting_with_dot");
-    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem.Builder()
-      .baseDir(basedir)
-      .sourceCharset(Charsets.UTF_8)
-      .workingDir(temp.newFolder())
-      .addSourceDir(new File(basedir, "src"))
-      .build();
+    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem()
+      .setBaseDir(basedir)
+      .setWorkingDir(temp.newFolder())
+      .addSourceDir(new File(basedir, "src"));
 
     List<File> files = fileSystem.files(FileQuery.onSource());
     assertThat(files).hasSize(1);
@@ -91,14 +108,12 @@ public class DefaultModuleFileSystemTest {
   @Test
   public void should_load_source_files_by_language() throws IOException {
     File basedir = new File(resourcesDir(), "main_and_test_files");
-    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem.Builder()
-      .baseDir(basedir)
-      .sourceCharset(Charsets.UTF_8)
-      .workingDir(temp.newFolder())
+    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem()
+      .setBaseDir(basedir)
+      .setWorkingDir(temp.newFolder())
       .addSourceDir(new File(basedir, "src/main/java"))
       .addTestDir(new File(basedir, "src/test/java"))
-      .languageFilters(new LanguageFilters(new Languages(new Java(), new Php())))
-      .build();
+      .setLanguageFilters(new LanguageFilters(new Languages(new Java(), new Php())));
 
     List<File> files = fileSystem.files(FileQuery.onSource().onLanguage("java"));
     assertThat(files).hasSize(2);
@@ -112,13 +127,11 @@ public class DefaultModuleFileSystemTest {
   @Test
   public void should_load_test_files() throws IOException {
     File basedir = new File(resourcesDir(), "main_and_test_files");
-    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem.Builder()
-      .baseDir(basedir)
-      .sourceCharset(Charsets.UTF_8)
-      .workingDir(temp.newFolder())
+    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem()
+      .setBaseDir(basedir)
+      .setWorkingDir(temp.newFolder())
       .addSourceDir(new File(basedir, "src/main/java"))
-      .addTestDir(new File(basedir, "src/test/java"))
-      .build();
+      .addTestDir(new File(basedir, "src/test/java"));
 
     assertThat(fileSystem.testDirs()).hasSize(1);
     List<File> testFiles = fileSystem.files(FileQuery.onTest());
@@ -132,14 +145,12 @@ public class DefaultModuleFileSystemTest {
   @Test
   public void should_load_test_files_by_language() throws IOException {
     File basedir = new File(resourcesDir(), "main_and_test_files");
-    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem.Builder()
-      .baseDir(basedir)
-      .sourceCharset(Charsets.UTF_8)
-      .workingDir(temp.newFolder())
+    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem()
+      .setBaseDir(basedir)
+      .setWorkingDir(temp.newFolder())
       .addSourceDir(new File(basedir, "src/main/java"))
       .addTestDir(new File(basedir, "src/test/java"))
-      .languageFilters(new LanguageFilters(new Languages(new Java(), new Php())))
-      .build();
+      .setLanguageFilters(new LanguageFilters(new Languages(new Java(), new Php())));
 
     List<File> testFiles = fileSystem.files(FileQuery.onTest().onLanguage("java"));
     assertThat(testFiles).hasSize(2);
@@ -161,13 +172,11 @@ public class DefaultModuleFileSystemTest {
   @Test
   public void should_apply_file_filters() throws IOException {
     File basedir = new File(resourcesDir(), "main_and_test_files");
-    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem.Builder()
-      .baseDir(basedir)
-      .sourceCharset(Charsets.UTF_8)
-      .workingDir(temp.newFolder())
+    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem()
+      .setBaseDir(basedir)
+      .setWorkingDir(temp.newFolder())
       .addSourceDir(new File(basedir, "src/main/java"))
-      .addFsFilter(new FileFilterWrapper(FileFilterUtils.nameFileFilter("Foo.java")))
-      .build();
+      .addFilters(new FileFilterWrapper(FileFilterUtils.nameFileFilter("Foo.java")));
 
     List<File> files = fileSystem.files(FileQuery.onSource());
     assertThat(files).hasSize(1);
@@ -197,13 +206,11 @@ public class DefaultModuleFileSystemTest {
   @Test
   public void test_reset_dirs() throws IOException {
     File basedir = temp.newFolder();
-    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem.Builder()
-      .baseDir(basedir)
-      .sourceCharset(Charsets.UTF_8)
-      .workingDir(basedir)
+    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem()
+      .setBaseDir(basedir)
+      .setWorkingDir(basedir)
       .addSourceDir(new File(basedir, "src/main/java"))
-      .addFsFilter(new FileFilterWrapper(FileFilterUtils.nameFileFilter("Foo.java")))
-      .build();
+      .addFilters(new FileFilterWrapper(FileFilterUtils.nameFileFilter("Foo.java")));
 
     File existingDir = temp.newFolder("new_folder");
     File notExistingDir = new File(existingDir, "not_exist");

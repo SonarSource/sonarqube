@@ -49,6 +49,7 @@ import org.sonar.batch.phases.Phases;
 import org.sonar.batch.phases.PhasesTimeProfiler;
 import org.sonar.batch.scan.filesystem.DeprecatedFileSystemAdapter;
 import org.sonar.batch.scan.filesystem.ExclusionFilters;
+import org.sonar.batch.scan.filesystem.FileSystemLogger;
 import org.sonar.batch.scan.filesystem.LanguageFilters;
 import org.sonar.batch.scan.filesystem.ModuleFileSystemProvider;
 import org.sonar.core.qualitymodel.DefaultModelFinder;
@@ -102,6 +103,7 @@ public class ScanContainer extends Container {
     container.addSingleton(DefaultProjectClasspath.class);
     container.addPicoAdapter(new ModuleFileSystemProvider());
     container.addSingleton(DeprecatedFileSystemAdapter.class);
+    container.addSingleton(FileSystemLogger.class);
 
 
     // the Snapshot component will be removed when asynchronous measures are improved (required for AsynchronousMeasureSensor)
