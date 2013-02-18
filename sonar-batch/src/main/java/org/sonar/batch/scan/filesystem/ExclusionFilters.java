@@ -91,9 +91,9 @@ public class ExclusionFilters implements FileSystemFilter, ResourceFilter, Batch
   private boolean isIgnoredFileResource(Resource resource) {
     PathPattern[] inclusionPatterns = (ResourceUtils.isUnitTestClass(resource) ? testInclusions : sourceInclusions);
     if (inclusionPatterns.length > 0) {
-      boolean matchInclusion = false;
+      boolean matchInclusion = true;
       for (PathPattern pattern : inclusionPatterns) {
-        matchInclusion |= pattern.match(resource);
+        matchInclusion &= (!pattern.supportResource() || pattern.match(resource));
       }
       if (!matchInclusion) {
         return true;
@@ -101,7 +101,7 @@ public class ExclusionFilters implements FileSystemFilter, ResourceFilter, Batch
     }
     PathPattern[] exclusionPatterns = (ResourceUtils.isUnitTestClass(resource) ? testExclusions : sourceExclusions);
     for (PathPattern pattern : exclusionPatterns) {
-      if (pattern.match(resource)) {
+      if (pattern.supportResource() && pattern.match(resource)) {
         return true;
       }
     }

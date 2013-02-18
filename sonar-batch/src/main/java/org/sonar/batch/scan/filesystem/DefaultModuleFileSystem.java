@@ -94,7 +94,7 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
   }
 
   boolean isDefaultSourceCharset() {
-    return settings.hasKey(CoreProperties.ENCODING_PROPERTY);
+    return !settings.hasKey(CoreProperties.ENCODING_PROPERTY);
   }
 
   public File workingDir() {

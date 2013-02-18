@@ -35,17 +35,20 @@ abstract class PathPattern {
 
   abstract boolean match(Resource resource);
 
+  abstract boolean supportResource();
+
   static PathPattern create(String s) {
-    if (StringUtils.startsWithIgnoreCase(s, "file:")) {
-      return new AbsolutePathPattern(StringUtils.substring(s, "file:".length()));
+    String trimmed = StringUtils.trim(s);
+    if (StringUtils.startsWithIgnoreCase(trimmed, "file:")) {
+      return new AbsolutePathPattern(StringUtils.substring(trimmed, "file:".length()));
     }
-    return new RelativePathPattern(s);
+    return new RelativePathPattern(trimmed);
   }
 
   static PathPattern[] create(String[] s) {
     PathPattern[] result = new PathPattern[s.length];
     for (int i = 0; i < s.length; i++) {
-      result[i] = PathPattern.create(s[i]);
+      result[i] = create(s[i]);
     }
     return result;
   }
@@ -60,6 +63,10 @@ abstract class PathPattern {
     }
 
     boolean match(Resource resource) {
+      return false;
+    }
+
+    boolean supportResource() {
       return false;
     }
 
@@ -80,6 +87,10 @@ abstract class PathPattern {
 
     boolean match(Resource resource) {
       return resource.matchFilePattern(pattern.toString());
+    }
+
+    boolean supportResource() {
+      return true;
     }
 
     @Override

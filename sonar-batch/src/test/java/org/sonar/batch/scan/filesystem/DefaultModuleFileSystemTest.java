@@ -78,19 +78,21 @@ public class DefaultModuleFileSystemTest {
       .setSettings(new Settings());
 
     assertThat(fileSystem.sourceCharset()).isEqualTo(Charset.defaultCharset());
+    assertThat(fileSystem.isDefaultSourceCharset()).isTrue();
   }
 
   @Test
-    public void source_encoding_is_set() {
-      File basedir = temp.newFolder("base");
+  public void source_encoding_is_set() {
+    File basedir = temp.newFolder("base");
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.ENCODING_PROPERTY, "UTF-8");
     DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem()
-        .setBaseDir(basedir)
-        .setSettings(settings);
+      .setBaseDir(basedir)
+      .setSettings(settings);
 
-      assertThat(fileSystem.sourceCharset()).isEqualTo(Charset.forName("UTF-8"));
-    }
+    assertThat(fileSystem.sourceCharset()).isEqualTo(Charset.forName("UTF-8"));
+    assertThat(fileSystem.isDefaultSourceCharset()).isFalse();
+  }
 
   @Test
   public void should_exclude_dirs_starting_with_dot() throws IOException {
