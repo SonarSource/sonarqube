@@ -40,40 +40,63 @@
   <td class="sep"> </td>
   <td valign="top" align="right" width="210">
     <table class="admintable"  width="100%">
-    <% form_for :metric, @metric, :url => { :action => 'save_from_web', :id => @metric.id } do |f| %>
-    <tbody>
-      <tr>
-        <td class="left" valign="top">
-          Name:<br/><%= f.text_field :short_name %><br/>
-          <span class="desc">Ex. : Configuration management</span>
-        </td>
-      </tr>
-      <tr>
-        <td class="left" valign="top">
-          Description:<br/>
-          <%= f.text_area :description, :size => 40, :cols => 25, :rows => 2 %><br/>
-          <span class="desc">Ex. : Respect level of the configuration management procedure (branch, label, ...), from 0% (worst) to 100% (best).</span>
-        </td>
-      </tr>
-      <tr>
-        <td class="left" valign="top">
-          Domain:<br/>
-          <%= f.select( :domain, @domains, :include_blank => true) %>
-          <span class="desc">or</span> <input id="newdomain" name="newdomain" size="15" type="text">
-        </td>
-      </tr>
-      <tr>
-        <td class="left" valign="top">
-          Type:<br/>
-          <%= f.select( :val_type, Metric.value_type_names.invert) %>
-        </td>
-      </tr>
-      <tr>
-        <td class="left" valign="top">
-        <%= submit_tag @metric.id.nil? ? 'Create' : 'Update' %>
-        </td>
-      </tr>
-    </tbody>
+    <% if @reactivate_metric %>
+      <% form_for :metric, @reactivate_metric, :url => { :action => 'reactivate', :id => @reactivate_metric.id } do |f| %>
+      <tbody>
+        <tr>
+          <td>
+            <p class="error">
+              A metric named "<%= @reactivate_metric.short_name(false) -%>" already exists in the database but is deactivated.<br/>
+              <br/>
+              Do you really want to reactivate this metric?
+            </p>
+          </td>
+        <tr>
+        <tr>
+          <td class="left" valign="top">
+            <input type="hidden" name="reactivate" value="true"/>
+            <%= submit_tag 'Reactivate metric' %>
+            <%= link_to 'Cancel', { :controller => 'metrics', :action => 'index'}, { :class => 'action' } %><br/>
+          </td>
+        </tr>
+      </tbody>
+      <% end %>
+    <% else %>
+      <% form_for :metric, @metric, :url => { :action => 'save_from_web', :id => @metric.id } do |f| %>
+      <tbody>
+        <tr>
+          <td class="left" valign="top">
+            Name:<br/><%= f.text_field :short_name %><br/>
+            <span class="desc">Ex. : Configuration management</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="left" valign="top">
+            Description:<br/>
+            <%= f.text_area :description, :size => 40, :cols => 25, :rows => 2 %><br/>
+            <span class="desc">Ex. : Respect level of the configuration management procedure (branch, label, ...), from 0% (worst) to 100% (best).</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="left" valign="top">
+            Domain:<br/>
+            <%= f.select( :domain, @domains, :include_blank => true) %>
+            <span class="desc">or</span> <input id="newdomain" name="newdomain" size="15" type="text">
+          </td>
+        </tr>
+        <tr>
+          <td class="left" valign="top">
+            Type:<br/>
+            <%= f.select( :val_type, Metric.value_type_names.invert) %>
+          </td>
+        </tr>
+        <tr>
+          <td class="left" valign="top">
+            <%= submit_tag @metric.id.nil? ? 'Create' : 'Update' %>
+          </td>
+        </tr>
+      </tbody>
+      <% end %>
     <% end %>
     </table>
   </td>

@@ -24,8 +24,8 @@ class MetricsController < ApplicationController
   SECTION=Navigation::SECTION_CONFIGURATION
 
   def index
-    @metrics = Metric.all.select { |metric| metric.user_managed? }
-    @domains = Metric.all.map { |metric| metric.domain(false) }.compact.uniq.sort
+    prepare_metrics_and_domains
+    
     if params['id']
       @metric=Metric.find(params['id'].to_i)
       params['domain']=@metric.domain(false)
@@ -44,7 +44,7 @@ class MetricsController < ApplicationController
     else
       metric = Metric.find(:first, :conditions => ["name = ?", metric_name])
       if metric
-        reactivate_metric = true
+        @reactivate_metric = metric
       else
         metric = Metric.new
       end
@@ -59,18 +59,39 @@ class MetricsController < ApplicationController
     end
     metric.direction = 0
     metric.user_managed = true
-    metric.enabled = true
     metric.origin = Metric::ORIGIN_GUI
+    metric.enabled = true unless @reactivate_metric
 
     begin
-      new_rec = metric.new_record? || reactivate_metric
+      new_rec = metric.new_record?
+      metric.save!
+      unless @reactivate_metric
+        Metric.clear_cache
+        if new_rec
+          flash[:notice] = 'Successfully created.'
+        else
+          flash[:notice] = 'Successfully updated.'
+        end
+      end
+    rescue
+      flash[:error] = metric.errors.full_messages.join("<br/>\n")
+    end
+    
+    if @reactivate_metric
+      prepare_metrics_and_domains
+      render :action => 'index'
+    else
+      redirect_to :action => 'index', :domain => metric.domain(false)
+    end
+  end
+
+  def reactivate
+    begin
+      metric = Metric.find(params[:id].to_i)
+      metric.enabled = true
       metric.save!
       Metric.clear_cache
-      if new_rec
-        flash[:notice] = 'Successfully created.'
-      else
-        flash[:notice] = 'Successfully updated.'
-      end
+      flash[:notice] = 'Successfully reactivated.'
     rescue
       flash[:error] = metric.errors.full_messages.join("<br/>\n")
     end
@@ -86,4 +107,12 @@ class MetricsController < ApplicationController
     end
     redirect_to :action => 'index'
   end
+  
+  private
+  
+  def prepare_metrics_and_domains
+    @metrics = Metric.all.select { |metric| metric.user_managed? }
+    @domains = Metric.all.map { |metric| metric.domain(false) }.compact.uniq.sort
+  end
+  
 end
