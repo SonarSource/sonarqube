@@ -55,7 +55,8 @@ import java.util.List;
     key = CoreProperties.CPD_EXCLUSIONS,
     defaultValue = "",
     name = "Duplication exclusions",
-    description = "Patterns used to exclude some source files from the duplication detection mechanism.",
+    description = "Patterns used to exclude some source files from the duplication detection mechanism. " +
+      "See the \"Exclusions\" category to know how to use wildcards to specify this property.",
     project = true,
     module = true,
     global = true,
