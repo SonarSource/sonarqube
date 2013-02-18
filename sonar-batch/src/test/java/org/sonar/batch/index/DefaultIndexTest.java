@@ -77,8 +77,9 @@ public class DefaultIndexTest {
     };
     RulesProfile rulesProfile = RulesProfile.create();
     rule = Rule.create("repoKey", "ruleKey", "Rule");
+    rule.setId(1);
     rulesProfile.activateRule(rule, null);
-    index.setCurrentProject(project, new ResourceFilters(new ResourceFilter[] { filter }), new ViolationFilters(), rulesProfile);
+    index.setCurrentProject(project, new ResourceFilters(new ResourceFilter[] {filter}), new ViolationFilters(), rulesProfile);
     index.doStart(project);
   }
 
@@ -197,6 +198,20 @@ public class DefaultIndexTest {
   public void shouldNotFailWhenSavingViolationOnNullRule() {
     File file = new File("org/foo/Bar.java");
     Violation violation = Violation.create((Rule) null, file);
+    index.addViolation(violation);
+
+    assertThat(index.getViolations(file).size(), is(0));
+  }
+
+  /**
+   * See https://jira.codehaus.org/browse/SONAR-3583
+   */
+  @Test
+  public void shouldNotFailWhenSavingViolationOnRuleThatDoesNotExistInDB() {
+    Rule ruleWithoutID = Rule.create("repoKey", "ruleKey", "Rule");
+
+    File file = new File("org/foo/Bar.java");
+    Violation violation = Violation.create(ruleWithoutID, file);
     index.addViolation(violation);
 
     assertThat(index.getViolations(file).size(), is(0));

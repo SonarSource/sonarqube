@@ -352,8 +352,8 @@ public class DefaultIndex extends SonarIndex {
       throw new IllegalArgumentException("Violations are only supported on files, directories and project");
     }
 
-    if (violation.getRule() == null) {
-      LOG.warn("Rule is null, ignoring violation {}", violation);
+    if (violation.getRule() == null || violation.getRule().getId() == null) {
+      LOG.warn("Rule does not exist (it is null or its ID is null): ignoring violation {}", violation);
       return;
     }
 
@@ -470,10 +470,10 @@ public class DefaultIndex extends SonarIndex {
     if (!StringUtils.equals(Scopes.PROJECT, resource.getScope())) {
       // not a project nor a library
       uid = new StringBuilder(ResourceModel.KEY_SIZE)
-        .append(project.getKey())
-        .append(':')
-        .append(resource.getKey())
-        .toString();
+          .append(project.getKey())
+          .append(':')
+          .append(resource.getKey())
+          .toString();
     }
     return uid;
   }
