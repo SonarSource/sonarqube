@@ -32,11 +32,11 @@ public final class UpdateCenterMatrixFactory implements ServerComponent {
 
   private UpdateCenterClient centerClient;
   private Version sonarVersion;
-  private InstalledPluginReferentialFactory installedPluginReferentialFactory;
+  private InstalledPluginCenterFactory installedPluginCenterFactory;
 
-  public UpdateCenterMatrixFactory(UpdateCenterClient centerClient, InstalledPluginReferentialFactory installedPluginReferentialFactory, Server server) {
+  public UpdateCenterMatrixFactory(UpdateCenterClient centerClient, InstalledPluginCenterFactory installedPluginCenterFactory, Server server) {
     this.centerClient = centerClient;
-    this.installedPluginReferentialFactory = installedPluginReferentialFactory;
+    this.installedPluginCenterFactory = installedPluginCenterFactory;
     this.sonarVersion = Version.create(server.getVersion());
   }
 
@@ -44,7 +44,7 @@ public final class UpdateCenterMatrixFactory implements ServerComponent {
     PluginReferential updateCenterPluginReferential = centerClient.getPlugins(refreshUpdateCenter);
     if (updateCenterPluginReferential != null) {
       return PluginCenter.create(updateCenterPluginReferential,
-          installedPluginReferentialFactory.getInstalledPluginReferential(),
+          installedPluginCenterFactory.getInstalledPluginReferential(),
           sonarVersion)
           .setDate(centerClient.getLastRefreshDate());
     } else {

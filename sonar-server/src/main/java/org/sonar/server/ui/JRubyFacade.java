@@ -72,7 +72,7 @@ import org.sonar.server.platform.ServerIdGenerator;
 import org.sonar.server.platform.ServerSettings;
 import org.sonar.server.platform.SettingsChangeNotifier;
 import org.sonar.server.plugins.DefaultServerPluginRepository;
-import org.sonar.server.plugins.InstalledPluginReferentialFactory;
+import org.sonar.server.plugins.InstalledPluginCenterFactory;
 import org.sonar.server.plugins.PluginDeployer;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
@@ -178,7 +178,7 @@ public final class JRubyFacade {
   }
 
   public void uninstallPlugin(String pluginKey) {
-    get(InstalledPluginReferentialFactory.class).uninstall(pluginKey);
+    get(InstalledPluginCenterFactory.class).uninstall(pluginKey);
   }
 
   public void cancelPluginUninstalls() {
@@ -194,7 +194,7 @@ public final class JRubyFacade {
   }
 
   public PluginCenter getInstalledPluginCenter() {
-    return get(InstalledPluginReferentialFactory.class).getPluginCenter();
+    return get(InstalledPluginCenterFactory.class).getPluginCenter();
   }
 
   // PLUGINS ------------------------------------------------------------------

@@ -34,13 +34,13 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class InstalledPluginReferentialFactory implements ServerComponent {
+public class InstalledPluginCenterFactory implements ServerComponent {
 
   private final PluginDeployer pluginDeployer;
   private PluginRepository pluginRepository;
   private Version sonarVersion;
 
-  public InstalledPluginReferentialFactory(PluginRepository pluginRepository, Server server, PluginDeployer pluginDeployer) {
+  public InstalledPluginCenterFactory(PluginRepository pluginRepository, Server server, PluginDeployer pluginDeployer) {
     this.pluginRepository = pluginRepository;
     this.pluginDeployer = pluginDeployer;
     this.sonarVersion = Version.create(server.getVersion());

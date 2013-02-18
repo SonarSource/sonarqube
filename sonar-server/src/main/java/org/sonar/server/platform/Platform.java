@@ -79,7 +79,7 @@ import org.sonar.server.notifications.NotificationService;
 import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
 import org.sonar.server.plugins.ApplicationDeployer;
 import org.sonar.server.plugins.DefaultServerPluginRepository;
-import org.sonar.server.plugins.InstalledPluginReferentialFactory;
+import org.sonar.server.plugins.InstalledPluginCenterFactory;
 import org.sonar.server.plugins.PluginDeployer;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.ServerExtensionInstaller;
@@ -182,7 +182,7 @@ public final class Platform {
       rootContainer.addSingleton(daoClass);
     }
     rootContainer.addSingleton(PluginDeployer.class);
-    rootContainer.addSingleton(InstalledPluginReferentialFactory.class);
+    rootContainer.addSingleton(InstalledPluginCenterFactory.class);
     rootContainer.addSingleton(DefaultServerPluginRepository.class);
 
     rootContainer.addSingleton(DefaultServerFileSystem.class);
