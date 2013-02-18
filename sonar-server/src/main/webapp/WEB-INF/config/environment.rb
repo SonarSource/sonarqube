@@ -96,12 +96,11 @@ class ActiveRecord::Migration
     # not supported by Oracle, the "Enterprise" database.
     # For this reason we force to set name of indexes.
     raise ArgumentError, 'Missing index name' unless options[:name]
-    super
+    super(table_name, column_name, options)
   end
 
   def self.alter_to_big_primary_key(tablename)
-    dialect = ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getDatabase().getDialect().getActiveRecordDialectCode()
-    case dialect
+    case dialect()
     when "postgre"
       execute "ALTER TABLE #{tablename} ALTER COLUMN id TYPE bigint"
     when "mysql"
@@ -119,8 +118,7 @@ class ActiveRecord::Migration
   end
 
   def self.alter_to_big_integer(tablename, columnname, indexname=nil)
-    dialect = ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getDatabase().getDialect().getActiveRecordDialectCode()
-    case dialect
+    case dialect()
      when "sqlserver"
      		execute "DROP INDEX #{indexname} on #{tablename}" if indexname
      		change_column(tablename, columnname, :big_integer, :null => true)
