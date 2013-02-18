@@ -36,10 +36,18 @@ class MetricsController < ApplicationController
   end
 
   def save_from_web
+    short_name = params[:metric][:short_name]
+    metric_name = short_name.downcase.gsub(/\s/, '_')[0..59]
+    
     if params[:id]
       metric = Metric.find(params[:id].to_i)
     else
-      metric = Metric.new
+      metric = Metric.find(:first, :conditions => ["name = ?", metric_name])
+      if metric
+        reactivate_metric = true
+      else
+        metric = Metric.new
+      end
     end
 
     metric.attributes=params[:metric]
@@ -55,7 +63,7 @@ class MetricsController < ApplicationController
     metric.origin = Metric::ORIGIN_GUI
 
     begin
-      new_rec = metric.new_record?
+      new_rec = metric.new_record? || reactivate_metric
       metric.save!
       Metric.clear_cache
       if new_rec
@@ -72,9 +80,8 @@ class MetricsController < ApplicationController
   def delete_from_web
     metric = Metric.by_id(params[:id].to_i) if params[:id] && params[:id].size > 0
     if metric
-      del_count = Metric.delete_with_manual_measures(params[:id].to_i)
-      flash[:notice] = 'Successfully deleted.' if del_count == 1
-      flash[:error] = 'Unable to delete this metric.' if del_count != 1
+      Metric.delete_with_manual_measures(params[:id].to_i)
+      flash[:notice] = 'Successfully deleted.'
       Metric.clear_cache
     end
     redirect_to :action => 'index'

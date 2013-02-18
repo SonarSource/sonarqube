@@ -254,7 +254,13 @@ class Metric < ActiveRecord::Base
 
   def self.delete_with_manual_measures(id)
     ManualMeasure.delete_all(["metric_id = ?", id])
-    self.delete(id)
+    self.deactivate(id)
+  end
+  
+  def self.deactivate(id)
+    metric = by_id(id)
+    metric.enabled = false
+    metric.save!
   end
 
   def to_hash_json(options={})
