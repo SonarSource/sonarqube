@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.cpd;
 
-import com.google.common.base.Joiner;
 import org.slf4j.Logger;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.SensorContext;
@@ -34,7 +33,13 @@ public abstract class CpdEngine implements BatchExtension {
 
   protected void logExclusions(String[] exclusions, Logger logger) {
     if (exclusions.length > 0) {
-      logger.info("Exclusions applied to copy-paste detection: " + Joiner.on(",").join(exclusions));
+      StringBuilder message = new StringBuilder("Copy-paste detection exclusions:");
+      for (String exclusion : exclusions) {
+        message.append("\n  ");
+        message.append(exclusion);
+      }
+
+      logger.info(message.toString());
     }
   }
 

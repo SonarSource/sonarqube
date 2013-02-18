@@ -55,7 +55,11 @@ public class SonarBridgeEngineTest {
 
     logger = mock(Logger.class);
     engine.logExclusions(new String[] {"Foo*", "**/Bar*"}, logger);
-    verify(logger, times(1)).info("Exclusions applied to copy-paste detection: Foo*,**/Bar*");
+
+    String message = "Copy-paste detection exclusions:"
+      + "\n  Foo*"
+      + "\n  **/Bar*";
+    verify(logger, times(1)).info(message);
   }
 
   @Test
