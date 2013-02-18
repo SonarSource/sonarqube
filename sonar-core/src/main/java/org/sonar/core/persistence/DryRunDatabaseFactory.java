@@ -24,7 +24,9 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.utils.SonarException;
+import org.sonar.core.review.ReviewDto;
 
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
 
 import java.io.File;
@@ -46,14 +48,14 @@ public class DryRunDatabaseFactory implements ServerComponent {
     this.serverFileSystem = serverFileSystem;
   }
 
-  public byte[] createDatabaseForDryRun(long projectId) {
+  public byte[] createDatabaseForDryRun(@Nullable Long projectId) {
     String name = serverFileSystem.getTempDir().getAbsolutePath() + "db-" + System.nanoTime();
 
     try {
       DataSource source = database.getDataSource();
       BasicDataSource destination = create(DIALECT, DRIVER, USER, PASSWORD, URL + name);
 
-      copy(source, destination);
+      copy(source, destination, projectId);
       close(destination);
 
       return dbFileContent(name);
@@ -62,18 +64,28 @@ public class DryRunDatabaseFactory implements ServerComponent {
     }
   }
 
-  private void copy(DataSource source, DataSource dest) {
-    new DbTemplate()
-        .copyTable(source, dest, "active_rules")
-        .copyTable(source, dest, "active_rule_parameters")
-        .copyTable(source, dest, "characteristics")
-        .copyTable(source, dest, "characteristic_edges")
-        .copyTable(source, dest, "characteristic_properties")
-        .copyTable(source, dest, "metrics")
-        .copyTable(source, dest, "quality_models")
-        .copyTable(source, dest, "rules")
-        .copyTable(source, dest, "rules_parameters")
-        .copyTable(source, dest, "rules_profiles");
+  private void copy(DataSource source, DataSource dest, @Nullable Long projectId) {
+    DbTemplate template = new DbTemplate();
+    template
+      .copyTable(source, dest, "active_rules")
+      .copyTable(source, dest, "active_rule_parameters")
+      .copyTable(source, dest, "characteristics")
+      .copyTable(source, dest, "characteristic_edges")
+      .copyTable(source, dest, "characteristic_properties")
+      .copyTable(source, dest, "metrics")
+      .copyTable(source, dest, "quality_models")
+      .copyTable(source, dest, "rules")
+      .copyTable(source, dest, "rules_parameters")
+      .copyTable(source, dest, "rules_profiles");
+    if (projectId != null) {
+      String snapshotCondition = "islast=" + database.getDialect().getTrueSqlValue() + " and (project_id=" + projectId + " or root_project_id=" + projectId + ")";
+      template
+        .copyTable(source, dest, "projects", "(id=" + projectId + " or root_id=" + projectId + ")")
+        .copyTable(source, dest, "reviews", "project_id=" + projectId, "status<>'" + ReviewDto.STATUS_CLOSED + "'")
+        .copyTable(source, dest, "rule_failures", "snapshot_id in (select id from snapshots where " + snapshotCondition + ")")
+        .copyTable(source, dest, "snapshots", snapshotCondition)
+      ;
+    }
   }
 
   private BasicDataSource create(String dialect, String driver, String user, String password, String url) {

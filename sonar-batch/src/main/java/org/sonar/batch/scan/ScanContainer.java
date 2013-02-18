@@ -94,6 +94,7 @@ public class ScanContainer extends Container {
     }
     container.addSingleton(Languages.class);
     container.addSingleton(RulesDao.class);
+    container.addSingleton(LastSnapshots.class);
 
     // file system
     container.addSingleton(PathResolver.class);

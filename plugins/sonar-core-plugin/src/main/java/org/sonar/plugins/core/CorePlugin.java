@@ -78,7 +78,6 @@ import org.sonar.plugins.core.timemachine.NewCoverageFileAnalyzer;
 import org.sonar.plugins.core.timemachine.NewItCoverageFileAnalyzer;
 import org.sonar.plugins.core.timemachine.NewOverallCoverageFileAnalyzer;
 import org.sonar.plugins.core.timemachine.NewViolationsDecorator;
-import org.sonar.plugins.core.timemachine.ReferenceAnalysis;
 import org.sonar.plugins.core.timemachine.TendencyDecorator;
 import org.sonar.plugins.core.timemachine.TimeMachineConfigurationPersister;
 import org.sonar.plugins.core.timemachine.VariationDecorator;
@@ -488,7 +487,6 @@ public final class CorePlugin extends SonarPlugin {
       FilesDecorator.class,
       ReviewNotifications.class,
       ReviewWorkflowDecorator.class,
-      ReferenceAnalysis.class,
       ManualMeasureDecorator.class,
       ManualViolationInjector.class,
       ViolationSeverityUpdater.class,

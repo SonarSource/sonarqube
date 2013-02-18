@@ -17,38 +17,75 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.timemachine;
+package org.sonar.batch.scan;
 
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchComponent;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.RuleFailureModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.database.model.SnapshotSource;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.utils.HttpDownloader;
+import org.sonar.batch.bootstrap.ServerClient;
 
+import javax.annotation.CheckForNull;
 import javax.persistence.Query;
 
 import java.util.Collections;
 import java.util.List;
 
-public class ReferenceAnalysis implements BatchExtension {
+public class LastSnapshots implements BatchComponent {
 
-  private DatabaseSession session;
+  private final Settings settings;
+  private final DatabaseSession session;
+  private final ServerClient server;
 
-  public ReferenceAnalysis(DatabaseSession session) {
+  public LastSnapshots(Settings settings, DatabaseSession session, ServerClient server) {
+    this.settings = settings;
     this.session = session;
+    this.server = server;
   }
 
+  /**
+   * Return null if this is the first scan (no last scan).
+   */
+  @CheckForNull
   public List<RuleFailureModel> getViolations(Resource resource) {
     Snapshot snapshot = getSnapshot(resource);
     if (snapshot != null) {
       return session.getResults(RuleFailureModel.class, "snapshotId", snapshot.getId());
     }
-    return Collections.emptyList();
+    return null;
   }
 
   public String getSource(Resource resource) {
+    String source = "";
+    if (ResourceUtils.isFile(resource)) {
+      if (settings.getBoolean(CoreProperties.DRY_RUN)) {
+        source = loadSourceFromWs(resource);
+      } else {
+        source = loadSourceFromDb(resource);
+      }
+    }
+    return source;
+  }
+
+  private String loadSourceFromWs(Resource resource) {
+    try {
+      return server.request("/api/sources?resource=" + resource.getEffectiveKey() + "&format=txt", false);
+    } catch (HttpDownloader.HttpException he) {
+      if (he.getResponseCode() == 404) {
+        return "";
+      }
+      throw he;
+    }
+  }
+
+  private String loadSourceFromDb(Resource resource) {
     Snapshot snapshot = getSnapshot(resource);
     if (snapshot != null) {
       SnapshotSource source = session.getSingleResult(SnapshotSource.class, "snapshotId", snapshot.getId());

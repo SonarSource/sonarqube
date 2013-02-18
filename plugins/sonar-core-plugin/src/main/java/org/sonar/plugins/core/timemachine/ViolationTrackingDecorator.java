@@ -39,12 +39,15 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.violations.ViolationQuery;
+import org.sonar.batch.scan.LastSnapshots;
 import org.sonar.plugins.core.timemachine.tracking.HashedSequence;
 import org.sonar.plugins.core.timemachine.tracking.HashedSequenceComparator;
 import org.sonar.plugins.core.timemachine.tracking.RollingHashSequence;
 import org.sonar.plugins.core.timemachine.tracking.RollingHashSequenceComparator;
 import org.sonar.plugins.core.timemachine.tracking.StringText;
 import org.sonar.plugins.core.timemachine.tracking.StringTextComparator;
+
+import javax.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -56,7 +59,7 @@ import java.util.Set;
 @DependsUpon({DecoratorBarriers.END_OF_VIOLATIONS_GENERATION, DecoratorBarriers.START_VIOLATION_TRACKING})
 @DependedUpon(DecoratorBarriers.END_OF_VIOLATION_TRACKING)
 public class ViolationTrackingDecorator implements Decorator {
-  private ReferenceAnalysis referenceAnalysis;
+  private LastSnapshots lastSnapshots;
   private Map<Violation, RuleFailureModel> referenceViolationsMap = Maps.newIdentityHashMap();
   private SonarIndex index;
   private Project project;
@@ -64,10 +67,10 @@ public class ViolationTrackingDecorator implements Decorator {
   /**
    * Live collection of unmapped past violations.
    */
-  private Set<RuleFailureModel> unmappedPastViolations = Sets.newHashSet();
+  private Set<RuleFailureModel> unmappedLastViolations = Sets.newHashSet();
 
-  public ViolationTrackingDecorator(Project project, ReferenceAnalysis referenceAnalysis, SonarIndex index) {
-    this.referenceAnalysis = referenceAnalysis;
+  public ViolationTrackingDecorator(Project project, LastSnapshots lastSnapshots, SonarIndex index) {
+    this.lastSnapshots = lastSnapshots;
     this.index = index;
     this.project = project;
   }
@@ -89,8 +92,8 @@ public class ViolationTrackingDecorator implements Decorator {
     // Load new violations
     List<Violation> newViolations = prepareNewViolations(context, source);
 
-    // Load reference violations
-    List<RuleFailureModel> referenceViolations = referenceAnalysis.getViolations(resource);
+    // Load the violations of the last available analysis
+    List<RuleFailureModel> referenceViolations = lastSnapshots.getViolations(resource);
 
     // Map new violations with old ones
     mapViolations(newViolations, referenceViolations, source, resource);
@@ -111,39 +114,45 @@ public class ViolationTrackingDecorator implements Decorator {
   }
 
   @VisibleForTesting
-  Map<Violation, RuleFailureModel> mapViolations(List<Violation> newViolations, List<RuleFailureModel> pastViolations) {
-    return mapViolations(newViolations, pastViolations, null, null);
+  Map<Violation, RuleFailureModel> mapViolations(List<Violation> newViolations, @Nullable List<RuleFailureModel> lastViolations) {
+    return mapViolations(newViolations, lastViolations, null, null);
   }
 
   @VisibleForTesting
-  Map<Violation, RuleFailureModel> mapViolations(List<Violation> newViolations, List<RuleFailureModel> pastViolations, String source, Resource resource) {
-    unmappedPastViolations.addAll(pastViolations);
+  Map<Violation, RuleFailureModel> mapViolations(List<Violation> newViolations, @Nullable List<RuleFailureModel> lastViolations,
+                                                 @Nullable String source, @Nullable Resource resource) {
+    boolean hasLastScan = false;
+    Multimap<Integer, RuleFailureModel> lastViolationsByRule = LinkedHashMultimap.create();
+    
+    if (lastViolations != null) {
+      hasLastScan = true;
+      unmappedLastViolations.addAll(lastViolations);
 
-    Multimap<Integer, RuleFailureModel> pastViolationsByRule = LinkedHashMultimap.create();
-    for (RuleFailureModel pastViolation : pastViolations) {
-      pastViolationsByRule.put(pastViolation.getRuleId(), pastViolation);
-    }
+      for (RuleFailureModel lastViolation : lastViolations) {
+        lastViolationsByRule.put(lastViolation.getRuleId(), lastViolation);
+      }
 
-    // Match the permanent id of the violation. This id is for example set explicitly when injecting manual violations
-    for (Violation newViolation : newViolations) {
-      mapViolation(newViolation,
-          findPastViolationWithSamePermanentId(newViolation, pastViolationsByRule.get(newViolation.getRule().getId())),
-          pastViolationsByRule, referenceViolationsMap);
-    }
-
-    // Try first to match violations on same rule with same line and with same checksum (but not necessarily with same message)
-    for (Violation newViolation : newViolations) {
-      if (isNotAlreadyMapped(newViolation)) {
+      // Match the permanent id of the violation. This id is for example set explicitly when injecting manual violations
+      for (Violation newViolation : newViolations) {
         mapViolation(newViolation,
-            findPastViolationWithSameLineAndChecksum(newViolation, pastViolationsByRule.get(newViolation.getRule().getId())),
-            pastViolationsByRule, referenceViolationsMap);
+          findLastViolationWithSamePermanentId(newViolation, lastViolationsByRule.get(newViolation.getRule().getId())),
+          lastViolationsByRule, referenceViolationsMap);
+      }
+
+      // Try first to match violations on same rule with same line and with same checksum (but not necessarily with same message)
+      for (Violation newViolation : newViolations) {
+        if (isNotAlreadyMapped(newViolation)) {
+          mapViolation(newViolation,
+            findLastViolationWithSameLineAndChecksum(newViolation, lastViolationsByRule.get(newViolation.getRule().getId())),
+            lastViolationsByRule, referenceViolationsMap);
+        }
       }
     }
 
     // If each new violation matches an old one we can stop the matching mechanism
     if (referenceViolationsMap.size() != newViolations.size()) {
-      if (source != null && resource != null) {
-        String referenceSource = referenceAnalysis.getSource(resource);
+      if (source != null && resource != null && hasLastScan) {
+        String referenceSource = lastSnapshots.getSource(resource);
         if (referenceSource != null) {
           HashedSequence<StringText> hashedReference = HashedSequence.wrap(new StringText(referenceSource), StringTextComparator.IGNORE_WHITESPACE);
           HashedSequence<StringText> hashedSource = HashedSequence.wrap(new StringText(source), StringTextComparator.IGNORE_WHITESPACE);
@@ -152,7 +161,7 @@ public class ViolationTrackingDecorator implements Decorator {
           ViolationTrackingBlocksRecognizer rec = new ViolationTrackingBlocksRecognizer(hashedReference, hashedSource, hashedComparator);
 
           Multimap<Integer, Violation> newViolationsByLines = newViolationsByLines(newViolations, rec);
-          Multimap<Integer, RuleFailureModel> pastViolationsByLines = pastViolationsByLines(unmappedPastViolations, rec);
+          Multimap<Integer, RuleFailureModel> lastViolationsByLines = lastViolationsByLines(unmappedLastViolations, rec);
 
           RollingHashSequence<HashedSequence<StringText>> a = RollingHashSequence.wrap(hashedReference, hashedComparator, 5);
           RollingHashSequence<HashedSequence<StringText>> b = RollingHashSequence.wrap(hashedSource, hashedComparator, 5);
@@ -160,7 +169,7 @@ public class ViolationTrackingDecorator implements Decorator {
 
           Map<Integer, HashOccurrence> map = Maps.newHashMap();
 
-          for (Integer line : pastViolationsByLines.keySet()) {
+          for (Integer line : lastViolationsByLines.keySet()) {
             int hash = cmp.hash(a, line - 1);
             HashOccurrence hashOccurrence = map.get(hash);
             if (hashOccurrence == null) {
@@ -186,16 +195,16 @@ public class ViolationTrackingDecorator implements Decorator {
           for (HashOccurrence hashOccurrence : map.values()) {
             if (hashOccurrence.countA == 1 && hashOccurrence.countB == 1) {
               // Guaranteed that lineA has been moved to lineB, so we can map all violations on lineA to all violations on lineB
-              map(newViolationsByLines.get(hashOccurrence.lineB), pastViolationsByLines.get(hashOccurrence.lineA), pastViolationsByRule);
-              pastViolationsByLines.removeAll(hashOccurrence.lineA);
+              map(newViolationsByLines.get(hashOccurrence.lineB), lastViolationsByLines.get(hashOccurrence.lineA), lastViolationsByRule);
+              lastViolationsByLines.removeAll(hashOccurrence.lineA);
               newViolationsByLines.removeAll(hashOccurrence.lineB);
             }
           }
 
           // Check if remaining number of lines exceeds threshold
-          if (pastViolationsByLines.keySet().size() * newViolationsByLines.keySet().size() < 250000) {
+          if (lastViolationsByLines.keySet().size() * newViolationsByLines.keySet().size() < 250000) {
             List<LinePair> possibleLinePairs = Lists.newArrayList();
-            for (Integer oldLine : pastViolationsByLines.keySet()) {
+            for (Integer oldLine : lastViolationsByLines.keySet()) {
               for (Integer newLine : newViolationsByLines.keySet()) {
                 int weight = rec.computeLengthOfMaximalBlock(oldLine - 1, newLine - 1);
                 possibleLinePairs.add(new LinePair(oldLine, newLine, weight));
@@ -204,7 +213,7 @@ public class ViolationTrackingDecorator implements Decorator {
             Collections.sort(possibleLinePairs, LINE_PAIR_COMPARATOR);
             for (LinePair linePair : possibleLinePairs) {
               // High probability that lineA has been moved to lineB, so we can map all violations on lineA to all violations on lineB
-              map(newViolationsByLines.get(linePair.lineB), pastViolationsByLines.get(linePair.lineA), pastViolationsByRule);
+              map(newViolationsByLines.get(linePair.lineB), lastViolationsByLines.get(linePair.lineA), lastViolationsByRule);
             }
           }
         }
@@ -214,8 +223,8 @@ public class ViolationTrackingDecorator implements Decorator {
       for (Violation newViolation : newViolations) {
         if (isNotAlreadyMapped(newViolation)) {
           mapViolation(newViolation,
-              findPastViolationWithSameChecksumAndMessage(newViolation, pastViolationsByRule.get(newViolation.getRule().getId())),
-              pastViolationsByRule, referenceViolationsMap);
+            findLastViolationWithSameChecksumAndMessage(newViolation, lastViolationsByRule.get(newViolation.getRule().getId())),
+            lastViolationsByRule, referenceViolationsMap);
         }
       }
 
@@ -223,8 +232,8 @@ public class ViolationTrackingDecorator implements Decorator {
       for (Violation newViolation : newViolations) {
         if (isNotAlreadyMapped(newViolation)) {
           mapViolation(newViolation,
-              findPastViolationWithSameLineAndMessage(newViolation, pastViolationsByRule.get(newViolation.getRule().getId())),
-              pastViolationsByRule, referenceViolationsMap);
+            findLastViolationWithSameLineAndMessage(newViolation, lastViolationsByRule.get(newViolation.getRule().getId())),
+            lastViolationsByRule, referenceViolationsMap);
         }
       }
 
@@ -233,23 +242,22 @@ public class ViolationTrackingDecorator implements Decorator {
       for (Violation newViolation : newViolations) {
         if (isNotAlreadyMapped(newViolation)) {
           mapViolation(newViolation,
-              findPastViolationWithSameChecksum(newViolation, pastViolationsByRule.get(newViolation.getRule().getId())),
-              pastViolationsByRule, referenceViolationsMap);
+            findLastViolationWithSameChecksum(newViolation, lastViolationsByRule.get(newViolation.getRule().getId())),
+            lastViolationsByRule, referenceViolationsMap);
         }
       }
     }
 
-    unmappedPastViolations.clear();
-
+    unmappedLastViolations.clear();
     return referenceViolationsMap;
   }
 
-  private void map(Collection<Violation> newViolations, Collection<RuleFailureModel> pastViolations, Multimap<Integer, RuleFailureModel> pastViolationsByRule) {
+  private void map(Collection<Violation> newViolations, Collection<RuleFailureModel> lastViolations, Multimap<Integer, RuleFailureModel> lastViolationsByRule) {
     for (Violation newViolation : newViolations) {
       if (isNotAlreadyMapped(newViolation)) {
-        for (RuleFailureModel pastViolation : pastViolations) {
+        for (RuleFailureModel pastViolation : lastViolations) {
           if (isNotAlreadyMapped(pastViolation) && Objects.equal(newViolation.getRule().getId(), pastViolation.getRuleId())) {
-            mapViolation(newViolation, pastViolation, pastViolationsByRule, referenceViolationsMap);
+            mapViolation(newViolation, pastViolation, lastViolationsByRule, referenceViolationsMap);
             break;
           }
         }
@@ -269,14 +277,14 @@ public class ViolationTrackingDecorator implements Decorator {
     return newViolationsByLines;
   }
 
-  private Multimap<Integer, RuleFailureModel> pastViolationsByLines(Collection<RuleFailureModel> pastViolations, ViolationTrackingBlocksRecognizer rec) {
-    Multimap<Integer, RuleFailureModel> pastViolationsByLines = LinkedHashMultimap.create();
-    for (RuleFailureModel pastViolation : pastViolations) {
+  private Multimap<Integer, RuleFailureModel> lastViolationsByLines(Collection<RuleFailureModel> lastViolations, ViolationTrackingBlocksRecognizer rec) {
+    Multimap<Integer, RuleFailureModel> lastViolationsByLines = LinkedHashMultimap.create();
+    for (RuleFailureModel pastViolation : lastViolations) {
       if (rec.isValidLineInSource(pastViolation.getLine())) {
-        pastViolationsByLines.put(pastViolation.getLine(), pastViolation);
+        lastViolationsByLines.put(pastViolation.getLine(), pastViolation);
       }
     }
-    return pastViolationsByLines;
+    return lastViolationsByLines;
   }
 
   private static final Comparator<LinePair> LINE_PAIR_COMPARATOR = new Comparator<LinePair>() {
@@ -305,15 +313,15 @@ public class ViolationTrackingDecorator implements Decorator {
   }
 
   private boolean isNotAlreadyMapped(RuleFailureModel pastViolation) {
-    return unmappedPastViolations.contains(pastViolation);
+    return unmappedLastViolations.contains(pastViolation);
   }
 
   private boolean isNotAlreadyMapped(Violation newViolation) {
     return !referenceViolationsMap.containsKey(newViolation);
   }
 
-  private RuleFailureModel findPastViolationWithSameChecksum(Violation newViolation, Collection<RuleFailureModel> pastViolations) {
-    for (RuleFailureModel pastViolation : pastViolations) {
+  private RuleFailureModel findLastViolationWithSameChecksum(Violation newViolation, Collection<RuleFailureModel> lastViolations) {
+    for (RuleFailureModel pastViolation : lastViolations) {
       if (isSameChecksum(newViolation, pastViolation)) {
         return pastViolation;
       }
@@ -321,8 +329,8 @@ public class ViolationTrackingDecorator implements Decorator {
     return null;
   }
 
-  private RuleFailureModel findPastViolationWithSameLineAndMessage(Violation newViolation, Collection<RuleFailureModel> pastViolations) {
-    for (RuleFailureModel pastViolation : pastViolations) {
+  private RuleFailureModel findLastViolationWithSameLineAndMessage(Violation newViolation, Collection<RuleFailureModel> lastViolations) {
+    for (RuleFailureModel pastViolation : lastViolations) {
       if (isSameLine(newViolation, pastViolation) && isSameMessage(newViolation, pastViolation)) {
         return pastViolation;
       }
@@ -330,8 +338,8 @@ public class ViolationTrackingDecorator implements Decorator {
     return null;
   }
 
-  private RuleFailureModel findPastViolationWithSameChecksumAndMessage(Violation newViolation, Collection<RuleFailureModel> pastViolations) {
-    for (RuleFailureModel pastViolation : pastViolations) {
+  private RuleFailureModel findLastViolationWithSameChecksumAndMessage(Violation newViolation, Collection<RuleFailureModel> lastViolations) {
+    for (RuleFailureModel pastViolation : lastViolations) {
       if (isSameChecksum(newViolation, pastViolation) && isSameMessage(newViolation, pastViolation)) {
         return pastViolation;
       }
@@ -339,8 +347,8 @@ public class ViolationTrackingDecorator implements Decorator {
     return null;
   }
 
-  private RuleFailureModel findPastViolationWithSameLineAndChecksum(Violation newViolation, Collection<RuleFailureModel> pastViolations) {
-    for (RuleFailureModel pastViolation : pastViolations) {
+  private RuleFailureModel findLastViolationWithSameLineAndChecksum(Violation newViolation, Collection<RuleFailureModel> lastViolations) {
+    for (RuleFailureModel pastViolation : lastViolations) {
       if (isSameLine(newViolation, pastViolation) && isSameChecksum(newViolation, pastViolation)) {
         return pastViolation;
       }
@@ -348,8 +356,8 @@ public class ViolationTrackingDecorator implements Decorator {
     return null;
   }
 
-  private RuleFailureModel findPastViolationWithSamePermanentId(Violation newViolation, Collection<RuleFailureModel> pastViolations) {
-    for (RuleFailureModel pastViolation : pastViolations) {
+  private RuleFailureModel findLastViolationWithSamePermanentId(Violation newViolation, Collection<RuleFailureModel> lastViolations) {
+    for (RuleFailureModel pastViolation : lastViolations) {
       if (isSamePermanentId(newViolation, pastViolation)) {
         return pastViolation;
       }
@@ -374,16 +382,16 @@ public class ViolationTrackingDecorator implements Decorator {
   }
 
   private void mapViolation(Violation newViolation, RuleFailureModel pastViolation,
-      Multimap<Integer, RuleFailureModel> pastViolationsByRule, Map<Violation, RuleFailureModel> violationMap) {
+                            Multimap<Integer, RuleFailureModel> lastViolationsByRule, Map<Violation, RuleFailureModel> violationMap) {
     if (pastViolation != null) {
       newViolation.setCreatedAt(pastViolation.getCreatedAt());
       newViolation.setPermanentId(pastViolation.getPermanentId());
       newViolation.setSwitchedOff(pastViolation.isSwitchedOff());
       newViolation.setPersonId(pastViolation.getPersonId());
       newViolation.setNew(false);
-      pastViolationsByRule.remove(newViolation.getRule().getId(), pastViolation);
+      lastViolationsByRule.remove(newViolation.getRule().getId(), pastViolation);
       violationMap.put(newViolation, pastViolation);
-      unmappedPastViolations.remove(pastViolation);
+      unmappedLastViolations.remove(pastViolation);
     } else {
       newViolation.setNew(true);
       newViolation.setCreatedAt(project.getAnalysisDate());

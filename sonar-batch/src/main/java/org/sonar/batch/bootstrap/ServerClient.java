@@ -33,6 +33,7 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 
@@ -59,19 +60,23 @@ public class ServerClient implements BatchComponent {
       InputSupplier<InputStream> inputSupplier = doRequest(pathStartingWithSlash);
       Files.copy(inputSupplier, toFile);
     } catch (HttpDownloader.HttpException he) {
-      throw handleHttpException(he);
-    } catch (Exception e) {
+      throw handleHttpException(pathStartingWithSlash, he);
+    } catch (IOException e) {
       throw new SonarException(String.format("Unable to download '%s' to: %s", pathStartingWithSlash, toFile), e);
     }
   }
 
   public String request(String pathStartingWithSlash) {
+    return request(pathStartingWithSlash, true);
+  }
+
+  public String request(String pathStartingWithSlash, boolean wrapHttpException) {
     InputSupplier<InputStream> inputSupplier = doRequest(pathStartingWithSlash);
     try {
       return IOUtils.toString(inputSupplier.getInput(), "UTF-8");
-    } catch (HttpDownloader.HttpException he) {
-      throw handleHttpException(he);
-    } catch (Exception e) {
+    } catch (HttpDownloader.HttpException e) {
+      throw (wrapHttpException ? handleHttpException(pathStartingWithSlash, e) : e);
+    } catch (IOException e) {
       throw new SonarException(String.format("Unable to request: %s", pathStartingWithSlash), e);
     }
   }
@@ -96,14 +101,14 @@ public class ServerClient implements BatchComponent {
     }
   }
 
-  private SonarException handleHttpException(HttpDownloader.HttpException he) {
+  private RuntimeException handleHttpException(String uri, HttpDownloader.HttpException he) {
     if (he.getResponseCode() == 401) {
-      throw new SonarException(String.format(getMessageWhenNotAuthorized(), CoreProperties.LOGIN, CoreProperties.PASSWORD));
+      return new SonarException(String.format(getMessageWhenNotAuthorized(), CoreProperties.LOGIN, CoreProperties.PASSWORD));
     }
-    throw new SonarException(String.format("Fail to execute request [code=%s, url=%s]", he.getResponseCode(), he.getUri()), he);
+    return new SonarException(String.format("Fail to execute request [code=%s, url=%s]", he.getResponseCode(), he.getUri()), he);
   }
 
-  private String getMessageWhenNotAuthorized(){
+  private String getMessageWhenNotAuthorized() {
     String login = settings.getProperty(CoreProperties.LOGIN);
     String password = settings.getProperty(CoreProperties.PASSWORD);
     if (StringUtils.isEmpty(login) && StringUtils.isEmpty(password)) {

@@ -25,7 +25,7 @@ class BatchBootstrapController < Api::ApiController
   def db
     require_parameters :project
     project = load_project()
-    db_content = java_facade.createDatabaseForDryRun(project.id)
+    db_content = java_facade.createDatabaseForDryRun(project ? project.id : nil)
 
     send_data String.from_java_bytes(db_content)
   end

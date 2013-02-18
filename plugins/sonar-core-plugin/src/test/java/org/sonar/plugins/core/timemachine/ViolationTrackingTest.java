@@ -28,6 +28,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.batch.scan.LastSnapshots;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -47,19 +48,19 @@ public class ViolationTrackingTest {
   private ViolationTrackingDecorator decorator;
 
   private Project project;
-  private ReferenceAnalysis referenceAnalysis;
+  private LastSnapshots lastSnapshots;
 
   @Before
   public void setUp() {
     project = mock(Project.class);
     when(project.getAnalysisDate()).thenReturn(analysisDate);
-    referenceAnalysis = mock(ReferenceAnalysis.class);
-    decorator = new ViolationTrackingDecorator(project, referenceAnalysis, null);
+    lastSnapshots = mock(LastSnapshots.class);
+    decorator = new ViolationTrackingDecorator(project, lastSnapshots, null);
   }
 
   @Test
   public void pastViolationNotAssiciatedWithLineShouldNotCauseNPE() throws Exception {
-    when(referenceAnalysis.getSource(project)).thenReturn(load("example2-v1"));
+    when(lastSnapshots.getSource(project)).thenReturn(load("example2-v1"));
     String source = load("example2-v2");
 
     RuleFailureModel referenceViolation1 = newReferenceViolation("2 branches need to be covered", null, 50);
@@ -78,7 +79,7 @@ public class ViolationTrackingTest {
 
   @Test
   public void newViolationNotAssiciatedWithLineShouldNotCauseNPE() throws Exception {
-    when(referenceAnalysis.getSource(project)).thenReturn(load("example2-v1"));
+    when(lastSnapshots.getSource(project)).thenReturn(load("example2-v1"));
     String source = load("example2-v2");
 
     RuleFailureModel referenceViolation1 = newReferenceViolation("Indentation", 7, 50);
@@ -100,7 +101,7 @@ public class ViolationTrackingTest {
    */
   @Test
   public void violationNotAssociatedWithLine() throws Exception {
-    when(referenceAnalysis.getSource(project)).thenReturn(load("example2-v1"));
+    when(lastSnapshots.getSource(project)).thenReturn(load("example2-v1"));
     String source = load("example2-v2");
 
     RuleFailureModel referenceViolation1 = newReferenceViolation("2 branches need to be covered", null, 50);
@@ -121,7 +122,7 @@ public class ViolationTrackingTest {
    */
   @Test
   public void example1() throws Exception {
-    when(referenceAnalysis.getSource(project)).thenReturn(load("example1-v1"));
+    when(lastSnapshots.getSource(project)).thenReturn(load("example1-v1"));
     String source = load("example1-v2");
 
     RuleFailureModel referenceViolation1 = newReferenceViolation("Indentation", 7, 50);
@@ -150,7 +151,7 @@ public class ViolationTrackingTest {
    */
   @Test
   public void example2() throws Exception {
-    when(referenceAnalysis.getSource(project)).thenReturn(load("example2-v1"));
+    when(lastSnapshots.getSource(project)).thenReturn(load("example2-v1"));
     String source = load("example2-v2");
 
     RuleFailureModel referenceViolation1 = newReferenceViolation("SystemPrintln", 5, 50);

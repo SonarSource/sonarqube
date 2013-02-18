@@ -517,7 +517,7 @@ public final class JRubyFacade {
     }
   }
 
-  public byte[] createDatabaseForDryRun(long projectId) {
+  public byte[] createDatabaseForDryRun(@Nullable Long projectId) {
     return get(DryRunDatabaseFactory.class).createDatabaseForDryRun(projectId);
   }
 
