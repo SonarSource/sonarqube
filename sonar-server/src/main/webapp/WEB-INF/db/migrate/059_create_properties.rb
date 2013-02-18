@@ -26,7 +26,15 @@ class CreateProperties < ActiveRecord::Migration
 	    t.column :text_value, :text, :null => true
       t.column :user_id, :integer, :null => true
     end
-    add_index :properties, :prop_key, :name => 'properties_key'
+
+    if dialect()=='mysql'
+      # Index of varchar column is limited to 767 bytes on mysql (<= 255 UTF-8 characters)
+      # See http://jira.codehaus.org/browse/SONAR-4137 and
+      # http://dev.mysql.com/doc/refman/5.6/en/innodb-restrictions.html
+      add_index :properties, :prop_key, :name => 'properties_key', :length => 255
+    else
+      add_index :properties, :prop_key, :name => 'properties_key'
+    end
   end
 
 end

@@ -87,6 +87,10 @@ end
 
 
 class ActiveRecord::Migration
+  def self.dialect
+    ActiveRecord::Base.configurations[ ENV['RAILS_ENV'] ]['dialect']
+  end
+
   def self.add_index(table_name, column_name, options = {})
     # ActiveRecord can generate index names longer than 30 characters, but that's
     # not supported by Oracle, the "Enterprise" database.

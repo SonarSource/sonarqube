@@ -33,10 +33,7 @@ class AddVariationColumns < ActiveRecord::Migration
     ProjectMeasure.reset_column_information
     Snapshot.reset_column_information
 
-    dialect = ActiveRecord::Base.configurations[ ENV['RAILS_ENV'] ]["dialect"]
-    say "Detected dialect: #{dialect}"
-
-    case dialect
+    case dialect()
     when "sqlserver"
       upgrade_sqlserver()
     when "oracle"
